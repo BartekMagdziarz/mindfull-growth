@@ -73,15 +73,40 @@
         <p class="text-sm">{{ journalStore.error }}</p>
         <p class="text-sm mt-2">Please refresh the page.</p>
       </div>
-      <div v-else class="text-on-surface-variant text-center">
-        <p v-if="journalStore.sortedEntries.length === 0">
+      <div v-else>
+        <!-- Empty State -->
+        <p
+          v-if="journalStore.sortedEntries.length === 0"
+          class="text-on-surface-variant text-center"
+        >
           No entries yet
         </p>
-        <p v-else>
-          {{ journalStore.sortedEntries.length }} journal
-          {{ journalStore.sortedEntries.length === 1 ? 'entry' : 'entries' }}
-          loaded.
-        </p>
+        <!-- Entries List -->
+        <div
+          v-else
+          class="flex flex-col gap-4"
+        >
+          <AppCard
+            v-for="entry in journalStore.sortedEntries"
+            :key="entry.id"
+            :elevation="1"
+            padding="none"
+            class="py-3 px-4 cursor-pointer transition-all duration-200 hover:shadow-elevation-2"
+            @click="() => {}"
+          >
+            <div class="space-y-1">
+              <h3 class="text-lg font-semibold text-on-surface">
+                {{ entry.title || 'Untitled entry' }}
+              </h3>
+              <p class="text-sm text-on-surface-variant">
+                {{ formatEntryDate(entry.createdAt) }}
+              </p>
+              <p class="text-on-surface-variant line-clamp-2 mt-2">
+                {{ entry.body }}
+              </p>
+            </div>
+          </AppCard>
+        </div>
       </div>
     </div>
 
@@ -96,6 +121,7 @@ import { useRouter } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { useJournalStore } from '@/stores/journal.store'
+import { formatEntryDate } from '@/utils/dateFormat'
 import {
   PencilIcon,
   LightBulbIcon,
