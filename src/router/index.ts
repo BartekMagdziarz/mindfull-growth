@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TodayView from '@/views/TodayView.vue'
 import JournalView from '@/views/JournalView.vue'
+import JournalNewView from '@/views/JournalNewView.vue'
 import EmotionsView from '@/views/EmotionsView.vue'
 import ExercisesView from '@/views/ExercisesView.vue'
 import ProfileView from '@/views/ProfileView.vue'
@@ -21,6 +22,11 @@ const router = createRouter({
       path: '/journal',
       name: 'journal',
       component: JournalView,
+    },
+    {
+      path: '/journal/new',
+      name: 'journal-new',
+      component: JournalNewView,
     },
     {
       path: '/emotions',
