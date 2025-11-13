@@ -37,8 +37,8 @@ test.describe('Journal Flow', () => {
     // 3. Click "Free form" button
     await page.click('text=Free form')
 
-    // Wait for navigation to journal/new
-    await page.waitForURL('**/journal/new', { timeout: 5000 })
+    // Wait for navigation to journal/edit
+    await page.waitForURL('**/journal/edit', { timeout: 5000 })
 
     // 4. Type body text in textarea
     const bodyTextarea = page.getByLabel(/journal entry/i)

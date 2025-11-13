@@ -1,12 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue'
 import { createPinia, setActivePinia } from 'pinia'
-import JournalNewView from '../JournalNewView.vue'
+import JournalEditorView from '../JournalEditorView.vue'
 
 // Mock the journal store
 const mockCreateEntry = vi.fn()
+const mockUpdateEntry = vi.fn()
 const mockStore = {
   createEntry: mockCreateEntry,
+  updateEntry: mockUpdateEntry,
+  entries: [],
 }
 
 vi.mock('@/stores/journal.store', () => {
@@ -15,20 +18,38 @@ vi.mock('@/stores/journal.store', () => {
   }
 })
 
+// Mock journalDexieRepository
+const mockGetById = vi.fn()
+vi.mock('@/repositories/journalDexieRepository', () => {
+  return {
+    journalDexieRepository: {
+      getById: mockGetById,
+    },
+  }
+})
+
 // Mock vue-router
 const mockPush = vi.fn()
+const mockRoute = {
+  params: {},
+  path: '/journal/edit',
+}
+
 vi.mock('vue-router', () => {
   return {
     useRouter: () => ({
       push: mockPush,
     }),
+    useRoute: () => mockRoute,
   }
 })
 
-describe('JournalNewView', () => {
+describe('JournalEditorView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    mockRoute.params = {}
+    mockRoute.path = '/journal/edit'
   })
 
   it('calls createEntry with correct payload when Save is clicked with valid data', async () => {
@@ -41,7 +62,7 @@ describe('JournalNewView', () => {
     }
     mockCreateEntry.mockResolvedValue(mockEntry)
 
-    render(JournalNewView)
+    render(JournalEditorView)
 
     // Fill in the form
     const titleInput = screen.getByLabelText(/title/i)
@@ -72,7 +93,7 @@ describe('JournalNewView', () => {
     }
     mockCreateEntry.mockResolvedValue(mockEntry)
 
-    render(JournalNewView)
+    render(JournalEditorView)
 
     // Fill in the body (required)
     const bodyTextarea = screen.getByLabelText(/journal entry/i)
@@ -89,7 +110,7 @@ describe('JournalNewView', () => {
   })
 
   it('shows validation error when Save is clicked with empty body', async () => {
-    render(JournalNewView)
+    render(JournalEditorView)
 
     // Don't fill in body, just click Save
     const saveButton = screen.getByRole('button', { name: /save/i })
@@ -107,7 +128,7 @@ describe('JournalNewView', () => {
   })
 
   it('navigates back to /journal when Cancel is clicked without calling createEntry', async () => {
-    render(JournalNewView)
+    render(JournalEditorView)
 
     // Click Cancel button
     const cancelButton = screen.getByRole('button', { name: /cancel/i })
@@ -129,7 +150,7 @@ describe('JournalNewView', () => {
     }
     mockCreateEntry.mockResolvedValue(mockEntry)
 
-    render(JournalNewView)
+    render(JournalEditorView)
 
     // Fill in only body (no title)
     const bodyTextarea = screen.getByLabelText(/journal entry/i)

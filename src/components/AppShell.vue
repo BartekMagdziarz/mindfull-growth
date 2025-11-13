@@ -17,7 +17,10 @@ import AppBottomNav from './AppBottomNav.vue'
 const route = useRoute()
 
 const showBackButton = computed(() => {
-  return route.path === '/journal/new'
+  return (
+    route.path === '/journal/edit' ||
+    route.path.match(/^\/journal\/[^/]+\/edit$/)
+  )
 })
 
 const backRoute = computed(() => {
