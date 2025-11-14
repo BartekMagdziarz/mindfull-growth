@@ -1,0 +1,198 @@
+Story 2 – People & Context Tag Domain Models
+
+Goal
+
+Define the domain models for user-created people and context tags, implement IndexedDB-backed repositories, and create a Pinia store to manage these tags. This story establishes the data layer for tagging functionality that will be used across Journal entries, Emotion logs, and (later) Exercises. Tags are user-created and stored locally, with duplicate prevention (case-insensitive matching).
+
+⸻
+
+Scope
+
+	1.	PeopleTag & ContextTag Type Definitions
+	•	Create TypeScript interfaces for tag types in a dedicated domain file (e.g. src/domain/tag.ts):
+
+export interface PeopleTag {
+  id: string;  // UUID
+  name: string; // User-defined name (e.g., "Mom", "John", "Work Team")
+}
+
+export interface ContextTag {
+  id: string;  // UUID
+  name: string; // User-defined name (e.g., "Morning Routine", "Work Meeting", "Exercise")
+}
+
+
+	2.	Repository Interfaces
+	•	Define repository interfaces to abstract persistence, e.g. src/repositories/tagRepository.ts:
+
+export interface PeopleTagRepository {
+  getAll(): Promise<PeopleTag[]>;
+  getById(id: string): Promise<PeopleTag | undefined>;
+  create(data: { name: string }): Promise<PeopleTag>;
+  delete(id: string): Promise<void>;
+}
+
+export interface ContextTagRepository {
+  getAll(): Promise<ContextTag[]>;
+  getById(id: string): Promise<ContextTag | undefined>;
+  create(data: { name: string }): Promise<ContextTag>;
+  delete(id: string): Promise<void>;
+}
+
+
+	•	These interfaces should be independent of any specific storage technology.
+
+	3.	IndexedDB-backed Repository Implementations
+	•	Implement concrete repositories using IndexedDB via Dexie, in a file such as src/repositories/tagDexieRepository.ts.
+	•	Database schema update:
+	•	Extend the existing MindfullGrowthDatabase class (from journalDexieRepository.ts) to include:
+	•	peopleTags table (id as primary key)
+	•	contextTags table (id as primary key)
+	•	Increment database version from 1 to 2 to add the new tables.
+	•	Note: This database version increment happens in Story 2. Story 5 (Database Migration Strategy) will handle migrating existing journal entries to add tagging fields, which may require another version increment or can be combined with this one. See "Inconsistencies & Notes" section below.
+	•	Responsibilities:
+	•	Implement all methods from PeopleTagRepository and ContextTagRepository:
+	•	getAll() returns all tags (unsorted; sorting can be handled at the store level if needed).
+	•	create():
+	•	Accepts name.
+	•	Generates id using `crypto.randomUUID()`.
+	•	Note: Duplicate checking (case-insensitive) will be handled at the store level, not in the repository. The repository simply creates what it's asked to create.
+	•	delete():
+	•	Removes the tag by id.
+	•	Ensure the implementation is resilient to:
+	•	Initial database creation and schema updates.
+	•	Error handling: If IndexedDB fails to initialize or operations fail, throw errors that can be caught and handled gracefully by the store (don't crash the app silently).
+	•	Note: Since the database instance is a singleton, ensure the schema update is handled correctly when the database is first accessed.
+
+	4.	Pinia Store for Tags
+	•	Create a Pinia store useTagStore in src/stores/tag.store.ts:
+	•	State:
+	•	peopleTags: PeopleTag[]
+	•	contextTags: ContextTag[]
+	•	isLoading: boolean
+	•	error: string | null
+	•	Actions:
+	•	loadPeopleTags():
+	•	Sets isLoading true.
+	•	Loads people tags from the repository.
+	•	Populates peopleTags in state.
+	•	Sets isLoading false on completion.
+	•	On error: sets error state and logs to console; does not crash the app.
+	•	loadContextTags():
+	•	Sets isLoading true.
+	•	Loads context tags from the repository.
+	•	Populates contextTags in state.
+	•	Sets isLoading false on completion.
+	•	On error: sets error state and logs to console; does not crash the app.
+	•	createPeopleTag(name: string): Promise<PeopleTag>:
+	•	First checks if a tag with the same name (case-insensitive) already exists in peopleTags.
+	•	If a duplicate exists, return the existing tag (do not create a new one).
+	•	If no duplicate exists, call repository.create({ name }).
+	•	Add the returned tag to peopleTags state.
+	•	Return the tag (either existing or newly created).
+	•	createContextTag(name: string): Promise<ContextTag>:
+	•	First checks if a tag with the same name (case-insensitive) already exists in contextTags.
+	•	If a duplicate exists, return the existing tag (do not create a new one).
+	•	If no duplicate exists, call repository.create({ name }).
+	•	Add the returned tag to contextTags state.
+	•	Return the tag (either existing or newly created).
+	•	deletePeopleTag(id: string): Promise<void>:
+	•	Calls repository.delete(id).
+	•	Removes the tag from peopleTags state.
+	•	deleteContextTag(id: string): Promise<void>:
+	•	Calls repository.delete(id).
+	•	Removes the tag from contextTags state.
+	•	Getters:
+	•	getPeopleTagById(id: string): PeopleTag | undefined
+	•	getContextTagById(id: string): ContextTag | undefined
+	•	Repository injection:
+	•	For simplicity, directly import the Dexie repository implementations in the store (e.g. `import { peopleTagDexieRepository, contextTagDexieRepository } from '@/repositories/tagDexieRepository'`).
+	•	A factory pattern can be added later if needed for testing flexibility, but direct import is recommended for now to keep things straightforward.
+
+	5.	Initial Load Behavior
+	•	Tags should be loaded when the store is first accessed or when the app starts.
+	•	For this story, tags can be loaded lazily when first needed (e.g., when a component that uses tags is mounted).
+	•	Alternatively, tags can be loaded on app initialization (in main.ts or App.vue).
+	•	Error handling:
+	•	If IndexedDB is unavailable or fails to initialize:
+	•	Log errors to the console for debugging.
+	•	Set the store's error state appropriately.
+	•	Do not crash the app – components should handle empty tag lists gracefully.
+
+	6.	Minimal Tests (Unit)
+	•	Add unit tests (Vitest) for useTagStore:
+	•	Creating a people tag:
+	•	Sets id and name.
+	•	Adds the tag to peopleTags state.
+	•	Creating a context tag:
+	•	Sets id and name.
+	•	Adds the tag to contextTags state.
+	•	Duplicate tag creation (case-insensitive):
+	•	Creating "Mom" when "mom" already exists returns the existing tag.
+	•	Creating "Work Team" when "work team" already exists returns the existing tag.
+	•	No duplicate is created in the repository.
+	•	Loading tags:
+	•	Populates peopleTags and contextTags based on data returned from repositories.
+	•	Deleting a tag:
+	•	Removes it from the appropriate state array.
+	•	Use mocked repository implementations for tests (no need to hit real IndexedDB in unit tests).
+
+⸻
+
+Acceptance Criteria
+
+	•	PeopleTag and ContextTag interfaces are defined and used consistently in repositories and store.
+	•	PeopleTagRepository and ContextTagRepository interfaces exist and describe the required methods.
+	•	Concrete IndexedDB-backed repository implementations:
+	•	Can create, read, and delete tags.
+	•	Generate IDs on creation.
+	•	Database schema is updated to version 2 with peopleTags and contextTags tables.
+	•	useTagStore:
+	•	Maintains in-memory lists of peopleTags and contextTags.
+	•	Provides loadPeopleTags, loadContextTags, createPeopleTag, createContextTag, deletePeopleTag, and deleteContextTag actions.
+	•	Exposes getPeopleTagById and getContextTagById getters.
+	•	Handles duplicate tag creation (case-insensitive): returns existing tag instead of creating a duplicate.
+	•	Successfully populates tags from repositories on load actions.
+	•	The app can be started and:
+	•	tagStore.loadPeopleTags() and tagStore.loadContextTags() execute without throwing unhandled errors.
+	•	If any tags exist in IndexedDB, they are loaded into state.
+	•	If IndexedDB fails, the app shows an error state but does not crash.
+	•	Creating a tag with a duplicate name (case-insensitive) returns the existing tag and does not create a duplicate in IndexedDB.
+	•	Unit tests for useTagStore pass.
+	•	Linting and TypeScript checks pass with no new errors.
+
+⸻
+
+Out of Scope
+
+	•	UI components for tag input/selection (will be implemented in Story 4: Tag Input Components).
+	•	Integration with Journal entries or Emotion logs (will be implemented in later stories).
+	•	Tag management UI (viewing all tags, editing tag names, merging duplicates) – this will come in a later epic.
+	•	Tag search or filtering functionality.
+	•	Bulk tag operations.
+	•	Tag categories or hierarchies.
+	•	E2E tests (they will make more sense once UI is wired up in later stories).
+
+⸻
+
+Inconsistencies & Notes
+
+	1.	Database Version Management:
+	•	Story 2 increments the database version from 1 to 2 to add peopleTags and contextTags tables.
+	•	Story 5 (Database Migration Strategy) mentions incrementing the database version to add emotionLogs table and migrate journal entries.
+	•	Resolution options:
+	•	Option A: Story 2 increments to version 2 (for tag tables). Story 5 increments to version 3 (for emotionLogs table and journal entry migration).
+	•	Option B: Story 2 creates the tag tables but doesn't increment version yet. Story 5 increments to version 2 and handles all schema changes together.
+	•	Recommendation: Use Option A (Story 2 → version 2, Story 5 → version 3) as it follows incremental development and allows tag functionality to be tested independently before the emotion log feature is implemented.
+
+	2.	Database Instance Sharing:
+	•	The current database instance (MindfullGrowthDatabase) is defined in journalDexieRepository.ts as a singleton.
+	•	Story 2 needs to extend this same database instance to add new tables.
+	•	Resolution: The tagDexieRepository.ts file should import and extend the existing MindfullGrowthDatabase class, or the database class should be moved to a shared location (e.g., src/db/database.ts) that both repositories can import.
+	•	Recommendation: For now, extend the existing class in tagDexieRepository.ts. If this becomes unwieldy, refactor to a shared database module in a future story.
+
+	3.	Tag Loading Strategy:
+	•	Epic 2 mentions "Tags are loaded on app start or when the store is first accessed."
+	•	This story allows flexibility: tags can be loaded lazily when first needed, or on app initialization.
+	•	The exact loading strategy can be refined in later stories based on performance needs.
+

@@ -1,0 +1,110 @@
+Emotion;Pleasantness;Energy;Description
+Enraged;1;10;Overwhelmed by intense uncontrollable anger
+Panicked;2;10;Feeling sudden terror and desperate to escape
+Stressed;3;10;Under heavy pressure and mentally overburdened
+Jittery;4;10;Restless nervous energy with difficulty staying still
+Shocked;5;10;Suddenly stunned by something unexpected or upsetting
+Surprised;6;10;Briefly startled by something unexpected
+Upbeat;7;10;Energetic and generally positive in mood
+Festive;8;10;Excited and ready to celebrate with others
+Exhilarated;9;10;Thrilled with intense positive excitement
+Ecstatic;10;10;Overwhelmed by extreme joy and delight
+
+Livid;1;9;Seething with very strong anger
+Furious;2;9;Burning with rage and hostility
+Frustrated;3;9;Blocked from goals and annoyed about it
+Tense;4;9;Muscles and mind tight with worry or strain
+Stunned;5;9;Temporarily unable to react from shock
+Hyper;6;9;Overstimulated with too much nervous energy
+Cheerful;7;9;Lively and openly happy
+Motivated;8;9;Driven to act and pursue goals
+Inspired;9;9;Filled with ideas and desire to create
+Elated;10;9;Very happy and lifted in spirit
+
+Fuming;1;8;Silently boiling with anger
+Frightened;2;8;Strongly afraid of real or imagined threat
+Angry;3;8;Feeling hostile and upset about something
+Nervous;4;8;On edge and worried about what might happen
+Restless;5;8;Unable to relax needing to move or act
+Energized;6;8;Filled with usable physical or mental energy
+Lively;7;8;Animated active and full of life
+Enthusiastic;8;8;Eagerly engaged and excited about something
+Optimistic;9;8;Expecting good outcomes and opportunities
+Excited;10;8;Highly aroused in a positive anticipatory way
+
+Anxious;1;7;Worried and uneasy about potential problems
+Apprehensive;2;7;Nervously expecting something unpleasant
+Worried;3;7;Preoccupied with concerns or possible trouble
+Irritated;4;7;Mildly angry and easily annoyed
+Annoyed;5;7;Bothered by something repetitive or unpleasant
+Pleased;6;7;Moderately happy with an outcome
+Happy;7;7;Generally joyful and satisfied with life
+Focused;8;7;Alert and concentrating on a task
+Proud;9;7;Feeling satisfied with one’s achievements
+Thrilled;10;7;Strongly delighted by good news or events
+
+Repulsed;1;6;Deeply turned off or disgusted by something
+Troubled;2;6;Preoccupied with serious concerns or worries
+Concerned;3;6;Thoughtfully worried about someone or something
+Uneasy;4;6;Vaguely uncomfortable without clear reason
+Peeved;5;6;Mildly but clearly annoyed
+Pleasant;6;6;Experiencing gentle agreeable enjoyment
+Joyful;7;6;Warm bright sustained happiness
+Hopeful;8;6;Expecting favorable possibilities ahead
+Playful;9;6;Lighthearted and inclined to joke or have fun
+Blissful;10;6;Calmly absorbed in deep happiness
+
+Disgusted;1;5;Strongly revolted and wanting to withdraw
+Glum;2;5;Quietly sad and gloomy
+Disappointed;3;5;Let down by unmet expectations
+Down;4;5;Generally low and mildly sad
+Apathetic;5;5;Lacking interest energy or motivation
+At ease;6;5;Comfortable relaxed and unthreatened
+Easygoing;7;5;Relaxed flexible and not easily upset
+Content;8;5;Quietly satisfied with what is
+Loving;9;5;Feeling warm affection and care for others
+Fulfilled;10;5;Deep sense of meaning and life satisfaction
+
+Pessimistic;1;4;Expecting negative outcomes and problems
+Morose;2;4;Sullen gloomy and hard to cheer up
+Discouraged;3;4;Low confidence after setbacks
+Sad;4;4;Hurting emotionally or grieving loss
+Bored;5;4;Unstimulated and uninterested in the moment
+Calm;6;4;Quiet mind and relaxed body
+Secure;7;4;Feeling safe stable and supported
+Satisfied;8;4;Needs or goals adequately met
+Grateful;9;4;Appreciative of benefits and kindness received
+Touched;10;4;Emotionally moved by someone or something
+
+Alienated;1;3;Feeling isolated and disconnected from others
+Miserable;2;3;Deeply unhappy and uncomfortable
+Lonely;3;3;Missing meaningful connection with others
+Disheartened;4;3;Spirit weakened after repeated difficulties
+Tired;5;3;Low physical or mental energy
+Relaxed;6;3;Loosely at rest without tension
+Chill;7;3;Laid-back casual and unbothered
+Restful;8;3;Peacefully recovering energy
+Blessed;9;3;Quietly aware of good fortune
+Balanced;10;3;Emotionally steady and well centered
+
+Despondent;1;2;Almost without hope or motivation
+Depressed;2;2;Persistently low mood and loss of interest
+Sullen;3;2;Moody withdrawn and resentful
+Exhausted;4;2;Completely worn out of energy
+Fatigued;5;2;Very tired and drained
+Mellow;6;2;Gentle soft and easygoing
+Thoughtful;7;2;Quietly reflective and considering carefully
+Peaceful;8;2;Free from disturbance or inner conflict
+Comfy;9;2;Physically and emotionally snug and relaxed
+Carefree;10;2;Untroubled and free of worries
+
+Despair;1;1;Feeling hopeless with no way out
+Hopeless;2;1;Seeing no realistic possibility of improvement
+Desolate;3;1;Emotionally empty abandoned or ruined
+Spent;4;1;Completely used up with nothing left to give
+Drained;5;1;Emotionally and physically depleted
+Sleepy;6;1;Ready to fall asleep with heavy fatigue
+Complacent;7;1;Uncritically satisfied and not seeking change
+Tranquil;8;1;Deeply calm quiet and undisturbed
+Cozy;9;1;Warm safe and comfortably enclosed
+Serene;10;1;Stable unshakable inner calm and clarity

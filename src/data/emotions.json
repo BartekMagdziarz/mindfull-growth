@@ -1,0 +1,702 @@
+[
+  {
+    "id": "ca55b2b6-b19d-4ed0-a332-4c24dd8dc3b3",
+    "name": "Enraged",
+    "pleasantness": 1,
+    "energy": 10,
+    "description": "Overwhelmed by intense uncontrollable anger"
+  },
+  {
+    "id": "736aab6a-cd3b-435d-9347-b036cc293cba",
+    "name": "Panicked",
+    "pleasantness": 2,
+    "energy": 10,
+    "description": "Feeling sudden terror and desperate to escape"
+  },
+  {
+    "id": "3b36a8ec-d2f3-4958-9055-b345fface3db",
+    "name": "Stressed",
+    "pleasantness": 3,
+    "energy": 10,
+    "description": "Under heavy pressure and mentally overburdened"
+  },
+  {
+    "id": "e2ef2e53-112a-46bf-a98c-a52f7b586693",
+    "name": "Jittery",
+    "pleasantness": 4,
+    "energy": 10,
+    "description": "Restless nervous energy with difficulty staying still"
+  },
+  {
+    "id": "d405be6e-be9d-4d9c-8a8e-77430810ccc6",
+    "name": "Shocked",
+    "pleasantness": 5,
+    "energy": 10,
+    "description": "Suddenly stunned by something unexpected or upsetting"
+  },
+  {
+    "id": "c753124d-03c1-49b1-860f-da92d0cfd573",
+    "name": "Surprised",
+    "pleasantness": 6,
+    "energy": 10,
+    "description": "Briefly startled by something unexpected"
+  },
+  {
+    "id": "00468ed2-ef83-45a4-a959-1ab2e6c6d32e",
+    "name": "Upbeat",
+    "pleasantness": 7,
+    "energy": 10,
+    "description": "Energetic and generally positive in mood"
+  },
+  {
+    "id": "53326014-59a1-420e-8837-d114649c9dae",
+    "name": "Festive",
+    "pleasantness": 8,
+    "energy": 10,
+    "description": "Excited and ready to celebrate with others"
+  },
+  {
+    "id": "9ccce591-97fe-455d-88c4-bece81165bb4",
+    "name": "Exhilarated",
+    "pleasantness": 9,
+    "energy": 10,
+    "description": "Thrilled with intense positive excitement"
+  },
+  {
+    "id": "c7eeae45-6850-48a4-9d36-9ee05338a7b7",
+    "name": "Ecstatic",
+    "pleasantness": 10,
+    "energy": 10,
+    "description": "Overwhelmed by extreme joy and delight"
+  },
+  {
+    "id": "1ebcd440-6997-4c7a-99b0-451a7866ae83",
+    "name": "Livid",
+    "pleasantness": 1,
+    "energy": 9,
+    "description": "Seething with very strong anger"
+  },
+  {
+    "id": "a0acd01e-f00e-408f-89e0-3600cf36ecb6",
+    "name": "Furious",
+    "pleasantness": 2,
+    "energy": 9,
+    "description": "Burning with rage and hostility"
+  },
+  {
+    "id": "44b7d631-e945-4ff3-9b11-a5fe9837d47b",
+    "name": "Frustrated",
+    "pleasantness": 3,
+    "energy": 9,
+    "description": "Blocked from goals and annoyed about it"
+  },
+  {
+    "id": "dd586171-5d55-4ff5-b294-5d17091f65e6",
+    "name": "Tense",
+    "pleasantness": 4,
+    "energy": 9,
+    "description": "Muscles and mind tight with worry or strain"
+  },
+  {
+    "id": "82c32ddf-4eef-44c5-a559-7195708826bd",
+    "name": "Stunned",
+    "pleasantness": 5,
+    "energy": 9,
+    "description": "Temporarily unable to react from shock"
+  },
+  {
+    "id": "aa8ed386-d650-4863-af7f-58fe495bc801",
+    "name": "Hyper",
+    "pleasantness": 6,
+    "energy": 9,
+    "description": "Overstimulated with too much nervous energy"
+  },
+  {
+    "id": "77302c04-1d79-4c9e-b06c-32d137e84f0b",
+    "name": "Cheerful",
+    "pleasantness": 7,
+    "energy": 9,
+    "description": "Lively and openly happy"
+  },
+  {
+    "id": "d9e2dced-1c4f-40d5-b9df-ca5854f2ec81",
+    "name": "Motivated",
+    "pleasantness": 8,
+    "energy": 9,
+    "description": "Driven to act and pursue goals"
+  },
+  {
+    "id": "bea43562-7d37-492f-b47c-7eabe34500cf",
+    "name": "Inspired",
+    "pleasantness": 9,
+    "energy": 9,
+    "description": "Filled with ideas and desire to create"
+  },
+  {
+    "id": "a3de7920-cb9f-4561-91bd-ef3c237050b2",
+    "name": "Elated",
+    "pleasantness": 10,
+    "energy": 9,
+    "description": "Very happy and lifted in spirit"
+  },
+  {
+    "id": "3db5145e-ac12-43b9-b44f-cf6e3d5eba1c",
+    "name": "Fuming",
+    "pleasantness": 1,
+    "energy": 8,
+    "description": "Silently boiling with anger"
+  },
+  {
+    "id": "b00ce167-e6b6-49c0-ae70-e8185d5ebb3b",
+    "name": "Frightened",
+    "pleasantness": 2,
+    "energy": 8,
+    "description": "Strongly afraid of real or imagined threat"
+  },
+  {
+    "id": "dcfa0df0-b340-4675-9c3e-b01bce033885",
+    "name": "Angry",
+    "pleasantness": 3,
+    "energy": 8,
+    "description": "Feeling hostile and upset about something"
+  },
+  {
+    "id": "0781b282-3624-4101-9470-4aeb87c9396c",
+    "name": "Nervous",
+    "pleasantness": 4,
+    "energy": 8,
+    "description": "On edge and worried about what might happen"
+  },
+  {
+    "id": "97cec146-970d-4a4a-aee5-7e95b6d52c1f",
+    "name": "Restless",
+    "pleasantness": 5,
+    "energy": 8,
+    "description": "Unable to relax needing to move or act"
+  },
+  {
+    "id": "5bf3657b-2da0-4078-ad2d-8a969ef4ae50",
+    "name": "Energized",
+    "pleasantness": 6,
+    "energy": 8,
+    "description": "Filled with usable physical or mental energy"
+  },
+  {
+    "id": "1c88f737-c83f-42ac-962d-5ca051efb428",
+    "name": "Lively",
+    "pleasantness": 7,
+    "energy": 8,
+    "description": "Animated active and full of life"
+  },
+  {
+    "id": "0f340067-3f21-4656-8fb6-d3301969a530",
+    "name": "Enthusiastic",
+    "pleasantness": 8,
+    "energy": 8,
+    "description": "Eagerly engaged and excited about something"
+  },
+  {
+    "id": "4c4f0d18-90b5-4da5-a999-4202e5b6b7c4",
+    "name": "Optimistic",
+    "pleasantness": 9,
+    "energy": 8,
+    "description": "Expecting good outcomes and opportunities"
+  },
+  {
+    "id": "05cc216c-3955-45f7-9725-94c07bfbfa8b",
+    "name": "Excited",
+    "pleasantness": 10,
+    "energy": 8,
+    "description": "Highly aroused in a positive anticipatory way"
+  },
+  {
+    "id": "4936b2f6-b340-480e-9260-510abf9af9f1",
+    "name": "Anxious",
+    "pleasantness": 1,
+    "energy": 7,
+    "description": "Worried and uneasy about potential problems"
+  },
+  {
+    "id": "14815a0e-4b31-458f-9848-d38fc43f67d1",
+    "name": "Apprehensive",
+    "pleasantness": 2,
+    "energy": 7,
+    "description": "Nervously expecting something unpleasant"
+  },
+  {
+    "id": "75ab24d3-c9fa-4ea3-8f7d-bde4db406f44",
+    "name": "Worried",
+    "pleasantness": 3,
+    "energy": 7,
+    "description": "Preoccupied with concerns or possible trouble"
+  },
+  {
+    "id": "7691a787-0130-443b-a406-ec9942e272cb",
+    "name": "Irritated",
+    "pleasantness": 4,
+    "energy": 7,
+    "description": "Mildly angry and easily annoyed"
+  },
+  {
+    "id": "a408e10d-3359-4c7c-aacc-85788f47fca7",
+    "name": "Annoyed",
+    "pleasantness": 5,
+    "energy": 7,
+    "description": "Bothered by something repetitive or unpleasant"
+  },
+  {
+    "id": "2623e9f9-17fd-4a0e-a58b-2cd8791cfbd5",
+    "name": "Pleased",
+    "pleasantness": 6,
+    "energy": 7,
+    "description": "Moderately happy with an outcome"
+  },
+  {
+    "id": "1ccbaa61-4fb4-4796-a0fb-1b8eebdca683",
+    "name": "Happy",
+    "pleasantness": 7,
+    "energy": 7,
+    "description": "Generally joyful and satisfied with life"
+  },
+  {
+    "id": "4ecda903-9948-4b78-b084-96fd41f34a44",
+    "name": "Focused",
+    "pleasantness": 8,
+    "energy": 7,
+    "description": "Alert and concentrating on a task"
+  },
+  {
+    "id": "94d41ebb-803e-49ac-8a6d-f878cb858313",
+    "name": "Proud",
+    "pleasantness": 9,
+    "energy": 7,
+    "description": "Feeling satisfied with one’s achievements"
+  },
+  {
+    "id": "c3958d0a-fda2-4edd-a5b6-051e14632dcc",
+    "name": "Thrilled",
+    "pleasantness": 10,
+    "energy": 7,
+    "description": "Strongly delighted by good news or events"
+  },
+  {
+    "id": "6e19da66-1db2-425f-bd30-12f0c5a3f472",
+    "name": "Repulsed",
+    "pleasantness": 1,
+    "energy": 6,
+    "description": "Deeply turned off or disgusted by something"
+  },
+  {
+    "id": "af5e2e43-6506-4723-b7cd-df7b62bd3bd3",
+    "name": "Troubled",
+    "pleasantness": 2,
+    "energy": 6,
+    "description": "Preoccupied with serious concerns or worries"
+  },
+  {
+    "id": "afc6e843-0e12-4fcb-bb0e-e4973b274743",
+    "name": "Concerned",
+    "pleasantness": 3,
+    "energy": 6,
+    "description": "Thoughtfully worried about someone or something"
+  },
+  {
+    "id": "3ee10964-1c62-42a9-8040-49a6f5c37b44",
+    "name": "Uneasy",
+    "pleasantness": 4,
+    "energy": 6,
+    "description": "Vaguely uncomfortable without clear reason"
+  },
+  {
+    "id": "61a85124-37ed-4a35-a95f-0adb2962a340",
+    "name": "Peeved",
+    "pleasantness": 5,
+    "energy": 6,
+    "description": "Mildly but clearly annoyed"
+  },
+  {
+    "id": "1bdcc075-447d-464f-a489-7aafce658af5",
+    "name": "Pleasant",
+    "pleasantness": 6,
+    "energy": 6,
+    "description": "Experiencing gentle agreeable enjoyment"
+  },
+  {
+    "id": "f7fa749c-b4f3-4e72-a05b-c31e453370ea",
+    "name": "Joyful",
+    "pleasantness": 7,
+    "energy": 6,
+    "description": "Warm bright sustained happiness"
+  },
+  {
+    "id": "b8d481ce-a4a6-48e7-96cf-43fba4ac0e09",
+    "name": "Hopeful",
+    "pleasantness": 8,
+    "energy": 6,
+    "description": "Expecting favorable possibilities ahead"
+  },
+  {
+    "id": "fc95f84f-c070-4d14-881e-7e01717e65b1",
+    "name": "Playful",
+    "pleasantness": 9,
+    "energy": 6,
+    "description": "Lighthearted and inclined to joke or have fun"
+  },
+  {
+    "id": "41f77b68-2aeb-420f-ae91-9580bc7b2537",
+    "name": "Blissful",
+    "pleasantness": 10,
+    "energy": 6,
+    "description": "Calmly absorbed in deep happiness"
+  },
+  {
+    "id": "d538b4f5-9e9e-48e1-ba8a-74d27441fdb9",
+    "name": "Disgusted",
+    "pleasantness": 1,
+    "energy": 5,
+    "description": "Strongly revolted and wanting to withdraw"
+  },
+  {
+    "id": "a8519801-55d0-4954-8e32-265008d59058",
+    "name": "Glum",
+    "pleasantness": 2,
+    "energy": 5,
+    "description": "Quietly sad and gloomy"
+  },
+  {
+    "id": "71f5407c-2490-4cb0-9bac-bbd0cd083b60",
+    "name": "Disappointed",
+    "pleasantness": 3,
+    "energy": 5,
+    "description": "Let down by unmet expectations"
+  },
+  {
+    "id": "fc4e97b1-1156-4ea2-9379-69e2d52447f5",
+    "name": "Down",
+    "pleasantness": 4,
+    "energy": 5,
+    "description": "Generally low and mildly sad"
+  },
+  {
+    "id": "f33c2321-11fe-429d-bffb-1282ea8ef464",
+    "name": "Apathetic",
+    "pleasantness": 5,
+    "energy": 5,
+    "description": "Lacking interest energy or motivation"
+  },
+  {
+    "id": "c09cc910-5f61-4360-99a3-6ce9005f9519",
+    "name": "At ease",
+    "pleasantness": 6,
+    "energy": 5,
+    "description": "Comfortable relaxed and unthreatened"
+  },
+  {
+    "id": "a0ce108d-0861-4c3a-a952-b272d2454644",
+    "name": "Easygoing",
+    "pleasantness": 7,
+    "energy": 5,
+    "description": "Relaxed flexible and not easily upset"
+  },
+  {
+    "id": "c4434366-2a40-462a-b011-0d27eb1db2cc",
+    "name": "Content",
+    "pleasantness": 8,
+    "energy": 5,
+    "description": "Quietly satisfied with what is"
+  },
+  {
+    "id": "0a6fa382-c3bd-44d9-9687-ef384e8e0cba",
+    "name": "Loving",
+    "pleasantness": 9,
+    "energy": 5,
+    "description": "Feeling warm affection and care for others"
+  },
+  {
+    "id": "3fcbaeee-41f3-44f3-bceb-2e39791a8a5e",
+    "name": "Fulfilled",
+    "pleasantness": 10,
+    "energy": 5,
+    "description": "Deep sense of meaning and life satisfaction"
+  },
+  {
+    "id": "bf668b97-7e83-447c-baf5-e3d1d9108b21",
+    "name": "Pessimistic",
+    "pleasantness": 1,
+    "energy": 4,
+    "description": "Expecting negative outcomes and problems"
+  },
+  {
+    "id": "a1681b00-5864-4218-b588-0e4b54efe474",
+    "name": "Morose",
+    "pleasantness": 2,
+    "energy": 4,
+    "description": "Sullen gloomy and hard to cheer up"
+  },
+  {
+    "id": "bbca8b62-249f-4463-8c9d-bc9562b63656",
+    "name": "Discouraged",
+    "pleasantness": 3,
+    "energy": 4,
+    "description": "Low confidence after setbacks"
+  },
+  {
+    "id": "b4bf2b93-9f56-494f-a2ca-ce47e830442f",
+    "name": "Sad",
+    "pleasantness": 4,
+    "energy": 4,
+    "description": "Hurting emotionally or grieving loss"
+  },
+  {
+    "id": "03d0a7d4-a669-4fc1-8acb-aca73a49f00c",
+    "name": "Bored",
+    "pleasantness": 5,
+    "energy": 4,
+    "description": "Unstimulated and uninterested in the moment"
+  },
+  {
+    "id": "c0becc7b-c6d6-4821-948f-0f87d47b93fa",
+    "name": "Calm",
+    "pleasantness": 6,
+    "energy": 4,
+    "description": "Quiet mind and relaxed body"
+  },
+  {
+    "id": "b3e9cec2-ea95-46e6-80da-27ccbe528902",
+    "name": "Secure",
+    "pleasantness": 7,
+    "energy": 4,
+    "description": "Feeling safe stable and supported"
+  },
+  {
+    "id": "16cfa1f6-4b31-416d-a6b7-8b6b1973baf8",
+    "name": "Satisfied",
+    "pleasantness": 8,
+    "energy": 4,
+    "description": "Needs or goals adequately met"
+  },
+  {
+    "id": "d03da266-0aac-48cc-b441-4f5dc5a90c15",
+    "name": "Grateful",
+    "pleasantness": 9,
+    "energy": 4,
+    "description": "Appreciative of benefits and kindness received"
+  },
+  {
+    "id": "81041cf1-0536-4b3c-b1db-0d50af17663c",
+    "name": "Touched",
+    "pleasantness": 10,
+    "energy": 4,
+    "description": "Emotionally moved by someone or something"
+  },
+  {
+    "id": "2e7e7774-a20d-4ebe-8c61-3d9bfe920504",
+    "name": "Alienated",
+    "pleasantness": 1,
+    "energy": 3,
+    "description": "Feeling isolated and disconnected from others"
+  },
+  {
+    "id": "f11ebf2a-b2de-4681-9c9c-8c9759cf308b",
+    "name": "Miserable",
+    "pleasantness": 2,
+    "energy": 3,
+    "description": "Deeply unhappy and uncomfortable"
+  },
+  {
+    "id": "101ebec9-4250-4e1a-8066-92ec690723e7",
+    "name": "Lonely",
+    "pleasantness": 3,
+    "energy": 3,
+    "description": "Missing meaningful connection with others"
+  },
+  {
+    "id": "441157b2-386f-4f89-9392-d19ae24417a9",
+    "name": "Disheartened",
+    "pleasantness": 4,
+    "energy": 3,
+    "description": "Spirit weakened after repeated difficulties"
+  },
+  {
+    "id": "e0e862c8-8407-4d31-94cd-1a4852625c0d",
+    "name": "Tired",
+    "pleasantness": 5,
+    "energy": 3,
+    "description": "Low physical or mental energy"
+  },
+  {
+    "id": "c149fa9c-1ddd-49d7-8d3f-45fd7fb62918",
+    "name": "Relaxed",
+    "pleasantness": 6,
+    "energy": 3,
+    "description": "Loosely at rest without tension"
+  },
+  {
+    "id": "b52eea67-672f-4be2-b1cc-274e7edbaf68",
+    "name": "Chill",
+    "pleasantness": 7,
+    "energy": 3,
+    "description": "Laid-back casual and unbothered"
+  },
+  {
+    "id": "27edca4f-4301-4d3e-9600-6ac842df91e6",
+    "name": "Restful",
+    "pleasantness": 8,
+    "energy": 3,
+    "description": "Peacefully recovering energy"
+  },
+  {
+    "id": "e7447418-717c-45e3-a008-bb9bc34dc8ba",
+    "name": "Blessed",
+    "pleasantness": 9,
+    "energy": 3,
+    "description": "Quietly aware of good fortune"
+  },
+  {
+    "id": "01287762-b88f-4a29-9618-2fe4d01915ba",
+    "name": "Balanced",
+    "pleasantness": 10,
+    "energy": 3,
+    "description": "Emotionally steady and well centered"
+  },
+  {
+    "id": "9186efe7-a687-4987-82ae-1e98ca702a0f",
+    "name": "Despondent",
+    "pleasantness": 1,
+    "energy": 2,
+    "description": "Almost without hope or motivation"
+  },
+  {
+    "id": "2ce90729-84e3-4278-814d-09c7c20b2d27",
+    "name": "Depressed",
+    "pleasantness": 2,
+    "energy": 2,
+    "description": "Persistently low mood and loss of interest"
+  },
+  {
+    "id": "04bdd07e-6a9c-453f-bafd-928f3b3a9b7e",
+    "name": "Sullen",
+    "pleasantness": 3,
+    "energy": 2,
+    "description": "Moody withdrawn and resentful"
+  },
+  {
+    "id": "1cc0beb8-889f-4938-86a4-92a84a93b8c9",
+    "name": "Exhausted",
+    "pleasantness": 4,
+    "energy": 2,
+    "description": "Completely worn out of energy"
+  },
+  {
+    "id": "78a5c151-8522-47be-9bfb-83956e258422",
+    "name": "Fatigued",
+    "pleasantness": 5,
+    "energy": 2,
+    "description": "Very tired and drained"
+  },
+  {
+    "id": "d7c2a867-12bf-45af-9a47-c7e99da8c451",
+    "name": "Mellow",
+    "pleasantness": 6,
+    "energy": 2,
+    "description": "Gentle soft and easygoing"
+  },
+  {
+    "id": "a82d2c6e-e6b9-4f9d-9c88-d99b073ac320",
+    "name": "Thoughtful",
+    "pleasantness": 7,
+    "energy": 2,
+    "description": "Quietly reflective and considering carefully"
+  },
+  {
+    "id": "e542a8b5-1c01-4d0c-a58a-b3fd47dc5677",
+    "name": "Peaceful",
+    "pleasantness": 8,
+    "energy": 2,
+    "description": "Free from disturbance or inner conflict"
+  },
+  {
+    "id": "37a032f9-6a33-463d-a473-20adad2ca827",
+    "name": "Comfy",
+    "pleasantness": 9,
+    "energy": 2,
+    "description": "Physically and emotionally snug and relaxed"
+  },
+  {
+    "id": "6b3ebafa-21cf-4604-8bef-1d616b301bf2",
+    "name": "Carefree",
+    "pleasantness": 10,
+    "energy": 2,
+    "description": "Untroubled and free of worries"
+  },
+  {
+    "id": "f61a1be7-eb2b-40fe-b10e-64d42e371b72",
+    "name": "Despair",
+    "pleasantness": 1,
+    "energy": 1,
+    "description": "Feeling hopeless with no way out"
+  },
+  {
+    "id": "4562fea1-6eb2-4637-a0c9-a8f5cb26a087",
+    "name": "Hopeless",
+    "pleasantness": 2,
+    "energy": 1,
+    "description": "Seeing no realistic possibility of improvement"
+  },
+  {
+    "id": "1b070e6c-568d-4c66-b314-f285fde8bd32",
+    "name": "Desolate",
+    "pleasantness": 3,
+    "energy": 1,
+    "description": "Emotionally empty abandoned or ruined"
+  },
+  {
+    "id": "ab91d260-aa25-4d0b-9727-5efc5a01a8bd",
+    "name": "Spent",
+    "pleasantness": 4,
+    "energy": 1,
+    "description": "Completely used up with nothing left to give"
+  },
+  {
+    "id": "7fc55adb-aaf6-446e-a5c3-99773f14985d",
+    "name": "Drained",
+    "pleasantness": 5,
+    "energy": 1,
+    "description": "Emotionally and physically depleted"
+  },
+  {
+    "id": "b60a2d38-1584-4977-a083-17732e8a903e",
+    "name": "Sleepy",
+    "pleasantness": 6,
+    "energy": 1,
+    "description": "Ready to fall asleep with heavy fatigue"
+  },
+  {
+    "id": "b6f79798-dba9-4425-b901-5b576b966414",
+    "name": "Complacent",
+    "pleasantness": 7,
+    "energy": 1,
+    "description": "Uncritically satisfied and not seeking change"
+  },
+  {
+    "id": "363f6afa-b01a-4242-b591-b01bd7cc6e78",
+    "name": "Tranquil",
+    "pleasantness": 8,
+    "energy": 1,
+    "description": "Deeply calm quiet and undisturbed"
+  },
+  {
+    "id": "b2198b26-2ffb-4a62-9fcf-ef78356263c4",
+    "name": "Cozy",
+    "pleasantness": 9,
+    "energy": 1,
+    "description": "Warm safe and comfortably enclosed"
+  },
+  {
+    "id": "48bf9a44-03a8-4b89-ac2c-5a4727d04e83",
+    "name": "Serene",
+    "pleasantness": 10,
+    "energy": 1,
+    "description": "Stable unshakable inner calm and clarity"
+  }
+]

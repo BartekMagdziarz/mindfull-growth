@@ -18,7 +18,7 @@ Everything is built around a shared emotion system: a 2×2 grid (pleasantness ×
 You’re basically managing a few clean object types:
 	Emotion
 	•	From the shared “emotion database”.
-	•	Has: id, name, pleasantness, energy
+	•	Has: id, name, pleasantness, energy, description
 
 	JournalEntry
 	•	Freeform text (or guided/periodic in future).

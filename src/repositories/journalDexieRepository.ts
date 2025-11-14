@@ -1,21 +1,29 @@
 import Dexie, { type Table } from 'dexie'
 import type { JournalEntry } from '@/domain/journal'
 import type { JournalRepository } from './journalRepository'
+import type { PeopleTag } from '@/domain/tag'
+import type { ContextTag } from '@/domain/tag'
 
 // Define the database schema
-class MindfullGrowthDatabase extends Dexie {
+export class MindfullGrowthDatabase extends Dexie {
   journalEntries!: Table<JournalEntry, string>
+  peopleTags!: Table<PeopleTag, string>
+  contextTags!: Table<ContextTag, string>
 
   constructor() {
     super('MindfullGrowthDB')
     this.version(1).stores({
       journalEntries: 'id', // id is the primary key
     })
+    this.version(2).stores({
+      peopleTags: 'id', // id is the primary key
+      contextTags: 'id', // id is the primary key
+    })
   }
 }
 
 // Create a singleton database instance
-const db = new MindfullGrowthDatabase()
+export const db = new MindfullGrowthDatabase()
 
 // Implementation of JournalRepository using IndexedDB via Dexie
 class JournalDexieRepository implements JournalRepository {
