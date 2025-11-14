@@ -133,7 +133,7 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import {
   SunIcon,
   BoltIcon,
-  LeafIcon,
+  SparklesIcon,
   CloudIcon,
   XMarkIcon,
 } from '@heroicons/vue/24/outline'
@@ -172,7 +172,7 @@ const quadrants = [
     value: 'low-energy-high-pleasantness' as Quadrant,
     label: 'Low Energy / High Pleasantness',
     shortLabel: 'Low / High',
-    icon: LeafIcon,
+    icon: SparklesIcon,
   },
   {
     value: 'low-energy-low-pleasantness' as Quadrant,
