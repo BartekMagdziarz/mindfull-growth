@@ -34,10 +34,22 @@ export const useJournalStore = defineStore('journal', () => {
     }
   }
 
-  async function createEntry(payload: { title?: string; body: string }) {
+  async function createEntry(payload: {
+    title?: string
+    body: string
+    emotionIds?: string[]
+    peopleTagIds?: string[]
+    contextTagIds?: string[]
+  }) {
     error.value = null
     try {
-      const newEntry = await journalDexieRepository.create(payload)
+      const entryData = {
+        ...payload,
+        emotionIds: payload.emotionIds ?? [],
+        peopleTagIds: payload.peopleTagIds ?? [],
+        contextTagIds: payload.contextTagIds ?? [],
+      }
+      const newEntry = await journalDexieRepository.create(entryData)
       entries.value.push(newEntry)
       return newEntry
     } catch (err) {
