@@ -4,6 +4,8 @@ export interface JournalEntry {
   updatedAt: string // ISO timestamp
   title?: string
   body: string
-  // Emotion tags, people, and other metadata will be added in later stories.
+  emotionIds?: string[] // Array of Emotion IDs (optional, defaults to empty array)
+  peopleTagIds?: string[] // Array of PeopleTag IDs (optional, defaults to empty array)
+  contextTagIds?: string[] // Array of ContextTag IDs (optional, defaults to empty array)
 }
 

@@ -3,12 +3,14 @@ import type { JournalEntry } from '@/domain/journal'
 import type { JournalRepository } from './journalRepository'
 import type { PeopleTag } from '@/domain/tag'
 import type { ContextTag } from '@/domain/tag'
+import type { EmotionLog } from '@/domain/emotionLog'
 
 // Define the database schema
 export class MindfullGrowthDatabase extends Dexie {
   journalEntries!: Table<JournalEntry, string>
   peopleTags!: Table<PeopleTag, string>
   contextTags!: Table<ContextTag, string>
+  emotionLogs!: Table<EmotionLog, string>
 
   constructor() {
     super('MindfullGrowthDB')
@@ -19,6 +21,49 @@ export class MindfullGrowthDatabase extends Dexie {
       peopleTags: 'id', // id is the primary key
       contextTags: 'id', // id is the primary key
     })
+    this.version(3)
+      .stores({
+        emotionLogs: 'id', // id is the primary key
+      })
+      .upgrade(async (trans) => {
+        // Migration: Add emotionIds, peopleTagIds, contextTagIds fields to existing journal entries
+        try {
+          const entries = await trans.table('journalEntries').toArray()
+          let migratedCount = 0
+
+          for (const entry of entries) {
+            // Only migrate if fields are missing (idempotent migration)
+            const needsMigration =
+              !('emotionIds' in entry) ||
+              entry.emotionIds === undefined ||
+              !('peopleTagIds' in entry) ||
+              entry.peopleTagIds === undefined ||
+              !('contextTagIds' in entry) ||
+              entry.contextTagIds === undefined
+
+            if (needsMigration) {
+              // Create updated entry with all fields, using existing values or defaults
+              const migratedEntry: JournalEntry = {
+                ...entry,
+                emotionIds: 'emotionIds' in entry && entry.emotionIds !== undefined ? entry.emotionIds : [],
+                peopleTagIds: 'peopleTagIds' in entry && entry.peopleTagIds !== undefined ? entry.peopleTagIds : [],
+                contextTagIds: 'contextTagIds' in entry && entry.contextTagIds !== undefined ? entry.contextTagIds : [],
+              }
+
+              await trans.table('journalEntries').put(migratedEntry)
+              migratedCount++
+            }
+          }
+
+          console.log(
+            `[Migration v2→v3] Successfully migrated ${migratedCount} journal entry/entries with new tagging fields`
+          )
+        } catch (error) {
+          console.error('[Migration v2→v3] Error during migration:', error)
+          // Don't throw - allow app to start even if migration fails
+          // The migration will be retried on next app start
+        }
+      })
   }
 }
 
@@ -70,7 +115,7 @@ class JournalDexieRepository implements JournalRepository {
         ...entry,
         updatedAt: new Date().toISOString(),
       }
-      await db.journalEntries.update(entry.id, updatedEntry)
+      await db.journalEntries.put(updatedEntry)
       return updatedEntry
     } catch (error) {
       console.error(`Failed to update journal entry with id ${entry.id}:`, error)
