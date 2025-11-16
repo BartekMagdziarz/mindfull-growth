@@ -1,40 +1,49 @@
 <template>
   <div class="tag-input">
     <!-- Selected Tags Section -->
-    <div v-if="selectedTagIds.length > 0" class="mb-6">
-      <h3 class="text-sm font-medium text-on-surface-variant mb-3">
-        Selected {{ tagTypeLabel }} Tags ({{ selectedTagIds.length }})
-      </h3>
-      <div
-        class="flex flex-wrap gap-2 overflow-x-auto pb-2"
-        role="list"
-        :aria-label="`Selected ${tagTypeLabel.toLowerCase()} tags`"
-      >
-        <button
-          v-for="tag in selectedTags"
-          :key="tag.id"
-          type="button"
-          :aria-label="`Remove ${tag.name} from selection`"
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-on-primary text-sm font-medium shadow-elevation-1 hover:shadow-elevation-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
-          @click="removeTag(tag.id)"
+    <div v-if="!props.hideSelectedSection" :class="[props.compact ? 'mb-3' : 'mb-4']">
+      <template v-if="selectedTagIds.length > 0">
+        <p
+          v-if="!props.compact"
+          class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2"
         >
-          <span>{{ tag.name }}</span>
-          <XMarkIcon class="w-4 h-4" aria-hidden="true" />
-        </button>
-      </div>
-    </div>
-    <div
-      v-else
-      class="mb-6 p-4 rounded-lg bg-surface-variant/50 text-center text-on-surface-variant text-sm"
-    >
-      No {{ tagTypeLabel.toLowerCase() }} tags selected
+          Selected {{ tagTypeLabel }} Tags ({{ selectedTagIds.length }})
+        </p>
+        <p
+          v-else
+          class="text-[0.7rem] font-medium text-on-surface-variant mb-2"
+        >
+          {{ selectedTagIds.length }} selected
+        </p>
+        <div
+          class="flex flex-wrap gap-2 overflow-x-auto pb-1"
+          role="list"
+          :aria-label="`Selected ${tagTypeLabel.toLowerCase()} tags`"
+        >
+          <button
+            v-for="tag in selectedTags"
+            :key="tag.id"
+            type="button"
+            :aria-label="`Remove ${tag.name} from selection`"
+            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium shadow-elevation-1 hover:shadow-elevation-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
+            @click="removeTag(tag.id)"
+          >
+            <span>{{ tag.name }}</span>
+            <XMarkIcon class="w-4 h-4" aria-hidden="true" />
+          </button>
+        </div>
+      </template>
     </div>
 
     <!-- Tag Creation Input -->
-    <div class="mb-6">
+    <div :class="[props.compact ? 'mb-3' : 'mb-4']">
       <label
         :for="inputId"
-        class="block text-sm font-medium text-on-surface mb-2"
+        :class="[
+          props.compact
+            ? 'sr-only'
+            : 'block text-xs font-semibold uppercase tracking-wide text-on-surface mb-1',
+        ]"
       >
         Add {{ tagTypeLabel.toLowerCase() }} tag
       </label>
@@ -44,7 +53,7 @@
           v-model="inputValue"
           type="text"
           :placeholder="`Type to create or select a ${tagTypeLabel.toLowerCase()} tag...`"
-          class="w-full px-4 py-2 rounded-lg border-2 border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+          class="w-full px-3 py-2 rounded-2xl border border-outline/60 bg-surface text-sm text-on-surface placeholder:text-on-surface/70 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary transition-all duration-200"
           :aria-label="`Add ${tagTypeLabel.toLowerCase()} tag`"
           :aria-expanded="showSuggestions"
           :aria-controls="suggestionsId"
@@ -57,7 +66,7 @@
         <div
           v-if="showSuggestions && filteredSuggestions.length > 0"
           :id="suggestionsId"
-          class="absolute z-10 w-full mt-1 bg-surface border-2 border-outline rounded-lg shadow-elevation-3 max-h-60 overflow-y-auto"
+          class="absolute z-10 w-full mt-1 bg-surface border border-outline/50 rounded-2xl shadow-elevation-3 max-h-60 overflow-y-auto"
           role="listbox"
           :aria-label="`${tagTypeLabel} tag suggestions`"
         >
@@ -66,7 +75,7 @@
             :key="tag.id"
             type="button"
             :class="[
-              'w-full px-4 py-2 text-left text-sm text-on-surface hover:bg-surface-variant focus:bg-surface-variant focus:outline-none transition-colors',
+              'w-full px-3 py-2 text-left text-sm text-on-surface hover:bg-surface-variant/70 focus:bg-surface-variant/80 focus:outline-none transition-colors',
               highlightedIndex === index ? 'bg-surface-variant' : '',
             ]"
             :aria-label="`Select ${tag.name}`"
@@ -78,23 +87,32 @@
           </button>
         </div>
       </div>
-      <p v-if="errorMessage" class="mt-2 text-sm text-red-600">
+      <p v-if="errorMessage" class="mt-1 text-xs text-red-600">
         {{ errorMessage }}
       </p>
     </div>
 
     <!-- Loading State -->
-    <div v-if="tagStore.isLoading" class="text-center py-8">
+    <div v-if="tagStore.isLoading" class="text-center py-4 text-sm">
       <p class="text-on-surface-variant">Loading tags...</p>
     </div>
 
     <!-- Existing Tags Display -->
     <div v-else-if="availableTags.length > 0">
-      <h2 class="text-lg font-semibold text-on-surface mb-4">
+      <h2
+        :class="
+          props.compact
+            ? 'sr-only'
+            : 'text-xs font-semibold uppercase tracking-wide text-on-surface mb-2'
+        "
+      >
         Select {{ tagTypeLabel }} Tags
       </h2>
       <div
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+        :class="[
+          'grid grid-cols-1 sm:grid-cols-2',
+          props.compact ? 'gap-1.5' : 'gap-2',
+        ]"
         role="list"
         :aria-label="`Available ${tagTypeLabel.toLowerCase()} tags`"
       >
@@ -115,7 +133,10 @@
     <!-- Empty State -->
     <div
       v-else
-      class="text-center py-8 rounded-lg bg-surface-variant/50 text-on-surface-variant"
+      :class="[
+        'text-center rounded-lg bg-surface-variant/50 text-on-surface-variant',
+        props.compact ? 'py-3 text-xs' : 'py-4 text-sm',
+      ]"
     >
       No {{ tagTypeLabel.toLowerCase() }} tags available. Create one above.
     </div>
@@ -132,10 +153,14 @@ import { XMarkIcon } from '@heroicons/vue/24/outline'
 interface Props {
   modelValue: string[]
   tagType: 'people' | 'context'
+  compact?: boolean
+  hideSelectedSection?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
+  compact: false,
+  hideSelectedSection: false,
 })
 
 const emit = defineEmits<{
@@ -219,7 +244,7 @@ function isTagSelected(tagId: string): boolean {
 function getTagChipClasses(tagId: string): string {
   const isSelected = isTagSelected(tagId)
   const baseClasses =
-    'px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.95]'
+    'px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.95]'
 
   if (isSelected) {
     return `${baseClasses} bg-primary text-on-primary shadow-elevation-1 hover:shadow-elevation-2`
@@ -361,4 +386,3 @@ onMounted(async () => {
   @apply w-full;
 }
 </style>
-

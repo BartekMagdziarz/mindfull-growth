@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-6 flex flex-col min-h-full">
+  <div class="mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 flex flex-col gap-8 min-h-screen">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center min-h-[200px]">
       <p class="text-on-surface-variant">Loading entry...</p>
@@ -8,94 +8,157 @@
     <!-- Editor Content -->
     <template v-else>
       <!-- Timestamp Display -->
-      <div class="mb-4">
-        <p class="text-sm text-on-surface-variant">{{ formattedTimestamp }}</p>
+      <div class="text-xs uppercase tracking-wide text-on-surface-variant">
+        <p>{{ formattedTimestamp }}</p>
       </div>
 
-      <!-- Title Input -->
-      <div class="mb-6">
-        <label for="title" class="block mb-2 text-on-surface font-medium">
-          Title
-        </label>
+      <!-- Unified Journal Sheet -->
+      <section
+        class="rounded-[32px] border border-outline/40 bg-surface px-6 py-5 shadow-elevation-1 flex flex-col gap-4"
+      >
+        <label for="title" class="sr-only">Title</label>
         <input
           id="title"
           v-model="title"
           type="text"
-          placeholder="Optional title for your entry"
-          class="w-full px-4 py-3 rounded-lg border-2 border-outline text-on-surface bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-200"
+          placeholder="Title"
+          class="w-full bg-transparent text-2xl font-semibold text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0"
         />
-      </div>
 
-      <!-- Body Textarea -->
-      <div class="mb-6 flex-1">
-        <label for="body" class="block mb-2 text-on-surface font-medium">
-          Journal Entry
-        </label>
+        <label for="body" class="sr-only">Journal Entry</label>
         <textarea
           id="body"
           v-model="body"
           placeholder="Write freely about what comes to your mind..."
-          rows="12"
-          class="w-full px-4 py-3 rounded-lg border-2 border-outline text-on-surface bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-200 resize-y min-h-[200px] leading-relaxed"
+          rows="8"
+          class="w-full bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-y min-h-[160px] md:min-h-[220px]"
         />
-      </div>
-
-      <!-- Emotions Section -->
-      <section class="mb-6 border-t border-outline/40 pt-6">
-        <header class="mb-4 space-y-1">
-          <h2 class="text-lg font-semibold text-on-surface">Emotions</h2>
-          <p class="text-sm text-on-surface-variant">
-            Capture the feelings that best describe this entry. Selecting emotions is
-            optional but helps spot patterns over time.
-          </p>
-        </header>
-        <div
-          v-if="isEmotionSectionLoading"
-          class="rounded-lg border-2 border-dashed border-outline/60 p-4 text-center text-on-surface-variant text-sm"
-        >
-          Loading emotions...
-        </div>
-        <EmotionSelector v-else v-model="selectedEmotionIds" />
       </section>
 
-      <!-- People Tags Section -->
-      <section class="mb-6 border-t border-outline/40 pt-6">
-        <header class="mb-4 space-y-1">
-          <h2 class="text-lg font-semibold text-on-surface">People</h2>
-          <p class="text-sm text-on-surface-variant">
-            Tag people who were involved. Reusing an existing name keeps your history tidy, but
-            this step is optional.
-          </p>
-        </header>
-        <div
-          v-if="arePeopleTagsLoading"
-          class="rounded-lg border-2 border-dashed border-outline/60 p-4 text-center text-on-surface-variant text-sm"
-        >
-          Loading people tags...
-        </div>
-        <TagInput v-else v-model="selectedPeopleTagIds" tag-type="people" />
-      </section>
+      <!-- Tag + context panels -->
+      <section class="space-y-3">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-[1.8fr_1fr_1fr] items-start">
+          <!-- Emotions Section -->
+          <section
+            class="rounded-3xl border border-outline/30 bg-surface px-5 py-4 shadow-sm flex flex-col gap-4 transition-shadow hover:shadow-elevation-2"
+          >
+            <header class="space-y-2">
+              <div class="flex flex-wrap items-center gap-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  Emotions
+                </p>
+                <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
+                  <button
+                    v-for="emotion in selectedEmotionList"
+                    :key="emotion.id"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
+                    :aria-label="`Remove ${emotion.name}`"
+                    @click="removeEmotion(emotion.id)"
+                  >
+                    <span>{{ emotion.name }}</span>
+                    <XMarkIcon class="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </header>
+            <div
+              v-if="isEmotionSectionLoading"
+              class="rounded-xl border border-dashed border-outline/40 p-3 text-center text-xs text-on-surface-variant"
+            >
+              Loading emotions...
+            </div>
+            <div v-else class="pt-1">
+              <EmotionSelector v-model="selectedEmotionIds" :show-selected-section="false" />
+            </div>
+          </section>
 
-      <!-- Context Tags Section -->
-      <section class="mb-6 border-t border-outline/40 pt-6">
-        <header class="mb-4 space-y-1">
-          <h2 class="text-lg font-semibold text-on-surface">Context</h2>
-          <p class="text-sm text-on-surface-variant">
-            Add any situational tags (location, activity, vibe). These are also optional and
-            separate from people tags.
-          </p>
-        </header>
-        <div
-          v-if="areContextTagsLoading"
-          class="rounded-lg border-2 border-dashed border-outline/60 p-4 text-center text-on-surface-variant text-sm"
-        >
-          Loading context tags...
+          <!-- People Tags Section -->
+          <section
+            class="rounded-3xl border border-outline/30 bg-surface px-5 py-4 shadow-sm flex flex-col gap-4 transition-shadow hover:shadow-elevation-2"
+          >
+            <header class="space-y-2">
+              <div class="flex flex-wrap items-center gap-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  People
+                </p>
+                <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
+                  <button
+                    v-for="tag in selectedPeopleList"
+                    :key="tag.id"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
+                    :aria-label="`Remove ${tag.name}`"
+                    @click="removePeopleTag(tag.id)"
+                  >
+                    <span>{{ tag.name }}</span>
+                    <XMarkIcon class="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </header>
+            <div
+              v-if="arePeopleTagsLoading"
+              class="rounded-xl border border-dashed border-outline/40 p-3 text-center text-xs text-on-surface-variant"
+            >
+              Loading people tags...
+            </div>
+            <div v-else class="pt-1">
+              <TagInput
+                v-model="selectedPeopleTagIds"
+                tag-type="people"
+                compact
+                hide-selected-section
+              />
+            </div>
+          </section>
+
+          <!-- Context Tags Section -->
+          <section
+            class="rounded-3xl border border-outline/30 bg-surface px-5 py-4 shadow-sm flex flex-col gap-4 transition-shadow hover:shadow-elevation-2"
+          >
+            <header class="space-y-2">
+              <div class="flex flex-wrap items-center gap-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  Context
+                </p>
+                <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
+                  <button
+                    v-for="tag in selectedContextList"
+                    :key="tag.id"
+                    type="button"
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
+                    :aria-label="`Remove ${tag.name}`"
+                    @click="removeContextTag(tag.id)"
+                  >
+                    <span>{{ tag.name }}</span>
+                    <XMarkIcon class="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </header>
+            <div
+              v-if="areContextTagsLoading"
+              class="rounded-xl border border-dashed border-outline/40 p-3 text-center text-xs text-on-surface-variant"
+            >
+              Loading context tags...
+            </div>
+            <div v-else class="pt-1">
+              <TagInput
+                v-model="selectedContextTagIds"
+                tag-type="context"
+                compact
+                hide-selected-section
+              />
+            </div>
+          </section>
         </div>
-        <TagInput v-else v-model="selectedContextTagIds" tag-type="context" />
       </section>
 
       <!-- Bottom Action Bar -->
-      <div class="mt-auto pt-4 pb-6 flex gap-3">
+      <div
+        class="sticky bottom-0 left-0 right-0 bg-surface/90 backdrop-blur border-t border-outline/30 flex justify-end gap-3 px-2 sm:px-4 py-4"
+      >
         <AppButton variant="text" @click="handleCancel" :disabled="isSaving">
           Cancel
         </AppButton>
@@ -103,7 +166,7 @@
           variant="filled"
           @click="handleSave"
           :disabled="!canSaveEntry"
-          class="flex-1"
+          class="min-w-[140px]"
         >
           {{ isSaving ? 'Saving...' : 'Save' }}
         </AppButton>
@@ -128,6 +191,8 @@ import { useTagStore } from '@/stores/tag.store'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { JournalEntry } from '@/domain/journal'
+import type { Emotion } from '@/domain/emotion'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
 const route = useRoute()
@@ -147,7 +212,6 @@ const selectedContextTagIds = ref<string[]>([])
 const isEmotionDataLoading = ref(false)
 const arePeopleTagsLoading = ref(false)
 const areContextTagsLoading = ref(false)
-
 // Detect if we're in edit mode (has id param) or create mode
 const isEditMode = computed(() => {
   return !!route.params.id && typeof route.params.id === 'string'
@@ -191,6 +255,45 @@ const formattedTimestamp = computed(() => {
     }
   }
 })
+
+const selectedEmotionList = computed(() => {
+  return selectedEmotionIds.value
+    .map((id) => emotionStore.getEmotionById(id))
+    .filter((emotion): emotion is Emotion => Boolean(emotion))
+})
+
+const selectedPeopleList = computed(() => {
+  return selectedPeopleTagIds.value
+    .map((id) => tagStore.getPeopleTagById(id))
+    .filter((tag): tag is { id: string; name: string } => Boolean(tag))
+})
+
+const selectedContextList = computed(() => {
+  return selectedContextTagIds.value
+    .map((id) => tagStore.getContextTagById(id))
+    .filter((tag): tag is { id: string; name: string } => Boolean(tag))
+})
+
+const removeEmotion = (id: string) => {
+  const index = selectedEmotionIds.value.indexOf(id)
+  if (index > -1) {
+    selectedEmotionIds.value.splice(index, 1)
+  }
+}
+
+const removePeopleTag = (id: string) => {
+  const index = selectedPeopleTagIds.value.indexOf(id)
+  if (index > -1) {
+    selectedPeopleTagIds.value.splice(index, 1)
+  }
+}
+
+const removeContextTag = (id: string) => {
+  const index = selectedContextTagIds.value.indexOf(id)
+  if (index > -1) {
+    selectedContextTagIds.value.splice(index, 1)
+  }
+}
 
 const syncEntryToForm = (entry: JournalEntry) => {
   currentEntry.value = entry
@@ -370,4 +473,3 @@ onMounted(async () => {
   await Promise.all(dataPromises)
 })
 </script>
-

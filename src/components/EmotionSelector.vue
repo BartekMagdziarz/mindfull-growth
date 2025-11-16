@@ -1,42 +1,41 @@
 <template>
   <div class="emotion-selector">
-    <!-- Selected Emotions Section (always visible when emotions are selected) -->
-    <div v-if="selectedEmotionIds.length > 0" class="mb-6">
-      <h3 class="text-sm font-medium text-on-surface-variant mb-3">
-        Selected Emotions ({{ selectedEmotionIds.length }})
-      </h3>
-      <div
-        class="flex flex-wrap gap-2 overflow-x-auto pb-2"
-        role="list"
-        aria-label="Selected emotions"
-      >
-        <button
-          v-for="emotion in selectedEmotions"
-          :key="emotion.id"
-          type="button"
-          :aria-label="`Remove ${emotion.name} from selection`"
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-on-primary text-sm font-medium shadow-elevation-1 hover:shadow-elevation-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
-          @click="removeEmotion(emotion.id)"
+    <!-- Selected Emotions Section (always visible when enabled) -->
+    <template v-if="props.showSelectedSection">
+      <div v-if="selectedEmotionIds.length > 0" class="mb-4">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
+          Selected Emotions ({{ selectedEmotionIds.length }})
+        </h3>
+        <div
+          class="flex flex-wrap gap-2 overflow-x-auto pb-1"
+          role="list"
+          aria-label="Selected emotions"
         >
-          <span>{{ emotion.name }}</span>
-          <XMarkIcon class="w-4 h-4" aria-hidden="true" />
-        </button>
+          <button
+            v-for="emotion in selectedEmotions"
+            :key="emotion.id"
+            type="button"
+            :aria-label="`Remove ${emotion.name} from selection`"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-on-primary text-xs font-medium shadow-elevation-1 hover:shadow-elevation-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
+            @click="removeEmotion(emotion.id)"
+          >
+            <span>{{ emotion.name }}</span>
+            <XMarkIcon class="w-4 h-4" aria-hidden="true" />
+          </button>
+        </div>
       </div>
-    </div>
-    <div
-      v-else
-      class="mb-6 p-4 rounded-lg bg-surface-variant/50 text-center text-on-surface-variant text-sm"
-    >
-      No emotions selected
-    </div>
-
-    <!-- Quadrant Selector (shown when no quadrant is selected) -->
-    <div v-if="selectedQuadrant === null" class="quadrant-selector">
-      <h2 class="text-lg font-semibold text-on-surface mb-4">
-        Select an Emotion Quadrant
-      </h2>
       <div
-        class="grid grid-cols-2 gap-4"
+        v-else
+        class="mb-4 p-3 rounded-lg bg-surface-variant/50 text-center text-on-surface-variant text-xs"
+      >
+        No emotions selected
+      </div>
+    </template>
+
+    <!-- Quadrant Selector -->
+    <div class="quadrant-selector space-y-3">
+      <div
+        class="grid grid-cols-2 gap-3"
         role="group"
         aria-label="Emotion quadrant selection"
       >
@@ -45,59 +44,40 @@
           :key="quadrant.value"
           type="button"
           :aria-label="`Select ${quadrant.label} quadrant`"
-          :class="getQuadrantButtonClasses(quadrant.value, true)"
+          :aria-pressed="selectedQuadrant === quadrant.value"
+          :class="getQuadrantButtonClasses(quadrant.value, selectedQuadrant === quadrant.value)"
           @click="selectQuadrant(quadrant.value)"
         >
           <component
             :is="quadrant.icon"
-            class="w-8 h-8 mb-2"
+            class="w-4 h-4 text-on-surface"
             aria-hidden="true"
           />
-          <span class="text-base font-medium">{{ quadrant.label }}</span>
+          <span class="text-sm font-semibold leading-tight">
+            {{ quadrant.energyLabel }}
+          </span>
+          <span class="text-sm font-semibold leading-tight text-on-surface-variant">
+            {{ quadrant.pleasantnessLabel }}
+          </span>
         </button>
       </div>
     </div>
 
-    <!-- Quadrant Navigation and Emotion List (shown when quadrant is selected) -->
-    <div v-else class="emotion-selection">
-      <!-- Quadrant Navigation Bar -->
-      <div class="mb-4">
-        <h2 class="text-lg font-semibold text-on-surface mb-3">
+    <!-- Emotion List -->
+    <div class="emotion-selection mt-4">
+      <div v-if="!selectedQuadrant" class="text-xs text-on-surface-variant">
+        Choose a quadrant above to see matching emotions.
+      </div>
+      <template v-else>
+        <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface mb-2">
           Select Emotions
         </h2>
-        <div
-          class="flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Quadrant navigation"
-        >
-          <button
-            v-for="quadrant in quadrants"
-            :key="quadrant.value"
-            type="button"
-            :aria-label="`Switch to ${quadrant.label} quadrant`"
-            :aria-selected="selectedQuadrant === quadrant.value"
-            :class="getQuadrantButtonClasses(quadrant.value, false, selectedQuadrant === quadrant.value)"
-            @click="selectQuadrant(quadrant.value)"
-          >
-            <component
-              :is="quadrant.icon"
-              class="w-5 h-5"
-              aria-hidden="true"
-            />
-            <span class="text-sm font-medium">{{ quadrant.shortLabel }}</span>
-          </button>
+        <div v-if="!emotionStore.isLoaded" class="text-center py-4 text-sm">
+          <p class="text-on-surface-variant">Loading emotions...</p>
         </div>
-      </div>
-
-      <!-- Loading State -->
-      <div v-if="!emotionStore.isLoaded" class="text-center py-8">
-        <p class="text-on-surface-variant">Loading emotions...</p>
-      </div>
-
-      <!-- Emotion List -->
-      <div v-else-if="currentQuadrantEmotions.length > 0">
         <div
-          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+          v-else-if="currentQuadrantEmotions.length > 0"
+          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
           role="list"
           :aria-label="`Emotions in ${getQuadrantLabel(selectedQuadrant)} quadrant`"
         >
@@ -113,15 +93,13 @@
             {{ emotion.name }}
           </button>
         </div>
-      </div>
-
-      <!-- Empty Quadrant State -->
-      <div
-        v-else
-        class="text-center py-8 rounded-lg bg-surface-variant/50 text-on-surface-variant"
-      >
-        No emotions in this quadrant
-      </div>
+        <div
+          v-else
+          class="text-center py-4 rounded-lg bg-surface-variant/50 text-on-surface-variant text-sm"
+        >
+          No emotions in this quadrant
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -129,6 +107,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import type { Quadrant, Emotion } from '@/domain/emotion'
+import { getQuadrant } from '@/domain/emotion'
 import { useEmotionStore } from '@/stores/emotion.store'
 import {
   SunIcon,
@@ -140,10 +119,12 @@ import {
 
 interface Props {
   modelValue: string[]
+  showSelectedSection?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
+  showSelectedSection: true,
 })
 
 const emit = defineEmits<{
@@ -152,6 +133,7 @@ const emit = defineEmits<{
 
 const emotionStore = useEmotionStore()
 const selectedQuadrant = ref<Quadrant | null>(null)
+const hasManualQuadrantCollapse = ref(false)
 const selectedEmotionIds = ref<string[]>([])
 
 // Quadrant configuration
@@ -159,25 +141,29 @@ const quadrants = [
   {
     value: 'high-energy-high-pleasantness' as Quadrant,
     label: 'High Energy / High Pleasantness',
-    shortLabel: 'High / High',
+    energyLabel: 'High Energy',
+    pleasantnessLabel: 'Pleasant',
     icon: SunIcon,
   },
   {
     value: 'high-energy-low-pleasantness' as Quadrant,
     label: 'High Energy / Low Pleasantness',
-    shortLabel: 'High / Low',
+    energyLabel: 'High Energy',
+    pleasantnessLabel: 'Unpleasant',
     icon: BoltIcon,
   },
   {
     value: 'low-energy-high-pleasantness' as Quadrant,
     label: 'Low Energy / High Pleasantness',
-    shortLabel: 'Low / High',
+    energyLabel: 'Low Energy',
+    pleasantnessLabel: 'Pleasant',
     icon: SparklesIcon,
   },
   {
     value: 'low-energy-low-pleasantness' as Quadrant,
     label: 'Low Energy / Low Pleasantness',
-    shortLabel: 'Low / Low',
+    energyLabel: 'Low Energy',
+    pleasantnessLabel: 'Unpleasant',
     icon: CloudIcon,
   },
 ]
@@ -196,7 +182,13 @@ const selectedEmotions = computed(() => {
 
 // Methods
 function selectQuadrant(quadrant: Quadrant) {
-  selectedQuadrant.value = quadrant
+  if (selectedQuadrant.value === quadrant) {
+    selectedQuadrant.value = null
+    hasManualQuadrantCollapse.value = true
+  } else {
+    selectedQuadrant.value = quadrant
+    hasManualQuadrantCollapse.value = false
+  }
 }
 
 function toggleEmotion(emotionId: string) {
@@ -221,56 +213,61 @@ function isEmotionSelected(emotionId: string): boolean {
   return selectedEmotionIds.value.includes(emotionId)
 }
 
+function getQuadrantButtonClasses(quadrant: Quadrant, isActive = false): string {
+  const baseClasses =
+    'flex flex-col items-start gap-1 px-3 py-2 rounded-2xl text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.98] border';
+
+  const activeClasses = 'bg-primary text-on-primary border-transparent shadow-elevation-2'
+  const inactiveColors = {
+    'high-energy-high-pleasantness': 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100',
+    'high-energy-low-pleasantness': 'bg-red-50 text-red-900 border-red-200 hover:bg-red-100',
+    'low-energy-high-pleasantness': 'bg-green-50 text-green-900 border-green-200 hover:bg-green-100',
+    'low-energy-low-pleasantness': 'bg-blue-50 text-blue-900 border-blue-200 hover:bg-blue-100',
+  }
+
+  return `${baseClasses} ${isActive ? activeClasses : inactiveColors[quadrant]}`
+}
+
+function getEmotionChipClasses(emotionId: string): string {
+  const isSelected = isEmotionSelected(emotionId)
+  const baseClasses =
+    'px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.95]'
+
+  if (isSelected) {
+    return `${baseClasses} bg-primary text-on-primary shadow-elevation-1 hover:shadow-elevation-2`
+  } else {
+    return `${baseClasses} bg-surface border-2 border-outline text-on-surface hover:bg-surface-variant`
+  }
+}
+
 function getQuadrantLabel(quadrant: Quadrant | null): string {
   if (!quadrant) return ''
   const quadrantConfig = quadrants.find((q) => q.value === quadrant)
   return quadrantConfig?.label || quadrant
 }
 
-function getQuadrantButtonClasses(
-  quadrant: Quadrant,
-  isLarge: boolean,
-  isActive = false
-): string {
-  const baseClasses = isLarge
-    ? 'flex flex-col items-center justify-center p-6 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.98] shadow-elevation-1 hover:shadow-elevation-2'
-    : 'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.98]'
-
-  const quadrantColors = {
-    'high-energy-high-pleasantness': isActive
-      ? 'bg-amber-500 text-white shadow-elevation-2'
-      : isLarge
-        ? 'bg-amber-100 text-amber-900 hover:bg-amber-200'
-        : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border-2 border-amber-300',
-    'high-energy-low-pleasantness': isActive
-      ? 'bg-red-500 text-white shadow-elevation-2'
-      : isLarge
-        ? 'bg-red-100 text-red-900 hover:bg-red-200'
-        : 'bg-red-50 text-red-900 hover:bg-red-100 border-2 border-red-300',
-    'low-energy-high-pleasantness': isActive
-      ? 'bg-green-500 text-white shadow-elevation-2'
-      : isLarge
-        ? 'bg-green-100 text-green-900 hover:bg-green-200'
-        : 'bg-green-50 text-green-900 hover:bg-green-100 border-2 border-green-300',
-    'low-energy-low-pleasantness': isActive
-      ? 'bg-blue-500 text-white shadow-elevation-2'
-      : isLarge
-        ? 'bg-blue-100 text-blue-900 hover:bg-blue-200'
-        : 'bg-blue-50 text-blue-900 hover:bg-blue-100 border-2 border-blue-300',
+function syncQuadrantFromSelection(ids: string[]) {
+  if (ids.length === 0) {
+    selectedQuadrant.value = null
+    hasManualQuadrantCollapse.value = false
+    return
   }
 
-  return `${baseClasses} ${quadrantColors[quadrant]}`
-}
+  if (hasManualQuadrantCollapse.value) {
+    return
+  }
 
-function getEmotionChipClasses(emotionId: string): string {
-  const isSelected = isEmotionSelected(emotionId)
-  const baseClasses =
-    'px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.95]'
+  const hasCurrentQuadrantEmotion = ids.some((id) => {
+    const emotion = emotionStore.getEmotionById(id)
+    if (!emotion) return false
+    return getQuadrant(emotion) === selectedQuadrant.value
+  })
 
-  if (isSelected) {
-    return `${baseClasses} bg-primary text-on-primary shadow-elevation-1 hover:shadow-elevation-2`
-  } else {
-    return `${baseClasses} bg-surface border-2 border-outline text-on-surface hover:bg-surface-variant`
+  if (!hasCurrentQuadrantEmotion) {
+    const first = emotionStore.getEmotionById(ids[0])
+    if (first) {
+      selectedQuadrant.value = getQuadrant(first)
+    }
   }
 }
 
@@ -287,8 +284,26 @@ watch(
       return emotion !== undefined
     })
     selectedEmotionIds.value = validIds
+    syncQuadrantFromSelection(validIds)
   },
   { immediate: true }
+)
+
+watch(
+  selectedEmotionIds,
+  (ids) => {
+    syncQuadrantFromSelection(ids)
+  },
+  { deep: true }
+)
+
+watch(
+  () => emotionStore.isLoaded,
+  (loaded) => {
+    if (loaded) {
+      syncQuadrantFromSelection(selectedEmotionIds.value)
+    }
+  }
 )
 
 // Load emotions on mount
@@ -304,4 +319,3 @@ onMounted(async () => {
   @apply w-full;
 }
 </style>
-
