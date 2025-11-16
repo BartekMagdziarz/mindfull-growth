@@ -1,0 +1,331 @@
+Story 9 – EmotionLog Domain Model & Persistence
+
+Goal
+
+Implement the EmotionLog domain model, repository, and Pinia store to enable creating, reading, updating, and deleting emotion logs. This story establishes the data layer for the emotion logging feature, providing CRUD operations with validation that ensures at least one emotion is always associated with each log. The database table (emotionLogs) and interface (EmotionLog) were already created in Story 5, so this story focuses on implementing the repository and store layers.
+
+⸻
+
+Scope
+
+1.	EmotionLogRepository Interface
+	•	Create the EmotionLogRepository interface in src/repositories/emotionLogRepository.ts:
+	•	Define the interface matching the epic specification:
+	•	export interface EmotionLogRepository {
+	•	  getAll(): Promise<EmotionLog[]>
+	•	  getById(id: string): Promise<EmotionLog | undefined>
+	•	  create(
+	•	    data: Omit<EmotionLog, "id" | "createdAt" | "updatedAt">
+	•	  ): Promise<EmotionLog>
+	•	  update(log: EmotionLog): Promise<EmotionLog>
+	•	  delete(id: string): Promise<void>
+	•	}
+	•	The interface follows the same pattern as JournalRepository:
+	•	create() accepts data without id, createdAt, updatedAt (these are generated)
+	•	update() accepts the full EmotionLog object
+	•	getAll() and getById() return EmotionLog objects
+	•	delete() removes a log by ID
+
+2.	EmotionLogDexieRepository Implementation
+	•	Create src/repositories/emotionLogDexieRepository.ts:
+	•	Import EmotionLog type from @/domain/emotionLog
+	•	Import EmotionLogRepository interface
+	•	Import the shared database instance (db) from journalDexieRepository.ts
+	•	Note: The emotionLogs table already exists in the database (created in Story 5, version 3)
+	•	Implement EmotionLogDexieRepository class that implements EmotionLogRepository:
+	•	getAll(): Promise<EmotionLog[]>
+	•		•	Use db.emotionLogs.toArray() to retrieve all logs
+	•		•	Handle errors gracefully with try-catch
+	•		•	Throw descriptive errors if database operation fails
+	•	getById(id: string): Promise<EmotionLog | undefined>
+	•		•	Use db.emotionLogs.get(id) to retrieve a single log
+	•		•	Return undefined if log doesn't exist (not an error)
+	•		•	Handle errors gracefully
+	•	create(data: Omit<EmotionLog, "id" | "createdAt" | "updatedAt">): Promise<EmotionLog>
+	•		•	Generate id using crypto.randomUUID()
+	•		•	Set createdAt and updatedAt to current ISO timestamp
+	•		•	Create EmotionLog object with all fields
+	•		•	Use db.emotionLogs.add() to persist to IndexedDB
+	•		•	Return the created log
+	•		•	Handle errors gracefully
+	•	update(log: EmotionLog): Promise<EmotionLog>
+	•		•	Update updatedAt to current ISO timestamp
+	•		•	Use db.emotionLogs.put() to update the log in IndexedDB
+	•		•	Return the updated log
+	•		•	Handle errors gracefully
+	•	delete(id: string): Promise<void>
+	•		•	Use db.emotionLogs.delete(id) to remove the log
+	•		•	Handle errors gracefully
+	•	Export a singleton instance: export const emotionLogDexieRepository = new EmotionLogDexieRepository()
+	•	Follow the same error handling pattern as journalDexieRepository and tagDexieRepository
+
+3.	useEmotionLogStore Implementation
+	•	Create src/stores/emotionLog.store.ts:
+	•	Import defineStore from pinia
+	•	Import ref, computed from vue
+	•	Import EmotionLog type from @/domain/emotionLog
+	•	Import emotionLogDexieRepository from @/repositories/emotionLogDexieRepository
+	•	Define the store using defineStore('emotionLog', () => { ... }):
+	•	State:
+	•		logs: ref<EmotionLog[]>([]) – holds all emotion logs
+	•		isLoading: ref(false) – loading state for async operations
+	•		error: ref<string | null>(null) – error state
+	•	Getters:
+	•		sortedLogs: computed(() => EmotionLog[]) – returns logs sorted by createdAt descending (newest first)
+	•		Similar to sortedEntries in useJournalStore
+	•	Actions:
+	•		loadLogs(): Promise<void>
+	•			Set isLoading to true
+	•			Clear error state
+	•			Call emotionLogDexieRepository.getAll()
+	•			Update logs.value with loaded logs
+	•			Handle errors: set error state, log to console
+	•			Set isLoading to false in finally block
+	•		createLog(payload: Omit<EmotionLog, "id" | "createdAt" | "updatedAt">): Promise<EmotionLog>
+	•			Validate that payload.emotionIds contains at least one emotion ID
+	•			If validation fails, throw an error with descriptive message
+	•			Clear error state
+	•			Call emotionLogDexieRepository.create(payload)
+	•			Add the new log to logs.value array
+	•			Return the created log
+	•			Handle errors: set error state, log to console, re-throw error
+	•		updateLog(log: EmotionLog): Promise<EmotionLog>
+	•			Validate that log.emotionIds contains at least one emotion ID
+	•			If validation fails, throw an error with descriptive message
+	•			Clear error state
+	•			Call emotionLogDexieRepository.update(log)
+	•			Update the log in logs.value array (find by id and replace)
+	•			Return the updated log
+	•			Handle errors: set error state, log to console, re-throw error
+	•		deleteLog(id: string): Promise<void>
+	•			Clear error state
+	•			Call emotionLogDexieRepository.delete(id)
+	•			Remove the log from logs.value array (filter out by id)
+	•			Handle errors: set error state, log to console, re-throw error
+	•	Return all state, getters, and actions from the store
+	•	Follow the same pattern as useJournalStore and useTagStore
+
+4.	Validation Logic
+	•	Implement validation in useEmotionLogStore:
+	•	Create a helper function validateEmotionIds(emotionIds: string[]): void
+	•		•	Check if emotionIds is an array
+	•		•	Check if emotionIds.length > 0
+	•		•	If validation fails, throw new Error("At least one emotion must be selected")
+	•	Use this validation in createLog() and updateLog() actions
+	•	Validation should happen before calling the repository
+	•	Validation errors should be thrown (not just logged) so UI can handle them
+
+5.	Minimal Tests (Unit)
+	•	Create src/stores/__tests__/emotionLog.store.spec.ts:
+	•	Mock emotionLogDexieRepository to avoid hitting IndexedDB
+	•	Test cases:
+	•		loadLogs():
+	•			Successfully loads logs from repository
+	•			Updates logs state with loaded data
+	•			Sets isLoading correctly during loading
+	•			Handles errors gracefully (sets error state, doesn't crash)
+	•		createLog():
+	•			Creates a log with valid payload (at least one emotion)
+	•			Adds log to state array
+	•			Returns the created log
+	•			Throws validation error if emotionIds is empty array
+	•			Throws validation error if emotionIds is missing
+	•			Handles repository errors gracefully
+	•		updateLog():
+	•			Updates a log with valid data (at least one emotion)
+	•			Updates log in state array
+	•			Returns the updated log
+	•			Throws validation error if emotionIds is empty array
+	•			Throws validation error if emotionIds is missing
+	•			Handles repository errors gracefully
+	•		deleteLog():
+	•			Deletes a log by ID
+	•			Removes log from state array
+	•			Handles repository errors gracefully
+	•		sortedLogs getter:
+	•			Returns logs sorted by createdAt descending (newest first)
+	•			Handles empty array
+	•			Handles single log
+	•			Handles multiple logs with different timestamps
+	•	Use Vitest for testing
+	•	Mock the repository using vi.mock() or manual mocks
+	•	Test both success and error scenarios
+
+6.	Repository Tests (Optional but Recommended)
+	•	Create src/repositories/__tests__/emotionLogDexieRepository.spec.ts:
+	•	Test the repository implementation with mocked IndexedDB
+	•	Use Dexie's testing utilities or mock IndexedDB
+	•	Test cases:
+	•		getAll() returns all logs from database
+	•		getById() returns correct log or undefined
+	•		create() generates id, timestamps, and persists log
+	•		update() updates timestamps and persists changes
+	•		delete() removes log from database
+	•		Error handling for each method
+	•	Note: These tests can be minimal since the pattern matches journalDexieRepository, which is already tested
+
+⸻
+
+Acceptance Criteria
+
+	•	EmotionLogRepository interface is created in src/repositories/emotionLogRepository.ts with all required methods
+	•	EmotionLogDexieRepository is implemented in src/repositories/emotionLogDexieRepository.ts:
+	•	Implements EmotionLogRepository interface
+	•	Uses the shared database instance (db.emotionLogs table)
+	•	All CRUD operations work correctly (getAll, getById, create, update, delete)
+	•	Generates UUIDs and timestamps correctly
+	•	Handles errors gracefully
+	•	useEmotionLogStore is implemented in src/stores/emotionLog.store.ts:
+	•	State: logs, isLoading, error
+	•	Getter: sortedLogs (newest first)
+	•	Actions: loadLogs, createLog, updateLog, deleteLog
+	•	Validation: createLog and updateLog throw errors if emotionIds is empty or missing
+	•	All actions update state correctly
+	•	Error handling is consistent with other stores
+	•	Unit tests pass:
+	•	Store tests cover all actions and getters
+	•	Validation tests cover empty/missing emotionIds scenarios
+	•	Error handling tests cover repository failures
+	•	Repository tests (if implemented) cover CRUD operations
+	•	No linting errors or TypeScript errors
+	•	The data layer is ready for UI integration in Stories 10 and 11 (Emotions View and Emotion Log Editor)
+
+⸻
+
+Out of Scope
+
+	•	UI components for emotion logging (this is Story 10: Emotions View Implementation and Story 11: Emotion Log Editor)
+	•	Displaying emotion logs in a view (this is Story 10)
+	•	Editing emotion logs via UI (this is Story 11)
+	•	E2E tests (comprehensive testing comes in Story 12)
+	•	Emotion validation (checking if emotion IDs exist in useEmotionStore) – this can be added later if needed
+	•	Tag validation (checking if tag IDs exist in useTagStore) – this can be added later if needed
+	•	Filtering or querying logs by emotion, date, or tags (this will come in Profile view later)
+	•	Statistics or analytics on emotion logs
+	•	Bulk operations (bulk delete, bulk update)
+
+⸻
+
+Inconsistencies & Notes
+
+1.	Database Table Already Exists:
+	•	Story 5 (Database Migration Strategy) already created the emotionLogs table in database version 3
+	•	Story 5 also created the EmotionLog interface in src/domain/emotionLog.ts
+	•	Story 9 only needs to implement the repository and store layers
+	•	No database schema changes are needed
+	•	The repository can immediately use db.emotionLogs table
+	•	No inconsistencies here – Story 5 prepared the foundation, Story 9 builds on it
+
+2.	Repository Pattern Consistency:
+	•	Story 9 follows the same pattern as:
+	•		journalDexieRepository (from Epic 1)
+	•		peopleTagDexieRepository and contextTagDexieRepository (from Story 2)
+	•	All repositories use the shared database instance (db) from journalDexieRepository.ts
+	•	All repositories follow the same error handling pattern
+	•	All repositories generate UUIDs and timestamps the same way
+	•	No inconsistencies – Story 9 follows established patterns
+
+3.	Store Pattern Consistency:
+	•	Story 9 follows the same pattern as:
+	•		useJournalStore (from Epic 1, updated in Story 6)
+	•		useTagStore (from Story 2)
+	•	All stores use Pinia's defineStore with composition API
+	•	All stores have isLoading and error state
+	•	All stores have sorted getters (sortedEntries, sortedLogs)
+	•	All stores handle errors consistently
+	•	No inconsistencies – Story 9 follows established patterns
+
+4.	Validation Requirements:
+	•	The epic specifies: "createLog and updateLog must validate that emotionIds contains at least one emotion"
+	•	This validation is different from journal entries (which don't require emotions)
+	•	The validation should throw errors that can be caught by UI components
+	•	This is consistent with the epic specification and doesn't conflict with other stories
+
+5.	Timestamp Management:
+	•	createLog: Repository generates createdAt and updatedAt (both set to current time)
+	•	updateLog: Repository updates updatedAt (createdAt remains unchanged)
+	•	This matches the pattern used in journalDexieRepository
+	•	No inconsistencies – timestamps are managed consistently
+
+6.	Error Handling Strategy:
+	•	Repository errors are caught and re-thrown with descriptive messages
+	•	Store actions catch repository errors, set error state, log to console, and re-throw
+	•	This allows UI components to handle errors (e.g., show snackbar messages)
+	•	This matches the pattern used in useJournalStore and useTagStore
+	•	No inconsistencies – error handling is consistent
+
+7.	State Management:
+	•	useEmotionLogStore maintains logs in memory (similar to useJournalStore)
+	•	logs are loaded via loadLogs() action
+	•	logs are updated when create/update/delete operations succeed
+	•	This ensures UI reactivity without needing to reload from database
+	•	This matches the pattern used in other stores
+	•	No inconsistencies – state management is consistent
+
+8.	Story Dependencies:
+	•	Story 9 depends on:
+	•		Story 1 (Emotions Database & Domain Model) – emotions exist in store ✓
+	•		Story 2 (People & Context Tag Domain Models) – tag stores exist ✓
+	•		Story 5 (Database Migration Strategy) – emotionLogs table and interface exist ✓
+	•	All dependencies are satisfied, so Story 9 can proceed
+	•	Story 9 does not depend on Stories 3, 4, 6, 7, or 8 (those are for journal entries)
+
+9.	Consistency Check with Story 8:
+	•	Story 8 (just implemented) updated JournalView to display tags on entry cards
+	•	Story 8 uses useEmotionStore and useTagStore to resolve tag/emotion IDs to names
+	•	Story 9 creates useEmotionLogStore, which is independent of JournalView
+	•	Story 10 (Emotions View Implementation) will use useEmotionLogStore to display logs
+	•	Story 10 will also use useEmotionStore and useTagStore to resolve IDs (similar to Story 8)
+	•	No conflicts: Story 8 is for journal entries, Story 9 is for emotion logs
+	•	Both stories use the same underlying stores (useEmotionStore, useTagStore) for resolving IDs
+	•	No inconsistencies detected that would require backtracking from Story 8
+
+10.	Consistency Check with Recent Changes:
+	•	Verification that Story 9 aligns with current codebase state:
+	•		EmotionLog interface exists in src/domain/emotionLog.ts ✓
+	•		emotionLogs table exists in database (version 3) ✓
+	•		Database instance (db) is available and shared ✓
+	•		Repository pattern is established (journalDexieRepository, tagDexieRepository) ✓
+	•		Store pattern is established (useJournalStore, useTagStore) ✓
+	•		Validation pattern can follow store error handling ✓
+	•	All components created in previous stories will continue to work after Story 9
+	•	Story 9 is purely additive (adds new repository and store) and doesn't modify existing functionality
+	•	No inconsistencies detected that would require backtracking from Story 8 or earlier stories
+
+11.	Future Integration:
+	•	Story 10 (Emotions View Implementation) will use useEmotionLogStore.loadLogs() to load logs
+	•	Story 10 will use useEmotionLogStore.deleteLog() to delete logs
+	•	Story 11 (Emotion Log Editor) will use useEmotionLogStore.createLog() and updateLog() to save logs
+	•	Story 11 will use useEmotionLogStore.getById() or access logs from state to load log data
+	•	Story 9 prepares the data layer so Stories 10 and 11 can focus on UI
+	•	The separation is clean: Story 9 = data layer, Stories 10-11 = UI layer
+
+12.	Validation Error Messages:
+	•	When emotionIds validation fails, the error message should be clear and user-friendly
+	•	Example: "At least one emotion must be selected"
+	•	This message will be displayed in UI (Story 11) when user tries to save without emotions
+	•	The error message should be consistent with other validation messages in the app
+	•	Consider using a constant for the error message to ensure consistency
+
+13.	Loading Strategy:
+	•	The epic mentions: "Ensures logs are loaded on app start or when the Emotions view is mounted"
+	•	Story 9 implements loadLogs() action, but doesn't specify when to call it
+	•	Story 10 (Emotions View Implementation) will call loadLogs() when the view mounts
+	•	This is consistent with how JournalView loads entries (calls loadEntries() on mount)
+	•	No inconsistency – loading strategy is deferred to Story 10
+
+14.	Optional Fields Handling:
+	•	EmotionLog interface has optional fields: note?, peopleTagIds?, contextTagIds?
+	•	The repository and store should handle these optional fields correctly
+	•	When creating a log without these fields, they should be undefined (not empty arrays)
+	•	This matches the interface definition and doesn't conflict with any previous stories
+
+15.	Type Safety:
+	•	TypeScript should ensure type safety throughout:
+	•		EmotionLogRepository interface matches EmotionLog type
+	•		Repository implementation implements the interface correctly
+	•		Store actions use correct types
+	•		Validation functions use correct types
+	•	No type assertions or `any` types should be needed
+	•	If type errors occur, they should be resolved by properly typing the interfaces and methods
+

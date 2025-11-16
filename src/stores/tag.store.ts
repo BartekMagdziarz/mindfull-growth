@@ -1,11 +1,27 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import type { PeopleTag } from '@/domain/tag'
 import type { ContextTag } from '@/domain/tag'
 import {
   peopleTagDexieRepository,
   contextTagDexieRepository,
 } from '@/repositories/tagDexieRepository'
+
+function normalizeTagName(name: string): string {
+  return name.trim().replace(/\s+/g, ' ')
+}
+
+function ensureValidTagName(rawName: string): string {
+  const normalized = normalizeTagName(rawName)
+  if (!normalized) {
+    throw new Error('Tag name cannot be empty')
+  }
+  return normalized
+}
+
+function tagsMatch(existingName: string, normalizedName: string): boolean {
+  return normalizeTagName(existingName).toLowerCase() === normalizedName.toLowerCase()
+}
 
 export const useTagStore = defineStore('tag', () => {
   // State
@@ -59,16 +75,18 @@ export const useTagStore = defineStore('tag', () => {
   async function createPeopleTag(name: string): Promise<PeopleTag> {
     error.value = null
     try {
+      const normalizedName = ensureValidTagName(name)
+
       // Check for duplicate (case-insensitive)
       const existingTag = peopleTags.value.find(
-        (tag) => tag.name.toLowerCase() === name.toLowerCase()
+        (tag) => tagsMatch(tag.name, normalizedName)
       )
       if (existingTag) {
         return existingTag
       }
 
       // Create new tag
-      const newTag = await peopleTagDexieRepository.create({ name })
+      const newTag = await peopleTagDexieRepository.create({ name: normalizedName })
       peopleTags.value.push(newTag)
       return newTag
     } catch (err) {
@@ -83,16 +101,18 @@ export const useTagStore = defineStore('tag', () => {
   async function createContextTag(name: string): Promise<ContextTag> {
     error.value = null
     try {
+      const normalizedName = ensureValidTagName(name)
+
       // Check for duplicate (case-insensitive)
       const existingTag = contextTags.value.find(
-        (tag) => tag.name.toLowerCase() === name.toLowerCase()
+        (tag) => tagsMatch(tag.name, normalizedName)
       )
       if (existingTag) {
         return existingTag
       }
 
       // Create new tag
-      const newTag = await contextTagDexieRepository.create({ name })
+      const newTag = await contextTagDexieRepository.create({ name: normalizedName })
       contextTags.value.push(newTag)
       return newTag
     } catch (err) {

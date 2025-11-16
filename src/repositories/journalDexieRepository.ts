@@ -32,22 +32,17 @@ export class MindfullGrowthDatabase extends Dexie {
           let migratedCount = 0
 
           for (const entry of entries) {
-            // Only migrate if fields are missing (idempotent migration)
             const needsMigration =
-              !('emotionIds' in entry) ||
-              entry.emotionIds === undefined ||
-              !('peopleTagIds' in entry) ||
-              entry.peopleTagIds === undefined ||
-              !('contextTagIds' in entry) ||
-              entry.contextTagIds === undefined
+              !Array.isArray(entry.emotionIds) ||
+              !Array.isArray(entry.peopleTagIds) ||
+              !Array.isArray(entry.contextTagIds)
 
             if (needsMigration) {
-              // Create updated entry with all fields, using existing values or defaults
               const migratedEntry: JournalEntry = {
                 ...entry,
-                emotionIds: 'emotionIds' in entry && entry.emotionIds !== undefined ? entry.emotionIds : [],
-                peopleTagIds: 'peopleTagIds' in entry && entry.peopleTagIds !== undefined ? entry.peopleTagIds : [],
-                contextTagIds: 'contextTagIds' in entry && entry.contextTagIds !== undefined ? entry.contextTagIds : [],
+                emotionIds: Array.isArray(entry.emotionIds) ? entry.emotionIds : [],
+                peopleTagIds: Array.isArray(entry.peopleTagIds) ? entry.peopleTagIds : [],
+                contextTagIds: Array.isArray(entry.contextTagIds) ? entry.contextTagIds : [],
               }
 
               await trans.table('journalEntries').put(migratedEntry)

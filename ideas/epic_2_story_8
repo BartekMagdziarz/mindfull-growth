@@ -1,0 +1,284 @@
+Story 8 – Journal View Display Updates
+
+Goal
+
+Update JournalView to display emotions, people tags, and context tags on each journal entry card. This story surfaces the rich metadata that users added in Story 7, making it easy to see at a glance which emotions and tags are associated with each entry. Tags are displayed as chips below the entry preview text, with visual distinction between emotion chips, people tag chips, and context tag chips.
+
+⸻
+
+Scope
+
+1.	Store Integration & Data Loading
+	•	Import and initialize stores in JournalView:
+		•	useEmotionStore() – to resolve emotion IDs to emotion names
+		•	useTagStore() – to resolve people and context tag IDs to tag names
+	•	On component mount (in addition to existing journalStore.loadEntries()):
+		•	Call emotionStore.loadEmotions() if emotions are not already loaded (check isLoaded flag)
+		•	Call tagStore.loadPeopleTags() if peopleTags array is empty
+		•	Call tagStore.loadContextTags() if contextTags array is empty
+	•	Handle loading states gracefully:
+		•	If stores are still loading when entries render, tags may not resolve immediately
+		•	Consider showing a loading indicator for tags section, or simply render empty until tags load
+		•	Since tags/emotions load quickly, a simple approach is acceptable (no complex loading UI needed)
+
+2.	Tag Resolution Logic
+	•	Create computed properties or helper functions to resolve IDs to names:
+		•	getEmotionName(id: string): string | undefined
+			•	Uses emotionStore.getEmotionById(id) to get the emotion
+			•	Returns emotion.name if found, undefined if not found
+		•	getPeopleTagName(id: string): string | undefined
+			•	Uses tagStore.getPeopleTagById(id) to get the tag
+			•	Returns tag.name if found, undefined if not found
+		•	getContextTagName(id: string): string | undefined
+			•	Uses tagStore.getContextTagById(id) to get the tag
+			•	Returns tag.name if found, undefined if not found
+	•	Handle edge cases:
+		•	If an emotion/tag ID doesn't exist in the store (e.g., tag was deleted), skip displaying it rather than showing an error
+		•	If entry.emotionIds, entry.peopleTagIds, or entry.contextTagIds are undefined or null, treat as empty arrays
+		•	Filter out any undefined names before rendering chips
+
+3.	Tag Display Section
+	•	Add a new section in each entry card (below the preview text, before the card ends):
+		•	Location: Inside the AppCard component, after the body preview paragraph (line 122-124)
+		•	Only render this section if the entry has at least one tag or emotion (don't show empty section)
+	•	Display structure:
+		•	Emotions section (if entry.emotionIds has items):
+			•	Label: "Emotions:" (optional, or just show chips without label)
+			•	Display each emotion as a chip showing the emotion name
+			•	Use a distinct visual style for emotion chips (e.g., specific color, icon, or chip variant)
+		•	People tags section (if entry.peopleTagIds has items):
+			•	Label: "People:" (optional, or just show chips without label)
+			•	Display each people tag as a chip showing the tag name
+			•	Use a distinct visual style for people tag chips (different from emotions)
+		•	Context tags section (if entry.contextTagIds has items):
+			•	Label: "Context:" (optional, or just show chips without label)
+			•	Display each context tag as a chip showing the tag name
+			•	Use a distinct visual style for context tag chips (different from emotions and people)
+	•	Layout options:
+		•	Option A: Three separate rows (one for each type)
+		•	Option B: Single row with visual distinction (e.g., different chip colors/styles)
+		•	Option C: Grouped chips with subtle labels or icons
+		•	Recommendation: Use Option B (single row with visual distinction) for compactness, but ensure visual distinction is clear
+	•	Spacing: Add appropriate margin-top (e.g., mt-3 or mt-4) to separate tags from preview text
+
+4.	Chip Component & Styling
+	•	Use Material Design–style chips for displaying tags:
+		•	Can create a simple chip component inline or use existing AppCard/AppButton styling
+		•	Each chip should:
+			•	Display the tag/emotion name
+			•	Be visually distinct based on type (emotion vs. people vs. context)
+			•	Have appropriate padding and rounded corners
+			•	Be readable and accessible
+	•	Visual distinction strategies:
+		•	Different background colors (e.g., emotions: warm colors, people: blue tones, context: green tones)
+		•	Different border styles (e.g., emotions: filled, people: outlined, context: dashed)
+		•	Different icons or prefixes (e.g., emotions: emoji/icon, people: person icon, context: location icon)
+		•	Recommendation: Use color differentiation as primary method, with subtle icon differences if needed
+	•	Responsive design:
+		•	Chips should wrap to multiple lines if needed (use flex-wrap)
+		•	No truncation: all tags are shown, even if they wrap
+		•	Ensure chips remain readable on mobile devices (adequate touch target size)
+
+5.	Empty State Handling
+	•	If an entry has no tags or emotions (all arrays are empty or undefined):
+		•	Don't render the tags section at all (keep cards clean)
+		•	No placeholder text needed (tags are optional)
+	•	If an entry has some tags but some IDs fail to resolve:
+		•	Only display tags/emotions that successfully resolve
+		•	Don't show error messages or placeholders for missing tags
+		•	Silently skip invalid IDs (graceful degradation)
+
+6.	Performance Considerations
+	•	Tag resolution happens for each entry in the list:
+		•	Since stores are in-memory arrays, lookups are fast (O(n) but n is small)
+		•	Consider memoizing resolved names if performance becomes an issue (not needed for initial implementation)
+	•	Store loading:
+		•	Emotions load once from JSON (fast)
+		•	Tags load from IndexedDB (may take a moment on first load)
+		•	Consider loading tags/emotions in parallel with journal entries if possible
+	•	Rendering optimization:
+		•	Only resolve and render tags for visible entries (Vue's reactivity handles this automatically)
+		•	No need for virtual scrolling unless the entry list becomes very large (out of scope)
+
+7.	Unit Test Updates
+	•	Update src/views/__tests__/JournalView.spec.ts:
+		•	Mock useEmotionStore and useTagStore:
+			•	Mock getEmotionById to return emotion objects
+			•	Mock getPeopleTagById and getContextTagById to return tag objects
+			•	Mock loadEmotions, loadPeopleTags, loadContextTags actions
+		•	Add test cases:
+			•	Entry with emotions displays emotion chips:
+				•	Create entry with emotionIds: ['emotion-1', 'emotion-2']
+				•	Mock emotionStore.getEmotionById to return emotion names
+				•	Assert emotion names appear as chips
+			•	Entry with people tags displays people tag chips:
+				•	Create entry with peopleTagIds: ['people-1', 'people-2']
+				•	Mock tagStore.getPeopleTagById to return tag names
+				•	Assert tag names appear as chips
+			•	Entry with context tags displays context tag chips:
+				•	Create entry with contextTagIds: ['context-1', 'context-2']
+				•	Mock tagStore.getContextTagById to return tag names
+				•	Assert tag names appear as chips
+			•	Entry with all tag types displays all chips with visual distinction:
+				•	Create entry with emotions, people tags, and context tags
+				•	Assert all chips render
+				•	Assert chips have different styles/colors (visual distinction)
+			•	Entry without tags doesn't show tags section:
+				•	Create entry with empty or undefined tag arrays
+				•	Assert tags section is not rendered
+			•	Invalid tag IDs are skipped gracefully:
+				•	Create entry with emotionIds: ['invalid-id']
+				•	Mock getEmotionById to return undefined for invalid ID
+				•	Assert no chip is rendered for invalid ID (no error thrown)
+			•	Stores are loaded on mount:
+				•	Assert emotionStore.loadEmotions is called
+				•	Assert tagStore.loadPeopleTags is called
+				•	Assert tagStore.loadContextTags is called
+			•	Tags wrap to multiple lines when needed:
+				•	Create entry with many tags
+				•	Assert chips wrap (check CSS classes or layout)
+		•	Ensure existing tests still pass:
+			•	Entry cards still render correctly
+			•	Clicking cards still navigates to edit route
+			•	Delete functionality still works
+
+8.	Manual Verification / QA Notes
+	•	Test in the browser to ensure:
+		•	Tags appear below preview text on entry cards
+		•	Emotion chips, people tag chips, and context tag chips are visually distinct
+		•	All tags are shown (no truncation), wrapping to multiple lines if needed
+		•	Entries without tags don't show empty tag sections
+		•	Tags load correctly even if stores load after entries
+		•	Invalid tag IDs don't cause errors or broken UI
+		•	Layout remains responsive on mobile and desktop
+		•	Visual distinction is clear enough for users to differentiate tag types at a glance
+
+⸻
+
+Acceptance Criteria
+
+	•	JournalView displays emotions, people tags, and context tags on each entry card as chips
+	•	Tags are displayed below the entry preview text (body preview)
+	•	Emotion chips, people tag chips, and context tag chips are visually distinct (different colors/styles)
+	•	All tags are shown (no truncation); chips wrap to multiple lines if needed
+	•	Tag names are displayed (not IDs); IDs are resolved to names using stores
+	•	Entries without tags don't show empty tag sections
+	•	Invalid or missing tag IDs are skipped gracefully (no errors, no broken UI)
+	•	useEmotionStore and useTagStore are integrated:
+		•	Stores are loaded on component mount
+		•	Tag/emotion IDs are resolved to names using store getters
+	•	JournalView unit tests cover:
+		•	Displaying emotions, people tags, and context tags
+		•	Visual distinction between tag types
+		•	Empty state handling
+		•	Invalid ID handling
+		•	Store loading
+	•	No regressions to existing functionality:
+		•	Entry cards still render correctly
+		•	Navigation to edit route still works
+		•	Delete functionality still works
+	•	No linting errors or TypeScript errors
+	•	Layout is responsive and accessible
+
+⸻
+
+Out of Scope
+
+	•	Clicking tags to filter entries (this will come in Profile view later)
+	•	Editing tags from the entry card (users navigate to editor for that)
+	•	Tag management UI (viewing all tags, editing tag names) – this will come in a later epic
+	•	Tag search or autocomplete in the view
+	•	Bulk tag operations
+	•	Tag statistics or analytics
+	•	E2E tests (comprehensive testing comes in Story 12)
+	•	Advanced animations or transitions for tag display
+	•	Tag tooltips or detailed information on hover
+	•	Reordering or sorting tags
+
+⸻
+
+Inconsistencies & Notes
+
+1.	Store Loading Timing:
+	•	Story 7 (Journal Editor Integration) loads emotion and tag stores when the editor mounts
+	•	Story 8 needs to load these stores when JournalView mounts
+	•	This is consistent – each view loads what it needs
+	•	However, if both views are used in the same session, stores may already be loaded
+	•	Resolution: Check if stores are already loaded before calling load actions (idempotent loading)
+	•	This matches the pattern used in Story 7 and doesn't require backtracking
+
+2.	Tag Resolution Performance:
+	•	For each entry, we need to resolve multiple IDs to names
+	•	If there are many entries with many tags, this could involve many lookups
+	•	However, stores use in-memory arrays, so lookups are fast
+	•	If performance becomes an issue, we could memoize resolved names, but this is not needed for initial implementation
+	•	No inconsistency here – the approach is sound
+
+3.	Visual Distinction Requirements:
+	•	The epic specifies "Visual distinction: different chip styles or colors for emotions vs. people vs. context tags"
+	•	The exact implementation (colors, styles, icons) is not specified in detail
+	•	Resolution: Use color differentiation as primary method, with clear visual distinction
+	•	This is additive and doesn't conflict with any previous stories
+
+4.	Missing Tag/Emotion Handling:
+	•	If a tag or emotion ID exists in an entry but the tag/emotion was deleted from the store, the ID won't resolve
+	•	The epic doesn't specify how to handle this case
+	•	Resolution: Skip displaying the tag gracefully (don't show error, don't show broken chip)
+	•	This is a reasonable default behavior and doesn't conflict with Story 7 (which handles tag creation, not deletion from entries)
+
+5.	Optional Fields in JournalEntry:
+	•	Story 6 made emotionIds, peopleTagIds, and contextTagIds optional in the JournalEntry interface
+	•	Story 8 must handle undefined/null values gracefully
+	•	Resolution: Treat undefined/null as empty arrays when checking for tags to display
+	•	This is consistent with Story 6's approach and doesn't require backtracking
+
+6.	Database Migration Dependency:
+	•	Story 5 (Database Migration Strategy) ensured all existing journal entries have emotionIds, peopleTagIds, and contextTagIds fields (as empty arrays if they didn't exist before)
+	•	Story 8 can assume these fields exist, but should still handle undefined/null for safety
+	•	No inconsistency – Story 8 handles both migrated entries (with fields) and edge cases (undefined)
+
+7.	Component Reusability:
+	•	Story 8 displays tags in JournalView entry cards
+	•	Story 10 (Emotions View Implementation) will also display tags in emotion log cards
+	•	Consider creating a reusable tag display component, but this is not required for Story 8
+	•	Resolution: For Story 8, implement tag display inline in JournalView. If Story 10 needs similar functionality, we can extract a component then
+	•	This avoids premature abstraction and doesn't conflict with Story 7 or earlier stories
+
+8.	Consistency Check with Story 7:
+	•	Story 7 (just implemented) added tag selection to JournalEditorView
+	•	Story 8 displays those tags in JournalView
+	•	The flow is: User selects tags in editor (Story 7) → Tags are saved → Tags are displayed in list (Story 8)
+	•	No inconsistencies: Story 7 saves tag IDs, Story 8 displays tag names resolved from IDs
+	•	Both stories use the same stores (useEmotionStore, useTagStore) consistently
+
+9.	Tag Display Order:
+	•	The epic doesn't specify the order in which tags should be displayed (emotions first? people first? context first?)
+	•	Resolution: Use a logical order (e.g., emotions → people → context) or group them together
+	•	This is an implementation detail and doesn't conflict with any previous stories
+
+10.	Accessibility:
+	•	Tag chips should be accessible (keyboard navigable, proper ARIA labels)
+	•	However, since chips are display-only (not interactive), basic accessibility is sufficient
+	•	If chips become clickable in the future (e.g., to filter), accessibility can be enhanced then
+	•	No inconsistency – Story 8 focuses on display, not interaction
+
+11.	Story Dependencies:
+	•	Story 8 depends on:
+		•	Story 1 (Emotions Database & Domain Model) – emotions exist in store ✓
+		•	Story 2 (People & Context Tag Domain Models) – tag stores exist ✓
+		•	Story 5 (Database Migration Strategy) – journal entries have tag fields ✓
+		•	Story 6 (JournalEntry Data Model Updates) – entries include tag IDs ✓
+		•	Story 7 (Journal Editor Integration) – tags can be added to entries ✓
+	•	All dependencies are satisfied, so Story 8 can proceed
+
+12.	Consistency Check with Recent Changes:
+	•	Verification that Story 8 aligns with current codebase state:
+		•	JournalEntry interface has emotionIds, peopleTagIds, contextTagIds (optional) ✓
+		•	JournalView displays entry cards with title, date, and body preview ✓
+		•	useEmotionStore has getEmotionById() method ✓
+		•	useTagStore has getPeopleTagById() and getContextTagById() methods ✓
+		•	JournalEditorView (Story 7) saves tag IDs when creating/updating entries ✓
+		•	All components created in previous stories will continue to work after Story 8
+		•	Story 8 is purely additive (adds tag display) and doesn't modify existing functionality
+		•	No inconsistencies detected that would require backtracking from Story 7 or earlier stories
+

@@ -1,0 +1,602 @@
+Story 11 – Emotion Log Editor
+
+Goal
+
+Implement the Emotion Log Editor (EmotionLogEditorView) to enable users to create and edit emotion logs. This story creates a dedicated editor view that allows users to select emotions (required), add an optional note, and tag people and context (optional). The editor follows the same patterns established in JournalEditorView (Story 7) for consistency, uses the EmotionSelector and TagInput components created in Stories 3 and 4, and integrates with useEmotionLogStore from Story 9. The editor supports both create mode (/emotions/edit) and edit mode (/emotions/:id/edit), with validation ensuring at least one emotion is always selected.
+
+⸻
+
+Scope
+
+1.	EmotionLogEditorView Component Creation
+	•	Create src/views/EmotionLogEditorView.vue:
+		•	Follow the same structure and patterns as JournalEditorView.vue
+		•	Use AppShell layout (already handles top app bar and bottom nav)
+		•	Container with responsive padding (container mx-auto px-4 py-6)
+		•	Flex column layout with min-h-full for proper spacing
+	•	Component structure:
+		•	Loading state (when loading log data in edit mode)
+		•	Timestamp display (current date/time in create mode, log's createdAt in edit mode)
+		•	Emotions section (required) with EmotionSelector component
+		•	Note field (optional) with textarea
+		•	People tags section (optional) with TagInput component
+		•	Context tags section (optional) with TagInput component
+		•	Action buttons (Save and Cancel) at the bottom
+		•	AppSnackbar for error messages and validation feedback
+
+2.	Route Configuration
+	•	Update src/router/index.ts to add two new routes:
+		•	Route: /emotions/edit
+			•	Name: 'emotions-edit'
+			•	Component: EmotionLogEditorView
+			•	Create mode (no ID parameter)
+		•	Route: /emotions/:id/edit
+			•	Name: 'emotions-edit-id'
+			•	Component: EmotionLogEditorView
+			•	Edit mode (ID parameter from route)
+	•	Import EmotionLogEditorView component
+	•	Follow the same pattern as journal editor routes (/journal/edit and /journal/:id/edit)
+
+3.	AppShell Back Button Configuration
+	•	Update src/components/AppShell.vue:
+		•	Extend showBackButton computed property to include emotion editor routes:
+			•	Check if route.path === '/emotions/edit'
+			•	Check if route.path matches /^\/emotions\/[^/]+\/edit$/
+		•	Extend backRoute computed property to return '/emotions' when on emotion editor routes
+		•	This ensures back button appears and navigates correctly when editing emotion logs
+		•	Follow the same pattern as journal editor routes
+
+4.	Store Integration & Data Loading
+	•	Import and initialize stores in EmotionLogEditorView:
+		•	useEmotionLogStore() – to create/update emotion logs
+		•	useEmotionStore() – to load emotions for EmotionSelector
+		•	useTagStore() – to load tags for TagInput components
+	•	On component mount:
+		•	If in create mode (/emotions/edit):
+			•	Initialize local state with empty values:
+				•	selectedEmotionIds: []
+				•	note: ''
+				•	selectedPeopleTagIds: []
+				•	selectedContextTagIds: []
+			•	Load emotions if not already loaded (check emotionStore.isLoaded)
+			•	Load people tags if empty (check tagStore.peopleTags.length)
+			•	Load context tags if empty (check tagStore.contextTags.length)
+		•	If in edit mode (/emotions/:id/edit):
+			•	Extract log ID from route.params.id
+			•	Load the log data using emotionLogStore or repository
+			•	Pre-populate all fields with log data:
+				•	selectedEmotionIds: log.emotionIds
+				•	note: log.note || ''
+				•	selectedPeopleTagIds: log.peopleTagIds || []
+				•	selectedContextTagIds: log.contextTagIds || []
+			•	Load emotions, people tags, and context tags (same as create mode)
+	•	Handle loading states:
+		•	Show loading indicator while loading log data (edit mode only)
+		•	Show loading indicators for emotion/tag sections while data loads
+		•	Use same loading pattern as JournalEditorView
+	•	Handle error states:
+		•	If log not found (edit mode), show error and navigate back to /emotions
+		•	If loading fails, show error via AppSnackbar
+		•	Allow user to retry or navigate back
+
+5.	Emotions Section (Required)
+	•	Display EmotionSelector component:
+		•	Use v-model binding: v-model="selectedEmotionIds"
+		•	Show loading state if emotions are not loaded yet
+		•	Section header: "Emotions" with description explaining emotions are required
+		•	Visual indication that this section is required (e.g., asterisk or "Required" label)
+	•	Validation:
+		•	Before saving, validate that selectedEmotionIds.length > 0
+		•	If validation fails, show error message via AppSnackbar: "Please select at least one emotion"
+		•	Prevent save if validation fails
+		•	Validation error should be clear and user-friendly
+	•	Layout:
+		•	Section with border-top separator (border-t border-outline/40 pt-6)
+		•	Header with title and description
+		•	Loading state or EmotionSelector component
+
+6.	Note Field (Optional)
+	•	Display textarea for note input:
+		•	Label: "Note" (optional)
+		•	Placeholder: "Add a brief note about this emotion log (optional)"
+		•	v-model binding: v-model="note"
+		•	Textarea styling: same as JournalEditorView body textarea
+		•	Rows: 4-6 (shorter than journal body since notes are brief)
+		•	Resizable: resize-y
+		•	Optional field indicator (e.g., "(optional)" in label or placeholder)
+	•	Layout:
+		•	Section with border-top separator
+		•	Label and textarea
+		•	No validation required (optional field)
+
+7.	People Tags Section (Optional)
+	•	Display TagInput component for people tags:
+		•	Use v-model binding: v-model="selectedPeopleTagIds"
+		•	Set tag-type prop: tag-type="people"
+		•	Show loading state if people tags are not loaded yet
+		•	Section header: "People" with description explaining this is optional
+	•	Layout:
+		•	Section with border-top separator
+		•	Header with title and description
+		•	Loading state or TagInput component
+		•	Same pattern as JournalEditorView
+
+8.	Context Tags Section (Optional)
+	•	Display TagInput component for context tags:
+		•	Use v-model binding: v-model="selectedContextTagIds"
+		•	Set tag-type prop: tag-type="context"
+		•	Show loading state if context tags are not loaded yet
+		•	Section header: "Context" with description explaining this is optional
+	•	Layout:
+		•	Section with border-top separator
+		•	Header with title and description
+		•	Loading state or TagInput component
+		•	Same pattern as JournalEditorView
+
+9.	Timestamp Display
+	•	Display timestamp at the top of the editor:
+		•	In create mode: Show current date/time
+			•	Format: "Today, HH:MM" if today, otherwise full date/time
+			•	Use same formatting logic as JournalEditorView
+		•	In edit mode: Show log's createdAt timestamp
+			•	Use formatEntryDate() utility function
+			•	Display: "Created on [formatted date]"
+		•	Styling: text-sm text-on-surface-variant (muted styling)
+		•	Position: Below top app bar, above form fields
+
+10.	Save Functionality
+	•	Save button (primary filled button):
+		•	Label: "Save" (or "Saving..." when saving)
+		•	Disabled state: isSaving || !isValid
+		•	isValid: computed property checking selectedEmotionIds.length > 0
+		•	Click handler: handleSave()
+	•	handleSave() function:
+		•	Validate that selectedEmotionIds.length > 0
+		•	If validation fails, show error via AppSnackbar and return early
+		•	Set isSaving to true
+		•	Prepare payload:
+			•	emotionIds: selectedEmotionIds.value
+			•	note: note.value.trim() || undefined (empty string becomes undefined)
+			•	peopleTagIds: selectedPeopleTagIds.value.length > 0 ? selectedPeopleTagIds.value : undefined
+			•	contextTagIds: selectedContextTagIds.value.length > 0 ? selectedContextTagIds.value : undefined
+		•	If in create mode:
+			•	Call emotionLogStore.createLog(payload)
+			•	On success: Navigate to /emotions, show success message via AppSnackbar
+			•	On error: Show error message via AppSnackbar, keep isSaving false
+		•	If in edit mode:
+			•	Create updated log object:
+				•	id: currentLog.value.id
+				•	createdAt: currentLog.value.createdAt (preserve original)
+				•	updatedAt: (will be set by store)
+				•	...payload
+			•	Call emotionLogStore.updateLog(updatedLog)
+			•	On success: Navigate to /emotions, show success message via AppSnackbar
+			•	On error: Show error message via AppSnackbar, keep isSaving false
+		•	Set isSaving to false in finally block
+		•	Handle errors gracefully (catch and display via AppSnackbar)
+
+11.	Cancel Functionality
+	•	Cancel button (text variant):
+		•	Label: "Cancel"
+		•	Disabled state: isSaving (prevent cancellation during save)
+		•	Click handler: handleCancel()
+	•	handleCancel() function:
+		•	Navigate back to /emotions using router.push('/emotions')
+		•	No confirmation dialog needed (user can always come back)
+		•	No data loss warning (emotion logs are quick to recreate)
+
+12.	Mode Detection
+	•	Detect create vs edit mode:
+		•	Use computed property: isEditMode
+		•	Check: !!route.params.id && typeof route.params.id === 'string'
+		•	Same pattern as JournalEditorView
+	•	Use isEditMode to:
+		•	Determine title in top app bar (via AppShell, but can be customized)
+		•	Determine timestamp display (current time vs log's createdAt)
+		•	Determine save behavior (createLog vs updateLog)
+		•	Determine initial data loading (empty vs load from store)
+
+13.	Data Loading in Edit Mode
+	•	loadLog() function:
+		•	Extract ID from route.params.id
+		•	Set isLoading to true
+		•	Try to find log in emotionLogStore.logs first (faster, already loaded)
+		•	If not found in store, load from repository (emotionLogDexieRepository.getById)
+		•	If log not found, show error and navigate to /emotions
+		•	If found, sync log data to form fields using syncLogToForm()
+		•	Handle errors gracefully (show error, navigate back)
+		•	Set isLoading to false in finally block
+	•	syncLogToForm() function:
+		•	Set currentLog ref to the loaded log
+		•	Set selectedEmotionIds: [...log.emotionIds]
+		•	Set note: log.note || ''
+		•	Set selectedPeopleTagIds: [...(log.peopleTagIds || [])]
+		•	Set selectedContextTagIds: [...(log.contextTagIds || [])]
+		•	Create copies of arrays to avoid reference issues
+
+14.	Loading State Management
+	•	Separate loading states for different sections:
+		•	isLoading: boolean – loading log data (edit mode only)
+		•	isEmotionDataLoading: boolean – loading emotions
+		•	arePeopleTagsLoading: boolean – loading people tags
+		•	areContextTagsLoading: boolean – loading context tags
+	•	Computed properties for section loading:
+		•	isEmotionSectionLoading: computed(() => isEmotionDataLoading.value || !emotionStore.isLoaded)
+		•	Similar for tag sections
+	•	Loading UI:
+		•	Show "Loading entry..." when isLoading is true (edit mode)
+		•	Show "Loading emotions..." when isEmotionSectionLoading is true
+		•	Show "Loading people tags..." when arePeopleTagsLoading is true
+		•	Show "Loading context tags..." when areContextTagsLoading is true
+		•	Use same loading UI pattern as JournalEditorView
+
+15.	Error Handling & User Feedback
+	•	Loading errors:
+		•	If log not found (edit mode), show error via AppSnackbar and navigate to /emotions
+		•	If emotions fail to load, show error via AppSnackbar (but allow user to continue)
+		•	If tags fail to load, show error via AppSnackbar (but allow user to continue)
+	•	Save errors:
+		•	If validation fails (no emotions selected), show error: "Please select at least one emotion"
+		•	If createLog() throws error, catch and show error via AppSnackbar
+		•	If updateLog() throws error, catch and show error via AppSnackbar
+		•	Error messages should be user-friendly and actionable
+	•	Success feedback:
+		•	After successful save, show success message: "Emotion log saved successfully"
+		•	Navigate to /emotions after successful save
+	•	Use AppSnackbar for all user feedback (errors and success)
+
+16.	Responsive Design & Accessibility
+	•	Layout:
+		•	Use container with mx-auto and px-4 for responsive padding
+		•	Use flex-col for vertical layout
+		•	Form fields should be full-width on mobile
+		•	Action buttons should stack vertically on mobile, horizontally on desktop
+	•	Accessibility:
+		•	All form fields have proper labels
+		•	Required fields are clearly marked (emotions section)
+		•	Error messages are announced (via AppSnackbar)
+		•	Loading states are announced (via disabled attributes and text)
+		•	Keyboard navigation works (form fields, buttons)
+		•	Focus management (AppShell handles top app bar focus)
+	•	Touch targets:
+		•	Buttons should have adequate touch target size (min-w-[44px] min-h-[44px])
+		•	Form fields should have adequate padding for touch
+
+17.	Unit Test Updates
+	•	Create src/views/__tests__/EmotionLogEditorView.spec.ts:
+		•	Mock useEmotionLogStore, useEmotionStore, and useTagStore:
+			•	Mock createLog, updateLog actions
+			•	Mock loadLogs, loadEmotions, loadPeopleTags, loadContextTags actions
+			•	Mock isLoading, error state
+			•	Mock isLoaded flag (emotionStore)
+			•	Mock peopleTags, contextTags arrays (tagStore)
+		•	Mock router (useRouter from vue-router):
+			•	Mock push() method to track navigation calls
+		•	Mock route (useRoute from vue-router):
+			•	Mock params.id for edit mode tests
+			•	Mock path for route detection
+		•	Add test cases:
+			•	Create mode renders correctly:
+				•	Assert timestamp shows current date/time
+				•	Assert all form fields are empty
+				•	Assert "Save" and "Cancel" buttons are present
+			•	Edit mode loads and displays log data:
+				•	Mock route.params.id
+				•	Mock log data in store
+				•	Assert log data is loaded and displayed
+				•	Assert timestamp shows log's createdAt
+			•	Emotions section renders EmotionSelector:
+				•	Assert EmotionSelector component is rendered
+				•	Assert v-model binding works
+			•	Note field renders textarea:
+				•	Assert textarea is rendered
+				•	Assert v-model binding works
+			•	People tags section renders TagInput:
+				•	Assert TagInput component is rendered with tag-type="people"
+				•	Assert v-model binding works
+			•	Context tags section renders TagInput:
+				•	Assert TagInput component is rendered with tag-type="context"
+				•	Assert v-model binding works
+			•	Save button validates emotions (create mode):
+				•	Try to save without selecting emotions
+				•	Assert validation error is shown
+				•	Assert createLog() is not called
+			•	Save button creates log with valid data (create mode):
+				•	Select emotions, add note and tags
+				•	Click save
+				•	Assert createLog() is called with correct payload
+				•	Assert navigation to /emotions
+				•	Assert success message is shown
+			•	Save button validates emotions (edit mode):
+				•	Load log, remove all emotions
+				•	Try to save
+				•	Assert validation error is shown
+				•	Assert updateLog() is not called
+			•	Save button updates log with valid data (edit mode):
+				•	Load log, modify fields
+				•	Click save
+				•	Assert updateLog() is called with correct payload (including id and createdAt)
+				•	Assert navigation to /emotions
+				•	Assert success message is shown
+			•	Cancel button navigates to /emotions:
+				•	Click cancel
+				•	Assert router.push('/emotions') is called
+			•	Loading state displays while loading log (edit mode):
+				•	Mock isLoading to true
+				•	Assert loading indicator is displayed
+			•	Error handling (log not found):
+				•	Mock getById to return undefined
+				•	Assert error message is shown
+				•	Assert navigation to /emotions
+			•	Error handling (save error):
+				•	Mock createLog to throw error
+				•	Assert error message is shown
+				•	Assert navigation does not occur
+			•	Stores are loaded on mount:
+				•	Assert emotionStore.loadEmotions() is called if not loaded
+				•	Assert tagStore.loadPeopleTags() is called if empty
+				•	Assert tagStore.loadContextTags() is called if empty
+			•	Log is loaded on mount (edit mode):
+				•	Assert loadLog() is called with correct ID
+				•	Assert log data is synced to form
+		•	Use Vitest for testing
+		•	Mock components (EmotionSelector, TagInput, AppButton, AppSnackbar) if needed
+		•	Test both success and error scenarios
+
+18.	Manual Verification / QA Notes
+	•	Test in the browser to ensure:
+		•	Navigation from EmotionsView "Log emotion" button works correctly
+		•	Navigation from emotion log card click works correctly
+		•	Create mode displays empty form with current timestamp
+		•	Edit mode loads and displays log data correctly
+		•	EmotionSelector component works correctly (quadrant selection, emotion selection)
+		•	Note textarea works correctly (input, resize)
+		•	People TagInput component works correctly (create tags, select existing tags)
+		•	Context TagInput component works correctly (create tags, select existing tags)
+		•	Save button validates emotions (shows error if none selected)
+		•	Save button creates log correctly (create mode)
+		•	Save button updates log correctly (edit mode)
+		•	Cancel button navigates back to /emotions
+		•	Back button in top app bar works correctly
+		•	Loading states display correctly
+		•	Error handling works (log not found, save errors)
+		•	Success messages display correctly
+		•	Layout is responsive on mobile and desktop
+		•	Accessibility features work (keyboard navigation, screen readers)
+
+⸻
+
+Acceptance Criteria
+
+	•	EmotionLogEditorView component is created in src/views/EmotionLogEditorView.vue
+	•	Routes /emotions/edit and /emotions/:id/edit are added to router/index.ts
+	•	AppShell is updated to show back button for emotion editor routes
+	•	EmotionLogEditorView displays:
+		•	Timestamp (current time in create mode, log's createdAt in edit mode)
+		•	Emotions section with EmotionSelector (required)
+		•	Note field with textarea (optional)
+		•	People tags section with TagInput (optional)
+		•	Context tags section with TagInput (optional)
+		•	Save and Cancel buttons
+	•	Create mode:
+		•	Form fields are empty on mount
+		•	Stores are loaded if needed (emotions, tags)
+		•	Save creates new log via emotionLogStore.createLog()
+		•	Validation: at least one emotion required
+	•	Edit mode:
+		•	Log data is loaded and pre-populated on mount
+		•	Save updates log via emotionLogStore.updateLog()
+		•	Validation: at least one emotion required
+	•	Save functionality:
+		•	Validates emotions before saving
+		•	Shows error if validation fails
+		•	Creates/updates log with correct payload
+		•	Navigates to /emotions on success
+		•	Shows success message via AppSnackbar
+		•	Handles errors gracefully
+	•	Cancel functionality:
+		•	Navigates back to /emotions
+		•	No confirmation dialog needed
+	•	Loading states:
+		•	Shows loading indicator while loading log (edit mode)
+		•	Shows loading indicators for emotion/tag sections
+	•	Error handling:
+		•	Handles log not found (edit mode)
+		•	Handles save errors
+		•	Shows user-friendly error messages
+	•	EmotionLogEditorView unit tests cover:
+		•	Create and edit mode rendering
+		•	Form field rendering and binding
+		•	Save validation and functionality
+		•	Cancel functionality
+		•	Loading states
+		•	Error handling
+		•	Store integration
+	•	No linting errors or TypeScript errors
+	•	Layout is responsive and accessible
+	•	Navigation from EmotionsView works correctly
+	•	The editor is ready for use and completes the emotion logging feature
+
+⸻
+
+Out of Scope
+
+	•	Advanced editor features (rich text, formatting, attachments)
+	•	Emotion statistics or analytics (this will come in Profile view later)
+	•	Bulk operations (bulk edit, bulk delete)
+	•	E2E tests (comprehensive testing comes in Story 12)
+	•	Advanced validation (e.g., checking if emotion IDs exist in store)
+	•	Tag management UI (viewing all tags, editing tag names) – this will come in a later epic
+	•	Filtering or querying logs by emotion, date, or tags (this will come in Profile view later)
+	•	Export or share functionality
+	•	Undo/redo functionality
+	•	Auto-save functionality
+	•	Keyboard shortcuts
+
+⸻
+
+Inconsistencies & Notes
+
+1.	Story 10 Dependency (Navigation):
+	•	Story 10 (just implemented) prepared navigation to /emotions/edit and /emotions/:id/edit routes
+	•	Story 10 handles missing routes gracefully (shows "Coming soon" message)
+	•	Story 11 implements these routes, so navigation from Story 10 will work automatically
+	•	No inconsistency – Story 10 was forward-looking, Story 11 completes the implementation
+
+2.	Route Configuration:
+	•	Story 11 adds routes to router/index.ts
+	•	Routes follow the same pattern as journal editor routes (/journal/edit and /journal/:id/edit)
+	•	No inconsistency – routes are added when the editor component is created (standard pattern)
+
+3.	AppShell Back Button:
+	•	AppShell currently only handles journal editor routes for back button
+	•	Story 11 extends AppShell to also handle emotion editor routes
+	•	This is consistent with the pattern – AppShell should handle all editor routes
+	•	No inconsistency – Story 11 extends existing functionality appropriately
+
+4.	Component Pattern Consistency:
+	•	Story 11 follows the same pattern as Story 7 (JournalEditorView):
+		•	Same layout structure (container, sections, action buttons)
+		•	Same loading state management
+		•	Same error handling pattern
+		•	Same store integration pattern
+		•	Same validation approach (but different validation rules)
+	•	No inconsistency – Story 11 follows established patterns
+
+5.	Validation Requirements:
+	•	Emotion logs require at least one emotion (different from journal entries)
+	•	Story 11 implements validation in the component (before calling store)
+	•	Story 9 also validates in the store (defense in depth)
+	•	No inconsistency – validation at both layers is appropriate
+
+6.	Store Pattern Consistency:
+	•	Story 11 uses useEmotionLogStore (from Story 9) for CRUD operations
+	•	Story 11 uses useEmotionStore and useTagStore (from Stories 1 and 2) for data loading
+	•	This matches the pattern used in JournalEditorView
+	•	No inconsistency – store usage is consistent
+
+7.	Component Reusability:
+	•	Story 11 uses EmotionSelector and TagInput components (from Stories 3 and 4)
+	•	These components are already tested and working
+	•	Story 11 doesn't modify these components, only uses them
+	•	No inconsistency – components are reused appropriately
+
+8.	Timestamp Display:
+	•	Story 11 uses formatEntryDate() utility (same as JournalEditorView)
+	•	Create mode shows current date/time (same formatting logic as JournalEditorView)
+	•	Edit mode shows log's createdAt (using formatEntryDate)
+	•	No inconsistency – timestamp formatting is consistent
+
+9.	Optional Fields Handling:
+	•	EmotionLog interface has optional fields: note?, peopleTagIds?, contextTagIds?
+	•	Story 11 handles these optional fields correctly:
+		•	Empty strings become undefined
+		•	Empty arrays become undefined
+		•	This matches the interface definition and Story 9's expectations
+	•	No inconsistency – optional fields are handled correctly
+
+10.	Payload Preparation:
+	•	Story 11 prepares payload with optional fields as undefined (not empty arrays/strings)
+	•	This matches Story 9's createLog/updateLog expectations
+	•	No inconsistency – payload format is correct
+
+11.	Error Handling Pattern:
+	•	Story 11 handles errors the same way as JournalEditorView:
+		•	Loading errors: Show via AppSnackbar, navigate back if needed
+		•	Save errors: Show via AppSnackbar, don't navigate
+		•	Validation errors: Show via AppSnackbar, prevent save
+	•	No inconsistency – error handling is consistent
+
+12.	Navigation Pattern:
+	•	Story 11 navigates to /emotions after successful save (same as JournalEditorView navigates to /journal)
+	•	Story 11 navigates to /emotions on cancel (same as JournalEditorView)
+	•	No inconsistency – navigation patterns are consistent
+
+13.	Loading Strategy:
+	•	Story 11 loads stores on mount (emotions, tags) if needed
+	•	Story 11 loads log data on mount (edit mode only)
+	•	This matches the pattern used in JournalEditorView
+	•	No inconsistency – loading strategy is consistent
+
+14.	Success Feedback:
+	•	Story 11 shows success message after save (same as JournalEditorView)
+	•	Story 11 navigates after successful save (same as JournalEditorView)
+	•	No inconsistency – success feedback is consistent
+
+15.	Component Structure:
+	•	Story 11 uses AppShell (same as all views)
+	•	Story 11 uses AppButton, AppSnackbar (same as JournalEditorView)
+	•	Story 11 uses EmotionSelector, TagInput (same as JournalEditorView)
+	•	No inconsistency – component structure is consistent
+
+16.	Type Safety:
+	•	TypeScript should ensure type safety throughout:
+		•	EmotionLog type matches the interface from Story 9
+		•	Store methods use correct types
+		•	Component props and emits use correct types
+	•	No type assertions or `any` types should be needed
+	•	If type errors occur, they should be resolved by properly typing the interfaces and methods
+
+17.	Future Integration:
+	•	Story 11 completes the emotion logging feature (Stories 9, 10, 11)
+	•	Story 12 (Comprehensive Testing) will add integration tests
+	•	The separation is clean: Stories 9-11 = feature implementation, Story 12 = comprehensive testing
+	•	No inconsistency – stories are well-separated
+
+18.	Accessibility Considerations:
+	•	Story 11 follows accessibility best practices:
+		•	Form fields have proper labels
+		•	Required fields are clearly marked
+		•	Error messages are announced
+		•	Loading states are announced
+		•	Keyboard navigation works
+	•	This matches the accessibility approach used in JournalEditorView
+	•	No inconsistency – accessibility is handled consistently
+
+19.	Performance Considerations:
+	•	Story 11 loads stores and resolves IDs to names (same as JournalEditorView)
+		•	Since stores are in-memory arrays, lookups are fast
+		•	If performance becomes an issue, we could memoize resolved names, but this is not needed for initial implementation
+	•	This matches the performance approach used in JournalEditorView
+	•	No inconsistency – performance considerations are consistent
+
+20.	Consistency Check with Recent Changes:
+	•	Verification that Story 11 aligns with current codebase state:
+		•	EmotionLog interface exists in src/domain/emotionLog.ts ✓
+		•	useEmotionLogStore exists with createLog/updateLog actions ✓
+		•	EmotionSelector component exists and works ✓
+		•	TagInput component exists and works ✓
+		•	AppShell component exists and handles back button ✓
+		•	JournalEditorView pattern exists to follow ✓
+		•	formatEntryDate utility exists ✓
+	•	All components created in previous stories will continue to work after Story 11
+	•	Story 11 is purely additive (adds new editor view) and doesn't modify existing functionality
+	•	No inconsistencies detected that would require backtracking from Story 10 or earlier stories
+
+21.	Top App Bar Title:
+	•	The epic mentions: "Title such as 'Log emotion' or 'Edit log' (depending on mode)"
+	•	However, we will keep the default title "Mindful Growth" for consistency with JournalEditorView
+	•	AppTopAppBar shows "Mindful Growth" as the default title for all views
+	•	This is an intentional design decision – custom titles are not needed for Story 11
+	•	No inconsistency – Story 11 follows the same pattern as JournalEditorView
+
+22.	Route Naming Convention:
+	•	Story 11 uses route names: 'emotions-edit' and 'emotions-edit-id'
+	•	This follows the same convention as journal routes: 'journal-edit' and 'journal-edit-id'
+	•	No inconsistency – route naming is consistent
+
+23.	Component Naming Convention:
+	•	Story 11 creates EmotionLogEditorView component
+	•	This follows the same convention as JournalEditorView
+	•	No inconsistency – component naming is consistent
+
+24.	File Structure:
+	•	Story 11 creates src/views/EmotionLogEditorView.vue
+	•	This follows the same structure as other views
+	•	No inconsistency – file structure is consistent
+
+25.	Test File Structure:
+	•	Story 11 creates src/views/__tests__/EmotionLogEditorView.spec.ts
+	•	This follows the same structure as other test files
+	•	No inconsistency – test file structure is consistent
+

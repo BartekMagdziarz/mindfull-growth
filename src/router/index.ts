@@ -3,6 +3,7 @@ import TodayView from '@/views/TodayView.vue'
 import JournalView from '@/views/JournalView.vue'
 import JournalEditorView from '@/views/JournalEditorView.vue'
 import EmotionsView from '@/views/EmotionsView.vue'
+import EmotionLogEditorView from '@/views/EmotionLogEditorView.vue'
 import ExercisesView from '@/views/ExercisesView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 
@@ -37,6 +38,16 @@ const router = createRouter({
       path: '/emotions',
       name: 'emotions',
       component: EmotionsView,
+    },
+    {
+      path: '/emotions/edit',
+      name: 'emotions-edit',
+      component: EmotionLogEditorView,
+    },
+    {
+      path: '/emotions/:id/edit',
+      name: 'emotions-edit-id',
+      component: EmotionLogEditorView,
     },
     {
       path: '/exercises',

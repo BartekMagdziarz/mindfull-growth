@@ -18,12 +18,21 @@ export const useJournalStore = defineStore('journal', () => {
   })
 
   // Actions
+  function withDefaults(entry: JournalEntry): JournalEntry {
+    return {
+      ...entry,
+      emotionIds: entry.emotionIds ?? [],
+      peopleTagIds: entry.peopleTagIds ?? [],
+      contextTagIds: entry.contextTagIds ?? [],
+    }
+  }
+
   async function loadEntries() {
     isLoading.value = true
     error.value = null
     try {
       const loadedEntries = await journalDexieRepository.getAll()
-      entries.value = loadedEntries
+      entries.value = loadedEntries.map(withDefaults)
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to load journal entries'
@@ -49,7 +58,7 @@ export const useJournalStore = defineStore('journal', () => {
         peopleTagIds: payload.peopleTagIds ?? [],
         contextTagIds: payload.contextTagIds ?? [],
       }
-      const newEntry = await journalDexieRepository.create(entryData)
+      const newEntry = withDefaults(await journalDexieRepository.create(entryData))
       entries.value.push(newEntry)
       return newEntry
     } catch (err) {
@@ -64,7 +73,7 @@ export const useJournalStore = defineStore('journal', () => {
   async function updateEntry(entry: JournalEntry) {
     error.value = null
     try {
-      const updatedEntry = await journalDexieRepository.update(entry)
+      const updatedEntry = withDefaults(await journalDexieRepository.update(entry))
       const index = entries.value.findIndex((e) => e.id === entry.id)
       if (index !== -1) {
         entries.value[index] = updatedEntry

@@ -1,0 +1,150 @@
+Story 5 – Entries List on Journaling View
+
+Goal
+
+After saving entries, you can actually see them. This story implements the entries list display in JournalView.vue, showing saved journal entries as a vertical list of cards below the three primary action buttons.
+
+⸻
+
+Scope
+
+	1.	JournalView.vue Updates
+	•	Location: Update the existing JournalView.vue component (route: /journal).
+	•	Position: Add the entries list section below the three action cards (Free form, Guided, Periodic).
+	•	Replace the current placeholder entry display logic (lines 64-86) with the new entries list implementation.
+
+	2.	Empty State Display
+	•	When there are no entries (journalStore.sortedEntries.length === 0):
+	•	Display the existing empty state message: "No entries yet" (keep current text from Story 3).
+	•	Style the empty state appropriately (e.g., muted color, centered, comfortable spacing).
+	•	Only show this when not in loading or error state.
+
+	3.	Entries List Display
+	•	When entries exist (journalStore.sortedEntries.length > 0):
+	•	Display a vertical list of entry cards.
+	•	Each entry is rendered as a card row using AppCard component.
+	•	Card content for each entry:
+	•	Title: Display the entry's title if it exists, otherwise display "Untitled entry" as fallback text.
+	•	Date/time: Display the creation date/time in a user-friendly format (e.g., "Today, 14:32" or "Dec 15, 2024, 10:30 AM").
+	•	Preview: Display the first 1–2 lines of the body text as a preview.
+	•	If the body is longer than what fits in 1–2 lines, truncate with ellipsis ("...").
+	•	Note: For simplicity, we can use CSS to limit to 2 lines with text overflow, or truncate to approximately 100-150 characters. The exact implementation can use CSS line-clamp or JavaScript truncation.
+
+	4.	Card Styling & Interaction
+	•	Each entry card:
+	•	Uses AppCard component with appropriate styling.
+	•	Has hover elevation bump (e.g., elevation increases on hover from 1 to 2).
+	•	Padding: py-3 px-4 (using Tailwind classes).
+	•	Rounded corners: Use AppCard's default rounded-lg (no override needed).
+	•	Subtle border or shadow (AppCard already provides this via elevation and border props).
+	•	Spacing: Appropriate gap between cards (e.g., gap-4 or gap-6).
+	•	Clickable state:
+	•	Cards should be visually clickable (cursor-pointer, hover states).
+	•	For this story, clicking a card can either:
+	•	Do nothing (non-clickable behavior, but still visually indicate it's a card).
+	•	Or display a simple read-only detail view (optional, see Notes section).
+	•	Note: Full edit functionality (opening the editor in "edit" mode) will be implemented in a later story/epic.
+
+	5.	Data Source
+	•	Use journalStore.sortedEntries computed property (not journalStore.entries).
+	•	Rationale: The store already provides sortedEntries which sorts by createdAt descending (newest first), which is exactly what we need for the list display.
+	•	The sortedEntries getter is already implemented in the store (from Story 2), so no changes to the store are needed.
+
+	6.	Loading & Error States
+	•	Maintain existing loading and error state handling:
+	•	Show "Loading journal entries..." when journalStore.isLoading is true.
+	•	Show error message when journalStore.error is not null.
+	•	Only show the empty state or entries list when not loading and no error.
+
+⸻
+
+Acceptance Criteria
+
+	•	JournalView.vue displays:
+	•	The three action cards at the top (Free form, Guided, Periodic) - unchanged from Story 3.
+	•	Below the action cards:
+	•	If loading: Shows "Loading journal entries..." message.
+	•	If error: Shows error message with appropriate styling.
+	•	If no entries (and not loading/error): Shows empty state "No entries yet" (existing text from Story 3).
+	•	If entries exist: Shows a vertical list of entry cards.
+	•	Each entry card displays:
+	•	Title (or "Untitled entry" if title is empty).
+	•	Creation date/time in a user-friendly format.
+	•	First 1–2 lines of body text as preview (truncated with ellipsis if longer).
+	•	Card styling:
+	•	Uses AppCard component.
+	•	Has hover elevation bump (elevation increases on hover).
+	•	Uses py-3 px-4 padding.
+	•	Uses AppCard's default rounded-lg corners.
+	•	Has appropriate spacing between cards.
+	•	Entries are displayed in descending order by creation date (newest first).
+	•	Data source:
+	•	Uses journalStore.sortedEntries (not journalStore.entries directly).
+	•	Epic acceptance flow:
+	•	User can go to Journal view.
+	•	Tap Free form.
+	•	Write an entry, save.
+	•	See it in the list below the action cards.
+	•	Refresh the page and the entry persists (loaded from IndexedDB).
+	•	Visual design:
+	•	Follows Material Design principles (consistent with existing AppCard styling).
+	•	Layout uses appropriate Material spacing tokens (via Tailwind classes).
+	•	The list is visually clean and easy to scan.
+	•	Linting and TypeScript checks pass (no new linting or type errors introduced).
+
+⸻
+
+Out of Scope
+
+	•	Editing existing entries (clicking a card to edit will be implemented in a later story/epic).
+	•	Deleting entries from the list view.
+	•	Filtering or searching entries.
+	•	Pagination or infinite scroll (all entries are displayed).
+	•	Rich text rendering in preview (plain text only).
+	•	Any changes to the domain model, repository, or store (already implemented in Story 2).
+	•	Note: Card click behavior is intentionally minimal for this story (see Notes section).
+
+⸻
+
+Notes & Inconsistencies to Review
+
+	1.	Data Source Inconsistency:
+	•	The provided description says "Use journalStore.entries (sorted descending by createdAt)" and mentions "Simple computed sortedEntries."
+	•	However, the store already has a sortedEntries computed property (implemented in Story 2) that does exactly this - it sorts entries by createdAt descending.
+	•	Decision: Use journalStore.sortedEntries instead of journalStore.entries. This is more efficient and follows the existing store design. The description's mention of "Simple computed sortedEntries" suggests this was the intent, but the wording was slightly ambiguous.
+	•	No changes to the store are needed - sortedEntries already exists and works correctly.
+
+	2.	Empty State Text:
+	•	Current implementation (Story 3) shows "No entries yet" as the empty state message.
+	•	The description suggests "Your reflections will show up here."
+	•	Decision: Keep the existing "No entries yet" text. No change needed - the current text is fine.
+
+	3.	Preview Text Length:
+	•	The description says "First 1–2 lines of body as preview."
+	•	The epic document (epic_1) mentions "first 100 characters of the body text, with ellipsis."
+	•	Decision: Use CSS line-clamp to limit to 2 lines, which is more visually consistent and responsive. If CSS line-clamp is not available or doesn't work well, fall back to truncating to approximately 100-150 characters. The "1–2 lines" approach is preferred as it's more flexible across different screen sizes.
+
+	4.	Card Corner Radius:
+	•	The description specifies "rounded-xl" for entry cards.
+	•	AppCard component (from Story 1) uses "rounded-lg" as the default.
+	•	Decision: Use AppCard's default rounded-lg. No override needed - the default is fine for this story.
+
+	5.	Card Click Behavior:
+	•	The description says cards are clickable but notes: "later they can open the editor in 'edit' mode, but in this epic you could just keep them non-clickable or display a read-only detail view if you feel like it."
+	•	Decision: For this story, make cards visually appear clickable (cursor-pointer, hover states) but clicking them does nothing. This prepares the UI for future edit functionality without implementing it now. Alternatively, if time permits, a simple read-only detail view could be shown, but this is optional and not required for epic acceptance.
+
+	6.	Current Entry Display Logic:
+	•	JournalView.vue currently has entry display logic (lines 64-86) that shows:
+	•	Loading state
+	•	Error state
+	•	A count message ("No entries yet" or "X journal entries loaded.")
+	•	Decision: Replace this section with the new entries list implementation. The loading and error states should be preserved, but the count message should be replaced with either the empty state message or the actual entries list.
+
+	7.	Date/Time Formatting:
+	•	The description mentions displaying date/time but doesn't specify the exact format.
+	•	Decision: Use a user-friendly format such as:
+	•	"Today, HH:MM" for entries created today.
+	•	"Yesterday, HH:MM" for entries created yesterday.
+	•	"MMM DD, YYYY, HH:MM AM/PM" for older entries.
+	•	This can be implemented using a simple date formatting utility function or computed property. For simplicity, we can start with a basic format like "Dec 15, 2024, 10:30 AM" and enhance it later if needed.
+

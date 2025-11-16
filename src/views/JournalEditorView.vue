@@ -102,7 +102,7 @@
         <AppButton
           variant="filled"
           @click="handleSave"
-          :disabled="isSaving"
+          :disabled="!canSaveEntry"
           class="flex-1"
         >
           {{ isSaving ? 'Saving...' : 'Save' }}
@@ -155,6 +155,10 @@ const isEditMode = computed(() => {
 
 const isEmotionSectionLoading = computed(() => {
   return isEmotionDataLoading.value || !emotionStore.isLoaded
+})
+
+const canSaveEntry = computed(() => {
+  return body.value.trim().length > 0 && !isSaving.value
 })
 
 const formattedTimestamp = computed(() => {

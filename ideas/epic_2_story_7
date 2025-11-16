@@ -1,0 +1,127 @@
+Story 7 – Journal Editor Integration
+
+Goal
+
+Bring the new emotion and tagging capabilities into the journal authoring flow. This story updates `src/views/JournalEditorView.vue` so creators can select emotions, people tags, and context tags while writing or editing an entry, with all selections persisted through `useJournalStore`. It connects the UI components delivered in Stories 3 & 4 with the data-layer updates from Stories 5 & 6, ensuring a cohesive journaling experience that surfaces the richer metadata we now store.
+
+⸻
+
+Scope
+
+1.	Screen Layout & Structure
+	•	Keep the existing title and body sections exactly as-is to avoid regressions.
+	•	Insert three new sections between the body textarea and the action buttons:
+		•	“Emotions” section with helper copy that explains why selecting emotions is optional but encouraged.
+		•	“People” section for social context tagging.
+		•	“Context” section for situational tags.
+	•	Each section should be visually separated (e.g., headings, subtle dividers) while matching current spacing tokens (Tailwind classes already used in the file).
+	•	Ensure the layout remains responsive on narrow viewports (stacked sections, chips wrap).
+
+2.	Emotion Selector Integration
+	•	Import `EmotionSelector` from `@/components/EmotionSelector.vue`.
+	•	Bind it with `v-model="selectedEmotionIds"` (new `ref<string[]>([])`).
+	•	Load quadrant data via `useEmotionStore()`:
+		•	If the store doesn’t have emotions yet, call its load/init method on mount (Story 3 should already expose this; reuse it rather than reimplementing data fetching).
+	•	Display chosen emotions under the selector using the chip style baked into the component (it surfaces selections automatically).
+	•	Validation is optional for this story; journal entries can still be saved without any selected emotion.
+
+3.	People Tag Input Integration
+	•	Import `TagInput` and configure it for people tags:
+		•	Prop to specify tag type (e.g., `type="people"` or `tagType="people"`, depending on component API from Story 4).
+		•	Bind `v-model="selectedPeopleTagIds"`.
+	•	Use `useTagStore()` to ensure people tags are available:
+		•	Call `loadPeopleTags()` if `peopleTags` is empty when the view mounts.
+	•	Show helper text about reusing names (duplicate handling already lives inside the component via the store).
+
+4.	Context Tag Input Integration
+	•	Reuse the same `TagInput` component instance configured for context tags.
+	•	Bind `v-model="selectedContextTagIds"`.
+	•	Trigger `loadContextTags()` on mount if needed.
+	•	Clearly label the section so users understand it is optional and independent from people tags.
+
+5.	State Management & Defaults
+	•	Add three new refs in the view script:
+		•	`selectedEmotionIds`, `selectedPeopleTagIds`, `selectedContextTagIds` – all default to `[]`.
+	•	In create mode (no route `id`), start these refs as empty arrays.
+	•	In edit mode, populate them from the loaded `currentEntry` so the UI mirrors persisted data.
+	•	When saving, always pass these arrays to `journalStore.createEntry` / `journalStore.updateEntry`.
+	•	Rely on Story 6 defaults only as a safety net; this screen should provide explicit arrays so we don’t regress if defaults change later.
+
+6.	Data Loading Enhancements
+	•	Update `loadEntry()` to capture tagging fields:
+		•	After setting `title` and `body`, assign each selection ref from the entry (fallback to `[]` if undefined to guard against legacy data).
+	•	When falling back to `journalDexieRepository.getById`, remember it already returns the new fields because Story 6 updated persistence—just mirror them locally.
+	•	If the user navigates directly to `/journal/:id/edit`, ensure stores (`useEmotionStore`, `useTagStore`) finish loading before the selector/input render, or handle loading states (e.g., simple skeleton or disabled inputs until data is ready).
+
+7.	Save & Cancel Behavior
+	•	`handleSave()` must include the three new arrays in both create and update payloads.
+	•	Maintain the existing validation that requires `body` content; no extra validation is needed for tags at this stage.
+	•	Disable the Save button while asynchronous store calls run, just as it works today.
+	•	Cancel button still routes back without persisting temporary tag selections.
+
+8.	Empty States & UX Messaging
+	•	If the emotion list or tag stores are still loading, show a short loading indicator or disabled state in each section instead of leaving gaps.
+	•	Add short helper copy in each section to remind users that these selections are optional.
+	•	Errors from the store (e.g., failure to load tags) should reuse the existing `AppSnackbar` to keep UX consistent.
+
+9.	Unit Test Updates
+	•	Update `src/views/__tests__/JournalEditorView.spec.ts`:
+		•	Add tests covering create mode: selecting tags/emotions updates the payload sent to `createEntry`.
+		•	Add tests covering edit mode: existing IDs populate the components and are sent back through `updateEntry`.
+		•	Mock `useEmotionStore` and `useTagStore` to avoid hitting IndexedDB; assert that load actions are called when needed.
+		•	Assert that validation still blocks empty body submissions even when tags are present.
+
+10.	Manual Verification / QA Notes
+	•	Test in the browser (or Cypress devtools) to ensure:
+		•	Sections render correctly on desktop and mobile breakpoints.
+		•	Chips wrap and remain readable.
+		•	Users can add duplicate tag names and the component reuses existing records (functionality should already exist; this test just confirms integration).
+		•	Switching between create/edit routes preserves local selections until Save/Cancel is pressed.
+
+⸻
+
+Acceptance Criteria
+
+	•	`JournalEditorView` presents Emotions, People, and Context sections between the body textarea and action bar.
+	•	EmotionSelector, people TagInput, and context TagInput are fully wired with `v-model` bindings and data from their respective stores.
+	•	In create mode, saving an entry passes `emotionIds`, `peopleTagIds`, and `contextTagIds` arrays to `useJournalStore.createEntry`.
+	•	In edit mode, existing tag/emotion IDs pre-populate the UI, and updates persist via `useJournalStore.updateEntry`.
+	•	Tag/Emotion stores load automatically if not already hydrated; UI handles intermediate loading states gracefully.
+	•	Body validation and snackbar error handling continue to work as before.
+	•	`JournalEditorView` unit tests cover the new bindings and continue to enforce existing behaviors.
+	•	No regressions to unrelated functionality (title/body editing, cancel/save navigation).
+
+⸻
+
+Out of Scope
+
+	•	Displaying tags and emotions on the journal list (covered in Story 8).
+	•	Filtering or searching by tags/emotions.
+	•	Introducing new validation rules (e.g., forcing at least one emotion).
+	•	Refactoring TagInput or EmotionSelector internals—reuse them as delivered.
+	•	Emotion log workflows (Stories 9–11).
+	•	Comprehensive end-to-end testing (Story 12 handles that).
+
+⸻
+
+Inconsistencies & Notes
+
+1.	Store Default Redundancy:
+	•	Story 6 already defaults undefined tag arrays to `[]` inside `useJournalStore.createEntry`.
+	•	This story still needs to pass explicit arrays from the editor so we don’t rely solely on that safeguard; otherwise future refactors (e.g., moving defaults to callers) could break UI expectations and require backtracking.
+
+2.	TagStore Loading Responsibility:
+	•	Currently, tags might be loaded elsewhere in the app (e.g., Emotions view). This story must explicitly call `loadPeopleTags()` / `loadContextTags()` when necessary so JournalEditorView doesn’t assume global preloading.
+	•	Failing to do so would force us to revisit Story 4 or add cross-view side effects later, which the team wants to avoid.
+
+3.	EmotionStore Initialization:
+	•	If EmotionSelector expects `useEmotionStore` to be hydrated beforehand, rendering it in JournalEditorView could surface an empty quadrant grid until the store loads.
+	•	We need to confirm whether the store auto-loads on creation; if not, add an explicit `load` call here and provide a spinner. This is additive and doesn’t undo any previous change, but skipping it would make us revisit Story 3.
+
+4.	Repository Shortcut Risk:
+	•	`loadEntry()` currently falls back to `journalDexieRepository.getById` if the store doesn’t have the entry. We must confirm the repository now returns the new tag fields (Story 6 assumption). If it doesn’t, we’d need to update the repository, which would mean touching prior stories. During implementation verify the repo payload before considering any change to avoid backtracking.
+
+5.	Route Guarding:
+	•	This story does not introduce route guards, but if we observe race conditions (e.g., navigating away mid-save), solve them here instead of deferring, otherwise Story 8 might need to undo work. Document any follow-up tasks rather than silently changing previously delivered behavior.
+
+

@@ -16,15 +16,34 @@ import AppBottomNav from './AppBottomNav.vue'
 
 const route = useRoute()
 
-const showBackButton = computed(() => {
+const isJournalEditorRoute = computed(() => {
   return (
     route.path === '/journal/edit' ||
     route.path.match(/^\/journal\/[^/]+\/edit$/)
   )
 })
 
+const isEmotionEditorRoute = computed(() => {
+  return (
+    route.path === '/emotions/edit' ||
+    route.path.match(/^\/emotions\/[^/]+\/edit$/)
+  )
+})
+
+const showBackButton = computed(() => {
+  return isJournalEditorRoute.value || isEmotionEditorRoute.value
+})
+
 const backRoute = computed(() => {
-  return showBackButton.value ? '/journal' : undefined
+  if (isJournalEditorRoute.value) {
+    return '/journal'
+  }
+
+  if (isEmotionEditorRoute.value) {
+    return '/emotions'
+  }
+
+  return undefined
 })
 </script>
 

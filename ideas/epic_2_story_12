@@ -1,0 +1,550 @@
+Story 12 – Comprehensive Testing
+
+Goal
+
+Add comprehensive automated tests to ensure the entire emotion system, tagging, and emotion logging features work correctly together. This story focuses on integration tests for complete user flows, edge case testing, component interaction tests, database migration edge cases, and cross-view consistency verification. While individual stories (1-11) included minimal unit tests, Story 12 provides comprehensive coverage including end-to-end flows, error scenarios, and integration between components, stores, and views.
+
+⸻
+
+Scope
+
+1.	Integration Tests for Complete User Flows
+	•	Create integration test files:
+		•	src/__tests__/integration/journal-flow.spec.ts – Complete journal entry flow with tags
+		•	src/__tests__/integration/emotion-log-flow.spec.ts – Complete emotion log flow
+		•	src/__tests__/integration/cross-feature-flow.spec.ts – Cross-feature interactions
+	•	Journal Entry Flow Integration Test:
+		•	Test complete flow: create journal entry with emotions, people tags, and context tags
+		•	Steps:
+			•	Initialize stores (emotionStore, tagStore, journalStore)
+			•	Create a journal entry with title, body, emotionIds, peopleTagIds, contextTagIds
+			•	Verify entry is saved to IndexedDB via repository
+			•	Load entry from repository and verify all fields are persisted correctly
+			•	Verify entry appears in journalStore.entries
+			•	Verify tags are created if they don't exist (duplicate handling)
+			•	Verify emotions are resolved correctly (emotion IDs → emotion names)
+		•	Test edit flow:
+			•	Load existing entry
+			•	Modify emotions, tags, title, body
+			•	Save changes
+			•	Verify updated entry is persisted correctly
+			•	Verify old tags are not deleted if unused (tags persist independently)
+		•	Test delete flow:
+			•	Create entry with tags
+			•	Delete entry
+			•	Verify entry is removed from store and IndexedDB
+			•	Verify tags are not deleted (tags persist independently)
+	•	Emotion Log Flow Integration Test:
+		•	Test complete flow: create emotion log with emotions, note, people tags, and context tags
+		•	Steps:
+			•	Initialize stores (emotionStore, tagStore, emotionLogStore)
+			•	Create an emotion log with emotionIds (required), note, peopleTagIds, contextTagIds
+			•	Verify log is saved to IndexedDB via repository
+			•	Load log from repository and verify all fields are persisted correctly
+			•	Verify log appears in emotionLogStore.logs
+			•	Verify emotions are resolved correctly
+			•	Verify tags are created if they don't exist
+		•	Test edit flow:
+			•	Load existing log
+			•	Modify emotions, note, tags
+			•	Save changes
+			•	Verify updated log is persisted correctly
+			•	Verify updatedAt timestamp is updated
+			•	Verify createdAt timestamp is preserved
+		•	Test delete flow:
+			•	Create log with tags
+			•	Delete log
+			•	Verify log is removed from store and IndexedDB
+			•	Verify tags are not deleted
+	•	Cross-Feature Flow Integration Test:
+		•	Test that tags created in journal entries are available in emotion logs (and vice versa)
+		•	Steps:
+			•	Create a people tag in a journal entry
+			•	Verify tag is available in tagStore.peopleTags
+			•	Create an emotion log and verify the same tag can be selected
+			•	Create a context tag in an emotion log
+			•	Verify tag is available in tagStore.contextTags
+			•	Create a journal entry and verify the same tag can be selected
+			•	Verify tag names are case-insensitive (duplicate handling works across features)
+		•	Test that emotions are shared between journal entries and emotion logs:
+			•	Verify emotionStore provides same emotions for both features
+			•	Verify emotion IDs are consistent across features
+
+2.	Edge Case Testing
+	•	Create edge case test file: src/__tests__/edge-cases/tagging-edge-cases.spec.ts
+	•	Empty States:
+		•	Test creating journal entry with no tags (empty arrays)
+		•	Test creating emotion log with no tags (undefined or empty arrays)
+		•	Test loading journal entry with missing tag fields (backward compatibility)
+		•	Test loading emotion log with missing optional fields
+		•	Test displaying empty tag lists in views (no chips rendered)
+		•	Test empty state in EmotionsView (no logs)
+		•	Test empty state in JournalView (no entries)
+	•	Error Handling:
+		•	Test creating journal entry with invalid emotion IDs (IDs that don't exist)
+		•	Test creating emotion log with invalid emotion IDs
+		•	Test creating journal entry with invalid tag IDs
+		•	Test creating emotion log with invalid tag IDs
+		•	Test deleting a tag that is still referenced in journal entries (should not break)
+		•	Test deleting a tag that is still referenced in emotion logs (should not break)
+		•	Test repository errors (IndexedDB failures, quota exceeded, etc.)
+		•	Test store errors (validation failures, network errors simulated)
+		•	Test component errors (missing props, invalid v-model values)
+	•	Duplicate Tag Handling:
+		•	Test creating duplicate people tag (case-insensitive): "Mom" vs "mom" vs "MOM"
+		•	Test creating duplicate context tag (case-insensitive): "Work" vs "work" vs "WORK"
+		•	Test creating duplicate tag with different whitespace: "Work Meeting" vs "Work  Meeting" vs "WorkMeeting"
+		•	Test creating duplicate tag across different features (journal entry vs emotion log)
+		•	Verify existing tag is returned (not a new tag created)
+		•	Verify tag ID is consistent (same tag ID used)
+	•	Validation Edge Cases:
+		•	Test creating emotion log with empty emotionIds array (should fail validation)
+		•	Test creating emotion log with emotionIds containing invalid IDs (should fail validation)
+		•	Test updating emotion log to have empty emotionIds (should fail validation)
+		•	Test creating journal entry with very long title/body (should handle gracefully)
+		•	Test creating emotion log with very long note (should handle gracefully)
+		•	Test creating tag with empty name (should fail validation or be handled gracefully)
+		•	Test creating tag with very long name (should handle gracefully)
+	•	Data Integrity:
+		•	Test creating journal entry, then deleting an emotion used in that entry (entry should still display, but emotion name may be missing)
+		•	Test creating emotion log, then deleting an emotion used in that log (log should still display, but emotion name may be missing)
+		•	Test creating journal entry, then deleting a tag used in that entry (entry should still display, but tag name may be missing)
+		•	Test creating emotion log, then deleting a tag used in that log (log should still display, but tag name may be missing)
+		•	Verify orphaned IDs are handled gracefully (no crashes, missing data is skipped)
+
+3.	Component Interaction Tests
+	•	Create component interaction test file: src/__tests__/integration/component-interactions.spec.ts
+	•	EmotionSelector + TagInput in JournalEditorView:
+		•	Test selecting emotions from multiple quadrants
+		•	Test selecting emotions, then adding people tags, then adding context tags
+		•	Test removing an emotion, then adding a tag, then saving
+		•	Test switching between quadrants while tags are selected
+		•	Verify selected emotions persist when switching quadrants
+		•	Verify selected tags persist when interacting with EmotionSelector
+		•	Test v-model binding: verify changes in EmotionSelector update journal entry state
+		•	Test v-model binding: verify changes in TagInput update journal entry state
+		•	Test save button state: disabled when no body text, enabled when body text exists (emotions/tags optional)
+	•	EmotionSelector + TagInput in EmotionLogEditorView:
+		•	Test selecting emotions (required), then adding note, then adding tags
+		•	Test removing all emotions (save button should be disabled)
+		•	Test adding emotions from multiple quadrants
+		•	Test adding tags, then removing emotions (validation should prevent save)
+		•	Test v-model binding: verify changes update emotion log state
+		•	Test save button state: disabled when no emotions selected, enabled when at least one emotion selected
+	•	Cross-Component Consistency:
+		•	Test that EmotionSelector behaves the same in JournalEditorView and EmotionLogEditorView
+		•	Test that TagInput behaves the same for people tags and context tags
+		•	Test that TagInput behaves the same in JournalEditorView and EmotionLogEditorView
+		•	Verify component props are passed correctly (tag-type prop for TagInput)
+		•	Verify component events are emitted correctly (update:modelValue)
+
+4.	Database Migration Edge Cases
+	•	Create migration edge case test file: src/repositories/__tests__/migration-edge-cases.spec.ts
+	•	Test migration from version 1 to version 3 (skipping version 2):
+		•	Create database with version 1 (only journalEntries table)
+		•	Run migration to version 3
+		•	Verify journalEntries get emotionIds, peopleTagIds, contextTagIds fields (empty arrays)
+		•	Verify peopleTags and contextTags tables are created
+		•	Verify emotionLogs table is created
+		•	Verify existing journal entries are preserved (no data loss)
+	•	Test migration with existing journal entries:
+		•	Create database with version 1
+		•	Add several journal entries with title and body
+		•	Run migration to version 3
+		•	Verify all entries have empty arrays for emotionIds, peopleTagIds, contextTagIds
+		•	Verify entries are still loadable and editable
+	•	Test migration with corrupted data:
+		•	Create database with version 1
+		•	Add journal entries with invalid data (if possible)
+		•	Run migration to version 3
+		•	Verify migration handles errors gracefully (no crashes)
+		•	Verify valid entries are migrated successfully
+	•	Test migration rollback scenarios:
+		•	Test what happens if migration fails partway through
+		•	Verify database is in a consistent state (no partial migrations)
+		•	Verify app can recover from failed migrations
+	•	Test migration with large datasets:
+		•	Create database with version 1
+		•	Add 100+ journal entries
+		•	Run migration to version 3
+		•	Verify all entries are migrated correctly
+		•	Verify migration completes in reasonable time
+	•	Test migration idempotency:
+		•	Run migration multiple times
+		•	Verify migration doesn't create duplicate fields or tables
+		•	Verify migration doesn't modify data unnecessarily
+
+5.	Cross-View Consistency Tests
+	•	Create cross-view consistency test file: src/__tests__/integration/cross-view-consistency.spec.ts
+	•	Tag Display Consistency:
+		•	Create journal entry with emotions, people tags, and context tags
+		•	Verify tags appear correctly in JournalView:
+			•	Emotions displayed as chips (rose-colored)
+			•	People tags displayed as chips (blue-colored)
+			•	Context tags displayed as chips (green-colored)
+		•	Create emotion log with same emotions and tags
+		•	Verify tags appear correctly in EmotionsView:
+			•	Emotions displayed as chips (rose-colored)
+			•	People tags displayed as chips (blue-colored)
+			•	Context tags displayed as chips (green-colored)
+		•	Verify chip styling is consistent across views
+		•	Verify chip colors match expected colors (emotions: rose, people: blue, context: green)
+	•	Tag Resolution Consistency:
+		•	Create a people tag "Mom" in a journal entry
+		•	Verify tag appears in JournalView with name "Mom"
+		•	Use same tag in an emotion log
+		•	Verify tag appears in EmotionsView with name "Mom"
+		•	Verify tag ID is the same in both views
+		•	Verify tag name resolution works correctly in both views
+	•	Emotion Resolution Consistency:
+		•	Create journal entry with emotion "Happy"
+		•	Verify emotion appears in JournalView with name "Happy"
+		•	Create emotion log with same emotion "Happy"
+		•	Verify emotion appears in EmotionsView with name "Happy"
+		•	Verify emotion ID is the same in both views
+		•	Verify emotion name resolution works correctly in both views
+	•	Date Formatting Consistency:
+		•	Create journal entry and emotion log at the same time
+		•	Verify timestamps are formatted consistently in JournalView and EmotionsView
+		•	Verify formatEntryDate() utility produces same output for same timestamps
+		•	Verify date formatting is user-friendly and consistent
+	•	Delete Behavior Consistency:
+		•	Test deleting journal entry: verify entry is removed from JournalView
+		•	Test deleting emotion log: verify log is removed from EmotionsView
+		•	Test delete confirmation dialogs: verify same AppDialog component is used
+		•	Test delete error handling: verify same error handling pattern is used
+		•	Verify tags are not deleted when entries/logs are deleted (tags persist independently)
+
+6.	E2E Tests for Complete Flows
+	•	Create E2E test file: e2e/emotion-log-flow.spec.ts
+	•	Complete Emotion Log Flow E2E Test:
+		•	Test complete user flow: navigate to Emotions view, create log, edit log, delete log
+		•	Steps:
+			•	Navigate to /emotions
+			•	Click "Log emotion" button
+			•	Wait for navigation to /emotions/edit
+			•	Select emotions from EmotionSelector (select quadrant, then emotions)
+			•	Add note in textarea
+			•	Add people tags via TagInput
+			•	Add context tags via TagInput
+			•	Click "Save" button
+			•	Wait for navigation back to /emotions
+			•	Verify log appears in list with correct emotions, note, and tags
+			•	Click log card to edit
+			•	Wait for navigation to /emotions/:id/edit
+			•	Verify form is pre-populated with log data
+			•	Modify emotions, note, or tags
+			•	Click "Save" button
+			•	Wait for navigation back to /emotions
+			•	Verify log is updated in list
+			•	Click delete button on log card
+			•	Verify confirmation dialog appears
+			•	Confirm deletion
+			•	Verify log is removed from list
+	•	Complete Journal Entry Flow with Tags E2E Test:
+		•	Test complete user flow: create journal entry with tags, edit entry, delete entry
+		•	Steps:
+			•	Navigate to /journal
+			•	Click "Free form" button
+			•	Wait for navigation to /journal/edit
+			•	Add title and body text
+			•	Select emotions from EmotionSelector
+			•	Add people tags via TagInput
+			•	Add context tags via TagInput
+			•	Click "Save" button
+			•	Wait for navigation back to /journal
+			•	Verify entry appears in list with correct title, body, emotions, and tags
+			•	Click entry card to edit
+			•	Wait for navigation to /journal/:id/edit
+			•	Verify form is pre-populated with entry data
+			•	Modify title, body, emotions, or tags
+			•	Click "Save" button
+			•	Wait for navigation back to /journal
+			•	Verify entry is updated in list
+			•	Click delete button on entry card
+			•	Verify confirmation dialog appears
+			•	Confirm deletion
+			•	Verify entry is removed from list
+	•	Cross-Feature E2E Test:
+		•	Test that tags created in journal entries are available in emotion logs
+		•	Steps:
+			•	Create journal entry with people tag "Mom" and context tag "Work"
+			•	Navigate to /emotions
+			•	Create emotion log
+			•	Verify "Mom" appears in people tag suggestions
+			•	Verify "Work" appears in context tag suggestions
+			•	Select these tags and save log
+			•	Verify log displays with same tags
+	•	E2E Error Scenarios:
+		•	Test validation error: try to save emotion log without selecting emotions
+			•	Verify error message is displayed
+			•	Verify save is prevented
+		•	Test navigation errors: navigate to non-existent log ID
+			•	Verify error handling (error message or redirect)
+		•	Test delete cancellation: click delete, then cancel
+			•	Verify log/entry is not deleted
+			•	Verify dialog closes
+
+7.	Performance Testing
+	•	Create performance test file: src/__tests__/performance/performance.spec.ts
+	•	Store Performance:
+		•	Test loading 100+ journal entries (verify load time is acceptable)
+		•	Test loading 100+ emotion logs (verify load time is acceptable)
+		•	Test loading 100+ tags (verify load time is acceptable)
+		•	Test resolving 100+ emotion IDs to names (verify performance is acceptable)
+		•	Test resolving 100+ tag IDs to names (verify performance is acceptable)
+	•	Component Performance:
+		•	Test rendering JournalView with 100+ entries (verify render time is acceptable)
+		•	Test rendering EmotionsView with 100+ logs (verify render time is acceptable)
+		•	Test rendering EmotionSelector with all emotions (verify performance is acceptable)
+		•	Test rendering TagInput with 100+ existing tags (verify autocomplete performance)
+	•	Database Performance:
+		•	Test creating 100+ journal entries (verify write performance is acceptable)
+		•	Test creating 100+ emotion logs (verify write performance is acceptable)
+		•	Test querying journal entries with filters (if implemented)
+		•	Test querying emotion logs with filters (if implemented)
+	•	Note: Performance tests should verify that operations complete in reasonable time (< 1 second for most operations, < 5 seconds for large datasets). If performance issues are detected, they should be documented but not necessarily fixed in this story (can be addressed in future optimization stories).
+
+8.	Test Coverage Verification
+	•	Run test coverage report:
+		•	Use Vitest coverage command: npm run test:coverage
+		•	Verify coverage for:
+			•	All stores (emotionStore, tagStore, emotionLogStore, journalStore)
+			•	All repositories (emotionLogDexieRepository, tagDexieRepository, journalDexieRepository)
+			•	All components (EmotionSelector, TagInput, JournalEditorView, EmotionLogEditorView, JournalView, EmotionsView)
+			•	All utilities (formatEntryDate, etc.)
+		•	Target coverage: > 80% for all files, > 90% for critical paths (stores, repositories)
+		•	Document any areas with low coverage and reasons (e.g., error handling paths that are hard to test)
+	•	Verify all tests pass:
+		•	Run unit tests: npm run test
+		•	Run E2E tests: npm run test:e2e
+		•	Verify no flaky tests (tests that sometimes pass, sometimes fail)
+		•	Fix any failing tests
+
+9.	Test Documentation
+	•	Update test documentation:
+		•	Document test structure and organization
+		•	Document how to run tests (unit tests, E2E tests, coverage)
+		•	Document test patterns and conventions
+		•	Document how to add new tests
+		•	Document known test limitations or areas that need more coverage
+	•	Add test comments:
+		•	Add descriptive comments to complex test cases
+		•	Explain why certain edge cases are tested
+		•	Document test data setup and teardown
+
+⸻
+
+Acceptance Criteria
+
+	•	Integration tests cover:
+		•	Complete journal entry flow (create, edit, delete with tags)
+		•	Complete emotion log flow (create, edit, delete with tags)
+		•	Cross-feature interactions (tags shared between features)
+	•	Edge case tests cover:
+		•	Empty states (no tags, no entries, no logs)
+		•	Error handling (invalid IDs, repository errors, validation errors)
+		•	Duplicate tag handling (case-insensitive, whitespace variations)
+		•	Data integrity (orphaned IDs, deleted references)
+	•	Component interaction tests cover:
+		•	EmotionSelector + TagInput interactions in editors
+		•	v-model binding correctness
+		•	Save button state management
+		•	Cross-component consistency
+	•	Database migration edge case tests cover:
+		•	Migration from version 1 to version 3
+		•	Migration with existing data
+		•	Migration error handling
+		•	Migration idempotency
+	•	Cross-view consistency tests cover:
+		•	Tag display consistency (colors, styling)
+		•	Tag resolution consistency (same tags in different views)
+		•	Emotion resolution consistency
+		•	Date formatting consistency
+		•	Delete behavior consistency
+	•	E2E tests cover:
+		•	Complete emotion log flow (create, edit, delete)
+		•	Complete journal entry flow with tags (create, edit, delete)
+		•	Cross-feature tag sharing
+		•	Error scenarios (validation, navigation errors)
+	•	Performance tests verify:
+		•	Acceptable performance with 100+ entries/logs/tags
+		•	Acceptable render times for views
+		•	Acceptable database operation times
+	•	Test coverage:
+		•	> 80% coverage for all files
+		•	> 90% coverage for critical paths (stores, repositories)
+		•	All tests pass consistently (no flaky tests)
+	•	Test documentation:
+		•	Test structure is documented
+		•	Test patterns are documented
+		•	How to run tests is documented
+	•	No linting errors or TypeScript errors
+	•	All tests are maintainable and follow consistent patterns
+	•	The test suite provides confidence that the emotion system, tagging, and emotion logging features work correctly together
+
+⸻
+
+Out of Scope
+
+	•	Accessibility testing (deferred to later epic)
+	•	Visual regression testing (deferred to later epic)
+	•	Load testing (testing with thousands of entries/logs – deferred to later epic)
+	•	Cross-browser testing (deferred to later epic)
+	•	Mobile device testing (deferred to later epic)
+	•	Performance optimization (this story verifies performance, but doesn't optimize – optimization can be done in future stories)
+	•	Test infrastructure improvements (test utilities, test helpers – can be done incrementally)
+	•	CI/CD integration (ensuring tests run in CI/CD – can be done separately)
+	•	Mutation testing (testing test quality – deferred to later epic)
+
+⸻
+
+Inconsistencies & Notes
+
+1.	Story Dependencies:
+	•	Story 12 depends on all previous stories (1-11) being completed
+	•	All features must be implemented before comprehensive testing can be done
+	•	Story 12 verifies that all stories work together correctly
+	•	No inconsistency – Story 12 is the final story in the epic
+
+2.	Test Structure:
+	•	Story 12 creates new test files in src/__tests__/integration/, src/__tests__/edge-cases/, src/__tests__/performance/
+	•	This is a new directory structure for integration and edge case tests
+	•	Unit tests remain in their existing locations (__tests__ folders next to components/stores)
+	•	E2E tests remain in e2e/ directory
+	•	No inconsistency – new test types require new directory structure
+
+3.	Test Coverage Targets:
+	•	Story 12 targets > 80% coverage for all files, > 90% for critical paths
+	•	This is a reasonable target for comprehensive testing
+	•	Some areas may have lower coverage due to difficulty testing (e.g., IndexedDB errors)
+	•	No inconsistency – coverage targets are achievable and reasonable
+
+4.	Performance Test Expectations:
+	•	Story 12 verifies performance but doesn't optimize
+	•	If performance issues are found, they are documented but not necessarily fixed
+	•	This is appropriate – performance optimization can be a separate story
+	•	No inconsistency – performance testing and optimization are separate concerns
+
+5.	E2E Test Structure:
+	•	Story 12 adds E2E tests for emotion log flow
+	•	E2E tests follow the same pattern as existing journal-flow.spec.ts
+	•	E2E tests use Playwright (same as existing tests)
+	•	No inconsistency – E2E test structure is consistent
+
+6.	Integration Test Scope:
+	•	Story 12 focuses on integration tests that verify complete flows
+	•	Integration tests use real stores and repositories (not mocks)
+	•	This is different from unit tests which use mocks
+	•	No inconsistency – integration tests should use real implementations
+
+7.	Edge Case Test Scope:
+	•	Story 12 tests edge cases that may not be covered in unit tests
+	•	Edge cases include error scenarios, empty states, data integrity issues
+	•	These tests complement unit tests by testing scenarios that are hard to test in isolation
+	•	No inconsistency – edge case tests fill gaps in unit test coverage
+
+8.	Component Interaction Test Scope:
+	•	Story 12 tests how components interact with each other
+	•	These tests verify that components work correctly when used together
+	•	This is different from unit tests which test components in isolation
+	•	No inconsistency – component interaction tests verify integration between components
+
+9.	Database Migration Test Scope:
+	•	Story 12 tests migration edge cases that may not be covered in migration.spec.ts
+	•	Migration edge cases include error scenarios, large datasets, idempotency
+	•	These tests complement existing migration tests
+	•	No inconsistency – migration edge case tests fill gaps in migration test coverage
+
+10.	Cross-View Consistency Test Scope:
+	•	Story 12 verifies that tags and emotions appear consistently across views
+	•	This ensures a consistent user experience
+	•	These tests verify that the same data is displayed the same way in different views
+	•	No inconsistency – cross-view consistency is important for user experience
+
+11.	Test File Organization:
+	•	Story 12 creates test files in multiple directories:
+		•	src/__tests__/integration/ – integration tests
+		•	src/__tests__/edge-cases/ – edge case tests
+		•	src/__tests__/performance/ – performance tests
+		•	e2e/ – E2E tests (existing directory)
+	•	This organization makes it easy to find and run specific test types
+	•	No inconsistency – test organization is logical and maintainable
+
+12.	Test Data Management:
+	•	Story 12 tests use test data that is created and cleaned up in tests
+	•	Integration tests may use real IndexedDB (with cleanup)
+	•	E2E tests use real IndexedDB (with cleanup in beforeEach)
+	•	No inconsistency – test data management is consistent with existing patterns
+
+13.	Test Patterns:
+	•	Story 12 follows existing test patterns:
+		•	Unit tests use Vitest (same as existing tests)
+		•	E2E tests use Playwright (same as existing tests)
+		•	Test structure follows existing conventions
+	•	No inconsistency – test patterns are consistent
+
+14.	Story 11 Consistency Check:
+	•	Story 11 (just implemented) created EmotionLogEditorView with unit tests
+	•	Story 12 adds integration tests that verify EmotionLogEditorView works with stores and repositories
+	•	Story 12 adds E2E tests that verify EmotionLogEditorView works in complete user flows
+	•	No inconsistencies detected that would require backtracking from Story 11
+	•	Story 12 complements Story 11's unit tests with integration and E2E tests
+
+15.	Story 10 Consistency Check:
+	•	Story 10 (recently implemented) created EmotionsView with unit tests
+	•	Story 12 adds integration tests that verify EmotionsView works with stores
+	•	Story 12 adds cross-view consistency tests that verify EmotionsView displays tags consistently
+	•	No inconsistencies detected that would require backtracking from Story 10
+	•	Story 12 complements Story 10's unit tests with integration and consistency tests
+
+16.	Story 9 Consistency Check:
+	•	Story 9 (recently implemented) created useEmotionLogStore with unit tests
+	•	Story 12 adds integration tests that verify useEmotionLogStore works with repositories
+	•	Story 12 adds edge case tests that verify useEmotionLogStore handles errors correctly
+	•	No inconsistencies detected that would require backtracking from Story 9
+	•	Story 12 complements Story 9's unit tests with integration and edge case tests
+
+17.	Epic Completion:
+	•	Story 12 completes Epic 2 by providing comprehensive test coverage
+	•	After Story 12, Epic 2 is complete and all features are tested
+	•	No inconsistency – Story 12 is the final story in the epic
+
+18.	Test Maintenance:
+	•	Story 12 creates tests that need to be maintained as features evolve
+	•	Tests should be updated when features change
+	•	Test documentation helps maintain tests
+	•	No inconsistency – test maintenance is a normal part of development
+
+19.	Test Execution Time:
+	•	Story 12 adds many tests, which may increase test execution time
+	•	Integration tests and E2E tests are slower than unit tests
+	•	This is expected and acceptable – comprehensive testing takes time
+	•	No inconsistency – test execution time is a trade-off for comprehensive coverage
+
+20.	Future Test Improvements:
+	•	Story 12 provides comprehensive test coverage, but there's always room for improvement
+		•	More edge cases could be tested
+		•	More performance scenarios could be tested
+		•	More E2E scenarios could be tested
+	•	These improvements can be done incrementally in future stories
+	•	No inconsistency – Story 12 provides a solid foundation for future test improvements
+
+21.	Epic Description Note on Unit Tests:
+	•	The epic description (section 12) lists many unit tests for stores and components
+	•	However, the epic notes section states: "Each story should include minimal unit tests. Story 12 focuses on comprehensive and integration testing."
+	•	This means:
+		•	Unit tests for stores and components should have been implemented in Stories 1-11 (and they were)
+		•	Story 12 focuses on integration tests, edge cases, E2E tests, and comprehensive testing beyond unit tests
+	•	If any unit tests from the epic description are missing, they should be added to the appropriate story (1-11), not Story 12
+	•	Story 12 assumes unit tests are already in place and focuses on higher-level testing
+	•	No inconsistency – Story 12 correctly focuses on comprehensive and integration testing as specified in the epic notes
+
+22.	Test Coverage Verification:
+	•	Story 12 verifies that unit tests from Stories 1-11 are in place and passing
+	•	Story 12 adds integration tests that verify components and stores work together
+	•	Story 12 adds E2E tests that verify complete user flows
+	•	Story 12 adds edge case tests that verify error handling and edge cases
+	•	If unit tests are missing from Stories 1-11, they should be added before Story 12
+	•	No inconsistency – Story 12 builds on the foundation of unit tests from previous stories
+

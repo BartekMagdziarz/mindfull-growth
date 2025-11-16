@@ -1,0 +1,281 @@
+Story 7 – Edit and Delete Journal Entries
+
+Goal
+
+Enable users to edit existing journal entries and delete them from the list view. This story implements the edit and delete functionality, allowing users to modify their journal entries and remove them when needed. Additionally, this story includes renaming the component from JournalNewView to JournalEditorView to better reflect its dual purpose (create and edit modes).
+
+⸻
+
+Scope
+
+	1.	Component Rename: JournalNewView → JournalEditorView
+	•	Rename component file: src/views/JournalNewView.vue → src/views/JournalEditorView.vue
+	•	Update router import: src/router/index.ts
+	•	Rename test file: src/views/__tests__/JournalNewView.spec.ts → src/views/__tests__/JournalEditorView.spec.ts
+	•	Update test file imports and references to use JournalEditorView
+	•	Note: This rename better reflects that the component handles both create and edit modes.
+
+	2.	Route Path Updates
+	•	Change create route from /journal/new to /journal/edit:
+	•	Update route definition in src/router/index.ts
+	•	Update navigation in src/views/JournalView.vue (handleFreeFormClick)
+	•	Update route check in src/components/AppShell.vue
+	•	Update E2E test in e2e/journal-flow.spec.ts
+	•	Add new edit route: /journal/:id/edit
+	•	Add route definition in src/router/index.ts pointing to JournalEditorView
+	•	Both routes use the same component (JournalEditorView), which detects mode based on route params
+
+	3.	Store Actions Verification
+	•	Confirm that journalStore already has the required actions:
+	•	updateEntry(entry: JournalEntry) - already exists (lines 52-68 in journal.store.ts)
+	•	deleteEntry(id: string) - already exists (lines 70-82 in journal.store.ts)
+	•	Note: No changes needed to the store - all required actions are already implemented.
+	•	Repository verification:
+	•	journalDexieRepository.getById(id: string) - already exists (lines 31-38 in journalDexieRepository.ts)
+	•	This method is needed to load an entry for editing.
+
+	4.	JournalEditorView Component Updates (Edit Mode Support)
+	•	Make JournalEditorView.vue support both create and edit modes:
+	•	Detect mode: Check if route has an :id parameter (edit mode) or not (create mode).
+	•	In edit mode:
+	•	Load the entry using journalStore or repository when component mounts.
+	•	Pre-populate title and body fields with the entry's data.
+	•	Update the timestamp display to show the entry's createdAt date (not current date).
+	•	On save in edit mode:
+	•	Call journalStore.updateEntry() instead of createEntry().
+	•	Pass the full entry object with updated title/body and existing id, createdAt, updatedAt.
+	•	The store will handle updating updatedAt timestamp automatically.
+	•	Navigate back to /journal after successful update.
+	•	Error handling: Show error message if entry cannot be loaded or updated.
+	•	Loading state: Show loading indicator while fetching entry data in edit mode.
+	•	Note: The component should handle the case where an entry ID is provided but the entry doesn't exist (404-like behavior - show error and navigate back).
+
+	5.	JournalView Component Updates (Delete Functionality)
+	•	Add delete functionality to entry cards:
+	•	Action button approach:
+	•	Add a small delete button (trash icon) to each entry card.
+	•	Position: Top-right corner of each card.
+	•	Visibility: Always visible (not just on hover) for better mobile/touch accessibility.
+	•	Icon: Use TrashIcon from @heroicons/vue/24/outline.
+	•	Styling: Small icon button with appropriate padding and hover states.
+	•	On click:
+	•	Show a confirmation dialog before deleting (critical for preventing accidental deletions).
+	•	If confirmed, call journalStore.deleteEntry(entry.id).
+	•	Show loading state while deleting (disable button or show spinner).
+	•	Show success message after deletion (using AppSnackbar).
+	•	Show error message if deletion fails.
+	•	The entry should disappear from the list immediately after successful deletion (store updates automatically).
+	•	Card click behavior:
+	•	Update the card's @click handler to navigate to /journal/:id/edit.
+	•	Remove the empty function @click="() => {}" (line 95 in JournalView.vue).
+	•	Ensure the delete button click doesn't trigger card navigation (use @click.stop on delete button).
+
+	6.	AppShell Component Updates
+	•	Update the showBackButton computed property to handle both routes:
+	•	Show back button for /journal/edit (create mode)
+	•	Show back button for /journal/:id/edit (edit mode)
+	•	Use route path matching to detect edit routes: route.path === '/journal/edit' || route.path.match(/^\/journal\/[^/]+\/edit$/)
+
+	7.	AppDialog Component (New)
+	•	Create a new reusable dialog component: src/components/AppDialog.vue
+	•	Props:
+	•	modelValue (boolean) - controls visibility (v-model support).
+	•	title (string) - dialog title.
+	•	message (string) - dialog message/content.
+	•	confirmText (string, default: "Confirm") - text for confirm button.
+	•	cancelText (string, default: "Cancel") - text for cancel button.
+	•	confirmVariant (string, default: "filled") - variant for confirm button (can be "filled" or "tonal" with error color for destructive actions).
+	•	Events:
+	•	update:modelValue - for v-model support.
+	•	confirm - emitted when confirm button is clicked.
+	•	cancel - emitted when cancel button is clicked (or when clicking outside/ESC).
+	•	Styling:
+	•	Material Design–inspired overlay (backdrop with semi-transparent background).
+	•	Centered dialog card with rounded corners, elevation, and appropriate padding.
+	•	Appropriate spacing and typography.
+	•	Accessibility:
+	•	Focus trap (focus stays within dialog when open).
+	•	ESC key closes the dialog (emits cancel event).
+	•	ARIA attributes: role="dialog", aria-labelledby, aria-describedby.
+	•	Focus management: When dialog opens, focus moves to the dialog. When it closes, focus returns to the trigger button (if possible).
+
+⸻
+
+Acceptance Criteria
+
+	•	Component rename:
+	•	Component file renamed from JournalNewView.vue to JournalEditorView.vue.
+	•	Router imports and uses JournalEditorView.
+	•	Test file renamed from JournalNewView.spec.ts to JournalEditorView.spec.ts.
+	•	All test references updated to use JournalEditorView.
+	•	Route paths:
+	•	Route /journal/edit exists and navigates to JournalEditorView (create mode).
+	•	Route /journal/:id/edit exists and navigates to JournalEditorView (edit mode).
+	•	All references to /journal/new updated to /journal/edit throughout the codebase.
+	•	AppShell shows back button for both /journal/edit and /journal/:id/edit routes.
+	•	Edit mode:
+	•	Navigating to /journal/:id/edit loads the entry data and pre-populates the form.
+	•	Timestamp display shows the entry's createdAt date (not current date) in edit mode.
+	•	Clicking "Save" saves changes and navigates back to /journal.
+	•	The updated entry appears in the list with updated content.
+	•	Error handling: Shows error message if entry cannot be loaded (e.g., invalid ID) and navigates back to /journal.
+	•	Delete functionality:
+	•	Each entry card has a delete button (trash icon) in the top-right corner.
+	•	Delete button is always visible (not just on hover) for mobile accessibility.
+	•	Clicking delete button shows a confirmation dialog (AppDialog).
+	•	Confirmation dialog has appropriate title and message (e.g., "Delete Entry", "Are you sure you want to delete this entry? This action cannot be undone.").
+	•	Confirming deletion removes the entry from the list and persists the deletion.
+	•	Error handling: Shows error message if deletion fails (entry remains in list).
+	•	Card click to edit:
+	•	Clicking an entry card (not the delete button) navigates to /journal/:id/edit.
+	•	The editor opens with the entry's data pre-populated.
+	•	Delete button click does not trigger card navigation (proper event handling).
+	•	AppDialog component:
+	•	AppDialog.vue component exists and follows Material Design principles.
+	•	Dialog can be opened/closed via v-model.
+	•	Dialog emits confirm and cancel events.
+	•	Dialog is accessible (keyboard navigation, focus trap, ESC to close, ARIA attributes).
+	•	Dialog has appropriate styling (overlay, centered card, proper spacing).
+	•	User flows:
+	•	User can click "Free form" → create entry → see it in list.
+	•	User can click an entry card → edit it → update → see updated entry in list.
+	•	User can click delete button → confirm → see entry removed from list.
+	•	User can create, edit, and delete entries - all flows work correctly.
+	•	All existing functionality continues to work (create flow, list display, etc.).
+	•	Linting and TypeScript checks pass (no new linting or type errors introduced).
+
+⸻
+
+Out of Scope
+
+	•	Bulk delete (selecting multiple entries to delete at once).
+	•	Swipe-to-delete gesture (can be added in a later story).
+	•	Undo delete functionality (can be added in a later story).
+	•	Edit history or versioning.
+	•	Rich text editing features (still plain text only).
+	•	Keyboard shortcuts for edit/delete (can be added later).
+	•	Advanced filtering or search (still out of scope).
+	•	Menu button with multiple actions (delete button is direct for simplicity; menu can be added later if needed).
+
+⸻
+
+Notes & Design Decisions
+
+	1.	Component Rename Rationale:
+	•	The component was originally named JournalNewView.vue because it only handled creating new entries.
+	•	Now that it will handle both create and edit modes, JournalEditorView.vue is a more accurate name.
+	•	This rename makes the codebase more maintainable and self-documenting.
+	•	The rename affects: component file, router import, test file, and all test references.
+
+	2.	Route Path Changes:
+	•	Original: /journal/new for creating entries.
+	•	New: /journal/edit for creating, /journal/:id/edit for editing.
+	•	Rationale: Both routes use the same component and represent "editing" (creating is editing a blank entry). This is more RESTful and consistent.
+	•	Files that need updating:
+	•	src/router/index.ts - route definitions
+	•	src/views/JournalView.vue - navigation push
+	•	src/components/AppShell.vue - route check
+	•	e2e/journal-flow.spec.ts - E2E test URL check
+
+	3.	Delete Button Visibility:
+	•	Original idea: Show delete button on hover only.
+	•	Issue: Hover doesn't work on mobile/touch devices, creating accessibility problems.
+	•	Decision: Make delete button always visible for better accessibility and mobile support.
+	•	Alternative considered: Show on hover for desktop, always visible on mobile (using CSS @media (hover: hover)).
+	•	Final decision: Always-visible delete button (trash icon) in top-right corner. This is simpler, more accessible, and works consistently across all devices.
+
+	4.	Edit Mode Detection:
+	•	Approach: Use route parameter :id to detect edit mode.
+	•	In JournalEditorView, check if route.params.id exists.
+	•	If it exists, we're in edit mode - load the entry.
+	•	If it doesn't exist, we're in create mode - use empty form.
+	•	This is cleaner than using query parameters and provides better URL semantics.
+
+	5.	Loading Entry Data:
+	•	When entering edit mode, we need to load the entry data.
+	•	Options:
+	•	Load from store (if entry is already in store.entries).
+	•	Load from repository directly (always fresh data).
+	•	Decision: First check if entry exists in store.entries (faster). If not found, load from repository using getById(). This provides the best of both worlds - fast if already loaded, fresh if not.
+	•	Note: The repository's getById method is already available and tested.
+
+	6.	Delete Confirmation:
+	•	Critical: Always confirm before deleting to prevent accidental data loss.
+	•	Options:
+	•	Browser confirm() - simple but not Material Design–compliant.
+	•	Custom AppDialog component - better UX, reusable, Material Design–compliant.
+	•	Decision: Create AppDialog component for better UX and consistency. This component will be useful in future stories as well (e.g., confirmations for other destructive actions).
+
+	7.	Error Handling:
+	•	Edit mode: What if entry ID doesn't exist?
+	•	Show error message using AppSnackbar and navigate back to /journal.
+	•	Delete: What if deletion fails?
+	•	Show error message using AppSnackbar, keep entry in list.
+	•	Both operations should handle network/IndexedDB errors gracefully.
+	•	Loading states should be shown during async operations.
+
+	8.	Timestamp Display in Edit Mode:
+	•	Currently, JournalEditorView shows "Today, HH:MM" based on current date.
+	•	In edit mode, we should show the entry's createdAt date using the formatEntryDate utility (already exists in src/utils/dateFormat.ts).
+	•	This provides context about when the entry was originally created.
+
+	9.	Button Text:
+	•	Keep "Save" button text for both create and edit modes.
+	•	The button action (createEntry vs updateEntry) is handled internally based on the route/mode.
+	•	This keeps the UI consistent and simple - users are always "saving" their work.
+
+	10.	Card Layout with Delete Button:
+	•	The entry card needs to accommodate the delete button in the top-right.
+	•	Layout approach:
+	•	Use flexbox with justify-between for title row.
+	•	Title on the left, delete button on the right.
+	•	Or use absolute positioning for delete button (overlay approach).
+	•	Decision: Use flexbox layout with title and button in a row. This is cleaner and more accessible than absolute positioning.
+	•	The delete button should be small but easily tappable (minimum 44x44px touch target for mobile).
+
+	11.	Event Handling for Card Click:
+	•	The card has a click handler to navigate to edit.
+	•	The delete button also has a click handler.
+	•	Issue: Clicking delete button would also trigger card navigation.
+	•	Solution: Use @click.stop on the delete button to prevent event bubbling.
+	•	This ensures delete button click doesn't trigger card navigation.
+
+	12.	Mobile Considerations:
+	•	Delete button must be easily tappable (minimum 44x44px touch target).
+	•	Confirmation dialog should be full-width on mobile or appropriately sized.
+	•	Card click area should be large enough for easy tapping.
+	•	Always-visible delete button ensures mobile users can access delete functionality.
+
+	13.	Accessibility:
+	•	Delete button should have aria-label="Delete entry" or similar.
+	•	Dialog should have proper ARIA attributes (role="dialog", aria-labelledby, aria-describedby).
+	•	Focus management: When dialog opens, focus should move to the dialog. When it closes, focus should return to the trigger button (if possible).
+	•	Keyboard: ESC key should close the dialog.
+	•	Focus trap: Tab navigation should stay within the dialog when open.
+
+	14.	Icon Library:
+	•	The project already uses @heroicons/vue for icons (PencilIcon, LightBulbIcon, CalendarIcon).
+	•	Use TrashIcon from @heroicons/vue/24/outline for the delete button.
+	•	Import: import { TrashIcon } from '@heroicons/vue/24/outline'
+
+	15.	AppDialog Styling:
+	•	Follow Material Design dialog patterns:
+	•	Backdrop: Semi-transparent overlay (e.g., bg-black/50 or bg-on-surface/50).
+	•	Dialog card: Centered, rounded corners (rounded-lg or rounded-xl), elevation (shadow-elevation-3 or higher).
+	•	Padding: Appropriate spacing (p-6 or similar).
+	•	Buttons: Use AppButton component with appropriate variants.
+	•	Layout: Title at top, message in middle, buttons at bottom (flex layout).
+
+	16.	Testing Considerations:
+	•	Existing tests for JournalNewView will need to be updated for JournalEditorView.
+	•	New tests should cover:
+	•	Edit mode: Loading entry data, pre-populating form, updating entry.
+	•	Delete: Showing confirmation dialog, deleting entry, error handling.
+	•	Card click: Navigating to edit route.
+	•	Note: Comprehensive test updates can be done in this story or a follow-up test story.
+
+	17.	Backward Compatibility:
+	•	The route change from /journal/new to /journal/edit means any bookmarks or external links to /journal/new will break.
+	•	However, since this is an early-stage app, this is acceptable.
+	•	If needed, we could add a redirect from /journal/new to /journal/edit, but this is not necessary for this story.
+

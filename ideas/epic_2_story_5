@@ -1,0 +1,281 @@
+Story 5 – Database Migration Strategy
+
+Goal
+
+Increment the database version from 2 to 3, add the emotionLogs table to the schema, and migrate existing journal entries to include the new tagging fields (emotionIds, peopleTagIds, contextTagIds) with default empty arrays. This migration ensures backward compatibility and prepares the database schema for the EmotionLog feature and updated JournalEntry model that will be implemented in subsequent stories.
+
+⸻
+
+Scope
+
+1.	EmotionLog Domain Interface
+	•	Create the EmotionLog interface in src/domain/emotionLog.ts:
+	•	This interface is needed for TypeScript type safety when defining the database schema
+	•	The interface should match the epic specification:
+	•	export interface EmotionLog {
+	•	  id: string;              // UUID
+	•	  createdAt: string;       // ISO timestamp
+	•	  updatedAt: string;       // ISO timestamp
+	•	  emotionIds: string[];    // Array of Emotion IDs (required, at least one)
+	•	  note?: string;           // Optional short note
+	•	  peopleTagIds?: string[]; // Array of PeopleTag IDs (optional)
+	•	  contextTagIds?: string[]; // Array of ContextTag IDs (optional)
+	•	}
+	•	Note: While Story 9 will implement the full EmotionLog domain model (repository, store, validation), the interface itself must be created in Story 5 to enable proper TypeScript typing for the database schema.
+
+2.	Database Version Increment
+	•	Update MindfullGrowthDatabase class in src/repositories/journalDexieRepository.ts:
+	•	Increment database version from 2 to 3
+	•	Add emotionLogs table to the schema definition
+	•	Import EmotionLog type from src/domain/emotionLog.ts
+	•	emotionLogs table with id as primary key
+	•	The table will store EmotionLog objects with all fields as defined in the interface
+	•	Schema definition should use Dexie's version() API to add the new table
+
+3.	Journal Entry Migration Function
+	•	Create a migration function that runs when upgrading from version 2 to version 3:
+	•	Migration function should:
+	•	Iterate through all existing journalEntries in the database
+	•	For each entry that doesn't have emotionIds, peopleTagIds, or contextTagIds fields:
+	•	Add emotionIds: [] (empty array)
+	•	Add peopleTagIds: [] (empty array)
+	•	Add contextTagIds: [] (empty array)
+	•	Update the entry in the database
+	•	Handle edge cases:
+	•	Entries that already have these fields (should not overwrite existing data)
+	•	Empty database (no entries to migrate)
+	•	Error handling: If migration fails, log errors but don't crash the app
+	•	Migration should be idempotent: running it multiple times should not cause issues
+	•	Implementation approach:
+	•	Use Dexie's upgrade() callback in the version(3) definition
+	•	The upgrade callback receives a transaction object that can be used to access and modify existing data
+	•	Example structure:
+	•	this.version(3).stores({ emotionLogs: 'id' }).upgrade(async (trans) => { /* migration logic */ })
+
+4.	Data Integrity & Backward Compatibility
+	•	Ensure no data loss during migration:
+	•	All existing journal entry fields (id, createdAt, updatedAt, title, body) are preserved
+	•	New fields are added with safe defaults (empty arrays)
+	•	Existing entries without the new fields are treated as having empty arrays
+	•	Backward compatibility:
+	•	The migration should handle cases where entries might have partial data
+	•	If an entry has some but not all of the new fields, only add the missing ones
+	•	Validation:
+	•	After migration, verify that all journal entries have the new fields
+	•	Log migration results (number of entries migrated, any errors)
+	•	Error recovery:
+	•	If migration fails partway through, the database should remain in a consistent state
+	•	Consider using transactions to ensure atomicity (all entries migrated or none)
+
+5.	Database Schema Update
+	•	Update MindfullGrowthDatabase class:
+	•	Import EmotionLog type from src/domain/emotionLog.ts
+	•	Add emotionLogs table type definition:
+	•	emotionLogs!: Table<EmotionLog, string>
+	•	Add version 3 schema definition:
+	•	this.version(3).stores({ emotionLogs: 'id' })
+	•	The migration function is attached to this version definition
+
+6.	Migration Testing Strategy
+	•	Test migration with various scenarios:
+	•	Fresh database (no existing entries): Migration should run without errors, emotionLogs table should be created
+	•	Database with existing journal entries: All entries should be migrated with new fields added
+	•	Database with entries that already have the new fields: Migration should not overwrite existing data
+	•	Database with mixed entries (some with fields, some without): Only entries missing fields should be updated
+	•	Error scenarios:
+	•	Test behavior when IndexedDB operations fail during migration
+	•	Test behavior when database is in an inconsistent state
+	•	Verify that the app can start successfully after migration completes
+
+7.	Minimal Tests (Unit)
+	•	Add unit tests for the migration:
+	•	Location: src/repositories/__tests__/migration.spec.ts (or similar)
+	•	Test cases:
+	•	Migration runs successfully:
+	•	Database version increments from 2 to 3
+	•	emotionLogs table is created
+	•	Existing journal entries are migrated:
+	•	Entries without emotionIds, peopleTagIds, contextTagIds get these fields with empty arrays
+	•	Entries with existing fields are not modified
+	•	No data loss:
+	•	All existing fields (id, createdAt, updatedAt, title, body) are preserved
+	•	New entries created after migration have the new fields
+	•	Idempotency:
+	•	Running migration multiple times doesn't cause issues
+	•	Migration doesn't duplicate fields or data
+	•	Edge cases:
+	•	Empty database (no entries) migrates successfully
+	•	Database with many entries (stress test) migrates successfully
+	•	Error handling:
+	•	Migration handles errors gracefully without crashing the app
+	•	Use Dexie's testing utilities or mock IndexedDB for unit tests
+	•	Note: Integration tests that verify migration works with real IndexedDB can be added in Story 12 (Comprehensive Testing)
+
+⸻
+
+Acceptance Criteria
+
+	•	EmotionLog interface is created in src/domain/emotionLog.ts with all fields matching the epic specification
+	•	Database version is incremented from 2 to 3 in MindfullGrowthDatabase
+	•	emotionLogs table is added to the database schema (using EmotionLog type for TypeScript safety)
+	•	Migration function runs automatically when the app detects database version change
+	•	All existing journal entries are migrated:
+	•	Entries without emotionIds, peopleTagIds, contextTagIds get these fields with empty arrays ([])
+	•	Entries with existing fields are preserved (not overwritten)
+	•	No data loss occurs during migration:
+	•	All existing journal entry fields (id, createdAt, updatedAt, title, body) are preserved
+	•	New fields are added with safe defaults
+	•	Migration is idempotent:
+	•	Running migration multiple times doesn't cause errors or duplicate data
+	•	The app can start successfully after migration:
+	•	No unhandled errors during migration
+	•	Database is in a consistent state after migration
+	•	New journal entries created after migration include the new fields
+	•	Migration logs are written to console for debugging (number of entries migrated, any errors)
+	•	All unit tests pass:
+	•	Migration runs successfully
+	•	Existing data is preserved
+	•	New fields are added correctly
+	•	Edge cases are handled
+	•	No linting errors or TypeScript errors
+	•	Database schema is ready for:
+	•	Story 6: JournalEntry Data Model Updates (can now use the new fields)
+	•	Story 9: EmotionLog Domain Model & Persistence (emotionLogs table and interface are ready)
+
+⸻
+
+Out of Scope
+
+	•	Implementing EmotionLogRepository (this is Story 9: EmotionLog Domain Model & Persistence)
+	•	Implementing useEmotionLogStore (this is Story 9)
+	•	Updating JournalEntry interface (this is Story 6: JournalEntry Data Model Updates)
+	•	Updating useJournalStore to handle new fields (this is Story 6)
+	•	UI changes or component updates (these come in Stories 7, 8, 10, 11)
+	•	E2E tests for migration (comprehensive testing comes in Story 12)
+	•	Rollback functionality (migrations are forward-only)
+	•	Migration performance optimization for very large databases (can be addressed later if needed)
+	•	Data validation beyond ensuring fields exist (validation logic comes in later stories)
+
+⸻
+
+Inconsistencies & Notes
+
+	1.	EmotionLog Interface Creation:
+	•	Story 5 creates the EmotionLog interface in src/domain/emotionLog.ts
+	•	This is necessary for TypeScript type safety when defining the database schema (emotionLogs table)
+	•	The interface matches the epic specification exactly
+	•	Story 9 will implement the full EmotionLog domain model:
+	•	EmotionLogRepository interface and implementation
+	•	useEmotionLogStore with CRUD actions and validation
+	•	But the interface itself is created in Story 5 to enable the database migration
+	•	This separation ensures the database schema is properly typed from the start
+
+	2.	Database Version Management:
+	•	Story 2 incremented the database version from 1 to 2 (for peopleTags and contextTags tables)
+	•	Story 5 increments from 2 to 3 (for emotionLogs table and journal entry migration)
+	•	This is consistent with the epic's suggested structure
+	•	No inconsistencies here
+
+	3.	Migration Timing:
+	•	The migration must run before Story 6 (JournalEntry Data Model Updates) can be implemented
+	•	Story 6 depends on the database schema having the new fields available
+	•	This story should be completed before Story 6 begins
+	•	The migration runs automatically when Dexie detects the version change, so no manual intervention is needed
+
+	4.	Journal Entry Field Migration:
+	•	The epic specifies that emotionIds, peopleTagIds, and contextTagIds should be added to existing journal entries
+	•	The current JournalEntry interface (in src/domain/journal.ts) does not have these fields yet
+	•	Story 6 will update the JournalEntry interface to include these fields
+	•	Resolution: Story 5 handles the database migration (adding fields to existing records), while Story 6 updates the TypeScript interface and store logic. This separation is intentional and allows the database to be ready before the code is updated.
+
+	5.	Migration Function Implementation:
+	•	Dexie's upgrade() callback receives a transaction object
+	•	The migration should use this transaction to ensure atomicity
+	•	Example structure:
+	•	this.version(3)
+	•	  .stores({ emotionLogs: 'id' })
+	•	  .upgrade(async (trans) => {
+	•	    const entries = await trans.table('journalEntries').toArray()
+	•	    for (const entry of entries) {
+	•	      if (!entry.emotionIds || !entry.peopleTagIds || !entry.contextTagIds) {
+	•	        await trans.table('journalEntries').update(entry.id, {
+	•	          emotionIds: entry.emotionIds || [],
+	•	          peopleTagIds: entry.peopleTagIds || [],
+	•	          contextTagIds: entry.contextTagIds || [],
+	•	        })
+	•	      }
+	•	    }
+	•	  })
+	•	Note: The actual implementation may vary based on Dexie's API and TypeScript typing requirements
+
+	6.	Database Instance Sharing:
+	•	The MindfullGrowthDatabase class is defined in journalDexieRepository.ts
+	•	Story 2 extended this class to add peopleTags and contextTags tables
+	•	Story 5 extends it further to add emotionLogs table
+	•	This is consistent with the current architecture
+	•	If this becomes unwieldy, the database class can be refactored to a shared module in a future story (as noted in the epic)
+
+	7.	Testing Strategy:
+	•	Unit tests should use Dexie's testing utilities or mock IndexedDB
+	•	Tests should verify:
+	•	Schema changes (version increment, table creation)
+	•	Migration logic (field addition, data preservation)
+	•	Edge cases (empty database, existing fields, errors)
+	•	Integration tests with real IndexedDB can be added in Story 12
+
+	8.	Error Handling:
+	•	Migration errors should be logged but not crash the app
+	•	Consider wrapping migration logic in try-catch blocks
+	•	Log migration progress and results for debugging
+	•	If migration fails, the app should still be able to start (though some features may not work until migration completes)
+
+	9.	Story Dependencies:
+	•	Story 5 depends on Story 2 being complete (database version 2 exists)
+	•	Story 2 is complete, so this dependency is satisfied
+	•	Story 5 must be completed before Story 6 (JournalEntry updates) can begin
+	•	Story 5 must be completed before Story 9 (EmotionLog implementation) can use the emotionLogs table
+	•	No blocking dependencies for this story
+
+	10.	Potential Inconsistency: Type Safety During Migration:
+	•	During migration, we're adding fields to JournalEntry objects that don't exist in the TypeScript interface yet
+	•	This means TypeScript may complain about accessing fields that don't exist in the type
+	•	Resolution: Use type assertions or temporary interfaces during migration. The fields will be added to the JournalEntry interface in Story 6, which will resolve the type errors. Alternatively, update the JournalEntry interface in Story 5 to include the new fields (even if they're not used yet), which would make Story 6's job easier.
+
+	11.	Migration Verification:
+	•	After migration, it's good practice to verify that the migration completed successfully
+	•	Consider adding a simple verification function that checks:
+	•	All journal entries have the new fields
+	•	emotionLogs table exists and is accessible
+	•	Database version is 3
+	•	This verification can be logged or used in tests
+
+	12.	Backward Compatibility with Existing Code:
+	•	Code that reads journal entries before Story 6 is implemented may not expect the new fields
+	•	However, since the fields are optional arrays and default to empty, existing code should continue to work
+	•	Story 6 will update the code to properly handle these fields
+	•	No breaking changes are expected
+
+	13.	Consistency Check with Story 4 (Tag Input Components):
+	•	Story 4 (just implemented) created the TagInput component for managing people and context tags
+	•	Story 4 does not modify the database schema or journal entries
+	•	Story 4 uses useTagStore, which was created in Story 2 and uses the peopleTags and contextTags tables (version 2)
+	•	Story 5's migration does not affect the tag tables (they were created in Story 2)
+	•	Story 5 only adds the emotionLogs table and migrates journal entries
+	•	No conflicts or inconsistencies with Story 4:
+	•	TagInput component will continue to work as before
+	•	Tag creation and selection functionality is unaffected
+	•	The migration only adds fields to journal entries, which TagInput doesn't directly interact with (TagInput is used in editors, which will be updated in Stories 7 and 11)
+	•	Story 5 is a foundational migration that prepares the database for future stories
+	•	No backtracking or modifications to Story 4 are required
+
+	14.	Consistency Check with Recent Changes:
+	•	Verification that Story 5 aligns with current codebase state:
+	•	Database is currently at version 2 (with peopleTags and contextTags tables) ✓
+	•	JournalEntry interface does not yet have emotionIds, peopleTagIds, contextTagIds fields ✓
+	•	No emotionLogs table exists yet ✓
+	•	TagInput component (Story 4) uses useTagStore, which is independent of journal entry structure ✓
+	•	EmotionSelector component (Story 3) uses useEmotionStore, which is independent of database schema ✓
+	•	All components created in Stories 3 and 4 will continue to work after Story 5's migration
+	•	Story 5 is purely a database migration and does not modify any existing components or stores
+	•	No inconsistencies detected that would require backtracking from Story 4 or earlier stories
+

@@ -1,0 +1,157 @@
+Story 6 – Minimal Tests Around This Flow
+
+Goal
+
+Add just enough tests to keep the journaling flow from breaking later. This story focuses on unit/component tests for the key components, setting up Playwright for E2E testing, and implementing an E2E test for the complete user flow.
+
+⸻
+
+Scope
+
+	1.	Unit / Component Tests (Vitest + Vue Test Utils + Testing Library)
+	•	JournalStore:
+	•	Creating an entry adds it and sets timestamps.
+	•	Note: This test already exists in journal.store.spec.ts (lines 32-61). Verify it covers the requirement and mark as complete.
+	•	JournalView:
+	•	Renders three big buttons (Free form, Guided, Periodic action cards).
+	•	Shows "no entries" empty state when store is empty.
+	•	Shows list items when store has data.
+	•	JournalNewView (Note: Component name inconsistency - see Notes section):
+	•	"Save" calls store with entered data and navigates back.
+	•	Validation: Shows error message when body is empty.
+	•	Cancel button navigates back without saving.
+
+	2.	Playwright Installation & Setup
+	•	Install Playwright as a dev dependency: `npm install -D @playwright/test`
+	•	Initialize Playwright browsers: `npx playwright install` (installs Chromium, Firefox, WebKit)
+	•	Create playwright.config.ts configuration file:
+	•	Configure base URL (e.g., http://localhost:5173 for Vite dev server).
+	•	Set up test directory (e.g., e2e/).
+	•	Configure test timeout and other settings as needed.
+	•	Add test scripts to package.json:
+	•	"test:e2e": "playwright test" (run E2E tests)
+	•	"test:e2e:ui": "playwright test --ui" (run with UI mode, optional but helpful)
+	•	"test:e2e:headed": "playwright test --headed" (run in headed mode for debugging)
+
+	3.	E2E Tests (Playwright)
+	•	Scenario:
+	•	Open app.
+	•	Navigate to Journal tab.
+	•	Click "Free form".
+	•	Type body.
+	•	Save.
+	•	Confirm: entry is visible in list.
+	•	Test setup:
+	•	Clear IndexedDB before each test to ensure clean state.
+	•	Start dev server before tests (or configure Playwright to use existing server).
+
+⸻
+
+Acceptance Criteria
+
+	•	JournalStore tests:
+	•	Test for "Creating an entry adds it and sets timestamps" exists and passes.
+	•	Note: This test already exists in journal.store.spec.ts. Verify it covers:
+	•	Entry is added to store.entries.
+	•	Entry has id, createdAt, and updatedAt set.
+	•	JournalView component tests:
+	•	Test file: src/views/__tests__/JournalView.spec.ts (or similar location).
+	•	Test: Renders three action cards (Free form, Guided, Periodic).
+	•	Test: Shows "No entries yet" empty state when journalStore.sortedEntries.length === 0.
+	•	Test: Shows list of entry cards when journalStore.sortedEntries.length > 0.
+	•	Tests use mocked journalStore (no real IndexedDB needed).
+	•	JournalNewView component tests:
+	•	Test file: src/views/__tests__/JournalNewView.spec.ts (or similar location).
+	•	Test: Clicking "Save" with valid data calls journalStore.createEntry() with correct payload.
+	•	Test: Clicking "Save" navigates back to /journal after successful save.
+	•	Test: Clicking "Save" with empty body shows validation error message.
+	•	Test: Clicking "Cancel" navigates back to /journal without calling createEntry.
+	•	Tests use mocked journalStore and router (no real navigation or persistence needed).
+	•	Playwright installation and setup:
+	•	@playwright/test is installed as a dev dependency in package.json.
+	•	playwright.config.ts exists and is properly configured.
+	•	Test scripts are added to package.json (test:e2e, test:e2e:ui, test:e2e:headed).
+	•	Playwright browsers are installed (can be verified by running `npx playwright test --version`).
+	•	E2E tests (Playwright):
+	•	Test file: e2e/journal-flow.spec.ts (or similar location).
+	•	E2E test passes: Complete flow from opening app to seeing entry in list.
+	•	Test clears IndexedDB before running to ensure clean state.
+	•	All tests pass:
+	•	Unit tests: `npm run test:run` passes.
+	•	E2E tests: `npm run test:e2e` passes.
+	•	Linting and TypeScript checks pass (no new linting or type errors introduced).
+
+⸻
+
+Out of Scope
+
+	•	Comprehensive test coverage (only minimal tests to prevent regressions).
+	•	Tests for edge cases or error scenarios beyond basic validation.
+	•	Performance tests.
+	•	Accessibility tests (can be added in later stories).
+	•	Tests for components not directly involved in the journaling flow (e.g., AppButton, AppCard - AppButton already has basic tests).
+	•	Tests for repository layer (repository is tested indirectly through store tests).
+
+⸻
+
+Notes & Inconsistencies to Review
+
+	1.	Component Name Inconsistency:
+	•	The provided description mentions "JournalEditorView" for component tests.
+	•	However, the actual component is named "JournalNewView.vue" (as implemented in Story 4).
+	•	The route /journal/new points to JournalNewView.vue.
+	•	Decision: Write tests for JournalNewView.vue (the actual component name). The description's mention of "JournalEditorView" appears to be a naming inconsistency from the original description. We'll use the actual component name in tests.
+
+	2.	Existing JournalStore Test:
+	•	The description says to add a test for "Creating an entry adds it and sets timestamps."
+	•	However, this test already exists in journal.store.spec.ts (lines 32-61):
+	•	Test name: "sets id, createdAt, and updatedAt and appends the entry to entries"
+	•	This test already covers the requirement.
+	•	Decision: Mark this as already complete. No new test needed, but verify the existing test adequately covers the requirement. The existing test checks:
+	•	Entry has id, createdAt, updatedAt set.
+	•	Entry is appended to store.entries.
+	•	This matches the requirement, so we can consider this part done.
+
+	3.	Playwright Setup (Now in Scope):
+	•	Playwright installation and configuration is now included as part of this story's scope (see Scope section, item 2).
+	•	This includes:
+	•	Installing @playwright/test package.
+	•	Installing Playwright browsers.
+	•	Creating playwright.config.ts with appropriate configuration.
+	•	Adding test scripts to package.json.
+	•	Decision: Playwright setup is part of this story, not just a prerequisite. This ensures the E2E testing infrastructure is ready before writing the E2E test.
+
+	4.	Test File Organization:
+	•	Current test structure:
+	•	Component tests: src/components/__tests__/AppButton.spec.ts
+	•	Store tests: src/stores/__tests__/journal.store.spec.ts
+	•	For view component tests, we should follow a similar pattern:
+	•	Option A: src/views/__tests__/JournalView.spec.ts and src/views/__tests__/JournalNewView.spec.ts
+	•	Option B: Co-locate with components (less common for views).
+	•	Decision: Use Option A - create __tests__ directory under src/views/ and place test files there. This keeps view tests organized and separate from component tests.
+
+	5.	Testing Library vs Vue Test Utils:
+	•	The project already uses both @testing-library/vue and @vue/test-utils.
+	•	AppButton.spec.ts uses @testing-library/vue (render, getByRole).
+	•	We should use a consistent approach for view tests.
+	•	Decision: Use @testing-library/vue for view component tests (consistent with AppButton tests). Testing Library encourages testing from the user's perspective (queries like getByRole, getByText) which is more maintainable.
+
+	6.	Mocking Strategy:
+	•	For JournalView tests:
+	•	Mock useJournalStore to control entries, isLoading, error states.
+	•	Mock useRouter to verify navigation (if needed).
+	•	For JournalNewView tests:
+	•	Mock useJournalStore to verify createEntry is called with correct data.
+	•	Mock useRouter to verify navigation after save/cancel.
+	•	Decision: Use vi.mock() to mock the store and router modules, similar to how journal.store.spec.ts mocks the repository. This keeps tests isolated and fast.
+
+	7.	E2E Test Scope:
+	•	The description specifies a single E2E scenario covering the complete flow.
+	•	This is intentionally minimal - just enough to verify the end-to-end flow works.
+	•	Decision: Implement exactly one E2E test as described. Additional E2E scenarios (e.g., error cases, validation) can be added in later stories if needed.
+
+	8.	Test Data Setup for E2E:
+	•	E2E tests will need to interact with real IndexedDB (or clear it between tests).
+	•	Playwright can clear IndexedDB before each test, or we can use a test database.
+	•	Decision: Clear IndexedDB before each E2E test to ensure a clean state. This can be done in a beforeEach hook using Playwright's page.evaluate() to clear IndexedDB.
+

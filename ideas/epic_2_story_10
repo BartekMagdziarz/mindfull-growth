@@ -1,0 +1,442 @@
+Story 10 – Emotions View Implementation
+
+Goal
+
+Implement the Emotions View (EmotionsView) to display emotion logs and provide a primary action button to create new logs. This story transforms the placeholder EmotionsView into a fully functional view that lists all emotion logs (most recent first), displays log details including emotions, notes, tags, and timestamps, and enables navigation to edit logs and deletion with confirmation. The view uses the useEmotionLogStore created in Story 9 and follows the same patterns established in JournalView (Story 8) for displaying tags and handling user interactions.
+
+⸻
+
+Scope
+
+1.	Store Integration & Data Loading
+	•	Import and initialize stores in EmotionsView:
+		•	useEmotionLogStore() – to load and manage emotion logs
+		•	useEmotionStore() – to resolve emotion IDs to emotion names
+		•	useTagStore() – to resolve people and context tag IDs to tag names
+	•	On component mount:
+		•	Call emotionLogStore.loadLogs() to load all emotion logs
+		•	Call emotionStore.loadEmotions() if emotions are not already loaded (check isLoaded flag)
+		•	Call tagStore.loadPeopleTags() if peopleTags array is empty
+		•	Call tagStore.loadContextTags() if contextTags array is empty
+	•	Handle loading states gracefully:
+		•	Show loading indicator while emotionLogStore.isLoading is true
+		•	If stores are still loading when logs render, tags/emotions may not resolve immediately
+		•	Since tags/emotions load quickly, a simple approach is acceptable (no complex loading UI needed)
+	•	Handle error states:
+		•	If emotionLogStore.error is set, display error message to user (e.g., via AppSnackbar)
+		•	Allow user to retry loading logs
+
+2.	Primary Action Button
+	•	Add a prominent "Log emotion" button at the top of the view:
+		•	Use AppButton component with variant="filled" (primary style)
+		•	Large, prominent button (can be full-width or centered)
+		•	Clear label: "Log emotion" or "Log an emotion"
+		•	Icon optional (e.g., plus icon or emotion icon)
+	•	Clicking the button:
+		•	Navigates to /emotions/edit route (create mode)
+		•	Note: The route and EmotionLogEditorView component will be implemented in Story 11
+		•	For now, navigation can be prepared but the route may not exist yet
+		•	If route doesn't exist, show a "Coming soon" message via AppSnackbar (temporary until Story 11)
+
+3.	Empty State
+	•	If there are no emotion logs (emotionLogStore.sortedLogs.length === 0):
+		•	Display a simple message: "No emotion logs"
+		•	Optional: Add a helpful message like "Tap 'Log emotion' to get started"
+		•	Keep the "Log emotion" button visible (users can still create logs)
+		•	Use appropriate styling (centered text, muted color)
+		•	No need for complex empty state UI (keep it simple)
+
+4.	Emotion Logs List
+	•	If emotion logs exist (emotionLogStore.sortedLogs.length > 0):
+		•	Display a vertical list of emotion logs (most recent first)
+		•	Use emotionLogStore.sortedLogs getter (already sorted by createdAt descending)
+		•	Each log displayed as an AppCard component:
+			•	Elevation: 1 (subtle shadow)
+			•	Padding: none (custom padding inside)
+			•	Hover effect: shadow-elevation-2 on hover
+			•	Cursor: pointer (indicates clickable)
+			•	Click handler: navigate to /emotions/:id/edit (edit mode)
+	•	Card layout (similar to JournalView entry cards):
+		•	Title row with delete button (top-right corner):
+			•	Delete button: trash icon, positioned in top-right
+			•	Delete button stops event propagation (@click.stop) to prevent card click
+			•	Delete button shows loading state when deleting (disabled, "Deleting..." text)
+		•	Timestamp display:
+			•	Show log's createdAt timestamp using formatEntryDate() utility
+			•	Display below title or at top of card
+			•	Use text-on-surface-variant for muted styling
+		•	Emotions section:
+			•	Display selected emotions as chips (emotion names, not IDs)
+			•	Use same chip styling as JournalView (emotion chips: bg-rose-100 text-rose-800)
+			•	Each emotion chip shows emotion.name resolved from emotionStore.getEmotionById()
+			•	Filter out undefined names (skip invalid emotion IDs gracefully)
+		•	Note preview section (if note exists):
+			•	Display first 100 characters of note with ellipsis if truncated
+			•	Use text-on-surface-variant for muted styling
+			•	Show full note if 100 characters or less
+			•	Truncate with "..." if longer than 100 characters
+			•	Only show this section if note exists and is not empty
+		•	Tags section (if tags exist):
+			•	Display people tags as chips (same styling as JournalView: bg-blue-100 text-blue-800)
+			•	Display context tags as chips (same styling as JournalView: bg-green-100 text-green-800)
+			•	Each tag chip shows tag.name resolved from tagStore
+			•	Filter out undefined names (skip invalid tag IDs gracefully)
+			•	Only show tags section if at least one tag exists
+		•	Spacing: Add appropriate margins between sections (mt-2, mt-3, etc.)
+
+5.	Tag Resolution Logic
+	•	Create helper functions to resolve IDs to names (similar to JournalView):
+		•	getEmotionName(id: string): string | undefined
+			•	Uses emotionStore.getEmotionById(id) to get the emotion
+			•	Returns emotion.name if found, undefined if not found
+		•	getPeopleTagName(id: string): string | undefined
+			•	Uses tagStore.getPeopleTagById(id) to get the tag
+			•	Returns tag.name if found, undefined if not found
+		•	getContextTagName(id: string): string | undefined
+			•	Uses tagStore.getContextTagById(id) to get the tag
+			•	Returns tag.name if found, undefined if not found
+	•	Handle edge cases:
+		•	If an emotion/tag ID doesn't exist in the store (e.g., tag was deleted), skip displaying it rather than showing an error
+		•	If log.emotionIds, log.peopleTagIds, or log.contextTagIds are undefined or null, treat as empty arrays
+		•	Filter out any undefined names before rendering chips
+	•	Helper function to check if log has tags:
+		•	hasTags(log: EmotionLog): boolean
+			•	Checks if log has any peopleTagIds or contextTagIds (emotions are always present)
+			•	Returns true if at least one tag exists, false otherwise
+
+6.	Navigation to Edit Mode
+	•	Clicking a log card (not the delete button):
+		•	Navigates to /emotions/:id/edit route (edit mode)
+		•	Use router.push() with the log's ID
+		•	Note: The route and EmotionLogEditorView component will be implemented in Story 11
+		•	For now, navigation can be prepared but the route may not exist yet
+		•	If route doesn't exist, show a "Coming soon" message via AppSnackbar (temporary until Story 11)
+
+7.	Delete Functionality
+	•	Delete button on each log card:
+		•	Trash icon (TrashIcon from @heroicons/vue/24/outline)
+		•	Positioned in top-right corner of card
+		•	Stops event propagation (@click.stop) to prevent card click
+		•	Shows loading state when deleting (disabled, "Deleting..." text)
+		•	Accessible: aria-label for screen readers
+	•	Delete confirmation dialog:
+		•	Use AppDialog component
+		•	Title: "Delete emotion log"
+		•	Message: "Are you sure you want to delete this emotion log? This action cannot be undone."
+		•	Confirm button: "Delete" (variant="tonal" for destructive action)
+		•	Cancel button: "Cancel"
+		•	Show dialog when delete button is clicked
+		•	Store reference to log being deleted (logToDelete ref)
+	•	Delete confirmation handler:
+		•	On confirm: Call emotionLogStore.deleteLog(logId)
+		•	Show success message via AppSnackbar: "Emotion log deleted successfully."
+		•	Handle errors: Show error message via AppSnackbar if deletion fails
+		•	Close dialog after deletion (success or error)
+		•	Reset logToDelete ref
+	•	Delete cancellation handler:
+		•	On cancel: Close dialog, reset logToDelete ref
+		•	No action taken
+
+8.	Error Handling & User Feedback
+	•	Loading errors:
+		•	If emotionLogStore.error is set after loadLogs(), show error message via AppSnackbar
+		•	Allow user to retry (reload page or call loadLogs() again)
+	•	Delete errors:
+		•	If deleteLog() throws an error, catch it and show error message via AppSnackbar
+		•	Error message: "Failed to delete emotion log. Please try again."
+		•	Don't remove log from UI if deletion fails
+	•	Navigation errors:
+		•	If navigation to edit route fails (route doesn't exist), show "Coming soon" message
+		•	This is temporary until Story 11 implements the editor route
+
+9.	Responsive Design & Accessibility
+	•	Layout:
+		•	Use container with mx-auto and px-4 for responsive padding
+		•	Use flex-col gap-4 for vertical spacing between cards
+		•	Cards should be full-width on mobile, max-width constrained on desktop (if needed)
+	•	Accessibility:
+		•	Delete buttons have aria-label attributes
+		•	Log cards are keyboard navigable (Vue router handles this)
+		•	Dialog is accessible (AppDialog component handles focus management)
+		•	Loading states are announced (via disabled attributes and text)
+	•	Touch targets:
+		•	Delete buttons should have adequate touch target size (min-w-[44px] min-h-[44px])
+		•	Log cards should have adequate touch target size for mobile
+
+10.	Unit Test Updates
+	•	Create src/views/__tests__/EmotionsView.spec.ts:
+		•	Mock useEmotionLogStore, useEmotionStore, and useTagStore:
+			•	Mock sortedLogs getter to return test logs
+			•	Mock isLoading, error state
+			•	Mock loadLogs, deleteLog actions
+			•	Mock getEmotionById, getPeopleTagById, getContextTagById getters
+			•	Mock loadEmotions, loadPeopleTags, loadContextTags actions
+		•	Mock router (useRouter from vue-router):
+			•	Mock push() method to track navigation calls
+		•	Add test cases:
+			•	"Log emotion" button renders and navigates to /emotions/edit:
+				•	Click button, assert router.push('/emotions/edit') is called
+			•	Empty state displays when no logs exist:
+				•	Mock sortedLogs to return empty array
+				•	Assert "No emotion logs" message is displayed
+				•	Assert "Log emotion" button is still visible
+			•	Logs list displays when logs exist:
+				•	Mock sortedLogs to return test logs
+				•	Assert log cards are rendered
+				•	Assert logs are sorted correctly (newest first)
+			•	Log card displays emotions, note, tags, and timestamp:
+				•	Create log with emotions, note, people tags, context tags
+				•	Mock store getters to return names
+				•	Assert all elements are displayed correctly
+			•	Note preview truncates at 100 characters:
+				•	Create log with note longer than 100 characters
+				•	Assert note is truncated with "..."
+			•	Invalid emotion/tag IDs are skipped gracefully:
+				•	Create log with invalid emotion/tag IDs
+				•	Mock getters to return undefined for invalid IDs
+				•	Assert no chips are rendered for invalid IDs (no error thrown)
+			•	Clicking log card navigates to edit route:
+				•	Click log card (not delete button)
+				•	Assert router.push('/emotions/:id/edit') is called with correct ID
+			•	Delete button shows confirmation dialog:
+				•	Click delete button, assert dialog is shown
+			•	Delete confirmation removes log:
+				•	Click delete button, confirm deletion
+				•	Assert emotionLogStore.deleteLog() is called with correct ID
+				•	Assert log is removed from list (mock store updates)
+			•	Delete cancellation closes dialog without deleting:
+				•	Click delete button, cancel deletion
+				•	Assert dialog is closed, deleteLog() is not called
+			•	Delete error shows error message:
+				•	Mock deleteLog() to throw error
+				•	Assert error message is shown via AppSnackbar
+			•	Stores are loaded on mount:
+				•	Assert emotionLogStore.loadLogs() is called
+				•	Assert emotionStore.loadEmotions() is called if not loaded
+				•	Assert tagStore.loadPeopleTags() and loadContextTags() are called if empty
+			•	Loading state displays while loading:
+				•	Mock isLoading to true
+				•	Assert loading indicator is displayed
+			•	Error state displays error message:
+				•	Mock error to be set
+				•	Assert error message is displayed
+		•	Use Vitest for testing
+		•	Mock components (AppCard, AppButton, AppDialog, AppSnackbar) if needed
+		•	Test both success and error scenarios
+
+11.	Manual Verification / QA Notes
+	•	Test in the browser to ensure:
+		•	"Log emotion" button is prominent and navigates correctly (or shows "Coming soon" until Story 11)
+		•	Empty state displays when no logs exist
+		•	Logs list displays correctly (most recent first)
+		•	Log cards show emotions, notes, tags, and timestamps correctly
+		•	Note preview truncates at 100 characters with ellipsis
+		•	Tags are displayed with correct colors/styles (emotions: rose, people: blue, context: green)
+		•	Clicking log card navigates to edit route (or shows "Coming soon" until Story 11)
+		•	Delete button shows confirmation dialog
+		•	Delete confirmation removes log from list
+		•	Delete cancellation closes dialog without deleting
+		•	Error handling works (loading errors, delete errors)
+		•	Layout is responsive on mobile and desktop
+		•	Accessibility features work (keyboard navigation, screen readers)
+
+⸻
+
+Acceptance Criteria
+
+	•	EmotionsView displays "Log emotion" primary action button at the top
+	•	Clicking "Log emotion" navigates to /emotions/edit (or shows "Coming soon" until Story 11)
+	•	Empty state displays "No emotion logs" message when no logs exist
+	•	Logs list displays emotion logs (most recent first) when logs exist
+	•	Each log card displays:
+		•	Emotions as chips (emotion names, rose-colored)
+		•	Note preview (first 100 characters with ellipsis if truncated)
+		•	Creation timestamp (formatted using formatEntryDate)
+		•	People tags as chips (blue-colored)
+		•	Context tags as chips (green-colored)
+		•	Delete button in top-right corner
+	•	Clicking log card navigates to /emotions/:id/edit (or shows "Coming soon" until Story 11)
+	•	Delete button shows confirmation dialog (AppDialog)
+	•	Delete confirmation removes log from list and shows success message
+	•	Delete cancellation closes dialog without deleting
+	•	useEmotionLogStore, useEmotionStore, and useTagStore are integrated:
+		•	Stores are loaded on component mount
+		•	Tag/emotion IDs are resolved to names using store getters
+	•	Error handling works (loading errors, delete errors)
+	•	EmotionsView unit tests cover:
+		•	"Log emotion" button and navigation
+		•	Empty state display
+		•	Logs list display and sorting
+		•	Log card content (emotions, notes, tags, timestamp)
+		•	Note truncation
+		•	Invalid ID handling
+		•	Delete functionality and confirmation
+		•	Store loading
+		•	Error handling
+	•	No linting errors or TypeScript errors
+	•	Layout is responsive and accessible
+	•	The view is ready for Story 11 (Emotion Log Editor) integration
+
+⸻
+
+Out of Scope
+
+	•	Emotion Log Editor implementation (this is Story 11: Emotion Log Editor)
+	•	Editing emotion logs via UI (this is Story 11)
+	•	Creating emotion logs via UI (this is Story 11)
+	•	Filtering or querying logs by emotion, date, or tags (this will come in Profile view later)
+	•	Tag management UI (viewing all tags, editing tag names) – this will come in a later epic
+	•	Emotion statistics or analytics
+	•	Bulk operations (bulk delete, bulk update)
+	•	E2E tests (comprehensive testing comes in Story 12)
+	•	Advanced animations or transitions for log cards
+	•	Log card tooltips or detailed information on hover
+	•	Reordering or sorting logs (currently sorted by creation date, newest first)
+	•	Search functionality for logs
+	•	Export or share functionality
+
+⸻
+
+Inconsistencies & Notes
+
+1.	Story 11 Dependency (Emotion Log Editor):
+	•	Story 10 implements the Emotions View, but navigation to /emotions/edit and /emotions/:id/edit routes will not work until Story 11 implements EmotionLogEditorView
+	•	Resolution: Prepare navigation code in Story 10, but handle missing routes gracefully (show "Coming soon" message via AppSnackbar)
+	•	Once Story 11 is implemented, navigation will work automatically
+	•	This is a forward-looking implementation that doesn't break anything
+
+2.	Route Configuration:
+	•	Story 10 doesn't require adding routes to router/index.ts (routes will be added in Story 11)
+	•	However, Story 10 can prepare the navigation calls
+	•	No inconsistency – routes are added when the editor component is created
+
+3.	Store Pattern Consistency:
+	•	Story 10 follows the same pattern as Story 8 (JournalView):
+		•	Loads stores on mount (emotionLogStore, emotionStore, tagStore)
+		•	Resolves IDs to names using helper functions
+		•	Displays tags as chips with same styling
+		•	Handles delete with confirmation dialog
+		•	Uses same components (AppCard, AppDialog, AppSnackbar)
+	•	No inconsistencies – Story 10 follows established patterns
+
+4.	Tag Display Consistency:
+	•	Story 10 uses the same chip styling as Story 8 (JournalView):
+		•	Emotions: bg-rose-100 text-rose-800
+		•	People tags: bg-blue-100 text-blue-800
+		•	Context tags: bg-green-100 text-green-800
+	•	This ensures visual consistency across the app
+	•	No inconsistency – both views use the same styling
+
+5.	Date Formatting Consistency:
+	•	Story 10 uses formatEntryDate() utility (same as JournalView)
+	•	This ensures consistent date formatting across the app
+	•	No inconsistency – both views use the same utility
+
+6.	Note Preview Truncation:
+	•	The epic specifies "first 100 characters with ellipsis if truncated"
+	•	This is a reasonable limit for preview text
+	•	If users need to see full note, they can click the log card to edit (Story 11)
+	•	No inconsistency – truncation is appropriate for list view
+
+7.	Emotion Log vs Journal Entry Display:
+	•	Emotion logs have a different structure than journal entries:
+		•	Emotion logs: emotions (required), note (optional), tags (optional)
+		•	Journal entries: title (optional), body (required), emotions/tags (optional)
+	•	Story 10 displays emotion logs appropriately for their structure
+	•	No inconsistency – each view displays its own data type correctly
+
+8.	Store Loading Strategy:
+	•	Story 10 loads emotionLogStore.loadLogs() on mount
+	•	Story 10 also loads emotionStore and tagStore if not already loaded
+	•	This matches the pattern used in JournalView (Story 8)
+	•	No inconsistency – loading strategy is consistent
+
+9.	Delete Confirmation Pattern:
+	•	Story 10 uses AppDialog for delete confirmation (same as JournalView)
+	•	Delete confirmation message is similar but specific to emotion logs
+	•	No inconsistency – delete pattern is consistent
+
+10.	Error Handling Pattern:
+	•	Story 10 handles errors the same way as JournalView:
+		•	Loading errors: Show via AppSnackbar
+		•	Delete errors: Show via AppSnackbar, don't remove from UI if deletion fails
+	•	No inconsistency – error handling is consistent
+
+11.	Story Dependencies:
+	•	Story 10 depends on:
+		•	Story 1 (Emotions Database & Domain Model) – emotions exist in store ✓
+		•	Story 2 (People & Context Tag Domain Models) – tag stores exist ✓
+		•	Story 5 (Database Migration Strategy) – emotionLogs table exists ✓
+		•	Story 9 (EmotionLog Domain Model & Persistence) – emotionLogStore exists ✓
+	•	All dependencies are satisfied, so Story 10 can proceed
+	•	Story 10 does not depend on Stories 3, 4, 6, 7, or 8 (those are for journal entries, but Story 10 can follow their patterns)
+
+12.	Consistency Check with Story 9:
+	•	Story 9 (just implemented) created useEmotionLogStore with:
+		•	sortedLogs getter (newest first)
+		•	loadLogs(), deleteLog() actions
+		•	isLoading, error state
+	•	Story 10 uses all of these features correctly
+	•	No inconsistencies detected that would require backtracking from Story 9
+
+13.	Consistency Check with Story 8:
+	•	Story 8 (recently implemented) updated JournalView to display tags
+	•	Story 10 follows the same patterns for:
+		•	Store loading (check isLoaded, check empty arrays)
+		•	Tag resolution (helper functions)
+		•	Tag display (chip styling)
+		•	Delete confirmation (AppDialog)
+	•	No inconsistencies detected that would require backtracking from Story 8
+
+14.	Component Reusability:
+	•	Story 10 uses the same components as JournalView:
+		•	AppCard for log cards
+		•	AppButton for "Log emotion" button
+		•	AppDialog for delete confirmation
+		•	AppSnackbar for user feedback
+	•	This ensures UI consistency across the app
+	•	No inconsistency – components are reused appropriately
+
+15.	Optional Fields Handling:
+	•	EmotionLog interface has optional fields: note?, peopleTagIds?, contextTagIds?
+	•	Story 10 handles these optional fields correctly:
+		•	Note: Only display if exists and is not empty
+		•	Tags: Only display if arrays exist and have items
+	•	This matches the interface definition and doesn't conflict with Story 9
+
+16.	Validation Requirements:
+	•	Story 9 validates that emotionIds contains at least one emotion (required)
+	•	Story 10 displays emotion logs, which always have at least one emotion (validated in Story 9)
+	•	Story 10 doesn't need to validate emotions (that's handled in Story 9 and Story 11)
+	•	No inconsistency – validation is handled at the right layer
+
+17.	Future Integration:
+	•	Story 11 (Emotion Log Editor) will use the same stores and components
+	•	Story 11 will create/edit logs, and Story 10 will display them
+	•	The separation is clean: Story 10 = display layer, Story 11 = editor layer
+	•	No inconsistency – stories are well-separated
+
+18.	Accessibility Considerations:
+	•	Story 10 follows accessibility best practices:
+		•	Delete buttons have aria-label attributes
+		•	Log cards are keyboard navigable
+		•	Dialog handles focus management (via AppDialog component)
+		•	Loading states are announced
+	•	This matches the accessibility approach used in JournalView
+	•	No inconsistency – accessibility is handled consistently
+
+19.	Performance Considerations:
+	•	Story 10 loads logs and resolves IDs to names for each log
+		•	Since stores are in-memory arrays, lookups are fast
+		•	If performance becomes an issue, we could memoize resolved names, but this is not needed for initial implementation
+	•	This matches the performance approach used in JournalView
+	•	No inconsistency – performance considerations are consistent
+
+20.	Type Safety:
+	•	TypeScript should ensure type safety throughout:
+		•	EmotionLog type matches the interface from Story 9
+		•	Store methods use correct types
+		•	Helper functions use correct types
+	•	No type assertions or `any` types should be needed
+	•	If type errors occur, they should be resolved by properly typing the interfaces and methods
+

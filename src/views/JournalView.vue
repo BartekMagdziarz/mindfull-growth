@@ -122,6 +122,48 @@
               <p class="text-on-surface-variant line-clamp-2 mt-2">
                 {{ entry.body }}
               </p>
+              <!-- Tags Section -->
+              <div
+                v-if="hasTags(entry)"
+                class="flex flex-wrap gap-2 mt-3"
+              >
+                <!-- Emotion Chips -->
+                <template
+                  v-for="emotionId in entry.emotionIds ?? []"
+                  :key="`emotion-${emotionId}`"
+                >
+                  <span
+                    v-if="getEmotionName(emotionId)"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-800"
+                  >
+                    {{ getEmotionName(emotionId) }}
+                  </span>
+                </template>
+                <!-- People Tag Chips -->
+                <template
+                  v-for="peopleTagId in entry.peopleTagIds ?? []"
+                  :key="`people-${peopleTagId}`"
+                >
+                  <span
+                    v-if="getPeopleTagName(peopleTagId)"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  >
+                    {{ getPeopleTagName(peopleTagId) }}
+                  </span>
+                </template>
+                <!-- Context Tag Chips -->
+                <template
+                  v-for="contextTagId in entry.contextTagIds ?? []"
+                  :key="`context-${contextTagId}`"
+                >
+                  <span
+                    v-if="getContextTagName(contextTagId)"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                  >
+                    {{ getContextTagName(contextTagId) }}
+                  </span>
+                </template>
+              </div>
             </div>
           </AppCard>
         </div>
@@ -152,6 +194,8 @@ import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import { useJournalStore } from '@/stores/journal.store'
+import { useEmotionStore } from '@/stores/emotion.store'
+import { useTagStore } from '@/stores/tag.store'
 import { formatEntryDate } from '@/utils/dateFormat'
 import {
   PencilIcon,
@@ -162,6 +206,8 @@ import {
 import type { JournalEntry } from '@/domain/journal'
 
 const journalStore = useJournalStore()
+const emotionStore = useEmotionStore()
+const tagStore = useTagStore()
 const router = useRouter()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
@@ -219,8 +265,47 @@ const handleDeleteCancel = () => {
   entryToDelete.value = null
 }
 
-onMounted(() => {
-  journalStore.loadEntries()
+// Helper functions to resolve IDs to names
+const getEmotionName = (id: string): string | undefined => {
+  return emotionStore.getEmotionById(id)?.name
+}
+
+const getPeopleTagName = (id: string): string | undefined => {
+  return tagStore.getPeopleTagById(id)?.name
+}
+
+const getContextTagName = (id: string): string | undefined => {
+  return tagStore.getContextTagById(id)?.name
+}
+
+// Helper to check if entry has any tags/emotions
+const hasTags = (entry: JournalEntry): boolean => {
+  const hasEmotions = (entry.emotionIds ?? []).length > 0
+  const hasPeopleTags = (entry.peopleTagIds ?? []).length > 0
+  const hasContextTags = (entry.contextTagIds ?? []).length > 0
+  return hasEmotions || hasPeopleTags || hasContextTags
+}
+
+onMounted(async () => {
+  // Load stores in parallel for efficiency
+  const loadPromises = [journalStore.loadEntries()]
+
+  // Load emotions if not already loaded
+  if (!emotionStore.isLoaded) {
+    loadPromises.push(emotionStore.loadEmotions())
+  }
+
+  // Load people tags if empty
+  if (tagStore.peopleTags.length === 0) {
+    loadPromises.push(tagStore.loadPeopleTags())
+  }
+
+  // Load context tags if empty
+  if (tagStore.contextTags.length === 0) {
+    loadPromises.push(tagStore.loadContextTags())
+  }
+
+  await Promise.all(loadPromises)
 })
 </script>
 
