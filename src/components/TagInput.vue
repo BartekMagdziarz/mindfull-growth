@@ -25,7 +25,7 @@
             :key="tag.id"
             type="button"
             :aria-label="`Remove ${tag.name} from selection`"
-            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium shadow-elevation-1 hover:shadow-elevation-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
+            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium shadow-elevation-1 hover:shadow-elevation-2 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
             @click="removeTag(tag.id)"
           >
             <span>{{ tag.name }}</span>
@@ -33,6 +33,12 @@
           </button>
         </div>
       </template>
+      <div
+        v-else
+        class="rounded-2xl border border-outline/30 bg-section text-[0.75rem] text-on-surface-variant px-3 py-2 text-center"
+      >
+        No {{ tagTypeLabel.toLowerCase() }} tags selected
+      </div>
     </div>
 
     <!-- Tag Creation Input -->
@@ -53,7 +59,7 @@
           v-model="inputValue"
           type="text"
           :placeholder="`Type to create or select a ${tagTypeLabel.toLowerCase()} tag...`"
-          class="w-full px-3 py-2 rounded-2xl border border-outline/60 bg-surface text-sm text-on-surface placeholder:text-on-surface/70 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary transition-all duration-200"
+          class="w-full px-3 py-2 rounded-2xl border border-chip-border bg-surface text-sm text-on-surface placeholder:text-on-surface/70 focus:outline-none focus:ring-2 focus:ring-focus focus:border-primary transition-all duration-200"
           :aria-label="`Add ${tagTypeLabel.toLowerCase()} tag`"
           :aria-expanded="showSuggestions"
           :aria-controls="suggestionsId"
@@ -66,7 +72,7 @@
         <div
           v-if="showSuggestions && filteredSuggestions.length > 0"
           :id="suggestionsId"
-          class="absolute z-10 w-full mt-1 bg-surface border border-outline/50 rounded-2xl shadow-elevation-3 max-h-60 overflow-y-auto"
+          class="absolute z-10 w-full mt-1 bg-surface border border-chip-border rounded-2xl shadow-elevation-3 max-h-60 overflow-y-auto"
           role="listbox"
           :aria-label="`${tagTypeLabel} tag suggestions`"
         >
@@ -75,8 +81,8 @@
             :key="tag.id"
             type="button"
             :class="[
-              'w-full px-3 py-2 text-left text-sm text-on-surface hover:bg-surface-variant/70 focus:bg-surface-variant/80 focus:outline-none transition-colors',
-              highlightedIndex === index ? 'bg-surface-variant' : '',
+              'w-full px-3 py-2 text-left text-sm text-on-surface hover:bg-section focus:bg-section-strong focus:outline-none transition-colors rounded-2xl',
+              highlightedIndex === index ? 'bg-section-strong' : '',
             ]"
             :aria-label="`Select ${tag.name}`"
             :aria-selected="highlightedIndex === index"
@@ -87,7 +93,7 @@
           </button>
         </div>
       </div>
-      <p v-if="errorMessage" class="mt-1 text-xs text-red-600">
+      <p v-if="errorMessage" class="mt-1 text-xs text-error">
         {{ errorMessage }}
       </p>
     </div>
@@ -134,7 +140,7 @@
     <div
       v-else
       :class="[
-        'text-center rounded-lg bg-surface-variant/50 text-on-surface-variant',
+        'text-center rounded-2xl bg-section text-on-surface-variant border border-outline/30',
         props.compact ? 'py-3 text-xs' : 'py-4 text-sm',
       ]"
     >
@@ -244,12 +250,12 @@ function isTagSelected(tagId: string): boolean {
 function getTagChipClasses(tagId: string): string {
   const isSelected = isTagSelected(tagId)
   const baseClasses =
-    'px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.95]'
+    'px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background active:scale-[0.95]'
 
   if (isSelected) {
     return `${baseClasses} bg-primary text-on-primary shadow-elevation-1 hover:shadow-elevation-2`
   } else {
-    return `${baseClasses} bg-surface border-2 border-outline text-on-surface hover:bg-surface-variant`
+    return `${baseClasses} bg-chip border border-chip-border text-chip-text hover:bg-section`
   }
 }
 

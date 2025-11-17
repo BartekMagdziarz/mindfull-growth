@@ -399,9 +399,9 @@ describe('EmotionsView', () => {
     const { container } = await renderView()
 
     expect(screen.getByText('Testing invalid IDs')).toBeInTheDocument()
-    expect(container.querySelector('.bg-rose-100')).toBeNull()
-    expect(container.querySelector('.bg-blue-100')).toBeNull()
-    expect(container.querySelector('.bg-green-100')).toBeNull()
+    expect(container.querySelector('.bg-section-strong')).toBeNull()
+    expect(container.querySelector('.bg-chip')).toBeNull()
+    expect(container.querySelector('.bg-primary-soft')).toBeNull()
   })
 
   it('navigates to the edit route when a log card is clicked', async () => {
@@ -614,5 +614,4 @@ describe('EmotionsView', () => {
     expect(snackbar).toHaveTextContent('Coming soon')
   })
 })
-
 

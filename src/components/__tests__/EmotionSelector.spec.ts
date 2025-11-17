@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/vue'
 import EmotionSelector from '../EmotionSelector.vue'
 import type { Emotion, Quadrant } from '@/domain/emotion'
 
@@ -163,17 +163,25 @@ describe('EmotionSelector', () => {
       ).toBeInTheDocument()
     })
 
-    it('renders all four quadrant buttons with correct labels', () => {
+    it('renders all four quadrant buttons with energy and pleasantness labels', () => {
       render(EmotionSelector, {
         props: {
           modelValue: [],
         },
       })
 
-      expect(screen.getByText('High Energy / High Pleasantness')).toBeInTheDocument()
-      expect(screen.getByText('High Energy / Low Pleasantness')).toBeInTheDocument()
-      expect(screen.getByText('Low Energy / High Pleasantness')).toBeInTheDocument()
-      expect(screen.getByText('Low Energy / Low Pleasantness')).toBeInTheDocument()
+      const quadrantsToCheck = [
+        { name: /Select High Energy \/ High Pleasantness quadrant/i, energy: 'High Energy', pleasantness: 'Pleasant' },
+        { name: /Select High Energy \/ Low Pleasantness quadrant/i, energy: 'High Energy', pleasantness: 'Unpleasant' },
+        { name: /Select Low Energy \/ High Pleasantness quadrant/i, energy: 'Low Energy', pleasantness: 'Pleasant' },
+        { name: /Select Low Energy \/ Low Pleasantness quadrant/i, energy: 'Low Energy', pleasantness: 'Unpleasant' },
+      ]
+
+      quadrantsToCheck.forEach(({ name, energy, pleasantness }) => {
+        const button = screen.getByRole('button', { name })
+        expect(within(button).getByText(energy)).toBeInTheDocument()
+        expect(within(button).getByText(pleasantness)).toBeInTheDocument()
+      })
     })
 
     it('shows "No emotions selected" placeholder when no emotions are selected', () => {
@@ -227,22 +235,26 @@ describe('EmotionSelector', () => {
       })
     })
 
-    it('shows quadrant navigation bar when quadrant is selected', async () => {
+    it('highlights the active quadrant when it is selected', async () => {
       render(EmotionSelector, {
         props: {
           modelValue: [],
         },
       })
 
-      const quadrantButton = screen.getByLabelText(
-        'Select High Energy / High Pleasantness quadrant'
-      )
+      const quadrantButton = screen.getByRole('button', {
+        name: /Select High Energy \/ High Pleasantness quadrant/i,
+      })
       await fireEvent.click(quadrantButton)
 
       await waitFor(() => {
-        expect(screen.getByText('Select Emotions')).toBeInTheDocument()
-        expect(screen.getByLabelText('Switch to High Energy / High Pleasantness quadrant')).toBeInTheDocument()
+        expect(quadrantButton).toHaveAttribute('aria-pressed', 'true')
       })
+
+      const otherQuadrant = screen.getByRole('button', {
+        name: /Select High Energy \/ Low Pleasantness quadrant/i,
+      })
+      expect(otherQuadrant).toHaveAttribute('aria-pressed', 'false')
     })
   })
 
@@ -279,18 +291,7 @@ describe('EmotionSelector', () => {
         },
       })
 
-      // Select quadrant
-      const quadrantButton = screen.getByLabelText(
-        'Select High Energy / High Pleasantness quadrant'
-      )
-      await fireEvent.click(quadrantButton)
-
-      await waitFor(() => {
-        expect(screen.getByLabelText('Deselect emotion Ecstatic')).toBeInTheDocument()
-      })
-
-      // Click selected emotion chip to deselect
-      const emotionChip = screen.getByLabelText('Deselect emotion Ecstatic')
+      const emotionChip = await screen.findByLabelText('Deselect emotion Ecstatic')
       await fireEvent.click(emotionChip)
 
       expect(emitted('update:modelValue')).toBeTruthy()
@@ -347,20 +348,11 @@ describe('EmotionSelector', () => {
         },
       })
 
-      // Select first quadrant and verify emotion is there
-      const quadrant1Button = screen.getByLabelText(
-        'Select High Energy / High Pleasantness quadrant'
-      )
-      await fireEvent.click(quadrant1Button)
-
-      await waitFor(() => {
-        // When emotion is pre-selected, it shows as "Deselect emotion Ecstatic"
-        expect(screen.getByLabelText('Deselect emotion Ecstatic')).toBeInTheDocument()
-      })
+      await screen.findByLabelText('Deselect emotion Ecstatic')
 
       // Switch to different quadrant
       const quadrant2Button = screen.getByLabelText(
-        'Switch to High Energy / Low Pleasantness quadrant'
+        'Select High Energy / Low Pleasantness quadrant'
       )
       await fireEvent.click(quadrant2Button)
 
@@ -395,7 +387,7 @@ describe('EmotionSelector', () => {
 
       // Switch to second quadrant
       const quadrant2Button = screen.getByLabelText(
-        'Switch to High Energy / Low Pleasantness quadrant'
+        'Select High Energy / Low Pleasantness quadrant'
       )
       await fireEvent.click(quadrant2Button)
 
@@ -505,8 +497,10 @@ describe('EmotionSelector', () => {
 
       // Component should only show valid emotions
       expect(screen.getByText('Selected Emotions (2)')).toBeInTheDocument()
-      expect(screen.getByText('Ecstatic')).toBeInTheDocument()
-      expect(screen.getByText('Elated')).toBeInTheDocument()
+      expect(
+        screen.getByLabelText('Remove Ecstatic from selection')
+      ).toBeInTheDocument()
+      expect(screen.getByLabelText('Remove Elated from selection')).toBeInTheDocument()
 
       consoleWarnSpy.mockRestore()
     })
@@ -645,16 +639,8 @@ describe('EmotionSelector', () => {
         },
       })
 
-      const quadrantButton = screen.getByLabelText(
-        'Select High Energy / High Pleasantness quadrant'
-      )
-      await fireEvent.click(quadrantButton)
-
-      await waitFor(() => {
-        const emotionChip = screen.getByLabelText('Deselect emotion Ecstatic')
-        expect(emotionChip).toHaveAttribute('aria-pressed', 'true')
-      })
+      const emotionChip = await screen.findByLabelText('Deselect emotion Ecstatic')
+      expect(emotionChip).toHaveAttribute('aria-pressed', 'true')
     })
   })
 })
-

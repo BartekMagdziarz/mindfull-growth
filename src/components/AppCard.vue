@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const cardClasses = computed(() => {
-  const baseClasses = 'rounded-lg bg-surface border border-outline/20'
+  const baseClasses = 'rounded-3xl bg-surface border border-outline/30 backdrop-blur-sm'
 
   const elevationClasses = {
     1: 'shadow-elevation-1',
@@ -36,4 +36,3 @@ const cardClasses = computed(() => {
   return `${baseClasses} ${elevationClasses[props.elevation]} ${paddingClasses[props.padding]}`
 })
 </script>
-

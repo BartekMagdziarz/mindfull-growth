@@ -1,12 +1,12 @@
 <template>
-  <header class="bg-surface border-b border-outline/20 shadow-elevation-1">
+  <header class="bg-nav backdrop-blur border-b border-outline/30 shadow-elevation-1">
     <div class="container mx-auto px-4 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <button
             v-if="showBack"
             @click="handleBackClick"
-            class="p-2 rounded-lg text-on-surface hover:bg-surface-variant active:bg-surface-variant transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            class="p-2 rounded-xl text-on-surface hover:bg-section active:bg-section transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background"
             aria-label="Go back"
           >
             <ArrowLeftIcon class="w-6 h-6" />
@@ -49,4 +49,3 @@ const handleBackClick = () => {
   }
 }
 </script>
-

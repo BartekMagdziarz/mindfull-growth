@@ -40,7 +40,7 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-[1.8fr_1fr_1fr] items-start">
           <!-- Emotions Section -->
           <section
-            class="rounded-3xl border border-outline/30 bg-surface px-5 py-4 shadow-sm flex flex-col gap-4 transition-shadow hover:shadow-elevation-2"
+            class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
           >
             <header class="space-y-2">
               <div class="flex flex-wrap items-center gap-3">
@@ -52,8 +52,8 @@
                     v-for="emotion in selectedEmotionList"
                     :key="emotion.id"
                     type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
-                    :aria-label="`Remove ${emotion.name}`"
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
+                    :aria-label="`Remove ${emotion.name} from selection`"
                     @click="removeEmotion(emotion.id)"
                   >
                     <span>{{ emotion.name }}</span>
@@ -64,7 +64,7 @@
             </header>
             <div
               v-if="isEmotionSectionLoading"
-              class="rounded-xl border border-dashed border-outline/40 p-3 text-center text-xs text-on-surface-variant"
+              class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
             >
               Loading emotions...
             </div>
@@ -75,7 +75,7 @@
 
           <!-- People Tags Section -->
           <section
-            class="rounded-3xl border border-outline/30 bg-surface px-5 py-4 shadow-sm flex flex-col gap-4 transition-shadow hover:shadow-elevation-2"
+            class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
           >
             <header class="space-y-2">
               <div class="flex flex-wrap items-center gap-3">
@@ -87,8 +87,8 @@
                     v-for="tag in selectedPeopleList"
                     :key="tag.id"
                     type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
-                    :aria-label="`Remove ${tag.name}`"
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
+                    :aria-label="`Remove ${tag.name} from selection`"
                     @click="removePeopleTag(tag.id)"
                   >
                     <span>{{ tag.name }}</span>
@@ -99,7 +99,7 @@
             </header>
             <div
               v-if="arePeopleTagsLoading"
-              class="rounded-xl border border-dashed border-outline/40 p-3 text-center text-xs text-on-surface-variant"
+              class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
             >
               Loading people tags...
             </div>
@@ -115,7 +115,7 @@
 
           <!-- Context Tags Section -->
           <section
-            class="rounded-3xl border border-outline/30 bg-surface px-5 py-4 shadow-sm flex flex-col gap-4 transition-shadow hover:shadow-elevation-2"
+            class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
           >
             <header class="space-y-2">
               <div class="flex flex-wrap items-center gap-3">
@@ -127,8 +127,8 @@
                     v-for="tag in selectedContextList"
                     :key="tag.id"
                     type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 transition-all duration-200 active:scale-[0.95]"
-                    :aria-label="`Remove ${tag.name}`"
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
+                    :aria-label="`Remove ${tag.name} from selection`"
                     @click="removeContextTag(tag.id)"
                   >
                     <span>{{ tag.name }}</span>
@@ -139,7 +139,7 @@
             </header>
             <div
               v-if="areContextTagsLoading"
-              class="rounded-xl border border-dashed border-outline/40 p-3 text-center text-xs text-on-surface-variant"
+              class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
             >
               Loading context tags...
             </div>
@@ -157,7 +157,7 @@
 
       <!-- Bottom Action Bar -->
       <div
-        class="sticky bottom-0 left-0 right-0 bg-surface/90 backdrop-blur border-t border-outline/30 flex justify-end gap-3 px-2 sm:px-4 py-4"
+        class="sticky bottom-0 left-0 right-0 bg-background border-t border-outline/30 flex justify-end gap-3 px-2 sm:px-4 py-4"
       >
         <AppButton variant="text" @click="handleCancel" :disabled="isSaving">
           Cancel

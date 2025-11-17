@@ -50,9 +50,14 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
 
   async update(log: EmotionLog): Promise<EmotionLog> {
     try {
+      const previousUpdatedAt = new Date(log.updatedAt ?? '').getTime()
+      let nextTimestamp = Date.now()
+      if (!Number.isNaN(previousUpdatedAt) && nextTimestamp <= previousUpdatedAt) {
+        nextTimestamp = previousUpdatedAt + 1
+      }
       const updatedLog: EmotionLog = {
         ...log,
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date(nextTimestamp).toISOString(),
       }
       await this.table.put(updatedLog)
       return updatedLog
@@ -73,5 +78,4 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
 }
 
 export const emotionLogDexieRepository = new EmotionLogDexieRepository()
-
 
