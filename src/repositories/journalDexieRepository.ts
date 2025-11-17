@@ -11,6 +11,7 @@ export class MindfullGrowthDatabase extends Dexie {
   peopleTags!: Table<PeopleTag, string>
   contextTags!: Table<ContextTag, string>
   emotionLogs!: Table<EmotionLog, string>
+  userSettings!: Table<{ key: string; value: string }, string>
 
   constructor() {
     super('MindfullGrowthDB')
@@ -59,6 +60,9 @@ export class MindfullGrowthDatabase extends Dexie {
           // The migration will be retried on next app start
         }
       })
+    this.version(4).stores({
+      userSettings: 'key', // key is the primary key
+    })
   }
 }
 
