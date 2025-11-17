@@ -37,7 +37,6 @@ describe('AppButton', () => {
     })
 
     const button = getByRole('button')
-    expect(button).toHaveClass('border-2', 'border-outline')
+    expect(button).toHaveClass('border-2', 'border-chip-border', 'text-primary')
   })
 })
-

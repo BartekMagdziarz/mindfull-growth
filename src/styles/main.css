@@ -3,20 +3,52 @@
 @tailwind utilities;
 
 :root {
-  /* Material Design 3 color tokens - Light theme */
-  --color-primary: #6750a4;
-  --color-on-primary: #ffffff;
-  --color-surface: #fefbff;
-  --color-surface-variant: #e7e0ec;
-  --color-on-surface: #1c1b1f;
-  --color-on-surface-variant: #49454f;
-  --color-outline: #79747e;
+  /* Mindful sky palette */
+  --color-background: #eaf4ff;
+  --color-surface: #ffffff;
+  --color-surface-variant: #dfeeff;
+  --color-section: #cfe2ff;
+  --color-section-strong: #bed8ff;
+
+  --color-primary: #2d6fd0;
+  --color-primary-strong: #1f569f;
+  --color-primary-soft: #c7dcff;
+  --color-on-primary: #f7fbff;
+
+  --color-on-surface: #0f2745;
+  --color-on-surface-variant: #3d5b7c;
+  --color-outline: #a9bfdc;
+
+  --color-chip: #e6f0ff;
+  --color-chip-border: #b4ceee;
+  --color-chip-text: #1f3a56;
+
+  --color-focus-ring: #8fc4ff;
+  --color-nav: rgba(255, 255, 255, 0.92);
+
+  --color-error: #c25261;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffe9ee;
+  --color-on-error-container: #5e1d27;
+
+  --color-quadrant-high-energy-high-pleasantness: #9fd4ff;
+  --color-quadrant-high-energy-high-pleasantness-border: #7abef3;
+  --color-quadrant-high-energy-low-pleasantness: #88ace4;
+  --color-quadrant-high-energy-low-pleasantness-border: #6d90ca;
+  --color-quadrant-low-energy-high-pleasantness: #d7ebff;
+  --color-quadrant-low-energy-high-pleasantness-border: #b5d4f4;
+  --color-quadrant-low-energy-low-pleasantness: #a7c0e2;
+  --color-quadrant-low-energy-low-pleasantness-border: #8ea8ca;
 }
 
 @layer base {
   body {
-    @apply bg-surface text-on-surface;
+    @apply bg-background text-on-surface antialiased;
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.55), transparent 45%),
+      radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.4), transparent 40%),
+      linear-gradient(180deg, var(--color-background) 0%, #f5f9ff 50%, #e0ecff 100%);
+    background-attachment: fixed;
   }
 }
-

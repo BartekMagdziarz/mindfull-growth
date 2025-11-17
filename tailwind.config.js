@@ -4,13 +4,27 @@ export default {
   theme: {
     extend: {
       colors: {
+        background: 'var(--color-background)',
         primary: 'var(--color-primary)',
+        'primary-strong': 'var(--color-primary-strong)',
+        'primary-soft': 'var(--color-primary-soft)',
         'on-primary': 'var(--color-on-primary)',
         surface: 'var(--color-surface)',
         'surface-variant': 'var(--color-surface-variant)',
-        outline: 'var(--color-outline)',
+        section: 'var(--color-section)',
+        'section-strong': 'var(--color-section-strong)',
         'on-surface': 'var(--color-on-surface)',
         'on-surface-variant': 'var(--color-on-surface-variant)',
+        outline: 'var(--color-outline)',
+        chip: 'var(--color-chip)',
+        'chip-border': 'var(--color-chip-border)',
+        'chip-text': 'var(--color-chip-text)',
+        focus: 'var(--color-focus-ring)',
+        nav: 'var(--color-nav)',
+        error: 'var(--color-error)',
+        'on-error': 'var(--color-on-error)',
+        'error-container': 'var(--color-error-container)',
+        'on-error-container': 'var(--color-on-error-container)',
       },
       borderRadius: {
         'md': '0.5rem',
@@ -25,4 +39,3 @@ export default {
   },
   plugins: [],
 }
-

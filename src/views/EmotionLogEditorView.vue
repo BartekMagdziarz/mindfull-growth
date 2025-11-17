@@ -9,7 +9,7 @@
         <p class="text-sm text-on-surface-variant">{{ formattedTimestamp }}</p>
       </div>
 
-      <section class="mb-6 border-t border-outline/40 pt-6">
+      <section class="mb-6 rounded-3xl bg-section border border-outline/30 px-4 py-5 shadow-elevation-2">
         <header class="mb-4 space-y-1">
           <div class="flex items-center gap-2">
             <h2 class="text-lg font-semibold text-on-surface">Emotions</h2>
@@ -23,14 +23,14 @@
         </header>
         <div
           v-if="isEmotionSectionLoading"
-          class="rounded-lg border-2 border-dashed border-outline/60 p-4 text-center text-on-surface-variant text-sm"
+          class="rounded-2xl border-2 border-dashed border-outline/50 bg-surface p-4 text-center text-on-surface-variant text-sm"
         >
           Loading emotions...
         </div>
         <EmotionSelector v-else v-model="selectedEmotionIds" />
       </section>
 
-      <section class="mb-6 border-t border-outline/40 pt-6">
+      <section class="mb-6 rounded-3xl bg-section border border-outline/30 px-4 py-5 shadow-elevation-2">
         <header class="mb-4 space-y-1">
           <label
             for="note"
@@ -47,11 +47,11 @@
           v-model="note"
           rows="5"
           placeholder="Add a brief note about this emotion log (optional)"
-          class="w-full px-4 py-3 rounded-lg border-2 border-outline text-on-surface bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-200 resize-y min-h-[140px] leading-relaxed"
+          class="w-full px-4 py-3 rounded-lg border-2 border-outline text-on-surface bg-surface focus:border-primary focus:ring-2 focus:ring-focus focus:outline-none transition-all duration-200 resize-y min-h-[140px] leading-relaxed"
         />
       </section>
 
-      <section class="mb-6 border-t border-outline/40 pt-6">
+      <section class="mb-6 rounded-3xl bg-section border border-outline/30 px-4 py-5 shadow-elevation-2">
         <header class="mb-4 space-y-1">
           <h2 class="text-lg font-semibold text-on-surface">People</h2>
           <p class="text-sm text-on-surface-variant">
@@ -60,14 +60,14 @@
         </header>
         <div
           v-if="isPeopleSectionLoading"
-          class="rounded-lg border-2 border-dashed border-outline/60 p-4 text-center text-on-surface-variant text-sm"
+          class="rounded-2xl border-2 border-dashed border-outline/50 bg-surface p-4 text-center text-on-surface-variant text-sm"
         >
           Loading people tags...
         </div>
         <TagInput v-else v-model="selectedPeopleTagIds" tag-type="people" />
       </section>
 
-      <section class="mb-6 border-t border-outline/40 pt-6">
+      <section class="mb-6 rounded-3xl bg-section border border-outline/30 px-4 py-5 shadow-elevation-2">
         <header class="mb-4 space-y-1">
           <h2 class="text-lg font-semibold text-on-surface">Context</h2>
           <p class="text-sm text-on-surface-variant">
@@ -76,7 +76,7 @@
         </header>
         <div
           v-if="isContextSectionLoading"
-          class="rounded-lg border-2 border-dashed border-outline/60 p-4 text-center text-on-surface-variant text-sm"
+          class="rounded-2xl border-2 border-dashed border-outline/50 bg-surface p-4 text-center text-on-surface-variant text-sm"
         >
           Loading context tags...
         </div>
@@ -92,7 +92,12 @@
         >
           Cancel
         </AppButton>
-        <AppButton variant="filled" @click="handleSave" :disabled="isSaving" class="sm:flex-1">
+        <AppButton
+          variant="filled"
+          @click="handleSave"
+          :disabled="isSaving"
+          class="sm:flex-1"
+        >
           {{ isSaving ? 'Saving...' : 'Save' }}
         </AppButton>
       </div>
@@ -123,12 +128,10 @@ const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
-const wait = (ms = 150) => new Promise((resolve) => setTimeout(resolve, ms))
-
 const showSnackbarThenNavigate = async (message: string, path: string) => {
   snackbarRef.value?.show(message)
   await nextTick()
-  await wait()
+  await new Promise((resolve) => setTimeout(resolve, 200))
   await router.push(path)
 }
 
@@ -351,5 +354,3 @@ onMounted(async () => {
   await Promise.all(dataPromises)
 })
 </script>
-
-

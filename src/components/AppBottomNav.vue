@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-surface border-t border-outline/20 shadow-elevation-1">
+  <nav class="bg-nav backdrop-blur border-t border-outline/30 shadow-elevation-1">
     <div class="container mx-auto">
       <div class="flex justify-around items-center py-2">
         <router-link
@@ -7,10 +7,10 @@
           :key="item.path"
           :to="item.path"
           :class="[
-            'flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors duration-200',
+            'flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors duration-200',
             isActive(item.path)
-              ? 'text-primary bg-surface-variant'
-              : 'text-on-surface-variant hover:bg-surface-variant',
+              ? 'text-primary-strong bg-section-strong shadow-elevation-1'
+              : 'text-on-surface-variant hover:bg-section',
           ]"
         >
           <span class="text-xs font-medium">{{ item.label }}</span>
@@ -42,4 +42,3 @@ const isActive = (path: string): boolean => {
   return route.path === path
 }
 </script>
-

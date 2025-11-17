@@ -104,7 +104,7 @@
                   @click.stop="handleDeleteClick(entry)"
                   :disabled="isDeleting && deleteEntryId === entry.id"
                   :aria-label="`Delete entry: ${entry.title || 'Untitled entry'}`"
-                  class="flex-shrink-0 p-2 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-error transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  class="flex-shrink-0 p-2 rounded-xl text-on-surface-variant hover:bg-section hover:text-error transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
                   <TrashIcon
                     v-if="!(isDeleting && deleteEntryId === entry.id)"
@@ -134,7 +134,7 @@
                 >
                   <span
                     v-if="getEmotionName(emotionId)"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-800"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-section-strong text-primary-strong border border-chip-border shadow-elevation-1"
                   >
                     {{ getEmotionName(emotionId) }}
                   </span>
@@ -146,7 +146,7 @@
                 >
                   <span
                     v-if="getPeopleTagName(peopleTagId)"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-chip text-chip-text border border-chip-border shadow-elevation-1"
                   >
                     {{ getPeopleTagName(peopleTagId) }}
                   </span>
@@ -158,7 +158,7 @@
                 >
                   <span
                     v-if="getContextTagName(contextTagId)"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-soft text-primary-strong border border-chip-border shadow-elevation-1"
                   >
                     {{ getContextTagName(contextTagId) }}
                   </span>
@@ -308,4 +308,3 @@ onMounted(async () => {
   await Promise.all(loadPromises)
 })
 </script>
-

@@ -367,9 +367,9 @@ describe('JournalView', () => {
       const aliceChip = screen.getByText('Alice').closest('span')
       const officeChip = screen.getByText('Office').closest('span')
 
-      expect(happyChip?.className).toContain('bg-rose-100')
-      expect(aliceChip?.className).toContain('bg-blue-100')
-      expect(officeChip?.className).toContain('bg-green-100')
+      expect(happyChip?.className).toContain('bg-section-strong')
+      expect(aliceChip?.className).toContain('bg-chip')
+      expect(officeChip?.className).toContain('bg-primary-soft')
     })
 
     it('does not show tags section for entry without tags', () => {
@@ -454,4 +454,3 @@ describe('JournalView', () => {
     })
   })
 })
-

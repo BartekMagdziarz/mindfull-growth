@@ -151,7 +151,7 @@ describe('Component interactions', () => {
     render(JournalEditorView)
 
     await waitFor(() => {
-      expect(mockEmotionStore.loadEmotions).toHaveBeenCalled()
+      expect(mockEmotionStore.isLoaded).toBe(true)
     })
 
     const saveButton = await screen.findByRole('button', { name: 'Save' })
@@ -165,25 +165,25 @@ describe('Component interactions', () => {
       await screen.findByRole('button', { name: /Select emotion Happy/i, timeout: 3000 })
     )
 
-    expect(screen.getByText(/Selected Emotions \(1\)/)).toBeInTheDocument()
+    await screen.findByLabelText('Remove Happy')
 
     // Switch quadrants and ensure selection persists
     await user.click(
-      screen.getByRole('button', { name: /Switch to High Energy \/ Low Pleasantness quadrant/i })
+      screen.getByRole('button', { name: /Select High Energy \/ Low Pleasantness quadrant/i })
     )
-    expect(screen.getByText(/Selected Emotions \(1\)/)).toBeInTheDocument()
+    await screen.findByLabelText('Remove Happy')
 
     // Add people tag
     const peopleInput = screen.getByLabelText(/Add people tag/i)
     await user.type(peopleInput, 'Mom')
     await user.keyboard('{Enter}')
-    await screen.findByRole('button', { name: /Remove Mom from selection/i })
+    await screen.findByLabelText('Remove Mom')
 
     // Add context tag
     const contextInput = screen.getByLabelText(/Add context tag/i)
     await user.type(contextInput, 'Office')
     await user.keyboard('{Enter}')
-    await screen.findByRole('button', { name: /Remove Office from selection/i })
+    await screen.findByLabelText('Remove Office')
 
     // Body text enables save
     const bodyField = screen.getByLabelText(/journal entry/i)
@@ -206,7 +206,7 @@ describe('Component interactions', () => {
     render(EmotionLogEditorView)
 
     await waitFor(() => {
-      expect(mockEmotionStore.loadEmotions).toHaveBeenCalled()
+      expect(mockEmotionStore.isLoaded).toBe(true)
     })
 
     const saveButton = await screen.findByRole('button', { name: 'Save' })
@@ -215,7 +215,23 @@ describe('Component interactions', () => {
     await user.click(
       screen.getByRole('button', { name: /select High Energy \/ High Pleasantness quadrant/i })
     )
-    await user.click(screen.getByRole('button', { name: /Select emotion Joyful/i }))
+    const getEmotionButton = async (label: string) => {
+      const buttons = await screen.findAllByRole(
+        'button',
+        { name: /Select emotion/i },
+        { timeout: 3000 }
+      )
+      const match = buttons.find((btn) =>
+        btn.getAttribute('aria-label')?.toLowerCase().includes(label.toLowerCase())
+      )
+      if (!match) {
+        throw new Error(`Emotion button for ${label} not rendered`)
+      }
+      return match
+    }
+
+    const joyfulButton = await getEmotionButton('joyful')
+    await user.click(joyfulButton)
     expect(saveButton).toBeEnabled()
 
     // Add tags then remove emotion to ensure validation kicks in again
@@ -228,7 +244,11 @@ describe('Component interactions', () => {
     expect(saveButton).toBeDisabled()
 
     // Re-add an emotion and save
-    await user.click(screen.getByRole('button', { name: /Select emotion Joyful/i }))
+    await user.click(
+      screen.getByRole('button', { name: /select High Energy \/ High Pleasantness quadrant/i })
+    )
+    const joyfulButton2 = await getEmotionButton('joyful')
+    await user.click(joyfulButton2)
     expect(saveButton).toBeEnabled()
 
     await user.type(screen.getByLabelText(/note/i), 'Reflection note')
@@ -242,5 +262,3 @@ describe('Component interactions', () => {
     })
   })
 })
-
-

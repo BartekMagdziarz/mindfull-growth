@@ -82,6 +82,10 @@ vi.mock('@/stores/journal.store', () => {
 
 const createEmotionStoreMock = () => {
   const isLoadedRef = ref(false)
+  const emotions = ref([
+    { id: 'emotion-joy', name: 'Joyful' },
+    { id: 'emotion-calm', name: 'Calm' },
+  ])
   return {
     get isLoaded() {
       return isLoadedRef.value
@@ -92,6 +96,7 @@ const createEmotionStoreMock = () => {
     loadEmotions: vi.fn().mockImplementation(async () => {
       isLoadedRef.value = true
     }),
+    getEmotionById: vi.fn((id: string) => emotions.value.find((e) => e.id === id)),
   }
 }
 
@@ -127,6 +132,12 @@ const createTagStoreMock = () => {
       contextTagsRef.value = [{ id: 'context-default', name: 'Office' }]
       errorRef.value = null
     }),
+    getPeopleTagById: vi.fn((id: string) =>
+      peopleTagsRef.value.find((tag) => tag.id === id)
+    ),
+    getContextTagById: vi.fn((id: string) =>
+      contextTagsRef.value.find((tag) => tag.id === id)
+    ),
   }
 }
 
@@ -394,4 +405,3 @@ describe('JournalEditorView', () => {
     })
   })
 })
-

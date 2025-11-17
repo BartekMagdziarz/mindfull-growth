@@ -5,7 +5,7 @@
       class="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50"
     >
       <div
-        class="bg-surface-variant text-on-surface-variant px-6 py-3 rounded-lg shadow-elevation-3 border border-outline/20 min-w-[200px] text-center"
+        class="bg-primary text-on-primary px-6 py-3 rounded-2xl shadow-elevation-3 border border-primary-soft min-w-[200px] text-center"
       >
         {{ message }}
       </div>
@@ -71,4 +71,3 @@ defineExpose({
   transform: translate(-50%, 20px);
 }
 </style>
-
