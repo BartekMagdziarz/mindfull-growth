@@ -22,6 +22,7 @@ export default [
         HTMLElement: 'readonly',
         Document: 'readonly',
         Window: 'readonly',
+        console: 'readonly',
       },
     },
     plugins: {
