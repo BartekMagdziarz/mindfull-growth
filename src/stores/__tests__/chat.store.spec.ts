@@ -762,5 +762,213 @@ describe('useChatStore', () => {
       expect(store.error).toBe('Journal entry not found.')
     })
   })
+
+  describe('loadChatSession', () => {
+    it('loads a single chat session and sets it as current session', async () => {
+      const store = useChatStore()
+
+      const existingSession: ChatSession = {
+        id: 'session-1',
+        journalEntryId: 'entry-1',
+        intention: 'reflect',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        messages: [
+          {
+            role: 'user',
+            content: 'Hello',
+            timestamp: '2024-01-01T10:00:00.000Z',
+          },
+        ],
+      }
+
+      const mockEntry: JournalEntry = {
+        id: 'entry-1',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        body: 'Test body',
+        emotionIds: [],
+        peopleTagIds: [],
+        contextTagIds: [],
+        chatSessions: [existingSession],
+      }
+
+      mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
+
+      const loaded = await store.loadChatSession('entry-1', 'session-1')
+
+      expect(loaded).not.toBeNull()
+      expect(loaded?.id).toBe('session-1')
+      expect(store.currentChatSession?.id).toBe('session-1')
+      expect(store.journalEntryId).toBe('entry-1')
+    })
+
+    it('returns a cloned session so stored data is not mutated', async () => {
+      const store = useChatStore()
+
+      const existingSession: ChatSession = {
+        id: 'session-1',
+        journalEntryId: 'entry-1',
+        intention: 'reflect',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        messages: [
+          {
+            role: 'assistant',
+            content: 'Original',
+            timestamp: '2024-01-01T10:00:00.000Z',
+          },
+        ],
+      }
+
+      const mockEntry: JournalEntry = {
+        id: 'entry-1',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        body: 'Test body',
+        emotionIds: [],
+        peopleTagIds: [],
+        contextTagIds: [],
+        chatSessions: [existingSession],
+      }
+
+      mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
+
+      const loaded = await store.loadChatSession('entry-1', 'session-1')
+
+      expect(loaded).not.toBeNull()
+      expect(loaded).not.toBe(existingSession)
+      expect(loaded?.messages).not.toBe(existingSession.messages)
+
+      // Mutate the loaded session and ensure the original is unchanged
+      loaded?.messages.push({
+        role: 'user',
+        content: 'New message',
+        timestamp: '2024-01-01T11:00:00.000Z',
+      })
+
+      expect(existingSession.messages).toHaveLength(1)
+      expect(existingSession.messages[0].content).toBe('Original')
+    })
+
+    it('returns null and sets error when session is not found', async () => {
+      const store = useChatStore()
+
+      const mockEntry: JournalEntry = {
+        id: 'entry-1',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        body: 'Test body',
+        emotionIds: [],
+        peopleTagIds: [],
+        contextTagIds: [],
+        chatSessions: [],
+      }
+
+      mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
+
+      const loaded = await store.loadChatSession('entry-1', 'missing-session')
+
+      expect(loaded).toBeNull()
+      expect(store.error).toBe('Chat session not found.')
+      expect(store.currentChatSession).toBeNull()
+      expect(store.journalEntryId).toBeNull()
+    })
+
+    it('throws error when journal entry is not found', async () => {
+      const store = useChatStore()
+      mockJournalStore.getEntryById.mockResolvedValue(undefined)
+
+      await expect(
+        store.loadChatSession('entry-1', 'session-1')
+      ).rejects.toThrow('Journal entry not found')
+
+      expect(store.error).toBe('Journal entry not found.')
+    })
+  })
+
+  describe('deleteChatSession', () => {
+    it('deletes a chat session from a journal entry and updates store', async () => {
+      const store = useChatStore()
+
+      const session1: ChatSession = {
+        id: 'session-1',
+        journalEntryId: 'entry-1',
+        intention: 'reflect',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        messages: [],
+      }
+      const session2: ChatSession = {
+        id: 'session-2',
+        journalEntryId: 'entry-1',
+        intention: 'proactive',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        messages: [],
+      }
+
+      const mockEntry: JournalEntry = {
+        id: 'entry-1',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        body: 'Test body',
+        emotionIds: [],
+        peopleTagIds: [],
+        contextTagIds: [],
+        chatSessions: [session1, session2],
+      }
+
+      mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
+      mockJournalStore.updateEntry.mockResolvedValue({
+        ...mockEntry,
+        chatSessions: [session2],
+      })
+
+      await store.deleteChatSession('entry-1', 'session-1')
+
+      expect(mockJournalStore.updateEntry).toHaveBeenCalled()
+      const updated = mockJournalStore.updateEntry.mock.calls[0][0] as JournalEntry
+      expect(updated.chatSessions).toHaveLength(1)
+      expect(updated.chatSessions?.[0].id).toBe('session-2')
+    })
+
+    it('is a no-op when the session does not exist', async () => {
+      const store = useChatStore()
+
+      const session1: ChatSession = {
+        id: 'session-1',
+        journalEntryId: 'entry-1',
+        intention: 'reflect',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        messages: [],
+      }
+
+      const mockEntry: JournalEntry = {
+        id: 'entry-1',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        body: 'Test body',
+        emotionIds: [],
+        peopleTagIds: [],
+        contextTagIds: [],
+        chatSessions: [session1],
+      }
+
+      mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
+
+      await store.deleteChatSession('entry-1', 'missing-session')
+
+      expect(mockJournalStore.updateEntry).not.toHaveBeenCalled()
+      expect(store.error).toBeNull()
+    })
+
+    it('throws error when journal entry is not found', async () => {
+      const store = useChatStore()
+      mockJournalStore.getEntryById.mockResolvedValue(undefined)
+
+      await expect(
+        store.deleteChatSession('entry-1', 'session-1')
+      ).rejects.toThrow('Journal entry not found')
+
+      expect(store.error).toBe('Journal entry not found.')
+    })
+  })
 })
 

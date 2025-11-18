@@ -35,6 +35,14 @@ const router = createRouter({
       component: JournalEditorView,
     },
     {
+      path: '/journal/:id/chat',
+      name: 'journal-chat',
+      component: () => import('@/views/ChatView.vue'),
+      meta: {
+        title: 'Chat about entry',
+      },
+    },
+    {
       path: '/emotions',
       name: 'emotions',
       component: EmotionsView,

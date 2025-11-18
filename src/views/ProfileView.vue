@@ -9,7 +9,10 @@
 
     <!-- AI Settings Section -->
     <AppCard class="mt-6">
-      <h3 class="text-xl font-semibold text-on-surface mb-4">AI Settings</h3>
+      <h3 class="text-xl font-semibold text-on-surface mb-2">AI Settings</h3>
+      <p class="text-sm text-on-surface-variant mb-4">
+        Connect your own OpenAI API key so the assistant can respond to your journal chats. Your key stays on this device and is never shared.
+      </p>
 
       <!-- API Key Input -->
       <div class="mb-4">
@@ -33,7 +36,7 @@
           {{ apiKeyError }}
         </p>
         <p v-else class="mt-2 text-sm text-on-surface-variant">
-          Your API key is stored locally and securely. Get your API key from
+          Your API key is stored locally in your browser. Get a key from
           <a
             href="https://platform.openai.com/api-keys"
             target="_blank"

@@ -155,11 +155,76 @@
         </div>
       </section>
 
+      <!-- Chat sessions section (edit mode only) -->
+      <section
+        v-if="isEditMode && hasChatSessions"
+        class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
+      >
+        <header class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              Chat Sessions
+            </p>
+            <p class="text-sm text-on-surface-variant">
+              {{ chatSessionsForEntry.length }} conversation{{ chatSessionsForEntry.length > 1 ? 's' : '' }}
+            </p>
+          </div>
+        </header>
+        <div class="space-y-3">
+          <ChatSessionCard
+            v-for="session in chatSessionsForEntry"
+            :key="session.id"
+            :chat-session="session"
+            @view="handleViewChatSession(session.id)"
+            @delete="() => { chatSessionToDelete = session; showDeleteChatDialog = true }"
+          />
+        </div>
+      </section>
+
       <!-- Bottom Action Bar -->
       <div
         class="sticky bottom-0 left-0 right-0 bg-background border-t border-outline/30 flex justify-end gap-3 px-2 sm:px-4 py-4"
       >
-        <AppButton variant="text" @click="handleCancel" :disabled="isSaving">
+        <!-- Chat Button with Dropdown -->
+        <div v-if="!isLoading" class="relative" ref="chatDropdownContainerRef">
+          <AppButton
+            variant="text"
+            @click="openChatDropdown"
+            :disabled="!canStartChat"
+            aria-label="Start chat about this entry"
+          >
+            {{ isStartingChat ? 'Starting...' : 'Chat' }}
+          </AppButton>
+
+          <!-- Dropdown Menu -->
+          <div
+            v-if="showChatDropdown"
+            class="absolute bottom-full left-0 mb-2 w-64 rounded-lg border border-outline/30 bg-surface shadow-elevation-3 p-2 z-50"
+            role="menu"
+            aria-label="Choose what you’d like help with for this entry"
+            @click.stop
+          >
+            <p class="px-4 py-2 text-xs text-on-surface-variant">
+              Choose what you’d like help with for this entry.
+            </p>
+            <button
+              v-for="option in chatIntentionOptions"
+              :key="option.value"
+              @click="handleIntentionSelection(option.value)"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-surface-variant transition-colors focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2"
+              role="menuitem"
+            >
+              <div class="font-medium text-on-surface">{{ option.label }}</div>
+              <div class="text-sm text-on-surface-variant">{{ option.description }}</div>
+            </button>
+          </div>
+        </div>
+
+        <AppButton
+          variant="text"
+          @click="handleCancel"
+          :disabled="isSaving || isStartingChat"
+        >
           Cancel
         </AppButton>
         <AppButton
@@ -175,23 +240,87 @@
 
     <!-- Snackbar for error messages -->
     <AppSnackbar ref="snackbarRef" />
+
+    <!-- Delete Chat Session Dialog -->
+    <AppDialog
+      v-model="showDeleteChatDialog"
+      title="Delete chat session?"
+      message="Are you sure you want to delete this conversation? This action cannot be undone."
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      confirm-variant="tonal"
+      @confirm="handleConfirmDeleteChatSession"
+      @cancel="handleCancelDeleteChatSession"
+    />
+
+    <!-- Custom Prompt Dialog -->
+    <Teleport to="body">
+      <Transition name="dialog">
+        <div
+          v-if="showCustomPromptDialog"
+          class="fixed inset-0 z-50 flex items-center justify-center"
+          @click.self="closeCustomPromptDialog"
+        >
+          <!-- Backdrop -->
+          <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
+
+          <!-- Dialog Card -->
+          <div
+            ref="customPromptDialogRef"
+            role="dialog"
+            aria-labelledby="custom-prompt-title"
+            class="relative z-10 bg-surface rounded-xl shadow-elevation-3 p-6 max-w-md w-full mx-4 border border-outline/20"
+          >
+            <!-- Title -->
+            <h2 id="custom-prompt-title" class="text-xl font-semibold text-on-surface mb-4">
+              Custom Chat Prompt
+            </h2>
+
+            <!-- Textarea -->
+            <label for="custom-prompt-input" class="sr-only">Enter your custom prompt</label>
+            <textarea
+              id="custom-prompt-input"
+              v-model="customPromptInput"
+              placeholder="E.g., Help me understand why I feel anxious about this situation..."
+              class="w-full min-h-[120px] p-3 border border-outline/30 rounded-lg bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 resize-y"
+            />
+
+            <!-- Actions -->
+            <div class="flex gap-3 justify-end mt-6">
+              <AppButton variant="text" @click="closeCustomPromptDialog">Cancel</AppButton>
+              <AppButton
+                variant="filled"
+                @click="handleCustomPromptConfirm"
+                :disabled="!customPromptInput.trim()"
+              >
+                Start Chat
+              </AppButton>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import TagInput from '@/components/TagInput.vue'
+import ChatSessionCard from '@/components/ChatSessionCard.vue'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
+import { useChatStore } from '@/stores/chat.store'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { JournalEntry } from '@/domain/journal'
 import type { Emotion } from '@/domain/emotion'
+import type { ChatIntention, ChatSession } from '@/domain/chatSession'
+import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
@@ -199,6 +328,7 @@ const route = useRoute()
 const journalStore = useJournalStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
+const chatStore = useChatStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const title = ref('')
@@ -212,6 +342,15 @@ const selectedContextTagIds = ref<string[]>([])
 const isEmotionDataLoading = ref(false)
 const arePeopleTagsLoading = ref(false)
 const areContextTagsLoading = ref(false)
+const showChatDropdown = ref(false)
+const isStartingChat = ref(false)
+const showCustomPromptDialog = ref(false)
+const customPromptInput = ref('')
+const chatDropdownContainerRef = ref<HTMLElement | null>(null)
+const customPromptDialogRef = ref<HTMLElement | null>(null)
+const showDeleteChatDialog = ref(false)
+const chatSessionToDelete = ref<ChatSession | null>(null)
+
 // Detect if we're in edit mode (has id param) or create mode
 const isEditMode = computed(() => {
   return !!route.params.id && typeof route.params.id === 'string'
@@ -222,7 +361,11 @@ const isEmotionSectionLoading = computed(() => {
 })
 
 const canSaveEntry = computed(() => {
-  return body.value.trim().length > 0 && !isSaving.value
+  return body.value.trim().length > 0 && !isSaving.value && !isStartingChat.value
+})
+
+const canStartChat = computed(() => {
+  return body.value.trim().length > 0 && !isSaving.value && !isStartingChat.value
 })
 
 const formattedTimestamp = computed(() => {
@@ -273,6 +416,47 @@ const selectedContextList = computed(() => {
     .map((id) => tagStore.getContextTagById(id))
     .filter((tag): tag is { id: string; name: string } => Boolean(tag))
 })
+
+const hasChatSessions = computed(() => {
+  return (
+    !!currentEntry.value &&
+    Array.isArray(currentEntry.value.chatSessions) &&
+    currentEntry.value.chatSessions.length > 0
+  )
+})
+
+const chatSessionsForEntry = computed(() => {
+  return currentEntry.value?.chatSessions ?? []
+})
+
+// Chat intention options for dropdown
+const chatIntentionOptions = [
+  {
+    value: CHAT_INTENTIONS.REFLECT,
+    label: 'Reflect',
+    description: 'Explore deeper meanings and patterns',
+  },
+  {
+    value: CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY,
+    label: 'Help see differently',
+    description: 'Consider alternative perspectives',
+  },
+  {
+    value: CHAT_INTENTIONS.PROACTIVE,
+    label: 'Help to be proactive',
+    description: 'Identify actionable steps',
+  },
+  {
+    value: CHAT_INTENTIONS.THINKING_TRAPS,
+    label: 'Thinking traps',
+    description: 'Identify cognitive distortions',
+  },
+  {
+    value: CHAT_INTENTIONS.CUSTOM,
+    label: 'Custom',
+    description: 'Use your own prompt',
+  },
+] as const
 
 const removeEmotion = (id: string) => {
   const index = selectedEmotionIds.value.indexOf(id)
@@ -405,14 +589,16 @@ const loadEntry = async (id: string) => {
   }
 }
 
-const handleSave = async () => {
+/**
+ * Extracted save logic that can be reused by both Save and Chat flows.
+ * Validates, constructs payload, and saves the entry (create or update).
+ * Returns the saved entry with ID.
+ */
+const saveEntry = async (): Promise<JournalEntry> => {
   // Validation: body must not be empty
   if (!body.value.trim()) {
-    snackbarRef.value?.show('Please enter some content for your journal entry.')
-    return
+    throw new Error('Please enter some content for your journal entry.')
   }
-
-  isSaving.value = true
 
   const payload = {
     title: title.value.trim() || undefined,
@@ -422,17 +608,23 @@ const handleSave = async () => {
     contextTagIds: [...selectedContextTagIds.value],
   }
 
+  if (isEditMode.value && currentEntry.value) {
+    // Edit mode: update existing entry
+    return await journalStore.updateEntry({
+      ...currentEntry.value,
+      ...payload,
+    })
+  } else {
+    // Create mode: create new entry
+    return await journalStore.createEntry(payload)
+  }
+}
+
+const handleSave = async () => {
+  isSaving.value = true
+
   try {
-    if (isEditMode.value && currentEntry.value) {
-      // Edit mode: update existing entry
-      await journalStore.updateEntry({
-        ...currentEntry.value,
-        ...payload,
-      })
-    } else {
-      // Create mode: create new entry
-      await journalStore.createEntry(payload)
-    }
+    await saveEntry()
     // Navigate back to journal list on success
     router.push('/journal')
   } catch (error) {
@@ -450,6 +642,139 @@ const handleSave = async () => {
 
 const handleCancel = () => {
   router.push('/journal')
+}
+
+// Chat dropdown functions
+const openChatDropdown = () => {
+  showChatDropdown.value = true
+}
+
+const closeChatDropdown = () => {
+  showChatDropdown.value = false
+}
+
+// Custom prompt dialog functions
+const closeCustomPromptDialog = () => {
+  showCustomPromptDialog.value = false
+  customPromptInput.value = ''
+}
+
+// Intention selection handler
+const handleIntentionSelection = async (intention: ChatIntention) => {
+  closeChatDropdown()
+
+  if (intention === CHAT_INTENTIONS.CUSTOM) {
+    showCustomPromptDialog.value = true
+  } else {
+    await startChat(intention)
+  }
+}
+
+// Custom prompt confirmation
+const handleCustomPromptConfirm = async () => {
+  if (!customPromptInput.value.trim()) {
+    snackbarRef.value?.show('Please enter a custom prompt.')
+    return
+  }
+
+  const prompt = customPromptInput.value.trim()
+  closeCustomPromptDialog()
+  await startChat(CHAT_INTENTIONS.CUSTOM, prompt)
+}
+
+// Start chat flow: save entry and navigate to chat view
+const startChat = async (intention: ChatIntention, customPrompt?: string) => {
+  // Validation: body must not be empty
+  if (!body.value.trim()) {
+    snackbarRef.value?.show('Please enter some content before starting a chat.')
+    return
+  }
+
+  isStartingChat.value = true
+
+  try {
+    // Save entry first
+    const savedEntry = await saveEntry()
+
+    // Start chat session
+    await chatStore.startChatSession(savedEntry.id, intention, customPrompt)
+
+    // Navigate to chat view
+    router.push(`/journal/${savedEntry.id}/chat`)
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Failed to start chat. Please try again.'
+    snackbarRef.value?.show(errorMessage)
+    console.error('Error starting chat:', error)
+  } finally {
+    isStartingChat.value = false
+  }
+}
+
+// Chat session view/delete handlers
+const handleViewChatSession = (sessionId: string) => {
+  if (!currentEntry.value) return
+  router.push({
+    name: 'journal-chat',
+    params: { id: currentEntry.value.id },
+    query: { sessionId },
+  })
+}
+
+const handleConfirmDeleteChatSession = async () => {
+  if (!currentEntry.value || !chatSessionToDelete.value) return
+
+  try {
+    await chatStore.deleteChatSession(
+      currentEntry.value.id,
+      chatSessionToDelete.value.id
+    )
+    const updatedEntry = await journalStore.getEntryById(currentEntry.value.id)
+    if (updatedEntry) {
+      currentEntry.value = updatedEntry
+    }
+    snackbarRef.value?.show('Chat session deleted')
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Failed to delete chat session. Please try again.'
+    snackbarRef.value?.show(errorMessage)
+    console.error('Error deleting chat session:', error)
+  } finally {
+    showDeleteChatDialog.value = false
+    chatSessionToDelete.value = null
+  }
+}
+
+const handleCancelDeleteChatSession = () => {
+  showDeleteChatDialog.value = false
+  chatSessionToDelete.value = null
+}
+
+// Click outside handler for dropdown
+const handleClickOutside = (event: MouseEvent) => {
+  if (
+    showChatDropdown.value &&
+    chatDropdownContainerRef.value &&
+    !chatDropdownContainerRef.value.contains(event.target as Node)
+  ) {
+    closeChatDropdown()
+  }
+}
+
+// Escape key handler for dropdown
+const handleEscapeKey = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    if (showChatDropdown.value) {
+      closeChatDropdown()
+    }
+    if (showCustomPromptDialog.value) {
+      closeCustomPromptDialog()
+    }
+  }
 }
 
 // Load entry data if in edit mode
@@ -471,5 +796,38 @@ onMounted(async () => {
   }
 
   await Promise.all(dataPromises)
+
+  // Add event listeners for dropdown
+      document.addEventListener('click', handleClickOutside)
+      document.addEventListener('keydown', handleEscapeKey)
+})
+
+onUnmounted(() => {
+  // Clean up event listeners
+  document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleEscapeKey)
 })
 </script>
+
+<style scoped>
+.dialog-enter-active,
+.dialog-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.dialog-enter-active .bg-surface,
+.dialog-leave-active .bg-surface {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.dialog-enter-from,
+.dialog-leave-to {
+  opacity: 0;
+}
+
+.dialog-enter-from .bg-surface,
+.dialog-leave-to .bg-surface {
+  transform: scale(0.95);
+  opacity: 0;
+}
+</style>

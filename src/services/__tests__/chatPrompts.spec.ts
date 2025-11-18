@@ -464,6 +464,27 @@ describe('chatPrompts', () => {
       expect(context).toContain(longBody)
       expect(context.length).toBeGreaterThan(1000)
     })
+
+    it('preserves special characters and newlines in title and body', () => {
+      const entry: JournalEntry = {
+        id: 'entry-1',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        title: 'Feeling 😅 about "work"',
+        body: 'Line 1\nLine 2 with emoji 🚀\nQuote: "keep going"\nUnicode: 你好',
+        emotionIds: [],
+        peopleTagIds: [],
+        contextTagIds: [],
+      }
+
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
+
+      expect(context).toContain('Feeling 😅 about "work"')
+      expect(context).toContain('Line 1')
+      expect(context).toContain('Line 2 with emoji 🚀')
+      expect(context).toContain('Quote: "keep going"')
+      expect(context).toContain('Unicode: 你好')
+    })
   })
 })
 

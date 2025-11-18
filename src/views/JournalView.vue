@@ -116,9 +116,25 @@
                   >Deleting...</span>
                 </button>
               </div>
-              <p class="text-sm text-on-surface-variant">
-                {{ formatEntryDate(entry.createdAt) }}
-              </p>
+              <!-- Date + Chat indicator row -->
+              <div class="flex items-center justify-between text-sm text-on-surface-variant">
+                <p>
+                  {{ formatEntryDate(entry.createdAt) }}
+                </p>
+                <button
+                  v-if="entry.chatSessions && entry.chatSessions.length > 0"
+                  type="button"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary-soft text-primary-strong text-xs font-medium hover:bg-primary-soft/80 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background"
+                  @click.stop="handleViewChats(entry)"
+                  :aria-label="`View ${entry.chatSessions.length} chat session(s)`"
+                >
+                  <span class="text-base leading-none">💬</span>
+                  <span>
+                    {{ entry.chatSessions.length }}
+                    chat{{ entry.chatSessions.length > 1 ? 's' : '' }}
+                  </span>
+                </button>
+              </div>
               <p class="text-on-surface-variant line-clamp-2 mt-2">
                 {{ entry.body }}
               </p>
@@ -184,15 +200,71 @@
       @confirm="handleDeleteConfirm"
       @cancel="handleDeleteCancel"
     />
+
+    <!-- Chat history dialog -->
+    <Teleport to="body">
+      <Transition name="dialog">
+        <div
+          v-if="showChatHistoryDialog"
+          class="fixed inset-0 z-50 flex items-center justify-center"
+          @click.self="showChatHistoryDialog = false"
+        >
+          <!-- Backdrop -->
+          <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
+
+          <!-- Dialog Card -->
+          <div
+            class="relative z-10 bg-surface rounded-xl shadow-elevation-3 p-6 max-w-lg w-full mx-4 border border-outline/20"
+            role="dialog"
+            aria-modal="true"
+          >
+            <h2 class="text-xl font-semibold text-on-surface mb-4">
+              Chat history
+            </h2>
+            <p
+              v-if="!selectedEntryForChats"
+              class="text-on-surface-variant text-sm"
+            >
+              No entry selected.
+            </p>
+            <div
+              v-else-if="selectedEntryChatSessions.length === 0"
+              class="text-on-surface-variant text-sm"
+            >
+              No chat sessions yet for this entry.
+            </div>
+            <div
+              v-else
+              class="space-y-3 max-h-[60vh] overflow-y-auto"
+            >
+              <ChatSessionCard
+                v-for="session in selectedEntryChatSessions"
+                :key="session.id"
+                :chat-session="session"
+                @view="handleChatSessionView(selectedEntryForChats.id, session.id)"
+                @delete.stop
+              />
+            </div>
+            <div class="flex justify-end mt-6">
+              <AppButton variant="text" @click="showChatHistoryDialog = false">
+                Close
+              </AppButton>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppDialog from '@/components/AppDialog.vue'
+import AppButton from '@/components/AppButton.vue'
+import ChatSessionCard from '@/components/ChatSessionCard.vue'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
@@ -216,6 +288,13 @@ const deleteEntryId = ref<string | null>(null)
 const showDeleteDialog = ref(false)
 const entryToDelete = ref<JournalEntry | null>(null)
 
+const showChatHistoryDialog = ref(false)
+const selectedEntryForChats = ref<JournalEntry | null>(null)
+
+const selectedEntryChatSessions = computed(() => {
+  return selectedEntryForChats.value?.chatSessions ?? []
+})
+
 const handleFreeFormClick = () => {
   router.push('/journal/edit')
 }
@@ -235,6 +314,22 @@ const handleCardClick = (entryId: string) => {
 const handleDeleteClick = (entry: JournalEntry) => {
   entryToDelete.value = entry
   showDeleteDialog.value = true
+}
+
+const handleViewChats = (entry: JournalEntry) => {
+  if (!entry.chatSessions || entry.chatSessions.length === 0) {
+    return
+  }
+  selectedEntryForChats.value = entry
+  showChatHistoryDialog.value = true
+}
+
+const handleChatSessionView = (entryId: string, sessionId: string) => {
+  router.push({
+    name: 'journal-chat',
+    params: { id: entryId },
+    query: { sessionId },
+  })
 }
 
 const handleDeleteConfirm = async () => {
@@ -308,3 +403,26 @@ onMounted(async () => {
   await Promise.all(loadPromises)
 })
 </script>
+
+<style scoped>
+.dialog-enter-active,
+.dialog-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.dialog-enter-active .bg-surface,
+.dialog-leave-active .bg-surface {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.dialog-enter-from,
+.dialog-leave-to {
+  opacity: 0;
+}
+
+.dialog-enter-from .bg-surface,
+.dialog-leave-to .bg-surface {
+  transform: scale(0.95);
+  opacity: 0;
+}
+</style>

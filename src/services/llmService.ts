@@ -1,4 +1,5 @@
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
+import { CHAT_COPY } from '@/constants/chatCopy'
 
 // OpenAI API endpoint
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
@@ -35,9 +36,7 @@ interface OpenAIResponse {
 async function getApiKey(): Promise<string> {
   const apiKey = await userSettingsDexieRepository.get(API_KEY_STORAGE_KEY)
   if (!apiKey) {
-    throw new Error(
-      'OpenAI API key is not configured. Please add your API key in Profile settings.'
-    )
+    throw new Error(CHAT_COPY.errors.missingApiKey)
   }
   return apiKey
 }
@@ -85,12 +84,10 @@ export async function sendMessage(
     // Handle HTTP errors
     if (!response.ok) {
       if (response.status === 401) {
-        throw new Error(
-          'Invalid API key. Please check your API key in Profile settings.'
-        )
+        throw new Error(CHAT_COPY.errors.invalidApiKey)
       }
       if (response.status === 429) {
-        throw new Error('Rate limit exceeded. Please try again in a moment.')
+        throw new Error(CHAT_COPY.errors.rateLimit)
       }
 
       // Try to parse error response from OpenAI
@@ -108,9 +105,7 @@ export async function sendMessage(
         throw new Error(errorMessage)
       }
 
-      throw new Error(
-        `API request failed with status ${response.status}. Please try again.`
-      )
+      throw new Error(CHAT_COPY.errors.genericApi(response.status))
     }
 
     // Parse successful response
@@ -138,9 +133,7 @@ export async function sendMessage(
     // Handle network errors
     if (error instanceof TypeError && error.message.includes('fetch')) {
       console.error('Network error during API call:', error)
-      throw new Error(
-        'Network error. Please check your connection and try again.'
-      )
+      throw new Error(CHAT_COPY.errors.network)
     }
 
     // Log other errors for debugging (without exposing API key)

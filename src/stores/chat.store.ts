@@ -19,11 +19,13 @@ import { useJournalStore } from './journal.store'
 import { useEmotionStore } from './emotion.store'
 import { useTagStore } from './tag.store'
 import type { JournalEntry } from '@/domain/journal'
+import { CHAT_COPY } from '@/constants/chatCopy'
 
 export const useChatStore = defineStore('chat', () => {
   // State
   const currentChatSession = ref<ChatSession | null>(null)
   const isLoading = ref<boolean>(false)
+  const isSaving = ref<boolean>(false)
   const error = ref<string | null>(null)
   const journalEntryId = ref<string | null>(null)
 
@@ -60,7 +62,7 @@ export const useChatStore = defineStore('chat', () => {
   async function sendMessage(message: string): Promise<void> {
     // Validate current session exists
     if (!currentChatSession.value) {
-      error.value = 'No active chat session. Please start a chat session first.'
+      error.value = CHAT_COPY.chat.noActiveSession
       throw new Error('No active chat session')
     }
 
@@ -74,7 +76,7 @@ export const useChatStore = defineStore('chat', () => {
     const entry = await journalStore.getEntryById(journalEntryId.value)
 
     if (!entry) {
-      error.value = 'Journal entry not found.'
+      error.value = CHAT_COPY.chat.entryNotFound
       throw new Error('Journal entry not found')
     }
 
@@ -146,55 +148,97 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   async function saveChatSession(): Promise<void> {
-    // Validate current session exists
-    if (!currentChatSession.value) {
-      error.value = 'No active chat session to save.'
-      throw new Error('No active chat session to save')
-    }
-
-    // Validate session has at least one message exchange (user + assistant)
-    const messages = currentChatSession.value.messages
-    if (messages.length < 2) {
-      error.value =
-        'Cannot save chat session: at least one message exchange (user message and assistant response) is required.'
-      throw new Error(
-        'Cannot save chat session: at least one message exchange is required'
-      )
-    }
-
-    // Check that we have both user and assistant messages
-    const hasUserMessage = messages.some((msg) => msg.role === 'user')
-    const hasAssistantMessage = messages.some((msg) => msg.role === 'assistant')
-    if (!hasUserMessage || !hasAssistantMessage) {
-      error.value =
-        'Cannot save chat session: conversation must include both user and assistant messages.'
-      throw new Error(
-        'Cannot save chat session: conversation must include both user and assistant messages'
-      )
-    }
-
-    if (!journalEntryId.value) {
-      error.value = 'Journal entry ID is missing.'
-      throw new Error('Journal entry ID is missing')
-    }
-
-    // Retrieve journal entry
-    const journalStore = useJournalStore()
-    const entry = await journalStore.getEntryById(journalEntryId.value)
-
-    if (!entry) {
-      error.value = 'Journal entry not found.'
-      throw new Error('Journal entry not found')
-    }
+    isSaving.value = true
+    error.value = null
 
     try {
-      // Initialize chatSessions array if undefined/null
-      const chatSessions = entry.chatSessions ?? []
+      // Validate current session exists
+      if (!currentChatSession.value) {
+        error.value = CHAT_COPY.chat.noSessionToSave
+        throw new Error('No active chat session to save.')
+      }
 
-      // Add current session to entry's chatSessions array
+      // Validate session has at least one message exchange (user + assistant)
+      const messages = currentChatSession.value.messages
+      if (messages.length < 2) {
+        error.value = CHAT_COPY.chat.saveRequirements
+        throw new Error(
+          'Cannot save chat session: at least one message exchange is required'
+        )
+      }
+
+      // Check that we have both user and assistant messages
+      const hasUserMessage = messages.some((msg) => msg.role === 'user')
+      const hasAssistantMessage = messages.some((msg) => msg.role === 'assistant')
+      if (!hasUserMessage || !hasAssistantMessage) {
+        error.value = CHAT_COPY.chat.saveRequirements
+        throw new Error(
+          'Cannot save chat session: conversation must include both user and assistant messages'
+        )
+      }
+
+      if (!journalEntryId.value) {
+        error.value = 'Journal entry ID is missing.'
+        throw new Error('Journal entry ID is missing')
+      }
+
+      // Retrieve journal entry
+      const journalStore = useJournalStore()
+      const entry = await journalStore.getEntryById(journalEntryId.value)
+
+      if (!entry) {
+        error.value = CHAT_COPY.chat.entryNotFound
+        throw new Error('Journal entry not found')
+      }
+
+      // Initialize chatSessions array if undefined/null
+      const existingChatSessions = entry.chatSessions ?? []
+
+      // Serialize existing chat sessions to ensure they're plain objects
+      // (Vue reactive objects can't be directly stored in IndexedDB)
+      const serializedExistingSessions: ChatSession[] = existingChatSessions.map(
+        (session) => ({
+          id: session.id,
+          journalEntryId: session.journalEntryId,
+          intention: session.intention,
+          createdAt: session.createdAt,
+          messages: session.messages.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.timestamp,
+          })),
+          ...(session.customPrompt && { customPrompt: session.customPrompt }),
+        })
+      )
+
+      // Create a plain object copy of the current chat session to ensure it's serializable
+      const sessionToSave: ChatSession = {
+        id: currentChatSession.value.id,
+        journalEntryId: currentChatSession.value.journalEntryId,
+        intention: currentChatSession.value.intention,
+        createdAt: currentChatSession.value.createdAt,
+        messages: currentChatSession.value.messages.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp,
+        })),
+      }
+      if (currentChatSession.value.customPrompt) {
+        sessionToSave.customPrompt = currentChatSession.value.customPrompt
+      }
+
+      // Create a plain object copy of the entire entry to ensure all properties are serializable
+      // (Vue reactive objects can't be directly stored in IndexedDB)
       const updatedEntry: JournalEntry = {
-        ...entry,
-        chatSessions: [...chatSessions, currentChatSession.value],
+        id: entry.id,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+        title: entry.title,
+        body: entry.body,
+        emotionIds: entry.emotionIds ? [...entry.emotionIds] : [],
+        peopleTagIds: entry.peopleTagIds ? [...entry.peopleTagIds] : [],
+        contextTagIds: entry.contextTagIds ? [...entry.contextTagIds] : [],
+        chatSessions: [...serializedExistingSessions, sessionToSave],
       }
 
       // Update entry using journal store
@@ -212,6 +256,8 @@ export const useChatStore = defineStore('chat', () => {
       error.value = errorMessage
       console.error('Error saving chat session:', err)
       throw err
+    } finally {
+      isSaving.value = false
     }
   }
 
@@ -220,7 +266,7 @@ export const useChatStore = defineStore('chat', () => {
     journalEntryId.value = null
     error.value = null
   }
-
+  
   async function loadChatSessionsForEntry(
     entryId: string
   ): Promise<ChatSession[]> {
@@ -230,7 +276,7 @@ export const useChatStore = defineStore('chat', () => {
       const entry = await journalStore.getEntryById(entryId)
 
       if (!entry) {
-        error.value = 'Journal entry not found.'
+        error.value = CHAT_COPY.chat.entryNotFound
         throw new Error('Journal entry not found')
       }
 
@@ -249,10 +295,126 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  /**
+   * Loads a single chat session for a given entry and sets it as the current session.
+   * Returns the loaded session or null if not found.
+   */
+  async function loadChatSession(
+    entryId: string,
+    chatSessionId: string
+  ): Promise<ChatSession | null> {
+    error.value = null
+
+    try {
+      const journalStore = useJournalStore()
+      const entry = await journalStore.getEntryById(entryId)
+
+      if (!entry) {
+        const message = 'Journal entry not found.'
+        error.value = message
+        throw new Error(message)
+      }
+
+      const session = (entry.chatSessions ?? []).find(
+        (cs) => cs.id === chatSessionId
+      )
+
+      if (!session) {
+        const message = 'Chat session not found.'
+        error.value = message
+        return null
+      }
+
+      // Create a plain-object clone so that viewing a saved session
+      // does not accidentally mutate the stored data.
+      const clonedSession: ChatSession = {
+        id: session.id,
+        journalEntryId: session.journalEntryId,
+        intention: session.intention,
+        createdAt: session.createdAt,
+        messages: session.messages.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp,
+        })),
+      }
+
+      if (session.customPrompt) {
+        clonedSession.customPrompt = session.customPrompt
+      }
+
+      currentChatSession.value = clonedSession
+      journalEntryId.value = entryId
+      return clonedSession
+    } catch (err) {
+      if (!error.value) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : `Failed to load chat session ${chatSessionId} for entry ${entryId}`
+        error.value = errorMessage
+      }
+      console.error(
+        `Error loading chat session ${chatSessionId} for entry ${entryId}:`,
+        err
+      )
+      throw err
+    }
+  }
+
+  /**
+   * Deletes a single chat session from a journal entry.
+   */
+  async function deleteChatSession(
+    entryId: string,
+    chatSessionId: string
+  ): Promise<void> {
+    error.value = null
+    try {
+      const journalStore = useJournalStore()
+      const entry = await journalStore.getEntryById(entryId)
+
+      if (!entry) {
+        const message = 'Journal entry not found.'
+        error.value = message
+        throw new Error(message)
+      }
+
+      const existingSessions = entry.chatSessions ?? []
+      const updatedSessions = existingSessions.filter(
+        (session) => session.id !== chatSessionId
+      )
+
+      // If nothing changed, just return (no-op)
+      if (updatedSessions.length === existingSessions.length) {
+        return
+      }
+
+      const updatedEntry: JournalEntry = {
+        ...entry,
+        chatSessions: updatedSessions,
+      }
+
+      await journalStore.updateEntry(updatedEntry)
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : `Failed to delete chat session ${chatSessionId} for entry ${entryId}`
+      error.value = errorMessage
+      console.error(
+        `Error deleting chat session ${chatSessionId} for entry ${entryId}:`,
+        err
+      )
+      throw err
+    }
+  }
+
   return {
     // State
     currentChatSession,
     isLoading,
+    isSaving,
     error,
     journalEntryId,
     // Getters
@@ -263,6 +425,8 @@ export const useChatStore = defineStore('chat', () => {
     saveChatSession,
     discardChatSession,
     loadChatSessionsForEntry,
+    loadChatSession,
+    deleteChatSession,
   }
 })
 

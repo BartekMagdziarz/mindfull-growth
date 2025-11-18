@@ -89,6 +89,38 @@ describe('llmService', () => {
       ])
     })
 
+    it('should prepend system prompt before existing conversation history', async () => {
+      const mockApiKey = 'sk-test123456789'
+      const mockResponse = {
+        choices: [{ message: { content: 'Combined response' } }],
+      }
+
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      })
+
+      await sendMessage(
+        [
+          { role: 'user', content: 'First message' },
+          { role: 'assistant', content: 'Previous answer' },
+          { role: 'user', content: 'Follow-up question' },
+        ],
+        'System behavior description'
+      )
+
+      const fetchCall = mockFetch.mock.calls[0]
+      const requestBody = JSON.parse(fetchCall[1].body as string)
+
+      expect(requestBody.messages).toEqual([
+        { role: 'system', content: 'System behavior description' },
+        { role: 'user', content: 'First message' },
+        { role: 'assistant', content: 'Previous answer' },
+        { role: 'user', content: 'Follow-up question' },
+      ])
+    })
+
     it('should throw error when API key is missing', async () => {
       vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(undefined)
 

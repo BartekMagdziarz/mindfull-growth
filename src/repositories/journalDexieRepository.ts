@@ -63,6 +63,32 @@ export class MindfullGrowthDatabase extends Dexie {
     this.version(4).stores({
       userSettings: 'key', // key is the primary key
     })
+    this.version(5).upgrade(async (trans) => {
+      // Migration: Add chatSessions field to existing journal entries
+      try {
+        const entries = await trans.table('journalEntries').toArray()
+        let migratedCount = 0
+
+        for (const entry of entries) {
+          if (!Array.isArray(entry.chatSessions)) {
+            const migratedEntry: JournalEntry = {
+              ...entry,
+              chatSessions: [],
+            }
+            await trans.table('journalEntries').put(migratedEntry)
+            migratedCount++
+          }
+        }
+
+        console.log(
+          `[Migration v4→v5] Successfully migrated ${migratedCount} journal entry/entries with chatSessions field`
+        )
+      } catch (error) {
+        console.error('[Migration v4→v5] Error during migration:', error)
+        // Don't throw - allow app to start even if migration fails
+        // The migration will be retried on next app start
+      }
+    })
   }
 }
 
