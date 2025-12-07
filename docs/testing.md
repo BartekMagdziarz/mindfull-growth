@@ -36,6 +36,17 @@ If Playwright cannot bind to `5173` (common inside sandboxed shells), run locall
 - Performance specs rely on `performance.now()` thresholds; adjust only if hardware differences require more leeway.
 - Playwright flows interact with accessible labels (e.g., `page.getByLabel('Add people tag')`) to keep selectors resilient.
 
+### Chat-specific tests
+
+- **Chat domain & store**: `src/domain/__tests__/chatSession.spec.ts`, `src/stores/__tests__/chat.store.spec.ts`.
+- **Chat services & prompts**: `src/services/__tests__/llmService.spec.ts`, `src/services/__tests__/chatPrompts.spec.ts`.
+- **Chat UI components & views**: `src/components/__tests__/ChatSessionCard.spec.ts`, `src/components/__tests__/ChatIntentionBadge.spec.ts`, `src/views/__tests__/ChatView.spec.ts`, `src/views/__tests__/JournalEditorView.spec.ts`, `src/views/__tests__/JournalView.spec.ts`.
+- **Chat integration flows**: `src/__tests__/integration/chat-save-discard-flow.spec.ts`, `src/__tests__/integration/chat-indicators-flow.spec.ts`, plus cross-feature flows in `src/__tests__/integration/cross-feature-flow.spec.ts` and `cross-view-consistency.spec.ts`.
+- **What they cover**:
+  - Starting a chat from the journal editor (including intentions and custom prompts).
+  - Live chat behaviour in `ChatView` (entry context header, messages, loading states, save/discard, navigation guards).
+  - Viewing existing chat sessions from `JournalEditorView` and `JournalView` (chat indicators, counts, and history dialog).
+
 ## Known Limitations
 
 - Vitest worker shutdown (`tinypool`) can throw when running in heavily restricted containers; rerun on a local machine if you encounter the `ProcessWorker.terminate` stack overflow.

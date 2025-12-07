@@ -1,3 +1,5 @@
+import type { ChatSession } from './chatSession'
+
 export interface JournalEntry {
   id: string // UUID
   createdAt: string // ISO timestamp
@@ -7,5 +9,6 @@ export interface JournalEntry {
   emotionIds?: string[] // Array of Emotion IDs (optional, defaults to empty array)
   peopleTagIds?: string[] // Array of PeopleTag IDs (optional, defaults to empty array)
   contextTagIds?: string[] // Array of ContextTag IDs (optional, defaults to empty array)
+  chatSessions?: ChatSession[] // Array of ChatSession objects (optional, defaults to empty array)
 }
 

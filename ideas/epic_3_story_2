@@ -1,0 +1,244 @@
+Story 2 – Chat Data Model & Database Migration
+
+Goal
+
+Define the ChatSession domain model and update the JournalEntry interface to support chat sessions. Create a database migration to add the chatSessions field to existing journal entries without data loss. This story establishes the data structure foundation that all subsequent chat features will build upon.
+
+⸻
+
+Scope
+
+	1.	ChatSession Domain Model
+	•	Create a new domain file: `src/domain/chatSession.ts`
+	•	Define the ChatSession interface with the following structure:
+	•	id: string (UUID, unique identifier for the chat session)
+	•	journalEntryId: string (reference to the journal entry this chat belongs to)
+	•	intention: string (one of: "reflect", "help-see-differently", "proactive", "thinking-traps", "custom")
+	•	customPrompt?: string (optional, only present if intention is "custom")
+	•	createdAt: string (ISO timestamp, when the chat session was created)
+	•	messages: Array<ChatMessage> (array of conversation messages)
+	•	Define the ChatMessage interface:
+	•	role: "user" | "assistant" (who sent the message)
+	•	content: string (the message text)
+	•	timestamp: string (ISO timestamp, when the message was sent)
+	•	Type safety:
+	•	Use TypeScript string literal types for the intention field to ensure only valid values are used.
+	•	Export both interfaces/types for use in other modules.
+	•	Consider creating a type alias for the intention values (e.g., `type ChatIntention = "reflect" | "help-see-differently" | "proactive" | "thinking-traps" | "custom"`).
+
+	2.	Update JournalEntry Domain Model
+	•	Update `src/domain/journal.ts` to include the chatSessions field:
+	•	Add import for ChatSession type from `./chatSession`
+	•	Add `chatSessions?: ChatSession[]` to the JournalEntry interface
+	•	Make it optional (using `?`) to maintain backward compatibility and allow entries without chats
+	•	Default behavior: When creating new entries, chatSessions should be undefined or an empty array
+	•	Type safety: Ensure TypeScript correctly infers the type when accessing chatSessions on JournalEntry objects
+
+	3.	Database Migration
+	•	Update `src/repositories/journalDexieRepository.ts`:
+	•	Increment database version from 4 to 5
+	•	Add migration logic in the version 5 upgrade function:
+	•	Retrieve all existing journal entries from the database
+	•	For each entry, check if it already has a chatSessions field
+	•	If chatSessions is missing or undefined, initialize it as an empty array: `chatSessions: []`
+	•	If chatSessions already exists (from a previous partial migration or test), preserve it
+	•	Update the entry in the database with the new field
+	•	Log migration progress (e.g., "Successfully migrated X journal entries with chatSessions field")
+	•	Error handling:
+	•	Wrap migration logic in try-catch
+	•	Log errors but don't throw (allow app to start even if migration fails partially)
+	•	The migration will be retried on next app start if it fails
+	•	Follow the same migration pattern as version 3 (which added emotionIds, peopleTagIds, contextTagIds)
+	•	Migration should be idempotent (safe to run multiple times)
+
+	4.	Repository Updates
+	•	Review `journalDexieRepository.ts` to ensure it handles the new chatSessions field correctly:
+	•	Dexie automatically stores all fields of an object, so no special logic is needed for chatSessions
+	•	Verify that:
+	•	`create()` method correctly handles entries with or without chatSessions
+	•	`update()` method preserves chatSessions when updating entries
+	•	`getById()` and `getAll()` return entries with chatSessions field (if present)
+	•	No changes should be required to the repository implementation, as Dexie handles object fields automatically
+	•	However, ensure TypeScript types are correct and the JournalEntry interface is properly imported
+
+	5.	Domain Model Validation & Utilities
+	•	Consider adding validation utilities (optional, but recommended):
+	•	Create helper functions in `src/domain/chatSession.ts`:
+	•	`isValidChatIntention(intention: string): boolean` – validates that an intention string is one of the allowed values
+	•	`createChatSession(journalEntryId: string, intention: string, customPrompt?: string): ChatSession` – factory function to create a new chat session with proper defaults
+	•	`createChatMessage(role: "user" | "assistant", content: string): ChatMessage` – factory function to create a new chat message with timestamp
+	•	These utilities help ensure data integrity and make it easier to create chat sessions correctly
+
+	6.	Unit Tests
+	•	Add comprehensive unit tests (Vitest) for:
+	•	ChatSession Domain Model:
+	•	Test ChatSession interface structure and type safety
+	•	Test ChatMessage interface structure
+	•	Test that intention values are correctly typed
+	•	Test validation utilities (if implemented)
+	•	Test factory functions (if implemented)
+	•	JournalEntry Domain Model:
+	•	Test that JournalEntry can have chatSessions field
+	•	Test that chatSessions is optional (entries without chats are valid)
+	•	Test that entries with chatSessions are correctly typed
+	•	Database Migration:
+	•	Test migration from version 4 to version 5:
+	•	Create test database with version 4 schema
+	•	Add some journal entries without chatSessions
+	•	Run migration to version 5
+	•	Verify that all entries now have chatSessions field (as empty array)
+	•	Verify that existing entries are not modified in other ways
+	•	Test idempotency: Run migration twice and verify no errors or duplicate data
+	•	Test edge cases:
+	•	Empty database (no entries to migrate)
+	•	Entries that already have chatSessions (should be preserved)
+	•	Entries with null or undefined chatSessions (should be initialized to empty array)
+	•	Use test utilities from `src/__tests__/utils/dbTestUtils.ts` if available
+	•	Repository:
+	•	Test that journalDexieRepository correctly stores and retrieves entries with chatSessions
+	•	Test creating entries with chatSessions
+	•	Test updating entries to add chatSessions
+	•	Test retrieving entries with chatSessions
+	•	Use mocked or in-memory database for tests (don't hit real IndexedDB)
+
+⸻
+
+Acceptance Criteria
+
+	•	ChatSession Domain Model:
+	•	`src/domain/chatSession.ts` file exists with ChatSession and ChatMessage interfaces defined.
+	•	ChatSession has all required fields: id, journalEntryId, intention, createdAt, messages.
+	•	ChatSession has optional customPrompt field (only when intention is "custom").
+	•	ChatMessage has all required fields: role, content, timestamp.
+	•	Intention type is properly constrained to valid string literals.
+	•	Types are exported and can be imported in other modules.
+	•	JournalEntry Domain Model:
+	•	JournalEntry interface includes optional chatSessions field of type ChatSession[].
+	•	TypeScript correctly infers types when accessing chatSessions on JournalEntry objects.
+	•	Entries can be created with or without chatSessions field.
+	•	Database Migration:
+	•	Database version is incremented from 4 to 5.
+	•	Migration function exists and runs when database is upgraded.
+	•	All existing journal entries are migrated to include chatSessions field (initialized as empty array).
+	•	Migration is idempotent (safe to run multiple times).
+	•	Migration handles edge cases gracefully (empty database, entries with existing chatSessions).
+	•	Migration logs progress and errors appropriately.
+	•	No data loss occurs during migration.
+	•	Repository:
+	•	journalDexieRepository correctly handles entries with chatSessions field.
+	•	Creating entries with chatSessions works correctly.
+	•	Updating entries preserves chatSessions field.
+	•	Retrieving entries includes chatSessions field (if present).
+	•	The app can be started and:
+	•	Existing databases are automatically migrated to version 5.
+	•	New journal entries can be created (with or without chatSessions).
+	•	Existing journal entries are accessible and have chatSessions field (as empty array).
+	•	No errors occur when accessing journal entries.
+	•	Unit tests for domain models pass.
+	•	Unit tests for database migration pass.
+	•	Unit tests for repository pass.
+	•	Linting and TypeScript checks pass with no new errors.
+
+⸻
+
+Out of Scope
+
+	•	Chat UI components (will be implemented in later stories).
+	•	Chat store or state management (will be implemented in Story 3).
+	•	LLM service integration with chat sessions (already implemented in Story 1, will be used in Story 3).
+	•	System prompts or chat intentions logic (will be implemented in Story 4).
+	•	Chat session editing or deletion functionality (will be implemented in later stories).
+	•	Chat session search or filtering (out of scope for this epic).
+	•	Chat session export functionality (out of scope for this epic).
+	•	Validation of chat session data beyond TypeScript types (runtime validation can be added later if needed).
+
+⸻
+
+Technical Considerations
+
+	•	Database Migration Strategy:
+	•	Follow the same pattern as the version 3 migration (which added emotionIds, peopleTagIds, contextTagIds).
+	•	The migration should be defensive: check if the field exists before adding it.
+	•	Use Dexie's transaction API for atomic operations during migration.
+	•	Migration should be fast even with many entries (process entries in batches if needed, though for MVP this is likely unnecessary).
+	•	Type Safety:
+	•	Use TypeScript's string literal types for the intention field to catch errors at compile time.
+	•	Consider using a const object or enum for intention values to ensure consistency across the codebase.
+	•	Example:
+	•	`export const CHAT_INTENTIONS = {
+	•	  REFLECT: "reflect",
+	•	  HELP_SEE_DIFFERENTLY: "help-see-differently",
+	•	  PROACTIVE: "proactive",
+	•	  THINKING_TRAPS: "thinking-traps",
+	•	  CUSTOM: "custom"
+	•	} as const`
+	•	Data Integrity:
+	•	Ensure that chatSessions array is always an array (never null or undefined after migration).
+	•	Consider adding runtime validation in the future if needed, but TypeScript types are sufficient for MVP.
+	•	Backward Compatibility:
+	•	Making chatSessions optional ensures that code expecting JournalEntry without chats continues to work.
+	•	Always check if chatSessions exists before accessing it (use optional chaining: `entry.chatSessions?.length`).
+	•	Testing Strategy:
+	•	Use the existing test utilities for database testing if available.
+	•	Create isolated test databases for migration tests (don't use the real app database).
+	•	Mock Dexie or use a test database instance for repository tests.
+	•	Test both the happy path and edge cases thoroughly.
+
+⸻
+
+Implementation Notes
+
+	•	ChatSession Domain Model Structure:
+	•	The ChatSession interface should be designed to support multiple chat sessions per journal entry (as specified in the epic).
+	•	Each chat session is independent and can have different intentions.
+	•	Messages are stored as an array, preserving the order of conversation.
+	•	Timestamps (createdAt for session, timestamp for each message) allow for chronological ordering and display.
+	•	Database Migration Implementation:
+	•	The migration should follow this pattern:
+	•	```typescript
+	•	this.version(5)
+	•	  .upgrade(async (trans) => {
+	•	    try {
+	•	      const entries = await trans.table('journalEntries').toArray()
+	•	      let migratedCount = 0
+	•	
+	•	      for (const entry of entries) {
+	•	        if (!Array.isArray(entry.chatSessions)) {
+	•	          const migratedEntry: JournalEntry = {
+	•	            ...entry,
+	•	            chatSessions: []
+	•	          }
+	•	          await trans.table('journalEntries').put(migratedEntry)
+	•	          migratedCount++
+	•	        }
+	•	      }
+	•	
+	•	      console.log(`[Migration v4→v5] Successfully migrated ${migratedCount} journal entry/entries with chatSessions field`)
+	•	    } catch (error) {
+	•	      console.error('[Migration v4→v5] Error during migration:', error)
+	•	      // Don't throw - allow app to start even if migration fails
+	•	    }
+	•	  })
+	•	```
+	•	Type Definitions:
+	•	Consider creating a type for chat intentions to ensure type safety:
+	•	```typescript
+	•	export type ChatIntention = 
+	•	  | "reflect"
+	•	  | "help-see-differently"
+	•	  | "proactive"
+	•	  | "thinking-traps"
+	•	  | "custom"
+	•	```
+	•	Then use this type in the ChatSession interface: `intention: ChatIntention`
+	•	File Organization:
+	•	Keep domain models in the `src/domain/` directory.
+	•	Follow the existing naming conventions (e.g., `chatSession.ts` not `chat-session.ts`).
+	•	Export types and interfaces for use in other modules.
+	•	Testing:
+	•	Create test files in appropriate locations:
+	•	`src/domain/__tests__/chatSession.spec.ts` for domain model tests
+	•	`src/repositories/__tests__/migration.spec.ts` for migration tests (or extend existing migration test file)
+	•	Use descriptive test names that explain what is being tested.
+	•	Follow the existing test patterns in the codebase.
+

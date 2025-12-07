@@ -2,6 +2,7 @@
   <button
     :class="buttonClasses"
     :disabled="disabled"
+    :aria-label="ariaLabel"
     @click="$emit('click', $event)"
   >
     <slot />
@@ -14,11 +15,13 @@ import { computed } from 'vue'
 interface Props {
   variant?: 'filled' | 'outlined' | 'text' | 'tonal'
   disabled?: boolean
+  ariaLabel?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'filled',
   disabled: false,
+  ariaLabel: undefined,
 })
 
 defineEmits<{

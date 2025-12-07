@@ -1,0 +1,573 @@
+Story 9 – Journal View Chat Indicators
+
+Goal
+
+Update the JournalView and JournalEditorView components to display chat indicators for journal entries that have associated chat sessions. This story enables users to see which entries have chat conversations and provides access to view or continue those conversations. The implementation includes visual indicators, chat history display, and navigation to chat sessions.
+
+⸻
+
+Scope
+
+	1.	JournalView Chat Indicators
+	•	Update JournalView.vue to display chat indicators for entries with chat sessions:
+	•	Visual indicators:
+	•	For entries that have one or more chat sessions, display a badge or icon indicating chat availability.
+	•	Badge design options:
+	•	Option A: Small badge with chat icon and count (e.g., "💬 2" or "Chat (2)").
+	•	Option B: Chat icon with a count badge overlay (e.g., chat icon with "2" in a small circle).
+	•	Option C: Text indicator (e.g., "2 chats" in secondary text).
+	•	Recommendation: Use Option A or B for better visibility (badge with icon and count).
+	•	Badge styling:
+	•	Use consistent styling with app design (Material Design principles).
+	•	Use secondary color or accent color for the badge.
+	•	Position: Display the badge near the entry title or in the entry card header.
+	•	Badge should be subtle but noticeable.
+	•	Badge content:
+	•	Show the number of chat sessions for the entry (e.g., "1 chat", "2 chats").
+	•	If entry has no chat sessions, don't display any indicator (keep UI clean).
+	•	Accessibility:
+	•	Add appropriate ARIA labels (e.g., "Entry has 2 chat sessions").
+	•	Ensure badge is keyboard accessible if it's clickable.
+	•	Implementation:
+	•	Access entry's chatSessions array: `entry.chatSessions?.length || 0`.
+	•	Use computed property or reactive check to determine if badge should be shown.
+	•	Conditionally render the badge based on chat session count.
+	•	Use existing UI components (e.g., AppBadge if available, or create a simple badge component).
+
+	2.	JournalView Chat History Access
+	•	Add ability to view or access chat history from the journal list:
+	•	Clickable badge or button:
+	•	Make the chat indicator badge clickable (or add a separate "View chats" button).
+	•	When clicked, show chat history or navigate to chat view.
+	•	Implementation options:
+	•	Option A: Navigate to chat view for the most recent chat session.
+	•	Option B: Show a modal/dialog with list of all chat sessions for the entry.
+	•	Option C: Navigate to a chat history view (new route).
+	•	Recommendation: Use Option B (modal) for MVP, as it's simpler and allows viewing all chats without navigation.
+	•	Chat history modal (if Option B is chosen):
+	•	Create a ChatHistoryModal component or use AppDialog.
+	•	Display list of chat sessions for the entry:
+	•	Show chat intention (e.g., "Reflect", "Help see differently").
+	•	Show creation date/time (formatted, e.g., "2 days ago" or "Jan 15, 2024").
+	•	Show message count or preview (e.g., "5 messages").
+	•	For each chat session, provide actions:
+	•	"View" button: Navigate to chat view to see the full conversation.
+	•	"Delete" button (optional, can be added later): Delete the chat session.
+	•	Modal styling:
+	•	Use consistent styling with app (AppDialog, AppButton components).
+	•	Follow Material Design principles.
+	•	Make modal accessible (keyboard navigation, screen reader support).
+	•	Navigation to chat view (if Option A or C is chosen):
+	•	Navigate to `/journal/:id/chat` route (from Story 6).
+	•	Pass the chat session ID as a query parameter or route param if needed.
+	•	Update ChatView to handle loading a specific chat session (may require updates to chat store).
+
+	3.	JournalEditorView Chat Sessions Display
+	•	Update JournalEditorView.vue to show existing chat sessions when editing an entry:
+	•	Chat sessions section:
+	•	Add a new section in the journal editor to display existing chat sessions.
+	•	Position: Below the entry content area, above the action buttons, or in a sidebar (depending on layout).
+	•	Recommendation: Add as a collapsible section below the entry content.
+	•	Section header:
+	•	Title: "Chat Sessions" or "Previous Conversations".
+	•	Show count: "Chat Sessions (2)" or "2 conversations".
+	•	Collapsible: Allow users to expand/collapse the section (use AppAccordion or similar if available).
+	•	Chat sessions list:
+	•	Display each chat session as a card or list item.
+	•	For each session, show:
+	•	Chat intention (e.g., "Reflect", "Help see differently", "Custom").
+	•	Creation date/time (formatted, e.g., "Created 2 days ago").
+	•	Message count (e.g., "5 messages").
+	•	Preview of first message or last message (optional, truncated to ~50 characters).
+	•	Actions for each session:
+	•	"View" button: Navigate to chat view to see the full conversation.
+	•	"Continue" button (if applicable): Start a new conversation with the same intention (optional enhancement).
+	•	"Delete" button: Delete the chat session (optional, can be added later or in this story).
+	•	Empty state:
+	•	If entry has no chat sessions, show a message: "No chat sessions yet. Start a conversation using the Chat button."
+	•	Or hide the section entirely if no chats exist.
+	•	Styling:
+	•	Use AppCard components for each chat session item.
+	•	Use consistent spacing and typography.
+	•	Make the list scrollable if there are many sessions.
+	•	Integration with Chat button:
+	•	Ensure the Chat button (from Story 5) is still visible and functional.
+	•	The Chat button creates new chat sessions, while this section shows existing ones.
+
+	4.	Chat Session Display Components
+	•	Create reusable components for displaying chat session information:
+	•	ChatSessionCard component (optional, but recommended):
+	•	Component: `src/components/ChatSessionCard.vue` (or similar name).
+	•	Props:
+	•	`chatSession: ChatSession` (the chat session to display).
+	•	`showActions?: boolean` (whether to show View/Delete buttons, default: true).
+	•	`compact?: boolean` (compact view for lists, default: false).
+	•	Displays:
+	•	Chat intention (with icon or color coding if desired).
+	•	Creation date/time.
+	•	Message count.
+	•	Optional preview of conversation.
+	•	Actions (View, Delete buttons if showActions is true).
+	•	Styling: Use AppCard or similar component for consistent design.
+	•	ChatIntentionBadge component (optional):
+	•	Component: `src/components/ChatIntentionBadge.vue` (or similar name).
+	•	Props:
+	•	`intention: ChatIntention` (the chat intention value).
+	•	`customPrompt?: string` (optional, for custom intentions).
+	•	Displays: Formatted intention label (e.g., "Reflect", "Help see differently").
+	•	Styling: Badge or chip styling with appropriate colors.
+	•	Rationale: Reusable components make it easier to display chat sessions consistently across views and reduce code duplication.
+
+	5.	Chat Store Integration for Loading Sessions
+	•	Update chat store (from Story 3) to support loading existing chat sessions:
+	•	Add method to load chat sessions for an entry:
+	•	`loadChatSessionsForEntry(entryId: string): Promise<ChatSession[]>`.
+	•	This method should:
+	•	Get the journal entry from journal store.
+	•	Return the entry's chatSessions array (or empty array if none).
+	•	Handle errors gracefully (entry not found, etc.).
+	•	Add method to load a specific chat session:
+	•	`loadChatSession(entryId: string, chatSessionId: string): Promise<ChatSession | null>`.
+	•	This method should:
+	•	Get the journal entry from journal store.
+	•	Find the chat session by ID in the entry's chatSessions array.
+	•	Return the chat session or null if not found.
+	•	Set the chat session as the current session (for viewing in ChatView).
+	•	Add method to delete a chat session (optional, can be added in this story):
+	•	`deleteChatSession(entryId: string, chatSessionId: string): Promise<void>`.
+	•	This method should:
+	•	Get the journal entry from journal store.
+	•	Remove the chat session from the entry's chatSessions array.
+	•	Update the entry in the database.
+	•	Handle errors gracefully.
+	•	State management:
+	•	Ensure chat store methods are reactive and update UI when chat sessions are loaded or deleted.
+	•	Provide computed properties or getters for easy access to chat sessions.
+
+	6.	Chat Session Deletion (Optional but Recommended)
+	•	Implement chat session deletion functionality:
+	•	Delete button:
+	•	Add "Delete" button to each chat session card/item.
+	•	Use destructive styling (e.g., error color or outlined variant).
+	•	Position: In the actions area of the chat session card.
+	•	Confirmation dialog:
+	•	Show confirmation dialog when user clicks Delete.
+	•	Dialog content:
+	•	Title: "Delete chat session?"
+	•	Message: "Are you sure you want to delete this conversation? This action cannot be undone."
+	•	Actions:
+	•	"Cancel" button: Closes dialog, no action.
+	•	"Delete" button: Confirms deletion, calls chat store's deleteChatSession method.
+	•	Use AppDialog component for consistency.
+	•	Deletion functionality:
+	•	Call `chatStore.deleteChatSession(entryId, chatSessionId)`.
+	•	On success:
+	•	Remove the chat session from the UI (reactive update).
+	•	Show success feedback (e.g., snackbar: "Chat session deleted").
+	•	On error:
+	•	Show error message (e.g., "Failed to delete chat session. Please try again.").
+	•	Error handling:
+	•	Handle cases where entry or chat session doesn't exist.
+	•	Handle database errors gracefully.
+	•	Allow retry on failure.
+
+	7.	Date/Time Formatting Utilities
+	•	Create or use date/time formatting utilities for chat sessions:
+	•	Format chat session creation dates:
+	•	Relative time for recent sessions (e.g., "Just now", "2 hours ago", "3 days ago").
+	•	Absolute date for older sessions (e.g., "Jan 15, 2024" or "15/01/2024").
+	•	Format message timestamps (if displaying in chat session preview):
+	•	Use the same formatting as in ChatView (from Story 7).
+	•	Implementation:
+	•	Use existing date formatting utility if available (e.g., from `src/utils/dateFormat.ts`).
+	•	Or create a new utility function: `formatChatSessionDate(timestamp: string): string`.
+	•	Consider timezone handling (use user's local timezone).
+
+	8.	Component Tests
+	•	Add comprehensive component tests (Vitest with Vue Test Utils) for:
+	•	JournalView Chat Indicators:
+	•	Test that chat indicator badge is displayed for entries with chat sessions.
+	•	Test that badge shows correct count (e.g., "2 chats" for entry with 2 sessions).
+	•	Test that badge is not displayed for entries without chat sessions.
+	•	Test that badge is clickable (if implemented).
+	•	Test that clicking badge opens chat history modal or navigates to chat view.
+	•	Test that badge has proper ARIA labels.
+	•	Chat History Modal (if implemented):
+	•	Test that modal displays list of chat sessions correctly.
+	•	Test that each session shows correct information (intention, date, message count).
+	•	Test that "View" button navigates to chat view with correct session.
+	•	Test that "Delete" button shows confirmation dialog.
+	•	Test that deletion works correctly.
+	•	Test that modal is accessible (keyboard navigation, screen reader).
+	•	JournalEditorView Chat Sessions:
+	•	Test that chat sessions section is displayed when entry has chat sessions.
+	•	Test that section is hidden or shows empty state when entry has no chat sessions.
+	•	Test that each chat session is displayed correctly.
+	•	Test that "View" button navigates to chat view.
+	•	Test that section is collapsible (if implemented).
+	•	Chat Session Components:
+	•	Test that ChatSessionCard displays chat session information correctly.
+	•	Test that ChatIntentionBadge displays intention label correctly.
+	•	Test that components handle missing or invalid data gracefully.
+	•	Chat Store Integration:
+	•	Test that loadChatSessionsForEntry returns correct chat sessions.
+	•	Test that loadChatSession loads and sets current session correctly.
+	•	Test that deleteChatSession removes session from entry.
+	•	Test error handling (entry not found, session not found).
+	•	Edge Cases:
+	•	Test with entries that have many chat sessions (10+).
+	•	Test with entries that have no chat sessions.
+	•	Test with deleted entries (should handle gracefully).
+	•	Test with invalid chat session data.
+	•	Use mocking for:
+	•	Journal store (mock `getEntryById`, `updateEntry`).
+	•	Chat store (mock `loadChatSessionsForEntry`, `loadChatSession`, `deleteChatSession`).
+	•	Router (mock `router.push`, `router.back`).
+	•	Follow existing test patterns in `src/views/__tests__/`.
+	•	Use descriptive test names that explain what is being tested.
+
+	9.	Integration Tests
+	•	Add integration tests for chat indicators and history access:
+	•	Full Flow Integration Test:
+	•	Create a journal entry.
+	•	Create a chat session for the entry (via chat view, from Story 7 and 8).
+	•	Save the chat session.
+	•	Navigate to journal list.
+	•	Verify that entry shows chat indicator badge with count "1".
+	•	Click the badge (or "View chats" button).
+	•	Verify that chat history modal opens (or navigates to chat view).
+	•	Verify that chat session is listed in the modal.
+	•	Click "View" on the chat session.
+	•	Verify that chat view loads with the correct conversation.
+	•	Journal Editor Integration Test:
+	•	Create a journal entry.
+	•	Create and save multiple chat sessions for the entry.
+	•	Navigate to journal editor for the entry.
+	•	Verify that chat sessions section is displayed.
+	•	Verify that all chat sessions are listed.
+	•	Click "View" on a chat session.
+	•	Verify that chat view loads with the correct conversation.
+	•	Delete Flow Integration Test:
+	•	Create a journal entry with a chat session.
+	•	Navigate to journal editor.
+	•	Click "Delete" on a chat session.
+	•	Confirm deletion in dialog.
+	•	Verify that chat session is removed from the list.
+	•	Verify that entry's chatSessions array is updated in database.
+	•	Verify that chat indicator badge count is updated (if viewing journal list).
+	•	Use test utilities from `src/__tests__/integration/testUtils.ts` if available.
+	•	Follow existing integration test patterns.
+
+⸻
+
+Acceptance Criteria
+
+	•	JournalView Chat Indicators:
+	•	Entries with chat sessions display a chat indicator badge.
+	•	Badge shows the correct count of chat sessions (e.g., "1 chat", "2 chats").
+	•	Badge is not displayed for entries without chat sessions.
+	•	Badge is properly styled and positioned.
+	•	Badge has appropriate ARIA labels for accessibility.
+	•	Chat History Access:
+	•	Clicking chat indicator (or "View chats" button) opens chat history modal or navigates to chat view.
+	•	Chat history modal displays all chat sessions for the entry (if modal is implemented).
+	•	Each chat session in modal shows correct information (intention, date, message count).
+	•	"View" button in modal navigates to chat view with correct session.
+	•	Modal is accessible (keyboard navigation, screen reader support).
+	•	JournalEditorView Chat Sessions:
+	•	Chat sessions section is displayed when entry has chat sessions.
+	•	Section shows correct count of chat sessions.
+	•	Each chat session is displayed with correct information (intention, date, message count).
+	•	"View" button navigates to chat view with correct session.
+	•	Section is hidden or shows empty state when entry has no chat sessions.
+	•	Section is collapsible (if implemented).
+	•	Chat Session Components:
+	•	ChatSessionCard component displays chat session information correctly (if created).
+	•	ChatIntentionBadge component displays intention label correctly (if created).
+	•	Components handle missing or invalid data gracefully.
+	•	Chat Store Integration:
+	•	`loadChatSessionsForEntry` method returns correct chat sessions for an entry.
+	•	`loadChatSession` method loads and sets current session correctly.
+	•	`deleteChatSession` method removes session from entry (if implemented).
+	•	Methods handle errors gracefully (entry not found, session not found).
+	•	Chat Session Deletion (if implemented):
+	•	Delete button is present on each chat session card.
+	•	Clicking Delete shows confirmation dialog.
+	•	Confirming deletion removes the chat session from the entry.
+	•	Success feedback is shown after successful deletion.
+	•	Error messages are shown if deletion fails.
+	•	Date/Time Formatting:
+	•	Chat session dates are formatted correctly (relative time for recent, absolute for older).
+	•	Formatting is consistent across all views.
+	•	The app can be started and:
+	•	Journal list shows chat indicators for entries with chat sessions.
+	•	Users can click chat indicators to view chat history.
+	•	Journal editor shows existing chat sessions when editing an entry.
+	•	Users can view existing chat sessions from the editor.
+	•	Users can delete chat sessions (if implemented).
+	•	Chat indicators update correctly when chat sessions are added or deleted.
+	•	Component tests for chat indicators pass.
+	•	Integration tests for chat history access pass.
+	•	Linting and TypeScript checks pass with no new errors.
+
+⸻
+
+Out of Scope
+
+	•	Editing saved chat sessions (out of scope for this epic).
+	•	Exporting chat sessions (out of scope for this epic).
+	•	Searching or filtering chat sessions (out of scope for this epic).
+	•	Chat session analytics or insights (out of scope for this epic).
+	•	Bulk deletion of chat sessions (single deletion is sufficient for MVP).
+	•	Chat session sharing or copying (out of scope for this epic).
+	•	Advanced chat session preview (showing full conversation in modal, simple preview is sufficient).
+	•	Chat session archiving (deletion is sufficient for MVP).
+	•	Chat session sorting or grouping (chronological order is sufficient for MVP).
+	•	Chat session tags or labels (out of scope for this epic).
+
+⸻
+
+Technical Considerations
+
+	•	Chat Indicator Performance:
+	•	For entries with many chat sessions, ensure badge rendering is performant.
+	•	Consider using computed properties to calculate chat session counts efficiently.
+	•	Avoid recalculating counts on every render (use memoization if needed).
+	•	Modal vs. Navigation Decision:
+	•	Modal approach (Option B) is recommended for MVP as it's simpler and keeps users in context.
+	•	Navigation approach (Option A or C) provides a dedicated view but requires more routing logic.
+	•	Consider user experience: Modal is faster for quick viewing, navigation is better for detailed viewing.
+	•	For MVP, modal is sufficient. Navigation can be added later if needed.
+	•	Chat Session Loading:
+	•	When loading chat sessions, ensure they're loaded efficiently (don't load all entries' chats at once).
+	•	Load chat sessions only when needed (lazy loading).
+	•	Consider caching chat sessions in the store to avoid repeated database queries.
+	•	Deletion Confirmation UX:
+	•	Make the confirmation dialog clear and non-intrusive.
+	•	Use destructive action styling for "Delete" button (e.g., error color or outlined variant).
+	•	Ensure dialog is accessible (keyboard navigation, screen reader support).
+	•	Consider adding a "Don't ask again" option for users who frequently delete chats (optional enhancement).
+	•	Date/Time Formatting:
+	•	Use consistent date formatting across the app.
+	•	Consider user's locale and timezone preferences (if available).
+	•	For MVP, using browser's default locale is acceptable.
+	•	Component Reusability:
+	•	Creating reusable components (ChatSessionCard, ChatIntentionBadge) is recommended but optional.
+	•	If components are created, ensure they're flexible and can be used in different contexts.
+	•	If not creating separate components, ensure chat session display logic is consistent across views.
+	•	State Management:
+	•	Ensure chat sessions are reactive and update UI when sessions are added or deleted.
+	•	Use Pinia store for centralized state management.
+	•	Consider using computed properties for derived state (e.g., chat session count).
+	•	Accessibility:
+	•	Ensure all new UI elements are accessible (keyboard navigation, screen reader support).
+	•	Add appropriate ARIA labels to badges, buttons, and modals.
+	•	Ensure focus management in modals (focus trap, return focus on close).
+	•	Testing Strategy:
+	•	Mock journal store and chat store thoroughly in component tests.
+	•	Test both success and error scenarios.
+	•	Test edge cases (no chats, many chats, deleted entries).
+	•	Use integration tests to verify full flows with real stores (or mocked stores that behave like real ones).
+
+⸻
+
+Implementation Notes
+
+	•	JournalView Chat Indicator Implementation:
+	•	```vue
+	•	<!-- In JournalView.vue entry card -->
+	•	<div v-if="entry.chatSessions?.length" class="flex items-center gap-2">
+	•	  <AppBadge :count="entry.chatSessions.length" variant="secondary">
+	•	    <ChatIcon class="w-4 h-4" />
+	•	    <span>{{ entry.chatSessions.length }} chat{{ entry.chatSessions.length > 1 ? 's' : '' }}</span>
+	•	  </AppBadge>
+	•	</div>
+	•	```
+	•	Or using a simple badge:
+	•	```vue
+	•	<div
+	•	  v-if="entry.chatSessions?.length"
+	•	  class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary/20 text-secondary text-sm"
+	•	  @click="handleViewChats(entry.id)"
+	•	  role="button"
+	•	  tabindex="0"
+	•	  aria-label="View {{ entry.chatSessions.length }} chat session(s)"
+	•	>
+	•	  <ChatIcon class="w-4 h-4" />
+	•	  <span>{{ entry.chatSessions.length }}</span>
+	•	</div>
+	•	```
+	•	Chat History Modal Implementation:
+	•	```vue
+	•	<AppDialog
+	•	  v-model="showChatHistoryModal"
+	•	  title="Chat History"
+	•	  :max-width="600"
+	•	>
+	•	  <div v-if="chatSessions.length === 0" class="text-center py-8 text-on-surface-variant">
+	•	    No chat sessions yet.
+	•	  </div>
+	•	  <div v-else class="space-y-2">
+	•	    <ChatSessionCard
+	•	      v-for="session in chatSessions"
+	•	      :key="session.id"
+	•	      :chat-session="session"
+	•	      @view="handleViewChat(session)"
+	•	      @delete="handleDeleteChat(session)"
+	•	    />
+	•	  </div>
+	•	</AppDialog>
+	•	```
+	•	JournalEditorView Chat Sessions Section:
+	•	```vue
+	•	<!-- In JournalEditorView.vue, below entry content -->
+	•	<AppAccordion v-if="entry.chatSessions?.length" title="Chat Sessions">
+	•	  <div class="space-y-3">
+	•	    <ChatSessionCard
+	•	      v-for="session in entry.chatSessions"
+	•	      :key="session.id"
+	•	      :chat-session="session"
+	•	      @view="handleViewChat(session)"
+	•	      @delete="handleDeleteChat(session)"
+	•	    />
+	•	  </div>
+	•	</AppAccordion>
+	•	<div v-else class="text-center py-4 text-on-surface-variant text-sm">
+	•	  No chat sessions yet. Start a conversation using the Chat button.
+	•	</div>
+	•	```
+	•	Chat Store Methods (extend existing store from Story 3):
+	•	```typescript
+	•	async loadChatSessionsForEntry(entryId: string): Promise<ChatSession[]> {
+	•	  const entry = await journalStore.getEntryById(entryId)
+	•	  if (!entry) {
+	•	    throw new Error('Journal entry not found')
+	•	  }
+	•	  return entry.chatSessions || []
+	•	}
+	•	
+	•	async loadChatSession(entryId: string, chatSessionId: string): Promise<ChatSession | null> {
+	•	  const entry = await journalStore.getEntryById(entryId)
+	•	  if (!entry) {
+	•	    throw new Error('Journal entry not found')
+	•	  }
+	•	  
+	•	  const session = entry.chatSessions?.find(cs => cs.id === chatSessionId)
+	•	  if (!session) {
+	•	    return null
+	•	  }
+	•	  
+	•	  // Set as current session for viewing
+	•	  this.currentChatSession = session
+	•	  return session
+	•	}
+	•	
+	•	async deleteChatSession(entryId: string, chatSessionId: string): Promise<void> {
+	•	  const entry = await journalStore.getEntryById(entryId)
+	•	  if (!entry) {
+	•	    throw new Error('Journal entry not found')
+	•	  }
+	•	  
+	•	  const chatSessions = entry.chatSessions || []
+	•	  const updatedSessions = chatSessions.filter(cs => cs.id !== chatSessionId)
+	•	  
+	•	  await journalStore.updateEntry({
+	•	    ...entry,
+	•	    chatSessions: updatedSessions
+	•	  })
+	•	}
+	•	```
+	•	ChatSessionCard Component (if created):
+	•	```vue
+	•	<template>
+	•	  <AppCard class="p-4">
+	•	    <div class="flex items-start justify-between">
+	•	      <div class="flex-1">
+	•	        <div class="flex items-center gap-2 mb-2">
+	•	          <ChatIntentionBadge :intention="chatSession.intention" />
+	•	          <span class="text-sm text-on-surface-variant">
+	•	            {{ formatChatSessionDate(chatSession.createdAt) }}
+	•	          </span>
+	•	        </div>
+	•	        <p class="text-sm text-on-surface-variant">
+	•	          {{ chatSession.messages.length }} message{{ chatSession.messages.length > 1 ? 's' : '' }}
+	•	        </p>
+	•	      </div>
+	•	      <div v-if="showActions" class="flex gap-2">
+	•	        <AppButton variant="text" size="small" @click="$emit('view')">
+	•	          View
+	•	        </AppButton>
+	•	        <AppButton variant="text" size="small" @click="$emit('delete')" destructive>
+	•	          Delete
+	•	        </AppButton>
+	•	      </div>
+	•	    </div>
+	•	  </AppCard>
+	•	</template>
+	•	
+	•	<script setup lang="ts">
+	•	import type { ChatSession } from '@/domain/chatSession'
+	•	
+	•	defineProps<{
+	•	  chatSession: ChatSession
+	•	  showActions?: boolean
+	•	}>()
+	•	
+	•	defineEmits<{
+	•	  view: []
+	•	  delete: []
+	•	}>()
+	•	</script>
+	•	```
+	•	Date Formatting Utility:
+	•	```typescript
+	•	export function formatChatSessionDate(timestamp: string): string {
+	•	  const date = new Date(timestamp)
+	•	  const now = new Date()
+	•	  const diffMs = now.getTime() - date.getTime()
+	•	  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+	•	  
+	•	  if (diffDays === 0) {
+	•	    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+	•	    if (diffHours === 0) {
+	•	      const diffMins = Math.floor(diffMs / (1000 * 60))
+	•	      return diffMins < 1 ? 'Just now' : `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`
+	•	    }
+	•	    return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+	•	  }
+	•	  
+	•	  if (diffDays < 7) {
+	•	    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+	•	  }
+	•	  
+	•	  return date.toLocaleDateString()
+	•	}
+	•	```
+	•	File Organization:
+	•	Updates to existing files:
+	•	`src/views/JournalView.vue` – add chat indicators and history access.
+	•	`src/views/JournalEditorView.vue` – add chat sessions section.
+	•	`src/stores/chat.store.ts` – add loadChatSessionsForEntry, loadChatSession, deleteChatSession methods.
+	•	New files (optional):
+	•	`src/components/ChatSessionCard.vue` – reusable chat session card component.
+	•	`src/components/ChatIntentionBadge.vue` – reusable intention badge component.
+	•	`src/utils/dateFormat.ts` – date formatting utilities (if not already exists, or extend existing).
+	•	Test files:
+	•	`src/views/__tests__/JournalView.spec.ts` – extend existing test file with chat indicator tests.
+	•	`src/views/__tests__/JournalEditorView.spec.ts` – extend existing test file with chat sessions tests.
+	•	`src/components/__tests__/ChatSessionCard.spec.ts` – component tests (if component is created).
+	•	`src/__tests__/integration/chat-indicators-flow.spec.ts` – integration tests.
+	•	Dependencies:
+	•	Import chat store from Story 3.
+	•	Import journal store (assume it exists).
+	•	Import router and route from vue-router.
+	•	Import UI components (AppButton, AppCard, AppDialog, AppBadge, AppAccordion if available).
+	•	Testing:
+	•	Extend existing test files for JournalView and JournalEditorView.
+	•	Add new test suites for chat indicators and chat sessions display.
+	•	Mock chat store and journal store thoroughly.
+	•	Test user interactions (clicking badges, buttons, modals).
+	•	Test reactive updates when chat sessions are added or deleted.
+	•	Follow existing test patterns and naming conventions.
+	•	Create integration tests for full chat indicator flows.
+

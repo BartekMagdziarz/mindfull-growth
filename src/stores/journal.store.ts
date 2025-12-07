@@ -102,6 +102,33 @@ export const useJournalStore = defineStore('journal', () => {
     }
   }
 
+  async function getEntryById(id: string): Promise<JournalEntry | undefined> {
+    error.value = null
+    try {
+      // Check in-memory entries first
+      const inMemoryEntry = entries.value.find((e) => e.id === id)
+      if (inMemoryEntry) {
+        return withDefaults(inMemoryEntry)
+      }
+
+      // Fall back to repository if not found in memory
+      const entry = await journalDexieRepository.getById(id)
+      if (entry) {
+        return withDefaults(entry)
+      }
+
+      return undefined
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : `Failed to retrieve journal entry with id ${id}`
+      error.value = errorMessage
+      console.error(`Error retrieving journal entry with id ${id}:`, err)
+      throw err
+    }
+  }
+
   return {
     // State
     entries,
@@ -114,6 +141,7 @@ export const useJournalStore = defineStore('journal', () => {
     createEntry,
     updateEntry,
     deleteEntry,
+    getEntryById,
   }
 })
 

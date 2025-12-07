@@ -453,4 +453,61 @@ describe('JournalView', () => {
       expect(tagsContainer).toBeInTheDocument()
     })
   })
+
+  describe('Chat indicators', () => {
+    it('does not show chat indicator when entry has no chat sessions', async () => {
+      const mockEntries: JournalEntry[] = [
+        {
+          id: 'entry-1',
+          createdAt: '2024-01-01T10:00:00.000Z',
+          updatedAt: '2024-01-01T10:00:00.000Z',
+          title: 'Entry without chats',
+          body: 'Body',
+        },
+      ]
+
+      mockStore.sortedEntries = mockEntries
+      render(JournalView)
+
+      await waitFor(() => {
+        expect(screen.getByText('Entry without chats')).toBeInTheDocument()
+      })
+
+      expect(
+        screen.queryByRole('button', {
+          name: /chat session\(s\)$/i,
+        })
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows chat indicator with correct count when entry has chat sessions', async () => {
+      const mockEntries: JournalEntry[] = [
+        {
+          id: 'entry-1',
+          createdAt: '2024-01-01T10:00:00.000Z',
+          updatedAt: '2024-01-01T10:00:00.000Z',
+          title: 'Entry with chats',
+          body: 'Body',
+          chatSessions: [
+            // Only the id field is used for count in the view
+            { id: 'session-1' } as any,
+            { id: 'session-2' } as any,
+          ],
+        },
+      ]
+
+      mockStore.sortedEntries = mockEntries
+      render(JournalView)
+
+      await waitFor(() => {
+        expect(screen.getByText('Entry with chats')).toBeInTheDocument()
+      })
+
+      const indicator = screen.getByRole('button', {
+        name: /view 2 chat session\(s\)/i,
+      })
+      expect(indicator).toBeInTheDocument()
+      expect(indicator).toHaveTextContent('2 chats')
+    })
+  })
 })

@@ -1,0 +1,558 @@
+Story 6 – Chat Interface View – Basic Structure
+
+Goal
+
+Create the ChatView component with the basic layout structure, route configuration, and visual design. This story establishes the UI foundation for the chat interface, including the top app bar, entry context display, message area, and input area. The component will be styled consistently with the journal editor design and will be ready for interactive functionality to be added in subsequent stories.
+
+⸻
+
+Scope
+
+	1.	ChatView Component Creation
+	•	Create a new view component: `src/views/ChatView.vue` (or `src/views/JournalChatView.vue`).
+	•	Use Vue 3 Composition API with `<script setup>` syntax (consistent with other views in the app).
+	•	Component structure should include:
+	•	Template section with the layout structure.
+	•	Script section with reactive state and logic.
+	•	Style section with component-specific styles (if needed, though most styling should use Tailwind classes).
+	•	Component should be a full-page view (similar to JournalEditorView).
+
+	2.	Router Configuration
+	•	Update `src/router/index.ts` to add the chat route:
+	•	Route path: `/journal/:id/chat` (where `:id` is the journal entry ID parameter).
+	•	Route name: `journal-chat` (or similar, following existing naming conventions).
+	•	Route component: Import and use the ChatView component.
+	•	Route meta (optional): Add metadata if needed (e.g., `requiresAuth: false`, `title: "Chat about entry"`).
+	•	Ensure the route is properly typed with TypeScript.
+	•	The route should be accessible from the journal editor (as implemented in Story 5).
+
+	3.	Top App Bar Implementation
+	•	Implement the top app bar section:
+	•	Use AppTopAppBar component (if available) or create a custom top bar consistent with the app design.
+	•	Back navigation button:
+	•	Icon: Left arrow/chevron icon (use Heroicons, e.g., ArrowLeftIcon or ChevronLeftIcon).
+	•	Action: Navigate back to `/journal/:id/edit` (if entry exists) or `/journal` (journal list).
+	•	Use Vue Router's `router.back()` or `router.push()` for navigation.
+	•	Title display:
+	•	Show the selected chat intention in the title (e.g., "Reflect – Chat about entry").
+	•	Retrieve the intention from the chat store's current chat session.
+	•	Format the intention name for display (e.g., "reflect" → "Reflect", "help-see-differently" → "Help see differently").
+	•	If no chat session exists, show a default title like "Chat about entry".
+	•	Handle loading state: Show a loading indicator or skeleton while the chat session is being loaded.
+	•	Styling: Use consistent styling with other views (same height, padding, colors as JournalEditorView top bar).
+
+	4.	Entry Context Display Section
+	•	Implement a section that displays a brief summary of the journal entry context:
+	•	Container: Use AppCard component for the context section (consistent with app design).
+	•	Display the following information (non-editable, read-only):
+	•	Entry title:
+	•	Show the entry title, or "Untitled entry" if the title is empty.
+	•	Style as a heading or prominent text.
+	•	Selected emotions:
+	•	Display emotions as chips/badges (similar to how they appear in JournalEditorView).
+	•	Resolve emotion IDs to emotion names using the emotion store.
+	•	Use the same emotion chip styling as in the journal editor.
+	•	If no emotions are selected, show "No emotions" or hide the section.
+	•	Selected tags:
+	•	Display people tags and context tags as chips/badges.
+	•	Resolve tag IDs to tag names using the tag store.
+	•	Separate people tags and context tags visually (e.g., with labels like "People:" and "Context:").
+	•	Use the same tag chip styling as in the journal editor.
+	•	If no tags are selected, show "No tags" or hide the section.
+	•	Entry body preview:
+	•	Show a short preview of the entry body (first 2-3 lines, or approximately 150 characters).
+	•	Truncate with ellipsis ("...") if the body is longer than the preview length.
+	•	Style as secondary text (text-on-surface-variant).
+	•	Layout:
+	•	Arrange the context information in a clear, readable layout.
+	•	Use appropriate spacing and visual hierarchy.
+	•	Consider using a grid or flex layout for chips.
+	•	Data loading:
+	•	Retrieve the journal entry using the journal store and the entry ID from route params.
+	•	Handle loading state: Show a skeleton or loading indicator while the entry is being loaded.
+	•	Handle error state: Show an error message if the entry cannot be loaded (e.g., entry not found).
+	•	Handle empty state: If entry doesn't exist, show an appropriate message and allow navigation back.
+
+	5.	Message Area Structure
+	•	Implement the message area container (without message display logic, which will be added in Story 7):
+	•	Container: Create a scrollable container for messages.
+	•	Layout:
+	•	Use a flex column layout to stack messages vertically.
+	•	Make the container scrollable (use `overflow-y-auto` or similar).
+	•	Set appropriate height constraints (e.g., `flex-1` to fill available space, with max-height).
+	•	Styling:
+	•	Use consistent padding and spacing.
+	•	Background color should match the app's surface color.
+	•	Empty state:
+	•	Show a placeholder or empty state message when there are no messages.
+	•	Example: "Start the conversation by sending a message below."
+	•	Or show a welcome message based on the chat intention (e.g., "I'm here to help you reflect on your journal entry. What would you like to explore?").
+	•	Message structure (placeholder for Story 7):
+	•	Create placeholder message components or structure that will be populated in Story 7.
+	•	For now, the message area should just be an empty scrollable container.
+	•	Note: Actual message rendering and styling will be implemented in Story 7.
+
+	6.	Input Area Structure
+	•	Implement the input area at the bottom (without send functionality, which will be added in Story 7):
+	•	Container: Create a fixed or sticky bottom section for the input area.
+	•	Layout:
+	•	Text input field:
+	•	Use a textarea or input component (consistent with app design).
+	•	Placeholder text: "Type your message..." or "Ask a question..."
+	•	Styling: Use consistent styling with other input fields in the app.
+	•	Make the input field expandable (textarea that grows with content, up to a max height).
+	•	Send button:
+	•	Use AppButton component with appropriate variant (e.g., "filled" or "icon").
+	•	Button text: "Send" or use a send icon (e.g., PaperAirplaneIcon from Heroicons).
+	•	Position: To the right of the input field, or as an icon button inside the input field.
+	•	Disabled state: Button should be disabled when input is empty (will be implemented in Story 7).
+	•	Loading indicator:
+	•	Reserve space for a loading indicator (spinner or similar).
+	•	Will be shown when AI is responding (implementation in Story 7).
+	•	Position: Near the send button or in the input area.
+	•	Styling:
+	•	Use consistent padding and spacing with the rest of the app.
+	•	Background color should match the app's surface color.
+	•	Add a border-top to separate from the message area.
+	•	Note: Input handling and send functionality will be implemented in Story 7.
+
+	7.	Action Buttons Structure (Placeholder)
+	•	Add placeholder structure for action buttons (full implementation in Story 8):
+	•	"Save conversation" button:
+	•	Add the button structure (will be functional in Story 8).
+	•	Position: In the top app bar (as a secondary action) or in a bottom action bar.
+	•	Use AppButton component with "filled" or "outlined" variant.
+	•	Button text: "Save conversation".
+	•	Disabled state: Button should be disabled initially (will be enabled in Story 8 after messages are exchanged).
+	•	"Leave without saving" or "End chat" button:
+	•	Add the button structure (will be functional in Story 8).
+	•	Position: In the top app bar (as a secondary action) or near the Save button.
+	•	Use AppButton component with "text" variant.
+	•	Button text: "Leave without saving" or "End chat".
+	•	Note: Button click handlers and confirmation dialogs will be implemented in Story 8.
+	•	For Story 6, these buttons can be non-functional placeholders or can navigate back without saving.
+
+	8.	Styling & Design Consistency
+	•	Ensure the ChatView component is styled consistently with the journal editor:
+	•	Color scheme: Use the same color tokens (primary, surface, on-surface, etc.).
+	•	Typography: Use the same font families, sizes, and weights.
+	•	Spacing: Use consistent padding and margins (follow Tailwind spacing scale).
+	•	Components: Use the same Material Design–inspired components (AppCard, AppButton, AppTopAppBar).
+	•	Layout: Follow similar layout patterns (full-page view, top bar, content area, bottom actions).
+	•	Responsive design:
+	•	Ensure the layout works on mobile devices (stack elements vertically if needed).
+	•	Test on different screen sizes.
+	•	Input area should be accessible on mobile (not hidden by keyboard).
+	•	Accessibility:
+	•	Add appropriate ARIA labels to interactive elements.
+	•	Ensure keyboard navigation works correctly.
+	•	Ensure screen readers can navigate the component.
+	•	Focus management: Ensure focus is managed correctly when navigating to/from the view.
+
+	9.	Chat Store Integration (Basic)
+	•	Import and use the chat store (from Story 3):
+	•	Import: `import { useChatStore } from '@/stores/chat.store'`.
+	•	Initialize: `const chatStore = useChatStore()`.
+	•	Retrieve current chat session:
+	•	Access `chatStore.currentChatSession` to get the active chat session.
+	•	Use the session to display the intention in the title.
+	•	Handle case where no session exists:
+	•	If `currentChatSession` is null, the user may have navigated directly to the route.
+	•	In this case, either:
+	•	Option A: Redirect back to journal editor with an error message.
+	•	Option B: Show an error state in the view and allow navigation back.
+	•	Recommendation: Use Option A (redirect) for better UX.
+	•	Load chat session if needed:
+	•	If the session doesn't exist but an entry ID is available, check if there are existing chat sessions for the entry.
+	•	For Story 6, focus on displaying the current session if it exists.
+	•	Note: Full session management and message loading will be implemented in Story 7.
+
+	10.	Journal Store Integration (Basic)
+	•	Import and use the journal store:
+	•	Import: `import { useJournalStore } from '@/stores/journal.store'`.
+	•	Initialize: `const journalStore = useJournalStore()`.
+	•	Retrieve journal entry:
+	•	Get the entry ID from route params: `const entryId = route.params.id as string`.
+	•	Load the entry: `const entry = await journalStore.getEntryById(entryId)` (or use the store's method).
+	•	Handle loading state: Show loading indicator while entry is being loaded.
+	•	Handle error state: Show error message if entry cannot be loaded.
+	•	Use the entry data to populate the context display section.
+	•	Note: Entry loading should happen on component mount (use `onMounted` lifecycle hook).
+
+	11.	Emotion & Tag Store Integration (Basic)
+	•	Import and use emotion and tag stores:
+	•	Import: `import { useEmotionStore } from '@/stores/emotion.store'`.
+	•	Import: `import { useTagStore } from '@/stores/tag.store'`.
+	•	Initialize stores: `const emotionStore = useEmotionStore()` and `const tagStore = useTagStore()`.
+	•	Resolve IDs to names:
+	•	Use emotion store to resolve `entry.emotionIds` to emotion names.
+	•	Use tag store to resolve `entry.peopleTagIds` and `entry.contextTagIds` to tag names.
+	•	Handle missing IDs gracefully (if an ID doesn't exist, skip it or show "Unknown").
+	•	Use resolved names to display in the context section (emotion chips, tag chips).
+
+	12.	Component Tests
+	•	Add comprehensive component tests (Vitest with Vue Test Utils) for:
+	•	Component Rendering:
+	•	Test that ChatView component renders without errors.
+	•	Test that all main sections are present (top bar, context display, message area, input area).
+	•	Router Integration:
+	•	Test that the route `/journal/:id/chat` is properly configured.
+	•	Test that the component receives the entry ID from route params.
+	•	Top App Bar:
+	•	Test that back navigation button is present and clickable.
+	•	Test that title displays the chat intention correctly.
+	•	Test that title shows default text when no session exists.
+	•	Test that clicking back button navigates to the correct route.
+	•	Entry Context Display:
+	•	Test that entry title is displayed (or "Untitled entry" if empty).
+	•	Test that emotions are displayed as chips (with correct names resolved from IDs).
+	•	Test that tags are displayed as chips (with correct names resolved from IDs).
+	•	Test that entry body preview is displayed (truncated if long).
+	•	Test loading state (shows skeleton or loading indicator).
+	•	Test error state (shows error message if entry not found).
+	•	Test empty state (handles missing emotions/tags gracefully).
+	•	Message Area:
+	•	Test that message area container is present and scrollable.
+	•	Test that empty state message is shown when no messages exist.
+	•	Input Area:
+	•	Test that input field is present and functional (can type text).
+	•	Test that send button is present (functionality will be tested in Story 7).
+	•	Test that send button is disabled when input is empty (if implemented).
+	•	Action Buttons:
+	•	Test that "Save conversation" button is present (disabled initially).
+	•	Test that "Leave without saving" button is present.
+	•	Store Integration:
+	•	Test that chat store is accessed correctly.
+	•	Test that journal store is accessed correctly.
+	•	Test that emotion and tag stores are accessed correctly.
+	•	Test that component handles missing chat session (redirects or shows error).
+	•	Test that component handles missing journal entry (shows error).
+	•	Navigation:
+	•	Test that navigating to `/journal/:id/chat` loads the component.
+	•	Test that invalid entry ID shows appropriate error.
+	•	Use mocking for:
+	•	Router (mock `router.push`, `router.back`, `route.params`).
+	•	Chat store (mock `currentChatSession`, `startChatSession`).
+	•	Journal store (mock `getEntryById`).
+	•	Emotion store (mock emotion resolution methods).
+	•	Tag store (mock tag resolution methods).
+	•	Follow existing test patterns in `src/views/__tests__/`.
+	•	Use descriptive test names that explain what is being tested.
+
+⸻
+
+Acceptance Criteria
+
+	•	ChatView Component:
+	•	`src/views/ChatView.vue` file exists with proper Vue 3 Composition API structure.
+	•	Component renders without errors.
+	•	Component follows the same structure and patterns as other views in the app.
+	•	Router Configuration:
+	•	Route `/journal/:id/chat` is added to the router.
+	•	Route is properly typed with TypeScript.
+	•	Route correctly loads the ChatView component.
+	•	Navigation from journal editor (Story 5) works correctly.
+	•	Top App Bar:
+	•	Back navigation button is present and functional (navigates back correctly).
+	•	Title displays the chat intention correctly (e.g., "Reflect – Chat about entry").
+	•	Title shows default text when no session exists.
+	•	Top bar styling is consistent with other views.
+	•	Entry Context Display:
+	•	Context section displays entry title (or "Untitled entry").
+	•	Context section displays emotions as chips (with correct names).
+	•	Context section displays tags as chips (with correct names, separated by people/context).
+	•	Context section displays entry body preview (truncated appropriately).
+	•	Loading state is handled (shows loading indicator while entry loads).
+	•	Error state is handled (shows error message if entry not found).
+	•	Empty states are handled gracefully (missing emotions/tags don't break the UI).
+	•	Message Area:
+	•	Message area container is present and properly styled.
+	•	Message area is scrollable.
+	•	Empty state message is shown when no messages exist.
+	•	Message area has appropriate height constraints.
+	•	Input Area:
+	•	Input field is present and functional (can type text).
+	•	Send button is present (functionality will be added in Story 7).
+	•	Input area is properly positioned at the bottom.
+	•	Input area styling is consistent with the app.
+	•	Action Buttons:
+	•	"Save conversation" button is present (disabled initially, functionality in Story 8).
+	•	"Leave without saving" button is present (functionality in Story 8).
+	•	Buttons are properly positioned and styled.
+	•	Styling & Design:
+	•	Component uses consistent color scheme with journal editor.
+	•	Component uses consistent typography and spacing.
+	•	Component uses Material Design–inspired components (AppCard, AppButton, etc.).
+	•	Component is responsive (works on mobile devices).
+	•	Component is accessible (keyboard navigation, ARIA labels, screen reader support).
+	•	Store Integration:
+	•	Chat store is accessed correctly.
+	•	Journal store is accessed correctly.
+	•	Emotion and tag stores are accessed correctly.
+	•	Component handles missing data gracefully (redirects or shows errors).
+	•	The app can be started and:
+	•	Navigating to `/journal/:id/chat` loads the ChatView component.
+	•	Component displays the entry context correctly.
+	•	Component shows appropriate states (loading, error, empty).
+	•	Back navigation works correctly.
+	•	Component tests for ChatView pass.
+	•	Linting and TypeScript checks pass with no new errors.
+
+⸻
+
+Out of Scope
+
+	•	Message display and rendering (will be implemented in Story 7).
+	•	Message sending functionality (will be implemented in Story 7).
+	•	Loading states for AI responses (will be implemented in Story 7).
+	•	Save conversation functionality (will be implemented in Story 8).
+	•	Leave without saving functionality with confirmation dialog (will be implemented in Story 8).
+	•	Chat session persistence and loading (will be implemented in Story 7).
+	•	Error handling for API calls (will be implemented in Story 7).
+	•	Message timestamps and formatting (will be implemented in Story 7).
+	•	Advanced animations or transitions (basic styling is sufficient for MVP).
+	•	Chat history display (will be implemented in Story 9).
+	•	Editing or deleting messages (out of scope for this epic).
+
+⸻
+
+Technical Considerations
+
+	•	Component Structure:
+	•	Follow Vue 3 Composition API best practices.
+	•	Use `<script setup>` for cleaner syntax.
+	•	Use reactive refs for component state.
+	•	Use computed properties for derived state.
+	•	Use lifecycle hooks (onMounted, onUnmounted) appropriately.
+	•	Route Parameter Handling:
+	•	Extract entry ID from route params: `const entryId = route.params.id as string`.
+	•	Validate that entry ID exists and is a valid string.
+	•	Handle cases where entry ID is missing or invalid.
+	•	Store Access:
+	•	Access stores at the top level of the script (not inside functions) to maintain reactivity.
+	•	Use `storeToRefs` from Pinia if you need to destructure reactive state from stores.
+	•	Data Loading:
+	•	Load journal entry in `onMounted` lifecycle hook.
+	•	Handle async operations properly (use async/await or .then()).
+	•	Show loading states while data is being fetched.
+	•	Error Handling:
+	•	Wrap data loading in try-catch blocks.
+	•	Show user-friendly error messages.
+	•	Handle edge cases (missing entry, missing session, etc.).
+	•	Component Reusability:
+	•	Consider creating reusable sub-components if needed (e.g., EntryContextCard, MessageArea, InputArea).
+	•	For MVP, keeping everything in one component is acceptable, but consider refactoring if the component becomes too large.
+	•	Styling Approach:
+	•	Use Tailwind CSS classes for styling (consistent with the app).
+	•	Use component-specific styles only when necessary (prefer utility classes).
+	•	Follow the existing design system and color tokens.
+	•	Responsive Design:
+	•	Test the component on different screen sizes.
+	•	Ensure input area is accessible on mobile (consider using `position: fixed` or `position: sticky`).
+	•	Consider using viewport height units (vh) for message area height.
+	•	Accessibility:
+	•	Add ARIA labels to all interactive elements.
+	•	Ensure keyboard navigation works (Tab, Enter, Escape).
+	•	Test with screen readers if possible.
+	•	Manage focus appropriately (e.g., focus input field when component mounts).
+	•	Testing Strategy:
+	•	Mock all external dependencies (stores, router).
+	•	Test component rendering in isolation.
+	•	Test user interactions (clicks, navigation).
+	•	Test different data states (loading, error, empty, populated).
+	•	Follow existing test patterns in the codebase.
+
+⸻
+
+Implementation Notes
+
+	•	Component Structure Example:
+	•	```vue
+	•	<template>
+	•	  <div class="flex flex-col h-screen bg-background">
+	•	    <!-- Top App Bar -->
+	•	    <div class="flex items-center gap-4 px-4 py-3 border-b border-outline/30">
+	•	      <AppButton
+	•	        variant="text"
+	•	        @click="handleBack"
+	•	        aria-label="Go back"
+	•	      >
+	•	        <ArrowLeftIcon class="w-5 h-5" />
+	•	      </AppButton>
+	•	      <h1 class="text-xl font-medium text-on-surface">
+	•	        {{ chatTitle }}
+	•	      </h1>
+	•	    </div>
+	•	
+	•	    <!-- Entry Context Display -->
+	•	    <AppCard class="m-4">
+	•	      <div v-if="isLoadingEntry" class="p-4">
+	•	        <div class="animate-pulse">Loading entry...</div>
+	•	      </div>
+	•	      <div v-else-if="entryError" class="p-4 text-error">
+	•	        {{ entryError }}
+	•	      </div>
+	•	      <div v-else-if="entry" class="space-y-3">
+	•	        <h2 class="text-lg font-medium text-on-surface">
+	•	          {{ entry.title || "Untitled entry" }}
+	•	        </h2>
+	•	        <div v-if="emotionNames.length > 0" class="flex flex-wrap gap-2">
+	•	          <span
+	•	            v-for="emotion in emotionNames"
+	•	            :key="emotion"
+	•	            class="px-2 py-1 rounded-full bg-primary-container text-on-primary-container text-sm"
+	•	          >
+	•	            {{ emotion }}
+	•	          </span>
+	•	        </div>
+	•	        <!-- Tags and body preview similar -->
+	•	      </div>
+	•	    </AppCard>
+	•	
+	•	    <!-- Message Area -->
+	•	    <div class="flex-1 overflow-y-auto px-4 py-2">
+	•	      <div v-if="!hasMessages" class="text-center text-on-surface-variant py-8">
+	•	        Start the conversation by sending a message below.
+	•	      </div>
+	•	      <!-- Messages will be rendered here in Story 7 -->
+	•	    </div>
+	•	
+	•	    <!-- Input Area -->
+	•	    <div class="border-t border-outline/30 p-4">
+	•	      <div class="flex gap-2">
+	•	        <textarea
+	•	          v-model="messageInput"
+	•	          placeholder="Type your message..."
+	•	          class="flex-1 p-3 border rounded-lg resize-none"
+	•	          rows="1"
+	•	        />
+	•	        <AppButton
+	•	          variant="filled"
+	•	          @click="handleSend"
+	•	          :disabled="!messageInput.trim()"
+	•	          aria-label="Send message"
+	•	        >
+	•	          Send
+	•	        </AppButton>
+	•	      </div>
+	•	    </div>
+	•	  </div>
+	•	</template>
+	•	
+	•	<script setup lang="ts">
+	•	import { ref, computed, onMounted } from 'vue'
+	•	import { useRoute, useRouter } from 'vue-router'
+	•	import { useChatStore } from '@/stores/chat.store'
+	•	import { useJournalStore } from '@/stores/journal.store'
+	•	import { useEmotionStore } from '@/stores/emotion.store'
+	•	import { useTagStore } from '@/stores/tag.store'
+	•	import AppButton from '@/components/AppButton.vue'
+	•	import AppCard from '@/components/AppCard.vue'
+	•	import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+	•	import type { JournalEntry } from '@/domain/journal'
+	•	
+	•	const route = useRoute()
+	•	const router = useRouter()
+	•	const chatStore = useChatStore()
+	•	const journalStore = useJournalStore()
+	•	const emotionStore = useEmotionStore()
+	•	const tagStore = useTagStore()
+	•	
+	•	const entryId = computed(() => route.params.id as string)
+	•	const entry = ref<JournalEntry | null>(null)
+	•	const isLoadingEntry = ref(false)
+	•	const entryError = ref<string | null>(null)
+	•	const messageInput = ref('')
+	•	
+	•	const chatTitle = computed(() => {
+	•	  if (!chatStore.currentChatSession) {
+	•	    return "Chat about entry"
+	•	  }
+	•	  const intention = chatStore.currentChatSession.intention
+	•	  const intentionLabels: Record<string, string> = {
+	•	    "reflect": "Reflect",
+	•	    "help-see-differently": "Help see differently",
+	•	    "proactive": "Help to be proactive",
+	•	    "thinking-traps": "Thinking traps",
+	•	    "custom": "Custom"
+	•	  }
+	•	  return `${intentionLabels[intention] || intention} – Chat about entry`
+	•	})
+	•	
+	•	const emotionNames = computed(() => {
+	•	  if (!entry.value?.emotionIds) return []
+	•	  return entry.value.emotionIds
+	•	    .map(id => emotionStore.getEmotionById(id)?.name)
+	•	    .filter(Boolean) as string[]
+	•	})
+	•	
+	•	const hasMessages = computed(() => {
+	•	  return chatStore.currentChatSession?.messages.length > 0
+	•	})
+	•	
+	•	async function loadEntry() {
+	•	  isLoadingEntry.value = true
+	•	  entryError.value = null
+	•	  try {
+	•	    const loadedEntry = await journalStore.getEntryById(entryId.value)
+	•	    if (!loadedEntry) {
+	•	      entryError.value = "Entry not found"
+	•	    	return
+	•	    }
+	•	    entry.value = loadedEntry
+	•	  } catch (error) {
+	•	    entryError.value = "Failed to load entry"
+	•	    console.error("Error loading entry:", error)
+	•	  } finally {
+	•	    isLoadingEntry.value = false
+	•	  }
+	•	}
+	•	
+	•	function handleBack() {
+	•	  router.back()
+	•	}
+	•	
+	•	function handleSend() {
+	•	  // Will be implemented in Story 7
+	•	}
+	•	
+	•	onMounted(() => {
+	•	  // Check if chat session exists
+	•	  if (!chatStore.currentChatSession) {
+	•	    // Redirect or show error
+	•	    router.push(`/journal/${entryId.value}/edit`)
+	•	    return
+	•	  }
+	•	  loadEntry()
+	•	})
+	•	</script>
+	•	```
+	•	Router Configuration:
+	•	In `src/router/index.ts`, add:
+	•	```typescript
+	•	{
+	•	  path: '/journal/:id/chat',
+	•	  name: 'journal-chat',
+	•	  component: () => import('@/views/ChatView.vue'),
+	•	  meta: {
+	•	    title: 'Chat about entry'
+	•	  }
+	•	}
+	•	```
+	•	File Organization:
+	•	Component file: `src/views/ChatView.vue`
+	•	Test file: `src/views/__tests__/ChatView.spec.ts`
+	•	Follow existing naming conventions and file structure.
+	•	Dependencies:
+	•	Import chat store from Story 3.
+	•	Import journal, emotion, and tag stores (assume they exist).
+	•	Import router and route from vue-router.
+	•	Import UI components (AppButton, AppCard, AppTopAppBar if available).
+	•	Import icons from Heroicons.
+	•	Testing:
+	•	Create comprehensive test file with mocked dependencies.
+	•	Use Vitest and Vue Test Utils.
+	•	Mock stores, router, and route.
+	•	Test component rendering, data loading, and navigation.
+	•	Follow existing test patterns in the codebase.
+

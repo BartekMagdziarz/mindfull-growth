@@ -1,0 +1,527 @@
+Story 7 – Chat Interface – Message Display & Sending
+
+Goal
+
+Implement the core chat functionality in the ChatView component, including message display, message input and sending, integration with the chat store, and proper loading states and error handling. This story enables users to have actual conversations with the LLM about their journal entries, making the chat feature fully functional.
+
+⸻
+
+Scope
+
+	1.	Message Display Component
+	•	Create a message display component or section within ChatView to render conversation messages:
+	•	Message structure:
+	•	Each message should display:
+	•	Sender indicator (User or AI/Assistant).
+	•	Message content (formatted text).
+	•	Timestamp (optional, or relative time like "Just now", "2 minutes ago").
+	•	Visual distinction:
+	•	User messages: Display on the right side (or with distinct styling like blue background).
+	•	AI messages: Display on the left side (or with distinct styling like gray background).
+	•	Use consistent styling with Material Design principles.
+	•	Message styling:
+	•	Use AppCard or similar component for message bubbles (or custom styled divs).
+	•	Apply appropriate padding, margins, and border radius.
+	•	Use consistent typography (font size, line height, color).
+	•	Ensure messages are readable and well-spaced.
+	•	Message list:
+	•	Display messages in chronological order (oldest first, newest at bottom).
+	•	Auto-scroll to bottom when new messages are added.
+	•	Handle long messages gracefully (word wrap, max width).
+	•	Empty state:
+	•	Show a welcome message or placeholder when no messages exist (already implemented in Story 6, but can be enhanced).
+	•	Consider showing a suggested first message or prompt based on the chat intention.
+
+	2.	Message Input & Send Functionality
+	•	Implement the message input field functionality:
+	•	Input field:
+	•	Use a textarea component (allows multi-line input).
+	•	Make the textarea auto-resize (grow with content, up to a maximum height, e.g., 4-5 lines).
+	•	Add placeholder text: "Type your message..." or "Ask a question...".
+	•	Handle Enter key:
+	•	Pressing Enter should send the message (if message is not empty).
+	•	Pressing Shift+Enter should create a new line (standard textarea behavior).
+	•	Disable input while AI is responding (prevent sending multiple messages simultaneously).
+	•	Clear input field after successful send.
+	•	Focus management:
+	•	Auto-focus the input field when the component mounts (if appropriate).
+	•	Refocus input field after sending a message (for better UX).
+	•	Send button:
+	•	Enable send button only when input has content (trimmed, non-empty).
+	•	Disable send button while AI is responding.
+	•	Show loading state on send button while message is being sent.
+	•	Use appropriate icon (e.g., PaperAirplaneIcon from Heroicons) or text "Send".
+	•	Send functionality:
+	•	When user clicks Send or presses Enter:
+	•	Validate that input is not empty (after trimming).
+	•	Trim the input text.
+	•	Call `chatStore.sendMessage(messageText)`.
+	•	Handle the async operation (await the promise).
+	•	On success: Clear the input field and update the message display.
+	•	On error: Show error message and keep the input text (so user can retry).
+	•	Prevent duplicate sends (disable button during send operation).
+
+	3.	Chat Store Integration
+	•	Integrate ChatView with the chat store (from Story 3):
+	•	Access chat session:
+	•	Use `chatStore.currentChatSession` to get the active chat session.
+	•	Access messages: `chatStore.currentChatSession.messages` to get the conversation messages.
+	•	Use reactive state (computed or ref) to ensure UI updates when messages change.
+	•	Send messages:
+	•	Call `chatStore.sendMessage(messageText)` when user sends a message.
+	•	Handle the Promise returned by sendMessage:
+	•	Show loading state while waiting for response.
+	•	Handle success: Message will be added to the session automatically by the store.
+	•	Handle errors: Display error message from `chatStore.error`.
+	•	Loading state:
+	•	Access `chatStore.isLoading` to show loading indicator while AI is responding.
+	•	Display loading indicator in the message area (e.g., a message bubble with "AI is typing..." or a spinner).
+	•	Error handling:
+	•	Access `chatStore.error` to display error messages.
+	•	Show error messages in a user-friendly way (e.g., using AppSnackbar or inline error message).
+	•	Allow user to retry failed messages (keep the message in input or show a retry button).
+	•	Reactive updates:
+	•	Ensure the component reacts to changes in chat store state.
+	•	Use `storeToRefs` from Pinia if needed to maintain reactivity when destructuring store state.
+	•	Watch for new messages and auto-scroll to bottom.
+
+	4.	Loading States & Indicators
+	•	Implement loading indicators throughout the chat interface:
+	•	AI response loading:
+	•	Show a loading indicator when `chatStore.isLoading` is true.
+	•	Display in the message area as a message bubble (e.g., "AI is thinking..." or show a typing indicator).
+	•	Use a spinner or skeleton loader for visual feedback.
+	•	Position: Show the loading indicator as the last message in the conversation.
+	•	Send button loading:
+	•	Show loading state on the send button (spinner icon or "Sending..." text).
+	•	Disable the button during send operation.
+	•	Input field loading:
+	•	Disable the input field while AI is responding (prevent sending new messages).
+	•	Show visual feedback (e.g., grayed out or disabled styling).
+	•	Message sending loading:
+	•	Show immediate feedback when user sends a message (optimistic UI update).
+	•	Display the user message immediately, then show loading indicator for AI response.
+	•	Error loading state:
+	•	If an error occurs, show error message but don't keep loading indicator.
+	•	Allow user to retry the failed operation.
+
+	5.	Error Handling in UI
+	•	Implement comprehensive error handling and user feedback:
+	•	Error message display:
+	•	Show error messages from `chatStore.error` in a user-friendly way.
+	•	Use AppSnackbar component (if available) for transient error messages.
+	•	Or display inline error message near the input area or in the message area.
+	•	Error types and messages:
+	•	Missing API key: "OpenAI API key is not configured. Please add your API key in Profile settings."
+	•	Invalid API key: "Invalid API key. Please check your API key in Profile settings."
+	•	Rate limit: "Rate limit exceeded. Please try again in a moment."
+	•	Network error: "Network error. Please check your connection and try again."
+	•	Generic API error: "Failed to send message. Please try again."
+	•	Error recovery:
+	•	Allow user to retry failed messages:
+	•	Option A: Keep the message in the input field (user can edit and resend).
+	•	Option B: Show a "Retry" button on failed messages (more advanced, can be added later).
+	•	For MVP, use Option A (keep message in input field).
+	•	Clear error state when user successfully sends a message or starts typing.
+	•	Error state persistence:
+	•	Errors should be visible until user takes action (sends new message, dismisses error, etc.).
+	•	Don't auto-dismiss errors immediately (give user time to read them).
+
+	6.	Auto-Scroll Behavior
+	•	Implement auto-scroll functionality for the message area:
+	•	Scroll to bottom when:
+	•	New messages are added (user message or AI response).
+	•	Component first loads with existing messages.
+	•	AI loading indicator appears.
+	•	Scroll behavior:
+	•	Use smooth scrolling for better UX.
+	•	Only auto-scroll if user is already near the bottom (don't interrupt if user scrolled up to read old messages).
+	•	Implementation:
+	•	Use Vue's `nextTick` to ensure DOM is updated before scrolling.
+	•	Use `scrollIntoView` or `scrollTop` to scroll the message container.
+	•	Track scroll position to determine if user is at bottom.
+	•	Consider using a ref to the message container element for scrolling.
+
+	7.	Message Formatting & Display
+	•	Implement proper message formatting:
+	•	Text formatting:
+	•	Preserve line breaks in messages (use `white-space: pre-wrap` or similar).
+	•	Handle long messages with word wrapping.
+	•	Set maximum width for message bubbles (e.g., 70-80% of container width) for readability.
+	•	Timestamp display:
+	•	Show timestamps for messages (optional, but recommended for better UX).
+	•	Format: Relative time ("Just now", "2 minutes ago") or absolute time ("10:30 AM").
+	•	Use a date formatting utility if available (e.g., from `src/utils/dateFormat.ts`).
+	•	Position timestamps below or above message content (subtle styling, secondary text color).
+	•	Message grouping:
+	•	Consider grouping consecutive messages from the same sender (optional enhancement).
+	•	For MVP, show each message separately (simpler implementation).
+	•	Special message handling:
+	•	Handle empty messages gracefully (shouldn't happen, but handle edge case).
+	•	Handle very long messages (add scroll or truncate with "Show more" button, optional for MVP).
+
+	8.	Component Tests
+	•	Add comprehensive component tests (Vitest with Vue Test Utils) for:
+	•	Message Display:
+	•	Test that user messages are displayed correctly (content, styling, position).
+	•	Test that AI messages are displayed correctly (content, styling, position).
+	•	Test that messages are displayed in chronological order.
+	•	Test that empty state is shown when no messages exist.
+	•	Test that timestamps are displayed (if implemented).
+	•	Test that long messages are handled gracefully (word wrap, max width).
+	•	Message Input:
+	•	Test that input field is functional (can type text).
+	•	Test that textarea auto-resizes (if implemented).
+	•	Test that Enter key sends message.
+	•	Test that Shift+Enter creates new line.
+	•	Test that input is cleared after successful send.
+	•	Test that input is disabled while AI is responding.
+	•	Send Functionality:
+	•	Test that clicking Send button calls `chatStore.sendMessage` with correct message text.
+	•	Test that pressing Enter calls `chatStore.sendMessage`.
+	•	Test that send button is disabled when input is empty.
+	•	Test that send button is disabled while AI is responding.
+	•	Test that duplicate sends are prevented.
+	•	Chat Store Integration:
+	•	Test that messages from `chatStore.currentChatSession.messages` are displayed.
+	•	Test that new messages appear in the UI when added to store.
+	•	Test that loading state from `chatStore.isLoading` is displayed.
+	•	Test that error state from `chatStore.error` is displayed.
+	•	Loading States:
+	•	Test that loading indicator is shown when `chatStore.isLoading` is true.
+	•	Test that loading indicator appears in message area.
+	•	Test that send button shows loading state during send operation.
+	•	Test that input field is disabled during loading.
+	•	Error Handling:
+	•	Test that error messages are displayed when `chatStore.error` is set.
+	•	Test that different error types show appropriate messages.
+	•	Test that user can retry after error (message remains in input field).
+	•	Test that error is cleared when new message is sent successfully.
+	•	Auto-Scroll:
+	•	Test that message area scrolls to bottom when new message is added.
+	•	Test that auto-scroll works when component loads with existing messages.
+	•	Edge Cases:
+	•	Test with empty chat session (no messages).
+	•	Test with very long messages.
+	•	Test with rapid message sending (ensure proper handling).
+	•	Test with network errors (mock failed API calls).
+	•	Test with missing API key error.
+	•	Use mocking for:
+	•	Chat store (mock `sendMessage`, `currentChatSession`, `isLoading`, `error`).
+	•	Follow existing test patterns in `src/views/__tests__/`.
+	•	Use descriptive test names that explain what is being tested.
+
+⸻
+
+Acceptance Criteria
+
+	•	Message Display:
+	•	User messages are displayed with correct styling (right-aligned or distinct styling).
+	•	AI messages are displayed with correct styling (left-aligned or distinct styling).
+	•	Messages are displayed in chronological order (oldest first, newest at bottom).
+	•	Message content is properly formatted (line breaks preserved, word wrapping).
+	•	Timestamps are displayed for messages (if implemented).
+	•	Empty state is shown when no messages exist.
+	•	Message Input:
+	•	Input field is functional (can type text, supports multi-line).
+	•	Textarea auto-resizes with content (up to max height).
+	•	Enter key sends message (Shift+Enter creates new line).
+	•	Input field is cleared after successful send.
+	•	Input field is disabled while AI is responding.
+	•	Send button is enabled only when input has content.
+	•	Send button is disabled while AI is responding.
+	•	Send Functionality:
+	•	Clicking Send button calls `chatStore.sendMessage` with correct message.
+	•	Pressing Enter calls `chatStore.sendMessage`.
+	•	User message appears immediately in the message area.
+	•	AI response appears after API call completes.
+	•	Duplicate sends are prevented (button disabled during send).
+	•	Chat Store Integration:
+	•	Messages from `chatStore.currentChatSession.messages` are displayed correctly.
+	•	New messages appear in UI when added to store (reactive updates).
+	•	Loading state from `chatStore.isLoading` is displayed.
+	•	Error state from `chatStore.error` is displayed.
+	•	Loading States:
+	•	Loading indicator is shown when AI is responding.
+	•	Loading indicator appears in message area as last message.
+	•	Send button shows loading state during send operation.
+	•	Input field is disabled during loading.
+	•	Error Handling:
+	•	Error messages are displayed when `chatStore.error` is set.
+	•	Different error types show appropriate user-friendly messages.
+	•	User can retry after error (message remains in input field).
+	•	Error is cleared when new message is sent successfully.
+	•	Auto-Scroll:
+	•	Message area scrolls to bottom when new message is added.
+	•	Auto-scroll works when component loads with existing messages.
+	•	Scroll behavior is smooth and doesn't interrupt user if they scrolled up.
+	•	The app can be started and:
+	•	Users can type messages in the chat input field.
+	•	Users can send messages by clicking Send or pressing Enter.
+	•	User messages appear immediately in the message area.
+	•	AI responses appear after the API call completes.
+	•	Loading indicators are shown during API calls.
+	•	Error messages are displayed when errors occur.
+	•	Users can have a full conversation with the LLM.
+	•	Component tests for message display and sending pass.
+	•	Linting and TypeScript checks pass with no new errors.
+
+⸻
+
+Out of Scope
+
+	•	Save conversation functionality (will be implemented in Story 8).
+	•	Leave without saving functionality (will be implemented in Story 8).
+	•	Message editing or deletion (out of scope for this epic).
+	•	Message search or filtering (out of scope for this epic).
+	•	Streaming responses from LLM (will be added in a future story).
+	•	Message reactions or emoji support (out of scope for this epic).
+	•	Rich text formatting in messages (plain text only for MVP).
+	•	Markdown rendering in AI responses (plain text only for MVP, can be added later).
+	•	Message copy/paste functionality (browser default behavior is sufficient).
+	•	Advanced message grouping or threading (each message is separate for MVP).
+	•	Message timestamps with full date/time picker (relative time is sufficient for MVP).
+	•	Retry button on failed messages (keeping message in input field is sufficient for MVP).
+
+⸻
+
+Technical Considerations
+
+	•	Message Display Pattern:
+	•	Consider creating a separate MessageBubble component for reusability, or keep it inline in ChatView for MVP.
+	•	For MVP, inline message rendering is acceptable, but consider refactoring if the component becomes too large.
+	•	Styling Approach:
+	•	Use Tailwind CSS classes for message styling (consistent with app).
+	•	Use conditional classes based on message role (user vs assistant).
+	•	Consider using CSS variables for message bubble colors (for easy theming).
+	•	Reactive Updates:
+	•	Use Vue's reactivity system to ensure UI updates when chat store state changes.
+	•	Consider using `watch` or `watchEffect` to react to message array changes.
+	•	Use `nextTick` when needed to ensure DOM updates before operations like scrolling.
+	•	Auto-Scroll Implementation:
+	•	Track whether user is at bottom of scroll container before auto-scrolling.
+	•	Only auto-scroll if user is near bottom (within ~50px) to avoid interrupting reading.
+	•	Use `scrollHeight`, `scrollTop`, and `clientHeight` to determine scroll position.
+	•	Consider debouncing scroll position tracking for performance.
+	•	Input Handling:
+	•	Handle edge cases: empty input, whitespace-only input, very long input.
+	•	Consider adding input validation (max length, though this is optional for MVP).
+	•	Handle special characters and emoji in messages (should work by default, but test).
+	•	Error Recovery:
+	•	Decide on error recovery UX: keep message in input (simpler) vs. show retry button (more advanced).
+	•	For MVP, keeping message in input is recommended (simpler, still functional).
+	•	Consider showing error state on the failed message itself (optional enhancement).
+	•	Performance:
+	•	For long conversations, consider virtual scrolling (optional, not needed for MVP).
+	•	Most conversations will be 3-5 exchanges, so performance should be fine without optimization.
+	•	Test with longer conversations (10+ messages) to ensure no performance issues.
+	•	Accessibility:
+	•	Ensure message area is keyboard accessible.
+	•	Add ARIA labels to message bubbles (role="article" or similar).
+	•	Ensure screen readers can announce new messages.
+	•	Manage focus appropriately (don't steal focus when new messages arrive, unless user is at bottom).
+	•	Testing Strategy:
+	•	Mock chat store thoroughly in tests.
+	•	Test both success and error scenarios.
+	•	Test edge cases (empty messages, long messages, rapid sending).
+	•	Use Vitest's async testing capabilities for testing async operations.
+	•	Consider using `waitFor` or similar utilities for testing reactive updates.
+
+⸻
+
+Implementation Notes
+
+	•	Message Display Implementation:
+	•	```vue
+	•	<!-- Message Area -->
+	•	<div
+	•	  ref="messageContainer"
+	•	  class="flex-1 overflow-y-auto px-4 py-2 space-y-4"
+	•	>
+	•	  <div v-if="!hasMessages" class="text-center text-on-surface-variant py-8">
+	•	    Start the conversation by sending a message below.
+	•	  </div>
+	•	  
+	•	  <div
+	•	    v-for="(message, index) in messages"
+	•	    :key="`${message.timestamp}-${index}`"
+	•	    :class="[
+	•	      'flex',
+	•	      message.role === 'user' ? 'justify-end' : 'justify-start'
+	•	    ]"
+	•	  >
+	•	    <div
+	•	      :class="[
+	•	        'max-w-[80%] rounded-lg px-4 py-2',
+	•	        message.role === 'user'
+	•	          ? 'bg-primary text-on-primary'
+	•	          : 'bg-surface-variant text-on-surface-variant'
+	•	      ]"
+	•	    >
+	•	      <p class="whitespace-pre-wrap">{{ message.content }}</p>
+	•	      <p
+	•	        v-if="showTimestamps"
+	•	        class="text-xs mt-1 opacity-70"
+	•	      >
+	•	        {{ formatTimestamp(message.timestamp) }}
+	•	      </p>
+	•	    </div>
+	•	  </div>
+	•	  
+	•	  <!-- Loading Indicator -->
+	•	  <div v-if="chatStore.isLoading" class="flex justify-start">
+	•	    <div class="max-w-[80%] rounded-lg px-4 py-2 bg-surface-variant">
+	•	      <div class="flex items-center gap-2">
+	•	        <div class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"></div>
+	•	        <span class="text-on-surface-variant">AI is thinking...</span>
+	•	      </div>
+	•	    </div>
+	•	  </div>
+	•	</div>
+	•	```
+	•	Message Input Implementation:
+	•	```vue
+	•	<!-- Input Area -->
+	•	<div class="border-t border-outline/30 p-4">
+	•	  <div v-if="chatStore.error" class="mb-2 text-error text-sm">
+	•	    {{ chatStore.error }}
+	•	  </div>
+	•	  <div class="flex gap-2">
+	•	    <textarea
+	•	      ref="messageInputRef"
+	•	      v-model="messageInput"
+	•	      @keydown.enter.exact="handleEnterKey"
+	•	      @keydown.shift.enter="handleShiftEnter"
+	•	      placeholder="Type your message..."
+	•	      :disabled="chatStore.isLoading"
+	•	      class="flex-1 p-3 border rounded-lg resize-none max-h-32 overflow-y-auto"
+	•	      rows="1"
+	•	    />
+	•	    <AppButton
+	•	      variant="filled"
+	•	      @click="handleSend"
+	•	      :disabled="!canSend || chatStore.isLoading"
+	•	      aria-label="Send message"
+	•	    >
+	•	      <span v-if="chatStore.isLoading">Sending...</span>
+	•	      <span v-else>Send</span>
+	•	    </AppButton>
+	•	  </div>
+	•	</div>
+	•	```
+	•	Script Implementation:
+	•	```typescript
+	•	import { ref, computed, watch, nextTick, onMounted } from 'vue'
+	•	import { useChatStore } from '@/stores/chat.store'
+	•	import { storeToRefs } from 'pinia'
+	•	
+	•	const chatStore = useChatStore()
+	•	const { currentChatSession, isLoading, error } = storeToRefs(chatStore)
+	•	
+	•	const messageInput = ref('')
+	•	const messageInputRef = ref<HTMLTextAreaElement | null>(null)
+	•	const messageContainer = ref<HTMLDivElement | null>(null)
+	•	
+	•	const messages = computed(() => {
+	•	  return currentChatSession.value?.messages || []
+	•	})
+	•	
+	•	const hasMessages = computed(() => {
+	•	  return messages.value.length > 0
+	•	})
+	•	
+	•	const canSend = computed(() => {
+	•	  return messageInput.value.trim().length > 0 && !isLoading.value
+	•	})
+	•	
+	•	async function handleSend() {
+	•	  const text = messageInput.value.trim()
+	•	  if (!text || isLoading.value) return
+	•	  
+	•	  try {
+	•	    await chatStore.sendMessage(text)
+	•	    messageInput.value = ''
+	•	    await nextTick()
+	•	    scrollToBottom()
+	•	    messageInputRef.value?.focus()
+	•	  } catch (err) {
+	•	    // Error is handled by chat store, message remains in input
+	•	    console.error('Error sending message:', err)
+	•	  }
+	•	}
+	•	
+	•	function handleEnterKey(e: KeyboardEvent) {
+	•	  if (!e.shiftKey) {
+	•	    e.preventDefault()
+	•	    handleSend()
+	•	  }
+	•	}
+	•	
+	•	function handleShiftEnter() {
+	•	  // Allow default behavior (new line)
+	•	}
+	•	
+	•	function scrollToBottom() {
+	•	  if (messageContainer.value) {
+	•	    messageContainer.value.scrollTop = messageContainer.value.scrollHeight
+	•	  }
+	•	}
+	•	
+	•	// Watch for new messages and auto-scroll
+	•	watch(messages, async () => {
+	•	  await nextTick()
+	•	  scrollToBottom()
+	•	}, { deep: true })
+	•	
+	•	// Auto-focus input on mount
+	•	onMounted(() => {
+	•	  messageInputRef.value?.focus()
+	•	})
+	•	```
+	•	Auto-Resize Textarea:
+	•	```typescript
+	•	function autoResizeTextarea() {
+	•	  if (messageInputRef.value) {
+	•	    messageInputRef.value.style.height = 'auto'
+	•	    const newHeight = Math.min(messageInputRef.value.scrollHeight, 128) // max 4-5 lines
+	•	    messageInputRef.value.style.height = `${newHeight}px`
+	•	   }
+	•	}
+	•	
+	•	watch(messageInput, () => {
+	•	  nextTick(() => {
+	•	    autoResizeTextarea()
+	•	  })
+	•	})
+	•	```
+	•	Timestamp Formatting:
+	•	```typescript
+	•	function formatTimestamp(timestamp: string): string {
+	•	  const date = new Date(timestamp)
+	•	  const now = new Date()
+	•	  const diffMs = now.getTime() - date.getTime()
+	•	  const diffMins = Math.floor(diffMs / 60000)
+	•	  
+	•	  if (diffMins < 1) return 'Just now'
+	•	  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`
+	•	  
+	•	  const diffHours = Math.floor(diffMins / 60)
+	•	  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+	•	  
+	•	  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+	•	}
+	•	```
+	•	File Organization:
+	•	All changes are in `src/views/ChatView.vue` (extending Story 6).
+	•	Test file: `src/views/__tests__/ChatView.spec.ts` (extend existing test file from Story 6).
+	•	Dependencies:
+	•	Import chat store from Story 3.
+	•	Ensure all store methods are available (sendMessage, currentChatSession, isLoading, error).
+	•	Testing:
+	•	Extend the existing test file from Story 6.
+	•	Add new test suites for message display and sending functionality.
+	•	Mock chat store thoroughly.
+	•	Test user interactions (typing, sending, keyboard events).
+	•	Test reactive updates and loading states.
+	•	Follow existing test patterns and naming conventions.
+
