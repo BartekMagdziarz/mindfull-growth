@@ -49,6 +49,7 @@ export const useJournalStore = defineStore('journal', () => {
     emotionIds?: string[]
     peopleTagIds?: string[]
     contextTagIds?: string[]
+    createdAt?: string
   }) {
     error.value = null
     try {

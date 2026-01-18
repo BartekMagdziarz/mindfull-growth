@@ -7,10 +7,67 @@
 
     <!-- Editor Content -->
     <template v-else>
-      <!-- Timestamp Display -->
-      <div class="text-xs uppercase tracking-wide text-on-surface-variant">
-        <p>{{ formattedTimestamp }}</p>
+      <!-- Timestamp Display/Edit -->
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="text-xs uppercase tracking-wide text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2"
+          @click="showDateTimePicker = true"
+          aria-label="Edit date and time"
+        >
+          <CalendarIcon class="w-4 h-4" />
+          <span>{{ formattedTimestamp }}</span>
+          <PencilSquareIcon class="w-3.5 h-3.5 opacity-60" />
+        </button>
       </div>
+
+      <!-- Date/Time Picker Modal -->
+      <Teleport to="body">
+        <Transition name="dialog">
+          <div
+            v-if="showDateTimePicker"
+            class="fixed inset-0 z-50 flex items-center justify-center"
+            @click.self="showDateTimePicker = false"
+          >
+            <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
+            <div
+              class="relative z-10 bg-surface rounded-xl shadow-elevation-3 p-6 max-w-sm w-full mx-4 border border-outline/20"
+              role="dialog"
+              aria-modal="true"
+            >
+              <h2 class="text-lg font-semibold text-on-surface mb-4">Set Date & Time</h2>
+              <div class="space-y-4">
+                <div>
+                  <label for="entry-date" class="block text-sm font-medium text-on-surface-variant mb-1">
+                    Date
+                  </label>
+                  <input
+                    id="entry-date"
+                    type="date"
+                    v-model="selectedDate"
+                    class="w-full p-3 rounded-lg border border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus"
+                  />
+                </div>
+                <div>
+                  <label for="entry-time" class="block text-sm font-medium text-on-surface-variant mb-1">
+                    Time
+                  </label>
+                  <input
+                    id="entry-time"
+                    type="time"
+                    v-model="selectedTime"
+                    class="w-full p-3 rounded-lg border border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus"
+                  />
+                </div>
+              </div>
+              <div class="flex gap-3 justify-end mt-6">
+                <AppButton variant="text" @click="showDateTimePicker = false">Cancel</AppButton>
+                <AppButton variant="filled" @click="applyDateTime">Apply</AppButton>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
 
       <!-- Unified Journal Sheet -->
       <section
@@ -270,7 +327,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
@@ -287,7 +344,7 @@ import type { JournalEntry } from '@/domain/journal'
 import type { Emotion } from '@/domain/emotion'
 import type { ChatIntention, ChatSession } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon, CalendarIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
 const route = useRoute()
@@ -317,6 +374,38 @@ const customPromptDialogRef = ref<HTMLElement | null>(null)
 const showDeleteChatDialog = ref(false)
 const chatSessionToDelete = ref<ChatSession | null>(null)
 
+// Date/time picker state
+const showDateTimePicker = ref(false)
+const customCreatedAt = ref<Date | null>(null)
+const selectedDate = ref('')
+const selectedTime = ref('')
+
+// Initialize date/time picker values
+function initDateTimePicker() {
+  const date = customCreatedAt.value || (isEditMode.value && currentEntry.value
+    ? new Date(currentEntry.value.createdAt)
+    : new Date())
+
+  selectedDate.value = date.toISOString().split('T')[0]
+  selectedTime.value = date.toTimeString().slice(0, 5)
+}
+
+function applyDateTime() {
+  if (selectedDate.value && selectedTime.value) {
+    const [year, month, day] = selectedDate.value.split('-').map(Number)
+    const [hours, minutes] = selectedTime.value.split(':').map(Number)
+    customCreatedAt.value = new Date(year, month - 1, day, hours, minutes)
+  }
+  showDateTimePicker.value = false
+}
+
+// Initialize picker values when modal opens
+watch(showDateTimePicker, (isOpen) => {
+  if (isOpen) {
+    initDateTimePicker()
+  }
+})
+
 // Detect if we're in edit mode (has id param) or create mode
 const isEditMode = computed(() => {
   return !!route.params.id && typeof route.params.id === 'string'
@@ -335,33 +424,36 @@ const canStartChat = computed(() => {
 })
 
 const formattedTimestamp = computed(() => {
-  if (isEditMode.value && currentEntry.value) {
-    // In edit mode, show the entry's createdAt date
-    return formatEntryDate(currentEntry.value.createdAt)
+  // Use custom date if set, otherwise use entry date or current date
+  const dateToFormat = customCreatedAt.value
+    || (isEditMode.value && currentEntry.value ? new Date(currentEntry.value.createdAt) : null)
+
+  if (dateToFormat) {
+    return formatEntryDate(dateToFormat.toISOString())
+  }
+
+  // In create mode with no custom date, show current date
+  const now = new Date()
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const entryDate = new Date(now)
+  entryDate.setHours(0, 0, 0, 0)
+
+  const isToday = entryDate.getTime() === today.getTime()
+
+  if (isToday) {
+    const hours = now.getHours().toString().padStart(2, '0')
+    const minutes = now.getMinutes().toString().padStart(2, '0')
+    return `Today, ${hours}:${minutes}`
   } else {
-    // In create mode, show current date
-    const now = new Date()
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const entryDate = new Date(now)
-    entryDate.setHours(0, 0, 0, 0)
-
-    const isToday = entryDate.getTime() === today.getTime()
-
-    if (isToday) {
-      const hours = now.getHours().toString().padStart(2, '0')
-      const minutes = now.getMinutes().toString().padStart(2, '0')
-      return `Today, ${hours}:${minutes}`
-    } else {
-      return now.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    }
+    return now.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
   }
 })
 
@@ -555,8 +647,11 @@ const saveEntry = async (): Promise<JournalEntry> => {
       ...payload,
     })
   } else {
-    // Create mode: create new entry
-    return await journalStore.createEntry(payload)
+    // Create mode: create new entry with optional custom date
+    return await journalStore.createEntry({
+      ...payload,
+      createdAt: customCreatedAt.value?.toISOString(),
+    })
   }
 }
 

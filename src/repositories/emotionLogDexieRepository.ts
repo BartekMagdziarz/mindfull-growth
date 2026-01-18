@@ -30,13 +30,13 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
   }
 
   async create(
-    data: Omit<EmotionLog, 'id' | 'createdAt' | 'updatedAt'>
+    data: Omit<EmotionLog, 'id' | 'createdAt' | 'updatedAt'> & { createdAt?: string }
   ): Promise<EmotionLog> {
     try {
       const now = new Date().toISOString()
       const log: EmotionLog = {
         id: crypto.randomUUID(),
-        createdAt: now,
+        createdAt: data.createdAt || now,
         updatedAt: now,
         ...data,
       }

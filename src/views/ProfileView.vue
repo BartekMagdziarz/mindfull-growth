@@ -68,6 +68,26 @@
       </AppButton>
     </AppCard>
 
+    <!-- Developer Tools Section -->
+    <AppCard class="mt-6">
+      <h3 class="text-xl font-semibold text-on-surface mb-2">Developer Tools</h3>
+      <p class="text-sm text-on-surface-variant mb-4">
+        Tools for testing and development. These will be removed in production.
+      </p>
+
+      <AppButton
+        variant="tonal"
+        :disabled="isSeeding"
+        @click="handleSeedMockData"
+      >
+        <span v-if="isSeeding">Seeding data...</span>
+        <span v-else>Seed Mock Data (Jan 12-18)</span>
+      </AppButton>
+      <p class="mt-2 text-xs text-on-surface-variant">
+        Creates sample journal entries and emotion logs for testing the periodic entries feature.
+      </p>
+    </AppCard>
+
     <!-- Snackbar for feedback -->
     <AppSnackbar ref="snackbarRef" />
   </div>
@@ -79,10 +99,12 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
+import { seedMockData } from '@/utils/seedMockData'
 
 const API_KEY_STORAGE_KEY = 'openaiApiKey'
 
 const apiKey = ref('')
+const isSeeding = ref(false)
 const apiKeyError = ref('')
 const isSaving = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
@@ -122,6 +144,23 @@ async function handleSave() {
     console.error('Error saving API key:', error)
   } finally {
     isSaving.value = false
+  }
+}
+
+async function handleSeedMockData() {
+  isSeeding.value = true
+  try {
+    await seedMockData()
+    snackbarRef.value?.show('Mock data seeded successfully! Check Journal and Emotions views.')
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Failed to seed mock data. Please try again.'
+    snackbarRef.value?.show(errorMessage)
+    console.error('Error seeding mock data:', error)
+  } finally {
+    isSeeding.value = false
   }
 }
 

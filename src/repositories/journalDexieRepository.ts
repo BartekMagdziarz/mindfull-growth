@@ -4,6 +4,7 @@ import type { JournalRepository } from './journalRepository'
 import type { PeopleTag } from '@/domain/tag'
 import type { ContextTag } from '@/domain/tag'
 import type { EmotionLog } from '@/domain/emotionLog'
+import type { PeriodicEntry } from '@/domain/periodicEntry'
 
 // Define the database schema
 export class MindfullGrowthDatabase extends Dexie {
@@ -12,6 +13,7 @@ export class MindfullGrowthDatabase extends Dexie {
   contextTags!: Table<ContextTag, string>
   emotionLogs!: Table<EmotionLog, string>
   userSettings!: Table<{ key: string; value: string }, string>
+  periodicEntries!: Table<PeriodicEntry, string>
 
   constructor() {
     super('MindfullGrowthDB')
@@ -89,6 +91,10 @@ export class MindfullGrowthDatabase extends Dexie {
         // The migration will be retried on next app start
       }
     })
+    this.version(6).stores({
+      // Add periodicEntries table with indexes for efficient lookups
+      periodicEntries: 'id, type, periodStartDate, [type+periodStartDate]',
+    })
   }
 }
 
@@ -116,13 +122,13 @@ class JournalDexieRepository implements JournalRepository {
   }
 
   async create(
-    data: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>
+    data: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'> & { createdAt?: string }
   ): Promise<JournalEntry> {
     try {
       const now = new Date().toISOString()
       const entry: JournalEntry = {
         id: crypto.randomUUID(),
-        createdAt: now,
+        createdAt: data.createdAt || now,
         updatedAt: now,
         ...data,
       }

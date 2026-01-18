@@ -7,10 +7,67 @@
 
     <!-- Editor Content -->
     <template v-else>
-      <!-- Timestamp Display -->
-      <div class="text-xs uppercase tracking-wide text-on-surface-variant">
-        <p>{{ formattedTimestamp }}</p>
+      <!-- Timestamp Display/Edit -->
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="text-xs uppercase tracking-wide text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2"
+          @click="showDateTimePicker = true"
+          aria-label="Edit date and time"
+        >
+          <CalendarIcon class="w-4 h-4" />
+          <span>{{ formattedTimestamp }}</span>
+          <PencilSquareIcon class="w-3.5 h-3.5 opacity-60" />
+        </button>
       </div>
+
+      <!-- Date/Time Picker Modal -->
+      <Teleport to="body">
+        <Transition name="dialog">
+          <div
+            v-if="showDateTimePicker"
+            class="fixed inset-0 z-50 flex items-center justify-center"
+            @click.self="showDateTimePicker = false"
+          >
+            <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
+            <div
+              class="relative z-10 bg-surface rounded-xl shadow-elevation-3 p-6 max-w-sm w-full mx-4 border border-outline/20"
+              role="dialog"
+              aria-modal="true"
+            >
+              <h2 class="text-lg font-semibold text-on-surface mb-4">Set Date & Time</h2>
+              <div class="space-y-4">
+                <div>
+                  <label for="log-date" class="block text-sm font-medium text-on-surface-variant mb-1">
+                    Date
+                  </label>
+                  <input
+                    id="log-date"
+                    type="date"
+                    v-model="selectedDate"
+                    class="w-full p-3 rounded-lg border border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus"
+                  />
+                </div>
+                <div>
+                  <label for="log-time" class="block text-sm font-medium text-on-surface-variant mb-1">
+                    Time
+                  </label>
+                  <input
+                    id="log-time"
+                    type="time"
+                    v-model="selectedTime"
+                    class="w-full p-3 rounded-lg border border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus"
+                  />
+                </div>
+              </div>
+              <div class="flex gap-3 justify-end mt-6">
+                <AppButton variant="text" @click="showDateTimePicker = false">Cancel</AppButton>
+                <AppButton variant="filled" @click="applyDateTime">Apply</AppButton>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
 
       <!-- Emotions + Note Row -->
       <section class="space-y-3">
@@ -139,7 +196,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
@@ -152,7 +209,7 @@ import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieReposit
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { Emotion } from '@/domain/emotion'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon, CalendarIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
 const route = useRoute()
@@ -180,6 +237,38 @@ const arePeopleTagsLoading = ref(false)
 const areContextTagsLoading = ref(false)
 const hasLoadedPeopleTags = ref(tagStore.peopleTags.length > 0)
 const hasLoadedContextTags = ref(tagStore.contextTags.length > 0)
+
+// Date/time picker state
+const showDateTimePicker = ref(false)
+const customCreatedAt = ref<Date | null>(null)
+const selectedDate = ref('')
+const selectedTime = ref('')
+
+// Initialize date/time picker values
+function initDateTimePicker() {
+  const date = customCreatedAt.value || (isEditMode.value && currentLog.value
+    ? new Date(currentLog.value.createdAt)
+    : new Date())
+
+  selectedDate.value = date.toISOString().split('T')[0]
+  selectedTime.value = date.toTimeString().slice(0, 5)
+}
+
+function applyDateTime() {
+  if (selectedDate.value && selectedTime.value) {
+    const [year, month, day] = selectedDate.value.split('-').map(Number)
+    const [hours, minutes] = selectedTime.value.split(':').map(Number)
+    customCreatedAt.value = new Date(year, month - 1, day, hours, minutes)
+  }
+  showDateTimePicker.value = false
+}
+
+// Initialize picker values when modal opens
+watch(showDateTimePicker, (isOpen) => {
+  if (isOpen) {
+    initDateTimePicker()
+  }
+})
 
 const isEditMode = computed(() => {
   return !!route.params.id && typeof route.params.id === 'string'
@@ -216,10 +305,15 @@ const removeEmotion = (id: string) => {
 }
 
 const formattedTimestamp = computed(() => {
-  if (isEditMode.value && currentLog.value) {
-    return `Created on ${formatEntryDate(currentLog.value.createdAt)}`
+  // Use custom date if set, otherwise use log date or current date
+  const dateToFormat = customCreatedAt.value
+    || (isEditMode.value && currentLog.value ? new Date(currentLog.value.createdAt) : null)
+
+  if (dateToFormat) {
+    return formatEntryDate(dateToFormat.toISOString())
   }
 
+  // In create mode with no custom date, show current date
   const now = new Date()
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -370,7 +464,11 @@ const handleSave = async () => {
         ...payload,
       })
     } else {
-      await emotionLogStore.createLog(payload)
+      // Create mode: include optional custom date
+      await emotionLogStore.createLog({
+        ...payload,
+        createdAt: customCreatedAt.value?.toISOString(),
+      })
     }
 
     await showSnackbarThenNavigate('Emotion log saved successfully.', '/emotions')
@@ -400,3 +498,26 @@ onMounted(async () => {
   await Promise.all(dataPromises)
 })
 </script>
+
+<style scoped>
+.dialog-enter-active,
+.dialog-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.dialog-enter-active .bg-surface,
+.dialog-leave-active .bg-surface {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.dialog-enter-from,
+.dialog-leave-to {
+  opacity: 0;
+}
+
+.dialog-enter-from .bg-surface,
+.dialog-leave-to .bg-surface {
+  transform: scale(0.95);
+  opacity: 0;
+}
+</style>

@@ -6,6 +6,8 @@ import EmotionsView from '@/views/EmotionsView.vue'
 import EmotionLogEditorView from '@/views/EmotionLogEditorView.vue'
 import ExercisesView from '@/views/ExercisesView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import PeriodicView from '@/views/PeriodicView.vue'
+import PeriodicEntryEditorView from '@/views/PeriodicEntryEditorView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -41,6 +43,21 @@ const router = createRouter({
       meta: {
         title: 'Chat about entry',
       },
+    },
+    {
+      path: '/periodic',
+      name: 'periodic',
+      component: PeriodicView,
+    },
+    {
+      path: '/periodic/new/:type',
+      name: 'periodic-new',
+      component: PeriodicEntryEditorView,
+    },
+    {
+      path: '/periodic/:id',
+      name: 'periodic-view',
+      component: PeriodicEntryEditorView,
     },
     {
       path: '/emotions',

@@ -304,7 +304,7 @@ const handleGuidedClick = () => {
 }
 
 const handlePeriodicClick = () => {
-  snackbarRef.value?.show('Coming soon')
+  router.push('/periodic')
 }
 
 const handleCardClick = (entryId: string) => {
