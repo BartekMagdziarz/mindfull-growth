@@ -24,7 +24,6 @@
           :value="modelValue[index] || ''"
           type="text"
           class="flex-1 p-3 rounded-xl border border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
-          :placeholder="getPlaceholder(index)"
           @input="updateItem(index, ($event.target as HTMLInputElement).value)"
         />
       </div>
@@ -43,16 +42,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: string[]]
 }>()
-
-const placeholders = [
-  'Something that made you smile...',
-  'Someone you appreciate...',
-  'A moment that brought you joy...',
-]
-
-function getPlaceholder(index: number): string {
-  return placeholders[index] || 'Something you\'re grateful for...'
-}
 
 function updateItem(index: number, value: string) {
   const newItems = [...props.modelValue]

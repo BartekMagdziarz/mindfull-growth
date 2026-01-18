@@ -20,7 +20,6 @@
         <textarea
           :value="reflection"
           class="w-full min-h-[100px] p-4 rounded-xl border border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant resize-y focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
-          placeholder="Reflect on your intention..."
           @input="$emit('update:reflection', ($event.target as HTMLTextAreaElement).value)"
         />
       </div>
@@ -31,7 +30,6 @@
       <h2 class="text-lg font-semibold text-on-surface flex items-center gap-2">
         <FlagIcon class="w-5 h-5 text-primary" />
         Intention for {{ periodLabel }}
-        <span class="text-sm font-normal text-on-surface-variant">(optional)</span>
       </h2>
 
       <p class="text-sm text-on-surface-variant">
@@ -41,7 +39,6 @@
       <textarea
         :value="intention"
         class="w-full min-h-[80px] p-4 rounded-xl border border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant resize-y focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
-        placeholder="e.g., Practice gratitude daily, Be more present in conversations..."
         @input="$emit('update:intention', ($event.target as HTMLTextAreaElement).value)"
       />
     </template>

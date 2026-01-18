@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-6 pb-24">
+  <div class="mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 pb-24">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
       <button
@@ -39,85 +39,134 @@
         mode="reflection"
       />
 
-      <!-- Emotion Cloud Section -->
-      <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface flex items-center gap-2">
-          <SparklesIcon class="w-5 h-5 text-primary" />
-          Your {{ periodTypeLabel }} in Emotions
-        </h2>
-        <EmotionCloud
-          :emotion-frequency="aggregatedData.emotionFrequency"
-          :empty-message="`No emotions logged this ${periodTypeLabel.toLowerCase()}`"
+      <template v-if="isWeekly">
+        <WeeklyTimeline :day-summaries="weeklyDaySummaries" />
+
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <ListInputSection
+            v-model="form.wins"
+            title="Wins"
+            icon="trophy"
+            placeholder="Add a win..."
+            empty-message="What went well?"
+            class="bg-section/30 border border-outline/40"
+          />
+          <ListInputSection
+            v-model="form.challenges"
+            title="Challenges"
+            icon="mountain"
+            placeholder="Add a challenge..."
+            empty-message="What was difficult?"
+            class="bg-section/30 border border-outline/40"
+          />
+          <ListInputSection
+            v-model="form.learnings"
+            title="Learnings"
+            icon="lightbulb"
+            placeholder="Add a learning..."
+            empty-message="What did you learn?"
+            class="bg-section/30 border border-outline/40"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <GratitudeSection v-model="form.gratitude" class="bg-section/30 border border-outline/40" />
+          <IntentionSection
+            v-model:intention="form.intention"
+            :period-label="nextPeriodLabel"
+            mode="set"
+            class="bg-section/30 border border-outline/40"
+          />
+        </div>
+
+        <AppCard padding="lg" class="space-y-4 bg-section/20 border border-outline/40">
+          <h2 class="text-lg font-semibold text-on-surface flex items-center gap-2">
+            <PencilIcon class="w-5 h-5 text-primary" />
+            Free Writing
+          </h2>
+          <textarea
+            v-model="form.freeWriting"
+            class="w-full min-h-[150px] p-4 rounded-xl border border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant resize-y focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
+          />
+        </AppCard>
+
+      </template>
+
+      <template v-else>
+        <!-- Emotion Cloud Section -->
+        <AppCard padding="lg" class="space-y-4">
+          <h2 class="text-lg font-semibold text-on-surface flex items-center gap-2">
+            <SparklesIcon class="w-5 h-5 text-primary" />
+            Your {{ periodTypeLabel }} in Emotions
+          </h2>
+          <EmotionCloud
+            :emotion-frequency="aggregatedData.emotionFrequency"
+            :empty-message="`No emotions logged this ${periodTypeLabel.toLowerCase()}`"
+          />
+        </AppCard>
+
+        <!-- Tags & Emotions Section -->
+        <AppCard padding="lg" class="space-y-4">
+          <h2 class="text-lg font-semibold text-on-surface flex items-center gap-2">
+            <TagIcon class="w-5 h-5 text-primary" />
+            Tags & Emotions
+          </h2>
+          <TagEmotionList
+            :associations="aggregatedData.tagEmotionAssociations"
+            :empty-message="`No tags used this ${periodTypeLabel.toLowerCase()}`"
+          />
+        </AppCard>
+
+        <!-- Wins Section -->
+        <ListInputSection
+          v-model="form.wins"
+          title="Wins"
+          icon="trophy"
+          placeholder="Add a win..."
+          empty-message="What went well?"
         />
-      </AppCard>
 
-      <!-- Tags & Emotions Section -->
-      <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface flex items-center gap-2">
-          <TagIcon class="w-5 h-5 text-primary" />
-          Tags & Emotions
-        </h2>
-        <TagEmotionList
-          :associations="aggregatedData.tagEmotionAssociations"
-          :empty-message="`No tags used this ${periodTypeLabel.toLowerCase()}`"
+        <!-- Challenges Section -->
+        <ListInputSection
+          v-model="form.challenges"
+          title="Challenges"
+          icon="mountain"
+          placeholder="Add a challenge..."
+          empty-message="What was difficult?"
         />
-      </AppCard>
 
-      <!-- Wins Section -->
-      <ListInputSection
-        v-model="form.wins"
-        title="Wins"
-        icon="trophy"
-        placeholder="Add a win..."
-        empty-message="What went well?"
-      />
-
-      <!-- Challenges Section -->
-      <ListInputSection
-        v-model="form.challenges"
-        title="Challenges"
-        icon="mountain"
-        placeholder="Add a challenge..."
-        empty-message="What was difficult?"
-      />
-
-      <!-- Learnings Section -->
-      <ListInputSection
-        v-model="form.learnings"
-        title="Learnings"
-        icon="lightbulb"
-        placeholder="Add a learning..."
-        empty-message="What did you learn?"
-      />
-
-      <!-- Gratitude Section -->
-      <GratitudeSection v-model="form.gratitude" />
-
-      <!-- Free Writing Section -->
-      <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface flex items-center gap-2">
-          <PencilIcon class="w-5 h-5 text-primary" />
-          Free Writing
-        </h2>
-        <textarea
-          v-model="form.freeWriting"
-          class="w-full min-h-[150px] p-4 rounded-xl border border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant resize-y focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
-          placeholder="Write freely about your reflections..."
+        <!-- Learnings Section -->
+        <ListInputSection
+          v-model="form.learnings"
+          title="Learnings"
+          icon="lightbulb"
+          placeholder="Add a learning..."
+          empty-message="What did you learn?"
         />
-      </AppCard>
 
-      <!-- Intention for Next Period -->
-      <IntentionSection
-        v-model:intention="form.intention"
-        :period-label="nextPeriodLabel"
-        mode="set"
-      />
+        <!-- Gratitude Section -->
+        <GratitudeSection v-model="form.gratitude" />
 
-      <!-- Entries Summary -->
-      <EntriesSummary
-        :journal-entry-ids="aggregatedData.journalEntryIds"
-        :emotion-log-ids="aggregatedData.emotionLogIds"
-      />
+        <!-- Free Writing Section -->
+        <AppCard padding="lg" class="space-y-4">
+          <h2 class="text-lg font-semibold text-on-surface flex items-center gap-2">
+            <PencilIcon class="w-5 h-5 text-primary" />
+            Free Writing
+          </h2>
+          <textarea
+            v-model="form.freeWriting"
+            class="w-full min-h-[150px] p-4 rounded-xl border border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant resize-y focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
+          />
+        </AppCard>
+
+        <!-- Intention for Next Period -->
+        <IntentionSection
+          v-model:intention="form.intention"
+          :period-label="nextPeriodLabel"
+          mode="set"
+        />
+
+      </template>
 
       <!-- Action Buttons -->
       <div class="flex gap-4 justify-end pt-4">
@@ -148,16 +197,17 @@ import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionCloud from '@/components/periodic/EmotionCloud.vue'
 import TagEmotionList from '@/components/periodic/TagEmotionList.vue'
+import WeeklyTimeline from '@/components/periodic/WeeklyTimeline.vue'
 import ListInputSection from '@/components/periodic/ListInputSection.vue'
 import GratitudeSection from '@/components/periodic/GratitudeSection.vue'
 import IntentionSection from '@/components/periodic/IntentionSection.vue'
-import EntriesSummary from '@/components/periodic/EntriesSummary.vue'
 import { usePeriodicEntryStore } from '@/stores/periodicEntry.store'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import { aggregatePeriodData } from '@/services/periodAggregation'
+import { buildWeeklyDaySummaries } from '@/services/periodTimeline'
 import {
   getPeriodRange,
   formatDateRange,
@@ -169,6 +219,7 @@ import type {
   PeriodicEntryType,
   PeriodAggregatedData,
 } from '@/domain/periodicEntry'
+import type { PeriodRange } from '@/utils/periodUtils'
 
 const route = useRoute()
 const router = useRouter()
@@ -207,6 +258,27 @@ const pageTitle = computed(() =>
   `${periodTypeLabel.value} Review: ${periodDateRange.value}`
 )
 const nextPeriodLabel = computed(() => `next ${periodTypeLabel.value.toLowerCase()}`)
+
+const isWeekly = computed(() => periodType.value === 'weekly')
+
+const weeklyRange = computed<PeriodRange>(() => {
+  if (aggregatedData.value.periodStartDate && aggregatedData.value.periodEndDate) {
+    const start = parseISODate(aggregatedData.value.periodStartDate)
+    const end = parseISODate(aggregatedData.value.periodEndDate)
+    end.setHours(23, 59, 59, 999)
+    return { start, end }
+  }
+  return getPeriodRange('weekly')
+})
+
+const weeklyDaySummaries = computed(() => {
+  if (!isWeekly.value) return []
+  return buildWeeklyDaySummaries({
+    journalEntries: journalStore.entries,
+    emotionLogs: emotionLogStore.logs,
+    range: weeklyRange.value,
+  })
+})
 
 // Aggregated data
 const aggregatedData = ref<PeriodAggregatedData>({
@@ -370,6 +442,11 @@ async function handleSave() {
 
 function handleCancel() {
   router.push('/periodic')
+}
+
+function parseISODate(isoDate: string): Date {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return new Date(year, month - 1, day)
 }
 
 onMounted(() => {

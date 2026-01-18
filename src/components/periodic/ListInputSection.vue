@@ -25,7 +25,6 @@
           :value="item"
           type="text"
           class="flex-1 p-2 rounded-lg border border-outline/30 bg-transparent text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
-          :placeholder="placeholder"
           @input="updateItem(index, ($event.target as HTMLInputElement).value)"
           @keydown.enter.prevent="addItem"
         />
