@@ -1,160 +1,94 @@
 <template>
   <div class="tag-input">
-    <!-- Selected Tags Section -->
-    <div v-if="!props.hideSelectedSection" :class="[props.compact ? 'mb-3' : 'mb-4']">
-      <template v-if="selectedTagIds.length > 0">
-        <p
-          v-if="!props.compact"
-          class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2"
-        >
-          Selected {{ tagTypeLabel }} Tags ({{ selectedTagIds.length }})
-        </p>
-        <p
-          v-else
-          class="text-[0.7rem] font-medium text-on-surface-variant mb-2"
-        >
-          {{ selectedTagIds.length }} selected
-        </p>
-        <div
-          class="flex flex-wrap gap-2 overflow-x-auto pb-1"
-          role="list"
-          :aria-label="`Selected ${tagTypeLabel.toLowerCase()} tags`"
-        >
-          <button
-            v-for="tag in selectedTags"
-            :key="tag.id"
-            type="button"
-            :aria-label="`Remove ${tag.name} from selection`"
-            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium shadow-elevation-1 hover:shadow-elevation-2 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
-            @click="removeTag(tag.id)"
-          >
-            <span>{{ tag.name }}</span>
-            <XMarkIcon class="w-4 h-4" aria-hidden="true" />
-          </button>
-        </div>
-      </template>
-      <div
-        v-else
-        class="rounded-2xl border border-outline/30 bg-section text-[0.75rem] text-on-surface-variant px-3 py-2 text-center"
+    <!-- Tags Container -->
+    <div
+      class="flex flex-wrap gap-2 items-center"
+      role="group"
+      :aria-label="`${tagTypeLabel} tags`"
+    >
+      <!-- Add Button (always first) -->
+      <button
+        v-if="!isCreatingTag"
+        type="button"
+        class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-chip text-chip-text hover:bg-section focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
+        :aria-label="`Add new ${tagTypeLabel.toLowerCase()} tag`"
+        @click="startCreateTag"
       >
-        No {{ tagTypeLabel.toLowerCase() }} tags selected
-      </div>
-    </div>
+        <PlusIcon class="w-4 h-4" aria-hidden="true" />
+      </button>
 
-    <!-- Tag Creation Input -->
-    <div :class="[props.compact ? 'mb-3' : 'mb-4']">
-      <label
-        :for="inputId"
-        :class="[
-          props.compact
-            ? 'sr-only'
-            : 'block text-xs font-semibold uppercase tracking-wide text-on-surface mb-1',
-        ]"
+      <!-- Creating New Tag (appears after + button position) -->
+      <div
+        v-if="isCreatingTag"
+        class="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-soft ring-2 ring-primary text-on-surface text-xs font-medium transition-all duration-200"
       >
-        Add {{ tagTypeLabel.toLowerCase() }} tag
-      </label>
-      <div class="relative">
         <input
-          :id="inputId"
-          v-model="inputValue"
+          ref="createInputRef"
+          v-model="newTagName"
           type="text"
-          :placeholder="`Type to create or select a ${tagTypeLabel.toLowerCase()} tag...`"
-          class="w-full px-3 py-2 rounded-2xl border border-chip-border bg-surface text-sm text-on-surface placeholder:text-on-surface/70 focus:outline-none focus:ring-2 focus:ring-focus focus:border-primary transition-all duration-200"
-          :aria-label="`Add ${tagTypeLabel.toLowerCase()} tag`"
-          :aria-expanded="showSuggestions"
-          :aria-controls="suggestionsId"
-          @input="handleInput"
-          @keydown="handleKeydown"
-          @focus="handleInputFocus"
-          @blur="handleInputBlur"
+          class="bg-transparent border-none outline-none w-20 min-w-0 text-xs"
+          placeholder="Tag name"
+          :aria-label="`New ${tagTypeLabel.toLowerCase()} tag name`"
+          @keydown.enter.prevent="saveNewTag"
+          @keydown.escape.prevent="cancelCreate"
+          @blur="handleCreateBlur"
         />
-        <!-- Autocomplete Suggestions -->
+      </div>
+
+      <!-- Existing Tags -->
+      <template v-for="tag in availableTags" :key="tag.id">
+        <!-- Edit Mode -->
         <div
-          v-if="showSuggestions && filteredSuggestions.length > 0"
-          :id="suggestionsId"
-          class="absolute z-10 w-full mt-1 bg-surface border border-chip-border rounded-2xl shadow-elevation-3 max-h-60 overflow-y-auto"
-          role="listbox"
-          :aria-label="`${tagTypeLabel} tag suggestions`"
+          v-if="editingTagId === tag.id"
+          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary-soft ring-2 ring-primary text-on-surface text-xs font-medium transition-all duration-200"
         >
+          <input
+            ref="editInputRef"
+            v-model="editingTagName"
+            type="text"
+            class="bg-transparent border-none outline-none w-20 min-w-0 text-xs"
+            :aria-label="`Edit ${tagTypeLabel.toLowerCase()} tag name`"
+            @keydown.enter.prevent="saveEditTag"
+            @keydown.escape.prevent="cancelEdit"
+            @blur="handleEditBlur"
+          />
           <button
-            v-for="(tag, index) in filteredSuggestions"
-            :key="tag.id"
             type="button"
-            :class="[
-              'w-full px-3 py-2 text-left text-sm text-on-surface hover:bg-section focus:bg-section-strong focus:outline-none transition-colors rounded-2xl',
-              highlightedIndex === index ? 'bg-section-strong' : '',
-            ]"
-            :aria-label="`Select ${tag.name}`"
-            :aria-selected="highlightedIndex === index"
-            @click="selectSuggestion(tag.id)"
-            @mouseenter="highlightedIndex = index"
+            class="p-0.5 rounded-full hover:bg-error/20 text-error transition-colors"
+            :aria-label="`Delete ${tag.name}`"
+            @mousedown.prevent="deleteTag(tag.id)"
           >
-            {{ tag.name }}
+            <XMarkIcon class="w-3.5 h-3.5" aria-hidden="true" />
           </button>
         </div>
-      </div>
-      <p v-if="errorMessage" class="mt-1 text-xs text-error">
-        {{ errorMessage }}
-      </p>
-    </div>
 
-    <!-- Loading State -->
-    <div v-if="tagStore.isLoading" class="text-center py-4 text-sm">
-      <p class="text-on-surface-variant">Loading tags...</p>
-    </div>
-
-    <!-- Existing Tags Display -->
-    <div v-else-if="availableTags.length > 0">
-      <h2
-        :class="
-          props.compact
-            ? 'sr-only'
-            : 'text-xs font-semibold uppercase tracking-wide text-on-surface mb-2'
-        "
-      >
-        Select {{ tagTypeLabel }} Tags
-      </h2>
-      <div
-        :class="[
-          'grid grid-cols-1 sm:grid-cols-2',
-          props.compact ? 'gap-1.5' : 'gap-2',
-        ]"
-        role="list"
-        :aria-label="`Available ${tagTypeLabel.toLowerCase()} tags`"
-      >
+        <!-- Normal Display Mode -->
         <button
-          v-for="tag in availableTags"
-          :key="tag.id"
+          v-else
           type="button"
           :aria-label="`${isTagSelected(tag.id) ? 'Deselect' : 'Select'} ${tagTypeLabel.toLowerCase()} tag ${tag.name}`"
           :aria-pressed="isTagSelected(tag.id)"
-          :class="getTagChipClasses(tag.id)"
-          @click="toggleTag(tag.id)"
+          :class="getTagClasses(tag.id)"
+          @click="handleTagClick(tag.id)"
+          @dblclick="startEditTag(tag)"
         >
           {{ tag.name }}
         </button>
-      </div>
+      </template>
     </div>
 
-    <!-- Empty State -->
-    <div
-      v-else
-      :class="[
-        'text-center rounded-2xl bg-section text-on-surface-variant border border-outline/30',
-        props.compact ? 'py-3 text-xs' : 'py-4 text-sm',
-      ]"
-    >
-      No {{ tagTypeLabel.toLowerCase() }} tags available. Create one above.
-    </div>
+    <!-- Error Message -->
+    <p v-if="errorMessage" class="mt-2 text-xs text-error">
+      {{ errorMessage }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import type { PeopleTag } from '@/domain/tag'
-import type { ContextTag } from '@/domain/tag'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import type { PeopleTag, ContextTag } from '@/domain/tag'
 import { useTagStore } from '@/stores/tag.store'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import { XMarkIcon, PlusIcon } from '@heroicons/vue/24/outline'
 
 interface Props {
   modelValue: string[]
@@ -174,15 +108,29 @@ const emit = defineEmits<{
 }>()
 
 const tagStore = useTagStore()
-const selectedTagIds = ref<string[]>([])
-const inputValue = ref('')
-const showSuggestions = ref(false)
-const highlightedIndex = ref(-1)
-const errorMessage = ref('')
-const inputId = `tag-input-${Math.random().toString(36).substr(2, 9)}`
-const suggestionsId = `tag-suggestions-${Math.random().toString(36).substr(2, 9)}`
 
-// Computed properties
+// Selection state
+const selectedTagIds = ref<string[]>([])
+
+// Edit mode state
+const editingTagId = ref<string | null>(null)
+const editingTagName = ref('')
+const editInputRef = ref<HTMLInputElement | null>(null)
+
+// Create mode state
+const isCreatingTag = ref(false)
+const newTagName = ref('')
+const createInputRef = ref<HTMLInputElement | null>(null)
+
+// Error state
+const errorMessage = ref('')
+
+// Click tracking for double-click detection
+const lastClickTime = ref(0)
+const lastClickedTagId = ref<string | null>(null)
+const DOUBLE_CLICK_THRESHOLD = 300
+
+// Computed
 const tagTypeLabel = computed(() => {
   return props.tagType === 'people' ? 'People' : 'Context'
 })
@@ -193,38 +141,42 @@ const availableTags = computed(() => {
     : tagStore.contextTags
 })
 
-const selectedTags = computed(() => {
-  return selectedTagIds.value
-    .map((id) => {
-      if (props.tagType === 'people') {
-        return tagStore.getPeopleTagById(id)
-      } else {
-        return tagStore.getContextTagById(id)
-      }
-    })
-    .filter((tag): tag is PeopleTag | ContextTag => tag !== undefined)
-})
+// Methods
+function isTagSelected(tagId: string): boolean {
+  return selectedTagIds.value.includes(tagId)
+}
 
-const filteredSuggestions = computed(() => {
-  if (!inputValue.value.trim()) {
-    return []
+function getTagClasses(tagId: string): string {
+  const isSelected = isTagSelected(tagId)
+  const baseClasses =
+    'px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background active:scale-[0.95]'
+
+  if (isSelected) {
+    return `${baseClasses} bg-primary text-on-primary shadow-elevation-1`
+  } else {
+    return `${baseClasses} bg-chip text-chip-text hover:bg-section`
+  }
+}
+
+function handleTagClick(tagId: string) {
+  const now = Date.now()
+  const timeSinceLastClick = now - lastClickTime.value
+  const isSameTag = lastClickedTagId.value === tagId
+
+  // Update click tracking
+  lastClickTime.value = now
+  lastClickedTagId.value = tagId
+
+  // Check for double-click (but don't toggle on first click of double-click)
+  if (isSameTag && timeSinceLastClick < DOUBLE_CLICK_THRESHOLD) {
+    // This is a double-click - don't toggle, let @dblclick handle it
+    return
   }
 
-  const searchTerm = inputValue.value.toLowerCase().trim()
-  const matchingTags = availableTags.value.filter((tag) =>
-    tag.name.toLowerCase().includes(searchTerm)
-  )
+  // Single click - toggle selection
+  toggleTag(tagId)
+}
 
-  // Filter out already selected tags
-  const unselectedMatchingTags = matchingTags.filter(
-    (tag) => !selectedTagIds.value.includes(tag.id)
-  )
-
-  // Limit to 10 suggestions
-  return unselectedMatchingTags.slice(0, 10)
-})
-
-// Methods
 function toggleTag(tagId: string) {
   const index = selectedTagIds.value.indexOf(tagId)
   if (index > -1) {
@@ -235,96 +187,19 @@ function toggleTag(tagId: string) {
   emit('update:modelValue', [...selectedTagIds.value])
 }
 
-function removeTag(tagId: string) {
-  const index = selectedTagIds.value.indexOf(tagId)
-  if (index > -1) {
-    selectedTagIds.value.splice(index, 1)
-    emit('update:modelValue', [...selectedTagIds.value])
-  }
-}
-
-function isTagSelected(tagId: string): boolean {
-  return selectedTagIds.value.includes(tagId)
-}
-
-function getTagChipClasses(tagId: string): string {
-  const isSelected = isTagSelected(tagId)
-  const baseClasses =
-    'px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background active:scale-[0.95]'
-
-  if (isSelected) {
-    return `${baseClasses} bg-primary text-on-primary shadow-elevation-1 hover:shadow-elevation-2`
-  } else {
-    return `${baseClasses} bg-chip border border-chip-border text-chip-text hover:bg-section`
-  }
-}
-
-async function handleInput() {
+// Create tag functions
+async function startCreateTag() {
+  isCreatingTag.value = true
+  newTagName.value = ''
   errorMessage.value = ''
-  showSuggestions.value = inputValue.value.trim().length > 0
-  highlightedIndex.value = -1
+  await nextTick()
+  createInputRef.value?.focus()
 }
 
-function handleInputFocus() {
-  if (inputValue.value.trim().length > 0) {
-    showSuggestions.value = true
-  }
-}
-
-function handleInputBlur() {
-  // Delay hiding suggestions to allow click events on suggestions
-  setTimeout(() => {
-    showSuggestions.value = false
-    highlightedIndex.value = -1
-  }, 200)
-}
-
-function selectSuggestion(tagId: string) {
-  if (!selectedTagIds.value.includes(tagId)) {
-    selectedTagIds.value.push(tagId)
-    emit('update:modelValue', [...selectedTagIds.value])
-  }
-  inputValue.value = ''
-  showSuggestions.value = false
-  highlightedIndex.value = -1
-}
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Enter') {
-    event.preventDefault()
-    if (highlightedIndex.value >= 0 && filteredSuggestions.value.length > 0) {
-      // Select highlighted suggestion
-      const highlightedTag = filteredSuggestions.value[highlightedIndex.value]
-      selectSuggestion(highlightedTag.id)
-    } else {
-      // Create new tag or select existing
-      handleCreateTag()
-    }
-  } else if (event.key === 'ArrowDown') {
-    event.preventDefault()
-    if (filteredSuggestions.value.length > 0) {
-      highlightedIndex.value = Math.min(
-        highlightedIndex.value + 1,
-        filteredSuggestions.value.length - 1
-      )
-      showSuggestions.value = true
-    }
-  } else if (event.key === 'ArrowUp') {
-    event.preventDefault()
-    if (filteredSuggestions.value.length > 0) {
-      highlightedIndex.value = Math.max(highlightedIndex.value - 1, -1)
-      showSuggestions.value = true
-    }
-  } else if (event.key === 'Escape') {
-    showSuggestions.value = false
-    highlightedIndex.value = -1
-  }
-}
-
-async function handleCreateTag() {
-  const trimmedValue = inputValue.value.trim()
-  if (!trimmedValue) {
-    errorMessage.value = 'Tag name cannot be empty'
+async function saveNewTag() {
+  const trimmedName = newTagName.value.trim()
+  if (!trimmedName) {
+    cancelCreate()
     return
   }
 
@@ -332,24 +207,129 @@ async function handleCreateTag() {
   try {
     let createdTag: PeopleTag | ContextTag
     if (props.tagType === 'people') {
-      createdTag = await tagStore.createPeopleTag(trimmedValue)
+      createdTag = await tagStore.createPeopleTag(trimmedName)
     } else {
-      createdTag = await tagStore.createContextTag(trimmedValue)
+      createdTag = await tagStore.createContextTag(trimmedName)
     }
 
-    // Add to selection if not already selected
+    // Auto-select the newly created tag
     if (!selectedTagIds.value.includes(createdTag.id)) {
       selectedTagIds.value.push(createdTag.id)
       emit('update:modelValue', [...selectedTagIds.value])
     }
 
-    inputValue.value = ''
-    showSuggestions.value = false
+    isCreatingTag.value = false
+    newTagName.value = ''
   } catch (err) {
     const errorMsg =
       err instanceof Error ? err.message : 'Failed to create tag'
     errorMessage.value = errorMsg
-    console.error('Error creating tag:', err)
+  }
+}
+
+function cancelCreate() {
+  isCreatingTag.value = false
+  newTagName.value = ''
+  errorMessage.value = ''
+}
+
+function handleCreateBlur() {
+  // Small delay to allow clicking elsewhere
+  setTimeout(() => {
+    if (isCreatingTag.value) {
+      if (newTagName.value.trim()) {
+        saveNewTag()
+      } else {
+        cancelCreate()
+      }
+    }
+  }, 150)
+}
+
+// Edit tag functions
+async function startEditTag(tag: PeopleTag | ContextTag) {
+  editingTagId.value = tag.id
+  editingTagName.value = tag.name
+  errorMessage.value = ''
+  await nextTick()
+  editInputRef.value?.focus()
+  editInputRef.value?.select()
+}
+
+async function saveEditTag() {
+  if (!editingTagId.value) return
+
+  const trimmedName = editingTagName.value.trim()
+  if (!trimmedName) {
+    cancelEdit()
+    return
+  }
+
+  // Find original tag to check if name changed
+  const originalTag = availableTags.value.find(t => t.id === editingTagId.value)
+  if (originalTag && originalTag.name === trimmedName) {
+    cancelEdit()
+    return
+  }
+
+  errorMessage.value = ''
+  try {
+    if (props.tagType === 'people') {
+      await tagStore.updatePeopleTag(editingTagId.value, trimmedName)
+    } else {
+      await tagStore.updateContextTag(editingTagId.value, trimmedName)
+    }
+
+    editingTagId.value = null
+    editingTagName.value = ''
+  } catch (err) {
+    const errorMsg =
+      err instanceof Error ? err.message : 'Failed to update tag'
+    errorMessage.value = errorMsg
+  }
+}
+
+function cancelEdit() {
+  editingTagId.value = null
+  editingTagName.value = ''
+  errorMessage.value = ''
+}
+
+function handleEditBlur() {
+  // Small delay to allow clicking the delete button
+  setTimeout(() => {
+    if (editingTagId.value) {
+      if (editingTagName.value.trim()) {
+        saveEditTag()
+      } else {
+        cancelEdit()
+      }
+    }
+  }, 150)
+}
+
+async function deleteTag(tagId: string) {
+  errorMessage.value = ''
+  try {
+    if (props.tagType === 'people') {
+      await tagStore.deletePeopleTag(tagId)
+    } else {
+      await tagStore.deleteContextTag(tagId)
+    }
+
+    // Remove from selection if selected
+    const index = selectedTagIds.value.indexOf(tagId)
+    if (index > -1) {
+      selectedTagIds.value.splice(index, 1)
+      emit('update:modelValue', [...selectedTagIds.value])
+    }
+
+    editingTagId.value = null
+    editingTagName.value = ''
+  } catch (err) {
+    const errorMsg =
+      err instanceof Error ? err.message : 'Failed to delete tag'
+    errorMessage.value = errorMsg
   }
 }
 
@@ -363,9 +343,6 @@ watch(
         props.tagType === 'people'
           ? tagStore.getPeopleTagById(id)
           : tagStore.getContextTagById(id)
-      if (!tag && import.meta.env.DEV) {
-        console.warn(`Invalid ${props.tagType} tag ID in modelValue: ${id}`)
-      }
       return tag !== undefined
     })
     selectedTagIds.value = validIds

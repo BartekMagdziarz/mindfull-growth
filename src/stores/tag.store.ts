@@ -152,6 +152,62 @@ export const useTagStore = defineStore('tag', () => {
     }
   }
 
+  async function updatePeopleTag(id: string, name: string): Promise<PeopleTag> {
+    error.value = null
+    try {
+      const normalizedName = ensureValidTagName(name)
+
+      // Check for duplicate (case-insensitive), excluding current tag
+      const existingTag = peopleTags.value.find(
+        (tag) => tag.id !== id && tagsMatch(tag.name, normalizedName)
+      )
+      if (existingTag) {
+        throw new Error('A tag with this name already exists')
+      }
+
+      const updatedTag = await peopleTagDexieRepository.update(id, { name: normalizedName })
+      const index = peopleTags.value.findIndex((tag) => tag.id === id)
+      if (index !== -1) {
+        peopleTags.value[index] = updatedTag
+      }
+      return updatedTag
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to update people tag'
+      error.value = errorMessage
+      console.error('Error updating people tag:', err)
+      throw err
+    }
+  }
+
+  async function updateContextTag(id: string, name: string): Promise<ContextTag> {
+    error.value = null
+    try {
+      const normalizedName = ensureValidTagName(name)
+
+      // Check for duplicate (case-insensitive), excluding current tag
+      const existingTag = contextTags.value.find(
+        (tag) => tag.id !== id && tagsMatch(tag.name, normalizedName)
+      )
+      if (existingTag) {
+        throw new Error('A tag with this name already exists')
+      }
+
+      const updatedTag = await contextTagDexieRepository.update(id, { name: normalizedName })
+      const index = contextTags.value.findIndex((tag) => tag.id === id)
+      if (index !== -1) {
+        contextTags.value[index] = updatedTag
+      }
+      return updatedTag
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to update context tag'
+      error.value = errorMessage
+      console.error('Error updating context tag:', err)
+      throw err
+    }
+  }
+
   return {
     // State
     peopleTags,
@@ -168,6 +224,8 @@ export const useTagStore = defineStore('tag', () => {
     createContextTag,
     deletePeopleTag,
     deleteContextTag,
+    updatePeopleTag,
+    updateContextTag,
   }
 })
 

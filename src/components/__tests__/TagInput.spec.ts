@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue'
 import TagInput from '../TagInput.vue'
-import type { PeopleTag } from '@/domain/tag'
-import type { ContextTag } from '@/domain/tag'
+import type { PeopleTag, ContextTag } from '@/domain/tag'
 
 // Mock tags data - using functions to create fresh arrays for each test
 const createMockPeopleTags = (): PeopleTag[] => [
@@ -27,6 +26,10 @@ const mockLoadPeopleTags = vi.fn()
 const mockLoadContextTags = vi.fn()
 const mockCreatePeopleTag = vi.fn()
 const mockCreateContextTag = vi.fn()
+const mockUpdatePeopleTag = vi.fn()
+const mockUpdateContextTag = vi.fn()
+const mockDeletePeopleTag = vi.fn()
+const mockDeleteContextTag = vi.fn()
 const mockGetPeopleTagById = vi.fn((id: string) =>
   mockPeopleTags.find((tag) => tag.id === id)
 )
@@ -44,6 +47,10 @@ vi.mock('@/stores/tag.store', () => ({
     loadContextTags: mockLoadContextTags,
     createPeopleTag: mockCreatePeopleTag,
     createContextTag: mockCreateContextTag,
+    updatePeopleTag: mockUpdatePeopleTag,
+    updateContextTag: mockUpdateContextTag,
+    deletePeopleTag: mockDeletePeopleTag,
+    deleteContextTag: mockDeleteContextTag,
     getPeopleTagById: mockGetPeopleTagById,
     getContextTagById: mockGetContextTagById,
   }),
@@ -58,7 +65,6 @@ describe('TagInput', () => {
     mockLoadPeopleTags.mockResolvedValue(undefined)
     mockLoadContextTags.mockResolvedValue(undefined)
     mockCreatePeopleTag.mockImplementation(async (name: string) => {
-      // Simulate duplicate check
       const existing = mockPeopleTags.find(
         (tag) => tag.name.toLowerCase() === name.toLowerCase()
       )
@@ -73,7 +79,6 @@ describe('TagInput', () => {
       return newTag
     })
     mockCreateContextTag.mockImplementation(async (name: string) => {
-      // Simulate duplicate check
       const existing = mockContextTags.find(
         (tag) => tag.name.toLowerCase() === name.toLowerCase()
       )
@@ -87,48 +92,36 @@ describe('TagInput', () => {
       mockContextTags.push(newTag)
       return newTag
     })
+    mockUpdatePeopleTag.mockImplementation(async (id: string, name: string) => {
+      const tag = mockPeopleTags.find((t) => t.id === id)
+      if (tag) {
+        tag.name = name
+      }
+      return tag
+    })
+    mockUpdateContextTag.mockImplementation(async (id: string, name: string) => {
+      const tag = mockContextTags.find((t) => t.id === id)
+      if (tag) {
+        tag.name = name
+      }
+      return tag
+    })
+    mockDeletePeopleTag.mockImplementation(async (id: string) => {
+      const index = mockPeopleTags.findIndex((t) => t.id === id)
+      if (index !== -1) {
+        mockPeopleTags.splice(index, 1)
+      }
+    })
+    mockDeleteContextTag.mockImplementation(async (id: string) => {
+      const index = mockContextTags.findIndex((t) => t.id === id)
+      if (index !== -1) {
+        mockContextTags.splice(index, 1)
+      }
+    })
   })
 
   describe('Rendering', () => {
-    it('renders input field and existing tags as chips for people tags', () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      expect(
-        screen.getByLabelText('Add people tag')
-      ).toBeInTheDocument()
-      expect(
-        screen.getByPlaceholderText('Type to create or select a people tag...')
-      ).toBeInTheDocument()
-      expect(screen.getByText('Select People Tags')).toBeInTheDocument()
-      expect(screen.getByText('Mom')).toBeInTheDocument()
-      expect(screen.getByText('John')).toBeInTheDocument()
-    })
-
-    it('renders input field and existing tags as chips for context tags', () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'context',
-        },
-      })
-
-      expect(
-        screen.getByLabelText('Add context tag')
-      ).toBeInTheDocument()
-      expect(
-        screen.getByPlaceholderText('Type to create or select a context tag...')
-      ).toBeInTheDocument()
-      expect(screen.getByText('Select Context Tags')).toBeInTheDocument()
-      expect(screen.getByText('Morning Routine')).toBeInTheDocument()
-      expect(screen.getByText('Work Meeting')).toBeInTheDocument()
-    })
-
-    it('displays each tag chip with correct name', () => {
+    it('renders existing tags as pills for people tags', () => {
       render(TagInput, {
         props: {
           modelValue: [],
@@ -142,18 +135,7 @@ describe('TagInput', () => {
       expect(screen.getByText('Work Team')).toBeInTheDocument()
     })
 
-    it('shows "No people tags selected" placeholder when no tags are selected', () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      expect(screen.getByText('No people tags selected')).toBeInTheDocument()
-    })
-
-    it('shows "No context tags selected" placeholder when no tags are selected', () => {
+    it('renders existing tags as pills for context tags', () => {
       render(TagInput, {
         props: {
           modelValue: [],
@@ -161,12 +143,40 @@ describe('TagInput', () => {
         },
       })
 
-      expect(screen.getByText('No context tags selected')).toBeInTheDocument()
+      expect(screen.getByText('Morning Routine')).toBeInTheDocument()
+      expect(screen.getByText('Work Meeting')).toBeInTheDocument()
+      expect(screen.getByText('Exercise')).toBeInTheDocument()
+      expect(screen.getByText('Evening Relaxation')).toBeInTheDocument()
+    })
+
+    it('renders add button', () => {
+      render(TagInput, {
+        props: {
+          modelValue: [],
+          tagType: 'people',
+        },
+      })
+
+      expect(screen.getByLabelText('Add new people tag')).toBeInTheDocument()
+    })
+
+    it('shows only add button when no tags exist', () => {
+      mockPeopleTags.length = 0
+
+      render(TagInput, {
+        props: {
+          modelValue: [],
+          tagType: 'people',
+        },
+      })
+
+      expect(screen.getByLabelText('Add new people tag')).toBeInTheDocument()
+      expect(screen.queryByText('Mom')).not.toBeInTheDocument()
     })
   })
 
   describe('Tag Selection', () => {
-    it('toggles tag selection when tag chip is clicked', async () => {
+    it('toggles tag selection when tag pill is clicked', async () => {
       const { emitted } = render(TagInput, {
         props: {
           modelValue: [],
@@ -174,14 +184,14 @@ describe('TagInput', () => {
         },
       })
 
-      const tagChip = screen.getByLabelText('Select people tag Mom')
-      await fireEvent.click(tagChip)
+      const tagPill = screen.getByLabelText('Select people tag Mom')
+      await fireEvent.click(tagPill)
 
       expect(emitted('update:modelValue')).toBeTruthy()
       expect(emitted('update:modelValue')[0]).toEqual([['people-1']])
     })
 
-    it('deselects tag when clicking selected tag chip', async () => {
+    it('deselects tag when clicking selected tag pill', async () => {
       const { emitted } = render(TagInput, {
         props: {
           modelValue: ['people-1'],
@@ -189,8 +199,8 @@ describe('TagInput', () => {
         },
       })
 
-      const tagChip = screen.getByLabelText('Deselect people tag Mom')
-      await fireEvent.click(tagChip)
+      const tagPill = screen.getByLabelText('Deselect people tag Mom')
+      await fireEvent.click(tagPill)
 
       expect(emitted('update:modelValue')).toBeTruthy()
       expect(emitted('update:modelValue')[0]).toEqual([[]])
@@ -211,30 +221,51 @@ describe('TagInput', () => {
       await fireEvent.click(tag2)
 
       expect(emitted('update:modelValue')).toBeTruthy()
-      expect(emitted('update:modelValue')[1]).toEqual([
-        ['people-1', 'people-2'],
-      ])
+      expect(emitted('update:modelValue')[1]).toEqual([['people-1', 'people-2']])
     })
 
-    it('shows selected tags in the selected tags section', () => {
+    it('shows selected tags with primary styling', () => {
       render(TagInput, {
         props: {
-          modelValue: ['people-1', 'people-2'],
+          modelValue: ['people-1'],
           tagType: 'people',
         },
       })
 
-      expect(screen.getByText('Selected People Tags (2)')).toBeInTheDocument()
-      expect(
-        screen.getByLabelText('Remove Mom from selection')
-      ).toBeInTheDocument()
-      expect(
-        screen.getByLabelText('Remove John from selection')
-      ).toBeInTheDocument()
+      const selectedTag = screen.getByLabelText('Deselect people tag Mom')
+      expect(selectedTag).toHaveClass('bg-primary')
     })
   })
 
   describe('Tag Creation', () => {
+    it('shows input field when add button is clicked', async () => {
+      render(TagInput, {
+        props: {
+          modelValue: [],
+          tagType: 'people',
+        },
+      })
+
+      const addButton = screen.getByLabelText('Add new people tag')
+      await fireEvent.click(addButton)
+
+      expect(screen.getByLabelText('New people tag name')).toBeInTheDocument()
+    })
+
+    it('hides add button when creating a tag', async () => {
+      render(TagInput, {
+        props: {
+          modelValue: [],
+          tagType: 'people',
+        },
+      })
+
+      const addButton = screen.getByLabelText('Add new people tag')
+      await fireEvent.click(addButton)
+
+      expect(screen.queryByLabelText('Add new people tag')).not.toBeInTheDocument()
+    })
+
     it('creates a new tag when typing and pressing Enter', async () => {
       const { emitted } = render(TagInput, {
         props: {
@@ -243,7 +274,10 @@ describe('TagInput', () => {
         },
       })
 
-      const input = screen.getByLabelText('Add people tag')
+      const addButton = screen.getByLabelText('Add new people tag')
+      await fireEvent.click(addButton)
+
+      const input = screen.getByLabelText('New people tag name')
       await fireEvent.update(input, 'New Person')
       await fireEvent.keyDown(input, { key: 'Enter' })
 
@@ -254,7 +288,7 @@ describe('TagInput', () => {
       expect(emitted('update:modelValue')).toBeTruthy()
     })
 
-    it('adds newly created tag to selectedTagIds', async () => {
+    it('auto-selects newly created tag', async () => {
       const newTag: PeopleTag = { id: 'people-new', name: 'New Person' }
       mockCreatePeopleTag.mockResolvedValueOnce(newTag)
 
@@ -265,23 +299,22 @@ describe('TagInput', () => {
         },
       })
 
-      const input = screen.getByLabelText('Add people tag')
+      const addButton = screen.getByLabelText('Add new people tag')
+      await fireEvent.click(addButton)
+
+      const input = screen.getByLabelText('New people tag name')
       await fireEvent.update(input, 'New Person')
       await fireEvent.keyDown(input, { key: 'Enter' })
 
       await waitFor(() => {
         expect(emitted('update:modelValue')).toBeTruthy()
-        const lastEmit = emitted('update:modelValue')[
-          emitted('update:modelValue').length - 1
-        ]
+        const emissions = emitted('update:modelValue') as string[][][]
+        const lastEmit = emissions[emissions.length - 1]
         expect(lastEmit[0]).toContain('people-new')
       })
     })
 
-    it('clears input field after tag creation', async () => {
-      const newTag: PeopleTag = { id: 'people-new', name: 'New Person' }
-      mockCreatePeopleTag.mockResolvedValueOnce(newTag)
-
+    it('cancels tag creation when Escape is pressed', async () => {
       render(TagInput, {
         props: {
           modelValue: [],
@@ -289,32 +322,38 @@ describe('TagInput', () => {
         },
       })
 
-      const input = screen.getByLabelText('Add people tag') as HTMLInputElement
+      const addButton = screen.getByLabelText('Add new people tag')
+      await fireEvent.click(addButton)
+
+      const input = screen.getByLabelText('New people tag name')
       await fireEvent.update(input, 'New Person')
-      await fireEvent.keyDown(input, { key: 'Enter' })
+      await fireEvent.keyDown(input, { key: 'Escape' })
 
       await waitFor(() => {
-        expect(input.value).toBe('')
+        expect(screen.queryByLabelText('New people tag name')).not.toBeInTheDocument()
+        expect(screen.getByLabelText('Add new people tag')).toBeInTheDocument()
       })
+
+      expect(mockCreatePeopleTag).not.toHaveBeenCalled()
     })
 
-    it('selects existing tag when duplicate name is entered (case-insensitive)', async () => {
-      const { emitted } = render(TagInput, {
+    it('cancels tag creation when input is empty and blurred', async () => {
+      render(TagInput, {
         props: {
           modelValue: [],
           tagType: 'people',
         },
       })
 
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, 'mom') // lowercase version of existing "Mom"
-      await fireEvent.keyDown(input, { key: 'Enter' })
+      const addButton = screen.getByLabelText('Add new people tag')
+      await fireEvent.click(addButton)
+
+      const input = screen.getByLabelText('New people tag name')
+      await fireEvent.blur(input)
 
       await waitFor(() => {
-        expect(mockCreatePeopleTag).toHaveBeenCalledWith('mom')
-        // Mock returns existing tag, so it should be selected
-        expect(emitted('update:modelValue')).toBeTruthy()
-      })
+        expect(screen.getByLabelText('Add new people tag')).toBeInTheDocument()
+      }, { timeout: 300 })
     })
 
     it('shows error message when tag creation fails', async () => {
@@ -327,232 +366,16 @@ describe('TagInput', () => {
         },
       })
 
-      const input = screen.getByLabelText('Add people tag')
+      const addButton = screen.getByLabelText('Add new people tag')
+      await fireEvent.click(addButton)
+
+      const input = screen.getByLabelText('New people tag name')
       await fireEvent.update(input, 'New Person')
       await fireEvent.keyDown(input, { key: 'Enter' })
 
       await waitFor(() => {
         expect(screen.getByText('Creation failed')).toBeInTheDocument()
       })
-    })
-
-    it('validates that tag name is not empty', async () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, '   ') // whitespace only
-      await fireEvent.keyDown(input, { key: 'Enter' })
-
-      await waitFor(() => {
-        expect(screen.getByText('Tag name cannot be empty')).toBeInTheDocument()
-        expect(mockCreatePeopleTag).not.toHaveBeenCalled()
-      })
-    })
-  })
-
-  describe('Autocomplete', () => {
-    it('shows matching suggestions as user types', async () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, 'Mo')
-
-      await waitFor(() => {
-        // Should show in suggestions dropdown
-        const suggestions = screen.getByRole('listbox')
-        expect(suggestions).toBeInTheDocument()
-        // Check that "Mom" appears in the suggestions listbox
-        const suggestionButton = screen.getByLabelText('Select Mom')
-        expect(suggestionButton).toBeInTheDocument()
-      })
-    })
-
-    it('filters suggestions case-insensitively', async () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, 'mom') // lowercase
-
-      await waitFor(() => {
-        // Check that "Mom" appears in suggestions (not just in tag chips)
-        const suggestions = screen.getByRole('listbox')
-        expect(suggestions).toBeInTheDocument()
-        const suggestionButton = screen.getByLabelText('Select Mom')
-        expect(suggestionButton).toBeInTheDocument()
-      })
-    })
-
-    it('allows selecting a suggestion via click', async () => {
-      const { emitted } = render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, 'Mo')
-
-      await waitFor(() => {
-        const suggestion = screen.getByLabelText('Select Mom')
-        expect(suggestion).toBeInTheDocument()
-      })
-
-      const suggestion = screen.getByLabelText('Select Mom')
-      await fireEvent.click(suggestion)
-
-      await waitFor(() => {
-        expect(emitted('update:modelValue')).toBeTruthy()
-        expect(emitted('update:modelValue')[0][0]).toContain('people-1')
-      })
-    })
-
-    it('hides suggestions when input is empty', async () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, 'Mo')
-
-      await waitFor(() => {
-        expect(screen.getByRole('listbox')).toBeInTheDocument()
-      })
-
-      await fireEvent.update(input, '')
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
-      })
-    })
-
-    it('navigates suggestions with arrow keys', async () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, 'M')
-
-      await waitFor(() => {
-        expect(screen.getByRole('listbox')).toBeInTheDocument()
-      })
-
-      await fireEvent.keyDown(input, { key: 'ArrowDown' })
-      await fireEvent.keyDown(input, { key: 'Enter' })
-
-      await waitFor(() => {
-        // Should select the first suggestion
-        expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
-      })
-    })
-
-    it('closes suggestions with Escape key', async () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, 'Mo')
-
-      await waitFor(() => {
-        expect(screen.getByRole('listbox')).toBeInTheDocument()
-      })
-
-      await fireEvent.keyDown(input, { key: 'Escape' })
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
-      })
-    })
-
-    it('excludes already selected tags from suggestions', async () => {
-      render(TagInput, {
-        props: {
-          modelValue: ['people-1'], // Mom is already selected
-          tagType: 'people',
-        },
-      })
-
-      const input = screen.getByLabelText('Add people tag')
-      await fireEvent.update(input, 'Mo')
-
-      await waitFor(() => {
-        // Mom should not appear in suggestions since it's already selected
-        const suggestions = screen.queryByRole('listbox')
-        if (suggestions) {
-          // If suggestions exist, Mom should not be in them
-          expect(screen.queryByText('Mom')).not.toBeInTheDocument()
-        }
-      })
-    })
-  })
-
-  describe('Selected Tags Display', () => {
-    it('displays selected tags with remove buttons', () => {
-      render(TagInput, {
-        props: {
-          modelValue: ['people-1', 'people-2'],
-          tagType: 'people',
-        },
-      })
-
-      expect(
-        screen.getByLabelText('Remove Mom from selection')
-      ).toBeInTheDocument()
-      expect(
-        screen.getByLabelText('Remove John from selection')
-      ).toBeInTheDocument()
-    })
-
-    it('removes tag when remove button is clicked', async () => {
-      const { emitted } = render(TagInput, {
-        props: {
-          modelValue: ['people-1', 'people-2'],
-          tagType: 'people',
-        },
-      })
-
-      const removeButton = screen.getByLabelText('Remove Mom from selection')
-      await fireEvent.click(removeButton)
-
-      expect(emitted('update:modelValue')).toBeTruthy()
-      expect(emitted('update:modelValue')[0]).toEqual([['people-2']])
-    })
-
-    it('shows correct count of selected tags', () => {
-      render(TagInput, {
-        props: {
-          modelValue: ['people-1', 'people-2', 'people-3'],
-          tagType: 'people',
-        },
-      })
-
-      expect(screen.getByText('Selected People Tags (3)')).toBeInTheDocument()
     })
   })
 
@@ -565,16 +388,16 @@ describe('TagInput', () => {
         },
       })
 
-      expect(screen.getByText('No people tags selected')).toBeInTheDocument()
+      // Initially no tags selected
+      expect(screen.getByLabelText('Select people tag Mom')).toBeInTheDocument()
 
       await rerender({
         modelValue: ['people-1'],
+        tagType: 'people',
       })
 
-      expect(screen.getByText('Selected People Tags (1)')).toBeInTheDocument()
-      expect(
-        screen.getByLabelText('Remove Mom from selection')
-      ).toBeInTheDocument()
+      // Now Mom should be selected
+      expect(screen.getByLabelText('Deselect people tag Mom')).toBeInTheDocument()
     })
 
     it('emits update:modelValue when tags are selected', async () => {
@@ -585,18 +408,15 @@ describe('TagInput', () => {
         },
       })
 
-      const tagChip = screen.getByLabelText('Select people tag Mom')
-      await fireEvent.click(tagChip)
+      const tagPill = screen.getByLabelText('Select people tag Mom')
+      await fireEvent.click(tagPill)
 
       expect(emitted('update:modelValue')).toBeTruthy()
-      expect(emitted('update:modelValue')[0][0]).toEqual(['people-1'])
+      const emissions = emitted('update:modelValue') as string[][][]
+      expect(emissions[0][0]).toEqual(['people-1'])
     })
 
-    it('filters out invalid tag IDs from modelValue', async () => {
-      const consoleWarnSpy = vi
-        .spyOn(console, 'warn')
-        .mockImplementation(() => {})
-
+    it('filters out invalid tag IDs from modelValue', () => {
       render(TagInput, {
         props: {
           modelValue: ['people-1', 'invalid-id', 'people-2'],
@@ -604,23 +424,14 @@ describe('TagInput', () => {
         },
       })
 
-      // Component should only show valid tags
-      expect(screen.getByText('Selected People Tags (2)')).toBeInTheDocument()
-      // Check that tags appear in the selected tags section (not just in available tags)
-      expect(
-        screen.getByLabelText('Remove Mom from selection')
-      ).toBeInTheDocument()
-      expect(
-        screen.getByLabelText('Remove John from selection')
-      ).toBeInTheDocument()
-
-      consoleWarnSpy.mockRestore()
+      // Component should show valid tags as selected
+      expect(screen.getByLabelText('Deselect people tag Mom')).toBeInTheDocument()
+      expect(screen.getByLabelText('Deselect people tag John')).toBeInTheDocument()
     })
   })
 
   describe('Store Integration', () => {
     it('calls loadPeopleTags on mount when tagType is people and tags are empty', async () => {
-      // Reset mock tags to empty
       const originalTags = [...mockPeopleTags]
       mockPeopleTags.length = 0
 
@@ -635,12 +446,10 @@ describe('TagInput', () => {
         expect(mockLoadPeopleTags).toHaveBeenCalled()
       })
 
-      // Restore tags
       mockPeopleTags.push(...originalTags)
     })
 
     it('calls loadContextTags on mount when tagType is context and tags are empty', async () => {
-      // Reset mock tags to empty
       const originalTags = [...mockContextTags]
       mockContextTags.length = 0
 
@@ -655,7 +464,6 @@ describe('TagInput', () => {
         expect(mockLoadContextTags).toHaveBeenCalled()
       })
 
-      // Restore tags
       mockContextTags.push(...originalTags)
     })
 
@@ -670,7 +478,10 @@ describe('TagInput', () => {
         },
       })
 
-      const input = screen.getByLabelText('Add people tag')
+      const addButton = screen.getByLabelText('Add new people tag')
+      await fireEvent.click(addButton)
+
+      const input = screen.getByLabelText('New people tag name')
       await fireEvent.update(input, 'New Person')
       await fireEvent.keyDown(input, { key: 'Enter' })
 
@@ -690,7 +501,10 @@ describe('TagInput', () => {
         },
       })
 
-      const input = screen.getByLabelText('Add context tag')
+      const addButton = screen.getByLabelText('Add new context tag')
+      await fireEvent.click(addButton)
+
+      const input = screen.getByLabelText('New context tag name')
       await fireEvent.update(input, 'New Context')
       await fireEvent.keyDown(input, { key: 'Enter' })
 
@@ -698,43 +512,10 @@ describe('TagInput', () => {
         expect(mockCreateContextTag).toHaveBeenCalledWith('New Context')
       })
     })
-
-    it('uses getPeopleTagById to resolve tag names', () => {
-      render(TagInput, {
-        props: {
-          modelValue: ['people-1'],
-          tagType: 'people',
-        },
-      })
-
-      expect(mockGetPeopleTagById).toHaveBeenCalledWith('people-1')
-      // Check that "Mom" appears in the selected tags section
-      expect(
-        screen.getByLabelText('Remove Mom from selection')
-      ).toBeInTheDocument()
-    })
-
-    it('uses getContextTagById to resolve tag names', () => {
-      render(TagInput, {
-        props: {
-          modelValue: ['context-1'],
-          tagType: 'context',
-        },
-      })
-
-      expect(mockGetContextTagById).toHaveBeenCalledWith('context-1')
-      // Check that "Morning Routine" appears in the selected tags section
-      expect(
-        screen.getByLabelText('Remove Morning Routine from selection')
-      ).toBeInTheDocument()
-    })
   })
 
-  describe('Edge Cases', () => {
-    it('handles loading state correctly', () => {
-      // The loading state is handled by checking tagStore.isLoading
-      // Since our mock has isLoading: false, the component will show tags
-      // This test verifies the component renders correctly with the loading check
+  describe('Accessibility', () => {
+    it('has proper ARIA labels on tag pills', () => {
       render(TagInput, {
         props: {
           modelValue: [],
@@ -742,13 +523,46 @@ describe('TagInput', () => {
         },
       })
 
-      // Component should render without errors even with loading state check
-      expect(screen.getByLabelText('Add people tag')).toBeInTheDocument()
+      expect(screen.getByLabelText('Select people tag Mom')).toBeInTheDocument()
     })
 
-    it('shows empty state when no tags exist', () => {
-      // Temporarily set tags to empty
-      const originalTags = [...mockPeopleTags]
+    it('has proper ARIA labels on add button', () => {
+      render(TagInput, {
+        props: {
+          modelValue: [],
+          tagType: 'people',
+        },
+      })
+
+      expect(screen.getByLabelText('Add new people tag')).toBeInTheDocument()
+    })
+
+    it('uses aria-pressed for tag pill selection state', () => {
+      render(TagInput, {
+        props: {
+          modelValue: ['people-1'],
+          tagType: 'people',
+        },
+      })
+
+      const tagPill = screen.getByLabelText('Deselect people tag Mom')
+      expect(tagPill).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('uses role="group" for tags container', () => {
+      render(TagInput, {
+        props: {
+          modelValue: [],
+          tagType: 'people',
+        },
+      })
+
+      expect(screen.getByRole('group', { name: 'People tags' })).toBeInTheDocument()
+    })
+  })
+
+  describe('Edge Cases', () => {
+    it('handles empty tag list gracefully', () => {
       mockPeopleTags.length = 0
 
       render(TagInput, {
@@ -758,33 +572,11 @@ describe('TagInput', () => {
         },
       })
 
-      expect(
-        screen.getByText('No people tags available. Create one above.')
-      ).toBeInTheDocument()
-
-      // Restore tags
-      mockPeopleTags.push(...originalTags)
-    })
-
-    it('handles empty tag list gracefully', () => {
-      // This is tested implicitly through the rendering tests
-      // The component should render even when tags array is empty
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      // Component should still render input field
-      expect(screen.getByLabelText('Add people tag')).toBeInTheDocument()
+      // Component should still render add button
+      expect(screen.getByLabelText('Add new people tag')).toBeInTheDocument()
     })
 
     it('handles invalid tag IDs in initial selection', () => {
-      const consoleWarnSpy = vi
-        .spyOn(console, 'warn')
-        .mockImplementation(() => {})
-
       render(TagInput, {
         props: {
           modelValue: ['invalid-id-1', 'invalid-id-2'],
@@ -792,76 +584,8 @@ describe('TagInput', () => {
         },
       })
 
-      // Component should not crash and should show "No tags selected"
-      expect(screen.getByText('No people tags selected')).toBeInTheDocument()
-
-      consoleWarnSpy.mockRestore()
-    })
-
-    it('handles store loading errors gracefully', async () => {
-      mockLoadPeopleTags.mockRejectedValueOnce(new Error('Load failed'))
-
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      // Component should still render
-      expect(screen.getByLabelText('Add people tag')).toBeInTheDocument()
-    })
-  })
-
-  describe('Accessibility', () => {
-    it('has proper ARIA labels on input field', () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      expect(screen.getByLabelText('Add people tag')).toBeInTheDocument()
-    })
-
-    it('has proper ARIA labels on tag chips', () => {
-      render(TagInput, {
-        props: {
-          modelValue: [],
-          tagType: 'people',
-        },
-      })
-
-      expect(
-        screen.getByLabelText('Select people tag Mom')
-      ).toBeInTheDocument()
-    })
-
-    it('has proper ARIA labels on remove buttons', () => {
-      render(TagInput, {
-        props: {
-          modelValue: ['people-1'],
-          tagType: 'people',
-        },
-      })
-
-      expect(
-        screen.getByLabelText('Remove Mom from selection')
-      ).toBeInTheDocument()
-    })
-
-    it('uses aria-pressed for tag chip selection state', () => {
-      render(TagInput, {
-        props: {
-          modelValue: ['people-1'],
-          tagType: 'people',
-        },
-      })
-
-      const tagChip = screen.getByLabelText('Deselect people tag Mom')
-      expect(tagChip).toHaveAttribute('aria-pressed', 'true')
+      // Component should not crash and show all tags as unselected
+      expect(screen.getByLabelText('Select people tag Mom')).toBeInTheDocument()
     })
   })
 })
-

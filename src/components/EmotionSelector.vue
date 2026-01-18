@@ -33,15 +33,7 @@
     </template>
 
     <!-- Quadrant Selector -->
-    <div class="quadrant-selector space-y-3">
-      <div class="space-y-1">
-        <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface">
-          Select an Emotion Quadrant
-        </h2>
-        <p class="text-[0.8rem] text-on-surface-variant">
-          Tap a quadrant to explore matching emotions.
-        </p>
-      </div>
+    <div class="quadrant-selector">
       <div
         class="grid grid-cols-2 gap-3"
         role="group"
@@ -57,58 +49,54 @@
           :style="getQuadrantButtonStyle(quadrant.value, selectedQuadrant === quadrant.value)"
           @click="selectQuadrant(quadrant.value)"
         >
-          <component
-            :is="quadrant.icon"
-            class="w-4 h-4 text-on-surface"
-            aria-hidden="true"
-          />
-          <span class="text-sm font-semibold leading-tight">
-            {{ quadrant.energyLabel }}
-          </span>
-          <span class="text-sm font-semibold leading-tight text-on-surface-variant">
-            {{ quadrant.pleasantnessLabel }}
-          </span>
+          <div class="flex items-center gap-2.5">
+            <component
+              :is="quadrant.icon"
+              class="w-5 h-5 flex-shrink-0"
+              aria-hidden="true"
+            />
+            <div class="flex flex-col items-start">
+              <span class="text-sm font-semibold leading-snug">
+                {{ quadrant.energyLabel }}
+              </span>
+              <span class="text-sm font-semibold leading-snug">
+                {{ quadrant.pleasantnessLabel }}
+              </span>
+            </div>
+          </div>
         </button>
       </div>
     </div>
 
     <!-- Emotion List -->
-    <div class="emotion-selection mt-4">
-      <div v-if="!selectedQuadrant" class="text-xs text-on-surface-variant">
-        Choose a quadrant above to see matching emotions.
+    <div v-if="selectedQuadrant" class="emotion-selection mt-4">
+      <div v-if="!emotionStore.isLoaded" class="text-center py-4 text-sm">
+        <p class="text-on-surface-variant">Loading emotions...</p>
       </div>
-      <template v-else>
-        <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface mb-2">
-          Select Emotions
-        </h2>
-        <div v-if="!emotionStore.isLoaded" class="text-center py-4 text-sm">
-          <p class="text-on-surface-variant">Loading emotions...</p>
-        </div>
-        <div
-          v-else-if="currentQuadrantEmotions.length > 0"
-          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
-          role="list"
-          :aria-label="`Emotions in ${getQuadrantLabel(selectedQuadrant)} quadrant`"
+      <div
+        v-else-if="currentQuadrantEmotions.length > 0"
+        class="flex flex-wrap gap-2"
+        role="list"
+        :aria-label="`Emotions in ${getQuadrantLabel(selectedQuadrant)} quadrant`"
+      >
+        <button
+          v-for="emotion in currentQuadrantEmotions"
+          :key="emotion.id"
+          type="button"
+          :aria-label="`${isEmotionSelected(emotion.id) ? 'Deselect' : 'Select'} emotion ${emotion.name}`"
+          :aria-pressed="isEmotionSelected(emotion.id)"
+          :class="getEmotionChipClasses(emotion.id)"
+          @click="toggleEmotion(emotion.id)"
         >
-          <button
-            v-for="emotion in currentQuadrantEmotions"
-            :key="emotion.id"
-            type="button"
-            :aria-label="`${isEmotionSelected(emotion.id) ? 'Deselect' : 'Select'} emotion ${emotion.name}`"
-            :aria-pressed="isEmotionSelected(emotion.id)"
-            :class="getEmotionChipClasses(emotion.id)"
-            @click="toggleEmotion(emotion.id)"
-          >
-            {{ emotion.name }}
-          </button>
-        </div>
-        <div
-          v-else
-          class="text-center py-4 rounded-2xl bg-section text-on-surface-variant text-sm border border-outline/30"
-        >
-          No emotions in this quadrant
-        </div>
-      </template>
+          {{ emotion.name }}
+        </button>
+      </div>
+      <div
+        v-else
+        class="text-center py-4 rounded-2xl bg-section text-on-surface-variant text-sm"
+      >
+        No emotions in this quadrant
+      </div>
     </div>
   </div>
 </template>
@@ -179,31 +167,27 @@ const quadrants = [
 
 const quadrantButtonStyles: Record<
   Quadrant,
-  { backgroundColor: string; borderColor: string }
+  { backgroundColor: string; borderColor: string; activeBackgroundColor: string }
 > = {
   'high-energy-high-pleasantness': {
-    backgroundColor:
-      'var(--color-quadrant-high-energy-high-pleasantness)',
-    borderColor:
-      'var(--color-quadrant-high-energy-high-pleasantness-border)',
+    backgroundColor: 'var(--color-quadrant-high-energy-high-pleasantness)',
+    borderColor: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
+    activeBackgroundColor: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
   },
   'high-energy-low-pleasantness': {
-    backgroundColor:
-      'var(--color-quadrant-high-energy-low-pleasantness)',
-    borderColor:
-      'var(--color-quadrant-high-energy-low-pleasantness-border)',
+    backgroundColor: 'var(--color-quadrant-high-energy-low-pleasantness)',
+    borderColor: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
+    activeBackgroundColor: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
   },
   'low-energy-high-pleasantness': {
-    backgroundColor:
-      'var(--color-quadrant-low-energy-high-pleasantness)',
-    borderColor:
-      'var(--color-quadrant-low-energy-high-pleasantness-border)',
+    backgroundColor: 'var(--color-quadrant-low-energy-high-pleasantness)',
+    borderColor: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
+    activeBackgroundColor: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
   },
   'low-energy-low-pleasantness': {
-    backgroundColor:
-      'var(--color-quadrant-low-energy-low-pleasantness)',
-    borderColor:
-      'var(--color-quadrant-low-energy-low-pleasantness-border)',
+    backgroundColor: 'var(--color-quadrant-low-energy-low-pleasantness)',
+    borderColor: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
+    activeBackgroundColor: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
   },
 }
 
@@ -254,35 +238,40 @@ function isEmotionSelected(emotionId: string): boolean {
 
 function getQuadrantButtonClasses(_quadrant: Quadrant, isActive = false): string {
   const baseClasses =
-    'flex flex-col items-start gap-1 px-3 py-2 rounded-2xl text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] border shadow-elevation-1'
+    'flex items-center justify-center px-4 py-3 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background active:scale-[0.98] text-on-surface'
 
-  const activeClasses =
-    'bg-primary text-on-primary border-transparent shadow-elevation-2'
+  const activeClasses = 'shadow-elevation-2'
+  const inactiveClasses = 'shadow-elevation-1 hover:shadow-elevation-2'
 
-  return `${baseClasses} ${
-    isActive ? activeClasses : 'text-on-surface hover:shadow-elevation-2'
-  }`
+  return `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
 }
 
 function getQuadrantButtonStyle(
   quadrant: Quadrant,
   isActive = false
 ): Record<string, string> {
+  const styles = quadrantButtonStyles[quadrant]
+  if (!styles) return {}
+  
   if (isActive) {
-    return {}
+    return {
+      backgroundColor: styles.activeBackgroundColor,
+    }
   }
-  return quadrantButtonStyles[quadrant] ?? {}
+  return {
+    backgroundColor: styles.backgroundColor,
+  }
 }
 
 function getEmotionChipClasses(emotionId: string): string {
   const isSelected = isEmotionSelected(emotionId)
   const baseClasses =
-    'px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background active:scale-[0.95]'
+    'px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background active:scale-[0.95]'
 
   if (isSelected) {
-    return `${baseClasses} bg-primary text-on-primary shadow-elevation-1 hover:shadow-elevation-2`
+    return `${baseClasses} bg-primary text-on-primary shadow-elevation-1`
   } else {
-    return `${baseClasses} bg-chip border border-chip-border text-chip-text hover:bg-section`
+    return `${baseClasses} bg-chip text-chip-text hover:bg-section`
   }
 }
 

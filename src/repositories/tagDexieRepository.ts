@@ -49,6 +49,21 @@ class PeopleTagDexieRepository implements PeopleTagRepository {
       throw new Error(`Failed to delete people tag with id ${id}`)
     }
   }
+
+  async update(id: string, data: { name: string }): Promise<PeopleTag> {
+    try {
+      const existing = await db.peopleTags.get(id)
+      if (!existing) {
+        throw new Error(`People tag with id ${id} not found`)
+      }
+      const updated: PeopleTag = { ...existing, name: data.name }
+      await db.peopleTags.put(updated)
+      return updated
+    } catch (error) {
+      console.error(`Failed to update people tag with id ${id}:`, error)
+      throw new Error(`Failed to update people tag with id ${id}`)
+    }
+  }
 }
 
 // Implementation of ContextTagRepository using IndexedDB via Dexie
@@ -91,6 +106,21 @@ class ContextTagDexieRepository implements ContextTagRepository {
     } catch (error) {
       console.error(`Failed to delete context tag with id ${id}:`, error)
       throw new Error(`Failed to delete context tag with id ${id}`)
+    }
+  }
+
+  async update(id: string, data: { name: string }): Promise<ContextTag> {
+    try {
+      const existing = await db.contextTags.get(id)
+      if (!existing) {
+        throw new Error(`Context tag with id ${id} not found`)
+      }
+      const updated: ContextTag = { ...existing, name: data.name }
+      await db.contextTags.put(updated)
+      return updated
+    } catch (error) {
+      console.error(`Failed to update context tag with id ${id}:`, error)
+      throw new Error(`Failed to update context tag with id ${id}`)
     }
   }
 }

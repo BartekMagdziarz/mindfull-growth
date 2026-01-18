@@ -52,12 +52,12 @@
                     v-for="emotion in selectedEmotionList"
                     :key="emotion.id"
                     type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
+                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-on-primary text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
                     :aria-label="`Remove ${emotion.name} from selection`"
                     @click="removeEmotion(emotion.id)"
                   >
                     <span>{{ emotion.name }}</span>
-                    <XMarkIcon class="w-4 h-4" aria-hidden="true" />
+                    <XMarkIcon class="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -77,25 +77,10 @@
           <section
             class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
           >
-            <header class="space-y-2">
-              <div class="flex flex-wrap items-center gap-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  People
-                </p>
-                <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
-                  <button
-                    v-for="tag in selectedPeopleList"
-                    :key="tag.id"
-                    type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
-                    :aria-label="`Remove ${tag.name} from selection`"
-                    @click="removePeopleTag(tag.id)"
-                  >
-                    <span>{{ tag.name }}</span>
-                    <XMarkIcon class="w-4 h-4" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
+            <header>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                People
+              </p>
             </header>
             <div
               v-if="arePeopleTagsLoading"
@@ -107,8 +92,6 @@
               <TagInput
                 v-model="selectedPeopleTagIds"
                 tag-type="people"
-                compact
-                hide-selected-section
               />
             </div>
           </section>
@@ -117,25 +100,10 @@
           <section
             class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
           >
-            <header class="space-y-2">
-              <div class="flex flex-wrap items-center gap-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  Context
-                </p>
-                <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
-                  <button
-                    v-for="tag in selectedContextList"
-                    :key="tag.id"
-                    type="button"
-                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-[0.7rem] font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
-                    :aria-label="`Remove ${tag.name} from selection`"
-                    @click="removeContextTag(tag.id)"
-                  >
-                    <span>{{ tag.name }}</span>
-                    <XMarkIcon class="w-4 h-4" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
+            <header>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                Context
+              </p>
             </header>
             <div
               v-if="areContextTagsLoading"
@@ -147,8 +115,6 @@
               <TagInput
                 v-model="selectedContextTagIds"
                 tag-type="context"
-                compact
-                hide-selected-section
               />
             </div>
           </section>
@@ -405,18 +371,6 @@ const selectedEmotionList = computed(() => {
     .filter((emotion): emotion is Emotion => Boolean(emotion))
 })
 
-const selectedPeopleList = computed(() => {
-  return selectedPeopleTagIds.value
-    .map((id) => tagStore.getPeopleTagById(id))
-    .filter((tag): tag is { id: string; name: string } => Boolean(tag))
-})
-
-const selectedContextList = computed(() => {
-  return selectedContextTagIds.value
-    .map((id) => tagStore.getContextTagById(id))
-    .filter((tag): tag is { id: string; name: string } => Boolean(tag))
-})
-
 const hasChatSessions = computed(() => {
   return (
     !!currentEntry.value &&
@@ -462,20 +416,6 @@ const removeEmotion = (id: string) => {
   const index = selectedEmotionIds.value.indexOf(id)
   if (index > -1) {
     selectedEmotionIds.value.splice(index, 1)
-  }
-}
-
-const removePeopleTag = (id: string) => {
-  const index = selectedPeopleTagIds.value.indexOf(id)
-  if (index > -1) {
-    selectedPeopleTagIds.value.splice(index, 1)
-  }
-}
-
-const removeContextTag = (id: string) => {
-  const index = selectedContextTagIds.value.indexOf(id)
-  if (index > -1) {
-    selectedContextTagIds.value.splice(index, 1)
   }
 }
 
