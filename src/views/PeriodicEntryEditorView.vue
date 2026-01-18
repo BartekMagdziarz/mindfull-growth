@@ -1,5 +1,10 @@
 <template>
-  <div class="mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 pb-24">
+  <div
+    :class="[
+      'mx-auto w-full px-2 sm:px-4 md:px-6 py-6 pb-24',
+      isWeekly ? 'max-w-[83rem]' : 'max-w-6xl',
+    ]"
+  >
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
       <button
