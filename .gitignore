@@ -27,3 +27,6 @@ dist-ssr
 coverage
 .nyc_output
 
+# Ideas folder - not tracked
+ideas/
+
