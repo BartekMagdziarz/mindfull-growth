@@ -19,7 +19,7 @@
         <h1 class="text-xl font-bold text-on-surface">
           {{ pageTitle }}
         </h1>
-        <p class="text-sm text-on-surface-variant">{{ periodDateRange }}</p>
+        <p v-if="!isWeekly" class="text-sm text-on-surface-variant">{{ periodDateRange }}</p>
       </div>
     </div>
 
@@ -45,6 +45,13 @@
       />
 
       <template v-if="isWeekly">
+        <!-- Week Range Picker (only for new entries) -->
+        <WeekRangePicker
+          v-if="isNewEntry"
+          :model-value="selectedWeekRange"
+          @update:model-value="handleWeekRangeChange"
+        />
+
         <WeeklyTimeline :day-summaries="weeklyDaySummaries" />
 
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
@@ -203,6 +210,7 @@ import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionCloud from '@/components/periodic/EmotionCloud.vue'
 import TagEmotionList from '@/components/periodic/TagEmotionList.vue'
 import WeeklyTimeline from '@/components/periodic/WeeklyTimeline.vue'
+import WeekRangePicker from '@/components/periodic/WeekRangePicker.vue'
 import ListInputSection from '@/components/periodic/ListInputSection.vue'
 import GratitudeSection from '@/components/periodic/GratitudeSection.vue'
 import IntentionSection from '@/components/periodic/IntentionSection.vue'
@@ -242,6 +250,7 @@ const isSaving = ref(false)
 const error = ref<string | null>(null)
 const existingEntry = ref<PeriodicEntry | null>(null)
 const previousEntry = ref<PeriodicEntry | null>(null)
+const selectedWeekRange = ref<PeriodRange>(getPeriodRange('weekly'))
 
 // Determine if creating new or editing existing
 const isNewEntry = computed(() => route.path.includes('/new/'))
@@ -259,21 +268,24 @@ const periodTypeLabel = computed(() => getTypeLabel(periodType.value))
 const periodDateRange = computed(() =>
   formatDateRange(periodRange.value.start, periodRange.value.end, periodType.value)
 )
-const pageTitle = computed(() =>
-  `${periodTypeLabel.value} Review: ${periodDateRange.value}`
-)
+const pageTitle = computed(() => {
+  if (isWeekly.value) {
+    return 'Weekly Review'
+  }
+  return `${periodTypeLabel.value} Review: ${periodDateRange.value}`
+})
 const nextPeriodLabel = computed(() => `next ${periodTypeLabel.value.toLowerCase()}`)
 
 const isWeekly = computed(() => periodType.value === 'weekly')
 
 const weeklyRange = computed<PeriodRange>(() => {
-  if (aggregatedData.value.periodStartDate && aggregatedData.value.periodEndDate) {
+  if (!isNewEntry.value && aggregatedData.value.periodStartDate && aggregatedData.value.periodEndDate) {
     const start = parseISODate(aggregatedData.value.periodStartDate)
     const end = parseISODate(aggregatedData.value.periodEndDate)
     end.setHours(23, 59, 59, 999)
     return { start, end }
   }
-  return getPeriodRange('weekly')
+  return selectedWeekRange.value
 })
 
 const weeklyDaySummaries = computed(() => {
@@ -341,7 +353,7 @@ async function loadData() {
 
     if (isNewEntry.value) {
       // Creating new entry - aggregate data
-      const range = getPeriodRange(periodType.value)
+      const range = isWeekly.value ? selectedWeekRange.value : getPeriodRange(periodType.value)
       aggregatedData.value = aggregatePeriodData({
         journalEntries: journalStore.entries,
         emotionLogs: emotionLogStore.logs,
@@ -402,7 +414,7 @@ async function handleSave() {
 
     if (isNewEntry.value) {
       // Create new entry
-      const range = getPeriodRange(periodType.value)
+      const range = isWeekly.value ? selectedWeekRange.value : getPeriodRange(periodType.value)
       await periodicEntryStore.createEntry({
         type: periodType.value,
         periodStartDate: toISODateString(range.start),
@@ -447,6 +459,16 @@ async function handleSave() {
 
 function handleCancel() {
   router.push('/periodic')
+}
+
+function handleWeekRangeChange(newRange: PeriodRange) {
+  selectedWeekRange.value = newRange
+  // Re-aggregate data for the new week range
+  aggregatedData.value = aggregatePeriodData({
+    journalEntries: journalStore.entries,
+    emotionLogs: emotionLogStore.logs,
+    periodRange: newRange,
+  })
 }
 
 function parseISODate(isoDate: string): Date {
