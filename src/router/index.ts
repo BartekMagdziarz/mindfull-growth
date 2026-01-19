@@ -14,7 +14,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/journal',
+      redirect: '/today',
     },
     {
       path: '/today',

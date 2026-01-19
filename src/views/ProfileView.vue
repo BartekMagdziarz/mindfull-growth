@@ -7,6 +7,57 @@
       </p>
     </AppCard>
 
+    <!-- Daily Habits Section -->
+    <AppCard class="mt-6">
+      <h3 class="text-xl font-semibold text-on-surface mb-2">Daily Habits</h3>
+      <p class="text-sm text-on-surface-variant mb-4">
+        Customize when you want to be prompted for weekly reviews and how many emotion check-ins you'd like to do each day.
+      </p>
+
+      <!-- Weekly Review Day -->
+      <div class="mb-4">
+        <label for="weeklyReviewDay" class="block text-sm font-medium text-on-surface mb-2">
+          Weekly review day
+        </label>
+        <select
+          id="weeklyReviewDay"
+          v-model.number="weeklyReviewDay"
+          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
+          @change="handleWeeklyReviewDayChange"
+        >
+          <option :value="0">Sunday</option>
+          <option :value="1">Monday</option>
+          <option :value="2">Tuesday</option>
+          <option :value="3">Wednesday</option>
+          <option :value="4">Thursday</option>
+          <option :value="5">Friday</option>
+          <option :value="6">Saturday</option>
+        </select>
+        <p class="mt-2 text-sm text-on-surface-variant">
+          You'll be prompted to reflect on your week on this day.
+        </p>
+      </div>
+
+      <!-- Daily Emotion Target -->
+      <div>
+        <label for="emotionTarget" class="block text-sm font-medium text-on-surface mb-2">
+          Daily emotion check-ins
+        </label>
+        <input
+          id="emotionTarget"
+          v-model.number="dailyEmotionTarget"
+          type="number"
+          min="1"
+          max="10"
+          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
+          @change="handleEmotionTargetChange"
+        />
+        <p class="mt-2 text-sm text-on-surface-variant">
+          How many times per day you'd like to log your emotions (1-10).
+        </p>
+      </div>
+    </AppCard>
+
     <!-- AI Settings Section -->
     <AppCard class="mt-6">
       <h3 class="text-xl font-semibold text-on-surface mb-2">AI Settings</h3>
@@ -99,12 +150,17 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { seedMockData } from '@/utils/seedMockData'
 
 const API_KEY_STORAGE_KEY = 'openaiApiKey'
 
+const userPreferencesStore = useUserPreferencesStore()
+
 const apiKey = ref('')
 const isSeeding = ref(false)
+const weeklyReviewDay = ref(0)
+const dailyEmotionTarget = ref(3)
 const apiKeyError = ref('')
 const isSaving = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
@@ -164,16 +220,46 @@ async function handleSeedMockData() {
   }
 }
 
-// Load existing API key on mount
+async function handleWeeklyReviewDayChange() {
+  try {
+    await userPreferencesStore.setWeeklyReviewDay(weeklyReviewDay.value)
+    snackbarRef.value?.show('Weekly review day updated.')
+  } catch (error) {
+    console.error('Error saving weekly review day:', error)
+    snackbarRef.value?.show('Failed to save preference.')
+  }
+}
+
+async function handleEmotionTargetChange() {
+  // Clamp value to valid range
+  if (dailyEmotionTarget.value < 1) dailyEmotionTarget.value = 1
+  if (dailyEmotionTarget.value > 10) dailyEmotionTarget.value = 10
+
+  try {
+    await userPreferencesStore.setDailyEmotionTarget(dailyEmotionTarget.value)
+    snackbarRef.value?.show('Daily emotion target updated.')
+  } catch (error) {
+    console.error('Error saving emotion target:', error)
+    snackbarRef.value?.show('Failed to save preference.')
+  }
+}
+
+// Load existing settings on mount
 onMounted(async () => {
   try {
+    // Load API key
     const existingKey = await userSettingsDexieRepository.get(API_KEY_STORAGE_KEY)
     if (existingKey) {
       apiKey.value = existingKey
       validateApiKey()
     }
+
+    // Load user preferences
+    await userPreferencesStore.loadPreferences()
+    weeklyReviewDay.value = userPreferencesStore.weeklyReviewDay
+    dailyEmotionTarget.value = userPreferencesStore.dailyEmotionTarget
   } catch (error) {
-    console.error('Error loading API key:', error)
+    console.error('Error loading settings:', error)
     // Don't show error to user on load - just log it
   }
 })
