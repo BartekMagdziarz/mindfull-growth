@@ -1,324 +1,281 @@
 <template>
   <div class="container mx-auto px-4 py-6">
     <div class="max-w-3xl mx-auto space-y-6">
-      <!-- Primary action -->
-      <div class="flex justify-center">
-        <AppButton
-          variant="filled"
-          class="w-full sm:w-auto text-lg"
-          @click="handleLogEmotionClick"
-        >
-          Log emotion
-        </AppButton>
-      </div>
+      <!-- Inline Emotion Logging Form -->
+      <AppCard padding="lg" :elevation="2">
+        <h2 class="text-lg font-semibold text-on-surface mb-4">Log your emotions</h2>
 
-      <!-- Loading state -->
-      <div
-        v-if="emotionLogStore.isLoading"
-        class="text-on-surface-variant text-center"
-      >
-        Loading emotion logs...
-      </div>
-
-      <!-- Error state -->
-      <div
-        v-else-if="emotionLogStore.error"
-        class="bg-error-container text-on-error-container border border-error/30 rounded-lg p-4 space-y-3"
-      >
-        <div>
-          <p class="font-semibold">Unable to load emotion logs</p>
-          <p class="text-sm">{{ emotionLogStore.error }}</p>
-        </div>
-        <div class="flex justify-center">
-          <AppButton variant="outlined" @click="handleRetryLoad">
-            Try again
-          </AppButton>
-        </div>
-      </div>
-
-      <!-- Content -->
-      <div v-else>
-        <p
-          v-if="emotionLogStore.sortedLogs.length === 0"
-          class="text-on-surface-variant text-center"
-        >
-          No emotion logs yet. Tap "Log emotion" to get started.
-        </p>
-
-        <div
-          v-else
-          class="flex flex-col gap-4"
-        >
-          <AppCard
-            v-for="log in emotionLogStore.sortedLogs"
-            :key="log.id"
-            :elevation="1"
-            padding="none"
-            class="py-3 px-4 cursor-pointer transition-all duration-200 hover:shadow-elevation-2"
-            @click="() => handleLogCardClick(log.id)"
+        <div class="space-y-4">
+          <!-- Selected Emotions Display -->
+          <div
+            v-if="selectedEmotionIds.length > 0"
+            class="flex flex-wrap gap-2 mb-2"
           >
-            <div class="space-y-3">
-              <div class="flex items-start justify-between gap-2">
-                <div class="space-y-1">
-                  <p class="text-sm text-on-surface-variant">
-                    {{ formatEntryDate(log.createdAt) }}
-                  </p>
+            <button
+              v-for="emotion in selectedEmotionList"
+              :key="emotion.id"
+              type="button"
+              class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-on-primary text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
+              :aria-label="`Remove ${emotion.name} from selection`"
+              @click="removeEmotion(emotion.id)"
+            >
+              <span>{{ emotion.name }}</span>
+              <XMarkIcon class="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          </div>
+
+          <!-- Emotion Selector -->
+          <div
+            v-if="isEmotionSectionLoading"
+            class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
+          >
+            Loading emotions...
+          </div>
+          <div v-else>
+            <EmotionSelector v-model="selectedEmotionIds" :show-selected-section="false" />
+          </div>
+
+          <!-- Quick Note -->
+          <div class="mt-4">
+            <label
+              for="quick-note"
+              class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant"
+            >
+              Quick note (optional)
+            </label>
+            <textarea
+              id="quick-note"
+              v-model="note"
+              placeholder="How are you feeling?"
+              class="w-full mt-2 p-3 rounded-xl border border-outline/30 bg-surface text-on-surface resize-none focus:outline-none focus:ring-2 focus:ring-focus"
+              rows="2"
+            />
+          </div>
+
+          <!-- Collapsible Tags Section -->
+          <details class="mt-4 group">
+            <summary
+              class="text-sm text-on-surface-variant cursor-pointer hover:text-on-surface transition-colors list-none flex items-center gap-2"
+            >
+              <ChevronRightIcon
+                class="w-4 h-4 transition-transform group-open:rotate-90"
+              />
+              Add tags (optional)
+            </summary>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 pt-3 border-t border-outline/20">
+              <!-- People Tags -->
+              <div class="space-y-2">
+                <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  People
+                </label>
+                <div
+                  v-if="isPeopleSectionLoading"
+                  class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
+                >
+                  Loading people tags...
                 </div>
-                <button
-                  @click.stop="handleDeleteClick(log)"
-                  :disabled="isDeleting && deletingLogId === log.id"
-                  :aria-label="`Delete emotion log recorded on ${formatEntryDate(log.createdAt)}`"
-                  class="flex-shrink-0 p-2 rounded-xl text-on-surface-variant hover:bg-section hover:text-error transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px] min-h-[44px] flex items-center justify-center"
-                >
-                  <TrashIcon
-                    v-if="!(isDeleting && deletingLogId === log.id)"
-                    class="w-5 h-5"
-                  />
-                  <span v-else class="text-sm">Deleting...</span>
-                </button>
+                <TagInput v-else v-model="selectedPeopleTagIds" tag-type="people" />
               </div>
 
-              <!-- Emotions -->
-              <div
-                v-if="hasEmotionChips(log)"
-                class="flex flex-wrap gap-2"
-              >
-                <template
-                  v-for="emotionId in log.emotionIds ?? []"
-                  :key="`emotion-${log.id}-${emotionId}`"
+              <!-- Context Tags -->
+              <div class="space-y-2">
+                <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  Context
+                </label>
+                <div
+                  v-if="isContextSectionLoading"
+                  class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
                 >
-                  <span
-                    v-if="getEmotionName(emotionId)"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-section-strong text-primary-strong border border-chip-border shadow-elevation-1"
-                  >
-                    {{ getEmotionName(emotionId) }}
-                  </span>
-                </template>
-              </div>
-
-              <!-- Note preview -->
-              <p
-                v-if="log.note && getNotePreview(log.note)"
-                class="text-on-surface-variant"
-              >
-                {{ getNotePreview(log.note) }}
-              </p>
-
-              <!-- Tags -->
-              <div
-                v-if="hasTags(log)"
-                class="flex flex-wrap gap-2"
-              >
-                <template
-                  v-for="peopleTagId in log.peopleTagIds ?? []"
-                  :key="`people-${log.id}-${peopleTagId}`"
-                >
-                  <span
-                    v-if="getPeopleTagName(peopleTagId)"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-chip text-chip-text border border-chip-border shadow-elevation-1"
-                  >
-                    {{ getPeopleTagName(peopleTagId) }}
-                  </span>
-                </template>
-
-                <template
-                  v-for="contextTagId in log.contextTagIds ?? []"
-                  :key="`context-${log.id}-${contextTagId}`"
-                >
-                  <span
-                    v-if="getContextTagName(contextTagId)"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-soft text-primary-strong border border-chip-border shadow-elevation-1"
-                  >
-                    {{ getContextTagName(contextTagId) }}
-                  </span>
-                </template>
+                  Loading context tags...
+                </div>
+                <TagInput v-else v-model="selectedContextTagIds" tag-type="context" />
               </div>
             </div>
-          </AppCard>
+          </details>
+
+          <!-- Save Button -->
+          <div class="flex justify-end mt-6">
+            <AppButton
+              variant="filled"
+              :disabled="selectedEmotionIds.length === 0 || isSaving"
+              @click="handleSave"
+              class="min-w-[120px]"
+            >
+              {{ isSaving ? 'Saving...' : 'Save' }}
+            </AppButton>
+          </div>
         </div>
+      </AppCard>
+
+      <!-- Link to History -->
+      <div class="text-center">
+        <router-link
+          to="/history?type=emotion-log"
+          class="text-primary hover:underline inline-flex items-center gap-1"
+        >
+          View emotion history
+          <ArrowRightIcon class="w-4 h-4" />
+        </router-link>
       </div>
     </div>
 
     <AppSnackbar ref="snackbarRef" />
-
-    <AppDialog
-      v-model="showDeleteDialog"
-      title="Delete Entry"
-      message="Are you sure you want to delete this entry? This action cannot be undone."
-      confirm-text="Delete"
-      cancel-text="Cancel"
-      confirm-variant="tonal"
-      @confirm="handleDeleteConfirm"
-      @cancel="handleDeleteCancel"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
-import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
+import EmotionSelector from '@/components/EmotionSelector.vue'
+import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
-import { formatEntryDate } from '@/utils/dateFormat'
-import type { EmotionLog } from '@/domain/emotionLog'
-import { TrashIcon } from '@heroicons/vue/24/outline'
-
-const router = useRouter()
-const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
+import type { Emotion } from '@/domain/emotion'
+import { XMarkIcon, ChevronRightIcon, ArrowRightIcon } from '@heroicons/vue/24/outline'
 
 const emotionLogStore = useEmotionLogStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
+const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
-const showDeleteDialog = ref(false)
-const logToDelete = ref<EmotionLog | null>(null)
-const isDeleting = ref(false)
-const deletingLogId = ref<string | null>(null)
+// Form state
+const selectedEmotionIds = ref<string[]>([])
+const note = ref('')
+const selectedPeopleTagIds = ref<string[]>([])
+const selectedContextTagIds = ref<string[]>([])
+const isSaving = ref(false)
 
-const showSnackbar = (message: string) => {
-  if (message) {
-    snackbarRef.value?.show(message)
+// Loading states
+const isEmotionDataLoading = ref(false)
+const arePeopleTagsLoading = ref(false)
+const areContextTagsLoading = ref(false)
+const hasLoadedPeopleTags = ref(tagStore.peopleTags.length > 0)
+const hasLoadedContextTags = ref(tagStore.contextTags.length > 0)
+
+const isEmotionSectionLoading = computed(() => {
+  return isEmotionDataLoading.value || !emotionStore.isLoaded
+})
+
+const isPeopleSectionLoading = computed(() => {
+  return arePeopleTagsLoading.value || (!hasLoadedPeopleTags.value && tagStore.peopleTags.length === 0)
+})
+
+const isContextSectionLoading = computed(() => {
+  return areContextTagsLoading.value || (!hasLoadedContextTags.value && tagStore.contextTags.length === 0)
+})
+
+const selectedEmotionList = computed(() => {
+  return selectedEmotionIds.value
+    .map((id) => emotionStore.getEmotionById(id))
+    .filter((emotion): emotion is Emotion => Boolean(emotion))
+})
+
+function removeEmotion(id: string) {
+  const index = selectedEmotionIds.value.indexOf(id)
+  if (index > -1) {
+    selectedEmotionIds.value.splice(index, 1)
   }
 }
 
-const handleLogEmotionClick = async () => {
-  try {
-    await router.push('/emotions/edit')
-  } catch (error) {
-    console.error('Navigation to /emotions/edit failed:', error)
-    showSnackbar('Coming soon')
-  }
+function resetForm() {
+  selectedEmotionIds.value = []
+  note.value = ''
+  selectedPeopleTagIds.value = []
+  selectedContextTagIds.value = []
 }
 
-const handleLogCardClick = async (logId: string) => {
-  try {
-    await router.push(`/emotions/${logId}/edit`)
-  } catch (error) {
-    console.error(`Navigation to /emotions/${logId}/edit failed:`, error)
-    showSnackbar('Coming soon')
-  }
-}
-
-const handleRetryLoad = async () => {
-  await emotionLogStore.loadLogs()
-  if (emotionLogStore.error) {
-    showSnackbar(emotionLogStore.error)
-  } else {
-    showSnackbar('Emotion logs reloaded.')
-  }
-}
-
-const handleDeleteClick = (log: EmotionLog) => {
-  logToDelete.value = log
-  showDeleteDialog.value = true
-}
-
-const handleDeleteCancel = () => {
-  logToDelete.value = null
-}
-
-const handleDeleteConfirm = async () => {
-  if (!logToDelete.value) {
+async function handleSave() {
+  if (selectedEmotionIds.value.length === 0) {
+    snackbarRef.value?.show('Please select at least one emotion.')
     return
   }
 
-  const logId = logToDelete.value.id
-  isDeleting.value = true
-  deletingLogId.value = logId
+  isSaving.value = true
+
+  const payload = {
+    emotionIds: [...selectedEmotionIds.value],
+    note: note.value.trim() || undefined,
+    peopleTagIds: selectedPeopleTagIds.value.length > 0 ? [...selectedPeopleTagIds.value] : undefined,
+    contextTagIds: selectedContextTagIds.value.length > 0 ? [...selectedContextTagIds.value] : undefined,
+    createdAt: undefined, // Let the repository auto-generate the timestamp
+  }
 
   try {
-    await emotionLogStore.deleteLog(logId)
-    showSnackbar('Emotion log deleted successfully.')
+    await emotionLogStore.createLog(payload)
+    snackbarRef.value?.show('Emotion logged successfully.')
+    resetForm()
   } catch (error) {
     const message =
       error instanceof Error
         ? error.message
-        : 'Failed to delete emotion log. Please try again.'
-    showSnackbar(message)
-    console.error('Error deleting emotion log:', error)
+        : 'Failed to save emotion log. Please try again.'
+    snackbarRef.value?.show(message)
+    console.error('Error saving emotion log:', error)
   } finally {
-    isDeleting.value = false
-    deletingLogId.value = null
-    logToDelete.value = null
+    isSaving.value = false
   }
 }
 
-const getEmotionName = (id: string): string | undefined => {
-  return emotionStore.getEmotionById(id)?.name
+async function ensureEmotionData() {
+  if (emotionStore.isLoaded) return
+
+  isEmotionDataLoading.value = true
+  try {
+    await emotionStore.loadEmotions()
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Failed to load emotions. Please try again.'
+    snackbarRef.value?.show(message)
+    console.error('Error loading emotions:', error)
+  } finally {
+    isEmotionDataLoading.value = false
+  }
 }
 
-const getPeopleTagName = (id: string): string | undefined => {
-  return tagStore.getPeopleTagById(id)?.name
-}
-
-const getContextTagName = (id: string): string | undefined => {
-  return tagStore.getContextTagById(id)?.name
-}
-
-const hasEmotionChips = (log: EmotionLog): boolean => {
-  return (log.emotionIds ?? []).some((id) => Boolean(getEmotionName(id)))
-}
-
-const hasTags = (log: EmotionLog): boolean => {
-  const hasPeople = (log.peopleTagIds ?? []).some((id) =>
-    Boolean(getPeopleTagName(id))
-  )
-  const hasContext = (log.contextTagIds ?? []).some((id) =>
-    Boolean(getContextTagName(id))
-  )
-  return hasPeople || hasContext
-}
-
-const getNotePreview = (note?: string): string => {
-  if (!note) {
-    return ''
+async function ensurePeopleTags() {
+  if (tagStore.peopleTags.length > 0) {
+    hasLoadedPeopleTags.value = true
+    return
   }
 
-  return note.length > 100 ? `${note.slice(0, 100)}...` : note
+  arePeopleTagsLoading.value = true
+  try {
+    await tagStore.loadPeopleTags()
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Failed to load people tags. Please try again.'
+    snackbarRef.value?.show(message)
+    console.error('Error loading people tags:', error)
+  } finally {
+    arePeopleTagsLoading.value = false
+    hasLoadedPeopleTags.value = true
+  }
+}
+
+async function ensureContextTags() {
+  if (tagStore.contextTags.length > 0) {
+    hasLoadedContextTags.value = true
+    return
+  }
+
+  areContextTagsLoading.value = true
+  try {
+    await tagStore.loadContextTags()
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Failed to load context tags. Please try again.'
+    snackbarRef.value?.show(message)
+    console.error('Error loading context tags:', error)
+  } finally {
+    areContextTagsLoading.value = false
+    hasLoadedContextTags.value = true
+  }
 }
 
 onMounted(async () => {
-  const loadPromises: Promise<unknown>[] = [emotionLogStore.loadLogs()]
-
-  if (!emotionStore.isLoaded) {
-    loadPromises.push(emotionStore.loadEmotions())
-  }
-
-  if (tagStore.peopleTags.length === 0) {
-    loadPromises.push(tagStore.loadPeopleTags())
-  }
-
-  if (tagStore.contextTags.length === 0) {
-    loadPromises.push(tagStore.loadContextTags())
-  }
-
-  await Promise.all(loadPromises)
-
-  if (emotionLogStore.error) {
-    showSnackbar(emotionLogStore.error)
-  }
+  await Promise.all([ensureEmotionData(), ensurePeopleTags(), ensureContextTags()])
 })
-
-watch(
-  () => emotionLogStore.error,
-  (newError) => {
-    if (newError) {
-      showSnackbar(newError)
-    }
-  }
-)
-
-watch(
-  () => tagStore.error,
-  (newError) => {
-    if (newError) {
-      showSnackbar(newError)
-    }
-  }
-)
 </script>

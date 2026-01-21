@@ -8,6 +8,7 @@ import ExercisesView from '@/views/ExercisesView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import PeriodicView from '@/views/PeriodicView.vue'
 import PeriodicEntryEditorView from '@/views/PeriodicEntryEditorView.vue'
+import HistoryView from '@/views/HistoryView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -63,6 +64,11 @@ const router = createRouter({
       path: '/emotions',
       name: 'emotions',
       component: EmotionsView,
+    },
+    {
+      path: '/history',
+      name: 'history',
+      component: HistoryView,
     },
     {
       path: '/emotions/edit',
