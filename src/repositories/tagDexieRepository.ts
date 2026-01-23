@@ -1,17 +1,16 @@
-import type { PeopleTag } from '@/domain/tag'
-import type { ContextTag } from '@/domain/tag'
-import type { PeopleTagRepository } from './tagRepository'
-import type { ContextTagRepository } from './tagRepository'
-import { db } from './journalDexieRepository'
-
-// Use the shared database instance from journalDexieRepository
-// The database schema (version 2) is already defined in MindfullGrowthDatabase
+import type { PeopleTag, ContextTag } from '@/domain/tag'
+import type { PeopleTagRepository, ContextTagRepository } from './tagRepository'
+import { getUserDatabase } from '@/services/userDatabase.service'
 
 // Implementation of PeopleTagRepository using IndexedDB via Dexie
 class PeopleTagDexieRepository implements PeopleTagRepository {
+  private get db() {
+    return getUserDatabase()
+  }
+
   async getAll(): Promise<PeopleTag[]> {
     try {
-      return await db.peopleTags.toArray()
+      return await this.db.peopleTags.toArray()
     } catch (error) {
       console.error('Failed to get all people tags:', error)
       throw new Error('Failed to retrieve people tags from database')
@@ -20,7 +19,7 @@ class PeopleTagDexieRepository implements PeopleTagRepository {
 
   async getById(id: string): Promise<PeopleTag | undefined> {
     try {
-      return await db.peopleTags.get(id)
+      return await this.db.peopleTags.get(id)
     } catch (error) {
       console.error(`Failed to get people tag with id ${id}:`, error)
       throw new Error(`Failed to retrieve people tag with id ${id}`)
@@ -33,7 +32,7 @@ class PeopleTagDexieRepository implements PeopleTagRepository {
         id: crypto.randomUUID(),
         name: data.name,
       }
-      await db.peopleTags.add(tag)
+      await this.db.peopleTags.add(tag)
       return tag
     } catch (error) {
       console.error('Failed to create people tag:', error)
@@ -43,7 +42,7 @@ class PeopleTagDexieRepository implements PeopleTagRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await db.peopleTags.delete(id)
+      await this.db.peopleTags.delete(id)
     } catch (error) {
       console.error(`Failed to delete people tag with id ${id}:`, error)
       throw new Error(`Failed to delete people tag with id ${id}`)
@@ -52,12 +51,12 @@ class PeopleTagDexieRepository implements PeopleTagRepository {
 
   async update(id: string, data: { name: string }): Promise<PeopleTag> {
     try {
-      const existing = await db.peopleTags.get(id)
+      const existing = await this.db.peopleTags.get(id)
       if (!existing) {
         throw new Error(`People tag with id ${id} not found`)
       }
       const updated: PeopleTag = { ...existing, name: data.name }
-      await db.peopleTags.put(updated)
+      await this.db.peopleTags.put(updated)
       return updated
     } catch (error) {
       console.error(`Failed to update people tag with id ${id}:`, error)
@@ -68,9 +67,13 @@ class PeopleTagDexieRepository implements PeopleTagRepository {
 
 // Implementation of ContextTagRepository using IndexedDB via Dexie
 class ContextTagDexieRepository implements ContextTagRepository {
+  private get db() {
+    return getUserDatabase()
+  }
+
   async getAll(): Promise<ContextTag[]> {
     try {
-      return await db.contextTags.toArray()
+      return await this.db.contextTags.toArray()
     } catch (error) {
       console.error('Failed to get all context tags:', error)
       throw new Error('Failed to retrieve context tags from database')
@@ -79,7 +82,7 @@ class ContextTagDexieRepository implements ContextTagRepository {
 
   async getById(id: string): Promise<ContextTag | undefined> {
     try {
-      return await db.contextTags.get(id)
+      return await this.db.contextTags.get(id)
     } catch (error) {
       console.error(`Failed to get context tag with id ${id}:`, error)
       throw new Error(`Failed to retrieve context tag with id ${id}`)
@@ -92,7 +95,7 @@ class ContextTagDexieRepository implements ContextTagRepository {
         id: crypto.randomUUID(),
         name: data.name,
       }
-      await db.contextTags.add(tag)
+      await this.db.contextTags.add(tag)
       return tag
     } catch (error) {
       console.error('Failed to create context tag:', error)
@@ -102,7 +105,7 @@ class ContextTagDexieRepository implements ContextTagRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await db.contextTags.delete(id)
+      await this.db.contextTags.delete(id)
     } catch (error) {
       console.error(`Failed to delete context tag with id ${id}:`, error)
       throw new Error(`Failed to delete context tag with id ${id}`)
@@ -111,12 +114,12 @@ class ContextTagDexieRepository implements ContextTagRepository {
 
   async update(id: string, data: { name: string }): Promise<ContextTag> {
     try {
-      const existing = await db.contextTags.get(id)
+      const existing = await this.db.contextTags.get(id)
       if (!existing) {
         throw new Error(`Context tag with id ${id} not found`)
       }
       const updated: ContextTag = { ...existing, name: data.name }
-      await db.contextTags.put(updated)
+      await this.db.contextTags.put(updated)
       return updated
     } catch (error) {
       console.error(`Failed to update context tag with id ${id}:`, error)

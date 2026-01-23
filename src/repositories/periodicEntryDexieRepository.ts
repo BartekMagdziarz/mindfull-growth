@@ -3,7 +3,7 @@ import type {
   PeriodicEntryType,
   CreatePeriodicEntryPayload,
 } from '@/domain/periodicEntry'
-import { db } from './journalDexieRepository'
+import { getUserDatabase } from '@/services/userDatabase.service'
 import { getPreviousPeriodRange, toISODateString } from '@/utils/periodUtils'
 
 export interface PeriodicEntryRepository {
@@ -24,9 +24,13 @@ export interface PeriodicEntryRepository {
 }
 
 class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
+  private get db() {
+    return getUserDatabase()
+  }
+
   async getAll(): Promise<PeriodicEntry[]> {
     try {
-      return await db.periodicEntries.toArray()
+      return await this.db.periodicEntries.toArray()
     } catch (error) {
       console.error('Failed to get all periodic entries:', error)
       throw new Error('Failed to retrieve periodic entries from database')
@@ -35,7 +39,7 @@ class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
 
   async getById(id: string): Promise<PeriodicEntry | undefined> {
     try {
-      return await db.periodicEntries.get(id)
+      return await this.db.periodicEntries.get(id)
     } catch (error) {
       console.error(`Failed to get periodic entry with id ${id}:`, error)
       throw new Error(`Failed to retrieve periodic entry with id ${id}`)
@@ -47,7 +51,7 @@ class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
     periodStartDate: string
   ): Promise<PeriodicEntry | undefined> {
     try {
-      return await db.periodicEntries
+      return await this.db.periodicEntries
         .where({ type, periodStartDate })
         .first()
     } catch (error) {
@@ -61,7 +65,7 @@ class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
 
   async getByType(type: PeriodicEntryType): Promise<PeriodicEntry[]> {
     try {
-      return await db.periodicEntries
+      return await this.db.periodicEntries
         .where('type')
         .equals(type)
         .toArray()
@@ -80,7 +84,7 @@ class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
       const prevRange = getPreviousPeriodRange(type, currentStart)
       const prevStartDate = toISODateString(prevRange.start)
 
-      return await db.periodicEntries
+      return await this.db.periodicEntries
         .where({ type, periodStartDate: prevStartDate })
         .first()
     } catch (error) {
@@ -109,7 +113,7 @@ class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
         aggregatedData: data.aggregatedData,
         previousEntryId: data.previousEntryId,
       }
-      await db.periodicEntries.add(entry)
+      await this.db.periodicEntries.add(entry)
       return entry
     } catch (error) {
       console.error('Failed to create periodic entry:', error)
@@ -123,7 +127,7 @@ class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
         ...entry,
         updatedAt: new Date().toISOString(),
       }
-      await db.periodicEntries.put(updatedEntry)
+      await this.db.periodicEntries.put(updatedEntry)
       return updatedEntry
     } catch (error) {
       console.error(`Failed to update periodic entry with id ${entry.id}:`, error)
@@ -133,7 +137,7 @@ class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await db.periodicEntries.delete(id)
+      await this.db.periodicEntries.delete(id)
     } catch (error) {
       console.error(`Failed to delete periodic entry with id ${id}:`, error)
       throw new Error(`Failed to delete periodic entry with id ${id}`)

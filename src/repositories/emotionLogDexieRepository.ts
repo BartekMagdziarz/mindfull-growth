@@ -1,19 +1,15 @@
-import type { Table } from 'dexie'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { EmotionLogRepository } from './emotionLogRepository'
-import { db } from '@/repositories/journalDexieRepository'
-
-type EmotionLogTable = Pick<
-  Table<EmotionLog, string>,
-  'toArray' | 'get' | 'add' | 'put' | 'delete'
->
+import { getUserDatabase } from '@/services/userDatabase.service'
 
 export class EmotionLogDexieRepository implements EmotionLogRepository {
-  constructor(private readonly table: EmotionLogTable = db.emotionLogs) {}
+  private get db() {
+    return getUserDatabase()
+  }
 
   async getAll(): Promise<EmotionLog[]> {
     try {
-      return await this.table.toArray()
+      return await this.db.emotionLogs.toArray()
     } catch (error) {
       console.error('Failed to get all emotion logs:', error)
       throw new Error('Failed to retrieve emotion logs from database')
@@ -22,7 +18,7 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
 
   async getById(id: string): Promise<EmotionLog | undefined> {
     try {
-      return await this.table.get(id)
+      return await this.db.emotionLogs.get(id)
     } catch (error) {
       console.error(`Failed to get emotion log with id ${id}:`, error)
       throw new Error(`Failed to retrieve emotion log with id ${id}`)
@@ -40,7 +36,7 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
         updatedAt: now,
         ...data,
       }
-      await this.table.add(log)
+      await this.db.emotionLogs.add(log)
       return log
     } catch (error) {
       console.error('Failed to create emotion log:', error)
@@ -59,7 +55,7 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
         ...log,
         updatedAt: new Date(nextTimestamp).toISOString(),
       }
-      await this.table.put(updatedLog)
+      await this.db.emotionLogs.put(updatedLog)
       return updatedLog
     } catch (error) {
       console.error(`Failed to update emotion log with id ${log.id}:`, error)
@@ -69,7 +65,7 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await this.table.delete(id)
+      await this.db.emotionLogs.delete(id)
     } catch (error) {
       console.error(`Failed to delete emotion log with id ${id}:`, error)
       throw new Error(`Failed to delete emotion log with id ${id}`)

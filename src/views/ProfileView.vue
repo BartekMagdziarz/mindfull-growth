@@ -1,10 +1,21 @@
 <template>
   <div class="container mx-auto px-4 py-6">
+    <!-- Account Section -->
     <AppCard>
-      <h2 class="text-2xl font-semibold text-on-surface mb-4">Profile</h2>
-      <p class="text-on-surface-variant mb-6">
-        This view will contain profile and browsing functionality.
-      </p>
+      <h2 class="text-2xl font-semibold text-on-surface mb-4">Account</h2>
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-on-surface font-medium">
+            {{ displayName || username }}
+          </p>
+          <p v-if="displayName" class="text-sm text-on-surface-variant">
+            @{{ username }}
+          </p>
+        </div>
+        <AppButton variant="outlined" @click="handleLogout">
+          Sign Out
+        </AppButton>
+      </div>
     </AppCard>
 
     <!-- Daily Habits Section -->
@@ -146,16 +157,23 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import { useAuthStore } from '@/stores/auth.store'
 import { seedMockData } from '@/utils/seedMockData'
 
 const API_KEY_STORAGE_KEY = 'openaiApiKey'
 
+const router = useRouter()
 const userPreferencesStore = useUserPreferencesStore()
+const authStore = useAuthStore()
+
+const username = computed(() => authStore.user?.username || '')
+const displayName = computed(() => authStore.user?.displayName || '')
 
 const apiKey = ref('')
 const isSeeding = ref(false)
@@ -242,6 +260,11 @@ async function handleEmotionTargetChange() {
     console.error('Error saving emotion target:', error)
     snackbarRef.value?.show('Failed to save preference.')
   }
+}
+
+async function handleLogout() {
+  await authStore.logout()
+  router.push('/login')
 }
 
 // Load existing settings on mount

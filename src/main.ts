@@ -6,8 +6,9 @@ import './styles/main.css'
 
 const app = createApp(App)
 
-app.use(createPinia())
+// Pinia must be installed before router (router guard uses auth store)
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 
 app.mount('#app')
-

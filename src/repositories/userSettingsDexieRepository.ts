@@ -1,14 +1,15 @@
 import type { UserSettingsRepository } from './userSettingsRepository'
-import { db } from './journalDexieRepository'
-
-// Use the shared database instance from journalDexieRepository
-// The database schema (version 4) is already defined in MindfullGrowthDatabase
+import { getUserDatabase } from '@/services/userDatabase.service'
 
 // Implementation of UserSettingsRepository using IndexedDB via Dexie
 class UserSettingsDexieRepository implements UserSettingsRepository {
+  private get db() {
+    return getUserDatabase()
+  }
+
   async get(key: string): Promise<string | undefined> {
     try {
-      const setting = await db.userSettings.get(key)
+      const setting = await this.db.userSettings.get(key)
       return setting?.value
     } catch (error) {
       console.error(`Failed to get setting with key ${key}:`, error)
@@ -18,7 +19,7 @@ class UserSettingsDexieRepository implements UserSettingsRepository {
 
   async set(key: string, value: string): Promise<void> {
     try {
-      await db.userSettings.put({ key, value })
+      await this.db.userSettings.put({ key, value })
     } catch (error) {
       console.error(`Failed to set setting with key ${key}:`, error)
       throw new Error(`Failed to save setting with key ${key}`)
@@ -27,7 +28,7 @@ class UserSettingsDexieRepository implements UserSettingsRepository {
 
   async delete(key: string): Promise<void> {
     try {
-      await db.userSettings.delete(key)
+      await this.db.userSettings.delete(key)
     } catch (error) {
       console.error(`Failed to delete setting with key ${key}:`, error)
       throw new Error(`Failed to delete setting with key ${key}`)

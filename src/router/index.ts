@@ -10,6 +10,8 @@ import PeriodicView from '@/views/PeriodicView.vue'
 import PeriodicEntryEditorView from '@/views/PeriodicEntryEditorView.vue'
 import HistoryView from '@/views/HistoryView.vue'
 
+const PUBLIC_ROUTES = ['login', 'signup']
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -17,6 +19,18 @@ const router = createRouter({
       path: '/',
       redirect: '/today',
     },
+    // Auth routes (public)
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/LoginView.vue'),
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('@/views/SignupView.vue'),
+    },
+    // Protected routes
     {
       path: '/today',
       name: 'today',
@@ -93,5 +107,32 @@ const router = createRouter({
   ],
 })
 
-export default router
+// Navigation guard for authentication
+// Import is done dynamically to avoid issues with WASM loading at module init time
+router.beforeEach(async (to, _from, next) => {
+  const { useAuthStore } = await import('@/stores/auth.store')
+  const authStore = useAuthStore()
 
+  // Initialize auth state if not already done
+  if (!authStore.isInitialized) {
+    await authStore.initialize()
+  }
+
+  const isPublicRoute = PUBLIC_ROUTES.includes(to.name as string)
+  const isAuthenticated = authStore.isAuthenticated
+
+  if (!isAuthenticated && !isPublicRoute) {
+    // Not authenticated and trying to access protected route
+    // Redirect to login with return URL
+    next({ name: 'login', query: { redirect: to.fullPath } })
+  } else if (isAuthenticated && isPublicRoute) {
+    // Already authenticated and trying to access login/signup
+    // Redirect to home
+    next({ name: 'today' })
+  } else {
+    // Proceed normally
+    next()
+  }
+})
+
+export default router
