@@ -3,18 +3,37 @@ import type { JournalEntry } from '@/domain/journal'
 import type { PeopleTag, ContextTag } from '@/domain/tag'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { PeriodicEntry } from '@/domain/periodicEntry'
+import type {
+  FocusArea,
+  Priority,
+  Project,
+  Commitment,
+  WeeklyPlan,
+  QuarterlyPlan,
+  YearlyPlan,
+} from '@/domain/planning'
 
 /**
  * Per-user database schema
  * Each user gets their own database: MindfullGrowthDB_<userId>
  */
 export class UserDatabase extends Dexie {
+  // Existing tables
   journalEntries!: Table<JournalEntry, string>
   peopleTags!: Table<PeopleTag, string>
   contextTags!: Table<ContextTag, string>
   emotionLogs!: Table<EmotionLog, string>
   userSettings!: Table<{ key: string; value: string }, string>
   periodicEntries!: Table<PeriodicEntry, string>
+
+  // Planning system tables (Epic 4)
+  focusAreas!: Table<FocusArea, string>
+  priorities!: Table<Priority, string>
+  projects!: Table<Project, string>
+  commitments!: Table<Commitment, string>
+  weeklyPlans!: Table<WeeklyPlan, string>
+  quarterlyPlans!: Table<QuarterlyPlan, string>
+  yearlyPlans!: Table<YearlyPlan, string>
 
   constructor(databaseName: string) {
     super(databaseName)
@@ -90,6 +109,43 @@ export class UserDatabase extends Dexie {
     })
     this.version(6).stores({
       periodicEntries: 'id, type, periodStartDate, [type+periodStartDate]',
+    })
+
+    // Version 7: Planning system tables (Epic 4)
+    // These tables support the new Planning & Reflection System
+    this.version(7).stores({
+      // Focus Areas: yearly high-level life areas
+      // Indexed by year for "get all focus areas for 2026" queries
+      // Indexed by isActive for filtering active/inactive
+      focusAreas: 'id, year, isActive',
+
+      // Priorities: directions within focus areas
+      // Indexed by focusAreaId for "get priorities for this focus area" queries
+      // Indexed by year for yearly queries
+      priorities: 'id, focusAreaId, year',
+
+      // Projects: quarterly initiatives
+      // Indexed by focusAreaId for "get projects for this focus area" queries
+      // Indexed by quarterStart for "get projects for Q1 2026" queries
+      // Indexed by status for filtering active/completed projects
+      projects: 'id, focusAreaId, quarterStart, status',
+
+      // Commitments: weekly actionable items
+      // Indexed by weekStartDate for "get commitments for this week" queries
+      // Indexed by projectId for "get commitments for this project" queries
+      commitments: 'id, weekStartDate, projectId',
+
+      // Weekly Plans: one per week (weekStartDate is unique)
+      // & prefix makes weekStartDate unique - only one plan per week
+      weeklyPlans: 'id, &weekStartDate',
+
+      // Quarterly Plans: one per quarter (year+quarter compound is unique)
+      // Compound index for efficient "get plan for Q1 2026" queries
+      quarterlyPlans: 'id, [year+quarter]',
+
+      // Yearly Plans: one per year (year is unique)
+      // & prefix makes year unique - only one plan per year
+      yearlyPlans: 'id, &year',
     })
   }
 }
