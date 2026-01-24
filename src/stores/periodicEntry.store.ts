@@ -26,10 +26,8 @@ export const usePeriodicEntryStore = defineStore('periodicEntry', () => {
     return sortedEntries.value.filter((e) => e.type === 'weekly')
   })
 
-  // Backward compatibility: monthlyEntries returns empty array
-  // Monthly type was removed but this getter is kept for any existing code
   const monthlyEntries = computed(() => {
-    return [] as PeriodicEntry[]
+    return sortedEntries.value.filter((e) => e.type === 'monthly')
   })
 
   const quarterlyEntries = computed(() => {
@@ -40,17 +38,13 @@ export const usePeriodicEntryStore = defineStore('periodicEntry', () => {
     return sortedEntries.value.filter((e) => e.type === 'yearly')
   })
 
-  const dailyEntries = computed(() => {
-    return sortedEntries.value.filter((e) => e.type === 'daily')
-  })
-
   // Helper to get entries by type
   function getEntriesByType(type: PeriodicEntryType): PeriodicEntry[] {
     switch (type) {
-      case 'daily':
-        return dailyEntries.value
       case 'weekly':
         return weeklyEntries.value
+      case 'monthly':
+        return monthlyEntries.value
       case 'quarterly':
         return quarterlyEntries.value
       case 'yearly':
@@ -241,7 +235,6 @@ export const usePeriodicEntryStore = defineStore('periodicEntry', () => {
     error,
     // Getters
     sortedEntries,
-    dailyEntries,
     weeklyEntries,
     monthlyEntries,
     quarterlyEntries,
