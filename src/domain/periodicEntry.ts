@@ -1,4 +1,6 @@
-export type PeriodicEntryType = 'weekly' | 'monthly' | 'quarterly' | 'yearly'
+import type { GoalReflection } from './lifeSeasons'
+
+export type PeriodicEntryType = 'daily' | 'weekly' | 'quarterly' | 'yearly'
 
 export type Quadrant =
   | 'high-energy-high-pleasantness'
@@ -47,6 +49,22 @@ export interface PeriodicEntry {
   // Auto-aggregated data (computed on creation, stored for history)
   aggregatedData: PeriodAggregatedData
   previousEntryId?: string // Reference to previous period's entry
+
+  // Journey feature: Goal linking
+  linkedGoalIds?: string[] // Goals active during this period
+  goalReflections?: GoalReflection[] // Reflections on linked goals
+
+  // Yearly-specific fields
+  yearlyVision?: string // Vision statement for yearly entries
+  yearlyTheme?: string // Theme/word for the year
+
+  // Daily-specific fields
+  morningIntention?: string // Morning intention for daily entries
+  eveningReflection?: string // Evening reflection for daily entries
+  quickWin?: string // One thing that went well
+
+  // Custom template data (stored as JSON for flexibility)
+  customSections?: Record<string, unknown>
 }
 
 // Helper type for creating new entries
@@ -63,6 +81,15 @@ export interface CreatePeriodicEntryPayload {
   intentionReflection?: string
   aggregatedData: PeriodAggregatedData
   previousEntryId?: string
+  // Journey feature fields
+  linkedGoalIds?: string[]
+  goalReflections?: GoalReflection[]
+  yearlyVision?: string
+  yearlyTheme?: string
+  morningIntention?: string
+  eveningReflection?: string
+  quickWin?: string
+  customSections?: Record<string, unknown>
 }
 
 // Helper type for updating entries
@@ -74,6 +101,15 @@ export interface UpdatePeriodicEntryPayload {
   freeWriting?: string
   intention?: string
   intentionReflection?: string
+  // Journey feature fields
+  linkedGoalIds?: string[]
+  goalReflections?: GoalReflection[]
+  yearlyVision?: string
+  yearlyTheme?: string
+  morningIntention?: string
+  eveningReflection?: string
+  quickWin?: string
+  customSections?: Record<string, unknown>
 }
 
 // Period display info for UI

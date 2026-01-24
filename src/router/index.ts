@@ -9,6 +9,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import PeriodicView from '@/views/PeriodicView.vue'
 import PeriodicEntryEditorView from '@/views/PeriodicEntryEditorView.vue'
 import HistoryView from '@/views/HistoryView.vue'
+import JourneyView from '@/views/JourneyView.vue'
 
 const PUBLIC_ROUTES = ['login', 'signup']
 
@@ -73,6 +74,39 @@ const router = createRouter({
       path: '/periodic/:id',
       name: 'periodic-view',
       component: PeriodicEntryEditorView,
+    },
+    // Journey - cascading periodic journals
+    {
+      path: '/journey',
+      name: 'journey',
+      component: JourneyView,
+    },
+    {
+      path: '/journey/yearly/new',
+      name: 'journey-yearly-new',
+      component: () => import('@/views/YearlyEntryEditorView.vue'),
+    },
+    {
+      path: '/journey/yearly/:id',
+      name: 'journey-yearly',
+      component: () => import('@/views/YearlyEntryEditorView.vue'),
+    },
+    {
+      path: '/journey/quarterly/:id?',
+      name: 'journey-quarterly',
+      component: () => import('@/views/PeriodicEntryEditorView.vue'),
+      meta: { periodType: 'quarterly' },
+    },
+    {
+      path: '/journey/weekly/:id?',
+      name: 'journey-weekly',
+      component: () => import('@/views/PeriodicEntryEditorView.vue'),
+      meta: { periodType: 'weekly' },
+    },
+    {
+      path: '/journey/daily/:date?',
+      name: 'journey-daily',
+      component: () => import('@/views/DailyCheckInView.vue'),
     },
     {
       path: '/emotions',

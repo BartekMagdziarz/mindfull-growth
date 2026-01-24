@@ -53,9 +53,9 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/today', label: 'Today' },
   { path: '/journal', label: 'Journal' },
+  { path: '/journey', label: 'Journey' },
   { path: '/emotions', label: 'Emotions' },
   { path: '/history', label: 'History' },
-  { path: '/exercises', label: 'Exercises' },
   { path: '/profile', label: 'Profile' },
 ]
 

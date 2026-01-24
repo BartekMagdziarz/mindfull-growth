@@ -39,25 +39,6 @@
           </div>
         </div>
       </AppCard>
-
-      <!-- Periodic Card -->
-      <AppCard
-        padding="lg"
-        class="w-full max-w-md cursor-pointer transition-all duration-200 hover:shadow-elevation-2 active:scale-[0.98]"
-        @click="handlePeriodicClick"
-      >
-        <div class="flex items-start gap-4">
-          <div class="flex-shrink-0 mt-1">
-            <CalendarIcon class="w-8 h-8 text-primary" />
-          </div>
-          <div class="flex-1">
-            <h3 class="text-xl font-semibold text-on-surface mb-2">Periodic</h3>
-            <p class="text-on-surface-variant">
-              Scheduled reflection moments
-            </p>
-          </div>
-        </div>
-      </AppCard>
     </div>
 
     <!-- Link to History -->
@@ -84,7 +65,6 @@ import AppSnackbar from '@/components/AppSnackbar.vue'
 import {
   PencilIcon,
   LightBulbIcon,
-  CalendarIcon,
   ArrowRightIcon,
 } from '@heroicons/vue/24/outline'
 
@@ -97,9 +77,5 @@ const handleFreeFormClick = () => {
 
 const handleGuidedClick = () => {
   snackbarRef.value?.show('Coming soon')
-}
-
-const handlePeriodicClick = () => {
-  router.push('/periodic')
 }
 </script>

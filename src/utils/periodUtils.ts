@@ -66,6 +66,19 @@ export function getYearRange(date: Date = new Date()): PeriodRange {
 }
 
 /**
+ * Get the day range for a given date (single day)
+ */
+export function getDayRange(date: Date = new Date()): PeriodRange {
+  const start = new Date(date)
+  start.setHours(0, 0, 0, 0)
+
+  const end = new Date(date)
+  end.setHours(23, 59, 59, 999)
+
+  return { start, end }
+}
+
+/**
  * Get period range based on type
  */
 export function getPeriodRange(
@@ -73,10 +86,10 @@ export function getPeriodRange(
   date: Date = new Date()
 ): PeriodRange {
   switch (type) {
+    case 'daily':
+      return getDayRange(date)
     case 'weekly':
       return getWeekRange(date)
-    case 'monthly':
-      return getMonthRange(date)
     case 'quarterly':
       return getQuarterRange(date)
     case 'yearly':
@@ -94,12 +107,12 @@ export function getPreviousPeriodRange(
   const prevDate = new Date(currentStart)
 
   switch (type) {
+    case 'daily':
+      prevDate.setDate(prevDate.getDate() - 1)
+      return getDayRange(prevDate)
     case 'weekly':
       prevDate.setDate(prevDate.getDate() - 7)
       return getWeekRange(prevDate)
-    case 'monthly':
-      prevDate.setMonth(prevDate.getMonth() - 1)
-      return getMonthRange(prevDate)
     case 'quarterly':
       prevDate.setMonth(prevDate.getMonth() - 3)
       return getQuarterRange(prevDate)
@@ -150,6 +163,8 @@ export function formatDateRange(start: Date, end: Date, type: PeriodicEntryType)
   ]
 
   switch (type) {
+    case 'daily':
+      return `${months[start.getMonth()]} ${start.getDate()}, ${start.getFullYear()}`
     case 'weekly': {
       const startMonth = months[start.getMonth()]
       const endMonth = months[end.getMonth()]
@@ -158,8 +173,6 @@ export function formatDateRange(start: Date, end: Date, type: PeriodicEntryType)
       }
       return `${startMonth} ${start.getDate()} - ${endMonth} ${end.getDate()}`
     }
-    case 'monthly':
-      return `${months[start.getMonth()]} ${start.getFullYear()}`
     case 'quarterly':
       return `Q${getQuarterNumber(start)} ${start.getFullYear()}`
     case 'yearly':
@@ -172,10 +185,10 @@ export function formatDateRange(start: Date, end: Date, type: PeriodicEntryType)
  */
 export function getPeriodLabel(type: PeriodicEntryType, date: Date): string {
   switch (type) {
+    case 'daily':
+      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
     case 'weekly':
       return `Week ${getWeekNumber(date)}`
-    case 'monthly':
-      return new Date(date).toLocaleDateString('en-US', { month: 'long' })
     case 'quarterly':
       return `Q${getQuarterNumber(date)}`
     case 'yearly':
@@ -220,10 +233,10 @@ export function isSamePeriod(range1: PeriodRange, range2: PeriodRange): boolean 
  */
 export function getTypeLabel(type: PeriodicEntryType): string {
   switch (type) {
+    case 'daily':
+      return 'Daily'
     case 'weekly':
       return 'Weekly'
-    case 'monthly':
-      return 'Monthly'
     case 'quarterly':
       return 'Quarterly'
     case 'yearly':

@@ -112,6 +112,15 @@ class PeriodicEntryDexieRepository implements PeriodicEntryRepository {
         intentionReflection: data.intentionReflection,
         aggregatedData: data.aggregatedData,
         previousEntryId: data.previousEntryId,
+        // Journey feature fields
+        linkedGoalIds: data.linkedGoalIds,
+        goalReflections: data.goalReflections,
+        yearlyVision: data.yearlyVision,
+        yearlyTheme: data.yearlyTheme,
+        morningIntention: data.morningIntention,
+        eveningReflection: data.eveningReflection,
+        quickWin: data.quickWin,
+        customSections: data.customSections,
       }
       await this.db.periodicEntries.add(entry)
       return entry

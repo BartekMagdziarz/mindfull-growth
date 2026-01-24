@@ -19,8 +19,14 @@
 
       <!-- Dashboard Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Left Column: Actions -->
+        <!-- Left Column: Actions & Trackers -->
         <div class="flex flex-col items-center gap-6">
+          <!-- Daily Intention from Journey -->
+          <DailyIntentionCard />
+
+          <!-- Tracker Dashboard -->
+          <TrackerDashboard v-if="hasTrackers" />
+
           <DailyJournalCard
             :entry-count="todayJournalCount"
             :has-entry="hasTodayJournal"
@@ -34,7 +40,7 @@
         </div>
 
         <!-- Right Column: Context -->
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center gap-6">
           <WeekSummaryCard :summary="weekSummary" />
         </div>
       </div>
@@ -49,11 +55,14 @@ import WeeklyReviewBanner from '@/components/today/WeeklyReviewBanner.vue'
 import DailyJournalCard from '@/components/today/DailyJournalCard.vue'
 import EmotionProgressCard from '@/components/today/EmotionProgressCard.vue'
 import WeekSummaryCard from '@/components/today/WeekSummaryCard.vue'
+import DailyIntentionCard from '@/components/today/DailyIntentionCard.vue'
+import TrackerDashboard from '@/components/today/TrackerDashboard.vue'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { usePeriodicEntryStore } from '@/stores/periodicEntry.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import { useGoalTrackerStore } from '@/stores/goalTracker.store'
 import {
   getTodayJournalEntries,
   getTodayEmotionLogs,
@@ -69,6 +78,7 @@ const emotionLogStore = useEmotionLogStore()
 const periodicEntryStore = usePeriodicEntryStore()
 const emotionStore = useEmotionStore()
 const userPreferencesStore = useUserPreferencesStore()
+const goalTrackerStore = useGoalTrackerStore()
 
 const isLoading = ref(true)
 
@@ -87,6 +97,9 @@ const hasTodayJournal = computed(() => todayJournalCount.value > 0)
 
 // Preferences
 const emotionTarget = computed(() => userPreferencesStore.dailyEmotionTarget)
+
+// Trackers
+const hasTrackers = computed(() => goalTrackerStore.dailyTrackers.length > 0)
 
 // Weekly review
 const showWeeklyReviewBanner = computed(() =>
@@ -154,6 +167,7 @@ onMounted(async () => {
       emotionLogStore.loadLogs(),
       periodicEntryStore.loadEntries(),
       emotionStore.loadEmotions(),
+      goalTrackerStore.loadAll(),
     ])
   } catch (error) {
     console.error('Failed to load Today view data:', error)

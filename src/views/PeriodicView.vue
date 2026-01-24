@@ -38,7 +38,7 @@ const periodicEntryStore = usePeriodicEntryStore()
 const journalStore = useJournalStore()
 const emotionLogStore = useEmotionLogStore()
 
-const periodTypes: PeriodicEntryType[] = ['weekly', 'monthly', 'quarterly', 'yearly']
+const periodTypes: PeriodicEntryType[] = ['weekly', 'quarterly', 'yearly']
 
 const isLoading = computed(() => periodicEntryStore.isLoading)
 const error = computed(() => periodicEntryStore.error)

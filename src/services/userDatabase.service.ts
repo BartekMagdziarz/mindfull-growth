@@ -3,6 +3,12 @@ import type { JournalEntry } from '@/domain/journal'
 import type { PeopleTag, ContextTag } from '@/domain/tag'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { PeriodicEntry } from '@/domain/periodicEntry'
+import type {
+  CascadingGoal,
+  GoalTracker,
+  TrackerEntry,
+  PeriodTemplate,
+} from '@/domain/lifeSeasons'
 
 /**
  * Per-user database schema
@@ -15,6 +21,11 @@ export class UserDatabase extends Dexie {
   emotionLogs!: Table<EmotionLog, string>
   userSettings!: Table<{ key: string; value: string }, string>
   periodicEntries!: Table<PeriodicEntry, string>
+  // Journey feature tables
+  cascadingGoals!: Table<CascadingGoal, string>
+  goalTrackers!: Table<GoalTracker, string>
+  trackerEntries!: Table<TrackerEntry, string>
+  periodTemplates!: Table<PeriodTemplate, string>
 
   constructor(databaseName: string) {
     super(databaseName)
@@ -90,6 +101,14 @@ export class UserDatabase extends Dexie {
     })
     this.version(6).stores({
       periodicEntries: 'id, type, periodStartDate, [type+periodStartDate]',
+    })
+
+    // Version 7: Journey feature - cascading goals, trackers, and templates
+    this.version(7).stores({
+      cascadingGoals: 'id, sourceEntryId, sourcePeriodType, status, parentGoalId',
+      goalTrackers: 'id, goalId, frequency',
+      trackerEntries: 'id, trackerId, date, [trackerId+date]',
+      periodTemplates: 'id, periodType',
     })
   }
 }
