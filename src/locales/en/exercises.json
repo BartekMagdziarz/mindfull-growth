@@ -1,0 +1,291 @@
+{
+  "title": "Exercises",
+  "subtitle": "Self-discovery and mental-health exercises you can do at any time.",
+  "aiAssisted": "AI-assisted exercise",
+  "views": {
+    "backToExercises": "Back to Exercises",
+    "pastRecords": "Past Records",
+    "pastSessions": "Past Sessions",
+    "pastEntries": "Past Entries",
+    "pastExplorations": "Past Explorations",
+    "pastDialogues": "Past Dialogues",
+    "pastLabs": "Past Labs",
+    "pastPractices": "Past Practices",
+    "pastShifts": "Past Shifts",
+    "pastLetters": "Past Letters",
+    "pastAssessments": "Past Assessments",
+    "pastExperiments": "Past Experiments",
+    "pastPlans": "Past Plans",
+    "pastHierarchies": "Past Hierarchies",
+    "yourLogs": "Your Logs",
+    "newLog": "New Log",
+    "backToLogs": "Back to logs",
+    "loadingLogs": "Loading logs...",
+    "noEntriesYet": "No entries yet. Complete your first exercise above.",
+    "noSessionsYet": "No sessions yet. Complete your first practice above.",
+    "averageSpaceCreated": "Average space created",
+    "spaceBadge": "Space: {n}/10",
+    "before": "Before",
+    "after": "After",
+    "part": "Part:",
+    "unknown": "Unknown",
+    "habitPrompt": "Make this a daily practice?",
+    "habitPromptDescription": "Track your consistency with a habit.",
+    "createHabit": "Create Habit",
+    "pastMaps": "Past Maps",
+    "noMapsYet": "No maps yet. Create your first parts map above.",
+    "partCount": "{n} part",
+    "partsCount": "{n} parts",
+    "connectionCount": "{n} connection",
+    "connectionsCount": "{n} connections",
+    "pastAppreciations": "Past Appreciations",
+    "noAppreciationsYet": "No appreciations yet. Thank a protector above.",
+    "protector": "Protector:",
+    "workloadBadge": "Workload: {n}/10",
+    "commitmentSet": "Commitment set",
+    "pastWitnessings": "Past Witnessings",
+    "noWitnessingsYet": "No witnessings yet. Begin the exercise above when you feel ready.",
+    "exile": "Exile:",
+    "protectors": "Protectors:",
+    "postStateCalmer": "Calmer",
+    "postStateSame": "About the same",
+    "postStateMoreDistressed": "More distressed",
+    "pastCheckIns": "Past Check-Ins",
+    "noCheckInsYet": "No check-ins yet. Start your first assessment above.",
+    "totalCheckIns": "Total check-ins",
+    "strongest": "Strongest:",
+    "weakest": "Weakest:",
+    "lowest": "Lowest:",
+    "selfEnergyHabitPrompt": "Track your daily 8 C's check-in?",
+    "selfEnergyHabitDescription": "Build consistency with a habit tracker.",
+    "noDialoguesYet": "No dialogues yet. Start your first parts dialogue above.",
+    "messagesCount": "{n} messages",
+    "insightsCount": "{n} insights",
+    "intention": "Intention:",
+    "aiAssistedBadge": "AI-assisted",
+    "pastConstellations": "Past Constellations",
+    "noConstellationsYet": "No constellations yet. Map at least 3 parts first, then explore how they relate.",
+    "partsLabel": "{n} parts",
+    "polarized": "polarized",
+    "allied": "allied",
+    "protectorExile": "protector-exile",
+    "selfLabel": "Self",
+    "noDirectAccessYet": "No sessions yet. Start your first dialogue above.",
+    "job": "Job:",
+    "fear": "Fear:",
+    "need": "Need:",
+    "noTrailheadsYet": "No trailheads yet. Start by capturing a recent emotional trigger above.",
+    "trailheadsLogged": "{n} trailhead logged",
+    "trailheadsLoggedPlural": "{n} trailheads logged",
+    "dailyCheckInHabitPrompt": "Track your daily IFS check-in?",
+    "dailyCheckInHabitDescription": "Build a streak with a habit tracker.",
+    "noCheckInsYetDaily": "No check-ins yet. Pick a quick practice to start.",
+    "checkInsThisWeek": "{n} check-in this week",
+    "checkInsThisWeekPlural": "{n} check-ins this week",
+    "practiceWeatherReport": "Weather Report",
+    "practiceGratitude": "Gratitude",
+    "practiceSelfEnergy": "Self-Energy",
+    "practiceEvening": "Evening",
+    "thanked": "Thanked",
+    "focusedOn": "Focused on:",
+    "leadership": "Leadership:",
+    "appreciated": "Appreciated:",
+    "leadershipMostlySelf": "Mostly from Self",
+    "leadershipMostlyPart": "Mostly from a part",
+    "leadershipMixed": "A mix",
+    "noUnblendingYet": "No sessions yet. Complete your first unblending practice above."
+  },
+  "tabs": {
+    "selfDiscovery": "Self-Discovery",
+    "cbt": "CBT",
+    "logotherapy": "Logotherapy",
+    "ifs": "IFS"
+  },
+  "cards": {
+    "valuesDiscovery": {
+      "title": "Values Discovery",
+      "subtitle": "Identify your core values",
+      "description": "List people you admire, identify the qualities you value, and distill your core values."
+    },
+    "wheelOfLife": {
+      "title": "Wheel of Life",
+      "subtitle": "Assess your life balance",
+      "description": "Define your life areas and rate each one to see where you're aligned and where you have gaps."
+    },
+    "shadowBeliefs": {
+      "title": "Shadow Beliefs",
+      "subtitle": "Surface hidden assumptions",
+      "description": "Identify self-sabotaging beliefs and reframe them. Not therapy — awareness-building."
+    },
+    "transformativePurpose": {
+      "title": "Transformative Purpose",
+      "subtitle": "Define your north star",
+      "description": "Move from curiosity to contribution with a provisional purpose statement."
+    },
+    "ipipBfm50": {
+      "title": "IPIP Big Five (50)",
+      "subtitle": "Fast trait baseline",
+      "description": "50-item Big Five marker assessment with scale means and practical interpretation bands."
+    },
+    "ipipNeo120": {
+      "title": "IPIP-NEO (120)",
+      "subtitle": "Deep trait profile",
+      "description": "120-item Big Five domain assessment with robust missing-data handling and retake tracking."
+    },
+    "hexaco60": {
+      "title": "HEXACO (60)",
+      "subtitle": "Six-factor profile",
+      "description": "60-item HEXACO assessment covering Honesty-Humility, Emotionality, and four additional domains."
+    },
+    "pvq40": {
+      "title": "PVQ-40 Values",
+      "subtitle": "Motivational priorities",
+      "description": "Portrait Values Questionnaire with MRAT-centered values by default and raw-score toggle."
+    },
+    "vlq": {
+      "title": "VLQ Values Alignment",
+      "subtitle": "Importance vs consistency",
+      "description": "Rate 10 life domains for value importance and living consistency to reveal top values and gaps."
+    },
+    "worryTree": {
+      "title": "Worry Tree",
+      "subtitle": "Manage worry in minutes",
+      "description": "Classify your worry as a real problem or hypothetical, then take the right action — plan it or let it go."
+    },
+    "cognitiveDistortions": {
+      "title": "Cognitive Distortions",
+      "subtitle": "Spot thinking traps",
+      "description": "Learn 14 common thinking traps and identify which ones show up in your own thoughts."
+    },
+    "thoughtRecord": {
+      "title": "Thought Record",
+      "subtitle": "Restructure negative thoughts",
+      "description": "Walk through a 7-column thought record to examine evidence and develop balanced thinking."
+    },
+    "coreBeliefs": {
+      "title": "Core Beliefs",
+      "subtitle": "Explore your deepest beliefs",
+      "description": "Use the Downward Arrow technique to uncover core beliefs and develop balanced alternatives."
+    },
+    "compassionateLetter": {
+      "title": "Compassionate Letter",
+      "subtitle": "Write to yourself with kindness",
+      "description": "Voice your inner critic, then respond with the compassion you'd show a good friend."
+    },
+    "positiveDataLog": {
+      "title": "Positive Data Log",
+      "subtitle": "Collect evidence against negative beliefs",
+      "description": "An ongoing log to systematically challenge a core belief by recording contradicting evidence over time."
+    },
+    "behavioralExperiment": {
+      "title": "Behavioral Experiment",
+      "subtitle": "Test your beliefs with evidence",
+      "description": "Design and run real-world experiments to test whether negative beliefs are accurate."
+    },
+    "behavioralActivation": {
+      "title": "Behavioral Activation",
+      "subtitle": "Schedule mood-boosting activities",
+      "description": "Plan and track pleasurable and meaningful activities across your week to combat low mood."
+    },
+    "structuredProblemSolving": {
+      "title": "Structured Problem Solving",
+      "subtitle": "Break down overwhelming problems",
+      "description": "Define, brainstorm, evaluate, and plan — a systematic approach when problems feel too big."
+    },
+    "gradedExposure": {
+      "title": "Graded Exposure",
+      "subtitle": "Build your fear ladder",
+      "description": "Create a hierarchy of feared situations from easiest to hardest, then work through them systematically."
+    },
+    "threePathways": {
+      "title": "Three Pathways to Meaning",
+      "subtitle": "Map your sources of meaning",
+      "description": "Map what you create, experience, and how you respond to difficulty — the three ways Frankl identified we find meaning."
+    },
+    "socraticDialogue": {
+      "title": "Socratic Self-Dialogue",
+      "subtitle": "Discover your own answers",
+      "description": "An LLM-guided conversation that helps you discover your own answers about meaning, values, and purpose."
+    },
+    "mountainRange": {
+      "title": "Mountain Range of Meaning",
+      "subtitle": "Discover your life themes",
+      "description": "Plot the peaks and valleys of your life to discover the themes that have always mattered to you."
+    },
+    "paradoxicalIntention": {
+      "title": "Paradoxical Intention Lab",
+      "subtitle": "Break anxiety with humor",
+      "description": "Break anxiety cycles by humorously intending the thing you fear. Frankl's technique for when worry makes things worse."
+    },
+    "dereflection": {
+      "title": "Dereflection Practice",
+      "subtitle": "Redirect toward meaning",
+      "description": "Redirect attention from a fixation toward meaningful activities. Based on Frankl's self-transcendence concept."
+    },
+    "tragicOptimism": {
+      "title": "Tragic Optimism",
+      "subtitle": "Find meaning in difficulty",
+      "description": "Find meaning within suffering, guilt, or awareness of limited time. Professional guidance recommended."
+    },
+    "attitudinalShift": {
+      "title": "Attitudinal Shift",
+      "subtitle": "Choose your response",
+      "description": "Transform 'because this happened, I can't...' into 'although this happened, I choose to...' — Frankl's freedom of response."
+    },
+    "legacyLetter": {
+      "title": "Legacy Letter",
+      "subtitle": "Write your life's meaning",
+      "description": "Write a letter about the meaning you want your life to create. Connects all three pathways to meaning."
+    },
+    "partsMapping": {
+      "title": "Parts Mapping",
+      "subtitle": "Map your inner system",
+      "description": "Create a visual map of your inner parts — their roles, fears, and relationships. The foundation for all IFS work."
+    },
+    "unblending": {
+      "title": "Unblending Quick Practice",
+      "subtitle": "Create space from parts",
+      "description": "Practice creating distance between your Self and an activated part. A core IFS skill for daily use."
+    },
+    "directAccess": {
+      "title": "Direct Access Dialogue",
+      "subtitle": "Talk to your parts",
+      "description": "Speak directly to a part through LLM-assisted dialogue. Learn its perspective, fears, and positive intentions."
+    },
+    "trailhead": {
+      "title": "Trailhead Journal",
+      "subtitle": "Follow emotional triggers",
+      "description": "Use emotional triggers as entry points to discover and understand your parts over time."
+    },
+    "protectorAppreciation": {
+      "title": "Protector Appreciation",
+      "subtitle": "Thank your protectors",
+      "description": "Build a relationship with a protector part by understanding its job and thanking it for its effort."
+    },
+    "exileWitnessing": {
+      "title": "Exile Witnessing",
+      "subtitle": "Approach with compassion",
+      "description": "Gently approach a vulnerable part with compassion. Professional guidance recommended."
+    },
+    "selfEnergy": {
+      "title": "Self-Energy (8 C's)",
+      "subtitle": "Strengthen your Self",
+      "description": "Strengthen your connection to Self through daily check-ins with the 8 C's framework."
+    },
+    "partsDialogue": {
+      "title": "Parts Dialogue Journal",
+      "subtitle": "Write to your parts",
+      "description": "Write a structured conversation between Self and a part, with optional AI assistance when stuck."
+    },
+    "dailyCheckIn": {
+      "title": "Daily IFS Check-In",
+      "subtitle": "Quick daily practice",
+      "description": "Quick daily micro-practices to stay connected to your inner system."
+    },
+    "constellation": {
+      "title": "Inner System Constellation",
+      "subtitle": "Map part relationships",
+      "description": "Map the dynamic relationships between your parts — alliances, conflicts, and hidden connections. Professional guidance recommended."
+    }
+  }
+}

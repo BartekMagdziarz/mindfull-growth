@@ -162,28 +162,34 @@ describe('Component interactions', () => {
       screen.getByRole('button', { name: /select High Energy \/ High Pleasantness quadrant/i })
     )
     await user.click(
-      await screen.findByRole('button', { name: /Select emotion Happy/i, timeout: 3000 })
+      await screen.findByRole(
+        'gridcell',
+        { name: /Select emotion Happy/i },
+        { timeout: 3000 }
+      )
     )
 
-    await screen.findByLabelText('Remove Happy')
+    await screen.findByRole('button', { name: /Remove Happy from selection/i })
 
     // Switch quadrants and ensure selection persists
     await user.click(
       screen.getByRole('button', { name: /Select High Energy \/ Low Pleasantness quadrant/i })
     )
-    await screen.findByLabelText('Remove Happy')
+    await screen.findByRole('button', { name: /Remove Happy from selection/i })
 
     // Add people tag
-    const peopleInput = screen.getByLabelText(/Add people tag/i)
+    await user.click(screen.getByRole('button', { name: /Add new people tag/i }))
+    const peopleInput = screen.getByLabelText(/New people tag name/i)
     await user.type(peopleInput, 'Mom')
     await user.keyboard('{Enter}')
-    await screen.findByLabelText('Remove Mom')
+    await screen.findByRole('button', { name: /Deselect people tag Mom/i })
 
     // Add context tag
-    const contextInput = screen.getByLabelText(/Add context tag/i)
+    await user.click(screen.getByRole('button', { name: /Add new context tag/i }))
+    const contextInput = screen.getByLabelText(/New context tag name/i)
     await user.type(contextInput, 'Office')
     await user.keyboard('{Enter}')
-    await screen.findByLabelText('Remove Office')
+    await screen.findByRole('button', { name: /Deselect context tag Office/i })
 
     // Body text enables save
     const bodyField = screen.getByLabelText(/journal entry/i)
@@ -192,13 +198,15 @@ describe('Component interactions', () => {
 
     await user.click(saveButton)
 
-    expect(mockJournalStore.createEntry).toHaveBeenCalledWith({
-      title: undefined,
-      body: 'Today I felt amazing after a morning run.',
-      emotionIds: ['happy'],
-      peopleTagIds: ['people-1'],
-      contextTagIds: ['context-1'],
-    })
+    expect(mockJournalStore.createEntry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: undefined,
+        body: 'Today I felt amazing after a morning run.',
+        emotionIds: ['happy'],
+        peopleTagIds: ['people-1'],
+        contextTagIds: ['context-1'],
+      })
+    )
   })
 
   it('enforces emotion selection validation in EmotionLogEditorView', async () => {
@@ -210,14 +218,17 @@ describe('Component interactions', () => {
     })
 
     const saveButton = await screen.findByRole('button', { name: 'Save' })
-    expect(saveButton).toBeDisabled()
+    expect(saveButton).toBeEnabled()
+    await user.click(saveButton)
+    expect(mockEmotionLogStore.createLog).not.toHaveBeenCalled()
+    await screen.findByText(/Please select at least one emotion/i)
 
     await user.click(
       screen.getByRole('button', { name: /select High Energy \/ High Pleasantness quadrant/i })
     )
     const getEmotionButton = async (label: string) => {
       const buttons = await screen.findAllByRole(
-        'button',
+        'gridcell',
         { name: /Select emotion/i },
         { timeout: 3000 }
       )
@@ -233,32 +244,26 @@ describe('Component interactions', () => {
     const joyfulButton = await getEmotionButton('joyful')
     await user.click(joyfulButton)
     expect(saveButton).toBeEnabled()
+    await screen.findByRole('button', { name: /Remove Joyful from selection/i })
 
-    // Add tags then remove emotion to ensure validation kicks in again
-    const peopleInput = screen.getByLabelText(/Add people tag/i)
-    await user.type(peopleInput, 'Coach')
+    // Add tags then save
+    await user.click(screen.getByRole('button', { name: /Add new people tag/i }))
+    await user.type(screen.getByLabelText(/New people tag name/i), 'Coach')
     await user.keyboard('{Enter}')
-    await screen.findByRole('button', { name: /Remove Coach from selection/i })
-
-    await user.click(screen.getByRole('button', { name: /Remove Joyful from selection/i }))
-    expect(saveButton).toBeDisabled()
-
-    // Re-add an emotion and save
-    await user.click(
-      screen.getByRole('button', { name: /select High Energy \/ High Pleasantness quadrant/i })
-    )
-    const joyfulButton2 = await getEmotionButton('joyful')
-    await user.click(joyfulButton2)
-    expect(saveButton).toBeEnabled()
+    await screen.findByRole('button', { name: /Deselect people tag Coach/i })
 
     await user.type(screen.getByLabelText(/note/i), 'Reflection note')
     await user.click(saveButton)
 
-    expect(mockEmotionLogStore.createLog).toHaveBeenCalledWith({
-      emotionIds: ['joyful'],
-      note: 'Reflection note',
-      peopleTagIds: ['people-1'],
-      contextTagIds: undefined,
+    await waitFor(() => {
+      expect(mockEmotionLogStore.createLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          emotionIds: ['joyful'],
+          note: 'Reflection note',
+          peopleTagIds: ['people-1'],
+          contextTagIds: undefined,
+        })
+      )
     })
   })
 })

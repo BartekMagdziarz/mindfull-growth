@@ -63,7 +63,9 @@ describe('Journal Flow Integration', () => {
     expect(duplicateMom.id).toBe(momTag.id)
 
     // Verify emotion IDs resolve correctly
-    const resolvedEmotions = createdEntry.emotionIds.map((id) => emotionStore.getEmotionById(id))
+    expect(createdEntry.emotionIds).toEqual(emotionIds)
+    const createdEmotionIds = createdEntry.emotionIds ?? []
+    const resolvedEmotions = createdEmotionIds.map((id) => emotionStore.getEmotionById(id))
     expect(resolvedEmotions.every((emotion) => emotion?.name)).toBe(true)
   })
 
@@ -149,5 +151,4 @@ describe('Journal Flow Integration', () => {
     expect(contextTagsInDb).toHaveLength(1)
   })
 })
-
 

@@ -7,16 +7,15 @@
  */
 
 import type {
-  FocusArea,
   Priority,
   Project,
   ProjectStatus,
   Commitment,
   WeeklyPlan,
-  QuarterlyPlan,
+  MonthlyPlan,
   YearlyPlan,
-  CreateFocusAreaPayload,
-  UpdateFocusAreaPayload,
+  Tracker,
+  TrackerPeriod,
   CreatePriorityPayload,
   UpdatePriorityPayload,
   CreateProjectPayload,
@@ -25,67 +24,36 @@ import type {
   UpdateCommitmentPayload,
   CreateWeeklyPlanPayload,
   UpdateWeeklyPlanPayload,
-  CreateQuarterlyPlanPayload,
-  UpdateQuarterlyPlanPayload,
+  CreateMonthlyPlanPayload,
+  UpdateMonthlyPlanPayload,
   CreateYearlyPlanPayload,
   UpdateYearlyPlanPayload,
+  CreateTrackerPayload,
+  UpdateTrackerPayload,
+  CreateTrackerPeriodPayload,
+  UpdateTrackerPeriodPayload,
 } from '@/domain/planning'
 
-// ============================================================================
-// Focus Area Repository
-// ============================================================================
+import type {
+  Habit,
+  HabitOccurrence,
+  CreateHabitPayload,
+  UpdateHabitPayload,
+  CreateHabitOccurrencePayload,
+  UpdateHabitOccurrencePayload,
+} from '@/domain/habit'
 
-/**
- * Repository interface for FocusArea entities
- *
- * Focus Areas are yearly high-level life areas that users want to invest in.
- * They serve as the top-level organizational unit in the planning hierarchy.
- */
-export interface FocusAreaRepository {
-  /**
-   * Get all Focus Areas
-   */
-  getAll(): Promise<FocusArea[]>
-
-  /**
-   * Get a Focus Area by ID
-   * @returns The Focus Area or undefined if not found
-   */
-  getById(id: string): Promise<FocusArea | undefined>
-
-  /**
-   * Get all Focus Areas for a specific year
-   * @param year - The year (e.g., 2026)
-   */
-  getByYear(year: number): Promise<FocusArea[]>
-
-  /**
-   * Get all active Focus Areas for a specific year
-   * @param year - The year (e.g., 2026)
-   */
-  getActiveByYear(year: number): Promise<FocusArea[]>
-
-  /**
-   * Create a new Focus Area
-   * @param data - Focus Area data (without id, createdAt, updatedAt)
-   * @returns The created Focus Area with generated fields
-   */
-  create(data: CreateFocusAreaPayload): Promise<FocusArea>
-
-  /**
-   * Update an existing Focus Area
-   * @param id - The Focus Area ID
-   * @param data - Partial Focus Area data to update
-   * @returns The updated Focus Area
-   */
-  update(id: string, data: UpdateFocusAreaPayload): Promise<FocusArea>
-
-  /**
-   * Delete a Focus Area
-   * @param id - The Focus Area ID
-   */
-  delete(id: string): Promise<void>
-}
+import type {
+  YearlyReflection,
+  MonthlyReflection,
+  WeeklyReflection,
+  CreateYearlyReflectionPayload,
+  UpdateYearlyReflectionPayload,
+  CreateMonthlyReflectionPayload,
+  UpdateMonthlyReflectionPayload,
+  CreateWeeklyReflectionPayload,
+  UpdateWeeklyReflectionPayload,
+} from '@/domain/reflection'
 
 // ============================================================================
 // Priority Repository
@@ -94,8 +62,8 @@ export interface FocusAreaRepository {
 /**
  * Repository interface for Priority entities
  *
- * Priorities represent directions of change within a Focus Area.
- * Each Focus Area can have multiple Priorities (recommended 1-3).
+ * Priorities represent directions of change within linked Life Areas.
+ * Each Life Area can have multiple Priorities (recommended 1-3).
  */
 export interface PriorityRepository {
   /**
@@ -110,10 +78,10 @@ export interface PriorityRepository {
   getById(id: string): Promise<Priority | undefined>
 
   /**
-   * Get all Priorities for a specific Focus Area
-   * @param focusAreaId - The Focus Area ID
+   * Get all Priorities linked to a specific Life Area
+   * @param lifeAreaId - The Life Area ID
    */
-  getByFocusAreaId(focusAreaId: string): Promise<Priority[]>
+  getByLifeAreaId(lifeAreaId: string): Promise<Priority[]>
 
   /**
    * Get all Priorities for a specific year
@@ -149,11 +117,10 @@ export interface PriorityRepository {
   delete(id: string): Promise<void>
 
   /**
-   * Delete all Priorities for a Focus Area
-   * Useful when deleting a Focus Area and its children
-   * @param focusAreaId - The Focus Area ID
+   * Delete all Priorities linked to a Life Area
+   * @param lifeAreaId - The Life Area ID
    */
-  deleteByFocusAreaId(focusAreaId: string): Promise<void>
+  deleteByLifeAreaId(lifeAreaId: string): Promise<void>
 }
 
 // ============================================================================
@@ -163,8 +130,8 @@ export interface PriorityRepository {
 /**
  * Repository interface for Project entities
  *
- * Projects are quarterly multi-week initiatives tied to Focus Areas
- * and optionally to Priorities.
+ * Projects are multi-week initiatives tied to Life Areas and optionally to Priorities.
+ * Projects can be linked to multiple months via monthIds.
  */
 export interface ProjectRepository {
   /**
@@ -179,16 +146,22 @@ export interface ProjectRepository {
   getById(id: string): Promise<Project | undefined>
 
   /**
-   * Get all Projects for a specific quarter
-   * @param quarterStart - ISO date string of quarter start (e.g., "2026-01-01")
+   * Get all Projects for a specific month plan
+   * @param monthId - The MonthlyPlan ID
    */
-  getByQuarter(quarterStart: string): Promise<Project[]>
+  getByMonthId(monthId: string): Promise<Project[]>
 
   /**
-   * Get all Projects for a specific Focus Area
-   * @param focusAreaId - The Focus Area ID
+   * Get all Projects linked to any of the given month plans
+   * @param monthIds - Array of MonthlyPlan IDs
    */
-  getByFocusAreaId(focusAreaId: string): Promise<Project[]>
+  getByMonthIds(monthIds: string[]): Promise<Project[]>
+
+  /**
+   * Get all Projects linked to a specific Life Area
+   * @param lifeAreaId - The Life Area ID
+   */
+  getByLifeAreaId(lifeAreaId: string): Promise<Project[]>
 
   /**
    * Get all Projects with a specific status
@@ -224,64 +197,97 @@ export interface ProjectRepository {
 }
 
 // ============================================================================
-// Commitment Repository
+// Tracker Repository (Unified)
 // ============================================================================
 
 /**
- * Repository interface for Commitment entities
- *
- * Commitments are weekly actionable items linked to Projects or Focus Areas.
- * They represent the small moves that advance projects forward.
+ * Repository interface for Tracker entities (unified)
  */
+export interface TrackerRepository {
+  getAll(): Promise<Tracker[]>
+  getById(id: string): Promise<Tracker | undefined>
+  getByParent(parentType: 'project' | 'habit' | 'commitment', parentId: string): Promise<Tracker[]>
+  getByLifeAreaId(lifeAreaId: string): Promise<Tracker[]>
+  getByPriorityId(priorityId: string): Promise<Tracker[]>
+  getStandalone(): Promise<Tracker[]>
+  getActive(): Promise<Tracker[]>
+  create(data: CreateTrackerPayload): Promise<Tracker>
+  update(id: string, data: UpdateTrackerPayload): Promise<Tracker>
+  delete(id: string): Promise<void>
+  deleteByParent(parentType: 'project' | 'habit' | 'commitment', parentId: string): Promise<void>
+}
+
+// ============================================================================
+// Tracker Period Repository
+// ============================================================================
+
+/**
+ * Repository interface for TrackerPeriod entities
+ */
+export interface TrackerPeriodRepository {
+  getAll(): Promise<TrackerPeriod[]>
+  getById(id: string): Promise<TrackerPeriod | undefined>
+  getByTrackerId(trackerId: string): Promise<TrackerPeriod[]>
+  getByTrackerIdAndDateRange(trackerId: string, startDate: string, endDate: string): Promise<TrackerPeriod[]>
+  getByTrackerIdAndPeriod(trackerId: string, startDate: string): Promise<TrackerPeriod | undefined>
+  getByDateRange(startDate: string, endDate: string): Promise<TrackerPeriod[]>
+  getByHabitId(habitId: string): Promise<TrackerPeriod[]>
+  create(data: CreateTrackerPeriodPayload): Promise<TrackerPeriod>
+  update(id: string, data: UpdateTrackerPeriodPayload): Promise<TrackerPeriod>
+  delete(id: string): Promise<void>
+  deleteByTrackerId(trackerId: string): Promise<void>
+}
+
+// ============================================================================
+// Habit Repository
+// ============================================================================
+
+/**
+ * Repository interface for Habit entities
+ */
+export interface HabitRepository {
+  getAll(): Promise<Habit[]>
+  getById(id: string): Promise<Habit | undefined>
+  getActive(): Promise<Habit[]>
+  create(data: CreateHabitPayload): Promise<Habit>
+  update(id: string, data: UpdateHabitPayload): Promise<Habit>
+  delete(id: string): Promise<void>
+}
+
+// ============================================================================
+// Habit Occurrence Repository
+// ============================================================================
+
+/**
+ * Repository interface for HabitOccurrence entities
+ */
+export interface HabitOccurrenceRepository {
+  getAll(): Promise<HabitOccurrence[]>
+  getById(id: string): Promise<HabitOccurrence | undefined>
+  getByHabitId(habitId: string): Promise<HabitOccurrence[]>
+  getByHabitIdAndPeriod(
+    habitId: string,
+    periodStartDate: string
+  ): Promise<HabitOccurrence | undefined>
+  create(data: CreateHabitOccurrencePayload): Promise<HabitOccurrence>
+  update(id: string, data: UpdateHabitOccurrencePayload): Promise<HabitOccurrence>
+  delete(id: string): Promise<void>
+}
+
+// ============================================================================
+// Commitment Repository
+// ============================================================================
 export interface CommitmentRepository {
-  /**
-   * Get all Commitments
-   */
   getAll(): Promise<Commitment[]>
-
-  /**
-   * Get a Commitment by ID
-   * @returns The Commitment or undefined if not found
-   */
   getById(id: string): Promise<Commitment | undefined>
-
-  /**
-   * Get all Commitments for a specific week
-   * @param weekStartDate - ISO date string of week start (Monday)
-   */
-  getByWeek(weekStartDate: string): Promise<Commitment[]>
-
-  /**
-   * Get all Commitments for a specific Project
-   * @param projectId - The Project ID
-   */
+  getByWeeklyPlanId(weeklyPlanId: string): Promise<Commitment[]>
+  getByMonthlyPlanId(monthlyPlanId: string): Promise<Commitment[]>
   getByProjectId(projectId: string): Promise<Commitment[]>
-
-  /**
-   * Get all Commitments for a specific Focus Area (direct link, not via Project)
-   * @param focusAreaId - The Focus Area ID
-   */
-  getByFocusAreaId(focusAreaId: string): Promise<Commitment[]>
-
-  /**
-   * Create a new Commitment
-   * @param data - Commitment data (without id, createdAt, updatedAt)
-   * @returns The created Commitment with generated fields
-   */
+  getByLifeAreaId(lifeAreaId: string): Promise<Commitment[]>
+  getByDateRange(startDate: string, endDate: string): Promise<Commitment[]>
+  getByPeriodType(periodType: 'weekly' | 'monthly'): Promise<Commitment[]>
   create(data: CreateCommitmentPayload): Promise<Commitment>
-
-  /**
-   * Update an existing Commitment
-   * @param id - The Commitment ID
-   * @param data - Partial Commitment data to update
-   * @returns The updated Commitment
-   */
   update(id: string, data: UpdateCommitmentPayload): Promise<Commitment>
-
-  /**
-   * Delete a Commitment
-   * @param id - The Commitment ID
-   */
   delete(id: string): Promise<void>
 }
 
@@ -294,6 +300,7 @@ export interface CommitmentRepository {
  *
  * Weekly Plans capture the output of weekly planning sessions,
  * including capacity notes, focus sentences, and linked commitments.
+ * Plans now use flexible user-defined date ranges.
  */
 export interface WeeklyPlanRepository {
   /**
@@ -308,12 +315,18 @@ export interface WeeklyPlanRepository {
   getById(id: string): Promise<WeeklyPlan | undefined>
 
   /**
-   * Get the Weekly Plan for a specific week
-   * Each week should have at most one plan (weekStartDate is unique)
-   * @param weekStartDate - ISO date string of week start (Monday)
-   * @returns The Weekly Plan or undefined if not found
+   * Get all Weekly Plans where the given date falls within their range
+   * @param date - The date to check (ISO string)
+   * @returns Weekly Plans containing the date
    */
-  getByWeek(weekStartDate: string): Promise<WeeklyPlan | undefined>
+  getByDateOverlap(date: string): Promise<WeeklyPlan[]>
+
+  /**
+   * Get all Weekly Plans within a date range
+   * @param startDate - Start of range (ISO string)
+   * @param endDate - End of range (ISO string)
+   */
+  getByDateRange(startDate: string, endDate: string): Promise<WeeklyPlan[]>
 
   /**
    * Create a new Weekly Plan
@@ -338,60 +351,66 @@ export interface WeeklyPlanRepository {
 }
 
 // ============================================================================
-// Quarterly Plan Repository
+// Monthly Plan Repository
 // ============================================================================
 
 /**
- * Repository interface for QuarterlyPlan entities
+ * Repository interface for MonthlyPlan entities
  *
- * Quarterly Plans capture the output of quarterly planning sessions,
+ * Monthly Plans capture the output of monthly planning sessions,
  * including focus area selection, intentions, and linked projects.
+ * Plans now use flexible user-defined date ranges.
  */
-export interface QuarterlyPlanRepository {
+export interface MonthlyPlanRepository {
   /**
-   * Get all Quarterly Plans
+   * Get all Monthly Plans
    */
-  getAll(): Promise<QuarterlyPlan[]>
+  getAll(): Promise<MonthlyPlan[]>
 
   /**
-   * Get a Quarterly Plan by ID
-   * @returns The Quarterly Plan or undefined if not found
+   * Get a Monthly Plan by ID
+   * @returns The Monthly Plan or undefined if not found
    */
-  getById(id: string): Promise<QuarterlyPlan | undefined>
+  getById(id: string): Promise<MonthlyPlan | undefined>
 
   /**
-   * Get the Quarterly Plan for a specific quarter
-   * Each quarter should have at most one plan (year+quarter is unique)
-   * @param year - The year (e.g., 2026)
-   * @param quarter - The quarter (1, 2, 3, or 4)
-   * @returns The Quarterly Plan or undefined if not found
+   * Get all Monthly Plans where the given date falls within their range
+   * @param date - The date to check (ISO string)
+   * @returns Monthly Plans containing the date
    */
-  getByQuarter(year: number, quarter: 1 | 2 | 3 | 4): Promise<QuarterlyPlan | undefined>
+  getByDateOverlap(date: string): Promise<MonthlyPlan[]>
 
   /**
-   * Get all Quarterly Plans for a specific year
+   * Get all Monthly Plans for a specific year
    * @param year - The year (e.g., 2026)
    */
-  getByYear(year: number): Promise<QuarterlyPlan[]>
+  getByYear(year: number): Promise<MonthlyPlan[]>
 
   /**
-   * Create a new Quarterly Plan
-   * @param data - Quarterly Plan data (without id, createdAt, updatedAt)
-   * @returns The created Quarterly Plan with generated fields
+   * Get all Monthly Plans within a date range
+   * @param startDate - Start of range (ISO string)
+   * @param endDate - End of range (ISO string)
    */
-  create(data: CreateQuarterlyPlanPayload): Promise<QuarterlyPlan>
+  getByDateRange(startDate: string, endDate: string): Promise<MonthlyPlan[]>
 
   /**
-   * Update an existing Quarterly Plan
-   * @param id - The Quarterly Plan ID
-   * @param data - Partial Quarterly Plan data to update
-   * @returns The updated Quarterly Plan
+   * Create a new Monthly Plan
+   * @param data - Monthly Plan data (without id, createdAt, updatedAt)
+   * @returns The created Monthly Plan with generated fields
    */
-  update(id: string, data: UpdateQuarterlyPlanPayload): Promise<QuarterlyPlan>
+  create(data: CreateMonthlyPlanPayload): Promise<MonthlyPlan>
 
   /**
-   * Delete a Quarterly Plan
-   * @param id - The Quarterly Plan ID
+   * Update an existing Monthly Plan
+   * @param id - The Monthly Plan ID
+   * @param data - Partial Monthly Plan data to update
+   * @returns The updated Monthly Plan
+   */
+  update(id: string, data: UpdateMonthlyPlanPayload): Promise<MonthlyPlan>
+
+  /**
+   * Delete a Monthly Plan
+   * @param id - The Monthly Plan ID
    */
   delete(id: string): Promise<void>
 }
@@ -405,6 +424,7 @@ export interface QuarterlyPlanRepository {
  *
  * Yearly Plans capture the output of yearly planning sessions,
  * including the year theme and linked focus areas.
+ * Plans now use flexible user-defined date ranges.
  */
 export interface YearlyPlanRepository {
   /**
@@ -419,12 +439,17 @@ export interface YearlyPlanRepository {
   getById(id: string): Promise<YearlyPlan | undefined>
 
   /**
-   * Get the Yearly Plan for a specific year
-   * Each year should have at most one plan (year is unique)
-   * @param year - The year (e.g., 2026)
-   * @returns The Yearly Plan or undefined if not found
+   * Get all Yearly Plans where the given date falls within their range
+   * @param date - The date to check (ISO string)
+   * @returns Yearly Plans containing the date
    */
-  getByYear(year: number): Promise<YearlyPlan | undefined>
+  getByDateOverlap(date: string): Promise<YearlyPlan[]>
+
+  /**
+   * Get all Yearly Plans for a specific year (by year field for grouping)
+   * @param year - The year (e.g., 2026)
+   */
+  getByYear(year: number): Promise<YearlyPlan[]>
 
   /**
    * Create a new Yearly Plan
@@ -447,3 +472,157 @@ export interface YearlyPlanRepository {
    */
   delete(id: string): Promise<void>
 }
+
+// ============================================================================
+// Yearly Reflection Repository
+// ============================================================================
+
+/**
+ * Repository interface for YearlyReflection entities
+ *
+ * Yearly Reflections capture reflections on yearly planning periods,
+ * stored separately from the YearlyPlan itself.
+ */
+export interface YearlyReflectionRepository {
+  /**
+   * Get all Yearly Reflections
+   */
+  getAll(): Promise<YearlyReflection[]>
+
+  /**
+   * Get a Yearly Reflection by ID
+   * @returns The Yearly Reflection or undefined if not found
+   */
+  getById(id: string): Promise<YearlyReflection | undefined>
+
+  /**
+   * Get the Yearly Reflection for a specific YearlyPlan
+   * @param yearlyPlanId - The YearlyPlan ID
+   * @returns The Yearly Reflection or undefined if not found
+   */
+  getByYearlyPlanId(yearlyPlanId: string): Promise<YearlyReflection | undefined>
+
+  /**
+   * Create a new Yearly Reflection
+   * @param data - Yearly Reflection data (without id, createdAt, updatedAt)
+   * @returns The created Yearly Reflection with generated fields
+   */
+  create(data: CreateYearlyReflectionPayload): Promise<YearlyReflection>
+
+  /**
+   * Update an existing Yearly Reflection
+   * @param id - The Yearly Reflection ID
+   * @param data - Partial Yearly Reflection data to update
+   * @returns The updated Yearly Reflection
+   */
+  update(id: string, data: UpdateYearlyReflectionPayload): Promise<YearlyReflection>
+
+  /**
+   * Delete a Yearly Reflection
+   * @param id - The Yearly Reflection ID
+   */
+  delete(id: string): Promise<void>
+}
+
+// ============================================================================
+// Monthly Reflection Repository
+// ============================================================================
+
+/**
+ * Repository interface for MonthlyReflection entities
+ *
+ * Monthly Reflections capture reflections on monthly planning periods,
+ * stored separately from the MonthlyPlan itself.
+ */
+export interface MonthlyReflectionRepository {
+  /**
+   * Get all Monthly Reflections
+   */
+  getAll(): Promise<MonthlyReflection[]>
+
+  /**
+   * Get a Monthly Reflection by ID
+   * @returns The Monthly Reflection or undefined if not found
+   */
+  getById(id: string): Promise<MonthlyReflection | undefined>
+
+  /**
+   * Get the Monthly Reflection for a specific MonthlyPlan
+   * @param monthlyPlanId - The MonthlyPlan ID
+   * @returns The Monthly Reflection or undefined if not found
+   */
+  getByMonthlyPlanId(monthlyPlanId: string): Promise<MonthlyReflection | undefined>
+
+  /**
+   * Create a new Monthly Reflection
+   * @param data - Monthly Reflection data (without id, createdAt, updatedAt)
+   * @returns The created Monthly Reflection with generated fields
+   */
+  create(data: CreateMonthlyReflectionPayload): Promise<MonthlyReflection>
+
+  /**
+   * Update an existing Monthly Reflection
+   * @param id - The Monthly Reflection ID
+   * @param data - Partial Monthly Reflection data to update
+   * @returns The updated Monthly Reflection
+   */
+  update(id: string, data: UpdateMonthlyReflectionPayload): Promise<MonthlyReflection>
+
+  /**
+   * Delete a Monthly Reflection
+   * @param id - The Monthly Reflection ID
+   */
+  delete(id: string): Promise<void>
+}
+
+// ============================================================================
+// Weekly Reflection Repository
+// ============================================================================
+
+/**
+ * Repository interface for WeeklyReflection entities
+ *
+ * Weekly Reflections capture reflections on weekly planning periods,
+ * stored separately from the WeeklyPlan itself.
+ */
+export interface WeeklyReflectionRepository {
+  /**
+   * Get all Weekly Reflections
+   */
+  getAll(): Promise<WeeklyReflection[]>
+
+  /**
+   * Get a Weekly Reflection by ID
+   * @returns The Weekly Reflection or undefined if not found
+   */
+  getById(id: string): Promise<WeeklyReflection | undefined>
+
+  /**
+   * Get the Weekly Reflection for a specific WeeklyPlan
+   * @param weeklyPlanId - The WeeklyPlan ID
+   * @returns The Weekly Reflection or undefined if not found
+   */
+  getByWeeklyPlanId(weeklyPlanId: string): Promise<WeeklyReflection | undefined>
+
+  /**
+   * Create a new Weekly Reflection
+   * @param data - Weekly Reflection data (without id, createdAt, updatedAt)
+   * @returns The created Weekly Reflection with generated fields
+   */
+  create(data: CreateWeeklyReflectionPayload): Promise<WeeklyReflection>
+
+  /**
+   * Update an existing Weekly Reflection
+   * @param id - The Weekly Reflection ID
+   * @param data - Partial Weekly Reflection data to update
+   * @returns The updated Weekly Reflection
+   */
+  update(id: string, data: UpdateWeeklyReflectionPayload): Promise<WeeklyReflection>
+
+  /**
+   * Delete a Weekly Reflection
+   * @param id - The Weekly Reflection ID
+   */
+  delete(id: string): Promise<void>
+}
+

@@ -48,7 +48,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
   }
 
   async function createLog(
-    payload: Omit<EmotionLog, 'id' | 'updatedAt'> & { createdAt?: string }
+    payload: Omit<EmotionLog, 'id' | 'createdAt' | 'updatedAt'> & { createdAt?: string }
   ): Promise<EmotionLog> {
     error.value = null
     try {
@@ -109,5 +109,4 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
     deleteLog,
   }
 })
-
 

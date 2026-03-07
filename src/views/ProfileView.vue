@@ -2,7 +2,7 @@
   <div class="container mx-auto px-4 py-6">
     <!-- Account Section -->
     <AppCard>
-      <h2 class="text-2xl font-semibold text-on-surface mb-4">Account</h2>
+      <h2 class="text-2xl font-semibold text-on-surface mb-4">{{ t('profile.account.title') }}</h2>
       <div class="flex items-center justify-between">
         <div>
           <p class="text-on-surface font-medium">
@@ -13,22 +13,37 @@
           </p>
         </div>
         <AppButton variant="outlined" @click="handleLogout">
-          Sign Out
+          {{ t('common.buttons.signOut') }}
+        </AppButton>
+      </div>
+    </AppCard>
+
+    <!-- Life Areas Link -->
+    <AppCard class="mt-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-xl font-semibold text-on-surface">{{ t('profile.lifeAreas.title') }}</h3>
+          <p class="text-sm text-on-surface-variant">
+            {{ t('profile.lifeAreas.description') }}
+          </p>
+        </div>
+        <AppButton variant="outlined" @click="router.push('/areas')">
+          {{ t('common.buttons.manage') }}
         </AppButton>
       </div>
     </AppCard>
 
     <!-- Daily Habits Section -->
     <AppCard class="mt-6">
-      <h3 class="text-xl font-semibold text-on-surface mb-2">Daily Habits</h3>
+      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.dailyHabits.title') }}</h3>
       <p class="text-sm text-on-surface-variant mb-4">
-        Customize when you want to be prompted for weekly reviews and how many emotion check-ins you'd like to do each day.
+        {{ t('profile.dailyHabits.description') }}
       </p>
 
       <!-- Weekly Review Day -->
       <div class="mb-4">
         <label for="weeklyReviewDay" class="block text-sm font-medium text-on-surface mb-2">
-          Weekly review day
+          {{ t('profile.dailyHabits.weeklyReviewDay') }}
         </label>
         <select
           id="weeklyReviewDay"
@@ -36,23 +51,19 @@
           class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
           @change="handleWeeklyReviewDayChange"
         >
-          <option :value="0">Sunday</option>
-          <option :value="1">Monday</option>
-          <option :value="2">Tuesday</option>
-          <option :value="3">Wednesday</option>
-          <option :value="4">Thursday</option>
-          <option :value="5">Friday</option>
-          <option :value="6">Saturday</option>
+          <option v-for="day in 7" :key="day - 1" :value="day - 1">
+            {{ t(`common.days.${day - 1}`) }}
+          </option>
         </select>
         <p class="mt-2 text-sm text-on-surface-variant">
-          You'll be prompted to reflect on your week on this day.
+          {{ t('profile.dailyHabits.weeklyReviewDayHint') }}
         </p>
       </div>
 
       <!-- Daily Emotion Target -->
       <div>
         <label for="emotionTarget" class="block text-sm font-medium text-on-surface mb-2">
-          Daily emotion check-ins
+          {{ t('profile.dailyHabits.dailyEmotionTarget') }}
         </label>
         <input
           id="emotionTarget"
@@ -64,28 +75,81 @@
           @change="handleEmotionTargetChange"
         />
         <p class="mt-2 text-sm text-on-surface-variant">
-          How many times per day you'd like to log your emotions (1-10).
+          {{ t('profile.dailyHabits.dailyEmotionTargetHint') }}
+        </p>
+      </div>
+    </AppCard>
+
+    <!-- Appearance Section -->
+    <AppCard class="mt-6">
+      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.appearance.title') }}</h3>
+      <p class="text-sm text-on-surface-variant mb-4">
+        {{ t('profile.appearance.description') }}
+      </p>
+
+      <div>
+        <label for="themePreference" class="block text-sm font-medium text-on-surface mb-2">
+          {{ t('profile.appearance.colorTheme') }}
+        </label>
+        <select
+          id="themePreference"
+          v-model="themePreference"
+          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
+          @change="handleThemePreferenceChange"
+        >
+          <option value="current">{{ t('profile.appearance.themes.current') }}</option>
+          <option value="sky-mist">{{ t('profile.appearance.themes.skyMist') }}</option>
+          <option value="sunrise-cloud">{{ t('profile.appearance.themes.sunriseCloud') }}</option>
+        </select>
+        <p class="mt-2 text-sm text-on-surface-variant">
+          {{ t('profile.appearance.themeHint') }}
+        </p>
+      </div>
+    </AppCard>
+
+    <!-- Language Section -->
+    <AppCard class="mt-6">
+      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.language.title') }}</h3>
+      <p class="text-sm text-on-surface-variant mb-4">
+        {{ t('profile.language.description') }}
+      </p>
+
+      <div>
+        <label for="languagePreference" class="block text-sm font-medium text-on-surface mb-2">
+          {{ t('profile.language.label') }}
+        </label>
+        <select
+          id="languagePreference"
+          v-model="languagePreference"
+          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
+          @change="handleLanguagePreferenceChange"
+        >
+          <option value="en">{{ t('profile.language.locales.en') }}</option>
+          <option value="pl">{{ t('profile.language.locales.pl') }}</option>
+        </select>
+        <p class="mt-2 text-sm text-on-surface-variant">
+          {{ t('profile.language.hint') }}
         </p>
       </div>
     </AppCard>
 
     <!-- AI Settings Section -->
     <AppCard class="mt-6">
-      <h3 class="text-xl font-semibold text-on-surface mb-2">AI Settings</h3>
+      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.aiSettings.title') }}</h3>
       <p class="text-sm text-on-surface-variant mb-4">
-        Connect your own OpenAI API key so the assistant can respond to your journal chats. Your key stays on this device and is never shared.
+        {{ t('profile.aiSettings.description') }}
       </p>
 
       <!-- API Key Input -->
       <div class="mb-4">
         <label for="apiKey" class="block text-sm font-medium text-on-surface mb-2">
-          OpenAI API Key
+          {{ t('profile.aiSettings.apiKeyLabel') }}
         </label>
         <input
           id="apiKey"
           v-model="apiKey"
           type="password"
-          placeholder="sk-..."
+          :placeholder="t('profile.aiSettings.apiKeyPlaceholder')"
           :class="[
             'w-full px-4 py-3 rounded-xl border-2 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors',
             apiKeyError
@@ -98,24 +162,23 @@
           {{ apiKeyError }}
         </p>
         <p v-else class="mt-2 text-sm text-on-surface-variant">
-          Your API key is stored locally in your browser. Get a key from
+          {{ t('profile.aiSettings.apiKeyHint') }}
           <a
             href="https://platform.openai.com/api-keys"
             target="_blank"
             rel="noopener noreferrer"
             class="text-primary hover:underline"
           >
-            OpenAI's website
-          </a>
-          .
+            {{ t('profile.aiSettings.apiKeyHintLink') }}
+          </a>.
         </p>
       </div>
 
       <!-- Model Display -->
       <div class="mb-6">
         <p class="text-sm text-on-surface-variant">
-          <span class="font-medium">Model:</span> gpt-4o-mini
-          <span class="text-xs">(can be changed in the future)</span>
+          <span class="font-medium">{{ t('profile.aiSettings.model') }}:</span> gpt-4o-mini
+          <span class="text-xs">{{ t('profile.aiSettings.modelNote') }}</span>
         </p>
       </div>
 
@@ -125,29 +188,87 @@
         :disabled="!canSave"
         @click="handleSave"
       >
-        <span v-if="isSaving">Saving...</span>
-        <span v-else>Save</span>
+        <span v-if="isSaving">{{ t('common.saving') }}</span>
+        <span v-else>{{ t('common.buttons.save') }}</span>
       </AppButton>
     </AppCard>
 
     <!-- Developer Tools Section -->
     <AppCard class="mt-6">
-      <h3 class="text-xl font-semibold text-on-surface mb-2">Developer Tools</h3>
+      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.devTools.title') }}</h3>
       <p class="text-sm text-on-surface-variant mb-4">
-        Tools for testing and development. These will be removed in production.
+        {{ t('profile.devTools.description') }}
       </p>
 
-      <AppButton
-        variant="tonal"
-        :disabled="isSeeding"
-        @click="handleSeedMockData"
-      >
-        <span v-if="isSeeding">Seeding data...</span>
-        <span v-else>Seed Mock Data (Jan 12-18)</span>
-      </AppButton>
-      <p class="mt-2 text-xs text-on-surface-variant">
-        Creates sample journal entries and emotion logs for testing the periodic entries feature.
-      </p>
+      <!-- Data Management -->
+      <div class="mb-6">
+        <h4 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3">{{ t('profile.devTools.dataManagement') }}</h4>
+        <div class="flex flex-wrap gap-2">
+          <AppButton
+            variant="outlined"
+            :disabled="isSeeding"
+            @click="handleSeeder('clearAll')"
+          >
+            {{ t('profile.devTools.clearAll') }}
+          </AppButton>
+          <AppButton
+            variant="outlined"
+            :disabled="isSeeding"
+            @click="handleSeeder('clearPlanning')"
+          >
+            {{ t('profile.devTools.clearPlanning') }}
+          </AppButton>
+        </div>
+        <p class="mt-2 text-xs text-on-surface-variant">
+          {{ t('profile.devTools.clearPlanningHint') }}
+        </p>
+      </div>
+
+      <!-- Focused Seeders -->
+      <div class="mb-6">
+        <h4 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3">{{ t('profile.devTools.focusedSeeders') }}</h4>
+        <p class="text-xs text-on-surface-variant mb-3">
+          {{ t('profile.devTools.seedersHint') }}
+        </p>
+        <div class="space-y-3">
+          <div>
+            <AppButton variant="tonal" :disabled="isSeeding" @click="handleSeeder('foundation')">
+              <span v-if="activeSeeder === 'foundation'">{{ t('profile.devTools.seeding') }}</span>
+              <span v-else>{{ t('profile.devTools.foundation') }}</span>
+            </AppButton>
+            <span class="ml-2 text-xs text-on-surface-variant">{{ t('profile.devTools.foundationDesc') }}</span>
+          </div>
+          <div>
+            <AppButton variant="tonal" :disabled="isSeeding" @click="handleSeeder('habits')">
+              <span v-if="activeSeeder === 'habits'">{{ t('profile.devTools.seeding') }}</span>
+              <span v-else>{{ t('profile.devTools.habits') }}</span>
+            </AppButton>
+            <span class="ml-2 text-xs text-on-surface-variant">{{ t('profile.devTools.habitsDesc') }}</span>
+          </div>
+          <div>
+            <AppButton variant="tonal" :disabled="isSeeding" @click="handleSeeder('projects')">
+              <span v-if="activeSeeder === 'projects'">{{ t('profile.devTools.seeding') }}</span>
+              <span v-else>{{ t('profile.devTools.projectsKRs') }}</span>
+            </AppButton>
+            <span class="ml-2 text-xs text-on-surface-variant">{{ t('profile.devTools.projectsDesc') }}</span>
+          </div>
+          <div>
+            <AppButton variant="tonal" :disabled="isSeeding" @click="handleSeeder('weeklyPlanning')">
+              <span v-if="activeSeeder === 'weeklyPlanning'">{{ t('profile.devTools.seeding') }}</span>
+              <span v-else>{{ t('profile.devTools.weeklyPlanning') }}</span>
+            </AppButton>
+            <span class="ml-2 text-xs text-on-surface-variant">{{ t('profile.devTools.weeklyPlanningDesc') }}</span>
+          </div>
+          <div>
+            <AppButton variant="tonal" :disabled="isSeeding" @click="handleSeeder('fullTimeline')">
+              <span v-if="activeSeeder === 'fullTimeline'">{{ t('profile.devTools.seeding') }}</span>
+              <span v-else>{{ t('profile.devTools.fullTimeline') }}</span>
+            </AppButton>
+            <span class="ml-2 text-xs text-on-surface-variant">{{ t('profile.devTools.fullTimelineDesc') }}</span>
+          </div>
+        </div>
+      </div>
+
     </AppCard>
 
     <!-- Snackbar for feedback -->
@@ -164,10 +285,22 @@ import AppSnackbar from '@/components/AppSnackbar.vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useAuthStore } from '@/stores/auth.store'
-import { seedMockData } from '@/utils/seedMockData'
+import { applyTheme, type ThemeId } from '@/services/theme.service'
+import type { LocaleId } from '@/services/locale.service'
+import { useT } from '@/composables/useT'
+import {
+  seedFoundation,
+  seedHabitsScenario,
+  seedProjectsScenario,
+  seedWeeklyPlanningScenario,
+  seedFullTimeline,
+  clearAllData,
+  clearPlanningData,
+} from '@/utils/seedScenarios'
 
 const API_KEY_STORAGE_KEY = 'openaiApiKey'
 
+const { t } = useT()
 const router = useRouter()
 const userPreferencesStore = useUserPreferencesStore()
 const authStore = useAuthStore()
@@ -177,8 +310,11 @@ const displayName = computed(() => authStore.user?.displayName || '')
 
 const apiKey = ref('')
 const isSeeding = ref(false)
+const activeSeeder = ref<string | null>(null)
 const weeklyReviewDay = ref(0)
 const dailyEmotionTarget = ref(3)
+const themePreference = ref<ThemeId>('current')
+const languagePreference = ref<LocaleId>('en')
 const apiKeyError = ref('')
 const isSaving = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
@@ -194,7 +330,7 @@ function validateApiKey() {
     return
   }
   if (!trimmedKey.startsWith('sk-')) {
-    apiKeyError.value = "API key must start with 'sk-'"
+    apiKeyError.value = t('profile.aiSettings.apiKeyError')
   } else {
     apiKeyError.value = ''
   }
@@ -208,12 +344,12 @@ async function handleSave() {
   isSaving.value = true
   try {
     await userSettingsDexieRepository.set(API_KEY_STORAGE_KEY, apiKey.value.trim())
-    snackbarRef.value?.show('API key saved successfully.')
+    snackbarRef.value?.show(t('profile.aiSettings.saved'))
   } catch (error) {
     const errorMessage =
       error instanceof Error
         ? error.message
-        : 'Failed to save API key. Please try again.'
+        : t('profile.aiSettings.saveFailed')
     snackbarRef.value?.show(errorMessage)
     console.error('Error saving API key:', error)
   } finally {
@@ -221,30 +357,44 @@ async function handleSave() {
   }
 }
 
-async function handleSeedMockData() {
+const seederMap: Record<string, () => Promise<{ summary: string } | void>> = {
+  clearAll: async () => clearAllData(),
+  clearPlanning: async () => clearPlanningData(),
+  foundation: async () => seedFoundation(),
+  habits: async () => seedHabitsScenario(),
+  projects: async () => seedProjectsScenario(),
+  weeklyPlanning: async () => seedWeeklyPlanningScenario(),
+  fullTimeline: async () => seedFullTimeline(),
+}
+
+async function handleSeeder(key: string) {
   isSeeding.value = true
+  activeSeeder.value = key
   try {
-    await seedMockData()
-    snackbarRef.value?.show('Mock data seeded successfully! Check Journal and Emotions views.')
+    const fn = seederMap[key]
+    if (!fn) throw new Error(`Unknown seeder: ${key}`)
+    const result = await fn()
+    const message = result && 'summary' in result
+      ? result.summary
+      : 'Done!'
+    snackbarRef.value?.show(message)
   } catch (error) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Failed to seed mock data. Please try again.'
+    const errorMessage = error instanceof Error ? error.message : 'Seeder failed.'
     snackbarRef.value?.show(errorMessage)
-    console.error('Error seeding mock data:', error)
+    console.error(`Error running seeder "${key}":`, error)
   } finally {
     isSeeding.value = false
+    activeSeeder.value = null
   }
 }
 
 async function handleWeeklyReviewDayChange() {
   try {
     await userPreferencesStore.setWeeklyReviewDay(weeklyReviewDay.value)
-    snackbarRef.value?.show('Weekly review day updated.')
+    snackbarRef.value?.show(t('profile.feedback.weeklyReviewUpdated'))
   } catch (error) {
     console.error('Error saving weekly review day:', error)
-    snackbarRef.value?.show('Failed to save preference.')
+    snackbarRef.value?.show(t('profile.feedback.failedToSave'))
   }
 }
 
@@ -255,10 +405,38 @@ async function handleEmotionTargetChange() {
 
   try {
     await userPreferencesStore.setDailyEmotionTarget(dailyEmotionTarget.value)
-    snackbarRef.value?.show('Daily emotion target updated.')
+    snackbarRef.value?.show(t('profile.feedback.emotionTargetUpdated'))
   } catch (error) {
     console.error('Error saving emotion target:', error)
-    snackbarRef.value?.show('Failed to save preference.')
+    snackbarRef.value?.show(t('profile.feedback.failedToSave'))
+  }
+}
+
+async function handleThemePreferenceChange() {
+  const nextTheme = themePreference.value
+  const previousTheme = userPreferencesStore.themePreference
+
+  // Apply immediately for live preview, then persist.
+  applyTheme(nextTheme)
+
+  try {
+    await userPreferencesStore.setThemePreference(nextTheme)
+    snackbarRef.value?.show(t('profile.feedback.themeUpdated'))
+  } catch (error) {
+    console.error('Error saving theme preference:', error)
+    themePreference.value = previousTheme
+    applyTheme(previousTheme)
+    snackbarRef.value?.show(t('profile.feedback.failedToSave'))
+  }
+}
+
+async function handleLanguagePreferenceChange() {
+  try {
+    await userPreferencesStore.setLocale(languagePreference.value)
+    snackbarRef.value?.show(t('profile.feedback.languageUpdated'))
+  } catch (error) {
+    console.error('Error saving language preference:', error)
+    snackbarRef.value?.show(t('profile.feedback.failedToSave'))
   }
 }
 
@@ -281,10 +459,11 @@ onMounted(async () => {
     await userPreferencesStore.loadPreferences()
     weeklyReviewDay.value = userPreferencesStore.weeklyReviewDay
     dailyEmotionTarget.value = userPreferencesStore.dailyEmotionTarget
+    themePreference.value = userPreferencesStore.themePreference
+    languagePreference.value = userPreferencesStore.locale
   } catch (error) {
     console.error('Error loading settings:', error)
     // Don't show error to user on load - just log it
   }
 })
 </script>
-

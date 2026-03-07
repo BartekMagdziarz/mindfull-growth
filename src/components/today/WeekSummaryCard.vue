@@ -2,7 +2,7 @@
   <AppCard padding="lg" class="w-full max-w-md">
     <h3 class="text-lg font-semibold text-on-surface mb-4 flex items-center gap-2">
       <ChartBarIcon class="w-5 h-5 text-primary" />
-      This week
+      {{ t('today.weekSummary.title') }}
     </h3>
 
     <!-- Stats Grid -->
@@ -13,7 +13,7 @@
           {{ summary.journalCount }}
         </div>
         <div class="text-xs text-on-surface-variant">
-          {{ summary.journalCount === 1 ? 'journal' : 'journals' }}
+          {{ summary.journalCount === 1 ? t('today.weekSummary.journal') : t('today.weekSummary.journals') }}
         </div>
       </div>
 
@@ -23,7 +23,7 @@
           {{ summary.emotionLogCount }}
         </div>
         <div class="text-xs text-on-surface-variant">
-          {{ summary.emotionLogCount === 1 ? 'emotion' : 'emotions' }}
+          {{ summary.emotionLogCount === 1 ? t('today.weekSummary.emotion') : t('today.weekSummary.emotions') }}
         </div>
       </div>
 
@@ -37,19 +37,19 @@
           />
         </div>
         <div class="text-xs text-on-surface-variant">
-          day streak
+          {{ t('today.weekSummary.dayStreak') }}
         </div>
       </div>
     </div>
 
     <!-- Top Emotions -->
     <div v-if="topEmotions.length > 0">
-      <div class="text-sm text-on-surface-variant mb-2">Top emotions</div>
+      <div class="text-sm text-on-surface-variant mb-2">{{ t('today.weekSummary.topEmotions') }}</div>
       <div class="flex flex-wrap gap-2">
         <span
           v-for="emotion in topEmotions"
           :key="emotion.id"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-elevation-1"
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
           :class="getEmotionClasses(emotion)"
         >
           {{ emotion.name }}
@@ -62,13 +62,13 @@
       v-else
       class="text-sm text-on-surface-variant"
     >
-      Log emotions to see your weekly patterns
+      {{ t('today.weekSummary.emptyEmotions') }}
     </p>
 
     <!-- Motivational message -->
     <p
       v-if="motivationalMessage"
-      class="text-sm text-on-surface-variant mt-4 pt-4 border-t border-outline/20"
+      class="text-sm text-on-surface-variant mt-4 pt-4 border-t border-neu-border/20"
     >
       {{ motivationalMessage }}
     </p>
@@ -80,6 +80,7 @@ import { computed } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import { ChartBarIcon, FireIcon } from '@heroicons/vue/24/outline'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { useT } from '@/composables/useT'
 import type { WeekSummary } from '@/utils/todayUtils'
 import type { Emotion } from '@/domain/emotion'
 
@@ -87,6 +88,7 @@ const props = defineProps<{
   summary: WeekSummary
 }>()
 
+const { t } = useT()
 const emotionStore = useEmotionStore()
 
 const topEmotions = computed(() => {
@@ -114,16 +116,16 @@ const motivationalMessage = computed(() => {
   const { journalCount, emotionLogCount, streak } = props.summary
 
   if (streak >= 7) {
-    return "Amazing! You've been consistent for a whole week!"
+    return t('today.weekSummary.streakWeek')
   }
   if (streak >= 3) {
-    return "Great streak! Keep the momentum going."
+    return t('today.weekSummary.streakDays')
   }
   if (journalCount === 0 && emotionLogCount === 0) {
-    return "Start your week strong - every entry counts."
+    return t('today.weekSummary.emptyWeek')
   }
   if (journalCount > 0 || emotionLogCount > 0) {
-    return "You're building a healthy reflection habit."
+    return t('today.weekSummary.activeWeek')
   }
   return null
 })

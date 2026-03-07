@@ -1,0 +1,63 @@
+{
+  "logTitle": "Zaloguj swoje emocje",
+  "loadingEmotions": "Ładowanie emocji...",
+  "quickNoteLabel": "Szybka notatka (opcjonalna)",
+  "quickNotePlaceholder": "Jak się czujesz?",
+  "addTagsLabel": "Dodaj tagi (opcjonalne)",
+  "people": "Osoby",
+  "context": "Kontekst",
+  "loadingPeopleTags": "Ładowanie tagów osób...",
+  "loadingContextTags": "Ładowanie tagów kontekstu...",
+  "save": "Zapisz",
+  "saving": "Zapisywanie...",
+  "viewHistory": "Zobacz historię emocji",
+  "selectAtLeastOne": "Wybierz co najmniej jedną emocję.",
+  "loggedSuccess": "Emocja zalogowana pomyślnie.",
+  "saveError": "Nie udało się zapisać logu emocji. Spróbuj ponownie.",
+  "loadEmotionsError": "Nie udało się załadować emocji. Spróbuj ponownie.",
+  "loadPeopleError": "Nie udało się załadować tagów osób. Spróbuj ponownie.",
+  "loadContextError": "Nie udało się załadować tagów kontekstu. Spróbuj ponownie.",
+  "editor": {
+    "loading": "Ładowanie logu emocji...",
+    "dateTimeTitle": "Ustaw datę i czas",
+    "dateLabel": "Data",
+    "timeLabel": "Czas",
+    "cancel": "Anuluj",
+    "apply": "Zastosuj",
+    "emotions": "Emocje",
+    "note": "Notatka",
+    "notePlaceholder": "Szybka refleksja...",
+    "people": "Osoby",
+    "context": "Kontekst",
+    "loadingPeopleTags": "Ładowanie tagów osób...",
+    "loadingContextTags": "Ładowanie tagów kontekstu...",
+    "save": "Zapisz",
+    "saving": "Zapisywanie...",
+    "unknownDate": "Nieznana data",
+    "notFound": "Nie znaleziono logu emocji.",
+    "loadError": "Nie udało się załadować logu emocji. Spróbuj ponownie.",
+    "selectAtLeastOne": "Wybierz co najmniej jedną emocję.",
+    "savedSuccess": "Log emocji zapisany pomyślnie.",
+    "saveError": "Nie udało się zapisać logu emocji. Spróbuj ponownie."
+  },
+  "selector": {
+    "selectedCount": "Wybrane emocje ({count})",
+    "noSelection": "Brak wybranych emocji",
+    "loadingEmotions": "Ładowanie emocji...",
+    "noEmotionsInQuadrant": "Brak emocji w tym kwadrancie",
+    "quadrants": {
+      "highEnergyUnpleasant": "Wysoka energia / Niska przyjemność",
+      "highEnergyPleasant": "Wysoka energia / Wysoka przyjemność",
+      "lowEnergyUnpleasant": "Niska energia / Niska przyjemność",
+      "lowEnergyPleasant": "Niska energia / Wysoka przyjemność"
+    },
+    "energyLabels": {
+      "high": "Wysoka energia",
+      "low": "Niska energia"
+    },
+    "pleasantnessLabels": {
+      "pleasant": "Przyjemne",
+      "unpleasant": "Nieprzyjemne"
+    }
+  }
+}

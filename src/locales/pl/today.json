@@ -1,0 +1,152 @@
+{
+  "journal": {
+    "writeTitle": "Napisz o swoim dniu",
+    "continueTitle": "Kontynuuj pisanie",
+    "writeDescription": "Zastanów się nad swoimi doświadczeniami i uczućiami",
+    "continueDescription": "Dodaj więcej myśli do dziennika",
+    "entryToday": "{count} wpis dzisiaj",
+    "entriesToday": "{count} wpisów dzisiaj"
+  },
+  "emotion": {
+    "title": "Rejestr emocji",
+    "completeTitle": "Świetna robota!",
+    "progress": "{logged} z {target} zarejestrowanych",
+    "completeDescription": "Osiągnąłeś swój dzienny cel",
+    "emptyDescription": "Rejestruj swoje samopoczucie w ciągu dnia",
+    "trackingDescription": "Kontynuuj śledzenie emocji"
+  },
+  "weekSummary": {
+    "title": "Ten tydzień",
+    "journal": "dziennik",
+    "journals": "dzienniki",
+    "emotion": "emocja",
+    "emotions": "emocje",
+    "dayStreak": "dni z rzędu",
+    "topEmotions": "Najczęstsze emocje",
+    "emptyEmotions": "Rejestruj emocje, aby zobaczyć tygodniowe wzorce",
+    "streakWeek": "Niesamowite! Byłeś konsekwentny przez cały tydzień!",
+    "streakDays": "Świetna seria! Nie trać rozpędu.",
+    "emptyWeek": "Zacznij tydzień mocno - każdy wpis się liczy.",
+    "activeWeek": "Budujesz zdrowy nawyk refleksji."
+  },
+  "weeklyReview": {
+    "title": "Czas na tygodniową refleksję",
+    "description": "Przejrzyj {weekLabel} i ustal intencję na nadchodzący tydzień",
+    "startButton": "Rozpocznij refleksję"
+  },
+  "currentFocus": {
+    "title": "Aktualny fokus",
+    "thisWeek": "Ten tydzień",
+    "noFocusSentence": "Brak zdania fokusowego na ten tydzień",
+    "noWeeklyPlan": "Brak planu tygodniowego",
+    "openPlanningHub": "Otwórz planowanie",
+    "emptyDescription": "Ustaw miesięczny fokus, aby skoordynować tygodniowe wysiłki",
+    "createMonthlyPlan": "Utwórz plan miesięczny"
+  },
+  "ifsCheckIn": {
+    "title": "IFS - Codzienny check-in",
+    "done": "Zrobione",
+    "notYet": "Jeszcze nie",
+    "pickPractice": "Wybierz krótką praktykę na początek dnia:",
+    "weatherReport": "Raport pogodowy",
+    "gratitude": "Wdzięczność",
+    "selfEnergy": "Energia Ja",
+    "evening": "Wieczór",
+    "eveningReflection": "Refleksja wieczorna",
+    "completed": "{type} - ukończone",
+    "doAnother": "Zrobić kolejny?",
+    "checkInCount": "{count} check-in w tym tygodniu",
+    "checkInsCount": "{count} check-inów w tym tygodniu"
+  },
+  "commitments": {
+    "title": "Zobowiązania",
+    "progress": "{done} z {total} ukończonych",
+    "quickAddLabel": "Szybkie dodawanie zobowiązania",
+    "placeholder": "np. Zarezerwuj 30 minut na kluczowe zadanie",
+    "adding": "Dodawanie...",
+    "markDone": "Oznacz jako zrobione",
+    "markSkipped": "Oznacz jako pominięte",
+    "emptyState": "Brak zobowiązań. Dodaj pierwsze, aby zacząć.",
+    "addCommitment": "Dodaj zobowiązanie",
+    "createWeeklyPlan": "Utwórz plan tygodniowy",
+    "nameRequired": "Podaj nazwę zobowiązania.",
+    "noWeeklyPlanError": "Najpierw utwórz plan tygodniowy",
+    "projectLabel": "Projekt: {name}",
+    "lifeAreasLabel": "Obszary życia: {names}",
+    "prioritiesLabel": "Priorytety: {names}"
+  },
+  "compass": {
+    "title": "Kompas Ugruntowania",
+    "expand": "Rozwiń",
+    "collapse": "Zwiń",
+    "year": "Rok",
+    "month": "Miesiąc",
+    "week": "Tydzień",
+    "notSet": "Nie ustawiono",
+    "noYearTheme": "Brak motywu rocznego",
+    "noMonthIntention": "Brak intencji miesięcznej",
+    "noWeekFocus": "Brak zdania fokusowego na tydzień",
+    "priorityCount": "Aktywne priorytety: {count}",
+    "emptySummary": "Ustaw kierunek roku, miesiąca i tygodnia, aby zakotwiczyć ten widok."
+  },
+  "mode": {
+    "title": "Tryb Dnia",
+    "auto": "Auto",
+    "morning": "Rano",
+    "midday": "W południe",
+    "evening": "Wieczór",
+    "autoDescription": "Tryb automatyczny: aktualnie {mode}.",
+    "manualDescription": "Tryb ręczny: {mode}.",
+    "failedUpdate": "Nie udało się zaktualizować trybu dnia."
+  },
+  "intention": {
+    "morningTitle": "Zacznij z intencją",
+    "morningDescription": "Zanim dzień przyspieszy, ugruntuj to co ważne.",
+    "middayTitle": "Południowe ugruntowanie",
+    "middayDescription": "Sprawdź stan, wyreguluj się i wróć do priorytetów.",
+    "eveningTitle": "Domknij dzień",
+    "eveningDescription": "Zbierz wnioski i przenieś je na jutro.",
+    "startJournal": "Rozpocznij dziennik",
+    "continueJournal": "Kontynuuj dziennik",
+    "logEmotion": "Zapisz emocję",
+    "openPlanning": "Otwórz planowanie",
+    "reviewCommitments": "Przejrzyj zobowiązania",
+    "commitmentsProgress": "Zobowiązania: {done}/{total}",
+    "emotionProgress": "Emocje: {logged}/{target}"
+  },
+  "execution": {
+    "title": "Tablica wykonania",
+    "progress": "Ukończono {done} z {total} zobowiązań",
+    "addCommitment": "Dodaj zobowiązanie",
+    "noWeeklyPlan": "Brak aktywnego planu tygodniowego. Utwórz go, aby korzystać z zobowiązań i trackerów.",
+    "createWeeklyPlan": "Utwórz plan tygodniowy",
+    "noWeeklyPlanError": "Najpierw utwórz plan tygodniowy.",
+    "failedAddCommitment": "Nie udało się dodać zobowiązania.",
+    "failedUpdateCommitment": "Nie udało się zaktualizować zobowiązania.",
+    "failedAddTracker": "Nie udało się dodać trackera.",
+    "failedRemoveTracker": "Nie udało się usunąć trackera.",
+    "failedRepairSelection": "Nie udało się naprawić wyboru trackerów."
+  },
+  "reflections": {
+    "title": "Status refleksji",
+    "weekly": "Refleksja tygodniowa",
+    "monthly": "Refleksja miesięczna",
+    "yearly": "Refleksja roczna",
+    "due": "Do zrobienia",
+    "upToDate": "Aktualne",
+    "openPlanning": "Otwórz centrum planowania"
+  },
+  "nudges": {
+    "title": "Wspierające sugestie",
+    "subtitle": "Kontekstowe rekomendacje bez nadmiaru",
+    "empty": "Brak rekomendacji na teraz. Trzymaj się obecnego fokusu.",
+    "open": "Otwórz",
+    "feedbackSaved": "Preferencja zapisana.",
+    "feedbackFailed": "Nie udało się zapisać opinii o rekomendacji.",
+    "feedback": {
+      "more": "Więcej takich",
+      "less": "Mniej takich",
+      "notNow": "Nie teraz"
+    }
+  }
+}

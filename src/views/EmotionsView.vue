@@ -2,8 +2,8 @@
   <div class="container mx-auto px-4 py-6">
     <div class="max-w-3xl mx-auto space-y-6">
       <!-- Inline Emotion Logging Form -->
-      <AppCard padding="lg" :elevation="2">
-        <h2 class="text-lg font-semibold text-on-surface mb-4">Log your emotions</h2>
+      <AppCard padding="lg">
+        <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('emotionViews.logTitle') }}</h2>
 
         <div class="space-y-4">
           <!-- Selected Emotions Display -->
@@ -15,7 +15,8 @@
               v-for="emotion in selectedEmotionList"
               :key="emotion.id"
               type="button"
-              class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-on-primary text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
+              :style="getEmotionChipStyle(emotion.id)"
+              class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-on-surface text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
               :aria-label="`Remove ${emotion.name} from selection`"
               @click="removeEmotion(emotion.id)"
             >
@@ -27,9 +28,9 @@
           <!-- Emotion Selector -->
           <div
             v-if="isEmotionSectionLoading"
-            class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
+            class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
           >
-            Loading emotions...
+            {{ t('emotionViews.loadingEmotions') }}
           </div>
           <div v-else>
             <EmotionSelector v-model="selectedEmotionIds" :show-selected-section="false" />
@@ -41,13 +42,13 @@
               for="quick-note"
               class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant"
             >
-              Quick note (optional)
+              {{ t('emotionViews.quickNoteLabel') }}
             </label>
             <textarea
               id="quick-note"
               v-model="note"
-              placeholder="How are you feeling?"
-              class="w-full mt-2 p-3 rounded-xl border border-outline/30 bg-surface text-on-surface resize-none focus:outline-none focus:ring-2 focus:ring-focus"
+              :placeholder="t('emotionViews.quickNotePlaceholder')"
+              class="neo-input w-full mt-2 p-3 text-on-surface resize-none"
               rows="2"
             />
           </div>
@@ -60,19 +61,19 @@
               <ChevronRightIcon
                 class="w-4 h-4 transition-transform group-open:rotate-90"
               />
-              Add tags (optional)
+              {{ t('emotionViews.addTagsLabel') }}
             </summary>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 pt-3 border-t border-outline/20">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 pt-3 border-t border-neu-border/20">
               <!-- People Tags -->
               <div class="space-y-2">
                 <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  People
+                  {{ t('emotionViews.people') }}
                 </label>
                 <div
                   v-if="isPeopleSectionLoading"
-                  class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
+                  class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
                 >
-                  Loading people tags...
+                  {{ t('emotionViews.loadingPeopleTags') }}
                 </div>
                 <TagInput v-else v-model="selectedPeopleTagIds" tag-type="people" />
               </div>
@@ -80,13 +81,13 @@
               <!-- Context Tags -->
               <div class="space-y-2">
                 <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  Context
+                  {{ t('emotionViews.context') }}
                 </label>
                 <div
                   v-if="isContextSectionLoading"
-                  class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
+                  class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
                 >
-                  Loading context tags...
+                  {{ t('emotionViews.loadingContextTags') }}
                 </div>
                 <TagInput v-else v-model="selectedContextTagIds" tag-type="context" />
               </div>
@@ -101,7 +102,7 @@
               @click="handleSave"
               class="min-w-[120px]"
             >
-              {{ isSaving ? 'Saving...' : 'Save' }}
+              {{ isSaving ? t('emotionViews.saving') : t('emotionViews.save') }}
             </AppButton>
           </div>
         </div>
@@ -113,7 +114,7 @@
           to="/history?type=emotion-log"
           class="text-primary hover:underline inline-flex items-center gap-1"
         >
-          View emotion history
+          {{ t('emotionViews.viewHistory') }}
           <ArrowRightIcon class="w-4 h-4" />
         </router-link>
       </div>
@@ -133,12 +134,15 @@ import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
-import type { Emotion } from '@/domain/emotion'
+import type { Emotion, Quadrant } from '@/domain/emotion'
+import { getQuadrant } from '@/domain/emotion'
 import { XMarkIcon, ChevronRightIcon, ArrowRightIcon } from '@heroicons/vue/24/outline'
+import { useT } from '@/composables/useT'
 
 const emotionLogStore = useEmotionLogStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
+const { t } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 // Form state
@@ -173,6 +177,37 @@ const selectedEmotionList = computed(() => {
     .filter((emotion): emotion is Emotion => Boolean(emotion))
 })
 
+const quadrantChipColors: Record<Quadrant, { bg: string; border: string }> = {
+  'high-energy-high-pleasantness': {
+    bg: 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
+    border: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
+  },
+  'high-energy-low-pleasantness': {
+    bg: 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
+    border: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
+  },
+  'low-energy-high-pleasantness': {
+    bg: 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
+    border: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
+  },
+  'low-energy-low-pleasantness': {
+    bg: 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
+    border: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
+  },
+}
+
+function getEmotionChipStyle(emotionId: string): Record<string, string> {
+  const emotion = emotionStore.getEmotionById(emotionId)
+  if (!emotion) return {}
+  const quadrant = getQuadrant(emotion)
+  const colors = quadrantChipColors[quadrant]
+  if (!colors) return {}
+  return {
+    backgroundColor: colors.bg,
+    border: `1.5px solid ${colors.border}`,
+  }
+}
+
 function removeEmotion(id: string) {
   const index = selectedEmotionIds.value.indexOf(id)
   if (index > -1) {
@@ -189,7 +224,7 @@ function resetForm() {
 
 async function handleSave() {
   if (selectedEmotionIds.value.length === 0) {
-    snackbarRef.value?.show('Please select at least one emotion.')
+    snackbarRef.value?.show(t('emotionViews.selectAtLeastOne'))
     return
   }
 
@@ -205,13 +240,13 @@ async function handleSave() {
 
   try {
     await emotionLogStore.createLog(payload)
-    snackbarRef.value?.show('Emotion logged successfully.')
+    snackbarRef.value?.show(t('emotionViews.loggedSuccess'))
     resetForm()
   } catch (error) {
     const message =
       error instanceof Error
         ? error.message
-        : 'Failed to save emotion log. Please try again.'
+        : t('emotionViews.saveError')
     snackbarRef.value?.show(message)
     console.error('Error saving emotion log:', error)
   } finally {
@@ -227,7 +262,7 @@ async function ensureEmotionData() {
     await emotionStore.loadEmotions()
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'Failed to load emotions. Please try again.'
+      error instanceof Error ? error.message : t('emotionViews.loadEmotionsError')
     snackbarRef.value?.show(message)
     console.error('Error loading emotions:', error)
   } finally {
@@ -246,7 +281,7 @@ async function ensurePeopleTags() {
     await tagStore.loadPeopleTags()
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'Failed to load people tags. Please try again.'
+      error instanceof Error ? error.message : t('emotionViews.loadPeopleError')
     snackbarRef.value?.show(message)
     console.error('Error loading people tags:', error)
   } finally {
@@ -266,7 +301,7 @@ async function ensureContextTags() {
     await tagStore.loadContextTags()
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'Failed to load context tags. Please try again.'
+      error instanceof Error ? error.message : t('emotionViews.loadContextError')
     snackbarRef.value?.show(message)
     console.error('Error loading context tags:', error)
   } finally {

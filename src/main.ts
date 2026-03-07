@@ -3,6 +3,10 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import './styles/main.css'
+import { applyCachedTheme } from './services/theme.service'
+
+// Apply theme before Vue mounts to avoid a flash of the default palette.
+applyCachedTheme()
 
 const app = createApp(App)
 

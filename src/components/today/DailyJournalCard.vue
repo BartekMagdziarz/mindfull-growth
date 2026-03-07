@@ -1,7 +1,7 @@
 <template>
   <AppCard
     padding="lg"
-    class="w-full max-w-md cursor-pointer transition-all duration-200 hover:shadow-elevation-2 active:scale-[0.98]"
+    class="w-full max-w-md cursor-pointer transition-all duration-200"
     @click="$emit('action')"
   >
     <div class="flex items-start gap-4">
@@ -15,7 +15,7 @@
           </h3>
           <span
             v-if="hasEntry"
-            class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-on-primary"
+            class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/70 text-on-primary"
           >
             <CheckIcon class="w-4 h-4" />
           </span>
@@ -27,7 +27,7 @@
           v-if="entryCount > 0"
           class="text-sm text-on-surface-variant mt-2"
         >
-          {{ entryCount }} {{ entryCount === 1 ? 'entry' : 'entries' }} today
+          {{ t(entryCount === 1 ? 'today.journal.entryToday' : 'today.journal.entriesToday', { count: entryCount }) }}
         </p>
       </div>
     </div>
@@ -38,6 +38,9 @@
 import { computed } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import { PencilSquareIcon, CheckIcon } from '@heroicons/vue/24/outline'
+import { useT } from '@/composables/useT'
+
+const { t } = useT()
 
 const props = defineProps<{
   entryCount: number
@@ -50,15 +53,15 @@ defineEmits<{
 
 const title = computed(() => {
   if (props.hasEntry) {
-    return 'Continue journaling'
+    return t('today.journal.continueTitle')
   }
-  return 'Write about your day'
+  return t('today.journal.writeTitle')
 })
 
 const description = computed(() => {
   if (props.hasEntry) {
-    return 'Add more thoughts to your journal'
+    return t('today.journal.continueDescription')
   }
-  return 'Reflect on your experiences and feelings'
+  return t('today.journal.writeDescription')
 })
 </script>

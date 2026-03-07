@@ -1,0 +1,1152 @@
+{
+  "id": "ipip-neo-120",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.ipipNeo120.meta.title",
+  "subtitleKey": "assessments.ipipNeo120.meta.subtitle",
+  "descriptionKey": "assessments.ipipNeo120.meta.description",
+  "categoryKey": "assessments.ipipNeo120.meta.category",
+  "disclaimerKey": "assessments.ipipNeo120.meta.disclaimer",
+  "estimatedMinutes": 25,
+  "responseScale": {
+    "min": 1,
+    "max": 5,
+    "anchors": {
+      "1": "assessments.ipipNeo120.anchors.1",
+      "2": "assessments.ipipNeo120.anchors.2",
+      "3": "assessments.ipipNeo120.anchors.3",
+      "4": "assessments.ipipNeo120.anchors.4",
+      "5": "assessments.ipipNeo120.anchors.5"
+    }
+  },
+  "items": [
+    {
+      "id": "neo120_001",
+      "textKey": "assessments.ipipNeo120.items.neo120_001",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_002",
+      "textKey": "assessments.ipipNeo120.items.neo120_002",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_003",
+      "textKey": "assessments.ipipNeo120.items.neo120_003",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_004",
+      "textKey": "assessments.ipipNeo120.items.neo120_004",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_005",
+      "textKey": "assessments.ipipNeo120.items.neo120_005",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_006",
+      "textKey": "assessments.ipipNeo120.items.neo120_006",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_007",
+      "textKey": "assessments.ipipNeo120.items.neo120_007",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_008",
+      "textKey": "assessments.ipipNeo120.items.neo120_008",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_009",
+      "textKey": "assessments.ipipNeo120.items.neo120_009",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_010",
+      "textKey": "assessments.ipipNeo120.items.neo120_010",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_011",
+      "textKey": "assessments.ipipNeo120.items.neo120_011",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_012",
+      "textKey": "assessments.ipipNeo120.items.neo120_012",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_013",
+      "textKey": "assessments.ipipNeo120.items.neo120_013",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_014",
+      "textKey": "assessments.ipipNeo120.items.neo120_014",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_015",
+      "textKey": "assessments.ipipNeo120.items.neo120_015",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_016",
+      "textKey": "assessments.ipipNeo120.items.neo120_016",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_017",
+      "textKey": "assessments.ipipNeo120.items.neo120_017",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_018",
+      "textKey": "assessments.ipipNeo120.items.neo120_018",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_019",
+      "textKey": "assessments.ipipNeo120.items.neo120_019",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_020",
+      "textKey": "assessments.ipipNeo120.items.neo120_020",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_021",
+      "textKey": "assessments.ipipNeo120.items.neo120_021",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_022",
+      "textKey": "assessments.ipipNeo120.items.neo120_022",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_023",
+      "textKey": "assessments.ipipNeo120.items.neo120_023",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_024",
+      "textKey": "assessments.ipipNeo120.items.neo120_024",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_025",
+      "textKey": "assessments.ipipNeo120.items.neo120_025",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_026",
+      "textKey": "assessments.ipipNeo120.items.neo120_026",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_027",
+      "textKey": "assessments.ipipNeo120.items.neo120_027",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_028",
+      "textKey": "assessments.ipipNeo120.items.neo120_028",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_029",
+      "textKey": "assessments.ipipNeo120.items.neo120_029",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_030",
+      "textKey": "assessments.ipipNeo120.items.neo120_030",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_031",
+      "textKey": "assessments.ipipNeo120.items.neo120_031",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_032",
+      "textKey": "assessments.ipipNeo120.items.neo120_032",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_033",
+      "textKey": "assessments.ipipNeo120.items.neo120_033",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_034",
+      "textKey": "assessments.ipipNeo120.items.neo120_034",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_035",
+      "textKey": "assessments.ipipNeo120.items.neo120_035",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_036",
+      "textKey": "assessments.ipipNeo120.items.neo120_036",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_037",
+      "textKey": "assessments.ipipNeo120.items.neo120_037",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_038",
+      "textKey": "assessments.ipipNeo120.items.neo120_038",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_039",
+      "textKey": "assessments.ipipNeo120.items.neo120_039",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_040",
+      "textKey": "assessments.ipipNeo120.items.neo120_040",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_041",
+      "textKey": "assessments.ipipNeo120.items.neo120_041",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_042",
+      "textKey": "assessments.ipipNeo120.items.neo120_042",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_043",
+      "textKey": "assessments.ipipNeo120.items.neo120_043",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_044",
+      "textKey": "assessments.ipipNeo120.items.neo120_044",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_045",
+      "textKey": "assessments.ipipNeo120.items.neo120_045",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_046",
+      "textKey": "assessments.ipipNeo120.items.neo120_046",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_047",
+      "textKey": "assessments.ipipNeo120.items.neo120_047",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_048",
+      "textKey": "assessments.ipipNeo120.items.neo120_048",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_049",
+      "textKey": "assessments.ipipNeo120.items.neo120_049",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_050",
+      "textKey": "assessments.ipipNeo120.items.neo120_050",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_051",
+      "textKey": "assessments.ipipNeo120.items.neo120_051",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_052",
+      "textKey": "assessments.ipipNeo120.items.neo120_052",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_053",
+      "textKey": "assessments.ipipNeo120.items.neo120_053",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_054",
+      "textKey": "assessments.ipipNeo120.items.neo120_054",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_055",
+      "textKey": "assessments.ipipNeo120.items.neo120_055",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_056",
+      "textKey": "assessments.ipipNeo120.items.neo120_056",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_057",
+      "textKey": "assessments.ipipNeo120.items.neo120_057",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_058",
+      "textKey": "assessments.ipipNeo120.items.neo120_058",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_059",
+      "textKey": "assessments.ipipNeo120.items.neo120_059",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_060",
+      "textKey": "assessments.ipipNeo120.items.neo120_060",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_061",
+      "textKey": "assessments.ipipNeo120.items.neo120_061",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_062",
+      "textKey": "assessments.ipipNeo120.items.neo120_062",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_063",
+      "textKey": "assessments.ipipNeo120.items.neo120_063",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_064",
+      "textKey": "assessments.ipipNeo120.items.neo120_064",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_065",
+      "textKey": "assessments.ipipNeo120.items.neo120_065",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_066",
+      "textKey": "assessments.ipipNeo120.items.neo120_066",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_067",
+      "textKey": "assessments.ipipNeo120.items.neo120_067",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_068",
+      "textKey": "assessments.ipipNeo120.items.neo120_068",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_069",
+      "textKey": "assessments.ipipNeo120.items.neo120_069",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_070",
+      "textKey": "assessments.ipipNeo120.items.neo120_070",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_071",
+      "textKey": "assessments.ipipNeo120.items.neo120_071",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_072",
+      "textKey": "assessments.ipipNeo120.items.neo120_072",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_073",
+      "textKey": "assessments.ipipNeo120.items.neo120_073",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_074",
+      "textKey": "assessments.ipipNeo120.items.neo120_074",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_075",
+      "textKey": "assessments.ipipNeo120.items.neo120_075",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_076",
+      "textKey": "assessments.ipipNeo120.items.neo120_076",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_077",
+      "textKey": "assessments.ipipNeo120.items.neo120_077",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_078",
+      "textKey": "assessments.ipipNeo120.items.neo120_078",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_079",
+      "textKey": "assessments.ipipNeo120.items.neo120_079",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_080",
+      "textKey": "assessments.ipipNeo120.items.neo120_080",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_081",
+      "textKey": "assessments.ipipNeo120.items.neo120_081",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_082",
+      "textKey": "assessments.ipipNeo120.items.neo120_082",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_083",
+      "textKey": "assessments.ipipNeo120.items.neo120_083",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_084",
+      "textKey": "assessments.ipipNeo120.items.neo120_084",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_085",
+      "textKey": "assessments.ipipNeo120.items.neo120_085",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_086",
+      "textKey": "assessments.ipipNeo120.items.neo120_086",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_087",
+      "textKey": "assessments.ipipNeo120.items.neo120_087",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_088",
+      "textKey": "assessments.ipipNeo120.items.neo120_088",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_089",
+      "textKey": "assessments.ipipNeo120.items.neo120_089",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_090",
+      "textKey": "assessments.ipipNeo120.items.neo120_090",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_091",
+      "textKey": "assessments.ipipNeo120.items.neo120_091",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_092",
+      "textKey": "assessments.ipipNeo120.items.neo120_092",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_093",
+      "textKey": "assessments.ipipNeo120.items.neo120_093",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_094",
+      "textKey": "assessments.ipipNeo120.items.neo120_094",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_095",
+      "textKey": "assessments.ipipNeo120.items.neo120_095",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_096",
+      "textKey": "assessments.ipipNeo120.items.neo120_096",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_097",
+      "textKey": "assessments.ipipNeo120.items.neo120_097",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_098",
+      "textKey": "assessments.ipipNeo120.items.neo120_098",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_099",
+      "textKey": "assessments.ipipNeo120.items.neo120_099",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_100",
+      "textKey": "assessments.ipipNeo120.items.neo120_100",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_101",
+      "textKey": "assessments.ipipNeo120.items.neo120_101",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_102",
+      "textKey": "assessments.ipipNeo120.items.neo120_102",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_103",
+      "textKey": "assessments.ipipNeo120.items.neo120_103",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_104",
+      "textKey": "assessments.ipipNeo120.items.neo120_104",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_105",
+      "textKey": "assessments.ipipNeo120.items.neo120_105",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_106",
+      "textKey": "assessments.ipipNeo120.items.neo120_106",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_107",
+      "textKey": "assessments.ipipNeo120.items.neo120_107",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_108",
+      "textKey": "assessments.ipipNeo120.items.neo120_108",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_109",
+      "textKey": "assessments.ipipNeo120.items.neo120_109",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_110",
+      "textKey": "assessments.ipipNeo120.items.neo120_110",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_111",
+      "textKey": "assessments.ipipNeo120.items.neo120_111",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_112",
+      "textKey": "assessments.ipipNeo120.items.neo120_112",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_113",
+      "textKey": "assessments.ipipNeo120.items.neo120_113",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_114",
+      "textKey": "assessments.ipipNeo120.items.neo120_114",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_115",
+      "textKey": "assessments.ipipNeo120.items.neo120_115",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_116",
+      "textKey": "assessments.ipipNeo120.items.neo120_116",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_117",
+      "textKey": "assessments.ipipNeo120.items.neo120_117",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_118",
+      "textKey": "assessments.ipipNeo120.items.neo120_118",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_119",
+      "textKey": "assessments.ipipNeo120.items.neo120_119",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "neo120_120",
+      "textKey": "assessments.ipipNeo120.items.neo120_120",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    }
+  ],
+  "scales": [
+    {
+      "id": "neuroticism",
+      "labelKey": "assessments.ipipNeo120.scales.neuroticism",
+      "itemIds": [
+        "neo120_001",
+        "neo120_002",
+        "neo120_003",
+        "neo120_004",
+        "neo120_005",
+        "neo120_006",
+        "neo120_007",
+        "neo120_008",
+        "neo120_009",
+        "neo120_010",
+        "neo120_011",
+        "neo120_012",
+        "neo120_013",
+        "neo120_014",
+        "neo120_015",
+        "neo120_016",
+        "neo120_017",
+        "neo120_018",
+        "neo120_019",
+        "neo120_020",
+        "neo120_021",
+        "neo120_022",
+        "neo120_023",
+        "neo120_024"
+      ],
+      "minAnswered": 19
+    },
+    {
+      "id": "extraversion",
+      "labelKey": "assessments.ipipNeo120.scales.extraversion",
+      "itemIds": [
+        "neo120_025",
+        "neo120_026",
+        "neo120_027",
+        "neo120_028",
+        "neo120_029",
+        "neo120_030",
+        "neo120_031",
+        "neo120_032",
+        "neo120_033",
+        "neo120_034",
+        "neo120_035",
+        "neo120_036",
+        "neo120_037",
+        "neo120_038",
+        "neo120_039",
+        "neo120_040",
+        "neo120_041",
+        "neo120_042",
+        "neo120_043",
+        "neo120_044",
+        "neo120_045",
+        "neo120_046",
+        "neo120_047",
+        "neo120_048"
+      ],
+      "minAnswered": 19
+    },
+    {
+      "id": "openness",
+      "labelKey": "assessments.ipipNeo120.scales.openness",
+      "itemIds": [
+        "neo120_049",
+        "neo120_050",
+        "neo120_051",
+        "neo120_052",
+        "neo120_053",
+        "neo120_054",
+        "neo120_055",
+        "neo120_056",
+        "neo120_057",
+        "neo120_058",
+        "neo120_059",
+        "neo120_060",
+        "neo120_061",
+        "neo120_062",
+        "neo120_063",
+        "neo120_064",
+        "neo120_065",
+        "neo120_066",
+        "neo120_067",
+        "neo120_068",
+        "neo120_069",
+        "neo120_070",
+        "neo120_071",
+        "neo120_072"
+      ],
+      "minAnswered": 19
+    },
+    {
+      "id": "agreeableness",
+      "labelKey": "assessments.ipipNeo120.scales.agreeableness",
+      "itemIds": [
+        "neo120_073",
+        "neo120_074",
+        "neo120_075",
+        "neo120_076",
+        "neo120_077",
+        "neo120_078",
+        "neo120_079",
+        "neo120_080",
+        "neo120_081",
+        "neo120_082",
+        "neo120_083",
+        "neo120_084",
+        "neo120_085",
+        "neo120_086",
+        "neo120_087",
+        "neo120_088",
+        "neo120_089",
+        "neo120_090",
+        "neo120_091",
+        "neo120_092",
+        "neo120_093",
+        "neo120_094",
+        "neo120_095",
+        "neo120_096"
+      ],
+      "minAnswered": 19
+    },
+    {
+      "id": "conscientiousness",
+      "labelKey": "assessments.ipipNeo120.scales.conscientiousness",
+      "itemIds": [
+        "neo120_097",
+        "neo120_098",
+        "neo120_099",
+        "neo120_100",
+        "neo120_101",
+        "neo120_102",
+        "neo120_103",
+        "neo120_104",
+        "neo120_105",
+        "neo120_106",
+        "neo120_107",
+        "neo120_108",
+        "neo120_109",
+        "neo120_110",
+        "neo120_111",
+        "neo120_112",
+        "neo120_113",
+        "neo120_114",
+        "neo120_115",
+        "neo120_116",
+        "neo120_117",
+        "neo120_118",
+        "neo120_119",
+        "neo120_120"
+      ],
+      "minAnswered": 19
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "neo120-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 8
+  },
+  "pageSize": 10,
+  "interpretationScale": "1-5"
+}

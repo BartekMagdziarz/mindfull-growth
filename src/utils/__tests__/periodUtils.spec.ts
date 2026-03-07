@@ -1,23 +1,28 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   getWeekStart,
   getNextWeekStart,
   getPreviousWeekStart,
-  getQuarterStart,
-  getNextQuarterStart,
-  getPreviousQuarterStart,
   isSameWeek,
-  isSameQuarter,
   isSameYear,
   formatWeekRangeFromStart,
-  formatQuarterLabel,
   getCurrentYear,
-  getQuarterFromStart,
   getYearFromDate,
   getWeekRange,
-  getQuarterRange,
-  getQuarterNumber,
   toLocalISODateString,
+  isDateInPeriod,
+  isDateRangeOverlapping,
+  isPastPeriod,
+  isCurrentPeriod,
+  isFuturePeriod,
+  formatPeriodDateRange,
+  parseLocalISODate,
+  getDefaultPeriodName,
+  suggestNextPeriodDates,
+  getWeekRangesBetween,
+  getMonthRange,
+  getMonthRangesBetween,
+  getYearRange,
 } from '../periodUtils'
 
 describe('Planning System Date Utilities', () => {
@@ -40,12 +45,11 @@ describe('Planning System Date Utilities', () => {
       // Sunday, January 25, 2026
       const sunday = new Date(2026, 0, 25)
       const result = getWeekStart(sunday)
-      expect(result).toBe('2026-01-19') // Previous Monday
+      expect(result).toBe('2026-01-19')
     })
 
     it('returns current week start when no date provided', () => {
       const result = getWeekStart()
-      // Just verify it returns a valid ISO date string (YYYY-MM-DD format)
       expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/)
     })
 
@@ -53,112 +57,41 @@ describe('Planning System Date Utilities', () => {
       // Friday, January 2, 2026 - week started in 2025
       const friday = new Date(2026, 0, 2)
       const result = getWeekStart(friday)
-      expect(result).toBe('2025-12-29') // Monday, December 29, 2025
+      expect(result).toBe('2025-12-29')
     })
   })
 
   describe('getNextWeekStart', () => {
     it('returns next Monday', () => {
-      // Wednesday, January 22, 2026
       const wednesday = new Date(2026, 0, 22)
       const result = getNextWeekStart(wednesday)
-      expect(result).toBe('2026-01-26') // Next Monday
+      expect(result).toBe('2026-01-26')
     })
 
     it('handles week that crosses month boundary', () => {
-      // Wednesday, January 29, 2026
       const wednesday = new Date(2026, 0, 29)
       const result = getNextWeekStart(wednesday)
-      expect(result).toBe('2026-02-02') // Monday in February
+      expect(result).toBe('2026-02-02')
     })
 
     it('handles year boundary', () => {
-      // Wednesday, December 30, 2026
       const wednesday = new Date(2026, 11, 30)
       const result = getNextWeekStart(wednesday)
-      expect(result).toBe('2027-01-04') // Monday in 2027
+      expect(result).toBe('2027-01-04')
     })
   })
 
   describe('getPreviousWeekStart', () => {
     it('returns previous Monday', () => {
-      // Wednesday, January 22, 2026
       const wednesday = new Date(2026, 0, 22)
       const result = getPreviousWeekStart(wednesday)
-      expect(result).toBe('2026-01-12') // Previous Monday
+      expect(result).toBe('2026-01-12')
     })
 
     it('handles week that crosses month boundary', () => {
-      // Wednesday, January 7, 2026
       const wednesday = new Date(2026, 0, 7)
       const result = getPreviousWeekStart(wednesday)
-      expect(result).toBe('2025-12-29') // Monday in December 2025
-    })
-  })
-
-  describe('getQuarterStart', () => {
-    it('returns Q1 start for January date', () => {
-      const january = new Date(2026, 0, 15)
-      const result = getQuarterStart(january)
-      expect(result).toBe('2026-01-01')
-    })
-
-    it('returns Q1 start for March date', () => {
-      const march = new Date(2026, 2, 31)
-      const result = getQuarterStart(march)
-      expect(result).toBe('2026-01-01')
-    })
-
-    it('returns Q2 start for April date', () => {
-      const april = new Date(2026, 3, 1)
-      const result = getQuarterStart(april)
-      expect(result).toBe('2026-04-01')
-    })
-
-    it('returns Q3 start for July date', () => {
-      const july = new Date(2026, 6, 15)
-      const result = getQuarterStart(july)
-      expect(result).toBe('2026-07-01')
-    })
-
-    it('returns Q4 start for October date', () => {
-      const october = new Date(2026, 9, 1)
-      const result = getQuarterStart(october)
-      expect(result).toBe('2026-10-01')
-    })
-
-    it('returns Q4 start for December date', () => {
-      const december = new Date(2026, 11, 31)
-      const result = getQuarterStart(december)
-      expect(result).toBe('2026-10-01')
-    })
-  })
-
-  describe('getNextQuarterStart', () => {
-    it('returns Q2 start from Q1', () => {
-      const q1 = new Date(2026, 1, 15) // February
-      const result = getNextQuarterStart(q1)
-      expect(result).toBe('2026-04-01')
-    })
-
-    it('returns Q1 of next year from Q4', () => {
-      const q4 = new Date(2026, 10, 15) // November
-      const result = getNextQuarterStart(q4)
-      expect(result).toBe('2027-01-01')
-    })
-  })
-
-  describe('getPreviousQuarterStart', () => {
-    it('returns Q4 of previous year from Q1', () => {
-      const q1 = new Date(2026, 1, 15) // February
-      const result = getPreviousQuarterStart(q1)
-      expect(result).toBe('2025-10-01')
-    })
-
-    it('returns Q2 from Q3', () => {
-      const q3 = new Date(2026, 7, 15) // August
-      const result = getPreviousQuarterStart(q3)
-      expect(result).toBe('2026-04-01')
+      expect(result).toBe('2025-12-29')
     })
   })
 
@@ -179,26 +112,6 @@ describe('Planning System Date Utilities', () => {
       const week1 = new Date(2026, 0, 19)
       const week2 = new Date(2026, 0, 26)
       expect(isSameWeek(week1, week2)).toBe(false)
-    })
-  })
-
-  describe('isSameQuarter', () => {
-    it('returns true for dates in the same quarter', () => {
-      const january = new Date(2026, 0, 15)
-      const march = new Date(2026, 2, 31)
-      expect(isSameQuarter(january, march)).toBe(true)
-    })
-
-    it('returns false for dates in different quarters', () => {
-      const q1 = new Date(2026, 0, 15)
-      const q2 = new Date(2026, 3, 15)
-      expect(isSameQuarter(q1, q2)).toBe(false)
-    })
-
-    it('returns false for same quarter in different years', () => {
-      const q1_2026 = new Date(2026, 0, 15)
-      const q1_2027 = new Date(2027, 0, 15)
-      expect(isSameQuarter(q1_2026, q1_2027)).toBe(false)
     })
   })
 
@@ -229,30 +142,7 @@ describe('Planning System Date Utilities', () => {
 
     it('formats week range crossing year boundary', () => {
       const result = formatWeekRangeFromStart('2025-12-29')
-      // End date is Jan 4, 2026
       expect(result).toBe('Dec 29 - Jan 4, 2026')
-    })
-  })
-
-  describe('formatQuarterLabel', () => {
-    it('formats Q1 label', () => {
-      const result = formatQuarterLabel('2026-01-01')
-      expect(result).toBe('Q1 2026')
-    })
-
-    it('formats Q2 label', () => {
-      const result = formatQuarterLabel('2026-04-01')
-      expect(result).toBe('Q2 2026')
-    })
-
-    it('formats Q3 label', () => {
-      const result = formatQuarterLabel('2026-07-01')
-      expect(result).toBe('Q3 2026')
-    })
-
-    it('formats Q4 label', () => {
-      const result = formatQuarterLabel('2026-10-01')
-      expect(result).toBe('Q4 2026')
     })
   })
 
@@ -264,33 +154,13 @@ describe('Planning System Date Utilities', () => {
     })
   })
 
-  describe('getQuarterFromStart', () => {
-    it('returns 1 for Q1 start', () => {
-      expect(getQuarterFromStart('2026-01-01')).toBe(1)
-    })
-
-    it('returns 2 for Q2 start', () => {
-      expect(getQuarterFromStart('2026-04-01')).toBe(2)
-    })
-
-    it('returns 3 for Q3 start', () => {
-      expect(getQuarterFromStart('2026-07-01')).toBe(3)
-    })
-
-    it('returns 4 for Q4 start', () => {
-      expect(getQuarterFromStart('2026-10-01')).toBe(4)
-    })
-  })
-
   describe('getYearFromDate', () => {
     it('extracts year from ISO date string', () => {
       expect(getYearFromDate('2026-01-15')).toBe(2026)
       expect(getYearFromDate('2027-12-31')).toBe(2027)
     })
   })
-})
 
-describe('Existing Period Utilities (verification)', () => {
   describe('getWeekRange', () => {
     it('returns correct week range', () => {
       const wednesday = new Date(2026, 0, 22)
@@ -301,22 +171,175 @@ describe('Existing Period Utilities (verification)', () => {
     })
   })
 
-  describe('getQuarterRange', () => {
-    it('returns correct Q1 range', () => {
-      const february = new Date(2026, 1, 15)
-      const range = getQuarterRange(february)
+  describe('toLocalISODateString', () => {
+    it('formats date as local YYYY-MM-DD', () => {
+      const date = new Date(2026, 0, 5, 12)
+      expect(toLocalISODateString(date)).toBe('2026-01-05')
+    })
+  })
+})
 
-      expect(toLocalISODateString(range.start)).toBe('2026-01-01')
-      expect(toLocalISODateString(range.end)).toBe('2026-03-31')
+describe('Flexible Period Utilities', () => {
+  describe('isDateInPeriod', () => {
+    it('returns true when date string is within range', () => {
+      expect(isDateInPeriod('2026-01-15', '2026-01-01', '2026-01-31')).toBe(true)
+    })
+
+    it('returns true when Date object is within range', () => {
+      const date = new Date(2026, 0, 15)
+      expect(isDateInPeriod(date, '2026-01-01', '2026-01-31')).toBe(true)
+    })
+
+    it('returns false when date is outside range', () => {
+      expect(isDateInPeriod('2026-02-01', '2026-01-01', '2026-01-31')).toBe(false)
     })
   })
 
-  describe('getQuarterNumber', () => {
-    it('returns correct quarter numbers', () => {
-      expect(getQuarterNumber(new Date(2026, 0, 15))).toBe(1)
-      expect(getQuarterNumber(new Date(2026, 3, 15))).toBe(2)
-      expect(getQuarterNumber(new Date(2026, 6, 15))).toBe(3)
-      expect(getQuarterNumber(new Date(2026, 9, 15))).toBe(4)
+  describe('period state helpers', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-01-15T12:00:00'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('detects past periods', () => {
+      expect(isPastPeriod('2026-01-14')).toBe(true)
+      expect(isPastPeriod('2026-01-15')).toBe(false)
+    })
+
+    it('detects current periods', () => {
+      expect(isCurrentPeriod('2026-01-10', '2026-01-20')).toBe(true)
+      expect(isCurrentPeriod('2026-01-16', '2026-01-20')).toBe(false)
+    })
+
+    it('detects future periods', () => {
+      expect(isFuturePeriod('2026-01-16')).toBe(true)
+      expect(isFuturePeriod('2026-01-15')).toBe(false)
+    })
+  })
+
+  describe('formatPeriodDateRange', () => {
+    it('formats same-month range', () => {
+      expect(formatPeriodDateRange('2026-01-01', '2026-01-31')).toBe('Jan 1 - 31, 2026')
+    })
+
+    it('formats cross-month range in same year', () => {
+      expect(formatPeriodDateRange('2026-01-15', '2026-02-05')).toBe('Jan 15 - Feb 5, 2026')
+    })
+
+    it('formats cross-year range', () => {
+      expect(formatPeriodDateRange('2025-12-15', '2026-01-10')).toBe(
+        'Dec 15, 2025 - Jan 10, 2026'
+      )
+    })
+  })
+
+  describe('getDefaultPeriodName', () => {
+    it('returns year label for standard yearly range', () => {
+      expect(getDefaultPeriodName('2026-01-01', '2026-12-31', 'yearly')).toBe('2026')
+    })
+
+    it('returns date range for non-standard yearly range', () => {
+      expect(getDefaultPeriodName('2026-04-01', '2027-03-31', 'yearly')).toBe(
+        'Apr 1, 2026 - Mar 31, 2027'
+      )
+    })
+
+    it('returns month label for single-month range', () => {
+      expect(getDefaultPeriodName('2026-01-01', '2026-01-31', 'monthly')).toBe('January 2026')
+    })
+
+    it('returns date range for cross-month range', () => {
+      expect(getDefaultPeriodName('2026-01-15', '2026-02-05', 'monthly')).toBe(
+        'Jan 15 - Feb 5, 2026'
+      )
+    })
+
+    it('returns date range for weekly periods', () => {
+      expect(getDefaultPeriodName('2026-01-19', '2026-01-25', 'weekly')).toBe(
+        'Jan 19 - 25, 2026'
+      )
+    })
+  })
+
+  describe('suggestNextPeriodDates', () => {
+    it('suggests yearly dates for reference year', () => {
+      const result = suggestNextPeriodDates('yearly', new Date(2026, 5, 15))
+      expect(result).toEqual({ startDate: '2026-01-01', endDate: '2026-12-31' })
+    })
+
+    it('suggests monthly dates for reference month', () => {
+      const result = suggestNextPeriodDates('monthly', new Date(2026, 1, 10))
+      expect(result).toEqual({ startDate: '2026-02-01', endDate: '2026-02-28' })
+    })
+
+    it('suggests weekly dates for reference week', () => {
+      const result = suggestNextPeriodDates('weekly', new Date(2026, 0, 22))
+      expect(result).toEqual({ startDate: '2026-01-19', endDate: '2026-01-25' })
+    })
+  })
+
+  describe('month/year range helpers', () => {
+    it('returns month range for a given date', () => {
+      const range = getMonthRange(new Date(2026, 1, 10))
+      expect(toLocalISODateString(range.start)).toBe('2026-02-01')
+      expect(toLocalISODateString(range.end)).toBe('2026-02-28')
+    })
+
+    it('returns year range for a given date', () => {
+      const range = getYearRange(new Date(2026, 7, 10))
+      expect(toLocalISODateString(range.start)).toBe('2026-01-01')
+      expect(toLocalISODateString(range.end)).toBe('2026-12-31')
+    })
+  })
+
+  describe('parseLocalISODate', () => {
+    it('parses local ISO date string without timezone shifts', () => {
+      const date = parseLocalISODate('2026-03-05')
+      expect(date.getFullYear()).toBe(2026)
+      expect(date.getMonth()).toBe(2)
+      expect(date.getDate()).toBe(5)
+    })
+  })
+
+  describe('isDateRangeOverlapping', () => {
+    it('returns true for overlapping ranges', () => {
+      expect(
+        isDateRangeOverlapping(
+          { startDate: '2026-01-01', endDate: '2026-01-31' },
+          { startDate: '2026-01-20', endDate: '2026-02-10' }
+        )
+      ).toBe(true)
+    })
+
+    it('returns false for non-overlapping ranges', () => {
+      expect(
+        isDateRangeOverlapping(
+          { startDate: '2026-01-01', endDate: '2026-01-15' },
+          { startDate: '2026-01-16', endDate: '2026-01-31' }
+        )
+      ).toBe(false)
+    })
+  })
+
+  describe('getWeekRangesBetween', () => {
+    it('returns weekly ranges between dates', () => {
+      const ranges = getWeekRangesBetween('2026-01-01', '2026-01-20')
+      expect(ranges.length).toBeGreaterThan(0)
+      expect(ranges[0].startDate).toBe('2025-12-29')
+      expect(ranges[ranges.length - 1].endDate).toBe('2026-01-25')
+    })
+  })
+
+  describe('getMonthRangesBetween', () => {
+    it('returns monthly ranges between dates', () => {
+      const ranges = getMonthRangesBetween('2026-01-10', '2026-03-05')
+      expect(ranges.length).toBe(3)
+      expect(ranges[0].startDate).toBe('2026-01-01')
+      expect(ranges[2].endDate).toBe('2026-03-31')
     })
   })
 })

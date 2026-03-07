@@ -90,6 +90,12 @@ const createEmotionLogStoreMock = () => {
 
 const createEmotionStoreMock = () => {
   const isLoadedRef = ref(false)
+  const emotionsById: Record<string, { id: string; name: string }> = {
+    'emotion-joy': { id: 'emotion-joy', name: 'Joy' },
+    'emotion-calm': { id: 'emotion-calm', name: 'Calm' },
+    'emotion-happy': { id: 'emotion-happy', name: 'Happy' },
+    'emotion-focus': { id: 'emotion-focus', name: 'Focus' },
+  }
   return {
     get isLoaded() {
       return isLoadedRef.value
@@ -100,6 +106,7 @@ const createEmotionStoreMock = () => {
     loadEmotions: vi.fn().mockImplementation(async () => {
       isLoadedRef.value = true
     }),
+    getEmotionById: vi.fn((id: string) => emotionsById[id]),
   }
 }
 
@@ -216,21 +223,21 @@ describe('EmotionLogEditorView', () => {
       return `Today, ${hours}:${minutes}`
     })()
 
-    expect(screen.getByText(expectedTimestamp, { selector: 'p' })).toBeInTheDocument()
-    const noteField = screen.getByLabelText(/note\s+\(optional\)/i) as HTMLTextAreaElement
+    expect(screen.getByText(expectedTimestamp)).toBeInTheDocument()
+    const noteField = screen.getByLabelText(/note/i) as HTMLTextAreaElement
     expect(noteField.value).toBe('')
     expect(mockEmotionStore.loadEmotions).toHaveBeenCalled()
     expect(mockTagStore.loadPeopleTags).toHaveBeenCalled()
     expect(mockTagStore.loadContextTags).toHaveBeenCalled()
   })
 
-  it('disables save until an emotion is selected', async () => {
+  it('keeps save enabled and updates emotion selection', async () => {
     renderEditor()
 
     await screen.findByTestId('emotion-add')
 
     const saveButton = screen.getByRole('button', { name: /save/i }) as HTMLButtonElement
-    expect(saveButton.disabled).toBe(true)
+    expect(saveButton.disabled).toBe(false)
 
     await fireEvent.click(screen.getByTestId('emotion-add'))
 
@@ -268,7 +275,7 @@ describe('EmotionLogEditorView', () => {
 
     const emotionAddButton = await screen.findByTestId('emotion-add')
     await fireEvent.click(emotionAddButton)
-    const noteField = screen.getByLabelText(/note\s+\(optional\)/i)
+    const noteField = screen.getByLabelText(/note/i)
     await fireEvent.update(noteField, '  Feeling ready ')
     const addPeopleButton = await screen.findByTestId('people-tag-add')
     const addContextButton = await screen.findByTestId('context-tag-add')
@@ -286,10 +293,12 @@ describe('EmotionLogEditorView', () => {
         contextTagIds: ['context-tag-home'],
       })
     })
-    expect(mockPush).toHaveBeenCalledWith('/emotions')
     expect(
       screen.getByText('Emotion log saved successfully.')
     ).toBeInTheDocument()
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/emotions')
+    })
   })
 
   it('handles errors when createLog fails', async () => {
@@ -327,7 +336,7 @@ describe('EmotionLogEditorView', () => {
     renderEditor()
 
     const emotionAddButton = await screen.findByTestId('emotion-add')
-    const noteField = await screen.findByLabelText(/note\s+\(optional\)/i)
+    const noteField = await screen.findByLabelText(/note/i)
     expect((noteField as HTMLTextAreaElement).value).toBe('Initial note')
 
     await fireEvent.click(emotionAddButton)
@@ -346,7 +355,9 @@ describe('EmotionLogEditorView', () => {
         contextTagIds: ['context-tag-office'],
       })
     })
-    expect(mockPush).toHaveBeenCalledWith('/emotions')
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/emotions')
+    })
   })
 
   it('loads log data from repository when not found in store', async () => {
@@ -367,7 +378,7 @@ describe('EmotionLogEditorView', () => {
       expect(mockGetById).toHaveBeenCalledWith('log-456')
     })
 
-    const noteField = await screen.findByLabelText(/note\s+\(optional\)/i)
+    const noteField = await screen.findByLabelText(/note/i)
     await waitFor(() => {
       expect((noteField as HTMLTextAreaElement).value).toBe('Loaded from repo')
     })
@@ -434,5 +445,3 @@ describe('EmotionLogEditorView', () => {
     expect(mockPush).toHaveBeenCalledWith('/emotions')
   })
 })
-
-

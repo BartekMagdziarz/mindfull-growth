@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "title": "Valued Living Questionnaire (VLQ)",
+    "subtitle": "Assess importance and consistency in key life domains.",
+    "description": "Rate each domain for importance and how consistently you lived it recently. Results highlight strengths and value-action gaps.",
+    "category": "Values",
+    "disclaimer": "This assessment supports self-reflection and does not provide a clinical diagnosis."
+  },
+  "consent": {
+    "title": "Consent and Disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I consent to store results locally on this device."
+  },
+  "scales": {
+    "family": "Family",
+    "intimateRelationships": "Intimate Relationships",
+    "parenting": "Parenting",
+    "friendships": "Friendships",
+    "work": "Work",
+    "education": "Education / Personal Growth",
+    "recreation": "Recreation",
+    "spirituality": "Spirituality",
+    "citizenship": "Citizenship / Community",
+    "health": "Health / Self-Care"
+  },
+  "anchors": {
+    "0": "Not at all",
+    "10": "Extremely"
+  },
+  "fields": {
+    "importance": "Importance",
+    "consistency": "Consistency",
+    "gap": "Gap (Importance - Consistency)",
+    "weighted": "Weighted Consistency (Importance × Consistency)"
+  },
+  "results": {
+    "topValues": "Top Values",
+    "biggestGaps": "Biggest Action Opportunities"
+  },
+  "items": {
+    "vlq_family_importance": "How important is family in your life?",
+    "vlq_family_consistency": "How consistently did you live according to your values in family recently?",
+    "vlq_intimateRelationships_importance": "How important is intimate relationships in your life?",
+    "vlq_intimateRelationships_consistency": "How consistently did you live according to your values in intimate relationships recently?",
+    "vlq_parenting_importance": "How important is parenting in your life?",
+    "vlq_parenting_consistency": "How consistently did you live according to your values in parenting recently?",
+    "vlq_friendships_importance": "How important is friendships in your life?",
+    "vlq_friendships_consistency": "How consistently did you live according to your values in friendships recently?",
+    "vlq_work_importance": "How important is work in your life?",
+    "vlq_work_consistency": "How consistently did you live according to your values in work recently?",
+    "vlq_education_importance": "How important is education / personal growth in your life?",
+    "vlq_education_consistency": "How consistently did you live according to your values in education / personal growth recently?",
+    "vlq_recreation_importance": "How important is recreation in your life?",
+    "vlq_recreation_consistency": "How consistently did you live according to your values in recreation recently?",
+    "vlq_spirituality_importance": "How important is spirituality in your life?",
+    "vlq_spirituality_consistency": "How consistently did you live according to your values in spirituality recently?",
+    "vlq_citizenship_importance": "How important is citizenship / community in your life?",
+    "vlq_citizenship_consistency": "How consistently did you live according to your values in citizenship / community recently?",
+    "vlq_health_importance": "How important is health / self-care in your life?",
+    "vlq_health_consistency": "How consistently did you live according to your values in health / self-care recently?"
+  }
+}

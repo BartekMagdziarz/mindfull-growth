@@ -1,0 +1,107 @@
+{
+  "views": {
+    "title": "Obszary życia",
+    "subtitle": "Stale wymiary Twojego życia. Zasilaja Kolo Życia i roczne planowanie.",
+    "addButton": "+ Dodaj",
+    "emptyState": "Nie zdefiniowales jeszcze obszarow życia.",
+    "startWithDefaults": "Zacznij z domyslnymi",
+    "createFromScratch": "Utwórz od zera",
+    "defaultsCreated": "Domyslne obszary życia utwórzone.",
+    "defaultsError": "Nie udalo się utworżyć domyslnych obszarow."
+  },
+  "editor": {
+    "newTitle": "Nowy obszar życia",
+    "editTitle": "Edytuj obszar życia",
+    "createButton": "Utwórz obszar",
+    "saveButton": "Zapisz zmiany",
+    "successCreated": "Obszar życia utwórzony.",
+    "successUpdated": "Obszar życia zaktualizowany.",
+    "errorSave": "Nie udalo się zapisać obszaru życia."
+  },
+  "detail": {
+    "notFound": "Nie znaleziono obszaru życia.",
+    "backButton": "Powrot do obszarow życia",
+    "editButton": "Edytuj",
+    "archiveButton": "Archiwizuj",
+    "reactivateButton": "Reaktywuj",
+    "maintenanceTitle": "Standard utrzymania",
+    "successPictureTitle": "Obraz sukcesu (9/10)",
+    "measuresTitle": "Miary",
+    "constraintsTitle": "Ograniczenia i ryzyka",
+    "reviewCadenceTitle": "Częstotliwosc przegladu",
+    "baselineTitle": "Roczna narracja bazowa",
+    "notSet": "Jeszcze nie ustawiono.",
+    "fromSource": "Z {source}",
+    "linkedDataTitle": "Powiazane dane",
+    "deleteButton": "Usun ten obszar na stale",
+    "confirmDelete": "Usunac \"{name}\"? Tej operacji nie można cofnąć.",
+    "deleteError": "Nie udalo się usunac obszaru życia.",
+    "archived": "Obszar zarchiwizowany.",
+    "reactivated": "Obszar reaktywowany."
+  },
+  "form": {
+    "nameLabel": "Nazwa obszaru *",
+    "namePlaceholder": "np. Zdrowie i sprawnosc",
+    "iconLabel": "Ikona",
+    "iconAriaLabel": "Wybierz ikone obszaru życia",
+    "colorLabel": "Kolor",
+    "purposeLabel": "Cel",
+    "purposeHelper": "Dłączego ten obszar jest dla Ciebie ważny? Co wchodzi / nie wchodzi w jego zakres?",
+    "purposePlaceholder": "np. Utrzymanie energii fiżyćznej i psychicznej, by być w pełni obecnym we wszystkich obszarach.",
+    "maintenanceLabel": "Standard utrzymania",
+    "maintenanceHelper": "Jak wygląda \"wystarczajaco dobrze\"? Bazowy poziom, który chcesz utrzymać.",
+    "maintenancePlaceholder": "np. Sen sr. 7h, trening silowy 2x/tydzien, badania co roku",
+    "successLabel": "Obraz sukcesu",
+    "successHelper": "Jak wyglądaloby 9/10 w tym obszarze?",
+    "successPlaceholder": "np. Czuje się silny, pełny energii i pewny siebie każdego dnia.",
+    "measuresLabel": "Miary",
+    "measuresHelper": "Wskazniki wiodace (nawyki) i wskazniki opóźnione (rezultaty).",
+    "measureTypeOptions": {
+      "leading": "Wiodacy",
+      "lagging": "Opóźniony"
+    },
+    "measurePlaceholder": "np. Trening silowy 2x/tydzien",
+    "removeMeasure": "Usun miare",
+    "addMeasure": "+ Dodaj miare",
+    "constraintsLabel": "Ograniczenia i ryzyka",
+    "constraintsHelper": "Blokery, tryby awarii, co zwykle wykoleja ten obszar.",
+    "constraintPlaceholder": "np. Nadmierne obciążenie w pracy zabiera czas na ćwiczenia",
+    "removeConstraint": "Usun ograniczenie",
+    "addConstraint": "+ Dodaj ograniczenie",
+    "reviewCadenceLabel": "Częstotliwosc przegladu",
+    "reviewCadenceOptions": {
+      "weekly": "Tygodniowo",
+      "monthly": "Miesiecznie",
+      "quarterly": "Kwartalnie",
+      "yearly": "Rocznie"
+    }
+  },
+  "card": {
+    "scoreFormat": "{score}/10",
+    "archived": "Zarchiwizowany"
+  },
+  "picker": {
+    "emptyState": "Nie zdefiniowano jeszcze obszarow życia.",
+    "createFirst": "Najpierw utwórz jakies."
+  },
+  "linkedEntities": {
+    "wheelScores": "Wyniki Kola Życia",
+    "scoreTooltip": "{date}: {rating}/10",
+    "prioritiesTitle": "Priorytety",
+    "projectsTitle": "Projekty",
+    "commitmentsTitle": "Zobowiazania",
+    "emptyState": "Brak powiazanych elementow. Wykonaj ćwiczenia i planowanie, aby zobacżyć połączenia."
+  },
+  "colorPresets": {
+    "lavender": "Lawendowy",
+    "rose": "Rozowy",
+    "coral": "Koralowy",
+    "amber": "Bursztynowy",
+    "sage": "Szalwiowy",
+    "teal": "Morski",
+    "ocean": "Oceaniczny",
+    "periwinkle": "Barwinkowy",
+    "mauve": "Liliowy",
+    "steel": "Stalowy"
+  }
+}

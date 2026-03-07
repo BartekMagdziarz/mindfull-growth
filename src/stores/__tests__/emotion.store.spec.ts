@@ -1,326 +1,92 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { useEmotionStore } from '../emotion.store'
-import type { Emotion, Quadrant } from '@/domain/emotion'
+import type { Quadrant } from '@/domain/emotion'
 
-// Mock the emotions data - defined here so it can be used in tests
-const mockEmotions: Emotion[] = [
-  // High Energy / High Pleasantness
-  {
-    id: 'emotion-1',
-    name: 'Ecstatic',
-    pleasantness: 10,
-    energy: 10,
-    description: 'Overwhelmed by extreme joy and delight',
-  },
-  {
-    id: 'emotion-2',
-    name: 'Elated',
-    pleasantness: 10,
-    energy: 9,
-    description: 'Very happy and lifted in spirit',
-  },
-  {
-    id: 'emotion-3',
-    name: 'Excited',
-    pleasantness: 10,
-    energy: 8,
-    description: 'Highly aroused in a positive anticipatory way',
-  },
-  {
-    id: 'emotion-4',
-    name: 'Thrilled',
-    pleasantness: 10,
-    energy: 7,
-    description: 'Strongly delighted by good news or events',
-  },
-  // High Energy / Low Pleasantness
-  {
-    id: 'emotion-5',
-    name: 'Enraged',
-    pleasantness: 1,
-    energy: 10,
-    description: 'Overwhelmed by intense uncontrollable anger',
-  },
-  {
-    id: 'emotion-6',
-    name: 'Furious',
-    pleasantness: 2,
-    energy: 9,
-    description: 'Burning with rage and hostility',
-  },
-  {
-    id: 'emotion-7',
-    name: 'Angry',
-    pleasantness: 3,
-    energy: 8,
-    description: 'Feeling hostile and upset about something',
-  },
-  {
-    id: 'emotion-8',
-    name: 'Anxious',
-    pleasantness: 1,
-    energy: 7,
-    description: 'Worried and uneasy about potential problems',
-  },
-  // Low Energy / High Pleasantness
-  {
-    id: 'emotion-9',
-    name: 'Serene',
-    pleasantness: 10,
-    energy: 1,
-    description: 'Stable unshakable inner calm and clarity',
-  },
-  {
-    id: 'emotion-10',
-    name: 'Tranquil',
-    pleasantness: 8,
-    energy: 1,
-    description: 'Deeply calm quiet and undisturbed',
-  },
-  {
-    id: 'emotion-11',
-    name: 'Peaceful',
-    pleasantness: 8,
-    energy: 2,
-    description: 'Free from disturbance or inner conflict',
-  },
-  {
-    id: 'emotion-12',
-    name: 'Calm',
-    pleasantness: 6,
-    energy: 4,
-    description: 'Quiet mind and relaxed body',
-  },
-  // Low Energy / Low Pleasantness
-  {
-    id: 'emotion-13',
-    name: 'Despair',
-    pleasantness: 1,
-    energy: 1,
-    description: 'Feeling hopeless with no way out',
-  },
-  {
-    id: 'emotion-14',
-    name: 'Hopeless',
-    pleasantness: 2,
-    energy: 1,
-    description: 'Seeing no realistic possibility of improvement',
-  },
-  {
-    id: 'emotion-15',
-    name: 'Depressed',
-    pleasantness: 2,
-    energy: 2,
-    description: 'Persistently low mood and loss of interest',
-  },
-  {
-    id: 'emotion-16',
-    name: 'Sad',
-    pleasantness: 4,
-    energy: 4,
-    description: 'Hurting emotionally or grieving loss',
-  },
-  // Edge cases: exactly 5
-  {
-    id: 'emotion-17',
-    name: 'Shocked',
-    pleasantness: 5,
-    energy: 10,
-    description: 'Suddenly stunned by something unexpected or upsetting',
-  },
-  {
-    id: 'emotion-18',
-    name: 'Apathetic',
-    pleasantness: 5,
-    energy: 5,
-    description: 'Lacking interest energy or motivation',
-  },
-  {
-    id: 'emotion-19',
-    name: 'At ease',
-    pleasantness: 6,
-    energy: 5,
-    description: 'Comfortable relaxed and unthreatened',
-  },
-  {
-    id: 'emotion-20',
-    name: 'Bored',
-    pleasantness: 5,
-    energy: 4,
-    description: 'Unstimulated and uninterested in the moment',
-  },
-]
+const { mockEmotionsMeta, mockEmotionTranslations } = vi.hoisted(() => {
+  const mockEmotionsMeta = [
+    { id: 'emotion-1', pleasantness: 10, energy: 10 },
+    { id: 'emotion-2', pleasantness: 10, energy: 9 },
+    { id: 'emotion-3', pleasantness: 10, energy: 8 },
+    { id: 'emotion-4', pleasantness: 10, energy: 7 },
+    { id: 'emotion-5', pleasantness: 1, energy: 10 },
+    { id: 'emotion-6', pleasantness: 2, energy: 9 },
+    { id: 'emotion-7', pleasantness: 3, energy: 8 },
+    { id: 'emotion-8', pleasantness: 1, energy: 7 },
+    { id: 'emotion-9', pleasantness: 10, energy: 1 },
+    { id: 'emotion-10', pleasantness: 8, energy: 1 },
+    { id: 'emotion-11', pleasantness: 8, energy: 2 },
+    { id: 'emotion-12', pleasantness: 6, energy: 4 },
+    { id: 'emotion-13', pleasantness: 1, energy: 1 },
+    { id: 'emotion-14', pleasantness: 2, energy: 1 },
+    { id: 'emotion-15', pleasantness: 2, energy: 2 },
+    { id: 'emotion-16', pleasantness: 4, energy: 4 },
+    { id: 'emotion-17', pleasantness: 5, energy: 10 },
+    { id: 'emotion-18', pleasantness: 6, energy: 6 },
+    { id: 'emotion-19', pleasantness: 7, energy: 6 },
+    { id: 'emotion-20', pleasantness: 5, energy: 4 },
+  ]
 
-// Mock the emotions data import - define mock data inline in factory to avoid hoisting issues
-vi.mock('@/data/emotions.json', () => ({
-  default: [
-    // High Energy / High Pleasantness
-    {
-      id: 'emotion-1',
-      name: 'Ecstatic',
-      pleasantness: 10,
-      energy: 10,
-      description: 'Overwhelmed by extreme joy and delight',
-    },
-    {
-      id: 'emotion-2',
-      name: 'Elated',
-      pleasantness: 10,
-      energy: 9,
-      description: 'Very happy and lifted in spirit',
-    },
-    {
-      id: 'emotion-3',
-      name: 'Excited',
-      pleasantness: 10,
-      energy: 8,
-      description: 'Highly aroused in a positive anticipatory way',
-    },
-    {
-      id: 'emotion-4',
-      name: 'Thrilled',
-      pleasantness: 10,
-      energy: 7,
-      description: 'Strongly delighted by good news or events',
-    },
-    // High Energy / Low Pleasantness
-    {
-      id: 'emotion-5',
-      name: 'Enraged',
-      pleasantness: 1,
-      energy: 10,
-      description: 'Overwhelmed by intense uncontrollable anger',
-    },
-    {
-      id: 'emotion-6',
-      name: 'Furious',
-      pleasantness: 2,
-      energy: 9,
-      description: 'Burning with rage and hostility',
-    },
-    {
-      id: 'emotion-7',
-      name: 'Angry',
-      pleasantness: 3,
-      energy: 8,
-      description: 'Feeling hostile and upset about something',
-    },
-    {
-      id: 'emotion-8',
-      name: 'Anxious',
-      pleasantness: 1,
-      energy: 7,
-      description: 'Worried and uneasy about potential problems',
-    },
-    // Low Energy / High Pleasantness
-    {
-      id: 'emotion-9',
-      name: 'Serene',
-      pleasantness: 10,
-      energy: 1,
-      description: 'Stable unshakable inner calm and clarity',
-    },
-    {
-      id: 'emotion-10',
-      name: 'Tranquil',
-      pleasantness: 8,
-      energy: 1,
-      description: 'Deeply calm quiet and undisturbed',
-    },
-    {
-      id: 'emotion-11',
-      name: 'Peaceful',
-      pleasantness: 8,
-      energy: 2,
-      description: 'Free from disturbance or inner conflict',
-    },
-    {
-      id: 'emotion-12',
-      name: 'Calm',
-      pleasantness: 6,
-      energy: 4,
-      description: 'Quiet mind and relaxed body',
-    },
-    // Low Energy / Low Pleasantness
-    {
-      id: 'emotion-13',
-      name: 'Despair',
-      pleasantness: 1,
-      energy: 1,
-      description: 'Feeling hopeless with no way out',
-    },
-    {
-      id: 'emotion-14',
-      name: 'Hopeless',
-      pleasantness: 2,
-      energy: 1,
-      description: 'Seeing no realistic possibility of improvement',
-    },
-    {
-      id: 'emotion-15',
-      name: 'Depressed',
-      pleasantness: 2,
-      energy: 2,
-      description: 'Persistently low mood and loss of interest',
-    },
-    {
-      id: 'emotion-16',
-      name: 'Sad',
-      pleasantness: 4,
-      energy: 4,
-      description: 'Hurting emotionally or grieving loss',
-    },
-    // Edge cases: exactly 5
-    {
-      id: 'emotion-17',
-      name: 'Shocked',
-      pleasantness: 5,
-      energy: 10,
-      description: 'Suddenly stunned by something unexpected or upsetting',
-    },
-    {
-      id: 'emotion-18',
-      name: 'Apathetic',
-      pleasantness: 5,
-      energy: 5,
-      description: 'Lacking interest energy or motivation',
-    },
-    {
-      id: 'emotion-19',
-      name: 'At ease',
-      pleasantness: 6,
-      energy: 5,
-      description: 'Comfortable relaxed and unthreatened',
-    },
-    {
-      id: 'emotion-20',
-      name: 'Bored',
-      pleasantness: 5,
-      energy: 4,
-      description: 'Unstimulated and uninterested in the moment',
-    },
-  ],
+  const mockEmotionTranslations: Record<string, { name: string; description: string }> = {
+    'emotion-1': { name: 'Ecstatic', description: 'Overwhelmed by extreme joy and delight' },
+    'emotion-2': { name: 'Elated', description: 'Very happy and lifted in spirit' },
+    'emotion-3': { name: 'Excited', description: 'Highly aroused in a positive anticipatory way' },
+    'emotion-4': { name: 'Thrilled', description: 'Strongly delighted by good news or events' },
+    'emotion-5': { name: 'Enraged', description: 'Overwhelmed by intense uncontrollable anger' },
+    'emotion-6': { name: 'Furious', description: 'Burning with rage and hostility' },
+    'emotion-7': { name: 'Angry', description: 'Feeling hostile and upset about something' },
+    'emotion-8': { name: 'Anxious', description: 'Worried and uneasy about potential problems' },
+    'emotion-9': { name: 'Serene', description: 'Stable unshakable inner calm and clarity' },
+    'emotion-10': { name: 'Tranquil', description: 'Deeply calm quiet and undisturbed' },
+    'emotion-11': { name: 'Peaceful', description: 'Free from disturbance or inner conflict' },
+    'emotion-12': { name: 'Calm', description: 'Quiet mind and relaxed body' },
+    'emotion-13': { name: 'Despair', description: 'Feeling hopeless with no way out' },
+    'emotion-14': { name: 'Hopeless', description: 'Seeing no realistic possibility of improvement' },
+    'emotion-15': { name: 'Depressed', description: 'Persistently low mood and loss of interest' },
+    'emotion-16': { name: 'Sad', description: 'Hurting emotionally or grieving loss' },
+    'emotion-17': { name: 'Shocked', description: 'Suddenly stunned by something unexpected or upsetting' },
+    'emotion-18': { name: 'Apathetic', description: 'Lacking interest energy or motivation' },
+    'emotion-19': { name: 'At ease', description: 'Comfortable relaxed and unthreatened' },
+    'emotion-20': { name: 'Bored', description: 'Unstimulated and uninterested in the moment' },
+  }
+
+  return { mockEmotionsMeta, mockEmotionTranslations }
+})
+
+vi.mock('@/data/emotions-meta.json', () => ({
+  default: mockEmotionsMeta,
 }))
+
+vi.mock('@/locales/en/emotions.json', () => ({
+  default: mockEmotionTranslations,
+}))
+
+vi.mock('@/locales/pl/emotions.json', () => ({
+  default: mockEmotionTranslations,
+}))
+
+import { useEmotionStore } from '../emotion.store'
 
 describe('useEmotionStore', () => {
   beforeEach(() => {
-    // Create a fresh Pinia instance for each test
     setActivePinia(createPinia())
   })
 
   describe('loadEmotions', () => {
-    it('populates emotions array correctly', async () => {
+    it('emotions are available immediately from static imports', () => {
       const store = useEmotionStore()
 
-      expect(store.emotions).toHaveLength(0)
-      expect(store.isLoaded).toBe(false)
-
-      await store.loadEmotions()
-
+      // Emotions are computed from static imports, always available
       expect(store.emotions).toHaveLength(20)
+      expect(store.emotions[0].id).toBe('emotion-1')
+      expect(store.emotions[0].name).toBe('Ecstatic')
+    })
+
+    it('loadEmotions sets isLoaded flag', async () => {
+      const store = useEmotionStore()
+
+      expect(store.isLoaded).toBe(false)
+      await store.loadEmotions()
       expect(store.isLoaded).toBe(true)
-      expect(store.emotions[0]).toEqual(mockEmotions[0])
     })
 
     it('is idempotent (safe to call multiple times)', async () => {
@@ -337,10 +103,8 @@ describe('useEmotionStore', () => {
       expect(store.isLoaded).toBe(true)
     })
 
-    it('loads emotions with all required fields', async () => {
+    it('loads emotions with all required fields', () => {
       const store = useEmotionStore()
-
-      await store.loadEmotions()
 
       store.emotions.forEach((emotion) => {
         expect(emotion).toHaveProperty('id')
@@ -360,30 +124,15 @@ describe('useEmotionStore', () => {
   })
 
   describe('getAllEmotions', () => {
-    it('returns all emotions after loading', async () => {
+    it('returns all emotions', () => {
       const store = useEmotionStore()
-
-      await store.loadEmotions()
 
       const allEmotions = store.getAllEmotions
       expect(allEmotions).toHaveLength(20)
-      expect(allEmotions).toEqual(mockEmotions)
-    })
-
-    it('returns empty array if emotions have not been loaded', () => {
-      const store = useEmotionStore()
-
-      const allEmotions = store.getAllEmotions
-      expect(allEmotions).toHaveLength(0)
     })
   })
 
   describe('getEmotionsByQuadrant', () => {
-    beforeEach(async () => {
-      const store = useEmotionStore()
-      await store.loadEmotions()
-    })
-
     it('returns correct emotions for high-energy-high-pleasantness quadrant', () => {
       const store = useEmotionStore()
       const quadrant: Quadrant = 'high-energy-high-pleasantness'
@@ -391,11 +140,10 @@ describe('useEmotionStore', () => {
 
       expect(emotions.length).toBeGreaterThan(0)
       emotions.forEach((emotion) => {
-        expect(emotion.energy).toBeGreaterThan(5)
-        expect(emotion.pleasantness).toBeGreaterThan(5)
+        expect(emotion.energy).toBeGreaterThan(6)
+        expect(emotion.pleasantness).toBeGreaterThan(6)
       })
 
-      // Verify specific emotions are included
       const emotionNames = emotions.map((e) => e.name)
       expect(emotionNames).toContain('Ecstatic')
       expect(emotionNames).toContain('Elated')
@@ -410,11 +158,10 @@ describe('useEmotionStore', () => {
 
       expect(emotions.length).toBeGreaterThan(0)
       emotions.forEach((emotion) => {
-        expect(emotion.energy).toBeGreaterThan(5)
-        expect(emotion.pleasantness).toBeLessThanOrEqual(5)
+        expect(emotion.energy).toBeGreaterThan(6)
+        expect(emotion.pleasantness).toBeLessThanOrEqual(6)
       })
 
-      // Verify specific emotions are included
       const emotionNames = emotions.map((e) => e.name)
       expect(emotionNames).toContain('Enraged')
       expect(emotionNames).toContain('Furious')
@@ -429,16 +176,15 @@ describe('useEmotionStore', () => {
 
       expect(emotions.length).toBeGreaterThan(0)
       emotions.forEach((emotion) => {
-        expect(emotion.energy).toBeLessThanOrEqual(5)
-        expect(emotion.pleasantness).toBeGreaterThan(5)
+        expect(emotion.energy).toBeLessThanOrEqual(6)
+        expect(emotion.pleasantness).toBeGreaterThan(6)
       })
 
-      // Verify specific emotions are included
       const emotionNames = emotions.map((e) => e.name)
       expect(emotionNames).toContain('Serene')
       expect(emotionNames).toContain('Tranquil')
       expect(emotionNames).toContain('Peaceful')
-      expect(emotionNames).toContain('Calm')
+      expect(emotionNames).toContain('At ease')
     })
 
     it('returns correct emotions for low-energy-low-pleasantness quadrant', () => {
@@ -448,21 +194,21 @@ describe('useEmotionStore', () => {
 
       expect(emotions.length).toBeGreaterThan(0)
       emotions.forEach((emotion) => {
-        expect(emotion.energy).toBeLessThanOrEqual(5)
-        expect(emotion.pleasantness).toBeLessThanOrEqual(5)
+        expect(emotion.energy).toBeLessThanOrEqual(6)
+        expect(emotion.pleasantness).toBeLessThanOrEqual(6)
       })
 
-      // Verify specific emotions are included
       const emotionNames = emotions.map((e) => e.name)
       expect(emotionNames).toContain('Despair')
       expect(emotionNames).toContain('Hopeless')
       expect(emotionNames).toContain('Depressed')
       expect(emotionNames).toContain('Sad')
+      expect(emotionNames).toContain('Calm')
+      expect(emotionNames).toContain('Apathetic')
     })
 
-    it('ensures each emotion appears in exactly one quadrant', async () => {
+    it('ensures each emotion appears in exactly one quadrant', () => {
       const store = useEmotionStore()
-      await store.loadEmotions()
 
       const quadrants: Quadrant[] = [
         'high-energy-high-pleasantness',
@@ -475,18 +221,15 @@ describe('useEmotionStore', () => {
         store.getEmotionsByQuadrant(q)
       )
 
-      // All emotions should be accounted for
       expect(allQuadrantEmotions.length).toBe(store.emotions.length)
 
-      // Check for duplicates by ID
       const emotionIds = allQuadrantEmotions.map((e) => e.id)
       const uniqueIds = new Set(emotionIds)
       expect(uniqueIds.size).toBe(emotionIds.length)
     })
 
-    it('ensures sum of all quadrants equals total emotions', async () => {
+    it('ensures sum of all quadrants equals total emotions', () => {
       const store = useEmotionStore()
-      await store.loadEmotions()
 
       const quadrants: Quadrant[] = [
         'high-energy-high-pleasantness',
@@ -503,49 +246,41 @@ describe('useEmotionStore', () => {
       expect(totalFromQuadrants).toBe(store.emotions.length)
     })
 
-    it('handles edge case: energy=5 is treated as low energy', () => {
+    it('handles edge case: energy=6 is treated as low energy', () => {
       const store = useEmotionStore()
       const quadrant: Quadrant = 'low-energy-high-pleasantness'
       const emotions = store.getEmotionsByQuadrant(quadrant)
 
-      // "At ease" has energy=5, pleasantness=6, so should be in low-energy-high-pleasantness
       const atEase = emotions.find((e) => e.name === 'At ease')
       expect(atEase).toBeDefined()
-      expect(atEase?.energy).toBe(5)
-      expect(atEase?.pleasantness).toBe(6)
+      expect(atEase?.energy).toBe(6)
+      expect(atEase?.pleasantness).toBe(7)
     })
 
-    it('handles edge case: pleasantness=5 is treated as low pleasantness', () => {
-      const store = useEmotionStore()
-      const quadrant: Quadrant = 'high-energy-low-pleasantness'
-      const emotions = store.getEmotionsByQuadrant(quadrant)
-
-      // "Shocked" has energy=10, pleasantness=5, so should be in high-energy-low-pleasantness
-      const shocked = emotions.find((e) => e.name === 'Shocked')
-      expect(shocked).toBeDefined()
-      expect(shocked?.energy).toBe(10)
-      expect(shocked?.pleasantness).toBe(5)
-    })
-
-    it('handles edge case: both energy=5 and pleasantness=5 is treated as low-energy-low-pleasantness', () => {
+    it('handles edge case: pleasantness=6 is treated as low pleasantness', () => {
       const store = useEmotionStore()
       const quadrant: Quadrant = 'low-energy-low-pleasantness'
       const emotions = store.getEmotionsByQuadrant(quadrant)
 
-      // "Apathetic" has energy=5, pleasantness=5, so should be in low-energy-low-pleasantness
+      const calm = emotions.find((e) => e.name === 'Calm')
+      expect(calm).toBeDefined()
+      expect(calm?.energy).toBe(4)
+      expect(calm?.pleasantness).toBe(6)
+    })
+
+    it('handles edge case: both energy=6 and pleasantness=6 are treated as low-energy-low-pleasantness', () => {
+      const store = useEmotionStore()
+      const quadrant: Quadrant = 'low-energy-low-pleasantness'
+      const emotions = store.getEmotionsByQuadrant(quadrant)
+
       const apathetic = emotions.find((e) => e.name === 'Apathetic')
       expect(apathetic).toBeDefined()
-      expect(apathetic?.energy).toBe(5)
-      expect(apathetic?.pleasantness).toBe(5)
+      expect(apathetic?.energy).toBe(6)
+      expect(apathetic?.pleasantness).toBe(6)
     })
   })
 
   describe('getEmotionById', () => {
-    beforeEach(async () => {
-      const store = useEmotionStore()
-      await store.loadEmotions()
-    })
-
     it('finds correct emotion by ID', () => {
       const store = useEmotionStore()
       const emotion = store.getEmotionById('emotion-1')
@@ -581,4 +316,3 @@ describe('useEmotionStore', () => {
     })
   })
 })
-

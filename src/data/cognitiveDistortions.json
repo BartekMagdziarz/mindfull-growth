@@ -1,0 +1,128 @@
+[
+  {
+    "id": "all-or-nothing",
+    "name": "All-or-Nothing Thinking",
+    "aliases": ["Black-and-white thinking", "Polarized thinking"],
+    "definition": "Seeing things in only two categories rather than on a continuum. If a situation falls short of perfect, you see it as a total failure.",
+    "example": "After getting a B+ on a test: \"I didn't get an A, so I completely failed.\"",
+    "soundsLike": "I always... / I never... / It's either perfect or worthless / Complete success or total failure",
+    "realityCheck": "Most things exist on a spectrum. A B+ is a strong grade. Partial success is still success."
+  },
+  {
+    "id": "overgeneralization",
+    "name": "Overgeneralization",
+    "aliases": ["Sweeping conclusions"],
+    "definition": "Drawing broad negative conclusions from a single event. One bad experience becomes a never-ending pattern of defeat.",
+    "example": "After one awkward conversation: \"I always say the wrong thing. No one ever wants to talk to me.\"",
+    "soundsLike": "This always happens / Everyone thinks... / Nothing ever works out / I'll never be able to...",
+    "realityCheck": "One event doesn't define a pattern. Look for counter-examples — times when things went differently."
+  },
+  {
+    "id": "mental-filter",
+    "name": "Mental Filter",
+    "aliases": ["Selective abstraction", "Tunnel vision"],
+    "definition": "Focusing exclusively on the negative detail in a situation while filtering out all the positive aspects.",
+    "example": "Getting praised by 9 colleagues but fixating on the one person who gave critical feedback: \"Everyone thinks my work is bad.\"",
+    "soundsLike": "But what about that one thing that went wrong... / The only thing that matters is...",
+    "realityCheck": "Zoom out. What are you filtering out? If you listed everything that happened, what would the full picture look like?"
+  },
+  {
+    "id": "disqualifying-positive",
+    "name": "Disqualifying the Positive",
+    "aliases": ["Discounting positives"],
+    "definition": "Dismissing positive experiences by insisting they \"don't count\" for some reason. Maintaining a negative belief despite contradicting evidence.",
+    "example": "After a successful presentation: \"They were just being nice. It wasn't really that good.\"",
+    "soundsLike": "That doesn't count because... / They only said that to be polite / Anyone could have done that / It was just luck",
+    "realityCheck": "Would you dismiss a friend's achievement this way? Positive evidence is still evidence."
+  },
+  {
+    "id": "mind-reading",
+    "name": "Mind Reading",
+    "aliases": ["Jumping to conclusions — mind reading"],
+    "definition": "Assuming you know what other people are thinking without evidence. Usually assuming they are thinking negatively about you.",
+    "example": "A coworker walks past without saying hello: \"She's angry at me. She must think I did something wrong.\"",
+    "soundsLike": "They think I'm... / I know they're judging me / She probably hates me / He must be disappointed",
+    "realityCheck": "You can't read minds. There are many possible explanations. What evidence do you actually have?"
+  },
+  {
+    "id": "fortune-telling",
+    "name": "Fortune Telling",
+    "aliases": ["Jumping to conclusions — predictive thinking"],
+    "definition": "Predicting that things will turn out badly without evidence. Treating a negative prediction as an established fact.",
+    "example": "Before a job interview: \"I'm going to freeze up and embarrass myself. There's no point in going.\"",
+    "soundsLike": "I just know it will go badly / There's no point because... / It's going to be a disaster / This will never work",
+    "realityCheck": "Predictions aren't facts. How many times have your worst predictions actually come true? What's the most likely outcome?"
+  },
+  {
+    "id": "catastrophizing",
+    "name": "Catastrophizing",
+    "aliases": ["Magnification", "Making mountains out of molehills"],
+    "definition": "Blowing things out of proportion. Exaggerating the importance of a negative event or your shortcomings.",
+    "example": "Making a small mistake at work: \"This is a disaster. I'm going to get fired. My career is over.\"",
+    "soundsLike": "This is the worst thing that could happen / I can't handle this / Everything is ruined / This is catastrophic",
+    "realityCheck": "What is the actual, realistic worst case? And how likely is it? Will this matter in a week? A month? A year?"
+  },
+  {
+    "id": "minimization",
+    "name": "Minimization",
+    "aliases": ["Shrinking", "Downplaying"],
+    "definition": "Shrinking the importance of positive events, qualities, or achievements. The flip side of catastrophizing.",
+    "example": "After finishing a marathon: \"It wasn't that big of a deal. Lots of people do it.\"",
+    "soundsLike": "It's nothing / Anyone could do that / It doesn't really matter / I got lucky",
+    "realityCheck": "If a friend did this, would you minimize it? Your achievements deserve recognition."
+  },
+  {
+    "id": "emotional-reasoning",
+    "name": "Emotional Reasoning",
+    "aliases": ["Feeling equals fact"],
+    "definition": "Assuming that your negative emotions reflect the way things really are. \"I feel it, therefore it must be true.\"",
+    "example": "\"I feel like a failure, so I must be a failure.\" or \"I feel anxious, so something bad must be about to happen.\"",
+    "soundsLike": "I feel [emotion], so it must be true / I just feel like... / My gut tells me...",
+    "realityCheck": "Feelings are information, not facts. Anxiety doesn't mean danger. Feeling stupid doesn't mean you are."
+  },
+  {
+    "id": "should-statements",
+    "name": "Should Statements",
+    "aliases": ["Musts", "Oughts", "Demandingness"],
+    "definition": "Using rigid rules about how you or others should behave. Leads to guilt when directed at yourself and frustration when directed at others.",
+    "example": "\"I should be further along in my career by now.\" or \"They should have known that would upset me.\"",
+    "soundsLike": "I should... / I must... / I ought to... / They should have... / I have to...",
+    "realityCheck": "Replace 'should' with 'I'd prefer' or 'It would be nice if.' Who made this rule? Is it realistic?"
+  },
+  {
+    "id": "labeling",
+    "name": "Labeling",
+    "aliases": ["Mislabeling", "Global labeling"],
+    "definition": "Attaching a fixed, global label to yourself or others based on a single event. Instead of describing the behavior, you define the person.",
+    "example": "After forgetting a friend's birthday: \"I'm a terrible person\" instead of \"I forgot my friend's birthday.\"",
+    "soundsLike": "I'm a loser / He's an idiot / She's so selfish / I'm worthless",
+    "realityCheck": "You are not your worst moment. Describe the behavior, not the person. One action doesn't define who you are."
+  },
+  {
+    "id": "personalization",
+    "name": "Personalization",
+    "aliases": ["Self-blame"],
+    "definition": "Taking excessive responsibility for events that are not entirely under your control. Blaming yourself for something that isn't entirely your fault.",
+    "example": "Your child gets a bad grade: \"This is my fault. I'm a bad parent.\"",
+    "soundsLike": "It's all my fault / If only I had... / They're upset because of me",
+    "realityCheck": "Many factors contribute to any outcome. What percentage is realistically yours? What factors were outside your control?"
+  },
+  {
+    "id": "blaming",
+    "name": "Blaming",
+    "aliases": ["Other-blame", "Externalization"],
+    "definition": "Holding other people entirely responsible for your emotional pain or problems. The opposite of personalization.",
+    "example": "\"My boss makes me feel anxious. It's completely their fault I'm stressed.\"",
+    "soundsLike": "It's all their fault / They made me feel... / If they hadn't... / I can't help it because of them",
+    "realityCheck": "Others influence your feelings, but you have some agency in how you respond. What's in your control here?"
+  },
+  {
+    "id": "fallacy-of-fairness",
+    "name": "Fallacy of Fairness",
+    "aliases": ["Just-world thinking"],
+    "definition": "Believing that life should always be fair, and feeling resentful when it isn't. Measuring every situation by what you think is fair.",
+    "example": "\"I worked harder than everyone else — it's not fair that I didn't get the promotion.\"",
+    "soundsLike": "It's not fair / I deserve better / They got what they didn't deserve / Life should be...",
+    "realityCheck": "Fairness is subjective. Life doesn't always follow our rules. Focus on what you can control rather than what should be."
+  }
+]

@@ -5,7 +5,7 @@ import { CHAT_COPY } from '@/constants/chatCopy'
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
 // Default model configuration
-const DEFAULT_MODEL = 'gpt-4o-mini'
+const DEFAULT_MODEL = 'gpt-5-nano'
 const DEFAULT_TEMPERATURE = 0.7
 const DEFAULT_MAX_TOKENS = 500
 

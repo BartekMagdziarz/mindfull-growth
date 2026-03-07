@@ -270,6 +270,7 @@ const mockPush = vi.fn()
 const mockRoute = {
   params: {},
   path: '/journal/edit',
+  query: {} as Record<string, string>,
 }
 
 vi.mock('vue-router', () => {
@@ -292,6 +293,7 @@ describe('JournalEditorView', () => {
     })
     mockRoute.params = {}
     mockRoute.path = '/journal/edit'
+    mockRoute.query = {}
     mockStore.entries = []
     mockEmotionStore = createEmotionStoreMock()
     mockTagStore = createTagStoreMock()
@@ -420,6 +422,18 @@ describe('JournalEditorView', () => {
         contextTagIds: [],
       })
     })
+  })
+
+  it('prefills body from guided prompt query in create mode', async () => {
+    mockRoute.query = {
+      promptSeed: encodeURIComponent('Morning intention\\n\\nWhat matters most today?'),
+    }
+
+    renderEditor()
+
+    const bodyTextarea = await screen.findByLabelText(/journal entry/i)
+    expect((bodyTextarea as HTMLTextAreaElement).value).toContain('Morning intention')
+    expect((bodyTextarea as HTMLTextAreaElement).value).toContain('What matters most today?')
   })
 
   it('loads supporting data and saves selected tags/emotions in create mode', async () => {

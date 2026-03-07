@@ -2,6 +2,10 @@ import type { EmotionLog } from '@/domain/emotionLog'
 import type { EmotionLogRepository } from './emotionLogRepository'
 import { getUserDatabase } from '@/services/userDatabase.service'
 
+function toPlain<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 export class EmotionLogDexieRepository implements EmotionLogRepository {
   private get db() {
     return getUserDatabase()
@@ -30,13 +34,26 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
   ): Promise<EmotionLog> {
     try {
       const now = new Date().toISOString()
-      const log: EmotionLog = {
-        id: crypto.randomUUID(),
-        createdAt: data.createdAt || now,
-        updatedAt: now,
-        ...data,
+      const { createdAt: customCreatedAt, ...rest } = data
+
+      // Validate createdAt if provided, fallback to now if invalid
+      let createdAt = now
+      if (customCreatedAt) {
+        const parsedDate = new Date(customCreatedAt)
+        if (!isNaN(parsedDate.getTime())) {
+          createdAt = customCreatedAt
+        } else {
+          console.warn('Invalid createdAt provided, using current timestamp:', customCreatedAt)
+        }
       }
-      await this.db.emotionLogs.add(log)
+
+      const log: EmotionLog = {
+        ...rest,
+        id: crypto.randomUUID(),
+        createdAt,
+        updatedAt: now,
+      }
+      await this.db.emotionLogs.add(toPlain(log))
       return log
     } catch (error) {
       console.error('Failed to create emotion log:', error)
@@ -55,7 +72,7 @@ export class EmotionLogDexieRepository implements EmotionLogRepository {
         ...log,
         updatedAt: new Date(nextTimestamp).toISOString(),
       }
-      await this.db.emotionLogs.put(updatedLog)
+      await this.db.emotionLogs.put(toPlain(updatedLog))
       return updatedLog
     } catch (error) {
       console.error(`Failed to update emotion log with id ${log.id}:`, error)

@@ -1,164 +1,256 @@
 <template>
   <div class="container mx-auto px-4 py-6 pb-24">
-    <!-- Loading State -->
     <div
       v-if="isLoading"
       class="text-on-surface-variant text-center py-12"
     >
-      Loading...
+      {{ t('common.loading') }}
+    </div>
+
+    <div v-else-if="loadError" class="max-w-md mx-auto">
+      <AppCard>
+        <div class="text-center py-6">
+          <p class="text-error mb-4">{{ loadError }}</p>
+          <AppButton variant="tonal" @click="loadData">{{ t('common.buttons.tryAgain') }}</AppButton>
+        </div>
+      </AppCard>
     </div>
 
     <template v-else>
-      <!-- Weekly Review Banner (conditional) -->
-      <WeeklyReviewBanner
-        v-if="showWeeklyReviewBanner"
-        :week-label="reviewWeekLabel"
-        class="mb-6"
-        @start-review="navigateToWeeklyReview"
+      <CompassStrip
+        :year-label="yearLabel"
+        :year-theme="currentYearPlan?.yearTheme"
+        :month-label="monthLabel"
+        :month-intention="currentMonthPlan?.monthIntention"
+        :week-label="weekLabel"
+        :week-focus-sentence="currentWeekPlan?.focusSentence"
+        :priority-names="topActivePriorities.map((item) => item.name)"
+        :expanded-by-default="mode === 'morning'"
       />
 
-      <!-- Dashboard Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Left Column: Actions -->
-        <div class="flex flex-col items-center gap-6">
-          <DailyJournalCard
-            :entry-count="todayJournalCount"
-            :has-entry="hasTodayJournal"
-            @action="navigateToJournal"
+      <div class="mt-4">
+        <ModeSwitcher
+          :model-value="stores.userPreferencesStore.todayModeOverride"
+          :effective-mode="mode"
+          @update:model-value="handleModeOverrideChange"
+        />
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+        <div class="xl:col-span-2 space-y-6">
+          <DailyIntentionCard
+            :mode="mode"
+            :has-journal-today="hasTodayJournal"
+            :commitment-done="commitmentProgress.done"
+            :commitment-total="commitmentProgress.total"
+            :emotion-logged="todayEmotionCount"
+            :emotion-target="stores.userPreferencesStore.dailyEmotionTarget"
+            @primary-action="handlePrimaryAction"
+            @secondary-action="handleSecondaryAction"
           />
-          <EmotionProgressCard
-            :logged="todayEmotionCount"
-            :target="emotionTarget"
-            @action="navigateToEmotionLog"
+
+          <ExecutionBoard
+            :week-plan="currentWeekPlan"
+            :commitments="currentWeekCommitments"
+            :projects="stores.projectStore.projects"
+            :life-areas="stores.lifeAreaStore.lifeAreas"
+            :priorities="topActivePriorities"
+            :density="stores.userPreferencesStore.todayModuleDensity"
+            @open-planning="navigateToWeeklyPlanning"
+            @tracker-logged="handleTrackerLogged"
           />
         </div>
 
-        <!-- Right Column: Context -->
-        <div class="flex flex-col items-center">
-          <WeekSummaryCard :summary="weekSummary" />
+        <div class="space-y-6">
+          <EmotionProgressCard
+            :logged="todayEmotionCount"
+            :target="stores.userPreferencesStore.dailyEmotionTarget"
+            @action="navigateToEmotionLog"
+          />
+
+          <WeekSummaryCard
+            :summary="weekSummary"
+          />
+
+          <IFSCheckInCard />
+
+          <AppCard>
+            <h3 class="text-base font-semibold text-on-surface mb-3">{{ t('today.reflections.title') }}</h3>
+            <ul class="space-y-2 text-sm">
+              <li class="flex items-center justify-between gap-2">
+                <span class="text-on-surface">{{ t('today.reflections.weekly') }}</span>
+                <span :class="weeklyReflectionDue ? 'text-warning' : 'text-success'">
+                  {{ weeklyReflectionDue ? t('today.reflections.due') : t('today.reflections.upToDate') }}
+                </span>
+              </li>
+              <li class="flex items-center justify-between gap-2">
+                <span class="text-on-surface">{{ t('today.reflections.monthly') }}</span>
+                <span :class="monthlyReflectionDue ? 'text-warning' : 'text-success'">
+                  {{ monthlyReflectionDue ? t('today.reflections.due') : t('today.reflections.upToDate') }}
+                </span>
+              </li>
+              <li class="flex items-center justify-between gap-2">
+                <span class="text-on-surface">{{ t('today.reflections.yearly') }}</span>
+                <span :class="yearlyReflectionDue ? 'text-warning' : 'text-success'">
+                  {{ yearlyReflectionDue ? t('today.reflections.due') : t('today.reflections.upToDate') }}
+                </span>
+              </li>
+            </ul>
+
+            <AppButton variant="tonal" size="sm" class="mt-4" @click="navigateToPlanningHub">
+              {{ t('today.reflections.openPlanning') }}
+            </AppButton>
+          </AppCard>
+
+          <ContextualNudgesCard
+            :recommendations="recommendations"
+            @open="handleRecommendationOpen"
+            @feedback="handleRecommendationFeedback"
+          />
         </div>
       </div>
     </template>
+
+    <AppSnackbar ref="snackbarRef" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import WeeklyReviewBanner from '@/components/today/WeeklyReviewBanner.vue'
-import DailyJournalCard from '@/components/today/DailyJournalCard.vue'
+import { useT } from '@/composables/useT'
+import { useTodayGrounding } from '@/composables/useTodayGrounding'
+import CompassStrip from '@/components/today/CompassStrip.vue'
+import ModeSwitcher from '@/components/today/ModeSwitcher.vue'
+import DailyIntentionCard from '@/components/today/DailyIntentionCard.vue'
+import ExecutionBoard from '@/components/today/ExecutionBoard.vue'
+import ContextualNudgesCard from '@/components/today/ContextualNudgesCard.vue'
 import EmotionProgressCard from '@/components/today/EmotionProgressCard.vue'
 import WeekSummaryCard from '@/components/today/WeekSummaryCard.vue'
-import { useJournalStore } from '@/stores/journal.store'
-import { useEmotionLogStore } from '@/stores/emotionLog.store'
-import { usePeriodicEntryStore } from '@/stores/periodicEntry.store'
-import { useEmotionStore } from '@/stores/emotion.store'
-import { useUserPreferencesStore } from '@/stores/userPreferences.store'
-import {
-  getTodayJournalEntries,
-  getTodayEmotionLogs,
-  isWeeklyReviewDue,
-  getReviewWeekLabel,
-  getWeekSummary,
-} from '@/utils/todayUtils'
-import { getWeekRange, toISODateString } from '@/utils/periodUtils'
+import IFSCheckInCard from '@/components/today/IFSCheckInCard.vue'
+import AppCard from '@/components/AppCard.vue'
+import AppButton from '@/components/AppButton.vue'
+import AppSnackbar from '@/components/AppSnackbar.vue'
+import { trackTodayEvent } from '@/services/todayTelemetry.service'
+import type { TodayModeOverride, TodayRecommendationFeedbackType } from '@/types/today'
 
 const router = useRouter()
-const journalStore = useJournalStore()
-const emotionLogStore = useEmotionLogStore()
-const periodicEntryStore = usePeriodicEntryStore()
-const emotionStore = useEmotionStore()
-const userPreferencesStore = useUserPreferencesStore()
+const { t } = useT()
+const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
-const isLoading = ref(true)
+const {
+  isLoading,
+  loadError,
+  loadData,
+  mode,
+  todayEmotionCount,
+  hasTodayJournal,
+  weekSummary,
+  currentYearPlan,
+  currentMonthPlan,
+  currentWeekPlan,
+  currentWeekCommitments,
+  commitmentProgress,
+  topActivePriorities,
+  monthLabel,
+  weekLabel,
+  yearLabel,
+  recommendations,
+  weeklyReflectionDue,
+  monthlyReflectionDue,
+  yearlyReflectionDue,
+  morningPromptSeed,
+  eveningPromptSeed,
+  setTodayModeOverride,
+  stores,
+} = useTodayGrounding()
 
-// Today's data
-const todayJournalEntries = computed(() =>
-  getTodayJournalEntries(journalStore.entries)
-)
-const todayEmotionLogs = computed(() =>
-  getTodayEmotionLogs(emotionLogStore.logs)
-)
+function navigateToPlanningHub() {
+  void trackTodayEvent('planning_hub_opened')
+  router.push('/planning')
+}
 
-// Counts
-const todayJournalCount = computed(() => todayJournalEntries.value.length)
-const todayEmotionCount = computed(() => todayEmotionLogs.value.length)
-const hasTodayJournal = computed(() => todayJournalCount.value > 0)
-
-// Preferences
-const emotionTarget = computed(() => userPreferencesStore.dailyEmotionTarget)
-
-// Weekly review
-const showWeeklyReviewBanner = computed(() =>
-  isWeeklyReviewDue(
-    userPreferencesStore.weeklyReviewDay,
-    periodicEntryStore.weeklyEntries
-  )
-)
-
-const reviewWeekLabel = computed(() =>
-  getReviewWeekLabel(userPreferencesStore.weeklyReviewDay)
-)
-
-// Week summary
-const weekSummary = computed(() =>
-  getWeekSummary(journalStore.entries, emotionLogStore.logs)
-)
-
-// Navigation handlers
-function navigateToJournal() {
-  router.push('/journal/edit')
+function navigateToWeeklyPlanning() {
+  void trackTodayEvent('weekly_planning_opened')
+  router.push('/planning/week/new')
 }
 
 function navigateToEmotionLog() {
+  void trackTodayEvent('emotion_log_opened')
   router.push('/emotions/edit')
 }
 
-function navigateToWeeklyReview() {
-  // Navigate to create a new weekly entry for the review week
-  const reviewDay = userPreferencesStore.weeklyReviewDay
-  const today = new Date()
-  const currentDayOfWeek = today.getDay()
+function navigateToJournalWithContext(entryContext: 'morning' | 'evening') {
+  const promptSeed = entryContext === 'morning' ? morningPromptSeed.value : eveningPromptSeed.value
+  void trackTodayEvent('guided_journal_opened', { entryContext })
+  router.push({
+    path: '/journal/edit',
+    query: {
+      entryContext,
+      promptSeed,
+    },
+  })
+}
 
-  // Only create for the review week if we're on the review day
-  if (currentDayOfWeek === reviewDay) {
-    // Get the week to review
-    let weekStart: Date
-    if (reviewDay === 0) {
-      // Sunday - review current Mon-Sun week
-      weekStart = getWeekRange(today).start
-    } else {
-      // Other days - review previous week
-      const prevWeek = new Date(today)
-      prevWeek.setDate(prevWeek.getDate() - 7)
-      weekStart = getWeekRange(prevWeek).start
-    }
+function handlePrimaryAction() {
+  if (mode.value === 'midday') {
+    navigateToEmotionLog()
+    return
+  }
 
-    // Navigate with the period start date as a query param so the editor knows which week
-    router.push({
-      path: '/periodic/new/weekly',
-      query: { periodStart: toISODateString(weekStart) },
+  navigateToJournalWithContext(mode.value === 'evening' ? 'evening' : 'morning')
+}
+
+function handleSecondaryAction() {
+  if (mode.value === 'midday') {
+    void trackTodayEvent('midday_recommit_opened')
+  }
+
+  navigateToPlanningHub()
+}
+
+async function handleModeOverrideChange(value: TodayModeOverride) {
+  try {
+    await setTodayModeOverride(value)
+    await trackTodayEvent('mode_changed', {
+      selectedMode: value,
+      effectiveMode: mode.value,
     })
-  } else {
-    // Fallback - just go to periodic new weekly
-    router.push('/periodic/new/weekly')
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : t('today.mode.failedUpdate')
+    snackbarRef.value?.show(message)
   }
 }
 
-onMounted(async () => {
+async function handleRecommendationOpen(route: string, recommendationId: string) {
+  await trackTodayEvent('recommendation_opened', { recommendationId, route })
+  await router.push(route)
+}
+
+async function handleRecommendationFeedback(
+  recommendationId: string,
+  feedbackType: TodayRecommendationFeedbackType,
+) {
   try {
-    // Load all required data in parallel
-    await Promise.all([
-      userPreferencesStore.loadPreferences(),
-      journalStore.loadEntries(),
-      emotionLogStore.loadLogs(),
-      periodicEntryStore.loadEntries(),
-      emotionStore.loadEmotions(),
-    ])
+    await stores.userPreferencesStore.recordTodayExerciseFeedback(recommendationId, feedbackType)
+    await trackTodayEvent('recommendation_feedback', {
+      recommendationId,
+      feedbackType,
+    })
+    snackbarRef.value?.show(t('today.nudges.feedbackSaved'))
   } catch (error) {
-    console.error('Failed to load Today view data:', error)
-  } finally {
-    isLoading.value = false
+    const message =
+      error instanceof Error ? error.message : t('today.nudges.feedbackFailed')
+    snackbarRef.value?.show(message)
   }
+}
+
+function handleTrackerLogged(trackerId: string) {
+  void trackTodayEvent('tracker_logged', { trackerId })
+}
+
+onMounted(() => {
+  loadData()
 })
 </script>

@@ -1,0 +1,25 @@
+{
+  "generic": {
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "failedToSave": "Failed to save. Please try again.",
+    "failedToLoad": "Failed to load data. Please try again.",
+    "failedToDelete": "Failed to delete. Please try again.",
+    "failedToUpdate": "Failed to update. Please try again.",
+    "networkError": "A network error occurred. Please check your connection.",
+    "unexpectedError": "An unexpected error occurred."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "nameRequired": "Name is required.",
+    "invalidDate": "Please enter a valid date.",
+    "startBeforeEnd": "Start date must be before end date."
+  },
+  "tags": {
+    "failedToCreate": "Failed to create tag.",
+    "failedToUpdate": "Failed to update tag.",
+    "failedToDelete": "Failed to delete tag."
+  },
+  "auth": {
+    "failedToCreateAccount": "Failed to create account. Please try again."
+  }
+}

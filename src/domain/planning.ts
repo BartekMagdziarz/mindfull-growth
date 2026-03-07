@@ -1,14 +1,17 @@
 /**
- * Domain models for the Periodic Planning & Reflection System (Epic 4)
+ * Domain models for the Planning & Reflection System (Epic 4)
  *
  * This file defines all the core domain interfaces for the planning system:
- * - FocusArea: Yearly high-level life areas
- * - Priority: Direction of change within a Focus Area
- * - Project: Quarterly multi-week initiatives
- * - Commitment: Weekly actionable items
+ * - Priority: Direction of change within linked Life Areas
+ * - Project: Multi-week initiatives linked to months
+ * - Commitment: Weekly/monthly actionable items (simple done/not-done)
+ * - Tracker: Unified measurement entity for Projects, Habits, and standalone
+ * - TrackerPeriod: Period instance with ticks/values/ratings
  * - WeeklyPlan: Weekly planning session output
- * - QuarterlyPlan: Quarterly planning session output
+ * - MonthlyPlan: Monthly planning session output
  * - YearlyPlan: Yearly planning session output
+ *
+ * Note: Reflection models are defined in reflection.ts
  */
 
 // ============================================================================
@@ -21,40 +24,135 @@
 export type ProjectStatus = 'planned' | 'active' | 'paused' | 'completed' | 'abandoned'
 
 /**
- * Status for Commitments - tracks weekly completion state
+ * Status for Commitments - simple done/not-done/skipped
  */
-export type CommitmentStatus = 'planned' | 'done' | 'partial' | 'skipped'
+export type CommitmentStatus = 'planned' | 'done' | 'skipped'
+
+// ============================================================================
+// Tracker Types
+// ============================================================================
+
+/**
+ * TrackerType defines what kind of measurement the tracker captures
+ */
+export type TrackerType = 'count' | 'adherence' | 'value' | 'rating' | 'checkin'
+
+/**
+ * TrackerCadence defines the period cadence for a tracker or habit
+ */
+export type TrackerCadence = 'weekly' | 'monthly'
+
+/**
+ * ValueDirection defines how a value tracker should move
+ */
+export type ValueDirection = 'increase' | 'decrease'
+
+/**
+ * TrackerRollup defines how values are summarized across periods
+ */
+export type TrackerRollup = 'sum' | 'average' | 'last'
+
+// ============================================================================
+// Tracker Domain Models
+// ============================================================================
+
+/**
+ * Tracker (Unified)
+ *
+ * Replaces the old KeyResult and TrackerConfig concepts.
+ * A single measurement definition that can be attached to a Project ("Key Result"),
+ * a Habit ("Habit Tracker"), or exist standalone linked to a Priority/Life Area.
+ */
+export interface Tracker {
+  id: string // UUID
+  createdAt: string // ISO timestamp
+  updatedAt: string // ISO timestamp
+  // Parent — optional, allows standalone trackers
+  parentType?: 'project' | 'habit' | 'commitment'
+  parentId?: string
+  // Standalone linking (when no project/process parent)
+  lifeAreaIds: string[]
+  priorityIds: string[]
+  // Definition
+  name: string
+  type: TrackerType
+  cadence: TrackerCadence
+  unit?: string
+  // Targets
+  targetCount?: number // for count/adherence: target per period
+  baselineValue?: number // for value: starting point
+  targetValue?: number // for value: end goal
+  direction?: ValueDirection // for value: which way is good
+  ratingScaleMin?: number // for rating
+  ratingScaleMax?: number // for rating
+  hasPeriodicTargets?: boolean // if true, user sets targets per TrackerPeriod during planning
+  // Rollup
+  rollup?: TrackerRollup
+  notePrompt?: string // prompt for checkin/rating notes
+  // Labels for count tick boxes (e.g., ['Mon', 'Wed', 'Fri', 'Sat'])
+  tickLabels?: string[]
+  // Metadata
+  sortOrder: number
+  isActive: boolean
+}
+
+/**
+ * TrackerPeriodTick represents a single tick within a count/adherence TrackerPeriod
+ */
+export interface TrackerPeriodTick {
+  index: number
+  completed: boolean
+  date?: string // ISO date
+  note?: string
+}
+
+/**
+ * TrackerPeriodEntry represents a single value log within a value TrackerPeriod
+ */
+export interface TrackerPeriodEntry {
+  value: number
+  date: string // ISO date
+  note?: string
+}
+
+/**
+ * TrackerPeriod
+ *
+ * A specific period's instance of a Tracker. This is what the user actually
+ * interacts with — ticking boxes, logging values, entering ratings.
+ *
+ * Replaces the old TrackerTick and TrackerEntry entities.
+ * Data is embedded directly (ticks[], entries[], rating, note) rather than
+ * stored as separate entities.
+ */
+export interface TrackerPeriod {
+  id: string // UUID
+  createdAt: string // ISO timestamp
+  updatedAt: string // ISO timestamp
+  trackerId: string // Reference to Tracker definition
+  startDate: string // Period start (Monday for weekly, 1st for monthly)
+  endDate: string // Period end
+  // Optional override target for this specific period
+  periodTarget?: number // e.g., "Run 3x THIS week" (vs tracker default of 4)
+  // Data — shape depends on tracker type:
+  ticks?: TrackerPeriodTick[] // count/adherence: array of ticks
+  entries?: TrackerPeriodEntry[] // value: array of value entries
+  rating?: number // rating: single rating
+  note?: string // checkin/any: note
+  // Generation metadata
+  sourceType?: 'manual' | 'habit' | 'planning'
+  habitId?: string // if auto-generated by a habit
+}
 
 // ============================================================================
 // Core Domain Models
 // ============================================================================
 
 /**
- * FocusArea (Yearly)
- *
- * High-level areas of intentional investment that persist across the year.
- * Examples: "Health & Fitness", "Career Growth", "Relationships", "Learning"
- *
- * Focus Areas are the top-level containers that give structure to the user's
- * yearly intentions. They should be limited to 3-5 for manageability.
- */
-export interface FocusArea {
-  id: string // UUID
-  createdAt: string // ISO timestamp
-  updatedAt: string // ISO timestamp
-  year: number // e.g., 2026
-  name: string // e.g., "Health & Fitness", "Career Growth"
-  description?: string // Optional longer description
-  color?: string // Optional color for visual distinction (hex code)
-  isActive: boolean // Can be paused/deactivated
-  sortOrder: number // For user-defined ordering
-}
-
-/**
  * Priority (Yearly)
  *
- * Direction of change within a Focus Area – not rigid goals, but where
- * the user is trying to move. Each Focus Area can have 1-3 Priorities.
+ * Direction of change within linked Life Areas – not rigid goals, but where
+ * the user is trying to move. Each Life Area can have 1-3 Priorities.
  *
  * Priorities include:
  * - Success signals: Observable indicators that things are going well
@@ -64,55 +162,70 @@ export interface Priority {
   id: string // UUID
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
-  focusAreaId: string // Reference to parent Focus Area
+  lifeAreaIds: string[] // Linked Life Areas (0..n)
   year: number // e.g., 2026
   name: string // e.g., "Build consistent exercise habit"
+  icon?: string // Icon id from entity icon catalog
   successSignals: string[] // What good looks like (observable indicators)
   constraints?: string[] // What not to sacrifice (anti-goals)
   isActive: boolean // Can be paused
-  sortOrder: number // For ordering within Focus Area
+  sortOrder: number // For ordering within the year
 }
 
 /**
- * Project (Quarterly)
+ * Project (Monthly)
  *
- * Multi-week initiatives tied to a Focus Area or Priority with concrete outcomes.
- * Projects are the main unit of work for a quarter and should have clear
- * deliverables or end states.
+ * Multi-week initiatives tied to Life Areas or Priorities with concrete outcomes.
+ * Projects can span multiple months and should have clear deliverables or end states.
+ *
+ * Key Results (Trackers with parentType: 'project') are stored in the trackers table,
+ * not embedded in the Project entity.
  */
 export interface Project {
   id: string // UUID
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
-  focusAreaId: string // Reference to Focus Area
-  priorityId?: string // Optional reference to specific Priority
-  quarterStart: string // ISO date of quarter start (e.g., "2026-01-01")
+  lifeAreaIds: string[] // Linked Life Areas (0..n)
+  priorityIds: string[] // Linked Priorities (0..n)
+  monthIds: string[] // Can be linked to multiple MonthlyPlans (even across years)
   name: string // e.g., "Complete Couch to 5K program"
+  icon?: string // Icon id from entity icon catalog
   description?: string // What this project aims to achieve
   targetOutcome?: string // Concrete deliverable or end state
+  objective?: string // Primary objective (OKR-style)
+  startDate?: string // ISO date (timebox start)
+  endDate?: string // ISO date (timebox end)
+  focusWeekIds?: string[] // WeeklyPlan IDs used for focus windows
+  focusMonthIds?: string[] // MonthlyPlan IDs used for focus windows
   status: ProjectStatus
   completedAt?: string // ISO timestamp when marked complete/abandoned
   reflectionNote?: string // End-of-project reflection
 }
 
 /**
- * Commitment (Weekly)
+ * Commitment (Weekly or Monthly)
  *
- * Small, actionable items chosen for the week, linked to Projects or Focus Areas.
- * Commitments are the weekly "moves" that advance Projects forward.
+ * Simple actionable items — always done/not-done (no tick trackers).
+ * Can be linked to Projects or standalone with Priority/Life Area.
  *
- * Key concept: One commitment per week should be marked as "non-negotiable"
- * - the must-do item that takes priority over stretch goals.
  */
 export interface Commitment {
   id: string // UUID
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
-  weekStartDate: string // ISO date of week start (Monday)
+  // Generalized time anchor
+  startDate: string // Period start (Monday for weekly, 1st for monthly)
+  endDate: string // Period end
+  periodType: 'weekly' | 'monthly'
+  weeklyPlanId?: string // Optional back-reference if created during weekly planning
+  monthlyPlanId?: string // Optional back-reference if created during monthly planning
+  // Links
   projectId?: string // Optional link to Project
-  focusAreaId?: string // Optional link to Focus Area (if no project)
+  lifeAreaIds: string[] // Linked Life Areas (0..n)
+  priorityIds: string[] // Linked Priorities (0..n)
+  // Content
   name: string // e.g., "Run 3 times this week"
-  isNonNegotiable: boolean // Mark as must-do vs. stretch
+  description?: string
   status: CommitmentStatus
   reflectionNote?: string // Brief note on completion
 }
@@ -127,67 +240,54 @@ export interface Commitment {
  * Captures the weekly planning session output. Should be quick to complete
  * (5-10 minutes) and focuses on capacity-aware commitment selection.
  *
- * The plan includes:
- * - Planning inputs: capacity assessment, focus sentence, adaptive intention
- * - Linked commitments for the week
- * - Reflection outputs: filled during weekly reflection at week's end
+ * Commitments and TrackerPeriods reference the plan via optional IDs,
+ * rather than being owned by the plan.
+ *
+ * Note: Reflection data is stored separately in WeeklyReflection (see reflection.ts)
  */
 export interface WeeklyPlan {
   id: string // UUID
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
-  weekStartDate: string // ISO date of week start (Monday)
+  startDate: string // User-defined start date (ISO date)
+  endDate: string // User-defined end date (ISO date)
+  name?: string // User-editable period name (defaults to date range)
 
   // Planning inputs
-  capacityNote?: string // How user feels about their capacity this week
+  capacityNote?: string // Legacy field - preserved for compatibility
+  constraintsNote?: string // Constraints/resources to account for this week
   focusSentence?: string // "What would make this a good week?"
   adaptiveIntention?: string // "How I want to show up if things get messy"
-
-  // Linked data
-  commitmentIds: string[] // Commitments for this week
-
-  // Reflection outputs (filled during weekly reflection)
-  reflectionCompleted: boolean
-  whatHelped?: string
-  whatGotInTheWay?: string
-  whatILearned?: string
-  nextWeekSeed?: string // Handoff thought for next week
+  selectedTrackerIds?: string[] // Project tracker IDs explicitly activated for this week
 }
 
 /**
- * QuarterlyPlan
+ * MonthlyPlan
  *
- * Captures the quarterly planning session output. Focuses on selecting
- * focus areas for the quarter and defining projects.
+ * Captures the monthly planning session output. Focuses on selecting
+ * focus life areas for the month and defining projects.
  *
- * The plan includes:
- * - Primary and secondary focus areas for the quarter
- * - Quarter intention (overall guiding statement)
- * - Projects planned for the quarter
- * - Reflection outputs: filled during quarterly reflection
+ * Note: Reflection data is stored separately in MonthlyReflection (see reflection.ts)
  */
-export interface QuarterlyPlan {
+export interface MonthlyPlan {
   id: string // UUID
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
-  quarterStart: string // ISO date (e.g., "2026-01-01")
-  year: number
-  quarter: 1 | 2 | 3 | 4
+  startDate: string // User-defined start date (ISO date)
+  endDate: string // User-defined end date (ISO date)
+  name?: string // User-editable period name (defaults to date range)
+  year: number // Primary year for grouping/filtering
 
   // Planning inputs
-  primaryFocusAreaId?: string // Main focus for this quarter
-  secondaryFocusAreaIds: string[] // Other active areas (max 2 recommended)
-  quarterIntention?: string // Overall intention for the quarter
+  primaryFocusLifeAreaId?: string // Main focus for this month
+  secondaryFocusLifeAreaIds: string[] // Other active areas (max 2 recommended)
+  monthIntention?: string // Overall intention for the month
+  focusSuccessSignal?: string // How we will know this focus month worked
+  balanceGuardrail?: string // Boundary that protects balance while pursuing focus
 
   // Linked data
-  projectIds: string[] // Projects planned for this quarter
-
-  // Reflection outputs
-  reflectionCompleted: boolean
-  wins?: string[]
-  challenges?: string[]
-  learnings?: string[]
-  adjustments?: string // What to change going forward
+  projectIds: string[] // Projects planned for this month
+  selectedTrackerIds?: string[] // Project tracker IDs explicitly activated for this month
 }
 
 /**
@@ -196,105 +296,82 @@ export interface QuarterlyPlan {
  * Captures the yearly planning session output. This is the highest level
  * of planning and sets the direction for the entire year.
  *
- * The plan includes:
- * - Optional year theme ("word of the year")
- * - Focus Areas defined for the year
- * - Reflection outputs: filled at year end
+ * Note: Reflection data is stored separately in YearlyReflection (see reflection.ts)
  */
 export interface YearlyPlan {
   id: string // UUID
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
-  year: number
+  startDate: string // User-defined start date (ISO date)
+  endDate: string // User-defined end date (ISO date)
+  name?: string // User-editable period name (defaults to year or date range)
+  year: number // Primary year for grouping/filtering
 
   // Planning inputs
   yearTheme?: string // Optional "word of the year" or theme
 
-  // Linked data
-  focusAreaIds: string[] // Focus Areas for this year
+  // Vision (expanded from theme)
+  yourStory?: string // Narrative: "Imagine a movie where this year turns out just right…"
+  fantasticDay?: string // Sensory description of an ideal day one year from now
 
-  // Reflection outputs (filled at year end)
-  reflectionCompleted: boolean
-  yearInOnePhrase?: string
-  biggestWins?: string[]
-  biggestLessons?: string[]
-  carryForward?: string // What to take into next year
+  // Life Area narrative baselines (lifeAreaId -> narrative)
+  lifeAreaNarratives?: Record<string, string>
+
+  // Values check-in (Ex 2.2)
+  valuesCheckIn?: {
+    valuesDiscoveryId?: string // Reference to the ValuesDiscovery exercise used
+    alignment: Record<string, number> // value name → 1–10 alignment rating
+    reflectionNote?: string // Open-ended reflection on values alignment
+  }
+
+  // Wheel of Life reference
+  wheelOfLifeSnapshotId?: string // Reference to the WoL snapshot taken during planning
+
+  // Dreaming (Ex 7.1) — structured multi-question format
+  dreaming?: {
+    outcomes: string[]
+    difference: string
+    worthDoing: string
+    vipsNotice: string
+    vipAfterYear: string
+    vipsSeeInYou: string
+    vipsNoticeProgress: string
+    knowAboutYourself: string
+    oneClue: string
+    progressClues: string[]
+  }
+
+  // Linked data
+  primaryFocusLifeAreaId?: string // Primary focus Life Area for this year
+  focusLifeAreaIds: string[] // Focus Life Areas for this year
 }
 
 // ============================================================================
 // Helper Types for Create/Update Operations
 // ============================================================================
 
-/**
- * Payload for creating a new FocusArea
- * Omits auto-generated fields (id, createdAt, updatedAt)
- */
-export type CreateFocusAreaPayload = Omit<FocusArea, 'id' | 'createdAt' | 'updatedAt'>
+export type CreateTrackerPayload = Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateTrackerPayload = Partial<Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'>>
 
-/**
- * Payload for updating a FocusArea
- * All fields optional except those that shouldn't change
- */
-export type UpdateFocusAreaPayload = Partial<Omit<FocusArea, 'id' | 'createdAt' | 'updatedAt'>>
-
-/**
- * Payload for creating a new Priority
- */
-export type CreatePriorityPayload = Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>
-
-/**
- * Payload for updating a Priority
- */
-export type UpdatePriorityPayload = Partial<Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>>
-
-/**
- * Payload for creating a new Project
- */
-export type CreateProjectPayload = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>
-
-/**
- * Payload for updating a Project
- */
-export type UpdateProjectPayload = Partial<Omit<Project, 'id' | 'createdAt' | 'updatedAt'>>
-
-/**
- * Payload for creating a new Commitment
- */
-export type CreateCommitmentPayload = Omit<Commitment, 'id' | 'createdAt' | 'updatedAt'>
-
-/**
- * Payload for updating a Commitment
- */
-export type UpdateCommitmentPayload = Partial<Omit<Commitment, 'id' | 'createdAt' | 'updatedAt'>>
-
-/**
- * Payload for creating a new WeeklyPlan
- */
-export type CreateWeeklyPlanPayload = Omit<WeeklyPlan, 'id' | 'createdAt' | 'updatedAt'>
-
-/**
- * Payload for updating a WeeklyPlan
- */
-export type UpdateWeeklyPlanPayload = Partial<Omit<WeeklyPlan, 'id' | 'createdAt' | 'updatedAt'>>
-
-/**
- * Payload for creating a new QuarterlyPlan
- */
-export type CreateQuarterlyPlanPayload = Omit<QuarterlyPlan, 'id' | 'createdAt' | 'updatedAt'>
-
-/**
- * Payload for updating a QuarterlyPlan
- */
-export type UpdateQuarterlyPlanPayload = Partial<
-  Omit<QuarterlyPlan, 'id' | 'createdAt' | 'updatedAt'>
+export type CreateTrackerPeriodPayload = Omit<TrackerPeriod, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateTrackerPeriodPayload = Partial<
+  Omit<TrackerPeriod, 'id' | 'createdAt' | 'updatedAt'>
 >
 
-/**
- * Payload for creating a new YearlyPlan
- */
-export type CreateYearlyPlanPayload = Omit<YearlyPlan, 'id' | 'createdAt' | 'updatedAt'>
+export type CreatePriorityPayload = Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdatePriorityPayload = Partial<Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>>
 
-/**
- * Payload for updating a YearlyPlan
- */
+export type CreateProjectPayload = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateProjectPayload = Partial<Omit<Project, 'id' | 'createdAt' | 'updatedAt'>>
+
+export type CreateCommitmentPayload = Omit<Commitment, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateCommitmentPayload = Partial<Omit<Commitment, 'id' | 'createdAt' | 'updatedAt'>>
+
+export type CreateWeeklyPlanPayload = Omit<WeeklyPlan, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateWeeklyPlanPayload = Partial<Omit<WeeklyPlan, 'id' | 'createdAt' | 'updatedAt'>>
+
+export type CreateMonthlyPlanPayload = Omit<MonthlyPlan, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateMonthlyPlanPayload = Partial<Omit<MonthlyPlan, 'id' | 'createdAt' | 'updatedAt'>>
+
+export type CreateYearlyPlanPayload = Omit<YearlyPlan, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateYearlyPlanPayload = Partial<Omit<YearlyPlan, 'id' | 'createdAt' | 'updatedAt'>>

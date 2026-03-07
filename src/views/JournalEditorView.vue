@@ -2,7 +2,7 @@
   <div class="mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 flex flex-col gap-8 min-h-screen">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center min-h-[200px]">
-      <p class="text-on-surface-variant">Loading entry...</p>
+      <p class="text-on-surface-variant">{{ t('journal.editor.loadingEntry') }}</p>
     </div>
 
     <!-- Editor Content -->
@@ -13,7 +13,7 @@
           type="button"
           class="text-xs uppercase tracking-wide text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2"
           @click="showDateTimePicker = true"
-          aria-label="Edit date and time"
+          :aria-label="t('journal.editor.editDateTimeLabel')"
         >
           <CalendarIcon class="w-4 h-4" />
           <span>{{ formattedTimestamp }}</span>
@@ -31,38 +31,38 @@
           >
             <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
             <div
-              class="relative z-10 bg-surface rounded-xl shadow-elevation-3 p-6 max-w-sm w-full mx-4 border border-outline/20"
+              class="relative z-10 neo-raised-strong rounded-2xl p-6 max-w-sm w-full mx-4"
               role="dialog"
               aria-modal="true"
             >
-              <h2 class="text-lg font-semibold text-on-surface mb-4">Set Date & Time</h2>
+              <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('journal.editor.setDateTime') }}</h2>
               <div class="space-y-4">
                 <div>
                   <label for="entry-date" class="block text-sm font-medium text-on-surface-variant mb-1">
-                    Date
+                    {{ t('journal.editor.date') }}
                   </label>
                   <input
                     id="entry-date"
                     type="date"
                     v-model="selectedDate"
-                    class="w-full p-3 rounded-lg border border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus"
+                    class="neo-input w-full p-3 text-on-surface"
                   />
                 </div>
                 <div>
                   <label for="entry-time" class="block text-sm font-medium text-on-surface-variant mb-1">
-                    Time
+                    {{ t('journal.editor.time') }}
                   </label>
                   <input
                     id="entry-time"
                     type="time"
                     v-model="selectedTime"
-                    class="w-full p-3 rounded-lg border border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus"
+                    class="neo-input w-full p-3 text-on-surface"
                   />
                 </div>
               </div>
               <div class="flex gap-3 justify-end mt-6">
-                <AppButton variant="text" @click="showDateTimePicker = false">Cancel</AppButton>
-                <AppButton variant="filled" @click="applyDateTime">Apply</AppButton>
+                <AppButton variant="text" @click="showDateTimePicker = false">{{ t('common.buttons.cancel') }}</AppButton>
+                <AppButton variant="filled" @click="applyDateTime">{{ t('journal.editor.apply') }}</AppButton>
               </div>
             </div>
           </div>
@@ -71,22 +71,22 @@
 
       <!-- Unified Journal Sheet -->
       <section
-        class="rounded-[32px] border border-outline/40 bg-surface px-6 py-5 shadow-elevation-1 flex flex-col gap-4"
+        class="neo-inset rounded-[32px] px-6 py-5 flex flex-col gap-4"
       >
-        <label for="title" class="sr-only">Title</label>
+        <label for="title" class="sr-only">{{ t('journal.editor.titleLabel') }}</label>
         <input
           id="title"
           v-model="title"
           type="text"
-          placeholder="Title"
+          :placeholder="t('journal.editor.titlePlaceholder')"
           class="w-full bg-transparent text-2xl font-semibold text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0"
         />
 
-        <label for="body" class="sr-only">Journal Entry</label>
+        <label for="body" class="sr-only">{{ t('journal.editor.bodyLabel') }}</label>
         <textarea
           id="body"
           v-model="body"
-          placeholder="Write freely about what comes to your mind..."
+          :placeholder="t('journal.editor.bodyPlaceholder')"
           rows="8"
           class="w-full bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-y min-h-[160px] md:min-h-[220px]"
         />
@@ -97,20 +97,21 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-[1.8fr_1fr_1fr] items-start">
           <!-- Emotions Section -->
           <section
-            class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
+            class="neo-card px-5 py-4 flex flex-col gap-4"
           >
             <header class="space-y-2">
               <div class="flex flex-wrap items-center gap-3">
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  Emotions
+                  {{ t('journal.editor.emotions') }}
                 </p>
                 <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
                   <button
                     v-for="emotion in selectedEmotionList"
                     :key="emotion.id"
                     type="button"
-                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary text-on-primary text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
-                    :aria-label="`Remove ${emotion.name} from selection`"
+                    :style="getEmotionChipStyle(emotion.id)"
+                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-on-surface text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+                    :aria-label="t('journal.editor.removeEmotionLabel', { name: emotion.name })"
                     @click="removeEmotion(emotion.id)"
                   >
                     <span>{{ emotion.name }}</span>
@@ -121,9 +122,9 @@
             </header>
             <div
               v-if="isEmotionSectionLoading"
-              class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
+              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
             >
-              Loading emotions...
+              {{ t('journal.editor.loadingEmotions') }}
             </div>
             <div v-else class="pt-1">
               <EmotionSelector v-model="selectedEmotionIds" :show-selected-section="false" />
@@ -132,18 +133,18 @@
 
           <!-- People Tags Section -->
           <section
-            class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
+            class="neo-card px-5 py-4 flex flex-col gap-4"
           >
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                People
+                {{ t('journal.editor.people') }}
               </p>
             </header>
             <div
               v-if="arePeopleTagsLoading"
-              class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
+              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
             >
-              Loading people tags...
+              {{ t('journal.editor.loadingPeople') }}
             </div>
             <div v-else class="pt-1">
               <TagInput
@@ -155,18 +156,18 @@
 
           <!-- Context Tags Section -->
           <section
-            class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
+            class="neo-card px-5 py-4 flex flex-col gap-4"
           >
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                Context
+                {{ t('journal.editor.context') }}
               </p>
             </header>
             <div
               v-if="areContextTagsLoading"
-              class="rounded-xl border border-dashed border-outline/40 bg-surface p-3 text-center text-xs text-on-surface-variant"
+              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
             >
-              Loading context tags...
+              {{ t('journal.editor.loadingContext') }}
             </div>
             <div v-else class="pt-1">
               <TagInput
@@ -181,15 +182,15 @@
       <!-- Chat sessions section (edit mode only) -->
       <section
         v-if="isEditMode && hasChatSessions"
-        class="rounded-3xl border border-outline/30 bg-section px-5 py-4 shadow-elevation-2 flex flex-col gap-4"
+        class="neo-card px-5 py-4 flex flex-col gap-4"
       >
         <header class="flex items-center justify-between gap-3">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              Chat Sessions
+              {{ t('journal.editor.chatSessions') }}
             </p>
             <p class="text-sm text-on-surface-variant">
-              {{ chatSessionsForEntry.length }} conversation{{ chatSessionsForEntry.length > 1 ? 's' : '' }}
+              {{ t(chatSessionsForEntry.length === 1 ? 'journal.editor.conversationCount' : 'journal.editor.conversationsCount', { count: chatSessionsForEntry.length }) }}
             </p>
           </div>
         </header>
@@ -206,7 +207,7 @@
 
       <!-- Bottom Action Bar -->
       <div
-        class="sticky bottom-0 left-0 right-0 bg-background border-t border-outline/30 flex justify-end gap-3 px-2 sm:px-4 py-4"
+        class="border-t border-neu-border/20 flex justify-end gap-3 px-2 sm:px-4 py-4"
       >
         <!-- Chat Button with Dropdown -->
         <div v-if="!isLoading" class="relative" ref="chatDropdownContainerRef">
@@ -214,21 +215,21 @@
             variant="text"
             @click="openChatDropdown"
             :disabled="!canStartChat"
-            aria-label="Start chat about this entry"
+            :aria-label="t('journal.editor.startChatLabel')"
           >
-            {{ isStartingChat ? 'Starting...' : 'Chat' }}
+            {{ isStartingChat ? t('journal.editor.starting') : t('journal.editor.chat') }}
           </AppButton>
 
           <!-- Dropdown Menu -->
           <div
             v-if="showChatDropdown"
-            class="absolute bottom-full left-0 mb-2 w-64 rounded-lg border border-outline/30 bg-surface shadow-elevation-3 p-2 z-50"
+            class="absolute bottom-full left-0 mb-2 w-64 rounded-lg border border-neu-border/30 bg-neu-base shadow-neu-raised p-2 z-50"
             role="menu"
-            aria-label="Choose what you’d like help with for this entry"
+            :aria-label="t('journal.editor.chatDropdownPrompt')"
             @click.stop
           >
             <p class="px-4 py-2 text-xs text-on-surface-variant">
-              Choose what you’d like help with for this entry.
+              {{ t('journal.editor.chatDropdownPrompt') }}
             </p>
             <button
               v-for="option in chatIntentionOptions"
@@ -248,7 +249,7 @@
           @click="handleCancel"
           :disabled="isSaving || isStartingChat"
         >
-          Cancel
+          {{ t('common.buttons.cancel') }}
         </AppButton>
         <AppButton
           variant="filled"
@@ -256,7 +257,7 @@
           :disabled="!canSaveEntry"
           class="min-w-[140px]"
         >
-          {{ isSaving ? 'Saving...' : 'Save' }}
+          {{ isSaving ? t('common.saving') : t('common.buttons.save') }}
         </AppButton>
       </div>
     </template>
@@ -267,10 +268,10 @@
     <!-- Delete Chat Session Dialog -->
     <AppDialog
       v-model="showDeleteChatDialog"
-      title="Delete chat session?"
-      message="Are you sure you want to delete this conversation? This action cannot be undone."
-      confirm-text="Delete"
-      cancel-text="Cancel"
+      :title="t('journal.editor.deleteChatTitle')"
+      :message="t('journal.editor.deleteChatMessage')"
+      :confirm-text="t('common.buttons.delete')"
+      :cancel-text="t('common.buttons.cancel')"
       confirm-variant="tonal"
       @confirm="handleConfirmDeleteChatSession"
       @cancel="handleCancelDeleteChatSession"
@@ -292,31 +293,31 @@
             ref="customPromptDialogRef"
             role="dialog"
             aria-labelledby="custom-prompt-title"
-            class="relative z-10 bg-surface rounded-xl shadow-elevation-3 p-6 max-w-md w-full mx-4 border border-outline/20"
+            class="relative z-10 neo-raised-strong rounded-2xl p-6 max-w-md w-full mx-4"
           >
             <!-- Title -->
             <h2 id="custom-prompt-title" class="text-xl font-semibold text-on-surface mb-4">
-              Custom Chat Prompt
+              {{ t('journal.editor.customPromptTitle') }}
             </h2>
 
             <!-- Textarea -->
-            <label for="custom-prompt-input" class="sr-only">Enter your custom prompt</label>
+            <label for="custom-prompt-input" class="sr-only">{{ t('journal.editor.customPromptLabel') }}</label>
             <textarea
               id="custom-prompt-input"
               v-model="customPromptInput"
-              placeholder="E.g., Help me understand why I feel anxious about this situation..."
-              class="w-full min-h-[120px] p-3 border border-outline/30 rounded-lg bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 resize-y"
+              :placeholder="t('journal.editor.customPromptPlaceholder')"
+              class="neo-input w-full min-h-[120px] p-3 text-on-surface placeholder:text-on-surface-variant resize-y"
             />
 
             <!-- Actions -->
             <div class="flex gap-3 justify-end mt-6">
-              <AppButton variant="text" @click="closeCustomPromptDialog">Cancel</AppButton>
+              <AppButton variant="text" @click="closeCustomPromptDialog">{{ t('common.buttons.cancel') }}</AppButton>
               <AppButton
                 variant="filled"
                 @click="handleCustomPromptConfirm"
                 :disabled="!customPromptInput.trim()"
               >
-                Start Chat
+                {{ t('journal.editor.startChat') }}
               </AppButton>
             </div>
           </div>
@@ -341,10 +342,12 @@ import { useChatStore } from '@/stores/chat.store'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { JournalEntry } from '@/domain/journal'
-import type { Emotion } from '@/domain/emotion'
+import type { Emotion, Quadrant } from '@/domain/emotion'
+import { getQuadrant } from '@/domain/emotion'
 import type { ChatIntention, ChatSession } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import { XMarkIcon, CalendarIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
+import { useT } from '@/composables/useT'
 
 const router = useRouter()
 const route = useRoute()
@@ -352,6 +355,7 @@ const journalStore = useJournalStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
 const chatStore = useChatStore()
+const { t } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const title = ref('')
@@ -382,9 +386,16 @@ const selectedTime = ref('')
 
 // Initialize date/time picker values
 function initDateTimePicker() {
-  const date = customCreatedAt.value || (isEditMode.value && currentEntry.value
-    ? new Date(currentEntry.value.createdAt)
-    : new Date())
+  let date = new Date() // Default to now
+
+  if (customCreatedAt.value && !isNaN(customCreatedAt.value.getTime())) {
+    date = customCreatedAt.value
+  } else if (isEditMode.value && currentEntry.value) {
+    const parsedDate = new Date(currentEntry.value.createdAt)
+    if (!isNaN(parsedDate.getTime())) {
+      date = parsedDate
+    }
+  }
 
   selectedDate.value = date.toISOString().split('T')[0]
   selectedTime.value = date.toTimeString().slice(0, 5)
@@ -392,9 +403,29 @@ function initDateTimePicker() {
 
 function applyDateTime() {
   if (selectedDate.value && selectedTime.value) {
-    const [year, month, day] = selectedDate.value.split('-').map(Number)
-    const [hours, minutes] = selectedTime.value.split(':').map(Number)
-    customCreatedAt.value = new Date(year, month - 1, day, hours, minutes)
+    const dateParts = selectedDate.value.split('-').map(Number)
+    const timeParts = selectedTime.value.split(':').map(Number)
+
+    // Validate that all parts are valid numbers
+    if (
+      dateParts.length === 3 &&
+      timeParts.length >= 2 &&
+      dateParts.every((n) => !isNaN(n)) &&
+      timeParts.every((n) => !isNaN(n))
+    ) {
+      const [year, month, day] = dateParts
+      const [hours, minutes] = timeParts
+      const newDate = new Date(year, month - 1, day, hours, minutes)
+
+      // Only apply if the resulting date is valid
+      if (!isNaN(newDate.getTime())) {
+        customCreatedAt.value = newDate
+      } else {
+        console.warn('applyDateTime: Created invalid date from inputs', { selectedDate: selectedDate.value, selectedTime: selectedTime.value })
+      }
+    } else {
+      console.warn('applyDateTime: Invalid date/time input format', { selectedDate: selectedDate.value, selectedTime: selectedTime.value })
+    }
   }
   showDateTimePicker.value = false
 }
@@ -424,27 +455,34 @@ const canStartChat = computed(() => {
 })
 
 const formattedTimestamp = computed(() => {
-  // Use custom date if set, otherwise use entry date or current date
-  const dateToFormat = customCreatedAt.value
-    || (isEditMode.value && currentEntry.value ? new Date(currentEntry.value.createdAt) : null)
+  // Use custom date if set and valid
+  if (customCreatedAt.value && !isNaN(customCreatedAt.value.getTime())) {
+    return formatEntryDate(customCreatedAt.value.toISOString())
+  }
 
-  if (dateToFormat) {
-    return formatEntryDate(dateToFormat.toISOString())
+  // Use entry date if in edit mode and date is valid
+  if (isEditMode.value && currentEntry.value) {
+    const entryDate = new Date(currentEntry.value.createdAt)
+    if (!isNaN(entryDate.getTime())) {
+      return formatEntryDate(entryDate.toISOString())
+    }
+    // Invalid date - show "Unknown date" to allow user to fix it
+    return t('journal.editor.unknownDate')
   }
 
   // In create mode with no custom date, show current date
   const now = new Date()
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const entryDate = new Date(now)
-  entryDate.setHours(0, 0, 0, 0)
+  const entryDay = new Date(now)
+  entryDay.setHours(0, 0, 0, 0)
 
-  const isToday = entryDate.getTime() === today.getTime()
+  const isToday = entryDay.getTime() === today.getTime()
 
   if (isToday) {
     const hours = now.getHours().toString().padStart(2, '0')
     const minutes = now.getMinutes().toString().padStart(2, '0')
-    return `Today, ${hours}:${minutes}`
+    return t('journal.editor.todayTime', { time: `${hours}:${minutes}` })
   } else {
     return now.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -476,33 +514,64 @@ const chatSessionsForEntry = computed(() => {
 })
 
 // Chat intention options for dropdown
-const chatIntentionOptions = [
+const chatIntentionOptions = computed(() => [
   {
     value: CHAT_INTENTIONS.REFLECT,
-    label: 'Reflect',
-    description: 'Explore deeper meanings and patterns',
+    label: t('journal.editor.intentions.reflect'),
+    description: t('journal.editor.intentions.reflectDescription'),
   },
   {
     value: CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY,
-    label: 'Help see differently',
-    description: 'Consider alternative perspectives',
+    label: t('journal.editor.intentions.helpSeeDifferently'),
+    description: t('journal.editor.intentions.helpSeeDifferentlyDescription'),
   },
   {
     value: CHAT_INTENTIONS.PROACTIVE,
-    label: 'Help to be proactive',
-    description: 'Identify actionable steps',
+    label: t('journal.editor.intentions.proactive'),
+    description: t('journal.editor.intentions.proactiveDescription'),
   },
   {
     value: CHAT_INTENTIONS.THINKING_TRAPS,
-    label: 'Thinking traps',
-    description: 'Identify cognitive distortions',
+    label: t('journal.editor.intentions.thinkingTraps'),
+    description: t('journal.editor.intentions.thinkingTrapsDescription'),
   },
   {
     value: CHAT_INTENTIONS.CUSTOM,
-    label: 'Custom',
-    description: 'Use your own prompt',
+    label: t('journal.editor.intentions.custom'),
+    description: t('journal.editor.intentions.customDescription'),
   },
-] as const
+])
+
+const quadrantChipColors: Record<Quadrant, { bg: string; border: string }> = {
+  'high-energy-high-pleasantness': {
+    bg: 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
+    border: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
+  },
+  'high-energy-low-pleasantness': {
+    bg: 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
+    border: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
+  },
+  'low-energy-high-pleasantness': {
+    bg: 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
+    border: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
+  },
+  'low-energy-low-pleasantness': {
+    bg: 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
+    border: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
+  },
+}
+
+function getEmotionChipStyle(emotionId: string): Record<string, string> {
+  const emotion = emotionStore.getEmotionById(emotionId)
+  if (!emotion) return {}
+  const quadrant = getQuadrant(emotion)
+  const colors = quadrantChipColors[quadrant]
+  if (!colors) return {}
+  return {
+    backgroundColor: colors.bg,
+    border: `1.5px solid ${colors.border}`,
+  }
+}
 
 const removeEmotion = (id: string) => {
   const index = selectedEmotionIds.value.indexOf(id)
@@ -602,7 +671,7 @@ const loadEntry = async (id: string) => {
     const entry = await journalDexieRepository.getById(id)
     if (!entry) {
       // Entry doesn't exist
-      snackbarRef.value?.show('Entry not found.')
+      snackbarRef.value?.show(t('journal.editor.entryNotFound'))
       router.push('/journal')
       return
     }
@@ -621,6 +690,33 @@ const loadEntry = async (id: string) => {
   }
 }
 
+function getQueryStringValue(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (Array.isArray(value) && typeof value[0] === 'string') return value[0]
+  return ''
+}
+
+function decodePromptSeed(seed: string): string {
+  try {
+    return decodeURIComponent(seed)
+  } catch {
+    return seed
+  }
+}
+
+function applyGuidedPromptSeedForCreateMode() {
+  if (isEditMode.value) return
+  if (body.value.trim().length > 0) return
+
+  const promptSeedRaw = getQueryStringValue(route.query.promptSeed)
+  if (!promptSeedRaw) return
+
+  const decodedSeed = decodePromptSeed(promptSeedRaw).trim()
+  if (!decodedSeed) return
+
+  body.value = decodedSeed
+}
+
 /**
  * Extracted save logic that can be reused by both Save and Chat flows.
  * Validates, constructs payload, and saves the entry (create or update).
@@ -629,7 +725,7 @@ const loadEntry = async (id: string) => {
 const saveEntry = async (): Promise<JournalEntry> => {
   // Validation: body must not be empty
   if (!body.value.trim()) {
-    throw new Error('Please enter some content for your journal entry.')
+    throw new Error(t('journal.editor.emptyContentError'))
   }
 
   const payload = {
@@ -642,10 +738,15 @@ const saveEntry = async (): Promise<JournalEntry> => {
 
   if (isEditMode.value && currentEntry.value) {
     // Edit mode: update existing entry
-    return await journalStore.updateEntry({
+    // Include createdAt if user changed the date, or if original was invalid
+    const updatedEntry = {
       ...currentEntry.value,
       ...payload,
-    })
+    }
+    if (customCreatedAt.value && !isNaN(customCreatedAt.value.getTime())) {
+      updatedEntry.createdAt = customCreatedAt.value.toISOString()
+    }
+    return await journalStore.updateEntry(updatedEntry)
   } else {
     // Create mode: create new entry with optional custom date
     return await journalStore.createEntry({
@@ -708,7 +809,7 @@ const handleIntentionSelection = async (intention: ChatIntention) => {
 // Custom prompt confirmation
 const handleCustomPromptConfirm = async () => {
   if (!customPromptInput.value.trim()) {
-    snackbarRef.value?.show('Please enter a custom prompt.')
+    snackbarRef.value?.show(t('journal.editor.customPromptRequired'))
     return
   }
 
@@ -721,7 +822,7 @@ const handleCustomPromptConfirm = async () => {
 const startChat = async (intention: ChatIntention, customPrompt?: string) => {
   // Validation: body must not be empty
   if (!body.value.trim()) {
-    snackbarRef.value?.show('Please enter some content before starting a chat.')
+    snackbarRef.value?.show(t('journal.editor.contentBeforeChat'))
     return
   }
 
@@ -770,7 +871,7 @@ const handleConfirmDeleteChatSession = async () => {
     if (updatedEntry) {
       currentEntry.value = updatedEntry
     }
-    snackbarRef.value?.show('Chat session deleted')
+    snackbarRef.value?.show(t('journal.editor.chatDeleted'))
   } catch (error) {
     const errorMessage =
       error instanceof Error
@@ -823,6 +924,8 @@ onMounted(async () => {
   if (isEditMode.value && typeof route.params.id === 'string') {
     await loadEntry(route.params.id)
   } else {
+    applyGuidedPromptSeedForCreateMode()
+
     // Create mode: Auto-focus title input
     const titleInput = document.getElementById('title')
     if (titleInput) {
@@ -850,8 +953,8 @@ onUnmounted(() => {
   transition: opacity 0.2s ease;
 }
 
-.dialog-enter-active .bg-surface,
-.dialog-leave-active .bg-surface {
+.dialog-enter-active .neo-raised-strong,
+.dialog-leave-active .neo-raised-strong {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -860,8 +963,8 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-.dialog-enter-from .bg-surface,
-.dialog-leave-to .bg-surface {
+.dialog-enter-from .neo-raised-strong,
+.dialog-leave-to .neo-raised-strong {
   transform: scale(0.95);
   opacity: 0;
 }

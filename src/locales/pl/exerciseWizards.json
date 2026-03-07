@@ -1,0 +1,2666 @@
+{
+  "valuesDiscovery": {
+    "steps": {
+      "admirablePeople": "Godne podziwu osoby",
+      "coreValues": "Podstawowe wartości"
+    },
+    "admirablePeople": {
+      "title": "Osoby, które podziwiasz",
+      "description": "Wymień 3–5 osób, które podziwiasz. Mogą to być osoby, które znasz osobiście, osoby publiczne lub postaci historyczne. Dla każdej z nich zanotuj cechy, które uważasz za godne podziwu.",
+      "namePlaceholder": "Imię i nazwisko osoby",
+      "removePerson": "Usuń osobę",
+      "qualityPlaceholder": "Cecha, którą podziwiasz",
+      "addQuality": "Dodaj cechę",
+      "addPerson": "Dodaj osobę",
+      "nextButton": "Dalej: Wyodrębnij wartości"
+    },
+    "coreValues": {
+      "title": "Twoje podstawowe wartości",
+      "description": "Spójrz na cechy, które wymieńiłeś powyżej. Jakie zauważasz wzorce? Wyodrębnij z nich swoje podstawowe wartości — zasady, które kierują twoimi decyzjami.",
+      "qualitiesSummaryLabel": "Cechy, które zidentyfikowałeś:",
+      "valuePlaceholder": "Podstawowa wartość",
+      "addValue": "Dodaj wartość",
+      "reflectionTitle": "Dodatkowa refleksja",
+      "reflectionPlaceholder": "Jakiekolwiek myśli na temat tego, co odkryłeś..."
+    },
+    "back": "Wstecz",
+    "saveButton": "Zapisz odkrywanie wartości"
+  },
+  "wheelOfLife": {
+    "stepIndicator": "Krok {step} z {total}",
+    "loadingAreas": "Ładowanie twoich obszarów życia...",
+    "areasFromProfile": "{count} obszarów z twojego profilu",
+    "back": "Wstecz",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "nextArea": "Następny obszar",
+    "continue": "Kontynuuj",
+    "stepTitles": {
+      "intro": "Koło Życia",
+      "rate": "Oceń swoje zadowolenie",
+      "focus": "Wybierz obszary do rozwoju",
+      "reflect": "Refleksja"
+    },
+    "stepSubtitles": {
+      "intro": "Szybki przegląd obszarów, które kształtują twoje życie",
+      "rate": "Jak spełniony jesteś w każdym obszarze?",
+      "focus": "Wybierz 2–3 obszary, które chcesz poprawić w tym roku",
+      "reflectReflection": "Czego nauczył cię ten rok?",
+      "reflectStandalone": "Jakie spostrzeżenia ujawnia twoje koło?"
+    },
+    "intro": {
+      "snapshotHeading": "Obraz zgodności",
+      "snapshotDescription": "Koło reprezentuje całe twoje życie. Każdy wycinek to obszar życia, który ma dla ciebie znaczenie. Ocenisz, jak zgodny z twoimi wartościami jest dzisiaj każdy obszar.",
+      "instruction1": "Oceń każdy obszar w skali 1–10 (10 = najbardziej zgodny).",
+      "instruction2": "Zauważ, gdzie życie wydaje się niezrównoważone lub niezsynchronizowane.",
+      "instruction3": "Nie ma idealnego koła — celem jest zrozumienie, a nie wszędzie '10'.",
+      "changeSlicesHint": "Chcesz zmienić wycinki? Zaktualizuj swoje obszary życia i wróć w dowolnym momencie.",
+      "startingShapeCaption": "To twój początkowy kształt przed oceną.",
+      "areasYoullRate": "Obszary, które ocenisz"
+    },
+    "rater": {
+      "areaLabel": "Obszar {n}",
+      "ofTotal": "z {total}",
+      "remaining": "Pozostało {n}",
+      "highlightCaption": "Podświetlony wycinek to obszar, który oceniasz.",
+      "currentlyRating": "Obecnie oceniasz",
+      "alignmentQuestion": "Jak zgodny z twoimi wartościami czujesz się dzisiaj w tym obszarze?",
+      "outOfTen": "/10",
+      "sliderMin": "Brak zgodności",
+      "sliderMax": "Pełna zgodność",
+      "reflectionPromptsLabel": "Podpowiedzi do refleksji",
+      "optional": "Opcjonalnie",
+      "prompts": {
+        "emotions": {
+          "label": "Jakie emocje odczuwasz, oceniając ten obszar?",
+          "placeholder": "Nazwij emocje, które się pojawiają..."
+        },
+        "uplift": {
+          "label": "Co obecnie podnosi tę ocenę?",
+          "placeholder": "Co działa dobrze w tej chwili..."
+        },
+        "drag": {
+          "label": "Co obecnie obniża tę ocenę?",
+          "placeholder": "Co wydaje się trudne lub niezgodne..."
+        },
+        "change": {
+          "label": "Co musiałoby się zmienić w twoim życiu, aby poprawić tę ocenę?",
+          "placeholder": "Małe lub duże zmiany, które by pomogły..."
+        },
+        "control": {
+          "label": "Jak wiele z tej oceny czujesz, że masz pod kontrolą w tej chwili?",
+          "placeholder": "Co jest w twojej kontroli, a co poza nią..."
+        }
+      }
+    },
+    "focusPicker": {
+      "description": "Na podstawie twojego koła wybierz 2–3 obszary, na których chcesz się skupić. Zostaną one zasugerowane jako obszary rozwoju w twoim planie rocznym.",
+      "outOfTen": "/10",
+      "validationMessage": "Wybierz co najmniej 1 obszar, aby kontynuować"
+    },
+    "reflectionStep": {
+      "description": "Poświęć chwilę na refleksję nad tym, co ujawnia twoje koło.",
+      "thoughtsPlaceholder": "Twoje myśli...",
+      "overallNotesLabel": "Ogólne notatki",
+      "overallNotesPlaceholder": "Jakiekolwiek ogólne myśli na temat twojego koła życia..."
+    },
+    "reflectionPrompts": {
+      "growth": "Gdzie najbardziej się rozwinąłeś w tym roku?",
+      "surprise": "Co cię zaskoczyło w twoich ocenach?",
+      "gratitude": "Za który obszar jesteś najbardziej wdzięczny?",
+      "overallBalance": "Jak jesteś zadowolony z ogólnej równowagi?",
+      "negativeImpact": "Które obszary negatywnie wpływają na inne obszary?",
+      "positiveImpact": "Które obszary, jeśli zostaną poprawione, poprawią inne obszary?",
+      "energyCare": "Czy inwestujesz energię tam, gdzie naprawdę ci zależy?"
+    },
+    "domainSelector": {
+      "description": "Wybierz obszary życia, które chcesz ocenić. Możesz dodawać, usuwać lub zmieniać nazwę dowolnego obszaru.",
+      "untitled": "Bez tytułu",
+      "editArea": "Edytuj obszar",
+      "removeArea": "Usuń obszar",
+      "areaNamePlaceholder": "Nazwa obszaru",
+      "addArea": "Dodaj obszar",
+      "validationMessage": "Dodaj co najmniej 3 obszary, aby kontynuować"
+    },
+    "comparison": {
+      "fromPrevious": "+{delta} od poprzedniego",
+      "fromPreviousNegative": "{delta} od poprzedniego",
+      "noChange": "Bez zmian",
+      "attentionHint": "Ten obszar może wymagać uwagi"
+    },
+    "timeline": {
+      "title": "Poprzednie zdjęcia",
+      "emptyState": "Brak poprzednich zdjęć.",
+      "compareWith": "Porównaj z:",
+      "none": "Brak"
+    }
+  },
+  "comingSoon": {
+    "title": "Wkrótce",
+    "description": "To ćwiczenie nie jest jeszcze dostępne.",
+    "includesHeading": "Co będzie zawierać to ćwiczenie:"
+  },
+  "shadowBeliefs": {
+    "title": "Ukryte przekonania",
+    "description": "Ukryte przekonania to głębokie, często niezbadane założenia, które mogą sabotować twoje zachowanie. To ćwiczenie pomaga je ujawnić — nie po to, by osądzać, ale by budować świadomość.",
+    "beliefs": {
+      "title": "Które przekonania do ciebie przemawiają?",
+      "description": "Wybierz te, które wydają się znajome, lub dodaj własne.",
+      "customPlaceholder": "Twoje własne ukryte przekonanie",
+      "addCustom": "Dodaj własne"
+    },
+    "commonBeliefs": {
+      "somethingWrong": "Coś jest że mną nie tak",
+      "dontDeserve": "Nie zasługuję na to, czego pragnę",
+      "cantTrust": "Nie mogę ufać ludziom",
+      "neverSuccessful": "Nigdy nie odniosę sukcesu",
+      "notGoodEnough": "Nie jestem wystarczająco dobry",
+      "dontBelong": "Nie pasuję do nikąd",
+      "doEverythingMyself": "Muszę wszystko robić sam",
+      "tooLate": "To już dla mnie za późno"
+    },
+    "advice": {
+      "title": "Rady, które dajesz innym",
+      "description": "Jakich rad często udzielasz innym? Czy sam je stosujesz?",
+      "placeholder": "Rada, którą dajesz",
+      "addAdvice": "Dodaj radę"
+    },
+    "reframe": {
+      "title": "Przekształć swoje przekonania",
+      "description": "Dla przekonań, które zidentyfikowałeś, spróbuj napisać bardziej konstruktywną wersję.",
+      "placeholder": "Przekształcone przekonanie",
+      "addReframe": "Dodaj przekształcenie"
+    },
+    "reflectionTitle": "Dodatkowa refleksja",
+    "reflectionPlaceholder": "Jakiekolwiek myśli na temat tego, co zauważyłeś...",
+    "saveButton": "Zapisz ukryte przekonania"
+  },
+  "transformativePurpose": {
+    "steps": {
+      "curiosities": "Ciekawości",
+      "intersection": "Punkt przecięcia",
+      "problems": "Problemy",
+      "purpose": "Cel"
+    },
+    "curiosities": {
+      "title": "Co cię ciekawi?",
+      "description": "Wymień pięć rzeczy, które naprawdę cię ciekawią. Nie filtruj — uwzględnij wszystko, co prżyćiąga twoją uwagę.",
+      "placeholder": "Coś, co cię ciekawi",
+      "nextButton": "Dalej: Znajdź punkt przecięcia"
+    },
+    "intersection": {
+      "title": "Punkt przecięcia",
+      "description": "Spójrz na swoje pięć ciekawości. Co je łączy? Co znajduje się w punkcie przecięcia?",
+      "curiositiesLabel": "Twoje ciekawości:",
+      "placeholder": "Co łączy wszystkie pięć? Jaki wyłania się temat?",
+      "nextButton": "Dalej: Problemy"
+    },
+    "problems": {
+      "title": "Wielkie problemy",
+      "description": "Wokół tego punktu przecięcia, jakie pięć dużych problemów chciałbyś pomóc rozwiązać?",
+      "placeholder": "Problem, który chcesz rozwiązać",
+      "nextButton": "Dalej: Deklaracja celu"
+    },
+    "purpose": {
+      "title": "Twoja deklaracja celu",
+      "description": "Napisz deklarację celu w jednym zdaniu. Jest to tymczasowe — spróbuj przez 2–3 miesiące i oczekuj, że będzie się rozwijać.",
+      "placeholder": "Moim celem jest...",
+      "reflectionTitle": "Dodatkowa refleksja",
+      "reflectionPlaceholder": "Jakiekolwiek myśli na temat twojego celu..."
+    },
+    "back": "Wstecz",
+    "saveButton": "Zapisz cel"
+  },
+  "thoughtRecord": {
+    "steps": {
+      "intro": "Wstęp",
+      "situation": "Sytuacja",
+      "emotions": "Emocje",
+      "thoughts": "Myśli",
+      "evidenceFor": "Dowody za",
+      "evidenceAgainst": "Dowody przeciw",
+      "balancedThought": "Zrównoważona myśl",
+      "rerate": "Ponowna ocena",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Zapis myśli",
+      "description": "Zapis myśli pomaga zbadać i przebudować negatywne wzorce myślenia. Przejdziesz przez ustrukturyzowany proces oparty na terapii poznawczo-behawioralnej (CBT).",
+      "howItWorks": "Jak to działa",
+      "howItWorksDescription": "Badajac dowody za i przeciw swoim automatycznym myślom, możesz wypracować bardziej zrównoważone perspektywy i zmniejsżyć napięcie emocjonalne."
+    },
+    "situation": {
+      "title": "Opisz sytuacje",
+      "description": "Co się wydarzyło? Co zarejestrowałaby kamera?",
+      "placeholder": "Opisz sytuacje tak rzeczowo, jak to możliwe...",
+      "dateLabel": "Kiedy to się wydarzyło? (opcjonalnie)"
+    },
+    "emotions": {
+      "title": "Jak się czujesz w związku z ta sytuacją?",
+      "description": "Wybierz emocje i oceń ich intensywność.",
+      "intensityRatings": "Oceny intensywnośći"
+    },
+    "thoughts": {
+      "title": "Jakie myśli przeszly ci przez głowę?",
+      "description": "Wymień automatyczne myśli, które miałeś. Oznacz najbardziej naładowana emocjonalnie jako \"gorąca myśl\".",
+      "placeholder": "Automatyczna myśl...",
+      "addThought": "Dodaj myśl",
+      "identifyLoading": "Myślenie...",
+      "identifyLabel": "Pomoz mi zidentyfikować myśli",
+      "suggestedThoughts": "Sugerowane myśli"
+    },
+    "evidenceFor": {
+      "title": "Jakie dowody wspierają te myśl?",
+      "hotThoughtLabel": "Gorąca myśl",
+      "description": "Jakie fakty lub doświadczenia wspierają prawdziwość tej myśli?",
+      "placeholder": "Dowody wspierające myśl...",
+      "addEvidence": "Dodaj dowod"
+    },
+    "evidenceAgainst": {
+      "title": "Jakie dowody przeczą tej myśli?",
+      "hotThoughtLabel": "Gorąca myśl",
+      "description": "Jakie fakty, doświadczenia lub alternatywne wyjaśnienia przeczą tej myśli?",
+      "placeholder": "Dowody przeciw myśli...",
+      "addEvidence": "Dodaj dowod",
+      "findEvidenceLoading": "Myślenie...",
+      "findEvidenceLabel": "Pomoz mi znaleźć dowody",
+      "suggestion": "Sugestia",
+      "you": "Ty",
+      "followUpPlaceholder": "Nic mi nie prżyćhodzi do głowy... / Powiedz wiecej...",
+      "send": "Wyślij"
+    },
+    "balancedThought": {
+      "title": "Napisz zrównoważona myśl",
+      "description": "Biorac pod uwage wszystkie dowody, napisz bardziej zrównoważona myśl.",
+      "evidenceForLabel": "Dowody za",
+      "evidenceAgainstLabel": "Dowody przeciw",
+      "noEvidenceListed": "Brak wymieńionych dowodów",
+      "placeholder": "Bardziej zrównoważony sposób myślenia o tym...",
+      "reframeLoading": "Myślenie...",
+      "reframeLabel": "Pomoz mi przeformułować",
+      "suggestion": "Sugestia",
+      "you": "Ty",
+      "useAsStartingPoint": "Użyj jako punkt wyjscia",
+      "followUpPlaceholder": "Możesz spróbować z innej perspektywy?",
+      "send": "Wyślij"
+    },
+    "rerate": {
+      "title": "Oceń swoje emocje ponownie",
+      "description": "Po zbadaniu dowodów i wypracowaniu zrównoważonej myśli, jak się teraz czujesz?"
+    },
+    "summary": {
+      "title": "Podsumowanie zapisu myśli",
+      "situation": "Sytuacja",
+      "emotions": "Emocje",
+      "hotThought": "Gorąca myśl",
+      "evidenceFor": "Dowody za",
+      "evidenceAgainst": "Dowody przeciw",
+      "noneListed": "Brak wymieńionych",
+      "balancedThought": "Zrównoważona myśl"
+    }
+  },
+  "cognitiveDistortions": {
+    "learningSteps": {
+      "intro": "Wstęp",
+      "learn": "Nauka",
+      "selfCheck": "Samoocena",
+      "summary": "Podsumowanie"
+    },
+    "appliedSteps": {
+      "thought": "Myśl",
+      "distortions": "Zniekształcenia",
+      "results": "Wyniki"
+    },
+    "modeToggle": {
+      "learning": "Nauka",
+      "applied": "Zastosowanie"
+    },
+    "learningIntro": {
+      "title": "Czym są zniekształcenia poznawcze?",
+      "description1": "Zniekształcenia poznawcze to automatyczne wzorce myślenia, które zniekształcają rzeczywistość. Każdy je ma. Nauczenie się ich rozpoznawania to pierwszy krok do jaśniejszego myślenia.",
+      "description2": "W tym ćwiczeniu poznasz 14 typowych zniekształceń zidentyfikowanych przez Davida Burnsa, a następnie sprawdzisz, które z nich rozpoznajesz we własnym myślęniu.",
+      "startButton": "Rozpocznij nauke"
+    },
+    "carousel": {
+      "ofCount": "{current} z {total}",
+      "alsoKnownAs": "Znane także jako: {aliases}",
+      "example": "Przyklad",
+      "soundsLike": "Brzmi jak",
+      "realityCheck": "Sprawdzian rzeczywistośći",
+      "previous": "Poprzedni",
+      "selfCheckButton": "Samoocena"
+    },
+    "selfCheck": {
+      "title": "Samoocena",
+      "description": "Które z nich rozpoznajesz we własnym myślęniu? Dotknij, aby wybrać.",
+      "personalReflections": "Osobiste refleksje",
+      "personalReflectionsDescription": "Opcjonalnie opisz osobisty przyklad dla każdego rozpóźnanego zniekształcenia.",
+      "personalExamplePlaceholder": "Osobisty przyklad lub refleksja...",
+      "seeSummary": "Zobacz podsumowanie"
+    },
+    "learningSummary": {
+      "title": "Podsumowanie",
+      "recognizedCount": "Rozpóźnales {recognized} z {total} zniekształceń."
+    },
+    "appliedThought": {
+      "title": "Zbadaj myśl",
+      "description": "Wpisz myśl, która chcesz sprawdzić pod katem zniekształceń późnawcżyćh.",
+      "manualLabel": "Ręcznie",
+      "placeholder": "Jaka myśl chcesz zbadać?",
+      "analyseButton": "Analizuj"
+    },
+    "appliedDistortions": {
+      "title": "Znajdz zniekształcenia",
+      "description": "Które zniekształcenia twoim zdaniem dotyczą tej myśli?",
+      "whyApply": "Dłączego każde z nich ma zastosowanie?",
+      "explanationPlaceholder": "Dłączego to zniekształcenie dotyczy twojej myśli?",
+      "llmLoading": "Myślenie...",
+      "llmLabel": "Pomoz mi znaleźć pułapki",
+      "aiSuggestions": "Sugestie AI",
+      "seeResults": "Zobacz wyniki"
+    },
+    "appliedResults": {
+      "title": "Wyniki",
+      "reframe": "Przeformułowanie",
+      "reframePlaceholder": "Jak mógłbyś myśleć o tym inaczej?",
+      "additionalNotes": "Dodatkowe notatki",
+      "notesPlaceholder": "Jakiekolwiek inne myśli na temat tej analizy..."
+    }
+  },
+  "worryTree": {
+    "steps": {
+      "capture": "Zapisz",
+      "classify": "Sklasyfikuj",
+      "respond": "Odpowiedz",
+      "recheck": "Sprawdz ponownie"
+    },
+    "capture": {
+      "title": "Co cie martwi?",
+      "description": "Opisz swój niepokój własnymi słowami. Wyciągnięcie go z głowy i zapisanie na ekranie to pierwszy krok.",
+      "placeholder": "Martwi mnie, ze...",
+      "emotionsTitle": "Jak się czujesz?",
+      "emotionsDescription": "Wybierz emocje, która najlepiej oddaje to, jak ten niepokój sprawia, że się czujesz.",
+      "intensityLabel": "Intensywnosc: {value}%",
+      "intensityMin": "Ledwo zauważalny",
+      "intensityMax": "Przytłaczajacy"
+    },
+    "classify": {
+      "title": "Jaki to rodzaj niepokoju?",
+      "description": "Zrozumienie rodzaju niepokoju pomaga skutecznie na niego odpowiedzieć.",
+      "realProblem": "Realny problem",
+      "realProblemDescription": "Cos konkretnego, z czym możesz cos zrobić",
+      "hypothetical": "Hipotetyczny niepokój",
+      "hypotheticalDescription": "Scenariusz \"a co jesli\", który może się nigdy nie wydarzyć"
+    },
+    "canAct": {
+      "title": "Czy możesz podjąć działanie teraz?",
+      "description": "Czy jest konkretny krok, który możesz podjąć w sprawie tego problemu dzisiaj?",
+      "yesTitle": "Tak, moge działać teraz",
+      "yesDescription": "Jest cos konkretnego, co moge dzisiaj zrobić w tej sprawie",
+      "noTitle": "Nie w tej chwili",
+      "noDescription": "Muszę poczekać lub zaplanować to na później"
+    },
+    "actionPlan": {
+      "title": "Zaplanuj działanie",
+      "description": "Jaki jest następny konkretny krok, który możesz podjąć? Niech będzie mały i konkretny.",
+      "placeholder": "Mój następny krok to...",
+      "whenLabel": "Kiedy to zrobisz?",
+      "createCommitment": "Utwórz zobowiązanie z tego działania",
+      "complete": "Zakończ"
+    },
+    "schedule": {
+      "title": "Zaplanuj termin",
+      "description": "Chociaz nie możesz działać teraz, możesz zaplanować, kiedy to zrobisz. Zapisz, co zrobisz i kiedy.",
+      "placeholder": "Kiedy nadejdzie odpowiedni moment, zrobie...",
+      "whenLabel": "Kiedy?",
+      "encouragement": "Uznaules problem i zaplanowales czas na jego rozwiazanie. Na razie wez głęboki oddech. Nie musisz rozwiazywac tego w tej chwili.",
+      "complete": "Zakończ"
+    },
+    "lettingGo": {
+      "title": "Puszczanie",
+      "description": "Ten niepokój dotyczy czegos, co się nie wydarzyło i może się nigdy nie wydarzyć. To zupełnie normalne. Nasz umysl jest zaprogramowany, by przewidywac zagrozenia, nawet wyobrajzone.",
+      "choosePrompt": "Wybierz technike, która teraz do ciebie przemawia:",
+      "techniques": {
+        "leavesOnStream": {
+          "name": "Liscie na strumieniu",
+          "description": "Wyobraz sobie, że kladziiesz niepokój na lisciu i patrzysz, jak łagodnie plynie w dol strumienia, z dala od ciebie."
+        },
+        "refocus": {
+          "name": "Przekierowanie uwagi",
+          "description": "Łagodnie przekieruj uwage na to, co teraz robisz. Zauwaaz piec rzeczy, które widzisz wokol siebie."
+        },
+        "worryTime": {
+          "name": "Czas na martwienie się",
+          "description": "Zanotuj ten niepokój na zaplanowane 15-minutowe okno na martwienie się później dzisiaj. Masz pozwolenie, by go odlożyć do tego czasu."
+        },
+        "acceptance": {
+          "name": "Akceptacja",
+          "description": "Uznaj niepewność, nie walczac z nia. Nie musisz rozwiazywac każdej niewiadomej już teraz."
+        }
+      }
+    },
+    "recheck": {
+      "title": "Jak się teraz czujesz?",
+      "description": "Poświęć chwile, by sprawdzić, jak się czujesz. Oceń ta sama emocje ponownie.",
+      "before": "Przed",
+      "nowLabel": "{emotion} teraz: {value}%",
+      "intensityMin": "Ledwo zauważalny",
+      "intensityMax": "Przytłaczajacy",
+      "after": "Po",
+      "decrease": "{value}% spadek",
+      "increase": "{value}% wzrost"
+    }
+  },
+  "coreBeliefs": {
+    "steps": {
+      "intro": "Wstęp",
+      "startingThought": "Poczatkowa myśl",
+      "downwardArrow": "Strzalka w dol",
+      "coreBelief": "Głębokie przekonanie",
+      "evidenceFor": "Dowody za",
+      "evidenceAgainst": "Dowody przeciw",
+      "alternative": "Alternatywa",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Eksploracja głębokich przekonan",
+      "description": "Głębokie przekonania to najglebsze myśli, które zywimi o sobie, innych i swiecie. Ksztaltuja się wczesnie w życiu i wpływaja na to, jak interpretujemy wszystko, co nam się przydarza.",
+      "techniqueName": "Technika strzalki w dol",
+      "techniqueDescription": "Wielokrotnie pytajac \"Gdyby to byla prawda, co by to znaczylo?\", możesz prośledźic powierzchowna myśl az do glebszego przekonania, które się pod nia kryje.",
+      "flowSituation": "Sytuacja",
+      "flowAutomaticThought": "Automatyczna myśl",
+      "flowCoreBelief": "Głębokie przekonanie"
+    },
+    "startingThought": {
+      "title": "Jaka myśl chcesz zbadać?",
+      "description": "Pomyśl o niedawnej myśli, która wracala do ciebie. Mogla być wywolana rozmowa, bledem lub sytuacją, która cie niepokoila.",
+      "placeholder": "np. 'Zawsze wszystko psuji' lub 'Nikomu tak naprawde na mnie nie zalezy'",
+      "sourceLabel": "Źródło (opcjonalnie)",
+      "sourceTypes": {
+        "manual": "Ręcznie",
+        "thoughtRecord": "Zapis myśli",
+        "journal": "Dziennik"
+      }
+    },
+    "downwardArrow": {
+      "title": "Strzalka w dol",
+      "description": "Dla każdej odpowiedzi pytaj: \"Gdyby to byla prawda, co by to znaczylo o tobie, innych lub swiecie?\"",
+      "startingThoughtLabel": "Poczatkowa myśl",
+      "layerLabel": "Warstwa {n}",
+      "questionLabel": "Gdyby to byla prawda, co by to znaczylo?",
+      "placeholder": "To by znaczylo, ze...",
+      "addLayer": "Dodaj kolejna warstwe",
+      "foundIt": "Chyba to znalazlem",
+      "deepenerLoading": "Myślenie...",
+      "deepenerLabel": "Pomoz mi zejsc głębiej"
+    },
+    "coreBelief": {
+      "title": "Twoje głębokie przekonanie",
+      "description": "Na podstawie twojej eksploracji, to wydaje się być głębokim przekonaniem ukrytym pod spodem. Możesz je edytowac.",
+      "placeholder": "Głębokie przekonanie...",
+      "categoryTitle": "Czego dotyczy to przekonanie?",
+      "categories": {
+        "self": {
+          "label": "O mnie samym",
+          "description": "\"Jestem niekochany\", \"Jestem niekompetentny\", \"Jestem bezwartościowy\""
+        },
+        "others": {
+          "label": "O innych",
+          "description": "\"Ludziom nie można ufac\", \"Inni zawsze odejda\""
+        },
+        "world": {
+          "label": "O swiecie",
+          "description": "\"Swiat jest niebezpieczny\", \"Życie jest niesprawiedliwe\""
+        }
+      },
+      "believabilityTitle": "Jak bardzo w to teraz wierzysz?",
+      "believabilityLabel": "Wiarygodnosc",
+      "notAtAll": "Wcale",
+      "completely": "Calkowicie"
+    },
+    "evidenceFor": {
+      "title": "Dowody wspierające to przekonanie",
+      "coreBeliefLabel": "Głębokie przekonanie",
+      "description": "Jakie doświadczenia lub fakty sprawiaja, że wierzysz, iz to prawda?",
+      "placeholder": "Dowody wspierające przekonanie...",
+      "addEvidence": "Dodaj dowod"
+    },
+    "evidenceAgainst": {
+      "title": "Dowody przeciwko temu przekonaniu",
+      "coreBeliefLabel": "Głębokie przekonanie",
+      "description": "Jakie doświadczenia, fakty lub alternatywne wyjaśnienia przeczą temu przekonaniu?",
+      "placeholder": "Dowody przeciwko przekonaniu...",
+      "addEvidence": "Dodaj dowod"
+    },
+    "alternative": {
+      "title": "Napisz zrównoważone alternatywne przekonanie",
+      "description": "Biorac pod uwage dowody z obu stron, napisz bardziej zrównoważone, realistyczne przekonanie.",
+      "evidenceForLabel": "Dowody za",
+      "evidenceAgainstLabel": "Dowody przeciw",
+      "noEvidenceListed": "Brak wymieńionych dowodów",
+      "placeholder": "Bardziej zrównoważony sposób patrzenia na to...",
+      "llmLoading": "Myślenie...",
+      "llmLabel": "Pomoz mi znaleźć alternatywy",
+      "suggestion": "Sugestia",
+      "you": "Ty",
+      "useAsStartingPoint": "Użyj jako punkt wyjscia",
+      "followUpPlaceholder": "Możesz spróbować z innej perspektywy?",
+      "send": "Wyślij",
+      "rerateTitle": "Ponownie oceń swoje przekonania",
+      "originalBeliefNow": "Oryginalne przekonanie teraz",
+      "alternativeBeliefLabel": "Alternatywne przekonanie",
+      "notAtAll": "Wcale",
+      "completely": "Calkowicie"
+    },
+    "summary": {
+      "title": "Podsumowanie eksploracji",
+      "downwardArrowChain": "Lancuch strzalęk w dol",
+      "coreBeliefLabel": "Głębokie przekonanie",
+      "evidenceFor": "Dowody za",
+      "evidenceAgainst": "Dowody przeciw",
+      "noneListed": "Brak wymieńionych",
+      "alternativeBelief": "Alternatywne przekonanie",
+      "believability": "Wiarygodnosc",
+      "originalBefore": "Oryginalne (przed)",
+      "originalAfter": "Oryginalne (po)",
+      "alternativeBeliefRating": "Alternatywne przekonanie",
+      "decreaseInBelief": "{value}% spadek w oryginalnym przekonaniu",
+      "increaseInBelief": "{value}% wzrost w oryginalnym przekonaniu"
+    }
+  },
+  "compassionateLetter": {
+    "steps": {
+      "intro": "Wstęp",
+      "situation": "Sytuacja",
+      "emotions": "Emocje",
+      "innerCritic": "Wewnetrzny krytyk",
+      "response": "Odpowiedz",
+      "takeaways": "Wnioski",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "List wspoluczućia",
+      "description": "Wspoluczućie wobec siebie oznacza traktowanie siebie z ta sama życzliwoscia, jaka okazalbys dobremu przyjacielowi. Kiedy się zmagamy, często stajemy się swoim najsurowszym krytykiem. To ćwiczenie pomaga odpowiadac na trudne chwile z cieplem zamiast osadu.",
+      "pillarsTitle": "Trzy filary wspoluczućia wobec siebie",
+      "selfKindness": "Zyczliwosc wobec siebie",
+      "selfKindnessDescription": "Bycie cieplym wobec siebie, gdy cierpisz, zamiast ignorowania bólu lub karania siebie.",
+      "commonHumanity": "Wspólne czlowieczenstwo",
+      "commonHumanityDescription": "Uznanie, że cierpienie i osobiste niedostatki są częścią wspólnego ludzkiego doświadczenia.",
+      "mindfulness": "Uwaznosc",
+      "mindfulnessDescription": "Utrzymywanie bolesnych myśli i uczuć w zrównoważonej świadomośći, zamiast nadmiernego utoznzsamiania się z nimi."
+    },
+    "situation": {
+      "title": "Co się wydarzyło lub z czym się zmagasz?",
+      "description": "Opisz to tak, jakbys mowil zaufanemu przyjacielowi. Nie musisz analizowac ani osądzac — po prostu powiedz, co się dzieje.",
+      "placeholder": "Cos się wydarzyło, co mnie przygniata..."
+    },
+    "emotions": {
+      "title": "Jak się czujesz?",
+      "description": "Wybierz emocje, które pojawiaja się, gdy myślisz o tej sytuacji."
+    },
+    "critic": {
+      "title": "Co mowi twój wewnętrzny krytyk?",
+      "description": "Zapisz surowe rzeczy, które sobie mowisz. Wyciągnięcie ich na wierzch ulatwia ich zbadanie.",
+      "placeholder": "Mój wewnętrzny krytyk mowi...",
+      "addThought": "Dodaj kolejna myśl"
+    },
+    "response": {
+      "title": "Napisz swoja pełna wspoluczućia odpowiedz",
+      "description": "Pisz tak, jakbys byl troskliwym przyjacielem, który wie o tobie wszystko i kocha cie bezwarunkowo. Co by powiedzial?",
+      "placeholder": "Drogi ja, chce, zebys wiedzial, ze...",
+      "llmLoading": "Pisanie...",
+      "llmLabel": "Pomoz mi znaleźć słowa",
+      "llmHint": "Użyj tego jako inspiracji — list powinien być napisany twoimi własnymi słowami:"
+    },
+    "takeaways": {
+      "title": "Co do ciebie trafilo?",
+      "description": "Wyodrebnij kluczowe przeslania, które chcesz niesc że soba. Co zapamietasz z tego listu?",
+      "placeholder": "Chce zapamiętać, ze...",
+      "addTakeaway": "Dodaj kolejny wniosek"
+    },
+    "summary": {
+      "title": "Twoj list wspoluczućia",
+      "situation": "Sytuacja",
+      "emotions": "Emocje",
+      "innerCritic": "Wewnetrzny krytyk",
+      "compassionateResponse": "Pelna wspoluczućia odpowiedz",
+      "takeaways": "Wnioski"
+    },
+    "errors": {
+      "guidanceFailed": "Nie udało się uzyskać wskazówek"
+    }
+  },
+  "positiveDataLog": {
+    "setupSteps": {
+      "intro": "Wstęp",
+      "targetBelief": "Docelowe przekonanie",
+      "confirmation": "Potwierdzenie"
+    },
+    "intro": {
+      "title": "Dziennik pozytywnych danych",
+      "description": "Dziennik pozytywnych danych pomaga systematycznie zbierac dowody, które przeczą negatywnemu przekonaniu. Z czasem przesuwa to przekonanie z \"zawsze prawdziwe\" na \"czasami prawdziwe\".",
+      "howItWorks": "Jak to działa",
+      "step1": "Utwórz docelowe przekonanie, które chcesz zakwestionowac",
+      "step2": "Codziennie zapisuj dowody, które mu przeczą",
+      "step3": "Obserwuj, jak przekonanie slabnie z czasem"
+    },
+    "targetBelief": {
+      "title": "Jakie negatywne przekonanie chcesz zakwestionowac?",
+      "description": "Powinno to być głębokie przekonanie, takie jak \"Nie jestem wystarczajaco dobry\" lub \"Ludziom nie można ufac\". Jesli ukonczyles eksploracje głębokich przekonan, możesz użyć przekonania, które tam zidentyfikowales.",
+      "placeholder": "np. 'Jestem niekochany' lub 'Zawsze zawoze w ważnych sprawach'",
+      "believabilityTitle": "Jak bardzo w to teraz wierzysz?",
+      "believabilityLabel": "Poczatkowa wiarygodnosc",
+      "notAtAll": "Wcale",
+      "completely": "Calkowicie"
+    },
+    "confirmation": {
+      "title": "Gotowy do rozpoczecia zapisywania",
+      "targetBeliefLabel": "Docelowe przekonanie",
+      "initialBelievability": "Poczatkowa wiarygodnosc",
+      "description": "Po utworzeniu możesz codziennie wracać do tego dziennika, aby dodawac dowody przeczące przekonaniu. Z czasem zobaczysz, jak przekonanie slabnie.",
+      "createLog": "Utwórz dziennik"
+    },
+    "log": {
+      "targetBeliefLabel": "Docelowe przekonanie",
+      "currentBelievability": "Aktualna wiarygodnosc:",
+      "fromStart": "({change}% od początku)",
+      "entryLogged": "{count} wpis zapisany",
+      "entriesLogged": "{count} wpisow zapisanych",
+      "addEvidenceTitle": "Dodaj dowod",
+      "addEvidenceDescription": "Co dzisiaj się wydarzyło, co przeczy twojemu przekonaniu?",
+      "dateLabel": "Data",
+      "evidenceLabel": "Dowod",
+      "evidencePlaceholder": "Co się wydarzyło, co przeczy temu przekonaniu?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek dodatkowe myśli lub refleksje...",
+      "addEvidence": "Dodaj dowod",
+      "rerateTitle": "Ponownie oceń swoje przekonanie",
+      "rerateDescription": "Biorac pod uwage zebrane dowody, jak bardzo teraz w to wierzysz?",
+      "believabilityNow": "Wiarygodność teraz",
+      "notAtAll": "Wcale",
+      "completely": "Calkowicie",
+      "initial": "Poczatkowa",
+      "now": "Teraz",
+      "updateRating": "Zaktualizuj ocene",
+      "evidenceTimeline": "Os czasu dowodów",
+      "reviewLoading": "Przeglad...",
+      "reviewLabel": "Przejrzyj moje postepy",
+      "progressReview": "Przeglad postepow",
+      "noEvidenceYet": "Brak zapisanych dowodów. Zacznij od dodania pierwszego wpisu powyzej."
+    },
+    "errors": {
+      "reviewFailed": "Nie udało się wygenerować przeglądu"
+    },
+    "aria": {
+      "deleteEntry": "Usuń wpis"
+    }
+  },
+  "behavioralExperiment": {
+    "steps": {
+      "belief": "Przekonanie",
+      "prediction": "Przewidywanie",
+      "design": "Projekt",
+      "safety": "Bezpieczenstwo",
+      "outcome": "Wynik",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Eksperyment behawioralny",
+      "description": "Eksperyment behawioralny sprawdza, czy przekonanie, które posiadasz, jest faktycznie prawdziwe. Zamiast sprzecząc się z mysla, projektujesz test w swiecie rzeczywistym i obserwujesz, co się dzieje.",
+      "howItWorks": "Jak to działa",
+      "howItWorksDescription": "Porownujac swoje przewidywanie z tym, co faktycznie się wydarzyło, budujesz dokladniejszy obraz rzeczywistośći i zmniejszasz wpływ szkodliwych przekonan.",
+      "pillBelief": "Przekonanie",
+      "pillPredict": "Przewiduj",
+      "pillTest": "Testuj",
+      "pillLearn": "Ucz się"
+    },
+    "belief": {
+      "title": "Jakie przekonanie chcesz przetestowac?",
+      "description": "Zapisz przekonanie tak jasno, jak potrafisz. Powinno być ono możliwe do przetestowania poprzez działanie, a nie tylko uczućie.",
+      "placeholder": "np. 'Jesli odezwe się na spotkaniu, wszyscy pomysla, że jestem glupi.'",
+      "believabilityLabel": "Jak bardzo w to wierzysz w tej chwili? {value}%",
+      "notAtAll": "Wcale",
+      "completely": "Calkowicie"
+    },
+    "prediction": {
+      "title": "Co przewidujesz, że się stanie?",
+      "description": "Na podstawie przekonania, jakiego konkretnego wyniku oczekujesz? Im bardziej konkretnie, tym łatwiej będzie porownac z rzeczywistośćia potem.",
+      "placeholder": "np. 'Ludzie przewroca oczami lub mi przerwia w ciągu 10 sekund.'",
+      "confidenceLabel": "Jak pewny jestes tego przewidywania? {value}%",
+      "notAtAll": "Wcale",
+      "completelyCertain": "Calkowicie pewny"
+    },
+    "design": {
+      "title": "Zaprojektuj swój eksperyment",
+      "description": "Co faktycznie zrobisz, żeby przetestowac to przewidywanie? Niech będzie konkretny, osiagalny i o niskim ryzyku. Pomyśl o sobie jak o ciekawskim naukowcu przeprowadzajacym mały test.",
+      "placeholder": "np. 'Na jutrzejszym standupie zespolu podziele się jednym pomyślęm dotyczącym biezacego projektu.'",
+      "whenLabel": "Kiedy przeprowadzisz ten eksperyment? (opcjonalnie)",
+      "llmLoading": "Myślenie...",
+      "llmLabel": "Pomoz mi zaprojektowac eksperyment",
+      "suggestedExperiment": "Sugerowany eksperyment"
+    },
+    "safety": {
+      "title": "Zachowania bezpieczenstwa, na które nalezy uwazac",
+      "description": "Zachowania bezpieczenstwa to subtelne wzorce unikania, które moga uniewaznie twój eksperyment. Na przyklad, jesli planujesz odezwac się na spotkaniu, ale robisz to tylko, gdy szefa nie ma, eksperyment nie jest rzetelnym testem. Wymień zachowania, do których możesz wrocic odruchowo.",
+      "placeholder": "np. 'Odzyanie się tylko wtedy, gdy jestem w 100% pewny odpowiedzi'",
+      "addBehavior": "Dodaj zachowanie",
+      "saveChoiceDescription": "Możesz zapisać ten eksperyment jako zaplanowany i wrocic później, żeby zarejestrowac wynik, lub zarejestrowac wynik teraz.",
+      "saveAsPlanned": "Zapisz jako zaplanowany",
+      "recordOutcomeNow": "Zarejestruj wynik teraz"
+    },
+    "outcome": {
+      "title": "Co się faktycznie wydarzyło?",
+      "description": "Opisz wynik tak rzeczowo, jak potrafisz. Co zaobserwowales? Jak zareagowali ludzie? Co cie zaskoczylo?",
+      "predictionLabel": "Twoje przewidywanie",
+      "placeholder": "Opisz, co się faktycznie wydarzyło...",
+      "learnedTitle": "Czego się nauczyles?",
+      "learnedDescription": "Jak wynik ma się do twojego przewidywania? Co to mowi o oryginalnym przekonaniu?",
+      "learnedPlaceholder": "Najwazniejsza rzecz, której się nauczylem, to...",
+      "rerateTitle": "Ponownie oceń przekonanie",
+      "targetBeliefLabel": "Docelowe przekonanie",
+      "rerateLabel": "Jak bardzo teraz w to wierzysz? {value}%",
+      "notAtAll": "Wcale",
+      "completely": "Calkowicie"
+    },
+    "summary": {
+      "title": "Podsumowanie eksperymentu",
+      "targetBelief": "Docelowe przekonanie",
+      "before": "Przed",
+      "after": "Po",
+      "decreaseInBelievability": "{value}% spadek wiarygodności",
+      "increaseInBelievability": "{value}% wzrost wiarygodności",
+      "predictionLabel": "Przewidywanie ({confidence}% pewności)",
+      "experiment": "Eksperyment",
+      "scheduled": "Zaplanowano: {date}",
+      "safetyBehaviors": "Zachowania bezpieczenstwa do obserwacji",
+      "outcome": "Wynik",
+      "keyLearning": "Kluczowy wniosek"
+    },
+    "errors": {
+      "designFailed": "Nie udało się uzyskać sugestii"
+    }
+  },
+  "behavioralActivation": {
+    "steps": {
+      "intro": "Wstęp",
+      "moodBaseline": "Bazowy nastroj",
+      "planActivities": "Zaplanuj aktywności",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Aktywacja behawioralna",
+      "description": "Kiedy nastroj jest niski, mamy tendencje do wycofywania się z aktywności, które kiedys przynosily nam radosc lub poczucie osiagniecia. Aktywacja behawioralna odwraca ten cykl poprzez planowanie przyjemnych i wartościowych aktywności, a następnie śledzenie, jak wpływaja na twój nastroj.",
+      "howItWorks": "Jak to działa",
+      "step1": "Oceń swój aktualny nastroj jako punkt odniesienia",
+      "step2": "Zaplanuj co najmniej 3 aktywności z różnych kategorii",
+      "step3": "Śledź swój nastroj przed i po każdej aktywności"
+    },
+    "moodBaseline": {
+      "title": "Jak się teraz czujesz?",
+      "description": "Oceń swój ogólny nastroj w skali od 0 do 10. Daje ci to punkt odniesienia do porownania na koniec tygodnia.",
+      "overallMoodLabel": "Ogolny nastroj",
+      "moodMin": "Bardzo niski",
+      "moodMid": "Neutralny",
+      "moodMax": "Swietny",
+      "weekStartTitle": "Data początku tygodnia",
+      "weekStartDescription": "Na który tydzień planujesz aktywności?"
+    },
+    "planActivities": {
+      "title": "Zaplanuj swoje aktywności",
+      "description": "Dodaj co najmniej 3 aktywności na ten tydzien. Mieszaj różne kategorie dla najlepszego efektu.",
+      "activityNameLabel": "Nazwa aktywności",
+      "activityNamePlaceholder": "np. Spacer w parku, Telefon do przyjaciela...",
+      "categoryLabel": "Kategoria",
+      "categories": {
+        "pleasure": "Przyjemnosc",
+        "mastery": "Mistrzostwo",
+        "social": "Spoleczna",
+        "physical": "Fiżyćzna",
+        "values": "Wartosci"
+      },
+      "scheduledDateLabel": "Zaplanowana data",
+      "addActivity": "Dodaj aktywnosc",
+      "suggestLoading": "Myślenie...",
+      "suggestLabel": "Zasugeruj aktywności",
+      "suggestedActivities": "Sugerowane aktywności",
+      "plannedActivities": "Zaplanowane aktywności",
+      "addMoreCount": "Dodaj jeszcze {n} {word}, aby kontynuowac"
+    },
+    "summary": {
+      "title": "Twoj plan na tydzien",
+      "weekStarting": "Tydzień od",
+      "baselineMood": "Bazowy nastroj",
+      "activities": "Aktywności",
+      "trackTitle": "Śledź wykonane aktywności",
+      "trackDescription": "Opcjonalnie oznacz aktywności jako wykonane i oceń swój nastroj przed i po każdej z nich. Możesz tez zapisać plan teraz i śledźic później.",
+      "moodBefore": "Nastroj przed",
+      "moodAfter": "Nastroj po",
+      "reviewLoading": "Przeglad...",
+      "reviewLabel": "Przejrzyj mój tydzien",
+      "weekReview": "Przeglad tygodnia",
+      "notesTitle": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje lub obserwacje na temat tego tygodnia...",
+      "savePlan": "Zapisz plan"
+    },
+    "errors": {
+      "suggestFailed": "Nie udało się uzyskać sugestii",
+      "reviewFailed": "Nie udało się wygenerować przeglądu"
+    },
+    "aria": {
+      "removeActivity": "Usuń {activity}",
+      "markComplete": "Oznacz {activity} jako ukończone",
+      "markIncomplete": "Oznacz {activity} jako nieukończone"
+    }
+  },
+  "structuredProblemSolving": {
+    "steps": {
+      "intro": "Wstęp",
+      "problem": "Problem",
+      "brainstorm": "Burza mozgow",
+      "evaluate": "Ocena",
+      "choose": "Wybor",
+      "review": "Przeglad",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Ustrukturyzowane rozwiazywanie problemow",
+      "description": "Kiedy problemy wydaja się przytłaczajace, rozbicie ich na kroki sprawia, że staja się możliwe do opanowania. To ćwiczenie wykorzystuje systematyczne podejśćie z terapii rozwiazywania problemow (D'Zurilla i Nezu), aby pomoc ci zdefiniowac, wygenerowac pomysly, ocenic i działać.",
+      "howItWorks": "Jak to działa",
+      "howItWorksDescription": "Wygenerujesz wiele rozwiazan bez osądzania, a następnie ocenisz każde z nich, aby znaleźć najlepsza droge naprzod.",
+      "pillDefine": "Zdefiniuj",
+      "pillBrainstorm": "Burza mózgów",
+      "pillEvaluate": "Oceń",
+      "pillChoose": "Wybierz i zaplanuj"
+    },
+    "problem": {
+      "title": "Zdefiniuj problem",
+      "description": "Badz tak konkretny, jak to możliwe. Dobrze zdefiniowany problem jest w polowie rozwiazany.",
+      "placeholder": "Opisz problem jasno i konkretnie...",
+      "emotionsTitle": "Jak się z tym czujesz?",
+      "emotionsDescription": "Wybierz emocje, które ten problem w tobie wywoluje."
+    },
+    "brainstorm": {
+      "title": "Burza mozgow nad rozwiazaniami",
+      "description": "Wygeneruj tyle pomysłów, ile możesz. Ilosc ponad jakosc — jeszcze nie oceniaj. Uwzglednij tez kreatywne i niekonwencjonalne pomysly.",
+      "solutionPlaceholder": "Wpisz pomysł na rozwiazanie...",
+      "addButton": "Dodaj",
+      "noSolutions": "Nie dodano jeszcze żadnych rozwiazan.",
+      "llmLoading": "Myślenie...",
+      "llmLabel": "Pomoz mi w burzy mozgow",
+      "suggestedSolutions": "Sugerowane rozwiazania"
+    },
+    "evaluate": {
+      "title": "Oceń swoje rozwiazania",
+      "description": "Dla każdego rozwiazania wymień zalety i wady, a następnie oceń wykonalność i skuteczność.",
+      "pros": "Zalety",
+      "prosPlaceholder": "Korzysci z tego rozwiazania...",
+      "addPro": "Dodaj zalete",
+      "cons": "Wady",
+      "consPlaceholder": "Wada tego rozwiazania...",
+      "addCon": "Dodaj wade",
+      "feasibility": "Wykonalnosc",
+      "feasibilityDescription": "Jak wykonalne jest to rozwiazanie?",
+      "effectiveness": "Skutecznosc",
+      "effectivenessDescription": "Jak dobrze rozwiazaloby to problem?",
+      "llmLoading": "Myślenie...",
+      "llmLabel": "Pomoz mi ocenic",
+      "analysis": "Analiza"
+    },
+    "choose": {
+      "title": "Wybierz najlepsze rozwiazanie",
+      "description": "Rozwiazania są uszeregowane wedlug sredniej wykonalności i skuteczności. Wybierz to, do którego chcesz się zobowiazac.",
+      "scoreLabel": "Wynik: {score}",
+      "feasibilityLabel": "Wykonalność {rating}/5",
+      "effectivenessLabel": "Skuteczność {rating}/5",
+      "actionPlanTitle": "Plan działania",
+      "actionPlanDescription": "Jak wdrozysz to rozwiazanie? Badz konkretny i precyzyjny.",
+      "actionPlanPlaceholder": "Mój plan to...",
+      "actionSteps": "Kroki działania",
+      "stepPlaceholder": "Krok {n}...",
+      "addStep": "Dodaj krok",
+      "targetDateLabel": "Docelowa data (opcjonalnie)"
+    },
+    "review": {
+      "title": "Przejrzyj swój plan",
+      "problem": "Problem",
+      "chosenSolution": "Wybrane rozwiazanie",
+      "feasibilityLabel": "Wykonalnosc: {rating}/5",
+      "effectivenessLabel": "Skutecznosc: {rating}/5",
+      "actionPlan": "Plan działania",
+      "actionSteps": "Kroki działania",
+      "targetDate": "Docelowa data",
+      "markCompletedTitle": "Oznacżyć jako ukonczone? (opcjonalnie)",
+      "markCompletedDescription": "Jesli już rozwiazales ten problem, możesz teraz zarejestrowac wynik. W przeciwnym razie zostaw jako w toku i wroc później.",
+      "markCompleted": "Oznacz jako ukonczone",
+      "outcomePlaceholder": "Jaki byl wynik? Co się wydarzyło?",
+      "emotionsAfterTitle": "Jak się teraz czujesz?",
+      "emotionsAfterDescription": "Sprawdz ponownie swoje emocje po przepracowaniu tego problemu."
+    },
+    "summary": {
+      "title": "Podsumowanie",
+      "problem": "Problem",
+      "emotionsBefore": "Emocje przed",
+      "solutionsConsidered": "Rozważone rozwiazania ({count})",
+      "chosenSolution": "Wybrane rozwiazanie",
+      "actionPlan": "Plan działania",
+      "actionSteps": "Kroki działania",
+      "targetDate": "Docelowa data",
+      "status": "Status",
+      "completed": "Ukonczone",
+      "inProgress": "W toku",
+      "outcome": "Wynik",
+      "emotionsAfter": "Emocje po",
+      "aiAssistsUsed": "Uzyte asysty AI",
+      "brainstormAssist": "Burza mozgow",
+      "evaluateAssist": "Ocena",
+      "notesTitle": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek dodatkowe refleksje..."
+    },
+    "errors": {
+      "brainstormFailed": "Nie udało się uzyskać sugestii",
+      "evaluateFailed": "Nie udało się uzyskać oceny"
+    }
+  },
+  "gradedExposure": {
+    "steps": {
+      "fear": "Lek",
+      "buildLadder": "Buduj drabine",
+      "safety": "Bezpieczenstwo",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Hierarchia stopniowanej ekspozycji",
+      "description": "Jak wchodzenie po drabinie — zaczynasz od najłatwiejszego kroku i idziesz w gore. Stopniowo stawiajac czolo sytuacjom, których się boisz, twój lęk naturalnie małeje z czasem.",
+      "fearLadder": "Twoja drabina lęku",
+      "high": "Wysoki",
+      "medium": "Sredni",
+      "low": "Niski",
+      "ladderDescription": "Zbudujesz liste sytuacji ocenionych wedlug poziomu dystresu, jaki wywoluja (0–100), a następnie przepracujesz je od najłatwiejszej do najtrudniejszej."
+    },
+    "fearTarget": {
+      "fearTitle": "Czego się boisz?",
+      "fearDescription": "Opisz lęk, fobie lub niepokój, nad którym chcesz pracować.",
+      "fearPlaceholder": "np. Wystapienia publiczne, pajaki, sytuacje spoleczne...",
+      "goalTitle": "Jaki jest twój ostateczny cel?",
+      "goalDescription": "Co chcialbys być w stanie robić, kiedy już przepracujesz ten lęk?",
+      "goalPlaceholder": "np. Pewnie wyglosic prezentacje w pracy"
+    },
+    "buildHierarchy": {
+      "title": "Zbuduj swoja drabine lęku",
+      "description": "Dodaj sytuacje zwiazane z twoim lękiem, każdą z ocena poziomu dystresu (SUDS: 0–100).",
+      "situationPlaceholder": "Opisz sytuacje wywolujaca lęk...",
+      "distressLabel": "Poziom dystresu:",
+      "distressMin": "Brak dystresu (0)",
+      "distressMax": "Ekstremalny (100)",
+      "addToLadder": "Dodaj do drabiny",
+      "llmLoading": "Myślenie...",
+      "llmLabel": "Zasugeruj kroki drabiny",
+      "suggestedSteps": "Sugerowane kroki",
+      "yourLadder": "Twoja drabina",
+      "stepOfTotal": "Krok {step} z {total}",
+      "tipTitle": "Wskazowka",
+      "tipDescription": "Celuj w 8–15 pożyćji obejmujacych caly zakres (0–100). Uwzglednij kilka łatwych (20–30), aby zbudowac pewność siebie.",
+      "moreNeeded": "(potrzeba jeszcze {n})"
+    },
+    "safetyBehaviors": {
+      "title": "Zachowania bezpieczenstwa, na które nalezy uwazac",
+      "description": "Zachowania bezpieczenstwa to rzeczy, które robisz, żeby zmniejsżyć lęk w danej chwili — ale moga one uniemozliwic ci nauczenie się, że potrafisz sobie poradzic. Ich identyfikacja pomaga przeprowadząc ekspożycie skuteczniej.",
+      "placeholder": "np. Unikanie kontaktu wzrokowego, sprawdzanie telefonu...",
+      "addBehavior": "Dodaj zachowanie",
+      "commonExamples": "Typowe przyklady",
+      "examples": {
+        "avoidingEyeContact": "Unikanie kontaktu wzrokowego",
+        "exitPlan": "Posiadanie planu ucieczki",
+        "bringingFriend": "Zabieranie przyjaciela",
+        "checkingPhone": "Sprawdzanie telefonu",
+        "overPreparing": "Nadmierne przygotowywanie się",
+        "usingSubstances": "Uzywanie alkoholu lub lekow"
+      }
+    },
+    "summary": {
+      "title": "Twoja hierarchia ekspozycji",
+      "fearTarget": "Cel ekspozycji",
+      "ultimateGoal": "Ostateczny cel",
+      "fearLadder": "Drabina lęku ({count} krokow)",
+      "safetyBehaviors": "Zachowania bezpieczenstwa do obserwacji",
+      "notesTitle": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek dodatkowe myśli lub przypomnienia...",
+      "saveHierarchy": "Zapisz hierarchie"
+    },
+    "errors": {
+      "suggestFailed": "Nie udało się uzyskać sugestii"
+    }
+  },
+  "threePathways": {
+    "steps": {
+      "intro": "Wstęp",
+      "creative": "Tworcze",
+      "experiential": "Doswiadczeniowe",
+      "attitudinal": "Postawy",
+      "synthesis": "Synteza",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Trzy ścieżki do sensu",
+      "description": "Viktor Frankl zidentyfikowal trzy sposoby odkrywania sensu w życiu. To ćwiczenie pomaga ci zbadać każdą ścieżke i znaleźć twoja unikalna równowage sensu.",
+      "pathwaysTitle": "Trzy ścieżki Frankla",
+      "creativeName": "Wartosci tworcze",
+      "creativeDescription": "Co dajesz światu poprzez prace, tworzenie i czyny.",
+      "experientialName": "Wartosci doświadczeńiowe",
+      "experientialDescription": "Co otrzymujesz od świata poprzez milosc, piekno i prawde.",
+      "attitudinalName": "Wartosci postawy",
+      "attitudinalDescription": "Postawa, która wybierasz wobec nieuniknionego cierpienia.",
+      "quote": "Życie może być sensowne na trzy sposoby: po pierwsze, poprzez to, co dajemy życiu (wartości tworcze); po drugie, przez to, co otrzymujemy od świata (wartości doświadczeńiowe); po trzecie, poprzez postawa, jaka przyjmujemy wobec losu, którego nie możemy już zmienic (wartości postawy).",
+      "emotionLabel": "Jak się teraz czujesz?"
+    },
+    "creative": {
+      "title": "Wartosci tworcze",
+      "description": "Co dajesz światu? Pomyśl o swojej pracy, projektach, umiejętnośćiach, wkładzie i wszystkim, co tworzysz lub budujesz.",
+      "placeholder": "np. Uczenie innych tego, co wiem, budowanie oprogramowania, które pomaga ludziom...",
+      "engagementLabel": "Poziom zaangazowania",
+      "lifeAreaSelect": "Połącz z obszarem życia (opcjonalnie)",
+      "addAnother": "Dodaj kolejna"
+    },
+    "experiential": {
+      "title": "Wartosci doświadczeńiowe",
+      "description": "Co otrzymujesz od świata? Pomyśl o relacjach, naturze, sztuce, mużyće, chwilach piekna, milosci i prawdy.",
+      "placeholder": "np. Poczućie połączenia z moim partnerem, zachody slonca, sluchanie muzyki na zywo...",
+      "engagementLabel": "Poziom zaangazowania",
+      "lifeAreaSelect": "Połącz z obszarem życia (opcjonalnie)",
+      "addAnother": "Dodaj kolejna"
+    },
+    "attitudinal": {
+      "title": "Wartosci postawy",
+      "description": "Jak reagujesz na nieuniknione cierpienie? Pomyśl o czasach, kiedy wybrales swoja postawa wobec okoliczności poza twoja kontrola.",
+      "placeholder": "np. Wybor wdzieczności pomimo przewleklej choroby, znalezienie celu w opiece nad bliska osoba...",
+      "engagementLabel": "Poziom zaangazowania",
+      "lifeAreaSelect": "Połącz z obszarem życia (opcjonalnie)",
+      "addAnother": "Dodaj kolejna"
+    },
+    "synthesis": {
+      "title": "Rownowaga sensu",
+      "summaryText": "Masz {creative} wartości tworcze, {experiential} wartości doświadczeńiowe i {attitudinal} wartości postawy.",
+      "columnCreative": "Tworcze",
+      "columnExperiential": "Doswiadczeniowe",
+      "columnAttitudinal": "Postawy",
+      "analyzeButton": "Przeanalizuj moja równowage sensu",
+      "thinking": "Myślenie..."
+    },
+    "summary": {
+      "title": "Podsumowanie",
+      "creativeHeader": "Wartosci tworcze",
+      "experientialHeader": "Wartosci doświadczeńiowe",
+      "attitudinalHeader": "Wartosci postawy",
+      "aiSynthesisHeader": "Synteza AI",
+      "engagementLabel": "(zaangazowanie: {value}/5)",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje na temat tego ćwiczenia..."
+    },
+    "errors": {
+      "analyzeFailed": "Nie udalo się przeanalizowac równowagi sensu"
+    }
+  },
+  "socraticDialogue": {
+    "steps": {
+      "intro": "Wstęp",
+      "focus": "Skupienie",
+      "context": "Kontekst",
+      "dialogue": "Dialog",
+      "insights": "Spostrzezenia"
+    },
+    "intro": {
+      "title": "Sokratejski dialog z soba",
+      "description": "Odpowiedzi są już w tobie. To ćwiczenie wykorzystuje metode sokratejska, aby pomoc ci je odkryc - prowadzona rozmowa, która łagodnie kwestionuje zalozenia i oswietla to, co najwazniejsze.",
+      "quote": "To, co ma dawac światlo, musi znosic plomienie.",
+      "emotionLabel": "Jak się teraz czujesz?"
+    },
+    "focus": {
+      "title": "Co chcialbys zbadać?",
+      "modes": {
+        "meaning": {
+          "label": "Sens",
+          "description": "Co nadaje mojemu życiu sens?"
+        },
+        "emptiness": {
+          "label": "Pustka",
+          "description": "Czuje się uwiazany lub pusty"
+        },
+        "suffering": {
+          "label": "Cierpienie",
+          "description": "Przechodzze przez cos trudnego"
+        },
+        "values": {
+          "label": "Wartosci",
+          "description": "Chce zrozumiec moje wartości"
+        },
+        "decision": {
+          "label": "Decyzja",
+          "description": "Muszę podjąć trudna decyzje"
+        },
+        "other": {
+          "label": "Cos innego...",
+          "description": "Mój własny temat eksploracji"
+        }
+      },
+      "customPlaceholder": "Opisz, co chcialbys zbadać..."
+    },
+    "context": {
+      "title": "Dodaj kontekst",
+      "description": "Możesz dodac kontekst, aby pomoc w prowadzeniu rozmowy - lub przejsc dalej.",
+      "journalLabel": "Wpis dziennika (opcjonalnie)",
+      "lifeAreaLabel": "Obszar życia (opcjonalnie)",
+      "additionalLabel": "Dodatkowy kontekst (opcjonalnie)",
+      "noneOption": "Brak",
+      "untitled": "Bez tytulu",
+      "additionalPlaceholder": "Cos jeszcze, co chcialbys, aby przewodnik wiedzial...",
+      "skipButton": "Pomin"
+    },
+    "dialogue": {
+      "title": "Dialog",
+      "starting": "Rozpoczynanie dialogu...",
+      "placeholder": "Wpisz swoja odpowiedz...",
+      "thinking": "Myślenie...",
+      "sendButton": "Wyślij",
+      "maxReached": "Osiagnieto maksymalna liczbe wymian. Zapiszmy twoje spostrzezenia.",
+      "continueOrFinish": "Możesz kontynuowac lub zakoncżyć rozmowe.",
+      "exchangeProgress": "{current} z {min} minimalnych wymian",
+      "finishButton": "Zakończ rozmowe"
+    },
+    "insights": {
+      "title": "Spostrzezenia",
+      "insightLabel": "Jakie jest najwazniejsze spostrzezenie z tej rozmowy?",
+      "insightPlaceholder": "Kluczowa rzecz, która odkrylem...",
+      "rememberLabel": "Co chcialbys zapamiętać?",
+      "rememberPlaceholder": "Cos, co zaniose że soba...",
+      "journalCheckbox": "Utwórz wpis dziennika z tych spostrzezen",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje na temat tego ćwiczenia..."
+    },
+    "time": {
+      "today": "Dzisiaj",
+      "daysAgo": "{count} dni temu"
+    },
+    "errors": {
+      "startFailed": "Nie udalo się rozpocząć dialogu",
+      "responseFailed": "Nie udalo się otrzymać odpowiedzi"
+    }
+  },
+  "mountainRange": {
+    "steps": {
+      "intro": "Wstęp",
+      "peaks": "Szczyty",
+      "valleys": "Doliny",
+      "timeline": "Os czasu",
+      "themes": "Tematy",
+      "future": "Przyszłość"
+    },
+    "intro": {
+      "title": "Pasmo gorskie sensu",
+      "description": "Twoje życie jest krajobrazem szczytow i dolin. Każdy szczyt reprezentuje chwile głębokiego sensu; każdą dolina - czas walki, który cie uformowaly. Razem twórza twoje unikalne pasmo gorskie.",
+      "mapTitle": "Co namalujesz",
+      "peaksName": "Szczyty",
+      "peaksDescription": "Chwile, kiedy czules się najbardziej zywym, spełniony lub pewny, że życie ma sens.",
+      "valleysName": "Doliny",
+      "valleysDescription": "Chwile największej walki, straty lub trudności - i czego cie nauczyly.",
+      "emotionLabel": "Jak się teraz czujesz?"
+    },
+    "peaks": {
+      "title": "Twoje szczyty",
+      "description": "Pomyśl o 3-7 chwilach, kiedy czules się najbardziej zywym, najbardziej spełniony lub najbardziej pewny, że życie ma sens.",
+      "eventPlaceholder": "Co się wydarzyło?",
+      "ageLabel": "Ile miałeś lat?",
+      "meaningPlaceholder": "Co sprawialo, że to było sensowne?",
+      "emotionLabel": "Emocje (opcjonalnie)",
+      "addAnother": "Dodaj kolejny szczyt"
+    },
+    "valleys": {
+      "title": "Twoje doliny",
+      "description": "Teraz pomysł o 2-5 chwilach największej walki, straty lub trudności.",
+      "takeYourTime": "Nie spiesz się z tym. Nie ma puchu.",
+      "eventPlaceholder": "Co się wydarzyło?",
+      "ageLabel": "Ile miałeś lat?",
+      "growthPlaceholder": "Czego się nauczyles lub jak wzrosles?",
+      "addAnother": "Dodaj kolejna doline"
+    },
+    "timeline": {
+      "title": "Twoje pasmo gorskie",
+      "description": "Oto krajobraz twojego życia. Kliknij dowolny punkt, aby zobacżyć szczegoly."
+    },
+    "themes": {
+      "title": "Odkryj swoje tematy",
+      "peaksCommonLabel": "Co łączy twoje szczyty?",
+      "valleysCommonLabel": "Co łączy twoje doliny?",
+      "connectionLabel": "Jak twoje doliny doprowadzialy do przyszlych szczytow?",
+      "peaksPlaceholder": "Powtarzajace się tematy, uczućia lub okoliczności...",
+      "valleysPlaceholder": "Wzorce w twoich najtrudniejszych czasach...",
+      "connectionPlaceholder": "Połączenia miedzy walka a wzrostem...",
+      "analyzeButton": "Pomoz mi zobacżyć tematy",
+      "thinking": "Myślenie..."
+    },
+    "future": {
+      "title": "Przyszle szczyty",
+      "description": "Na podstawie tematow twojego życia, jakie przyszle szczyty chcialbys stwórżyć?",
+      "peakPlaceholder": "Przyszly szczyt, który chcesz stwórżyć...",
+      "lifeAreaSelect": "Połącz z obszarem życia (opcjonalnie)",
+      "addAnother": "Dodaj kolejny",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje na temat tego ćwiczenia..."
+    },
+    "errors": {
+      "themesFailed": "Nie udało się zsyntetyzować tematów"
+    },
+    "timelineLabels": {
+      "peaks": "Szczyty",
+      "valleys": "Doliny",
+      "peak": "Szczyt",
+      "valley": "Dolina",
+      "age": "Wiek {age}"
+    }
+  },
+  "paradoxicalIntention": {
+    "steps": {
+      "intro": "Wstęp",
+      "fears": "Leki",
+      "craft": "Tworzenie",
+      "practice": "Praktyka",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Laboratorium paradoksalnej intencji",
+      "description": "Technika paradoksalnej intencji Viktóra Frankla przerywa lęku antycypacyjny poprzez celowe żyćzenie sobie tego, czego się boisz - z humorem. Przesadzajac lęk do absurdu, tworzysz psychologiczny dystans od niego.",
+      "examplesTitle": "Klasyczne przyklady",
+      "example1": "Mezczyzna, który bal się pocic, zostal poproszony, aby pokazac wszystkim, jak bardzo potrafi się pocic: \"Wcześniej pocilam się tylko o litr, ale teraz będę się pocil przynajmniej dziesiec litrow!\"",
+      "example2": "Ksiegowy, który bal się popełnic błędy, zostal poproszony, aby celowo popełnil jak najwiecej błędów. Jego lęku znikl, a razem z nim jego błędy.",
+      "keyInsight": "Kluczowe spostrzezenie: Humor tworzy dystans. Kiedy smiejesz się z lęku, on traci swój uchwyt.",
+      "boundaryTitle": "Wazne granice",
+      "boundaryText": "To ćwiczenie jest zaprojektowane dla codziennych lekow i lekow antycypacyjnych. Nie nadaje się do głębokich traum, ciezkich fobii lub sytuacji zwiazanych z rzeczywistym niebezpieczenstwem. Jesli twoje lęki są zwiazane z trauma, prosze pracuj z profesjonalista.",
+      "emotionLabel": "Jak się teraz czujesz?"
+    },
+    "fears": {
+      "title": "Zidentyfikuj swoje lęki",
+      "description": "Jakie lęki podążaja za tym wzorcem: im wiecej się martwisz, tym gorzej się staje?",
+      "fearLabel": "Lek {n}",
+      "whatLabel": "Czego się boisz?",
+      "whatPlaceholder": "np. Zrobienia z siebie durnia przed innymi...",
+      "whatHappensLabel": "Czego konkretnie się boisz, że się wydarzy?",
+      "whatHappensPlaceholder": "np. Zacznede jajkac się i wszyscy beda się gapic...",
+      "addAnother": "Dodaj kolejny lęk"
+    },
+    "craft": {
+      "title": "Stwory paradoksalne intencje",
+      "counter": "{current} z {total}",
+      "fearHeader": "Lek",
+      "youFear": "Boisz sie: \"{fear}\"",
+      "description": "Teraz wyobraz sobie, że chcesz, żeby to się stalo. Zyczysz sobie tego z humorem! Im bardziej absurdalne, tym lepiej.",
+      "placeholder": "np. Bede drzec tak gwałtownie, że zarejestuje się na skali Richtera!",
+      "funnier": "Zrob to smiesniejsze!",
+      "thinking": "Myślenie...",
+      "suggestionHeader": "Sugestia AI",
+      "previousFear": "Poprzedni lęk",
+      "nextFear": "Następny lęk"
+    },
+    "practice": {
+      "title": "Skrypty praktyki",
+      "description": "Utwórz skrypt praktyki dla każdego lęku. Kiedy lęk uderza, co powiesz sobie?",
+      "scriptLabel": "Skrypt praktyki",
+      "scriptPlaceholder": "Kiedy poczuje [lęk], powiem sobie: \"Swietnie! Teraz mam szanse na [paradoksalna intencja]! Pozwol mi naprawde...\"",
+      "emotionLabel": "Jak się teraz czujesz? Czy humor pomógł?"
+    },
+    "summary": {
+      "title": "Podsumowanie",
+      "fearHeader": "Lek",
+      "intentionHeader": "Paradoksalna intencja",
+      "scriptHeader": "Skrypt praktyki",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje na temat tego ćwiczenia..."
+    },
+    "errors": {
+      "suggestionFailed": "Nie udalo się uzyskac sugestii"
+    }
+  },
+  "dereflection": {
+    "steps": {
+      "intro": "Wstęp",
+      "fixation": "Fiksacja",
+      "redirections": "Przekierowania",
+      "commit": "Zobowiazanie",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Praktyka derefleksji",
+      "description": "Kiedy fiksujemy się na problemie, on rosnie. Derefleksja to technika Viktóra Frankla na przekierowanie uwagi z siebie na cos sensownego w swiecie.",
+      "quote": "Bycie czlowiekiem zawsze wskazuje i jest skierowane na cos lub kogos innego niz siebie.",
+      "emotionLabel": "Jak się teraz czujesz?"
+    },
+    "fixation": {
+      "title": "Twoja fiksacja",
+      "whatLabel": "Jaki problem, objaw lub troska pochlanaia twoja uwage?",
+      "whatPlaceholder": "Opisz, o czym ciazgle myślisz...",
+      "energyLabel": "Ile energii mentalnej to pochlanaia codziennie?",
+      "energyMin": "Ledwo zauwalzalne",
+      "energyMax": "Ciazgle w moich myślach",
+      "impactLabel": "Jak to wpływaia na twoje codzienne życie?",
+      "impactPlaceholder": "Opisz wpływ na twoje codzienne aktywności, relacje, nastroj..."
+    },
+    "redirections": {
+      "title": "Sensowne przekierowania",
+      "description": "Jakie aktywności, ludzie lub sprawy mógłbyś przekierowac swoja uwage?",
+      "suggestionsTitle": "Sugestie oparte na twoim profilu",
+      "suggestionsSubtext": "Te obszary życia ida dobrze i mógłyby cie zywie:",
+      "purposeText": "Twoj cel:",
+      "activityPlaceholder": "np. Wolontariat w ogrodzie spolecznościowym, dzwonienie do mojej siostry...",
+      "lifeAreaSelect": "Połącz z obszarem życia (opcjonalnie)",
+      "addAnother": "Dodaj kolejne"
+    },
+    "commit": {
+      "title": "Wybierz swoje zobowiązania",
+      "description": "Wybierz 1-2 aktywności, do których się zobowiazesz w tym tygodniu.",
+      "whenLabel": "Kiedy to zrobisz?",
+      "whenPlaceholder": "np. Wtorek i czwartek wieczorem po kolacji",
+      "pullbackLabel": "Co zrobisz, kiedy fiksacja cie z powrotem prżyciągnea?",
+      "pullbackPlaceholder": "np. Zauwaaze myśl, wezme oddech i przekieruje do..."
+    },
+    "summary": {
+      "title": "Podsumowanie",
+      "fixationHeader": "Fiksacja",
+      "redirectionsHeader": "Przekierowania",
+      "commitmentsHeader": "Zobowiazania na ten tydzien",
+      "intensityLabel": "Intensywnosc: {value}/5 - Wplyw: {impact}",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje na temat tego ćwiczenia..."
+    }
+  },
+  "tragicOptimism": {
+    "steps": {
+      "intro": "Wstęp",
+      "focus": "Skupienie",
+      "write": "Pisanie",
+      "guided": "Prowadzona refleksja",
+      "dialogue": "Dialog",
+      "insights": "Spostrzezenia"
+    },
+    "intro": {
+      "title": "Tragiczny optymizm",
+      "description": "Życie obejmuje cierpienie, wine i świadomość, że nasz czas jest ograniczony. Tragiczny optymizm to zdolność powiedzenia \"tak\" życiu pomimo wszystko - znalezienia sensu nie pomimo tych rzeczywistośći, ale poprzez uczciwe zaangazowanie się w nie.",
+      "quote": "W pewien sposób cierpienie przestaje być cierpieniem w chwili, gdy znajduje sens, taki jak sens ofiary.",
+      "warningTitle": "Zalecane wsparcie profesjonalne",
+      "warningText": "To ćwiczenie bada głębokie osobiste tematy. Jesli pracujesz nad znaczna trauma, zalem lub egzystencjalnym niepokkiem, rozwaez wykonanie tego z terapeuta lub doradca, który może zapewnic profesjonalne wsparcie.",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "startButton": "Rozumiem, zacznijmy"
+    },
+    "focus": {
+      "title": "Który aspekt tragicznej triady chcialbys zbadać?",
+      "modes": {
+        "suffering": {
+          "label": "Cierpienie",
+          "description": "Cos, przez co przechodze lub przez co przeszedlem"
+        },
+        "guilt": {
+          "label": "Wina",
+          "description": "Cos, za co czuje się odpowiedzialny lub żaluje"
+        },
+        "finitude": {
+          "label": "Skoncznosc",
+          "description": "Moja świadomość ograniczonego czasu i co to oznacza dla tego, jak yje"
+        }
+      }
+    },
+    "write": {
+      "title": "Pisz swobodnie",
+      "description": "Pisz swobodnie o swoim doświadczeńiu. Nie ma wlasciwego sposóbu, aby to zrobić - po prostu pozwol swoim myślom plynac.",
+      "placeholder": "Pisz tutaj..."
+    },
+    "guided": {
+      "title": "Prowadzona refleksja",
+      "placeholder": "Nie spiesz się...",
+      "suffering": {
+        "q1": "Jakie cierpienie nosisz? Opisz to tak szczerze, jak potrafisz.",
+        "q2": "Czy to cierpienie cie zmienylo? Jesli tak, to jak?",
+        "q3": "Gdyby to cierpienie mógło mówić, co by mowilo, że próbuje cie nauczyć?"
+      },
+      "guilt": {
+        "q1": "O co czujesz się winny? Badz konkretny i szczery że soba.",
+        "q2": "Co ta wina mowi ci o twoich wartościach? Co ma dla ciebie tak duże znaczenie, że jej naruszenie powoduje bol?",
+        "q3": "Gdybys mógł częściowo naprawic lub naucżyć się z tego, jak by to wyglądalo?"
+      },
+      "finitude": {
+        "q1": "Kiedy myślisz o tym, że twój czas jest ograniczony, jakie uczućia się pojawiaja?",
+        "q2": "Jak świadomość skończności zmienia to, co ma dla ciebie znaczenie?",
+        "q3": "Gdybys w pełni zaakceptowal, że twój czas jest ograniczony, co robilbys inaczej od dzis?"
+      }
+    },
+    "dialogue": {
+      "title": "Dialog",
+      "reminder": "Pamietaj, że praca z profesjonalista może pogłębie ta eksploracje.",
+      "starting": "Rozpoczynanie dialogu...",
+      "placeholder": "Wpisz swoja odpowiedz...",
+      "thinking": "Myślenie...",
+      "sendButton": "Wyślij",
+      "completed": "Ukoncyles dialog. Zapiszmy twoje spostrzezenia.",
+      "exchangeCount": "{count} wymiana(y)",
+      "finishButton": "Zakończ rozmowe"
+    },
+    "insights": {
+      "title": "Spostrzezenia",
+      "meaningLabel": "Jaki sens, jesli jakis, znalazles?",
+      "meaningPlaceholder": "Nawet częściowy sens się liczy...",
+      "carryLabel": "Co zaniesiesz że soba z tej refleksji?",
+      "carryPlaceholder": "Zobowiazanie, spostrzezenie lub intencja...",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje na temat tego ćwiczenia..."
+    },
+    "errors": {
+      "startFailed": "Nie udalo się rozpocząć dialogu",
+      "responseFailed": "Nie udalo się otrzymać odpowiedzi"
+    }
+  },
+  "attitudinalShift": {
+    "steps": {
+      "intro": "Wstęp",
+      "statements": "Stwierdzenia",
+      "shift": "Zmiana",
+      "review": "Przeglad",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Zmiana postawy",
+      "quote": "Miedzy bodcem a reakcja jest przestrzeń. W tej przestrzeni jest nasza moc wyboru odpowiedzi. W naszej odpowiedzi lezy nasz wzrost i nasza wolność.",
+      "description": "To ćwiczenie pomaga ci przekształćic historie, które sobie opowiadasz o nieuniknionych okolicznościach. Zidentyfikujesz stwierdzenia \"poniewaz\" - narracje, które cie blokuja - i znajdziesz swój punkt wyboru.",
+      "exampleTitle": "Przyklad",
+      "exampleBefore": "Poniewaz stracilem prace, jestem nieudacznikiem.",
+      "exampleAfter": "Chociaz stracilem prace, wybieram postrzeganie tego jako okazji do znalezienia pracy zgodnej z moimi wartościami.",
+      "exampleBeforeLabel": "Przed:",
+      "exampleAfterLabel": "Po:",
+      "exampleNote": "Okoliczności się nie zmieniaja. Twoj związek z nimi się zmienia.",
+      "emotionLabel": "Jak się teraz czujesz?"
+    },
+    "statements": {
+      "title": "Twoje stwierdzenia \"poniewaz\"",
+      "description": "Jakie historie sobie opowiadasz, które zaczynaja się od \"poniewaz\"? To są narracje, w których czujesz się uwieziony przez okoliczności.",
+      "shadowTitle": "Twoje ukryte przekonania moga pomoc ci zidentyfikować wzorce:",
+      "placeholder": "np. \"Poniewaz dorastalem w ubostwie, nigdy nie poczuje się bezpieczny finansowo...\"",
+      "addAnother": "Dodaj kolejne stwierdzenie"
+    },
+    "shift": {
+      "title": "Znajdz swój punkt wyboru",
+      "counter": "{current} z {total}",
+      "acknowledgment": "Napisales:",
+      "helpButton": "Pomoz mi znaleźć mój punkt wyboru",
+      "thinking": "Myślenie...",
+      "reframeLabel": "Twoje przekształćenie",
+      "formatHint": "Chociaz [co się stalo], wybieram [twoja wybrana odpowiedz]",
+      "reframePlaceholder": "Chociaz..., wybieram...",
+      "previousButton": "Poprzedni",
+      "nextStatement": "Nastepne stwierdzenie"
+    },
+    "review": {
+      "title": "Twoje zmiany",
+      "beforeHeader": "Przed",
+      "afterHeader": "Po",
+      "surprisedLabel": "Które przekształćenie najbardziej cie zaskoczylo?",
+      "trueSelfLabel": "Które najbardziej wydaje się prawdziwe dla tego, kim chcesz być?",
+      "answerPlaceholder": "Twoja odpowiedz..."
+    },
+    "summary": {
+      "title": "Podsumowanie",
+      "surprisedLabel": "Zaskoczony:",
+      "trueSelfLabel": "Najbardziej prawdziwe:",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje na temat tego ćwiczenia...",
+      "commitmentCheckbox": "Utwórz zobowiązanie do praktykowania przekształćenia w tym tygodniu"
+    },
+    "shadowTemplate": "Poniewaz {belief}, nie moge ",
+    "errors": {
+      "reframeFailed": "Nie udalo się wygenerowac wskazowek do przekształćenia"
+    }
+  },
+  "legacyLetter": {
+    "steps": {
+      "intro": "Wstęp",
+      "warmup": "Rozgrzewka",
+      "write": "Pisanie",
+      "reflect": "Refleksja",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "List spadkowy",
+      "description": "Viktor Frankl wierzyl, że świadomość naszego skończnego czasu może być naszym największym motywatorem. To ćwiczenie zaprasza cie do napisania listu z perspektywy przezywajacego pełne, sensowne życie.",
+      "secondaryDescription": "Co chcialbys powiedzieć? Co chcialbys, żeby inni wiedzieli? To nie chodzi o doskonalosc - chodzi o połączenie się z tym, co naprawde ma dla ciebie znaczenie.",
+      "quote": "Zyj tak, jakbys już zyl po raz drugi i jakbys postepowal za pierwszym razem tak ble, jak zamierzasz postapic teraz.",
+      "emotionLabel": "Jak się teraz czujesz?"
+    },
+    "warmup": {
+      "title": "Rozgrzewka",
+      "description": "Przed pisaniem zastanow się nad kilkoma z tych wskazowek. Wybierz 2-3, które do ciebie przemawiaja.",
+      "prompts": {
+        "p1": "Co chcesz, żeby twoje dzieci, rodzina lub spoleczność wiedzieli o tym, co mialo dla ciebie znaczenie?",
+        "p2": "Jaki wpływ chcesz miec na świat?",
+        "p3": "Jaka madriosc zdobyles poprzez doświadczeńie, która chcesz przekazac?",
+        "p4": "Co sprawilo, że poczujesz, że twój czas byl dobrze spedzony?",
+        "p5": "Za co chcesz być zapamietany?"
+      },
+      "responsePlaceholder": "Napisz krotka odpowiedz..."
+    },
+    "write": {
+      "title": "Twoj list",
+      "hint": "Rozwaaz uwzglednienie: czego utwórzyles i wniosles, relacji, które cie ksztaltowaly, cierpienia, które przezwyciezylas i czego cie nauczylo, wartości, którymi zyles.",
+      "placeholder": "Droga [przyszłość / rodzina / świat]...",
+      "valuesTitle": "Twoje podstawowe wartości",
+      "purposeTitle": "Twoj cel"
+    },
+    "reflect": {
+      "title": "Refleksja",
+      "description": "Czy chcialbys przedyskutowac swój list, czy przejsc dalej?",
+      "doneButton": "Skonczylem",
+      "discussButton": "Przedyskutuj mój list",
+      "placeholder": "Wpisz swoja odpowiedz...",
+      "thinking": "Myślenie...",
+      "sendButton": "Wyślij",
+      "exchangeCount": "{count} wymiana(y)",
+      "finishButton": "Zakończ dyskusje",
+      "truthLabel": "Co wydawalo się najbardziej prawdziwe w tym, co napisales?",
+      "truthPlaceholder": "Nie spiesz się..."
+    },
+    "summary": {
+      "title": "Twoj list spadkowy",
+      "warmupHeader": "Refleksje rozgrzewkowe",
+      "reflectionHeader": "Refleksja",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje na temat tego ćwiczenia..."
+    },
+    "errors": {
+      "startFailed": "Nie udalo się rozpocząć dyskusji",
+      "responseFailed": "Nie udalo się otrzymać odpowiedzi"
+    }
+  },
+  "shared": {
+    "ifs": {
+      "partRoles": {
+        "manager": "Menedzer",
+        "firefighter": "Strazak",
+        "exile": "Wygnanie",
+        "unknown": "Nieznane"
+      },
+      "safetyBanner": {
+        "heading": "Zalecane wsparcie profesjonalne",
+        "warningText": "To ćwiczenie bada głęboki material emocjonalny. Chociaz samopoznanie jest cenne, praca z terapeutą przeszkolonym w IFS może zapewnic bezpieczenstwo i glebsze uzdrowienie — zwlaszcza gdy pojawiaja się silne emocje lub wczesne wspomnienia.",
+        "checkboxLabel": "Rozumiem, że to samopoznanie, a nie terapia"
+      },
+      "partSelector": {
+        "addPart": "Dodaj część",
+        "placeholder": "Nazwa części (np. Martwiciel)",
+        "roleOptions": {
+          "manager": "Menedzer",
+          "firefighter": "Strazak",
+          "exile": "Wygnanie",
+          "notSure": "Nie jestem pewien"
+        }
+      },
+      "dialogueBubble": {
+        "self": "Ja",
+        "partFallback": "Część"
+      },
+      "selfEnergyWheel": {
+        "qualities": {
+          "calm": "Spokoj",
+          "curiosity": "Ciekawosc",
+          "compassion": "Wspólczućie",
+          "clarity": "Jasnosc",
+          "courage": "Odwaga",
+          "creativity": "Kreatywnosc",
+          "confidence": "Pewność siebie",
+          "connection": "Połączenie"
+        },
+        "center": "Ja"
+      },
+      "insightCard": {
+        "tagLabels": {
+          "coreFear": "Główny strach",
+          "need": "Potrzeba",
+          "positiveIntention": "Pozytywna intencja",
+          "memory": "Wspomnienie",
+          "belief": "Przekonanie",
+          "other": "Inne"
+        }
+      },
+      "bodyLocationPicker": {
+        "ariaLabel": "Wybor lokalizacji w ciele"
+      },
+      "tsibp": {
+        "labels": ["M", "O", "O", "Z", "P"]
+      }
+    }
+  },
+  "partsMapping": {
+    "steps": {
+      "intro": "Wstęp",
+      "trailhead": "Punkt wyjscia",
+      "identifyPart": "Identyfikacja części",
+      "addMore": "Dodaj wiecej",
+      "visualMap": "Mapa wizualna",
+      "reflection": "Refleksja",
+      "lifeAreas": "Obszary życia",
+      "summary": "Podsumowanie"
+    },
+    "intro": {
+      "title": "Mapowanie części",
+      "description": "W IFS wszyscy mamy różne \"części\" - wewnętrzne głosy, uczućia lub impulsy, które każdą ma swoja role w naszym życiu. To ćwiczenie pomaga je zmapowac.",
+      "managers": {
+        "title": "Menadzerowie",
+        "description": "Strategiczne części, które próbuja cie chronić kontrolujac twoje życie (np. Perfekcjonista, Planista)"
+      },
+      "firefighters": {
+        "title": "Strazacy",
+        "description": "Reaktywne części, które gasza ból, gdy się przełami (np. Podjadacz, Bingowacc Netflixa)"
+      },
+      "exiles": {
+        "title": "Wygnancy",
+        "description": "Wrazliwe części, które nosza stary ból, często ukryte przez protektorow (np. Male Ja, Samotne Dziecko)"
+      },
+      "quote": "Każda część ma pozytywną intencje, nawet te, które sprawiaja nam problemy.",
+      "quoteAuthor": "Richard Schwartz",
+      "emotionLabel": "Jak się teraz czujesz? (opcjonalnie)",
+      "startButton": "Rozpocznij mapowanie"
+    },
+    "trailhead": {
+      "title": "Zacznij od punktu wyjscia",
+      "description": "Pomyśl o niedawnym momencie, gdy poczułeś się emocjonalnie aktywowany - bardziej reaktywny niz wydawalo się to uzasadnione w sytuacji.",
+      "situationLabel": "Co cie wywolalo?",
+      "situationPlaceholder": "Opisz, co się stalo...",
+      "emotionsLabel": "Jakie emocje się pojawily?",
+      "bodyLocationLabel": "Gdzie poczułeś to w swoim ciele?",
+      "thoughtsLabel": "Jakie myśli lub wewnętrzny głos się pojawil?",
+      "thoughtsPlaceholder": "np. 'Nie jestes wystarczajaco dobry', 'Cos zlego się wydarzy'"
+    },
+    "identifyPart": {
+      "title": "Nazwij te część",
+      "editTitle": "Edytuj część",
+      "description": "Na podstawie tego, co własnie opisales, zidentyfikujmy część, która się pojawila.",
+      "nameLabel": "Jak nazwalbys te część?",
+      "namePlaceholder": "np. Martwiacy się, Kontroler, Male Ja",
+      "roleLabel": "Jaka role odgrywa?",
+      "protectionLabel": "Przed czym cie chroni?",
+      "protectionPlaceholder": "np. Przed odrzućeniem, porazka, poczuciem bezradności",
+      "fearLabel": "Czego się boi, że się stanie, jesli przestanie?",
+      "fearPlaceholder": "np. Wszystko się rozpadnie, będę przytloczony",
+      "protectsFrom": "Chroni przed: {text}",
+      "fears": "Leki: {text}"
+    },
+    "addMore": {
+      "title": "Twoje części jak dotad",
+      "addButton": "Dodaj kolejna część",
+      "continueButton": "Kontynuuj do mapy"
+    },
+    "visualMap": {
+      "title": "Twoja mapa części",
+      "self": "Ja",
+      "instructions": {
+        "tapTwo": "Stuknij dwie części, aby narysować połączenie",
+        "tapSecond": "Teraz stuknij druga część",
+        "chooseType": "Wybierz typ relacji:"
+      },
+      "relationships": {
+        "heading": "Połączenia",
+        "protects": "Chroni",
+        "polarized": "Spolaryzowana",
+        "allied": "Sprzymierzona",
+        "triggers": "Wywoluje",
+        "soothes": "Uspokaja"
+      }
+    },
+    "reflection": {
+      "title": "Co zauważylas?",
+      "description": "Patrzac na swoja mape, co się wyróżnia? Jakies niespodzianki?",
+      "placeholder": "Podziel się swoimi obserwacjami...",
+      "aiButton": "Uzyskaj wglad AI w twoja mape",
+      "aiButtonLoading": "Analizowanie twojej mapy części...",
+      "aiDisclaimer": "Ta refleksja opiera się na wzorcach w tym, co udostępnilas. Twoj wewnętrzny system jest unikalnie twój."
+    },
+    "lifeAreas": {
+      "title": "Połączenia obszarow życia",
+      "description": "Na które obszary życia twoje części maja największy wpływ?",
+      "emptyState": "Nie zdefiniowano jeszcze żadnych obszarow życia. Możesz je dodac później w sekcji Obszary życia."
+    },
+    "summary": {
+      "title": "Twoja mapa części",
+      "partCount": "Zidentyfikowano {count} część(i)",
+      "bodyPrefix": "Ciało:",
+      "sections": {
+        "parts": "Części",
+        "relationships": "Relacje",
+        "reflection": "Refleksja",
+        "aiInsights": "Wglady AI"
+      },
+      "emotionLabel": "Jak się teraz czujesz? (opcjonalnie)",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek dodatkowe notatki...",
+      "saveButton": "Zapisz mape",
+      "saving": "Zapisywanie..."
+    }
+  },
+  "unblending": {
+    "steps": {
+      "checkIn": "Sprawdzenie",
+      "awareness": "Swiadomosc",
+      "magicQuestion": "Magiczne pytanie",
+      "secondaryCheck": "Sprawdzenie wtorne",
+      "steppingBack": "Odsuniecie",
+      "closing": "Zakończenie",
+      "postCheck": "Sprawdzenie po"
+    },
+    "checkIn": {
+      "title": "Praktyka rozdzielania",
+      "subtitle": "Tworzenie przestrzeni miedzy toba a twoimi częściąmi - 2-3 minuty",
+      "description": "Gdy jestesmy \"zmieszani\" z częścią, <em>jestesmy</em> lękien, złościa, perfekcjonizmem. Rozdzielenie oznacza cofnięcie się na miejsce spokojnego obserwatora - twojego Ja.",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "beginButton": "Rozpocznij"
+    },
+    "awareness": {
+      "title": "Zauważ, co tu jest",
+      "description": "Czy jest jakies silne uczućie lub reakcja, która teraz rzadzi? Cos, co wydaje się być toba, a nie czyms, czego doswiadczasz?",
+      "options": {
+        "yes": "Tak - cos jest teraz naprawde aktywne",
+        "maybe": "Byc może - nie jestem pewien",
+        "no": "Nie - czuje się calkiem spokojnie"
+      },
+      "noResponse": "To świetnie. Poćwiczmy i tak zauważanie - to przydatna umiejętność na czas, gdy części się aktywuja.",
+      "partLabel": "Czy to wydaje się być częścią, która znasz? (opcjonalnie)"
+    },
+    "magicQuestion": {
+      "title": "Magiczne pytanie",
+      "question": "Jak się CZUJESZ WOBEC tego uczućia lub części?",
+      "description": "Jesli czujesz się ciekawy, współczujacy lub spokojny wobec tego - to twoje Ja. Jesli czujesz się zirytowany, przestraszony lub krytyczny - to kolejna część reaguje na pierwsza.",
+      "options": {
+        "selfEnergy": "Czuje się ciekawy, otwarty lub współczujacy",
+        "reactive": "Czuje się sfrustrowany, przestraszony lub oceniający"
+      }
+    },
+    "secondaryCheck": {
+      "title": "Przyjechala kolejna część",
+      "description": "Ta frustracja, lęk lub osąd to kolejna część. Czy możesz poprosić ja, aby cofnęła się tylko troche, abyś mógł być ciekawy pierwszej części?",
+      "breathingPrompt": "Stuknij, aby rozpocząć ćwiczenie oddechowe",
+      "breathingLabel": {
+        "ready": "Gotowy",
+        "breatheIn": "Wdech...",
+        "hold": "Wstrzymaj...",
+        "breatheOut": "Wydech...",
+        "complete": "Zakończono"
+      },
+      "breathingInstructions": "Po prostu oddychaj...",
+      "breathingButton": "Rozpocznij oddychanie",
+      "afterQuestion": "Jak się teraz czujesz wobec oryginalnej części?",
+      "options": {
+        "better": "Czuje się teraz bardziej ciekawy lub współczujacy",
+        "stillReactive": "Nadal czuje się reaktywnie - to w porządku"
+      },
+      "partLabel": "Jak nazwalbys te druga część? (opcjonalnie)"
+    },
+    "steppingBack": {
+      "title": "Popros część o cofnięcie się",
+      "description": "Teraz, delikatnie popros część, czy chce się cofnąć tylko troche. Nie odejsc - tylko dac ci troche przestrzeni do oddychania.",
+      "timerPrompt": "Poświęć sobie czas...",
+      "timerDone": "Czas minal",
+      "timerTap": "Stuknij, aby rozpocząć",
+      "beginButton": "Rozpocznij",
+      "shiftLabel": "Co się stalo? Czy cos się zmienilo?",
+      "shiftPlaceholder": "Opisz kazdą zmiane, która zauważyłeś..."
+    },
+    "closing": {
+      "title": "Ile przestrzeni czujesz?",
+      "sliderLabel": "Przestrzen utwórzona",
+      "minLabel": "Nadal zmieszany",
+      "maxLabel": "Duzo przestrzeni"
+    },
+    "postCheck": {
+      "title": "Praktyka zakończona",
+      "emotionLabel": "Jak się teraz czujesz?",
+      "comparisonLabels": {
+        "before": "Przed",
+        "after": "Po"
+      },
+      "spaceLabel": "Przestrzen utwórzona",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek dodatkowe notatki...",
+      "saveButton": "Zapisz praktyke",
+      "saving": "Zapisywanie..."
+    }
+  },
+  "directAccess": {
+    "steps": {
+      "partSelect": "Wybierz część",
+      "selfCheck": "Sprawdzenie Ja",
+      "dialogue": "Dialog",
+      "summary": "Podsumowanie",
+      "save": "Zapisz"
+    },
+    "partSelect": {
+      "title": "Dialog bezpośredniego dostępu",
+      "description": "Przeprowadz rozmowe bezpośrednio z jedna ze swoich części. AI odpowie, jak odpowiedziałaby część, na podstawie tego, co o niej wiesz.",
+      "emptyState": "Musisz najpierw utworżyć części. Przejdź do <span class=\"font-medium text-primary\">Mapowania części</span>, aby zidentyfikować i nazwac swoje części.",
+      "label": "Z która częścią chcialbys porozmawiac?"
+    },
+    "selfCheck": {
+      "title": "Sprawdzenie energii Ja",
+      "description": "Przed rozpoczęciem dialogu ważne jest sprawdzenie, czy pochodzisz z miejsca ciekawości i otwartości - twojego Ja - a nie z innej części.",
+      "question": "Jak się czujesz wobec {partName}?",
+      "options": {
+        "selfEnergy": "Czuje się ciekawy, otwarty lub współczujacy",
+        "notQuite": "Nie do konca - cos innego reaguje"
+      },
+      "breathingPrompt": "Poświęć chwile na oddychanie",
+      "breathingInstructions": "Po prostu oddychaj...",
+      "breathingButton": "Rozpocznij oddychanie",
+      "breathingDone": "Jak się teraz czujesz?",
+      "continueButton": "Czuje się teraz bardziej otwarty - kontynuujmy",
+      "breathing": {
+        "ready": "Gotowe",
+        "complete": "Zakończono",
+        "breatheIn": "Wdech...",
+        "hold": "Zatrzymaj...",
+        "breatheOut": "Wydech..."
+      }
+    },
+    "dialogue": {
+      "title": "Dialog z {partName}",
+      "emptyState": "Rozpocznij rozmowe. Zadaj swojej części pytanie.",
+      "suggestedQuestions": [
+        "Jaka jest twoja praca?",
+        "Co chronisz?",
+        "Co by się stalo, gdybys przestala?",
+        "Czego potrzebujesz ode mnie?",
+        "Ile masz lat?"
+      ],
+      "placeholder": "Mów ze swojego Ja...",
+      "sendButton": "Wyślij",
+      "insightForm": {
+        "title": "Uchwyt wglad",
+        "placeholder": "Co zauważyłeś lub nauczyles się?",
+        "saveButton": "Zapisz wglad"
+      },
+      "savedInsights": "Zapisane wglady",
+      "endButton": "Zakończ dialog",
+      "insightTags": {
+        "coreFear": "Główny lęk",
+        "need": "Potrzeba",
+        "positiveIntention": "Pozytywna intencja",
+        "memory": "Wspomnienie",
+        "belief": "Przekonanie",
+        "other": "Inne"
+      }
+    },
+    "summary": {
+      "title": "Podsumowanie sesji",
+      "messageCount": "Wymieńione wiadomosci",
+      "insightsLabel": "Uchwycone wglady",
+      "summaryLabel": "Podsumowanie sesji (opcjonalnie)",
+      "summaryPlaceholder": "Co się wyróżnialo w tej rozmowie?",
+      "discoveryHeading": "Odkrycia na temat {partName}",
+      "discoveries": {
+        "job": {
+          "label": "Odkryta praca",
+          "placeholder": "Co ta część robi dla ciebie?"
+        },
+        "fear": {
+          "label": "Odkryty lęk",
+          "placeholder": "Czego ta część najbardziej się boi?"
+        },
+        "need": {
+          "label": "Odkryta potrzeba",
+          "placeholder": "Czego ta część od ciebie potrzebuje?"
+        }
+      },
+      "reviewButton": "Przejrzyj i zapisz"
+    },
+    "save": {
+      "title": "Zapisz sesje",
+      "partLabel": "Część:",
+      "stats": {
+        "messages": "Wiadomosci",
+        "insights": "Wglady"
+      },
+      "discoveries": {
+        "heading": "Odkrycia",
+        "job": "Praca:",
+        "fear": "Lęk:",
+        "need": "Potrzeba:"
+      },
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek dodatkowe notatki...",
+      "saveButton": "Zapisz sesje",
+      "saving": "Zapisywanie..."
+    },
+    "errors": {
+      "responseFailed": "Nie udalo się otrzymać odpowiedzi"
+    }
+  },
+  "trailhead": {
+    "steps": {
+      "trigger": "Wyzwalacz",
+      "thoughts": "Myśli",
+      "sensations": "Doznania",
+      "images": "Obrazy",
+      "behaviors": "Zachowania",
+      "perception": "Percepcja",
+      "partLink": "Powiązanie z częścią",
+      "reflection": "Refleksja"
+    },
+    "trigger": {
+      "title": "Dziennik punktu wyjścia",
+      "subtitle": "Użyj emocjonalnych wyzwalaczy jako drzwi do zrozumienia swoich części",
+      "description": "W IFS \"punkt wyjścia\" to każdy moment emocjonalnej aktywacji — czas, gdy twoja reakcja wydawała się większa niż sytuacja uzasadniała. Te momenty są zaproszeniami do odkrycia, które części są w pracy.",
+      "questionLabel": "Co się stało?",
+      "questionPlaceholder": "Pomyśl o momencie w ciągu ostatniego dnia lub dwóch, gdy poczułeś się emocjonalnie aktywowany...",
+      "emotionsLabel": "Jakie emocje się pojawiły?",
+      "intensityLabel": "Jak intensywne to było?",
+      "intensityMin": "Łagodne",
+      "intensityMax": "Przytłaczające",
+      "bodyLocationLabel": "Gdzie poczułeś to w swoim ciele?"
+    },
+    "thoughts": {
+      "title": "Myśli",
+      "description": "Jakie myśli lub wewnętrzne głosy pojawiły się w tym momencie?",
+      "placeholder": "np. 'Polegnę' lub 'Ich to nie obchodzi' lub 'Muszę to naprawić teraz'"
+    },
+    "sensations": {
+      "title": "Doznania",
+      "description": "Jakie fizyczne doznania zauważyłeś?",
+      "placeholder": "np. ucisk w klatce piersiowej, węzeł w żołądku, gorąco w twarzy, napięcie w ramionach"
+    },
+    "images": {
+      "title": "Obrazy",
+      "description": "Czy pojawiły się jakieś obrazy, wspomnienia lub mentalne wizje?",
+      "optionalNote": "(To jest opcjonalne — nie każdy doświadcza mentalnych obrazów)",
+      "placeholder": "np. wspomnienie z dzieciństwa, mentalna wizja najgorszego scenariusza"
+    },
+    "behaviors": {
+      "title": "Zachowania",
+      "description": "Co zrobiłeś (lub chciałeś zrobić) w odpowiedzi?",
+      "placeholder": "np. nakrzyczałem na kogoś, wycofałem się, scrollowałem telefon, pracowałem ciężej, zjadłem coś na pocieszenie"
+    },
+    "perception": {
+      "title": "Ogólne odczucie",
+      "description": "Ogólnie, czy ten moment wydawał się bardziej napięty czy bardziej rozluźniony?",
+      "tensionLabel": "Poziom napięcia",
+      "tensionMin": "Bardzo napięty",
+      "tensionMax": "Bardzo rozluźniony"
+    },
+    "partLink": {
+      "title": "Która to była część?",
+      "description": "Na podstawie tego, co opisałeś, czy to przypomina część, którą już znasz?",
+      "unsureMessage": "Nie jesteś pewien? To w porządku — zawsze możesz powiązać to z częścią później."
+    },
+    "reflection": {
+      "title": "Refleksja",
+      "sections": {
+        "trigger": "Wyzwalacz",
+        "intensity": "Intensywność",
+        "body": "Ciało"
+      },
+      "linkedPart": "Powiązana część:",
+      "reflectionLabel": "Co zauważasz w związku z tym, kiedy ta część się aktywuje?",
+      "reflectionPlaceholder": "Jakiekolwiek wzorce, które zauważasz...",
+      "analyzeButton": "Analizuj wzorce w twoich punktach wyjścia",
+      "analyzingPatterns": "Analizowanie wzorców...",
+      "analysisDisclaimer": "Ta analiza opiera się na wzorcach w twoich wpisach. Twoje wewnętrzne doświadczenie jest wyjątkowo twoje.",
+      "unlockAnalysis": "Zaloguj jeszcze {count} punkt(ów) wyjścia, aby odblokować analizę wzorców",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Dodatkowe notatki...",
+      "saveButton": "Zapisz wpis",
+      "saving": "Zapisywanie..."
+    }
+  },
+  "protectorAppreciation": {
+    "steps": {
+      "selectProtector": "Wybierz",
+      "understandJob": "Zrozum",
+      "appreciationLetter": "List",
+      "response": "Odpowiedź",
+      "commitment": "Zobowiązanie",
+      "checkIn": "Sprawdzenie",
+      "summary": "Zapisz"
+    },
+    "selectProtector": {
+      "title": "Docenienie protektora",
+      "description": "Zbuduj relację z częścią protektora poprzez zrozumienie jej pracy, podziękowanie jej i wysłuchanie jej odpowiedzi.",
+      "emptyState": "Potrzebujesz części protektorów (menedżerów lub strażaków), aby je docenić. Przejdź do <span class=\"font-medium text-primary\">Mapowania części</span>, aby je zidentyfikować.",
+      "label": "Którego protektora chciałbyś docenić?",
+      "defaultName": "Protektor"
+    },
+    "understandJob": {
+      "title": "Zrozumienie pracy {partName}",
+      "triggersLabel": "Przed czym chroni cię ten protektor? Kiedy się aktywuje?",
+      "triggersPlaceholder": "Opisz, co wyzwala tę część i przed czym cię chroni...",
+      "behaviorsLabel": "Jak cię chroni? (zaznacz wszystkie, które mają zastosowanie)",
+      "behaviorOptions": {
+        "perfectionism": "Perfekcjonizm",
+        "control": "Kontrola",
+        "avoidance": "Unikanie",
+        "numbing": "Znieczulanie",
+        "peoplePleasing": "Dogadzanie ludziom",
+        "overthinking": "Nadmierne myślenie",
+        "anger": "Złość",
+        "withdrawal": "Wycofywanie się",
+        "distraction": "Rozpraszanie",
+        "caretaking": "Opiekowanie się",
+        "custom": "+ Własne"
+      },
+      "customBehaviorPlaceholder": "Dodaj własne zachowanie...",
+      "addButton": "Dodaj",
+      "workloadLabel": "Jak ciężko pracuje ten protektor?",
+      "workloadMin": "Lekkie obowiązki",
+      "workloadMax": "Ciągłe nadgodziny"
+    },
+    "appreciationLetter": {
+      "title": "Napisz do {partName}",
+      "description": "Napisz list z podziękowaniem. To może być pierwszy raz, gdy ta część została podziękowana zamiast zwalczana.",
+      "letterPrompts": {
+        "iSeeThat": "Drogi/a {partName}, widzę, że ty...",
+        "iKnow": "Wiem, że próbujesz...",
+        "thankYou": "Dziękuję ci za...",
+        "iWantYouToKnow": "Chcę, żebyś wiedział/a..."
+      },
+      "placeholder": "Drogi/a {partName},\n\nChcę, żebyś wiedział/a..."
+    },
+    "response": {
+      "title": "Odpowiedź {partName}",
+      "promptQuestion": "Jak chciałbyś usłyszeć odpowiedź od {partName}?",
+      "aiOption": "Pozwól AI wygenerować odpowiedź",
+      "aiOptionDescription": "Na podstawie tego, co wiesz o tej części",
+      "selfOption": "Napiszę sam/a",
+      "selfOptionDescription": "Ćwicz słuchanie tego, co część mogłaby powiedzieć",
+      "thinking": "{partName} myśli...",
+      "partSays": "{partName} mówi:",
+      "regenerate": "Wygeneruj ponownie",
+      "selfPlaceholder": "Napisz, jak {partName} odpowiedziałby na twój list..."
+    },
+    "commitment": {
+      "title": "Zobowiązanie (opcjonalne)",
+      "description": "Czy jest coś, co chciałbyś zaoferować {partName}, aby zmniejszyć jego obciążenie?",
+      "chips": [
+        "Postaram się cię zauważyć, zanim zareaguję",
+        "Zrobię przerwę, gdy się aktywujesz",
+        "Będę pisał dziennik, gdy cię poczuję",
+        "Będę regularnie się z tobą sprawdzał"
+      ],
+      "placeholder": "Do czego się zobowiązujesz? (opcjonalnie)",
+      "skipButton": "Pomiń"
+    },
+    "checkIn": {
+      "title": "Harmonogram sprawdzeń (opcjonalnie)",
+      "description": "Czy chciałbyś regularnie sprawdzać się z {partName}?",
+      "frequencyOptions": {
+        "weekly": "Co tydzień",
+        "biweekly": "Co dwa tygodnie",
+        "monthly": "Co miesiąc",
+        "none": "Bez harmonogramu"
+      },
+      "reviewButton": "Przegląd i zapis"
+    },
+    "summary": {
+      "title": "Zapisz docenienie",
+      "sections": {
+        "protector": "Protektor:",
+        "workload": "Obciążenie pracą",
+        "behaviors": "Zachowania",
+        "letterExcerpt": "Fragment listu",
+        "response": "Odpowiedź",
+        "commitment": "Zobowiązanie:",
+        "checkIn": "Sprawdzenie:"
+      },
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Dodatkowe notatki...",
+      "saveButton": "Zapisz docenienie",
+      "saving": "Zapisywanie..."
+    }
+  },
+  "exileWitnessing": {
+    "steps": {
+      "safety": "Bezpieczenstwo",
+      "protectorCheck": "Sprawdzenie protektora",
+      "approach": "Podejscie",
+      "witness": "Swiadek",
+      "compassion": "Wspolczućie",
+      "closing": "Zakończenie",
+      "reflection": "Refleksja",
+      "summary": "Podsumowanie"
+    },
+    "safety": {
+      "title": "Swiadczenie wygnanca i współczucie",
+      "description": "To ćwiczenie prowadzi cie w delikatnym zbliżeniu do wygnanca - wrazliwej części, która niesię stary ból lub przekonania. Najpierw sprawdzisz protektorow, a następnie po prostu będziesz obecny z wygnancem i zaoferujesz współczucie.",
+      "disclaimer": "To <strong>nie</strong> jest odciazenie - to swiadczenie. Tworzysz moment połączenia, a nie próbujesz naprawic lub uzdrowiic. Ta glebsza praca najlepiej wykonywac z terapeutą.",
+      "beginButton": "Rozpocznij"
+    },
+    "protectorCheck": {
+      "title": "Uzyskiwanie pozwolenia",
+      "description": "Przed zbliżeniem się do wygnanca pytamy części protektorow, które go strzega. Wybierz wszystkich protektorow, ktorzy moga być zaangazowani.",
+      "silentQuestion": "Zamknij oczy. Cicho zapytaj: \"Czy moge zbliżyć się do tego wygnanca?\"",
+      "listenPrompt": "Poświęć chwile na wysluchanie...",
+      "permissionLabel": "Co mowia protektorzy?",
+      "permissionOptions": {
+        "yes": {
+          "label": "Tak, smialo",
+          "description": "Protektorzy czuja się wystarczajaco bezpiecznie, aby się odsunac"
+        },
+        "hesitant": {
+          "label": "Wahajacy się, ale w porządku",
+          "description": "Są zdenerwowani, ale chca ci zaufac"
+        },
+        "no": {
+          "label": "Jeszcze nie",
+          "description": "Nie są gotowi - wygnaniec jest teraz zbyt wrazliwy"
+        }
+      },
+      "blockingMessage": "To w porządku - protektorzy nie są gotowi. Spróbuj najpierw ćwiczenia <strong>Docenienie protektora</strong>, aby zbudowac z nimi zaufanie.",
+      "continueButton": "Kontynuuj"
+    },
+    "approach": {
+      "title": "Zbliżanie się do wygnańca",
+      "description": "Idź powoli. Skieruj swoją uwagę do wewnątrz i wyczuj wrażliwą część.",
+      "bodyLocationLabel": "Gdzie czujesz ją w swoim ciele?",
+      "feltAgeLabel": "Ile lat wydaje się mieć ta część?",
+      "feltAgePlaceholder": "np. 5",
+      "emotionLabel": "Jaką emocję niesię ta część?",
+      "exileLabel": "Do którego wygnańca się zbliżasz?"
+    },
+    "witness": {
+      "title": "Bycie obecnym",
+      "description": "Po prostu bądź z tą częścią. Nie musisz niczego naprawiać.",
+      "messagePlaceholder": "Co ta część chce, abyś wiedział?",
+      "beliefPlaceholder": "W co wierzy o tobie lub o świecie?",
+      "beliefNote": "W IFS te przekonania nazywane są \"ciężarami\" — rzeczami, które wygnaniec przejął z bolesnych doświadczeń."
+    },
+    "compassion": {
+      "title": "Oferowanie współczucia",
+      "description": "Co chciałbyś powiedzieć tej części?",
+      "chips": [
+        "Widzę cię.",
+        "To nie była twoja wina.",
+        "Nie jesteś już sam/sama.",
+        "Jestem tutaj teraz.",
+        "Nie zasługiwałeś/aś na to.",
+        "Nigdzie się nie wybieram."
+      ],
+      "placeholder": "Twoje przesłanie współczucia...",
+      "settlePrompt": "Poświęć chwilę, aby twoje słowa mogły się osądzić."
+    },
+    "closing": {
+      "title": "Zakończenie",
+      "description": "Jak teraz wydaje się wygnaniec?",
+      "postStateOptions": [
+        { "value": "calmer", "label": "Spokojniejszy" },
+        { "value": "same", "label": "Bez zmian" },
+        { "value": "more-distressed", "label": "Bardziej zaniepokojony" }
+      ],
+      "distressedWarning": "Bycie widzianym czasami wywołuje więcej uczuć — to normalne i nie jest oznaką, że coś poszło nie tak. Jeśli to się utrzymuje, rozważ podzielenie się z terapeutą, który może zapewnić głębsze wsparcie.",
+      "thankProtectors": "Podziękuj protektorom, którzy na to pozwolili. Oni też wykazali się odwagą."
+    },
+    "reflection": {
+      "title": "Refleksja",
+      "exileLabel": "Wygnaniec:",
+      "protectorsLabel": "Protektorzy:",
+      "bodyLabel": "Ciało:",
+      "feltAgeLabel": "Odczuwany wiek:",
+      "exileMessageLabel": "Przesłanie wygnańca:",
+      "beliefLabel": "Przekonanie:",
+      "compassionLabel": "Współczucie:",
+      "postSessionLabel": "Po sesji:",
+      "reflectionPlaceholder": "Co chcesz zapamiętać z tego doświadczenia?",
+      "notesPlaceholder": "Dodatkowe notatki (opcjonalnie)"
+    },
+    "summary": {
+      "title": "Świadczenie zakończone",
+      "sections": {
+        "exile": "Wygnaniec",
+        "age": "Wiek",
+        "emotions": "Emocje",
+        "witnessing": "Świadczenie",
+        "offered": "Zaoferowane współczucie",
+        "response": "Odpowiedź wygnańca"
+      },
+      "protectorsInvolved": "Zaangażowani protektorzy",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje...",
+      "saveButton": "Zapisz",
+      "saving": "Zapisywanie...",
+      "postState": {
+        "calmer": "Spokojniejszy",
+        "same": "Bez zmian",
+        "moreDistressed": "Bardziej zaniepokojony"
+      }
+    }
+  },
+  "selfEnergy": {
+    "steps": {
+      "checkIn": "Sprawdzenie",
+      "growthEdge": "Krawędź wzrostu",
+      "microPractice": "Mikro-praktyka",
+      "saveAndReview": "Zapisz i przejrzyj"
+    },
+    "checkIn": {
+      "title": "Sprawdzenie energii Ja",
+      "subtitle": "Oceń swoje 8 C — zajmuje około 30 sekund"
+    },
+    "gap": {
+      "title": "Dzisiejsza krawędź wzrostu",
+      "looksLike": "Wygląda na to, że {quality} jest dziś niższa (oceniona na {rating}/5). To w porządku — często oznacza to, że część zajmuje tę przestrzeń.",
+      "partQuestion": "Czy czujesz, która część może wpływać na twoje {quality}?",
+      "unsureMessage": "Nie jesteś pewien? To w porządku — samo zauważenie luki jest cenne."
+    },
+    "microPractice": {
+      "title": "Mikro-praktyka {quality}",
+      "calm": {
+        "title": "60-sekundowe oddychanie pudełkowe",
+        "ready": "Gotowy",
+        "tapToBegin": "Stuknij, aby rozpocząć",
+        "startButton": "Rozpocznij oddychanie",
+        "breatheIn": "Wdech...",
+        "hold": "Wstrzymaj...",
+        "breatheOut": "Wydech...",
+        "done": "Gotowe",
+        "complete": "Zakończone!"
+      },
+      "curiosity": {
+        "title": "Zmiana perspektywy ciekawości",
+        "description": "Wybierz coś, na co dziś reagujesz. Zadaj sobie pytanie: \"A gdybym podszedł do tego z ciekawością zamiast frustracją?\"",
+        "placeholder": "Co się dzieje, gdy podchodzisz do tego z ciekawością?"
+      },
+      "compassion": {
+        "title": "Ręka na sercu",
+        "description": "Połóż rękę na sercu. Pomyśl o części, która się zmaga. Powiedz cicho: \"Widzę cię. To jest trudne.\"",
+        "placeholder": "Co zauważyłeś?"
+      },
+      "clarity": {
+        "title": "Jedna prawdziwa rzecz",
+        "description": "Jaka jest najprostsza prawda o twojej sytuacji w tej chwili?",
+        "placeholder": "Jedno jasne zdanie..."
+      },
+      "courage": {
+        "title": "Jedna odważna rzecz",
+        "description": "Jaką jedną małą odważną rzecz mógłbyś dziś zrobić?",
+        "placeholder": "Jedno odważne działanie..."
+      },
+      "creativity": {
+        "title": "Zmień perspektywę",
+        "description": "Jaki jest zupełnie inny sposób spojrzenia na dzisiejsze wyzwanie?",
+        "placeholder": "Inna perspektywa..."
+      },
+      "confidence": {
+        "title": "Ostatni sukces",
+        "description": "Wymień jedną rzecz, z którą ostatnio dobrze sobie poradziłeś.",
+        "placeholder": "Coś, z czym dobrze sobie poradziłeś..."
+      },
+      "connection": {
+        "title": "Skontaktuj się",
+        "description": "Do kogo mógłbyś się dziś odezwać, choćby na chwilę?",
+        "placeholder": "Osoba, z którą warto się połączyć..."
+      }
+    },
+    "summary": {
+      "title": "Sprawdzenie zakończone",
+      "affectingPart": "Wpływająca część:",
+      "trendReviewButton": "Przejrzyj trendy mojej energii Ja",
+      "trendReviewLoading": "Przeglądanie trendów...",
+      "trendDisclaimer": "Ten przegląd opiera się na wzorcach w twoich danych sprawdzeń. Twoje doświadczenie jest wyjątkowo twoje.",
+      "unlockTrend": "Wykonaj jeszcze {count} sprawdzeń, aby odblokować analizę trendów",
+      "trendLabel": "Trend",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Dodatkowe notatki...",
+      "saveButton": "Zapisz sprawdzenie",
+      "saving": "Zapisywanie..."
+    }
+  },
+  "partsDialogue": {
+    "steps": {
+      "partSelect": "Wybierz część",
+      "intention": "Intencja",
+      "dialogue": "Dialog",
+      "insights": "Spostrzeżenia",
+      "summary": "Zapisz"
+    },
+    "partSelect": {
+      "title": "Dziennik dialogu części",
+      "description": "Napisz dialog między swoim Ja a częścią. Piszesz obie strony rozmowy, ćwicząc własne wewnętrzne słuchanie.",
+      "label": "Z którą częścią chciałbyś porozmawiać?",
+      "defaultName": "Część"
+    },
+    "intention": {
+      "title": "Ustaw swoją intencję",
+      "description": "Co masz nadzieję zbadać w tym dialogu z {partName}?",
+      "chips": [
+        "Zrozumieć, czego ta część potrzebuje",
+        "Zbadać, dlaczego się aktywuje",
+        "Zbudować relację",
+        "Zapytać o jej lęki"
+      ],
+      "placeholder": "Co chcesz zbadać?",
+      "beginButton": "Rozpocznij dialog"
+    },
+    "dialogue": {
+      "title": "Dialog z {partName}",
+      "speakers": {
+        "self": "Ja",
+        "part": "{partName}"
+      },
+      "emptyState": "Napisz najpierw jako Ja, a następnie przełącz się na głos {partName}.",
+      "suggestedQuestions": [
+        "Czego potrzebujesz?",
+        "Czego się boisz?",
+        "Co chcesz, żebym wiedział?",
+        "Jak mogę pomóc?"
+      ],
+      "selfPlaceholder": "Pisz jako Ja...",
+      "partPlaceholder": "Pisz jako {partName}...",
+      "addButton": "Dodaj",
+      "assistButton": "Pomóż mi usłyszeć tę część",
+      "assistLoading": "Myślę...",
+      "partMightSay": "{partName} mógłby powiedzieć:",
+      "discard": "Odrzuć",
+      "accept": "Zaakceptuj",
+      "reviewInsights": "Przegląd spostrzeżeń"
+    },
+    "insights": {
+      "title": "Uchwycenie spostrzeżeń",
+      "description": "Przejrzyj swój dialog i oznacz ważne momenty.",
+      "tagThisMoment": "Oznacz ten moment",
+      "whatDidYouNotice": "Co zauważyłeś?",
+      "insightTags": {
+        "coreFear": "Główny lęk",
+        "need": "Potrzeba",
+        "positiveIntention": "Pozytywna intencja",
+        "memory": "Wspomnienie",
+        "belief": "Przekonanie",
+        "other": "Inne"
+      },
+      "saveInsight": "Zapisz spostrzeżenie",
+      "savedInsights": "Zapisane spostrzeżenia",
+      "summaryAndSave": "Podsumowanie i zapis"
+    },
+    "summary": {
+      "title": "Zapisz dialog",
+      "sections": {
+        "part": "Część:",
+        "messages": "Wiadomości",
+        "insights": "Spostrzeżenia",
+        "aiAssist": "Pomoc AI",
+        "yes": "Tak",
+        "no": "Nie",
+        "intention": "Intencja"
+      },
+      "summaryLabel": "Podsumowanie (opcjonalnie)",
+      "summaryPlaceholder": "Jaki był główny wniosek?",
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Dodatkowe notatki...",
+      "saveButton": "Zapisz dialog",
+      "saving": "Zapisywanie..."
+    }
+  },
+  "dailyCheckIn": {
+    "steps": {
+      "selectPractice": "Wybierz praktykę",
+      "practice": "Praktyka",
+      "summary": "Zapisz"
+    },
+    "selectPractice": {
+      "title": "Wybierz praktykę",
+      "subtitle": "Szybkie mikro-praktyki, aby pozostać w połączeniu ze swoim wewnętrznym systemem.",
+      "practices": {
+        "weatherReport": {
+          "label": "Raport pogodowy części",
+          "description": "Które części są aktywne? Jak intensywne?",
+          "duration": "~1 min"
+        },
+        "gratitudeToPart": {
+          "label": "Wdzięczność dla części",
+          "description": "Podziękuj części za to, co zrobiła dziś",
+          "duration": "~1 min"
+        },
+        "selfEnergyMoment": {
+          "label": "Chwila energii Ja",
+          "description": "Którego z 8 C potrzebujesz?",
+          "duration": "~30 sek"
+        },
+        "eveningReflection": {
+          "label": "Wieczorna refleksja",
+          "description": "Przegląd dzisiejszych części i twojej reakcji",
+          "duration": "~3 min"
+        }
+      }
+    },
+    "practice": {
+      "weatherReport": {
+        "title": "Raport pogodowy części",
+        "description": "Które części są teraz aktywne?",
+        "intensityLabel": "Intensywność",
+        "triggerPlaceholder": "Co to wywołało? (opcjonalnie)"
+      },
+      "gratitudeToPart": {
+        "title": "Wdzięczność dla części",
+        "description": "Podziękuj części za to, co dla ciebie dziś zrobiła.",
+        "partLabel": "Której części dziękujesz?",
+        "notePlaceholder": "Co ta część dla ciebie dziś zrobiła?",
+        "thankYou": "Dziękuję ci, {partName}, za {note}"
+      },
+      "selfEnergyMoment": {
+        "title": "Chwila energii Ja",
+        "description": "Którego z 8 C najbardziej teraz potrzebujesz?",
+        "microPractices": {
+          "calm": {
+            "label": "60-sekundowe oddychanie pudełkowe",
+            "prompt": "Wdech 4s, wstrzymaj 4s, wydech 4s, wstrzymaj 4s. Powtórz przez minutę.",
+            "placeholder": "Jak się czujesz po oddychaniu?"
+          },
+          "curiosity": {
+            "label": "Zmiana na ciekawość",
+            "prompt": "Wybierz coś, na co reagujesz. Zapytaj: \"A gdybym był ciekawy zamiast sfrustrowany?\"",
+            "placeholder": "Co się dzieje, gdy podchodzisz z ciekawością?"
+          },
+          "compassion": {
+            "label": "Ręka na sercu",
+            "prompt": "Połóż rękę na sercu. Pomyśl o części, która się zmaga. W ciszy powiedz: \"Widzę cię. To jest trudne.\"",
+            "placeholder": "Co zauważyłeś?"
+          },
+          "clarity": {
+            "label": "Jedna prawda",
+            "prompt": "Jaka jest najprostsza prawda o twojej sytuacji teraz?",
+            "placeholder": "Jedno jasne zdanie..."
+          },
+          "courage": {
+            "label": "Jedna odważna rzecz",
+            "prompt": "Jaką małą odważną rzecz mógłbyś zrobić dziś?",
+            "placeholder": "Jedno odważne działanie..."
+          },
+          "creativity": {
+            "label": "Zmień perspektywę",
+            "prompt": "Jaki jest zupełnie inny sposób patrzenia na dzisiejsze wyzwanie?",
+            "placeholder": "Inna perspektywa..."
+          },
+          "confidence": {
+            "label": "Ostatni sukces",
+            "prompt": "Wymień jedną rzecz, z którą sobie ostatnio dobrze poradziłeś.",
+            "placeholder": "Coś, z czym sobie dobrze poradziłeś..."
+          },
+          "connection": {
+            "label": "Skontaktuj się",
+            "prompt": "Z kim mógłbyś się skontaktować dziś, choćby krótko?",
+            "placeholder": "Osoba, z którą się skontaktujesz..."
+          }
+        }
+      },
+      "eveningReflection": {
+        "title": "Wieczorna refleksja",
+        "description": "Przegląd dzisiejszych części i twojej reakcji.",
+        "activePartsLabel": "Które części były dziś najbardziej aktywne?",
+        "intensityLabel": "Intensywność",
+        "triggerPlaceholder": "Co to wywołało?",
+        "responseLabel": "Jak zareagowałeś dziś?",
+        "leadershipOptions": {
+          "mostlySelf": "Głównie z Ja",
+          "mostlyPart": "Głównie z części",
+          "mixed": "Mieszanka"
+        },
+        "reflectionPlaceholder": "Co byś zrobił inaczej? (opcjonalnie)",
+        "appreciationPlaceholder": "Jedna rzecz, którą doceniasz w dzisiejszym dniu"
+      }
+    },
+    "summary": {
+      "title": "Sprawdzenie zakończone",
+      "practiceLabel": "Praktyka",
+      "practiceLabels": {
+        "weatherReport": "Raport pogodowy części",
+        "gratitudeToPart": "Wdzięczność dla części",
+        "selfEnergyMoment": "Chwila energii Ja",
+        "eveningReflection": "Wieczorna refleksja"
+      },
+      "intensity": "intensywność {value}/10",
+      "focusedOn": "Skupienie na: {quality}",
+      "selfLeadership": "Samo-przywództwo: {label}",
+      "appreciation": "Docenienie: {note}",
+      "weeklyCheckIns": "{count} sprawdzeń w tym tygodniu",
+      "weeklyCheckInsSingular": "{count} sprawdzenie w tym tygodniu",
+      "weeklyCheckInsPlural": "{count} sprawdzeń w tym tygodniu",
+      "getWeeklySummary": "Uzyskaj tygodniowe podsumowanie części",
+      "moreForSummary": "Wykonaj jeszcze {count} sprawdzeń w tym tygodniu, aby uzyskać tygodniowe podsumowanie",
+      "moreForSummarySingular": "Wykonaj jeszcze {count} sprawdzenie w tym tygodniu, aby uzyskać tygodniowe podsumowanie",
+      "moreForSummaryPlural": "Wykonaj jeszcze {count} sprawdzeń w tym tygodniu, aby uzyskać tygodniowe podsumowanie",
+      "notesPlaceholder": "Dodatkowe notatki (opcjonalnie)",
+      "saveButton": "Zapisz sprawdzenie",
+      "saving": "Zapisywanie..."
+    }
+  },
+  "constellation": {
+    "steps": {
+      "prerequisites": "Wymagania wstępne",
+      "selectParts": "Wybierz części",
+      "mapRelationships": "Mapuj relacje",
+      "polarizations": "Polaryzacje",
+      "alliances": "Przymierza",
+      "cascades": "Kaskady",
+      "constellation": "Konstelacja",
+      "insights": "Wglądy",
+      "reflection": "Refleksja",
+      "relationships": "Relacje",
+      "save": "Zapisz",
+      "summary": "Podsumowanie"
+    },
+    "prerequisites": {
+      "title": "Konstelacja wewnętrznego systemu",
+      "description": "Części tworzą przymierza, opozycje i kaskadowe łańcuchy. Perfekcjonista i Prokrastynator mogą wyglądać przeciwnie, ale oba chronią tego samego zranionego wygnańca.",
+      "checkPassed": "Masz zmapowanych {count} części. Gotowy do zbadania ich relacji.",
+      "checkFailed": "Potrzebujesz co najmniej 3 zmapowanych części. Spróbuj najpierw Mapowania części.",
+      "beginButton": "Rozpocznij"
+    },
+    "selectParts": {
+      "title": "Wybierz swoje skupienie",
+      "description": "Wybierz 3-5 części, których relacje chcialbys zbadać.",
+      "counter": "{count} z 3-5 wybranych"
+    },
+    "mapRelationships": {
+      "title": "Jak się mają?",
+      "pairSeparator": "↔",
+      "notePlaceholder": "Gdy {partA} jest aktywna, co dzieje się z {partB}?",
+      "relationshipTypes": {
+        "protects": "Chroni",
+        "polarized": "Spolaryzowana z",
+        "allied": "Sprzymierzona z",
+        "triggers": "Wywołuje",
+        "soothes": "Uspokaja",
+        "none": "Brak bezpośredniej relacji"
+      },
+      "shortLabels": {
+        "polarized": "Spolaryzowana",
+        "allied": "Sprzymierzona",
+        "protects": "Chroni",
+        "none": "Brak"
+      }
+    },
+    "polarizationDeepDive": {
+      "title": "Eksploracja polaryzacji",
+      "description": "Spolaryzowane części są często najbardziej odkrywcze — mogą obydwie chronić tę samą ranę.",
+      "vs": "vs",
+      "partAThinks": "Co {partA} myśli o {partB}?",
+      "partAThinkPlaceholder": "np. '{partB} jest leniwa i nieodpowiedzialna'",
+      "partBThinks": "Co {partB} myśli o {partA}?",
+      "partBThinkPlaceholder": "np. '{partA} jest wyczerpująca i nigdy niezadowolona'",
+      "ifOneWon": "Co by się stało, gdyby jedna z nich \"wygrała\"?",
+      "ifOneWonPlaceholder": "Co gdyby jedna część całkowicie przejęła kontrolę?",
+      "commonProtection": "Co mogą OBYDWIE chronić?",
+      "commonProtectionPlaceholder": "Często spolaryzowane części chronią tego samego wygnańca z różnych stron.",
+      "commonProtectionHint": "Wskazówka: Spolaryzowane części często strzegą tej samej wrażliwej części z różnych stron."
+    },
+    "polarizations": {
+      "title": "Polaryzacje",
+      "description": "Spolaryzowane części wyglądaja jak przeciwieństwa, ale często chronia to samo.",
+      "emptyState": "Nie zidentyfikowano jeszcze żadnych polaryzacji.",
+      "questionLabel": "Przed czym {partA} i {partB} próbuja cie chronić?",
+      "questionPlaceholder": "np. poczucie wrazliwosci, byćie ocenianym"
+    },
+    "alliances": {
+      "title": "Przymierza",
+      "description": "Sprzymierzone części pracuja razem. Dzielą misję.",
+      "emptyState": "Nie zidentyfikowano jeszcze żadnych przymierzy.",
+      "questionLabel": "Jaka jest wspólna misja {partA} i {partB}?",
+      "questionPlaceholder": "np. utrzymanie cie w bezpieczenstwie, unikanie konfliktów"
+    },
+    "cascades": {
+      "title": "Kaskadowe lancuchy",
+      "description": "Czasami jedna część wyzwala druga w reakcji lancuchowej.",
+      "instructions": "Jesli zauważylas sekwencje (np. Krytyk wyzwala Prokrastynatora, który wyzwala Samokrytykę), opisz to tutaj.",
+      "placeholder": "Opisz kazdą reakcje lancuchowa, która zauważylas..."
+    },
+    "visual": {
+      "title": "Twoja konstelacja",
+      "selfLabel": "Ja",
+      "legend": {
+        "polarized": "Spolaryzowana",
+        "allied": "Sprzymierzona",
+        "protects": "Chroni"
+      }
+    },
+    "reflection": {
+      "title": "Wglądy w system",
+      "placeholder": "Patrząc na swoją wewnętrzną konstelację, jakie wzorce widzisz?",
+      "aiButton": "Analizuj mój system",
+      "aiButtonLoading": "Analizowanie twojej konstelacji...",
+      "aiDisclaimer": "Ta analiza odzwierciedla wzorce w tym, co udostępniłeś. Terapeuta wyszkolony w IFS może pomóc zbadać te dynamiki głębiej, szczególnie tam, gdzie może być zaangażowana trauma."
+    },
+    "save": {
+      "title": "Zapisz konstelację",
+      "partsLabel": "Części:",
+      "countPolarized": "{count} spolaryzowanych",
+      "countAllied": "{count} sprzymierzonych",
+      "countProtectorExile": "{count} obrońca-wygnaniec",
+      "mayBothProtect": "mogą obydwie chronić:",
+      "reflectionLabel": "Refleksja:",
+      "aiAnalysisIncluded": "Analiza AI dołączona",
+      "notesPlaceholder": "Dodatkowe notatki (opcjonalnie)",
+      "saveButton": "Zapisz konstelację"
+    },
+    "summary": {
+      "title": "Twoja wewnętrzna konstelacja",
+      "sections": {
+        "partsInvolved": "Zaangażowane części",
+        "relationships": "Relacje",
+        "polarizations": "Polaryzacje",
+        "alliances": "Przymierza",
+        "cascades": "Kaskadowe łańcuchy",
+        "reflection": "Refleksja",
+        "aiInsights": "Wglądy AI"
+      },
+      "notesLabel": "Notatki (opcjonalnie)",
+      "notesPlaceholder": "Jakiekolwiek refleksje...",
+      "saveButton": "Zapisz konstelację",
+      "saving": "Zapisywanie..."
+    },
+    "unknownPart": "Nieznana",
+    "ariaStepLabel": "Krok {index}: {label}",
+    "ariaStepCompleted": " (ukończony)",
+    "ariaStepCurrent": " (bieżący)"
+  }
+}

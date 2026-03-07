@@ -1,0 +1,41 @@
+{
+  "flow": {
+    "intro": "Wstęp",
+    "consent": "Zgoda",
+    "questions": "Pytania",
+    "review": "Przegląd",
+    "results": "Wyniki",
+    "start": "Rozpocznij ocenę",
+    "resume": "Wznów rozpoczętą próbę",
+    "retake": "Powtórz ocenę",
+    "submit": "Wyślij ocenę",
+    "saveProgress": "Zapisz postęp",
+    "unansweredCount": "{n} bez odpowiedzi",
+    "answeredCount": "{n} z odpowiedzią"
+  },
+  "review": {
+    "title": "Przejrzyj odpowiedzi",
+    "allAnswered": "Wszystkie pozycje mają odpowiedź.",
+    "missingHint": "Możesz wysłać z brakami, jeśli próg scoringu jest spełniony dla każdej skali."
+  },
+  "results": {
+    "title": "Wyniki oceny",
+    "completedAt": "Ukończono: {date}",
+    "retakeEligibleOn": "Powtórka dostępna od: {date}",
+    "retakeAvailable": "Powtórka jest już dostępna.",
+    "noScales": "Nie udało się obliczyć żadnych skal dla aktualnych odpowiedzi.",
+    "raw": "Surowy",
+    "normalized": "Znormalizowany",
+    "band": "Przedział",
+    "centeredToggleOn": "Pokaż wyniki centrowane",
+    "centeredToggleOff": "Pokaż wyniki surowe",
+    "topValues": "Najważniejsze wartości",
+    "biggestGaps": "Największe luki",
+    "noHistory": "Brak poprzedniej ukończonej próby do porównania.",
+    "deltaFromPrevious": "Δ vs poprzedni: {delta}"
+  },
+  "missingPolicy": {
+    "scale80": "Skala liczona przy co najmniej 80% odpowiedzi; brakujące pozycje imputowane średnią skali.",
+    "vlq": "Każda domena VLQ wymaga ważności i spójności; bez imputacji."
+  }
+}

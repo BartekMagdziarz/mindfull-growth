@@ -1,0 +1,41 @@
+{
+  "flow": {
+    "intro": "Intro",
+    "consent": "Consent",
+    "questions": "Questions",
+    "review": "Review",
+    "results": "Results",
+    "start": "Start Assessment",
+    "resume": "Resume In-progress Attempt",
+    "retake": "Retake Assessment",
+    "submit": "Submit Assessment",
+    "saveProgress": "Save progress",
+    "unansweredCount": "{n} unanswered",
+    "answeredCount": "{n} answered"
+  },
+  "review": {
+    "title": "Review your responses",
+    "allAnswered": "All items are answered.",
+    "missingHint": "You can submit with missing responses if the scoring threshold is met per scale."
+  },
+  "results": {
+    "title": "Assessment results",
+    "completedAt": "Completed at {date}",
+    "retakeEligibleOn": "Retake available on {date}",
+    "retakeAvailable": "Retake is available now.",
+    "noScales": "No scales could be computed with current responses.",
+    "raw": "Raw",
+    "normalized": "Normalized",
+    "band": "Band",
+    "centeredToggleOn": "Show centered scores",
+    "centeredToggleOff": "Show raw scores",
+    "topValues": "Top values",
+    "biggestGaps": "Biggest gaps",
+    "noHistory": "No previous completed attempt to compare yet.",
+    "deltaFromPrevious": "Δ vs previous: {delta}"
+  },
+  "missingPolicy": {
+    "scale80": "Score scale if at least 80% of items are answered; impute remaining items with the scale mean.",
+    "vlq": "Each VLQ domain requires both Importance and Consistency; no imputation is used."
+  }
+}

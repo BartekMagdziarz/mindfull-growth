@@ -35,6 +35,16 @@ vi.mock('../tag.store', () => {
   }
 })
 
+// Mock the user preferences store
+vi.mock('../userPreferences.store', () => {
+  return {
+    useUserPreferencesStore: vi.fn(() => ({
+      locale: 'en',
+      $patch: vi.fn(),
+    })),
+  }
+})
+
 // Mock the chat prompts module
 vi.mock('@/services/chatPrompts', () => {
   return {
@@ -48,6 +58,7 @@ import { sendMessage as sendLLMMessage } from '@/services/llmService'
 import { useJournalStore } from '../journal.store'
 import { useEmotionStore } from '../emotion.store'
 import { useTagStore } from '../tag.store'
+import { useUserPreferencesStore } from '../userPreferences.store'
 import {
   getSystemPrompt,
   constructJournalEntryContext,
@@ -95,7 +106,6 @@ describe('useChatStore', () => {
     vi.mocked(useTagStore).mockReturnValue(
       mockTagStore as unknown as ReturnType<typeof useTagStore>
     )
-
     // Setup default mocks for chat prompts
     vi.mocked(getSystemPrompt).mockImplementation((intention) => {
       return `System prompt for ${intention}`
@@ -301,8 +311,8 @@ describe('useChatStore', () => {
       const mockEmotion: Emotion = {
         id: 'emotion-1',
         name: 'Happy',
-        valence: 1,
-        arousal: 1,
+        pleasantness: 7,
+        energy: 6,
       }
       const mockPeopleTag: PeopleTag = { id: 'people-1', name: 'John' }
       const mockContextTag: ContextTag = { id: 'context-1', name: 'Work' }
@@ -343,7 +353,8 @@ describe('useChatStore', () => {
       expect(constructJournalEntryContext).toHaveBeenCalledWith(
         mockEntry,
         mockEmotionStore,
-        mockTagStore
+        mockTagStore,
+        'en'
       )
     })
 
@@ -971,4 +982,3 @@ describe('useChatStore', () => {
     })
   })
 })
-

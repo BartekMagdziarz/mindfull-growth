@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col h-screen bg-background">
     <!-- Top App Bar -->
-    <div class="flex items-center gap-4 px-4 py-3 border-b border-outline/30 bg-background">
+    <div class="flex items-center gap-4 px-4 py-3 border-b border-neu-border/30 bg-background">
       <AppButton
         variant="text"
         @click="handleBack"
-        aria-label="Go back"
+        :aria-label="t('chat.goBack')"
         class="p-2"
       >
         <ArrowLeftIcon class="w-5 h-5" />
@@ -19,18 +19,18 @@
           variant="filled"
           @click="handleSave"
           :disabled="!canSave || isSaving"
-          aria-label="Save conversation"
+          :aria-label="t('chat.saveConversation')"
         >
-          <span v-if="isSaving">Saving...</span>
-          <span v-else-if="isSaved">Saved</span>
-          <span v-else>Save conversation</span>
+          <span v-if="isSaving">{{ t('chat.saving') }}</span>
+          <span v-else-if="isSaved">{{ t('chat.saved') }}</span>
+          <span v-else>{{ t('chat.saveConversation') }}</span>
         </AppButton>
         <AppButton
           variant="text"
           @click="handleLeave"
-          aria-label="Leave without saving"
+          :aria-label="t('chat.leaveWithoutSaving')"
         >
-          Leave without saving
+          {{ t('chat.leaveWithoutSaving') }}
         </AppButton>
       </div>
     </div>
@@ -41,7 +41,7 @@
         class="text-xs text-on-surface-variant"
         aria-label="Info about how this chat works"
       >
-        The assistant helps you reflect on this entry and explore different perspectives. It does not provide clinical advice.
+        {{ t('chat.disclaimer') }}
       </p>
       <AppCard v-if="isLoadingEntry" padding="md">
         <div class="animate-pulse space-y-3">
@@ -55,7 +55,7 @@
         <div class="text-error space-y-2">
           <p class="font-semibold">{{ entryError }}</p>
           <AppButton variant="text" @click="handleBack" size="sm">
-            Go back
+            {{ t('chat.goBack') }}
           </AppButton>
         </div>
       </AppCard>
@@ -63,19 +63,19 @@
       <AppCard v-else-if="entry" padding="md" class="space-y-4">
         <!-- Entry Title -->
         <h2 class="text-lg font-semibold text-on-surface">
-          {{ entry.title || 'Untitled entry' }}
+          {{ entry.title || t('chat.untitledEntry') }}
         </h2>
 
         <!-- Emotions -->
         <div v-if="emotionNames.length > 0" class="space-y-2">
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-            Emotions
+            {{ t('chat.emotions') }}
           </p>
           <div class="flex flex-wrap gap-2">
             <span
               v-for="emotionName in emotionNames"
               :key="emotionName"
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-xs font-medium"
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary-soft text-primary text-xs font-medium"
             >
               {{ emotionName }}
             </span>
@@ -87,7 +87,7 @@
           <!-- People Tags -->
           <div v-if="peopleTagNames.length > 0" class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              People
+              {{ t('chat.people') }}
             </p>
             <div class="flex flex-wrap gap-2">
               <span
@@ -103,7 +103,7 @@
           <!-- Context Tags -->
           <div v-if="contextTagNames.length > 0" class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              Context
+              {{ t('chat.context') }}
             </p>
             <div class="flex flex-wrap gap-2">
               <span
@@ -120,7 +120,7 @@
         <!-- Entry Body Preview -->
         <div class="space-y-2">
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-            Preview
+            {{ t('chat.preview') }}
           </p>
           <p class="text-sm text-on-surface-variant line-clamp-3">
             {{ entryBodyPreview }}
@@ -137,7 +137,7 @@
       aria-label="Chat messages"
     >
       <div v-if="!hasMessages" class="text-center text-on-surface-variant py-8">
-        <p>Start the conversation by sending a message below.</p>
+        <p>{{ t('chat.startConversation') }}</p>
       </div>
 
       <!-- Messages -->
@@ -153,7 +153,7 @@
           :class="[
             'max-w-[80%] rounded-lg px-4 py-2',
             message.role === 'user'
-              ? 'bg-primary text-on-primary'
+              ? 'bg-gradient-to-br from-primary to-primary-strong text-on-primary'
               : 'bg-surface-variant text-on-surface-variant',
           ]"
         >
@@ -173,21 +173,21 @@
             <div
               class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"
             ></div>
-            <span>AI is thinking...</span>
+            <span>{{ t('chat.aiThinking') }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Input Area -->
-    <div class="border-t border-outline/30 p-4 bg-background">
+    <div class="border-t border-neu-border/30 p-4 bg-background">
       <div class="flex gap-2 items-end">
         <textarea
           ref="messageInputRef"
           v-model="messageInput"
-          placeholder="Type your message..."
+          :placeholder="t('chat.placeholder')"
           :disabled="isLoading"
-          class="flex-1 p-3 border border-outline/30 rounded-lg bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 resize-none min-h-[44px] max-h-[120px] disabled:opacity-60 disabled:cursor-not-allowed"
+          class="neo-input flex-1 p-3 resize-none min-h-[44px] max-h-[120px] disabled:opacity-60 disabled:cursor-not-allowed"
           rows="1"
           @keydown.enter.exact.prevent="handleSend"
           @input="handleTextareaInput"
@@ -196,11 +196,11 @@
           variant="filled"
           @click="handleSend"
           :disabled="!canSend"
-          aria-label="Send message"
+          :aria-label="t('chat.send')"
           class="min-w-[80px]"
         >
-          <span v-if="isLoading">Sending...</span>
-          <span v-else>Send</span>
+          <span v-if="isLoading">{{ t('chat.sending') }}</span>
+          <span v-else>{{ t('chat.send') }}</span>
         </AppButton>
       </div>
     </div>
@@ -211,10 +211,10 @@
     <!-- Discard Confirmation Dialog -->
     <AppDialog
       v-model="showDiscardDialog"
-      title="Leave without saving?"
-      message="You have unsaved messages. Are you sure you want to leave? This conversation will be lost."
-      confirm-text="Leave"
-      cancel-text="Cancel"
+      :title="t('chat.discardTitle')"
+      :message="t('chat.discardMessage')"
+      :confirm-text="t('chat.discardConfirm')"
+      :cancel-text="t('chat.discardCancel')"
       confirm-variant="filled"
       @confirm="handleDiscard"
       @cancel="handleDiscardCancel"
@@ -239,6 +239,7 @@ import type { JournalEntry } from '@/domain/journal'
 import type { ChatIntention } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import { formatMessageTimestamp } from '@/utils/dateFormat'
+import { useT } from '@/composables/useT'
 
 const route = useRoute()
 const router = useRouter()
@@ -246,6 +247,7 @@ const chatStore = useChatStore()
 const journalStore = useJournalStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
+const { t } = useT()
 
 // Use storeToRefs to maintain reactivity
 const { currentChatSession, isLoading, isSaving, error } = storeToRefs(chatStore)
@@ -263,21 +265,21 @@ const showDiscardDialog = ref(false)
 let pendingNavigation: (() => void) | null = null
 
 // Intention label mapping (matching JournalEditorView)
-const intentionLabels: Record<ChatIntention, string> = {
-  [CHAT_INTENTIONS.REFLECT]: 'Reflect',
-  [CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY]: 'Help see differently',
-  [CHAT_INTENTIONS.PROACTIVE]: 'Help to be proactive',
-  [CHAT_INTENTIONS.THINKING_TRAPS]: 'Thinking traps',
-  [CHAT_INTENTIONS.CUSTOM]: 'Custom',
-}
+const intentionLabels = computed<Record<ChatIntention, string>>(() => ({
+  [CHAT_INTENTIONS.REFLECT]: t('chat.intentions.reflect'),
+  [CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY]: t('chat.intentions.helpSeeDifferently'),
+  [CHAT_INTENTIONS.PROACTIVE]: t('chat.intentions.proactive'),
+  [CHAT_INTENTIONS.THINKING_TRAPS]: t('chat.intentions.thinkingTraps'),
+  [CHAT_INTENTIONS.CUSTOM]: t('chat.intentions.custom'),
+}))
 
 const chatTitle = computed(() => {
   if (!currentChatSession.value) {
-    return 'Chat about entry'
+    return t('chat.title')
   }
   const intention = currentChatSession.value.intention
-  const label = intentionLabels[intention] || intention
-  return `${label} – Chat about entry`
+  const label = intentionLabels.value[intention] || intention
+  return t('chat.titleWithIntention', { label })
 })
 
 const emotionNames = computed(() => {
@@ -360,7 +362,7 @@ async function loadEntry() {
   try {
     const loadedEntry = await journalStore.getEntryById(entryId.value)
     if (!loadedEntry) {
-      entryError.value = 'Entry not found'
+      entryError.value = t('chat.entryNotFound')
       return
     }
     entry.value = loadedEntry
@@ -368,7 +370,7 @@ async function loadEntry() {
     const errorMessage =
       error instanceof Error
         ? error.message
-        : 'Failed to load journal entry. Please try again.'
+        : t('chat.loadEntryError')
     entryError.value = errorMessage
     console.error('Error loading journal entry:', error)
   } finally {
@@ -392,7 +394,7 @@ async function handleSave() {
   try {
     await chatStore.saveChatSession()
     if (snackbarRef.value) {
-      snackbarRef.value.show('Conversation saved successfully')
+      snackbarRef.value.show(t('chat.savedSuccess'))
     }
     await router.push(`/journal/${entryId.value}/edit`)
   } catch (err) {
@@ -514,6 +516,8 @@ watch(messageInput, () => {
 
 // Navigation guard for unsaved messages
 onBeforeRouteLeave((to, from, next) => {
+  void to
+  void from
   if (hasUnsavedMessages.value) {
     // Store the navigation callback
     pendingNavigation = () => next()
@@ -540,7 +544,7 @@ onMounted(async () => {
       if (!loadedSession) {
         // Session not found
         if (snackbarRef.value) {
-          snackbarRef.value.show('Chat session not found.')
+          snackbarRef.value.show(t('chat.sessionNotFound'))
         }
         router.push(`/journal/${entryId.value}/edit`)
         return
@@ -574,4 +578,3 @@ onMounted(async () => {
   }
 })
 </script>
-

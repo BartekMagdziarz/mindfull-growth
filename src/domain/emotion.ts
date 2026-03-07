@@ -1,8 +1,8 @@
 export interface Emotion {
   id: string // UUID
   name: string // e.g., "Happy", "Anxious", "Serene"
-  pleasantness: number // 1-10 scale (1 = very low, 10 = very high)
-  energy: number // 1-10 scale (1 = very low, 10 = very high)
+  pleasantness: number // 1-12 scale (1 = very low, 12 = very high)
+  energy: number // 1-12 scale (1 = very low, 12 = very high)
   description?: string // Optional description of the emotion
 }
 
@@ -15,19 +15,19 @@ export type Quadrant =
 /**
  * Determines the quadrant for an emotion based on its pleasantness and energy values.
  *
- * Threshold: 5 is used as the split point for both pleasantness and energy.
- * - Values > 5 are considered "high"
- * - Values <= 5 are considered "low"
+ * Threshold: 6 is used as the split point for both pleasantness and energy.
+ * - Values > 6 are considered "high"
+ * - Values <= 6 are considered "low"
  *
  * Quadrant logic:
- * - energy > 5 && pleasantness > 5 → high-energy-high-pleasantness
- * - energy > 5 && pleasantness <= 5 → high-energy-low-pleasantness
- * - energy <= 5 && pleasantness > 5 → low-energy-high-pleasantness
- * - energy <= 5 && pleasantness <= 5 → low-energy-low-pleasantness
+ * - energy > 6 && pleasantness > 6 → high-energy-high-pleasantness
+ * - energy > 6 && pleasantness <= 6 → high-energy-low-pleasantness
+ * - energy <= 6 && pleasantness > 6 → low-energy-high-pleasantness
+ * - energy <= 6 && pleasantness <= 6 → low-energy-low-pleasantness
  */
 export function getQuadrant(emotion: Emotion): Quadrant {
-  const isHighEnergy = emotion.energy > 5
-  const isHighPleasantness = emotion.pleasantness > 5
+  const isHighEnergy = emotion.energy > 6
+  const isHighPleasantness = emotion.pleasantness > 6
 
   if (isHighEnergy && isHighPleasantness) {
     return 'high-energy-high-pleasantness'

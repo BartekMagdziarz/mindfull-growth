@@ -1,0 +1,1294 @@
+{
+  "hub": {
+    "title": "Centrum Planowania",
+    "subtitle": "Dopasuj działania do tego, co jest dla Ciebie najwazniejsze",
+    "tabs": {
+      "week": "Tydzień",
+      "month": "Miesiąc",
+      "year": "Rok"
+    },
+    "manage": {
+      "title": "Zarzadzaj",
+      "description": "Tworzenie i organizacja nawykow, projektow i wskaznikow.",
+      "habits": {
+        "title": "Nawyki",
+        "description": "Zdefiniuj cykliczne wskazniki powtarzajace się co tydzień lub miesiac."
+      },
+      "projectsAndTrackers": {
+        "title": "Projekty i wskazniki",
+        "description": "Zarzadzaj zakresami projektow, wskaznikami i celami okresowymi."
+      }
+    }
+  },
+  "weekly": {
+    "title": "Planowanie tygodnia",
+    "heading": "Zdefiniuj swój tydzien",
+    "steps": {
+      "capacity": {
+        "title": "Kontekst",
+        "subtitle": "Sprawdz trendy"
+      },
+      "projects": {
+        "title": "Projekty",
+        "subtitle": "Przegladaj aktywne"
+      },
+      "commitments": {
+        "title": "Zobowiazania",
+        "subtitle": "Określ działania"
+      },
+      "focus": {
+        "title": "Skupienie",
+        "subtitle": "Ustaw intencje"
+      },
+      "confirm": {
+        "title": "Potwierdz",
+        "subtitle": "Sfinalizuj plan"
+      }
+    },
+    "nextButton": {
+      "toProjects": "Dalej do projektow",
+      "toCommitments": "Dalej do zobowiazan",
+      "toFocus": "Dalej do skupienia",
+      "toConfirm": "Przejrzyj i potwierdz",
+      "savePlan": "Zapisz plan tygodnia"
+    },
+    "period": {
+      "startDate": "Data początkówa",
+      "endDate": "Data koncowa",
+      "customName": "Wlasna nazwa",
+      "optional": "(opcjonalnie)"
+    },
+    "batteries": {
+      "title": "Trendy baterii",
+      "subtitle": "Historia tylko do odczytu na podstawie tygodniowych refleksji.",
+      "legendDemand": "Obciazenie",
+      "legendState": "Stan",
+      "lastWeeks": "Ostatnie 6 tygodni",
+      "empty": "Uzupelnij co najmniej jedna refleksje tygodniowa, aby zobaczyc trendy.",
+      "body": {
+        "title": "Cialo",
+        "description": "Obciazenie fizyczne i regeneracja."
+      },
+      "mind": {
+        "title": "Umysl",
+        "description": "Obciazenie poznawcze i klarownosc."
+      },
+      "emotion": {
+        "title": "Emocje",
+        "description": "Presja emocjonalna i regulacja."
+      },
+      "social": {
+        "title": "Relacje",
+        "description": "Wymagania relacyjne i poczucie wsparcia."
+      }
+    },
+    "constraints": {
+      "noteLabel": "Notatka o ograniczeniach",
+      "notePlaceholder": "Ograniczenia czasu, energii, potrzeby wsparcia, wyjazdy itd.",
+      "noteHint": "Potraktuj to jako kontekst do planu, a nie cel do wykonania."
+    },
+    "projectsStep": {
+      "title": "Twoje aktywne projekty",
+      "emptyTitle": "Brak aktywnych projektow",
+      "emptyDescription": "Nie masz aktywnych projektow na ten okres. Możesz tworżyć projekty w widoku planowania miesiecznego.",
+      "focusedThisWeek": "W centrum uwagi w tym tygodniu"
+    },
+    "commitmentsStep": {
+      "title": "Twoje zobowiązania na tydzien",
+      "emptyTitle": "Brak zobowiazan...",
+      "emptyDescription": "Zacznij od dodania zobowiązania powyzej.",
+      "addFirst": "Dodaj pierwsze zobowiązanie",
+      "addCommitment": "Dodaj zobowiązanie",
+      "trackersTitle": "Wskazniki na ten tydzien",
+      "thisWeekTarget": "Cel na ten tydzien",
+      "suggested": "Sugerowane:",
+      "weeklyHabits": "Nawyki tygodniowe"
+    },
+    "focusStep": {
+      "title": "Ustaw skupienie na tydzien",
+      "focusSentenceLabel": "Co sprawi, że ten tydzień będzie udany?",
+      "focusSentencePlaceholder": "Jedno zdanie oddajace Twoja główna intencje...",
+      "adaptiveIntentionLabel": "Jak chcesz reagowac, gdy sprawy się skomplikuja?",
+      "adaptiveIntentionPlaceholder": "Adaptacyjna intencja typu jesli-to...",
+      "partsToWatch": "Części do obserwowania w tym tygodniu",
+      "partsToWatchEmpty": "Brak części IFS do wyboru. Możesz tworżyć części w ćwiczeniach IFS.",
+      "partsToWatchPlaceholder": "Wybierz części, które moga być aktywne w tym tygodniu..."
+    },
+    "confirmStep": {
+      "saveError": "Nie udalo się zapisać planu tygodnia"
+    },
+    "validation": {
+      "nameRequired": "Prosze wpisać date początkówa przed kontynuowaniem.",
+      "startDateRequired": "Data początkówa jest wymagana.",
+      "endDateRequired": "Data koncowa jest wymagana."
+    }
+  },
+  "monthly": {
+    "title": "Planowanie miesiaca",
+    "heading": "Zdefiniuj swój miesiac",
+    "steps": {
+      "period": {
+        "title": "Okres",
+        "subtitle": "Ustaw daty"
+      },
+      "signals": {
+        "title": "Sygnaly",
+        "subtitle": "Przeglad danych"
+      },
+      "focus": {
+        "title": "Skupienie",
+        "subtitle": "Wybierz obszary"
+      },
+      "projects": {
+        "title": "Projekty",
+        "subtitle": "Zdefiniuj inicjatywy"
+      },
+      "review": {
+        "title": "Przeglad",
+        "subtitle": "Potwierdz plan"
+      }
+    },
+    "nextButton": {
+      "toSignals": "Przejdz do sygnalow",
+      "toFocus": "Dalej do skupienia",
+      "toProjects": "Dalej do projektow",
+      "toReview": "Przejrzyj i potwierdz",
+      "savePlan": "Zapisz plan miesiaca"
+    },
+    "period": {
+      "startDate": "Data początkówa",
+      "endDate": "Data koncowa",
+      "customName": "Wlasna nazwa",
+      "optional": "(opcjonalnie)"
+    },
+    "focusStep": {
+      "title": "Skupienie na ten miesiac",
+      "primary": "Glowne",
+      "secondaryOptional": "Drugorzedne (opcjonalnie)",
+      "monthIntentionLabel": "Intencja miesiaca",
+      "monthIntentionPlaceholder": "Czego chcesz, zeby ten miesiac dotyczyl?",
+      "focusSuccessSignalLabel": "Sygnal sukcesu skupienia",
+      "focusSuccessSignalPlaceholder": "Po czym poznasz, ze miesiac idzie w dobrym kierunku?",
+      "balanceGuardrailLabel": "Granica rownowagi",
+      "balanceGuardrailPlaceholder": "Jaka granica ochroni inne obszary zycia podczas realizacji fokusu?"
+    },
+    "signalsStep": {
+      "title": "Przeglad sygnalow",
+      "subtitle": "Wykorzystaj dane z poprzedniego miesiaca do ustawienia kierunku.",
+      "previousMonth": "Sygnaly z okresu: {month}",
+      "weeksReflected": "Tygodnie z refleksja",
+      "commitmentCompletion": "Realizacja zobowiazan",
+      "deteriorationRisk": "Ryzyko pogorszenia",
+      "detected": "Wykryto",
+      "notDetected": "Nie wykryto",
+      "lastReflection": "Notatki z ostatniej refleksji",
+      "prefillSuggestions": "Sugerowane przeniesienie",
+      "empty": "Brak sygnalow z poprzedniego miesiaca. Kontynuuj na bazie obecnego kontekstu.",
+      "detectedDeteriorationGuardrail": "Najpierw zabezpiecz obszary, ktore pogorszyly sie w poprzednim miesiacu."
+    },
+    "projectsStep": {
+      "title": "Zdefiniuj swoje projekty",
+      "carryForward": "Kontynuuj z poprzednich miesiecy",
+      "trackersTitle": "Wskazniki i nawyki na ten miesiac",
+      "previousTrackerCompletion": "Poprzedni miesiac: {percent}% realizacji",
+      "noPreviousTrackerSignal": "Poprzedni miesiac: brak sygnalu z trackera"
+    },
+    "confirmStep": {
+      "saveError": "Nie udalo się zapisać planu miesiaca"
+    }
+  },
+  "yearly": {
+    "title": "Planowanie roczne",
+    "heading": "Zaplanuj swój rok",
+    "steps": {
+      "welcome": {
+        "title": "Witaj",
+        "subtitle": "Zacznij"
+      },
+      "period": {
+        "title": "Okres",
+        "subtitle": "Ustaw daty"
+      },
+      "values": {
+        "title": "Wartosci",
+        "subtitle": "Refleksja"
+      },
+      "vision": {
+        "title": "Wizja",
+        "subtitle": "Marz wielko"
+      },
+      "lifeWheel": {
+        "title": "Kolo życia",
+        "subtitle": "Oceń obszary"
+      },
+      "dreaming": {
+        "title": "Marzenia",
+        "subtitle": "Wyobrazaj sobie"
+      },
+      "focusAreas": {
+        "title": "Obszary skupienia",
+        "subtitle": "Wybierz obszary"
+      },
+      "baselines": {
+        "title": "Stan początkówy",
+        "subtitle": "Obecny stan"
+      },
+      "priorities": {
+        "title": "Priorytety",
+        "subtitle": "Ustaw cele"
+      },
+      "review": {
+        "title": "Przeglad",
+        "subtitle": "Potwierdz plan"
+      }
+    },
+    "welcome": {
+      "title": "Witaj w planowaniu rocznym",
+      "description": "Ten przewodnik pomoże Ci wyznacżyć jasny kierunek na nadchodzacy rok.",
+      "processSteps": {
+        "step1": "Zdefiniuj okres planowania",
+        "step2": "Przejrzyj swoje wartości i motyw roku",
+        "step3": "Napisz swoja historie i wymarzona o fantastycznym dniu",
+        "step4": "Przeprowadz ćwiczenie marzenia, by pobudzic mechanizm przewidywania",
+        "step5": "Wybierz glowne obszary życia",
+        "step6": "Napisz narracje początkówe dla każdego obszaru",
+        "step7": "Zdefiniuj priorytety z sygnalami sukcesu i ograniczeniami",
+        "step8": "Przejrzyj wszystko i zapisz"
+      }
+    },
+    "period": {
+      "title": "Zdefiniuj roczny okres",
+      "startDate": "Data początkówa",
+      "endDate": "Data koncowa",
+      "customName": "Wlasna nazwa",
+      "optional": "(opcjonalnie)"
+    },
+    "values": {
+      "title": "Przeglad wartości",
+      "description": "Poświęć chwile na refleksje nad swoimi wartościami. Ksztaltuja one priorytety, które ustalisz dalej.",
+      "noLifeAreas": "Brak zdefiniowanych obszarow życia. Dodaj je w sekcji Obszary życia.",
+      "manageLifeAreas": "Zarzadzaj obszarami życia"
+    },
+    "vision": {
+      "yearTheme": {
+        "title": "Motyw roku",
+        "description": "Jedno słowo lub krotkie zdanie oddajace ducha Twojego roku.",
+        "placeholder": "np. Rozwoj, Rownowaga, Przygoda...",
+        "examples": "Przyklady: Rozwoj, Rownowaga, Przygoda, Uproszczenie, Tworzenie, Laczenie, Skupienie, Radosc"
+      },
+      "story": {
+        "title": "Twoja historia",
+        "description": "Napisz krotka narracje o tym, jak chcesz, aby ten rok się potocżyć.",
+        "placeholder": "Jaka chcesz, żeby byla historia tego roku?"
+      },
+      "fantasticDay": {
+        "title": "Twoj fantastyczny dzien",
+        "description": "Opisz swój idealny dzień w nadchodzacym roku ze szczegolami. Co widzisz, slyszysz, czujesz?",
+        "placeholder": "Opisz swój idealny dzien..."
+      }
+    },
+    "lifeWheel": {
+      "title": "Przeglad kola życia",
+      "description": "Oceń swoja satysfakcje z każdego obszaru życia, by zidentyfikować, gdzie się skupic.",
+      "noLifeAreas": "Nie masz zdefiniowanych obszarow życia. Utwórz je w sekcji Obszary życia, by użyć Kola życia.",
+      "manageLifeAreas": "Zarzadzaj obszarami życia",
+      "scale": "1 = Nisko, 10 = Wysoko"
+    },
+    "focusAreas": {
+      "title": "Wybierz glowne obszary życia",
+      "description": "Wybierz obszary, na które chcesz poświęćic najwiecej energii w tym roku.",
+      "primaryFocus": "Glowne skupienie",
+      "secondaryFocus": "Drugorzedne skupienie",
+      "selectPrimary": "Wybierz główny obszar skupienia",
+      "selectSecondary": "Wybierz drugorzedne obszary"
+    },
+    "baselines": {
+      "title": "Narracje początkówe obszarow życia",
+      "description": "Dla każdego wybranego obszaru opisz, gdzie jestes teraz. To tworzy punkt wyjscia do pomiaru postepu.",
+      "placeholder": "Gdzie jestes teraz w tym obszarze? Co działa? Co wymaga uwagi?"
+    },
+    "prioritiesStep": {
+      "title": "Ustaw swoje priorytety",
+      "description": "Zdefiniuj priorytety, które beda kierowac Twoimi działaniami w tym roku.",
+      "addPriority": "Dodaj priorytet",
+      "emptyTitle": "Brak zdefiniowanych priorytetow.",
+      "emptyDescription": "Dodaj swój pierwszy priorytet, aby zaczac."
+    },
+    "confirmStep": {
+      "saveError": "Nie udalo się zapisać planu rocznego"
+    },
+    "nextButton": {
+      "savePlan": "Zapisz plan roczny"
+    }
+  },
+  "reflection": {
+    "weekly": {
+      "title": "Refleksja tygodniowa",
+      "subtitle": "Przegladnij swój tydzien",
+      "reviewCommitments": {
+        "title": "Przejrzyj zobowiązania",
+        "statusPlanned": "Zaplanowane",
+        "statusDone": "Wykonane",
+        "statusSkipped": "Pominiete",
+        "noCommitments": "Brak zobowiazan na ten tydzien."
+      },
+      "batteryCheckIn": {
+        "title": "Kontrola baterii",
+        "subtitle": "Ocen kazda baterie w skali 1-5.",
+        "definitionDemand": "Obciazenie = ile ciezaru niosla ta bateria w minionym tygodniu.",
+        "definitionState": "Stan = ile naladowania ma ta bateria na koniec tygodnia.",
+        "demandLabel": "Obciazenie (miniony tydzien)",
+        "stateLabel": "Stan (koniec tygodnia)",
+        "balanceCueLabel": "Wskaznik rownowagi",
+        "quickNoteLabel": "Szybka notatka (opcjonalnie)",
+        "quickNotePlaceholder": "Co najbardziej wplynelo na wynik tej baterii?",
+        "balanceCue": {
+          "pending": "Uzupelnij obie oceny",
+          "balanced": "Rownowaga",
+          "stretched": "Lekkie przeciazenie",
+          "overloaded": "Przeciazona",
+          "recharging": "Regeneracja"
+        },
+        "missingRatings": "Brakuje jeszcze {count} ocen przed zakonczeniem refleksji.",
+        "validationError": "Uzupelnij obciazenie i stan dla wszystkich czterech baterii przed zakonczeniem refleksji.",
+        "batteries": {
+          "body": {
+            "title": "Cialo",
+            "description": "Energia fizyczna, sen, regeneracja i obciazenie."
+          },
+          "mind": {
+            "title": "Umysl",
+            "description": "Skupienie, obciazenie poznawcze i klarownosc."
+          },
+          "emotion": {
+            "title": "Emocje",
+            "description": "Intensywnosc emocji, regulacja i stabilnosc."
+          },
+          "social": {
+            "title": "Relacje",
+            "description": "Wymagania relacyjne, wsparcie i jakosc kontaktu."
+          }
+        }
+      },
+      "timeline": {
+        "title": "Oś aktywnosci tego tygodnia",
+        "subtitle": "Wpisy dziennika i logi emocji zapisane w tym tygodniu.",
+        "journalLabel": "Dziennik",
+        "journalUntitled": "Wpis bez tytulu",
+        "openJournal": "Otworz wpis dziennika",
+        "emotionLabel": "Log emocji",
+        "emotionUnknown": "Wpis logu emocji",
+        "openEmotionLog": "Otworz log emocji",
+        "empty": "W tym tygodniu nie zapisano wpisow dziennika ani logow emocji."
+      },
+      "reflectPrompts": {
+        "title": "Refleksja nad tygodniem",
+        "whatHelped": "Co Ci pomógło w tym tygodniu?",
+        "whatHelpedPlaceholder": "Co poszlo dobrze? Co wspieralo Twoj postep?",
+        "whatGotInTheWay": "Co stanelo na przeszkodzie?",
+        "whatGotInTheWayPlaceholder": "Przeszkody, rozproszenia lub wyzwania...",
+        "whatDidYouLearn": "Czego się nauczyles/as?",
+        "whatDidYouLearnPlaceholder": "Spostrzezenia, niespodzianki lub odkrycia...",
+        "batteryDrainers": "Co najbardziej rozladowywalo Twoje baterie?",
+        "batteryDrainersPlaceholder": "Wzorce, osoby, zadania lub konteksty, ktore odbieraly energie...",
+        "batteryRechargers": "Co najbardziej doladowywalo Twoje baterie?",
+        "batteryRechargersPlaceholder": "Praktyki, wsparcie lub dzialania, ktore Cie regenerowaly...",
+        "batteryBoundaryNextWeek": "Jaka granica/wsparcie ochroni Twoje baterie w przyszlym tygodniu?",
+        "batteryBoundaryNextWeekPlaceholder": "Granica, prosba, bufor w kalendarzu lub wsparcie, ktore zastosujesz...",
+        "nextWeekSeed": "Ziarno do zasadzenia na następny tydzien",
+        "nextWeekSeedPlaceholder": "Jedna rzecz do przeniesienia dalej..."
+      },
+      "ifs": {
+        "title": "System wewnętrzny w tym tygodniu",
+        "mostActiveParts": "Najbardziej aktywne części",
+        "selfLeadership": "Samoprzywodztwo",
+        "selfEnergy": "Energia Ja w tym tygodniu",
+        "aiSummary": "Podsumowanie tygodnia AI",
+        "aiSummaryLoading": "Generowanie podsumowania...",
+        "aiSummaryError": "Nie udalo się wygenerowac podsumowania.",
+        "noParts": "Brak części IFS do wyboru."
+      },
+      "save": {
+        "complete": "Zakończ refleksje",
+        "update": "Zaktualizuj refleksje",
+        "error": "Nie udalo się zapisać refleksji tygodniowej"
+      }
+    },
+    "monthly": {
+      "title": "Refleksja miesieczna",
+      "subtitle": "Przegladnij swój miesiac",
+      "placeholder": "Kreator refleksji miesiecznej jest aktualizowany. Prosimy sprawdzic pozniej.",
+      "goBack": "Wstecz",
+      "noPlanTitle": "Brak planu miesiecznego",
+      "noPlanDescription": "Najpierw utworz lub otworz plan miesieczny, a potem wroc do refleksji.",
+      "createPlanCta": "Otworz plan miesieczny",
+      "steps": {
+        "evidence": {
+          "title": "Dane",
+          "subtitle": "Przeglad miesiaca"
+        },
+        "direction": {
+          "title": "Kierunek",
+          "subtitle": "Ocena trajektorii"
+        },
+        "projects": {
+          "title": "Projekty",
+          "subtitle": "Przeglad efektow"
+        },
+        "focusAreas": {
+          "title": "Obszary fokusu",
+          "subtitle": "Sprawdz rownowage"
+        },
+        "courseCorrection": {
+          "title": "Korekta kursu",
+          "subtitle": "Dopasuj podejscie"
+        },
+        "summary": {
+          "title": "Podsumowanie",
+          "subtitle": "Zapisz wnioski"
+        }
+      },
+      "evidence": {
+        "title": "Migawka danych miesiaca",
+        "subtitle": "Refleksje tygodniowe, zobowiazania, trackery, dzienniki i emocje.",
+        "weeksReflected": "Tygodnie z refleksja",
+        "commitments": "Zobowiazania",
+        "logs": "Logi",
+        "logsValue": "{journals} wpisow dziennika, {emotions} logow emocji",
+        "batteries": "Srednie baterii",
+        "weeklyCards": "Karty tygodniowe",
+        "reflected": "Zreflektowany",
+        "notReflected": "Bez refleksji",
+        "commitmentRow": "{done} zrobione · {skipped} pominiete · {planned} zaplanowane",
+        "learned": "Nauka",
+        "noWeeks": "Brak tygodni nakladajacych sie z tym miesiacem.",
+        "projects": "Sygnaly projektowe",
+        "noProjects": "Brak projektow powiazanych z tym miesiacem."
+      },
+      "direction": {
+        "title": "Ocena kierunku",
+        "subtitle": "Ocen kazdy obszar od 1 (nisko) do 5 (wysoko).",
+        "projects": "Projekty ida we wlasciwym kierunku",
+        "priorities": "Dzialania sa zgodne z priorytetami",
+        "relationships": "Czulem/am polaczenie z waznymi ludzmi",
+        "meaning": "To, co robilem/am, mialo sens",
+        "impact": "Moje wysilki mialy widoczny wplyw",
+        "stuckness": "Czulem/am utkwniecie (wyzej = bardziej utkwniecie)",
+        "validation": "Brakuje jeszcze {count} wymaganych ocen."
+      },
+      "projectReview": {
+        "title": "Przeglad projektow",
+        "subtitle": "Ocen postep i wybierz decyzje dla kazdego projektu w zakresie miesiaca.",
+        "decision": "Decyzja",
+        "progress": "Postep w tym miesiacu",
+        "notePlaceholder": "Opcjonalna notatka: co sie wydarzylo i dlaczego...",
+        "empty": "W tym miesiacu nie bylo projektow w zakresie refleksji."
+      },
+      "projectDecisions": {
+        "continue": "Kontynuuj",
+        "rescope": "Zmien zakres",
+        "pause": "Wstrzymaj",
+        "complete": "Zakoncz",
+        "abandon": "Porzuc"
+      },
+      "focusAreaReview": {
+        "title": "Przeglad obszarow fokusu",
+        "subtitle": "Ocen postep i sprawdz, czy jakis obszar sie pogorszyl.",
+        "progress": "Postep w tym miesiacu",
+        "deteriorated": "Ten obszar sie pogorszyl",
+        "notePlaceholder": "Opcjonalna notatka o przyczynach i wzorcach...",
+        "empty": "Brak wykrytych obszarow fokusu dla tego miesiaca."
+      },
+      "courseCorrection": {
+        "start": "Zacznij",
+        "stop": "Przestan",
+        "continue": "Kontynuuj",
+        "addStart": "Dodaj zachowanie do rozpoczecia",
+        "addStop": "Dodaj zachowanie do zatrzymania",
+        "addContinue": "Dodaj zachowanie do kontynuacji",
+        "startEmpty": "Brak pozycji do rozpoczecia.",
+        "stopEmpty": "Brak pozycji do zatrzymania.",
+        "continueEmpty": "Brak pozycji do kontynuacji.",
+        "ifThenPlan": "Plan jesli-to (opcjonalnie)",
+        "ifThenPlaceholder": "Jesli [ryzyko], to [konkretna reakcja]."
+      },
+      "summary": {
+        "wins": "Wygrane",
+        "challenges": "Wyzwania",
+        "learnings": "Wnioski",
+        "adjustments": "Korekty",
+        "addWin": "Dodaj wygrana",
+        "addChallenge": "Dodaj wyzwanie",
+        "addLearning": "Dodaj wniosek",
+        "winsEmpty": "Brak wygranych.",
+        "challengesEmpty": "Brak wyzwan.",
+        "learningsEmpty": "Brak wnioskow.",
+        "adjustmentsPlaceholder": "Co zmienisz w nastepnym miesiacu?"
+      },
+      "save": {
+        "complete": "Zakoncz refleksje",
+        "update": "Zaktualizuj refleksje",
+        "error": "Nie udalo sie zapisac refleksji miesiecznej"
+      },
+      "completedBanner": "Ta refleksja miesieczna jest juz zakonczona. Zapis zaktualizuje dane."
+    },
+    "yearly": {
+      "title": "Refleksja roczna",
+      "heading": "Refleksja nad rokiem",
+      "steps": {
+        "framing": {
+          "title": "Witaj"
+        },
+        "successes": {
+          "title": "Sukcesy"
+        },
+        "challenges": {
+          "title": "Wyzwania"
+        },
+        "experiences": {
+          "title": "Doswiadczenia"
+        },
+        "gratitude": {
+          "title": "Wdziecznosc"
+        },
+        "health": {
+          "title": "Zdrowie"
+        },
+        "forgiveness": {
+          "title": "Przebaczenie"
+        },
+        "lettingGo": {
+          "title": "Puszczanie"
+        },
+        "summary": {
+          "title": "Podsumowanie"
+        }
+      },
+      "framing": {
+        "title": "Witaj w rocznej refleksji",
+        "description": "Ta prowadzona refleksja pomoże Ci spojrzec wstecz na miniony rok z intencja.",
+        "processSteps": {
+          "step1": "Uczcij swoje sukcesy",
+          "step2": "Dostrzes wyzwania i rozwoj",
+          "step3": "Uchwyt pamietne doświadczenia",
+          "step4": "Wyraz wdziecznosc",
+          "step5": "Zastanow się nad zdrowiem i dobrostanem",
+          "step6": "Praktykuj przebaczenie",
+          "step7": "Puscij to, co już Ci nie sluzy",
+          "step8": "Podsumuj swój rok"
+        }
+      },
+      "successes": {
+        "title": "Twoje sukcesy",
+        "description": "Co poszlo dobrze w tym roku? Wymień swoje wygrane, duże i małe.",
+        "prompt": "Z jakich osiagniec jestes dumny/a?",
+        "placeholder": "Osiagniecie lub wygrana..."
+      },
+      "challenges": {
+        "title": "Twoje wyzwania",
+        "description": "Co było trudne w tym roku? Co Cie wyzwalo?",
+        "prompt": "Jakie przeszkody napotkales/as?",
+        "placeholder": "Wyzwanie lub trudność..."
+      },
+      "experiences": {
+        "title": "Pamietne doświadczenia",
+        "books": {
+          "title": "Przeczytane ksiazki",
+          "placeholder": "Tytul ksiazki..."
+        },
+        "learnings": {
+          "title": "Czego się nauczyles/as",
+          "placeholder": "Cos, czego się nauczyles/as..."
+        },
+        "movies": {
+          "title": "Filmy i seriale",
+          "placeholder": "Film lub serial..."
+        },
+        "trips": {
+          "title": "Podroze i przygody",
+          "placeholder": "Podroz lub przygoda..."
+        },
+        "events": {
+          "title": "Wazne wydarzenia",
+          "placeholder": "Wazne wydarzenie..."
+        },
+        "moments": {
+          "title": "Cenne chwile",
+          "placeholder": "Chwila do zapamietania..."
+        }
+      },
+      "gratitude": {
+        "title": "Wdziecznosc",
+        "people": {
+          "title": "Ludzie, za których jestes wdzieczny/a",
+          "placeholder": "Osoba, za która jestes wdzieczny/a..."
+        },
+        "things": {
+          "title": "Rzeczy, za które jestes wdzieczny/a",
+          "placeholder": "Cos, za co jestes wdzieczny/a..."
+        },
+        "places": {
+          "title": "Miejsca, za które jestes wdzieczny/a",
+          "placeholder": "Miejsce, za które jestes wdzieczny/a..."
+        }
+      },
+      "health": {
+        "title": "Zdrowie i dobrostan",
+        "body": {
+          "label": "Jak traktowales/as swoje ciało w tym roku?",
+          "placeholder": "Refleksja nad zdrowiem fiżyćznym..."
+        },
+        "mind": {
+          "label": "Jak dbales/as o swój umysl w tym roku?",
+          "placeholder": "Refleksja nad zdrowiem psychicznym..."
+        },
+        "spirit": {
+          "label": "Jak karmiles/as swojego ducha w tym roku?",
+          "placeholder": "Refleksja nad rozwojem duchowym lub emocjonalnym..."
+        }
+      },
+      "forgiveness": {
+        "title": "Przebaczenie",
+        "description": "Czy jest cos lub ktos, komu musisz przebacżyć, w tym sobie?",
+        "selfLabel": "Przebaczenie dla siebie",
+        "selfPlaceholder": "Co chcesz sobie przebacżyć?",
+        "othersLabel": "Przebaczenie dla innych",
+        "othersPlaceholder": "Komu lub co chcesz przebacżyć?"
+      },
+      "lettingGo": {
+        "title": "Puszczanie",
+        "description": "Co jestes gotowy/a puscic, wchodzac w nowy rok?",
+        "beliefsLabel": "Przekonania do puszczenia",
+        "beliefsPlaceholder": "Przekonanie, które już Ci nie sluzy...",
+        "habitsLabel": "Nawyki do puszczenia",
+        "habitsPlaceholder": "Nawyk, który chcesz puscic...",
+        "commitments": "Zobowiazania do puszczenia",
+        "commitmentsPlaceholder": "Zobowiazanie, które chcesz puscic..."
+      },
+      "summary": {
+        "title": "Rok w skrocie",
+        "wordOfTheYear": "Slowo roku",
+        "wordPlaceholder": "Jedno słowo opisujace Twoj rok...",
+        "letterToSelf": "List do siebie",
+        "letterPlaceholder": "Napisz krotki list do przyszlego siebie...",
+        "overallRating": "Ogolna ocena roku",
+        "ratingScale": "{min} = Najgorsze, {max} = Najlepsze"
+      },
+      "saveButton": {
+        "complete": "Zakończ refleksje roczna",
+        "update": "Zaktualizuj refleksje roczna"
+      },
+      "saveError": "Nie udalo się zapisać refleksji rocznej"
+    }
+  },
+  "projectTracker": {
+    "title": "Projekty i wskazniki",
+    "subtitle": "Zarzadzaj datami projektow, definicjami KR i celami okresowymi wskaznikow.",
+    "fields": {
+      "name": "Nazwa",
+      "icon": "Ikona",
+      "status": "Status",
+      "startDate": "Data początkówa",
+      "endDate": "Data koncowa",
+      "objective": "Cel"
+    },
+    "linkedMonths": "Powiazane miesiace",
+    "focusMonths": "Miesiace skupienia",
+    "focusWeeks": "Tygodnie skupienia",
+    "keyResults": "Kluczowe rezultaty (wskazniki)",
+    "trackerSelection": {
+      "title": "Wybor wskaznikow wedlug okresu",
+      "monthlyPlans": "Plany miesieczne",
+      "weeklyPlans": "Plany tygodniowe"
+    },
+    "save": "Zapisz projekt",
+    "saving": "Zapisywanie projektu...",
+    "saved": "Projekt zapisany",
+    "saveError": "Nie udalo się zapisać projektu"
+  },
+  "common": {
+    "status": {
+      "planned": "Zaplanowane",
+      "active": "Aktywne",
+      "paused": "Wstrzymane",
+      "completed": "Zakończone",
+      "abandoned": "Porzucone",
+      "done": "Wykonane",
+      "skipped": "Pominiete",
+      "dropped": "Usuniety",
+      "partial": "Częściowe"
+    },
+    "periods": {
+      "weekly": "Tygodniowo",
+      "monthly": "Miesiecznie",
+      "yearly": "Rocznie",
+      "week": "Tydzien",
+      "month": "Miesiac",
+      "year": "Rok"
+    },
+    "trackers": {
+      "types": {
+        "count": "Licznik",
+        "completion": "Wykonanie",
+        "measure": "Pomiar",
+        "rating": "Ocena"
+      },
+      "typeDescriptions": {
+        "count": "Ile razy?",
+        "completion": "Czy zostalo zrobione?",
+        "measure": "Śledź liczbe w czasię",
+        "rating": "Oceń na skali"
+      },
+      "direction": {
+        "increase": "Wzrost",
+        "decrease": "Spadek"
+      },
+      "rollup": {
+        "sum": "Suma",
+        "average": "Srednia",
+        "last": "Ostatnia wartosc"
+      },
+      "cadence": {
+        "weekly": "Tygodniowo",
+        "monthly": "Miesiecznie"
+      },
+      "frequency": "Częstotliwosc",
+      "calculation": "Obliczenie",
+      "advanced": "Zaawansowane",
+      "hideAdvanced": "Ukryj zaawansowane",
+      "scale": "Skala",
+      "scaleFrom": "Od",
+      "scaleTo": "do"
+    },
+    "entities": {
+      "project": "Projekt",
+      "lifeArea": "Obszar życia",
+      "lifeAreas": "Obszary życia",
+      "priority": "Priorytet",
+      "priorities": "Priorytety",
+      "commitment": "Zobowiazanie",
+      "commitments": "Zobowiazania",
+      "tracker": "Wskaznik",
+      "habit": "Nawyk",
+      "projects": "Projekty"
+    },
+    "links": {
+      "addLink": "Dodaj link",
+      "removeLink": "Usun link",
+      "addTracker": "Dodaj wskaznik",
+      "removeTracker": "Usun wskaznik",
+      "noLinksAvailable": "Brak dostępnych linkow do dodania.",
+      "noExplicitLinks": "Brak jawnych linkow do usuniecia.",
+      "noLinksYet": "Brak linkow",
+      "showLinkDetails": "Pokaz szczegoly linkow",
+      "hideLinkDetails": "Ukryj szczegoly linkow"
+    },
+    "validation": {
+      "nameRequired": "Nazwa jest wymagana",
+      "startDateRequired": "Data początkówa jest wymagana.",
+      "endDateRequired": "Data koncowa jest wymagana.",
+      "endDateAfterStart": "Data koncowa musi być po dacie początkówej.",
+      "startBeforeEnd": "Data początkówa musi być przed lub rowna dacie koncowej.",
+      "duplicatePeriod": "Okres o tych dokladnych datach już istnieje.",
+      "targetRequired": "Cel jest wymagany.",
+      "ratingScaleInvalid": "Skala oceń musi zawierac min i max (min mniejsze od max).",
+      "nameRequiredField": "Nazwa jest wymagana."
+    }
+  },
+  "components": {
+    "periodCard": {
+      "plan": "Planuj",
+      "planMissed": "Plan pominiety",
+      "planned": "Zaplanowano",
+      "reflect": "Refleksja",
+      "reflectMissed": "Refleksja pominieta",
+      "reflected": "Po refleksji",
+      "months": {
+        "0": "Styczen",
+        "1": "Luty",
+        "2": "Marzec",
+        "3": "Kwiecien",
+        "4": "Maj",
+        "5": "Czerwiec",
+        "6": "Lipiec",
+        "7": "Sierpien",
+        "8": "Wrzesien",
+        "9": "Pazdziernik",
+        "10": "Listopad",
+        "11": "Grudzien"
+      }
+    },
+    "addPeriodCard": {
+      "defaultLabel": "Dodaj okres"
+    },
+    "commitmentCard": {
+      "editName": "Edytuj nazwe zobowiązania",
+      "deleteCommitment": "Usun zobowiązanie",
+      "openActions": "Otwórz akcje zobowiązania"
+    },
+    "commitmentComposerCard": {
+      "nameLabel": "Nazwa zobowiązania",
+      "namePlaceholder": "Dodaj zobowiązanie",
+      "creating": "Tworzenie..."
+    },
+    "commitmentActionsMenu": {
+      "trackerType": "Typ wskaznika",
+      "countTickBoxes": "Licznik (ptaszki)",
+      "valueNumber": "Wartosc (liczba)",
+      "ratingScale": "Ocena (1-10)"
+    },
+    "trackerCard": {
+      "cadenceLabels": {
+        "habit": "Nawyk",
+        "project": "Projekt",
+        "week": "Tydzien",
+        "month": "Miesiac"
+      }
+    },
+    "trackerDisplay": {
+      "tickLabel": "Ptaszek {index}",
+      "completed": "wykonane",
+      "incomplete": "niewykonane"
+    },
+    "trackerLogForm": {
+      "logProgress": "Rejestruj postep",
+      "valuePlaceholder": "Wartosc",
+      "countPlaceholder": "Ilosc",
+      "completedPlaceholder": "Wykonane",
+      "markComplete": "Oznacz jako wykonane",
+      "logProgressButton": "Zarejestruj postep",
+      "failedToSave": "Nie udalo się zapisać wpisu."
+    },
+    "trackerInlineInput": {
+      "valuePlaceholder": "Wartosc",
+      "valueWithUnit": "Wartosc ({unit})",
+      "logValue": "Zarejestruj wartosc",
+      "logRating": "Zarejestruj ocene",
+      "addCountItem": "Dodaj element licznika",
+      "removeCountItem": "Usun element licznika {index}",
+      "failedToLoadPeriod": "Nie udalo się zaladowac danych okresu wskaznika.",
+      "failedToSaveUpdate": "Nie udalo się zapisać aktualizacji wskaznika."
+    },
+    "trackerProgressRow": {
+      "collapseHistory": "Zwin historie",
+      "showHistory": "Pokaz historie",
+      "trendFor": "Trend dla {title}",
+      "current": "Biezacy",
+      "noData": "Brak danych",
+      "adherenceDone": "Wykonane",
+      "adherenceNotDone": "Niewykonane",
+      "removeOneCompletion": "Usun jedno wykonanie",
+      "addOneCompletion": "Dodaj jedno wykonanie",
+      "decreaseRating": "Zmniejsz ocene",
+      "increaseRating": "Zwieksz ocene",
+      "toggleCompletion": "Przełącz wykonanie"
+    },
+    "projectCard": {
+      "objective": "Cel",
+      "collapse": "Zwin",
+      "expand": "Rozwin",
+      "addObjective": "Dodaj cel",
+      "keyResults": "Kluczowe rezultaty",
+      "loadingKeyResults": "Ladowanie kluczowych rezultatow...",
+      "saveKeyResults": "Zapisz kluczowe rezultaty",
+      "deleteProject": "Usun projekt",
+      "confirmDeleteTitle": "Usunac projekt?",
+      "confirmDeleteMessage": "Spowoduje to trwale usuniecie projektu i jego danych wskaznikow."
+    },
+    "projectComposerCard": {
+      "nameLabel": "Nazwa projektu",
+      "namePlaceholder": "Dodaj projekt",
+      "iconLabel": "Ikona",
+      "objectiveLabel": "Cel",
+      "objectivePlaceholder": "Jaki jest główny wynik, który chcesz osiagnac?",
+      "timeboxLabel": "Ramka czasowa",
+      "startLabel": "Poczatek",
+      "endLabel": "Koniec",
+      "creating": "Tworzenie..."
+    },
+    "priorityComposerCard": {
+      "nameLabel": "Nazwa priorytetu",
+      "namePlaceholder": "Dodaj priorytet",
+      "iconLabel": "Ikona",
+      "successSignals": {
+        "title": "Sygnaly sukcesu",
+        "placeholder": "np. Ćwiczenie 3x w tygodniu",
+        "addSignal": "Dodaj sygnal"
+      },
+      "constraints": {
+        "title": "Ograniczenia",
+        "placeholder": "np. Nie zaniedbywac czasu z rodzina",
+        "addConstraint": "Dodaj ograniczenie"
+      },
+      "creating": "Tworzenie..."
+    },
+    "draftPriorityForm": {
+      "editPriority": "Edytuj priorytet",
+      "newPriority": "Nowy priorytet",
+      "nameLabel": "Nazwa",
+      "namePlaceholder": "np. Zbudowac nawyk regularnych ćwiczen",
+      "iconLabel": "Ikona",
+      "iconOptional": "(opcjonalnie)",
+      "linksLabel": "Linki",
+      "linksOptional": "(opcjonalnie)",
+      "successSignals": {
+        "title": "Sygnaly sukcesu",
+        "description": "Obserwowalne wskazniki, że sprawy ida dobrze",
+        "placeholder": "np. Ćwiczenie 3x w tygodniu",
+        "addSignal": "Dodaj sygnal"
+      },
+      "constraints": {
+        "title": "Ograniczenia",
+        "description": "Czego nie poświęćac (anty-cele)",
+        "placeholder": "np. Nie zaniedbywac czasu z rodzina",
+        "addConstraint": "Dodaj ograniczenie"
+      },
+      "activeLabel": "Aktywny",
+      "saveChanges": "Zapisz zmiany"
+    },
+    "draftPriorityItem": {
+      "editPriority": "Edytuj priorytet",
+      "deletePriority": "Usun priorytet"
+    },
+    "projectForm": {
+      "editProject": "Edytuj projekt",
+      "newProject": "Nowy projekt",
+      "nameLabel": "Nazwa",
+      "namePlaceholder": "np. Ukoncżyć program Couch to 5K",
+      "iconLabel": "Ikona",
+      "iconOptional": "(opcjonalnie)",
+      "linksLabel": "Linki",
+      "objectiveLabel": "Cel",
+      "objectiveOptional": "(opcjonalnie)",
+      "objectivePlaceholder": "Jaki jest główny wynik, który chcesz osiagnac?",
+      "timeboxLabel": "Ramka czasowa",
+      "startDateLabel": "Data początkówa",
+      "endDateLabel": "Data koncowa",
+      "statusLabel": "Status",
+      "savingButton": "Zapisywanie...",
+      "saveChanges": "Zapisz zmiany",
+      "createButton": "Utwórz",
+      "failedToSave": "Nie udalo się zapisać projektu",
+      "timeboxWarnings": {
+        "endRecommended": "Data koncowa jest opcjonalna, ale zalecana dla jasnej ramki czasowej.",
+        "startRecommended": "Data początkówa jest opcjonalna, ale zalecana dla jasnej ramki czasowej."
+      }
+    },
+    "keyResultsEditor": {
+      "title": "Kluczowe rezultaty",
+      "description": "Śledź mierzalne wyniki tego projektu.",
+      "addKR": "Dodaj KR",
+      "emptyWarning": "Kluczowe rezultaty są zalecane, ale opcjonalne.",
+      "keyResultLabel": "Kluczowy rezultat",
+      "namePlaceholder": "np. Przebiec 5 km w mniej niz 30 minut",
+      "removeKeyResult": "Usun kluczowy rezultat",
+      "typeLabel": "Typ",
+      "howMany": "Ile?",
+      "target": "Cel",
+      "unitOptional": "Jednostka (opcjonalnie)",
+      "unitPlaceholder": "np. minuty",
+      "direction": "Kierunek"
+    },
+    "krContributorsPanel": {
+      "loading": "Ladowanie wspoltworcow...",
+      "noContributors": "Brak zobowiazan celujacych w ten KR. Połącz zobowiązania poprzez ustawienie \"Prżyćzynia się do\"."
+    },
+    "krTargetSelector": {
+      "advances": "Prżyćzynia się do",
+      "noTrackerTargeted": "Brak wybranego wskaznika",
+      "removeTrackerTarget": "Usun cel wskaznika"
+    },
+    "dreamingExercise": {
+      "title": "Marzenia",
+      "subtitle": "Pobudz swój mechanizm przewidywania",
+      "intro": {
+        "paragraph1": "Zanim zaczniesz tworżyć cele, pomarz. Każdy cel jest przywiazany do marzenia: bez powiazanego marzenia cel nie ma emocjonalnej mocy, a emocje twórza nawyki. Im bardziej szczegolowe marzenie, tym bardziej Twoj mozg uwierzy, że już się spełnilo.",
+        "paragraph2": "Twoj mozg jest mechanizmem przewidywania. Marzenie sprawia, że bardziej prawdopodobne jest osiagniecie wynikow, które chcesz uzyskac z planowania nowego roku, pobudzajac ten mechanizm przewidywania.",
+        "quote": "Przewidywanie jest tak fundamentalna aktywnościa ludzkiego mozgu, że niektorzy naukowcy uwazaja je za główny tryb działania mozgu. Wszystko, co czujesz, opiera się na przewidywaniu na podstawie Twojej wiedzy i doświadczenia. Jestes prawdziwie architektem swojego doświadczenia. Wierzenie to czućie.",
+        "quoteAttribution": "Lisą Feldman Barrett, Jak powstaja emocje",
+        "paragraph3": "Jako architekt swojego doświadczenia odpowiedź na ponizsze pytania mozliwie jak najszczegolowiej. Kilka pytan prosi Cie o spojrzenie na wyniki oczami najwazniejszych ludzi w Twoim życiu, Twoich \"VIP-ow\". Pomaga to wyjsc z własnego nastawienia negatywnego, widzac swój postep z ich perspektywy. Te pytania podkreslaja również mocne strony i umiejętnośći, które już posiadasz i na które możesz licżyć dla odporności, gdy życie staje się trudne."
+      },
+      "questionOf": "Pytanie {current} z {total}",
+      "listSubtitle": "Dodaj tyle, ile możesz",
+      "textSubtitle": "Pisz swobodnie -- nie ma zlych odpowiedzi",
+      "exampleLabel": "Przyklad:",
+      "addAnother": "Dodaj kolejne",
+      "questions": {
+        "outcomes": {
+          "question": "Zalozmy, że następny rok potoczyl się dokladnie tak, jak było dla Ciebie najlepsze: pod koniec roku, co zauważysz, że zrobiles/as? Co jeszcze? Co jeszcze? Dodaj jak najwiecej szczegolow.",
+          "example": "Ukonczenie certyfikacji zawodowej. Przebiegniecie polmaratonu. Przeczytanie 24 ksiazek. Rodzinne wakacje za granica.",
+          "placeholder": "Cos, co bys zrobil/a..."
+        },
+        "difference": {
+          "question": "Jaka różnice przyniesię zrobienie tych rzeczy?",
+          "example": "Kurs doskonalenia umiejętnośći każdy poranek pozwolilby mi awansowac w karierze i zarabiac wiecej, abym mógł kupic większy dom dla mojej rosnace rodziny, gdzie będziemy dzielic szczęśliwe wspomnienia.",
+          "placeholder": "Opisz, jaka różnice by to przynioslo..."
+        },
+        "worthDoing": {
+          "question": "Co powiedzialoby Ci, że to, co zrobiles/as, było warte zrobienia?",
+          "example": "Moje dzieci ciezko pracuja nad edukacja, bo widza mój przyklad.",
+          "placeholder": "Co by Ci powiedzialo, że było warto..."
+        },
+        "vipsNotice": {
+          "question": "Co zauważylisz VIP-owie, co powiedzieloby im, że to, co zrobiles/as, było dla Ciebie wlasciwe?",
+          "example": "Mialbym/Mialabym usmiech na twarzy za każdym razem, gdy by mnie widzieli.",
+          "placeholder": "Co zauważyliby wazni ludzie w Twoim życiu..."
+        },
+        "vipAfterYear": {
+          "question": "Gdyby VIP nie widzial Cie przez caly rok, a potem Cie zobaczyl, co zauważylby o Tobie, co powiedzieloby mu, że zyjsz swoja preferowana przyszłościa?",
+          "example": "Usmiechlem/am się i dalem/am mu duży uscisk pełny milosci. Mogli zobacżyć moje podekscytowanie, gdy opowiadalem/am im o rzeczach, których się nauczylem/am.",
+          "placeholder": "Co by zauważyli o Tobie..."
+        },
+        "vipsSeeInYou": {
+          "question": "Co Twoi VIP-owie widza w Tobie, co mowi im, że możesz jak najlepiej wykorzystac następny rok?",
+          "example": "Widzieli, że mam czas na nauke, prace, rodzine i hobby, poniewaz planowalem/am swój kalendarz z intencja podczas regularnego tygodniowego przegladu.",
+          "placeholder": "Jakie mocne strony w Tobie widza..."
+        },
+        "vipsNoticeProgress": {
+          "question": "Co zauważylisz Twoi VIP-owie, co mowi im, że robisz postepy?",
+          "example": "Swietowalem/am z nimi każdą ukonczena sekcje kursu.",
+          "placeholder": "Jakie znaki postepu by widzieli..."
+        },
+        "knowAboutYourself": {
+          "question": "Co wiesz o sobie teraz, co mowi Ci, że masz to, czego potrzeba, by następny rok byl dla Ciebie najlepszy?",
+          "example": "Wiem, że przeszlem/am już przez trudne czasy i mialem/am odporność, by isc dalej. Prowadze liste moich mocnych stron uzytych w przeszłości, nawet tych najmniejszych.",
+          "placeholder": "Co już wiesz o swoich mocnych stronach..."
+        },
+        "oneClue": {
+          "question": "Jaka jest jedna wskazowka, nawet najmniejsza, która mowi Ci, że jestes na wlasciwej drodze, by nadchodzacy rok byl dla Ciebie idealny?",
+          "example": "Ukończyłem/am część lub całkowicie ten zeszyt ćwiczen.",
+          "placeholder": "Jedna mala wskazowka, że jestes na wlasciwej drodze..."
+        },
+        "progressClues": {
+          "question": "Jakie wskazowki zauważysz, które powiedza Ci, że robisz postepy? Te wskazowki są ziarenkami do tworzenia celow.",
+          "example": "Stwórzylem/am notatke z kilkoma kursami umiejętnośći, które moge wziac, aby pomoc w kierunku mojej kariery. Zapisalem/am się na kurs. Ukończyłem/am pierwszy modul.",
+          "placeholder": "Wskazowka mowiaca, że robisz postepy..."
+        }
+      },
+      "continue": "Kontynuuj"
+    },
+    "periodCreationDialog": {
+      "title": "Utwórz okres {type}",
+      "startDate": "Data początkówa",
+      "endDate": "Data koncowa",
+      "customName": "Wlasna nazwa",
+      "optional": "(opcjonalnie)",
+      "namePlaceholder": "np. Wiosenny sprint",
+      "defaultNameLabel": "Domyslna nazwa: {name}"
+    },
+    "weekCalendarSection": {
+      "loading": "Ladowanie planow tygodniowych...",
+      "addWeek": "Dodaj tydzien",
+      "planSnapshot": "Podglad planu",
+      "reflection": "Refleksja",
+      "loadingCommitments": "Ladowanie zobowiazan...",
+      "commitmentsAndTrackers": "Zobowiazania i wskazniki",
+      "addCommitment": "Dodaj zobowiązanie",
+      "startPlanHint": "Rozpocznij plan tygodnia, aby dodac zobowiązania...",
+      "deleteCommitment": "Usunac zobowiązanie?",
+      "deleteWeeklyPlan": "Usunac plan tygodnia?",
+      "deleteReflection": "Usunac refleksje?",
+      "planHighlights": {
+        "focusSentence": "Zdanie skupienia",
+        "adaptiveIntention": "Adaptacyjna intencja",
+        "constraintsNote": "Ograniczenia"
+      },
+      "reflectionHighlights": {
+        "whatHelped": "Co pomógło",
+        "whatGotInTheWay": "Co stanelo na przeszkodzie",
+        "whatILearned": "Czego się nauczylem/am",
+        "nextWeekSeed": "Ziarno na następny tydzien",
+        "batterySnapshot": "Migawka baterii"
+      }
+    },
+    "monthCalendarSection": {
+      "loading": "Ladowanie planow miesiecznych...",
+      "addMonth": "Dodaj miesiac",
+      "planSnapshot": "Podglad planu",
+      "reflection": "Refleksja",
+      "loadingProjects": "Ladowanie projektow...",
+      "projects": "Projekty",
+      "addProject": "Dodaj projekt",
+      "startPlanHint": "Rozpocznij plan miesiaca, aby rejestrowac projekty...",
+      "deleteProject": "Usunac projekt?",
+      "deleteMonthlyPlan": "Usunac plan miesiaca?",
+      "deleteReflection": "Usunac refleksje?",
+      "planHighlights": {
+        "monthlyIntention": "Intencja miesieczna",
+        "primaryFocus": "Glowne skupienie",
+        "secondaryFocus": "Drugorzedne skupienie"
+      },
+      "reflectionHighlights": {
+        "win": "Wygrana",
+        "challenge": "Wyzwanie",
+        "learning": "Nauka",
+        "adjustment": "Korekta",
+        "direction": "Kierunek",
+        "directionValue": "Projekty {projects}/5, Priorytety {priorities}/5, Relacje {relationships}/5",
+        "projectDecision": "Decyzja projektowa",
+        "focusGuardrail": "Granica fokusu",
+        "focusGuardrailDetected": "Wykryto pogorszenie w co najmniej jednym obszarze",
+        "ifThenPlan": "Plan jesli-to",
+        "start": "Zacznij"
+      }
+    },
+    "weekSection": {
+      "loading": "Ladowanie zobowiazan...",
+      "emptyTitle": "Brak zobowiazan",
+      "addCommitment": "Dodaj zobowiązanie",
+      "startPlanning": "Rozpocznij planowanie tygodnia",
+      "viewEditPlan": "Zobacz/Edytuj plan",
+      "startReflection": "Rozpocznij refleksje tygodniowa",
+      "viewReflection": "Zobacz refleksje",
+      "reflected": "Po refleksji",
+      "planReady": "Plan gotowy",
+      "noPlanYet": "Brak planu",
+      "deleteCommitment": "Usunac zobowiązanie?",
+      "commitmentCount": "{count} zobowiązanie | {count} zobowiazan"
+    },
+    "monthSection": {
+      "loading": "Ladowanie projektow...",
+      "emptyTitle": "Brak projektow",
+      "addProject": "Dodaj projekt",
+      "editPlan": "Edytuj plan miesieczny",
+      "startPlanning": "Rozpocznij planowanie miesiaca",
+      "reflected": "Po refleksji",
+      "planReady": "Plan gotowy",
+      "noPlanYet": "Brak planu",
+      "viewReflection": "Zobacz refleksje",
+      "startReflection": "Rozpocznij refleksje",
+      "deleteProject": "Usunac projekt?",
+      "projectCount": "{count} projekt | {count} projektow"
+    },
+    "contributionTrail": {
+      "title": "Sciezka wkładu",
+      "entityTypes": {
+        "commitment": "Zobowiazanie",
+        "project": "Projekt",
+        "lifeArea": "Obszar życia",
+        "priority": "Priorytet",
+        "habit": "Nawyk",
+        "tracker": "Wskaznik"
+      }
+    },
+    "linkedObjectsSection": {
+      "project": "Projekt",
+      "lifeAreas": "Obszary życia",
+      "priorities": "Priorytety"
+    },
+    "sourceBadge": {
+      "habit": "Nawyk",
+      "project": "Projekt"
+    },
+    "weeklyReviewSummary": {
+      "header": "{weekRange} w skrocie",
+      "reviewSubtitle": "Przejrzyj swój plan tygodnia przed potwierdzeniem",
+      "constraintsTitle": "Ograniczenia",
+      "constraintsNote": "Notatka:",
+      "constraintsEmpty": "Brak notatki o ograniczeniach.",
+      "batterySnapshotTitle": "Migawka baterii",
+      "commitmentsTitle": "Zobowiazania",
+      "commitmentsCount": "({count})",
+      "noCommitments": "Nie dodano zobowiazan na ten tydzien.",
+      "unlinked": "Niepowiazane",
+      "via": "przez {project}",
+      "focusTitle": "Skupienie tygodniowe",
+      "whatMakeGoodWeek": "Co sprawi, że ten tydzień będzie udany?",
+      "ifThingsGetMessy": "Jesli sprawy się skomplikuja, ja..."
+    },
+    "monthlyReviewSummary": {
+      "header": "{month} w skrocie",
+      "reviewSubtitle": "Przejrzyj swój plan miesiaca przed potwierdzeniem",
+      "focusTitle": "Skupienie na ten miesiac",
+      "primary": "Glowne",
+      "secondary": "Drugorzedne",
+      "noFocusAreas": "Nie wybrano obszarow skupienia",
+      "monthIntention": "Intencja miesiaca",
+      "focusSuccessSignal": "Sygnal sukcesu",
+      "balanceGuardrail": "Granica rownowagi",
+      "projectsTitle": "Projekty",
+      "projectsCount": "({count})",
+      "noProjects": "Nie zdefiniowano projektow na ten miesiac.",
+      "carriedForward": "Przeniesiony",
+      "carriedForwardCount": "{count} projekt przeniesiony z poprzedniego miesiaca | {count} projektow przeniesionych z poprzedniego miesiaca"
+    },
+    "yearlyReviewSummary": {
+      "planningPeriod": "Okres planowania",
+      "startLabel": "Poczatek:",
+      "endLabel": "Koniec:",
+      "nameLabel": "Nazwa:",
+      "yearTheme": "Motyw roku",
+      "dreamingTitle": "Marzenia",
+      "outcomesEnvisioned": "Wyobrazone wyniki",
+      "outcomesCount": "{count} wynikow wymieńionych",
+      "differenceMakes": "Jaka to robi różnice",
+      "progressClues": "Wskazowki postepu (ziarenka celow)",
+      "andMore": "...i jeszcze {count} wiecej",
+      "focusLifeAreas": "Glowne obszary życia",
+      "primaryFocus": "Glowne skupienie",
+      "noFocusAreas": "Nie wybrano jeszcze głównych obszarow życia.",
+      "prioritiesTitle": "Priorytety",
+      "noPriorities": "Nie zdefiniowano priorytetow na ten rok.",
+      "signalCount": "{count} sygnal | {count} sygnalow",
+      "constraintCount": "{count} ograniczenie | {count} ograniczen",
+      "unknown": "Nieznane"
+    },
+    "draftCommitmentForm": {
+      "editCommitment": "Edytuj zobowiązanie",
+      "newCommitment": "Nowe zobowiązanie",
+      "nameLabel": "Nazwa",
+      "namePlaceholder": "np. Biegaj 3 razy w tym tygodniu",
+      "linksLabel": "Linki",
+      "addCommitment": "Dodaj zobowiązanie"
+    },
+    "draftCommitmentCard": {
+      "editCommitment": "Edytuj zobowiązanie",
+      "deleteCommitment": "Usun zobowiązanie"
+    },
+    "draftProjectForm": {
+      "editProject": "Edytuj projekt",
+      "newProject": "Nowy projekt",
+      "nameLabel": "Nazwa",
+      "namePlaceholder": "np. Ukoncżyć program Couch to 5K",
+      "iconLabel": "Ikona",
+      "iconOptional": "(opcjonalnie)",
+      "linksLabel": "Linki",
+      "objectiveLabel": "Cel",
+      "objectiveOptional": "(opcjonalnie)",
+      "objectivePlaceholder": "Jaki jest główny wynik, który chcesz osiagnac?",
+      "timeboxLabel": "Ramka czasowa",
+      "startDate": "Data początkówa",
+      "endDate": "Data koncowa",
+      "statusLabel": "Status",
+      "addProject": "Dodaj projekt",
+      "timeboxWarnings": {
+        "endRecommended": "Data koncowa jest opcjonalna, ale zalecana dla jasnej ramki czasowej.",
+        "startRecommended": "Data początkówa jest opcjonalna, ale zalecana dla jasnej ramki czasowej."
+      }
+    },
+    "draftProjectCard": {
+      "derivedLifeAreas": "Pochodne obszary życia",
+      "focusedThisMonth": "W centrum uwagi w tym miesiacu",
+      "editProject": "Edytuj projekt",
+      "deleteProject": "Usun projekt"
+    }
+  },
+  "snackbar": {
+    "commitmentDeleted": "Zobowiazanie usuniete",
+    "commitmentDeleteFailed": "Nie udalo się usunac zobowiązania",
+    "commitmentUpdated": "Zobowiazanie zaktualizowane",
+    "commitmentUpdateFailed": "Nie udalo się zaktualizowac zobowiązania",
+    "commitmentCreated": "Zobowiazanie utwórzone",
+    "commitmentCreateFailed": "Nie udalo się utworżyć zobowiązania",
+    "projectDeleted": "Projekt usuniety",
+    "projectDeleteFailed": "Nie udalo się usunac projektu",
+    "projectCreated": "Projekt utwórzony",
+    "projectCreateFailed": "Nie udalo się utworżyć projektu",
+    "weeklyPlanDeleted": "Plan tygodnia usuniety",
+    "weeklyPlanDeleteFailed": "Nie udalo się usunac planu tygodnia",
+    "reflectionDeleted": "Refleksja usunieta",
+    "reflectionDeleteFailed": "Nie udalo się usunac refleksji",
+    "monthlyPlanDeleted": "Plan miesiaca usuniety",
+    "monthlyPlanDeleteFailed": "Nie udalo się usunac planu miesiaca"
+  }
+}

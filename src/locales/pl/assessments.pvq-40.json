@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "title": "Kwestionariusz Portretowy Wartości (PVQ-40)",
+    "subtitle": "Zmapuj priorytety motywacyjnych wartości.",
+    "description": "40-itemowy kwestionariusz wartości oparty na portretach. Domyślnie wyniki są centrowane metodą MRAT.",
+    "category": "Wartości",
+    "disclaimer": "To narzędzie wspiera autorefleksję i nie stanowi diagnozy klinicznej."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne zapisanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "selfDirection": "Samodzielność",
+    "stimulation": "Stymulacja",
+    "hedonism": "Hedonizm",
+    "achievement": "Osiągnięcia",
+    "power": "Władza",
+    "security": "Bezpieczeństwo",
+    "conformity": "Konformizm",
+    "tradition": "Tradycja",
+    "benevolence": "Życzliwość",
+    "universalism": "Uniwersalizm"
+  },
+  "anchors": {
+    "1": "W ogóle do mnie niepodobne",
+    "2": "Raczej do mnie niepodobne",
+    "3": "Trochę do mnie podobne",
+    "4": "Umiarkowanie do mnie podobne",
+    "5": "Podobne do mnie",
+    "6": "Bardzo do mnie podobne"
+  },
+  "interpretation": {
+    "low": "Niższa względna ważność w aktualnych odpowiedziach.",
+    "medium": "Średnia względna ważność w aktualnych odpowiedziach.",
+    "high": "Wyższa względna ważność w aktualnych odpowiedziach."
+  },
+  "results": {
+    "centeredDefault": "Wyniki centrowane (wynik surowy minus MRAT)",
+    "rawLabel": "Średnie surowe",
+    "centeredLabel": "Średnie centrowane"
+  },
+  "items": {
+    "pvq40_001": "Wymyślanie nowych pomysłów i bycie kreatywnym jest dla tej osoby ważne.",
+    "pvq40_002": "Ta osoba lubi samodzielnie podejmować decyzje i wybierać własną drogę.",
+    "pvq40_003": "Dla tej osoby ważna jest niezależność w codziennym życiu.",
+    "pvq40_004": "Ta osoba ceni wolność myślenia i działania w oryginalny sposób.",
+    "pvq40_005": "Ta osoba szuka ekscytacji i nowych doświadczeń.",
+    "pvq40_006": "Różnorodność i wyzwania są dla tej osoby ważne.",
+    "pvq40_007": "Ta osoba lubi niespodzianki i życie pełne zmian.",
+    "pvq40_008": "Podejmowanie ryzyka dla przygody pociąga tę osobę.",
+    "pvq40_009": "Cieszenie się życiem i dobra zabawa są dla tej osoby ważne.",
+    "pvq40_010": "Ta osoba lubi sprawiać sobie przyjemności.",
+    "pvq40_011": "Ta osoba ceni komfort i zmysłowe doznania.",
+    "pvq40_012": "Robienie rzeczy, które dają przyjemność tu i teraz, ma dla tej osoby znaczenie.",
+    "pvq40_013": "Bycie bardzo skutecznym jest dla tej osoby ważne.",
+    "pvq40_014": "Ta osoba chce, aby inni dostrzegali jej osiągnięcia.",
+    "pvq40_015": "Pokazywanie własnej kompetencji jest dla tej osoby ważne.",
+    "pvq40_016": "Ta osoba dąży do wysokich standardów i dobrych wyników.",
+    "pvq40_017": "Posiadanie wpływu na ludzi jest dla tej osoby ważne.",
+    "pvq40_018": "Ta osoba chce przewodzić i kierować innymi.",
+    "pvq40_019": "Status społeczny i prestiż mają dla tej osoby znaczenie.",
+    "pvq40_020": "Kontrolowanie zasobów i decyzji jest dla tej osoby ważne.",
+    "pvq40_021": "Bezpieczeństwo i stabilność są dla tej osoby bardzo ważne.",
+    "pvq40_022": "Ta osoba unika wszystkiego, co mogłoby zagrozić porządkowi.",
+    "pvq40_023": "Życie w bezpiecznym otoczeniu ma dla tej osoby znaczenie.",
+    "pvq40_024": "Ta osoba chce, aby społeczeństwo było stabilne i przewidywalne.",
+    "pvq40_025": "Dla tej osoby ważne jest przestrzeganie zasad.",
+    "pvq40_026": "Ta osoba unika irytowania i utrudniania życia innym.",
+    "pvq40_027": "Dla tej osoby ważna jest uprzejmość i samokontrola.",
+    "pvq40_028": "Ta osoba przestrzega norm społecznych, nawet gdy nikt nie patrzy.",
+    "pvq40_029": "Szacunek dla tradycji jest dla tej osoby ważny.",
+    "pvq40_030": "Ta osoba stara się przestrzegać zwyczajów przekazanych przez rodzinę lub społeczność.",
+    "pvq40_031": "Tradycje religijne lub duchowe mają dla tej osoby znaczenie.",
+    "pvq40_032": "Ta osoba ceni pokorę i akceptowanie swojego miejsca w życiu.",
+    "pvq40_033": "Pomaganie bliskim osobom jest dla tej osoby bardzo ważne.",
+    "pvq40_034": "Ta osoba chce być lojalna wobec przyjaciół i rodziny.",
+    "pvq40_035": "Ta osoba stara się być odpowiedzialna i godna zaufania dla bliskich.",
+    "pvq40_036": "Dbanie o dobrostan bliskich ma dla tej osoby znaczenie.",
+    "pvq40_037": "Ta osoba dba o równość i sprawiedliwość dla wszystkich ludzi.",
+    "pvq40_038": "Ochrona natury i środowiska jest dla tej osoby ważna.",
+    "pvq40_039": "Ta osoba stara się rozumieć ludzi, którzy są inni.",
+    "pvq40_040": "Promowanie pokoju i tolerancji jest dla tej osoby głęboko ważne."
+  }
+}

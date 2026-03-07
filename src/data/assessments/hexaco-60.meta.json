@@ -1,0 +1,619 @@
+{
+  "id": "hexaco-60",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.hexaco60.meta.title",
+  "subtitleKey": "assessments.hexaco60.meta.subtitle",
+  "descriptionKey": "assessments.hexaco60.meta.description",
+  "categoryKey": "assessments.hexaco60.meta.category",
+  "disclaimerKey": "assessments.hexaco60.meta.disclaimer",
+  "estimatedMinutes": 14,
+  "responseScale": {
+    "min": 1,
+    "max": 5,
+    "anchors": {
+      "1": "assessments.hexaco60.anchors.1",
+      "2": "assessments.hexaco60.anchors.2",
+      "3": "assessments.hexaco60.anchors.3",
+      "4": "assessments.hexaco60.anchors.4",
+      "5": "assessments.hexaco60.anchors.5"
+    }
+  },
+  "items": [
+    {
+      "id": "hexaco60_001",
+      "textKey": "assessments.hexaco60.items.hexaco60_001",
+      "scaleId": "honestyHumility",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_002",
+      "textKey": "assessments.hexaco60.items.hexaco60_002",
+      "scaleId": "honestyHumility",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_003",
+      "textKey": "assessments.hexaco60.items.hexaco60_003",
+      "scaleId": "honestyHumility",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_004",
+      "textKey": "assessments.hexaco60.items.hexaco60_004",
+      "scaleId": "honestyHumility",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_005",
+      "textKey": "assessments.hexaco60.items.hexaco60_005",
+      "scaleId": "honestyHumility",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_006",
+      "textKey": "assessments.hexaco60.items.hexaco60_006",
+      "scaleId": "honestyHumility",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_007",
+      "textKey": "assessments.hexaco60.items.hexaco60_007",
+      "scaleId": "honestyHumility",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_008",
+      "textKey": "assessments.hexaco60.items.hexaco60_008",
+      "scaleId": "honestyHumility",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_009",
+      "textKey": "assessments.hexaco60.items.hexaco60_009",
+      "scaleId": "honestyHumility",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_010",
+      "textKey": "assessments.hexaco60.items.hexaco60_010",
+      "scaleId": "honestyHumility",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_011",
+      "textKey": "assessments.hexaco60.items.hexaco60_011",
+      "scaleId": "emotionality",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_012",
+      "textKey": "assessments.hexaco60.items.hexaco60_012",
+      "scaleId": "emotionality",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_013",
+      "textKey": "assessments.hexaco60.items.hexaco60_013",
+      "scaleId": "emotionality",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_014",
+      "textKey": "assessments.hexaco60.items.hexaco60_014",
+      "scaleId": "emotionality",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_015",
+      "textKey": "assessments.hexaco60.items.hexaco60_015",
+      "scaleId": "emotionality",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_016",
+      "textKey": "assessments.hexaco60.items.hexaco60_016",
+      "scaleId": "emotionality",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_017",
+      "textKey": "assessments.hexaco60.items.hexaco60_017",
+      "scaleId": "emotionality",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_018",
+      "textKey": "assessments.hexaco60.items.hexaco60_018",
+      "scaleId": "emotionality",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_019",
+      "textKey": "assessments.hexaco60.items.hexaco60_019",
+      "scaleId": "emotionality",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_020",
+      "textKey": "assessments.hexaco60.items.hexaco60_020",
+      "scaleId": "emotionality",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_021",
+      "textKey": "assessments.hexaco60.items.hexaco60_021",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_022",
+      "textKey": "assessments.hexaco60.items.hexaco60_022",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_023",
+      "textKey": "assessments.hexaco60.items.hexaco60_023",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_024",
+      "textKey": "assessments.hexaco60.items.hexaco60_024",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_025",
+      "textKey": "assessments.hexaco60.items.hexaco60_025",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_026",
+      "textKey": "assessments.hexaco60.items.hexaco60_026",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_027",
+      "textKey": "assessments.hexaco60.items.hexaco60_027",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_028",
+      "textKey": "assessments.hexaco60.items.hexaco60_028",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_029",
+      "textKey": "assessments.hexaco60.items.hexaco60_029",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_030",
+      "textKey": "assessments.hexaco60.items.hexaco60_030",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_031",
+      "textKey": "assessments.hexaco60.items.hexaco60_031",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_032",
+      "textKey": "assessments.hexaco60.items.hexaco60_032",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_033",
+      "textKey": "assessments.hexaco60.items.hexaco60_033",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_034",
+      "textKey": "assessments.hexaco60.items.hexaco60_034",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_035",
+      "textKey": "assessments.hexaco60.items.hexaco60_035",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_036",
+      "textKey": "assessments.hexaco60.items.hexaco60_036",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_037",
+      "textKey": "assessments.hexaco60.items.hexaco60_037",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_038",
+      "textKey": "assessments.hexaco60.items.hexaco60_038",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_039",
+      "textKey": "assessments.hexaco60.items.hexaco60_039",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_040",
+      "textKey": "assessments.hexaco60.items.hexaco60_040",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_041",
+      "textKey": "assessments.hexaco60.items.hexaco60_041",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_042",
+      "textKey": "assessments.hexaco60.items.hexaco60_042",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_043",
+      "textKey": "assessments.hexaco60.items.hexaco60_043",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_044",
+      "textKey": "assessments.hexaco60.items.hexaco60_044",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_045",
+      "textKey": "assessments.hexaco60.items.hexaco60_045",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_046",
+      "textKey": "assessments.hexaco60.items.hexaco60_046",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_047",
+      "textKey": "assessments.hexaco60.items.hexaco60_047",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_048",
+      "textKey": "assessments.hexaco60.items.hexaco60_048",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_049",
+      "textKey": "assessments.hexaco60.items.hexaco60_049",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_050",
+      "textKey": "assessments.hexaco60.items.hexaco60_050",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_051",
+      "textKey": "assessments.hexaco60.items.hexaco60_051",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_052",
+      "textKey": "assessments.hexaco60.items.hexaco60_052",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_053",
+      "textKey": "assessments.hexaco60.items.hexaco60_053",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_054",
+      "textKey": "assessments.hexaco60.items.hexaco60_054",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_055",
+      "textKey": "assessments.hexaco60.items.hexaco60_055",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_056",
+      "textKey": "assessments.hexaco60.items.hexaco60_056",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_057",
+      "textKey": "assessments.hexaco60.items.hexaco60_057",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_058",
+      "textKey": "assessments.hexaco60.items.hexaco60_058",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_059",
+      "textKey": "assessments.hexaco60.items.hexaco60_059",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "hexaco60_060",
+      "textKey": "assessments.hexaco60.items.hexaco60_060",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    }
+  ],
+  "scales": [
+    {
+      "id": "honestyHumility",
+      "labelKey": "assessments.hexaco60.scales.honestyHumility",
+      "itemIds": [
+        "hexaco60_001",
+        "hexaco60_002",
+        "hexaco60_003",
+        "hexaco60_004",
+        "hexaco60_005",
+        "hexaco60_006",
+        "hexaco60_007",
+        "hexaco60_008",
+        "hexaco60_009",
+        "hexaco60_010"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "emotionality",
+      "labelKey": "assessments.hexaco60.scales.emotionality",
+      "itemIds": [
+        "hexaco60_011",
+        "hexaco60_012",
+        "hexaco60_013",
+        "hexaco60_014",
+        "hexaco60_015",
+        "hexaco60_016",
+        "hexaco60_017",
+        "hexaco60_018",
+        "hexaco60_019",
+        "hexaco60_020"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "extraversion",
+      "labelKey": "assessments.hexaco60.scales.extraversion",
+      "itemIds": [
+        "hexaco60_021",
+        "hexaco60_022",
+        "hexaco60_023",
+        "hexaco60_024",
+        "hexaco60_025",
+        "hexaco60_026",
+        "hexaco60_027",
+        "hexaco60_028",
+        "hexaco60_029",
+        "hexaco60_030"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "agreeableness",
+      "labelKey": "assessments.hexaco60.scales.agreeableness",
+      "itemIds": [
+        "hexaco60_031",
+        "hexaco60_032",
+        "hexaco60_033",
+        "hexaco60_034",
+        "hexaco60_035",
+        "hexaco60_036",
+        "hexaco60_037",
+        "hexaco60_038",
+        "hexaco60_039",
+        "hexaco60_040"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "conscientiousness",
+      "labelKey": "assessments.hexaco60.scales.conscientiousness",
+      "itemIds": [
+        "hexaco60_041",
+        "hexaco60_042",
+        "hexaco60_043",
+        "hexaco60_044",
+        "hexaco60_045",
+        "hexaco60_046",
+        "hexaco60_047",
+        "hexaco60_048",
+        "hexaco60_049",
+        "hexaco60_050"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "openness",
+      "labelKey": "assessments.hexaco60.scales.openness",
+      "itemIds": [
+        "hexaco60_051",
+        "hexaco60_052",
+        "hexaco60_053",
+        "hexaco60_054",
+        "hexaco60_055",
+        "hexaco60_056",
+        "hexaco60_057",
+        "hexaco60_058",
+        "hexaco60_059",
+        "hexaco60_060"
+      ],
+      "minAnswered": 8
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "hexaco60-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 8
+  },
+  "pageSize": 10,
+  "interpretationScale": "1-5"
+}

@@ -3,7 +3,7 @@
     <!-- Type Filter -->
     <div class="flex items-center gap-2">
       <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-        Type
+        {{ t('history.filters.type') }}
       </span>
       <div class="flex gap-1">
         <button
@@ -22,7 +22,7 @@
     <!-- Date Range Filter -->
     <div class="flex items-center gap-2">
       <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-        Date
+        {{ t('history.filters.date') }}
       </span>
       <div class="flex gap-1">
         <button
@@ -41,7 +41,7 @@
     <!-- Sort Order Toggle -->
     <div class="flex items-center gap-2">
       <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-        Sort
+        {{ t('history.filters.sort') }}
       </span>
       <button
         type="button"
@@ -52,15 +52,19 @@
           :is="sortOrder === 'desc' ? ArrowDownIcon : ArrowUpIcon"
           class="w-4 h-4 mr-1"
         />
-        {{ sortOrder === 'desc' ? 'Newest' : 'Oldest' }}
+        {{ sortOrder === 'desc' ? t('history.filters.newest') : t('history.filters.oldest') }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/vue/24/outline'
 import type { TypeFilter, DateRangeFilter, SortOrder } from '@/composables/useUnifiedEntries'
+import { useT } from '@/composables/useT'
+
+const { t } = useT()
 
 interface Props {
   typeFilter: TypeFilter
@@ -76,24 +80,24 @@ const emit = defineEmits<{
   'update:sortOrder': [value: SortOrder]
 }>()
 
-const typeOptions: { value: TypeFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'journal', label: 'Journal' },
-  { value: 'emotion-log', label: 'Emotions' },
-]
+const typeOptions = computed(() => [
+  { value: 'all' as TypeFilter, label: t('history.filters.all') },
+  { value: 'journal' as TypeFilter, label: t('history.filters.journal') },
+  { value: 'emotion-log' as TypeFilter, label: t('history.filters.emotions') },
+])
 
-const dateOptions: { value: DateRangeFilter; label: string }[] = [
-  { value: 'all', label: 'All time' },
-  { value: 'today', label: 'Today' },
-  { value: 'week', label: 'Week' },
-  { value: 'month', label: 'Month' },
-]
+const dateOptions = computed(() => [
+  { value: 'all' as DateRangeFilter, label: t('history.filters.allTime') },
+  { value: 'today' as DateRangeFilter, label: t('history.filters.today') },
+  { value: 'week' as DateRangeFilter, label: t('history.filters.week') },
+  { value: 'month' as DateRangeFilter, label: t('history.filters.month') },
+])
 
 function getFilterButtonClasses(isActive: boolean): string {
   const base =
     'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background'
   if (isActive) {
-    return `${base} bg-primary text-on-primary shadow-elevation-1`
+    return `${base} shadow-neu-pressed bg-neu-base text-primary border border-neu-border/40`
   }
   return `${base} bg-chip text-chip-text hover:bg-section`
 }

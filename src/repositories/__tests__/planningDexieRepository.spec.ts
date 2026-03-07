@@ -1,641 +1,441 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import Dexie from 'dexie'
-import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabase.service'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import Dexie, { type Table } from 'dexie'
 import {
-  focusAreaDexieRepository,
   priorityDexieRepository,
   projectDexieRepository,
   commitmentDexieRepository,
-  weeklyPlanDexieRepository,
-  quarterlyPlanDexieRepository,
-  yearlyPlanDexieRepository,
-} from '../planningDexieRepository'
-import type { FocusArea } from '@/domain/planning'
+  trackerDexieRepository,
+  trackerPeriodDexieRepository,
+  habitDexieRepository,
+  habitOccurrenceDexieRepository,
+} from '@/repositories/planningDexieRepository'
+import { connectTestDatabase } from '@/test/testDatabase'
+import { UserDatabase } from '@/services/userDatabase.service'
+import type {
+  Commitment,
+  MonthlyPlan,
+  Project,
+  YearlyPlan,
+} from '@/domain/planning'
 
-describe('Planning System Repositories', () => {
-  const testUserId = `test-user-${Date.now()}-${Math.random()}`
-  const testDbName = `MindfullGrowthDB_${testUserId}`
+const baseTimestamp = '2026-01-01T00:00:00.000Z'
+
+function buildPriority(id: string, lifeAreaIds: string[], year = 2026) {
+  return {
+    id,
+    createdAt: baseTimestamp,
+    updatedAt: baseTimestamp,
+    lifeAreaIds,
+    year,
+    name: `Priority ${id}`,
+    successSignals: [],
+    constraints: [],
+    isActive: true,
+    sortOrder: 0,
+  }
+}
+
+function buildProject(params: {
+  id: string
+  lifeAreaIds?: string[]
+  priorityIds?: string[]
+  monthIds?: string[]
+  status?: 'planned' | 'active' | 'paused' | 'completed' | 'abandoned'
+}) {
+  return {
+    id: params.id,
+    createdAt: baseTimestamp,
+    updatedAt: baseTimestamp,
+    name: `Project ${params.id}`,
+    description: undefined,
+    targetOutcome: undefined,
+    monthIds: params.monthIds ?? [],
+    lifeAreaIds: params.lifeAreaIds ?? [],
+    priorityIds: params.priorityIds ?? [],
+    status: params.status ?? 'planned',
+  }
+}
+
+function buildCommitment(params: {
+  id: string
+  weeklyPlanId?: string
+  projectId?: string
+  lifeAreaIds?: string[]
+  startDate?: string
+  endDate?: string
+  periodType?: 'weekly' | 'monthly'
+}) {
+  return {
+    id: params.id,
+    createdAt: baseTimestamp,
+    updatedAt: baseTimestamp,
+    startDate: params.startDate ?? '2026-01-05',
+    endDate: params.endDate ?? '2026-01-11',
+    periodType: params.periodType ?? 'weekly',
+    weeklyPlanId: params.weeklyPlanId,
+    projectId: params.projectId,
+    lifeAreaIds: params.lifeAreaIds ?? [],
+    priorityIds: [],
+    name: `Commitment ${params.id}`,
+    status: 'planned' as const,
+  }
+}
+
+function buildTracker(params: {
+  id: string
+  parentType?: 'project' | 'habit'
+  parentId?: string
+}) {
+  return {
+    id: params.id,
+    createdAt: baseTimestamp,
+    updatedAt: baseTimestamp,
+    parentType: params.parentType,
+    parentId: params.parentId,
+    lifeAreaIds: [],
+    priorityIds: [],
+    name: `Tracker ${params.id}`,
+    type: 'count' as const,
+    cadence: 'weekly' as const,
+    targetCount: 3,
+    sortOrder: 0,
+    isActive: true,
+  }
+}
+
+
+class PlanningDatabaseV14 extends Dexie {
+  projects!: Table<Project, string>
+  commitments!: Table<Commitment, string>
+  monthlyPlans!: Table<MonthlyPlan, string>
+  yearlyPlans!: Table<YearlyPlan, string>
+
+  constructor(name: string) {
+    super(name)
+    this.version(14).stores({
+      projects: 'id, status, *lifeAreaIds, *priorityIds',
+      commitments: 'id, weeklyPlanId, projectId, status, *lifeAreaIds, *priorityIds',
+      monthlyPlans: 'id, year, startDate, endDate',
+      yearlyPlans: 'id, year, startDate, endDate',
+    })
+  }
+}
+
+describe('planningDexieRepository', () => {
+  let db: UserDatabase
 
   beforeEach(async () => {
-    // Connect to a test user database
-    await connectUserDatabase(testUserId)
+    db = await connectTestDatabase()
+    await db.priorities.clear()
+    await db.projects.clear()
+    await db.commitments.clear()
+    await db.trackers.clear()
+    await db.trackerPeriods.clear()
+    await db.habits.clear()
+    await db.habitOccurrences.clear()
+    vi.useRealTimers()
   })
 
-  afterEach(async () => {
-    // Disconnect and clean up
-    await disconnectUserDatabase()
-    try {
-      await Dexie.delete(testDbName)
-    } catch {
-      // Ignore cleanup errors
-    }
-  })
+  describe('priorityDexieRepository', () => {
+    it('filters priorities by life area id', async () => {
+      await db.priorities.bulkAdd([
+        buildPriority('p-1', ['la-1']),
+        buildPriority('p-2', ['la-2']),
+        buildPriority('p-3', ['la-1', 'la-3']),
+      ])
 
-  // ==========================================================================
-  // Focus Area Repository Tests
-  // ==========================================================================
+      const result = await priorityDexieRepository.getByLifeAreaId('la-1')
 
-  describe('FocusAreaDexieRepository', () => {
-    describe('create', () => {
-      it('creates a focus area with generated id and timestamps', async () => {
-        const focusArea = await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'Health & Fitness',
-          description: 'Focus on physical health',
-          color: '#4CAF50',
-          isActive: true,
-          sortOrder: 0,
-        })
-
-        expect(focusArea.id).toBeDefined()
-        expect(focusArea.id).toMatch(
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-        )
-        expect(focusArea.createdAt).toBeDefined()
-        expect(focusArea.updatedAt).toBeDefined()
-        expect(focusArea.year).toBe(2026)
-        expect(focusArea.name).toBe('Health & Fitness')
-        expect(focusArea.description).toBe('Focus on physical health')
-        expect(focusArea.color).toBe('#4CAF50')
-        expect(focusArea.isActive).toBe(true)
-        expect(focusArea.sortOrder).toBe(0)
-      })
+      expect(result.map((p) => p.id)).toEqual(['p-1', 'p-3'])
     })
 
-    describe('getAll', () => {
-      it('returns all focus areas', async () => {
-        await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'Health',
-          isActive: true,
-          sortOrder: 0,
-        })
-        await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'Career',
-          isActive: true,
-          sortOrder: 1,
-        })
+    it('deletes priorities by life area id', async () => {
+      await db.priorities.bulkAdd([
+        buildPriority('p-1', ['la-1']),
+        buildPriority('p-2', ['la-2']),
+      ])
 
-        const all = await focusAreaDexieRepository.getAll()
-        expect(all).toHaveLength(2)
-      })
+      await priorityDexieRepository.deleteByLifeAreaId('la-1')
 
-      it('returns empty array when no focus areas exist', async () => {
-        const all = await focusAreaDexieRepository.getAll()
-        expect(all).toEqual([])
-      })
-    })
-
-    describe('getById', () => {
-      it('returns focus area by id', async () => {
-        const created = await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'Health',
-          isActive: true,
-          sortOrder: 0,
-        })
-
-        const found = await focusAreaDexieRepository.getById(created.id)
-        expect(found).toBeDefined()
-        expect(found?.id).toBe(created.id)
-        expect(found?.name).toBe('Health')
-      })
-
-      it('returns undefined for non-existent id', async () => {
-        const found = await focusAreaDexieRepository.getById('non-existent-id')
-        expect(found).toBeUndefined()
-      })
-    })
-
-    describe('getByYear', () => {
-      it('returns focus areas for a specific year', async () => {
-        await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'Health 2026',
-          isActive: true,
-          sortOrder: 0,
-        })
-        await focusAreaDexieRepository.create({
-          year: 2027,
-          name: 'Health 2027',
-          isActive: true,
-          sortOrder: 0,
-        })
-
-        const year2026 = await focusAreaDexieRepository.getByYear(2026)
-        expect(year2026).toHaveLength(1)
-        expect(year2026[0].name).toBe('Health 2026')
-      })
-    })
-
-    describe('getActiveByYear', () => {
-      it('returns only active focus areas for a year', async () => {
-        await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'Active Focus',
-          isActive: true,
-          sortOrder: 0,
-        })
-        await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'Inactive Focus',
-          isActive: false,
-          sortOrder: 1,
-        })
-
-        const active = await focusAreaDexieRepository.getActiveByYear(2026)
-        expect(active).toHaveLength(1)
-        expect(active[0].name).toBe('Active Focus')
-      })
-    })
-
-    describe('update', () => {
-      it('updates focus area and updatedAt timestamp', async () => {
-        const created = await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'Original Name',
-          isActive: true,
-          sortOrder: 0,
-        })
-
-        // Small delay to ensure updatedAt changes
-        await new Promise((resolve) => setTimeout(resolve, 10))
-
-        const updated = await focusAreaDexieRepository.update(created.id, {
-          name: 'Updated Name',
-        })
-
-        expect(updated.name).toBe('Updated Name')
-        expect(updated.updatedAt).not.toBe(created.updatedAt)
-        expect(updated.createdAt).toBe(created.createdAt)
-      })
-
-      it('throws error for non-existent focus area', async () => {
-        await expect(
-          focusAreaDexieRepository.update('non-existent', { name: 'Test' })
-        ).rejects.toThrow()
-      })
-    })
-
-    describe('delete', () => {
-      it('deletes a focus area', async () => {
-        const created = await focusAreaDexieRepository.create({
-          year: 2026,
-          name: 'To Delete',
-          isActive: true,
-          sortOrder: 0,
-        })
-
-        await focusAreaDexieRepository.delete(created.id)
-
-        const found = await focusAreaDexieRepository.getById(created.id)
-        expect(found).toBeUndefined()
-      })
+      const remaining = await db.priorities.toArray()
+      expect(remaining.map((p) => p.id)).toEqual(['p-2'])
     })
   })
 
-  // ==========================================================================
-  // Priority Repository Tests
-  // ==========================================================================
+  describe('projectDexieRepository', () => {
+    it('filters projects by month id', async () => {
+      await db.projects.bulkAdd([
+        buildProject({ id: 'proj-1', monthIds: ['m-1'], lifeAreaIds: ['la-1'] }),
+        buildProject({ id: 'proj-2', monthIds: ['m-2'], lifeAreaIds: ['la-1'] }),
+      ])
 
-  describe('PriorityDexieRepository', () => {
-    let focusArea: FocusArea
+      const result = await projectDexieRepository.getByMonthId('m-1')
 
-    beforeEach(async () => {
-      focusArea = await focusAreaDexieRepository.create({
-        year: 2026,
-        name: 'Health',
-        isActive: true,
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('proj-1')
+    })
+
+    it('filters projects by life area id', async () => {
+      await db.projects.bulkAdd([
+        buildProject({ id: 'proj-1', lifeAreaIds: ['la-1'] }),
+        buildProject({ id: 'proj-2', lifeAreaIds: ['la-2'] }),
+      ])
+
+      const result = await projectDexieRepository.getByLifeAreaId('la-1')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('proj-1')
+    })
+
+    it('filters projects by status', async () => {
+      await db.projects.bulkAdd([
+        buildProject({ id: 'proj-1', status: 'active' }),
+        buildProject({ id: 'proj-2', status: 'planned' }),
+      ])
+
+      const result = await projectDexieRepository.getByStatus('active')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('proj-1')
+    })
+  })
+
+  describe('commitmentDexieRepository', () => {
+    it('filters commitments by weekly plan id', async () => {
+      await db.commitments.bulkAdd([
+        buildCommitment({ id: 'c-1', weeklyPlanId: 'week-1' }),
+        buildCommitment({ id: 'c-2', weeklyPlanId: 'week-2' }),
+      ])
+
+      const result = await commitmentDexieRepository.getByWeeklyPlanId('week-1')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('c-1')
+    })
+
+    it('filters commitments by project id', async () => {
+      await db.commitments.bulkAdd([
+        buildCommitment({ id: 'c-1', weeklyPlanId: 'week-1', projectId: 'proj-1' }),
+        buildCommitment({ id: 'c-2', weeklyPlanId: 'week-1', projectId: 'proj-2' }),
+      ])
+
+      const result = await commitmentDexieRepository.getByProjectId('proj-1')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].projectId).toBe('proj-1')
+    })
+
+    it('filters commitments by life area id', async () => {
+      await db.commitments.bulkAdd([
+        buildCommitment({ id: 'c-1', weeklyPlanId: 'week-1', lifeAreaIds: ['la-1'] }),
+        buildCommitment({ id: 'c-2', weeklyPlanId: 'week-1', lifeAreaIds: ['la-2'] }),
+      ])
+
+      const result = await commitmentDexieRepository.getByLifeAreaId('la-1')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('c-1')
+    })
+  })
+
+  describe('trackerDexieRepository', () => {
+    it('creates, updates, and deletes a tracker', async () => {
+      const created = await trackerDexieRepository.create({
+        parentType: 'habit',
+        parentId: 'habit-1',
+        lifeAreaIds: [],
+        priorityIds: [],
+        name: 'Tracker A',
+        type: 'count',
+        cadence: 'weekly',
+        targetCount: 3,
         sortOrder: 0,
-      })
-    })
-
-    describe('create', () => {
-      it('creates a priority with generated id and timestamps', async () => {
-        const priority = await priorityDexieRepository.create({
-          focusAreaId: focusArea.id,
-          year: 2026,
-          name: 'Build exercise habit',
-          successSignals: ['Exercise 3x/week', 'Feel more energetic'],
-          constraints: ["Don't sacrifice sleep"],
-          isActive: true,
-          sortOrder: 0,
-        })
-
-        expect(priority.id).toBeDefined()
-        expect(priority.focusAreaId).toBe(focusArea.id)
-        expect(priority.successSignals).toHaveLength(2)
-        expect(priority.constraints).toHaveLength(1)
-      })
-    })
-
-    describe('getByFocusAreaId', () => {
-      it('returns priorities for a focus area', async () => {
-        await priorityDexieRepository.create({
-          focusAreaId: focusArea.id,
-          year: 2026,
-          name: 'Priority 1',
-          successSignals: [],
-          isActive: true,
-          sortOrder: 0,
-        })
-        await priorityDexieRepository.create({
-          focusAreaId: focusArea.id,
-          year: 2026,
-          name: 'Priority 2',
-          successSignals: [],
-          isActive: true,
-          sortOrder: 1,
-        })
-
-        const priorities = await priorityDexieRepository.getByFocusAreaId(focusArea.id)
-        expect(priorities).toHaveLength(2)
-      })
-    })
-
-    describe('deleteByFocusAreaId', () => {
-      it('deletes all priorities for a focus area', async () => {
-        await priorityDexieRepository.create({
-          focusAreaId: focusArea.id,
-          year: 2026,
-          name: 'Priority 1',
-          successSignals: [],
-          isActive: true,
-          sortOrder: 0,
-        })
-        await priorityDexieRepository.create({
-          focusAreaId: focusArea.id,
-          year: 2026,
-          name: 'Priority 2',
-          successSignals: [],
-          isActive: true,
-          sortOrder: 1,
-        })
-
-        await priorityDexieRepository.deleteByFocusAreaId(focusArea.id)
-
-        const priorities = await priorityDexieRepository.getByFocusAreaId(focusArea.id)
-        expect(priorities).toHaveLength(0)
-      })
-    })
-  })
-
-  // ==========================================================================
-  // Project Repository Tests
-  // ==========================================================================
-
-  describe('ProjectDexieRepository', () => {
-    let focusArea: FocusArea
-
-    beforeEach(async () => {
-      focusArea = await focusAreaDexieRepository.create({
-        year: 2026,
-        name: 'Health',
         isActive: true,
-        sortOrder: 0,
       })
+
+      const fetched = await trackerDexieRepository.getById(created.id)
+      expect(fetched?.id).toBe(created.id)
+
+      const byParent = await trackerDexieRepository.getByParent('habit', 'habit-1')
+      expect(byParent).toHaveLength(1)
+      expect(byParent[0].id).toBe(created.id)
+
+      const updated = await trackerDexieRepository.update(created.id, { name: 'Tracker B' })
+      expect(updated.name).toBe('Tracker B')
+
+      await trackerDexieRepository.delete(created.id)
+      const removed = await trackerDexieRepository.getById(created.id)
+      expect(removed).toBeUndefined()
     })
 
-    describe('create', () => {
-      it('creates a project with generated id and timestamps', async () => {
-        const project = await projectDexieRepository.create({
-          focusAreaId: focusArea.id,
-          quarterStart: '2026-01-01',
-          name: 'Complete Couch to 5K',
-          description: 'Running program',
-          targetOutcome: 'Run 5K without stopping',
-          status: 'planned',
-        })
+    it('deletes trackers by parent', async () => {
+      await db.trackers.bulkAdd([
+        buildTracker({ id: 'pt-1', parentType: 'habit', parentId: 'habit-1' }),
+        buildTracker({ id: 'pt-2', parentType: 'habit', parentId: 'habit-2' }),
+      ])
 
-        expect(project.id).toBeDefined()
-        expect(project.focusAreaId).toBe(focusArea.id)
-        expect(project.status).toBe('planned')
-      })
-    })
+      await trackerDexieRepository.deleteByParent('habit', 'habit-1')
 
-    describe('getByQuarter', () => {
-      it('returns projects for a specific quarter', async () => {
-        await projectDexieRepository.create({
-          focusAreaId: focusArea.id,
-          quarterStart: '2026-01-01',
-          name: 'Q1 Project',
-          status: 'active',
-        })
-        await projectDexieRepository.create({
-          focusAreaId: focusArea.id,
-          quarterStart: '2026-04-01',
-          name: 'Q2 Project',
-          status: 'planned',
-        })
-
-        const q1Projects = await projectDexieRepository.getByQuarter('2026-01-01')
-        expect(q1Projects).toHaveLength(1)
-        expect(q1Projects[0].name).toBe('Q1 Project')
-      })
-    })
-
-    describe('getByStatus', () => {
-      it('returns projects with specific status', async () => {
-        await projectDexieRepository.create({
-          focusAreaId: focusArea.id,
-          quarterStart: '2026-01-01',
-          name: 'Active Project',
-          status: 'active',
-        })
-        await projectDexieRepository.create({
-          focusAreaId: focusArea.id,
-          quarterStart: '2026-01-01',
-          name: 'Completed Project',
-          status: 'completed',
-        })
-
-        const active = await projectDexieRepository.getByStatus('active')
-        expect(active).toHaveLength(1)
-        expect(active[0].name).toBe('Active Project')
-      })
-    })
-
-    describe('getActive', () => {
-      it('returns only active projects', async () => {
-        await projectDexieRepository.create({
-          focusAreaId: focusArea.id,
-          quarterStart: '2026-01-01',
-          name: 'Active',
-          status: 'active',
-        })
-        await projectDexieRepository.create({
-          focusAreaId: focusArea.id,
-          quarterStart: '2026-01-01',
-          name: 'Planned',
-          status: 'planned',
-        })
-
-        const active = await projectDexieRepository.getActive()
-        expect(active).toHaveLength(1)
-        expect(active[0].name).toBe('Active')
-      })
+      const remaining = await db.trackers.toArray()
+      expect(remaining.map((t) => t.id)).toEqual(['pt-2'])
     })
   })
 
-  // ==========================================================================
-  // Commitment Repository Tests
-  // ==========================================================================
-
-  describe('CommitmentDexieRepository', () => {
-    describe('create', () => {
-      it('creates a commitment with generated id and timestamps', async () => {
-        const commitment = await commitmentDexieRepository.create({
-          weekStartDate: '2026-01-19',
-          name: 'Run 3 times',
-          isNonNegotiable: true,
-          status: 'planned',
-        })
-
-        expect(commitment.id).toBeDefined()
-        expect(commitment.weekStartDate).toBe('2026-01-19')
-        expect(commitment.isNonNegotiable).toBe(true)
-        expect(commitment.status).toBe('planned')
+  describe('habitDexieRepository', () => {
+    it('creates, updates, and deletes a habit', async () => {
+      const created = await habitDexieRepository.create({
+        name: 'Habit A',
+        isActive: true,
+        isPaused: false,
+        cadence: 'weekly',
+        lifeAreaIds: ['la-1'],
+        priorityIds: ['pr-1'],
       })
-    })
 
-    describe('getByWeek', () => {
-      it('returns commitments for a specific week', async () => {
-        await commitmentDexieRepository.create({
-          weekStartDate: '2026-01-19',
-          name: 'Week 1 Commitment',
-          isNonNegotiable: false,
-          status: 'planned',
-        })
-        await commitmentDexieRepository.create({
-          weekStartDate: '2026-01-26',
-          name: 'Week 2 Commitment',
-          isNonNegotiable: false,
-          status: 'planned',
-        })
+      const fetched = await habitDexieRepository.getById(created.id)
+      expect(fetched?.id).toBe(created.id)
 
-        const week1 = await commitmentDexieRepository.getByWeek('2026-01-19')
-        expect(week1).toHaveLength(1)
-        expect(week1[0].name).toBe('Week 1 Commitment')
-      })
-    })
+      const updated = await habitDexieRepository.update(created.id, { name: 'Habit B' })
+      expect(updated.name).toBe('Habit B')
 
-    describe('update status', () => {
-      it('updates commitment status', async () => {
-        const commitment = await commitmentDexieRepository.create({
-          weekStartDate: '2026-01-19',
-          name: 'Test Commitment',
-          isNonNegotiable: false,
-          status: 'planned',
-        })
-
-        const updated = await commitmentDexieRepository.update(commitment.id, {
-          status: 'done',
-          reflectionNote: 'Completed successfully!',
-        })
-
-        expect(updated.status).toBe('done')
-        expect(updated.reflectionNote).toBe('Completed successfully!')
-      })
+      await habitDexieRepository.delete(created.id)
+      const removed = await habitDexieRepository.getById(created.id)
+      expect(removed).toBeUndefined()
     })
   })
 
-  // ==========================================================================
-  // Weekly Plan Repository Tests
-  // ==========================================================================
-
-  describe('WeeklyPlanDexieRepository', () => {
-    describe('create', () => {
-      it('creates a weekly plan with generated id and timestamps', async () => {
-        const plan = await weeklyPlanDexieRepository.create({
-          weekStartDate: '2026-01-19',
-          capacityNote: 'High capacity this week',
-          focusSentence: 'Focus on health goals',
-          adaptiveIntention: 'Stay flexible with schedule',
-          commitmentIds: [],
-          reflectionCompleted: false,
-        })
-
-        expect(plan.id).toBeDefined()
-        expect(plan.weekStartDate).toBe('2026-01-19')
-        expect(plan.focusSentence).toBe('Focus on health goals')
-        expect(plan.reflectionCompleted).toBe(false)
-      })
-    })
-
-    describe('getByWeek', () => {
-      it('returns weekly plan for a specific week', async () => {
-        await weeklyPlanDexieRepository.create({
-          weekStartDate: '2026-01-19',
-          commitmentIds: [],
-          reflectionCompleted: false,
-        })
-
-        const plan = await weeklyPlanDexieRepository.getByWeek('2026-01-19')
-        expect(plan).toBeDefined()
-        expect(plan?.weekStartDate).toBe('2026-01-19')
+  describe('habitOccurrenceDexieRepository', () => {
+    it('creates, updates, and deletes a habit occurrence', async () => {
+      const created = await habitOccurrenceDexieRepository.create({
+        habitId: 'habit-1',
+        periodType: 'weekly',
+        periodStartDate: '2026-01-06',
+        status: 'generated',
       })
 
-      it('returns undefined for week without plan', async () => {
-        const plan = await weeklyPlanDexieRepository.getByWeek('2026-01-19')
-        expect(plan).toBeUndefined()
+      const byId = await habitOccurrenceDexieRepository.getById(created.id)
+      expect(byId?.id).toBe(created.id)
+
+      const fetched = await habitOccurrenceDexieRepository.getByHabitIdAndPeriod(
+        'habit-1',
+        '2026-01-06'
+      )
+      expect(fetched?.id).toBe(created.id)
+
+      const byHabit = await habitOccurrenceDexieRepository.getByHabitId('habit-1')
+      expect(byHabit).toHaveLength(1)
+
+      const updated = await habitOccurrenceDexieRepository.update(created.id, {
+        status: 'completed',
       })
-    })
+      expect(updated.status).toBe('completed')
 
-    describe('update reflection', () => {
-      it('updates reflection fields', async () => {
-        const plan = await weeklyPlanDexieRepository.create({
-          weekStartDate: '2026-01-19',
-          commitmentIds: [],
-          reflectionCompleted: false,
-        })
-
-        const updated = await weeklyPlanDexieRepository.update(plan.id, {
-          reflectionCompleted: true,
-          whatHelped: 'Morning routine',
-          whatGotInTheWay: 'Unexpected meetings',
-          whatILearned: 'Need buffer time',
-          nextWeekSeed: 'Block calendar better',
-        })
-
-        expect(updated.reflectionCompleted).toBe(true)
-        expect(updated.whatHelped).toBe('Morning routine')
-        expect(updated.nextWeekSeed).toBe('Block calendar better')
-      })
+      await habitOccurrenceDexieRepository.delete(created.id)
+      const removed = await habitOccurrenceDexieRepository.getById(created.id)
+      expect(removed).toBeUndefined()
     })
   })
 
-  // ==========================================================================
-  // Quarterly Plan Repository Tests
-  // ==========================================================================
-
-  describe('QuarterlyPlanDexieRepository', () => {
-    describe('create', () => {
-      it('creates a quarterly plan with generated id and timestamps', async () => {
-        const plan = await quarterlyPlanDexieRepository.create({
-          quarterStart: '2026-01-01',
-          year: 2026,
-          quarter: 1,
-          secondaryFocusAreaIds: [],
-          projectIds: [],
-          reflectionCompleted: false,
-        })
-
-        expect(plan.id).toBeDefined()
-        expect(plan.year).toBe(2026)
-        expect(plan.quarter).toBe(1)
-      })
-    })
-
-    describe('getByQuarter', () => {
-      it('returns quarterly plan by year and quarter', async () => {
-        await quarterlyPlanDexieRepository.create({
-          quarterStart: '2026-01-01',
-          year: 2026,
-          quarter: 1,
-          secondaryFocusAreaIds: [],
-          projectIds: [],
-          reflectionCompleted: false,
-        })
-
-        const plan = await quarterlyPlanDexieRepository.getByQuarter(2026, 1)
-        expect(plan).toBeDefined()
-        expect(plan?.year).toBe(2026)
-        expect(plan?.quarter).toBe(1)
+  describe('trackerPeriodDexieRepository', () => {
+    it('creates, updates, and deletes a tracker period', async () => {
+      const created = await trackerPeriodDexieRepository.create({
+        trackerId: 'tracker-1',
+        startDate: '2026-01-05',
+        endDate: '2026-01-11',
+        ticks: [{ index: 0, completed: true }],
       })
 
-      it('returns undefined for non-existent quarter', async () => {
-        const plan = await quarterlyPlanDexieRepository.getByQuarter(2026, 1)
-        expect(plan).toBeUndefined()
-      })
-    })
+      const byId = await trackerPeriodDexieRepository.getById(created.id)
+      expect(byId?.id).toBe(created.id)
 
-    describe('getByYear', () => {
-      it('returns all quarterly plans for a year', async () => {
-        await quarterlyPlanDexieRepository.create({
-          quarterStart: '2026-01-01',
-          year: 2026,
-          quarter: 1,
-          secondaryFocusAreaIds: [],
-          projectIds: [],
-          reflectionCompleted: false,
-        })
-        await quarterlyPlanDexieRepository.create({
-          quarterStart: '2026-04-01',
-          year: 2026,
-          quarter: 2,
-          secondaryFocusAreaIds: [],
-          projectIds: [],
-          reflectionCompleted: false,
-        })
+      const byTracker = await trackerPeriodDexieRepository.getByTrackerId('tracker-1')
+      expect(byTracker).toHaveLength(1)
 
-        const plans = await quarterlyPlanDexieRepository.getByYear(2026)
-        expect(plans).toHaveLength(2)
+      const byRange = await trackerPeriodDexieRepository.getByTrackerIdAndDateRange(
+        'tracker-1',
+        '2026-01-01',
+        '2026-01-31'
+      )
+      expect(byRange).toHaveLength(1)
+
+      const updated = await trackerPeriodDexieRepository.update(created.id, {
+        ticks: [{ index: 0, completed: true }, { index: 1, completed: true }],
       })
+      expect(updated.ticks).toHaveLength(2)
+
+      await trackerPeriodDexieRepository.delete(created.id)
+      const removed = await trackerPeriodDexieRepository.getById(created.id)
+      expect(removed).toBeUndefined()
     })
   })
 
-  // ==========================================================================
-  // Yearly Plan Repository Tests
-  // ==========================================================================
+  describe('migration v14→v15 defaults', () => {
+    it('adds defaults for new epic 5 fields', async () => {
+      const dbName = `PlanningMigration_${Date.now()}_${Math.random()}`
+      const legacyDb = new PlanningDatabaseV14(dbName)
+      await legacyDb.open()
 
-  describe('YearlyPlanDexieRepository', () => {
-    describe('create', () => {
-      it('creates a yearly plan with generated id and timestamps', async () => {
-        const plan = await yearlyPlanDexieRepository.create({
-          year: 2026,
-          yearTheme: 'Growth',
-          focusAreaIds: [],
-          reflectionCompleted: false,
-        })
+      const legacyProject: Project = {
+        id: 'proj-legacy',
+        createdAt: baseTimestamp,
+        updatedAt: baseTimestamp,
+        lifeAreaIds: [],
+        priorityIds: [],
+        monthIds: [],
+        name: 'Legacy Project',
+        description: undefined,
+        targetOutcome: undefined,
+        status: 'planned',
+      }
 
-        expect(plan.id).toBeDefined()
-        expect(plan.year).toBe(2026)
-        expect(plan.yearTheme).toBe('Growth')
-        expect(plan.reflectionCompleted).toBe(false)
-      })
-    })
+      const legacyCommitment: Commitment = {
+        id: 'commit-legacy',
+        createdAt: baseTimestamp,
+        updatedAt: baseTimestamp,
+        startDate: '2026-01-05',
+        endDate: '2026-01-11',
+        periodType: 'weekly',
+        weeklyPlanId: 'week-1',
+        lifeAreaIds: [],
+        priorityIds: [],
+        name: 'Legacy Commitment',
+        status: 'planned',
+      }
 
-    describe('getByYear', () => {
-      it('returns yearly plan for a specific year', async () => {
-        await yearlyPlanDexieRepository.create({
-          year: 2026,
-          focusAreaIds: [],
-          reflectionCompleted: false,
-        })
+      const legacyYearlyPlan: YearlyPlan = {
+        id: 'year-legacy',
+        createdAt: baseTimestamp,
+        updatedAt: baseTimestamp,
+        startDate: '2026-01-01',
+        endDate: '2026-12-31',
+        year: 2026,
+        focusLifeAreaIds: [],
+      }
 
-        const plan = await yearlyPlanDexieRepository.getByYear(2026)
-        expect(plan).toBeDefined()
-        expect(plan?.year).toBe(2026)
-      })
+      await legacyDb.projects.add(legacyProject)
+      await legacyDb.commitments.add(legacyCommitment)
+      await legacyDb.yearlyPlans.add(legacyYearlyPlan)
+      await legacyDb.close()
 
-      it('returns undefined for year without plan', async () => {
-        const plan = await yearlyPlanDexieRepository.getByYear(2026)
-        expect(plan).toBeUndefined()
-      })
-    })
+      const migratedDb = new UserDatabase(dbName)
+      await migratedDb.open()
 
-    describe('update reflection', () => {
-      it('updates reflection fields at year end', async () => {
-        const plan = await yearlyPlanDexieRepository.create({
-          year: 2026,
-          focusAreaIds: [],
-          reflectionCompleted: false,
-        })
+      const migratedProject = await migratedDb.projects.get('proj-legacy')
+      expect(migratedProject?.objective).toBeUndefined()
+      expect(migratedProject?.focusWeekIds).toEqual([])
+      expect(migratedProject?.focusMonthIds).toEqual([])
 
-        const updated = await yearlyPlanDexieRepository.update(plan.id, {
-          reflectionCompleted: true,
-          yearInOnePhrase: 'A year of growth',
-          biggestWins: ['Completed marathon', 'Got promoted'],
-          biggestLessons: ['Need more rest', 'Delegation is key'],
-          carryForward: 'Continue health focus',
-        })
+      // Legacy DB fields (sourceType, isAutoGenerated) are migrated at DB level
+      // but no longer part of the Commitment TS interface
+      const migratedCommitment = await migratedDb.commitments.get('commit-legacy') as Record<string, unknown> | undefined
+      expect(migratedCommitment?.sourceType).toBe('manual')
+      expect(migratedCommitment?.isAutoGenerated).toBe(false)
 
-        expect(updated.reflectionCompleted).toBe(true)
-        expect(updated.yearInOnePhrase).toBe('A year of growth')
-        expect(updated.biggestWins).toHaveLength(2)
-        expect(updated.carryForward).toBe('Continue health focus')
-      })
+      const migratedYearlyPlan = await migratedDb.yearlyPlans.get('year-legacy')
+      expect(migratedYearlyPlan?.lifeAreaNarratives).toEqual({})
+
+      await migratedDb.close()
+      await Dexie.delete(dbName)
     })
   })
 })

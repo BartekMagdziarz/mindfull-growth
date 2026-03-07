@@ -1,0 +1,25 @@
+{
+  "generic": {
+    "somethingWentWrong": "Cos poszlo nie tak. Spróbuj ponownie.",
+    "failedToSave": "Nie udalo się zapisać. Spróbuj ponownie.",
+    "failedToLoad": "Nie udalo się zaladowac danych. Spróbuj ponownie.",
+    "failedToDelete": "Nie udalo się usunac. Spróbuj ponownie.",
+    "failedToUpdate": "Nie udalo się zaktualizowac. Spróbuj ponownie.",
+    "networkError": "Wystapil blad sieci. Sprawdz połączenie.",
+    "unexpectedError": "Wystapil nieoczekiwany blad."
+  },
+  "validation": {
+    "required": "To pole jest wymagane.",
+    "nameRequired": "Nazwa jest wymagana.",
+    "invalidDate": "Podaj prawidlowa date.",
+    "startBeforeEnd": "Data rozpoczecia musi być przed data zakończenia."
+  },
+  "tags": {
+    "failedToCreate": "Nie udalo się utworżyć tagu.",
+    "failedToUpdate": "Nie udalo się zaktualizowac tagu.",
+    "failedToDelete": "Nie udalo się usunac tagu."
+  },
+  "auth": {
+    "failedToCreateAccount": "Nie udalo się utworżyć konta. Spróbuj ponownie."
+  }
+}

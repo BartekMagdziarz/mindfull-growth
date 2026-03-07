@@ -1,6 +1,5 @@
 <template>
   <AppCard
-    :elevation="2"
     padding="lg"
     class="bg-primary-soft border border-primary/20"
   >
@@ -11,10 +10,10 @@
         </div>
         <div>
           <h3 class="text-xl font-semibold text-on-surface mb-1">
-            Time for your weekly reflection
+            {{ t('today.weeklyReview.title') }}
           </h3>
           <p class="text-on-surface-variant">
-            Review {{ weekLabel }} and set your intention for the week ahead
+            {{ t('today.weeklyReview.description', { weekLabel }) }}
           </p>
         </div>
       </div>
@@ -24,7 +23,7 @@
           class="w-full sm:w-auto"
           @click="$emit('start-review')"
         >
-          Start Review
+          {{ t('today.weeklyReview.startButton') }}
         </AppButton>
       </div>
     </div>
@@ -35,6 +34,9 @@
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import { CalendarDaysIcon } from '@heroicons/vue/24/outline'
+import { useT } from '@/composables/useT'
+
+const { t } = useT()
 
 defineProps<{
   weekLabel: string

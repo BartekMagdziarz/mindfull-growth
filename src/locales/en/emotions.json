@@ -1,0 +1,578 @@
+{
+  "e1m12-ecstatic-001": {
+    "name": "Ecstatic",
+    "description": "Feeling the greatest amount of joy or happiness"
+  },
+  "e2m12-empowered-002": {
+    "name": "Empowered",
+    "description": "Feeling stronger or more confident due to someone or something that happened"
+  },
+  "e3m12-proud-003": {
+    "name": "Proud",
+    "description": "Pleased with your own achievements or those of someone close to you"
+  },
+  "e4m12-optimistic-004": {
+    "name": "Optimistic",
+    "description": "Hopeful and confident about the future"
+  },
+  "e5m12-challenged-005": {
+    "name": "Challenged",
+    "description": "Feeling pushed to reach a higher goal"
+  },
+  "e6m12-accomplished-006": {
+    "name": "Accomplished",
+    "description": "Feeling effective and successful"
+  },
+  "e7m12-blissful-007": {
+    "name": "Blissful",
+    "description": "Feeling full of joy"
+  },
+  "e8m12-connected-008": {
+    "name": "Connected",
+    "description": "Feeling close to someone or part of a community"
+  },
+  "e9m12-grateful-009": {
+    "name": "Grateful",
+    "description": "Appreciative of something or someone"
+  },
+  "e10m12-moved-010": {
+    "name": "Moved",
+    "description": "A sudden feeling that happens after seeing something inspirational or sad"
+  },
+  "e11m12-blessed-011": {
+    "name": "Blessed",
+    "description": "Feeling thankful and fortunate for what you have"
+  },
+  "e12m12-serene-012": {
+    "name": "Serene",
+    "description": "Calm and peaceful; untroubled"
+  },
+  "e1m11-elated-013": {
+    "name": "Elated",
+    "description": "Very joyful, proud, or enthusiastic"
+  },
+  "e2m11-inspired-014": {
+    "name": "Inspired",
+    "description": "Affected powerfully by something in a way that motivates you to do something"
+  },
+  "e3m11-productive-015": {
+    "name": "Productive",
+    "description": "Feeling like you are accomplishing your tasks or achieving your goals"
+  },
+  "e4m11-motivated-016": {
+    "name": "Motivated",
+    "description": "Enthusiastic about doing something"
+  },
+  "e5m11-engaged-017": {
+    "name": "Engaged",
+    "description": "Paying full attention or participating fully in something"
+  },
+  "e6m11-hopeful-018": {
+    "name": "Hopeful",
+    "description": "Optimistic that something good will happen"
+  },
+  "e7m11-fulfilled-019": {
+    "name": "Fulfilled",
+    "description": "Feeling like you have accomplished important personal goals or have become the person you want to be"
+  },
+  "e8m11-loved-020": {
+    "name": "Loved",
+    "description": "Feeling like someone cares deeply for you"
+  },
+  "e9m11-valued-021": {
+    "name": "Valued",
+    "description": "Feeling like you matter"
+  },
+  "e10m11-accepted-022": {
+    "name": "Accepted",
+    "description": "Feeling acknowledged and seen"
+  },
+  "e11m11-secure-023": {
+    "name": "Secure",
+    "description": "Feeling safe and protected"
+  },
+  "e12m11-satisfied-024": {
+    "name": "Satisfied",
+    "description": "Pleased with what you have or with something you did"
+  },
+  "e1m10-thrilled-025": {
+    "name": "Thrilled",
+    "description": "Feeling very excited all of a sudden"
+  },
+  "e2m10-amazed-026": {
+    "name": "Amazed",
+    "description": "Feeling lost in wonder about a particular event"
+  },
+  "e3m10-joyful-027": {
+    "name": "Joyful",
+    "description": "Feeling pleasure and in high spirits"
+  },
+  "e4m10-happy-028": {
+    "name": "Happy",
+    "description": "Very pleased and filled with joy"
+  },
+  "e5m10-confident-029": {
+    "name": "Confident",
+    "description": "Feeling sure of yourself"
+  },
+  "e6m10-wishful-030": {
+    "name": "Wishful",
+    "description": "Having or showing a wish"
+  },
+  "e7m10-respected-031": {
+    "name": "Respected",
+    "description": "Feeling like people think highly of you"
+  },
+  "e8m10-supported-032": {
+    "name": "Supported",
+    "description": "Feeling like someone is there for you"
+  },
+  "e9m10-included-033": {
+    "name": "Included",
+    "description": "Feeling like you're part of a group"
+  },
+  "e10m10-content-034": {
+    "name": "Content",
+    "description": "Feeling complete and like you are enough"
+  },
+  "e11m10-safe-035": {
+    "name": "Safe",
+    "description": "Feeling protected from danger"
+  },
+  "e12m10-relieved-036": {
+    "name": "Relieved",
+    "description": "Feeling at ease after an unpleasant feeling goes away"
+  },
+  "e1m9-exhilarated-037": {
+    "name": "Exhilarated",
+    "description": "In high spirits; cheerful and invigorated"
+  },
+  "e2m9-successful-038": {
+    "name": "Successful",
+    "description": "Feeling like you've achieved something important to you"
+  },
+  "e3m9-enthusiastic-039": {
+    "name": "Enthusiastic",
+    "description": "Highly interested in an idea or activity"
+  },
+  "e4m9-upbeat-040": {
+    "name": "Upbeat",
+    "description": "Feeling high energy and bubbly"
+  },
+  "e5m9-alive-041": {
+    "name": "Alive",
+    "description": "Filled with energy and vitality"
+  },
+  "e6m9-delighted-042": {
+    "name": "Delighted",
+    "description": "Feeling lifted by joy"
+  },
+  "e7m9-understood-043": {
+    "name": "Understood",
+    "description": "Feeling that someone gets you"
+  },
+  "e8m9-appreciated-044": {
+    "name": "Appreciated",
+    "description": "Feeling recognized and worthy"
+  },
+  "e9m9-compassionate-045": {
+    "name": "Compassionate",
+    "description": "Showing care and concern for someone"
+  },
+  "e10m9-empathetic-046": {
+    "name": "Empathetic",
+    "description": "Understanding and temporarily sharing the feelings of someone else"
+  },
+  "e11m9-balanced-047": {
+    "name": "Balanced",
+    "description": "Feeling stable and satisfied"
+  },
+  "e12m9-thankful-048": {
+    "name": "Thankful",
+    "description": "Feeling pleased or appreciative"
+  },
+  "e1m8-awe-049": {
+    "name": "Awe",
+    "description": "Feeling like you are in the presence of something vast"
+  },
+  "e2m8-determined-050": {
+    "name": "Determined",
+    "description": "Knowing what you want and not letting anything stand in the way"
+  },
+  "e3m8-eager-051": {
+    "name": "Eager",
+    "description": "Impatiently wanting to do or get something"
+  },
+  "e4m8-curious-052": {
+    "name": "Curious",
+    "description": "Interested in learning something"
+  },
+  "e5m8-focused-053": {
+    "name": "Focused",
+    "description": "Engaged in only one idea or activity"
+  },
+  "e6m8-playful-054": {
+    "name": "Playful",
+    "description": "Feeling happy and lighthearted"
+  },
+  "e7m8-at-ease-055": {
+    "name": "At Ease",
+    "description": "Feeling content and comfortable"
+  },
+  "e8m8-thoughtful-056": {
+    "name": "Thoughtful",
+    "description": "Being considerate or reflective about a situation, oneself, or others"
+  },
+  "e9m8-chill-057": {
+    "name": "Chill",
+    "description": "Feeling relaxed and easygoing"
+  },
+  "e10m8-comfortable-058": {
+    "name": "Comfortable",
+    "description": "Feeling reassured both in mind and body"
+  },
+  "e11m8-peaceful-059": {
+    "name": "Peaceful",
+    "description": "Quiet and calm; free from disturbance"
+  },
+  "e12m8-tranquil-060": {
+    "name": "Tranquil",
+    "description": "Peaceful; free from tension"
+  },
+  "e1m7-surprised-061": {
+    "name": "Surprised",
+    "description": "Caught off guard by something unexpected or unusual"
+  },
+  "e2m7-excited-062": {
+    "name": "Excited",
+    "description": "Enthusiastic about something in the future"
+  },
+  "e3m7-energized-063": {
+    "name": "Energized",
+    "description": "Feeling like you are wide awake and ready to get up and go"
+  },
+  "e4m7-cheerful-064": {
+    "name": "Cheerful",
+    "description": "Full of happy feelings"
+  },
+  "e5m7-pleasant-065": {
+    "name": "Pleasant",
+    "description": "Feeling mostly positive"
+  },
+  "e6m7-pleased-066": {
+    "name": "Pleased",
+    "description": "Feeling content and happy about a particular situation or person"
+  },
+  "e7m7-calm-067": {
+    "name": "Calm",
+    "description": "Feeling free of stress, agitation, and worry"
+  },
+  "e8m7-good-068": {
+    "name": "Good",
+    "description": "Feeling positive, like things are just fine"
+  },
+  "e9m7-relaxed-069": {
+    "name": "Relaxed",
+    "description": "Feeling casual and restful in body and mind"
+  },
+  "e10m7-sympathetic-070": {
+    "name": "Sympathetic",
+    "description": "Feeling sorry or sorrowful for someone else"
+  },
+  "e11m7-mellow-071": {
+    "name": "Mellow",
+    "description": "Relaxed and laid back; easygoing"
+  },
+  "e12m7-carefree-072": {
+    "name": "Carefree",
+    "description": "Feeling free of worry and lighthearted"
+  },
+  "e1m6-hyper-073": {
+    "name": "Hyper",
+    "description": "Feeling energetic and like you want to move around"
+  },
+  "e2m6-pressured-074": {
+    "name": "Pressured",
+    "description": "Feeling as if an important outcome depends on you"
+  },
+  "e3m6-restless-075": {
+    "name": "Restless",
+    "description": "Unable to relax due to anxiety or boredom"
+  },
+  "e4m6-confused-076": {
+    "name": "Confused",
+    "description": "Feeling unable to make sense of something"
+  },
+  "e5m6-tense-077": {
+    "name": "Tense",
+    "description": "Unable to relax"
+  },
+  "e6m6-uneasy-078": {
+    "name": "Uneasy",
+    "description": "Vague sense that something is wrong"
+  },
+  "e7m6-bored-079": {
+    "name": "Bored",
+    "description": "Lacking interest in something or someone"
+  },
+  "e8m6-tired-080": {
+    "name": "Tired",
+    "description": "Feeling like you need to rest"
+  },
+  "e9m6-fatigued-081": {
+    "name": "Fatigued",
+    "description": "Feeling physically drained"
+  },
+  "e10m6-disengaged-082": {
+    "name": "Disengaged",
+    "description": "Feeling like you cannot focus; disinterested"
+  },
+  "e11m6-apathetic-083": {
+    "name": "Apathetic",
+    "description": "Lacking enthusiasm or interest"
+  },
+  "e12m6-helpless-084": {
+    "name": "Helpless",
+    "description": "Feeling like there's nothing you can do"
+  },
+  "e1m5-impassioned-085": {
+    "name": "Impassioned",
+    "description": "Filled with lots of emotion"
+  },
+  "e2m5-annoyed-086": {
+    "name": "Annoyed",
+    "description": "Bothered by something displeasing or uncomfortable"
+  },
+  "e3m5-irritated-087": {
+    "name": "Irritated",
+    "description": "Slightly angry with or annoyed by an action or event"
+  },
+  "e4m5-fomo-088": {
+    "name": "Fomo",
+    "description": "Fear of missing out"
+  },
+  "e5m5-concerned-089": {
+    "name": "Concerned",
+    "description": "Wondering if someone or something is okay"
+  },
+  "e6m5-peeved-090": {
+    "name": "Peeved",
+    "description": "Slightly irritated about something"
+  },
+  "e7m5-down-091": {
+    "name": "Down",
+    "description": "Feeling sad and like you have little energy"
+  },
+  "e8m5-meh-092": {
+    "name": "Meh",
+    "description": "Feeling uninspired or blah"
+  },
+  "e9m5-sad-093": {
+    "name": "Sad",
+    "description": "Feeling unhappy about something"
+  },
+  "e10m5-discouraged-094": {
+    "name": "Discouraged",
+    "description": "Feeling a loss of confidence and enthusiasm"
+  },
+  "e11m5-lonely-095": {
+    "name": "Lonely",
+    "description": "Feeling sad because you are alone or disconnected"
+  },
+  "e12m5-exhausted-096": {
+    "name": "Exhausted",
+    "description": "Feeling depleted of all energy"
+  },
+  "e1m4-shocked-097": {
+    "name": "Shocked",
+    "description": "Experiencing extreme horror, disgust and surprise"
+  },
+  "e2m4-stressed-098": {
+    "name": "Stressed",
+    "description": "Strained mentally or emotionally from too many demands and not enough resources"
+  },
+  "e3m4-apprehensive-099": {
+    "name": "Apprehensive",
+    "description": "Unease and worry about something that might happen"
+  },
+  "e4m4-jittery-100": {
+    "name": "Jittery",
+    "description": "Feeling on edge and jumpy"
+  },
+  "e5m4-embarrassed-101": {
+    "name": "Embarrassed",
+    "description": "Self-conscious and uncomfortable about how you think others are perceiving you"
+  },
+  "e6m4-nervous-102": {
+    "name": "Nervous",
+    "description": "Jumpy and worried about the future or an uncertain event"
+  },
+  "e7m4-disheartened-103": {
+    "name": "Disheartened",
+    "description": "Loss of resolve or determination"
+  },
+  "e8m4-disappointed-104": {
+    "name": "Disappointed",
+    "description": "Sad because your expectations were not met"
+  },
+  "e9m4-forlorn-105": {
+    "name": "Forlorn",
+    "description": "Feeling both sad and alone"
+  },
+  "e10m4-spent-106": {
+    "name": "Spent",
+    "description": "Feeling extremely exhausted, both in body and mind"
+  },
+  "e11m4-nostalgic-107": {
+    "name": "Nostalgic",
+    "description": "A sentimental longing for the happiness felt in former place, time or situation"
+  },
+  "e12m4-burned-out-108": {
+    "name": "Burned Out",
+    "description": "Feeling exhausted from ongoing stress"
+  },
+  "e1m3-panicked-109": {
+    "name": "Panicked",
+    "description": "Feeling frantic and overcome by fear"
+  },
+  "e2m3-overwhelmed-110": {
+    "name": "Overwhelmed",
+    "description": "Feeling like you have been taken over by strong feelings"
+  },
+  "e3m3-anxious-111": {
+    "name": "Anxious",
+    "description": "Worried and uneasy about an uncertain outcome"
+  },
+  "e4m3-angry-112": {
+    "name": "Angry",
+    "description": "Strongly bothered about a perceived injustice"
+  },
+  "e5m3-frustrated-113": {
+    "name": "Frustrated",
+    "description": "Upset because you cannot do something you want to do"
+  },
+  "e6m3-worried-114": {
+    "name": "Worried",
+    "description": "Troubled about actual or potential problems"
+  },
+  "e7m3-insecure-115": {
+    "name": "Insecure",
+    "description": "Feeling uncertain and unconfident about yourself"
+  },
+  "e8m3-lost-116": {
+    "name": "Lost",
+    "description": "Feeling uncomfortably alone and lacking direction"
+  },
+  "e9m3-disconnected-117": {
+    "name": "Disconnected",
+    "description": "Feeling separate from others"
+  },
+  "e10m3-excluded-118": {
+    "name": "Excluded",
+    "description": "Feeling left out and unwanted from a desired group"
+  },
+  "e11m3-alienated-119": {
+    "name": "Alienated",
+    "description": "Feeling like you have been made a stranger to others, like they have no feelings or affection towards you"
+  },
+  "e12m3-glum-120": {
+    "name": "Glum",
+    "description": "Feeling displeased; pessimistic about future events"
+  },
+  "e1m2-terrified-121": {
+    "name": "Terrified",
+    "description": "Consumed by fear"
+  },
+  "e2m2-irate-122": {
+    "name": "Irate",
+    "description": "Feeling like your anger is almost out of control"
+  },
+  "e3m2-frightened-123": {
+    "name": "Frightened",
+    "description": "Afraid or fearful"
+  },
+  "e4m2-scared-124": {
+    "name": "Scared",
+    "description": "Perceiving threat or danger, whether physical or physiological"
+  },
+  "e5m2-repulsed-125": {
+    "name": "Repulsed",
+    "description": "Nauseated by someone or something"
+  },
+  "e6m2-troubled-126": {
+    "name": "Troubled",
+    "description": "Feeling worried about a problem or conflict"
+  },
+  "e7m2-trapped-127": {
+    "name": "Trapped",
+    "description": "Feeling like there's no way out"
+  },
+  "e8m2-ashamed-128": {
+    "name": "Ashamed",
+    "description": "Feeling lower self-worth as a result of who you are or what you did"
+  },
+  "e9m2-vulnerable-129": {
+    "name": "Vulnerable",
+    "description": "Feeling like you could easily be emotionally or mentally hurt"
+  },
+  "e10m2-numb-130": {
+    "name": "Numb",
+    "description": "Dampening or loss of sensitivity to feelings, with a hint of negative mood"
+  },
+  "e11m2-hopeless-131": {
+    "name": "Hopeless",
+    "description": "Feel completely defeated and in despair about the future"
+  },
+  "e12m2-despair-132": {
+    "name": "Despair",
+    "description": "A feeling of complete hopelessness"
+  },
+  "e1m1-enraged-133": {
+    "name": "Enraged",
+    "description": "Made furious by something; filled with extreme anger"
+  },
+  "e2m1-livid-134": {
+    "name": "Livid",
+    "description": "Feeling furious about something or someone"
+  },
+  "e3m1-furious-135": {
+    "name": "Furious",
+    "description": "Full of extreme or wild anger"
+  },
+  "e4m1-jealous-136": {
+    "name": "Jealous",
+    "description": "Threatened that you're losing an important relationship to someone else"
+  },
+  "e5m1-envious-137": {
+    "name": "Envious",
+    "description": "Feelings of desire for something that someone else has"
+  },
+  "e6m1-contempt-138": {
+    "name": "Contempt",
+    "description": "Feeling a combination of anger and disgust"
+  },
+  "e7m1-disgusted-139": {
+    "name": "Disgusted",
+    "description": "Feeling a strong dislike of someone or something"
+  },
+  "e8m1-humiliated-140": {
+    "name": "Humiliated",
+    "description": "Feeling exposed and foolish in front of others"
+  },
+  "e9m1-pessimistic-141": {
+    "name": "Pessimistic",
+    "description": "Having a negative outlook and expecting the worst to happen"
+  },
+  "e10m1-guilty-142": {
+    "name": "Guilty",
+    "description": "Feeling responsible for a specific wrongdoing"
+  },
+  "e11m1-depressed-143": {
+    "name": "Depressed",
+    "description": "Extremely unhappy and dispirited"
+  },
+  "e12m1-miserable-144": {
+    "name": "Miserable",
+    "description": "Feeling absolutely awful"
+  }
+}

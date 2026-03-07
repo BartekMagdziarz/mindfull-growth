@@ -4,14 +4,14 @@
     <div
       class="flex flex-wrap gap-2 items-center"
       role="group"
-      :aria-label="`${tagTypeLabel} tags`"
+      :aria-label="t('common.tagInput.groupLabel', { type: tagTypeLabel })"
     >
       <!-- Add Button (always first) -->
       <button
         v-if="!isCreatingTag"
         type="button"
-        class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-chip text-chip-text hover:bg-section focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200 active:scale-[0.95]"
-        :aria-label="`Add new ${tagTypeLabel.toLowerCase()} tag`"
+        class="tag-pill inline-flex items-center justify-center w-7 h-7 rounded-full focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+        :aria-label="t('common.tagInput.addNew', { type: tagTypeLower })"
         @click="startCreateTag"
       >
         <PlusIcon class="w-4 h-4" aria-hidden="true" />
@@ -20,15 +20,15 @@
       <!-- Creating New Tag (appears after + button position) -->
       <div
         v-if="isCreatingTag"
-        class="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-soft ring-2 ring-primary text-on-surface text-xs font-medium transition-all duration-200"
+        class="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-soft ring-2 ring-primary text-on-primary-soft text-xs font-medium transition-all duration-200"
       >
         <input
           ref="createInputRef"
           v-model="newTagName"
           type="text"
           class="bg-transparent border-none outline-none w-20 min-w-0 text-xs"
-          placeholder="Tag name"
-          :aria-label="`New ${tagTypeLabel.toLowerCase()} tag name`"
+          :placeholder="t('common.tagInput.placeholder')"
+          :aria-label="t('common.tagInput.newTagName', { type: tagTypeLower })"
           @keydown.enter.prevent="saveNewTag"
           @keydown.escape.prevent="cancelCreate"
           @blur="handleCreateBlur"
@@ -40,14 +40,14 @@
         <!-- Edit Mode -->
         <div
           v-if="editingTagId === tag.id"
-          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary-soft ring-2 ring-primary text-on-surface text-xs font-medium transition-all duration-200"
+          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary-soft ring-2 ring-primary text-on-primary-soft text-xs font-medium transition-all duration-200"
         >
           <input
             ref="editInputRef"
             v-model="editingTagName"
             type="text"
             class="bg-transparent border-none outline-none w-20 min-w-0 text-xs"
-            :aria-label="`Edit ${tagTypeLabel.toLowerCase()} tag name`"
+            :aria-label="t('common.tagInput.editTagName', { type: tagTypeLower })"
             @keydown.enter.prevent="saveEditTag"
             @keydown.escape.prevent="cancelEdit"
             @blur="handleEditBlur"
@@ -55,7 +55,7 @@
           <button
             type="button"
             class="p-0.5 rounded-full hover:bg-error/20 text-error transition-colors"
-            :aria-label="`Delete ${tag.name}`"
+            :aria-label="t('common.tagInput.deleteTag', { name: tag.name })"
             @mousedown.prevent="deleteTag(tag.id)"
           >
             <XMarkIcon class="w-3.5 h-3.5" aria-hidden="true" />
@@ -66,7 +66,7 @@
         <button
           v-else
           type="button"
-          :aria-label="`${isTagSelected(tag.id) ? 'Deselect' : 'Select'} ${tagTypeLabel.toLowerCase()} tag ${tag.name}`"
+          :aria-label="isTagSelected(tag.id) ? t('common.tagInput.deselectTag', { type: tagTypeLower, name: tag.name }) : t('common.tagInput.selectTag', { type: tagTypeLower, name: tag.name })"
           :aria-pressed="isTagSelected(tag.id)"
           :class="getTagClasses(tag.id)"
           @click="handleTagClick(tag.id)"
@@ -89,6 +89,7 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import type { PeopleTag, ContextTag } from '@/domain/tag'
 import { useTagStore } from '@/stores/tag.store'
 import { XMarkIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import { useT } from '@/composables/useT'
 
 interface Props {
   modelValue: string[]
@@ -108,6 +109,7 @@ const emit = defineEmits<{
 }>()
 
 const tagStore = useTagStore()
+const { t } = useT()
 
 // Selection state
 const selectedTagIds = ref<string[]>([])
@@ -132,8 +134,10 @@ const DOUBLE_CLICK_THRESHOLD = 300
 
 // Computed
 const tagTypeLabel = computed(() => {
-  return props.tagType === 'people' ? 'People' : 'Context'
+  return props.tagType === 'people' ? t('common.tagInput.people') : t('common.tagInput.context')
 })
+
+const tagTypeLower = computed(() => tagTypeLabel.value.toLowerCase())
 
 const availableTags = computed(() => {
   return props.tagType === 'people'
@@ -149,12 +153,12 @@ function isTagSelected(tagId: string): boolean {
 function getTagClasses(tagId: string): string {
   const isSelected = isTagSelected(tagId)
   const baseClasses =
-    'px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background active:scale-[0.95]'
+    'px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background'
 
   if (isSelected) {
-    return `${baseClasses} bg-primary text-on-primary shadow-elevation-1`
+    return `${baseClasses} shadow-neu-pressed bg-neu-base text-primary border border-neu-border/40`
   } else {
-    return `${baseClasses} bg-chip text-chip-text hover:bg-section`
+    return `${baseClasses} tag-pill`
   }
 }
 
@@ -367,5 +371,15 @@ onMounted(async () => {
 <style scoped>
 .tag-input {
   @apply w-full;
+}
+
+.tag-pill {
+  background-color: rgb(var(--color-surface-variant) / 0.6);
+  border: 1.5px solid rgb(var(--color-outline) / 0.45);
+  color: rgb(var(--color-primary-strong));
+}
+
+.tag-pill:hover {
+  background-color: rgb(var(--color-surface) / 0.95);
 }
 </style>

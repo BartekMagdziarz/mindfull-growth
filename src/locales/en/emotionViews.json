@@ -1,0 +1,63 @@
+{
+  "logTitle": "Log your emotions",
+  "loadingEmotions": "Loading emotions...",
+  "quickNoteLabel": "Quick note (optional)",
+  "quickNotePlaceholder": "How are you feeling?",
+  "addTagsLabel": "Add tags (optional)",
+  "people": "People",
+  "context": "Context",
+  "loadingPeopleTags": "Loading people tags...",
+  "loadingContextTags": "Loading context tags...",
+  "save": "Save",
+  "saving": "Saving...",
+  "viewHistory": "View emotion history",
+  "selectAtLeastOne": "Please select at least one emotion.",
+  "loggedSuccess": "Emotion logged successfully.",
+  "saveError": "Failed to save emotion log. Please try again.",
+  "loadEmotionsError": "Failed to load emotions. Please try again.",
+  "loadPeopleError": "Failed to load people tags. Please try again.",
+  "loadContextError": "Failed to load context tags. Please try again.",
+  "editor": {
+    "loading": "Loading emotion log...",
+    "dateTimeTitle": "Set Date & Time",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "emotions": "Emotions",
+    "note": "Note",
+    "notePlaceholder": "Quick reflection...",
+    "people": "People",
+    "context": "Context",
+    "loadingPeopleTags": "Loading people tags...",
+    "loadingContextTags": "Loading context tags...",
+    "save": "Save",
+    "saving": "Saving...",
+    "unknownDate": "Unknown date",
+    "notFound": "Emotion log not found.",
+    "loadError": "Failed to load emotion log. Please try again.",
+    "selectAtLeastOne": "Please select at least one emotion.",
+    "savedSuccess": "Emotion log saved successfully.",
+    "saveError": "Failed to save emotion log. Please try again."
+  },
+  "selector": {
+    "selectedCount": "Selected Emotions ({count})",
+    "noSelection": "No emotions selected",
+    "loadingEmotions": "Loading emotions...",
+    "noEmotionsInQuadrant": "No emotions in this quadrant",
+    "quadrants": {
+      "highEnergyUnpleasant": "High Energy / Low Pleasantness",
+      "highEnergyPleasant": "High Energy / High Pleasantness",
+      "lowEnergyUnpleasant": "Low Energy / Low Pleasantness",
+      "lowEnergyPleasant": "Low Energy / High Pleasantness"
+    },
+    "energyLabels": {
+      "high": "High Energy",
+      "low": "Low Energy"
+    },
+    "pleasantnessLabels": {
+      "pleasant": "Pleasant",
+      "unpleasant": "Unpleasant"
+    }
+  }
+}

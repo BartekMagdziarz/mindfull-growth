@@ -8,22 +8,21 @@
 import { computed } from 'vue'
 
 interface Props {
-  elevation?: 1 | 2 | 3
+  variant?: 'raised' | 'raised-strong' | 'flat' | 'inset'
   padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  elevation: 1,
+  variant: 'raised',
   padding: 'md',
 })
 
 const cardClasses = computed(() => {
-  const baseClasses = 'rounded-3xl bg-surface border border-outline/30 backdrop-blur-sm'
-
-  const elevationClasses = {
-    1: 'shadow-elevation-1',
-    2: 'shadow-elevation-2',
-    3: 'shadow-elevation-3',
+  const variantClasses = {
+    raised: 'neo-card',
+    'raised-strong': 'neo-card neo-raised-strong',
+    flat: 'neo-card shadow-neu-flat',
+    inset: 'neo-surface',
   }
 
   const paddingClasses = {
@@ -33,6 +32,6 @@ const cardClasses = computed(() => {
     lg: 'p-6',
   }
 
-  return `${baseClasses} ${elevationClasses[props.elevation]} ${paddingClasses[props.padding]}`
+  return `${variantClasses[props.variant]} ${paddingClasses[props.padding]}`
 })
 </script>

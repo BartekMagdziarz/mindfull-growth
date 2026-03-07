@@ -3,15 +3,15 @@
     <div class="w-full max-w-md">
       <AppCard>
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-on-surface mb-2">Welcome Back</h1>
-          <p class="text-on-surface-variant">Sign in to continue to Mindfull Growth</p>
+          <h1 class="text-3xl font-bold text-on-surface mb-2">{{ t('auth.login.title') }}</h1>
+          <p class="text-on-surface-variant">{{ t('auth.login.subtitle') }}</p>
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Username -->
           <div>
             <label for="username" class="block text-sm font-medium text-on-surface mb-2">
-              Username
+              {{ t('auth.login.username') }}
             </label>
             <input
               id="username"
@@ -20,15 +20,15 @@
               autocomplete="username"
               required
               :disabled="isLoading || isLockedOut"
-              class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors disabled:opacity-50"
-              placeholder="Enter your username"
+              class="neo-input w-full px-4 py-3 disabled:opacity-50"
+              :placeholder="t('auth.login.usernamePlaceholder')"
             />
           </div>
 
           <!-- Password -->
           <div>
             <label for="password" class="block text-sm font-medium text-on-surface mb-2">
-              Password
+              {{ t('auth.login.password') }}
             </label>
             <input
               id="password"
@@ -37,8 +37,8 @@
               autocomplete="current-password"
               required
               :disabled="isLoading || isLockedOut"
-              class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors disabled:opacity-50"
-              placeholder="Enter your password"
+              class="neo-input w-full px-4 py-3 disabled:opacity-50"
+              :placeholder="t('auth.login.passwordPlaceholder')"
             />
           </div>
 
@@ -54,18 +54,18 @@
             :disabled="!canSubmit"
             class="w-full"
           >
-            <span v-if="isLoading">Signing in...</span>
-            <span v-else-if="isLockedOut">Try again in {{ lockoutSeconds }}s</span>
-            <span v-else>Sign In</span>
+            <span v-if="isLoading">{{ t('auth.login.signingIn') }}</span>
+            <span v-else-if="isLockedOut">{{ t('auth.login.lockedOut', { seconds: lockoutSeconds }) }}</span>
+            <span v-else>{{ t('common.buttons.signIn') }}</span>
           </AppButton>
         </form>
 
         <!-- Sign up link -->
         <div class="mt-6 text-center">
           <p class="text-on-surface-variant">
-            Don't have an account?
+            {{ t('auth.login.noAccount') }}
             <router-link to="/signup" class="text-primary font-medium hover:underline">
-              Sign up
+              {{ t('auth.login.signUpLink') }}
             </router-link>
           </p>
         </div>
@@ -80,7 +80,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import { useT } from '@/composables/useT'
 
+const { t } = useT()
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()

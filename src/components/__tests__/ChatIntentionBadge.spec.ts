@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/vue'
 import ChatIntentionBadge from '../ChatIntentionBadge.vue'
-import { CHAT_INTENTIONS } from '@/domain/chatSession'
+import { CHAT_INTENTIONS, type ChatIntention } from '@/domain/chatSession'
 
 describe('ChatIntentionBadge', () => {
   it('renders correct label for each standard intention', () => {
-    const cases: Array<{ value: string; label: string }> = [
+    const cases: Array<{ value: ChatIntention; label: string }> = [
       { value: CHAT_INTENTIONS.REFLECT, label: 'Reflect' },
       {
         value: CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY,
@@ -43,5 +43,4 @@ describe('ChatIntentionBadge', () => {
     expect(screen.getByText('Custom')).toBeInTheDocument()
   })
 })
-
 

@@ -92,10 +92,13 @@ describe('Cross Feature Integrations', () => {
       note: 'Happy log',
     })
 
-    expect(entry.emotionIds[0]).toBe(happyEmotion.id)
+    const entryEmotionId = entry.emotionIds?.[0]
+    expect(entryEmotionId).toBe(happyEmotion.id)
     expect(log.emotionIds[0]).toBe(happyEmotion.id)
-    expect(emotionStore.getEmotionById(entry.emotionIds[0])?.name).toBe('Happy')
+    if (!entryEmotionId) {
+      throw new Error('Expected journal entry to include an emotion id')
+    }
+    expect(emotionStore.getEmotionById(entryEmotionId)?.name).toBe('Happy')
   })
 })
-
 

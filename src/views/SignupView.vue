@@ -3,15 +3,15 @@
     <div class="w-full max-w-md">
       <AppCard>
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-on-surface mb-2">Create Account</h1>
-          <p class="text-on-surface-variant">Start your mindfulness journey</p>
+          <h1 class="text-3xl font-bold text-on-surface mb-2">{{ t('auth.signup.title') }}</h1>
+          <p class="text-on-surface-variant">{{ t('auth.signup.subtitle') }}</p>
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Username -->
           <div>
             <label for="username" class="block text-sm font-medium text-on-surface mb-2">
-              Username
+              {{ t('auth.signup.username') }}
             </label>
             <input
               id="username"
@@ -20,17 +20,17 @@
               autocomplete="username"
               required
               :disabled="isLoading"
-              class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors disabled:opacity-50"
-              placeholder="Choose a username"
+              class="neo-input w-full px-4 py-3 disabled:opacity-50"
+              :placeholder="t('auth.signup.usernamePlaceholder')"
             />
-            <p class="mt-1 text-xs text-on-surface-variant">At least 3 characters</p>
+            <p class="mt-1 text-xs text-on-surface-variant">{{ t('auth.signup.usernameHint') }}</p>
           </div>
 
           <!-- Display Name (Optional) -->
           <div>
             <label for="displayName" class="block text-sm font-medium text-on-surface mb-2">
-              Display Name
-              <span class="text-on-surface-variant font-normal">(optional)</span>
+              {{ t('auth.signup.displayName') }}
+              <span class="text-on-surface-variant font-normal">{{ t('auth.signup.displayNameOptional') }}</span>
             </label>
             <input
               id="displayName"
@@ -38,15 +38,15 @@
               type="text"
               autocomplete="name"
               :disabled="isLoading"
-              class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors disabled:opacity-50"
-              placeholder="How should we call you?"
+              class="neo-input w-full px-4 py-3 disabled:opacity-50"
+              :placeholder="t('auth.signup.displayNamePlaceholder')"
             />
           </div>
 
           <!-- Password -->
           <div>
             <label for="password" class="block text-sm font-medium text-on-surface mb-2">
-              Password
+              {{ t('auth.signup.password') }}
             </label>
             <input
               id="password"
@@ -55,16 +55,16 @@
               autocomplete="new-password"
               required
               :disabled="isLoading"
-              class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors disabled:opacity-50"
-              placeholder="Create a password"
+              class="neo-input w-full px-4 py-3 disabled:opacity-50"
+              :placeholder="t('auth.signup.passwordPlaceholder')"
             />
-            <p class="mt-1 text-xs text-on-surface-variant">At least 6 characters</p>
+            <p class="mt-1 text-xs text-on-surface-variant">{{ t('auth.signup.passwordHint') }}</p>
           </div>
 
           <!-- Confirm Password -->
           <div>
             <label for="confirmPassword" class="block text-sm font-medium text-on-surface mb-2">
-              Confirm Password
+              {{ t('auth.signup.confirmPassword') }}
             </label>
             <input
               id="confirmPassword"
@@ -74,15 +74,15 @@
               required
               :disabled="isLoading"
               :class="[
-                'w-full px-4 py-3 rounded-xl border-2 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 transition-colors disabled:opacity-50',
+                'neo-input w-full px-4 py-3 disabled:opacity-50',
                 passwordMismatch
                   ? 'border-error focus:ring-error'
-                  : 'border-outline/30 focus:ring-focus'
+                  : ''
               ]"
-              placeholder="Confirm your password"
+              :placeholder="t('auth.signup.confirmPasswordPlaceholder')"
             />
             <p v-if="passwordMismatch" class="mt-1 text-xs text-error">
-              Passwords do not match
+              {{ t('auth.signup.passwordMismatch') }}
             </p>
           </div>
 
@@ -93,8 +93,7 @@
 
           <!-- Warning about password recovery -->
           <div class="p-3 rounded-lg bg-tertiary-container text-on-tertiary-container text-sm">
-            <strong>Note:</strong> This app works entirely offline. There is no password recovery.
-            If you forget your password, your data cannot be recovered.
+            <strong>{{ t('auth.signup.offlineWarningNote') }}</strong> {{ t('auth.signup.offlineWarning') }}
           </div>
 
           <!-- Submit button -->
@@ -104,17 +103,17 @@
             :disabled="!canSubmit"
             class="w-full"
           >
-            <span v-if="isLoading">Creating account...</span>
-            <span v-else>Create Account</span>
+            <span v-if="isLoading">{{ t('auth.signup.creatingAccount') }}</span>
+            <span v-else>{{ t('auth.signup.createAccount') }}</span>
           </AppButton>
         </form>
 
         <!-- Login link -->
         <div class="mt-6 text-center">
           <p class="text-on-surface-variant">
-            Already have an account?
+            {{ t('auth.signup.hasAccount') }}
             <router-link to="/login" class="text-primary font-medium hover:underline">
-              Sign in
+              {{ t('auth.signup.signInLink') }}
             </router-link>
           </p>
         </div>
@@ -129,7 +128,9 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import { useT } from '@/composables/useT'
 
+const { t } = useT()
 const router = useRouter()
 const authStore = useAuthStore()
 

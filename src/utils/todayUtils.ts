@@ -1,14 +1,6 @@
 import type { JournalEntry } from '@/domain/journal'
 import type { EmotionLog } from '@/domain/emotionLog'
-import type { PeriodicEntry } from '@/domain/periodicEntry'
-import {
-  getWeekRange,
-  toISODateString,
-  getPreviousPeriodRange,
-  formatDateRange,
-  getWeekNumber,
-  type PeriodRange,
-} from './periodUtils'
+import { getWeekRange, type PeriodRange } from './periodUtils'
 
 export interface WeekSummary {
   journalCount: number
@@ -48,69 +40,6 @@ export function getTodayJournalEntries(entries: JournalEntry[]): JournalEntry[] 
  */
 export function getTodayEmotionLogs(logs: EmotionLog[]): EmotionLog[] {
   return logs.filter((log) => isToday(log.createdAt))
-}
-
-/**
- * Get the week that should be reviewed based on user's preferred review day.
- * If today is the review day, we review the week that just ended (previous week).
- * The week runs Monday-Sunday, so if review day is Sunday, we review Mon-Sun of that same week.
- */
-export function getReviewWeekRange(preferredDay: number): PeriodRange {
-  const today = new Date()
-  const currentDayOfWeek = today.getDay()
-
-  // If today is the preferred review day, get the week that just ended
-  if (currentDayOfWeek === preferredDay) {
-    // For Sunday (0), the current week just ended, so review current week
-    // For other days, we need to get the previous week
-    if (preferredDay === 0) {
-      // Sunday - review the Mon-Sun week that includes today
-      return getWeekRange(today)
-    } else {
-      // Other days - review the previous complete week
-      return getPreviousPeriodRange('weekly', getWeekRange(today).start)
-    }
-  }
-
-  // Not the review day - return current week for reference
-  return getWeekRange(today)
-}
-
-/**
- * Check if weekly review is due based on user's preferred day
- */
-export function isWeeklyReviewDue(
-  preferredDay: number,
-  weeklyEntries: PeriodicEntry[]
-): boolean {
-  const today = new Date()
-  const currentDayOfWeek = today.getDay()
-
-  // Only show prompt on the preferred review day
-  if (currentDayOfWeek !== preferredDay) {
-    return false
-  }
-
-  // Get the week to review
-  const reviewWeek = getReviewWeekRange(preferredDay)
-  const periodStartDate = toISODateString(reviewWeek.start)
-
-  // Check if entry exists for this week
-  const existingEntry = weeklyEntries.find(
-    (e) => e.type === 'weekly' && e.periodStartDate === periodStartDate
-  )
-
-  return !existingEntry
-}
-
-/**
- * Get a formatted label for the week to be reviewed
- */
-export function getReviewWeekLabel(preferredDay: number): string {
-  const reviewWeek = getReviewWeekRange(preferredDay)
-  const weekNum = getWeekNumber(reviewWeek.start)
-  const dateRange = formatDateRange(reviewWeek.start, reviewWeek.end, 'weekly')
-  return `Week ${weekNum} (${dateRange})`
 }
 
 /**

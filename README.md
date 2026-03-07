@@ -1,8 +1,10 @@
-Mindful Growth – Local-First Journaling & Emotions
+Mindful Growth – Local-First Journaling, Planning & Emotions
 
 A local-first Vue 3 app for mindful growth: journaling, fast emotion check-ins, exercises, and self-knowledge tools – all stored on your device.
 
 ✨ Features (v1 focus)
+	•	Planning – Yearly, monthly, and weekly planning with priorities, projects, and commitments.
+	•	Life Areas – Define the foundation of your life and pick yearly focus areas.
 	•	Journal – Freeform entries with emotion tags and simple context tags.
 	•	Emotions – Ultra-fast “right now I feel…” logs using a shared emotion grid.
 	•	Profile (browser) – View and filter all your entries and emotion logs in one place.
@@ -37,13 +39,20 @@ npm run build
 🧠 App Overview
 
 Core views:
-	•	Today – Daily hub (placeholder for now).
+	•	Today – Daily hub for focus and weekly commitments.
+	•	Planning – Year / Month / Week planning hub.
+	•	Life Areas – Define and curate the areas of life you care about.
 	•	Journal – Create and browse deeper reflections.
 	•	Emotions – Very fast emotional check-ins.
 	•	Exercises – Library of self-reflection tools (later).
 	•	Profile – Global browser + filters for everything you’ve logged.
 
 Shared data model (simplified):
+	•	LifeArea – foundational life categories with color, description, and status.
+	•	YearlyPlan – yearly period details + focus life areas.
+	•	Priority – high‑level yearly goals linked to life areas.
+	•	Project – outcome‑driven initiatives linked to life areas and priorities.
+	•	Commitment – weekly actions linked to life areas, priorities, and projects.
 	•	Emotion – id, name, pleasantness, energy (used everywhere).
 	•	JournalEntry – text body, optional title, many emotions, optional tags.
 	•	EmotionLog – timestamped “right now I feel…” snapshots with many emotions, optional note/tags.

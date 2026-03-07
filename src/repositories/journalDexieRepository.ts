@@ -2,6 +2,10 @@ import type { JournalEntry } from '@/domain/journal'
 import type { JournalRepository } from './journalRepository'
 import { getUserDatabase } from '@/services/userDatabase.service'
 
+function toPlain<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 // Implementation of JournalRepository using IndexedDB via Dexie
 class JournalDexieRepository implements JournalRepository {
   private get db() {
@@ -31,13 +35,26 @@ class JournalDexieRepository implements JournalRepository {
   ): Promise<JournalEntry> {
     try {
       const now = new Date().toISOString()
+
+      // Validate createdAt if provided, fallback to now if invalid
+      let createdAt = now
+      if (data.createdAt) {
+        const parsedDate = new Date(data.createdAt)
+        if (!isNaN(parsedDate.getTime())) {
+          createdAt = data.createdAt
+        } else {
+          console.warn('Invalid createdAt provided, using current timestamp:', data.createdAt)
+        }
+      }
+
+      const { createdAt: _, ...restData } = data
       const entry: JournalEntry = {
         id: crypto.randomUUID(),
-        createdAt: data.createdAt || now,
+        createdAt,
         updatedAt: now,
-        ...data,
+        ...restData,
       }
-      await this.db.journalEntries.add(entry)
+      await this.db.journalEntries.add(toPlain(entry))
       return entry
     } catch (error) {
       console.error('Failed to create journal entry:', error)
@@ -51,7 +68,7 @@ class JournalDexieRepository implements JournalRepository {
         ...entry,
         updatedAt: new Date().toISOString(),
       }
-      await this.db.journalEntries.put(updatedEntry)
+      await this.db.journalEntries.put(toPlain(updatedEntry))
       return updatedEntry
     } catch (error) {
       console.error(`Failed to update journal entry with id ${entry.id}:`, error)

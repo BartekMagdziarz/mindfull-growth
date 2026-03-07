@@ -5,7 +5,7 @@
       <!-- Free form Card -->
       <AppCard
         padding="lg"
-        class="w-full max-w-md cursor-pointer transition-all duration-200 hover:shadow-elevation-2 active:scale-[0.98]"
+        class="w-full max-w-md cursor-pointer transition-all duration-200 hover:-translate-y-px"
         @click="handleFreeFormClick"
       >
         <div class="flex items-start gap-4">
@@ -13,9 +13,9 @@
             <PencilIcon class="w-8 h-8 text-primary" />
           </div>
           <div class="flex-1">
-            <h3 class="text-xl font-semibold text-on-surface mb-2">Free form</h3>
+            <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('journal.view.freeForm') }}</h3>
             <p class="text-on-surface-variant">
-              Write freely about what comes to your mind
+              {{ t('journal.view.freeFormDescription') }}
             </p>
           </div>
         </div>
@@ -24,7 +24,7 @@
       <!-- Guided Card -->
       <AppCard
         padding="lg"
-        class="w-full max-w-md cursor-pointer transition-all duration-200 hover:shadow-elevation-2 active:scale-[0.98]"
+        class="w-full max-w-md cursor-pointer transition-all duration-200 hover:-translate-y-px"
         @click="handleGuidedClick"
       >
         <div class="flex items-start gap-4">
@@ -32,43 +32,14 @@
             <LightBulbIcon class="w-8 h-8 text-primary" />
           </div>
           <div class="flex-1">
-            <h3 class="text-xl font-semibold text-on-surface mb-2">Guided</h3>
+            <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('journal.view.guided') }}</h3>
             <p class="text-on-surface-variant">
-              Follow prompts and questions
+              {{ t('journal.view.guidedDescription') }}
             </p>
           </div>
         </div>
       </AppCard>
 
-      <!-- Periodic Card -->
-      <AppCard
-        padding="lg"
-        class="w-full max-w-md cursor-pointer transition-all duration-200 hover:shadow-elevation-2 active:scale-[0.98]"
-        @click="handlePeriodicClick"
-      >
-        <div class="flex items-start gap-4">
-          <div class="flex-shrink-0 mt-1">
-            <CalendarIcon class="w-8 h-8 text-primary" />
-          </div>
-          <div class="flex-1">
-            <h3 class="text-xl font-semibold text-on-surface mb-2">Periodic</h3>
-            <p class="text-on-surface-variant">
-              Scheduled reflection moments
-            </p>
-          </div>
-        </div>
-      </AppCard>
-    </div>
-
-    <!-- Link to History -->
-    <div class="text-center mt-6">
-      <router-link
-        to="/history?type=journal"
-        class="text-primary hover:underline inline-flex items-center gap-1"
-      >
-        View all journal entries
-        <ArrowRightIcon class="w-4 h-4" />
-      </router-link>
     </div>
 
     <!-- Snackbar -->
@@ -79,16 +50,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useT } from '@/composables/useT'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import {
   PencilIcon,
   LightBulbIcon,
-  CalendarIcon,
-  ArrowRightIcon,
 } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
+const { t } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const handleFreeFormClick = () => {
@@ -96,10 +67,7 @@ const handleFreeFormClick = () => {
 }
 
 const handleGuidedClick = () => {
-  snackbarRef.value?.show('Coming soon')
+  snackbarRef.value?.show(t('journal.view.comingSoon'))
 }
 
-const handlePeriodicClick = () => {
-  router.push('/periodic')
-}
 </script>

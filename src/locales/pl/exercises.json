@@ -1,0 +1,291 @@
+{
+  "title": "Ćwiczenia",
+  "subtitle": "Ćwiczenia z zakresu samopoznania i zdrowia psychicznego, które możesz wykonać w dowolnym momencie.",
+  "aiAssisted": "Ćwiczenie wspierane przez AI",
+  "views": {
+    "backToExercises": "Powrót do ćwiczeń",
+    "pastRecords": "Poprzednie wpisy",
+    "pastSessions": "Poprzednie sesje",
+    "pastEntries": "Poprzednie wpisy",
+    "pastExplorations": "Poprzednie eksploracje",
+    "pastDialogues": "Poprzednie dialogi",
+    "pastLabs": "Poprzednie laboratoria",
+    "pastPractices": "Poprzednie praktyki",
+    "pastShifts": "Poprzednie zmiany",
+    "pastLetters": "Poprzednie listy",
+    "pastAssessments": "Poprzednie oceny",
+    "pastExperiments": "Poprzednie eksperymenty",
+    "pastPlans": "Poprzednie plany",
+    "pastHierarchies": "Poprzednie hierarchie",
+    "yourLogs": "Twoje dzienniki",
+    "newLog": "Nowy dziennik",
+    "backToLogs": "Powrót do dzienników",
+    "loadingLogs": "Ładowanie dzienników...",
+    "noEntriesYet": "Brak wpisów. Wykonaj swoje pierwsze ćwiczenie powyżej.",
+    "noSessionsYet": "Brak sesji. Wykonaj swoją pierwszą praktykę powyżej.",
+    "averageSpaceCreated": "Średni dystans",
+    "spaceBadge": "Dystans: {n}/10",
+    "before": "Przed",
+    "after": "Po",
+    "part": "Część:",
+    "unknown": "Nieznane",
+    "habitPrompt": "Czy chcesz praktykować to codziennie?",
+    "habitPromptDescription": "Śledź swoją regularność dzięki nawykom.",
+    "createHabit": "Utwórz nawyk",
+    "pastMaps": "Poprzednie mapy",
+    "noMapsYet": "Brak map. Stwórz swoją pierwszą mapę części powyżej.",
+    "partCount": "{n} część",
+    "partsCount": "{n} części",
+    "connectionCount": "{n} połączenie",
+    "connectionsCount": "{n} połączenia",
+    "pastAppreciations": "Poprzednie docenienia",
+    "noAppreciationsYet": "Brak docenień. Podziękuj protektorowi powyżej.",
+    "protector": "Protektor:",
+    "workloadBadge": "Obciążenie: {n}/10",
+    "commitmentSet": "Zobowiązanie ustalone",
+    "pastWitnessings": "Poprzednie świadkowania",
+    "noWitnessingsYet": "Brak świadkowań. Rozpocznij ćwiczenie powyżej, gdy poczujesz się gotowy.",
+    "exile": "Wygnaniec:",
+    "protectors": "Protektorzy:",
+    "postStateCalmer": "Spokojniejszy",
+    "postStateSame": "Bez zmian",
+    "postStateMoreDistressed": "Bardziej zestresowany",
+    "pastCheckIns": "Poprzednie przeglądy",
+    "noCheckInsYet": "Brak przeglądów. Rozpocznij swoją pierwszą ocenę powyżej.",
+    "totalCheckIns": "Łączna liczba przeglądów",
+    "strongest": "Najsilniejsza:",
+    "weakest": "Najsłabsza:",
+    "lowest": "Najniższa:",
+    "selfEnergyHabitPrompt": "Śledź swój codzienny przegląd 8 C?",
+    "selfEnergyHabitDescription": "Buduj regularność dzięki śledzeniu nawyków.",
+    "noDialoguesYet": "Brak dialogów. Rozpocznij swój pierwszy dialog z częściami powyżej.",
+    "messagesCount": "{n} wiadomości",
+    "insightsCount": "{n} spostrzeżeń",
+    "intention": "Intencja:",
+    "aiAssistedBadge": "Wspomagane AI",
+    "pastConstellations": "Poprzednie konstelacje",
+    "noConstellationsYet": "Brak konstelacji. Najpierw zmapuj co najmniej 3 części, potem zbadaj ich relacje.",
+    "partsLabel": "{n} części",
+    "polarized": "spolaryzowane",
+    "allied": "sprzymierzone",
+    "protectorExile": "protektor-wygnaniec",
+    "selfLabel": "Ja",
+    "noDirectAccessYet": "Brak sesji. Rozpocznij swój pierwszy dialog powyżej.",
+    "job": "Zadanie:",
+    "fear": "Obawa:",
+    "need": "Potrzeba:",
+    "noTrailheadsYet": "Brak punktów wejścia. Zacznij od uchwycenia niedawnego emocjonalnego wyzwalacza powyżej.",
+    "trailheadsLogged": "{n} punkt wejścia zapisany",
+    "trailheadsLoggedPlural": "{n} punktów wejścia zapisanych",
+    "dailyCheckInHabitPrompt": "Śledź swój codzienny przegląd IFS?",
+    "dailyCheckInHabitDescription": "Buduj serię dzięki śledzeniu nawyków.",
+    "noCheckInsYetDaily": "Brak przeglądów. Wybierz szybką praktykę, aby zacząć.",
+    "checkInsThisWeek": "{n} przegląd w tym tygodniu",
+    "checkInsThisWeekPlural": "{n} przeglądów w tym tygodniu",
+    "practiceWeatherReport": "Raport pogodowy",
+    "practiceGratitude": "Wdzięczność",
+    "practiceSelfEnergy": "Energia Ja",
+    "practiceEvening": "Wieczorny",
+    "thanked": "Podziękowano",
+    "focusedOn": "Skupiono się na:",
+    "leadership": "Przywództwo:",
+    "appreciated": "Doceniono:",
+    "leadershipMostlySelf": "Głównie z Ja",
+    "leadershipMostlyPart": "Głównie z części",
+    "leadershipMixed": "Mieszanka",
+    "noUnblendingYet": "Brak sesji. Wykonaj swoją pierwszą praktykę odmieszania powyżej."
+  },
+  "tabs": {
+    "selfDiscovery": "Samopoznanie",
+    "cbt": "CBT",
+    "logotherapy": "Logoterapia",
+    "ifs": "IFS"
+  },
+  "cards": {
+    "valuesDiscovery": {
+      "title": "Odkrywanie wartości",
+      "subtitle": "Rozpoznaj swoje kluczowe wartości",
+      "description": "Wymień osoby, które podziwiasz, wskaż cechy, które cenisz, i wyłoń swoje kluczowe wartości."
+    },
+    "wheelOfLife": {
+      "title": "Koło Życia",
+      "subtitle": "Oceń równowagę w swoim życiu",
+      "description": "Zdefiniuj obszary swojego życia i oceń każdy z nich, aby zobaczyć, gdzie panuje harmonia, a gdzie są luki."
+    },
+    "shadowBeliefs": {
+      "title": "Ukryte przekonania",
+      "subtitle": "Ujawnij ukryte założenia",
+      "description": "Zidentyfikuj sabotujące przekonania i przeformułuj je. To nie terapia — to budowanie świadomości."
+    },
+    "transformativePurpose": {
+      "title": "Cel transformacyjny",
+      "subtitle": "Określ swój życiowy kompas",
+      "description": "Przejdź od ciekawości do wkładu w świat, formułując wstępną deklarację celu."
+    },
+    "ipipBfm50": {
+      "title": "IPIP Wielka Piątka (50)",
+      "subtitle": "Szybki profil cech",
+      "description": "50-itemowy pomiar Wielkiej Piątki ze średnimi skal i praktycznymi przedziałami interpretacji."
+    },
+    "ipipNeo120": {
+      "title": "IPIP-NEO (120)",
+      "subtitle": "Pogłębiony profil cech",
+      "description": "120-itemowa ocena domen Wielkiej Piątki z obsługą braków danych i śledzeniem powtórek."
+    },
+    "hexaco60": {
+      "title": "HEXACO (60)",
+      "subtitle": "Profil sześcioczynnikowy",
+      "description": "60-itemowa ocena HEXACO obejmująca Uczciwość-Pokorę, Emocjonalność oraz cztery kolejne domeny."
+    },
+    "pvq40": {
+      "title": "PVQ-40 Wartości",
+      "subtitle": "Priorytety motywacyjne",
+      "description": "Kwestionariusz Portretowy Wartości z domyślnym centrowaniem MRAT i przełącznikiem wyniku surowego."
+    },
+    "vlq": {
+      "title": "VLQ Spójność Wartości",
+      "subtitle": "Ważność vs konsekwencja",
+      "description": "Oceń 10 domen życia pod kątem ważności wartości i konsekwencji działania, aby zobaczyć kluczowe wartości i luki."
+    },
+    "worryTree": {
+      "title": "Drzewo zmartwień",
+      "subtitle": "Opanuj zmartwienie w kilka minut",
+      "description": "Określ, czy Twoje zmartwienie dotyczy realnego problemu, czy jest hipotetyczne, a następnie podejmij odpowiednie działanie — zaplanuj je lub puść."
+    },
+    "cognitiveDistortions": {
+      "title": "Zniekształcenia poznawcze",
+      "subtitle": "Rozpoznaj pułapki myślenia",
+      "description": "Poznaj 14 typowych pułapek myślenia i sprawdź, które z nich pojawiają się w Twoich własnych myślach."
+    },
+    "thoughtRecord": {
+      "title": "Rejestr myśli",
+      "subtitle": "Przeformułuj negatywne myśli",
+      "description": "Przejdź przez 7-kolumnowy rejestr myśli, aby zbadać dowody i wypracować zrównoważone myślenie."
+    },
+    "coreBeliefs": {
+      "title": "Przekonania kluczowe",
+      "subtitle": "Zbadaj swoje najgłębsze przekonania",
+      "description": "Użyj techniki strzałki w dół, aby odkryć kluczowe przekonania i wypracować zrównoważone alternatywy."
+    },
+    "compassionateLetter": {
+      "title": "List współczucia",
+      "subtitle": "Napisz do siebie z życzliwością",
+      "description": "Daj głos wewnętrznemu krytykowi, a potem odpowiedz z takim współczuciem, jakie okazałbyś bliskiemu przyjacielowi."
+    },
+    "positiveDataLog": {
+      "title": "Dziennik pozytywnych dowodów",
+      "subtitle": "Zbieraj dowody przeciwko negatywnym przekonaniom",
+      "description": "Prowadź dziennik, w którym systematycznie podważasz kluczowe przekonanie, zapisując sprzeczne z nim dowody."
+    },
+    "behavioralExperiment": {
+      "title": "Eksperyment behawioralny",
+      "subtitle": "Zweryfikuj przekonania dowodami",
+      "description": "Zaprojektuj i przeprowadź eksperymenty w realnym świecie, aby sprawdzić, czy negatywne przekonania są trafne."
+    },
+    "behavioralActivation": {
+      "title": "Aktywizacja behawioralna",
+      "subtitle": "Zaplanuj aktywności poprawiające nastrój",
+      "description": "Zaplanuj i śledź przyjemne oraz wartościowe aktywności w ciągu tygodnia, by przeciwdziałać obniżonemu nastrojowi."
+    },
+    "structuredProblemSolving": {
+      "title": "Ustrukturyzowane rozwiązywanie problemów",
+      "subtitle": "Rozłóż przytłaczające problemy na części",
+      "description": "Zdefiniuj, wymyśl pomysły, oceń i zaplanuj — systematyczne podejście, gdy problemy wydają się zbyt duże."
+    },
+    "gradedExposure": {
+      "title": "Stopniowa ekspozycja",
+      "subtitle": "Zbuduj swoją drabinę lęków",
+      "description": "Stwórz hierarchię sytuacji budzących lęk — od najłatwiejszych do najtrudniejszych — i systematycznie je przepracuj."
+    },
+    "threePathways": {
+      "title": "Trzy drogi do sensu",
+      "subtitle": "Zmapuj swoje źródła sensu",
+      "description": "Odkryj, co tworzysz, czego doświadczasz i jak reagujesz na trudności — trzy sposoby odnajdywania sensu według Frankla."
+    },
+    "socraticDialogue": {
+      "title": "Dialog sokratyczny z sobą",
+      "subtitle": "Odkryj własne odpowiedzi",
+      "description": "Rozmowa prowadzona przez AI, która pomaga odkryć własne odpowiedzi na pytania o sens, wartości i cel."
+    },
+    "mountainRange": {
+      "title": "Pasmo górskie sensu",
+      "subtitle": "Odkryj tematy przewodnie swojego życia",
+      "description": "Nakreśl szczyty i doliny swojego życia, aby odkryć tematy, które zawsze były dla Ciebie ważne."
+    },
+    "paradoxicalIntention": {
+      "title": "Laboratorium intencji paradoksalnej",
+      "subtitle": "Przełam lęk humorem",
+      "description": "Przerwij spiralę lęku, humorystycznie zamierzając to, czego się boisz. Technika Frankla na sytuacje, gdy zamartwianie pogarsza sprawę."
+    },
+    "dereflection": {
+      "title": "Praktyka derefleksji",
+      "subtitle": "Przekieruj uwagę na sens",
+      "description": "Przekieruj uwagę z obsesyjnej fiksacji na wartościowe aktywności. Oparte na koncepcji autotranscendencji Frankla."
+    },
+    "tragicOptimism": {
+      "title": "Tragiczny optymizm",
+      "subtitle": "Znajdź sens w trudnościach",
+      "description": "Odnajdź sens w cierpieniu, poczuciu winy lub świadomości ograniczonego czasu. Zalecana konsultacja z profesjonalistą."
+    },
+    "attitudinalShift": {
+      "title": "Zmiana postawy",
+      "subtitle": "Wybierz swoją odpowiedź",
+      "description": "Przekształć 'skoro to się stało, nie mogę...' w 'choć to się stało, wybieram...' — Franklowska wolność odpowiedzi."
+    },
+    "legacyLetter": {
+      "title": "List dziedzictwa",
+      "subtitle": "Opisz sens swojego życia",
+      "description": "Napisz list o sensie, który chcesz nadać swojemu życiu. Łączy wszystkie trzy drogi do sensu."
+    },
+    "partsMapping": {
+      "title": "Mapowanie części",
+      "subtitle": "Zmapuj swój wewnętrzny system",
+      "description": "Stwórz wizualną mapę swoich wewnętrznych części — ich ról, obaw i relacji. Fundament całej pracy z IFS."
+    },
+    "unblending": {
+      "title": "Szybka praktyka odmieszania",
+      "subtitle": "Stwórz dystans wobec części",
+      "description": "Ćwicz tworzenie dystansu między swoim Ja a aktywowaną częścią. Kluczowa umiejętność IFS do codziennego stosowania."
+    },
+    "directAccess": {
+      "title": "Dialog bezpośredniego dostępu",
+      "subtitle": "Porozmawiaj ze swoimi częściami",
+      "description": "Mów bezpośrednio do części przez dialog wspierany przez AI. Poznaj jej perspektywę, obawy i pozytywne intencje."
+    },
+    "trailhead": {
+      "title": "Dziennik punktów wejścia",
+      "subtitle": "Podążaj za emocjonalnymi wyzwalaczami",
+      "description": "Wykorzystaj emocjonalne wyzwalacze jako punkty wejścia do odkrywania i zrozumienia swoich części."
+    },
+    "protectorAppreciation": {
+      "title": "Docenienie protektora",
+      "subtitle": "Podziękuj swoim protektorom",
+      "description": "Zbuduj relację z częścią-protektorem, rozumiejąc jej zadanie i dziękując za wysiłek."
+    },
+    "exileWitnessing": {
+      "title": "Świadkowanie wygnańcowi",
+      "subtitle": "Podejdź że współczuciem",
+      "description": "Delikatnie zbliż się do wrażliwej części że współczuciem. Zalecana konsultacja z profesjonalistą."
+    },
+    "selfEnergy": {
+      "title": "Energia Ja (8 C)",
+      "subtitle": "Wzmocnij swoje Ja",
+      "description": "Wzmocnij połączenie z Ja poprzez codzienne sprawdzanie w oparciu o framework 8 C."
+    },
+    "partsDialogue": {
+      "title": "Dziennik dialogu z częściami",
+      "subtitle": "Pisz do swoich części",
+      "description": "Napisz ustrukturyzowaną rozmowę między Ja a częścią, z opcjonalnym wsparciem AI, gdy utkniesz."
+    },
+    "dailyCheckIn": {
+      "title": "Codzienny przegląd IFS",
+      "subtitle": "Szybka codzienna praktyka",
+      "description": "Szybkie codzienne mikropraktyki, aby pozostać w kontakcie ze swoim wewnętrznym systemem."
+    },
+    "constellation": {
+      "title": "Konstelacja wewnętrznego systemu",
+      "subtitle": "Zmapuj relacje między częściami",
+      "description": "Zmapuj dynamiczne relacje między częściami — sojusze, konflikty i ukryte powiązania. Zalecana konsultacja z profesjonalistą."
+    }
+  }
+}

@@ -1,8 +1,7 @@
 <template>
   <AppCard
-    :elevation="1"
     padding="none"
-    class="py-3 px-4 cursor-pointer transition-all duration-200 hover:shadow-elevation-2"
+    class="py-3 px-4 cursor-pointer transition-all duration-200"
     @click="$emit('click')"
   >
     <div class="space-y-2">
@@ -54,14 +53,15 @@
       >
         <button
           type="button"
-          class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary-soft text-primary-strong text-xs font-medium hover:bg-primary-soft/80 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background"
+          class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary-soft text-on-primary-soft text-xs font-medium hover:bg-primary-soft/80 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background"
           @click.stop="$emit('viewChats')"
-          :aria-label="`View ${entry.chatSessions.length} chat session(s)`"
+          :aria-label="t('history.card.viewChats', { count: entry.chatSessions.length })"
         >
           <span class="text-base leading-none">💬</span>
           <span>
-            {{ entry.chatSessions.length }}
-            chat{{ entry.chatSessions.length > 1 ? 's' : '' }}
+            {{ entry.chatSessions.length > 1
+              ? t('history.card.chatCountPlural', { count: entry.chatSessions.length })
+              : t('history.card.chatCount', { count: entry.chatSessions.length }) }}
           </span>
         </button>
       </div>
@@ -75,7 +75,8 @@
           v-for="emotionId in entry.emotionIds"
           :key="`emotion-${emotionId}`"
           v-show="getEmotionName(emotionId)"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-section-strong text-primary-strong border border-chip-border shadow-elevation-1"
+          :style="getEmotionChipStyle(emotionId)"
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-on-surface"
         >
           {{ getEmotionName(emotionId) }}
         </span>
@@ -91,7 +92,7 @@
           v-for="peopleTagId in entry.peopleTagIds"
           :key="`people-${peopleTagId}`"
           v-show="getPeopleTagName(peopleTagId)"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-chip text-chip-text border border-chip-border shadow-elevation-1"
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-chip text-chip-text border border-chip-border"
         >
           {{ getPeopleTagName(peopleTagId) }}
         </span>
@@ -101,7 +102,7 @@
           v-for="contextTagId in entry.contextTagIds"
           :key="`context-${contextTagId}`"
           v-show="getContextTagName(contextTagId)"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-soft text-primary-strong border border-chip-border shadow-elevation-1"
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-soft text-on-primary-soft border border-chip-border"
         >
           {{ getContextTagName(contextTagId) }}
         </span>
@@ -116,8 +117,10 @@ import AppCard from '@/components/AppCard.vue'
 import { PencilIcon, HeartIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
+import { useT } from '@/composables/useT'
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { UnifiedEntry } from '@/domain/unifiedEntry'
+import { getQuadrant, type Quadrant } from '@/domain/emotion'
 
 interface Props {
   entry: UnifiedEntry
@@ -136,22 +139,30 @@ defineEmits<{
 
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
+const { t } = useT()
+
+const quadrantColors: Record<Quadrant, string> = {
+  'high-energy-high-pleasantness': 'var(--color-quadrant-high-energy-high-pleasantness)',
+  'high-energy-low-pleasantness': 'var(--color-quadrant-high-energy-low-pleasantness)',
+  'low-energy-high-pleasantness': 'var(--color-quadrant-low-energy-high-pleasantness)',
+  'low-energy-low-pleasantness': 'var(--color-quadrant-low-energy-low-pleasantness)',
+}
 
 const typeIcon = computed<Component>(() => {
   return props.entry.type === 'journal' ? PencilIcon : HeartIcon
 })
 
 const typeLabel = computed(() => {
-  return props.entry.type === 'journal' ? 'Journal' : 'Emotion'
+  return props.entry.type === 'journal' ? t('history.card.journal') : t('history.card.emotion')
 })
 
 const typeBadgeClasses = computed(() => {
   const base =
     'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium'
   if (props.entry.type === 'journal') {
-    return `${base} bg-primary-soft text-primary-strong`
+    return `${base} bg-primary-soft text-on-primary-soft`
   }
-  return `${base} bg-section-strong text-on-surface`
+  return `${base} bg-section-strong text-on-section`
 })
 
 const contentPreview = computed(() => {
@@ -167,13 +178,23 @@ const hasTags = computed(() => {
 
 const deleteAriaLabel = computed(() => {
   if (props.entry.type === 'journal') {
-    return `Delete journal entry: ${props.entry.title || 'Untitled entry'}`
+    const title = props.entry.title
+    return title
+      ? t('history.card.deleteJournal', { title })
+      : t('history.card.deleteUntitled')
   }
-  return `Delete emotion log from ${formatEntryDate(props.entry.createdAt)}`
+  return t('history.card.deleteEmotion', { date: formatEntryDate(props.entry.createdAt) })
 })
 
 function getEmotionName(id: string): string | undefined {
   return emotionStore.getEmotionById(id)?.name
+}
+
+function getEmotionChipStyle(id: string): Record<string, string> {
+  const emotion = emotionStore.getEmotionById(id)
+  if (!emotion) return {}
+  const quadrant = getQuadrant(emotion)
+  return { backgroundColor: quadrantColors[quadrant] }
 }
 
 function getPeopleTagName(id: string): string | undefined {

@@ -1,0 +1,152 @@
+{
+  "journal": {
+    "writeTitle": "Write about your day",
+    "continueTitle": "Continue journaling",
+    "writeDescription": "Reflect on your experiences and feelings",
+    "continueDescription": "Add more thoughts to your journal",
+    "entryToday": "{count} entry today",
+    "entriesToday": "{count} entries today"
+  },
+  "emotion": {
+    "title": "Emotion check-in",
+    "completeTitle": "Great job!",
+    "progress": "{logged} of {target} logged",
+    "completeDescription": "You've reached your daily goal",
+    "emptyDescription": "Log how you feel throughout the day",
+    "trackingDescription": "Keep tracking your emotions"
+  },
+  "weekSummary": {
+    "title": "This week",
+    "journal": "journal",
+    "journals": "journals",
+    "emotion": "emotion",
+    "emotions": "emotions",
+    "dayStreak": "day streak",
+    "topEmotions": "Top emotions",
+    "emptyEmotions": "Log emotions to see your weekly patterns",
+    "streakWeek": "Amazing! You've been consistent for a whole week!",
+    "streakDays": "Great streak! Keep the momentum going.",
+    "emptyWeek": "Start your week strong - every entry counts.",
+    "activeWeek": "You're building a healthy reflection habit."
+  },
+  "weeklyReview": {
+    "title": "Time for your weekly reflection",
+    "description": "Review {weekLabel} and set your intention for the week ahead",
+    "startButton": "Start Reflection"
+  },
+  "currentFocus": {
+    "title": "Current Focus",
+    "thisWeek": "This week",
+    "noFocusSentence": "No focus sentence set for this week",
+    "noWeeklyPlan": "No weekly plan yet",
+    "openPlanningHub": "Open Planning Hub",
+    "emptyDescription": "Set your monthly focus to align your weekly efforts",
+    "createMonthlyPlan": "Create Monthly Plan"
+  },
+  "ifsCheckIn": {
+    "title": "IFS Check-In",
+    "done": "Done",
+    "notYet": "Not yet",
+    "pickPractice": "Pick a quick practice to start your day:",
+    "weatherReport": "Weather Report",
+    "gratitude": "Gratitude",
+    "selfEnergy": "Self-Energy",
+    "evening": "Evening",
+    "eveningReflection": "Evening Reflection",
+    "completed": "{type} completed",
+    "doAnother": "Do another?",
+    "checkInCount": "{count} check-in this week",
+    "checkInsCount": "{count} check-ins this week"
+  },
+  "commitments": {
+    "title": "Commitments",
+    "progress": "{done} of {total} done",
+    "quickAddLabel": "Quick add commitment",
+    "placeholder": "e.g., Block 30 minutes for a key task",
+    "adding": "Adding...",
+    "markDone": "Mark as Done",
+    "markSkipped": "Mark as Skipped",
+    "emptyState": "No commitments yet. Add your first to get started.",
+    "addCommitment": "Add Commitment",
+    "createWeeklyPlan": "Create Weekly Plan",
+    "nameRequired": "Please enter a commitment name.",
+    "noWeeklyPlanError": "Please create a weekly plan first",
+    "projectLabel": "Project: {name}",
+    "lifeAreasLabel": "Life areas: {names}",
+    "prioritiesLabel": "Priorities: {names}"
+  },
+  "compass": {
+    "title": "Grounding Compass",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "year": "Year",
+    "month": "Month",
+    "week": "Week",
+    "notSet": "Not set",
+    "noYearTheme": "No year theme yet",
+    "noMonthIntention": "No month intention yet",
+    "noWeekFocus": "No weekly focus sentence yet",
+    "priorityCount": "{count} active priorities",
+    "emptySummary": "Set your year, month, and week focus to anchor this view."
+  },
+  "mode": {
+    "title": "Day Mode",
+    "auto": "Auto",
+    "morning": "Morning",
+    "midday": "Midday",
+    "evening": "Evening",
+    "autoDescription": "Automatically adapting for {mode} mode.",
+    "manualDescription": "Manual mode active: {mode}.",
+    "failedUpdate": "Failed to update day mode."
+  },
+  "intention": {
+    "morningTitle": "Start With Intention",
+    "morningDescription": "Anchor yourself before the day speeds up.",
+    "middayTitle": "Midday Re-Ground",
+    "middayDescription": "Check state, regulate, and recommit to what matters.",
+    "eveningTitle": "Close The Day",
+    "eveningDescription": "Reflect on the day and carry learning forward.",
+    "startJournal": "Start Journal",
+    "continueJournal": "Continue Journal",
+    "logEmotion": "Log Emotion",
+    "openPlanning": "Open Planning",
+    "reviewCommitments": "Review Commitments",
+    "commitmentsProgress": "Commitments: {done}/{total}",
+    "emotionProgress": "Emotions: {logged}/{target}"
+  },
+  "execution": {
+    "title": "Execution Board",
+    "progress": "{done} of {total} commitments complete",
+    "addCommitment": "Add commitment",
+    "noWeeklyPlan": "No active weekly plan. Create one to unlock commitment and tracker workflows.",
+    "createWeeklyPlan": "Create Weekly Plan",
+    "noWeeklyPlanError": "Create a weekly plan first.",
+    "failedAddCommitment": "Failed to add commitment.",
+    "failedUpdateCommitment": "Failed to update commitment.",
+    "failedAddTracker": "Failed to add tracker.",
+    "failedRemoveTracker": "Failed to remove tracker.",
+    "failedRepairSelection": "Failed to repair tracker selection."
+  },
+  "reflections": {
+    "title": "Reflection Status",
+    "weekly": "Weekly reflection",
+    "monthly": "Monthly reflection",
+    "yearly": "Yearly reflection",
+    "due": "Due",
+    "upToDate": "Up to date",
+    "openPlanning": "Open Planning Hub"
+  },
+  "nudges": {
+    "title": "Supportive Suggestions",
+    "subtitle": "Context-aware, low-noise recommendations",
+    "empty": "No recommendation right now. Stay with your current focus.",
+    "open": "Open",
+    "feedbackSaved": "Preference saved.",
+    "feedbackFailed": "Failed to save recommendation feedback.",
+    "feedback": {
+      "more": "More like this",
+      "less": "Less like this",
+      "notNow": "Not now"
+    }
+  }
+}

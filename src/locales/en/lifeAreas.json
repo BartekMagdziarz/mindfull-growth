@@ -1,0 +1,107 @@
+{
+  "views": {
+    "title": "Life Areas",
+    "subtitle": "The ongoing dimensions of your life. These feed into your Wheel of Life and yearly planning.",
+    "addButton": "+ Add",
+    "emptyState": "You haven't defined your life areas yet.",
+    "startWithDefaults": "Start with defaults",
+    "createFromScratch": "Create from scratch",
+    "defaultsCreated": "Default life areas created.",
+    "defaultsError": "Failed to create default areas."
+  },
+  "editor": {
+    "newTitle": "New Life Area",
+    "editTitle": "Edit Life Area",
+    "createButton": "Create Area",
+    "saveButton": "Save Changes",
+    "successCreated": "Life area created.",
+    "successUpdated": "Life area updated.",
+    "errorSave": "Failed to save life area."
+  },
+  "detail": {
+    "notFound": "Life area not found.",
+    "backButton": "Back to Life Areas",
+    "editButton": "Edit",
+    "archiveButton": "Archive",
+    "reactivateButton": "Reactivate",
+    "maintenanceTitle": "Maintenance Standard",
+    "successPictureTitle": "Success Picture (9/10)",
+    "measuresTitle": "Measures",
+    "constraintsTitle": "Constraints & Risks",
+    "reviewCadenceTitle": "Review Cadence",
+    "baselineTitle": "Yearly Baseline Narrative",
+    "notSet": "Not set yet.",
+    "fromSource": "From {source}",
+    "linkedDataTitle": "Linked Data",
+    "deleteButton": "Delete this area permanently",
+    "confirmDelete": "Delete \"{name}\"? This cannot be undone.",
+    "deleteError": "Failed to delete life area.",
+    "archived": "Area archived.",
+    "reactivated": "Area reactivated."
+  },
+  "form": {
+    "nameLabel": "Area Name *",
+    "namePlaceholder": "e.g., Health & Fitness",
+    "iconLabel": "Icon",
+    "iconAriaLabel": "Select life area icon",
+    "colorLabel": "Color",
+    "purposeLabel": "Purpose",
+    "purposeHelper": "Why does this area exist for you? What's inside / outside scope?",
+    "purposePlaceholder": "e.g., Maintaining physical and mental energy to show up fully in all other areas.",
+    "maintenanceLabel": "Maintenance Standard",
+    "maintenanceHelper": "What does \"good enough\" look like? The baseline you want to maintain.",
+    "maintenancePlaceholder": "e.g., Sleep avg 7h, strength train 2x/week, labs yearly",
+    "successLabel": "Success Picture",
+    "successHelper": "What would a 9/10 look like in this area?",
+    "successPlaceholder": "e.g., Feel strong, energized, and confident in my body every day.",
+    "measuresLabel": "Measures",
+    "measuresHelper": "Leading indicators (habits you do) and lagging indicators (outcomes you get).",
+    "measureTypeOptions": {
+      "leading": "Leading",
+      "lagging": "Lagging"
+    },
+    "measurePlaceholder": "e.g., Strength train 2x/week",
+    "removeMeasure": "Remove measure",
+    "addMeasure": "+ Add measure",
+    "constraintsLabel": "Constraints & Risks",
+    "constraintsHelper": "Blockers, failure modes, what tends to derail this area.",
+    "constraintPlaceholder": "e.g., Overcommitting at work drains exercise time",
+    "removeConstraint": "Remove constraint",
+    "addConstraint": "+ Add constraint",
+    "reviewCadenceLabel": "Review Cadence",
+    "reviewCadenceOptions": {
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "yearly": "Yearly"
+    }
+  },
+  "card": {
+    "scoreFormat": "{score}/10",
+    "archived": "Archived"
+  },
+  "picker": {
+    "emptyState": "No life areas defined yet.",
+    "createFirst": "Create some first."
+  },
+  "linkedEntities": {
+    "wheelScores": "Wheel of Life Scores",
+    "scoreTooltip": "{date}: {rating}/10",
+    "prioritiesTitle": "Priorities",
+    "projectsTitle": "Projects",
+    "commitmentsTitle": "Commitments",
+    "emptyState": "No linked entities yet. Complete exercises and planning to see connections here."
+  },
+  "colorPresets": {
+    "lavender": "Lavender",
+    "rose": "Rose",
+    "coral": "Coral",
+    "amber": "Amber",
+    "sage": "Sage",
+    "teal": "Teal",
+    "ocean": "Ocean",
+    "periwinkle": "Periwinkle",
+    "mauve": "Mauve",
+    "steel": "Steel"
+  }
+}

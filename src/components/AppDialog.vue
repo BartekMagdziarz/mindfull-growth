@@ -15,25 +15,25 @@
           role="dialog"
           :aria-labelledby="titleId"
           :aria-describedby="messageId"
-          class="relative z-10 bg-surface rounded-xl shadow-elevation-3 p-6 max-w-md w-full mx-4 border border-outline/20"
+          class="relative z-10 neo-raised-strong p-6 max-w-md w-full mx-4 rounded-2xl"
         >
           <!-- Title -->
-          <h2 :id="titleId" class="text-xl font-semibold text-on-surface mb-4">
+          <h2 :id="titleId" class="text-xl font-semibold text-neu-text mb-4">
             {{ title }}
           </h2>
 
           <!-- Message -->
-          <p :id="messageId" class="text-on-surface-variant mb-6">
+          <p :id="messageId" class="text-neu-muted mb-6">
             {{ message }}
           </p>
 
           <!-- Actions -->
           <div class="flex gap-3 justify-end">
             <AppButton variant="text" @click="handleCancel">
-              {{ cancelText }}
+              {{ resolvedCancelText }}
             </AppButton>
             <AppButton :variant="confirmVariant" @click="handleConfirm">
-              {{ confirmText }}
+              {{ resolvedConfirmText }}
             </AppButton>
           </div>
         </div>
@@ -43,8 +43,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import AppButton from './AppButton.vue'
+import { useT } from '@/composables/useT'
+
+const { t } = useT()
 
 interface Props {
   modelValue: boolean
@@ -56,10 +59,11 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  confirmText: 'Confirm',
-  cancelText: 'Cancel',
   confirmVariant: 'filled',
 })
+
+const resolvedConfirmText = computed(() => props.confirmText ?? t('common.buttons.confirm'))
+const resolvedCancelText = computed(() => props.cancelText ?? t('common.buttons.cancel'))
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
@@ -138,8 +142,8 @@ onUnmounted(() => {
   transition: opacity 0.2s ease;
 }
 
-.dialog-enter-active .bg-surface,
-.dialog-leave-active .bg-surface {
+.dialog-enter-active .neo-raised-strong,
+.dialog-leave-active .neo-raised-strong {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -148,10 +152,9 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-.dialog-enter-from .bg-surface,
-.dialog-leave-to .bg-surface {
+.dialog-enter-from .neo-raised-strong,
+.dialog-leave-to .neo-raised-strong {
   transform: scale(0.95);
   opacity: 0;
 }
 </style>
-

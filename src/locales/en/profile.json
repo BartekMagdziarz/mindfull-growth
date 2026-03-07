@@ -1,0 +1,79 @@
+{
+  "account": {
+    "title": "Account"
+  },
+  "lifeAreas": {
+    "title": "Life Areas",
+    "description": "Define and manage the key dimensions of your life."
+  },
+  "dailyHabits": {
+    "title": "Daily Habits",
+    "description": "Customize when you want to be prompted for weekly reviews and how many emotion check-ins you'd like to do each day.",
+    "weeklyReviewDay": "Weekly review day",
+    "weeklyReviewDayHint": "You'll be prompted to reflect on your week on this day.",
+    "dailyEmotionTarget": "Daily emotion check-ins",
+    "dailyEmotionTargetHint": "How many times per day you'd like to log your emotions (1-10)."
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "Choose a light theme inspired by sky, clouds, and sunrise tones.",
+    "colorTheme": "Color theme",
+    "themeHint": "Theme changes apply immediately and are saved to your profile.",
+    "themes": {
+      "current": "Current",
+      "skyMist": "Sky Mist",
+      "sunriseCloud": "Sunrise Cloud"
+    }
+  },
+  "language": {
+    "title": "Language",
+    "description": "Choose your preferred language for the interface.",
+    "label": "Interface language",
+    "hint": "Language changes apply immediately.",
+    "locales": {
+      "en": "English",
+      "pl": "Polski"
+    }
+  },
+  "aiSettings": {
+    "title": "AI Settings",
+    "description": "Connect your own OpenAI API key so the assistant can respond to your journal chats. Your key stays on this device and is never shared.",
+    "apiKeyLabel": "OpenAI API Key",
+    "apiKeyPlaceholder": "sk-...",
+    "apiKeyError": "API key must start with 'sk-'",
+    "apiKeyHint": "Your API key is stored locally in your browser. Get a key from",
+    "apiKeyHintLink": "OpenAI's website",
+    "model": "Model",
+    "modelNote": "(can be changed in the future)",
+    "saved": "API key saved successfully.",
+    "saveFailed": "Failed to save API key. Please try again."
+  },
+  "devTools": {
+    "title": "Developer Tools",
+    "description": "Tools for testing and development. These will be removed in production.",
+    "dataManagement": "Data Management",
+    "clearAll": "Clear All Data",
+    "clearPlanning": "Clear Planning Data",
+    "clearPlanningHint": "\"Clear Planning\" keeps journals, emotions, and tags intact.",
+    "focusedSeeders": "Focused Seeders",
+    "seedersHint": "Additive — each builds on previous. Run in any order or combination.",
+    "seeding": "Seeding...",
+    "foundation": "Foundation",
+    "foundationDesc": "Life areas + priorities",
+    "habits": "Habits",
+    "habitsDesc": "Auto-generation chain with occurrences",
+    "projectsKRs": "Projects & KRs",
+    "projectsDesc": "4 projects with different statuses",
+    "weeklyPlanning": "Weekly Planning",
+    "weeklyPlanningDesc": "Full current week with commitments",
+    "fullTimeline": "Full Timeline",
+    "fullTimelineDesc": "Everything + reflections + exercises"
+  },
+  "feedback": {
+    "weeklyReviewUpdated": "Weekly review day updated.",
+    "emotionTargetUpdated": "Daily emotion target updated.",
+    "themeUpdated": "Theme updated.",
+    "languageUpdated": "Language updated.",
+    "failedToSave": "Failed to save preference."
+  }
+}

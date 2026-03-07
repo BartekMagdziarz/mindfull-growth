@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "title": "Kwestionariusz Życia Wartościowego (VLQ)",
+    "subtitle": "Oceń ważność i spójność działania w kluczowych obszarach życia.",
+    "description": "Oceń każdy obszar pod kątem ważności i tego, jak konsekwentnie żyłeś/aś nim ostatnio. Wyniki pokazują mocne strony i luki między wartością a działaniem.",
+    "category": "Wartości",
+    "disclaimer": "To narzędzie wspiera autorefleksję i nie stanowi diagnozy klinicznej."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne zapisanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "family": "Rodzina",
+    "intimateRelationships": "Relacje intymne",
+    "parenting": "Rodzicielstwo",
+    "friendships": "Przyjaźnie",
+    "work": "Praca",
+    "education": "Edukacja / Rozwój osobisty",
+    "recreation": "Rekreacja",
+    "spirituality": "Duchowość",
+    "citizenship": "Obywatelskość / Społeczność",
+    "health": "Zdrowie / Dbanie o siebie"
+  },
+  "anchors": {
+    "0": "Wcale",
+    "10": "Bardzo mocno"
+  },
+  "fields": {
+    "importance": "Ważność",
+    "consistency": "Spójność działania",
+    "gap": "Luka (Ważność - Spójność)",
+    "weighted": "Spójność ważona (Ważność × Spójność)"
+  },
+  "results": {
+    "topValues": "Najważniejsze wartości",
+    "biggestGaps": "Największe szanse na działanie"
+  },
+  "items": {
+    "vlq_family_importance": "Jak ważny jest dla Ciebie obszar: rodzina?",
+    "vlq_family_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: rodzina?",
+    "vlq_intimateRelationships_importance": "Jak ważny jest dla Ciebie obszar: relacje intymne?",
+    "vlq_intimateRelationships_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: relacje intymne?",
+    "vlq_parenting_importance": "Jak ważny jest dla Ciebie obszar: rodzicielstwo?",
+    "vlq_parenting_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: rodzicielstwo?",
+    "vlq_friendships_importance": "Jak ważny jest dla Ciebie obszar: przyjaźnie?",
+    "vlq_friendships_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: przyjaźnie?",
+    "vlq_work_importance": "Jak ważny jest dla Ciebie obszar: praca?",
+    "vlq_work_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: praca?",
+    "vlq_education_importance": "Jak ważny jest dla Ciebie obszar: edukacja / rozwój osobisty?",
+    "vlq_education_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: edukacja / rozwój osobisty?",
+    "vlq_recreation_importance": "Jak ważny jest dla Ciebie obszar: rekreacja?",
+    "vlq_recreation_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: rekreacja?",
+    "vlq_spirituality_importance": "Jak ważny jest dla Ciebie obszar: duchowość?",
+    "vlq_spirituality_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: duchowość?",
+    "vlq_citizenship_importance": "Jak ważny jest dla Ciebie obszar: obywatelskość / społeczność?",
+    "vlq_citizenship_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: obywatelskość / społeczność?",
+    "vlq_health_importance": "Jak ważny jest dla Ciebie obszar: zdrowie / dbanie o siebie?",
+    "vlq_health_consistency": "Jak konsekwentnie żyłeś/aś ostatnio zgodnie z wartościami w obszarze: zdrowie / dbanie o siebie?"
+  }
+}

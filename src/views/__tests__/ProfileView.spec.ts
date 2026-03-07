@@ -2,6 +2,15 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import ProfileView from '../ProfileView.vue'
+import { mockConsoleError } from '@/test/utils/console'
+
+const mockPush = vi.fn()
+
+vi.mock('vue-router', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}))
 
 // Mock the user settings repository
 vi.mock('@/repositories/userSettingsDexieRepository', () => {
@@ -28,6 +37,7 @@ vi.mock('@/components/AppSnackbar.vue', () => ({
 describe('ProfileView', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    document.documentElement.removeAttribute('data-theme')
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
@@ -38,11 +48,52 @@ describe('ProfileView', () => {
   it('renders the profile view with AI Settings section', () => {
     render(ProfileView)
 
-    expect(screen.getByText('Profile')).toBeInTheDocument()
+    expect(screen.getByText('Account')).toBeInTheDocument()
+    expect(screen.getByText('Daily Habits')).toBeInTheDocument()
+    expect(screen.getByText('Appearance')).toBeInTheDocument()
     expect(screen.getByText('AI Settings')).toBeInTheDocument()
+    expect(screen.getByText('Developer Tools')).toBeInTheDocument()
     expect(screen.getByLabelText('OpenAI API Key')).toBeInTheDocument()
+    expect(screen.getByLabelText('Color theme')).toBeInTheDocument()
     expect(screen.getByText('gpt-4o-mini')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+  })
+
+  it('loads saved theme preference on mount', async () => {
+    const { userSettingsDexieRepository } = await import(
+      '@/repositories/userSettingsDexieRepository'
+    )
+    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+      if (key === 'preferences.theme') return 'sunrise-cloud'
+      return undefined
+    })
+
+    render(ProfileView)
+
+    await waitFor(() => {
+      const select = screen.getByLabelText('Color theme') as HTMLSelectElement
+      expect(select.value).toBe('sunrise-cloud')
+    })
+  })
+
+  it('applies and persists theme preference when changed', async () => {
+    const user = userEvent.setup()
+    const { userSettingsDexieRepository } = await import(
+      '@/repositories/userSettingsDexieRepository'
+    )
+
+    render(ProfileView)
+
+    const select = screen.getByLabelText('Color theme')
+    await user.selectOptions(select, 'sky-mist')
+
+    await waitFor(() => {
+      expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+        'preferences.theme',
+        'sky-mist'
+      )
+    })
+    expect(document.documentElement.getAttribute('data-theme')).toBe('sky-mist')
   })
 
   it('loads existing API key on mount', async () => {
@@ -166,6 +217,7 @@ describe('ProfileView', () => {
   it('handles save error gracefully', async () => {
     const user = userEvent.setup()
     const errorMessage = 'Failed to save setting'
+    const consoleError = mockConsoleError()
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
@@ -190,6 +242,8 @@ describe('ProfileView', () => {
       'openaiApiKey',
       'sk-test123456789'
     )
+    expect(consoleError).toHaveBeenCalled()
+    consoleError.mockRestore()
   })
 
   it('trims whitespace from API key before saving', async () => {
@@ -255,4 +309,3 @@ describe('ProfileView', () => {
     })
   })
 })
-

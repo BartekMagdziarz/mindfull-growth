@@ -1,7 +1,6 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest'
 import { performance } from 'node:perf_hooks'
-import { resetDatabase } from '../utils/dbTestUtils'
-import { db } from '@/repositories/journalDexieRepository'
+import { resetDatabase, getDatabase } from '../utils/dbTestUtils'
 import { createPinia, setActivePinia } from 'pinia'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
@@ -26,6 +25,7 @@ import JournalView from '@/views/JournalView.vue'
 const EMOTION_ID = (emotionsData as { id: string }[])[0].id
 
 async function seedJournalEntries(count: number) {
+  const db = getDatabase()
   const entries: JournalEntry[] = []
   const now = Date.now()
   for (let i = 0; i < count; i++) {
@@ -142,6 +142,7 @@ describe('Performance benchmarks', () => {
   })
 
   it('loads 150 tags from Dexie in under 500ms', async () => {
+    const db = getDatabase()
     const peopleTags = []
     for (let i = 0; i < 150; i++) {
       peopleTags.push({ id: `people-${i}`, name: `Person ${i}` })
@@ -157,5 +158,3 @@ describe('Performance benchmarks', () => {
     expect(duration).toBeLessThan(500)
   })
 })
-
-

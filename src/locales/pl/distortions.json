@@ -1,0 +1,114 @@
+{
+  "all-or-nothing": {
+    "name": "Myślenie czarno-białe",
+    "aliases": ["Myślenie polaryzowane", "Myślenie zero-jedynkowe"],
+    "definition": "Widzenie rzeczy wyłącznie w dwóch kategoriach, a nie jako kontinuum. Jeśli sytuacją nie jest idealna, postrzegasz ją jako całkowitą porażkę.",
+    "example": "Po otrzymaniu 4+ na egzaminie: \"Nie dostałem piątki, więc kompletnie oblałem.\"",
+    "soundsLike": "Zawsze... / Nigdy... / Albo jest idealnie, albo jest bezwartościowe / Pełny sukces albo totalna porażka",
+    "realityCheck": "Większość rzeczy istnieje na spektrum. Czwórka z plusem to dobry wynik. Częściowy sukces to wciąż sukces."
+  },
+  "overgeneralization": {
+    "name": "Nadmierne uogólnianie",
+    "aliases": ["Pochopne wnioski"],
+    "definition": "Wyciąganie szerokich negatywnych wniosków z pojedynczego zdarzenia. Jedno złe doświadczenie staje się niekończącym się wzorcem porażek.",
+    "example": "Po jednej niezręcznej rozmowie: \"Zawsze mówię niewłaściwe rzeczy. Nikt nigdy nie chce że mną rozmawiać.\"",
+    "soundsLike": "To się zawsze zdarza / Wszyscy myślą... / Nic nigdy się nie udaje / Nigdy nie będę w stanie...",
+    "realityCheck": "Jedno zdarzenie nie definiuje wzorca. Poszukaj kontrprzykładów — sytuacji, gdy było inaczej."
+  },
+  "mental-filter": {
+    "name": "Filtr mentalny",
+    "aliases": ["Selektywna abstrakcja", "Widzenie tunelowe"],
+    "definition": "Skupianie się wyłącznie na negatywnych szczegółach sytuacji, odfiltrowując wszystkie pozytywne aspekty.",
+    "example": "Pochwała od 9 kolegów, ale skupianie się na jednej osobie, która dała krytyczny feedback: \"Wszyscy myślą, że moja praca jest słaba.\"",
+    "soundsLike": "Ale co z tą jedną rzeczą, która poszła źle... / Jedyne, co się liczy, to...",
+    "realityCheck": "Oddal perspektywę. Co odfiltrowujesz? Gdybyś wypisał wszystko, co się wydarzyło, jak wyglądałby pełny obraz?"
+  },
+  "disqualifying-positive": {
+    "name": "Dyskwalifikowanie pozytywów",
+    "aliases": ["Pomniejszanie pozytywów"],
+    "definition": "Odrzucanie pozytywnych doświadczeń, twierdząc że \"się nie liczą\". Utrzymywanie negatywnego przekonania mimo przeciwnych dowodów.",
+    "example": "Po udanej prezentacji: \"Oni byli po prostu mili. To naprawdę nie było takie dobre.\"",
+    "soundsLike": "To się nie liczy, bo... / Powiedzieli to tylko z grzeczności / Każdy mógłby to zrobić / To był tylko szczęśliwy traf",
+    "realityCheck": "Czy odrzućiłbyś osiągnięcie przyjaciela w ten sposób? Pozytywne dowody to wciąż dowody."
+  },
+  "mind-reading": {
+    "name": "Czytanie w myślach",
+    "aliases": ["Pochopne wnioski — czytanie w myślach"],
+    "definition": "Zakładanie, że wiesz co myślą inni ludzie, bez dowodów. Zwykle zakładanie, że myślą o tobie negatywnie.",
+    "example": "Koleżanka z pracy przechodzi obok bez przywitania: \"Jest na mnie zła. Pewnie myśli, że zrobiłem coś złego.\"",
+    "soundsLike": "Oni myślą, że jestem... / Wiem, że mnie oceniają / Ona pewnie mnie nienawidzi / On musi być rozczarowany",
+    "realityCheck": "Nie umiesz czytać w myślach. Jest wiele możliwych wyjaśnień. Jakie dowody faktycznie masz?"
+  },
+  "fortune-telling": {
+    "name": "Wróżenie z fusów",
+    "aliases": ["Pochopne wnioski — myślenie predykcyjne"],
+    "definition": "Przewidywanie, że wszystko pójdzie źle, bez dowodów. Traktowanie negatywnej prognozy jako ustalonego faktu.",
+    "example": "Przed rozmową o pracę: \"Zatnę się i skompromituję. Nie ma sensu iść.\"",
+    "soundsLike": "Po prostu wiem, że pójdzie źle / Nie ma sensu, bo... / To będzie katastrofa / To nigdy nie zadziała",
+    "realityCheck": "Prognozy to nie fakty. Ile razy twoje najgorsze przewidywania rzeczywiście się spełniły? Jaki jest najbardziej prawdopodobny wynik?"
+  },
+  "catastrophizing": {
+    "name": "Katastrofizowanie",
+    "aliases": ["Wyolbrzymianie", "Robienie z igły widły"],
+    "definition": "Wyolbrzymianie proporcji. Przesadne podkreślanie wagi negatywnego zdarzenia lub własnych niedociągnięć.",
+    "example": "Po drobnym błędzie w pracy: \"To katastrofa. Wyrzucą mnie. Moja kariera dobiegła końca.\"",
+    "soundsLike": "To najgorsze, co mogło się zdarzyć / Nie dam rady / Wszystko jest zrujnowane / To katastrofalne",
+    "realityCheck": "Jaki jest faktyczny, realistyczny najgorszy scenariusz? I jak prawdopodobny jest? Czy za tydzień, miesiąc, rok to będzie miało znaczenie?"
+  },
+  "minimization": {
+    "name": "Minimalizowanie",
+    "aliases": ["Pomniejszanie", "Bagatelizowanie"],
+    "definition": "Umniejszanie znaczenia pozytywnych wydarzeń, cech lub osiągnięć. Odwrotność katastrofizowania.",
+    "example": "Po ukończeniu maratonu: \"To nie było nic wielkiego. Dużo ludzi to robi.\"",
+    "soundsLike": "To nic / Każdy mógłby to zrobić / To naprawdę nie ma znaczenia / Miałem szczęście",
+    "realityCheck": "Gdyby przyjaciel to zrobił, czy minimalizowałbyś? Twoje osiągnięcia zasługują na uznanie."
+  },
+  "emotional-reasoning": {
+    "name": "Rozumowanie emocjonalne",
+    "aliases": ["Uczućie równa się fakt"],
+    "definition": "Zakładanie, że twoje negatywne emocje odzwierciedlają rzeczywistość. \"Czuję to, więc to musi być prawda.\"",
+    "example": "\"Czuję się jak porażka, więc muszę być porażką.\" lub \"Czuję lęk, więc coś złego musi się zaraz zdarzyć.\"",
+    "soundsLike": "Czuję [emocję], więc to musi być prawda / Po prostu czuję, że... / Moja intuicja mi mówi...",
+    "realityCheck": "Uczućia to informacja, nie fakty. Lęk nie oznacza niebezpieczeństwa. Poczućie głupoty nie oznacza, że jesteś głupi."
+  },
+  "should-statements": {
+    "name": "Powinienizmy",
+    "aliases": ["Muszę", "Powinienem", "Wymagania"],
+    "definition": "Stosowanie sztywnych reguł dotyczących tego, jak ty lub inni powinni się zachowywać. Prowadzi do poczućia winy wobec siebie i frustracji wobec innych.",
+    "example": "\"Powinienem być dalej w karierze.\" lub \"Powinni wiedzieć, że mnie to zdenerwuje.\"",
+    "soundsLike": "Powinienem... / Muszę... / Powinni... / Powinien był... / Muszę...",
+    "realityCheck": "Zastąp 'powinienem' słowami 'wolałbym' lub 'byłoby fajnie gdyby'. Kto ustanowił tę zasadę? Czy jest realistyczna?"
+  },
+  "labeling": {
+    "name": "Etykietowanie",
+    "aliases": ["Błędne etykietowanie", "Globalne etykietowanie"],
+    "definition": "Prżyćzepianie stałej, globalnej etykiety sobie lub innym na podstawie pojedynczego zdarzenia. Zamiast opisywać zachowanie, definiujesz osobę.",
+    "example": "Po zapomnieniu urodzin przyjaciela: \"Jestem okropną osobą\" zamiast \"Zapomniałem o urodzinach przyjaciela.\"",
+    "soundsLike": "Jestem przegrany / On jest idiotą / Ona jest taka samolubna / Jestem bezwartościowy",
+    "realityCheck": "Nie jesteś swoim najgorszym momentem. Opisz zachowanie, nie osobę. Jedno działanie nie definiuje tego, kim jesteś."
+  },
+  "personalization": {
+    "name": "Personalizacja",
+    "aliases": ["Samoobwinianie"],
+    "definition": "Branie nadmiernej odpowiedzialności za zdarzenia, które nie są w pełni pod twoją kontrolą. Obwinianie siebie za coś, co nie jest w pełni twoją winą.",
+    "example": "Twoje dziecko dostaje słabą ocenę: \"To moja wina. Jestem złym rodzicem.\"",
+    "soundsLike": "To wszystko moja wina / Gdybym tylko... / Są zdenerwowani przeze mnie",
+    "realityCheck": "Wiele czynników wpływa na każdy wynik. Jaki procent jest realistycznie twój? Jakie czynniki były poza twoją kontrolą?"
+  },
+  "blaming": {
+    "name": "Obwinianie",
+    "aliases": ["Obwinianie innych", "Eksternalizacja"],
+    "definition": "Obarczanie innych ludzi pełną odpowiedzialnością za twój ból emocjonalny lub problemy. Odwrotność personalizacji.",
+    "example": "\"Mój szef sprawia, że czuję lęk. To całkowicie jego wina, że jestem zestresowany.\"",
+    "soundsLike": "To całkowicie ich wina / Oni sprawili, że czuję... / Gdyby nie oni... / Nie mogę na to nic poradzić z ich powodu",
+    "realityCheck": "Inni wpływają na twoje uczućia, ale masz pewną sprawczość w tym, jak reagujesz. Co jest pod twoją kontrolą?"
+  },
+  "fallacy-of-fairness": {
+    "name": "Błąd sprawiedliwości",
+    "aliases": ["Myślenie o sprawiedliwym świecie"],
+    "definition": "Przekonanie, że życie powinno być zawsze sprawiedliwe, i odczuwanie urazy, gdy tak nie jest. Mierzenie każdej sytuacji tym, co uważasz za sprawiedliwe.",
+    "example": "\"Pracowałem ciężej niż wszyscy inni — to niesprawiedliwe, że nie dostałem awansu.\"",
+    "soundsLike": "To niesprawiedliwe / Zasługuję na więcej / Oni dostali to, na co nie zasłużyli / Życie powinno być...",
+    "realityCheck": "Sprawiedliwość jest subiektywna. Życie nie zawsze podąża za naszymi regułami. Skup się na tym, co możesz kontrolować, zamiast na tym, co powinno być."
+  }
+}

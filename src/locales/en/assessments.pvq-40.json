@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "title": "Portrait Values Questionnaire (PVQ-40)",
+    "subtitle": "Map your motivational value priorities.",
+    "description": "A 40-item portrait-based values assessment. By default, scores are centered using MRAT.",
+    "category": "Values",
+    "disclaimer": "This assessment supports self-reflection and does not provide a clinical diagnosis."
+  },
+  "consent": {
+    "title": "Consent and Disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I consent to store results locally on this device."
+  },
+  "scales": {
+    "selfDirection": "Self-Direction",
+    "stimulation": "Stimulation",
+    "hedonism": "Hedonism",
+    "achievement": "Achievement",
+    "power": "Power",
+    "security": "Security",
+    "conformity": "Conformity",
+    "tradition": "Tradition",
+    "benevolence": "Benevolence",
+    "universalism": "Universalism"
+  },
+  "anchors": {
+    "1": "Not like me at all",
+    "2": "Not like me",
+    "3": "A little like me",
+    "4": "Moderately like me",
+    "5": "Like me",
+    "6": "Very much like me"
+  },
+  "interpretation": {
+    "low": "Lower relative importance in your current responses.",
+    "medium": "Moderate relative importance in your current responses.",
+    "high": "Higher relative importance in your current responses."
+  },
+  "results": {
+    "centeredDefault": "Centered scores (raw minus MRAT)",
+    "rawLabel": "Raw means",
+    "centeredLabel": "Centered means"
+  },
+  "items": {
+    "pvq40_001": "Thinking up new ideas and being creative is important to this person.",
+    "pvq40_002": "This person likes to make their own decisions and choose their own path.",
+    "pvq40_003": "It is important to this person to be independent in daily life.",
+    "pvq40_004": "This person values freedom to think and act in original ways.",
+    "pvq40_005": "This person seeks excitement and new experiences.",
+    "pvq40_006": "Variety and challenge are important to this person.",
+    "pvq40_007": "This person likes surprises and a life full of change.",
+    "pvq40_008": "Taking risks for adventure appeals to this person.",
+    "pvq40_009": "Enjoying life and having fun are important to this person.",
+    "pvq40_010": "This person likes to treat themselves and enjoy pleasures.",
+    "pvq40_011": "This person values comfort and sensual enjoyment.",
+    "pvq40_012": "Doing things that feel good right now matters to this person.",
+    "pvq40_013": "Being very successful matters to this person.",
+    "pvq40_014": "This person wants others to recognize their accomplishments.",
+    "pvq40_015": "Showing personal competence is important to this person.",
+    "pvq40_016": "This person strives to meet high standards and perform well.",
+    "pvq40_017": "Having influence over people is important to this person.",
+    "pvq40_018": "This person wants to be in charge and direct others.",
+    "pvq40_019": "Social status and prestige matter to this person.",
+    "pvq40_020": "Controlling resources and decisions is important to this person.",
+    "pvq40_021": "Safety and stability are very important to this person.",
+    "pvq40_022": "This person avoids anything that could threaten order.",
+    "pvq40_023": "Living in secure surroundings matters to this person.",
+    "pvq40_024": "This person wants society to be stable and predictable.",
+    "pvq40_025": "It is important to this person to obey rules.",
+    "pvq40_026": "This person avoids upsetting or inconveniencing others.",
+    "pvq40_027": "Being polite and self-controlled matters to this person.",
+    "pvq40_028": "This person follows social expectations even when no one watches.",
+    "pvq40_029": "Respecting traditions is important to this person.",
+    "pvq40_030": "This person tries to follow customs passed down by family or community.",
+    "pvq40_031": "Religious or spiritual traditions matter to this person.",
+    "pvq40_032": "This person values humility and accepting one’s place in life.",
+    "pvq40_033": "Helping people close to them is very important to this person.",
+    "pvq40_034": "This person wants to be loyal to friends and family.",
+    "pvq40_035": "This person tries to be responsible and dependable for loved ones.",
+    "pvq40_036": "Caring for the well-being of close others matters to this person.",
+    "pvq40_037": "This person cares about equality and justice for all people.",
+    "pvq40_038": "Protecting nature and the environment is important to this person.",
+    "pvq40_039": "This person tries to understand people who are different.",
+    "pvq40_040": "Promoting peace and tolerance matters deeply to this person."
+  }
+}

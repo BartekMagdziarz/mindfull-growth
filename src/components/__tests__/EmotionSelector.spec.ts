@@ -147,7 +147,7 @@ describe('EmotionSelector', () => {
       })
 
       expect(
-        screen.getByText('Select an Emotion Quadrant')
+        screen.getByRole('group', { name: /emotion quadrant selection/i })
       ).toBeInTheDocument()
       expect(
         screen.getByLabelText('Select High Energy / High Pleasantness quadrant')
@@ -209,7 +209,6 @@ describe('EmotionSelector', () => {
       await fireEvent.click(quadrantButton)
 
       await waitFor(() => {
-        expect(screen.getByText('Select Emotions')).toBeInTheDocument()
         expect(screen.getByLabelText('Select emotion Ecstatic')).toBeInTheDocument()
         expect(screen.getByLabelText('Select emotion Elated')).toBeInTheDocument()
         expect(screen.getByLabelText('Select emotion Excited')).toBeInTheDocument()
@@ -342,7 +341,7 @@ describe('EmotionSelector', () => {
 
   describe('Cross-Quadrant Selection', () => {
     it('preserves selections when switching quadrants', async () => {
-      const { emitted } = render(EmotionSelector, {
+      render(EmotionSelector, {
         props: {
           modelValue: ['emotion-1'],
         },
@@ -400,7 +399,7 @@ describe('EmotionSelector', () => {
 
       // Verify both emotions are selected
       expect(emitted('update:modelValue')).toBeTruthy()
-      const lastEmit = emitted('update:modelValue')[emitted('update:modelValue').length - 1]
+      const lastEmit = emitted('update:modelValue')[emitted('update:modelValue').length - 1] as string[][]
       expect(lastEmit[0]).toContain('emotion-1')
       expect(lastEmit[0]).toContain('emotion-4')
     })
@@ -483,7 +482,7 @@ describe('EmotionSelector', () => {
       await fireEvent.click(emotionChip)
 
       expect(emitted('update:modelValue')).toBeTruthy()
-      expect(emitted('update:modelValue')[0][0]).toEqual(['emotion-1'])
+      expect((emitted('update:modelValue')[0] as string[][])[0]).toEqual(['emotion-1'])
     })
 
     it('filters out invalid emotion IDs from modelValue', async () => {
@@ -515,7 +514,7 @@ describe('EmotionSelector', () => {
       })
 
       // Component should render without errors
-      expect(screen.getByText('Select an Emotion Quadrant')).toBeInTheDocument()
+      expect(screen.getByRole('group', { name: /emotion quadrant selection/i })).toBeInTheDocument()
     })
 
     it('uses getEmotionsByQuadrant to get emotions for display', async () => {

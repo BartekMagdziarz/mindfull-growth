@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { initializeStores } from '../integration/testUtils'
-import { resetDatabase } from '../utils/dbTestUtils'
-import { db } from '@/repositories/journalDexieRepository'
+import { resetDatabase, getDatabase } from '../utils/dbTestUtils'
 import {
   peopleTagDexieRepository,
   contextTagDexieRepository,
@@ -58,6 +57,7 @@ describe('Tagging Edge Cases', () => {
         title: 'Legacy entry',
         body: 'Legacy body',
       }
+      const db = getDatabase()
       await db.journalEntries.add(legacyEntry as any)
 
       const { journalStore } = initializeStores()
@@ -75,6 +75,7 @@ describe('Tagging Edge Cases', () => {
         updatedAt: new Date().toISOString(),
         emotionIds: ['emotion-1'],
       }
+      const db = getDatabase()
       await db.emotionLogs.add(legacyLog as any)
 
       const { emotionLogStore } = initializeStores()
@@ -165,7 +166,7 @@ describe('Tagging Edge Cases', () => {
 
       const mom = await tagStore.createPeopleTag('Mom')
       const emotionId = await getFirstEmotionId(emotionStore)
-      const entry = await journalStore.createEntry({
+      await journalStore.createEntry({
         body: 'Entry linked to Mom tag',
         emotionIds: [emotionId],
         peopleTagIds: [mom.id],
@@ -183,7 +184,7 @@ describe('Tagging Edge Cases', () => {
 
       const commute = await tagStore.createContextTag('Commute')
       const emotionId = await getFirstEmotionId(emotionStore)
-      const log = await emotionLogStore.createLog({
+      await emotionLogStore.createLog({
         emotionIds: [emotionId],
         note: 'Log linked to context tag',
         contextTagIds: [commute.id],
@@ -221,5 +222,3 @@ describe('Tagging Edge Cases', () => {
     })
   })
 })
-
-

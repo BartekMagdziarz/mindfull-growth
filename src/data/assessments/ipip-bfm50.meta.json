@@ -1,0 +1,522 @@
+{
+  "id": "ipip-bfm-50",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.ipipBfm50.meta.title",
+  "subtitleKey": "assessments.ipipBfm50.meta.subtitle",
+  "descriptionKey": "assessments.ipipBfm50.meta.description",
+  "categoryKey": "assessments.ipipBfm50.meta.category",
+  "disclaimerKey": "assessments.ipipBfm50.meta.disclaimer",
+  "estimatedMinutes": 12,
+  "responseScale": {
+    "min": 1,
+    "max": 5,
+    "anchors": {
+      "1": "assessments.ipipBfm50.anchors.1",
+      "2": "assessments.ipipBfm50.anchors.2",
+      "3": "assessments.ipipBfm50.anchors.3",
+      "4": "assessments.ipipBfm50.anchors.4",
+      "5": "assessments.ipipBfm50.anchors.5"
+    }
+  },
+  "items": [
+    {
+      "id": "bfm50_001",
+      "textKey": "assessments.ipipBfm50.items.bfm50_001",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_002",
+      "textKey": "assessments.ipipBfm50.items.bfm50_002",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_003",
+      "textKey": "assessments.ipipBfm50.items.bfm50_003",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_004",
+      "textKey": "assessments.ipipBfm50.items.bfm50_004",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_005",
+      "textKey": "assessments.ipipBfm50.items.bfm50_005",
+      "scaleId": "extraversion",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_006",
+      "textKey": "assessments.ipipBfm50.items.bfm50_006",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_007",
+      "textKey": "assessments.ipipBfm50.items.bfm50_007",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_008",
+      "textKey": "assessments.ipipBfm50.items.bfm50_008",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_009",
+      "textKey": "assessments.ipipBfm50.items.bfm50_009",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_010",
+      "textKey": "assessments.ipipBfm50.items.bfm50_010",
+      "scaleId": "extraversion",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_011",
+      "textKey": "assessments.ipipBfm50.items.bfm50_011",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_012",
+      "textKey": "assessments.ipipBfm50.items.bfm50_012",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_013",
+      "textKey": "assessments.ipipBfm50.items.bfm50_013",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_014",
+      "textKey": "assessments.ipipBfm50.items.bfm50_014",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_015",
+      "textKey": "assessments.ipipBfm50.items.bfm50_015",
+      "scaleId": "agreeableness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_016",
+      "textKey": "assessments.ipipBfm50.items.bfm50_016",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_017",
+      "textKey": "assessments.ipipBfm50.items.bfm50_017",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_018",
+      "textKey": "assessments.ipipBfm50.items.bfm50_018",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_019",
+      "textKey": "assessments.ipipBfm50.items.bfm50_019",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_020",
+      "textKey": "assessments.ipipBfm50.items.bfm50_020",
+      "scaleId": "agreeableness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_021",
+      "textKey": "assessments.ipipBfm50.items.bfm50_021",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_022",
+      "textKey": "assessments.ipipBfm50.items.bfm50_022",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_023",
+      "textKey": "assessments.ipipBfm50.items.bfm50_023",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_024",
+      "textKey": "assessments.ipipBfm50.items.bfm50_024",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_025",
+      "textKey": "assessments.ipipBfm50.items.bfm50_025",
+      "scaleId": "conscientiousness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_026",
+      "textKey": "assessments.ipipBfm50.items.bfm50_026",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_027",
+      "textKey": "assessments.ipipBfm50.items.bfm50_027",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_028",
+      "textKey": "assessments.ipipBfm50.items.bfm50_028",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_029",
+      "textKey": "assessments.ipipBfm50.items.bfm50_029",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_030",
+      "textKey": "assessments.ipipBfm50.items.bfm50_030",
+      "scaleId": "conscientiousness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_031",
+      "textKey": "assessments.ipipBfm50.items.bfm50_031",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_032",
+      "textKey": "assessments.ipipBfm50.items.bfm50_032",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_033",
+      "textKey": "assessments.ipipBfm50.items.bfm50_033",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_034",
+      "textKey": "assessments.ipipBfm50.items.bfm50_034",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_035",
+      "textKey": "assessments.ipipBfm50.items.bfm50_035",
+      "scaleId": "neuroticism",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_036",
+      "textKey": "assessments.ipipBfm50.items.bfm50_036",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_037",
+      "textKey": "assessments.ipipBfm50.items.bfm50_037",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_038",
+      "textKey": "assessments.ipipBfm50.items.bfm50_038",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_039",
+      "textKey": "assessments.ipipBfm50.items.bfm50_039",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_040",
+      "textKey": "assessments.ipipBfm50.items.bfm50_040",
+      "scaleId": "neuroticism",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_041",
+      "textKey": "assessments.ipipBfm50.items.bfm50_041",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_042",
+      "textKey": "assessments.ipipBfm50.items.bfm50_042",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_043",
+      "textKey": "assessments.ipipBfm50.items.bfm50_043",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_044",
+      "textKey": "assessments.ipipBfm50.items.bfm50_044",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_045",
+      "textKey": "assessments.ipipBfm50.items.bfm50_045",
+      "scaleId": "openness",
+      "reverse": false,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_046",
+      "textKey": "assessments.ipipBfm50.items.bfm50_046",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_047",
+      "textKey": "assessments.ipipBfm50.items.bfm50_047",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_048",
+      "textKey": "assessments.ipipBfm50.items.bfm50_048",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_049",
+      "textKey": "assessments.ipipBfm50.items.bfm50_049",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    },
+    {
+      "id": "bfm50_050",
+      "textKey": "assessments.ipipBfm50.items.bfm50_050",
+      "scaleId": "openness",
+      "reverse": true,
+      "responseMin": 1,
+      "responseMax": 5
+    }
+  ],
+  "scales": [
+    {
+      "id": "extraversion",
+      "labelKey": "assessments.ipipBfm50.scales.extraversion",
+      "itemIds": [
+        "bfm50_001",
+        "bfm50_002",
+        "bfm50_003",
+        "bfm50_004",
+        "bfm50_005",
+        "bfm50_006",
+        "bfm50_007",
+        "bfm50_008",
+        "bfm50_009",
+        "bfm50_010"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "agreeableness",
+      "labelKey": "assessments.ipipBfm50.scales.agreeableness",
+      "itemIds": [
+        "bfm50_011",
+        "bfm50_012",
+        "bfm50_013",
+        "bfm50_014",
+        "bfm50_015",
+        "bfm50_016",
+        "bfm50_017",
+        "bfm50_018",
+        "bfm50_019",
+        "bfm50_020"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "conscientiousness",
+      "labelKey": "assessments.ipipBfm50.scales.conscientiousness",
+      "itemIds": [
+        "bfm50_021",
+        "bfm50_022",
+        "bfm50_023",
+        "bfm50_024",
+        "bfm50_025",
+        "bfm50_026",
+        "bfm50_027",
+        "bfm50_028",
+        "bfm50_029",
+        "bfm50_030"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "neuroticism",
+      "labelKey": "assessments.ipipBfm50.scales.neuroticism",
+      "itemIds": [
+        "bfm50_031",
+        "bfm50_032",
+        "bfm50_033",
+        "bfm50_034",
+        "bfm50_035",
+        "bfm50_036",
+        "bfm50_037",
+        "bfm50_038",
+        "bfm50_039",
+        "bfm50_040"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "openness",
+      "labelKey": "assessments.ipipBfm50.scales.openness",
+      "itemIds": [
+        "bfm50_041",
+        "bfm50_042",
+        "bfm50_043",
+        "bfm50_044",
+        "bfm50_045",
+        "bfm50_046",
+        "bfm50_047",
+        "bfm50_048",
+        "bfm50_049",
+        "bfm50_050"
+      ],
+      "minAnswered": 8
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "bfm50-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 8
+  },
+  "pageSize": 10,
+  "interpretationScale": "1-5"
+}

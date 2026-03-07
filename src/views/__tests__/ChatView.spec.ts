@@ -16,6 +16,7 @@ const { mockPush, mockBack, mockShow, mockHide, mockRoute } = vi.hoisted(() => {
     mockHide: vi.fn(),
     mockRoute: {
       params: { id: 'entry-123' },
+      query: {},
       path: '/journal/entry-123/chat',
     },
   }
@@ -1361,7 +1362,7 @@ describe('ChatView', () => {
       render(ChatView)
 
       await waitFor(() => {
-        const sendButton = screen.getByRole('button', { name: /^send message$/i })
+        const sendButton = screen.getByRole('button', { name: /^send$/i })
         expect(sendButton).toBeDisabled()
         expect(sendButton.textContent).toContain('Sending...')
       })
@@ -1389,7 +1390,7 @@ describe('ChatView', () => {
       render(ChatView)
 
       await waitFor(() => {
-        const sendButton = screen.getByRole('button', { name: /^send message$/i })
+        const sendButton = screen.getByRole('button', { name: /^send$/i })
         expect(sendButton.textContent).toContain('Sending...')
       })
     })
@@ -2106,4 +2107,3 @@ describe('ChatView', () => {
     })
   })
 })
-
