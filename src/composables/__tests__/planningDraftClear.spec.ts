@@ -1,6 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, nextTick } from 'vue'
-import { render } from '@testing-library/vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { effectScope, nextTick } from 'vue'
 import { useMonthlyPlanningDraft } from '@/composables/useMonthlyPlanningDraft'
 import { useWeeklyPlanningDraft } from '@/composables/useWeeklyPlanningDraft'
 import { useYearlyPlanningDraft } from '@/composables/useYearlyPlanningDraft'
@@ -29,36 +28,28 @@ interface DraftHarnessApi {
 }
 
 function mountComposable<T extends DraftHarnessApi>(factory: () => T): { api: T; unmount: () => void } {
+  const scope = effectScope()
   let api!: T
 
-  const Harness = defineComponent({
-    setup() {
-      api = factory()
-      return () => null
-    },
+  scope.run(() => {
+    api = factory()
   })
 
-  const rendered = render(Harness)
   return {
     api,
-    unmount: rendered.unmount,
+    unmount: () => scope.stop(),
   }
 }
 
 async function flushAutosave(): Promise<void> {
   await nextTick()
-  vi.advanceTimersByTime(300)
+  await new Promise((resolve) => setTimeout(resolve, 350))
   await Promise.resolve()
 }
 
 describe('planning draft clear behavior', () => {
   beforeEach(() => {
     draftStore.clear()
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it.each([
