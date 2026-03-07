@@ -233,9 +233,11 @@ export function useYearlyPlanningDraft(year: number) {
       clearTimeout(saveTimer)
       saveTimer = null
     }
+    isLoaded.value = false
     clearDraftFromDB(storageKey.value)
     _draftFound.value = false
     draft.value = createDefaultDraft(year)
+    isLoaded.value = true
   }
 
   /**

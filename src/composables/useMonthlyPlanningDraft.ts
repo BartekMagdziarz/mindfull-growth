@@ -238,9 +238,11 @@ export function useMonthlyPlanningDraft(monthId: string) {
       clearTimeout(saveTimer)
       saveTimer = null
     }
+    isLoaded.value = false
     clearDraftFromDB(storageKey.value)
     _draftFound.value = false
     draft.value = createDefaultDraft()
+    isLoaded.value = true
   }
 
   /**

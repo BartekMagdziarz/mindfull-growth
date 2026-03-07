@@ -1,0 +1,722 @@
+[
+  {
+    "id": "e1m12-ecstatic-001",
+    "pleasantness": 12,
+    "energy": 12
+  },
+  {
+    "id": "e2m12-empowered-002",
+    "pleasantness": 12,
+    "energy": 11
+  },
+  {
+    "id": "e3m12-proud-003",
+    "pleasantness": 12,
+    "energy": 10
+  },
+  {
+    "id": "e4m12-optimistic-004",
+    "pleasantness": 12,
+    "energy": 9
+  },
+  {
+    "id": "e5m12-challenged-005",
+    "pleasantness": 12,
+    "energy": 8
+  },
+  {
+    "id": "e6m12-accomplished-006",
+    "pleasantness": 12,
+    "energy": 7
+  },
+  {
+    "id": "e7m12-blissful-007",
+    "pleasantness": 12,
+    "energy": 6
+  },
+  {
+    "id": "e8m12-connected-008",
+    "pleasantness": 12,
+    "energy": 5
+  },
+  {
+    "id": "e9m12-grateful-009",
+    "pleasantness": 12,
+    "energy": 4
+  },
+  {
+    "id": "e10m12-moved-010",
+    "pleasantness": 12,
+    "energy": 3
+  },
+  {
+    "id": "e11m12-blessed-011",
+    "pleasantness": 12,
+    "energy": 2
+  },
+  {
+    "id": "e12m12-serene-012",
+    "pleasantness": 12,
+    "energy": 1
+  },
+  {
+    "id": "e1m11-elated-013",
+    "pleasantness": 11,
+    "energy": 12
+  },
+  {
+    "id": "e2m11-inspired-014",
+    "pleasantness": 11,
+    "energy": 11
+  },
+  {
+    "id": "e3m11-productive-015",
+    "pleasantness": 11,
+    "energy": 10
+  },
+  {
+    "id": "e4m11-motivated-016",
+    "pleasantness": 11,
+    "energy": 9
+  },
+  {
+    "id": "e5m11-engaged-017",
+    "pleasantness": 11,
+    "energy": 8
+  },
+  {
+    "id": "e6m11-hopeful-018",
+    "pleasantness": 11,
+    "energy": 7
+  },
+  {
+    "id": "e7m11-fulfilled-019",
+    "pleasantness": 11,
+    "energy": 6
+  },
+  {
+    "id": "e8m11-loved-020",
+    "pleasantness": 11,
+    "energy": 5
+  },
+  {
+    "id": "e9m11-valued-021",
+    "pleasantness": 11,
+    "energy": 4
+  },
+  {
+    "id": "e10m11-accepted-022",
+    "pleasantness": 11,
+    "energy": 3
+  },
+  {
+    "id": "e11m11-secure-023",
+    "pleasantness": 11,
+    "energy": 2
+  },
+  {
+    "id": "e12m11-satisfied-024",
+    "pleasantness": 11,
+    "energy": 1
+  },
+  {
+    "id": "e1m10-thrilled-025",
+    "pleasantness": 10,
+    "energy": 12
+  },
+  {
+    "id": "e2m10-amazed-026",
+    "pleasantness": 10,
+    "energy": 11
+  },
+  {
+    "id": "e3m10-joyful-027",
+    "pleasantness": 10,
+    "energy": 10
+  },
+  {
+    "id": "e4m10-happy-028",
+    "pleasantness": 10,
+    "energy": 9
+  },
+  {
+    "id": "e5m10-confident-029",
+    "pleasantness": 10,
+    "energy": 8
+  },
+  {
+    "id": "e6m10-wishful-030",
+    "pleasantness": 10,
+    "energy": 7
+  },
+  {
+    "id": "e7m10-respected-031",
+    "pleasantness": 10,
+    "energy": 6
+  },
+  {
+    "id": "e8m10-supported-032",
+    "pleasantness": 10,
+    "energy": 5
+  },
+  {
+    "id": "e9m10-included-033",
+    "pleasantness": 10,
+    "energy": 4
+  },
+  {
+    "id": "e10m10-content-034",
+    "pleasantness": 10,
+    "energy": 3
+  },
+  {
+    "id": "e11m10-safe-035",
+    "pleasantness": 10,
+    "energy": 2
+  },
+  {
+    "id": "e12m10-relieved-036",
+    "pleasantness": 10,
+    "energy": 1
+  },
+  {
+    "id": "e1m9-exhilarated-037",
+    "pleasantness": 9,
+    "energy": 12
+  },
+  {
+    "id": "e2m9-successful-038",
+    "pleasantness": 9,
+    "energy": 11
+  },
+  {
+    "id": "e3m9-enthusiastic-039",
+    "pleasantness": 9,
+    "energy": 10
+  },
+  {
+    "id": "e4m9-upbeat-040",
+    "pleasantness": 9,
+    "energy": 9
+  },
+  {
+    "id": "e5m9-alive-041",
+    "pleasantness": 9,
+    "energy": 8
+  },
+  {
+    "id": "e6m9-delighted-042",
+    "pleasantness": 9,
+    "energy": 7
+  },
+  {
+    "id": "e7m9-understood-043",
+    "pleasantness": 9,
+    "energy": 6
+  },
+  {
+    "id": "e8m9-appreciated-044",
+    "pleasantness": 9,
+    "energy": 5
+  },
+  {
+    "id": "e9m9-compassionate-045",
+    "pleasantness": 9,
+    "energy": 4
+  },
+  {
+    "id": "e10m9-empathetic-046",
+    "pleasantness": 9,
+    "energy": 3
+  },
+  {
+    "id": "e11m9-balanced-047",
+    "pleasantness": 9,
+    "energy": 2
+  },
+  {
+    "id": "e12m9-thankful-048",
+    "pleasantness": 9,
+    "energy": 1
+  },
+  {
+    "id": "e1m8-awe-049",
+    "pleasantness": 8,
+    "energy": 12
+  },
+  {
+    "id": "e2m8-determined-050",
+    "pleasantness": 8,
+    "energy": 11
+  },
+  {
+    "id": "e3m8-eager-051",
+    "pleasantness": 8,
+    "energy": 10
+  },
+  {
+    "id": "e4m8-curious-052",
+    "pleasantness": 8,
+    "energy": 9
+  },
+  {
+    "id": "e5m8-focused-053",
+    "pleasantness": 8,
+    "energy": 8
+  },
+  {
+    "id": "e6m8-playful-054",
+    "pleasantness": 8,
+    "energy": 7
+  },
+  {
+    "id": "e7m8-at-ease-055",
+    "pleasantness": 8,
+    "energy": 6
+  },
+  {
+    "id": "e8m8-thoughtful-056",
+    "pleasantness": 8,
+    "energy": 5
+  },
+  {
+    "id": "e9m8-chill-057",
+    "pleasantness": 8,
+    "energy": 4
+  },
+  {
+    "id": "e10m8-comfortable-058",
+    "pleasantness": 8,
+    "energy": 3
+  },
+  {
+    "id": "e11m8-peaceful-059",
+    "pleasantness": 8,
+    "energy": 2
+  },
+  {
+    "id": "e12m8-tranquil-060",
+    "pleasantness": 8,
+    "energy": 1
+  },
+  {
+    "id": "e1m7-surprised-061",
+    "pleasantness": 7,
+    "energy": 12
+  },
+  {
+    "id": "e2m7-excited-062",
+    "pleasantness": 7,
+    "energy": 11
+  },
+  {
+    "id": "e3m7-energized-063",
+    "pleasantness": 7,
+    "energy": 10
+  },
+  {
+    "id": "e4m7-cheerful-064",
+    "pleasantness": 7,
+    "energy": 9
+  },
+  {
+    "id": "e5m7-pleasant-065",
+    "pleasantness": 7,
+    "energy": 8
+  },
+  {
+    "id": "e6m7-pleased-066",
+    "pleasantness": 7,
+    "energy": 7
+  },
+  {
+    "id": "e7m7-calm-067",
+    "pleasantness": 7,
+    "energy": 6
+  },
+  {
+    "id": "e8m7-good-068",
+    "pleasantness": 7,
+    "energy": 5
+  },
+  {
+    "id": "e9m7-relaxed-069",
+    "pleasantness": 7,
+    "energy": 4
+  },
+  {
+    "id": "e10m7-sympathetic-070",
+    "pleasantness": 7,
+    "energy": 3
+  },
+  {
+    "id": "e11m7-mellow-071",
+    "pleasantness": 7,
+    "energy": 2
+  },
+  {
+    "id": "e12m7-carefree-072",
+    "pleasantness": 7,
+    "energy": 1
+  },
+  {
+    "id": "e1m6-hyper-073",
+    "pleasantness": 6,
+    "energy": 12
+  },
+  {
+    "id": "e2m6-pressured-074",
+    "pleasantness": 6,
+    "energy": 11
+  },
+  {
+    "id": "e3m6-restless-075",
+    "pleasantness": 6,
+    "energy": 10
+  },
+  {
+    "id": "e4m6-confused-076",
+    "pleasantness": 6,
+    "energy": 9
+  },
+  {
+    "id": "e5m6-tense-077",
+    "pleasantness": 6,
+    "energy": 8
+  },
+  {
+    "id": "e6m6-uneasy-078",
+    "pleasantness": 6,
+    "energy": 7
+  },
+  {
+    "id": "e7m6-bored-079",
+    "pleasantness": 6,
+    "energy": 6
+  },
+  {
+    "id": "e8m6-tired-080",
+    "pleasantness": 6,
+    "energy": 5
+  },
+  {
+    "id": "e9m6-fatigued-081",
+    "pleasantness": 6,
+    "energy": 4
+  },
+  {
+    "id": "e10m6-disengaged-082",
+    "pleasantness": 6,
+    "energy": 3
+  },
+  {
+    "id": "e11m6-apathetic-083",
+    "pleasantness": 6,
+    "energy": 2
+  },
+  {
+    "id": "e12m6-helpless-084",
+    "pleasantness": 6,
+    "energy": 1
+  },
+  {
+    "id": "e1m5-impassioned-085",
+    "pleasantness": 5,
+    "energy": 12
+  },
+  {
+    "id": "e2m5-annoyed-086",
+    "pleasantness": 5,
+    "energy": 11
+  },
+  {
+    "id": "e3m5-irritated-087",
+    "pleasantness": 5,
+    "energy": 10
+  },
+  {
+    "id": "e4m5-fomo-088",
+    "pleasantness": 5,
+    "energy": 9
+  },
+  {
+    "id": "e5m5-concerned-089",
+    "pleasantness": 5,
+    "energy": 8
+  },
+  {
+    "id": "e6m5-peeved-090",
+    "pleasantness": 5,
+    "energy": 7
+  },
+  {
+    "id": "e7m5-down-091",
+    "pleasantness": 5,
+    "energy": 6
+  },
+  {
+    "id": "e8m5-meh-092",
+    "pleasantness": 5,
+    "energy": 5
+  },
+  {
+    "id": "e9m5-sad-093",
+    "pleasantness": 5,
+    "energy": 4
+  },
+  {
+    "id": "e10m5-discouraged-094",
+    "pleasantness": 5,
+    "energy": 3
+  },
+  {
+    "id": "e11m5-lonely-095",
+    "pleasantness": 5,
+    "energy": 2
+  },
+  {
+    "id": "e12m5-exhausted-096",
+    "pleasantness": 5,
+    "energy": 1
+  },
+  {
+    "id": "e1m4-shocked-097",
+    "pleasantness": 4,
+    "energy": 12
+  },
+  {
+    "id": "e2m4-stressed-098",
+    "pleasantness": 4,
+    "energy": 11
+  },
+  {
+    "id": "e3m4-apprehensive-099",
+    "pleasantness": 4,
+    "energy": 10
+  },
+  {
+    "id": "e4m4-jittery-100",
+    "pleasantness": 4,
+    "energy": 9
+  },
+  {
+    "id": "e5m4-embarrassed-101",
+    "pleasantness": 4,
+    "energy": 8
+  },
+  {
+    "id": "e6m4-nervous-102",
+    "pleasantness": 4,
+    "energy": 7
+  },
+  {
+    "id": "e7m4-disheartened-103",
+    "pleasantness": 4,
+    "energy": 6
+  },
+  {
+    "id": "e8m4-disappointed-104",
+    "pleasantness": 4,
+    "energy": 5
+  },
+  {
+    "id": "e9m4-forlorn-105",
+    "pleasantness": 4,
+    "energy": 4
+  },
+  {
+    "id": "e10m4-spent-106",
+    "pleasantness": 4,
+    "energy": 3
+  },
+  {
+    "id": "e11m4-nostalgic-107",
+    "pleasantness": 4,
+    "energy": 2
+  },
+  {
+    "id": "e12m4-burned-out-108",
+    "pleasantness": 4,
+    "energy": 1
+  },
+  {
+    "id": "e1m3-panicked-109",
+    "pleasantness": 3,
+    "energy": 12
+  },
+  {
+    "id": "e2m3-overwhelmed-110",
+    "pleasantness": 3,
+    "energy": 11
+  },
+  {
+    "id": "e3m3-anxious-111",
+    "pleasantness": 3,
+    "energy": 10
+  },
+  {
+    "id": "e4m3-angry-112",
+    "pleasantness": 3,
+    "energy": 9
+  },
+  {
+    "id": "e5m3-frustrated-113",
+    "pleasantness": 3,
+    "energy": 8
+  },
+  {
+    "id": "e6m3-worried-114",
+    "pleasantness": 3,
+    "energy": 7
+  },
+  {
+    "id": "e7m3-insecure-115",
+    "pleasantness": 3,
+    "energy": 6
+  },
+  {
+    "id": "e8m3-lost-116",
+    "pleasantness": 3,
+    "energy": 5
+  },
+  {
+    "id": "e9m3-disconnected-117",
+    "pleasantness": 3,
+    "energy": 4
+  },
+  {
+    "id": "e10m3-excluded-118",
+    "pleasantness": 3,
+    "energy": 3
+  },
+  {
+    "id": "e11m3-alienated-119",
+    "pleasantness": 3,
+    "energy": 2
+  },
+  {
+    "id": "e12m3-glum-120",
+    "pleasantness": 3,
+    "energy": 1
+  },
+  {
+    "id": "e1m2-terrified-121",
+    "pleasantness": 2,
+    "energy": 12
+  },
+  {
+    "id": "e2m2-irate-122",
+    "pleasantness": 2,
+    "energy": 11
+  },
+  {
+    "id": "e3m2-frightened-123",
+    "pleasantness": 2,
+    "energy": 10
+  },
+  {
+    "id": "e4m2-scared-124",
+    "pleasantness": 2,
+    "energy": 9
+  },
+  {
+    "id": "e5m2-repulsed-125",
+    "pleasantness": 2,
+    "energy": 8
+  },
+  {
+    "id": "e6m2-troubled-126",
+    "pleasantness": 2,
+    "energy": 7
+  },
+  {
+    "id": "e7m2-trapped-127",
+    "pleasantness": 2,
+    "energy": 6
+  },
+  {
+    "id": "e8m2-ashamed-128",
+    "pleasantness": 2,
+    "energy": 5
+  },
+  {
+    "id": "e9m2-vulnerable-129",
+    "pleasantness": 2,
+    "energy": 4
+  },
+  {
+    "id": "e10m2-numb-130",
+    "pleasantness": 2,
+    "energy": 3
+  },
+  {
+    "id": "e11m2-hopeless-131",
+    "pleasantness": 2,
+    "energy": 2
+  },
+  {
+    "id": "e12m2-despair-132",
+    "pleasantness": 2,
+    "energy": 1
+  },
+  {
+    "id": "e1m1-enraged-133",
+    "pleasantness": 1,
+    "energy": 12
+  },
+  {
+    "id": "e2m1-livid-134",
+    "pleasantness": 1,
+    "energy": 11
+  },
+  {
+    "id": "e3m1-furious-135",
+    "pleasantness": 1,
+    "energy": 10
+  },
+  {
+    "id": "e4m1-jealous-136",
+    "pleasantness": 1,
+    "energy": 9
+  },
+  {
+    "id": "e5m1-envious-137",
+    "pleasantness": 1,
+    "energy": 8
+  },
+  {
+    "id": "e6m1-contempt-138",
+    "pleasantness": 1,
+    "energy": 7
+  },
+  {
+    "id": "e7m1-disgusted-139",
+    "pleasantness": 1,
+    "energy": 6
+  },
+  {
+    "id": "e8m1-humiliated-140",
+    "pleasantness": 1,
+    "energy": 5
+  },
+  {
+    "id": "e9m1-pessimistic-141",
+    "pleasantness": 1,
+    "energy": 4
+  },
+  {
+    "id": "e10m1-guilty-142",
+    "pleasantness": 1,
+    "energy": 3
+  },
+  {
+    "id": "e11m1-depressed-143",
+    "pleasantness": 1,
+    "energy": 2
+  },
+  {
+    "id": "e12m1-miserable-144",
+    "pleasantness": 1,
+    "energy": 1
+  }
+]

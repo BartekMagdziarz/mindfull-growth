@@ -240,9 +240,11 @@ export function useWeeklyPlanningDraft(
       clearTimeout(saveTimer)
       saveTimer = null
     }
+    isLoaded.value = false
     clearDraftFromDB(storageKey.value)
     _draftFound.value = false
     draft.value = createDefaultDraft(defaults)
+    isLoaded.value = true
   }
 
   /**

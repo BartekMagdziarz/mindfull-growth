@@ -1,0 +1,304 @@
+{
+  "id": "vlq",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.vlq.meta.title",
+  "subtitleKey": "assessments.vlq.meta.subtitle",
+  "descriptionKey": "assessments.vlq.meta.description",
+  "categoryKey": "assessments.vlq.meta.category",
+  "disclaimerKey": "assessments.vlq.meta.disclaimer",
+  "estimatedMinutes": 8,
+  "responseScale": {
+    "min": 0,
+    "max": 10,
+    "anchors": {
+      "0": "assessments.vlq.anchors.0",
+      "10": "assessments.vlq.anchors.10"
+    }
+  },
+  "items": [
+    {
+      "id": "vlq_family_importance",
+      "textKey": "assessments.vlq.items.vlq_family_importance",
+      "scaleId": "family",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_family_consistency",
+      "textKey": "assessments.vlq.items.vlq_family_consistency",
+      "scaleId": "family",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_intimateRelationships_importance",
+      "textKey": "assessments.vlq.items.vlq_intimateRelationships_importance",
+      "scaleId": "intimateRelationships",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_intimateRelationships_consistency",
+      "textKey": "assessments.vlq.items.vlq_intimateRelationships_consistency",
+      "scaleId": "intimateRelationships",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_parenting_importance",
+      "textKey": "assessments.vlq.items.vlq_parenting_importance",
+      "scaleId": "parenting",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_parenting_consistency",
+      "textKey": "assessments.vlq.items.vlq_parenting_consistency",
+      "scaleId": "parenting",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_friendships_importance",
+      "textKey": "assessments.vlq.items.vlq_friendships_importance",
+      "scaleId": "friendships",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_friendships_consistency",
+      "textKey": "assessments.vlq.items.vlq_friendships_consistency",
+      "scaleId": "friendships",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_work_importance",
+      "textKey": "assessments.vlq.items.vlq_work_importance",
+      "scaleId": "work",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_work_consistency",
+      "textKey": "assessments.vlq.items.vlq_work_consistency",
+      "scaleId": "work",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_education_importance",
+      "textKey": "assessments.vlq.items.vlq_education_importance",
+      "scaleId": "education",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_education_consistency",
+      "textKey": "assessments.vlq.items.vlq_education_consistency",
+      "scaleId": "education",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_recreation_importance",
+      "textKey": "assessments.vlq.items.vlq_recreation_importance",
+      "scaleId": "recreation",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_recreation_consistency",
+      "textKey": "assessments.vlq.items.vlq_recreation_consistency",
+      "scaleId": "recreation",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_spirituality_importance",
+      "textKey": "assessments.vlq.items.vlq_spirituality_importance",
+      "scaleId": "spirituality",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_spirituality_consistency",
+      "textKey": "assessments.vlq.items.vlq_spirituality_consistency",
+      "scaleId": "spirituality",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_citizenship_importance",
+      "textKey": "assessments.vlq.items.vlq_citizenship_importance",
+      "scaleId": "citizenship",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_citizenship_consistency",
+      "textKey": "assessments.vlq.items.vlq_citizenship_consistency",
+      "scaleId": "citizenship",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    },
+    {
+      "id": "vlq_health_importance",
+      "textKey": "assessments.vlq.items.vlq_health_importance",
+      "scaleId": "health",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "importance"
+    },
+    {
+      "id": "vlq_health_consistency",
+      "textKey": "assessments.vlq.items.vlq_health_consistency",
+      "scaleId": "health",
+      "reverse": false,
+      "responseMin": 0,
+      "responseMax": 10,
+      "metric": "consistency"
+    }
+  ],
+  "scales": [
+    {
+      "id": "family",
+      "labelKey": "assessments.vlq.scales.family",
+      "itemIds": [
+        "vlq_family_importance",
+        "vlq_family_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "intimateRelationships",
+      "labelKey": "assessments.vlq.scales.intimateRelationships",
+      "itemIds": [
+        "vlq_intimateRelationships_importance",
+        "vlq_intimateRelationships_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "parenting",
+      "labelKey": "assessments.vlq.scales.parenting",
+      "itemIds": [
+        "vlq_parenting_importance",
+        "vlq_parenting_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "friendships",
+      "labelKey": "assessments.vlq.scales.friendships",
+      "itemIds": [
+        "vlq_friendships_importance",
+        "vlq_friendships_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "work",
+      "labelKey": "assessments.vlq.scales.work",
+      "itemIds": [
+        "vlq_work_importance",
+        "vlq_work_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "education",
+      "labelKey": "assessments.vlq.scales.education",
+      "itemIds": [
+        "vlq_education_importance",
+        "vlq_education_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "recreation",
+      "labelKey": "assessments.vlq.scales.recreation",
+      "itemIds": [
+        "vlq_recreation_importance",
+        "vlq_recreation_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "spirituality",
+      "labelKey": "assessments.vlq.scales.spirituality",
+      "itemIds": [
+        "vlq_spirituality_importance",
+        "vlq_spirituality_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "citizenship",
+      "labelKey": "assessments.vlq.scales.citizenship",
+      "itemIds": [
+        "vlq_citizenship_importance",
+        "vlq_citizenship_consistency"
+      ],
+      "minAnswered": 2
+    },
+    {
+      "id": "health",
+      "labelKey": "assessments.vlq.scales.health",
+      "itemIds": [
+        "vlq_health_importance",
+        "vlq_health_consistency"
+      ],
+      "minAnswered": 2
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "vlq-no-impute",
+    "descriptionKey": "assessments.common.missingPolicy.vlq",
+    "thresholdPercent": 1,
+    "imputeWithScaleMean": false
+  },
+  "retakePolicy": {
+    "weeks": 8
+  },
+  "pageSize": 10,
+  "interpretationScale": "0-10"
+}

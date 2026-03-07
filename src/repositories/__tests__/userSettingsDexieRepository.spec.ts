@@ -40,12 +40,19 @@ describe('UserSettingsDexieRepository', () => {
     // Generate unique database name for each test
     dbName = `TestDB_${Date.now()}_${Math.random()}`
     testDb = new TestDatabase(dbName)
+
+    // Mock the db instance used by the repository
+    // We need to replace the db import in the repository module
+    const dbModule = await import('../journalDexieRepository')
+    // Since we can't directly replace the singleton, we'll use a different approach
+    // We'll test with the actual repository but use a separate test database
+    // For now, we'll test the repository with the actual implementation
+    // and use fake-indexeddb which is already set up in test/setup.ts
   })
 
   afterEach(async () => {
     // Clean up: delete test database
     try {
-      await testDb.close()
       await Dexie.delete(dbName)
     } catch (error) {
       // Ignore errors if database doesn't exist
@@ -156,3 +163,4 @@ describe('UserSettingsDexieRepository', () => {
     })
   })
 })
+

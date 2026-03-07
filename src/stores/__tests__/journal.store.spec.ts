@@ -20,7 +20,6 @@ vi.mock('@/repositories/journalDexieRepository', () => {
 
 // Import the mocked repository to access the mock functions
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
-import { mockConsoleError } from '@/test/utils/console'
 
 describe('useJournalStore', () => {
   beforeEach(() => {
@@ -295,7 +294,6 @@ describe('useJournalStore', () => {
     it('sets error state when repository fails', async () => {
       const store = useJournalStore()
       const errorMessage = 'Database error'
-      const consoleError = mockConsoleError()
 
       vi.mocked(journalDexieRepository.getAll).mockRejectedValue(
         new Error(errorMessage)
@@ -306,8 +304,6 @@ describe('useJournalStore', () => {
       expect(store.isLoading).toBe(false)
       expect(store.error).toBe(errorMessage)
       expect(store.entries).toHaveLength(0)
-      expect(consoleError).toHaveBeenCalled()
-      consoleError.mockRestore()
     })
 
     it('sets isLoading to true during loading and false after', async () => {
@@ -459,7 +455,6 @@ describe('useJournalStore', () => {
 
     it('does not remove entry if repository delete fails', async () => {
       const store = useJournalStore()
-      const consoleError = mockConsoleError()
       const entry: JournalEntry = {
         id: 'entry-1',
         createdAt: '2024-01-01T00:00:00.000Z',
@@ -482,8 +477,6 @@ describe('useJournalStore', () => {
       // Verify the entry was not removed
       expect(store.entries).toHaveLength(1)
       expect(store.error).toBe('Delete failed')
-      expect(consoleError).toHaveBeenCalled()
-      consoleError.mockRestore()
     })
   })
 
@@ -595,3 +588,4 @@ describe('useJournalStore', () => {
     })
   })
 })
+

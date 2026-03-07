@@ -39,14 +39,12 @@ export const useAuthStore = defineStore('auth', () => {
         // Verify user still exists
         const existingUser = await authDexieRepository.getUserById(session.userId)
         if (existingUser) {
-          // Connect database BEFORE setting user so a failed open()
-          // doesn't leave the app in an authenticated-but-broken state
-          await connectUserDatabase(session.userId)
           user.value = {
             id: session.userId,
             username: session.username,
             displayName: session.displayName,
           }
+          await connectUserDatabase(session.userId)
         } else {
           // User no longer exists, clear session
           clearSession()
@@ -55,7 +53,6 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (err) {
       console.error('Failed to initialize auth:', err)
       clearSession()
-      user.value = null
     } finally {
       isInitialized.value = true
     }
