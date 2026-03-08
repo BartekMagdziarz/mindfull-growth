@@ -40,7 +40,7 @@
     "noFocusSentence": "No focus sentence set for this week",
     "noWeeklyPlan": "No weekly plan yet",
     "openPlanningHub": "Open Planning Hub",
-    "emptyDescription": "Set your monthly focus to align your weekly efforts",
+    "emptyDescription": "Create a monthly plan to align your weekly efforts",
     "createMonthlyPlan": "Create Monthly Plan"
   },
   "ifsCheckIn": {
@@ -89,6 +89,89 @@
     "priorityCount": "{count} active priorities",
     "emptySummary": "Set your year, month, and week focus to anchor this view."
   },
+  "northStar": {
+    "title": "North Star",
+    "openPlanning": "Open planning",
+    "focusChains": "Current focus chains",
+    "showMore": "Show {count} more",
+    "showLess": "Show less",
+    "projects": "Projects",
+    "priorityOnly": "Priority held without an active project yet",
+    "commitmentProgress": "{done} of {total} commitments done",
+    "reflectionsDue": "{count} reflection due",
+    "weekFallback": "This week",
+    "monthFallback": "This month",
+    "yearFallback": "This year",
+    "noWeekFocus": "Set a weekly focus sentence to anchor Today.",
+    "noMonthIntention": "Set a monthly intention to connect this week to the wider arc.",
+    "noYearTheme": "Add a yearly theme so today stays connected to the longer horizon.",
+    "empty": "No active focus chains yet. Link priorities and projects in Planning to make Today more directional.",
+    "sources": {
+      "weekly": "Active this week",
+      "monthly": "Carried by this month",
+      "priority": "Priority direction"
+    }
+  },
+  "priorityCompass": {
+    "eyebrow": "Priority Compass",
+    "title": "Keep the day pointed at your priorities",
+    "openPlanning": "Open planning",
+    "empty": "No active priorities yet. Define them in Planning to turn Today into a clearer compass.",
+    "noProjects": "No linked projects yet"
+  },
+  "executionList": {
+    "title": "Next Moves",
+    "progress": "{done} of {total} closed",
+    "openPlanning": "Open weekly plan",
+    "noWeeklyPlan": "Create a weekly plan to turn priorities into concrete moves for this week.",
+    "empty": "No commitments for this week yet.",
+    "markDone": "Mark as done",
+    "markSkipped": "Mark as skipped",
+    "failedUpdate": "Failed to update commitment."
+  },
+  "progress": {
+    "eyebrow": "Progress",
+    "title": "Weekly pulse and monthly arc",
+    "weeklyLane": "Weekly Pulse",
+    "monthlyLane": "Monthly Arc",
+    "noWeeklyPlan": "No active weekly plan for the current period.",
+    "noMonthlyPlan": "No active monthly plan for the current period.",
+    "emptyWeekly": "No weekly trackers or habits selected for this period.",
+    "emptyMonthly": "No monthly trackers or habits selected for this period.",
+    "projectSource": "Project",
+    "habitSource": "Habit",
+    "doneProject": "Done project"
+  },
+  "capture": {
+    "startJournal": "Start journal",
+    "continueJournal": "Continue journal",
+    "startJournalDescription": "Capture what matters while the day is still alive.",
+    "continueJournalDescription": "Add another layer to today's reflection.",
+    "journalRecorded": "Logged today",
+    "journalCount": "{count} entries today",
+    "guidedPrompt": "Guided prompt ready",
+    "emotionTitle": "Log emotion",
+    "emotionStart": "Catch how you feel before the day blurs together.",
+    "emotionContinue": "Keep checking the emotional weather as the day unfolds.",
+    "emotionComplete": "You've already hit the daily target. Log more if the state changes.",
+    "emotionProgress": "{logged} of {target} logged"
+  },
+  "support": {
+    "eyebrow": "Support Rail",
+    "openJournal": "Open journal",
+    "journals": "journals",
+    "emotions": "emotions",
+    "streak": "streak",
+    "ifsTitle": "IFS Check-In",
+    "ifsDone": "IFS check-in already logged today. {count} check-ins this week.",
+    "ifsPending": "No IFS check-in yet today. {count} check-ins this week.",
+    "openIfs": "Open IFS check-in",
+    "openIfsAgain": "Open another IFS check-in",
+    "adaptiveReminder": "Adaptive Reminder",
+    "reflectionReminder": "Reflection Reminder",
+    "recommendationReminder": "Supportive Reminder",
+    "openPlanning": "Open planning"
+  },
   "mode": {
     "title": "Day Mode",
     "auto": "Auto",
@@ -129,6 +212,7 @@
   },
   "reflections": {
     "title": "Reflection Status",
+    "dueTitle": "Reflections to close",
     "weekly": "Weekly reflection",
     "monthly": "Monthly reflection",
     "yearly": "Yearly reflection",

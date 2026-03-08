@@ -237,4 +237,41 @@ describe('useMonthlyPlanStore', () => {
       expect(current[0].id).toBe('mp-jan')
     })
   })
+
+  describe('canonical monthly plans', () => {
+    it('prefers the newest updated monthly plan for a period', async () => {
+      const store = useMonthlyPlanStore()
+      const db = getUserDatabase()
+
+      await db.monthlyPlans.bulkAdd([
+        {
+          id: 'mp-old',
+          createdAt: '2026-02-01T00:00:00.000Z',
+          updatedAt: '2026-02-01T00:00:00.000Z',
+          startDate: '2026-02-01',
+          endDate: '2026-02-28',
+          name: 'February 2026',
+          year: 2026,
+          secondaryFocusLifeAreaIds: [],
+          projectIds: [],
+        },
+        {
+          id: 'mp-new',
+          createdAt: '2026-02-02T00:00:00.000Z',
+          updatedAt: '2026-02-03T00:00:00.000Z',
+          startDate: '2026-02-01',
+          endDate: '2026-02-28',
+          name: 'February 2026',
+          year: 2026,
+          secondaryFocusLifeAreaIds: [],
+          projectIds: [],
+        },
+      ])
+
+      await store.loadMonthlyPlans()
+
+      expect(store.getCanonicalMonthlyPlanByPeriod('2026-02-01', '2026-02-28')?.id).toBe('mp-new')
+      expect(store.canonicalMonthlyPlans).toHaveLength(1)
+    })
+  })
 })

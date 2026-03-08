@@ -52,14 +52,25 @@
               {{ project.id }}
             </p>
           </div>
-          <AppButton
-            variant="filled"
-            size="sm"
-            :disabled="isProjectSaving(project.id)"
-            @click="saveProjectDraft(project.id)"
-          >
-            {{ isProjectSaving(project.id) ? t('planning.projectTracker.saving') : t('planning.projectTracker.save') }}
-          </AppButton>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="neo-icon-button neo-icon-button--danger neo-focus h-10 w-10 p-0"
+              :aria-label="`Delete project ${project.name}`"
+              :disabled="isProjectBusy(project.id)"
+              @click="openDeleteProjectDialog(project.id)"
+            >
+              <TrashIcon class="h-5 w-5" />
+            </button>
+            <AppButton
+              variant="filled"
+              size="sm"
+              :disabled="isProjectBusy(project.id)"
+              @click="saveProjectDraft(project.id)"
+            >
+              {{ isProjectSaving(project.id) ? t('planning.projectTracker.saving') : t('planning.projectTracker.save') }}
+            </AppButton>
+          </div>
         </div>
 
         <div class="grid gap-3 md:grid-cols-2">
@@ -87,7 +98,7 @@
             <select
               class="neo-input w-full px-3 py-2 text-sm"
               :value="projectDrafts[project.id]?.status || 'planned'"
-              @change="updateProjectDraftField(project.id, 'status', getSelectValue($event))"
+              @change="updateProjectDraftField(project.id, 'status', getSelectValue($event) as ProjectStatus)"
             >
               <option value="planned">{{ t('planning.common.status.planned') }}</option>
               <option value="active">{{ t('planning.common.status.active') }}</option>
@@ -464,16 +475,28 @@
       </AppCard>
     </div>
 
+    <AppDialog
+      v-model="showDeleteProjectDialog"
+      title="Delete project"
+      :message="deleteProjectMessage"
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      confirm-variant="filled"
+      @confirm="handleConfirmDeleteProject"
+      @cancel="showDeleteProjectDialog = false"
+    />
+
     <AppSnackbar ref="snackbarRef" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, type ComponentPublicInstance } from 'vue'
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import { ArrowLeftIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import KeyResultsEditor from '@/components/planning/KeyResultsEditor.vue'
 import IconPicker from '@/components/planning/IconPicker.vue'
@@ -542,6 +565,8 @@ const keyResultsEditorRefs = ref<Record<string, InstanceType<typeof KeyResultsEd
 
 const savingProjectIds = ref(new Set<string>())
 const savingTrackerIds = ref(new Set<string>())
+const showDeleteProjectDialog = ref(false)
+const projectToDelete = ref<Project | null>(null)
 
 function showSnackbar(message: string): void {
   snackbarRef.value?.show(message)
@@ -740,6 +765,44 @@ function isProjectSaving(projectId: string): boolean {
 
 function isTrackerSaving(projectId: string): boolean {
   return savingTrackerIds.value.has(projectId)
+}
+
+function isProjectBusy(projectId: string): boolean {
+  return isProjectSaving(projectId) || isTrackerSaving(projectId)
+}
+
+const deleteProjectMessage = computed(() => {
+  if (!projectToDelete.value) return ''
+  return `This will permanently delete "${projectToDelete.value.name}" and any linked key results. This cannot be undone.`
+})
+
+function openDeleteProjectDialog(projectId: string): void {
+  projectToDelete.value = projectStore.getProjectById(projectId) ?? null
+  showDeleteProjectDialog.value = Boolean(projectToDelete.value)
+}
+
+async function handleConfirmDeleteProject(): Promise<void> {
+  const project = projectToDelete.value
+  if (!project) return
+
+  savingProjectIds.value.add(project.id)
+
+  try {
+    await projectStore.deleteProject(project.id)
+    delete projectDrafts.value[project.id]
+    delete projectPlanAddDrafts.value[project.id]
+    delete trackerDrafts.value[project.id]
+    delete trackerSnapshots.value[project.id]
+    delete keyResultsEditorRefs.value[project.id]
+    showDeleteProjectDialog.value = false
+    projectToDelete.value = null
+    showSnackbar('Project deleted.')
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to delete project.'
+    showSnackbar(message)
+  } finally {
+    savingProjectIds.value.delete(project.id)
+  }
 }
 
 const sortedProjects = computed(() => projectStore.sortedProjects)

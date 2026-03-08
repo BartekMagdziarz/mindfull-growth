@@ -4,7 +4,7 @@ A local-first Vue 3 app for mindful growth: journaling, fast emotion check-ins, 
 
 ✨ Features (v1 focus)
 	•	Planning – Yearly, monthly, and weekly planning with priorities, projects, and commitments.
-	•	Life Areas – Define the foundation of your life and pick yearly focus areas.
+	•	Life Areas – Define the foundation of your life and link them across planning objects.
 	•	Journal – Freeform entries with emotion tags and simple context tags.
 	•	Emotions – Ultra-fast “right now I feel…” logs using a shared emotion grid.
 	•	Profile (browser) – View and filter all your entries and emotion logs in one place.
@@ -49,7 +49,7 @@ Core views:
 
 Shared data model (simplified):
 	•	LifeArea – foundational life categories with color, description, and status.
-	•	YearlyPlan – yearly period details + focus life areas.
+	•	YearlyPlan – yearly period details, theme, and life-area narratives.
 	•	Priority – high‑level yearly goals linked to life areas.
 	•	Project – outcome‑driven initiatives linked to life areas and priorities.
 	•	Commitment – weekly actions linked to life areas, priorities, and projects.

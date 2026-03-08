@@ -134,11 +134,11 @@
           v-for="point in trendData"
           :key="point.startDate"
           :title="`${point.label}: ${point.summary}`"
-          class="h-1.5 flex-1 rounded-full bg-surface-variant overflow-hidden"
+          class="neo-progress-track h-1.5 flex-1 overflow-hidden"
         >
           <div
-            class="h-full rounded-full bg-primary/40 transition-all duration-300"
-            :style="{ width: `${clampPercent(getTrendBarPercent(point))}%` }"
+            class="neo-progress-fill h-full"
+            :style="buildProgressFillStyle(getTrendBarPercent(point))"
           />
         </div>
       </div>
@@ -146,11 +146,11 @@
       <!-- Current period bar (fills remaining space) -->
       <div
         :title="`Current: ${currentProgress.summary}`"
-        class="h-3 flex-1 min-w-[40px] rounded-full bg-surface-variant overflow-hidden border border-neu-border/30 shadow-sm"
+        class="neo-progress-track h-3 flex-1 min-w-[40px] overflow-hidden border border-neu-border/30 shadow-sm"
       >
         <div
-          class="h-full rounded-full bg-primary/70 transition-all duration-300"
-          :style="{ width: `${localPercent}%` }"
+          class="neo-progress-fill h-full"
+          :style="buildProgressFillStyle(localPercent)"
         />
       </div>
 
@@ -737,6 +737,14 @@ async function decrement() {
 function clampPercent(value: number | null): number {
   if (value == null) return 0
   return Math.max(0, Math.min(100, value))
+}
+
+function buildProgressFillStyle(value: number | null): Record<string, string> {
+  const width = clampPercent(value)
+  return {
+    width: `${width}%`,
+    minWidth: width > 0 ? '2px' : '0',
+  }
 }
 
 // ---------- Lifecycle ----------

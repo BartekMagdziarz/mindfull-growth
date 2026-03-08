@@ -880,6 +880,12 @@ const weekRangeLabel = computed(() =>
   formatPeriodDateRange(draft.value.startDate, draft.value.endDate)
 )
 const currentYear = computed(() => getYearFromDate(draft.value.startDate))
+const canonicalPlanForDraft = computed(() => {
+  return weeklyPlanStore.getCanonicalWeeklyPlanByPeriod(
+    draft.value.startDate,
+    draft.value.endDate
+  )
+})
 
 interface BatteryTrendPanel {
   key: 'body' | 'mind' | 'emotion' | 'social'
@@ -1459,8 +1465,12 @@ async function handleConfirm(): Promise<void> {
   saveError.value = null
 
   try {
-    if (isEditMode.value) {
-      await handleConfirmEditMode()
+    const targetPlanId = isEditMode.value
+      ? effectiveEditPlanId.value
+      : canonicalPlanForDraft.value?.id
+
+    if (targetPlanId) {
+      await handleConfirmEditMode(targetPlanId)
     } else {
       await handleConfirmCreateMode()
     }
@@ -1591,12 +1601,12 @@ async function handleConfirmCreateMode(): Promise<void> {
   await applyFocusWeekTags(createdPlan.id)
 }
 
-async function handleConfirmEditMode(): Promise<void> {
+async function handleConfirmEditMode(planIdOverride?: string): Promise<void> {
   // Load existing data for comparison
-  if (!effectiveEditPlanId.value) {
+  const planId = planIdOverride ?? effectiveEditPlanId.value
+  if (!planId) {
     throw new Error('Missing weekly plan id')
   }
-  const planId = effectiveEditPlanId.value
 
   await Promise.all([
     commitmentStore.loadCommitments({ weeklyPlanId: planId }),
@@ -1810,7 +1820,6 @@ async function loadData() {
 
     const shouldForceSeed =
       routeChanged ||
-      route.path.endsWith('/new') ||
       isIsoDateString(routePlanId.value) ||
       hasMismatchedDraftWindow
     if (effectiveEditPlanId.value && (!hasDraft() || shouldForceSeed)) {
@@ -1837,14 +1846,13 @@ function resolvePlanForRoute(
   }
 
   if (routeWeek) {
-    return weeklyPlanStore.weeklyPlans.find(
-      (plan) => plan.startDate === routeWeek.startDate && plan.endDate === routeWeek.endDate
-    )
+    return weeklyPlanStore.getCanonicalWeeklyPlanByPeriod(routeWeek.startDate, routeWeek.endDate)
   }
 
   if (route.path.endsWith('/new')) {
-    return weeklyPlanStore.weeklyPlans.find(
-      (plan) => plan.startDate === draft.value.startDate && plan.endDate === draft.value.endDate
+    return weeklyPlanStore.getCanonicalWeeklyPlanByPeriod(
+      draft.value.startDate,
+      draft.value.endDate
     )
   }
 

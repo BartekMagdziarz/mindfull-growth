@@ -136,8 +136,8 @@
         "subtitle": "Review evidence"
       },
       "focus": {
-        "title": "Focus",
-        "subtitle": "Choose areas"
+        "title": "Strategy",
+        "subtitle": "Set direction"
       },
       "projects": {
         "title": "Projects",
@@ -150,7 +150,7 @@
     },
     "nextButton": {
       "toSignals": "Review Signals",
-      "toFocus": "Continue to Focus",
+      "toFocus": "Continue to Strategy",
       "toProjects": "Continue to Projects",
       "toReview": "Review & Confirm",
       "savePlan": "Save Monthly Plan"
@@ -162,15 +162,13 @@
       "optional": "(optional)"
     },
     "focusStep": {
-      "title": "Focus for This Month",
-      "primary": "Primary",
-      "secondaryOptional": "Secondary (optional)",
+      "title": "Strategy for This Month",
       "monthIntentionLabel": "Month Intention",
       "monthIntentionPlaceholder": "What do you want this month to be about?",
-      "focusSuccessSignalLabel": "Focus Success Signal",
+      "focusSuccessSignalLabel": "Month Success Signal",
       "focusSuccessSignalPlaceholder": "What observable sign tells you this month is on track?",
       "balanceGuardrailLabel": "Balance Guardrail",
-      "balanceGuardrailPlaceholder": "What boundary protects the rest of life while pursuing this focus?"
+      "balanceGuardrailPlaceholder": "What boundary protects the rest of life while pursuing this strategy?"
     },
     "signalsStep": {
       "title": "Review Signals",
@@ -250,8 +248,8 @@
         "step2": "Review your values and year theme",
         "step3": "Write your story & dream about your fantastic day",
         "step4": "Run a dreaming exercise to prime your prediction engine",
-        "step5": "Choose focus life areas",
-        "step6": "Write baseline narratives for each area",
+        "step5": "Check your current life-area shape in the Life Wheel",
+        "step6": "Write baseline narratives for the areas that need context",
         "step7": "Define priorities with success signals and constraints",
         "step8": "Review everything and save"
       }
@@ -289,22 +287,14 @@
     },
     "lifeWheel": {
       "title": "Life Wheel Check-in",
-      "description": "Rate your satisfaction with each life area to identify where to focus.",
+      "description": "Rate your satisfaction with each life area to understand the current shape of your life.",
       "noLifeAreas": "You have no life areas defined. Create some in the Life Areas section to use the Life Wheel.",
       "manageLifeAreas": "Manage Life Areas",
       "scale": "1 = Low, 10 = High"
     },
-    "focusAreas": {
-      "title": "Select Your Focus Life Areas",
-      "description": "Choose the areas you want to dedicate the most energy to this year.",
-      "primaryFocus": "Primary Focus",
-      "secondaryFocus": "Secondary Focus",
-      "selectPrimary": "Select a primary focus area",
-      "selectSecondary": "Select secondary areas"
-    },
     "baselines": {
       "title": "Life Area Baseline Narratives",
-      "description": "For each focus area, describe where you are now. This creates a starting point to measure progress against.",
+      "description": "For any life area that needs context, describe where you are now. This creates a starting point you can revisit later.",
       "placeholder": "Where are you now in this area? What's working? What needs attention?"
     },
     "prioritiesStep": {
@@ -436,7 +426,7 @@
           "subtitle": "Review outcomes"
         },
         "focusAreas": {
-          "title": "Focus Areas",
+          "title": "Life Areas",
           "subtitle": "Check balance"
         },
         "courseCorrection": {
@@ -492,12 +482,12 @@
         "abandon": "Abandon"
       },
       "focusAreaReview": {
-        "title": "Focus Area Review",
-        "subtitle": "Review focus area progress and check for deterioration.",
+        "title": "Life Area Review",
+        "subtitle": "Review life-area progress and check for deterioration.",
         "progress": "Progress this month",
         "deteriorated": "This area deteriorated",
         "notePlaceholder": "Optional note about drivers and patterns...",
-        "empty": "No focus areas were detected for this month."
+        "empty": "No life areas were detected for this month."
       },
       "courseCorrection": {
         "start": "Start",
@@ -1115,8 +1105,7 @@
       "deleteReflection": "Delete Reflection?",
       "planHighlights": {
         "monthlyIntention": "Monthly intention",
-        "primaryFocus": "Primary focus",
-        "secondaryFocus": "Secondary focus"
+        "projects": "Projects"
       },
       "reflectionHighlights": {
         "win": "Win",
@@ -1126,7 +1115,7 @@
         "direction": "Direction",
         "directionValue": "Projects {projects}/5, Priorities {priorities}/5, Relationships {relationships}/5",
         "projectDecision": "Project decision",
-        "focusGuardrail": "Focus guardrail",
+        "focusGuardrail": "Life-area guardrail",
         "focusGuardrailDetected": "Deterioration detected in one or more areas",
         "ifThenPlan": "If-then plan",
         "start": "Start"
@@ -1199,12 +1188,8 @@
     "monthlyReviewSummary": {
       "header": "{month} at a Glance",
       "reviewSubtitle": "Review your monthly plan before confirming",
-      "focusTitle": "Focus for This Month",
-      "primary": "Primary",
-      "secondary": "Secondary",
-      "noFocusAreas": "No focus life areas selected",
       "monthIntention": "Month Intention",
-      "focusSuccessSignal": "Focus Success Signal",
+      "focusSuccessSignal": "Month Success Signal",
       "balanceGuardrail": "Balance Guardrail",
       "projectsTitle": "Projects",
       "projectsCount": "({count})",
@@ -1224,9 +1209,8 @@
       "differenceMakes": "What difference it makes",
       "progressClues": "Progress clues (goal seeds)",
       "andMore": "...and {count} more",
-      "focusLifeAreas": "Focus Life Areas",
-      "primaryFocus": "Primary Focus",
-      "noFocusAreas": "No focus life areas selected yet.",
+      "lifeAreaNarrativesTitle": "Life Area Narratives",
+      "noNarratives": "No life area narratives added yet.",
       "prioritiesTitle": "Priorities",
       "noPriorities": "No priorities have been defined for this year.",
       "signalCount": "{count} signal | {count} signals",

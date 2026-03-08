@@ -3,7 +3,7 @@
  *
  * Pinia store for managing YearlyPlans in the Planning & Reflection System.
  * YearlyPlans capture the output of yearly planning sessions, including
- * the year theme and linked focus areas.
+ * the year theme, life-area narratives, and linked priorities.
  *
  * This store provides:
  * - State management for YearlyPlans
@@ -22,6 +22,10 @@ import type {
   UpdateYearlyPlanPayload,
 } from '@/domain/planning'
 import { yearlyPlanDexieRepository } from '@/repositories/planningDexieRepository'
+import {
+  getCanonicalPlanForPeriod,
+  getCanonicalPlansByPeriod,
+} from '@/utils/planCanonicalization'
 
 export const useYearlyPlanStore = defineStore('yearlyPlan', () => {
   // ============================================================================
@@ -66,6 +70,12 @@ export const useYearlyPlanStore = defineStore('yearlyPlan', () => {
     return sortYearlyPlans(yearlyPlans.value)
   })
 
+  const canonicalYearlyPlans = computed(() => {
+    return sortYearlyPlans(
+      getCanonicalPlansByPeriod(yearlyPlans.value, (plan) => `${plan.year}`)
+    )
+  })
+
   /**
    * Returns a function to find a YearlyPlan by its ID
    * Usage: store.getYearlyPlanById('plan-id')
@@ -86,6 +96,16 @@ export const useYearlyPlanStore = defineStore('yearlyPlan', () => {
     }
   })
 
+  const getCanonicalYearlyPlanByYear = computed(() => {
+    return (year: number): YearlyPlan | undefined => {
+      return getCanonicalPlanForPeriod(
+        yearlyPlans.value,
+        (plan) => `${plan.year}`,
+        `${year}`
+      )
+    }
+  })
+
   /**
    * Returns YearlyPlans that overlap with a given date
    * Usage: store.getYearlyPlansByDate('2026-01-15')
@@ -102,7 +122,11 @@ export const useYearlyPlanStore = defineStore('yearlyPlan', () => {
    */
   const getCurrentYearPlans = computed((): YearlyPlan[] => {
     const today = new Date().toISOString().split('T')[0]
-    return yearlyPlans.value.filter((p) => isDateInPlan(today, p))
+    return canonicalYearlyPlans.value.filter((p) => isDateInPlan(today, p))
+  })
+
+  const getCurrentYearPlan = computed((): YearlyPlan | undefined => {
+    return getCurrentYearPlans.value[0]
   })
 
   // ============================================================================
@@ -222,10 +246,13 @@ export const useYearlyPlanStore = defineStore('yearlyPlan', () => {
 
     // Getters
     sortedYearlyPlans,
+    canonicalYearlyPlans,
     getYearlyPlanById,
     getYearlyPlansByYear,
+    getCanonicalYearlyPlanByYear,
     getYearlyPlansByDate,
     getCurrentYearPlans,
+    getCurrentYearPlan,
 
     // Actions
     loadYearlyPlans,

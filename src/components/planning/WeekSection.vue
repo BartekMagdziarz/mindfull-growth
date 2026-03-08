@@ -267,8 +267,7 @@ const error = computed(
 
 // Get current weekly plan (where today is within startDate-endDate)
 const currentWeeklyPlan = computed(() => {
-  const plans = weeklyPlanStore.getCurrentWeekPlans
-  return plans.length > 0 ? plans[0] : undefined
+  return weeklyPlanStore.getCurrentWeekPlan
 })
 
 // Get commitments for the current weekly plan

@@ -95,8 +95,14 @@ const router = createRouter({
       name: 'yearly-planning-new',
       component: () => import('@/views/YearlyPlanningView.vue'),
     },
+    // Yearly Reflection
     {
-      path: '/planning/year/:year',
+      path: '/planning/year/:planId/reflect',
+      name: 'yearly-reflection',
+      component: () => import('@/views/YearlyReflectionView.vue'),
+    },
+    {
+      path: '/planning/year/:planId',
       name: 'yearly-planning-edit',
       component: () => import('@/views/YearlyPlanningView.vue'),
     },
@@ -115,12 +121,6 @@ const router = createRouter({
       path: '/planning/month/:planId',
       name: 'monthly-planning-edit',
       component: () => import('@/views/MonthlyPlanningView.vue'),
-    },
-    // Yearly Reflection
-    {
-      path: '/planning/year/:planId/reflect',
-      name: 'yearly-reflection',
-      component: () => import('@/views/YearlyReflectionView.vue'),
     },
     // Weekly Planning Flow
     {

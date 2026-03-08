@@ -23,6 +23,10 @@ import type {
 } from '@/domain/planning'
 import { weeklyPlanDexieRepository } from '@/repositories/planningDexieRepository'
 import { isDateInPeriod } from '@/utils/periodUtils'
+import {
+  getCanonicalPlanForPeriod,
+  getCanonicalPlansByPeriod,
+} from '@/utils/planCanonicalization'
 
 export const useWeeklyPlanStore = defineStore('weeklyPlan', () => {
   // ============================================================================
@@ -60,6 +64,15 @@ export const useWeeklyPlanStore = defineStore('weeklyPlan', () => {
     return sortWeeklyPlans(weeklyPlans.value)
   })
 
+  const canonicalWeeklyPlans = computed(() => {
+    return sortWeeklyPlans(
+      getCanonicalPlansByPeriod(
+        weeklyPlans.value,
+        (plan) => `${plan.startDate}:${plan.endDate}`
+      )
+    )
+  })
+
   /**
    * Returns a function to find a WeeklyPlan by its ID
    * Usage: store.getWeeklyPlanById('plan-id')
@@ -76,7 +89,23 @@ export const useWeeklyPlanStore = defineStore('weeklyPlan', () => {
    */
   const getCurrentWeekPlans = computed((): WeeklyPlan[] => {
     const today = new Date()
-    return weeklyPlans.value.filter((p) => isDateInPeriod(today, p.startDate, p.endDate))
+    return canonicalWeeklyPlans.value.filter((p) =>
+      isDateInPeriod(today, p.startDate, p.endDate)
+    )
+  })
+
+  const getCurrentWeekPlan = computed((): WeeklyPlan | undefined => {
+    return getCurrentWeekPlans.value[0]
+  })
+
+  const getCanonicalWeeklyPlanByPeriod = computed(() => {
+    return (startDate: string, endDate: string): WeeklyPlan | undefined => {
+      return getCanonicalPlanForPeriod(
+        weeklyPlans.value,
+        (plan) => `${plan.startDate}:${plan.endDate}`,
+        `${startDate}:${endDate}`
+      )
+    }
   })
 
   // ============================================================================
@@ -201,8 +230,11 @@ export const useWeeklyPlanStore = defineStore('weeklyPlan', () => {
 
     // Getters
     sortedWeeklyPlans,
+    canonicalWeeklyPlans,
     getWeeklyPlanById,
     getCurrentWeekPlans,
+    getCurrentWeekPlan,
+    getCanonicalWeeklyPlanByPeriod,
 
     // Actions
     loadWeeklyPlans,

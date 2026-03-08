@@ -17,97 +17,45 @@
     </div>
 
     <template v-else>
-      <CompassStrip
-        :year-label="yearLabel"
+      <TodayPriorityCompassSection
+        :items="priorityCompassItems"
         :year-theme="currentYearPlan?.yearTheme"
-        :month-label="monthLabel"
-        :month-intention="currentMonthPlan?.monthIntention"
-        :week-label="weekLabel"
         :week-focus-sentence="currentWeekPlan?.focusSentence"
-        :priority-names="topActivePriorities.map((item) => item.name)"
-        :expanded-by-default="mode === 'morning'"
+        @open-planning="navigateToPlanningHub"
       />
 
-      <div class="mt-4">
-        <ModeSwitcher
-          :model-value="stores.userPreferencesStore.todayModeOverride"
-          :effective-mode="mode"
-          @update:model-value="handleModeOverrideChange"
-        />
-      </div>
-
-      <div class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-        <div class="xl:col-span-2 space-y-6">
-          <DailyIntentionCard
-            :mode="mode"
-            :has-journal-today="hasTodayJournal"
-            :commitment-done="commitmentProgress.done"
-            :commitment-total="commitmentProgress.total"
-            :emotion-logged="todayEmotionCount"
-            :emotion-target="stores.userPreferencesStore.dailyEmotionTarget"
-            @primary-action="handlePrimaryAction"
-            @secondary-action="handleSecondaryAction"
-          />
-
-          <ExecutionBoard
-            :week-plan="currentWeekPlan"
+      <div
+        data-testid="today-layout"
+        class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] items-start"
+      >
+        <div class="space-y-6">
+          <TodayExecutionList
             :commitments="currentWeekCommitments"
             :projects="stores.projectStore.projects"
-            :life-areas="stores.lifeAreaStore.lifeAreas"
-            :priorities="topActivePriorities"
-            :density="stores.userPreferencesStore.todayModuleDensity"
+            :priorities="activePriorities"
+            :has-weekly-plan="Boolean(currentWeekPlan)"
+            @status-change="handleCommitmentStatusChange"
             @open-planning="navigateToWeeklyPlanning"
-            @tracker-logged="handleTrackerLogged"
+          />
+
+          <TodayProgressSection
+            :lanes="progressLanes"
+            @logged="handleTrackerLogged"
           />
         </div>
 
-        <div class="space-y-6">
-          <EmotionProgressCard
-            :logged="todayEmotionCount"
-            :target="stores.userPreferencesStore.dailyEmotionTarget"
-            @action="navigateToEmotionLog"
-          />
-
-          <WeekSummaryCard
-            :summary="weekSummary"
-          />
-
-          <IFSCheckInCard />
-
-          <AppCard>
-            <h3 class="text-base font-semibold text-on-surface mb-3">{{ t('today.reflections.title') }}</h3>
-            <ul class="space-y-2 text-sm">
-              <li class="flex items-center justify-between gap-2">
-                <span class="text-on-surface">{{ t('today.reflections.weekly') }}</span>
-                <span :class="weeklyReflectionDue ? 'text-warning' : 'text-success'">
-                  {{ weeklyReflectionDue ? t('today.reflections.due') : t('today.reflections.upToDate') }}
-                </span>
-              </li>
-              <li class="flex items-center justify-between gap-2">
-                <span class="text-on-surface">{{ t('today.reflections.monthly') }}</span>
-                <span :class="monthlyReflectionDue ? 'text-warning' : 'text-success'">
-                  {{ monthlyReflectionDue ? t('today.reflections.due') : t('today.reflections.upToDate') }}
-                </span>
-              </li>
-              <li class="flex items-center justify-between gap-2">
-                <span class="text-on-surface">{{ t('today.reflections.yearly') }}</span>
-                <span :class="yearlyReflectionDue ? 'text-warning' : 'text-success'">
-                  {{ yearlyReflectionDue ? t('today.reflections.due') : t('today.reflections.upToDate') }}
-                </span>
-              </li>
-            </ul>
-
-            <AppButton variant="tonal" size="sm" class="mt-4" @click="navigateToPlanningHub">
-              {{ t('today.reflections.openPlanning') }}
-            </AppButton>
-          </AppCard>
-
-          <ContextualNudgesCard
-            :recommendations="recommendations"
-            @open="handleRecommendationOpen"
-            @feedback="handleRecommendationFeedback"
-          />
-        </div>
+        <TodaySupportRail
+          :support="supportState"
+          :week-summary="weekSummary"
+          :has-week-summary="hasMeaningfulWeekSummary"
+          @journal-action="handleJournalAction"
+          @emotion-action="navigateToEmotionLog"
+          @open-planning="navigateToPlanningHub"
+          @open-ifs="navigateToIFSCheckIn"
+          @reminder-action="handleReminderAction"
+          @open-recommendation="handleRecommendationOpen"
+          @recommendation-feedback="handleRecommendationFeedback"
+        />
       </div>
     </template>
 
@@ -120,19 +68,16 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
 import { useTodayGrounding } from '@/composables/useTodayGrounding'
-import CompassStrip from '@/components/today/CompassStrip.vue'
-import ModeSwitcher from '@/components/today/ModeSwitcher.vue'
-import DailyIntentionCard from '@/components/today/DailyIntentionCard.vue'
-import ExecutionBoard from '@/components/today/ExecutionBoard.vue'
-import ContextualNudgesCard from '@/components/today/ContextualNudgesCard.vue'
-import EmotionProgressCard from '@/components/today/EmotionProgressCard.vue'
-import WeekSummaryCard from '@/components/today/WeekSummaryCard.vue'
-import IFSCheckInCard from '@/components/today/IFSCheckInCard.vue'
+import TodayPriorityCompassSection from '@/components/today/TodayPriorityCompassSection.vue'
+import TodayExecutionList from '@/components/today/TodayExecutionList.vue'
+import TodayProgressSection from '@/components/today/TodayProgressSection.vue'
+import TodaySupportRail from '@/components/today/TodaySupportRail.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { trackTodayEvent } from '@/services/todayTelemetry.service'
-import type { TodayModeOverride, TodayRecommendationFeedbackType } from '@/types/today'
+import type { TodayRecommendationFeedbackType } from '@/types/today'
+import type { CommitmentStatus } from '@/domain/planning'
 
 const router = useRouter()
 const { t } = useT()
@@ -142,26 +87,18 @@ const {
   isLoading,
   loadError,
   loadData,
-  mode,
-  todayEmotionCount,
-  hasTodayJournal,
   weekSummary,
+  hasMeaningfulWeekSummary,
+  priorityCompassItems,
+  progressLanes,
+  supportState,
   currentYearPlan,
-  currentMonthPlan,
   currentWeekPlan,
   currentWeekCommitments,
-  commitmentProgress,
-  topActivePriorities,
-  monthLabel,
-  weekLabel,
-  yearLabel,
-  recommendations,
-  weeklyReflectionDue,
-  monthlyReflectionDue,
-  yearlyReflectionDue,
+  activePriorities,
   morningPromptSeed,
   eveningPromptSeed,
-  setTodayModeOverride,
+  journalEntryContext,
   stores,
 } = useTodayGrounding()
 
@@ -172,12 +109,21 @@ function navigateToPlanningHub() {
 
 function navigateToWeeklyPlanning() {
   void trackTodayEvent('weekly_planning_opened')
-  router.push('/planning/week/new')
+  router.push(
+    currentWeekPlan.value
+      ? `/planning/week/${currentWeekPlan.value.id}`
+      : '/planning/week/new'
+  )
 }
 
 function navigateToEmotionLog() {
   void trackTodayEvent('emotion_log_opened')
   router.push('/emotions/edit')
+}
+
+function navigateToIFSCheckIn() {
+  void trackTodayEvent('ifs_check_in_opened')
+  router.push('/exercises/daily-checkin')
 }
 
 function navigateToJournalWithContext(entryContext: 'morning' | 'evening') {
@@ -192,33 +138,20 @@ function navigateToJournalWithContext(entryContext: 'morning' | 'evening') {
   })
 }
 
-function handlePrimaryAction() {
-  if (mode.value === 'midday') {
-    navigateToEmotionLog()
-    return
-  }
-
-  navigateToJournalWithContext(mode.value === 'evening' ? 'evening' : 'morning')
+function handleJournalAction() {
+  navigateToJournalWithContext(journalEntryContext.value)
 }
 
-function handleSecondaryAction() {
-  if (mode.value === 'midday') {
-    void trackTodayEvent('midday_recommit_opened')
-  }
-
-  navigateToPlanningHub()
-}
-
-async function handleModeOverrideChange(value: TodayModeOverride) {
+async function handleCommitmentStatusChange(commitmentId: string, status: CommitmentStatus) {
   try {
-    await setTodayModeOverride(value)
-    await trackTodayEvent('mode_changed', {
-      selectedMode: value,
-      effectiveMode: mode.value,
+    await stores.commitmentStore.updateCommitmentStatus(commitmentId, status)
+    await trackTodayEvent('commitment_status_updated_from_today', {
+      commitmentId,
+      status,
     })
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : t('today.mode.failedUpdate')
+      error instanceof Error ? error.message : t('today.executionList.failedUpdate')
     snackbarRef.value?.show(message)
   }
 }
@@ -226,6 +159,18 @@ async function handleModeOverrideChange(value: TodayModeOverride) {
 async function handleRecommendationOpen(route: string, recommendationId: string) {
   await trackTodayEvent('recommendation_opened', { recommendationId, route })
   await router.push(route)
+}
+
+async function handleReminderAction() {
+  const reminder = supportState.value.primaryReminder
+  if (!reminder) return
+
+  if (reminder.kind === 'recommendation' && reminder.recommendationId) {
+    await handleRecommendationOpen(reminder.route, reminder.recommendationId)
+    return
+  }
+
+  await router.push(reminder.route)
 }
 
 async function handleRecommendationFeedback(

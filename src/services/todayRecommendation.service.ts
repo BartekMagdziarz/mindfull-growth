@@ -1,6 +1,5 @@
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import type {
-  TodayMode,
   TodayRecommendation,
   TodayRecommendationFeedback,
   TodayRecommendationFeedbackType,
@@ -9,7 +8,6 @@ import type {
 export const TODAY_RECOMMENDATION_FEEDBACK_KEY = 'preferences.todayExerciseFeedback'
 
 export interface TodayRecommendationContext {
-  mode: TodayMode
   now: Date
   todayEmotionCount: number
   emotionTarget: number
@@ -28,7 +26,6 @@ interface RecommendationCandidate {
   modality: TodayRecommendation['modality']
   tone: TodayRecommendation['tone']
   baseScore: number
-  mode: TodayMode
   isRelevant: (context: TodayRecommendationContext) => boolean
   whyNow: (context: TodayRecommendationContext) => string
 }
@@ -42,12 +39,13 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'ifs',
     tone: 'regulation',
     baseScore: 0.8,
-    mode: 'midday',
-    isRelevant: (ctx) => (ctx.ifsPartCount ?? 0) > 0,
+    isRelevant: (ctx) =>
+      (ctx.ifsPartCount ?? 0) > 0 &&
+      (!!ctx.recentActivatedEmotionName || ctx.todayEmotionCount < ctx.emotionTarget),
     whyNow: (ctx) =>
       ctx.recentActivatedEmotionName
         ? `You recently logged ${ctx.recentActivatedEmotionName}. A short parts check-in can help you re-center.`
-        : 'A quick parts check-in helps you regain focus during the day.',
+        : 'A short parts check-in can help you settle before the day pulls you around.',
   },
   {
     id: 'cbt-thought-record',
@@ -57,12 +55,11 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'cbt',
     tone: 'regulation',
     baseScore: 0.75,
-    mode: 'midday',
-    isRelevant: () => true,
+    isRelevant: (ctx) => !!ctx.recentActivatedEmotionName,
     whyNow: (ctx) =>
       ctx.recentActivatedEmotionName
         ? `High-energy emotions like ${ctx.recentActivatedEmotionName} often benefit from reframing.`
-        : 'A quick cognitive reset can reduce mental friction before your next task.',
+        : 'A structured thought reset can lower mental friction.',
   },
   {
     id: 'logotherapy-dereflection',
@@ -72,7 +69,6 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'logotherapy',
     tone: 'activation',
     baseScore: 0.72,
-    mode: 'midday',
     isRelevant: (ctx) => ctx.unfinishedCommitmentCount > 0,
     whyNow: () => 'You still have open commitments. This can help you move from overthinking to doing.',
   },
@@ -84,9 +80,8 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'self-discovery',
     tone: 'activation',
     baseScore: 0.7,
-    mode: 'morning',
-    isRelevant: () => true,
-    whyNow: () => 'A short values anchor can strengthen intention and follow-through this morning.',
+    isRelevant: (ctx) => !ctx.hasJournalToday || ctx.unfinishedCommitmentCount > 0,
+    whyNow: () => 'A short values anchor can reconnect action to what actually matters.',
   },
   {
     id: 'ifs-unblending',
@@ -96,9 +91,8 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'ifs',
     tone: 'regulation',
     baseScore: 0.78,
-    mode: 'morning',
-    isRelevant: (ctx) => (ctx.ifsPartCount ?? 0) > 0,
-    whyNow: () => 'Starting with inner clarity often prevents reactive decisions later in the day.',
+    isRelevant: (ctx) => (ctx.ifsPartCount ?? 0) > 0 && !!ctx.recentActivatedEmotionName,
+    whyNow: () => 'A little internal space can keep the next step from becoming reactive.',
   },
   {
     id: 'logotherapy-three-pathways',
@@ -108,9 +102,8 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'logotherapy',
     tone: 'activation',
     baseScore: 0.68,
-    mode: 'morning',
-    isRelevant: () => true,
-    whyNow: () => 'A brief meaning check can sharpen your daily focus and commitment quality.',
+    isRelevant: (ctx) => ctx.unfinishedCommitmentCount > 0 || !ctx.hasJournalToday,
+    whyNow: () => 'A brief meaning check can sharpen what deserves your energy next.',
   },
   {
     id: 'cbt-compassionate-letter',
@@ -120,9 +113,8 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'cbt',
     tone: 'reflection',
     baseScore: 0.76,
-    mode: 'evening',
-    isRelevant: () => true,
-    whyNow: () => 'Evening is a good time to process difficulty without carrying it into tomorrow.',
+    isRelevant: (ctx) => !!ctx.recentActivatedEmotionName || ctx.todayEmotionCount > 0,
+    whyNow: () => 'If the day has had some friction, this is a steadier way to process it.',
   },
   {
     id: 'ifs-trailhead',
@@ -132,9 +124,8 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'ifs',
     tone: 'reflection',
     baseScore: 0.74,
-    mode: 'evening',
-    isRelevant: (ctx) => (ctx.ifsPartCount ?? 0) > 0,
-    whyNow: () => 'A short trailhead capture helps turn today’s friction into tomorrow’s insight.',
+    isRelevant: (ctx) => (ctx.ifsPartCount ?? 0) > 0 && !!ctx.recentActivatedEmotionName,
+    whyNow: () => 'A short trailhead capture helps turn live friction into usable insight.',
   },
   {
     id: 'self-discovery-wheel',
@@ -144,9 +135,8 @@ const CANDIDATES: RecommendationCandidate[] = [
     modality: 'self-discovery',
     tone: 'reflection',
     baseScore: 0.66,
-    mode: 'evening',
-    isRelevant: () => true,
-    whyNow: () => 'A light macro reflection can keep daily effort connected to long-term balance.',
+    isRelevant: (ctx) => !ctx.hasJournalToday && ctx.todayEmotionCount === 0,
+    whyNow: () => 'A light macro reflection can reconnect today’s noise to longer-term balance.',
   },
 ]
 
@@ -156,10 +146,6 @@ function scoreCandidate(
   feedback: TodayRecommendationFeedback | undefined,
 ): number {
   let score = candidate.baseScore
-
-  if (candidate.mode === context.mode) {
-    score += 0.5
-  }
 
   if (candidate.tone === 'regulation' && context.todayEmotionCount < context.emotionTarget) {
     score += 0.2
@@ -173,8 +159,16 @@ function scoreCandidate(
     score += 0.25
   }
 
+  if (candidate.tone === 'reflection' && context.todayEmotionCount > 0) {
+    score += 0.08
+  }
+
   if (context.recentActivatedEmotionName && candidate.tone === 'regulation') {
     score += 0.2
+  }
+
+  if (context.recentActivatedEmotionName && candidate.tone === 'reflection') {
+    score += 0.12
   }
 
   if (feedback) {

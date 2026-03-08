@@ -7,7 +7,7 @@
  * Final persistence to IndexedDB happens only when the user completes the flow.
  */
 
-import { ref, watch, computed, onBeforeUnmount } from 'vue'
+import { ref, watch, computed, onBeforeUnmount, nextTick } from 'vue'
 import { getWeekRange, toLocalISODateString } from '@/utils/periodUtils'
 import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
 import type {
@@ -134,6 +134,9 @@ export function useWeeklyPlanningDraft(
   /** Whether a saved draft was found during load */
   const _draftFound = ref(false)
 
+  /** Temporarily suspend autosave while resetting the draft */
+  const isAutosaveSuspended = ref(false)
+
   /** Storage key for this week's draft */
   const storageKey = computed(() => getStorageKey(planKey))
 
@@ -236,6 +239,7 @@ export function useWeeklyPlanningDraft(
    * Call this when the user completes or cancels the planning flow.
    */
   function clearDraft(): void {
+    isAutosaveSuspended.value = true
     if (saveTimer) {
       clearTimeout(saveTimer)
       saveTimer = null
@@ -245,6 +249,9 @@ export function useWeeklyPlanningDraft(
     _draftFound.value = false
     draft.value = createDefaultDraft(defaults)
     isLoaded.value = true
+    void nextTick(() => {
+      isAutosaveSuspended.value = false
+    })
   }
 
   /**
@@ -263,7 +270,7 @@ export function useWeeklyPlanningDraft(
   watch(
     draft,
     () => {
-      if (isLoaded.value) {
+      if (isLoaded.value && !isAutosaveSuspended.value) {
         scheduleSave()
       }
     },

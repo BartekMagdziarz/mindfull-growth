@@ -136,8 +136,8 @@
         "subtitle": "Przeglad danych"
       },
       "focus": {
-        "title": "Skupienie",
-        "subtitle": "Wybierz obszary"
+        "title": "Strategia",
+        "subtitle": "Ustal kierunek"
       },
       "projects": {
         "title": "Projekty",
@@ -150,7 +150,7 @@
     },
     "nextButton": {
       "toSignals": "Przejdz do sygnalow",
-      "toFocus": "Dalej do skupienia",
+      "toFocus": "Dalej do strategii",
       "toProjects": "Dalej do projektow",
       "toReview": "Przejrzyj i potwierdz",
       "savePlan": "Zapisz plan miesiaca"
@@ -162,15 +162,13 @@
       "optional": "(opcjonalnie)"
     },
     "focusStep": {
-      "title": "Skupienie na ten miesiac",
-      "primary": "Glowne",
-      "secondaryOptional": "Drugorzedne (opcjonalnie)",
+      "title": "Strategia na ten miesiac",
       "monthIntentionLabel": "Intencja miesiaca",
       "monthIntentionPlaceholder": "Czego chcesz, zeby ten miesiac dotyczyl?",
-      "focusSuccessSignalLabel": "Sygnal sukcesu skupienia",
+      "focusSuccessSignalLabel": "Sygnal sukcesu miesiaca",
       "focusSuccessSignalPlaceholder": "Po czym poznasz, ze miesiac idzie w dobrym kierunku?",
       "balanceGuardrailLabel": "Granica rownowagi",
-      "balanceGuardrailPlaceholder": "Jaka granica ochroni inne obszary zycia podczas realizacji fokusu?"
+      "balanceGuardrailPlaceholder": "Jaka granica ochroni inne obszary zycia podczas realizacji tej strategii?"
     },
     "signalsStep": {
       "title": "Przeglad sygnalow",
@@ -250,8 +248,8 @@
         "step2": "Przejrzyj swoje wartości i motyw roku",
         "step3": "Napisz swoja historie i wymarzona o fantastycznym dniu",
         "step4": "Przeprowadz ćwiczenie marzenia, by pobudzic mechanizm przewidywania",
-        "step5": "Wybierz glowne obszary życia",
-        "step6": "Napisz narracje początkówe dla każdego obszaru",
+        "step5": "Sprawdz aktualny ksztalt swoich obszarow zycia w Kole zycia",
+        "step6": "Napisz narracje poczatkowe dla obszarow, ktore wymagaja kontekstu",
         "step7": "Zdefiniuj priorytety z sygnalami sukcesu i ograniczeniami",
         "step8": "Przejrzyj wszystko i zapisz"
       }
@@ -289,22 +287,14 @@
     },
     "lifeWheel": {
       "title": "Przeglad kola życia",
-      "description": "Oceń swoja satysfakcje z każdego obszaru życia, by zidentyfikować, gdzie się skupic.",
+      "description": "Ocen swoja satysfakcje z kazdego obszaru zycia, aby zobaczyc aktualny ksztalt swojego zycia.",
       "noLifeAreas": "Nie masz zdefiniowanych obszarow życia. Utwórz je w sekcji Obszary życia, by użyć Kola życia.",
       "manageLifeAreas": "Zarzadzaj obszarami życia",
       "scale": "1 = Nisko, 10 = Wysoko"
     },
-    "focusAreas": {
-      "title": "Wybierz glowne obszary życia",
-      "description": "Wybierz obszary, na które chcesz poświęćic najwiecej energii w tym roku.",
-      "primaryFocus": "Glowne skupienie",
-      "secondaryFocus": "Drugorzedne skupienie",
-      "selectPrimary": "Wybierz główny obszar skupienia",
-      "selectSecondary": "Wybierz drugorzedne obszary"
-    },
     "baselines": {
       "title": "Narracje początkówe obszarow życia",
-      "description": "Dla każdego wybranego obszaru opisz, gdzie jestes teraz. To tworzy punkt wyjscia do pomiaru postepu.",
+      "description": "Dla kazdego obszaru zycia, ktory wymaga kontekstu, opisz gdzie jestes teraz. To tworzy punkt wyjscia, do ktorego mozna wrocic pozniej.",
       "placeholder": "Gdzie jestes teraz w tym obszarze? Co działa? Co wymaga uwagi?"
     },
     "prioritiesStep": {
@@ -436,7 +426,7 @@
           "subtitle": "Przeglad efektow"
         },
         "focusAreas": {
-          "title": "Obszary fokusu",
+          "title": "Obszary zycia",
           "subtitle": "Sprawdz rownowage"
         },
         "courseCorrection": {
@@ -492,12 +482,12 @@
         "abandon": "Porzuc"
       },
       "focusAreaReview": {
-        "title": "Przeglad obszarow fokusu",
+        "title": "Przeglad obszarow zycia",
         "subtitle": "Ocen postep i sprawdz, czy jakis obszar sie pogorszyl.",
         "progress": "Postep w tym miesiacu",
         "deteriorated": "Ten obszar sie pogorszyl",
         "notePlaceholder": "Opcjonalna notatka o przyczynach i wzorcach...",
-        "empty": "Brak wykrytych obszarow fokusu dla tego miesiaca."
+        "empty": "Brak wykrytych obszarow zycia dla tego miesiaca."
       },
       "courseCorrection": {
         "start": "Zacznij",
@@ -1115,8 +1105,7 @@
       "deleteReflection": "Usunac refleksje?",
       "planHighlights": {
         "monthlyIntention": "Intencja miesieczna",
-        "primaryFocus": "Glowne skupienie",
-        "secondaryFocus": "Drugorzedne skupienie"
+        "projects": "Projekty"
       },
       "reflectionHighlights": {
         "win": "Wygrana",
@@ -1126,7 +1115,7 @@
         "direction": "Kierunek",
         "directionValue": "Projekty {projects}/5, Priorytety {priorities}/5, Relacje {relationships}/5",
         "projectDecision": "Decyzja projektowa",
-        "focusGuardrail": "Granica fokusu",
+        "focusGuardrail": "Granica dla obszarow zycia",
         "focusGuardrailDetected": "Wykryto pogorszenie w co najmniej jednym obszarze",
         "ifThenPlan": "Plan jesli-to",
         "start": "Zacznij"
@@ -1199,12 +1188,8 @@
     "monthlyReviewSummary": {
       "header": "{month} w skrocie",
       "reviewSubtitle": "Przejrzyj swój plan miesiaca przed potwierdzeniem",
-      "focusTitle": "Skupienie na ten miesiac",
-      "primary": "Glowne",
-      "secondary": "Drugorzedne",
-      "noFocusAreas": "Nie wybrano obszarow skupienia",
       "monthIntention": "Intencja miesiaca",
-      "focusSuccessSignal": "Sygnal sukcesu",
+      "focusSuccessSignal": "Sygnal sukcesu miesiaca",
       "balanceGuardrail": "Granica rownowagi",
       "projectsTitle": "Projekty",
       "projectsCount": "({count})",
@@ -1224,9 +1209,8 @@
       "differenceMakes": "Jaka to robi różnice",
       "progressClues": "Wskazowki postepu (ziarenka celow)",
       "andMore": "...i jeszcze {count} wiecej",
-      "focusLifeAreas": "Glowne obszary życia",
-      "primaryFocus": "Glowne skupienie",
-      "noFocusAreas": "Nie wybrano jeszcze głównych obszarow życia.",
+      "lifeAreaNarrativesTitle": "Narracje obszarow zycia",
+      "noNarratives": "Nie dodano jeszcze narracji obszarow zycia.",
       "prioritiesTitle": "Priorytety",
       "noPriorities": "Nie zdefiniowano priorytetow na ten rok.",
       "signalCount": "{count} sygnal | {count} sygnalow",

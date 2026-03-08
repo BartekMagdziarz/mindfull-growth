@@ -12,10 +12,7 @@ import type { WeeklyPlan } from '@/domain/planning'
 import { formatPeriodDateRangeNoYear, toLocalISODateString } from '@/utils/periodUtils'
 
 interface MonthlyInsightsInput {
-  monthlyPlan: Pick<
-    MonthlyPlan,
-    'id' | 'startDate' | 'endDate' | 'primaryFocusLifeAreaId' | 'secondaryFocusLifeAreaIds'
-  >
+  monthlyPlan: Pick<MonthlyPlan, 'id' | 'startDate' | 'endDate'>
   weeklyPlans: WeeklyPlan[]
   weeklyReflections: WeeklyReflection[]
   commitments: Commitment[]

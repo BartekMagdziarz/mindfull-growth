@@ -117,14 +117,6 @@
           @set-reflection="wizard.setAreaReflection(wizard.currentAreaIndex.value, $event.key, $event.value)"
         />
 
-      <!-- Step: Focus (planning mode) -->
-      <WheelFocusAreaPicker
-        v-else-if="wizard.currentStepDef.value?.id === 'focus'"
-        :areas="wizard.areas.value"
-        :selected="wizard.selectedFocusAreas.value"
-        @toggle="wizard.toggleFocusArea($event)"
-      />
-
       <!-- Step: Reflect -->
       <div v-else-if="wizard.currentStepDef.value?.id === 'reflect'" class="space-y-4">
         <WheelOfLifeRadialChart
@@ -190,7 +182,6 @@ import AppButton from '@/components/AppButton.vue'
 import WheelOfLifeRadialChart from './WheelOfLifeRadialChart.vue'
 import WheelAreaRater from './WheelAreaRater.vue'
 import WheelReflectionPrompts from './WheelReflectionPrompts.vue'
-import WheelFocusAreaPicker from './WheelFocusAreaPicker.vue'
 import type { WheelOfLifeArea } from '@/domain/exercises'
 import { useWheelOfLifeWizard, type WheelOfLifeMode } from '@/composables/useWheelOfLifeWizard'
 
@@ -214,7 +205,6 @@ const props = withDefaults(
 const emit = defineEmits<{
   saved: [snapshotId: string]
   cancel: []
-  'suggest-focus-areas': [areas: WheelOfLifeArea[]]
 }>()
 
 const wizard = useWheelOfLifeWizard({
@@ -235,14 +225,6 @@ async function handleSave() {
   saving.value = true
   try {
     const snapshotId = await wizard.save()
-
-    if (props.mode === 'planning' && wizard.selectedFocusAreas.value.length > 0) {
-      const focusAreas = wizard.areas.value.filter((a) =>
-        wizard.selectedFocusAreas.value.includes(a.name),
-      )
-      emit('suggest-focus-areas', focusAreas)
-    }
-
     emit('saved', snapshotId)
   } finally {
     saving.value = false

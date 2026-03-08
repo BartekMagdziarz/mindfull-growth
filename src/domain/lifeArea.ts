@@ -3,10 +3,9 @@
  *
  * Life Areas are persistent, profile-level entities representing ongoing
  * responsibilities and dimensions of a user's life (e.g., Health, Career,
- * Relationships). Unlike Focus Areas which are year-scoped planning constructs,
- * Life Areas persist across years and serve as the canonical source for:
+ * Relationships). Life Areas persist across years and serve as the canonical source for:
  * - Wheel of Life exercise (area names)
- * - Yearly Planning (seeding Focus Areas)
+ * - Yearly Planning narratives and linked priorities
  * - Area-level dashboards (linked projects, priorities, scores over time)
  */
 

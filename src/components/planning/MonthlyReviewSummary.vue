@@ -12,57 +12,6 @@
       </div>
     </AppCard>
 
-    <!-- Focus Life Areas Selection -->
-    <AppCard padding="lg">
-      <h3 class="text-lg font-semibold text-neu-text mb-4 flex items-center gap-2">
-        <RectangleStackIcon class="w-5 h-5 text-primary" />
-        {{ t('planning.components.monthlyReviewSummary.focusTitle') }}
-      </h3>
-
-      <div class="space-y-3">
-        <!-- Primary Focus Life Area -->
-        <div v-if="primaryFocusLifeArea">
-          <p class="text-xs text-neu-muted uppercase tracking-wide mb-2">{{ t('planning.components.monthlyReviewSummary.primary') }}</p>
-          <span
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium shadow-neu-raised-sm"
-            :style="getLifeAreaChipStyle(primaryFocusLifeArea.color)"
-          >
-            <EntityIcon
-              :icon="primaryFocusLifeArea.icon"
-              :color="primaryFocusLifeArea.color"
-              size="xs"
-            />
-            {{ primaryFocusLifeArea.name }}
-          </span>
-        </div>
-
-        <!-- Secondary Focus Life Areas -->
-        <div v-if="secondaryFocusLifeAreas.length > 0">
-          <p class="text-xs text-neu-muted uppercase tracking-wide mb-2">{{ t('planning.components.monthlyReviewSummary.secondary') }}</p>
-          <div class="flex flex-wrap gap-2">
-            <span
-              v-for="la in secondaryFocusLifeAreas"
-              :key="la.id"
-              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium shadow-neu-raised-sm"
-              :style="getLifeAreaChipStyle(la.color)"
-            >
-              <EntityIcon
-                :icon="la.icon"
-                :color="la.color"
-                size="xs"
-              />
-              {{ la.name }}
-            </span>
-          </div>
-        </div>
-
-        <!-- No focus areas selected -->
-        <p v-if="!primaryFocusLifeArea && secondaryFocusLifeAreas.length === 0" class="text-neu-muted italic">
-          {{ t('planning.components.monthlyReviewSummary.noFocusAreas') }}
-        </p>
-      </div>
-    </AppCard>
-
     <!-- Monthly strategy cues -->
     <AppCard
       v-if="draft.monthIntention || draft.focusSuccessSignal || draft.balanceGuardrail"
@@ -180,7 +129,6 @@
  */
 import { computed } from 'vue'
 import {
-  RectangleStackIcon,
   SparklesIcon,
   RocketLaunchIcon,
 } from '@heroicons/vue/24/outline'
@@ -203,17 +151,6 @@ const props = defineProps<{
 const lifeAreaById = computed(() => new Map(props.lifeAreas.map((la) => [la.id, la])))
 const priorityById = computed(() => new Map(props.priorities.map((p) => [p.id, p])))
 
-const primaryFocusLifeArea = computed(() => {
-  if (!props.draft.primaryFocusLifeAreaId) return null
-  return lifeAreaById.value.get(props.draft.primaryFocusLifeAreaId) || null
-})
-
-const secondaryFocusLifeAreas = computed(() => {
-  return props.draft.secondaryFocusLifeAreaIds
-    .map((id) => lifeAreaById.value.get(id))
-    .filter((la): la is LifeArea => la !== undefined)
-})
-
 const sortedProjects = computed(() =>
   [...props.draft.projects].sort((a, b) => a.sortOrder - b.sortOrder)
 )
@@ -232,19 +169,6 @@ function prioritiesForProject(project: DraftProject): Priority[] {
   return project.priorityIds
     .map((id) => priorityById.value.get(id))
     .filter((p): p is Priority => p !== undefined)
-}
-
-function getLifeAreaChipStyle(color?: string) {
-  if (!color) {
-    return {
-      backgroundColor: 'rgb(var(--color-section))',
-      color: 'rgb(var(--color-on-surface))',
-    }
-  }
-  return {
-    backgroundColor: `${color}26`,
-    color: color,
-  }
 }
 
 function getStatusLabel(status: ProjectStatus): string {

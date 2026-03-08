@@ -8,6 +8,12 @@ import { useMonthlyPlanStore } from '@/stores/monthlyPlan.store'
 import { useMonthlyReflectionStore } from '@/stores/monthlyReflection.store'
 import { useYearlyPlanStore } from '@/stores/yearlyPlan.store'
 import { useYearlyReflectionStore } from '@/stores/yearlyReflection.store'
+import { useProjectStore } from '@/stores/project.store'
+import { useCommitmentStore } from '@/stores/commitment.store'
+import { useTrackerStore } from '@/stores/tracker.store'
+import { useLifeAreaStore } from '@/stores/lifeArea.store'
+import { usePriorityStore } from '@/stores/priority.store'
+import { useHabitStore } from '@/stores/habit.store'
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({
@@ -22,6 +28,12 @@ describe('PlanningView', () => {
   let monthlyReflectionStore: ReturnType<typeof useMonthlyReflectionStore>
   let yearlyPlanStore: ReturnType<typeof useYearlyPlanStore>
   let yearlyReflectionStore: ReturnType<typeof useYearlyReflectionStore>
+  let projectStore: ReturnType<typeof useProjectStore>
+  let commitmentStore: ReturnType<typeof useCommitmentStore>
+  let trackerStore: ReturnType<typeof useTrackerStore>
+  let lifeAreaStore: ReturnType<typeof useLifeAreaStore>
+  let priorityStore: ReturnType<typeof usePriorityStore>
+  let habitStore: ReturnType<typeof useHabitStore>
 
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -31,6 +43,12 @@ describe('PlanningView', () => {
     monthlyReflectionStore = useMonthlyReflectionStore()
     yearlyPlanStore = useYearlyPlanStore()
     yearlyReflectionStore = useYearlyReflectionStore()
+    projectStore = useProjectStore()
+    commitmentStore = useCommitmentStore()
+    trackerStore = useTrackerStore()
+    lifeAreaStore = useLifeAreaStore()
+    priorityStore = usePriorityStore()
+    habitStore = useHabitStore()
 
     vi.spyOn(weeklyPlanStore, 'loadWeeklyPlans').mockResolvedValue()
     vi.spyOn(weeklyReflectionStore, 'loadWeeklyReflections').mockResolvedValue()
@@ -38,6 +56,12 @@ describe('PlanningView', () => {
     vi.spyOn(monthlyReflectionStore, 'loadMonthlyReflections').mockResolvedValue()
     vi.spyOn(yearlyPlanStore, 'loadYearlyPlans').mockResolvedValue()
     vi.spyOn(yearlyReflectionStore, 'loadYearlyReflections').mockResolvedValue()
+    vi.spyOn(projectStore, 'loadProjects').mockResolvedValue()
+    vi.spyOn(commitmentStore, 'loadCommitments').mockResolvedValue()
+    vi.spyOn(trackerStore, 'loadTrackers').mockResolvedValue()
+    vi.spyOn(lifeAreaStore, 'loadLifeAreas').mockResolvedValue()
+    vi.spyOn(priorityStore, 'loadPriorities').mockResolvedValue()
+    vi.spyOn(habitStore, 'loadHabits').mockResolvedValue()
 
     weeklyPlanStore.weeklyPlans = []
     weeklyReflectionStore.weeklyReflections = []
@@ -45,6 +69,12 @@ describe('PlanningView', () => {
     monthlyReflectionStore.monthlyReflections = []
     yearlyPlanStore.yearlyPlans = []
     yearlyReflectionStore.yearlyReflections = []
+    projectStore.projects = []
+    commitmentStore.commitments = []
+    trackerStore.trackers = []
+    lifeAreaStore.lifeAreas = []
+    priorityStore.priorities = []
+    habitStore.habits = []
 
     vi.clearAllMocks()
   })
@@ -107,5 +137,58 @@ describe('PlanningView', () => {
   it('shows projects and trackers manager card in foundations', () => {
     render(PlanningView)
     expect(screen.getByText('Projects & Trackers')).toBeInTheDocument()
+  })
+
+  it('exposes delete period actions on each planning horizon when a period exists', async () => {
+    weeklyPlanStore.weeklyPlans = [
+      {
+        id: 'week-1',
+        createdAt: '2026-03-01T00:00:00.000Z',
+        updatedAt: '2026-03-01T00:00:00.000Z',
+        startDate: '2026-03-02',
+        endDate: '2026-03-08',
+        selectedTrackerIds: [],
+      } as any,
+    ]
+    monthlyPlanStore.monthlyPlans = [
+      {
+        id: 'month-1',
+        createdAt: '2026-03-01T00:00:00.000Z',
+        updatedAt: '2026-03-01T00:00:00.000Z',
+        startDate: '2026-03-01',
+        endDate: '2026-03-31',
+        year: 2026,
+        secondaryFocusLifeAreaIds: [],
+        projectIds: [],
+        selectedTrackerIds: [],
+      } as any,
+    ]
+    yearlyPlanStore.yearlyPlans = [
+      {
+        id: 'year-1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        startDate: '2026-01-01',
+        endDate: '2026-12-31',
+        year: 2026,
+        focusLifeAreaIds: [],
+      } as any,
+    ]
+
+    render(PlanningView)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Delete selected week period' })).toBeInTheDocument()
+    })
+
+    await fireEvent.click(screen.getByRole('tab', { name: 'Month' }))
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Delete selected month period' })).toBeInTheDocument()
+    })
+
+    await fireEvent.click(screen.getByRole('tab', { name: 'Year' }))
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Delete selected year period' })).toBeInTheDocument()
+    })
   })
 })

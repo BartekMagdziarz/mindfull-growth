@@ -7,7 +7,15 @@
  * Final persistence to IndexedDB happens only when the user completes the flow.
  */
 
-import { ref, watch, computed, onBeforeUnmount } from 'vue'
+import {
+  ref,
+  watch,
+  computed,
+  onBeforeUnmount,
+  nextTick,
+  toValue,
+  type MaybeRefOrGetter,
+} from 'vue'
 import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
 
 /**
@@ -109,10 +117,6 @@ export interface YearlyPlanningDraft {
   /** Life Area narrative baselines (lifeAreaId -> narrative) */
   lifeAreaNarratives: Record<string, string>
 
-  /** Focus Life Areas for the year */
-  focusLifeAreaIds: string[]
-  /** Primary Focus Life Area for the year */
-  primaryFocusLifeAreaId: string
   /** Draft priorities for the year */
   priorities: DraftPriority[]
 }
@@ -134,8 +138,6 @@ const createDefaultDraft = (year: number): YearlyPlanningDraft => ({
   wheelOfLifeSnapshotId: '',
   dreaming: createDefaultDreaming(),
   lifeAreaNarratives: {},
-  focusLifeAreaIds: [],
-  primaryFocusLifeAreaId: '',
   priorities: [],
 })
 
@@ -152,13 +154,18 @@ function getStorageKey(year: number): string {
  * @param year - The year being planned
  * @returns Draft state and methods for managing it
  */
-export function useYearlyPlanningDraft(year: number) {
+export function useYearlyPlanningDraft(
+  year: MaybeRefOrGetter<number>,
+  storageKeyOverride?: MaybeRefOrGetter<string | undefined>
+) {
   // ============================================================================
   // State
   // ============================================================================
 
   /** The current draft data */
-  const draft = ref<YearlyPlanningDraft>(createDefaultDraft(year))
+  const resolvedYear = computed(() => toValue(year))
+
+  const draft = ref<YearlyPlanningDraft>(createDefaultDraft(resolvedYear.value))
 
   /** Whether the draft has been loaded from storage */
   const isLoaded = ref(false)
@@ -166,8 +173,11 @@ export function useYearlyPlanningDraft(year: number) {
   /** Whether a saved draft was found during load */
   const _draftFound = ref(false)
 
+  /** Temporarily suspend autosave while resetting or reloading the draft */
+  const isAutosaveSuspended = ref(false)
+
   /** Storage key for this year's draft */
-  const storageKey = computed(() => getStorageKey(year))
+  const storageKey = computed(() => toValue(storageKeyOverride) || getStorageKey(resolvedYear.value))
 
   /** Debounce timer for auto-save */
   let saveTimer: ReturnType<typeof setTimeout> | null = null
@@ -180,13 +190,22 @@ export function useYearlyPlanningDraft(year: number) {
    * Load draft from IndexedDB
    */
   async function loadDraft(): Promise<void> {
+    isAutosaveSuspended.value = true
+    if (saveTimer) {
+      clearTimeout(saveTimer)
+      saveTimer = null
+    }
+    isLoaded.value = false
+    draft.value = createDefaultDraft(resolvedYear.value)
+    _draftFound.value = false
+
     try {
       const stored = await loadDraftFromDB(storageKey.value)
       if (stored) {
         const parsed = JSON.parse(stored) as Partial<YearlyPlanningDraft>
         // Merge with defaults to handle any missing fields
         draft.value = {
-          ...createDefaultDraft(year),
+          ...createDefaultDraft(resolvedYear.value),
           ...parsed,
         }
         // Backward compat: if dreaming is old array format, reset to new structure
@@ -200,6 +219,9 @@ export function useYearlyPlanningDraft(year: number) {
       // Keep default values on error
     }
     isLoaded.value = true
+    void nextTick(() => {
+      isAutosaveSuspended.value = false
+    })
   }
 
   /**
@@ -229,6 +251,7 @@ export function useYearlyPlanningDraft(year: number) {
    * Clear draft from IndexedDB
    */
   function clearDraft(): void {
+    isAutosaveSuspended.value = true
     if (saveTimer) {
       clearTimeout(saveTimer)
       saveTimer = null
@@ -236,8 +259,11 @@ export function useYearlyPlanningDraft(year: number) {
     isLoaded.value = false
     clearDraftFromDB(storageKey.value)
     _draftFound.value = false
-    draft.value = createDefaultDraft(year)
+    draft.value = createDefaultDraft(resolvedYear.value)
     isLoaded.value = true
+    void nextTick(() => {
+      isAutosaveSuspended.value = false
+    })
   }
 
   /**
@@ -254,7 +280,7 @@ export function useYearlyPlanningDraft(year: number) {
   watch(
     draft,
     () => {
-      if (isLoaded.value) {
+      if (isLoaded.value && !isAutosaveSuspended.value) {
         scheduleSave()
       }
     },
@@ -264,47 +290,6 @@ export function useYearlyPlanningDraft(year: number) {
   onBeforeUnmount(() => {
     flushSave()
   })
-
-  // ============================================================================
-  // Focus Life Area Helpers
-  // ============================================================================
-
-  /**
-   * Toggle a focus life area selection
-   */
-  function toggleFocusLifeArea(lifeAreaId: string): void {
-    const isSelected = draft.value.focusLifeAreaIds.includes(lifeAreaId)
-    if (isSelected) {
-      draft.value.focusLifeAreaIds = draft.value.focusLifeAreaIds.filter((id) => id !== lifeAreaId)
-      if (draft.value.primaryFocusLifeAreaId === lifeAreaId) {
-        draft.value.primaryFocusLifeAreaId = draft.value.focusLifeAreaIds[0] || ''
-      }
-      return
-    }
-
-    draft.value.focusLifeAreaIds.push(lifeAreaId)
-    if (!draft.value.primaryFocusLifeAreaId) {
-      draft.value.primaryFocusLifeAreaId = lifeAreaId
-    }
-  }
-
-  /**
-   * Set the primary focus life area (must already be selected)
-   */
-  function setPrimaryFocusLifeArea(lifeAreaId: string): void {
-    if (!draft.value.focusLifeAreaIds.includes(lifeAreaId)) return
-    draft.value.primaryFocusLifeAreaId = lifeAreaId
-  }
-
-  /**
-   * Replace all focus life area selections
-   */
-  function setFocusLifeAreas(lifeAreaIds: string[]): void {
-    draft.value.focusLifeAreaIds = Array.from(new Set(lifeAreaIds))
-    if (!draft.value.focusLifeAreaIds.includes(draft.value.primaryFocusLifeAreaId)) {
-      draft.value.primaryFocusLifeAreaId = draft.value.focusLifeAreaIds[0] || ''
-    }
-  }
 
   // ============================================================================
   // Priority Helpers
@@ -350,11 +335,9 @@ export function useYearlyPlanningDraft(year: number) {
   }
 
   /**
-   * Seed the draft from existing focus life areas and priorities (for edit mode)
+   * Seed the draft from existing priorities (for edit mode)
    */
   function seedFromExisting(
-    focusLifeAreaIds: string[],
-    primaryFocusLifeAreaId: string | undefined,
     priorities: Array<{
       id: string
       lifeAreaIds: string[]
@@ -366,8 +349,6 @@ export function useYearlyPlanningDraft(year: number) {
       sortOrder: number
     }>
   ): void {
-    draft.value.focusLifeAreaIds = [...focusLifeAreaIds]
-    draft.value.primaryFocusLifeAreaId = primaryFocusLifeAreaId || focusLifeAreaIds[0] || ''
     draft.value.priorities = priorities.map((p) => ({
       id: p.id,
       lifeAreaIds: [...p.lifeAreaIds],
@@ -397,16 +378,13 @@ export function useYearlyPlanningDraft(year: number) {
     isLoaded,
     /** Promise that resolves when draft is loaded from IndexedDB */
     ready,
+    reloadDraft: loadDraft,
     /** Manually save draft (usually not needed due to auto-save) */
     saveDraft,
     /** Clear draft from storage */
     clearDraft,
     /** Check if a draft was found in storage (only accurate after `ready` resolves) */
     hasDraft,
-    // Focus Life Area helpers
-    toggleFocusLifeArea,
-    setPrimaryFocusLifeArea,
-    setFocusLifeAreas,
     // Priority helpers
     addPriority,
     updatePriority,

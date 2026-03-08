@@ -66,45 +66,35 @@
       </div>
     </AppCard>
 
-    <!-- Focus Life Areas -->
+    <!-- Life Area Narratives -->
     <AppCard padding="lg">
       <h3 class="text-lg font-semibold text-neu-text mb-4 flex items-center gap-2">
         <RectangleStackIcon class="w-5 h-5 text-primary" />
-        {{ t('planning.components.yearlyReviewSummary.focusLifeAreas') }}
+        {{ t('planning.components.yearlyReviewSummary.lifeAreaNarrativesTitle') }}
       </h3>
 
-      <div v-if="primaryFocusLifeArea" class="mb-4 p-4 rounded-xl border border-primary/20 bg-primary/5">
-        <p class="text-xs font-semibold uppercase tracking-wide text-primary mb-2">{{ t('planning.components.yearlyReviewSummary.primaryFocus') }}</p>
-        <div class="flex items-center gap-2">
-          <EntityIcon
-            :icon="primaryFocusLifeArea.icon"
-            :color="primaryFocusLifeArea.color"
-            size="xs"
-          />
-          <span class="text-base font-semibold text-neu-text">
-            {{ primaryFocusLifeArea.name }}
-          </span>
+      <div v-if="narrativeAreas.length > 0" class="space-y-3">
+        <div
+          v-for="lifeArea in narrativeAreas"
+          :key="lifeArea.id"
+          class="rounded-xl border border-neu-border/25 bg-neu-base p-4"
+        >
+          <div class="flex items-center gap-2">
+            <EntityIcon
+              :icon="lifeArea.icon"
+              :color="lifeArea.color"
+              size="xs"
+            />
+            <p class="font-semibold text-neu-text">{{ lifeArea.name }}</p>
+          </div>
+          <p class="mt-3 text-sm text-neu-muted">
+            {{ props.draft.lifeAreaNarratives[lifeArea.id] }}
+          </p>
         </div>
       </div>
 
-      <div v-if="secondaryFocusLifeAreas.length > 0" class="flex flex-wrap gap-2">
-        <span
-          v-for="la in secondaryFocusLifeAreas"
-          :key="la.id"
-          class="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2"
-          :style="getFocusAreaChipStyle(la.color)"
-        >
-          <EntityIcon
-            :icon="la.icon"
-            :color="la.color"
-            size="xs"
-          />
-          {{ la.name }}
-        </span>
-      </div>
-
-      <p v-else-if="!primaryFocusLifeArea" class="text-center text-neu-muted py-4">
-        {{ t('planning.components.yearlyReviewSummary.noFocusAreas') }}
+      <p v-else class="text-center text-neu-muted py-4">
+        {{ t('planning.components.yearlyReviewSummary.noNarratives') }}
       </p>
     </AppCard>
 
@@ -215,8 +205,6 @@ import type { LifeArea } from '@/domain/lifeArea'
 const props = defineProps<{
   draft: YearlyPlanningDraft
   lifeAreas: LifeArea[]
-  focusLifeAreaIds: string[]
-  primaryFocusLifeAreaId?: string
   priorities: DraftPriority[]
 }>()
 
@@ -249,21 +237,9 @@ const lifeAreaById = computed(() =>
   new Map(props.lifeAreas.map((la) => [la.id, la]))
 )
 
-const focusLifeAreas = computed(() =>
-  props.focusLifeAreaIds
-    .map((id) => lifeAreaById.value.get(id))
-    .filter(Boolean) as LifeArea[]
+const narrativeAreas = computed(() =>
+  props.lifeAreas.filter((lifeArea) => props.draft.lifeAreaNarratives[lifeArea.id]?.trim())
 )
-
-const primaryFocusLifeArea = computed(() => {
-  if (!props.primaryFocusLifeAreaId) return undefined
-  return lifeAreaById.value.get(props.primaryFocusLifeAreaId)
-})
-
-const secondaryFocusLifeAreas = computed(() => {
-  if (!primaryFocusLifeArea.value) return focusLifeAreas.value
-  return focusLifeAreas.value.filter((la) => la.id !== primaryFocusLifeArea.value?.id)
-})
 
 const sortedPriorities = computed(() =>
   [...props.priorities].sort((a, b) => a.sortOrder - b.sortOrder)
@@ -278,18 +254,5 @@ function priorityAccentColor(priority: DraftPriority): string {
     .map((id) => lifeAreaById.value.get(id))
     .find(Boolean)
   return firstLifeArea?.color || 'rgb(var(--color-primary))'
-}
-
-function getFocusAreaChipStyle(color?: string) {
-  if (!color) {
-    return {
-      backgroundColor: 'rgb(var(--neo-surface-base))',
-      color: 'rgb(var(--neo-text))',
-    }
-  }
-  return {
-    backgroundColor: `${color}26`,
-    color: color,
-  }
 }
 </script>

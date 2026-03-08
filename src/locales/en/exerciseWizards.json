@@ -38,7 +38,7 @@
     "stepTitles": {
       "intro": "Wheel of Life",
       "rate": "Rate Your Satisfaction",
-      "focus": "Choose Focus Areas",
+      "focus": "Review Areas",
       "reflect": "Reflect"
     },
     "stepSubtitles": {
@@ -94,7 +94,7 @@
       }
     },
     "focusPicker": {
-      "description": "Based on your wheel, pick 2\u20133 areas you'd like to focus on improving. These will be suggested as Focus Areas in your yearly plan.",
+      "description": "Review the areas that stand out in your wheel before continuing.",
       "outOfTen": "/10",
       "validationMessage": "Select at least 1 area to continue"
     },

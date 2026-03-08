@@ -66,16 +66,13 @@
               v-for="option in TYPE_OPTIONS"
               :key="option.value"
               type="button"
-              :class="[
-                'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium border transition-colors',
-                kr.type === option.value
-                  ? 'bg-primary/10 text-primary border-primary/30'
-                  : 'bg-section/50 text-on-surface-variant border-neu-border/20 hover:bg-primary/10 hover:text-primary',
-              ]"
+              :aria-pressed="kr.type === option.value"
+              :class="getChoiceChipClasses(kr.type === option.value, 'default')"
               @click="handleTypeSelect(index, option.value)"
             >
               <component :is="option.icon" class="w-3.5 h-3.5" />
               {{ option.label }}
+              <CheckIcon v-if="kr.type === option.value" class="w-3.5 h-3.5" />
             </button>
           </div>
           <p class="mt-1 text-[11px] text-on-surface-variant">
@@ -139,16 +136,13 @@
                   v-for="option in DIRECTION_OPTIONS"
                   :key="option.value"
                   type="button"
-                  :class="[
-                    'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium border transition-colors',
-                    kr.direction === option.value
-                      ? 'bg-primary/10 text-primary border-primary/30'
-                      : 'bg-section/50 text-on-surface-variant border-neu-border/20 hover:bg-primary/10 hover:text-primary',
-                  ]"
+                  :aria-pressed="kr.direction === option.value"
+                  :class="getChoiceChipClasses(kr.direction === option.value, 'default')"
                   @click="kr.direction = option.value; emitUpdate()"
                 >
                   <component :is="option.icon" class="w-3.5 h-3.5" />
                   {{ option.label }}
+                  <CheckIcon v-if="kr.direction === option.value" class="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -193,15 +187,12 @@
                 v-for="option in getRollupOptionsForType(kr.type)"
                 :key="option.value"
                 type="button"
-                :class="[
-                  'px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors',
-                  kr.rollup === option.value
-                    ? 'bg-primary/10 text-primary border-primary/30'
-                    : 'bg-section/50 text-on-surface-variant border-neu-border/20 hover:bg-primary/10 hover:text-primary',
-                ]"
+                :aria-pressed="kr.rollup === option.value"
+                :class="getChoiceChipClasses(kr.rollup === option.value, 'compact')"
                 @click="setRollup(index, option.value)"
               >
                 {{ option.label }}
+                <CheckIcon v-if="kr.rollup === option.value" class="w-3 h-3" />
               </button>
             </div>
           </div>
@@ -214,15 +205,12 @@
                 v-for="option in CADENCE_OPTIONS"
                 :key="option.value"
                 type="button"
-                :class="[
-                  'px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors',
-                  kr.cadence === option.value
-                    ? 'bg-primary/10 text-primary border-primary/30'
-                    : 'bg-section/50 text-on-surface-variant border-neu-border/20 hover:bg-primary/10 hover:text-primary',
-                ]"
+                :aria-pressed="kr.cadence === option.value"
+                :class="getChoiceChipClasses(kr.cadence === option.value, 'compact')"
                 @click="handleCadenceSelect(index, option.value)"
               >
                 {{ option.label }}
+                <CheckIcon v-if="kr.cadence === option.value" class="w-3 h-3" />
               </button>
             </div>
           </div>
@@ -241,6 +229,7 @@ import {
   PlusIcon,
   TrashIcon,
   ChartBarIcon,
+  CheckIcon,
   CheckCircleIcon,
   ArrowTrendingUpIcon,
   StarIcon,
@@ -377,6 +366,23 @@ function getRollupOptionsForType(type: TrackerType | undefined): Array<{ value: 
   if (type === 'value') return VALUE_ROLLUP_OPTIONS.value
   if (type === 'rating') return RATING_ROLLUP_OPTIONS.value
   return []
+}
+
+function getChoiceChipClasses(
+  isSelected: boolean,
+  size: 'default' | 'compact' = 'default'
+): string[] {
+  const sizeClasses = size === 'compact'
+    ? 'px-2.5 py-1 text-[11px]'
+    : 'px-2.5 py-1.5 text-xs'
+
+  return [
+    'neo-pill neo-focus inline-flex items-center gap-1.5 rounded-full font-medium transition-all',
+    sizeClasses,
+    isSelected
+      ? 'border-neu-border/40 bg-primary/20 text-primary shadow-neu-pressed hover:translate-y-0 hover:text-primary hover:shadow-neu-pressed'
+      : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px',
+  ]
 }
 
 function isRollupAllowed(type: TrackerType | undefined, rollup: TrackerRollup | undefined): boolean {

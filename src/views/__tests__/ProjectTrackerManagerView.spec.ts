@@ -57,6 +57,10 @@ describe('ProjectTrackerManagerView', () => {
       monthlyPlanStore.monthlyPlans[index] = updated as any
       return updated as any
     })
+
+    vi.spyOn(projectStore, 'deleteProject').mockImplementation(async (id) => {
+      projectStore.projects = projectStore.projects.filter((project) => project.id !== id)
+    })
   })
 
   it('links tracker to monthly plan and auto-links parent project to month/focus tags', async () => {
@@ -166,6 +170,53 @@ describe('ProjectTrackerManagerView', () => {
         monthIds: ['month-1'],
         focusMonthIds: ['month-1'],
       })
+    })
+  })
+
+  it('deletes a project from the manager after confirmation', async () => {
+    const projectStore = useProjectStore()
+
+    projectStore.projects = [
+      {
+        id: 'project-1',
+        createdAt: '2026-02-01T00:00:00.000Z',
+        updatedAt: '2026-02-01T00:00:00.000Z',
+        lifeAreaIds: [],
+        priorityIds: [],
+        monthIds: [],
+        name: '5K Base Build',
+        objective: 'Objective',
+        status: 'active',
+        focusWeekIds: [],
+        focusMonthIds: [],
+      },
+    ]
+
+    render(ProjectTrackerManagerView, {
+      global: {
+        stubs: {
+          AppCard: { template: '<div><slot /></div>' },
+          AppButton: { template: '<button v-bind="$attrs"><slot /></button>' },
+          AppSnackbar: { template: '<div />', methods: { show: vi.fn() } },
+          KeyResultsEditor: { template: '<div />' },
+        },
+      },
+    })
+
+    await screen.findByText('5K Base Build')
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Delete project 5K Base Build' }))
+
+    expect(screen.getByText('Delete project')).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+
+    await waitFor(() => {
+      expect(projectStore.deleteProject).toHaveBeenCalledWith('project-1')
+    })
+
+    await waitFor(() => {
+      expect(screen.queryByText('5K Base Build')).not.toBeInTheDocument()
     })
   })
 })

@@ -40,7 +40,7 @@
     "noFocusSentence": "Brak zdania fokusowego na ten tydzień",
     "noWeeklyPlan": "Brak planu tygodniowego",
     "openPlanningHub": "Otwórz planowanie",
-    "emptyDescription": "Ustaw miesięczny fokus, aby skoordynować tygodniowe wysiłki",
+    "emptyDescription": "Utwórz plan miesięczny, aby skoordynować tygodniowe wysiłki",
     "createMonthlyPlan": "Utwórz plan miesięczny"
   },
   "ifsCheckIn": {
@@ -89,6 +89,89 @@
     "priorityCount": "Aktywne priorytety: {count}",
     "emptySummary": "Ustaw kierunek roku, miesiąca i tygodnia, aby zakotwiczyć ten widok."
   },
+  "northStar": {
+    "title": "Kierunek",
+    "openPlanning": "Otwórz planowanie",
+    "focusChains": "Aktywne powiązania fokusowe",
+    "showMore": "Pokaż jeszcze {count}",
+    "showLess": "Pokaż mniej",
+    "projects": "Projekty",
+    "priorityOnly": "Priorytet bez aktywnego projektu",
+    "commitmentProgress": "Zobowiązania: {done}/{total}",
+    "reflectionsDue": "{count} refleksja do domknięcia",
+    "weekFallback": "Ten tydzień",
+    "monthFallback": "Ten miesiąc",
+    "yearFallback": "Ten rok",
+    "noWeekFocus": "Ustaw zdanie fokusowe na tydzień, aby zakotwiczyć ten widok.",
+    "noMonthIntention": "Dodaj intencję miesięczną, żeby tydzień był osadzony w szerszym kierunku.",
+    "noYearTheme": "Dodaj motyw roczny, aby dzisiejsze działania miały dalszy horyzont.",
+    "empty": "Brak aktywnych łańcuchów fokusu. Połącz priorytety i projekty w planowaniu, aby ten widok stał się bardziej kierunkowy.",
+    "sources": {
+      "weekly": "Aktywne w tym tygodniu",
+      "monthly": "Niesione przez ten miesiąc",
+      "priority": "Kierunek priorytetu"
+    }
+  },
+  "priorityCompass": {
+    "eyebrow": "Kompas priorytetow",
+    "title": "Utrzymaj dzien ustawiony na priorytety",
+    "openPlanning": "Otworz planowanie",
+    "empty": "Brak aktywnych priorytetow. Dodaj je w Planowaniu, aby Today stal sie czytelniejszym kompasem.",
+    "noProjects": "Brak powiazanych projektow"
+  },
+  "executionList": {
+    "title": "Najblizsze ruchy",
+    "progress": "{done} z {total} zamkniete",
+    "openPlanning": "Otworz plan tygodnia",
+    "noWeeklyPlan": "Utworz plan tygodnia, aby zamienic priorytety na konkretne ruchy na ten tydzien.",
+    "empty": "Brak commitments na ten tydzien.",
+    "markDone": "Oznacz jako zrobione",
+    "markSkipped": "Oznacz jako pominiete",
+    "failedUpdate": "Nie udalo sie zaktualizowac commitmentu."
+  },
+  "progress": {
+    "eyebrow": "Postep",
+    "title": "Tygodniowy puls i miesieczny luk",
+    "weeklyLane": "Tygodniowy puls",
+    "monthlyLane": "Miesieczny luk",
+    "noWeeklyPlan": "Brak aktywnego planu tygodnia dla biezacego okresu.",
+    "noMonthlyPlan": "Brak aktywnego planu miesiaca dla biezacego okresu.",
+    "emptyWeekly": "Brak wybranych tygodniowych trackerow lub nawykow dla tego okresu.",
+    "emptyMonthly": "Brak wybranych miesiecznych trackerow lub nawykow dla tego okresu.",
+    "projectSource": "Projekt",
+    "habitSource": "Nawyk",
+    "doneProject": "Projekt zakonczony"
+  },
+  "capture": {
+    "startJournal": "Zacznij wpis",
+    "continueJournal": "Kontynuuj wpis",
+    "startJournalDescription": "Zapisz to, co ważne, zanim dzień się rozpłynie.",
+    "continueJournalDescription": "Dodaj kolejną warstwę do dzisiejszej refleksji.",
+    "journalRecorded": "Jest wpis",
+    "journalCount": "{count} wpisów dzisiaj",
+    "guidedPrompt": "Gotowy prompt",
+    "emotionTitle": "Zaloguj emocję",
+    "emotionStart": "Złap swój stan, zanim dzień zacznie się rozmazywać.",
+    "emotionContinue": "Kontynuuj krótkie check-iny emocji w ciągu dnia.",
+    "emotionComplete": "Dzisiejszy cel został już osiągnięty. Dodaj kolejny log, jeśli coś się zmieni.",
+    "emotionProgress": "{logged} z {target} zapisanych"
+  },
+  "support": {
+    "eyebrow": "Pas wsparcia",
+    "openJournal": "Otworz journal",
+    "journals": "journale",
+    "emotions": "emocje",
+    "streak": "seria",
+    "ifsTitle": "IFS Check-In",
+    "ifsDone": "IFS check-in jest juz zapisany dzisiaj. {count} check-inow w tym tygodniu.",
+    "ifsPending": "Brak IFS check-in dzisiaj. {count} check-inow w tym tygodniu.",
+    "openIfs": "Otworz IFS check-in",
+    "openIfsAgain": "Otworz kolejny IFS check-in",
+    "adaptiveReminder": "Adaptacyjne przypomnienie",
+    "reflectionReminder": "Przypomnienie o refleksji",
+    "recommendationReminder": "Wspierajace przypomnienie",
+    "openPlanning": "Otworz planowanie"
+  },
   "mode": {
     "title": "Tryb Dnia",
     "auto": "Auto",
@@ -129,6 +212,7 @@
   },
   "reflections": {
     "title": "Status refleksji",
+    "dueTitle": "Refleksje do domknięcia",
     "weekly": "Refleksja tygodniowa",
     "monthly": "Refleksja miesięczna",
     "yearly": "Refleksja roczna",

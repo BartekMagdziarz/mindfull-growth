@@ -396,7 +396,7 @@ async function ensureCurrentWeeklyPlan(options?: {
 }
 
 /** Ensure a monthly plan exists for the current month. Reuses if found. */
-async function ensureCurrentMonthlyPlan(foundation: FoundationIds, projectIds?: string[]): Promise<string> {
+async function ensureCurrentMonthlyPlan(projectIds?: string[]): Promise<string> {
   const monthStart = getCurrentMonthStart()
   const monthEnd = getCurrentMonthEnd()
 
@@ -413,8 +413,6 @@ async function ensureCurrentMonthlyPlan(foundation: FoundationIds, projectIds?: 
     endDate: monthEnd,
     year: now.getFullYear(),
     name: `${monthNames[now.getMonth()]} ${now.getFullYear()}`,
-    primaryFocusLifeAreaId: foundation.lifeAreas.health,
-    secondaryFocusLifeAreaIds: [foundation.lifeAreas.career, foundation.lifeAreas.mind].filter(Boolean),
     monthIntention: 'Build steady momentum with healthy habits and focused work.',
     projectIds: projectIds || [],
   })
@@ -783,7 +781,7 @@ export async function seedHabitsScenario(): Promise<SeedResult> {
 export async function seedProjectsScenario(): Promise<SeedResult> {
   console.log('Seeding projects scenario...')
   const foundation = await ensureFoundation()
-  const currentMonthlyPlanId = await ensureCurrentMonthlyPlan(foundation)
+  const currentMonthlyPlanId = await ensureCurrentMonthlyPlan()
   const weeklyPlanId = await ensureCurrentWeeklyPlan()
 
   // Create a previous monthly plan so we can test multi-month projects
@@ -799,8 +797,6 @@ export async function seedProjectsScenario(): Promise<SeedResult> {
       endDate: prevMonthData.end,
       year: prevMonthData.year,
       name: prevMonthData.name,
-      primaryFocusLifeAreaId: foundation.lifeAreas.health,
-      secondaryFocusLifeAreaIds: [foundation.lifeAreas.career].filter(Boolean),
       monthIntention: 'Establish a training baseline and build consistency.',
       projectIds: [],
     })
@@ -1272,7 +1268,7 @@ export async function seedWeeklyPlanningScenario(): Promise<SeedResult> {
   }
 
   // Ensure monthly plan
-  await ensureCurrentMonthlyPlan(foundation)
+  await ensureCurrentMonthlyPlan()
 
   // Get all weekly tracker IDs for active projects + active habits
   const allTrackers = await trackerDexieRepository.getAll()
@@ -1419,25 +1415,22 @@ export async function seedFullTimeline(): Promise<SeedResult> {
   const existingMonthlyPlans = await monthlyPlanDexieRepository.getAll()
   const existingMonthStarts = new Set(existingMonthlyPlans.map((p) => p.startDate))
 
-  const monthFocus = [
-    { primary: 'health', secondary: ['career'] },
-    { primary: 'career', secondary: ['mind'] },
-    { primary: 'mind', secondary: ['health', 'relationships'] },
+  const monthThemes = [
+    'Build steadier health routines.',
+    'Protect focused work and simplify execution.',
+    'Recover attention and reconnect with people that matter.',
   ]
 
   for (let mi = 0; mi < pastMonths.length; mi++) {
     const month = pastMonths[mi]
     if (existingMonthStarts.has(month.start)) continue
 
-    const focus = monthFocus[mi % monthFocus.length]
     await monthlyPlanDexieRepository.create({
       startDate: month.start,
       endDate: month.end,
       year: month.year,
       name: month.name,
-      primaryFocusLifeAreaId: foundation.lifeAreas[focus.primary],
-      secondaryFocusLifeAreaIds: focus.secondary.map((k) => foundation.lifeAreas[k]).filter(Boolean),
-      monthIntention: `Focus on ${focus.primary} this month.`,
+      monthIntention: monthThemes[mi % monthThemes.length],
       projectIds: [],
     })
     monthlyPlanCount++
@@ -1455,8 +1448,6 @@ export async function seedFullTimeline(): Promise<SeedResult> {
       year: currentYear,
       name: `${currentYear} — Year of Momentum`,
       yearTheme: 'Momentum with kindness',
-      primaryFocusLifeAreaId: foundation.lifeAreas.health,
-      focusLifeAreaIds: Object.values(foundation.lifeAreas),
       yourStory: 'This is the year I stop waiting for perfect conditions. I show up consistently, share my work before it feels ready, and build a community around what matters to me.',
       fantasticDay: 'I wake up rested at 6:30. Morning run in the park, shower, healthy breakfast. Deep work on a project I care about until lunch. Afternoon walk with a friend. Evening cooking dinner while listening to music.',
       lifeAreaNarratives: {
@@ -1563,6 +1554,10 @@ export async function seedFullTimeline(): Promise<SeedResult> {
 
     const useStructuredFields = i % 2 === 0
 
+    const reviewLifeAreaIds = Array.from(
+      new Set(inScopeProjects.flatMap((project) => project.lifeAreaIds ?? []))
+    )
+
     await monthlyReflectionDexieRepository.create({
       monthlyPlanId: plan.id,
       completedAt: new Date(`${plan.endDate}T20:00:00`).toISOString(),
@@ -1580,21 +1575,15 @@ export async function seedFullTimeline(): Promise<SeedResult> {
               impact: 3,
               stuckness: 2,
             },
-            focusAreaReview: [
-              {
-                lifeAreaId: plan.primaryFocusLifeAreaId ?? foundation.lifeAreas.career,
-                progress: 4,
-                deteriorated: false,
-                note: 'Primary area moved forward with steady effort.',
-              },
-              {
-                lifeAreaId:
-                  plan.secondaryFocusLifeAreaIds[0] ?? foundation.lifeAreas.relationships,
-                progress: 2,
-                deteriorated: true,
-                note: 'Attention drifted due to work pressure.',
-              },
-            ],
+            focusAreaReview: reviewLifeAreaIds.slice(0, 2).map((lifeAreaId, index) => ({
+              lifeAreaId,
+              progress: index === 0 ? 4 : 2,
+              deteriorated: index > 0,
+              note:
+                index === 0
+                  ? 'This area moved forward with steady effort.'
+                  : 'Attention drifted due to work pressure.',
+            })),
             projectReviews: inScopeProjects.slice(0, 2).map((project, index) => ({
               projectId: project.id,
               progress: index === 0 ? 4 : 2,

@@ -4,7 +4,6 @@ import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRep
 import { DEFAULT_THEME_ID, normalizeThemeId, type ThemeId } from '@/services/theme.service'
 import { DEFAULT_LOCALE_ID, normalizeLocaleId, type LocaleId } from '@/services/locale.service'
 import type {
-  TodayModeOverride,
   TodayModuleDensity,
   TodayRecommendationFeedback,
   TodayRecommendationFeedbackType,
@@ -20,7 +19,6 @@ const KEYS = {
   DAILY_EMOTION_TARGET: 'preferences.dailyEmotionTarget',
   THEME: 'preferences.theme',
   LOCALE: 'preferences.locale',
-  TODAY_MODE_OVERRIDE: 'preferences.todayModeOverride',
   TODAY_EXERCISE_FEEDBACK: TODAY_RECOMMENDATION_FEEDBACK_KEY,
   TODAY_MODULE_DENSITY: 'preferences.todayModuleDensity',
 }
@@ -31,15 +29,7 @@ const DEFAULTS = {
   DAILY_EMOTION_TARGET: 3,
   THEME: DEFAULT_THEME_ID as ThemeId,
   LOCALE: DEFAULT_LOCALE_ID as LocaleId,
-  TODAY_MODE_OVERRIDE: 'auto' as TodayModeOverride,
   TODAY_MODULE_DENSITY: 'comfortable' as TodayModuleDensity,
-}
-
-function normalizeTodayModeOverride(value: string | undefined): TodayModeOverride {
-  if (value === 'morning' || value === 'midday' || value === 'evening' || value === 'auto') {
-    return value
-  }
-  return DEFAULTS.TODAY_MODE_OVERRIDE
 }
 
 function normalizeTodayModuleDensity(value: string | undefined): TodayModuleDensity {
@@ -66,7 +56,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
   const dailyEmotionTarget = ref<number>(DEFAULTS.DAILY_EMOTION_TARGET)
   const themePreference = ref<ThemeId>(DEFAULTS.THEME)
   const locale = ref<LocaleId>(DEFAULTS.LOCALE)
-  const todayModeOverride = ref<TodayModeOverride>(DEFAULTS.TODAY_MODE_OVERRIDE)
   const todayExerciseFeedback = ref<Record<string, TodayRecommendationFeedback>>({})
   const todayModuleDensity = ref<TodayModuleDensity>(DEFAULTS.TODAY_MODULE_DENSITY)
   const isLoaded = ref(false)
@@ -100,9 +89,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
       const storedLocale = await userSettingsDexieRepository.get(KEYS.LOCALE)
       locale.value = normalizeLocaleId(storedLocale)
 
-      const storedTodayModeOverride = await userSettingsDexieRepository.get(KEYS.TODAY_MODE_OVERRIDE)
-      todayModeOverride.value = normalizeTodayModeOverride(storedTodayModeOverride)
-
       const storedTodayExerciseFeedback = await userSettingsDexieRepository.get(KEYS.TODAY_EXERCISE_FEEDBACK)
       todayExerciseFeedback.value = parseFeedbackMap(storedTodayExerciseFeedback)
 
@@ -114,7 +100,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
       console.error('Failed to load user preferences:', error)
       // Use defaults on error
       themePreference.value = DEFAULTS.THEME
-      todayModeOverride.value = DEFAULTS.TODAY_MODE_OVERRIDE
       todayExerciseFeedback.value = {}
       todayModuleDensity.value = DEFAULTS.TODAY_MODULE_DENSITY
       isLoaded.value = true
@@ -151,15 +136,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     await userSettingsDexieRepository.set(KEYS.LOCALE, normalized)
   }
 
-  async function setTodayModeOverride(value: TodayModeOverride): Promise<void> {
-    if (value !== 'auto' && value !== 'morning' && value !== 'midday' && value !== 'evening') {
-      throw new Error('Today mode override must be auto, morning, midday, or evening')
-    }
-
-    todayModeOverride.value = value
-    await userSettingsDexieRepository.set(KEYS.TODAY_MODE_OVERRIDE, value)
-  }
-
   async function setTodayModuleDensity(value: TodayModuleDensity): Promise<void> {
     if (value !== 'comfortable' && value !== 'compact') {
       throw new Error('Today module density must be comfortable or compact')
@@ -194,7 +170,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     dailyEmotionTarget,
     themePreference,
     locale,
-    todayModeOverride,
     todayExerciseFeedback,
     todayModuleDensity,
     isLoaded,
@@ -204,7 +179,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     setDailyEmotionTarget,
     setThemePreference,
     setLocale,
-    setTodayModeOverride,
     setTodayExerciseFeedbackMap,
     recordTodayExerciseFeedback,
     setTodayModuleDensity,

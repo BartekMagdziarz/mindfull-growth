@@ -264,8 +264,8 @@ export interface WeeklyPlan {
 /**
  * MonthlyPlan
  *
- * Captures the monthly planning session output. Focuses on selecting
- * focus life areas for the month and defining projects.
+ * Captures the monthly planning session output. Focuses on defining
+ * the month's intention, guardrails, and projects.
  *
  * Note: Reflection data is stored separately in MonthlyReflection (see reflection.ts)
  */
@@ -279,11 +279,12 @@ export interface MonthlyPlan {
   year: number // Primary year for grouping/filtering
 
   // Planning inputs
-  primaryFocusLifeAreaId?: string // Main focus for this month
-  secondaryFocusLifeAreaIds: string[] // Other active areas (max 2 recommended)
   monthIntention?: string // Overall intention for the month
   focusSuccessSignal?: string // How we will know this focus month worked
   balanceGuardrail?: string // Boundary that protects balance while pursuing focus
+  // Legacy focus-area fields retained for backward compatibility with older saved plans.
+  primaryFocusLifeAreaId?: string
+  secondaryFocusLifeAreaIds?: string[]
 
   // Linked data
   projectIds: string[] // Projects planned for this month
@@ -341,9 +342,9 @@ export interface YearlyPlan {
     progressClues: string[]
   }
 
-  // Linked data
-  primaryFocusLifeAreaId?: string // Primary focus Life Area for this year
-  focusLifeAreaIds: string[] // Focus Life Areas for this year
+  // Legacy focus-area fields retained for backward compatibility with older saved plans.
+  primaryFocusLifeAreaId?: string
+  focusLifeAreaIds?: string[]
 }
 
 // ============================================================================

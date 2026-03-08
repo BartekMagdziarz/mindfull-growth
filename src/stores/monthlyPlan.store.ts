@@ -3,7 +3,7 @@
  *
  * Pinia store for managing MonthlyPlans in the Planning & Reflection System.
  * MonthlyPlans capture the output of monthly planning sessions, including
- * focus area selection, month intentions, and linked projects.
+ * month intentions, guardrails, and linked projects.
  *
  * This store provides:
  * - State management for MonthlyPlans
@@ -20,6 +20,10 @@ import type {
   UpdateMonthlyPlanPayload,
 } from '@/domain/planning'
 import { monthlyPlanDexieRepository } from '@/repositories/planningDexieRepository'
+import {
+  getCanonicalPlanForPeriod,
+  getCanonicalPlansByPeriod,
+} from '@/utils/planCanonicalization'
 
 export const useMonthlyPlanStore = defineStore('monthlyPlan', () => {
   // ============================================================================
@@ -64,6 +68,15 @@ export const useMonthlyPlanStore = defineStore('monthlyPlan', () => {
     return sortMonthlyPlans(monthlyPlans.value)
   })
 
+  const canonicalMonthlyPlans = computed(() => {
+    return sortMonthlyPlans(
+      getCanonicalPlansByPeriod(
+        monthlyPlans.value,
+        (plan) => `${plan.startDate}:${plan.endDate}`
+      )
+    )
+  })
+
   /**
    * Returns a function to find a MonthlyPlan by its ID
    * Usage: store.getMonthlyPlanById('plan-id')
@@ -90,7 +103,11 @@ export const useMonthlyPlanStore = defineStore('monthlyPlan', () => {
    */
   const getCurrentMonthPlans = computed((): MonthlyPlan[] => {
     const today = new Date().toISOString().split('T')[0]
-    return monthlyPlans.value.filter((p) => isDateInPlan(today, p))
+    return canonicalMonthlyPlans.value.filter((p) => isDateInPlan(today, p))
+  })
+
+  const getCurrentMonthPlan = computed((): MonthlyPlan | undefined => {
+    return getCurrentMonthPlans.value[0]
   })
 
   /**
@@ -99,6 +116,16 @@ export const useMonthlyPlanStore = defineStore('monthlyPlan', () => {
   const getMonthlyPlansByYear = computed(() => {
     return (year: number): MonthlyPlan[] => {
       return sortMonthlyPlans(monthlyPlans.value.filter((p) => p.year === year))
+    }
+  })
+
+  const getCanonicalMonthlyPlanByPeriod = computed(() => {
+    return (startDate: string, endDate: string): MonthlyPlan | undefined => {
+      return getCanonicalPlanForPeriod(
+        monthlyPlans.value,
+        (plan) => `${plan.startDate}:${plan.endDate}`,
+        `${startDate}:${endDate}`
+      )
     }
   })
 
@@ -230,10 +257,13 @@ export const useMonthlyPlanStore = defineStore('monthlyPlan', () => {
 
     // Getters
     sortedMonthlyPlans,
+    canonicalMonthlyPlans,
     getMonthlyPlanById,
     getMonthlyPlansByDate,
     getCurrentMonthPlans,
+    getCurrentMonthPlan,
     getMonthlyPlansByYear,
+    getCanonicalMonthlyPlanByPeriod,
 
     // Actions
     loadMonthlyPlans,

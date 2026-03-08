@@ -29,7 +29,6 @@ describe('useUserPreferencesStore', () => {
     expect(store.weeklyReviewDay).toBe(0)
     expect(store.dailyEmotionTarget).toBe(3)
     expect(store.themePreference).toBe('current')
-    expect(store.todayModeOverride).toBe('auto')
     expect(store.todayModuleDensity).toBe('comfortable')
     expect(store.todayExerciseFeedback).toEqual({})
   })
@@ -68,18 +67,6 @@ describe('useUserPreferencesStore', () => {
       'sunrise-cloud',
     )
     expect(store.themePreference).toBe('sunrise-cloud')
-  })
-
-  it('persists today mode override when updated', async () => {
-    const store = useUserPreferencesStore()
-
-    await store.setTodayModeOverride('midday')
-
-    expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
-      'preferences.todayModeOverride',
-      'midday',
-    )
-    expect(store.todayModeOverride).toBe('midday')
   })
 
   it('records exercise recommendation feedback', async () => {

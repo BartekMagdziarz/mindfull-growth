@@ -646,13 +646,6 @@ const focusAreaIdsForReview = computed(() => {
   if (!monthlyPlan.value) return []
 
   const ids = new Set<string>()
-  if (monthlyPlan.value.primaryFocusLifeAreaId) {
-    ids.add(monthlyPlan.value.primaryFocusLifeAreaId)
-  }
-
-  for (const id of monthlyPlan.value.secondaryFocusLifeAreaIds ?? []) {
-    ids.add(id)
-  }
 
   for (const project of monthProjects.value) {
     for (const id of project.lifeAreaIds ?? []) {

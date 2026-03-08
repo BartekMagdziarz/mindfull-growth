@@ -5,7 +5,7 @@ import { useWheelOfLifeStore } from '@/stores/wheelOfLife.store'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useT } from '@/composables/useT'
 
-export type WheelOfLifeMode = 'standalone' | 'planning' | 'reflection'
+export type WheelOfLifeMode = 'standalone' | 'reflection'
 
 export interface WheelOfLifeStep {
   id: string
@@ -28,7 +28,6 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
   const areas = ref<WheelOfLifeArea[]>([])
   const currentAreaIndex = ref(0)
   const notes = ref('')
-  const selectedFocusAreas = ref<string[]>([])
   const isLoadingAreas = ref(false)
 
   // Reflection text answers
@@ -78,7 +77,6 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
     currentAreaIndex.value = 0
     currentStep.value = 0
     notes.value = ''
-    selectedFocusAreas.value = []
     reflectionAnswers.value = {}
     isLoadingAreas.value = false
   }
@@ -99,13 +97,7 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
       subtitle: t('exerciseWizards.wheelOfLife.stepSubtitles.rate'),
     })
 
-    if (options.mode === 'planning') {
-      allSteps.push({
-        id: 'focus',
-        title: t('exerciseWizards.wheelOfLife.stepTitles.focus'),
-        subtitle: t('exerciseWizards.wheelOfLife.stepSubtitles.focus'),
-      })
-    } else if (options.mode === 'reflection') {
+    if (options.mode === 'reflection') {
       allSteps.push({
         id: 'reflect',
         title: t('exerciseWizards.wheelOfLife.stepTitles.reflect'),
@@ -139,8 +131,6 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
         return true
       case 'rate':
         return isLastArea.value
-      case 'focus':
-        return selectedFocusAreas.value.length >= 1
       case 'reflect':
         return true
       default:
@@ -186,16 +176,6 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
   function prevArea() {
     if (currentAreaIndex.value > 0) {
       currentAreaIndex.value--
-    }
-  }
-
-  // Focus area selection (planning mode)
-  function toggleFocusArea(areaName: string) {
-    const idx = selectedFocusAreas.value.indexOf(areaName)
-    if (idx >= 0) {
-      selectedFocusAreas.value.splice(idx, 1)
-    } else {
-      selectedFocusAreas.value.push(areaName)
     }
   }
 
@@ -259,7 +239,6 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
     currentArea,
     ratedAreas,
     notes,
-    selectedFocusAreas,
     reflectionAnswers,
     reflectionPrompts,
     isLoadingAreas,
@@ -281,9 +260,6 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
     // Rating navigation
     nextArea,
     prevArea,
-
-    // Focus areas
-    toggleFocusArea,
 
     // Wizard navigation
     next,

@@ -7,7 +7,7 @@
  * Final persistence to IndexedDB happens only when the user completes the flow.
  */
 
-import { ref, watch, computed, onBeforeUnmount } from 'vue'
+import { ref, watch, computed, onBeforeUnmount, nextTick } from 'vue'
 import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
 import type { ProjectStatus, Tracker } from '@/domain/planning'
 
@@ -62,10 +62,6 @@ export interface MonthlyPlanningDraft {
   endDate: string
   /** Optional custom name for the period */
   name: string
-  /** Primary focus life area for the month (required) */
-  primaryFocusLifeAreaId: string
-  /** Secondary focus life areas (max 2) */
-  secondaryFocusLifeAreaIds: string[]
   /** Overall intention for the month */
   monthIntention: string
   /** Observable signal that indicates monthly focus success */
@@ -94,8 +90,6 @@ const createDefaultDraft = (): MonthlyPlanningDraft => {
     startDate,
     endDate,
     name: '',
-    primaryFocusLifeAreaId: '',
-    secondaryFocusLifeAreaIds: [],
     monthIntention: '',
     focusSuccessSignal: '',
     balanceGuardrail: '',
@@ -132,6 +126,9 @@ export function useMonthlyPlanningDraft(monthId: string) {
   /** Whether a saved draft was found during load */
   const _draftFound = ref(false)
 
+  /** Temporarily suspend autosave while resetting the draft */
+  const isAutosaveSuspended = ref(false)
+
   /** Storage key for this month's draft */
   const storageKey = computed(() => getStorageKey(monthId))
 
@@ -167,12 +164,6 @@ export function useMonthlyPlanningDraft(monthId: string) {
           ...parsed,
         }
 
-        if (!merged.primaryFocusLifeAreaId && parsed.primaryFocusAreaId) {
-          merged.primaryFocusLifeAreaId = parsed.primaryFocusAreaId
-        }
-        if (merged.secondaryFocusLifeAreaIds.length === 0 && parsed.secondaryFocusAreaIds) {
-          merged.secondaryFocusLifeAreaIds = [...parsed.secondaryFocusAreaIds]
-        }
         merged.selectedTrackerIds = merged.selectedTrackerIds ?? []
         merged.hasCustomTrackerSelection = merged.hasCustomTrackerSelection ?? false
 
@@ -234,6 +225,7 @@ export function useMonthlyPlanningDraft(monthId: string) {
    * Clear draft from IndexedDB
    */
   function clearDraft(): void {
+    isAutosaveSuspended.value = true
     if (saveTimer) {
       clearTimeout(saveTimer)
       saveTimer = null
@@ -243,6 +235,9 @@ export function useMonthlyPlanningDraft(monthId: string) {
     _draftFound.value = false
     draft.value = createDefaultDraft()
     isLoaded.value = true
+    void nextTick(() => {
+      isAutosaveSuspended.value = false
+    })
   }
 
   /**
@@ -259,7 +254,7 @@ export function useMonthlyPlanningDraft(monthId: string) {
   watch(
     draft,
     () => {
-      if (isLoaded.value) {
+      if (isLoaded.value && !isAutosaveSuspended.value) {
         scheduleSave()
       }
     },
@@ -357,57 +352,6 @@ export function useMonthlyPlanningDraft(monthId: string) {
     draft.value.projects = reordered
   }
 
-  // ============================================================================
-  // Focus Life Area Selection Helpers
-  // ============================================================================
-
-  /**
-   * Set the primary focus life area (clears it from secondary if present)
-   */
-  function setPrimaryFocusLifeArea(lifeAreaId: string): void {
-    draft.value.primaryFocusLifeAreaId = lifeAreaId
-    // Remove from secondary if it was there
-    draft.value.secondaryFocusLifeAreaIds = draft.value.secondaryFocusLifeAreaIds.filter(
-      (id) => id !== lifeAreaId
-    )
-  }
-
-  /**
-   * Toggle a secondary focus life area (max 2, can't be primary)
-   */
-  function toggleSecondaryFocusLifeArea(lifeAreaId: string): void {
-    // Can't add primary as secondary
-    if (lifeAreaId === draft.value.primaryFocusLifeAreaId) {
-      return
-    }
-
-    const isSelected = draft.value.secondaryFocusLifeAreaIds.includes(lifeAreaId)
-    if (isSelected) {
-      draft.value.secondaryFocusLifeAreaIds = draft.value.secondaryFocusLifeAreaIds.filter(
-        (id) => id !== lifeAreaId
-      )
-    } else if (draft.value.secondaryFocusLifeAreaIds.length < 2) {
-      draft.value.secondaryFocusLifeAreaIds.push(lifeAreaId)
-    }
-  }
-
-  /**
-   * Check if a secondary focus life area can be selected (max 2, not primary)
-   */
-  function canSelectSecondaryFocusLifeArea(lifeAreaId: string): boolean {
-    if (lifeAreaId === draft.value.primaryFocusLifeAreaId) {
-      return false
-    }
-    if (draft.value.secondaryFocusLifeAreaIds.includes(lifeAreaId)) {
-      return true // Can always deselect
-    }
-    return draft.value.secondaryFocusLifeAreaIds.length < 2
-  }
-
-  // ============================================================================
-  // Edit Mode Helper
-  // ============================================================================
-
   /**
    * Seed the draft from existing MonthlyPlan and Projects (for edit mode)
    */
@@ -416,8 +360,6 @@ export function useMonthlyPlanningDraft(monthId: string) {
       startDate: string
       endDate: string
       name?: string
-      primaryFocusLifeAreaId?: string
-      secondaryFocusLifeAreaIds: string[]
       monthIntention?: string
       focusSuccessSignal?: string
       balanceGuardrail?: string
@@ -443,8 +385,6 @@ export function useMonthlyPlanningDraft(monthId: string) {
     draft.value.startDate = monthlyPlan.startDate
     draft.value.endDate = monthlyPlan.endDate
     draft.value.name = monthlyPlan.name || ''
-    draft.value.primaryFocusLifeAreaId = monthlyPlan.primaryFocusLifeAreaId || ''
-    draft.value.secondaryFocusLifeAreaIds = [...monthlyPlan.secondaryFocusLifeAreaIds]
     draft.value.monthIntention = monthlyPlan.monthIntention || ''
     draft.value.focusSuccessSignal = monthlyPlan.focusSuccessSignal || ''
     draft.value.balanceGuardrail = monthlyPlan.balanceGuardrail || ''
@@ -506,10 +446,6 @@ export function useMonthlyPlanningDraft(monthId: string) {
     updateProject,
     deleteProject,
     reorderProjects,
-    // Focus life area selection helpers
-    setPrimaryFocusLifeArea,
-    toggleSecondaryFocusLifeArea,
-    canSelectSecondaryFocusLifeArea,
     // Edit mode helper
     seedFromExisting,
   }

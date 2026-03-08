@@ -223,6 +223,39 @@ describe('useYearlyPlanStore', () => {
     })
   })
 
+  describe('canonical yearly plans', () => {
+    it('prefers the newest updated yearly plan for a year', async () => {
+      const store = useYearlyPlanStore()
+      const db = getUserDatabase()
+
+      await db.yearlyPlans.bulkAdd([
+        {
+          id: 'yp-old',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+          startDate: '2026-01-01',
+          endDate: '2026-12-31',
+          year: 2026,
+          focusLifeAreaIds: [],
+        },
+        {
+          id: 'yp-new',
+          createdAt: '2026-01-02T00:00:00.000Z',
+          updatedAt: '2026-01-03T00:00:00.000Z',
+          startDate: '2026-01-01',
+          endDate: '2026-12-31',
+          year: 2026,
+          focusLifeAreaIds: [],
+        },
+      ])
+
+      await store.loadYearlyPlans()
+
+      expect(store.getCanonicalYearlyPlanByYear(2026)?.id).toBe('yp-new')
+      expect(store.canonicalYearlyPlans).toHaveLength(1)
+    })
+  })
+
   describe('sortedYearlyPlans', () => {
     it('returns plans sorted by startDate descending', async () => {
       const store = useYearlyPlanStore()

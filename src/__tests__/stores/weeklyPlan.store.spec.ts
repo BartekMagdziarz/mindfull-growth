@@ -172,6 +172,35 @@ describe('useWeeklyPlanStore', () => {
     })
   })
 
+  describe('canonical weekly plans', () => {
+    it('prefers the newest updated weekly plan for a period', async () => {
+      const store = useWeeklyPlanStore()
+      const db = getUserDatabase()
+
+      await db.weeklyPlans.bulkAdd([
+        {
+          id: 'wp-old',
+          createdAt: '2026-01-12T00:00:00.000Z',
+          updatedAt: '2026-01-12T00:00:00.000Z',
+          startDate: '2026-01-12',
+          endDate: '2026-01-18',
+        },
+        {
+          id: 'wp-new',
+          createdAt: '2026-01-13T00:00:00.000Z',
+          updatedAt: '2026-01-14T00:00:00.000Z',
+          startDate: '2026-01-12',
+          endDate: '2026-01-18',
+        },
+      ])
+
+      await store.loadWeeklyPlans()
+
+      expect(store.getCanonicalWeeklyPlanByPeriod('2026-01-12', '2026-01-18')?.id).toBe('wp-new')
+      expect(store.canonicalWeeklyPlans).toHaveLength(1)
+    })
+  })
+
   describe('sortedWeeklyPlans', () => {
     it('returns plans sorted by startDate descending', async () => {
       const store = useWeeklyPlanStore()

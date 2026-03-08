@@ -262,75 +262,8 @@
         </AppCard>
       </div>
 
-      <!-- Step 3: Focus Life Areas + Intention -->
+      <!-- Step 3: Monthly Strategy -->
       <div v-if="draft.activeStep === 2">
-        <AppCard padding="lg" class="mb-6">
-          <h2 class="text-lg font-semibold text-neu-text mb-2 flex items-center gap-2">
-            <RectangleStackIcon class="w-5 h-5 text-primary" />
-            {{ t('planning.monthly.focusStep.title') }}
-          </h2>
-
-          <div class="space-y-6">
-            <div>
-              <p class="text-xs text-neu-muted uppercase tracking-wide mb-2">{{ t('planning.monthly.focusStep.primary') }}</p>
-              <div class="grid gap-2">
-                <button
-                  v-for="la in availableLifeAreas"
-                  :key="la.id"
-                  type="button"
-                  class="flex items-center gap-3 p-3 rounded-xl transition-all text-left neo-selector"
-                  :class="
-                    draft.primaryFocusLifeAreaId === la.id
-                      ? 'neo-selector--active'
-                      : ''
-                  "
-                  @click="setPrimaryFocusLifeArea(la.id)"
-                >
-                  <span
-                    class="w-3 h-3 rounded-full"
-                    :style="{ backgroundColor: la.color || 'rgb(var(--color-primary))' }"
-                  />
-                  <span class="font-medium">{{ la.name }}</span>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <p class="text-xs text-neu-muted uppercase tracking-wide mb-2">
-                {{ t('planning.monthly.focusStep.secondaryOptional') }}
-              </p>
-              <div class="grid gap-2">
-                <label
-                  v-for="la in availableLifeAreas"
-                  :key="`secondary-${la.id}`"
-                  class="neo-checkbox-row flex items-center gap-3 p-3"
-                  :class="[
-                    draft.secondaryFocusLifeAreaIds.includes(la.id)
-                      ? 'neo-checkbox-row--checked'
-                      : '',
-                    canSelectSecondaryFocusLifeArea(la.id)
-                      ? 'cursor-pointer'
-                      : 'cursor-not-allowed opacity-70',
-                  ]"
-                >
-                  <input
-                    type="checkbox"
-                    class="mt-0.5 neo-checkbox"
-                    :checked="draft.secondaryFocusLifeAreaIds.includes(la.id)"
-                    :disabled="!canSelectSecondaryFocusLifeArea(la.id)"
-                    @change="toggleSecondaryFocusLifeArea(la.id)"
-                  />
-                  <span
-                    class="w-3 h-3 rounded-full"
-                    :style="{ backgroundColor: la.color || 'rgb(var(--color-primary))' }"
-                  />
-                  <span class="text-sm font-medium text-neu-text">{{ la.name }}</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </AppCard>
-
         <AppCard padding="lg">
           <h2 class="text-lg font-semibold text-neu-text mb-2 flex items-center gap-2">
             <SparklesIcon class="w-5 h-5 text-primary" />
@@ -418,7 +351,6 @@
           :project="projectToEdit"
           :life-areas="availableLifeAreas"
           :priorities="prioritiesForYear"
-          :default-life-area-id="draft.primaryFocusLifeAreaId || undefined"
           :default-start-date="draft.startDate"
           :default-end-date="draft.endDate"
           :initial-key-results="getProjectKeyResults(projectToEdit)"
@@ -583,7 +515,6 @@ import {
   CheckIcon,
   ChartBarIcon,
   CalendarDaysIcon,
-  RectangleStackIcon,
   SparklesIcon,
   RocketLaunchIcon,
   PlusIcon,
@@ -666,9 +597,6 @@ const {
   adoptProject,
   updateProject,
   deleteProject,
-  setPrimaryFocusLifeArea,
-  toggleSecondaryFocusLifeArea,
-  canSelectSecondaryFocusLifeArea,
   seedFromExisting,
 } = useMonthlyPlanningDraft(isEditMode.value && routePlanId.value ? routePlanId.value : 'new')
 
@@ -1294,6 +1222,13 @@ const existingPlan = computed(() => {
   return monthlyPlanStore.getMonthlyPlanById(routePlanId.value)
 })
 
+const canonicalPlanForDraft = computed(() => {
+  return monthlyPlanStore.getCanonicalMonthlyPlanByPeriod(
+    draft.value.startDate,
+    draft.value.endDate
+  )
+})
+
 async function handleConfirm(): Promise<void> {
   if (periodValidationError.value) return
 
@@ -1310,28 +1245,39 @@ async function handleConfirm(): Promise<void> {
         endDate: draft.value.endDate,
         name: draft.value.name.trim() || undefined,
         year,
-        primaryFocusLifeAreaId: draft.value.primaryFocusLifeAreaId || undefined,
-        secondaryFocusLifeAreaIds: [...draft.value.secondaryFocusLifeAreaIds],
         monthIntention: draft.value.monthIntention.trim() || undefined,
         focusSuccessSignal: draft.value.focusSuccessSignal.trim() || undefined,
         balanceGuardrail: draft.value.balanceGuardrail.trim() || undefined,
         selectedTrackerIds: selectedTrackerIdsForPersistence.value,
       })
     } else {
-      const created = await monthlyPlanStore.createMonthlyPlan({
-        startDate: draft.value.startDate,
-        endDate: draft.value.endDate,
-        name: draft.value.name.trim() || undefined,
-        year,
-        primaryFocusLifeAreaId: draft.value.primaryFocusLifeAreaId || undefined,
-        secondaryFocusLifeAreaIds: [...draft.value.secondaryFocusLifeAreaIds],
-        monthIntention: draft.value.monthIntention.trim() || undefined,
-        focusSuccessSignal: draft.value.focusSuccessSignal.trim() || undefined,
-        balanceGuardrail: draft.value.balanceGuardrail.trim() || undefined,
-        projectIds: [],
-        selectedTrackerIds: selectedTrackerIdsForPersistence.value,
-      })
-      planId = created.id
+      const canonicalPlan = canonicalPlanForDraft.value
+      if (canonicalPlan) {
+        planId = canonicalPlan.id
+        await monthlyPlanStore.updateMonthlyPlan(planId, {
+          startDate: draft.value.startDate,
+          endDate: draft.value.endDate,
+          name: draft.value.name.trim() || undefined,
+          year,
+          monthIntention: draft.value.monthIntention.trim() || undefined,
+          focusSuccessSignal: draft.value.focusSuccessSignal.trim() || undefined,
+          balanceGuardrail: draft.value.balanceGuardrail.trim() || undefined,
+          selectedTrackerIds: selectedTrackerIdsForPersistence.value,
+        })
+      } else {
+        const created = await monthlyPlanStore.createMonthlyPlan({
+          startDate: draft.value.startDate,
+          endDate: draft.value.endDate,
+          name: draft.value.name.trim() || undefined,
+          year,
+          monthIntention: draft.value.monthIntention.trim() || undefined,
+          focusSuccessSignal: draft.value.focusSuccessSignal.trim() || undefined,
+          balanceGuardrail: draft.value.balanceGuardrail.trim() || undefined,
+          projectIds: [],
+          selectedTrackerIds: selectedTrackerIdsForPersistence.value,
+        })
+        planId = created.id
+      }
     }
 
     if (!planId) {
@@ -1470,8 +1416,6 @@ async function loadData() {
           startDate: plan.startDate,
           endDate: plan.endDate,
           name: plan.name,
-          primaryFocusLifeAreaId: plan.primaryFocusLifeAreaId,
-          secondaryFocusLifeAreaIds: plan.secondaryFocusLifeAreaIds,
           monthIntention: plan.monthIntention,
           focusSuccessSignal: plan.focusSuccessSignal,
           balanceGuardrail: plan.balanceGuardrail,

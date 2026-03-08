@@ -430,6 +430,79 @@ describe('WeeklyPlanningView', () => {
     })
   })
 
+  it('reuses the canonical weekly plan when saving from create mode for an existing week', async () => {
+    mockRoute.params.planId = 'new'
+    mockRoute.path = '/planning/week/new'
+
+    const { startDate, endDate } = getCurrentWeekRange()
+    const weeklyPlanStore = useWeeklyPlanStore()
+
+    weeklyPlanStore.weeklyPlans = [
+      {
+        id: 'plan-existing',
+        createdAt: `${startDate}T00:00:00.000Z`,
+        updatedAt: `${startDate}T12:00:00.000Z`,
+        startDate,
+        endDate,
+        selectedTrackerIds: [],
+      },
+    ]
+
+    const createSpy = vi.spyOn(weeklyPlanStore, 'createWeeklyPlan').mockResolvedValue({
+      id: 'plan-created',
+      createdAt: `${startDate}T00:00:00.000Z`,
+      updatedAt: `${startDate}T00:00:00.000Z`,
+      startDate,
+      endDate,
+    } as any)
+
+    await saveDraftToDB(
+      `weekly-planning-draft-${startDate}`,
+      JSON.stringify({
+        activeStep: 4,
+        startDate,
+        endDate,
+        name: '',
+        constraintsNote: '',
+        focusSentence: 'Stay steady',
+        adaptiveIntention: '',
+        commitments: [],
+        focusedProjectIds: [],
+        selectedTrackerIds: [],
+        weeklyTrackerTargets: {},
+        hasCustomTrackerSelection: false,
+      })
+    )
+
+    render(WeeklyPlanningView, {
+      global: {
+        stubs: {
+          AppCard: { template: '<div><slot /></div>' },
+          AppButton: { template: '<button><slot /></button>' },
+          DraftCommitmentForm: { template: '<div />' },
+          DraftCommitmentCard: { template: '<div />' },
+          WeeklyReviewSummary: { template: '<div />' },
+        },
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save Weekly Plan' })).toBeInTheDocument()
+    })
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Save Weekly Plan' }))
+
+    await waitFor(() => {
+      expect(weeklyPlanStore.updateWeeklyPlan).toHaveBeenCalledWith(
+        'plan-existing',
+        expect.objectContaining({
+          focusSentence: 'Stay steady',
+        })
+      )
+    })
+    expect(createSpy).not.toHaveBeenCalled()
+  })
+
   it('reveals tracker selection after focusing a project in step 2', async () => {
     const { startDate, endDate } = getCurrentWeekRange()
     const monthStart = `${startDate.slice(0, 7)}-01`

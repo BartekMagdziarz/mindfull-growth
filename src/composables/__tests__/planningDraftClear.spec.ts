@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { effectScope, nextTick } from 'vue'
+import { render } from '@testing-library/vue'
+import { defineComponent, h, nextTick } from 'vue'
 import { useMonthlyPlanningDraft } from '@/composables/useMonthlyPlanningDraft'
 import { useWeeklyPlanningDraft } from '@/composables/useWeeklyPlanningDraft'
 import { useYearlyPlanningDraft } from '@/composables/useYearlyPlanningDraft'
@@ -28,16 +29,20 @@ interface DraftHarnessApi {
 }
 
 function mountComposable<T extends DraftHarnessApi>(factory: () => T): { api: T; unmount: () => void } {
-  const scope = effectScope()
   let api!: T
 
-  scope.run(() => {
-    api = factory()
+  const Harness = defineComponent({
+    setup() {
+      api = factory()
+      return () => h('div')
+    },
   })
+
+  const rendered = render(Harness)
 
   return {
     api,
-    unmount: () => scope.stop(),
+    unmount: rendered.unmount,
   }
 }
 
@@ -52,7 +57,12 @@ describe('planning draft clear behavior', () => {
     draftStore.clear()
   })
 
-  it.each([
+  const cases: Array<{
+    label: string
+    key: string
+    create: () => DraftHarnessApi
+    mutate: (api: DraftHarnessApi) => void
+  }> = [
     {
       label: 'yearly',
       key: 'yearly-planning-draft-2026',
@@ -81,7 +91,9 @@ describe('planning draft clear behavior', () => {
         api.draft.value.focusSentence = 'Keep the week calm and deliberate'
       },
     },
-  ])('does not recreate a blank $label draft after clearDraft()', async ({ create, key, mutate }) => {
+  ]
+
+  it.each(cases)('does not recreate a blank $label draft after clearDraft()', async ({ create, key, mutate }) => {
     const { api, unmount } = mountComposable(create)
 
     await api.ready

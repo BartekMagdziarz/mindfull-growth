@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import { createPinia, setActivePinia } from 'pinia'
 import MonthlyPlanningView from '@/views/MonthlyPlanningView.vue'
 import { useMonthlyPlanStore } from '@/stores/monthlyPlan.store'
@@ -15,6 +15,7 @@ import { useHabitStore } from '@/stores/habit.store'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { trackerPeriodDexieRepository } from '@/repositories/planningDexieRepository'
+import { saveDraftToDB } from '@/services/draftStorage'
 
 const mockPush = vi.fn()
 const mockReplace = vi.fn()
@@ -192,5 +193,89 @@ describe('MonthlyPlanningView', () => {
     })
 
     expect(screen.getByText('Signals')).toBeInTheDocument()
+  })
+
+  it('reuses the canonical monthly plan when saving from create mode for an existing period', async () => {
+    mockRoute.params.planId = 'new'
+    mockRoute.path = '/planning/month/new'
+
+    const monthlyPlanStore = useMonthlyPlanStore()
+    monthlyPlanStore.monthlyPlans = [
+      {
+        id: 'month-plan-existing',
+        createdAt: '2026-02-01T00:00:00.000Z',
+        updatedAt: '2026-02-03T00:00:00.000Z',
+        startDate: '2026-02-01',
+        endDate: '2026-02-28',
+        year: 2026,
+        projectIds: [],
+        secondaryFocusLifeAreaIds: [],
+      },
+    ]
+
+    const updateSpy = vi.spyOn(monthlyPlanStore, 'updateMonthlyPlan').mockImplementation(async (id, data) => {
+      const updated = {
+        ...(monthlyPlanStore.monthlyPlans.find((plan) => plan.id === id) as any),
+        ...data,
+      }
+      return updated
+    })
+    const createSpy = vi.spyOn(monthlyPlanStore, 'createMonthlyPlan').mockResolvedValue({
+      id: 'month-plan-created',
+      createdAt: '2026-02-01T00:00:00.000Z',
+      updatedAt: '2026-02-01T00:00:00.000Z',
+      startDate: '2026-02-01',
+      endDate: '2026-02-28',
+      year: 2026,
+      projectIds: [],
+      secondaryFocusLifeAreaIds: [],
+    } as any)
+
+    await saveDraftToDB(
+      'monthly-planning-draft-new',
+      JSON.stringify({
+        activeStep: 4,
+        startDate: '2026-02-01',
+        endDate: '2026-02-28',
+        name: '',
+        primaryFocusLifeAreaId: '',
+        secondaryFocusLifeAreaIds: [],
+        monthIntention: 'Protect momentum',
+        focusSuccessSignal: '',
+        balanceGuardrail: '',
+        projects: [],
+        selectedTrackerIds: [],
+        hasCustomTrackerSelection: false,
+      })
+    )
+
+    render(MonthlyPlanningView, {
+      global: {
+        stubs: {
+          AppCard: { template: '<div><slot /></div>' },
+          AppButton: { template: '<button><slot /></button>' },
+          DraftProjectForm: { template: '<div />' },
+          DraftProjectCard: { template: '<div />' },
+          MonthlyReviewSummary: { template: '<div />' },
+          CommitmentLinkedObjectsCluster: { template: '<div />' },
+        },
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save Monthly Plan' })).toBeInTheDocument()
+    })
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Save Monthly Plan' }))
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith(
+        'month-plan-existing',
+        expect.objectContaining({
+          monthIntention: 'Protect momentum',
+        })
+      )
+    })
+    expect(createSpy).not.toHaveBeenCalled()
   })
 })

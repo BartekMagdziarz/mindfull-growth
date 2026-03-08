@@ -111,13 +111,25 @@
         class="mt-10 space-y-7"
       >
         <!-- Selected period title -->
-        <div class="space-y-1">
-          <h3 class="text-lg font-semibold text-on-surface">
-            {{ selectedPeriodRange }}
-          </h3>
-          <p v-if="selectedPeriodTitle" class="text-sm text-on-surface-variant">
-            {{ selectedPeriodTitle }}
-          </p>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="space-y-1">
+            <h3 class="text-lg font-semibold text-on-surface">
+              {{ selectedPeriodRange }}
+            </h3>
+            <p v-if="selectedPeriodTitle" class="text-sm text-on-surface-variant">
+              {{ selectedPeriodTitle }}
+            </p>
+          </div>
+          <button
+            v-if="hasSelectedPlan"
+            type="button"
+            class="neo-icon-button neo-icon-button--danger neo-focus h-10 gap-2 px-3 py-0 text-sm font-medium"
+            aria-label="Delete selected week period"
+            @click="openDeletePlanDialog"
+          >
+            <TrashIcon class="h-4 w-4" />
+            <span>Delete period</span>
+          </button>
         </div>
 
         <!-- Plan / Reflect panels -->
@@ -487,14 +499,14 @@ const detailsError = computed(
 )
 
 const existingPeriods = computed(() =>
-  weeklyPlanStore.weeklyPlans.map((plan) => ({
+  weeklyPlanStore.canonicalWeeklyPlans.map((plan) => ({
     startDate: plan.startDate,
     endDate: plan.endDate,
   }))
 )
 
 const periods = computed<PeriodItem[]>(() => {
-  const items: PeriodItem[] = weeklyPlanStore.weeklyPlans.map((plan: WeeklyPlan) => {
+  const items: PeriodItem[] = weeklyPlanStore.canonicalWeeklyPlans.map((plan: WeeklyPlan) => {
     const reflection = weeklyReflectionStore.getReflectionByPlanId(plan.id)
     const hasPlanContent = Boolean(
       plan.focusSentence?.trim() ||
@@ -1257,7 +1269,11 @@ async function loadData() {
 }
 
 async function handleCreate(payload: { startDate: string; endDate: string; name?: string }) {
-  const created = await weeklyPlanStore.createWeeklyPlan({
+  const existing = weeklyPlanStore.getCanonicalWeeklyPlanByPeriod(
+    payload.startDate,
+    payload.endDate
+  )
+  const created = existing ?? await weeklyPlanStore.createWeeklyPlan({
     startDate: payload.startDate,
     endDate: payload.endDate,
     name: payload.name,
@@ -1272,8 +1288,12 @@ async function handleCreate(payload: { startDate: string; endDate: string; name?
 }
 
 async function handlePlan(period: PeriodItem) {
-  if (period.id) {
-    router.push(`/planning/week/${period.id}`)
+  const existing = weeklyPlanStore.getCanonicalWeeklyPlanByPeriod(
+    period.startDate,
+    period.endDate
+  )
+  if (existing) {
+    router.push(`/planning/week/${existing.id}`)
     return
   }
 
@@ -1291,8 +1311,12 @@ async function handlePlan(period: PeriodItem) {
 }
 
 async function handleReflect(period: PeriodItem) {
-  if (period.id) {
-    router.push(`/planning/week/${period.id}/reflect`)
+  const existing = weeklyPlanStore.getCanonicalWeeklyPlanByPeriod(
+    period.startDate,
+    period.endDate
+  )
+  if (existing) {
+    router.push(`/planning/week/${existing.id}/reflect`)
     return
   }
 

@@ -105,14 +105,26 @@
         class="mt-8 space-y-4"
       >
         <!-- Selected period title -->
-        <div>
-          <h3 class="text-lg font-semibold text-on-surface">
-            {{ selectedPeriodRange }}
-          </h3>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-semibold text-on-surface">
+              {{ selectedPeriodRange }}
+            </h3>
+            <p v-if="selectedPeriodTitle" class="mt-1 text-xs text-on-surface-variant">
+              {{ selectedPeriodTitle }}
+            </p>
+          </div>
+          <button
+            v-if="hasSelectedPlan"
+            type="button"
+            class="neo-icon-button neo-icon-button--danger neo-focus h-10 gap-2 px-3 py-0 text-sm font-medium"
+            aria-label="Delete selected year period"
+            @click="openDeletePlanDialog"
+          >
+            <TrashIcon class="h-4 w-4" />
+            <span>Delete period</span>
+          </button>
         </div>
-        <p v-if="selectedPeriodTitle" class="text-xs text-on-surface-variant -mt-2">
-          {{ selectedPeriodTitle }}
-        </p>
 
         <!-- Plan / Reflect panels -->
         <div class="grid gap-4 sm:grid-cols-2 items-start">
@@ -547,19 +559,18 @@ const detailsError = computed(
 )
 
 const existingPeriods = computed(() =>
-  yearlyPlanStore.yearlyPlans.map((plan) => ({
+  yearlyPlanStore.canonicalYearlyPlans.map((plan) => ({
     startDate: plan.startDate,
     endDate: plan.endDate,
   }))
 )
 
 const periods = computed<PeriodItem[]>(() => {
-  const items: PeriodItem[] = yearlyPlanStore.yearlyPlans.map((plan: YearlyPlan) => {
+  const items: PeriodItem[] = yearlyPlanStore.canonicalYearlyPlans.map((plan: YearlyPlan) => {
     const reflection = yearlyReflectionStore.getReflectionByPlanId(plan.id)
     const hasPlanContent = Boolean(
       plan.yearTheme?.trim() ||
-      plan.primaryFocusLifeAreaId ||
-      plan.focusLifeAreaIds.length > 0 ||
+      Object.values(plan.lifeAreaNarratives ?? {}).some((narrative) => narrative.trim().length > 0) ||
       priorityStore.getPrioritiesByYear(plan.year).length > 0
     )
     return {
@@ -725,50 +736,22 @@ watch(
   { immediate: true }
 )
 
-// ============================================================================
-// Life Areas + Focus Life Areas
-// ============================================================================
-
 const activeLifeAreas = computed(() => lifeAreaStore.sortedLifeAreas)
-
-const focusLifeAreaIds = computed(() => selectedYearlyPlan.value?.focusLifeAreaIds ?? [])
-
-const focusLifeAreas = computed(() => {
-  return focusLifeAreaIds.value
-    .map((id) => lifeAreaStore.getLifeAreaById(id))
-    .filter(Boolean) as LifeArea[]
-})
-
-const primaryFocusLifeArea = computed(() => {
-  const id = selectedYearlyPlan.value?.primaryFocusLifeAreaId
-  return id ? lifeAreaStore.getLifeAreaById(id) : undefined
-})
-
-const secondaryFocusLifeAreas = computed(() => {
-  if (!primaryFocusLifeArea.value) return focusLifeAreas.value
-  return focusLifeAreas.value.filter((la) => la.id !== primaryFocusLifeArea.value?.id)
-})
 
 const planHighlights = computed(() => {
   if (!selectedYearlyPlan.value) return []
-  const focusSummary = focusLifeAreas.value.length
-    ? [
-        primaryFocusLifeArea.value
-          ? `Primary: ${primaryFocusLifeArea.value.name}`
-          : undefined,
-        secondaryFocusLifeAreas.value.length
-          ? `Other: ${secondaryFocusLifeAreas.value.map((la) => la.name).join(', ')}`
-          : undefined,
-      ]
-        .filter(Boolean)
-        .join(' · ')
-    : undefined
+  const narrativeCount = Object.values(selectedYearlyPlan.value.lifeAreaNarratives ?? {}).filter(
+    (narrative) => narrative.trim().length > 0
+  ).length
   const priorityCount = priorityStore.getPrioritiesByYear(selectedYear.value).length
   const prioritySummary = priorityCount > 0 ? `${priorityCount} priorities` : undefined
 
   return [
     { label: 'Year theme', value: selectedYearlyPlan.value.yearTheme },
-    { label: 'Focus areas', value: focusSummary },
+    {
+      label: 'Life area narratives',
+      value: narrativeCount > 0 ? `${narrativeCount} captured` : undefined,
+    },
     { label: 'Priorities', value: prioritySummary },
   ].filter((item) => item.value && item.value.trim().length > 0) as {
     label: string
@@ -940,16 +923,10 @@ async function handlePriorityIconUpdate(priorityId: string, icon: string | undef
 
 function getItemStatusesForPeriod(period: PeriodItem) {
   if (!period.id) return []
-  const plan = yearlyPlanStore.getYearlyPlanById(period.id)
-  if (!plan) return []
-  const ids = plan.focusLifeAreaIds ?? []
-  return ids
-    .map((id) => {
-      const lifeArea = lifeAreaStore.getLifeAreaById(id)
-      if (!lifeArea) return undefined
-      return { label: lifeArea.name, status: lifeArea.isActive ? 'active' : 'paused' }
-    })
-    .filter(Boolean) as { label: string; status: string }[]
+  return priorityStore.getPrioritiesByYear(period.year).map((priority) => ({
+    label: priority.name,
+    status: priority.isActive ? 'active' : 'paused',
+  }))
 }
 
 function handleCardPlan(period: PeriodItem) {
@@ -983,23 +960,23 @@ async function loadData() {
 
 async function handleCreate(payload: { startDate: string; endDate: string; name?: string }) {
   const year = getYearFromDate(payload.startDate)
-  const created = await yearlyPlanStore.createYearlyPlan({
+  const existing = yearlyPlanStore.getCanonicalYearlyPlanByYear(year)
+  const created = existing ?? await yearlyPlanStore.createYearlyPlan({
     startDate: payload.startDate,
     endDate: payload.endDate,
     name: payload.name,
     year,
     yearTheme: undefined,
-    focusLifeAreaIds: [],
-    primaryFocusLifeAreaId: undefined,
   })
 
   isDialogOpen.value = false
-  router.push(`/planning/year/${created.year}`)
+  router.push(`/planning/year/${created.id}`)
 }
 
 async function handlePlan(period: PeriodItem) {
-  if (period.id) {
-    router.push(`/planning/year/${period.year}`)
+  const existing = yearlyPlanStore.getCanonicalYearlyPlanByYear(period.year)
+  if (existing) {
+    router.push(`/planning/year/${existing.id}`)
     return
   }
 
@@ -1009,16 +986,15 @@ async function handlePlan(period: PeriodItem) {
     name: period.name,
     year: period.year,
     yearTheme: undefined,
-    focusLifeAreaIds: [],
-    primaryFocusLifeAreaId: undefined,
   })
 
-  router.push(`/planning/year/${created.year}`)
+  router.push(`/planning/year/${created.id}`)
 }
 
 async function handleReflect(period: PeriodItem) {
-  if (period.id) {
-    router.push(`/planning/year/${period.id}/reflect`)
+  const existing = yearlyPlanStore.getCanonicalYearlyPlanByYear(period.year)
+  if (existing) {
+    router.push(`/planning/year/${existing.id}/reflect`)
     return
   }
 
@@ -1028,8 +1004,6 @@ async function handleReflect(period: PeriodItem) {
     name: period.name,
     year: period.year,
     yearTheme: undefined,
-    focusLifeAreaIds: [],
-    primaryFocusLifeAreaId: undefined,
   })
 
   router.push(`/planning/year/${created.id}/reflect`)

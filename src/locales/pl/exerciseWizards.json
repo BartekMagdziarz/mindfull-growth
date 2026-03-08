@@ -38,7 +38,7 @@
     "stepTitles": {
       "intro": "Koło Życia",
       "rate": "Oceń swoje zadowolenie",
-      "focus": "Wybierz obszary do rozwoju",
+      "focus": "Przejrzyj obszary",
       "reflect": "Refleksja"
     },
     "stepSubtitles": {
@@ -94,7 +94,7 @@
       }
     },
     "focusPicker": {
-      "description": "Na podstawie twojego koła wybierz 2–3 obszary, na których chcesz się skupić. Zostaną one zasugerowane jako obszary rozwoju w twoim planie rocznym.",
+      "description": "Przejrzyj obszary, ktore najbardziej wyrozniaja sie w twoim kole, zanim pojdziesz dalej.",
       "outOfTen": "/10",
       "validationMessage": "Wybierz co najmniej 1 obszar, aby kontynuować"
     },

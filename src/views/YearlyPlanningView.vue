@@ -326,10 +326,9 @@
       <!-- Step 4: Wheel of Life -->
       <div v-if="draft.activeStep === 4">
         <WheelOfLifeExercise
-          mode="planning"
+          mode="standalone"
           :show-cancel="true"
           @saved="handleWheelOfLifeSaved"
-          @suggest-focus-areas="handleSuggestedFocusAreas"
           @cancel="handleNext"
         />
       </div>
@@ -343,111 +342,8 @@
         />
       </div>
 
-      <!-- Step 6: Select Focus Life Areas -->
+      <!-- Step 6: Life Area Baselines -->
       <div v-if="draft.activeStep === 6">
-        <AppCard padding="lg" class="mb-6">
-          <h2 class="text-lg font-semibold text-neu-text mb-2 flex items-center gap-2">
-            <RectangleStackIcon class="w-5 h-5 text-primary" />
-            {{ t('planning.yearly.focusAreas.title') }}
-          </h2>
-          <p class="text-neu-muted text-sm">
-            {{ t('planning.yearly.focusAreas.description') }}
-          </p>
-        </AppCard>
-
-        <AppCard padding="lg" class="mb-4">
-          <p class="text-sm font-medium text-neu-muted mb-3 flex items-center gap-1.5">
-            <SparklesIcon class="w-4 h-4 text-primary" />
-            Select life areas to focus on
-          </p>
-          <div v-if="activeLifeAreas.length > 0" class="flex flex-wrap gap-2.5">
-            <button
-              v-for="la in activeLifeAreas"
-              :key="la.id"
-              type="button"
-              class="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium border transition-all hover:-translate-y-px"
-              :class="isFocusLifeAreaSelected(la.id)
-                ? 'bg-primary/10 border-primary/40 text-primary'
-                : 'bg-surface border-outline/20 text-neu-text'"
-              @click="toggleFocusLifeArea(la.id)"
-            >
-              <div
-                class="w-3.5 h-3.5 rounded-full flex-shrink-0 ring-2 ring-offset-1"
-                :style="{ backgroundColor: la.color || 'rgb(var(--color-primary))', '--tw-ring-color': (la.color || 'rgb(var(--color-primary))') + '40', '--tw-ring-offset-color': 'rgb(var(--color-surface))' }"
-              />
-              <span class="truncate">{{ la.name }}</span>
-              <CheckIcon
-                v-if="isFocusLifeAreaSelected(la.id)"
-                class="w-4 h-4 ml-1 text-primary"
-              />
-              <PlusIcon
-                v-else
-                class="w-4 h-4 ml-1 text-neu-muted"
-              />
-            </button>
-          </div>
-          <p v-else class="text-sm text-neu-muted">
-            No active life areas yet. Create one to continue.
-          </p>
-        </AppCard>
-
-        <AppCard
-          v-if="draft.focusLifeAreaIds.length > 0"
-          padding="lg"
-          class="mb-4"
-        >
-          <label for="primary-focus-life-area" class="block text-sm font-medium text-neu-text mb-2">
-            {{ t('planning.yearly.focusAreas.primaryFocus') }}
-          </label>
-          <select
-            id="primary-focus-life-area"
-            v-model="draft.primaryFocusLifeAreaId"
-            class="neo-input w-full px-3 py-2"
-          >
-            <option value="" disabled>{{ t('planning.yearly.focusAreas.selectPrimary') }}</option>
-            <option
-              v-for="la in selectedFocusLifeAreas"
-              :key="la.id"
-              :value="la.id"
-            >
-              {{ la.name }}
-            </option>
-          </select>
-          <p class="mt-2 text-xs text-neu-muted">
-            Your primary focus guides decisions when things compete for attention.
-          </p>
-        </AppCard>
-
-        <!-- Wheel of Life suggestions (matching existing life areas only) -->
-        <AppCard
-          v-if="suggestedLifeAreas.length > 0"
-          padding="md"
-          class="mb-4"
-        >
-          <p class="text-xs font-medium text-neu-muted mb-2">
-            Suggestions from your Wheel of Life:
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="la in suggestedLifeAreas"
-              :key="la.id"
-              type="button"
-              class="px-3 py-1 rounded-full text-xs font-medium border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
-              @click="toggleFocusLifeArea(la.id)"
-            >
-              + {{ la.name }}
-            </button>
-          </div>
-        </AppCard>
-
-        <!-- Validation Error -->
-        <p v-if="focusAreasValidationError" class="mt-4 text-sm text-error">
-          {{ focusAreasValidationError }}
-        </p>
-      </div>
-
-      <!-- Step 7: Life Area Baselines -->
-      <div v-if="draft.activeStep === 7">
         <AppCard padding="lg" class="mb-6">
           <h2 class="text-lg font-semibold text-neu-text mb-2 flex items-center gap-2">
             <PencilSquareIcon class="w-5 h-5 text-primary" />
@@ -460,7 +356,7 @@
 
         <div class="space-y-4">
           <AppCard
-            v-for="lifeArea in selectedFocusLifeAreas"
+            v-for="lifeArea in activeLifeAreas"
             :key="lifeArea.id"
             padding="lg"
           >
@@ -518,8 +414,8 @@
         </AppCard>
       </div>
 
-      <!-- Step 8: Define Priorities -->
-      <div v-if="draft.activeStep === 8">
+      <!-- Step 7: Define Priorities -->
+      <div v-if="draft.activeStep === 7">
         <AppCard padding="lg" class="mb-6">
           <h2 class="text-lg font-semibold text-neu-text mb-2 flex items-center gap-2">
             <FlagIcon class="w-5 h-5 text-primary" />
@@ -585,13 +481,11 @@
         </p>
       </div>
 
-      <!-- Step 9: Review & Confirm -->
-      <div v-if="draft.activeStep === 9">
+      <!-- Step 8: Review & Confirm -->
+      <div v-if="draft.activeStep === 8">
         <YearlyReviewSummary
           :draft="draft"
           :life-areas="activeLifeAreas"
-          :focus-life-area-ids="draft.focusLifeAreaIds"
-          :primary-focus-life-area-id="draft.primaryFocusLifeAreaId"
           :priorities="draft.priorities"
         />
 
@@ -636,7 +530,7 @@
           </AppButton>
           <AppButton
             variant="filled"
-            :disabled="isSaving || (draft.activeStep === 9 && !canConfirm)"
+            :disabled="isSaving || (draft.activeStep === 8 && !canConfirm)"
             @click="handleNext"
           >
             {{ nextButtonText }}
@@ -676,7 +570,8 @@
  * This view guides users through the yearly planning process:
  * - Step 1: Define the yearly period dates and optional name
  * - Step 2: Set a theme/word for the year
- * - Steps 3-6: Focus Areas, Baselines, Priorities, Review (Story 10-11)
+ * - Steps 3-5: Visioning and Wheel of Life
+ * - Steps 6-8: Baselines, priorities, and review
  *
  * Draft state is persisted to sessionStorage so users can resume.
  * Final persistence to IndexedDB happens only in the Review step.
@@ -690,7 +585,6 @@ import {
   CheckIcon,
   CalendarDaysIcon,
   SparklesIcon,
-  RectangleStackIcon,
   FlagIcon,
   PlusIcon,
   ExclamationCircleIcon,
@@ -712,13 +606,13 @@ import {
   type DraftDreaming,
 } from '@/composables/useYearlyPlanningDraft'
 import type { LifeArea } from '@/domain/lifeArea'
-import type { WheelOfLifeArea } from '@/domain/exercises'
 import { useYearlyPlanStore } from '@/stores/yearlyPlan.store'
 import { usePriorityStore } from '@/stores/priority.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useWheelOfLifeStore } from '@/stores/wheelOfLife.store'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
-import { getCurrentYear, getDefaultPeriodName } from '@/utils/periodUtils'
+import { isLegacyYearToken } from '@/utils/planCanonicalization'
+import { getCurrentYear, getDefaultPeriodName, getYearFromDate } from '@/utils/periodUtils'
 
 // ============================================================================
 // Route & Router
@@ -728,6 +622,35 @@ const { t } = useT()
 
 const route = useRoute()
 const router = useRouter()
+const yearlyPlanStore = useYearlyPlanStore()
+const priorityStore = usePriorityStore()
+const valuesDiscoveryStore = useValuesDiscoveryStore()
+const wheelOfLifeStore = useWheelOfLifeStore()
+const lifeAreaStore = useLifeAreaStore()
+
+const routePlanId = computed(() => route.params.planId as string | undefined)
+const routeQueryYear = computed(() => {
+  const raw = Array.isArray(route.query.year) ? route.query.year[0] : route.query.year
+  if (!raw) return undefined
+  const parsed = parseInt(String(raw), 10)
+  return Number.isFinite(parsed) ? parsed : undefined
+})
+const legacyRouteYear = computed(() => {
+  const planId = routePlanId.value
+  if (!isLegacyYearToken(planId)) return undefined
+  return parseInt(planId, 10)
+})
+const routedEditPlanId = computed(() => {
+  if (!routePlanId.value || routePlanId.value === 'new' || isLegacyYearToken(routePlanId.value)) {
+    return undefined
+  }
+  return routePlanId.value
+})
+const resolvedEditPlan = computed(() => {
+  return routedEditPlanId.value
+    ? yearlyPlanStore.getYearlyPlanById(routedEditPlanId.value)
+    : undefined
+})
 
 // ============================================================================
 // Step Definitions
@@ -746,7 +669,6 @@ const steps = computed<Step[]>(() => [
   { id: 'vision', title: t('planning.yearly.steps.vision.title'), subtitle: t('planning.yearly.steps.vision.subtitle') },
   { id: 'wheelOfLife', title: t('planning.yearly.steps.lifeWheel.title'), subtitle: t('planning.yearly.steps.lifeWheel.subtitle') },
   { id: 'dreaming', title: t('planning.yearly.steps.dreaming.title'), subtitle: t('planning.yearly.steps.dreaming.subtitle') },
-  { id: 'focusAreas', title: t('planning.yearly.steps.focusAreas.title'), subtitle: t('planning.yearly.steps.focusAreas.subtitle') },
   { id: 'baselines', title: t('planning.yearly.steps.baselines.title'), subtitle: t('planning.yearly.steps.baselines.subtitle') },
   { id: 'priorities', title: t('planning.yearly.steps.priorities.title'), subtitle: t('planning.yearly.steps.priorities.subtitle') },
   { id: 'review', title: t('planning.yearly.steps.review.title'), subtitle: t('planning.yearly.steps.review.subtitle') },
@@ -765,10 +687,15 @@ const themeExamples = computed(() => {
 // ============================================================================
 
 const targetYear = computed(() => {
-  // If editing an existing year, use route param; otherwise use current year
-  const routeYear = route.params.year as string | undefined
-  return routeYear ? parseInt(routeYear, 10) : getCurrentYear()
+  if (resolvedEditPlan.value) {
+    return resolvedEditPlan.value.year
+  }
+  return routeQueryYear.value ?? legacyRouteYear.value ?? getCurrentYear()
 })
+
+const draftStorageKey = computed(() =>
+  routedEditPlanId.value ? `yearly-planning-draft-plan-${routedEditPlanId.value}` : undefined
+)
 
 // ============================================================================
 // Draft State
@@ -776,15 +703,14 @@ const targetYear = computed(() => {
 
 const {
   draft,
-  ready: draftReady,
+  reloadDraft,
   clearDraft,
   hasDraft,
-  toggleFocusLifeArea,
   addPriority,
   updatePriority,
   deletePriority,
   seedFromExisting,
-} = useYearlyPlanningDraft(targetYear.value)
+} = useYearlyPlanningDraft(targetYear, draftStorageKey)
 
 const defaultPeriodName = computed(() => {
   if (!draft.value.startDate || !draft.value.endDate) {
@@ -817,25 +743,7 @@ const headerLabel = computed(() => {
   return `${targetYear.value}`
 })
 
-// ============================================================================
-// Stores
-// ============================================================================
-
-const yearlyPlanStore = useYearlyPlanStore()
-const priorityStore = usePriorityStore()
-const valuesDiscoveryStore = useValuesDiscoveryStore()
-const wheelOfLifeStore = useWheelOfLifeStore()
-const lifeAreaStore = useLifeAreaStore()
-
 const activeLifeAreas = computed(() => lifeAreaStore.activeLifeAreas)
-
-const selectedFocusLifeAreas = computed(() =>
-  activeLifeAreas.value.filter((la) => draft.value.focusLifeAreaIds.includes(la.id))
-)
-
-function isFocusLifeAreaSelected(lifeAreaId: string): boolean {
-  return draft.value.focusLifeAreaIds.includes(lifeAreaId)
-}
 
 const wheelOfLifeSnapshot = computed(() => {
   if (draft.value.wheelOfLifeSnapshotId) {
@@ -854,9 +762,6 @@ function getWheelRating(lifeArea: LifeArea): number | null {
   )
   return byName?.rating ?? null
 }
-
-// WoL state
-const suggestedLifeAreas = ref<LifeArea[]>([])
 
 // ============================================================================
 // Loading State
@@ -877,7 +782,7 @@ const sortedDraftPriorities = computed(() =>
 )
 
 const missingNarrativeLifeAreas = computed(() =>
-  selectedFocusLifeAreas.value.filter(
+  activeLifeAreas.value.filter(
     (area) => !draft.value.lifeAreaNarratives[area.id]?.trim()
   )
 )
@@ -935,22 +840,8 @@ function handleTogglePriorityStatus(id: string) {
 // Validation
 // ============================================================================
 
-const focusAreasValidationError = computed(() => {
-  if (draft.value.activeStep !== 6) return ''
-  if (draft.value.focusLifeAreaIds.length === 0) {
-    return 'Please select at least one Focus Life Area before continuing.'
-  }
-  if (!draft.value.primaryFocusLifeAreaId) {
-    return 'Please choose a primary focus life area.'
-  }
-  if (!draft.value.focusLifeAreaIds.includes(draft.value.primaryFocusLifeAreaId)) {
-    return 'Primary focus must be one of your selected life areas.'
-  }
-  return ''
-})
-
 const prioritiesValidationError = computed(() => {
-  if (draft.value.activeStep !== 8) return ''
+  if (draft.value.activeStep !== 7) return ''
   const emptyName = draft.value.priorities.find((p) => !p.name.trim())
   if (emptyName) {
     return t('planning.common.validation.nameRequired')
@@ -962,13 +853,10 @@ function validateCurrentStep(): boolean {
   if (draft.value.activeStep === 1) {
     return !periodValidationError.value
   }
-  if (draft.value.activeStep === 6) {
-    return !focusAreasValidationError.value
-  }
-  if (draft.value.activeStep === 8) {
+  if (draft.value.activeStep === 7) {
     return !prioritiesValidationError.value
   }
-  if (draft.value.activeStep === 9) {
+  if (draft.value.activeStep === 8) {
     return canConfirm.value
   }
   return true
@@ -982,16 +870,6 @@ function validateCurrentStep(): boolean {
  * Validate that the plan can be confirmed
  */
 const canConfirm = computed(() => {
-  // Re-check Step 3 validation: must have at least one focus life area
-  if (draft.value.focusLifeAreaIds.length === 0) {
-    return false
-  }
-  if (!draft.value.primaryFocusLifeAreaId) {
-    return false
-  }
-  if (!draft.value.focusLifeAreaIds.includes(draft.value.primaryFocusLifeAreaId)) {
-    return false
-  }
   // All priorities must have names
   if (draft.value.priorities.some((p) => !p.name.trim())) {
     return false
@@ -999,11 +877,24 @@ const canConfirm = computed(() => {
   return true
 })
 
+const planningYearForSave = computed(() => {
+  if (isEditMode.value) {
+    return resolvedEditPlan.value?.year ?? targetYear.value
+  }
+  if (draft.value.startDate) {
+    return getYearFromDate(draft.value.startDate)
+  }
+  return targetYear.value
+})
+
+const canonicalYearlyPlanForDraft = computed(() => {
+  return yearlyPlanStore.getCanonicalYearlyPlanByYear(planningYearForSave.value)
+})
+
 function getLifeAreaNarrativesPayload(): Record<string, string> {
-  const focusLifeAreaIds = new Set(draft.value.focusLifeAreaIds)
   const entries = Object.entries(draft.value.lifeAreaNarratives || {})
     .map(([id, narrative]) => [id, narrative.trim()] as const)
-    .filter(([id, narrative]) => focusLifeAreaIds.has(id) && narrative.length > 0)
+    .filter(([, narrative]) => narrative.length > 0)
   return Object.fromEntries(entries)
 }
 
@@ -1020,8 +911,12 @@ async function handleConfirm(): Promise<void> {
   saveError.value = null
 
   try {
-    if (isEditMode.value) {
-      await handleConfirmEditMode()
+    const canonicalExistingPlanId = isEditMode.value
+      ? resolvedEditPlan.value?.id
+      : canonicalYearlyPlanForDraft.value?.id
+
+    if (canonicalExistingPlanId) {
+      await handleConfirmEditMode(canonicalExistingPlanId)
     } else {
       await handleConfirmCreateMode()
     }
@@ -1045,7 +940,7 @@ async function handleConfirmCreateMode(): Promise<void> {
   for (const draftPriority of draft.value.priorities) {
     await priorityStore.createPriority({
       lifeAreaIds: draftPriority.lifeAreaIds.filter(Boolean),
-      year: targetYear.value,
+      year: planningYearForSave.value,
       name: draftPriority.name.trim(),
       icon: draftPriority.icon,
       successSignals: draftPriority.successSignals.filter((s) => s.trim()),
@@ -1055,12 +950,12 @@ async function handleConfirmCreateMode(): Promise<void> {
     })
   }
 
-  // 2. Create YearlyPlan with focus life areas and new fields
+  // 2. Create YearlyPlan with yearly framing and narratives
   await yearlyPlanStore.createYearlyPlan({
     startDate: draft.value.startDate,
     endDate: draft.value.endDate,
     name: draft.value.name.trim() || undefined,
-    year: targetYear.value,
+    year: planningYearForSave.value,
     yearTheme: draft.value.yearTheme.trim() || undefined,
     yourStory: draft.value.yourStory.trim() || undefined,
     fantasticDay: draft.value.fantasticDay.trim() || undefined,
@@ -1074,23 +969,21 @@ async function handleConfirmCreateMode(): Promise<void> {
     wheelOfLifeSnapshotId: draft.value.wheelOfLifeSnapshotId || undefined,
     dreaming: draft.value.dreaming,
     lifeAreaNarratives: getLifeAreaNarrativesPayload(),
-    primaryFocusLifeAreaId: draft.value.primaryFocusLifeAreaId || undefined,
-    focusLifeAreaIds: draft.value.focusLifeAreaIds,
   })
 }
 
 /**
  * Edit mode: Determine what's new, updated, or deleted
  */
-async function handleConfirmEditMode(): Promise<void> {
+async function handleConfirmEditMode(planId: string): Promise<void> {
   // Load existing data for comparison
   await Promise.all([
-    priorityStore.loadPriorities(targetYear.value),
-    yearlyPlanStore.loadYearlyPlans({ year: targetYear.value }),
+    priorityStore.loadPriorities(planningYearForSave.value),
+    yearlyPlanStore.loadYearlyPlans(),
   ])
 
-  const existingPriorities = priorityStore.getPrioritiesByYear(targetYear.value)
-  const existingYearlyPlan = yearlyPlanStore.getYearlyPlansByYear(targetYear.value)[0]
+  const existingPriorities = priorityStore.getPrioritiesByYear(planningYearForSave.value)
+  const existingYearlyPlan = yearlyPlanStore.getYearlyPlanById(planId)
 
   // Build sets for comparison
   const existingPriorityIds = new Set(existingPriorities.map((p) => p.id))
@@ -1116,7 +1009,7 @@ async function handleConfirmEditMode(): Promise<void> {
   for (const draftPriority of prioritiesToCreate) {
     await priorityStore.createPriority({
       lifeAreaIds: draftPriority.lifeAreaIds.filter(Boolean),
-      year: targetYear.value,
+      year: planningYearForSave.value,
       name: draftPriority.name.trim(),
       icon: draftPriority.icon,
       successSignals: draftPriority.successSignals.filter((s) => s.trim()),
@@ -1144,6 +1037,7 @@ async function handleConfirmEditMode(): Promise<void> {
     startDate: draft.value.startDate,
     endDate: draft.value.endDate,
     name: draft.value.name.trim() || undefined,
+    year: planningYearForSave.value,
     yearTheme: draft.value.yearTheme.trim() || undefined,
     yourStory: draft.value.yourStory.trim() || undefined,
     fantasticDay: draft.value.fantasticDay.trim() || undefined,
@@ -1157,8 +1051,6 @@ async function handleConfirmEditMode(): Promise<void> {
     wheelOfLifeSnapshotId: draft.value.wheelOfLifeSnapshotId || undefined,
     dreaming: draft.value.dreaming,
     lifeAreaNarratives: getLifeAreaNarrativesPayload(),
-    primaryFocusLifeAreaId: draft.value.primaryFocusLifeAreaId || undefined,
-    focusLifeAreaIds: draft.value.focusLifeAreaIds,
   }
 
   if (existingYearlyPlan) {
@@ -1166,7 +1058,6 @@ async function handleConfirmEditMode(): Promise<void> {
   } else {
     await yearlyPlanStore.createYearlyPlan({
       ...planPayload,
-      year: targetYear.value,
     })
   }
 }
@@ -1176,13 +1067,13 @@ async function handleConfirmEditMode(): Promise<void> {
 // ============================================================================
 
 const canSkip = computed(() => {
-  // Skippable steps: framing(0), values(2), vision(3), wheelOfLife(4), dreaming(5), baselines(7), priorities(8)
-  const skippable = [0, 2, 3, 4, 5, 7, 8]
+  // Skippable steps: framing(0), values(2), vision(3), wheelOfLife(4), dreaming(5), baselines(6), priorities(7)
+  const skippable = [0, 2, 3, 4, 5, 6, 7]
   return skippable.includes(draft.value.activeStep)
 })
 
 const nextButtonText = computed(() => {
-  if (draft.value.activeStep === 9) {
+  if (draft.value.activeStep === 8) {
     return isSaving.value ? t('common.saving') : t('planning.yearly.nextButton.savePlan')
   }
   const nextStep = steps.value[draft.value.activeStep + 1]
@@ -1248,15 +1139,6 @@ function handleWheelOfLifeSaved(snapshotId: string) {
   handleNext()
 }
 
-function handleSuggestedFocusAreas(areas: WheelOfLifeArea[]) {
-  const lifeAreaByName = new Map(
-    lifeAreaStore.activeLifeAreas.map((la) => [la.name.toLowerCase(), la])
-  )
-  suggestedLifeAreas.value = areas
-    .map((area) => lifeAreaByName.get(area.name.toLowerCase()))
-    .filter(Boolean) as LifeArea[]
-}
-
 function handleDreamingCompleted(data: DraftDreaming) {
   draft.value.dreaming = data
   handleNext()
@@ -1267,8 +1149,7 @@ function handleDreamingCompleted(data: DraftDreaming) {
 // ============================================================================
 
 const isEditMode = computed(() => {
-  const routeYear = route.params.year as string | undefined
-  return !!routeYear && routeYear !== 'new'
+  return Boolean(routedEditPlanId.value)
 })
 
 // ============================================================================
@@ -1281,15 +1162,36 @@ async function loadYearData() {
 
   try {
     await Promise.all([
-      draftReady,
-      yearlyPlanStore.loadYearlyPlans({ year: targetYear.value }),
-      priorityStore.loadPriorities(targetYear.value),
+      yearlyPlanStore.loadYearlyPlans(),
       valuesDiscoveryStore.loadDiscoveries(),
       wheelOfLifeStore.loadSnapshots(),
       lifeAreaStore.loadLifeAreas(),
     ])
 
-    const existingPlan = yearlyPlanStore.getYearlyPlansByYear(targetYear.value)[0]
+    if (legacyRouteYear.value) {
+      const canonicalPlan = yearlyPlanStore.getCanonicalYearlyPlanByYear(legacyRouteYear.value)
+      if (canonicalPlan) {
+        await router.replace(`/planning/year/${canonicalPlan.id}`)
+      } else {
+        await router.replace({
+          path: '/planning/year/new',
+          query: { year: `${legacyRouteYear.value}` },
+        })
+      }
+      return
+    }
+
+    if (routedEditPlanId.value && !resolvedEditPlan.value) {
+      error.value = 'Yearly plan not found'
+      return
+    }
+
+    await Promise.all([
+      priorityStore.loadPriorities(targetYear.value),
+      reloadDraft(),
+    ])
+
+    const existingPlan = resolvedEditPlan.value
 
     if (existingPlan && !hasDraft()) {
       draft.value.startDate = existingPlan.startDate
@@ -1308,11 +1210,7 @@ async function loadYearData() {
         draft.value.dreaming = existingPlan.dreaming
       }
       const priorities = priorityStore.getPrioritiesByYear(targetYear.value)
-      seedFromExisting(
-        existingPlan.focusLifeAreaIds || [],
-        existingPlan.primaryFocusLifeAreaId,
-        priorities
-      )
+      seedFromExisting(priorities)
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load yearly planning data'
@@ -1332,7 +1230,7 @@ onMounted(() => {
 
 // Watch for year changes (if navigating between different years)
 watch(
-  () => route.params.year,
+  () => [route.params.planId, route.query.year],
   () => {
     loadYearData()
   }

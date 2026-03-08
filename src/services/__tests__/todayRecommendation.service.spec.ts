@@ -8,7 +8,6 @@ import type { TodayRecommendationFeedback } from '@/types/today'
 describe('todayRecommendation.service', () => {
   it('returns at most two recommendations', () => {
     const recommendations = generateTodayRecommendations({
-      mode: 'morning',
       now: new Date('2026-02-14T08:00:00.000Z'),
       todayEmotionCount: 0,
       emotionTarget: 3,
@@ -22,9 +21,8 @@ describe('todayRecommendation.service', () => {
     expect(recommendations.length).toBeLessThanOrEqual(2)
   })
 
-  it('prioritizes regulation suggestions when recent activated emotion exists in midday mode', () => {
+  it('prioritizes regulation suggestions when a recent activated emotion exists', () => {
     const recommendations = generateTodayRecommendations({
-      mode: 'midday',
       now: new Date('2026-02-14T13:00:00.000Z'),
       todayEmotionCount: 0,
       emotionTarget: 3,
@@ -44,7 +42,6 @@ describe('todayRecommendation.service', () => {
     const feedbackMap = applyRecommendationFeedback({}, 'ifs-daily-checkin', 'not-now', now)
 
     const recommendations = generateTodayRecommendations({
-      mode: 'midday',
       now,
       todayEmotionCount: 0,
       emotionTarget: 3,

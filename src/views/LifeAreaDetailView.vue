@@ -149,7 +149,7 @@ const area = computed(() => lifeAreaStore.getLifeAreaById(route.params.id as str
 const latestNarrativePlan = computed(() => {
   if (!area.value) return null
   const plans = yearlyPlanStore.yearlyPlans.filter((plan) =>
-    plan.focusLifeAreaIds.includes(area.value!.id)
+    Boolean(plan.lifeAreaNarratives?.[area.value!.id]?.trim())
   )
   if (plans.length === 0) return null
   return plans.sort((a, b) => {

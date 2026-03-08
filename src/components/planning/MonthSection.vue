@@ -226,8 +226,7 @@ const error = computed(
 
 // Get the current monthly plan (the one where today falls within startDate-endDate)
 const currentMonthlyPlan = computed(() => {
-  const plans = monthlyPlanStore.getCurrentMonthPlans
-  return plans.length > 0 ? plans[0] : undefined
+  return monthlyPlanStore.getCurrentMonthPlan
 })
 
 const hasPlan = computed(() => !!currentMonthlyPlan.value)

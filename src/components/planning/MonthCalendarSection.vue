@@ -116,13 +116,25 @@
         class="mt-10 space-y-7"
       >
         <!-- Selected period title -->
-        <div class="space-y-1">
-          <h3 class="text-lg font-semibold text-on-surface">
-            {{ selectedPeriodRange }}
-          </h3>
-          <p v-if="selectedPeriodTitle" class="text-sm text-on-surface-variant">
-            {{ selectedPeriodTitle }}
-          </p>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="space-y-1">
+            <h3 class="text-lg font-semibold text-on-surface">
+              {{ selectedPeriodRange }}
+            </h3>
+            <p v-if="selectedPeriodTitle" class="text-sm text-on-surface-variant">
+              {{ selectedPeriodTitle }}
+            </p>
+          </div>
+          <button
+            v-if="hasSelectedPlan"
+            type="button"
+            class="neo-icon-button neo-icon-button--danger neo-focus h-10 gap-2 px-3 py-0 text-sm font-medium"
+            aria-label="Delete selected month period"
+            @click="openDeletePlanDialog"
+          >
+            <TrashIcon class="h-4 w-4" />
+            <span>Delete period</span>
+          </button>
         </div>
 
         <!-- Plan / Reflect panels -->
@@ -495,19 +507,17 @@ const detailsError = computed(
 )
 
 const existingPeriods = computed(() =>
-  monthlyPlanStore.monthlyPlans.map((plan) => ({
+  monthlyPlanStore.canonicalMonthlyPlans.map((plan) => ({
     startDate: plan.startDate,
     endDate: plan.endDate,
   }))
 )
 
 const periods = computed<PeriodItem[]>(() => {
-  const items: PeriodItem[] = monthlyPlanStore.monthlyPlans.map((plan: MonthlyPlan) => {
+  const items: PeriodItem[] = monthlyPlanStore.canonicalMonthlyPlans.map((plan: MonthlyPlan) => {
     const reflection = monthlyReflectionStore.getReflectionByPlanId(plan.id)
     const hasPlanContent = Boolean(
       plan.monthIntention?.trim() ||
-      plan.primaryFocusLifeAreaId ||
-      plan.secondaryFocusLifeAreaIds.length > 0 ||
       projectStore.getProjectsByMonthId(plan.id).length > 0
     )
     return {
@@ -522,7 +532,7 @@ const periods = computed<PeriodItem[]>(() => {
     }
   })
 
-  const hasCurrent = monthlyPlanStore.monthlyPlans.some((plan) =>
+  const hasCurrent = monthlyPlanStore.canonicalMonthlyPlans.some((plan) =>
     isCurrentPeriod(plan.startDate, plan.endDate)
   )
 
@@ -698,18 +708,14 @@ const projects = computed(() => {
 const planHighlights = computed(() => {
   if (!selectedMonthlyPlan.value) return []
 
-  const primary = selectedMonthlyPlan.value.primaryFocusLifeAreaId
-    ? lifeAreaStore.getLifeAreaById(selectedMonthlyPlan.value.primaryFocusLifeAreaId)
-    : undefined
-  const secondaryNames = selectedMonthlyPlan.value.secondaryFocusLifeAreaIds
-    .map((id) => lifeAreaStore.getLifeAreaById(id)?.name)
-    .filter((name): name is string => Boolean(name))
-    .join(', ')
+  const projectCount = projectStore.getProjectsByMonthId(selectedMonthlyPlan.value.id).length
 
   return [
     { label: t('planning.components.monthCalendarSection.planHighlights.monthlyIntention'), value: selectedMonthlyPlan.value.monthIntention },
-    { label: t('planning.components.monthCalendarSection.planHighlights.primaryFocus'), value: primary?.name },
-    { label: t('planning.components.monthCalendarSection.planHighlights.secondaryFocus'), value: secondaryNames || undefined },
+    {
+      label: t('planning.components.monthCalendarSection.planHighlights.projects'),
+      value: projectCount > 0 ? `${projectCount}` : undefined,
+    },
   ].filter((item) => item.value && item.value.trim().length > 0) as {
     label: string
     value: string
@@ -1162,13 +1168,15 @@ async function loadData() {
 
 async function handleCreate(payload: { startDate: string; endDate: string; name?: string }) {
   const year = getYearFromDate(payload.startDate)
-  const created = await monthlyPlanStore.createMonthlyPlan({
+  const existing = monthlyPlanStore.getCanonicalMonthlyPlanByPeriod(
+    payload.startDate,
+    payload.endDate
+  )
+  const created = existing ?? await monthlyPlanStore.createMonthlyPlan({
     startDate: payload.startDate,
     endDate: payload.endDate,
     name: payload.name,
     year,
-    primaryFocusLifeAreaId: undefined,
-    secondaryFocusLifeAreaIds: [],
     monthIntention: undefined,
     projectIds: [],
   })
@@ -1178,8 +1186,12 @@ async function handleCreate(payload: { startDate: string; endDate: string; name?
 }
 
 async function handlePlan(period: PeriodItem) {
-  if (period.id) {
-    router.push(`/planning/month/${period.id}`)
+  const existing = monthlyPlanStore.getCanonicalMonthlyPlanByPeriod(
+    period.startDate,
+    period.endDate
+  )
+  if (existing) {
+    router.push(`/planning/month/${existing.id}`)
     return
   }
 
@@ -1188,8 +1200,6 @@ async function handlePlan(period: PeriodItem) {
     endDate: period.endDate,
     name: period.name,
     year: period.year,
-    primaryFocusLifeAreaId: undefined,
-    secondaryFocusLifeAreaIds: [],
     monthIntention: undefined,
     projectIds: [],
   })
@@ -1198,8 +1208,12 @@ async function handlePlan(period: PeriodItem) {
 }
 
 async function handleReflect(period: PeriodItem) {
-  if (period.id) {
-    router.push(`/planning/month/${period.id}/reflect`)
+  const existing = monthlyPlanStore.getCanonicalMonthlyPlanByPeriod(
+    period.startDate,
+    period.endDate
+  )
+  if (existing) {
+    router.push(`/planning/month/${existing.id}/reflect`)
     return
   }
 
@@ -1208,8 +1222,6 @@ async function handleReflect(period: PeriodItem) {
     endDate: period.endDate,
     name: period.name,
     year: period.year,
-    primaryFocusLifeAreaId: undefined,
-    secondaryFocusLifeAreaIds: [],
     monthIntention: undefined,
     projectIds: [],
   })
