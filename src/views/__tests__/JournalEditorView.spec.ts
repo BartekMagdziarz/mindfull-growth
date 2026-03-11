@@ -17,14 +17,14 @@ const EmotionSelectorStub = defineComponent({
     const selectEmotion = () => {
       emit('update:modelValue', [...modelValue.value, 'emotion-joy'])
     }
-    return { selectEmotion, modelValue }
+    return { selectEmotion, selectedEmotionIds: modelValue }
   },
   template: `
     <div data-testid="emotion-selector-stub">
       <button data-testid="add-emotion" type="button" @click="selectEmotion">
         Add Emotion
       </button>
-      <span data-testid="emotion-values">{{ modelValue.join(',') }}</span>
+      <span data-testid="emotion-values">{{ selectedEmotionIds.join(',') }}</span>
     </div>
   `,
 })
@@ -49,18 +49,22 @@ const TagInputStub = defineComponent({
         tagType.value === 'people' ? 'people-tag-friend' : 'context-tag-home'
       emit('update:modelValue', [...modelValue.value, id])
     }
-    return { selectTag, tagType, modelValue }
+    return {
+      selectTag,
+      tagKind: tagType,
+      selectedTagIds: modelValue,
+    }
   },
   template: `
-    <div :data-testid="tagType + '-tag-stub'">
+    <div :data-testid="tagKind + '-tag-stub'">
       <button
-        :data-testid="tagType + '-tag-button'"
+        :data-testid="tagKind + '-tag-button'"
         type="button"
         @click="selectTag"
       >
-        Select {{ tagType }}
+        Select {{ tagKind }}
       </button>
-      <span :data-testid="tagType + '-tag-values'">{{ modelValue.join(',') }}</span>
+      <span :data-testid="tagKind + '-tag-values'">{{ selectedTagIds.join(',') }}</span>
     </div>
   `,
 })

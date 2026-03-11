@@ -58,7 +58,6 @@ import { sendMessage as sendLLMMessage } from '@/services/llmService'
 import { useJournalStore } from '../journal.store'
 import { useEmotionStore } from '../emotion.store'
 import { useTagStore } from '../tag.store'
-import { useUserPreferencesStore } from '../userPreferences.store'
 import {
   getSystemPrompt,
   constructJournalEntryContext,
@@ -353,8 +352,7 @@ describe('useChatStore', () => {
       expect(constructJournalEntryContext).toHaveBeenCalledWith(
         mockEntry,
         mockEmotionStore,
-        mockTagStore,
-        'en'
+        mockTagStore
       )
     })
 
@@ -373,7 +371,6 @@ describe('useChatStore', () => {
       mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
 
       // Create a promise we can control
-      // eslint-disable-next-line no-unused-vars
       let resolvePromise: (arg: string) => void
       const controlledPromise = new Promise<string>((resolve) => {
         resolvePromise = resolve

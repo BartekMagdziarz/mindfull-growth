@@ -428,39 +428,6 @@
       7px 7px 14px rgb(var(--neo-shadow-dark) / 0.33);
   }
 
-  .neo-card--commitment,
-  .neo-card--tracker {
-    --color-primary: var(--neo-accent-end);
-    --color-primary-strong: var(--neo-accent-end);
-    --color-primary-soft: 223 237 252;
-    --color-on-primary: 245 250 255;
-    --color-focus-ring: 150 197 238;
-  }
-
-  .neo-card--commitment {
-    background: linear-gradient(
-      145deg,
-      rgb(var(--color-surface-variant) / 0.95),
-      rgb(var(--neo-surface-bottom))
-    );
-  }
-
-  .neo-card--project {
-    background: linear-gradient(
-      145deg,
-      rgb(var(--color-primary-soft) / 0.95),
-      rgb(var(--neo-surface-bottom))
-    );
-  }
-
-  .neo-card--tracker {
-    background: linear-gradient(
-      145deg,
-      rgb(var(--color-surface-variant)),
-      rgb(var(--neo-surface-bottom))
-    );
-  }
-
   .neo-card--composer {
     background: linear-gradient(
       145deg,

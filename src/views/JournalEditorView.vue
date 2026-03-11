@@ -708,7 +708,7 @@ function applyGuidedPromptSeedForCreateMode() {
   if (isEditMode.value) return
   if (body.value.trim().length > 0) return
 
-  const promptSeedRaw = getQueryStringValue(route.query.promptSeed)
+  const promptSeedRaw = getQueryStringValue(route.query?.promptSeed)
   if (!promptSeedRaw) return
 
   const decodedSeed = decodePromptSeed(promptSeedRaw).trim()

@@ -91,19 +91,6 @@
           <p class="text-sm text-on-surface-variant capitalize">{{ area.reviewCadence }}</p>
         </AppCard>
 
-        <AppCard padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.baselineTitle') }}</h3>
-          <p v-if="latestNarrative" class="text-sm text-on-surface-variant">
-            {{ latestNarrative }}
-          </p>
-          <p v-else class="text-sm text-on-surface-variant">
-            {{ t('lifeAreas.detail.notSet') }}
-          </p>
-          <p v-if="latestNarrative && latestNarrativeSource" class="mt-2 text-xs text-on-surface-variant">
-            {{ t('lifeAreas.detail.fromSource', { source: latestNarrativeSource }) }}
-          </p>
-        </AppCard>
-
         <!-- Linked Entities -->
         <AppCard padding="lg">
           <h3 class="text-sm font-semibold text-on-surface mb-3">{{ t('lifeAreas.detail.linkedDataTitle') }}</h3>
@@ -133,47 +120,20 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import LifeAreaLinkedEntities from '@/components/lifeAreas/LifeAreaLinkedEntities.vue'
-import EntityIcon from '@/components/planning/EntityIcon.vue'
+import EntityIcon from '@/components/shared/EntityIcon.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
-import { useYearlyPlanStore } from '@/stores/yearlyPlan.store'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()
 const router = useRouter()
 const route = useRoute()
 const lifeAreaStore = useLifeAreaStore()
-const yearlyPlanStore = useYearlyPlanStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const area = computed(() => lifeAreaStore.getLifeAreaById(route.params.id as string))
-const latestNarrativePlan = computed(() => {
-  if (!area.value) return null
-  const plans = yearlyPlanStore.yearlyPlans.filter((plan) =>
-    Boolean(plan.lifeAreaNarratives?.[area.value!.id]?.trim())
-  )
-  if (plans.length === 0) return null
-  return plans.sort((a, b) => {
-    const startCompare = b.startDate.localeCompare(a.startDate)
-    if (startCompare !== 0) return startCompare
-    return b.updatedAt.localeCompare(a.updatedAt)
-  })[0]
-})
-
-const latestNarrative = computed(() => {
-  if (!area.value || !latestNarrativePlan.value) return ''
-  return latestNarrativePlan.value.lifeAreaNarratives?.[area.value.id]?.trim() || ''
-})
-
-const latestNarrativeSource = computed(() => {
-  if (!latestNarrativePlan.value) return ''
-  return latestNarrativePlan.value.name || `${latestNarrativePlan.value.year}`
-})
 
 onMounted(async () => {
-  await Promise.all([
-    lifeAreaStore.loadLifeAreas(),
-    yearlyPlanStore.loadYearlyPlans(),
-  ])
+  await lifeAreaStore.loadLifeAreas()
 })
 
 async function handleArchive() {

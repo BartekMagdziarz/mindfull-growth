@@ -26,11 +26,8 @@ describe('useUserPreferencesStore', () => {
 
     await store.loadPreferences()
 
-    expect(store.weeklyReviewDay).toBe(0)
-    expect(store.dailyEmotionTarget).toBe(3)
     expect(store.themePreference).toBe('current')
-    expect(store.todayModuleDensity).toBe('comfortable')
-    expect(store.todayExerciseFeedback).toEqual({})
+    expect(store.locale).toBe('en')
   })
 
   it('loads a valid theme preference from storage', async () => {
@@ -69,17 +66,15 @@ describe('useUserPreferencesStore', () => {
     expect(store.themePreference).toBe('sunrise-cloud')
   })
 
-  it('records exercise recommendation feedback', async () => {
+  it('persists locale changes', async () => {
     const store = useUserPreferencesStore()
-    await store.loadPreferences()
 
-    await store.recordTodayExerciseFeedback('ifs-daily-checkin', 'more')
+    await store.setLocale('pl')
 
-    expect(store.todayExerciseFeedback['ifs-daily-checkin']).toBeDefined()
-    expect(store.todayExerciseFeedback['ifs-daily-checkin'].moreCount).toBe(1)
     expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
-      'preferences.todayExerciseFeedback',
-      expect.any(String),
+      'preferences.locale',
+      'pl',
     )
+    expect(store.locale).toBe('pl')
   })
 })

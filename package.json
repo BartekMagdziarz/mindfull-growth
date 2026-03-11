@@ -15,7 +15,7 @@
     "test:e2e:headed": "playwright test --headed",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "check-locales": "tsx scripts/check-locale-keys.ts"
+    "check-locales": "node scripts/check-locale-keys.mjs"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",

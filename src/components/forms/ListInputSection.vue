@@ -56,8 +56,7 @@
  * ListInputSection - Reusable List Input Component
  *
  * A card-based component for managing a list of string items.
- * Used in planning reflections (weekly, monthly, yearly) and other
- * contexts where users need to add/edit/remove list items.
+ * Used anywhere users need to add, edit, or remove short text lists.
  *
  * @example
  * ```vue

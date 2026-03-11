@@ -53,7 +53,6 @@ import AttitudinalShiftWizard from '@/components/exercises/AttitudinalShiftWizar
 import { useAttitudinalShiftStore } from '@/stores/attitudinalShift.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
-import { useCommitmentStore } from '@/stores/commitment.store'
 import { useT } from '@/composables/useT'
 import type { CreateAttitudinalShiftPayload } from '@/domain/exercises'
 
@@ -62,7 +61,6 @@ const { t } = useT()
 const attitudinalShiftStore = useAttitudinalShiftStore()
 const emotionStore = useEmotionStore()
 const shadowBeliefsStore = useShadowBeliefsStore()
-const commitmentStore = useCommitmentStore()
 
 onMounted(() => {
   if (!emotionStore.isLoaded) {
@@ -72,29 +70,8 @@ onMounted(() => {
   shadowBeliefsStore.loadBeliefs()
 })
 
-async function handleSaved(data: CreateAttitudinalShiftPayload, commitmentReframe?: string) {
+async function handleSaved(data: CreateAttitudinalShiftPayload, _commitmentReframe?: string) {
   await attitudinalShiftStore.createShift(data)
-
-  if (commitmentReframe) {
-    const now = new Date()
-    const dayOfWeek = now.getDay()
-    const monday = new Date(now)
-    monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7))
-    monday.setHours(0, 0, 0, 0)
-    const sunday = new Date(monday)
-    sunday.setDate(monday.getDate() + 6)
-    sunday.setHours(23, 59, 59, 999)
-
-    await commitmentStore.createCommitment({
-      startDate: monday.toISOString(),
-      endDate: sunday.toISOString(),
-      periodType: 'weekly',
-      name: `Practice: ${commitmentReframe}`,
-      status: 'planned',
-      lifeAreaIds: [],
-      priorityIds: [],
-    })
-  }
 
   await attitudinalShiftStore.loadShifts()
 }

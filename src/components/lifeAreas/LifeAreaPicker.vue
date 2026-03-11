@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import type { LifeArea } from '@/domain/lifeArea'
 import { CheckIcon } from '@heroicons/vue/24/outline'
-import EntityIcon from '@/components/planning/EntityIcon.vue'
+import EntityIcon from '@/components/shared/EntityIcon.vue'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()

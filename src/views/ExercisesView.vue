@@ -618,8 +618,7 @@ const ifsConstellationStore = useIFSConstellationStore()
 const assessmentStore = useAssessmentStore()
 
 // Tab configuration
-const tabIds = ['self-discovery', 'cbt', 'logotherapy', 'ifs'] as const
-type TabId = (typeof tabIds)[number]
+type TabId = 'self-discovery' | 'cbt' | 'logotherapy' | 'ifs'
 const activeTab = ref<TabId>('self-discovery')
 
 const tabs = computed(() => [

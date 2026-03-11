@@ -6,14 +6,6 @@
     "title": "Obszary życia",
     "description": "Zdefiniuj i zarządzaj kluczowymi wymiarami swojego życia."
   },
-  "dailyHabits": {
-    "title": "Codzienne nawyki",
-    "description": "Dostosuj dzień cotygodniowego przeglądu i liczbę dziennych wpisów emocji.",
-    "weeklyReviewDay": "Dzień cotygodniowego przeglądu",
-    "weeklyReviewDayHint": "Tego dnia otrzymasz przypomnienie o refleksji nad minionym tygodniem.",
-    "dailyEmotionTarget": "Dzienne wpisy emocji",
-    "dailyEmotionTargetHint": "Ile razy dziennie chcesz rejestrować swoje emocje (1-10)."
-  },
   "appearance": {
     "title": "Wygląd",
     "description": "Wybierz jasny motyw inspirowany niebem, chmurami i odcieniami wschodu słońca.",
@@ -48,30 +40,7 @@
     "saved": "Klucz API został zapisany.",
     "saveFailed": "Nie udało się zapisać klucza API. Spróbuj ponownie."
   },
-  "devTools": {
-    "title": "Narzędzia programistyczne",
-    "description": "Narzędzia do testowania i rozwoju. Zostaną usunięte w wersji produkcyjnej.",
-    "dataManagement": "Zarządzanie danymi",
-    "clearAll": "Wyczyść wszystkie dane",
-    "clearPlanning": "Wyczyść dane planowania",
-    "clearPlanningHint": "\"Wyczyść planowanie\" zachowuje dzienniki, emocje i tagi.",
-    "focusedSeeders": "Generatory danych",
-    "seedersHint": "Addytywne — każdy buduje na poprzednim. Uruchamiaj w dowolnej kolejności.",
-    "seeding": "Generowanie...",
-    "foundation": "Fundament",
-    "foundationDesc": "Obszary życia + priorytety",
-    "habits": "Nawyki",
-    "habitsDesc": "Łańcuch auto-generacji z wystąpieniami",
-    "projectsKRs": "Projekty i KR",
-    "projectsDesc": "4 projekty z różnymi statusami",
-    "weeklyPlanning": "Planowanie tygodniowe",
-    "weeklyPlanningDesc": "Pełny aktualny tydzień że zobowiązaniami",
-    "fullTimeline": "Pełna oś czasu",
-    "fullTimelineDesc": "Wszystko + refleksje + ćwiczenia"
-  },
   "feedback": {
-    "weeklyReviewUpdated": "Dzień cotygodniowego przeglądu zaktualizowany.",
-    "emotionTargetUpdated": "Dzienny cel emocji zaktualizowany.",
     "themeUpdated": "Motyw zaktualizowany.",
     "languageUpdated": "Język zaktualizowany.",
     "failedToSave": "Nie udało się zapisać preferencji."

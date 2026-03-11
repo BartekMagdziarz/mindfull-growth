@@ -11,7 +11,7 @@ describe('useT', () => {
   describe('t()', () => {
     it('returns English text by default', () => {
       const { t } = useT()
-      expect(t('common.nav.today')).toBe('Today')
+      expect(t('common.nav.journal')).toBe('Journal')
     })
 
     it('returns Polish text when locale is pl', () => {
@@ -19,7 +19,7 @@ describe('useT', () => {
       prefs.$patch({ locale: 'pl' })
 
       const { t } = useT()
-      expect(t('common.nav.today')).toBe('Dziś')
+      expect(t('common.nav.journal')).toBe('Dziennik')
     })
 
     it('falls back to English when Polish key is missing', () => {

@@ -1,6 +1,5 @@
 import enCommon from './en/common.json'
 import enAuth from './en/auth.json'
-import enToday from './en/today.json'
 import enJournal from './en/journal.json'
 import enChat from './en/chat.json'
 import enHistory from './en/history.json'
@@ -9,8 +8,6 @@ import enEmotionViews from './en/emotionViews.json'
 import enDistortions from './en/distortions.json'
 import enExercises from './en/exercises.json'
 import enExerciseWizards from './en/exerciseWizards.json'
-import enPlanning from './en/planning.json'
-import enHabits from './en/habits.json'
 import enLifeAreas from './en/lifeAreas.json'
 import enProfile from './en/profile.json'
 import enErrors from './en/errors.json'
@@ -23,7 +20,6 @@ import enAssessmentsVlq from './en/assessments.vlq.json'
 
 import plCommon from './pl/common.json'
 import plAuth from './pl/auth.json'
-import plToday from './pl/today.json'
 import plJournal from './pl/journal.json'
 import plChat from './pl/chat.json'
 import plHistory from './pl/history.json'
@@ -32,8 +28,6 @@ import plEmotionViews from './pl/emotionViews.json'
 import plDistortions from './pl/distortions.json'
 import plExercises from './pl/exercises.json'
 import plExerciseWizards from './pl/exerciseWizards.json'
-import plPlanning from './pl/planning.json'
-import plHabits from './pl/habits.json'
 import plLifeAreas from './pl/lifeAreas.json'
 import plProfile from './pl/profile.json'
 import plErrors from './pl/errors.json'
@@ -47,7 +41,6 @@ import plAssessmentsVlq from './pl/assessments.vlq.json'
 const enMessages = {
   common: enCommon,
   auth: enAuth,
-  today: enToday,
   journal: enJournal,
   chat: enChat,
   history: enHistory,
@@ -56,8 +49,6 @@ const enMessages = {
   distortions: enDistortions,
   exercises: enExercises,
   exerciseWizards: enExerciseWizards,
-  planning: enPlanning,
-  habits: enHabits,
   lifeAreas: enLifeAreas,
   profile: enProfile,
   errors: enErrors,
@@ -74,7 +65,6 @@ const enMessages = {
 const plMessages = {
   common: plCommon,
   auth: plAuth,
-  today: plToday,
   journal: plJournal,
   chat: plChat,
   history: plHistory,
@@ -83,8 +73,6 @@ const plMessages = {
   distortions: plDistortions,
   exercises: plExercises,
   exerciseWizards: plExerciseWizards,
-  planning: plPlanning,
-  habits: plHabits,
   lifeAreas: plLifeAreas,
   profile: plProfile,
   errors: plErrors,

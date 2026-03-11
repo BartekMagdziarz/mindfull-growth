@@ -594,8 +594,6 @@ const {
   editingPartIndex,
   currentPartName,
   currentPartRole,
-  currentPartBodyLocations,
-  currentPartEmotionIds,
   currentPartPositiveIntention,
   currentPartFears,
   editPart,

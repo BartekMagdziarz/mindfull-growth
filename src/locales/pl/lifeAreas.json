@@ -1,7 +1,7 @@
 {
   "views": {
     "title": "Obszary życia",
-    "subtitle": "Stale wymiary Twojego życia. Zasilaja Kolo Życia i roczne planowanie.",
+    "subtitle": "Stale wymiary Twojego życia. Łącza profil z Kołem Życia.",
     "addButton": "+ Dodaj",
     "emptyState": "Nie zdefiniowales jeszcze obszarow życia.",
     "startWithDefaults": "Zacznij z domyslnymi",
@@ -29,9 +29,7 @@
     "measuresTitle": "Miary",
     "constraintsTitle": "Ograniczenia i ryzyka",
     "reviewCadenceTitle": "Częstotliwosc przegladu",
-    "baselineTitle": "Roczna narracja bazowa",
     "notSet": "Jeszcze nie ustawiono.",
-    "fromSource": "Z {source}",
     "linkedDataTitle": "Powiazane dane",
     "deleteButton": "Usun ten obszar na stale",
     "confirmDelete": "Usunac \"{name}\"? Tej operacji nie można cofnąć.",
@@ -87,10 +85,7 @@
   "linkedEntities": {
     "wheelScores": "Wyniki Kola Życia",
     "scoreTooltip": "{date}: {rating}/10",
-    "prioritiesTitle": "Priorytety",
-    "projectsTitle": "Projekty",
-    "commitmentsTitle": "Zobowiazania",
-    "emptyState": "Brak powiazanych elementow. Wykonaj ćwiczenia i planowanie, aby zobacżyć połączenia."
+    "emptyState": "Brak powiazanych danych z ćwiczeń. Ukończ Koło Życia, aby zobaczyć połączenia."
   },
   "colorPresets": {
     "lavender": "Lawendowy",

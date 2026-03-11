@@ -15,21 +15,6 @@
 
     <UnblendingWizard @saved="handleSaved" />
 
-    <!-- Habit Prompt -->
-    <div
-      v-if="sortedSessions.length > 0 && !hasMatchingHabit"
-      class="neo-surface p-4 rounded-xl flex items-center gap-3 mt-6"
-    >
-      <SparklesIcon class="w-5 h-5 text-primary flex-shrink-0" />
-      <div class="flex-1">
-        <p class="text-sm font-medium text-on-surface">{{ t('exercises.views.habitPrompt') }}</p>
-        <p class="text-xs text-on-surface-variant">{{ t('exercises.views.habitPromptDescription') }}</p>
-      </div>
-      <AppButton variant="tonal" @click="router.push('/planning/habits/new?prefill=unblending')">
-        {{ t('exercises.views.createHabit') }}
-      </AppButton>
-    </div>
-
     <!-- Past Sessions -->
     <div class="mt-10 space-y-4">
       <h2 class="text-base font-semibold text-on-surface">{{ t('exercises.views.pastSessions') }}</h2>
@@ -106,15 +91,13 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeftIcon, SparklesIcon } from '@heroicons/vue/24/outline'
+import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/AppCard.vue'
-import AppButton from '@/components/AppButton.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import UnblendingWizard from '@/components/exercises/UnblendingWizard.vue'
 import { useIFSUnblendingStore } from '@/stores/ifsUnblending.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useEmotionStore } from '@/stores/emotion.store'
-import { useHabitStore } from '@/stores/habit.store'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
@@ -122,17 +105,11 @@ const { t } = useT()
 const unblendingStore = useIFSUnblendingStore()
 const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()
-const habitStore = useHabitStore()
-
-const hasMatchingHabit = computed(() =>
-  habitStore.habits.some((h) => h.name.toLowerCase().includes('unblending')),
-)
 
 onMounted(() => {
   unblendingStore.loadSessions()
   partStore.loadParts()
   emotionStore.loadEmotions()
-  habitStore.loadHabits()
 })
 
 const sortedSessions = computed(() => unblendingStore.sortedSessions)

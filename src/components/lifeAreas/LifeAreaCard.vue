@@ -53,7 +53,7 @@
 import { computed } from 'vue'
 import type { LifeArea } from '@/domain/lifeArea'
 import AppCard from '@/components/AppCard.vue'
-import EntityIcon from '@/components/planning/EntityIcon.vue'
+import EntityIcon from '@/components/shared/EntityIcon.vue'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()

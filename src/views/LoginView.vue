@@ -112,7 +112,7 @@ async function handleSubmit() {
   if (success) {
     // Redirect to intended destination or home
     const redirect = route.query.redirect as string | undefined
-    router.push(redirect || '/today')
+    router.push(redirect || '/journal')
   }
 }
 </script>

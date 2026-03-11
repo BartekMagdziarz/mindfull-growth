@@ -1,7 +1,7 @@
 /**
  * Draft Storage Service
  *
- * Provides async key-value storage for planning/reflection draft data
+ * Provides async key-value storage for in-progress editor and wizard drafts
  * using the IndexedDB `drafts` table. This replaces sessionStorage
  * so that in-progress drafts survive browser refresh and tab close.
  */

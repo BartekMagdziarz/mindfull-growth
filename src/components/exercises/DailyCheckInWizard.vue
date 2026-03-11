@@ -152,7 +152,7 @@
 
               <div v-if="gratitudePartId && gratitudeNote.trim()" class="neo-surface p-3 rounded-xl">
                 <p class="text-sm text-on-surface-variant italic">
-                  "{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', { partName: getPartName(gratitudePartId), note: gratitudeNote.trim() }) }}"
+                  "{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', { partName: gratitudePartId ? getPartName(gratitudePartId) : '', note: gratitudeNote.trim() }) }}"
                 </p>
               </div>
             </AppCard>
@@ -321,10 +321,10 @@
                 </p>
               </template>
               <template v-else-if="practiceType === 'gratitude-to-part'">
-                <p class="italic">"{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', { partName: getPartName(gratitudePartId!), note: gratitudeNote.trim() }) }}"</p>
+                <p class="italic">"{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', { partName: gratitudePartId ? getPartName(gratitudePartId) : '', note: gratitudeNote.trim() }) }}"</p>
               </template>
               <template v-else-if="practiceType === 'self-energy-moment'">
-                <p>{{ t('exerciseWizards.dailyCheckIn.summary.focusedOn', { quality: selfEnergyQuality }) }}</p>
+                <p>{{ t('exerciseWizards.dailyCheckIn.summary.focusedOn', { quality: selfEnergyQuality ?? '' }) }}</p>
                 <p v-if="microPracticeNotes.trim()">{{ microPracticeNotes.trim() }}</p>
               </template>
               <template v-else-if="practiceType === 'evening-reflection'">

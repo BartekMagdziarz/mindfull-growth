@@ -97,7 +97,7 @@ describe('Database Migration v2→v3', () => {
     // Clean up: delete test database
     try {
       await Dexie.delete(dbName)
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors if database doesn't exist
     }
   })
@@ -596,7 +596,7 @@ describe('Database Migration v4→v5', () => {
     // Clean up: delete test database
     try {
       await Dexie.delete(dbName)
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors if database doesn't exist
     }
   })
@@ -956,4 +956,3 @@ describe('Database Migration v4→v5', () => {
     })
   })
 })
-

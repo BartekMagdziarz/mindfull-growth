@@ -36,21 +36,6 @@
 
     <DailyCheckInWizard @saved="handleSaved" />
 
-    <!-- Habit Prompt -->
-    <div
-      v-if="sortedCheckIns.length > 0 && !hasMatchingHabit"
-      class="neo-surface p-4 rounded-xl flex items-center gap-3 mt-6"
-    >
-      <SparklesIcon class="w-5 h-5 text-primary flex-shrink-0" />
-      <div class="flex-1">
-        <p class="text-sm font-medium text-on-surface">{{ t('exercises.views.dailyCheckInHabitPrompt') }}</p>
-        <p class="text-xs text-on-surface-variant">{{ t('exercises.views.dailyCheckInHabitDescription') }}</p>
-      </div>
-      <AppButton variant="tonal" @click="router.push('/planning/habits/new?prefill=daily-checkin')">
-        {{ t('exercises.views.createHabit') }}
-      </AppButton>
-    </div>
-
     <!-- Past Check-Ins -->
     <div class="mt-10 space-y-4">
       <h2 class="text-base font-semibold text-on-surface">{{ t('exercises.views.pastCheckIns') }}</h2>
@@ -105,13 +90,11 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeftIcon, SparklesIcon } from '@heroicons/vue/24/outline'
+import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/AppCard.vue'
-import AppButton from '@/components/AppButton.vue'
 import DailyCheckInWizard from '@/components/exercises/DailyCheckInWizard.vue'
 import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
-import { useHabitStore } from '@/stores/habit.store'
 import type { IFSDailyCheckInType, IFSSelfLeadershipRating } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
 
@@ -119,16 +102,10 @@ const router = useRouter()
 const { t } = useT()
 const checkInStore = useIFSDailyCheckInStore()
 const partStore = useIFSPartStore()
-const habitStore = useHabitStore()
-
-const hasMatchingHabit = computed(() =>
-  habitStore.habits.some((h) => h.name.toLowerCase().includes('ifs') && h.name.toLowerCase().includes('check')),
-)
 
 onMounted(() => {
   checkInStore.loadCheckIns()
   partStore.loadParts()
-  habitStore.loadHabits()
 })
 
 const sortedCheckIns = computed(() => checkInStore.sortedCheckIns)

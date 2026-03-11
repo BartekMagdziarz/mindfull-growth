@@ -1,12 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import TodayView from '@/views/TodayView.vue'
-import JournalView from '@/views/JournalView.vue'
-import JournalEditorView from '@/views/JournalEditorView.vue'
-import EmotionLogEditorView from '@/views/EmotionLogEditorView.vue'
-import ExercisesView from '@/views/ExercisesView.vue'
-import ProfileView from '@/views/ProfileView.vue'
-import HistoryView from '@/views/HistoryView.vue'
-import PlanningView from '@/views/PlanningView.vue'
+import { useAuthStore } from '@/stores/auth.store'
 
 const PUBLIC_ROUTES = ['login', 'signup']
 
@@ -15,7 +8,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/today',
+      redirect: '/journal',
     },
     // Auth routes (public)
     {
@@ -31,23 +24,22 @@ const router = createRouter({
     // Protected routes
     {
       path: '/today',
-      name: 'today',
-      component: TodayView,
+      redirect: '/journal',
     },
     {
       path: '/journal',
       name: 'journal',
-      component: JournalView,
+      component: () => import('@/views/JournalView.vue'),
     },
     {
       path: '/journal/edit',
       name: 'journal-edit',
-      component: JournalEditorView,
+      component: () => import('@/views/JournalEditorView.vue'),
     },
     {
       path: '/journal/:id/edit',
       name: 'journal-edit-id',
-      component: JournalEditorView,
+      component: () => import('@/views/JournalEditorView.vue'),
     },
     {
       path: '/journal/:id/chat',
@@ -57,125 +49,39 @@ const router = createRouter({
         title: 'Chat about entry',
       },
     },
-    // New Planning Hub
     {
-      path: '/planning',
-      name: 'planning',
-      component: PlanningView,
-    },
-    {
-      path: '/planning/projects-trackers',
-      name: 'projects-trackers',
-      component: () => import('@/views/ProjectTrackerManagerView.vue'),
-    },
-    // Habits
-    {
-      path: '/planning/habits',
-      name: 'habits',
-      component: () => import('@/views/HabitsView.vue'),
-    },
-    {
-      path: '/planning/habits/new',
-      name: 'habits-new',
-      component: () => import('@/views/HabitEditorView.vue'),
-    },
-    {
-      path: '/planning/habits/:id',
-      name: 'habits-detail',
-      component: () => import('@/views/HabitDetailView.vue'),
-    },
-    {
-      path: '/planning/habits/:id/edit',
-      name: 'habits-edit',
-      component: () => import('@/views/HabitEditorView.vue'),
-    },
-    // Yearly Planning Flow
-    {
-      path: '/planning/year/new',
-      name: 'yearly-planning-new',
-      component: () => import('@/views/YearlyPlanningView.vue'),
-    },
-    // Yearly Reflection
-    {
-      path: '/planning/year/:planId/reflect',
-      name: 'yearly-reflection',
-      component: () => import('@/views/YearlyReflectionView.vue'),
-    },
-    {
-      path: '/planning/year/:planId',
-      name: 'yearly-planning-edit',
-      component: () => import('@/views/YearlyPlanningView.vue'),
-    },
-    // Monthly Planning Flow
-    {
-      path: '/planning/month/new',
-      name: 'monthly-planning-new',
-      component: () => import('@/views/MonthlyPlanningView.vue'),
-    },
-    {
-      path: '/planning/month/:planId/reflect',
-      name: 'monthly-reflection',
-      component: () => import('@/views/MonthlyReflectionView.vue'),
-    },
-    {
-      path: '/planning/month/:planId',
-      name: 'monthly-planning-edit',
-      component: () => import('@/views/MonthlyPlanningView.vue'),
-    },
-    // Weekly Planning Flow
-    {
-      path: '/planning/week/new',
-      name: 'weekly-planning-new',
-      component: () => import('@/views/WeeklyPlanningView.vue'),
-    },
-    {
-      path: '/planning/week/:planId/reflect',
-      name: 'weekly-reflection',
-      component: () => import('@/views/WeeklyReflectionView.vue'),
-    },
-    {
-      path: '/planning/week/:planId',
-      name: 'weekly-planning-edit',
-      component: () => import('@/views/WeeklyPlanningView.vue'),
-    },
-    // Legacy quarterly redirects for backward compatibility
-    {
-      path: '/planning/quarter/:id',
-      redirect: (to) => `/planning/month/${to.params.id}`,
-    },
-    {
-      path: '/planning/quarter/:id/reflect',
-      redirect: (to) => `/planning/month/${to.params.id}/reflect`,
+      path: '/planning/:pathMatch(.*)*',
+      redirect: '/journal',
     },
     // Legacy periodic redirect - preserved for old deep links
     {
       path: '/periodic',
-      redirect: '/planning',
+      redirect: '/journal',
     },
     {
       path: '/emotions',
       name: 'emotions',
-      component: EmotionLogEditorView,
+      component: () => import('@/views/EmotionLogEditorView.vue'),
     },
     {
       path: '/history',
       name: 'history',
-      component: HistoryView,
+      component: () => import('@/views/HistoryView.vue'),
     },
     {
       path: '/emotions/edit',
       name: 'emotions-edit',
-      component: EmotionLogEditorView,
+      component: () => import('@/views/EmotionLogEditorView.vue'),
     },
     {
       path: '/emotions/:id/edit',
       name: 'emotions-edit-id',
-      component: EmotionLogEditorView,
+      component: () => import('@/views/EmotionLogEditorView.vue'),
     },
     {
       path: '/exercises',
       name: 'exercises',
-      component: ExercisesView,
+      component: () => import('@/views/ExercisesView.vue'),
     },
     {
       path: '/exercises/assessments/:assessmentId',
@@ -372,15 +278,12 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      component: ProfileView,
+      component: () => import('@/views/ProfileView.vue'),
     },
   ],
 })
 
-// Navigation guard for authentication
-// Import is done dynamically to avoid issues with WASM loading at module init time
 router.beforeEach(async (to, _from, next) => {
-  const { useAuthStore } = await import('@/stores/auth.store')
   const authStore = useAuthStore()
 
   // Initialize auth state if not already done
@@ -398,7 +301,7 @@ router.beforeEach(async (to, _from, next) => {
   } else if (isAuthenticated && isPublicRoute) {
     // Already authenticated and trying to access login/signup
     // Redirect to home
-    next({ name: 'today' })
+    next({ name: 'journal' })
   } else {
     // Proceed normally
     next()

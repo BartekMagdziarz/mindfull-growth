@@ -108,8 +108,8 @@ describe('Performance benchmarks', () => {
     }
     journalStore.entries = entries
     journalStore.loadEntries = vi.fn()
-    emotionStore.emotions = emotionsData as any
-    emotionStore.isLoaded = true
+    vi.spyOn(emotionStore, 'emotions', 'get').mockReturnValue(emotionsData as any)
+    vi.spyOn(emotionStore, 'isLoaded', 'get').mockReturnValue(true)
     tagStore.peopleTags = []
     tagStore.contextTags = []
 

@@ -11,7 +11,7 @@ vi.mock('@/repositories/userSettingsDexieRepository', () => ({
 
 // Mock global fetch
 const mockFetch = vi.fn()
-global.fetch = mockFetch
+globalThis.fetch = mockFetch as typeof fetch
 
 describe('llmService', () => {
   beforeEach(() => {
@@ -56,7 +56,7 @@ describe('llmService', () => {
       expect(fetchCall[1].headers['Authorization']).toBe(`Bearer ${mockApiKey}`)
 
       const requestBody = JSON.parse(fetchCall[1].body as string)
-      expect(requestBody.model).toBe('gpt-4o-mini')
+      expect(requestBody.model).toBe('gpt-5-nano')
       expect(requestBody.temperature).toBe(0.7)
       expect(requestBody.max_tokens).toBe(500)
       expect(requestBody.messages).toEqual([
@@ -279,4 +279,3 @@ describe('llmService', () => {
     })
   })
 })
-

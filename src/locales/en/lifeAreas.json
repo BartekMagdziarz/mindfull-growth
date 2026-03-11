@@ -1,7 +1,7 @@
 {
   "views": {
     "title": "Life Areas",
-    "subtitle": "The ongoing dimensions of your life. These feed into your Wheel of Life and yearly planning.",
+    "subtitle": "The ongoing dimensions of your life. These connect your profile and Wheel of Life.",
     "addButton": "+ Add",
     "emptyState": "You haven't defined your life areas yet.",
     "startWithDefaults": "Start with defaults",
@@ -29,9 +29,7 @@
     "measuresTitle": "Measures",
     "constraintsTitle": "Constraints & Risks",
     "reviewCadenceTitle": "Review Cadence",
-    "baselineTitle": "Yearly Baseline Narrative",
     "notSet": "Not set yet.",
-    "fromSource": "From {source}",
     "linkedDataTitle": "Linked Data",
     "deleteButton": "Delete this area permanently",
     "confirmDelete": "Delete \"{name}\"? This cannot be undone.",
@@ -87,10 +85,7 @@
   "linkedEntities": {
     "wheelScores": "Wheel of Life Scores",
     "scoreTooltip": "{date}: {rating}/10",
-    "prioritiesTitle": "Priorities",
-    "projectsTitle": "Projects",
-    "commitmentsTitle": "Commitments",
-    "emptyState": "No linked entities yet. Complete exercises and planning to see connections here."
+    "emptyState": "No linked exercise data yet. Complete Wheel of Life to see connections here."
   },
   "colorPresets": {
     "lavender": "Lavender",

@@ -5,10 +5,63 @@ import typescriptParser from '@typescript-eslint/parser'
 import vueParser from 'vue-eslint-parser'
 import prettier from 'eslint-config-prettier'
 
+const sharedGlobals = {
+  atob: 'readonly',
+  btoa: 'readonly',
+  cancelAnimationFrame: 'readonly',
+  clearInterval: 'readonly',
+  clearTimeout: 'readonly',
+  confirm: 'readonly',
+  console: 'readonly',
+  crypto: 'readonly',
+  document: 'readonly',
+  Element: 'readonly',
+  Event: 'readonly',
+  fetch: 'readonly',
+  global: 'readonly',
+  globalThis: 'readonly',
+  Headers: 'readonly',
+  HTMLButtonElement: 'readonly',
+  HTMLDivElement: 'readonly',
+  HTMLElement: 'readonly',
+  HTMLInputElement: 'readonly',
+  HTMLSelectElement: 'readonly',
+  HTMLTextAreaElement: 'readonly',
+  IDBKeyRange: 'readonly',
+  indexedDB: 'readonly',
+  IntersectionObserver: 'readonly',
+  IntersectionObserverCallback: 'readonly',
+  IntersectionObserverEntry: 'readonly',
+  IntersectionObserverInit: 'readonly',
+  KeyboardEvent: 'readonly',
+  localStorage: 'readonly',
+  MouseEvent: 'readonly',
+  navigator: 'readonly',
+  Node: 'readonly',
+  performance: 'readonly',
+  process: 'readonly',
+  Request: 'readonly',
+  requestAnimationFrame: 'readonly',
+  ResizeObserver: 'readonly',
+  ResizeObserverCallback: 'readonly',
+  ResizeObserverOptions: 'readonly',
+  Response: 'readonly',
+  sessionStorage: 'readonly',
+  setInterval: 'readonly',
+  setTimeout: 'readonly',
+  TextDecoder: 'readonly',
+  TextEncoder: 'readonly',
+  Window: 'readonly',
+  window: 'readonly',
+}
+
 export default [
+  {
+    ignores: ['coverage/**', 'dist/**', 'playwright-report/**'],
+  },
   js.configs.recommended,
   {
-    files: ['**/*.{js,mjs,cjs,ts,vue}'],
+    files: ['**/*.{ts,vue}'],
     languageOptions: {
       parser: vueParser,
       parserOptions: {
@@ -16,26 +69,7 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
       },
-      globals: {
-        // Browser globals
-        Event: 'readonly',
-        MouseEvent: 'readonly',
-        KeyboardEvent: 'readonly',
-        HTMLElement: 'readonly',
-        HTMLInputElement: 'readonly',
-        HTMLTextAreaElement: 'readonly',
-        HTMLButtonElement: 'readonly',
-        Document: 'readonly',
-        Window: 'readonly',
-        Node: 'readonly',
-        document: 'readonly',
-        window: 'readonly',
-        console: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-      },
+      globals: sharedGlobals,
     },
     plugins: {
       vue,
@@ -43,9 +77,38 @@ export default [
     },
     rules: {
       ...vue.configs['vue3-essential'].rules,
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+          varsIgnorePattern: '^_',
+        },
+      ],
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
       'vue/multi-word-component-names': 'off',
+    },
+  },
+  {
+    files: ['**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: sharedGlobals,
+    },
+    rules: {
+      'no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+          varsIgnorePattern: '^_',
+        },
+      ],
     },
   },
   prettier,
 ]
-

@@ -3,7 +3,7 @@
  *
  * Pinia store for managing Life Areas — persistent, profile-level life dimensions.
  * Life Areas are the canonical source for area names used across
- * Wheel of Life exercises and yearly planning Focus Areas.
+ * Wheel of Life exercises and related profile flows.
  */
 
 import { defineStore } from 'pinia'

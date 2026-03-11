@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useEmotionLogStore } from '../emotionLog.store'
 import type { EmotionLog } from '@/domain/emotionLog'
@@ -334,5 +334,4 @@ describe('useEmotionLogStore', () => {
     })
   })
 })
-
 

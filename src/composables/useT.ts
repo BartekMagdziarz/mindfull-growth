@@ -5,7 +5,7 @@ import { DEFAULT_LOCALE_ID, type LocaleId } from '@/services/locale.service'
 import { pluralizePl, pluralizeEn } from '@/utils/pluralize'
 
 /**
- * Resolve a dotted key path like "common.nav.today" from a nested object.
+ * Resolve a dotted key path like "common.nav.journal" from a nested object.
  * Returns undefined if not found.
  */
 function resolve(obj: Record<string, unknown>, path: string): string | undefined {

@@ -11,7 +11,7 @@ import type { useTagStore } from '@/stores/tag.store'
 describe('chatPrompts', () => {
   describe('getSystemPrompt', () => {
     it('returns reflect prompt for reflect intention', () => {
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.REFLECT, undefined, 'en')
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.REFLECT)
       expect(prompt).toBeTruthy()
       expect(typeof prompt).toBe('string')
       expect(prompt.length).toBeGreaterThan(0)
@@ -22,7 +22,7 @@ describe('chatPrompts', () => {
     })
 
     it('returns help-see-differently prompt for help-see-differently intention', () => {
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY, undefined, 'en')
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY)
       expect(prompt).toBeTruthy()
       expect(typeof prompt).toBe('string')
       expect(prompt.length).toBeGreaterThan(0)
@@ -33,7 +33,7 @@ describe('chatPrompts', () => {
     })
 
     it('returns proactive prompt for proactive intention', () => {
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.PROACTIVE, undefined, 'en')
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.PROACTIVE)
       expect(prompt).toBeTruthy()
       expect(typeof prompt).toBe('string')
       expect(prompt.length).toBeGreaterThan(0)
@@ -44,7 +44,7 @@ describe('chatPrompts', () => {
     })
 
     it('returns thinking-traps prompt for thinking-traps intention', () => {
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.THINKING_TRAPS, undefined, 'en')
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.THINKING_TRAPS)
       expect(prompt).toBeTruthy()
       expect(typeof prompt).toBe('string')
       expect(prompt.length).toBeGreaterThan(0)
@@ -56,12 +56,12 @@ describe('chatPrompts', () => {
 
     it('returns custom prompt when custom intention with customPrompt provided', () => {
       const customPrompt = 'This is my custom prompt for the AI'
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM, customPrompt, 'en')
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM, customPrompt)
       expect(prompt).toBe(customPrompt)
     })
 
     it('returns default custom prompt when custom intention without customPrompt', () => {
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM, undefined, 'en')
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM)
       expect(prompt).toBeTruthy()
       expect(typeof prompt).toBe('string')
       expect(prompt.length).toBeGreaterThan(0)
@@ -72,7 +72,7 @@ describe('chatPrompts', () => {
     })
 
     it('returns default custom prompt when custom intention with undefined customPrompt', () => {
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM, undefined, 'en')
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM)
       expect(prompt).toBeTruthy()
       expect(typeof prompt).toBe('string')
       expect(prompt.length).toBeGreaterThan(0)
@@ -80,7 +80,7 @@ describe('chatPrompts', () => {
     })
 
     it('returns default custom prompt when custom intention with empty string customPrompt', () => {
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM, '', 'en')
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM, '')
       expect(prompt).toBeTruthy()
       expect(typeof prompt).toBe('string')
       expect(prompt.length).toBeGreaterThan(0)
@@ -98,7 +98,7 @@ describe('chatPrompts', () => {
       ]
 
       intentions.forEach((intention) => {
-        const prompt = getSystemPrompt(intention, undefined, 'en')
+        const prompt = getSystemPrompt(intention)
         expect(prompt).toBeTruthy()
         expect(typeof prompt).toBe('string')
         expect(prompt.length).toBeGreaterThan(0)
@@ -106,25 +106,25 @@ describe('chatPrompts', () => {
     })
 
     it('all prompts contain expected keywords', () => {
-      const reflectPrompt = getSystemPrompt(CHAT_INTENTIONS.REFLECT, undefined, 'en')
+      const reflectPrompt = getSystemPrompt(CHAT_INTENTIONS.REFLECT)
       expect(reflectPrompt).toContain('journal entry')
 
-      const helpSeePrompt = getSystemPrompt(CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY, undefined, 'en')
+      const helpSeePrompt = getSystemPrompt(CHAT_INTENTIONS.HELP_SEE_DIFFERENTLY)
       expect(helpSeePrompt).toContain('journal entry')
 
-      const proactivePrompt = getSystemPrompt(CHAT_INTENTIONS.PROACTIVE, undefined, 'en')
+      const proactivePrompt = getSystemPrompt(CHAT_INTENTIONS.PROACTIVE)
       expect(proactivePrompt).toContain('journal entry')
 
-      const thinkingTrapsPrompt = getSystemPrompt(CHAT_INTENTIONS.THINKING_TRAPS, undefined, 'en')
+      const thinkingTrapsPrompt = getSystemPrompt(CHAT_INTENTIONS.THINKING_TRAPS)
       expect(thinkingTrapsPrompt).toContain('journal entry')
 
-      const customPrompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM, undefined, 'en')
+      const customPrompt = getSystemPrompt(CHAT_INTENTIONS.CUSTOM)
       expect(customPrompt).toContain('journal entry')
     })
 
-    it('returns Polish prompts when locale is pl', () => {
-      const prompt = getSystemPrompt(CHAT_INTENTIONS.REFLECT, undefined, 'pl')
-      expect(prompt).toContain('po polsku')
+    it('returns the reflect prompt with locale-specific handling removed', () => {
+      const prompt = getSystemPrompt(CHAT_INTENTIONS.REFLECT)
+      expect(prompt).toContain('reflection guide')
     })
   })
 
@@ -168,7 +168,7 @@ describe('chatPrompts', () => {
       vi.mocked(mockTagStore.getPeopleTagById).mockReturnValue(mockPeopleTag)
       vi.mocked(mockTagStore.getContextTagById).mockReturnValue(mockContextTag)
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Journal Entry Context:')
       expect(context).toContain('Title: Test Title')
@@ -190,7 +190,7 @@ describe('chatPrompts', () => {
         contextTagIds: [],
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Title: Untitled entry')
     })
@@ -203,7 +203,7 @@ describe('chatPrompts', () => {
         body: 'Test body',
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Title: Untitled entry')
     })
@@ -220,7 +220,7 @@ describe('chatPrompts', () => {
         contextTagIds: [],
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Emotions: None')
     })
@@ -234,7 +234,7 @@ describe('chatPrompts', () => {
         body: 'Test body',
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Emotions: None')
     })
@@ -254,7 +254,7 @@ describe('chatPrompts', () => {
       const mockContextTag: ContextTag = { id: 'context-1', name: 'Work' }
       vi.mocked(mockTagStore.getContextTagById).mockReturnValue(mockContextTag)
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('People Tags: None')
       expect(context).toContain('Context Tags: Work')
@@ -275,7 +275,7 @@ describe('chatPrompts', () => {
       const mockPeopleTag: PeopleTag = { id: 'people-1', name: 'John' }
       vi.mocked(mockTagStore.getPeopleTagById).mockReturnValue(mockPeopleTag)
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('People Tags: John')
       expect(context).toContain('Context Tags: None')
@@ -293,7 +293,7 @@ describe('chatPrompts', () => {
         contextTagIds: [],
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('People Tags: None')
       expect(context).toContain('Context Tags: None')
@@ -328,7 +328,7 @@ describe('chatPrompts', () => {
         .mockReturnValueOnce(mockEmotion1)
         .mockReturnValueOnce(mockEmotion2)
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Emotions: Happy, Excited')
     })
@@ -357,7 +357,7 @@ describe('chatPrompts', () => {
         .mockReturnValueOnce(mockContextTag1)
         .mockReturnValueOnce(mockContextTag2)
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('People Tags: John, Jane')
       expect(context).toContain('Context Tags: Work, Home')
@@ -377,7 +377,7 @@ describe('chatPrompts', () => {
 
       vi.mocked(mockEmotionStore.getEmotionById).mockReturnValue(undefined)
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Emotions: None')
     })
@@ -397,7 +397,7 @@ describe('chatPrompts', () => {
       vi.mocked(mockTagStore.getPeopleTagById).mockReturnValue(undefined)
       vi.mocked(mockTagStore.getContextTagById).mockReturnValue(undefined)
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('People Tags: None')
       expect(context).toContain('Context Tags: None')
@@ -415,7 +415,7 @@ describe('chatPrompts', () => {
         contextTagIds: [],
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       // Check that all sections are present
       expect(context).toContain('Journal Entry Context:')
@@ -442,7 +442,7 @@ describe('chatPrompts', () => {
         contextTagIds: [],
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Content:')
       // Body should be empty but Content: line should still be present
@@ -464,7 +464,7 @@ describe('chatPrompts', () => {
         contextTagIds: [],
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain(longBody)
       expect(context.length).toBeGreaterThan(1000)
@@ -482,7 +482,7 @@ describe('chatPrompts', () => {
         contextTagIds: [],
       }
 
-      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore, 'en')
+      const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
       expect(context).toContain('Feeling 😅 about "work"')
       expect(context).toContain('Line 1')

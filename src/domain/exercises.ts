@@ -1,10 +1,9 @@
 /**
  * Domain models for standalone Exercises
  *
- * Exercises are self-discovery tools that can be completed independently
- * of the planning cycle. Results from exercises can be referenced by
- * planning and reflection wizards (e.g., Values Discovery feeds into
- * Yearly Planning's values check-in step).
+ * Exercises are self-discovery tools that can be completed independently.
+ * Their results can be revisited later through history, AI assists,
+ * and life-area-linked flows.
  *
  * Self-Discovery Exercises:
  * - WheelOfLifeSnapshot: Timestamped assessment of user-defined life areas
@@ -60,7 +59,7 @@ export interface WheelOfLifeAreaReflection {
  *
  * Each completion of the Wheel of Life exercise creates a new snapshot.
  * Snapshots form a time-series that can be compared across periods.
- * Referenced by YearlyPlan.wheelOfLifeSnapshotId and YearlyReflection.wheelOfLifeSnapshotId.
+ * Snapshots can be revisited later through history and life area detail views.
  */
 export interface WheelOfLifeSnapshot {
   id: string // UUID
@@ -101,7 +100,7 @@ export interface AdmirablePerson {
  *
  * Surfaces implicit values by analyzing who the user admires and why.
  * Flow: List admirable people → identify qualities → distill core values.
- * Referenced by YearlyPlan.valuesCheckIn.valuesDiscoveryId.
+ * Can be revisited later through exercise history and AI-assisted follow-up.
  */
 export interface ValuesDiscovery {
   id: string // UUID

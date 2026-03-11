@@ -18,7 +18,6 @@ import {
 import { useJournalStore } from './journal.store'
 import { useEmotionStore } from './emotion.store'
 import { useTagStore } from './tag.store'
-import { useUserPreferencesStore } from './userPreferences.store'
 import type { JournalEntry } from '@/domain/journal'
 import { CHAT_COPY } from '@/constants/chatCopy'
 
@@ -91,12 +90,10 @@ export const useChatStore = defineStore('chat', () => {
       // Add context message
       const emotionStore = useEmotionStore()
       const tagStore = useTagStore()
-      const prefsStore = useUserPreferencesStore()
       const contextMessage = constructJournalEntryContext(
         entry,
         emotionStore,
         tagStore,
-        prefsStore.locale,
       )
       messagesToSend.push({ role: 'user', content: contextMessage })
     }
@@ -121,7 +118,6 @@ export const useChatStore = defineStore('chat', () => {
       const systemPrompt = getSystemPrompt(
         currentChatSession.value.intention,
         currentChatSession.value.customPrompt,
-        useUserPreferencesStore().locale,
       )
 
       // Call LLM service
@@ -433,4 +429,3 @@ export const useChatStore = defineStore('chat', () => {
     deleteChatSession,
   }
 })
-

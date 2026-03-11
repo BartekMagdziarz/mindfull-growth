@@ -370,7 +370,7 @@
 
               <div class="space-y-2">
                 <div
-                  v-for="(item, idx) in sortedItems"
+                  v-for="item in sortedItems"
                   :key="item.id"
                   class="relative flex items-center gap-3"
                 >

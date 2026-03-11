@@ -84,7 +84,7 @@ const REPLACEMENTS = [
   ['zeby ', 'żeby '],
   [' ze ', ' że '],
   [', ze ', ', że '],
-  ['\"ze ', '"że '],
+  ['"ze ', '"że '],
 
   // może family
   ['mozesz', 'możesz'],

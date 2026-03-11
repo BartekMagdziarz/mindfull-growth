@@ -8,9 +8,6 @@ function createTestRouter() {
     history: createMemoryHistory(),
     routes: [
       { path: '/', component: { template: '<div />' } },
-      { path: '/today', component: { template: '<div />' } },
-      { path: '/planning', component: { template: '<div />' } },
-      { path: '/planning/week/new', component: { template: '<div />' } },
       { path: '/journal', component: { template: '<div />' } },
       { path: '/emotions', component: { template: '<div />' } },
       { path: '/history', component: { template: '<div />' } },
@@ -21,9 +18,9 @@ function createTestRouter() {
 }
 
 describe('AppTopAppBar', () => {
-  it('renders the Planning hub navigation link', async () => {
+  it('does not render Today or Planning links', async () => {
     const router = createTestRouter()
-    await router.push('/today')
+    await router.push('/journal')
     await router.isReady()
 
     render(AppTopAppBar, {
@@ -32,28 +29,7 @@ describe('AppTopAppBar', () => {
       },
     })
 
-    const planningLink = screen.getByText('Planning hub').closest('a')
-    expect(planningLink).not.toBeNull()
-    expect(planningLink).toHaveAttribute('to', '/planning')
-  })
-
-  it('marks Planning hub active for nested planning routes', async () => {
-    const router = createTestRouter()
-    await router.push('/planning/week/new')
-    await router.isReady()
-
-    render(AppTopAppBar, {
-      global: {
-        plugins: [router],
-      },
-    })
-
-    const planningLink = screen.getByText('Planning hub').closest('a')
-    expect(planningLink).not.toBeNull()
-    expect(planningLink).toHaveClass(
-      'text-primary-strong',
-      'bg-section-strong',
-      'shadow-elevation-1',
-    )
+    expect(screen.queryByText('Today')).not.toBeInTheDocument()
+    expect(screen.queryByText('Planning hub')).not.toBeInTheDocument()
   })
 })

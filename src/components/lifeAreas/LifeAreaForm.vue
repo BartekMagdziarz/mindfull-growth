@@ -205,7 +205,7 @@
 import { computed } from 'vue'
 import type { LifeAreaMeasure, ReviewCadence } from '@/domain/lifeArea'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
-import IconPicker from '@/components/planning/IconPicker.vue'
+import IconPicker from '@/components/shared/IconPicker.vue'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()
