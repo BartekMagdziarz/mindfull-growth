@@ -225,7 +225,9 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const showSnackbarThenNavigate = async (message: string, path: string) => {
   snackbarRef.value?.show(message)
   await nextTick()
-  await new Promise((resolve) => setTimeout(resolve, 200))
+  // Keep the snackbar visible long enough for the user to perceive the message
+  // before the route change unmounts the current view.
+  await new Promise((resolve) => setTimeout(resolve, 500))
   await router.push(path)
 }
 
@@ -247,6 +249,15 @@ const showDateTimePicker = ref(false)
 const customCreatedAt = ref<Date | null>(null)
 const selectedDate = ref('')
 const selectedTime = ref('')
+
+function resetForm() {
+  selectedEmotionIds.value = []
+  note.value = ''
+  selectedPeopleTagIds.value = []
+  selectedContextTagIds.value = []
+  currentLog.value = null
+  customCreatedAt.value = null
+}
 
 // Initialize date/time picker values
 function initDateTimePicker() {
@@ -541,6 +552,7 @@ const handleSave = async () => {
     }
 
     await showSnackbarThenNavigate(t('emotionViews.editor.savedSuccess'), '/emotions')
+    resetForm()
   } catch (error) {
     const message =
       error instanceof Error
@@ -554,6 +566,7 @@ const handleSave = async () => {
 }
 
 const handleCancel = () => {
+  resetForm()
   router.push('/emotions')
 }
 
