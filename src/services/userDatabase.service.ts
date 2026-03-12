@@ -40,6 +40,14 @@ import type {
 import type { LifeArea } from '@/domain/lifeArea'
 import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
 import type { AssessmentAttempt, AssessmentResponse } from '@/domain/assessments'
+import type {
+  Goal,
+  Habit,
+  Initiative,
+  KeyResult,
+  Priority,
+  Tracker,
+} from '@/domain/planning'
 
 export class UserDatabase extends Dexie {
   journalEntries!: Table<JournalEntry, string>
@@ -84,6 +92,12 @@ export class UserDatabase extends Dexie {
 
   lifeAreas!: Table<LifeArea, string>
   lifeAreaAssessments!: Table<LifeAreaAssessment, string>
+  priorities!: Table<Priority, string>
+  goals!: Table<Goal, string>
+  keyResults!: Table<KeyResult, string>
+  habits!: Table<Habit, string>
+  trackers!: Table<Tracker, string>
+  initiatives!: Table<Initiative, string>
   assessmentAttempts!: Table<AssessmentAttempt, string>
   assessmentResponses!: Table<AssessmentResponse, string>
   drafts!: Table<{ key: string; data: string; updatedAt: string }, string>
@@ -222,6 +236,58 @@ export class UserDatabase extends Dexie {
       ifsConstellations: 'id',
       lifeAreas: 'id, isActive',
       lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+      assessmentAttempts: 'id, assessmentId',
+      assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
+      drafts: '&key',
+    })
+
+    this.version(4).stores({
+      journalEntries: 'id',
+      peopleTags: 'id',
+      contextTags: 'id',
+      emotionLogs: 'id',
+      userSettings: 'key',
+      wheelOfLifeSnapshots: 'id, createdAt',
+      valuesDiscoveries: 'id',
+      shadowBeliefs: 'id',
+      transformativePurposes: 'id',
+      thoughtRecords: 'id',
+      distortionAssessments: 'id',
+      worryTreeEntries: 'id',
+      coreBeliefsExplorations: 'id',
+      compassionateLetters: 'id',
+      positiveDataLogs: 'id',
+      behavioralExperiments: 'id',
+      behavioralActivations: 'id',
+      structuredProblemSolvings: 'id',
+      gradedExposureHierarchies: 'id',
+      threePathwaysToMeaning: 'id',
+      socraticSelfDialogues: 'id',
+      mountainRangesOfMeaning: 'id',
+      paradoxicalIntentionLabs: 'id',
+      dereflectionPractices: 'id',
+      tragicOptimisms: 'id',
+      attitudinalShifts: 'id',
+      legacyLetters: 'id',
+      ifsParts: 'id',
+      ifsPartsMaps: 'id',
+      ifsUnblendingSessions: 'id',
+      ifsDirectAccessSessions: 'id',
+      ifsTrailheadEntries: 'id',
+      ifsProtectorAppreciations: 'id',
+      ifsExileWitnessings: 'id',
+      ifsSelfEnergyCheckIns: 'id',
+      ifsPartsDialogues: 'id',
+      ifsDailyCheckIns: 'id',
+      ifsConstellations: 'id',
+      lifeAreas: 'id, isActive',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+      priorities: 'id, year, isActive, *lifeAreaIds',
+      goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+      keyResults: 'id, goalId, status, isActive, cadence, kind',
+      habits: 'id, status, isActive, cadence, kind, *priorityIds, *lifeAreaIds',
+      trackers: 'id, status, isActive, analysisPeriod, entryMode, kind, *priorityIds, *lifeAreaIds',
+      initiatives: 'id, isActive, goalId, *priorityIds, *lifeAreaIds',
       assessmentAttempts: 'id, assessmentId',
       assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
       drafts: '&key',
