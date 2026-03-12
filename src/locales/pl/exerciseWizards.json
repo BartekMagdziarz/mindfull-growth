@@ -37,12 +37,14 @@
     "continue": "Kontynuuj",
     "stepTitles": {
       "intro": "Koło Życia",
+      "edit": "Edytuj ocenę",
       "rate": "Oceń swoje zadowolenie",
       "focus": "Przejrzyj obszary",
       "reflect": "Refleksja"
     },
     "stepSubtitles": {
       "intro": "Szybki przegląd obszarów, które kształtują twoje życie",
+      "setup": "Najpierw utwórz lub aktywuj obszary życia",
       "rate": "Jak spełniony jesteś w każdym obszarze?",
       "focus": "Wybierz 2–3 obszary, które chcesz poprawić w tym roku",
       "reflectReflection": "Czego nauczył cię ten rok?",
@@ -68,7 +70,11 @@
       "outOfTen": "/10",
       "sliderMin": "Brak zgodności",
       "sliderMax": "Pełna zgodność",
-      "reflectionPromptsLabel": "Podpowiedzi do refleksji",
+      "detailsLabel": "Dodatkowe szczegóły",
+      "noteLabel": "Co najbardziej wyróżnia się w tym obszarze teraz?",
+      "notePlaceholder": "Zapisz najważniejszy kontekst tej oceny...",
+      "visionLabel": "Jak wyglądałoby tu 9/10?",
+      "visionPlaceholder": "Opisz obraz sukcesu, który chcesz zapamiętać dla tej oceny...",
       "optional": "Opcjonalnie",
       "prompts": {
         "emotions": {
@@ -92,6 +98,12 @@
           "placeholder": "Co jest w twojej kontroli, a co poza nią..."
         }
       }
+    },
+    "setup": {
+      "title": "Najpierw ustaw obszary życia",
+      "description": "Koło Życia działa teraz na aktywnych obszarach życia. Ustaw je raz, a kolejne oceny pozostaną porównywalne w czasie.",
+      "seedDefaults": "Użyj domyślnych",
+      "manageAreas": "Zarządzaj obszarami"
     },
     "focusPicker": {
       "description": "Przejrzyj obszary, ktore najbardziej wyrozniaja sie w twoim kole, zanim pojdziesz dalej.",
@@ -129,10 +141,12 @@
       "attentionHint": "Ten obszar może wymagać uwagi"
     },
     "timeline": {
-      "title": "Poprzednie zdjęcia",
-      "emptyState": "Brak poprzednich zdjęć.",
+      "title": "Poprzednie oceny",
+      "emptyState": "Brak poprzednich ocen.",
+      "editSelected": "Edytuj wybraną",
       "compareWith": "Porównaj z:",
-      "none": "Brak"
+      "none": "Brak",
+      "partialHint": "Ta ocena obejmowała tylko część obszarów życia."
     }
   },
   "comingSoon": {

@@ -1,6 +1,5 @@
 <template>
   <div class="space-y-6">
-    <!-- Progress indicator -->
     <div class="flex items-center justify-between gap-4 text-sm text-on-surface-variant">
       <div class="flex items-center gap-2">
         <span class="font-medium text-on-surface">{{ t('exerciseWizards.wheelOfLife.rater.areaLabel', { n: currentIndex + 1 }) }}</span>
@@ -81,18 +80,34 @@
     <div class="space-y-3">
       <div class="flex items-center justify-between">
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">
-          {{ t('exerciseWizards.wheelOfLife.rater.reflectionPromptsLabel') }}
+          {{ t('exerciseWizards.wheelOfLife.rater.detailsLabel') }}
         </p>
         <span class="text-[11px] text-on-surface-variant">{{ t('exerciseWizards.wheelOfLife.rater.optional') }}</span>
       </div>
-      <div v-for="prompt in reflectionPrompts" :key="prompt.key" class="space-y-2">
-        <label class="text-xs font-medium text-on-surface-variant">{{ prompt.label }}</label>
+
+      <div class="space-y-2">
+        <label class="text-xs font-medium text-on-surface-variant">
+          {{ t('exerciseWizards.wheelOfLife.rater.noteLabel') }}
+        </label>
         <textarea
-          :value="area.reflections?.[prompt.key] || ''"
+          :value="area.note"
           rows="2"
-          :placeholder="prompt.placeholder"
+          :placeholder="t('exerciseWizards.wheelOfLife.rater.notePlaceholder')"
           class="neo-input w-full min-h-[72px] p-3 text-sm resize-none"
-          @input="$emit('set-reflection', { key: prompt.key, value: ($event.target as HTMLTextAreaElement).value })"
+          @input="$emit('set-note', ($event.target as HTMLTextAreaElement).value)"
+        />
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-xs font-medium text-on-surface-variant">
+          {{ t('exerciseWizards.wheelOfLife.rater.visionLabel') }}
+        </label>
+        <textarea
+          :value="area.visionSnapshot"
+          rows="3"
+          :placeholder="t('exerciseWizards.wheelOfLife.rater.visionPlaceholder')"
+          class="neo-input w-full min-h-[88px] p-3 text-sm resize-none"
+          @input="$emit('set-vision', ($event.target as HTMLTextAreaElement).value)"
         />
       </div>
     </div>
@@ -102,65 +117,34 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useT } from '@/composables/useT'
-import type { WheelOfLifeArea, WheelOfLifeAreaReflection } from '@/domain/exercises'
 import WheelOfLifeRadialChart from './WheelOfLifeRadialChart.vue'
+import type { WheelDraftArea } from './wheelOfLifeTypes'
 
 const { t } = useT()
 
 const props = defineProps<{
-  area: WheelOfLifeArea
-  areas: WheelOfLifeArea[]
+  area: WheelDraftArea
+  areas: WheelDraftArea[]
   currentIndex: number
 }>()
 
 defineEmits<{
   rate: [value: number]
-  'set-reflection': [payload: { key: keyof WheelOfLifeAreaReflection; value: string }]
+  'set-note': [value: string]
+  'set-vision': [value: string]
 }>()
 
 const ratingColor = computed(() => {
-  const r = props.area.rating
-  if (r >= 8) return 'text-green-500'
-  if (r >= 6) return 'text-primary'
-  if (r >= 4) return 'text-amber-500'
+  const rating = props.area.rating
+  if (rating >= 8) return 'text-green-500'
+  if (rating >= 6) return 'text-primary'
+  if (rating >= 4) return 'text-amber-500'
   return 'text-error'
 })
 
 const totalAreas = computed(() => props.areas.length)
 const remaining = computed(() => Math.max(totalAreas.value - props.currentIndex - 1, 0))
 const fillPercent = computed(() => Math.max(0, Math.min((props.area.rating / 10) * 100, 100)))
-
-const reflectionPrompts = computed<Array<{
-  key: keyof WheelOfLifeAreaReflection
-  label: string
-  placeholder: string
-}>>(() => [
-  {
-    key: 'emotions',
-    label: t('exerciseWizards.wheelOfLife.rater.prompts.emotions.label'),
-    placeholder: t('exerciseWizards.wheelOfLife.rater.prompts.emotions.placeholder'),
-  },
-  {
-    key: 'uplift',
-    label: t('exerciseWizards.wheelOfLife.rater.prompts.uplift.label'),
-    placeholder: t('exerciseWizards.wheelOfLife.rater.prompts.uplift.placeholder'),
-  },
-  {
-    key: 'drag',
-    label: t('exerciseWizards.wheelOfLife.rater.prompts.drag.label'),
-    placeholder: t('exerciseWizards.wheelOfLife.rater.prompts.drag.placeholder'),
-  },
-  {
-    key: 'change',
-    label: t('exerciseWizards.wheelOfLife.rater.prompts.change.label'),
-    placeholder: t('exerciseWizards.wheelOfLife.rater.prompts.change.placeholder'),
-  },
-  {
-    key: 'control',
-    label: t('exerciseWizards.wheelOfLife.rater.prompts.control.label'),
-    placeholder: t('exerciseWizards.wheelOfLife.rater.prompts.control.placeholder'),
-  },
-])
 
 function getDotClass(index: number): string {
   if (index < props.currentIndex) return 'bg-primary/70 border-primary/60'

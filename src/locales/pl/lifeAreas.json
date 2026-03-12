@@ -34,6 +34,7 @@
     "deleteButton": "Usun ten obszar na stale",
     "confirmDelete": "Usunac \"{name}\"? Tej operacji nie można cofnąć.",
     "deleteError": "Nie udalo się usunac obszaru życia.",
+    "deleteBlockedHistory": "Ten obszar ma historię ocen i może być tylko archiwizowany.",
     "archived": "Obszar zarchiwizowany.",
     "reactivated": "Obszar reaktywowany."
   },
@@ -85,7 +86,14 @@
   "linkedEntities": {
     "wheelScores": "Wyniki Kola Życia",
     "scoreTooltip": "{date}: {rating}/10",
-    "emptyState": "Brak powiazanych danych z ćwiczeń. Ukończ Koło Życia, aby zobaczyć połączenia."
+    "emptyState": "Brak powiazanych danych z ćwiczeń. Ukończ Koło Życia, aby zobaczyć połączenia.",
+    "latestAssessment": "Ostatnia ocena",
+    "visionSnapshot": "Snapshot 9/10",
+    "historyTitle": "Historia ocen",
+    "noPreviousDelta": "Pierwsza ocena",
+    "deltaUp": "+{delta} vs poprzednia",
+    "deltaDown": "{delta} vs poprzednia",
+    "deltaNone": "Bez zmian"
   },
   "colorPresets": {
     "lavender": "Lawendowy",

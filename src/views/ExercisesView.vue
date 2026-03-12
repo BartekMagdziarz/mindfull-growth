@@ -531,7 +531,7 @@ import {
   GlobeAltIcon,
 } from '@heroicons/vue/24/outline'
 import ExerciseCard from '@/components/exercises/ExerciseCard.vue'
-import { useWheelOfLifeStore } from '@/stores/wheelOfLife.store'
+import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
@@ -570,7 +570,7 @@ const router = useRouter()
 const { t } = useT()
 
 // Self-discovery stores
-const wheelStore = useWheelOfLifeStore()
+const lifeAreaAssessmentStore = useLifeAreaAssessmentStore()
 const valuesStore = useValuesDiscoveryStore()
 const beliefsStore = useShadowBeliefsStore()
 const purposeStore = useTransformativePurposeStore()
@@ -629,7 +629,7 @@ const tabs = computed(() => [
 ])
 
 onMounted(() => {
-  wheelStore.loadSnapshots()
+  lifeAreaAssessmentStore.loadAssessments()
   valuesStore.loadDiscoveries()
   beliefsStore.loadBeliefs()
   purposeStore.loadPurposes()
@@ -670,7 +670,7 @@ onMounted(() => {
 })
 
 // Self-discovery dates
-const latestWheelDate = computed(() => wheelStore.latestSnapshot?.createdAt)
+const latestWheelDate = computed(() => lifeAreaAssessmentStore.latestFullAssessment?.createdAt)
 const latestValuesDate = computed(() => valuesStore.latestDiscovery?.createdAt)
 const latestBeliefsDate = computed(() => beliefsStore.latestBeliefs?.createdAt)
 const latestPurposeDate = computed(() => purposeStore.latestPurpose?.createdAt)

@@ -13,36 +13,46 @@
       </div>
     </div>
 
-    <WheelOfLifeExercise mode="standalone" @saved="handleSaved" />
+    <WheelOfLifeExercise
+      :key="editingAssessmentId ?? 'new'"
+      mode="standalone"
+      :assessment-id="editingAssessmentId ?? undefined"
+      :show-cancel="editingAssessmentId !== null"
+      @saved="handleSaved"
+      @cancel="editingAssessmentId = null"
+    />
 
-    <!-- Past Snapshots -->
-    <div v-if="wheelOfLifeStore.sortedSnapshots.length > 1" class="mt-8">
+    <div v-if="lifeAreaAssessmentStore.sortedAssessments.length > 0" class="mt-8">
       <AppCard padding="lg">
-        <WheelOfLifeTimeline :snapshots="wheelOfLifeStore.sortedSnapshots" />
+        <WheelOfLifeTimeline
+          :assessments="lifeAreaAssessmentStore.sortedAssessments"
+          @edit="editingAssessmentId = $event"
+        />
       </AppCard>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/AppCard.vue'
 import WheelOfLifeExercise from '@/components/exercises/WheelOfLifeExercise.vue'
 import WheelOfLifeTimeline from '@/components/exercises/WheelOfLifeTimeline.vue'
-import { useWheelOfLifeStore } from '@/stores/wheelOfLife.store'
+import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
 const { t } = useT()
-const wheelOfLifeStore = useWheelOfLifeStore()
+const lifeAreaAssessmentStore = useLifeAreaAssessmentStore()
+const editingAssessmentId = ref<string | null>(null)
 
 onMounted(() => {
-  wheelOfLifeStore.loadSnapshots()
+  lifeAreaAssessmentStore.loadAssessments()
 })
 
-function handleSaved(_snapshotId: string) {
-  // Stay on page so user can see timeline with new snapshot
+function handleSaved(_assessmentId: string) {
+  editingAssessmentId.value = null
 }
 </script>

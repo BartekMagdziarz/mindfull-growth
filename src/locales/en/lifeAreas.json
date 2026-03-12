@@ -34,6 +34,7 @@
     "deleteButton": "Delete this area permanently",
     "confirmDelete": "Delete \"{name}\"? This cannot be undone.",
     "deleteError": "Failed to delete life area.",
+    "deleteBlockedHistory": "This area has assessment history and can only be archived.",
     "archived": "Area archived.",
     "reactivated": "Area reactivated."
   },
@@ -85,7 +86,14 @@
   "linkedEntities": {
     "wheelScores": "Wheel of Life Scores",
     "scoreTooltip": "{date}: {rating}/10",
-    "emptyState": "No linked exercise data yet. Complete Wheel of Life to see connections here."
+    "emptyState": "No linked exercise data yet. Complete Wheel of Life to see connections here.",
+    "latestAssessment": "Latest Assessment",
+    "visionSnapshot": "9/10 snapshot",
+    "historyTitle": "Assessment History",
+    "noPreviousDelta": "First assessment",
+    "deltaUp": "+{delta} vs previous",
+    "deltaDown": "{delta} vs previous",
+    "deltaNone": "No change"
   },
   "colorPresets": {
     "lavender": "Lavender",

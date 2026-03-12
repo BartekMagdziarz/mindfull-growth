@@ -92,8 +92,9 @@
 
       <!-- Comparison dots -->
       <circle
-        v-for="(_, i) in (comparisonAreas ?? [])"
+        v-for="(_, i) in areas"
         :key="`comp-dot-${i}`"
+        v-show="hasComparisonArea(i)"
         :cx="getComparisonPoint(i).x"
         :cy="getComparisonPoint(i).y"
         r="3"
@@ -170,15 +171,15 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
-import type { WheelOfLifeArea } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import type { WheelChartArea } from './wheelOfLifeTypes'
 
 const { t } = useT()
 
 const props = withDefaults(
   defineProps<{
-    areas: WheelOfLifeArea[]
-    comparisonAreas?: WheelOfLifeArea[]
+    areas: WheelChartArea[]
+    comparisonAreas?: WheelChartArea[]
     animated?: boolean
     size?: number
     padding?: number
@@ -327,9 +328,23 @@ function getAnimatedPoint(index: number): { x: number; y: number } {
   return getPoint(index, rating)
 }
 
+function findComparisonArea(index: number): WheelChartArea | undefined {
+  const currentArea = props.areas[index]
+  return props.comparisonAreas?.find((area) => {
+    if (area.id && currentArea?.id) {
+      return area.id === currentArea.id
+    }
+    return area.name === currentArea?.name
+  })
+}
+
 function getComparisonPoint(index: number): { x: number; y: number } {
-  const area = props.comparisonAreas?.[index]
+  const area = findComparisonArea(index)
   return getPoint(index, area?.rating ?? 0)
+}
+
+function hasComparisonArea(index: number): boolean {
+  return Boolean(findComparisonArea(index))
 }
 
 function getLabelPosition(index: number): { x: number; y: number } {
@@ -439,7 +454,8 @@ const displayPolygonPoints = computed(() => {
 
 const comparisonPolygonPoints = computed(() => {
   if (!props.comparisonAreas) return ''
-  return props.comparisonAreas
+  if (props.areas.some((_, index) => !hasComparisonArea(index))) return ''
+  return props.areas
     .map((_, i) => {
       const p = getComparisonPoint(i)
       return `${p.x},${p.y}`
@@ -463,7 +479,7 @@ function getRatingTextColor(rating: number): string {
 
 function getComparisonDelta(index: number): number | null {
   if (!props.comparisonAreas) return null
-  const comp = props.comparisonAreas.find((a) => a.name === props.areas[index]?.name)
+  const comp = findComparisonArea(index)
   if (!comp) return null
   return props.areas[index].rating - comp.rating
 }

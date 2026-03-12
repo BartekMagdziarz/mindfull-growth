@@ -1,6 +1,9 @@
 /**
  * Wheel of Life Store
  *
+ * @deprecated Legacy store retained only for clean-break compatibility.
+ * Active Wheel of Life flows use useLifeAreaAssessmentStore instead.
+ *
  * Manages WheelOfLifeSnapshots — timestamped assessments of user-defined life areas.
  * Each exercise completion creates a new snapshot, forming a time-series.
  */

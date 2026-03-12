@@ -101,11 +101,18 @@
       <!-- Delete -->
       <div class="mt-8 text-center">
         <button
+          v-if="canDeletePermanently"
           @click="handleDelete"
           class="text-sm text-error hover:underline"
         >
           {{ t('lifeAreas.detail.deleteButton') }}
         </button>
+        <p
+          v-else
+          class="text-sm text-on-surface-variant"
+        >
+          {{ t('lifeAreas.detail.deleteBlockedHistory') }}
+        </p>
       </div>
     </template>
 
@@ -122,18 +129,27 @@ import AppSnackbar from '@/components/AppSnackbar.vue'
 import LifeAreaLinkedEntities from '@/components/lifeAreas/LifeAreaLinkedEntities.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
+import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()
 const router = useRouter()
 const route = useRoute()
 const lifeAreaStore = useLifeAreaStore()
+const lifeAreaAssessmentStore = useLifeAreaAssessmentStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const area = computed(() => lifeAreaStore.getLifeAreaById(route.params.id as string))
+const canDeletePermanently = computed(() => {
+  if (!area.value) return false
+  return !lifeAreaAssessmentStore.hasAssessmentsForLifeArea(area.value.id)
+})
 
 onMounted(async () => {
-  await lifeAreaStore.loadLifeAreas()
+  await Promise.all([
+    lifeAreaStore.loadLifeAreas(),
+    lifeAreaAssessmentStore.loadAssessments(),
+  ])
 })
 
 async function handleArchive() {
@@ -150,6 +166,10 @@ async function handleReactivate() {
 
 async function handleDelete() {
   if (!area.value) return
+  if (!canDeletePermanently.value) {
+    snackbarRef.value?.show(t('lifeAreas.detail.deleteBlockedHistory'))
+    return
+  }
   if (!confirm(t('lifeAreas.detail.confirmDelete', { name: area.value.name }))) return
 
   try {

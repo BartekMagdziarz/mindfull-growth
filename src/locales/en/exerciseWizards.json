@@ -37,12 +37,14 @@
     "continue": "Continue",
     "stepTitles": {
       "intro": "Wheel of Life",
+      "edit": "Edit Assessment",
       "rate": "Rate Your Satisfaction",
       "focus": "Review Areas",
       "reflect": "Reflect"
     },
     "stepSubtitles": {
       "intro": "A quick check-in across the areas that shape your life",
+      "setup": "Create or activate life areas before starting this assessment",
       "rate": "How fulfilled are you in each area?",
       "focus": "Pick 2\u20133 areas you want to improve this year",
       "reflectReflection": "What has this year taught you?",
@@ -68,7 +70,11 @@
       "outOfTen": "/10",
       "sliderMin": "Out of alignment",
       "sliderMax": "Fully aligned",
-      "reflectionPromptsLabel": "Reflection prompts",
+      "detailsLabel": "Optional details",
+      "noteLabel": "What stands out in this area right now?",
+      "notePlaceholder": "Capture the key context behind this score...",
+      "visionLabel": "What would 9/10 look like here?",
+      "visionPlaceholder": "Describe the success picture you want to remember for this assessment...",
       "optional": "Optional",
       "prompts": {
         "emotions": {
@@ -92,6 +98,12 @@
           "placeholder": "What is within your control vs. outside it..."
         }
       }
+    },
+    "setup": {
+      "title": "Set up your life areas first",
+      "description": "Wheel of Life now works from your active Life Areas. Add them once and every future assessment will stay comparable over time.",
+      "seedDefaults": "Start with defaults",
+      "manageAreas": "Manage life areas"
     },
     "focusPicker": {
       "description": "Review the areas that stand out in your wheel before continuing.",
@@ -129,10 +141,12 @@
       "attentionHint": "This area might benefit from attention"
     },
     "timeline": {
-      "title": "Past Snapshots",
-      "emptyState": "No previous snapshots yet.",
+      "title": "Past Assessments",
+      "emptyState": "No previous assessments yet.",
+      "editSelected": "Edit selected",
       "compareWith": "Compare with:",
-      "none": "None"
+      "none": "None",
+      "partialHint": "This assessment only covered part of your life areas."
     }
   },
   "comingSoon": {

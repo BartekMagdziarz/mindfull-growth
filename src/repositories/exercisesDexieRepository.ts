@@ -146,7 +146,7 @@ import type {
 } from './exercisesRepository'
 
 // ============================================================================
-// Wheel of Life Snapshot Repository
+// Wheel of Life Snapshot Repository (Legacy)
 // ============================================================================
 
 class WheelOfLifeSnapshotDexieRepository implements WheelOfLifeSnapshotRepository {

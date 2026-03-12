@@ -1,6 +1,5 @@
 <template>
   <div class="space-y-6">
-    <!-- Step indicator -->
     <div class="flex items-center justify-between gap-4">
       <div class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">
         {{ t('exerciseWizards.wheelOfLife.stepIndicator', { step: wizard.currentStep.value + 1, total: wizard.steps.value.length }) }}
@@ -21,7 +20,6 @@
       </div>
     </div>
 
-    <!-- Step header -->
     <div class="text-center">
       <h2 class="text-lg font-semibold text-on-surface">
         {{ wizard.currentStepDef.value?.title }}
@@ -31,9 +29,7 @@
       </p>
     </div>
 
-    <!-- Step content -->
     <AppCard padding="lg">
-      <!-- Step: Intro -->
       <div v-if="wizard.currentStepDef.value?.id === 'intro'" class="space-y-6">
         <div
           v-if="wizard.isLoadingAreas.value"
@@ -45,6 +41,25 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
             <span>{{ t('exerciseWizards.wheelOfLife.loadingAreas') }}</span>
+          </div>
+        </div>
+
+        <div v-else-if="wizard.needsSetup.value" class="space-y-4">
+          <div class="rounded-2xl border border-neu-border/20 bg-section/50 p-5 space-y-3">
+            <h3 class="text-xl font-semibold text-on-surface">
+              {{ t('exerciseWizards.wheelOfLife.setup.title') }}
+            </h3>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.wheelOfLife.setup.description') }}
+            </p>
+            <div class="flex flex-wrap gap-3">
+              <AppButton variant="filled" :disabled="seedingDefaults" @click="handleSeedDefaults">
+                {{ t('exerciseWizards.wheelOfLife.setup.seedDefaults') }}
+              </AppButton>
+              <AppButton variant="outlined" @click="router.push('/areas')">
+                {{ t('exerciseWizards.wheelOfLife.setup.manageAreas') }}
+              </AppButton>
+            </div>
           </div>
         </div>
 
@@ -91,7 +106,7 @@
           </div>
         </div>
 
-        <div v-if="wizard.areas.value.length > 0" class="space-y-2">
+        <div v-if="wizard.areas.value.length > 0 && !wizard.needsSetup.value" class="space-y-2">
           <p class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">
             {{ t('exerciseWizards.wheelOfLife.intro.areasYoullRate') }}
           </p>
@@ -107,37 +122,32 @@
         </div>
       </div>
 
-      <!-- Step: Rate -->
-        <WheelAreaRater
-          v-else-if="wizard.currentStepDef.value?.id === 'rate' && wizard.currentArea.value"
-          :area="wizard.currentArea.value"
-          :areas="wizard.areas.value"
-          :current-index="wizard.currentAreaIndex.value"
-          @rate="wizard.rateArea(wizard.currentAreaIndex.value, $event)"
-          @set-reflection="wizard.setAreaReflection(wizard.currentAreaIndex.value, $event.key, $event.value)"
-        />
+      <WheelAreaRater
+        v-else-if="wizard.currentStepDef.value?.id === 'rate' && wizard.currentArea.value"
+        :area="wizard.currentArea.value"
+        :areas="wizard.areas.value"
+        :current-index="wizard.currentAreaIndex.value"
+        @rate="wizard.rateArea(wizard.currentAreaIndex.value, $event)"
+        @set-note="wizard.setAreaNote(wizard.currentAreaIndex.value, $event)"
+        @set-vision="wizard.setAreaVisionSnapshot(wizard.currentAreaIndex.value, $event)"
+      />
 
-      <!-- Step: Reflect -->
       <div v-else-if="wizard.currentStepDef.value?.id === 'reflect'" class="space-y-4">
         <WheelOfLifeRadialChart
           :areas="wizard.areas.value"
-          :comparison-areas="comparisonAreas"
+          :comparison-areas="wizard.comparisonAreas.value"
           :size="300"
           :padding="100"
           :label-font-size="9"
           :rating-font-size="8"
         />
         <WheelReflectionPrompts
-          :prompts="wizard.reflectionPrompts.value"
-          :answers="wizard.reflectionAnswers.value"
           :notes="wizard.notes.value"
-          @update="(key: string, value: string) => (wizard.reflectionAnswers.value[key] = value)"
           @update-notes="wizard.notes.value = $event"
         />
       </div>
     </AppCard>
 
-    <!-- Navigation -->
     <div class="flex items-center justify-between">
       <div>
         <AppButton
@@ -156,8 +166,8 @@
         <AppButton
           v-if="wizard.isLastStep.value"
           variant="filled"
+          :disabled="saving || wizard.needsSetup.value"
           @click="handleSave"
-          :disabled="saving"
         >
           {{ t('exerciseWizards.wheelOfLife.save') }}
         </AppButton>
@@ -175,60 +185,71 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import WheelOfLifeRadialChart from './WheelOfLifeRadialChart.vue'
 import WheelAreaRater from './WheelAreaRater.vue'
 import WheelReflectionPrompts from './WheelReflectionPrompts.vue'
-import type { WheelOfLifeArea } from '@/domain/exercises'
 import { useWheelOfLifeWizard, type WheelOfLifeMode } from '@/composables/useWheelOfLifeWizard'
+import { useLifeAreaStore } from '@/stores/lifeArea.store'
 
 const { t } = useT()
+const router = useRouter()
+const lifeAreaStore = useLifeAreaStore()
 
 const props = withDefaults(
   defineProps<{
     mode?: WheelOfLifeMode
-    comparisonAreas?: WheelOfLifeArea[]
-    presetAreas?: WheelOfLifeArea[]
+    assessmentId?: string
     showCancel?: boolean
   }>(),
   {
     mode: 'standalone',
-    comparisonAreas: undefined,
-    presetAreas: undefined,
+    assessmentId: undefined,
     showCancel: false,
   },
 )
 
 const emit = defineEmits<{
-  saved: [snapshotId: string]
+  saved: [assessmentId: string]
   cancel: []
 }>()
 
 const wizard = useWheelOfLifeWizard({
   mode: props.mode,
-  presetAreas: props.presetAreas,
-  comparisonAreas: props.comparisonAreas,
+  assessmentId: props.assessmentId,
 })
 
 const saving = ref(false)
+const seedingDefaults = ref(false)
 
 const canAdvance = computed(() => {
   if (wizard.isLoadingAreas.value) return false
+  if (wizard.needsSetup.value) return false
   if (wizard.isRatingStep.value && !wizard.isLastArea.value) return true
   return wizard.canProceed.value
 })
 
+async function handleSeedDefaults() {
+  seedingDefaults.value = true
+  try {
+    await lifeAreaStore.seedDefaultAreas()
+    await wizard.initialize()
+  } finally {
+    seedingDefaults.value = false
+  }
+}
+
 async function handleSave() {
   saving.value = true
   try {
-    const snapshotId = await wizard.save()
-    emit('saved', snapshotId)
+    const assessmentId = await wizard.save()
+    emit('saved', assessmentId)
   } finally {
     saving.value = false
   }
 }
-
 </script>

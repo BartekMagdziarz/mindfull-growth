@@ -33,7 +33,7 @@
         v-for="area in sortedAreas"
         :key="area.id"
         :area="area"
-        :latest-score="getLatestScore(area.name)"
+        :latest-score="getLatestScore(area.id)"
         @click="router.push(`/areas/${area.id}`)"
       />
     </div>
@@ -49,13 +49,13 @@ import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import LifeAreaCard from '@/components/lifeAreas/LifeAreaCard.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
-import { useWheelOfLifeStore } from '@/stores/wheelOfLife.store'
+import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()
 const router = useRouter()
 const lifeAreaStore = useLifeAreaStore()
-const wheelStore = useWheelOfLifeStore()
+const assessmentStore = useLifeAreaAssessmentStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const lifeAreas = computed(() => lifeAreaStore.lifeAreas)
@@ -65,17 +65,14 @@ const sortedAreas = computed(() => lifeAreaStore.sortedLifeAreas)
 onMounted(async () => {
   await Promise.all([
     lifeAreaStore.loadLifeAreas(),
-    wheelStore.loadSnapshots(),
+    assessmentStore.loadAssessments(),
   ])
 })
 
-function getLatestScore(areaName: string): number | undefined {
-  const latest = wheelStore.latestSnapshot
+function getLatestScore(lifeAreaId: string): number | undefined {
+  const latest = assessmentStore.latestFullAssessment
   if (!latest) return undefined
-  const area = latest.areas.find(
-    (a) => a.name.toLowerCase() === areaName.toLowerCase(),
-  )
-  return area?.rating
+  return latest.items.find((item) => item.lifeAreaId === lifeAreaId)?.score
 }
 
 async function handleSeedDefaults() {

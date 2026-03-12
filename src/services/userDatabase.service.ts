@@ -38,6 +38,7 @@ import type {
   IFSConstellation,
 } from '@/domain/exercises'
 import type { LifeArea } from '@/domain/lifeArea'
+import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
 import type { AssessmentAttempt, AssessmentResponse } from '@/domain/assessments'
 
 export class UserDatabase extends Dexie {
@@ -82,6 +83,7 @@ export class UserDatabase extends Dexie {
   ifsConstellations!: Table<IFSConstellation, string>
 
   lifeAreas!: Table<LifeArea, string>
+  lifeAreaAssessments!: Table<LifeAreaAssessment, string>
   assessmentAttempts!: Table<AssessmentAttempt, string>
   assessmentResponses!: Table<AssessmentResponse, string>
   drafts!: Table<{ key: string; data: string; updatedAt: string }, string>
@@ -174,6 +176,52 @@ export class UserDatabase extends Dexie {
       ifsDailyCheckIns: 'id',
       ifsConstellations: 'id',
       lifeAreas: 'id, isActive',
+      assessmentAttempts: 'id, assessmentId',
+      assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
+      drafts: '&key',
+    })
+
+    this.version(3).stores({
+      journalEntries: 'id',
+      peopleTags: 'id',
+      contextTags: 'id',
+      emotionLogs: 'id',
+      userSettings: 'key',
+      wheelOfLifeSnapshots: 'id, createdAt',
+      valuesDiscoveries: 'id',
+      shadowBeliefs: 'id',
+      transformativePurposes: 'id',
+      thoughtRecords: 'id',
+      distortionAssessments: 'id',
+      worryTreeEntries: 'id',
+      coreBeliefsExplorations: 'id',
+      compassionateLetters: 'id',
+      positiveDataLogs: 'id',
+      behavioralExperiments: 'id',
+      behavioralActivations: 'id',
+      structuredProblemSolvings: 'id',
+      gradedExposureHierarchies: 'id',
+      threePathwaysToMeaning: 'id',
+      socraticSelfDialogues: 'id',
+      mountainRangesOfMeaning: 'id',
+      paradoxicalIntentionLabs: 'id',
+      dereflectionPractices: 'id',
+      tragicOptimisms: 'id',
+      attitudinalShifts: 'id',
+      legacyLetters: 'id',
+      ifsParts: 'id',
+      ifsPartsMaps: 'id',
+      ifsUnblendingSessions: 'id',
+      ifsDirectAccessSessions: 'id',
+      ifsTrailheadEntries: 'id',
+      ifsProtectorAppreciations: 'id',
+      ifsExileWitnessings: 'id',
+      ifsSelfEnergyCheckIns: 'id',
+      ifsPartsDialogues: 'id',
+      ifsDailyCheckIns: 'id',
+      ifsConstellations: 'id',
+      lifeAreas: 'id, isActive',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
       assessmentAttempts: 'id, assessmentId',
       assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
       drafts: '&key',

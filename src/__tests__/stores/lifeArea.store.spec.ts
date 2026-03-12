@@ -36,6 +36,7 @@ describe('useLifeAreaStore', () => {
 
     const db = getUserDatabase()
     await db.lifeAreas.clear()
+    await db.lifeAreaAssessments.clear()
   })
 
   afterEach(async () => {
@@ -130,6 +131,37 @@ describe('useLifeAreaStore', () => {
       const db = getUserDatabase()
       const persisted = await db.lifeAreas.get(created.id)
       expect(persisted).toBeUndefined()
+    })
+
+    it('blocks permanent deletion when assessment history exists', async () => {
+      const store = useLifeAreaStore()
+      const db = getUserDatabase()
+
+      const created = await store.createLifeArea({
+        name: 'Health',
+        measures: [],
+        reviewCadence: 'monthly',
+        isActive: true,
+        sortOrder: 0,
+      })
+
+      await db.lifeAreaAssessments.put({
+        id: 'assessment-1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        scope: 'full',
+        lifeAreaIds: [created.id],
+        items: [
+          {
+            lifeAreaId: created.id,
+            lifeAreaNameSnapshot: 'Health',
+            score: 6,
+          },
+        ],
+      })
+
+      await expect(store.deleteLifeArea(created.id)).rejects.toThrow('assessment history')
+      expect(await db.lifeAreas.get(created.id)).toBeDefined()
     })
   })
 

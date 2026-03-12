@@ -57,9 +57,8 @@ export interface WheelOfLifeAreaReflection {
 /**
  * WheelOfLifeSnapshot
  *
- * Each completion of the Wheel of Life exercise creates a new snapshot.
- * Snapshots form a time-series that can be compared across periods.
- * Snapshots can be revisited later through history and life area detail views.
+ * @deprecated Legacy storage retained only for clean-break compatibility.
+ * New Wheel of Life entries are stored as LifeAreaAssessment records.
  */
 export interface WheelOfLifeSnapshot {
   id: string // UUID

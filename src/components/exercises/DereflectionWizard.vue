@@ -353,7 +353,7 @@ import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
-import { useWheelOfLifeStore } from '@/stores/wheelOfLife.store'
+import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
 import { useT } from '@/composables/useT'
 import type { CreateDereflectionPayload, DereflectionRedirection } from '@/domain/exercises'
@@ -364,12 +364,12 @@ const emit = defineEmits<{
 
 const { t } = useT()
 const lifeAreaStore = useLifeAreaStore()
-const wheelOfLifeStore = useWheelOfLifeStore()
+const lifeAreaAssessmentStore = useLifeAreaAssessmentStore()
 const purposeStore = useTransformativePurposeStore()
 
 onMounted(() => {
   lifeAreaStore.loadLifeAreas()
-  wheelOfLifeStore.loadSnapshots()
+  lifeAreaAssessmentStore.loadAssessments()
   purposeStore.loadPurposes()
 })
 
@@ -377,11 +377,11 @@ const lifeAreas = computed(() => lifeAreaStore.sortedLifeAreas)
 
 // Suggestions from Wheel of Life (high-satisfaction areas)
 const suggestions = computed(() => {
-  const latest = wheelOfLifeStore.latestSnapshot
+  const latest = lifeAreaAssessmentStore.latestFullAssessment
   if (!latest) return []
-  return latest.areas
-    .filter((a) => a.rating >= 7)
-    .map((a) => a.name)
+  return latest.items
+    .filter((item) => item.score >= 7)
+    .map((item) => item.lifeAreaNameSnapshot)
 })
 
 const purposeStatement = computed(() => {

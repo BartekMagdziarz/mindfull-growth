@@ -11,6 +11,7 @@ import { ref, computed } from 'vue'
 import type { LifeArea, CreateLifeAreaPayload, UpdateLifeAreaPayload } from '@/domain/lifeArea'
 import { DEFAULT_LIFE_AREAS } from '@/domain/lifeArea'
 import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
+import { lifeAreaAssessmentDexieRepository } from '@/repositories/lifeAreaAssessmentDexieRepository'
 import { getDefaultIconIdByLifeAreaName } from '@/constants/entityIconCatalog'
 
 export const useLifeAreaStore = defineStore('lifeArea', () => {
@@ -109,6 +110,13 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
   async function deleteLifeArea(id: string): Promise<void> {
     error.value = null
 
+    const linkedAssessments = await lifeAreaAssessmentDexieRepository.getByLifeArea(id)
+    if (linkedAssessments.length > 0) {
+      const message = 'Cannot permanently delete a life area with assessment history'
+      error.value = message
+      throw new Error(message)
+    }
+
     try {
       await lifeAreaDexieRepository.delete(id)
       lifeAreas.value = lifeAreas.value.filter((la) => la.id !== id)
@@ -148,6 +156,11 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
 
   async function setLifeAreaActive(id: string, isActive: boolean): Promise<LifeArea> {
     return updateLifeArea(id, { isActive })
+  }
+
+  async function hasAssessmentHistory(id: string): Promise<boolean> {
+    const linkedAssessments = await lifeAreaAssessmentDexieRepository.getByLifeArea(id)
+    return linkedAssessments.length > 0
   }
 
   /**
@@ -192,6 +205,7 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
     deleteLifeArea,
     reorderLifeAreas,
     setLifeAreaActive,
+    hasAssessmentHistory,
     seedDefaultAreas,
   }
 })
