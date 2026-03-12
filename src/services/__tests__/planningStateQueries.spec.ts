@@ -212,4 +212,72 @@ describe('planningStateQueries', () => {
     expect(reflectionBundle.relevant.goalItems).toHaveLength(1)
     expect(reflectionBundle.relevant.measurementItems.find((item) => item.subject.id === habit.id)?.hasEntries).toBe(true)
   })
+
+  it('ignores orphaned week state records that no longer have valid month context', async () => {
+    const db = await resetPlanningTestData()
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+    const goal = await goalDexieRepository.create({
+      title: 'Keep weekly flow lean',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Ship calendar cleanup',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+    const monthlyHabit = await habitDexieRepository.create({
+      title: 'Monthly review sweep',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+
+    await db.measurementWeekStates.bulkAdd([
+      {
+        id: 'orphan-weekly-state',
+        createdAt: '2026-03-01T00:00:00.000Z',
+        updatedAt: '2026-03-01T00:00:00.000Z',
+        weekRef,
+        subjectType: 'keyResult',
+        subjectId: keyResult.id,
+        activityState: 'active',
+        scheduleScope: 'whole-week',
+      },
+      {
+        id: 'orphan-monthly-state',
+        createdAt: '2026-03-01T00:00:00.000Z',
+        updatedAt: '2026-03-01T00:00:00.000Z',
+        weekRef,
+        sourceMonthRef: parsePeriodRef('2026-03') as MonthRef,
+        subjectType: 'habit',
+        subjectId: monthlyHabit.id,
+        activityState: 'active',
+        scheduleScope: 'whole-week',
+      },
+    ])
+
+    const relevant = await getWeekRelevantObjects(weekRef)
+
+    expect(relevant.planning.measurementItems).toHaveLength(0)
+    expect(relevant.planning.cadencedItems).toHaveLength(0)
+  })
 })

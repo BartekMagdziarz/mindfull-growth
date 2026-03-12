@@ -3,6 +3,7 @@
  */
 
 import { getUserDatabase } from '@/services/userDatabase.service'
+import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 
 /**
  * Deep-clone to strip Vue reactive Proxies before IndexedDB storage.
@@ -55,6 +56,7 @@ class LifeAreaDexieRepository implements LifeAreaRepository {
         ...data,
       }
       await this.db.lifeAreas.add(toPlain(lifeArea))
+      invalidatePlanningQueryCache()
       return lifeArea
     } catch (error) {
       console.error('Failed to create life area:', error)
@@ -74,6 +76,7 @@ class LifeAreaDexieRepository implements LifeAreaRepository {
         updatedAt: new Date().toISOString(),
       }
       await this.db.lifeAreas.put(toPlain(updated))
+      invalidatePlanningQueryCache()
       return updated
     } catch (error) {
       console.error(`Failed to update life area with id ${id}:`, error)
@@ -84,6 +87,7 @@ class LifeAreaDexieRepository implements LifeAreaRepository {
   async delete(id: string): Promise<void> {
     try {
       await this.db.lifeAreas.delete(id)
+      invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete life area with id ${id}:`, error)
       throw new Error(`Failed to delete life area with id ${id}`)

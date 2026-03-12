@@ -28,25 +28,23 @@
       </section>
     </div>
 
-    <section v-if="store.isLoading" class="neo-card p-8 text-center text-on-surface-variant">
-      {{ t('common.loading') }}
-    </section>
+    <PlanningStatePanel
+      v-if="store.isLoading && !store.bundle"
+      :title="t('common.loading')"
+      :body="t('planning.today.subtitle')"
+      :eyebrow="t('planning.today.eyebrow')"
+    />
 
-    <section v-else-if="store.error" class="neo-card p-8 text-center">
-      <h2 class="text-xl font-semibold text-on-surface">
-        {{ t('planning.today.loadError') }}
-      </h2>
-      <p class="mt-3 text-sm text-on-surface-variant">
-        {{ store.error }}
-      </p>
-      <div class="mt-5">
-        <AppButton variant="filled" @click="void store.loadBundle()">
-          {{ t('common.buttons.tryAgain') }}
-        </AppButton>
-      </div>
-    </section>
+    <PlanningStatePanel
+      v-else-if="store.error && !store.bundle"
+      :title="t('planning.today.loadError')"
+      :body="store.error"
+      :eyebrow="t('planning.today.eyebrow')"
+      :action-label="t('common.buttons.tryAgain')"
+      @action="void store.loadBundle()"
+    />
 
-    <div v-else class="space-y-6">
+    <div v-else-if="store.bundle" class="space-y-6">
       <section v-for="section in sections" :key="section.id" class="neo-card p-5 md:p-6">
         <div
           class="flex flex-col gap-4 border-b border-white/35 pb-5 lg:flex-row lg:items-center lg:justify-between"
@@ -181,12 +179,14 @@ import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
+import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import TodayItemCard from '@/components/today/TodayItemCard.vue'
 import { useT } from '@/composables/useT'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
-import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
+import type { TodayItem } from '@/services/todayViewQueries'
 import { useTodayStore } from '@/stores/today.store'
 import { formatPeriodLabel } from '@/utils/periodLabels'
+import type { DayRef } from '@/domain/period'
 
 const router = useRouter()
 const { t, locale } = useT()
@@ -196,7 +196,7 @@ const hiddenExpanded = ref(false)
 const deleteDialogOpen = ref(false)
 const pendingDeleteItem = ref<TodayItem | null>(null)
 
-const bundleDayRef = computed(() => store.dayRef ?? '')
+const bundleDayRef = computed(() => (store.dayRef ?? '') as DayRef)
 const todayLabel = computed(() => {
   if (!store.bundle) {
     return ''
@@ -355,7 +355,7 @@ async function handleRestore(item: TodayItem): Promise<void> {
   }
 }
 
-async function handleMove(item: TodayItem, dayRef: string): Promise<void> {
+async function handleMove(item: TodayItem, dayRef: DayRef): Promise<void> {
   try {
     await store.moveScheduledItem(item, dayRef)
     snackbarRef.value?.show(t('planning.today.messages.moved'))

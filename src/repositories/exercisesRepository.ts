@@ -3,7 +3,6 @@
  */
 
 import type {
-  WheelOfLifeSnapshot,
   ValuesDiscovery,
   ShadowBeliefs,
   TransformativePurpose,
@@ -13,8 +12,6 @@ import type {
   CoreBeliefsExploration,
   CompassionateLetter,
   PositiveDataLog,
-  CreateWheelOfLifeSnapshotPayload,
-  UpdateWheelOfLifeSnapshotPayload,
   CreateValuesDiscoveryPayload,
   UpdateValuesDiscoveryPayload,
   CreateShadowBeliefsPayload,
@@ -104,15 +101,6 @@ import type {
   CreateIFSConstellationPayload,
   UpdateIFSConstellationPayload,
 } from '@/domain/exercises'
-
-export interface WheelOfLifeSnapshotRepository {
-  getAll(): Promise<WheelOfLifeSnapshot[]>
-  getById(id: string): Promise<WheelOfLifeSnapshot | undefined>
-  getByDateRange(startDate: string, endDate: string): Promise<WheelOfLifeSnapshot[]>
-  create(data: CreateWheelOfLifeSnapshotPayload): Promise<WheelOfLifeSnapshot>
-  update(id: string, data: UpdateWheelOfLifeSnapshotPayload): Promise<WheelOfLifeSnapshot>
-  delete(id: string): Promise<void>
-}
 
 export interface ValuesDiscoveryRepository {
   getAll(): Promise<ValuesDiscovery[]>

@@ -1,5 +1,6 @@
 import type { CreateTrackerPayload, Tracker, UpdateTrackerPayload } from '@/domain/planning'
 import { normalizeTrackerPayload } from '@/domain/planning'
+import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { TrackerRepository } from './trackerRepository'
 import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
@@ -31,6 +32,7 @@ class TrackerDexieRepository implements TrackerRepository {
     try {
       const tracker = createPlanningRecord<Tracker>(normalizeTrackerPayload(data))
       await this.db.trackers.add(toPlain(tracker))
+      invalidatePlanningQueryCache()
       return tracker
     } catch (error) {
       console.error('Failed to create tracker:', error)
@@ -43,6 +45,7 @@ class TrackerDexieRepository implements TrackerRepository {
       const existing = requireRecord(await this.db.trackers.get(id), `Tracker with id ${id} not found`)
       const updated = updatePlanningRecord(existing, normalizeTrackerPayload(data, existing))
       await this.db.trackers.put(toPlain(updated))
+      invalidatePlanningQueryCache()
       return updated
     } catch (error) {
       console.error(`Failed to update tracker with id ${id}:`, error)
@@ -53,6 +56,7 @@ class TrackerDexieRepository implements TrackerRepository {
   async delete(id: string): Promise<void> {
     try {
       await this.db.trackers.delete(id)
+      invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete tracker with id ${id}:`, error)
       throw new Error(`Failed to delete tracker with id ${id}`)

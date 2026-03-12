@@ -6,9 +6,10 @@ import type {
   MeasurementSubjectType,
   TodayHiddenSubjectType,
 } from '@/domain/planningState'
-import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { type MeasureableSubject, type MeasurementSummary } from '@/services/measurementProgress'
+import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
+import { loadPlanningCached } from '@/services/planningQueryCache'
 import {
   getWeekPlanningBundle,
   type MeasurementPlanningSummary,
@@ -61,6 +62,11 @@ export interface TodayViewBundle {
   sections: Record<TodaySectionId, TodayItem[]>
   hiddenItems: TodayItem[]
 }
+
+const todayViewBundleCache = new Map<
+  string,
+  { revision: number; value: TodayViewBundle | Promise<TodayViewBundle> }
+>()
 
 function buildMeasurementKey(subjectType: MeasurementSubjectType, subjectId: string): string {
   return `${subjectType}:${subjectId}`
@@ -252,68 +258,73 @@ function buildInitiativeRecord(
 }
 
 export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayViewBundle> {
-  const refs = getPeriodRefsForDate(dayRef)
-  const [weekPlanning, allEntries, hiddenStates, goals] = await Promise.all([
-    getWeekPlanningBundle(refs.week),
-    planningStateDexieRepository.listDailyMeasurementEntries(),
-    planningStateDexieRepository.listTodayHiddenStates(),
-    goalDexieRepository.listAll(),
-  ])
+  return loadPlanningCached(todayViewBundleCache, dayRef, async () => {
+    const refs = getPeriodRefsForDate(dayRef)
+    const [weekPlanning, allEntries, hiddenStates, objects] = await Promise.all([
+      getWeekPlanningBundle(refs.week),
+      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(dayRef, dayRef),
+      planningStateDexieRepository.listTodayHiddenStatesForDay(dayRef),
+      loadPlanningCoreObjects(),
+    ])
 
-  const goalMap = buildGoalMap(goals)
-  const todayEntries = buildTodayEntryMap(allEntries, dayRef)
-  const hiddenKeys = buildHiddenKeySet(dayRef, hiddenStates)
-  const measurementItems = new Map<string, TodayMeasurementItem>()
-  const initiativeItems = new Map<string, TodayInitiativeItem>()
+    const goalMap = buildGoalMap(objects.goals)
+    const todayEntries = buildTodayEntryMap(allEntries, dayRef)
+    const hiddenKeys = buildHiddenKeySet(dayRef, hiddenStates)
+    const measurementItems = new Map<string, TodayMeasurementItem>()
+    const initiativeItems = new Map<string, TodayInitiativeItem>()
 
-  for (const item of weekPlanning.relevant.measurementItems) {
-    const sectionId = classifyMeasurementItem(item, dayRef)
-    if (!sectionId) {
-      continue
+    for (const item of weekPlanning.relevant.measurementItems) {
+      const sectionId = classifyMeasurementItem(item, dayRef)
+      if (!sectionId) {
+        continue
+      }
+
+      const key = buildMeasurementKey(item.subjectType, item.subject.id)
+      const record = buildMeasurementRecord(item, goalMap, todayEntries.get(key), sectionId)
+      measurementItems.set(
+        key,
+        chooseMeasurementItem(measurementItems.get(key), record, refs.month),
+      )
     }
 
-    const key = buildMeasurementKey(item.subjectType, item.subject.id)
-    const record = buildMeasurementRecord(item, goalMap, todayEntries.get(key), sectionId)
-    measurementItems.set(key, chooseMeasurementItem(measurementItems.get(key), record, refs.month))
-  }
+    for (const item of weekPlanning.relevant.initiativeItems) {
+      const sectionId = classifyInitiativeItem(item, dayRef, refs)
+      if (!sectionId) {
+        continue
+      }
 
-  for (const item of weekPlanning.relevant.initiativeItems) {
-    const sectionId = classifyInitiativeItem(item, dayRef, refs)
-    if (!sectionId) {
-      continue
+      const key = buildInitiativeKey(item.initiative.id)
+      const record = buildInitiativeRecord(item, goalMap, sectionId, refs)
+      initiativeItems.set(key, chooseInitiativeItem(initiativeItems.get(key), record))
     }
 
-    const key = buildInitiativeKey(item.initiative.id)
-    const record = buildInitiativeRecord(item, goalMap, sectionId, refs)
-    initiativeItems.set(key, chooseInitiativeItem(initiativeItems.get(key), record))
-  }
+    const sections: Record<TodaySectionId, TodayItem[]> = {
+      scheduled: [],
+      week: [],
+      month: [],
+    }
+    const hiddenItems: TodayItem[] = []
 
-  const sections: Record<TodaySectionId, TodayItem[]> = {
-    scheduled: [],
-    week: [],
-    month: [],
-  }
-  const hiddenItems: TodayItem[] = []
+    for (const item of [...measurementItems.values(), ...initiativeItems.values()]) {
+      if (item.canHide && hiddenKeys.has(item.key)) {
+        hiddenItems.push(item)
+        continue
+      }
 
-  for (const item of [...measurementItems.values(), ...initiativeItems.values()]) {
-    if (item.canHide && hiddenKeys.has(item.key)) {
-      hiddenItems.push(item)
-      continue
+      sections[item.sectionId].push(item)
     }
 
-    sections[item.sectionId].push(item)
-  }
-
-  return {
-    dayRef,
-    refs,
-    sections: {
-      scheduled: sortTodayItems(sections.scheduled),
-      week: sortTodayItems(sections.week),
-      month: sortTodayItems(sections.month),
-    },
-    hiddenItems: sortTodayItems(hiddenItems),
-  }
+    return {
+      dayRef,
+      refs,
+      sections: {
+        scheduled: sortTodayItems(sections.scheduled),
+        week: sortTodayItems(sections.week),
+        month: sortTodayItems(sections.month),
+      },
+      hiddenItems: sortTodayItems(hiddenItems),
+    }
+  })
 }
 
 export async function getTodayViewBundle(): Promise<TodayViewBundle> {

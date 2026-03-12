@@ -68,26 +68,32 @@
       </div>
     </div>
 
-    <div v-if="invalidRoute" class="neo-card p-8 text-center text-on-surface">
-      <h2 class="text-xl font-semibold">
-        {{ t('planning.calendar.invalidPeriod') }}
-      </h2>
-    </div>
+    <PlanningStatePanel
+      v-if="invalidRoute"
+      :title="t('planning.calendar.invalidPeriod')"
+      :body="t('planning.calendar.title')"
+      :eyebrow="t('planning.calendar.title')"
+    />
 
     <div v-else :class="calendarLayoutClasses">
       <div class="space-y-6">
-        <section v-if="isLoading" class="neo-card p-8 text-center text-on-surface-variant">
-          {{ t('common.loading') }}
-        </section>
+        <PlanningStatePanel
+          v-if="isLoading"
+          :title="t('common.loading')"
+          :body="t('planning.calendar.title')"
+          :eyebrow="t('planning.calendar.title')"
+          compact
+        />
 
-        <section v-else-if="loadError" class="neo-card p-8 text-center">
-          <h2 class="text-xl font-semibold text-on-surface">
-            {{ t('planning.calendar.loadError') }}
-          </h2>
-          <p class="mt-3 text-sm text-on-surface-variant">
-            {{ loadError }}
-          </p>
-        </section>
+        <PlanningStatePanel
+          v-else-if="loadError"
+          :title="t('planning.calendar.loadError')"
+          :body="loadError"
+          :eyebrow="t('planning.calendar.title')"
+          :action-label="t('common.buttons.tryAgain')"
+          compact
+          @action="void loadCalendarData()"
+        />
 
         <template v-else>
           <section v-if="showSummaryMetrics" class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
@@ -523,6 +529,7 @@ import CalendarGoalCard from '@/components/calendar/CalendarGoalCard.vue'
 import CalendarItemCard from '@/components/calendar/CalendarItemCard.vue'
 import CalendarMonthSummaryCard from '@/components/calendar/CalendarMonthSummaryCard.vue'
 import CalendarSidePanel from '@/components/calendar/CalendarSidePanel.vue'
+import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import { useT } from '@/composables/useT'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'

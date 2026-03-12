@@ -62,7 +62,7 @@ describe('CalendarView', () => {
     const dayRef = parsePeriodRef('2026-03-12') as DayRef
 
     const goal = await goalDexieRepository.create({
-      title: 'Launch planning hub',
+      title: 'Ship weekly workspace',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
@@ -240,7 +240,7 @@ describe('CalendarView', () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
 
     const goal = await goalDexieRepository.create({
-      title: 'Launch planning hub',
+      title: 'Ship weekly workspace',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],

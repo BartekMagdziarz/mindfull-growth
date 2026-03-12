@@ -49,7 +49,7 @@ describe('TodayView', () => {
     const dayRef = parsePeriodRef('2026-03-12') as DayRef
     const refs = getPeriodRefsForDate(dayRef)
     const goal = await goalDexieRepository.create({
-      title: 'Launch planning hub',
+      title: 'Ship weekly workspace',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],

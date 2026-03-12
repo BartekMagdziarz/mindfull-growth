@@ -26,15 +26,10 @@ import {
   type MeasurementPeriodRef,
   type MeasurementSummary,
 } from '@/services/measurementProgress'
-import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
-import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
-import { goalDexieRepository } from '@/repositories/goalDexieRepository'
-import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
-import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
+import { loadPlanningLibraryObjects } from '@/services/planningObjectCollections'
+import { loadPlanningCached } from '@/services/planningQueryCache'
 import { comparePeriodRefs, getPeriodRefsForDate, getPeriodType, isPeriodRef, periodIntersectsPeriod } from '@/utils/periods'
 
 export type ObjectsLibraryFamily = 'goals' | 'habits' | 'trackers' | 'initiatives'
@@ -211,6 +206,11 @@ interface ObjectRefContext {
   objectReflectionMap: Map<string, PeriodObjectReflection[]>
   subjectEntryMap: Map<string, DailyMeasurementEntry[]>
 }
+
+const objectsLibraryBundleCache = new Map<
+  string,
+  { revision: number; value: ObjectsLibraryBundle | Promise<ObjectsLibraryBundle> }
+>()
 
 function toLowerText(value?: string): string {
   return (value ?? '').trim().toLowerCase()
@@ -467,13 +467,7 @@ export function createDefaultObjectsLibraryQuery(
 
 async function loadDependencies(): Promise<ObjectsLibraryDependencies> {
   const [
-    lifeAreas,
-    priorities,
-    goals,
-    keyResults,
-    habits,
-    trackers,
-    initiatives,
+    libraryObjects,
     goalMonthStates,
     measurementMonthStates,
     measurementWeekStates,
@@ -483,13 +477,7 @@ async function loadDependencies(): Promise<ObjectsLibraryDependencies> {
     periodReflections,
     objectReflections,
   ] = await Promise.all([
-    lifeAreaDexieRepository.getAll(),
-    priorityDexieRepository.listAll(),
-    goalDexieRepository.listAll(),
-    keyResultDexieRepository.listAll(),
-    habitDexieRepository.listAll(),
-    trackerDexieRepository.listAll(),
-    initiativeDexieRepository.listAll(),
+    loadPlanningLibraryObjects(),
     planningStateDexieRepository.listGoalMonthStates(),
     planningStateDexieRepository.listMeasurementMonthStates(),
     planningStateDexieRepository.listMeasurementWeekStates(),
@@ -501,13 +489,13 @@ async function loadDependencies(): Promise<ObjectsLibraryDependencies> {
   ])
 
   return {
-    lifeAreas,
-    priorities,
-    goals,
-    keyResults,
-    habits,
-    trackers,
-    initiatives,
+    lifeAreas: libraryObjects.lifeAreas,
+    priorities: libraryObjects.priorities,
+    goals: libraryObjects.goals,
+    keyResults: libraryObjects.keyResults,
+    habits: libraryObjects.habits,
+    trackers: libraryObjects.trackers,
+    initiatives: libraryObjects.initiatives,
     goalMonthStates,
     measurementMonthStates,
     measurementWeekStates,
@@ -517,6 +505,24 @@ async function loadDependencies(): Promise<ObjectsLibraryDependencies> {
     periodReflections,
     objectReflections,
   }
+}
+
+function buildObjectsLibraryCacheKey(query: ObjectsLibraryQuery): string {
+  return JSON.stringify({
+    family: query.family,
+    q: query.q.trim(),
+    period: query.period ?? null,
+    lifeAreaIds: [...query.lifeAreaIds].sort(),
+    priorityIds: [...query.priorityIds].sort(),
+    showClosed: query.showClosed,
+    composerMode: query.composerMode ?? null,
+    composerType: query.composerType ?? null,
+    composerId: query.composerId ?? null,
+    composerParentType: query.composerParentType ?? null,
+    composerParentId: query.composerParentId ?? null,
+    expandedType: query.expandedType ?? null,
+    expandedId: query.expandedId ?? null,
+  })
 }
 
 function buildContext(deps: ObjectsLibraryDependencies): ObjectRefContext {
@@ -1046,36 +1052,40 @@ function buildPanelRecord(
 export async function loadObjectsLibraryBundle(
   query: ObjectsLibraryQuery,
 ): Promise<ObjectsLibraryBundle> {
-  const deps = await loadDependencies()
-  const ctx = buildContext(deps)
+  return loadPlanningCached(objectsLibraryBundleCache, buildObjectsLibraryCacheKey(query), async () => {
+    const deps = await loadDependencies()
+    const ctx = buildContext(deps)
 
-  return {
-    query,
-    familyTotalCount: getFamilyTotalCount(query.family, deps),
-    items: buildFamilyItems(query, deps, ctx),
-    expandedItem:
-      query.expandedType && query.expandedId
-        ? buildPanelRecord(query.expandedType, query.expandedId, deps, ctx)
-        : undefined,
-    composerItem:
-      query.composerMode === 'edit' && query.composerType && query.composerId
-        ? buildPanelRecord(query.composerType, query.composerId, deps, ctx)
-        : undefined,
-    filterOptions: {
-      lifeAreas: deps.lifeAreas
-        .filter((area) => area.isActive)
-        .sort((left, right) => left.sortOrder - right.sortOrder)
-        .map((area) => ({ id: area.id, label: area.name })),
-      priorities: deps.priorities
-        .filter((priority) => priority.isActive)
-        .sort((left, right) => left.year.localeCompare(right.year) || left.title.localeCompare(right.title))
-        .map((priority) => ({ id: priority.id, label: `${priority.year} · ${priority.title}` })),
-      goals: deps.goals
-        .filter((goal) => goal.isActive && goal.status === 'open')
-        .sort((left, right) => left.title.localeCompare(right.title))
-        .map((goal) => ({ id: goal.id, label: goal.title })),
-    },
-  }
+    return {
+      query,
+      familyTotalCount: getFamilyTotalCount(query.family, deps),
+      items: buildFamilyItems(query, deps, ctx),
+      expandedItem:
+        query.expandedType && query.expandedId
+          ? buildPanelRecord(query.expandedType, query.expandedId, deps, ctx)
+          : undefined,
+      composerItem:
+        query.composerMode === 'edit' && query.composerType && query.composerId
+          ? buildPanelRecord(query.composerType, query.composerId, deps, ctx)
+          : undefined,
+      filterOptions: {
+        lifeAreas: deps.lifeAreas
+          .filter((area) => area.isActive)
+          .sort((left, right) => left.sortOrder - right.sortOrder)
+          .map((area) => ({ id: area.id, label: area.name })),
+        priorities: deps.priorities
+          .filter((priority) => priority.isActive)
+          .sort(
+            (left, right) => left.year.localeCompare(right.year) || left.title.localeCompare(right.title),
+          )
+          .map((priority) => ({ id: priority.id, label: `${priority.year} · ${priority.title}` })),
+        goals: deps.goals
+          .filter((goal) => goal.isActive && goal.status === 'open')
+          .sort((left, right) => left.title.localeCompare(right.title))
+          .map((goal) => ({ id: goal.id, label: goal.title })),
+      },
+    }
+  })
 }
 
 function matchesStandaloneFilters<

@@ -20,6 +20,7 @@ import {
   toPlain,
   updatePlanningRecord,
 } from './planningDexieRepository.shared'
+import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 
 class ReflectionDexieRepository implements ReflectionRepository {
   private get db() {
@@ -58,13 +59,15 @@ class ReflectionDexieRepository implements ReflectionRepository {
       const normalized = normalizePeriodReflectionPayload(data, existing)
 
       if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.periodReflections.put(toPlain(updated))
-        return updated
+      const updated = updatePlanningRecord(existing, normalized)
+      await this.db.periodReflections.put(toPlain(updated))
+      invalidatePlanningQueryCache()
+      return updated
       }
 
       const created = createPlanningRecord<PeriodReflection>(normalized)
       await this.db.periodReflections.add(toPlain(created))
+      invalidatePlanningQueryCache()
       return created
     } catch (error) {
       console.error('Failed to upsert period reflection:', error)
@@ -81,6 +84,7 @@ class ReflectionDexieRepository implements ReflectionRepository {
       if (!existing) return
 
       await this.db.periodReflections.delete(existing.id)
+      invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete period reflection for ${periodType}:${periodRef}:`, error)
       throw new Error(`Failed to delete period reflection for ${periodType}:${periodRef}`)
@@ -125,13 +129,15 @@ class ReflectionDexieRepository implements ReflectionRepository {
       await this.assertReflectionSubjectExists(normalized.subjectType, normalized.subjectId)
 
       if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.periodObjectReflections.put(toPlain(updated))
-        return updated
+      const updated = updatePlanningRecord(existing, normalized)
+      await this.db.periodObjectReflections.put(toPlain(updated))
+      invalidatePlanningQueryCache()
+      return updated
       }
 
       const created = createPlanningRecord<PeriodObjectReflection>(normalized)
       await this.db.periodObjectReflections.add(toPlain(created))
+      invalidatePlanningQueryCache()
       return created
     } catch (error) {
       console.error('Failed to upsert period object reflection:', error)
@@ -155,6 +161,7 @@ class ReflectionDexieRepository implements ReflectionRepository {
       if (!existing) return
 
       await this.db.periodObjectReflections.delete(existing.id)
+      invalidatePlanningQueryCache()
     } catch (error) {
       console.error(
         `Failed to delete period object reflection for ${subjectType}:${subjectId} in ${periodType}:${periodRef}:`,

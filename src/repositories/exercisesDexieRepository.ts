@@ -8,7 +8,6 @@ function toPlain<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
 }
 import type {
-  WheelOfLifeSnapshot,
   ValuesDiscovery,
   ShadowBeliefs,
   TransformativePurpose,
@@ -21,8 +20,6 @@ import type {
   BehavioralExperiment,
   BehavioralActivation,
   StructuredProblemSolving,
-  CreateWheelOfLifeSnapshotPayload,
-  UpdateWheelOfLifeSnapshotPayload,
   CreateValuesDiscoveryPayload,
   UpdateValuesDiscoveryPayload,
   CreateShadowBeliefsPayload,
@@ -110,7 +107,6 @@ import type {
   UpdateIFSConstellationPayload,
 } from '@/domain/exercises'
 import type {
-  WheelOfLifeSnapshotRepository,
   ValuesDiscoveryRepository,
   ShadowBeliefsRepository,
   TransformativePurposeRepository,
@@ -144,94 +140,6 @@ import type {
   IFSDailyCheckInRepository,
   IFSConstellationRepository,
 } from './exercisesRepository'
-
-// ============================================================================
-// Wheel of Life Snapshot Repository (Legacy)
-// ============================================================================
-
-class WheelOfLifeSnapshotDexieRepository implements WheelOfLifeSnapshotRepository {
-  private get db() {
-    return getUserDatabase()
-  }
-
-  async getAll(): Promise<WheelOfLifeSnapshot[]> {
-    try {
-      return await this.db.wheelOfLifeSnapshots.toArray()
-    } catch (error) {
-      console.error('Failed to get all wheel of life snapshots:', error)
-      throw new Error('Failed to retrieve wheel of life snapshots from database')
-    }
-  }
-
-  async getById(id: string): Promise<WheelOfLifeSnapshot | undefined> {
-    try {
-      return await this.db.wheelOfLifeSnapshots.get(id)
-    } catch (error) {
-      console.error(`Failed to get wheel of life snapshot with id ${id}:`, error)
-      throw new Error(`Failed to retrieve wheel of life snapshot with id ${id}`)
-    }
-  }
-
-  async getByDateRange(startDate: string, endDate: string): Promise<WheelOfLifeSnapshot[]> {
-    try {
-      return await this.db.wheelOfLifeSnapshots
-        .where('createdAt')
-        .between(startDate, endDate + '\uffff', true, true)
-        .toArray()
-    } catch (error) {
-      console.error(`Failed to get wheel of life snapshots for date range:`, error)
-      throw new Error('Failed to retrieve wheel of life snapshots for date range')
-    }
-  }
-
-  async create(data: CreateWheelOfLifeSnapshotPayload): Promise<WheelOfLifeSnapshot> {
-    try {
-      const now = new Date().toISOString()
-      const snapshot: WheelOfLifeSnapshot = {
-        id: crypto.randomUUID(),
-        createdAt: now,
-        updatedAt: now,
-        ...data,
-      }
-      await this.db.wheelOfLifeSnapshots.add(toPlain(snapshot))
-      return snapshot
-    } catch (error) {
-      console.error('Failed to create wheel of life snapshot:', error)
-      throw new Error('Failed to create wheel of life snapshot in database')
-    }
-  }
-
-  async update(
-    id: string,
-    data: UpdateWheelOfLifeSnapshotPayload,
-  ): Promise<WheelOfLifeSnapshot> {
-    try {
-      const existing = await this.db.wheelOfLifeSnapshots.get(id)
-      if (!existing) {
-        throw new Error(`Wheel of life snapshot with id ${id} not found`)
-      }
-      const updated: WheelOfLifeSnapshot = {
-        ...existing,
-        ...data,
-        updatedAt: new Date().toISOString(),
-      }
-      await this.db.wheelOfLifeSnapshots.put(toPlain(updated))
-      return updated
-    } catch (error) {
-      console.error(`Failed to update wheel of life snapshot with id ${id}:`, error)
-      throw new Error(`Failed to update wheel of life snapshot with id ${id}`)
-    }
-  }
-
-  async delete(id: string): Promise<void> {
-    try {
-      await this.db.wheelOfLifeSnapshots.delete(id)
-    } catch (error) {
-      console.error(`Failed to delete wheel of life snapshot with id ${id}:`, error)
-      throw new Error(`Failed to delete wheel of life snapshot with id ${id}`)
-    }
-  }
-}
 
 // ============================================================================
 // Values Discovery Repository
@@ -2575,7 +2483,6 @@ class IFSConstellationDexieRepository implements IFSConstellationRepository {
 // Singleton Exports
 // ============================================================================
 
-export const wheelOfLifeSnapshotDexieRepository = new WheelOfLifeSnapshotDexieRepository()
 export const valuesDiscoveryDexieRepository = new ValuesDiscoveryDexieRepository()
 export const shadowBeliefsDexieRepository = new ShadowBeliefsDexieRepository()
 export const transformativePurposeDexieRepository = new TransformativePurposeDexieRepository()

@@ -1,5 +1,6 @@
 import type { CreateGoalPayload, Goal, UpdateGoalPayload } from '@/domain/planning'
 import { normalizeGoalPayload } from '@/domain/planning'
+import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { GoalRepository } from './goalRepository'
 import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
@@ -31,6 +32,7 @@ class GoalDexieRepository implements GoalRepository {
     try {
       const goal = createPlanningRecord<Goal>(normalizeGoalPayload(data))
       await this.db.goals.add(toPlain(goal))
+      invalidatePlanningQueryCache()
       return goal
     } catch (error) {
       console.error('Failed to create goal:', error)
@@ -43,6 +45,7 @@ class GoalDexieRepository implements GoalRepository {
       const existing = requireRecord(await this.db.goals.get(id), `Goal with id ${id} not found`)
       const updated = updatePlanningRecord(existing, normalizeGoalPayload(data, existing))
       await this.db.goals.put(toPlain(updated))
+      invalidatePlanningQueryCache()
       return updated
     } catch (error) {
       console.error(`Failed to update goal with id ${id}:`, error)
@@ -56,6 +59,7 @@ class GoalDexieRepository implements GoalRepository {
         await this.db.keyResults.where('goalId').equals(id).delete()
         await this.db.goals.delete(id)
       })
+      invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete goal with id ${id}:`, error)
       throw new Error(`Failed to delete goal with id ${id}`)

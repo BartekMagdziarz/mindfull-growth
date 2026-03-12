@@ -81,6 +81,19 @@ class PlanningDatabaseV7 extends Dexie {
   }
 }
 
+class PlanningDatabaseV8 extends Dexie {
+  wheelOfLifeSnapshots!: Table<Record<string, unknown>, string>
+  lifeAreaAssessments!: Table<Record<string, unknown>, string>
+
+  constructor(name: string) {
+    super(name)
+    this.version(8).stores({
+      wheelOfLifeSnapshots: 'id, createdAt',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+    })
+  }
+}
+
 describe('planning migration v6 to v7', () => {
   let dbName: string
 
@@ -395,5 +408,46 @@ describe('planning migration v7 to v8', () => {
     expect(await v8.todayHiddenStates.count()).toBe(0)
 
     await v8.close()
+  })
+})
+
+describe('planning migration v8 to v9', () => {
+  let dbName: string
+
+  beforeEach(() => {
+    dbName = `PlanningMigrationV9_${Date.now()}_${Math.random()}`
+  })
+
+  afterEach(async () => {
+    await Dexie.delete(dbName)
+  })
+
+  it('removes wheel of life snapshots while preserving active life area assessments', async () => {
+    const v8 = new PlanningDatabaseV8(dbName)
+    await v8.open()
+
+    await v8.wheelOfLifeSnapshots.add({
+      id: 'snapshot-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      areas: [],
+    })
+    await v8.lifeAreaAssessments.add({
+      id: 'assessment-1',
+      createdAt: '2026-03-05T00:00:00.000Z',
+      updatedAt: '2026-03-05T00:00:00.000Z',
+      lifeAreaIds: ['area-1'],
+      scores: [],
+    })
+    await v8.close()
+
+    const v9 = new UserDatabase(dbName)
+    await v9.open()
+
+    const nativeDb = v9.backendDB()
+    expect(nativeDb?.objectStoreNames.contains('wheelOfLifeSnapshots')).toBe(false)
+    expect(await v9.lifeAreaAssessments.count()).toBe(1)
+
+    await v9.close()
   })
 })

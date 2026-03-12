@@ -252,39 +252,37 @@
     </section>
 
     <section class="mt-6 space-y-4">
-      <section v-if="store.isLoading" class="neo-card p-8 text-center text-on-surface-variant">
-        {{ t('common.loading') }}
-      </section>
+      <PlanningStatePanel
+        v-if="store.isLoading"
+        :title="t('common.loading')"
+        :body="activeFamilyTitle"
+        :eyebrow="activeFamilyTitle"
+      />
 
-      <section v-else-if="store.error" class="neo-card p-8 text-center">
-        <h3 class="text-xl font-semibold text-on-surface">
-          {{ t('planning.objects.loadError') }}
-        </h3>
-        <p class="mt-3 text-sm text-on-surface-variant">
-          {{ store.error }}
-        </p>
-      </section>
+      <PlanningStatePanel
+        v-else-if="store.error"
+        :title="t('planning.objects.loadError')"
+        :body="store.error"
+        :eyebrow="activeFamilyTitle"
+        :action-label="t('common.buttons.tryAgain')"
+        @action="void store.loadBundle()"
+      />
 
-      <section v-else-if="store.items.length === 0 && isFamilyEmptyState" class="neo-card p-6 md:p-8">
-        <div class="neo-surface flex flex-col items-center rounded-[2rem] px-6 py-10 text-center">
-          <h3 class="mt-5 text-2xl font-semibold text-on-surface">
-            {{ t('planning.objects.empty.familyTitle') }}
-          </h3>
-          <div class="mt-6">
-            <AppButton variant="filled" @click="handleOpenCreate">
-              <PlusIcon class="h-4 w-4" />
-              {{ createButtonLabel }}
-            </AppButton>
-          </div>
-        </div>
-      </section>
+      <PlanningStatePanel
+        v-else-if="store.items.length === 0 && isFamilyEmptyState"
+        :title="t('planning.objects.empty.familyTitle')"
+        :eyebrow="activeFamilyTitle"
+        :action-label="createButtonLabel"
+        @action="handleOpenCreate"
+      />
 
-      <section v-else-if="store.items.length === 0" class="neo-card p-6 md:p-8">
-        <div class="neo-surface flex flex-col items-center rounded-[2rem] px-6 py-10 text-center">
-          <h3 class="mt-5 text-2xl font-semibold text-on-surface">
-            {{ t('planning.objects.empty.filteredTitle') }}
-          </h3>
-          <div class="mt-6 flex flex-wrap justify-center gap-3">
+      <PlanningStatePanel
+        v-else-if="store.items.length === 0"
+        :title="t('planning.objects.empty.filteredTitle')"
+        :eyebrow="activeFamilyTitle"
+      >
+        <template #actions>
+          <div class="flex flex-wrap justify-center gap-3">
             <AppButton variant="outlined" @click="handleClearFilters">
               {{ t('planning.objects.filters.resetAll') }}
             </AppButton>
@@ -293,8 +291,8 @@
               {{ createButtonLabel }}
             </AppButton>
           </div>
-        </div>
-      </section>
+        </template>
+      </PlanningStatePanel>
 
       <div v-else class="space-y-4">
         <div v-for="item in store.items" :key="`${item.panelType}:${item.id}`" class="space-y-3">
@@ -525,6 +523,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ChevronRightIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
+import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import ObjectsLibraryFilters from '@/components/objects/ObjectsLibraryFilters.vue'
 import ObjectsLibraryListCard from '@/components/objects/ObjectsLibraryListCard.vue'
 import ObjectsLibraryMultiSelect from '@/components/objects/ObjectsLibraryMultiSelect.vue'

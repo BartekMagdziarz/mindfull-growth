@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
@@ -39,7 +39,7 @@ describe('objectsLibraryQueries', () => {
       lifeAreaIds: [lifeArea.id],
     })
     const goal = await goalDexieRepository.create({
-      title: 'Launch planning hub',
+      title: 'Ship weekly workspace',
       isActive: true,
       priorityIds: [priority.id],
       lifeAreaIds: [lifeArea.id],
@@ -111,7 +111,7 @@ describe('objectsLibraryQueries', () => {
 
     const bundle = await loadObjectsLibraryBundle({
       family: 'goals',
-      q: 'launch',
+      q: 'ship',
       period: weekRef,
       lifeAreaIds: [lifeArea.id],
       priorityIds: [priority.id],
@@ -246,5 +246,60 @@ describe('objectsLibraryQueries', () => {
       expandedType: 'tracker',
       expandedId: 'tracker-1',
     })
+  })
+
+  it('reuses cached bundles until a planning write invalidates the query cache', async () => {
+    const listGoalsSpy = vi.spyOn(goalDexieRepository, 'listAll')
+    const listGoalStatesSpy = vi.spyOn(planningStateDexieRepository, 'listGoalMonthStates')
+
+    const goal = await goalDexieRepository.create({
+      title: 'Ship library cache',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef: parsePeriodRef('2026-03') as MonthRef,
+      goalId: goal.id,
+      activityState: 'active',
+    })
+
+    await loadObjectsLibraryBundle({
+      family: 'goals',
+      q: '',
+      lifeAreaIds: [],
+      priorityIds: [],
+      showClosed: false,
+    })
+    await loadObjectsLibraryBundle({
+      family: 'goals',
+      q: '',
+      lifeAreaIds: [],
+      priorityIds: [],
+      showClosed: false,
+    })
+
+    expect(listGoalsSpy).toHaveBeenCalledTimes(1)
+    expect(listGoalStatesSpy).toHaveBeenCalledTimes(1)
+
+    await goalDexieRepository.create({
+      title: 'Invalidate cache on write',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+
+    await loadObjectsLibraryBundle({
+      family: 'goals',
+      q: '',
+      lifeAreaIds: [],
+      priorityIds: [],
+      showClosed: false,
+    })
+
+    expect(listGoalsSpy).toHaveBeenCalledTimes(2)
+    expect(listGoalStatesSpy).toHaveBeenCalledTimes(2)
   })
 })

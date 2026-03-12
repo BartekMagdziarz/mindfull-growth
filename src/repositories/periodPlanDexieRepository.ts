@@ -16,6 +16,7 @@ import {
   toPlain,
   updatePlanningRecord,
 } from './planningDexieRepository.shared'
+import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 
 class PeriodPlanDexieRepository implements PeriodPlanRepository {
   private get db() {
@@ -44,6 +45,7 @@ class PeriodPlanDexieRepository implements PeriodPlanRepository {
     try {
       const monthPlan = createPlanningRecord<MonthPlan>(normalizeMonthPlanPayload(data))
       await this.db.monthPlans.add(toPlain(monthPlan))
+      invalidatePlanningQueryCache()
       return monthPlan
     } catch (error) {
       console.error('Failed to create month plan:', error)
@@ -59,6 +61,7 @@ class PeriodPlanDexieRepository implements PeriodPlanRepository {
       )
       const updated = updatePlanningRecord(existing, normalizeMonthPlanPayload(data, existing))
       await this.db.monthPlans.put(toPlain(updated))
+      invalidatePlanningQueryCache()
       return updated
     } catch (error) {
       console.error(`Failed to update month plan with id ${id}:`, error)
@@ -69,6 +72,7 @@ class PeriodPlanDexieRepository implements PeriodPlanRepository {
   async deleteMonthPlan(id: string): Promise<void> {
     try {
       await this.db.monthPlans.delete(id)
+      invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete month plan with id ${id}:`, error)
       throw new Error(`Failed to delete month plan with id ${id}`)
@@ -97,6 +101,7 @@ class PeriodPlanDexieRepository implements PeriodPlanRepository {
     try {
       const weekPlan = createPlanningRecord<WeekPlan>(normalizeWeekPlanPayload(data))
       await this.db.weekPlans.add(toPlain(weekPlan))
+      invalidatePlanningQueryCache()
       return weekPlan
     } catch (error) {
       console.error('Failed to create week plan:', error)
@@ -112,6 +117,7 @@ class PeriodPlanDexieRepository implements PeriodPlanRepository {
       )
       const updated = updatePlanningRecord(existing, normalizeWeekPlanPayload(data, existing))
       await this.db.weekPlans.put(toPlain(updated))
+      invalidatePlanningQueryCache()
       return updated
     } catch (error) {
       console.error(`Failed to update week plan with id ${id}:`, error)
@@ -122,6 +128,7 @@ class PeriodPlanDexieRepository implements PeriodPlanRepository {
   async deleteWeekPlan(id: string): Promise<void> {
     try {
       await this.db.weekPlans.delete(id)
+      invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete week plan with id ${id}:`, error)
       throw new Error(`Failed to delete week plan with id ${id}`)

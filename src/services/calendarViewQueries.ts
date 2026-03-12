@@ -1,14 +1,11 @@
 import type { DayRef, MonthRef, PeriodRefsForDate, WeekRef, YearRef } from '@/domain/period'
 import type { Goal, Initiative, KeyResult, Habit, Tracker } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementSubjectType, PeriodObjectReflection, PeriodReflection } from '@/domain/planningState'
-import { goalDexieRepository } from '@/repositories/goalDexieRepository'
-import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
-import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
-import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
+import { loadPlanningCached } from '@/services/planningQueryCache'
 import type {
   MonthGoalPlanningItem,
   MonthInitiativePlanningItem,
@@ -75,6 +72,19 @@ export interface DayCalendarBundle {
   contextInitiativeItems: WeekInitiativePlanningItem[]
 }
 
+const monthReflectionBundleCache = new Map<
+  string,
+  { revision: number; value: MonthReflectionBundle | Promise<MonthReflectionBundle> }
+>()
+const calendarYearSummaryCache = new Map<
+  string,
+  { revision: number; value: CalendarYearSummary | Promise<CalendarYearSummary> }
+>()
+const dayCalendarBundleCache = new Map<
+  string,
+  { revision: number; value: DayCalendarBundle | Promise<DayCalendarBundle> }
+>()
+
 function isGoalOpen(goal: Goal): boolean {
   return goal.isActive && goal.status === 'open'
 }
@@ -123,210 +133,209 @@ function isInitiativeScheduledOnDay(item: WeekInitiativePlanningItem, dayRef: Da
 }
 
 export async function getMonthReflectionBundle(monthRef: MonthRef): Promise<MonthReflectionBundle> {
-  const [periodReflection, objectReflections] = await Promise.all([
-    reflectionDexieRepository.getPeriodReflection('month', monthRef),
-    reflectionDexieRepository.listPeriodObjectReflections(),
-  ])
+  return loadPlanningCached(monthReflectionBundleCache, monthRef, async () => {
+    const [periodReflection, objectReflections] = await Promise.all([
+      reflectionDexieRepository.getPeriodReflection('month', monthRef),
+      reflectionDexieRepository.listPeriodObjectReflections(),
+    ])
 
-  return {
-    monthRef,
-    periodReflection,
-    objectReflections: objectReflections.filter(
-      (item) => item.periodType === 'month' && item.periodRef === monthRef,
-    ),
-  }
+    return {
+      monthRef,
+      periodReflection,
+      objectReflections: objectReflections.filter(
+        (item) => item.periodType === 'month' && item.periodRef === monthRef,
+      ),
+    }
+  })
 }
 
 export async function getCalendarYearSummary(yearRef: YearRef): Promise<CalendarYearSummary> {
-  const monthRefs = getChildPeriods(yearRef) as MonthRef[]
-  const monthRefsSet = new Set(monthRefs)
-  const [
-    monthPlans,
-    periodReflections,
-    goalMonthStates,
-    measurementMonthStates,
-    initiativePlanStates,
-    goals,
-    keyResults,
-    habits,
-    trackers,
-    initiatives,
-  ] = await Promise.all([
-    periodPlanDexieRepository.listMonthPlans(),
-    reflectionDexieRepository.listPeriodReflections(),
-    planningStateDexieRepository.listGoalMonthStates(),
-    planningStateDexieRepository.listMeasurementMonthStates(),
-    planningStateDexieRepository.listInitiativePlanStates(),
-    goalDexieRepository.listAll(),
-    keyResultDexieRepository.listAll(),
-    habitDexieRepository.listAll(),
-    trackerDexieRepository.listAll(),
-    initiativeDexieRepository.listAll(),
-  ])
+  return loadPlanningCached(calendarYearSummaryCache, yearRef, async () => {
+    const monthRefs = getChildPeriods(yearRef) as MonthRef[]
+    const monthRefsSet = new Set(monthRefs)
+    const [
+      monthPlans,
+      periodReflections,
+      goalMonthStates,
+      measurementMonthStates,
+      initiativePlanStates,
+      objects,
+    ] = await Promise.all([
+      periodPlanDexieRepository.listMonthPlans(),
+      reflectionDexieRepository.listPeriodReflections(),
+      planningStateDexieRepository.listGoalMonthStatesForMonths(monthRefs),
+      planningStateDexieRepository.listMeasurementMonthStatesForMonths(monthRefs),
+      planningStateDexieRepository.listInitiativePlanStates(),
+      loadPlanningCoreObjects(),
+    ])
 
-  const monthPlanRefs = new Set(monthPlans.map((item) => item.monthRef))
-  const monthReflectionRefs = new Set(
-    periodReflections
-      .filter((item) => item.periodType === 'month')
-      .map((item) => item.periodRef as MonthRef),
-  )
-  const openGoalIds = new Set(goals.filter(isGoalOpen).map((goal) => goal.id))
-  const openSubjects = [...keyResults, ...habits, ...trackers].filter(isMeasurementSubjectOpen)
-  const openSubjectKeys = new Set(
-    openSubjects.map((subject) => `${resolveSubjectType(subject)}:${subject.id}`),
-  )
-  const openTrackerKeys = new Set(
-    openSubjects.filter(isTracker).map((tracker) => `${resolveSubjectType(tracker)}:${tracker.id}`),
-  )
-  const activeInitiativeIds = new Set(
-    initiatives.filter(isInitiativeActive).map((initiative) => initiative.id),
-  )
+    const monthPlanRefs = new Set(monthPlans.map((item) => item.monthRef))
+    const monthReflectionRefs = new Set(
+      periodReflections
+        .filter((item) => item.periodType === 'month')
+        .map((item) => item.periodRef as MonthRef),
+    )
+    const openGoalIds = new Set(objects.goals.filter(isGoalOpen).map((goal) => goal.id))
+    const openSubjects = [...objects.keyResults, ...objects.habits, ...objects.trackers].filter(
+      isMeasurementSubjectOpen,
+    )
+    const openSubjectKeys = new Set(
+      openSubjects.map((subject) => `${resolveSubjectType(subject)}:${subject.id}`),
+    )
+    const openTrackerKeys = new Set(
+      openSubjects
+        .filter(isTracker)
+        .map((tracker) => `${resolveSubjectType(tracker)}:${tracker.id}`),
+    )
+    const activeInitiativeIds = new Set(
+      objects.initiatives.filter(isInitiativeActive).map((initiative) => initiative.id),
+    )
 
-  return {
-    yearRef,
-    months: monthRefs.map((monthRef) => ({
-      monthRef,
-      hasPlan: monthPlanRefs.has(monthRef),
-      hasReflection: monthReflectionRefs.has(monthRef),
-      activeGoalCount: new Set(
-        goalMonthStates
-          .filter(
-            (state) =>
-              state.monthRef === monthRef &&
-              state.activityState === 'active' &&
-              openGoalIds.has(state.goalId),
-          )
-          .map((state) => state.goalId),
-      ).size,
-      activeCadencedCount: new Set(
-        measurementMonthStates
-          .filter(
-            (state) =>
-              state.monthRef === monthRef &&
-              state.activityState === 'active' &&
-              state.subjectType !== 'tracker' &&
-              openSubjectKeys.has(`${state.subjectType}:${state.subjectId}`),
-          )
-          .map((state) => `${state.subjectType}:${state.subjectId}`),
-      ).size,
-      activeTrackerCount: new Set(
-        measurementMonthStates
-          .filter(
-            (state) =>
-              state.monthRef === monthRef &&
-              state.activityState === 'active' &&
-              state.subjectType === 'tracker' &&
-              openTrackerKeys.has(`${state.subjectType}:${state.subjectId}`),
-          )
-          .map((state) => `${state.subjectType}:${state.subjectId}`),
-      ).size,
-      activeInitiativeCount: new Set(
-        initiativePlanStates
-          .filter(
-            (state) =>
-              activeInitiativeIds.has(state.initiativeId) && isInitiativePlanInMonth(state, monthRef),
-          )
-          .map((state) => state.initiativeId),
-      ).size,
-    })),
-    totals: {
-      activeGoalCount: new Set(
-        goalMonthStates
-          .filter(
-            (state) =>
-              monthRefsSet.has(state.monthRef) &&
-              state.activityState === 'active' &&
-              openGoalIds.has(state.goalId),
-          )
-          .map((state) => state.goalId),
-      ).size,
-      activeCadencedCount: new Set(
-        measurementMonthStates
-          .filter(
-            (state) =>
-              monthRefsSet.has(state.monthRef) &&
-              state.activityState === 'active' &&
-              state.subjectType !== 'tracker' &&
-              openSubjectKeys.has(`${state.subjectType}:${state.subjectId}`),
-          )
-          .map((state) => `${state.subjectType}:${state.subjectId}`),
-      ).size,
-      activeTrackerCount: new Set(
-        measurementMonthStates
-          .filter(
-            (state) =>
-              monthRefsSet.has(state.monthRef) &&
-              state.activityState === 'active' &&
-              state.subjectType === 'tracker' &&
-              openTrackerKeys.has(`${state.subjectType}:${state.subjectId}`),
-          )
-          .map((state) => `${state.subjectType}:${state.subjectId}`),
-      ).size,
-      activeInitiativeCount: new Set(
-        initiativePlanStates
-          .filter(
-            (state) =>
-              activeInitiativeIds.has(state.initiativeId) &&
-              monthRefs.some((monthRef) => isInitiativePlanInMonth(state, monthRef)),
-          )
-          .map((state) => state.initiativeId),
-      ).size,
-    },
-  }
+    return {
+      yearRef,
+      months: monthRefs.map((monthRef) => ({
+        monthRef,
+        hasPlan: monthPlanRefs.has(monthRef),
+        hasReflection: monthReflectionRefs.has(monthRef),
+        activeGoalCount: new Set(
+          goalMonthStates
+            .filter(
+              (state) =>
+                state.monthRef === monthRef &&
+                state.activityState === 'active' &&
+                openGoalIds.has(state.goalId),
+            )
+            .map((state) => state.goalId),
+        ).size,
+        activeCadencedCount: new Set(
+          measurementMonthStates
+            .filter(
+              (state) =>
+                state.monthRef === monthRef &&
+                state.activityState === 'active' &&
+                state.subjectType !== 'tracker' &&
+                openSubjectKeys.has(`${state.subjectType}:${state.subjectId}`),
+            )
+            .map((state) => `${state.subjectType}:${state.subjectId}`),
+        ).size,
+        activeTrackerCount: new Set(
+          measurementMonthStates
+            .filter(
+              (state) =>
+                state.monthRef === monthRef &&
+                state.activityState === 'active' &&
+                state.subjectType === 'tracker' &&
+                openTrackerKeys.has(`${state.subjectType}:${state.subjectId}`),
+            )
+            .map((state) => `${state.subjectType}:${state.subjectId}`),
+        ).size,
+        activeInitiativeCount: new Set(
+          initiativePlanStates
+            .filter(
+              (state) =>
+                activeInitiativeIds.has(state.initiativeId) &&
+                isInitiativePlanInMonth(state, monthRef),
+            )
+            .map((state) => state.initiativeId),
+        ).size,
+      })),
+      totals: {
+        activeGoalCount: new Set(
+          goalMonthStates
+            .filter(
+              (state) =>
+                monthRefsSet.has(state.monthRef) &&
+                state.activityState === 'active' &&
+                openGoalIds.has(state.goalId),
+            )
+            .map((state) => state.goalId),
+        ).size,
+        activeCadencedCount: new Set(
+          measurementMonthStates
+            .filter(
+              (state) =>
+                monthRefsSet.has(state.monthRef) &&
+                state.activityState === 'active' &&
+                state.subjectType !== 'tracker' &&
+                openSubjectKeys.has(`${state.subjectType}:${state.subjectId}`),
+            )
+            .map((state) => `${state.subjectType}:${state.subjectId}`),
+        ).size,
+        activeTrackerCount: new Set(
+          measurementMonthStates
+            .filter(
+              (state) =>
+                monthRefsSet.has(state.monthRef) &&
+                state.activityState === 'active' &&
+                state.subjectType === 'tracker' &&
+                openTrackerKeys.has(`${state.subjectType}:${state.subjectId}`),
+            )
+            .map((state) => `${state.subjectType}:${state.subjectId}`),
+        ).size,
+        activeInitiativeCount: new Set(
+          initiativePlanStates
+            .filter(
+              (state) =>
+                activeInitiativeIds.has(state.initiativeId) &&
+                monthRefs.some((monthRef) => isInitiativePlanInMonth(state, monthRef)),
+            )
+            .map((state) => state.initiativeId),
+        ).size,
+      },
+    }
+  })
 }
 
 export async function getDayCalendarBundle(dayRef: DayRef): Promise<DayCalendarBundle> {
-  const refs = getPeriodRefsForDate(dayRef)
-  const [weekPlanning, weekReflection, monthPlanning, monthReflection, dailyEntries, keyResults, habits, trackers] =
-    await Promise.all([
-      getWeekPlanningBundle(refs.week),
-      getWeekReflectionBundle(refs.week),
-      getMonthPlanningBundle(refs.month),
-      getMonthReflectionBundle(refs.month),
-      planningStateDexieRepository.listDailyMeasurementEntries(),
-      keyResultDexieRepository.listAll(),
-      habitDexieRepository.listAll(),
-      trackerDexieRepository.listAll(),
-    ])
+  return loadPlanningCached(dayCalendarBundleCache, dayRef, async () => {
+    const refs = getPeriodRefsForDate(dayRef)
+    const [weekPlanning, weekReflection, monthPlanning, monthReflection, dailyEntries, objects] =
+      await Promise.all([
+        getWeekPlanningBundle(refs.week),
+        getWeekReflectionBundle(refs.week),
+        getMonthPlanningBundle(refs.month),
+        getMonthReflectionBundle(refs.month),
+        planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(dayRef, dayRef),
+        loadPlanningCoreObjects(),
+      ])
 
-  const subjectMap = new Map(
-    [...keyResults, ...habits, ...trackers]
-      .filter(isMeasurementSubjectOpen)
-      .map((subject) => [`${resolveSubjectType(subject)}:${subject.id}`, subject] as const),
-  )
+    const subjectMap = new Map(
+      [...objects.keyResults, ...objects.habits, ...objects.trackers]
+        .filter(isMeasurementSubjectOpen)
+        .map((subject) => [`${resolveSubjectType(subject)}:${subject.id}`, subject] as const),
+    )
 
-  const scheduledMeasurementItems = weekPlanning.relevant.measurementItems.filter((item) =>
-    isMeasurementScheduledOnDay(item, dayRef),
-  )
-  const scheduledInitiativeItems = weekPlanning.relevant.initiativeItems.filter((item) =>
-    isInitiativeScheduledOnDay(item, dayRef),
-  )
-  const entriesToday = dailyEntries
-    .filter((entry) => entry.dayRef === dayRef)
-    .flatMap((entry) => {
-      const subject = subjectMap.get(`${entry.subjectType}:${entry.subjectId}`)
-      return subject
-        ? [{ subjectType: entry.subjectType, subject, entry }]
-        : []
-    })
+    const scheduledMeasurementItems = weekPlanning.relevant.measurementItems.filter((item) =>
+      isMeasurementScheduledOnDay(item, dayRef),
+    )
+    const scheduledInitiativeItems = weekPlanning.relevant.initiativeItems.filter((item) =>
+      isInitiativeScheduledOnDay(item, dayRef),
+    )
+    const entriesToday = dailyEntries
+      .filter((entry) => entry.dayRef === dayRef)
+      .flatMap((entry) => {
+        const subject = subjectMap.get(`${entry.subjectType}:${entry.subjectId}`)
+        return subject ? [{ subjectType: entry.subjectType, subject, entry }] : []
+      })
 
-  return {
-    dayRef,
-    refs,
-    weekPlanning,
-    weekReflection,
-    monthPlanning,
-    monthReflection,
-    scheduledMeasurementItems,
-    scheduledInitiativeItems,
-    entriesToday,
-    contextMeasurementItems: weekPlanning.relevant.measurementItems.filter(
-      (item) => !isMeasurementScheduledOnDay(item, dayRef),
-    ),
-    contextInitiativeItems: weekPlanning.relevant.initiativeItems.filter(
-      (item) => !isInitiativeScheduledOnDay(item, dayRef),
-    ),
-  }
+    return {
+      dayRef,
+      refs,
+      weekPlanning,
+      weekReflection,
+      monthPlanning,
+      monthReflection,
+      scheduledMeasurementItems,
+      scheduledInitiativeItems,
+      entriesToday,
+      contextMeasurementItems: weekPlanning.relevant.measurementItems.filter(
+        (item) => !isMeasurementScheduledOnDay(item, dayRef),
+      ),
+      contextInitiativeItems: weekPlanning.relevant.initiativeItems.filter(
+        (item) => !isInitiativeScheduledOnDay(item, dayRef),
+      ),
+    }
+  })
 }
 
 export function countGoalKeyResults(

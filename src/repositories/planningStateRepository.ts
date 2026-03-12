@@ -28,6 +28,7 @@ import type {
 export interface PlanningStateRepository {
   getGoalMonthState(monthRef: MonthRef, goalId: string): Promise<GoalMonthState | undefined>
   listGoalMonthStates(): Promise<GoalMonthState[]>
+  listGoalMonthStatesForMonths(monthRefs: MonthRef[]): Promise<GoalMonthState[]>
   upsertGoalMonthState(
     data: CreateGoalMonthStatePayload | UpdateGoalMonthStatePayload
   ): Promise<GoalMonthState>
@@ -39,6 +40,7 @@ export interface PlanningStateRepository {
     subjectId: string
   ): Promise<MeasurementMonthState | undefined>
   listMeasurementMonthStates(): Promise<MeasurementMonthState[]>
+  listMeasurementMonthStatesForMonths(monthRefs: MonthRef[]): Promise<MeasurementMonthState[]>
   upsertMeasurementMonthState(
     data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload
   ): Promise<MeasurementMonthState>
@@ -55,6 +57,7 @@ export interface PlanningStateRepository {
     sourceMonthRef?: MonthRef
   ): Promise<MeasurementWeekState | undefined>
   listMeasurementWeekStates(): Promise<MeasurementWeekState[]>
+  listMeasurementWeekStatesForWeeks(weekRefs: WeekRef[]): Promise<MeasurementWeekState[]>
   upsertMeasurementWeekState(
     data: CreateMeasurementWeekStatePayload | UpdateMeasurementWeekStatePayload
   ): Promise<MeasurementWeekState>
@@ -71,6 +74,10 @@ export interface PlanningStateRepository {
     subjectId: string
   ): Promise<MeasurementDayAssignment | undefined>
   listMeasurementDayAssignments(): Promise<MeasurementDayAssignment[]>
+  listMeasurementDayAssignmentsForDayRange(
+    startDayRef: DayRef,
+    endDayRef: DayRef
+  ): Promise<MeasurementDayAssignment[]>
   upsertMeasurementDayAssignment(
     data: CreateMeasurementDayAssignmentPayload | UpdateMeasurementDayAssignmentPayload
   ): Promise<MeasurementDayAssignment>
@@ -86,6 +93,10 @@ export interface PlanningStateRepository {
     dayRef: DayRef
   ): Promise<DailyMeasurementEntry | undefined>
   listDailyMeasurementEntries(): Promise<DailyMeasurementEntry[]>
+  listDailyMeasurementEntriesForDayRange(
+    startDayRef: DayRef,
+    endDayRef: DayRef
+  ): Promise<DailyMeasurementEntry[]>
   upsertDailyMeasurementEntry(
     data: CreateDailyMeasurementEntryPayload | UpdateDailyMeasurementEntryPayload
   ): Promise<DailyMeasurementEntry>
@@ -101,6 +112,7 @@ export interface PlanningStateRepository {
     subjectId: string
   ): Promise<TodayHiddenState | undefined>
   listTodayHiddenStates(): Promise<TodayHiddenState[]>
+  listTodayHiddenStatesForDay(dayRef: DayRef): Promise<TodayHiddenState[]>
   upsertTodayHiddenState(
     data: CreateTodayHiddenStatePayload | UpdateTodayHiddenStatePayload
   ): Promise<TodayHiddenState>

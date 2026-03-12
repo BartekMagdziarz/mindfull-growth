@@ -1,5 +1,6 @@
 import type { CreateKeyResultPayload, KeyResult, UpdateKeyResultPayload } from '@/domain/planning'
 import { normalizeKeyResultPayload } from '@/domain/planning'
+import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { KeyResultRepository } from './keyResultRepository'
 import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
@@ -33,6 +34,7 @@ class KeyResultDexieRepository implements KeyResultRepository {
       await this.assertGoalExists(normalized.goalId)
       const keyResult = createPlanningRecord<KeyResult>(normalized)
       await this.db.keyResults.add(toPlain(keyResult))
+      invalidatePlanningQueryCache()
       return keyResult
     } catch (error) {
       console.error('Failed to create key result:', error)
@@ -50,6 +52,7 @@ class KeyResultDexieRepository implements KeyResultRepository {
       await this.assertGoalExists(normalized.goalId)
       const updated = updatePlanningRecord(existing, normalized)
       await this.db.keyResults.put(toPlain(updated))
+      invalidatePlanningQueryCache()
       return updated
     } catch (error) {
       console.error(`Failed to update key result with id ${id}:`, error)
@@ -60,6 +63,7 @@ class KeyResultDexieRepository implements KeyResultRepository {
   async delete(id: string): Promise<void> {
     try {
       await this.db.keyResults.delete(id)
+      invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete key result with id ${id}:`, error)
       throw new Error(`Failed to delete key result with id ${id}`)

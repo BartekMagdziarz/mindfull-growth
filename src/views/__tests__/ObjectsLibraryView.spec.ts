@@ -50,7 +50,7 @@ describe('ObjectsLibraryView', () => {
   it('opens inline details from a deep link and navigates back to Calendar from linked periods', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const goal = await goalDexieRepository.create({
-      title: 'Launch planning hub',
+      title: 'Ship weekly workspace',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
@@ -209,7 +209,7 @@ describe('ObjectsLibraryView', () => {
 
   it('returns to the expanded goal when cancelling key result creation', async () => {
     const goal = await goalDexieRepository.create({
-      title: 'Launch planning hub',
+      title: 'Ship weekly workspace',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
@@ -252,7 +252,7 @@ describe('ObjectsLibraryView', () => {
     prefs.$patch({ locale: 'pl' })
 
     await goalDexieRepository.create({
-      title: 'Launch planning hub',
+      title: 'Ship weekly workspace',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],

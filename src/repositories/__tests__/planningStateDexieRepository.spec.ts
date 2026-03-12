@@ -7,7 +7,7 @@ import { planningStateDexieRepository } from '@/repositories/planningStateDexieR
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import { parsePeriodRef } from '@/utils/periods'
+import { getPeriodRefsForDate, parsePeriodRef } from '@/utils/periods'
 
 describe('planningState Dexie repository', () => {
   beforeEach(async () => {
@@ -281,5 +281,118 @@ describe('planningState Dexie repository', () => {
 
     expect(updated.id).toBe(created.id)
     expect(await planningStateDexieRepository.listTodayHiddenStates()).toHaveLength(2)
+  })
+
+  it('supports scoped reads for months, weeks, and day ranges', async () => {
+    const goal = await goalDexieRepository.create({
+      title: 'Stabilize planning',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const habit = await habitDexieRepository.create({
+      title: 'Review weekly scope',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+    const marchRef = parsePeriodRef('2026-03') as MonthRef
+    const aprilRef = parsePeriodRef('2026-04') as MonthRef
+    const marchWeekRef = parsePeriodRef('2026-W10') as WeekRef
+    const firstDayRef = parsePeriodRef('2026-03-12') as DayRef
+    const secondDayRef = parsePeriodRef('2026-04-09') as DayRef
+    const aprilWeekRef = getPeriodRefsForDate(secondDayRef).week as WeekRef
+
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef: marchRef,
+      goalId: goal.id,
+      activityState: 'active',
+    })
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef: aprilRef,
+      goalId: goal.id,
+      activityState: 'paused',
+    })
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: marchRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: aprilRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: marchWeekRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: aprilWeekRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
+      dayRef: firstDayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
+      dayRef: secondDayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'habit',
+      subjectId: habit.id,
+      dayRef: firstDayRef,
+      value: null,
+    })
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'habit',
+      subjectId: habit.id,
+      dayRef: secondDayRef,
+      value: null,
+    })
+    await planningStateDexieRepository.upsertTodayHiddenState({
+      dayRef: firstDayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
+
+    expect(await planningStateDexieRepository.listGoalMonthStatesForMonths([marchRef])).toHaveLength(1)
+    expect(await planningStateDexieRepository.listMeasurementMonthStatesForMonths([marchRef])).toHaveLength(1)
+    expect(await planningStateDexieRepository.listMeasurementWeekStatesForWeeks([marchWeekRef])).toHaveLength(1)
+    expect(
+      await planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
+        firstDayRef,
+        firstDayRef,
+      ),
+    ).toHaveLength(1)
+    expect(
+      await planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(
+        firstDayRef,
+        firstDayRef,
+      ),
+    ).toHaveLength(1)
+    expect(await planningStateDexieRepository.listTodayHiddenStatesForDay(firstDayRef)).toHaveLength(1)
   })
 })

@@ -1,4 +1,5 @@
 import { connectTestDatabase } from '@/test/testDatabase'
+import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 
 export async function resetPlanningTestData() {
   const db = await connectTestDatabase()
@@ -20,5 +21,6 @@ export async function resetPlanningTestData() {
   await db.initiatives.clear()
   await db.priorities.clear()
   await db.lifeAreas.clear()
+  invalidatePlanningQueryCache()
   return db
 }
