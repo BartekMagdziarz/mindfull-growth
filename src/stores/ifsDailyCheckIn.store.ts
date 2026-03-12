@@ -6,6 +6,7 @@ import type {
   UpdateIFSDailyCheckInPayload,
 } from '@/domain/exercises'
 import { ifsDailyCheckInDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { filterItemsByPeriod, getPeriodRefsForDate } from '@/utils/periods'
 
 export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
   const checkIns = ref<IFSDailyCheckIn[]>([])
@@ -27,13 +28,10 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
   })
 
   const currentWeekCheckIns = computed(() => {
-    const now = new Date()
-    const dayOfWeek = now.getDay()
-    const startOfWeek = new Date(now)
-    startOfWeek.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
-    startOfWeek.setHours(0, 0, 0, 0)
-    const startISO = startOfWeek.toISOString()
-    return checkIns.value.filter((c) => c.createdAt >= startISO)
+    const currentWeek = getPeriodRefsForDate(new Date()).week
+    return filterItemsByPeriod(checkIns.value, currentWeek, (checkIn) => {
+      return getPeriodRefsForDate(checkIn.createdAt).day
+    })
   })
 
   const weeklyCheckInCount = computed(() => {

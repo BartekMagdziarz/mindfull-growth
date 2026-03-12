@@ -474,6 +474,7 @@ import type {
   BehavioralActivationActivity,
   ActivityCategory,
 } from '@/domain/exercises'
+import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 
 const emit = defineEmits<{
   saved: [data: CreateBehavioralActivationPayload]
@@ -524,14 +525,14 @@ function getCategoryLabel(cat: ActivityCategory): string {
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 const overallMoodStart = ref(5)
-const weekStartDate = ref(getCurrentMonday())
+const weekStartDate = ref(getCurrentWeekStart())
 const activities = reactive<BehavioralActivationActivity[]>([])
 const notes = ref('')
 
 // New activity form
 const newActivityName = ref('')
 const newActivityCategory = ref<ActivityCategory>('pleasure')
-const newActivityDate = ref(getCurrentMonday())
+const newActivityDate = ref(getCurrentWeekStart())
 
 const canAddActivity = computed(() => {
   return newActivityName.value.trim().length > 0
@@ -642,17 +643,13 @@ function handleSave() {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function getCurrentMonday(): string {
-  const now = new Date()
-  const day = now.getDay()
-  const diff = day === 0 ? -6 : 1 - day
-  const monday = new Date(now)
-  monday.setDate(now.getDate() + diff)
-  return `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`
+function getCurrentWeekStart(): string {
+  return getPeriodBounds(getPeriodRefsForDate(new Date()).week).start
 }
 
 function formatActivityDate(dateStr: string): string {
-  const date = new Date(dateStr + 'T00:00:00')
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
   return date.toLocaleDateString(undefined, {
     weekday: 'short',
     month: 'short',

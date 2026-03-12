@@ -27,7 +27,7 @@
           <div class="flex justify-between items-start">
             <div>
               <p class="text-sm font-medium text-on-surface">
-                Week of {{ new Date(plan.weekStartDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) }}
+                Week of {{ formatDayRef(plan.weekStartDate) }}
               </p>
               <p class="text-xs text-on-surface-variant mt-1">
                 {{ plan.activities.length }} activities
@@ -82,6 +82,14 @@ function formatDate(iso: string): string {
     month: 'short',
     day: 'numeric',
     year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+  })
+}
+
+function formatDayRef(dayRef: string): string {
+  const [year, month, day] = dayRef.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
   })
 }
 </script>

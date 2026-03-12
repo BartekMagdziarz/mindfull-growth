@@ -97,11 +97,13 @@ import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import type { IFSDailyCheckInType, IFSSelfLeadershipRating } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
 
 const router = useRouter()
 const { t } = useT()
 const checkInStore = useIFSDailyCheckInStore()
 const partStore = useIFSPartStore()
+const WEEKDAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
 onMounted(() => {
   checkInStore.loadCheckIns()
@@ -154,27 +156,17 @@ function formatLeadership(rating: IFSSelfLeadershipRating): string {
 
 // Week display
 const weekDays = computed(() => {
-  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-  const now = new Date()
-  const dayOfWeek = now.getDay()
-  const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-  const monday = new Date(now)
-  monday.setDate(now.getDate() - mondayOffset)
-  monday.setHours(0, 0, 0, 0)
-
+  const refs = getPeriodRefsForDate(new Date())
+  const days = getChildPeriods(refs.week)
   const checkInDates = new Set(
-    checkInStore.currentWeekCheckIns.map((c) => c.createdAt.slice(0, 10)),
+    checkInStore.currentWeekCheckIns.map((c) => getPeriodRefsForDate(c.createdAt).day),
   )
-  const todayStr = now.toISOString().slice(0, 10)
 
-  return days.map((label, idx) => {
-    const d = new Date(monday)
-    d.setDate(monday.getDate() + idx)
-    const dateStr = d.toISOString().slice(0, 10)
+  return days.map((dayRef, idx) => {
     return {
-      label,
-      completed: checkInDates.has(dateStr),
-      isToday: dateStr === todayStr,
+      label: WEEKDAY_LABELS[idx],
+      completed: checkInDates.has(dayRef),
+      isToday: dayRef === refs.day,
     }
   })
 })

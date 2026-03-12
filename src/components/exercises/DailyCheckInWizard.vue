@@ -423,6 +423,7 @@ import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
 import { useDailyCheckInWizard, type DailyCheckInStep } from '@/composables/useDailyCheckInWizard'
 import { useT } from '@/composables/useT'
 import type { IFSPartRole, IFSDailyCheckInType, SelfEnergyQuality } from '@/domain/exercises'
+import { getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
 
 const { t } = useT()
 
@@ -432,6 +433,7 @@ const emit = defineEmits<{
 
 const partStore = useIFSPartStore()
 const checkInStore = useIFSDailyCheckInStore()
+const WEEKDAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
 const STEPS: DailyCheckInStep[] = ['select-practice', 'practice', 'save']
 const stepLabels = computed(() => [
@@ -556,27 +558,17 @@ const selfLeadershipLabel = computed(() => {
 
 // Week display
 const weekDays = computed(() => {
-  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-  const now = new Date()
-  const dayOfWeek = now.getDay()
-  const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-  const monday = new Date(now)
-  monday.setDate(now.getDate() - mondayOffset)
-  monday.setHours(0, 0, 0, 0)
-
+  const refs = getPeriodRefsForDate(new Date())
+  const days = getChildPeriods(refs.week)
   const checkInDates = new Set(
-    checkInStore.currentWeekCheckIns.map((c) => c.createdAt.slice(0, 10)),
+    checkInStore.currentWeekCheckIns.map((c) => getPeriodRefsForDate(c.createdAt).day),
   )
-  const todayStr = now.toISOString().slice(0, 10)
 
-  return days.map((label, idx) => {
-    const d = new Date(monday)
-    d.setDate(monday.getDate() + idx)
-    const dateStr = d.toISOString().slice(0, 10)
+  return days.map((dayRef, idx) => {
     return {
-      label,
-      completed: checkInDates.has(dateStr),
-      isToday: dateStr === todayStr,
+      label: WEEKDAY_LABELS[idx],
+      completed: checkInDates.has(dayRef),
+      isToday: dayRef === refs.day,
     }
   })
 })
