@@ -1,10 +1,14 @@
-import type { PlanningObjectBase } from '@/domain/planning'
+interface PersistedRecordBase {
+  id: string
+  createdAt: string
+  updatedAt: string
+}
 
 export function toPlain<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
 }
 
-export function createPlanningRecord<T extends PlanningObjectBase>(
+export function createPlanningRecord<T extends PersistedRecordBase>(
   data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>,
 ): T {
   const now = new Date().toISOString()
@@ -17,7 +21,7 @@ export function createPlanningRecord<T extends PlanningObjectBase>(
   } as T
 }
 
-export function updatePlanningRecord<T extends PlanningObjectBase>(
+export function updatePlanningRecord<T extends PersistedRecordBase>(
   existing: T,
   data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>,
 ): T {

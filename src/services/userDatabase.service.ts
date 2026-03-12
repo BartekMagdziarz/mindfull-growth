@@ -40,14 +40,21 @@ import type {
 import type { LifeArea } from '@/domain/lifeArea'
 import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
 import type { AssessmentAttempt, AssessmentResponse } from '@/domain/assessments'
+import type { Goal, Habit, Initiative, KeyResult, Priority, Tracker } from '@/domain/planning'
 import type {
-  Goal,
-  Habit,
-  Initiative,
-  KeyResult,
-  Priority,
-  Tracker,
-} from '@/domain/planning'
+  CadencedDayAssignment,
+  CadencedMonthState,
+  CadencedWeekState,
+  GoalMonthState,
+  InitiativePlanState,
+  MonthPlan,
+  PeriodObjectReflection,
+  PeriodReflection,
+  TrackerEntry,
+  TrackerMonthState,
+  TrackerWeekState,
+  WeekPlan,
+} from '@/domain/planningState'
 
 export class UserDatabase extends Dexie {
   journalEntries!: Table<JournalEntry, string>
@@ -98,6 +105,18 @@ export class UserDatabase extends Dexie {
   habits!: Table<Habit, string>
   trackers!: Table<Tracker, string>
   initiatives!: Table<Initiative, string>
+  monthPlans!: Table<MonthPlan, string>
+  weekPlans!: Table<WeekPlan, string>
+  goalMonthStates!: Table<GoalMonthState, string>
+  cadencedMonthStates!: Table<CadencedMonthState, string>
+  cadencedWeekStates!: Table<CadencedWeekState, string>
+  cadencedDayAssignments!: Table<CadencedDayAssignment, string>
+  initiativePlanStates!: Table<InitiativePlanState, string>
+  trackerMonthStates!: Table<TrackerMonthState, string>
+  trackerWeekStates!: Table<TrackerWeekState, string>
+  trackerEntries!: Table<TrackerEntry, string>
+  periodReflections!: Table<PeriodReflection, string>
+  periodObjectReflections!: Table<PeriodObjectReflection, string>
   assessmentAttempts!: Table<AssessmentAttempt, string>
   assessmentResponses!: Table<AssessmentResponse, string>
   drafts!: Table<{ key: string; data: string; updatedAt: string }, string>
@@ -288,6 +307,75 @@ export class UserDatabase extends Dexie {
       habits: 'id, status, isActive, cadence, kind, *priorityIds, *lifeAreaIds',
       trackers: 'id, status, isActive, analysisPeriod, entryMode, kind, *priorityIds, *lifeAreaIds',
       initiatives: 'id, isActive, goalId, *priorityIds, *lifeAreaIds',
+      assessmentAttempts: 'id, assessmentId',
+      assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
+      drafts: '&key',
+    })
+
+    this.version(5).stores({
+      journalEntries: 'id',
+      peopleTags: 'id',
+      contextTags: 'id',
+      emotionLogs: 'id',
+      userSettings: 'key',
+      wheelOfLifeSnapshots: 'id, createdAt',
+      valuesDiscoveries: 'id',
+      shadowBeliefs: 'id',
+      transformativePurposes: 'id',
+      thoughtRecords: 'id',
+      distortionAssessments: 'id',
+      worryTreeEntries: 'id',
+      coreBeliefsExplorations: 'id',
+      compassionateLetters: 'id',
+      positiveDataLogs: 'id',
+      behavioralExperiments: 'id',
+      behavioralActivations: 'id',
+      structuredProblemSolvings: 'id',
+      gradedExposureHierarchies: 'id',
+      threePathwaysToMeaning: 'id',
+      socraticSelfDialogues: 'id',
+      mountainRangesOfMeaning: 'id',
+      paradoxicalIntentionLabs: 'id',
+      dereflectionPractices: 'id',
+      tragicOptimisms: 'id',
+      attitudinalShifts: 'id',
+      legacyLetters: 'id',
+      ifsParts: 'id',
+      ifsPartsMaps: 'id',
+      ifsUnblendingSessions: 'id',
+      ifsDirectAccessSessions: 'id',
+      ifsTrailheadEntries: 'id',
+      ifsProtectorAppreciations: 'id',
+      ifsExileWitnessings: 'id',
+      ifsSelfEnergyCheckIns: 'id',
+      ifsPartsDialogues: 'id',
+      ifsDailyCheckIns: 'id',
+      ifsConstellations: 'id',
+      lifeAreas: 'id, isActive',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+      priorities: 'id, year, isActive, *lifeAreaIds',
+      goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+      keyResults: 'id, goalId, status, isActive, cadence, kind',
+      habits: 'id, status, isActive, cadence, kind, *priorityIds, *lifeAreaIds',
+      trackers: 'id, status, isActive, analysisPeriod, entryMode, kind, *priorityIds, *lifeAreaIds',
+      initiatives: 'id, isActive, goalId, *priorityIds, *lifeAreaIds',
+      monthPlans: 'id, &monthRef',
+      weekPlans: 'id, &weekRef',
+      goalMonthStates: 'id, monthRef, goalId, activityState, &[monthRef+goalId]',
+      cadencedMonthStates:
+        'id, monthRef, subjectType, subjectId, activityState, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+      cadencedWeekStates:
+        'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+      cadencedDayAssignments:
+        'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+      initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+      trackerMonthStates: 'id, monthRef, trackerId, activityState, &[monthRef+trackerId]',
+      trackerWeekStates: 'id, weekRef, trackerId, activityState, &[weekRef+trackerId]',
+      trackerEntries:
+        'id, trackerId, periodType, periodRef, &[trackerId+periodRef], [periodType+periodRef]',
+      periodReflections: 'id, periodType, periodRef, &[periodType+periodRef]',
+      periodObjectReflections:
+        'id, periodType, periodRef, subjectType, subjectId, &[periodType+periodRef+subjectType+subjectId], [subjectType+subjectId]',
       assessmentAttempts: 'id, assessmentId',
       assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
       drafts: '&key',
