@@ -133,6 +133,103 @@ class PlanningDatabaseV5 extends Dexie {
   }
 }
 
+class PlanningDatabaseV6 extends Dexie {
+  journalEntries!: Table<JournalEntry, string>
+  lifeAreas!: Table<LifeArea, string>
+  lifeAreaAssessments!: Table<LifeAreaAssessment, string>
+  priorities!: Table<Priority, string>
+  goals!: Table<Goal, string>
+  keyResults!: Table<KeyResult, string>
+  habits!: Table<Habit, string>
+  trackers!: Table<Tracker, string>
+  initiatives!: Table<Initiative, string>
+  monthPlans!: Table<MonthPlan, string>
+  weekPlans!: Table<WeekPlan, string>
+  goalMonthStates!: Table<GoalMonthState, string>
+  cadencedMonthStates!: Table<CadencedMonthState, string>
+  cadencedWeekStates!: Table<CadencedWeekState, string>
+  cadencedDayAssignments!: Table<CadencedDayAssignment, string>
+  initiativePlanStates!: Table<InitiativePlanState, string>
+  trackerMonthStates!: Table<TrackerMonthState, string>
+  trackerWeekStates!: Table<TrackerWeekState, string>
+  trackerEntries!: Table<TrackerEntry, string>
+  periodReflections!: Table<PeriodReflection, string>
+  periodObjectReflections!: Table<PeriodObjectReflection, string>
+
+  constructor(name: string) {
+    super(name)
+    this.version(5).stores({
+      journalEntries: 'id',
+      lifeAreas: 'id, isActive',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+      priorities: 'id, year, isActive, *lifeAreaIds',
+      goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+      keyResults: 'id, goalId, status, isActive, cadence, kind',
+      habits: 'id, status, isActive, cadence, kind, *priorityIds, *lifeAreaIds',
+      trackers: 'id, status, isActive, analysisPeriod, entryMode, kind, *priorityIds, *lifeAreaIds',
+      initiatives: 'id, isActive, goalId, *priorityIds, *lifeAreaIds',
+      monthPlans: 'id, &monthRef',
+      weekPlans: 'id, &weekRef',
+      goalMonthStates: 'id, monthRef, goalId, activityState, &[monthRef+goalId]',
+      cadencedMonthStates:
+        'id, monthRef, subjectType, subjectId, activityState, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+      cadencedWeekStates:
+        'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+      cadencedDayAssignments:
+        'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+      initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+      trackerMonthStates: 'id, monthRef, trackerId, activityState, &[monthRef+trackerId]',
+      trackerWeekStates: 'id, weekRef, trackerId, activityState, &[weekRef+trackerId]',
+      trackerEntries:
+        'id, trackerId, periodType, periodRef, &[trackerId+periodRef], [periodType+periodRef]',
+      periodReflections: 'id, periodType, periodRef, &[periodType+periodRef]',
+      periodObjectReflections:
+        'id, periodType, periodRef, subjectType, subjectId, &[periodType+periodRef+subjectType+subjectId], [subjectType+subjectId]',
+    })
+    this.version(6).stores({
+      journalEntries: 'id',
+      lifeAreas: 'id, isActive',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+      priorities: 'id, year, isActive, *lifeAreaIds',
+      goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+      keyResults: 'id, goalId, status, isActive, cadence, kind',
+      habits: 'id, status, isActive, cadence, kind, *priorityIds, *lifeAreaIds',
+      trackers: 'id, status, isActive, analysisPeriod, entryMode, kind, *priorityIds, *lifeAreaIds',
+      initiatives: 'id, status, isActive, goalId, *priorityIds, *lifeAreaIds',
+      monthPlans: 'id, &monthRef',
+      weekPlans: 'id, &weekRef',
+      goalMonthStates: 'id, monthRef, goalId, activityState, &[monthRef+goalId]',
+      cadencedMonthStates:
+        'id, monthRef, subjectType, subjectId, activityState, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+      cadencedWeekStates:
+        'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+      cadencedDayAssignments:
+        'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+      initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+      trackerMonthStates: 'id, monthRef, trackerId, activityState, &[monthRef+trackerId]',
+      trackerWeekStates: 'id, weekRef, trackerId, activityState, &[weekRef+trackerId]',
+      trackerEntries:
+        'id, trackerId, periodType, periodRef, &[trackerId+periodRef], [periodType+periodRef]',
+      periodReflections: 'id, periodType, periodRef, &[periodType+periodRef]',
+      periodObjectReflections:
+        'id, periodType, periodRef, subjectType, subjectId, &[periodType+periodRef+subjectType+subjectId], [subjectType+subjectId]',
+    }).upgrade(async (trans) => {
+      const initiatives = await trans.table('initiatives').toArray()
+
+      for (const initiative of initiatives as Array<Initiative & { status?: Initiative['status'] }>) {
+        if (initiative.status) {
+          continue
+        }
+
+        await trans.table('initiatives').put({
+          ...initiative,
+          status: 'open',
+        })
+      }
+    })
+  }
+}
+
 describe('planning migration v3 to v4', () => {
   let dbName: string
 
@@ -241,5 +338,53 @@ describe('planning migration v4 to v5', () => {
     expect(await v5.periodObjectReflections.count()).toBe(0)
 
     await v5.close()
+  })
+})
+
+describe('planning migration v5 to v6', () => {
+  let dbName: string
+
+  beforeEach(() => {
+    dbName = `PlanningMigrationV6_${Date.now()}_${Math.random()}`
+  })
+
+  afterEach(async () => {
+    await Dexie.delete(dbName)
+  })
+
+  it('backfills initiative status while preserving existing planning data', async () => {
+    const v5 = new PlanningDatabaseV5(dbName)
+    await v5.open()
+    await v5.initiatives.add({
+      id: 'initiative-1',
+      createdAt: '2026-02-01T00:00:00.000Z',
+      updatedAt: '2026-02-01T00:00:00.000Z',
+      title: 'Existing initiative',
+      isActive: true,
+      goalId: 'goal-1',
+      priorityIds: ['priority-1'],
+      lifeAreaIds: ['life-area-1'],
+    } as Initiative)
+    await v5.weekPlans.add({
+      id: 'week-plan-1',
+      createdAt: '2026-02-01T00:00:00.000Z',
+      updatedAt: '2026-02-01T00:00:00.000Z',
+      weekRef: '2026-W06' as WeekPlan['weekRef'],
+    })
+    await v5.close()
+
+    const v6 = new PlanningDatabaseV6(dbName)
+    await v6.open()
+
+    expect(v6.verno).toBe(6)
+    expect(await v6.initiatives.get('initiative-1')).toMatchObject({
+      title: 'Existing initiative',
+      status: 'open',
+    })
+    expect(await v6.weekPlans.get('week-plan-1')).toMatchObject({
+      weekRef: '2026-W06',
+    })
+
+    await v6.close()
   })
 })

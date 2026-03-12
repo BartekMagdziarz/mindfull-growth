@@ -4,6 +4,7 @@ import type {
   Habit,
   HabitStatus,
   Initiative,
+  InitiativeStatus,
   KeyResult,
   KeyResultStatus,
   Tracker,
@@ -132,33 +133,36 @@ export async function listTrackersByLifeArea(
 
 export async function listInitiativesByGoal(
   goalId: string,
-  filters: PlanningObjectFilters = {},
+  filters: PlanningObjectFilters<InitiativeStatus> = {},
 ): Promise<Initiative[]> {
   return listInitiativesByLink({ type: 'goal', id: goalId }, filters)
 }
 
 export async function listInitiativesByPriority(
   priorityId: string,
-  filters: PlanningObjectFilters = {},
+  filters: PlanningObjectFilters<InitiativeStatus> = {},
 ): Promise<Initiative[]> {
   return listInitiativesByLink({ type: 'priority', id: priorityId }, filters)
 }
 
 export async function listInitiativesByLifeArea(
   lifeAreaId: string,
-  filters: PlanningObjectFilters = {},
+  filters: PlanningObjectFilters<InitiativeStatus> = {},
 ): Promise<Initiative[]> {
   return listInitiativesByLink({ type: 'lifeArea', id: lifeAreaId }, filters)
 }
 
 export async function listInitiativesByLink(
   link: InitiativeLinkRef,
-  filters: PlanningObjectFilters = {},
+  filters: PlanningObjectFilters<InitiativeStatus> = {},
 ): Promise<Initiative[]> {
   const initiatives = await initiativeDexieRepository.listAll()
 
   return initiatives.filter((initiative) => {
-    if (!matchesIsActiveFilter(initiative, filters)) {
+    if (
+      !matchesIsActiveFilter(initiative, filters) ||
+      !matchesStatusFilter(initiative, filters)
+    ) {
       return false
     }
 

@@ -83,7 +83,7 @@ function isTrackerOpen(tracker: Tracker): boolean {
 }
 
 function isInitiativeActive(initiative: Initiative): boolean {
-  return initiative.isActive
+  return initiative.isActive && initiative.status === 'open'
 }
 
 function isInitiativePlanInMonth(

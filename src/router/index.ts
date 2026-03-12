@@ -59,6 +59,16 @@ const router = createRouter({
       props: (route) => ({ scale: 'day', periodRef: route.params.dayRef }),
     },
     {
+      path: '/objects',
+      redirect: '/objects/goals',
+    },
+    {
+      path: '/objects/:family',
+      name: 'objects-family',
+      component: () => import('@/views/ObjectsLibraryView.vue'),
+      props: (route) => ({ family: route.params.family }),
+    },
+    {
       path: '/journal',
       name: 'journal',
       component: () => import('@/views/JournalView.vue'),

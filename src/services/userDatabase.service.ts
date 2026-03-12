@@ -380,6 +380,91 @@ export class UserDatabase extends Dexie {
       assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
       drafts: '&key',
     })
+
+    this.version(6)
+      .stores({
+        journalEntries: 'id',
+        peopleTags: 'id',
+        contextTags: 'id',
+        emotionLogs: 'id',
+        userSettings: 'key',
+        wheelOfLifeSnapshots: 'id, createdAt',
+        valuesDiscoveries: 'id',
+        shadowBeliefs: 'id',
+        transformativePurposes: 'id',
+        thoughtRecords: 'id',
+        distortionAssessments: 'id',
+        worryTreeEntries: 'id',
+        coreBeliefsExplorations: 'id',
+        compassionateLetters: 'id',
+        positiveDataLogs: 'id',
+        behavioralExperiments: 'id',
+        behavioralActivations: 'id',
+        structuredProblemSolvings: 'id',
+        gradedExposureHierarchies: 'id',
+        threePathwaysToMeaning: 'id',
+        socraticSelfDialogues: 'id',
+        mountainRangesOfMeaning: 'id',
+        paradoxicalIntentionLabs: 'id',
+        dereflectionPractices: 'id',
+        tragicOptimisms: 'id',
+        attitudinalShifts: 'id',
+        legacyLetters: 'id',
+        ifsParts: 'id',
+        ifsPartsMaps: 'id',
+        ifsUnblendingSessions: 'id',
+        ifsDirectAccessSessions: 'id',
+        ifsTrailheadEntries: 'id',
+        ifsProtectorAppreciations: 'id',
+        ifsExileWitnessings: 'id',
+        ifsSelfEnergyCheckIns: 'id',
+        ifsPartsDialogues: 'id',
+        ifsDailyCheckIns: 'id',
+        ifsConstellations: 'id',
+        lifeAreas: 'id, isActive',
+        lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+        priorities: 'id, year, isActive, *lifeAreaIds',
+        goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+        keyResults: 'id, goalId, status, isActive, cadence, kind',
+        habits: 'id, status, isActive, cadence, kind, *priorityIds, *lifeAreaIds',
+        trackers:
+          'id, status, isActive, analysisPeriod, entryMode, kind, *priorityIds, *lifeAreaIds',
+        initiatives: 'id, status, isActive, goalId, *priorityIds, *lifeAreaIds',
+        monthPlans: 'id, &monthRef',
+        weekPlans: 'id, &weekRef',
+        goalMonthStates: 'id, monthRef, goalId, activityState, &[monthRef+goalId]',
+        cadencedMonthStates:
+          'id, monthRef, subjectType, subjectId, activityState, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+        cadencedWeekStates:
+          'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+        cadencedDayAssignments:
+          'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+        initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+        trackerMonthStates: 'id, monthRef, trackerId, activityState, &[monthRef+trackerId]',
+        trackerWeekStates: 'id, weekRef, trackerId, activityState, &[weekRef+trackerId]',
+        trackerEntries:
+          'id, trackerId, periodType, periodRef, &[trackerId+periodRef], [periodType+periodRef]',
+        periodReflections: 'id, periodType, periodRef, &[periodType+periodRef]',
+        periodObjectReflections:
+          'id, periodType, periodRef, subjectType, subjectId, &[periodType+periodRef+subjectType+subjectId], [subjectType+subjectId]',
+        assessmentAttempts: 'id, assessmentId',
+        assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
+        drafts: '&key',
+      })
+      .upgrade(async (trans) => {
+        const initiatives = await trans.table('initiatives').toArray()
+
+        for (const initiative of initiatives as Array<Initiative & { status?: Initiative['status'] }>) {
+          if (initiative.status) {
+            continue
+          }
+
+          await trans.table('initiatives').put({
+            ...initiative,
+            status: 'open',
+          })
+        }
+      })
   }
 }
 

@@ -130,5 +130,173 @@
       "saveSuccess": "Zapisano refleksję.",
       "planSuccess": "Utworzono rekord planu."
     }
+  },
+  "objects": {
+    "title": "Biblioteka obiektów",
+    "subtitle": "Przeglądaj, filtruj i edytuj obiekty planowania bez wychodzenia poza jeden spójny model planu.",
+    "loadError": "Nie udało się wczytać biblioteki obiektów.",
+    "periodInvalid": "Użyj poprawnego identyfikatora okresu, np. 2026, 2026-03, 2026-W10 albo 2026-03-12.",
+    "panelPlaceholder": "Otwórz obiekt, aby zobaczyć szczegóły tutaj, albo utwórz nowy w aktywnej rodzinie.",
+    "labels": {
+      "goal": "Cel",
+      "habit": "Nawyk",
+      "tracker": "Tracker",
+      "initiative": "Inicjatywa"
+    },
+    "header": {
+      "familiesLabel": "Rodziny obiektów",
+      "createLabel": "Tworzenie w tej rodzinie",
+      "createHelp": "Tutaj ustawiasz definicję, linki i lifecycle bez wychodzenia z biblioteki.",
+      "visible": "{n} widocznych",
+      "activeFilters": "{n} aktywnych filtrów",
+      "period": "Okres · {period}"
+    },
+    "families": {
+      "goals": "Cele",
+      "habits": "Nawyki",
+      "trackers": "Trackery",
+      "initiatives": "Inicjatywy"
+    },
+    "filters": {
+      "search": "Szukaj",
+      "searchPlaceholder": "Szukaj po tytule i opisie",
+      "period": "Okres",
+      "periodPlaceholder": "2026, 2026-03, 2026-W10, 2026-03-12",
+      "showClosed": "Pokaż zamknięte",
+      "showClosedAndArchived": "Pokaż zamknięte i zarchiwizowane",
+      "showMore": "Filtry",
+      "showLess": "Ukryj filtry",
+      "title": "Zawęż ten widok",
+      "description": "Szukaj w bieżącej rodzinie i zawężaj bibliotekę po okresie, obszarach życia, priorytetach i lifecycle.",
+      "noOptions": "Brak dostępnych opcji",
+      "lifeAreas": "Obszary życia",
+      "priorities": "Priorytety",
+      "clear": "Wyczyść",
+      "resetAll": "Resetuj filtry"
+    },
+    "sections": {
+      "results": "Wyniki",
+      "resultsHelp": "{n} obiektów w aktywnej rodzinie",
+      "resultsEyebrow": "Feed biblioteki",
+      "objectMeta": "Metadane obiektu",
+      "links": "Powiązania",
+      "linkedPeriods": "Powiązane okresy",
+      "relatedKeyResults": "Powiązane key resulty",
+      "history": "Historia"
+    },
+    "actions": {
+      "open": "Otwórz obiekt",
+      "showDetails": "Pokaż szczegóły",
+      "hideDetails": "Ukryj szczegóły",
+      "addGoal": "Dodaj cel",
+      "addHabit": "Dodaj nawyk",
+      "addTracker": "Dodaj tracker",
+      "addInitiative": "Dodaj inicjatywę",
+      "addKeyResult": "Dodaj key result",
+      "editObject": "Edytuj obiekt",
+      "archive": "Archiwizuj",
+      "unarchive": "Przywróć",
+      "showMore": "Pokaż więcej",
+      "showLess": "Pokaż mniej"
+    },
+    "empty": {
+      "familyTitle": "Ta rodzina nie ma jeszcze żadnych obiektów.",
+      "familyBody": "Utwórz pierwszy obiekt w tej rodzinie, aby zacząć korzystać z biblioteki.",
+      "filteredTitle": "Żaden obiekt nie pasuje do bieżących filtrów.",
+      "filteredBody": "Spróbuj poluzować filtry, poszerzyć okres albo pokazać zamknięte i zarchiwizowane obiekty."
+    },
+    "panel": {
+      "createHelp": "Utwórz nowy obiekt w aktywnej rodzinie bez wychodzenia z biblioteki.",
+      "editHelp": "Tutaj edytujesz definicję, linki i lifecycle. Planowanie okresowe zostaje w widoku Kalendarza.",
+      "placeholderEyebrow": "Panel szczegółów",
+      "placeholderTitle": "Otwórz obiekt, aby zobaczyć szczegóły tutaj",
+      "placeholderCompact": "Otwórz obiekt, aby zobaczyć szczegóły tutaj.",
+      "modeCreate": "Tworzenie",
+      "modeEdit": "Edycja",
+      "modeView": "Podgląd"
+    },
+    "badges": {
+      "objectReflection": "Refleksja obiektu",
+      "periodReflection": "Refleksja okresu",
+      "archived": "Zarchiwizowany",
+      "status": {
+        "open": "Otwarty",
+        "completed": "Zakończony",
+        "dropped": "Porzucony",
+        "retired": "Wycofany"
+      },
+      "cadence": {
+        "weekly": "Tygodniowy",
+        "monthly": "Miesięczny"
+      },
+      "analysisPeriod": {
+        "week": "Analiza tygodnia",
+        "month": "Analiza miesiąca"
+      },
+      "entryMode": {
+        "day": "Wpisy dzienne",
+        "week": "Wpisy tygodniowe",
+        "month": "Wpisy miesięczne"
+      }
+    },
+    "fields": {
+      "created": "Utworzono",
+      "updated": "Zaktualizowano"
+    },
+    "details": {
+      "keyResults": "{n} key resultów",
+      "latestValue": "Ostatnia wartość: {value}",
+      "entryCount": "{n} wpisów",
+      "noEntries": "Brak wpisów",
+      "monthStates": "{n} stanów miesiąca",
+      "weekStates": "{n} stanów tygodnia",
+      "dayAssignments": "{n} przypisań dni",
+      "noPlanningState": "Brak stanu planowania",
+      "noPeriodPlacement": "Brak przypisania do okresów kalendarza",
+      "scheduledMonth": "Zaplanowany w miesiącu",
+      "scheduledWeek": "Zaplanowany w tygodniu",
+      "scheduledDay": "Zaplanowany na dzień"
+    },
+    "reason": {
+      "goalMonthState": "Aktywny w tym miesiącu",
+      "objectReflection": "Ma refleksję w tym okresie",
+      "linkedKeyResult": "Key result aktywny w tym okresie",
+      "linkedInitiative": "Inicjatywa aktywna w tym okresie",
+      "priorityYear": "Powiązany z rokiem priorytetu",
+      "activeThisMonth": "Aktywny w tym miesiącu",
+      "scheduledThisMonth": "Zaplanowany w tym miesiącu",
+      "scheduledThisWeek": "Zaplanowany w tym tygodniu",
+      "scheduledThisDay": "Zaplanowany na ten dzień",
+      "trackedThisMonth": "Śledzony w tym miesiącu",
+      "trackedThisWeek": "Śledzony w tym tygodniu",
+      "trackedThisPeriod": "Śledzony w tym okresie"
+    },
+    "periodSources": {
+      "plan": "Plan",
+      "progress": "Postęp",
+      "object-reflection": "Refleksja obiektu",
+      "period-reflection": "Refleksja okresu"
+    },
+    "messages": {
+      "archived": "Obiekt zarchiwizowany.",
+      "unarchived": "Obiekt przywrócony.",
+      "saved": "Obiekt zapisany.",
+      "saveError": "Nie udało się zapisać obiektu.",
+      "missingObject": "Nie wybrano obiektu."
+    },
+    "form": {
+      "title": "Tytuł",
+      "description": "Opis",
+      "status": "Lifecycle",
+      "active": "Widoczny i aktywny",
+      "activeHint": "Obiekt jest aktywny. Odznacz, aby go zarchiwizować.",
+      "goal": "Cel nadrzędny",
+      "cadence": "Kadencja",
+      "analysisPeriod": "Okres analizy",
+      "entryMode": "Tryb wpisów",
+      "noneSelected": "Wybierz opcje",
+      "lifeAreas": "Powiązane obszary życia",
+      "priorities": "Powiązane priorytety"
+    }
   }
 }

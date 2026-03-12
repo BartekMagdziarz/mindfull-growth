@@ -2,7 +2,11 @@
   <AppCard
     padding="lg"
     variant="raised-strong"
-    class="h-full border-primary/10 bg-gradient-to-br from-primary-soft/70 via-white/50 to-section/70"
+    :class="[
+      'h-full border-primary/10 bg-gradient-to-br from-primary-soft/70 via-white/50 to-section/70 transition-all duration-200',
+      interactive ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-neu-raised group' : '',
+    ]"
+    @click="handleClick"
   >
     <div class="flex h-full flex-col gap-4">
       <div class="flex items-start justify-between gap-4">
@@ -18,13 +22,21 @@
           </p>
         </div>
 
-        <div class="neo-inset min-w-[112px] rounded-3xl px-4 py-3 text-center">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-            {{ linkedLabel }}
-          </p>
-          <p class="mt-2 text-2xl font-semibold text-on-surface">
-            {{ linkedCount }}
-          </p>
+        <div class="flex items-start gap-3">
+          <ArrowTopRightOnSquareIcon
+            v-if="interactive"
+            class="mt-1 h-4 w-4 shrink-0 text-on-surface-variant transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          />
+          <div class="neo-inset min-w-[112px] rounded-3xl px-4 py-3 text-center">
+            <p
+              class="text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+            >
+              {{ linkedLabel }}
+            </p>
+            <p class="mt-2 text-2xl font-semibold text-on-surface">
+              {{ linkedCount }}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -43,6 +55,7 @@
 
 <script setup lang="ts">
 import AppCard from '@/components/AppCard.vue'
+import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
 import { useT } from '@/composables/useT'
 
 interface Props {
@@ -51,12 +64,26 @@ interface Props {
   linkedLabel: string
   linkedCount: number
   badges?: string[]
+  interactive?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   description: undefined,
   badges: () => [],
+  interactive: false,
 })
 
+const emit = defineEmits<{
+  click: []
+}>()
+
 const { t } = useT()
+
+function handleClick() {
+  if (!props.interactive) {
+    return
+  }
+
+  emit('click')
+}
 </script>

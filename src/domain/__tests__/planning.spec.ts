@@ -148,9 +148,11 @@ describe('planning domain normalization', () => {
       goalId: 'goal-1',
       priorityIds: ['priority-1'],
       lifeAreaIds: ['life-area-1'],
+      status: 'open',
     } satisfies CreateInitiativePayload)
 
     expect(normalized.goalId).toBe('goal-1')
+    expect(normalized.status).toBe('open')
 
     expect(() =>
       normalizeInitiativePayload({
@@ -158,8 +160,22 @@ describe('planning domain normalization', () => {
         isActive: true,
         priorityIds: [],
         lifeAreaIds: [],
+        status: 'open',
         checklist: ['step-1'],
       } as CreateInitiativePayload),
     ).toThrow('checklist is not supported for this planning object')
+  })
+
+  it('keeps initiative completion lifecycle separate from archive semantics', () => {
+    const normalized = normalizeInitiativePayload({
+      title: 'Call landlord',
+      isActive: false,
+      priorityIds: ['priority-1'],
+      lifeAreaIds: [],
+      status: 'completed',
+    } satisfies CreateInitiativePayload)
+
+    expect(normalized.isActive).toBe(false)
+    expect(normalized.status).toBe('completed')
   })
 })

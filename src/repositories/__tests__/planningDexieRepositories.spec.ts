@@ -109,6 +109,7 @@ describe('planning Dexie repositories', () => {
       goalId: '',
       priorityIds: ['priority-1'],
       lifeAreaIds: ['la-2'],
+      status: 'open',
     })
 
     const updatedHabit = await habitDexieRepository.update(habit.id, {

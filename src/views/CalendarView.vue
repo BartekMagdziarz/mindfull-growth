@@ -49,16 +49,9 @@
           </div>
         </section>
 
-        <section
-          v-if="showHeaderActions"
-          class="neo-card px-5 py-4 md:px-6"
-        >
+        <section v-if="showHeaderActions" class="neo-card px-5 py-4 md:px-6">
           <div class="flex flex-wrap items-center gap-3 xl:justify-end">
-            <AppButton
-              v-if="showPlanAction"
-              :variant="planActionVariant"
-              @click="openPlanPanel"
-            >
+            <AppButton v-if="showPlanAction" :variant="planActionVariant" @click="openPlanPanel">
               <CalendarDaysIcon class="h-4 w-4" />
               {{ planActionLabel }}
             </AppButton>
@@ -75,10 +68,7 @@
       </div>
     </div>
 
-    <div
-      v-if="invalidRoute"
-      class="neo-card p-8 text-center text-on-surface"
-    >
+    <div v-if="invalidRoute" class="neo-card p-8 text-center text-on-surface">
       <h2 class="text-xl font-semibold">
         {{ t('planning.calendar.invalidPeriod') }}
       </h2>
@@ -86,17 +76,11 @@
 
     <div v-else :class="calendarLayoutClasses">
       <div class="space-y-6">
-        <section
-          v-if="isLoading"
-          class="neo-card p-8 text-center text-on-surface-variant"
-        >
+        <section v-if="isLoading" class="neo-card p-8 text-center text-on-surface-variant">
           {{ t('common.loading') }}
         </section>
 
-        <section
-          v-else-if="loadError"
-          class="neo-card p-8 text-center"
-        >
+        <section v-else-if="loadError" class="neo-card p-8 text-center">
           <h2 class="text-xl font-semibold text-on-surface">
             {{ t('planning.calendar.loadError') }}
           </h2>
@@ -106,10 +90,7 @@
         </section>
 
         <template v-else>
-          <section
-            v-if="showSummaryMetrics"
-            class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4"
-          >
+          <section v-if="showSummaryMetrics" class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
             <div
               v-for="metric in summaryMetrics"
               :key="metric.label"
@@ -151,12 +132,11 @@
                   :linked-label="goal.linkedLabel"
                   :linked-count="goal.linkedCount"
                   :badges="goal.badges"
+                  interactive
+                  @click="openObjectsPanel('goal', goal.objectId)"
                 />
               </div>
-              <div
-                v-else
-                class="neo-card p-6 text-sm text-on-surface-variant"
-              >
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
                 {{ t('planning.calendar.empty.goals') }}
               </div>
             </section>
@@ -174,12 +154,11 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
-              <div
-                v-else
-                class="neo-card p-6 text-sm text-on-surface-variant"
-              >
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
                 {{ t('planning.calendar.empty.keyResults') }}
               </div>
             </section>
@@ -197,12 +176,11 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
-              <div
-                v-else
-                class="neo-card p-6 text-sm text-on-surface-variant"
-              >
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
                 {{ t('planning.calendar.empty.habits') }}
               </div>
             </section>
@@ -220,12 +198,11 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
-              <div
-                v-else
-                class="neo-card p-6 text-sm text-on-surface-variant"
-              >
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
                 {{ t('planning.calendar.empty.trackers') }}
               </div>
             </section>
@@ -243,12 +220,11 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
-              <div
-                v-else
-                class="neo-card p-6 text-sm text-on-surface-variant"
-              >
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
                 {{ t('planning.calendar.empty.initiatives') }}
               </div>
             </section>
@@ -268,6 +244,8 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
@@ -288,6 +266,8 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
@@ -309,6 +289,8 @@
                   :badges="card.badges"
                   :details="card.details"
                   highlight
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
@@ -329,6 +311,8 @@
                   :linked-label="goal.linkedLabel"
                   :linked-count="goal.linkedCount"
                   :badges="goal.badges"
+                  interactive
+                  @click="openObjectsPanel('goal', goal.objectId)"
                 />
               </div>
               <div v-if="weekReflectionCards.length > 0" class="grid gap-4 lg:grid-cols-2">
@@ -340,6 +324,8 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
               <div
@@ -366,6 +352,8 @@
                   :badges="card.badges"
                   :details="card.details"
                   highlight
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
@@ -386,6 +374,8 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
@@ -406,6 +396,8 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
@@ -426,6 +418,8 @@
                   :linked-label="goal.linkedLabel"
                   :linked-count="goal.linkedCount"
                   :badges="goal.badges"
+                  interactive
+                  @click="openObjectsPanel('goal', goal.objectId)"
                 />
               </div>
               <div v-if="dayMonthContextCards.length > 0" class="grid gap-4 lg:grid-cols-2">
@@ -437,6 +431,8 @@
                   :description="card.description"
                   :badges="card.badges"
                   :details="card.details"
+                  interactive
+                  @click="handleOpenItemCard(card)"
                 />
               </div>
               <div
@@ -549,6 +545,10 @@ import {
   getWeekReflectionBundle,
 } from '@/services/planningStateQueries'
 import {
+  getObjectsLibraryFamilyForPanelType,
+  type ObjectsLibraryPanelType,
+} from '@/services/objectsLibraryQueries'
+import {
   containsDay,
   getNextPeriod,
   getPeriodBounds,
@@ -557,6 +557,13 @@ import {
   parsePeriodRef,
   zoomPeriod,
 } from '@/utils/periods'
+import {
+  formatDayRange as formatDayRangeLabel,
+  formatDayTitle as formatDayTitleLabel,
+  formatMonthTitle as formatMonthTitleLabel,
+  formatTimestamp as formatTimestampLabel,
+  formatWeekTitle as formatWeekTitleLabel,
+} from '@/utils/periodLabels'
 import {
   CalendarDaysIcon,
   ChevronLeftIcon,
@@ -586,6 +593,8 @@ interface MetricModel {
 
 interface ItemCardModel {
   key: string
+  objectId: string
+  panelType: ObjectsLibraryPanelType
   title: string
   eyebrow: string
   description?: string
@@ -595,6 +604,7 @@ interface ItemCardModel {
 
 interface GoalCardModel {
   key: string
+  objectId: string
   title: string
   description?: string
   linkedLabel: string
@@ -707,7 +717,9 @@ const activePeriodRangeLabel = computed(() => {
   return `${formatDayRange(currentBounds.value.start)} - ${formatDayRange(currentBounds.value.end)}`
 })
 
-const showPlanAction = computed(() => props.scale === 'year' || props.scale === 'month' || props.scale === 'week')
+const showPlanAction = computed(
+  () => props.scale === 'year' || props.scale === 'month' || props.scale === 'week'
+)
 const showReflectionAction = computed(
   () => props.scale === 'year' || props.scale === 'month' || props.scale === 'week'
 )
@@ -825,11 +837,13 @@ const summaryMetrics = computed<MetricModel[]>(() => {
 })
 
 const showSummaryMetrics = computed(() =>
-  summaryMetrics.value.some((metric) => Number(metric.value) > 0)
+  summaryMetrics.value.some(metric => Number(metric.value) > 0)
 )
 
 const monthSplit = computed(() =>
-  monthPlanning.value ? splitMonthCadencedItems(monthPlanning.value) : { keyResults: [], habits: [] }
+  monthPlanning.value
+    ? splitMonthCadencedItems(monthPlanning.value)
+    : { keyResults: [], habits: [] }
 )
 
 const monthGoalCards = computed<GoalCardModel[]>(() => {
@@ -840,8 +854,9 @@ const monthGoalCards = computed<GoalCardModel[]>(() => {
     return []
   }
 
-  return planning.goalItems.map((item) => ({
+  return planning.goalItems.map(item => ({
     key: item.goal.id,
+    objectId: item.goal.id,
     title: item.goal.title,
     description: item.goal.description,
     linkedLabel: t('planning.calendar.sections.keyResults'),
@@ -858,25 +873,25 @@ const monthGoalCards = computed<GoalCardModel[]>(() => {
 })
 
 const monthKeyResultCards = computed<ItemCardModel[]>(() =>
-  monthSplit.value.keyResults.map((item) =>
+  monthSplit.value.keyResults.map(item =>
     buildCadencedCard(item, 'month', monthReflection.value?.objectReflections ?? [])
   )
 )
 
 const monthHabitCards = computed<ItemCardModel[]>(() =>
-  monthSplit.value.habits.map((item) =>
+  monthSplit.value.habits.map(item =>
     buildCadencedCard(item, 'month', monthReflection.value?.objectReflections ?? [])
   )
 )
 
 const monthTrackerCards = computed<ItemCardModel[]>(() =>
-  (monthPlanning.value?.trackerItems ?? []).map((item) =>
+  (monthPlanning.value?.trackerItems ?? []).map(item =>
     buildTrackerCard(item, 'month', monthReflection.value?.objectReflections ?? [])
   )
 )
 
 const monthInitiativeCards = computed<ItemCardModel[]>(() =>
-  (monthPlanning.value?.initiativeItems ?? []).map((item) =>
+  (monthPlanning.value?.initiativeItems ?? []).map(item =>
     buildInitiativeCard(item, 'month', monthReflection.value?.objectReflections ?? [])
   )
 )
@@ -898,34 +913,34 @@ const weekTrackerSplit = computed(() =>
 )
 
 const weekPlannedCards = computed<ItemCardModel[]>(() => [
-  ...weekCadencedSplit.value.plannedThisWeek.map((item) =>
+  ...weekCadencedSplit.value.plannedThisWeek.map(item =>
     buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
-  ...weekTrackerSplit.value.plannedThisWeek.map((item) =>
+  ...weekTrackerSplit.value.plannedThisWeek.map(item =>
     buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
-  ...weekInitiativeSplit.value.plannedThisWeek.map((item) =>
+  ...weekInitiativeSplit.value.plannedThisWeek.map(item =>
     buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
 ])
 
 const weekAssignedCards = computed<ItemCardModel[]>(() => [
-  ...weekCadencedSplit.value.assignedToDays.map((item) =>
+  ...weekCadencedSplit.value.assignedToDays.map(item =>
     buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
-  ...weekInitiativeSplit.value.assignedToDays.map((item) =>
+  ...weekInitiativeSplit.value.assignedToDays.map(item =>
     buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
 ])
 
 const weekToPlanCards = computed<ItemCardModel[]>(() => [
-  ...weekCadencedSplit.value.toPlanThisWeek.map((item) =>
+  ...weekCadencedSplit.value.toPlanThisWeek.map(item =>
     buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
-  ...weekTrackerSplit.value.toPlanThisWeek.map((item) =>
+  ...weekTrackerSplit.value.toPlanThisWeek.map(item =>
     buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
-  ...weekInitiativeSplit.value.toPlanThisWeek.map((item) =>
+  ...weekInitiativeSplit.value.toPlanThisWeek.map(item =>
     buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
 ])
@@ -938,8 +953,9 @@ const weekReflectionGoalCards = computed<GoalCardModel[]>(() => {
     return []
   }
 
-  return reflection.relevant.goalItems.map((item) => ({
+  return reflection.relevant.goalItems.map(item => ({
     key: item.goal.id,
+    objectId: item.goal.id,
     title: item.goal.title,
     description: item.goal.description,
     linkedLabel: t('planning.calendar.sections.keyResults'),
@@ -956,13 +972,13 @@ const weekReflectionCards = computed<ItemCardModel[]>(() => {
   }
 
   return [
-    ...weekReflection.value.relevant.cadencedItems.map((item) =>
+    ...weekReflection.value.relevant.cadencedItems.map(item =>
       buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
     ),
-    ...weekReflection.value.relevant.trackerItems.map((item) =>
+    ...weekReflection.value.relevant.trackerItems.map(item =>
       buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
     ),
-    ...weekReflection.value.relevant.initiativeItems.map((item) =>
+    ...weekReflection.value.relevant.initiativeItems.map(item =>
       buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
     ),
   ]
@@ -974,10 +990,10 @@ const dayScheduledCards = computed<ItemCardModel[]>(() => {
   }
 
   return [
-    ...dayBundle.value.scheduledCadencedItems.map((item) =>
+    ...dayBundle.value.scheduledCadencedItems.map(item =>
       buildCadencedCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
     ),
-    ...dayBundle.value.scheduledInitiativeItems.map((item) =>
+    ...dayBundle.value.scheduledInitiativeItems.map(item =>
       buildInitiativeCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
     ),
   ]
@@ -989,15 +1005,22 @@ const dayTrackerEntryCards = computed<ItemCardModel[]>(() => {
   }
 
   const trackerNames = new Map(
-    dayBundle.value.weekReflection.relevant.trackerItems.map((item) => [item.tracker.id, item.tracker.title])
+    dayBundle.value.weekReflection.relevant.trackerItems.map(item => [
+      item.tracker.id,
+      item.tracker.title,
+    ])
   )
 
-  return dayBundle.value.trackerEntriesToday.map((entry) => ({
+  return dayBundle.value.trackerEntriesToday.map(entry => ({
     key: `${entry.trackerId}:${entry.periodRef}`,
+    objectId: entry.trackerId,
+    panelType: 'tracker',
     title: trackerNames.get(entry.trackerId) ?? t('planning.calendar.sections.trackers'),
     eyebrow: t('planning.calendar.sections.trackerEntries'),
     badges: [
-      entry.value !== null ? { label: String(entry.value), tone: 'accent' } : { label: t('common.none') },
+      entry.value !== null
+        ? { label: String(entry.value), tone: 'accent' }
+        : { label: t('common.none') },
     ],
     details: [entry.note ?? t('planning.calendar.badges.entryDay')],
   }))
@@ -1009,13 +1032,13 @@ const dayWeekContextCards = computed<ItemCardModel[]>(() => {
   }
 
   return [
-    ...dayBundle.value.contextCadencedItems.map((item) =>
+    ...dayBundle.value.contextCadencedItems.map(item =>
       buildCadencedCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
     ),
-    ...dayBundle.value.contextTrackerItems.map((item) =>
+    ...dayBundle.value.contextTrackerItems.map(item =>
       buildTrackerCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
     ),
-    ...dayBundle.value.contextInitiativeItems.map((item) =>
+    ...dayBundle.value.contextInitiativeItems.map(item =>
       buildInitiativeCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
     ),
   ]
@@ -1028,8 +1051,9 @@ const dayMonthGoalCards = computed<GoalCardModel[]>(() => {
     return []
   }
 
-  return bundle.monthPlanning.goalItems.map((item) => ({
+  return bundle.monthPlanning.goalItems.map(item => ({
     key: item.goal.id,
+    objectId: item.goal.id,
     title: item.goal.title,
     description: item.goal.description,
     linkedLabel: t('planning.calendar.sections.keyResults'),
@@ -1038,11 +1062,7 @@ const dayMonthGoalCards = computed<GoalCardModel[]>(() => {
       item.state.activityState === 'active'
         ? t('planning.calendar.badges.active')
         : t('planning.calendar.badges.paused'),
-      ...(hasObjectReflection(
-        'goal',
-        item.goal.id,
-        bundle.monthReflection.objectReflections
-      )
+      ...(hasObjectReflection('goal', item.goal.id, bundle.monthReflection.objectReflections)
         ? [t('planning.calendar.badges.reflected')]
         : []),
     ],
@@ -1057,7 +1077,7 @@ const dayMonthContextCards = computed<ItemCardModel[]>(() => {
   return filterUnscheduledMonthInitiatives(
     dayBundle.value.monthPlanning.initiativeItems,
     dayBundle.value.dayRef
-  ).map((item) =>
+  ).map(item =>
     buildInitiativeCard(item, 'month', dayBundle.value?.monthReflection.objectReflections ?? [])
   )
 })
@@ -1131,7 +1151,10 @@ const panelMeta = computed(() => {
 })
 
 const panelShowsNoteField = computed(
-  () => Boolean(panelState.value) && panelMode.value === 'reflection' && !panelKind.value.startsWith('year')
+  () =>
+    Boolean(panelState.value) &&
+    panelMode.value === 'reflection' &&
+    !panelKind.value.startsWith('year')
 )
 const panelShowsConfirm = computed(() => {
   if (!panelState.value) {
@@ -1273,6 +1296,21 @@ function navigateTo(scale: CalendarScale, periodRef: PeriodRef) {
   }
 }
 
+function handleOpenItemCard(card: ItemCardModel) {
+  openObjectsPanel(card.panelType, card.objectId)
+}
+
+function openObjectsPanel(panelType: ObjectsLibraryPanelType, panelId: string) {
+  void router.push({
+    name: 'objects-family',
+    params: { family: getObjectsLibraryFamilyForPanelType(panelType) },
+    query: {
+      expandedType: panelType,
+      expandedId: panelId,
+    },
+  })
+}
+
 function openPlanPanel() {
   switch (props.scale) {
     case 'year':
@@ -1400,17 +1438,25 @@ function buildCadencedCard(
 ): ItemCardModel {
   const planningMode =
     'monthStates' in item
-      ? item.weekStates[0]?.planningMode ?? item.monthStates[0]?.planningMode
-      : item.monthState?.planningMode ?? item.weekStates[0]?.planningMode
+      ? (item.weekStates[0]?.planningMode ?? item.monthStates[0]?.planningMode)
+      : (item.monthState?.planningMode ?? item.weekStates[0]?.planningMode)
   const targetCount =
     'monthStates' in item
-      ? item.weekStates[0]?.targetCount ?? item.monthStates[0]?.targetCount
-      : item.monthState?.targetCount ?? item.weekStates[0]?.targetCount
+      ? (item.weekStates[0]?.targetCount ?? item.monthStates[0]?.targetCount)
+      : (item.monthState?.targetCount ?? item.weekStates[0]?.targetCount)
   const badges: BadgeModel[] = [
-    { label: item.subjectType === 'keyResult' ? t('planning.calendar.sections.keyResults') : t('planning.calendar.sections.habits'), tone: 'accent' },
+    {
+      label:
+        item.subjectType === 'keyResult'
+          ? t('planning.calendar.sections.keyResults')
+          : t('planning.calendar.sections.habits'),
+      tone: 'accent',
+    },
     ...buildLifecycleBadges(item.subject.status),
     ...buildActivityBadges(
-      'monthStates' in item ? item.weekStates[0]?.activityState ?? item.monthStates[0]?.activityState : item.monthState?.activityState
+      'monthStates' in item
+        ? (item.weekStates[0]?.activityState ?? item.monthStates[0]?.activityState)
+        : item.monthState?.activityState
     ),
   ]
 
@@ -1460,8 +1506,13 @@ function buildCadencedCard(
 
   return {
     key: `${periodScope}:${item.subjectType}:${item.subject.id}`,
+    objectId: item.subject.id,
+    panelType: item.subjectType,
     title: item.subject.title,
-    eyebrow: periodScope === 'day' ? t('planning.calendar.sections.activeThisWeek') : t('planning.calendar.summary.monthGuidance'),
+    eyebrow:
+      periodScope === 'day'
+        ? t('planning.calendar.sections.activeThisWeek')
+        : t('planning.calendar.summary.monthGuidance'),
     description: item.subject.description,
     badges,
     details,
@@ -1482,14 +1533,15 @@ function buildTrackerCard(
     ...buildLifecycleBadges(tracker.status),
   ]
   const activityState = isMonthTrackerItem(item)
-    ? item.weekStates[0]?.activityState ?? item.monthState?.activityState
-    : item.weekState?.activityState ?? item.monthStates[0]?.activityState
+    ? (item.weekStates[0]?.activityState ?? item.monthState?.activityState)
+    : (item.weekState?.activityState ?? item.monthStates[0]?.activityState)
   badges.push(...buildActivityBadges(activityState))
 
   badges.push({
-    label: tracker.analysisPeriod === 'week'
-      ? t('planning.calendar.badges.analysisWeek')
-      : t('planning.calendar.badges.analysisMonth'),
+    label:
+      tracker.analysisPeriod === 'week'
+        ? t('planning.calendar.badges.analysisWeek')
+        : t('planning.calendar.badges.analysisMonth'),
   })
   badges.push({
     label:
@@ -1501,12 +1553,10 @@ function buildTrackerCard(
   })
 
   if ('reasons' in item) {
-    if (
-      item.reasons.some((reason) => reason === 'tracker-week-state' || reason === 'week-state')
-    ) {
+    if (item.reasons.some(reason => reason === 'tracker-week-state' || reason === 'week-state')) {
       badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
     }
-    if (item.reasons.some((reason) => reason === 'tracker-month-active-unassigned')) {
+    if (item.reasons.some(reason => reason === 'tracker-month-active-unassigned')) {
       badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
     }
   }
@@ -1516,12 +1566,18 @@ function buildTrackerCard(
   }
 
   const entryCount = 'entries' in item ? item.entries.length : 0
-  const details = entryCount > 0 ? [t('planning.calendar.details.trackedEntries', { n: entryCount })] : []
+  const details =
+    entryCount > 0 ? [t('planning.calendar.details.trackedEntries', { n: entryCount })] : []
 
   return {
     key: `${periodScope}:tracker:${tracker.id}`,
+    objectId: tracker.id,
+    panelType: 'tracker',
     title: tracker.title,
-    eyebrow: periodScope === 'day' ? t('planning.calendar.sections.activeThisWeek') : t('planning.calendar.summary.weeklyAlignment'),
+    eyebrow:
+      periodScope === 'day'
+        ? t('planning.calendar.sections.activeThisWeek')
+        : t('planning.calendar.summary.weeklyAlignment'),
     description: tracker.description,
     badges,
     details,
@@ -1534,7 +1590,9 @@ function buildInitiativeCard(
   objectReflections: MonthReflectionBundle['objectReflections']
 ): ItemCardModel {
   const initiative = item.initiative
-  const badges: BadgeModel[] = [{ label: t('planning.calendar.sections.initiatives'), tone: 'accent' }]
+  const badges: BadgeModel[] = [
+    { label: t('planning.calendar.sections.initiatives'), tone: 'accent' },
+  ]
 
   if ('reasons' in item) {
     if (item.reasons.includes('initiative-week')) {
@@ -1567,8 +1625,13 @@ function buildInitiativeCard(
 
   return {
     key: `${periodScope}:initiative:${initiative.id}`,
+    objectId: initiative.id,
+    panelType: 'initiative',
     title: initiative.title,
-    eyebrow: periodScope === 'day' ? t('planning.calendar.sections.scheduledToday') : t('planning.calendar.summary.weeklyAlignment'),
+    eyebrow:
+      periodScope === 'day'
+        ? t('planning.calendar.sections.scheduledToday')
+        : t('planning.calendar.summary.weeklyAlignment'),
     description: initiative.description,
     badges,
     details,
@@ -1609,49 +1672,22 @@ function buildActivityBadges(activityState?: string): BadgeModel[] {
 }
 
 function formatMonthTitle(monthRef: MonthRef): string {
-  const monthIndex = Number(monthRef.slice(5, 7)) - 1
-  const year = monthRef.slice(0, 4)
-  return new Intl.DateTimeFormat(locale.value, {
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(Number(year), monthIndex, 1))
+  return formatMonthTitleLabel(monthRef, locale.value)
 }
 
 function formatWeekTitle(weekRef: WeekRef): string {
-  const bounds = getPeriodBounds(weekRef)
-  return `${t('planning.calendar.scales.week')} ${weekRef.slice(-2)}`
-    + ` · ${formatDayRange(bounds.start)} - ${formatDayRange(bounds.end)}`
+  return formatWeekTitleLabel(weekRef, locale.value, t('planning.calendar.scales.week'))
 }
 
 function formatDayTitle(dayRef: DayRef): string {
-  const date = new Date(`${dayRef}T00:00:00`)
-  return new Intl.DateTimeFormat(locale.value, {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
+  return formatDayTitleLabel(dayRef, locale.value)
 }
 
 function formatDayRange(dayRef: DayRef): string {
-  const date = new Date(`${dayRef}T00:00:00`)
-  return new Intl.DateTimeFormat(locale.value, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
+  return formatDayRangeLabel(dayRef, locale.value)
 }
 
 function formatTimestamp(value: string): string {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  return new Intl.DateTimeFormat(locale.value, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
+  return formatTimestampLabel(value, locale.value)
 }
 </script>

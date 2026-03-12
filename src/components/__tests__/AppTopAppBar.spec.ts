@@ -9,6 +9,7 @@ function createTestRouter() {
     routes: [
       { path: '/', component: { template: '<div />' } },
       { path: '/calendar', component: { template: '<div />' } },
+      { path: '/objects/:family', component: { template: '<div />' } },
       { path: '/journal', component: { template: '<div />' } },
       { path: '/emotions', component: { template: '<div />' } },
       { path: '/history', component: { template: '<div />' } },

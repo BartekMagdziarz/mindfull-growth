@@ -130,5 +130,173 @@
       "saveSuccess": "Reflection saved.",
       "planSuccess": "Plan record created."
     }
+  },
+  "objects": {
+    "title": "Objects Library",
+    "subtitle": "Browse, inspect, filter, and manage planning objects without leaving the main planning model.",
+    "loadError": "Could not load the objects library.",
+    "periodInvalid": "Use a valid period reference like 2026, 2026-03, 2026-W10, or 2026-03-12.",
+    "panelPlaceholder": "Open an object to inspect it here, or start a new one from the active family.",
+    "labels": {
+      "goal": "Goal",
+      "habit": "Habit",
+      "tracker": "Tracker",
+      "initiative": "Initiative"
+    },
+    "header": {
+      "familiesLabel": "Object families",
+      "createLabel": "Create in this family",
+      "createHelp": "Keep object setup, linking, and lifecycle work in one place.",
+      "visible": "{n} visible",
+      "activeFilters": "{n} filters active",
+      "period": "Period · {period}"
+    },
+    "families": {
+      "goals": "Goals",
+      "habits": "Habits",
+      "trackers": "Trackers",
+      "initiatives": "Initiatives"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Search titles and descriptions",
+      "period": "Period",
+      "periodPlaceholder": "2026, 2026-03, 2026-W10, 2026-03-12",
+      "showClosed": "Show closed",
+      "showClosedAndArchived": "Show closed and archived",
+      "showMore": "Filters",
+      "showLess": "Hide filters",
+      "title": "Refine this family",
+      "description": "Search inside the current family and narrow the library by period, life areas, priorities, and lifecycle.",
+      "noOptions": "No options available yet",
+      "lifeAreas": "Life areas",
+      "priorities": "Priorities",
+      "clear": "Clear",
+      "resetAll": "Reset filters"
+    },
+    "sections": {
+      "results": "Results",
+      "resultsHelp": "{n} objects in the active family",
+      "resultsEyebrow": "Library feed",
+      "objectMeta": "Object metadata",
+      "links": "Links",
+      "linkedPeriods": "Linked periods",
+      "relatedKeyResults": "Related key results",
+      "history": "History"
+    },
+    "actions": {
+      "open": "Open object",
+      "showDetails": "Show details",
+      "hideDetails": "Hide details",
+      "addGoal": "Add goal",
+      "addHabit": "Add habit",
+      "addTracker": "Add tracker",
+      "addInitiative": "Add initiative",
+      "addKeyResult": "Add key result",
+      "editObject": "Edit object",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "showMore": "Show more",
+      "showLess": "Show less"
+    },
+    "empty": {
+      "familyTitle": "No objects in this family yet.",
+      "familyBody": "Create the first object in this family to start using the library.",
+      "filteredTitle": "No objects match the current filters.",
+      "filteredBody": "Try clearing some filters, widening the period, or showing closed and archived objects."
+    },
+    "panel": {
+      "createHelp": "Create a new object inside the active family without leaving the library.",
+      "editHelp": "Update the object definition, links, and lifecycle here. Period planning stays in Calendar View.",
+      "placeholderEyebrow": "Details panel",
+      "placeholderTitle": "Open an object to inspect it here",
+      "placeholderCompact": "Open an object to inspect it here.",
+      "modeCreate": "Create",
+      "modeEdit": "Edit",
+      "modeView": "View"
+    },
+    "badges": {
+      "objectReflection": "Object reflection",
+      "periodReflection": "Period reflection",
+      "archived": "Archived",
+      "status": {
+        "open": "Open",
+        "completed": "Completed",
+        "dropped": "Dropped",
+        "retired": "Retired"
+      },
+      "cadence": {
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "analysisPeriod": {
+        "week": "Week analysis",
+        "month": "Month analysis"
+      },
+      "entryMode": {
+        "day": "Daily entries",
+        "week": "Weekly entries",
+        "month": "Monthly entries"
+      }
+    },
+    "fields": {
+      "created": "Created",
+      "updated": "Updated"
+    },
+    "details": {
+      "keyResults": "{n} key results",
+      "latestValue": "Latest value: {value}",
+      "entryCount": "{n} entries",
+      "noEntries": "No entries yet",
+      "monthStates": "{n} month states",
+      "weekStates": "{n} week states",
+      "dayAssignments": "{n} day assignments",
+      "noPlanningState": "No planning state yet",
+      "noPeriodPlacement": "Not scheduled in calendar periods",
+      "scheduledMonth": "Scheduled in a month",
+      "scheduledWeek": "Scheduled in a week",
+      "scheduledDay": "Scheduled on a day"
+    },
+    "reason": {
+      "goalMonthState": "Active this month",
+      "objectReflection": "Reflected in this period",
+      "linkedKeyResult": "Key result active in this period",
+      "linkedInitiative": "Initiative active in this period",
+      "priorityYear": "Linked to this priority year",
+      "activeThisMonth": "Active this month",
+      "scheduledThisMonth": "Scheduled this month",
+      "scheduledThisWeek": "Scheduled this week",
+      "scheduledThisDay": "Scheduled on this day",
+      "trackedThisMonth": "Tracked this month",
+      "trackedThisWeek": "Tracked this week",
+      "trackedThisPeriod": "Tracked in this period"
+    },
+    "periodSources": {
+      "plan": "Plan",
+      "progress": "Progress",
+      "object-reflection": "Object reflection",
+      "period-reflection": "Period reflection"
+    },
+    "messages": {
+      "archived": "Object archived.",
+      "unarchived": "Object restored.",
+      "saved": "Object saved.",
+      "saveError": "Could not save this object.",
+      "missingObject": "No object is currently selected."
+    },
+    "form": {
+      "title": "Title",
+      "description": "Description",
+      "status": "Lifecycle",
+      "active": "Visible and active",
+      "activeHint": "Keep this object active. Clear this to archive it.",
+      "goal": "Owner goal",
+      "cadence": "Cadence",
+      "analysisPeriod": "Analysis period",
+      "entryMode": "Entry mode",
+      "noneSelected": "Select options",
+      "lifeAreas": "Linked life areas",
+      "priorities": "Linked priorities"
+    }
   }
 }

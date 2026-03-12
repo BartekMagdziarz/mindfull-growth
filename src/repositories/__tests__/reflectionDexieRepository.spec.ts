@@ -44,6 +44,7 @@ describe('reflection Dexie repository', () => {
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
+      status: 'open',
     })
     const monthRef = parsePeriodRef('2026-03') as MonthRef
 

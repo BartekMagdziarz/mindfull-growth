@@ -250,6 +250,7 @@ describe('planningState Dexie repository', () => {
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
+      status: 'open',
     })
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef

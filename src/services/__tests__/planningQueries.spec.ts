@@ -118,6 +118,7 @@ describe('planningQueries', () => {
       goalId: goalA.id,
       priorityIds: ['priority-1'],
       lifeAreaIds: ['la-1'],
+      status: 'open',
     })
     const initiativeB = await initiativeDexieRepository.create({
       title: 'Initiative B',
@@ -125,6 +126,7 @@ describe('planningQueries', () => {
       goalId: goalB.id,
       priorityIds: ['priority-1'],
       lifeAreaIds: ['la-2'],
+      status: 'completed',
     })
 
     expect(sortIds(await listGoalsByPriority('priority-1'))).toEqual(sortIds([goalA, goalB]))
@@ -186,6 +188,7 @@ describe('planningQueries', () => {
       goalId: goal.id,
       priorityIds: ['priority-2'],
       lifeAreaIds: ['la-3'],
+      status: 'open',
     })
 
     expect(await listHabitsByPriority('priority-2', { isActive: false })).toEqual([archivedHabit])

@@ -74,6 +74,7 @@ const { t } = useT()
 
 const navItems = computed<NavItem[]>(() => [
   { path: '/calendar', label: t('common.nav.calendar') },
+  { path: '/objects/goals', label: t('common.nav.objects') },
   { path: '/journal', label: t('common.nav.journal') },
   { path: '/emotions', label: t('common.nav.emotions') },
   { path: '/history', label: t('common.nav.history') },

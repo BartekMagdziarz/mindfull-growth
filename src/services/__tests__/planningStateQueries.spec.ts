@@ -186,6 +186,7 @@ describe('planningStateQueries', () => {
       goalId: goal.id,
       priorityIds: [],
       lifeAreaIds: [],
+      status: 'open',
     })
 
     await planningStateDexieRepository.upsertGoalMonthState({

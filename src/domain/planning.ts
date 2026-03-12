@@ -16,6 +16,7 @@ export type GoalStatus = 'open' | 'completed' | 'dropped'
 export type KeyResultStatus = GoalStatus
 export type HabitStatus = 'open' | 'retired' | 'dropped'
 export type TrackerStatus = 'open' | 'retired' | 'dropped'
+export type InitiativeStatus = GoalStatus
 export type PlanningObjectKind = 'generic'
 export type TrackerAnalysisPeriod = 'week' | 'month'
 export type TrackerEntryMode = 'day' | 'week' | 'month'
@@ -63,6 +64,7 @@ export interface Initiative extends PlanningObjectBase {
   goalId?: string
   priorityIds: string[]
   lifeAreaIds: string[]
+  status: InitiativeStatus
 }
 
 export type CreatePriorityPayload = Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>
@@ -349,5 +351,6 @@ export function normalizeInitiativePayload(
     goalId: normalizeOptionalId(data.goalId, 'goalId', existing?.goalId),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
+    status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
   }
 }
