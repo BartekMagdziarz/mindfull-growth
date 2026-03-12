@@ -52,6 +52,35 @@ class PlanningDatabaseV6 extends Dexie {
   }
 }
 
+class PlanningDatabaseV7 extends Dexie {
+  goals!: Table<Record<string, unknown>, string>
+  habits!: Table<Record<string, unknown>, string>
+  initiatives!: Table<Record<string, unknown>, string>
+  measurementMonthStates!: Table<Record<string, unknown>, string>
+  measurementWeekStates!: Table<Record<string, unknown>, string>
+  measurementDayAssignments!: Table<Record<string, unknown>, string>
+  dailyMeasurementEntries!: Table<Record<string, unknown>, string>
+  initiativePlanStates!: Table<Record<string, unknown>, string>
+
+  constructor(name: string) {
+    super(name)
+    this.version(7).stores({
+      goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+      habits: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+      initiatives: 'id, status, isActive, goalId, *priorityIds, *lifeAreaIds',
+      measurementMonthStates:
+        'id, monthRef, subjectType, subjectId, activityState, scheduleScope, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+      measurementWeekStates:
+        'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, scheduleScope, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+      measurementDayAssignments:
+        'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+      dailyMeasurementEntries:
+        'id, subjectType, subjectId, dayRef, &[subjectType+subjectId+dayRef], [subjectType+subjectId]',
+      initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+    })
+  }
+}
+
 describe('planning migration v6 to v7', () => {
   let dbName: string
 
@@ -276,5 +305,95 @@ describe('planning migration v6 to v7', () => {
     expect(objectReflections[0]?.subjectType).toBe('initiative')
 
     await v7.close()
+  })
+})
+
+describe('planning migration v7 to v8', () => {
+  let dbName: string
+
+  beforeEach(() => {
+    dbName = `PlanningMigrationV8_${Date.now()}_${Math.random()}`
+  })
+
+  afterEach(async () => {
+    await Dexie.delete(dbName)
+  })
+
+  it('adds Today hidden states without disturbing existing planning data', async () => {
+    const v7 = new PlanningDatabaseV7(dbName)
+    await v7.open()
+
+    await v7.goals.add({
+      id: 'goal-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      title: 'Goal',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    await v7.habits.add({
+      id: 'habit-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      title: 'Habit',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+    await v7.initiatives.add({
+      id: 'initiative-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      title: 'Initiative',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    await v7.measurementMonthStates.add({
+      id: 'month-state-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      monthRef: '2026-03',
+      subjectType: 'habit',
+      subjectId: 'habit-1',
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+    await v7.dailyMeasurementEntries.add({
+      id: 'entry-1',
+      createdAt: '2026-03-12T00:00:00.000Z',
+      updatedAt: '2026-03-12T00:00:00.000Z',
+      subjectType: 'habit',
+      subjectId: 'habit-1',
+      dayRef: '2026-03-12',
+      value: null,
+    })
+    await v7.initiativePlanStates.add({
+      id: 'initiative-plan-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      initiativeId: 'initiative-1',
+      monthRef: '2026-03',
+      weekRef: '2026-W11',
+      dayRef: '2026-03-12',
+    })
+    await v7.close()
+
+    const v8 = new UserDatabase(dbName)
+    await v8.open()
+
+    expect(await v8.habits.count()).toBe(1)
+    expect(await v8.dailyMeasurementEntries.count()).toBe(1)
+    expect(await v8.initiativePlanStates.count()).toBe(1)
+    expect(await v8.todayHiddenStates.count()).toBe(0)
+
+    await v8.close()
   })
 })

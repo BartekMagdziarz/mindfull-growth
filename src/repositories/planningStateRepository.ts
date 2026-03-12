@@ -5,6 +5,7 @@ import type {
   CreateInitiativePlanStatePayload,
   CreateMeasurementDayAssignmentPayload,
   CreateMeasurementMonthStatePayload,
+  CreateTodayHiddenStatePayload,
   CreateMeasurementWeekStatePayload,
   DailyMeasurementEntry,
   GoalMonthState,
@@ -13,12 +14,15 @@ import type {
   MeasurementMonthState,
   MeasurementSubjectType,
   MeasurementWeekState,
+  TodayHiddenState,
   UpdateDailyMeasurementEntryPayload,
   UpdateGoalMonthStatePayload,
   UpdateInitiativePlanStatePayload,
   UpdateMeasurementDayAssignmentPayload,
   UpdateMeasurementMonthStatePayload,
+  UpdateTodayHiddenStatePayload,
   UpdateMeasurementWeekStatePayload,
+  TodayHiddenSubjectType,
 } from '@/domain/planningState'
 
 export interface PlanningStateRepository {
@@ -89,6 +93,21 @@ export interface PlanningStateRepository {
     subjectType: MeasurementSubjectType,
     subjectId: string,
     dayRef: DayRef
+  ): Promise<void>
+
+  getTodayHiddenState(
+    dayRef: DayRef,
+    subjectType: TodayHiddenSubjectType,
+    subjectId: string
+  ): Promise<TodayHiddenState | undefined>
+  listTodayHiddenStates(): Promise<TodayHiddenState[]>
+  upsertTodayHiddenState(
+    data: CreateTodayHiddenStatePayload | UpdateTodayHiddenStatePayload
+  ): Promise<TodayHiddenState>
+  deleteTodayHiddenState(
+    dayRef: DayRef,
+    subjectType: TodayHiddenSubjectType,
+    subjectId: string
   ): Promise<void>
 
   getInitiativePlanState(initiativeId: string): Promise<InitiativePlanState | undefined>

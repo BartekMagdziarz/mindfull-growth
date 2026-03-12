@@ -51,6 +51,7 @@ import type {
   MonthPlan,
   PeriodObjectReflection,
   PeriodReflection,
+  TodayHiddenState,
   WeekPlan,
 } from '@/domain/planningState'
 
@@ -110,6 +111,7 @@ export class UserDatabase extends Dexie {
   measurementWeekStates!: Table<MeasurementWeekState, string>
   measurementDayAssignments!: Table<MeasurementDayAssignment, string>
   dailyMeasurementEntries!: Table<DailyMeasurementEntry, string>
+  todayHiddenStates!: Table<TodayHiddenState, string>
   initiativePlanStates!: Table<InitiativePlanState, string>
   periodReflections!: Table<PeriodReflection, string>
   periodObjectReflections!: Table<PeriodObjectReflection, string>
@@ -447,10 +449,12 @@ export class UserDatabase extends Dexie {
         assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
         drafts: '&key',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         const initiatives = await trans.table('initiatives').toArray()
 
-        for (const initiative of initiatives as Array<Initiative & { status?: Initiative['status'] }>) {
+        for (const initiative of initiatives as Array<
+          Initiative & { status?: Initiative['status'] }
+        >) {
           if (initiative.status) {
             continue
           }
@@ -529,7 +533,7 @@ export class UserDatabase extends Dexie {
         assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
         drafts: '&key',
       })
-      .upgrade(async (trans) => {
+      .upgrade(async trans => {
         await trans.table('keyResults').clear()
         await trans.table('habits').clear()
         await trans.table('trackers').clear()
@@ -553,6 +557,75 @@ export class UserDatabase extends Dexie {
           }
         }
       })
+
+    this.version(8).stores({
+      journalEntries: 'id',
+      peopleTags: 'id',
+      contextTags: 'id',
+      emotionLogs: 'id',
+      userSettings: 'key',
+      wheelOfLifeSnapshots: 'id, createdAt',
+      valuesDiscoveries: 'id',
+      shadowBeliefs: 'id',
+      transformativePurposes: 'id',
+      thoughtRecords: 'id',
+      distortionAssessments: 'id',
+      worryTreeEntries: 'id',
+      coreBeliefsExplorations: 'id',
+      compassionateLetters: 'id',
+      positiveDataLogs: 'id',
+      behavioralExperiments: 'id',
+      behavioralActivations: 'id',
+      structuredProblemSolvings: 'id',
+      gradedExposureHierarchies: 'id',
+      threePathwaysToMeaning: 'id',
+      socraticSelfDialogues: 'id',
+      mountainRangesOfMeaning: 'id',
+      paradoxicalIntentionLabs: 'id',
+      dereflectionPractices: 'id',
+      tragicOptimisms: 'id',
+      attitudinalShifts: 'id',
+      legacyLetters: 'id',
+      ifsParts: 'id',
+      ifsPartsMaps: 'id',
+      ifsUnblendingSessions: 'id',
+      ifsDirectAccessSessions: 'id',
+      ifsTrailheadEntries: 'id',
+      ifsProtectorAppreciations: 'id',
+      ifsExileWitnessings: 'id',
+      ifsSelfEnergyCheckIns: 'id',
+      ifsPartsDialogues: 'id',
+      ifsDailyCheckIns: 'id',
+      ifsConstellations: 'id',
+      lifeAreas: 'id, isActive',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+      priorities: 'id, year, isActive, *lifeAreaIds',
+      goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+      keyResults: 'id, goalId, status, isActive, cadence, entryMode',
+      habits: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+      trackers: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+      initiatives: 'id, status, isActive, goalId, *priorityIds, *lifeAreaIds',
+      monthPlans: 'id, &monthRef',
+      weekPlans: 'id, &weekRef',
+      goalMonthStates: 'id, monthRef, goalId, activityState, &[monthRef+goalId]',
+      measurementMonthStates:
+        'id, monthRef, subjectType, subjectId, activityState, scheduleScope, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+      measurementWeekStates:
+        'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, scheduleScope, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+      measurementDayAssignments:
+        'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+      dailyMeasurementEntries:
+        'id, subjectType, subjectId, dayRef, &[subjectType+subjectId+dayRef], [subjectType+subjectId]',
+      todayHiddenStates:
+        'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+      initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+      periodReflections: 'id, periodType, periodRef, &[periodType+periodRef]',
+      periodObjectReflections:
+        'id, periodType, periodRef, subjectType, subjectId, &[periodType+periodRef+subjectType+subjectId], [subjectType+subjectId]',
+      assessmentAttempts: 'id, assessmentId',
+      assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
+      drafts: '&key',
+    })
   }
 }
 

@@ -25,7 +25,8 @@ const router = createRouter({
     // Protected routes
     {
       path: '/today',
-      redirect: '/journal',
+      name: 'today',
+      component: () => import('@/views/TodayView.vue'),
     },
     {
       path: '/calendar',
@@ -38,25 +39,25 @@ const router = createRouter({
       path: '/calendar/year/:yearRef',
       name: 'calendar-year',
       component: () => import('@/views/CalendarView.vue'),
-      props: (route) => ({ scale: 'year', periodRef: route.params.yearRef }),
+      props: route => ({ scale: 'year', periodRef: route.params.yearRef }),
     },
     {
       path: '/calendar/month/:monthRef',
       name: 'calendar-month',
       component: () => import('@/views/CalendarView.vue'),
-      props: (route) => ({ scale: 'month', periodRef: route.params.monthRef }),
+      props: route => ({ scale: 'month', periodRef: route.params.monthRef }),
     },
     {
       path: '/calendar/week/:weekRef',
       name: 'calendar-week',
       component: () => import('@/views/CalendarView.vue'),
-      props: (route) => ({ scale: 'week', periodRef: route.params.weekRef }),
+      props: route => ({ scale: 'week', periodRef: route.params.weekRef }),
     },
     {
       path: '/calendar/day/:dayRef',
       name: 'calendar-day',
       component: () => import('@/views/CalendarView.vue'),
-      props: (route) => ({ scale: 'day', periodRef: route.params.dayRef }),
+      props: route => ({ scale: 'day', periodRef: route.params.dayRef }),
     },
     {
       path: '/objects',
@@ -66,7 +67,7 @@ const router = createRouter({
       path: '/objects/:family',
       name: 'objects-family',
       component: () => import('@/views/ObjectsLibraryView.vue'),
-      props: (route) => ({ family: route.params.family }),
+      props: route => ({ family: route.params.family }),
     },
     {
       path: '/journal',

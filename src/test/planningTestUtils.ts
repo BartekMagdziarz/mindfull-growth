@@ -4,6 +4,7 @@ export async function resetPlanningTestData() {
   const db = await connectTestDatabase()
   await db.periodObjectReflections.clear()
   await db.periodReflections.clear()
+  await db.todayHiddenStates.clear()
   await db.dailyMeasurementEntries.clear()
   await db.initiativePlanStates.clear()
   await db.measurementDayAssignments.clear()

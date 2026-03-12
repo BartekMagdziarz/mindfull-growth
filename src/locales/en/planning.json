@@ -156,6 +156,71 @@
       "planSuccess": "Plan record created."
     }
   },
+  "today": {
+    "eyebrow": "Current focus",
+    "title": "Today",
+    "subtitle": "Use today as a narrow execution surface for explicit assignments, active weekly work, and monthly context.",
+    "summary": "{scheduled} scheduled, {week} active this week, {month} active this month.",
+    "loadError": "Could not load Today.",
+    "sections": {
+      "scheduled": "Scheduled for today",
+      "scheduledDescription": "Only items explicitly assigned to today live here.",
+      "week": "Active this week",
+      "weekDescription": "Weekly context that still matters today.",
+      "month": "Active this month",
+      "monthDescription": "Monthly and unassigned context that remains actionable today."
+    },
+    "empty": {
+      "scheduled": "Nothing is explicitly scheduled for today.",
+      "week": "No weekly context needs attention right now.",
+      "month": "No monthly context is active right now."
+    },
+    "details": {
+      "goal": "Goal: {title}",
+      "daysLeft": "{n} days left in period",
+      "section": {
+        "scheduled": "Explicit day assignment",
+        "week": "Week context",
+        "month": "Month context"
+      }
+    },
+    "actions": {
+      "recordEntry": "Record today",
+      "undoEntry": "Undo today",
+      "clearEntry": "Clear entry",
+      "hideForToday": "Hide for today",
+      "restore": "Restore",
+      "moveToDay": "Move to day",
+      "clearToday": "Clear today",
+      "showHiddenSection": "Show hidden",
+      "hideHiddenSection": "Hide hidden",
+      "openContext": "Open context",
+      "increase": "Increase value",
+      "decrease": "Decrease value",
+      "input": {
+        "counter": "Today's counter value",
+        "value": "Today's value",
+        "rating": "Today's rating"
+      }
+    },
+    "messages": {
+      "entrySaved": "Entry saved.",
+      "entryCleared": "Entry cleared.",
+      "hidden": "Hidden for today.",
+      "restored": "Restored to Today.",
+      "moved": "Moved to another day.",
+      "scheduleCleared": "Today assignment cleared.",
+      "deleted": "Object deleted."
+    },
+    "hidden": {
+      "title": "Hidden for today ({n})",
+      "description": "These items stay out of the main feed until tomorrow or until you restore them."
+    },
+    "deleteDialog": {
+      "title": "Delete object",
+      "message": "Delete \"{title}\" and remove it from the planning model?"
+    }
+  },
   "objects": {
     "title": "Objects Library",
     "subtitle": "Browse, inspect, filter, and manage planning objects without leaving the main planning model.",
@@ -164,6 +229,7 @@
     "panelPlaceholder": "Open an object to inspect it here, or start a new one from the active family.",
     "labels": {
       "goal": "Goal",
+      "keyResult": "Key result",
       "habit": "Habit",
       "tracker": "Tracker",
       "initiative": "Initiative"

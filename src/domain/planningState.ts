@@ -14,6 +14,7 @@ export interface PlanningStateRecordBase {
 
 export type PeriodActivityState = 'active' | 'paused'
 export type MeasurementSubjectType = 'keyResult' | 'habit' | 'tracker'
+export type TodayHiddenSubjectType = MeasurementSubjectType | 'initiative'
 export type ReflectionPeriodType = 'month' | 'week'
 export type ReflectionSubjectType = 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative'
 export type MonthScheduleScope = 'unassigned' | 'specific-days' | 'whole-month'
@@ -64,6 +65,12 @@ export interface DailyMeasurementEntry extends PlanningStateRecordBase {
   subjectId: string
   dayRef: DayRef
   value: DailyMeasurementEntryValue
+}
+
+export interface TodayHiddenState extends PlanningStateRecordBase {
+  dayRef: DayRef
+  subjectType: TodayHiddenSubjectType
+  subjectId: string
 }
 
 export interface InitiativePlanState extends PlanningStateRecordBase {
@@ -130,6 +137,11 @@ export type UpdateDailyMeasurementEntryPayload = Partial<
   Omit<DailyMeasurementEntry, 'id' | 'createdAt' | 'updatedAt'>
 >
 
+export type CreateTodayHiddenStatePayload = Omit<TodayHiddenState, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateTodayHiddenStatePayload = Partial<
+  Omit<TodayHiddenState, 'id' | 'createdAt' | 'updatedAt'>
+>
+
 export type CreateInitiativePlanStatePayload = Omit<
   InitiativePlanState,
   'id' | 'createdAt' | 'updatedAt'
@@ -153,6 +165,7 @@ export type UpdatePeriodObjectReflectionPayload = Partial<
 
 const PERIOD_ACTIVITY_STATES = ['active', 'paused'] as const
 const MEASUREMENT_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker'] as const
+const TODAY_HIDDEN_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'initiative'] as const
 const REFLECTION_PERIOD_TYPES = ['month', 'week'] as const
 const REFLECTION_SUBJECT_TYPES = ['goal', 'keyResult', 'habit', 'tracker', 'initiative'] as const
 const MONTH_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-month'] as const
@@ -175,7 +188,7 @@ function normalizeTrimmedText(value: unknown, fieldName: string, fallback?: stri
 function normalizeOptionalText(
   value: unknown,
   fieldName: string,
-  fallback?: string,
+  fallback?: string
 ): string | undefined {
   const source = value ?? fallback
   if (source === undefined) {
@@ -193,7 +206,7 @@ function normalizeOptionalText(
 function normalizeOptionalId(
   value: unknown,
   fieldName: string,
-  fallback?: string,
+  fallback?: string
 ): string | undefined {
   const source = value ?? fallback
   if (source === undefined) {
@@ -212,7 +225,7 @@ function normalizeEnum<T extends string>(
   value: unknown,
   fieldName: string,
   allowedValues: readonly T[],
-  fallback?: T,
+  fallback?: T
 ): T {
   const source = value ?? fallback
   if (typeof source !== 'string' || !allowedValues.includes(source as T)) {
@@ -256,7 +269,7 @@ function normalizeReflectionPeriodRef(
   periodType: ReflectionPeriodType,
   value: unknown,
   fieldName: string,
-  fallback?: MonthRef | WeekRef,
+  fallback?: MonthRef | WeekRef
 ): MonthRef | WeekRef {
   const source = normalizeTrimmedText(value, fieldName, fallback)
   assertPeriodRef(source)
@@ -270,7 +283,7 @@ function normalizeReflectionPeriodRef(
 
 function normalizeDailyMeasurementValue(
   value: unknown,
-  fallback?: DailyMeasurementEntryValue,
+  fallback?: DailyMeasurementEntryValue
 ): DailyMeasurementEntryValue {
   const source = value === undefined ? fallback : value
   if (source === null) {
@@ -291,14 +304,14 @@ function normalizeSubjectId(value: unknown, fieldName: string, fallback?: string
 function normalizeReflectionSubjectId(
   value: unknown,
   fieldName: string,
-  fallback?: string,
+  fallback?: string
 ): string {
   return normalizeTrimmedText(value, fieldName, fallback)
 }
 
 export function normalizeMonthPlanPayload(
   data: CreateMonthPlanPayload | UpdateMonthPlanPayload,
-  existing?: MonthPlan,
+  existing?: MonthPlan
 ): Omit<MonthPlan, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     monthRef: normalizeMonthRef(data.monthRef, 'monthRef', existing?.monthRef),
@@ -307,7 +320,7 @@ export function normalizeMonthPlanPayload(
 
 export function normalizeWeekPlanPayload(
   data: CreateWeekPlanPayload | UpdateWeekPlanPayload,
-  existing?: WeekPlan,
+  existing?: WeekPlan
 ): Omit<WeekPlan, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     weekRef: normalizeWeekRef(data.weekRef, 'weekRef', existing?.weekRef),
@@ -316,7 +329,7 @@ export function normalizeWeekPlanPayload(
 
 export function normalizeGoalMonthStatePayload(
   data: CreateGoalMonthStatePayload | UpdateGoalMonthStatePayload,
-  existing?: GoalMonthState,
+  existing?: GoalMonthState
 ): Omit<GoalMonthState, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     monthRef: normalizeMonthRef(data.monthRef, 'monthRef', existing?.monthRef),
@@ -325,14 +338,14 @@ export function normalizeGoalMonthStatePayload(
       data.activityState,
       'activityState',
       PERIOD_ACTIVITY_STATES,
-      existing?.activityState,
+      existing?.activityState
     ),
   }
 }
 
 export function normalizeMeasurementMonthStatePayload(
   data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload,
-  existing?: MeasurementMonthState,
+  existing?: MeasurementMonthState
 ): Omit<MeasurementMonthState, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     monthRef: normalizeMonthRef(data.monthRef, 'monthRef', existing?.monthRef),
@@ -340,20 +353,20 @@ export function normalizeMeasurementMonthStatePayload(
       data.subjectType,
       'subjectType',
       MEASUREMENT_SUBJECT_TYPES,
-      existing?.subjectType,
+      existing?.subjectType
     ),
     subjectId: normalizeSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
     activityState: normalizeEnum(
       data.activityState,
       'activityState',
       PERIOD_ACTIVITY_STATES,
-      existing?.activityState,
+      existing?.activityState
     ),
     scheduleScope: normalizeEnum(
       data.scheduleScope,
       'scheduleScope',
       MONTH_SCHEDULE_SCOPES,
-      existing?.scheduleScope ?? 'unassigned',
+      existing?.scheduleScope ?? 'unassigned'
     ),
     successNote: normalizeOptionalText(data.successNote, 'successNote', existing?.successNote),
   }
@@ -361,13 +374,13 @@ export function normalizeMeasurementMonthStatePayload(
 
 export function normalizeMeasurementWeekStatePayload(
   data: CreateMeasurementWeekStatePayload | UpdateMeasurementWeekStatePayload,
-  existing?: MeasurementWeekState,
+  existing?: MeasurementWeekState
 ): Omit<MeasurementWeekState, 'id' | 'createdAt' | 'updatedAt'> {
   const weekRef = normalizeWeekRef(data.weekRef, 'weekRef', existing?.weekRef)
   const sourceMonthRef = normalizeOptionalId(
     data.sourceMonthRef,
     'sourceMonthRef',
-    existing?.sourceMonthRef,
+    existing?.sourceMonthRef
   )
 
   if (sourceMonthRef) {
@@ -388,21 +401,21 @@ export function normalizeMeasurementWeekStatePayload(
       data.subjectType,
       'subjectType',
       MEASUREMENT_SUBJECT_TYPES,
-      existing?.subjectType,
+      existing?.subjectType
     ),
     subjectId: normalizeSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
     activityState: normalizeEnum(
       data.activityState,
       'activityState',
       PERIOD_ACTIVITY_STATES,
-      existing?.activityState,
+      existing?.activityState
     ),
     sourceMonthRef: sourceMonthRef as MonthRef | undefined,
     scheduleScope: normalizeEnum(
       data.scheduleScope,
       'scheduleScope',
       WEEK_SCHEDULE_SCOPES,
-      existing?.scheduleScope ?? 'unassigned',
+      existing?.scheduleScope ?? 'unassigned'
     ),
     successNote: normalizeOptionalText(data.successNote, 'successNote', existing?.successNote),
   }
@@ -410,7 +423,7 @@ export function normalizeMeasurementWeekStatePayload(
 
 export function normalizeMeasurementDayAssignmentPayload(
   data: CreateMeasurementDayAssignmentPayload | UpdateMeasurementDayAssignmentPayload,
-  existing?: MeasurementDayAssignment,
+  existing?: MeasurementDayAssignment
 ): Omit<MeasurementDayAssignment, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     dayRef: normalizeDayRef(data.dayRef, 'dayRef', existing?.dayRef),
@@ -418,7 +431,7 @@ export function normalizeMeasurementDayAssignmentPayload(
       data.subjectType,
       'subjectType',
       MEASUREMENT_SUBJECT_TYPES,
-      existing?.subjectType,
+      existing?.subjectType
     ),
     subjectId: normalizeSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
   }
@@ -426,14 +439,14 @@ export function normalizeMeasurementDayAssignmentPayload(
 
 export function normalizeDailyMeasurementEntryPayload(
   data: CreateDailyMeasurementEntryPayload | UpdateDailyMeasurementEntryPayload,
-  existing?: DailyMeasurementEntry,
+  existing?: DailyMeasurementEntry
 ): Omit<DailyMeasurementEntry, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     subjectType: normalizeEnum(
       data.subjectType,
       'subjectType',
       MEASUREMENT_SUBJECT_TYPES,
-      existing?.subjectType,
+      existing?.subjectType
     ),
     subjectId: normalizeSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
     dayRef: normalizeDayRef(data.dayRef, 'dayRef', existing?.dayRef),
@@ -441,9 +454,25 @@ export function normalizeDailyMeasurementEntryPayload(
   }
 }
 
+export function normalizeTodayHiddenStatePayload(
+  data: CreateTodayHiddenStatePayload | UpdateTodayHiddenStatePayload,
+  existing?: TodayHiddenState
+): Omit<TodayHiddenState, 'id' | 'createdAt' | 'updatedAt'> {
+  return {
+    dayRef: normalizeDayRef(data.dayRef, 'dayRef', existing?.dayRef),
+    subjectType: normalizeEnum(
+      data.subjectType,
+      'subjectType',
+      TODAY_HIDDEN_SUBJECT_TYPES,
+      existing?.subjectType
+    ),
+    subjectId: normalizeSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
+  }
+}
+
 export function normalizeInitiativePlanStatePayload(
   data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload,
-  existing?: InitiativePlanState,
+  existing?: InitiativePlanState
 ): Omit<InitiativePlanState, 'id' | 'createdAt' | 'updatedAt'> {
   const hasMonthRef = Object.prototype.hasOwnProperty.call(data, 'monthRef')
   const hasWeekRef = Object.prototype.hasOwnProperty.call(data, 'weekRef')
@@ -490,13 +519,13 @@ export function normalizeInitiativePlanStatePayload(
 
 export function normalizePeriodReflectionPayload(
   data: CreatePeriodReflectionPayload | UpdatePeriodReflectionPayload,
-  existing?: PeriodReflection,
+  existing?: PeriodReflection
 ): Omit<PeriodReflection, 'id' | 'createdAt' | 'updatedAt'> {
   const periodType = normalizeEnum(
     data.periodType,
     'periodType',
     REFLECTION_PERIOD_TYPES,
-    existing?.periodType,
+    existing?.periodType
   )
 
   return {
@@ -505,7 +534,7 @@ export function normalizePeriodReflectionPayload(
       periodType,
       data.periodRef,
       'periodRef',
-      existing?.periodRef,
+      existing?.periodRef
     ),
     note: normalizeTrimmedText(data.note, 'note', existing?.note),
   }
@@ -513,13 +542,13 @@ export function normalizePeriodReflectionPayload(
 
 export function normalizePeriodObjectReflectionPayload(
   data: CreatePeriodObjectReflectionPayload | UpdatePeriodObjectReflectionPayload,
-  existing?: PeriodObjectReflection,
+  existing?: PeriodObjectReflection
 ): Omit<PeriodObjectReflection, 'id' | 'createdAt' | 'updatedAt'> {
   const periodType = normalizeEnum(
     data.periodType,
     'periodType',
     REFLECTION_PERIOD_TYPES,
-    existing?.periodType,
+    existing?.periodType
   )
 
   return {
@@ -528,13 +557,13 @@ export function normalizePeriodObjectReflectionPayload(
       periodType,
       data.periodRef,
       'periodRef',
-      existing?.periodRef,
+      existing?.periodRef
     ),
     subjectType: normalizeEnum(
       data.subjectType,
       'subjectType',
       REFLECTION_SUBJECT_TYPES,
-      existing?.subjectType,
+      existing?.subjectType
     ),
     subjectId: normalizeReflectionSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
     note: normalizeTrimmedText(data.note, 'note', existing?.note),

@@ -66,7 +66,7 @@ describe('planningState Dexie repository', () => {
         subjectId: habit.id,
         activityState: 'active',
         scheduleScope: 'whole-week',
-      }),
+      })
     ).rejects.toThrow('Failed to persist measurement week state in database')
 
     await planningStateDexieRepository.upsertMeasurementMonthState({
@@ -128,7 +128,7 @@ describe('planningState Dexie repository', () => {
         activityState: 'active',
         scheduleScope: 'whole-month',
         successNote: 'Not allowed',
-      }),
+      })
     ).rejects.toThrow('Failed to persist measurement month state in database')
 
     await planningStateDexieRepository.upsertMeasurementMonthState({
@@ -144,7 +144,7 @@ describe('planningState Dexie repository', () => {
         dayRef,
         subjectType: 'habit',
         subjectId: habit.id,
-      }),
+      })
     ).rejects.toThrow('Failed to persist measurement day assignment in database')
 
     await planningStateDexieRepository.upsertMeasurementWeekState({
@@ -227,7 +227,7 @@ describe('planningState Dexie repository', () => {
         subjectId: tracker.id,
         dayRef,
         value: 1,
-      }),
+      })
     ).rejects.toThrow('Failed to persist daily measurement entry in database')
 
     const initiativeState = await planningStateDexieRepository.upsertInitiativePlanState({
@@ -237,5 +237,49 @@ describe('planningState Dexie repository', () => {
     })
 
     expect(initiativeState.initiativeId).toBe(initiative.id)
+  })
+
+  it('stores one hidden state per day and subject', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Deep work',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+    const initiative = await initiativeDexieRepository.create({
+      title: 'Ship Today view',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const dayRef = parsePeriodRef('2026-03-12') as DayRef
+
+    const created = await planningStateDexieRepository.upsertTodayHiddenState({
+      dayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
+    const updated = await planningStateDexieRepository.upsertTodayHiddenState({
+      dayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
+    await planningStateDexieRepository.upsertTodayHiddenState({
+      dayRef,
+      subjectType: 'initiative',
+      subjectId: initiative.id,
+    })
+
+    expect(updated.id).toBe(created.id)
+    expect(await planningStateDexieRepository.listTodayHiddenStates()).toHaveLength(2)
   })
 })

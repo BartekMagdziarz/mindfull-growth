@@ -7,6 +7,7 @@ import type {
   CreateMeasurementDayAssignmentPayload,
   CreateMeasurementMonthStatePayload,
   CreateMeasurementWeekStatePayload,
+  CreateTodayHiddenStatePayload,
   DailyMeasurementEntry,
   GoalMonthState,
   InitiativePlanState,
@@ -14,12 +15,15 @@ import type {
   MeasurementMonthState,
   MeasurementSubjectType,
   MeasurementWeekState,
+  TodayHiddenState,
+  TodayHiddenSubjectType,
   UpdateDailyMeasurementEntryPayload,
   UpdateGoalMonthStatePayload,
   UpdateInitiativePlanStatePayload,
   UpdateMeasurementDayAssignmentPayload,
   UpdateMeasurementMonthStatePayload,
   UpdateMeasurementWeekStatePayload,
+  UpdateTodayHiddenStatePayload,
 } from '@/domain/planningState'
 import {
   normalizeDailyMeasurementEntryPayload,
@@ -28,6 +32,7 @@ import {
   normalizeMeasurementDayAssignmentPayload,
   normalizeMeasurementMonthStatePayload,
   normalizeMeasurementWeekStatePayload,
+  normalizeTodayHiddenStatePayload,
 } from '@/domain/planningState'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import { getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
@@ -272,7 +277,9 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to get measurement day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
         error
       )
-      throw new Error(`Failed to retrieve measurement day assignment for ${subjectType}:${subjectId}`)
+      throw new Error(
+        `Failed to retrieve measurement day assignment for ${subjectType}:${subjectId}`
+      )
     }
   }
 
@@ -397,6 +404,76 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
   }
 
+  async getTodayHiddenState(
+    dayRef: DayRef,
+    subjectType: TodayHiddenSubjectType,
+    subjectId: string
+  ): Promise<TodayHiddenState | undefined> {
+    try {
+      return await this.db.todayHiddenStates
+        .where('[dayRef+subjectType+subjectId]')
+        .equals([dayRef, subjectType, subjectId])
+        .first()
+    } catch (error) {
+      console.error(
+        `Failed to get Today hidden state for ${subjectType}:${subjectId} on ${dayRef}:`,
+        error
+      )
+      throw new Error(`Failed to retrieve Today hidden state for ${subjectType}:${subjectId}`)
+    }
+  }
+
+  async listTodayHiddenStates(): Promise<TodayHiddenState[]> {
+    try {
+      return await this.db.todayHiddenStates.toArray()
+    } catch (error) {
+      console.error('Failed to list Today hidden states:', error)
+      throw new Error('Failed to retrieve Today hidden states from database')
+    }
+  }
+
+  async upsertTodayHiddenState(
+    data: CreateTodayHiddenStatePayload | UpdateTodayHiddenStatePayload
+  ): Promise<TodayHiddenState> {
+    try {
+      const existing = await this.findExistingTodayHiddenState(data)
+      const normalized = normalizeTodayHiddenStatePayload(data, existing)
+      await this.assertTodayHiddenStateAllowed(normalized)
+
+      if (existing) {
+        const updated = updatePlanningRecord(existing, normalized)
+        await this.db.todayHiddenStates.put(toPlain(updated))
+        return updated
+      }
+
+      const created = createPlanningRecord<TodayHiddenState>(normalized)
+      await this.db.todayHiddenStates.add(toPlain(created))
+      return created
+    } catch (error) {
+      console.error('Failed to upsert Today hidden state:', error)
+      throw new Error('Failed to persist Today hidden state in database')
+    }
+  }
+
+  async deleteTodayHiddenState(
+    dayRef: DayRef,
+    subjectType: TodayHiddenSubjectType,
+    subjectId: string
+  ): Promise<void> {
+    try {
+      const existing = await this.getTodayHiddenState(dayRef, subjectType, subjectId)
+      if (!existing) return
+
+      await this.db.todayHiddenStates.delete(existing.id)
+    } catch (error) {
+      console.error(
+        `Failed to delete Today hidden state for ${subjectType}:${subjectId} on ${dayRef}:`,
+        error
+      )
+      throw new Error(`Failed to delete Today hidden state for ${subjectType}:${subjectId}`)
+    }
+  }
+
   async getInitiativePlanState(initiativeId: string): Promise<InitiativePlanState | undefined> {
     try {
       return await this.db.initiativePlanStates.where('initiativeId').equals(initiativeId).first()
@@ -505,6 +582,16 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     return this.getDailyMeasurementEntry(data.subjectType, data.subjectId, data.dayRef)
   }
 
+  private async findExistingTodayHiddenState(
+    data: CreateTodayHiddenStatePayload | UpdateTodayHiddenStatePayload
+  ): Promise<TodayHiddenState | undefined> {
+    if (!data.dayRef || !data.subjectType || !data.subjectId) {
+      return undefined
+    }
+
+    return this.getTodayHiddenState(data.dayRef, data.subjectType, data.subjectId)
+  }
+
   private async findExistingInitiativePlanState(
     data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload
   ): Promise<InitiativePlanState | undefined> {
@@ -566,7 +653,10 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
   private async assertMeasurementWeekStateAllowed(
     normalized: Omit<MeasurementWeekState, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<void> {
-    const subject = await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+    const subject = await this.resolveMeasurementSubject(
+      normalized.subjectType,
+      normalized.subjectId
+    )
 
     if (normalized.subjectType === 'tracker' && normalized.successNote) {
       throw new Error('Tracker week state does not support successNote')
@@ -613,7 +703,10 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
   private async assertMeasurementDayAssignmentAllowed(
     normalized: Omit<MeasurementDayAssignment, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<void> {
-    const subject = await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+    const subject = await this.resolveMeasurementSubject(
+      normalized.subjectType,
+      normalized.subjectId
+    )
     const refs = getPeriodRefsForDate(normalized.dayRef)
 
     if (subject.cadence === 'monthly') {
@@ -644,14 +737,19 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       normalized.subjectId
     )
     if (weekState?.activityState !== 'active' || weekState.scheduleScope !== 'specific-days') {
-      throw new Error('Weekly cadence day assignments require an active week state with specific-days scope')
+      throw new Error(
+        'Weekly cadence day assignments require an active week state with specific-days scope'
+      )
     }
   }
 
   private async assertDailyMeasurementEntryAllowed(
     normalized: Omit<DailyMeasurementEntry, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<void> {
-    const subject = await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+    const subject = await this.resolveMeasurementSubject(
+      normalized.subjectType,
+      normalized.subjectId
+    )
 
     switch (subject.entryMode) {
       case 'completion':
@@ -675,6 +773,17 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         }
         return
     }
+  }
+
+  private async assertTodayHiddenStateAllowed(
+    normalized: Omit<TodayHiddenState, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<void> {
+    if (normalized.subjectType === 'initiative') {
+      await this.assertInitiativeExists(normalized.subjectId)
+      return
+    }
+
+    await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
   }
 
   private async assertInitiativeExists(initiativeId: string): Promise<void> {

@@ -1,5 +1,7 @@
 <template>
-  <header class="sticky top-0 z-50 bg-nav backdrop-blur border-b border-outline/30 shadow-elevation-1">
+  <header
+    class="sticky top-0 z-50 bg-nav backdrop-blur border-b border-outline/30 shadow-elevation-1"
+  >
     <div class="container mx-auto px-4">
       <div class="flex items-center gap-8 py-2">
         <!-- Left: Back button (when shown) and title -->
@@ -73,6 +75,7 @@ const route = useRoute()
 const { t } = useT()
 
 const navItems = computed<NavItem[]>(() => [
+  { path: '/today', label: t('common.nav.today') },
   { path: '/calendar', label: t('common.nav.calendar') },
   { path: '/objects/goals', label: t('common.nav.objects') },
   { path: '/journal', label: t('common.nav.journal') },

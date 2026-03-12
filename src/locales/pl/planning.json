@@ -156,6 +156,71 @@
       "planSuccess": "Utworzono rekord planu."
     }
   },
+  "today": {
+    "eyebrow": "Bieżący fokus",
+    "title": "Dzisiaj",
+    "subtitle": "Użyj dzisiejszego widoku jako wąskiej powierzchni wykonawczej dla przypisań dziennych, aktywnego tygodnia i kontekstu miesiąca.",
+    "summary": "{scheduled} zaplanowanych, {week} aktywnych w tygodniu, {month} aktywnych w miesiącu.",
+    "loadError": "Nie udało się wczytać widoku Dzisiaj.",
+    "sections": {
+      "scheduled": "Zaplanowane na dziś",
+      "scheduledDescription": "Tutaj trafiają tylko obiekty explicite przypisane do dzisiaj.",
+      "week": "Aktywne w tym tygodniu",
+      "weekDescription": "Tygodniowy kontekst, który nadal ma znaczenie dzisiaj.",
+      "month": "Aktywne w tym miesiącu",
+      "monthDescription": "Miesięczny i nieprzypisany kontekst, który pozostaje operacyjnie ważny dzisiaj."
+    },
+    "empty": {
+      "scheduled": "Nic nie jest explicite zaplanowane na dziś.",
+      "week": "Żaden tygodniowy kontekst nie wymaga teraz uwagi.",
+      "month": "Brak aktywnego kontekstu miesięcznego."
+    },
+    "details": {
+      "goal": "Cel: {title}",
+      "daysLeft": "Do końca okresu: {n} dni",
+      "section": {
+        "scheduled": "Jawne przypisanie dzienne",
+        "week": "Kontekst tygodnia",
+        "month": "Kontekst miesiąca"
+      }
+    },
+    "actions": {
+      "recordEntry": "Zapisz dziś",
+      "undoEntry": "Cofnij dzisiaj",
+      "clearEntry": "Wyczyść wpis",
+      "hideForToday": "Ukryj na dziś",
+      "restore": "Przywróć",
+      "moveToDay": "Przenieś na dzień",
+      "clearToday": "Usuń z dziś",
+      "showHiddenSection": "Pokaż ukryte",
+      "hideHiddenSection": "Ukryj listę",
+      "openContext": "Otwórz kontekst",
+      "increase": "Zwiększ wartość",
+      "decrease": "Zmniejsz wartość",
+      "input": {
+        "counter": "Dzisiejsza wartość licznika",
+        "value": "Dzisiejsza wartość",
+        "rating": "Dzisiejsza ocena"
+      }
+    },
+    "messages": {
+      "entrySaved": "Wpis zapisany.",
+      "entryCleared": "Wpis wyczyszczony.",
+      "hidden": "Ukryto na dziś.",
+      "restored": "Przywrócono do widoku Dzisiaj.",
+      "moved": "Przeniesiono na inny dzień.",
+      "scheduleCleared": "Usunięto przypisanie do dzisiaj.",
+      "deleted": "Obiekt usunięty."
+    },
+    "hidden": {
+      "title": "Ukryte na dziś ({n})",
+      "description": "Te elementy pozostają poza głównym feedem do jutra albo do ręcznego przywrócenia."
+    },
+    "deleteDialog": {
+      "title": "Usuń obiekt",
+      "message": "Usunąć „{title}” i zdjąć go z modelu planowania?"
+    }
+  },
   "objects": {
     "title": "Biblioteka obiektów",
     "subtitle": "Przeglądaj, filtruj i edytuj obiekty planowania bez wychodzenia poza jeden spójny model planu.",
@@ -164,6 +229,7 @@
     "panelPlaceholder": "Otwórz obiekt, aby zobaczyć szczegóły tutaj, albo utwórz nowy w aktywnej rodzinie.",
     "labels": {
       "goal": "Cel",
+      "keyResult": "Key result",
       "habit": "Nawyk",
       "tracker": "Tracker",
       "initiative": "Inicjatywa"
