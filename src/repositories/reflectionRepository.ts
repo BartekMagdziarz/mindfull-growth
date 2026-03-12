@@ -15,6 +15,7 @@ export interface ReflectionRepository {
     periodType: ReflectionPeriodType,
     periodRef: MonthRef | WeekRef
   ): Promise<PeriodReflection | undefined>
+  listPeriodReflections(): Promise<PeriodReflection[]>
   upsertPeriodReflection(
     data: CreatePeriodReflectionPayload | UpdatePeriodReflectionPayload
   ): Promise<PeriodReflection>

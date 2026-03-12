@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { getPeriodRefsForDate } from '@/utils/periods'
 
 const PUBLIC_ROUTES = ['login', 'signup']
 
@@ -27,6 +28,37 @@ const router = createRouter({
       redirect: '/journal',
     },
     {
+      path: '/calendar',
+      redirect: () => {
+        const { week } = getPeriodRefsForDate(new Date())
+        return { name: 'calendar-week', params: { weekRef: week } }
+      },
+    },
+    {
+      path: '/calendar/year/:yearRef',
+      name: 'calendar-year',
+      component: () => import('@/views/CalendarView.vue'),
+      props: (route) => ({ scale: 'year', periodRef: route.params.yearRef }),
+    },
+    {
+      path: '/calendar/month/:monthRef',
+      name: 'calendar-month',
+      component: () => import('@/views/CalendarView.vue'),
+      props: (route) => ({ scale: 'month', periodRef: route.params.monthRef }),
+    },
+    {
+      path: '/calendar/week/:weekRef',
+      name: 'calendar-week',
+      component: () => import('@/views/CalendarView.vue'),
+      props: (route) => ({ scale: 'week', periodRef: route.params.weekRef }),
+    },
+    {
+      path: '/calendar/day/:dayRef',
+      name: 'calendar-day',
+      component: () => import('@/views/CalendarView.vue'),
+      props: (route) => ({ scale: 'day', periodRef: route.params.dayRef }),
+    },
+    {
       path: '/journal',
       name: 'journal',
       component: () => import('@/views/JournalView.vue'),
@@ -48,15 +80,6 @@ const router = createRouter({
       meta: {
         title: 'Chat about entry',
       },
-    },
-    {
-      path: '/planning/:pathMatch(.*)*',
-      redirect: '/journal',
-    },
-    // Legacy periodic redirect - preserved for old deep links
-    {
-      path: '/periodic',
-      redirect: '/journal',
     },
     {
       path: '/emotions',

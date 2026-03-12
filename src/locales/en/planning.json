@@ -1,0 +1,134 @@
+{
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Navigate one planning workspace across year, month, week, and day.",
+    "invalidPeriod": "This calendar route points to an invalid period.",
+    "loadError": "Couldn't load the calendar workspace.",
+    "scales": {
+      "year": "Year",
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
+    },
+    "actions": {
+      "createPlan": "Create plan",
+      "editPlan": "Edit plan",
+      "viewPlanRecord": "View plan record",
+      "createReflection": "Create reflection",
+      "editReflection": "Edit reflection",
+      "openMonth": "Open month",
+      "openWeek": "Open week",
+      "openDay": "Open day",
+      "saveReflection": "Save reflection",
+      "createPlanRecord": "Create plan record"
+    },
+    "sections": {
+      "yearOverview": "Year overview",
+      "goals": "Goals",
+      "keyResults": "Key results",
+      "habits": "Habits",
+      "trackers": "Trackers",
+      "initiatives": "Initiatives",
+      "plannedThisWeek": "Planned this week",
+      "assignedToDays": "Assigned to days",
+      "toPlanThisWeek": "To plan this week",
+      "reflectionContext": "Reflection context",
+      "scheduledToday": "Scheduled today",
+      "trackerEntries": "Tracker entries today",
+      "activeThisWeek": "Active this week",
+      "monthlyContext": "Monthly context"
+    },
+    "summary": {
+      "yearPlan": "Year planning",
+      "yearReflection": "Year reflection",
+      "planReady": "Plan ready",
+      "planMissing": "No plan yet",
+      "reflectionReady": "Reflection ready",
+      "reflectionMissing": "No reflection yet",
+      "weeklyAlignment": "Weekly alignment",
+      "monthGuidance": "Month guidance"
+    },
+    "metrics": {
+      "activeGoals": "Active goals",
+      "activeCadenced": "Active KRs & habits",
+      "activeTrackers": "Active trackers",
+      "activeInitiatives": "Active initiatives",
+      "linkedKeyResults": "{n} linked key results"
+    },
+    "metricsShort": {
+      "activeGoals": "Goals",
+      "activeCadenced": "KR + habits",
+      "activeTrackers": "Trackers",
+      "activeInitiatives": "Initiatives"
+    },
+    "labels": {
+      "goal": "Goal"
+    },
+    "badges": {
+      "active": "Active",
+      "paused": "Paused",
+      "completed": "Completed",
+      "dropped": "Dropped",
+      "retired": "Retired",
+      "planned": "Planned",
+      "unplanned": "Unplanned",
+      "reflected": "Reflected",
+      "notReflected": "Not reflected",
+      "overAllocated": "Over-allocated",
+      "timesPerPeriod": "Times per period",
+      "specificDays": "Specific days",
+      "analysisWeek": "Weekly review",
+      "analysisMonth": "Monthly review",
+      "entryDay": "Daily entry",
+      "entryWeek": "Weekly entry",
+      "entryMonth": "Monthly entry",
+      "scheduledThisWeek": "Scheduled this week",
+      "scheduledThisDay": "Scheduled this day",
+      "needsPlacement": "Needs weekly placement"
+    },
+    "details": {
+      "target": "Target {n}",
+      "assignedDays": "{n} assigned days",
+      "weekSlots": {
+        "one": "{n} week slot",
+        "few": "{n} week slots",
+        "many": "{n} week slots"
+      },
+      "trackedEntries": "{n} entries",
+      "scheduledMonth": "Lives in this month",
+      "scheduledWeek": "Lives in this week",
+      "scheduledDay": "Scheduled for this day",
+      "emptyPlan": "The current planning model only stores whether this period plan exists.",
+      "emptyPlanExisting": "This period already has a plan record. Object-level planning lives in the grouped sections on the main surface.",
+      "yearPlaceholder": "Yearly planning and yearly reflection will live here later. In Epic 5 this panel stays informational only.",
+      "reflectionPlaceholder": "Capture the period note here. Object reflections stay attached to the same period.",
+      "createdAt": "Created",
+      "updatedAt": "Updated"
+    },
+    "empty": {
+      "generic": "Nothing to show here yet.",
+      "goals": "No active goals for this period.",
+      "keyResults": "No key results for this period.",
+      "habits": "No habits for this period.",
+      "trackers": "No trackers for this period.",
+      "initiatives": "No initiatives for this period.",
+      "reflection": "No reflection-relevant objects yet.",
+      "today": "No day assignments for this date.",
+      "trackerEntries": "No tracker entries for this date."
+    },
+    "panel": {
+      "closedTitle": "Open a panel",
+      "closedBody": "Create or edit the plan or reflection for the active period without overloading the calendar surface.",
+      "yearPlanTitle": "Year plan placeholder",
+      "yearReflectionTitle": "Year reflection placeholder",
+      "monthPlanTitle": "Month plan",
+      "weekPlanTitle": "Week plan",
+      "monthReflectionTitle": "Month reflection",
+      "weekReflectionTitle": "Week reflection",
+      "noteLabel": "Reflection note",
+      "notePlaceholder": "What mattered in this period?",
+      "saveSuccess": "Reflection saved.",
+      "planSuccess": "Plan record created."
+    }
+  }
+}

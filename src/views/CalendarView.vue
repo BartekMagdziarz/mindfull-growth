@@ -1,0 +1,1657 @@
+<template>
+  <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
+    <div class="mb-6 space-y-4">
+      <div class="px-1">
+        <h1 class="text-3xl font-semibold tracking-[-0.03em] text-on-surface md:text-[2.35rem]">
+          {{ activePeriodLabel }}
+        </h1>
+      </div>
+
+      <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+        <section class="neo-card px-5 py-4 md:px-6">
+          <div class="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              class="neo-control neo-focus"
+              :aria-label="t('common.buttons.back')"
+              @click="goToPreviousPeriod"
+            >
+              <ChevronLeftIcon class="h-4 w-4" />
+            </button>
+            <div class="neo-inset rounded-full px-4 py-2 text-sm font-semibold text-on-surface">
+              {{ activePeriodRangeLabel }}
+            </div>
+            <button
+              type="button"
+              class="neo-control neo-focus"
+              :aria-label="t('common.buttons.next')"
+              @click="goToNextPeriod"
+            >
+              <ChevronRightIcon class="h-4 w-4" />
+            </button>
+
+            <div class="hidden h-10 w-px rounded-full bg-outline/35 xl:block" />
+
+            <div class="neo-segmented">
+              <button
+                v-for="item in scaleOptions"
+                :key="item.scale"
+                type="button"
+                :class="[
+                  'neo-segmented__item neo-focus',
+                  item.scale === scale ? 'neo-segmented__item--active' : '',
+                ]"
+                @click="goToScale(item.scale)"
+              >
+                {{ item.label }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section
+          v-if="showHeaderActions"
+          class="neo-card px-5 py-4 md:px-6"
+        >
+          <div class="flex flex-wrap items-center gap-3 xl:justify-end">
+            <AppButton
+              v-if="showPlanAction"
+              :variant="planActionVariant"
+              @click="openPlanPanel"
+            >
+              <CalendarDaysIcon class="h-4 w-4" />
+              {{ planActionLabel }}
+            </AppButton>
+            <AppButton
+              v-if="showReflectionAction"
+              :variant="reflectionActionVariant"
+              @click="openReflectionPanel"
+            >
+              <SparklesIcon class="h-4 w-4" />
+              {{ reflectionActionLabel }}
+            </AppButton>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div
+      v-if="invalidRoute"
+      class="neo-card p-8 text-center text-on-surface"
+    >
+      <h2 class="text-xl font-semibold">
+        {{ t('planning.calendar.invalidPeriod') }}
+      </h2>
+    </div>
+
+    <div v-else :class="calendarLayoutClasses">
+      <div class="space-y-6">
+        <section
+          v-if="isLoading"
+          class="neo-card p-8 text-center text-on-surface-variant"
+        >
+          {{ t('common.loading') }}
+        </section>
+
+        <section
+          v-else-if="loadError"
+          class="neo-card p-8 text-center"
+        >
+          <h2 class="text-xl font-semibold text-on-surface">
+            {{ t('planning.calendar.loadError') }}
+          </h2>
+          <p class="mt-3 text-sm text-on-surface-variant">
+            {{ loadError }}
+          </p>
+        </section>
+
+        <template v-else>
+          <section
+            v-if="showSummaryMetrics"
+            class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4"
+          >
+            <div
+              v-for="metric in summaryMetrics"
+              :key="metric.label"
+              class="neo-inset rounded-[1.75rem] px-5 py-4"
+            >
+              <p class="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+                {{ metric.label }}
+              </p>
+              <p class="mt-3 text-2xl font-semibold text-on-surface">
+                {{ metric.value }}
+              </p>
+            </div>
+          </section>
+
+          <section v-if="scale === 'year'" class="space-y-4">
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <CalendarMonthSummaryCard
+                v-for="month in yearSummary?.months ?? []"
+                :key="month.monthRef"
+                :title="formatMonthTitle(month.monthRef)"
+                :badges="buildYearMonthBadges(month)"
+                :stats="buildYearMonthStats(month)"
+                @click="goToMonth(month.monthRef)"
+              />
+            </div>
+          </section>
+
+          <template v-else-if="scale === 'month' && monthPlanning">
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.goals') }}
+              </h2>
+              <div v-if="monthGoalCards.length > 0" class="grid gap-4 xl:grid-cols-2">
+                <CalendarGoalCard
+                  v-for="goal in monthGoalCards"
+                  :key="goal.key"
+                  :title="goal.title"
+                  :description="goal.description"
+                  :linked-label="goal.linkedLabel"
+                  :linked-count="goal.linkedCount"
+                  :badges="goal.badges"
+                />
+              </div>
+              <div
+                v-else
+                class="neo-card p-6 text-sm text-on-surface-variant"
+              >
+                {{ t('planning.calendar.empty.goals') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.keyResults') }}
+              </h2>
+              <div v-if="monthKeyResultCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in monthKeyResultCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div
+                v-else
+                class="neo-card p-6 text-sm text-on-surface-variant"
+              >
+                {{ t('planning.calendar.empty.keyResults') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.habits') }}
+              </h2>
+              <div v-if="monthHabitCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in monthHabitCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div
+                v-else
+                class="neo-card p-6 text-sm text-on-surface-variant"
+              >
+                {{ t('planning.calendar.empty.habits') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.trackers') }}
+              </h2>
+              <div v-if="monthTrackerCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in monthTrackerCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div
+                v-else
+                class="neo-card p-6 text-sm text-on-surface-variant"
+              >
+                {{ t('planning.calendar.empty.trackers') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.initiatives') }}
+              </h2>
+              <div v-if="monthInitiativeCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in monthInitiativeCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div
+                v-else
+                class="neo-card p-6 text-sm text-on-surface-variant"
+              >
+                {{ t('planning.calendar.empty.initiatives') }}
+              </div>
+            </section>
+          </template>
+
+          <template v-else-if="scale === 'week' && weekPlanning && weekReflection">
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.plannedThisWeek') }}
+              </h2>
+              <div v-if="weekPlannedCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in weekPlannedCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
+                {{ t('planning.calendar.empty.generic') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.assignedToDays') }}
+              </h2>
+              <div v-if="weekAssignedCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in weekAssignedCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
+                {{ t('planning.calendar.empty.generic') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.toPlanThisWeek') }}
+              </h2>
+              <div v-if="weekToPlanCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in weekToPlanCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                  highlight
+                />
+              </div>
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
+                {{ t('planning.calendar.empty.generic') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.reflectionContext') }}
+              </h2>
+              <div v-if="weekReflectionGoalCards.length > 0" class="grid gap-4 xl:grid-cols-2">
+                <CalendarGoalCard
+                  v-for="goal in weekReflectionGoalCards"
+                  :key="goal.key"
+                  :title="goal.title"
+                  :description="goal.description"
+                  :linked-label="goal.linkedLabel"
+                  :linked-count="goal.linkedCount"
+                  :badges="goal.badges"
+                />
+              </div>
+              <div v-if="weekReflectionCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in weekReflectionCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div
+                v-if="weekReflectionGoalCards.length === 0 && weekReflectionCards.length === 0"
+                class="neo-card p-6 text-sm text-on-surface-variant"
+              >
+                {{ t('planning.calendar.empty.reflection') }}
+              </div>
+            </section>
+          </template>
+
+          <template v-else-if="scale === 'day' && dayBundle">
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.scheduledToday') }}
+              </h2>
+              <div v-if="dayScheduledCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in dayScheduledCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                  highlight
+                />
+              </div>
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
+                {{ t('planning.calendar.empty.today') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.trackerEntries') }}
+              </h2>
+              <div v-if="dayTrackerEntryCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in dayTrackerEntryCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
+                {{ t('planning.calendar.empty.trackerEntries') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.activeThisWeek') }}
+              </h2>
+              <div v-if="dayWeekContextCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in dayWeekContextCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
+                {{ t('planning.calendar.empty.generic') }}
+              </div>
+            </section>
+
+            <section class="space-y-4">
+              <h2 class="text-xl font-semibold text-on-surface">
+                {{ t('planning.calendar.sections.monthlyContext') }}
+              </h2>
+              <div v-if="dayMonthGoalCards.length > 0" class="grid gap-4 xl:grid-cols-2">
+                <CalendarGoalCard
+                  v-for="goal in dayMonthGoalCards"
+                  :key="goal.key"
+                  :title="goal.title"
+                  :description="goal.description"
+                  :linked-label="goal.linkedLabel"
+                  :linked-count="goal.linkedCount"
+                  :badges="goal.badges"
+                />
+              </div>
+              <div v-if="dayMonthContextCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+                <CalendarItemCard
+                  v-for="card in dayMonthContextCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :eyebrow="card.eyebrow"
+                  :description="card.description"
+                  :badges="card.badges"
+                  :details="card.details"
+                />
+              </div>
+              <div
+                v-if="dayMonthGoalCards.length === 0 && dayMonthContextCards.length === 0"
+                class="neo-card p-6 text-sm text-on-surface-variant"
+              >
+                {{ t('planning.calendar.empty.generic') }}
+              </div>
+            </section>
+          </template>
+        </template>
+      </div>
+
+      <CalendarSidePanel
+        v-if="panelState"
+        :open="Boolean(panelState)"
+        :title="panelTitle"
+        :body="panelBody"
+        :meta="panelMeta"
+        :show-note-field="panelShowsNoteField"
+        :note="reflectionNote"
+        :note-label="t('planning.calendar.panel.noteLabel')"
+        :note-placeholder="t('planning.calendar.panel.notePlaceholder')"
+        :show-confirm="panelShowsConfirm"
+        :confirm-label="panelConfirmLabel"
+        :confirm-disabled="panelConfirmDisabled"
+        :close-label="t('common.buttons.close')"
+        :saving="panelSaving"
+        :saving-label="t('common.saving')"
+        :empty-title="t('planning.calendar.panel.closedTitle')"
+        :empty-body="t('planning.calendar.panel.closedBody')"
+        @close="closePanel"
+        @confirm="submitPanel"
+        @update:note="reflectionNote = $event"
+      >
+        <div
+          v-if="panelMode === 'plan' && currentPlanRecord"
+          class="neo-inset rounded-[1.75rem] p-4 text-sm leading-6 text-on-surface-variant"
+        >
+          {{ t('planning.calendar.details.emptyPlanExisting') }}
+        </div>
+        <div
+          v-else-if="panelMode === 'plan'"
+          class="neo-inset rounded-[1.75rem] p-4 text-sm leading-6 text-on-surface-variant"
+        >
+          {{ t('planning.calendar.details.emptyPlan') }}
+        </div>
+        <div
+          v-else-if="panelKind.startsWith('year')"
+          class="neo-inset rounded-[1.75rem] p-4 text-sm leading-6 text-on-surface-variant"
+        >
+          {{ t('planning.calendar.details.yearPlaceholder') }}
+        </div>
+        <div
+          v-else-if="panelMode === 'reflection'"
+          class="neo-inset rounded-[1.75rem] p-4 text-sm leading-6 text-on-surface-variant"
+        >
+          {{ t('planning.calendar.details.reflectionPlaceholder') }}
+        </div>
+      </CalendarSidePanel>
+    </div>
+
+    <AppSnackbar ref="snackbarRef" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
+import type {
+  MonthPlanningBundle,
+  WeekCadencedPlanningItem,
+  WeekInitiativePlanningItem,
+  WeekPlanningBundle,
+  WeekReflectionBundle,
+  WeekTrackerReflectionItem,
+  WeekTrackerPlanningItem,
+} from '@/services/planningStateQueries'
+import type {
+  CalendarYearMonthSummary,
+  CalendarYearSummary,
+  DayCalendarBundle,
+  MonthReflectionBundle,
+} from '@/services/calendarViewQueries'
+import AppButton from '@/components/AppButton.vue'
+import AppSnackbar from '@/components/AppSnackbar.vue'
+import CalendarGoalCard from '@/components/calendar/CalendarGoalCard.vue'
+import CalendarItemCard from '@/components/calendar/CalendarItemCard.vue'
+import CalendarMonthSummaryCard from '@/components/calendar/CalendarMonthSummaryCard.vue'
+import CalendarSidePanel from '@/components/calendar/CalendarSidePanel.vue'
+import { useT } from '@/composables/useT'
+import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
+import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
+import {
+  countGoalKeyResults,
+  filterUnscheduledMonthInitiatives,
+  getCalendarYearSummary,
+  getDayCalendarBundle,
+  getMonthReflectionBundle,
+  hasObjectReflection,
+  splitMonthCadencedItems,
+  splitWeekCadencedItems,
+  splitWeekInitiativeItems,
+  splitWeekTrackerItems,
+} from '@/services/calendarViewQueries'
+import {
+  getMonthPlanningBundle,
+  getWeekPlanningBundle,
+  getWeekReflectionBundle,
+} from '@/services/planningStateQueries'
+import {
+  containsDay,
+  getNextPeriod,
+  getPeriodBounds,
+  getPeriodType,
+  getPreviousPeriod,
+  parsePeriodRef,
+  zoomPeriod,
+} from '@/utils/periods'
+import {
+  CalendarDaysIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  SparklesIcon,
+} from '@heroicons/vue/24/outline'
+
+type CalendarScale = 'year' | 'month' | 'week' | 'day'
+type BadgeTone = 'default' | 'accent' | 'success' | 'warning' | 'danger'
+type PanelKind =
+  | 'year-plan'
+  | 'year-reflection'
+  | 'month-plan'
+  | 'month-reflection'
+  | 'week-plan'
+  | 'week-reflection'
+
+interface BadgeModel {
+  label: string
+  tone?: BadgeTone
+}
+
+interface MetricModel {
+  label: string
+  value: string
+}
+
+interface ItemCardModel {
+  key: string
+  title: string
+  eyebrow: string
+  description?: string
+  badges: BadgeModel[]
+  details: string[]
+}
+
+interface GoalCardModel {
+  key: string
+  title: string
+  description?: string
+  linkedLabel: string
+  linkedCount: number
+  badges: string[]
+}
+
+interface Props {
+  scale: CalendarScale
+  periodRef: string
+}
+
+const props = defineProps<Props>()
+
+const router = useRouter()
+const { t, tp, locale } = useT()
+const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
+
+const isLoading = ref(true)
+const loadError = ref<string | null>(null)
+const yearSummary = ref<CalendarYearSummary | null>(null)
+const monthPlanning = ref<MonthPlanningBundle | null>(null)
+const monthReflection = ref<MonthReflectionBundle | null>(null)
+const weekPlanning = ref<WeekPlanningBundle | null>(null)
+const weekReflection = ref<WeekReflectionBundle | null>(null)
+const dayBundle = ref<DayCalendarBundle | null>(null)
+const anchorDay = ref<DayRef | null>(null)
+const panelState = ref<PanelKind | null>(null)
+const reflectionNote = ref('')
+const panelSaving = ref(false)
+
+const parsedPeriodRef = computed<PeriodRef | null>(() => {
+  try {
+    const parsed = parsePeriodRef(props.periodRef)
+    return getPeriodType(parsed) === props.scale ? parsed : null
+  } catch {
+    return null
+  }
+})
+const scale = computed(() => props.scale)
+
+const invalidRoute = computed(() => parsedPeriodRef.value === null)
+
+const calendarLayoutClasses = computed(() => [
+  'grid gap-6',
+  panelState.value ? 'xl:grid-cols-[minmax(0,1fr)_24rem]' : 'grid-cols-1',
+])
+
+const scaleOptions = computed(() => [
+  { scale: 'year' as const, label: t('planning.calendar.scales.year') },
+  { scale: 'month' as const, label: t('planning.calendar.scales.month') },
+  { scale: 'week' as const, label: t('planning.calendar.scales.week') },
+  { scale: 'day' as const, label: t('planning.calendar.scales.day') },
+])
+
+const currentBounds = computed(() =>
+  parsedPeriodRef.value ? getPeriodBounds(parsedPeriodRef.value) : null
+)
+
+const currentPlanRecord = computed(() => {
+  if (props.scale === 'month') {
+    return monthPlanning.value?.monthPlan
+  }
+
+  if (props.scale === 'week') {
+    return weekPlanning.value?.weekPlan
+  }
+
+  return undefined
+})
+
+const currentReflectionRecord = computed(() => {
+  if (props.scale === 'month') {
+    return monthReflection.value?.periodReflection
+  }
+
+  if (props.scale === 'week') {
+    return weekReflection.value?.periodReflection
+  }
+
+  return undefined
+})
+
+const activePeriodLabel = computed(() => {
+  if (!parsedPeriodRef.value) {
+    return t('planning.calendar.title')
+  }
+
+  switch (props.scale) {
+    case 'year':
+      return parsedPeriodRef.value as string
+    case 'month':
+      return formatMonthTitle(parsedPeriodRef.value as MonthRef)
+    case 'week':
+      return formatWeekTitle(parsedPeriodRef.value as WeekRef)
+    case 'day':
+      return formatDayTitle(parsedPeriodRef.value as DayRef)
+  }
+})
+
+const activePeriodRangeLabel = computed(() => {
+  if (!currentBounds.value) {
+    return ''
+  }
+
+  if (props.scale === 'day') {
+    return formatDayRange(currentBounds.value.start)
+  }
+
+  return `${formatDayRange(currentBounds.value.start)} - ${formatDayRange(currentBounds.value.end)}`
+})
+
+const showPlanAction = computed(() => props.scale === 'year' || props.scale === 'month' || props.scale === 'week')
+const showReflectionAction = computed(
+  () => props.scale === 'year' || props.scale === 'month' || props.scale === 'week'
+)
+const showHeaderActions = computed(() => showPlanAction.value || showReflectionAction.value)
+
+const planActionLabel = computed(() =>
+  currentPlanRecord.value
+    ? t('planning.calendar.actions.viewPlanRecord')
+    : t('planning.calendar.actions.createPlan')
+)
+
+const reflectionActionLabel = computed(() =>
+  currentReflectionRecord.value
+    ? t('planning.calendar.actions.editReflection')
+    : t('planning.calendar.actions.createReflection')
+)
+
+const planActionVariant = computed<'filled' | 'tonal'>(() =>
+  currentPlanRecord.value ? 'tonal' : 'filled'
+)
+const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
+  if (!currentPlanRecord.value) {
+    return 'tonal'
+  }
+
+  return currentReflectionRecord.value ? 'tonal' : 'filled'
+})
+
+const summaryMetrics = computed<MetricModel[]>(() => {
+  if (props.scale === 'year' && yearSummary.value) {
+    return [
+      {
+        label: t('planning.calendar.metrics.activeGoals'),
+        value: String(yearSummary.value.totals.activeGoalCount),
+      },
+      {
+        label: t('planning.calendar.metrics.activeCadenced'),
+        value: String(yearSummary.value.totals.activeCadencedCount),
+      },
+      {
+        label: t('planning.calendar.metrics.activeTrackers'),
+        value: String(yearSummary.value.totals.activeTrackerCount),
+      },
+      {
+        label: t('planning.calendar.metrics.activeInitiatives'),
+        value: String(yearSummary.value.totals.activeInitiativeCount),
+      },
+    ]
+  }
+
+  if (props.scale === 'month' && monthPlanning.value) {
+    return [
+      {
+        label: t('planning.calendar.metrics.activeGoals'),
+        value: String(monthPlanning.value.goalItems.length),
+      },
+      {
+        label: t('planning.calendar.metrics.activeCadenced'),
+        value: String(monthPlanning.value.cadencedItems.length),
+      },
+      {
+        label: t('planning.calendar.metrics.activeTrackers'),
+        value: String(monthPlanning.value.trackerItems.length),
+      },
+      {
+        label: t('planning.calendar.metrics.activeInitiatives'),
+        value: String(monthPlanning.value.initiativeItems.length),
+      },
+    ]
+  }
+
+  if (props.scale === 'week' && weekPlanning.value && weekReflection.value) {
+    return [
+      {
+        label: t('planning.calendar.summary.planReady'),
+        value: weekPlanning.value.weekPlan ? '1' : '0',
+      },
+      {
+        label: t('planning.calendar.summary.reflectionReady'),
+        value: weekReflection.value.periodReflection ? '1' : '0',
+      },
+      {
+        label: t('planning.calendar.sections.plannedThisWeek'),
+        value: String(weekPlannedCards.value.length),
+      },
+      {
+        label: t('planning.calendar.sections.toPlanThisWeek'),
+        value: String(weekToPlanCards.value.length),
+      },
+    ]
+  }
+
+  if (props.scale === 'day' && dayBundle.value) {
+    return [
+      {
+        label: t('planning.calendar.sections.scheduledToday'),
+        value: String(dayScheduledCards.value.length),
+      },
+      {
+        label: t('planning.calendar.sections.trackerEntries'),
+        value: String(dayTrackerEntryCards.value.length),
+      },
+      {
+        label: t('planning.calendar.sections.activeThisWeek'),
+        value: String(dayWeekContextCards.value.length),
+      },
+      {
+        label: t('planning.calendar.sections.monthlyContext'),
+        value: String(dayMonthGoalCards.value.length + dayMonthContextCards.value.length),
+      },
+    ]
+  }
+
+  return []
+})
+
+const showSummaryMetrics = computed(() =>
+  summaryMetrics.value.some((metric) => Number(metric.value) > 0)
+)
+
+const monthSplit = computed(() =>
+  monthPlanning.value ? splitMonthCadencedItems(monthPlanning.value) : { keyResults: [], habits: [] }
+)
+
+const monthGoalCards = computed<GoalCardModel[]>(() => {
+  const planning = monthPlanning.value
+  const reflection = monthReflection.value
+
+  if (!planning || !reflection) {
+    return []
+  }
+
+  return planning.goalItems.map((item) => ({
+    key: item.goal.id,
+    title: item.goal.title,
+    description: item.goal.description,
+    linkedLabel: t('planning.calendar.sections.keyResults'),
+    linkedCount: countGoalKeyResults(item.goal.id, planning.cadencedItems),
+    badges: [
+      item.state.activityState === 'active'
+        ? t('planning.calendar.badges.active')
+        : t('planning.calendar.badges.paused'),
+      ...(hasObjectReflection('goal', item.goal.id, reflection.objectReflections)
+        ? [t('planning.calendar.badges.reflected')]
+        : []),
+    ],
+  }))
+})
+
+const monthKeyResultCards = computed<ItemCardModel[]>(() =>
+  monthSplit.value.keyResults.map((item) =>
+    buildCadencedCard(item, 'month', monthReflection.value?.objectReflections ?? [])
+  )
+)
+
+const monthHabitCards = computed<ItemCardModel[]>(() =>
+  monthSplit.value.habits.map((item) =>
+    buildCadencedCard(item, 'month', monthReflection.value?.objectReflections ?? [])
+  )
+)
+
+const monthTrackerCards = computed<ItemCardModel[]>(() =>
+  (monthPlanning.value?.trackerItems ?? []).map((item) =>
+    buildTrackerCard(item, 'month', monthReflection.value?.objectReflections ?? [])
+  )
+)
+
+const monthInitiativeCards = computed<ItemCardModel[]>(() =>
+  (monthPlanning.value?.initiativeItems ?? []).map((item) =>
+    buildInitiativeCard(item, 'month', monthReflection.value?.objectReflections ?? [])
+  )
+)
+
+const weekCadencedSplit = computed(() =>
+  weekPlanning.value
+    ? splitWeekCadencedItems(weekPlanning.value.relevant.cadencedItems)
+    : { plannedThisWeek: [], assignedToDays: [], toPlanThisWeek: [] }
+)
+const weekInitiativeSplit = computed(() =>
+  weekPlanning.value
+    ? splitWeekInitiativeItems(weekPlanning.value.relevant.initiativeItems)
+    : { plannedThisWeek: [], assignedToDays: [], toPlanThisWeek: [] }
+)
+const weekTrackerSplit = computed(() =>
+  weekPlanning.value
+    ? splitWeekTrackerItems(weekPlanning.value.relevant.trackerItems)
+    : { plannedThisWeek: [], toPlanThisWeek: [] }
+)
+
+const weekPlannedCards = computed<ItemCardModel[]>(() => [
+  ...weekCadencedSplit.value.plannedThisWeek.map((item) =>
+    buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ),
+  ...weekTrackerSplit.value.plannedThisWeek.map((item) =>
+    buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ),
+  ...weekInitiativeSplit.value.plannedThisWeek.map((item) =>
+    buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ),
+])
+
+const weekAssignedCards = computed<ItemCardModel[]>(() => [
+  ...weekCadencedSplit.value.assignedToDays.map((item) =>
+    buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ),
+  ...weekInitiativeSplit.value.assignedToDays.map((item) =>
+    buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ),
+])
+
+const weekToPlanCards = computed<ItemCardModel[]>(() => [
+  ...weekCadencedSplit.value.toPlanThisWeek.map((item) =>
+    buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ),
+  ...weekTrackerSplit.value.toPlanThisWeek.map((item) =>
+    buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ),
+  ...weekInitiativeSplit.value.toPlanThisWeek.map((item) =>
+    buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ),
+])
+
+const weekReflectionGoalCards = computed<GoalCardModel[]>(() => {
+  const reflection = weekReflection.value
+  const planning = weekPlanning.value
+
+  if (!reflection || !planning) {
+    return []
+  }
+
+  return reflection.relevant.goalItems.map((item) => ({
+    key: item.goal.id,
+    title: item.goal.title,
+    description: item.goal.description,
+    linkedLabel: t('planning.calendar.sections.keyResults'),
+    linkedCount: countGoalKeyResults(item.goal.id, planning.relevant.cadencedItems),
+    badges: hasObjectReflection('goal', item.goal.id, reflection.objectReflections)
+      ? [t('planning.calendar.badges.reflected')]
+      : [],
+  }))
+})
+
+const weekReflectionCards = computed<ItemCardModel[]>(() => {
+  if (!weekReflection.value) {
+    return []
+  }
+
+  return [
+    ...weekReflection.value.relevant.cadencedItems.map((item) =>
+      buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+    ),
+    ...weekReflection.value.relevant.trackerItems.map((item) =>
+      buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+    ),
+    ...weekReflection.value.relevant.initiativeItems.map((item) =>
+      buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+    ),
+  ]
+})
+
+const dayScheduledCards = computed<ItemCardModel[]>(() => {
+  if (!dayBundle.value) {
+    return []
+  }
+
+  return [
+    ...dayBundle.value.scheduledCadencedItems.map((item) =>
+      buildCadencedCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
+    ),
+    ...dayBundle.value.scheduledInitiativeItems.map((item) =>
+      buildInitiativeCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
+    ),
+  ]
+})
+
+const dayTrackerEntryCards = computed<ItemCardModel[]>(() => {
+  if (!dayBundle.value) {
+    return []
+  }
+
+  const trackerNames = new Map(
+    dayBundle.value.weekReflection.relevant.trackerItems.map((item) => [item.tracker.id, item.tracker.title])
+  )
+
+  return dayBundle.value.trackerEntriesToday.map((entry) => ({
+    key: `${entry.trackerId}:${entry.periodRef}`,
+    title: trackerNames.get(entry.trackerId) ?? t('planning.calendar.sections.trackers'),
+    eyebrow: t('planning.calendar.sections.trackerEntries'),
+    badges: [
+      entry.value !== null ? { label: String(entry.value), tone: 'accent' } : { label: t('common.none') },
+    ],
+    details: [entry.note ?? t('planning.calendar.badges.entryDay')],
+  }))
+})
+
+const dayWeekContextCards = computed<ItemCardModel[]>(() => {
+  if (!dayBundle.value) {
+    return []
+  }
+
+  return [
+    ...dayBundle.value.contextCadencedItems.map((item) =>
+      buildCadencedCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
+    ),
+    ...dayBundle.value.contextTrackerItems.map((item) =>
+      buildTrackerCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
+    ),
+    ...dayBundle.value.contextInitiativeItems.map((item) =>
+      buildInitiativeCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
+    ),
+  ]
+})
+
+const dayMonthGoalCards = computed<GoalCardModel[]>(() => {
+  const bundle = dayBundle.value
+
+  if (!bundle) {
+    return []
+  }
+
+  return bundle.monthPlanning.goalItems.map((item) => ({
+    key: item.goal.id,
+    title: item.goal.title,
+    description: item.goal.description,
+    linkedLabel: t('planning.calendar.sections.keyResults'),
+    linkedCount: countGoalKeyResults(item.goal.id, bundle.monthPlanning.cadencedItems),
+    badges: [
+      item.state.activityState === 'active'
+        ? t('planning.calendar.badges.active')
+        : t('planning.calendar.badges.paused'),
+      ...(hasObjectReflection(
+        'goal',
+        item.goal.id,
+        bundle.monthReflection.objectReflections
+      )
+        ? [t('planning.calendar.badges.reflected')]
+        : []),
+    ],
+  }))
+})
+
+const dayMonthContextCards = computed<ItemCardModel[]>(() => {
+  if (!dayBundle.value) {
+    return []
+  }
+
+  return filterUnscheduledMonthInitiatives(
+    dayBundle.value.monthPlanning.initiativeItems,
+    dayBundle.value.dayRef
+  ).map((item) =>
+    buildInitiativeCard(item, 'month', dayBundle.value?.monthReflection.objectReflections ?? [])
+  )
+})
+
+const panelKind = computed(() => panelState.value ?? 'month-plan')
+const panelMode = computed<'plan' | 'reflection'>(() =>
+  panelKind.value.includes('reflection') ? 'reflection' : 'plan'
+)
+
+const panelTitle = computed(() => {
+  switch (panelKind.value) {
+    case 'year-plan':
+      return t('planning.calendar.panel.yearPlanTitle')
+    case 'year-reflection':
+      return t('planning.calendar.panel.yearReflectionTitle')
+    case 'month-plan':
+      return t('planning.calendar.panel.monthPlanTitle')
+    case 'month-reflection':
+      return t('planning.calendar.panel.monthReflectionTitle')
+    case 'week-plan':
+      return t('planning.calendar.panel.weekPlanTitle')
+    case 'week-reflection':
+      return t('planning.calendar.panel.weekReflectionTitle')
+  }
+})
+
+const panelBody = computed(() => {
+  if (panelKind.value.startsWith('year')) {
+    return t('planning.calendar.details.yearPlaceholder')
+  }
+
+  if (panelMode.value === 'plan') {
+    return currentPlanRecord.value
+      ? t('planning.calendar.details.emptyPlanExisting')
+      : t('planning.calendar.details.emptyPlan')
+  }
+
+  return t('planning.calendar.details.reflectionPlaceholder')
+})
+
+const panelMeta = computed(() => {
+  const items: Array<{ label: string; value: string }> = [
+    { label: t('planning.calendar.title'), value: activePeriodLabel.value },
+  ]
+
+  if (currentPlanRecord.value) {
+    items.push(
+      {
+        label: t('planning.calendar.details.createdAt'),
+        value: formatTimestamp(currentPlanRecord.value.createdAt),
+      },
+      {
+        label: t('planning.calendar.details.updatedAt'),
+        value: formatTimestamp(currentPlanRecord.value.updatedAt),
+      }
+    )
+  } else if (currentReflectionRecord.value) {
+    items.push(
+      {
+        label: t('planning.calendar.details.createdAt'),
+        value: formatTimestamp(currentReflectionRecord.value.createdAt),
+      },
+      {
+        label: t('planning.calendar.details.updatedAt'),
+        value: formatTimestamp(currentReflectionRecord.value.updatedAt),
+      }
+    )
+  }
+
+  return items
+})
+
+const panelShowsNoteField = computed(
+  () => Boolean(panelState.value) && panelMode.value === 'reflection' && !panelKind.value.startsWith('year')
+)
+const panelShowsConfirm = computed(() => {
+  if (!panelState.value) {
+    return false
+  }
+
+  if (panelKind.value.startsWith('year')) {
+    return false
+  }
+
+  if (panelMode.value === 'plan') {
+    return !currentPlanRecord.value
+  }
+
+  return true
+})
+const panelConfirmLabel = computed(() =>
+  panelMode.value === 'reflection'
+    ? t('planning.calendar.actions.saveReflection')
+    : t('planning.calendar.actions.createPlanRecord')
+)
+const panelConfirmDisabled = computed(
+  () => panelMode.value === 'reflection' && reflectionNote.value.trim().length === 0
+)
+
+watch(
+  () => [props.scale, props.periodRef] as const,
+  async () => {
+    panelState.value = null
+    reflectionNote.value = ''
+    await loadCalendarData()
+  },
+  { immediate: true }
+)
+
+async function loadCalendarData() {
+  yearSummary.value = null
+  monthPlanning.value = null
+  monthReflection.value = null
+  weekPlanning.value = null
+  weekReflection.value = null
+  dayBundle.value = null
+  loadError.value = null
+
+  if (!parsedPeriodRef.value) {
+    isLoading.value = false
+    return
+  }
+
+  syncAnchorDay(parsedPeriodRef.value)
+  isLoading.value = true
+
+  try {
+    switch (props.scale) {
+      case 'year':
+        yearSummary.value = await getCalendarYearSummary(parsedPeriodRef.value as YearRef)
+        break
+      case 'month':
+        ;[monthPlanning.value, monthReflection.value] = await Promise.all([
+          getMonthPlanningBundle(parsedPeriodRef.value as MonthRef),
+          getMonthReflectionBundle(parsedPeriodRef.value as MonthRef),
+        ])
+        break
+      case 'week':
+        ;[weekPlanning.value, weekReflection.value] = await Promise.all([
+          getWeekPlanningBundle(parsedPeriodRef.value as WeekRef),
+          getWeekReflectionBundle(parsedPeriodRef.value as WeekRef),
+        ])
+        break
+      case 'day':
+        dayBundle.value = await getDayCalendarBundle(parsedPeriodRef.value as DayRef)
+        break
+    }
+  } catch (error) {
+    loadError.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function syncAnchorDay(periodRef: PeriodRef) {
+  if (props.scale === 'day') {
+    anchorDay.value = periodRef as DayRef
+    return
+  }
+
+  if (!anchorDay.value || !containsDay(periodRef, anchorDay.value)) {
+    anchorDay.value = getPeriodBounds(periodRef).start
+  }
+}
+
+function goToPreviousPeriod() {
+  if (!parsedPeriodRef.value) {
+    return
+  }
+
+  navigateTo(props.scale, getPreviousPeriod(parsedPeriodRef.value))
+}
+
+function goToNextPeriod() {
+  if (!parsedPeriodRef.value) {
+    return
+  }
+
+  navigateTo(props.scale, getNextPeriod(parsedPeriodRef.value))
+}
+
+function goToScale(targetScale: CalendarScale) {
+  if (!parsedPeriodRef.value) {
+    return
+  }
+
+  const nextRef =
+    targetScale === 'day' && anchorDay.value
+      ? anchorDay.value
+      : zoomPeriod(parsedPeriodRef.value, targetScale, anchorDay.value ?? undefined)
+  navigateTo(targetScale, nextRef)
+}
+
+function goToMonth(monthRef: MonthRef) {
+  anchorDay.value = getPeriodBounds(monthRef).start
+  navigateTo('month', monthRef)
+}
+
+function navigateTo(scale: CalendarScale, periodRef: PeriodRef) {
+  switch (scale) {
+    case 'year':
+      router.push({ name: 'calendar-year', params: { yearRef: periodRef } })
+      break
+    case 'month':
+      router.push({ name: 'calendar-month', params: { monthRef: periodRef } })
+      break
+    case 'week':
+      router.push({ name: 'calendar-week', params: { weekRef: periodRef } })
+      break
+    case 'day':
+      router.push({ name: 'calendar-day', params: { dayRef: periodRef } })
+      break
+  }
+}
+
+function openPlanPanel() {
+  switch (props.scale) {
+    case 'year':
+      panelState.value = 'year-plan'
+      break
+    case 'month':
+      panelState.value = 'month-plan'
+      break
+    case 'week':
+      panelState.value = 'week-plan'
+      break
+  }
+}
+
+function openReflectionPanel() {
+  switch (props.scale) {
+    case 'year':
+      panelState.value = 'year-reflection'
+      reflectionNote.value = ''
+      break
+    case 'month':
+      panelState.value = 'month-reflection'
+      reflectionNote.value = monthReflection.value?.periodReflection?.note ?? ''
+      break
+    case 'week':
+      panelState.value = 'week-reflection'
+      reflectionNote.value = weekReflection.value?.periodReflection?.note ?? ''
+      break
+  }
+}
+
+function closePanel() {
+  panelState.value = null
+  reflectionNote.value = ''
+}
+
+async function submitPanel() {
+  if (!parsedPeriodRef.value || !panelState.value || panelKind.value.startsWith('year')) {
+    return
+  }
+
+  panelSaving.value = true
+
+  try {
+    switch (panelKind.value) {
+      case 'month-plan':
+        if (!monthPlanning.value?.monthPlan) {
+          await periodPlanDexieRepository.createMonthPlan({
+            monthRef: parsedPeriodRef.value as MonthRef,
+          })
+          snackbarRef.value?.show(t('planning.calendar.panel.planSuccess'))
+        }
+        break
+      case 'week-plan':
+        if (!weekPlanning.value?.weekPlan) {
+          await periodPlanDexieRepository.createWeekPlan({
+            weekRef: parsedPeriodRef.value as WeekRef,
+          })
+          snackbarRef.value?.show(t('planning.calendar.panel.planSuccess'))
+        }
+        break
+      case 'month-reflection':
+        await reflectionDexieRepository.upsertPeriodReflection({
+          periodType: 'month',
+          periodRef: parsedPeriodRef.value as MonthRef,
+          note: reflectionNote.value.trim(),
+        })
+        snackbarRef.value?.show(t('planning.calendar.panel.saveSuccess'))
+        break
+      case 'week-reflection':
+        await reflectionDexieRepository.upsertPeriodReflection({
+          periodType: 'week',
+          periodRef: parsedPeriodRef.value as WeekRef,
+          note: reflectionNote.value.trim(),
+        })
+        snackbarRef.value?.show(t('planning.calendar.panel.saveSuccess'))
+        break
+    }
+
+    closePanel()
+    await loadCalendarData()
+  } catch (error) {
+    snackbarRef.value?.show(error instanceof Error ? error.message : String(error))
+  } finally {
+    panelSaving.value = false
+  }
+}
+
+function buildYearMonthBadges(month: CalendarYearMonthSummary): BadgeModel[] {
+  return [
+    month.hasPlan
+      ? { label: t('planning.calendar.summary.planReady'), tone: 'success' }
+      : { label: t('planning.calendar.summary.planMissing') },
+    month.hasReflection
+      ? { label: t('planning.calendar.summary.reflectionReady'), tone: 'accent' }
+      : { label: t('planning.calendar.summary.reflectionMissing') },
+  ]
+}
+
+function buildYearMonthStats(month: CalendarYearMonthSummary): MetricModel[] {
+  return [
+    {
+      label: t('planning.calendar.metricsShort.activeGoals'),
+      value: String(month.activeGoalCount),
+    },
+    {
+      label: t('planning.calendar.metricsShort.activeCadenced'),
+      value: String(month.activeCadencedCount),
+    },
+    {
+      label: t('planning.calendar.metricsShort.activeTrackers'),
+      value: String(month.activeTrackerCount),
+    },
+    {
+      label: t('planning.calendar.metricsShort.activeInitiatives'),
+      value: String(month.activeInitiativeCount),
+    },
+  ]
+}
+
+function buildCadencedCard(
+  item: WeekCadencedPlanningItem | MonthPlanningBundle['cadencedItems'][number],
+  periodScope: 'month' | 'week' | 'day',
+  objectReflections: MonthReflectionBundle['objectReflections']
+): ItemCardModel {
+  const planningMode =
+    'monthStates' in item
+      ? item.weekStates[0]?.planningMode ?? item.monthStates[0]?.planningMode
+      : item.monthState?.planningMode ?? item.weekStates[0]?.planningMode
+  const targetCount =
+    'monthStates' in item
+      ? item.weekStates[0]?.targetCount ?? item.monthStates[0]?.targetCount
+      : item.monthState?.targetCount ?? item.weekStates[0]?.targetCount
+  const badges: BadgeModel[] = [
+    { label: item.subjectType === 'keyResult' ? t('planning.calendar.sections.keyResults') : t('planning.calendar.sections.habits'), tone: 'accent' },
+    ...buildLifecycleBadges(item.subject.status),
+    ...buildActivityBadges(
+      'monthStates' in item ? item.weekStates[0]?.activityState ?? item.monthStates[0]?.activityState : item.monthState?.activityState
+    ),
+  ]
+
+  if (planningMode === 'times-per-period') {
+    badges.push({ label: t('planning.calendar.badges.timesPerPeriod') })
+  } else if (planningMode === 'specific-days') {
+    badges.push({ label: t('planning.calendar.badges.specificDays') })
+  }
+
+  if ('reasons' in item) {
+    if (item.reasons.includes('week-state')) {
+      badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
+    }
+    if (item.reasons.includes('day-assignment')) {
+      badges.push({ label: t('planning.calendar.badges.scheduledThisDay'), tone: 'accent' })
+    }
+    if (item.reasons.includes('month-active-unassigned')) {
+      badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
+    }
+  }
+
+  if (item.overAllocated) {
+    badges.push({ label: t('planning.calendar.badges.overAllocated'), tone: 'warning' })
+  }
+
+  if (hasObjectReflection(item.subjectType, item.subject.id, objectReflections)) {
+    badges.push({ label: t('planning.calendar.badges.reflected'), tone: 'accent' })
+  }
+
+  const details: string[] = []
+  if (targetCount !== undefined) {
+    details.push(t('planning.calendar.details.target', { n: targetCount }))
+  }
+  if (item.dayAssignments.length > 0) {
+    details.push(t('planning.calendar.details.assignedDays', { n: item.dayAssignments.length }))
+  }
+  if ('weekStates' in item && item.weekStates.length > 0 && periodScope !== 'week') {
+    details.push(
+      tp(
+        item.weekStates.length,
+        'planning.calendar.details.weekSlots.one',
+        'planning.calendar.details.weekSlots.few',
+        'planning.calendar.details.weekSlots.many'
+      )
+    )
+  }
+
+  return {
+    key: `${periodScope}:${item.subjectType}:${item.subject.id}`,
+    title: item.subject.title,
+    eyebrow: periodScope === 'day' ? t('planning.calendar.sections.activeThisWeek') : t('planning.calendar.summary.monthGuidance'),
+    description: item.subject.description,
+    badges,
+    details,
+  }
+}
+
+function buildTrackerCard(
+  item:
+    | WeekTrackerPlanningItem
+    | WeekTrackerReflectionItem
+    | MonthPlanningBundle['trackerItems'][number],
+  periodScope: 'month' | 'week' | 'day',
+  objectReflections: MonthReflectionBundle['objectReflections']
+): ItemCardModel {
+  const tracker = item.tracker
+  const badges: BadgeModel[] = [
+    { label: t('planning.calendar.sections.trackers'), tone: 'accent' },
+    ...buildLifecycleBadges(tracker.status),
+  ]
+  const activityState = isMonthTrackerItem(item)
+    ? item.weekStates[0]?.activityState ?? item.monthState?.activityState
+    : item.weekState?.activityState ?? item.monthStates[0]?.activityState
+  badges.push(...buildActivityBadges(activityState))
+
+  badges.push({
+    label: tracker.analysisPeriod === 'week'
+      ? t('planning.calendar.badges.analysisWeek')
+      : t('planning.calendar.badges.analysisMonth'),
+  })
+  badges.push({
+    label:
+      tracker.entryMode === 'day'
+        ? t('planning.calendar.badges.entryDay')
+        : tracker.entryMode === 'week'
+          ? t('planning.calendar.badges.entryWeek')
+          : t('planning.calendar.badges.entryMonth'),
+  })
+
+  if ('reasons' in item) {
+    if (
+      item.reasons.some((reason) => reason === 'tracker-week-state' || reason === 'week-state')
+    ) {
+      badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
+    }
+    if (item.reasons.some((reason) => reason === 'tracker-month-active-unassigned')) {
+      badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
+    }
+  }
+
+  if (hasObjectReflection('tracker', tracker.id, objectReflections)) {
+    badges.push({ label: t('planning.calendar.badges.reflected'), tone: 'accent' })
+  }
+
+  const entryCount = 'entries' in item ? item.entries.length : 0
+  const details = entryCount > 0 ? [t('planning.calendar.details.trackedEntries', { n: entryCount })] : []
+
+  return {
+    key: `${periodScope}:tracker:${tracker.id}`,
+    title: tracker.title,
+    eyebrow: periodScope === 'day' ? t('planning.calendar.sections.activeThisWeek') : t('planning.calendar.summary.weeklyAlignment'),
+    description: tracker.description,
+    badges,
+    details,
+  }
+}
+
+function buildInitiativeCard(
+  item: WeekInitiativePlanningItem | MonthPlanningBundle['initiativeItems'][number],
+  periodScope: 'month' | 'week' | 'day',
+  objectReflections: MonthReflectionBundle['objectReflections']
+): ItemCardModel {
+  const initiative = item.initiative
+  const badges: BadgeModel[] = [{ label: t('planning.calendar.sections.initiatives'), tone: 'accent' }]
+
+  if ('reasons' in item) {
+    if (item.reasons.includes('initiative-week')) {
+      badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
+    }
+    if (item.reasons.includes('initiative-day')) {
+      badges.push({ label: t('planning.calendar.badges.scheduledThisDay'), tone: 'accent' })
+    }
+    if (item.reasons.includes('initiative-month')) {
+      badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
+    }
+  } else {
+    badges.push({ label: t('planning.calendar.badges.planned'), tone: 'success' })
+  }
+
+  if (hasObjectReflection('initiative', initiative.id, objectReflections)) {
+    badges.push({ label: t('planning.calendar.badges.reflected'), tone: 'accent' })
+  }
+
+  const details: string[] = []
+  if (item.planState.monthRef) {
+    details.push(t('planning.calendar.details.scheduledMonth'))
+  }
+  if (item.planState.weekRef) {
+    details.push(t('planning.calendar.details.scheduledWeek'))
+  }
+  if (item.planState.dayRef) {
+    details.push(t('planning.calendar.details.scheduledDay'))
+  }
+
+  return {
+    key: `${periodScope}:initiative:${initiative.id}`,
+    title: initiative.title,
+    eyebrow: periodScope === 'day' ? t('planning.calendar.sections.scheduledToday') : t('planning.calendar.summary.weeklyAlignment'),
+    description: initiative.description,
+    badges,
+    details,
+  }
+}
+
+function buildLifecycleBadges(status: string): BadgeModel[] {
+  switch (status) {
+    case 'completed':
+      return [{ label: t('planning.calendar.badges.completed'), tone: 'success' }]
+    case 'dropped':
+      return [{ label: t('planning.calendar.badges.dropped'), tone: 'danger' }]
+    case 'retired':
+      return [{ label: t('planning.calendar.badges.retired'), tone: 'warning' }]
+    default:
+      return []
+  }
+}
+
+function isMonthTrackerItem(
+  item:
+    | WeekTrackerPlanningItem
+    | WeekTrackerReflectionItem
+    | MonthPlanningBundle['trackerItems'][number]
+): item is MonthPlanningBundle['trackerItems'][number] {
+  return 'monthState' in item
+}
+
+function buildActivityBadges(activityState?: string): BadgeModel[] {
+  switch (activityState) {
+    case 'active':
+      return [{ label: t('planning.calendar.badges.active'), tone: 'success' }]
+    case 'paused':
+      return [{ label: t('planning.calendar.badges.paused'), tone: 'warning' }]
+    default:
+      return []
+  }
+}
+
+function formatMonthTitle(monthRef: MonthRef): string {
+  const monthIndex = Number(monthRef.slice(5, 7)) - 1
+  const year = monthRef.slice(0, 4)
+  return new Intl.DateTimeFormat(locale.value, {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(Number(year), monthIndex, 1))
+}
+
+function formatWeekTitle(weekRef: WeekRef): string {
+  const bounds = getPeriodBounds(weekRef)
+  return `${t('planning.calendar.scales.week')} ${weekRef.slice(-2)}`
+    + ` · ${formatDayRange(bounds.start)} - ${formatDayRange(bounds.end)}`
+}
+
+function formatDayTitle(dayRef: DayRef): string {
+  const date = new Date(`${dayRef}T00:00:00`)
+  return new Intl.DateTimeFormat(locale.value, {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
+function formatDayRange(dayRef: DayRef): string {
+  const date = new Date(`${dayRef}T00:00:00`)
+  return new Intl.DateTimeFormat(locale.value, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
+function formatTimestamp(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat(locale.value, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+</script>

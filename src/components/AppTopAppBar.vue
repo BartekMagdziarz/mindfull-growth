@@ -42,21 +42,15 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import { useT } from '@/composables/useT'
 
 interface NavItem {
   path: string
   label: string
 }
-
-const navItems: NavItem[] = [
-  { path: '/journal', label: 'Journal' },
-  { path: '/emotions', label: 'Emotions' },
-  { path: '/history', label: 'History' },
-  { path: '/exercises', label: 'Exercises' },
-  { path: '/profile', label: 'Profile' },
-]
 
 interface Props {
   showBack?: boolean
@@ -76,6 +70,16 @@ const emit = defineEmits<{
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useT()
+
+const navItems = computed<NavItem[]>(() => [
+  { path: '/calendar', label: t('common.nav.calendar') },
+  { path: '/journal', label: t('common.nav.journal') },
+  { path: '/emotions', label: t('common.nav.emotions') },
+  { path: '/history', label: t('common.nav.history') },
+  { path: '/exercises', label: t('common.nav.exercises') },
+  { path: '/profile', label: t('common.nav.profile') },
+])
 
 const isActive = (path: string): boolean => {
   return route.path === path || route.path.startsWith(path + '/')

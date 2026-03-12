@@ -1,0 +1,134 @@
+{
+  "calendar": {
+    "title": "Kalendarz",
+    "subtitle": "Jedna przestrzeń do planowania i refleksji w skali roku, miesiąca, tygodnia i dnia.",
+    "invalidPeriod": "Ten adres kalendarza wskazuje nieprawidłowy okres.",
+    "loadError": "Nie udało się wczytać widoku kalendarza.",
+    "scales": {
+      "year": "Rok",
+      "month": "Miesiąc",
+      "week": "Tydzień",
+      "day": "Dzień"
+    },
+    "actions": {
+      "createPlan": "Utwórz plan",
+      "editPlan": "Edytuj plan",
+      "viewPlanRecord": "Pokaż rekord planu",
+      "createReflection": "Utwórz refleksję",
+      "editReflection": "Edytuj refleksję",
+      "openMonth": "Otwórz miesiąc",
+      "openWeek": "Otwórz tydzień",
+      "openDay": "Otwórz dzień",
+      "saveReflection": "Zapisz refleksję",
+      "createPlanRecord": "Utwórz rekord planu"
+    },
+    "sections": {
+      "yearOverview": "Przegląd roku",
+      "goals": "Cele",
+      "keyResults": "Key resulty",
+      "habits": "Nawyki",
+      "trackers": "Trackery",
+      "initiatives": "Inicjatywy",
+      "plannedThisWeek": "Zaplanowane na ten tydzień",
+      "assignedToDays": "Przypisane do dni",
+      "toPlanThisWeek": "Do rozplanowania w tym tygodniu",
+      "reflectionContext": "Kontekst do refleksji",
+      "scheduledToday": "Zaplanowane na dziś",
+      "trackerEntries": "Dzisiejsze wpisy trackerów",
+      "activeThisWeek": "Aktywne w tym tygodniu",
+      "monthlyContext": "Kontekst miesięczny"
+    },
+    "summary": {
+      "yearPlan": "Plan roczny",
+      "yearReflection": "Refleksja roczna",
+      "planReady": "Plan gotowy",
+      "planMissing": "Brak planu",
+      "reflectionReady": "Refleksja gotowa",
+      "reflectionMissing": "Brak refleksji",
+      "weeklyAlignment": "Ustawienie tygodnia",
+      "monthGuidance": "Kierunek miesiąca"
+    },
+    "metrics": {
+      "activeGoals": "Aktywne cele",
+      "activeCadenced": "Aktywne KR i nawyki",
+      "activeTrackers": "Aktywne trackery",
+      "activeInitiatives": "Aktywne inicjatywy",
+      "linkedKeyResults": "{n} powiązane key resulty"
+    },
+    "metricsShort": {
+      "activeGoals": "Cele",
+      "activeCadenced": "KR i nawyki",
+      "activeTrackers": "Trackery",
+      "activeInitiatives": "Inicjatywy"
+    },
+    "labels": {
+      "goal": "Cel"
+    },
+    "badges": {
+      "active": "Aktywne",
+      "paused": "Wstrzymane",
+      "completed": "Zakończone",
+      "dropped": "Porzucone",
+      "retired": "Wycofane",
+      "planned": "Zaplanowane",
+      "unplanned": "Niezaplanowane",
+      "reflected": "Z refleksją",
+      "notReflected": "Bez refleksji",
+      "overAllocated": "Przealokowane",
+      "timesPerPeriod": "Liczba w okresie",
+      "specificDays": "Konkretne dni",
+      "analysisWeek": "Analiza tygodniowa",
+      "analysisMonth": "Analiza miesięczna",
+      "entryDay": "Wpis dzienny",
+      "entryWeek": "Wpis tygodniowy",
+      "entryMonth": "Wpis miesięczny",
+      "scheduledThisWeek": "Na ten tydzień",
+      "scheduledThisDay": "Na ten dzień",
+      "needsPlacement": "Wymaga rozplanowania"
+    },
+    "details": {
+      "target": "Cel {n}",
+      "assignedDays": "{n} przypisanych dni",
+      "weekSlots": {
+        "one": "{n} slot tygodniowy",
+        "few": "{n} sloty tygodniowe",
+        "many": "{n} slotów tygodniowych"
+      },
+      "trackedEntries": "{n} wpisów",
+      "scheduledMonth": "Osadzone w tym miesiącu",
+      "scheduledWeek": "Osadzone w tym tygodniu",
+      "scheduledDay": "Zaplanowane na ten dzień",
+      "emptyPlan": "Obecny model planowania przechowuje tylko informację, czy plan okresu istnieje.",
+      "emptyPlanExisting": "Ten okres ma już rekord planu. Planowanie obiektów odbywa się w grupowanych sekcjach na głównej powierzchni.",
+      "yearPlaceholder": "Planowanie i refleksja roczna trafią tu w kolejnych etapach. W Epice 5 panel ma charakter informacyjny.",
+      "reflectionPlaceholder": "Zapisz notatkę dla tego okresu. Refleksje obiektów pozostają przypięte do tego samego okresu.",
+      "createdAt": "Utworzono",
+      "updatedAt": "Zaktualizowano"
+    },
+    "empty": {
+      "generic": "Na razie nic tu nie ma.",
+      "goals": "Brak aktywnych celów dla tego okresu.",
+      "keyResults": "Brak key resultów dla tego okresu.",
+      "habits": "Brak nawyków dla tego okresu.",
+      "trackers": "Brak trackerów dla tego okresu.",
+      "initiatives": "Brak inicjatyw dla tego okresu.",
+      "reflection": "Brak obiektów do refleksji.",
+      "today": "Brak przypisań dziennych dla tej daty.",
+      "trackerEntries": "Brak wpisów trackerów dla tej daty."
+    },
+    "panel": {
+      "closedTitle": "Otwórz panel",
+      "closedBody": "Utwórz lub edytuj plan albo refleksję dla aktywnego okresu bez przeładowywania głównej powierzchni kalendarza.",
+      "yearPlanTitle": "Placeholder planu rocznego",
+      "yearReflectionTitle": "Placeholder refleksji rocznej",
+      "monthPlanTitle": "Plan miesiąca",
+      "weekPlanTitle": "Plan tygodnia",
+      "monthReflectionTitle": "Refleksja miesiąca",
+      "weekReflectionTitle": "Refleksja tygodnia",
+      "noteLabel": "Notatka refleksji",
+      "notePlaceholder": "Co miało znaczenie w tym okresie?",
+      "saveSuccess": "Zapisano refleksję.",
+      "planSuccess": "Utworzono rekord planu."
+    }
+  }
+}

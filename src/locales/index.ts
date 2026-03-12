@@ -11,6 +11,7 @@ import enExerciseWizards from './en/exerciseWizards.json'
 import enLifeAreas from './en/lifeAreas.json'
 import enProfile from './en/profile.json'
 import enErrors from './en/errors.json'
+import enPlanning from './en/planning.json'
 import enAssessmentsCommon from './en/assessments.common.json'
 import enAssessmentsIpipBfm50 from './en/assessments.ipip-bfm50.json'
 import enAssessmentsIpipNeo120 from './en/assessments.ipip-neo-120.json'
@@ -31,6 +32,7 @@ import plExerciseWizards from './pl/exerciseWizards.json'
 import plLifeAreas from './pl/lifeAreas.json'
 import plProfile from './pl/profile.json'
 import plErrors from './pl/errors.json'
+import plPlanning from './pl/planning.json'
 import plAssessmentsCommon from './pl/assessments.common.json'
 import plAssessmentsIpipBfm50 from './pl/assessments.ipip-bfm50.json'
 import plAssessmentsIpipNeo120 from './pl/assessments.ipip-neo-120.json'
@@ -52,6 +54,7 @@ const enMessages = {
   lifeAreas: enLifeAreas,
   profile: enProfile,
   errors: enErrors,
+  planning: enPlanning,
   assessments: {
     common: enAssessmentsCommon,
     ipipBfm50: enAssessmentsIpipBfm50,
@@ -76,6 +79,7 @@ const plMessages = {
   lifeAreas: plLifeAreas,
   profile: plProfile,
   errors: plErrors,
+  planning: plPlanning,
   assessments: {
     common: plAssessmentsCommon,
     ipipBfm50: plAssessmentsIpipBfm50,

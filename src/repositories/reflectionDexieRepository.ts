@@ -41,6 +41,15 @@ class ReflectionDexieRepository implements ReflectionRepository {
     }
   }
 
+  async listPeriodReflections(): Promise<PeriodReflection[]> {
+    try {
+      return await this.db.periodReflections.toArray()
+    } catch (error) {
+      console.error('Failed to list period reflections:', error)
+      throw new Error('Failed to retrieve period reflections from database')
+    }
+  }
+
   async upsertPeriodReflection(
     data: CreatePeriodReflectionPayload | UpdatePeriodReflectionPayload
   ): Promise<PeriodReflection> {
