@@ -1,39 +1,18 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
-import { connectTestDatabase } from '@/test/testDatabase'
+import { resetPlanningTestData } from '@/test/planningTestUtils'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
 
 describe('planningState Dexie repository', () => {
   beforeEach(async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const db = await connectTestDatabase()
-    await db.periodObjectReflections.clear()
-    await db.periodReflections.clear()
-    await db.trackerEntries.clear()
-    await db.trackerWeekStates.clear()
-    await db.trackerMonthStates.clear()
-    await db.initiativePlanStates.clear()
-    await db.cadencedDayAssignments.clear()
-    await db.cadencedWeekStates.clear()
-    await db.cadencedMonthStates.clear()
-    await db.goalMonthStates.clear()
-    await db.weekPlans.clear()
-    await db.monthPlans.clear()
-    await db.keyResults.clear()
-    await db.goals.clear()
-    await db.habits.clear()
-    await db.trackers.clear()
-    await db.initiatives.clear()
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
+    await resetPlanningTestData()
   })
 
   it('upserts goal month states by [monthRef+goalId]', async () => {
@@ -61,36 +40,6 @@ describe('planningState Dexie repository', () => {
     expect(await planningStateDexieRepository.listGoalMonthStates()).toHaveLength(1)
   })
 
-  it('rejects canonical month planning config for weekly cadence subjects', async () => {
-    const goal = await goalDexieRepository.create({
-      title: 'Improve delivery',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'open',
-    })
-    const keyResult = await keyResultDexieRepository.create({
-      title: 'Ship weekly milestone',
-      isActive: true,
-      goalId: goal.id,
-      cadence: 'weekly',
-      kind: 'generic',
-      config: {},
-      status: 'open',
-    })
-
-    await expect(
-      planningStateDexieRepository.upsertCadencedMonthState({
-        monthRef: parsePeriodRef('2026-03') as MonthRef,
-        subjectType: 'keyResult',
-        subjectId: keyResult.id,
-        activityState: 'active',
-        planningMode: 'times-per-period',
-        targetCount: 2,
-      })
-    ).rejects.toThrow('Failed to persist cadenced month state in database')
-  })
-
   it('requires monthly cadence week states to be gated by an active month state', async () => {
     const habit = await habitDexieRepository.create({
       title: 'Monthly outreach',
@@ -98,86 +47,115 @@ describe('planningState Dexie repository', () => {
       priorityIds: [],
       lifeAreaIds: [],
       cadence: 'monthly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'counter',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 12,
+      },
       status: 'open',
     })
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
 
     await expect(
-      planningStateDexieRepository.upsertCadencedWeekState({
+      planningStateDexieRepository.upsertMeasurementWeekState({
         weekRef,
         sourceMonthRef: monthRef,
         subjectType: 'habit',
         subjectId: habit.id,
         activityState: 'active',
-        planningMode: 'times-per-period',
-        targetCount: 3,
-      })
-    ).rejects.toThrow('Failed to persist cadenced week state in database')
+        scheduleScope: 'whole-week',
+      }),
+    ).rejects.toThrow('Failed to persist measurement week state in database')
 
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'habit',
       subjectId: habit.id,
       activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 12,
+      scheduleScope: 'whole-month',
+      successNote: 'Strong month',
     })
 
-    const weekState = await planningStateDexieRepository.upsertCadencedWeekState({
+    const weekState = await planningStateDexieRepository.upsertMeasurementWeekState({
       weekRef,
       sourceMonthRef: monthRef,
       subjectType: 'habit',
       subjectId: habit.id,
       activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 4,
+      scheduleScope: 'whole-week',
+      successNote: 'Strong week',
     })
 
     expect(weekState.sourceMonthRef).toBe(monthRef)
+    expect(weekState.successNote).toBe('Strong week')
   })
 
-  it('requires weekly cadence day assignments to have an active week state', async () => {
+  it('rejects tracker success notes and requires specific-days placement for assignments', async () => {
+    const tracker = await trackerDexieRepository.create({
+      title: 'Energy',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'rating',
+      status: 'open',
+    })
     const habit = await habitDexieRepository.create({
       title: 'Weekly review',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
       status: 'open',
     })
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
     const dayRef = parsePeriodRef('2026-03-12') as DayRef
 
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await expect(
+      planningStateDexieRepository.upsertMeasurementMonthState({
+        monthRef,
+        subjectType: 'tracker',
+        subjectId: tracker.id,
+        activityState: 'active',
+        scheduleScope: 'whole-month',
+        successNote: 'Not allowed',
+      }),
+    ).rejects.toThrow('Failed to persist measurement month state in database')
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'habit',
       subjectId: habit.id,
       activityState: 'active',
+      scheduleScope: 'unassigned',
     })
 
     await expect(
-      planningStateDexieRepository.upsertCadencedDayAssignment({
+      planningStateDexieRepository.upsertMeasurementDayAssignment({
         dayRef,
         subjectType: 'habit',
         subjectId: habit.id,
-      })
-    ).rejects.toThrow('Failed to persist cadenced day assignment in database')
+      }),
+    ).rejects.toThrow('Failed to persist measurement day assignment in database')
 
-    await planningStateDexieRepository.upsertCadencedWeekState({
+    await planningStateDexieRepository.upsertMeasurementWeekState({
       weekRef,
       subjectType: 'habit',
       subjectId: habit.id,
       activityState: 'active',
-      planningMode: 'specific-days',
+      scheduleScope: 'specific-days',
     })
 
-    const assignment = await planningStateDexieRepository.upsertCadencedDayAssignment({
+    const assignment = await planningStateDexieRepository.upsertMeasurementDayAssignment({
       dayRef,
       subjectType: 'habit',
       subjectId: habit.id,
@@ -186,65 +164,36 @@ describe('planningState Dexie repository', () => {
     expect(assignment.dayRef).toBe(dayRef)
   })
 
-  it('enforces tracker month gating for active week states and entryMode for entries', async () => {
-    const tracker = await trackerDexieRepository.create({
-      title: 'Energy',
+  it('enforces one daily entry per subject and validates entry mode payloads', async () => {
+    const goal = await goalDexieRepository.create({
+      title: 'Improve delivery',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
-      analysisPeriod: 'week',
-      entryMode: 'day',
-      kind: 'generic',
-      config: {},
       status: 'open',
     })
-    const monthRef = parsePeriodRef('2026-03') as MonthRef
-    const weekRef = parsePeriodRef('2026-W10') as WeekRef
-    const dayRef = parsePeriodRef('2026-03-12') as DayRef
-
-    await expect(
-      planningStateDexieRepository.upsertTrackerWeekState({
-        weekRef,
-        trackerId: tracker.id,
-        activityState: 'active',
-      })
-    ).rejects.toThrow('Failed to persist tracker week state in database')
-
-    await planningStateDexieRepository.upsertTrackerMonthState({
-      monthRef,
-      trackerId: tracker.id,
-      activityState: 'active',
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Close three tasks',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'weekly',
+      entryMode: 'counter',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 3,
+      },
+      status: 'open',
     })
-
-    const weekState = await planningStateDexieRepository.upsertTrackerWeekState({
-      weekRef,
-      trackerId: tracker.id,
-      activityState: 'active',
+    const tracker = await trackerDexieRepository.create({
+      title: 'Focus score',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      status: 'open',
     })
-
-    expect(weekState.activityState).toBe('active')
-
-    await expect(
-      planningStateDexieRepository.upsertTrackerEntry({
-        trackerId: tracker.id,
-        periodType: 'week',
-        periodRef: weekRef,
-        value: 5,
-      })
-    ).rejects.toThrow('Failed to persist tracker entry in database')
-
-    const entry = await planningStateDexieRepository.upsertTrackerEntry({
-      trackerId: tracker.id,
-      periodType: 'day',
-      periodRef: dayRef,
-      value: 5,
-      note: ' steady ',
-    })
-
-    expect(entry.note).toBe('steady')
-  })
-
-  it('updates initiative plan state hierarchically for the same initiative', async () => {
     const initiative = await initiativeDexieRepository.create({
       title: 'Book venue',
       isActive: true,
@@ -252,25 +201,41 @@ describe('planningState Dexie repository', () => {
       lifeAreaIds: [],
       status: 'open',
     })
-    const monthRef = parsePeriodRef('2026-03') as MonthRef
-    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+
     const dayRef = parsePeriodRef('2026-03-12') as DayRef
 
-    const created = await planningStateDexieRepository.upsertInitiativePlanState({
-      initiativeId: initiative.id,
-      monthRef,
-      weekRef,
+    const created = await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
       dayRef,
+      value: 2,
     })
-    const updated = await planningStateDexieRepository.upsertInitiativePlanState({
-      initiativeId: initiative.id,
-      monthRef,
-      weekRef,
-      dayRef: undefined,
+    const updated = await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+      dayRef,
+      value: 5,
     })
 
     expect(updated.id).toBe(created.id)
-    expect(updated.dayRef).toBeUndefined()
-    expect(await planningStateDexieRepository.listInitiativePlanStates()).toHaveLength(1)
+    expect(updated.value).toBe(5)
+    expect(await planningStateDexieRepository.listDailyMeasurementEntries()).toHaveLength(1)
+
+    await expect(
+      planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'tracker',
+        subjectId: tracker.id,
+        dayRef,
+        value: 1,
+      }),
+    ).rejects.toThrow('Failed to persist daily measurement entry in database')
+
+    const initiativeState = await planningStateDexieRepository.upsertInitiativePlanState({
+      initiativeId: initiative.id,
+      monthRef: parsePeriodRef('2026-03') as MonthRef,
+      weekRef: parsePeriodRef('2026-W10') as WeekRef,
+    })
+
+    expect(initiativeState.initiativeId).toBe(initiative.id)
   })
 })

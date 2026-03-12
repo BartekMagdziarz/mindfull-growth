@@ -1,41 +1,33 @@
-import type { MonthRef, WeekRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { Habit, KeyResult, Tracker } from '@/domain/planning'
 import type {
-  CadencedDayAssignment,
-  CadencedMonthState,
-  CadencedWeekState,
-  CreateCadencedDayAssignmentPayload,
-  CreateCadencedMonthStatePayload,
-  CreateCadencedWeekStatePayload,
+  CreateDailyMeasurementEntryPayload,
   CreateGoalMonthStatePayload,
   CreateInitiativePlanStatePayload,
-  CreateTrackerEntryPayload,
-  CreateTrackerMonthStatePayload,
-  CreateTrackerWeekStatePayload,
+  CreateMeasurementDayAssignmentPayload,
+  CreateMeasurementMonthStatePayload,
+  CreateMeasurementWeekStatePayload,
+  DailyMeasurementEntry,
   GoalMonthState,
   InitiativePlanState,
-  PlanningSubjectType,
-  TrackerEntry,
-  TrackerMonthState,
-  TrackerWeekState,
-  UpdateCadencedDayAssignmentPayload,
-  UpdateCadencedMonthStatePayload,
-  UpdateCadencedWeekStatePayload,
+  MeasurementDayAssignment,
+  MeasurementMonthState,
+  MeasurementSubjectType,
+  MeasurementWeekState,
+  UpdateDailyMeasurementEntryPayload,
   UpdateGoalMonthStatePayload,
   UpdateInitiativePlanStatePayload,
-  UpdateTrackerEntryPayload,
-  UpdateTrackerMonthStatePayload,
-  UpdateTrackerWeekStatePayload,
+  UpdateMeasurementDayAssignmentPayload,
+  UpdateMeasurementMonthStatePayload,
+  UpdateMeasurementWeekStatePayload,
 } from '@/domain/planningState'
 import {
-  normalizeCadencedDayAssignmentPayload,
-  normalizeCadencedMonthStatePayload,
-  normalizeCadencedWeekStatePayload,
+  normalizeDailyMeasurementEntryPayload,
   normalizeGoalMonthStatePayload,
   normalizeInitiativePlanStatePayload,
-  normalizeTrackerEntryPayload,
-  normalizeTrackerMonthStatePayload,
-  normalizeTrackerWeekStatePayload,
+  normalizeMeasurementDayAssignmentPayload,
+  normalizeMeasurementMonthStatePayload,
+  normalizeMeasurementWeekStatePayload,
 } from '@/domain/planningState'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import { getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
@@ -46,7 +38,7 @@ import {
   updatePlanningRecord,
 } from './planningDexieRepository.shared'
 
-type CadencedSubject = KeyResult | Habit
+type MeasurementSubject = KeyResult | Habit | Tracker
 
 class PlanningStateDexieRepository implements PlanningStateRepository {
   private get db() {
@@ -109,91 +101,91 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
   }
 
-  async getCadencedMonthState(
+  async getMeasurementMonthState(
     monthRef: MonthRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string
-  ): Promise<CadencedMonthState | undefined> {
+  ): Promise<MeasurementMonthState | undefined> {
     try {
-      return await this.db.cadencedMonthStates
+      return await this.db.measurementMonthStates
         .where('[monthRef+subjectType+subjectId]')
         .equals([monthRef, subjectType, subjectId])
         .first()
     } catch (error) {
       console.error(
-        `Failed to get cadenced month state for ${subjectType}:${subjectId} in ${monthRef}:`,
+        `Failed to get measurement month state for ${subjectType}:${subjectId} in ${monthRef}:`,
         error
       )
-      throw new Error(`Failed to retrieve cadenced month state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve measurement month state for ${subjectType}:${subjectId}`)
     }
   }
 
-  async listCadencedMonthStates(): Promise<CadencedMonthState[]> {
+  async listMeasurementMonthStates(): Promise<MeasurementMonthState[]> {
     try {
-      return await this.db.cadencedMonthStates.toArray()
+      return await this.db.measurementMonthStates.toArray()
     } catch (error) {
-      console.error('Failed to list cadenced month states:', error)
-      throw new Error('Failed to retrieve cadenced month states from database')
+      console.error('Failed to list measurement month states:', error)
+      throw new Error('Failed to retrieve measurement month states from database')
     }
   }
 
-  async upsertCadencedMonthState(
-    data: CreateCadencedMonthStatePayload | UpdateCadencedMonthStatePayload
-  ): Promise<CadencedMonthState> {
+  async upsertMeasurementMonthState(
+    data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload
+  ): Promise<MeasurementMonthState> {
     try {
-      const existing = await this.findExistingCadencedMonthState(data)
-      const normalized = normalizeCadencedMonthStatePayload(data, existing)
-      await this.assertCadencedMonthStateAllowed(normalized)
+      const existing = await this.findExistingMeasurementMonthState(data)
+      const normalized = normalizeMeasurementMonthStatePayload(data, existing)
+      await this.assertMeasurementMonthStateAllowed(normalized)
 
       if (existing) {
         const updated = updatePlanningRecord(existing, normalized)
-        await this.db.cadencedMonthStates.put(toPlain(updated))
+        await this.db.measurementMonthStates.put(toPlain(updated))
         return updated
       }
 
-      const created = createPlanningRecord<CadencedMonthState>(normalized)
-      await this.db.cadencedMonthStates.add(toPlain(created))
+      const created = createPlanningRecord<MeasurementMonthState>(normalized)
+      await this.db.measurementMonthStates.add(toPlain(created))
       return created
     } catch (error) {
-      console.error('Failed to upsert cadenced month state:', error)
-      throw new Error('Failed to persist cadenced month state in database')
+      console.error('Failed to upsert measurement month state:', error)
+      throw new Error('Failed to persist measurement month state in database')
     }
   }
 
-  async deleteCadencedMonthState(
+  async deleteMeasurementMonthState(
     monthRef: MonthRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<void> {
     try {
-      const existing = await this.getCadencedMonthState(monthRef, subjectType, subjectId)
+      const existing = await this.getMeasurementMonthState(monthRef, subjectType, subjectId)
       if (!existing) return
 
-      await this.db.cadencedMonthStates.delete(existing.id)
+      await this.db.measurementMonthStates.delete(existing.id)
     } catch (error) {
       console.error(
-        `Failed to delete cadenced month state for ${subjectType}:${subjectId} in ${monthRef}:`,
+        `Failed to delete measurement month state for ${subjectType}:${subjectId} in ${monthRef}:`,
         error
       )
-      throw new Error(`Failed to delete cadenced month state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to delete measurement month state for ${subjectType}:${subjectId}`)
     }
   }
 
-  async getCadencedWeekState(
+  async getMeasurementWeekState(
     weekRef: WeekRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string,
     sourceMonthRef?: MonthRef
-  ): Promise<CadencedWeekState | undefined> {
+  ): Promise<MeasurementWeekState | undefined> {
     try {
       if (sourceMonthRef) {
-        return await this.db.cadencedWeekStates
+        return await this.db.measurementWeekStates
           .where('[weekRef+sourceMonthRef+subjectType+subjectId]')
           .equals([weekRef, sourceMonthRef, subjectType, subjectId])
           .first()
       }
 
-      const candidate = await this.db.cadencedWeekStates
+      const candidate = await this.db.measurementWeekStates
         .where('[weekRef+subjectType+subjectId]')
         .equals([weekRef, subjectType, subjectId])
         .first()
@@ -201,53 +193,53 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return candidate?.sourceMonthRef ? undefined : candidate
     } catch (error) {
       console.error(
-        `Failed to get cadenced week state for ${subjectType}:${subjectId} in ${weekRef}:`,
+        `Failed to get measurement week state for ${subjectType}:${subjectId} in ${weekRef}:`,
         error
       )
-      throw new Error(`Failed to retrieve cadenced week state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve measurement week state for ${subjectType}:${subjectId}`)
     }
   }
 
-  async listCadencedWeekStates(): Promise<CadencedWeekState[]> {
+  async listMeasurementWeekStates(): Promise<MeasurementWeekState[]> {
     try {
-      return await this.db.cadencedWeekStates.toArray()
+      return await this.db.measurementWeekStates.toArray()
     } catch (error) {
-      console.error('Failed to list cadenced week states:', error)
-      throw new Error('Failed to retrieve cadenced week states from database')
+      console.error('Failed to list measurement week states:', error)
+      throw new Error('Failed to retrieve measurement week states from database')
     }
   }
 
-  async upsertCadencedWeekState(
-    data: CreateCadencedWeekStatePayload | UpdateCadencedWeekStatePayload
-  ): Promise<CadencedWeekState> {
+  async upsertMeasurementWeekState(
+    data: CreateMeasurementWeekStatePayload | UpdateMeasurementWeekStatePayload
+  ): Promise<MeasurementWeekState> {
     try {
-      const existing = await this.findExistingCadencedWeekState(data)
-      const normalized = normalizeCadencedWeekStatePayload(data, existing)
-      await this.assertCadencedWeekStateAllowed(normalized)
+      const existing = await this.findExistingMeasurementWeekState(data)
+      const normalized = normalizeMeasurementWeekStatePayload(data, existing)
+      await this.assertMeasurementWeekStateAllowed(normalized)
 
       if (existing) {
         const updated = updatePlanningRecord(existing, normalized)
-        await this.db.cadencedWeekStates.put(toPlain(updated))
+        await this.db.measurementWeekStates.put(toPlain(updated))
         return updated
       }
 
-      const created = createPlanningRecord<CadencedWeekState>(normalized)
-      await this.db.cadencedWeekStates.add(toPlain(created))
+      const created = createPlanningRecord<MeasurementWeekState>(normalized)
+      await this.db.measurementWeekStates.add(toPlain(created))
       return created
     } catch (error) {
-      console.error('Failed to upsert cadenced week state:', error)
-      throw new Error('Failed to persist cadenced week state in database')
+      console.error('Failed to upsert measurement week state:', error)
+      throw new Error('Failed to persist measurement week state in database')
     }
   }
 
-  async deleteCadencedWeekState(
+  async deleteMeasurementWeekState(
     weekRef: WeekRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string,
     sourceMonthRef?: MonthRef
   ): Promise<void> {
     try {
-      const existing = await this.getCadencedWeekState(
+      const existing = await this.getMeasurementWeekState(
         weekRef,
         subjectType,
         subjectId,
@@ -255,83 +247,153 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       )
       if (!existing) return
 
-      await this.db.cadencedWeekStates.delete(existing.id)
+      await this.db.measurementWeekStates.delete(existing.id)
     } catch (error) {
       console.error(
-        `Failed to delete cadenced week state for ${subjectType}:${subjectId} in ${weekRef}:`,
+        `Failed to delete measurement week state for ${subjectType}:${subjectId} in ${weekRef}:`,
         error
       )
-      throw new Error(`Failed to delete cadenced week state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to delete measurement week state for ${subjectType}:${subjectId}`)
     }
   }
 
-  async getCadencedDayAssignment(
-    dayRef: CadencedDayAssignment['dayRef'],
-    subjectType: PlanningSubjectType,
+  async getMeasurementDayAssignment(
+    dayRef: DayRef,
+    subjectType: MeasurementSubjectType,
     subjectId: string
-  ): Promise<CadencedDayAssignment | undefined> {
+  ): Promise<MeasurementDayAssignment | undefined> {
     try {
-      return await this.db.cadencedDayAssignments
+      return await this.db.measurementDayAssignments
         .where('[dayRef+subjectType+subjectId]')
         .equals([dayRef, subjectType, subjectId])
         .first()
     } catch (error) {
       console.error(
-        `Failed to get cadenced day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
+        `Failed to get measurement day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
         error
       )
-      throw new Error(`Failed to retrieve cadenced day assignment for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve measurement day assignment for ${subjectType}:${subjectId}`)
     }
   }
 
-  async listCadencedDayAssignments(): Promise<CadencedDayAssignment[]> {
+  async listMeasurementDayAssignments(): Promise<MeasurementDayAssignment[]> {
     try {
-      return await this.db.cadencedDayAssignments.toArray()
+      return await this.db.measurementDayAssignments.toArray()
     } catch (error) {
-      console.error('Failed to list cadenced day assignments:', error)
-      throw new Error('Failed to retrieve cadenced day assignments from database')
+      console.error('Failed to list measurement day assignments:', error)
+      throw new Error('Failed to retrieve measurement day assignments from database')
     }
   }
 
-  async upsertCadencedDayAssignment(
-    data: CreateCadencedDayAssignmentPayload | UpdateCadencedDayAssignmentPayload
-  ): Promise<CadencedDayAssignment> {
+  async upsertMeasurementDayAssignment(
+    data: CreateMeasurementDayAssignmentPayload | UpdateMeasurementDayAssignmentPayload
+  ): Promise<MeasurementDayAssignment> {
     try {
-      const existing = await this.findExistingCadencedDayAssignment(data)
-      const normalized = normalizeCadencedDayAssignmentPayload(data, existing)
-      await this.assertCadencedDayAssignmentAllowed(normalized)
+      const existing = await this.findExistingMeasurementDayAssignment(data)
+      const normalized = normalizeMeasurementDayAssignmentPayload(data, existing)
+      await this.assertMeasurementDayAssignmentAllowed(normalized)
 
       if (existing) {
         const updated = updatePlanningRecord(existing, normalized)
-        await this.db.cadencedDayAssignments.put(toPlain(updated))
+        await this.db.measurementDayAssignments.put(toPlain(updated))
         return updated
       }
 
-      const created = createPlanningRecord<CadencedDayAssignment>(normalized)
-      await this.db.cadencedDayAssignments.add(toPlain(created))
+      const created = createPlanningRecord<MeasurementDayAssignment>(normalized)
+      await this.db.measurementDayAssignments.add(toPlain(created))
       return created
     } catch (error) {
-      console.error('Failed to upsert cadenced day assignment:', error)
-      throw new Error('Failed to persist cadenced day assignment in database')
+      console.error('Failed to upsert measurement day assignment:', error)
+      throw new Error('Failed to persist measurement day assignment in database')
     }
   }
 
-  async deleteCadencedDayAssignment(
-    dayRef: CadencedDayAssignment['dayRef'],
-    subjectType: PlanningSubjectType,
+  async deleteMeasurementDayAssignment(
+    dayRef: DayRef,
+    subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<void> {
     try {
-      const existing = await this.getCadencedDayAssignment(dayRef, subjectType, subjectId)
+      const existing = await this.getMeasurementDayAssignment(dayRef, subjectType, subjectId)
       if (!existing) return
 
-      await this.db.cadencedDayAssignments.delete(existing.id)
+      await this.db.measurementDayAssignments.delete(existing.id)
     } catch (error) {
       console.error(
-        `Failed to delete cadenced day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
+        `Failed to delete measurement day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
         error
       )
-      throw new Error(`Failed to delete cadenced day assignment for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to delete measurement day assignment for ${subjectType}:${subjectId}`)
+    }
+  }
+
+  async getDailyMeasurementEntry(
+    subjectType: MeasurementSubjectType,
+    subjectId: string,
+    dayRef: DayRef
+  ): Promise<DailyMeasurementEntry | undefined> {
+    try {
+      return await this.db.dailyMeasurementEntries
+        .where('[subjectType+subjectId+dayRef]')
+        .equals([subjectType, subjectId, dayRef])
+        .first()
+    } catch (error) {
+      console.error(
+        `Failed to get daily measurement entry for ${subjectType}:${subjectId} on ${dayRef}:`,
+        error
+      )
+      throw new Error(`Failed to retrieve daily measurement entry for ${subjectType}:${subjectId}`)
+    }
+  }
+
+  async listDailyMeasurementEntries(): Promise<DailyMeasurementEntry[]> {
+    try {
+      return await this.db.dailyMeasurementEntries.toArray()
+    } catch (error) {
+      console.error('Failed to list daily measurement entries:', error)
+      throw new Error('Failed to retrieve daily measurement entries from database')
+    }
+  }
+
+  async upsertDailyMeasurementEntry(
+    data: CreateDailyMeasurementEntryPayload | UpdateDailyMeasurementEntryPayload
+  ): Promise<DailyMeasurementEntry> {
+    try {
+      const existing = await this.findExistingDailyMeasurementEntry(data)
+      const normalized = normalizeDailyMeasurementEntryPayload(data, existing)
+      await this.assertDailyMeasurementEntryAllowed(normalized)
+
+      if (existing) {
+        const updated = updatePlanningRecord(existing, normalized)
+        await this.db.dailyMeasurementEntries.put(toPlain(updated))
+        return updated
+      }
+
+      const created = createPlanningRecord<DailyMeasurementEntry>(normalized)
+      await this.db.dailyMeasurementEntries.add(toPlain(created))
+      return created
+    } catch (error) {
+      console.error('Failed to upsert daily measurement entry:', error)
+      throw new Error('Failed to persist daily measurement entry in database')
+    }
+  }
+
+  async deleteDailyMeasurementEntry(
+    subjectType: MeasurementSubjectType,
+    subjectId: string,
+    dayRef: DayRef
+  ): Promise<void> {
+    try {
+      const existing = await this.getDailyMeasurementEntry(subjectType, subjectId, dayRef)
+      if (!existing) return
+
+      await this.db.dailyMeasurementEntries.delete(existing.id)
+    } catch (error) {
+      console.error(
+        `Failed to delete daily measurement entry for ${subjectType}:${subjectId} on ${dayRef}:`,
+        error
+      )
+      throw new Error(`Failed to delete daily measurement entry for ${subjectType}:${subjectId}`)
     }
   }
 
@@ -388,183 +450,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
   }
 
-  async getTrackerMonthState(
-    monthRef: MonthRef,
-    trackerId: string
-  ): Promise<TrackerMonthState | undefined> {
-    try {
-      return await this.db.trackerMonthStates
-        .where('[monthRef+trackerId]')
-        .equals([monthRef, trackerId])
-        .first()
-    } catch (error) {
-      console.error(`Failed to get tracker month state for ${trackerId} in ${monthRef}:`, error)
-      throw new Error(`Failed to retrieve tracker month state for ${trackerId}`)
-    }
-  }
-
-  async listTrackerMonthStates(): Promise<TrackerMonthState[]> {
-    try {
-      return await this.db.trackerMonthStates.toArray()
-    } catch (error) {
-      console.error('Failed to list tracker month states:', error)
-      throw new Error('Failed to retrieve tracker month states from database')
-    }
-  }
-
-  async upsertTrackerMonthState(
-    data: CreateTrackerMonthStatePayload | UpdateTrackerMonthStatePayload
-  ): Promise<TrackerMonthState> {
-    try {
-      const existing = await this.findExistingTrackerMonthState(data)
-      const normalized = normalizeTrackerMonthStatePayload(data, existing)
-      await this.assertTrackerExists(normalized.trackerId)
-
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.trackerMonthStates.put(toPlain(updated))
-        return updated
-      }
-
-      const created = createPlanningRecord<TrackerMonthState>(normalized)
-      await this.db.trackerMonthStates.add(toPlain(created))
-      return created
-    } catch (error) {
-      console.error('Failed to upsert tracker month state:', error)
-      throw new Error('Failed to persist tracker month state in database')
-    }
-  }
-
-  async deleteTrackerMonthState(monthRef: MonthRef, trackerId: string): Promise<void> {
-    try {
-      const existing = await this.getTrackerMonthState(monthRef, trackerId)
-      if (!existing) return
-
-      await this.db.trackerMonthStates.delete(existing.id)
-    } catch (error) {
-      console.error(`Failed to delete tracker month state for ${trackerId} in ${monthRef}:`, error)
-      throw new Error(`Failed to delete tracker month state for ${trackerId}`)
-    }
-  }
-
-  async getTrackerWeekState(
-    weekRef: WeekRef,
-    trackerId: string
-  ): Promise<TrackerWeekState | undefined> {
-    try {
-      return await this.db.trackerWeekStates
-        .where('[weekRef+trackerId]')
-        .equals([weekRef, trackerId])
-        .first()
-    } catch (error) {
-      console.error(`Failed to get tracker week state for ${trackerId} in ${weekRef}:`, error)
-      throw new Error(`Failed to retrieve tracker week state for ${trackerId}`)
-    }
-  }
-
-  async listTrackerWeekStates(): Promise<TrackerWeekState[]> {
-    try {
-      return await this.db.trackerWeekStates.toArray()
-    } catch (error) {
-      console.error('Failed to list tracker week states:', error)
-      throw new Error('Failed to retrieve tracker week states from database')
-    }
-  }
-
-  async upsertTrackerWeekState(
-    data: CreateTrackerWeekStatePayload | UpdateTrackerWeekStatePayload
-  ): Promise<TrackerWeekState> {
-    try {
-      const existing = await this.findExistingTrackerWeekState(data)
-      const normalized = normalizeTrackerWeekStatePayload(data, existing)
-      await this.assertTrackerWeekStateAllowed(normalized)
-
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.trackerWeekStates.put(toPlain(updated))
-        return updated
-      }
-
-      const created = createPlanningRecord<TrackerWeekState>(normalized)
-      await this.db.trackerWeekStates.add(toPlain(created))
-      return created
-    } catch (error) {
-      console.error('Failed to upsert tracker week state:', error)
-      throw new Error('Failed to persist tracker week state in database')
-    }
-  }
-
-  async deleteTrackerWeekState(weekRef: WeekRef, trackerId: string): Promise<void> {
-    try {
-      const existing = await this.getTrackerWeekState(weekRef, trackerId)
-      if (!existing) return
-
-      await this.db.trackerWeekStates.delete(existing.id)
-    } catch (error) {
-      console.error(`Failed to delete tracker week state for ${trackerId} in ${weekRef}:`, error)
-      throw new Error(`Failed to delete tracker week state for ${trackerId}`)
-    }
-  }
-
-  async getTrackerEntry(
-    trackerId: string,
-    periodRef: TrackerEntry['periodRef']
-  ): Promise<TrackerEntry | undefined> {
-    try {
-      return await this.db.trackerEntries
-        .where('[trackerId+periodRef]')
-        .equals([trackerId, periodRef])
-        .first()
-    } catch (error) {
-      console.error(`Failed to get tracker entry for ${trackerId} at ${periodRef}:`, error)
-      throw new Error(`Failed to retrieve tracker entry for ${trackerId}`)
-    }
-  }
-
-  async listTrackerEntries(): Promise<TrackerEntry[]> {
-    try {
-      return await this.db.trackerEntries.toArray()
-    } catch (error) {
-      console.error('Failed to list tracker entries:', error)
-      throw new Error('Failed to retrieve tracker entries from database')
-    }
-  }
-
-  async upsertTrackerEntry(
-    data: CreateTrackerEntryPayload | UpdateTrackerEntryPayload
-  ): Promise<TrackerEntry> {
-    try {
-      const existing = await this.findExistingTrackerEntry(data)
-      const normalized = normalizeTrackerEntryPayload(data, existing)
-      await this.assertTrackerEntryAllowed(normalized)
-
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.trackerEntries.put(toPlain(updated))
-        return updated
-      }
-
-      const created = createPlanningRecord<TrackerEntry>(normalized)
-      await this.db.trackerEntries.add(toPlain(created))
-      return created
-    } catch (error) {
-      console.error('Failed to upsert tracker entry:', error)
-      throw new Error('Failed to persist tracker entry in database')
-    }
-  }
-
-  async deleteTrackerEntry(trackerId: string, periodRef: TrackerEntry['periodRef']): Promise<void> {
-    try {
-      const existing = await this.getTrackerEntry(trackerId, periodRef)
-      if (!existing) return
-
-      await this.db.trackerEntries.delete(existing.id)
-    } catch (error) {
-      console.error(`Failed to delete tracker entry for ${trackerId} at ${periodRef}:`, error)
-      throw new Error(`Failed to delete tracker entry for ${trackerId}`)
-    }
-  }
-
   private async findExistingGoalMonthState(
     data: CreateGoalMonthStatePayload | UpdateGoalMonthStatePayload
   ): Promise<GoalMonthState | undefined> {
@@ -575,24 +460,24 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     return this.getGoalMonthState(data.monthRef, data.goalId)
   }
 
-  private async findExistingCadencedMonthState(
-    data: CreateCadencedMonthStatePayload | UpdateCadencedMonthStatePayload
-  ): Promise<CadencedMonthState | undefined> {
+  private async findExistingMeasurementMonthState(
+    data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload
+  ): Promise<MeasurementMonthState | undefined> {
     if (!data.monthRef || !data.subjectType || !data.subjectId) {
       return undefined
     }
 
-    return this.getCadencedMonthState(data.monthRef, data.subjectType, data.subjectId)
+    return this.getMeasurementMonthState(data.monthRef, data.subjectType, data.subjectId)
   }
 
-  private async findExistingCadencedWeekState(
-    data: CreateCadencedWeekStatePayload | UpdateCadencedWeekStatePayload
-  ): Promise<CadencedWeekState | undefined> {
+  private async findExistingMeasurementWeekState(
+    data: CreateMeasurementWeekStatePayload | UpdateMeasurementWeekStatePayload
+  ): Promise<MeasurementWeekState | undefined> {
     if (!data.weekRef || !data.subjectType || !data.subjectId) {
       return undefined
     }
 
-    return this.getCadencedWeekState(
+    return this.getMeasurementWeekState(
       data.weekRef,
       data.subjectType,
       data.subjectId,
@@ -600,14 +485,24 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     )
   }
 
-  private async findExistingCadencedDayAssignment(
-    data: CreateCadencedDayAssignmentPayload | UpdateCadencedDayAssignmentPayload
-  ): Promise<CadencedDayAssignment | undefined> {
+  private async findExistingMeasurementDayAssignment(
+    data: CreateMeasurementDayAssignmentPayload | UpdateMeasurementDayAssignmentPayload
+  ): Promise<MeasurementDayAssignment | undefined> {
     if (!data.dayRef || !data.subjectType || !data.subjectId) {
       return undefined
     }
 
-    return this.getCadencedDayAssignment(data.dayRef, data.subjectType, data.subjectId)
+    return this.getMeasurementDayAssignment(data.dayRef, data.subjectType, data.subjectId)
+  }
+
+  private async findExistingDailyMeasurementEntry(
+    data: CreateDailyMeasurementEntryPayload | UpdateDailyMeasurementEntryPayload
+  ): Promise<DailyMeasurementEntry | undefined> {
+    if (!data.subjectType || !data.subjectId || !data.dayRef) {
+      return undefined
+    }
+
+    return this.getDailyMeasurementEntry(data.subjectType, data.subjectId, data.dayRef)
   }
 
   private async findExistingInitiativePlanState(
@@ -620,36 +515,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     return this.getInitiativePlanState(data.initiativeId)
   }
 
-  private async findExistingTrackerMonthState(
-    data: CreateTrackerMonthStatePayload | UpdateTrackerMonthStatePayload
-  ): Promise<TrackerMonthState | undefined> {
-    if (!data.monthRef || !data.trackerId) {
-      return undefined
-    }
-
-    return this.getTrackerMonthState(data.monthRef, data.trackerId)
-  }
-
-  private async findExistingTrackerWeekState(
-    data: CreateTrackerWeekStatePayload | UpdateTrackerWeekStatePayload
-  ): Promise<TrackerWeekState | undefined> {
-    if (!data.weekRef || !data.trackerId) {
-      return undefined
-    }
-
-    return this.getTrackerWeekState(data.weekRef, data.trackerId)
-  }
-
-  private async findExistingTrackerEntry(
-    data: CreateTrackerEntryPayload | UpdateTrackerEntryPayload
-  ): Promise<TrackerEntry | undefined> {
-    if (!data.trackerId || !data.periodRef) {
-      return undefined
-    }
-
-    return this.getTrackerEntry(data.trackerId, data.periodRef)
-  }
-
   private async assertGoalExists(goalId: string): Promise<void> {
     const goal = await this.db.goals.get(goalId)
     if (!goal) {
@@ -657,42 +522,55 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
   }
 
-  private async resolveCadencedSubject(
-    subjectType: PlanningSubjectType,
+  private async resolveMeasurementSubject(
+    subjectType: MeasurementSubjectType,
     subjectId: string
-  ): Promise<CadencedSubject> {
-    if (subjectType === 'keyResult') {
-      const keyResult = await this.db.keyResults.get(subjectId)
-      if (!keyResult) {
-        throw new Error(`KeyResult with id ${subjectId} not found`)
+  ): Promise<MeasurementSubject> {
+    switch (subjectType) {
+      case 'keyResult': {
+        const keyResult = await this.db.keyResults.get(subjectId)
+        if (!keyResult) {
+          throw new Error(`KeyResult with id ${subjectId} not found`)
+        }
+
+        return keyResult
       }
+      case 'habit': {
+        const habit = await this.db.habits.get(subjectId)
+        if (!habit) {
+          throw new Error(`Habit with id ${subjectId} not found`)
+        }
 
-      return keyResult
-    }
+        return habit
+      }
+      case 'tracker': {
+        const tracker = await this.db.trackers.get(subjectId)
+        if (!tracker) {
+          throw new Error(`Tracker with id ${subjectId} not found`)
+        }
 
-    const habit = await this.db.habits.get(subjectId)
-    if (!habit) {
-      throw new Error(`Habit with id ${subjectId} not found`)
-    }
-
-    return habit
-  }
-
-  private async assertCadencedMonthStateAllowed(
-    normalized: Omit<CadencedMonthState, 'id' | 'createdAt' | 'updatedAt'>
-  ): Promise<void> {
-    const subject = await this.resolveCadencedSubject(normalized.subjectType, normalized.subjectId)
-    if (subject.cadence === 'weekly' && normalized.planningMode !== undefined) {
-      throw new Error(
-        'Weekly cadence subjects cannot store canonical planning config on month state'
-      )
+        return tracker
+      }
     }
   }
 
-  private async assertCadencedWeekStateAllowed(
-    normalized: Omit<CadencedWeekState, 'id' | 'createdAt' | 'updatedAt'>
+  private async assertMeasurementMonthStateAllowed(
+    normalized: Omit<MeasurementMonthState, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<void> {
-    const subject = await this.resolveCadencedSubject(normalized.subjectType, normalized.subjectId)
+    await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+    if (normalized.subjectType === 'tracker' && normalized.successNote) {
+      throw new Error('Tracker month state does not support successNote')
+    }
+  }
+
+  private async assertMeasurementWeekStateAllowed(
+    normalized: Omit<MeasurementWeekState, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<void> {
+    const subject = await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+
+    if (normalized.subjectType === 'tracker' && normalized.successNote) {
+      throw new Error('Tracker week state does not support successNote')
+    }
 
     if (subject.cadence === 'monthly' && !normalized.sourceMonthRef) {
       throw new Error('Monthly cadence subjects require sourceMonthRef on week state')
@@ -707,7 +585,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
 
     if (subject.cadence === 'monthly') {
-      const monthState = await this.getCadencedMonthState(
+      const monthState = await this.getMeasurementMonthState(
         normalized.sourceMonthRef as MonthRef,
         normalized.subjectType,
         normalized.subjectId
@@ -719,7 +597,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
 
     const overlappingMonths = getWeekOverlappingMonths(normalized.weekRef)
-    const monthStates = await this.db.cadencedMonthStates
+    const monthStates = await this.db.measurementMonthStates
       .where('[subjectType+subjectId]')
       .equals([normalized.subjectType, normalized.subjectId])
       .toArray()
@@ -732,31 +610,70 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
   }
 
-  private async assertCadencedDayAssignmentAllowed(
-    normalized: Omit<CadencedDayAssignment, 'id' | 'createdAt' | 'updatedAt'>
+  private async assertMeasurementDayAssignmentAllowed(
+    normalized: Omit<MeasurementDayAssignment, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<void> {
-    const subject = await this.resolveCadencedSubject(normalized.subjectType, normalized.subjectId)
-    const dayRefs = getPeriodRefsForDate(normalized.dayRef)
+    const subject = await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+    const refs = getPeriodRefsForDate(normalized.dayRef)
 
     if (subject.cadence === 'monthly') {
-      const monthState = await this.getCadencedMonthState(
-        dayRefs.month,
+      const weekState = await this.getMeasurementWeekState(
+        refs.week,
+        normalized.subjectType,
+        normalized.subjectId,
+        refs.month
+      )
+      const monthState = await this.getMeasurementMonthState(
+        refs.month,
         normalized.subjectType,
         normalized.subjectId
       )
-      if (monthState?.activityState !== 'active') {
-        throw new Error('Cadenced day assignments require an active month state')
+      const hasSpecificDaysPlacement =
+        (weekState?.activityState === 'active' && weekState.scheduleScope === 'specific-days') ||
+        (monthState?.activityState === 'active' && monthState.scheduleScope === 'specific-days')
+
+      if (!hasSpecificDaysPlacement) {
+        throw new Error('Monthly cadence day assignments require a specific-days schedule scope')
       }
       return
     }
 
-    const weekState = await this.getCadencedWeekState(
-      dayRefs.week,
+    const weekState = await this.getMeasurementWeekState(
+      refs.week,
       normalized.subjectType,
       normalized.subjectId
     )
-    if (weekState?.activityState !== 'active') {
-      throw new Error('Weekly cadence day assignments require an active week state')
+    if (weekState?.activityState !== 'active' || weekState.scheduleScope !== 'specific-days') {
+      throw new Error('Weekly cadence day assignments require an active week state with specific-days scope')
+    }
+  }
+
+  private async assertDailyMeasurementEntryAllowed(
+    normalized: Omit<DailyMeasurementEntry, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<void> {
+    const subject = await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+
+    switch (subject.entryMode) {
+      case 'completion':
+        if (normalized.value !== null) {
+          throw new Error('Completion entries must store null value')
+        }
+        return
+      case 'counter':
+        if (
+          typeof normalized.value !== 'number' ||
+          !Number.isInteger(normalized.value) ||
+          normalized.value < 0
+        ) {
+          throw new Error('Counter entries must store a non-negative integer')
+        }
+        return
+      case 'value':
+      case 'rating':
+        if (typeof normalized.value !== 'number' || !Number.isFinite(normalized.value)) {
+          throw new Error(`${subject.entryMode} entries must store a finite number`)
+        }
+        return
     }
   }
 
@@ -764,46 +681,6 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     const initiative = await this.db.initiatives.get(initiativeId)
     if (!initiative) {
       throw new Error(`Initiative with id ${initiativeId} not found`)
-    }
-  }
-
-  private async assertTrackerExists(trackerId: string): Promise<Tracker> {
-    const tracker = await this.db.trackers.get(trackerId)
-    if (!tracker) {
-      throw new Error(`Tracker with id ${trackerId} not found`)
-    }
-
-    return tracker
-  }
-
-  private async assertTrackerWeekStateAllowed(
-    normalized: Omit<TrackerWeekState, 'id' | 'createdAt' | 'updatedAt'>
-  ): Promise<void> {
-    await this.assertTrackerExists(normalized.trackerId)
-    if (normalized.activityState !== 'active') {
-      return
-    }
-
-    const overlappingMonths = getWeekOverlappingMonths(normalized.weekRef)
-    const monthStates = await this.db.trackerMonthStates.toArray()
-    const hasActiveMonth = monthStates.some(
-      state =>
-        state.trackerId === normalized.trackerId &&
-        state.activityState === 'active' &&
-        overlappingMonths.includes(state.monthRef)
-    )
-
-    if (!hasActiveMonth) {
-      throw new Error('Active tracker week state requires an active overlapping month state')
-    }
-  }
-
-  private async assertTrackerEntryAllowed(
-    normalized: Omit<TrackerEntry, 'id' | 'createdAt' | 'updatedAt'>
-  ): Promise<void> {
-    const tracker = await this.assertTrackerExists(normalized.trackerId)
-    if (tracker.entryMode !== normalized.periodType) {
-      throw new Error('TrackerEntry.periodType must match Tracker.entryMode')
     }
   }
 }

@@ -42,17 +42,15 @@ import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
 import type { AssessmentAttempt, AssessmentResponse } from '@/domain/assessments'
 import type { Goal, Habit, Initiative, KeyResult, Priority, Tracker } from '@/domain/planning'
 import type {
-  CadencedDayAssignment,
-  CadencedMonthState,
-  CadencedWeekState,
+  DailyMeasurementEntry,
   GoalMonthState,
   InitiativePlanState,
+  MeasurementDayAssignment,
+  MeasurementMonthState,
+  MeasurementWeekState,
   MonthPlan,
   PeriodObjectReflection,
   PeriodReflection,
-  TrackerEntry,
-  TrackerMonthState,
-  TrackerWeekState,
   WeekPlan,
 } from '@/domain/planningState'
 
@@ -108,13 +106,11 @@ export class UserDatabase extends Dexie {
   monthPlans!: Table<MonthPlan, string>
   weekPlans!: Table<WeekPlan, string>
   goalMonthStates!: Table<GoalMonthState, string>
-  cadencedMonthStates!: Table<CadencedMonthState, string>
-  cadencedWeekStates!: Table<CadencedWeekState, string>
-  cadencedDayAssignments!: Table<CadencedDayAssignment, string>
+  measurementMonthStates!: Table<MeasurementMonthState, string>
+  measurementWeekStates!: Table<MeasurementWeekState, string>
+  measurementDayAssignments!: Table<MeasurementDayAssignment, string>
+  dailyMeasurementEntries!: Table<DailyMeasurementEntry, string>
   initiativePlanStates!: Table<InitiativePlanState, string>
-  trackerMonthStates!: Table<TrackerMonthState, string>
-  trackerWeekStates!: Table<TrackerWeekState, string>
-  trackerEntries!: Table<TrackerEntry, string>
   periodReflections!: Table<PeriodReflection, string>
   periodObjectReflections!: Table<PeriodObjectReflection, string>
   assessmentAttempts!: Table<AssessmentAttempt, string>
@@ -463,6 +459,98 @@ export class UserDatabase extends Dexie {
             ...initiative,
             status: 'open',
           })
+        }
+      })
+
+    this.version(7)
+      .stores({
+        journalEntries: 'id',
+        peopleTags: 'id',
+        contextTags: 'id',
+        emotionLogs: 'id',
+        userSettings: 'key',
+        wheelOfLifeSnapshots: 'id, createdAt',
+        valuesDiscoveries: 'id',
+        shadowBeliefs: 'id',
+        transformativePurposes: 'id',
+        thoughtRecords: 'id',
+        distortionAssessments: 'id',
+        worryTreeEntries: 'id',
+        coreBeliefsExplorations: 'id',
+        compassionateLetters: 'id',
+        positiveDataLogs: 'id',
+        behavioralExperiments: 'id',
+        behavioralActivations: 'id',
+        structuredProblemSolvings: 'id',
+        gradedExposureHierarchies: 'id',
+        threePathwaysToMeaning: 'id',
+        socraticSelfDialogues: 'id',
+        mountainRangesOfMeaning: 'id',
+        paradoxicalIntentionLabs: 'id',
+        dereflectionPractices: 'id',
+        tragicOptimisms: 'id',
+        attitudinalShifts: 'id',
+        legacyLetters: 'id',
+        ifsParts: 'id',
+        ifsPartsMaps: 'id',
+        ifsUnblendingSessions: 'id',
+        ifsDirectAccessSessions: 'id',
+        ifsTrailheadEntries: 'id',
+        ifsProtectorAppreciations: 'id',
+        ifsExileWitnessings: 'id',
+        ifsSelfEnergyCheckIns: 'id',
+        ifsPartsDialogues: 'id',
+        ifsDailyCheckIns: 'id',
+        ifsConstellations: 'id',
+        lifeAreas: 'id, isActive',
+        lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+        priorities: 'id, year, isActive, *lifeAreaIds',
+        goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+        keyResults: 'id, goalId, status, isActive, cadence, entryMode',
+        habits: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+        trackers: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+        initiatives: 'id, status, isActive, goalId, *priorityIds, *lifeAreaIds',
+        monthPlans: 'id, &monthRef',
+        weekPlans: 'id, &weekRef',
+        goalMonthStates: 'id, monthRef, goalId, activityState, &[monthRef+goalId]',
+        measurementMonthStates:
+          'id, monthRef, subjectType, subjectId, activityState, scheduleScope, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+        measurementWeekStates:
+          'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, scheduleScope, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+        measurementDayAssignments:
+          'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+        dailyMeasurementEntries:
+          'id, subjectType, subjectId, dayRef, &[subjectType+subjectId+dayRef], [subjectType+subjectId]',
+        initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+        periodReflections: 'id, periodType, periodRef, &[periodType+periodRef]',
+        periodObjectReflections:
+          'id, periodType, periodRef, subjectType, subjectId, &[periodType+periodRef+subjectType+subjectId], [subjectType+subjectId]',
+        assessmentAttempts: 'id, assessmentId',
+        assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
+        drafts: '&key',
+      })
+      .upgrade(async (trans) => {
+        await trans.table('keyResults').clear()
+        await trans.table('habits').clear()
+        await trans.table('trackers').clear()
+        await trans.table('cadencedMonthStates').clear()
+        await trans.table('cadencedWeekStates').clear()
+        await trans.table('cadencedDayAssignments').clear()
+        await trans.table('trackerMonthStates').clear()
+        await trans.table('trackerWeekStates').clear()
+        await trans.table('trackerEntries').clear()
+
+        const reflections = await trans.table('periodObjectReflections').toArray()
+        for (const reflection of reflections as Array<
+          PeriodObjectReflection & { subjectType: string }
+        >) {
+          if (
+            reflection.subjectType === 'keyResult' ||
+            reflection.subjectType === 'habit' ||
+            reflection.subjectType === 'tracker'
+          ) {
+            await trans.table('periodObjectReflections').delete(reflection.id)
+          }
         }
       })
   }

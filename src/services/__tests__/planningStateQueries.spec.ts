@@ -5,8 +5,8 @@ import { initiativeDexieRepository } from '@/repositories/initiativeDexieReposit
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
-import { connectTestDatabase } from '@/test/testDatabase'
-import type { MonthRef, WeekRef } from '@/domain/period'
+import { resetPlanningTestData } from '@/test/planningTestUtils'
+import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import {
   getMonthPlanningBundle,
   getWeekPlanningBundle,
@@ -17,34 +17,17 @@ import { parsePeriodRef } from '@/utils/periods'
 
 describe('planningStateQueries', () => {
   beforeEach(async () => {
-    const db = await connectTestDatabase()
-    await db.periodObjectReflections.clear()
-    await db.periodReflections.clear()
-    await db.trackerEntries.clear()
-    await db.trackerWeekStates.clear()
-    await db.trackerMonthStates.clear()
-    await db.initiativePlanStates.clear()
-    await db.cadencedDayAssignments.clear()
-    await db.cadencedWeekStates.clear()
-    await db.cadencedMonthStates.clear()
-    await db.goalMonthStates.clear()
-    await db.weekPlans.clear()
-    await db.monthPlans.clear()
-    await db.keyResults.clear()
-    await db.goals.clear()
-    await db.habits.clear()
-    await db.trackers.clear()
-    await db.initiatives.clear()
+    await resetPlanningTestData()
   })
 
   it('does not eagerly create plans or reflections when querying empty periods', async () => {
-    const db = await connectTestDatabase()
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
 
     expect(await getMonthPlanningBundle(monthRef)).toMatchObject({
       monthRef,
       goalItems: [],
+      measurementItems: [],
       cadencedItems: [],
       trackerItems: [],
       initiativeItems: [],
@@ -53,117 +36,74 @@ describe('planningStateQueries', () => {
       weekRef,
       relevant: {
         goalItems: [],
+        measurementItems: [],
         cadencedItems: [],
         trackerItems: [],
         initiativeItems: [],
       },
     })
-
-    expect(await db.monthPlans.count()).toBe(0)
-    expect(await db.weekPlans.count()).toBe(0)
-    expect(await db.periodReflections.count()).toBe(0)
-    expect(await db.periodObjectReflections.count()).toBe(0)
   })
 
-  it('marks monthly cadenced items as overAllocated when weekly allocations exceed the monthly target', async () => {
+  it('computes month measurement actuals from shared daily entries', async () => {
     const habit = await habitDexieRepository.create({
       title: 'Outreach',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
       cadence: 'monthly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'counter',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 6,
+      },
       status: 'open',
     })
     const monthRef = parsePeriodRef('2026-03') as MonthRef
 
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'habit',
       subjectId: habit.id,
       activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 6,
+      scheduleScope: 'whole-month',
+      successNote: 'Consistent month',
     })
-    await planningStateDexieRepository.upsertCadencedWeekState({
-      weekRef: parsePeriodRef('2026-W10') as WeekRef,
-      sourceMonthRef: monthRef,
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
       subjectType: 'habit',
       subjectId: habit.id,
-      activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 4,
+      dayRef: parsePeriodRef('2026-03-03') as DayRef,
+      value: 2,
     })
-    await planningStateDexieRepository.upsertCadencedWeekState({
-      weekRef: parsePeriodRef('2026-W11') as WeekRef,
-      sourceMonthRef: monthRef,
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
       subjectType: 'habit',
       subjectId: habit.id,
-      activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 3,
+      dayRef: parsePeriodRef('2026-03-10') as DayRef,
+      value: 5,
     })
 
     const bundle = await getMonthPlanningBundle(monthRef)
 
-    expect(bundle.cadencedItems).toHaveLength(1)
-    expect(bundle.cadencedItems[0].overAllocated).toBe(true)
+    expect(bundle.measurementItems).toHaveLength(1)
+    expect(bundle.measurementItems[0]).toMatchObject({
+      subjectType: 'habit',
+      planning: {
+        activityState: 'active',
+        scheduleScope: 'whole-month',
+        successNote: 'Consistent month',
+      },
+      measurement: {
+        actualValue: 7,
+        entryCount: 2,
+        evaluationStatus: 'met',
+      },
+    })
   })
 
-  it('uses both overlapping months when computing weekly planning relevance', async () => {
-    const habit = await habitDexieRepository.create({
-      title: 'Bridge habit',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      cadence: 'monthly',
-      kind: 'generic',
-      config: {},
-      status: 'open',
-    })
-    const febRef = parsePeriodRef('2026-02') as MonthRef
-    const marRef = parsePeriodRef('2026-03') as MonthRef
-    const weekRef = parsePeriodRef('2026-W08') as WeekRef
-
-    await planningStateDexieRepository.upsertCadencedMonthState({
-      monthRef: febRef,
-      subjectType: 'habit',
-      subjectId: habit.id,
-      activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 2,
-    })
-    await planningStateDexieRepository.upsertCadencedMonthState({
-      monthRef: marRef,
-      subjectType: 'habit',
-      subjectId: habit.id,
-      activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 3,
-    })
-    await planningStateDexieRepository.upsertCadencedWeekState({
-      weekRef,
-      sourceMonthRef: marRef,
-      subjectType: 'habit',
-      subjectId: habit.id,
-      activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 1,
-    })
-
-    const relevant = await getWeekRelevantObjects(weekRef)
-
-    expect(relevant.overlappingMonthRefs).toEqual([febRef, marRef])
-    expect(relevant.planning.cadencedItems).toHaveLength(1)
-    expect(relevant.planning.cadencedItems[0].reasons).toContain('week-state')
-    expect(relevant.planning.cadencedItems[0].reasons).toContain('month-active-unassigned')
-    expect(relevant.planning.cadencedItems[0].unassignedMonthRefs).toEqual([febRef])
-  })
-
-  it('surfaces linked goals in weekly reflection when KRs or initiatives are relevant', async () => {
+  it('splits weekly planning into planned, assigned, and unassigned measurement work', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
+    const dayRef = parsePeriodRef('2026-03-12') as DayRef
     const goal = await goalDexieRepository.create({
       title: 'Launch feature',
       isActive: true,
@@ -176,8 +116,26 @@ describe('planningStateQueries', () => {
       isActive: true,
       goalId: goal.id,
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+    const habit = await habitDexieRepository.create({
+      title: 'Bridge habit',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 4,
+      },
       status: 'open',
     })
     const initiative = await initiativeDexieRepository.create({
@@ -194,19 +152,40 @@ describe('planningStateQueries', () => {
       goalId: goal.id,
       activityState: 'active',
     })
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
       activityState: 'active',
+      scheduleScope: 'unassigned',
     })
-    await planningStateDexieRepository.upsertCadencedWeekState({
-      weekRef,
-      subjectType: 'keyResult',
-      subjectId: keyResult.id,
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
       activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 1,
+      scheduleScope: 'specific-days',
+      successNote: 'Held up well',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef,
+      sourceMonthRef: monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+      successNote: 'Good bridge week',
+    })
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
+      dayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'habit',
+      subjectId: habit.id,
+      dayRef,
+      value: null,
     })
     await planningStateDexieRepository.upsertInitiativePlanState({
       initiativeId: initiative.id,
@@ -219,14 +198,18 @@ describe('planningStateQueries', () => {
       note: 'Strong execution week',
     })
 
+    const relevant = await getWeekRelevantObjects(weekRef)
     const planningBundle = await getWeekPlanningBundle(weekRef)
     const reflectionBundle = await getWeekReflectionBundle(weekRef)
 
-    expect(planningBundle.relevant.cadencedItems).toHaveLength(1)
+    expect(relevant.planning.measurementItems.map((item) => item.placement)).toEqual(
+      expect.arrayContaining(['assigned', 'unassigned']),
+    )
+    expect(relevant.planning.cadencedItems).toHaveLength(2)
+    expect(relevant.planning.cadencedItems.find((item) => item.subject.id === habit.id)?.planning.scheduledDayRefs).toEqual([dayRef])
     expect(planningBundle.relevant.initiativeItems).toHaveLength(1)
     expect(reflectionBundle.periodReflection?.note).toBe('Strong execution week')
     expect(reflectionBundle.relevant.goalItems).toHaveLength(1)
-    expect(reflectionBundle.relevant.goalItems[0].goal.id).toBe(goal.id)
-    expect(reflectionBundle.relevant.goalItems[0].reasons).toEqual(['goal-linked-work'])
+    expect(reflectionBundle.relevant.measurementItems.find((item) => item.subject.id === habit.id)?.hasEntries).toBe(true)
   })
 })

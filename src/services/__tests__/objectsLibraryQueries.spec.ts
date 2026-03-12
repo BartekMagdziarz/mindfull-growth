@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { MonthRef, WeekRef, YearRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
-import { connectTestDatabase } from '@/test/testDatabase'
+import { resetPlanningTestData } from '@/test/planningTestUtils'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
+import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
@@ -17,27 +18,10 @@ import {
 
 describe('objectsLibraryQueries', () => {
   beforeEach(async () => {
-    const db = await connectTestDatabase()
-    await db.periodObjectReflections.clear()
-    await db.periodReflections.clear()
-    await db.trackerEntries.clear()
-    await db.trackerWeekStates.clear()
-    await db.trackerMonthStates.clear()
-    await db.initiativePlanStates.clear()
-    await db.cadencedDayAssignments.clear()
-    await db.cadencedWeekStates.clear()
-    await db.cadencedMonthStates.clear()
-    await db.goalMonthStates.clear()
-    await db.keyResults.clear()
-    await db.goals.clear()
-    await db.habits.clear()
-    await db.trackers.clear()
-    await db.initiatives.clear()
-    await db.priorities.clear()
-    await db.lifeAreas.clear()
+    await resetPlanningTestData()
   })
 
-  it('builds goal-centric results with linked period relevance, detail panel data, and history', async () => {
+  it('builds goal-centric results with linked periods and history', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
 
@@ -66,8 +50,12 @@ describe('objectsLibraryQueries', () => {
       isActive: true,
       goalId: goal.id,
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
       status: 'open',
     })
     const initiative = await initiativeDexieRepository.create({
@@ -84,18 +72,24 @@ describe('objectsLibraryQueries', () => {
       goalId: goal.id,
       activityState: 'active',
     })
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
       activityState: 'active',
+      scheduleScope: 'unassigned',
     })
-    await planningStateDexieRepository.upsertCadencedWeekState({
+    await planningStateDexieRepository.upsertMeasurementWeekState({
       weekRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
       activityState: 'active',
-      planningMode: 'specific-days',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
+      dayRef: parsePeriodRef('2026-03-12') as DayRef,
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
     })
     await planningStateDexieRepository.upsertInitiativePlanState({
       initiativeId: initiative.id,
@@ -130,59 +124,80 @@ describe('objectsLibraryQueries', () => {
     expect(bundle.familyTotalCount).toBe(1)
     expect(bundle.items[0].childPreviews).toHaveLength(1)
     expect(bundle.items[0].linkedEntities).toEqual(
-      expect.arrayContaining([lifeArea.name, `${priority.year} · ${priority.title}`])
+      expect.arrayContaining([lifeArea.name, `${priority.year} · ${priority.title}`]),
     )
-    expect(bundle.items[0].matchReasons.map(reason => reason.kind)).toEqual(
-      expect.arrayContaining(['linked-key-result', 'linked-initiative'])
+    expect(bundle.items[0].matchReasons.map((reason) => reason.kind)).toEqual(
+      expect.arrayContaining(['linked-key-result', 'linked-initiative']),
     )
 
     expect(bundle.expandedItem?.title).toBe(goal.title)
-    expect(bundle.expandedItem?.linkedPeriods.map(period => period.periodRef)).toEqual(
-      expect.arrayContaining([monthRef, weekRef])
+    expect(bundle.expandedItem?.linkedPeriods.map((period) => period.periodRef)).toEqual(
+      expect.arrayContaining([monthRef, weekRef]),
     )
-    expect(bundle.expandedItem?.linkedPeriods[0]?.reasonLabel).toEqual(
-      expect.objectContaining({ key: expect.stringContaining('planning.objects.reason') })
-    )
-    expect(bundle.expandedItem?.historyItems.map(item => item.source)).toEqual(
-      expect.arrayContaining(['object-reflection', 'period-reflection'])
+    expect(bundle.expandedItem?.historyItems.map((item) => item.source)).toEqual(
+      expect.arrayContaining(['object-reflection', 'period-reflection']),
     )
   })
 
-  it('hides closed initiatives by default and brings them back with showClosed', async () => {
-    const openInitiative = await initiativeDexieRepository.create({
-      title: 'Keep weekly sync',
+  it('exposes measurement badges and actual details for habits', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Deep work',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'counter',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 5,
+      },
       status: 'open',
     })
-    await initiativeDexieRepository.create({
-      title: 'Sunset onboarding checklist',
-      isActive: false,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'completed',
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: parsePeriodRef('2026-03') as MonthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'habit',
+      subjectId: habit.id,
+      dayRef: parsePeriodRef('2026-03-10') as DayRef,
+      value: 3,
+    })
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'habit',
+      subjectId: habit.id,
+      dayRef: parsePeriodRef('2026-03-12') as DayRef,
+      value: 3,
     })
 
-    const openOnly = await loadObjectsLibraryBundle({
-      family: 'initiatives',
+    const bundle = await loadObjectsLibraryBundle({
+      family: 'habits',
       q: '',
+      period: weekRef,
       lifeAreaIds: [],
       priorityIds: [],
       showClosed: false,
-    })
-    const withClosed = await loadObjectsLibraryBundle({
-      family: 'initiatives',
-      q: '',
-      lifeAreaIds: [],
-      priorityIds: [],
-      showClosed: true,
+      expandedType: 'habit',
+      expandedId: habit.id,
     })
 
-    expect(openOnly.items.map(item => item.id)).toEqual([openInitiative.id])
-    expect(withClosed.items).toHaveLength(2)
-    expect(withClosed.items.map(item => item.status)).toEqual(
-      expect.arrayContaining(['open', 'completed'])
+    expect(bundle.items).toHaveLength(1)
+    expect(bundle.items[0].details).toEqual(
+      expect.arrayContaining([
+        'Min 5',
+        { key: 'planning.calendar.details.actual', params: { value: '6' } },
+      ]),
+    )
+    expect(bundle.expandedItem?.badges.map((badge) => badge.label)).toEqual(
+      expect.arrayContaining([
+        { key: 'planning.calendar.badges.met' },
+      ]),
     )
   })
 

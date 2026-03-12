@@ -34,7 +34,7 @@
       "toPlanThisWeek": "Do rozplanowania w tym tygodniu",
       "reflectionContext": "Kontekst do refleksji",
       "scheduledToday": "Zaplanowane na dziś",
-      "trackerEntries": "Dzisiejsze wpisy trackerów",
+      "entriesToday": "Dzisiejsze wpisy",
       "activeThisWeek": "Aktywne w tym tygodniu",
       "monthlyContext": "Kontekst miesięczny"
     },
@@ -62,7 +62,12 @@
       "activeInitiatives": "Inicjatywy"
     },
     "labels": {
-      "goal": "Cel"
+      "goal": "Cel",
+      "aggregation": {
+        "sum": "Suma",
+        "average": "Średnia",
+        "last": "Ostatnia wartość"
+      }
     },
     "badges": {
       "active": "Aktywne",
@@ -84,11 +89,31 @@
       "entryMonth": "Wpis miesięczny",
       "scheduledThisWeek": "Na ten tydzień",
       "scheduledThisDay": "Na ten dzień",
-      "needsPlacement": "Wymaga rozplanowania"
+      "needsPlacement": "Wymaga rozplanowania",
+      "recorded": "Zapisano",
+      "met": "Cel osiągnięty",
+      "missed": "Poza celem",
+      "noData": "Brak danych",
+      "scheduleScope": {
+        "unassigned": "Bez przypisania",
+        "specific-days": "Konkretne dni",
+        "whole-week": "Cały tydzień",
+        "whole-month": "Cały miesiąc"
+      }
     },
     "details": {
       "target": "Cel {n}",
+      "targetCountMin": "Cel: co najmniej {n}",
+      "targetCountMax": "Cel: co najwyżej {n}",
+      "targetRule": "Cel: {aggregation} {operator} {value}",
+      "actual": "Wynik: {value}",
+      "actualNoData": "Wynik: brak danych",
       "assignedDays": "{n} przypisanych dni",
+      "entryCount": "{n} wpisów",
+      "loggedValue": "Zapisana wartość: {value}",
+      "recordedToday": "Zapisano dziś",
+      "successNote": "Notatka sukcesu: {note}",
+      "sourceMonth": "Kontekst miesiąca: {month}",
       "weekSlots": {
         "one": "{n} slot tygodniowy",
         "few": "{n} sloty tygodniowe",
@@ -114,7 +139,7 @@
       "initiatives": "Brak inicjatyw dla tego okresu.",
       "reflection": "Brak obiektów do refleksji.",
       "today": "Brak przypisań dziennych dla tej daty.",
-      "trackerEntries": "Brak wpisów trackerów dla tej daty."
+      "entries": "Brak wpisów dla tej daty."
     },
     "panel": {
       "closedTitle": "Otwórz panel",
@@ -234,17 +259,22 @@
         "month": "Analiza miesiąca"
       },
       "entryMode": {
-        "day": "Wpisy dzienne",
-        "week": "Wpisy tygodniowe",
-        "month": "Wpisy miesięczne"
+        "completion": "Wykonanie",
+        "counter": "Licznik",
+        "value": "Wartość",
+        "rating": "Ocena"
       }
     },
     "fields": {
       "created": "Utworzono",
-      "updated": "Zaktualizowano"
+      "updated": "Zaktualizowano",
+      "createdAt": "Utworzono",
+      "updatedAt": "Zaktualizowano",
+      "entryCount": "Wpisy"
     },
     "details": {
       "keyResults": "{n} key resultów",
+      "noLinkedKeyResults": "Brak powiązanych key resultów",
       "latestValue": "Ostatnia wartość: {value}",
       "entryCount": "{n} wpisów",
       "noEntries": "Brak wpisów",
@@ -267,6 +297,7 @@
       "scheduledThisMonth": "Zaplanowany w tym miesiącu",
       "scheduledThisWeek": "Zaplanowany w tym tygodniu",
       "scheduledThisDay": "Zaplanowany na ten dzień",
+      "loggedThisDay": "Zapisany tego dnia",
       "trackedThisMonth": "Śledzony w tym miesiącu",
       "trackedThisWeek": "Śledzony w tym tygodniu",
       "trackedThisPeriod": "Śledzony w tym okresie"
@@ -292,11 +323,25 @@
       "activeHint": "Obiekt jest aktywny. Odznacz, aby go zarchiwizować.",
       "goal": "Cel nadrzędny",
       "cadence": "Kadencja",
-      "analysisPeriod": "Okres analizy",
       "entryMode": "Tryb wpisów",
+      "target": "Cel",
+      "targetOperator": "Operator celu",
+      "targetAggregation": "Agregacja celu",
+      "targetValue": "Wartość celu",
       "noneSelected": "Wybierz opcje",
       "lifeAreas": "Powiązane obszary życia",
       "priorities": "Powiązane priorytety"
+    },
+    "targetOperators": {
+      "min": "Co najmniej",
+      "max": "Co najwyżej",
+      "gte": ">=",
+      "lte": "<="
+    },
+    "targetAggregations": {
+      "sum": "Suma",
+      "average": "Średnia",
+      "last": "Ostatnia wartość"
     }
   }
 }

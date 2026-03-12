@@ -1,30 +1,24 @@
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
-  CadencedDayAssignment,
-  CadencedMonthState,
-  CadencedWeekState,
-  CreateCadencedDayAssignmentPayload,
-  CreateCadencedMonthStatePayload,
-  CreateCadencedWeekStatePayload,
+  CreateDailyMeasurementEntryPayload,
   CreateGoalMonthStatePayload,
   CreateInitiativePlanStatePayload,
-  CreateTrackerEntryPayload,
-  CreateTrackerMonthStatePayload,
-  CreateTrackerWeekStatePayload,
+  CreateMeasurementDayAssignmentPayload,
+  CreateMeasurementMonthStatePayload,
+  CreateMeasurementWeekStatePayload,
+  DailyMeasurementEntry,
   GoalMonthState,
   InitiativePlanState,
-  PlanningSubjectType,
-  TrackerEntry,
-  TrackerMonthState,
-  TrackerWeekState,
-  UpdateCadencedDayAssignmentPayload,
-  UpdateCadencedMonthStatePayload,
-  UpdateCadencedWeekStatePayload,
+  MeasurementDayAssignment,
+  MeasurementMonthState,
+  MeasurementSubjectType,
+  MeasurementWeekState,
+  UpdateDailyMeasurementEntryPayload,
   UpdateGoalMonthStatePayload,
   UpdateInitiativePlanStatePayload,
-  UpdateTrackerEntryPayload,
-  UpdateTrackerMonthStatePayload,
-  UpdateTrackerWeekStatePayload,
+  UpdateMeasurementDayAssignmentPayload,
+  UpdateMeasurementMonthStatePayload,
+  UpdateMeasurementWeekStatePayload,
 } from '@/domain/planningState'
 
 export interface PlanningStateRepository {
@@ -35,51 +29,66 @@ export interface PlanningStateRepository {
   ): Promise<GoalMonthState>
   deleteGoalMonthState(monthRef: MonthRef, goalId: string): Promise<void>
 
-  getCadencedMonthState(
+  getMeasurementMonthState(
     monthRef: MonthRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string
-  ): Promise<CadencedMonthState | undefined>
-  listCadencedMonthStates(): Promise<CadencedMonthState[]>
-  upsertCadencedMonthState(
-    data: CreateCadencedMonthStatePayload | UpdateCadencedMonthStatePayload
-  ): Promise<CadencedMonthState>
-  deleteCadencedMonthState(
+  ): Promise<MeasurementMonthState | undefined>
+  listMeasurementMonthStates(): Promise<MeasurementMonthState[]>
+  upsertMeasurementMonthState(
+    data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload
+  ): Promise<MeasurementMonthState>
+  deleteMeasurementMonthState(
     monthRef: MonthRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string
   ): Promise<void>
 
-  getCadencedWeekState(
+  getMeasurementWeekState(
     weekRef: WeekRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string,
     sourceMonthRef?: MonthRef
-  ): Promise<CadencedWeekState | undefined>
-  listCadencedWeekStates(): Promise<CadencedWeekState[]>
-  upsertCadencedWeekState(
-    data: CreateCadencedWeekStatePayload | UpdateCadencedWeekStatePayload
-  ): Promise<CadencedWeekState>
-  deleteCadencedWeekState(
+  ): Promise<MeasurementWeekState | undefined>
+  listMeasurementWeekStates(): Promise<MeasurementWeekState[]>
+  upsertMeasurementWeekState(
+    data: CreateMeasurementWeekStatePayload | UpdateMeasurementWeekStatePayload
+  ): Promise<MeasurementWeekState>
+  deleteMeasurementWeekState(
     weekRef: WeekRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string,
     sourceMonthRef?: MonthRef
   ): Promise<void>
 
-  getCadencedDayAssignment(
+  getMeasurementDayAssignment(
     dayRef: DayRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string
-  ): Promise<CadencedDayAssignment | undefined>
-  listCadencedDayAssignments(): Promise<CadencedDayAssignment[]>
-  upsertCadencedDayAssignment(
-    data: CreateCadencedDayAssignmentPayload | UpdateCadencedDayAssignmentPayload
-  ): Promise<CadencedDayAssignment>
-  deleteCadencedDayAssignment(
+  ): Promise<MeasurementDayAssignment | undefined>
+  listMeasurementDayAssignments(): Promise<MeasurementDayAssignment[]>
+  upsertMeasurementDayAssignment(
+    data: CreateMeasurementDayAssignmentPayload | UpdateMeasurementDayAssignmentPayload
+  ): Promise<MeasurementDayAssignment>
+  deleteMeasurementDayAssignment(
     dayRef: DayRef,
-    subjectType: PlanningSubjectType,
+    subjectType: MeasurementSubjectType,
     subjectId: string
+  ): Promise<void>
+
+  getDailyMeasurementEntry(
+    subjectType: MeasurementSubjectType,
+    subjectId: string,
+    dayRef: DayRef
+  ): Promise<DailyMeasurementEntry | undefined>
+  listDailyMeasurementEntries(): Promise<DailyMeasurementEntry[]>
+  upsertDailyMeasurementEntry(
+    data: CreateDailyMeasurementEntryPayload | UpdateDailyMeasurementEntryPayload
+  ): Promise<DailyMeasurementEntry>
+  deleteDailyMeasurementEntry(
+    subjectType: MeasurementSubjectType,
+    subjectId: string,
+    dayRef: DayRef
   ): Promise<void>
 
   getInitiativePlanState(initiativeId: string): Promise<InitiativePlanState | undefined>
@@ -88,31 +97,4 @@ export interface PlanningStateRepository {
     data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload
   ): Promise<InitiativePlanState>
   deleteInitiativePlanState(initiativeId: string): Promise<void>
-
-  getTrackerMonthState(
-    monthRef: MonthRef,
-    trackerId: string
-  ): Promise<TrackerMonthState | undefined>
-  listTrackerMonthStates(): Promise<TrackerMonthState[]>
-  upsertTrackerMonthState(
-    data: CreateTrackerMonthStatePayload | UpdateTrackerMonthStatePayload
-  ): Promise<TrackerMonthState>
-  deleteTrackerMonthState(monthRef: MonthRef, trackerId: string): Promise<void>
-
-  getTrackerWeekState(weekRef: WeekRef, trackerId: string): Promise<TrackerWeekState | undefined>
-  listTrackerWeekStates(): Promise<TrackerWeekState[]>
-  upsertTrackerWeekState(
-    data: CreateTrackerWeekStatePayload | UpdateTrackerWeekStatePayload
-  ): Promise<TrackerWeekState>
-  deleteTrackerWeekState(weekRef: WeekRef, trackerId: string): Promise<void>
-
-  getTrackerEntry(
-    trackerId: string,
-    periodRef: TrackerEntry['periodRef']
-  ): Promise<TrackerEntry | undefined>
-  listTrackerEntries(): Promise<TrackerEntry[]>
-  upsertTrackerEntry(
-    data: CreateTrackerEntryPayload | UpdateTrackerEntryPayload
-  ): Promise<TrackerEntry>
-  deleteTrackerEntry(trackerId: string, periodRef: TrackerEntry['periodRef']): Promise<void>
 }

@@ -1,43 +1,84 @@
 import { describe, expect, it } from 'vitest'
 import type {
-  CreateCadencedMonthStatePayload,
-  CreateCadencedWeekStatePayload,
+  CreateDailyMeasurementEntryPayload,
   CreateInitiativePlanStatePayload,
+  CreateMeasurementMonthStatePayload,
+  CreateMeasurementWeekStatePayload,
   CreatePeriodObjectReflectionPayload,
-  CreateTrackerEntryPayload,
 } from '@/domain/planningState'
 import {
-  normalizeCadencedMonthStatePayload,
-  normalizeCadencedWeekStatePayload,
+  normalizeDailyMeasurementEntryPayload,
   normalizeInitiativePlanStatePayload,
+  normalizeMeasurementMonthStatePayload,
+  normalizeMeasurementWeekStatePayload,
   normalizePeriodObjectReflectionPayload,
-  normalizeTrackerEntryPayload,
 } from '@/domain/planningState'
+import { parsePeriodRef } from '@/utils/periods'
 
 describe('planningState domain normalization', () => {
-  it('rejects targetCount for specific-days planning', () => {
-    expect(() =>
-      normalizeCadencedMonthStatePayload({
-        monthRef: '2026-03',
-        subjectType: 'habit',
-        subjectId: 'habit-1',
-        activityState: 'active',
-        planningMode: 'specific-days',
-        targetCount: 3,
-      } as CreateCadencedMonthStatePayload)
-    ).toThrow('specific-days does not support targetCount')
+  it('normalizes shared month and week schedule scope state', () => {
+    const monthState = normalizeMeasurementMonthStatePayload({
+      monthRef: parsePeriodRef('2026-03') as CreateMeasurementMonthStatePayload['monthRef'],
+      subjectType: 'habit',
+      subjectId: ' habit-1 ',
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+      successNote: '  Kept momentum  ',
+    } satisfies CreateMeasurementMonthStatePayload)
+
+    expect(monthState).toEqual({
+      monthRef: '2026-03',
+      subjectType: 'habit',
+      subjectId: 'habit-1',
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+      successNote: 'Kept momentum',
+    })
+
+    const weekState = normalizeMeasurementWeekStatePayload({
+      weekRef: parsePeriodRef('2026-W10') as CreateMeasurementWeekStatePayload['weekRef'],
+      sourceMonthRef: parsePeriodRef('2026-03') as CreateMeasurementWeekStatePayload['sourceMonthRef'],
+      subjectType: 'tracker',
+      subjectId: 'tracker-1',
+      activityState: 'paused',
+      scheduleScope: 'whole-week',
+    } satisfies CreateMeasurementWeekStatePayload)
+
+    expect(weekState.sourceMonthRef).toBe('2026-03')
+    expect(weekState.scheduleScope).toBe('whole-week')
   })
 
-  it('validates sourceMonthRef overlap for week states', () => {
+  it('validates overlapping sourceMonthRef for week states', () => {
     expect(() =>
-      normalizeCadencedWeekStatePayload({
+      normalizeMeasurementWeekStatePayload({
         weekRef: '2026-W10',
         sourceMonthRef: '2026-02',
         subjectType: 'keyResult',
         subjectId: 'kr-1',
         activityState: 'active',
-      } as CreateCadencedWeekStatePayload)
-    ).toThrow('sourceMonthRef must overlap CadencedWeekState.weekRef')
+        scheduleScope: 'whole-week',
+      } as CreateMeasurementWeekStatePayload),
+    ).toThrow('sourceMonthRef must overlap MeasurementWeekState.weekRef')
+  })
+
+  it('validates daily measurement entry values', () => {
+    const normalized = normalizeDailyMeasurementEntryPayload({
+      subjectType: 'tracker',
+      subjectId: 'tracker-1',
+      dayRef: parsePeriodRef('2026-03-12') as CreateDailyMeasurementEntryPayload['dayRef'],
+      value: null,
+    } satisfies CreateDailyMeasurementEntryPayload)
+
+    expect(normalized.value).toBeNull()
+
+    expect(() =>
+      normalizeDailyMeasurementEntryPayload({
+        subjectType: 'tracker',
+        subjectId: 'tracker-1',
+        dayRef: '2026-03-12',
+        value: Number.NaN,
+      } as CreateDailyMeasurementEntryPayload),
+    ).toThrow('DailyMeasurementEntry.value must be a finite number or null')
   })
 
   it('validates hierarchical initiative scheduling', () => {
@@ -47,19 +88,8 @@ describe('planningState domain normalization', () => {
         monthRef: '2026-03',
         weekRef: '2026-W10',
         dayRef: '2026-04-01',
-      } as CreateInitiativePlanStatePayload)
+      } as CreateInitiativePlanStatePayload),
     ).toThrow('dayRef must belong to weekRef')
-  })
-
-  it('requires tracker entries to use a matching periodRef type', () => {
-    expect(() =>
-      normalizeTrackerEntryPayload({
-        trackerId: 'tracker-1',
-        periodType: 'week',
-        periodRef: '2026-03-12',
-        value: 4,
-      } as CreateTrackerEntryPayload)
-    ).toThrow('periodRef must match TrackerEntry.periodType')
   })
 
   it('trims reflection notes and subject ids', () => {

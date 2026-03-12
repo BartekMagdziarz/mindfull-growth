@@ -105,7 +105,11 @@
           </label>
 
           <label
-            v-if="resolvedComposerType === 'habit' || resolvedComposerType === 'keyResult'"
+            v-if="
+              resolvedComposerType === 'habit' ||
+              resolvedComposerType === 'keyResult' ||
+              resolvedComposerType === 'tracker'
+            "
             class="space-y-2"
           >
             <span class="text-sm font-semibold text-on-surface">
@@ -117,26 +121,69 @@
             </select>
           </label>
 
-          <div v-if="resolvedComposerType === 'tracker'" class="grid gap-4 sm:grid-cols-2">
+          <label
+            v-if="
+              resolvedComposerType === 'habit' ||
+              resolvedComposerType === 'keyResult' ||
+              resolvedComposerType === 'tracker'
+            "
+            class="space-y-2"
+          >
+            <span class="text-sm font-semibold text-on-surface">
+              {{ t('planning.objects.form.entryMode') }}
+            </span>
+            <select v-model="draft.entryMode" class="neo-input w-full px-4 py-3">
+              <option value="completion">{{ t('planning.objects.badges.entryMode.completion') }}</option>
+              <option value="counter">{{ t('planning.objects.badges.entryMode.counter') }}</option>
+              <option value="value">{{ t('planning.objects.badges.entryMode.value') }}</option>
+              <option value="rating">{{ t('planning.objects.badges.entryMode.rating') }}</option>
+            </select>
+          </label>
+
+          <div
+            v-if="resolvedComposerType === 'habit' || resolvedComposerType === 'keyResult'"
+            class="grid gap-4 sm:grid-cols-2"
+          >
             <label class="space-y-2">
               <span class="text-sm font-semibold text-on-surface">
-                {{ t('planning.objects.form.analysisPeriod') }}
+                {{ t('planning.objects.form.targetOperator') }}
               </span>
-              <select v-model="draft.analysisPeriod" class="neo-input w-full px-4 py-3">
-                <option value="week">{{ t('planning.objects.badges.analysisPeriod.week') }}</option>
-                <option value="month">{{ t('planning.objects.badges.analysisPeriod.month') }}</option>
+              <select v-model="draft.target.operator" class="neo-input w-full px-4 py-3">
+                <option
+                  v-for="option in targetOperatorOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </label>
+
+            <label v-if="showTargetAggregation" class="space-y-2">
+              <span class="text-sm font-semibold text-on-surface">
+                {{ t('planning.objects.form.targetAggregation') }}
+              </span>
+              <select v-model="draft.target.aggregation" class="neo-input w-full px-4 py-3">
+                <option
+                  v-for="option in targetAggregationOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
               </select>
             </label>
 
             <label class="space-y-2">
               <span class="text-sm font-semibold text-on-surface">
-                {{ t('planning.objects.form.entryMode') }}
+                {{ t('planning.objects.form.targetValue') }}
               </span>
-              <select v-model="draft.entryMode" class="neo-input w-full px-4 py-3">
-                <option value="day">{{ t('planning.objects.badges.entryMode.day') }}</option>
-                <option value="week">{{ t('planning.objects.badges.entryMode.week') }}</option>
-                <option value="month">{{ t('planning.objects.badges.entryMode.month') }}</option>
-              </select>
+              <input
+                v-model.number="draft.target.value"
+                type="number"
+                step="any"
+                class="neo-input w-full px-4 py-3"
+              />
             </label>
           </div>
         </div>
@@ -485,6 +532,7 @@ import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
 import { useT } from '@/composables/useT'
 import type {
   ObjectsLibraryFamily,
+  ObjectsLibraryDetailRecord,
   ObjectsLibraryHistorySource,
   ObjectsLibraryLabel,
   ObjectsLibraryLinkedEntity,
@@ -499,11 +547,19 @@ import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepositor
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { isPeriodRef } from '@/utils/periods'
 import type { PeriodRef } from '@/domain/period'
+import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import { resolveObjectsLibraryLabel } from '@/utils/objectsLibraryLabels'
 import { formatPeriodLabel, formatTimestamp } from '@/utils/periodLabels'
 
 interface Props {
   family: string | string[]
+}
+
+interface LibraryTargetDraft {
+  kind: 'count' | 'value' | 'rating'
+  operator: 'min' | 'max' | 'gte' | 'lte'
+  aggregation?: 'sum' | 'average' | 'last'
+  value: number
 }
 
 interface LibraryDraft {
@@ -515,8 +571,8 @@ interface LibraryDraft {
   priorityIds: string[]
   lifeAreaIds: string[]
   cadence?: 'weekly' | 'monthly'
-  analysisPeriod?: 'week' | 'month'
-  entryMode?: 'day' | 'week' | 'month'
+  entryMode?: MeasurementEntryMode
+  target: LibraryTargetDraft
 }
 
 const props = defineProps<Props>()
@@ -582,7 +638,11 @@ const canSaveDraft = computed(() => {
   }
 
   if (resolvedComposerType.value === 'keyResult') {
-    return Boolean(draft.value.goalId)
+    return Boolean(draft.value.goalId) && hasValidTargetDraft()
+  }
+
+  if (resolvedComposerType.value === 'habit') {
+    return hasValidTargetDraft()
   }
 
   return true
@@ -612,7 +672,7 @@ onBeforeUnmount(() => {
 
 function initializeDraft(): void {
   if (composerMode.value === 'edit' && store.composerItem) {
-    draft.value = { ...store.composerItem.formDefaults }
+    draft.value = createDraftFromDefaults(store.composerItem.formDefaults, resolvedComposerType.value)
     return
   }
 
@@ -629,6 +689,7 @@ function createEmptyDraft(panelType: ObjectsLibraryPanelType, goalId?: string): 
         status: 'open',
         priorityIds: [],
         lifeAreaIds: [],
+        target: createDefaultTarget('completion'),
       }
     case 'keyResult':
       return {
@@ -640,6 +701,8 @@ function createEmptyDraft(panelType: ObjectsLibraryPanelType, goalId?: string): 
         priorityIds: [],
         lifeAreaIds: [],
         cadence: 'weekly',
+        entryMode: 'completion',
+        target: createDefaultTarget('completion'),
       }
     case 'habit':
       return {
@@ -650,6 +713,8 @@ function createEmptyDraft(panelType: ObjectsLibraryPanelType, goalId?: string): 
         priorityIds: [],
         lifeAreaIds: [],
         cadence: 'weekly',
+        entryMode: 'completion',
+        target: createDefaultTarget('completion'),
       }
     case 'tracker':
       return {
@@ -659,8 +724,9 @@ function createEmptyDraft(panelType: ObjectsLibraryPanelType, goalId?: string): 
         status: 'open',
         priorityIds: [],
         lifeAreaIds: [],
-        analysisPeriod: 'week',
-        entryMode: 'day',
+        cadence: 'weekly',
+        entryMode: 'completion',
+        target: createDefaultTarget('completion'),
       }
     case 'initiative':
       return {
@@ -671,9 +737,171 @@ function createEmptyDraft(panelType: ObjectsLibraryPanelType, goalId?: string): 
         goalId: undefined,
         priorityIds: [],
         lifeAreaIds: [],
+        target: createDefaultTarget('completion'),
       }
   }
 }
+
+function createDefaultTarget(entryMode: MeasurementEntryMode): LibraryTargetDraft {
+  switch (entryMode) {
+    case 'completion':
+    case 'counter':
+      return { kind: 'count', operator: 'min', value: 1 }
+    case 'value':
+      return { kind: 'value', aggregation: 'sum', operator: 'gte', value: 1 }
+    case 'rating':
+      return { kind: 'rating', aggregation: 'average', operator: 'gte', value: 1 }
+  }
+}
+
+function toTargetDraft(target: MeasurementTarget | undefined, entryMode: MeasurementEntryMode): LibraryTargetDraft {
+  if (!target) {
+    return createDefaultTarget(entryMode)
+  }
+
+  switch (target.kind) {
+    case 'count':
+      return { kind: 'count', operator: target.operator, value: target.value }
+    case 'value':
+      return {
+        kind: 'value',
+        aggregation: target.aggregation,
+        operator: target.operator,
+        value: target.value,
+      }
+    case 'rating':
+      return {
+        kind: 'rating',
+        aggregation: 'average',
+        operator: target.operator,
+        value: target.value,
+      }
+  }
+}
+
+function createDraftFromDefaults(
+  defaults: ObjectsLibraryDetailRecord['formDefaults'],
+  panelType: ObjectsLibraryPanelType,
+): LibraryDraft {
+  const fallback = createEmptyDraft(panelType, defaults.goalId)
+  const entryMode = defaults.entryMode ?? fallback.entryMode ?? 'completion'
+
+  return {
+    ...fallback,
+    ...defaults,
+    entryMode,
+    target: toTargetDraft(defaults.target, entryMode),
+  }
+}
+
+function syncTargetToEntryMode(entryMode: MeasurementEntryMode): void {
+  const current = draft.value.target
+
+  if (entryMode === 'completion' || entryMode === 'counter') {
+    if (current.kind !== 'count') {
+      draft.value.target = createDefaultTarget(entryMode)
+    } else if (current.operator !== 'min' && current.operator !== 'max') {
+      draft.value.target = { kind: 'count', operator: 'min', value: current.value || 1 }
+    }
+    return
+  }
+
+  if (entryMode === 'value') {
+    if (current.kind !== 'value') {
+      draft.value.target = createDefaultTarget(entryMode)
+    } else if (!current.aggregation) {
+      draft.value.target = { kind: 'value', aggregation: 'sum', operator: 'gte', value: current.value || 1 }
+    }
+    return
+  }
+
+  if (current.kind !== 'rating') {
+    draft.value.target = createDefaultTarget(entryMode)
+  } else {
+    draft.value.target = {
+      kind: 'rating',
+      aggregation: 'average',
+      operator: current.operator === 'gte' || current.operator === 'lte' ? current.operator : 'gte',
+      value: current.value,
+    }
+  }
+}
+
+function normalizeTargetDraft(entryMode: MeasurementEntryMode, target: LibraryTargetDraft): MeasurementTarget {
+  switch (entryMode) {
+    case 'completion':
+    case 'counter':
+      return {
+        kind: 'count',
+        operator: target.operator === 'max' ? 'max' : 'min',
+        value: Math.max(0, Math.trunc(target.value)),
+      }
+    case 'value':
+      return {
+        kind: 'value',
+        aggregation: target.aggregation === 'average' || target.aggregation === 'last' ? target.aggregation : 'sum',
+        operator: target.operator === 'lte' ? 'lte' : 'gte',
+        value: Number(target.value),
+      }
+    case 'rating':
+      return {
+        kind: 'rating',
+        aggregation: 'average',
+        operator: target.operator === 'lte' ? 'lte' : 'gte',
+        value: Number(target.value),
+      }
+  }
+}
+
+function hasValidTargetDraft(): boolean {
+  return Number.isFinite(draft.value.target.value)
+}
+
+watch(
+  () => draft.value.entryMode,
+  (entryMode) => {
+    if (!entryMode) {
+      return
+    }
+
+    if (resolvedComposerType.value === 'keyResult' || resolvedComposerType.value === 'habit') {
+      syncTargetToEntryMode(entryMode)
+    }
+  },
+)
+
+const showTargetAggregation = computed(
+  () =>
+    resolvedComposerType.value === 'keyResult' || resolvedComposerType.value === 'habit'
+      ? draft.value.entryMode === 'value' || draft.value.entryMode === 'rating'
+      : false,
+)
+
+const targetOperatorOptions = computed(() => {
+  if (draft.value.entryMode === 'completion' || draft.value.entryMode === 'counter') {
+    return [
+      { value: 'min', label: t('planning.objects.targetOperators.min') },
+      { value: 'max', label: t('planning.objects.targetOperators.max') },
+    ]
+  }
+
+  return [
+    { value: 'gte', label: t('planning.objects.targetOperators.gte') },
+    { value: 'lte', label: t('planning.objects.targetOperators.lte') },
+  ]
+})
+
+const targetAggregationOptions = computed(() => {
+  if (draft.value.entryMode === 'rating') {
+    return [{ value: 'average', label: t('planning.objects.targetAggregations.average') }]
+  }
+
+  return [
+    { value: 'sum', label: t('planning.objects.targetAggregations.sum') },
+    { value: 'average', label: t('planning.objects.targetAggregations.average') },
+    { value: 'last', label: t('planning.objects.targetAggregations.last') },
+  ]
+})
 
 async function syncRoute(): Promise<void> {
   await router.replace({
@@ -890,9 +1118,9 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
           isActive: true,
           goalId:
             draft.value.goalId ?? store.query.composerParentId ?? composerId ?? '',
+          entryMode: draft.value.entryMode ?? 'completion',
           cadence: draft.value.cadence ?? 'weekly',
-          kind: 'generic',
-          config: {},
+          target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
           status: draft.value.status as 'open' | 'completed' | 'dropped',
         })
         return { ...created, type: panelType }
@@ -904,9 +1132,9 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
           isActive: true,
           priorityIds: draft.value.priorityIds,
           lifeAreaIds: draft.value.lifeAreaIds,
+          entryMode: draft.value.entryMode ?? 'completion',
           cadence: draft.value.cadence ?? 'weekly',
-          kind: 'generic',
-          config: {},
+          target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
           status: draft.value.status as 'open' | 'retired' | 'dropped',
         })
         return { ...created, type: panelType }
@@ -918,10 +1146,8 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
           isActive: true,
           priorityIds: draft.value.priorityIds,
           lifeAreaIds: draft.value.lifeAreaIds,
-          analysisPeriod: draft.value.analysisPeriod ?? 'week',
-          entryMode: draft.value.entryMode ?? 'day',
-          kind: 'generic',
-          config: {},
+          cadence: draft.value.cadence ?? 'weekly',
+          entryMode: draft.value.entryMode ?? 'completion',
           status: draft.value.status as 'open' | 'retired' | 'dropped',
         })
         return { ...created, type: panelType }
@@ -963,7 +1189,9 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
         description: normalizeOptionalText(draft.value.description),
         isActive: draft.value.isActive,
         goalId: draft.value.goalId,
+        entryMode: draft.value.entryMode ?? 'completion',
         cadence: draft.value.cadence ?? 'weekly',
+        target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
         status: draft.value.status as 'open' | 'completed' | 'dropped',
       })
       return { ...updated, type: panelType }
@@ -975,7 +1203,9 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
         isActive: draft.value.isActive,
         priorityIds: draft.value.priorityIds,
         lifeAreaIds: draft.value.lifeAreaIds,
+        entryMode: draft.value.entryMode ?? 'completion',
         cadence: draft.value.cadence ?? 'weekly',
+        target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
         status: draft.value.status as 'open' | 'retired' | 'dropped',
       })
       return { ...updated, type: panelType }
@@ -987,8 +1217,8 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
         isActive: draft.value.isActive,
         priorityIds: draft.value.priorityIds,
         lifeAreaIds: draft.value.lifeAreaIds,
-        analysisPeriod: draft.value.analysisPeriod ?? 'week',
-        entryMode: draft.value.entryMode ?? 'day',
+        cadence: draft.value.cadence ?? 'weekly',
+        entryMode: draft.value.entryMode ?? 'completion',
         status: draft.value.status as 'open' | 'retired' | 'dropped',
       })
       return { ...updated, type: panelType }

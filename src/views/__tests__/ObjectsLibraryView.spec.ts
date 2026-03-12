@@ -3,11 +3,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { MonthRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
-import { connectTestDatabase } from '@/test/testDatabase'
 import ObjectsLibraryView from '@/views/ObjectsLibraryView.vue'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import { resetPlanningTestData } from '@/test/planningTestUtils'
 import { formatPeriodLabel } from '@/utils/periodLabels'
 
 function createTestRouter() {
@@ -44,24 +44,7 @@ function createTestRouter() {
 
 describe('ObjectsLibraryView', () => {
   beforeEach(async () => {
-    const db = await connectTestDatabase()
-    await db.periodObjectReflections.clear()
-    await db.periodReflections.clear()
-    await db.trackerEntries.clear()
-    await db.trackerWeekStates.clear()
-    await db.trackerMonthStates.clear()
-    await db.initiativePlanStates.clear()
-    await db.cadencedDayAssignments.clear()
-    await db.cadencedWeekStates.clear()
-    await db.cadencedMonthStates.clear()
-    await db.goalMonthStates.clear()
-    await db.keyResults.clear()
-    await db.goals.clear()
-    await db.habits.clear()
-    await db.trackers.clear()
-    await db.initiatives.clear()
-    await db.priorities.clear()
-    await db.lifeAreas.clear()
+    await resetPlanningTestData()
   })
 
   it('opens inline details from a deep link and navigates back to Calendar from linked periods', async () => {

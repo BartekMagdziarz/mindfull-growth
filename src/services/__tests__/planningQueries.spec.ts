@@ -54,8 +54,8 @@ describe('planningQueries', () => {
       isActive: true,
       goalId: goalA.id,
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
       status: 'open',
     })
     await keyResultDexieRepository.create({
@@ -63,8 +63,8 @@ describe('planningQueries', () => {
       isActive: false,
       goalId: goalA.id,
       cadence: 'monthly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 10 },
       status: 'completed',
     })
 
@@ -74,8 +74,8 @@ describe('planningQueries', () => {
       priorityIds: ['priority-1'],
       lifeAreaIds: ['la-1'],
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 4 },
       status: 'open',
     })
     const habitB = await habitDexieRepository.create({
@@ -84,8 +84,8 @@ describe('planningQueries', () => {
       priorityIds: ['priority-1'],
       lifeAreaIds: ['la-2'],
       cadence: 'monthly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 4 },
       status: 'retired',
     })
 
@@ -94,10 +94,8 @@ describe('planningQueries', () => {
       isActive: true,
       priorityIds: ['priority-1'],
       lifeAreaIds: ['la-1'],
-      analysisPeriod: 'week',
-      entryMode: 'day',
-      kind: 'generic',
-      config: {},
+      cadence: 'weekly',
+      entryMode: 'counter',
       status: 'open',
     })
     const trackerB = await trackerDexieRepository.create({
@@ -105,10 +103,8 @@ describe('planningQueries', () => {
       isActive: false,
       priorityIds: ['priority-1'],
       lifeAreaIds: ['la-2'],
-      analysisPeriod: 'month',
-      entryMode: 'month',
-      kind: 'generic',
-      config: {},
+      cadence: 'monthly',
+      entryMode: 'value',
       status: 'dropped',
     })
 
@@ -157,8 +153,8 @@ describe('planningQueries', () => {
       isActive: true,
       goalId: goal.id,
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
       status: 'open',
     })
     const archivedHabit = await habitDexieRepository.create({
@@ -167,8 +163,8 @@ describe('planningQueries', () => {
       priorityIds: ['priority-2'],
       lifeAreaIds: ['la-3'],
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 2 },
       status: 'open',
     })
     const openTracker = await trackerDexieRepository.create({
@@ -176,10 +172,8 @@ describe('planningQueries', () => {
       isActive: true,
       priorityIds: ['priority-2'],
       lifeAreaIds: ['la-3'],
-      analysisPeriod: 'week',
-      entryMode: 'day',
-      kind: 'generic',
-      config: {},
+      cadence: 'weekly',
+      entryMode: 'counter',
       status: 'open',
     })
     const archivedInitiative = await initiativeDexieRepository.create({

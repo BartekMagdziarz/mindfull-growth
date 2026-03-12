@@ -47,8 +47,12 @@ describe('planning Dexie repositories', () => {
         isActive: true,
         goalId: 'missing-goal',
         cadence: 'weekly',
-        kind: 'generic',
-        config: {},
+        entryMode: 'completion',
+        target: {
+          kind: 'count',
+          operator: 'min',
+          value: 1,
+        },
         status: 'open',
       }),
     ).rejects.toThrow('Failed to create key result in database')
@@ -68,8 +72,12 @@ describe('planning Dexie repositories', () => {
       isActive: true,
       goalId: goal.id,
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
       status: 'open',
     })
 
@@ -88,8 +96,12 @@ describe('planning Dexie repositories', () => {
       priorityIds: ['priority-1'],
       lifeAreaIds: ['la-1'],
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 4,
+      },
       status: 'retired',
     })
     const tracker = await trackerDexieRepository.create({
@@ -97,10 +109,8 @@ describe('planning Dexie repositories', () => {
       isActive: true,
       priorityIds: [],
       lifeAreaIds: ['la-1'],
-      analysisPeriod: 'week',
-      entryMode: 'day',
-      kind: 'generic',
-      config: {},
+      cadence: 'weekly',
+      entryMode: 'rating',
       status: 'open',
     })
     const initiative = await initiativeDexieRepository.create({
@@ -117,8 +127,8 @@ describe('planning Dexie repositories', () => {
       isActive: true,
     })
     const updatedTracker = await trackerDexieRepository.update(tracker.id, {
-      entryMode: 'month',
-      analysisPeriod: 'month',
+      entryMode: 'value',
+      cadence: 'monthly',
     })
     const updatedInitiative = await initiativeDexieRepository.update(initiative.id, {
       goalId: 'goal-42',
@@ -126,8 +136,8 @@ describe('planning Dexie repositories', () => {
 
     expect(updatedHabit.status).toBe('open')
     expect(updatedHabit.isActive).toBe(true)
-    expect(updatedTracker.entryMode).toBe('month')
-    expect(updatedTracker.analysisPeriod).toBe('month')
+    expect(updatedTracker.entryMode).toBe('value')
+    expect(updatedTracker.cadence).toBe('monthly')
     expect(updatedInitiative.goalId).toBe('goal-42')
   })
 })

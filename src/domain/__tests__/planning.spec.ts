@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import type {
-  CreateGoalPayload,
   CreateHabitPayload,
   CreateInitiativePayload,
   CreateKeyResultPayload,
@@ -8,7 +7,6 @@ import type {
   CreateTrackerPayload,
 } from '@/domain/planning'
 import {
-  normalizeGoalPayload,
   normalizeHabitPayload,
   normalizeInitiativePayload,
   normalizeKeyResultPayload,
@@ -19,7 +17,7 @@ import type { YearRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
 
 describe('planning domain normalization', () => {
-  it('normalizes Priority payloads and validates YearRef', () => {
+  it('normalizes priority payloads and validates YearRef', () => {
     const normalized = normalizePriorityPayload({
       title: '  2026 Focus  ',
       description: '  Annual direction  ',
@@ -46,113 +44,150 @@ describe('planning domain normalization', () => {
     ).toThrow('Priority.year must be a valid YearRef')
   })
 
-  it('allows duplicate titles across Goal records', () => {
-    const first = normalizeGoalPayload({
-      title: 'Shared title',
+  it('requires key results to use the shared measurement contract', () => {
+    const normalized = normalizeKeyResultPayload({
+      title: 'Ship onboarding refresh',
       isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
+      goalId: 'goal-1',
+      cadence: 'weekly',
+      entryMode: 'counter',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 3,
+      },
       status: 'open',
-    } satisfies CreateGoalPayload)
+    } satisfies CreateKeyResultPayload)
 
-    const second = normalizeGoalPayload({
-      title: 'Shared title',
-      isActive: false,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'completed',
-    } satisfies CreateGoalPayload)
-
-    expect(first.title).toBe('Shared title')
-    expect(second.title).toBe('Shared title')
-  })
-
-  it('enforces KeyResult ownership and keeps generic config empty in v1', () => {
-    expect(() =>
-      normalizeKeyResultPayload({
-        title: 'Ship landing page',
-        isActive: true,
-        cadence: 'weekly',
-        kind: 'generic',
-        config: {},
-        status: 'open',
-      } as CreateKeyResultPayload),
-    ).toThrow('KeyResult.goalId is required')
+    expect(normalized.entryMode).toBe('counter')
+    expect(normalized.target).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 3,
+    })
 
     expect(() =>
       normalizeKeyResultPayload({
-        title: 'Ship landing page',
+        title: 'Broken metric',
         isActive: true,
         goalId: 'goal-1',
         cadence: 'weekly',
-        kind: 'generic',
-        config: { target: 3 } as never,
+        entryMode: 'value',
+        target: {
+          kind: 'count',
+          operator: 'min',
+          value: 1,
+        },
         status: 'open',
       } as CreateKeyResultPayload),
-    ).toThrow('Generic config must stay empty in v1')
+    ).toThrow('target.kind must be one of: value')
   })
 
-  it('rejects forbidden Goal links on Habit and Tracker', () => {
+  it('validates habit target combinations for value and rating modes', () => {
+    const valueHabit = normalizeHabitPayload({
+      title: 'Read pages',
+      isActive: true,
+      priorityIds: ['priority-1'],
+      lifeAreaIds: ['life-area-1'],
+      cadence: 'monthly',
+      entryMode: 'value',
+      target: {
+        kind: 'value',
+        aggregation: 'sum',
+        operator: 'gte',
+        value: 120,
+      },
+      status: 'open',
+    } satisfies CreateHabitPayload)
+
+    expect(valueHabit.target).toEqual({
+      kind: 'value',
+      aggregation: 'sum',
+      operator: 'gte',
+      value: 120,
+    })
+
+    expect(() =>
+      normalizeHabitPayload({
+        title: 'Mood check',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        cadence: 'weekly',
+        entryMode: 'rating',
+        target: {
+          kind: 'rating',
+          aggregation: 'last',
+          operator: 'gte',
+          value: 4,
+        },
+        status: 'open',
+      } as unknown as CreateHabitPayload),
+    ).toThrow('target.aggregation must be one of: average')
+  })
+
+  it('rejects old planning fields and tracker targets', () => {
     expect(() =>
       normalizeHabitPayload({
         title: 'Morning run',
         isActive: true,
-        goalId: 'goal-1',
         priorityIds: [],
         lifeAreaIds: [],
         cadence: 'weekly',
-        kind: 'generic',
-        config: {},
+        entryMode: 'completion',
+        target: {
+          kind: 'count',
+          operator: 'min',
+          value: 4,
+        },
         status: 'open',
+        kind: 'generic',
       } as CreateHabitPayload),
-    ).toThrow('goalId is not supported for this planning object')
+    ).toThrow('kind is not supported for this planning object')
 
     expect(() =>
       normalizeTrackerPayload({
         title: 'Weight',
         isActive: true,
-        goalId: 'goal-1',
         priorityIds: [],
         lifeAreaIds: [],
-        analysisPeriod: 'month',
-        entryMode: 'day',
-        kind: 'generic',
-        config: {},
+        cadence: 'monthly',
+        entryMode: 'value',
+        target: {
+          kind: 'value',
+          aggregation: 'last',
+          operator: 'lte',
+          value: 80,
+        },
         status: 'open',
       } as CreateTrackerPayload),
-    ).toThrow('goalId is not supported for this planning object')
+    ).toThrow('target is not supported for this planning object')
+
+    expect(() =>
+      normalizeTrackerPayload({
+        title: 'Energy',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        cadence: 'weekly',
+        entryMode: 'rating',
+        analysisPeriod: 'week',
+        status: 'open',
+      } as CreateTrackerPayload),
+    ).toThrow('analysisPeriod is not supported for this planning object')
   })
 
-  it('keeps lifecycle separate from archive semantics', () => {
-    const normalized = normalizeHabitPayload({
-      title: 'Meditation',
-      description: '  ',
+  it('keeps initiative lifecycle separate from archive semantics', () => {
+    const normalized = normalizeInitiativePayload({
+      title: 'Call landlord',
       isActive: false,
       priorityIds: ['priority-1'],
-      lifeAreaIds: ['life-area-1'],
-      cadence: 'monthly',
-      kind: 'generic',
-      config: {},
-      status: 'open',
-    } satisfies CreateHabitPayload)
-
-    expect(normalized.isActive).toBe(false)
-    expect(normalized.status).toBe('open')
-    expect(normalized.description).toBeUndefined()
-  })
-
-  it('rejects checklist-style fields on Initiative while allowing optional goal links', () => {
-    const normalized = normalizeInitiativePayload({
-      title: 'Book dentist',
-      isActive: true,
-      goalId: 'goal-1',
-      priorityIds: ['priority-1'],
-      lifeAreaIds: ['life-area-1'],
-      status: 'open',
+      lifeAreaIds: [],
+      status: 'completed',
     } satisfies CreateInitiativePayload)
 
-    expect(normalized.goalId).toBe('goal-1')
-    expect(normalized.status).toBe('open')
+    expect(normalized.isActive).toBe(false)
+    expect(normalized.status).toBe('completed')
 
     expect(() =>
       normalizeInitiativePayload({
@@ -164,18 +199,5 @@ describe('planning domain normalization', () => {
         checklist: ['step-1'],
       } as CreateInitiativePayload),
     ).toThrow('checklist is not supported for this planning object')
-  })
-
-  it('keeps initiative completion lifecycle separate from archive semantics', () => {
-    const normalized = normalizeInitiativePayload({
-      title: 'Call landlord',
-      isActive: false,
-      priorityIds: ['priority-1'],
-      lifeAreaIds: [],
-      status: 'completed',
-    } satisfies CreateInitiativePayload)
-
-    expect(normalized.isActive).toBe(false)
-    expect(normalized.status).toBe('completed')
   })
 })

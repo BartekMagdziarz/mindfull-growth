@@ -7,31 +7,14 @@ import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieReposit
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
-import { connectTestDatabase } from '@/test/testDatabase'
+import { resetPlanningTestData } from '@/test/planningTestUtils'
 import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
 import { getCalendarYearSummary, getDayCalendarBundle } from '@/services/calendarViewQueries'
 
 describe('calendarViewQueries', () => {
   beforeEach(async () => {
-    const db = await connectTestDatabase()
-    await db.periodObjectReflections.clear()
-    await db.periodReflections.clear()
-    await db.trackerEntries.clear()
-    await db.trackerWeekStates.clear()
-    await db.trackerMonthStates.clear()
-    await db.initiativePlanStates.clear()
-    await db.cadencedDayAssignments.clear()
-    await db.cadencedWeekStates.clear()
-    await db.cadencedMonthStates.clear()
-    await db.goalMonthStates.clear()
-    await db.weekPlans.clear()
-    await db.monthPlans.clear()
-    await db.keyResults.clear()
-    await db.goals.clear()
-    await db.habits.clear()
-    await db.trackers.clear()
-    await db.initiatives.clear()
+    await resetPlanningTestData()
   })
 
   it('summarizes month-level status across a year', async () => {
@@ -51,8 +34,12 @@ describe('calendarViewQueries', () => {
       isActive: true,
       goalId: goal.id,
       cadence: 'monthly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 2,
+      },
       status: 'open',
     })
     const tracker = await trackerDexieRepository.create({
@@ -60,10 +47,8 @@ describe('calendarViewQueries', () => {
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
-      analysisPeriod: 'month',
-      entryMode: 'week',
-      kind: 'generic',
-      config: {},
+      cadence: 'monthly',
+      entryMode: 'rating',
       status: 'open',
     })
     const initiative = await initiativeDexieRepository.create({
@@ -90,31 +75,33 @@ describe('calendarViewQueries', () => {
       goalId: goal.id,
       activityState: 'active',
     })
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
       activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 3,
+      scheduleScope: 'whole-month',
     })
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef: secondMonthRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
       activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 2,
+      scheduleScope: 'whole-month',
     })
-    await planningStateDexieRepository.upsertTrackerMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
-      trackerId: tracker.id,
+      subjectType: 'tracker',
+      subjectId: tracker.id,
       activityState: 'active',
+      scheduleScope: 'whole-month',
     })
-    await planningStateDexieRepository.upsertTrackerMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef: secondMonthRef,
-      trackerId: tracker.id,
+      subjectType: 'tracker',
+      subjectId: tracker.id,
       activityState: 'active',
+      scheduleScope: 'unassigned',
     })
     await planningStateDexieRepository.upsertInitiativePlanState({
       initiativeId: initiative.id,
@@ -140,7 +127,7 @@ describe('calendarViewQueries', () => {
     })
   })
 
-  it('builds day bundles with scheduled work and inherited context', async () => {
+  it('builds day bundles with scheduled work, entries, and context', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
     const dayRef = parsePeriodRef('2026-03-12') as DayRef
@@ -157,8 +144,12 @@ describe('calendarViewQueries', () => {
       isActive: true,
       goalId: goal.id,
       cadence: 'weekly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
       status: 'open',
     })
     const habit = await habitDexieRepository.create({
@@ -167,8 +158,12 @@ describe('calendarViewQueries', () => {
       priorityIds: [],
       lifeAreaIds: [],
       cadence: 'monthly',
-      kind: 'generic',
-      config: {},
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 4,
+      },
       status: 'open',
     })
     const tracker = await trackerDexieRepository.create({
@@ -176,10 +171,8 @@ describe('calendarViewQueries', () => {
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
-      analysisPeriod: 'week',
-      entryMode: 'day',
-      kind: 'generic',
-      config: {},
+      cadence: 'weekly',
+      entryMode: 'rating',
       status: 'open',
     })
     const initiative = await initiativeDexieRepository.create({
@@ -195,48 +188,51 @@ describe('calendarViewQueries', () => {
       goalId: goal.id,
       activityState: 'active',
     })
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
       activityState: 'active',
+      scheduleScope: 'unassigned',
     })
-    await planningStateDexieRepository.upsertCadencedWeekState({
+    await planningStateDexieRepository.upsertMeasurementWeekState({
       weekRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
       activityState: 'active',
-      planningMode: 'specific-days',
+      scheduleScope: 'specific-days',
     })
-    await planningStateDexieRepository.upsertCadencedDayAssignment({
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
       dayRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
     })
-    await planningStateDexieRepository.upsertCadencedMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'habit',
       subjectId: habit.id,
       activityState: 'active',
-      planningMode: 'times-per-period',
-      targetCount: 4,
+      scheduleScope: 'whole-month',
     })
-    await planningStateDexieRepository.upsertTrackerMonthState({
+    await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
-      trackerId: tracker.id,
+      subjectType: 'tracker',
+      subjectId: tracker.id,
       activityState: 'active',
+      scheduleScope: 'whole-month',
     })
-    await planningStateDexieRepository.upsertTrackerWeekState({
+    await planningStateDexieRepository.upsertMeasurementWeekState({
       weekRef,
-      trackerId: tracker.id,
+      subjectType: 'tracker',
+      subjectId: tracker.id,
       activityState: 'active',
+      scheduleScope: 'whole-week',
     })
-    await planningStateDexieRepository.upsertTrackerEntry({
-      trackerId: tracker.id,
-      periodType: 'day',
-      periodRef: dayRef,
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'tracker',
+      subjectId: tracker.id,
+      dayRef,
       value: 8,
-      note: 'Stable focus',
     })
     await planningStateDexieRepository.upsertInitiativePlanState({
       initiativeId: initiative.id,
@@ -249,10 +245,13 @@ describe('calendarViewQueries', () => {
 
     expect(bundle.refs.week).toBe(weekRef)
     expect(bundle.refs.month).toBe(monthRef)
-    expect(bundle.scheduledCadencedItems).toHaveLength(1)
+    expect(bundle.scheduledMeasurementItems.map((item) => item.subject.id)).toEqual(
+      expect.arrayContaining([keyResult.id, habit.id, tracker.id]),
+    )
     expect(bundle.scheduledInitiativeItems).toHaveLength(1)
-    expect(bundle.trackerEntriesToday).toHaveLength(1)
-    expect(bundle.contextCadencedItems).toHaveLength(1)
+    expect(bundle.entriesToday).toHaveLength(1)
+    expect(bundle.entriesToday[0]?.subjectType).toBe('tracker')
+    expect(bundle.contextMeasurementItems).toHaveLength(0)
     expect(bundle.monthPlanning.goalItems).toHaveLength(1)
   })
 })

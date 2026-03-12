@@ -363,11 +363,11 @@
 
             <section class="space-y-4">
               <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.trackerEntries') }}
+                {{ t('planning.calendar.sections.entriesToday') }}
               </h2>
-              <div v-if="dayTrackerEntryCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+              <div v-if="dayEntryCards.length > 0" class="grid gap-4 lg:grid-cols-2">
                 <CalendarItemCard
-                  v-for="card in dayTrackerEntryCards"
+                  v-for="card in dayEntryCards"
                   :key="card.key"
                   :title="card.title"
                   :eyebrow="card.eyebrow"
@@ -379,7 +379,7 @@
                 />
               </div>
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.trackerEntries') }}
+                {{ t('planning.calendar.empty.entries') }}
               </div>
             </section>
 
@@ -502,15 +502,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import type { MeasurementTarget } from '@/domain/planning'
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
 import type {
   MonthPlanningBundle,
-  WeekCadencedPlanningItem,
   WeekInitiativePlanningItem,
   WeekPlanningBundle,
   WeekReflectionBundle,
-  WeekTrackerReflectionItem,
-  WeekTrackerPlanningItem,
 } from '@/services/planningStateQueries'
 import type {
   CalendarYearMonthSummary,
@@ -518,6 +516,7 @@ import type {
   DayCalendarBundle,
   MonthReflectionBundle,
 } from '@/services/calendarViewQueries'
+import type { MeasurementSummary } from '@/services/measurementProgress'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import CalendarGoalCard from '@/components/calendar/CalendarGoalCard.vue'
@@ -534,10 +533,9 @@ import {
   getDayCalendarBundle,
   getMonthReflectionBundle,
   hasObjectReflection,
-  splitMonthCadencedItems,
-  splitWeekCadencedItems,
+  splitMonthMeasurementItems,
   splitWeekInitiativeItems,
-  splitWeekTrackerItems,
+  splitWeekMeasurementItems,
 } from '@/services/calendarViewQueries'
 import {
   getMonthPlanningBundle,
@@ -612,6 +610,11 @@ interface GoalCardModel {
   badges: string[]
 }
 
+type CalendarMeasurementItem =
+  | MonthPlanningBundle['measurementItems'][number]
+  | WeekPlanningBundle['relevant']['measurementItems'][number]
+  | WeekReflectionBundle['relevant']['measurementItems'][number]
+
 interface Props {
   scale: CalendarScale
   periodRef: string
@@ -620,7 +623,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const router = useRouter()
-const { t, tp, locale } = useT()
+const { t, locale } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 const isLoading = ref(true)
@@ -819,8 +822,8 @@ const summaryMetrics = computed<MetricModel[]>(() => {
         value: String(dayScheduledCards.value.length),
       },
       {
-        label: t('planning.calendar.sections.trackerEntries'),
-        value: String(dayTrackerEntryCards.value.length),
+        label: t('planning.calendar.sections.entriesToday'),
+        value: String(dayEntryCards.value.length),
       },
       {
         label: t('planning.calendar.sections.activeThisWeek'),
@@ -842,8 +845,8 @@ const showSummaryMetrics = computed(() =>
 
 const monthSplit = computed(() =>
   monthPlanning.value
-    ? splitMonthCadencedItems(monthPlanning.value)
-    : { keyResults: [], habits: [] }
+    ? splitMonthMeasurementItems(monthPlanning.value)
+    : { keyResults: [], habits: [], trackers: [] }
 )
 
 const monthGoalCards = computed<GoalCardModel[]>(() => {
@@ -860,7 +863,7 @@ const monthGoalCards = computed<GoalCardModel[]>(() => {
     title: item.goal.title,
     description: item.goal.description,
     linkedLabel: t('planning.calendar.sections.keyResults'),
-    linkedCount: countGoalKeyResults(item.goal.id, planning.cadencedItems),
+    linkedCount: countGoalKeyResults(item.goal.id, planning.measurementItems),
     badges: [
       item.state.activityState === 'active'
         ? t('planning.calendar.badges.active')
@@ -874,19 +877,19 @@ const monthGoalCards = computed<GoalCardModel[]>(() => {
 
 const monthKeyResultCards = computed<ItemCardModel[]>(() =>
   monthSplit.value.keyResults.map(item =>
-    buildCadencedCard(item, 'month', monthReflection.value?.objectReflections ?? [])
+    buildMeasurementCard(item, 'month', monthReflection.value?.objectReflections ?? [])
   )
 )
 
 const monthHabitCards = computed<ItemCardModel[]>(() =>
   monthSplit.value.habits.map(item =>
-    buildCadencedCard(item, 'month', monthReflection.value?.objectReflections ?? [])
+    buildMeasurementCard(item, 'month', monthReflection.value?.objectReflections ?? [])
   )
 )
 
 const monthTrackerCards = computed<ItemCardModel[]>(() =>
-  (monthPlanning.value?.trackerItems ?? []).map(item =>
-    buildTrackerCard(item, 'month', monthReflection.value?.objectReflections ?? [])
+  monthSplit.value.trackers.map(item =>
+    buildMeasurementCard(item, 'month', monthReflection.value?.objectReflections ?? [])
   )
 )
 
@@ -896,9 +899,9 @@ const monthInitiativeCards = computed<ItemCardModel[]>(() =>
   )
 )
 
-const weekCadencedSplit = computed(() =>
+const weekMeasurementSplit = computed(() =>
   weekPlanning.value
-    ? splitWeekCadencedItems(weekPlanning.value.relevant.cadencedItems)
+    ? splitWeekMeasurementItems(weekPlanning.value.relevant.measurementItems)
     : { plannedThisWeek: [], assignedToDays: [], toPlanThisWeek: [] }
 )
 const weekInitiativeSplit = computed(() =>
@@ -906,18 +909,10 @@ const weekInitiativeSplit = computed(() =>
     ? splitWeekInitiativeItems(weekPlanning.value.relevant.initiativeItems)
     : { plannedThisWeek: [], assignedToDays: [], toPlanThisWeek: [] }
 )
-const weekTrackerSplit = computed(() =>
-  weekPlanning.value
-    ? splitWeekTrackerItems(weekPlanning.value.relevant.trackerItems)
-    : { plannedThisWeek: [], toPlanThisWeek: [] }
-)
 
 const weekPlannedCards = computed<ItemCardModel[]>(() => [
-  ...weekCadencedSplit.value.plannedThisWeek.map(item =>
-    buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-  ),
-  ...weekTrackerSplit.value.plannedThisWeek.map(item =>
-    buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ...weekMeasurementSplit.value.plannedThisWeek.map(item =>
+    buildMeasurementCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
   ...weekInitiativeSplit.value.plannedThisWeek.map(item =>
     buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
@@ -925,8 +920,8 @@ const weekPlannedCards = computed<ItemCardModel[]>(() => [
 ])
 
 const weekAssignedCards = computed<ItemCardModel[]>(() => [
-  ...weekCadencedSplit.value.assignedToDays.map(item =>
-    buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ...weekMeasurementSplit.value.assignedToDays.map(item =>
+    buildMeasurementCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
   ...weekInitiativeSplit.value.assignedToDays.map(item =>
     buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
@@ -934,11 +929,8 @@ const weekAssignedCards = computed<ItemCardModel[]>(() => [
 ])
 
 const weekToPlanCards = computed<ItemCardModel[]>(() => [
-  ...weekCadencedSplit.value.toPlanThisWeek.map(item =>
-    buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-  ),
-  ...weekTrackerSplit.value.toPlanThisWeek.map(item =>
-    buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+  ...weekMeasurementSplit.value.toPlanThisWeek.map(item =>
+    buildMeasurementCard(item, 'week', weekReflection.value?.objectReflections ?? [])
   ),
   ...weekInitiativeSplit.value.toPlanThisWeek.map(item =>
     buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
@@ -959,7 +951,7 @@ const weekReflectionGoalCards = computed<GoalCardModel[]>(() => {
     title: item.goal.title,
     description: item.goal.description,
     linkedLabel: t('planning.calendar.sections.keyResults'),
-    linkedCount: countGoalKeyResults(item.goal.id, planning.relevant.cadencedItems),
+    linkedCount: countGoalKeyResults(item.goal.id, planning.relevant.measurementItems),
     badges: hasObjectReflection('goal', item.goal.id, reflection.objectReflections)
       ? [t('planning.calendar.badges.reflected')]
       : [],
@@ -972,11 +964,8 @@ const weekReflectionCards = computed<ItemCardModel[]>(() => {
   }
 
   return [
-    ...weekReflection.value.relevant.cadencedItems.map(item =>
-      buildCadencedCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-    ),
-    ...weekReflection.value.relevant.trackerItems.map(item =>
-      buildTrackerCard(item, 'week', weekReflection.value?.objectReflections ?? [])
+    ...weekReflection.value.relevant.measurementItems.map(item =>
+      buildMeasurementCard(item, 'week', weekReflection.value?.objectReflections ?? [])
     ),
     ...weekReflection.value.relevant.initiativeItems.map(item =>
       buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
@@ -990,8 +979,8 @@ const dayScheduledCards = computed<ItemCardModel[]>(() => {
   }
 
   return [
-    ...dayBundle.value.scheduledCadencedItems.map(item =>
-      buildCadencedCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
+    ...dayBundle.value.scheduledMeasurementItems.map(item =>
+      buildMeasurementCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
     ),
     ...dayBundle.value.scheduledInitiativeItems.map(item =>
       buildInitiativeCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
@@ -999,31 +988,12 @@ const dayScheduledCards = computed<ItemCardModel[]>(() => {
   ]
 })
 
-const dayTrackerEntryCards = computed<ItemCardModel[]>(() => {
+const dayEntryCards = computed<ItemCardModel[]>(() => {
   if (!dayBundle.value) {
     return []
   }
 
-  const trackerNames = new Map(
-    dayBundle.value.weekReflection.relevant.trackerItems.map(item => [
-      item.tracker.id,
-      item.tracker.title,
-    ])
-  )
-
-  return dayBundle.value.trackerEntriesToday.map(entry => ({
-    key: `${entry.trackerId}:${entry.periodRef}`,
-    objectId: entry.trackerId,
-    panelType: 'tracker',
-    title: trackerNames.get(entry.trackerId) ?? t('planning.calendar.sections.trackers'),
-    eyebrow: t('planning.calendar.sections.trackerEntries'),
-    badges: [
-      entry.value !== null
-        ? { label: String(entry.value), tone: 'accent' }
-        : { label: t('common.none') },
-    ],
-    details: [entry.note ?? t('planning.calendar.badges.entryDay')],
-  }))
+  return dayBundle.value.entriesToday.map(item => buildDayEntryCard(item))
 })
 
 const dayWeekContextCards = computed<ItemCardModel[]>(() => {
@@ -1032,11 +1002,8 @@ const dayWeekContextCards = computed<ItemCardModel[]>(() => {
   }
 
   return [
-    ...dayBundle.value.contextCadencedItems.map(item =>
-      buildCadencedCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
-    ),
-    ...dayBundle.value.contextTrackerItems.map(item =>
-      buildTrackerCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
+    ...dayBundle.value.contextMeasurementItems.map(item =>
+      buildMeasurementCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
     ),
     ...dayBundle.value.contextInitiativeItems.map(item =>
       buildInitiativeCard(item, 'day', dayBundle.value?.weekReflection.objectReflections ?? [])
@@ -1057,7 +1024,7 @@ const dayMonthGoalCards = computed<GoalCardModel[]>(() => {
     title: item.goal.title,
     description: item.goal.description,
     linkedLabel: t('planning.calendar.sections.keyResults'),
-    linkedCount: countGoalKeyResults(item.goal.id, bundle.monthPlanning.cadencedItems),
+    linkedCount: countGoalKeyResults(item.goal.id, bundle.monthPlanning.measurementItems),
     badges: [
       item.state.activityState === 'active'
         ? t('planning.calendar.badges.active')
@@ -1431,154 +1398,67 @@ function buildYearMonthStats(month: CalendarYearMonthSummary): MetricModel[] {
   ]
 }
 
-function buildCadencedCard(
-  item: WeekCadencedPlanningItem | MonthPlanningBundle['cadencedItems'][number],
+function buildMeasurementCard(
+  item: CalendarMeasurementItem,
   periodScope: 'month' | 'week' | 'day',
-  objectReflections: MonthReflectionBundle['objectReflections']
+  objectReflections: MonthReflectionBundle['objectReflections'],
 ): ItemCardModel {
-  const planningMode =
-    'monthStates' in item
-      ? (item.weekStates[0]?.planningMode ?? item.monthStates[0]?.planningMode)
-      : (item.monthState?.planningMode ?? item.weekStates[0]?.planningMode)
-  const targetCount =
-    'monthStates' in item
-      ? (item.weekStates[0]?.targetCount ?? item.monthStates[0]?.targetCount)
-      : (item.monthState?.targetCount ?? item.weekStates[0]?.targetCount)
   const badges: BadgeModel[] = [
-    {
-      label:
-        item.subjectType === 'keyResult'
-          ? t('planning.calendar.sections.keyResults')
-          : t('planning.calendar.sections.habits'),
-      tone: 'accent',
-    },
+    { label: measurementSectionLabel(item.subjectType), tone: 'accent' },
     ...buildLifecycleBadges(item.subject.status),
-    ...buildActivityBadges(
-      'monthStates' in item
-        ? (item.weekStates[0]?.activityState ?? item.monthStates[0]?.activityState)
-        : item.monthState?.activityState
-    ),
+    ...buildActivityBadges(item.planning.activityState),
+    { label: t(`planning.objects.badges.cadence.${item.subject.cadence}`) },
+    { label: t(`planning.objects.badges.entryMode.${item.subject.entryMode}`) },
+    ...buildMeasurementPlanningBadges(item),
+    ...buildMeasurementEvaluationBadges(item.measurement),
   ]
-
-  if (planningMode === 'times-per-period') {
-    badges.push({ label: t('planning.calendar.badges.timesPerPeriod') })
-  } else if (planningMode === 'specific-days') {
-    badges.push({ label: t('planning.calendar.badges.specificDays') })
-  }
-
-  if ('reasons' in item) {
-    if (item.reasons.includes('week-state')) {
-      badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
-    }
-    if (item.reasons.includes('day-assignment')) {
-      badges.push({ label: t('planning.calendar.badges.scheduledThisDay'), tone: 'accent' })
-    }
-    if (item.reasons.includes('month-active-unassigned')) {
-      badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
-    }
-  }
-
-  if (item.overAllocated) {
-    badges.push({ label: t('planning.calendar.badges.overAllocated'), tone: 'warning' })
-  }
 
   if (hasObjectReflection(item.subjectType, item.subject.id, objectReflections)) {
     badges.push({ label: t('planning.calendar.badges.reflected'), tone: 'accent' })
   }
 
-  const details: string[] = []
-  if (targetCount !== undefined) {
-    details.push(t('planning.calendar.details.target', { n: targetCount }))
-  }
-  if (item.dayAssignments.length > 0) {
-    details.push(t('planning.calendar.details.assignedDays', { n: item.dayAssignments.length }))
-  }
-  if ('weekStates' in item && item.weekStates.length > 0 && periodScope !== 'week') {
-    details.push(
-      tp(
-        item.weekStates.length,
-        'planning.calendar.details.weekSlots.one',
-        'planning.calendar.details.weekSlots.few',
-        'planning.calendar.details.weekSlots.many'
-      )
-    )
-  }
-
   return {
-    key: `${periodScope}:${item.subjectType}:${item.subject.id}`,
+    key: `${periodScope}:${item.subjectType}:${item.subject.id}:${item.sourceMonthRef ?? 'current'}`,
     objectId: item.subject.id,
     panelType: item.subjectType,
     title: item.subject.title,
-    eyebrow:
-      periodScope === 'day'
-        ? t('planning.calendar.sections.activeThisWeek')
-        : t('planning.calendar.summary.monthGuidance'),
+    eyebrow: buildMeasurementEyebrow(periodScope),
     description: item.subject.description,
     badges,
-    details,
+    details: buildMeasurementDetails(item, periodScope),
   }
 }
 
-function buildTrackerCard(
-  item:
-    | WeekTrackerPlanningItem
-    | WeekTrackerReflectionItem
-    | MonthPlanningBundle['trackerItems'][number],
-  periodScope: 'month' | 'week' | 'day',
-  objectReflections: MonthReflectionBundle['objectReflections']
-): ItemCardModel {
-  const tracker = item.tracker
+function buildDayEntryCard(item: DayCalendarBundle['entriesToday'][number]): ItemCardModel {
   const badges: BadgeModel[] = [
-    { label: t('planning.calendar.sections.trackers'), tone: 'accent' },
-    ...buildLifecycleBadges(tracker.status),
+    { label: measurementSectionLabel(item.subjectType), tone: 'accent' },
+    { label: t(`planning.objects.badges.cadence.${item.subject.cadence}`) },
+    { label: t(`planning.objects.badges.entryMode.${item.subject.entryMode}`) },
   ]
-  const activityState = isMonthTrackerItem(item)
-    ? (item.weekStates[0]?.activityState ?? item.monthState?.activityState)
-    : (item.weekState?.activityState ?? item.monthStates[0]?.activityState)
-  badges.push(...buildActivityBadges(activityState))
 
-  badges.push({
-    label:
-      tracker.analysisPeriod === 'week'
-        ? t('planning.calendar.badges.analysisWeek')
-        : t('planning.calendar.badges.analysisMonth'),
-  })
-  badges.push({
-    label:
-      tracker.entryMode === 'day'
-        ? t('planning.calendar.badges.entryDay')
-        : tracker.entryMode === 'week'
-          ? t('planning.calendar.badges.entryWeek')
-          : t('planning.calendar.badges.entryMonth'),
-  })
-
-  if ('reasons' in item) {
-    if (item.reasons.some(reason => reason === 'tracker-week-state' || reason === 'week-state')) {
-      badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
-    }
-    if (item.reasons.some(reason => reason === 'tracker-month-active-unassigned')) {
-      badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
-    }
+  if (item.entry.value === null) {
+    badges.push({ label: t('planning.calendar.badges.recorded'), tone: 'success' })
+  } else {
+    badges.push({ label: formatMeasurementValue(item.entry.value), tone: 'accent' })
   }
 
-  if (hasObjectReflection('tracker', tracker.id, objectReflections)) {
-    badges.push({ label: t('planning.calendar.badges.reflected'), tone: 'accent' })
-  }
+  const details: string[] = [
+    item.entry.value === null
+      ? t('planning.calendar.details.recordedToday')
+      : t('planning.calendar.details.loggedValue', { value: formatMeasurementValue(item.entry.value) }),
+  ]
 
-  const entryCount = 'entries' in item ? item.entries.length : 0
-  const details =
-    entryCount > 0 ? [t('planning.calendar.details.trackedEntries', { n: entryCount })] : []
+  if ('target' in item.subject) {
+    details.push(formatMeasurementTarget(item.subject.target))
+  }
 
   return {
-    key: `${periodScope}:tracker:${tracker.id}`,
-    objectId: tracker.id,
-    panelType: 'tracker',
-    title: tracker.title,
-    eyebrow:
-      periodScope === 'day'
-        ? t('planning.calendar.sections.activeThisWeek')
-        : t('planning.calendar.summary.weeklyAlignment'),
-    description: tracker.description,
+    key: `entry:${item.subjectType}:${item.subject.id}:${item.entry.dayRef}`,
+    objectId: item.subject.id,
+    panelType: item.subjectType,
+    title: item.subject.title,
+    eyebrow: t('planning.calendar.sections.entriesToday'),
+    description: item.subject.description,
     badges,
     details,
   }
@@ -1594,15 +1474,17 @@ function buildInitiativeCard(
     { label: t('planning.calendar.sections.initiatives'), tone: 'accent' },
   ]
 
-  if ('reasons' in item) {
-    if (item.reasons.includes('initiative-week')) {
-      badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
-    }
-    if (item.reasons.includes('initiative-day')) {
-      badges.push({ label: t('planning.calendar.badges.scheduledThisDay'), tone: 'accent' })
-    }
-    if (item.reasons.includes('initiative-month')) {
-      badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
+  if ('placement' in item) {
+    switch (item.placement) {
+      case 'planned':
+        badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
+        break
+      case 'assigned':
+        badges.push({ label: t('planning.calendar.badges.scheduledThisDay'), tone: 'accent' })
+        break
+      case 'unassigned':
+        badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
+        break
     }
   } else {
     badges.push({ label: t('planning.calendar.badges.planned'), tone: 'success' })
@@ -1651,13 +1533,143 @@ function buildLifecycleBadges(status: string): BadgeModel[] {
   }
 }
 
-function isMonthTrackerItem(
-  item:
-    | WeekTrackerPlanningItem
-    | WeekTrackerReflectionItem
-    | MonthPlanningBundle['trackerItems'][number]
-): item is MonthPlanningBundle['trackerItems'][number] {
-  return 'monthState' in item
+function measurementSectionLabel(subjectType: CalendarMeasurementItem['subjectType']): string {
+  switch (subjectType) {
+    case 'keyResult':
+      return t('planning.calendar.sections.keyResults')
+    case 'habit':
+      return t('planning.calendar.sections.habits')
+    case 'tracker':
+      return t('planning.calendar.sections.trackers')
+  }
+}
+
+function buildMeasurementEyebrow(periodScope: 'month' | 'week' | 'day'): string {
+  switch (periodScope) {
+    case 'month':
+      return t('planning.calendar.summary.monthGuidance')
+    case 'week':
+      return t('planning.calendar.summary.weeklyAlignment')
+    case 'day':
+      return t('planning.calendar.sections.activeThisWeek')
+  }
+}
+
+function buildMeasurementPlanningBadges(item: CalendarMeasurementItem): BadgeModel[] {
+  const badges: BadgeModel[] = []
+
+  if (item.planning.scheduleScope) {
+    badges.push({
+      label: t(`planning.calendar.badges.scheduleScope.${item.planning.scheduleScope}`),
+    })
+  }
+
+  if ('placement' in item) {
+    switch (item.placement) {
+      case 'planned':
+        badges.push({ label: t('planning.calendar.badges.scheduledThisWeek'), tone: 'success' })
+        break
+      case 'assigned':
+        badges.push({ label: t('planning.calendar.badges.scheduledThisDay'), tone: 'accent' })
+        break
+      case 'unassigned':
+        badges.push({ label: t('planning.calendar.badges.needsPlacement'), tone: 'warning' })
+        break
+    }
+  }
+
+  if ('hasEntries' in item && item.hasEntries) {
+    badges.push({ label: t('planning.calendar.badges.recorded'), tone: 'accent' })
+  }
+
+  return badges
+}
+
+function buildMeasurementEvaluationBadges(measurement?: MeasurementSummary): BadgeModel[] {
+  if (!measurement?.target || !measurement.evaluationStatus) {
+    return []
+  }
+
+  switch (measurement.evaluationStatus) {
+    case 'met':
+      return [{ label: t('planning.calendar.badges.met'), tone: 'success' }]
+    case 'missed':
+      return [{ label: t('planning.calendar.badges.missed'), tone: 'warning' }]
+    case 'no-data':
+      return [{ label: t('planning.calendar.badges.noData'), tone: 'default' }]
+  }
+}
+
+function buildMeasurementDetails(
+  item: CalendarMeasurementItem,
+  periodScope: 'month' | 'week' | 'day',
+): string[] {
+  const details: string[] = []
+
+  if (item.measurement?.target) {
+    details.push(formatMeasurementTarget(item.measurement.target))
+  }
+
+  if (item.measurement) {
+    details.push(formatMeasurementActual(item.measurement))
+    details.push(t('planning.calendar.details.entryCount', { n: item.measurement.entryCount }))
+  }
+
+  if (item.planning.scheduledDayRefs.length > 0) {
+    details.push(t('planning.calendar.details.assignedDays', { n: item.planning.scheduledDayRefs.length }))
+  }
+
+  if (item.planning.successNote) {
+    details.push(t('planning.calendar.details.successNote', { note: item.planning.successNote }))
+  }
+
+  if (item.sourceMonthRef && periodScope !== 'month') {
+    details.push(t('planning.calendar.details.sourceMonth', { month: formatMonthTitle(item.sourceMonthRef) }))
+  }
+
+  return details
+}
+
+function formatMeasurementTarget(target: MeasurementTarget): string {
+  switch (target.kind) {
+    case 'count':
+      return t(
+        target.operator === 'min'
+          ? 'planning.calendar.details.targetCountMin'
+          : 'planning.calendar.details.targetCountMax',
+        { n: target.value },
+      )
+    case 'value':
+      return t('planning.calendar.details.targetRule', {
+        aggregation: t(`planning.calendar.labels.aggregation.${target.aggregation}`),
+        operator: formatComparisonOperator(target.operator),
+        value: formatMeasurementValue(target.value),
+      })
+    case 'rating':
+      return t('planning.calendar.details.targetRule', {
+        aggregation: t('planning.calendar.labels.aggregation.average'),
+        operator: formatComparisonOperator(target.operator),
+        value: formatMeasurementValue(target.value),
+      })
+  }
+}
+
+function formatMeasurementActual(measurement: MeasurementSummary): string {
+  if (measurement.actualValue === undefined) {
+    return t('planning.calendar.details.actualNoData')
+  }
+
+  return t('planning.calendar.details.actual', {
+    value: formatMeasurementValue(measurement.actualValue),
+  })
+}
+
+function formatComparisonOperator(operator: 'gte' | 'lte'): string {
+  return operator === 'gte' ? '>=' : '<='
+}
+
+function formatMeasurementValue(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, '')
 }
 
 function buildActivityBadges(activityState?: string): BadgeModel[] {

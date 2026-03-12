@@ -34,7 +34,7 @@
       "toPlanThisWeek": "To plan this week",
       "reflectionContext": "Reflection context",
       "scheduledToday": "Scheduled today",
-      "trackerEntries": "Tracker entries today",
+      "entriesToday": "Entries today",
       "activeThisWeek": "Active this week",
       "monthlyContext": "Monthly context"
     },
@@ -62,7 +62,12 @@
       "activeInitiatives": "Initiatives"
     },
     "labels": {
-      "goal": "Goal"
+      "goal": "Goal",
+      "aggregation": {
+        "sum": "Sum",
+        "average": "Average",
+        "last": "Last value"
+      }
     },
     "badges": {
       "active": "Active",
@@ -84,11 +89,31 @@
       "entryMonth": "Monthly entry",
       "scheduledThisWeek": "Scheduled this week",
       "scheduledThisDay": "Scheduled this day",
-      "needsPlacement": "Needs weekly placement"
+      "needsPlacement": "Needs weekly placement",
+      "recorded": "Recorded",
+      "met": "On target",
+      "missed": "Off target",
+      "noData": "No data",
+      "scheduleScope": {
+        "unassigned": "Unassigned",
+        "specific-days": "Specific days",
+        "whole-week": "Whole week",
+        "whole-month": "Whole month"
+      }
     },
     "details": {
       "target": "Target {n}",
+      "targetCountMin": "Target: at least {n}",
+      "targetCountMax": "Target: at most {n}",
+      "targetRule": "Target: {aggregation} {operator} {value}",
+      "actual": "Actual: {value}",
+      "actualNoData": "Actual: no data",
       "assignedDays": "{n} assigned days",
+      "entryCount": "{n} entries",
+      "loggedValue": "Logged value: {value}",
+      "recordedToday": "Recorded today",
+      "successNote": "Success note: {note}",
+      "sourceMonth": "Month context: {month}",
       "weekSlots": {
         "one": "{n} week slot",
         "few": "{n} week slots",
@@ -114,7 +139,7 @@
       "initiatives": "No initiatives for this period.",
       "reflection": "No reflection-relevant objects yet.",
       "today": "No day assignments for this date.",
-      "trackerEntries": "No tracker entries for this date."
+      "entries": "No entries for this date."
     },
     "panel": {
       "closedTitle": "Open a panel",
@@ -234,17 +259,22 @@
         "month": "Month analysis"
       },
       "entryMode": {
-        "day": "Daily entries",
-        "week": "Weekly entries",
-        "month": "Monthly entries"
+        "completion": "Completion",
+        "counter": "Counter",
+        "value": "Value",
+        "rating": "Rating"
       }
     },
     "fields": {
       "created": "Created",
-      "updated": "Updated"
+      "updated": "Updated",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "entryCount": "Entries"
     },
     "details": {
       "keyResults": "{n} key results",
+      "noLinkedKeyResults": "No linked key results",
       "latestValue": "Latest value: {value}",
       "entryCount": "{n} entries",
       "noEntries": "No entries yet",
@@ -267,6 +297,7 @@
       "scheduledThisMonth": "Scheduled this month",
       "scheduledThisWeek": "Scheduled this week",
       "scheduledThisDay": "Scheduled on this day",
+      "loggedThisDay": "Logged on this day",
       "trackedThisMonth": "Tracked this month",
       "trackedThisWeek": "Tracked this week",
       "trackedThisPeriod": "Tracked in this period"
@@ -292,11 +323,25 @@
       "activeHint": "Keep this object active. Clear this to archive it.",
       "goal": "Owner goal",
       "cadence": "Cadence",
-      "analysisPeriod": "Analysis period",
       "entryMode": "Entry mode",
+      "target": "Target",
+      "targetOperator": "Target operator",
+      "targetAggregation": "Target aggregation",
+      "targetValue": "Target value",
       "noneSelected": "Select options",
       "lifeAreas": "Linked life areas",
       "priorities": "Linked priorities"
+    },
+    "targetOperators": {
+      "min": "At least",
+      "max": "At most",
+      "gte": ">=",
+      "lte": "<="
+    },
+    "targetAggregations": {
+      "sum": "Sum",
+      "average": "Average",
+      "last": "Last value"
     }
   }
 }
