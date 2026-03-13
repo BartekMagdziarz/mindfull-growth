@@ -378,8 +378,13 @@
       "archived": "Obiekt zarchiwizowany.",
       "unarchived": "Obiekt przywrócony.",
       "saved": "Obiekt zapisany.",
+      "deleted": "Obiekt usunięty.",
       "saveError": "Nie udało się zapisać obiektu.",
       "missingObject": "Nie wybrano obiektu."
+    },
+    "deleteDialog": {
+      "title": "Usuń obiekt",
+      "message": "Usunąć „{title}”? Tej operacji nie da się cofnąć."
     },
     "form": {
       "title": "Tytuł",

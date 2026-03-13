@@ -948,12 +948,6 @@ function getPrimaryLinkedPeriodSource(
   return sources.find((source) => source !== 'period-reflection') ?? 'plan'
 }
 
-function buildBaseFields(createdAt: string, updatedAt: string): ObjectsLibraryDetailRecord['fields'] {
-  return [
-    { label: libraryLabel('planning.objects.fields.createdAt'), value: createdAt, valueType: 'date' },
-    { label: libraryLabel('planning.objects.fields.updatedAt'), value: updatedAt, valueType: 'date' },
-  ]
-}
 
 function buildMeasurementFields(subject: KeyResult | Habit | Tracker): ObjectsLibraryDetailRecord['fields'] {
   const fields = [
@@ -1145,7 +1139,9 @@ function buildGoalListItem(
       ...(goal.isActive ? [] : [{ label: libraryLabel('planning.objects.badges.archived'), tone: 'warning' as const }]),
       ...matchReasonBadges(matchReasons),
     ],
-    details: keyResults.length > 0 ? [`Key results ${keyResults.length}`] : [libraryLabel('planning.objects.details.noLinkedKeyResults')],
+    details: keyResults.length > 0
+      ? [libraryLabel('planning.objects.details.keyResults', { n: keyResults.length })]
+      : [libraryLabel('planning.objects.details.noLinkedKeyResults')],
     linkedEntities: linkedEntityLabels(goal.priorityIds, goal.lifeAreaIds, ctx),
     matchReasons,
     childPreviews: keyResults.slice(0, 3).map((item) => ({
@@ -1246,7 +1242,13 @@ function buildInitiativeListItem(
       ...matchReasonBadges(matchReasons),
     ],
     details: [
-      planState?.dayRef ? 'Scheduled day' : planState?.weekRef ? 'Scheduled week' : planState?.monthRef ? 'Scheduled month' : 'No period placement',
+      planState?.dayRef
+        ? libraryLabel('planning.objects.details.scheduledDay')
+        : planState?.weekRef
+          ? libraryLabel('planning.objects.details.scheduledWeek')
+          : planState?.monthRef
+            ? libraryLabel('planning.objects.details.scheduledMonth')
+            : libraryLabel('planning.objects.details.noPeriodPlacement'),
     ],
     linkedEntities: linkedGoal
       ? [`Goal · ${linkedGoal.title}`, ...linkedEntityLabels(initiative.priorityIds, initiative.lifeAreaIds, ctx)]
@@ -1278,7 +1280,7 @@ function buildGoalPanel(
       lifecycleBadge(goal.status),
       ...(goal.isActive ? [] : [{ label: libraryLabel('planning.objects.badges.archived'), tone: 'warning' as const }]),
     ],
-    fields: buildBaseFields(goal.createdAt, goal.updatedAt),
+    fields: [],
     linkedEntities: buildLinkedEntities(goal.priorityIds, goal.lifeAreaIds, ctx),
     linkedPeriods: buildLinkedPeriods('goal', goal.id, deps, ctx),
     historyItems: buildHistory('goal', goal.id, deps, ctx),
@@ -1318,7 +1320,7 @@ function buildKeyResultPanel(
       lifecycleBadge(keyResult.status),
       ...(keyResult.isActive ? [] : [{ label: libraryLabel('planning.objects.badges.archived'), tone: 'warning' as const }]),
     ],
-    fields: [...buildBaseFields(keyResult.createdAt, keyResult.updatedAt), ...buildMeasurementFields(keyResult), { label: libraryLabel('planning.objects.fields.entryCount'), value: String(entries.length) }],
+    fields: [...buildMeasurementFields(keyResult), { label: libraryLabel('planning.objects.fields.entryCount'), value: String(entries.length) }],
     linkedEntities: goal ? [{ id: goal.id, type: 'goal', label: goal.title }] : [],
     linkedPeriods: buildLinkedPeriods('keyResult', keyResult.id, deps, ctx),
     historyItems: buildHistory('keyResult', keyResult.id, deps, ctx),
@@ -1361,7 +1363,7 @@ function buildHabitPanel(
       lifecycleBadge(habit.status),
       ...(habit.isActive ? [] : [{ label: libraryLabel('planning.objects.badges.archived'), tone: 'warning' as const }]),
     ],
-    fields: [...buildBaseFields(habit.createdAt, habit.updatedAt), ...buildMeasurementFields(habit), { label: libraryLabel('planning.objects.fields.entryCount'), value: String(entries.length) }],
+    fields: [...buildMeasurementFields(habit), { label: libraryLabel('planning.objects.fields.entryCount'), value: String(entries.length) }],
     linkedEntities: buildLinkedEntities(habit.priorityIds, habit.lifeAreaIds, ctx),
     linkedPeriods: buildLinkedPeriods('habit', habit.id, deps, ctx),
     historyItems: buildHistory('habit', habit.id, deps, ctx),
@@ -1401,7 +1403,7 @@ function buildTrackerPanel(
       lifecycleBadge(tracker.status),
       ...(tracker.isActive ? [] : [{ label: libraryLabel('planning.objects.badges.archived'), tone: 'warning' as const }]),
     ],
-    fields: [...buildBaseFields(tracker.createdAt, tracker.updatedAt), ...buildMeasurementFields(tracker), { label: libraryLabel('planning.objects.fields.entryCount'), value: String(entries.length) }],
+    fields: [...buildMeasurementFields(tracker), { label: libraryLabel('planning.objects.fields.entryCount'), value: String(entries.length) }],
     linkedEntities: buildLinkedEntities(tracker.priorityIds, tracker.lifeAreaIds, ctx),
     linkedPeriods: buildLinkedPeriods('tracker', tracker.id, deps, ctx),
     historyItems: buildHistory('tracker', tracker.id, deps, ctx),
@@ -1440,7 +1442,7 @@ function buildInitiativePanel(
       lifecycleBadge(initiative.status),
       ...(initiative.isActive ? [] : [{ label: libraryLabel('planning.objects.badges.archived'), tone: 'warning' as const }]),
     ],
-    fields: buildBaseFields(initiative.createdAt, initiative.updatedAt),
+    fields: [],
     linkedEntities,
     linkedPeriods: buildLinkedPeriods('initiative', initiative.id, deps, ctx),
     historyItems: buildHistory('initiative', initiative.id, deps, ctx),

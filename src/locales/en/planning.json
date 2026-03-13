@@ -378,8 +378,13 @@
       "archived": "Object archived.",
       "unarchived": "Object restored.",
       "saved": "Object saved.",
+      "deleted": "Object deleted.",
       "saveError": "Could not save this object.",
       "missingObject": "No object is currently selected."
+    },
+    "deleteDialog": {
+      "title": "Delete object",
+      "message": "Delete \"{title}\"? This action cannot be undone."
     },
     "form": {
       "title": "Title",

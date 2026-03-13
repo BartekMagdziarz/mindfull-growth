@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { MonthRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
 import ObjectsLibraryView from '@/views/ObjectsLibraryView.vue'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
+import { habitDexieRepository } from '@/repositories/habitDexieRepository'
+import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
@@ -245,6 +247,149 @@ describe('ObjectsLibraryView', () => {
     expect(router.currentRoute.value.query.composerMode).toBeUndefined()
     expect(router.currentRoute.value.query.expandedType).toBe('goal')
     expect(router.currentRoute.value.query.expandedId).toBe(goal.id)
+  })
+
+  it('renders key result details under its goal and opens key result edit mode', async () => {
+    const goal = await goalDexieRepository.create({
+      title: 'Ship weekly workspace',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Publish v1',
+      isActive: true,
+      goalId: goal.id,
+      entryMode: 'counter',
+      cadence: 'weekly',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+
+    const router = createTestRouter()
+    await router.push({
+      name: 'objects-family',
+      params: { family: 'goals' },
+      query: {
+        expandedType: 'keyResult',
+        expandedId: keyResult.id,
+      },
+    })
+    await router.isReady()
+
+    render(ObjectsLibraryView, {
+      props: {
+        family: 'goals',
+      },
+      global: {
+        plugins: [router],
+      },
+    })
+
+    expect(await screen.findByRole('heading', { name: goal.title })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: keyResult.title })).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+
+    expect(await screen.findByRole('button', { name: 'Save' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('Publish v1')
+
+    await waitFor(() => {
+      expect(router.currentRoute.value.query.composerMode).toBe('edit')
+      expect(router.currentRoute.value.query.composerType).toBe('keyResult')
+      expect(router.currentRoute.value.query.composerId).toBe(keyResult.id)
+    })
+  })
+
+  it('deletes an object from inline edit and clears the expanded route state', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Evening reset',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+
+    const router = createTestRouter()
+    await router.push({
+      name: 'objects-family',
+      params: { family: 'habits' },
+      query: {
+        expandedType: 'habit',
+        expandedId: habit.id,
+      },
+    })
+    await router.isReady()
+
+    render(ObjectsLibraryView, {
+      props: {
+        family: 'habits',
+      },
+      global: {
+        plugins: [router],
+      },
+    })
+
+    await fireEvent.click(await screen.findByRole('button', { name: 'Edit' }))
+    await fireEvent.click(await screen.findByRole('button', { name: 'Delete' }))
+
+    const dialog = await screen.findByRole('dialog')
+    await fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }))
+
+    await waitFor(() => {
+      expect(screen.queryByRole('heading', { name: 'Evening reset' })).not.toBeInTheDocument()
+    })
+    expect(router.currentRoute.value.query.expandedType).toBeUndefined()
+    expect(router.currentRoute.value.query.expandedId).toBeUndefined()
+    expect(router.currentRoute.value.query.composerMode).toBeUndefined()
+  })
+
+  it('hides the goal dropdown when creating a key result from within a goal', async () => {
+    const goal = await goalDexieRepository.create({
+      title: 'Ship weekly workspace',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+
+    const router = createTestRouter()
+    await router.push({
+      name: 'objects-family',
+      params: { family: 'goals' },
+      query: {
+        expandedType: 'goal',
+        expandedId: goal.id,
+      },
+    })
+    await router.isReady()
+
+    render(ObjectsLibraryView, {
+      props: {
+        family: 'goals',
+      },
+      global: {
+        plugins: [router],
+      },
+    })
+
+    await fireEvent.click(await screen.findByRole('button', { name: 'Add key result' }))
+    expect(await screen.findByRole('button', { name: 'Create' })).toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: 'Owner goal' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Owner goal')).not.toBeInTheDocument()
   })
 
   it('renders localized library copy in Polish', async () => {

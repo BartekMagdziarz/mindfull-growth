@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-[1280px] px-4 py-6 pb-16">
+  <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
     <div class="mb-6 space-y-4">
       <div class="px-1">
         <h1 class="text-3xl font-semibold tracking-[-0.03em] text-on-surface md:text-[2.35rem]">
@@ -62,205 +62,16 @@
       @clear:priorities="handleClearPriorities"
     />
 
-    <section
-      v-if="isComposerOpen"
-      class="neo-card neo-raised-strong mt-6 overflow-hidden border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/70 to-section/60 p-5 md:p-6"
-    >
-      <div class="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
-        <div class="space-y-4">
-          <label class="space-y-2">
-            <span class="text-sm font-semibold text-on-surface">
-              {{ t('planning.objects.form.title') }}
-            </span>
-            <input
-              v-model="draft.title"
-              type="text"
-              class="neo-input w-full px-4 py-3"
-            />
-          </label>
-
-          <label class="space-y-2">
-            <span class="text-sm font-semibold text-on-surface">
-              {{ t('planning.objects.form.description') }}
-            </span>
-            <textarea
-              v-model="draft.description"
-              class="neo-input min-h-[8rem] w-full resize-none px-4 py-3"
-            />
-          </label>
-
-          <label
-            v-if="resolvedComposerType === 'keyResult' || resolvedComposerType === 'initiative'"
-            class="space-y-2"
-          >
-            <span class="text-sm font-semibold text-on-surface">
-              {{ t('planning.objects.form.goal') }}
-            </span>
-            <select v-model="draft.goalId" class="neo-input w-full px-4 py-3">
-              <option value="">{{ t('common.none') }}</option>
-              <option v-for="goal in store.filterOptions.goals" :key="goal.id" :value="goal.id">
-                {{ goal.label }}
-              </option>
-            </select>
-          </label>
-
-          <label
-            v-if="
-              resolvedComposerType === 'habit' ||
-              resolvedComposerType === 'keyResult' ||
-              resolvedComposerType === 'tracker'
-            "
-            class="space-y-2"
-          >
-            <span class="text-sm font-semibold text-on-surface">
-              {{ t('planning.objects.form.cadence') }}
-            </span>
-            <select v-model="draft.cadence" class="neo-input w-full px-4 py-3">
-              <option value="weekly">{{ t('planning.objects.badges.cadence.weekly') }}</option>
-              <option value="monthly">{{ t('planning.objects.badges.cadence.monthly') }}</option>
-            </select>
-          </label>
-
-          <label
-            v-if="
-              resolvedComposerType === 'habit' ||
-              resolvedComposerType === 'keyResult' ||
-              resolvedComposerType === 'tracker'
-            "
-            class="space-y-2"
-          >
-            <span class="text-sm font-semibold text-on-surface">
-              {{ t('planning.objects.form.entryMode') }}
-            </span>
-            <select v-model="draft.entryMode" class="neo-input w-full px-4 py-3">
-              <option value="completion">{{ t('planning.objects.badges.entryMode.completion') }}</option>
-              <option value="counter">{{ t('planning.objects.badges.entryMode.counter') }}</option>
-              <option value="value">{{ t('planning.objects.badges.entryMode.value') }}</option>
-              <option value="rating">{{ t('planning.objects.badges.entryMode.rating') }}</option>
-            </select>
-          </label>
-
-          <div
-            v-if="resolvedComposerType === 'habit' || resolvedComposerType === 'keyResult'"
-            class="grid gap-4 sm:grid-cols-2"
-          >
-            <label class="space-y-2">
-              <span class="text-sm font-semibold text-on-surface">
-                {{ t('planning.objects.form.targetOperator') }}
-              </span>
-              <select v-model="draft.target.operator" class="neo-input w-full px-4 py-3">
-                <option
-                  v-for="option in targetOperatorOptions"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ option.label }}
-                </option>
-              </select>
-            </label>
-
-            <label v-if="showTargetAggregation" class="space-y-2">
-              <span class="text-sm font-semibold text-on-surface">
-                {{ t('planning.objects.form.targetAggregation') }}
-              </span>
-              <select v-model="draft.target.aggregation" class="neo-input w-full px-4 py-3">
-                <option
-                  v-for="option in targetAggregationOptions"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ option.label }}
-                </option>
-              </select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-sm font-semibold text-on-surface">
-                {{ t('planning.objects.form.targetValue') }}
-              </span>
-              <input
-                v-model.number="draft.target.value"
-                type="number"
-                step="any"
-                class="neo-input w-full px-4 py-3"
-              />
-            </label>
-          </div>
-        </div>
-
-        <div class="space-y-4">
-          <label class="space-y-2">
-            <span class="text-sm font-semibold text-on-surface">
-              {{ t('planning.objects.form.status') }}
-            </span>
-            <select v-model="draft.status" class="neo-input w-full px-4 py-3">
-              <option value="open">{{ t('planning.objects.badges.status.open') }}</option>
-              <option
-                v-if="resolvedComposerType !== 'habit' && resolvedComposerType !== 'tracker'"
-                value="completed"
-              >
-                {{ t('planning.objects.badges.status.completed') }}
-              </option>
-              <option value="dropped">{{ t('planning.objects.badges.status.dropped') }}</option>
-              <option
-                v-if="resolvedComposerType === 'habit' || resolvedComposerType === 'tracker'"
-                value="retired"
-              >
-                {{ t('planning.objects.badges.status.retired') }}
-              </option>
-            </select>
-          </label>
-
-          <label
-            v-if="!isCreateMode"
-            class="flex items-center gap-3 rounded-[1.35rem] border border-neu-border/25 bg-white/35 px-4 py-3 text-sm font-medium text-on-surface"
-          >
-            <input v-model="draft.isActive" type="checkbox" class="neo-checkbox" />
-            {{ t('planning.objects.form.activeHint') }}
-          </label>
-
-          <ObjectsLibraryMultiSelect
-            v-if="resolvedComposerType !== 'keyResult'"
-            v-model="draft.lifeAreaIds"
-            :label="t('planning.objects.form.lifeAreas')"
-            :options="store.filterOptions.lifeAreas"
-            :empty-label="t('planning.objects.form.noneSelected')"
-            :clear-label="t('planning.objects.filters.clear')"
-            :close-label="t('common.buttons.close')"
-          />
-
-          <ObjectsLibraryMultiSelect
-            v-if="resolvedComposerType !== 'keyResult'"
-            v-model="draft.priorityIds"
-            :label="t('planning.objects.form.priorities')"
-            :options="store.filterOptions.priorities"
-            :empty-label="t('planning.objects.form.noneSelected')"
-            :clear-label="t('planning.objects.filters.clear')"
-            :close-label="t('common.buttons.close')"
-          />
-        </div>
-      </div>
-
-      <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-white/45 pt-5">
-        <AppButton variant="outlined" @click="handleCancelComposer">
-          {{ t('common.buttons.cancel') }}
-        </AppButton>
-        <AppButton variant="filled" :disabled="!canSaveDraft" @click="handleSaveComposer">
-          {{ isCreateMode ? t('common.buttons.create') : t('common.buttons.save') }}
-        </AppButton>
-      </div>
-    </section>
-
     <section class="mt-6 space-y-4">
       <PlanningStatePanel
-        v-if="store.isLoading"
+        v-if="store.isLoading && !isComposerOpen"
         :title="t('common.loading')"
         :body="activeFamilyTitle"
         :eyebrow="activeFamilyTitle"
       />
 
       <PlanningStatePanel
-        v-else-if="store.error"
+        v-else-if="store.error && !isComposerOpen"
         :title="t('planning.objects.loadError')"
         :body="store.error"
         :eyebrow="activeFamilyTitle"
@@ -269,7 +80,7 @@
       />
 
       <PlanningStatePanel
-        v-else-if="store.items.length === 0 && isFamilyEmptyState"
+        v-else-if="store.items.length === 0 && isFamilyEmptyState && !isComposerOpen"
         :title="t('planning.objects.empty.familyTitle')"
         :eyebrow="activeFamilyTitle"
         :action-label="createButtonLabel"
@@ -277,7 +88,7 @@
       />
 
       <PlanningStatePanel
-        v-else-if="store.items.length === 0"
+        v-else-if="store.items.length === 0 && !isComposerOpen"
         :title="t('planning.objects.empty.filteredTitle')"
         :eyebrow="activeFamilyTitle"
       >
@@ -294,148 +105,300 @@
         </template>
       </PlanningStatePanel>
 
-      <div v-else class="space-y-4">
-        <div v-for="item in store.items" :key="`${item.panelType}:${item.id}`" class="space-y-3">
+      <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div
+          v-if="showCreateCard"
+          class="space-y-3"
+        >
+          <ObjectsLibraryInlineEditor
+            :draft="draft"
+            :panel-type="resolvedComposerType"
+            :is-create-mode="true"
+            :heading="composerHeading"
+            :mode-label="t('planning.objects.panel.modeCreate')"
+            :type-label="resolvePanelTypeLabel(resolvedComposerType)"
+            :parent-label="composerParentGoalLabel"
+            :help-text="t('planning.objects.panel.createHelp')"
+            :save-label="t('common.buttons.create')"
+            :cancel-label="t('common.buttons.cancel')"
+            :delete-label="t('common.buttons.delete')"
+            :none-label="t('common.none')"
+            :clear-label="t('planning.objects.filters.clear')"
+            :add-label="t('common.buttons.add')"
+            :can-save="canSaveDraft"
+            :show-delete="false"
+            :hide-goal-select="resolvedComposerType === 'keyResult' && Boolean(store.query.composerParentId)"
+            :goal-options="store.filterOptions.goals"
+            :life-area-options="store.filterOptions.lifeAreas"
+            :priority-options="store.filterOptions.priorities"
+            :status-options="statusOptions"
+            :cadence-options="cadenceOptions"
+            :entry-mode-options="entryModeOptions"
+            :target-operator-options="targetOperatorOptions"
+            :target-aggregation-options="targetAggregationOptions"
+            :show-target-aggregation="showTargetAggregation"
+            :labels="editorLabels"
+            @cancel="handleCancelComposer"
+            @save="handleSaveComposer"
+          />
+        </div>
+
+        <div
+          v-for="item in store.items"
+          :key="`${item.panelType}:${item.id}`"
+          class="space-y-3"
+          :class="cardGridClasses(item.panelType, item.id)"
+        >
           <ObjectsLibraryListCard
             :item="item"
-            :expanded="isExpanded(item.panelType, item.id)"
+            :expanded="isExpansionHost(item.panelType, item.id)"
             :open-label="t('planning.objects.actions.showDetails')"
             :collapse-label="t('planning.objects.actions.hideDetails')"
-            :child-label="t('planning.objects.sections.relatedKeyResults')"
+            :edit-label="t('planning.objects.actions.editObject')"
             @toggle="handleToggleExpanded"
-            @open="handleExpandItem"
+            @edit="handleStartInlineEdit"
           />
 
           <section
-            v-if="isExpanded(item.panelType, item.id) && expandedItem"
-            class="neo-card ml-4 rounded-[2rem] border border-white/40 bg-white/45 p-5 md:ml-8 md:p-6"
+            v-if="isExpansionHost(item.panelType, item.id) && expandedItem"
+            class="rounded-2xl border border-white/40 bg-white/45 p-3"
           >
-            <div class="space-y-5">
+            <ObjectsLibraryInlineEditor
+              v-if="isComposerHostedByItem(item.panelType, item.id) && isComposerReady"
+              :draft="draft"
+              :panel-type="resolvedComposerType"
+              :is-create-mode="isCreateMode"
+              :heading="composerHeading"
+              :mode-label="isCreateMode ? t('planning.objects.panel.modeCreate') : t('planning.objects.panel.modeEdit')"
+              :type-label="resolvePanelTypeLabel(resolvedComposerType)"
+              :parent-label="composerParentGoalLabel"
+              :help-text="isCreateMode ? t('planning.objects.panel.createHelp') : t('planning.objects.panel.editHelp')"
+              :save-label="isCreateMode ? t('common.buttons.create') : t('common.buttons.save')"
+              :cancel-label="t('common.buttons.cancel')"
+              :delete-label="t('common.buttons.delete')"
+              :none-label="t('common.none')"
+              :clear-label="t('planning.objects.filters.clear')"
+              :add-label="t('common.buttons.add')"
+              :can-save="canSaveDraft"
+              :show-delete="!isCreateMode"
+              :hide-goal-select="resolvedComposerType === 'keyResult' && Boolean(store.query.composerParentId)"
+              :goal-options="store.filterOptions.goals"
+              :life-area-options="store.filterOptions.lifeAreas"
+              :priority-options="store.filterOptions.priorities"
+              :status-options="statusOptions"
+              :cadence-options="cadenceOptions"
+              :entry-mode-options="entryModeOptions"
+              :target-operator-options="targetOperatorOptions"
+              :target-aggregation-options="targetAggregationOptions"
+              :show-target-aggregation="showTargetAggregation"
+              :labels="editorLabels"
+              @cancel="handleCancelComposer"
+              @delete="handleRequestDeleteFromExpanded"
+              @save="handleSaveComposer"
+            />
+
+            <div v-else class="space-y-3.5">
               <section
-                v-if="expandedItem.owner"
-                class="space-y-3"
+                v-if="expandedItem.owner || expandedItem.linkedEntities.length > 0"
+                class="neo-surface rounded-xl p-2.5"
               >
-                <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                  {{ t('planning.objects.form.goal') }}
-                </div>
-                <button
-                  type="button"
-                  class="neo-pill neo-focus"
-                  @click="handleExpandItem(expandedItem.owner.panelType, expandedItem.owner.id)"
-                >
-                  {{ expandedItem.owner.title }}
-                </button>
-              </section>
-
-              <section v-if="expandedItem.linkedEntities.length > 0" class="space-y-3">
-                <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                  {{ t('planning.objects.sections.links') }}
-                </div>
-                <div class="flex flex-wrap gap-2">
-                  <template
-                    v-for="entity in expandedItem.linkedEntities"
-                    :key="`${entity.type}:${entity.id}`"
-                  >
+                <div class="grid gap-4 md:grid-cols-2">
+                  <section v-if="expandedItem.owner" class="space-y-2">
+                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+                      {{ t('planning.objects.form.goal') }}
+                    </div>
                     <button
-                      v-if="entity.type !== 'priority'"
                       type="button"
-                      class="neo-pill neo-focus"
-                      @click="handleOpenLinkedEntity(entity.type, entity.id)"
+                      class="neo-pill neo-focus px-2 py-1 text-xs font-semibold"
+                      @click="handleExpandItem(expandedItem.owner.panelType, expandedItem.owner.id)"
                     >
-                      {{ entity.label }}
+                      {{ expandedItem.owner.title }}
                     </button>
-                    <span v-else class="neo-pill">
-                      {{ entity.label }}
-                    </span>
-                  </template>
+                  </section>
+
+                  <section v-if="expandedItem.linkedEntities.length > 0" class="space-y-2">
+                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+                      {{ t('planning.objects.sections.links') }}
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <template
+                        v-for="entity in expandedItem.linkedEntities"
+                        :key="`${entity.type}:${entity.id}`"
+                      >
+                        <button
+                          v-if="entity.type !== 'priority'"
+                          type="button"
+                          class="neo-pill neo-focus px-2 py-1 text-xs"
+                          @click="handleOpenLinkedEntity(entity.type, entity.id)"
+                        >
+                          {{ entity.label }}
+                        </button>
+                        <span v-else class="neo-pill px-2 py-1 text-xs">
+                          {{ entity.label }}
+                        </span>
+                      </template>
+                    </div>
+                  </section>
                 </div>
               </section>
 
-              <section v-if="expandedItem.linkedPeriods.length > 0" class="space-y-3">
-                <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                  {{ t('planning.objects.sections.linkedPeriods') }}
-                </div>
-
-                <button
-                  v-for="period in expandedItem.linkedPeriods"
-                  :key="period.key"
-                  type="button"
-                  class="neo-surface neo-focus flex w-full items-center justify-between gap-3 rounded-[1.35rem] px-4 py-3 text-left"
-                  @click="handleOpenPeriod(period.periodRef)"
-                >
-                  <div class="min-w-0">
-                    <div class="text-sm font-semibold text-on-surface">
-                      {{ formatPeriod(period.periodRef) }}
+              <section class="neo-surface rounded-xl p-2.5">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+                      {{ resolvePanelTypeLabel(expandedItem.panelType) }}
                     </div>
-                    <div class="mt-1 text-xs text-on-surface-variant">
-                      {{ resolveLabel(period.reasonLabel) }}
-                    </div>
-                  </div>
-                  <div class="flex flex-wrap justify-end gap-2">
-                    <span
-                      v-for="source in period.sources"
-                      :key="`${period.key}-${source}`"
-                      class="rounded-full px-2 py-1 text-[11px] font-medium"
-                      :class="periodSourceClass(source)"
+                    <h4
+                      v-if="expandedItem.id !== item.id || expandedItem.panelType !== item.panelType"
+                      class="mt-1 text-sm font-semibold text-on-surface"
                     >
-                      {{ periodSourceLabel(source) }}
+                      {{ expandedItem.title }}
+                    </h4>
+                    <p
+                      v-if="expandedItem.description"
+                      class="mt-1 max-w-3xl text-xs leading-5 text-on-surface-variant"
+                    >
+                      {{ expandedItem.description }}
+                    </p>
+                  </div>
+
+                  <div class="flex flex-wrap gap-1.5">
+                    <span
+                      v-for="(badge, index) in expandedItem.badges"
+                      :key="`${expandedItem.id}-${resolveLabel(badge.label)}-${index}`"
+                      class="neo-pill px-2 py-0.5 text-[10px] font-semibold"
+                      :class="badgeToneClass(badge.tone)"
+                    >
+                      {{ resolveLabel(badge.label) }}
                     </span>
                   </div>
-                </button>
+                </div>
+
+                <dl
+                  v-if="expandedItem.fields.length > 0"
+                  class="mt-2 grid gap-2 text-xs sm:grid-cols-2"
+                >
+                  <div
+                    v-for="field in expandedItem.fields"
+                    :key="`${resolveLabel(field.label)}-${field.value}`"
+                    class="neo-inset rounded-lg px-2.5 py-1.5"
+                  >
+                    <dt class="text-on-surface-variant">{{ resolveLabel(field.label) }}</dt>
+                    <dd class="mt-0.5 font-medium text-on-surface">
+                      {{ formatFieldValue(field.value, field.valueType) }}
+                    </dd>
+                  </div>
+                </dl>
               </section>
 
               <section
                 v-if="expandedItem.childPreviews && expandedItem.childPreviews.length > 0"
-                class="space-y-3"
+                class="space-y-2"
               >
-                <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center justify-between gap-2">
                   <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
                     {{ t('planning.objects.sections.relatedKeyResults') }}
                   </div>
                   <button
                     v-if="expandedItem.panelType === 'goal'"
                     type="button"
-                    class="text-sm font-medium text-primary hover:underline"
+                    class="text-xs font-medium text-primary hover:underline"
                     @click="handleCreateChildKeyResult(expandedItem.id)"
                   >
                     {{ t('planning.objects.actions.addKeyResult') }}
                   </button>
                 </div>
 
-                <button
-                  v-for="child in expandedItem.childPreviews"
-                  :key="child.id"
-                  type="button"
-                  class="neo-surface neo-focus flex w-full items-center justify-between gap-3 rounded-[1.35rem] px-4 py-3 text-left"
-                  @click="handleExpandItem(child.type, child.id)"
-                >
-                  <div class="min-w-0">
-                    <div class="truncate text-sm font-semibold text-on-surface">
-                      {{ child.title }}
-                    </div>
-                    <div class="mt-1 flex flex-wrap gap-2">
-                      <span
-                        v-for="(badge, index) in child.badges"
-                        :key="`${child.id}-${resolveLabel(badge.label)}-${index}`"
-                        class="text-[11px] font-medium text-on-surface-variant"
-                      >
-                        {{ resolveLabel(badge.label) }}
-                      </span>
-                    </div>
+                <div class="space-y-1.5">
+                  <div
+                    v-for="child in expandedItem.childPreviews"
+                    :key="child.id"
+                    class="neo-surface flex items-center gap-2 rounded-lg px-2.5 py-2"
+                  >
+                    <button
+                      type="button"
+                      class="neo-focus min-w-0 flex-1 text-left"
+                      @click="handleExpandItem(child.type, child.id)"
+                    >
+                      <div class="truncate text-sm font-semibold text-on-surface">
+                        {{ child.title }}
+                      </div>
+                      <div class="mt-1 flex flex-wrap gap-2">
+                        <span
+                          v-for="(badge, index) in child.badges"
+                          :key="`${child.id}-${resolveLabel(badge.label)}-${index}`"
+                          class="text-[11px] font-medium text-on-surface-variant"
+                        >
+                          {{ resolveLabel(badge.label) }}
+                        </span>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="neo-icon-button neo-focus"
+                      :aria-label="t('planning.objects.actions.editObject')"
+                      @click="handleEditChildKeyResult(expandedItem.id, child.id)"
+                    >
+                      <PencilSquareIcon class="h-4 w-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      class="neo-icon-button neo-focus"
+                      :aria-label="t('planning.objects.actions.showDetails')"
+                      @click="handleExpandItem(child.type, child.id)"
+                    >
+                      <ChevronRightIcon class="h-4 w-4 shrink-0 text-on-surface-variant" />
+                    </button>
                   </div>
-                  <ChevronRightIcon class="h-4 w-4 shrink-0 text-on-surface-variant" />
-                </button>
+                </div>
               </section>
 
-              <section v-if="visibleHistory.length > 0" class="space-y-3">
-                <div class="flex items-center justify-between gap-3">
+              <section v-if="expandedItem.linkedPeriods.length > 0" class="space-y-2">
+                <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+                  {{ t('planning.objects.sections.linkedPeriods') }}
+                </div>
+
+                <div class="grid gap-1.5">
+                  <button
+                    v-for="period in expandedItem.linkedPeriods"
+                    :key="period.key"
+                    type="button"
+                  class="neo-surface neo-focus flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left"
+                  @click="handleOpenPeriod(period.periodRef)"
+                >
+                    <div class="min-w-0">
+                      <div class="text-sm font-semibold text-on-surface">
+                        {{ formatPeriod(period.periodRef) }}
+                      </div>
+                      <div class="mt-1 text-xs text-on-surface-variant">
+                        {{ resolveLabel(period.reasonLabel) }}
+                      </div>
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-2">
+                      <span
+                        v-for="source in period.sources"
+                        :key="`${period.key}-${source}`"
+                        class="rounded-full px-2 py-1 text-[11px] font-medium"
+                        :class="periodSourceClass(source)"
+                      >
+                        {{ periodSourceLabel(source) }}
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              </section>
+
+              <section v-if="visibleHistory.length > 0" class="space-y-2">
+                <div class="flex items-center justify-between gap-2">
                   <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
                     {{ t('planning.objects.sections.history') }}
                   </div>
                   <button
                     v-if="expandedItem.historyItems.length > 3"
                     type="button"
-                    class="text-sm font-medium text-primary hover:underline"
+                    class="text-xs font-medium text-primary hover:underline"
                     @click="historyExpanded = !historyExpanded"
                   >
                     {{
@@ -449,15 +412,13 @@
                 <div
                   v-for="historyItem in visibleHistory"
                   :key="historyItem.key"
-                  class="neo-inset rounded-[1.35rem] p-4"
+                  class="neo-inset rounded-lg p-2.5"
                 >
                   <div class="flex items-center justify-between gap-3">
                     <div class="text-sm font-semibold text-on-surface">
                       {{ formatPeriod(historyItem.periodRef) }}
                     </div>
-                    <span
-                      class="text-[11px] font-medium uppercase tracking-[0.14em] text-on-surface-variant"
-                    >
+                    <span class="text-[11px] font-medium uppercase tracking-[0.14em] text-on-surface-variant">
                       {{ historySourceLabel(historyItem.source) }}
                     </span>
                   </div>
@@ -467,44 +428,36 @@
                 </div>
               </section>
 
-              <section class="neo-surface rounded-[1.6rem] px-4 py-4">
-                <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                  <dl class="grid gap-3 text-sm sm:grid-cols-2">
-                    <div
-                      v-for="field in expandedItem.fields"
-                      :key="`${resolveLabel(field.label)}-${field.value}`"
-                      class="space-y-1"
-                    >
-                      <dt class="text-on-surface-variant">{{ resolveLabel(field.label) }}</dt>
-                      <dd class="font-medium text-on-surface">
-                        {{ formatFieldValue(field.value, field.valueType) }}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div class="flex flex-wrap items-center justify-end gap-3">
-                    <AppButton
-                      v-if="expandedItem.panelType === 'goal'"
-                      variant="tonal"
-                      @click="handleCreateChildKeyResult(expandedItem.id)"
-                    >
-                      {{ t('planning.objects.actions.addKeyResult') }}
-                    </AppButton>
-                    <AppButton variant="outlined" @click="handleOpenEdit">
-                      {{ t('common.buttons.edit') }}
-                    </AppButton>
-                    <button
-                      type="button"
-                      class="text-sm font-medium text-primary hover:underline"
-                      @click="handleToggleArchive"
-                    >
-                      {{
-                        expandedItem.isActive
-                          ? t('planning.objects.actions.archive')
-                          : t('planning.objects.actions.unarchive')
-                      }}
-                    </button>
-                  </div>
+              <section class="neo-surface rounded-xl p-2.5">
+                <div class="flex flex-wrap items-center gap-2">
+                  <AppButton
+                    v-if="expandedItem.panelType === 'goal'"
+                    variant="tonal"
+                    @click="handleCreateChildKeyResult(expandedItem.id)"
+                  >
+                    {{ t('planning.objects.actions.addKeyResult') }}
+                  </AppButton>
+                  <AppButton variant="outlined" @click="handleOpenEdit">
+                    {{ t('common.buttons.edit') }}
+                  </AppButton>
+                  <button
+                    type="button"
+                    class="neo-pill neo-focus px-3 py-1.5 text-xs font-semibold"
+                    @click="handleToggleArchive"
+                  >
+                    {{
+                      expandedItem.isActive
+                        ? t('planning.objects.actions.archive')
+                        : t('planning.objects.actions.unarchive')
+                    }}
+                  </button>
+                  <button
+                    type="button"
+                    class="neo-pill neo-focus px-3 py-1.5 text-xs font-semibold text-danger"
+                    @click="handleRequestDeleteFromExpanded"
+                  >
+                    {{ t('common.buttons.delete') }}
+                  </button>
                 </div>
               </section>
             </div>
@@ -513,6 +466,14 @@
       </div>
     </section>
 
+    <AppDialog
+      v-model="deleteDialogOpen"
+      :title="t('planning.objects.deleteDialog.title')"
+      :message="deleteDialogMessage"
+      :confirm-text="t('common.buttons.delete')"
+      confirm-variant="filled"
+      @confirm="handleConfirmDelete"
+    />
     <AppSnackbar ref="snackbarRef" />
   </div>
 </template>
@@ -520,16 +481,18 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronRightIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import { ChevronRightIcon, PencilSquareIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import AppButton from '@/components/AppButton.vue'
+import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import ObjectsLibraryFilters from '@/components/objects/ObjectsLibraryFilters.vue'
+import ObjectsLibraryInlineEditor from '@/components/objects/ObjectsLibraryInlineEditor.vue'
 import ObjectsLibraryListCard from '@/components/objects/ObjectsLibraryListCard.vue'
-import ObjectsLibraryMultiSelect from '@/components/objects/ObjectsLibraryMultiSelect.vue'
 import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
 import { useT } from '@/composables/useT'
 import type {
+  ObjectsLibraryBadgeTone,
   ObjectsLibraryFamily,
   ObjectsLibraryDetailRecord,
   ObjectsLibraryHistorySource,
@@ -585,6 +548,13 @@ const historyExpanded = ref(false)
 const draft = ref<LibraryDraft>(createEmptyDraft('goal'))
 const periodDraft = ref('')
 const periodError = ref('')
+const deleteDialogOpen = ref(false)
+const pendingDelete = ref<{
+  panelType: ObjectsLibraryPanelType
+  id: string
+  title: string
+  parentGoalId?: string
+} | null>(null)
 
 let searchSyncTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -613,6 +583,46 @@ const createButtonLabel = computed(() => {
   }
 })
 
+const editorLabels = computed(() => ({
+  title: t('planning.objects.form.title'),
+  description: t('planning.objects.form.description'),
+  status: t('planning.objects.form.status'),
+  activeHint: t('planning.objects.form.activeHint'),
+  goal: t('planning.objects.form.goal'),
+  cadence: t('planning.objects.form.cadence'),
+  entryMode: t('planning.objects.form.entryMode'),
+  target: t('planning.objects.form.target'),
+  targetOperator: t('planning.objects.form.targetOperator'),
+  targetAggregation: t('planning.objects.form.targetAggregation'),
+  targetValue: t('planning.objects.form.targetValue'),
+  lifeAreas: t('planning.objects.form.lifeAreas'),
+  priorities: t('planning.objects.form.priorities'),
+}))
+
+const composerHeading = computed(() => {
+  const modeLabel = isCreateMode.value
+    ? t('planning.objects.panel.modeCreate')
+    : t('planning.objects.panel.modeEdit')
+  return `${modeLabel} · ${resolvePanelTypeLabel(resolvedComposerType.value)}`
+})
+
+const showCreateCard = computed(
+  () => isComposerOpen.value && isCreateMode.value && resolvedComposerType.value !== 'keyResult',
+)
+
+const composerParentGoalLabel = computed(() => {
+  const goalId = store.query.composerParentId ?? draft.value.goalId
+  if (!goalId) {
+    return undefined
+  }
+
+  return (
+    store.filterOptions.goals.find((goal) => goal.id === goalId)?.label ??
+    store.composerItem?.owner?.title ??
+    expandedItem.value?.owner?.title
+  )
+})
+
 const expandedItem = computed(() => store.expandedItem)
 const composerMode = computed(() => store.query.composerMode)
 const resolvedComposerType = computed<ObjectsLibraryPanelType>(() => {
@@ -620,6 +630,32 @@ const resolvedComposerType = computed<ObjectsLibraryPanelType>(() => {
 })
 const isComposerOpen = computed(() => Boolean(store.query.composerMode))
 const isCreateMode = computed(() => composerMode.value === 'create')
+const isComposerReady = computed(() => composerMode.value !== 'edit' || Boolean(store.composerItem))
+const statusOptions = computed(() => {
+  if (resolvedComposerType.value === 'habit' || resolvedComposerType.value === 'tracker') {
+    return [
+      { value: 'open', label: t('planning.objects.badges.status.open') },
+      { value: 'retired', label: t('planning.objects.badges.status.retired') },
+      { value: 'dropped', label: t('planning.objects.badges.status.dropped') },
+    ]
+  }
+
+  return [
+    { value: 'open', label: t('planning.objects.badges.status.open') },
+    { value: 'completed', label: t('planning.objects.badges.status.completed') },
+    { value: 'dropped', label: t('planning.objects.badges.status.dropped') },
+  ]
+})
+const cadenceOptions = computed(() => [
+  { value: 'weekly' as const, label: t('planning.objects.badges.cadence.weekly') },
+  { value: 'monthly' as const, label: t('planning.objects.badges.cadence.monthly') },
+])
+const entryModeOptions = computed(() => [
+  { value: 'completion' as const, label: t('planning.objects.badges.entryMode.completion') },
+  { value: 'counter' as const, label: t('planning.objects.badges.entryMode.counter') },
+  { value: 'value' as const, label: t('planning.objects.badges.entryMode.value') },
+  { value: 'rating' as const, label: t('planning.objects.badges.entryMode.rating') },
+])
 
 const visibleHistory = computed(() => {
   if (!expandedItem.value) {
@@ -629,6 +665,16 @@ const visibleHistory = computed(() => {
   return historyExpanded.value
     ? expandedItem.value.historyItems
     : expandedItem.value.historyItems.slice(0, 3)
+})
+
+const deleteDialogMessage = computed(() => {
+  if (!pendingDelete.value) {
+    return ''
+  }
+
+  return t('planning.objects.deleteDialog.message', {
+    title: pendingDelete.value.title,
+  })
 })
 
 const canSaveDraft = computed(() => {
@@ -876,7 +922,9 @@ const showTargetAggregation = computed(
       : false,
 )
 
-const targetOperatorOptions = computed(() => {
+const targetOperatorOptions = computed<
+  Array<{ value: LibraryTargetDraft['operator']; label: string }>
+>(() => {
   if (draft.value.entryMode === 'completion' || draft.value.entryMode === 'counter') {
     return [
       { value: 'min', label: t('planning.objects.targetOperators.min') },
@@ -890,7 +938,9 @@ const targetOperatorOptions = computed(() => {
   ]
 })
 
-const targetAggregationOptions = computed(() => {
+const targetAggregationOptions = computed<
+  Array<{ value: NonNullable<LibraryTargetDraft['aggregation']>; label: string }>
+>(() => {
   if (draft.value.entryMode === 'rating') {
     return [{ value: 'average', label: t('planning.objects.targetAggregations.average') }]
   }
@@ -1007,7 +1057,10 @@ function handleExpandItem(panelType: ObjectsLibraryPanelType, id: string): void 
 }
 
 function handleToggleExpanded(panelType: ObjectsLibraryPanelType, id: string): void {
-  if (store.query.expandedType === panelType && store.query.expandedId === id) {
+  if (isExpansionHost(panelType, id)) {
+    if (isComposerHostedByItem(panelType, id)) {
+      store.closeComposer()
+    }
     store.collapseItem()
   } else {
     historyExpanded.value = false
@@ -1017,7 +1070,22 @@ function handleToggleExpanded(panelType: ObjectsLibraryPanelType, id: string): v
 }
 
 function handleOpenCreate(): void {
-  store.openComposer('create', getObjectsLibraryFamilyPanelType(store.query.family))
+  const panelType = getObjectsLibraryFamilyPanelType(store.query.family)
+  store.collapseItem()
+  store.openComposer('create', panelType)
+  draft.value = createEmptyDraft(panelType)
+  void syncRoute()
+}
+
+function handleStartInlineEdit(panelType: ObjectsLibraryPanelType, id: string): void {
+  historyExpanded.value = false
+  store.expandItem(panelType, id)
+  store.openComposer('edit', panelType, id, currentParentContextFor(panelType, id))
+
+  if (expandedItem.value?.panelType === panelType && expandedItem.value.id === id) {
+    draft.value = createDraftFromDefaults(expandedItem.value.formDefaults, panelType)
+  }
+
   void syncRoute()
 }
 
@@ -1028,6 +1096,7 @@ function handleCreateChildKeyResult(goalId: string): void {
     composerParentType: 'goal',
     composerParentId: goalId,
   })
+  draft.value = createEmptyDraft('keyResult', goalId)
   void syncRoute()
 }
 
@@ -1037,6 +1106,23 @@ function handleOpenEdit(): void {
   }
 
   store.openComposer('edit', expandedItem.value.panelType, expandedItem.value.id, currentParentContext())
+  draft.value = createDraftFromDefaults(
+    expandedItem.value.formDefaults,
+    expandedItem.value.panelType,
+  )
+  void syncRoute()
+}
+
+function handleEditChildKeyResult(goalId: string, keyResultId: string): void {
+  historyExpanded.value = false
+  store.expandItem('keyResult', keyResultId)
+  store.openComposer('edit', 'keyResult', keyResultId, {
+    composerParentType: 'goal',
+    composerParentId: goalId,
+  })
+  if (expandedItem.value?.panelType === 'keyResult' && expandedItem.value.id === keyResultId) {
+    draft.value = createDraftFromDefaults(expandedItem.value.formDefaults, 'keyResult')
+  }
   void syncRoute()
 }
 
@@ -1075,6 +1161,47 @@ async function handleToggleArchive(): Promise<void> {
     snackbarRef.value?.show(
       err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
     )
+  }
+}
+
+function handleRequestDeleteFromExpanded(): void {
+  if (!expandedItem.value) {
+    return
+  }
+
+  pendingDelete.value = {
+    panelType: expandedItem.value.panelType,
+    id: expandedItem.value.id,
+    title: expandedItem.value.title,
+    parentGoalId: expandedItem.value.owner?.id,
+  }
+  deleteDialogOpen.value = true
+}
+
+async function handleConfirmDelete(): Promise<void> {
+  if (!pendingDelete.value) {
+    return
+  }
+
+  const target = pendingDelete.value
+
+  try {
+    await deleteObject(target.panelType, target.id)
+    store.closeComposer()
+    if (target.parentGoalId) {
+      store.expandItem('goal', target.parentGoalId)
+    } else {
+      store.collapseItem()
+    }
+    await syncRoute()
+    snackbarRef.value?.show(t('planning.objects.messages.deleted'))
+  } catch (err) {
+    snackbarRef.value?.show(
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+    )
+  } finally {
+    deleteDialogOpen.value = false
+    pendingDelete.value = null
   }
 }
 
@@ -1261,6 +1388,26 @@ async function updateObjectActive(
   }
 }
 
+async function deleteObject(panelType: ObjectsLibraryPanelType, id: string): Promise<void> {
+  switch (panelType) {
+    case 'goal':
+      await goalDexieRepository.delete(id)
+      return
+    case 'keyResult':
+      await keyResultDexieRepository.delete(id)
+      return
+    case 'habit':
+      await habitDexieRepository.delete(id)
+      return
+    case 'tracker':
+      await trackerDexieRepository.delete(id)
+      return
+    case 'initiative':
+      await initiativeDexieRepository.delete(id)
+      return
+  }
+}
+
 function handleOpenLinkedEntity(type: ObjectsLibraryLinkedEntity['type'], id: string): void {
   if (type === 'goal') {
     handleExpandItem('goal', id)
@@ -1293,6 +1440,38 @@ function isExpanded(panelType: ObjectsLibraryPanelType, id: string): boolean {
   return store.query.expandedType === panelType && store.query.expandedId === id
 }
 
+function isExpansionHost(panelType: ObjectsLibraryPanelType, id: string): boolean {
+  if (isExpanded(panelType, id)) {
+    return true
+  }
+
+  return (
+    panelType === 'goal' &&
+    store.query.expandedType === 'keyResult' &&
+    expandedItem.value?.owner?.id === id
+  )
+}
+
+function isComposerHostedByItem(panelType: ObjectsLibraryPanelType, id: string): boolean {
+  if (!isComposerOpen.value) {
+    return false
+  }
+
+  if (composerMode.value === 'create') {
+    return panelType === 'goal' && store.query.composerType === 'keyResult' && store.query.composerParentId === id
+  }
+
+  if (store.query.composerType === 'keyResult') {
+    return panelType === 'goal' && expandedItem.value?.owner?.id === id
+  }
+
+  return store.query.composerType === panelType && store.query.composerId === id
+}
+
+function cardGridClasses(_panelType: ObjectsLibraryPanelType, _id: string): string {
+  return ''
+}
+
 function normalizeOptionalText(value: string): string | undefined {
   const trimmed = value.trim()
   return trimmed ? trimmed : undefined
@@ -1300,6 +1479,10 @@ function normalizeOptionalText(value: string): string | undefined {
 
 function resolveLabel(label: ObjectsLibraryLabel): string {
   return resolveObjectsLibraryLabel(label, t)
+}
+
+function resolvePanelTypeLabel(panelType: ObjectsLibraryPanelType): string {
+  return t(`planning.objects.labels.${panelType}`)
 }
 
 function formatPeriod(periodRef: PeriodRef): string {
@@ -1316,6 +1499,21 @@ function formatFieldValue(value: string, valueType?: 'date'): string {
 
 function periodSourceLabel(source: ObjectsLibraryLinkedPeriodSource): string {
   return t(`planning.objects.periodSources.${source}`)
+}
+
+function badgeToneClass(tone?: ObjectsLibraryBadgeTone): string {
+  switch (tone) {
+    case 'accent':
+      return 'neo-pill--primary'
+    case 'success':
+      return 'neo-pill--success'
+    case 'warning':
+      return 'neo-pill--warning'
+    case 'danger':
+      return 'neo-pill--danger'
+    default:
+      return ''
+  }
 }
 
 function periodSourceClass(source: ObjectsLibraryLinkedPeriodSource): string {
@@ -1355,5 +1553,23 @@ function currentParentContext():
   }
 
   return undefined
+}
+
+function currentParentContextFor(
+  panelType: ObjectsLibraryPanelType,
+  id: string,
+): { composerParentType?: 'goal'; composerParentId?: string } | undefined {
+  if (panelType !== 'keyResult') {
+    return undefined
+  }
+
+  if (expandedItem.value?.panelType === 'keyResult' && expandedItem.value.id === id && expandedItem.value.owner) {
+    return {
+      composerParentType: 'goal',
+      composerParentId: expandedItem.value.owner.id,
+    }
+  }
+
+  return currentParentContext()
 }
 </script>
