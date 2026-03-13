@@ -151,20 +151,20 @@
         >
           <ObjectsLibraryListCard
             :item="item"
-            :expanded="isExpansionHost(item.panelType, item.id)"
-            :open-label="t('planning.objects.actions.showDetails')"
-            :collapse-label="t('planning.objects.actions.hideDetails')"
-            :edit-label="t('planning.objects.actions.editObject')"
-            @toggle="handleToggleExpanded"
-            @edit="handleStartInlineEdit"
+            :status-options="statusOptionsForType(item.panelType)"
+            @status-change="handleStatusChangeFromCard"
+            @archive="handleArchiveFromCard"
+            @delete="handleDeleteFromCard"
+            @add-key-result="handleCreateChildKeyResult"
+            @expand-key-result="handleExpandItem"
+            @edit-key-result="handleEditChildKeyResult"
           />
 
           <section
-            v-if="isExpansionHost(item.panelType, item.id) && expandedItem"
+            v-if="isExpansionHost(item.panelType, item.id) && isComposerHostedByItem(item.panelType, item.id) && isComposerReady"
             class="rounded-2xl border border-white/40 bg-white/45 p-3"
           >
             <ObjectsLibraryInlineEditor
-              v-if="isComposerHostedByItem(item.panelType, item.id) && isComposerReady"
               :draft="draft"
               :panel-type="resolvedComposerType"
               :is-create-mode="isCreateMode"
@@ -196,271 +196,6 @@
               @delete="handleRequestDeleteFromExpanded"
               @save="handleSaveComposer"
             />
-
-            <div v-else class="space-y-3.5">
-              <section
-                v-if="expandedItem.owner || expandedItem.linkedEntities.length > 0"
-                class="neo-surface rounded-xl p-2.5"
-              >
-                <div class="grid gap-4 md:grid-cols-2">
-                  <section v-if="expandedItem.owner" class="space-y-2">
-                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                      {{ t('planning.objects.form.goal') }}
-                    </div>
-                    <button
-                      type="button"
-                      class="neo-pill neo-focus px-2 py-1 text-xs font-semibold"
-                      @click="handleExpandItem(expandedItem.owner.panelType, expandedItem.owner.id)"
-                    >
-                      {{ expandedItem.owner.title }}
-                    </button>
-                  </section>
-
-                  <section v-if="expandedItem.linkedEntities.length > 0" class="space-y-2">
-                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                      {{ t('planning.objects.sections.links') }}
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                      <template
-                        v-for="entity in expandedItem.linkedEntities"
-                        :key="`${entity.type}:${entity.id}`"
-                      >
-                        <button
-                          v-if="entity.type !== 'priority'"
-                          type="button"
-                          class="neo-pill neo-focus px-2 py-1 text-xs"
-                          @click="handleOpenLinkedEntity(entity.type, entity.id)"
-                        >
-                          {{ entity.label }}
-                        </button>
-                        <span v-else class="neo-pill px-2 py-1 text-xs">
-                          {{ entity.label }}
-                        </span>
-                      </template>
-                    </div>
-                  </section>
-                </div>
-              </section>
-
-              <section class="neo-surface rounded-xl p-2.5">
-                <div class="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                      {{ resolvePanelTypeLabel(expandedItem.panelType) }}
-                    </div>
-                    <h4
-                      v-if="expandedItem.id !== item.id || expandedItem.panelType !== item.panelType"
-                      class="mt-1 text-sm font-semibold text-on-surface"
-                    >
-                      {{ expandedItem.title }}
-                    </h4>
-                    <p
-                      v-if="expandedItem.description"
-                      class="mt-1 max-w-3xl text-xs leading-5 text-on-surface-variant"
-                    >
-                      {{ expandedItem.description }}
-                    </p>
-                  </div>
-
-                  <div class="flex flex-wrap gap-1.5">
-                    <span
-                      v-for="(badge, index) in expandedItem.badges"
-                      :key="`${expandedItem.id}-${resolveLabel(badge.label)}-${index}`"
-                      class="neo-pill px-2 py-0.5 text-[10px] font-semibold"
-                      :class="badgeToneClass(badge.tone)"
-                    >
-                      {{ resolveLabel(badge.label) }}
-                    </span>
-                  </div>
-                </div>
-
-                <dl
-                  v-if="expandedItem.fields.length > 0"
-                  class="mt-2 grid gap-2 text-xs sm:grid-cols-2"
-                >
-                  <div
-                    v-for="field in expandedItem.fields"
-                    :key="`${resolveLabel(field.label)}-${field.value}`"
-                    class="neo-inset rounded-lg px-2.5 py-1.5"
-                  >
-                    <dt class="text-on-surface-variant">{{ resolveLabel(field.label) }}</dt>
-                    <dd class="mt-0.5 font-medium text-on-surface">
-                      {{ formatFieldValue(field.value, field.valueType) }}
-                    </dd>
-                  </div>
-                </dl>
-              </section>
-
-              <section
-                v-if="expandedItem.childPreviews && expandedItem.childPreviews.length > 0"
-                class="space-y-2"
-              >
-                <div class="flex items-center justify-between gap-2">
-                  <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                    {{ t('planning.objects.sections.relatedKeyResults') }}
-                  </div>
-                  <button
-                    v-if="expandedItem.panelType === 'goal'"
-                    type="button"
-                    class="text-xs font-medium text-primary hover:underline"
-                    @click="handleCreateChildKeyResult(expandedItem.id)"
-                  >
-                    {{ t('planning.objects.actions.addKeyResult') }}
-                  </button>
-                </div>
-
-                <div class="space-y-1.5">
-                  <div
-                    v-for="child in expandedItem.childPreviews"
-                    :key="child.id"
-                    class="neo-surface flex items-center gap-2 rounded-lg px-2.5 py-2"
-                  >
-                    <button
-                      type="button"
-                      class="neo-focus min-w-0 flex-1 text-left"
-                      @click="handleExpandItem(child.type, child.id)"
-                    >
-                      <div class="truncate text-sm font-semibold text-on-surface">
-                        {{ child.title }}
-                      </div>
-                      <div class="mt-1 flex flex-wrap gap-2">
-                        <span
-                          v-for="(badge, index) in child.badges"
-                          :key="`${child.id}-${resolveLabel(badge.label)}-${index}`"
-                          class="text-[11px] font-medium text-on-surface-variant"
-                        >
-                          {{ resolveLabel(badge.label) }}
-                        </span>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      class="neo-icon-button neo-focus"
-                      :aria-label="t('planning.objects.actions.editObject')"
-                      @click="handleEditChildKeyResult(expandedItem.id, child.id)"
-                    >
-                      <PencilSquareIcon class="h-4 w-4" />
-                    </button>
-
-                    <button
-                      type="button"
-                      class="neo-icon-button neo-focus"
-                      :aria-label="t('planning.objects.actions.showDetails')"
-                      @click="handleExpandItem(child.type, child.id)"
-                    >
-                      <ChevronRightIcon class="h-4 w-4 shrink-0 text-on-surface-variant" />
-                    </button>
-                  </div>
-                </div>
-              </section>
-
-              <section v-if="expandedItem.linkedPeriods.length > 0" class="space-y-2">
-                <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                  {{ t('planning.objects.sections.linkedPeriods') }}
-                </div>
-
-                <div class="grid gap-1.5">
-                  <button
-                    v-for="period in expandedItem.linkedPeriods"
-                    :key="period.key"
-                    type="button"
-                  class="neo-surface neo-focus flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left"
-                  @click="handleOpenPeriod(period.periodRef)"
-                >
-                    <div class="min-w-0">
-                      <div class="text-sm font-semibold text-on-surface">
-                        {{ formatPeriod(period.periodRef) }}
-                      </div>
-                      <div class="mt-1 text-xs text-on-surface-variant">
-                        {{ resolveLabel(period.reasonLabel) }}
-                      </div>
-                    </div>
-                    <div class="flex flex-wrap justify-end gap-2">
-                      <span
-                        v-for="source in period.sources"
-                        :key="`${period.key}-${source}`"
-                        class="rounded-full px-2 py-1 text-[11px] font-medium"
-                        :class="periodSourceClass(source)"
-                      >
-                        {{ periodSourceLabel(source) }}
-                      </span>
-                    </div>
-                  </button>
-                </div>
-              </section>
-
-              <section v-if="visibleHistory.length > 0" class="space-y-2">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-                    {{ t('planning.objects.sections.history') }}
-                  </div>
-                  <button
-                    v-if="expandedItem.historyItems.length > 3"
-                    type="button"
-                    class="text-xs font-medium text-primary hover:underline"
-                    @click="historyExpanded = !historyExpanded"
-                  >
-                    {{
-                      historyExpanded
-                        ? t('planning.objects.actions.showLess')
-                        : t('planning.objects.actions.showMore')
-                    }}
-                  </button>
-                </div>
-
-                <div
-                  v-for="historyItem in visibleHistory"
-                  :key="historyItem.key"
-                  class="neo-inset rounded-lg p-2.5"
-                >
-                  <div class="flex items-center justify-between gap-3">
-                    <div class="text-sm font-semibold text-on-surface">
-                      {{ formatPeriod(historyItem.periodRef) }}
-                    </div>
-                    <span class="text-[11px] font-medium uppercase tracking-[0.14em] text-on-surface-variant">
-                      {{ historySourceLabel(historyItem.source) }}
-                    </span>
-                  </div>
-                  <p class="mt-2 text-sm leading-6 text-on-surface-variant">
-                    {{ historyItem.note }}
-                  </p>
-                </div>
-              </section>
-
-              <section class="neo-surface rounded-xl p-2.5">
-                <div class="flex flex-wrap items-center gap-2">
-                  <AppButton
-                    v-if="expandedItem.panelType === 'goal'"
-                    variant="tonal"
-                    @click="handleCreateChildKeyResult(expandedItem.id)"
-                  >
-                    {{ t('planning.objects.actions.addKeyResult') }}
-                  </AppButton>
-                  <AppButton variant="outlined" @click="handleOpenEdit">
-                    {{ t('common.buttons.edit') }}
-                  </AppButton>
-                  <button
-                    type="button"
-                    class="neo-pill neo-focus px-3 py-1.5 text-xs font-semibold"
-                    @click="handleToggleArchive"
-                  >
-                    {{
-                      expandedItem.isActive
-                        ? t('planning.objects.actions.archive')
-                        : t('planning.objects.actions.unarchive')
-                    }}
-                  </button>
-                  <button
-                    type="button"
-                    class="neo-pill neo-focus px-3 py-1.5 text-xs font-semibold text-danger"
-                    @click="handleRequestDeleteFromExpanded"
-                  >
-                    {{ t('common.buttons.delete') }}
-                  </button>
-                </div>
-              </section>
-            </div>
           </section>
         </div>
       </div>
@@ -481,7 +216,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronRightIcon, PencilSquareIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import { PlusIcon } from '@heroicons/vue/24/outline'
 import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
@@ -492,13 +227,8 @@ import ObjectsLibraryListCard from '@/components/objects/ObjectsLibraryListCard.
 import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
 import { useT } from '@/composables/useT'
 import type {
-  ObjectsLibraryBadgeTone,
   ObjectsLibraryFamily,
   ObjectsLibraryDetailRecord,
-  ObjectsLibraryHistorySource,
-  ObjectsLibraryLabel,
-  ObjectsLibraryLinkedEntity,
-  ObjectsLibraryLinkedPeriodSource,
   ObjectsLibraryPanelType,
 } from '@/services/objectsLibraryQueries'
 import { getObjectsLibraryFamilyPanelType } from '@/services/objectsLibraryQueries'
@@ -510,8 +240,6 @@ import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { isPeriodRef } from '@/utils/periods'
 import type { PeriodRef } from '@/domain/period'
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
-import { resolveObjectsLibraryLabel } from '@/utils/objectsLibraryLabels'
-import { formatPeriodLabel, formatTimestamp } from '@/utils/periodLabels'
 
 interface Props {
   family: string | string[]
@@ -541,7 +269,7 @@ const props = defineProps<Props>()
 
 const router = useRouter()
 const route = useRoute()
-const { t, locale } = useT()
+const { t } = useT()
 const store = useObjectsLibraryStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const historyExpanded = ref(false)
@@ -656,16 +384,6 @@ const entryModeOptions = computed(() => [
   { value: 'value' as const, label: t('planning.objects.badges.entryMode.value') },
   { value: 'rating' as const, label: t('planning.objects.badges.entryMode.rating') },
 ])
-
-const visibleHistory = computed(() => {
-  if (!expandedItem.value) {
-    return []
-  }
-
-  return historyExpanded.value
-    ? expandedItem.value.historyItems
-    : expandedItem.value.historyItems.slice(0, 3)
-})
 
 const deleteDialogMessage = computed(() => {
   if (!pendingDelete.value) {
@@ -1056,36 +774,11 @@ function handleExpandItem(panelType: ObjectsLibraryPanelType, id: string): void 
   void syncRoute()
 }
 
-function handleToggleExpanded(panelType: ObjectsLibraryPanelType, id: string): void {
-  if (isExpansionHost(panelType, id)) {
-    if (isComposerHostedByItem(panelType, id)) {
-      store.closeComposer()
-    }
-    store.collapseItem()
-  } else {
-    historyExpanded.value = false
-    store.expandItem(panelType, id)
-  }
-  void syncRoute()
-}
-
 function handleOpenCreate(): void {
   const panelType = getObjectsLibraryFamilyPanelType(store.query.family)
   store.collapseItem()
   store.openComposer('create', panelType)
   draft.value = createEmptyDraft(panelType)
-  void syncRoute()
-}
-
-function handleStartInlineEdit(panelType: ObjectsLibraryPanelType, id: string): void {
-  historyExpanded.value = false
-  store.expandItem(panelType, id)
-  store.openComposer('edit', panelType, id, currentParentContextFor(panelType, id))
-
-  if (expandedItem.value?.panelType === panelType && expandedItem.value.id === id) {
-    draft.value = createDraftFromDefaults(expandedItem.value.formDefaults, panelType)
-  }
-
   void syncRoute()
 }
 
@@ -1097,19 +790,6 @@ function handleCreateChildKeyResult(goalId: string): void {
     composerParentId: goalId,
   })
   draft.value = createEmptyDraft('keyResult', goalId)
-  void syncRoute()
-}
-
-function handleOpenEdit(): void {
-  if (!expandedItem.value) {
-    return
-  }
-
-  store.openComposer('edit', expandedItem.value.panelType, expandedItem.value.id, currentParentContext())
-  draft.value = createDraftFromDefaults(
-    expandedItem.value.formDefaults,
-    expandedItem.value.panelType,
-  )
   void syncRoute()
 }
 
@@ -1140,19 +820,46 @@ function handleCancelComposer(): void {
   void syncRoute()
 }
 
-async function handleToggleArchive(): Promise<void> {
-  if (!expandedItem.value) {
-    return
+function statusOptionsForType(panelType: ObjectsLibraryPanelType): Array<{ value: string; label: string }> {
+  if (panelType === 'habit' || panelType === 'tracker') {
+    return [
+      { value: 'open', label: t('planning.objects.badges.status.open') },
+      { value: 'retired', label: t('planning.objects.badges.status.retired') },
+      { value: 'dropped', label: t('planning.objects.badges.status.dropped') },
+    ]
   }
+  return [
+    { value: 'open', label: t('planning.objects.badges.status.open') },
+    { value: 'completed', label: t('planning.objects.badges.status.completed') },
+    { value: 'dropped', label: t('planning.objects.badges.status.dropped') },
+  ]
+}
 
+async function handleStatusChangeFromCard(
+  panelType: ObjectsLibraryPanelType,
+  id: string,
+  newStatus: string,
+): Promise<void> {
   try {
-    await updateObjectActive(
-      expandedItem.value.panelType,
-      expandedItem.value.id,
-      !expandedItem.value.isActive,
-    )
+    await updateObjectStatus(panelType, id, newStatus)
+    await store.loadBundle()
+    snackbarRef.value?.show(t('planning.objects.messages.saved'))
+  } catch (err) {
     snackbarRef.value?.show(
-      expandedItem.value.isActive
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+    )
+  }
+}
+
+async function handleArchiveFromCard(
+  panelType: ObjectsLibraryPanelType,
+  id: string,
+  isCurrentlyActive: boolean,
+): Promise<void> {
+  try {
+    await updateObjectActive(panelType, id, !isCurrentlyActive)
+    snackbarRef.value?.show(
+      isCurrentlyActive
         ? t('planning.objects.messages.archived')
         : t('planning.objects.messages.unarchived'),
     )
@@ -1162,6 +869,15 @@ async function handleToggleArchive(): Promise<void> {
       err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
     )
   }
+}
+
+function handleDeleteFromCard(
+  panelType: ObjectsLibraryPanelType,
+  id: string,
+  title: string,
+): void {
+  pendingDelete.value = { panelType, id, title }
+  deleteDialogOpen.value = true
 }
 
 function handleRequestDeleteFromExpanded(): void {
@@ -1388,6 +1104,30 @@ async function updateObjectActive(
   }
 }
 
+async function updateObjectStatus(
+  panelType: ObjectsLibraryPanelType,
+  id: string,
+  status: string,
+): Promise<void> {
+  switch (panelType) {
+    case 'goal':
+      await goalDexieRepository.update(id, { status: status as 'open' | 'completed' | 'dropped' })
+      return
+    case 'keyResult':
+      await keyResultDexieRepository.update(id, { status: status as 'open' | 'completed' | 'dropped' })
+      return
+    case 'habit':
+      await habitDexieRepository.update(id, { status: status as 'open' | 'retired' | 'dropped' })
+      return
+    case 'tracker':
+      await trackerDexieRepository.update(id, { status: status as 'open' | 'retired' | 'dropped' })
+      return
+    case 'initiative':
+      await initiativeDexieRepository.update(id, { status: status as 'open' | 'completed' | 'dropped' })
+      return
+  }
+}
+
 async function deleteObject(panelType: ObjectsLibraryPanelType, id: string): Promise<void> {
   switch (panelType) {
     case 'goal':
@@ -1405,34 +1145,6 @@ async function deleteObject(panelType: ObjectsLibraryPanelType, id: string): Pro
     case 'initiative':
       await initiativeDexieRepository.delete(id)
       return
-  }
-}
-
-function handleOpenLinkedEntity(type: ObjectsLibraryLinkedEntity['type'], id: string): void {
-  if (type === 'goal') {
-    handleExpandItem('goal', id)
-    return
-  }
-
-  if (type === 'lifeArea') {
-    void router.push({ name: 'life-area-detail', params: { id } })
-  }
-}
-
-function handleOpenPeriod(periodRef: PeriodRef): void {
-  switch (periodRef.length) {
-    case 4:
-      void router.push({ name: 'calendar-year', params: { yearRef: periodRef } })
-      return
-    case 7:
-      if (periodRef.includes('-W')) {
-        void router.push({ name: 'calendar-week', params: { weekRef: periodRef } })
-      } else {
-        void router.push({ name: 'calendar-month', params: { monthRef: periodRef } })
-      }
-      return
-    default:
-      void router.push({ name: 'calendar-day', params: { dayRef: periodRef } })
   }
 }
 
@@ -1477,99 +1189,9 @@ function normalizeOptionalText(value: string): string | undefined {
   return trimmed ? trimmed : undefined
 }
 
-function resolveLabel(label: ObjectsLibraryLabel): string {
-  return resolveObjectsLibraryLabel(label, t)
-}
-
 function resolvePanelTypeLabel(panelType: ObjectsLibraryPanelType): string {
   return t(`planning.objects.labels.${panelType}`)
 }
 
-function formatPeriod(periodRef: PeriodRef): string {
-  return formatPeriodLabel(periodRef, locale.value, t('planning.calendar.scales.week'))
-}
 
-function formatFieldValue(value: string, valueType?: 'date'): string {
-  if (valueType === 'date') {
-    return formatTimestamp(value, locale.value)
-  }
-
-  return value
-}
-
-function periodSourceLabel(source: ObjectsLibraryLinkedPeriodSource): string {
-  return t(`planning.objects.periodSources.${source}`)
-}
-
-function badgeToneClass(tone?: ObjectsLibraryBadgeTone): string {
-  switch (tone) {
-    case 'accent':
-      return 'neo-pill--primary'
-    case 'success':
-      return 'neo-pill--success'
-    case 'warning':
-      return 'neo-pill--warning'
-    case 'danger':
-      return 'neo-pill--danger'
-    default:
-      return ''
-  }
-}
-
-function periodSourceClass(source: ObjectsLibraryLinkedPeriodSource): string {
-  switch (source) {
-    case 'plan':
-      return 'bg-primary-soft text-primary-strong'
-    case 'progress':
-      return 'bg-green-100 text-green-700'
-    case 'object-reflection':
-      return 'bg-chip text-chip-text'
-    case 'period-reflection':
-      return 'bg-section text-on-surface-variant'
-  }
-}
-
-function historySourceLabel(source: ObjectsLibraryHistorySource): string {
-  return source === 'object-reflection'
-    ? t('planning.objects.periodSources.object-reflection')
-    : t('planning.objects.periodSources.period-reflection')
-}
-
-function currentParentContext():
-  | { composerParentType?: 'goal'; composerParentId?: string }
-  | undefined {
-  if (store.query.composerParentType === 'goal' && store.query.composerParentId) {
-    return {
-      composerParentType: 'goal',
-      composerParentId: store.query.composerParentId,
-    }
-  }
-
-  if (expandedItem.value?.owner) {
-    return {
-      composerParentType: 'goal',
-      composerParentId: expandedItem.value.owner.id,
-    }
-  }
-
-  return undefined
-}
-
-function currentParentContextFor(
-  panelType: ObjectsLibraryPanelType,
-  id: string,
-): { composerParentType?: 'goal'; composerParentId?: string } | undefined {
-  if (panelType !== 'keyResult') {
-    return undefined
-  }
-
-  if (expandedItem.value?.panelType === 'keyResult' && expandedItem.value.id === id && expandedItem.value.owner) {
-    return {
-      composerParentType: 'goal',
-      composerParentId: expandedItem.value.owner.id,
-    }
-  }
-
-  return currentParentContext()
-}
 </script>
