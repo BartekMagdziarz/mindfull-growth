@@ -17,11 +17,13 @@ import {
 import {
   getTodayViewBundle,
   getTodayViewBundleForDay,
+  type TodayInitiativeItem,
   type TodayItem,
   type TodayMeasurementItem,
   type TodaySectionId,
   type TodayViewBundle,
 } from '@/services/todayViewQueries'
+import { getPeriodRefsForDate } from '@/utils/periods'
 
 function createOptimisticEntry(
   item: TodayMeasurementItem,
@@ -52,6 +54,25 @@ function sortItems(items: TodayItem[]): TodayItem[] {
   })
 }
 
+function sectionPriority(sectionId: string): number {
+  switch (sectionId) {
+    case 'scheduled': return 0
+    case 'week': return 1
+    case 'month': return 2
+    default: return 3
+  }
+}
+
+function sortBySectionThenTitle<T extends TodayItem>(items: T[]): T[] {
+  return [...items].sort((a, b) => {
+    const sectionDiff = sectionPriority(a.sectionId) - sectionPriority(b.sectionId)
+    if (sectionDiff !== 0) return sectionDiff
+    const aTitle = a.kind === 'initiative' ? a.initiative.title : a.subject.title
+    const bTitle = b.kind === 'initiative' ? b.initiative.title : b.subject.title
+    return aTitle.localeCompare(bTitle)
+  })
+}
+
 export const useTodayStore = defineStore('today', () => {
   const bundle = ref<TodayViewBundle | null>(null)
   const isLoading = ref(false)
@@ -64,6 +85,72 @@ export const useTodayStore = defineStore('today', () => {
   const monthItems = computed(() => bundle.value?.sections.month ?? [])
   const hiddenItems = computed(() => bundle.value?.hiddenItems ?? [])
 
+  const allVisibleItems = computed<TodayItem[]>(() => [
+    ...scheduledItems.value,
+    ...weekItems.value,
+    ...monthItems.value,
+  ])
+
+  const goalKrItems = computed<TodayMeasurementItem[]>(() =>
+    allVisibleItems.value.filter(
+      (item): item is TodayMeasurementItem =>
+        item.kind === 'measurement' && item.panelType === 'keyResult'
+    )
+  )
+
+  const habitItems = computed<TodayMeasurementItem[]>(() =>
+    sortBySectionThenTitle(
+      allVisibleItems.value.filter(
+        (item): item is TodayMeasurementItem =>
+          item.kind === 'measurement' && item.panelType === 'habit'
+      )
+    )
+  )
+
+  const trackerItems = computed<TodayMeasurementItem[]>(() =>
+    sortBySectionThenTitle(
+      allVisibleItems.value.filter(
+        (item): item is TodayMeasurementItem =>
+          item.kind === 'measurement' && item.panelType === 'tracker'
+      )
+    )
+  )
+
+  const initiativeItems = computed<TodayInitiativeItem[]>(() =>
+    sortBySectionThenTitle(
+      allVisibleItems.value.filter(
+        (item): item is TodayInitiativeItem => item.kind === 'initiative'
+      )
+    )
+  )
+
+  interface GoalGroup {
+    goal: { id: string; title: string }
+    items: TodayMeasurementItem[]
+  }
+
+  const goalGroupedKrItems = computed<GoalGroup[]>(() => {
+    const groupMap = new Map<string, GoalGroup>()
+
+    for (const item of goalKrItems.value) {
+      const goalTitle = item.goalTitle ?? ''
+      const goalId = 'goalId' in item.subject ? (item.subject as { goalId: string }).goalId : ''
+
+      let group = groupMap.get(goalId)
+      if (!group) {
+        group = { goal: { id: goalId, title: goalTitle }, items: [] }
+        groupMap.set(goalId, group)
+      }
+      group.items.push(item)
+    }
+
+    const groups = [...groupMap.values()].sort((a, b) => a.goal.title.localeCompare(b.goal.title))
+    for (const group of groups) {
+      group.items = sortBySectionThenTitle(group.items)
+    }
+    return groups
+  })
+
   function isPending(key: string): boolean {
     return pendingKeys.value.includes(key)
   }
@@ -72,6 +159,12 @@ export const useTodayStore = defineStore('today', () => {
     pendingKeys.value = pending
       ? Array.from(new Set([...pendingKeys.value, key]))
       : pendingKeys.value.filter(value => value !== key)
+  }
+
+  function shiftDay(currentDayRef: DayRef, delta: number): DayRef {
+    const date = new Date(`${currentDayRef}T00:00:00`)
+    date.setDate(date.getDate() + delta)
+    return getPeriodRefsForDate(date).day
   }
 
   async function loadBundle(targetDayRef?: DayRef): Promise<void> {
@@ -88,6 +181,22 @@ export const useTodayStore = defineStore('today', () => {
     } finally {
       isLoading.value = false
     }
+  }
+
+  async function goToPreviousDay(): Promise<void> {
+    const current = bundle.value?.dayRef
+    if (!current) return
+    await loadBundle(shiftDay(current, -1))
+  }
+
+  async function goToNextDay(): Promise<void> {
+    const current = bundle.value?.dayRef
+    if (!current) return
+    await loadBundle(shiftDay(current, 1))
+  }
+
+  async function goToDay(targetDayRef: DayRef): Promise<void> {
+    await loadBundle(targetDayRef)
   }
 
   async function reloadCurrentDay(): Promise<void> {
@@ -355,10 +464,19 @@ export const useTodayStore = defineStore('today', () => {
     weekItems,
     monthItems,
     hiddenItems,
+    allVisibleItems,
+    goalKrItems,
+    habitItems,
+    trackerItems,
+    initiativeItems,
+    goalGroupedKrItems,
     isLoading,
     error,
     isPending,
     loadBundle,
+    goToPreviousDay,
+    goToNextDay,
+    goToDay,
     toggleCompletion,
     saveEntry,
     clearEntry,

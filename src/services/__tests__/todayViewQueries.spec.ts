@@ -107,6 +107,12 @@ describe('todayViewQueries', () => {
       status: 'open',
     })
 
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef: refs.month as MonthRef,
+      goalId: goal.id,
+      activityState: 'active',
+    })
+
     await Promise.all([
       planningStateDexieRepository.upsertMeasurementMonthState({
         monthRef: refs.month,

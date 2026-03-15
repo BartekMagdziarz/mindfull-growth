@@ -1,165 +1,244 @@
 <template>
-  <div class="mx-auto w-full max-w-[1280px] px-4 py-6 pb-16">
-    <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div class="space-y-3">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-          {{ t('planning.today.eyebrow') }}
-        </p>
-        <div>
-          <h1 class="text-3xl font-semibold tracking-[-0.03em] text-on-surface md:text-[2.35rem]">
-            {{ t('planning.today.title') }}
-          </h1>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-on-surface-variant md:text-base">
-            {{ t('planning.today.subtitle') }}
-          </p>
+  <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
+    <!-- Date navigation header -->
+    <section class="neo-card mb-6 px-5 py-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          class="neo-control neo-focus"
+          :disabled="store.isLoading"
+          @click="void store.goToPreviousDay()"
+        >
+          <AppIcon name="chevron_left" class="text-base" />
+        </button>
+        <button
+          class="neo-inset rounded-full px-4 py-2 text-sm font-semibold text-on-surface"
+          @click="openDatePicker"
+        >
+          {{ dayLabel }}
+        </button>
+        <button
+          class="neo-control neo-focus"
+          :disabled="store.isLoading"
+          @click="void store.goToNextDay()"
+        >
+          <AppIcon name="chevron_right" class="text-base" />
+        </button>
+        <div class="hidden h-8 w-px rounded-full bg-outline/35 md:block" />
+        <div class="flex flex-wrap items-center gap-2 text-[10px] font-semibold">
+          <span class="neo-pill px-2 py-0.5">{{ store.goalKrItems.length }} KRs</span>
+          <span class="neo-pill px-2 py-0.5">{{ store.habitItems.length }} {{ t('planning.calendar.sections.habits') }}</span>
+          <span class="neo-pill px-2 py-0.5">{{ store.trackerItems.length }} {{ t('planning.calendar.sections.trackers') }}</span>
+          <span class="neo-pill px-2 py-0.5">{{ store.initiativeItems.length }} {{ t('planning.calendar.sections.initiatives') }}</span>
         </div>
       </div>
-
-      <section class="neo-card max-w-md p-5">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-          {{ t('common.nav.today') }}
-        </p>
-        <p class="mt-2 text-lg font-semibold text-on-surface">
-          {{ todayLabel }}
-        </p>
-        <p class="mt-2 text-sm text-on-surface-variant">
-          {{ t('planning.today.summary', summaryCounts) }}
-        </p>
-      </section>
-    </div>
+      <input
+        ref="dateInputRef"
+        type="date"
+        class="sr-only"
+        :value="bundleDayRef"
+        @change="handleDateChange"
+      />
+    </section>
 
     <PlanningStatePanel
       v-if="store.isLoading && !store.bundle"
       :title="t('common.loading')"
-      :body="t('planning.today.subtitle')"
-      :eyebrow="t('planning.today.eyebrow')"
+      :body="t('planning.today.loadError')"
     />
 
     <PlanningStatePanel
       v-else-if="store.error && !store.bundle"
       :title="t('planning.today.loadError')"
       :body="store.error"
-      :eyebrow="t('planning.today.eyebrow')"
       :action-label="t('common.buttons.tryAgain')"
       @action="void store.loadBundle()"
     />
 
-    <div v-else-if="store.bundle" class="space-y-6">
-      <section v-for="section in sections" :key="section.id" class="neo-card p-5 md:p-6">
-        <div
-          class="flex flex-col gap-4 border-b border-white/35 pb-5 lg:flex-row lg:items-center lg:justify-between"
-        >
-          <div>
-            <h2 class="text-2xl font-semibold tracking-[-0.02em] text-on-surface">
-              {{ section.title }}
-            </h2>
-            <p class="mt-2 text-sm leading-6 text-on-surface-variant">
-              {{ section.description }}
-            </p>
+    <template v-else-if="store.bundle">
+      <!-- 4-column grid -->
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <!-- Goals & KRs column -->
+        <section>
+          <h2 class="mb-3 text-base font-semibold tracking-[-0.01em] text-on-surface">
+            {{ t('planning.today.columns.goalsKrs') }}
+          </h2>
+          <template v-if="store.goalGroupedKrItems.length > 0">
+            <div v-for="group in store.goalGroupedKrItems" :key="group.goal.id" class="mb-4 last:mb-0">
+              <div class="mb-2 flex items-center gap-1.5">
+                <AppIcon name="emoji_events" class="text-sm text-primary" />
+                <span class="truncate text-xs font-semibold text-on-surface">{{ group.goal.title }}</span>
+              </div>
+              <div class="space-y-2.5 pl-1">
+                <TodayItemRow
+                  v-for="item in group.items"
+                  :key="item.key"
+                  :item="item"
+                  :today-day-ref="bundleDayRef"
+                  :is-pending="store.isPending(item.key)"
+                  @open-object="openObject(item)"
+                  @open-context="openPeriod(item.contextPeriodRef)"
+                  @toggle-completion="handleToggleCompletion(item)"
+                  @save-entry="handleSaveEntry(item, $event)"
+                  @clear-entry="handleClearEntry(item)"
+                  @hide="handleHide(item)"
+                  @move="handleMove(item, $event)"
+                  @clear-schedule="handleClearSchedule(item)"
+                  @request-delete="promptDelete(item)"
+                />
+              </div>
+            </div>
+          </template>
+          <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
+            {{ t('planning.today.emptyColumn') }}
+          </p>
+        </section>
+
+        <!-- Habits column -->
+        <section>
+          <h2 class="mb-3 text-base font-semibold tracking-[-0.01em] text-on-surface">
+            {{ t('planning.today.columns.habits') }}
+          </h2>
+          <div v-if="store.habitItems.length > 0" class="space-y-2.5">
+            <template v-for="(item, idx) in store.habitItems" :key="item.key">
+              <p
+                v-if="idx === 0 || item.sectionId !== store.habitItems[idx - 1].sectionId"
+                class="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-on-surface-variant/40"
+                :class="idx > 0 ? 'mt-2 pt-2' : ''"
+              >
+                <span class="h-px flex-1 bg-neu-border/10" />
+                <span>{{ t(`planning.today.sectionLabel.${item.sectionId}`) }}</span>
+                <span class="h-px flex-1 bg-neu-border/10" />
+              </p>
+              <TodayItemRow
+                :item="item"
+                :today-day-ref="bundleDayRef"
+                :is-pending="store.isPending(item.key)"
+                @open-object="openObject(item)"
+                @open-context="openPeriod(item.contextPeriodRef)"
+                @toggle-completion="handleToggleCompletion(item)"
+                @save-entry="handleSaveEntry(item, $event)"
+                @clear-entry="handleClearEntry(item)"
+                @hide="handleHide(item)"
+                @move="handleMove(item, $event)"
+                @clear-schedule="handleClearSchedule(item)"
+                @request-delete="promptDelete(item)"
+              />
+            </template>
           </div>
+          <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
+            {{ t('planning.today.emptyColumn') }}
+          </p>
+        </section>
 
-          <AppButton
-            v-if="section.periodRef"
-            variant="tonal"
-            @click="openPeriod(section.periodRef)"
-          >
-            {{ section.openLabel }}
-          </AppButton>
-        </div>
+        <!-- Trackers column -->
+        <section>
+          <h2 class="mb-3 text-base font-semibold tracking-[-0.01em] text-on-surface">
+            {{ t('planning.today.columns.trackers') }}
+          </h2>
+          <div v-if="store.trackerItems.length > 0" class="space-y-2.5">
+            <template v-for="(item, idx) in store.trackerItems" :key="item.key">
+              <p
+                v-if="idx === 0 || item.sectionId !== store.trackerItems[idx - 1].sectionId"
+                class="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-on-surface-variant/40"
+                :class="idx > 0 ? 'mt-2 pt-2' : ''"
+              >
+                <span class="h-px flex-1 bg-neu-border/10" />
+                <span>{{ t(`planning.today.sectionLabel.${item.sectionId}`) }}</span>
+                <span class="h-px flex-1 bg-neu-border/10" />
+              </p>
+              <TodayItemRow
+                :item="item"
+                :today-day-ref="bundleDayRef"
+                :is-pending="store.isPending(item.key)"
+                @open-object="openObject(item)"
+                @open-context="openPeriod(item.contextPeriodRef)"
+                @toggle-completion="handleToggleCompletion(item)"
+                @save-entry="handleSaveEntry(item, $event)"
+                @clear-entry="handleClearEntry(item)"
+                @hide="handleHide(item)"
+                @move="handleMove(item, $event)"
+                @clear-schedule="handleClearSchedule(item)"
+                @request-delete="promptDelete(item)"
+              />
+            </template>
+          </div>
+          <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
+            {{ t('planning.today.emptyColumn') }}
+          </p>
+        </section>
 
-        <div
-          v-if="section.items.length === 0"
-          class="neo-surface mt-5 rounded-[1.8rem] px-6 py-10 text-center text-on-surface-variant"
-        >
-          {{ section.empty }}
-        </div>
+        <!-- Initiatives column -->
+        <section>
+          <h2 class="mb-3 text-base font-semibold tracking-[-0.01em] text-on-surface">
+            {{ t('planning.today.columns.initiatives') }}
+          </h2>
+          <div v-if="store.initiativeItems.length > 0" class="space-y-2.5">
+            <template v-for="(item, idx) in store.initiativeItems" :key="item.key">
+              <p
+                v-if="idx === 0 || item.sectionId !== store.initiativeItems[idx - 1].sectionId"
+                class="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-on-surface-variant/40"
+                :class="idx > 0 ? 'mt-2 pt-2' : ''"
+              >
+                <span class="h-px flex-1 bg-neu-border/10" />
+                <span>{{ t(`planning.today.sectionLabel.${item.sectionId}`) }}</span>
+                <span class="h-px flex-1 bg-neu-border/10" />
+              </p>
+              <TodayItemRow
+                :item="item"
+                :today-day-ref="bundleDayRef"
+                :is-pending="store.isPending(item.key)"
+                @open-object="openObject(item)"
+                @open-context="openPeriod(item.contextPeriodRef)"
+                @toggle-completion="handleToggleCompletion(item)"
+                @save-entry="handleSaveEntry(item, $event)"
+                @clear-entry="handleClearEntry(item)"
+                @hide="handleHide(item)"
+                @move="handleMove(item, $event)"
+                @clear-schedule="handleClearSchedule(item)"
+                @request-delete="promptDelete(item)"
+              />
+            </template>
+          </div>
+          <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
+            {{ t('planning.today.emptyColumn') }}
+          </p>
+        </section>
+      </div>
 
-        <div v-else class="mt-5 grid gap-4 xl:grid-cols-2">
-          <TodayItemCard
-            v-for="item in section.items"
-            :key="item.key"
-            :item="item"
-            :today-day-ref="bundleDayRef"
-            :is-pending="store.isPending(item.key)"
-            @open-object="openObject(item)"
-            @open-context="openPeriod(item.contextPeriodRef)"
-            @toggle-completion="handleToggleCompletion(item)"
-            @save-entry="handleSaveEntry(item, $event)"
-            @clear-entry="handleClearEntry(item)"
-            @hide="handleHide(item)"
-            @move="handleMove(item, $event)"
-            @clear-schedule="handleClearSchedule(item)"
-            @request-delete="promptDelete(item)"
-          />
-        </div>
-      </section>
-
-      <section v-if="store.hiddenItems.length > 0" class="neo-card p-5 md:p-6">
+      <!-- Hidden items -->
+      <div v-if="store.hiddenItems.length > 0" class="mt-6">
         <button
           type="button"
-          class="flex w-full items-center justify-between gap-4 text-left"
+          class="flex items-center gap-2 text-xs text-on-surface-variant hover:text-on-surface"
           @click="hiddenExpanded = !hiddenExpanded"
         >
-          <div>
-            <h2 class="text-xl font-semibold text-on-surface">
-              {{ t('planning.today.hidden.title', { n: store.hiddenItems.length }) }}
-            </h2>
-            <p class="mt-2 text-sm text-on-surface-variant">
-              {{ t('planning.today.hidden.description') }}
-            </p>
-          </div>
-          <span
-            class="rounded-full border border-outline/20 bg-section/70 px-3 py-1 text-xs font-semibold text-on-surface-variant"
-          >
-            {{
-              hiddenExpanded
-                ? t('planning.today.actions.hideHiddenSection')
-                : t('planning.today.actions.showHiddenSection')
-            }}
-          </span>
+          <AppIcon
+            name="chevron_right"
+            class="text-xs transition-transform"
+            :class="hiddenExpanded ? 'rotate-90' : ''"
+          />
+          <span>{{ t('planning.today.hidden.count', { n: store.hiddenItems.length }) }}</span>
         </button>
-
-        <div v-if="hiddenExpanded" class="mt-5 space-y-3">
+        <div v-if="hiddenExpanded" class="mt-2 space-y-1 pl-5">
           <div
             v-for="item in store.hiddenItems"
             :key="item.key"
-            class="neo-surface flex flex-col gap-4 rounded-[1.6rem] border border-white/35 px-4 py-4 md:flex-row md:items-center md:justify-between"
+            class="flex h-9 items-center gap-2 text-sm text-on-surface-variant"
           >
-            <div class="min-w-0">
-              <p
-                class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant"
-              >
-                {{ hiddenItemEyebrow(item) }}
-              </p>
-              <button
-                type="button"
-                class="mt-1 text-left text-base font-semibold text-on-surface transition-colors hover:text-primary-strong focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background"
-                @click="openObject(item)"
-              >
-                {{ hiddenItemTitle(item) }}
-              </button>
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-              <AppButton
-                variant="tonal"
-                :disabled="store.isPending(item.key)"
-                @click="openPeriod(item.contextPeriodRef)"
-              >
-                {{ t('planning.today.actions.openContext') }}
-              </AppButton>
-              <AppButton
-                variant="filled"
-                :disabled="store.isPending(item.key)"
-                @click="handleRestore(item)"
-              >
-                {{ t('planning.today.actions.restore') }}
-              </AppButton>
-            </div>
+            <span class="flex-1 truncate">{{ itemTitle(item) }}</span>
+            <button
+              type="button"
+              class="neo-icon-button neo-focus"
+              :disabled="store.isPending(item.key)"
+              :title="t('planning.today.actions.restore')"
+              @click="handleRestore(item)"
+            >
+              <AppIcon name="undo" class="text-sm" />
+            </button>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </template>
 
     <AppDialog
       v-model="deleteDialogOpen"
@@ -176,16 +255,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AppButton from '@/components/AppButton.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
-import TodayItemCard from '@/components/today/TodayItemCard.vue'
+import TodayItemRow from '@/components/today/TodayItemRow.vue'
 import { useT } from '@/composables/useT'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
 import type { TodayItem } from '@/services/todayViewQueries'
 import { useTodayStore } from '@/stores/today.store'
-import { formatPeriodLabel } from '@/utils/periodLabels'
+import { formatDayTitle } from '@/utils/periodLabels'
 import type { DayRef } from '@/domain/period'
 
 const router = useRouter()
@@ -195,63 +274,18 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const hiddenExpanded = ref(false)
 const deleteDialogOpen = ref(false)
 const pendingDeleteItem = ref<TodayItem | null>(null)
+const dateInputRef = ref<HTMLInputElement | null>(null)
 
 const bundleDayRef = computed(() => (store.dayRef ?? '') as DayRef)
-const todayLabel = computed(() => {
-  if (!store.bundle) {
-    return ''
-  }
-
-  return formatPeriodLabel(store.bundle.dayRef, locale.value, t('planning.calendar.scales.week'))
-})
-
-const summaryCounts = computed(() => ({
-  scheduled: store.scheduledItems.length,
-  week: store.weekItems.length,
-  month: store.monthItems.length,
-}))
-
-const sections = computed(() => {
-  const refs = store.bundle?.refs
-
-  return [
-    {
-      id: 'scheduled' as const,
-      title: t('planning.today.sections.scheduled'),
-      description: t('planning.today.sections.scheduledDescription'),
-      items: store.scheduledItems,
-      periodRef: undefined,
-      openLabel: '',
-      empty: t('planning.today.empty.scheduled'),
-    },
-    {
-      id: 'week' as const,
-      title: t('planning.today.sections.week'),
-      description: t('planning.today.sections.weekDescription'),
-      items: store.weekItems,
-      periodRef: refs?.week,
-      openLabel: t('planning.calendar.actions.openWeek'),
-      empty: t('planning.today.empty.week'),
-    },
-    {
-      id: 'month' as const,
-      title: t('planning.today.sections.month'),
-      description: t('planning.today.sections.monthDescription'),
-      items: store.monthItems,
-      periodRef: refs?.month,
-      openLabel: t('planning.calendar.actions.openMonth'),
-      empty: t('planning.today.empty.month'),
-    },
-  ]
+const dayLabel = computed(() => {
+  if (!store.bundle) return ''
+  return formatDayTitle(store.bundle.dayRef, locale.value)
 })
 
 const deleteDialogMessage = computed(() => {
-  if (!pendingDeleteItem.value) {
-    return ''
-  }
-
+  if (!pendingDeleteItem.value) return ''
   return t('planning.today.deleteDialog.message', {
-    title: hiddenItemTitle(pendingDeleteItem.value),
+    title: itemTitle(pendingDeleteItem.value),
   })
 })
 
@@ -259,16 +293,19 @@ onMounted(() => {
   void store.loadBundle()
 })
 
-function hiddenItemTitle(item: TodayItem): string {
+function itemTitle(item: TodayItem): string {
   return item.kind === 'initiative' ? item.initiative.title : item.subject.title
 }
 
-function hiddenItemEyebrow(item: TodayItem): string {
-  if (item.kind === 'initiative') {
-    return t('planning.objects.labels.initiative')
-  }
+function openDatePicker(): void {
+  dateInputRef.value?.showPicker()
+}
 
-  return t(`planning.objects.labels.${item.panelType}`)
+function handleDateChange(event: Event): void {
+  const input = event.target as HTMLInputElement
+  if (input.value) {
+    void store.goToDay(input.value as DayRef)
+  }
 }
 
 function openObject(item: TodayItem): void {
@@ -289,20 +326,15 @@ function openPeriod(periodRef: string): void {
     void router.push({ name: 'calendar-week', params: { weekRef: periodRef } })
     return
   }
-
   if (periodRef.length === 7) {
     void router.push({ name: 'calendar-month', params: { monthRef: periodRef } })
     return
   }
-
   void router.push({ name: 'calendar-day', params: { dayRef: periodRef } })
 }
 
 async function handleToggleCompletion(item: TodayItem): Promise<void> {
-  if (item.kind !== 'measurement') {
-    return
-  }
-
+  if (item.kind !== 'measurement') return
   try {
     await store.toggleCompletion(item)
   } catch (err) {
@@ -311,10 +343,7 @@ async function handleToggleCompletion(item: TodayItem): Promise<void> {
 }
 
 async function handleSaveEntry(item: TodayItem, value: number): Promise<void> {
-  if (item.kind !== 'measurement') {
-    return
-  }
-
+  if (item.kind !== 'measurement') return
   try {
     await store.saveEntry(item, value)
     snackbarRef.value?.show(t('planning.today.messages.entrySaved'))
@@ -324,10 +353,7 @@ async function handleSaveEntry(item: TodayItem, value: number): Promise<void> {
 }
 
 async function handleClearEntry(item: TodayItem): Promise<void> {
-  if (item.kind !== 'measurement') {
-    return
-  }
-
+  if (item.kind !== 'measurement') return
   try {
     await store.clearEntry(item)
     snackbarRef.value?.show(t('planning.today.messages.entryCleared'))
@@ -379,10 +405,7 @@ function promptDelete(item: TodayItem): void {
 }
 
 async function handleConfirmDelete(): Promise<void> {
-  if (!pendingDeleteItem.value) {
-    return
-  }
-
+  if (!pendingDeleteItem.value) return
   try {
     await store.deleteItem(pendingDeleteItem.value)
     snackbarRef.value?.show(t('planning.today.messages.deleted'))
