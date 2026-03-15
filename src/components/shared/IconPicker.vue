@@ -9,15 +9,16 @@
     >
       <EntityIcon
         :icon="modelValue"
-        :size="compact ? 'sm' : 'md'"
+        :size="iconSize ?? (compact ? 'sm' : 'md')"
         :color="previewColor"
       />
       <span v-if="!compact" class="truncate text-left text-sm text-on-surface">
         {{ selectedLabel || placeholder }}
       </span>
-      <IconChevronDown
+      <AppIcon
         v-if="!minimal"
-        class="h-3.5 w-3.5 text-on-surface-variant transition-transform"
+        name="expand_more"
+        class="text-sm text-on-surface-variant transition-transform"
         :class="{ 'rotate-180': isOpen }"
       />
     </button>
@@ -37,10 +38,18 @@
           class="fixed z-50 w-[30rem] rounded-2xl border border-neu-border/28 bg-neu-base p-3 shadow-neu-raised"
           :style="menuStyle"
         >
-          <div class="mb-2 flex items-center justify-between gap-2">
-            <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
-              Choose Icon
-            </p>
+          <div class="mb-2 flex items-center gap-2">
+            <label class="flex flex-1 items-center gap-2 rounded-xl border border-neu-border/22 bg-section/45 px-2.5 py-1.5">
+              <AppIcon name="search" class="text-sm text-on-surface-variant" />
+              <input
+                ref="searchInputRef"
+                v-model.trim="query"
+                type="text"
+                class="w-full bg-transparent text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none"
+                placeholder="Search icons"
+                aria-label="Search icons"
+              />
+            </label>
             <button
               v-if="allowClear && modelValue"
               type="button"
@@ -51,41 +60,37 @@
             </button>
           </div>
 
-          <label class="mb-2 flex items-center gap-2 rounded-xl border border-neu-border/22 bg-section/45 px-2.5 py-1.5">
-            <IconSearch class="h-3.5 w-3.5 text-on-surface-variant" aria-hidden="true" />
-            <input
-              v-model.trim="query"
-              type="text"
-              class="w-full bg-transparent text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none"
-              placeholder="Search icons"
-              aria-label="Search icons"
-            />
-          </label>
+          <div class="max-h-[22rem] overflow-y-auto pb-1 pr-1">
+            <!-- Empty prompt -->
+            <div v-if="!query" class="py-10 text-center">
+              <AppIcon name="search" class="text-3xl text-on-surface-variant/40" />
+              <p class="mt-2 text-xs text-on-surface-variant">
+                Search from {{ totalSymbolCount.toLocaleString() }} icons
+              </p>
+            </div>
 
-          <div class="max-h-[22rem] overflow-y-auto pr-1">
-            <div class="grid grid-cols-9 gap-2">
+            <!-- Results -->
+            <div v-else-if="filteredOptions.length" class="grid grid-cols-9 gap-2 pb-1">
               <button
-                v-for="option in filteredOptions"
-                :key="option.id"
+                v-for="icon in filteredOptions"
+                :key="icon"
                 type="button"
                 class="neo-icon-button neo-focus h-10 w-10 p-0"
-                :class="{ 'neo-icon-button--primary': option.id === selectedIconId }"
-                :title="option.label"
-                :aria-label="option.label"
-                @click="select(option.id)"
+                :class="{ 'neo-icon-button--primary': icon === modelValue }"
+                :title="icon.replace(/_/g, ' ')"
+                :aria-label="icon.replace(/_/g, ' ')"
+                @click="select(icon)"
               >
-                <EntityIcon
-                  :icon="option.id"
-                  size="sm"
-                  :circle="false"
-                />
+                <span class="material-symbols-outlined text-xl leading-none">{{ icon }}</span>
               </button>
             </div>
+
+            <!-- No results -->
             <p
-              v-if="!filteredOptions.length"
+              v-else
               class="py-8 text-center text-xs text-on-surface-variant"
             >
-              No icons match your search.
+              No icons match "{{ query }}".
             </p>
           </div>
         </div>
@@ -96,9 +101,10 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { IconChevronDown, IconSearch } from '@tabler/icons-vue'
-import { ENTITY_ICON_OPTIONS, getEntityIconOption } from '@/constants/entityIconCatalog'
+import { getEntityIconOption } from '@/constants/entityIconCatalog'
+import { searchSymbols, totalSymbolCount } from '@/services/materialSymbolsService'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -106,6 +112,7 @@ const props = withDefaults(
     disabled?: boolean
     compact?: boolean
     minimal?: boolean
+    iconSize?: 'xs' | 'sm' | 'md' | 'lg'
     placeholder?: string
     ariaLabel?: string
     allowClear?: boolean
@@ -116,6 +123,7 @@ const props = withDefaults(
     disabled: false,
     compact: false,
     minimal: false,
+    iconSize: undefined,
     placeholder: 'Select icon',
     ariaLabel: 'Select icon',
     allowClear: true,
@@ -130,17 +138,17 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const containerRef = ref<HTMLElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
+const searchInputRef = ref<HTMLInputElement | null>(null)
 const menuStyle = ref<Record<string, string>>({})
 const query = ref('')
 
 const selectedIconOption = computed(() => getEntityIconOption(props.modelValue))
-const selectedLabel = computed(() => selectedIconOption.value?.label)
-const selectedIconId = computed(() => selectedIconOption.value?.id)
-const normalizedQuery = computed(() => query.value.trim().toLowerCase())
-const filteredOptions = computed(() => {
-  if (!normalizedQuery.value) return ENTITY_ICON_OPTIONS
-  return ENTITY_ICON_OPTIONS.filter((option) => option.search.includes(normalizedQuery.value))
+const selectedLabel = computed(() => {
+  if (selectedIconOption.value) return selectedIconOption.value.label
+  if (props.modelValue) return props.modelValue.replace(/_/g, ' ')
+  return undefined
 })
+const filteredOptions = computed(() => searchSymbols(query.value))
 
 const triggerClass = computed(() => {
   if (props.compact && props.minimal) {
@@ -201,6 +209,7 @@ async function open() {
   isOpen.value = true
   await nextTick()
   updateMenuPosition()
+  searchInputRef.value?.focus()
 }
 
 function close() {
@@ -215,8 +224,8 @@ function toggle() {
   void open()
 }
 
-function select(iconId: string) {
-  emit('update:modelValue', iconId)
+function select(iconName: string) {
+  emit('update:modelValue', iconName)
   close()
 }
 
