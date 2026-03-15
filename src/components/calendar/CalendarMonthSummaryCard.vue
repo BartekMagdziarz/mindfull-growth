@@ -9,7 +9,7 @@
       variant="raised-strong"
       class="h-full transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-neu-raised"
     >
-      <div class="flex h-full flex-col gap-5">
+      <div class="flex h-full flex-col gap-4">
         <div class="flex items-start justify-between gap-4">
           <h3 class="text-[1.75rem] font-semibold tracking-[-0.02em] text-on-surface">
             {{ title }}
@@ -19,34 +19,83 @@
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-outline/20 bg-section/55 text-on-surface-variant transition-colors duration-200 group-hover:text-primary-strong"
             aria-hidden="true"
           >
-            <ArrowTopRightOnSquareIcon class="h-4 w-4" />
+            <AppIcon name="open_in_new" class="text-base" />
           </span>
         </div>
 
-        <div v-if="badges.length > 0" class="flex flex-wrap gap-2">
-          <span
-            v-for="badge in badges"
-            :key="`${badge.label}-${badge.tone ?? 'default'}`"
-            :class="badgeClasses(badge.tone)"
-          >
-            {{ badge.label }}
-          </span>
-        </div>
-
-        <div class="mt-auto grid grid-cols-2 gap-3">
+        <div
+          v-if="goalGroups.length > 0 || habitGroups.length > 0"
+          class="mt-auto space-y-2"
+        >
+          <!-- Goals — each goal is icon + pills, all flow inline and wrap -->
           <div
-            v-for="stat in stats"
-            :key="stat.label"
-            class="neo-surface rounded-2xl px-3 py-3"
+            v-if="goalGroups.length > 0"
+            class="flex flex-wrap items-center gap-x-3 gap-y-1.5"
           >
-            <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-              {{ stat.label }}
-            </p>
-            <p class="mt-2 text-2xl font-semibold text-on-surface">
-              {{ stat.value }}
-            </p>
+            <span
+              v-for="group in goalGroups"
+              :key="`goal-${group.goalId}`"
+              class="inline-flex items-center gap-1"
+            >
+              <EntityIcon
+                v-if="group.goalIcon"
+                :icon="group.goalIcon"
+                size="xs"
+                :circle="false"
+              />
+              <KrStatusPill
+                v-for="pill in group.pills"
+                :key="pill.id"
+                :cadence="pill.cadence"
+                :monthly-status="pill.monthlyStatus"
+                :weeks-met="pill.weeksMet"
+                :weeks-total="pill.weeksTotal"
+                :label="pill.title"
+                color-theme="keyResult"
+              />
+            </span>
+          </div>
+
+          <!-- Divider between goals and habits -->
+          <div
+            v-if="goalGroups.length > 0 && habitGroups.length > 0"
+            class="border-t border-outline/10"
+          />
+
+          <!-- Habits — icon + single pill pairs, all flow inline -->
+          <div
+            v-if="habitGroups.length > 0"
+            class="flex flex-wrap items-center gap-x-3 gap-y-1.5"
+          >
+            <span
+              v-for="group in habitGroups"
+              :key="`habit-${group.habitId}`"
+              class="inline-flex items-center gap-1"
+            >
+              <EntityIcon
+                v-if="group.habitIcon"
+                :icon="group.habitIcon"
+                size="xs"
+                :circle="false"
+              />
+              <KrStatusPill
+                :cadence="group.pill.cadence"
+                :monthly-status="group.pill.monthlyStatus"
+                :weeks-met="group.pill.weeksMet"
+                :weeks-total="group.pill.weeksTotal"
+                :label="group.pill.title"
+                color-theme="habit"
+              />
+            </span>
           </div>
         </div>
+
+        <p
+          v-else
+          class="mt-auto text-xs text-on-surface-variant/60"
+        >
+          No active goals
+        </p>
       </div>
     </AppCard>
   </button>
@@ -54,46 +103,23 @@
 
 <script setup lang="ts">
 import AppCard from '@/components/AppCard.vue'
-import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
-
-type BadgeTone = 'default' | 'accent' | 'success' | 'warning' | 'danger'
-
-interface Badge {
-  label: string
-  tone?: BadgeTone
-}
-
-interface Stat {
-  label: string
-  value: string
-}
+import KrStatusPill from '@/components/calendar/KrStatusPill.vue'
+import EntityIcon from '@/components/shared/EntityIcon.vue'
+import type { YearMonthGoalGroup, YearMonthHabitGroup } from '@/services/calendarViewQueries'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 interface Props {
   title: string
-  badges?: Badge[]
-  stats: Stat[]
+  goalGroups?: YearMonthGoalGroup[]
+  habitGroups?: YearMonthHabitGroup[]
 }
 
 withDefaults(defineProps<Props>(), {
-  badges: () => [],
+  goalGroups: () => [],
+  habitGroups: () => [],
 })
 
 defineEmits<{
   click: []
 }>()
-
-function badgeClasses(tone: BadgeTone = 'default'): string {
-  switch (tone) {
-    case 'accent':
-      return 'rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-strong'
-    case 'success':
-      return 'rounded-full border border-success/20 bg-success/10 px-3 py-1 text-xs font-semibold text-success'
-    case 'warning':
-      return 'rounded-full border border-warning/20 bg-warning/10 px-3 py-1 text-xs font-semibold text-warning'
-    case 'danger':
-      return 'rounded-full border border-error/20 bg-error/10 px-3 py-1 text-xs font-semibold text-error'
-    default:
-      return 'rounded-full border border-outline/25 bg-section/70 px-3 py-1 text-xs font-semibold text-on-surface-variant'
-  }
-}
 </script>

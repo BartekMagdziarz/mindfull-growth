@@ -4,6 +4,7 @@ import type { DailyMeasurementEntry, MeasurementSubjectType, PeriodObjectReflect
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
+import { buildMeasurementSummary } from '@/services/measurementProgress'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
 import { loadPlanningCached } from '@/services/planningQueryCache'
 import type {
@@ -21,9 +22,30 @@ import {
   getWeekPlanningBundle,
   getWeekReflectionBundle,
 } from '@/services/planningStateQueries'
-import { getChildPeriods, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
+import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
 
 type MeasureableSubject = KeyResult | Habit | Tracker
+
+export interface YearMonthPillData {
+  id: string
+  title: string
+  cadence: 'weekly' | 'monthly'
+  monthlyStatus?: 'met' | 'missed' | 'no-data'
+  weeksMet?: number
+  weeksTotal?: number
+}
+
+export interface YearMonthGoalGroup {
+  goalId: string
+  goalIcon?: string
+  pills: YearMonthPillData[]
+}
+
+export interface YearMonthHabitGroup {
+  habitId: string
+  habitIcon?: string
+  pill: YearMonthPillData
+}
 
 export interface CalendarYearMonthSummary {
   monthRef: MonthRef
@@ -33,6 +55,8 @@ export interface CalendarYearMonthSummary {
   activeCadencedCount: number
   activeTrackerCount: number
   activeInitiativeCount: number
+  goalGroups: YearMonthGoalGroup[]
+  habitGroups: YearMonthHabitGroup[]
 }
 
 export interface CalendarYearSummary {
@@ -153,6 +177,13 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
   return loadPlanningCached(calendarYearSummaryCache, yearRef, async () => {
     const monthRefs = getChildPeriods(yearRef) as MonthRef[]
     const monthRefsSet = new Set(monthRefs)
+
+    // Expand entry load range to cover weeks overlapping year boundaries
+    const firstMonthWeeks = getChildPeriods(monthRefs[0]) as WeekRef[]
+    const lastMonthWeeks = getChildPeriods(monthRefs[11]) as WeekRef[]
+    const entryStart = getPeriodBounds(firstMonthWeeks[0]).start
+    const entryEnd = getPeriodBounds(lastMonthWeeks[lastMonthWeeks.length - 1]).end
+
     const [
       monthPlans,
       periodReflections,
@@ -160,6 +191,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       measurementMonthStates,
       initiativePlanStates,
       objects,
+      allEntries,
     ] = await Promise.all([
       periodPlanDexieRepository.listMonthPlans(),
       reflectionDexieRepository.listPeriodReflections(),
@@ -167,6 +199,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       planningStateDexieRepository.listMeasurementMonthStatesForMonths(monthRefs),
       planningStateDexieRepository.listInitiativePlanStates(),
       loadPlanningCoreObjects(),
+      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(entryStart, entryEnd),
     ])
 
     const monthPlanRefs = new Set(monthPlans.map((item) => item.monthRef))
@@ -175,7 +208,11 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
         .filter((item) => item.periodType === 'month')
         .map((item) => item.periodRef as MonthRef),
     )
-    const openGoalIds = new Set(objects.goals.filter(isGoalOpen).map((goal) => goal.id))
+    const openGoals = objects.goals.filter(isGoalOpen)
+    const openGoalIds = new Set(openGoals.map((goal) => goal.id))
+    const openGoalMap = new Map(openGoals.map((goal) => [goal.id, goal]))
+    const openKeyResults = objects.keyResults.filter(isMeasurementSubjectOpen)
+    const openKrMap = new Map(openKeyResults.map((kr) => [kr.id, kr]))
     const openSubjects = [...objects.keyResults, ...objects.habits, ...objects.trackers].filter(
       isMeasurementSubjectOpen,
     )
@@ -190,6 +227,122 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
     const activeInitiativeIds = new Set(
       objects.initiatives.filter(isInitiativeActive).map((initiative) => initiative.id),
     )
+
+    // Filter entries by subject type for pill data
+    const krEntries = allEntries.filter((entry) => entry.subjectType === 'keyResult')
+    const habitEntries = allEntries.filter((entry) => entry.subjectType === 'habit')
+
+    const openHabits = objects.habits.filter(isMeasurementSubjectOpen)
+    const openHabitMap = new Map(openHabits.map((h) => [h.id, h]))
+
+    function buildPillData(
+      subject: MeasureableSubject,
+      entries: DailyMeasurementEntry[],
+      monthRef: MonthRef,
+      weekRefs: WeekRef[],
+    ): YearMonthPillData {
+      if (subject.cadence === 'monthly') {
+        const summary = buildMeasurementSummary(subject, entries, monthRef)
+        return {
+          id: subject.id,
+          title: subject.title,
+          cadence: 'monthly',
+          monthlyStatus: summary.evaluationStatus ?? 'no-data',
+        }
+      }
+
+      let weeksMet = 0
+      let weeksTotal = 0
+      for (const weekRef of weekRefs) {
+        const summary = buildMeasurementSummary(subject, entries, weekRef)
+        weeksTotal++
+        if (summary.evaluationStatus === 'met') {
+          weeksMet++
+        }
+      }
+
+      return {
+        id: subject.id,
+        title: subject.title,
+        cadence: 'weekly',
+        weeksMet,
+        weeksTotal,
+      }
+    }
+
+    function buildGoalGroupsForMonth(monthRef: MonthRef): YearMonthGoalGroup[] {
+      const activeGoalIdsForMonth = new Set(
+        goalMonthStates
+          .filter(
+            (state) =>
+              state.monthRef === monthRef &&
+              state.activityState === 'active' &&
+              openGoalIds.has(state.goalId),
+          )
+          .map((state) => state.goalId),
+      )
+
+      const activeKrIds = new Set(
+        measurementMonthStates
+          .filter(
+            (state) =>
+              state.monthRef === monthRef &&
+              state.activityState === 'active' &&
+              state.subjectType === 'keyResult' &&
+              openKrMap.has(state.subjectId),
+          )
+          .map((state) => state.subjectId),
+      )
+
+      const krsByGoal = new Map<string, KeyResult[]>()
+      for (const krId of activeKrIds) {
+        const kr = openKrMap.get(krId)
+        if (!kr) continue
+        const existing = krsByGoal.get(kr.goalId) ?? []
+        existing.push(kr)
+        krsByGoal.set(kr.goalId, existing)
+        activeGoalIdsForMonth.add(kr.goalId)
+      }
+
+      const weekRefs = getChildPeriods(monthRef) as WeekRef[]
+
+      return [...activeGoalIdsForMonth].map((goalId) => {
+        const goal = openGoalMap.get(goalId)
+        const krs = krsByGoal.get(goalId) ?? []
+
+        return {
+          goalId,
+          goalIcon: goal?.icon,
+          pills: krs.map((kr) => buildPillData(kr, krEntries, monthRef, weekRefs)),
+        }
+      })
+    }
+
+    function buildHabitGroupsForMonth(monthRef: MonthRef): YearMonthHabitGroup[] {
+      const activeHabitIds = new Set(
+        measurementMonthStates
+          .filter(
+            (state) =>
+              state.monthRef === monthRef &&
+              state.activityState === 'active' &&
+              state.subjectType === 'habit' &&
+              openHabitMap.has(state.subjectId),
+          )
+          .map((state) => state.subjectId),
+      )
+
+      const weekRefs = getChildPeriods(monthRef) as WeekRef[]
+
+      return [...activeHabitIds].flatMap((habitId) => {
+        const habit = openHabitMap.get(habitId)
+        if (!habit) return []
+        return [{
+          habitId,
+          habitIcon: habit.icon,
+          pill: buildPillData(habit, habitEntries, monthRef, weekRefs),
+        }]
+      })
+    }
 
     return {
       yearRef,
@@ -238,6 +391,8 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
             )
             .map((state) => state.initiativeId),
         ).size,
+        goalGroups: buildGoalGroupsForMonth(monthRef),
+        habitGroups: buildHabitGroupsForMonth(monthRef),
       })),
       totals: {
         activeGoalCount: new Set(

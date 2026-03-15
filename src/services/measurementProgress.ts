@@ -17,12 +17,28 @@ export interface MeasurementSummary {
   periodRef: MeasurementPeriodRef
 }
 
-function filterEntriesForPeriod(
+export function applyMeasurementTargetOverride(
+  subject: MeasureableSubject,
+  targetOverride?: MeasurementTarget
+): MeasureableSubject {
+  if (!targetOverride || !('target' in subject)) {
+    return subject
+  }
+
+  return {
+    ...subject,
+    target: targetOverride,
+  }
+}
+
+function filterEntriesForSubjectAndPeriod(
   entries: DailyMeasurementEntry[],
+  subjectId: string,
   periodRef: MeasurementPeriodRef,
 ): DailyMeasurementEntry[] {
   const periodType = getPeriodType(periodRef)
   return entries.filter((entry) => {
+    if (entry.subjectId !== subjectId) return false
     const refs = getPeriodRefsForDate(entry.dayRef)
     return periodType === 'week' ? refs.week === periodRef : refs.month === periodRef
   })
@@ -52,6 +68,10 @@ function computeActualValue(
   subject: MeasureableSubject,
   entries: DailyMeasurementEntry[],
 ): number | undefined {
+  if (entries.length === 0) {
+    return undefined
+  }
+
   switch (subject.entryMode) {
     case 'completion':
       return entries.length
@@ -89,7 +109,7 @@ export function buildMeasurementSummary(
   allEntries: DailyMeasurementEntry[],
   periodRef: MeasurementPeriodRef,
 ): MeasurementSummary {
-  const entries = filterEntriesForPeriod(allEntries, periodRef)
+  const entries = filterEntriesForSubjectAndPeriod(allEntries, subject.id, periodRef)
   const actualValue = computeActualValue(subject, entries)
   const target = 'target' in subject ? subject.target : undefined
 

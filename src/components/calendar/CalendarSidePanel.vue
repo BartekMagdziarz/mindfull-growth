@@ -17,7 +17,7 @@
         :aria-label="closeLabel"
         @click="$emit('close')"
       >
-        <XMarkIcon class="h-4 w-4" />
+        <AppIcon name="close" class="text-base" />
       </button>
     </div>
 
@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppButton from '@/components/AppButton.vue'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 interface MetaItem {
   label: string

@@ -23,9 +23,10 @@
         </div>
 
         <div class="flex items-start gap-3">
-          <ArrowTopRightOnSquareIcon
+          <AppIcon
             v-if="interactive"
-            class="mt-1 h-4 w-4 shrink-0 text-on-surface-variant transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            name="open_in_new"
+            class="mt-1 text-base shrink-0 text-on-surface-variant transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           />
           <div class="neo-inset min-w-[112px] rounded-3xl px-4 py-3 text-center">
             <p
@@ -55,7 +56,7 @@
 
 <script setup lang="ts">
 import AppCard from '@/components/AppCard.vue'
-import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
 interface Props {

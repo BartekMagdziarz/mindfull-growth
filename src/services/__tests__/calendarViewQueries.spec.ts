@@ -119,12 +119,72 @@ describe('calendarViewQueries', () => {
       activeTrackerCount: 1,
       activeInitiativeCount: 1,
     })
+    expect(march!.goalGroups).toHaveLength(1)
+    expect(march!.goalGroups[0].goalId).toBe(goal.id)
+    expect(march!.goalGroups[0].pills).toHaveLength(1)
+    expect(march!.goalGroups[0].pills[0]).toMatchObject({
+      id: keyResult.id,
+      cadence: 'monthly',
+      monthlyStatus: 'no-data',
+    })
     expect(summary.totals).toEqual({
       activeGoalCount: 1,
       activeCadencedCount: 1,
       activeTrackerCount: 1,
       activeInitiativeCount: 1,
     })
+  })
+
+  it('computes weekly KR pill data with met/missed weeks', async () => {
+    const yearRef = parsePeriodRef('2026') as YearRef
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+
+    const goal = await goalDexieRepository.create({
+      title: 'Weekly goal',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Weekly KR',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef,
+      goalId: goal.id,
+      activityState: 'active',
+    })
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+
+    // Add entry in week 10 (met) but not week 11 (missed)
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+      dayRef: parsePeriodRef('2026-03-02') as DayRef,
+      value: null,
+    })
+
+    const summary = await getCalendarYearSummary(yearRef)
+    const march = summary.months.find((item) => item.monthRef === monthRef)
+
+    expect(march!.goalGroups).toHaveLength(1)
+    const krPill = march!.goalGroups[0].pills[0]
+    expect(krPill.cadence).toBe('weekly')
+    expect(krPill.weeksTotal).toBeGreaterThanOrEqual(4)
+    expect(krPill.weeksMet).toBeGreaterThanOrEqual(1)
   })
 
   it('builds day bundles with scheduled work, entries, and context', async () => {

@@ -1,12 +1,6 @@
 <template>
   <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
     <div class="mb-6 space-y-4">
-      <div class="px-1">
-        <h1 class="text-3xl font-semibold tracking-[-0.03em] text-on-surface md:text-[2.35rem]">
-          {{ activePeriodLabel }}
-        </h1>
-      </div>
-
       <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
         <section class="neo-card px-5 py-4 md:px-6">
           <div class="flex flex-wrap items-center gap-3">
@@ -16,7 +10,7 @@
               :aria-label="t('common.buttons.back')"
               @click="goToPreviousPeriod"
             >
-              <ChevronLeftIcon class="h-4 w-4" />
+              <AppIcon name="chevron_left" class="text-base" />
             </button>
             <div class="neo-inset rounded-full px-4 py-2 text-sm font-semibold text-on-surface">
               {{ activePeriodRangeLabel }}
@@ -27,7 +21,7 @@
               :aria-label="t('common.buttons.next')"
               @click="goToNextPeriod"
             >
-              <ChevronRightIcon class="h-4 w-4" />
+              <AppIcon name="chevron_right" class="text-base" />
             </button>
 
             <div class="hidden h-10 w-px rounded-full bg-outline/35 xl:block" />
@@ -52,7 +46,7 @@
         <section v-if="showHeaderActions" class="neo-card px-5 py-4 md:px-6">
           <div class="flex flex-wrap items-center gap-3 xl:justify-end">
             <AppButton v-if="showPlanAction" :variant="planActionVariant" @click="openPlanPanel">
-              <CalendarDaysIcon class="h-4 w-4" />
+              <AppIcon name="calendar_month" class="text-base" />
               {{ planActionLabel }}
             </AppButton>
             <AppButton
@@ -60,7 +54,7 @@
               :variant="reflectionActionVariant"
               @click="openReflectionPanel"
             >
-              <SparklesIcon class="h-4 w-4" />
+              <AppIcon name="auto_awesome" class="text-base" />
               {{ reflectionActionLabel }}
             </AppButton>
           </div>
@@ -96,7 +90,21 @@
         />
 
         <template v-else>
-          <section v-if="showSummaryMetrics" class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+          <MonthlyPlanner
+            v-if="showMonthlyPlanner && activeMonthRef"
+            :month-ref="activeMonthRef"
+            @close="closeMonthlyPlanner"
+            @updated="handleMonthlyPlannerUpdated"
+          />
+
+          <WeeklyPlanner
+            v-else-if="showWeeklyPlanner && activeWeekRef"
+            :week-ref="activeWeekRef"
+            @close="closeWeeklyPlanner"
+            @updated="handleWeeklyPlannerUpdated"
+          />
+
+          <section v-else-if="showSummaryMetrics" class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
             <div
               v-for="metric in summaryMetrics"
               :key="metric.label"
@@ -117,230 +125,219 @@
                 v-for="month in yearSummary?.months ?? []"
                 :key="month.monthRef"
                 :title="formatMonthTitle(month.monthRef)"
-                :badges="buildYearMonthBadges(month)"
-                :stats="buildYearMonthStats(month)"
+                :goal-groups="month.goalGroups"
+                :habit-groups="month.habitGroups"
                 @click="goToMonth(month.monthRef)"
               />
             </div>
           </section>
 
           <template v-else-if="scale === 'month' && monthPlanning">
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.goals') }}
-              </h2>
-              <div v-if="monthGoalCards.length > 0" class="grid gap-4 xl:grid-cols-2">
-                <CalendarGoalCard
-                  v-for="goal in monthGoalCards"
-                  :key="goal.key"
-                  :title="goal.title"
-                  :description="goal.description"
-                  :linked-label="goal.linkedLabel"
-                  :linked-count="goal.linkedCount"
-                  :badges="goal.badges"
-                  interactive
-                  @click="openObjectsPanel('goal', goal.objectId)"
-                />
-              </div>
-              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.goals') }}
-              </div>
-            </section>
-
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.keyResults') }}
-              </h2>
-              <div v-if="monthKeyResultCards.length > 0" class="grid gap-4 lg:grid-cols-2">
-                <CalendarItemCard
-                  v-for="card in monthKeyResultCards"
+            <div class="grid items-start gap-4 xl:grid-cols-3">
+              <!-- Column 1: Goals + inline KRs + orphan KRs -->
+              <div class="space-y-3">
+                <h2 class="text-lg font-semibold text-on-surface">
+                  {{ t('planning.calendar.sections.goals') }}
+                </h2>
+                <CalendarGoalSummaryCard
+                  v-for="card in monthGoalSummaryCards"
                   :key="card.key"
                   :title="card.title"
-                  :eyebrow="card.eyebrow"
-                  :description="card.description"
-                  :badges="card.badges"
-                  :details="card.details"
-                  interactive
-                  @click="handleOpenItemCard(card)"
+                  :icon="card.icon"
+                  :status="card.status"
+                  :children="card.children"
+                  view-scale="month"
+                  :current-period-ref="activeMonthRef!"
+                  :raw-entries="monthPlanning!.rawEntries"
+                  :today-ref="todayRef"
+                  @click="openObjectsPanel('goal', card.objectId)"
                 />
-              </div>
-              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.keyResults') }}
-              </div>
-            </section>
-
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.habits') }}
-              </h2>
-              <div v-if="monthHabitCards.length > 0" class="grid gap-4 lg:grid-cols-2">
-                <CalendarItemCard
-                  v-for="card in monthHabitCards"
+                <CalendarMeasurementSummaryCard
+                  v-for="card in monthOrphanKrCards"
                   :key="card.key"
                   :title="card.title"
-                  :eyebrow="card.eyebrow"
-                  :description="card.description"
-                  :badges="card.badges"
-                  :details="card.details"
-                  interactive
-                  @click="handleOpenItemCard(card)"
+                  :icon="card.icon"
+                  :status="card.status"
+                  :entry-mode="card.entryMode"
+                  :subject="card.subject"
+                  :subject-type="card.subjectType"
+                  :object-cadence="card.objectCadence"
+                  view-scale="month"
+                  :current-period-ref="activeMonthRef!"
+                  :raw-entries="monthPlanning!.rawEntries"
+                  :today-ref="todayRef"
+                  @click="openObjectsPanel(card.panelType, card.objectId)"
                 />
+                <p
+                  v-if="monthGoalSummaryCards.length === 0 && monthOrphanKrCards.length === 0"
+                  class="text-xs text-on-surface-variant/60"
+                >
+                  {{ t('planning.calendar.empty.goals') }}
+                </p>
               </div>
-              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.habits') }}
-              </div>
-            </section>
 
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.trackers') }}
-              </h2>
-              <div v-if="monthTrackerCards.length > 0" class="grid gap-4 lg:grid-cols-2">
-                <CalendarItemCard
-                  v-for="card in monthTrackerCards"
+              <!-- Column 2: Habits -->
+              <div class="space-y-3">
+                <h2 class="text-lg font-semibold text-on-surface">
+                  {{ t('planning.calendar.sections.habits') }}
+                </h2>
+                <CalendarMeasurementSummaryCard
+                  v-for="card in monthHabitSummaryCards"
                   :key="card.key"
                   :title="card.title"
-                  :eyebrow="card.eyebrow"
-                  :description="card.description"
-                  :badges="card.badges"
-                  :details="card.details"
-                  interactive
-                  @click="handleOpenItemCard(card)"
+                  :icon="card.icon"
+                  :status="card.status"
+                  :entry-mode="card.entryMode"
+                  :subject="card.subject"
+                  :subject-type="card.subjectType"
+                  :object-cadence="card.objectCadence"
+                  view-scale="month"
+                  :current-period-ref="activeMonthRef!"
+                  :raw-entries="monthPlanning!.rawEntries"
+                  :today-ref="todayRef"
+                  @click="openObjectsPanel(card.panelType, card.objectId)"
                 />
+                <p
+                  v-if="monthHabitSummaryCards.length === 0"
+                  class="text-xs text-on-surface-variant/60"
+                >
+                  {{ t('planning.calendar.empty.habits') }}
+                </p>
               </div>
-              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.trackers') }}
-              </div>
-            </section>
 
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.initiatives') }}
-              </h2>
-              <div v-if="monthInitiativeCards.length > 0" class="grid gap-4 lg:grid-cols-2">
-                <CalendarItemCard
-                  v-for="card in monthInitiativeCards"
+              <!-- Column 3: Trackers -->
+              <div class="space-y-3">
+                <h2 class="text-lg font-semibold text-on-surface">
+                  {{ t('planning.calendar.sections.trackers') }}
+                </h2>
+                <CalendarMeasurementSummaryCard
+                  v-for="card in monthTrackerSummaryCards"
                   :key="card.key"
                   :title="card.title"
-                  :eyebrow="card.eyebrow"
-                  :description="card.description"
-                  :badges="card.badges"
-                  :details="card.details"
-                  interactive
-                  @click="handleOpenItemCard(card)"
+                  :icon="card.icon"
+                  :status="card.status"
+                  :entry-mode="card.entryMode"
+                  :subject="card.subject"
+                  :subject-type="card.subjectType"
+                  :object-cadence="card.objectCadence"
+                  view-scale="month"
+                  :current-period-ref="activeMonthRef!"
+                  :raw-entries="monthPlanning!.rawEntries"
+                  :today-ref="todayRef"
+                  @click="openObjectsPanel(card.panelType, card.objectId)"
                 />
+                <p
+                  v-if="monthTrackerSummaryCards.length === 0"
+                  class="text-xs text-on-surface-variant/60"
+                >
+                  {{ t('planning.calendar.empty.trackers') }}
+                </p>
               </div>
-              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.initiatives') }}
-              </div>
-            </section>
+            </div>
           </template>
 
           <template v-else-if="scale === 'week' && weekPlanning && weekReflection">
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.plannedThisWeek') }}
-              </h2>
-              <div v-if="weekPlannedCards.length > 0" class="grid gap-4 lg:grid-cols-2">
-                <CalendarItemCard
-                  v-for="card in weekPlannedCards"
+            <div class="grid items-start gap-4 xl:grid-cols-3">
+              <!-- Column 1: Goals + inline KRs + orphan KRs -->
+              <div class="space-y-3">
+                <h2 class="text-lg font-semibold text-on-surface">
+                  {{ t('planning.calendar.sections.goals') }}
+                </h2>
+                <CalendarGoalSummaryCard
+                  v-for="card in weekGoalSummaryCards"
                   :key="card.key"
                   :title="card.title"
-                  :eyebrow="card.eyebrow"
-                  :description="card.description"
-                  :badges="card.badges"
-                  :details="card.details"
-                  interactive
-                  @click="handleOpenItemCard(card)"
+                  :icon="card.icon"
+                  :status="card.status"
+                  :children="card.children"
+                  view-scale="week"
+                  :current-period-ref="activeWeekRef!"
+                  :raw-entries="weekPlanning!.rawEntries"
+                  :today-ref="todayRef"
+                  @click="openObjectsPanel('goal', card.objectId)"
                 />
+                <CalendarMeasurementSummaryCard
+                  v-for="card in weekOrphanKrCards"
+                  :key="card.key"
+                  :title="card.title"
+                  :icon="card.icon"
+                  :status="card.status"
+                  :entry-mode="card.entryMode"
+                  :subject="card.subject"
+                  :subject-type="card.subjectType"
+                  :object-cadence="card.objectCadence"
+                  view-scale="week"
+                  :current-period-ref="activeWeekRef!"
+                  :raw-entries="weekPlanning!.rawEntries"
+                  :today-ref="todayRef"
+                  @click="openObjectsPanel(card.panelType, card.objectId)"
+                />
+                <p
+                  v-if="weekGoalSummaryCards.length === 0 && weekOrphanKrCards.length === 0"
+                  class="text-xs text-on-surface-variant/60"
+                >
+                  {{ t('planning.calendar.empty.goals') }}
+                </p>
               </div>
-              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.generic') }}
-              </div>
-            </section>
 
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.assignedToDays') }}
-              </h2>
-              <div v-if="weekAssignedCards.length > 0" class="grid gap-4 lg:grid-cols-2">
-                <CalendarItemCard
-                  v-for="card in weekAssignedCards"
+              <!-- Column 2: Habits -->
+              <div class="space-y-3">
+                <h2 class="text-lg font-semibold text-on-surface">
+                  {{ t('planning.calendar.sections.habits') }}
+                </h2>
+                <CalendarMeasurementSummaryCard
+                  v-for="card in weekHabitSummaryCards"
                   :key="card.key"
                   :title="card.title"
-                  :eyebrow="card.eyebrow"
-                  :description="card.description"
-                  :badges="card.badges"
-                  :details="card.details"
-                  interactive
-                  @click="handleOpenItemCard(card)"
+                  :icon="card.icon"
+                  :status="card.status"
+                  :entry-mode="card.entryMode"
+                  :subject="card.subject"
+                  :subject-type="card.subjectType"
+                  :object-cadence="card.objectCadence"
+                  view-scale="week"
+                  :current-period-ref="activeWeekRef!"
+                  :raw-entries="weekPlanning!.rawEntries"
+                  :today-ref="todayRef"
+                  @click="openObjectsPanel(card.panelType, card.objectId)"
                 />
+                <p
+                  v-if="weekHabitSummaryCards.length === 0"
+                  class="text-xs text-on-surface-variant/60"
+                >
+                  {{ t('planning.calendar.empty.habits') }}
+                </p>
               </div>
-              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.generic') }}
-              </div>
-            </section>
 
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.toPlanThisWeek') }}
-              </h2>
-              <div v-if="weekToPlanCards.length > 0" class="grid gap-4 lg:grid-cols-2">
-                <CalendarItemCard
-                  v-for="card in weekToPlanCards"
+              <!-- Column 3: Trackers -->
+              <div class="space-y-3">
+                <h2 class="text-lg font-semibold text-on-surface">
+                  {{ t('planning.calendar.sections.trackers') }}
+                </h2>
+                <CalendarMeasurementSummaryCard
+                  v-for="card in weekTrackerSummaryCards"
                   :key="card.key"
                   :title="card.title"
-                  :eyebrow="card.eyebrow"
-                  :description="card.description"
-                  :badges="card.badges"
-                  :details="card.details"
-                  highlight
-                  interactive
-                  @click="handleOpenItemCard(card)"
+                  :icon="card.icon"
+                  :status="card.status"
+                  :entry-mode="card.entryMode"
+                  :subject="card.subject"
+                  :subject-type="card.subjectType"
+                  :object-cadence="card.objectCadence"
+                  view-scale="week"
+                  :current-period-ref="activeWeekRef!"
+                  :raw-entries="weekPlanning!.rawEntries"
+                  :today-ref="todayRef"
+                  @click="openObjectsPanel(card.panelType, card.objectId)"
                 />
+                <p
+                  v-if="weekTrackerSummaryCards.length === 0"
+                  class="text-xs text-on-surface-variant/60"
+                >
+                  {{ t('planning.calendar.empty.trackers') }}
+                </p>
               </div>
-              <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
-                {{ t('planning.calendar.empty.generic') }}
-              </div>
-            </section>
-
-            <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
-                {{ t('planning.calendar.sections.reflectionContext') }}
-              </h2>
-              <div v-if="weekReflectionGoalCards.length > 0" class="grid gap-4 xl:grid-cols-2">
-                <CalendarGoalCard
-                  v-for="goal in weekReflectionGoalCards"
-                  :key="goal.key"
-                  :title="goal.title"
-                  :description="goal.description"
-                  :linked-label="goal.linkedLabel"
-                  :linked-count="goal.linkedCount"
-                  :badges="goal.badges"
-                  interactive
-                  @click="openObjectsPanel('goal', goal.objectId)"
-                />
-              </div>
-              <div v-if="weekReflectionCards.length > 0" class="grid gap-4 lg:grid-cols-2">
-                <CalendarItemCard
-                  v-for="card in weekReflectionCards"
-                  :key="card.key"
-                  :title="card.title"
-                  :eyebrow="card.eyebrow"
-                  :description="card.description"
-                  :badges="card.badges"
-                  :details="card.details"
-                  interactive
-                  @click="handleOpenItemCard(card)"
-                />
-              </div>
-              <div
-                v-if="weekReflectionGoalCards.length === 0 && weekReflectionCards.length === 0"
-                class="neo-card p-6 text-sm text-on-surface-variant"
-              >
-                {{ t('planning.calendar.empty.reflection') }}
-              </div>
-            </section>
+            </div>
           </template>
 
           <template v-else-if="scale === 'day' && dayBundle">
@@ -348,7 +345,7 @@
               <h2 class="text-xl font-semibold text-on-surface">
                 {{ t('planning.calendar.sections.scheduledToday') }}
               </h2>
-              <div v-if="dayScheduledCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+              <div v-if="dayScheduledCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <CalendarItemCard
                   v-for="card in dayScheduledCards"
                   :key="card.key"
@@ -371,7 +368,7 @@
               <h2 class="text-xl font-semibold text-on-surface">
                 {{ t('planning.calendar.sections.entriesToday') }}
               </h2>
-              <div v-if="dayEntryCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+              <div v-if="dayEntryCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <CalendarItemCard
                   v-for="card in dayEntryCards"
                   :key="card.key"
@@ -393,7 +390,7 @@
               <h2 class="text-xl font-semibold text-on-surface">
                 {{ t('planning.calendar.sections.activeThisWeek') }}
               </h2>
-              <div v-if="dayWeekContextCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+              <div v-if="dayWeekContextCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <CalendarItemCard
                   v-for="card in dayWeekContextCards"
                   :key="card.key"
@@ -415,7 +412,7 @@
               <h2 class="text-xl font-semibold text-on-surface">
                 {{ t('planning.calendar.sections.monthlyContext') }}
               </h2>
-              <div v-if="dayMonthGoalCards.length > 0" class="grid gap-4 xl:grid-cols-2">
+              <div v-if="dayMonthGoalCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <CalendarGoalCard
                   v-for="goal in dayMonthGoalCards"
                   :key="goal.key"
@@ -428,7 +425,7 @@
                   @click="openObjectsPanel('goal', goal.objectId)"
                 />
               </div>
-              <div v-if="dayMonthContextCards.length > 0" class="grid gap-4 lg:grid-cols-2">
+              <div v-if="dayMonthContextCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <CalendarItemCard
                   v-for="card in dayMonthContextCards"
                   :key="card.key"
@@ -508,29 +505,36 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import type { MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
+import type { MeasurementSubjectType } from '@/domain/planningState'
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
 import type {
+  MonthMeasurementPlanningItem,
   MonthPlanningBundle,
   WeekInitiativePlanningItem,
   WeekPlanningBundle,
   WeekReflectionBundle,
 } from '@/services/planningStateQueries'
 import type {
-  CalendarYearMonthSummary,
   CalendarYearSummary,
   DayCalendarBundle,
   MonthReflectionBundle,
 } from '@/services/calendarViewQueries'
-import type { MeasurementSummary } from '@/services/measurementProgress'
+import type { MeasurementSummary, MeasureableSubject } from '@/services/measurementProgress'
+import type { CalendarKrSummary } from '@/components/calendar/CalendarGoalSummaryCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import CalendarGoalCard from '@/components/calendar/CalendarGoalCard.vue'
+import CalendarGoalSummaryCard from '@/components/calendar/CalendarGoalSummaryCard.vue'
 import CalendarItemCard from '@/components/calendar/CalendarItemCard.vue'
+import CalendarMeasurementSummaryCard from '@/components/calendar/CalendarMeasurementSummaryCard.vue'
 import CalendarMonthSummaryCard from '@/components/calendar/CalendarMonthSummaryCard.vue'
+import MonthlyPlanner from '@/components/calendar/MonthlyPlanner.vue'
+import WeeklyPlanner from '@/components/calendar/WeeklyPlanner.vue'
 import CalendarSidePanel from '@/components/calendar/CalendarSidePanel.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import { useT } from '@/composables/useT'
+import { clearTrendCache } from '@/services/calendarChartData'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import {
@@ -541,8 +545,6 @@ import {
   getMonthReflectionBundle,
   hasObjectReflection,
   splitMonthMeasurementItems,
-  splitWeekInitiativeItems,
-  splitWeekMeasurementItems,
 } from '@/services/calendarViewQueries'
 import {
   getMonthPlanningBundle,
@@ -557,6 +559,7 @@ import {
   containsDay,
   getNextPeriod,
   getPeriodBounds,
+  getPeriodRefsForDate,
   getPeriodType,
   getPreviousPeriod,
   parsePeriodRef,
@@ -569,12 +572,7 @@ import {
   formatTimestamp as formatTimestampLabel,
   formatWeekTitle as formatWeekTitleLabel,
 } from '@/utils/periodLabels'
-import {
-  CalendarDaysIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 type CalendarScale = 'year' | 'month' | 'week' | 'day'
 type BadgeTone = 'default' | 'accent' | 'success' | 'warning' | 'danger'
@@ -617,6 +615,28 @@ interface GoalCardModel {
   badges: string[]
 }
 
+interface GoalSummaryCardModel {
+  key: string
+  objectId: string
+  title: string
+  icon?: string
+  status: string
+  children: CalendarKrSummary[]
+}
+
+interface MeasurementSummaryCardModel {
+  key: string
+  objectId: string
+  panelType: ObjectsLibraryPanelType
+  title: string
+  icon?: string
+  status: string
+  entryMode: MeasurementEntryMode
+  subject: MeasureableSubject
+  subjectType: MeasurementSubjectType
+  objectCadence: PlanningCadence
+}
+
 type CalendarMeasurementItem =
   | MonthPlanningBundle['measurementItems'][number]
   | WeekPlanningBundle['relevant']['measurementItems'][number]
@@ -643,6 +663,10 @@ const weekReflection = ref<WeekReflectionBundle | null>(null)
 const dayBundle = ref<DayCalendarBundle | null>(null)
 const anchorDay = ref<DayRef | null>(null)
 const panelState = ref<PanelKind | null>(null)
+const monthlyPlannerOpen = ref(false)
+const monthlyPlannerDirty = ref(false)
+const weeklyPlannerOpen = ref(false)
+const weeklyPlannerDirty = ref(false)
 const reflectionNote = ref('')
 const panelSaving = ref(false)
 
@@ -657,6 +681,13 @@ const parsedPeriodRef = computed<PeriodRef | null>(() => {
 const scale = computed(() => props.scale)
 
 const invalidRoute = computed(() => parsedPeriodRef.value === null)
+const activeMonthRef = computed(() =>
+  props.scale === 'month' && parsedPeriodRef.value ? (parsedPeriodRef.value as MonthRef) : null
+)
+const activeWeekRef = computed(() =>
+  props.scale === 'week' && parsedPeriodRef.value ? (parsedPeriodRef.value as WeekRef) : null
+)
+const todayRef = computed(() => getPeriodRefsForDate(new Date()).day)
 
 const calendarLayoutClasses = computed(() => [
   'grid gap-6',
@@ -715,16 +746,28 @@ const activePeriodLabel = computed(() => {
   }
 })
 
+function formatShortDay(dayRef: DayRef): string {
+  const date = new Date(`${dayRef}T00:00:00`)
+  return new Intl.DateTimeFormat(locale.value, { month: 'short', day: 'numeric' }).format(date)
+}
+
 const activePeriodRangeLabel = computed(() => {
-  if (!currentBounds.value) {
-    return ''
-  }
+  if (!parsedPeriodRef.value) return ''
 
-  if (props.scale === 'day') {
-    return formatDayRange(currentBounds.value.start)
+  switch (props.scale) {
+    case 'year':
+      return parsedPeriodRef.value as string
+    case 'month':
+      return formatMonthTitle(parsedPeriodRef.value as MonthRef)
+    case 'week': {
+      const weekRef = parsedPeriodRef.value as WeekRef
+      const num = weekRef.slice(-2)
+      if (!currentBounds.value) return `W${num}`
+      return `W${num}: ${formatShortDay(currentBounds.value.start)} - ${formatShortDay(currentBounds.value.end)}`
+    }
+    case 'day':
+      return formatDayTitle(parsedPeriodRef.value as DayRef)
   }
-
-  return `${formatDayRange(currentBounds.value.start)} - ${formatDayRange(currentBounds.value.end)}`
 })
 
 const showPlanAction = computed(
@@ -735,11 +778,25 @@ const showReflectionAction = computed(
 )
 const showHeaderActions = computed(() => showPlanAction.value || showReflectionAction.value)
 
-const planActionLabel = computed(() =>
-  currentPlanRecord.value
+const planActionLabel = computed(() => {
+  if (props.scale === 'month') {
+    return monthlyPlannerOpen.value
+      ? t('common.buttons.close')
+      : currentPlanRecord.value
+        ? t('planning.calendar.actions.editPlan')
+        : t('planning.calendar.actions.createPlan')
+  }
+  if (props.scale === 'week') {
+    return weeklyPlannerOpen.value
+      ? t('common.buttons.close')
+      : currentPlanRecord.value
+        ? t('planning.calendar.actions.editPlan')
+        : t('planning.calendar.actions.createPlan')
+  }
+  return currentPlanRecord.value
     ? t('planning.calendar.actions.viewPlanRecord')
     : t('planning.calendar.actions.createPlan')
-)
+})
 
 const reflectionActionLabel = computed(() =>
   currentReflectionRecord.value
@@ -747,9 +804,23 @@ const reflectionActionLabel = computed(() =>
     : t('planning.calendar.actions.createReflection')
 )
 
-const planActionVariant = computed<'filled' | 'tonal'>(() =>
-  currentPlanRecord.value ? 'tonal' : 'filled'
-)
+const planActionVariant = computed<'filled' | 'tonal'>(() => {
+  if (props.scale === 'month') {
+    return monthlyPlannerOpen.value
+      ? 'tonal'
+      : currentPlanRecord.value
+        ? 'tonal'
+        : 'filled'
+  }
+  if (props.scale === 'week') {
+    return weeklyPlannerOpen.value
+      ? 'tonal'
+      : currentPlanRecord.value
+        ? 'tonal'
+        : 'filled'
+  }
+  return currentPlanRecord.value ? 'tonal' : 'filled'
+})
 const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
   if (!currentPlanRecord.value) {
     return 'tonal'
@@ -813,11 +884,11 @@ const summaryMetrics = computed<MetricModel[]>(() => {
       },
       {
         label: t('planning.calendar.sections.plannedThisWeek'),
-        value: String(weekPlannedCards.value.length),
+        value: String(weekSummaryCards.value.length),
       },
       {
-        label: t('planning.calendar.sections.toPlanThisWeek'),
-        value: String(weekToPlanCards.value.length),
+        label: t('planning.calendar.metrics.activeCadenced'),
+        value: String(weekPlanning.value.relevant.cadencedItems.length),
       },
     ]
   }
@@ -849,6 +920,8 @@ const summaryMetrics = computed<MetricModel[]>(() => {
 const showSummaryMetrics = computed(() =>
   summaryMetrics.value.some(metric => Number(metric.value) > 0)
 )
+const showMonthlyPlanner = computed(() => props.scale === 'month' && monthlyPlannerOpen.value)
+const showWeeklyPlanner = computed(() => props.scale === 'week' && weeklyPlannerOpen.value)
 
 const monthSplit = computed(() =>
   monthPlanning.value
@@ -856,128 +929,162 @@ const monthSplit = computed(() =>
     : { keyResults: [], habits: [], trackers: [] }
 )
 
-const monthGoalCards = computed<GoalCardModel[]>(() => {
+const monthGoalSummaryCards = computed<GoalSummaryCardModel[]>(() => {
   const planning = monthPlanning.value
-  const reflection = monthReflection.value
+  if (!planning) {
+    return []
+  }
 
+  const krs = planning.measurementItems.filter((item) => item.subjectType === 'keyResult')
+  const krsByGoal = new Map<string, MonthMeasurementPlanningItem[]>()
+  for (const kr of krs) {
+    if ('goalId' in kr.subject) {
+      const existing = krsByGoal.get(kr.subject.goalId) ?? []
+      existing.push(kr)
+      krsByGoal.set(kr.subject.goalId, existing)
+    }
+  }
+
+  return planning.goalItems.map((item) => ({
+    key: item.goal.id,
+    objectId: item.goal.id,
+    title: item.goal.title,
+    icon: item.goal.icon,
+    status: item.goal.status,
+    children: (krsByGoal.get(item.goal.id) ?? []).map((kr) =>
+      buildKrSummary(kr),
+    ),
+  }))
+})
+
+const monthOrphanKrCards = computed<MeasurementSummaryCardModel[]>(() => {
+  const planning = monthPlanning.value
+  if (!planning) {
+    return []
+  }
+
+  const goalIds = new Set(planning.goalItems.map((item) => item.goal.id))
+  const orphanKrs = planning.measurementItems.filter(
+    (item) =>
+      item.subjectType === 'keyResult' &&
+      'goalId' in item.subject &&
+      !goalIds.has(item.subject.goalId),
+  )
+
+  return orphanKrs.map((item) => buildMeasurementSummaryCard(item))
+})
+
+const monthHabitSummaryCards = computed<MeasurementSummaryCardModel[]>(() => {
+  const planning = monthPlanning.value
+  if (!planning) {
+    return []
+  }
+
+  return monthSplit.value.habits.map((item) => buildMeasurementSummaryCard(item))
+})
+
+const monthTrackerSummaryCards = computed<MeasurementSummaryCardModel[]>(() => {
+  const planning = monthPlanning.value
+  if (!planning) {
+    return []
+  }
+
+  return monthSplit.value.trackers.map((item) => buildMeasurementSummaryCard(item))
+})
+
+const weekGoalSummaryCards = computed<GoalSummaryCardModel[]>(() => {
+  const planning = weekPlanning.value
+  const reflection = weekReflection.value
   if (!planning || !reflection) {
     return []
   }
 
-  return planning.goalItems.map(item => ({
-    key: item.goal.id,
-    objectId: item.goal.id,
-    title: item.goal.title,
-    description: item.goal.description,
-    linkedLabel: t('planning.calendar.sections.keyResults'),
-    linkedCount: countGoalKeyResults(item.goal.id, planning.measurementItems),
-    badges: [
-      item.state.activityState === 'active'
-        ? t('planning.calendar.badges.active')
-        : t('planning.calendar.badges.paused'),
-      ...(hasObjectReflection('goal', item.goal.id, reflection.objectReflections)
-        ? [t('planning.calendar.badges.reflected')]
-        : []),
-    ],
-  }))
+  const krItems = planning.relevant.measurementItems.filter((item) => item.subjectType === 'keyResult')
+  const krsByGoal = new Map<string, typeof krItems>()
+  for (const kr of krItems) {
+    if ('goalId' in kr.subject) {
+      const existing = krsByGoal.get(kr.subject.goalId) ?? []
+      existing.push(kr)
+      krsByGoal.set(kr.subject.goalId, existing)
+    }
+  }
+
+  // Use goal objects from reflection context
+  const goalMap = new Map(reflection.relevant.goalItems.map((item) => [item.goal.id, item.goal]))
+
+  const cards: GoalSummaryCardModel[] = []
+  for (const [goalId, goalKrs] of krsByGoal) {
+    const goal = goalMap.get(goalId)
+    if (!goal) continue
+
+    cards.push({
+      key: `week-goal:${goalId}`,
+      objectId: goalId,
+      title: goal.title,
+      icon: goal.icon,
+      status: goal.status,
+      children: goalKrs.map((kr) => ({
+        id: kr.subject.id,
+        title: kr.subject.title,
+        entryMode: kr.subject.entryMode,
+        objectCadence: kr.subject.cadence,
+        subject: kr.subject as MeasureableSubject,
+        subjectType: kr.subjectType,
+      })),
+    })
+  }
+
+  return cards
 })
 
-const monthKeyResultCards = computed<ItemCardModel[]>(() =>
-  monthSplit.value.keyResults.map(item =>
-    buildMeasurementCard(item, 'month', monthReflection.value?.objectReflections ?? [])
-  )
-)
-
-const monthHabitCards = computed<ItemCardModel[]>(() =>
-  monthSplit.value.habits.map(item =>
-    buildMeasurementCard(item, 'month', monthReflection.value?.objectReflections ?? [])
-  )
-)
-
-const monthTrackerCards = computed<ItemCardModel[]>(() =>
-  monthSplit.value.trackers.map(item =>
-    buildMeasurementCard(item, 'month', monthReflection.value?.objectReflections ?? [])
-  )
-)
-
-const monthInitiativeCards = computed<ItemCardModel[]>(() =>
-  (monthPlanning.value?.initiativeItems ?? []).map(item =>
-    buildInitiativeCard(item, 'month', monthReflection.value?.objectReflections ?? [])
-  )
-)
-
-const weekMeasurementSplit = computed(() =>
-  weekPlanning.value
-    ? splitWeekMeasurementItems(weekPlanning.value.relevant.measurementItems)
-    : { plannedThisWeek: [], assignedToDays: [], toPlanThisWeek: [] }
-)
-const weekInitiativeSplit = computed(() =>
-  weekPlanning.value
-    ? splitWeekInitiativeItems(weekPlanning.value.relevant.initiativeItems)
-    : { plannedThisWeek: [], assignedToDays: [], toPlanThisWeek: [] }
-)
-
-const weekPlannedCards = computed<ItemCardModel[]>(() => [
-  ...weekMeasurementSplit.value.plannedThisWeek.map(item =>
-    buildMeasurementCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-  ),
-  ...weekInitiativeSplit.value.plannedThisWeek.map(item =>
-    buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-  ),
-])
-
-const weekAssignedCards = computed<ItemCardModel[]>(() => [
-  ...weekMeasurementSplit.value.assignedToDays.map(item =>
-    buildMeasurementCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-  ),
-  ...weekInitiativeSplit.value.assignedToDays.map(item =>
-    buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-  ),
-])
-
-const weekToPlanCards = computed<ItemCardModel[]>(() => [
-  ...weekMeasurementSplit.value.toPlanThisWeek.map(item =>
-    buildMeasurementCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-  ),
-  ...weekInitiativeSplit.value.toPlanThisWeek.map(item =>
-    buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-  ),
-])
-
-const weekReflectionGoalCards = computed<GoalCardModel[]>(() => {
-  const reflection = weekReflection.value
+const weekOrphanKrCards = computed<MeasurementSummaryCardModel[]>(() => {
   const planning = weekPlanning.value
-
-  if (!reflection || !planning) {
+  if (!planning) {
     return []
   }
 
-  return reflection.relevant.goalItems.map(item => ({
-    key: item.goal.id,
-    objectId: item.goal.id,
-    title: item.goal.title,
-    description: item.goal.description,
-    linkedLabel: t('planning.calendar.sections.keyResults'),
-    linkedCount: countGoalKeyResults(item.goal.id, planning.relevant.measurementItems),
-    badges: hasObjectReflection('goal', item.goal.id, reflection.objectReflections)
-      ? [t('planning.calendar.badges.reflected')]
-      : [],
-  }))
+  const goalIdsInCards = new Set(weekGoalSummaryCards.value.map((c) => c.objectId))
+  const orphanKrs = planning.relevant.measurementItems.filter(
+    (item) =>
+      item.subjectType === 'keyResult' &&
+      'goalId' in item.subject &&
+      !goalIdsInCards.has(item.subject.goalId),
+  )
+
+  return orphanKrs.map((item) => buildWeekMeasurementSummaryCard(item))
 })
 
-const weekReflectionCards = computed<ItemCardModel[]>(() => {
-  if (!weekReflection.value) {
+const weekHabitSummaryCards = computed<MeasurementSummaryCardModel[]>(() => {
+  const planning = weekPlanning.value
+  if (!planning) {
     return []
   }
 
-  return [
-    ...weekReflection.value.relevant.measurementItems.map(item =>
-      buildMeasurementCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-    ),
-    ...weekReflection.value.relevant.initiativeItems.map(item =>
-      buildInitiativeCard(item, 'week', weekReflection.value?.objectReflections ?? [])
-    ),
-  ]
+  return planning.relevant.measurementItems
+    .filter((item) => item.subjectType === 'habit')
+    .map((item) => buildWeekMeasurementSummaryCard(item))
+})
+
+const weekTrackerSummaryCards = computed<MeasurementSummaryCardModel[]>(() => {
+  const planning = weekPlanning.value
+  if (!planning) {
+    return []
+  }
+
+  return planning.relevant.measurementItems
+    .filter((item) => item.subjectType === 'tracker')
+    .map((item) => buildWeekMeasurementSummaryCard(item))
+})
+
+const weekSummaryCards = computed<MeasurementSummaryCardModel[]>(() => {
+  const planning = weekPlanning.value
+  if (!planning) {
+    return []
+  }
+
+  return planning.relevant.measurementItems.map((item) =>
+    buildWeekMeasurementSummaryCard(item),
+  )
 })
 
 const dayScheduledCards = computed<ItemCardModel[]>(() => {
@@ -1158,6 +1265,8 @@ watch(
   () => [props.scale, props.periodRef] as const,
   async () => {
     panelState.value = null
+    monthlyPlannerOpen.value = false
+    weeklyPlannerOpen.value = false
     reflectionNote.value = ''
     await loadCalendarData()
   },
@@ -1165,6 +1274,7 @@ watch(
 )
 
 async function loadCalendarData() {
+  clearTrendCache()
   yearSummary.value = null
   monthPlanning.value = null
   monthReflection.value = null
@@ -1286,16 +1396,82 @@ function openObjectsPanel(panelType: ObjectsLibraryPanelType, panelId: string) {
 }
 
 function openPlanPanel() {
+  if (props.scale === 'month') {
+    void (async () => {
+      if (monthlyPlannerOpen.value) {
+        closeMonthlyPlanner()
+        return
+      }
+
+      if (!parsedPeriodRef.value) {
+        return
+      }
+
+      if (!monthPlanning.value?.monthPlan) {
+        await periodPlanDexieRepository.createMonthPlan({
+          monthRef: parsedPeriodRef.value as MonthRef,
+        })
+        await loadCalendarData()
+      }
+
+      monthlyPlannerOpen.value = true
+      monthlyPlannerDirty.value = false
+    })()
+    return
+  }
+
+  if (props.scale === 'week') {
+    void (async () => {
+      if (weeklyPlannerOpen.value) {
+        closeWeeklyPlanner()
+        return
+      }
+
+      if (!parsedPeriodRef.value) {
+        return
+      }
+
+      if (!weekPlanning.value?.weekPlan) {
+        await periodPlanDexieRepository.createWeekPlan({
+          weekRef: parsedPeriodRef.value as WeekRef,
+        })
+        await loadCalendarData()
+      }
+
+      weeklyPlannerOpen.value = true
+      weeklyPlannerDirty.value = false
+    })()
+    return
+  }
+
   switch (props.scale) {
     case 'year':
       panelState.value = 'year-plan'
       break
-    case 'month':
-      panelState.value = 'month-plan'
-      break
-    case 'week':
-      panelState.value = 'week-plan'
-      break
+  }
+}
+
+function handleMonthlyPlannerUpdated() {
+  monthlyPlannerDirty.value = true
+}
+
+function closeMonthlyPlanner() {
+  monthlyPlannerOpen.value = false
+  if (monthlyPlannerDirty.value) {
+    monthlyPlannerDirty.value = false
+    void loadCalendarData()
+  }
+}
+
+function handleWeeklyPlannerUpdated() {
+  weeklyPlannerDirty.value = true
+}
+
+function closeWeeklyPlanner() {
+  weeklyPlannerOpen.value = false
+  if (weeklyPlannerDirty.value) {
+    weeklyPlannerDirty.value = false
+    void loadCalendarData()
   }
 }
 
@@ -1373,42 +1549,10 @@ async function submitPanel() {
   }
 }
 
-function buildYearMonthBadges(month: CalendarYearMonthSummary): BadgeModel[] {
-  return [
-    month.hasPlan
-      ? { label: t('planning.calendar.summary.planReady'), tone: 'success' }
-      : { label: t('planning.calendar.summary.planMissing') },
-    month.hasReflection
-      ? { label: t('planning.calendar.summary.reflectionReady'), tone: 'accent' }
-      : { label: t('planning.calendar.summary.reflectionMissing') },
-  ]
-}
-
-function buildYearMonthStats(month: CalendarYearMonthSummary): MetricModel[] {
-  return [
-    {
-      label: t('planning.calendar.metricsShort.activeGoals'),
-      value: String(month.activeGoalCount),
-    },
-    {
-      label: t('planning.calendar.metricsShort.activeCadenced'),
-      value: String(month.activeCadencedCount),
-    },
-    {
-      label: t('planning.calendar.metricsShort.activeTrackers'),
-      value: String(month.activeTrackerCount),
-    },
-    {
-      label: t('planning.calendar.metricsShort.activeInitiatives'),
-      value: String(month.activeInitiativeCount),
-    },
-  ]
-}
-
 function buildMeasurementCard(
   item: CalendarMeasurementItem,
   periodScope: 'month' | 'week' | 'day',
-  objectReflections: MonthReflectionBundle['objectReflections'],
+  objectReflections: MonthReflectionBundle['objectReflections']
 ): ItemCardModel {
   const badges: BadgeModel[] = [
     { label: measurementSectionLabel(item.subjectType), tone: 'accent' },
@@ -1452,7 +1596,9 @@ function buildDayEntryCard(item: DayCalendarBundle['entriesToday'][number]): Ite
   const details: string[] = [
     item.entry.value === null
       ? t('planning.calendar.details.recordedToday')
-      : t('planning.calendar.details.loggedValue', { value: formatMeasurementValue(item.entry.value) }),
+      : t('planning.calendar.details.loggedValue', {
+          value: formatMeasurementValue(item.entry.value),
+        }),
   ]
 
   if ('target' in item.subject) {
@@ -1468,6 +1614,53 @@ function buildDayEntryCard(item: DayCalendarBundle['entriesToday'][number]): Ite
     description: item.subject.description,
     badges,
     details,
+  }
+}
+
+function buildKrSummary(
+  item: MonthMeasurementPlanningItem,
+): CalendarKrSummary {
+  return {
+    id: item.subject.id,
+    title: item.subject.title,
+    entryMode: item.subject.entryMode,
+    objectCadence: item.subject.cadence,
+    subject: item.subject,
+    subjectType: item.subjectType,
+  }
+}
+
+function buildMeasurementSummaryCard(
+  item: MonthMeasurementPlanningItem,
+): MeasurementSummaryCardModel {
+  return {
+    key: `month:${item.subjectType}:${item.subject.id}`,
+    objectId: item.subject.id,
+    panelType: item.subjectType,
+    title: item.subject.title,
+    icon: 'icon' in item.subject ? item.subject.icon : undefined,
+    status: item.subject.status,
+    entryMode: item.subject.entryMode,
+    subject: item.subject,
+    subjectType: item.subjectType,
+    objectCadence: item.subject.cadence,
+  }
+}
+
+function buildWeekMeasurementSummaryCard(
+  item: WeekPlanningBundle['relevant']['measurementItems'][number],
+): MeasurementSummaryCardModel {
+  return {
+    key: `week:${item.subjectType}:${item.subject.id}:${item.sourceMonthRef ?? 'current'}`,
+    objectId: item.subject.id,
+    panelType: item.subjectType,
+    title: item.subject.title,
+    icon: 'icon' in item.subject ? item.subject.icon : undefined,
+    status: item.subject.status,
+    entryMode: item.subject.entryMode,
+    subject: item.subject,
+    subjectType: item.subjectType,
+    objectCadence: item.subject.cadence,
   }
 }
 
@@ -1609,7 +1802,7 @@ function buildMeasurementEvaluationBadges(measurement?: MeasurementSummary): Bad
 
 function buildMeasurementDetails(
   item: CalendarMeasurementItem,
-  periodScope: 'month' | 'week' | 'day',
+  periodScope: 'month' | 'week' | 'day'
 ): string[] {
   const details: string[] = []
 
@@ -1623,7 +1816,9 @@ function buildMeasurementDetails(
   }
 
   if (item.planning.scheduledDayRefs.length > 0) {
-    details.push(t('planning.calendar.details.assignedDays', { n: item.planning.scheduledDayRefs.length }))
+    details.push(
+      t('planning.calendar.details.assignedDays', { n: item.planning.scheduledDayRefs.length })
+    )
   }
 
   if (item.planning.successNote) {
@@ -1631,7 +1826,9 @@ function buildMeasurementDetails(
   }
 
   if (item.sourceMonthRef && periodScope !== 'month') {
-    details.push(t('planning.calendar.details.sourceMonth', { month: formatMonthTitle(item.sourceMonthRef) }))
+    details.push(
+      t('planning.calendar.details.sourceMonth', { month: formatMonthTitle(item.sourceMonthRef) })
+    )
   }
 
   return details
@@ -1644,7 +1841,7 @@ function formatMeasurementTarget(target: MeasurementTarget): string {
         target.operator === 'min'
           ? 'planning.calendar.details.targetCountMin'
           : 'planning.calendar.details.targetCountMax',
-        { n: target.value },
+        { n: target.value }
       )
     case 'value':
       return t('planning.calendar.details.targetRule', {
