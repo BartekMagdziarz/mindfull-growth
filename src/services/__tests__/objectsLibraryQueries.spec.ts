@@ -201,6 +201,81 @@ describe('objectsLibraryQueries', () => {
     )
   })
 
+  it('builds chart data for monthly-cadence habits and trackers', async () => {
+    const monthRef1 = parsePeriodRef('2026-01') as MonthRef
+    const monthRef2 = parsePeriodRef('2026-02') as MonthRef
+    const monthRef3 = parsePeriodRef('2026-03') as MonthRef
+
+    const habit = await habitDexieRepository.create({
+      title: 'Monthly counter habit',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 20 },
+      status: 'open',
+    })
+
+    // Month 1: met (3 × 8 = 24 ≥ 20)
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: monthRef1,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    for (const day of ['2026-01-05', '2026-01-12', '2026-01-20'] as DayRef[]) {
+      await planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        dayRef: day,
+        value: 8,
+      })
+    }
+
+    // Month 2: missed (3 × 4 = 12 < 20)
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: monthRef2,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    for (const day of ['2026-02-05', '2026-02-12', '2026-02-20'] as DayRef[]) {
+      await planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        dayRef: day,
+        value: 4,
+      })
+    }
+
+    // Month 3: no-data (active period, no entries)
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: monthRef3,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+
+    const bundle = await loadObjectsLibraryBundle({
+      family: 'habits',
+      q: '',
+      lifeAreaIds: [],
+      priorityIds: [],
+      showClosed: false,
+    })
+
+    expect(bundle.items).toHaveLength(1)
+    const chartData = bundle.items[0].chartData
+    expect(chartData).toHaveLength(3)
+    expect(chartData?.[0]).toMatchObject({ periodRef: '2026-01', status: 'met', actualValue: 24 })
+    expect(chartData?.[1]).toMatchObject({ periodRef: '2026-02', status: 'missed', actualValue: 12 })
+    expect(chartData?.[2]).toMatchObject({ periodRef: '2026-03', status: 'no-data' })
+  })
+
   it('parses and serializes the route contract for the library', () => {
     const query = parseObjectsLibraryQueryFromRoute('goals', {
       q: 'energy',

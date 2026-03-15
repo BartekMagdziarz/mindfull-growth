@@ -7,6 +7,7 @@ import type {
   KeyResult,
   MeasurementEntryMode,
   MeasurementTarget,
+  PlanningCadence,
   Priority,
   Tracker,
 } from '@/domain/planning'
@@ -98,6 +99,14 @@ export interface ObjectsLibraryChildPreview {
   type: 'keyResult'
   title: string
   badges: ObjectsLibraryBadge[]
+  cadence: 'weekly' | 'monthly'
+  entryMode: MeasurementEntryMode
+  target: MeasurementTarget
+  status: string
+  goalId: string
+  isActive: boolean
+  targetSummary: string
+  chartData: ObjectsLibraryChartPoint[]
 }
 
 export interface ObjectsLibraryLinkedEntity {
@@ -122,11 +131,20 @@ export interface ObjectsLibraryHistoryItem {
   source: ObjectsLibraryHistorySource
 }
 
+export interface ObjectsLibraryChartPoint {
+  periodRef: string
+  actualValue: number | undefined
+  targetValue: number | undefined
+  status: 'met' | 'missed' | 'no-data' | 'no-target'
+  isCurrent?: boolean
+}
+
 export interface ObjectsLibraryListItem {
   id: string
   panelType: ObjectsLibraryPanelType
   title: string
   description?: string
+  icon?: string
   eyebrow: ObjectsLibraryLabel
   badges: ObjectsLibraryBadge[]
   details: ObjectsLibraryLabel[]
@@ -135,6 +153,14 @@ export interface ObjectsLibraryListItem {
   childPreviews?: ObjectsLibraryChildPreview[]
   status: string
   isActive: boolean
+  priorityIds?: string[]
+  lifeAreaIds?: string[]
+  goalId?: string
+  goalMonthRefs?: string[]
+  cadence?: PlanningCadence
+  entryMode?: MeasurementEntryMode
+  target?: MeasurementTarget
+  chartData?: ObjectsLibraryChartPoint[]
 }
 
 export interface ObjectsLibraryDetailRecord {
@@ -249,6 +275,19 @@ function describeTarget(target: MeasurementTarget): string {
       return `${target.operator === 'min' ? 'Min' : 'Max'} ${target.value}`
     case 'value':
       return `${capitalize(target.aggregation)} ${target.operator === 'gte' ? '>=' : '<='} ${target.value}`
+    case 'rating':
+      return `Average ${target.operator === 'gte' ? '>=' : '<='} ${target.value}`
+  }
+}
+
+export function describeTargetSummary(target: MeasurementTarget): string {
+  switch (target.kind) {
+    case 'count':
+      return `${target.operator === 'min' ? 'At least' : 'At most'} ${target.value}`
+    case 'value': {
+      const agg = target.aggregation === 'last' ? 'Last value' : capitalize(target.aggregation)
+      return `${agg} ${target.operator === 'gte' ? '>=' : '<='} ${target.value}`
+    }
     case 'rating':
       return `Average ${target.operator === 'gte' ? '>=' : '<='} ${target.value}`
   }
@@ -962,6 +1001,62 @@ function buildMeasurementFields(subject: KeyResult | Habit | Tracker): ObjectsLi
   return fields
 }
 
+function buildChartData(
+  subject: MeasureableSubject,
+  subjectType: 'keyResult' | 'habit' | 'tracker',
+  allEntries: DailyMeasurementEntry[],
+  measurementMonthStates: MeasurementMonthState[],
+  measurementWeekStates: MeasurementWeekState[],
+): ObjectsLibraryChartPoint[] {
+  const hasTarget = 'target' in subject
+
+  const activePeriodRefs: string[] = []
+  if (subject.cadence === 'monthly') {
+    for (const state of measurementMonthStates) {
+      if (state.subjectType === subjectType && state.subjectId === subject.id && state.activityState === 'active') {
+        activePeriodRefs.push(state.monthRef)
+      }
+    }
+  } else {
+    for (const state of measurementWeekStates) {
+      if (state.subjectType === subjectType && state.subjectId === subject.id && state.activityState === 'active') {
+        activePeriodRefs.push(state.weekRef)
+      }
+    }
+  }
+
+  if (activePeriodRefs.length === 0) {
+    return []
+  }
+
+  const sortedRefs = [...activePeriodRefs].sort((a, b) => a.localeCompare(b))
+
+  return sortedRefs.map((periodRef) => {
+    const summary = buildMeasurementSummary(subject, allEntries, periodRef as MeasurementPeriodRef)
+    const targetValue = hasTarget ? (subject as { target: { value: number } }).target.value : undefined
+
+    let status: ObjectsLibraryChartPoint['status']
+    if (summary.entryCount === 0) {
+      status = 'no-data'
+    } else if (!hasTarget) {
+      status = 'no-target'
+    } else if (summary.evaluationStatus === 'met') {
+      status = 'met'
+    } else if (summary.evaluationStatus === 'missed') {
+      status = 'missed'
+    } else {
+      status = 'no-data'
+    }
+
+    return {
+      periodRef,
+      actualValue: summary.actualValue,
+      targetValue,
+      status,
+    }
+  })
+}
+
 function buildFamilyItems(
   query: ObjectsLibraryQuery,
   deps: ObjectsLibraryDependencies,
@@ -1133,6 +1228,7 @@ function buildGoalListItem(
     panelType: 'goal',
     title: goal.title,
     description: goal.description,
+    icon: goal.icon,
     eyebrow: libraryLabel('planning.objects.labels.goal'),
     badges: [
       lifecycleBadge(goal.status),
@@ -1144,14 +1240,30 @@ function buildGoalListItem(
       : [libraryLabel('planning.objects.details.noLinkedKeyResults')],
     linkedEntities: linkedEntityLabels(goal.priorityIds, goal.lifeAreaIds, ctx),
     matchReasons,
-    childPreviews: keyResults.slice(0, 3).map((item) => ({
-      id: item.id,
-      type: 'keyResult',
-      title: item.title,
-      badges: [cadenceBadge(item.cadence), entryModeBadge(item.entryMode), targetBadge(item.target)],
-    })),
+    childPreviews: keyResults.map((item) => {
+      const krEntries = ctx.subjectEntryMap.get(buildSubjectKey('keyResult', item.id)) ?? []
+      return {
+        id: item.id,
+        type: 'keyResult' as const,
+        title: item.title,
+        badges: [cadenceBadge(item.cadence), entryModeBadge(item.entryMode), targetBadge(item.target)],
+        cadence: item.cadence,
+        entryMode: item.entryMode,
+        target: item.target,
+        status: item.status,
+        goalId: goal.id,
+        isActive: item.isActive,
+        targetSummary: describeTargetSummary(item.target),
+        chartData: buildChartData(item, 'keyResult', krEntries, deps.measurementMonthStates, deps.measurementWeekStates),
+      }
+    }),
     status: goal.status,
     isActive: goal.isActive,
+    priorityIds: [...goal.priorityIds],
+    lifeAreaIds: [...goal.lifeAreaIds],
+    goalMonthRefs: deps.goalMonthStates
+      .filter((s) => s.goalId === goal.id)
+      .map((s) => s.monthRef),
   }
 }
 
@@ -1170,6 +1282,7 @@ function buildHabitListItem(
     panelType: 'habit',
     title: habit.title,
     description: habit.description,
+    icon: habit.icon,
     eyebrow: libraryLabel('planning.objects.labels.habit'),
     badges: [
       cadenceBadge(habit.cadence),
@@ -1185,6 +1298,12 @@ function buildHabitListItem(
     matchReasons,
     status: habit.status,
     isActive: habit.isActive,
+    priorityIds: [...habit.priorityIds],
+    lifeAreaIds: [...habit.lifeAreaIds],
+    cadence: habit.cadence,
+    entryMode: habit.entryMode,
+    target: habit.target,
+    chartData: buildChartData(habit, 'habit', entries, deps.measurementMonthStates, deps.measurementWeekStates),
   }
 }
 
@@ -1203,6 +1322,7 @@ function buildTrackerListItem(
     panelType: 'tracker',
     title: tracker.title,
     description: tracker.description,
+    icon: tracker.icon,
     eyebrow: libraryLabel('planning.objects.labels.tracker'),
     badges: [
       cadenceBadge(tracker.cadence),
@@ -1217,6 +1337,11 @@ function buildTrackerListItem(
     matchReasons,
     status: tracker.status,
     isActive: tracker.isActive,
+    priorityIds: [...tracker.priorityIds],
+    lifeAreaIds: [...tracker.lifeAreaIds],
+    cadence: tracker.cadence,
+    entryMode: tracker.entryMode,
+    chartData: buildChartData(tracker, 'tracker', entries, deps.measurementMonthStates, deps.measurementWeekStates),
   }
 }
 
@@ -1256,6 +1381,9 @@ function buildInitiativeListItem(
     matchReasons,
     status: initiative.status,
     isActive: initiative.isActive,
+    goalId: initiative.goalId,
+    priorityIds: initiative.priorityIds,
+    lifeAreaIds: initiative.lifeAreaIds,
   }
 }
 
@@ -1264,12 +1392,23 @@ function buildGoalPanel(
   deps: ObjectsLibraryDependencies,
   ctx: ObjectRefContext,
 ): ObjectsLibraryDetailRecord {
-  const keyResults = (ctx.keyResultsByGoalId.get(goal.id) ?? []).map((item) => ({
-    id: item.id,
-    type: 'keyResult' as const,
-    title: item.title,
-    badges: [cadenceBadge(item.cadence), entryModeBadge(item.entryMode), targetBadge(item.target), lifecycleBadge(item.status)],
-  }))
+  const keyResults = (ctx.keyResultsByGoalId.get(goal.id) ?? []).map((item) => {
+    const krEntries = ctx.subjectEntryMap.get(buildSubjectKey('keyResult', item.id)) ?? []
+    return {
+      id: item.id,
+      type: 'keyResult' as const,
+      title: item.title,
+      badges: [cadenceBadge(item.cadence), entryModeBadge(item.entryMode), targetBadge(item.target), lifecycleBadge(item.status)],
+      cadence: item.cadence,
+      entryMode: item.entryMode,
+      target: item.target,
+      status: item.status,
+      goalId: goal.id,
+      isActive: item.isActive,
+      targetSummary: describeTargetSummary(item.target),
+      chartData: buildChartData(item, 'keyResult', krEntries, deps.measurementMonthStates, deps.measurementWeekStates),
+    }
+  })
 
   return {
     id: goal.id,

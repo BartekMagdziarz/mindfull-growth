@@ -1,6 +1,6 @@
 <template>
   <article
-    class="neo-card neo-raised overflow-hidden border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3.5"
+    class="neo-card neo-raised border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3.5"
   >
     <h3 class="text-lg font-semibold tracking-[-0.02em] text-on-surface">
       {{ item.title }}
@@ -27,73 +27,7 @@
       </span>
     </div>
 
-    <section
-      v-if="item.childPreviews && item.childPreviews.length > 0"
-      class="mt-3.5 space-y-2"
-    >
-      <div class="flex items-center justify-between gap-2">
-        <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-          {{ t('planning.objects.sections.relatedKeyResults') }}
-        </div>
-        <button
-          v-if="item.panelType === 'goal'"
-          type="button"
-          class="text-xs font-medium text-primary hover:underline"
-          @click="$emit('add-key-result', item.id)"
-        >
-          {{ t('planning.objects.actions.addKeyResult') }}
-        </button>
-      </div>
-
-      <div class="space-y-1.5">
-        <div
-          v-for="child in item.childPreviews"
-          :key="child.id"
-          class="neo-surface flex items-center gap-2 rounded-lg px-2.5 py-2"
-        >
-          <button
-            type="button"
-            class="neo-focus min-w-0 flex-1 text-left"
-            @click="$emit('expand-key-result', child.type, child.id)"
-          >
-            <div class="truncate text-sm font-semibold text-on-surface">
-              {{ child.title }}
-            </div>
-            <div
-              v-if="child.badges.length > 0"
-              class="mt-1 flex flex-wrap gap-2"
-            >
-              <span
-                v-for="(badge, idx) in child.badges"
-                :key="idx"
-                class="text-[11px] font-medium text-on-surface-variant"
-              >
-                {{ resolveLabel(badge.label) }}
-              </span>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            class="neo-icon-button neo-focus"
-            :aria-label="t('planning.objects.actions.editObject')"
-            @click="$emit('edit-key-result', item.id, child.id)"
-          >
-            <PencilSquareIcon class="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            class="neo-icon-button neo-focus"
-            :aria-label="t('planning.objects.actions.showDetails')"
-            @click="$emit('expand-key-result', child.type, child.id)"
-          >
-            <ChevronRightIcon class="h-4 w-4 shrink-0 text-on-surface-variant" />
-          </button>
-        </div>
-      </div>
-    </section>
-
+    <!-- Entities + status + menu -->
     <div class="mt-3 flex items-center gap-2">
       <div class="flex flex-1 flex-wrap gap-1.5">
         <span
@@ -105,33 +39,11 @@
         </span>
       </div>
 
-      <div ref="statusDropdownRef" class="relative">
-        <button
-          type="button"
-          class="neo-pill neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold"
-          :class="statusPillClass"
-          @click.stop="statusDropdownOpen = !statusDropdownOpen"
-        >
-          {{ currentStatusLabel }}
-          <ChevronDownIcon class="h-3 w-3" />
-        </button>
-        <div
-          v-if="statusDropdownOpen"
-          class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-white/40 bg-white shadow-lg"
-          @click.stop
-        >
-          <button
-            v-for="opt in statusOptions"
-            :key="opt.value"
-            type="button"
-            class="block w-full px-4 py-2 text-left text-xs font-medium hover:bg-primary-soft/30"
-            :class="opt.value === item.status ? 'font-semibold text-primary' : 'text-on-surface'"
-            @click="handleStatusChange(opt.value)"
-          >
-            {{ opt.label }}
-          </button>
-        </div>
-      </div>
+      <StatusIconButton
+        :model-value="item.status"
+        :options="statusOptions"
+        @update:model-value="(v: string) => handleStatusChange(v)"
+      />
 
       <div ref="menuRef" class="relative">
         <button
@@ -140,7 +52,7 @@
           aria-label="More actions"
           @click.stop="menuOpen = !menuOpen"
         >
-          <EllipsisHorizontalIcon class="h-4 w-4" />
+          <AppIcon name="more_horiz" class="text-base" />
         </button>
         <div
           v-if="menuOpen"
@@ -164,18 +76,62 @@
         </div>
       </div>
     </div>
+
+    <!-- Key Results section -->
+    <section
+      v-if="item.panelType === 'goal'"
+      class="mt-3.5 space-y-2"
+    >
+      <div class="flex items-center justify-between gap-2">
+        <div
+          v-if="item.childPreviews && item.childPreviews.length > 0"
+          class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant"
+        >
+          {{ t('planning.objects.sections.relatedKeyResults') }}
+        </div>
+        <button
+          type="button"
+          class="text-xs font-medium text-primary hover:underline"
+          @click="$emit('add-key-result', item.id)"
+        >
+          {{ t('planning.objects.actions.addKeyResult') }}
+        </button>
+      </div>
+
+      <div v-if="item.childPreviews && item.childPreviews.length > 0" class="space-y-1.5">
+        <ObjectsLibraryKrCard
+          v-for="child in item.childPreviews"
+          :key="child.id"
+          :child="child"
+          :parent-goal-id="item.id"
+          :is-expanded="expandedKrId === child.id"
+          :linked-periods="expandedKrId === child.id ? expandedKrPeriods : []"
+          :goal-linked-month-refs="item.goalMonthRefs ?? []"
+          :cadence-options="cadenceOptions"
+          :entry-mode-options="entryModeOptions"
+          :status-options="krStatusOptions"
+          :target-operator-options="krTargetOperatorOptions(child.entryMode)"
+          :target-aggregation-options="krTargetAggregationOptions(child.entryMode)"
+          :show-target-aggregation="krShowTargetAggregation(child.entryMode)"
+          @toggle-expand="$emit('kr-toggle-expand', child.id)"
+          @field-change="(f: string, v: unknown) => $emit('kr-field-change', child.id, f, v)"
+          @link-period="(ref: string) => $emit('kr-link-period', child.id, ref)"
+          @unlink-period="(ref: string) => $emit('kr-unlink-period', child.id, ref)"
+          @delete="$emit('kr-delete', child.id)"
+          @archive="$emit('kr-archive', child.id)"
+        />
+      </div>
+    </section>
   </article>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  EllipsisHorizontalIcon,
-  PencilSquareIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
+import StatusIconButton from '@/components/objects/StatusIconButton.vue'
+import ObjectsLibraryKrCard from '@/components/objects/ObjectsLibraryKrCard.vue'
+import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type {
   ObjectsLibraryBadgeTone,
   ObjectsLibraryLabel,
@@ -183,10 +139,19 @@ import type {
   ObjectsLibraryPanelType,
 } from '@/services/objectsLibraryQueries'
 import { resolveObjectsLibraryLabel } from '@/utils/objectsLibraryLabels'
+import type { MeasurementEntryMode } from '@/domain/planning'
 
 const props = defineProps<{
   item: ObjectsLibraryListItem
   statusOptions: Array<{ value: string; label: string }>
+  expandedKrId: string | null
+  expandedKrPeriods: LinkedPeriod[]
+  cadenceOptions: Array<{ value: string; label: string }>
+  entryModeOptions: Array<{ value: string; label: string }>
+  krTargetOperatorOptions: (entryMode: MeasurementEntryMode) => Array<{ value: string; label: string }>
+  krTargetAggregationOptions: (entryMode: MeasurementEntryMode) => Array<{ value: string; label: string }>
+  krShowTargetAggregation: (entryMode: MeasurementEntryMode) => boolean
+  krStatusOptions: Array<{ value: string; label: string }>
 }>()
 
 const emit = defineEmits<{
@@ -195,14 +160,17 @@ const emit = defineEmits<{
   delete: [panelType: ObjectsLibraryPanelType, id: string, title: string]
   'add-key-result': [goalId: string]
   'expand-key-result': [panelType: ObjectsLibraryPanelType, id: string]
-  'edit-key-result': [goalId: string, krId: string]
+  'kr-toggle-expand': [krId: string]
+  'kr-field-change': [krId: string, field: string, value: unknown]
+  'kr-link-period': [krId: string, periodRef: string]
+  'kr-unlink-period': [krId: string, periodRef: string]
+  'kr-delete': [krId: string]
+  'kr-archive': [krId: string]
 }>()
 
 const { t } = useT()
 
-const statusDropdownOpen = ref(false)
 const menuOpen = ref(false)
-const statusDropdownRef = ref<HTMLElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
 
 const nonStatusBadges = computed(() =>
@@ -217,24 +185,6 @@ const trimmedDescription = computed(() => {
   return props.item.description.length > 120
     ? `${props.item.description.slice(0, 117)}...`
     : props.item.description
-})
-
-const currentStatusLabel = computed(() => {
-  const opt = props.statusOptions.find((o) => o.value === props.item.status)
-  return opt?.label ?? props.item.status
-})
-
-const statusPillClass = computed(() => {
-  switch (props.item.status) {
-    case 'completed':
-      return 'neo-pill--success'
-    case 'dropped':
-      return 'neo-pill--danger'
-    case 'retired':
-      return 'neo-pill--warning'
-    default:
-      return 'neo-pill--primary'
-  }
 })
 
 function resolveLabel(label: ObjectsLibraryLabel): string {
@@ -272,9 +222,6 @@ function handleDelete(): void {
 }
 
 function handleOutsideClick(event: MouseEvent): void {
-  if (statusDropdownRef.value && !statusDropdownRef.value.contains(event.target as Node)) {
-    statusDropdownOpen.value = false
-  }
   if (menuRef.value && !menuRef.value.contains(event.target as Node)) {
     menuOpen.value = false
   }

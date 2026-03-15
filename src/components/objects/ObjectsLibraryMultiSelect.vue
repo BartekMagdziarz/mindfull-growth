@@ -12,8 +12,9 @@
         <span class="min-w-0 truncate text-sm text-on-surface">
           {{ summaryLabel }}
         </span>
-        <ChevronDownIcon
-          class="h-4 w-4 shrink-0 text-on-surface-variant transition-transform duration-200"
+        <AppIcon
+          name="expand_more"
+          class="text-base shrink-0 text-on-surface-variant transition-transform duration-200"
           :class="open ? 'rotate-180' : ''"
         />
       </button>
@@ -70,7 +71,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { ChevronDownIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { ObjectsLibraryFilterOption } from '@/services/objectsLibraryQueries'
 
 const props = defineProps<{

@@ -15,7 +15,7 @@
             class="ml-0.5 rounded-full p-0.5 text-on-surface-variant/70 hover:text-on-surface"
             @click="removeOption(selected.id)"
           >
-            <XMarkIcon class="h-3 w-3" />
+            <AppIcon name="close" class="text-xs" />
           </button>
         </span>
 
@@ -26,7 +26,7 @@
           :aria-label="addLabel"
           @click="open = !open"
         >
-          <PlusIcon class="h-3 w-3" />
+          <AppIcon name="add" class="text-xs" />
         </button>
       </div>
 
@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { PlusIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { ObjectsLibraryFilterOption } from '@/services/objectsLibraryQueries'
 
 const props = defineProps<{

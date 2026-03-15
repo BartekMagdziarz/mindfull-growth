@@ -35,10 +35,10 @@
           :aria-expanded="filtersExpanded"
           @click="filtersExpanded = !filtersExpanded"
         >
-          <AdjustmentsHorizontalIcon class="h-4 w-4" />
+          <AppIcon name="tune" class="text-base" />
           {{ filtersToggleLabel }}
-          <ChevronUpIcon v-if="filtersExpanded" class="h-4 w-4" />
-          <ChevronDownIcon v-else class="h-4 w-4" />
+          <AppIcon v-if="filtersExpanded" name="expand_less" class="text-base" />
+          <AppIcon v-else name="expand_more" class="text-base" />
         </button>
 
         <button
@@ -69,7 +69,7 @@
         @click="removeFilterChip(chip)"
       >
         <span>{{ chip.label }}</span>
-        <XMarkIcon class="h-3.5 w-3.5" />
+        <AppIcon name="close" class="text-sm" />
       </button>
     </div>
 
@@ -160,12 +160,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import {
-  AdjustmentsHorizontalIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  XMarkIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryQuery } from '@/services/objectsLibraryQueries'
 
 interface ActiveFilterChip {

@@ -31,7 +31,7 @@
         :aria-label="closeLabel"
         @click="$emit('close')"
       >
-        <XMarkIcon class="h-4 w-4" />
+        <AppIcon name="close" class="text-base" />
       </button>
     </div>
 
@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import type {
   ObjectsLibraryBadge,

@@ -1,16 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import type { MonthRef } from '@/domain/period'
-import { parsePeriodRef } from '@/utils/periods'
 import ObjectsLibraryView from '@/views/ObjectsLibraryView.vue'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
-import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
-import { formatPeriodLabel } from '@/utils/periodLabels'
 
 function createTestRouter() {
   return createRouter({
@@ -49,8 +45,7 @@ describe('ObjectsLibraryView', () => {
     await resetPlanningTestData()
   })
 
-  it('opens inline details from a deep link and navigates back to Calendar from linked periods', async () => {
-    const monthRef = parsePeriodRef('2026-03') as MonthRef
+  it('renders a goal card with its key result inline from a deep link', async () => {
     const goal = await goalDexieRepository.create({
       title: 'Ship weekly workspace',
       isActive: true,
@@ -59,20 +54,20 @@ describe('ObjectsLibraryView', () => {
       status: 'open',
     })
 
-    await planningStateDexieRepository.upsertGoalMonthState({
-      monthRef,
+    await keyResultDexieRepository.create({
+      title: 'Publish v1',
+      isActive: true,
       goalId: goal.id,
-      activityState: 'active',
+      entryMode: 'counter',
+      cadence: 'weekly',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
     })
 
     const router = createTestRouter()
     await router.push({
       name: 'objects-family',
       params: { family: 'goals' },
-      query: {
-        expandedType: 'goal',
-        expandedId: goal.id,
-      },
     })
     await router.isReady()
 
@@ -85,18 +80,11 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
-    expect(await screen.findByRole('heading', { name: goal.title })).toBeInTheDocument()
-    const expectedLabel = formatPeriodLabel(monthRef, 'en', 'Week')
-
-    await fireEvent.click(screen.getByRole('button', { name: new RegExp(expectedLabel, 'i') }))
-
-    await waitFor(() => {
-      expect(router.currentRoute.value.name).toBe('calendar-month')
-    })
-    expect(router.currentRoute.value.params.monthRef).toBe(monthRef)
+    expect(await screen.findByDisplayValue(goal.title)).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Publish v1')).toBeInTheDocument()
   })
 
-  it('creates a new habit inline and keeps the expanded object in the route', async () => {
+  it('creates a new habit inline immediately without a composer form', async () => {
     const router = createTestRouter()
     await router.push({
       name: 'objects-family',
@@ -114,17 +102,15 @@ describe('ObjectsLibraryView', () => {
     })
 
     await fireEvent.click(await screen.findByRole('button', { name: 'Add habit' }))
-    await fireEvent.update(screen.getByRole('textbox', { name: 'Title' }), 'Evening reset')
-    await fireEvent.click(screen.getByRole('button', { name: 'Create' }))
 
-    expect(
-      await screen.findByRole('heading', { name: 'Evening reset' })
-    ).toBeInTheDocument()
+    // A new habit card appears immediately with an empty focused title input
+    expect(await screen.findByPlaceholderText('Title')).toBeInTheDocument()
+    // No composer form — no Create button
+    expect(screen.queryByRole('button', { name: 'Create' })).not.toBeInTheDocument()
+    // Route stays on habits family, no composer state
     expect(router.currentRoute.value.name).toBe('objects-family')
     expect(router.currentRoute.value.params.family).toBe('habits')
     expect(router.currentRoute.value.query.composerMode).toBeUndefined()
-    expect(router.currentRoute.value.query.expandedType).toBe('habit')
-    expect(router.currentRoute.value.query.expandedId).toEqual(expect.any(String))
   })
 
   it('keeps period input local until commit and shows inline validation errors', async () => {
@@ -209,7 +195,7 @@ describe('ObjectsLibraryView', () => {
     expect(router.currentRoute.value.query.expandedId).toBeUndefined()
   })
 
-  it('returns to the expanded goal when cancelling key result creation', async () => {
+  it('creates a key result inline under its goal without a composer form', async () => {
     const goal = await goalDexieRepository.create({
       title: 'Ship weekly workspace',
       isActive: true,
@@ -222,10 +208,6 @@ describe('ObjectsLibraryView', () => {
     await router.push({
       name: 'objects-family',
       params: { family: 'goals' },
-      query: {
-        expandedType: 'goal',
-        expandedId: goal.id,
-      },
     })
     await router.isReady()
 
@@ -238,18 +220,21 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
+    // "Add key result" is now inside the "..." menu — open it first
+    const moreButtons = await screen.findAllByRole('button', { name: 'More actions' })
+    await fireEvent.click(moreButtons[0])
     await fireEvent.click(await screen.findByRole('button', { name: 'Add key result' }))
-    expect(await screen.findByRole('button', { name: 'Create' })).toBeInTheDocument()
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
-
-    expect(await screen.findByRole('heading', { name: goal.title })).toBeInTheDocument()
+    // KR is created and shown inline — no Create/Cancel buttons
+    expect(screen.queryByRole('button', { name: 'Create' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument()
+    // Goal title input still visible
+    expect(await screen.findByDisplayValue(goal.title)).toBeInTheDocument()
+    // No composer state in route
     expect(router.currentRoute.value.query.composerMode).toBeUndefined()
-    expect(router.currentRoute.value.query.expandedType).toBe('goal')
-    expect(router.currentRoute.value.query.expandedId).toBe(goal.id)
   })
 
-  it('renders key result details under its goal and opens key result edit mode', async () => {
+  it('renders key result details inline under its goal with auto-save inputs', async () => {
     const goal = await goalDexieRepository.create({
       title: 'Ship weekly workspace',
       isActive: true,
@@ -258,7 +243,7 @@ describe('ObjectsLibraryView', () => {
       status: 'open',
     })
 
-    const keyResult = await keyResultDexieRepository.create({
+    await keyResultDexieRepository.create({
       title: 'Publish v1',
       isActive: true,
       goalId: goal.id,
@@ -276,10 +261,6 @@ describe('ObjectsLibraryView', () => {
     await router.push({
       name: 'objects-family',
       params: { family: 'goals' },
-      query: {
-        expandedType: 'keyResult',
-        expandedId: keyResult.id,
-      },
     })
     await router.isReady()
 
@@ -292,23 +273,14 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
-    expect(await screen.findByRole('heading', { name: goal.title })).toBeInTheDocument()
-    expect(await screen.findByRole('heading', { name: keyResult.title })).toBeInTheDocument()
-
-    await fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
-
-    expect(await screen.findByRole('button', { name: 'Save' })).toBeInTheDocument()
-    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('Publish v1')
-
-    await waitFor(() => {
-      expect(router.currentRoute.value.query.composerMode).toBe('edit')
-      expect(router.currentRoute.value.query.composerType).toBe('keyResult')
-      expect(router.currentRoute.value.query.composerId).toBe(keyResult.id)
-    })
+    expect(await screen.findByDisplayValue(goal.title)).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Publish v1')).toBeInTheDocument()
+    expect(screen.getAllByText('Weekly').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Counter').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('deletes an object from inline edit and clears the expanded route state', async () => {
-    const habit = await habitDexieRepository.create({
+  it('deletes an object from the card menu and removes it from the list', async () => {
+    await habitDexieRepository.create({
       title: 'Evening reset',
       isActive: true,
       priorityIds: [],
@@ -327,10 +299,6 @@ describe('ObjectsLibraryView', () => {
     await router.push({
       name: 'objects-family',
       params: { family: 'habits' },
-      query: {
-        expandedType: 'habit',
-        expandedId: habit.id,
-      },
     })
     await router.isReady()
 
@@ -343,18 +311,17 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
-    await fireEvent.click(await screen.findByRole('button', { name: 'Edit' }))
+    expect(await screen.findByDisplayValue('Evening reset')).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: 'More actions' }))
     await fireEvent.click(await screen.findByRole('button', { name: 'Delete' }))
 
     const dialog = await screen.findByRole('dialog')
     await fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }))
 
     await waitFor(() => {
-      expect(screen.queryByRole('heading', { name: 'Evening reset' })).not.toBeInTheDocument()
+      expect(screen.queryByDisplayValue('Evening reset')).not.toBeInTheDocument()
     })
-    expect(router.currentRoute.value.query.expandedType).toBeUndefined()
-    expect(router.currentRoute.value.query.expandedId).toBeUndefined()
-    expect(router.currentRoute.value.query.composerMode).toBeUndefined()
   })
 
   it('hides the goal dropdown when creating a key result from within a goal', async () => {
@@ -386,8 +353,15 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
+    // "Add key result" is now inside the "..." menu — open it first
+    const moreButtons = await screen.findAllByRole('button', { name: 'More actions' })
+    await fireEvent.click(moreButtons[0])
     await fireEvent.click(await screen.findByRole('button', { name: 'Add key result' }))
-    expect(await screen.findByRole('button', { name: 'Create' })).toBeInTheDocument()
+
+    // KR is created inline — no composer form with Create button or goal selector
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Create' })).not.toBeInTheDocument()
+    })
     expect(screen.queryByRole('combobox', { name: 'Owner goal' })).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Owner goal')).not.toBeInTheDocument()
   })
@@ -420,7 +394,7 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
-    expect(await screen.findByText('Cel')).toBeInTheDocument()
-    expect(screen.queryByText('Goal')).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Cele' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Goals' })).not.toBeInTheDocument()
   })
 })
