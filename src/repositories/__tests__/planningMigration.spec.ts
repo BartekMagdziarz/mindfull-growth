@@ -94,6 +94,18 @@ class PlanningDatabaseV8 extends Dexie {
   }
 }
 
+class PlanningDatabaseV9 extends Dexie {
+  measurementMonthStates!: Table<Record<string, unknown>, string>
+
+  constructor(name: string) {
+    super(name)
+    this.version(9).stores({
+      measurementMonthStates:
+        'id, monthRef, subjectType, subjectId, activityState, scheduleScope, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+    })
+  }
+}
+
 describe('planning migration v6 to v7', () => {
   let dbName: string
 
@@ -449,5 +461,50 @@ describe('planning migration v8 to v9', () => {
     expect(await v9.lifeAreaAssessments.count()).toBe(1)
 
     await v9.close()
+  })
+})
+
+describe('planning migration v9 to v10', () => {
+  let dbName: string
+
+  beforeEach(() => {
+    dbName = `PlanningMigrationV10_${Date.now()}_${Math.random()}`
+  })
+
+  afterEach(async () => {
+    await Dexie.delete(dbName)
+  })
+
+  it('preserves measurement month states and leaves target override unset for existing records', async () => {
+    const v9 = new PlanningDatabaseV9(dbName)
+    await v9.open()
+
+    await v9.measurementMonthStates.add({
+      id: 'month-state-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      monthRef: '2026-03',
+      subjectType: 'habit',
+      subjectId: 'habit-1',
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+    await v9.close()
+
+    const v10 = new UserDatabase(dbName)
+    await v10.open()
+
+    expect(await v10.measurementMonthStates.count()).toBe(1)
+    expect(await v10.measurementMonthStates.get('month-state-1')).toMatchObject({
+      id: 'month-state-1',
+      monthRef: '2026-03',
+      subjectType: 'habit',
+      subjectId: 'habit-1',
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+    expect((await v10.measurementMonthStates.get('month-state-1'))?.targetOverride).toBeUndefined()
+
+    await v10.close()
   })
 })

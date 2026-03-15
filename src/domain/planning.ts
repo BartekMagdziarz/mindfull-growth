@@ -50,6 +50,7 @@ export interface Priority extends PlanningObjectBase {
 }
 
 export interface Goal extends PlanningObjectBase {
+  icon?: string
   priorityIds: string[]
   lifeAreaIds: string[]
   status: GoalStatus
@@ -64,6 +65,7 @@ export interface KeyResult extends PlanningObjectBase {
 }
 
 export interface Habit extends PlanningObjectBase {
+  icon?: string
   priorityIds: string[]
   lifeAreaIds: string[]
   entryMode: MeasurementEntryMode
@@ -73,6 +75,7 @@ export interface Habit extends PlanningObjectBase {
 }
 
 export interface Tracker extends PlanningObjectBase {
+  icon?: string
   priorityIds: string[]
   lifeAreaIds: string[]
   entryMode: MeasurementEntryMode
@@ -353,6 +356,7 @@ export function normalizeGoalPayload(
 
   return {
     ...base,
+    icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
@@ -416,6 +420,7 @@ export function normalizeHabitPayload(
 
   return {
     ...base,
+    icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     entryMode,
@@ -435,6 +440,7 @@ export function normalizeTrackerPayload(
 
   return {
     ...base,
+    icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     entryMode: normalizeEnum(

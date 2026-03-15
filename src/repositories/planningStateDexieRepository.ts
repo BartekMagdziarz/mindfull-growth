@@ -164,6 +164,21 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     }
   }
 
+  async listMeasurementMonthStatesForSubject(
+    subjectType: MeasurementSubjectType,
+    subjectId: string
+  ): Promise<MeasurementMonthState[]> {
+    try {
+      return await this.db.measurementMonthStates
+        .where('[subjectType+subjectId]')
+        .equals([subjectType, subjectId])
+        .toArray()
+    } catch (error) {
+      console.error(`Failed to list measurement month states for ${subjectType}:${subjectId}:`, error)
+      throw new Error(`Failed to retrieve measurement month states for ${subjectType}:${subjectId}`)
+    }
+  }
+
   async upsertMeasurementMonthState(
     data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload
   ): Promise<MeasurementMonthState> {
@@ -257,6 +272,21 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     } catch (error) {
       console.error('Failed to list measurement week states for weeks:', error)
       throw new Error('Failed to retrieve measurement week states from database')
+    }
+  }
+
+  async listMeasurementWeekStatesForSubject(
+    subjectType: MeasurementSubjectType,
+    subjectId: string
+  ): Promise<MeasurementWeekState[]> {
+    try {
+      return await this.db.measurementWeekStates
+        .where('[subjectType+subjectId]')
+        .equals([subjectType, subjectId])
+        .toArray()
+    } catch (error) {
+      console.error(`Failed to list measurement week states for ${subjectType}:${subjectId}:`, error)
+      throw new Error(`Failed to retrieve measurement week states for ${subjectType}:${subjectId}`)
     }
   }
 
@@ -744,9 +774,33 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
   private async assertMeasurementMonthStateAllowed(
     normalized: Omit<MeasurementMonthState, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<void> {
-    await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
-    if (normalized.subjectType === 'tracker' && normalized.successNote) {
-      throw new Error('Tracker month state does not support successNote')
+    const subject = await this.resolveMeasurementSubject(normalized.subjectType, normalized.subjectId)
+    if (normalized.subjectType === 'tracker') {
+      if (normalized.successNote) {
+        throw new Error('Tracker month state does not support successNote')
+      }
+      if (normalized.targetOverride) {
+        throw new Error('Tracker month state does not support targetOverride')
+      }
+      return
+    }
+
+    if (normalized.subjectType === 'keyResult') {
+      const goalMonthState = await this.getGoalMonthState(
+        normalized.monthRef,
+        (subject as KeyResult).goalId
+      )
+      if (goalMonthState?.activityState !== 'active') {
+        throw new Error('Goal must be active in this month before assigning a KeyResult to it')
+      }
+    }
+
+    if (
+      normalized.targetOverride &&
+      'target' in subject &&
+      subject.target.kind !== normalized.targetOverride.kind
+    ) {
+      throw new Error('Measurement month targetOverride must match the base target kind')
     }
   }
 
@@ -783,6 +837,15 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       if (monthState?.activityState !== 'active') {
         throw new Error('Active monthly week state requires an active month state')
       }
+      if (normalized.subjectType === 'keyResult') {
+        const goalMonthState = await this.getGoalMonthState(
+          normalized.sourceMonthRef as MonthRef,
+          (subject as KeyResult).goalId
+        )
+        if (goalMonthState?.activityState !== 'active') {
+          throw new Error('Goal must be active in the source month to assign a KeyResult week to it')
+        }
+      }
       return
     }
 
@@ -797,6 +860,21 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
 
     if (!hasActiveMonth) {
       throw new Error('Active weekly week state requires an active overlapping month state')
+    }
+
+    if (normalized.subjectType === 'keyResult') {
+      const goalMonthStates = await this.db.goalMonthStates
+        .where('goalId')
+        .equals((subject as KeyResult).goalId)
+        .toArray()
+      const hasActiveGoalMonth = goalMonthStates.some(
+        s => s.activityState === 'active' && overlappingMonths.includes(s.monthRef)
+      )
+      if (!hasActiveGoalMonth) {
+        throw new Error(
+          'Goal must be active in an overlapping month to assign a KeyResult week to it'
+        )
+      }
     }
   }
 

@@ -41,6 +41,10 @@ export interface PlanningStateRepository {
   ): Promise<MeasurementMonthState | undefined>
   listMeasurementMonthStates(): Promise<MeasurementMonthState[]>
   listMeasurementMonthStatesForMonths(monthRefs: MonthRef[]): Promise<MeasurementMonthState[]>
+  listMeasurementMonthStatesForSubject(
+    subjectType: MeasurementSubjectType,
+    subjectId: string
+  ): Promise<MeasurementMonthState[]>
   upsertMeasurementMonthState(
     data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload
   ): Promise<MeasurementMonthState>
@@ -58,6 +62,10 @@ export interface PlanningStateRepository {
   ): Promise<MeasurementWeekState | undefined>
   listMeasurementWeekStates(): Promise<MeasurementWeekState[]>
   listMeasurementWeekStatesForWeeks(weekRefs: WeekRef[]): Promise<MeasurementWeekState[]>
+  listMeasurementWeekStatesForSubject(
+    subjectType: MeasurementSubjectType,
+    subjectId: string
+  ): Promise<MeasurementWeekState[]>
   upsertMeasurementWeekState(
     data: CreateMeasurementWeekStatePayload | UpdateMeasurementWeekStatePayload
   ): Promise<MeasurementWeekState>

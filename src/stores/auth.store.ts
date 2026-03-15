@@ -34,6 +34,20 @@ export const useAuthStore = defineStore('auth', () => {
     if (isInitialized.value) return
 
     try {
+      // Dev bypass: auto-login via VITE_DEV_AUTO_LOGIN_USER_ID env variable
+      if (import.meta.env.DEV) {
+        const devUserId = import.meta.env.VITE_DEV_AUTO_LOGIN_USER_ID as string | undefined
+        if (devUserId) {
+          const devUser = await authDexieRepository.getUserById(devUserId)
+          if (devUser) {
+            user.value = { id: devUser.id, username: devUser.username, displayName: devUser.displayName }
+            await connectUserDatabase(devUser.id)
+            isInitialized.value = true
+            return
+          }
+        }
+      }
+
       const session = getSession()
       if (session) {
         // Verify user still exists

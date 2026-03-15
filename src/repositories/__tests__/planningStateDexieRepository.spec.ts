@@ -164,6 +164,80 @@ describe('planningState Dexie repository', () => {
     expect(assignment.dayRef).toBe(dayRef)
   })
 
+  it('stores target overrides for month states and rejects them for trackers', async () => {
+    const goal = await goalDexieRepository.create({
+      title: 'Improve consistency',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Ship 3 milestones',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+    const tracker = await trackerDexieRepository.create({
+      title: 'Energy score',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'value',
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef,
+      goalId: goal.id,
+      activityState: 'active',
+    })
+
+    const state = await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+      targetOverride: {
+        kind: 'count',
+        operator: 'min',
+        value: 3,
+      },
+    })
+
+    expect(state.targetOverride).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 3,
+    })
+
+    await expect(
+      planningStateDexieRepository.upsertMeasurementMonthState({
+        monthRef,
+        subjectType: 'tracker',
+        subjectId: tracker.id,
+        activityState: 'active',
+        scheduleScope: 'unassigned',
+        targetOverride: {
+          kind: 'value',
+          aggregation: 'sum',
+          operator: 'gte',
+          value: 5,
+        },
+      }),
+    ).rejects.toThrow('Failed to persist measurement month state in database')
+  })
+
   it('enforces one daily entry per subject and validates entry mode payloads', async () => {
     const goal = await goalDexieRepository.create({
       title: 'Improve delivery',

@@ -1,3 +1,4 @@
+import type { MeasurementTarget } from '@/domain/planning'
 import type { DayRef, MonthRef, PeriodRef, WeekRef } from '@/domain/period'
 import {
   assertPeriodRef,
@@ -41,6 +42,7 @@ export interface MeasurementMonthState extends PlanningStateRecordBase {
   subjectId: string
   activityState: PeriodActivityState
   scheduleScope: MonthScheduleScope
+  targetOverride?: MeasurementTarget
   successNote?: string
 }
 
@@ -170,6 +172,9 @@ const REFLECTION_PERIOD_TYPES = ['month', 'week'] as const
 const REFLECTION_SUBJECT_TYPES = ['goal', 'keyResult', 'habit', 'tracker', 'initiative'] as const
 const MONTH_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-month'] as const
 const WEEK_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-week'] as const
+const COUNT_TARGET_OPERATORS = ['min', 'max'] as const
+const COMPARISON_OPERATORS = ['gte', 'lte'] as const
+const VALUE_TARGET_AGGREGATIONS = ['sum', 'average', 'last'] as const
 
 function normalizeTrimmedText(value: unknown, fieldName: string, fallback?: string): string {
   const source = value ?? fallback
@@ -301,6 +306,105 @@ function normalizeSubjectId(value: unknown, fieldName: string, fallback?: string
   return normalizeTrimmedText(value, fieldName, fallback)
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+function normalizeFiniteNumber(value: unknown, fieldName: string, fallback?: number): number {
+  const source = value ?? fallback
+  if (typeof source !== 'number' || !Number.isFinite(source)) {
+    throw new Error(`${fieldName} must be a finite number`)
+  }
+
+  return source
+}
+
+function normalizeNonNegativeInteger(value: unknown, fieldName: string, fallback?: number): number {
+  const source = value ?? fallback
+  if (typeof source !== 'number' || !Number.isInteger(source) || source < 0) {
+    throw new Error(`${fieldName} must be a non-negative integer`)
+  }
+
+  return source
+}
+
+function normalizeMeasurementTarget(
+  value: unknown,
+  fallback?: MeasurementTarget
+): MeasurementTarget {
+  const source = value ?? fallback
+  if (!isPlainObject(source)) {
+    throw new Error('targetOverride must be an object')
+  }
+
+  const kind = normalizeEnum(
+    source.kind,
+    'targetOverride.kind',
+    ['count', 'value', 'rating'] as const,
+    fallback?.kind
+  )
+
+  switch (kind) {
+    case 'count':
+      return {
+        kind,
+        operator: normalizeEnum(
+          source.operator,
+          'targetOverride.operator',
+          COUNT_TARGET_OPERATORS,
+          fallback?.kind === 'count' ? fallback.operator : 'min'
+        ),
+        value: normalizeNonNegativeInteger(
+          source.value,
+          'targetOverride.value',
+          fallback?.kind === 'count' ? fallback.value : undefined
+        ),
+      }
+    case 'value':
+      return {
+        kind,
+        aggregation: normalizeEnum(
+          source.aggregation,
+          'targetOverride.aggregation',
+          VALUE_TARGET_AGGREGATIONS,
+          fallback?.kind === 'value' ? fallback.aggregation : 'sum'
+        ),
+        operator: normalizeEnum(
+          source.operator,
+          'targetOverride.operator',
+          COMPARISON_OPERATORS,
+          fallback?.kind === 'value' ? fallback.operator : 'gte'
+        ),
+        value: normalizeFiniteNumber(
+          source.value,
+          'targetOverride.value',
+          fallback?.kind === 'value' ? fallback.value : undefined
+        ),
+      }
+    case 'rating':
+      return {
+        kind,
+        aggregation: normalizeEnum(
+          source.aggregation,
+          'targetOverride.aggregation',
+          ['average'] as const,
+          'average'
+        ),
+        operator: normalizeEnum(
+          source.operator,
+          'targetOverride.operator',
+          COMPARISON_OPERATORS,
+          fallback?.kind === 'rating' ? fallback.operator : 'gte'
+        ),
+        value: normalizeFiniteNumber(
+          source.value,
+          'targetOverride.value',
+          fallback?.kind === 'rating' ? fallback.value : undefined
+        ),
+      }
+  }
+}
+
 function normalizeReflectionSubjectId(
   value: unknown,
   fieldName: string,
@@ -347,6 +451,14 @@ export function normalizeMeasurementMonthStatePayload(
   data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload,
   existing?: MeasurementMonthState
 ): Omit<MeasurementMonthState, 'id' | 'createdAt' | 'updatedAt'> {
+  const hasTargetOverride = Object.prototype.hasOwnProperty.call(data, 'targetOverride')
+  const targetOverride =
+    hasTargetOverride || existing?.targetOverride
+      ? hasTargetOverride && data.targetOverride === undefined
+        ? undefined
+        : normalizeMeasurementTarget(data.targetOverride, existing?.targetOverride)
+      : undefined
+
   return {
     monthRef: normalizeMonthRef(data.monthRef, 'monthRef', existing?.monthRef),
     subjectType: normalizeEnum(
@@ -368,6 +480,7 @@ export function normalizeMeasurementMonthStatePayload(
       MONTH_SCHEDULE_SCOPES,
       existing?.scheduleScope ?? 'unassigned'
     ),
+    targetOverride,
     successNote: normalizeOptionalText(data.successNote, 'successNote', existing?.successNote),
   }
 }

@@ -13,7 +13,7 @@ import {
   getWeekReflectionBundle,
   getWeekRelevantObjects,
 } from '@/services/planningStateQueries'
-import { parsePeriodRef } from '@/utils/periods'
+import { getPeriodRefsForDate, parsePeriodRef } from '@/utils/periods'
 
 describe('planningStateQueries', () => {
   beforeEach(async () => {
@@ -31,6 +31,7 @@ describe('planningStateQueries', () => {
       cadencedItems: [],
       trackerItems: [],
       initiativeItems: [],
+      rawEntries: [],
     })
     expect(await getWeekReflectionBundle(weekRef)).toMatchObject({
       weekRef,
@@ -97,6 +98,63 @@ describe('planningStateQueries', () => {
         entryCount: 2,
         evaluationStatus: 'met',
       },
+    })
+  })
+
+  it('applies month target overrides to month and week summaries', async () => {
+    const goal = await goalDexieRepository.create({
+      title: 'Ship deliberately',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Reach 2 milestones',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 2,
+      },
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef,
+      goalId: goal.id,
+      activityState: 'active',
+    })
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+      targetOverride: {
+        kind: 'count',
+        operator: 'min',
+        value: 4,
+      },
+    })
+
+    const monthBundle = await getMonthPlanningBundle(monthRef)
+    const weekBundle = await getWeekPlanningBundle(weekRef)
+
+    expect(monthBundle.measurementItems[0]?.measurement?.target).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 4,
+    })
+    expect(weekBundle.relevant.measurementItems[0]?.measurement.target).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 4,
     })
   })
 
@@ -279,5 +337,64 @@ describe('planningStateQueries', () => {
 
     expect(relevant.planning.measurementItems).toHaveLength(0)
     expect(relevant.planning.cadencedItems).toHaveLength(0)
+  })
+
+  it('shows monthly objects only in explicit weeks once they have week or day placements', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const firstWeekRef = parsePeriodRef('2026-W10') as WeekRef
+    const dayRef = parsePeriodRef('2026-03-18') as DayRef
+    const secondWeekRef = getPeriodRefsForDate(dayRef).week as WeekRef
+    const thirdWeekRef = parsePeriodRef('2026-W14') as WeekRef
+    const habit = await habitDexieRepository.create({
+      title: 'Categorize expenses',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: firstWeekRef,
+      sourceMonthRef: monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: secondWeekRef,
+      sourceMonthRef: monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
+      dayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
+
+    const firstWeek = await getWeekRelevantObjects(firstWeekRef)
+    const secondWeek = await getWeekRelevantObjects(secondWeekRef)
+    const thirdWeek = await getWeekRelevantObjects(thirdWeekRef)
+
+    expect(firstWeek.planning.measurementItems.map(item => item.subject.id)).toContain(habit.id)
+    expect(secondWeek.planning.measurementItems.map(item => item.subject.id)).toContain(habit.id)
+    expect(thirdWeek.planning.measurementItems.map(item => item.subject.id)).not.toContain(habit.id)
   })
 })

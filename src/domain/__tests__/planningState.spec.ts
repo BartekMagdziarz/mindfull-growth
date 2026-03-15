@@ -48,6 +48,41 @@ describe('planningState domain normalization', () => {
     expect(weekState.scheduleScope).toBe('whole-week')
   })
 
+  it('supports month-level target overrides and clearing them', () => {
+    const created = normalizeMeasurementMonthStatePayload({
+      monthRef: parsePeriodRef('2026-03') as CreateMeasurementMonthStatePayload['monthRef'],
+      subjectType: 'keyResult',
+      subjectId: 'kr-1',
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+      targetOverride: {
+        kind: 'count',
+        operator: 'min',
+        value: 3,
+      },
+    } satisfies CreateMeasurementMonthStatePayload)
+
+    expect(created.targetOverride).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 3,
+    })
+
+    const cleared = normalizeMeasurementMonthStatePayload(
+      {
+        targetOverride: undefined,
+      },
+      {
+        id: 'state-1',
+        createdAt: '2026-03-01T00:00:00.000Z',
+        updatedAt: '2026-03-01T00:00:00.000Z',
+        ...created,
+      },
+    )
+
+    expect(cleared.targetOverride).toBeUndefined()
+  })
+
   it('validates overlapping sourceMonthRef for week states', () => {
     expect(() =>
       normalizeMeasurementWeekStatePayload({
