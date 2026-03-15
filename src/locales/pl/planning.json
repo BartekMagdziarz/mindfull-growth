@@ -154,35 +154,89 @@
       "notePlaceholder": "Co miało znaczenie w tym okresie?",
       "saveSuccess": "Zapisano refleksję.",
       "planSuccess": "Utworzono rekord planu."
+    },
+    "planner": {
+      "eyebrow": "Planer miesięczny",
+      "title": "Zaplanuj {month}",
+      "description": "Użyj jednej zwartej przestrzeni, aby aktywować cele, key resulty, nawyki i trackery, a potem przypisać je bezpośrednio w kalendarzu.",
+      "loadError": "Nie udało się wczytać planera miesięcznego.",
+      "autosave": "Zmiany zapisują się automatycznie.",
+      "prioritiesTitle": "Priorytety",
+      "prioritiesDescription": "Te priorytety pozostają widoczne jako kontekst podczas planowania miesiąca.",
+      "goalsDescription": "Przejrzyj wszystkie otwarte cele, aktywuj te, które należą do tego miesiąca, a potem zarządzaj key resultami pod każdym celem.",
+      "habitsDescription": "Aktywuj nawyki, które chcesz mieć w tym miesiącu, i przygotuj je do przypisywania w kalendarzu.",
+      "trackersDescription": "Aktywuj trackery, które chcesz widzieć w tym miesiącu, i przypisuj je z poziomu kalendarza.",
+      "calendarTitle": "Kalendarz miesiąca",
+      "calendarDescription": "Wybierz jeden aktywny obiekt naraz, a potem przypisz go do tygodni, dni albo całego miesiąca.",
+      "assign": "Przypisz",
+      "assigned": "Przypisano",
+      "assigning": "Przypisujesz",
+      "finishAssigning": "Zakończ przypisywanie",
+      "assignmentMode": "Tryb przypisywania",
+      "assignmentIdle": "Kliknij Przypisz przy aktywnym KR-ze, nawyku albo trackerze, aby zacząć rozpisywać go w kalendarzu.",
+      "activateGoalFirst": "Najpierw aktywuj cel, aby planować jego key resulty.",
+      "emptyGoalKeyResults": "Brak otwartych key resultów pod tym celem.",
+      "goalStepDescription": "Wybierz otwarte cele, które mają być aktywne w tym miesiącu.",
+      "monthlyObjectsDescription": "Wybierz miesięczne obiekty, które mają być aktywne w tym miesiącu. Obiekty tygodniowe pojawiają się w kroku kalendarza.",
+      "monthlyCommitments": "Miesięczne zobowiązania",
+      "monthlyCommitmentsDescription": "Rozpisz aktywne miesięczne KR-y, nawyki i trackery na cały miesiąc, konkretne tygodnie lub konkretne dni.",
+      "weeklyCommitments": "Tygodniowe zobowiązania",
+      "weeklyCommitmentsDescription": "Przejrzyj wszystkie otwarte tygodniowe obiekty w kontekście tego miesiąca i przypnij je do tygodni lub dni.",
+      "wholeMonth": "Cały miesiąc",
+      "clearPlacement": "Wyczyść",
+      "clearOverride": "Reset override",
+      "overrideActive": "Aktywny jest override targetu tylko dla tego miesiąca.",
+      "overrideBase": "Używany jest bazowy target.",
+      "activate": "Aktywuj",
+      "deactivate": "Wyłącz",
+      "active": "Aktywne",
+      "inactive": "Nieaktywne",
+      "emptyPriorities": "Brak aktywnych priorytetów dla tego roku.",
+      "emptyMonthlyKeyResults": "Brak miesięcznych KR-ów z wybranych celów.",
+      "emptyMonthlyHabits": "Brak otwartych nawyków miesięcznych.",
+      "emptyMonthlyTrackers": "Brak otwartych trackerów miesięcznych.",
+      "priorityAreas": "{n} powiązane obszary życia",
+      "allAssigned": "Wszystkie {n} {category} przypisane",
+      "steps": {
+        "priorities": "Priorytety",
+        "goals": "Cele",
+        "keyResults": "KR-y",
+        "habits": "Nawyki",
+        "trackers": "Trackery",
+        "initiatives": "Inicjatywy",
+        "calendar": "Kalendarz"
+      },
+      "weekly": {
+        "eyebrow": "Planer tygodniowy",
+        "title": "Zaplanuj {week}",
+        "description": "Aktywuj i przypisuj obiekty na pojedynczy tydzień — rozpisz na konkretne dni albo zaznacz cały tydzień.",
+        "loadError": "Nie udało się wczytać planera tygodniowego.",
+        "wholeWeek": "Cały tydzień",
+        "clearPlacement": "Wyczyść",
+        "initiativePlanned": "Zaplanowane",
+        "initiativeUnplanned": "Niezaplanowane",
+        "emptyInitiatives": "Brak inicjatyw powiązanych z tym tygodniem.",
+        "dayAssignments": "{n} przypisanych dni"
+      }
     }
   },
   "today": {
-    "eyebrow": "Bieżący fokus",
-    "title": "Dzisiaj",
-    "subtitle": "Użyj dzisiejszego widoku jako wąskiej powierzchni wykonawczej dla przypisań dziennych, aktywnego tygodnia i kontekstu miesiąca.",
-    "summary": "{scheduled} zaplanowanych, {week} aktywnych w tygodniu, {month} aktywnych w miesiącu.",
     "loadError": "Nie udało się wczytać widoku Dzisiaj.",
-    "sections": {
-      "scheduled": "Zaplanowane na dziś",
-      "scheduledDescription": "Tutaj trafiają tylko obiekty explicite przypisane do dzisiaj.",
-      "week": "Aktywne w tym tygodniu",
-      "weekDescription": "Tygodniowy kontekst, który nadal ma znaczenie dzisiaj.",
-      "month": "Aktywne w tym miesiącu",
-      "monthDescription": "Miesięczny i nieprzypisany kontekst, który pozostaje operacyjnie ważny dzisiaj."
+    "columns": {
+      "goalsKrs": "Cele i KR-y",
+      "habits": "Nawyki",
+      "trackers": "Trackery",
+      "initiatives": "Inicjatywy"
     },
-    "empty": {
-      "scheduled": "Nic nie jest explicite zaplanowane na dziś.",
-      "week": "Żaden tygodniowy kontekst nie wymaga teraz uwagi.",
-      "month": "Brak aktywnego kontekstu miesięcznego."
+    "emptyColumn": "Brak aktywnych elementów",
+    "sectionLabel": {
+      "scheduled": "Dzisiaj",
+      "week": "Ten tydzień",
+      "month": "Ten miesiąc"
     },
     "details": {
       "goal": "Cel: {title}",
-      "daysLeft": "Do końca okresu: {n} dni",
-      "section": {
-        "scheduled": "Jawne przypisanie dzienne",
-        "week": "Kontekst tygodnia",
-        "month": "Kontekst miesiąca"
-      }
+      "daysLeft": "Do końca okresu: {n} dni"
     },
     "actions": {
       "recordEntry": "Zapisz dziś",
@@ -214,7 +268,8 @@
     },
     "hidden": {
       "title": "Ukryte na dziś ({n})",
-      "description": "Te elementy pozostają poza głównym feedem do jutra albo do ręcznego przywrócenia."
+      "description": "Te elementy pozostają poza głównym feedem do jutra albo do ręcznego przywrócenia.",
+      "count": "{n} ukrytych"
     },
     "deleteDialog": {
       "title": "Usuń obiekt",
@@ -288,7 +343,9 @@
       "archive": "Archiwizuj",
       "unarchive": "Przywróć",
       "showMore": "Pokaż więcej",
-      "showLess": "Pokaż mniej"
+      "showLess": "Pokaż mniej",
+      "months": "Miesiące",
+      "links": "Powiązania"
     },
     "empty": {
       "familyTitle": "Ta rodzina nie ma jeszcze żadnych obiektów.",
@@ -401,7 +458,15 @@
       "targetValue": "Wartość celu",
       "noneSelected": "Wybierz opcje",
       "lifeAreas": "Powiązane obszary życia",
-      "priorities": "Powiązane priorytety"
+      "priorities": "Powiązane priorytety",
+      "periods": "Okresy",
+      "goalTitlePlaceholder": "Tytuł celu",
+      "goalDescriptionPlaceholder": "Opis"
+    },
+    "linksDropdown": {
+      "goals": "Cele",
+      "lifeAreas": "Sfery życia",
+      "priorities": "Priorytety"
     },
     "targetOperators": {
       "min": "Co najmniej",
@@ -413,6 +478,11 @@
       "sum": "Suma",
       "average": "Średnia",
       "last": "Ostatnia wartość"
+    },
+    "chart": {
+      "noActivePeriods": "Brak aktywnych okresów",
+      "zoomOut": "Pokaż trend",
+      "zoomIn": "Pokaż szczegóły"
     }
   }
 }

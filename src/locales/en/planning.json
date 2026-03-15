@@ -154,35 +154,89 @@
       "notePlaceholder": "What mattered in this period?",
       "saveSuccess": "Reflection saved.",
       "planSuccess": "Plan record created."
+    },
+    "planner": {
+      "eyebrow": "Monthly planner",
+      "title": "Plan {month}",
+      "description": "Use one compact workspace to activate goals, key results, habits, and trackers, then assign them directly in the calendar.",
+      "loadError": "Couldn't load the monthly planner.",
+      "autosave": "Changes save automatically.",
+      "prioritiesTitle": "Priorities",
+      "prioritiesDescription": "These priorities stay visible as context while you build the month.",
+      "goalsDescription": "Review every open goal, activate the ones that belong in this month, then manage the key results under each goal.",
+      "habitsDescription": "Activate the habits you want in this month and prepare them for calendar assignment.",
+      "trackersDescription": "Activate the trackers you want visible in this month and assign them from the calendar.",
+      "calendarTitle": "Monthly calendar",
+      "calendarDescription": "Select one active object at a time, then assign it to weeks, days, or the whole month.",
+      "assign": "Assign",
+      "assigned": "Assigned",
+      "assigning": "Assigning",
+      "finishAssigning": "Finish assigning",
+      "assignmentMode": "Assignment mode",
+      "assignmentIdle": "Choose Assign on an active KR, habit, or tracker to start placing it into the calendar.",
+      "activateGoalFirst": "Activate the goal first to plan its key results.",
+      "emptyGoalKeyResults": "No open key results under this goal.",
+      "goalStepDescription": "Select the open goals you want active this month.",
+      "monthlyObjectsDescription": "Select the monthly objects you want active for this month. Weekly objects appear in the calendar step.",
+      "monthlyCommitments": "Monthly commitments",
+      "monthlyCommitmentsDescription": "Place active monthly KRs, habits, and trackers into the month, specific weeks, or specific days.",
+      "weeklyCommitments": "Weekly commitments",
+      "weeklyCommitmentsDescription": "Review all open weekly objects in the context of this month and place them into weeks or days.",
+      "wholeMonth": "Whole month",
+      "clearPlacement": "Clear",
+      "clearOverride": "Reset override",
+      "overrideActive": "A month-specific target override is active.",
+      "overrideBase": "Uses the base target.",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "active": "Active",
+      "inactive": "Inactive",
+      "emptyPriorities": "No active priorities for this year yet.",
+      "emptyMonthlyKeyResults": "No monthly key results are available from the selected goals.",
+      "emptyMonthlyHabits": "No monthly habits are open.",
+      "emptyMonthlyTrackers": "No monthly trackers are open.",
+      "priorityAreas": "{n} linked life areas",
+      "allAssigned": "All {n} {category} assigned",
+      "steps": {
+        "priorities": "Priorities",
+        "goals": "Goals",
+        "keyResults": "Key results",
+        "habits": "Habits",
+        "trackers": "Trackers",
+        "initiatives": "Initiatives",
+        "calendar": "Calendar"
+      },
+      "weekly": {
+        "eyebrow": "Weekly planner",
+        "title": "Plan {week}",
+        "description": "Activate and assign objects for a single week — place them into specific days or mark the whole week.",
+        "loadError": "Couldn't load the weekly planner.",
+        "wholeWeek": "Whole week",
+        "clearPlacement": "Clear",
+        "initiativePlanned": "Planned",
+        "initiativeUnplanned": "Unplanned",
+        "emptyInitiatives": "No initiatives are relevant to this week.",
+        "dayAssignments": "{n} day assignments"
+      }
     }
   },
   "today": {
-    "eyebrow": "Current focus",
-    "title": "Today",
-    "subtitle": "Use today as a narrow execution surface for explicit assignments, active weekly work, and monthly context.",
-    "summary": "{scheduled} scheduled, {week} active this week, {month} active this month.",
     "loadError": "Could not load Today.",
-    "sections": {
-      "scheduled": "Scheduled for today",
-      "scheduledDescription": "Only items explicitly assigned to today live here.",
-      "week": "Active this week",
-      "weekDescription": "Weekly context that still matters today.",
-      "month": "Active this month",
-      "monthDescription": "Monthly and unassigned context that remains actionable today."
+    "columns": {
+      "goalsKrs": "Goals & KRs",
+      "habits": "Habits",
+      "trackers": "Trackers",
+      "initiatives": "Initiatives"
     },
-    "empty": {
-      "scheduled": "Nothing is explicitly scheduled for today.",
-      "week": "No weekly context needs attention right now.",
-      "month": "No monthly context is active right now."
+    "emptyColumn": "No active items",
+    "sectionLabel": {
+      "scheduled": "Today",
+      "week": "This week",
+      "month": "This month"
     },
     "details": {
       "goal": "Goal: {title}",
-      "daysLeft": "{n} days left in period",
-      "section": {
-        "scheduled": "Explicit day assignment",
-        "week": "Week context",
-        "month": "Month context"
-      }
+      "daysLeft": "{n} days left in period"
     },
     "actions": {
       "recordEntry": "Record today",
@@ -214,7 +268,8 @@
     },
     "hidden": {
       "title": "Hidden for today ({n})",
-      "description": "These items stay out of the main feed until tomorrow or until you restore them."
+      "description": "These items stay out of the main feed until tomorrow or until you restore them.",
+      "count": "{n} hidden"
     },
     "deleteDialog": {
       "title": "Delete object",
@@ -288,7 +343,9 @@
       "archive": "Archive",
       "unarchive": "Unarchive",
       "showMore": "Show more",
-      "showLess": "Show less"
+      "showLess": "Show less",
+      "months": "Months",
+      "links": "Links"
     },
     "empty": {
       "familyTitle": "No objects in this family yet.",
@@ -401,7 +458,15 @@
       "targetValue": "Target value",
       "noneSelected": "Select options",
       "lifeAreas": "Linked life areas",
-      "priorities": "Linked priorities"
+      "priorities": "Linked priorities",
+      "periods": "Periods",
+      "goalTitlePlaceholder": "Goal title",
+      "goalDescriptionPlaceholder": "Description"
+    },
+    "linksDropdown": {
+      "goals": "Goals",
+      "lifeAreas": "Life Areas",
+      "priorities": "Priorities"
     },
     "targetOperators": {
       "min": "At least",
@@ -413,6 +478,11 @@
       "sum": "Sum",
       "average": "Average",
       "last": "Last value"
+    },
+    "chart": {
+      "noActivePeriods": "No active periods",
+      "zoomOut": "Show trend",
+      "zoomIn": "Show details"
     }
   }
 }
