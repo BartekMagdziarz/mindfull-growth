@@ -33,9 +33,9 @@
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.thoughtRecord.intro.howItWorks') }}</p>
           <div class="flex items-center gap-3 text-sm text-on-surface">
             <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.thoughtRecord.steps.situation') }}</span>
-            <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+            <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
             <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.thoughtRecord.steps.thoughts') }}</span>
-            <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+            <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
             <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.thoughtRecord.steps.emotions') }}</span>
           </div>
           <p class="text-xs text-on-surface-variant leading-relaxed">
@@ -149,7 +149,7 @@
               :aria-pressed="hotThoughtIndex === index"
               @click="hotThoughtIndex = index"
             >
-              <FireIcon class="w-3.5 h-3.5" />
+              <AppIcon name="local_fire_department" class="text-sm" />
             </button>
             <input
               :value="thought"
@@ -164,11 +164,11 @@
               class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
               @click="removeThought(index)"
             >
-              <XMarkIcon class="w-4 h-4" />
+              <AppIcon name="close" class="text-base" />
             </button>
           </div>
           <AppButton variant="text" @click="automaticThoughts.push('')">
-            <PlusIcon class="w-4 h-4" />
+            <AppIcon name="add" class="text-base" />
             {{ t('exerciseWizards.thoughtRecord.thoughts.addThought') }}
           </AppButton>
         </div>
@@ -180,7 +180,7 @@
             :disabled="!situation.trim() || isIdentifyLoading"
             @click="handleIdentifyThoughts"
           >
-            <SparklesIcon class="w-4 h-4" />
+            <AppIcon name="auto_awesome" class="text-base" />
             {{ isIdentifyLoading ? t('exerciseWizards.thoughtRecord.thoughts.identifyLoading') : t('exerciseWizards.thoughtRecord.thoughts.identifyLabel') }}
           </AppButton>
           <div v-if="identifySuggestions" class="neo-panel p-4 space-y-2">
@@ -231,11 +231,11 @@
               class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
               @click="evidenceFor.splice(index, 1)"
             >
-              <XMarkIcon class="w-4 h-4" />
+              <AppIcon name="close" class="text-base" />
             </button>
           </div>
           <AppButton variant="text" @click="evidenceFor.push('')">
-            <PlusIcon class="w-4 h-4" />
+            <AppIcon name="add" class="text-base" />
             {{ t('exerciseWizards.thoughtRecord.evidenceFor.addEvidence') }}
           </AppButton>
         </div>
@@ -279,11 +279,11 @@
               class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
               @click="evidenceAgainst.splice(index, 1)"
             >
-              <XMarkIcon class="w-4 h-4" />
+              <AppIcon name="close" class="text-base" />
             </button>
           </div>
           <AppButton variant="text" @click="evidenceAgainst.push('')">
-            <PlusIcon class="w-4 h-4" />
+            <AppIcon name="add" class="text-base" />
             {{ t('exerciseWizards.thoughtRecord.evidenceAgainst.addEvidence') }}
           </AppButton>
         </div>
@@ -295,7 +295,7 @@
             :disabled="isFindEvidenceLoading"
             @click="handleFindEvidence"
           >
-            <SparklesIcon class="w-4 h-4" />
+            <AppIcon name="auto_awesome" class="text-base" />
             {{ isFindEvidenceLoading ? t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLoading') : t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLabel') }}
           </AppButton>
           <div v-if="findEvidenceMessages.length > 0" class="space-y-2">
@@ -397,7 +397,7 @@
             :disabled="isReframeLoading"
             @click="handleReframeThought"
           >
-            <SparklesIcon class="w-4 h-4" />
+            <AppIcon name="auto_awesome" class="text-base" />
             {{ isReframeLoading ? t('exerciseWizards.thoughtRecord.balancedThought.reframeLoading') : t('exerciseWizards.thoughtRecord.balancedThought.reframeLabel') }}
           </AppButton>
           <div v-if="reframeSuggestions.length > 0" class="space-y-2">
@@ -468,7 +468,7 @@
                 <span class="text-on-surface-variant">
                   {{ getBeforeIntensity(er.emotionId) }}%
                 </span>
-                <ArrowRightIcon class="w-3 h-3 text-on-surface-variant" />
+                <AppIcon name="arrow_forward" class="text-xs text-on-surface-variant" />
                 <span class="font-semibold" :class="getIntensityChangeClass(er.emotionId)">
                   {{ er.intensity }}%
                 </span>
@@ -519,9 +519,9 @@
               </span>
               <span class="text-on-surface-variant">{{ getBeforeIntensity(er.emotionId) }}%</span>
               <span class="flex items-center gap-1" :class="getIntensityChangeClass(er.emotionId)">
-                <ArrowDownIcon v-if="er.intensity < getBeforeIntensity(er.emotionId)" class="w-3 h-3" />
-                <ArrowUpIcon v-else-if="er.intensity > getBeforeIntensity(er.emotionId)" class="w-3 h-3" />
-                <MinusIcon v-else class="w-3 h-3" />
+                <AppIcon v-if="er.intensity < getBeforeIntensity(er.emotionId)" name="arrow_downward" class="text-xs" />
+                <AppIcon v-else-if="er.intensity > getBeforeIntensity(er.emotionId)" name="arrow_upward" class="text-xs" />
+                <AppIcon v-else name="remove" class="text-xs" />
                 {{ er.intensity }}%
               </span>
             </div>
@@ -596,16 +596,7 @@ import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
-import {
-  ArrowRightIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  MinusIcon,
-  PlusIcon,
-  XMarkIcon,
-  FireIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const emit = defineEmits<{
   saved: [data: CreateThoughtRecordPayload]

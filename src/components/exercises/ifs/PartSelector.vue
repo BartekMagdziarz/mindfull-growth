@@ -29,7 +29,7 @@
         class="neo-focus rounded-xl p-3 border-2 border-dashed border-neu-border/30 hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-1 min-h-[80px]"
         @click="showCreateForm = !showCreateForm"
       >
-        <PlusIcon class="w-6 h-6 text-on-surface-variant" />
+        <AppIcon name="add" class="text-2xl text-on-surface-variant" />
         <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.shared.ifs.partSelector.addPart') }}</span>
       </button>
     </div>
@@ -87,7 +87,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { PlusIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import PartRoleBadge from './PartRoleBadge.vue'
 import type { IFSPart, IFSPartRole } from '@/domain/exercises'

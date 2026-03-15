@@ -6,7 +6,7 @@
         class="neo-back-btn p-2 text-neu-text neo-focus"
         @click="handleBack"
       >
-        <ArrowLeftIcon class="w-6 h-6" />
+        <AppIcon name="arrow_back" class="text-2xl" />
       </button>
       <div>
         <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.positiveDataLog.title') }}</h1>
@@ -33,7 +33,7 @@
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exercises.views.yourLogs') }}</h2>
           <AppButton variant="tonal" @click="showSetupWizard = true">
-            <PlusIcon class="w-4 h-4" />
+            <AppIcon name="add" class="text-base" />
             {{ t('exercises.views.newLog') }}
           </AppButton>
         </div>
@@ -71,7 +71,7 @@
                 <div class="flex items-center gap-2 mt-1">
                   <span class="text-xs text-on-surface-variant">Believability:</span>
                   <span class="text-xs font-semibold text-on-surface">{{ log.believabilityInitial }}%</span>
-                  <ArrowRightIcon class="w-3 h-3 text-on-surface-variant flex-shrink-0" />
+                  <AppIcon name="arrow_forward" class="text-xs text-on-surface-variant flex-shrink-0" />
                   <span
                     class="text-xs font-semibold"
                     :class="(log.believabilityLatest ?? log.believabilityInitial) < log.believabilityInitial ? 'text-success' : 'text-on-surface'"
@@ -80,7 +80,7 @@
                   </span>
                 </div>
               </div>
-              <ChevronRightIcon class="w-5 h-5 text-on-surface-variant flex-shrink-0 mt-1" />
+              <AppIcon name="chevron_right" class="text-xl text-on-surface-variant flex-shrink-0 mt-1" />
             </div>
           </AppCard>
         </div>
@@ -91,7 +91,7 @@
     <template v-else-if="selectedLog">
       <div class="mb-4">
         <AppButton variant="text" @click="selectedLogId = null">
-          <ArrowLeftIcon class="w-4 h-4" />
+          <AppIcon name="arrow_back" class="text-base" />
           {{ t('exercises.views.backToLogs') }}
         </AppButton>
       </div>
@@ -109,12 +109,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  PlusIcon,
-  ChevronRightIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PositiveDataLogWizard from '@/components/exercises/PositiveDataLogWizard.vue'

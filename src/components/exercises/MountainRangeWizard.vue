@@ -43,7 +43,7 @@
             </p>
             <div class="space-y-2">
               <div class="flex items-start gap-2">
-                <ArrowTrendingUpIcon class="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <AppIcon name="trending_up" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.mountainRange.intro.peaksName') }}</p>
                   <p class="text-xs text-on-surface-variant">
@@ -52,7 +52,7 @@
                 </div>
               </div>
               <div class="flex items-start gap-2">
-                <ArrowTrendingDownIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0 mt-0.5" />
+                <AppIcon name="trending_down" class="text-base text-on-surface-variant flex-shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.mountainRange.intro.valleysName') }}</p>
                   <p class="text-xs text-on-surface-variant">
@@ -127,7 +127,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="removePeak(index)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -136,7 +136,7 @@
             variant="text"
             @click="addPeak"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.mountainRange.peaks.addAnother') }}
           </AppButton>
         </AppCard>
@@ -210,7 +210,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="removeValley(index)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -219,7 +219,7 @@
             variant="text"
             @click="addValley"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.mountainRange.valleys.addAnother') }}
           </AppButton>
         </AppCard>
@@ -315,7 +315,7 @@
               variant="tonal"
               @click="handleSynthesisAssist"
             >
-              <SparklesIcon class="w-4 h-4 mr-1" />
+              <AppIcon name="auto_awesome" class="text-base mr-1" />
               {{ t('exerciseWizards.mountainRange.themes.analyzeButton') }}
             </AppButton>
             <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">{{ t('exerciseWizards.mountainRange.themes.thinking') }}</div>
@@ -375,7 +375,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="futurePeaks.splice(index, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -384,7 +384,7 @@
             variant="text"
             @click="futurePeaks.push({ description: '', lifeAreaId: '' })"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.mountainRange.future.addAnother') }}
           </AppButton>
 
@@ -416,13 +416,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import {
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

@@ -15,9 +15,9 @@
           @click="showDateTimePicker = true"
           :aria-label="t('journal.editor.editDateTimeLabel')"
         >
-          <CalendarIcon class="w-4 h-4" />
+          <AppIcon name="calendar_today" class="text-base" />
           <span>{{ formattedTimestamp }}</span>
-          <PencilSquareIcon class="w-3.5 h-3.5 opacity-60" />
+          <AppIcon name="edit_note" class="text-sm opacity-60" />
         </button>
       </div>
 
@@ -115,7 +115,7 @@
                     @click="removeEmotion(emotion.id)"
                   >
                     <span>{{ emotion.name }}</span>
-                    <XMarkIcon class="w-3.5 h-3.5" aria-hidden="true" />
+                    <AppIcon name="close" class="text-sm" />
                   </button>
                 </div>
               </div>
@@ -346,7 +346,7 @@ import type { Emotion, Quadrant } from '@/domain/emotion'
 import { getQuadrant } from '@/domain/emotion'
 import type { ChatIntention, ChatSession } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
-import { XMarkIcon, CalendarIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()

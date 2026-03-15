@@ -42,7 +42,7 @@
         :title="t('exercises.cards.valuesDiscovery.title')"
         :subtitle="t('exercises.cards.valuesDiscovery.subtitle')"
         :description="t('exercises.cards.valuesDiscovery.description')"
-        :icon="HeartIcon"
+        :icon="'favorite'"
         icon-bg-class="bg-pink-100"
         icon-class="text-pink-600"
         :last-completed="latestValuesDate"
@@ -53,7 +53,7 @@
         :title="t('exercises.cards.wheelOfLife.title')"
         :subtitle="t('exercises.cards.wheelOfLife.subtitle')"
         :description="t('exercises.cards.wheelOfLife.description')"
-        :icon="ChartPieIcon"
+        :icon="'pie_chart'"
         icon-bg-class="bg-primary-soft"
         icon-class="text-primary"
         :last-completed="latestWheelDate"
@@ -64,7 +64,7 @@
         :title="t('exercises.cards.shadowBeliefs.title')"
         :subtitle="t('exercises.cards.shadowBeliefs.subtitle')"
         :description="t('exercises.cards.shadowBeliefs.description')"
-        :icon="EyeIcon"
+        :icon="'visibility'"
         icon-bg-class="bg-purple-100"
         icon-class="text-purple-600"
         :last-completed="latestBeliefsDate"
@@ -75,7 +75,7 @@
         :title="t('exercises.cards.transformativePurpose.title')"
         :subtitle="t('exercises.cards.transformativePurpose.subtitle')"
         :description="t('exercises.cards.transformativePurpose.description')"
-        :icon="SparklesIcon"
+        :icon="'auto_awesome'"
         icon-bg-class="bg-amber-100"
         icon-class="text-amber-600"
         :last-completed="latestPurposeDate"
@@ -86,7 +86,7 @@
         :title="t('exercises.cards.ipipBfm50.title')"
         :subtitle="t('exercises.cards.ipipBfm50.subtitle')"
         :description="t('exercises.cards.ipipBfm50.description')"
-        :icon="ChartBarIcon"
+        :icon="'bar_chart'"
         icon-bg-class="bg-blue-100"
         icon-class="text-blue-600"
         :last-completed="latestIpipBfm50Date"
@@ -97,7 +97,7 @@
         :title="t('exercises.cards.ipipNeo120.title')"
         :subtitle="t('exercises.cards.ipipNeo120.subtitle')"
         :description="t('exercises.cards.ipipNeo120.description')"
-        :icon="DocumentTextIcon"
+        :icon="'description'"
         icon-bg-class="bg-indigo-100"
         icon-class="text-indigo-600"
         :last-completed="latestIpipNeo120Date"
@@ -108,7 +108,7 @@
         :title="t('exercises.cards.hexaco60.title')"
         :subtitle="t('exercises.cards.hexaco60.subtitle')"
         :description="t('exercises.cards.hexaco60.description')"
-        :icon="Squares2X2Icon"
+        :icon="'grid_view'"
         icon-bg-class="bg-teal-100"
         icon-class="text-teal-600"
         :last-completed="latestHexaco60Date"
@@ -119,7 +119,7 @@
         :title="t('exercises.cards.pvq40.title')"
         :subtitle="t('exercises.cards.pvq40.subtitle')"
         :description="t('exercises.cards.pvq40.description')"
-        :icon="HeartIcon"
+        :icon="'favorite'"
         icon-bg-class="bg-rose-100"
         icon-class="text-rose-600"
         :last-completed="latestPvq40Date"
@@ -130,7 +130,7 @@
         :title="t('exercises.cards.vlq.title')"
         :subtitle="t('exercises.cards.vlq.subtitle')"
         :description="t('exercises.cards.vlq.description')"
-        :icon="LightBulbIcon"
+        :icon="'lightbulb'"
         icon-bg-class="bg-emerald-100"
         icon-class="text-emerald-600"
         :last-completed="latestVlqDate"
@@ -150,7 +150,7 @@
         :title="t('exercises.cards.worryTree.title')"
         :subtitle="t('exercises.cards.worryTree.subtitle')"
         :description="t('exercises.cards.worryTree.description')"
-        :icon="ArrowsPointingOutIcon"
+        :icon="'zoom_out_map'"
         icon-bg-class="bg-teal-100"
         icon-class="text-teal-600"
         :last-completed="latestWorryTreeDate"
@@ -161,7 +161,7 @@
         :title="t('exercises.cards.cognitiveDistortions.title')"
         :subtitle="t('exercises.cards.cognitiveDistortions.subtitle')"
         :description="t('exercises.cards.cognitiveDistortions.description')"
-        :icon="PuzzlePieceIcon"
+        :icon="'extension'"
         icon-bg-class="bg-indigo-100"
         icon-class="text-indigo-600"
         :last-completed="latestDistortionDate"
@@ -173,7 +173,7 @@
         :title="t('exercises.cards.thoughtRecord.title')"
         :subtitle="t('exercises.cards.thoughtRecord.subtitle')"
         :description="t('exercises.cards.thoughtRecord.description')"
-        :icon="DocumentTextIcon"
+        :icon="'description'"
         icon-bg-class="bg-sky-100"
         icon-class="text-sky-600"
         :last-completed="latestThoughtRecordDate"
@@ -185,7 +185,7 @@
         :title="t('exercises.cards.coreBeliefs.title')"
         :subtitle="t('exercises.cards.coreBeliefs.subtitle')"
         :description="t('exercises.cards.coreBeliefs.description')"
-        :icon="LightBulbIcon"
+        :icon="'lightbulb'"
         icon-bg-class="bg-amber-100"
         icon-class="text-amber-600"
         :last-completed="latestCoreBeliefsDate"
@@ -197,7 +197,7 @@
         :title="t('exercises.cards.compassionateLetter.title')"
         :subtitle="t('exercises.cards.compassionateLetter.subtitle')"
         :description="t('exercises.cards.compassionateLetter.description')"
-        :icon="PencilSquareIcon"
+        :icon="'edit_note'"
         icon-bg-class="bg-rose-100"
         icon-class="text-rose-600"
         :last-completed="latestCompassionateLetterDate"
@@ -209,7 +209,7 @@
         :title="t('exercises.cards.positiveDataLog.title')"
         :subtitle="t('exercises.cards.positiveDataLog.subtitle')"
         :description="t('exercises.cards.positiveDataLog.description')"
-        :icon="ClipboardDocumentListIcon"
+        :icon="'assignment'"
         icon-bg-class="bg-emerald-100"
         icon-class="text-emerald-600"
         :last-completed="latestPositiveDataLogDate"
@@ -221,7 +221,7 @@
         :title="t('exercises.cards.behavioralExperiment.title')"
         :subtitle="t('exercises.cards.behavioralExperiment.subtitle')"
         :description="t('exercises.cards.behavioralExperiment.description')"
-        :icon="BeakerIcon"
+        :icon="'science'"
         icon-bg-class="bg-cyan-100"
         icon-class="text-cyan-600"
         :last-completed="latestBehavioralExperimentDate"
@@ -233,7 +233,7 @@
         :title="t('exercises.cards.behavioralActivation.title')"
         :subtitle="t('exercises.cards.behavioralActivation.subtitle')"
         :description="t('exercises.cards.behavioralActivation.description')"
-        :icon="CalendarDaysIcon"
+        :icon="'calendar_month'"
         icon-bg-class="bg-lime-100"
         icon-class="text-lime-600"
         :last-completed="latestBehavioralActivationDate"
@@ -245,7 +245,7 @@
         :title="t('exercises.cards.structuredProblemSolving.title')"
         :subtitle="t('exercises.cards.structuredProblemSolving.subtitle')"
         :description="t('exercises.cards.structuredProblemSolving.description')"
-        :icon="WrenchScrewdriverIcon"
+        :icon="'build'"
         icon-bg-class="bg-orange-100"
         icon-class="text-orange-600"
         :last-completed="latestStructuredProblemSolvingDate"
@@ -257,7 +257,7 @@
         :title="t('exercises.cards.gradedExposure.title')"
         :subtitle="t('exercises.cards.gradedExposure.subtitle')"
         :description="t('exercises.cards.gradedExposure.description')"
-        :icon="ArrowTrendingUpIcon"
+        :icon="'trending_up'"
         icon-bg-class="bg-violet-100"
         icon-class="text-violet-600"
         :last-completed="latestGradedExposureDate"
@@ -278,7 +278,7 @@
         :title="t('exercises.cards.threePathways.title')"
         :subtitle="t('exercises.cards.threePathways.subtitle')"
         :description="t('exercises.cards.threePathways.description')"
-        :icon="Squares2X2Icon"
+        :icon="'grid_view'"
         icon-bg-class="bg-emerald-100"
         icon-class="text-emerald-600"
         :last-completed="latestThreePathwaysDate"
@@ -290,7 +290,7 @@
         :title="t('exercises.cards.socraticDialogue.title')"
         :subtitle="t('exercises.cards.socraticDialogue.subtitle')"
         :description="t('exercises.cards.socraticDialogue.description')"
-        :icon="ChatBubbleLeftRightIcon"
+        :icon="'forum'"
         icon-bg-class="bg-sky-100"
         icon-class="text-sky-600"
         :last-completed="latestSocraticDialogueDate"
@@ -302,7 +302,7 @@
         :title="t('exercises.cards.mountainRange.title')"
         :subtitle="t('exercises.cards.mountainRange.subtitle')"
         :description="t('exercises.cards.mountainRange.description')"
-        :icon="ChartBarIcon"
+        :icon="'bar_chart'"
         icon-bg-class="bg-amber-100"
         icon-class="text-amber-600"
         :last-completed="latestMountainRangeDate"
@@ -314,7 +314,7 @@
         :title="t('exercises.cards.paradoxicalIntention.title')"
         :subtitle="t('exercises.cards.paradoxicalIntention.subtitle')"
         :description="t('exercises.cards.paradoxicalIntention.description')"
-        :icon="FaceSmileIcon"
+        :icon="'mood'"
         icon-bg-class="bg-yellow-100"
         icon-class="text-yellow-600"
         :last-completed="latestParadoxicalIntentionDate"
@@ -326,7 +326,7 @@
         :title="t('exercises.cards.dereflection.title')"
         :subtitle="t('exercises.cards.dereflection.subtitle')"
         :description="t('exercises.cards.dereflection.description')"
-        :icon="ArrowUturnRightIcon"
+        :icon="'redo'"
         icon-bg-class="bg-teal-100"
         icon-class="text-teal-600"
         :last-completed="latestDereflectionDate"
@@ -337,7 +337,7 @@
         :title="t('exercises.cards.tragicOptimism.title')"
         :subtitle="t('exercises.cards.tragicOptimism.subtitle')"
         :description="t('exercises.cards.tragicOptimism.description')"
-        :icon="SunIcon"
+        :icon="'wb_sunny'"
         icon-bg-class="bg-orange-100"
         icon-class="text-orange-600"
         :last-completed="latestTragicOptimismDate"
@@ -349,7 +349,7 @@
         :title="t('exercises.cards.attitudinalShift.title')"
         :subtitle="t('exercises.cards.attitudinalShift.subtitle')"
         :description="t('exercises.cards.attitudinalShift.description')"
-        :icon="ArrowPathIcon"
+        :icon="'refresh'"
         icon-bg-class="bg-indigo-100"
         icon-class="text-indigo-600"
         :last-completed="latestAttitudinalShiftDate"
@@ -361,7 +361,7 @@
         :title="t('exercises.cards.legacyLetter.title')"
         :subtitle="t('exercises.cards.legacyLetter.subtitle')"
         :description="t('exercises.cards.legacyLetter.description')"
-        :icon="EnvelopeIcon"
+        :icon="'mail'"
         icon-bg-class="bg-rose-100"
         icon-class="text-rose-600"
         :last-completed="latestLegacyLetterDate"
@@ -382,7 +382,7 @@
         :title="t('exercises.cards.partsMapping.title')"
         :subtitle="t('exercises.cards.partsMapping.subtitle')"
         :description="t('exercises.cards.partsMapping.description')"
-        :icon="MapIcon"
+        :icon="'map'"
         icon-bg-class="bg-violet-100"
         icon-class="text-violet-600"
         :last-completed="latestPartsMappingDate"
@@ -394,7 +394,7 @@
         :title="t('exercises.cards.unblending.title')"
         :subtitle="t('exercises.cards.unblending.subtitle')"
         :description="t('exercises.cards.unblending.description')"
-        :icon="ArrowsPointingInIcon"
+        :icon="'zoom_in_map'"
         icon-bg-class="bg-cyan-100"
         icon-class="text-cyan-600"
         :last-completed="latestUnblendingDate"
@@ -405,7 +405,7 @@
         :title="t('exercises.cards.directAccess.title')"
         :subtitle="t('exercises.cards.directAccess.subtitle')"
         :description="t('exercises.cards.directAccess.description')"
-        :icon="ChatBubbleLeftRightIcon"
+        :icon="'forum'"
         icon-bg-class="bg-indigo-100"
         icon-class="text-indigo-600"
         :last-completed="latestDirectAccessDate"
@@ -417,7 +417,7 @@
         :title="t('exercises.cards.trailhead.title')"
         :subtitle="t('exercises.cards.trailhead.subtitle')"
         :description="t('exercises.cards.trailhead.description')"
-        :icon="MapPinIcon"
+        :icon="'location_on'"
         icon-bg-class="bg-amber-100"
         icon-class="text-amber-600"
         :last-completed="latestTrailheadDate"
@@ -428,7 +428,7 @@
         :title="t('exercises.cards.protectorAppreciation.title')"
         :subtitle="t('exercises.cards.protectorAppreciation.subtitle')"
         :description="t('exercises.cards.protectorAppreciation.description')"
-        :icon="ShieldCheckIcon"
+        :icon="'verified_user'"
         icon-bg-class="bg-emerald-100"
         icon-class="text-emerald-600"
         :last-completed="latestProtectorAppreciationDate"
@@ -440,7 +440,7 @@
         :title="t('exercises.cards.exileWitnessing.title')"
         :subtitle="t('exercises.cards.exileWitnessing.subtitle')"
         :description="t('exercises.cards.exileWitnessing.description')"
-        :icon="HeartIcon"
+        :icon="'favorite'"
         icon-bg-class="bg-rose-100"
         icon-class="text-rose-600"
         :last-completed="latestExileWitnessingDate"
@@ -451,7 +451,7 @@
         :title="t('exercises.cards.selfEnergy.title')"
         :subtitle="t('exercises.cards.selfEnergy.subtitle')"
         :description="t('exercises.cards.selfEnergy.description')"
-        :icon="SunIcon"
+        :icon="'wb_sunny'"
         icon-bg-class="bg-yellow-100"
         icon-class="text-yellow-600"
         :last-completed="latestSelfEnergyDate"
@@ -462,7 +462,7 @@
         :title="t('exercises.cards.partsDialogue.title')"
         :subtitle="t('exercises.cards.partsDialogue.subtitle')"
         :description="t('exercises.cards.partsDialogue.description')"
-        :icon="PencilSquareIcon"
+        :icon="'edit_note'"
         icon-bg-class="bg-sky-100"
         icon-class="text-sky-600"
         :last-completed="latestPartsDialogueDate"
@@ -474,7 +474,7 @@
         :title="t('exercises.cards.dailyCheckIn.title')"
         :subtitle="t('exercises.cards.dailyCheckIn.subtitle')"
         :description="t('exercises.cards.dailyCheckIn.description')"
-        :icon="ClockIcon"
+        :icon="'schedule'"
         icon-bg-class="bg-teal-100"
         icon-class="text-teal-600"
         :last-completed="latestDailyCheckInDate"
@@ -485,7 +485,7 @@
         :title="t('exercises.cards.constellation.title')"
         :subtitle="t('exercises.cards.constellation.subtitle')"
         :description="t('exercises.cards.constellation.description')"
-        :icon="GlobeAltIcon"
+        :icon="'public'"
         icon-bg-class="bg-fuchsia-100"
         icon-class="text-fuchsia-600"
         :last-completed="latestConstellationDate"
@@ -500,36 +500,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
-import {
-  HeartIcon,
-  ChartPieIcon,
-  EyeIcon,
-  SparklesIcon,
-  ArrowsPointingOutIcon,
-  PuzzlePieceIcon,
-  DocumentTextIcon,
-  LightBulbIcon,
-  PencilSquareIcon,
-  ClipboardDocumentListIcon,
-  BeakerIcon,
-  CalendarDaysIcon,
-  WrenchScrewdriverIcon,
-  ArrowTrendingUpIcon,
-  Squares2X2Icon,
-  ChatBubbleLeftRightIcon,
-  ChartBarIcon,
-  FaceSmileIcon,
-  ArrowUturnRightIcon,
-  SunIcon,
-  ArrowPathIcon,
-  EnvelopeIcon,
-  MapIcon,
-  ArrowsPointingInIcon,
-  MapPinIcon,
-  ShieldCheckIcon,
-  ClockIcon,
-  GlobeAltIcon,
-} from '@heroicons/vue/24/outline'
 import ExerciseCard from '@/components/exercises/ExerciseCard.vue'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'

@@ -21,7 +21,7 @@
             @click="removeEmotion(emotion.id)"
           >
             <span>{{ emotion.name }}</span>
-            <XMarkIcon class="w-4 h-4" aria-hidden="true" />
+            <AppIcon name="close" class="text-base" />
           </button>
         </div>
       </div>
@@ -51,10 +51,9 @@
           @click="selectQuadrant(quadrant.value)"
         >
           <div class="flex items-center gap-2.5">
-            <component
-              :is="quadrant.icon"
-              class="w-5 h-5 flex-shrink-0"
-              aria-hidden="true"
+            <AppIcon
+              :name="quadrant.icon"
+              class="text-xl flex-shrink-0"
             />
             <div class="flex flex-col items-start">
               <span class="text-sm font-semibold leading-snug">
@@ -132,13 +131,7 @@ import { useT } from '@/composables/useT'
 import type { Quadrant, Emotion } from '@/domain/emotion'
 import { getQuadrant } from '@/domain/emotion'
 import { useEmotionStore } from '@/stores/emotion.store'
-import {
-  SunIcon,
-  BoltIcon,
-  SparklesIcon,
-  CloudIcon,
-  XMarkIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 interface Props {
   modelValue: string[]
@@ -168,28 +161,28 @@ const quadrants = computed(() => [
     label: t('emotionViews.selector.quadrants.highEnergyUnpleasant'),
     energyLabel: t('emotionViews.selector.energyLabels.high'),
     pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.unpleasant'),
-    icon: BoltIcon,
+    icon: 'bolt',
   },
   {
     value: 'high-energy-high-pleasantness' as Quadrant,
     label: t('emotionViews.selector.quadrants.highEnergyPleasant'),
     energyLabel: t('emotionViews.selector.energyLabels.high'),
     pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.pleasant'),
-    icon: SunIcon,
+    icon: 'wb_sunny',
   },
   {
     value: 'low-energy-low-pleasantness' as Quadrant,
     label: t('emotionViews.selector.quadrants.lowEnergyUnpleasant'),
     energyLabel: t('emotionViews.selector.energyLabels.low'),
     pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.unpleasant'),
-    icon: CloudIcon,
+    icon: 'cloud',
   },
   {
     value: 'low-energy-high-pleasantness' as Quadrant,
     label: t('emotionViews.selector.quadrants.lowEnergyPleasant'),
     energyLabel: t('emotionViews.selector.energyLabels.low'),
     pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.pleasant'),
-    icon: SparklesIcon,
+    icon: 'auto_awesome',
   },
 ])
 

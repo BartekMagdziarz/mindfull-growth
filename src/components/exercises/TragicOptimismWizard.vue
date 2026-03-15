@@ -47,7 +47,7 @@
           <!-- Professional guidance banner -->
           <div class="neo-warning p-4 rounded-xl border-l-4 border-orange-400">
             <div class="flex items-start gap-3">
-              <ExclamationTriangleIcon class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+              <AppIcon name="warning" class="text-xl text-orange-500 flex-shrink-0 mt-0.5" />
               <div class="text-sm text-on-surface">
                 <p class="font-semibold mb-1">{{ t('exerciseWizards.tragicOptimism.intro.warningTitle') }}</p>
                 <p>
@@ -89,7 +89,7 @@
               @click="selectedFocus = mode.value"
             >
               <div class="flex items-start gap-3">
-                <component :is="mode.icon" class="w-6 h-6 flex-shrink-0 mt-0.5" :class="mode.iconClass" />
+                <AppIcon :name="mode.icon" class="text-2xl flex-shrink-0 mt-0.5" :class="mode.iconClass" />
                 <div>
                   <p class="text-sm font-semibold text-on-surface">{{ mode.label }}</p>
                   <p class="text-xs text-on-surface-variant mt-0.5">{{ mode.description }}</p>
@@ -332,12 +332,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import {
-  ExclamationTriangleIcon,
-  HeartIcon,
-  ScaleIcon,
-  ClockIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
@@ -386,21 +381,21 @@ const focusModes = computed(() => [
     value: 'suffering' as TragicTriadFocus,
     label: t('exerciseWizards.tragicOptimism.focus.modes.suffering.label'),
     description: t('exerciseWizards.tragicOptimism.focus.modes.suffering.description'),
-    icon: HeartIcon,
+    icon: 'favorite',
     iconClass: 'text-rose-600',
   },
   {
     value: 'guilt' as TragicTriadFocus,
     label: t('exerciseWizards.tragicOptimism.focus.modes.guilt.label'),
     description: t('exerciseWizards.tragicOptimism.focus.modes.guilt.description'),
-    icon: ScaleIcon,
+    icon: 'balance',
     iconClass: 'text-amber-600',
   },
   {
     value: 'finitude' as TragicTriadFocus,
     label: t('exerciseWizards.tragicOptimism.focus.modes.finitude.label'),
     description: t('exerciseWizards.tragicOptimism.focus.modes.finitude.description'),
-    icon: ClockIcon,
+    icon: 'schedule',
     iconClass: 'text-indigo-600',
   },
 ])

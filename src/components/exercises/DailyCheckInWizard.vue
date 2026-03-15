@@ -49,7 +49,7 @@
                 @click="practiceType = practice.type"
               >
                 <div class="rounded-full w-10 h-10 flex items-center justify-center" :class="practice.bgClass">
-                  <component :is="practice.icon" class="w-5 h-5" :class="practice.iconClass" />
+                  <AppIcon :name="practice.icon" class="text-xl" :class="practice.iconClass" />
                 </div>
                 <p class="text-sm font-medium text-on-surface">{{ practice.label }}</p>
                 <p class="text-xs text-on-surface-variant">{{ practice.description }}</p>
@@ -371,7 +371,7 @@
                 class="w-full"
                 @click="requestWeeklySummary()"
               >
-                <SparklesIcon class="w-4 h-4 mr-1" />
+                <AppIcon name="auto_awesome" class="text-base mr-1" />
                 {{ t('exerciseWizards.dailyCheckIn.summary.getWeeklySummary') }}
               </AppButton>
               <div v-if="weeklySummary" class="neo-surface p-4 rounded-xl">
@@ -407,13 +407,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  CloudIcon,
-  HeartIcon,
-  SunIcon,
-  MoonIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
@@ -480,7 +474,7 @@ const practiceOptions = computed(() => [
     label: t('exerciseWizards.dailyCheckIn.selectPractice.practices.weatherReport.label'),
     description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.weatherReport.description'),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.weatherReport.duration'),
-    icon: CloudIcon,
+    icon: 'cloud',
     bgClass: 'bg-sky-50',
     iconClass: 'text-sky-600',
   },
@@ -489,7 +483,7 @@ const practiceOptions = computed(() => [
     label: t('exerciseWizards.dailyCheckIn.selectPractice.practices.gratitudeToPart.label'),
     description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.gratitudeToPart.description'),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.gratitudeToPart.duration'),
-    icon: HeartIcon,
+    icon: 'favorite',
     bgClass: 'bg-rose-50',
     iconClass: 'text-rose-600',
   },
@@ -498,7 +492,7 @@ const practiceOptions = computed(() => [
     label: t('exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.label'),
     description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.description'),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.duration'),
-    icon: SunIcon,
+    icon: 'wb_sunny',
     bgClass: 'bg-yellow-50',
     iconClass: 'text-yellow-600',
   },
@@ -507,7 +501,7 @@ const practiceOptions = computed(() => [
     label: t('exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.label'),
     description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.description'),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.duration'),
-    icon: MoonIcon,
+    icon: 'dark_mode',
     bgClass: 'bg-indigo-50',
     iconClass: 'text-indigo-600',
   },

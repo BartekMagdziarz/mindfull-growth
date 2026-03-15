@@ -2,7 +2,7 @@
   <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
     <div class="flex items-center gap-4 mb-6">
       <button class="neo-back-btn p-2 text-neu-text neo-focus" @click="router.push('/exercises')">
-        <ArrowLeftIcon class="w-6 h-6" />
+        <AppIcon name="arrow_back" class="text-2xl" />
       </button>
       <div>
         <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.gradedExposure.title') }}</h1>
@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import GradedExposureWizard from '@/components/exercises/GradedExposureWizard.vue'
 import { useGradedExposureStore } from '@/stores/gradedExposure.store'

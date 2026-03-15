@@ -43,9 +43,9 @@
             </p>
             <div class="flex items-center gap-3 text-sm text-on-surface">
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowSituation') }}</span>
-              <ArrowDownIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_downward" class="text-base text-on-surface-variant flex-shrink-0" />
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowAutomaticThought') }}</span>
-              <ArrowDownIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_downward" class="text-base text-on-surface-variant flex-shrink-0" />
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowCoreBelief') }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
@@ -138,7 +138,7 @@
             <!-- Previous downward arrow steps -->
             <template v-for="(answer, idx) in downwardArrowSteps" :key="idx">
               <div class="flex justify-center">
-                <ArrowDownIcon class="w-4 h-4 text-on-surface-variant" />
+                <AppIcon name="arrow_downward" class="text-base text-on-surface-variant" />
               </div>
               <div class="neo-embedded p-3">
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-1">
@@ -150,7 +150,7 @@
 
             <!-- Current input -->
             <div class="flex justify-center">
-              <ArrowDownIcon class="w-4 h-4 text-on-surface-variant" />
+              <AppIcon name="arrow_downward" class="text-base text-on-surface-variant" />
             </div>
             <div class="space-y-1">
               <label class="text-sm font-medium text-on-surface">
@@ -190,7 +190,7 @@
               :disabled="isDeepenerLoading"
               @click="handleDeepenerAssist"
             >
-              <SparklesIcon class="w-4 h-4" />
+              <AppIcon name="auto_awesome" class="text-base" />
               {{ isDeepenerLoading ? t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLoading') : t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLabel') }}
             </AppButton>
             <div v-if="deepenerResponse" class="neo-panel p-4">
@@ -337,11 +337,11 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="evidenceFor.splice(idx, 1)"
               >
-                <XMarkIcon class="w-5 h-5" />
+                <AppIcon name="close" class="text-xl" />
               </button>
             </div>
             <AppButton variant="text" @click="evidenceFor.push('')">
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.coreBeliefs.evidenceFor.addEvidence') }}
             </AppButton>
           </div>
@@ -393,11 +393,11 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="evidenceAgainst.splice(idx, 1)"
               >
-                <XMarkIcon class="w-5 h-5" />
+                <AppIcon name="close" class="text-xl" />
               </button>
             </div>
             <AppButton variant="text" @click="evidenceAgainst.push('')">
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.coreBeliefs.evidenceAgainst.addEvidence') }}
             </AppButton>
           </div>
@@ -477,7 +477,7 @@
               :disabled="isAlternativeLoading || !coreBelief.trim()"
               @click="handleAlternativeAssist"
             >
-              <SparklesIcon class="w-4 h-4" />
+              <AppIcon name="auto_awesome" class="text-base" />
               {{ isAlternativeLoading ? t('exerciseWizards.coreBeliefs.alternative.llmLoading') : t('exerciseWizards.coreBeliefs.alternative.llmLabel') }}
             </AppButton>
             <div v-if="alternativeMessages.length > 0" class="space-y-2">
@@ -601,7 +601,7 @@
             <div class="neo-surface p-3 space-y-2">
               <p class="text-sm text-on-surface italic">"{{ startingThought }}"</p>
               <div v-for="(answer, answerIdx) in downwardArrowSteps" :key="answerIdx" class="flex items-center gap-2">
-                <ArrowDownIcon class="w-3 h-3 text-on-surface-variant flex-shrink-0" />
+                <AppIcon name="arrow_downward" class="text-xs text-on-surface-variant flex-shrink-0" />
                 <p class="text-sm text-on-surface">"{{ answer }}"</p>
               </div>
             </div>
@@ -672,7 +672,7 @@
                 <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.coreBeliefs.summary.originalBefore') }}</p>
                 <p class="text-2xl font-bold text-on-surface">{{ believabilityBefore }}%</p>
               </div>
-              <ArrowRightIcon class="w-5 h-5 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_forward" class="text-xl text-on-surface-variant flex-shrink-0" />
               <div class="flex-1 text-center">
                 <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.coreBeliefs.summary.originalAfter') }}</p>
                 <p
@@ -710,13 +710,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import {
-  ArrowDownIcon,
-  ArrowRightIcon,
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import { useT } from '@/composables/useT'

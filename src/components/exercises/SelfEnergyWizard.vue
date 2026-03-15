@@ -71,7 +71,7 @@
             <AppCard variant="inset" padding="md" class="space-y-3">
               <div class="flex items-center gap-3">
                 <div class="neo-surface rounded-full p-2">
-                  <component :is="qualityIcon(lowestQuality)" class="w-6 h-6" :class="qualityIconColor(lowestQuality)" />
+                  <AppIcon :name="qualityIcon(lowestQuality)" class="text-2xl" :class="qualityIconColor(lowestQuality)" />
                 </div>
                 <div>
                   <p class="text-sm font-medium text-on-surface capitalize">{{ lowestQuality }}</p>
@@ -179,7 +179,7 @@
                   {{ t('exerciseWizards.selfEnergy.microPractice.compassion.description') }}
                 </p>
                 <div class="flex justify-center py-4">
-                  <HeartIcon class="w-16 h-16 text-pink-400 compassion-pulse" />
+                  <AppIcon name="favorite" class="text-[4rem] text-pink-400 compassion-pulse" />
                 </div>
                 <textarea
                   v-model="microPracticeNotes"
@@ -310,7 +310,7 @@
                 :disabled="isLoadingReview"
                 @click="requestTrendReview()"
               >
-                <SparklesIcon class="w-4 h-4 mr-1" />
+                <AppIcon name="auto_awesome" class="text-base mr-1" />
                 {{ isLoadingReview ? t('exerciseWizards.selfEnergy.summary.trendReviewLoading') : t('exerciseWizards.selfEnergy.summary.trendReviewButton') }}
               </AppButton>
 
@@ -381,16 +381,7 @@
 
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
-import {
-  CloudIcon,
-  MagnifyingGlassIcon,
-  HeartIcon,
-  EyeIcon,
-  ShieldExclamationIcon,
-  SparklesIcon,
-  StarIcon,
-  UserGroupIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { SelfEnergyQuality } from '@/domain/exercises'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -444,18 +435,18 @@ const {
 } = useSelfEnergyWizard()
 
 // Quality icon mapping
-const qualityIconMap: Record<SelfEnergyQuality, typeof CloudIcon> = {
-  calm: CloudIcon,
-  curiosity: MagnifyingGlassIcon,
-  compassion: HeartIcon,
-  clarity: EyeIcon,
-  courage: ShieldExclamationIcon,
-  creativity: SparklesIcon,
-  confidence: StarIcon,
-  connection: UserGroupIcon,
+const qualityIconMap: Record<SelfEnergyQuality, string> = {
+  calm: 'cloud',
+  curiosity: 'search',
+  compassion: 'favorite',
+  clarity: 'visibility',
+  courage: 'security',
+  creativity: 'auto_awesome',
+  confidence: 'star',
+  connection: 'group',
 }
 
-function qualityIcon(q: SelfEnergyQuality) {
+function qualityIcon(q: SelfEnergyQuality): string {
   return qualityIconMap[q]
 }
 

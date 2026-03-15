@@ -41,11 +41,11 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.intro.howItWorks') }}</p>
             <div class="flex items-center gap-3 text-sm text-on-surface flex-wrap">
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillDefine') }}</span>
-              <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillBrainstorm') }}</span>
-              <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillEvaluate') }}</span>
-              <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillChoose') }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
@@ -154,7 +154,7 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="removeSolution(sol.id)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -167,7 +167,7 @@
               :disabled="!problemStatement.trim() || isBrainstormLoading"
               @click="handleBrainstormAssist"
             >
-              <SparklesIcon class="w-4 h-4" />
+              <AppIcon name="auto_awesome" class="text-base" />
               {{ isBrainstormLoading ? t('exerciseWizards.structuredProblemSolving.brainstorm.llmLoading') : t('exerciseWizards.structuredProblemSolving.brainstorm.llmLabel') }}
             </AppButton>
             <div v-if="brainstormResponse" class="neo-panel p-4 space-y-2">
@@ -241,11 +241,11 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="sol.pros.splice(proIdx, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
             <AppButton variant="text" @click="sol.pros.push('')">
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.structuredProblemSolving.evaluate.addPro') }}
             </AppButton>
           </div>
@@ -272,11 +272,11 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="sol.cons.splice(conIdx, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
             <AppButton variant="text" @click="sol.cons.push('')">
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.structuredProblemSolving.evaluate.addCon') }}
             </AppButton>
           </div>
@@ -342,7 +342,7 @@
               :disabled="isEvaluateLoading"
               @click="handleEvaluateAssist"
             >
-              <SparklesIcon class="w-4 h-4" />
+              <AppIcon name="auto_awesome" class="text-base" />
               {{ isEvaluateLoading ? t('exerciseWizards.structuredProblemSolving.evaluate.llmLoading') : t('exerciseWizards.structuredProblemSolving.evaluate.llmLabel') }}
             </AppButton>
             <div v-if="evaluateResponse" class="neo-panel p-4 space-y-2">
@@ -457,11 +457,11 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="actionSteps.splice(idx, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
             <AppButton variant="text" @click="actionSteps.push('')">
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.structuredProblemSolving.choose.addStep') }}
             </AppButton>
           </div>
@@ -645,9 +645,10 @@
                 :key="sol.id"
                 class="flex items-center gap-2"
               >
-                <CheckCircleIcon
+                <AppIcon
                   v-if="sol.id === chosenSolutionId"
-                  class="w-4 h-4 text-primary flex-shrink-0"
+                  name="check_circle"
+                  class="text-base text-primary flex-shrink-0"
                 />
                 <span
                   v-else
@@ -777,13 +778,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import {
-  ArrowRightIcon,
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-  CheckCircleIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

@@ -43,7 +43,7 @@
             </p>
             <div class="space-y-2">
               <div class="flex items-start gap-2">
-                <HeartIcon class="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <AppIcon name="favorite" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.compassionateLetter.intro.selfKindness') }}</p>
                   <p class="text-xs text-on-surface-variant">
@@ -52,7 +52,7 @@
                 </div>
               </div>
               <div class="flex items-start gap-2">
-                <UserGroupIcon class="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <AppIcon name="group" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.compassionateLetter.intro.commonHumanity') }}</p>
                   <p class="text-xs text-on-surface-variant">
@@ -61,7 +61,7 @@
                 </div>
               </div>
               <div class="flex items-start gap-2">
-                <EyeIcon class="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <AppIcon name="visibility" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.compassionateLetter.intro.mindfulness') }}</p>
                   <p class="text-xs text-on-surface-variant">
@@ -173,11 +173,11 @@
                 class="text-on-surface-variant hover:text-error p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 @click="selfCriticalThoughts.splice(idx, 1)"
               >
-                <XMarkIcon class="w-5 h-5" />
+                <AppIcon name="close" class="text-xl" />
               </button>
             </div>
             <AppButton variant="text" @click="selfCriticalThoughts.push('')">
-              <PlusIcon class="w-4 h-4 mr-1" /> {{ t('exerciseWizards.compassionateLetter.critic.addThought') }}
+              <AppIcon name="add" class="text-base mr-1" /> {{ t('exerciseWizards.compassionateLetter.critic.addThought') }}
             </AppButton>
           </div>
         </AppCard>
@@ -222,7 +222,7 @@
               :disabled="isLlmLoading || !situation.trim() || filledSelfCriticalThoughts.length === 0"
               @click="handleCompassionateAssist"
             >
-              <SparklesIcon class="w-4 h-4 mr-1.5" />
+              <AppIcon name="auto_awesome" class="text-base mr-1.5" />
               {{ isLlmLoading ? t('exerciseWizards.compassionateLetter.response.llmLoading') : t('exerciseWizards.compassionateLetter.response.llmLabel') }}
             </AppButton>
 
@@ -276,11 +276,11 @@
                 class="text-on-surface-variant hover:text-error p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 @click="takeaways.splice(idx, 1)"
               >
-                <XMarkIcon class="w-5 h-5" />
+                <AppIcon name="close" class="text-xl" />
               </button>
             </div>
             <AppButton variant="text" @click="takeaways.push('')">
-              <PlusIcon class="w-4 h-4 mr-1" /> {{ t('exerciseWizards.compassionateLetter.takeaways.addTakeaway') }}
+              <AppIcon name="add" class="text-base mr-1" /> {{ t('exerciseWizards.compassionateLetter.takeaways.addTakeaway') }}
             </AppButton>
           </div>
         </AppCard>
@@ -390,14 +390,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import {
-  HeartIcon,
-  UserGroupIcon,
-  EyeIcon,
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

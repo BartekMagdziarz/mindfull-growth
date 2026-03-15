@@ -66,7 +66,7 @@
           class="hover:text-error transition-colors neo-focus rounded-full"
           @click="removeLocation(loc)"
         >
-          <XMarkIcon class="w-3.5 h-3.5" />
+          <AppIcon name="close" class="text-sm" />
         </button>
       </span>
     </div>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import type { IFSBodyLocation } from '@/domain/exercises'
 

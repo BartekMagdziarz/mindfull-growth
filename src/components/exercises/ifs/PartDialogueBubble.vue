@@ -28,14 +28,14 @@
         :class="isBookmarked ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'"
         @click="$emit('bookmark')"
       >
-        <BookmarkIcon class="w-4 h-4" :class="isBookmarked ? 'fill-current' : ''" />
+        <AppIcon name="bookmark" class="text-base" :class="isBookmarked ? 'fill-current' : ''" />
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { BookmarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import type { IFSDialogueMessage } from '@/domain/exercises'
 

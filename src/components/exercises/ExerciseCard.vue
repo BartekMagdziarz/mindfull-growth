@@ -7,7 +7,7 @@
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="iconBgClass">
-            <component :is="icon" class="w-5 h-5" :class="iconClass" />
+            <span class="material-symbols-outlined text-xl leading-none" :class="iconClass">{{ icon }}</span>
           </div>
           <div>
             <h3 class="text-base font-semibold text-on-surface">{{ title }}</h3>
@@ -20,7 +20,7 @@
             class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0"
             :title="t('exercises.aiAssisted')"
           >
-            <SparklesSolidIcon class="w-3.5 h-3.5 text-primary" />
+            <span class="material-symbols-outlined text-sm leading-none text-primary">auto_awesome</span>
           </span>
           <span
             v-if="lastCompleted"
@@ -36,8 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
-import { SparklesIcon as SparklesSolidIcon } from '@heroicons/vue/24/solid'
+import { computed } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import { useT } from '@/composables/useT'
 
@@ -47,7 +46,7 @@ const props = defineProps<{
   title: string
   subtitle: string
   description: string
-  icon: Component
+  icon: string
   iconBgClass?: string
   iconClass?: string
   lastCompleted?: string // ISO timestamp

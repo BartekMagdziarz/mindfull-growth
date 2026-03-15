@@ -50,8 +50,8 @@
                 class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
                 :class="hasPrerequisites ? 'bg-green-100' : 'bg-orange-100'"
               >
-                <CheckCircleIcon v-if="hasPrerequisites" class="w-5 h-5 text-green-600" />
-                <ExclamationTriangleIcon v-else class="w-5 h-5 text-orange-600" />
+                <AppIcon v-if="hasPrerequisites" name="check_circle" class="text-xl text-green-600" />
+                <AppIcon v-else name="warning" class="text-xl text-orange-600" />
               </div>
               <p class="text-sm" :class="hasPrerequisites ? 'text-on-surface' : 'text-orange-700'">
                 <template v-if="hasPrerequisites">
@@ -158,7 +158,7 @@
                     : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
                   @click="setRelationshipType(pair.partAId, pair.partBId, relType.value)"
                 >
-                  <component :is="relType.icon" class="w-3.5 h-3.5" />
+                  <AppIcon :name="relType.icon" class="text-sm" />
                   {{ relType.label }}
                 </button>
               </div>
@@ -367,7 +367,7 @@
                 :loading="isLLMLoading"
                 @click="requestAnalysis()"
               >
-                <SparklesIcon class="w-4 h-4 mr-1" />
+                <span class="material-symbols-outlined text-base leading-none mr-1">auto_awesome</span>
                 Analyze My System
               </AppButton>
 
@@ -460,15 +460,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  ArrowsRightLeftIcon,
-  UsersIcon,
-  ShieldCheckIcon,
-  MinusIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
@@ -543,13 +535,13 @@ const mappedStepIndex = computed(() => {
 const relationshipTypes: {
   value: IFSConstellationRelationType
   label: string
-  icon: typeof ArrowsRightLeftIcon
+  icon: string
   activeClass: string
 }[] = [
-  { value: 'polarized', label: 'Polarized', icon: ArrowsRightLeftIcon, activeClass: 'bg-red-100 text-red-700' },
-  { value: 'allied', label: 'Allied', icon: UsersIcon, activeClass: 'bg-blue-100 text-blue-700' },
-  { value: 'protector-exile', label: 'Protects', icon: ShieldCheckIcon, activeClass: 'bg-purple-100 text-purple-700' },
-  { value: 'no-relationship', label: 'None', icon: MinusIcon, activeClass: 'bg-neu-base text-on-surface' },
+  { value: 'polarized', label: 'Polarized', icon: 'compare_arrows', activeClass: 'bg-red-100 text-red-700' },
+  { value: 'allied', label: 'Allied', icon: 'group', activeClass: 'bg-blue-100 text-blue-700' },
+  { value: 'protector-exile', label: 'Protects', icon: 'verified_user', activeClass: 'bg-purple-100 text-purple-700' },
+  { value: 'no-relationship', label: 'None', icon: 'remove', activeClass: 'bg-neu-base text-on-surface' },
 ]
 
 const relationshipCountByType = computed(() => {

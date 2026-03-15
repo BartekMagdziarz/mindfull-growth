@@ -103,7 +103,7 @@
                   @click="protectorPermission = option.value"
                 >
                   <div class="rounded-full w-8 h-8 flex items-center justify-center shrink-0" :class="option.iconBg">
-                    <component :is="option.icon" class="w-4 h-4" :class="option.iconColor" />
+                    <AppIcon :name="option.icon" class="text-base" :class="option.iconColor" />
                   </div>
                   <div>
                     <p class="text-sm font-medium text-on-surface">{{ option.label }}</p>
@@ -410,11 +410,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  XCircleIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
@@ -488,7 +484,7 @@ const permissionOptions = computed(() => [
     value: 'okay' as const,
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.yes.label'),
     description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.yes.description'),
-    icon: CheckCircleIcon,
+    icon: 'check_circle',
     iconBg: 'bg-green-50',
     iconColor: 'text-green-600',
   },
@@ -496,7 +492,7 @@ const permissionOptions = computed(() => [
     value: 'nervous-but-willing' as const,
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.hesitant.label'),
     description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.hesitant.description'),
-    icon: ExclamationTriangleIcon,
+    icon: 'warning',
     iconBg: 'bg-yellow-50',
     iconColor: 'text-yellow-600',
   },
@@ -504,7 +500,7 @@ const permissionOptions = computed(() => [
     value: 'blocking' as const,
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.no.label'),
     description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.no.description'),
-    icon: XCircleIcon,
+    icon: 'cancel',
     iconBg: 'bg-red-50',
     iconColor: 'text-red-600',
   },

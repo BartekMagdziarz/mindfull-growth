@@ -90,7 +90,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
-              <ChatBubbleLeftIcon class="w-5 h-5 text-on-surface-variant" />
+              <AppIcon name="chat_bubble" class="text-xl text-on-surface-variant" />
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.thoughts.title') }}</h2>
             </div>
             <p class="text-sm text-on-surface-variant">
@@ -119,7 +119,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
-              <HandRaisedIcon class="w-5 h-5 text-on-surface-variant" />
+              <AppIcon name="pan_tool" class="text-xl text-on-surface-variant" />
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.sensations.title') }}</h2>
             </div>
             <p class="text-sm text-on-surface-variant">
@@ -147,7 +147,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
-              <PhotoIcon class="w-5 h-5 text-on-surface-variant" />
+              <AppIcon name="image" class="text-xl text-on-surface-variant" />
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.images.title') }}</h2>
             </div>
             <p class="text-sm text-on-surface-variant">
@@ -178,7 +178,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
-              <BoltIcon class="w-5 h-5 text-on-surface-variant" />
+              <AppIcon name="bolt" class="text-xl text-on-surface-variant" />
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.behaviors.title') }}</h2>
             </div>
             <p class="text-sm text-on-surface-variant">
@@ -206,7 +206,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <div class="flex items-center gap-2">
-              <EyeIcon class="w-5 h-5 text-on-surface-variant" />
+              <AppIcon name="visibility" class="text-xl text-on-surface-variant" />
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.perception.title') }}</h2>
             </div>
             <p class="text-sm text-on-surface-variant">
@@ -318,7 +318,7 @@
                 :disabled="isLoadingAnalysis"
                 @click="requestPatternAnalysis()"
               >
-                <SparklesIcon class="w-4 h-4 mr-1" />
+                <AppIcon name="auto_awesome" class="text-base mr-1" />
                 {{ isLoadingAnalysis ? t('exerciseWizards.trailhead.reflection.analyzingPatterns') : t('exerciseWizards.trailhead.reflection.analyzeButton') }}
               </AppButton>
 
@@ -358,14 +358,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ChatBubbleLeftIcon,
-  HandRaisedIcon,
-  PhotoIcon,
-  BoltIcon,
-  EyeIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

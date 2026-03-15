@@ -48,9 +48,9 @@
         :class="getFilterButtonClasses(true)"
         @click="toggleSortOrder"
       >
-        <component
-          :is="sortOrder === 'desc' ? ArrowDownIcon : ArrowUpIcon"
-          class="w-4 h-4 mr-1"
+        <AppIcon
+          :name="sortOrder === 'desc' ? 'arrow_downward' : 'arrow_upward'"
+          class="text-base mr-1"
         />
         {{ sortOrder === 'desc' ? t('history.filters.newest') : t('history.filters.oldest') }}
       </button>
@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { TypeFilter, DateRangeFilter, SortOrder } from '@/composables/useUnifiedEntries'
 import { useT } from '@/composables/useT'
 

@@ -25,7 +25,7 @@
               :aria-label="t('exerciseWizards.wheelOfLife.domainSelector.editArea')"
               @click="startEditing(index)"
             >
-              <PencilIcon class="w-3.5 h-3.5" />
+              <AppIcon name="edit" class="text-sm" />
             </button>
             <button
               type="button"
@@ -33,7 +33,7 @@
               :aria-label="t('exerciseWizards.wheelOfLife.domainSelector.removeArea')"
               @click="$emit('remove', index)"
             >
-              <XMarkIcon class="w-3.5 h-3.5" />
+              <AppIcon name="close" class="text-sm" />
             </button>
           </div>
         </template>
@@ -60,7 +60,7 @@
         class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-neu-border/20 text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
         @click="$emit('add', '')"
       >
-        <PlusIcon class="w-4 h-4" />
+        <AppIcon name="add" class="text-base" />
         <span class="text-sm font-medium">{{ t('exerciseWizards.wheelOfLife.domainSelector.addArea') }}</span>
       </button>
     </div>
@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
 import { useT } from '@/composables/useT'
-import { PencilIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { WheelOfLifeArea } from '@/domain/exercises'
 
 const { t } = useT()

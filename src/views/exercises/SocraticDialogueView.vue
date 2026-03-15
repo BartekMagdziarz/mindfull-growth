@@ -5,7 +5,7 @@
         class="neo-back-btn p-2 text-neu-text neo-focus"
         @click="router.push('/exercises')"
       >
-        <ArrowLeftIcon class="w-6 h-6" />
+        <AppIcon name="arrow_back" class="text-2xl" />
       </button>
       <div>
         <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.socraticDialogue.title') }}</h1>
@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import SocraticDialogueWizard from '@/components/exercises/SocraticDialogueWizard.vue'
 import { useSocraticDialogueStore } from '@/stores/socraticDialogue.store'

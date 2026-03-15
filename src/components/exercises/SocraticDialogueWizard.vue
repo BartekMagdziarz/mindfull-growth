@@ -73,7 +73,7 @@
               :class="selectedFocus === mode.value && 'neo-selector--active'"
               @click="selectedFocus = mode.value"
             >
-              <component :is="mode.icon" class="w-6 h-6 text-primary mb-2" />
+              <AppIcon :name="mode.icon" class="text-2xl text-primary mb-2" />
               <p class="text-sm font-semibold text-on-surface">{{ mode.label }}</p>
               <p class="text-xs text-on-surface-variant">{{ mode.description }}</p>
             </button>
@@ -328,14 +328,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
-import {
-  SparklesIcon,
-  CloudIcon,
-  HeartIcon,
-  ScaleIcon,
-  ArrowsRightLeftIcon,
-  PencilSquareIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
@@ -392,12 +385,12 @@ function goToStepByIndex(idx: number) {
 
 // ─── Focus State ───────────────────────────────────────────────────────────
 const focusModes = computed(() => [
-  { value: 'meaning' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.meaning.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.meaning.description'), icon: SparklesIcon },
-  { value: 'emptiness' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.description'), icon: CloudIcon },
-  { value: 'suffering' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.suffering.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.suffering.description'), icon: HeartIcon },
-  { value: 'values' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.values.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.values.description'), icon: ScaleIcon },
-  { value: 'decision' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.decision.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.decision.description'), icon: ArrowsRightLeftIcon },
-  { value: 'custom' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.other.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.other.description'), icon: PencilSquareIcon },
+  { value: 'meaning' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.meaning.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.meaning.description'), icon: 'auto_awesome' },
+  { value: 'emptiness' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.description'), icon: 'cloud' },
+  { value: 'suffering' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.suffering.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.suffering.description'), icon: 'favorite' },
+  { value: 'values' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.values.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.values.description'), icon: 'balance' },
+  { value: 'decision' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.decision.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.decision.description'), icon: 'compare_arrows' },
+  { value: 'custom' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.other.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.other.description'), icon: 'edit_note' },
 ])
 
 const selectedFocus = ref<SocraticFocus>('meaning')

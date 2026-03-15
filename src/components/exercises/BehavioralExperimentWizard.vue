@@ -43,11 +43,11 @@
             </p>
             <div class="flex items-center gap-3 text-sm text-on-surface flex-wrap">
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillBelief') }}</span>
-              <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillPredict') }}</span>
-              <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillTest') }}</span>
-              <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+              <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
               <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillLearn') }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
@@ -200,7 +200,7 @@
               :disabled="!targetBelief.trim() || !prediction.trim() || isDesignLoading"
               @click="handleDesignAssist"
             >
-              <SparklesIcon class="w-4 h-4" />
+              <AppIcon name="auto_awesome" class="text-base" />
               {{ isDesignLoading ? t('exerciseWizards.behavioralExperiment.design.llmLoading') : t('exerciseWizards.behavioralExperiment.design.llmLabel') }}
             </AppButton>
             <div v-if="designSuggestion" class="neo-panel p-4 space-y-2">
@@ -258,11 +258,11 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="removeSafetyBehavior(index)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
             <AppButton variant="text" @click="safetyBehaviors.push('')">
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.behavioralExperiment.safety.addBehavior') }}
             </AppButton>
           </div>
@@ -397,7 +397,7 @@
               <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.behavioralExperiment.summary.before') }}</p>
               <p class="text-2xl font-bold text-on-surface">{{ believabilityBefore }}%</p>
             </div>
-            <ArrowRightIcon class="w-5 h-5 text-on-surface-variant flex-shrink-0" />
+            <AppIcon name="arrow_forward" class="text-xl text-on-surface-variant flex-shrink-0" />
             <div class="flex-1 text-center">
               <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.behavioralExperiment.summary.after') }}</p>
               <p
@@ -491,12 +491,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import {
-  ArrowRightIcon,
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import { useT } from '@/composables/useT'

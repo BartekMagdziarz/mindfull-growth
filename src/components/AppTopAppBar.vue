@@ -12,7 +12,7 @@
             class="p-2 rounded-xl text-on-surface hover:bg-section active:bg-section transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background"
             aria-label="Go back"
           >
-            <ArrowLeftIcon class="w-5 h-5" />
+            <AppIcon name="arrow_back" class="text-xl" />
           </button>
           <h1 class="text-lg font-semibold text-on-surface">Mindful Growth</h1>
         </div>
@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
 interface NavItem {

@@ -191,7 +191,7 @@
                 {{ t('exerciseWizards.legacyLetter.reflect.doneButton') }}
               </AppButton>
               <AppButton variant="tonal" class="flex-1" @click="startChat">
-                <SparklesIcon class="w-4 h-4 mr-1.5 inline-block" />
+                <AppIcon name="auto_awesome" class="text-base mr-1.5" />
                 {{ t('exerciseWizards.legacyLetter.reflect.discussButton') }}
               </AppButton>
             </div>
@@ -360,7 +360,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, nextTick, onMounted } from 'vue'
-import { SparklesIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

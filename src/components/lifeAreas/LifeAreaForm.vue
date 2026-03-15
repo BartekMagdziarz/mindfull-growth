@@ -133,7 +133,7 @@
             class="p-2 text-on-surface-variant hover:text-error transition-colors"
             :aria-label="t('lifeAreas.form.removeMeasure')"
           >
-            <XMarkIcon class="w-4 h-4" />
+            <AppIcon name="close" class="text-base" />
           </button>
         </div>
       </div>
@@ -170,7 +170,7 @@
             class="p-2 text-on-surface-variant hover:text-error transition-colors"
             :aria-label="t('lifeAreas.form.removeConstraint')"
           >
-            <XMarkIcon class="w-4 h-4" />
+            <AppIcon name="close" class="text-base" />
           </button>
         </div>
       </div>
@@ -204,7 +204,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { LifeAreaMeasure, ReviewCadence } from '@/domain/lifeArea'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import { useT } from '@/composables/useT'
 

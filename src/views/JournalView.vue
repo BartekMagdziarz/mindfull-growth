@@ -10,7 +10,7 @@
       >
         <div class="flex items-start gap-4">
           <div class="flex-shrink-0 mt-1">
-            <PencilIcon class="w-8 h-8 text-primary" />
+            <AppIcon name="edit" class="text-4xl text-primary" />
           </div>
           <div class="flex-1">
             <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('journal.view.freeForm') }}</h3>
@@ -29,7 +29,7 @@
       >
         <div class="flex items-start gap-4">
           <div class="flex-shrink-0 mt-1">
-            <LightBulbIcon class="w-8 h-8 text-primary" />
+            <AppIcon name="lightbulb" class="text-4xl text-primary" />
           </div>
           <div class="flex-1">
             <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('journal.view.guided') }}</h3>
@@ -53,10 +53,7 @@ import { useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import {
-  PencilIcon,
-  LightBulbIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const router = useRouter()
 const { t } = useT()

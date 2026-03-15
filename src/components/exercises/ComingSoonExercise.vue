@@ -5,7 +5,7 @@
         class="neo-back-btn p-2 text-neu-text neo-focus"
         @click="router.push('/exercises')"
       >
-        <ArrowLeftIcon class="w-6 h-6" />
+        <AppIcon name="arrow_back" class="text-2xl" />
       </button>
       <div>
         <h1 class="text-xl font-bold text-on-surface">{{ title }}</h1>
@@ -16,7 +16,7 @@
     <AppCard padding="lg" class="space-y-4">
       <div class="flex items-center gap-3">
         <div :class="['p-3 rounded-full', iconBgClass]">
-          <component :is="icon" :class="['w-6 h-6', iconClass]" />
+          <span class="material-symbols-outlined text-2xl leading-none" :class="iconClass">{{ icon }}</span>
         </div>
         <div>
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.comingSoon.title') }}</h2>
@@ -34,18 +34,16 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import { useT } from '@/composables/useT'
-import type { Component } from 'vue'
-
 const { t } = useT()
 
 defineProps<{
   title: string
   subtitle: string
   description: string
-  icon: Component
+  icon: string
   iconBgClass: string
   iconClass: string
 }>()

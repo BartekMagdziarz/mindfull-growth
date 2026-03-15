@@ -209,7 +209,7 @@
                 @click="handleResponseMode('ai')"
               >
                 <div class="flex items-center gap-3">
-                  <SparklesIcon class="w-5 h-5 text-amber-500 shrink-0" />
+                  <AppIcon name="auto_awesome" class="text-xl text-amber-500 shrink-0" />
                   <div>
                     <span class="text-sm font-medium text-on-surface">Let AI generate a response</span>
                     <p class="text-xs text-on-surface-variant mt-0.5">Based on what you know about this part</p>
@@ -221,7 +221,7 @@
                 @click="handleResponseMode('self')"
               >
                 <div class="flex items-center gap-3">
-                  <PencilIcon class="w-5 h-5 text-primary shrink-0" />
+                  <AppIcon name="edit" class="text-xl text-primary shrink-0" />
                   <div>
                     <span class="text-sm font-medium text-on-surface">I'll write it myself</span>
                     <p class="text-xs text-on-surface-variant mt-0.5">Practice listening to what the part would say</p>
@@ -426,7 +426,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { SparklesIcon, PencilIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'

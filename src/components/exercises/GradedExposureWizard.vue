@@ -161,7 +161,7 @@
               :disabled="!newItemSituation.trim()"
               @click="addItem"
             >
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.gradedExposure.buildHierarchy.addToLadder') }}
             </AppButton>
           </div>
@@ -173,7 +173,7 @@
               :disabled="isBrainstormLoading"
               @click="handleBrainstormSteps"
             >
-              <SparklesIcon class="w-4 h-4" />
+              <AppIcon name="auto_awesome" class="text-base" />
               {{ isBrainstormLoading ? t('exerciseWizards.gradedExposure.buildHierarchy.llmLoading') : t('exerciseWizards.gradedExposure.buildHierarchy.llmLabel') }}
             </AppButton>
             <div v-if="brainstormResult" class="neo-panel p-4 space-y-2">
@@ -228,7 +228,7 @@
                   class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 mt-2"
                   @click="removeItem(item.id)"
                 >
-                  <XMarkIcon class="w-4 h-4" />
+                  <AppIcon name="close" class="text-base" />
                 </button>
               </div>
             </div>
@@ -293,11 +293,11 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="removeSafetyBehavior(index)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
             <AppButton variant="text" @click="safetyBehaviors.push('')">
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.gradedExposure.safetyBehaviors.addBehavior') }}
             </AppButton>
           </div>
@@ -427,11 +427,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import {
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import { useT } from '@/composables/useT'

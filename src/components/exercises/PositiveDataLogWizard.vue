@@ -191,7 +191,7 @@
           </span>
         </div>
         <div class="flex items-center gap-2 text-xs text-on-surface-variant">
-          <ClipboardDocumentListIcon class="w-4 h-4" />
+          <AppIcon name="assignment" class="text-base" />
           <span>{{ existingLog.entries.length === 1 ? t('exerciseWizards.positiveDataLog.log.entryLogged', { count: existingLog.entries.length }) : t('exerciseWizards.positiveDataLog.log.entriesLogged', { count: existingLog.entries.length }) }}</span>
         </div>
       </div>
@@ -239,7 +239,7 @@
               :disabled="!newEntryEvidence.trim()"
               @click="handleAddEntry"
             >
-              <PlusIcon class="w-4 h-4" />
+              <AppIcon name="add" class="text-base" />
               {{ t('exerciseWizards.positiveDataLog.log.addEvidence') }}
             </AppButton>
           </div>
@@ -275,7 +275,7 @@
             <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.positiveDataLog.log.initial') }}</p>
             <p class="font-semibold text-on-surface">{{ existingLog.believabilityInitial }}%</p>
           </div>
-          <ArrowRightIcon class="w-4 h-4 text-on-surface-variant flex-shrink-0" />
+          <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
           <div class="text-center">
             <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.positiveDataLog.log.now') }}</p>
             <p
@@ -326,7 +326,7 @@
               :aria-label="t('exerciseWizards.positiveDataLog.aria.deleteEntry')"
               @click="handleRemoveEntry(entry.id)"
             >
-              <TrashIcon class="w-4 h-4" />
+              <AppIcon name="delete" class="text-base" />
             </button>
           </div>
         </AppCard>
@@ -339,7 +339,7 @@
           :disabled="isReviewLoading"
           @click="handleReviewAssist"
         >
-          <SparklesIcon class="w-4 h-4" />
+          <AppIcon name="auto_awesome" class="text-base" />
           {{ isReviewLoading ? t('exerciseWizards.positiveDataLog.log.reviewLoading') : t('exerciseWizards.positiveDataLog.log.reviewLabel') }}
         </AppButton>
         <div v-if="reviewSummary" class="neo-panel p-4 space-y-2">
@@ -353,7 +353,7 @@
 
       <!-- Empty state for no entries yet -->
       <div v-if="sortedEntries.length === 0" class="neo-embedded p-6 text-center">
-        <ClipboardDocumentListIcon class="w-8 h-8 text-on-surface-variant mx-auto mb-2" />
+        <AppIcon name="assignment" class="text-4xl text-on-surface-variant mx-auto mb-2 block" />
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.positiveDataLog.log.noEvidenceYet') }}
         </p>
@@ -364,13 +364,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import {
-  PlusIcon,
-  TrashIcon,
-  ArrowRightIcon,
-  ClipboardDocumentListIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import { useT } from '@/composables/useT'

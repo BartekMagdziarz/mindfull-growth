@@ -21,7 +21,7 @@
               @click="removeEmotion(emotion.id)"
             >
               <span>{{ emotion.name }}</span>
-              <XMarkIcon class="w-3.5 h-3.5" aria-hidden="true" />
+              <AppIcon name="close" class="text-sm" />
             </button>
           </div>
 
@@ -58,8 +58,9 @@
             <summary
               class="text-sm text-on-surface-variant cursor-pointer hover:text-on-surface transition-colors list-none flex items-center gap-2"
             >
-              <ChevronRightIcon
-                class="w-4 h-4 transition-transform group-open:rotate-90"
+              <AppIcon
+                name="chevron_right"
+                class="text-base transition-transform group-open:rotate-90"
               />
               {{ t('emotionViews.addTagsLabel') }}
             </summary>
@@ -115,7 +116,7 @@
           class="text-primary hover:underline inline-flex items-center gap-1"
         >
           {{ t('emotionViews.viewHistory') }}
-          <ArrowRightIcon class="w-4 h-4" />
+          <AppIcon name="arrow_forward" class="text-base" />
         </router-link>
       </div>
     </div>
@@ -136,7 +137,7 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import type { Emotion, Quadrant } from '@/domain/emotion'
 import { getQuadrant } from '@/domain/emotion'
-import { XMarkIcon, ChevronRightIcon, ArrowRightIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
 const emotionLogStore = useEmotionLogStore()

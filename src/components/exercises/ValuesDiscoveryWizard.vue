@@ -39,7 +39,7 @@
               @click="draft.admirablePeople.splice(index, 1)"
               :aria-label="t('exerciseWizards.valuesDiscovery.admirablePeople.removePerson')"
             >
-              <XMarkIcon class="w-4 h-4" />
+              <AppIcon name="close" class="text-base" />
             </button>
           </div>
           <div class="ml-4 space-y-1">
@@ -57,7 +57,7 @@
                 class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
                 @click="person.qualities.splice(qi, 1)"
               >
-                <XMarkIcon class="w-3 h-3" />
+                <AppIcon name="close" class="text-xs" />
               </button>
             </div>
             <button
@@ -65,7 +65,7 @@
               class="flex items-center gap-1 text-xs text-primary hover:text-primary-strong transition-colors ml-3"
               @click="person.qualities.push('')"
             >
-              <PlusIcon class="w-3 h-3" />
+              <AppIcon name="add" class="text-xs" />
               {{ t('exerciseWizards.valuesDiscovery.admirablePeople.addQuality') }}
             </button>
           </div>
@@ -77,7 +77,7 @@
           class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
           @click="draft.admirablePeople.push({ name: '', qualities: [''] })"
         >
-          <PlusIcon class="w-4 h-4" />
+          <AppIcon name="add" class="text-base" />
           {{ t('exerciseWizards.valuesDiscovery.admirablePeople.addPerson') }}
         </button>
       </AppCard>
@@ -127,7 +127,7 @@
               class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
               @click="draft.coreValues.splice(index, 1)"
             >
-              <XMarkIcon class="w-4 h-4" />
+              <AppIcon name="close" class="text-base" />
             </button>
           </div>
           <button
@@ -135,7 +135,7 @@
             class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
             @click="draft.coreValues.push('')"
           >
-            <PlusIcon class="w-4 h-4" />
+            <AppIcon name="add" class="text-base" />
             {{ t('exerciseWizards.valuesDiscovery.coreValues.addValue') }}
           </button>
         </div>
@@ -164,7 +164,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue'
-import { PlusIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import type { AdmirablePerson } from '@/domain/exercises'

@@ -424,7 +424,7 @@
               <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.worryTree.recheck.before') }}</p>
               <p class="text-2xl font-bold text-on-surface">{{ emotionBeforeIntensity }}%</p>
             </div>
-            <ArrowRightIcon class="w-5 h-5 text-on-surface-variant flex-shrink-0" />
+            <AppIcon name="arrow_forward" class="text-xl text-on-surface-variant flex-shrink-0" />
             <div class="flex-1 text-center">
               <p class="text-xs text-on-surface-variant mb-1">{{ t('exerciseWizards.worryTree.recheck.after') }}</p>
               <p
@@ -457,7 +457,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ArrowRightIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

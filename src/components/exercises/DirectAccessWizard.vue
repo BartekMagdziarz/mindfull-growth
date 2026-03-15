@@ -82,7 +82,7 @@
                 @click="handleSelfCheck(true)"
               >
                 <div class="flex items-center gap-3">
-                  <SunIcon class="w-5 h-5 text-yellow-500 shrink-0" />
+                  <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
                   <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.options.selfEnergy') }}</span>
                 </div>
               </button>
@@ -92,7 +92,7 @@
                 @click="handleSelfCheck(false)"
               >
                 <div class="flex items-center gap-3">
-                  <ExclamationCircleIcon class="w-5 h-5 text-orange-500 shrink-0" />
+                  <AppIcon name="error" class="text-xl text-orange-500 shrink-0" />
                   <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.options.notQuite') }}</span>
                 </div>
               </button>
@@ -131,7 +131,7 @@
                     @click="selfCheckPassed = true; nextStep()"
                   >
                     <div class="flex items-center gap-3">
-                      <SunIcon class="w-5 h-5 text-yellow-500 shrink-0" />
+                      <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
                       <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.continueButton') }}</span>
                     </div>
                   </button>
@@ -426,7 +426,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onUnmounted } from 'vue'
-import { SunIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'

@@ -129,7 +129,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="statements.splice(index, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -138,7 +138,7 @@
             variant="text"
             @click="addStatement"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.attitudinalShift.statements.addAnother') }}
           </AppButton>
         </AppCard>
@@ -190,7 +190,7 @@
               variant="tonal"
               @click="handleReframeAssist"
             >
-              <SparklesIcon class="w-4 h-4 mr-1" />
+              <AppIcon name="auto_awesome" class="text-base mr-1" />
               {{ t('exerciseWizards.attitudinalShift.shift.helpButton') }}
             </AppButton>
             <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">{{ t('exerciseWizards.attitudinalShift.shift.thinking') }}</div>
@@ -392,11 +392,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import {
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

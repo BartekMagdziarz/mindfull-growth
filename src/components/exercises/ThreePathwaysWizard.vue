@@ -43,7 +43,7 @@
             </p>
             <div class="space-y-2">
               <div class="flex items-start gap-2">
-                <PencilIcon class="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <AppIcon name="edit" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.threePathways.intro.creativeName') }}</p>
                   <p class="text-xs text-on-surface-variant">
@@ -52,7 +52,7 @@
                 </div>
               </div>
               <div class="flex items-start gap-2">
-                <HeartIcon class="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <AppIcon name="favorite" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.threePathways.intro.experientialName') }}</p>
                   <p class="text-xs text-on-surface-variant">
@@ -61,7 +61,7 @@
                 </div>
               </div>
               <div class="flex items-start gap-2">
-                <ShieldCheckIcon class="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <AppIcon name="verified_user" class="text-base text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.threePathways.intro.attitudinalName') }}</p>
                   <p class="text-xs text-on-surface-variant">
@@ -133,7 +133,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="creativeValues.splice(index, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -141,7 +141,7 @@
             variant="text"
             @click="creativeValues.push({ description: '', engagementRating: 3, lifeAreaId: '' })"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.threePathways.creative.addAnother') }}
           </AppButton>
         </AppCard>
@@ -203,7 +203,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="experientialValues.splice(index, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -211,7 +211,7 @@
             variant="text"
             @click="experientialValues.push({ description: '', engagementRating: 3, lifeAreaId: '' })"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.threePathways.experiential.addAnother') }}
           </AppButton>
         </AppCard>
@@ -273,7 +273,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="attitudinalValues.splice(index, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -281,7 +281,7 @@
             variant="text"
             @click="attitudinalValues.push({ description: '', engagementRating: 3, lifeAreaId: '' })"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.threePathways.attitudinal.addAnother') }}
           </AppButton>
         </AppCard>
@@ -354,7 +354,7 @@
               variant="tonal"
               @click="handleSynthesisAssist"
             >
-              <SparklesIcon class="w-4 h-4 mr-1" />
+              <AppIcon name="auto_awesome" class="text-base mr-1" />
               {{ t('exerciseWizards.threePathways.synthesis.analyzeButton') }}
             </AppButton>
             <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">{{ t('exerciseWizards.threePathways.synthesis.thinking') }}</div>
@@ -459,14 +459,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import {
-  PencilIcon,
-  HeartIcon,
-  ShieldCheckIcon,
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

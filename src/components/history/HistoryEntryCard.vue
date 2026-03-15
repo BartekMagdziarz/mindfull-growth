@@ -10,7 +10,7 @@
         <div class="flex items-center gap-2">
           <!-- Type Badge -->
           <span :class="typeBadgeClasses">
-            <component :is="typeIcon" class="w-3.5 h-3.5" aria-hidden="true" />
+            <AppIcon :name="typeIcon" class="text-sm" />
             <span>{{ typeLabel }}</span>
           </span>
           <span class="text-sm text-on-surface-variant">
@@ -25,7 +25,7 @@
           class="flex-shrink-0 p-2 rounded-xl text-on-surface-variant hover:bg-section hover:text-error transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px] min-h-[44px] flex items-center justify-center"
           @click.stop="$emit('delete')"
         >
-          <TrashIcon v-if="!isDeleting" class="w-5 h-5" />
+          <AppIcon v-if="!isDeleting" name="delete" class="text-xl" />
           <span v-else class="text-sm">...</span>
         </button>
       </div>
@@ -112,9 +112,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
+import { computed } from 'vue'
 import AppCard from '@/components/AppCard.vue'
-import { PencilIcon, HeartIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import { useT } from '@/composables/useT'
@@ -148,8 +148,8 @@ const quadrantColors: Record<Quadrant, string> = {
   'low-energy-low-pleasantness': 'var(--color-quadrant-low-energy-low-pleasantness)',
 }
 
-const typeIcon = computed<Component>(() => {
-  return props.entry.type === 'journal' ? PencilIcon : HeartIcon
+const typeIcon = computed<string>(() => {
+  return props.entry.type === 'journal' ? 'edit' : 'favorite'
 })
 
 const typeLabel = computed(() => {

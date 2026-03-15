@@ -14,7 +14,7 @@
         :aria-label="t('common.tagInput.addNew', { type: tagTypeLower })"
         @click="startCreateTag"
       >
-        <PlusIcon class="w-4 h-4" aria-hidden="true" />
+        <AppIcon name="add" class="text-base" />
       </button>
 
       <!-- Creating New Tag (appears after + button position) -->
@@ -58,7 +58,7 @@
             :aria-label="t('common.tagInput.deleteTag', { name: tag.name })"
             @mousedown.prevent="deleteTag(tag.id)"
           >
-            <XMarkIcon class="w-3.5 h-3.5" aria-hidden="true" />
+            <AppIcon name="close" class="text-sm" />
           </button>
         </div>
 
@@ -88,7 +88,7 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import type { PeopleTag, ContextTag } from '@/domain/tag'
 import { useTagStore } from '@/stores/tag.store'
-import { XMarkIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
 interface Props {

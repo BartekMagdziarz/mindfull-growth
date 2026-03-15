@@ -146,6 +146,23 @@
       </AppButton>
     </AppCard>
 
+    <!-- Dev-only: Chart test data seed -->
+    <AppCard v-if="isDev" class="mt-6 border-2 border-dashed border-outline/30">
+      <h3 class="text-xl font-semibold text-on-surface mb-1">🛠 Dev: Chart test data</h3>
+      <p class="text-sm text-on-surface-variant mb-4">
+        Creates/removes <code class="font-mono">[DEV SEED]</code> goals, KRs, habits and trackers
+        with 6 months of history to test the Objects Library charts.
+      </p>
+      <div class="flex gap-3 flex-wrap">
+        <AppButton variant="filled" :disabled="seedBusy" @click="handleSeed">
+          {{ seedBusy ? 'Seeding…' : 'Seed chart data' }}
+        </AppButton>
+        <AppButton variant="outlined" :disabled="seedBusy" @click="handleUnseed">
+          {{ seedBusy ? 'Deleting…' : 'Delete seeded data' }}
+        </AppButton>
+      </div>
+    </AppCard>
+
     <!-- Snackbar for feedback -->
     <AppSnackbar ref="snackbarRef" />
   </div>
@@ -153,6 +170,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { seedChartTestData, deleteChartTestData } from '@/dev/chartTestSeed'
 import { useRouter } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -180,6 +198,35 @@ const languagePreference = ref<LocaleId>('en')
 const apiKeyError = ref('')
 const isSaving = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
+
+const isDev = import.meta.env.DEV
+const seedBusy = ref(false)
+
+async function handleSeed() {
+  seedBusy.value = true
+  try {
+    await seedChartTestData()
+    snackbarRef.value?.show('Chart test data seeded ✅')
+  } catch (e) {
+    console.error(e)
+    snackbarRef.value?.show('Seeding failed — check console')
+  } finally {
+    seedBusy.value = false
+  }
+}
+
+async function handleUnseed() {
+  seedBusy.value = true
+  try {
+    await deleteChartTestData()
+    snackbarRef.value?.show('Seeded data deleted ✅')
+  } catch (e) {
+    console.error(e)
+    snackbarRef.value?.show('Delete failed — check console')
+  } finally {
+    seedBusy.value = false
+  }
+}
 
 const canSave = computed(() => {
   return apiKey.value.trim().length > 0 && !apiKeyError.value && !isSaving.value

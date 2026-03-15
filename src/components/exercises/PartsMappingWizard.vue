@@ -39,21 +39,21 @@
             </p>
             <div class="neo-surface p-4 rounded-xl space-y-4">
               <div class="flex items-start gap-3">
-                <UserGroupIcon class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                <AppIcon name="group" class="text-xl text-blue-500 shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.managers.title') }}</p>
                   <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.managers.description') }}</p>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <FireIcon class="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <AppIcon name="local_fire_department" class="text-xl text-orange-500 shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.firefighters.title') }}</p>
                   <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.firefighters.description') }}</p>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <HeartIcon class="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />
+                <AppIcon name="favorite" class="text-xl text-purple-500 shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.exiles.title') }}</p>
                   <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.exiles.description') }}</p>
@@ -241,10 +241,10 @@
                 </div>
                 <div class="flex gap-1 shrink-0">
                   <button class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-primary" @click="editPart(idx)">
-                    <PencilIcon class="w-4 h-4" />
+                    <AppIcon name="edit" class="text-base" />
                   </button>
                   <button class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error" @click="removePart(idx)">
-                    <TrashIcon class="w-4 h-4" />
+                    <AppIcon name="delete" class="text-base" />
                   </button>
                 </div>
               </AppCard>
@@ -252,7 +252,7 @@
 
             <div class="flex gap-3">
               <AppButton variant="tonal" @click="addAnotherPart()">
-                <PlusIcon class="w-4 h-4 mr-1" />
+                <AppIcon name="add" class="text-base mr-1" />
                 {{ t('exerciseWizards.partsMapping.addMore.addButton') }}
               </AppButton>
             </div>
@@ -346,7 +346,7 @@
                   {{ getPartName(rel.toPartId) }}
                 </span>
                 <button class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error" @click="removeRelationship(idx)">
-                  <XMarkIcon class="w-3.5 h-3.5" />
+                  <AppIcon name="close" class="text-sm" />
                 </button>
               </div>
             </div>
@@ -379,7 +379,7 @@
               :disabled="identifiedParts.length < 2 || isLoadingLLM"
               @click="handleFetchInsight"
             >
-              <SparklesIcon class="w-4 h-4 mr-1" />
+              <AppIcon name="auto_awesome" class="text-base mr-1" />
               {{ isLoadingLLM ? t('exerciseWizards.partsMapping.reflection.aiButtonLoading') : t('exerciseWizards.partsMapping.reflection.aiButton') }}
             </AppButton>
 
@@ -533,16 +533,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import {
-  UserGroupIcon,
-  FireIcon,
-  HeartIcon,
-  PencilIcon,
-  TrashIcon,
-  PlusIcon,
-  SparklesIcon,
-  XMarkIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

@@ -5,7 +5,7 @@
         class="neo-back-btn p-2 text-neu-text neo-focus"
         @click="router.push('/exercises')"
       >
-        <ArrowLeftIcon class="w-6 h-6" />
+        <AppIcon name="arrow_back" class="text-2xl" />
       </button>
       <div>
         <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.selfEnergy.title') }}</h1>
@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { SelfEnergyQuality } from '@/domain/exercises'
 import AppCard from '@/components/AppCard.vue'
 import SelfEnergyWheel from '@/components/exercises/ifs/SelfEnergyWheel.vue'

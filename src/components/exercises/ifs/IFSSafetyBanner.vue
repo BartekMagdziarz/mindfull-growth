@@ -1,7 +1,7 @@
 <template>
   <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg">
     <div class="flex gap-3">
-      <ShieldExclamationIcon class="w-6 h-6 text-orange-500 shrink-0 mt-0.5" />
+      <AppIcon name="security" class="text-2xl text-orange-500 shrink-0 mt-0.5" />
       <div class="space-y-2">
         <h3 class="text-sm font-semibold text-orange-800">{{ t('exerciseWizards.shared.ifs.safetyBanner.heading') }}</h3>
         <p class="text-sm text-orange-700">
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ShieldExclamationIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()

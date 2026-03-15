@@ -74,7 +74,7 @@
                 @click="handleAwarenessChoice(option.value)"
               >
                 <div class="flex items-center gap-3">
-                  <component :is="option.icon" class="w-5 h-5 text-on-surface-variant shrink-0" />
+                  <AppIcon :name="option.icon" class="text-xl text-on-surface-variant shrink-0" />
                   <span class="text-sm text-on-surface">{{ option.label }}</span>
                 </div>
               </button>
@@ -131,7 +131,7 @@
                 @click="handleMagicAnswer(true)"
               >
                 <div class="flex items-center gap-3">
-                  <SunIcon class="w-5 h-5 text-yellow-500 shrink-0" />
+                  <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
                   <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.magicQuestion.options.selfEnergy') }}</span>
                 </div>
               </button>
@@ -141,7 +141,7 @@
                 @click="handleMagicAnswer(false)"
               >
                 <div class="flex items-center gap-3">
-                  <ExclamationCircleIcon class="w-5 h-5 text-orange-500 shrink-0" />
+                  <AppIcon name="error" class="text-xl text-orange-500 shrink-0" />
                   <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.magicQuestion.options.reactive') }}</span>
                 </div>
               </button>
@@ -195,7 +195,7 @@
                     @click="selfEnergyPresent = true; nextStep()"
                   >
                     <div class="flex items-center gap-3">
-                      <SunIcon class="w-5 h-5 text-yellow-500 shrink-0" />
+                      <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
                       <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.options.better') }}</span>
                     </div>
                   </button>
@@ -204,7 +204,7 @@
                     @click="nextStep()"
                   >
                     <div class="flex items-center gap-3">
-                      <ExclamationCircleIcon class="w-5 h-5 text-orange-500 shrink-0" />
+                      <AppIcon name="error" class="text-xl text-orange-500 shrink-0" />
                       <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.options.stillReactive') }}</span>
                     </div>
                   </button>
@@ -393,13 +393,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
-import {
-  SunIcon,
-  ExclamationCircleIcon,
-  ArrowRightIcon,
-  QuestionMarkCircleIcon,
-  FaceSmileIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
@@ -457,9 +451,9 @@ const {
 const awarenessChoice = ref<'yes' | 'maybe' | 'no' | null>(null)
 
 const awarenessOptions = computed(() => [
-  { value: 'yes' as const, label: t('exerciseWizards.unblending.awareness.options.yes'), icon: ArrowRightIcon },
-  { value: 'maybe' as const, label: t('exerciseWizards.unblending.awareness.options.maybe'), icon: QuestionMarkCircleIcon },
-  { value: 'no' as const, label: t('exerciseWizards.unblending.awareness.options.no'), icon: FaceSmileIcon },
+  { value: 'yes' as const, label: t('exerciseWizards.unblending.awareness.options.yes'), icon: 'arrow_forward' },
+  { value: 'maybe' as const, label: t('exerciseWizards.unblending.awareness.options.maybe'), icon: 'help' },
+  { value: 'no' as const, label: t('exerciseWizards.unblending.awareness.options.no'), icon: 'mood' },
 ])
 
 function handleAwarenessChoice(choice: 'yes' | 'maybe' | 'no') {

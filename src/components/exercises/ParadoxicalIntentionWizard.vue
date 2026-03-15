@@ -60,7 +60,7 @@
           <!-- Boundary notice (permanent, not dismissible) -->
           <div class="neo-warning p-4 rounded-xl">
             <div class="flex items-start gap-3">
-              <ExclamationTriangleIcon class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <AppIcon name="warning" class="text-xl text-amber-600 flex-shrink-0 mt-0.5" />
               <div class="text-sm text-on-surface">
                 <p class="font-semibold mb-1">{{ t('exerciseWizards.paradoxicalIntention.intro.boundaryTitle') }}</p>
                 <p>
@@ -104,7 +104,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="fears.splice(index, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
 
@@ -138,7 +138,7 @@
             variant="text"
             @click="addFear"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.paradoxicalIntention.fears.addAnother') }}
           </AppButton>
         </AppCard>
@@ -199,7 +199,7 @@
             :disabled="isLlmLoading"
             @click="handleMakeFunnier"
           >
-            <SparklesIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="auto_awesome" class="text-base mr-1" />
             {{ isLlmLoading ? t('exerciseWizards.paradoxicalIntention.craft.thinking') : t('exerciseWizards.paradoxicalIntention.craft.funnier') }}
           </AppButton>
 
@@ -332,12 +332,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import {
-  PlusIcon,
-  XMarkIcon,
-  SparklesIcon,
-  ExclamationTriangleIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

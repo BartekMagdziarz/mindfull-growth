@@ -182,7 +182,7 @@
                 class="p-1 text-on-surface-variant hover:text-error"
                 @click="redirections.splice(index, 1)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </div>
@@ -190,7 +190,7 @@
             variant="text"
             @click="redirections.push({ description: '', lifeAreaId: '' })"
           >
-            <PlusIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="add" class="text-base mr-1" />
             {{ t('exerciseWizards.dereflection.redirections.addAnother') }}
           </AppButton>
         </AppCard>
@@ -344,10 +344,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import {
-  PlusIcon,
-  XMarkIcon,
-} from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'

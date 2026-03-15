@@ -314,7 +314,7 @@
             :disabled="llmLoading"
             @click="handleLLMAssist"
           >
-            <SparklesIcon class="w-5 h-5" />
+            <AppIcon name="auto_awesome" class="text-xl" />
             {{ llmLoading ? t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLoading') : t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLabel') }}
           </AppButton>
 
@@ -400,7 +400,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import { SparklesIcon } from '@heroicons/vue/24/solid'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import { spotDistortions } from '@/services/cbtLLMAssists'

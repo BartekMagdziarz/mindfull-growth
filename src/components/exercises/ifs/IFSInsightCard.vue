@@ -13,7 +13,7 @@
         class="text-on-surface-variant/40 hover:text-error transition-colors neo-focus rounded-full p-1 shrink-0"
         @click="$emit('delete')"
       >
-        <XMarkIcon class="w-4 h-4" />
+        <AppIcon name="close" class="text-base" />
       </button>
     </div>
     <p class="text-sm text-on-surface">{{ insight.content }}</p>
@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import AppCard from '@/components/AppCard.vue'
 import type { IFSInsight } from '@/domain/exercises'

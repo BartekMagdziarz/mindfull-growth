@@ -5,7 +5,7 @@
         class="neo-back-btn p-2 text-neu-text neo-focus"
         @click="router.push('/exercises')"
       >
-        <ArrowLeftIcon class="w-6 h-6" />
+        <AppIcon name="arrow_back" class="text-2xl" />
       </button>
       <div>
         <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.thoughtRecord.title') }}</h1>
@@ -42,15 +42,17 @@
               {{ getEmotionName(er.emotionId) }}
             </span>
             <span :class="getRecordShiftClass(record, er.emotionId)">
-              <ArrowDownIcon
+              <AppIcon
                 v-if="er.intensity < getRecordBeforeIntensity(record, er.emotionId)"
-                class="w-3 h-3 inline"
+                name="arrow_downward"
+                class="text-xs inline"
               />
-              <ArrowUpIcon
+              <AppIcon
                 v-else-if="er.intensity > getRecordBeforeIntensity(record, er.emotionId)"
-                class="w-3 h-3 inline"
+                name="arrow_upward"
+                class="text-xs inline"
               />
-              <MinusIcon v-else class="w-3 h-3 inline" />
+              <AppIcon v-else name="remove" class="text-xs inline" />
             </span>
           </span>
         </div>
@@ -62,7 +64,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeftIcon, ArrowDownIcon, ArrowUpIcon, MinusIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import ThoughtRecordWizard from '@/components/exercises/ThoughtRecordWizard.vue'
 import { useThoughtRecordStore } from '@/stores/thoughtRecord.store'

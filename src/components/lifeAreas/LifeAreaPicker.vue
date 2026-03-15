@@ -20,9 +20,10 @@
           />
           <span class="font-medium text-sm">{{ area.name }}</span>
         </div>
-        <CheckIcon
+        <AppIcon
           v-if="selected.includes(area.id)"
-          class="w-5 h-5 text-primary"
+          name="check"
+          class="text-xl text-primary"
         />
       </div>
     </button>
@@ -35,7 +36,7 @@
 
 <script setup lang="ts">
 import type { LifeArea } from '@/domain/lifeArea'
-import { CheckIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import { useT } from '@/composables/useT'
 

@@ -182,7 +182,7 @@
                 :disabled="!canAddActivity"
                 @click="addActivity"
               >
-                <PlusIcon class="w-4 h-4" />
+                <AppIcon name="add" class="text-base" />
                 {{ t('exerciseWizards.behavioralActivation.planActivities.addActivity') }}
               </AppButton>
             </div>
@@ -195,7 +195,7 @@
               :disabled="isSuggestLoading"
               @click="handleSuggestActivities"
             >
-              <SparklesIcon class="w-4 h-4" />
+              <AppIcon name="auto_awesome" class="text-base" />
               {{ isSuggestLoading ? t('exerciseWizards.behavioralActivation.planActivities.suggestLoading') : t('exerciseWizards.behavioralActivation.planActivities.suggestLabel') }}
             </AppButton>
             <div v-if="suggestResult" class="neo-panel p-4 space-y-2">
@@ -242,7 +242,7 @@
                 :aria-label="`Remove ${act.activity}`"
                 @click="removeActivity(idx)"
               >
-                <XMarkIcon class="w-4 h-4" />
+                <AppIcon name="close" class="text-base" />
               </button>
             </div>
           </AppCard>
@@ -360,7 +360,7 @@
                   :aria-label="`Mark ${act.activity} as ${act.completed ? 'incomplete' : 'complete'}`"
                   @click="act.completed = !act.completed"
                 >
-                  <CheckIcon v-if="act.completed" class="w-3.5 h-3.5" />
+                  <AppIcon v-if="act.completed" name="check" class="text-sm" />
                 </button>
                 <div class="flex-1">
                   <p
@@ -429,7 +429,7 @@
             :disabled="isReviewLoading"
             @click="handleReviewWeek"
           >
-            <SparklesIcon class="w-4 h-4" />
+            <AppIcon name="auto_awesome" class="text-base" />
             {{ isReviewLoading ? t('exerciseWizards.behavioralActivation.summary.reviewLoading') : t('exerciseWizards.behavioralActivation.summary.reviewLabel') }}
           </AppButton>
           <div v-if="reviewResult" class="neo-panel p-4 space-y-2">
@@ -465,7 +465,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import { PlusIcon, XMarkIcon, CheckIcon, SparklesIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import { useT } from '@/composables/useT'

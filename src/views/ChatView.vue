@@ -8,7 +8,7 @@
         :aria-label="t('chat.goBack')"
         class="p-2"
       >
-        <ArrowLeftIcon class="w-5 h-5" />
+        <AppIcon name="arrow_back" class="text-xl" />
       </AppButton>
       <h1 class="text-xl font-medium text-on-surface flex-1">
         {{ chatTitle }}
@@ -234,7 +234,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppDialog from '@/components/AppDialog.vue'
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { JournalEntry } from '@/domain/journal'
 import type { ChatIntention } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
