@@ -92,7 +92,7 @@ export function usePlannerState(
   const calendarWeeks = computed<PlannerWeek[]>(() =>
     monthWeekRefs.value.map(weekRef => ({
       weekRef,
-      label: weekRef.slice(5),
+      label: weekRef.slice(6),
       days: (getChildPeriods(weekRef) as DayRef[]).map(dayRef => ({
         dayRef,
         label: dayRef.slice(-2),
@@ -215,6 +215,7 @@ export function usePlannerState(
         icon: row.icon,
         subjectType: row.subjectType,
         isActiveAssignment: isAssignmentActive(row),
+        groupKey: row.goalId ?? row.id,
       }))
       .sort((left, right) => {
         if (left.isActiveAssignment && !right.isActiveAssignment) return -1

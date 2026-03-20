@@ -235,6 +235,7 @@ export function useWeeklyPlannerState(
         icon: row.icon,
         subjectType: row.subjectType,
         isActiveAssignment: isAssignmentActive(row),
+        groupKey: row.goalId ?? row.id,
       }))
       .sort((left, right) => {
         if (left.isActiveAssignment && !right.isActiveAssignment) return -1

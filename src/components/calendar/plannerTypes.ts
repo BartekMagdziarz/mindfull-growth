@@ -50,6 +50,18 @@ export interface CalendarAssignmentItem {
   icon?: string
   subjectType: SubjectKind
   isActiveAssignment: boolean
+  /** Used to group items sharing the same icon (e.g. KRs from the same goal) */
+  groupKey?: string
+}
+
+/** An icon-collapsed group: one icon representing 1+ items */
+export interface CollapsedIconItem {
+  key: string
+  title: string
+  icon?: string
+  subjectType: SubjectKind
+  isActiveAssignment: boolean
+  count: number
 }
 
 export interface ActiveAssignment {

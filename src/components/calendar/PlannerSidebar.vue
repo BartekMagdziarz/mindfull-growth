@@ -1,19 +1,39 @@
 <template>
-  <div class="flex flex-col">
-    <!-- Tab bar -->
-    <div class="neo-segmented mb-3">
+  <div class="flex flex-col px-2 py-1">
+    <!-- Tab dropdown -->
+    <div class="relative mb-3">
       <button
-        v-for="tab in tabs"
-        :key="tab.key"
+        ref="triggerEl"
         type="button"
-        :class="[
-          'neo-segmented__item neo-focus',
-          activeTab === tab.key ? 'neo-segmented__item--active' : '',
-        ]"
-        @click="$emit('updateTab', tab.key)"
+        class="neo-control neo-focus flex w-full items-center justify-between gap-2 rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-on-surface"
+        @click="dropdownOpen = !dropdownOpen"
       >
-        {{ tab.label }}
+        {{ activeTabLabel }}
+        <AppIcon name="expand_more" class="text-base text-on-surface-variant transition-transform duration-200" :class="dropdownOpen ? 'rotate-180' : ''" />
       </button>
+      <Teleport to="body">
+        <div
+          v-if="dropdownOpen"
+          class="fixed inset-0 z-40"
+          @click="dropdownOpen = false"
+        />
+        <div
+          v-if="dropdownOpen"
+          class="fixed z-50 min-w-[140px] rounded-2xl border border-neu-border/30 bg-neu-base py-1 shadow-neu-raised"
+          :style="dropdownStyle"
+        >
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            type="button"
+            class="flex w-full items-center gap-2 px-3.5 py-2 text-left text-sm font-medium transition-colors duration-150 neo-focus"
+            :class="activeTab === tab.key ? 'text-primary-strong' : 'text-on-surface hover:bg-section/60'"
+            @click="$emit('updateTab', tab.key); dropdownOpen = false"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+      </Teleport>
     </div>
 
     <!-- Scrollable content -->
@@ -65,8 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useT } from '@/composables/useT'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import PlannerCategoryTab from './PlannerCategoryTab.vue'
 import PlannerCategorySummary from './PlannerCategorySummary.vue'
 import type { GoalSection, PlannerMeasurementRow } from './plannerTypes'
@@ -99,12 +120,29 @@ defineEmits<{
 const { t } = useT()
 
 const forceExpanded = ref(false)
+const dropdownOpen = ref(false)
+const triggerEl = ref<HTMLElement | null>(null)
+const dropdownStyle = ref<Record<string, string>>({})
 
 const tabs = computed(() => [
   { key: 'goals' as const, label: t('planning.calendar.planner.steps.goals') },
   { key: 'habits' as const, label: t('planning.calendar.planner.steps.habits') },
   { key: 'trackers' as const, label: t('planning.calendar.planner.steps.trackers') },
 ])
+
+const activeTabLabel = computed(() => tabs.value.find(tab => tab.key === props.activeTab)?.label ?? '')
+
+watch(dropdownOpen, async (open) => {
+  if (!open) return
+  await nextTick()
+  if (!triggerEl.value) return
+  const rect = triggerEl.value.getBoundingClientRect()
+  dropdownStyle.value = {
+    top: `${rect.bottom + 4}px`,
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+  }
+})
 
 const currentItems = computed(() => {
   if (props.activeTab === 'habits') return props.habitRows
