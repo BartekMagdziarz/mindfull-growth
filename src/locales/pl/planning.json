@@ -201,6 +201,8 @@
       "allWeeks": "Wszystkie tygodnie",
       "pickWeeks": "Wybierz tygodnie",
       "pickDays": "Wybierz dni",
+      "expandGoal": "Rozwiń cel",
+      "collapseGoal": "Zwiń cel",
       "showAdvanced": "Pokaż zaawansowane",
       "hideAdvanced": "Ukryj zaawansowane",
       "daysCompact": "{n}d",

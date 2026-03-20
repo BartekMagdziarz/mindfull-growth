@@ -83,6 +83,11 @@
                   type="button"
                   class="neo-icon-button neo-focus h-9 w-9 rounded-xl"
                   :class="isGoalExpanded(goal.id) ? 'shadow-neu-pressed text-primary' : ''"
+                  :aria-label="
+                    isGoalExpanded(goal.id)
+                      ? t('planning.calendar.planner.collapseGoal')
+                      : t('planning.calendar.planner.expandGoal')
+                  "
                   @click="toggleGoal(goal.id)"
                 >
                   <AppIcon

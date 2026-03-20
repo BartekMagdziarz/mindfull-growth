@@ -50,6 +50,7 @@ export function useWeeklyPlannerState(
   const trackerRows = ref<PlannerMeasurementRow[]>([])
   const initiativeRows = ref<PlannerInitiativeRow[]>([])
   const activeAssignment = ref<ActiveAssignment | null>(null)
+  const hasLoadedOnce = ref(false)
 
   const overlappingMonthRefs = computed(() => getWeekOverlappingMonths(weekRef.value))
   const weekDayRefs = computed(() => getChildPeriods(weekRef.value) as DayRef[])
@@ -109,7 +110,7 @@ export function useWeeklyPlannerState(
     () => weekRef.value,
     async () => {
       activeAssignment.value = null
-      await loadPlannerData()
+      await loadPlannerData({ showLoading: true })
     },
     { immediate: true }
   )
@@ -319,7 +320,7 @@ export function useWeeklyPlannerState(
     savingKey.value = key
     try {
       await action()
-      await loadPlannerData()
+      await loadPlannerData({ showLoading: false })
       await nextTick()
       if (!/jsdom/i.test(window.navigator.userAgent)) {
         requestAnimationFrame(() => {
@@ -332,8 +333,11 @@ export function useWeeklyPlannerState(
     }
   }
 
-  async function loadPlannerData(): Promise<void> {
-    isLoading.value = true
+  async function loadPlannerData(options: { showLoading?: boolean } = {}): Promise<void> {
+    const showLoading = options.showLoading ?? !hasLoadedOnce.value
+    if (showLoading) {
+      isLoading.value = true
+    }
     loadError.value = null
 
     try {
@@ -464,6 +468,7 @@ export function useWeeklyPlannerState(
           activeAssignment.value = null
         }
       }
+      hasLoadedOnce.value = true
     } catch (error) {
       loadError.value = error instanceof Error ? error.message : String(error)
     } finally {

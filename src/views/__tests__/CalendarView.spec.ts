@@ -425,6 +425,112 @@ describe('CalendarView', () => {
     })
   })
 
+  it('keeps an expanded goal open while toggling a key result state', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const goal = await goalDexieRepository.create({
+      title: 'Keep goal open',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Single KR',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+
+    const router = createTestRouter()
+    await router.push(`/calendar/month/${monthRef}`)
+    await router.isReady()
+
+    render(CalendarView, {
+      props: {
+        scale: 'month',
+        periodRef: monthRef,
+      },
+      global: {
+        plugins: [router],
+      },
+    })
+
+    await fireEvent.click(await screen.findByRole('button', { name: /create plan/i }))
+    await waitFor(() => {
+      expect(screen.getByTestId('monthly-planner')).toBeInTheDocument()
+    })
+    await waitFor(() => {
+      expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
+    })
+
+    const planner = () => screen.getByTestId('monthly-planner')
+
+    await waitFor(() => {
+      expect(
+        within(planner()).queryByRole('heading', { name: 'Loading...' })
+      ).not.toBeInTheDocument()
+    })
+
+    const goalRow = within(planner()).getByText(goal.title).closest('article')
+    expect(goalRow).toBeTruthy()
+    await fireEvent.click(within(goalRow as HTMLElement).getByRole('button', { name: 'Activate' }))
+
+    await waitFor(async () => {
+      expect(await planningStateDexieRepository.getGoalMonthState(monthRef, goal.id)).toBeTruthy()
+    })
+
+    const refreshedGoalRow = within(planner()).getByText(goal.title).closest('article')
+    expect(refreshedGoalRow).toBeTruthy()
+    await fireEvent.click(
+      within(refreshedGoalRow as HTMLElement).getByRole('button', { name: 'Expand goal' })
+    )
+
+    await waitFor(() => {
+      expect(within(planner()).getByText(keyResult.title)).toBeInTheDocument()
+    })
+
+    const keyResultRow = within(planner()).getByText(keyResult.title).closest('article')
+    expect(keyResultRow).toBeTruthy()
+    await fireEvent.click(within(keyResultRow as HTMLElement).getByRole('button', { name: 'Activate' }))
+
+    await waitFor(async () => {
+      expect(
+        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'keyResult', keyResult.id)
+      ).toBeTruthy()
+    })
+
+    await waitFor(() => {
+      const row = within(planner()).getByText(keyResult.title).closest('article')
+      expect(row).toBeTruthy()
+      expect(within(row as HTMLElement).getByRole('button', { name: 'Deactivate' })).toBeInTheDocument()
+    })
+
+    const activeKeyResultRow = within(planner()).getByText(keyResult.title).closest('article')
+    expect(activeKeyResultRow).toBeTruthy()
+    await fireEvent.click(
+      within(activeKeyResultRow as HTMLElement).getByRole('button', { name: 'Deactivate' })
+    )
+
+    await waitFor(async () => {
+      expect(
+        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'keyResult', keyResult.id)
+      ).toBeUndefined()
+    })
+
+    await waitFor(() => {
+      const row = within(planner()).getByText(keyResult.title).closest('article')
+      expect(row).toBeTruthy()
+      expect(within(row as HTMLElement).getByRole('button', { name: 'Activate' })).toBeInTheDocument()
+    })
+  })
+
   it('reflects day assignments inside the monthly planner calendar', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const habit = await habitDexieRepository.create({

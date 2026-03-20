@@ -50,6 +50,7 @@ export function usePlannerState(
   const habitRows = ref<PlannerMeasurementRow[]>([])
   const trackerRows = ref<PlannerMeasurementRow[]>([])
   const activeAssignment = ref<ActiveAssignment | null>(null)
+  const hasLoadedOnce = ref(false)
 
   const monthWeekRefs = computed(() => getChildPeriods(monthRef.value) as WeekRef[])
   const monthWeekRefSet = computed(() => new Set(monthWeekRefs.value))
@@ -111,7 +112,7 @@ export function usePlannerState(
     () => monthRef.value,
     async () => {
       activeAssignment.value = null
-      await loadPlannerData()
+      await loadPlannerData({ showLoading: true })
     },
     { immediate: true }
   )
@@ -298,7 +299,7 @@ export function usePlannerState(
     savingKey.value = key
     try {
       await action()
-      await loadPlannerData()
+      await loadPlannerData({ showLoading: false })
       await nextTick()
       if (!/jsdom/i.test(window.navigator.userAgent)) {
         requestAnimationFrame(() => {
@@ -311,8 +312,11 @@ export function usePlannerState(
     }
   }
 
-  async function loadPlannerData(): Promise<void> {
-    isLoading.value = true
+  async function loadPlannerData(options: { showLoading?: boolean } = {}): Promise<void> {
+    const showLoading = options.showLoading ?? !hasLoadedOnce.value
+    if (showLoading) {
+      isLoading.value = true
+    }
     loadError.value = null
 
     try {
@@ -404,6 +408,7 @@ export function usePlannerState(
           activeAssignment.value = null
         }
       }
+      hasLoadedOnce.value = true
     } catch (error) {
       loadError.value = error instanceof Error ? error.message : String(error)
     } finally {

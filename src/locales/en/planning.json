@@ -201,6 +201,8 @@
       "allWeeks": "All weeks",
       "pickWeeks": "Pick weeks",
       "pickDays": "Pick days",
+      "expandGoal": "Expand goal",
+      "collapseGoal": "Collapse goal",
       "showAdvanced": "Show advanced",
       "hideAdvanced": "Hide advanced",
       "daysCompact": "{n}d",
