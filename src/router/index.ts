@@ -25,14 +25,16 @@ const router = createRouter({
     // Protected routes
     {
       path: '/today',
-      name: 'today',
-      component: () => import('@/views/TodayView.vue'),
+      redirect: () => {
+        const { day } = getPeriodRefsForDate(new Date())
+        return { name: 'calendar-day', params: { dayRef: day } }
+      },
     },
     {
       path: '/calendar',
       redirect: () => {
-        const { week } = getPeriodRefsForDate(new Date())
-        return { name: 'calendar-week', params: { weekRef: week } }
+        const { day } = getPeriodRefsForDate(new Date())
+        return { name: 'calendar-day', params: { dayRef: day } }
       },
     },
     {
@@ -56,8 +58,8 @@ const router = createRouter({
     {
       path: '/calendar/day/:dayRef',
       name: 'calendar-day',
-      component: () => import('@/views/CalendarView.vue'),
-      props: route => ({ scale: 'day', periodRef: route.params.dayRef }),
+      component: () => import('@/views/TodayView.vue'),
+      props: route => ({ dayRef: route.params.dayRef }),
     },
     {
       path: '/objects',

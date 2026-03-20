@@ -90,52 +90,72 @@
         />
 
         <template v-else>
-          <MonthlyPlanner
-            v-if="showMonthlyPlanner && activeMonthRef"
+          <MonthlyReflectionWizard
+            v-if="showMonthlyReflection && activeMonthRef"
             :month-ref="activeMonthRef"
-            @close="closeMonthlyPlanner"
-            @updated="handleMonthlyPlannerUpdated"
+            @close="closeMonthlyReflection"
+            @updated="handleMonthlyReflectionUpdated"
           />
 
-          <WeeklyPlanner
-            v-else-if="showWeeklyPlanner && activeWeekRef"
+          <WeeklyReflectionWizard
+            v-else-if="showWeeklyReflection && activeWeekRef"
             :week-ref="activeWeekRef"
-            @close="closeWeeklyPlanner"
-            @updated="handleWeeklyPlannerUpdated"
+            @close="closeWeeklyReflection"
+            @updated="handleWeeklyReflectionUpdated"
           />
 
-          <section v-else-if="showSummaryMetrics" class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
-            <div
-              v-for="metric in summaryMetrics"
-              :key="metric.label"
-              class="neo-inset rounded-[1.75rem] px-5 py-4"
+          <template v-else>
+            <MonthlyPlanner
+              v-if="scale === 'month' && activeMonthRef"
+              :month-ref="activeMonthRef"
+              :show-sidebar="showMonthlyPlanner"
+              @close="closeMonthlyPlanner"
+              @updated="handleMonthlyPlannerUpdated"
+            />
+
+            <WeeklyPlanner
+              v-else-if="scale === 'week' && activeWeekRef"
+              :week-ref="activeWeekRef"
+              :show-sidebar="showWeeklyPlanner"
+              @close="closeWeeklyPlanner"
+              @updated="handleWeeklyPlannerUpdated"
+            />
+
+            <section
+              v-if="showSummaryMetrics && scale !== 'month' && scale !== 'week'"
+              class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4"
             >
-              <p class="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-                {{ metric.label }}
-              </p>
-              <p class="mt-3 text-2xl font-semibold text-on-surface">
-                {{ metric.value }}
-              </p>
-            </div>
-          </section>
+              <div
+                v-for="metric in summaryMetrics"
+                :key="metric.label"
+                class="neo-inset rounded-[1.75rem] px-5 py-4"
+              >
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+                  {{ metric.label }}
+                </p>
+                <p class="mt-3 text-2xl font-semibold text-on-surface">
+                  {{ metric.value }}
+                </p>
+              </div>
+            </section>
 
-          <section v-if="scale === 'year'" class="space-y-4">
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <CalendarMonthSummaryCard
-                v-for="month in yearSummary?.months ?? []"
-                :key="month.monthRef"
-                :title="formatMonthTitle(month.monthRef)"
-                :goal-groups="month.goalGroups"
-                :habit-groups="month.habitGroups"
-                @click="goToMonth(month.monthRef)"
-              />
-            </div>
-          </section>
+            <section v-if="scale === 'year'" class="space-y-4">
+              <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <CalendarMonthSummaryCard
+                  v-for="month in yearSummary?.months ?? []"
+                  :key="month.monthRef"
+                  :title="formatMonthTitle(month.monthRef)"
+                  :goal-groups="month.goalGroups"
+                  :habit-groups="month.habitGroups"
+                  @click="goToMonth(month.monthRef)"
+                />
+              </div>
+            </section>
 
-          <template v-else-if="scale === 'month' && monthPlanning">
-            <div class="grid items-start gap-4 xl:grid-cols-3">
+            <template v-else-if="scale === 'month' && monthPlanning">
+              <div class="grid items-start gap-4 xl:grid-cols-3">
               <!-- Column 1: Goals + inline KRs + orphan KRs -->
-              <div class="space-y-3">
+                <div class="space-y-3">
                 <h2 class="text-lg font-semibold text-on-surface">
                   {{ t('planning.calendar.sections.goals') }}
                 </h2>
@@ -174,10 +194,10 @@
                 >
                   {{ t('planning.calendar.empty.goals') }}
                 </p>
-              </div>
+                </div>
 
-              <!-- Column 2: Habits -->
-              <div class="space-y-3">
+                <!-- Column 2: Habits -->
+                <div class="space-y-3">
                 <h2 class="text-lg font-semibold text-on-surface">
                   {{ t('planning.calendar.sections.habits') }}
                 </h2>
@@ -203,10 +223,10 @@
                 >
                   {{ t('planning.calendar.empty.habits') }}
                 </p>
-              </div>
+                </div>
 
-              <!-- Column 3: Trackers -->
-              <div class="space-y-3">
+                <!-- Column 3: Trackers -->
+                <div class="space-y-3">
                 <h2 class="text-lg font-semibold text-on-surface">
                   {{ t('planning.calendar.sections.trackers') }}
                 </h2>
@@ -232,14 +252,14 @@
                 >
                   {{ t('planning.calendar.empty.trackers') }}
                 </p>
+                </div>
               </div>
-            </div>
-          </template>
+            </template>
 
-          <template v-else-if="scale === 'week' && weekPlanning && weekReflection">
-            <div class="grid items-start gap-4 xl:grid-cols-3">
+            <template v-else-if="scale === 'week' && weekPlanning && weekReflection">
+              <div class="grid items-start gap-4 xl:grid-cols-3">
               <!-- Column 1: Goals + inline KRs + orphan KRs -->
-              <div class="space-y-3">
+                <div class="space-y-3">
                 <h2 class="text-lg font-semibold text-on-surface">
                   {{ t('planning.calendar.sections.goals') }}
                 </h2>
@@ -278,10 +298,10 @@
                 >
                   {{ t('planning.calendar.empty.goals') }}
                 </p>
-              </div>
+                </div>
 
-              <!-- Column 2: Habits -->
-              <div class="space-y-3">
+                <!-- Column 2: Habits -->
+                <div class="space-y-3">
                 <h2 class="text-lg font-semibold text-on-surface">
                   {{ t('planning.calendar.sections.habits') }}
                 </h2>
@@ -307,10 +327,10 @@
                 >
                   {{ t('planning.calendar.empty.habits') }}
                 </p>
-              </div>
+                </div>
 
-              <!-- Column 3: Trackers -->
-              <div class="space-y-3">
+                <!-- Column 3: Trackers -->
+                <div class="space-y-3">
                 <h2 class="text-lg font-semibold text-on-surface">
                   {{ t('planning.calendar.sections.trackers') }}
                 </h2>
@@ -336,12 +356,12 @@
                 >
                   {{ t('planning.calendar.empty.trackers') }}
                 </p>
+                </div>
               </div>
-            </div>
-          </template>
+            </template>
 
-          <template v-else-if="scale === 'day' && dayBundle">
-            <section class="space-y-4">
+            <template v-else-if="scale === 'day' && dayBundle">
+              <section class="space-y-4">
               <h2 class="text-xl font-semibold text-on-surface">
                 {{ t('planning.calendar.sections.scheduledToday') }}
               </h2>
@@ -362,9 +382,9 @@
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
                 {{ t('planning.calendar.empty.today') }}
               </div>
-            </section>
+              </section>
 
-            <section class="space-y-4">
+              <section class="space-y-4">
               <h2 class="text-xl font-semibold text-on-surface">
                 {{ t('planning.calendar.sections.entriesToday') }}
               </h2>
@@ -384,9 +404,9 @@
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
                 {{ t('planning.calendar.empty.entries') }}
               </div>
-            </section>
+              </section>
 
-            <section class="space-y-4">
+              <section class="space-y-4">
               <h2 class="text-xl font-semibold text-on-surface">
                 {{ t('planning.calendar.sections.activeThisWeek') }}
               </h2>
@@ -406,9 +426,9 @@
               <div v-else class="neo-card p-6 text-sm text-on-surface-variant">
                 {{ t('planning.calendar.empty.generic') }}
               </div>
-            </section>
+              </section>
 
-            <section class="space-y-4">
+              <section class="space-y-4">
               <h2 class="text-xl font-semibold text-on-surface">
                 {{ t('planning.calendar.sections.monthlyContext') }}
               </h2>
@@ -444,7 +464,8 @@
               >
                 {{ t('planning.calendar.empty.generic') }}
               </div>
-            </section>
+              </section>
+            </template>
           </template>
         </template>
       </div>
@@ -531,6 +552,8 @@ import CalendarMeasurementSummaryCard from '@/components/calendar/CalendarMeasur
 import CalendarMonthSummaryCard from '@/components/calendar/CalendarMonthSummaryCard.vue'
 import MonthlyPlanner from '@/components/calendar/MonthlyPlanner.vue'
 import WeeklyPlanner from '@/components/calendar/WeeklyPlanner.vue'
+import WeeklyReflectionWizard from '@/components/calendar/WeeklyReflectionWizard.vue'
+import MonthlyReflectionWizard from '@/components/calendar/MonthlyReflectionWizard.vue'
 import CalendarSidePanel from '@/components/calendar/CalendarSidePanel.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import { useT } from '@/composables/useT'
@@ -667,6 +690,10 @@ const monthlyPlannerOpen = ref(false)
 const monthlyPlannerDirty = ref(false)
 const weeklyPlannerOpen = ref(false)
 const weeklyPlannerDirty = ref(false)
+const weeklyReflectionOpen = ref(false)
+const weeklyReflectionDirty = ref(false)
+const monthlyReflectionOpen = ref(false)
+const monthlyReflectionDirty = ref(false)
 const reflectionNote = ref('')
 const panelSaving = ref(false)
 
@@ -695,10 +722,10 @@ const calendarLayoutClasses = computed(() => [
 ])
 
 const scaleOptions = computed(() => [
-  { scale: 'year' as const, label: t('planning.calendar.scales.year') },
-  { scale: 'month' as const, label: t('planning.calendar.scales.month') },
-  { scale: 'week' as const, label: t('planning.calendar.scales.week') },
   { scale: 'day' as const, label: t('planning.calendar.scales.day') },
+  { scale: 'week' as const, label: t('planning.calendar.scales.week') },
+  { scale: 'month' as const, label: t('planning.calendar.scales.month') },
+  { scale: 'year' as const, label: t('planning.calendar.scales.year') },
 ])
 
 const currentBounds = computed(() =>
@@ -798,11 +825,17 @@ const planActionLabel = computed(() => {
     : t('planning.calendar.actions.createPlan')
 })
 
-const reflectionActionLabel = computed(() =>
-  currentReflectionRecord.value
+const reflectionActionLabel = computed(() => {
+  if (props.scale === 'month' && monthlyReflectionOpen.value) {
+    return t('common.buttons.close')
+  }
+  if (props.scale === 'week' && weeklyReflectionOpen.value) {
+    return t('common.buttons.close')
+  }
+  return currentReflectionRecord.value
     ? t('planning.calendar.actions.editReflection')
     : t('planning.calendar.actions.createReflection')
-)
+})
 
 const planActionVariant = computed<'filled' | 'tonal'>(() => {
   if (props.scale === 'month') {
@@ -822,10 +855,9 @@ const planActionVariant = computed<'filled' | 'tonal'>(() => {
   return currentPlanRecord.value ? 'tonal' : 'filled'
 })
 const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
-  if (!currentPlanRecord.value) {
-    return 'tonal'
-  }
-
+  if (props.scale === 'month' && monthlyReflectionOpen.value) return 'tonal'
+  if (props.scale === 'week' && weeklyReflectionOpen.value) return 'tonal'
+  if (!currentPlanRecord.value) return 'tonal'
   return currentReflectionRecord.value ? 'tonal' : 'filled'
 })
 
@@ -922,6 +954,8 @@ const showSummaryMetrics = computed(() =>
 )
 const showMonthlyPlanner = computed(() => props.scale === 'month' && monthlyPlannerOpen.value)
 const showWeeklyPlanner = computed(() => props.scale === 'week' && weeklyPlannerOpen.value)
+const showWeeklyReflection = computed(() => props.scale === 'week' && weeklyReflectionOpen.value)
+const showMonthlyReflection = computed(() => props.scale === 'month' && monthlyReflectionOpen.value)
 
 const monthSplit = computed(() =>
   monthPlanning.value
@@ -1267,6 +1301,8 @@ watch(
     panelState.value = null
     monthlyPlannerOpen.value = false
     weeklyPlannerOpen.value = false
+    weeklyReflectionOpen.value = false
+    monthlyReflectionOpen.value = false
     reflectionNote.value = ''
     await loadCalendarData()
   },
@@ -1482,13 +1518,45 @@ function openReflectionPanel() {
       reflectionNote.value = ''
       break
     case 'month':
-      panelState.value = 'month-reflection'
-      reflectionNote.value = monthReflection.value?.periodReflection?.note ?? ''
+      if (monthlyReflectionOpen.value) {
+        closeMonthlyReflection()
+      } else {
+        monthlyReflectionOpen.value = true
+        monthlyReflectionDirty.value = false
+      }
       break
     case 'week':
-      panelState.value = 'week-reflection'
-      reflectionNote.value = weekReflection.value?.periodReflection?.note ?? ''
+      if (weeklyReflectionOpen.value) {
+        closeWeeklyReflection()
+      } else {
+        weeklyReflectionOpen.value = true
+        weeklyReflectionDirty.value = false
+      }
       break
+  }
+}
+
+function handleWeeklyReflectionUpdated() {
+  weeklyReflectionDirty.value = true
+}
+
+function closeWeeklyReflection() {
+  weeklyReflectionOpen.value = false
+  if (weeklyReflectionDirty.value) {
+    weeklyReflectionDirty.value = false
+    void loadCalendarData()
+  }
+}
+
+function handleMonthlyReflectionUpdated() {
+  monthlyReflectionDirty.value = true
+}
+
+function closeMonthlyReflection() {
+  monthlyReflectionOpen.value = false
+  if (monthlyReflectionDirty.value) {
+    monthlyReflectionDirty.value = false
+    void loadCalendarData()
   }
 }
 

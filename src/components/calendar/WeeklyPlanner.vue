@@ -1,5 +1,5 @@
 <template>
-  <section data-testid="weekly-planner" class="neo-card space-y-3 px-4 py-4 md:px-5">
+  <section data-testid="weekly-planner" class="space-y-3">
     <PlanningStatePanel
       v-if="planner.isLoading.value"
       compact
@@ -18,10 +18,15 @@
       @action="void planner.loadPlannerData()"
     />
 
-    <div v-else class="flex flex-col gap-5 md:flex-row">
-      <!-- Left sidebar -->
+    <div
+      v-else
+      class="grid items-start gap-5"
+      :class="showSidebar ? 'xl:grid-cols-[minmax(220px,18rem)_minmax(0,1fr)]' : 'grid-cols-1'"
+    >
       <WeeklyPlannerSidebar
-        class="w-full shrink-0 md:sticky md:top-24 md:max-h-[calc(100vh-8rem)] md:w-[24%] md:min-w-[240px] md:max-w-[320px] md:overflow-y-auto"
+        v-if="showSidebar"
+        data-testid="weekly-planner-sidebar"
+        class="w-full shrink-0 xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto"
         :active-tab="activeTab"
         :goal-sections="planner.goalSections.value"
         :habit-rows="planner.habitRows.value"
@@ -41,7 +46,6 @@
         @clear-override="planner.handleClearOverride"
       />
 
-      <!-- Right calendar -->
       <WeeklyPlannerDayGrid
         class="min-w-0 flex-1"
         :calendar-days="planner.calendarDays.value"
@@ -71,6 +75,7 @@ import type { PlannerMeasurementRow } from './plannerTypes'
 
 const props = defineProps<{
   weekRef: WeekRef
+  showSidebar?: boolean
 }>()
 
 const emit = defineEmits<{

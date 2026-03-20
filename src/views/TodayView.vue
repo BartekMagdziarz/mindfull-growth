@@ -6,7 +6,7 @@
         <button
           class="neo-control neo-focus"
           :disabled="store.isLoading"
-          @click="void store.goToPreviousDay()"
+          @click="void handlePreviousDay()"
         >
           <AppIcon name="chevron_left" class="text-base" />
         </button>
@@ -19,16 +19,25 @@
         <button
           class="neo-control neo-focus"
           :disabled="store.isLoading"
-          @click="void store.goToNextDay()"
+          @click="void handleNextDay()"
         >
           <AppIcon name="chevron_right" class="text-base" />
         </button>
         <div class="hidden h-8 w-px rounded-full bg-outline/35 md:block" />
-        <div class="flex flex-wrap items-center gap-2 text-[10px] font-semibold">
-          <span class="neo-pill px-2 py-0.5">{{ store.goalKrItems.length }} KRs</span>
-          <span class="neo-pill px-2 py-0.5">{{ store.habitItems.length }} {{ t('planning.calendar.sections.habits') }}</span>
-          <span class="neo-pill px-2 py-0.5">{{ store.trackerItems.length }} {{ t('planning.calendar.sections.trackers') }}</span>
-          <span class="neo-pill px-2 py-0.5">{{ store.initiativeItems.length }} {{ t('planning.calendar.sections.initiatives') }}</span>
+        <div v-if="isCalendarDayMode" class="hidden h-8 w-px rounded-full bg-outline/35 xl:block" />
+        <div v-if="isCalendarDayMode" class="neo-segmented">
+          <button
+            v-for="item in scaleOptions"
+            :key="item.scale"
+            type="button"
+            :class="[
+              'neo-segmented__item neo-focus',
+              item.scale === 'day' ? 'neo-segmented__item--active' : '',
+            ]"
+            @click="goToScale(item.scale)"
+          >
+            {{ item.label }}
+          </button>
         </div>
       </div>
       <input
@@ -51,7 +60,7 @@
       :title="t('planning.today.loadError')"
       :body="store.error"
       :action-label="t('common.buttons.tryAgain')"
-      @action="void store.loadBundle()"
+      @action="void loadInitialBundle()"
     />
 
     <template v-else-if="store.bundle">
@@ -74,6 +83,8 @@
                   :key="item.key"
                   :item="item"
                   :today-day-ref="bundleDayRef"
+                  :raw-entries="store.rawEntries"
+                  :all-day-assignments="store.allDayAssignments"
                   :is-pending="store.isPending(item.key)"
                   @open-object="openObject(item)"
                   @open-context="openPeriod(item.contextPeriodRef)"
@@ -112,6 +123,8 @@
               <TodayItemRow
                 :item="item"
                 :today-day-ref="bundleDayRef"
+                :raw-entries="store.rawEntries"
+                :all-day-assignments="store.allDayAssignments"
                 :is-pending="store.isPending(item.key)"
                 @open-object="openObject(item)"
                 @open-context="openPeriod(item.contextPeriodRef)"
@@ -149,6 +162,8 @@
               <TodayItemRow
                 :item="item"
                 :today-day-ref="bundleDayRef"
+                :raw-entries="store.rawEntries"
+                :all-day-assignments="store.allDayAssignments"
                 :is-pending="store.isPending(item.key)"
                 @open-object="openObject(item)"
                 @open-context="openPeriod(item.contextPeriodRef)"
@@ -186,6 +201,8 @@
               <TodayItemRow
                 :item="item"
                 :today-day-ref="bundleDayRef"
+                :raw-entries="store.rawEntries"
+                :all-day-assignments="store.allDayAssignments"
                 :is-pending="store.isPending(item.key)"
                 @open-object="openObject(item)"
                 @open-context="openPeriod(item.contextPeriodRef)"
@@ -253,7 +270,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppDialog from '@/components/AppDialog.vue'
@@ -266,6 +283,12 @@ import type { TodayItem } from '@/services/todayViewQueries'
 import { useTodayStore } from '@/stores/today.store'
 import { formatDayTitle } from '@/utils/periodLabels'
 import type { DayRef } from '@/domain/period'
+import { getPeriodRefsForDate } from '@/utils/periods'
+import type { RouteLocationRaw } from 'vue-router'
+
+const props = defineProps<{
+  dayRef?: DayRef
+}>()
 
 const router = useRouter()
 const { t, locale } = useT()
@@ -277,10 +300,18 @@ const pendingDeleteItem = ref<TodayItem | null>(null)
 const dateInputRef = ref<HTMLInputElement | null>(null)
 
 const bundleDayRef = computed(() => (store.dayRef ?? '') as DayRef)
+const effectiveDayRef = computed(() => props.dayRef ?? bundleDayRef.value)
+const isCalendarDayMode = computed(() => Boolean(props.dayRef))
 const dayLabel = computed(() => {
   if (!store.bundle) return ''
   return formatDayTitle(store.bundle.dayRef, locale.value)
 })
+const scaleOptions = computed(() => [
+  { scale: 'day' as const, label: t('planning.calendar.scales.day') },
+  { scale: 'week' as const, label: t('planning.calendar.scales.week') },
+  { scale: 'month' as const, label: t('planning.calendar.scales.month') },
+  { scale: 'year' as const, label: t('planning.calendar.scales.year') },
+])
 
 const deleteDialogMessage = computed(() => {
   if (!pendingDeleteItem.value) return ''
@@ -290,8 +321,18 @@ const deleteDialogMessage = computed(() => {
 })
 
 onMounted(() => {
-  void store.loadBundle()
+  void loadInitialBundle()
 })
+
+watch(
+  () => props.dayRef,
+  (nextDayRef, previousDayRef) => {
+    if (!nextDayRef || nextDayRef === previousDayRef) {
+      return
+    }
+    void store.loadBundle(nextDayRef)
+  }
+)
 
 function itemTitle(item: TodayItem): string {
   return item.kind === 'initiative' ? item.initiative.title : item.subject.title
@@ -304,7 +345,7 @@ function openDatePicker(): void {
 function handleDateChange(event: Event): void {
   const input = event.target as HTMLInputElement
   if (input.value) {
-    void store.goToDay(input.value as DayRef)
+    void navigateToDay(input.value as DayRef)
   }
 }
 
@@ -419,4 +460,68 @@ async function handleConfirmDelete(): Promise<void> {
 function showError(error: unknown): void {
   snackbarRef.value?.show(error instanceof Error ? error.message : String(error))
 }
+
+async function loadInitialBundle(): Promise<void> {
+  if (props.dayRef) {
+    await store.loadBundle(props.dayRef)
+    return
+  }
+
+  await store.loadBundle()
+}
+
+async function navigateToDay(targetDayRef: DayRef): Promise<void> {
+  if (props.dayRef) {
+    await router.push({ name: 'calendar-day', params: { dayRef: targetDayRef } })
+    return
+  }
+
+  await store.goToDay(targetDayRef)
+}
+
+function shiftDay(currentDayRef: DayRef, delta: number): DayRef {
+  const date = new Date(`${currentDayRef}T00:00:00`)
+  date.setDate(date.getDate() + delta)
+  return getPeriodRefsForDate(date).day
+}
+
+async function handlePreviousDay(): Promise<void> {
+  if (!effectiveDayRef.value) {
+    return
+  }
+  await navigateToDay(shiftDay(effectiveDayRef.value, -1))
+}
+
+async function handleNextDay(): Promise<void> {
+  if (!effectiveDayRef.value) {
+    return
+  }
+  await navigateToDay(shiftDay(effectiveDayRef.value, 1))
+}
+
+function goToScale(scale: 'year' | 'month' | 'week' | 'day'): void {
+  if (!effectiveDayRef.value) {
+    return
+  }
+
+  const refs = getPeriodRefsForDate(effectiveDayRef.value)
+  const target: Record<typeof scale, RouteLocationRaw> = {
+    year: { name: 'calendar-year', params: { yearRef: refs.year } },
+    month: { name: 'calendar-month', params: { monthRef: refs.month } },
+    week: { name: 'calendar-week', params: { weekRef: refs.week } },
+    day: { name: 'calendar-day', params: { dayRef: effectiveDayRef.value } },
+  }
+
+  void router.push(target[scale])
+}
+
+watch(
+  () => store.bundle?.dayRef,
+  (currentDayRef) => {
+    if (!currentDayRef || !props.dayRef || currentDayRef === props.dayRef) {
+      return
+    }
+    void router.replace({ name: 'calendar-day', params: { dayRef: currentDayRef } })
+  }
+)
 </script>

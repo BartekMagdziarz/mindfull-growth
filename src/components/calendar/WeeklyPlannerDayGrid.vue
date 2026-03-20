@@ -1,6 +1,6 @@
 <template>
-  <div class="space-y-3">
-    <div class="neo-inset rounded-[1.35rem] px-3 py-3">
+  <div class="space-y-3" data-testid="weekly-planner-grid">
+    <div>
       <!-- Assignment toolbar -->
       <div
         v-if="assignmentRow"
@@ -37,7 +37,7 @@
 
       <!-- Day grid -->
       <div class="overflow-x-auto" :class="assignmentRow ? 'mt-3' : ''">
-        <div class="min-w-[640px]">
+        <div class="min-w-[640px] pb-2 pr-2">
           <!-- Weekday headers -->
           <div class="mb-2 grid grid-cols-7 gap-1.5">
             <div
@@ -56,12 +56,13 @@
               :key="day.dayRef"
               type="button"
               :data-testid="`weekly-planner-day-${day.dayRef}`"
-              class="rounded-[1.15rem] border border-outline/8 px-1.5 py-1.5 text-left transition-all duration-200"
+              class="flex flex-col rounded-2xl px-1.5 py-1.5 text-left transition-all duration-200"
+              :style="dayCellStyle"
               :class="dayCellClass(day)"
               :disabled="!canToggleDay(day)"
               @click="$emit('dayToggle', day.dayRef)"
             >
-              <div class="flex items-center justify-between gap-1">
+              <div class="flex shrink-0 items-center justify-between gap-1">
                 <span class="text-xs font-semibold text-on-surface">
                   {{ day.label }}
                 </span>
@@ -72,26 +73,8 @@
                 </span>
               </div>
 
-              <!-- Items grouped by type, color-coded -->
-              <div class="mt-1.5 flex h-28 flex-col gap-0.5 overflow-y-auto pr-0.5">
-                <div
-                  v-for="group in groupedItems(day.items)"
-                  :key="group.type"
-                  class="flex flex-wrap gap-0.5"
-                >
-                  <div
-                    v-for="item in group.items"
-                    :key="item.key"
-                    :title="item.title"
-                    class="transition-all duration-200"
-                    :class="dayItemClass(item)"
-                    :style="dayItemStyle(item)"
-                  >
-                    <EntityIcon v-if="item.icon" :icon="item.icon" size="xs" :circle="false" />
-                    <template v-else>{{ item.title }}</template>
-                  </div>
-                </div>
-              </div>
+              <!-- Items — auto-sized icons -->
+              <DayCellIcons :items="collapsedItems(day.items)" density="comfortable" />
             </button>
           </div>
         </div>
@@ -102,11 +85,12 @@
 
 <script setup lang="ts">
 import AppButton from '@/components/AppButton.vue'
-import EntityIcon from '@/components/shared/EntityIcon.vue'
+import DayCellIcons from './DayCellIcons.vue'
 import { useT } from '@/composables/useT'
 import type { DayRef } from '@/domain/period'
 import type {
   CalendarAssignmentItem,
+  CollapsedIconItem,
   PlannerMeasurementRow,
   PlannerWeekDay,
   SubjectKind,
@@ -128,51 +112,44 @@ defineEmits<{
 }>()
 
 const { t } = useT()
-
-// Chart-color CSS variable for each object type
-const typeColorVar: Record<SubjectKind, string> = {
-  keyResult: '--neo-chart-kr-end',
-  habit: '--neo-chart-habit-end',
-  tracker: '--neo-chart-tracker-end',
+const dayCellStyle = {
+  minHeight: '176px',
 }
 
-interface ItemGroup {
-  type: SubjectKind
-  items: CalendarAssignmentItem[]
-}
+function collapseByIcon(items: CalendarAssignmentItem[]): CollapsedIconItem[] {
+  const result: CollapsedIconItem[] = []
+  const seen = new Map<string, CollapsedIconItem>()
 
-function groupedItems(items: CalendarAssignmentItem[]): ItemGroup[] {
-  const groups: Partial<Record<SubjectKind, CalendarAssignmentItem[]>> = {}
   for (const item of items) {
-    ;(groups[item.subjectType] ??= []).push(item)
+    const collapseKey = item.icon && item.groupKey ? `${item.icon}::${item.groupKey}` : undefined
+    if (collapseKey) {
+      const existing = seen.get(collapseKey)
+      if (existing) {
+        existing.count++
+        existing.title += `, ${item.title}`
+        if (item.isActiveAssignment) existing.isActiveAssignment = true
+        continue
+      }
+    }
+    const collapsed: CollapsedIconItem = { ...item, count: 1 }
+    result.push(collapsed)
+    if (collapseKey) seen.set(collapseKey, collapsed)
   }
+  return result
+}
+
+function collapsedItems(items: CalendarAssignmentItem[]): CollapsedIconItem[] {
   const order: SubjectKind[] = ['keyResult', 'habit', 'tracker']
-  return order
-    .filter(type => groups[type]?.length)
-    .map(type => ({ type, items: groups[type]! }))
+  const sorted = [...items].sort((a, b) => order.indexOf(a.subjectType) - order.indexOf(b.subjectType))
+  return collapseByIcon(sorted)
 }
 
 function dayCellClass(day: PlannerWeekDay): string {
   const row = props.assignmentRow
   const isAssigned = row ? props.rowVisibleOnDay(row, day.dayRef, day.inMonth) : false
 
-  if (isAssigned) return 'bg-primary/7 border-primary/15'
-  return row ? 'bg-background hover:border-primary/20' : 'bg-background'
+  if (isAssigned) return 'shadow-neu-raised-sm bg-primary/7'
+  return row ? 'shadow-neu-raised-sm hover:shadow-neu-raised' : 'shadow-neu-raised-sm'
 }
 
-function dayItemStyle(item: CalendarAssignmentItem): Record<string, string> {
-  const cssVar = typeColorVar[item.subjectType]
-  const opacity = item.isActiveAssignment ? 0.25 : 0.10
-  return { backgroundColor: `rgb(var(${cssVar}) / ${opacity})` }
-}
-
-function dayItemClass(item: CalendarAssignmentItem): string {
-  const text = item.isActiveAssignment ? 'text-primary-strong' : 'text-on-surface-variant'
-  const ring = item.isActiveAssignment ? 'ring-1 ring-primary/25' : ''
-
-  if (item.icon) {
-    return `flex h-6 w-6 items-center justify-center rounded-full ${text} ${ring}`
-  }
-  return `rounded-2xl px-1.5 py-0.5 text-[10px] leading-4 font-medium ${text} ${ring}`
-}
 </script>

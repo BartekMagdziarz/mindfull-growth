@@ -29,7 +29,12 @@ function createTestRouter() {
         name: 'calendar-month',
         component: { template: '<div />' },
       },
-      { path: '/calendar/day/:dayRef', name: 'calendar-day', component: { template: '<div />' } },
+      {
+        path: '/calendar/day/:dayRef',
+        name: 'calendar-day',
+        component: TodayView,
+        props: route => ({ dayRef: route.params.dayRef }),
+      },
       { path: '/objects/:family', name: 'objects-family', component: { template: '<div />' } },
     ],
   })
@@ -175,5 +180,55 @@ describe('TodayView', () => {
     await waitFor(async () => {
       expect(await initiativeDexieRepository.getById(initiative.id)).toBeUndefined()
     })
+  })
+
+  it('loads the routed calendar day in TodayView', async () => {
+    const routedDayRef = parsePeriodRef('2026-03-13') as DayRef
+    const refs = getPeriodRefsForDate(routedDayRef)
+    const habit = await habitDexieRepository.create({
+      title: 'Routed day habit',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: refs.month,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: refs.week,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
+      dayRef: routedDayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+    })
+
+    const router = createTestRouter()
+    await router.push(`/calendar/day/${routedDayRef}`)
+    await router.isReady()
+
+    render(TodayView, {
+      props: {
+        dayRef: routedDayRef,
+      },
+      global: {
+        plugins: [router],
+      },
+    })
+
+    expect(await screen.findByText('Routed day habit')).toBeInTheDocument()
   })
 })

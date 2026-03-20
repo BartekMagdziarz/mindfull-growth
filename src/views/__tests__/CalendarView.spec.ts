@@ -51,6 +51,12 @@ function createTestRouter() {
   })
 }
 
+async function switchMonthlyPlannerTab(tabLabel: 'Habits' | 'Trackers') {
+  const sidebar = await screen.findByTestId('monthly-planner-sidebar')
+  await fireEvent.click(within(sidebar).getByRole('button', { name: /goals/i }))
+  await fireEvent.click(await screen.findByRole('button', { name: tabLabel }))
+}
+
 describe('CalendarView', () => {
   beforeEach(async () => {
     await resetPlanningTestData()
@@ -172,6 +178,8 @@ describe('CalendarView', () => {
       },
     })
 
+    expect(await screen.findByTestId('weekly-planner')).toBeInTheDocument()
+    expect(screen.queryByTestId('weekly-planner-sidebar')).not.toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Habits' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Trackers' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /edit plan/i })).toBeInTheDocument()
@@ -339,6 +347,9 @@ describe('CalendarView', () => {
       },
     })
 
+    expect(await screen.findByTestId('monthly-planner')).toBeInTheDocument()
+    expect(screen.queryByTestId('monthly-planner-sidebar')).not.toBeInTheDocument()
+
     await fireEvent.click(await screen.findByRole('button', { name: /create plan/i }))
 
     const getPlanner = () => screen.getByTestId('monthly-planner')
@@ -349,6 +360,9 @@ describe('CalendarView', () => {
       },
       { timeout: 3000 }
     )
+    await waitFor(() => {
+      expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
+    })
     await waitFor(() => {
       expect(
         within(getPlanner()).queryByRole('heading', { name: 'Loading...' })
@@ -373,7 +387,7 @@ describe('CalendarView', () => {
     })
 
     // Switch to Habits tab
-    await fireEvent.click(within(getPlanner()).getByText('Habits'))
+    await switchMonthlyPlannerTab('Habits')
 
     // Expand habit accordion item
     const habitTitle = within(getPlanner()).getByText(habit.title)
@@ -457,6 +471,9 @@ describe('CalendarView', () => {
     await waitFor(() => {
       expect(screen.getByTestId('monthly-planner')).toBeInTheDocument()
     })
+    await waitFor(() => {
+      expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
+    })
 
     const planner = () => screen.getByTestId('monthly-planner')
 
@@ -467,7 +484,7 @@ describe('CalendarView', () => {
     })
 
     // Switch to Habits tab and expand the habit
-    await fireEvent.click(within(planner()).getByText('Habits'))
+    await switchMonthlyPlannerTab('Habits')
 
     const habitTitle = within(planner()).getByText(habit.title)
     await fireEvent.click(habitTitle)
@@ -555,6 +572,9 @@ describe('CalendarView', () => {
     await waitFor(() => {
       expect(screen.getByTestId('monthly-planner')).toBeInTheDocument()
     })
+    await waitFor(() => {
+      expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
+    })
 
     const planner = () => screen.getByTestId('monthly-planner')
 
@@ -565,7 +585,7 @@ describe('CalendarView', () => {
     })
 
     // Switch to Habits tab and expand the habit
-    await fireEvent.click(within(planner()).getByText('Habits'))
+    await switchMonthlyPlannerTab('Habits')
 
     const habitTitle = within(planner()).getByText(habit.title)
     await fireEvent.click(habitTitle)
