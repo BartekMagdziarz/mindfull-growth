@@ -1,17 +1,18 @@
 <template>
   <article
-    class="neo-card neo-raised border-primary/10 p-3 transition-shadow duration-200 hover:shadow-neu-raised-lg hover:-translate-y-px"
+    class="neo-card neo-raised border-primary/10 px-4 py-3.5 transition-shadow duration-200 hover:shadow-neu-raised-lg hover:-translate-y-px"
   >
     <div class="space-y-2">
-      <!-- Row 1: Title (full row) + menu -->
-      <div class="flex items-start gap-2">
+      <!-- Row 1: Title + line + chevron/menu -->
+      <div class="flex items-center gap-2">
         <button
           type="button"
-          class="min-w-0 flex-1 text-left text-sm font-semibold text-on-surface transition-colors hover:text-primary-strong"
+          class="min-w-0 shrink-0 text-left text-sm font-semibold text-on-surface transition-colors hover:text-primary-strong"
           @click="$emit('open-object')"
         >
           {{ title }}
         </button>
+        <div class="h-px flex-1 bg-neu-border/10" />
         <div ref="menuRootRef" class="relative shrink-0">
           <button
             type="button"
@@ -19,7 +20,7 @@
             aria-label="More actions"
             @click.stop="menuOpen = !menuOpen"
           >
-            <AppIcon name="more_horiz" class="text-base" />
+            <AppIcon name="chevron_right" class="text-sm transition-transform" :class="menuOpen ? 'rotate-90' : ''" />
           </button>
           <Teleport to="body">
             <div
@@ -84,114 +85,73 @@
               >
                 {{ t('planning.today.actions.clearEntry') }}
               </button>
+              <!-- Expand details -->
+              <button
+                type="button"
+                class="block w-full border-t border-outline/10 px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                @click="handleExpandFromMenu"
+              >
+                {{ expanded ? 'Collapse' : 'Details' }}
+              </button>
             </div>
           </Teleport>
         </div>
       </div>
 
-      <!-- Row 2: Entry controls (left) + status pill + context pill + expand (right) -->
-      <div class="flex items-center gap-1.5">
-        <!-- Inline entry: completion -->
-        <button
-          v-if="item.kind === 'measurement' && item.subject.entryMode === 'completion'"
-          type="button"
-          class="neo-icon-button neo-focus"
-          :class="item.todayEntry ? 'neo-icon-button--primary' : ''"
-          :disabled="isPending"
-          :title="
-            item.todayEntry
-              ? t('planning.today.actions.undoEntry')
-              : t('planning.today.actions.recordEntry')
-          "
-          @click.stop="$emit('toggle-completion')"
-        >
-          <AppIcon v-if="item.todayEntry" name="check_circle" class="text-base" />
-          <AppIcon v-else name="check_circle" class="text-base" />
-        </button>
-
-        <!-- Inline entry: counter stepper -->
-        <div
-          v-else-if="item.kind === 'measurement' && item.subject.entryMode === 'counter'"
-          class="flex items-center gap-0.5"
-        >
-          <button
-            type="button"
-            class="neo-icon-button neo-focus text-xs"
-            :disabled="isPending"
-            :aria-label="t('planning.today.actions.decrease')"
-            @click.stop="handleStep(-1)"
-          >
-            -
-          </button>
-          <span class="min-w-[1.75rem] text-center text-xs font-semibold tabular-nums text-on-surface">
-            {{ displayValue }}
-          </span>
-          <button
-            type="button"
-            class="neo-icon-button neo-focus text-xs"
-            :disabled="isPending"
-            :aria-label="t('planning.today.actions.increase')"
-            @click.stop="handleStep(1)"
-          >
-            +
-          </button>
-        </div>
-
-        <!-- Inline entry: value/rating input -->
-        <input
-          v-else-if="
-            item.kind === 'measurement' &&
-            (item.subject.entryMode === 'value' || item.subject.entryMode === 'rating')
-          "
-          v-model="draftValue"
-          type="number"
-          :step="item.subject.entryMode === 'rating' ? 0.1 : 0.1"
-          class="neo-input w-16 rounded-xl px-2.5 py-1 text-center text-xs"
-          :placeholder="item.subject.entryMode === 'rating' ? '1-5' : '—'"
-          :disabled="isPending"
-          @click.stop
-          @blur="handleSaveOnBlur"
-          @keydown.enter.prevent="handleSaveOnBlur"
+      <!-- Row 2: Visualization (full width) -->
+      <div class="min-h-[40px]">
+        <!-- Completion dots -->
+        <CompletionDots
+          v-if="viz.vizType.value === 'completion-dots'"
+          :slots="viz.completionSlots.value"
+          :color-theme="viz.colorTheme.value"
+          :is-pending="isPending"
+          @toggle="$emit('toggle-completion')"
         />
 
-        <div class="flex-1" />
+        <!-- Daily bar chart -->
+        <DailyBarsChart
+          v-else-if="viz.vizType.value === 'daily-bars'"
+          :slots="viz.barSlots.value"
+          :color-theme="viz.colorTheme.value"
+        />
 
-        <!-- Inline progress indicator (measurements with target) -->
-        <div
-          v-if="item.kind === 'measurement' && item.measurement.target"
-          class="flex items-center gap-1.5"
-        >
-          <span class="text-[10px] font-semibold tabular-nums" :class="progressTextClass">
-            {{ progressLabel }}
-          </span>
-          <div class="h-1.5 w-10 overflow-hidden rounded-full bg-neu-border/20">
-            <div
-              class="h-full rounded-full transition-all duration-300"
-              :class="progressBarClass"
-              :style="{ width: `${progressPercent}%` }"
-            />
-          </div>
-        </div>
+        <!-- Tracker value line -->
+        <TrackerValueLine
+          v-else-if="viz.vizType.value === 'tracker-line'"
+          :slots="viz.lineSlots.value"
+          :color-theme="viz.colorTheme.value"
+        />
 
-        <!-- Inline actual value (measurements without target) -->
-        <span
-          v-else-if="item.kind === 'measurement' && !item.measurement.target"
-          class="text-[10px] font-semibold tabular-nums text-on-surface-variant"
-        >
-          {{ formatDisplayValue(item.measurement.actualValue) }}
-          · {{ item.measurement.entryCount }}x
-        </span>
+        <!-- Initiative checkmark -->
+        <InitiativeCheckmark
+          v-else-if="viz.vizType.value === 'initiative-check'"
+          :is-complete="item.kind === 'initiative' && !!item.planState.dayRef"
+          :day-label="item.kind === 'initiative' && item.planState.dayRef ? todayLabel : undefined"
+          :is-pending="isPending"
+          @toggle="$emit('toggle-completion')"
+        />
+      </div>
 
-        <!-- Expand / collapse toggle -->
-        <button
-          type="button"
-          class="neo-icon-button neo-focus"
-          :aria-label="expanded ? 'Collapse' : 'Expand'"
-          @click="expanded = !expanded"
-        >
-          <AppIcon v-if="expanded" name="expand_more" class="text-sm" />
-          <AppIcon v-else name="chevron_right" class="text-sm" />
-        </button>
+      <!-- Row 3: Aggregate bar + entry input -->
+      <div
+        v-if="viz.aggregateData.value || hasEntryInput"
+        class="flex items-center gap-2"
+      >
+        <AggregateBar
+          v-if="viz.aggregateData.value"
+          class="min-w-0 flex-1"
+          :data="viz.aggregateData.value"
+        />
+        <div v-else class="flex-1" />
+        <TodayEntryInput
+          v-if="hasEntryInput"
+          :entry-mode="viz.entryMode.value!"
+          :current-value="viz.currentValue.value"
+          :is-pending="isPending"
+          @increment="handleStep(1)"
+          @save-value="handleSaveValue"
+        />
       </div>
     </div>
 
@@ -231,18 +191,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import CompletionDots from '@/components/today/visualizations/CompletionDots.vue'
+import DailyBarsChart from '@/components/today/visualizations/DailyBarsChart.vue'
+import TrackerValueLine from '@/components/today/visualizations/TrackerValueLine.vue'
+import AggregateBar from '@/components/today/visualizations/AggregateBar.vue'
+import TodayEntryInput from '@/components/today/visualizations/TodayEntryInput.vue'
+import InitiativeCheckmark from '@/components/today/visualizations/InitiativeCheckmark.vue'
 import type { DayRef } from '@/domain/period'
 import type { MeasurementTarget } from '@/domain/planning'
+import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import { useT } from '@/composables/useT'
+import { useTodayItemVisualization } from '@/composables/useTodayItemVisualization'
 import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
 import { getPeriodBounds } from '@/utils/periods'
 import { formatPeriodLabel } from '@/utils/periodLabels'
+import { periodLabel } from '@/components/objects/sparklines/sparklineUtils'
 
 interface Props {
   item: TodayItem
   todayDayRef: DayRef
+  rawEntries: DailyMeasurementEntry[]
+  allDayAssignments: MeasurementDayAssignment[]
   isPending?: boolean
 }
 
@@ -270,61 +241,27 @@ const menuRootRef = ref<HTMLElement | null>(null)
 const menuDropdownRef = ref<HTMLElement | null>(null)
 const menuStyle = ref<Record<string, string>>({})
 const moveDateInputRef = ref<HTMLInputElement | null>(null)
-const draftValue = ref('')
+
+const viz = useTodayItemVisualization(
+  toRef(props, 'item'),
+  toRef(props, 'rawEntries'),
+  toRef(props, 'allDayAssignments'),
+  toRef(props, 'todayDayRef'),
+)
 
 const title = computed(() =>
   props.item.kind === 'initiative' ? props.item.initiative.title : props.item.subject.title
 )
 
-const displayValue = computed(() => {
-  if (props.item.kind !== 'measurement') return '—'
-  return props.item.todayEntry?.value !== null && props.item.todayEntry?.value !== undefined
-    ? formatMeasurementValue(props.item.todayEntry.value)
-    : '0'
-})
+const todayLabel = computed(() => periodLabel(props.todayDayRef, 'daily', locale.value))
+
+const hasEntryInput = computed(() =>
+  props.item.kind === 'measurement' && viz.entryMode.value && viz.entryMode.value !== 'completion'
+)
 
 const contextLabel = computed(() =>
   formatPeriodLabel(props.item.contextPeriodRef, locale.value, t('planning.calendar.scales.week'))
 )
-
-const progressPercent = computed(() => {
-  if (props.item.kind !== 'measurement' || !props.item.measurement.target) return 0
-  const target = props.item.measurement.target.value
-  const actual = props.item.measurement.actualValue ?? 0
-  if (target <= 0) return 0
-  return Math.min(100, Math.round((actual / target) * 100))
-})
-
-const progressLabel = computed(() => {
-  if (props.item.kind !== 'measurement' || !props.item.measurement.target) return ''
-  const actual = props.item.measurement.actualValue ?? 0
-  const target = props.item.measurement.target.value
-  return `${formatDisplayValue(actual)}/${formatDisplayValue(target)}`
-})
-
-const progressTextClass = computed(() => {
-  if (props.item.kind !== 'measurement') return 'text-on-surface-variant'
-  switch (props.item.measurement.evaluationStatus) {
-    case 'met':
-      return 'text-primary'
-    case 'missed':
-      return 'text-error'
-    default:
-      return 'text-on-surface-variant'
-  }
-})
-
-const progressBarClass = computed(() => {
-  if (props.item.kind !== 'measurement') return 'bg-neu-border/40'
-  switch (props.item.measurement.evaluationStatus) {
-    case 'met':
-      return 'bg-primary/50'
-    case 'missed':
-      return 'bg-error/45'
-    default:
-      return 'bg-primary/30'
-  }
-})
 
 const daysRemaining = computed(() => {
   if (props.item.kind !== 'measurement') return 0
@@ -333,19 +270,6 @@ const daysRemaining = computed(() => {
   const todayDate = new Date(`${props.todayDayRef}T00:00:00Z`)
   return Math.max(0, Math.round((endDate.getTime() - todayDate.getTime()) / 86400000))
 })
-
-watch(
-  () => props.item,
-  () => {
-    draftValue.value =
-      props.item.kind === 'measurement' &&
-      props.item.todayEntry?.value !== null &&
-      props.item.todayEntry?.value !== undefined
-        ? formatMeasurementValue(props.item.todayEntry.value)
-        : ''
-  },
-  { immediate: true, deep: true }
-)
 
 watch(menuOpen, async (isOpen) => {
   if (isOpen && menuRootRef.value) {
@@ -360,42 +284,30 @@ watch(menuOpen, async (isOpen) => {
 
 function handleStep(delta: number): void {
   if (props.item.kind !== 'measurement' || props.item.subject.entryMode !== 'counter') return
-
   const currentValue = props.item.todayEntry?.value ?? 0
   const nextValue = Math.max(0, currentValue + delta)
   emit('save-entry', nextValue)
 }
 
-function handleSaveOnBlur(): void {
-  const trimmed = draftValue.value.trim()
-  if (!trimmed) return
-  const parsed = Number(trimmed)
-  if (!Number.isFinite(parsed)) return
-  emit('save-entry', parsed)
+function handleSaveValue(value: number): void {
+  emit('save-entry', value)
 }
 
 function handleMenuAction(action: string): void {
   menuOpen.value = false
   switch (action) {
-    case 'open-object':
-      emit('open-object')
-      break
-    case 'open-context':
-      emit('open-context')
-      break
-    case 'clear-schedule':
-      emit('clear-schedule')
-      break
-    case 'request-delete':
-      emit('request-delete')
-      break
-    case 'hide':
-      emit('hide')
-      break
-    case 'clear-entry':
-      emit('clear-entry')
-      break
+    case 'open-object': emit('open-object'); break
+    case 'open-context': emit('open-context'); break
+    case 'clear-schedule': emit('clear-schedule'); break
+    case 'request-delete': emit('request-delete'); break
+    case 'hide': emit('hide'); break
+    case 'clear-entry': emit('clear-entry'); break
   }
+}
+
+function handleExpandFromMenu(): void {
+  menuOpen.value = false
+  expanded.value = !expanded.value
 }
 
 function handleMoveToDay(): void {
@@ -465,10 +377,5 @@ function formatActual(item: TodayMeasurementItem): string {
 
 function formatMeasurementValue(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, '')
-}
-
-function formatDisplayValue(value: number | undefined): string {
-  if (value === undefined) return '0'
-  return formatMeasurementValue(value)
 }
 </script>

@@ -3,6 +3,7 @@ import type { Goal, Initiative } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   InitiativePlanState,
+  MeasurementDayAssignment,
   MeasurementSubjectType,
   TodayHiddenSubjectType,
 } from '@/domain/planningState'
@@ -16,7 +17,7 @@ import {
   type WeekInitiativePlanningItem,
   type WeekMeasurementPlanningItem,
 } from '@/services/planningStateQueries'
-import { getPeriodRefsForDate } from '@/utils/periods'
+import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 
 export type TodaySectionId = 'scheduled' | 'week' | 'month'
 
@@ -61,6 +62,8 @@ export interface TodayViewBundle {
   refs: PeriodRefsForDate
   sections: Record<TodaySectionId, TodayItem[]>
   hiddenItems: TodayItem[]
+  rawEntries: DailyMeasurementEntry[]
+  allDayAssignments: MeasurementDayAssignment[]
 }
 
 const todayViewBundleCache = new Map<
@@ -267,6 +270,24 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
       loadPlanningCoreObjects(),
     ])
 
+    // Load month-wide day assignments for visualizations
+    const monthBoundsSet = new Set<string>()
+    const monthBounds: { start: DayRef; end: DayRef }[] = []
+    for (const monthRef of weekPlanning.overlappingMonthRefs) {
+      const bounds = getPeriodBounds(monthRef)
+      const key = `${bounds.start}:${bounds.end}`
+      if (!monthBoundsSet.has(key)) {
+        monthBoundsSet.add(key)
+        monthBounds.push(bounds)
+      }
+    }
+    const monthStart = monthBounds.map(b => b.start).sort()[0] ?? dayRef
+    const monthEnd = monthBounds.map(b => b.end).sort().at(-1) ?? dayRef
+    const allDayAssignments = await planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
+      monthStart,
+      monthEnd,
+    )
+
     const goalMap = buildGoalMap(objects.goals)
     const todayEntries = buildTodayEntryMap(allEntries, dayRef)
     const hiddenKeys = buildHiddenKeySet(dayRef, hiddenStates)
@@ -323,6 +344,8 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
         month: sortTodayItems(sections.month),
       },
       hiddenItems: sortTodayItems(hiddenItems),
+      rawEntries: weekPlanning.rawEntries,
+      allDayAssignments,
     }
   })
 }

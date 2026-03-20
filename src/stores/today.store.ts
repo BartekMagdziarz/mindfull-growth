@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { DayRef } from '@/domain/period'
-import type { DailyMeasurementEntry } from '@/domain/planningState'
+import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import {
   clearTodayInitiative,
   clearTodayMeasurementAssignment,
@@ -80,6 +80,8 @@ export const useTodayStore = defineStore('today', () => {
   const pendingKeys = ref<string[]>([])
 
   const dayRef = computed(() => bundle.value?.dayRef)
+  const rawEntries = computed<DailyMeasurementEntry[]>(() => bundle.value?.rawEntries ?? [])
+  const allDayAssignments = computed<MeasurementDayAssignment[]>(() => bundle.value?.allDayAssignments ?? [])
   const scheduledItems = computed(() => bundle.value?.sections.scheduled ?? [])
   const weekItems = computed(() => bundle.value?.sections.week ?? [])
   const monthItems = computed(() => bundle.value?.sections.month ?? [])
@@ -225,6 +227,29 @@ export const useTodayStore = defineStore('today', () => {
         }
       })
 
+    // Optimistically update rawEntries for visualization reactivity
+    let patchedRawEntries = bundle.value.rawEntries
+    if (nextEntry) {
+      const existingIdx = patchedRawEntries.findIndex(
+        e => e.subjectType === nextEntry.subjectType &&
+          e.subjectId === nextEntry.subjectId &&
+          e.dayRef === nextEntry.dayRef
+      )
+      if (existingIdx >= 0) {
+        patchedRawEntries = [...patchedRawEntries]
+        patchedRawEntries[existingIdx] = nextEntry
+      } else {
+        patchedRawEntries = [...patchedRawEntries, nextEntry]
+      }
+    } else {
+      // Entry cleared — find and remove it by matching the key pattern
+      const [subjectType, subjectId] = key.split(':')
+      const currentDayRef = bundle.value.dayRef
+      patchedRawEntries = patchedRawEntries.filter(
+        e => !(e.subjectType === subjectType && e.subjectId === subjectId && e.dayRef === currentDayRef)
+      )
+    }
+
     bundle.value = {
       ...bundle.value,
       sections: {
@@ -233,6 +258,7 @@ export const useTodayStore = defineStore('today', () => {
         month: patchItems(bundle.value.sections.month),
       },
       hiddenItems: patchItems(bundle.value.hiddenItems),
+      rawEntries: patchedRawEntries,
     }
   }
 
@@ -460,6 +486,8 @@ export const useTodayStore = defineStore('today', () => {
   return {
     bundle,
     dayRef,
+    rawEntries,
+    allDayAssignments,
     scheduledItems,
     weekItems,
     monthItems,
