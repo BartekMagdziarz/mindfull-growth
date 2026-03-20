@@ -4,33 +4,23 @@
       <!-- Assignment toolbar -->
       <div
         v-if="assignmentRow"
-        class="flex flex-col gap-3 rounded-[1.15rem] border border-primary/20 bg-primary/6 px-3 py-3 lg:flex-row lg:items-center lg:justify-between"
+        class="flex flex-wrap items-center justify-between gap-3 rounded-[1.15rem] border border-primary/20 bg-primary/6 px-3 py-2.5"
       >
-        <div class="min-w-0">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-            {{ t('planning.calendar.planner.assignmentMode') }}
-          </p>
-          <p class="mt-1 text-sm font-semibold text-on-surface">
+        <div class="flex min-w-0 items-center gap-2.5">
+          <span class="neo-icon-button h-9 w-9 rounded-xl text-primary">
+            <AppIcon :name="assignmentMode === 'weeks' ? 'calendar_view_week' : 'today'" class="text-base" />
+          </span>
+          <p class="min-w-0 truncate text-sm font-semibold text-on-surface">
             {{ assignmentRow.title }}
-          </p>
-          <p class="mt-1 text-xs text-on-surface-variant">
-            {{
-              assignmentRow.cadence === 'monthly'
-                ? t('planning.calendar.scales.month')
-                : t('planning.calendar.scales.week')
-            }}
           </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <AppButton variant="tonal" @click="$emit('wholeMonth')">
-            {{ t('planning.calendar.planner.wholeMonth') }}
-          </AppButton>
           <AppButton variant="text" @click="$emit('clearPlacement')">
             {{ t('planning.calendar.planner.clearPlacement') }}
           </AppButton>
-          <AppButton variant="outlined" @click="$emit('finishAssigning')">
-            {{ t('planning.calendar.planner.finishAssigning') }}
+          <AppButton variant="tonal" @click="$emit('finishAssigning')">
+            {{ t('common.buttons.done') }}
           </AppButton>
         </div>
       </div>
@@ -64,7 +54,7 @@
               :data-testid="`monthly-planner-week-${week.weekRef}`"
               class="flex items-center justify-center rounded-xl py-2.5 text-sm font-semibold transition-all duration-200"
               :class="weekButtonClass(week)"
-              :disabled="!assignmentRow"
+              :disabled="!canToggleWeek"
               @click="$emit('weekToggle', week.weekRef)"
             >
               {{ week.label }}
@@ -106,12 +96,14 @@
 
 <script setup lang="ts">
 import AppButton from '@/components/AppButton.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import DayCellIcons from './DayCellIcons.vue'
 import { useT } from '@/composables/useT'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type {
   CalendarAssignmentItem,
   CollapsedIconItem,
+  PlannerPlacementMode,
   PlannerMeasurementRow,
   PlannerWeek,
   PlannerWeekDay,
@@ -121,15 +113,16 @@ import type {
 const props = defineProps<{
   calendarWeeks: PlannerWeek[]
   assignmentRow: PlannerMeasurementRow | undefined
+  assignmentMode: PlannerPlacementMode | null
   weekdayHeaders: string[]
   rowVisibleOnDay: (row: PlannerMeasurementRow, dayRef: DayRef, inMonth: boolean) => boolean
+  canToggleWeek: boolean
   canToggleDay: (day: { inMonth: boolean }) => boolean
 }>()
 
 defineEmits<{
   weekToggle: [weekRef: WeekRef]
   dayToggle: [dayRef: DayRef]
-  wholeMonth: []
   clearPlacement: []
   finishAssigning: []
 }>()
@@ -171,6 +164,7 @@ function collapsedItems(items: CalendarAssignmentItem[]): CollapsedIconItem[] {
 function weekButtonClass(week: PlannerWeek): string {
   const row = props.assignmentRow
   if (!row) return 'neo-inset text-on-surface-variant opacity-55'
+  if (props.assignmentMode !== 'weeks') return 'neo-inset text-on-surface-variant opacity-55'
 
   const scope = row.weekScopeByRef[week.weekRef]
   if (scope === 'whole-week') return 'bg-primary text-on-primary shadow-neu-raised-sm'
@@ -181,15 +175,18 @@ function weekButtonClass(week: PlannerWeek): string {
 function dayCellClass(day: PlannerWeekDay): string {
   const row = props.assignmentRow
   const isAssigned = row ? props.rowVisibleOnDay(row, day.dayRef, day.inMonth) : false
+  const dayEditing = props.assignmentMode === 'days'
 
   if (!day.inMonth) {
     return isAssigned
       ? 'shadow-neu-raised-sm bg-primary/10 opacity-95'
-      : 'shadow-neu-pressed-sm opacity-60'
+      : dayEditing
+        ? 'shadow-neu-raised-sm hover:shadow-neu-raised opacity-80'
+        : 'shadow-neu-pressed-sm opacity-60'
   }
 
   if (isAssigned) return 'shadow-neu-raised-sm bg-primary/7'
-  return row ? 'shadow-neu-raised-sm hover:shadow-neu-raised' : 'shadow-neu-raised-sm'
+  return row && dayEditing ? 'shadow-neu-raised-sm hover:shadow-neu-raised' : 'shadow-neu-pressed-sm opacity-60'
 }
 
 </script>

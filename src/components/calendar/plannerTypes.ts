@@ -4,6 +4,9 @@ import type { MeasurementMonthState, MeasurementWeekState } from '@/domain/plann
 
 export type SubjectKind = 'keyResult' | 'habit' | 'tracker'
 export type EditableSubjectKind = 'keyResult' | 'habit'
+export type PlannerPlacementMode = 'weeks' | 'days'
+export type PlannerPlacementStatus = 'inactive' | 'needs-planning' | 'planned'
+export type PlannerPlacementEditState = 'idle' | 'pick-weeks' | 'pick-days'
 
 export interface PlannerMeasurementRow {
   id: string
@@ -68,6 +71,22 @@ export interface ActiveAssignment {
   subjectType: SubjectKind
   subjectId: string
   cadence: 'weekly' | 'monthly'
+  mode: PlannerPlacementMode
+}
+
+export interface PlannerDisplayRow extends PlannerMeasurementRow {
+  contextLabel: string
+  placementStatus: PlannerPlacementStatus
+  placementEditState: PlannerPlacementEditState
+  placementSummary: string | null
+  isWholePeriod: boolean
+}
+
+export interface PlannerSectionRows {
+  id: string
+  label: string
+  needsPlanning: PlannerDisplayRow[]
+  planned: PlannerDisplayRow[]
 }
 
 export interface PlannerInitiativeRow {

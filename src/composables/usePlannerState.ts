@@ -31,6 +31,7 @@ import type {
   CalendarAssignmentItem,
   EditableSubjectKind,
   GoalSection,
+  PlannerPlacementMode,
   PlannerMeasurementRow,
   PlannerWeek,
   SubjectKind,
@@ -266,12 +267,13 @@ export function usePlannerState(
     return hasExplicitPlacement(row)
   }
 
-  function startAssigning(item: PlannerMeasurementRow): void {
+  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode): void {
     if (!item.isActive) return
     activeAssignment.value = {
       subjectType: item.subjectType,
       subjectId: item.id,
       cadence: item.cadence,
+      mode,
     }
   }
 
@@ -530,18 +532,24 @@ export function usePlannerState(
     await clearTargetOverride(editableSubjectType(item.subjectType), item.id)
   }
 
+  async function applyWholePeriod(item: PlannerMeasurementRow): Promise<void> {
+    if (!item.isActive) return
+    activeAssignment.value = null
+
+    await withSave(`${rowKey(item)}:whole-month`, () =>
+      assignMeasurementToWholeMonthView({
+        monthRef: monthRef.value,
+        cadence: item.cadence,
+        subjectType: item.subjectType,
+        subjectId: item.id,
+      })
+    )
+  }
+
   async function handleWholeMonth(): Promise<void> {
     const row = assignmentRow.value
     if (!row) return
-
-    await withSave(`${rowKey(row)}:whole-month`, () =>
-      assignMeasurementToWholeMonthView({
-        monthRef: monthRef.value,
-        cadence: row.cadence,
-        subjectType: row.subjectType,
-        subjectId: row.id,
-      })
-    )
+    await applyWholePeriod(row)
   }
 
   async function handleClearPlacement(): Promise<void> {
@@ -560,7 +568,7 @@ export function usePlannerState(
 
   async function handleWeekToggle(weekRef: WeekRef): Promise<void> {
     const row = assignmentRow.value
-    if (!row) return
+    if (!row || activeAssignment.value?.mode !== 'weeks') return
 
     await withSave(`${rowKey(row)}:${weekRef}`, () =>
       toggleMeasurementWeekAssignment({
@@ -575,7 +583,7 @@ export function usePlannerState(
 
   async function handleDayToggle(dayRef: DayRef): Promise<void> {
     const row = assignmentRow.value
-    if (!row) return
+    if (!row || activeAssignment.value?.mode !== 'days') return
 
     if (row.cadence === 'monthly' && getPeriodRefsForDate(dayRef).month !== monthRef.value) return
 
@@ -590,8 +598,12 @@ export function usePlannerState(
     )
   }
 
+  function canToggleWeek(): boolean {
+    return Boolean(assignmentRow.value && activeAssignment.value?.mode === 'weeks')
+  }
+
   function canToggleDay(day: { inMonth: boolean }): boolean {
-    if (!assignmentRow.value) return false
+    if (!assignmentRow.value || activeAssignment.value?.mode !== 'days') return false
     if (assignmentRow.value.cadence === 'monthly') return day.inMonth
     return true
   }
@@ -622,6 +634,7 @@ export function usePlannerState(
     findNextUnassignedKey,
     toggleGoal,
     toggleMeasurement,
+    applyWholePeriod,
     handleTargetOperatorChange,
     handleTargetAggregationChange,
     handleTargetValueChange,
@@ -630,6 +643,7 @@ export function usePlannerState(
     handleClearPlacement,
     handleWeekToggle,
     handleDayToggle,
+    canToggleWeek,
     canToggleDay,
     rowVisibleOnDay,
   }

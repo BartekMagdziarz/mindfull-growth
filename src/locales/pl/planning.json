@@ -198,6 +198,22 @@
       "emptyMonthlyTrackers": "Brak otwartych trackerów miesięcznych.",
       "priorityAreas": "{n} powiązane obszary życia",
       "allAssigned": "Wszystkie {n} {category} przypisane",
+      "allWeeks": "Wszystkie tygodnie",
+      "pickWeeks": "Wybierz tygodnie",
+      "pickDays": "Wybierz dni",
+      "showAdvanced": "Pokaż zaawansowane",
+      "hideAdvanced": "Ukryj zaawansowane",
+      "daysCompact": "{n}d",
+      "weeksCompact": "{n}t",
+      "fromMonthShort": "Miesiąc",
+      "groups": {
+        "monthly": "Miesięczne",
+        "weekly": "Tygodniowe",
+        "thisWeek": "Ten tydzień",
+        "fromMonth": "Z miesiąca",
+        "needsPlanning": "Do zaplanowania",
+        "planned": "Zaplanowane"
+      },
       "steps": {
         "priorities": "Priorytety",
         "goals": "Cele",

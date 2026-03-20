@@ -53,8 +53,7 @@ function createTestRouter() {
 
 async function switchMonthlyPlannerTab(tabLabel: 'Habits' | 'Trackers') {
   const sidebar = await screen.findByTestId('monthly-planner-sidebar')
-  await fireEvent.click(within(sidebar).getByRole('button', { name: /goals/i }))
-  await fireEvent.click(await screen.findByRole('button', { name: tabLabel }))
+  await fireEvent.click(within(sidebar).getByRole('button', { name: tabLabel }))
 }
 
 describe('CalendarView', () => {
@@ -369,9 +368,9 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Activate goal on the Goals tab — find the goal header container (neo-inset)
+    // Activate goal on the Goals tab
     const goalTitleEl = within(getPlanner()).getByText(goal.title)
-    const goalCard = goalTitleEl.closest('.neo-inset')
+    const goalCard = goalTitleEl.closest('article')
     expect(goalCard).toBeTruthy()
     await fireEvent.click(
       within(goalCard as HTMLElement).getByRole('button', { name: 'Activate' })
@@ -389,11 +388,7 @@ describe('CalendarView', () => {
     // Switch to Habits tab
     await switchMonthlyPlannerTab('Habits')
 
-    // Expand habit accordion item
-    const habitTitle = within(getPlanner()).getByText(habit.title)
-    await fireEvent.click(habitTitle)
-
-    const habitRow = habitTitle.closest('article')
+    const habitRow = within(getPlanner()).getByText(habit.title).closest('article')
     expect(habitRow).toBeTruthy()
     await fireEvent.click(within(habitRow as HTMLElement).getByRole('button', { name: 'Activate' }))
 
@@ -408,22 +403,16 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Accordion stays expanded after reload — click Assign directly
     await waitFor(() => {
       const row = within(getPlanner()).getByText(habit.title).closest('article')
-      expect(within(row as HTMLElement).getByRole('button', { name: 'Assign' })).toBeInTheDocument()
+      expect(within(row as HTMLElement).getByRole('button', { name: 'All weeks' })).toBeInTheDocument()
     })
 
     const refreshedHabitRow = within(getPlanner()).getByText(habit.title).closest('article')
     expect(refreshedHabitRow).toBeTruthy()
     await fireEvent.click(
-      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'Assign' })
+      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'All weeks' })
     )
-
-    await waitFor(() => {
-      expect(within(getPlanner()).getByRole('button', { name: 'Whole month' })).toBeInTheDocument()
-    })
-    await fireEvent.click(within(getPlanner()).getByRole('button', { name: 'Whole month' }))
 
     await waitFor(async () => {
       const weekStates = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
@@ -483,24 +472,17 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Switch to Habits tab and expand the habit
+    // Switch to Habits tab and activate the habit
     await switchMonthlyPlannerTab('Habits')
 
-    const habitTitle = within(planner()).getByText(habit.title)
-    await fireEvent.click(habitTitle)
-
-    const habitRow = habitTitle.closest('article')
+    const habitRow = within(planner()).getByText(habit.title).closest('article')
     expect(habitRow).toBeTruthy()
     await fireEvent.click(within(habitRow as HTMLElement).getByRole('button', { name: 'Activate' }))
 
     await waitFor(async () => {
       expect(
-        await planningStateDexieRepository.getMeasurementDayAssignment(
-          parsePeriodRef('2026-03-12') as DayRef,
-          'habit',
-          habit.id
-        )
-      ).toBeUndefined()
+        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
+      ).toBeTruthy()
     })
     await waitFor(() => {
       expect(
@@ -508,16 +490,19 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Accordion stays expanded after reload — click Assign directly
     await waitFor(() => {
       const row = within(planner()).getByText(habit.title).closest('article')
-      expect(within(row as HTMLElement).getByRole('button', { name: 'Assign' })).toBeInTheDocument()
+      expect(within(row as HTMLElement).getByRole('button', { name: 'Pick days' })).toBeInTheDocument()
     })
 
     const refreshedHabitRow = within(planner()).getByText(habit.title).closest('article')
     await fireEvent.click(
-      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'Assign' })
+      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'Pick days' })
     )
+
+    await waitFor(() => {
+      expect(within(planner()).getByRole('button', { name: 'Done' })).toBeInTheDocument()
+    })
 
     const dayCell = within(planner()).getByTestId('monthly-planner-day-2026-03-12')
     await fireEvent.click(dayCell)
@@ -584,13 +569,10 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Switch to Habits tab and expand the habit
+    // Switch to Habits tab and activate the habit
     await switchMonthlyPlannerTab('Habits')
 
-    const habitTitle = within(planner()).getByText(habit.title)
-    await fireEvent.click(habitTitle)
-
-    const habitRow = habitTitle.closest('article')
+    const habitRow = within(planner()).getByText(habit.title).closest('article')
     expect(habitRow).toBeTruthy()
     await fireEvent.click(within(habitRow as HTMLElement).getByRole('button', { name: 'Activate' }))
 
@@ -605,16 +587,19 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Accordion stays expanded after reload — click Assign directly
     await waitFor(() => {
       const row = within(planner()).getByText(habit.title).closest('article')
-      expect(within(row as HTMLElement).getByRole('button', { name: 'Assign' })).toBeInTheDocument()
+      expect(within(row as HTMLElement).getByRole('button', { name: 'Pick days' })).toBeInTheDocument()
     })
 
     const refreshedHabitRow = within(planner()).getByText(habit.title).closest('article')
     await fireEvent.click(
-      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'Assign' })
+      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'Pick days' })
     )
+
+    await waitFor(() => {
+      expect(within(planner()).getByRole('button', { name: 'Done' })).toBeInTheDocument()
+    })
 
     const dayCell = within(planner()).getByTestId('monthly-planner-day-2026-03-12')
     await fireEvent.click(dayCell)

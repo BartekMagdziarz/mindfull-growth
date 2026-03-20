@@ -32,14 +32,15 @@
         :habit-rows="planner.habitRows.value"
         :tracker-rows="planner.trackerRows.value"
         :priorities="planner.priorityOptions.value"
-        :expanded-item-key="expandedItemKey"
         :saving-key="planner.savingKey.value"
         :is-assignment-active="planner.isAssignmentActive"
         :is-assigned="planner.isAssigned"
+        :assignment-mode="planner.activeAssignment.value?.mode ?? null"
+        :month-week-count="planner.calendarWeeks.value.length"
         @update-tab="handleTabChange"
-        @update-expanded="handleExpandedChange"
         @toggle-goal="planner.toggleGoal"
         @toggle-measurement="planner.toggleMeasurement"
+        @apply-whole-period="planner.applyWholePeriod"
         @start-assigning="handleStartAssigning"
         @target-operator-change="(item, val) => planner.handleTargetOperatorChange(item, val)"
         @target-aggregation-change="(item, val) => planner.handleTargetAggregationChange(item, val)"
@@ -51,12 +52,13 @@
         class="min-w-0 flex-1"
         :calendar-weeks="planner.calendarWeeks.value"
         :assignment-row="planner.assignmentRow.value"
+        :assignment-mode="planner.activeAssignment.value?.mode ?? null"
         :weekday-headers="planner.weekdayHeaders.value"
         :row-visible-on-day="planner.rowVisibleOnDay"
+        :can-toggle-week="planner.canToggleWeek()"
         :can-toggle-day="planner.canToggleDay"
         @week-toggle="planner.handleWeekToggle"
         @day-toggle="planner.handleDayToggle"
-        @whole-month="planner.handleWholeMonth"
         @clear-placement="planner.handleClearPlacement"
         @finish-assigning="handleFinishAssigning"
       />
@@ -72,7 +74,7 @@ import PlannerCalendarGrid from './PlannerCalendarGrid.vue'
 import { useT } from '@/composables/useT'
 import { usePlannerState } from '@/composables/usePlannerState'
 import type { MonthRef } from '@/domain/period'
-import type { PlannerMeasurementRow } from './plannerTypes'
+import type { PlannerMeasurementRow, PlannerPlacementMode } from './plannerTypes'
 
 const props = defineProps<{
   monthRef: MonthRef
@@ -91,26 +93,17 @@ const monthRefRef = computed(() => props.monthRef as MonthRef)
 const planner = usePlannerState(monthRefRef, locale, () => emit('updated'))
 
 const activeTab = ref<'goals' | 'habits' | 'trackers'>('goals')
-const expandedItemKey = ref<string | null>(null)
 
 function handleTabChange(tab: 'goals' | 'habits' | 'trackers') {
+  planner.stopAssigning()
   activeTab.value = tab
-  expandedItemKey.value = null
 }
 
-function handleExpandedChange(key: string | null) {
-  if (planner.assignmentRow.value) return
-  expandedItemKey.value = key
-}
-
-function handleStartAssigning(item: PlannerMeasurementRow) {
-  planner.startAssigning(item)
-  expandedItemKey.value = `${item.subjectType}:${item.id}`
+function handleStartAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode) {
+  planner.startAssigning(item, mode)
 }
 
 function handleFinishAssigning() {
   planner.stopAssigning()
-  const nextKey = planner.findNextUnassignedKey(activeTab.value)
-  expandedItemKey.value = nextKey
 }
 </script>

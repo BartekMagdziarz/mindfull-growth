@@ -29,6 +29,7 @@ import type {
   EditableSubjectKind,
   GoalSection,
   PlannerInitiativeRow,
+  PlannerPlacementMode,
   PlannerMeasurementRow,
   PlannerWeekDay,
   SubjectKind,
@@ -286,12 +287,13 @@ export function useWeeklyPlannerState(
     return hasExplicitPlacement(row)
   }
 
-  function startAssigning(item: PlannerMeasurementRow): void {
+  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode): void {
     if (!item.isActive) return
     activeAssignment.value = {
       subjectType: item.subjectType,
       subjectId: item.id,
       cadence: item.cadence,
+      mode,
     }
   }
 
@@ -579,21 +581,33 @@ export function useWeeklyPlannerState(
     await clearTargetOverride(editableSubjectType(item.subjectType), item.id)
   }
 
+  async function applyWholePeriod(item: PlannerMeasurementRow): Promise<void> {
+    if (!item.isActive) return
+
+    const weekScope = item.weekScopeByRef[weekRef.value]
+    if (weekScope === 'whole-week') {
+      activeAssignment.value = null
+      return
+    }
+
+    const monthRef = item.cadence === 'monthly' ? overlappingMonthRefs.value[0] : undefined
+    activeAssignment.value = null
+
+    await withSave(`${rowKey(item)}:whole-week`, () =>
+      toggleMeasurementWeekAssignment({
+        weekRef: weekRef.value,
+        cadence: item.cadence,
+        monthRef,
+        subjectType: item.subjectType,
+        subjectId: item.id,
+      })
+    )
+  }
+
   async function handleWholeWeek(): Promise<void> {
     const row = assignmentRow.value
     if (!row) return
-
-    const monthRef = row.cadence === 'monthly' ? overlappingMonthRefs.value[0] : undefined
-
-    await withSave(`${rowKey(row)}:whole-week`, () =>
-      toggleMeasurementWeekAssignment({
-        weekRef: weekRef.value,
-        cadence: row.cadence,
-        monthRef,
-        subjectType: row.subjectType,
-        subjectId: row.id,
-      })
-    )
+    await applyWholePeriod(row)
   }
 
   async function handleClearPlacement(): Promise<void> {
@@ -615,7 +629,7 @@ export function useWeeklyPlannerState(
 
   async function handleDayToggle(dayRef: DayRef): Promise<void> {
     const row = assignmentRow.value
-    if (!row) return
+    if (!row || activeAssignment.value?.mode !== 'days') return
 
     const dayMonthRef = getPeriodRefsForDate(dayRef).month
 
@@ -631,7 +645,7 @@ export function useWeeklyPlannerState(
   }
 
   function canToggleDay(_day: { inMonth: boolean }): boolean {
-    return Boolean(activeAssignment.value)
+    return activeAssignment.value?.mode === 'days'
   }
 
   return {
@@ -659,6 +673,7 @@ export function useWeeklyPlannerState(
     stopAssigning,
     findNextUnassignedKey,
     toggleMeasurement,
+    applyWholePeriod,
     handleTargetOperatorChange,
     handleTargetAggregationChange,
     handleTargetValueChange,
