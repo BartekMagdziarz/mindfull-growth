@@ -1,42 +1,35 @@
 <template>
-  <section data-testid="monthly-reflection-wizard" class="neo-card space-y-3 px-4 py-4 md:px-5">
-    <!-- Header with close button -->
+  <section data-testid="monthly-reflection-wizard" class="neo-card space-y-8 px-4 py-4 md:px-5">
+    <!-- Header with step indicator -->
     <div class="flex items-center justify-between">
-      <h2 class="text-lg font-bold text-on-surface">
-        {{ t('planning.reflection.monthly.title') }}
-      </h2>
-      <button
-        type="button"
-        class="neo-control neo-focus h-10 w-10 shrink-0"
-        :aria-label="t('common.buttons.close')"
-        @click="$emit('close')"
-      >
-        <AppIcon name="close" class="text-base" />
-      </button>
-    </div>
-
-    <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.reflection.monthly.progress')">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="
-            idx < stepIndex
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === stepIndex
-                ? 'neo-step-active w-3.5 h-3.5'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
+      <div class="flex items-baseline gap-2">
+        <h2 class="text-lg font-bold text-on-surface">
+          {{ t('planning.reflection.monthly.title') }}
+        </h2>
+        <span v-if="stepSubtitle" class="text-xs text-on-surface-variant">— {{ stepSubtitle }}</span>
       </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.reflection.monthly.progress')">
+          <button
+            v-for="(label, idx) in stepLabels"
+            :key="idx"
+            type="button"
+            :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
+            class="rounded-full transition-all duration-200"
+            :class="
+              idx < stepIndex
+                ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
+                : idx === stepIndex
+                  ? 'neo-step-active w-3.5 h-3.5'
+                  : 'neo-step-future w-2.5 h-2.5'
+            "
+            @click="idx < stepIndex && goToStep(STEPS[idx])"
+          />
+        </div>
+        <span class="text-xs font-medium text-on-surface-variant">
+          {{ stepLabels[stepIndex] }}
+        </span>
+      </div>
     </div>
 
     <!-- Step Content -->
@@ -49,24 +42,12 @@
     >
       <!-- Step: Review -->
       <div v-if="currentStep === 'review'" key="review" class="space-y-4">
-        <p class="text-sm text-on-surface-variant">
-          {{ t('planning.reflection.monthly.reviewSubtitle') }}
-        </p>
         <ReflectionReviewPanel :bundle="dataBundle" :is-loading="isBundleLoading" />
       </div>
 
       <!-- Step: Goals -->
       <div v-else-if="currentStep === 'goals'" key="goals" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <div>
-            <h3 class="text-base font-semibold text-on-surface">
-              {{ t('planning.reflection.monthly.goalsTitle') }}
-            </h3>
-            <p class="mt-1 text-sm text-on-surface-variant">
-              {{ t('planning.reflection.monthly.goalsSubtitle') }}
-            </p>
-          </div>
-
           <div v-if="goalSummaries.length > 0" class="space-y-3">
             <div
               v-for="goalSummary in goalSummaries"
@@ -195,58 +176,25 @@
         />
       </div>
 
-      <!-- Step: Prompts -->
-      <div v-else-if="currentStep === 'prompts'" key="prompts" class="space-y-4">
-        <AppCard padding="lg" class="space-y-5">
-          <div v-for="prompt in monthlyPrompts" :key="prompt.key" class="space-y-2">
-            <label :for="`prompt-${prompt.key}`" class="text-sm font-medium text-on-surface">
-              {{ prompt.label }}
-            </label>
-            <textarea
-              :id="`prompt-${prompt.key}`"
-              :value="promptResponses[prompt.key] ?? ''"
-              :placeholder="prompt.placeholder"
-              class="neo-input min-h-[6rem] w-full resize-none p-3 text-sm text-on-surface"
-              @input="handlePromptInput(prompt.key, ($event.target as HTMLTextAreaElement).value)"
-            />
-          </div>
-        </AppCard>
+      <!-- Step: Anchors -->
+      <div v-else-if="currentStep === 'anchors'" key="anchors">
+        <ReflectionAnchorsGrid
+          :categories="monthlyAnchorCategories"
+          :model-value="promptResponses"
+          @update:model-value="promptResponses = $event"
+        />
       </div>
 
       <!-- Step: Journal -->
-      <div v-else-if="currentStep === 'journal'" key="journal" class="space-y-4">
-        <AppCard padding="lg" class="space-y-2">
-          <h3 class="text-base font-semibold text-on-surface">
-            {{ t('planning.reflection.monthly.journalTitle') }}
-          </h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('planning.reflection.monthly.journalSubtitle') }}
-          </p>
-          <textarea
-            :value="freeformReflection"
-            :placeholder="t('planning.reflection.monthly.journalPlaceholder')"
-            class="neo-input min-h-[14rem] w-full resize-none p-4 text-on-surface"
-            @input="freeformReflection = ($event.target as HTMLTextAreaElement).value"
-          />
-        </AppCard>
-      </div>
-
-      <!-- Step: Looking Ahead -->
-      <div v-else-if="currentStep === 'ahead'" key="ahead" class="space-y-4">
-        <AppCard padding="lg" class="space-y-2">
-          <h3 class="text-base font-semibold text-on-surface">
-            {{ t('planning.reflection.monthly.aheadTitle') }}
-          </h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('planning.reflection.monthly.aheadSubtitle') }}
-          </p>
-          <textarea
-            :value="lookingAhead"
-            :placeholder="t('planning.reflection.monthly.aheadPlaceholder')"
-            class="neo-input min-h-[8rem] w-full resize-none p-4 text-on-surface"
-            @input="lookingAhead = ($event.target as HTMLTextAreaElement).value"
-          />
-        </AppCard>
+      <div v-else-if="currentStep === 'journal'" key="journal">
+        <ReflectionJournalSidebar
+          :model-value="freeformReflection"
+          :placeholder="t('planning.reflection.monthly.journalPlaceholder')"
+          :anchors="promptResponses"
+          :anchor-categories="monthlyAnchorCategories"
+          :rating-groups="monthlyRatingSummary"
+          @update:model-value="freeformReflection = $event"
+        />
       </div>
     </Transition>
 
@@ -255,14 +203,15 @@
       <AppButton
         v-if="stepIndex > 0"
         variant="tonal"
+        :aria-label="t('common.buttons.back')"
         @click="prevStep()"
       >
-        {{ t('common.buttons.back') }}
+        <AppIcon name="arrow_back" class="text-lg" />
       </AppButton>
       <div v-else />
 
       <AppButton
-        v-if="currentStep === 'ahead'"
+        v-if="currentStep === 'journal'"
         variant="filled"
         :disabled="isSaving"
         @click="handleSave"
@@ -273,9 +222,10 @@
         v-else
         variant="filled"
         :disabled="!canAdvance"
+        :aria-label="t('common.buttons.next')"
         @click="nextStep()"
       >
-        {{ t('common.buttons.next') }}
+        <AppIcon name="arrow_forward" class="text-lg" />
       </AppButton>
     </div>
   </section>
@@ -289,7 +239,10 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import ReflectionReviewPanel from './ReflectionReviewPanel.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
+import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
+import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
 import type { RatingGroup } from './ReflectionDimensionRatings.vue'
+import type { SidebarRatingGroup } from './ReflectionJournalSidebar.vue'
 import {
   useMonthlyReflectionWizard,
   type MonthlyReflectionStep,
@@ -313,9 +266,8 @@ const STEPS: MonthlyReflectionStep[] = [
   'goals',
   'weekly-recap',
   'ratings',
-  'prompts',
+  'anchors',
   'journal',
-  'ahead',
 ]
 
 const stepLabels = computed(() => [
@@ -323,27 +275,26 @@ const stepLabels = computed(() => [
   t('planning.reflection.steps.goals'),
   t('planning.reflection.steps.weeklyRecap'),
   t('planning.reflection.steps.ratings'),
-  t('planning.reflection.steps.prompts'),
+  t('planning.reflection.steps.anchors'),
   t('planning.reflection.steps.journal'),
-  t('planning.reflection.steps.ahead'),
 ])
 
-const monthlyPrompts = computed(() => [
-  {
-    key: 'proudOf',
-    label: t('planning.reflection.monthly.prompts.proudOf.label'),
-    placeholder: t('planning.reflection.monthly.prompts.proudOf.placeholder'),
-  },
-  {
-    key: 'challenges',
-    label: t('planning.reflection.monthly.prompts.challenges.label'),
-    placeholder: t('planning.reflection.monthly.prompts.challenges.placeholder'),
-  },
-  {
-    key: 'growth',
-    label: t('planning.reflection.monthly.prompts.growth.label'),
-    placeholder: t('planning.reflection.monthly.prompts.growth.placeholder'),
-  },
+const stepSubtitle = computed(() => {
+  switch (currentStep.value) {
+    case 'review': return t('planning.reflection.monthly.reviewSubtitle')
+    case 'goals': return t('planning.reflection.monthly.goalsSubtitle')
+    case 'ratings': return t('planning.reflection.monthly.groups.ratings.subtitle')
+    default: return ''
+  }
+})
+
+const monthlyAnchorCategories = computed(() => [
+  { key: 'proudOf', label: t('planning.reflection.monthly.anchors.proudOf'), icon: 'emoji_events' },
+  { key: 'challenges', label: t('planning.reflection.monthly.anchors.challenges'), icon: 'warning' },
+  { key: 'growth', label: t('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
+  { key: 'patterns', label: t('planning.reflection.monthly.anchors.patterns'), icon: 'pattern' },
+  { key: 'carryForward', label: t('planning.reflection.monthly.anchors.carryForward'), icon: 'arrow_forward' },
+  { key: 'letGo', label: t('planning.reflection.monthly.anchors.letGo'), icon: 'delete_sweep' },
 ])
 
 const {
@@ -362,7 +313,6 @@ const {
   agencyRating,
   promptResponses,
   freeformReflection,
-  lookingAhead,
   isSaving,
   save,
 } = useMonthlyReflectionWizard(toRef(props, 'monthRef'))
@@ -385,7 +335,6 @@ const ICONS = {
 const monthlyGroups = computed<RatingGroup[]>(() => [
   {
     title: t('planning.reflection.monthly.groups.ratings.title'),
-    subtitle: t('planning.reflection.monthly.groups.ratings.subtitle'),
     dimensions: [
       {
         key: 'balance',
@@ -441,9 +390,18 @@ function handleRatingUpdate(key: string, value: number) {
   }
 }
 
-function handlePromptInput(key: string, value: string) {
-  promptResponses.value = { ...promptResponses.value, [key]: value }
-}
+const monthlyRatingSummary = computed<SidebarRatingGroup[]>(() => [
+  {
+    title: t('planning.reflection.monthly.groups.ratings.title'),
+    items: [
+      { label: t('planning.reflection.monthly.dimensions.balance'), value: balanceRating.value },
+      { label: t('planning.reflection.monthly.dimensions.purpose'), value: purposeRating.value },
+      { label: t('planning.reflection.monthly.dimensions.growth'), value: growthRating.value },
+      { label: t('planning.reflection.monthly.dimensions.coherence'), value: coherenceRating.value },
+      { label: t('planning.reflection.monthly.dimensions.agency'), value: agencyRating.value },
+    ],
+  },
+])
 
 async function handleSave() {
   try {

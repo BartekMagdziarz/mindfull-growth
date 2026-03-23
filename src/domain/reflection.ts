@@ -41,9 +41,6 @@ export interface WeeklyReflection extends ReflectionRecordBase {
 
   // Free-form reflection
   freeformReflection: string
-
-  // Looking ahead
-  lookingAhead: string
 }
 
 export type CreateWeeklyReflectionPayload = Omit<
@@ -73,9 +70,6 @@ export interface MonthlyReflection extends ReflectionRecordBase {
 
   // Free-form reflection
   freeformReflection: string
-
-  // Looking ahead
-  lookingAhead: string
 }
 
 export type CreateMonthlyReflectionPayload = Omit<
@@ -191,7 +185,6 @@ export function normalizeWeeklyReflectionPayload(
       existing?.promptResponses ?? {}
     ),
     freeformReflection: normalizeText(data.freeformReflection, existing?.freeformReflection ?? ''),
-    lookingAhead: normalizeText(data.lookingAhead, existing?.lookingAhead ?? ''),
   }
 }
 
@@ -213,7 +206,6 @@ export function normalizeMonthlyReflectionPayload(
       existing?.promptResponses ?? {}
     ),
     freeformReflection: normalizeText(data.freeformReflection, existing?.freeformReflection ?? ''),
-    lookingAhead: normalizeText(data.lookingAhead, existing?.lookingAhead ?? ''),
   }
 }
 

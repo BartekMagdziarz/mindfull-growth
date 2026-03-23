@@ -11,18 +11,16 @@ export type MonthlyReflectionStep =
   | 'goals'
   | 'weekly-recap'
   | 'ratings'
-  | 'prompts'
+  | 'anchors'
   | 'journal'
-  | 'ahead'
 
 const STEP_ORDER: MonthlyReflectionStep[] = [
   'review',
   'goals',
   'weekly-recap',
   'ratings',
-  'prompts',
+  'anchors',
   'journal',
-  'ahead',
 ]
 
 /** Map old step names to new names for draft migration */
@@ -31,9 +29,10 @@ const LEGACY_STEP_MAP: Record<string, MonthlyReflectionStep> = {
   goals: 'goals',
   'weekly-recap': 'weekly-recap',
   ratings: 'ratings',
-  prompts: 'prompts',
+  prompts: 'anchors',
+  anchors: 'anchors',
   journal: 'journal',
-  ahead: 'ahead',
+  ahead: 'anchors',
 }
 
 function getDraftKey(monthRef: MonthRef): string {
@@ -61,9 +60,8 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   // Structured prompt responses
   const promptResponses = ref<Record<string, string>>({})
 
-  // Free-form reflection + looking ahead
+  // Free-form reflection
   const freeformReflection = ref('')
-  const lookingAhead = ref('')
 
   // State
   const isEditing = ref(false)
@@ -86,11 +84,9 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
           coherenceRating.value !== null ||
           agencyRating.value !== null
         )
-      case 'prompts':
-        return Object.values(promptResponses.value).some((v) => v.trim().length > 0)
-      case 'journal':
+      case 'anchors':
         return true
-      case 'ahead':
+      case 'journal':
         return true
       default:
         return false
@@ -152,7 +148,6 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
       agencyRating: agencyRating.value,
       promptResponses: promptResponses.value,
       freeformReflection: freeformReflection.value,
-      lookingAhead: lookingAhead.value,
     }
   }
 
@@ -177,7 +172,6 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
 
       if (data.promptResponses) promptResponses.value = data.promptResponses as Record<string, string>
       if (data.freeformReflection) freeformReflection.value = data.freeformReflection as string
-      if (data.lookingAhead) lookingAhead.value = data.lookingAhead as string
     } catch {
       // Invalid draft, ignore
     }
@@ -191,12 +185,11 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
     agencyRating.value = existing.agencyRating
     promptResponses.value = { ...existing.promptResponses }
     freeformReflection.value = existing.freeformReflection
-    lookingAhead.value = existing.lookingAhead
   }
 
   // Watch fields for auto-save
   watch(
-    [...allRatingRefs, promptResponses, freeformReflection, lookingAhead],
+    [...allRatingRefs, promptResponses, freeformReflection],
     scheduleDraftSave,
     { deep: true }
   )
@@ -245,7 +238,6 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
         agencyRating: agencyRating.value,
         promptResponses: { ...promptResponses.value },
         freeformReflection: freeformReflection.value,
-        lookingAhead: lookingAhead.value,
       }
 
       await store.upsertMonthly(payload)
@@ -281,7 +273,6 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
 
     // Free-form
     freeformReflection,
-    lookingAhead,
 
     // State
     isEditing,

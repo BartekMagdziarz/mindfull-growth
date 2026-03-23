@@ -11,18 +11,16 @@ export type WeeklyReflectionStep =
   | 'context'
   | 'state'
   | 'evaluation'
-  | 'prompts'
+  | 'anchors'
   | 'journal'
-  | 'ahead'
 
 const STEP_ORDER: WeeklyReflectionStep[] = [
   'review',
   'context',
   'state',
   'evaluation',
-  'prompts',
+  'anchors',
   'journal',
-  'ahead',
 ]
 
 /** Map old step names to new names for draft migration */
@@ -34,9 +32,10 @@ const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
   context: 'context',
   state: 'state',
   evaluation: 'evaluation',
-  prompts: 'prompts',
+  prompts: 'anchors',
+  anchors: 'anchors',
   journal: 'journal',
-  ahead: 'ahead',
+  ahead: 'anchors',
 }
 
 /** Map old field names to new field names for draft migration */
@@ -82,9 +81,8 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   // Structured prompt responses
   const promptResponses = ref<Record<string, string>>({})
 
-  // Free-form reflection + looking ahead
+  // Free-form reflection
   const freeformReflection = ref('')
-  const lookingAhead = ref('')
 
   // State
   const isEditing = ref(false)
@@ -116,11 +114,9 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
           emotionalRegulationRating.value !== null ||
           selfCareRating.value !== null
         )
-      case 'prompts':
-        return Object.values(promptResponses.value).some((v) => v.trim().length > 0)
-      case 'journal':
+      case 'anchors':
         return true
-      case 'ahead':
+      case 'journal':
         return true
       default:
         return false
@@ -196,7 +192,6 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       selfCareRating: selfCareRating.value,
       promptResponses: promptResponses.value,
       freeformReflection: freeformReflection.value,
-      lookingAhead: lookingAhead.value,
     }
   }
 
@@ -235,7 +230,6 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
       if (data.promptResponses) promptResponses.value = data.promptResponses as Record<string, string>
       if (data.freeformReflection) freeformReflection.value = data.freeformReflection as string
-      if (data.lookingAhead) lookingAhead.value = data.lookingAhead as string
     } catch {
       // Invalid draft, ignore
     }
@@ -256,12 +250,11 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     selfCareRating.value = existing.selfCareRating
     promptResponses.value = { ...existing.promptResponses }
     freeformReflection.value = existing.freeformReflection
-    lookingAhead.value = existing.lookingAhead
   }
 
   // Watch fields for auto-save
   watch(
-    [...allRatingRefs, promptResponses, freeformReflection, lookingAhead],
+    [...allRatingRefs, promptResponses, freeformReflection],
     scheduleDraftSave,
     { deep: true }
   )
@@ -318,7 +311,6 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
         selfCareRating: selfCareRating.value,
         promptResponses: { ...promptResponses.value },
         freeformReflection: freeformReflection.value,
-        lookingAhead: lookingAhead.value,
       }
 
       await store.upsertWeekly(payload)
@@ -365,7 +357,6 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
     // Free-form
     freeformReflection,
-    lookingAhead,
 
     // State
     isEditing,

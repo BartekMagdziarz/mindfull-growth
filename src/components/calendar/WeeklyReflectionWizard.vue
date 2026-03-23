@@ -1,42 +1,35 @@
 <template>
-  <section data-testid="weekly-reflection-wizard" class="neo-card space-y-3 px-4 py-4 md:px-5">
-    <!-- Header with close button -->
+  <section data-testid="weekly-reflection-wizard" class="neo-card space-y-8 px-4 py-4 md:px-5">
+    <!-- Header with step indicator -->
     <div class="flex items-center justify-between">
-      <h2 class="text-lg font-bold text-on-surface">
-        {{ t('planning.reflection.weekly.title') }}
-      </h2>
-      <button
-        type="button"
-        class="neo-control neo-focus h-10 w-10 shrink-0"
-        :aria-label="t('common.buttons.close')"
-        @click="$emit('close')"
-      >
-        <AppIcon name="close" class="text-base" />
-      </button>
-    </div>
-
-    <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.reflection.weekly.progress')">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="
-            idx < stepIndex
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === stepIndex
-                ? 'neo-step-active w-3.5 h-3.5'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
+      <div class="flex items-baseline gap-2">
+        <h2 class="text-lg font-bold text-on-surface">
+          {{ t('planning.reflection.weekly.title') }}
+        </h2>
+        <span v-if="stepSubtitle" class="text-xs text-on-surface-variant">— {{ stepSubtitle }}</span>
       </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.reflection.weekly.progress')">
+          <button
+            v-for="(label, idx) in stepLabels"
+            :key="idx"
+            type="button"
+            :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
+            class="rounded-full transition-all duration-200"
+            :class="
+              idx < stepIndex
+                ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
+                : idx === stepIndex
+                  ? 'neo-step-active w-3.5 h-3.5'
+                  : 'neo-step-future w-2.5 h-2.5'
+            "
+            @click="idx < stepIndex && goToStep(STEPS[idx])"
+          />
+        </div>
+        <span class="text-xs font-medium text-on-surface-variant">
+          {{ stepLabels[stepIndex] }}
+        </span>
+      </div>
     </div>
 
     <!-- Step Content -->
@@ -49,9 +42,6 @@
     >
       <!-- Step: Review -->
       <div v-if="currentStep === 'review'" key="review" class="space-y-4">
-        <p class="text-sm text-on-surface-variant">
-          {{ t('planning.reflection.weekly.reviewSubtitle') }}
-        </p>
         <WeeklyReviewDayCards
           :daily-breakdown="dataBundle?.dailyBreakdown ?? []"
           :weekly-summary="dataBundle?.weeklySummary ?? { weeklyHabits: [], monthlyHabits: [], totalEmotionLogs: 0, totalJournalEntries: 0, totalExercises: 0 }"
@@ -83,56 +73,25 @@
         />
       </div>
 
-      <!-- Step: Prompts -->
-      <div v-else-if="currentStep === 'prompts'" key="prompts" class="space-y-5">
-        <div v-for="prompt in weeklyPrompts" :key="prompt.key" class="space-y-2">
-          <label :for="`prompt-${prompt.key}`" class="text-sm font-medium text-on-surface">
-            {{ prompt.label }}
-          </label>
-          <textarea
-            :id="`prompt-${prompt.key}`"
-            :value="promptResponses[prompt.key] ?? ''"
-            :placeholder="prompt.placeholder"
-            class="neo-input min-h-[6rem] w-full resize-none p-3 text-sm text-on-surface"
-            @input="handlePromptInput(prompt.key, ($event.target as HTMLTextAreaElement).value)"
-          />
-        </div>
+      <!-- Step: Anchors -->
+      <div v-else-if="currentStep === 'anchors'" key="anchors">
+        <ReflectionAnchorsGrid
+          :categories="weeklyAnchorCategories"
+          :model-value="promptResponses"
+          @update:model-value="promptResponses = $event"
+        />
       </div>
 
       <!-- Step: Journal -->
-      <div v-else-if="currentStep === 'journal'" key="journal" class="space-y-4">
-        <div class="space-y-2">
-          <h3 class="text-base font-semibold text-on-surface">
-            {{ t('planning.reflection.weekly.journalTitle') }}
-          </h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('planning.reflection.weekly.journalSubtitle') }}
-          </p>
-          <textarea
-            :value="freeformReflection"
-            :placeholder="t('planning.reflection.weekly.journalPlaceholder')"
-            class="neo-input min-h-[10rem] w-full resize-none p-4 text-on-surface"
-            @input="freeformReflection = ($event.target as HTMLTextAreaElement).value"
-          />
-        </div>
-      </div>
-
-      <!-- Step: Looking Ahead -->
-      <div v-else-if="currentStep === 'ahead'" key="ahead" class="space-y-4">
-        <div class="space-y-2">
-          <h3 class="text-base font-semibold text-on-surface">
-            {{ t('planning.reflection.weekly.aheadTitle') }}
-          </h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('planning.reflection.weekly.aheadSubtitle') }}
-          </p>
-          <textarea
-            :value="lookingAhead"
-            :placeholder="t('planning.reflection.weekly.aheadPlaceholder')"
-            class="neo-input min-h-[6rem] w-full resize-none p-4 text-on-surface"
-            @input="lookingAhead = ($event.target as HTMLTextAreaElement).value"
-          />
-        </div>
+      <div v-else-if="currentStep === 'journal'" key="journal">
+        <ReflectionJournalSidebar
+          :model-value="freeformReflection"
+          :placeholder="t('planning.reflection.weekly.journalPlaceholder')"
+          :anchors="promptResponses"
+          :anchor-categories="weeklyAnchorCategories"
+          :rating-groups="weeklyRatingSummary"
+          @update:model-value="freeformReflection = $event"
+        />
       </div>
     </Transition>
 
@@ -141,14 +100,15 @@
       <AppButton
         v-if="stepIndex > 0"
         variant="tonal"
+        :aria-label="t('common.buttons.back')"
         @click="prevStep()"
       >
-        {{ t('common.buttons.back') }}
+        <AppIcon name="arrow_back" class="text-lg" />
       </AppButton>
       <div v-else />
 
       <AppButton
-        v-if="currentStep === 'ahead'"
+        v-if="currentStep === 'journal'"
         variant="filled"
         :disabled="isSaving"
         @click="handleSave"
@@ -159,9 +119,10 @@
         v-else
         variant="filled"
         :disabled="!canAdvance"
+        :aria-label="t('common.buttons.next')"
         @click="nextStep()"
       >
-        {{ t('common.buttons.next') }}
+        <AppIcon name="arrow_forward" class="text-lg" />
       </AppButton>
     </div>
   </section>
@@ -173,7 +134,10 @@ import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import WeeklyReviewDayCards from './WeeklyReviewDayCards.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
+import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
+import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
 import type { RatingGroup } from './ReflectionDimensionRatings.vue'
+import type { SidebarRatingGroup } from './ReflectionJournalSidebar.vue'
 import {
   useWeeklyReflectionWizard,
   type WeeklyReflectionStep,
@@ -197,9 +161,8 @@ const STEPS: WeeklyReflectionStep[] = [
   'context',
   'state',
   'evaluation',
-  'prompts',
+  'anchors',
   'journal',
-  'ahead',
 ]
 
 const stepLabels = computed(() => [
@@ -207,27 +170,27 @@ const stepLabels = computed(() => [
   t('planning.reflection.steps.context'),
   t('planning.reflection.steps.state'),
   t('planning.reflection.steps.evaluation'),
-  t('planning.reflection.steps.prompts'),
+  t('planning.reflection.steps.anchors'),
   t('planning.reflection.steps.journal'),
-  t('planning.reflection.steps.ahead'),
 ])
 
-const weeklyPrompts = computed(() => [
-  {
-    key: 'wentWell',
-    label: t('planning.reflection.weekly.prompts.wentWell.label'),
-    placeholder: t('planning.reflection.weekly.prompts.wentWell.placeholder'),
-  },
-  {
-    key: 'challenges',
-    label: t('planning.reflection.weekly.prompts.challenges.label'),
-    placeholder: t('planning.reflection.weekly.prompts.challenges.placeholder'),
-  },
-  {
-    key: 'lessons',
-    label: t('planning.reflection.weekly.prompts.lessons.label'),
-    placeholder: t('planning.reflection.weekly.prompts.lessons.placeholder'),
-  },
+const stepSubtitle = computed(() => {
+  switch (currentStep.value) {
+    case 'review': return t('planning.reflection.weekly.reviewSubtitle')
+    case 'context': return t('planning.reflection.weekly.groups.context.subtitle')
+    case 'state': return t('planning.reflection.weekly.groups.state.subtitle')
+    case 'evaluation': return t('planning.reflection.weekly.groups.evaluation.subtitle')
+    default: return ''
+  }
+})
+
+const weeklyAnchorCategories = computed(() => [
+  { key: 'wentWell', label: t('planning.reflection.weekly.anchors.wentWell'), icon: 'thumb_up' },
+  { key: 'challenges', label: t('planning.reflection.weekly.anchors.challenges'), icon: 'warning' },
+  { key: 'gratitude', label: t('planning.reflection.weekly.anchors.gratitude'), icon: 'favorite' },
+  { key: 'lessons', label: t('planning.reflection.weekly.anchors.lessons'), icon: 'lightbulb' },
+  { key: 'improvements', label: t('planning.reflection.weekly.anchors.improvements'), icon: 'build' },
+  { key: 'lookingAhead', label: t('planning.reflection.weekly.anchors.lookingAhead'), icon: 'arrow_forward' },
 ])
 
 const {
@@ -253,7 +216,6 @@ const {
   selfCareRating,
   promptResponses,
   freeformReflection,
-  lookingAhead,
   isSaving,
   save,
 } = useWeeklyReflectionWizard(toRef(props, 'weekRef'))
@@ -277,7 +239,6 @@ const ICONS = {
 const contextGroup = computed<RatingGroup[]>(() => [
   {
     title: t('planning.reflection.weekly.groups.context.title'),
-    subtitle: t('planning.reflection.weekly.groups.context.subtitle'),
     dimensions: [
       {
         key: 'physicalIntensity',
@@ -318,7 +279,6 @@ const contextGroup = computed<RatingGroup[]>(() => [
 const stateGroup = computed<RatingGroup[]>(() => [
   {
     title: t('planning.reflection.weekly.groups.state.title'),
-    subtitle: t('planning.reflection.weekly.groups.state.subtitle'),
     dimensions: [
       {
         key: 'mood',
@@ -359,7 +319,6 @@ const stateGroup = computed<RatingGroup[]>(() => [
 const evaluationGroup = computed<RatingGroup[]>(() => [
   {
     title: t('planning.reflection.weekly.groups.evaluation.title'),
-    subtitle: t('planning.reflection.weekly.groups.evaluation.subtitle'),
     dimensions: [
       {
         key: 'productivity',
@@ -414,9 +373,35 @@ function handleRatingUpdate(key: string, value: number) {
   }
 }
 
-function handlePromptInput(key: string, value: string) {
-  promptResponses.value = { ...promptResponses.value, [key]: value }
-}
+const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
+  {
+    title: t('planning.reflection.weekly.groups.context.title'),
+    items: [
+      { label: t('planning.reflection.weekly.dimensions.physicalIntensity'), value: physicalIntensityRating.value },
+      { label: t('planning.reflection.weekly.dimensions.taskLoad'), value: taskLoadRating.value },
+      { label: t('planning.reflection.weekly.dimensions.emotionalIntensity'), value: emotionalIntensityRating.value },
+      { label: t('planning.reflection.weekly.dimensions.socialIntensity'), value: socialIntensityRating.value },
+    ],
+  },
+  {
+    title: t('planning.reflection.weekly.groups.state.title'),
+    items: [
+      { label: t('planning.reflection.weekly.dimensions.mood'), value: moodRating.value },
+      { label: t('planning.reflection.weekly.dimensions.energy'), value: energyRating.value },
+      { label: t('planning.reflection.weekly.dimensions.calm'), value: calmRating.value },
+      { label: t('planning.reflection.weekly.dimensions.connection'), value: connectionRating.value },
+    ],
+  },
+  {
+    title: t('planning.reflection.weekly.groups.evaluation.title'),
+    items: [
+      { label: t('planning.reflection.weekly.dimensions.productivity'), value: productivityRating.value },
+      { label: t('planning.reflection.weekly.dimensions.engagement'), value: engagementRating.value },
+      { label: t('planning.reflection.weekly.dimensions.emotionalRegulation'), value: emotionalRegulationRating.value },
+      { label: t('planning.reflection.weekly.dimensions.selfCare'), value: selfCareRating.value },
+    ],
+  },
+])
 
 async function handleSave() {
   try {
