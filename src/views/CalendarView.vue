@@ -1,65 +1,29 @@
 <template>
   <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
     <div class="mb-6 space-y-4">
-      <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
-        <section class="neo-card px-5 py-4 md:px-6">
-          <div class="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              class="neo-control neo-focus"
-              :aria-label="t('common.buttons.back')"
-              @click="goToPreviousPeriod"
-            >
-              <AppIcon name="chevron_left" class="text-base" />
-            </button>
-            <div class="neo-inset rounded-full px-4 py-2 text-sm font-semibold text-on-surface">
-              {{ activePeriodRangeLabel }}
-            </div>
-            <button
-              type="button"
-              class="neo-control neo-focus"
-              :aria-label="t('common.buttons.next')"
-              @click="goToNextPeriod"
-            >
-              <AppIcon name="chevron_right" class="text-base" />
-            </button>
-
-            <div class="hidden h-10 w-px rounded-full bg-outline/35 xl:block" />
-
-            <div class="neo-segmented">
-              <button
-                v-for="item in scaleOptions"
-                :key="item.scale"
-                type="button"
-                :class="[
-                  'neo-segmented__item neo-focus',
-                  item.scale === scale ? 'neo-segmented__item--active' : '',
-                ]"
-                @click="goToScale(item.scale)"
-              >
-                {{ item.label }}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section v-if="showHeaderActions" class="neo-card px-5 py-4 md:px-6">
-          <div class="flex flex-wrap items-center gap-3 xl:justify-end">
-            <AppButton v-if="showPlanAction" :variant="planActionVariant" @click="openPlanPanel">
-              <AppIcon name="calendar_month" class="text-base" />
-              {{ planActionLabel }}
-            </AppButton>
-            <AppButton
-              v-if="showReflectionAction"
-              :variant="reflectionActionVariant"
-              @click="openReflectionPanel"
-            >
-              <AppIcon name="auto_awesome" class="text-base" />
-              {{ reflectionActionLabel }}
-            </AppButton>
-          </div>
-        </section>
-      </div>
+      <CalendarToolbar
+        :label="activePeriodRangeLabel"
+        :scale-options="scaleOptions"
+        :active-scale="scale"
+        @prev="goToPreviousPeriod"
+        @next="goToNextPeriod"
+        @scale="goToScale($event as CalendarScale)"
+      >
+        <template v-if="showHeaderActions" #actions>
+          <AppButton v-if="showPlanAction" :variant="planActionVariant" @click="openPlanPanel">
+            <AppIcon name="calendar_month" class="text-base" />
+            {{ planActionLabel }}
+          </AppButton>
+          <AppButton
+            v-if="showReflectionAction"
+            :variant="reflectionActionVariant"
+            @click="openReflectionPanel"
+          >
+            <AppIcon name="auto_awesome" class="text-base" />
+            {{ reflectionActionLabel }}
+          </AppButton>
+        </template>
+      </CalendarToolbar>
     </div>
 
     <PlanningStatePanel
@@ -546,6 +510,7 @@ import type { CalendarKrSummary } from '@/components/calendar/CalendarGoalSummar
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import CalendarGoalCard from '@/components/calendar/CalendarGoalCard.vue'
+import CalendarToolbar from '@/components/calendar/CalendarToolbar.vue'
 import CalendarGoalSummaryCard from '@/components/calendar/CalendarGoalSummaryCard.vue'
 import CalendarItemCard from '@/components/calendar/CalendarItemCard.vue'
 import CalendarMeasurementSummaryCard from '@/components/calendar/CalendarMeasurementSummaryCard.vue'

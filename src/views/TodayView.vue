@@ -1,53 +1,28 @@
 <template>
   <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
-    <!-- Date navigation header -->
-    <section class="neo-card mb-6 px-5 py-4">
-      <div class="flex flex-wrap items-center gap-3">
-        <button
-          class="neo-control neo-focus"
-          :disabled="store.isLoading"
-          @click="void handlePreviousDay()"
-        >
-          <AppIcon name="chevron_left" class="text-base" />
-        </button>
-        <button
-          class="neo-inset rounded-full px-4 py-2 text-sm font-semibold text-on-surface"
-          @click="openDatePicker"
-        >
-          {{ dayLabel }}
-        </button>
-        <button
-          class="neo-control neo-focus"
-          :disabled="store.isLoading"
-          @click="void handleNextDay()"
-        >
-          <AppIcon name="chevron_right" class="text-base" />
-        </button>
-        <div class="hidden h-8 w-px rounded-full bg-outline/35 md:block" />
-        <div v-if="isCalendarDayMode" class="hidden h-8 w-px rounded-full bg-outline/35 xl:block" />
-        <div v-if="isCalendarDayMode" class="neo-segmented">
-          <button
-            v-for="item in scaleOptions"
-            :key="item.scale"
-            type="button"
-            :class="[
-              'neo-segmented__item neo-focus',
-              item.scale === 'day' ? 'neo-segmented__item--active' : '',
-            ]"
-            @click="goToScale(item.scale)"
-          >
-            {{ item.label }}
-          </button>
-        </div>
-      </div>
-      <input
-        ref="dateInputRef"
-        type="date"
-        class="sr-only"
-        :value="bundleDayRef"
-        @change="handleDateChange"
-      />
-    </section>
+    <CalendarToolbar
+      class="mb-6"
+      :label="dayLabel"
+      :label-clickable="true"
+      :scale-options="isCalendarDayMode ? scaleOptions : undefined"
+      active-scale="day"
+      :prev-disabled="store.isLoading"
+      :next-disabled="store.isLoading"
+      @prev="void handlePreviousDay()"
+      @next="void handleNextDay()"
+      @label-click="openDatePicker"
+      @scale="goToScale($event as 'year' | 'month' | 'week' | 'day')"
+    >
+      <template #after>
+        <input
+          ref="dateInputRef"
+          type="date"
+          class="sr-only"
+          :value="bundleDayRef"
+          @change="handleDateChange"
+        />
+      </template>
+    </CalendarToolbar>
 
     <PlanningStatePanel
       v-if="store.isLoading && !store.bundle"
@@ -296,6 +271,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import CalendarToolbar from '@/components/calendar/CalendarToolbar.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
