@@ -64,6 +64,29 @@
     />
 
     <template v-else-if="store.bundle">
+      <!-- Wellness cards -->
+      <div class="mb-6 grid gap-4 md:grid-cols-3">
+        <JournalStreakCard
+          :reference-date="wellnessReferenceDate"
+          :day-word-counts="journalDayWordCounts"
+        />
+
+        <EmotionStreakCard
+          :reference-date="wellnessReferenceDate"
+          :day-emotion-data="dayEmotionData"
+        />
+
+        <article class="neo-card neo-raised border-primary/10 px-4 py-3.5 transition-shadow duration-200 hover:shadow-neu-raised-lg hover:-translate-y-px">
+          <div class="flex items-center gap-2">
+            <AppIcon name="psychology" class="text-lg text-on-surface" />
+            <span class="flex-1 truncate font-semibold text-on-surface">{{ t('planning.calendar.wellness.exercises') }}</span>
+          </div>
+          <p class="mt-2 text-xs text-on-surface-variant">
+            {{ t('planning.calendar.wellness.exercisesPlaceholder') }}
+          </p>
+        </article>
+      </div>
+
       <!-- 4-column grid -->
       <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <!-- Goals & KRs column -->
@@ -276,11 +299,20 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
+import JournalStreakCard from '@/components/today/JournalStreakCard.vue'
+import EmotionStreakCard from '@/components/today/EmotionStreakCard.vue'
 import TodayItemRow from '@/components/today/TodayItemRow.vue'
 import { useT } from '@/composables/useT'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
 import type { TodayItem } from '@/services/todayViewQueries'
+import { useJournalStore } from '@/stores/journal.store'
+import { useEmotionLogStore } from '@/stores/emotionLog.store'
+import { useEmotionStore } from '@/stores/emotion.store'
 import { useTodayStore } from '@/stores/today.store'
+import { getQuadrant } from '@/domain/emotion'
+import type { Quadrant } from '@/domain/emotion'
+import type { DayEmotionSummary } from '@/utils/wellnessCalendar'
+import type { EmotionLog } from '@/domain/emotionLog'
 import { formatDayTitle } from '@/utils/periodLabels'
 import type { DayRef } from '@/domain/period'
 import { getPeriodRefsForDate } from '@/utils/periods'
@@ -293,6 +325,9 @@ const props = defineProps<{
 const router = useRouter()
 const { t, locale } = useT()
 const store = useTodayStore()
+const journalStore = useJournalStore()
+const emotionLogStore = useEmotionLogStore()
+const emotionStore = useEmotionStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const hiddenExpanded = ref(false)
 const deleteDialogOpen = ref(false)
@@ -320,8 +355,69 @@ const deleteDialogMessage = computed(() => {
   })
 })
 
+// Wellness panel data
+const wellnessReferenceDate = computed(() => {
+  const [y, m, d] = bundleDayRef.value.split('-').map(Number)
+  return new Date(y, m - 1, d)
+})
+const journalDayWordCounts = computed(() => {
+  const map = new Map<string, number>()
+  for (const entry of journalStore.entries) {
+    const key = entry.createdAt.slice(0, 10)
+    const words =
+      entry.body.split(/\s+/).filter(Boolean).length +
+      (entry.title ? entry.title.split(/\s+/).filter(Boolean).length : 0)
+    map.set(key, (map.get(key) ?? 0) + words)
+  }
+  return map
+})
+
+const dayEmotionData = computed(() => {
+  const map = new Map<string, DayEmotionSummary>()
+  const logsByDay = new Map<string, EmotionLog[]>()
+
+  for (const log of emotionLogStore.logs) {
+    const key = log.createdAt.slice(0, 10)
+    const existing = logsByDay.get(key) ?? []
+    existing.push(log)
+    logsByDay.set(key, existing)
+  }
+
+  for (const [dayKey, logs] of logsByDay) {
+    const counts: Record<Quadrant, number> = {
+      'high-energy-high-pleasantness': 0,
+      'high-energy-low-pleasantness': 0,
+      'low-energy-high-pleasantness': 0,
+      'low-energy-low-pleasantness': 0,
+    }
+    let total = 0
+    for (const log of logs) {
+      for (const eid of log.emotionIds) {
+        const em = emotionStore.getEmotionById(eid)
+        if (em) {
+          counts[getQuadrant(em)]++
+          total++
+        }
+      }
+    }
+    const proportions: Record<Quadrant, number> =
+      total > 0
+        ? {
+            'high-energy-high-pleasantness': counts['high-energy-high-pleasantness'] / total,
+            'high-energy-low-pleasantness': counts['high-energy-low-pleasantness'] / total,
+            'low-energy-high-pleasantness': counts['low-energy-high-pleasantness'] / total,
+            'low-energy-low-pleasantness': counts['low-energy-low-pleasantness'] / total,
+          }
+        : counts
+    map.set(dayKey, { logCount: logs.length, quadrantProportions: proportions })
+  }
+
+  return map
+})
+
 onMounted(() => {
   void loadInitialBundle()
+  Promise.all([journalStore.loadEntries(), emotionLogStore.loadLogs(), emotionStore.loadEmotions()])
 })
 
 watch(
