@@ -52,46 +52,56 @@
         <p class="text-sm text-on-surface-variant">
           {{ t('planning.reflection.weekly.reviewSubtitle') }}
         </p>
-        <ReflectionReviewPanel :bundle="dataBundle" :is-loading="isBundleLoading" />
+        <WeeklyReviewDayCards
+          :daily-breakdown="dataBundle?.dailyBreakdown ?? []"
+          :weekly-summary="dataBundle?.weeklySummary ?? { weeklyHabits: [], monthlyHabits: [], totalEmotionLogs: 0, totalJournalEntries: 0, totalExercises: 0 }"
+          :is-loading="isBundleLoading"
+        />
       </div>
 
-      <!-- Step: Ratings -->
-      <div v-else-if="currentStep === 'ratings'" key="ratings" class="space-y-4">
-        <AppCard padding="lg" class="space-y-2">
-          <h3 class="text-base font-semibold text-on-surface">
-            {{ t('planning.reflection.weekly.ratingsTitle') }}
-          </h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('planning.reflection.weekly.ratingsSubtitle') }}
-          </p>
-          <ReflectionDimensionRatings
-            :dimensions="weeklyDimensions"
-            @update:rating="handleRatingUpdate"
-          />
-        </AppCard>
+      <!-- Step: Context -->
+      <div v-else-if="currentStep === 'context'" key="context" class="space-y-4">
+        <ReflectionDimensionRatings
+          :groups="contextGroup"
+          @update:rating="handleRatingUpdate"
+        />
+      </div>
+
+      <!-- Step: State -->
+      <div v-else-if="currentStep === 'state'" key="state" class="space-y-4">
+        <ReflectionDimensionRatings
+          :groups="stateGroup"
+          @update:rating="handleRatingUpdate"
+        />
+      </div>
+
+      <!-- Step: Evaluation -->
+      <div v-else-if="currentStep === 'evaluation'" key="evaluation" class="space-y-4">
+        <ReflectionDimensionRatings
+          :groups="evaluationGroup"
+          @update:rating="handleRatingUpdate"
+        />
       </div>
 
       <!-- Step: Prompts -->
-      <div v-else-if="currentStep === 'prompts'" key="prompts" class="space-y-4">
-        <AppCard padding="lg" class="space-y-5">
-          <div v-for="prompt in weeklyPrompts" :key="prompt.key" class="space-y-2">
-            <label :for="`prompt-${prompt.key}`" class="text-sm font-medium text-on-surface">
-              {{ prompt.label }}
-            </label>
-            <textarea
-              :id="`prompt-${prompt.key}`"
-              :value="promptResponses[prompt.key] ?? ''"
-              :placeholder="prompt.placeholder"
-              class="neo-input min-h-[6rem] w-full resize-none p-3 text-sm text-on-surface"
-              @input="handlePromptInput(prompt.key, ($event.target as HTMLTextAreaElement).value)"
-            />
-          </div>
-        </AppCard>
+      <div v-else-if="currentStep === 'prompts'" key="prompts" class="space-y-5">
+        <div v-for="prompt in weeklyPrompts" :key="prompt.key" class="space-y-2">
+          <label :for="`prompt-${prompt.key}`" class="text-sm font-medium text-on-surface">
+            {{ prompt.label }}
+          </label>
+          <textarea
+            :id="`prompt-${prompt.key}`"
+            :value="promptResponses[prompt.key] ?? ''"
+            :placeholder="prompt.placeholder"
+            class="neo-input min-h-[6rem] w-full resize-none p-3 text-sm text-on-surface"
+            @input="handlePromptInput(prompt.key, ($event.target as HTMLTextAreaElement).value)"
+          />
+        </div>
       </div>
 
       <!-- Step: Journal -->
       <div v-else-if="currentStep === 'journal'" key="journal" class="space-y-4">
-        <AppCard padding="lg" class="space-y-2">
+        <div class="space-y-2">
           <h3 class="text-base font-semibold text-on-surface">
             {{ t('planning.reflection.weekly.journalTitle') }}
           </h3>
@@ -101,15 +111,15 @@
           <textarea
             :value="freeformReflection"
             :placeholder="t('planning.reflection.weekly.journalPlaceholder')"
-            class="neo-input min-h-[14rem] w-full resize-none p-4 text-on-surface"
+            class="neo-input min-h-[10rem] w-full resize-none p-4 text-on-surface"
             @input="freeformReflection = ($event.target as HTMLTextAreaElement).value"
           />
-        </AppCard>
+        </div>
       </div>
 
       <!-- Step: Looking Ahead -->
       <div v-else-if="currentStep === 'ahead'" key="ahead" class="space-y-4">
-        <AppCard padding="lg" class="space-y-2">
+        <div class="space-y-2">
           <h3 class="text-base font-semibold text-on-surface">
             {{ t('planning.reflection.weekly.aheadTitle') }}
           </h3>
@@ -119,10 +129,10 @@
           <textarea
             :value="lookingAhead"
             :placeholder="t('planning.reflection.weekly.aheadPlaceholder')"
-            class="neo-input min-h-[8rem] w-full resize-none p-4 text-on-surface"
+            class="neo-input min-h-[6rem] w-full resize-none p-4 text-on-surface"
             @input="lookingAhead = ($event.target as HTMLTextAreaElement).value"
           />
-        </AppCard>
+        </div>
       </div>
     </Transition>
 
@@ -159,11 +169,11 @@
 
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
-import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import ReflectionReviewPanel from './ReflectionReviewPanel.vue'
+import WeeklyReviewDayCards from './WeeklyReviewDayCards.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
+import type { RatingGroup } from './ReflectionDimensionRatings.vue'
 import {
   useWeeklyReflectionWizard,
   type WeeklyReflectionStep,
@@ -182,11 +192,21 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const STEPS: WeeklyReflectionStep[] = ['review', 'ratings', 'prompts', 'journal', 'ahead']
+const STEPS: WeeklyReflectionStep[] = [
+  'review',
+  'context',
+  'state',
+  'evaluation',
+  'prompts',
+  'journal',
+  'ahead',
+]
 
 const stepLabels = computed(() => [
   t('planning.reflection.steps.review'),
-  t('planning.reflection.steps.ratings'),
+  t('planning.reflection.steps.context'),
+  t('planning.reflection.steps.state'),
+  t('planning.reflection.steps.evaluation'),
   t('planning.reflection.steps.prompts'),
   t('planning.reflection.steps.journal'),
   t('planning.reflection.steps.ahead'),
@@ -219,11 +239,18 @@ const {
   goToStep,
   dataBundle,
   isBundleLoading,
+  physicalIntensityRating,
+  taskLoadRating,
+  emotionalIntensityRating,
+  socialIntensityRating,
   moodRating,
   energyRating,
-  focusRating,
-  socialConnectionRating,
-  stressLevelRating,
+  calmRating,
+  connectionRating,
+  productivityRating,
+  engagementRating,
+  emotionalRegulationRating,
+  selfCareRating,
   promptResponses,
   freeformReflection,
   lookingAhead,
@@ -231,47 +258,159 @@ const {
   save,
 } = useWeeklyReflectionWizard(toRef(props, 'weekRef'))
 
-const weeklyDimensions = computed(() => [
-  { key: 'mood', label: t('planning.reflection.weekly.dimensions.mood'), value: moodRating.value },
+// Icon sets for each dimension
+const ICONS = {
+  physicalIntensity: ['hotel', 'airline_seat_recline_normal', 'directions_walk', 'directions_run', 'sprint'] as [string, string, string, string, string],
+  taskLoad: ['inbox', 'task', 'checklist', 'assignment_late', 'local_fire_department'] as [string, string, string, string, string],
+  emotionalIntensity: ['wb_sunny', 'partly_cloudy_day', 'rainy', 'thunderstorm', 'cyclone'] as [string, string, string, string, string],
+  socialIntensity: ['do_not_disturb_on', 'person', 'group', 'groups', 'stadium'] as [string, string, string, string, string],
+  mood: ['sentiment_very_dissatisfied', 'sentiment_dissatisfied', 'sentiment_neutral', 'sentiment_satisfied', 'sentiment_very_satisfied'] as [string, string, string, string, string],
+  energy: ['battery_0_bar', 'battery_2_bar', 'battery_4_bar', 'battery_full', 'battery_charging_full'] as [string, string, string, string, string],
+  calm: ['earthquake', 'air', 'airwave', 'waves', 'self_improvement'] as [string, string, string, string, string],
+  connection: ['person_off', 'person', 'group', 'diversity_3', 'favorite'] as [string, string, string, string, string],
+  productivity: ['block', 'trending_down', 'trending_flat', 'trending_up', 'rocket_launch'] as [string, string, string, string, string],
+  engagement: ['snooze', 'visibility_off', 'visibility', 'psychology', 'local_fire_department'] as [string, string, string, string, string],
+  emotionalRegulation: ['sentiment_frustrated', 'sentiment_worried', 'sentiment_neutral', 'sentiment_calm', 'shield_with_heart'] as [string, string, string, string, string],
+  selfCare: ['heart_broken', 'heart_minus', 'heart_check', 'heart_plus', 'favorite'] as [string, string, string, string, string],
+}
+
+const contextGroup = computed<RatingGroup[]>(() => [
   {
-    key: 'energy',
-    label: t('planning.reflection.weekly.dimensions.energy'),
-    value: energyRating.value,
+    title: t('planning.reflection.weekly.groups.context.title'),
+    subtitle: t('planning.reflection.weekly.groups.context.subtitle'),
+    dimensions: [
+      {
+        key: 'physicalIntensity',
+        label: t('planning.reflection.weekly.dimensions.physicalIntensity'),
+        value: physicalIntensityRating.value,
+        icons: ICONS.physicalIntensity,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.physicalIntensity.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.physicalIntensity.high'),
+      },
+      {
+        key: 'taskLoad',
+        label: t('planning.reflection.weekly.dimensions.taskLoad'),
+        value: taskLoadRating.value,
+        icons: ICONS.taskLoad,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.taskLoad.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.taskLoad.high'),
+      },
+      {
+        key: 'emotionalIntensity',
+        label: t('planning.reflection.weekly.dimensions.emotionalIntensity'),
+        value: emotionalIntensityRating.value,
+        icons: ICONS.emotionalIntensity,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.emotionalIntensity.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.emotionalIntensity.high'),
+      },
+      {
+        key: 'socialIntensity',
+        label: t('planning.reflection.weekly.dimensions.socialIntensity'),
+        value: socialIntensityRating.value,
+        icons: ICONS.socialIntensity,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.socialIntensity.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.socialIntensity.high'),
+      },
+    ],
   },
+])
+
+const stateGroup = computed<RatingGroup[]>(() => [
   {
-    key: 'focus',
-    label: t('planning.reflection.weekly.dimensions.focus'),
-    value: focusRating.value,
+    title: t('planning.reflection.weekly.groups.state.title'),
+    subtitle: t('planning.reflection.weekly.groups.state.subtitle'),
+    dimensions: [
+      {
+        key: 'mood',
+        label: t('planning.reflection.weekly.dimensions.mood'),
+        value: moodRating.value,
+        icons: ICONS.mood,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.mood.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.mood.high'),
+      },
+      {
+        key: 'energy',
+        label: t('planning.reflection.weekly.dimensions.energy'),
+        value: energyRating.value,
+        icons: ICONS.energy,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.energy.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.energy.high'),
+      },
+      {
+        key: 'calm',
+        label: t('planning.reflection.weekly.dimensions.calm'),
+        value: calmRating.value,
+        icons: ICONS.calm,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.calm.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.calm.high'),
+      },
+      {
+        key: 'connection',
+        label: t('planning.reflection.weekly.dimensions.connection'),
+        value: connectionRating.value,
+        icons: ICONS.connection,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.connection.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.connection.high'),
+      },
+    ],
   },
+])
+
+const evaluationGroup = computed<RatingGroup[]>(() => [
   {
-    key: 'socialConnection',
-    label: t('planning.reflection.weekly.dimensions.socialConnection'),
-    value: socialConnectionRating.value,
-  },
-  {
-    key: 'stressLevel',
-    label: t('planning.reflection.weekly.dimensions.stressLevel'),
-    value: stressLevelRating.value,
+    title: t('planning.reflection.weekly.groups.evaluation.title'),
+    subtitle: t('planning.reflection.weekly.groups.evaluation.subtitle'),
+    dimensions: [
+      {
+        key: 'productivity',
+        label: t('planning.reflection.weekly.dimensions.productivity'),
+        value: productivityRating.value,
+        icons: ICONS.productivity,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.productivity.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.productivity.high'),
+      },
+      {
+        key: 'engagement',
+        label: t('planning.reflection.weekly.dimensions.engagement'),
+        value: engagementRating.value,
+        icons: ICONS.engagement,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.engagement.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.engagement.high'),
+      },
+      {
+        key: 'emotionalRegulation',
+        label: t('planning.reflection.weekly.dimensions.emotionalRegulation'),
+        value: emotionalRegulationRating.value,
+        icons: ICONS.emotionalRegulation,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.emotionalRegulation.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.emotionalRegulation.high'),
+      },
+      {
+        key: 'selfCare',
+        label: t('planning.reflection.weekly.dimensions.selfCare'),
+        value: selfCareRating.value,
+        icons: ICONS.selfCare,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.selfCare.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.selfCare.high'),
+      },
+    ],
   },
 ])
 
 function handleRatingUpdate(key: string, value: number) {
   switch (key) {
-    case 'mood':
-      moodRating.value = value
-      break
-    case 'energy':
-      energyRating.value = value
-      break
-    case 'focus':
-      focusRating.value = value
-      break
-    case 'socialConnection':
-      socialConnectionRating.value = value
-      break
-    case 'stressLevel':
-      stressLevelRating.value = value
-      break
+    case 'physicalIntensity': physicalIntensityRating.value = value; break
+    case 'taskLoad': taskLoadRating.value = value; break
+    case 'emotionalIntensity': emotionalIntensityRating.value = value; break
+    case 'socialIntensity': socialIntensityRating.value = value; break
+    case 'mood': moodRating.value = value; break
+    case 'energy': energyRating.value = value; break
+    case 'calm': calmRating.value = value; break
+    case 'connection': connectionRating.value = value; break
+    case 'productivity': productivityRating.value = value; break
+    case 'engagement': engagementRating.value = value; break
+    case 'emotionalRegulation': emotionalRegulationRating.value = value; break
+    case 'selfCare': selfCareRating.value = value; break
   }
 }
 

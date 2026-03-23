@@ -55,6 +55,74 @@
         <ReflectionReviewPanel :bundle="dataBundle" :is-loading="isBundleLoading" />
       </div>
 
+      <!-- Step: Goals -->
+      <div v-else-if="currentStep === 'goals'" key="goals" class="space-y-4">
+        <AppCard padding="lg" class="space-y-4">
+          <div>
+            <h3 class="text-base font-semibold text-on-surface">
+              {{ t('planning.reflection.monthly.goalsTitle') }}
+            </h3>
+            <p class="mt-1 text-sm text-on-surface-variant">
+              {{ t('planning.reflection.monthly.goalsSubtitle') }}
+            </p>
+          </div>
+
+          <div v-if="goalSummaries.length > 0" class="space-y-3">
+            <div
+              v-for="goalSummary in goalSummaries"
+              :key="goalSummary.goal.id"
+              class="neo-inset rounded-2xl px-4 py-3 space-y-2"
+            >
+              <div class="flex items-center gap-2">
+                <EntityIcon
+                  v-if="goalSummary.goal.icon"
+                  :icon="goalSummary.goal.icon"
+                  size="sm"
+                />
+                <span class="text-sm font-semibold text-on-surface">{{ goalSummary.goal.title }}</span>
+              </div>
+              <div v-if="goalSummary.keyResults.length > 0" class="space-y-1.5 pl-1">
+                <div
+                  v-for="kr in goalSummary.keyResults"
+                  :key="kr.id"
+                  class="flex items-center justify-between gap-2"
+                >
+                  <span class="min-w-0 truncate text-sm text-on-surface">{{ kr.title }}</span>
+                  <span
+                    class="neo-pill shrink-0 text-xs"
+                    :class="{
+                      'neo-pill--success': kr.evaluationStatus === 'met',
+                      'neo-pill--error': kr.evaluationStatus === 'missed',
+                    }"
+                  >
+                    {{ t(`planning.reflection.monthly.krStatus.${kr.evaluationStatus}`) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Habits & Trackers summary -->
+          <div class="flex items-center gap-4 text-sm text-on-surface-variant">
+            <span v-if="habitSummary.totalActive > 0">
+              <span class="font-medium text-on-surface">{{ t('planning.reflection.monthly.habitsLabel') }}:</span>
+              {{ habitSummary.metCount }}/{{ habitSummary.totalActive }} {{ t('planning.reflection.review.habitsMet') }}
+            </span>
+            <span v-if="trackerSummary.totalActive > 0">
+              <span class="font-medium text-on-surface">{{ t('planning.reflection.monthly.trackersLabel') }}:</span>
+              {{ trackerSummary.totalActive }}
+            </span>
+          </div>
+
+          <p
+            v-if="goalSummaries.length === 0 && habitSummary.totalActive === 0"
+            class="text-sm text-on-surface-variant"
+          >
+            {{ t('planning.reflection.monthly.noGoals') }}
+          </p>
+        </AppCard>
+      </div>
+
       <!-- Step: Weekly Recap -->
       <div v-else-if="currentStep === 'weekly-recap'" key="weekly-recap" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
@@ -62,7 +130,7 @@
             {{ t('planning.reflection.monthly.weeklyRecapTitle') }}
           </h3>
 
-          <!-- Weekly rating trends table -->
+          <!-- Weekly state trends (mood, energy, calm, connection) -->
           <div v-if="weeklyTrends.length > 0" class="space-y-3">
             <h4 class="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
               {{ t('planning.reflection.monthly.weeklyTrends') }}
@@ -74,9 +142,8 @@
                     <th class="pb-2 pr-4 font-medium">{{ t('planning.reflection.monthly.weekLabel') }}</th>
                     <th class="pb-2 px-2 font-medium text-center">{{ t('planning.reflection.weekly.dimensions.mood') }}</th>
                     <th class="pb-2 px-2 font-medium text-center">{{ t('planning.reflection.weekly.dimensions.energy') }}</th>
-                    <th class="pb-2 px-2 font-medium text-center">{{ t('planning.reflection.weekly.dimensions.focus') }}</th>
-                    <th class="pb-2 px-2 font-medium text-center">{{ t('planning.reflection.weekly.dimensions.socialConnection') }}</th>
-                    <th class="pb-2 px-2 font-medium text-center">{{ t('planning.reflection.weekly.dimensions.stressLevel') }}</th>
+                    <th class="pb-2 px-2 font-medium text-center">{{ t('planning.reflection.weekly.dimensions.calm') }}</th>
+                    <th class="pb-2 px-2 font-medium text-center">{{ t('planning.reflection.weekly.dimensions.connection') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -88,9 +155,8 @@
                     <td class="py-2 pr-4 font-medium text-on-surface">{{ trend.weekRef }}</td>
                     <td class="py-2 px-2 text-center text-on-surface">{{ trend.moodRating ?? '—' }}</td>
                     <td class="py-2 px-2 text-center text-on-surface">{{ trend.energyRating ?? '—' }}</td>
-                    <td class="py-2 px-2 text-center text-on-surface">{{ trend.focusRating ?? '—' }}</td>
-                    <td class="py-2 px-2 text-center text-on-surface">{{ trend.socialConnectionRating ?? '—' }}</td>
-                    <td class="py-2 px-2 text-center text-on-surface">{{ trend.stressLevelRating ?? '—' }}</td>
+                    <td class="py-2 px-2 text-center text-on-surface">{{ trend.calmRating ?? '—' }}</td>
+                    <td class="py-2 px-2 text-center text-on-surface">{{ trend.connectionRating ?? '—' }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -123,18 +189,10 @@
 
       <!-- Step: Ratings -->
       <div v-else-if="currentStep === 'ratings'" key="ratings" class="space-y-4">
-        <AppCard padding="lg" class="space-y-2">
-          <h3 class="text-base font-semibold text-on-surface">
-            {{ t('planning.reflection.monthly.ratingsTitle') }}
-          </h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('planning.reflection.monthly.ratingsSubtitle') }}
-          </p>
-          <ReflectionDimensionRatings
-            :dimensions="monthlyDimensions"
-            @update:rating="handleRatingUpdate"
-          />
-        </AppCard>
+        <ReflectionDimensionRatings
+          :groups="monthlyGroups"
+          @update:rating="handleRatingUpdate"
+        />
       </div>
 
       <!-- Step: Prompts -->
@@ -228,8 +286,10 @@ import { computed, toRef } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import EntityIcon from '@/components/shared/EntityIcon.vue'
 import ReflectionReviewPanel from './ReflectionReviewPanel.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
+import type { RatingGroup } from './ReflectionDimensionRatings.vue'
 import {
   useMonthlyReflectionWizard,
   type MonthlyReflectionStep,
@@ -250,6 +310,7 @@ const emit = defineEmits<{
 
 const STEPS: MonthlyReflectionStep[] = [
   'review',
+  'goals',
   'weekly-recap',
   'ratings',
   'prompts',
@@ -259,6 +320,7 @@ const STEPS: MonthlyReflectionStep[] = [
 
 const stepLabels = computed(() => [
   t('planning.reflection.steps.review'),
+  t('planning.reflection.steps.goals'),
   t('planning.reflection.steps.weeklyRecap'),
   t('planning.reflection.steps.ratings'),
   t('planning.reflection.steps.prompts'),
@@ -293,11 +355,11 @@ const {
   goToStep,
   dataBundle,
   isBundleLoading,
+  balanceRating,
   purposeRating,
-  motivationRating,
   growthRating,
-  lifeSatisfactionRating,
-  alignmentRating,
+  coherenceRating,
+  agencyRating,
   promptResponses,
   freeformReflection,
   lookingAhead,
@@ -307,52 +369,75 @@ const {
 
 const weeklyTrends = computed(() => dataBundle.value?.weeklyRatingTrends ?? [])
 const weeklySnippets = computed(() => dataBundle.value?.weeklyReflectionSnippets ?? [])
+const goalSummaries = computed(() => dataBundle.value?.goalSummaries ?? [])
+const habitSummary = computed(() => dataBundle.value?.habitSummary ?? { totalActive: 0, metCount: 0, missedCount: 0 })
+const trackerSummary = computed(() => dataBundle.value?.trackerSummary ?? { totalActive: 0 })
 
-const monthlyDimensions = computed(() => [
+// Icon sets for monthly dimensions
+const ICONS = {
+  balance: ['landslide', 'falling', 'tune', 'balance', 'all_inclusive'] as [string, string, string, string, string],
+  purpose: ['search', 'question_mark', 'lightbulb', 'auto_awesome', 'moon_stars'] as [string, string, string, string, string],
+  growth: ['park', 'potted_plant', 'forest', 'nature', 'landscape'] as [string, string, string, string, string],
+  coherence: ['call_split', 'conversion_path', 'timeline', 'adjust', 'gps_fixed'] as [string, string, string, string, string],
+  agency: ['anchor', 'explore', 'navigation', 'sailing', 'flight'] as [string, string, string, string, string],
+}
+
+const monthlyGroups = computed<RatingGroup[]>(() => [
   {
-    key: 'purpose',
-    label: t('planning.reflection.monthly.dimensions.purpose'),
-    value: purposeRating.value,
-  },
-  {
-    key: 'motivation',
-    label: t('planning.reflection.monthly.dimensions.motivation'),
-    value: motivationRating.value,
-  },
-  {
-    key: 'growth',
-    label: t('planning.reflection.monthly.dimensions.growth'),
-    value: growthRating.value,
-  },
-  {
-    key: 'lifeSatisfaction',
-    label: t('planning.reflection.monthly.dimensions.lifeSatisfaction'),
-    value: lifeSatisfactionRating.value,
-  },
-  {
-    key: 'alignment',
-    label: t('planning.reflection.monthly.dimensions.alignment'),
-    value: alignmentRating.value,
+    title: t('planning.reflection.monthly.groups.ratings.title'),
+    subtitle: t('planning.reflection.monthly.groups.ratings.subtitle'),
+    dimensions: [
+      {
+        key: 'balance',
+        label: t('planning.reflection.monthly.dimensions.balance'),
+        value: balanceRating.value,
+        icons: ICONS.balance,
+        lowLabel: t('planning.reflection.monthly.scaleLabels.balance.low'),
+        highLabel: t('planning.reflection.monthly.scaleLabels.balance.high'),
+      },
+      {
+        key: 'purpose',
+        label: t('planning.reflection.monthly.dimensions.purpose'),
+        value: purposeRating.value,
+        icons: ICONS.purpose,
+        lowLabel: t('planning.reflection.monthly.scaleLabels.purpose.low'),
+        highLabel: t('planning.reflection.monthly.scaleLabels.purpose.high'),
+      },
+      {
+        key: 'growth',
+        label: t('planning.reflection.monthly.dimensions.growth'),
+        value: growthRating.value,
+        icons: ICONS.growth,
+        lowLabel: t('planning.reflection.monthly.scaleLabels.growth.low'),
+        highLabel: t('planning.reflection.monthly.scaleLabels.growth.high'),
+      },
+      {
+        key: 'coherence',
+        label: t('planning.reflection.monthly.dimensions.coherence'),
+        value: coherenceRating.value,
+        icons: ICONS.coherence,
+        lowLabel: t('planning.reflection.monthly.scaleLabels.coherence.low'),
+        highLabel: t('planning.reflection.monthly.scaleLabels.coherence.high'),
+      },
+      {
+        key: 'agency',
+        label: t('planning.reflection.monthly.dimensions.agency'),
+        value: agencyRating.value,
+        icons: ICONS.agency,
+        lowLabel: t('planning.reflection.monthly.scaleLabels.agency.low'),
+        highLabel: t('planning.reflection.monthly.scaleLabels.agency.high'),
+      },
+    ],
   },
 ])
 
 function handleRatingUpdate(key: string, value: number) {
   switch (key) {
-    case 'purpose':
-      purposeRating.value = value
-      break
-    case 'motivation':
-      motivationRating.value = value
-      break
-    case 'growth':
-      growthRating.value = value
-      break
-    case 'lifeSatisfaction':
-      lifeSatisfactionRating.value = value
-      break
-    case 'alignment':
-      alignmentRating.value = value
-      break
+    case 'balance': balanceRating.value = value; break
+    case 'purpose': purposeRating.value = value; break
+    case 'growth': growthRating.value = value; break
+    case 'coherence': coherenceRating.value = value; break
+    case 'agency': agencyRating.value = value; break
   }
 }
 

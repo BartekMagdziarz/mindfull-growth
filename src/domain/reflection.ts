@@ -18,12 +18,23 @@ export interface ReflectionRecordBase {
 export interface WeeklyReflection extends ReflectionRecordBase {
   weekRef: WeekRef
 
-  // Subjective dimension ratings (1–5, null = not yet rated)
+  // Context — how demanding was this week? (1–5, null = not yet rated)
+  physicalIntensityRating: number | null
+  taskLoadRating: number | null
+  emotionalIntensityRating: number | null
+  socialIntensityRating: number | null
+
+  // State — how do I feel at end of week? (1–5)
   moodRating: number | null
   energyRating: number | null
-  focusRating: number | null
-  socialConnectionRating: number | null
-  stressLevelRating: number | null
+  calmRating: number | null
+  connectionRating: number | null
+
+  // Evaluation — how did I do? (1–5)
+  productivityRating: number | null
+  engagementRating: number | null
+  emotionalRegulationRating: number | null
+  selfCareRating: number | null
 
   // Structured prompt responses (keyed by prompt key — flexible for future changes)
   promptResponses: Record<string, string>
@@ -50,12 +61,12 @@ export type UpdateWeeklyReflectionPayload = Partial<
 export interface MonthlyReflection extends ReflectionRecordBase {
   monthRef: MonthRef
 
-  // Subjective dimension ratings (1–5, null = not yet rated)
+  // Dimension ratings (1–5, null = not yet rated)
+  balanceRating: number | null
   purposeRating: number | null
-  motivationRating: number | null
   growthRating: number | null
-  lifeSatisfactionRating: number | null
-  alignmentRating: number | null
+  coherenceRating: number | null
+  agencyRating: number | null
 
   // Structured prompt responses
   promptResponses: Record<string, string>
@@ -79,22 +90,41 @@ export type UpdateMonthlyReflectionPayload = Partial<
 // Rating dimension keys (for iteration in UI)
 // ---------------------------------------------------------------------------
 
-export const WEEKLY_RATING_KEYS = [
+export const WEEKLY_CONTEXT_KEYS = [
+  'physicalIntensityRating',
+  'taskLoadRating',
+  'emotionalIntensityRating',
+  'socialIntensityRating',
+] as const
+
+export const WEEKLY_STATE_KEYS = [
   'moodRating',
   'energyRating',
-  'focusRating',
-  'socialConnectionRating',
-  'stressLevelRating',
+  'calmRating',
+  'connectionRating',
+] as const
+
+export const WEEKLY_EVALUATION_KEYS = [
+  'productivityRating',
+  'engagementRating',
+  'emotionalRegulationRating',
+  'selfCareRating',
+] as const
+
+export const WEEKLY_RATING_KEYS = [
+  ...WEEKLY_CONTEXT_KEYS,
+  ...WEEKLY_STATE_KEYS,
+  ...WEEKLY_EVALUATION_KEYS,
 ] as const
 
 export type WeeklyRatingKey = (typeof WEEKLY_RATING_KEYS)[number]
 
 export const MONTHLY_RATING_KEYS = [
+  'balanceRating',
   'purposeRating',
-  'motivationRating',
   'growthRating',
-  'lifeSatisfactionRating',
-  'alignmentRating',
+  'coherenceRating',
+  'agencyRating',
 ] as const
 
 export type MonthlyRatingKey = (typeof MONTHLY_RATING_KEYS)[number]
@@ -140,14 +170,22 @@ export function normalizeWeeklyReflectionPayload(
 
   return {
     weekRef,
+    // Context
+    physicalIntensityRating: clampRating(data.physicalIntensityRating, existing?.physicalIntensityRating ?? null),
+    taskLoadRating: clampRating(data.taskLoadRating, existing?.taskLoadRating ?? null),
+    emotionalIntensityRating: clampRating(data.emotionalIntensityRating, existing?.emotionalIntensityRating ?? null),
+    socialIntensityRating: clampRating(data.socialIntensityRating, existing?.socialIntensityRating ?? null),
+    // State
     moodRating: clampRating(data.moodRating, existing?.moodRating ?? null),
     energyRating: clampRating(data.energyRating, existing?.energyRating ?? null),
-    focusRating: clampRating(data.focusRating, existing?.focusRating ?? null),
-    socialConnectionRating: clampRating(
-      data.socialConnectionRating,
-      existing?.socialConnectionRating ?? null
-    ),
-    stressLevelRating: clampRating(data.stressLevelRating, existing?.stressLevelRating ?? null),
+    calmRating: clampRating(data.calmRating, existing?.calmRating ?? null),
+    connectionRating: clampRating(data.connectionRating, existing?.connectionRating ?? null),
+    // Evaluation
+    productivityRating: clampRating(data.productivityRating, existing?.productivityRating ?? null),
+    engagementRating: clampRating(data.engagementRating, existing?.engagementRating ?? null),
+    emotionalRegulationRating: clampRating(data.emotionalRegulationRating, existing?.emotionalRegulationRating ?? null),
+    selfCareRating: clampRating(data.selfCareRating, existing?.selfCareRating ?? null),
+    // Text
     promptResponses: normalizePromptResponses(
       data.promptResponses,
       existing?.promptResponses ?? {}
@@ -165,14 +203,11 @@ export function normalizeMonthlyReflectionPayload(
 
   return {
     monthRef,
+    balanceRating: clampRating(data.balanceRating, existing?.balanceRating ?? null),
     purposeRating: clampRating(data.purposeRating, existing?.purposeRating ?? null),
-    motivationRating: clampRating(data.motivationRating, existing?.motivationRating ?? null),
     growthRating: clampRating(data.growthRating, existing?.growthRating ?? null),
-    lifeSatisfactionRating: clampRating(
-      data.lifeSatisfactionRating,
-      existing?.lifeSatisfactionRating ?? null
-    ),
-    alignmentRating: clampRating(data.alignmentRating, existing?.alignmentRating ?? null),
+    coherenceRating: clampRating(data.coherenceRating, existing?.coherenceRating ?? null),
+    agencyRating: clampRating(data.agencyRating, existing?.agencyRating ?? null),
     promptResponses: normalizePromptResponses(
       data.promptResponses,
       existing?.promptResponses ?? {}

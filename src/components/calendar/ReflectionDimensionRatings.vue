@@ -1,32 +1,45 @@
 <template>
-  <div class="space-y-4">
-    <div
-      v-for="dim in dimensions"
-      :key="dim.key"
-      class="neo-inset rounded-2xl px-4 py-3"
-    >
-      <RatingSlider
-        :model-value="dim.value ?? 1"
-        :label="dim.label"
-        :min="1"
-        :max="5"
-        @update:model-value="$emit('update:rating', dim.key, $event)"
-      />
+  <div class="space-y-5">
+    <div v-for="group in groups" :key="group.title" class="space-y-3">
+      <p v-if="group.subtitle" class="text-sm text-on-surface-variant">
+        {{ group.subtitle }}
+      </p>
+      <div class="flex items-start justify-around gap-2">
+        <IconScaleSelector
+          v-for="dim in group.dimensions"
+          :key="dim.key"
+          :model-value="dim.value"
+          :label="dim.label"
+          :icons="dim.icons"
+          :low-label="dim.lowLabel"
+          :high-label="dim.highLabel"
+          @update:model-value="$emit('update:rating', dim.key, $event)"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import RatingSlider from '@/components/exercises/RatingSlider.vue'
+import IconScaleSelector from './IconScaleSelector.vue'
 
-export interface RatingDimension {
+export interface IconRatingDimension {
   key: string
   label: string
   value: number | null
+  icons: [string, string, string, string, string]
+  lowLabel?: string
+  highLabel?: string
+}
+
+export interface RatingGroup {
+  title: string
+  subtitle?: string
+  dimensions: IconRatingDimension[]
 }
 
 defineProps<{
-  dimensions: RatingDimension[]
+  groups: RatingGroup[]
 }>()
 
 defineEmits<{

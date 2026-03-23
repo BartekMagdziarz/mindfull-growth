@@ -8,6 +8,7 @@ import type { CreateMonthlyReflectionPayload } from '@/domain/reflection'
 
 export type MonthlyReflectionStep =
   | 'review'
+  | 'goals'
   | 'weekly-recap'
   | 'ratings'
   | 'prompts'
@@ -16,12 +17,24 @@ export type MonthlyReflectionStep =
 
 const STEP_ORDER: MonthlyReflectionStep[] = [
   'review',
+  'goals',
   'weekly-recap',
   'ratings',
   'prompts',
   'journal',
   'ahead',
 ]
+
+/** Map old step names to new names for draft migration */
+const LEGACY_STEP_MAP: Record<string, MonthlyReflectionStep> = {
+  review: 'review',
+  goals: 'goals',
+  'weekly-recap': 'weekly-recap',
+  ratings: 'ratings',
+  prompts: 'prompts',
+  journal: 'journal',
+  ahead: 'ahead',
+}
 
 function getDraftKey(monthRef: MonthRef): string {
   return `monthly-reflection-${monthRef}`
@@ -39,11 +52,11 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   const isBundleLoading = ref(true)
 
   // Dimension ratings (1-5, null = not rated)
+  const balanceRating = ref<number | null>(null)
   const purposeRating = ref<number | null>(null)
-  const motivationRating = ref<number | null>(null)
   const growthRating = ref<number | null>(null)
-  const lifeSatisfactionRating = ref<number | null>(null)
-  const alignmentRating = ref<number | null>(null)
+  const coherenceRating = ref<number | null>(null)
+  const agencyRating = ref<number | null>(null)
 
   // Structured prompt responses
   const promptResponses = ref<Record<string, string>>({})
@@ -61,15 +74,17 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
     switch (currentStep.value) {
       case 'review':
         return true
+      case 'goals':
+        return true
       case 'weekly-recap':
         return true
       case 'ratings':
         return (
+          balanceRating.value !== null ||
           purposeRating.value !== null ||
-          motivationRating.value !== null ||
           growthRating.value !== null ||
-          lifeSatisfactionRating.value !== null ||
-          alignmentRating.value !== null
+          coherenceRating.value !== null ||
+          agencyRating.value !== null
         )
       case 'prompts':
         return Object.values(promptResponses.value).some((v) => v.trim().length > 0)
@@ -100,6 +115,15 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
     currentStep.value = step
   }
 
+  // All rating refs for watchers
+  const allRatingRefs = [
+    balanceRating,
+    purposeRating,
+    growthRating,
+    coherenceRating,
+    agencyRating,
+  ]
+
   // Draft persistence
   let draftSaveTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -121,11 +145,11 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   function serializeFields() {
     return {
       currentStep: currentStep.value,
+      balanceRating: balanceRating.value,
       purposeRating: purposeRating.value,
-      motivationRating: motivationRating.value,
       growthRating: growthRating.value,
-      lifeSatisfactionRating: lifeSatisfactionRating.value,
-      alignmentRating: alignmentRating.value,
+      coherenceRating: coherenceRating.value,
+      agencyRating: agencyRating.value,
       promptResponses: promptResponses.value,
       freeformReflection: freeformReflection.value,
       lookingAhead: lookingAhead.value,
@@ -134,39 +158,37 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
 
   function hydrateFromDraft(raw: string) {
     try {
-      const data = JSON.parse(raw)
-      if (data.currentStep && STEP_ORDER.includes(data.currentStep)) {
-        currentStep.value = data.currentStep
+      const data = JSON.parse(raw) as Record<string, unknown>
+      if (data.currentStep) {
+        const mapped = LEGACY_STEP_MAP[data.currentStep as string]
+        if (mapped) currentStep.value = mapped
       }
-      if (data.purposeRating != null) purposeRating.value = data.purposeRating
-      if (data.motivationRating != null) motivationRating.value = data.motivationRating
-      if (data.growthRating != null) growthRating.value = data.growthRating
-      if (data.lifeSatisfactionRating != null)
-        lifeSatisfactionRating.value = data.lifeSatisfactionRating
-      if (data.alignmentRating != null) alignmentRating.value = data.alignmentRating
-      if (data.promptResponses) promptResponses.value = data.promptResponses
-      if (data.freeformReflection) freeformReflection.value = data.freeformReflection
-      if (data.lookingAhead) lookingAhead.value = data.lookingAhead
+
+      // Handle legacy field migration
+      if (data.alignmentRating != null && data.coherenceRating == null) {
+        data.coherenceRating = data.alignmentRating
+      }
+
+      if (data.balanceRating != null) balanceRating.value = data.balanceRating as number
+      if (data.purposeRating != null) purposeRating.value = data.purposeRating as number
+      if (data.growthRating != null) growthRating.value = data.growthRating as number
+      if (data.coherenceRating != null) coherenceRating.value = data.coherenceRating as number
+      if (data.agencyRating != null) agencyRating.value = data.agencyRating as number
+
+      if (data.promptResponses) promptResponses.value = data.promptResponses as Record<string, string>
+      if (data.freeformReflection) freeformReflection.value = data.freeformReflection as string
+      if (data.lookingAhead) lookingAhead.value = data.lookingAhead as string
     } catch {
       // Invalid draft, ignore
     }
   }
 
-  function hydrateFromExisting(existing: {
-    purposeRating: number | null
-    motivationRating: number | null
-    growthRating: number | null
-    lifeSatisfactionRating: number | null
-    alignmentRating: number | null
-    promptResponses: Record<string, string>
-    freeformReflection: string
-    lookingAhead: string
-  }) {
+  function hydrateFromExisting(existing: CreateMonthlyReflectionPayload) {
+    balanceRating.value = existing.balanceRating
     purposeRating.value = existing.purposeRating
-    motivationRating.value = existing.motivationRating
     growthRating.value = existing.growthRating
-    lifeSatisfactionRating.value = existing.lifeSatisfactionRating
-    alignmentRating.value = existing.alignmentRating
+    coherenceRating.value = existing.coherenceRating
+    agencyRating.value = existing.agencyRating
     promptResponses.value = { ...existing.promptResponses }
     freeformReflection.value = existing.freeformReflection
     lookingAhead.value = existing.lookingAhead
@@ -174,16 +196,7 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
 
   // Watch fields for auto-save
   watch(
-    [
-      purposeRating,
-      motivationRating,
-      growthRating,
-      lifeSatisfactionRating,
-      alignmentRating,
-      promptResponses,
-      freeformReflection,
-      lookingAhead,
-    ],
+    [...allRatingRefs, promptResponses, freeformReflection, lookingAhead],
     scheduleDraftSave,
     { deep: true }
   )
@@ -225,11 +238,11 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
     try {
       const payload: CreateMonthlyReflectionPayload = {
         monthRef: monthRef.value,
+        balanceRating: balanceRating.value,
         purposeRating: purposeRating.value,
-        motivationRating: motivationRating.value,
         growthRating: growthRating.value,
-        lifeSatisfactionRating: lifeSatisfactionRating.value,
-        alignmentRating: alignmentRating.value,
+        coherenceRating: coherenceRating.value,
+        agencyRating: agencyRating.value,
         promptResponses: { ...promptResponses.value },
         freeformReflection: freeformReflection.value,
         lookingAhead: lookingAhead.value,
@@ -257,11 +270,11 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
     isBundleLoading,
 
     // Ratings
+    balanceRating,
     purposeRating,
-    motivationRating,
     growthRating,
-    lifeSatisfactionRating,
-    alignmentRating,
+    coherenceRating,
+    agencyRating,
 
     // Prompts
     promptResponses,
