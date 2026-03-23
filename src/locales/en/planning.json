@@ -131,6 +131,17 @@
       "createdAt": "Created",
       "updatedAt": "Updated"
     },
+    "wellness": {
+      "journal": "Journal",
+      "emotions": "Emotions",
+      "exercises": "Exercises",
+      "total": "total",
+      "today": "today",
+      "streakDays": "{n}-day streak",
+      "newEntry": "New entry",
+      "logEmotion": "Log emotion",
+      "exercisesPlaceholder": "Coming soon"
+    },
     "empty": {
       "generic": "Nothing to show here yet.",
       "goals": "No active goals for this period.",
@@ -509,98 +520,147 @@
     "saving": "Saving...",
     "steps": {
       "review": "Review",
-      "ratings": "Ratings",
-      "prompts": "Prompts",
+      "context": "Context",
+      "state": "State",
+      "evaluation": "Evaluation",
+      "anchors": "Anchors",
       "journal": "Journal",
-      "ahead": "Looking Ahead",
-      "weeklyRecap": "Weekly Recap"
+      "goals": "Goals",
+      "weeklyRecap": "Weekly Recap",
+      "ratings": "Ratings"
+    },
+    "sidebar": {
+      "anchors": "Anchors",
+      "ratings": "Ratings"
     },
     "review": {
       "emotions": "Emotions",
-      "emotionLogs": "emotion logs",
-      "pleasant": "Pleasant",
-      "unpleasant": "Unpleasant",
+      "emotionLog": {
+        "one": "{n} emotion log",
+        "other": "{n} emotion logs"
+      },
       "journals": "Journal Entries",
-      "journalEntries": "entries",
+      "journalEntry": {
+        "one": "{n} journal entry",
+        "other": "{n} journal entries"
+      },
       "untitled": "Untitled entry",
       "habits": "Habits",
       "habitsMet": "met target",
       "exercises": "Exercises",
       "exercisesCompleted": "completed",
+      "keyResults": "Key Results",
+      "trackers": "Trackers",
+      "summary": "Week Summary",
+      "weeklyHabits": "Weekly Habits",
+      "monthlyHabits": "Monthly Habits",
+      "thisWeek": "this week",
       "noData": "No data for this period"
     },
     "weekly": {
       "title": "Weekly Reflection",
       "progress": "Reflection progress",
       "reviewSubtitle": "Here's a summary of your week. Take a moment to absorb it before reflecting.",
-      "ratingsTitle": "How was your week?",
-      "ratingsSubtitle": "Rate these dimensions based on your overall experience this week.",
-      "dimensions": {
-        "mood": "Mood",
-        "energy": "Energy",
-        "focus": "Focus",
-        "socialConnection": "Social Connection",
-        "stressLevel": "Stress Level"
-      },
-      "prompts": {
-        "wentWell": {
-          "label": "What went well this week?",
-          "placeholder": "Think about moments, achievements, or things you're grateful for..."
+      "groups": {
+        "context": {
+          "title": "Context",
+          "subtitle": "How demanding was this week?"
         },
-        "challenges": {
-          "label": "What was challenging?",
-          "placeholder": "What obstacles did you face? How did you respond?"
+        "state": {
+          "title": "State",
+          "subtitle": "How do you feel at the end of this week?"
         },
-        "lessons": {
-          "label": "Key lessons or insights?",
-          "placeholder": "What did you learn about yourself this week?"
+        "evaluation": {
+          "title": "Evaluation",
+          "subtitle": "How did you do this week?"
         }
       },
-      "journalTitle": "Free Reflection",
-      "journalSubtitle": "Write freely about your week — whatever comes to mind.",
-      "journalPlaceholder": "Let your thoughts flow...",
-      "aheadTitle": "Looking Ahead",
-      "aheadSubtitle": "What would you like to focus on or pay attention to next week?",
-      "aheadPlaceholder": "Intentions, goals, areas of focus..."
+      "dimensions": {
+        "physicalIntensity": "Physical Intensity",
+        "taskLoad": "Task Load",
+        "emotionalIntensity": "Emotional Intensity",
+        "socialIntensity": "Social Intensity",
+        "mood": "Mood",
+        "energy": "Energy",
+        "calm": "Calm",
+        "connection": "Connection",
+        "productivity": "Productivity",
+        "engagement": "Engagement",
+        "emotionalRegulation": "Emotional Regulation",
+        "selfCare": "Self-Care"
+      },
+      "scaleLabels": {
+        "physicalIntensity": { "low": "Restful", "high": "Intense" },
+        "taskLoad": { "low": "Light", "high": "Overloaded" },
+        "emotionalIntensity": { "low": "Calm", "high": "Intense" },
+        "socialIntensity": { "low": "Quiet", "high": "Intense" },
+        "mood": { "low": "Low", "high": "Great" },
+        "energy": { "low": "Drained", "high": "Charged" },
+        "calm": { "low": "Tense", "high": "Peaceful" },
+        "connection": { "low": "Distant", "high": "Connected" },
+        "productivity": { "low": "Stuck", "high": "Crushing it" },
+        "engagement": { "low": "Autopilot", "high": "Fully present" },
+        "emotionalRegulation": { "low": "Overwhelmed", "high": "Balanced" },
+        "selfCare": { "low": "Neglected", "high": "Nourished" }
+      },
+      "anchors": {
+        "wentWell": "What went well",
+        "challenges": "What was challenging",
+        "gratitude": "Gratitude",
+        "lessons": "Lessons & insights",
+        "improvements": "What I want to improve",
+        "lookingAhead": "Looking ahead"
+      },
+      "journalPlaceholder": "Reflect on your week..."
     },
     "monthly": {
       "title": "Monthly Reflection",
       "progress": "Reflection progress",
       "reviewSubtitle": "Here's a summary of your month. Review it before reflecting on the bigger picture.",
+      "goalsTitle": "Goals & Key Results",
+      "goalsSubtitle": "Review your active goals and their progress this month.",
+      "habitsLabel": "Habits",
+      "trackersLabel": "Trackers",
+      "noGoals": "No active goals this month.",
+      "krStatus": {
+        "met": "On target",
+        "missed": "Off target",
+        "noData": "No data"
+      },
       "weeklyRecapTitle": "Your Weeks at a Glance",
       "weeklyTrends": "Weekly Rating Trends",
       "weeklySummaries": "Weekly Reflections",
       "weekLabel": "Week",
       "noWeeklyData": "No weekly reflections recorded this month.",
-      "ratingsTitle": "How was your month?",
-      "ratingsSubtitle": "Rate these broader dimensions based on your overall experience this month.",
-      "dimensions": {
-        "purpose": "Sense of Purpose",
-        "motivation": "Motivation",
-        "growth": "Personal Growth",
-        "lifeSatisfaction": "Life Satisfaction",
-        "alignment": "Values Alignment"
-      },
-      "prompts": {
-        "proudOf": {
-          "label": "What are you most proud of this month?",
-          "placeholder": "Achievements, progress, or moments that stand out..."
-        },
-        "challenges": {
-          "label": "What were the biggest challenges?",
-          "placeholder": "Obstacles, setbacks, or difficult situations..."
-        },
-        "growth": {
-          "label": "How have you grown?",
-          "placeholder": "New insights, changed perspectives, or personal development..."
+      "groups": {
+        "ratings": {
+          "title": "Monthly Dimensions",
+          "subtitle": "Reflect on the bigger picture — who are you becoming?"
         }
       },
-      "journalTitle": "Free Reflection",
-      "journalSubtitle": "Reflect on the arc of your month — themes, patterns, and what matters.",
-      "journalPlaceholder": "Take your time with this one...",
-      "aheadTitle": "Looking Ahead",
-      "aheadSubtitle": "What do you want to carry forward? What do you want to let go of?",
-      "aheadPlaceholder": "Intentions for the coming month..."
+      "dimensions": {
+        "balance": "Balance",
+        "purpose": "Sense of Purpose",
+        "growth": "Personal Growth",
+        "coherence": "Coherence",
+        "agency": "Agency"
+      },
+      "scaleLabels": {
+        "balance": { "low": "Imbalanced", "high": "Balanced" },
+        "purpose": { "low": "Lost", "high": "Purposeful" },
+        "growth": { "low": "Stagnant", "high": "Growing" },
+        "coherence": { "low": "Scattered", "high": "Aligned" },
+        "agency": { "low": "Drifting", "high": "In control" }
+      },
+      "anchors": {
+        "proudOf": "What I'm most proud of",
+        "challenges": "Biggest challenges",
+        "growth": "How I've grown",
+        "patterns": "Patterns I noticed",
+        "carryForward": "What to carry forward",
+        "letGo": "What to let go"
+      },
+      "journalPlaceholder": "Reflect on your month..."
     }
   }
 }

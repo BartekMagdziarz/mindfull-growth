@@ -2,18 +2,30 @@
  * Builds auto-generated data summaries for the weekly/monthly reflection "Review" step.
  */
 
-import type { MonthRef, WeekRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { Quadrant } from '@/domain/emotion'
 import { getQuadrant } from '@/domain/emotion'
+import { getDisplayTitle } from '@/domain/journal'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useJournalStore } from '@/stores/journal.store'
-import { getPeriodBounds } from '@/utils/periods'
-import { getWeekPlanningBundle, getMonthPlanningBundle } from '@/services/planningStateQueries'
+import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
+import { getUserDatabase } from '@/services/userDatabase.service'
+import {
+  getWeekRelevantObjects,
+  getMonthPlanningBundle,
+} from '@/services/planningStateQueries'
+import type { WeekMeasurementReflectionItem } from '@/services/planningStateQueries'
 import { buildMeasurementSummary } from '@/services/measurementProgress'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import type { WeeklyReflection } from '@/domain/reflection'
-import { WEEKLY_RATING_KEYS } from '@/domain/reflection'
+import {
+  WEEKLY_CONTEXT_KEYS,
+  WEEKLY_STATE_KEYS,
+  WEEKLY_EVALUATION_KEYS,
+} from '@/domain/reflection'
+import type { GoalStatus, MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -21,13 +33,13 @@ import { WEEKLY_RATING_KEYS } from '@/domain/reflection'
 
 export interface EmotionSummary {
   totalLogs: number
-  topEmotions: { emotionId: string; name: string; count: number }[]
+  topEmotions: { emotionId: string; name: string; count: number; quadrant: Quadrant }[]
   quadrantDistribution: Record<Quadrant, number>
 }
 
 export interface JournalSummary {
   totalEntries: number
-  entries: { id: string; title?: string; createdAt: string }[]
+  entries: { id: string; title: string; createdAt: string }[]
 }
 
 export interface HabitSummary {
@@ -36,9 +48,75 @@ export interface HabitSummary {
   missedCount: number
 }
 
+export interface TrackerSummary {
+  totalActive: number
+}
+
 export interface ExerciseSummary {
   totalCompleted: number
   types: string[]
+}
+
+export interface GoalReflectionSummary {
+  goal: { id: string; title: string; icon?: string; status: GoalStatus }
+  keyResults: {
+    id: string
+    title: string
+    evaluationStatus: MeasurementEvaluationStatus
+    actualValue?: number
+    target?: MeasurementTarget
+  }[]
+}
+
+export interface DailyHabitItem {
+  id: string
+  name: string
+  status: 'completed' | 'missed'
+  value?: number
+}
+
+export interface DailyActivityBreakdown {
+  dayRef: DayRef
+  habits: {
+    items: DailyHabitItem[]
+  }
+  emotions: {
+    items: { emotionId: string; name: string; quadrant: Quadrant }[]
+    totalLogs: number
+  }
+  journal: {
+    items: { id: string; title: string }[]
+  }
+  exercises: {
+    count: number
+    types: string[]
+  }
+  keyResults: {
+    items: { id: string; name: string; value: number | null }[]
+  }
+  trackers: {
+    items: { id: string; name: string; value: number | null }[]
+  }
+}
+
+export interface WeeklySummary {
+  weeklyHabits: {
+    id: string
+    name: string
+    evaluationStatus: MeasurementEvaluationStatus
+    actualValue?: number
+    target?: MeasurementTarget
+    entryCount: number
+  }[]
+  monthlyHabits: {
+    id: string
+    name: string
+    weekEntryCount: number
+    weekValue?: number
+  }[]
+  totalEmotionLogs: number
+  totalJournalEntries: number
+  totalExercises: number
 }
 
 export interface WeeklyReflectionDataBundle {
@@ -47,15 +125,27 @@ export interface WeeklyReflectionDataBundle {
   journalSummary: JournalSummary
   habitSummary: HabitSummary
   exerciseSummary: ExerciseSummary
+  dailyBreakdown: DailyActivityBreakdown[]
+  weeklySummary: WeeklySummary
 }
 
 export interface WeeklyRatingTrendEntry {
   weekRef: WeekRef
+  // Context
+  physicalIntensityRating: number | null
+  taskLoadRating: number | null
+  emotionalIntensityRating: number | null
+  socialIntensityRating: number | null
+  // State
   moodRating: number | null
   energyRating: number | null
-  focusRating: number | null
-  socialConnectionRating: number | null
-  stressLevelRating: number | null
+  calmRating: number | null
+  connectionRating: number | null
+  // Evaluation
+  productivityRating: number | null
+  engagementRating: number | null
+  emotionalRegulationRating: number | null
+  selfCareRating: number | null
 }
 
 export interface WeeklyReflectionSnippet {
@@ -68,7 +158,9 @@ export interface MonthlyReflectionDataBundle {
   emotionSummary: EmotionSummary
   journalSummary: JournalSummary
   habitSummary: HabitSummary
+  trackerSummary: TrackerSummary
   exerciseSummary: ExerciseSummary
+  goalSummaries: GoalReflectionSummary[]
   weeklyRatingTrends: WeeklyRatingTrendEntry[]
   weeklyReflectionSnippets: WeeklyReflectionSnippet[]
 }
@@ -106,11 +198,15 @@ function buildEmotionSummary(startDate: string, endDate: string): EmotionSummary
   const topEmotions = [...emotionCounts.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
-    .map(([emotionId, count]) => ({
-      emotionId,
-      name: emotionStore.getEmotionById(emotionId)?.name ?? emotionId,
-      count,
-    }))
+    .map(([emotionId, count]) => {
+      const emotion = emotionStore.getEmotionById(emotionId)
+      return {
+        emotionId,
+        name: emotion?.name ?? emotionId,
+        count,
+        quadrant: emotion ? getQuadrant(emotion) : 'low-energy-low-pleasantness' as Quadrant,
+      }
+    })
 
   return {
     totalLogs: logs.length,
@@ -127,7 +223,288 @@ function buildJournalSummary(startDate: string, endDate: string): JournalSummary
 
   return {
     totalEntries: entries.length,
-    entries: entries.map((e) => ({ id: e.id, title: e.title, createdAt: e.createdAt })),
+    entries: entries.map((e) => ({ id: e.id, title: getDisplayTitle(e), createdAt: e.createdAt })),
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Exercise helpers
+// ---------------------------------------------------------------------------
+
+interface ExerciseEntry {
+  createdAt: string
+  type: string
+}
+
+const EXERCISE_TABLES: { table: string; type: string }[] = [
+  // CBT
+  { table: 'thoughtRecords', type: 'thoughtRecord' },
+  { table: 'distortionAssessments', type: 'distortionAssessment' },
+  { table: 'worryTreeEntries', type: 'worryTree' },
+  { table: 'coreBeliefsExplorations', type: 'coreBeliefs' },
+  { table: 'compassionateLetters', type: 'compassionateLetter' },
+  { table: 'positiveDataLogs', type: 'positiveDataLog' },
+  { table: 'behavioralExperiments', type: 'behavioralExperiment' },
+  { table: 'behavioralActivations', type: 'behavioralActivation' },
+  { table: 'structuredProblemSolvings', type: 'structuredProblemSolving' },
+  { table: 'gradedExposureHierarchies', type: 'gradedExposure' },
+  // Logotherapy
+  { table: 'threePathwaysToMeaning', type: 'threePathways' },
+  { table: 'socraticSelfDialogues', type: 'socraticDialogue' },
+  { table: 'mountainRangesOfMeaning', type: 'mountainRange' },
+  { table: 'paradoxicalIntentionLabs', type: 'paradoxicalIntention' },
+  { table: 'dereflectionPractices', type: 'dereflection' },
+  { table: 'tragicOptimisms', type: 'tragicOptimism' },
+  { table: 'attitudinalShifts', type: 'attitudinalShift' },
+  { table: 'legacyLetters', type: 'legacyLetter' },
+  // IFS (excluding ifsParts — shared entity, not an exercise)
+  { table: 'ifsPartsMaps', type: 'partsMapping' },
+  { table: 'ifsUnblendingSessions', type: 'unblending' },
+  { table: 'ifsDirectAccessSessions', type: 'directAccess' },
+  { table: 'ifsTrailheadEntries', type: 'trailhead' },
+  { table: 'ifsProtectorAppreciations', type: 'protectorAppreciation' },
+  { table: 'ifsExileWitnessings', type: 'exileWitnessing' },
+  { table: 'ifsSelfEnergyCheckIns', type: 'selfEnergy' },
+  { table: 'ifsPartsDialogues', type: 'partsDialogue' },
+  { table: 'ifsDailyCheckIns', type: 'ifsDailyCheckIn' },
+  { table: 'ifsConstellations', type: 'constellation' },
+  // Self-Discovery
+  { table: 'valuesDiscoveries', type: 'valuesDiscovery' },
+  { table: 'shadowBeliefs', type: 'shadowBeliefs' },
+  { table: 'transformativePurposes', type: 'transformativePurpose' },
+]
+
+async function getExerciseEntriesForPeriod(
+  startDate: string,
+  endDate: string,
+): Promise<ExerciseEntry[]> {
+  const db = getUserDatabase()
+  const results: ExerciseEntry[] = []
+
+  await Promise.all(
+    EXERCISE_TABLES.map(async ({ table, type }) => {
+      try {
+        const entries = await db.table(table).toArray()
+        for (const entry of entries) {
+          if (entry.createdAt >= startDate && entry.createdAt <= endDate) {
+            results.push({ createdAt: entry.createdAt, type })
+          }
+        }
+      } catch {
+        // Table may not exist in older schema versions
+      }
+    })
+  )
+
+  return results
+}
+
+function buildExerciseSummary(exerciseEntries: ExerciseEntry[]): ExerciseSummary {
+  return {
+    totalCompleted: exerciseEntries.length,
+    types: [...new Set(exerciseEntries.map((e) => e.type))],
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Daily breakdown
+// ---------------------------------------------------------------------------
+
+function buildDailyBreakdown(
+  weekRef: WeekRef,
+  rawEntries: import('@/domain/planningState').DailyMeasurementEntry[],
+  reflectionItems: WeekMeasurementReflectionItem[],
+  exerciseEntries: ExerciseEntry[],
+  startDate: string,
+  endDate: string,
+): DailyActivityBreakdown[] {
+  const days = getChildPeriods(weekRef) as DayRef[]
+  const emotionLogStore = useEmotionLogStore()
+  const emotionStore = useEmotionStore()
+  const journalStore = useJournalStore()
+
+  // Pre-filter for the week
+  const weekEmotionLogs = emotionLogStore.sortedLogs.filter(
+    (log) => log.createdAt >= startDate && log.createdAt <= endDate
+  )
+  const weekJournalEntries = journalStore.sortedEntries.filter(
+    (entry) => entry.createdAt >= startDate && entry.createdAt <= endDate
+  )
+
+  const habits = reflectionItems.filter((m) => m.subjectType === 'habit')
+  const krs = reflectionItems.filter((m) => m.subjectType === 'keyResult')
+  const trackers = reflectionItems.filter((m) => m.subjectType === 'tracker')
+
+  return days.map((dayRef) => {
+    const dayStart = dayRef + 'T00:00:00.000Z'
+    const dayEnd = dayRef + 'T23:59:59.999Z'
+
+    // Habits — schedule-aware logic
+    // Note: completion-mode habits store value: null — entry existence = done
+    const dayHabitEntries = new Map(
+      rawEntries
+        .filter((e) => e.dayRef === dayRef && e.subjectType === 'habit')
+        .map((e) => [e.subjectId, e.value] as const)
+    )
+
+    const habitItems: DailyHabitItem[] = []
+    for (const habit of habits) {
+      const hasEntry = dayHabitEntries.has(habit.subject.id)
+      const entryValue = dayHabitEntries.get(habit.subject.id) ?? undefined
+
+      if (habit.planning.scheduleScope === 'specific-days') {
+        const isScheduledToday = habit.planning.scheduledDayRefs.includes(dayRef)
+        if (isScheduledToday) {
+          habitItems.push({
+            id: habit.subject.id,
+            name: habit.subject.title,
+            status: hasEntry ? 'completed' : 'missed',
+            value: entryValue ?? undefined,
+          })
+        } else if (hasEntry) {
+          // Done on an unscheduled day — still show as completed
+          habitItems.push({
+            id: habit.subject.id,
+            name: habit.subject.title,
+            status: 'completed',
+            value: entryValue ?? undefined,
+          })
+        }
+        // else: not scheduled today, no entry → skip
+      } else {
+        // whole-week / whole-month / unassigned — only show when done
+        if (hasEntry) {
+          habitItems.push({
+            id: habit.subject.id,
+            name: habit.subject.title,
+            status: 'completed',
+            value: entryValue ?? undefined,
+          })
+        }
+      }
+    }
+
+    // Emotions
+    const dayEmotionLogs = weekEmotionLogs.filter(
+      (log) => log.createdAt >= dayStart && log.createdAt <= dayEnd
+    )
+    const seenEmotionIds = new Set<string>()
+    const emotionItems: { emotionId: string; name: string; quadrant: Quadrant }[] = []
+    for (const log of dayEmotionLogs) {
+      for (const emotionId of log.emotionIds) {
+        if (!seenEmotionIds.has(emotionId)) {
+          seenEmotionIds.add(emotionId)
+          const emotion = emotionStore.getEmotionById(emotionId)
+          if (emotion) {
+            emotionItems.push({
+              emotionId,
+              name: emotion.name,
+              quadrant: getQuadrant(emotion),
+            })
+          }
+        }
+      }
+    }
+
+    // Journal
+    const dayJournalEntries = weekJournalEntries.filter(
+      (entry) => entry.createdAt >= dayStart && entry.createdAt <= dayEnd
+    )
+
+    // Exercises
+    const dayExercises = exerciseEntries.filter(
+      (e) => e.createdAt >= dayStart && e.createdAt <= dayEnd
+    )
+
+    // Key Results — only days with entries
+    const krItems = rawEntries
+      .filter((e) => e.dayRef === dayRef && e.subjectType === 'keyResult' && e.value !== null)
+      .map((e) => {
+        const kr = krs.find((k) => k.subject.id === e.subjectId)
+        return { id: e.subjectId, name: kr?.subject.title ?? '', value: e.value }
+      })
+
+    // Trackers — only days with entries
+    const trackerItems = rawEntries
+      .filter((e) => e.dayRef === dayRef && e.subjectType === 'tracker' && e.value !== null)
+      .map((e) => {
+        const tracker = trackers.find((t) => t.subject.id === e.subjectId)
+        return { id: e.subjectId, name: tracker?.subject.title ?? '', value: e.value }
+      })
+
+    return {
+      dayRef,
+      habits: { items: habitItems },
+      emotions: { items: emotionItems, totalLogs: dayEmotionLogs.length },
+      journal: { items: dayJournalEntries.map((e) => ({ id: e.id, title: getDisplayTitle(e) })) },
+      exercises: { count: dayExercises.length, types: [...new Set(dayExercises.map((e) => e.type))] },
+      keyResults: { items: krItems },
+      trackers: { items: trackerItems },
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Weekly summary
+// ---------------------------------------------------------------------------
+
+function buildWeeklySummary(
+  reflectionItems: WeekMeasurementReflectionItem[],
+  rawEntries: import('@/domain/planningState').DailyMeasurementEntry[],
+  weekRef: WeekRef,
+  emotionSummary: EmotionSummary,
+  journalSummary: JournalSummary,
+  exerciseSummary: ExerciseSummary,
+): WeeklySummary {
+  const habits = reflectionItems.filter((m) => m.subjectType === 'habit')
+  const weekBounds = getPeriodBounds(weekRef)
+  const weekStart = weekBounds.start
+  const weekEnd = weekBounds.end
+
+  // Weekly habits: whole-week or unassigned scope with weekly cadence
+  const weeklyHabits = habits
+    .filter(
+      (h) =>
+        h.subject.cadence === 'weekly' &&
+        h.planning.scheduleScope !== 'specific-days'
+    )
+    .map((h) => ({
+      id: h.subject.id,
+      name: h.subject.title,
+      evaluationStatus: h.measurement.evaluationStatus ?? ('no-data' as MeasurementEvaluationStatus),
+      actualValue: h.measurement.actualValue,
+      target: h.measurement.target,
+      entryCount: h.measurement.entryCount,
+    }))
+
+  // Monthly habits: count entries within this week only
+  const monthlyHabits = habits
+    .filter((h) => h.subject.cadence === 'monthly')
+    .map((h) => {
+      // Note: completion-mode habits store value: null — entry existence = done
+      const weekEntries = rawEntries.filter(
+        (e) =>
+          e.subjectType === 'habit' &&
+          e.subjectId === h.subject.id &&
+          e.dayRef >= weekStart &&
+          e.dayRef <= weekEnd
+      )
+      const weekValue = weekEntries.reduce((sum, e) => sum + (e.value ?? 0), 0)
+      return {
+        id: h.subject.id,
+        name: h.subject.title,
+        weekEntryCount: weekEntries.length,
+        weekValue: weekValue || undefined,
+      }
+    })
+    .filter((h) => h.weekEntryCount > 0)
+
+  return {
+    weeklyHabits,
+    monthlyHabits,
+    totalEmotionLogs: emotionSummary.totalLogs,
+    totalJournalEntries: journalSummary.totalEntries,
+    totalExercises: exerciseSummary.totalCompleted,
   }
 }
 
@@ -145,29 +522,55 @@ export async function getWeeklyReflectionDataBundle(
   const emotionSummary = buildEmotionSummary(startDate, endDate)
   const journalSummary = buildJournalSummary(startDate, endDate)
 
-  // Habits from planning bundle
+  // Exercises from database
+  const exerciseEntries = await getExerciseEntriesForPeriod(startDate, endDate)
+  const exerciseSummary = buildExerciseSummary(exerciseEntries)
+
+  // Habits and measurements from reflection bundle (broader than planning)
   let habitSummary: HabitSummary = { totalActive: 0, metCount: 0, missedCount: 0 }
+  let dailyBreakdown: DailyActivityBreakdown[] = []
+  let weeklySummary: WeeklySummary = {
+    weeklyHabits: [],
+    monthlyHabits: [],
+    totalEmotionLogs: emotionSummary.totalLogs,
+    totalJournalEntries: journalSummary.totalEntries,
+    totalExercises: exerciseSummary.totalCompleted,
+  }
+
   try {
-    const planningBundle = await getWeekPlanningBundle(weekRef)
-    const measurements = planningBundle.relevant?.measurementItems ?? []
-    const habits = measurements.filter((m) => m.subjectType === 'habit')
+    const relevant = await getWeekRelevantObjects(weekRef)
+    const reflectionMeasurements = relevant.reflection.measurementItems
+    const habits = reflectionMeasurements.filter((m) => m.subjectType === 'habit')
+
     let metCount = 0
     let missedCount = 0
     for (const habit of habits) {
-      const summary = buildMeasurementSummary(
-        habit.subject,
-        planningBundle.rawEntries,
-        weekRef
-      )
-      if (summary.evaluationStatus === 'met') metCount++
-      else if (summary.evaluationStatus === 'missed') missedCount++
+      if (habit.measurement.evaluationStatus === 'met') metCount++
+      else if (habit.measurement.evaluationStatus === 'missed') missedCount++
     }
     habitSummary = { totalActive: habits.length, metCount, missedCount }
-  } catch {
-    // Planning data may not exist for this period
-  }
 
-  const exerciseSummary: ExerciseSummary = { totalCompleted: 0, types: [] }
+    dailyBreakdown = buildDailyBreakdown(
+      weekRef,
+      relevant.rawEntries,
+      reflectionMeasurements,
+      exerciseEntries,
+      startDate,
+      endDate,
+    )
+
+    weeklySummary = buildWeeklySummary(
+      reflectionMeasurements,
+      relevant.rawEntries,
+      weekRef,
+      emotionSummary,
+      journalSummary,
+      exerciseSummary,
+    )
+  } catch {
+    // Planning data may not exist — build daily breakdown without measurements
+    dailyBreakdown = buildDailyBreakdown(weekRef, [], [], exerciseEntries, startDate, endDate)
+  }
 
   return {
     weekRef,
@@ -175,6 +578,8 @@ export async function getWeeklyReflectionDataBundle(
     journalSummary,
     habitSummary,
     exerciseSummary,
+    dailyBreakdown,
+    weeklySummary,
   }
 }
 
@@ -192,10 +597,15 @@ export async function getMonthlyReflectionDataBundle(
   const emotionSummary = buildEmotionSummary(startDate, endDate)
   const journalSummary = buildJournalSummary(startDate, endDate)
 
-  // Habits from month planning bundle
+  // Habits, trackers, and goals from month planning bundle
   let habitSummary: HabitSummary = { totalActive: 0, metCount: 0, missedCount: 0 }
+  let trackerSummary: TrackerSummary = { totalActive: 0 }
+  let goalSummaries: GoalReflectionSummary[] = []
+
   try {
     const planningBundle = await getMonthPlanningBundle(monthRef)
+
+    // Habits
     const habits = planningBundle.measurementItems.filter((m) => m.subjectType === 'habit')
     let metCount = 0
     let missedCount = 0
@@ -209,6 +619,42 @@ export async function getMonthlyReflectionDataBundle(
       else if (summary.evaluationStatus === 'missed') missedCount++
     }
     habitSummary = { totalActive: habits.length, metCount, missedCount }
+
+    // Trackers
+    const trackers = planningBundle.trackerItems ?? []
+    trackerSummary = { totalActive: trackers.length }
+
+    // Goals with KR progress
+    goalSummaries = planningBundle.goalItems.map((goalItem) => {
+      const krs = planningBundle.cadencedItems.filter(
+        (m) =>
+          m.subjectType === 'keyResult' &&
+          'goalId' in m.subject &&
+          m.subject.goalId === goalItem.goal.id
+      )
+      return {
+        goal: {
+          id: goalItem.goal.id,
+          title: goalItem.goal.title,
+          icon: goalItem.goal.icon,
+          status: goalItem.goal.status,
+        },
+        keyResults: krs.map((kr) => {
+          const summary = buildMeasurementSummary(
+            kr.subject,
+            planningBundle.rawEntries,
+            monthRef
+          )
+          return {
+            id: kr.subject.id,
+            title: kr.subject.title,
+            evaluationStatus: summary.evaluationStatus ?? 'no-data',
+            actualValue: summary.actualValue,
+            target: summary.target,
+          }
+        }),
+      }
+    })
   } catch {
     // Planning data may not exist
   }
@@ -225,7 +671,9 @@ export async function getMonthlyReflectionDataBundle(
     emotionSummary,
     journalSummary,
     habitSummary,
+    trackerSummary,
     exerciseSummary,
+    goalSummaries,
     weeklyRatingTrends,
     weeklyReflectionSnippets,
   }
@@ -240,11 +688,21 @@ function buildWeeklyRatingTrends(reflections: WeeklyReflection[]): WeeklyRatingT
     .sort((a, b) => a.weekRef.localeCompare(b.weekRef))
     .map((r) => ({
       weekRef: r.weekRef,
-      [WEEKLY_RATING_KEYS[0]]: r[WEEKLY_RATING_KEYS[0]],
-      [WEEKLY_RATING_KEYS[1]]: r[WEEKLY_RATING_KEYS[1]],
-      [WEEKLY_RATING_KEYS[2]]: r[WEEKLY_RATING_KEYS[2]],
-      [WEEKLY_RATING_KEYS[3]]: r[WEEKLY_RATING_KEYS[3]],
-      [WEEKLY_RATING_KEYS[4]]: r[WEEKLY_RATING_KEYS[4]],
+      // Context
+      [WEEKLY_CONTEXT_KEYS[0]]: r[WEEKLY_CONTEXT_KEYS[0]],
+      [WEEKLY_CONTEXT_KEYS[1]]: r[WEEKLY_CONTEXT_KEYS[1]],
+      [WEEKLY_CONTEXT_KEYS[2]]: r[WEEKLY_CONTEXT_KEYS[2]],
+      [WEEKLY_CONTEXT_KEYS[3]]: r[WEEKLY_CONTEXT_KEYS[3]],
+      // State
+      [WEEKLY_STATE_KEYS[0]]: r[WEEKLY_STATE_KEYS[0]],
+      [WEEKLY_STATE_KEYS[1]]: r[WEEKLY_STATE_KEYS[1]],
+      [WEEKLY_STATE_KEYS[2]]: r[WEEKLY_STATE_KEYS[2]],
+      [WEEKLY_STATE_KEYS[3]]: r[WEEKLY_STATE_KEYS[3]],
+      // Evaluation
+      [WEEKLY_EVALUATION_KEYS[0]]: r[WEEKLY_EVALUATION_KEYS[0]],
+      [WEEKLY_EVALUATION_KEYS[1]]: r[WEEKLY_EVALUATION_KEYS[1]],
+      [WEEKLY_EVALUATION_KEYS[2]]: r[WEEKLY_EVALUATION_KEYS[2]],
+      [WEEKLY_EVALUATION_KEYS[3]]: r[WEEKLY_EVALUATION_KEYS[3]],
     })) as WeeklyRatingTrendEntry[]
 }
 

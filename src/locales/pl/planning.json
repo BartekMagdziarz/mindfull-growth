@@ -131,6 +131,17 @@
       "createdAt": "Utworzono",
       "updatedAt": "Zaktualizowano"
     },
+    "wellness": {
+      "journal": "Dziennik",
+      "emotions": "Emocje",
+      "exercises": "Ćwiczenia",
+      "total": "łącznie",
+      "today": "dziś",
+      "streakDays": "{n}-dniowa seria",
+      "newEntry": "Nowy wpis",
+      "logEmotion": "Zapisz emocję",
+      "exercisesPlaceholder": "Wkrótce"
+    },
     "empty": {
       "generic": "Na razie nic tu nie ma.",
       "goals": "Brak aktywnych celów dla tego okresu.",
@@ -509,98 +520,149 @@
     "saving": "Zapisywanie...",
     "steps": {
       "review": "Przegląd",
-      "ratings": "Oceny",
-      "prompts": "Pytania",
+      "context": "Kontekst",
+      "state": "Stan",
+      "evaluation": "Ocena",
+      "anchors": "Punkty zaczepienia",
       "journal": "Dziennik",
-      "ahead": "Plany",
-      "weeklyRecap": "Podsumowanie tygodni"
+      "goals": "Cele",
+      "weeklyRecap": "Podsumowanie tygodni",
+      "ratings": "Oceny"
+    },
+    "sidebar": {
+      "anchors": "Punkty zaczepienia",
+      "ratings": "Oceny"
     },
     "review": {
       "emotions": "Emocje",
-      "emotionLogs": "wpisów emocji",
-      "pleasant": "Przyjemne",
-      "unpleasant": "Nieprzyjemne",
+      "emotionLog": {
+        "one": "{n} wpis emocji",
+        "few": "{n} wpisy emocji",
+        "many": "{n} wpisów emocji"
+      },
       "journals": "Wpisy w dzienniku",
-      "journalEntries": "wpisów",
+      "journalEntry": {
+        "one": "{n} wpis",
+        "few": "{n} wpisy",
+        "many": "{n} wpisów"
+      },
       "untitled": "Wpis bez tytułu",
       "habits": "Nawyki",
       "habitsMet": "spełniło cel",
       "exercises": "Ćwiczenia",
       "exercisesCompleted": "ukończonych",
+      "keyResults": "Kluczowe rezultaty",
+      "trackers": "Pomiary",
+      "summary": "Podsumowanie tygodnia",
+      "weeklyHabits": "Nawyki tygodniowe",
+      "monthlyHabits": "Nawyki miesięczne",
+      "thisWeek": "w tym tygodniu",
       "noData": "Brak danych dla tego okresu"
     },
     "weekly": {
       "title": "Refleksja tygodniowa",
       "progress": "Postęp refleksji",
       "reviewSubtitle": "Oto podsumowanie Twojego tygodnia. Poświęć chwilę na zapoznanie się z nim.",
-      "ratingsTitle": "Jak minął Twój tydzień?",
-      "ratingsSubtitle": "Oceń te wymiary na podstawie ogólnego doświadczenia z tego tygodnia.",
-      "dimensions": {
-        "mood": "Nastrój",
-        "energy": "Energia",
-        "focus": "Skupienie",
-        "socialConnection": "Kontakty społeczne",
-        "stressLevel": "Poziom stresu"
-      },
-      "prompts": {
-        "wentWell": {
-          "label": "Co poszło dobrze w tym tygodniu?",
-          "placeholder": "Pomyśl o momentach, osiągnięciach lub rzeczach, za które jesteś wdzięczny..."
+      "groups": {
+        "context": {
+          "title": "Kontekst",
+          "subtitle": "Jak wymagający był ten tydzień?"
         },
-        "challenges": {
-          "label": "Co było trudne?",
-          "placeholder": "Jakie przeszkody napotkałeś? Jak na nie zareagowałeś?"
+        "state": {
+          "title": "Stan",
+          "subtitle": "Jak się czujesz na koniec tego tygodnia?"
         },
-        "lessons": {
-          "label": "Kluczowe lekcje lub spostrzeżenia?",
-          "placeholder": "Czego dowiedziałeś się o sobie w tym tygodniu?"
+        "evaluation": {
+          "title": "Ocena",
+          "subtitle": "Jak Ci poszło w tym tygodniu?"
         }
       },
-      "journalTitle": "Swobodna refleksja",
-      "journalSubtitle": "Pisz swobodnie o swoim tygodniu — cokolwiek przychodzi Ci na myśl.",
-      "journalPlaceholder": "Pozwól myślom płynąć...",
-      "aheadTitle": "Patrząc w przyszłość",
-      "aheadSubtitle": "Na czym chciałbyś się skupić w przyszłym tygodniu?",
-      "aheadPlaceholder": "Intencje, cele, obszary skupienia..."
+      "dimensions": {
+        "physicalIntensity": "Intensywność fizyczna",
+        "taskLoad": "Obciążenie zadaniami",
+        "emotionalIntensity": "Intensywność emocjonalna",
+        "socialIntensity": "Intensywność społeczna",
+        "mood": "Nastrój",
+        "energy": "Energia",
+        "calm": "Spokój",
+        "connection": "Połączenie z bliskimi",
+        "productivity": "Produktywność",
+        "engagement": "Zaangażowanie",
+        "emotionalRegulation": "Regulacja emocjonalna",
+        "selfCare": "Dbanie o siebie"
+      },
+      "scaleLabels": {
+        "physicalIntensity": { "low": "Spokojny", "high": "Intensywny" },
+        "taskLoad": { "low": "Lekki", "high": "Przeciążony" },
+        "emotionalIntensity": { "low": "Spokojny", "high": "Intensywny" },
+        "socialIntensity": { "low": "Cichy", "high": "Intensywny" },
+        "mood": { "low": "Niski", "high": "Świetny" },
+        "energy": { "low": "Wyczerpany", "high": "Naładowany" },
+        "calm": { "low": "Napięty", "high": "Spokojny" },
+        "connection": { "low": "Oddalony", "high": "Blisko" },
+        "productivity": { "low": "Zablokowany", "high": "Pełna para" },
+        "engagement": { "low": "Autopilot", "high": "W pełni obecny" },
+        "emotionalRegulation": { "low": "Przytłoczony", "high": "Zrównoważony" },
+        "selfCare": { "low": "Zaniedbany", "high": "Zaopiekowany" }
+      },
+      "anchors": {
+        "wentWell": "Co poszło dobrze",
+        "challenges": "Co było trudne",
+        "gratitude": "Wdzięczność",
+        "lessons": "Lekcje i spostrzeżenia",
+        "improvements": "Co chcę poprawić",
+        "lookingAhead": "Patrząc w przyszłość"
+      },
+      "journalPlaceholder": "Napisz refleksję nad minionym tygodniem..."
     },
     "monthly": {
       "title": "Refleksja miesięczna",
       "progress": "Postęp refleksji",
       "reviewSubtitle": "Oto podsumowanie Twojego miesiąca. Przejrzyj je przed refleksją nad szerszym obrazem.",
+      "goalsTitle": "Cele i kluczowe rezultaty",
+      "goalsSubtitle": "Przejrzyj aktywne cele i ich postęp w tym miesiącu.",
+      "habitsLabel": "Nawyki",
+      "trackersLabel": "Trackery",
+      "noGoals": "Brak aktywnych celów w tym miesiącu.",
+      "krStatus": {
+        "met": "Osiągnięty",
+        "missed": "Nieosiągnięty",
+        "noData": "Brak danych"
+      },
       "weeklyRecapTitle": "Twoje tygodnie w pigułce",
       "weeklyTrends": "Trendy ocen tygodniowych",
       "weeklySummaries": "Refleksje tygodniowe",
       "weekLabel": "Tydzień",
       "noWeeklyData": "Brak refleksji tygodniowych w tym miesiącu.",
-      "ratingsTitle": "Jak minął Twój miesiąc?",
-      "ratingsSubtitle": "Oceń te szersze wymiary na podstawie ogólnego doświadczenia z tego miesiąca.",
-      "dimensions": {
-        "purpose": "Poczucie celu",
-        "motivation": "Motywacja",
-        "growth": "Rozwój osobisty",
-        "lifeSatisfaction": "Satysfakcja z życia",
-        "alignment": "Zgodność z wartościami"
-      },
-      "prompts": {
-        "proudOf": {
-          "label": "Z czego jesteś najbardziej dumny w tym miesiącu?",
-          "placeholder": "Osiągnięcia, postępy lub wyróżniające się momenty..."
-        },
-        "challenges": {
-          "label": "Jakie były największe wyzwania?",
-          "placeholder": "Przeszkody, porażki lub trudne sytuacje..."
-        },
-        "growth": {
-          "label": "Jak się rozwinąłeś?",
-          "placeholder": "Nowe spostrzeżenia, zmienione perspektywy lub rozwój osobisty..."
+      "groups": {
+        "ratings": {
+          "title": "Wymiary miesięczne",
+          "subtitle": "Zastanów się nad szerszym obrazem — kim się stajesz?"
         }
       },
-      "journalTitle": "Swobodna refleksja",
-      "journalSubtitle": "Zastanów się nad przebiegiem miesiąca — tematy, wzorce i co jest ważne.",
-      "journalPlaceholder": "Poświęć na to trochę czasu...",
-      "aheadTitle": "Patrząc w przyszłość",
-      "aheadSubtitle": "Co chcesz zabrać ze sobą? Co chcesz puścić?",
-      "aheadPlaceholder": "Intencje na nadchodzący miesiąc..."
+      "dimensions": {
+        "balance": "Równowaga",
+        "purpose": "Poczucie sensu",
+        "growth": "Rozwój osobisty",
+        "coherence": "Spójność",
+        "agency": "Sprawczość"
+      },
+      "scaleLabels": {
+        "balance": { "low": "Niezrównoważony", "high": "Zrównoważony" },
+        "purpose": { "low": "Zagubiony", "high": "Celowy" },
+        "growth": { "low": "Stagnacja", "high": "Wzrost" },
+        "coherence": { "low": "Rozproszony", "high": "Spójny" },
+        "agency": { "low": "Dryfujący", "high": "Świadomy" }
+      },
+      "anchors": {
+        "proudOf": "Z czego jestem dumny",
+        "challenges": "Największe wyzwania",
+        "growth": "Jak się rozwinąłem",
+        "patterns": "Zauważone wzorce",
+        "carryForward": "Co zabieram ze sobą",
+        "letGo": "Co puszczam"
+      },
+      "journalPlaceholder": "Napisz refleksję nad minionym miesiącem..."
     }
   }
 }
