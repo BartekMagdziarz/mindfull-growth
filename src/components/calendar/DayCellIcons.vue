@@ -8,28 +8,40 @@
       v-for="item in props.items"
       :key="item.key"
       :title="item.title"
-      class="relative flex shrink-0 items-center justify-center rounded-full transition-all duration-200"
-      :style="{ ...itemBgStyle(item), width: `${iconSize}px`, height: `${iconSize}px` }"
+      class="relative flex shrink-0 items-center justify-center transition-all duration-200"
       :class="itemTextClass(item)"
+      :style="{ width: `${iconSize}px`, height: `${iconSize}px` }"
     >
+      <!-- Pentagon ring (active habits only — clip-path clips box-shadow so we fake a ring) -->
+      <div
+        v-if="item.subjectType === 'habit' && item.isActiveAssignment"
+        class="absolute -inset-px bg-primary/25 pentagon-clip"
+      />
+      <!-- Shape background -->
+      <div
+        class="absolute inset-0"
+        :class="[shapeBgClass(item.subjectType), shapeRingClass(item)]"
+        :style="itemBgStyle(item)"
+      />
+
       <span
         v-if="item.icon && resolvedIcon(item.icon)"
-        class="material-symbols-outlined select-none leading-none"
+        class="material-symbols-outlined relative select-none leading-none"
         :style="{ fontSize: `${iconFontSize}px` }"
       >{{ resolvedIcon(item.icon) }}</span>
       <span
         v-else-if="item.icon && isEmoji(item.icon)"
-        class="leading-none"
+        class="relative leading-none"
         :style="{ fontSize: `${iconFontSize * 0.85}px` }"
       >{{ item.icon }}</span>
       <span
         v-else
-        class="truncate px-0.5 font-medium leading-none"
+        class="relative truncate px-0.5 font-medium leading-none"
         :style="{ fontSize: `${Math.max(8, iconFontSize * 0.7)}px` }"
       >{{ item.title }}</span>
       <span
         v-if="item.count > 1"
-        class="absolute flex items-center justify-center rounded-full bg-primary font-bold leading-none text-on-primary"
+        class="absolute z-10 flex items-center justify-center rounded-full bg-primary font-bold leading-none text-on-primary"
         :style="badgeStyle"
       >
         {{ item.count }}
@@ -77,8 +89,8 @@ onUnmounted(() => {
 
 const typeColorVar: Record<SubjectKind, string> = {
   keyResult: '--neo-chart-kr-end',
-  habit: '--neo-chart-habit-end',
-  tracker: '--neo-chart-tracker-end',
+  habit: '--neo-chart-kr-end',
+  tracker: '--neo-chart-kr-end',
 }
 
 function resolvedIcon(icon: string): string | undefined {
@@ -92,6 +104,21 @@ function isEmoji(icon: string): boolean {
   return isLegacyEmojiIcon(icon)
 }
 
+function shapeBgClass(type: SubjectKind): string {
+  switch (type) {
+    case 'keyResult': return 'rounded-full'
+    case 'tracker': return 'rounded-[22%]'
+    case 'habit': return 'pentagon-clip'
+  }
+}
+
+function shapeRingClass(item: CollapsedIconItem): string {
+  if (!item.isActiveAssignment) return ''
+  // Pentagon ring is handled by a separate overlay div (clip-path clips box-shadow)
+  if (item.subjectType === 'habit') return ''
+  return 'ring-1 ring-primary/25'
+}
+
 function itemBgStyle(item: CollapsedIconItem): Record<string, string> {
   const cssVar = typeColorVar[item.subjectType]
   const opacity = item.isActiveAssignment ? 0.25 : 0.10
@@ -99,9 +126,7 @@ function itemBgStyle(item: CollapsedIconItem): Record<string, string> {
 }
 
 function itemTextClass(item: CollapsedIconItem): string {
-  const text = item.isActiveAssignment ? 'text-primary-strong' : 'text-on-surface-variant'
-  const ring = item.isActiveAssignment ? 'ring-1 ring-primary/25' : ''
-  return `${text} ${ring}`
+  return item.isActiveAssignment ? 'text-primary-strong' : 'text-on-surface-variant'
 }
 
 /**
@@ -166,3 +191,9 @@ const badgeStyle = computed(() => {
   }
 })
 </script>
+
+<style scoped>
+.pentagon-clip {
+  clip-path: polygon(50% 0%, 98% 35%, 79% 90%, 21% 90%, 2% 35%);
+}
+</style>

@@ -75,7 +75,6 @@ export interface ActiveAssignment {
 }
 
 export interface PlannerDisplayRow extends PlannerMeasurementRow {
-  contextLabel: string
   placementStatus: PlannerPlacementStatus
   placementEditState: PlannerPlacementEditState
   placementSummary: string | null

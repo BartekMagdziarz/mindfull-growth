@@ -1,41 +1,57 @@
 <template>
   <article
-    class="rounded-[1.15rem] border transition-all duration-200"
+    class="rounded-[1.15rem] border border-neu-border/30 transition-all duration-200"
     :class="cardClass"
   >
-    <div class="flex flex-wrap items-center gap-2.5 px-3 py-2.5">
-      <button
-        type="button"
-        class="relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none disabled:opacity-40"
-        :class="row.isActive ? 'bg-primary' : 'bg-outline/30'"
-        :aria-label="row.isActive ? t('planning.calendar.planner.deactivate') : t('planning.calendar.planner.activate')"
-        @click="$emit('toggle')"
-      >
-        <span
-          class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
-          :class="row.isActive ? 'translate-x-[18px]' : 'translate-x-0.5'"
-        />
-      </button>
-
-      <div class="min-w-0 flex-1">
-        <div class="flex flex-wrap items-center gap-1.5">
-          <p class="min-w-0 truncate text-sm font-semibold text-on-surface">
-            {{ row.title }}
-          </p>
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]">
-            {{ row.contextLabel }}
-          </span>
-          <span
-            v-if="row.placementSummary"
-            class="neo-pill px-2 py-0.5 text-[10px] font-semibold"
-            :class="row.placementStatus === 'planned' ? 'neo-pill--success' : 'neo-pill--warning'"
+    <div class="px-3 py-2.5">
+      <div class="flex items-center gap-2.5">
+        <div class="flex shrink-0 flex-col items-center gap-1">
+          <button
+            type="button"
+            class="relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none disabled:opacity-40"
+            :class="row.isActive ? 'bg-primary' : 'bg-outline/30'"
+            :aria-label="row.isActive ? t('planning.calendar.planner.deactivate') : t('planning.calendar.planner.activate')"
+            @click="$emit('toggle')"
           >
-            {{ row.placementSummary }}
-          </span>
+            <span
+              class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
+              :class="row.isActive ? 'translate-x-[18px]' : 'translate-x-0.5'"
+            />
+          </button>
+
+          <button
+            v-if="showAdvancedToggle"
+            type="button"
+            class="flex h-5 w-5 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:text-primary neo-focus"
+            :class="advancedOpen ? 'text-primary' : ''"
+            :aria-label="advancedOpen ? hideAdvancedLabel : showAdvancedLabel"
+            @click="advancedOpen = !advancedOpen"
+          >
+            <AppIcon
+              name="expand_more"
+              class="text-xs transition-transform duration-200"
+              :class="advancedOpen ? 'rotate-180' : ''"
+            />
+          </button>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5">
+            <p class="min-w-0 truncate text-sm font-semibold text-on-surface">
+              {{ row.title }}
+            </p>
+            <span
+              v-if="row.placementSummary"
+              class="shrink-0 neo-pill px-2 py-0.5 text-[10px] font-semibold"
+              :class="row.placementStatus === 'planned' ? 'neo-pill--success' : 'neo-pill--warning'"
+            >
+              {{ row.placementSummary }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="ml-auto flex flex-wrap items-center justify-end gap-1.5">
+      <div class="mt-2 flex flex-wrap items-center gap-1.5 pl-[46px]">
         <button
           type="button"
           class="neo-pill px-3 py-1 text-[11px] font-semibold neo-focus"
@@ -65,17 +81,6 @@
           @click="$emit('startAssigning', 'days')"
         >
           {{ pickDaysLabel }}
-        </button>
-
-        <button
-          v-if="showAdvancedToggle"
-          type="button"
-          class="neo-icon-button neo-focus h-9 w-9 rounded-xl"
-          :class="advancedOpen ? 'shadow-neu-pressed text-primary' : ''"
-          :aria-label="advancedOpen ? hideAdvancedLabel : showAdvancedLabel"
-          @click="advancedOpen = !advancedOpen"
-        >
-          <AppIcon name="tune" class="text-sm" />
         </button>
       </div>
     </div>
@@ -137,10 +142,10 @@ const showAdvancedLabel = computed(() => t('planning.calendar.planner.showAdvanc
 const hideAdvancedLabel = computed(() => t('planning.calendar.planner.hideAdvanced'))
 
 const cardClass = computed(() => {
-  if (props.row.placementEditState !== 'idle') return 'border-secondary/25 bg-secondary/7 ring-1 ring-secondary/20'
-  if (props.row.placementStatus === 'planned') return 'border-success/18 bg-success/6'
-  if (props.row.isActive) return 'border-primary/15 bg-primary/5'
-  return 'border-outline/10 bg-section/35'
+  if (props.row.placementEditState !== 'idle') return 'bg-secondary/7 shadow-neu-pressed ring-1 ring-secondary/20'
+  if (props.row.placementStatus === 'planned') return 'bg-success/5 shadow-neu-raised-sm'
+  if (props.row.isActive) return 'bg-primary/4 shadow-neu-raised-sm'
+  return 'bg-neu-base shadow-neu-raised-sm'
 })
 
 const wholeChipClass = computed(() => {

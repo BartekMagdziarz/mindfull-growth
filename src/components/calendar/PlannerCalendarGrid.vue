@@ -100,6 +100,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import DayCellIcons from './DayCellIcons.vue'
 import { useT } from '@/composables/useT'
 import type { DayRef, WeekRef } from '@/domain/period'
+import { getPeriodRefsForDate } from '@/utils/periods'
 import type {
   CalendarAssignmentItem,
   CollapsedIconItem,
@@ -128,6 +129,7 @@ defineEmits<{
 }>()
 
 const { t } = useT()
+const todayRef = getPeriodRefsForDate(new Date()).day
 const dayCellStyle = {
   minHeight: '104px',
 }
@@ -176,6 +178,7 @@ function dayCellClass(day: PlannerWeekDay): string {
   const row = props.assignmentRow
   const isAssigned = row ? props.rowVisibleOnDay(row, day.dayRef, day.inMonth) : false
   const dayEditing = props.assignmentMode === 'days'
+  const isPast = day.dayRef < todayRef
 
   if (!day.inMonth) {
     return isAssigned
@@ -186,7 +189,8 @@ function dayCellClass(day: PlannerWeekDay): string {
   }
 
   if (isAssigned) return 'shadow-neu-raised-sm bg-primary/7'
-  return row && dayEditing ? 'shadow-neu-raised-sm hover:shadow-neu-raised' : 'shadow-neu-pressed-sm opacity-60'
+  if (row && dayEditing) return 'shadow-neu-raised-sm hover:shadow-neu-raised'
+  return isPast ? 'shadow-neu-pressed-sm opacity-60' : 'shadow-neu-raised-sm'
 }
 
 </script>
