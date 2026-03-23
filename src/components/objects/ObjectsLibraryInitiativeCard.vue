@@ -1,9 +1,9 @@
 <template>
   <article
-    class="neo-card neo-raised border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3"
+    class="group/card neo-card neo-raised border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3"
   >
     <div class="space-y-2">
-      <!-- Row 1: Icon + Title -->
+      <!-- Row 1: Icon + Title + [hover: menu] + Status -->
       <div class="flex items-center gap-2">
         <IconPicker
           icon-size="lg"
@@ -18,47 +18,15 @@
           ref="titleRef"
           :value="item.title"
           type="text"
-          class="neo-input min-w-0 flex-1 px-2.5 py-1.5 text-sm font-semibold"
+          class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
           :placeholder="t('planning.objects.form.title')"
           @input="handleTitleInput"
         />
-      </div>
-
-      <!-- Row 2: Links icon + Description -->
-      <div class="flex items-center gap-2">
-        <GoalLinksDropdown
-          icon-only
-          :goal-id="item.goalId"
-          :goal-options="goalOptions"
-          :priority-ids="item.priorityIds ?? []"
-          :life-area-ids="item.lifeAreaIds ?? []"
-          :priority-options="priorityOptions"
-          :life-area-options="lifeAreaOptions"
-          @update:goal-id="emitFieldChange('goalId', $event)"
-          @toggle-priority="emitFieldChange('togglePriority', $event)"
-          @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
-        />
-        <input
-          :value="item.description ?? ''"
-          type="text"
-          class="neo-input min-w-0 flex-1 px-2.5 py-1.5 text-xs"
-          :placeholder="t('planning.objects.form.description')"
-          @input="handleDescriptionInput"
-        />
-      </div>
-
-      <!-- Row 3: Status + Actions (right-aligned) -->
-      <div class="flex items-center gap-1.5">
-        <div class="ml-auto flex items-center gap-1.5">
-          <StatusIconButton
-            :model-value="item.status"
-            :options="statusOptions"
-            @update:model-value="emitFieldChange('status', $event)"
-          />
+        <div class="-mr-10 flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-focus"
+              class="neo-icon-button neo-focus shrink-0"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >
@@ -86,6 +54,27 @@
             </div>
           </div>
         </div>
+        <StatusIconButton
+          :model-value="item.status"
+          :options="statusOptions"
+          @update:model-value="emitFieldChange('status', $event)"
+        />
+      </div>
+
+      <!-- Row 2: Links -->
+      <div class="flex items-center gap-1.5">
+        <GoalLinksDropdown
+          icon-only
+          :goal-id="item.goalId"
+          :goal-options="goalOptions"
+          :priority-ids="item.priorityIds ?? []"
+          :life-area-ids="item.lifeAreaIds ?? []"
+          :priority-options="priorityOptions"
+          :life-area-options="lifeAreaOptions"
+          @update:goal-id="emitFieldChange('goalId', $event)"
+          @toggle-priority="emitFieldChange('togglePriority', $event)"
+          @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
+        />
       </div>
     </div>
   </article>
@@ -122,7 +111,6 @@ const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
 
 let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
-let descriptionDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
 function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', props.item.id, field, value)
@@ -133,14 +121,6 @@ function handleTitleInput(event: Event): void {
   clearTimeout(titleDebounceTimer)
   titleDebounceTimer = setTimeout(() => {
     emitFieldChange('title', value)
-  }, 400)
-}
-
-function handleDescriptionInput(event: Event): void {
-  const value = (event.target as HTMLInputElement).value
-  clearTimeout(descriptionDebounceTimer)
-  descriptionDebounceTimer = setTimeout(() => {
-    emitFieldChange('description', value)
   }, 400)
 }
 
@@ -179,6 +159,5 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
   clearTimeout(titleDebounceTimer)
-  clearTimeout(descriptionDebounceTimer)
 })
 </script>

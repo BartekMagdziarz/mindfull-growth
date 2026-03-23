@@ -1,9 +1,9 @@
 <template>
   <article
-    class="neo-card neo-raised border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3.5"
+    class="group/card neo-card neo-raised border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3.5"
   >
     <div class="space-y-2">
-      <!-- Row 1: Icon + Title -->
+      <!-- Row 1: Icon + Title + [hover: menu] + Status -->
       <div class="flex items-center gap-2">
         <IconPicker
           icon-size="lg"
@@ -18,46 +18,11 @@
           ref="titleRef"
           :value="item.title"
           type="text"
-          class="neo-input min-w-0 flex-1 px-2.5 py-1.5 text-sm font-semibold"
+          class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
           :placeholder="t('planning.objects.form.goalTitlePlaceholder')"
           @input="handleTitleInput"
         />
-      </div>
-
-      <!-- Row 2: Links icon + Description -->
-      <div class="flex items-center gap-2">
-        <GoalLinksDropdown
-          icon-only
-          :priority-ids="item.priorityIds ?? []"
-          :life-area-ids="item.lifeAreaIds ?? []"
-          :priority-options="priorityOptions"
-          :life-area-options="lifeAreaOptions"
-          @toggle-priority="emitFieldChange('togglePriority', $event)"
-          @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
-        />
-        <textarea
-          :value="item.description ?? ''"
-          class="neo-input w-full resize-none px-2.5 py-1.5 text-xs leading-5"
-          rows="2"
-          :placeholder="t('planning.objects.form.goalDescriptionPlaceholder')"
-          @input="handleDescriptionInput"
-        />
-      </div>
-
-      <!-- Row 3: Months (left) + Status icon + menu (right) -->
-      <div class="flex items-center gap-1.5">
-        <GoalMonthsDropdown
-          :linked-months="linkedMonths"
-          @link-month="$emit('link-month', item.id, $event)"
-          @unlink-month="$emit('unlink-month', item.id, $event)"
-        />
-
-        <div class="ml-auto flex items-center gap-1.5">
-          <StatusIconButton
-            :model-value="item.status"
-            :options="statusOptions"
-            @update:model-value="emitFieldChange('status', $event)"
-          />
+        <div class="-mr-10 flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <div ref="menuRef" class="relative">
             <button
               type="button"
@@ -96,6 +61,29 @@
             </div>
           </div>
         </div>
+        <StatusIconButton
+          :model-value="item.status"
+          :options="statusOptions"
+          @update:model-value="emitFieldChange('status', $event)"
+        />
+      </div>
+
+      <!-- Row 2: Links + Months -->
+      <div class="flex items-center gap-1.5">
+        <GoalLinksDropdown
+          icon-only
+          :priority-ids="item.priorityIds ?? []"
+          :life-area-ids="item.lifeAreaIds ?? []"
+          :priority-options="priorityOptions"
+          :life-area-options="lifeAreaOptions"
+          @toggle-priority="emitFieldChange('togglePriority', $event)"
+          @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
+        />
+        <GoalMonthsDropdown
+          :linked-months="linkedMonths"
+          @link-month="$emit('link-month', item.id, $event)"
+          @unlink-month="$emit('unlink-month', item.id, $event)"
+        />
       </div>
     </div>
 
@@ -130,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
@@ -185,7 +173,6 @@ const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
 
 let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
-let descriptionDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
 function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', props.item.id, field, value)
@@ -196,14 +183,6 @@ function handleTitleInput(event: Event): void {
   clearTimeout(titleDebounceTimer)
   titleDebounceTimer = setTimeout(() => {
     emitFieldChange('title', value)
-  }, 400)
-}
-
-function handleDescriptionInput(event: Event): void {
-  const value = (event.target as HTMLTextAreaElement).value
-  clearTimeout(descriptionDebounceTimer)
-  descriptionDebounceTimer = setTimeout(() => {
-    emitFieldChange('description', value)
   }, 400)
 }
 
@@ -248,6 +227,5 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
   clearTimeout(titleDebounceTimer)
-  clearTimeout(descriptionDebounceTimer)
 })
 </script>

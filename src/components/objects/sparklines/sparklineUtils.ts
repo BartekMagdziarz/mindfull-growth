@@ -82,13 +82,5 @@ export type ChartColorTheme = 'keyResult' | 'habit' | 'tracker'
 
 /** Resolve CSS variable names for chart colors based on object type. */
 export function chartColorVars(theme: ChartColorTheme): { start: string; end: string } {
-  switch (theme) {
-    case 'habit':
-      return { start: '--neo-chart-habit-start', end: '--neo-chart-habit-end' }
-    case 'tracker':
-      return { start: '--neo-chart-tracker-start', end: '--neo-chart-tracker-end' }
-    case 'keyResult':
-    default:
-      return { start: '--neo-chart-kr-start', end: '--neo-chart-kr-end' }
-  }
+  return { start: '--neo-chart-kr-start', end: '--neo-chart-kr-end' }
 }

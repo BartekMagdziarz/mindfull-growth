@@ -1,44 +1,19 @@
 <template>
-  <div class="neo-surface rounded-lg">
+  <div class="group/card neo-surface rounded-lg">
     <div class="space-y-2 p-2.5">
-      <!-- Row 1: Title -->
+      <!-- Row 1: Title + [hover: expand, menu] + Status -->
       <div class="flex items-center gap-2">
         <input
           :value="child.title"
           type="text"
-          class="neo-input min-w-0 flex-1 px-2.5 py-1.5 text-xs font-medium"
+          class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-xs font-medium text-on-surface outline-none placeholder:text-on-surface-variant/40"
           :placeholder="t('planning.objects.form.title')"
           @input="handleTitleInput"
         />
-      </div>
-
-      <!-- Row 2: Summary pills (left) + Status icon + menu + expand (right) -->
-      <div class="flex items-center gap-1.5">
-        <div
-          v-if="!isExpanded"
-          class="flex flex-1 flex-wrap gap-1.5"
-        >
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
-            {{ cadenceLabel }}
-          </span>
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
-            {{ entryModeLabel }}
-          </span>
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
-            {{ child.targetSummary }}
-          </span>
-        </div>
-        <div v-else class="flex-1" />
-
-        <div class="ml-auto flex items-center gap-1.5">
-          <StatusIconButton
-            :model-value="child.status"
-            :options="statusOptions"
-            @update:model-value="emitFieldChange('status', $event)"
-          />
+        <div class="-mr-[76px] flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <button
             type="button"
-            class="neo-icon-button neo-focus"
+            class="neo-icon-button neo-focus shrink-0"
             :aria-label="isExpanded ? t('planning.objects.actions.hideDetails') : t('planning.objects.actions.showDetails')"
             @click="$emit('toggle-expand')"
           >
@@ -48,7 +23,7 @@
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-focus"
+              class="neo-icon-button neo-focus shrink-0"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >
@@ -75,6 +50,29 @@
               </button>
             </div>
           </div>
+        </div>
+        <StatusIconButton
+          :model-value="child.status"
+          :options="statusOptions"
+          @update:model-value="emitFieldChange('status', $event)"
+        />
+      </div>
+
+      <!-- Row 2: Summary pills -->
+      <div class="flex items-center gap-1.5">
+        <div
+          v-if="!isExpanded"
+          class="flex flex-1 flex-wrap gap-1.5"
+        >
+          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+            {{ cadenceLabel }}
+          </span>
+          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+            {{ entryModeLabel }}
+          </span>
+          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+            {{ child.targetSummary }}
+          </span>
         </div>
       </div>
 

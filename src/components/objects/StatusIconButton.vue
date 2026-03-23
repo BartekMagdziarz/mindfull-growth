@@ -59,7 +59,7 @@ const statusIcon = computed(() => {
     case 'retired':
       return 'do_not_disturb_on'
     default:
-      return 'lens'
+      return 'play_circle'
   }
 })
 
@@ -72,7 +72,7 @@ const toneClass = computed(() => {
     case 'retired':
       return 'neo-icon-button--warning'
     default:
-      return 'neo-icon-button--primary'
+      return 'neo-icon-button--open'
   }
 })
 

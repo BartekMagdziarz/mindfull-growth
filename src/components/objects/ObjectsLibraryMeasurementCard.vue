@@ -1,9 +1,9 @@
 <template>
   <article
-    class="neo-card neo-raised border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3"
+    class="group/card neo-card neo-raised border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3"
   >
     <div class="space-y-2">
-      <!-- Row 1: Icon + Title -->
+      <!-- Row 1: Icon + Title + [hover: expand, menu] + Status -->
       <div class="flex items-center gap-2">
         <IconPicker
           icon-size="lg"
@@ -18,61 +18,14 @@
           ref="titleRef"
           :value="item.title"
           type="text"
-          class="neo-input min-w-0 flex-1 px-2.5 py-1.5 text-sm font-semibold"
+          class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
           :placeholder="t('planning.objects.form.title')"
           @input="handleTitleInput"
         />
-      </div>
-
-      <!-- Row 2: Links icon + Description -->
-      <div class="flex items-center gap-2">
-        <GoalLinksDropdown
-          icon-only
-          :priority-ids="item.priorityIds ?? []"
-          :life-area-ids="item.lifeAreaIds ?? []"
-          :priority-options="priorityOptions"
-          :life-area-options="lifeAreaOptions"
-          @toggle-priority="emitFieldChange('togglePriority', $event)"
-          @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
-        />
-        <input
-          :value="item.description ?? ''"
-          type="text"
-          class="neo-input min-w-0 flex-1 px-2.5 py-1.5 text-xs"
-          :placeholder="t('planning.objects.form.description')"
-          @input="handleDescriptionInput"
-        />
-      </div>
-
-      <!-- Row 3: Summary pills (left) + Status icon + menu + expand (right) -->
-      <div class="flex items-center gap-1.5">
-        <div
-          class="flex flex-1 flex-wrap gap-1.5 py-0.5 transition-all duration-200 ease-in-out"
-          :style="{ maxHeight: isExpanded ? '0' : '2.5rem', opacity: isExpanded ? 0 : 1, overflow: isExpanded ? 'hidden' : 'visible' }"
-        >
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
-            {{ cadenceLabel }}
-          </span>
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
-            {{ entryModeLabel }}
-          </span>
-          <span
-            v-if="panelType === 'habit' && item.target"
-            class="neo-pill px-2 py-0.5 text-[10px] font-semibold"
-          >
-            {{ describeTargetSummary(item.target) }}
-          </span>
-        </div>
-
-        <div class="ml-auto flex items-center gap-1.5">
-          <StatusIconButton
-            :model-value="item.status"
-            :options="statusOptions"
-            @update:model-value="emitFieldChange('status', $event)"
-          />
+        <div class="-mr-[76px] flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <button
             type="button"
-            class="neo-icon-button neo-focus"
+            class="neo-icon-button neo-focus shrink-0"
             :aria-label="isExpanded ? t('planning.objects.actions.hideDetails') : t('planning.objects.actions.showDetails')"
             @click="$emit('toggle-expand')"
           >
@@ -82,7 +35,7 @@
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-focus"
+              class="neo-icon-button neo-focus shrink-0"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >
@@ -109,6 +62,41 @@
               </button>
             </div>
           </div>
+        </div>
+        <StatusIconButton
+          :model-value="item.status"
+          :options="statusOptions"
+          @update:model-value="emitFieldChange('status', $event)"
+        />
+      </div>
+
+      <!-- Row 2: Links + Summary pills -->
+      <div class="flex items-center gap-1.5">
+        <GoalLinksDropdown
+          icon-only
+          :priority-ids="item.priorityIds ?? []"
+          :life-area-ids="item.lifeAreaIds ?? []"
+          :priority-options="priorityOptions"
+          :life-area-options="lifeAreaOptions"
+          @toggle-priority="emitFieldChange('togglePriority', $event)"
+          @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
+        />
+        <div
+          class="flex flex-1 flex-wrap gap-1.5 py-0.5 transition-all duration-200 ease-in-out"
+          :style="{ maxHeight: isExpanded ? '0' : '2.5rem', opacity: isExpanded ? 0 : 1, overflow: isExpanded ? 'hidden' : 'visible' }"
+        >
+          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+            {{ cadenceLabel }}
+          </span>
+          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+            {{ entryModeLabel }}
+          </span>
+          <span
+            v-if="panelType === 'habit' && item.target"
+            class="neo-pill px-2 py-0.5 text-[10px] font-semibold"
+          >
+            {{ describeTargetSummary(item.target) }}
+          </span>
         </div>
       </div>
 
@@ -323,7 +311,6 @@ const BATCH_SIZE = 4
 const FUTURE_COUNT = 7
 
 let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
-let descriptionDebounceTimer: ReturnType<typeof setTimeout> | undefined
 let targetValueDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
 const cadenceLabel = computed(() => {
@@ -427,14 +414,6 @@ function handleTitleInput(event: Event): void {
   }, 400)
 }
 
-function handleDescriptionInput(event: Event): void {
-  const value = (event.target as HTMLInputElement).value
-  clearTimeout(descriptionDebounceTimer)
-  descriptionDebounceTimer = setTimeout(() => {
-    emitFieldChange('description', value)
-  }, 400)
-}
-
 function handleTargetValueInput(event: Event): void {
   const raw = (event.target as HTMLInputElement).value
   const value = Number(raw)
@@ -519,7 +498,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
   clearTimeout(titleDebounceTimer)
-  clearTimeout(descriptionDebounceTimer)
   clearTimeout(targetValueDebounceTimer)
 })
 </script>
