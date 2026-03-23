@@ -47,7 +47,7 @@
       :value="draftValue"
       type="number"
       :step="entryMode === 'rating' ? 0.1 : 0.1"
-      class="neo-input w-16 rounded-lg px-2 py-1.5 text-center text-xs"
+      class="neo-input w-12 rounded-lg px-1.5 py-2.5 text-center text-xs"
       :placeholder="entryMode === 'rating' ? `1-${ratingMax}` : '—'"
       :disabled="isPending"
       @click.stop

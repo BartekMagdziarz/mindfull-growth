@@ -179,7 +179,7 @@ describe('chatPrompts', () => {
       expect(context).toContain('This is the entry body text.')
     })
 
-    it('uses "Untitled entry" when title is empty', () => {
+    it('derives title from body when title is empty', () => {
       const entry: JournalEntry = {
         id: 'entry-1',
         createdAt: '2024-01-01T00:00:00.000Z',
@@ -192,10 +192,10 @@ describe('chatPrompts', () => {
 
       const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
-      expect(context).toContain('Title: Untitled entry')
+      expect(context).toContain('Title: Test body')
     })
 
-    it('uses "Untitled entry" when title is undefined', () => {
+    it('derives title from body when title is undefined', () => {
       const entry: JournalEntry = {
         id: 'entry-1',
         createdAt: '2024-01-01T00:00:00.000Z',
@@ -205,7 +205,7 @@ describe('chatPrompts', () => {
 
       const context = constructJournalEntryContext(entry, mockEmotionStore, mockTagStore)
 
-      expect(context).toContain('Title: Untitled entry')
+      expect(context).toContain('Title: Test body')
     })
 
     it('shows "None" when no emotions are present', () => {

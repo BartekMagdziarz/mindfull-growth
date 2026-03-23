@@ -16,11 +16,11 @@
     "description": "Pełen nadziei i pewności co do przyszłości"
   },
   "e5m12-challenged-005": {
-    "name": "Zmotywowany wyzwaniem",
+    "name": "Zmobilizowany",
     "description": "Poczucie bycia pobudzonym do osiągnięcia wyższego celu"
   },
   "e6m12-accomplished-006": {
-    "name": "Spełniony",
+    "name": "Kompetentny",
     "description": "Poczucie skuteczności i sukcesu"
   },
   "e7m12-blissful-007": {
@@ -32,7 +32,7 @@
     "description": "Poczucie bliskości z kimś lub przynależności do społeczności"
   },
   "e9m12-grateful-009": {
-    "name": "Wdzięczny",
+    "name": "Pełen wdzięczności",
     "description": "Docenianie kogoś lub czegoś"
   },
   "e10m12-moved-010": {
@@ -44,7 +44,7 @@
     "description": "Wdzięczność i poczucie szczęścia z tego, co się ma"
   },
   "e12m12-serene-012": {
-    "name": "Pogodny",
+    "name": "Pełen harmonii",
     "description": "Spokojny i pełen pokoju; niezakłócony"
   },
   "e1m11-elated-013": {
@@ -88,7 +88,7 @@
     "description": "Poczucie uznania i bycia dostrzeżonym"
   },
   "e11m11-secure-023": {
-    "name": "Bezpieczny",
+    "name": "Chroniony",
     "description": "Poczucie bezpieczeństwa i ochrony"
   },
   "e12m11-satisfied-024": {
@@ -128,11 +128,11 @@
     "description": "Poczucie, że ktoś jest przy tobie"
   },
   "e9m10-included-033": {
-    "name": "Włączony",
+    "name": "Przynależny",
     "description": "Poczucie bycia częścią grupy"
   },
   "e10m10-content-034": {
-    "name": "Zadowolony",
+    "name": "Kontent",
     "description": "Poczucie kompletności i wystarczalności"
   },
   "e11m10-safe-035": {
@@ -140,7 +140,7 @@
     "description": "Poczucie ochrony przed zagrożeniem"
   },
   "e12m10-relieved-036": {
-    "name": "Odczuwający ulgę",
+    "name": "Odciążony",
     "description": "Poczucie ulgi po ustąpieniu nieprzyjemnego uczucia"
   },
   "e1m9-exhilarated-037": {
@@ -148,7 +148,7 @@
     "description": "W doskonałym nastroju; radosny i pełen energii"
   },
   "e2m9-successful-038": {
-    "name": "Odnoszący sukces",
+    "name": "Zwycięski",
     "description": "Poczucie osiągnięcia czegoś ważnego"
   },
   "e3m9-enthusiastic-039": {
@@ -156,7 +156,7 @@
     "description": "Bardzo zainteresowany pomysłem lub działaniem"
   },
   "e4m9-upbeat-040": {
-    "name": "Pełen energii",
+    "name": "Pobudzony",
     "description": "Poczucie wysokiej energii i lekkości"
   },
   "e5m9-alive-041": {
@@ -192,7 +192,7 @@
     "description": "Poczucie zadowolenia lub uznania"
   },
   "e1m8-awe-049": {
-    "name": "Zachwyt",
+    "name": "Oniemiały",
     "description": "Poczucie bycia w obecności czegoś ogromnego"
   },
   "e2m8-determined-050": {
@@ -236,7 +236,7 @@
     "description": "Cichy i spokojny; wolny od zakłóceń"
   },
   "e12m8-tranquil-060": {
-    "name": "Pogodny",
+    "name": "Wyciszony",
     "description": "Spokojny; wolny od napięcia"
   },
   "e1m7-surprised-061": {
@@ -244,7 +244,7 @@
     "description": "Zaskoczony czymś niespodziewanym lub niezwykłym"
   },
   "e2m7-excited-062": {
-    "name": "Podekscytowany",
+    "name": "Rozentuzjazmowany",
     "description": "Entuzjazm wobec czegoś w przyszłości"
   },
   "e3m7-energized-063": {
@@ -256,7 +256,7 @@
     "description": "Pełen radosnych uczuć"
   },
   "e5m7-pleasant-065": {
-    "name": "Przyjemny",
+    "name": "Pogodny",
     "description": "Odczuwanie przeważnie pozytywnych emocji"
   },
   "e6m7-pleased-066": {
@@ -264,7 +264,7 @@
     "description": "Poczucie zadowolenia z konkretnej sytuacji lub osoby"
   },
   "e7m7-calm-067": {
-    "name": "Spokojny",
+    "name": "Opanowany",
     "description": "Wolny od stresu, niepokoju i zmartwień"
   },
   "e8m7-good-068": {
@@ -276,7 +276,7 @@
     "description": "Poczucie swobody i odpoczynku w ciele i umyśle"
   },
   "e10m7-sympathetic-070": {
-    "name": "Współczujący",
+    "name": "Troskliwy",
     "description": "Odczuwanie żalu lub smutku za kogoś innego"
   },
   "e11m7-mellow-071": {
@@ -292,7 +292,7 @@
     "description": "Pełen energii i chęci ruchu"
   },
   "e2m6-pressured-074": {
-    "name": "Pod presją",
+    "name": "Przyciśnięty",
     "description": "Poczucie, że ważny wynik zależy od ciebie"
   },
   "e3m6-restless-075": {
@@ -308,7 +308,7 @@
     "description": "Niezdolność do odprężenia się"
   },
   "e6m6-uneasy-078": {
-    "name": "Niespokojny",
+    "name": "Nieswój",
     "description": "Niejasne poczucie, że coś jest nie tak"
   },
   "e7m6-bored-079": {
@@ -320,7 +320,7 @@
     "description": "Poczucie potrzeby odpoczynku"
   },
   "e9m6-fatigued-081": {
-    "name": "Wyczerpany",
+    "name": "Wymęczony",
     "description": "Poczucie fizycznego wyczerpania"
   },
   "e10m6-disengaged-082": {
@@ -356,11 +356,11 @@
     "description": "Zastanawianie się, czy ktoś lub coś jest w porządku"
   },
   "e6m5-peeved-090": {
-    "name": "Oburzony",
+    "name": "Podrażniony",
     "description": "Lekko podrażniony czymś"
   },
   "e7m5-down-091": {
-    "name": "Przygnębiony",
+    "name": "Markotny",
     "description": "Poczucie smutku i braku energii"
   },
   "e8m5-meh-092": {
@@ -392,7 +392,7 @@
     "description": "Napięcie psychiczne lub emocjonalne z powodu zbyt wielu wymagań"
   },
   "e3m4-apprehensive-099": {
-    "name": "Obawiający się",
+    "name": "Strwożony",
     "description": "Niepokój i zmartwienie czymś, co może się wydarzyć"
   },
   "e4m4-jittery-100": {
@@ -400,7 +400,7 @@
     "description": "Poczucie bycia na krawędzi i nerwowości"
   },
   "e5m4-embarrassed-101": {
-    "name": "Zawstydzony",
+    "name": "Skrępowany",
     "description": "Skrępowanie tym, jak inni mogą cię postrzegać"
   },
   "e6m4-nervous-102": {
@@ -408,7 +408,7 @@
     "description": "Nerwowy i zmartwiony przyszłością lub niepewnym wydarzeniem"
   },
   "e7m4-disheartened-103": {
-    "name": "Zniechęcony",
+    "name": "Przybity",
     "description": "Utrata determinacji lub postanowienia"
   },
   "e8m4-disappointed-104": {
@@ -440,7 +440,7 @@
     "description": "Poczucie bycia zdominowanym przez silne uczucia"
   },
   "e3m3-anxious-111": {
-    "name": "Niespokojny",
+    "name": "Zlękniony",
     "description": "Zmartwiony i zaniepokojony niepewnym wynikiem"
   },
   "e4m3-angry-112": {
@@ -484,7 +484,7 @@
     "description": "Pochłonięty przez strach"
   },
   "e2m2-irate-122": {
-    "name": "Wściekły",
+    "name": "Rozsierdzony",
     "description": "Poczucie, że złość wymyka się spod kontroli"
   },
   "e3m2-frightened-123": {
@@ -512,7 +512,7 @@
     "description": "Obniżone poczucie własnej wartości z powodu tego, kim jesteś lub co zrobiłeś"
   },
   "e9m2-vulnerable-129": {
-    "name": "Wrażliwy",
+    "name": "Bezbronny",
     "description": "Poczucie łatwości zranienia emocjonalnego lub psychicznego"
   },
   "e10m2-numb-130": {
@@ -524,7 +524,7 @@
     "description": "Poczucie całkowitej porażki i desperacji wobec przyszłości"
   },
   "e12m2-despair-132": {
-    "name": "Rozpacz",
+    "name": "Zrozpaczony",
     "description": "Poczucie całkowitej beznadziejności"
   },
   "e1m1-enraged-133": {
@@ -548,7 +548,7 @@
     "description": "Pragnienie czegoś, co ktoś inny posiada"
   },
   "e6m1-contempt-138": {
-    "name": "Pogarda",
+    "name": "Pogardliwy",
     "description": "Mieszanina gniewu i odrazy"
   },
   "e7m1-disgusted-139": {

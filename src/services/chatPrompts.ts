@@ -1,5 +1,6 @@
 import type { ChatIntention } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
+import { getDisplayTitle } from '@/domain/journal'
 import type { JournalEntry } from '@/domain/journal'
 import type { useEmotionStore } from '@/stores/emotion.store'
 import type { useTagStore } from '@/stores/tag.store'
@@ -52,7 +53,7 @@ export function constructJournalEntryContext(
   emotionStore: ReturnType<typeof useEmotionStore>,
   tagStore: ReturnType<typeof useTagStore>
 ): string {
-  const title = entry.title || 'Untitled entry'
+  const title = getDisplayTitle(entry) || 'Untitled entry'
   const body = entry.body || ''
 
   // Resolve emotion names

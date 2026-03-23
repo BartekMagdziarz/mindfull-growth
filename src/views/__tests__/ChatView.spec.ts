@@ -432,7 +432,7 @@ describe('ChatView', () => {
       })
     })
 
-    it('displays "Untitled entry" when title is empty', async () => {
+    it('derives title from body when title is empty', async () => {
       const mockSession: ChatSession = {
         id: 'session-1',
         journalEntryId: 'entry-123',
@@ -453,7 +453,8 @@ describe('ChatView', () => {
       render(ChatView)
 
       await waitFor(() => {
-        expect(screen.getByText('Untitled entry')).toBeInTheDocument()
+        const heading = screen.getByRole('heading', { level: 2 })
+        expect(heading).toHaveTextContent('Test body')
       })
     })
 
@@ -566,6 +567,7 @@ describe('ChatView', () => {
         id: 'entry-123',
         createdAt: '2024-01-01T00:00:00.000Z',
         updatedAt: '2024-01-01T00:00:00.000Z',
+        title: 'Some title',
         body: 'This is a test journal entry body content.',
       }
       mockGetEntryById.mockResolvedValue(mockEntry)

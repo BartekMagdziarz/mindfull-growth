@@ -63,7 +63,7 @@
       <AppCard v-else-if="entry" padding="md" class="space-y-4">
         <!-- Entry Title -->
         <h2 class="text-lg font-semibold text-on-surface">
-          {{ entry.title || t('chat.untitledEntry') }}
+          {{ getDisplayTitle(entry) || t('chat.untitledEntry') }}
         </h2>
 
         <!-- Emotions -->
@@ -235,6 +235,7 @@ import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import { getDisplayTitle } from '@/domain/journal'
 import type { JournalEntry } from '@/domain/journal'
 import type { ChatIntention } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'

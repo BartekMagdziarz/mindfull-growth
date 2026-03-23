@@ -5,6 +5,10 @@
         <stop offset="0%" :stop-color="`rgb(var(${colors.start}))`" />
         <stop offset="100%" :stop-color="`rgb(var(${colors.end}))`" />
       </linearGradient>
+      <linearGradient :id="gradientIds.missed" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgb(var(--color-error))" stop-opacity="0.45" />
+        <stop offset="100%" stop-color="rgb(var(--color-error))" stop-opacity="0.40" />
+      </linearGradient>
     </defs>
 
     <g v-for="(slot, i) in slots" :key="slot.dayRef || i">
@@ -27,7 +31,7 @@
         :width="barW"
         :height="barHeight(slot)"
         rx="3"
-        :fill="`url(#${gradientIds.met})`"
+        :fill="barGradient"
         :opacity="slot.isFuture ? 0.4 : 1"
       />
       <!-- Today highlight -->
@@ -39,7 +43,7 @@
         :height="barHeight(slot) + 2"
         rx="4"
         fill="none"
-        :stroke="`rgb(var(${colors.end}))`"
+        :stroke="periodStatus === 'missed' ? 'rgb(var(--color-error))' : `rgb(var(${colors.end}))`"
         stroke-width="1"
         stroke-opacity="0.4"
       />
@@ -68,8 +72,15 @@ const props = withDefaults(
     slots: TodayDaySlot[]
     colorTheme?: ChartColorTheme
     maxValue?: number
+    periodStatus?: 'met' | 'missed' | 'in-progress'
   }>(),
   { colorTheme: 'keyResult' },
+)
+
+const barGradient = computed(() =>
+  props.periodStatus === 'missed'
+    ? `url(#${gradientIds.missed})`
+    : `url(#${gradientIds.met})`,
 )
 
 const colors = computed(() => chartColorVars(props.colorTheme))
@@ -79,7 +90,7 @@ const VW = 400
 const VH = 52
 const PT = 4
 const PB = 14
-const PX = 24
+const PX = 4
 const CH = VH - PT - PB // 34
 const GAP = 4
 

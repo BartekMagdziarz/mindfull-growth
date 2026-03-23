@@ -15,7 +15,7 @@
       />
     </div>
     <!-- Value label -->
-    <span class="shrink-0 text-[10px] font-semibold tabular-nums" :class="textClass">
+    <span v-if="!hideValue" class="shrink-0 text-[10px] font-semibold tabular-nums" :class="textClass">
       {{ formatNumber(data.currentValue) }}
     </span>
   </div>
@@ -27,6 +27,7 @@ import type { TodayAggregateData } from '@/services/todayChartData'
 
 const props = defineProps<{
   data: TodayAggregateData
+  hideValue?: boolean
 }>()
 
 const isInverted = computed(() => props.data.operator === 'max' || props.data.operator === 'lte')

@@ -1,6 +1,6 @@
 <template>
   <article
-    class="neo-card neo-raised border-primary/10 px-4 py-3.5 transition-shadow duration-200 hover:shadow-neu-raised-lg hover:-translate-y-px"
+    class="group neo-card neo-raised border-primary/10 px-4 py-3.5 transition-shadow duration-200 hover:shadow-neu-raised-lg hover:-translate-y-px"
   >
     <div class="space-y-2">
       <!-- Row 1: Title + line + chevron/menu -->
@@ -16,11 +16,12 @@
         <div ref="menuRootRef" class="relative shrink-0">
           <button
             type="button"
-            class="neo-icon-button neo-focus"
+            class="neo-icon-button neo-focus transition-opacity"
+            :class="menuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
             aria-label="More actions"
             @click.stop="menuOpen = !menuOpen"
           >
-            <AppIcon name="chevron_right" class="text-sm transition-transform" :class="menuOpen ? 'rotate-90' : ''" />
+            <AppIcon name="more_horiz" class="text-sm" />
           </button>
           <Teleport to="body">
             <div
@@ -98,61 +99,130 @@
         </div>
       </div>
 
-      <!-- Row 2: Visualization (full width) -->
-      <div class="min-h-[40px]">
-        <!-- Completion dots -->
-        <CompletionDots
-          v-if="viz.vizType.value === 'completion-dots'"
-          :slots="viz.completionSlots.value"
-          :color-theme="viz.colorTheme.value"
-          :is-pending="isPending"
-          @toggle="$emit('toggle-completion')"
-        />
+      <!-- Counter mode: chart + aggregate left, count + [+] right column -->
+      <template v-if="viz.vizType.value === 'daily-bars' && viz.entryMode.value === 'counter'">
+        <div class="flex gap-2">
+          <!-- Left: chart + aggregate (same width) -->
+          <div class="min-w-0 flex-1 space-y-2">
+            <DailyBarsChart
+              :slots="viz.barSlots.value"
+              :color-theme="viz.colorTheme.value"
+              :period-status="viz.aggregateData.value?.status"
+            />
+            <AggregateBar
+              v-if="viz.aggregateData.value"
+              :data="viz.aggregateData.value"
+            />
+          </div>
+          <!-- Right: today's count above [+] button, both centered -->
+          <div class="flex shrink-0 flex-col items-center justify-end gap-1">
+            <span class="text-sm font-bold tabular-nums text-on-surface">
+              {{ formatCounterDisplay(viz.currentValue.value) }}
+            </span>
+            <button
+              type="button"
+              class="neo-icon-button neo-focus text-xs"
+              :disabled="isPending"
+              aria-label="Increment"
+              @click.stop="handleStep(1)"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      </template>
 
-        <!-- Daily bar chart -->
-        <DailyBarsChart
-          v-else-if="viz.vizType.value === 'daily-bars'"
-          :slots="viz.barSlots.value"
-          :color-theme="viz.colorTheme.value"
-        />
-
-        <!-- Tracker value line -->
-        <TrackerValueLine
-          v-else-if="viz.vizType.value === 'tracker-line'"
-          :slots="viz.lineSlots.value"
-          :color-theme="viz.colorTheme.value"
-        />
-
-        <!-- Initiative checkmark -->
-        <InitiativeCheckmark
-          v-else-if="viz.vizType.value === 'initiative-check'"
-          :is-complete="item.kind === 'initiative' && !!item.planState.dayRef"
-          :day-label="item.kind === 'initiative' && item.planState.dayRef ? todayLabel : undefined"
-          :is-pending="isPending"
-          @toggle="$emit('toggle-completion')"
-        />
-      </div>
-
-      <!-- Row 3: Aggregate bar + entry input -->
-      <div
-        v-if="viz.aggregateData.value || hasEntryInput"
-        class="flex items-center gap-2"
-      >
+      <!-- Value/Rating mode with daily-bars: chart + input in one row -->
+      <template v-else-if="viz.vizType.value === 'daily-bars' && (viz.entryMode.value === 'value' || viz.entryMode.value === 'rating')">
+        <div class="flex items-end gap-2">
+          <div class="min-w-0 flex-1">
+            <DailyBarsChart
+              :slots="viz.barSlots.value"
+              :color-theme="viz.colorTheme.value"
+              :period-status="viz.aggregateData.value?.status"
+            />
+          </div>
+          <TodayEntryInput
+            :entry-mode="viz.entryMode.value"
+            :current-value="viz.currentValue.value"
+            :is-pending="isPending"
+            class="shrink-0"
+            @increment="handleStep(1)"
+            @save-value="handleSaveValue"
+          />
+        </div>
         <AggregateBar
           v-if="viz.aggregateData.value"
-          class="min-w-0 flex-1"
           :data="viz.aggregateData.value"
         />
-        <div v-else class="flex-1" />
-        <TodayEntryInput
-          v-if="hasEntryInput"
-          :entry-mode="viz.entryMode.value!"
-          :current-value="viz.currentValue.value"
-          :is-pending="isPending"
-          @increment="handleStep(1)"
-          @save-value="handleSaveValue"
+      </template>
+
+      <!-- Tracker value line: chart + input in one row -->
+      <template v-else-if="viz.vizType.value === 'tracker-line'">
+        <div class="flex items-end gap-2">
+          <div class="min-w-0 flex-1 min-h-[40px]">
+            <TrackerValueLine
+              :slots="viz.lineSlots.value"
+              :color-theme="viz.colorTheme.value"
+            />
+          </div>
+          <TodayEntryInput
+            v-if="hasEntryInput"
+            :entry-mode="viz.entryMode.value!"
+            :current-value="viz.currentValue.value"
+            :is-pending="isPending"
+            class="shrink-0"
+            @increment="handleStep(1)"
+            @save-value="handleSaveValue"
+          />
+        </div>
+        <AggregateBar
+          v-if="viz.aggregateData.value"
+          :data="viz.aggregateData.value"
         />
-      </div>
+      </template>
+
+      <!-- Completion dots (unchanged) -->
+      <template v-else-if="viz.vizType.value === 'completion-dots'">
+        <div class="min-h-[40px]">
+          <CompletionDots
+            :slots="viz.completionSlots.value"
+            :color-theme="viz.colorTheme.value"
+            :is-pending="isPending"
+            @toggle="$emit('toggle-completion')"
+          />
+        </div>
+        <AggregateBar
+          v-if="viz.aggregateData.value"
+          :data="viz.aggregateData.value"
+        />
+      </template>
+
+      <!-- Initiative checkmark (unchanged) -->
+      <template v-else-if="viz.vizType.value === 'initiative-check'">
+        <div class="min-h-[40px]">
+          <InitiativeCheckmark
+            :is-complete="item.kind === 'initiative' && !!item.planState.dayRef"
+            :day-label="item.kind === 'initiative' && item.planState.dayRef ? todayLabel : undefined"
+            :is-pending="isPending"
+            @toggle="$emit('toggle-completion')"
+          />
+        </div>
+      </template>
+
+      <!-- Daily bars without entry (e.g. goals) -->
+      <template v-else-if="viz.vizType.value === 'daily-bars'">
+        <div class="min-h-[40px]">
+          <DailyBarsChart
+            :slots="viz.barSlots.value"
+            :color-theme="viz.colorTheme.value"
+          />
+        </div>
+        <AggregateBar
+          v-if="viz.aggregateData.value"
+          :data="viz.aggregateData.value"
+        />
+      </template>
     </div>
 
     <!-- Expanded detail section -->
@@ -377,5 +447,9 @@ function formatActual(item: TodayMeasurementItem): string {
 
 function formatMeasurementValue(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, '')
+}
+
+function formatCounterDisplay(value: number): string {
+  return String(value || 0)
 }
 </script>

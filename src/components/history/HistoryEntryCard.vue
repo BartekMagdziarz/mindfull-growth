@@ -119,6 +119,7 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import { useT } from '@/composables/useT'
 import { formatEntryDate } from '@/utils/dateFormat'
+import { getDisplayTitle } from '@/domain/journal'
 import type { UnifiedEntry } from '@/domain/unifiedEntry'
 import { getQuadrant, type Quadrant } from '@/domain/emotion'
 
@@ -178,7 +179,7 @@ const hasTags = computed(() => {
 
 const deleteAriaLabel = computed(() => {
   if (props.entry.type === 'journal') {
-    const title = props.entry.title
+    const title = getDisplayTitle(props.entry)
     return title
       ? t('history.card.deleteJournal', { title })
       : t('history.card.deleteUntitled')

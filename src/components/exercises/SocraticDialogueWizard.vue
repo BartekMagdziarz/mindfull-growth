@@ -122,7 +122,7 @@
             >
               <option value="">{{ t('exerciseWizards.socraticDialogue.context.noneOption') }}</option>
               <option v-for="entry in recentJournals" :key="entry.id" :value="entry.id">
-                {{ entry.title || t('exerciseWizards.socraticDialogue.context.untitled') }} — {{ formatDate(entry.createdAt) }}
+                {{ getDisplayTitle(entry) || t('exerciseWizards.socraticDialogue.context.untitled') }} — {{ formatDate(entry.createdAt) }}
               </option>
             </select>
           </div>
@@ -333,6 +333,7 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import { useJournalStore } from '@/stores/journal.store'
+import { getDisplayTitle } from '@/domain/journal'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useT } from '@/composables/useT'
 import type {
