@@ -77,10 +77,3 @@ export function useGradientIds(prefix: string) {
     area: `${prefix}-area-${suffix}`,
   }
 }
-
-export type ChartColorTheme = 'keyResult' | 'habit' | 'tracker'
-
-/** Resolve CSS variable names for chart colors based on object type. */
-export function chartColorVars(theme: ChartColorTheme): { start: string; end: string } {
-  return { start: '--neo-chart-kr-start', end: '--neo-chart-kr-end' }
-}

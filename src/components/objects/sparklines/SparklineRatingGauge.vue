@@ -2,16 +2,16 @@
   <svg :viewBox="`0 0 ${VIEWBOX_W} ${vH}`" width="100%" aria-hidden="true">
     <defs>
       <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" :stop-color="`rgb(var(${colors.start}))`" />
-        <stop offset="100%" :stop-color="`rgb(var(${colors.end}))`" />
+        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
+        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" />
       </linearGradient>
       <linearGradient :id="gradientIds.missed" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" :stop-color="`rgb(var(--color-error))`" stop-opacity="0.45" />
-        <stop offset="100%" :stop-color="`rgb(var(--color-error))`" stop-opacity="0.40" />
+        <stop offset="0%" stop-color="rgb(var(--color-error))" stop-opacity="0.45" />
+        <stop offset="100%" stop-color="rgb(var(--color-error))" stop-opacity="0.40" />
       </linearGradient>
       <linearGradient :id="gradientIds.neutral" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" :stop-color="`rgb(var(${colors.end}))`" stop-opacity="0.65" />
-        <stop offset="100%" :stop-color="`rgb(var(${colors.end}))`" stop-opacity="0.60" />
+        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-end))" stop-opacity="0.65" />
+        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" stop-opacity="0.60" />
       </linearGradient>
     </defs>
 
@@ -96,8 +96,6 @@ import {
   shouldShowLabel,
   periodLabel,
   useGradientIds,
-  chartColorVars,
-  type ChartColorTheme,
 } from './sparklineUtils'
 
 const props = withDefaults(
@@ -105,12 +103,9 @@ const props = withDefaults(
     points: ObjectsLibraryChartPoint[]
     cadence: 'weekly' | 'monthly' | 'daily'
     compact?: boolean
-    colorTheme?: ChartColorTheme
   }>(),
-  { compact: false, colorTheme: 'keyResult' },
+  { compact: false },
 )
-
-const colors = computed(() => chartColorVars(props.colorTheme))
 
 const { locale } = useT()
 const gradientIds = useGradientIds('gauge')

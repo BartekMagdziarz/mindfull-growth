@@ -106,7 +106,6 @@
           <div class="min-w-0 flex-1 space-y-2">
             <DailyBarsChart
               :slots="viz.barSlots.value"
-              :color-theme="viz.colorTheme.value"
               :period-status="viz.aggregateData.value?.status"
             />
             <AggregateBar
@@ -138,7 +137,6 @@
           <div class="min-w-0 flex-1">
             <DailyBarsChart
               :slots="viz.barSlots.value"
-              :color-theme="viz.colorTheme.value"
               :period-status="viz.aggregateData.value?.status"
             />
           </div>
@@ -157,13 +155,13 @@
         />
       </template>
 
-      <!-- Tracker value line: chart + input in one row -->
-      <template v-else-if="viz.vizType.value === 'tracker-line'">
+      <!-- Value line: chart + input in one row -->
+      <template v-else-if="viz.vizType.value === 'value-line'">
         <div class="flex items-end gap-2">
           <div class="min-w-0 flex-1 min-h-[40px]">
-            <TrackerValueLine
-              :slots="viz.lineSlots.value"
-              :color-theme="viz.colorTheme.value"
+            <ValueLineChart
+              :slots="viz.valueLineSlots.value"
+              :target-value="viz.targetValue.value"
             />
           </div>
           <TodayEntryInput
@@ -187,7 +185,6 @@
         <div class="min-h-[40px]">
           <CompletionDots
             :slots="viz.completionSlots.value"
-            :color-theme="viz.colorTheme.value"
             :is-pending="isPending"
             @toggle="$emit('toggle-completion')"
           />
@@ -213,10 +210,7 @@
       <!-- Daily bars without entry (e.g. goals) -->
       <template v-else-if="viz.vizType.value === 'daily-bars'">
         <div class="min-h-[40px]">
-          <DailyBarsChart
-            :slots="viz.barSlots.value"
-            :color-theme="viz.colorTheme.value"
-          />
+          <DailyBarsChart :slots="viz.barSlots.value" />
         </div>
         <AggregateBar
           v-if="viz.aggregateData.value"
@@ -265,7 +259,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } fro
 import AppIcon from '@/components/shared/AppIcon.vue'
 import CompletionDots from '@/components/today/visualizations/CompletionDots.vue'
 import DailyBarsChart from '@/components/today/visualizations/DailyBarsChart.vue'
-import TrackerValueLine from '@/components/today/visualizations/TrackerValueLine.vue'
+import ValueLineChart from '@/components/today/visualizations/ValueLineChart.vue'
 import AggregateBar from '@/components/today/visualizations/AggregateBar.vue'
 import TodayEntryInput from '@/components/today/visualizations/TodayEntryInput.vue'
 import InitiativeCheckmark from '@/components/today/visualizations/InitiativeCheckmark.vue'

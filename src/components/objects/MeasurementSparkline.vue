@@ -13,7 +13,6 @@
       :points="visiblePoints"
       :cadence="cadence"
       :compact="compact"
-      :color-theme="colorTheme"
     />
 
     <SparklineRatingGauge
@@ -21,7 +20,6 @@
       :points="visiblePoints"
       :cadence="cadence"
       :compact="compact"
-      :color-theme="colorTheme"
     />
 
     <SparklineBar
@@ -29,7 +27,6 @@
       :points="visiblePoints"
       :cadence="cadence"
       :compact="compact"
-      :color-theme="colorTheme"
     />
   </div>
 </template>
@@ -39,7 +36,6 @@ import { computed } from 'vue'
 import { useT } from '@/composables/useT'
 import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
 import type { MeasurementEntryMode } from '@/domain/planning'
-import type { ChartColorTheme } from './sparklines/sparklineUtils'
 import { getVisiblePoints } from './sparklines/sparklineUtils'
 import SparklineBar from './sparklines/SparklineBar.vue'
 import SparklineValueLine from './sparklines/SparklineValueLine.vue'
@@ -51,9 +47,8 @@ const props = withDefaults(
     cadence: 'weekly' | 'monthly' | 'daily'
     entryMode?: MeasurementEntryMode
     compact?: boolean
-    colorTheme?: ChartColorTheme
   }>(),
-  { entryMode: 'completion', compact: false, colorTheme: 'keyResult' },
+  { entryMode: 'completion', compact: false },
 )
 
 const { t } = useT()

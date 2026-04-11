@@ -23,7 +23,6 @@
         :raw-entries="rawEntries"
         :entry-mode="entryMode"
         :today-ref="todayRef"
-        :color-theme="subjectType"
       />
     </div>
   </article>

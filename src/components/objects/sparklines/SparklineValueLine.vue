@@ -1,10 +1,10 @@
 <template>
   <svg :viewBox="`0 0 ${VIEWBOX_W} ${vH}`" width="100%" overflow="visible" aria-hidden="true">
     <defs>
-      <!-- Area fill gradient: object-type color fading to transparent -->
+      <!-- Area fill gradient: primary chart color fading to transparent -->
       <linearGradient :id="gradientIds.area" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" :stop-color="`rgb(var(${colors.start}))`" stop-opacity="0.30" />
-        <stop offset="100%" :stop-color="`rgb(var(${colors.start}))`" stop-opacity="0.03" />
+        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" stop-opacity="0.30" />
+        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-start))" stop-opacity="0.03" />
       </linearGradient>
     </defs>
 
@@ -35,7 +35,7 @@
       :key="'line-' + si"
       :d="seg"
       fill="none"
-      :stroke="`rgb(var(${colors.end}))`"
+      stroke="rgb(var(--neo-chart-primary-end))"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -87,8 +87,6 @@ import {
   shouldShowLabel,
   periodLabel,
   useGradientIds,
-  chartColorVars,
-  type ChartColorTheme,
 } from './sparklineUtils'
 
 const props = withDefaults(
@@ -96,12 +94,9 @@ const props = withDefaults(
     points: ObjectsLibraryChartPoint[]
     cadence: 'weekly' | 'monthly' | 'daily'
     compact?: boolean
-    colorTheme?: ChartColorTheme
   }>(),
-  { compact: false, colorTheme: 'keyResult' },
+  { compact: false },
 )
-
-const colors = computed(() => chartColorVars(props.colorTheme))
 
 const { locale } = useT()
 const gradientIds = useGradientIds('vline')
@@ -212,7 +207,7 @@ function dotFill(status: ObjectsLibraryChartPoint['status']): string {
   switch (status) {
     case 'met':
     case 'no-target':
-      return `rgb(var(${colors.value.end}))`
+      return 'rgb(var(--neo-chart-primary-end))'
     case 'missed':
       return 'rgb(var(--color-error))'
     case 'no-data':

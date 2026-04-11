@@ -177,6 +177,43 @@ describe('planning domain normalization', () => {
     ).toThrow('analysisPeriod is not supported for this planning object')
   })
 
+  it('rejects completion entryMode combined with non-count targets', () => {
+    expect(() =>
+      normalizeHabitPayload({
+        title: 'Meditate',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        cadence: 'weekly',
+        entryMode: 'completion',
+        target: {
+          kind: 'value',
+          aggregation: 'sum',
+          operator: 'gte',
+          value: 30,
+        },
+        status: 'open',
+      } as unknown as CreateHabitPayload),
+    ).toThrow(/target\.kind must be one of: count/)
+
+    expect(() =>
+      normalizeKeyResultPayload({
+        title: 'Daily check-in',
+        isActive: true,
+        goalId: 'goal-1',
+        cadence: 'weekly',
+        entryMode: 'completion',
+        target: {
+          kind: 'rating',
+          aggregation: 'average',
+          operator: 'gte',
+          value: 4,
+        },
+        status: 'open',
+      } as unknown as CreateKeyResultPayload),
+    ).toThrow(/target\.kind must be one of: count/)
+  })
+
   it('keeps initiative lifecycle separate from archive semantics', () => {
     const normalized = normalizeInitiativePayload({
       title: 'Call landlord',

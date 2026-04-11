@@ -51,7 +51,6 @@
                 :weeks-met="pill.weeksMet"
                 :weeks-total="pill.weeksTotal"
                 :label="pill.title"
-                color-theme="keyResult"
               />
             </span>
           </div>
@@ -84,7 +83,6 @@
                 :weeks-met="group.pill.weeksMet"
                 :weeks-total="group.pill.weeksTotal"
                 :label="group.pill.title"
-                color-theme="habit"
               />
             </span>
           </div>

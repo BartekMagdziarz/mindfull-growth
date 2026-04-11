@@ -1,17 +1,18 @@
 import { computed, type Ref } from 'vue'
 import type { DayRef } from '@/domain/period'
+import type { MeasurementTarget } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
-import type { ChartColorTheme } from '@/components/objects/sparklines/sparklineUtils'
 import type { TodayCompletionSlot, TodayDaySlot, TodayAggregateData } from '@/services/todayChartData'
 import {
   buildCompletionSlots,
   buildDailyBarSlots,
-  buildTrackerLineSlots,
+  buildValueLineSlots,
   buildAggregateData,
 } from '@/services/todayChartData'
+import { resolveTodayVizType, type TodayVizType } from '@/services/todayVisualizationRules'
 
-export type TodayVizType = 'completion-dots' | 'daily-bars' | 'tracker-line' | 'initiative-check'
+export type { TodayVizType }
 
 export function useTodayItemVisualization(
   item: Ref<TodayItem>,
@@ -20,18 +21,17 @@ export function useTodayItemVisualization(
   todayDayRef: Ref<DayRef>,
 ) {
   const vizType = computed<TodayVizType>(() => {
-    if (item.value.kind === 'initiative') return 'initiative-check'
-    const m = item.value as TodayMeasurementItem
-    if (m.subject.entryMode === 'completion') return 'completion-dots'
-    if (m.panelType === 'tracker' && m.subject.entryMode === 'value') return 'tracker-line'
-    return 'daily-bars'
-  })
-
-  const colorTheme = computed<ChartColorTheme>(() => {
-    const pt = item.value.panelType
-    if (pt === 'habit') return 'habit'
-    if (pt === 'tracker') return 'tracker'
-    return 'keyResult'
+    const current = item.value
+    if (current.kind === 'initiative') {
+      return resolveTodayVizType({ kind: 'initiative' })
+    }
+    const m = current as TodayMeasurementItem
+    return resolveTodayVizType({
+      kind: 'measurement',
+      panelType: m.panelType,
+      entryMode: m.subject.entryMode,
+      target: (m.subject as { target?: MeasurementTarget }).target,
+    })
   })
 
   const completionSlots = computed<TodayCompletionSlot[]>(() => {
@@ -62,10 +62,10 @@ export function useTodayItemVisualization(
     )
   })
 
-  const lineSlots = computed<TodayDaySlot[]>(() => {
-    if (vizType.value !== 'tracker-line' || item.value.kind !== 'measurement') return []
+  const valueLineSlots = computed<TodayDaySlot[]>(() => {
+    if (vizType.value !== 'value-line' || item.value.kind !== 'measurement') return []
     const m = item.value as TodayMeasurementItem
-    return buildTrackerLineSlots(
+    return buildValueLineSlots(
       m.subject,
       m.subjectType,
       rawEntries.value,
@@ -90,14 +90,21 @@ export function useTodayItemVisualization(
     return (item.value as TodayMeasurementItem).todayEntry?.value ?? 0
   })
 
+  const targetValue = computed<number | undefined>(() => {
+    if (item.value.kind !== 'measurement') return undefined
+    const m = item.value as TodayMeasurementItem
+    const target = 'target' in m.subject ? m.subject.target : undefined
+    return target?.value
+  })
+
   return {
     vizType,
-    colorTheme,
     completionSlots,
     barSlots,
-    lineSlots,
+    valueLineSlots,
     aggregateData,
     entryMode,
     currentValue,
+    targetValue,
   }
 }

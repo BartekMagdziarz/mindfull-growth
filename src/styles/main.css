@@ -94,13 +94,9 @@
   --neo-accent-end: 112 168 232;
   --neo-accent-text: 255 255 255;
 
-  /* Chart object-type colors */
-  --neo-chart-kr-start: 142 188 240;
-  --neo-chart-kr-end: 112 168 232;
-  --neo-chart-habit-start: 142 188 240;
-  --neo-chart-habit-end: 112 168 232;
-  --neo-chart-tracker-start: 142 188 240;
-  --neo-chart-tracker-end: 112 168 232;
+  /* Chart primary color (unified palette for all Today view charts) */
+  --neo-chart-primary-start: 142 188 240;
+  --neo-chart-primary-end: 112 168 232;
 }
 
 :root[data-theme='sky-mist'] {
@@ -167,13 +163,9 @@
   --neo-accent-end: 108 164 228;
   --neo-accent-text: 255 255 255;
 
-  /* Chart object-type colors */
-  --neo-chart-kr-start: 132 178 232;
-  --neo-chart-kr-end: 108 164 228;
-  --neo-chart-habit-start: 132 178 232;
-  --neo-chart-habit-end: 108 164 228;
-  --neo-chart-tracker-start: 132 178 232;
-  --neo-chart-tracker-end: 108 164 228;
+  /* Chart primary color (unified palette for all Today view charts) */
+  --neo-chart-primary-start: 132 178 232;
+  --neo-chart-primary-end: 108 164 228;
 }
 
 :root[data-theme='sunrise-cloud'] {
@@ -240,13 +232,9 @@
   --neo-accent-end: 112 158 218;
   --neo-accent-text: 255 255 255;
 
-  /* Chart object-type colors */
-  --neo-chart-kr-start: 137 177 229;
-  --neo-chart-kr-end: 112 158 218;
-  --neo-chart-habit-start: 137 177 229;
-  --neo-chart-habit-end: 112 158 218;
-  --neo-chart-tracker-start: 137 177 229;
-  --neo-chart-tracker-end: 112 158 218;
+  /* Chart primary color (unified palette for all Today view charts) */
+  --neo-chart-primary-start: 137 177 229;
+  --neo-chart-primary-end: 112 158 218;
 }
 
 @layer base {

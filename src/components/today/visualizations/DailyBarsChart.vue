@@ -2,8 +2,8 @@
   <svg :viewBox="`0 0 ${VW} ${VH}`" width="100%" aria-hidden="true">
     <defs>
       <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" :stop-color="`rgb(var(${colors.start}))`" />
-        <stop offset="100%" :stop-color="`rgb(var(${colors.end}))`" />
+        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
+        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" />
       </linearGradient>
       <linearGradient :id="gradientIds.missed" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="rgb(var(--color-error))" stop-opacity="0.45" />
@@ -43,7 +43,7 @@
         :height="barHeight(slot) + 2"
         rx="4"
         fill="none"
-        :stroke="periodStatus === 'missed' ? 'rgb(var(--color-error))' : `rgb(var(${colors.end}))`"
+        :stroke="periodStatus === 'missed' ? 'rgb(var(--color-error))' : 'rgb(var(--neo-chart-primary-end))'"
         stroke-width="1"
         stroke-opacity="0.4"
       />
@@ -65,26 +65,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TodayDaySlot } from '@/services/todayChartData'
-import { useGradientIds, chartColorVars, type ChartColorTheme } from '@/components/objects/sparklines/sparklineUtils'
+import { useGradientIds } from '@/components/objects/sparklines/sparklineUtils'
 
-const props = withDefaults(
-  defineProps<{
-    slots: TodayDaySlot[]
-    colorTheme?: ChartColorTheme
-    maxValue?: number
-    periodStatus?: 'met' | 'missed' | 'in-progress'
-  }>(),
-  { colorTheme: 'keyResult' },
-)
+const props = defineProps<{
+  slots: TodayDaySlot[]
+  maxValue?: number
+  periodStatus?: 'met' | 'missed' | 'in-progress'
+}>()
+
+const gradientIds = useGradientIds('dbars')
 
 const barGradient = computed(() =>
   props.periodStatus === 'missed'
     ? `url(#${gradientIds.missed})`
     : `url(#${gradientIds.met})`,
 )
-
-const colors = computed(() => chartColorVars(props.colorTheme))
-const gradientIds = useGradientIds('dbars')
 
 const VW = 400
 const VH = 52

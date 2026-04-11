@@ -7,7 +7,7 @@ import type { MeasurementPlanningSummary } from '@/services/planningStateQueries
 import {
   buildCompletionSlots,
   buildDailyBarSlots,
-  buildTrackerLineSlots,
+  buildValueLineSlots,
   buildAggregateData,
 } from '@/services/todayChartData'
 
@@ -291,20 +291,39 @@ describe('buildDailyBarSlots', () => {
   })
 })
 
-describe('buildTrackerLineSlots', () => {
-  it('weekly: 7 slots with undefined for missing days', () => {
+describe('buildValueLineSlots', () => {
+  it('weekly tracker: 7 slots with undefined for missing days', () => {
     const tracker = makeTracker('t1')
     const entries = [
       makeEntry('tracker', 't1', '2026-03-09', 3.5),
       makeEntry('tracker', 't1', '2026-03-11', 4.2),
     ]
 
-    const slots = buildTrackerLineSlots(tracker, 'tracker', entries, WEEK_REF, TODAY)
+    const slots = buildValueLineSlots(tracker, 'tracker', entries, WEEK_REF, TODAY)
 
     expect(slots).toHaveLength(7)
     expect(slots[0].value).toBe(3.5) // Monday
     expect(slots[1].value).toBeUndefined() // Tuesday (gap)
     expect(slots[2].value).toBe(4.2) // Wednesday
+    expect(slots[3].isToday).toBe(true)
+  })
+
+  it('weekly habit: 7 slots with values on entry days only', () => {
+    const habit = makeHabit('h1', {
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const entries = [
+      makeEntry('habit', 'h1', '2026-03-10', 6.8),
+      makeEntry('habit', 'h1', '2026-03-12', 7.4),
+    ]
+
+    const slots = buildValueLineSlots(habit, 'habit', entries, WEEK_REF, TODAY)
+
+    expect(slots).toHaveLength(7)
+    expect(slots[0].value).toBeUndefined()
+    expect(slots[1].value).toBe(6.8)
+    expect(slots[3].value).toBe(7.4)
     expect(slots[3].isToday).toBe(true)
   })
 
@@ -316,7 +335,7 @@ describe('buildTrackerLineSlots', () => {
       makeEntry('tracker', 't1', '2026-03-10', 15),
     ]
 
-    const slots = buildTrackerLineSlots(tracker, 'tracker', entries, monthRef, TODAY)
+    const slots = buildValueLineSlots(tracker, 'tracker', entries, monthRef, TODAY)
 
     expect(slots).toHaveLength(2)
     expect(slots[0].value).toBe(10)

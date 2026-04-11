@@ -9,7 +9,7 @@
       <div
         v-if="slot.state === 'done'"
         class="h-6 w-6 rounded-full"
-        :style="{ background: `linear-gradient(to bottom, rgb(var(${colors.start})), rgb(var(${colors.end})))` }"
+        style="background: linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)))"
       />
 
       <!-- Missed dot -->
@@ -31,7 +31,7 @@
         v-else-if="slot.state === 'today-pending'"
         type="button"
         class="flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors hover:opacity-80"
-        :style="{ borderColor: `rgb(var(${colors.end}) / 0.5)` }"
+        style="border-color: rgb(var(--neo-chart-primary-end) / 0.5)"
         :disabled="isPending"
         aria-label="Record today"
         @click.stop="$emit('toggle')"
@@ -40,7 +40,7 @@
           <path
             d="M2 6 L5 9 L10 3"
             fill="none"
-            :stroke="`rgb(var(${colors.end}))`"
+            stroke="rgb(var(--neo-chart-primary-end))"
             stroke-width="1.5"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -54,7 +54,7 @@
         v-else-if="slot.state === 'today-done'"
         type="button"
         class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:opacity-80"
-        :style="{ background: `linear-gradient(to bottom, rgb(var(${colors.start})), rgb(var(${colors.end})))` }"
+        style="background: linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)))"
         :disabled="isPending"
         aria-label="Undo today"
         @click.stop="$emit('toggle')"
@@ -83,20 +83,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { TodayCompletionSlot } from '@/services/todayChartData'
-import { chartColorVars, type ChartColorTheme } from '@/components/objects/sparklines/sparklineUtils'
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     slots: TodayCompletionSlot[]
-    colorTheme?: ChartColorTheme
     isPending?: boolean
   }>(),
-  { colorTheme: 'keyResult', isPending: false },
+  { isPending: false },
 )
 
 defineEmits<{ toggle: [] }>()
-
-const colors = computed(() => chartColorVars(props.colorTheme))
 </script>

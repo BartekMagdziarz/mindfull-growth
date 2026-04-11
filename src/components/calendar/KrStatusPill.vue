@@ -10,8 +10,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ChartColorTheme } from '@/components/objects/sparklines/sparklineUtils'
-import { chartColorVars } from '@/components/objects/sparklines/sparklineUtils'
 
 interface Props {
   cadence: 'weekly' | 'monthly'
@@ -19,20 +17,17 @@ interface Props {
   weeksMet?: number
   weeksTotal?: number
   label?: string
-  colorTheme?: ChartColorTheme
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  colorTheme: 'keyResult',
-})
+const props = defineProps<Props>()
 
 const MISSED_COLOR = '#fda4af' // rose-300
 const NO_DATA_COLOR = '#cbd5e1' // slate-300
 
 const metColor = computed(() => {
-  const vars = chartColorVars(props.colorTheme)
-  const el = document.documentElement
-  const rgb = getComputedStyle(el).getPropertyValue(vars.end).trim()
+  const rgb = getComputedStyle(document.documentElement)
+    .getPropertyValue('--neo-chart-primary-end')
+    .trim()
   return rgb ? `rgb(${rgb})` : '#38bdf8'
 })
 

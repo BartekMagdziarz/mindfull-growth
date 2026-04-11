@@ -252,7 +252,6 @@
         :points="item.chartData"
         :cadence="item.cadence ?? 'weekly'"
         :entry-mode="item.entryMode ?? 'completion'"
-        :color-theme="item.panelType === 'habit' ? 'habit' : item.panelType === 'tracker' ? 'tracker' : 'keyResult'"
       />
 
     </div>

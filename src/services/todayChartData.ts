@@ -3,7 +3,7 @@ import type { MeasurementTarget } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
 import type { MeasureableSubject, MeasurementSummary } from '@/services/measurementProgress'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
-import { containsDay, getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getPeriodType } from '@/utils/periods'
+import { containsDay, getChildPeriods, getPeriodBounds, getPeriodType } from '@/utils/periods'
 
 export interface TodayDaySlot {
   dayRef: DayRef
@@ -305,7 +305,7 @@ export function buildDailyBarSlots(
 
   if (isWeeklyPeriod(contextPeriodRef)) {
     // Weekly: always 7 slots (Mon-Sun)
-    const dayRefs = getChildPeriods(contextPeriodRef as any) as DayRef[]
+    const dayRefs = getChildPeriods(contextPeriodRef as any) as unknown as DayRef[]
     return dayRefs.map(day => ({
       dayRef: day,
       label: dayLabel(day),
@@ -356,9 +356,9 @@ export function buildDailyBarSlots(
 }
 
 /**
- * Build line chart slots for value trackers.
+ * Build line chart slots for value measurements.
  */
-export function buildTrackerLineSlots(
+export function buildValueLineSlots(
   subject: MeasureableSubject,
   subjectType: MeasurementSubjectType,
   rawEntries: DailyMeasurementEntry[],
@@ -372,7 +372,7 @@ export function buildTrackerLineSlots(
 
   if (isWeeklyPeriod(contextPeriodRef)) {
     // Weekly: 7 slots, undefined for missing days
-    const dayRefs = getChildPeriods(contextPeriodRef as any) as DayRef[]
+    const dayRefs = getChildPeriods(contextPeriodRef as any) as unknown as DayRef[]
     return dayRefs.map(day => ({
       dayRef: day,
       label: dayLabel(day),

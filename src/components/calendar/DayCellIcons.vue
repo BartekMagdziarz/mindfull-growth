@@ -87,11 +87,7 @@ onUnmounted(() => {
   observer?.disconnect()
 })
 
-const typeColorVar: Record<SubjectKind, string> = {
-  keyResult: '--neo-chart-kr-end',
-  habit: '--neo-chart-kr-end',
-  tracker: '--neo-chart-kr-end',
-}
+const CHART_PRIMARY_VAR = '--neo-chart-primary-end'
 
 function resolvedIcon(icon: string): string | undefined {
   const opt = getEntityIconOption(icon)
@@ -120,9 +116,8 @@ function shapeRingClass(item: CollapsedIconItem): string {
 }
 
 function itemBgStyle(item: CollapsedIconItem): Record<string, string> {
-  const cssVar = typeColorVar[item.subjectType]
   const opacity = item.isActiveAssignment ? 0.25 : 0.10
-  return { backgroundColor: `rgb(var(${cssVar}) / ${opacity})` }
+  return { backgroundColor: `rgb(var(${CHART_PRIMARY_VAR}) / ${opacity})` }
 }
 
 function itemTextClass(item: CollapsedIconItem): string {

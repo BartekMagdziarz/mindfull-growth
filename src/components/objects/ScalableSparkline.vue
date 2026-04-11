@@ -9,7 +9,6 @@
       :points="effectivePoints"
       :cadence="effectiveCadence"
       :entry-mode="entryMode"
-      :color-theme="colorTheme"
       compact
     />
     <div
@@ -58,7 +57,6 @@ import { useChartScale } from '@/composables/useChartScale'
 import type { PlanningCadence, MeasurementEntryMode } from '@/domain/planning'
 import type { MonthRef, WeekRef, DayRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementSubjectType } from '@/domain/planningState'
-import type { ChartColorTheme } from './sparklines/sparklineUtils'
 import type { MeasureableSubject } from '@/services/measurementProgress'
 import { buildMeasurementSummary } from '@/services/measurementProgress'
 import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
@@ -73,20 +71,16 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 
-const props = withDefaults(
-  defineProps<{
-    subject: MeasureableSubject
-    subjectType: MeasurementSubjectType
-    objectCadence: PlanningCadence
-    viewScale: 'month' | 'week'
-    currentPeriodRef: MonthRef | WeekRef
-    rawEntries: DailyMeasurementEntry[]
-    entryMode: MeasurementEntryMode
-    todayRef: DayRef
-    colorTheme?: ChartColorTheme
-  }>(),
-  { colorTheme: 'keyResult' },
-)
+const props = defineProps<{
+  subject: MeasureableSubject
+  subjectType: MeasurementSubjectType
+  objectCadence: PlanningCadence
+  viewScale: 'month' | 'week'
+  currentPeriodRef: MonthRef | WeekRef
+  rawEntries: DailyMeasurementEntry[]
+  entryMode: MeasurementEntryMode
+  todayRef: DayRef
+}>()
 
 const { t } = useT()
 const hovering = ref(false)

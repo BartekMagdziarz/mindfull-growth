@@ -3,7 +3,6 @@
     :points="chartPoints"
     cadence="daily"
     :compact="true"
-    :color-theme="colorTheme"
   />
 </template>
 
@@ -12,21 +11,17 @@ import { computed } from 'vue'
 import SparklineValueLine from '@/components/objects/sparklines/SparklineValueLine.vue'
 import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
 import type { TodayDaySlot } from '@/services/todayChartData'
-import type { ChartColorTheme } from '@/components/objects/sparklines/sparklineUtils'
 
-const props = withDefaults(
-  defineProps<{
-    slots: TodayDaySlot[]
-    colorTheme?: ChartColorTheme
-  }>(),
-  { colorTheme: 'tracker' },
-)
+const props = defineProps<{
+  slots: TodayDaySlot[]
+  targetValue?: number
+}>()
 
 const chartPoints = computed<ObjectsLibraryChartPoint[]>(() =>
   props.slots.map(slot => ({
     periodRef: slot.dayRef,
     actualValue: slot.value,
-    targetValue: undefined,
+    targetValue: props.targetValue,
     status: slot.hasEntry ? ('no-target' as const) : ('no-data' as const),
   })),
 )
