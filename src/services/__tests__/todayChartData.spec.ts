@@ -9,6 +9,10 @@ import {
   buildDailyBarSlots,
   buildValueLineSlots,
   buildAggregateData,
+  buildCounterRingData,
+  buildValueSparklineData,
+  buildRatingSmoothData,
+  buildSummaryNumberData,
   filterToScheduledSlots,
 } from '@/services/todayChartData'
 
@@ -480,5 +484,415 @@ describe('filterToScheduledSlots', () => {
 
     expect(result).toHaveLength(2)
     expect(result.map(s => s.dayRef)).toEqual(['2026-03-09', '2026-03-10'])
+  })
+})
+
+// Monthly context used across the summary-primitive builder tests.
+const MONTH_REF = '2026-03' as MonthRef as PeriodRef
+
+describe('buildCounterRingData', () => {
+  it('returns undefined when there is no target', () => {
+    const tracker = makeTracker('t1', { entryMode: 'counter' })
+    const summary = makeSummary({ entryMode: 'counter' })
+    expect(buildCounterRingData(tracker, summary)).toBeUndefined()
+  })
+
+  it('returns undefined for rating targets', () => {
+    const kr = makeKR('kr1', {
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 4 },
+    })
+    const summary = makeSummary({ entryMode: 'rating', actualValue: 4 })
+    expect(buildCounterRingData(kr, summary)).toBeUndefined()
+  })
+
+  it('returns undefined for value targets with avg aggregation', () => {
+    const habit = makeHabit('h1', {
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const summary = makeSummary({ entryMode: 'value', actualValue: 7 })
+    expect(buildCounterRingData(habit, summary)).toBeUndefined()
+  })
+
+  it('builds ring data for count target in progress (empty month)', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 50 },
+    })
+    const summary = makeSummary({
+      entryMode: 'counter',
+      cadence: 'monthly',
+      entryCount: 0,
+    })
+
+    const data = buildCounterRingData(habit, summary)
+
+    expect(data).toEqual({
+      current: 0,
+      target: 50,
+      status: 'in-progress',
+      operator: 'min',
+    })
+  })
+
+  it('builds ring data for met count target', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 50 },
+    })
+    const summary = makeSummary({
+      entryMode: 'counter',
+      cadence: 'monthly',
+      actualValue: 62,
+      entryCount: 20,
+      evaluationStatus: 'met',
+    })
+
+    const data = buildCounterRingData(habit, summary)
+
+    expect(data).toEqual({
+      current: 62,
+      target: 50,
+      status: 'met',
+      operator: 'min',
+    })
+  })
+
+  it('builds ring data for value-sum target missed', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 120 },
+    })
+    const summary = makeSummary({
+      entryMode: 'value',
+      cadence: 'monthly',
+      actualValue: 80,
+      entryCount: 10,
+      evaluationStatus: 'missed',
+    })
+
+    const data = buildCounterRingData(habit, summary)
+
+    expect(data).toEqual({
+      current: 80,
+      target: 120,
+      status: 'missed',
+      operator: 'gte',
+    })
+  })
+
+  it('preserves max operator on count targets', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'max', value: 20 },
+    })
+    const summary = makeSummary({
+      entryMode: 'counter',
+      cadence: 'monthly',
+      actualValue: 25,
+      entryCount: 10,
+      evaluationStatus: 'missed',
+    })
+
+    const data = buildCounterRingData(habit, summary)
+
+    expect(data?.operator).toBe('max')
+    expect(data?.status).toBe('missed')
+  })
+})
+
+describe('buildValueSparklineData', () => {
+  it('returns empty data for a month with no entries', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const summary = makeSummary({
+      entryMode: 'value',
+      cadence: 'monthly',
+      entryCount: 0,
+      target: habit.target,
+    })
+
+    const data = buildValueSparklineData(habit, 'habit', [], MONTH_REF, TODAY, summary)
+
+    expect(data.points).toEqual([])
+    expect(data.hasData).toBe(false)
+    expect(data.aggregate).toBe(0)
+    expect(data.entryCount).toBe(0)
+    expect(data.aggregationLabel).toBe('avg')
+    expect(data.targetValue).toBe(7)
+  })
+
+  it('builds points and avg label for met average target', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const entries = [
+      makeEntry('habit', 'h1', '2026-03-05', 7.2),
+      makeEntry('habit', 'h1', '2026-03-15', 8.1),
+      makeEntry('habit', 'h1', '2026-03-25', 7.5),
+    ]
+    const summary = makeSummary({
+      entryMode: 'value',
+      cadence: 'monthly',
+      actualValue: 7.6,
+      entryCount: 3,
+      target: habit.target,
+      evaluationStatus: 'met',
+    })
+
+    const data = buildValueSparklineData(habit, 'habit', entries, MONTH_REF, TODAY, summary)
+
+    expect(data.points).toHaveLength(3)
+    expect(data.hasData).toBe(true)
+    expect(data.aggregate).toBeCloseTo(7.6)
+    expect(data.aggregationLabel).toBe('avg')
+    expect(data.targetValue).toBe(7)
+    expect(data.status).toBe('met')
+  })
+
+  it('builds last-aggregation label for last target missed', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'last', operator: 'gte', value: 9 },
+    })
+    const entries = [
+      makeEntry('habit', 'h1', '2026-03-01', 8),
+      makeEntry('habit', 'h1', '2026-03-10', 7),
+    ]
+    const summary = makeSummary({
+      entryMode: 'value',
+      cadence: 'monthly',
+      actualValue: 7,
+      entryCount: 2,
+      target: habit.target,
+      evaluationStatus: 'missed',
+    })
+
+    const data = buildValueSparklineData(habit, 'habit', entries, MONTH_REF, TODAY, summary)
+
+    expect(data.aggregationLabel).toBe('last')
+    expect(data.status).toBe('missed')
+    expect(data.points).toHaveLength(2)
+  })
+
+  it('builds tracker sparkline with last label and no status', () => {
+    const tracker = makeTracker('t1', { cadence: 'monthly', entryMode: 'value' })
+    const entries = [
+      makeEntry('tracker', 't1', '2026-03-02', 72),
+      makeEntry('tracker', 't1', '2026-03-12', 74),
+    ]
+    const summary = makeSummary({
+      entryMode: 'value',
+      cadence: 'monthly',
+      actualValue: 74,
+      entryCount: 2,
+    })
+
+    const data = buildValueSparklineData(tracker, 'tracker', entries, MONTH_REF, TODAY, summary)
+
+    expect(data.aggregationLabel).toBe('last')
+    expect(data.targetValue).toBeUndefined()
+    expect(data.status).toBeUndefined()
+    expect(data.hasData).toBe(true)
+    expect(data.points).toHaveLength(2)
+  })
+
+  it('passes sum-aggregation label through', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 120 },
+    })
+    const summary = makeSummary({
+      entryMode: 'value',
+      cadence: 'monthly',
+      actualValue: 120,
+      entryCount: 10,
+      target: habit.target,
+      evaluationStatus: 'met',
+    })
+
+    const data = buildValueSparklineData(habit, 'habit', [], MONTH_REF, TODAY, summary)
+
+    expect(data.aggregationLabel).toBe('sum')
+  })
+})
+
+describe('buildRatingSmoothData', () => {
+  it('returns empty data for a month with no entries', () => {
+    const tracker = makeTracker('t1', { cadence: 'monthly', entryMode: 'rating' })
+    const summary = makeSummary({ entryMode: 'rating', cadence: 'monthly', entryCount: 0 })
+
+    const data = buildRatingSmoothData(tracker, summary)
+
+    expect(data).toEqual({
+      averageValue: 0,
+      scaleMin: 1,
+      scaleMax: 10,
+      entryCount: 0,
+      targetValue: undefined,
+      targetOperator: undefined,
+      status: undefined,
+    })
+  })
+
+  it('builds data for met rating target with gte operator', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const summary = makeSummary({
+      entryMode: 'rating',
+      cadence: 'monthly',
+      actualValue: 8.2,
+      entryCount: 15,
+      target: habit.target,
+      evaluationStatus: 'met',
+    })
+
+    const data = buildRatingSmoothData(habit, summary)
+
+    expect(data.averageValue).toBeCloseTo(8.2)
+    expect(data.targetValue).toBe(7)
+    expect(data.targetOperator).toBe('gte')
+    expect(data.status).toBe('met')
+    expect(data.entryCount).toBe(15)
+  })
+
+  it('builds data for missed rating target', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const summary = makeSummary({
+      entryMode: 'rating',
+      cadence: 'monthly',
+      actualValue: 5.1,
+      entryCount: 8,
+      target: habit.target,
+      evaluationStatus: 'missed',
+    })
+
+    const data = buildRatingSmoothData(habit, summary)
+
+    expect(data.status).toBe('missed')
+    expect(data.targetValue).toBe(7)
+  })
+
+  it('preserves lte operator when provided', () => {
+    const habit = makeHabit('h1', {
+      cadence: 'monthly',
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'lte', value: 3 },
+    })
+    const summary = makeSummary({
+      entryMode: 'rating',
+      cadence: 'monthly',
+      actualValue: 2.5,
+      entryCount: 10,
+      target: habit.target,
+      evaluationStatus: 'met',
+    })
+
+    const data = buildRatingSmoothData(habit, summary)
+
+    expect(data.targetOperator).toBe('lte')
+    expect(data.status).toBe('met')
+  })
+
+  it('returns undefined target fields for trackers without a target', () => {
+    const tracker = makeTracker('t1', { cadence: 'monthly', entryMode: 'rating' })
+    const summary = makeSummary({
+      entryMode: 'rating',
+      cadence: 'monthly',
+      actualValue: 6.7,
+      entryCount: 5,
+    })
+
+    const data = buildRatingSmoothData(tracker, summary)
+
+    expect(data.averageValue).toBeCloseTo(6.7)
+    expect(data.targetValue).toBeUndefined()
+    expect(data.targetOperator).toBeUndefined()
+    expect(data.status).toBeUndefined()
+  })
+})
+
+describe('buildSummaryNumberData', () => {
+  it('returns days-logged for tracker completion', () => {
+    const tracker = makeTracker('t1', { cadence: 'monthly', entryMode: 'completion' })
+    const summary = makeSummary({
+      entryMode: 'completion',
+      cadence: 'monthly',
+      entryCount: 17,
+    })
+
+    const data = buildSummaryNumberData(tracker, 'tracker', [], MONTH_REF, summary)
+
+    expect(data).toEqual({
+      value: 17,
+      entryCount: 17,
+      sublabelKind: 'days-logged',
+    })
+  })
+
+  it('returns total-sum for tracker counter', () => {
+    const tracker = makeTracker('t1', { cadence: 'monthly', entryMode: 'counter' })
+    const summary = makeSummary({
+      entryMode: 'counter',
+      cadence: 'monthly',
+      actualValue: 450,
+      entryCount: 22,
+    })
+
+    const data = buildSummaryNumberData(tracker, 'tracker', [], MONTH_REF, summary)
+
+    expect(data).toEqual({
+      value: 450,
+      entryCount: 22,
+      sublabelKind: 'total-sum',
+    })
+  })
+
+  it('returns zeroed data for an empty month (completion)', () => {
+    const tracker = makeTracker('t1', { cadence: 'monthly', entryMode: 'completion' })
+    const summary = makeSummary({
+      entryMode: 'completion',
+      cadence: 'monthly',
+      entryCount: 0,
+    })
+
+    const data = buildSummaryNumberData(tracker, 'tracker', [], MONTH_REF, summary)
+
+    expect(data.value).toBe(0)
+    expect(data.entryCount).toBe(0)
+    expect(data.sublabelKind).toBe('days-logged')
+  })
+
+  it('returns zeroed value for a counter tracker with no entries', () => {
+    const tracker = makeTracker('t1', { cadence: 'monthly', entryMode: 'counter' })
+    const summary = makeSummary({
+      entryMode: 'counter',
+      cadence: 'monthly',
+      entryCount: 0,
+    })
+
+    const data = buildSummaryNumberData(tracker, 'tracker', [], MONTH_REF, summary)
+
+    expect(data.value).toBe(0)
+    expect(data.sublabelKind).toBe('total-sum')
   })
 })

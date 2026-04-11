@@ -296,6 +296,11 @@
       "scheduleCleared": "Usunięto przypisanie do dzisiaj.",
       "deleted": "Obiekt usunięty."
     },
+    "summary": {
+      "daysLogged": "{n} dni zapisanych",
+      "totalSum": "{n} w sumie",
+      "entries": "{n} wpisów"
+    },
     "hidden": {
       "title": "Ukryte na dziś ({n})",
       "description": "Te elementy pozostają poza głównym feedem do jutra albo do ręcznego przywrócenia.",

@@ -3,12 +3,24 @@ import type { DayRef } from '@/domain/period'
 import type { MeasurementTarget } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
-import type { TodayCompletionSlot, TodayDaySlot, TodayAggregateData } from '@/services/todayChartData'
+import type {
+  TodayAggregateData,
+  TodayCompletionSlot,
+  TodayCounterRingData,
+  TodayDaySlot,
+  TodayRatingSmoothData,
+  TodaySummaryNumberData,
+  TodayValueSparklineData,
+} from '@/services/todayChartData'
 import {
-  buildCompletionSlots,
-  buildDailyBarSlots,
-  buildValueLineSlots,
   buildAggregateData,
+  buildCompletionSlots,
+  buildCounterRingData,
+  buildDailyBarSlots,
+  buildRatingSmoothData,
+  buildSummaryNumberData,
+  buildValueLineSlots,
+  buildValueSparklineData,
 } from '@/services/todayChartData'
 import { resolveTodayVizType, type TodayVizType } from '@/services/todayVisualizationRules'
 
@@ -31,11 +43,17 @@ export function useTodayItemVisualization(
       panelType: m.panelType,
       entryMode: m.subject.entryMode,
       target: (m.subject as { target?: MeasurementTarget }).target,
+      cadence: m.subject.cadence,
     })
   })
 
   const completionSlots = computed<TodayCompletionSlot[]>(() => {
-    if (vizType.value !== 'completion-dots' || item.value.kind !== 'measurement') return []
+    if (
+      (vizType.value !== 'completion-dots' && vizType.value !== 'completion-ring') ||
+      item.value.kind !== 'measurement'
+    ) {
+      return []
+    }
     const m = item.value as TodayMeasurementItem
     return buildCompletionSlots(
       m.subject,
@@ -87,6 +105,45 @@ export function useTodayItemVisualization(
     return buildAggregateData(m.subject, m.measurement)
   })
 
+  const counterRingData = computed<TodayCounterRingData | undefined>(() => {
+    if (vizType.value !== 'counter-ring' || item.value.kind !== 'measurement') return undefined
+    const m = item.value as TodayMeasurementItem
+    return buildCounterRingData(m.subject, m.measurement)
+  })
+
+  const valueSparklineData = computed<TodayValueSparklineData | undefined>(() => {
+    if (vizType.value !== 'value-sparkline-summary' || item.value.kind !== 'measurement') {
+      return undefined
+    }
+    const m = item.value as TodayMeasurementItem
+    return buildValueSparklineData(
+      m.subject,
+      m.subjectType,
+      rawEntries.value,
+      m.contextPeriodRef,
+      todayDayRef.value,
+      m.measurement,
+    )
+  })
+
+  const ratingSmoothData = computed<TodayRatingSmoothData | undefined>(() => {
+    if (vizType.value !== 'rating-smooth' || item.value.kind !== 'measurement') return undefined
+    const m = item.value as TodayMeasurementItem
+    return buildRatingSmoothData(m.subject, m.measurement)
+  })
+
+  const summaryNumberData = computed<TodaySummaryNumberData | undefined>(() => {
+    if (vizType.value !== 'summary-number' || item.value.kind !== 'measurement') return undefined
+    const m = item.value as TodayMeasurementItem
+    return buildSummaryNumberData(
+      m.subject,
+      m.subjectType,
+      rawEntries.value,
+      m.contextPeriodRef,
+      m.measurement,
+    )
+  })
+
   const entryMode = computed(() => {
     if (item.value.kind !== 'measurement') return undefined
     return (item.value as TodayMeasurementItem).subject.entryMode
@@ -110,6 +167,10 @@ export function useTodayItemVisualization(
     barSlots,
     valueLineSlots,
     aggregateData,
+    counterRingData,
+    valueSparklineData,
+    ratingSmoothData,
+    summaryNumberData,
     entryMode,
     currentValue,
     targetValue,

@@ -296,6 +296,11 @@
       "scheduleCleared": "Today assignment cleared.",
       "deleted": "Object deleted."
     },
+    "summary": {
+      "daysLogged": "{n} days logged",
+      "totalSum": "{n} total",
+      "entries": "{n} entries"
+    },
     "hidden": {
       "title": "Hidden for today ({n})",
       "description": "These items stay out of the main feed until tomorrow or until you restore them.",

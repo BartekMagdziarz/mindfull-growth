@@ -1,7 +1,11 @@
 import type { DayRef, PeriodRef } from '@/domain/period'
 import type { MeasurementTarget } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
-import type { MeasureableSubject, MeasurementSummary } from '@/services/measurementProgress'
+import type {
+  MeasureableSubject,
+  MeasurementEvaluationStatus,
+  MeasurementSummary,
+} from '@/services/measurementProgress'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
 import { containsDay, getChildPeriods, getPeriodBounds, getPeriodType } from '@/utils/periods'
 
@@ -29,6 +33,43 @@ export interface TodayAggregateData {
   aggregation: 'sum' | 'average' | 'last'
   status: 'met' | 'missed' | 'in-progress'
   hoverLabel: string
+}
+
+/** Monthly counter/value-sum ring: `current / target` + status. */
+export interface TodayCounterRingData {
+  current: number
+  target: number
+  status: 'met' | 'missed' | 'in-progress'
+  operator: 'min' | 'max' | 'gte' | 'lte'
+}
+
+/** Monthly value sparkline + aggregate label. */
+export interface TodayValueSparklineData {
+  points: TodayDaySlot[]
+  hasData: boolean
+  aggregate: number
+  aggregationLabel: 'avg' | 'last' | 'sum'
+  targetValue?: number
+  entryCount: number
+  status?: 'met' | 'missed' | 'in-progress'
+}
+
+/** Monthly rating smooth bar. */
+export interface TodayRatingSmoothData {
+  averageValue: number
+  scaleMin: number
+  scaleMax: number
+  entryCount: number
+  targetValue?: number
+  targetOperator?: 'gte' | 'lte'
+  status?: 'met' | 'missed' | 'in-progress'
+}
+
+/** Monthly summary number for trackers without targets. */
+export interface TodaySummaryNumberData {
+  value: number
+  entryCount: number
+  sublabelKind: 'days-logged' | 'entries' | 'total-sum'
 }
 
 function dayLabel(dayRef: DayRef, locale: string = 'en'): string {
@@ -504,4 +545,146 @@ function formatHoverLabel(
   const prefix = aggregation === 'average' ? 'avg: ' : aggregation === 'last' ? 'last: ' : ''
   const opSymbol = formatOperatorSymbol(operator)
   return `${prefix}${formatNumber(currentValue)} / target: ${opSymbol}${formatNumber(targetValue)}`
+}
+
+/**
+ * Map the persisted evaluation status to the render-time status used by the
+ * summary primitives. `no-data` and `undefined` both collapse to `in-progress`
+ * so empty months show the neutral rendering instead of a "missed" error color.
+ */
+function mapStatus(
+  evaluationStatus: MeasurementEvaluationStatus | undefined,
+): 'met' | 'missed' | 'in-progress' {
+  if (evaluationStatus === 'met') return 'met'
+  if (evaluationStatus === 'missed') return 'missed'
+  return 'in-progress'
+}
+
+/**
+ * Build ring data for monthly counter habits/KRs with count targets and
+ * monthly value habits/KRs with value-sum targets. Returns `undefined` when
+ * the shape doesn't match — callers should guard with `if (!data) return`.
+ */
+export function buildCounterRingData(
+  subject: MeasureableSubject,
+  measurement: MeasurementSummary,
+): TodayCounterRingData | undefined {
+  if (!('target' in subject) || !subject.target) return undefined
+  const { target } = subject
+  const isCountTarget = target.kind === 'count'
+  const isValueSumTarget = target.kind === 'value' && target.aggregation === 'sum'
+  if (!isCountTarget && !isValueSumTarget) return undefined
+
+  return {
+    current: measurement.actualValue ?? 0,
+    target: target.value,
+    status: mapStatus(measurement.evaluationStatus),
+    operator: target.operator,
+  }
+}
+
+/**
+ * Build sparkline + aggregate label data for monthly value items (habits with
+ * avg/last aggregation, trackers without targets). Always returns a value —
+ * empty months collapse to `hasData: false` which the component renders as
+ * "—".
+ *
+ * Reuses `buildValueLineSlots` to produce the point array so the filtering and
+ * monthly entry-day logic stays in one place.
+ */
+export function buildValueSparklineData(
+  subject: MeasureableSubject,
+  subjectType: MeasurementSubjectType,
+  rawEntries: DailyMeasurementEntry[],
+  contextPeriodRef: PeriodRef,
+  todayDayRef: DayRef,
+  measurement: MeasurementSummary,
+): TodayValueSparklineData {
+  const points = buildValueLineSlots(
+    subject,
+    subjectType,
+    rawEntries,
+    contextPeriodRef,
+    todayDayRef,
+  )
+  const target = 'target' in subject ? subject.target : undefined
+  const hasData = measurement.entryCount > 0
+  const aggregate = measurement.actualValue ?? 0
+
+  let aggregationLabel: 'avg' | 'last' | 'sum' = 'last'
+  if (target?.kind === 'value') {
+    aggregationLabel =
+      target.aggregation === 'sum'
+        ? 'sum'
+        : target.aggregation === 'average'
+          ? 'avg'
+          : 'last'
+  }
+
+  return {
+    points,
+    hasData,
+    aggregate,
+    aggregationLabel,
+    targetValue: target?.kind === 'value' ? target.value : undefined,
+    entryCount: measurement.entryCount,
+    status: target ? mapStatus(measurement.evaluationStatus) : undefined,
+  }
+}
+
+/**
+ * Build smooth-fill bar data for monthly rating items. Scale is hardcoded to
+ * 1..10 to match `RatingSegmentedBars` default — when the domain adds a scale
+ * field, both components lift it together.
+ */
+export function buildRatingSmoothData(
+  subject: MeasureableSubject,
+  measurement: MeasurementSummary,
+): TodayRatingSmoothData {
+  const target = 'target' in subject ? subject.target : undefined
+  const hasRatingTarget = target?.kind === 'rating'
+  return {
+    averageValue: measurement.actualValue ?? 0,
+    scaleMin: 1,
+    scaleMax: 10,
+    entryCount: measurement.entryCount,
+    targetValue: hasRatingTarget ? target.value : undefined,
+    targetOperator: hasRatingTarget ? target.operator : undefined,
+    status: hasRatingTarget ? mapStatus(measurement.evaluationStatus) : undefined,
+  }
+}
+
+/**
+ * Build summary-number data for monthly trackers without targets.
+ *
+ * Only two entryModes reach this builder per the routing tree:
+ * - `completion` tracker → "N days logged" (value = entryCount)
+ * - `counter` tracker → "N total" (value = actualValue, which is the sum for
+ *   counter entries per `computeActualValue` in measurementProgress.ts)
+ *
+ * `rawEntries`, `subjectType`, and `contextPeriodRef` are accepted for
+ * symmetry with `buildValueSparklineData` and to leave room for future
+ * variants (e.g. per-subject filtering reuse) even though they're unused
+ * today.
+ */
+export function buildSummaryNumberData(
+  subject: MeasureableSubject,
+  _subjectType: MeasurementSubjectType,
+  _rawEntries: DailyMeasurementEntry[],
+  _contextPeriodRef: PeriodRef,
+  measurement: MeasurementSummary,
+): TodaySummaryNumberData {
+  if (subject.entryMode === 'completion') {
+    return {
+      value: measurement.entryCount,
+      entryCount: measurement.entryCount,
+      sublabelKind: 'days-logged',
+    }
+  }
+  // counter — actualValue is the sum for counter entries
+  return {
+    value: measurement.actualValue ?? 0,
+    entryCount: measurement.entryCount,
+    sublabelKind: 'total-sum',
+  }
 }

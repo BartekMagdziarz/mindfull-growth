@@ -1,0 +1,114 @@
+<template>
+  <div class="flex items-end gap-2">
+    <svg
+      :width="CELL_W"
+      :height="CELL_H"
+      :viewBox="`0 0 ${CELL_W} ${CELL_H}`"
+      role="img"
+      :aria-label="ariaLabel"
+    >
+      <defs>
+        <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
+          <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" />
+        </linearGradient>
+      </defs>
+      <!-- Outline frame -->
+      <rect
+        :x="0.5"
+        :y="0.5"
+        :width="CELL_W - 1"
+        :height="CELL_H - 1"
+        rx="2"
+        fill="transparent"
+        stroke="rgb(var(--color-outline) / 0.45)"
+        stroke-width="1"
+      />
+      <!-- Smooth fill, bottom-up -->
+      <rect
+        v-if="fillRatio > 0"
+        data-testid="rating-smooth-fill"
+        :x="1"
+        :y="fillY"
+        :width="CELL_W - 2"
+        :height="fillHeight"
+        rx="1.5"
+        :fill="`url(#${gradientIds.met})`"
+      />
+      <!-- Target tick -->
+      <line
+        v-if="showTargetTick"
+        data-testid="rating-smooth-target"
+        :x1="0"
+        :y1="targetTickY"
+        :x2="CELL_W"
+        :y2="targetTickY"
+        stroke="rgb(var(--color-on-surface-variant))"
+        stroke-width="1"
+        stroke-opacity="0.45"
+        stroke-dasharray="3 2"
+      />
+    </svg>
+    <div class="flex shrink-0 flex-col items-end leading-tight">
+      <span class="text-sm font-semibold tabular-nums text-on-surface">
+        {{ formattedAverage }}
+      </span>
+      <span class="mt-0.5 text-[11px] text-on-surface-variant">
+        {{ t('planning.today.summary.entries', { n: data.entryCount }) }}
+      </span>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useT } from '@/composables/useT'
+import { useGradientIds } from '@/components/objects/sparklines/sparklineUtils'
+import type { TodayRatingSmoothData } from '@/services/todayChartData'
+
+const props = defineProps<{
+  data: TodayRatingSmoothData
+}>()
+
+const { t } = useT()
+const gradientIds = useGradientIds('rsmooth')
+
+// Match the cell geometry of RatingSegmentedBars so weekly and monthly ratings
+// feel like the same primitive from across the room.
+const CELL_W = 14
+const CELL_H = 52
+
+const fillRatio = computed(() => {
+  const span = props.data.scaleMax - props.data.scaleMin
+  if (span <= 0 || props.data.entryCount === 0) return 0
+  const raw = (props.data.averageValue - props.data.scaleMin) / span
+  return Math.min(1, Math.max(0, raw))
+})
+
+const fillHeight = computed(() => (CELL_H - 2) * fillRatio.value)
+const fillY = computed(() => CELL_H - 1 - fillHeight.value)
+
+const showTargetTick = computed(
+  () =>
+    props.data.targetValue !== undefined &&
+    props.data.targetValue >= props.data.scaleMin &&
+    props.data.targetValue <= props.data.scaleMax,
+)
+
+const targetTickY = computed(() => {
+  if (props.data.targetValue === undefined) return 0
+  const span = props.data.scaleMax - props.data.scaleMin
+  if (span <= 0) return CELL_H / 2
+  const ratio = (props.data.targetValue - props.data.scaleMin) / span
+  return CELL_H - (CELL_H - 2) * ratio - 1
+})
+
+const formattedAverage = computed(() => {
+  if (props.data.entryCount === 0) return '—'
+  return props.data.averageValue.toFixed(1)
+})
+
+const ariaLabel = computed(
+  () => `average ${formattedAverage.value} of ${props.data.scaleMax}`,
+)
+</script>

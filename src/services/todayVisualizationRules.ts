@@ -1,20 +1,24 @@
-import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 import type { MeasurementSubjectType } from '@/domain/planningState'
 
 /**
  * The finite set of chart types that can appear on a Today view measurement card.
  *
- * Epic 10 Story 1 keeps this set identical to the pre-refactor state so the
- * routing change is a pure refactor. Later stories will extend this union with
- * `rating-segmented`, `completion-ring`, `counter-ring`, `value-sparkline-summary`,
- * `rating-smooth`, and `summary-number` as new primitives land.
+ * The union covers both weekly detail primitives (bars, lines, segmented rects,
+ * dots) and monthly summary primitives (rings, sparkline+label, smooth bar,
+ * large number) introduced by Epic 10 Stories 2-5.
  */
 export type TodayVizType =
   | 'initiative-check'
   | 'completion-dots'
+  | 'completion-ring'
   | 'daily-bars'
   | 'value-line'
   | 'rating-segmented'
+  | 'counter-ring'
+  | 'value-sparkline-summary'
+  | 'rating-smooth'
+  | 'summary-number'
 
 /**
  * Inputs to the chart selection decision. A pure data shape with no Vue
@@ -24,65 +28,98 @@ export type TodayVizType =
  * `panelType` is typed against the real {@link MeasurementSubjectType} union
  * plus the initiative marker, matching what `TodayItem.panelType` actually holds
  * at runtime. Goals are never surfaced as measurement cards on Today view.
+ *
+ * `cadence` is effectively required for measurement branches — when omitted,
+ * the decision function treats the item as weekly for backward compatibility
+ * with the initiative path (which does not depend on cadence).
  */
 export interface VisualizationDecisionInput {
   kind: 'initiative' | 'measurement'
   panelType?: MeasurementSubjectType | 'initiative'
   entryMode?: MeasurementEntryMode
   target?: MeasurementTarget
+  cadence?: PlanningCadence
 }
 
 /**
  * Single source of truth for how Today view picks a chart type. Every
  * visualization decision on Today view must read from this function.
  *
- * The rule set:
+ * The rule set reads the cadence branch INSIDE each entryMode block. This
+ * mirrors the design intent: pick the aggregate type from entryMode + target +
+ * aggregation, then pick the detail-vs-summary form from cadence.
  *
- *   initiative                               → 'initiative-check'
- *   completion (any panel)                   → 'completion-dots'
- *   rating (any panel)                       → 'rating-segmented'
- *   value + no target                        → 'value-line'
- *   value + target.aggregation === 'sum'     → 'daily-bars'
- *   value + target.aggregation !== 'sum'     → 'value-line'
- *   everything else (counter)                → 'daily-bars'
+ * Routing table:
  *
- * The rating branch is checked BEFORE the value branch so a future change to
- * the value branch cannot accidentally swallow rating entries. Each subsequent
- * Epic 10 story will add exactly one branch and the TODO markers below flag
- * the seams where future stories will cut in.
+ *   initiative                                          → 'initiative-check'
+ *
+ *   completion + count target ≤ 7                       → 'completion-dots'
+ *   completion + count target > 7                       → 'completion-ring'
+ *   completion + tracker (no target) + weekly           → 'completion-dots'
+ *   completion + tracker (no target) + monthly          → 'summary-number'
+ *
+ *   rating + weekly                                     → 'rating-segmented'
+ *   rating + monthly                                    → 'rating-smooth'
+ *
+ *   counter + weekly                                    → 'daily-bars'
+ *   counter + count target + monthly                    → 'counter-ring'
+ *   counter + tracker (no target) + monthly             → 'summary-number'
+ *
+ *   value + value-sum target + weekly                   → 'daily-bars'
+ *   value + value-sum target + monthly                  → 'counter-ring'
+ *   value + no target OR avg/last target + weekly       → 'value-line'
+ *   value + no target OR avg/last target + monthly      → 'value-sparkline-summary'
  */
 export function resolveTodayVizType(input: VisualizationDecisionInput): TodayVizType {
   if (input.kind === 'initiative') {
     return 'initiative-check'
   }
 
-  // TODO (Epic 10 Story 4): when slot count > 7, return 'completion-ring' instead.
+  const isMonthly = input.cadence === 'monthly'
+
+  // --- completion ---
   if (input.entryMode === 'completion') {
-    return 'completion-dots'
+    // Count target with > 7 slots overflows the dot row — use the ring instead.
+    if (input.target?.kind === 'count' && input.target.value > 7) {
+      return 'completion-ring'
+    }
+    if (input.target?.kind === 'count') {
+      return 'completion-dots'
+    }
+    // Tracker (no target): monthly gets a summary number; weekly keeps the
+    // familiar dot row.
+    return isMonthly ? 'summary-number' : 'completion-dots'
   }
 
-  // Rating entries always route to the dedicated segmented primitive. Weekly
-  // cadence renders vertical segmented rectangles; a future story will add a
-  // `rating-smooth` type for monthly cadence.
+  // --- rating ---
+  // Weekly cadence renders vertical segmented rectangles; monthly collapses to
+  // a smooth-fill bar next to the average label.
   if (input.entryMode === 'rating') {
-    return 'rating-segmented'
+    return isMonthly ? 'rating-smooth' : 'rating-segmented'
   }
 
+  // --- counter ---
+  // Counters aggregate by sum. Weekly shows per-day bars; monthly uses either
+  // a ring (with target) or a summary number (tracker, no target).
+  if (input.entryMode === 'counter') {
+    if (isMonthly) {
+      return input.target?.kind === 'count' ? 'counter-ring' : 'summary-number'
+    }
+    return 'daily-bars'
+  }
+
+  // --- value ---
   if (input.entryMode === 'value') {
-    if (!input.target) {
-      return 'value-line'
+    // Value-sum targets behave like counters: the aggregate is a total, so the
+    // weekly view stacks bars and the monthly view uses a ring.
+    if (input.target?.kind === 'value' && input.target.aggregation === 'sum') {
+      return isMonthly ? 'counter-ring' : 'daily-bars'
     }
-
-    if (input.target.kind === 'value') {
-      // TODO (Epic 10): when new value aggregations are introduced, decide
-      // whether they belong with the line or bar branch. Only `sum` is bars.
-      return input.target.aggregation === 'sum' ? 'daily-bars' : 'value-line'
-    }
-
-    return 'value-line'
+    // Everything else (no target OR avg/last aggregation) is line-like: weekly
+    // renders the full line; monthly renders a sparkline + aggregate label.
+    return isMonthly ? 'value-sparkline-summary' : 'value-line'
   }
 
-  // TODO (Epic 10 Story 5): monthly cadence routes to summary primitives
-  //   (CounterRing, ValueSparklineSummary, SummaryNumber) instead of daily bars.
+  // Fallback — should be unreachable for measurements with a valid entryMode.
   return 'daily-bars'
 }
