@@ -243,7 +243,7 @@ describe('useTodayItemVisualization', () => {
     expect(viz.valueLineSlots.value).toEqual([])
   })
 
-  it('keeps rating trackers on barSlots until Story 3', () => {
+  it('routes rating trackers to rating-segmented and reuses bar slots', () => {
     const tracker = makeTracker('tracker-rating', { entryMode: 'rating' })
     const item = makeMeasurementItem(
       'tracker',
@@ -257,7 +257,9 @@ describe('useTodayItemVisualization', () => {
       makeEntry('tracker', 'tracker-rating', '2026-03-12', 4),
     ])
 
-    expect(viz.vizType.value).toBe('daily-bars')
+    // Story 3: rating entries take the segmented primitive but the composable
+    // reuses `barSlots` because the slot shape is identical to daily bars.
+    expect(viz.vizType.value).toBe('rating-segmented')
     expect(viz.barSlots.value).toHaveLength(7)
     expect(viz.valueLineSlots.value).toEqual([])
     expect(viz.completionSlots.value).toEqual([])

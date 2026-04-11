@@ -9,6 +9,7 @@ import {
   buildDailyBarSlots,
   buildValueLineSlots,
   buildAggregateData,
+  filterToScheduledSlots,
 } from '@/services/todayChartData'
 
 // --- Test helpers ---
@@ -433,5 +434,51 @@ describe('buildAggregateData', () => {
     const summary = makeSummary({ actualValue: 5, entryCount: 2 })
 
     expect(buildAggregateData(tracker, summary)).toBeUndefined()
+  })
+})
+
+describe('filterToScheduledSlots', () => {
+  it('returns only scheduled slots when at least one is scheduled', () => {
+    const slots = [
+      { dayRef: '2026-03-09' as DayRef, isScheduled: true },
+      { dayRef: '2026-03-10' as DayRef, isScheduled: false },
+      { dayRef: '2026-03-11' as DayRef, isScheduled: true },
+      { dayRef: '2026-03-12' as DayRef, isScheduled: false },
+      { dayRef: '2026-03-13' as DayRef, isScheduled: true },
+    ]
+
+    const result = filterToScheduledSlots(slots)
+
+    expect(result).toHaveLength(3)
+    expect(result.map(s => s.dayRef)).toEqual([
+      '2026-03-09',
+      '2026-03-11',
+      '2026-03-13',
+    ])
+  })
+
+  it('returns all slots unchanged when none are scheduled', () => {
+    const slots = [
+      { dayRef: '2026-03-09' as DayRef, isScheduled: false },
+      { dayRef: '2026-03-10' as DayRef, isScheduled: false },
+      { dayRef: '2026-03-11' as DayRef, isScheduled: false },
+    ]
+
+    const result = filterToScheduledSlots(slots)
+
+    expect(result).toHaveLength(3)
+    expect(result).toBe(slots)
+  })
+
+  it('returns every slot when all are scheduled', () => {
+    const slots = [
+      { dayRef: '2026-03-09' as DayRef, isScheduled: true },
+      { dayRef: '2026-03-10' as DayRef, isScheduled: true },
+    ]
+
+    const result = filterToScheduledSlots(slots)
+
+    expect(result).toHaveLength(2)
+    expect(result.map(s => s.dayRef)).toEqual(['2026-03-09', '2026-03-10'])
   })
 })

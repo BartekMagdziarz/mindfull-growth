@@ -356,6 +356,23 @@ export function buildDailyBarSlots(
 }
 
 /**
+ * Filter slots to scheduled-only when any of them are scheduled. When no slot
+ * has `isScheduled: true` (e.g. a weekly tracker without specific-days
+ * scheduling), return the full row unchanged — trackers and non-scheduled
+ * habits still need every day rendered.
+ *
+ * TODO (Epic 10): Story 4 and Story 7 can lift this helper into
+ * `DailyBarsChart`, `CompletionDots`, and the line chart so specific-days
+ * filtering is uniform across all Today visualizations.
+ */
+export function filterToScheduledSlots<T extends { isScheduled: boolean }>(
+  slots: T[],
+): T[] {
+  if (!slots.some(s => s.isScheduled)) return slots
+  return slots.filter(s => s.isScheduled)
+}
+
+/**
  * Build line chart slots for value measurements.
  */
 export function buildValueLineSlots(

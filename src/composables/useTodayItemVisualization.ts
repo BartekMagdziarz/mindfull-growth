@@ -49,7 +49,14 @@ export function useTodayItemVisualization(
   })
 
   const barSlots = computed<TodayDaySlot[]>(() => {
-    if (vizType.value !== 'daily-bars' || item.value.kind !== 'measurement') return []
+    // `barSlots` is also reused by `RatingSegmentedBars` because the slot
+    // shape is identical — only the viz type differs.
+    if (
+      (vizType.value !== 'daily-bars' && vizType.value !== 'rating-segmented') ||
+      item.value.kind !== 'measurement'
+    ) {
+      return []
+    }
     const m = item.value as TodayMeasurementItem
     return buildDailyBarSlots(
       m.subject,

@@ -39,6 +39,13 @@ const RATING_TARGET: MeasurementTarget = {
   value: 4,
 }
 
+const RATING_TARGET_LTE: MeasurementTarget = {
+  kind: 'rating',
+  aggregation: 'average',
+  operator: 'lte',
+  value: 3,
+}
+
 function measurement(
   input: Omit<VisualizationDecisionInput, 'kind'>,
 ): VisualizationDecisionInput {
@@ -140,24 +147,31 @@ describe('resolveTodayVizType', () => {
     ).toBe('value-line')
   })
 
-  it('routes rating entries to DailyBarsChart for every panel', () => {
-    // Story 3 will flip these to RatingSegmentedBars / RatingSmoothBar.
+  it('routes rating entries to RatingSegmentedBars for every panel', () => {
     expect(
       resolveTodayVizType(
         measurement({ panelType: 'habit', entryMode: 'rating', target: RATING_TARGET }),
       ),
-    ).toBe('daily-bars')
+    ).toBe('rating-segmented')
 
     expect(
       resolveTodayVizType(
         measurement({ panelType: 'tracker', entryMode: 'rating' }),
       ),
-    ).toBe('daily-bars')
+    ).toBe('rating-segmented')
 
     expect(
       resolveTodayVizType(
         measurement({ panelType: 'keyResult', entryMode: 'rating', target: RATING_TARGET }),
       ),
-    ).toBe('daily-bars')
+    ).toBe('rating-segmented')
+  })
+
+  it('routes rating + lte target to RatingSegmentedBars', () => {
+    expect(
+      resolveTodayVizType(
+        measurement({ panelType: 'habit', entryMode: 'rating', target: RATING_TARGET_LTE }),
+      ),
+    ).toBe('rating-segmented')
   })
 })

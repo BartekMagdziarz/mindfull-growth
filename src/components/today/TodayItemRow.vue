@@ -131,8 +131,8 @@
         </div>
       </template>
 
-      <!-- Value/Rating mode with daily-bars: chart + input in one row -->
-      <template v-else-if="viz.vizType.value === 'daily-bars' && (viz.entryMode.value === 'value' || viz.entryMode.value === 'rating')">
+      <!-- Value mode with daily-bars (sum aggregation): chart + input in one row -->
+      <template v-else-if="viz.vizType.value === 'daily-bars' && viz.entryMode.value === 'value'">
         <div class="flex items-end gap-2">
           <div class="min-w-0 flex-1">
             <DailyBarsChart
@@ -142,6 +142,36 @@
           </div>
           <TodayEntryInput
             :entry-mode="viz.entryMode.value"
+            :current-value="viz.currentValue.value"
+            :is-pending="isPending"
+            class="shrink-0"
+            @increment="handleStep(1)"
+            @save-value="handleSaveValue"
+          />
+        </div>
+        <AggregateBar
+          v-if="viz.aggregateData.value"
+          :data="viz.aggregateData.value"
+        />
+      </template>
+
+      <!-- Rating segmented bars: vertical segmented rectangles + input -->
+      <template v-else-if="viz.vizType.value === 'rating-segmented'">
+        <div class="flex items-end gap-2">
+          <div class="min-w-0 flex-1">
+            <!-- TODO (Epic 10): lift rating scale out of TodayEntryInput's
+                 ratingMax default once the domain has a scale field. -->
+            <RatingSegmentedBars
+              :slots="viz.barSlots.value"
+              :scale-min="1"
+              :scale-max="10"
+              :target-value="viz.aggregateData.value?.targetValue"
+              :target-operator="ratingTargetOperator"
+            />
+          </div>
+          <TodayEntryInput
+            v-if="hasEntryInput"
+            :entry-mode="viz.entryMode.value!"
             :current-value="viz.currentValue.value"
             :is-pending="isPending"
             class="shrink-0"
@@ -260,6 +290,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import CompletionDots from '@/components/today/visualizations/CompletionDots.vue'
 import DailyBarsChart from '@/components/today/visualizations/DailyBarsChart.vue'
 import ValueLineChart from '@/components/today/visualizations/ValueLineChart.vue'
+import RatingSegmentedBars from '@/components/today/visualizations/RatingSegmentedBars.vue'
 import AggregateBar from '@/components/today/visualizations/AggregateBar.vue'
 import TodayEntryInput from '@/components/today/visualizations/TodayEntryInput.vue'
 import InitiativeCheckmark from '@/components/today/visualizations/InitiativeCheckmark.vue'
@@ -322,6 +353,14 @@ const todayLabel = computed(() => periodLabel(props.todayDayRef, 'daily', locale
 const hasEntryInput = computed(() =>
   props.item.kind === 'measurement' && viz.entryMode.value && viz.entryMode.value !== 'completion'
 )
+
+// `aggregateData.operator` is typed as `'min' | 'max' | 'gte' | 'lte'`, but
+// `RatingSegmentedBars` only understands `'gte' | 'lte'`. Rating targets always
+// use gte/lte in practice, so this is just a type narrowing.
+const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
+  const op = viz.aggregateData.value?.operator
+  return op === 'gte' || op === 'lte' ? op : undefined
+})
 
 const contextLabel = computed(() =>
   formatPeriodLabel(props.item.contextPeriodRef, locale.value, t('planning.calendar.scales.week'))
