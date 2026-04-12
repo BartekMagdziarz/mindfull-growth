@@ -24,7 +24,7 @@ import {
   WEEKLY_STATE_KEYS,
   WEEKLY_EVALUATION_KEYS,
 } from '@/domain/reflection'
-import type { GoalStatus, MeasurementTarget } from '@/domain/planning'
+import type { GoalStatus, MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
 
 // ---------------------------------------------------------------------------
@@ -57,15 +57,51 @@ export interface ExerciseSummary {
   types: string[]
 }
 
+export interface KRWeeklyBreakdown {
+  weekRef: WeekRef
+  evaluationStatus: MeasurementEvaluationStatus
+  actualValue?: number
+}
+
 export interface GoalReflectionSummary {
   goal: { id: string; title: string; icon?: string; status: GoalStatus }
   keyResults: {
     id: string
     title: string
+    cadence: PlanningCadence
+    entryMode: MeasurementEntryMode
     evaluationStatus: MeasurementEvaluationStatus
     actualValue?: number
     target?: MeasurementTarget
+    weeklyBreakdown?: KRWeeklyBreakdown[]
   }[]
+}
+
+export interface HabitReflectionDetail {
+  id: string
+  title: string
+  icon?: string
+  cadence: PlanningCadence
+  entryMode: MeasurementEntryMode
+  evaluationStatus: MeasurementEvaluationStatus
+  actualValue?: number
+  target?: MeasurementTarget
+  weeklyBreakdown?: KRWeeklyBreakdown[]
+}
+
+export interface TrackerReflectionDetail {
+  id: string
+  title: string
+  icon?: string
+  entryMode: MeasurementEntryMode
+  entries: { dayRef: DayRef; value: number | null }[]
+  latestValue?: number
+}
+
+export interface WeeklyReflectionDetail {
+  weekRef: WeekRef
+  freeformReflection: string
+  promptResponses: Record<string, string>
 }
 
 export interface DailyHabitItem {
@@ -161,8 +197,12 @@ export interface MonthlyReflectionDataBundle {
   trackerSummary: TrackerSummary
   exerciseSummary: ExerciseSummary
   goalSummaries: GoalReflectionSummary[]
+  habitDetails: HabitReflectionDetail[]
+  trackerDetails: TrackerReflectionDetail[]
   weeklyRatingTrends: WeeklyRatingTrendEntry[]
   weeklyReflectionSnippets: WeeklyReflectionSnippet[]
+  weeklyReflectionDetails: WeeklyReflectionDetail[]
+  monthWeekRefs: WeekRef[]
 }
 
 // ---------------------------------------------------------------------------
@@ -597,34 +637,72 @@ export async function getMonthlyReflectionDataBundle(
   const emotionSummary = buildEmotionSummary(startDate, endDate)
   const journalSummary = buildJournalSummary(startDate, endDate)
 
+  const monthWeekRefs = getChildPeriods(monthRef) as WeekRef[]
+
   // Habits, trackers, and goals from month planning bundle
   let habitSummary: HabitSummary = { totalActive: 0, metCount: 0, missedCount: 0 }
   let trackerSummary: TrackerSummary = { totalActive: 0 }
   let goalSummaries: GoalReflectionSummary[] = []
+  let habitDetails: HabitReflectionDetail[] = []
+  let trackerDetails: TrackerReflectionDetail[] = []
 
   try {
     const planningBundle = await getMonthPlanningBundle(monthRef)
 
-    // Habits
+    // Habits — individual details with weekly breakdown
     const habits = planningBundle.measurementItems.filter((m) => m.subjectType === 'habit')
     let metCount = 0
     let missedCount = 0
-    for (const habit of habits) {
-      const summary = buildMeasurementSummary(
+    habitDetails = habits.map((habit) => {
+      const monthSummary = buildMeasurementSummary(
         habit.subject,
         planningBundle.rawEntries,
         monthRef
       )
-      if (summary.evaluationStatus === 'met') metCount++
-      else if (summary.evaluationStatus === 'missed') missedCount++
-    }
+      if (monthSummary.evaluationStatus === 'met') metCount++
+      else if (monthSummary.evaluationStatus === 'missed') missedCount++
+
+      const h = habit.subject as import('@/domain/planning').Habit
+      const weeklyBreakdown: KRWeeklyBreakdown[] = h.cadence === 'weekly'
+        ? monthWeekRefs.map((weekRef) => {
+            const ws = buildMeasurementSummary(habit.subject, planningBundle.rawEntries, weekRef)
+            return { weekRef, evaluationStatus: ws.evaluationStatus ?? 'no-data', actualValue: ws.actualValue }
+          })
+        : []
+
+      return {
+        id: h.id,
+        title: h.title,
+        icon: h.icon,
+        cadence: h.cadence,
+        entryMode: h.entryMode,
+        evaluationStatus: monthSummary.evaluationStatus ?? 'no-data',
+        actualValue: monthSummary.actualValue,
+        target: monthSummary.target,
+        weeklyBreakdown: weeklyBreakdown.length > 0 ? weeklyBreakdown : undefined,
+      }
+    })
     habitSummary = { totalActive: habits.length, metCount, missedCount }
 
-    // Trackers
+    // Trackers — individual details with daily entries
     const trackers = planningBundle.trackerItems ?? []
     trackerSummary = { totalActive: trackers.length }
+    trackerDetails = trackers.map((t) => {
+      const subjectEntries = planningBundle.rawEntries
+        .filter((e) => e.subjectId === t.subject.id && e.subjectType === 'tracker')
+        .sort((a, b) => a.dayRef.localeCompare(b.dayRef))
+      const lastEntry = subjectEntries.at(-1)
+      return {
+        id: t.subject.id,
+        title: t.subject.title,
+        icon: (t.subject as import('@/domain/planning').Tracker).icon,
+        entryMode: t.subject.entryMode,
+        entries: subjectEntries.map((e) => ({ dayRef: e.dayRef, value: e.value })),
+        latestValue: lastEntry?.value ?? undefined,
+      }
+    })
 
-    // Goals with KR progress
+    // Goals with KR progress + weekly breakdown
     goalSummaries = planningBundle.goalItems.map((goalItem) => {
       const krs = planningBundle.cadencedItems.filter(
         (m) =>
@@ -645,12 +723,23 @@ export async function getMonthlyReflectionDataBundle(
             planningBundle.rawEntries,
             monthRef
           )
+          const krSubject = kr.subject as import('@/domain/planning').KeyResult
+          const weeklyBreakdown: KRWeeklyBreakdown[] = krSubject.cadence === 'weekly'
+            ? monthWeekRefs.map((weekRef) => {
+                const ws = buildMeasurementSummary(kr.subject, planningBundle.rawEntries, weekRef)
+                return { weekRef, evaluationStatus: ws.evaluationStatus ?? 'no-data', actualValue: ws.actualValue }
+              })
+            : []
+
           return {
             id: kr.subject.id,
             title: kr.subject.title,
+            cadence: krSubject.cadence,
+            entryMode: krSubject.entryMode,
             evaluationStatus: summary.evaluationStatus ?? 'no-data',
             actualValue: summary.actualValue,
             target: summary.target,
+            weeklyBreakdown: weeklyBreakdown.length > 0 ? weeklyBreakdown : undefined,
           }
         }),
       }
@@ -661,10 +750,11 @@ export async function getMonthlyReflectionDataBundle(
 
   const exerciseSummary: ExerciseSummary = { totalCompleted: 0, types: [] }
 
-  // Weekly rating trends and snippets
+  // Weekly rating trends, snippets, and full details
   const weeklyReflections = await structuredReflectionDexieRepository.getWeeklyForMonth(monthRef)
   const weeklyRatingTrends = buildWeeklyRatingTrends(weeklyReflections)
   const weeklyReflectionSnippets = buildWeeklySnippets(weeklyReflections)
+  const weeklyReflectionDetails = buildWeeklyDetails(weeklyReflections)
 
   return {
     monthRef,
@@ -674,8 +764,12 @@ export async function getMonthlyReflectionDataBundle(
     trackerSummary,
     exerciseSummary,
     goalSummaries,
+    habitDetails,
+    trackerDetails,
     weeklyRatingTrends,
     weeklyReflectionSnippets,
+    weeklyReflectionDetails,
+    monthWeekRefs,
   }
 }
 
@@ -716,5 +810,15 @@ function buildWeeklySnippets(reflections: WeeklyReflection[]): WeeklyReflectionS
         r.freeformReflection.length > 120
           ? r.freeformReflection.slice(0, 120) + '...'
           : r.freeformReflection,
+    }))
+}
+
+function buildWeeklyDetails(reflections: WeeklyReflection[]): WeeklyReflectionDetail[] {
+  return [...reflections]
+    .sort((a, b) => a.weekRef.localeCompare(b.weekRef))
+    .map((r) => ({
+      weekRef: r.weekRef,
+      freeformReflection: r.freeformReflection,
+      promptResponses: r.promptResponses,
     }))
 }

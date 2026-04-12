@@ -530,8 +530,8 @@
       "evaluation": "Ocena",
       "anchors": "Punkty zaczepienia",
       "journal": "Dziennik",
-      "goals": "Cele",
-      "weeklyRecap": "Podsumowanie tygodni",
+      "goals": "Postępy",
+      "weeklyRecap": "Trendy tygodniowe",
       "ratings": "Oceny"
     },
     "sidebar": {
@@ -596,6 +596,13 @@
         "emotionalRegulation": "Regulacja emocjonalna",
         "selfCare": "Dbanie o siebie"
       },
+      "dimensionsShort": {
+        "physicalIntensity": "Fiz.",
+        "taskLoad": "Zad.",
+        "emotionalIntensity": "Emoc.",
+        "socialIntensity": "Społ.",
+        "emotionalRegulation": "Reg. em."
+      },
       "scaleLabels": {
         "physicalIntensity": { "low": "Spokojny", "high": "Intensywny" },
         "taskLoad": { "low": "Lekki", "high": "Przeciążony" },
@@ -624,19 +631,38 @@
       "title": "Refleksja miesięczna",
       "progress": "Postęp refleksji",
       "reviewSubtitle": "Oto podsumowanie Twojego miesiąca. Przejrzyj je przed refleksją nad szerszym obrazem.",
-      "goalsTitle": "Cele i kluczowe rezultaty",
-      "goalsSubtitle": "Przejrzyj aktywne cele i ich postęp w tym miesiącu.",
-      "habitsLabel": "Nawyki",
-      "trackersLabel": "Trackery",
+      "goalsSubtitle": "Przejrzyj postępy celów, nawyków i trackerów w tym miesiącu.",
+      "goalsSection": "Cele i kluczowe rezultaty",
+      "habitsSection": "Nawyki",
+      "trackersSection": "Trackery",
       "noGoals": "Brak aktywnych celów w tym miesiącu.",
+      "noHabits": "Brak aktywnych nawyków w tym miesiącu.",
+      "noTrackers": "Brak aktywnych trackerów w tym miesiącu.",
+      "noProgress": "Brak aktywnych celów, nawyków ani trackerów.",
       "krStatus": {
         "met": "Osiągnięty",
         "missed": "Nieosiągnięty",
         "noData": "Brak danych"
       },
-      "weeklyRecapTitle": "Twoje tygodnie w pigułce",
-      "weeklyTrends": "Trendy ocen tygodniowych",
-      "weeklySummaries": "Refleksje tygodniowe",
+      "krOfTotal": "{met}/{total} KR",
+      "weeksLabel": "tyg.",
+      "weeklyLabel": "tygodniowy",
+      "monthlyLabel": "miesięczny",
+      "habitsMet": "{met}/{total} osiągnęło cel",
+      "weeklyRecapSubtitle": "Jak zmieniał się Twój kontekst, stan i ocena w poszczególnych tygodniach.",
+      "weeklyTrendsTitle": "Wymiary tygodniowe",
+      "dimensionGroups": {
+        "context": "Kontekst",
+        "state": "Stan",
+        "evaluation": "Ocena"
+      },
+      "average": "Śr.",
+      "trend": {
+        "rising": "Rosnący",
+        "falling": "Malejący",
+        "stable": "Stabilny"
+      },
+      "weeklyReflections": "Refleksje tygodniowe",
       "weekLabel": "Tydzień",
       "noWeeklyData": "Brak refleksji tygodniowych w tym miesiącu.",
       "groups": {

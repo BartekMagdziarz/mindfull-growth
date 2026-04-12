@@ -530,8 +530,8 @@
       "evaluation": "Evaluation",
       "anchors": "Anchors",
       "journal": "Journal",
-      "goals": "Goals",
-      "weeklyRecap": "Weekly Recap",
+      "goals": "Progress",
+      "weeklyRecap": "Weekly Trends",
       "ratings": "Ratings"
     },
     "sidebar": {
@@ -594,6 +594,13 @@
         "emotionalRegulation": "Emotional Regulation",
         "selfCare": "Self-Care"
       },
+      "dimensionsShort": {
+        "physicalIntensity": "Phys.",
+        "taskLoad": "Tasks",
+        "emotionalIntensity": "Emot.",
+        "socialIntensity": "Social",
+        "emotionalRegulation": "Emo. Reg."
+      },
       "scaleLabels": {
         "physicalIntensity": { "low": "Restful", "high": "Intense" },
         "taskLoad": { "low": "Light", "high": "Overloaded" },
@@ -622,19 +629,38 @@
       "title": "Monthly Reflection",
       "progress": "Reflection progress",
       "reviewSubtitle": "Here's a summary of your month. Review it before reflecting on the bigger picture.",
-      "goalsTitle": "Goals & Key Results",
-      "goalsSubtitle": "Review your active goals and their progress this month.",
-      "habitsLabel": "Habits",
-      "trackersLabel": "Trackers",
+      "goalsSubtitle": "Review the progress of your goals, habits, and trackers this month.",
+      "goalsSection": "Goals & Key Results",
+      "habitsSection": "Habits",
+      "trackersSection": "Trackers",
       "noGoals": "No active goals this month.",
+      "noHabits": "No active habits this month.",
+      "noTrackers": "No active trackers this month.",
+      "noProgress": "No active goals, habits, or trackers.",
       "krStatus": {
         "met": "On target",
         "missed": "Off target",
         "noData": "No data"
       },
-      "weeklyRecapTitle": "Your Weeks at a Glance",
-      "weeklyTrends": "Weekly Rating Trends",
-      "weeklySummaries": "Weekly Reflections",
+      "krOfTotal": "{met}/{total} KR",
+      "weeksLabel": "wk",
+      "weeklyLabel": "weekly",
+      "monthlyLabel": "monthly",
+      "habitsMet": "{met}/{total} met target",
+      "weeklyRecapSubtitle": "How your context, state, and evaluation evolved across weeks.",
+      "weeklyTrendsTitle": "Weekly Dimensions",
+      "dimensionGroups": {
+        "context": "Context",
+        "state": "State",
+        "evaluation": "Evaluation"
+      },
+      "average": "Avg",
+      "trend": {
+        "rising": "Rising",
+        "falling": "Falling",
+        "stable": "Stable"
+      },
+      "weeklyReflections": "Weekly Reflections",
       "weekLabel": "Week",
       "noWeeklyData": "No weekly reflections recorded this month.",
       "groups": {
