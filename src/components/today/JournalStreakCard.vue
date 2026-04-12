@@ -1,114 +1,74 @@
 <template>
-  <article
-    class="group/card neo-card neo-raised border-primary/10 px-4 py-3.5 transition-shadow duration-200"
-  >
-    <!-- Header -->
-    <div class="flex items-center gap-2">
+  <div>
+    <article
+      class="neo-card neo-raised border-primary/10 px-4 py-4 transition-shadow duration-200"
+    >
+      <!-- Title -->
       <button
         type="button"
-        class="flex min-w-0 flex-1 items-center gap-2"
+        class="mb-3 flex items-center"
         @click="router.push('/journal')"
       >
-        <AppIcon name="edit_note" class="text-lg text-on-surface" />
-        <span class="flex-1 truncate text-left font-semibold text-on-surface">{{
-          t('planning.calendar.wellness.journal')
-        }}</span>
+        <span
+          class="text-sm font-semibold text-on-surface transition-colors duration-200 hover:text-primary"
+        >{{ t('planning.calendar.wellness.journal') }}</span>
       </button>
-      <span class="h-px flex-1 bg-neu-border/10" />
-      <button
-        type="button"
-        class="neo-icon-button neo-focus opacity-0 transition-opacity duration-200 group-hover/card:opacity-100"
-        :class="{ '!opacity-100': expanded }"
-        @click.stop="expanded = !expanded"
-      >
-        <AppIcon
-          name="expand_more"
-          class="text-sm text-on-surface-variant transition-transform duration-200"
-          :class="expanded ? 'rotate-180' : ''"
-        />
-      </button>
-    </div>
 
-    <!-- Chart row with + button -->
-    <div class="mt-3 flex items-end gap-5">
-      <!-- Chart area -->
-      <div
-        class="mr-1 flex-1 overflow-hidden transition-all duration-200 ease-in-out"
-        :style="{ maxHeight: expanded ? '16rem' : '4rem' }"
-      >
-        <!-- Collapsed: single row of 7 bars -->
-        <div v-if="!expanded" class="flex items-end gap-1">
+      <!-- Single row: streak | 7 dots | add button -->
+      <div class="flex items-center gap-2">
+        <!-- Streak indicator -->
+        <div class="streak-circle flex flex-col items-center justify-center" :class="streak > 0 ? 'streak-circle--active' : 'streak-circle--empty'">
+          <AppIcon name="local_fire_department" class="text-sm leading-none" :class="streak > 0 ? 'text-primary' : 'text-on-surface-variant/25'" />
+          <span class="text-[11px] font-bold leading-none" :class="streak > 0 ? 'text-on-surface' : 'text-on-surface-variant/30'">{{ streak }}</span>
+        </div>
+
+        <!-- Day dots -->
+        <div class="flex flex-1 items-center justify-between">
           <div
             v-for="slot in recentDays"
             :key="slot.dateKey"
-            class="flex flex-1 flex-col items-center gap-1"
+            class="flex flex-col items-center gap-1"
           >
-            <div
-              class="flex w-full items-end justify-center rounded-sm px-px"
-                            :style="{ height: barContainerHeight + 'px' }"
-            >
+            <div class="relative flex items-center justify-center">
               <div
-                v-if="dayWordCounts.has(slot.dateKey)"
-                class="w-full rounded-t-sm bg-primary"
-                :style="{ height: barHeight(dayWordCounts.get(slot.dateKey)!) + '%' }"
+                class="h-[20px] w-[20px] rounded-full transition-all duration-300"
+                :class="dotClass(slot)"
+              />
+              <div
+                v-if="slot.isToday"
+                class="pointer-events-none absolute inset-[-3px] rounded-full border-[1.5px] border-primary/25"
               />
             </div>
-            <span class="text-[9px] leading-none text-on-surface-variant/50">{{
-              slot.dayLabel
-            }}</span>
+            <span
+              class="text-[7px] font-medium leading-none"
+              :class="slot.isToday ? 'text-primary/60' : 'text-on-surface-variant/30'"
+            >{{ slot.dayLabel }}</span>
           </div>
         </div>
 
-        <!-- Expanded: column headers + 5 weeks -->
-        <template v-else>
-          <div class="mb-1 grid grid-cols-7 gap-1">
-            <span
-              v-for="(h, i) in columnHeaders"
-              :key="i"
-              class="text-center text-[9px] text-on-surface-variant/50"
-            >
-              {{ h }}
-            </span>
-          </div>
-          <div class="grid grid-cols-7 gap-1">
-            <template v-for="week in weekGrid" :key="week.slots[0].dateKey">
-              <div
-                v-for="slot in week.slots"
-                :key="slot.dateKey"
-                class="flex items-end justify-center rounded-sm px-px"
-                                :style="{ height: barContainerHeight + 'px' }"
-              >
-                <div
-                  v-if="dayWordCounts.has(slot.dateKey)"
-                  class="w-full rounded-t-sm bg-primary"
-                  :style="{ height: barHeight(dayWordCounts.get(slot.dateKey)!) + '%' }"
-                />
-              </div>
-            </template>
-          </div>
-        </template>
+        <!-- Add button -->
+        <button
+          type="button"
+          class="group/add add-btn neo-raised neo-focus flex items-center justify-center transition-all duration-200 hover:-translate-y-px hover:shadow-neu-raised-lg active:translate-y-0 active:shadow-neu-pressed"
+          :aria-label="t('planning.calendar.wellness.newEntry')"
+          @click.stop="router.push('/journal/edit')"
+        >
+          <AppIcon
+            name="note_add"
+            class="text-[28px] leading-none text-on-surface-variant/35 transition-colors duration-200 group-hover/add:text-primary/70"
+          />
+        </button>
       </div>
-
-      <!-- Add button -->
-      <button
-        type="button"
-        class="neo-icon-button neo-focus shrink-0"
-        :aria-label="t('planning.calendar.wellness.newEntry')"
-        @click.stop="router.push('/journal/edit')"
-      >
-        <AppIcon name="add" class="text-sm text-on-surface-variant" />
-      </button>
-    </div>
-  </article>
+    </article>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import { buildRecentDays, buildWeekGrid } from '@/utils/wellnessCalendar'
-import type { CalendarDaySlot } from '@/utils/wellnessCalendar'
+import { buildRecentDays, type CalendarDaySlot } from '@/utils/wellnessCalendar'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 const props = defineProps<{
@@ -119,32 +79,76 @@ const props = defineProps<{
 const router = useRouter()
 const { t } = useT()
 const prefsStore = useUserPreferencesStore()
-const expanded = ref(false)
-const barContainerHeight = 32
 
 const locale = computed(() => prefsStore.locale ?? 'en')
 const recentDays = computed(() => buildRecentDays(props.referenceDate, 7, locale.value))
-const weekGrid = computed(() => buildWeekGrid(props.referenceDate, 5, locale.value))
-const columnHeaders = computed(() => recentDays.value.map((s) => s.dayLabel))
 
-const visibleDateKeys = computed(() => {
-  const slots: CalendarDaySlot[] = expanded.value
-    ? weekGrid.value.flatMap((w) => w.slots)
-    : recentDays.value
-  return slots.map((s) => s.dateKey)
-})
-
-const maxWordCount = computed(() => {
-  let max = 0
-  for (const key of visibleDateKeys.value) {
-    const v = props.dayWordCounts.get(key)
-    if (v && v > max) max = v
+const streak = computed(() => {
+  const days = [...recentDays.value].reverse()
+  let count = 0
+  for (let i = 0; i < days.length; i++) {
+    if (props.dayWordCounts.has(days[i].dateKey)) {
+      count++
+    } else if (i === 0 && days[i].isToday) {
+      continue
+    } else {
+      break
+    }
   }
-  return max
+  return count
 })
 
-function barHeight(wordCount: number): number {
-  if (maxWordCount.value <= 0) return 0
-  return Math.max(8, (wordCount / maxWordCount.value) * 100)
+function dotClass(slot: CalendarDaySlot): string {
+  if (props.dayWordCounts.has(slot.dateKey)) {
+    return 'dot-filled'
+  }
+  if (slot.isFuture) {
+    return 'bg-on-surface-variant/5'
+  }
+  return 'dot-empty'
 }
 </script>
+
+<style scoped>
+.streak-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  gap: 1px;
+}
+
+.streak-circle--active {
+  background: rgb(var(--neo-surface-base));
+  border: 1.5px solid rgb(var(--color-primary) / 0.2);
+  box-shadow:
+    inset -1.5px -1.5px 3px rgb(var(--neo-inset-light) / 0.7),
+    inset 1.5px 1.5px 3px rgb(var(--neo-inset-dark) / 0.18);
+}
+
+.streak-circle--empty {
+  background: rgb(var(--neo-surface-base));
+  box-shadow:
+    inset -1.5px -1.5px 3px rgb(var(--neo-inset-light) / 0.5),
+    inset 1.5px 1.5px 3px rgb(var(--neo-inset-dark) / 0.12);
+}
+
+.add-btn {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 1rem;
+}
+
+.dot-filled {
+  background: rgb(var(--color-primary) / 0.55);
+  box-shadow: 0 0 5px rgb(var(--color-primary) / 0.15);
+}
+
+.dot-empty {
+  background: rgb(var(--neo-surface-base));
+  box-shadow:
+    inset -1.5px -1.5px 3px rgb(var(--neo-inset-light) / 0.7),
+    inset 1.5px 1.5px 3px rgb(var(--neo-inset-dark) / 0.22);
+}
+</style>

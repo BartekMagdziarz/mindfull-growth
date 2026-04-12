@@ -51,15 +51,16 @@
           :day-emotion-data="dayEmotionData"
         />
 
-        <article class="neo-card neo-raised border-primary/10 px-4 py-3.5 transition-shadow duration-200 hover:shadow-neu-raised-lg hover:-translate-y-px">
-          <div class="flex items-center gap-2">
-            <AppIcon name="psychology" class="text-lg text-on-surface" />
-            <span class="flex-1 truncate font-semibold text-on-surface">{{ t('planning.calendar.wellness.exercises') }}</span>
-          </div>
-          <p class="mt-2 text-xs text-on-surface-variant">
-            {{ t('planning.calendar.wellness.exercisesPlaceholder') }}
-          </p>
-        </article>
+        <div>
+          <article class="neo-card neo-raised border-primary/10 px-5 py-4 transition-shadow duration-200">
+            <div class="mb-3">
+              <span class="text-sm font-semibold text-on-surface">{{ t('planning.calendar.wellness.exercises') }}</span>
+            </div>
+            <p class="text-center text-xs text-on-surface-variant/50">
+              {{ t('planning.calendar.wellness.exercisesPlaceholder') }}
+            </p>
+          </article>
+        </div>
       </div>
 
       <!-- 4-column grid -->

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { Habit, Tracker } from '@/domain/planning'
+import type { Habit, KeyResult, Tracker } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
 import type { MeasurementSummary } from '@/services/measurementProgress'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
@@ -75,6 +75,22 @@ function makeTracker(id: string, overrides: Partial<Tracker> = {}): Tracker {
     lifeAreaIds: [],
     cadence: 'weekly',
     entryMode: 'value',
+    status: 'open',
+    ...overrides,
+  }
+}
+
+function makeKeyResult(id: string, overrides: Partial<KeyResult> = {}): KeyResult {
+  return {
+    id,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    title: `KeyResult ${id}`,
+    isActive: true,
+    goalId: 'goal-1',
+    cadence: 'weekly',
+    entryMode: 'counter',
+    target: { kind: 'count', operator: 'min', value: 3 },
     status: 'open',
     ...overrides,
   }
@@ -447,5 +463,217 @@ describe('useTodayItemVisualization — monthly cadence', () => {
     expect(viz.vizType.value).toBe('summary-number')
     expect(viz.summaryNumberData.value?.sublabelKind).toBe('total-sum')
     expect(viz.summaryNumberData.value?.value).toBe(120)
+  })
+})
+
+describe('useTodayItemVisualization — keyResult variants', () => {
+  it('routes weekly keyResult completion to completion-dots', () => {
+    const kr = makeKeyResult('kr-completion', {
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 3 },
+    })
+    const item = makeMeasurementItem(
+      'keyResult',
+      kr as unknown as Habit,
+      makeSummary({ entryMode: 'completion', target: kr.target, periodRef: WEEK_REF }),
+    )
+    const viz = runVisualization(item, [
+      makeEntry('keyResult', 'kr-completion', '2026-03-10'),
+    ])
+
+    expect(viz.vizType.value).toBe('completion-dots')
+    expect(viz.completionSlots.value.length).toBeGreaterThan(0)
+    expect(viz.barSlots.value).toEqual([])
+    expect(viz.valueLineSlots.value).toEqual([])
+    expect(viz.counterRingData.value).toBeUndefined()
+    expect(viz.valueSparklineData.value).toBeUndefined()
+    expect(viz.ratingSmoothData.value).toBeUndefined()
+    expect(viz.summaryNumberData.value).toBeUndefined()
+  })
+
+  it('routes weekly keyResult value average to value-line', () => {
+    const kr = makeKeyResult('kr-value-avg', {
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const item = makeMeasurementItem(
+      'keyResult',
+      kr as unknown as Habit,
+      makeSummary({ entryMode: 'value', target: kr.target, actualValue: 7.5, periodRef: WEEK_REF }),
+    )
+    const viz = runVisualization(item, [
+      makeEntry('keyResult', 'kr-value-avg', '2026-03-10', 7),
+      makeEntry('keyResult', 'kr-value-avg', '2026-03-12', 8),
+    ])
+
+    expect(viz.vizType.value).toBe('value-line')
+    expect(viz.valueLineSlots.value).toHaveLength(7)
+    expect(viz.barSlots.value).toEqual([])
+    expect(viz.completionSlots.value).toEqual([])
+    expect(viz.counterRingData.value).toBeUndefined()
+    expect(viz.valueSparklineData.value).toBeUndefined()
+    expect(viz.ratingSmoothData.value).toBeUndefined()
+    expect(viz.summaryNumberData.value).toBeUndefined()
+    expect(viz.targetValue.value).toBe(7)
+  })
+
+  it('routes weekly keyResult counter to daily-bars', () => {
+    const kr = makeKeyResult('kr-counter', {
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 10 },
+    })
+    const item = makeMeasurementItem(
+      'keyResult',
+      kr as unknown as Habit,
+      makeSummary({ entryMode: 'counter', target: kr.target, actualValue: 6, periodRef: WEEK_REF }),
+    )
+    const viz = runVisualization(item, [
+      makeEntry('keyResult', 'kr-counter', '2026-03-10', 3),
+      makeEntry('keyResult', 'kr-counter', '2026-03-12', 3),
+    ])
+
+    expect(viz.vizType.value).toBe('daily-bars')
+    expect(viz.barSlots.value).toHaveLength(7)
+    expect(viz.valueLineSlots.value).toEqual([])
+    expect(viz.completionSlots.value).toEqual([])
+    expect(viz.counterRingData.value).toBeUndefined()
+  })
+
+  it('routes weekly keyResult rating to rating-segmented', () => {
+    const kr = makeKeyResult('kr-rating', {
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const item = makeMeasurementItem(
+      'keyResult',
+      kr as unknown as Habit,
+      makeSummary({ entryMode: 'rating', target: kr.target, actualValue: 7.5, periodRef: WEEK_REF }),
+    )
+    const viz = runVisualization(item, [
+      makeEntry('keyResult', 'kr-rating', '2026-03-10', 8),
+      makeEntry('keyResult', 'kr-rating', '2026-03-12', 7),
+    ])
+
+    expect(viz.vizType.value).toBe('rating-segmented')
+    expect(viz.barSlots.value).toHaveLength(7)
+    expect(viz.valueLineSlots.value).toEqual([])
+    expect(viz.completionSlots.value).toEqual([])
+    expect(viz.counterRingData.value).toBeUndefined()
+    expect(viz.valueSparklineData.value).toBeUndefined()
+    expect(viz.ratingSmoothData.value).toBeUndefined()
+    expect(viz.summaryNumberData.value).toBeUndefined()
+  })
+
+  function makeMonthlyKRItem(
+    kr: KeyResult,
+    measurement: MeasurementSummary,
+  ): TodayMeasurementItem {
+    return {
+      kind: 'measurement',
+      key: `keyResult:${kr.id}`,
+      panelType: 'keyResult',
+      subjectType: 'keyResult',
+      subject: kr as unknown as Habit,
+      planning: { scheduleScope: 'whole-month', scheduledDayRefs: [] } as MeasurementPlanningSummary,
+      measurement,
+      todayEntry: undefined,
+      contextPeriodRef: MONTH_REF,
+      sectionId: 'month',
+      isScheduledToday: false,
+      canHide: true,
+      canReschedule: false,
+      canDelete: false,
+    }
+  }
+
+  it('routes monthly keyResult counter to counter-ring', () => {
+    const kr = makeKeyResult('kr-monthly-counter', {
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 50 },
+    })
+    const item = makeMonthlyKRItem(
+      kr,
+      makeSummary({
+        entryMode: 'counter',
+        cadence: 'monthly',
+        actualValue: 30,
+        entryCount: 8,
+        target: kr.target,
+        periodRef: MONTH_REF,
+      }),
+    )
+    const viz = runVisualization(item, [
+      makeEntry('keyResult', 'kr-monthly-counter', '2026-03-05', 10),
+    ])
+
+    expect(viz.vizType.value).toBe('counter-ring')
+    expect(viz.counterRingData.value).toBeDefined()
+    expect(viz.counterRingData.value?.current).toBe(30)
+    expect(viz.counterRingData.value?.target).toBe(50)
+    expect(viz.valueSparklineData.value).toBeUndefined()
+    expect(viz.ratingSmoothData.value).toBeUndefined()
+    expect(viz.summaryNumberData.value).toBeUndefined()
+  })
+
+  it('routes monthly keyResult value average to value-sparkline-summary', () => {
+    const kr = makeKeyResult('kr-monthly-avg', {
+      cadence: 'monthly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const item = makeMonthlyKRItem(
+      kr,
+      makeSummary({
+        entryMode: 'value',
+        cadence: 'monthly',
+        actualValue: 7.5,
+        entryCount: 10,
+        target: kr.target,
+        periodRef: MONTH_REF,
+      }),
+    )
+    const viz = runVisualization(item, [
+      makeEntry('keyResult', 'kr-monthly-avg', '2026-03-01', 7),
+      makeEntry('keyResult', 'kr-monthly-avg', '2026-03-10', 8),
+    ])
+
+    expect(viz.vizType.value).toBe('value-sparkline-summary')
+    expect(viz.valueSparklineData.value).toBeDefined()
+    expect(viz.valueSparklineData.value?.hasData).toBe(true)
+    expect(viz.counterRingData.value).toBeUndefined()
+    expect(viz.ratingSmoothData.value).toBeUndefined()
+    expect(viz.summaryNumberData.value).toBeUndefined()
+  })
+
+  it('routes monthly keyResult rating to rating-smooth', () => {
+    const kr = makeKeyResult('kr-monthly-rating', {
+      cadence: 'monthly',
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 7 },
+    })
+    const item = makeMonthlyKRItem(
+      kr,
+      makeSummary({
+        entryMode: 'rating',
+        cadence: 'monthly',
+        actualValue: 7.8,
+        entryCount: 12,
+        target: kr.target,
+        periodRef: MONTH_REF,
+        evaluationStatus: 'met',
+      }),
+    )
+    const viz = runVisualization(item, [
+      makeEntry('keyResult', 'kr-monthly-rating', '2026-03-05', 8),
+    ])
+
+    expect(viz.vizType.value).toBe('rating-smooth')
+    expect(viz.ratingSmoothData.value).toBeDefined()
+    expect(viz.ratingSmoothData.value?.averageValue).toBeCloseTo(7.8)
+    expect(viz.ratingSmoothData.value?.targetValue).toBe(7)
+    expect(viz.counterRingData.value).toBeUndefined()
+    expect(viz.valueSparklineData.value).toBeUndefined()
+    expect(viz.summaryNumberData.value).toBeUndefined()
   })
 })

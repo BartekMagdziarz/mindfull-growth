@@ -88,4 +88,30 @@ describe('RatingSmoothBar', () => {
     expect(svg?.getAttribute('width')).toBe(String(CELL_W))
     expect(svg?.getAttribute('height')).toBe(String(CELL_H))
   })
+
+  it('computes correct fill height for 1-5 scale', () => {
+    const { container } = render(RatingSmoothBar, {
+      props: { data: makeData({ averageValue: 3, scaleMin: 1, scaleMax: 5, entryCount: 4 }) },
+    })
+
+    const fill = container.querySelector('[data-testid="rating-smooth-fill"]')
+    // (3 - 1) / (5 - 1) = 0.5; fillHeight = (52 - 2) * 0.5 = 25
+    const height = Number(fill?.getAttribute('height'))
+    expect(height).toBeCloseTo(25, 1)
+  })
+
+  it('renders target tick with lte operator', () => {
+    const { container } = render(RatingSmoothBar, {
+      props: {
+        data: makeData({
+          averageValue: 2,
+          targetValue: 4,
+          targetOperator: 'lte',
+          entryCount: 5,
+        }),
+      },
+    })
+
+    expect(container.querySelector('[data-testid="rating-smooth-target"]')).not.toBeNull()
+  })
 })

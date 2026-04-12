@@ -66,4 +66,33 @@ describe('CompletionDots', () => {
     expect(container.textContent).toContain('Mo')
     expect(container.textContent).toContain('We')
   })
+
+  it('renders 7 dots at the boundary count', () => {
+    const slots = Array.from({ length: 7 }, (_, i) =>
+      makeSlot(i < 3 ? 'done' : 'future', ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'][i]),
+    )
+    const { container } = render(CompletionDots, { props: { slots } })
+
+    const columns = container.querySelectorAll('.flex.flex-col')
+    expect(columns.length).toBe(7)
+  })
+
+  it('renders a mix of all five states', () => {
+    const slots = [
+      makeSlot('done', 'Mo'),
+      makeSlot('missed', 'Tu'),
+      makeSlot('today-pending', 'We'),
+      makeSlot('today-done', 'Th'),
+      makeSlot('future', 'Fr'),
+    ]
+    const { container, getByRole } = render(CompletionDots, { props: { slots } })
+
+    const columns = container.querySelectorAll('.flex.flex-col')
+    expect(columns.length).toBe(5)
+    // today-pending renders an interactive button
+    expect(getByRole('button', { name: 'Record today' })).toBeTruthy()
+    // done and today-done should render filled dots
+    const filled = container.querySelectorAll('[style*="linear-gradient"]')
+    expect(filled.length).toBe(2)
+  })
 })

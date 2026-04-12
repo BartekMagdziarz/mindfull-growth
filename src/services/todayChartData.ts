@@ -402,9 +402,8 @@ export function buildDailyBarSlots(
  * scheduling), return the full row unchanged — trackers and non-scheduled
  * habits still need every day rendered.
  *
- * TODO (Epic 10): Story 4 and Story 7 can lift this helper into
- * `DailyBarsChart`, `CompletionDots`, and the line chart so specific-days
- * filtering is uniform across all Today visualizations.
+ * TODO: Consider lifting filterToScheduledSlots into per-component logic
+ * for uniform specific-days filtering across all Today visualizations.
  */
 export function filterToScheduledSlots<T extends { isScheduled: boolean }>(
   slots: T[],

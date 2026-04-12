@@ -82,4 +82,17 @@ describe('CounterRing', () => {
     const [filled] = (circle?.getAttribute('stroke-dasharray') ?? '0 0').split(' ').map(Number)
     expect(filled).toBeCloseTo(CIRCUMFERENCE, 4)
   })
+
+  it('renders full arc with met styling when current equals target', () => {
+    const { container, getByText } = render(CounterRing, {
+      props: { data: makeData({ current: 30, target: 30, status: 'met' }) },
+    })
+
+    const circle = progressStroke(container)
+    const [filled] = (circle?.getAttribute('stroke-dasharray') ?? '0 0').split(' ').map(Number)
+    expect(filled).toBeCloseTo(CIRCUMFERENCE, 4)
+    expect(circle?.getAttribute('stroke-opacity')).toBe('1')
+    expect(getByText('30')).toBeTruthy()
+    expect(getByText('/ 30')).toBeTruthy()
+  })
 })

@@ -97,246 +97,108 @@
             </div>
           </Teleport>
         </div>
+        <!-- Initiative: checkmark inlined on the far right of the title row -->
+        <InitiativeCheckmark
+          v-if="viz.vizType.value === 'initiative-check'"
+          :is-complete="item.kind === 'initiative' && !!item.planState.dayRef"
+          :day-label="item.kind === 'initiative' && item.planState.dayRef ? todayLabel : undefined"
+          :is-pending="isPending"
+          class="shrink-0"
+          @toggle="$emit('toggle-completion')"
+        />
       </div>
 
-      <!-- Counter mode: chart + aggregate left, count + [+] right column -->
-      <template v-if="viz.vizType.value === 'daily-bars' && viz.entryMode.value === 'counter'">
-        <div class="flex gap-2">
-          <!-- Left: chart + aggregate (same width) -->
-          <div class="min-w-0 flex-1 space-y-2">
+      <!-- Measurement cards: unified three-zone layout. The initiative
+           branch rendered its checkmark inside the title row above and
+           skips this entirely. `min-h-[120px]` is applied to all
+           measurement cards so they share the same height regardless of
+           which chart primitive renders. -->
+      <div
+        v-if="viz.vizType.value !== 'initiative-check'"
+        class="flex min-h-[120px] gap-3"
+      >
+        <!-- LEFT COLUMN: chart zone + optional aggregate bar -->
+        <div class="flex min-w-0 flex-col gap-2" style="flex: 2 1 0">
+          <div class="flex flex-1 items-end min-h-[56px]">
+            <CompletionDots
+              v-if="viz.vizType.value === 'completion-dots'"
+              :slots="viz.completionSlots.value"
+              :is-pending="isPending"
+              @toggle="$emit('toggle-completion')"
+            />
+            <CompletionRing
+              v-else-if="viz.vizType.value === 'completion-ring'"
+              :done-count="completionRingDoneCount"
+              :target-count="completionRingTargetCount"
+              :is-pending="isPending"
+              :has-today-entry="!!(item.kind === 'measurement' && item.todayEntry)"
+              :can-toggle-today="completionRingCanToggle"
+              @toggle="$emit('toggle-completion')"
+            />
             <DailyBarsChart
+              v-else-if="viz.vizType.value === 'daily-bars'"
               :slots="viz.barSlots.value"
               :period-status="viz.aggregateData.value?.status"
             />
-            <AggregateBar
-              v-if="viz.aggregateData.value"
-              :data="viz.aggregateData.value"
+            <ValueLineChart
+              v-else-if="viz.vizType.value === 'value-line'"
+              :slots="viz.valueLineSlots.value"
+              :target-value="viz.targetValue.value"
             />
-          </div>
-          <!-- Right: today's count above [+] button, both centered -->
-          <div class="flex shrink-0 flex-col items-center justify-end gap-1">
-            <span class="text-sm font-bold tabular-nums text-on-surface">
-              {{ formatCounterDisplay(viz.currentValue.value) }}
-            </span>
-            <button
-              type="button"
-              class="neo-icon-button neo-focus text-xs"
-              :disabled="isPending"
-              aria-label="Increment"
-              @click.stop="handleStep(1)"
-            >
-              +
-            </button>
-          </div>
-        </div>
-      </template>
-
-      <!-- Value mode with daily-bars (sum aggregation): chart + input in one row -->
-      <template v-else-if="viz.vizType.value === 'daily-bars' && viz.entryMode.value === 'value'">
-        <div class="flex items-end gap-2">
-          <div class="min-w-0 flex-1">
-            <DailyBarsChart
-              :slots="viz.barSlots.value"
-              :period-status="viz.aggregateData.value?.status"
-            />
-          </div>
-          <TodayEntryInput
-            :entry-mode="viz.entryMode.value"
-            :current-value="viz.currentValue.value"
-            :is-pending="isPending"
-            class="shrink-0"
-            @increment="handleStep(1)"
-            @save-value="handleSaveValue"
-          />
-        </div>
-        <AggregateBar
-          v-if="viz.aggregateData.value"
-          :data="viz.aggregateData.value"
-        />
-      </template>
-
-      <!-- Rating segmented bars: vertical segmented rectangles + input -->
-      <template v-else-if="viz.vizType.value === 'rating-segmented'">
-        <div class="flex items-end gap-2">
-          <div class="min-w-0 flex-1">
-            <!-- TODO (Epic 10): lift rating scale out of TodayEntryInput's
-                 ratingMax default once the domain has a scale field. -->
             <RatingSegmentedBars
+              v-else-if="viz.vizType.value === 'rating-segmented'"
               :slots="viz.barSlots.value"
               :scale-min="1"
               :scale-max="10"
               :target-value="viz.aggregateData.value?.targetValue"
               :target-operator="ratingTargetOperator"
             />
-          </div>
-          <TodayEntryInput
-            v-if="hasEntryInput"
-            :entry-mode="viz.entryMode.value!"
-            :current-value="viz.currentValue.value"
-            :is-pending="isPending"
-            class="shrink-0"
-            @increment="handleStep(1)"
-            @save-value="handleSaveValue"
-          />
-        </div>
-        <AggregateBar
-          v-if="viz.aggregateData.value"
-          :data="viz.aggregateData.value"
-        />
-      </template>
-
-      <!-- Value line: chart + input in one row -->
-      <template v-else-if="viz.vizType.value === 'value-line'">
-        <div class="flex items-end gap-2">
-          <div class="min-w-0 flex-1 min-h-[40px]">
-            <ValueLineChart
-              :slots="viz.valueLineSlots.value"
-              :target-value="viz.targetValue.value"
-            />
-          </div>
-          <TodayEntryInput
-            v-if="hasEntryInput"
-            :entry-mode="viz.entryMode.value!"
-            :current-value="viz.currentValue.value"
-            :is-pending="isPending"
-            class="shrink-0"
-            @increment="handleStep(1)"
-            @save-value="handleSaveValue"
-          />
-        </div>
-        <AggregateBar
-          v-if="viz.aggregateData.value"
-          :data="viz.aggregateData.value"
-        />
-      </template>
-
-      <!-- Completion dots (unchanged) -->
-      <template v-else-if="viz.vizType.value === 'completion-dots'">
-        <div class="min-h-[40px]">
-          <CompletionDots
-            :slots="viz.completionSlots.value"
-            :is-pending="isPending"
-            @toggle="$emit('toggle-completion')"
-          />
-        </div>
-        <AggregateBar
-          v-if="viz.aggregateData.value"
-          :data="viz.aggregateData.value"
-        />
-      </template>
-
-      <!-- Completion ring: large count targets (Story 4). The ring shows
-           done/target and serves as a clickable toggle when the measurement
-           is in completion mode. -->
-      <template v-else-if="viz.vizType.value === 'completion-ring'">
-        <div class="flex min-h-[80px] items-center justify-center">
-          <CompletionRing
-            :done-count="completionRingDoneCount"
-            :target-count="completionRingTargetCount"
-            :is-pending="isPending"
-            :has-today-entry="!!(item.kind === 'measurement' && item.todayEntry)"
-            :can-toggle-today="completionRingCanToggle"
-            @toggle="$emit('toggle-completion')"
-          />
-        </div>
-        <AggregateBar
-          v-if="viz.aggregateData.value"
-          :data="viz.aggregateData.value"
-        />
-      </template>
-
-      <!-- Monthly counter ring: `current / target` at the center. Display
-           only; entry input sits on the right of the row for counter and
-           value entries. No AggregateBar — the ring communicates progress. -->
-      <template v-else-if="viz.vizType.value === 'counter-ring'">
-        <div class="flex items-center gap-2">
-          <div class="flex-1 flex justify-start">
             <CounterRing
-              v-if="viz.counterRingData.value"
+              v-else-if="viz.vizType.value === 'counter-ring' && viz.counterRingData.value"
               :data="viz.counterRingData.value"
             />
-          </div>
-          <TodayEntryInput
-            v-if="hasEntryInput"
-            :entry-mode="viz.entryMode.value!"
-            :current-value="viz.currentValue.value"
-            :is-pending="isPending"
-            class="shrink-0"
-            @increment="handleStep(1)"
-            @save-value="handleSaveValue"
-          />
-        </div>
-      </template>
-
-      <!-- Monthly value sparkline + aggregate label. Empty months render an
-           empty sparkline with a "—" label via the builder's `hasData` flag. -->
-      <template v-else-if="viz.vizType.value === 'value-sparkline-summary'">
-        <div class="flex items-end gap-2">
-          <div class="min-w-0 flex-1">
             <ValueSparklineSummary
-              v-if="viz.valueSparklineData.value"
+              v-else-if="viz.vizType.value === 'value-sparkline-summary' && viz.valueSparklineData.value"
               :data="viz.valueSparklineData.value"
             />
-          </div>
-          <TodayEntryInput
-            v-if="hasEntryInput"
-            :entry-mode="viz.entryMode.value!"
-            :current-value="viz.currentValue.value"
-            :is-pending="isPending"
-            class="shrink-0"
-            @increment="handleStep(1)"
-            @save-value="handleSaveValue"
-          />
-        </div>
-      </template>
-
-      <!-- Monthly rating smooth bar: single gradient-filled rectangle
-           with average label next to it. -->
-      <template v-else-if="viz.vizType.value === 'rating-smooth'">
-        <div class="flex items-end gap-2">
-          <div class="min-w-0 flex-1">
             <RatingSmoothBar
-              v-if="viz.ratingSmoothData.value"
+              v-else-if="viz.vizType.value === 'rating-smooth' && viz.ratingSmoothData.value"
               :data="viz.ratingSmoothData.value"
             />
-          </div>
-          <TodayEntryInput
-            v-if="hasEntryInput"
-            :entry-mode="viz.entryMode.value!"
-            :current-value="viz.currentValue.value"
-            :is-pending="isPending"
-            class="shrink-0"
-            @increment="handleStep(1)"
-            @save-value="handleSaveValue"
-          />
-        </div>
-      </template>
-
-      <!-- Monthly summary number: big aggregate + contextual sublabel. For
-           completion trackers, a small check button sits on the right to
-           log today's entry; for counter/value trackers, the standard
-           TodayEntryInput handles it. -->
-      <template v-else-if="viz.vizType.value === 'summary-number'">
-        <div class="flex items-center gap-2">
-          <div class="flex-1 flex justify-start">
             <SummaryNumber
-              v-if="viz.summaryNumberData.value"
+              v-else-if="viz.vizType.value === 'summary-number' && viz.summaryNumberData.value"
               :data="viz.summaryNumberData.value"
             />
           </div>
-          <TodayEntryInput
-            v-if="hasEntryInput && viz.entryMode.value !== 'completion'"
-            :entry-mode="viz.entryMode.value!"
+          <AggregateBar
+            v-if="showAggregateBar && viz.aggregateData.value"
+            :data="viz.aggregateData.value"
+          />
+        </div>
+        <!-- RIGHT COLUMN: today entry input -->
+        <div
+          v-if="hasRightColumn"
+          class="flex shrink-0 items-center justify-center"
+          style="flex: 1 1 0"
+        >
+          <CounterEntryControl
+            v-if="viz.entryMode.value === 'counter'"
             :current-value="viz.currentValue.value"
             :is-pending="isPending"
-            class="shrink-0"
             @increment="handleStep(1)"
             @save-value="handleSaveValue"
           />
+          <TodayEntryInput
+            v-else-if="viz.entryMode.value === 'value' || viz.entryMode.value === 'rating'"
+            :entry-mode="viz.entryMode.value"
+            :current-value="viz.currentValue.value"
+            :is-pending="isPending"
+            @save-value="handleSaveValue"
+          />
           <button
-            v-else-if="viz.entryMode.value === 'completion'"
+            v-else-if="viz.vizType.value === 'summary-number' && viz.entryMode.value === 'completion'"
             type="button"
-            class="neo-icon-button neo-focus shrink-0"
+            class="neo-icon-button neo-focus"
             :disabled="isPending"
             :aria-label="item.kind === 'measurement' && item.todayEntry ? t('planning.today.actions.undoEntry') : t('planning.today.actions.recordEntry')"
             @click.stop="$emit('toggle-completion')"
@@ -344,30 +206,7 @@
             <AppIcon name="check" class="text-base" />
           </button>
         </div>
-      </template>
-
-      <!-- Initiative checkmark (unchanged) -->
-      <template v-else-if="viz.vizType.value === 'initiative-check'">
-        <div class="min-h-[40px]">
-          <InitiativeCheckmark
-            :is-complete="item.kind === 'initiative' && !!item.planState.dayRef"
-            :day-label="item.kind === 'initiative' && item.planState.dayRef ? todayLabel : undefined"
-            :is-pending="isPending"
-            @toggle="$emit('toggle-completion')"
-          />
-        </div>
-      </template>
-
-      <!-- Daily bars without entry (e.g. goals) -->
-      <template v-else-if="viz.vizType.value === 'daily-bars'">
-        <div class="min-h-[40px]">
-          <DailyBarsChart :slots="viz.barSlots.value" />
-        </div>
-        <AggregateBar
-          v-if="viz.aggregateData.value"
-          :data="viz.aggregateData.value"
-        />
-      </template>
+      </div>
     </div>
 
     <!-- Expanded detail section -->
@@ -410,6 +249,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } fro
 import AppIcon from '@/components/shared/AppIcon.vue'
 import CompletionDots from '@/components/today/visualizations/CompletionDots.vue'
 import CompletionRing from '@/components/today/visualizations/CompletionRing.vue'
+import CounterEntryControl from '@/components/today/visualizations/CounterEntryControl.vue'
 import CounterRing from '@/components/today/visualizations/CounterRing.vue'
 import DailyBarsChart from '@/components/today/visualizations/DailyBarsChart.vue'
 import ValueLineChart from '@/components/today/visualizations/ValueLineChart.vue'
@@ -476,9 +316,29 @@ const title = computed(() =>
 
 const todayLabel = computed(() => periodLabel(props.todayDayRef, 'daily', locale.value))
 
-const hasEntryInput = computed(() =>
-  props.item.kind === 'measurement' && viz.entryMode.value && viz.entryMode.value !== 'completion'
-)
+// Right column is absent for viz types that either handle their own input
+// (completion-dots / completion-ring render click-to-toggle directly), use
+// a dedicated single-row layout (initiative-check puts the checkmark inline
+// with the title), or have no entry mode at all (e.g. goals rendered with
+// daily-bars for display only).
+const hasRightColumn = computed(() => {
+  const vt = viz.vizType.value
+  if (vt === 'completion-dots' || vt === 'completion-ring') return false
+  if (vt === 'initiative-check') return false
+  if (!viz.entryMode.value) return false
+  return true
+})
+
+// AggregateBar sits under the chart only for weekly per-day detail charts
+// with a target. Monthly summary primitives and completion charts carry
+// their own progress signals.
+const showAggregateBar = computed(() => {
+  const vt = viz.vizType.value
+  if (vt === 'daily-bars' || vt === 'value-line' || vt === 'rating-segmented') {
+    return !!viz.aggregateData.value
+  }
+  return false
+})
 
 // Completion-ring derives its done/target counts from the existing completion
 // slots and target value so the ring stays a thin presentational layer.
@@ -616,9 +476,5 @@ function formatActual(item: TodayMeasurementItem): string {
 
 function formatMeasurementValue(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, '')
-}
-
-function formatCounterDisplay(value: number): string {
-  return String(value || 0)
 }
 </script>

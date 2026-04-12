@@ -84,4 +84,38 @@ describe('CompletionRing', () => {
 
     expect(filled).toBeCloseTo(CIRCUMFERENCE, 4)
   })
+
+  it('renders a full arc and shows exact met count for 15/15', () => {
+    const { getByText, container } = render(CompletionRing, {
+      props: {
+        doneCount: 15,
+        targetCount: 15,
+        hasTodayEntry: true,
+        canToggleToday: false,
+      },
+    })
+
+    expect(getByText('15')).toBeTruthy()
+    expect(getByText('/ 15')).toBeTruthy()
+
+    const progress = container.querySelector('.completion-ring__progress')
+    const [filled] = (progress?.getAttribute('stroke-dasharray') ?? '0 0')
+      .split(' ')
+      .map(Number)
+    expect(filled).toBeCloseTo(CIRCUMFERENCE, 4)
+  })
+
+  it('renders a non-interactive wrapper when canToggleToday is false', () => {
+    const { queryByRole, getByRole } = render(CompletionRing, {
+      props: {
+        doneCount: 5,
+        targetCount: 10,
+        hasTodayEntry: false,
+        canToggleToday: false,
+      },
+    })
+
+    expect(queryByRole('button')).toBeNull()
+    expect(getByRole('img', { name: '5 of 10 completed' })).toBeTruthy()
+  })
 })

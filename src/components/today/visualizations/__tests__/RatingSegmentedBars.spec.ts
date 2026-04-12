@@ -147,4 +147,31 @@ describe('RatingSegmentedBars', () => {
     expect(getByText('Mo')).toBeTruthy()
     expect(getByText('Tu')).toBeTruthy()
   })
+
+  it('renders multiple cells with custom 1-5 scale', () => {
+    const slots = [
+      makeSlot('2026-03-09', 3, { label: 'Mo' }),
+      makeSlot('2026-03-10', 5, { label: 'Tu' }),
+      makeSlot('2026-03-11', 1, { label: 'We' }),
+    ]
+    const { container } = render(RatingSegmentedBars, {
+      props: { slots, scaleMin: 1, scaleMax: 5 },
+    })
+
+    // 3 cells × 5 segments = 15 rects
+    expect(cellRects(container).length).toBe(15)
+    // 3 + 5 + 1 = 9 filled
+    expect(filledRects(container).length).toBe(9)
+  })
+
+  it('renders a target tick with lte operator', () => {
+    const slots = [makeSlot('2026-03-09', 5, { label: 'Mo' })]
+    const { container } = render(RatingSegmentedBars, {
+      props: { slots, targetValue: 4, targetOperator: 'lte' },
+    })
+
+    const lines = container.querySelectorAll('svg line')
+    expect(lines.length).toBe(1)
+    expect(lines[0].getAttribute('stroke-dasharray')).toBe('3 2')
+  })
 })

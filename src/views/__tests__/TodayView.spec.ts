@@ -5,6 +5,7 @@ import TodayView from '@/views/TodayView.vue'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
+import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
@@ -230,5 +231,150 @@ describe('TodayView', () => {
     })
 
     expect(await screen.findByText('Routed day habit')).toBeInTheDocument()
+  })
+
+  it('renders counter habit and rating tracker cards without errors', async () => {
+    const dayRef = parsePeriodRef('2026-03-12') as DayRef
+    const refs = getPeriodRefsForDate(dayRef)
+
+    const habit = await habitDexieRepository.create({
+      title: 'Daily pushups',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 50 },
+      status: 'open',
+    })
+    const tracker = await trackerDexieRepository.create({
+      title: 'Mood rating',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'rating',
+      status: 'open',
+    })
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: refs.month,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: refs.week,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+    })
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: refs.month,
+      subjectType: 'tracker',
+      subjectId: tracker.id,
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: refs.week,
+      subjectType: 'tracker',
+      subjectId: tracker.id,
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+    })
+
+    const router = createTestRouter()
+    await router.push('/today')
+    await router.isReady()
+
+    render(TodayView, { global: { plugins: [router] } })
+
+    expect(await screen.findByText('Daily pushups')).toBeInTheDocument()
+    expect(screen.getByText('Mood rating')).toBeInTheDocument()
+  })
+
+  it('renders a monthly value-sum habit card without errors', async () => {
+    const dayRef = parsePeriodRef('2026-03-12') as DayRef
+    const refs = getPeriodRefsForDate(dayRef)
+
+    const habit = await habitDexieRepository.create({
+      title: 'Monthly reading pages',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 500 },
+      status: 'open',
+    })
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: refs.month,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+
+    const router = createTestRouter()
+    await router.push('/today')
+    await router.isReady()
+
+    render(TodayView, { global: { plugins: [router] } })
+
+    expect(await screen.findByText('Monthly reading pages')).toBeInTheDocument()
+  })
+
+  it('renders a keyResult card without errors', async () => {
+    const dayRef = parsePeriodRef('2026-03-12') as DayRef
+    const refs = getPeriodRefsForDate(dayRef)
+
+    const goal = await goalDexieRepository.create({
+      title: 'Get fit',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const kr = await keyResultDexieRepository.create({
+      title: 'Run 100km',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'weekly',
+      entryMode: 'value',
+      target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 10 },
+      status: 'open',
+    } as Parameters<typeof keyResultDexieRepository.create>[0])
+
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef: refs.month,
+      goalId: goal.id,
+      activityState: 'active',
+    })
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: refs.month,
+      subjectType: 'keyResult',
+      subjectId: kr.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: refs.week,
+      subjectType: 'keyResult',
+      subjectId: kr.id,
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+    })
+
+    const router = createTestRouter()
+    await router.push('/today')
+    await router.isReady()
+
+    render(TodayView, { global: { plugins: [router] } })
+
+    expect(await screen.findByText('Run 100km')).toBeInTheDocument()
   })
 })

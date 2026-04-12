@@ -51,4 +51,31 @@ describe('DailyBarsChart', () => {
     const text = container.querySelector('text')
     expect(text?.textContent?.trim()).toBe('Mo')
   })
+
+  it('renders a slot without a value as a no-data dash rect', () => {
+    const slots = [
+      makeSlot('2026-03-09', undefined, { label: 'Mo', hasEntry: false }),
+    ]
+    const { container } = render(DailyBarsChart, { props: { slots } })
+
+    const rects = container.querySelectorAll('g > rect')
+    // No-data slot gets a thin dash rect (height ~2) instead of a data bar
+    expect(rects.length).toBe(1)
+    const height = Number(rects[0].getAttribute('height'))
+    expect(height).toBeLessThanOrEqual(3)
+  })
+
+  it('renders error gradient when periodStatus is missed', () => {
+    const slots = [
+      makeSlot('2026-03-09', 5, { label: 'Mo' }),
+    ]
+    const { container } = render(DailyBarsChart, {
+      props: { slots, periodStatus: 'missed' },
+    })
+
+    const rects = container.querySelectorAll('g > rect')
+    // The data bar should use the missed gradient fill (url(#dbars-missed-...))
+    const fill = rects[0].getAttribute('fill')
+    expect(fill).toContain('missed')
+  })
 })

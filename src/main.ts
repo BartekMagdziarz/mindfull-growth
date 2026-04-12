@@ -15,4 +15,28 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 
+if (import.meta.env.DEV) {
+  Promise.all([
+    import('./services/todayVisualizationAudit'),
+    import('./repositories/habitDexieRepository'),
+    import('./repositories/keyResultDexieRepository'),
+    import('./repositories/trackerDexieRepository'),
+  ]).then(async ([
+    { auditMeasurementRecords },
+    { habitDexieRepository },
+    { keyResultDexieRepository },
+    { trackerDexieRepository },
+  ]) => {
+    const [habits, keyResults, trackers] = await Promise.all([
+      habitDexieRepository.listAll(),
+      keyResultDexieRepository.listAll(),
+      trackerDexieRepository.listAll(),
+    ])
+    const invalid = auditMeasurementRecords(habits, keyResults, trackers)
+    if (invalid.length > 0) {
+      console.warn('[Today viz audit] Found invalid measurement records:', invalid)
+    }
+  })
+}
+
 app.mount('#app')
