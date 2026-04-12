@@ -217,6 +217,7 @@ const effectiveCadence = computed<'weekly' | 'monthly' | 'daily'>(() => {
     case 'months': return 'monthly'
     case 'weeks': return 'weekly'
     case 'days': return 'daily'
+    default: return 'weekly'
   }
 })
 </script>

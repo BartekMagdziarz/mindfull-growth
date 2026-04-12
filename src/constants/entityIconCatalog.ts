@@ -5,12 +5,6 @@ export interface EntityIconOption {
   search: string
 }
 
-function toLabel(id: string): string {
-  return id
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
 function createOption(
   id: string,
   materialIcon: string,

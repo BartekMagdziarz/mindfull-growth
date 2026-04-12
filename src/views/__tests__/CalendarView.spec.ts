@@ -53,7 +53,11 @@ function createTestRouter() {
 
 async function switchMonthlyPlannerTab(tabLabel: 'Habits' | 'Trackers') {
   const sidebar = await screen.findByTestId('monthly-planner-sidebar')
-  await fireEvent.click(within(sidebar).getByRole('button', { name: tabLabel }))
+  // Open the tab dropdown (trigger is the first button in the sidebar)
+  const buttons = within(sidebar).getAllByRole('button')
+  await fireEvent.click(buttons[0])
+  // Tab options are teleported to body — search in the full document
+  await fireEvent.click(await screen.findByRole('button', { name: tabLabel }))
 }
 
 describe('CalendarView', () => {

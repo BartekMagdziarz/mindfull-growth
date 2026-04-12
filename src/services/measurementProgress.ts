@@ -88,6 +88,7 @@ function computeActualValue(
         case 'last':
           return lastEntryValue(entries)
       }
+      break
     }
     case 'rating':
       return averageEntryValues(entries)

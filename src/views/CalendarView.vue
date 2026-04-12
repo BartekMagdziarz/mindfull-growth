@@ -554,7 +554,6 @@ import {
   zoomPeriod,
 } from '@/utils/periods'
 import {
-  formatDayRange as formatDayRangeLabel,
   formatDayTitle as formatDayTitleLabel,
   formatMonthTitle as formatMonthTitleLabel,
   formatTimestamp as formatTimestampLabel,
@@ -735,6 +734,8 @@ const activePeriodLabel = computed(() => {
       return formatWeekTitle(parsedPeriodRef.value as WeekRef)
     case 'day':
       return formatDayTitle(parsedPeriodRef.value as DayRef)
+    default:
+      return ''
   }
 })
 
@@ -759,6 +760,8 @@ const activePeriodRangeLabel = computed(() => {
     }
     case 'day':
       return formatDayTitle(parsedPeriodRef.value as DayRef)
+    default:
+      return ''
   }
 })
 
@@ -1181,6 +1184,8 @@ const panelTitle = computed(() => {
       return t('planning.calendar.panel.weekPlanTitle')
     case 'week-reflection':
       return t('planning.calendar.panel.weekReflectionTitle')
+    default:
+      return ''
   }
 })
 
@@ -1930,10 +1935,6 @@ function formatWeekTitle(weekRef: WeekRef): string {
 
 function formatDayTitle(dayRef: DayRef): string {
   return formatDayTitleLabel(dayRef, locale.value)
-}
-
-function formatDayRange(dayRef: DayRef): string {
-  return formatDayRangeLabel(dayRef, locale.value)
 }
 
 function formatTimestamp(value: string): string {

@@ -85,6 +85,7 @@ export interface Tracker extends PlanningObjectBase {
 
 export interface Initiative extends PlanningObjectBase {
   goalId?: string
+  icon?: string
   priorityIds: string[]
   lifeAreaIds: string[]
   status: InitiativeStatus

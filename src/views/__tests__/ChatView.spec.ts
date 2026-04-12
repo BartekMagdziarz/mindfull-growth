@@ -354,7 +354,7 @@ describe('ChatView', () => {
 
       // Wait for entry to load first
       await waitFor(() => {
-        expect(screen.getByText(/test body/i)).toBeInTheDocument()
+        expect(screen.getAllByText(/test body/i).length).toBeGreaterThan(0)
       })
 
       const backButton = screen.getByLabelText(/go back/i)
@@ -1963,7 +1963,7 @@ describe('ChatView', () => {
 
       // Wait for entry to load
       await waitFor(() => {
-        expect(screen.getByText(/test body/i)).toBeInTheDocument()
+        expect(screen.getAllByText(/test body/i).length).toBeGreaterThan(0)
       })
 
       await waitFor(() => {

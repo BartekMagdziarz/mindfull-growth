@@ -90,6 +90,8 @@ const aggValue = computed(() => {
       return 'average'
     case 'value':
       return props.target.aggregation
+    default:
+      return ''
   }
 })
 </script>

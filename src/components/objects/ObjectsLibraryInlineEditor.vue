@@ -271,8 +271,9 @@ interface TargetAggregationOption {
   label: string
 }
 
+const draft = defineModel<LibraryDraft>('draft', { required: true })
+
 defineProps<{
-  draft: LibraryDraft
   panelType: ObjectsLibraryPanelType
   isCreateMode: boolean
   heading: string

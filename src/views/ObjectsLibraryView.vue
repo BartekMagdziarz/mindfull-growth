@@ -111,7 +111,7 @@
           class="space-y-3"
         >
           <ObjectsLibraryInlineEditor
-            :draft="draft"
+            v-model:draft="draft"
             :panel-type="resolvedComposerType"
             :is-create-mode="true"
             :heading="composerHeading"
@@ -220,7 +220,7 @@
             class="rounded-2xl border border-white/40 bg-white/45 p-3"
           >
             <ObjectsLibraryInlineEditor
-              :draft="draft"
+              v-model:draft="draft"
               :panel-type="resolvedComposerType"
               :is-create-mode="isCreateMode"
               :heading="composerHeading"
@@ -383,6 +383,8 @@ const createButtonLabel = computed(() => {
       return t('planning.objects.actions.addTracker')
     case 'initiatives':
       return t('planning.objects.actions.addInitiative')
+    default:
+      return ''
   }
 })
 
@@ -845,12 +847,6 @@ function handleClearFilters(): void {
   store.clearFilters()
   periodDraft.value = ''
   periodError.value = ''
-  void syncRoute()
-}
-
-function handleExpandItem(panelType: ObjectsLibraryPanelType, id: string): void {
-  historyExpanded.value = false
-  store.expandItem(panelType, id)
   void syncRoute()
 }
 
@@ -1664,6 +1660,7 @@ async function handleConfirmDelete(): Promise<void> {
     } else {
       store.collapseItem()
     }
+    await store.loadBundle()
     await syncRoute()
     snackbarRef.value?.show(t('planning.objects.messages.deleted'))
   } catch (err) {
@@ -1855,30 +1852,6 @@ async function updateObjectActive(
       return
     case 'initiative':
       await initiativeDexieRepository.update(id, { isActive })
-      return
-  }
-}
-
-async function updateObjectStatus(
-  panelType: ObjectsLibraryPanelType,
-  id: string,
-  status: string,
-): Promise<void> {
-  switch (panelType) {
-    case 'goal':
-      await goalDexieRepository.update(id, { status: status as 'open' | 'completed' | 'dropped' })
-      return
-    case 'keyResult':
-      await keyResultDexieRepository.update(id, { status: status as 'open' | 'completed' | 'dropped' })
-      return
-    case 'habit':
-      await habitDexieRepository.update(id, { status: status as 'open' | 'retired' | 'dropped' })
-      return
-    case 'tracker':
-      await trackerDexieRepository.update(id, { status: status as 'open' | 'retired' | 'dropped' })
-      return
-    case 'initiative':
-      await initiativeDexieRepository.update(id, { status: status as 'open' | 'completed' | 'dropped' })
       return
   }
 }
