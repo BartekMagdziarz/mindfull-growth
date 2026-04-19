@@ -73,7 +73,104 @@
       "suggestedDirections": "Suggested directions",
       "empty": "No observations in the selected data."
     },
-    "devSeed": "(dev) Seed fake profile"
+    "devSeed": "(dev) Seed fake profile",
+    "wizard": {
+      "title": "Build psychological profile",
+      "generationComingSoon": "Generation arrives in the next story.",
+      "steps": {
+        "scope": "Scope",
+        "preview": "Preview",
+        "generate": "Generate",
+        "review": "Review",
+        "save": "Save"
+      },
+      "buttons": {
+        "preview": "Preview",
+        "generate": "Generate"
+      },
+      "scope": {
+        "dataTypes": {
+          "title": "What to include",
+          "help": "Pick which kinds of data the AI should draw on. Leave out anything that doesn't feel relevant."
+        },
+        "types": {
+          "journal": {
+            "title": "Journal entries",
+            "help": "Your diary-style writing."
+          },
+          "emotionLogs": {
+            "title": "Emotion logs",
+            "help": "Emotions you've tracked with short notes."
+          },
+          "exerciseSessions": {
+            "title": "Exercise sessions",
+            "help": "CBT, IFS, logotherapy and self-discovery exercises you've completed."
+          },
+          "weeklyReflections": {
+            "title": "Weekly reflections",
+            "help": "Your end-of-week structured reviews."
+          },
+          "monthlyReflections": {
+            "title": "Monthly reflections",
+            "help": "Your end-of-month structured reviews."
+          },
+          "questionnaires": {
+            "title": "Questionnaires",
+            "help": "Self-assessment answers (coming later)."
+          },
+          "planning": {
+            "title": "Planning data",
+            "help": "Goals, habits and trackers (coming later)."
+          }
+        },
+        "dateRange": {
+          "title": "Time range",
+          "presets": {
+            "last30": "Last 30 days",
+            "last90": "Last 90 days",
+            "last12m": "Last 12 months",
+            "all": "All time",
+            "custom": "Custom"
+          },
+          "start": "Start",
+          "end": "End"
+        },
+        "filters": {
+          "title": "Optional filters",
+          "emotionQuadrants": "Emotion quadrants",
+          "quadrants": {
+            "hp-he": "High energy · pleasant",
+            "hp-le": "Low energy · pleasant",
+            "lp-he": "High energy · unpleasant",
+            "lp-le": "Low energy · unpleasant"
+          },
+          "lifeAreas": "Life areas",
+          "peopleTags": "People tags",
+          "contextTags": "Context tags"
+        }
+      },
+      "preview": {
+        "title": "Preview scope",
+        "subtitle": "Quick look at what the AI would see.",
+        "dateRange": "Range",
+        "totalItems": "Total items",
+        "approxTokens": "Approximately {n} tokens",
+        "tokenWarning": "Heads up: the selected scope is quite large. Generation may be slow or truncated.",
+        "sourceList": "Source items",
+        "truncated": "… and {n} more",
+        "emptyState": "No data in this scope. Adjust the filters or pick a wider range.",
+        "refresh": "Recalculate",
+        "counts": {
+          "journal": "Journal",
+          "emotionLogs": "Emotion logs",
+          "exerciseSessions": "Exercises",
+          "weeklyReflections": "Weekly",
+          "monthlyReflections": "Monthly",
+          "questionnaires": "Questionnaires",
+          "planning": "Planning"
+        }
+      }
+    }
   },
   "aiSettings": {
     "title": "AI Settings",

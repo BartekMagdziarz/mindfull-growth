@@ -73,7 +73,104 @@
       "suggestedDirections": "Sugerowane kierunki",
       "empty": "Brak obserwacji w wybranych danych."
     },
-    "devSeed": "(dev) Wstaw testowy profil"
+    "devSeed": "(dev) Wstaw testowy profil",
+    "wizard": {
+      "title": "Zbuduj profil psychologiczny",
+      "generationComingSoon": "Generowanie pojawi się w kolejnej historii.",
+      "steps": {
+        "scope": "Zakres",
+        "preview": "Podgląd",
+        "generate": "Generowanie",
+        "review": "Przegląd",
+        "save": "Zapis"
+      },
+      "buttons": {
+        "preview": "Podgląd",
+        "generate": "Generuj"
+      },
+      "scope": {
+        "dataTypes": {
+          "title": "Co uwzględnić",
+          "help": "Wybierz, z jakich rodzajów danych AI ma skorzystać. Pomiń to, co nie jest istotne."
+        },
+        "types": {
+          "journal": {
+            "title": "Wpisy w dzienniku",
+            "help": "Twoje teksty w formie dziennika."
+          },
+          "emotionLogs": {
+            "title": "Zapisy emocji",
+            "help": "Emocje, które oznaczyłeś/aś wraz z krótkimi notatkami."
+          },
+          "exerciseSessions": {
+            "title": "Sesje ćwiczeń",
+            "help": "Ukończone ćwiczenia CBT, IFS, logoterapii i samopoznania."
+          },
+          "weeklyReflections": {
+            "title": "Refleksje tygodniowe",
+            "help": "Twoje tygodniowe podsumowania."
+          },
+          "monthlyReflections": {
+            "title": "Refleksje miesięczne",
+            "help": "Twoje miesięczne podsumowania."
+          },
+          "questionnaires": {
+            "title": "Kwestionariusze",
+            "help": "Odpowiedzi z kwestionariuszy (wkrótce)."
+          },
+          "planning": {
+            "title": "Dane planowania",
+            "help": "Cele, nawyki i wskaźniki (wkrótce)."
+          }
+        },
+        "dateRange": {
+          "title": "Zakres czasu",
+          "presets": {
+            "last30": "Ostatnie 30 dni",
+            "last90": "Ostatnie 90 dni",
+            "last12m": "Ostatnie 12 miesięcy",
+            "all": "Cały okres",
+            "custom": "Własny"
+          },
+          "start": "Początek",
+          "end": "Koniec"
+        },
+        "filters": {
+          "title": "Filtry dodatkowe",
+          "emotionQuadrants": "Kwadranty emocji",
+          "quadrants": {
+            "hp-he": "Wysoka energia · przyjemne",
+            "hp-le": "Niska energia · przyjemne",
+            "lp-he": "Wysoka energia · nieprzyjemne",
+            "lp-le": "Niska energia · nieprzyjemne"
+          },
+          "lifeAreas": "Obszary życia",
+          "peopleTags": "Tagi osób",
+          "contextTags": "Tagi kontekstu"
+        }
+      },
+      "preview": {
+        "title": "Podgląd zakresu",
+        "subtitle": "Szybkie spojrzenie na to, co zobaczy AI.",
+        "dateRange": "Zakres",
+        "totalItems": "Liczba elementów",
+        "approxTokens": "Około {n} tokenów",
+        "tokenWarning": "Uwaga: wybrany zakres jest duży. Generowanie może być wolne lub obcięte.",
+        "sourceList": "Źródłowe elementy",
+        "truncated": "… i jeszcze {n}",
+        "emptyState": "Brak danych w tym zakresie. Poszerz filtry lub wybierz szerszy okres.",
+        "refresh": "Przelicz ponownie",
+        "counts": {
+          "journal": "Dziennik",
+          "emotionLogs": "Emocje",
+          "exerciseSessions": "Ćwiczenia",
+          "weeklyReflections": "Tygodniowe",
+          "monthlyReflections": "Miesięczne",
+          "questionnaires": "Kwestionariusze",
+          "planning": "Planowanie"
+        }
+      }
+    }
   },
   "aiSettings": {
     "title": "Ustawienia AI",

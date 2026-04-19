@@ -35,14 +35,6 @@
         <AppButton variant="filled" @click="startBuild">
           {{ t('profile.psychologicalProfile.emptyState.cta') }}
         </AppButton>
-        <!-- TODO (Story 3): remove dev seed button -->
-        <AppButton
-          v-if="isDev"
-          variant="text"
-          @click="seedFakeProfile"
-        >
-          {{ t('profile.psychologicalProfile.devSeed') }}
-        </AppButton>
       </div>
     </AppCard>
 
@@ -67,14 +59,6 @@
         <div class="flex flex-col items-end gap-2">
           <AppButton variant="filled" @click="startBuild">
             {{ t('profile.psychologicalProfile.buildNew') }}
-          </AppButton>
-          <!-- TODO (Story 3): remove dev seed button -->
-          <AppButton
-            v-if="isDev"
-            variant="text"
-            @click="seedFakeProfile"
-          >
-            {{ t('profile.psychologicalProfile.devSeed') }}
           </AppButton>
         </div>
       </div>
@@ -139,7 +123,6 @@ import ProfileSectionList from '@/components/profile/ProfileSectionList.vue'
 import { useUserProfileStore } from '@/stores/userProfile.store'
 import { useT } from '@/composables/useT'
 import type { UserProfile } from '@/domain/userProfile'
-import { createEmptySections } from '@/domain/userProfile'
 
 const router = useRouter()
 const userProfileStore = useUserProfileStore()
@@ -148,8 +131,6 @@ const { t, locale } = useT()
 const selectedVersionId = ref<string | null>(null)
 const showDeleteDialog = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
-
-const isDev = import.meta.env.DEV
 
 onMounted(async () => {
   await userProfileStore.loadProfiles()
@@ -198,8 +179,7 @@ function goBack() {
 }
 
 function startBuild() {
-  // Story 3 will wire this to the wizard route.
-  snackbarRef.value?.show(t('profile.psychologicalProfile.wizardComingSoon'))
+  router.push({ name: 'profile-psychological-build' })
 }
 
 function confirmDelete() {
@@ -231,33 +211,5 @@ function formatTimestamp(iso: string, localeId: string): string {
 function formatVersionOption(p: UserProfile): string {
   const when = formatTimestamp(p.createdAt, locale.value)
   return p.note ? `${when} — ${p.note}` : when
-}
-
-// TODO (Story 3): remove this dev-only seed helper.
-async function seedFakeProfile() {
-  const sections = createEmptySections()
-  sections.summary =
-    'Dev seed — a short introductory paragraph describing the person.'
-  sections.values =
-    'Dev seed — notes on values and guiding principles.'
-  try {
-    await userProfileStore.createProfile({
-      note: 'Dev seed',
-      scope: {
-        dataTypes: ['journal'],
-        dateRange: { kind: 'preset', preset: 'last30' },
-        includedObjectIds: {},
-        approxTokenCount: 0,
-        locale: 'en',
-        grammaticalGender: 'masculine',
-      },
-      sections,
-      rawResponse: '## Summary\nDev seed...',
-      model: 'dev-seed',
-    })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Error'
-    snackbarRef.value?.show(msg)
-  }
 }
 </script>

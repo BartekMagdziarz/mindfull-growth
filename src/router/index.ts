@@ -321,6 +321,11 @@ const router = createRouter({
       name: 'profile-psychological',
       component: () => import('@/views/PsychologicalProfileView.vue'),
     },
+    {
+      path: '/profile/psychological/build',
+      name: 'profile-psychological-build',
+      component: () => import('@/views/PsychologicalProfileBuildView.vue'),
+    },
   ],
 })
 

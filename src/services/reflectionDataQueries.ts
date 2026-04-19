@@ -271,7 +271,7 @@ function buildJournalSummary(startDate: string, endDate: string): JournalSummary
 // Exercise helpers
 // ---------------------------------------------------------------------------
 
-interface ExerciseEntry {
+export interface ExerciseEntry {
   createdAt: string
   type: string
 }
@@ -314,7 +314,7 @@ const EXERCISE_TABLES: { table: string; type: string }[] = [
   { table: 'transformativePurposes', type: 'transformativePurpose' },
 ]
 
-async function getExerciseEntriesForPeriod(
+export async function getExerciseEntriesForPeriod(
   startDate: string,
   endDate: string,
 ): Promise<ExerciseEntry[]> {

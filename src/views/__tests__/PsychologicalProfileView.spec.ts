@@ -266,7 +266,7 @@ describe('PsychologicalProfileView', () => {
     expect(mockPush).toHaveBeenCalledWith({ name: 'profile' })
   })
 
-  it('shows a snackbar when the empty-state CTA is clicked (wizard not yet available)', async () => {
+  it('navigates to the build wizard when the empty-state CTA is clicked', async () => {
     const user = userEvent.setup()
     render(PsychologicalProfileView)
 
@@ -280,8 +280,7 @@ describe('PsychologicalProfileView', () => {
       screen.getByRole('button', { name: 'Build your first profile' }),
     )
 
-    expect(snackbarShow).toHaveBeenCalledWith(
-      'Profile building wizard is coming in a follow-up story.',
-    )
+    expect(mockPush).toHaveBeenCalledWith({ name: 'profile-psychological-build' })
+    expect(snackbarShow).not.toHaveBeenCalled()
   })
 })
