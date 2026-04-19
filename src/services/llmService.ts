@@ -5,7 +5,7 @@ import { CHAT_COPY } from '@/constants/chatCopy'
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
 // Default model configuration
-const DEFAULT_MODEL = 'gpt-5-nano'
+export const DEFAULT_MODEL = 'gpt-5-nano'
 const DEFAULT_TEMPERATURE = 0.7
 const DEFAULT_MAX_TOKENS = 500
 
@@ -41,16 +41,27 @@ async function getApiKey(): Promise<string> {
   return apiKey
 }
 
+export interface SendMessageOptions {
+  /** Override the default model id (e.g. to use a larger model for a long-form task). */
+  model?: string
+  /** Override the sampling temperature. */
+  temperature?: number
+  /** Override the cap on completion tokens. Longer tasks (like profile generation) need more. */
+  maxTokens?: number
+}
+
 /**
  * Sends a message to the OpenAI API and returns the assistant's response
  * @param messages Array of conversation messages
  * @param systemPrompt Optional system prompt to set the AI's behavior
+ * @param options Optional per-call overrides for model, temperature, and maxTokens
  * @returns The assistant's message content
  * @throws Error with user-friendly message if API call fails
  */
 export async function sendMessage(
   messages: ChatMessage[],
-  systemPrompt?: string
+  systemPrompt?: string,
+  options?: SendMessageOptions
 ): Promise<string> {
   try {
     // Retrieve API key
@@ -65,10 +76,10 @@ export async function sendMessage(
 
     // Construct request payload
     const requestBody = {
-      model: DEFAULT_MODEL,
+      model: options?.model ?? DEFAULT_MODEL,
       messages: requestMessages,
-      temperature: DEFAULT_TEMPERATURE,
-      max_tokens: DEFAULT_MAX_TOKENS,
+      temperature: options?.temperature ?? DEFAULT_TEMPERATURE,
+      max_tokens: options?.maxTokens ?? DEFAULT_MAX_TOKENS,
     }
 
     // Send POST request to OpenAI API

@@ -339,6 +339,58 @@ export async function getExerciseEntriesForPeriod(
   return results
 }
 
+/**
+ * Fuller exercise record shape used by the psychological profile builder.
+ * Unlike `ExerciseEntry`, this carries the raw row so downstream code can
+ * look at free-text fields (situation, hotThought, freeformReflection, …).
+ */
+export interface ExerciseSessionBundle {
+  id: string
+  type: string
+  createdAt: string
+  raw: Record<string, unknown>
+}
+
+/**
+ * Loads every exercise session across all exercise tables whose createdAt
+ * falls within [startDate, endDate]. Returns full rows (not just timestamps)
+ * so summarisation code can inspect per-type fields.
+ */
+export async function getExerciseSessionBundlesForPeriod(
+  startDate: string,
+  endDate: string,
+): Promise<ExerciseSessionBundle[]> {
+  const db = getUserDatabase()
+  const results: ExerciseSessionBundle[] = []
+
+  await Promise.all(
+    EXERCISE_TABLES.map(async ({ table, type }) => {
+      try {
+        const entries = await db.table(table).toArray()
+        for (const entry of entries) {
+          if (
+            entry &&
+            typeof entry.createdAt === 'string' &&
+            entry.createdAt >= startDate &&
+            entry.createdAt <= endDate
+          ) {
+            results.push({
+              id: typeof entry.id === 'string' ? entry.id : `${type}-${entry.createdAt}`,
+              type,
+              createdAt: entry.createdAt,
+              raw: entry as Record<string, unknown>,
+            })
+          }
+        }
+      } catch {
+        // Table may not exist in older schema versions
+      }
+    })
+  )
+
+  return results
+}
+
 function buildExerciseSummary(exerciseEntries: ExerciseEntry[]): ExerciseSummary {
   return {
     totalCompleted: exerciseEntries.length,

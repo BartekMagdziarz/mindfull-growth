@@ -136,7 +136,7 @@
     </AppCard>
 
     <!-- AI Settings Section -->
-    <AppCard class="mt-6">
+    <AppCard id="ai-settings" class="mt-6">
       <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.aiSettings.title') }}</h3>
       <p class="text-sm text-on-surface-variant mb-4">
         {{ t('profile.aiSettings.description') }}
@@ -218,9 +218,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { seedChartTestData, deleteChartTestData } from '@/dev/chartTestSeed'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
@@ -236,6 +236,7 @@ const API_KEY_STORAGE_KEY = 'openaiApiKey'
 
 const { t, locale } = useT()
 const router = useRouter()
+const route = useRoute()
 const userPreferencesStore = useUserPreferencesStore()
 const userProfileStore = useUserProfileStore()
 const authStore = useAuthStore()
@@ -404,5 +405,28 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error loading psychological profiles:', error)
   }
+
+  // Handle an initial hash (e.g. arrived via `{ name: 'profile', hash: '#ai-settings' }`).
+  // The router in this project has no custom scrollBehavior, so we do it ourselves.
+  if (route.hash) {
+    await scrollToHash(route.hash)
+  }
 })
+
+async function scrollToHash(hash: string): Promise<void> {
+  const id = hash.startsWith('#') ? hash.slice(1) : hash
+  if (!id) return
+  // Wait a tick so any freshly-mounted anchor targets are in the DOM.
+  await nextTick()
+  const el = document.getElementById(id)
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+// React to subsequent hash changes (e.g. coming back from the build wizard).
+watch(
+  () => route.hash,
+  async (next) => {
+    if (next) await scrollToHash(next)
+  },
+)
 </script>

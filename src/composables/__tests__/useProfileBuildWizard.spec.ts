@@ -41,6 +41,22 @@ vi.mock('@/services/profileScopeQueries', () => ({
   queryScopePreview: (args: unknown) => queryScopePreviewMock(args),
 }))
 
+// Stub the userProfile store so `generate()` doesn't touch IndexedDB or the
+// real LLM service. Each test can override `buildProfileMock` to simulate
+// success / error paths.
+const buildProfileMock = vi.fn()
+vi.mock('@/stores/userProfile.store', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/stores/userProfile.store')
+  >('@/stores/userProfile.store')
+  return {
+    ...actual,
+    useUserProfileStore: vi.fn(() => ({
+      buildProfile: buildProfileMock,
+    })),
+  }
+})
+
 type WizardApi = ReturnType<typeof useProfileBuildWizard>
 
 function mountWizard(): WizardApi {
@@ -59,6 +75,7 @@ describe('useProfileBuildWizard', () => {
   beforeEach(async () => {
     setActivePinia(createPinia())
     queryScopePreviewMock.mockClear()
+    buildProfileMock.mockReset()
     const storage = await import('@/services/draftStorage')
     ;(storage as unknown as { __reset: () => void }).__reset()
     vi.clearAllMocks()
@@ -98,14 +115,41 @@ describe('useProfileBuildWizard', () => {
     expect(wizard.previewTotalCount.value).toBe(2)
   })
 
-  it('Next on preview flags generateRequested without changing step', async () => {
+  it('Next on preview invokes generate() and advances past preview', async () => {
+    // Keep the build pending so we can observe the mid-flight step.
+    let resolveBuild: (value: {
+      sections: Record<string, string>
+      rawResponse: string
+      model: string
+      extras: string
+    }) => void = () => {}
+    buildProfileMock.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveBuild = resolve
+        }),
+    )
+
     const wizard = mountWizard()
     await wizard.nextStep() // scope → preview
-    expect(wizard.generateRequested.value).toBe(false)
-
-    await wizard.nextStep() // preview → (stub)
-    expect(wizard.generateRequested.value).toBe(true)
     expect(wizard.currentStep.value).toBe('preview')
+
+    // Preview → generate: should flip to the generate step before awaiting.
+    const nextPromise = wizard.nextStep()
+    await nextTick()
+    expect(wizard.currentStep.value).toBe('generate')
+    expect(wizard.generateState.value).toBe('in-flight')
+    expect(buildProfileMock).toHaveBeenCalledTimes(1)
+
+    // Resolve so the composable can settle into the review step.
+    resolveBuild({
+      sections: {} as Record<string, string>,
+      rawResponse: '',
+      model: 'gpt-5-nano',
+      extras: '',
+    })
+    await nextPromise
+    expect(wizard.currentStep.value).toBe('review')
   })
 
   it('previousStep from preview goes back to scope', async () => {

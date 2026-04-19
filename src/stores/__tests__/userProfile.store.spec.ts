@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { useUserProfileStore } from '../userProfile.store'
+import { useUserProfileStore, ProfileBuildError } from '../userProfile.store'
 import { createEmptySections } from '@/domain/userProfile'
 import type { UserProfile, UserProfileScope } from '@/domain/userProfile'
 
@@ -25,9 +25,92 @@ vi.mock('@/repositories/profileBuildLogDexieRepository', () => ({
   },
 }))
 
+// API-key gate uses this repository directly.
+vi.mock('@/repositories/userSettingsDexieRepository', () => ({
+  userSettingsDexieRepository: {
+    get: vi.fn(),
+    set: vi.fn(),
+  },
+}))
+
+// Structured reflections repository is touched by buildProfile when weekly/monthly
+// data types are enabled — keep it hermetic.
+vi.mock('@/repositories/structuredReflectionDexieRepository', () => ({
+  structuredReflectionDexieRepository: {
+    listWeekly: vi.fn(async () => []),
+    listMonthly: vi.fn(async () => []),
+  },
+}))
+
+// Exercise query helper is also used when exerciseSessions are in scope.
+vi.mock('@/services/reflectionDataQueries', () => ({
+  getExerciseSessionBundlesForPeriod: vi.fn(async () => []),
+}))
+
+// Planning snapshot reads from multiple repositories — stub it at the source.
+vi.mock('@/services/profileLLMAssistsHelpers', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/services/profileLLMAssistsHelpers')
+  >('@/services/profileLLMAssistsHelpers')
+  return {
+    ...actual,
+    buildPlanningSnapshot: vi.fn(async () => ({
+      activeGoals: [],
+      activeKeyResults: [],
+      activeHabits: [],
+      activeTrackers: [],
+      snapshot: '',
+    })),
+  }
+})
+
+// Silence the LLM service — buildProfile calls sendMessage; individual tests
+// replace this mock's return value per scenario.
+vi.mock('@/services/llmService', async () => {
+  const actual = await vi.importActual<
+    typeof import('@/services/llmService')
+  >('@/services/llmService')
+  return {
+    ...actual,
+    sendMessage: vi.fn(),
+  }
+})
+
+// Downstream stores used when building the journal / emotion payload. We stub
+// them with empty lists — buildProfile doesn't need real entries for these
+// tests, just enough shape to avoid TypeErrors.
+vi.mock('@/stores/journal.store', () => ({
+  useJournalStore: vi.fn(() => ({ sortedEntries: [] })),
+}))
+vi.mock('@/stores/emotionLog.store', () => ({
+  useEmotionLogStore: vi.fn(() => ({ sortedLogs: [] })),
+}))
+vi.mock('@/stores/emotion.store', () => ({
+  useEmotionStore: vi.fn(() => ({
+    emotions: [],
+    getEmotionById: vi.fn(() => undefined),
+  })),
+}))
+vi.mock('@/stores/tag.store', () => ({
+  useTagStore: vi.fn(() => ({
+    peopleTags: [],
+    contextTags: [],
+    getPeopleTagById: vi.fn(() => undefined),
+    getContextTagById: vi.fn(() => undefined),
+  })),
+}))
+vi.mock('@/stores/lifeArea.store', () => ({
+  useLifeAreaStore: vi.fn(() => ({
+    lifeAreas: [],
+    getLifeAreaById: vi.fn(() => undefined),
+  })),
+}))
+
 // Access the mocked repositories
 import { userProfileDexieRepository } from '@/repositories/userProfileDexieRepository'
 import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDexieRepository'
+import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
+import { sendMessage } from '@/services/llmService'
 
 function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
   const base: UserProfile = {
@@ -171,33 +254,173 @@ describe('useUserProfileStore', () => {
     })
   })
 
-  describe('buildProfile stub', () => {
-    it('throws when dataTypes is empty', async () => {
+  describe('buildProfile', () => {
+    const validScope: UserProfileScope = {
+      dataTypes: ['journal'],
+      dateRange: { kind: 'preset', preset: 'last30' },
+      includedObjectIds: {},
+      approxTokenCount: 0,
+      locale: 'en',
+      grammaticalGender: 'masculine',
+    }
+
+    function aWellFormedResponse(): string {
+      return [
+        '## Summary',
+        '',
+        'A short portrait.',
+        '',
+        '## Values and guiding principles',
+        '',
+        'Principles body.',
+        '',
+        '## Emotional patterns',
+        '',
+        'Patterns body.',
+      ].join('\n')
+    }
+
+    it('throws when dataTypes is empty (and does NOT write a log)', async () => {
       const store = useUserProfileStore()
       await expect(
         store.buildProfile({
+          ...validScope,
           dataTypes: [],
-          dateRange: { kind: 'preset', preset: 'last30' },
-          includedObjectIds: {},
-          approxTokenCount: 0,
-          locale: 'en',
-          grammaticalGender: 'masculine',
         }),
       ).rejects.toThrow('Scope must include at least one data type')
+      // The guard short-circuits before the try/finally log path.
+      expect(profileBuildLogDexieRepository.add).not.toHaveBeenCalled()
     })
 
-    it('throws "not implemented yet" when scope is valid', async () => {
+    it('throws ProfileBuildError("missingApiKey") when no key is configured', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('')
+      const store = useUserProfileStore()
+
+      const promise = store.buildProfile(validScope)
+      await expect(promise).rejects.toBeInstanceOf(ProfileBuildError)
+      await expect(promise).rejects.toMatchObject({ code: 'missingApiKey' })
+      expect(sendMessage).not.toHaveBeenCalled()
+      // We still log the failure for developer debugging (success: false).
+      expect(profileBuildLogDexieRepository.add).toHaveBeenCalledTimes(1)
+      const logCall = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
+      expect(logCall.success).toBe(false)
+      expect(logCall.errorMessage).toContain('API key')
+    })
+
+    it('returns parsed sections and rawResponse on a well-formed LLM answer', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      const result = await store.buildProfile(validScope)
+
+      expect(result.rawResponse).toContain('## Summary')
+      expect(result.sections.summary).toContain('A short portrait.')
+      expect(result.sections.values).toContain('Principles body.')
+      expect(result.sections.emotionalPatterns).toContain('Patterns body.')
+      // Unmentioned sections stay empty (no hallucinated content).
+      expect(result.sections.strengths).toBe('')
+      expect(result.model).toBe('gpt-5-nano')
+    })
+
+    it('flips isBuilding true mid-call and back to false when done', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      let duringFlag = false
+      vi.mocked(sendMessage).mockImplementation(async () => {
+        duringFlag = store.isBuilding
+        return aWellFormedResponse()
+      })
+
+      const store = useUserProfileStore()
+      expect(store.isBuilding).toBe(false)
+      await store.buildProfile(validScope)
+      expect(duringFlag).toBe(true)
+      expect(store.isBuilding).toBe(false)
+    })
+
+    it('writes a SUCCESS log with the request/response bodies and latency', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      await store.buildProfile(validScope)
+
+      expect(profileBuildLogDexieRepository.add).toHaveBeenCalledTimes(1)
+      const payload = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
+      expect(payload.success).toBe(true)
+      expect(payload.responseBody).toContain('## Summary')
+      expect(payload.requestBody).toContain('systemPrompt')
+      expect(payload.requestBody).toContain('"role":"user"')
+      expect(typeof payload.latencyMs).toBe('number')
+      expect(payload.latencyMs).toBeGreaterThanOrEqual(0)
+      expect(payload.scope).toEqual(validScope)
+    })
+
+    it('re-throws and logs a FAILURE entry when sendMessage rejects', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      vi.mocked(sendMessage).mockRejectedValue(new Error('network is unreachable'))
+
+      const store = useUserProfileStore()
+      await expect(store.buildProfile(validScope)).rejects.toBeInstanceOf(
+        ProfileBuildError,
+      )
+
+      expect(profileBuildLogDexieRepository.add).toHaveBeenCalledTimes(1)
+      const payload = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
+      expect(payload.success).toBe(false)
+      expect(payload.errorMessage).toContain('network')
+    })
+
+    it('classifies fetch/network style errors with code="network"', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      vi.mocked(sendMessage).mockRejectedValue(new Error('Failed to fetch'))
+
+      const store = useUserProfileStore()
+      try {
+        await store.buildProfile(validScope)
+        throw new Error('should have thrown')
+      } catch (err) {
+        expect(err).toBeInstanceOf(ProfileBuildError)
+        expect((err as ProfileBuildError).code).toBe('network')
+      }
+    })
+
+    it('falls back to code="unknown" for unclassified errors', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      vi.mocked(sendMessage).mockRejectedValue(new Error('teapot responded 418'))
+
+      const store = useUserProfileStore()
+      try {
+        await store.buildProfile(validScope)
+        throw new Error('should have thrown')
+      } catch (err) {
+        expect(err).toBeInstanceOf(ProfileBuildError)
+        expect((err as ProfileBuildError).code).toBe('unknown')
+      }
+    })
+
+    it('swallows logging failures without masking the build outcome', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+      vi.mocked(profileBuildLogDexieRepository.add).mockRejectedValue(
+        new Error('log write failed'),
+      )
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const store = useUserProfileStore()
+      const result = await store.buildProfile(validScope)
+
+      expect(result.sections.summary).toContain('A short portrait.')
+      expect(warn).toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    it('does not call sendMessage when the scope guard rejects (empty dataTypes)', async () => {
       const store = useUserProfileStore()
       await expect(
-        store.buildProfile({
-          dataTypes: ['journal'],
-          dateRange: { kind: 'preset', preset: 'last30' },
-          includedObjectIds: {},
-          approxTokenCount: 0,
-          locale: 'en',
-          grammaticalGender: 'masculine',
-        }),
-      ).rejects.toThrow('buildProfile is not implemented yet (Story 4)')
+        store.buildProfile({ ...validScope, dataTypes: [] }),
+      ).rejects.toThrow()
+      expect(sendMessage).not.toHaveBeenCalled()
     })
   })
 

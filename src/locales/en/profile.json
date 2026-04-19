@@ -169,6 +169,20 @@
           "questionnaires": "Questionnaires",
           "planning": "Planning"
         }
+      },
+      "generate": {
+        "inFlight": "Generating your profile…",
+        "inFlightHint": "This usually takes 15–45 seconds. You can stay on this screen — we'll take you to the draft as soon as it's ready.",
+        "success": "Draft ready.",
+        "missingApiKey": {
+          "title": "OpenAI API key required",
+          "help": "Profile generation runs on your own OpenAI account. Add your API key in AI Settings and come back here — your scope selections will be kept.",
+          "cta": "Go to AI Settings"
+        },
+        "error": {
+          "title": "Generation failed",
+          "retry": "Try again"
+        }
       }
     }
   },

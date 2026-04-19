@@ -18,6 +18,7 @@ import {
   type ProfileDateRange,
   type ProfileDateRangePreset,
   type ProfileScopeFilters,
+  type ProfileSections,
   type UserProfileScope,
 } from '@/domain/userProfile'
 import {
@@ -26,6 +27,11 @@ import {
   saveDraftToDB,
 } from '@/services/draftStorage'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import {
+  ProfileBuildError,
+  type ProfileBuildErrorCode,
+  useUserProfileStore,
+} from '@/stores/userProfile.store'
 import {
   queryScopePreview,
   type ProfilePreviewObjectHeader,
@@ -204,9 +210,56 @@ export function useProfileBuildWizard() {
     }
   })
 
-  // --- Navigation --------------------------------------------------------
-  const generateRequested = ref(false)
+  // --- Generate state ----------------------------------------------------
+  /**
+   * `idle` is the pre-run state. `in-flight` shows the loading panel.
+   * `success` flips after we auto-advance to review (the step itself does
+   * not linger on 'success' unless the view wants a brief confirmation).
+   * `error` stays until the user retries.
+   */
+  const generateState = ref<'idle' | 'in-flight' | 'success' | 'error'>('idle')
+  const generateError = ref<string | null>(null)
+  const generateErrorCode = ref<ProfileBuildErrorCode | null>(null)
+  const generatedSections = ref<ProfileSections | null>(null)
+  const generatedRawResponse = ref<string>('')
+  const generatedModel = ref<string>('')
 
+  /**
+   * Kicks off the actual LLM-driven profile build. We flip to the
+   * `generate` step *before* awaiting so the UI can immediately render
+   * the in-flight panel (spinner + hint) instead of waiting with a
+   * frozen Next button on the preview step.
+   */
+  async function generate(): Promise<void> {
+    currentStep.value = 'generate'
+    generateState.value = 'in-flight'
+    generateError.value = null
+    generateErrorCode.value = null
+
+    const userProfileStore = useUserProfileStore()
+    try {
+      const result = await userProfileStore.buildProfile(currentScope.value)
+      generatedSections.value = result.sections
+      generatedRawResponse.value = result.rawResponse
+      generatedModel.value = result.model
+      generateState.value = 'success'
+      currentStep.value = 'review'
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to build profile.'
+      generateError.value = message
+      generateErrorCode.value =
+        err instanceof ProfileBuildError ? err.code : null
+      generateState.value = 'error'
+    }
+  }
+
+  /** Re-runs generation with the same scope. Safe to call from the UI. */
+  async function retryGenerate(): Promise<void> {
+    await generate()
+  }
+
+  // --- Navigation --------------------------------------------------------
   async function nextStep(): Promise<void> {
     if (!canAdvance.value) return
     if (currentStep.value === 'scope') {
@@ -215,7 +268,7 @@ export function useProfileBuildWizard() {
       return
     }
     if (currentStep.value === 'preview') {
-      generateRequested.value = true
+      await generate()
       return
     }
   }
@@ -372,15 +425,23 @@ export function useProfileBuildWizard() {
     previewTotalCount,
     isPreviewLoading,
     previewError,
+    // Generate
+    generateState,
+    generateError,
+    generateErrorCode,
+    generatedSections,
+    generatedRawResponse,
+    generatedModel,
     // Derived
     currentScope,
     canAdvance,
-    generateRequested,
     // Actions
     nextStep,
     previousStep,
     goToStep,
     computePreview,
+    generate,
+    retryGenerate,
     // Draft API
     loadDraft,
     scheduleSave,

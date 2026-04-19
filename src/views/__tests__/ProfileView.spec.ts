@@ -10,6 +10,7 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({
     push: mockPush,
   }),
+  useRoute: () => ({ hash: '' }),
 }))
 
 // Mock the user settings repository

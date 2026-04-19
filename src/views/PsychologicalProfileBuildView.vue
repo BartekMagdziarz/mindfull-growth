@@ -66,6 +66,19 @@
           :date-range="dateRange"
           @refresh="computePreview"
         />
+        <ProfileGenerateStep
+          v-else-if="currentStep === 'generate'"
+          :state="generateState"
+          :error-message="generateError"
+          :error-code="generateErrorCode"
+          @retry="retryGenerate"
+          @go-to-settings="goToSettings"
+        />
+        <ProfileReviewStepPlaceholder
+          v-else-if="currentStep === 'review' && generatedSections"
+          :sections="generatedSections"
+          :raw-response="generatedRawResponse"
+        />
         <div v-else class="text-sm text-on-surface-variant">
           {{ t('profile.psychologicalProfile.wizard.generationComingSoon') }}
         </div>
@@ -79,12 +92,14 @@
       <AppButton
         v-if="currentStep !== 'scope'"
         variant="text"
+        :disabled="backDisabled"
         @click="previousStep"
       >
         {{ t('common.buttons.back') }}
       </AppButton>
       <div class="flex-1" />
       <AppButton
+        v-if="currentStep !== 'generate'"
         variant="filled"
         :disabled="!canAdvance"
         data-test-next
@@ -99,13 +114,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ProfileScopeStep from '@/components/profile/ProfileScopeStep.vue'
 import ProfilePreviewStep from '@/components/profile/ProfilePreviewStep.vue'
+import ProfileGenerateStep from '@/components/profile/ProfileGenerateStep.vue'
+import ProfileReviewStepPlaceholder from '@/components/profile/ProfileReviewStepPlaceholder.vue'
 import { useT } from '@/composables/useT'
 import {
   STEP_ORDER,
@@ -131,11 +148,16 @@ const {
   previewApproxTokens,
   isPreviewLoading,
   previewError,
-  generateRequested,
+  generateState,
+  generateError,
+  generateErrorCode,
+  generatedSections,
+  generatedRawResponse,
   nextStep,
   previousStep,
   goToStep,
   computePreview,
+  retryGenerate,
   flushDraft,
 } = wizard
 
@@ -152,6 +174,12 @@ const nextLabel = computed(() => {
   }
   return t('common.buttons.next')
 })
+
+// Block Back while a generation is in flight so the user can't navigate
+// away mid-request and orphan the API call.
+const backDisabled = computed(
+  () => currentStep.value === 'generate' && generateState.value === 'in-flight',
+)
 
 function stepDotClass(idx: number): string {
   if (idx < stepIndex.value) return 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
@@ -184,13 +212,7 @@ async function handleBack(): Promise<void> {
   await router.push({ name: 'profile-psychological' })
 }
 
-// Show a snackbar and reset the flag when the user clicks Next on Step 2.
-// Story 4 will replace this with the real generate step.
-watch(generateRequested, (requested) => {
-  if (!requested) return
-  snackbarRef.value?.show(
-    t('profile.psychologicalProfile.wizard.generationComingSoon'),
-  )
-  generateRequested.value = false
-})
+async function goToSettings(): Promise<void> {
+  await router.push({ name: 'profile', hash: '#ai-settings' })
+}
 </script>
