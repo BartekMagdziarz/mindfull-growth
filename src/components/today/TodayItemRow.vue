@@ -7,7 +7,7 @@
       <div class="flex items-center gap-2">
         <button
           type="button"
-          class="min-w-0 shrink-0 text-left text-sm font-semibold text-on-surface transition-colors hover:text-primary-strong"
+          class="min-w-0 shrink-0 text-left text-base font-semibold text-on-surface transition-colors hover:text-primary-strong"
           @click="$emit('open-object')"
         >
           {{ title }}
@@ -119,21 +119,18 @@
       >
         <!-- LEFT COLUMN: chart zone + optional aggregate bar -->
         <div class="flex min-w-0 flex-col gap-2" style="flex: 2 1 0">
-          <div class="flex flex-1 items-end min-h-[56px]">
+          <div
+            class="flex flex-1 min-h-[56px]"
+            :class="viz.vizType.value === 'completion-dots' || viz.vizType.value === 'completion-ring' ? 'items-center' : 'items-end'"
+          >
             <CompletionDots
               v-if="viz.vizType.value === 'completion-dots'"
-              :slots="viz.completionSlots.value"
-              :is-pending="isPending"
-              @toggle="$emit('toggle-completion')"
+              :slots="completionHistorySlots"
             />
             <CompletionRing
               v-else-if="viz.vizType.value === 'completion-ring'"
               :done-count="completionRingDoneCount"
               :target-count="completionRingTargetCount"
-              :is-pending="isPending"
-              :has-today-entry="!!(item.kind === 'measurement' && item.todayEntry)"
-              :can-toggle-today="completionRingCanToggle"
-              @toggle="$emit('toggle-completion')"
             />
             <DailyBarsChart
               v-else-if="viz.vizType.value === 'daily-bars'"
@@ -148,8 +145,8 @@
             <RatingSegmentedBars
               v-else-if="viz.vizType.value === 'rating-segmented'"
               :slots="viz.barSlots.value"
-              :scale-min="1"
-              :scale-max="10"
+              :scale-min="viz.ratingScaleMin.value"
+              :scale-max="viz.ratingScale.value"
               :target-value="viz.aggregateData.value?.targetValue"
               :target-operator="ratingTargetOperator"
             />
@@ -178,21 +175,63 @@
         <!-- RIGHT COLUMN: today entry input -->
         <div
           v-if="hasRightColumn"
-          class="flex shrink-0 items-center justify-center"
+          class="flex shrink-0"
+          :class="viz.entryMode.value === 'counter' || viz.entryMode.value === 'rating' ? 'flex-col' : 'items-center justify-center'"
           style="flex: 1 1 0"
         >
+          <!-- Completion today toggle (dots + ring share the same button) -->
+          <div
+            v-if="(viz.vizType.value === 'completion-dots' || viz.vizType.value === 'completion-ring') && viz.entryMode.value === 'completion'"
+            class="flex flex-col items-center gap-1.5"
+          >
+            <button
+              type="button"
+              class="flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all neo-focus"
+              :class="
+                completionTodayDone
+                  ? 'border-transparent shadow-neu-pressed'
+                  : 'border-neu-border/20 shadow-neu-raised-sm hover:-translate-y-px hover:shadow-neu-raised'
+              "
+              :style="
+                completionTodayDone
+                  ? 'background: linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)))'
+                  : 'background: rgb(var(--neo-surface-base))'
+              "
+              :disabled="isPending"
+              :aria-label="completionTodayDone ? t('planning.today.actions.undoEntry') : t('planning.today.actions.recordEntry')"
+              @click.stop="$emit('toggle-completion')"
+            >
+              <svg viewBox="0 0 12 12" class="h-6 w-6" aria-hidden="true">
+                <path
+                  d="M2 6 L5 9 L10 3"
+                  fill="none"
+                  :stroke="completionTodayDone ? 'white' : 'rgb(var(--color-on-surface-variant))'"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  :stroke-opacity="completionTodayDone ? 1 : 0.5"
+                />
+              </svg>
+            </button>
+            <span class="text-xs font-medium text-on-surface-variant/70">{{ t('planning.today.todayCircleLabel') }}</span>
+          </div>
           <CounterEntryControl
-            v-if="viz.entryMode.value === 'counter'"
+            v-else-if="viz.entryMode.value === 'counter'"
             :current-value="viz.currentValue.value"
             :is-pending="isPending"
             @increment="handleStep(1)"
+            @decrement="handleStep(-1)"
             @save-value="handleSaveValue"
           />
           <TodayEntryInput
             v-else-if="viz.entryMode.value === 'value' || viz.entryMode.value === 'rating'"
             :entry-mode="viz.entryMode.value"
             :current-value="viz.currentValue.value"
+            :rating-min="viz.ratingScaleMin.value"
+            :rating-max="viz.ratingScale.value"
             :is-pending="isPending"
+            @increment="handleRatingStep(1)"
+            @decrement="handleRatingStep(-1)"
             @save-value="handleSaveValue"
           />
           <button
@@ -308,6 +347,7 @@ const viz = useTodayItemVisualization(
   toRef(props, 'rawEntries'),
   toRef(props, 'allDayAssignments'),
   toRef(props, 'todayDayRef'),
+  computed(() => locale.value),
 )
 
 const title = computed(() =>
@@ -316,14 +356,25 @@ const title = computed(() =>
 
 const todayLabel = computed(() => periodLabel(props.todayDayRef, 'daily', locale.value))
 
-// Right column is absent for viz types that either handle their own input
-// (completion-dots / completion-ring render click-to-toggle directly), use
-// a dedicated single-row layout (initiative-check puts the checkmark inline
-// with the title), or have no entry mode at all (e.g. goals rendered with
-// daily-bars for display only).
+// Completion-dots history slots (excluding today) render in the left column;
+// the today circle goes in the right column.
+const completionHistorySlots = computed(() =>
+  viz.completionSlots.value.filter(s => s.state !== 'today-pending' && s.state !== 'today-done'),
+)
+const completionTodayDone = computed(() =>
+  viz.completionSlots.value.some(s => s.state === 'today-done'),
+)
+const hasCompletionTodaySlot = computed(() =>
+  viz.completionSlots.value.some(s => s.state === 'today-pending' || s.state === 'today-done'),
+)
+
+// Right column is absent for viz types that use a dedicated single-row layout
+// (initiative-check puts the checkmark inline with the title) or have no entry
+// mode. Completion-dots and completion-ring show the today toggle circle in the
+// right column when a today slot exists.
 const hasRightColumn = computed(() => {
   const vt = viz.vizType.value
-  if (vt === 'completion-dots' || vt === 'completion-ring') return false
+  if (vt === 'completion-dots' || vt === 'completion-ring') return hasCompletionTodaySlot.value
   if (vt === 'initiative-check') return false
   if (!viz.entryMode.value) return false
   return true
@@ -346,9 +397,6 @@ const completionRingDoneCount = computed(
   () => viz.completionSlots.value.filter((s) => s.state === 'done' || s.state === 'today-done').length,
 )
 const completionRingTargetCount = computed(() => viz.targetValue.value ?? 0)
-const completionRingCanToggle = computed(
-  () => props.item.kind === 'measurement' && viz.entryMode.value === 'completion',
-)
 
 // `aggregateData.operator` is typed as `'min' | 'max' | 'gte' | 'lte'`, but
 // `RatingSegmentedBars` only understands `'gte' | 'lte'`. Rating targets always
@@ -385,6 +433,15 @@ function handleStep(delta: number): void {
   if (props.item.kind !== 'measurement' || props.item.subject.entryMode !== 'counter') return
   const currentValue = props.item.todayEntry?.value ?? 0
   const nextValue = Math.max(0, currentValue + delta)
+  emit('save-entry', nextValue)
+}
+
+function handleRatingStep(delta: number): void {
+  if (props.item.kind !== 'measurement' || props.item.subject.entryMode !== 'rating') return
+  const currentValue = props.item.todayEntry?.value ?? 0
+  const min = viz.ratingScaleMin.value
+  const max = viz.ratingScale.value
+  const nextValue = Math.min(max, Math.max(min, currentValue + delta))
   emit('save-entry', nextValue)
 }
 

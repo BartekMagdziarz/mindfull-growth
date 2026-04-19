@@ -72,7 +72,7 @@ export interface TodaySummaryNumberData {
   sublabelKind: 'days-logged' | 'entries' | 'total-sum'
 }
 
-function dayLabel(dayRef: DayRef, locale: string = 'en'): string {
+function dayLabel(dayRef: DayRef, locale: string): string {
   const date = new Date(dayRef + 'T00:00:00')
   return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date).slice(0, 2)
 }
@@ -151,6 +151,7 @@ export function buildCompletionSlots(
   planning: MeasurementPlanningSummary,
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
+  locale: string,
 ): TodayCompletionSlot[] {
   const entries = filterEntriesInPeriod(
     filterSubjectEntries(rawEntries, subjectType, subject.id),
@@ -175,7 +176,7 @@ export function buildCompletionSlots(
 
       return {
         dayRef: day,
-        label: isWeekly ? dayLabel(day) : dayOfMonthLabel(day),
+        label: isWeekly ? dayLabel(day, locale) : dayOfMonthLabel(day),
         value: hasEntry ? 1 : undefined,
         isToday: today,
         isFuture: future,
@@ -191,11 +192,11 @@ export function buildCompletionSlots(
   const targetCount = target?.kind === 'count' ? target.value : undefined
 
   if (targetCount !== undefined) {
-    return buildTargetCountSlots(entries, targetCount, contextPeriodRef, todayDayRef)
+    return buildTargetCountSlots(entries, targetCount, contextPeriodRef, todayDayRef, locale)
   }
 
   // Tracker (no target): one slot per entry day + today placeholder
-  return buildTrackerCompletionSlots(entries, contextPeriodRef, todayDayRef)
+  return buildTrackerCompletionSlots(entries, contextPeriodRef, todayDayRef, locale)
 }
 
 function resolveCompletionState(
@@ -213,6 +214,7 @@ function buildTargetCountSlots(
   targetCount: number,
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
+  locale: string,
 ): TodayCompletionSlot[] {
   const isWeekly = isWeeklyPeriod(contextPeriodRef)
   const sortedEntries = [...entries].sort((a, b) => a.dayRef.localeCompare(b.dayRef))
@@ -226,7 +228,7 @@ function buildTargetCountSlots(
     const today = isToday(day, todayDayRef)
     slots.push({
       dayRef: day,
-      label: isWeekly ? dayLabel(day) : dayOfMonthLabel(day),
+      label: isWeekly ? dayLabel(day, locale) : dayOfMonthLabel(day),
       value: 1,
       isToday: today,
       isFuture: false,
@@ -246,7 +248,7 @@ function buildTargetCountSlots(
       todaySlotAdded = true
       slots.push({
         dayRef: todayDayRef,
-        label: isWeekly ? dayLabel(todayDayRef) : dayOfMonthLabel(todayDayRef),
+        label: isWeekly ? dayLabel(todayDayRef, locale) : dayOfMonthLabel(todayDayRef),
         value: undefined,
         isToday: true,
         isFuture: false,
@@ -275,7 +277,7 @@ function buildTargetCountSlots(
   if (!todaySlotAdded && !periodEnded && containsDay(contextPeriodRef, todayDayRef)) {
     slots.push({
       dayRef: todayDayRef,
-      label: isWeekly ? dayLabel(todayDayRef) : dayOfMonthLabel(todayDayRef),
+      label: isWeekly ? dayLabel(todayDayRef, locale) : dayOfMonthLabel(todayDayRef),
       value: undefined,
       isToday: true,
       isFuture: false,
@@ -292,6 +294,7 @@ function buildTrackerCompletionSlots(
   entries: DailyMeasurementEntry[],
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
+  locale: string,
 ): TodayCompletionSlot[] {
   const isWeekly = isWeeklyPeriod(contextPeriodRef)
   const sorted = [...entries].sort((a, b) => a.dayRef.localeCompare(b.dayRef))
@@ -299,7 +302,7 @@ function buildTrackerCompletionSlots(
     const today = isToday(entry.dayRef, todayDayRef)
     return {
       dayRef: entry.dayRef,
-      label: isWeekly ? dayLabel(entry.dayRef) : dayOfMonthLabel(entry.dayRef),
+      label: isWeekly ? dayLabel(entry.dayRef, locale) : dayOfMonthLabel(entry.dayRef),
       value: 1,
       isToday: today,
       isFuture: false,
@@ -313,7 +316,7 @@ function buildTrackerCompletionSlots(
   if (!sorted.some(e => e.dayRef === todayDayRef) && containsDay(contextPeriodRef, todayDayRef)) {
     slots.push({
       dayRef: todayDayRef,
-      label: isWeekly ? dayLabel(todayDayRef) : dayOfMonthLabel(todayDayRef),
+      label: isWeekly ? dayLabel(todayDayRef, locale) : dayOfMonthLabel(todayDayRef),
       value: undefined,
       isToday: true,
       isFuture: false,
@@ -337,6 +340,7 @@ export function buildDailyBarSlots(
   planning: MeasurementPlanningSummary,
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
+  locale: string,
 ): TodayDaySlot[] {
   const entries = filterEntriesInPeriod(
     filterSubjectEntries(rawEntries, subjectType, subject.id),
@@ -349,7 +353,7 @@ export function buildDailyBarSlots(
     const dayRefs = getChildPeriods(contextPeriodRef as any) as unknown as DayRef[]
     return dayRefs.map(day => ({
       dayRef: day,
-      label: dayLabel(day),
+      label: dayLabel(day, locale),
       value: entryValueForDay(entries, day, subject.entryMode),
       isToday: isToday(day, todayDayRef),
       isFuture: isDayFuture(day, todayDayRef),
@@ -421,6 +425,7 @@ export function buildValueLineSlots(
   rawEntries: DailyMeasurementEntry[],
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
+  locale: string,
 ): TodayDaySlot[] {
   const entries = filterEntriesInPeriod(
     filterSubjectEntries(rawEntries, subjectType, subject.id),
@@ -432,7 +437,7 @@ export function buildValueLineSlots(
     const dayRefs = getChildPeriods(contextPeriodRef as any) as unknown as DayRef[]
     return dayRefs.map(day => ({
       dayRef: day,
-      label: dayLabel(day),
+      label: dayLabel(day, locale),
       value: entryValueForDay(entries, day, subject.entryMode),
       isToday: isToday(day, todayDayRef),
       isFuture: isDayFuture(day, todayDayRef),
@@ -486,7 +491,7 @@ export function buildAggregateData(
       break
   }
 
-  const scaleMax = computeScaleMax(currentValue, targetValue, target)
+  const scaleMax = computeScaleMax(currentValue, targetValue, target, subject.ratingScale, subject.ratingScaleMin)
 
   let status: TodayAggregateData['status']
   if (measurement.evaluationStatus === 'met') {
@@ -514,9 +519,13 @@ function computeScaleMax(
   currentValue: number,
   targetValue: number,
   target: MeasurementTarget,
+  ratingScale?: number,
+  ratingScaleMin?: number,
 ): number {
   if (target.kind === 'rating') {
-    return Math.max(currentValue, targetValue, 5)
+    const max = ratingScale ?? Math.max(currentValue, targetValue, 5)
+    const min = ratingScaleMin ?? 1
+    return Math.max(max, min + 1)
   }
 
   return Math.max(currentValue, targetValue, 1)
@@ -598,6 +607,7 @@ export function buildValueSparklineData(
   contextPeriodRef: PeriodRef,
   todayDayRef: DayRef,
   measurement: MeasurementSummary,
+  locale: string,
 ): TodayValueSparklineData {
   const points = buildValueLineSlots(
     subject,
@@ -605,6 +615,7 @@ export function buildValueSparklineData(
     rawEntries,
     contextPeriodRef,
     todayDayRef,
+    locale,
   )
   const target = 'target' in subject ? subject.target : undefined
   const hasData = measurement.entryCount > 0
@@ -632,9 +643,7 @@ export function buildValueSparklineData(
 }
 
 /**
- * Build smooth-fill bar data for monthly rating items. Scale is hardcoded to
- * 1..10 to match `RatingSegmentedBars` default — when the domain adds a scale
- * field, both components lift it together.
+ * Build smooth-fill bar data for monthly rating items.
  */
 export function buildRatingSmoothData(
   subject: MeasureableSubject,
@@ -642,10 +651,12 @@ export function buildRatingSmoothData(
 ): TodayRatingSmoothData {
   const target = 'target' in subject ? subject.target : undefined
   const hasRatingTarget = target?.kind === 'rating'
+  const scaleMin = subject.ratingScaleMin ?? 1
+  const scaleMax = subject.ratingScale ?? 10
   return {
     averageValue: measurement.actualValue ?? 0,
-    scaleMin: 1,
-    scaleMax: 10,
+    scaleMin,
+    scaleMax,
     entryCount: measurement.entryCount,
     targetValue: hasRatingTarget ? target.value : undefined,
     targetOperator: hasRatingTarget ? target.operator : undefined,

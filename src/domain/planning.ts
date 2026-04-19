@@ -61,6 +61,8 @@ export interface KeyResult extends PlanningObjectBase {
   entryMode: MeasurementEntryMode
   cadence: PlanningCadence
   target: MeasurementTarget
+  ratingScaleMin?: number
+  ratingScale?: number
   status: KeyResultStatus
 }
 
@@ -71,6 +73,8 @@ export interface Habit extends PlanningObjectBase {
   entryMode: MeasurementEntryMode
   cadence: PlanningCadence
   target: MeasurementTarget
+  ratingScaleMin?: number
+  ratingScale?: number
   status: HabitStatus
 }
 
@@ -80,6 +84,8 @@ export interface Tracker extends PlanningObjectBase {
   lifeAreaIds: string[]
   entryMode: MeasurementEntryMode
   cadence: PlanningCadence
+  ratingScaleMin?: number
+  ratingScale?: number
   status: TrackerStatus
 }
 
@@ -229,6 +235,15 @@ function normalizeFiniteNumber(value: unknown, fieldName: string, fallback?: num
     throw new Error(`${fieldName} must be a finite number`)
   }
 
+  return source
+}
+
+function normalizeOptionalPositiveInt(value: unknown, fieldName: string, fallback?: number): number | undefined {
+  const source = value ?? fallback
+  if (source === undefined) return undefined
+  if (typeof source !== 'number' || !Number.isInteger(source) || source < 0) {
+    throw new Error(`${fieldName} must be a non-negative integer`)
+  }
   return source
 }
 
@@ -395,6 +410,8 @@ export function normalizeKeyResultPayload(
     entryMode,
     cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
+    ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
+    ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
   }
 }
@@ -427,6 +444,8 @@ export function normalizeHabitPayload(
     entryMode,
     cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
+    ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
+    ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     status: normalizeEnum(data.status, 'status', HABIT_STATUSES, existing?.status ?? 'open'),
   }
 }
@@ -451,6 +470,8 @@ export function normalizeTrackerPayload(
       existing?.entryMode ?? 'completion',
     ),
     cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
+    ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
+    ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     status: normalizeEnum(data.status, 'status', TRACKER_STATUSES, existing?.status ?? 'open'),
   }
 }

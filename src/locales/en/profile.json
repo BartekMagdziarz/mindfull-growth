@@ -27,6 +27,16 @@
       "pl": "Polski"
     }
   },
+  "gender": {
+    "title": "Grammatical form",
+    "description": "Choose the grammatical gender used in the interface (affects verb and adjective forms in Polish).",
+    "label": "Grammatical form",
+    "hint": "Affects verb and adjective forms in the Polish interface.",
+    "options": {
+      "masculine": "Masculine (e.g. zrobiłeś, wybrałeś)",
+      "feminine": "Feminine (e.g. zrobiłaś, wybrałaś)"
+    }
+  },
   "aiSettings": {
     "title": "AI Settings",
     "description": "Connect your own OpenAI API key so the assistant can respond to your journal chats. Your key stays on this device and is never shared.",
@@ -43,6 +53,7 @@
   "feedback": {
     "themeUpdated": "Theme updated.",
     "languageUpdated": "Language updated.",
+    "genderUpdated": "Grammatical form updated.",
     "failedToSave": "Failed to save preference."
   }
 }

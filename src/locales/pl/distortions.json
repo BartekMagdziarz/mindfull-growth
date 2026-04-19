@@ -2,7 +2,7 @@
   "all-or-nothing": {
     "name": "Myślenie czarno-białe",
     "aliases": ["Myślenie polaryzowane", "Myślenie zero-jedynkowe"],
-    "definition": "Widzenie rzeczy wyłącznie w dwóch kategoriach, a nie jako kontinuum. Jeśli sytuacją nie jest idealna, postrzegasz ją jako całkowitą porażkę.",
+    "definition": "Widzenie rzeczy wyłącznie w dwóch kategoriach, a nie jako kontinuum. Jeśli sytuacja nie jest idealna, postrzegasz ją jako całkowitą porażkę.",
     "example": "Po otrzymaniu 4+ na egzaminie: \"Nie dostałem piątki, więc kompletnie oblałem.\"",
     "soundsLike": "Zawsze... / Nigdy... / Albo jest idealnie, albo jest bezwartościowe / Pełny sukces albo totalna porażka",
     "realityCheck": "Większość rzeczy istnieje na spektrum. Czwórka z plusem to dobry wynik. Częściowy sukces to wciąż sukces."
@@ -11,7 +11,7 @@
     "name": "Nadmierne uogólnianie",
     "aliases": ["Pochopne wnioski"],
     "definition": "Wyciąganie szerokich negatywnych wniosków z pojedynczego zdarzenia. Jedno złe doświadczenie staje się niekończącym się wzorcem porażek.",
-    "example": "Po jednej niezręcznej rozmowie: \"Zawsze mówię niewłaściwe rzeczy. Nikt nigdy nie chce że mną rozmawiać.\"",
+    "example": "Po jednej niezręcznej rozmowie: \"Zawsze mówię niewłaściwe rzeczy. Nikt nigdy nie chce ze mną rozmawiać.\"",
     "soundsLike": "To się zawsze zdarza / Wszyscy myślą... / Nic nigdy się nie udaje / Nigdy nie będę w stanie...",
     "realityCheck": "Jedno zdarzenie nie definiuje wzorca. Poszukaj kontrprzykładów — sytuacji, gdy było inaczej."
   },
@@ -29,7 +29,7 @@
     "definition": "Odrzucanie pozytywnych doświadczeń, twierdząc że \"się nie liczą\". Utrzymywanie negatywnego przekonania mimo przeciwnych dowodów.",
     "example": "Po udanej prezentacji: \"Oni byli po prostu mili. To naprawdę nie było takie dobre.\"",
     "soundsLike": "To się nie liczy, bo... / Powiedzieli to tylko z grzeczności / Każdy mógłby to zrobić / To był tylko szczęśliwy traf",
-    "realityCheck": "Czy odrzućiłbyś osiągnięcie przyjaciela w ten sposób? Pozytywne dowody to wciąż dowody."
+    "realityCheck": "Czy odrzuciłbyś osiągnięcie przyjaciela w ten sposób? Pozytywne dowody to wciąż dowody."
   },
   "mind-reading": {
     "name": "Czytanie w myślach",
@@ -65,16 +65,16 @@
   },
   "emotional-reasoning": {
     "name": "Rozumowanie emocjonalne",
-    "aliases": ["Uczućie równa się fakt"],
+    "aliases": ["Uczucie równa się fakt"],
     "definition": "Zakładanie, że twoje negatywne emocje odzwierciedlają rzeczywistość. \"Czuję to, więc to musi być prawda.\"",
     "example": "\"Czuję się jak porażka, więc muszę być porażką.\" lub \"Czuję lęk, więc coś złego musi się zaraz zdarzyć.\"",
     "soundsLike": "Czuję [emocję], więc to musi być prawda / Po prostu czuję, że... / Moja intuicja mi mówi...",
-    "realityCheck": "Uczućia to informacja, nie fakty. Lęk nie oznacza niebezpieczeństwa. Poczućie głupoty nie oznacza, że jesteś głupi."
+    "realityCheck": "Uczucia to informacja, nie fakty. Lęk nie oznacza niebezpieczeństwa. Poczucie głupoty nie oznacza, że jesteś głupi."
   },
   "should-statements": {
     "name": "Powinienizmy",
     "aliases": ["Muszę", "Powinienem", "Wymagania"],
-    "definition": "Stosowanie sztywnych reguł dotyczących tego, jak ty lub inni powinni się zachowywać. Prowadzi do poczućia winy wobec siebie i frustracji wobec innych.",
+    "definition": "Stosowanie sztywnych reguł dotyczących tego, jak ty lub inni powinni się zachowywać. Prowadzi do poczucia winy wobec siebie i frustracji wobec innych.",
     "example": "\"Powinienem być dalej w karierze.\" lub \"Powinni wiedzieć, że mnie to zdenerwuje.\"",
     "soundsLike": "Powinienem... / Muszę... / Powinni... / Powinien był... / Muszę...",
     "realityCheck": "Zastąp 'powinienem' słowami 'wolałbym' lub 'byłoby fajnie gdyby'. Kto ustanowił tę zasadę? Czy jest realistyczna?"
@@ -82,7 +82,7 @@
   "labeling": {
     "name": "Etykietowanie",
     "aliases": ["Błędne etykietowanie", "Globalne etykietowanie"],
-    "definition": "Prżyćzepianie stałej, globalnej etykiety sobie lub innym na podstawie pojedynczego zdarzenia. Zamiast opisywać zachowanie, definiujesz osobę.",
+    "definition": "Przyczepianie stałej, globalnej etykiety sobie lub innym na podstawie pojedynczego zdarzenia. Zamiast opisywać zachowanie, definiujesz osobę.",
     "example": "Po zapomnieniu urodzin przyjaciela: \"Jestem okropną osobą\" zamiast \"Zapomniałem o urodzinach przyjaciela.\"",
     "soundsLike": "Jestem przegrany / On jest idiotą / Ona jest taka samolubna / Jestem bezwartościowy",
     "realityCheck": "Nie jesteś swoim najgorszym momentem. Opisz zachowanie, nie osobę. Jedno działanie nie definiuje tego, kim jesteś."
@@ -101,7 +101,7 @@
     "definition": "Obarczanie innych ludzi pełną odpowiedzialnością za twój ból emocjonalny lub problemy. Odwrotność personalizacji.",
     "example": "\"Mój szef sprawia, że czuję lęk. To całkowicie jego wina, że jestem zestresowany.\"",
     "soundsLike": "To całkowicie ich wina / Oni sprawili, że czuję... / Gdyby nie oni... / Nie mogę na to nic poradzić z ich powodu",
-    "realityCheck": "Inni wpływają na twoje uczućia, ale masz pewną sprawczość w tym, jak reagujesz. Co jest pod twoją kontrolą?"
+    "realityCheck": "Inni wpływają na twoje uczucia, ale masz pewną sprawczość w tym, jak reagujesz. Co jest pod twoją kontrolą?"
   },
   "fallacy-of-fairness": {
     "name": "Błąd sprawiedliwości",

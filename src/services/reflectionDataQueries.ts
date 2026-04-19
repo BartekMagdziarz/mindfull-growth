@@ -457,16 +457,18 @@ function buildDailyBreakdown(
     )
 
     // Key Results — only days with entries
+    // Note: completion-mode KRs store value: null — entry existence = done
     const krItems = rawEntries
-      .filter((e) => e.dayRef === dayRef && e.subjectType === 'keyResult' && e.value !== null)
+      .filter((e) => e.dayRef === dayRef && e.subjectType === 'keyResult')
       .map((e) => {
         const kr = krs.find((k) => k.subject.id === e.subjectId)
         return { id: e.subjectId, name: kr?.subject.title ?? '', value: e.value }
       })
 
     // Trackers — only days with entries
+    // Note: completion-mode trackers store value: null — entry existence = done
     const trackerItems = rawEntries
-      .filter((e) => e.dayRef === dayRef && e.subjectType === 'tracker' && e.value !== null)
+      .filter((e) => e.dayRef === dayRef && e.subjectType === 'tracker')
       .map((e) => {
         const tracker = trackers.find((t) => t.subject.id === e.subjectId)
         return { id: e.subjectId, name: tracker?.subject.title ?? '', value: e.value }

@@ -31,6 +31,7 @@ export function useTodayItemVisualization(
   rawEntries: Ref<DailyMeasurementEntry[]>,
   allDayAssignments: Ref<MeasurementDayAssignment[]>,
   todayDayRef: Ref<DayRef>,
+  locale: Ref<string>,
 ) {
   const vizType = computed<TodayVizType>(() => {
     const current = item.value
@@ -63,6 +64,7 @@ export function useTodayItemVisualization(
       m.planning,
       m.contextPeriodRef,
       todayDayRef.value,
+      locale.value,
     )
   })
 
@@ -84,6 +86,7 @@ export function useTodayItemVisualization(
       m.planning,
       m.contextPeriodRef,
       todayDayRef.value,
+      locale.value,
     )
   })
 
@@ -96,6 +99,7 @@ export function useTodayItemVisualization(
       rawEntries.value,
       m.contextPeriodRef,
       todayDayRef.value,
+      locale.value,
     )
   })
 
@@ -123,6 +127,7 @@ export function useTodayItemVisualization(
       m.contextPeriodRef,
       todayDayRef.value,
       m.measurement,
+      locale.value,
     )
   })
 
@@ -161,6 +166,18 @@ export function useTodayItemVisualization(
     return target?.value
   })
 
+  const ratingScaleMin = computed<number>(() => {
+    if (item.value.kind !== 'measurement') return 1
+    const m = item.value as TodayMeasurementItem
+    return m.subject.ratingScaleMin ?? 1
+  })
+
+  const ratingScale = computed<number>(() => {
+    if (item.value.kind !== 'measurement') return 10
+    const m = item.value as TodayMeasurementItem
+    return m.subject.ratingScale ?? 10
+  })
+
   return {
     vizType,
     completionSlots,
@@ -174,5 +191,7 @@ export function useTodayItemVisualization(
     entryMode,
     currentValue,
     targetValue,
+    ratingScaleMin,
+    ratingScale,
   }
 }

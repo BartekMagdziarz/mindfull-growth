@@ -131,6 +131,7 @@ function runVisualization(
     ref(rawEntries),
     ref(allDayAssignments),
     ref(TODAY),
+    ref('en'),
   )
 }
 
@@ -280,6 +281,46 @@ describe('useTodayItemVisualization', () => {
     expect(viz.barSlots.value).toHaveLength(7)
     expect(viz.valueLineSlots.value).toEqual([])
     expect(viz.completionSlots.value).toEqual([])
+  })
+
+  it('exposes ratingScale from subject, defaulting to 10', () => {
+    const tracker = makeTracker('tracker-no-scale', { entryMode: 'rating' })
+    const item = makeMeasurementItem(
+      'tracker',
+      tracker,
+      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF }),
+    )
+    const viz = runVisualization(item, [])
+    expect(viz.ratingScale.value).toBe(10)
+
+    const trackerWithScale = makeTracker('tracker-scale-5', { entryMode: 'rating', ratingScale: 5 })
+    const item2 = makeMeasurementItem(
+      'tracker',
+      trackerWithScale,
+      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF }),
+    )
+    const viz2 = runVisualization(item2, [])
+    expect(viz2.ratingScale.value).toBe(5)
+  })
+
+  it('exposes ratingScaleMin from subject, defaulting to 1', () => {
+    const tracker = makeTracker('tracker-no-min', { entryMode: 'rating' })
+    const item = makeMeasurementItem(
+      'tracker',
+      tracker,
+      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF }),
+    )
+    const viz = runVisualization(item, [])
+    expect(viz.ratingScaleMin.value).toBe(1)
+
+    const trackerWithMin = makeTracker('tracker-min-3', { entryMode: 'rating', ratingScaleMin: 3, ratingScale: 7 })
+    const item2 = makeMeasurementItem(
+      'tracker',
+      trackerWithMin,
+      makeSummary({ entryMode: 'rating', periodRef: WEEK_REF }),
+    )
+    const viz2 = runVisualization(item2, [])
+    expect(viz2.ratingScaleMin.value).toBe(3)
   })
 })
 

@@ -72,10 +72,6 @@
           </h2>
           <template v-if="store.goalGroupedKrItems.length > 0">
             <div v-for="group in store.goalGroupedKrItems" :key="group.goal.id" class="mb-4 last:mb-0">
-              <div class="mb-2 flex items-center gap-1.5">
-                <AppIcon name="emoji_events" class="text-sm text-primary" />
-                <span class="truncate text-xs font-semibold text-on-surface">{{ group.goal.title }}</span>
-              </div>
               <div class="space-y-2.5 pl-1">
                 <TodayItemRow
                   v-for="item in group.items"
@@ -109,33 +105,24 @@
             {{ t('planning.today.columns.habits') }}
           </h2>
           <div v-if="store.habitItems.length > 0" class="space-y-2.5">
-            <template v-for="(item, idx) in store.habitItems" :key="item.key">
-              <p
-                v-if="idx === 0 || item.sectionId !== store.habitItems[idx - 1].sectionId"
-                class="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-on-surface-variant/40"
-                :class="idx > 0 ? 'mt-2 pt-2' : ''"
-              >
-                <span class="h-px flex-1 bg-neu-border/10" />
-                <span>{{ t(`planning.today.sectionLabel.${item.sectionId}`) }}</span>
-                <span class="h-px flex-1 bg-neu-border/10" />
-              </p>
-              <TodayItemRow
-                :item="item"
-                :today-day-ref="bundleDayRef"
-                :raw-entries="store.rawEntries"
-                :all-day-assignments="store.allDayAssignments"
-                :is-pending="store.isPending(item.key)"
-                @open-object="openObject(item)"
-                @open-context="openPeriod(item.contextPeriodRef)"
-                @toggle-completion="handleToggleCompletion(item)"
-                @save-entry="handleSaveEntry(item, $event)"
-                @clear-entry="handleClearEntry(item)"
-                @hide="handleHide(item)"
-                @move="handleMove(item, $event)"
-                @clear-schedule="handleClearSchedule(item)"
-                @request-delete="promptDelete(item)"
-              />
-            </template>
+            <TodayItemRow
+              v-for="item in store.habitItems"
+              :key="item.key"
+              :item="item"
+              :today-day-ref="bundleDayRef"
+              :raw-entries="store.rawEntries"
+              :all-day-assignments="store.allDayAssignments"
+              :is-pending="store.isPending(item.key)"
+              @open-object="openObject(item)"
+              @open-context="openPeriod(item.contextPeriodRef)"
+              @toggle-completion="handleToggleCompletion(item)"
+              @save-entry="handleSaveEntry(item, $event)"
+              @clear-entry="handleClearEntry(item)"
+              @hide="handleHide(item)"
+              @move="handleMove(item, $event)"
+              @clear-schedule="handleClearSchedule(item)"
+              @request-delete="promptDelete(item)"
+            />
           </div>
           <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
             {{ t('planning.today.emptyColumn') }}
@@ -148,33 +135,24 @@
             {{ t('planning.today.columns.trackers') }}
           </h2>
           <div v-if="store.trackerItems.length > 0" class="space-y-2.5">
-            <template v-for="(item, idx) in store.trackerItems" :key="item.key">
-              <p
-                v-if="idx === 0 || item.sectionId !== store.trackerItems[idx - 1].sectionId"
-                class="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-on-surface-variant/40"
-                :class="idx > 0 ? 'mt-2 pt-2' : ''"
-              >
-                <span class="h-px flex-1 bg-neu-border/10" />
-                <span>{{ t(`planning.today.sectionLabel.${item.sectionId}`) }}</span>
-                <span class="h-px flex-1 bg-neu-border/10" />
-              </p>
-              <TodayItemRow
-                :item="item"
-                :today-day-ref="bundleDayRef"
-                :raw-entries="store.rawEntries"
-                :all-day-assignments="store.allDayAssignments"
-                :is-pending="store.isPending(item.key)"
-                @open-object="openObject(item)"
-                @open-context="openPeriod(item.contextPeriodRef)"
-                @toggle-completion="handleToggleCompletion(item)"
-                @save-entry="handleSaveEntry(item, $event)"
-                @clear-entry="handleClearEntry(item)"
-                @hide="handleHide(item)"
-                @move="handleMove(item, $event)"
-                @clear-schedule="handleClearSchedule(item)"
-                @request-delete="promptDelete(item)"
-              />
-            </template>
+            <TodayItemRow
+              v-for="item in store.trackerItems"
+              :key="item.key"
+              :item="item"
+              :today-day-ref="bundleDayRef"
+              :raw-entries="store.rawEntries"
+              :all-day-assignments="store.allDayAssignments"
+              :is-pending="store.isPending(item.key)"
+              @open-object="openObject(item)"
+              @open-context="openPeriod(item.contextPeriodRef)"
+              @toggle-completion="handleToggleCompletion(item)"
+              @save-entry="handleSaveEntry(item, $event)"
+              @clear-entry="handleClearEntry(item)"
+              @hide="handleHide(item)"
+              @move="handleMove(item, $event)"
+              @clear-schedule="handleClearSchedule(item)"
+              @request-delete="promptDelete(item)"
+            />
           </div>
           <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
             {{ t('planning.today.emptyColumn') }}
@@ -187,33 +165,24 @@
             {{ t('planning.today.columns.initiatives') }}
           </h2>
           <div v-if="store.initiativeItems.length > 0" class="space-y-2.5">
-            <template v-for="(item, idx) in store.initiativeItems" :key="item.key">
-              <p
-                v-if="idx === 0 || item.sectionId !== store.initiativeItems[idx - 1].sectionId"
-                class="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-on-surface-variant/40"
-                :class="idx > 0 ? 'mt-2 pt-2' : ''"
-              >
-                <span class="h-px flex-1 bg-neu-border/10" />
-                <span>{{ t(`planning.today.sectionLabel.${item.sectionId}`) }}</span>
-                <span class="h-px flex-1 bg-neu-border/10" />
-              </p>
-              <TodayItemRow
-                :item="item"
-                :today-day-ref="bundleDayRef"
-                :raw-entries="store.rawEntries"
-                :all-day-assignments="store.allDayAssignments"
-                :is-pending="store.isPending(item.key)"
-                @open-object="openObject(item)"
-                @open-context="openPeriod(item.contextPeriodRef)"
-                @toggle-completion="handleToggleCompletion(item)"
-                @save-entry="handleSaveEntry(item, $event)"
-                @clear-entry="handleClearEntry(item)"
-                @hide="handleHide(item)"
-                @move="handleMove(item, $event)"
-                @clear-schedule="handleClearSchedule(item)"
-                @request-delete="promptDelete(item)"
-              />
-            </template>
+            <TodayItemRow
+              v-for="item in store.initiativeItems"
+              :key="item.key"
+              :item="item"
+              :today-day-ref="bundleDayRef"
+              :raw-entries="store.rawEntries"
+              :all-day-assignments="store.allDayAssignments"
+              :is-pending="store.isPending(item.key)"
+              @open-object="openObject(item)"
+              @open-context="openPeriod(item.contextPeriodRef)"
+              @toggle-completion="handleToggleCompletion(item)"
+              @save-entry="handleSaveEntry(item, $event)"
+              @clear-entry="handleClearEntry(item)"
+              @hide="handleHide(item)"
+              @move="handleMove(item, $event)"
+              @clear-schedule="handleClearSchedule(item)"
+              @request-delete="promptDelete(item)"
+            />
           </div>
           <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
             {{ t('planning.today.emptyColumn') }}

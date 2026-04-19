@@ -3,7 +3,7 @@ import { render } from '@testing-library/vue'
 import CounterRing from '../CounterRing.vue'
 import type { TodayCounterRingData } from '@/services/todayChartData'
 
-const RADIUS = 32
+const RADIUS = 44
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 function makeData(overrides: Partial<TodayCounterRingData> = {}): TodayCounterRingData {

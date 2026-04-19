@@ -52,9 +52,9 @@
         :x="barX(i) + barW / 2"
         :y="VH - 1"
         text-anchor="middle"
-        font-size="11"
+        font-size="16"
         fill="rgb(var(--color-on-surface-variant))"
-        fill-opacity="0.6"
+        fill-opacity="0.7"
       >
         {{ slot.label }}
       </text>
@@ -82,11 +82,11 @@ const barGradient = computed(() =>
 )
 
 const VW = 400
-const VH = 52
+const VH = 160
 const PT = 4
-const PB = 14
+const PB = 20
 const PX = 4
-const CH = VH - PT - PB // 34
+const CH = VH - PT - PB // 136
 const GAP = 4
 
 const max = computed(() => {

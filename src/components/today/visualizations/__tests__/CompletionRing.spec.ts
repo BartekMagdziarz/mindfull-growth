@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { fireEvent, render } from '@testing-library/vue'
+import { render } from '@testing-library/vue'
 import CompletionRing from '../CompletionRing.vue'
 
-const RADIUS = 32
+const RADIUS = 44
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 describe('CompletionRing', () => {
@@ -11,8 +11,6 @@ describe('CompletionRing', () => {
       props: {
         doneCount: 12,
         targetCount: 15,
-        hasTodayEntry: false,
-        canToggleToday: true,
       },
     })
 
@@ -26,8 +24,6 @@ describe('CompletionRing', () => {
       props: {
         doneCount: 12,
         targetCount: 15,
-        hasTodayEntry: false,
-        canToggleToday: false,
       },
     })
 
@@ -39,28 +35,11 @@ describe('CompletionRing', () => {
     expect(filled).toBeCloseTo(CIRCUMFERENCE * 0.8, 4)
   })
 
-  it('renders a button and emits toggle when today can be toggled', async () => {
-    const { emitted, getByRole } = render(CompletionRing, {
-      props: {
-        doneCount: 3,
-        targetCount: 8,
-        hasTodayEntry: false,
-        canToggleToday: true,
-      },
-    })
-
-    await fireEvent.click(getByRole('button', { name: 'Record today' }))
-
-    expect(emitted().toggle).toBeTruthy()
-  })
-
-  it('renders a static wrapper when today cannot be toggled', () => {
+  it('always renders as a non-interactive div', () => {
     const { queryByRole } = render(CompletionRing, {
       props: {
         doneCount: 3,
         targetCount: 8,
-        hasTodayEntry: false,
-        canToggleToday: false,
       },
     })
 
@@ -72,8 +51,6 @@ describe('CompletionRing', () => {
       props: {
         doneCount: 12,
         targetCount: 8,
-        hasTodayEntry: true,
-        canToggleToday: false,
       },
     })
 
@@ -90,8 +67,6 @@ describe('CompletionRing', () => {
       props: {
         doneCount: 15,
         targetCount: 15,
-        hasTodayEntry: true,
-        canToggleToday: false,
       },
     })
 
@@ -103,19 +78,5 @@ describe('CompletionRing', () => {
       .split(' ')
       .map(Number)
     expect(filled).toBeCloseTo(CIRCUMFERENCE, 4)
-  })
-
-  it('renders a non-interactive wrapper when canToggleToday is false', () => {
-    const { queryByRole, getByRole } = render(CompletionRing, {
-      props: {
-        doneCount: 5,
-        targetCount: 10,
-        hasTodayEntry: false,
-        canToggleToday: false,
-      },
-    })
-
-    expect(queryByRole('button')).toBeNull()
-    expect(getByRole('img', { name: '5 of 10 completed' })).toBeTruthy()
   })
 })

@@ -8,10 +8,10 @@ export const PADDING_TOP = 4
 export const PADDING_BOTTOM = 16
 export const CHART_HEIGHT = VIEWBOX_H - PADDING_TOP - PADDING_BOTTOM // 76
 
-// --- Compact variants for calendar cards ---
-export const COMPACT_VIEWBOX_H = 52
-export const COMPACT_PADDING_BOTTOM = 12
-export const COMPACT_CHART_HEIGHT = COMPACT_VIEWBOX_H - PADDING_TOP - COMPACT_PADDING_BOTTOM // 36
+// --- Compact variants for today-view cards ---
+export const COMPACT_VIEWBOX_H = 160
+export const COMPACT_PADDING_BOTTOM = 16
+export const COMPACT_CHART_HEIGHT = COMPACT_VIEWBOX_H - PADDING_TOP - COMPACT_PADDING_BOTTOM // 140
 
 const MAX_MONTHLY = 6
 const MAX_WEEKLY = 12
@@ -54,7 +54,7 @@ export function periodLabel(periodRef: string, cadence: 'weekly' | 'monthly' | '
     const date = new Date(periodRef + 'T00:00:00')
     return new Intl.DateTimeFormat(locale, { weekday: 'short' })
       .format(date)
-      .slice(0, 3)
+      .slice(0, 2)
   }
   if (cadence === 'weekly') {
     const match = periodRef.match(/W(\d+)$/)

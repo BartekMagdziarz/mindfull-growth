@@ -27,6 +27,16 @@
       "pl": "Polski"
     }
   },
+  "gender": {
+    "title": "Forma gramatyczna",
+    "description": "Wybierz formę gramatyczną stosowaną w interfejsie (np. \"zidentyfikowałeś\" vs \"zidentyfikowałaś\").",
+    "label": "Forma zwracania się",
+    "hint": "Wpływa na formy czasowników i przymiotników w polskim interfejsie.",
+    "options": {
+      "masculine": "Męska (np. zrobiłeś, wybrałeś)",
+      "feminine": "Żeńska (np. zrobiłaś, wybrałaś)"
+    }
+  },
   "aiSettings": {
     "title": "Ustawienia AI",
     "description": "Podłącz swój klucz API OpenAI, aby asystent mógł odpowiadać na czaty w dzienniku. Klucz pozostaje na tym urządzeniu i nie jest udostępniany.",
@@ -43,6 +53,7 @@
   "feedback": {
     "themeUpdated": "Motyw zaktualizowany.",
     "languageUpdated": "Język zaktualizowany.",
+    "genderUpdated": "Forma gramatyczna zaktualizowana.",
     "failedToSave": "Nie udało się zapisać preferencji."
   }
 }

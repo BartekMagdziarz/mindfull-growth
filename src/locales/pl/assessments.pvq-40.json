@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Kwestionariusz Portretowy Wartości (PVQ-40)",
-    "subtitle": "Zmapuj priorytety motywacyjnych wartości.",
+    "subtitle": "Określ hierarchię wartości motywacyjnych.",
     "description": "40-itemowy kwestionariusz wartości oparty na portretach. Domyślnie wyniki są centrowane metodą MRAT.",
     "category": "Wartości",
     "disclaimer": "To narzędzie wspiera autorefleksję i nie stanowi diagnozy klinicznej."
@@ -53,7 +53,7 @@
     "pvq40_010": "Ta osoba lubi sprawiać sobie przyjemności.",
     "pvq40_011": "Ta osoba ceni komfort i zmysłowe doznania.",
     "pvq40_012": "Robienie rzeczy, które dają przyjemność tu i teraz, ma dla tej osoby znaczenie.",
-    "pvq40_013": "Bycie bardzo skutecznym jest dla tej osoby ważne.",
+    "pvq40_013": "Osiąganie dużych sukcesów jest dla tej osoby ważne.",
     "pvq40_014": "Ta osoba chce, aby inni dostrzegali jej osiągnięcia.",
     "pvq40_015": "Pokazywanie własnej kompetencji jest dla tej osoby ważne.",
     "pvq40_016": "Ta osoba dąży do wysokich standardów i dobrych wyników.",

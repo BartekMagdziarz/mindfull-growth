@@ -1051,6 +1051,14 @@ async function handleKrFieldChange(krId: string, field: string, value: unknown):
         await keyResultDexieRepository.update(krId, { entryMode: newEntryMode, target: newTarget })
         break
       }
+      case 'ratingScaleMin': {
+        await keyResultDexieRepository.update(krId, { ratingScaleMin: value as number })
+        break
+      }
+      case 'ratingScale': {
+        await keyResultDexieRepository.update(krId, { ratingScale: value as number })
+        break
+      }
       case 'target.operator': {
         const updated = updateTargetField(child.entryMode, child.target, 'operator', value as string)
         await keyResultDexieRepository.update(krId, { target: updated })
@@ -1286,6 +1294,16 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
         } else {
           await trackerDexieRepository.update(id, { entryMode: newEntryMode })
         }
+        break
+      }
+      case 'ratingScaleMin': {
+        if (isHabit) await habitDexieRepository.update(id, { ratingScaleMin: value as number })
+        else await trackerDexieRepository.update(id, { ratingScaleMin: value as number })
+        break
+      }
+      case 'ratingScale': {
+        if (isHabit) await habitDexieRepository.update(id, { ratingScale: value as number })
+        else await trackerDexieRepository.update(id, { ratingScale: value as number })
         break
       }
       case 'target.operator': {

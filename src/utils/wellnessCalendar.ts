@@ -31,16 +31,22 @@ function narrowWeekdayFormatter(locale: string): Intl.DateTimeFormat {
   return new Intl.DateTimeFormat(locale, { weekday: 'narrow' })
 }
 
+function shortWeekdayFormatter(locale: string): Intl.DateTimeFormat {
+  return new Intl.DateTimeFormat(locale, { weekday: 'short' })
+}
+
 function buildSlot(
   date: Date,
   referenceDate: Date,
   fmt: Intl.DateTimeFormat,
   today: string,
+  sliceLabel = false,
 ): CalendarDaySlot {
   const dateKey = toLocalDateKey(date)
+  const raw = fmt.format(date)
   return {
     dateKey,
-    dayLabel: fmt.format(date),
+    dayLabel: sliceLabel ? raw.slice(0, 2) : raw,
     isToday: dateKey === today,
     isFuture: date.getTime() > referenceDate.getTime(),
   }
@@ -55,7 +61,7 @@ export function buildRecentDays(
   count: number,
   locale: string,
 ): CalendarDaySlot[] {
-  const fmt = narrowWeekdayFormatter(locale)
+  const fmt = shortWeekdayFormatter(locale)
   const today = todayKey()
   const slots: CalendarDaySlot[] = []
 
@@ -65,7 +71,7 @@ export function buildRecentDays(
       referenceDate.getMonth(),
       referenceDate.getDate() - i,
     )
-    slots.push(buildSlot(d, referenceDate, fmt, today))
+    slots.push(buildSlot(d, referenceDate, fmt, today, true))
   }
   return slots
 }

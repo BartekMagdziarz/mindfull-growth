@@ -112,12 +112,12 @@
                     class="flex items-center justify-center mt-auto py-1"
                   >
                     <svg viewBox="0 0 36 36" class="w-11 h-11">
-                      <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" class="stroke-on-surface/[0.08]" />
+                      <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" stroke="rgb(var(--color-outline))" stroke-opacity="0.2" />
                       <circle
                         v-if="kr.actualValue != null"
                         cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5"
                         stroke-linecap="round"
-                        :class="kr.evaluationStatus === 'met' ? 'stroke-primary' : 'stroke-error/60'"
+                        :stroke="kr.evaluationStatus === 'met' ? 'rgb(var(--neo-chart-primary-end))' : 'rgb(var(--color-error))'"
                         :stroke-dasharray="`${progressPercent(kr.actualValue, kr.target)} ${100 - progressPercent(kr.actualValue, kr.target)}`"
                         stroke-dashoffset="25"
                       />
@@ -171,12 +171,12 @@
                   class="flex items-center justify-center mt-auto py-1"
                 >
                   <svg viewBox="0 0 36 36" class="w-11 h-11">
-                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" class="stroke-on-surface/[0.08]" />
+                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" stroke="rgb(var(--color-outline))" stroke-opacity="0.2" />
                     <circle
                       v-if="habit.actualValue != null"
                       cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5"
                       stroke-linecap="round"
-                      :class="habit.evaluationStatus === 'met' ? 'stroke-primary' : 'stroke-error/60'"
+                      :stroke="habit.evaluationStatus === 'met' ? 'rgb(var(--neo-chart-primary-end))' : 'rgb(var(--color-error))'"
                       :stroke-dasharray="`${progressPercent(habit.actualValue, habit.target)} ${100 - progressPercent(habit.actualValue, habit.target)}`"
                       stroke-dashoffset="25"
                     />

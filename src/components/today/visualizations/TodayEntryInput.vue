@@ -37,18 +37,71 @@
     />
   </div>
 
-  <!-- Value / Rating: compact number input -->
+  <!-- Rating: counter-style display + ± buttons (integers only, clamped to scale) -->
   <div
-    v-else-if="entryMode === 'value' || entryMode === 'rating'"
+    v-else-if="entryMode === 'rating'"
+    class="flex flex-1 flex-col items-center justify-center gap-2"
+  >
+    <!-- Inset rating display (tappable to inline-edit) -->
+    <button
+      v-if="!showInlineEdit"
+      type="button"
+      class="neo-input flex w-20 flex-1 items-center justify-center rounded-2xl text-2xl font-bold tabular-nums text-on-surface transition-colors hover:text-primary"
+      :disabled="isPending"
+      @click.stop="showInlineEdit = true"
+    >
+      {{ currentValue ? formatValue(currentValue) : '—' }}
+    </button>
+    <input
+      v-else
+      ref="inlineInputRef"
+      :value="draftValue"
+      type="number"
+      step="1"
+      :min="ratingMin"
+      :max="ratingMax"
+      class="neo-input w-20 flex-1 rounded-2xl px-2 text-center text-2xl font-bold tabular-nums"
+      @click.stop
+      @input="draftValue = ($event.target as HTMLInputElement).value"
+      @blur="submitRatingFromInput($event)"
+      @keydown.enter="submitRatingFromInput($event)"
+      @keydown.escape.prevent="showInlineEdit = false"
+    />
+    <!-- ± buttons -->
+    <div class="flex w-20 gap-1.5">
+      <button
+        type="button"
+        class="flex-1 rounded-xl bg-neu-base py-1.5 text-sm font-semibold text-on-surface shadow-neu-raised-sm transition-all neo-focus hover:-translate-y-px hover:shadow-neu-raised active:shadow-neu-pressed disabled:opacity-40 disabled:pointer-events-none"
+        :disabled="isPending || currentValue <= ratingMin"
+        aria-label="Decrement"
+        @click.stop="$emit('decrement')"
+      >
+        −
+      </button>
+      <button
+        type="button"
+        class="flex-1 rounded-xl bg-neu-base py-1.5 text-sm font-semibold text-on-surface shadow-neu-raised-sm transition-all neo-focus hover:-translate-y-px hover:shadow-neu-raised active:shadow-neu-pressed disabled:opacity-40 disabled:pointer-events-none"
+        :disabled="isPending || currentValue >= ratingMax"
+        aria-label="Increment"
+        @click.stop="$emit('increment')"
+      >
+        +
+      </button>
+    </div>
+  </div>
+
+  <!-- Value: prominent number input -->
+  <div
+    v-else-if="entryMode === 'value'"
     class="flex items-center"
   >
     <input
       ref="valueInputRef"
       :value="draftValue"
       type="number"
-      :step="entryMode === 'rating' ? 0.1 : 0.1"
-      class="neo-input w-12 rounded-lg px-1.5 py-2.5 text-center text-xs"
-      :placeholder="entryMode === 'rating' ? `1-${ratingMax}` : '—'"
+      :step="0.1"
+      class="neo-input w-20 rounded-2xl px-2 py-6 text-center text-2xl font-semibold tabular-nums"
+      placeholder="—"
       :disabled="isPending"
       @click.stop
       @input="draftValue = ($event.target as HTMLInputElement).value"
@@ -69,13 +122,15 @@ const props = withDefaults(
     entryMode: MeasurementEntryMode
     currentValue: number
     isPending?: boolean
+    ratingMin?: number
     ratingMax?: number
   }>(),
-  { isPending: false, ratingMax: 10 },
+  { isPending: false, ratingMin: 1, ratingMax: 10 },
 )
 
 const emit = defineEmits<{
   increment: []
+  decrement: []
   'save-value': [value: number]
 }>()
 
@@ -122,6 +177,30 @@ function submitFromInput(event: Event): void {
   emit('save-value', parsed)
 
   // On Enter: mark as submitted and blur (blur handler will skip)
+  if (event.type === 'keydown') {
+    justSubmitted.value = true
+    input.blur()
+  }
+}
+
+function submitRatingFromInput(event: Event): void {
+  if (justSubmitted.value) {
+    justSubmitted.value = false
+    return
+  }
+
+  const input = event.target as HTMLInputElement
+  const raw = input.value.trim()
+
+  showInlineEdit.value = false
+
+  if (!raw) return
+  const parsed = Math.round(Number(raw))
+  if (!Number.isFinite(parsed)) return
+
+  const clamped = Math.min(props.ratingMax, Math.max(props.ratingMin, parsed))
+  emit('save-value', clamped)
+
   if (event.type === 'keydown') {
     justSubmitted.value = true
     input.blur()

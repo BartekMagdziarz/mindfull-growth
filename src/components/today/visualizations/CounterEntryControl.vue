@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col items-center justify-center gap-1">
-    <!-- Count display — tappable to open inline edit -->
+  <div class="flex flex-1 flex-col items-center justify-center gap-2">
+    <!-- Inset counter display (tappable to inline-edit) -->
     <button
       v-if="!showInlineEdit"
       type="button"
-      class="text-sm font-bold tabular-nums text-on-surface transition-colors hover:text-primary"
+      class="neo-input flex w-20 flex-1 items-center justify-center rounded-2xl text-2xl font-bold tabular-nums text-on-surface transition-colors hover:text-primary"
       :disabled="isPending"
       @click.stop="showInlineEdit = true"
     >
@@ -16,23 +16,34 @@
       :value="draftValue"
       type="number"
       step="1"
-      class="neo-input w-14 rounded-lg px-1.5 py-0.5 text-center text-sm font-bold tabular-nums"
+      class="neo-input w-20 flex-1 rounded-2xl px-2 text-center text-2xl font-bold tabular-nums"
       @click.stop
       @input="draftValue = ($event.target as HTMLInputElement).value"
       @blur="submitFromInput($event)"
       @keydown.enter="submitFromInput($event)"
       @keydown.escape.prevent="showInlineEdit = false"
     />
-    <!-- Increment button -->
-    <button
-      type="button"
-      class="neo-icon-button neo-focus text-xs"
-      :disabled="isPending"
-      aria-label="Increment"
-      @click.stop="emit('increment')"
-    >
-      +
-    </button>
+    <!-- ± buttons -->
+    <div class="flex w-20 gap-1.5">
+      <button
+        type="button"
+        class="flex-1 rounded-xl bg-neu-base py-1.5 text-sm font-semibold text-on-surface shadow-neu-raised-sm transition-all neo-focus hover:-translate-y-px hover:shadow-neu-raised active:shadow-neu-pressed disabled:opacity-40 disabled:pointer-events-none"
+        :disabled="isPending || currentValue <= 0"
+        aria-label="Decrement"
+        @click.stop="emit('decrement')"
+      >
+        −
+      </button>
+      <button
+        type="button"
+        class="flex-1 rounded-xl bg-neu-base py-1.5 text-sm font-semibold text-on-surface shadow-neu-raised-sm transition-all neo-focus hover:-translate-y-px hover:shadow-neu-raised active:shadow-neu-pressed disabled:opacity-40 disabled:pointer-events-none"
+        :disabled="isPending"
+        aria-label="Increment"
+        @click.stop="emit('increment')"
+      >
+        +
+      </button>
+    </div>
   </div>
 </template>
 
@@ -49,6 +60,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   increment: []
+  decrement: []
   'save-value': [value: number]
 }>()
 
@@ -75,8 +87,6 @@ watch(showInlineEdit, async (show) => {
 })
 
 function submitFromInput(event: Event): void {
-  // Guard against double-fire: Enter blurs the input which would
-  // call this again. Skip the blur if Enter already submitted.
   if (justSubmitted.value) {
     justSubmitted.value = false
     return

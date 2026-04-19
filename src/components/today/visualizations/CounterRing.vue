@@ -32,7 +32,7 @@
       />
       <text
         :x="CENTER"
-        :y="CENTER - 2"
+        :y="CENTER - 4"
         text-anchor="middle"
         :font-size="bigFontSize"
         font-weight="600"
@@ -44,7 +44,7 @@
         :x="CENTER"
         :y="CENTER + 14"
         text-anchor="middle"
-        font-size="11"
+        font-size="13"
         fill="rgb(var(--color-on-surface-variant))"
       >
         / {{ formattedTarget }}
@@ -61,10 +61,10 @@ const props = defineProps<{
   data: TodayCounterRingData
 }>()
 
-const SIZE = 80
+const SIZE = 110
 const CENTER = SIZE / 2
-const RADIUS = 32
-const STROKE = 8
+const RADIUS = 44
+const STROKE = 9
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 const safeTarget = computed(() => Math.max(props.data.target, 1))
@@ -101,9 +101,9 @@ const formattedTarget = computed(() => formatNumber(props.data.target))
 // inside the 80px ring. Polish work in Story 7 can revisit.
 const bigFontSize = computed(() => {
   const longest = Math.max(formattedCurrent.value.length, formattedTarget.value.length)
-  if (longest >= 5) return 14
-  if (longest >= 4) return 16
-  return 20
+  if (longest >= 5) return 17
+  if (longest >= 4) return 20
+  return 24
 })
 
 const progressAriaLabel = computed(

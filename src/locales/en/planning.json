@@ -253,7 +253,7 @@
   "today": {
     "loadError": "Could not load Today.",
     "columns": {
-      "goalsKrs": "Goals & KRs",
+      "goalsKrs": "Goals",
       "habits": "Habits",
       "trackers": "Trackers",
       "initiatives": "Initiatives"
@@ -264,6 +264,7 @@
       "week": "This week",
       "month": "This month"
     },
+    "todayCircleLabel": "Today",
     "details": {
       "goal": "Goal: {title}",
       "daysLeft": "{n} days left in period"
@@ -487,6 +488,9 @@
       "goal": "Owner goal",
       "cadence": "Cadence",
       "entryMode": "Entry mode",
+      "ratingScale": "Scale",
+      "ratingScaleMin": "From",
+      "ratingScaleMax": "To",
       "target": "Target",
       "targetOperator": "Target operator",
       "targetAggregation": "Target aggregation",

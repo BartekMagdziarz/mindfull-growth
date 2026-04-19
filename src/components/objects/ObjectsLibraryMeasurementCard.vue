@@ -106,8 +106,8 @@
         :style="{ maxHeight: isExpanded ? '500px' : '0', opacity: isExpanded ? 1 : 0, overflow: isExpanded ? 'visible' : 'hidden' }"
       >
         <div class="space-y-3 pt-1">
-          <!-- Cadence + Type (entryMode) -->
-          <div class="grid grid-cols-2 gap-3">
+          <!-- Cadence + Type (entryMode) + Rating Scale -->
+          <div class="grid gap-3" :class="item.entryMode === 'rating' ? 'grid-cols-3' : 'grid-cols-2'">
             <div class="space-y-1">
               <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
                 {{ t('planning.objects.form.cadence') }}
@@ -127,6 +127,31 @@
                 :options="entryModeOptions"
                 @update:model-value="emitFieldChange('entryMode', $event)"
               />
+            </div>
+            <div v-if="item.entryMode === 'rating'" class="space-y-1">
+              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+                {{ t('planning.objects.form.ratingScale') }}
+              </div>
+              <div class="flex items-center gap-1.5">
+                <label class="text-[9px] text-on-surface-variant/70">{{ t('planning.objects.form.ratingScaleMin') }}</label>
+                <input
+                  :value="item.ratingScaleMin ?? 1"
+                  type="number"
+                  step="1"
+                  min="0"
+                  class="neo-input w-12 px-1.5 py-1 text-center text-xs"
+                  @change="handleScaleMinChange"
+                />
+                <label class="text-[9px] text-on-surface-variant/70">{{ t('planning.objects.form.ratingScaleMax') }}</label>
+                <input
+                  :value="item.ratingScale ?? 10"
+                  type="number"
+                  step="1"
+                  min="1"
+                  class="neo-input w-12 px-1.5 py-1 text-center text-xs"
+                  @change="handleScaleMaxChange"
+                />
+              </div>
             </div>
           </div>
 
@@ -321,6 +346,34 @@ const entryModeLabel = computed(() => {
   const opt = props.entryModeOptions.find((o) => o.value === props.item.entryMode)
   return opt?.label ?? props.item.entryMode ?? ''
 })
+
+const MAX_SCALE_SPAN = 10
+
+function handleScaleMinChange(event: Event): void {
+  const raw = (event.target as HTMLInputElement).value
+  const parsed = Math.round(Number(raw))
+  if (!Number.isFinite(parsed) || parsed < 0) return
+  const currentMax = props.item.ratingScale ?? 10
+  const clampedMax = Math.max(currentMax, parsed + 1)
+  const finalMax = parsed + MAX_SCALE_SPAN - 1 < clampedMax ? parsed + MAX_SCALE_SPAN - 1 : clampedMax
+  emitFieldChange('ratingScaleMin', parsed)
+  if (finalMax !== currentMax) {
+    emitFieldChange('ratingScale', finalMax)
+  }
+}
+
+function handleScaleMaxChange(event: Event): void {
+  const raw = (event.target as HTMLInputElement).value
+  const parsed = Math.round(Number(raw))
+  if (!Number.isFinite(parsed) || parsed < 1) return
+  const currentMin = props.item.ratingScaleMin ?? 1
+  const clampedMin = Math.min(currentMin, parsed - 1)
+  const finalMin = parsed - MAX_SCALE_SPAN + 1 > clampedMin ? parsed - MAX_SCALE_SPAN + 1 : clampedMin
+  emitFieldChange('ratingScale', parsed)
+  if (finalMin !== currentMin) {
+    emitFieldChange('ratingScaleMin', finalMin)
+  }
+}
 
 const showTargetAggregation = computed(() => {
   return props.item.entryMode === 'value' || props.item.entryMode === 'rating'

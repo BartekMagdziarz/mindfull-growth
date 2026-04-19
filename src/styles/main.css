@@ -697,6 +697,16 @@
       0 0 0 4px rgb(var(--neo-focus) / 0.5);
   }
 
+  /* Hide number-input spinners inside neumorphic inputs */
+  input[type='number'].neo-input::-webkit-inner-spin-button,
+  input[type='number'].neo-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'].neo-input {
+    -moz-appearance: textfield;
+  }
+
   /* Neumorphic checkbox (circular) */
   .neo-checkbox {
     appearance: none;

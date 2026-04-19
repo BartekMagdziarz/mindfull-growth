@@ -1,12 +1,12 @@
 <template>
   <div>
     <article
-      class="neo-card neo-raised border-primary/10 px-4 py-4 transition-shadow duration-200"
+      class="neo-inset rounded-3xl border-primary/10 px-4 py-5 transition-shadow duration-200"
     >
       <!-- Title -->
       <button
         type="button"
-        class="mb-3 flex items-center"
+        class="mb-4 flex items-center"
         @click="router.push('/journal')"
       >
         <span
@@ -14,24 +14,18 @@
         >{{ t('planning.calendar.wellness.journal') }}</span>
       </button>
 
-      <!-- Single row: streak | 7 dots | add button -->
-      <div class="flex items-center gap-2">
-        <!-- Streak indicator -->
-        <div class="streak-circle flex flex-col items-center justify-center" :class="streak > 0 ? 'streak-circle--active' : 'streak-circle--empty'">
-          <AppIcon name="local_fire_department" class="text-sm leading-none" :class="streak > 0 ? 'text-primary' : 'text-on-surface-variant/25'" />
-          <span class="text-[11px] font-bold leading-none" :class="streak > 0 ? 'text-on-surface' : 'text-on-surface-variant/30'">{{ streak }}</span>
-        </div>
-
-        <!-- Day dots -->
-        <div class="flex flex-1 items-center justify-between">
+      <!-- Content row: dots (left ~50%) | streak (center) | add button (right) -->
+      <div class="flex items-center gap-3">
+        <!-- Day dots (~half width) -->
+        <div class="flex items-center justify-between gap-1" style="flex: 0 1 50%">
           <div
             v-for="slot in recentDays"
             :key="slot.dateKey"
-            class="flex flex-col items-center gap-1"
+            class="flex flex-col items-center gap-1.5"
           >
             <div class="relative flex items-center justify-center">
               <div
-                class="h-[20px] w-[20px] rounded-full transition-all duration-300"
+                class="h-7 w-7 rounded-full transition-all duration-300"
                 :class="dotClass(slot)"
               />
               <div
@@ -40,16 +34,22 @@
               />
             </div>
             <span
-              class="text-[7px] font-medium leading-none"
-              :class="slot.isToday ? 'text-primary/60' : 'text-on-surface-variant/30'"
+              class="text-[9px] font-medium leading-none"
+              :class="slot.isToday ? 'text-primary/60' : 'text-on-surface-variant/40'"
             >{{ slot.dayLabel }}</span>
           </div>
+        </div>
+
+        <!-- Streak indicator (between dots and button) -->
+        <div class="streak-circle flex flex-col items-center justify-center" :class="streak > 0 ? 'streak-circle--active' : 'streak-circle--empty'">
+          <AppIcon name="local_fire_department" class="text-sm leading-none" :class="streak > 0 ? 'text-primary' : 'text-on-surface-variant/25'" />
+          <span class="text-[11px] font-bold leading-none" :class="streak > 0 ? 'text-on-surface' : 'text-on-surface-variant/30'">{{ streak }}</span>
         </div>
 
         <!-- Add button -->
         <button
           type="button"
-          class="group/add add-btn neo-raised neo-focus flex items-center justify-center transition-all duration-200 hover:-translate-y-px hover:shadow-neu-raised-lg active:translate-y-0 active:shadow-neu-pressed"
+          class="group/add add-btn ml-auto neo-raised neo-focus flex items-center justify-center transition-all duration-200 hover:-translate-y-px hover:shadow-neu-raised-lg active:translate-y-0 active:shadow-neu-pressed"
           :aria-label="t('planning.calendar.wellness.newEntry')"
           @click.stop="router.push('/journal/edit')"
         >

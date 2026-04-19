@@ -159,6 +159,8 @@ export interface ObjectsLibraryListItem {
   goalMonthRefs?: string[]
   cadence?: PlanningCadence
   entryMode?: MeasurementEntryMode
+  ratingScaleMin?: number
+  ratingScale?: number
   target?: MeasurementTarget
   chartData?: ObjectsLibraryChartPoint[]
 }
@@ -1302,6 +1304,8 @@ function buildHabitListItem(
     lifeAreaIds: [...habit.lifeAreaIds],
     cadence: habit.cadence,
     entryMode: habit.entryMode,
+    ratingScaleMin: habit.ratingScaleMin,
+    ratingScale: habit.ratingScale,
     target: habit.target,
     chartData: buildChartData(habit, 'habit', entries, deps.measurementMonthStates, deps.measurementWeekStates),
   }
@@ -1341,6 +1345,8 @@ function buildTrackerListItem(
     lifeAreaIds: [...tracker.lifeAreaIds],
     cadence: tracker.cadence,
     entryMode: tracker.entryMode,
+    ratingScaleMin: tracker.ratingScaleMin,
+    ratingScale: tracker.ratingScale,
     chartData: buildChartData(tracker, 'tracker', entries, deps.measurementMonthStates, deps.measurementWeekStates),
   }
 }

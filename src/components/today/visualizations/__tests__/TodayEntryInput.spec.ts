@@ -21,13 +21,14 @@ describe('TodayEntryInput', () => {
     expect(input).toBeTruthy()
   })
 
-  it('rating mode shows input field', () => {
-    const { container } = render(TodayEntryInput, {
-      props: { entryMode: 'rating', currentValue: 0 },
+  it('rating mode shows counter-style ± buttons', () => {
+    const { getByLabelText, getByText } = render(TodayEntryInput, {
+      props: { entryMode: 'rating', currentValue: 5, ratingMax: 10 },
     })
 
-    const input = container.querySelector('input[type="number"]')
-    expect(input).toBeTruthy()
+    expect(getByLabelText('Increment')).toBeTruthy()
+    expect(getByLabelText('Decrement')).toBeTruthy()
+    expect(getByText('5')).toBeTruthy()
   })
 
   it('completion mode renders nothing', () => {
@@ -37,6 +38,15 @@ describe('TodayEntryInput', () => {
 
     expect(container.querySelector('button')).toBeNull()
     expect(container.querySelector('input')).toBeNull()
+  })
+
+  it('disables decrement at ratingMin', () => {
+    const { getByLabelText } = render(TodayEntryInput, {
+      props: { entryMode: 'rating', currentValue: 3, ratingMin: 3, ratingMax: 7 },
+    })
+
+    const dec = getByLabelText('Decrement') as HTMLButtonElement
+    expect(dec.disabled).toBe(true)
   })
 
   it('emits increment on + click', async () => {

@@ -1,25 +1,25 @@
 {
   "generic": {
-    "somethingWentWrong": "Cos poszlo nie tak. Spróbuj ponownie.",
-    "failedToSave": "Nie udalo się zapisać. Spróbuj ponownie.",
-    "failedToLoad": "Nie udalo się zaladowac danych. Spróbuj ponownie.",
-    "failedToDelete": "Nie udalo się usunac. Spróbuj ponownie.",
-    "failedToUpdate": "Nie udalo się zaktualizowac. Spróbuj ponownie.",
-    "networkError": "Wystapil blad sieci. Sprawdz połączenie.",
-    "unexpectedError": "Wystapil nieoczekiwany blad."
+    "somethingWentWrong": "Coś poszło nie tak. Spróbuj ponownie.",
+    "failedToSave": "Nie udało się zapisać. Spróbuj ponownie.",
+    "failedToLoad": "Nie udało się załadować danych. Spróbuj ponownie.",
+    "failedToDelete": "Nie udało się usunąć. Spróbuj ponownie.",
+    "failedToUpdate": "Nie udało się zaktualizować. Spróbuj ponownie.",
+    "networkError": "Wystąpił błąd sieci. Sprawdź połączenie.",
+    "unexpectedError": "Wystąpił nieoczekiwany błąd."
   },
   "validation": {
     "required": "To pole jest wymagane.",
     "nameRequired": "Nazwa jest wymagana.",
-    "invalidDate": "Podaj prawidlowa date.",
-    "startBeforeEnd": "Data rozpoczecia musi być przed data zakończenia."
+    "invalidDate": "Podaj prawidłową datę.",
+    "startBeforeEnd": "Data rozpoczęcia musi być przed datą zakończenia."
   },
   "tags": {
-    "failedToCreate": "Nie udalo się utworżyć tagu.",
-    "failedToUpdate": "Nie udalo się zaktualizowac tagu.",
-    "failedToDelete": "Nie udalo się usunac tagu."
+    "failedToCreate": "Nie udało się utworzyć tagu.",
+    "failedToUpdate": "Nie udało się zaktualizować tagu.",
+    "failedToDelete": "Nie udało się usunąć tagu."
   },
   "auth": {
-    "failedToCreateAccount": "Nie udalo się utworżyć konta. Spróbuj ponownie."
+    "failedToCreateAccount": "Nie udało się utworzyć konta. Spróbuj ponownie."
   }
 }

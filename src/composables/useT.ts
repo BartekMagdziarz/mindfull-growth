@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { messages } from '@/locales'
-import { DEFAULT_LOCALE_ID, type LocaleId } from '@/services/locale.service'
+import { DEFAULT_LOCALE_ID, type LocaleId, DEFAULT_GENDER, type GrammaticalGender } from '@/services/locale.service'
 import { pluralizePl, pluralizeEn } from '@/utils/pluralize'
 
 /**
@@ -33,6 +33,7 @@ export function useT() {
   const prefsStore = useUserPreferencesStore()
 
   const locale = computed<LocaleId>(() => prefsStore.locale ?? DEFAULT_LOCALE_ID)
+  const gender = computed<GrammaticalGender>(() => prefsStore.grammaticalGender ?? DEFAULT_GENDER)
 
   /**
    * Translate a key. Falls back to English if the current locale key is missing.
@@ -84,5 +85,30 @@ export function useT() {
     return interpolate(raw, { n })
   }
 
-  return { t, tp, locale }
+  /**
+   * Gender-aware translation. Looks up `key.m` or `key.f` based on the user's
+   * grammatical gender preference, falling back to the base `key` if the
+   * gendered variant doesn't exist.
+   */
+  function tg(key: string, params?: Record<string, string | number>): string {
+    const suffix = gender.value === 'feminine' ? 'f' : 'm'
+    const genderedKey = `${key}.${suffix}`
+
+    // Try gendered variant first in current locale, then fallback
+    const currentLocale = locale.value
+    const currentMessages = messages[currentLocale] as Record<string, unknown> | undefined
+    let genderedValue = currentMessages ? resolve(currentMessages, genderedKey) : undefined
+    if (genderedValue === undefined) {
+      const fallbackMessages = messages[DEFAULT_LOCALE_ID] as Record<string, unknown>
+      genderedValue = resolve(fallbackMessages, genderedKey)
+    }
+    if (genderedValue !== undefined) {
+      return params ? interpolate(genderedValue, params) : genderedValue
+    }
+
+    // Fall back to base key
+    return t(key, params)
+  }
+
+  return { t, tp, tg, locale, gender }
 }

@@ -16,7 +16,7 @@
   "review": {
     "title": "Przejrzyj odpowiedzi",
     "allAnswered": "Wszystkie pozycje mają odpowiedź.",
-    "missingHint": "Możesz wysłać z brakami, jeśli próg scoringu jest spełniony dla każdej skali."
+    "missingHint": "Możesz wysłać z brakami, jeśli próg punktacji jest spełniony dla każdej skali."
   },
   "results": {
     "title": "Wyniki oceny",

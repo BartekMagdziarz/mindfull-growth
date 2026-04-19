@@ -8,11 +8,11 @@ function makeSlot(state: TodayCompletionSlot['state'], label: string = ''): Toda
   return {
     dayRef: '2026-03-12' as DayRef,
     label,
-    value: state === 'done' || state === 'today-done' ? 1 : undefined,
-    isToday: state === 'today-pending' || state === 'today-done',
+    value: state === 'done' ? 1 : undefined,
+    isToday: false,
     isFuture: state === 'future',
     isScheduled: false,
-    hasEntry: state === 'done' || state === 'today-done',
+    hasEntry: state === 'done',
     state,
   }
 }
@@ -22,18 +22,28 @@ describe('CompletionDots', () => {
     const slots = [makeSlot('done', 'Mo'), makeSlot('done', 'Tu'), makeSlot('future', 'Fr')]
     const { container } = render(CompletionDots, { props: { slots } })
 
-    // Each slot renders a column (flex-col) with a dot + label
     const columns = container.querySelectorAll('.flex.flex-col')
     expect(columns.length).toBe(3)
   })
 
-  it('renders filled dot for done state', () => {
+  it('renders filled gradient dot for done state', () => {
     const slots = [makeSlot('done', 'Mo')]
     const { container } = render(CompletionDots, { props: { slots } })
 
     const dot = container.querySelector('.rounded-full')
     expect(dot).toBeTruthy()
     expect(dot?.getAttribute('style')).toContain('linear-gradient')
+  })
+
+  it('renders filled red dot for missed state', () => {
+    const slots = [makeSlot('missed', 'Tu')]
+    const { container } = render(CompletionDots, { props: { slots } })
+
+    const dot = container.querySelector('.rounded-full')
+    expect(dot).toBeTruthy()
+    expect(dot?.getAttribute('style')).toContain('color-error')
+    // Filled, not bordered
+    expect(dot?.getAttribute('style')).toContain('background')
   })
 
   it('renders dashed border for future state', () => {
@@ -44,21 +54,6 @@ describe('CompletionDots', () => {
     expect(dot).toBeTruthy()
   })
 
-  it('renders interactive button for today-pending', () => {
-    const slots = [makeSlot('today-pending', 'Th')]
-    const { getByRole } = render(CompletionDots, { props: { slots } })
-
-    expect(getByRole('button', { name: 'Record today' })).toBeTruthy()
-  })
-
-  it('emits toggle on today dot click', async () => {
-    const slots = [makeSlot('today-pending', 'Th')]
-    const { getByRole, emitted } = render(CompletionDots, { props: { slots } })
-
-    await getByRole('button', { name: 'Record today' }).click()
-    expect(emitted().toggle).toBeTruthy()
-  })
-
   it('renders day labels', () => {
     const slots = [makeSlot('done', 'Mo'), makeSlot('future', 'We')]
     const { container } = render(CompletionDots, { props: { slots } })
@@ -67,32 +62,40 @@ describe('CompletionDots', () => {
     expect(container.textContent).toContain('We')
   })
 
-  it('renders 7 dots at the boundary count', () => {
-    const slots = Array.from({ length: 7 }, (_, i) =>
-      makeSlot(i < 3 ? 'done' : 'future', ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'][i]),
+  it('renders 6 history dots (target minus today)', () => {
+    const slots = Array.from({ length: 6 }, (_, i) =>
+      makeSlot(i < 3 ? 'done' : 'future', ['Mo', 'Tu', 'We', 'Fr', 'Sa', 'Su'][i]),
     )
     const { container } = render(CompletionDots, { props: { slots } })
 
     const columns = container.querySelectorAll('.flex.flex-col')
-    expect(columns.length).toBe(7)
+    expect(columns.length).toBe(6)
   })
 
-  it('renders a mix of all five states', () => {
+  it('renders a mix of done, missed, and future states', () => {
     const slots = [
       makeSlot('done', 'Mo'),
       makeSlot('missed', 'Tu'),
-      makeSlot('today-pending', 'We'),
-      makeSlot('today-done', 'Th'),
+      makeSlot('done', 'We'),
       makeSlot('future', 'Fr'),
+      makeSlot('future', 'Sa'),
     ]
-    const { container, getByRole } = render(CompletionDots, { props: { slots } })
+    const { container } = render(CompletionDots, { props: { slots } })
 
     const columns = container.querySelectorAll('.flex.flex-col')
     expect(columns.length).toBe(5)
-    // today-pending renders an interactive button
-    expect(getByRole('button', { name: 'Record today' })).toBeTruthy()
-    // done and today-done should render filled dots
+    // Two done dots render with gradient
     const filled = container.querySelectorAll('[style*="linear-gradient"]')
     expect(filled.length).toBe(2)
+    // One missed dot rendered with error background
+    const missed = container.querySelectorAll('[style*="color-error"]')
+    expect(missed.length).toBe(1)
+  })
+
+  it('does not render any interactive buttons', () => {
+    const slots = [makeSlot('done', 'Mo'), makeSlot('future', 'Fr')]
+    const { queryByRole } = render(CompletionDots, { props: { slots } })
+
+    expect(queryByRole('button')).toBeNull()
   })
 })

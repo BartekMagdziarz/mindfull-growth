@@ -86,6 +86,32 @@
       </div>
     </AppCard>
 
+    <!-- Grammatical Gender Section -->
+    <AppCard class="mt-6">
+      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.gender.title') }}</h3>
+      <p class="text-sm text-on-surface-variant mb-4">
+        {{ t('profile.gender.description') }}
+      </p>
+
+      <div>
+        <label for="genderPreference" class="block text-sm font-medium text-on-surface mb-2">
+          {{ t('profile.gender.label') }}
+        </label>
+        <select
+          id="genderPreference"
+          v-model="genderPreference"
+          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
+          @change="handleGenderPreferenceChange"
+        >
+          <option value="masculine">{{ t('profile.gender.options.masculine') }}</option>
+          <option value="feminine">{{ t('profile.gender.options.feminine') }}</option>
+        </select>
+        <p class="mt-2 text-sm text-on-surface-variant">
+          {{ t('profile.gender.hint') }}
+        </p>
+      </div>
+    </AppCard>
+
     <!-- AI Settings Section -->
     <AppCard class="mt-6">
       <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.aiSettings.title') }}</h3>
@@ -179,7 +205,7 @@ import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRep
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { applyTheme, type ThemeId } from '@/services/theme.service'
-import type { LocaleId } from '@/services/locale.service'
+import type { LocaleId, GrammaticalGender } from '@/services/locale.service'
 import { useT } from '@/composables/useT'
 
 const API_KEY_STORAGE_KEY = 'openaiApiKey'
@@ -195,6 +221,7 @@ const displayName = computed(() => authStore.user?.displayName || '')
 const apiKey = ref('')
 const themePreference = ref<ThemeId>('current')
 const languagePreference = ref<LocaleId>('en')
+const genderPreference = ref<GrammaticalGender>('masculine')
 const apiKeyError = ref('')
 const isSaving = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
@@ -294,6 +321,16 @@ async function handleLanguagePreferenceChange() {
   }
 }
 
+async function handleGenderPreferenceChange() {
+  try {
+    await userPreferencesStore.setGrammaticalGender(genderPreference.value)
+    snackbarRef.value?.show(t('profile.feedback.genderUpdated'))
+  } catch (error) {
+    console.error('Error saving gender preference:', error)
+    snackbarRef.value?.show(t('profile.feedback.failedToSave'))
+  }
+}
+
 async function handleLogout() {
   await authStore.logout()
   router.push('/login')
@@ -313,6 +350,7 @@ onMounted(async () => {
     await userPreferencesStore.loadPreferences()
     themePreference.value = userPreferencesStore.themePreference
     languagePreference.value = userPreferencesStore.locale
+    genderPreference.value = userPreferencesStore.grammaticalGender
   } catch (error) {
     console.error('Error loading settings:', error)
     // Don't show error to user on load - just log it

@@ -50,8 +50,8 @@ describe('RatingSegmentedBars', () => {
 
     // 4 visible cells + 1 shared gradient SVG = 5 svgs total
     expect(container.querySelectorAll('svg').length).toBe(5)
-    // 4 cells × 10 segments = 40 rects
-    expect(cellRects(container).length).toBe(40)
+    // 3 cells with values × 10 segments = 30 rects (empty slot renders no segments)
+    expect(cellRects(container).length).toBe(30)
   })
 
   it('filters to scheduled slots when any are scheduled', () => {
@@ -77,24 +77,33 @@ describe('RatingSegmentedBars', () => {
     expect(emptyRects(container).length).toBe(3)
   })
 
-  it('leaves every segment empty for a slot without a value', () => {
+  it('renders no segments for a slot without a value', () => {
     const slots = [makeSlot('2026-03-09', undefined, { label: 'Mo' })]
     const { container } = render(RatingSegmentedBars, { props: { slots } })
 
-    expect(filledRects(container).length).toBe(0)
-    expect(emptyRects(container).length).toBe(10)
+    expect(cellRects(container).length).toBe(0)
   })
 
-  it('renders a dashed outline for future slots', () => {
+  it('renders no segments for future slots without a value', () => {
     const slots = [
       makeSlot('2026-03-12', undefined, { isFuture: true, label: 'Th' }),
     ]
     const { container } = render(RatingSegmentedBars, { props: { slots } })
 
-    const dashed = emptyRects(container).filter(
+    expect(cellRects(container).length).toBe(0)
+  })
+
+  it('renders dashed outlines for future slots with a value', () => {
+    const slots = [
+      makeSlot('2026-03-12', 3, { isFuture: true, label: 'Th' }),
+    ]
+    const { container } = render(RatingSegmentedBars, { props: { slots } })
+
+    const dashed = cellRects(container).filter(
       r => r.getAttribute('stroke-dasharray') === '2 2',
     )
-    expect(dashed.length).toBe(10)
+    // 7 unfilled segments get dashed outline, 3 filled don't
+    expect(dashed.length).toBe(7)
   })
 
   it('renders a target tick line when targetValue is provided', () => {
