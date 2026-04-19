@@ -37,6 +37,44 @@
       "feminine": "Żeńska (np. zrobiłaś, wybrałaś)"
     }
   },
+  "psychologicalProfile": {
+    "title": "Profil psychologiczny",
+    "shortDescription": "Zbudowany przez AI portret wzorców, mocnych stron i obszarów do rozwoju — na podstawie Twoich danych.",
+    "description": "Uruchom nowe zbudowanie profilu, kiedy chcesz zaktualizowany portret. Wcześniejsze wersje są zachowywane, więc widzisz jak Twoje rozumienie siebie się zmienia.",
+    "lastBuiltAt": "Ostatnio zbudowany {at}",
+    "notBuiltYet": "Profil nie został jeszcze zbudowany.",
+    "open": "Otwórz",
+    "currentVersion": "Aktualna wersja",
+    "buildNew": "Zbuduj nowy profil",
+    "wizardComingSoon": "Kreator profilu pojawi się w kolejnej historii.",
+    "versionPicker": {
+      "label": "Zobacz wcześniejszą wersję"
+    },
+    "deleteVersion": "Usuń tę wersję",
+    "deleteDialog": {
+      "title": "Usunąć tę wersję profilu?",
+      "message": "Ta wersja zostanie trwale usunięta. Starsze wersje i aktualna wersja nie zostaną zmienione.",
+      "success": "Wersja usunięta."
+    },
+    "emptyState": {
+      "title": "Zbuduj swój pierwszy profil",
+      "body": "Wybierz jakie dane chcesz uwzględnić, pozwól AI zbudować pierwszą wersję i przejrzyj ją zanim ją zapiszesz.",
+      "cta": "Zbuduj pierwszy profil"
+    },
+    "sections": {
+      "summary": "Podsumowanie",
+      "values": "Wartości i zasady",
+      "emotionalPatterns": "Wzorce emocjonalne",
+      "strengths": "Mocne strony",
+      "challenges": "Wyzwania i obszary rozwoju",
+      "relationships": "Relacje i wzorce społeczne",
+      "themes": "Tematy i powtarzające się wątki",
+      "recentArc": "Ostatni okres",
+      "suggestedDirections": "Sugerowane kierunki",
+      "empty": "Brak obserwacji w wybranych danych."
+    },
+    "devSeed": "(dev) Wstaw testowy profil"
+  },
   "aiSettings": {
     "title": "Ustawienia AI",
     "description": "Podłącz swój klucz API OpenAI, aby asystent mógł odpowiadać na czaty w dzienniku. Klucz pozostaje na tym urządzeniu i nie jest udostępniany.",

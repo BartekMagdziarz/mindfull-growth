@@ -112,6 +112,29 @@
       </div>
     </AppCard>
 
+    <!-- Psychological Profile Section -->
+    <AppCard class="mt-6" padding="lg" variant="raised">
+      <div class="flex items-center justify-between gap-4">
+        <div class="min-w-0">
+          <h3 class="text-xl font-semibold text-on-surface">
+            {{ t('profile.psychologicalProfile.title') }}
+          </h3>
+          <p class="text-sm text-on-surface-variant mt-1">
+            {{ t('profile.psychologicalProfile.shortDescription') }}
+          </p>
+          <p v-if="lastBuiltLabel" class="text-xs text-on-surface-variant mt-2">
+            {{ t('profile.psychologicalProfile.lastBuiltAt', { at: lastBuiltLabel }) }}
+          </p>
+          <p v-else class="text-xs text-on-surface-variant mt-2">
+            {{ t('profile.psychologicalProfile.notBuiltYet') }}
+          </p>
+        </div>
+        <AppButton variant="filled" @click="goToPsychologicalProfile">
+          {{ t('profile.psychologicalProfile.open') }}
+        </AppButton>
+      </div>
+    </AppCard>
+
     <!-- AI Settings Section -->
     <AppCard class="mt-6">
       <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.aiSettings.title') }}</h3>
@@ -203,6 +226,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import { useUserProfileStore } from '@/stores/userProfile.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { applyTheme, type ThemeId } from '@/services/theme.service'
 import type { LocaleId, GrammaticalGender } from '@/services/locale.service'
@@ -210,9 +234,10 @@ import { useT } from '@/composables/useT'
 
 const API_KEY_STORAGE_KEY = 'openaiApiKey'
 
-const { t } = useT()
+const { t, locale } = useT()
 const router = useRouter()
 const userPreferencesStore = useUserPreferencesStore()
+const userProfileStore = useUserProfileStore()
 const authStore = useAuthStore()
 
 const username = computed(() => authStore.user?.username || '')
@@ -336,6 +361,23 @@ async function handleLogout() {
   router.push('/login')
 }
 
+const lastBuiltLabel = computed(() => {
+  const latest = userProfileStore.currentProfile
+  if (!latest) return ''
+  try {
+    return new Intl.DateTimeFormat(locale.value, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(latest.createdAt))
+  } catch {
+    return latest.createdAt
+  }
+})
+
+function goToPsychologicalProfile() {
+  router.push({ name: 'profile-psychological' })
+}
+
 // Load existing settings on mount
 onMounted(async () => {
   try {
@@ -354,6 +396,13 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error loading settings:', error)
     // Don't show error to user on load - just log it
+  }
+
+  // Load psychological profiles for the "last built" label on the entry card.
+  try {
+    await userProfileStore.loadProfiles()
+  } catch (error) {
+    console.error('Error loading psychological profiles:', error)
   }
 })
 </script>

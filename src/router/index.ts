@@ -316,6 +316,11 @@ const router = createRouter({
       name: 'profile',
       component: () => import('@/views/ProfileView.vue'),
     },
+    {
+      path: '/profile/psychological',
+      name: 'profile-psychological',
+      component: () => import('@/views/PsychologicalProfileView.vue'),
+    },
   ],
 })
 

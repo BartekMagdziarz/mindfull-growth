@@ -37,6 +37,44 @@
       "feminine": "Feminine (e.g. zrobiłaś, wybrałaś)"
     }
   },
+  "psychologicalProfile": {
+    "title": "Psychological Profile",
+    "shortDescription": "An AI-built summary of patterns, strengths and growth edges — built from your own data.",
+    "description": "Run a new build whenever you want an updated portrait. Past versions are kept so you can see how your understanding of yourself evolves.",
+    "lastBuiltAt": "Last built {at}",
+    "notBuiltYet": "No profile built yet.",
+    "open": "Open",
+    "currentVersion": "Current version",
+    "buildNew": "Build new profile",
+    "wizardComingSoon": "Profile building wizard is coming in a follow-up story.",
+    "versionPicker": {
+      "label": "View a past version"
+    },
+    "deleteVersion": "Delete this version",
+    "deleteDialog": {
+      "title": "Delete this profile version?",
+      "message": "This version will be permanently removed. Older versions and the current version are not affected.",
+      "success": "Version deleted."
+    },
+    "emptyState": {
+      "title": "Build your first profile",
+      "body": "Pick which data to include, let the AI build a first draft, and review it before saving.",
+      "cta": "Build your first profile"
+    },
+    "sections": {
+      "summary": "Summary",
+      "values": "Values and guiding principles",
+      "emotionalPatterns": "Emotional patterns",
+      "strengths": "Strengths",
+      "challenges": "Challenges and growth edges",
+      "relationships": "Relationships and social patterns",
+      "themes": "Themes and recurring topics",
+      "recentArc": "Recent arc",
+      "suggestedDirections": "Suggested directions",
+      "empty": "No observations in the selected data."
+    },
+    "devSeed": "(dev) Seed fake profile"
+  },
   "aiSettings": {
     "title": "AI Settings",
     "description": "Connect your own OpenAI API key so the assistant can respond to your journal chats. Your key stays on this device and is never shared.",
