@@ -76,6 +76,14 @@
       "empty": "Brak obserwacji w wybranych danych."
     },
     "devSeed": "(dev) Wstaw testowy profil",
+    "chatContext": {
+      "title": "Dodaj profil do kontekstu czatu",
+      "description": "Gdy włączone, rozmowy na czacie dostają krótkie streszczenie Twojego najnowszego profilu, żeby asystent od razu coś o Tobie wiedział.",
+      "noProfileWarning": "Nie masz jeszcze zapisanego profilu. Zbuduj pierwszy profil, żeby czat mógł z niego korzystać.",
+      "toggleAria": "Przełącz dodawanie profilu do kontekstu czatu",
+      "toggleFeedback": "Preferencja kontekstu czatu zaktualizowana.",
+      "toggleError": "Nie udało się zaktualizować preferencji. Spróbuj ponownie."
+    },
     "wizard": {
       "title": "Zbuduj profil psychologiczny",
       "generationComingSoon": "Generowanie pojawi się w kolejnej historii.",

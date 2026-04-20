@@ -12,12 +12,15 @@ import {
 import { sendMessage as sendLLMMessage } from '@/services/llmService'
 import type { ChatMessage as LLMChatMessage } from '@/services/llmService'
 import {
-  getSystemPrompt,
+  getSystemPromptWithContext,
   constructJournalEntryContext,
 } from '@/services/chatPrompts'
+import { buildUserContext } from '@/services/userContext'
 import { useJournalStore } from './journal.store'
 import { useEmotionStore } from './emotion.store'
 import { useTagStore } from './tag.store'
+import { useUserPreferencesStore } from './userPreferences.store'
+import { useUserProfileStore } from './userProfile.store'
 import type { JournalEntry } from '@/domain/journal'
 import { CHAT_COPY } from '@/constants/chatCopy'
 
@@ -114,10 +117,36 @@ export const useChatStore = defineStore('chat', () => {
     error.value = null
 
     try {
-      // Get system prompt for LLM service
-      const systemPrompt = getSystemPrompt(
+      // Optionally prepend a short user-profile context block to the base
+      // system prompt so the assistant has a little background about who
+      // it is talking to. Gated by the `includeProfileInChatContext`
+      // preference — when off, the base prompt is used verbatim.
+      const userPreferencesStore = useUserPreferencesStore()
+      let profileContext = ''
+      if (userPreferencesStore.includeProfileInChatContext) {
+        const userProfileStore = useUserProfileStore()
+        if (!userProfileStore.profiles.length) {
+          // Defensive: the user enabled the toggle before profiles were
+          // loaded in this tab (e.g. deep-link into chat). If the load
+          // fails we fall back to an empty context rather than blocking
+          // chat.
+          try {
+            await userProfileStore.loadProfiles()
+          } catch {
+            // Swallow — chat should not fail because the profile query did.
+          }
+        }
+        profileContext = buildUserContext(userProfileStore.currentProfile)
+      }
+
+      // Get system prompt for LLM service, optionally prefixed with the
+      // user-profile context block.
+      const systemPrompt = getSystemPromptWithContext(
         currentChatSession.value.intention,
-        currentChatSession.value.customPrompt,
+        {
+          customPrompt: currentChatSession.value.customPrompt,
+          userContext: profileContext,
+        },
       )
 
       // Call LLM service

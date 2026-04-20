@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { getSystemPrompt, constructJournalEntryContext } from '../chatPrompts'
+import {
+  getSystemPrompt,
+  getSystemPromptWithContext,
+  constructJournalEntryContext,
+} from '../chatPrompts'
 import type { ChatIntention } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import type { JournalEntry } from '@/domain/journal'
@@ -489,6 +493,51 @@ describe('chatPrompts', () => {
       expect(context).toContain('Line 2 with emoji 🚀')
       expect(context).toContain('Quote: "keep going"')
       expect(context).toContain('Unicode: 你好')
+    })
+  })
+
+  describe('getSystemPromptWithContext', () => {
+    it('returns the base prompt verbatim when userContext is missing', () => {
+      const base = getSystemPrompt(CHAT_INTENTIONS.REFLECT)
+      const out = getSystemPromptWithContext(CHAT_INTENTIONS.REFLECT)
+      expect(out).toBe(base)
+    })
+
+    it('returns the base prompt verbatim when userContext is empty or whitespace', () => {
+      const base = getSystemPrompt(CHAT_INTENTIONS.PROACTIVE)
+      expect(
+        getSystemPromptWithContext(CHAT_INTENTIONS.PROACTIVE, {
+          userContext: '',
+        }),
+      ).toBe(base)
+      expect(
+        getSystemPromptWithContext(CHAT_INTENTIONS.PROACTIVE, {
+          userContext: '   \n\t  ',
+        }),
+      ).toBe(base)
+    })
+
+    it('prepends the user context with a blank-line separator when present', () => {
+      const base = getSystemPrompt(CHAT_INTENTIONS.THINKING_TRAPS)
+      const ctx = '## User Profile Context\n### Summary\nCurious.'
+      const out = getSystemPromptWithContext(CHAT_INTENTIONS.THINKING_TRAPS, {
+        userContext: ctx,
+      })
+      expect(out.startsWith(ctx)).toBe(true)
+      expect(out).toBe(`${ctx}\n\n${base}`)
+      expect(out).toContain(base)
+    })
+
+    it('composes custom intention, customPrompt and userContext together', () => {
+      const customPrompt = 'You are a coach helping with Q1 planning.'
+      const ctx = '## User Profile Context\n### Values\nGrowth, curiosity.'
+      const out = getSystemPromptWithContext(CHAT_INTENTIONS.CUSTOM, {
+        customPrompt,
+        userContext: ctx,
+      })
+      expect(out.startsWith(ctx)).toBe(true)
+      expect(out).toContain(customPrompt)
+      expect(out).toBe(`${ctx}\n\n${customPrompt}`)
     })
   })
 })

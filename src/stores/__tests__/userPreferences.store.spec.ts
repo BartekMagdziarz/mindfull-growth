@@ -77,4 +77,97 @@ describe('useUserPreferencesStore', () => {
     )
     expect(store.locale).toBe('pl')
   })
+
+  describe('includeProfileInChatContext preference', () => {
+    it('defaults to false when nothing is stored', async () => {
+      const store = useUserPreferencesStore()
+
+      await store.loadPreferences()
+
+      expect(store.includeProfileInChatContext).toBe(false)
+    })
+
+    it("loads the stored 'true' value as the boolean true", async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
+        async (key) => {
+          if (key === 'preferences.chat.includeProfile') return 'true'
+          return undefined
+        },
+      )
+
+      const store = useUserPreferencesStore()
+      await store.loadPreferences()
+
+      expect(store.includeProfileInChatContext).toBe(true)
+    })
+
+    it("loads the stored 'false' value as the boolean false", async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
+        async (key) => {
+          if (key === 'preferences.chat.includeProfile') return 'false'
+          return undefined
+        },
+      )
+
+      const store = useUserPreferencesStore()
+      await store.loadPreferences()
+
+      expect(store.includeProfileInChatContext).toBe(false)
+    })
+
+    it('falls back to the default when the stored value is an unexpected string', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
+        async (key) => {
+          if (key === 'preferences.chat.includeProfile') return 'maybe'
+          return undefined
+        },
+      )
+
+      const store = useUserPreferencesStore()
+      await store.loadPreferences()
+
+      expect(store.includeProfileInChatContext).toBe(false)
+    })
+
+    it("persists a true value as the string 'true' and updates the ref", async () => {
+      const store = useUserPreferencesStore()
+
+      await store.setIncludeProfileInChatContext(true)
+
+      expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+        'preferences.chat.includeProfile',
+        'true',
+      )
+      expect(store.includeProfileInChatContext).toBe(true)
+    })
+
+    it("persists a false value as the string 'false' and updates the ref", async () => {
+      const store = useUserPreferencesStore()
+
+      await store.setIncludeProfileInChatContext(false)
+
+      expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+        'preferences.chat.includeProfile',
+        'false',
+      )
+      expect(store.includeProfileInChatContext).toBe(false)
+    })
+
+    it('coerces truthy/falsy inputs to strict booleans before storing', async () => {
+      const store = useUserPreferencesStore()
+
+      // TS-allowed path: the setter is typed to accept boolean only, but the
+      // underlying `!!value` guard handles odd inputs from external callers.
+      await store.setIncludeProfileInChatContext(
+         
+        1 as any,
+      )
+
+      expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+        'preferences.chat.includeProfile',
+        'true',
+      )
+      expect(store.includeProfileInChatContext).toBe(true)
+    })
+  })
 })

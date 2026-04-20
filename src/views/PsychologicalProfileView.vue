@@ -119,6 +119,53 @@
       </div>
     </div>
 
+    <!-- Chat integration toggle: always visible so the user can flip it
+         before they have built a profile; a hint appears when the toggle
+         is on but no profile exists yet. -->
+    <AppCard class="mt-6" padding="md" variant="raised">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t('profile.psychologicalProfile.chatContext.title') }}
+          </h3>
+          <p class="text-sm text-on-surface-variant mt-1">
+            {{ t('profile.psychologicalProfile.chatContext.description') }}
+          </p>
+          <p
+            v-if="includeChatContext && !userProfileStore.currentProfile"
+            class="text-xs text-on-surface-variant mt-2"
+            data-test-chat-context-no-profile
+          >
+            {{ t('profile.psychologicalProfile.chatContext.noProfileWarning') }}
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          :aria-checked="includeChatContext"
+          :aria-label="t('profile.psychologicalProfile.chatContext.toggleAria')"
+          :class="[
+            'neo-toggle-track',
+            includeChatContext ? 'neo-toggle-track--on' : 'neo-toggle-track--off',
+          ]"
+          data-test-chat-context-toggle
+          @click="toggleChatContext"
+        >
+          <span
+            class="neo-toggle-thumb"
+            :style="{
+              transform: includeChatContext
+                ? 'translateX(1.25rem)'
+                : 'translateX(0.1rem)',
+            }"
+          />
+        </button>
+      </div>
+    </AppCard>
+
+    <!-- Dev-only: build log inspector (hidden in production builds) -->
+    <ProfileBuildLogPanel v-if="isDev" />
+
     <!-- Delete confirmation -->
     <AppDialog
       v-model="showDeleteDialog"
@@ -144,14 +191,20 @@ import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ProfileSectionList from '@/components/profile/ProfileSectionList.vue'
+import ProfileBuildLogPanel from '@/components/profile/ProfileBuildLogPanel.vue'
 import { useUserProfileStore } from '@/stores/userProfile.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { UserProfile } from '@/domain/userProfile'
 
 const router = useRouter()
 const route = useRoute()
 const userProfileStore = useUserProfileStore()
+const userPreferencesStore = useUserPreferencesStore()
 const { t, locale } = useT()
+
+// Compile-time gate. Tree-shaken out of production bundles by Vite.
+const isDev = import.meta.env.DEV
 
 // Hand-off key written by `editVersion()` and consumed by the wizard's
 // `loadDraft()` to seed the editor with an existing version's content.
@@ -160,6 +213,26 @@ const EDIT_SOURCE_SESSION_KEY = 'profile-build-edit-source'
 const selectedVersionId = ref<string | null>(null)
 const showDeleteDialog = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
+
+const includeChatContext = computed(
+  () => userPreferencesStore.includeProfileInChatContext,
+)
+
+async function toggleChatContext() {
+  try {
+    await userPreferencesStore.setIncludeProfileInChatContext(
+      !userPreferencesStore.includeProfileInChatContext,
+    )
+    snackbarRef.value?.show(
+      t('profile.psychologicalProfile.chatContext.toggleFeedback'),
+    )
+  } catch (err) {
+    snackbarRef.value?.show(
+      t('profile.psychologicalProfile.chatContext.toggleError'),
+    )
+    console.error('Failed to toggle chat context preference:', err)
+  }
+}
 
 onMounted(async () => {
   await userProfileStore.loadProfiles()

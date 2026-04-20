@@ -35,6 +35,17 @@ vi.mock('@/repositories/profileBuildLogDexieRepository', () => ({
   },
 }))
 
+// Mock the user settings repository so the preferences store can be
+// driven in isolation — this drives the `includeProfileInChatContext`
+// toggle on the chat-context card.
+vi.mock('@/repositories/userSettingsDexieRepository', () => ({
+  userSettingsDexieRepository: {
+    get: vi.fn(),
+    set: vi.fn(),
+    delete: vi.fn(),
+  },
+}))
+
 // Mock AppSnackbar to spy on `show()` calls.
 // The `show` spy is accessed via the mocked module after import to
 // avoid the "top-level variable referenced before initialization" issue
@@ -53,7 +64,8 @@ vi.mock('@/components/AppSnackbar.vue', () => {
 })
 
 import { userProfileDexieRepository } from '@/repositories/userProfileDexieRepository'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
+ 
 import * as appSnackbarModule from '@/components/AppSnackbar.vue'
 const snackbarShow = (appSnackbarModule as unknown as { __snackbarShow: ReturnType<typeof vi.fn> })
   .__snackbarShow
@@ -84,6 +96,10 @@ describe('PsychologicalProfileView', () => {
     snackbarShow.mockClear()
     vi.mocked(userProfileDexieRepository.list).mockResolvedValue([])
     vi.mocked(userProfileDexieRepository.delete).mockResolvedValue(undefined)
+    // User settings start empty — the preferences store will fall back to
+    // its defaults (including `includeProfileInChatContext: false`).
+    vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(undefined)
+    vi.mocked(userSettingsDexieRepository.set).mockResolvedValue(undefined)
     // Reset route query and sessionStorage between tests so the
     // edit-handoff key never bleeds over.
     delete mockRouteQuery.versionId
@@ -376,5 +392,84 @@ describe('PsychologicalProfileView', () => {
     expect(
       document.querySelector('[data-test-delete-blocked]'),
     ).toBeNull()
+  })
+
+  describe('chat context toggle', () => {
+    it('renders the toggle with aria-checked=false by default (no stored preference)', async () => {
+      // Empty storage → preferences store defaults `includeProfileInChatContext`
+      // to false, and the toggle should reflect that.
+      render(PsychologicalProfileView)
+
+      const toggle = await screen.findByRole('switch', {
+        name: 'Toggle including profile in chat context',
+      })
+      expect(toggle).toBeInTheDocument()
+      expect(toggle).toHaveAttribute('aria-checked', 'false')
+    })
+
+    it('clicking the toggle persists "true" as a string and updates aria-checked', async () => {
+      const user = userEvent.setup()
+      render(PsychologicalProfileView)
+
+      const toggle = await screen.findByRole('switch', {
+        name: 'Toggle including profile in chat context',
+      })
+      expect(toggle).toHaveAttribute('aria-checked', 'false')
+
+      await user.click(toggle)
+
+      // The preference is serialized as a string because the underlying
+      // repository only accepts strings (Story 7 design).
+      await waitFor(() => {
+        expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+          'preferences.chat.includeProfile',
+          'true',
+        )
+      })
+      expect(toggle).toHaveAttribute('aria-checked', 'true')
+    })
+
+    it('shows the "no profile" warning when the preference is on but no profile exists', async () => {
+      const user = userEvent.setup()
+      render(PsychologicalProfileView)
+
+      // Turn the toggle on while there are zero profiles in the store.
+      const toggle = await screen.findByRole('switch', {
+        name: 'Toggle including profile in chat context',
+      })
+      await user.click(toggle)
+
+      await waitFor(() => {
+        expect(
+          document.querySelector('[data-test-chat-context-no-profile]'),
+        ).toBeInTheDocument()
+      })
+      expect(
+        screen.getByText(
+          'You have no saved profile yet. Build your first profile to give chat this context.',
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('hides the "no profile" warning when the preference is on and a profile exists', async () => {
+      const user = userEvent.setup()
+      const sole = makeProfile({ id: 'exists' })
+      vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+
+      render(PsychologicalProfileView)
+
+      const toggle = await screen.findByRole('switch', {
+        name: 'Toggle including profile in chat context',
+      })
+      await user.click(toggle)
+
+      await waitFor(() => {
+        expect(toggle).toHaveAttribute('aria-checked', 'true')
+      })
+      // Warning must not appear when there is at least one saved profile.
+      expect(
+        document.querySelector('[data-test-chat-context-no-profile]'),
+      ).toBeNull()
+    })
   })
 })

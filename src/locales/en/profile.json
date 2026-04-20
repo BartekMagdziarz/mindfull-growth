@@ -76,6 +76,14 @@
       "empty": "No observations in the selected data."
     },
     "devSeed": "(dev) Seed fake profile",
+    "chatContext": {
+      "title": "Include profile in chat context",
+      "description": "When on, chat conversations receive a short summary of your latest profile so the assistant knows a little about you from the start.",
+      "noProfileWarning": "You have no saved profile yet. Build your first profile to give chat this context.",
+      "toggleAria": "Toggle including profile in chat context",
+      "toggleFeedback": "Chat context preference updated.",
+      "toggleError": "Could not update the preference. Please try again."
+    },
     "wizard": {
       "title": "Build psychological profile",
       "generationComingSoon": "Generation arrives in the next story.",
