@@ -16,14 +16,17 @@ import {
   PROFILE_DATA_TYPES,
   PROFILE_SECTION_IDS,
   createEmptySections,
+  type CreateUserProfilePayload,
   type ProfileDataType,
   type ProfileDateRange,
   type ProfileDateRangePreset,
   type ProfileScopeFilters,
   type ProfileSectionId,
   type ProfileSections,
+  type UserProfile,
   type UserProfileScope,
 } from '@/domain/userProfile'
+import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDexieRepository'
 import {
   clearDraftFromDB,
   loadDraftFromDB,
@@ -53,6 +56,17 @@ export const STEP_ORDER: readonly ProfileBuildStep[] = [
 ] as const
 
 export const WIZARD_DRAFT_KEY = 'profile-build-wizard'
+
+/**
+ * sessionStorage key used by the overview's "Edit this version" handoff.
+ * The overview writes the source profile id here just before navigating to
+ * the build route; `loadDraft()` consumes it (and immediately clears it) on
+ * mount to seed the wizard via `hydrateForEdit`.
+ *
+ * sessionStorage is the right scope: the handoff must survive a full route
+ * change but should NOT bleed across browser sessions or tabs.
+ */
+export const EDIT_SOURCE_SESSION_KEY = 'profile-build-edit-source'
 
 export type ProfilePreviewCounts = Partial<Record<ProfileDataType, number>>
 
@@ -212,6 +226,9 @@ export function useProfileBuildWizard() {
         // Always allowed to advance to Save from review — the user decides
         // when their edits are ready.
         return true
+      case 'save':
+        // Save needs something to save and must not be currently in flight.
+        return !!generatedSections.value && !isSaving.value
       default:
         return false
     }
@@ -262,6 +279,30 @@ export function useProfileBuildWizard() {
       {} as Record<ProfileSectionId, boolean>,
     ),
   )
+
+  // --- Save state (Story 6) ---------------------------------------------
+  /**
+   * Optional, user-supplied note attached to the saved version (e.g.
+   * "After finishing Big Five"). Trimmed and dropped if empty before save.
+   */
+  const note = ref<string>('')
+  /** True while the save action is in flight; gates the Save button. */
+  const isSaving = ref<boolean>(false)
+  /** Last save error, surfaced as a banner on the save step. */
+  const saveError = ref<string | null>(null)
+  /**
+   * If set, the wizard was opened in "edit a saved version" mode. The id is
+   * kept only for UX hints (e.g. a future "based on version X" badge); the
+   * stored record never references it. Cleared on `resetWizard`.
+   */
+  const sourceProfileId = ref<string | null>(null)
+  /**
+   * Set on a successful save to the freshly-created profile. The build view
+   * watches this ref to navigate back to the overview and trigger a
+   * snackbar. Reset to `null` by `resetWizard()` so subsequent saves can
+   * fire the watcher again.
+   */
+  const onSaveComplete = ref<UserProfile | null>(null)
 
   /**
    * Copies `generatedSections` into `editedSections` so the review UI can
@@ -374,6 +415,180 @@ export function useProfileBuildWizard() {
     return { confirmationNeeded: false }
   }
 
+  // --- Save (Story 6) ---------------------------------------------------
+
+  /**
+   * Best-effort: tag the latest successful `profileBuildLogs` entry with
+   * the id of the profile that ended up being saved. Lets Story 8's dev
+   * panel show the request/response that produced a given profile.
+   *
+   * Wrapped in try/catch on every code path — a logging hiccup must NOT
+   * fail the save flow. The save is the user-visible promise; the link
+   * is a developer convenience.
+   */
+  async function linkLatestBuildLogToProfile(profileId: string): Promise<void> {
+    try {
+      const logs = await profileBuildLogDexieRepository.list(1)
+      const latest = logs[0]
+      if (latest && latest.success && !latest.resultProfileId) {
+        await profileBuildLogDexieRepository.update(latest.id, {
+          resultProfileId: profileId,
+        })
+      }
+    } catch (err) {
+      console.warn('Failed to link build log to saved profile:', err)
+    }
+  }
+
+  /**
+   * Persist the current review state as a new immutable `UserProfile`.
+   *
+   * Always creates (never updates) — even when editing a saved version,
+   * we fork into a new record so the original is never mutated.
+   *
+   * On success: clears the IndexedDB scope draft and returns
+   * `{ profile }`. The view layer is responsible for navigation.
+   * On failure: stores the message in `saveError` and returns
+   * `{ error }`; the wizard stays on the save step with all inputs intact.
+   */
+  async function save(): Promise<{ profile: UserProfile } | { error: string }> {
+    if (!generatedSections.value) {
+      saveError.value = 'No generated profile to save'
+      return { error: saveError.value }
+    }
+    isSaving.value = true
+    saveError.value = null
+    try {
+      const userProfileStore = useUserProfileStore()
+      const trimmed = note.value.trim()
+      const payload: CreateUserProfilePayload = {
+        note: trimmed.length > 0 ? trimmed : undefined,
+        scope: currentScope.value,
+        sections: { ...editedSections.value },
+        rawResponse: generatedRawResponse.value,
+        model: generatedModel.value,
+      }
+      const created = await userProfileStore.createProfile(payload)
+      // Best-effort log linkage — never blocks the save flow.
+      await linkLatestBuildLogToProfile(created.id)
+      // Clear the IndexedDB scope draft so the next "fresh" wizard run
+      // starts from defaults rather than this run's leftover scope.
+      await resetDraft()
+      return { profile: created }
+    } catch (err) {
+      saveError.value =
+        err instanceof Error ? err.message : 'Save failed'
+      return { error: saveError.value }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  /**
+   * Seeds the wizard from a saved `UserProfile` so the user can edit it
+   * into a NEW version (Story 6 "Edit this version" flow).
+   *
+   * Skips Steps 1-3: scope/preview state mirror the source's scope and
+   * `currentStep` jumps straight to 'review'. Saving from there forks
+   * the source — the original record is never mutated.
+   *
+   * Does NOT consume any IndexedDB scope draft; an edit handoff is its
+   * own fresh flow and should not be polluted by stale draft state.
+   */
+  function hydrateForEdit(source: UserProfile): void {
+    sourceProfileId.value = source.id
+
+    // Scope: clone exactly so subsequent edits to wizard state don't
+    // mutate the source profile in memory.
+    dataTypes.value = [...source.scope.dataTypes]
+    dateRange.value = JSON.parse(JSON.stringify(source.scope.dateRange))
+    const sourceFilters = source.scope.filters ?? {}
+    filters.emotionQuadrants = sourceFilters.emotionQuadrants
+      ? [...sourceFilters.emotionQuadrants]
+      : []
+    filters.peopleTagIds = sourceFilters.peopleTagIds
+      ? [...sourceFilters.peopleTagIds]
+      : []
+    filters.contextTagIds = sourceFilters.contextTagIds
+      ? [...sourceFilters.contextTagIds]
+      : []
+    filters.lifeAreaIds = sourceFilters.lifeAreaIds
+      ? [...sourceFilters.lifeAreaIds]
+      : []
+
+    // Preview: zero-out counts/headers (we did not re-run a query) but
+    // preserve the recorded approxTokenCount so the save summary has
+    // something meaningful to show.
+    previewCountsByType.value = {}
+    previewObjectIdsByType.value = JSON.parse(
+      JSON.stringify(source.scope.includedObjectIds ?? {}),
+    )
+    previewObjectHeaders.value = []
+    previewApproxTokens.value = source.scope.approxTokenCount
+
+    // Generate: hydrate from the source so review can render.
+    generatedSections.value = { ...source.sections }
+    generatedRawResponse.value = source.rawResponse
+    generatedModel.value = source.model
+    extras.value = ''
+
+    // Review: start from the source content; clear edit toggles.
+    editedSections.value = { ...source.sections }
+    editingAll.value = false
+    for (const id of PROFILE_SECTION_IDS) editingPerSection[id] = false
+
+    // Save: prefill note from the source so users can keep or edit it.
+    note.value = source.note ?? ''
+    isSaving.value = false
+    saveError.value = null
+    onSaveComplete.value = null
+
+    // Skip straight to the review step.
+    currentStep.value = 'review'
+    ready.value = true
+  }
+
+  /**
+   * Resets ALL wizard state to the defaults the composable starts with.
+   * Called after a successful save (so the next visit starts fresh) and
+   * could also be used by a future "Discard wizard" action.
+   *
+   * Mirrors the initialisation block at the top of this composable —
+   * keep them in sync if defaults change.
+   */
+  function resetWizard(): void {
+    sourceProfileId.value = null
+
+    currentStep.value = 'scope'
+    dataTypes.value = [...DEFAULT_DATA_TYPES]
+    dateRange.value = { ...DEFAULT_DATE_RANGE }
+    Object.assign(filters, createEmptyFilters())
+
+    previewCountsByType.value = {}
+    previewObjectIdsByType.value = {}
+    previewObjectHeaders.value = []
+    previewApproxTokens.value = 0
+    isPreviewLoading.value = false
+    previewError.value = null
+
+    generateState.value = 'idle'
+    generateError.value = null
+    generateErrorCode.value = null
+    generatedSections.value = null
+    generatedRawResponse.value = ''
+    generatedModel.value = ''
+
+    extras.value = ''
+    editedSections.value = createEmptySections()
+    editingAll.value = false
+    for (const id of PROFILE_SECTION_IDS) editingPerSection[id] = false
+
+    note.value = ''
+    isSaving.value = false
+    saveError.value = null
+    onSaveComplete.value = null
+  }
+
   // --- Navigation --------------------------------------------------------
   async function nextStep(): Promise<void> {
     if (!canAdvance.value) return
@@ -387,9 +602,16 @@ export function useProfileBuildWizard() {
       return
     }
     if (currentStep.value === 'review') {
-      // Story 5 leaves 'save' as a placeholder; Story 6 adds the real UI
-      // and wires the actual createProfile() persistence.
       currentStep.value = 'save'
+      return
+    }
+    if (currentStep.value === 'save') {
+      // Story 6: actually persist the profile. View layer watches
+      // `onSaveComplete` and handles snackbar + navigation.
+      const res = await save()
+      if ('profile' in res) {
+        onSaveComplete.value = res.profile
+      }
       return
     }
   }
@@ -466,6 +688,40 @@ export function useProfileBuildWizard() {
   }
 
   async function loadDraft(): Promise<void> {
+    // Story 6: "Edit this version" handoff. The overview writes the source
+    // profile id into sessionStorage just before navigating here. If we
+    // find one, we hydrate from that profile and skip the IndexedDB scope
+    // draft entirely — edit is its own fresh flow.
+    try {
+      const editSourceId =
+        typeof window !== 'undefined' && window.sessionStorage
+          ? window.sessionStorage.getItem(EDIT_SOURCE_SESSION_KEY)
+          : null
+      if (editSourceId) {
+        // Always remove the key first — even if the profile is gone (e.g.
+        // deleted in another tab) we don't want a stale key haunting the
+        // next visit.
+        try {
+          window.sessionStorage.removeItem(EDIT_SOURCE_SESSION_KEY)
+        } catch {
+          // ignore — best effort
+        }
+        const userProfileStore = useUserProfileStore()
+        if (!userProfileStore.profiles.length) {
+          await userProfileStore.loadProfiles()
+        }
+        const source = userProfileStore.getById(editSourceId)
+        if (source) {
+          hydrateForEdit(source)
+          return
+        }
+        // Fall through to the default draft-loading path if the id is
+        // gone (acceptable edge case noted in the story spec).
+      }
+    } catch (err) {
+      console.warn('Edit-source handoff failed:', err)
+    }
+
     try {
       const raw = await loadDraftFromDB(WIZARD_DRAFT_KEY)
       if (!raw) {
@@ -566,6 +822,12 @@ export function useProfileBuildWizard() {
     editingAll,
     editingPerSection,
     hasUnsavedEdits,
+    // Save (Story 6)
+    note,
+    isSaving,
+    saveError,
+    sourceProfileId,
+    onSaveComplete,
     // Derived
     currentScope,
     canAdvance,
@@ -583,6 +845,9 @@ export function useProfileBuildWizard() {
     exitEditAllMode,
     revertEdits,
     syncEditedFromGenerated,
+    save,
+    hydrateForEdit,
+    resetWizard,
     // Draft API
     loadDraft,
     scheduleSave,

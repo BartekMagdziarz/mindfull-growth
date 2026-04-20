@@ -51,6 +51,8 @@
       "label": "View a past version"
     },
     "deleteVersion": "Delete this version",
+    "editVersion": "Edit this version",
+    "cannotDeleteCurrent": "The current version is protected. Build a newer version first, then you can delete this one.",
     "deleteDialog": {
       "title": "Delete this profile version?",
       "message": "This version will be permanently removed. Older versions and the current version are not affected.",
@@ -87,7 +89,8 @@
       "buttons": {
         "preview": "Preview",
         "generate": "Generate",
-        "saveStep": "Continue to save"
+        "saveStep": "Continue to save",
+        "save": "Save profile"
       },
       "scope": {
         "dataTypes": {
@@ -206,7 +209,23 @@
         }
       },
       "save": {
-        "comingSoon": "The save step is coming in the next story."
+        "title": "Save this profile",
+        "subtitle": "Review the summary, add an optional note, and save as a new version.",
+        "success": "Profile saved.",
+        "revertEdits": "Revert to AI version",
+        "summary": {
+          "dateRange": "Time range",
+          "dataTypes": "Data included",
+          "totalItems": "Items",
+          "model": "Model",
+          "edits": "Manual edits",
+          "editsPresent": "Included"
+        },
+        "note": {
+          "label": "Optional note",
+          "placeholder": "e.g. After finishing Big Five, End of Q1 review...",
+          "help": "A short label helps you find this version later."
+        }
       }
     }
   },

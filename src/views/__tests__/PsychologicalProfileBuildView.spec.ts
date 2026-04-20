@@ -28,9 +28,10 @@ vi.mock('@/services/profileScopeQueries', () => ({
   queryScopePreview: (args: unknown) => previewMock(args),
 }))
 
-// Stub the userProfile store so buildProfile is a lightweight in-test spy.
-// Each test can override `mockBuildProfile` to simulate success / error.
+// Stub the userProfile store so buildProfile / createProfile are lightweight
+// in-test spies. Each test can override the mocks to simulate success / error.
 const mockBuildProfile = vi.fn()
+const mockCreateProfile = vi.fn()
 vi.mock('@/stores/userProfile.store', async () => {
   const actual = await vi.importActual<
     typeof import('@/stores/userProfile.store')
@@ -39,9 +40,24 @@ vi.mock('@/stores/userProfile.store', async () => {
     ...actual,
     useUserProfileStore: vi.fn(() => ({
       buildProfile: mockBuildProfile,
+      createProfile: mockCreateProfile,
+      loadProfiles: vi.fn(async () => {}),
+      getById: () => undefined,
+      profiles: [],
     })),
   }
 })
+
+// Best-effort log linkage in `save()` — stub the repo so it never touches IDB.
+vi.mock('@/repositories/profileBuildLogDexieRepository', () => ({
+  profileBuildLogDexieRepository: {
+    list: vi.fn(async () => []),
+    update: vi.fn(async () => ({})),
+    add: vi.fn(),
+    getById: vi.fn(),
+    clearAll: vi.fn(),
+  },
+}))
 
 // AppSnackbar stub so the view can mount in JSDOM without exposing the real
 // snackbar implementation.
@@ -70,6 +86,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockPush.mockClear()
     previewMock.mockClear()
     mockBuildProfile.mockReset()
+    mockCreateProfile.mockReset()
   })
 
   it('starts on the scope step and shows the Preview button label', async () => {
@@ -217,7 +234,7 @@ describe('PsychologicalProfileBuildView', () => {
     ).toBeInTheDocument()
   })
 
-  it('Next on review advances to save and renders the save placeholder', async () => {
+  it('Next on review advances to save and renders the ProfileSaveStep', async () => {
     mockBuildProfile.mockResolvedValue({
       sections: { ...createEmptySections(), summary: 'Generated.' },
       rawResponse: '## Summary\n\nGenerated.',
@@ -242,9 +259,132 @@ describe('PsychologicalProfileBuildView', () => {
 
     await waitFor(() => {
       expect(
-        document.querySelector('[data-test-save-placeholder]'),
+        document.querySelector('[data-test-save-step]'),
       ).toBeInTheDocument()
     })
+    expect(
+      screen.getByRole('button', { name: 'Save profile' }),
+    ).toBeInTheDocument()
+  })
+
+  it('Save profile button calls createProfile, navigates to /profile/psychological with versionId, and resets wizard', async () => {
+    mockBuildProfile.mockResolvedValue({
+      sections: { ...createEmptySections(), summary: 'Generated.' },
+      rawResponse: '## Summary\n\nGenerated.',
+      model: 'gpt-5-nano',
+      extras: '',
+    })
+    mockCreateProfile.mockResolvedValue({
+      id: 'new-profile-id',
+      createdAt: '2026-04-20T00:00:00.000Z',
+      updatedAt: '2026-04-20T00:00:00.000Z',
+      note: 'after Big Five',
+      scope: {
+        dataTypes: ['journal'],
+        dateRange: { kind: 'preset', preset: 'last90' },
+        includedObjectIds: { journal: ['a', 'b'] },
+        approxTokenCount: 120,
+        locale: 'en',
+        grammaticalGender: 'masculine',
+      },
+      sections: { ...createEmptySections(), summary: 'Generated.' },
+      rawResponse: '## Summary\n\nGenerated.',
+      model: 'gpt-5-nano',
+    })
+
+    render(PsychologicalProfileBuildView)
+    // Walk through scope → preview → generate → review
+    await fireEvent.click(
+      document.querySelector('[data-test-next]') as HTMLButtonElement,
+    )
+    await waitFor(() => expect(previewMock).toHaveBeenCalled())
+    await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
+    await waitFor(() =>
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+    )
+    // → save
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Continue to save' }),
+    )
+    await waitFor(() =>
+      expect(document.querySelector('[data-test-save-step]')).toBeInTheDocument(),
+    )
+
+    // Type a note then click Save profile.
+    const noteInput = document.querySelector(
+      '[data-test-save-note]',
+    ) as HTMLInputElement
+    await fireEvent.update(noteInput, 'after Big Five')
+
+    const saveBtn = await screen.findByRole('button', { name: 'Save profile' })
+    await fireEvent.click(saveBtn)
+
+    await waitFor(() => expect(mockCreateProfile).toHaveBeenCalledTimes(1))
+    const payload = mockCreateProfile.mock.calls[0][0] as {
+      note?: string
+      sections: Record<string, string>
+    }
+    expect(payload.note).toBe('after Big Five')
+    expect(payload.sections.summary).toBe('Generated.')
+
+    // The view watches onSaveComplete and pushes to the overview with the
+    // saved version preselected.
+    await waitFor(() =>
+      expect(mockPush).toHaveBeenCalledWith({
+        name: 'profile-psychological',
+        query: { versionId: 'new-profile-id' },
+      }),
+    )
+
+    // After reset, the build view should be back on the scope step. Because
+    // the navigation has already occurred we just verify the reset effect by
+    // asserting Preview is the visible Next label again (would be 'Save
+    // profile' on the save step, 'Generate' on preview).
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Preview' })).toBeInTheDocument()
+    })
+  })
+
+  it('save failure leaves the user on the save step with the error banner', async () => {
+    mockBuildProfile.mockResolvedValue({
+      sections: { ...createEmptySections(), summary: 'Generated.' },
+      rawResponse: '## Summary\n\nGenerated.',
+      model: 'gpt-5-nano',
+      extras: '',
+    })
+    mockCreateProfile.mockRejectedValue(new Error('Quota exceeded'))
+
+    render(PsychologicalProfileBuildView)
+    await fireEvent.click(
+      document.querySelector('[data-test-next]') as HTMLButtonElement,
+    )
+    await waitFor(() => expect(previewMock).toHaveBeenCalled())
+    await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
+    await waitFor(() =>
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+    )
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Continue to save' }),
+    )
+    await waitFor(() =>
+      expect(document.querySelector('[data-test-save-step]')).toBeInTheDocument(),
+    )
+
+    const saveBtn = await screen.findByRole('button', { name: 'Save profile' })
+    await fireEvent.click(saveBtn)
+
+    await waitFor(() => expect(mockCreateProfile).toHaveBeenCalledTimes(1))
+
+    // Stays on save step, banner appears, no navigation.
+    await waitFor(() => {
+      expect(
+        document.querySelector('[data-test-save-error]'),
+      ).toBeInTheDocument()
+    })
+    expect(screen.getByText('Quota exceeded')).toBeInTheDocument()
+    expect(mockPush).not.toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'profile-psychological' }),
+    )
   })
 
   it('Back on review with unsaved edits opens the confirm dialog; Stay cancels, Continue returns to preview', async () => {

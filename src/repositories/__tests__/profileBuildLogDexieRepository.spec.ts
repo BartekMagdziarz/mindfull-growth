@@ -90,6 +90,35 @@ describe('profileBuildLogDexieRepository', () => {
     })
   })
 
+  describe('update', () => {
+    it('updates an existing log entry with the supplied patch', async () => {
+      const added = await profileBuildLogDexieRepository.add(
+        makePayload({ resultProfileId: undefined }),
+      )
+
+      const updated = await profileBuildLogDexieRepository.update(added.id, {
+        resultProfileId: 'profile-123',
+      })
+
+      expect(updated.resultProfileId).toBe('profile-123')
+      expect(updated.id).toBe(added.id)
+      // Other fields are preserved unchanged.
+      expect(updated.model).toBe(added.model)
+      expect(updated.success).toBe(added.success)
+
+      const refetched = await profileBuildLogDexieRepository.getById(added.id)
+      expect(refetched?.resultProfileId).toBe('profile-123')
+    })
+
+    it('throws a "not found" error for an unknown id', async () => {
+      await expect(
+        profileBuildLogDexieRepository.update('does-not-exist', {
+          resultProfileId: 'x',
+        }),
+      ).rejects.toThrow('Build log does-not-exist not found')
+    })
+  })
+
   describe('clearAll', () => {
     it('empties the table', async () => {
       await profileBuildLogDexieRepository.add(makePayload())

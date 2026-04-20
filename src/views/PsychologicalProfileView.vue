@@ -88,11 +88,34 @@
         <ProfileSectionList :profile="displayedProfile" />
       </AppCard>
 
-      <!-- Delete button for non-current versions -->
-      <div v-if="canDeleteDisplayed" class="flex justify-end">
-        <AppButton variant="text" @click="confirmDelete">
-          {{ t('profile.psychologicalProfile.deleteVersion') }}
-        </AppButton>
+      <!-- Per-version actions: Edit (always) + Delete (disabled when current
+           version is protected by siblings, with helper text). -->
+      <div class="flex flex-col items-end gap-1">
+        <div class="flex items-center gap-2">
+          <AppButton
+            variant="text"
+            data-test-edit-version
+            @click="editVersion(displayedProfile)"
+          >
+            <PencilIcon class="w-4 h-4 mr-1" />
+            {{ t('profile.psychologicalProfile.editVersion') }}
+          </AppButton>
+          <AppButton
+            variant="text"
+            :disabled="!canDeleteDisplayed"
+            data-test-delete-version
+            @click="confirmDelete"
+          >
+            {{ t('profile.psychologicalProfile.deleteVersion') }}
+          </AppButton>
+        </div>
+        <p
+          v-if="!canDeleteDisplayed"
+          class="text-xs text-on-surface-variant text-right max-w-md"
+          data-test-delete-blocked
+        >
+          {{ t('profile.psychologicalProfile.cannotDeleteCurrent') }}
+        </p>
       </div>
     </div>
 
@@ -113,7 +136,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { PencilIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
@@ -125,8 +149,13 @@ import { useT } from '@/composables/useT'
 import type { UserProfile } from '@/domain/userProfile'
 
 const router = useRouter()
+const route = useRoute()
 const userProfileStore = useUserProfileStore()
 const { t, locale } = useT()
+
+// Hand-off key written by `editVersion()` and consumed by the wizard's
+// `loadDraft()` to seed the editor with an existing version's content.
+const EDIT_SOURCE_SESSION_KEY = 'profile-build-edit-source'
 
 const selectedVersionId = ref<string | null>(null)
 const showDeleteDialog = ref(false)
@@ -134,7 +163,14 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 onMounted(async () => {
   await userProfileStore.loadProfiles()
-  if (userProfileStore.currentProfile) {
+  // If we arrived from the wizard with `?versionId=<id>`, preselect that
+  // version (e.g. just-saved profile). Otherwise fall back to the current.
+  const queryId = typeof route.query.versionId === 'string'
+    ? route.query.versionId
+    : undefined
+  if (queryId && userProfileStore.getById(queryId)) {
+    selectedVersionId.value = queryId
+  } else if (userProfileStore.currentProfile) {
     selectedVersionId.value = userProfileStore.currentProfile.id
   }
 })
@@ -179,6 +215,19 @@ function goBack() {
 }
 
 function startBuild() {
+  router.push({ name: 'profile-psychological-build' })
+}
+
+// Fork an existing version: stash its id in sessionStorage and route to the
+// build wizard. The wizard's `loadDraft()` reads the key, hydrates from the
+// source profile, and jumps to the Review step. This always creates a NEW
+// version on save (immutable history); the source is never mutated.
+function editVersion(profile: UserProfile) {
+  try {
+    sessionStorage.setItem(EDIT_SOURCE_SESSION_KEY, profile.id)
+  } catch {
+    // Private mode / quota — fall back to a fresh build (no fork).
+  }
   router.push({ name: 'profile-psychological-build' })
 }
 

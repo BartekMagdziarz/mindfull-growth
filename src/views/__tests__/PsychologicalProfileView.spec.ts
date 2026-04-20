@@ -8,8 +8,10 @@ import {
 } from '@/domain/userProfile'
 
 const mockPush = vi.fn()
+const mockRouteQuery: { versionId?: string } = {}
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: mockPush }),
+  useRoute: () => ({ query: mockRouteQuery }),
 }))
 
 // Mock the user profile repository so tests can inject controlled state.
@@ -82,6 +84,12 @@ describe('PsychologicalProfileView', () => {
     snackbarShow.mockClear()
     vi.mocked(userProfileDexieRepository.list).mockResolvedValue([])
     vi.mocked(userProfileDexieRepository.delete).mockResolvedValue(undefined)
+    // Reset route query and sessionStorage between tests so the
+    // edit-handoff key never bleeds over.
+    delete mockRouteQuery.versionId
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.clear()
+    }
   })
 
   it('renders the empty state when there are no saved profiles', async () => {
@@ -171,7 +179,7 @@ describe('PsychologicalProfileView', () => {
     expect(screen.queryByText('Newer summary text.')).not.toBeInTheDocument()
   })
 
-  it('hides the Delete button for the current version when older versions exist', async () => {
+  it('disables the Delete button for the current version when older versions exist, and shows the helper text', async () => {
     const older = makeProfile({ id: 'older', createdAt: '2026-01-01T00:00:00.000Z' })
     const newer = makeProfile({ id: 'newer', createdAt: '2026-02-01T00:00:00.000Z' })
     vi.mocked(userProfileDexieRepository.list).mockResolvedValue([newer, older])
@@ -182,10 +190,21 @@ describe('PsychologicalProfileView', () => {
       expect(screen.getByLabelText('View a past version')).toBeInTheDocument()
     })
 
-    // Default selection is current (newer) → Delete must be hidden.
+    // Default selection is current (newer): Delete is rendered but disabled.
+    const deleteBtn = screen.getByRole('button', {
+      name: 'Delete this version',
+    }) as HTMLButtonElement
+    expect(deleteBtn).toBeInTheDocument()
+    expect(deleteBtn).toBeDisabled()
+    // Helper text appears next to the disabled button.
     expect(
-      screen.queryByRole('button', { name: 'Delete this version' }),
-    ).not.toBeInTheDocument()
+      document.querySelector('[data-test-delete-blocked]'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'The current version is protected. Build a newer version first, then you can delete this one.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows the Delete button when the only version is selected (sole version)', async () => {
@@ -282,5 +301,80 @@ describe('PsychologicalProfileView', () => {
 
     expect(mockPush).toHaveBeenCalledWith({ name: 'profile-psychological-build' })
     expect(snackbarShow).not.toHaveBeenCalled()
+  })
+
+  it('clicking "Edit this version" stashes the id in sessionStorage and navigates to the build wizard', async () => {
+    const user = userEvent.setup()
+    const sole = makeProfile({ id: 'src-edit' })
+    vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+
+    render(PsychologicalProfileView)
+
+    const editBtn = await screen.findByRole('button', { name: /Edit this version/ })
+    await user.click(editBtn)
+
+    expect(window.sessionStorage.getItem('profile-build-edit-source')).toBe(
+      'src-edit',
+    )
+    expect(mockPush).toHaveBeenCalledWith({
+      name: 'profile-psychological-build',
+    })
+  })
+
+  it('preselects the version from route.query.versionId on mount', async () => {
+    const olderSections = createEmptySections()
+    olderSections.summary = 'Older summary text.'
+    const newerSections = createEmptySections()
+    newerSections.summary = 'Newer summary text.'
+    const older = makeProfile({
+      id: 'older',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      sections: olderSections,
+    })
+    const newer = makeProfile({
+      id: 'newer',
+      createdAt: '2026-02-01T00:00:00.000Z',
+      sections: newerSections,
+    })
+    vi.mocked(userProfileDexieRepository.list).mockResolvedValue([newer, older])
+
+    // Simulate landing on /profile/psychological?versionId=older
+    mockRouteQuery.versionId = 'older'
+
+    render(PsychologicalProfileView)
+
+    // The older summary text is shown — older is preselected, not newer.
+    await waitFor(() => {
+      expect(screen.getByText('Older summary text.')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Newer summary text.')).not.toBeInTheDocument()
+  })
+
+  it('falls back to the current version when route.query.versionId points at a missing profile', async () => {
+    const sole = makeProfile({ id: 'only', sections: { ...createEmptySections(), summary: 'Only one' } })
+    vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+
+    mockRouteQuery.versionId = 'does-not-exist'
+
+    render(PsychologicalProfileView)
+
+    await waitFor(() => {
+      expect(screen.getByText('Only one')).toBeInTheDocument()
+    })
+  })
+
+  it('Delete button is enabled with no helper text when there is only a single version', async () => {
+    const only = makeProfile({ id: 'only' })
+    vi.mocked(userProfileDexieRepository.list).mockResolvedValue([only])
+
+    render(PsychologicalProfileView)
+
+    const deleteBtn = await screen.findByRole('button', {
+      name: 'Delete this version',
+    })
+    expect(deleteBtn).not.toBeDisabled()
+    expect(
+      document.querySelector('[data-test-delete-blocked]'),
+    ).toBeNull()
   })
 })

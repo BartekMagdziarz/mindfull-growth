@@ -51,6 +51,8 @@
       "label": "Zobacz wcześniejszą wersję"
     },
     "deleteVersion": "Usuń tę wersję",
+    "editVersion": "Edytuj tę wersję",
+    "cannotDeleteCurrent": "Aktualna wersja jest chroniona. Zbuduj nowszą wersję, zanim usuniesz tę.",
     "deleteDialog": {
       "title": "Usunąć tę wersję profilu?",
       "message": "Ta wersja zostanie trwale usunięta. Starsze wersje i aktualna wersja nie zostaną zmienione.",
@@ -87,7 +89,8 @@
       "buttons": {
         "preview": "Podgląd",
         "generate": "Generuj",
-        "saveStep": "Przejdź do zapisu"
+        "saveStep": "Przejdź do zapisu",
+        "save": "Zapisz profil"
       },
       "scope": {
         "dataTypes": {
@@ -206,7 +209,23 @@
         }
       },
       "save": {
-        "comingSoon": "Krok zapisu pojawi się w kolejnej historii."
+        "title": "Zapisz ten profil",
+        "subtitle": "Sprawdź podsumowanie, dodaj opcjonalną notkę i zapisz jako nową wersję.",
+        "success": "Profil zapisany.",
+        "revertEdits": "Przywróć wersję AI",
+        "summary": {
+          "dateRange": "Zakres czasu",
+          "dataTypes": "Uwzględnione dane",
+          "totalItems": "Liczba elementów",
+          "model": "Model",
+          "edits": "Ręczne zmiany",
+          "editsPresent": "Uwzględnione"
+        },
+        "note": {
+          "label": "Opcjonalna notka",
+          "placeholder": "np. Po ukończeniu Wielkiej Piątki, Podsumowanie Q1...",
+          "help": "Krótka etykieta pomoże Ci znaleźć tę wersję później."
+        }
       }
     }
   },

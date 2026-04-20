@@ -78,7 +78,10 @@
           v-else-if="currentStep === 'review' && generatedSections"
           :wizard="wizard"
         />
-        <ProfileSaveStepPlaceholder v-else-if="currentStep === 'save'" />
+        <ProfileSaveStep
+          v-else-if="currentStep === 'save'"
+          :wizard="wizard"
+        />
         <div v-else class="text-sm text-on-surface-variant">
           {{ t('profile.psychologicalProfile.wizard.generationComingSoon') }}
         </div>
@@ -124,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
@@ -134,7 +137,7 @@ import ProfileScopeStep from '@/components/profile/ProfileScopeStep.vue'
 import ProfilePreviewStep from '@/components/profile/ProfilePreviewStep.vue'
 import ProfileGenerateStep from '@/components/profile/ProfileGenerateStep.vue'
 import ProfileReviewStep from '@/components/profile/ProfileReviewStep.vue'
-import ProfileSaveStepPlaceholder from '@/components/profile/ProfileSaveStepPlaceholder.vue'
+import ProfileSaveStep from '@/components/profile/ProfileSaveStep.vue'
 import { useT } from '@/composables/useT'
 import {
   STEP_ORDER,
@@ -185,8 +188,30 @@ const nextLabel = computed(() => {
   if (currentStep.value === 'review') {
     return t('profile.psychologicalProfile.wizard.buttons.saveStep')
   }
+  if (currentStep.value === 'save') {
+    return t('profile.psychologicalProfile.wizard.buttons.save')
+  }
   return t('common.buttons.next')
 })
+
+// When the wizard reports a successful save, show confirmation, reset the
+// in-memory wizard state (so a subsequent visit starts at scope), and
+// navigate back to the overview with the new version preselected.
+watch(
+  () => wizard.onSaveComplete.value,
+  (saved) => {
+    if (!saved) return
+    const savedId = saved.id
+    snackbarRef.value?.show(
+      t('profile.psychologicalProfile.wizard.save.success'),
+    )
+    wizard.resetWizard()
+    void router.push({
+      name: 'profile-psychological',
+      query: { versionId: savedId },
+    })
+  },
+)
 
 // Back-confirmation dialog: fires only on the review step when the user has
 // unsaved manual edits. Every other step delegates straight to
