@@ -200,6 +200,195 @@ describe('useProfileBuildWizard', () => {
   })
 })
 
+describe('useProfileBuildWizard — review state (Story 5)', () => {
+  beforeEach(async () => {
+    setActivePinia(createPinia())
+    queryScopePreviewMock.mockClear()
+    buildProfileMock.mockReset()
+    const storage = await import('@/services/draftStorage')
+    ;(storage as unknown as { __reset: () => void }).__reset()
+    vi.clearAllMocks()
+  })
+
+  /**
+   * Helper that advances the wizard through scope → preview → generate and
+   * lets `generate()` settle with a deterministic result so the review
+   * state has something to work on.
+   */
+  async function mountAndGenerate(
+    result: {
+      sections: Record<string, string>
+      rawResponse?: string
+      model?: string
+      extras?: string
+    } = {
+      sections: {
+        summary: 'S',
+        values: 'V',
+        emotionalPatterns: 'EP',
+        strengths: 'ST',
+        challenges: 'CH',
+        relationships: 'R',
+        themes: 'TH',
+        recentArc: 'RA',
+        suggestedDirections: 'SD',
+      },
+      rawResponse: 'raw',
+      model: 'gpt-5-nano',
+      extras: '',
+    },
+  ) {
+    buildProfileMock.mockResolvedValueOnce({
+      sections: result.sections,
+      rawResponse: result.rawResponse ?? 'raw',
+      model: result.model ?? 'gpt-5-nano',
+      extras: result.extras ?? '',
+    })
+    const wizard = mountWizard()
+    await wizard.nextStep() // scope → preview
+    await wizard.nextStep() // preview → generate → review
+    return wizard
+  }
+
+  it('syncs editedSections and extras from a successful generate()', async () => {
+    const wizard = await mountAndGenerate({
+      sections: {
+        summary: 'Summary text',
+        values: 'Values text',
+        emotionalPatterns: '',
+        strengths: '',
+        challenges: '',
+        relationships: '',
+        themes: '',
+        recentArc: '',
+        suggestedDirections: '',
+      },
+      extras: 'bonus',
+    })
+
+    expect(wizard.currentStep.value).toBe('review')
+    expect(wizard.extras.value).toBe('bonus')
+    expect(wizard.editedSections.value.summary).toBe('Summary text')
+    expect(wizard.editedSections.value.values).toBe('Values text')
+  })
+
+  it('reports no unsaved edits right after generate(), true after setSectionValue', async () => {
+    const wizard = await mountAndGenerate()
+    expect(wizard.hasUnsavedEdits.value).toBe(false)
+    wizard.setSectionValue('summary', 'edited')
+    expect(wizard.hasUnsavedEdits.value).toBe(true)
+    expect(wizard.editedSections.value.summary).toBe('edited')
+  })
+
+  it('toggleEditSection flips a single per-section edit flag', async () => {
+    const wizard = await mountAndGenerate()
+    expect(wizard.editingPerSection.values).toBe(false)
+    wizard.toggleEditSection('values')
+    expect(wizard.editingPerSection.values).toBe(true)
+    wizard.toggleEditSection('values')
+    expect(wizard.editingPerSection.values).toBe(false)
+  })
+
+  it('enterEditAllMode / exitEditAllMode flip editingAll and every section', async () => {
+    const wizard = await mountAndGenerate()
+
+    wizard.enterEditAllMode()
+    expect(wizard.editingAll.value).toBe(true)
+    for (const id of [
+      'summary',
+      'values',
+      'emotionalPatterns',
+      'strengths',
+      'challenges',
+      'relationships',
+      'themes',
+      'recentArc',
+      'suggestedDirections',
+    ] as const) {
+      expect(wizard.editingPerSection[id]).toBe(true)
+    }
+
+    wizard.exitEditAllMode()
+    expect(wizard.editingAll.value).toBe(false)
+    for (const id of [
+      'summary',
+      'values',
+      'emotionalPatterns',
+      'strengths',
+      'challenges',
+      'relationships',
+      'themes',
+      'recentArc',
+      'suggestedDirections',
+    ] as const) {
+      expect(wizard.editingPerSection[id]).toBe(false)
+    }
+  })
+
+  it('revertEdits restores editedSections to the AI version', async () => {
+    const wizard = await mountAndGenerate()
+    wizard.setSectionValue('summary', 'edited')
+    expect(wizard.hasUnsavedEdits.value).toBe(true)
+    wizard.revertEdits()
+    expect(wizard.hasUnsavedEdits.value).toBe(false)
+    expect(wizard.editedSections.value.summary).toBe('S')
+  })
+
+  it('regenerate() short-circuits with confirmationNeeded when unsaved edits exist', async () => {
+    const wizard = await mountAndGenerate()
+    wizard.setSectionValue('summary', 'edited')
+
+    const res = await wizard.regenerate()
+    expect(res).toEqual({ confirmationNeeded: true })
+    // buildProfile should have been called exactly once (from the initial
+    // mountAndGenerate run); no retry happened without force.
+    expect(buildProfileMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('regenerate({ force: true }) clears edits and calls buildProfile again', async () => {
+    const wizard = await mountAndGenerate()
+    wizard.setSectionValue('summary', 'edited')
+
+    buildProfileMock.mockResolvedValueOnce({
+      sections: {
+        summary: 'Fresh summary',
+        values: '',
+        emotionalPatterns: '',
+        strengths: '',
+        challenges: '',
+        relationships: '',
+        themes: '',
+        recentArc: '',
+        suggestedDirections: '',
+      },
+      rawResponse: 'raw2',
+      model: 'gpt-5-nano',
+      extras: '',
+    })
+
+    const res = await wizard.regenerate({ force: true })
+    expect(res).toEqual({ confirmationNeeded: false })
+    expect(buildProfileMock).toHaveBeenCalledTimes(2)
+    expect(wizard.editedSections.value.summary).toBe('Fresh summary')
+    expect(wizard.hasUnsavedEdits.value).toBe(false)
+    expect(wizard.currentStep.value).toBe('review')
+  })
+
+  it('nextStep from review advances to save', async () => {
+    const wizard = await mountAndGenerate()
+    expect(wizard.currentStep.value).toBe('review')
+    await wizard.nextStep()
+    expect(wizard.currentStep.value).toBe('save')
+  })
+
+  it('canAdvance is true on review regardless of edits', async () => {
+    const wizard = await mountAndGenerate()
+    expect(wizard.canAdvance.value).toBe(true)
+    wizard.setSectionValue('summary', 'edited')
+    expect(wizard.canAdvance.value).toBe(true)
+  })
+})
+
 describe('resolveDateRange', () => {
   it('resolves the last30 preset to ~30 days back', () => {
     const { start, end } = resolveDateRange({ kind: 'preset', preset: 'last30' })

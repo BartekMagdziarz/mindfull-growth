@@ -14,10 +14,13 @@
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import {
   PROFILE_DATA_TYPES,
+  PROFILE_SECTION_IDS,
+  createEmptySections,
   type ProfileDataType,
   type ProfileDateRange,
   type ProfileDateRangePreset,
   type ProfileScopeFilters,
+  type ProfileSectionId,
   type ProfileSections,
   type UserProfileScope,
 } from '@/domain/userProfile'
@@ -205,6 +208,10 @@ export function useProfileBuildWizard() {
         return dataTypes.value.length > 0 && isValidDateRange(dateRange.value)
       case 'preview':
         return previewTotalCount.value > 0 && !isPreviewLoading.value
+      case 'review':
+        // Always allowed to advance to Save from review — the user decides
+        // when their edits are ready.
+        return true
       default:
         return false
     }
@@ -224,6 +231,90 @@ export function useProfileBuildWizard() {
   const generatedRawResponse = ref<string>('')
   const generatedModel = ref<string>('')
 
+  // --- Review state (Story 5) -------------------------------------------
+  /**
+   * Editable copy of the AI-generated sections. Starts empty and is
+   * (re)seeded from `generatedSections` whenever `generate()` succeeds via
+   * `syncEditedFromGenerated`. Stays in memory until the wizard unmounts or
+   * the save step (Story 6) persists it.
+   */
+  const editedSections = ref<ProfileSections>(createEmptySections())
+  /**
+   * Anything the LLM produced that did not match one of the known section
+   * headers (plus any prelude text before the first header). Read-only in
+   * the review UI; never edited or saved — kept for transparency.
+   */
+  const extras = ref<string>('')
+  /** Global "Edit all" toggle — flips every per-section editor open. */
+  const editingAll = ref<boolean>(false)
+  /**
+   * Per-section edit mode. A single object, keyed by `ProfileSectionId`, so
+   * the review component can render either the read or edit view without
+   * extra state. `reactive` (not `ref`) so the individual boolean fields
+   * are themselves reactive without `.value` gymnastics in the template.
+   */
+  const editingPerSection = reactive<Record<ProfileSectionId, boolean>>(
+    PROFILE_SECTION_IDS.reduce(
+      (acc, id) => {
+        acc[id] = false
+        return acc
+      },
+      {} as Record<ProfileSectionId, boolean>,
+    ),
+  )
+
+  /**
+   * Copies `generatedSections` into `editedSections` so the review UI can
+   * start from the AI output and apply edits without mutating the original.
+   * Called automatically after every successful `generate()` (including
+   * `regenerate({ force: true })`).
+   */
+  function syncEditedFromGenerated(): void {
+    if (!generatedSections.value) {
+      editedSections.value = createEmptySections()
+      return
+    }
+    editedSections.value = { ...generatedSections.value }
+  }
+
+  /**
+   * True iff at least one section in `editedSections` differs from
+   * `generatedSections`. V1 uses strict string equality — editing a
+   * section and then typing the exact AI text back correctly reports
+   * "no unsaved edits".
+   */
+  const hasUnsavedEdits = computed(() => {
+    if (!generatedSections.value) return false
+    for (const id of PROFILE_SECTION_IDS) {
+      if (editedSections.value[id] !== generatedSections.value[id]) return true
+    }
+    return false
+  })
+
+  function setSectionValue(id: ProfileSectionId, value: string): void {
+    editedSections.value = { ...editedSections.value, [id]: value }
+  }
+
+  function toggleEditSection(id: ProfileSectionId): void {
+    editingPerSection[id] = !editingPerSection[id]
+  }
+
+  function enterEditAllMode(): void {
+    editingAll.value = true
+    for (const id of PROFILE_SECTION_IDS) editingPerSection[id] = true
+  }
+
+  function exitEditAllMode(): void {
+    editingAll.value = false
+    for (const id of PROFILE_SECTION_IDS) editingPerSection[id] = false
+  }
+
+  function revertEdits(): void {
+    if (!generatedSections.value) return
+    editedSections.value = { ...generatedSections.value }
+    exitEditAllMode()
+  }
+
   /**
    * Kicks off the actual LLM-driven profile build. We flip to the
    * `generate` step *before* awaiting so the UI can immediately render
@@ -242,6 +333,8 @@ export function useProfileBuildWizard() {
       generatedSections.value = result.sections
       generatedRawResponse.value = result.rawResponse
       generatedModel.value = result.model
+      extras.value = result.extras
+      syncEditedFromGenerated()
       generateState.value = 'success'
       currentStep.value = 'review'
     } catch (err) {
@@ -259,6 +352,28 @@ export function useProfileBuildWizard() {
     await generate()
   }
 
+  /**
+   * Re-runs `generate()` from the review step. Two-phase so the review UI
+   * can ask the user before discarding unsaved manual edits:
+   *   - If edits exist and `options.force` is not set, returns early with
+   *     `{ confirmationNeeded: true }` so the caller shows a dialog.
+   *   - Once confirmed (or there were no edits), wipes review state and
+   *     delegates to `generate()`, which moves the wizard back to
+   *     'generate' and then to 'review' on success.
+   */
+  async function regenerate(
+    options: { force?: boolean } = {},
+  ): Promise<{ confirmationNeeded: boolean }> {
+    if (hasUnsavedEdits.value && !options.force) {
+      return { confirmationNeeded: true }
+    }
+    exitEditAllMode()
+    editedSections.value = createEmptySections()
+    extras.value = ''
+    await generate()
+    return { confirmationNeeded: false }
+  }
+
   // --- Navigation --------------------------------------------------------
   async function nextStep(): Promise<void> {
     if (!canAdvance.value) return
@@ -271,11 +386,24 @@ export function useProfileBuildWizard() {
       await generate()
       return
     }
+    if (currentStep.value === 'review') {
+      // Story 5 leaves 'save' as a placeholder; Story 6 adds the real UI
+      // and wires the actual createProfile() persistence.
+      currentStep.value = 'save'
+      return
+    }
   }
 
   function previousStep(): void {
     const idx = stepIndex.value
     if (idx <= 0) return
+    // The 'generate' step is transient — it runs the LLM call and auto-advances
+    // to 'review'. Navigating back from 'review' should skip it and land on
+    // 'preview' so the user returns to a stable, editable step.
+    if (currentStep.value === 'review') {
+      currentStep.value = 'preview'
+      return
+    }
     currentStep.value = STEP_ORDER[idx - 1]
   }
 
@@ -432,6 +560,12 @@ export function useProfileBuildWizard() {
     generatedSections,
     generatedRawResponse,
     generatedModel,
+    // Review
+    editedSections,
+    extras,
+    editingAll,
+    editingPerSection,
+    hasUnsavedEdits,
     // Derived
     currentScope,
     canAdvance,
@@ -442,6 +576,13 @@ export function useProfileBuildWizard() {
     computePreview,
     generate,
     retryGenerate,
+    regenerate,
+    setSectionValue,
+    toggleEditSection,
+    enterEditAllMode,
+    exitEditAllMode,
+    revertEdits,
+    syncEditedFromGenerated,
     // Draft API
     loadDraft,
     scheduleSave,

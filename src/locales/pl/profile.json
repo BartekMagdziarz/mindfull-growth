@@ -86,7 +86,8 @@
       },
       "buttons": {
         "preview": "Podgląd",
-        "generate": "Generuj"
+        "generate": "Generuj",
+        "saveStep": "Przejdź do zapisu"
       },
       "scope": {
         "dataTypes": {
@@ -183,6 +184,29 @@
           "title": "Generowanie nie powiodło się",
           "retry": "Spróbuj ponownie"
         }
+      },
+      "review": {
+        "subtitle": "Popraw każdą sekcję, która nie pasuje. Zmiany pozostają w tym szkicu aż do zapisu.",
+        "editAll": "Edytuj wszystko",
+        "doneEditing": "Gotowe",
+        "regenerate": "Wygeneruj ponownie",
+        "placeholder": "Napisz własną wersję...",
+        "emptySection": "Brak obserwacji w wybranych danych.",
+        "unsavedNote": "Masz niezapisane zmiany. Zostaną uwzględnione przy zapisie.",
+        "extrasTitle": "Nierozpoznane treści",
+        "extrasHelp": "Model wygenerował tekst poza spodziewanymi sekcjami.",
+        "regenDialog": {
+          "title": "Wygenerować profil ponownie?",
+          "message": "Twoje ręczne zmiany zostaną zastąpione nową odpowiedzią AI. Tego nie da się cofnąć.",
+          "confirm": "Wygeneruj ponownie"
+        },
+        "backDialog": {
+          "title": "Odrzucić niezapisane zmiany?",
+          "message": "Powrót zachowa zakres, ale Twoje zmiany zostaną odrzucone po ponownym wygenerowaniu."
+        }
+      },
+      "save": {
+        "comingSoon": "Krok zapisu pojawi się w kolejnej historii."
       }
     }
   },

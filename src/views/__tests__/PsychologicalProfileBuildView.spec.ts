@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/vue'
 
 const mockPush = vi.fn()
 vi.mock('vue-router', () => ({
@@ -192,6 +192,147 @@ describe('PsychologicalProfileBuildView', () => {
       name: 'profile',
       hash: '#ai-settings',
     })
+  })
+
+  it('shows ProfileReviewStep (not the placeholder) and "Continue to save" on success', async () => {
+    mockBuildProfile.mockResolvedValue({
+      sections: { ...createEmptySections(), summary: 'Generated summary.' },
+      rawResponse: '## Summary\n\nGenerated summary.',
+      model: 'gpt-5-nano',
+      extras: '',
+    })
+
+    render(PsychologicalProfileBuildView)
+    await fireEvent.click(
+      document.querySelector('[data-test-next]') as HTMLButtonElement,
+    )
+    await waitFor(() => expect(previewMock).toHaveBeenCalled())
+    await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
+    })
+    expect(
+      screen.getByRole('button', { name: 'Continue to save' }),
+    ).toBeInTheDocument()
+  })
+
+  it('Next on review advances to save and renders the save placeholder', async () => {
+    mockBuildProfile.mockResolvedValue({
+      sections: { ...createEmptySections(), summary: 'Generated.' },
+      rawResponse: '## Summary\n\nGenerated.',
+      model: 'gpt-5-nano',
+      extras: '',
+    })
+
+    render(PsychologicalProfileBuildView)
+    await fireEvent.click(
+      document.querySelector('[data-test-next]') as HTMLButtonElement,
+    )
+    await waitFor(() => expect(previewMock).toHaveBeenCalled())
+    await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
+    await waitFor(() =>
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+    )
+
+    const continueBtn = await screen.findByRole('button', {
+      name: 'Continue to save',
+    })
+    await fireEvent.click(continueBtn)
+
+    await waitFor(() => {
+      expect(
+        document.querySelector('[data-test-save-placeholder]'),
+      ).toBeInTheDocument()
+    })
+  })
+
+  it('Back on review with unsaved edits opens the confirm dialog; Stay cancels, Continue returns to preview', async () => {
+    mockBuildProfile.mockResolvedValue({
+      sections: { ...createEmptySections(), summary: 'Generated summary.' },
+      rawResponse: '## Summary\n\nGenerated summary.',
+      model: 'gpt-5-nano',
+      extras: '',
+    })
+
+    render(PsychologicalProfileBuildView)
+    await fireEvent.click(
+      document.querySelector('[data-test-next]') as HTMLButtonElement,
+    )
+    await waitFor(() => expect(previewMock).toHaveBeenCalled())
+    await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
+    await waitFor(() =>
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+    )
+
+    // Open the summary editor and type to create an unsaved edit.
+    const toggle = document.querySelector(
+      '[data-test-toggle-section="summary"]',
+    ) as HTMLButtonElement
+    await fireEvent.click(toggle)
+    const textarea = document.querySelector(
+      '[data-test-textarea="summary"]',
+    ) as HTMLTextAreaElement
+    await fireEvent.update(textarea, 'edited summary')
+
+    // Footer back opens the dialog.
+    const backBtn = document.querySelector('[data-test-back]') as HTMLButtonElement
+    await fireEvent.click(backBtn)
+    let dialog = await screen.findByRole('dialog')
+    expect(dialog).toBeInTheDocument()
+    expect(
+      within(dialog).getByText('Discard unsaved edits?'),
+    ).toBeInTheDocument()
+
+    // Stay closes the dialog, leaves the user on review.
+    await fireEvent.click(within(dialog).getByRole('button', { name: 'Stay' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument()
+
+    // Re-open the dialog and confirm Continue — should return to preview.
+    await fireEvent.click(
+      document.querySelector('[data-test-back]') as HTMLButtonElement,
+    )
+    dialog = await screen.findByRole('dialog')
+    await fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Continue' }),
+    )
+    await waitFor(() => {
+      expect(document.querySelector('[data-test-review-step]')).toBeNull()
+    })
+    // The preview step's Generate button is back on screen.
+    expect(
+      await screen.findByRole('button', { name: 'Generate' }),
+    ).toBeInTheDocument()
+  })
+
+  it('Back on review without unsaved edits skips the dialog and goes straight to preview', async () => {
+    mockBuildProfile.mockResolvedValue({
+      sections: { ...createEmptySections(), summary: 'Generated.' },
+      rawResponse: '## Summary\n\nGenerated.',
+      model: 'gpt-5-nano',
+      extras: '',
+    })
+
+    render(PsychologicalProfileBuildView)
+    await fireEvent.click(
+      document.querySelector('[data-test-next]') as HTMLButtonElement,
+    )
+    await waitFor(() => expect(previewMock).toHaveBeenCalled())
+    await fireEvent.click(await screen.findByRole('button', { name: 'Generate' }))
+    await waitFor(() =>
+      expect(document.querySelector('[data-test-review-step]')).toBeInTheDocument(),
+    )
+
+    const backBtn = document.querySelector('[data-test-back]') as HTMLButtonElement
+    await fireEvent.click(backBtn)
+    expect(screen.queryByRole('dialog')).toBeNull()
+    await waitFor(() => {
+      expect(document.querySelector('[data-test-review-step]')).toBeNull()
+    })
+    expect(
+      await screen.findByRole('button', { name: 'Generate' }),
+    ).toBeInTheDocument()
   })
 
   it('hides the Next button while the generate step is active', async () => {

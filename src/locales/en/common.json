@@ -28,7 +28,9 @@
     "tryAgain": "Try Again",
     "manage": "Manage",
     "start": "Start",
-    "create": "Create"
+    "create": "Create",
+    "continue": "Continue",
+    "stay": "Stay"
   },
   "days": {
     "0": "Sunday",

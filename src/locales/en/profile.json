@@ -86,7 +86,8 @@
       },
       "buttons": {
         "preview": "Preview",
-        "generate": "Generate"
+        "generate": "Generate",
+        "saveStep": "Continue to save"
       },
       "scope": {
         "dataTypes": {
@@ -183,6 +184,29 @@
           "title": "Generation failed",
           "retry": "Try again"
         }
+      },
+      "review": {
+        "subtitle": "Edit any section that does not feel right. Changes stay in this draft until you save.",
+        "editAll": "Edit all",
+        "doneEditing": "Done editing",
+        "regenerate": "Regenerate",
+        "placeholder": "Write your own version...",
+        "emptySection": "No observations in the selected data.",
+        "unsavedNote": "You have unsaved edits. They will be included when you save.",
+        "extrasTitle": "Unrecognised content",
+        "extrasHelp": "The model produced text outside the expected sections.",
+        "regenDialog": {
+          "title": "Regenerate profile?",
+          "message": "Your manual edits will be replaced by a fresh AI response. This cannot be undone.",
+          "confirm": "Regenerate"
+        },
+        "backDialog": {
+          "title": "Discard unsaved edits?",
+          "message": "Going back will keep your scope but your edits will be discarded after a re-generate."
+        }
+      },
+      "save": {
+        "comingSoon": "The save step is coming in the next story."
       }
     }
   },

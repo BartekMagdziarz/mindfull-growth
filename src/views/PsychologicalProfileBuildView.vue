@@ -74,11 +74,11 @@
           @retry="retryGenerate"
           @go-to-settings="goToSettings"
         />
-        <ProfileReviewStepPlaceholder
+        <ProfileReviewStep
           v-else-if="currentStep === 'review' && generatedSections"
-          :sections="generatedSections"
-          :raw-response="generatedRawResponse"
+          :wizard="wizard"
         />
+        <ProfileSaveStepPlaceholder v-else-if="currentStep === 'save'" />
         <div v-else class="text-sm text-on-surface-variant">
           {{ t('profile.psychologicalProfile.wizard.generationComingSoon') }}
         </div>
@@ -93,7 +93,8 @@
         v-if="currentStep !== 'scope'"
         variant="text"
         :disabled="backDisabled"
-        @click="previousStep"
+        data-test-back
+        @click="onBack"
       >
         {{ t('common.buttons.back') }}
       </AppButton>
@@ -110,6 +111,15 @@
     </footer>
 
     <AppSnackbar ref="snackbarRef" />
+
+    <AppDialog
+      v-model="showBackConfirm"
+      :title="t('profile.psychologicalProfile.wizard.review.backDialog.title')"
+      :message="t('profile.psychologicalProfile.wizard.review.backDialog.message')"
+      :confirm-text="t('common.buttons.continue')"
+      :cancel-text="t('common.buttons.stay')"
+      @confirm="confirmBack"
+    />
   </div>
 </template>
 
@@ -117,12 +127,14 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
+import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ProfileScopeStep from '@/components/profile/ProfileScopeStep.vue'
 import ProfilePreviewStep from '@/components/profile/ProfilePreviewStep.vue'
 import ProfileGenerateStep from '@/components/profile/ProfileGenerateStep.vue'
-import ProfileReviewStepPlaceholder from '@/components/profile/ProfileReviewStepPlaceholder.vue'
+import ProfileReviewStep from '@/components/profile/ProfileReviewStep.vue'
+import ProfileSaveStepPlaceholder from '@/components/profile/ProfileSaveStepPlaceholder.vue'
 import { useT } from '@/composables/useT'
 import {
   STEP_ORDER,
@@ -152,9 +164,7 @@ const {
   generateError,
   generateErrorCode,
   generatedSections,
-  generatedRawResponse,
   nextStep,
-  previousStep,
   goToStep,
   computePreview,
   retryGenerate,
@@ -172,8 +182,29 @@ const nextLabel = computed(() => {
   if (currentStep.value === 'preview') {
     return t('profile.psychologicalProfile.wizard.buttons.generate')
   }
+  if (currentStep.value === 'review') {
+    return t('profile.psychologicalProfile.wizard.buttons.saveStep')
+  }
   return t('common.buttons.next')
 })
+
+// Back-confirmation dialog: fires only on the review step when the user has
+// unsaved manual edits. Every other step delegates straight to
+// `wizard.previousStep()`.
+const showBackConfirm = ref(false)
+
+function onBack(): void {
+  if (currentStep.value === 'review' && wizard.hasUnsavedEdits.value) {
+    showBackConfirm.value = true
+    return
+  }
+  wizard.previousStep()
+}
+
+function confirmBack(): void {
+  showBackConfirm.value = false
+  wizard.previousStep()
+}
 
 // Block Back while a generation is in flight so the user can't navigate
 // away mid-request and orphan the API call.

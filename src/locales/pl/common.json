@@ -28,7 +28,9 @@
     "tryAgain": "Spróbuj ponownie",
     "manage": "Zarządzaj",
     "start": "Rozpocznij",
-    "create": "Utwórz"
+    "create": "Utwórz",
+    "continue": "Kontynuuj",
+    "stay": "Zostań"
   },
   "days": {
     "0": "Niedziela",
