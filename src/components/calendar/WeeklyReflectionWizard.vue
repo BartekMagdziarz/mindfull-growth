@@ -43,8 +43,9 @@
       <!-- Step: Review -->
       <div v-if="currentStep === 'review'" key="review" class="space-y-4">
         <WeeklyReviewDayCards
-          :daily-breakdown="dataBundle?.dailyBreakdown ?? []"
-          :weekly-summary="dataBundle?.weeklySummary ?? { weeklyHabits: [], monthlyHabits: [], totalEmotionLogs: 0, totalJournalEntries: 0, totalExercises: 0 }"
+          :data-bundle="dataBundle"
+          :week-ref="props.weekRef"
+          :today-day-ref="todayDayRef"
           :is-loading="isBundleLoading"
         />
       </div>
@@ -90,6 +91,8 @@
           :anchors="promptResponses"
           :anchor-categories="weeklyAnchorCategories"
           :rating-groups="weeklyRatingSummary"
+          :data-bundle="dataBundle"
+          :week-ref="props.weekRef"
           @update:model-value="freeformReflection = $event"
         />
       </div>
@@ -143,13 +146,19 @@ import {
   type WeeklyReflectionStep,
 } from '@/composables/useWeeklyReflectionWizard'
 import { useT } from '@/composables/useT'
-import type { WeekRef } from '@/domain/period'
+import type { DayRef, WeekRef } from '@/domain/period'
+import { getPeriodRefsForDate } from '@/utils/periods'
 
 const { t } = useT()
 
 const props = defineProps<{
   weekRef: WeekRef
 }>()
+
+// Current system day — drives the "today" marker on the 7-day grid and the
+// ReflectionMeasurementRow chart visualizations. We compute it up-front and
+// keep it static for the lifetime of the wizard (no need to tick per-minute).
+const todayDayRef: DayRef = getPeriodRefsForDate(new Date()).day
 
 const emit = defineEmits<{
   close: []
@@ -376,6 +385,7 @@ function handleRatingUpdate(key: string, value: number) {
 const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
   {
     title: t('planning.reflection.weekly.groups.context.title'),
+    question: t('planning.reflection.weekly.groups.context.subtitle'),
     items: [
       { label: t('planning.reflection.weekly.dimensions.physicalIntensity'), value: physicalIntensityRating.value },
       { label: t('planning.reflection.weekly.dimensions.taskLoad'), value: taskLoadRating.value },
@@ -385,6 +395,7 @@ const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
   },
   {
     title: t('planning.reflection.weekly.groups.state.title'),
+    question: t('planning.reflection.weekly.groups.state.subtitle'),
     items: [
       { label: t('planning.reflection.weekly.dimensions.mood'), value: moodRating.value },
       { label: t('planning.reflection.weekly.dimensions.energy'), value: energyRating.value },
@@ -394,6 +405,7 @@ const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
   },
   {
     title: t('planning.reflection.weekly.groups.evaluation.title'),
+    question: t('planning.reflection.weekly.groups.evaluation.subtitle'),
     items: [
       { label: t('planning.reflection.weekly.dimensions.productivity'), value: productivityRating.value },
       { label: t('planning.reflection.weekly.dimensions.engagement'), value: engagementRating.value },

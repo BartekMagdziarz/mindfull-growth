@@ -540,7 +540,39 @@
     },
     "sidebar": {
       "anchors": "Punkty zaczepienia",
-      "ratings": "Oceny"
+      "ratings": "Oceny",
+      "contextHeader": "Kontekst tygodnia",
+      "weekEntryHeading": "Wpis tygodnia — {week}",
+      "wordCount": "słów",
+      "contextTagsLabel": "Szybkie wstawki",
+      "contextTags": {
+        "gratitude": "Wdzięczność",
+        "keyMoment": "Kluczowy moment",
+        "challenge": "Trudność",
+        "lesson": "Lekcja",
+        "intention": "Intencja"
+      },
+      "collapse": "Zwiń panel kontekstu",
+      "expand": "Rozwiń panel kontekstu",
+      "aiSummary": "Podsumowanie AI",
+      "aiSummaryHint": "AI przeczyta Twoje wpisy, emocje i oceny — i wyciągnie z nich główne wątki tygodnia.",
+      "aiSummaryLoading": "AI czyta Twój tydzień…",
+      "aiGenerate": "Wygeneruj",
+      "aiSummaryMockBody": "Tydzień odzyskiwania rytmu. Po intensywnym wtorku, który otworzył ważne wątki, środa stała się najcięższym punktem — przeładowany kalendarz i niepokój. Od czwartku wracała stabilność: kolacja z bliską osobą, domknięty sprint w piątek i spokojny weekend.",
+      "aiSummaryMockTags": "odzyskiwanie rytmu|przeładowana środa|domknięcie sprintu",
+      "aiPrompts": "Pytania od AI",
+      "aiPromptsHint": "AI zaproponuje pytania, które pomogą Ci pogłębić refleksję.",
+      "aiPromptsLoading": "AI przygląda się Twojemu tygodniowi…",
+      "aiPromptsGenerate": "Wygeneruj pytania",
+      "aiPromptsMock": "Co sprawiło, że środa czuła się cięższa niż reszta tygodnia?|Jakie warunki sprzyjały Twoim momentom wdzięczności?|Co chciałbyś zabrać z tego tygodnia w kolejny?",
+      "emotionsTitle": "Emocje",
+      "pleasant": "przyjemne",
+      "quadrants": {
+        "highEnergyHighPleasantness": "Wys. / przyjemne",
+        "highEnergyLowPleasantness": "Wys. / nieprzyjemne",
+        "lowEnergyHighPleasantness": "Nis. / przyjemne",
+        "lowEnergyLowPleasantness": "Nis. / nieprzyjemne"
+      }
     },
     "review": {
       "emotions": "Emocje",
@@ -566,7 +598,19 @@
       "weeklyHabits": "Nawyki tygodniowe",
       "monthlyHabits": "Nawyki miesięczne",
       "thisWeek": "w tym tygodniu",
-      "noData": "Brak danych dla tego okresu"
+      "noData": "Brak danych dla tego okresu",
+      "goals": "Cele",
+      "goalsAndHabits": "Cele i nawyki",
+      "noGoals": "Brak celów w tym tygodniu.",
+      "noHabits": "Brak nawyków w tym tygodniu.",
+      "noTrackers": "Brak wpisów trackerów w tym tygodniu.",
+      "topEmotions": "Najczęściej",
+      "aiSummary": "Podsumowanie AI",
+      "aiSummaryHint": "Zobacz, jak AI podsumowuje ten tydzień na podstawie Twoich zapisów.",
+      "aiGenerate": "Wygeneruj",
+      "aiGenerating": "Generuję…",
+      "aiSummaryMockHeading": "Kluczowy wątek",
+      "aiSummaryMockBody": "Tydzień odzyskiwania rytmu — piątkowy sprint zamknął projektowy ciężar, a weekend przyniósł oddech z bliskimi. Środa wyróżnia się jako najcięższy punkt i warto się jej przyjrzeć."
     },
     "weekly": {
       "title": "Refleksja tygodniowa",

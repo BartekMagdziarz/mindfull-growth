@@ -540,7 +540,39 @@
     },
     "sidebar": {
       "anchors": "Anchors",
-      "ratings": "Ratings"
+      "ratings": "Ratings",
+      "contextHeader": "Week context",
+      "weekEntryHeading": "Week entry — {week}",
+      "wordCount": "words",
+      "contextTagsLabel": "Quick tags",
+      "contextTags": {
+        "gratitude": "Gratitude",
+        "keyMoment": "Key moment",
+        "challenge": "Challenge",
+        "lesson": "Lesson",
+        "intention": "Intention"
+      },
+      "collapse": "Collapse context panel",
+      "expand": "Expand context panel",
+      "aiSummary": "AI summary",
+      "aiSummaryHint": "AI will scan your entries, emotions and ratings and pull out the main themes of the week.",
+      "aiSummaryLoading": "AI is reading your week…",
+      "aiGenerate": "Generate",
+      "aiSummaryMockBody": "A week of recovering rhythm. After an intense Tuesday that opened important threads, Wednesday became the heaviest point with a packed calendar and unease. From Thursday onward stability returned: dinner with a close friend, a closed sprint on Friday, and a quiet weekend.",
+      "aiSummaryMockTags": "recovering rhythm|overloaded Wednesday|closing the sprint",
+      "aiPrompts": "AI questions",
+      "aiPromptsHint": "AI can suggest questions to deepen your reflection.",
+      "aiPromptsLoading": "AI is looking at your week…",
+      "aiPromptsGenerate": "Generate questions",
+      "aiPromptsMock": "What made Wednesday feel heavier than the rest of the week?|Which conditions supported your moments of gratitude?|What do you want to carry from this week into the next?",
+      "emotionsTitle": "Emotions",
+      "pleasant": "pleasant",
+      "quadrants": {
+        "highEnergyHighPleasantness": "High / pleasant",
+        "highEnergyLowPleasantness": "High / unpleasant",
+        "lowEnergyHighPleasantness": "Low / pleasant",
+        "lowEnergyLowPleasantness": "Low / unpleasant"
+      }
     },
     "review": {
       "emotions": "Emotions",
@@ -564,7 +596,19 @@
       "weeklyHabits": "Weekly Habits",
       "monthlyHabits": "Monthly Habits",
       "thisWeek": "this week",
-      "noData": "No data for this period"
+      "noData": "No data for this period",
+      "goals": "Goals",
+      "goalsAndHabits": "Goals and Habits",
+      "noGoals": "No goals this week.",
+      "noHabits": "No habits tracked this week.",
+      "noTrackers": "No tracker entries this week.",
+      "topEmotions": "Most frequent",
+      "aiSummary": "AI Summary",
+      "aiSummaryHint": "See how AI summarizes this week based on your logs.",
+      "aiGenerate": "Generate",
+      "aiGenerating": "Generating…",
+      "aiSummaryMockHeading": "Key theme",
+      "aiSummaryMockBody": "A week of recovering rhythm — Friday's sprint closed a heavy project stretch and the weekend brought space with loved ones. Wednesday stood out as the hardest point and may be worth a closer look."
     },
     "weekly": {
       "title": "Weekly Reflection",

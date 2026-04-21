@@ -15,7 +15,13 @@ import {
   getWeekRelevantObjects,
   getMonthPlanningBundle,
 } from '@/services/planningStateQueries'
-import type { WeekMeasurementReflectionItem } from '@/services/planningStateQueries'
+import type {
+  WeekCadencedReflectionItem,
+  WeekMeasurementReflectionItem,
+  WeekTrackerReflectionItem,
+} from '@/services/planningStateQueries'
+import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
+import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
 import { buildMeasurementSummary } from '@/services/measurementProgress'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import type { WeeklyReflection } from '@/domain/reflection'
@@ -24,7 +30,8 @@ import {
   WEEKLY_STATE_KEYS,
   WEEKLY_EVALUATION_KEYS,
 } from '@/domain/reflection'
-import type { GoalStatus, MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
+import type { Goal, GoalStatus, MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
+import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
 
 // ---------------------------------------------------------------------------
@@ -119,13 +126,16 @@ export interface DailyActivityBreakdown {
   emotions: {
     items: { emotionId: string; name: string; quadrant: Quadrant }[]
     totalLogs: number
+    quadrantCounts: Record<Quadrant, number>
+    sessions: { createdAt: string; emotionIds: string[]; note?: string }[]
   }
   journal: {
-    items: { id: string; title: string }[]
+    items: { id: string; title: string; body?: string; hasAISuggestions?: boolean }[]
   }
   exercises: {
     count: number
     types: string[]
+    items: { id: string; type: string; createdAt: string }[]
   }
   keyResults: {
     items: { id: string; name: string; value: number | null }[]
@@ -155,6 +165,11 @@ export interface WeeklySummary {
   totalExercises: number
 }
 
+export interface WeekGoalReflectionGroup {
+  goal: { id: string; title: string; icon?: string; status: GoalStatus }
+  keyResults: WeekCadencedReflectionItem[]
+}
+
 export interface WeeklyReflectionDataBundle {
   weekRef: WeekRef
   emotionSummary: EmotionSummary
@@ -163,6 +178,12 @@ export interface WeeklyReflectionDataBundle {
   exerciseSummary: ExerciseSummary
   dailyBreakdown: DailyActivityBreakdown[]
   weeklySummary: WeeklySummary
+  // Chart-ready data for Step 1 (review) — reuses Today visualization rules
+  rawEntries: DailyMeasurementEntry[]
+  allDayAssignments: MeasurementDayAssignment[]
+  goalReflectionGroups: WeekGoalReflectionGroup[]
+  habitReflectionItems: WeekCadencedReflectionItem[]
+  trackerReflectionItems: WeekTrackerReflectionItem[]
 }
 
 export interface WeeklyRatingTrendEntry {
@@ -482,11 +503,20 @@ function buildDailyBreakdown(
     )
     const seenEmotionIds = new Set<string>()
     const emotionItems: { emotionId: string; name: string; quadrant: Quadrant }[] = []
+    const dayQuadrantCounts: Record<Quadrant, number> = {
+      'high-energy-high-pleasantness': 0,
+      'high-energy-low-pleasantness': 0,
+      'low-energy-high-pleasantness': 0,
+      'low-energy-low-pleasantness': 0,
+    }
     for (const log of dayEmotionLogs) {
       for (const emotionId of log.emotionIds) {
+        const emotion = emotionStore.getEmotionById(emotionId)
+        if (emotion) {
+          dayQuadrantCounts[getQuadrant(emotion)]++
+        }
         if (!seenEmotionIds.has(emotionId)) {
           seenEmotionIds.add(emotionId)
-          const emotion = emotionStore.getEmotionById(emotionId)
           if (emotion) {
             emotionItems.push({
               emotionId,
@@ -497,6 +527,11 @@ function buildDailyBreakdown(
         }
       }
     }
+    const emotionSessions = dayEmotionLogs.map((log) => ({
+      createdAt: log.createdAt,
+      emotionIds: [...log.emotionIds],
+      note: log.note,
+    }))
 
     // Journal
     const dayJournalEntries = weekJournalEntries.filter(
@@ -529,9 +564,29 @@ function buildDailyBreakdown(
     return {
       dayRef,
       habits: { items: habitItems },
-      emotions: { items: emotionItems, totalLogs: dayEmotionLogs.length },
-      journal: { items: dayJournalEntries.map((e) => ({ id: e.id, title: getDisplayTitle(e) })) },
-      exercises: { count: dayExercises.length, types: [...new Set(dayExercises.map((e) => e.type))] },
+      emotions: {
+        items: emotionItems,
+        totalLogs: dayEmotionLogs.length,
+        quadrantCounts: dayQuadrantCounts,
+        sessions: emotionSessions,
+      },
+      journal: {
+        items: dayJournalEntries.map((e) => ({
+          id: e.id,
+          title: getDisplayTitle(e),
+          body: e.body,
+          hasAISuggestions: Array.isArray(e.chatSessions) && e.chatSessions.length > 0,
+        })),
+      },
+      exercises: {
+        count: dayExercises.length,
+        types: [...new Set(dayExercises.map((e) => e.type))],
+        items: dayExercises.map((e, idx) => ({
+          id: `${dayRef}-${idx}`,
+          type: e.type,
+          createdAt: e.createdAt,
+        })),
+      },
       keyResults: { items: krItems },
       trackers: { items: trackerItems },
     }
@@ -631,6 +686,12 @@ export async function getWeeklyReflectionDataBundle(
     totalExercises: exerciseSummary.totalCompleted,
   }
 
+  let rawEntries: DailyMeasurementEntry[] = []
+  let allDayAssignments: MeasurementDayAssignment[] = []
+  let goalReflectionGroups: WeekGoalReflectionGroup[] = []
+  let habitReflectionItems: WeekCadencedReflectionItem[] = []
+  let trackerReflectionItems: WeekTrackerReflectionItem[] = []
+
   try {
     const relevant = await getWeekRelevantObjects(weekRef)
     const reflectionMeasurements = relevant.reflection.measurementItems
@@ -661,6 +722,63 @@ export async function getWeeklyReflectionDataBundle(
       journalSummary,
       exerciseSummary,
     )
+
+    rawEntries = relevant.rawEntries
+    habitReflectionItems = relevant.reflection.cadencedItems.filter(
+      (item) => item.subjectType === 'habit',
+    )
+    trackerReflectionItems = relevant.reflection.trackerItems
+
+    // Load day assignments for the whole set of overlapping months so bar/dot
+    // charts can show scheduled-day markers.
+    allDayAssignments = await loadDayAssignmentsForMonths(relevant.overlappingMonthRefs)
+
+    // Build goal -> KRs groups for the reflection summary. We pull goals from
+    // the reflection bundle's goalItems and match KRs by goalId.
+    const keyResultItems = relevant.reflection.cadencedItems.filter(
+      (item) => item.subjectType === 'keyResult',
+    )
+    const goalMap = new Map<string, Goal>()
+    for (const goalItem of relevant.reflection.goalItems) {
+      goalMap.set(goalItem.goal.id, goalItem.goal)
+    }
+    // Also include any goals referenced by KRs but not in goalItems (defensive)
+    if (keyResultItems.length > 0) {
+      const core = await loadPlanningCoreObjects()
+      for (const goal of core.goals) {
+        if (!goalMap.has(goal.id)) {
+          const hasKR = keyResultItems.some(
+            (kr) => 'goalId' in kr.subject && kr.subject.goalId === goal.id,
+          )
+          if (hasKR) goalMap.set(goal.id, goal)
+        }
+      }
+    }
+
+    const krsByGoal = new Map<string, WeekCadencedReflectionItem[]>()
+    for (const kr of keyResultItems) {
+      if ('goalId' in kr.subject) {
+        const list = krsByGoal.get(kr.subject.goalId) ?? []
+        list.push(kr)
+        krsByGoal.set(kr.subject.goalId, list)
+      }
+    }
+
+    goalReflectionGroups = [...krsByGoal.entries()].flatMap(([goalId, keyResults]) => {
+      const goal = goalMap.get(goalId)
+      if (!goal) return []
+      return [
+        {
+          goal: {
+            id: goal.id,
+            title: goal.title,
+            icon: goal.icon,
+            status: goal.status,
+          },
+          keyResults,
+        },
+      ]
+    })
   } catch {
     // Planning data may not exist — build daily breakdown without measurements
     dailyBreakdown = buildDailyBreakdown(weekRef, [], [], exerciseEntries, startDate, endDate)
@@ -674,7 +792,34 @@ export async function getWeeklyReflectionDataBundle(
     exerciseSummary,
     dailyBreakdown,
     weeklySummary,
+    rawEntries,
+    allDayAssignments,
+    goalReflectionGroups,
+    habitReflectionItems,
+    trackerReflectionItems,
   }
+}
+
+async function loadDayAssignmentsForMonths(
+  monthRefs: MonthRef[],
+): Promise<MeasurementDayAssignment[]> {
+  if (monthRefs.length === 0) return []
+  const boundsKeys = new Set<string>()
+  const bounds: { start: DayRef; end: DayRef }[] = []
+  for (const monthRef of monthRefs) {
+    const b = getPeriodBounds(monthRef)
+    const key = `${b.start}:${b.end}`
+    if (!boundsKeys.has(key)) {
+      boundsKeys.add(key)
+      bounds.push({ start: b.start as DayRef, end: b.end as DayRef })
+    }
+  }
+  const starts = bounds.map((b) => b.start).sort()
+  const ends = bounds.map((b) => b.end).sort()
+  const start = starts[0]
+  const end = ends[ends.length - 1]
+  if (!start || !end) return []
+  return planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(start, end)
 }
 
 // ---------------------------------------------------------------------------
