@@ -1,14 +1,14 @@
 <template>
-  <div class="flex items-center gap-3 rounded-xl bg-neu-base px-3 py-2 shadow-neu-pressed-sm">
-    <!-- Title + optional goal context -->
-    <div class="min-w-0 flex-1">
+  <div class="flex min-h-[48px] items-center gap-2 rounded-xl bg-neu-base px-3 py-2 shadow-neu-pressed-sm">
+    <!-- Title + optional goal context — capped at half the row width, wraps to 2 lines. -->
+    <div class="min-w-0 basis-1/2">
       <div class="flex items-center gap-1.5">
         <AppIcon
           v-if="iconName"
           :name="iconName"
           class="shrink-0 text-xs text-on-surface-variant"
         />
-        <span class="truncate text-xs font-semibold text-on-surface">
+        <span class="line-clamp-2 break-words text-xs font-semibold leading-tight text-on-surface">
           {{ title }}
         </span>
       </div>
@@ -18,10 +18,11 @@
     </div>
 
     <!-- Chart: mirrors TodayItemRow's visualization branch tree. -->
-    <div class="flex shrink-0 items-center" :style="{ width: chartWidth }">
+    <div class="flex min-w-0 basis-1/2 items-center justify-end">
       <CompletionDots
         v-if="viz.vizType.value === 'completion-dots'"
         :slots="viz.completionSlots.value"
+        size="sm"
       />
       <CompletionRing
         v-else-if="viz.vizType.value === 'completion-ring'"
@@ -97,11 +98,14 @@ interface Props {
   todayDayRef: DayRef
   subtitle?: string
   chartWidth?: string
+  /** Overrides the subject's own icon — used for KR rows to show the parent goal's icon. */
+  iconOverride?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   subtitle: undefined,
   chartWidth: '140px',
+  iconOverride: undefined,
 })
 
 const { locale } = useT()
@@ -141,6 +145,7 @@ const viz = useTodayItemVisualization(
 const title = computed(() => props.subject.title)
 
 const iconName = computed(() => {
+  if (props.iconOverride && props.iconOverride.length > 0) return props.iconOverride
   const icon = (props.subject as { icon?: string }).icon
   return icon && icon.length > 0 ? icon : undefined
 })

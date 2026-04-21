@@ -105,7 +105,7 @@
       <div
         class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1fr_1fr_1.1fr_1.2fr]"
       >
-        <!-- Goals -->
+        <!-- Goals — flat list of KRs; each row shows its parent goal's icon (same layout as habits/trackers). -->
         <SummaryCard :title="t('planning.reflection.review.goals')" icon="flag">
           <template v-if="goalReflectionGroups.length === 0">
             <p class="text-xs text-on-surface-variant/70">
@@ -113,21 +113,7 @@
             </p>
           </template>
           <template v-else>
-            <div
-              v-for="group in goalReflectionGroups"
-              :key="group.goal.id"
-              class="flex flex-col gap-2"
-            >
-              <div class="flex items-center gap-1.5">
-                <AppIcon
-                  v-if="group.goal.icon"
-                  :name="group.goal.icon"
-                  class="shrink-0 text-xs text-on-surface-variant"
-                />
-                <span class="truncate text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant/80">
-                  {{ group.goal.title }}
-                </span>
-              </div>
+            <template v-for="group in goalReflectionGroups" :key="group.goal.id">
               <ReflectionMeasurementRow
                 v-for="kr in group.keyResults"
                 :key="kr.subject.id"
@@ -139,9 +125,10 @@
                 :all-day-assignments="allDayAssignments"
                 :context-period-ref="weekRef"
                 :today-day-ref="todayDayRef"
+                :icon-override="group.goal.icon"
                 chart-width="110px"
               />
-            </div>
+            </template>
           </template>
         </SummaryCard>
 

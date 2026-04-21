@@ -2,21 +2,22 @@
   <div class="flex flex-col items-center gap-0.5">
     <div class="relative h-10 w-10">
       <svg :width="size" :height="size" class="block">
+        <!-- Track: subtle primary-tinted background for the full ring -->
         <circle
           :cx="size / 2"
           :cy="size / 2"
           :r="radius"
           fill="none"
-          stroke="var(--color-outline-variant)"
+          stroke="rgb(var(--color-primary) / 0.22)"
           :stroke-width="stroke"
-          opacity="0.35"
         />
+        <!-- Progress stroke -->
         <circle
           :cx="size / 2"
           :cy="size / 2"
           :r="radius"
           fill="none"
-          :stroke="strokeColor"
+          stroke="rgb(var(--color-primary))"
           :stroke-width="stroke"
           :stroke-dasharray="circumference"
           :stroke-dashoffset="dashOffset"
@@ -25,14 +26,11 @@
           style="transition: stroke-dashoffset 400ms ease"
         />
       </svg>
-      <div
-        class="absolute inset-0 flex items-center justify-center"
-        :style="{ color: strokeColor }"
-      >
+      <div class="absolute inset-0 flex items-center justify-center text-primary">
         <AppIcon :name="icon" class="text-sm" />
       </div>
     </div>
-    <div class="text-[10px] font-semibold tabular-nums text-on-surface">
+    <div class="text-[10px] font-semibold tabular-nums text-primary">
       {{ value }}/{{ max }}
     </div>
   </div>
@@ -59,10 +57,4 @@ const percent = computed(() => {
 })
 
 const dashOffset = computed(() => circumference * (1 - percent.value))
-
-const strokeColor = computed(() => {
-  return percent.value >= 1
-    ? 'var(--color-primary)'
-    : 'var(--color-tertiary, var(--color-primary))'
-})
 </script>
