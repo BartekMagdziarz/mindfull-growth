@@ -101,187 +101,196 @@
         </button>
       </div>
 
-      <!-- Week summary: 5-column grid -->
-      <div
-        class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1fr_1fr_1.1fr_1.2fr]"
-      >
-        <!-- Goals — flat list of KRs; each row shows its parent goal's icon (same layout as habits/trackers). -->
-        <SummaryCard :title="t('planning.reflection.review.goals')" icon="flag">
-          <template v-if="goalReflectionGroups.length === 0">
-            <p class="text-xs text-on-surface-variant/70">
-              {{ t('planning.reflection.review.noGoals') }}
-            </p>
-          </template>
-          <template v-else>
-            <template v-for="group in goalReflectionGroups" :key="group.goal.id">
-              <ReflectionMeasurementRow
-                v-for="kr in group.keyResults"
-                :key="kr.subject.id"
-                :subject="kr.subject"
-                :subject-type="kr.subjectType"
-                :planning="kr.planning"
-                :measurement="kr.measurement"
-                :raw-entries="rawEntries"
-                :all-day-assignments="allDayAssignments"
-                :context-period-ref="weekRef"
-                :today-day-ref="todayDayRef"
-                :icon-override="group.goal.icon"
-                chart-width="110px"
-              />
+      <!-- Week summary: main (CELE | NAWYKI+TRACKERY) + right sidebar (EMOCJE + AI) -->
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
+        <!-- MAIN: 2-col grid on desktop (CELE + stacked NAWYKI/TRACKERY) -->
+        <div
+          class="grid min-w-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-2 lg:items-start"
+        >
+          <!-- Column 1: CELE — flat list of KRs across all goal groups (each row uses its parent goal's icon). -->
+          <SummaryCard :title="t('planning.reflection.review.goals')" icon="flag">
+            <template v-if="goalReflectionGroups.length === 0">
+              <p class="text-xs text-on-surface-variant/70">
+                {{ t('planning.reflection.review.noGoals') }}
+              </p>
             </template>
-          </template>
-        </SummaryCard>
+            <template v-else>
+              <template v-for="group in goalReflectionGroups" :key="group.goal.id">
+                <ReflectionMeasurementRow
+                  v-for="kr in group.keyResults"
+                  :key="kr.subject.id"
+                  :subject="kr.subject"
+                  :subject-type="kr.subjectType"
+                  :planning="kr.planning"
+                  :measurement="kr.measurement"
+                  :raw-entries="rawEntries"
+                  :all-day-assignments="allDayAssignments"
+                  :context-period-ref="weekRef"
+                  :today-day-ref="todayDayRef"
+                  :icon-override="group.goal.icon"
+                  chart-width="110px"
+                />
+              </template>
+            </template>
+          </SummaryCard>
 
-        <!-- Habits -->
-        <SummaryCard :title="t('planning.reflection.review.habits')" icon="repeat">
-          <template v-if="habitReflectionItems.length === 0">
-            <p class="text-xs text-on-surface-variant/70">
-              {{ t('planning.reflection.review.noHabits') }}
-            </p>
-          </template>
-          <template v-else>
-            <ReflectionMeasurementRow
-              v-for="habit in habitReflectionItems"
-              :key="habit.subject.id"
-              :subject="habit.subject"
-              :subject-type="habit.subjectType"
-              :planning="habit.planning"
-              :measurement="habit.measurement"
-              :raw-entries="rawEntries"
-              :all-day-assignments="allDayAssignments"
-              :context-period-ref="weekRef"
-              :today-day-ref="todayDayRef"
-              chart-width="110px"
-            />
-          </template>
-        </SummaryCard>
+          <!-- Column 2: stack of NAWYKI + TRACKERY — together they usually balance CELE's height. -->
+          <div class="flex flex-col gap-3">
+            <!-- Habits -->
+            <SummaryCard :title="t('planning.reflection.review.habits')" icon="repeat">
+              <template v-if="habitReflectionItems.length === 0">
+                <p class="text-xs text-on-surface-variant/70">
+                  {{ t('planning.reflection.review.noHabits') }}
+                </p>
+              </template>
+              <template v-else>
+                <ReflectionMeasurementRow
+                  v-for="habit in habitReflectionItems"
+                  :key="habit.subject.id"
+                  :subject="habit.subject"
+                  :subject-type="habit.subjectType"
+                  :planning="habit.planning"
+                  :measurement="habit.measurement"
+                  :raw-entries="rawEntries"
+                  :all-day-assignments="allDayAssignments"
+                  :context-period-ref="weekRef"
+                  :today-day-ref="todayDayRef"
+                  chart-width="110px"
+                />
+              </template>
+            </SummaryCard>
 
-        <!-- Trackers -->
-        <SummaryCard :title="t('planning.reflection.review.trackers')" icon="monitoring">
-          <template v-if="trackerReflectionItems.length === 0">
-            <p class="text-xs text-on-surface-variant/70">
-              {{ t('planning.reflection.review.noTrackers') }}
-            </p>
-          </template>
-          <template v-else>
-            <ReflectionMeasurementRow
-              v-for="tracker in trackerReflectionItems"
-              :key="tracker.subject.id"
-              :subject="tracker.subject"
-              :subject-type="tracker.subjectType"
-              :planning="tracker.planning"
-              :measurement="tracker.measurement"
-              :raw-entries="rawEntries"
-              :all-day-assignments="allDayAssignments"
-              :context-period-ref="weekRef"
-              :today-day-ref="todayDayRef"
-              chart-width="110px"
-            />
-          </template>
-        </SummaryCard>
+            <!-- Trackers -->
+            <SummaryCard :title="t('planning.reflection.review.trackers')" icon="monitoring">
+              <template v-if="trackerReflectionItems.length === 0">
+                <p class="text-xs text-on-surface-variant/70">
+                  {{ t('planning.reflection.review.noTrackers') }}
+                </p>
+              </template>
+              <template v-else>
+                <ReflectionMeasurementRow
+                  v-for="tracker in trackerReflectionItems"
+                  :key="tracker.subject.id"
+                  :subject="tracker.subject"
+                  :subject-type="tracker.subjectType"
+                  :planning="tracker.planning"
+                  :measurement="tracker.measurement"
+                  :raw-entries="rawEntries"
+                  :all-day-assignments="allDayAssignments"
+                  :context-period-ref="weekRef"
+                  :today-day-ref="todayDayRef"
+                  chart-width="110px"
+                />
+              </template>
+            </SummaryCard>
+          </div>
+        </div>
 
-        <!-- Emotions -->
-        <SummaryCard :title="t('planning.reflection.review.emotions')" icon="mood">
-          <div class="grid grid-cols-2 items-start gap-3">
-            <!-- 2x2 quadrant grid -->
-            <div
-              class="grid aspect-square grid-cols-2 grid-rows-2 gap-1 rounded-2xl bg-neu-base p-1.5 shadow-neu-pressed-sm"
-            >
+        <!-- SIDEBAR: EMOCJE + AI summary — fixed-width region; their height is decoupled from the main grid. -->
+        <aside class="flex w-full shrink-0 flex-col gap-3 lg:w-[340px]">
+          <!-- Emotions -->
+          <SummaryCard :title="t('planning.reflection.review.emotions')" icon="mood">
+            <div class="grid grid-cols-2 items-start gap-3">
+              <!-- 2x2 quadrant grid -->
               <div
-                v-for="q in quadrantTiles"
-                :key="q.key"
-                class="flex items-center justify-center"
+                class="grid aspect-square grid-cols-2 grid-rows-2 gap-1 rounded-2xl bg-neu-base p-1.5 shadow-neu-pressed-sm"
               >
                 <div
-                  class="flex items-center justify-center rounded-xl text-sm font-bold shadow-neu-raised-sm"
-                  :style="{
-                    width: quadrantTileSize(q.key) + '%',
-                    height: quadrantTileSize(q.key) + '%',
-                    minWidth: '20px',
-                    minHeight: '20px',
-                    background: q.color,
-                    color: 'white',
-                  }"
+                  v-for="q in quadrantTiles"
+                  :key="q.key"
+                  class="flex items-center justify-center"
                 >
-                  {{ totalEmotionQuadrants[q.key] }}
+                  <div
+                    class="flex items-center justify-center rounded-xl text-sm font-bold shadow-neu-raised-sm"
+                    :style="{
+                      width: quadrantTileSize(q.key) + '%',
+                      height: quadrantTileSize(q.key) + '%',
+                      minWidth: '20px',
+                      minHeight: '20px',
+                      background: q.color,
+                      color: 'white',
+                    }"
+                  >
+                    {{ totalEmotionQuadrants[q.key] }}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Top emotions list -->
-            <div class="flex flex-col gap-1">
-              <div class="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/70">
-                {{ t('planning.reflection.review.topEmotions') }}
+              <!-- Top emotions list -->
+              <div class="flex flex-col gap-1">
+                <div class="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/70">
+                  {{ t('planning.reflection.review.topEmotions') }}
+                </div>
+                <div
+                  v-for="emotion in topEmotionsList"
+                  :key="emotion.emotionId"
+                  class="flex items-center gap-1.5 text-[11px]"
+                >
+                  <span
+                    class="flex h-2 w-2 shrink-0 rounded-full"
+                    :style="{ backgroundColor: quadrantColor(emotion.quadrant) }"
+                  />
+                  <span class="min-w-0 flex-1 truncate text-on-surface">
+                    {{ emotion.name }}
+                  </span>
+                  <span class="shrink-0 font-semibold text-on-surface-variant/80">
+                    ×{{ emotion.count }}
+                  </span>
+                </div>
+                <p
+                  v-if="topEmotionsList.length === 0"
+                  class="text-xs text-on-surface-variant/70"
+                >
+                  —
+                </p>
               </div>
-              <div
-                v-for="emotion in topEmotionsList"
-                :key="emotion.emotionId"
-                class="flex items-center gap-1.5 text-[11px]"
-              >
-                <span
-                  class="flex h-2 w-2 shrink-0 rounded-full"
-                  :style="{ backgroundColor: quadrantColor(emotion.quadrant) }"
-                />
-                <span class="min-w-0 flex-1 truncate text-on-surface">
-                  {{ emotion.name }}
-                </span>
-                <span class="shrink-0 font-semibold text-on-surface-variant/80">
-                  ×{{ emotion.count }}
-                </span>
-              </div>
-              <p
-                v-if="topEmotionsList.length === 0"
-                class="text-xs text-on-surface-variant/70"
-              >
-                —
+            </div>
+          </SummaryCard>
+
+          <!-- AI Summary (mock) -->
+          <SummaryCard
+            :title="t('planning.reflection.review.aiSummary')"
+            icon="auto_awesome"
+            accent
+          >
+            <template v-if="!aiSummaryGenerated && !aiSummaryLoading">
+              <p class="text-xs leading-relaxed text-on-surface-variant">
+                {{ t('planning.reflection.review.aiSummaryHint') }}
               </p>
-            </div>
-          </div>
-        </SummaryCard>
-
-        <!-- AI Summary (mock) -->
-        <SummaryCard
-          :title="t('planning.reflection.review.aiSummary')"
-          icon="auto_awesome"
-          accent
-        >
-          <template v-if="!aiSummaryGenerated && !aiSummaryLoading">
-            <p class="text-xs leading-relaxed text-on-surface-variant">
-              {{ t('planning.reflection.review.aiSummaryHint') }}
-            </p>
-            <div class="flex items-center gap-2 text-[10px] text-on-surface-variant/80">
-              <span>{{ totalJournalEntries }} {{ t('planning.reflection.review.journals').toLowerCase() }}</span>
-              <span class="h-1 w-1 rounded-full bg-on-surface-variant/40" />
-              <span>{{ totalEmotionLogs }} {{ t('planning.reflection.review.emotions').toLowerCase() }}</span>
-            </div>
-            <button
-              type="button"
-              class="neo-focus mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
-              @click="generateAiSummary"
-            >
-              <AppIcon name="auto_awesome" class="text-sm" />
-              {{ t('planning.reflection.review.aiGenerate') }}
-            </button>
-          </template>
-
-          <template v-else-if="aiSummaryLoading">
-            <div class="flex items-center gap-2 text-xs text-on-surface-variant">
-              <AppIcon name="auto_awesome" class="animate-spin text-sm text-primary" />
-              {{ t('planning.reflection.review.aiGenerating') }}
-            </div>
-          </template>
-
-          <template v-else>
-            <div
-              class="rounded-xl bg-neu-base p-3 text-xs leading-relaxed text-on-surface shadow-neu-pressed-sm"
-            >
-              <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-primary">
-                {{ t('planning.reflection.review.aiSummaryMockHeading') }}
+              <div class="flex items-center gap-2 text-[10px] text-on-surface-variant/80">
+                <span>{{ totalJournalEntries }} {{ t('planning.reflection.review.journals').toLowerCase() }}</span>
+                <span class="h-1 w-1 rounded-full bg-on-surface-variant/40" />
+                <span>{{ totalEmotionLogs }} {{ t('planning.reflection.review.emotions').toLowerCase() }}</span>
               </div>
-              {{ t('planning.reflection.review.aiSummaryMockBody') }}
-            </div>
-          </template>
-        </SummaryCard>
+              <button
+                type="button"
+                class="neo-focus mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
+                @click="generateAiSummary"
+              >
+                <AppIcon name="auto_awesome" class="text-sm" />
+                {{ t('planning.reflection.review.aiGenerate') }}
+              </button>
+            </template>
+
+            <template v-else-if="aiSummaryLoading">
+              <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+                <AppIcon name="auto_awesome" class="animate-spin text-sm text-primary" />
+                {{ t('planning.reflection.review.aiGenerating') }}
+              </div>
+            </template>
+
+            <template v-else>
+              <div
+                class="rounded-xl bg-neu-base p-3 text-xs leading-relaxed text-on-surface shadow-neu-pressed-sm"
+              >
+                <div class="mb-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+                  {{ t('planning.reflection.review.aiSummaryMockHeading') }}
+                </div>
+                {{ t('planning.reflection.review.aiSummaryMockBody') }}
+              </div>
+            </template>
+          </SummaryCard>
+        </aside>
       </div>
 
       <!-- Day detail modal -->
