@@ -256,6 +256,33 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     expect(getByLabelText('Decrement')).toBeTruthy()
   })
 
+  it('clears a counter entry when decrement is clicked at zero', async () => {
+    const habit = makeHabit('habit-counter-zero', {
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 10 },
+    })
+    const item = makeMeasurementItem(
+      'habit',
+      habit,
+      makeSummary({
+        entryMode: 'counter',
+        actualValue: 0,
+        target: habit.target,
+        periodRef: WEEK_REF,
+      }),
+      makePlanning(),
+      makeEntry('habit', 'habit-counter-zero', TODAY, 0),
+    )
+    const { emitted, getByLabelText } = renderRow(item, [
+      makeEntry('habit', 'habit-counter-zero', TODAY, 0),
+    ])
+
+    await fireEvent.click(getByLabelText('Decrement'))
+
+    expect(emitted()['clear-entry']).toBeTruthy()
+    expect(emitted()['save-entry']).toBeUndefined()
+  })
+
   it('renders weekly value tracker with editable number input (no inline ± buttons)', () => {
     const habit = makeHabit('habit-value', {
       entryMode: 'value',
@@ -282,6 +309,48 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     expect(container.querySelector('.today-inline-value-input')).toBeTruthy()
   })
 
+  it('clears a value entry when the input is emptied and blurred', async () => {
+    const tracker = makeTracker('tracker-value-clear', { entryMode: 'value' })
+    const item = makeMeasurementItem(
+      'tracker',
+      tracker,
+      makeSummary({ entryMode: 'value', actualValue: 4.5, periodRef: WEEK_REF }),
+      makePlanning(),
+      makeEntry('tracker', 'tracker-value-clear', TODAY, 4.5),
+    )
+    const { container, emitted } = renderRow(item, [
+      makeEntry('tracker', 'tracker-value-clear', TODAY, 4.5),
+    ])
+    const input = container.querySelector('.today-inline-value-input') as HTMLInputElement
+
+    await fireEvent.update(input, '')
+    await fireEvent.blur(input)
+
+    expect(emitted()['clear-entry']).toBeTruthy()
+    expect(emitted()['save-entry']).toBeUndefined()
+  })
+
+  it('saves zero as a value entry instead of clearing it', async () => {
+    const tracker = makeTracker('tracker-value-zero', { entryMode: 'value' })
+    const item = makeMeasurementItem(
+      'tracker',
+      tracker,
+      makeSummary({ entryMode: 'value', actualValue: 4.5, periodRef: WEEK_REF }),
+      makePlanning(),
+      makeEntry('tracker', 'tracker-value-zero', TODAY, 4.5),
+    )
+    const { container, emitted } = renderRow(item, [
+      makeEntry('tracker', 'tracker-value-zero', TODAY, 4.5),
+    ])
+    const input = container.querySelector('.today-inline-value-input') as HTMLInputElement
+
+    await fireEvent.update(input, '0')
+    await fireEvent.blur(input)
+
+    expect(emitted()['save-entry']).toEqual([[0]])
+    expect(emitted()['clear-entry']).toBeUndefined()
+  })
+
   it('renders weekly rating tracker with inline ± controls in title row', () => {
     const tracker = makeTracker('tracker-rating', { entryMode: 'rating' })
     const item = makeMeasurementItem(
@@ -298,6 +367,25 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     // Rating entries render inline counter-style ± buttons
     expect(getByLabelText('Increment')).toBeTruthy()
     expect(getByLabelText('Decrement')).toBeTruthy()
+  })
+
+  it('clears a rating entry when decrement is clicked at the minimum scale value', async () => {
+    const tracker = makeTracker('tracker-rating-min', { entryMode: 'rating' })
+    const item = makeMeasurementItem(
+      'tracker',
+      tracker,
+      makeSummary({ entryMode: 'rating', actualValue: 1, periodRef: WEEK_REF }),
+      makePlanning(),
+      makeEntry('tracker', 'tracker-rating-min', TODAY, 1),
+    )
+    const { emitted, getByLabelText } = renderRow(item, [
+      makeEntry('tracker', 'tracker-rating-min', TODAY, 1),
+    ])
+
+    await fireEvent.click(getByLabelText('Decrement'))
+
+    expect(emitted()['clear-entry']).toBeTruthy()
+    expect(emitted()['save-entry']).toBeUndefined()
   })
 
   it('renders completion-dots with inline today circle (no number input)', () => {

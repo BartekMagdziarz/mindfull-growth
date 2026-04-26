@@ -28,9 +28,9 @@
       <button
         type="button"
         class="flex-1 rounded-xl bg-neu-base py-1.5 text-sm font-semibold text-on-surface shadow-neu-raised-sm transition-all neo-focus hover:-translate-y-px hover:shadow-neu-raised active:shadow-neu-pressed disabled:opacity-40 disabled:pointer-events-none"
-        :disabled="isPending || currentValue <= 0"
+        :disabled="isPending || !hasEntry"
         aria-label="Decrement"
-        @click.stop="emit('decrement')"
+        @click.stop="handleDecrement"
       >
         −
       </button>
@@ -53,14 +53,16 @@ import { nextTick, ref, watch } from 'vue'
 const props = withDefaults(
   defineProps<{
     currentValue: number
+    hasEntry?: boolean
     isPending?: boolean
   }>(),
-  { isPending: false },
+  { hasEntry: true, isPending: false },
 )
 
 const emit = defineEmits<{
   increment: []
   decrement: []
+  'clear-entry': []
   'save-value': [value: number]
 }>()
 
@@ -107,6 +109,15 @@ function submitFromInput(event: Event): void {
     justSubmitted.value = true
     input.blur()
   }
+}
+
+function handleDecrement(): void {
+  if (props.currentValue <= 0) {
+    emit('clear-entry')
+    return
+  }
+
+  emit('decrement')
 }
 
 function formatValue(value: number): string {

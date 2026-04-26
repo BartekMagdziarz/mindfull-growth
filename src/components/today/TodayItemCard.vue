@@ -79,7 +79,7 @@
                 v-if="showsStepper"
                 variant="tonal"
                 :aria-label="t('planning.today.actions.decrease')"
-                :disabled="isPending"
+                :disabled="isPending || !item.todayEntry"
                 @click="handleStep(-1)"
               >
                 -
@@ -379,6 +379,10 @@ function handleStep(delta: number): void {
   }
 
   const currentValue = parsedDraftValue.value ?? props.item.todayEntry?.value ?? 0
+  if (delta < 0 && props.item.todayEntry && currentValue <= 0) {
+    emit('clear-entry')
+    return
+  }
   const nextValue = Math.max(0, currentValue + delta)
   draftValue.value = String(nextValue)
   emit('save-entry', nextValue)

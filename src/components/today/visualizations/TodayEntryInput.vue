@@ -72,9 +72,9 @@
       <button
         type="button"
         class="flex-1 rounded-xl bg-neu-base py-1.5 text-sm font-semibold text-on-surface shadow-neu-raised-sm transition-all neo-focus hover:-translate-y-px hover:shadow-neu-raised active:shadow-neu-pressed disabled:opacity-40 disabled:pointer-events-none"
-        :disabled="isPending || currentValue <= ratingMin"
+        :disabled="isPending || currentValue < ratingMin"
         aria-label="Decrement"
-        @click.stop="$emit('decrement')"
+        @click.stop="handleRatingDecrement"
       >
         −
       </button>
@@ -131,6 +131,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   increment: []
   decrement: []
+  'clear-entry': []
   'save-value': [value: number]
 }>()
 
@@ -170,7 +171,14 @@ function submitFromInput(event: Event): void {
 
   showInlineEdit.value = false
 
-  if (!raw) return
+  if (!raw) {
+    emit('clear-entry')
+    if (event.type === 'keydown') {
+      justSubmitted.value = true
+      input.blur()
+    }
+    return
+  }
   const parsed = Number(raw)
   if (!Number.isFinite(parsed)) return
 
@@ -205,6 +213,15 @@ function submitRatingFromInput(event: Event): void {
     justSubmitted.value = true
     input.blur()
   }
+}
+
+function handleRatingDecrement(): void {
+  if (props.currentValue <= props.ratingMin) {
+    emit('clear-entry')
+    return
+  }
+
+  emit('decrement')
 }
 
 function formatValue(value: number): string {

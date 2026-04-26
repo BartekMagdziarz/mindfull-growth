@@ -29,6 +29,27 @@ describe('CounterEntryControl', () => {
     expect(emitted().increment).toBeTruthy()
   })
 
+  it('clears the entry when decrement is clicked at zero', async () => {
+    const { getByLabelText, emitted } = render(CounterEntryControl, {
+      props: { currentValue: 0 },
+    })
+
+    const decrement = getByLabelText('Decrement') as HTMLButtonElement
+    expect(decrement.disabled).toBe(false)
+
+    await fireEvent.click(decrement)
+    expect(emitted()['clear-entry']).toBeTruthy()
+    expect(emitted().decrement).toBeFalsy()
+  })
+
+  it('disables decrement when there is no entry', () => {
+    const { getByLabelText } = render(CounterEntryControl, {
+      props: { currentValue: 0, hasEntry: false },
+    })
+
+    expect((getByLabelText('Decrement') as HTMLButtonElement).disabled).toBe(true)
+  })
+
   it('disables both buttons while pending', () => {
     const { getByLabelText, getByText } = render(CounterEntryControl, {
       props: { currentValue: 2, isPending: true },

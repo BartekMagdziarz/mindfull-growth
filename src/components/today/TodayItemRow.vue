@@ -77,7 +77,7 @@
             <button
               type="button"
               class="today-inline-stepper-btn today-inline-stepper-btn--down neo-focus"
-              :disabled="isPending || (viz.currentValue.value ?? 0) <= 0"
+              :disabled="isPending || !hasPersistedTodayEntry"
               aria-label="Decrement"
               @click="handleStep(-1)"
             >
@@ -110,7 +110,7 @@
             <button
               type="button"
               class="today-inline-stepper-btn today-inline-stepper-btn--down neo-focus"
-              :disabled="isPending || (viz.currentValue.value ?? 0) <= viz.ratingScaleMin.value"
+              :disabled="isPending || !hasPersistedTodayEntry"
               aria-label="Decrement"
               @click="handleRatingStep(-1)"
             >
@@ -450,6 +450,10 @@ const hasNumericEntry = computed(() => {
   return typeof entry?.value === 'number' && entry.value !== 0
 })
 
+const hasPersistedTodayEntry = computed(
+  () => props.item.kind === 'measurement' && Boolean(props.item.todayEntry),
+)
+
 // AggregateBar sits under the chart only for weekly per-day detail charts
 // with a target. Monthly summary primitives and completion charts carry
 // their own progress signals.
@@ -514,6 +518,10 @@ watch(menuOpen, async (isOpen) => {
 function handleStep(delta: number): void {
   if (props.item.kind !== 'measurement' || props.item.subject.entryMode !== 'counter') return
   const currentValue = props.item.todayEntry?.value ?? 0
+  if (delta < 0 && props.item.todayEntry && currentValue <= 0) {
+    emit('clear-entry')
+    return
+  }
   const nextValue = Math.max(0, currentValue + delta)
   emit('save-entry', nextValue)
 }
@@ -523,6 +531,10 @@ function handleRatingStep(delta: number): void {
   const currentValue = props.item.todayEntry?.value ?? 0
   const min = viz.ratingScaleMin.value
   const max = viz.ratingScale.value
+  if (delta < 0 && props.item.todayEntry && currentValue <= min) {
+    emit('clear-entry')
+    return
+  }
   const nextValue = Math.min(max, Math.max(min, currentValue + delta))
   emit('save-entry', nextValue)
 }
@@ -560,9 +572,15 @@ function submitValueDraft(event: Event): void {
   const raw = input.value.trim()
 
   if (!raw) {
-    // Empty input on blur/enter resets draft to current persisted value
-    // (clearing the entry happens via the explicit "Clear entry" menu action).
-    valueDraft.value = viz.currentValue.value ? String(viz.currentValue.value) : ''
+    if (props.item.kind === 'measurement' && props.item.todayEntry) {
+      emit('clear-entry')
+    } else {
+      valueDraft.value = viz.currentValue.value ? String(viz.currentValue.value) : ''
+    }
+    if (event.type === 'keydown') {
+      justSubmittedValue.value = true
+      input.blur()
+    }
     return
   }
   const parsed = Number(raw)
