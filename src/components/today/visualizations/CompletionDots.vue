@@ -12,6 +12,23 @@
         style="background: linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)))"
       />
 
+      <!-- Today done dot — same fill as 'done' with a subtle ring to mark "today". -->
+      <div
+        v-else-if="slot.state === 'today-done'"
+        :class="['rounded-full', dotSizeClass]"
+        :style="`
+          background: linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)));
+          box-shadow: 0 0 0 ${ringWidth}px rgb(var(--neo-chart-primary-end) / 0.35);
+        `"
+      />
+
+      <!-- Today pending dot — solid outline indicating "today, not yet recorded". -->
+      <div
+        v-else-if="slot.state === 'today-pending'"
+        :class="['rounded-full border-2', dotSizeClass]"
+        style="border-color: rgb(var(--color-outline) / 0.55)"
+      />
+
       <!-- Missed dot -->
       <div
         v-else-if="slot.state === 'missed'"
@@ -58,6 +75,10 @@ const containerClass = computed(() =>
 )
 
 const dotSizeClass = computed(() => (props.size === 'sm' ? 'h-4 w-4' : 'h-9 w-9'))
+
+// Outer ring width for the today-done indicator. Smaller for the compact
+// reflection rows so it doesn't overflow into neighbours.
+const ringWidth = computed(() => (props.size === 'sm' ? 1.5 : 2))
 
 const labelSizeClass = computed(() =>
   props.size === 'sm' ? 'text-[8px]' : 'text-[11px]',

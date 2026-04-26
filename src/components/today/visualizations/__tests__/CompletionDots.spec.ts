@@ -5,14 +5,16 @@ import type { TodayCompletionSlot } from '@/services/todayChartData'
 import type { DayRef } from '@/domain/period'
 
 function makeSlot(state: TodayCompletionSlot['state'], label: string = ''): TodayCompletionSlot {
+  const completedStates: TodayCompletionSlot['state'][] = ['done', 'today-done']
+  const todayStates: TodayCompletionSlot['state'][] = ['today-done', 'today-pending']
   return {
     dayRef: '2026-03-12' as DayRef,
     label,
-    value: state === 'done' ? 1 : undefined,
-    isToday: false,
+    value: completedStates.includes(state) ? 1 : undefined,
+    isToday: todayStates.includes(state),
     isFuture: state === 'future',
     isScheduled: false,
-    hasEntry: state === 'done',
+    hasEntry: completedStates.includes(state),
     state,
   }
 }
@@ -52,6 +54,30 @@ describe('CompletionDots', () => {
 
     const dot = container.querySelector('.border-dashed')
     expect(dot).toBeTruthy()
+  })
+
+  it('renders filled gradient dot with ring highlight for today-done state', () => {
+    const slots = [makeSlot('today-done', 'Su')]
+    const { container } = render(CompletionDots, { props: { slots } })
+
+    const dot = container.querySelector('.rounded-full')
+    expect(dot).toBeTruthy()
+    // Same gradient fill as past 'done' so today integrates with prior completions.
+    expect(dot?.getAttribute('style')).toContain('linear-gradient')
+    // Subtle ring identifies "today" without changing the fill.
+    expect(dot?.getAttribute('style')).toContain('box-shadow')
+  })
+
+  it('renders solid-outline dot for today-pending state', () => {
+    const slots = [makeSlot('today-pending', 'Su')]
+    const { container } = render(CompletionDots, { props: { slots } })
+
+    const dot = container.querySelector('.rounded-full')
+    expect(dot).toBeTruthy()
+    // Solid border (not dashed like 'future') and no fill.
+    expect(dot?.classList.contains('border-2')).toBe(true)
+    expect(dot?.classList.contains('border-dashed')).toBe(false)
+    expect(dot?.getAttribute('style') ?? '').not.toContain('linear-gradient')
   })
 
   it('renders day labels', () => {
