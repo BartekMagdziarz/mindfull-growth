@@ -210,6 +210,20 @@ export interface WeeklyReflectionSnippet {
   freeformSnippet: string
 }
 
+/**
+ * Per-day summary for the month calendar visualization in the monthly
+ * reflection wizard's review step. One entry per day in the month, in
+ * chronological order. `weekday` is ISO (1 = Monday … 7 = Sunday).
+ */
+export interface DailyCalendarSummary {
+  dayRef: DayRef
+  dayNumber: number
+  weekday: number
+  totalEmotions: number
+  quadrantCounts: Record<Quadrant, number>
+  hasJournal: boolean
+}
+
 export interface MonthlyReflectionDataBundle {
   monthRef: MonthRef
   emotionSummary: EmotionSummary
@@ -224,6 +238,7 @@ export interface MonthlyReflectionDataBundle {
   weeklyReflectionSnippets: WeeklyReflectionSnippet[]
   weeklyReflectionDetails: WeeklyReflectionDetail[]
   monthWeekRefs: WeekRef[]
+  dailyCalendarSummaries: DailyCalendarSummary[]
 }
 
 // ---------------------------------------------------------------------------
@@ -286,6 +301,94 @@ function buildJournalSummary(startDate: string, endDate: string): JournalSummary
     totalEntries: entries.length,
     entries: entries.map((e) => ({ id: e.id, title: getDisplayTitle(e), createdAt: e.createdAt })),
   }
+}
+
+/**
+ * Builds one `DailyCalendarSummary` per day of the given month so the monthly
+ * reflection's review step can render a calendar grid where each cell shows
+ * the per-day emotion-quadrant distribution and a journal indicator.
+ */
+function buildDailyCalendarSummaries(monthRef: MonthRef): DailyCalendarSummary[] {
+  const monthBounds = getPeriodBounds(monthRef)
+  const days: DayRef[] = []
+  for (
+    let d = monthBounds.start as DayRef;
+    d <= (monthBounds.end as DayRef);
+    d = addDayRef(d, 1)
+  ) {
+    days.push(d)
+  }
+
+  const emotionLogStore = useEmotionLogStore()
+  const emotionStore = useEmotionStore()
+  const journalStore = useJournalStore()
+
+  const monthStart = monthBounds.start + 'T00:00:00.000Z'
+  const monthEnd = monthBounds.end + 'T23:59:59.999Z'
+
+  const monthEmotionLogs = emotionLogStore.sortedLogs.filter(
+    (log) => log.createdAt >= monthStart && log.createdAt <= monthEnd
+  )
+  const monthJournalEntries = journalStore.sortedEntries.filter(
+    (entry) => entry.createdAt >= monthStart && entry.createdAt <= monthEnd
+  )
+
+  return days.map((dayRef) => {
+    const dayStart = dayRef + 'T00:00:00.000Z'
+    const dayEnd = dayRef + 'T23:59:59.999Z'
+
+    const quadrantCounts: Record<Quadrant, number> = {
+      'high-energy-high-pleasantness': 0,
+      'high-energy-low-pleasantness': 0,
+      'low-energy-high-pleasantness': 0,
+      'low-energy-low-pleasantness': 0,
+    }
+    let totalEmotions = 0
+    for (const log of monthEmotionLogs) {
+      if (log.createdAt < dayStart || log.createdAt > dayEnd) continue
+      for (const emotionId of log.emotionIds) {
+        const emotion = emotionStore.getEmotionById(emotionId)
+        if (emotion) {
+          quadrantCounts[getQuadrant(emotion)]++
+          totalEmotions++
+        }
+      }
+    }
+
+    const hasJournal = monthJournalEntries.some(
+      (entry) => entry.createdAt >= dayStart && entry.createdAt <= dayEnd,
+    )
+
+    // Parse YYYY-MM-DD into day number + ISO weekday (1=Mon … 7=Sun)
+    const [yearStr, monthStr, dayStr] = dayRef.split('-')
+    const year = Number(yearStr)
+    const month = Number(monthStr)
+    const dayNumber = Number(dayStr)
+    const jsWeekday = new Date(Date.UTC(year, month - 1, dayNumber)).getUTCDay()
+    const weekday = jsWeekday === 0 ? 7 : jsWeekday
+
+    return {
+      dayRef,
+      dayNumber,
+      weekday,
+      totalEmotions,
+      quadrantCounts,
+      hasJournal,
+    }
+  })
+}
+
+/** Adds `amount` days to a `YYYY-MM-DD` ref without depending on internal helpers. */
+function addDayRef(dayRef: DayRef, amount: number): DayRef {
+  const [yearStr, monthStr, dayStr] = dayRef.split('-')
+  const year = Number(yearStr)
+  const month = Number(monthStr)
+  const day = Number(dayStr)
+  const next = new Date(Date.UTC(year, month - 1, day + amount))
+  const y = next.getUTCFullYear().toString().padStart(4, '0')
+  const m = (next.getUTCMonth() + 1).toString().padStart(2, '0')
+  const d = next.getUTCDate().toString().padStart(2, '0')
+  return `${y}-${m}-${d}` as DayRef
 }
 
 // ---------------------------------------------------------------------------
@@ -955,6 +1058,9 @@ export async function getMonthlyReflectionDataBundle(
   const weeklyReflectionSnippets = buildWeeklySnippets(weeklyReflections)
   const weeklyReflectionDetails = buildWeeklyDetails(weeklyReflections)
 
+  // Per-day calendar data for review-step calendar visualization
+  const dailyCalendarSummaries = buildDailyCalendarSummaries(monthRef)
+
   return {
     monthRef,
     emotionSummary,
@@ -969,6 +1075,7 @@ export async function getMonthlyReflectionDataBundle(
     weeklyReflectionSnippets,
     weeklyReflectionDetails,
     monthWeekRefs,
+    dailyCalendarSummaries,
   }
 }
 

@@ -683,8 +683,12 @@
     "monthly": {
       "title": "Refleksja miesięczna",
       "progress": "Postęp refleksji",
-      "reviewSubtitle": "Oto podsumowanie Twojego miesiąca. Przejrzyj je przed refleksją nad szerszym obrazem.",
+      "reviewSubtitle": "Cele, nawyki i wszystkie dni miesiąca w jednym widoku.",
       "goalsSubtitle": "Przejrzyj postępy celów, nawyków i trackerów w tym miesiącu.",
+      "calendar": {
+        "emotionsCount": "{count} emocji",
+        "journalEntry": "wpis w dzienniku"
+      },
       "goalsSection": "Cele i kluczowe rezultaty",
       "habitsSection": "Nawyki",
       "trackersSection": "Trackery",

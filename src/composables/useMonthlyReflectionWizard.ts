@@ -8,7 +8,6 @@ import type { CreateMonthlyReflectionPayload } from '@/domain/reflection'
 
 export type MonthlyReflectionStep =
   | 'review'
-  | 'goals'
   | 'weekly-recap'
   | 'ratings'
   | 'anchors'
@@ -16,7 +15,6 @@ export type MonthlyReflectionStep =
 
 const STEP_ORDER: MonthlyReflectionStep[] = [
   'review',
-  'goals',
   'weekly-recap',
   'ratings',
   'anchors',
@@ -26,7 +24,9 @@ const STEP_ORDER: MonthlyReflectionStep[] = [
 /** Map old step names to new names for draft migration */
 const LEGACY_STEP_MAP: Record<string, MonthlyReflectionStep> = {
   review: 'review',
-  goals: 'goals',
+  // The previous "goals" step was merged into "review" in the redesign,
+  // so existing drafts at that step land back on the combined review screen.
+  goals: 'review',
   'weekly-recap': 'weekly-recap',
   ratings: 'ratings',
   prompts: 'anchors',
@@ -71,8 +71,6 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   const canAdvance = computed(() => {
     switch (currentStep.value) {
       case 'review':
-        return true
-      case 'goals':
         return true
       case 'weekly-recap':
         return true

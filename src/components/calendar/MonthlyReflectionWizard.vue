@@ -40,28 +40,25 @@
       leave-to-class="opacity-0"
       mode="out-in"
     >
-      <!-- Step: Review -->
-      <div v-if="currentStep === 'review'" key="review" class="space-y-4">
-        <ReflectionReviewPanel :bundle="dataBundle" :is-loading="isBundleLoading" />
-      </div>
+      <!-- Step: Review (calendar + goals/habits/trackers dashboard) -->
+      <div v-if="currentStep === 'review'" key="review" class="space-y-5">
 
-      <!-- Step: Progress (goals, habits, trackers — 3-column dashboard) -->
-      <div v-else-if="currentStep === 'goals'" key="goals">
-
-        <!-- Empty state -->
-        <p
-          v-if="goalSummaries.length === 0 && habitDetails.length === 0 && trackerDetails.length === 0"
-          class="text-sm text-on-surface-variant"
-        >
-          {{ t('planning.reflection.monthly.noProgress') }}
-        </p>
+        <!-- Month calendar with per-day emotion quadrants + journal flag -->
+        <MonthCalendarSummary
+          v-if="dailyCalendarSummaries.length > 0"
+          :summaries="dailyCalendarSummaries"
+        />
 
         <!-- 3-column layout: Goals | Habits | Trackers -->
-        <div v-else class="flex gap-4 items-start">
+        <div
+          v-if="goalSummaries.length > 0 || habitDetails.length > 0 || trackerDetails.length > 0"
+          class="flex gap-4 items-start"
+        >
 
           <!-- COLUMN: Goals & Key Results -->
           <div v-if="goalSummaries.length > 0" class="flex-[2] min-w-0 space-y-3">
-            <h4 class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            <h4 class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+              <span class="material-symbols-outlined text-[14px] text-primary">flag</span>
               {{ t('planning.reflection.monthly.goalsSection') }}
             </h4>
 
@@ -135,7 +132,8 @@
 
           <!-- COLUMN: Habits -->
           <div v-if="habitDetails.length > 0" class="flex-1 min-w-0 space-y-3">
-            <h4 class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            <h4 class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+              <span class="material-symbols-outlined text-[14px] text-primary">repeat</span>
               {{ t('planning.reflection.monthly.habitsSection') }}
             </h4>
 
@@ -191,7 +189,8 @@
 
           <!-- COLUMN: Trackers -->
           <div v-if="trackerDetails.length > 0" class="flex-1 min-w-0 space-y-3">
-            <h4 class="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+            <h4 class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+              <span class="material-symbols-outlined text-[14px] text-primary">monitoring</span>
               {{ t('planning.reflection.monthly.trackersSection') }}
             </h4>
 
@@ -226,13 +225,12 @@
       <!-- Step: Weekly Trends -->
       <div v-else-if="currentStep === 'weekly-recap'" key="weekly-recap" class="space-y-6">
 
-        <!-- Heatmap -->
-        <AppCard v-if="weeklyTrends.length > 0" padding="lg" class="overflow-x-auto">
-          <WeeklyDimensionHeatmap
-            :trends="weeklyTrends"
-            :week-refs="monthWeekRefs"
-          />
-        </AppCard>
+        <!-- Dot ladder trend visualization (per-dimension line + dots across weeks) -->
+        <WeeklyDimensionHeatmap
+          v-if="weeklyTrends.length > 0"
+          :trends="weeklyTrends"
+          :week-refs="monthWeekRefs"
+        />
 
         <!-- Weekly reflection cards -->
         <div v-if="weeklyReflectionDetails.length > 0" class="space-y-3">
@@ -382,11 +380,10 @@
 
 <script setup lang="ts">
 import { computed, reactive, toRef } from 'vue'
-import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
-import ReflectionReviewPanel from './ReflectionReviewPanel.vue'
+import MonthCalendarSummary from './MonthCalendarSummary.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
@@ -420,7 +417,6 @@ const emit = defineEmits<{
 
 const STEPS: MonthlyReflectionStep[] = [
   'review',
-  'goals',
   'weekly-recap',
   'ratings',
   'anchors',
@@ -429,7 +425,6 @@ const STEPS: MonthlyReflectionStep[] = [
 
 const stepLabels = computed(() => [
   t('planning.reflection.steps.review'),
-  t('planning.reflection.steps.goals'),
   t('planning.reflection.steps.weeklyRecap'),
   t('planning.reflection.steps.ratings'),
   t('planning.reflection.steps.anchors'),
@@ -439,7 +434,6 @@ const stepLabels = computed(() => [
 const stepSubtitle = computed(() => {
   switch (currentStep.value) {
     case 'review': return t('planning.reflection.monthly.reviewSubtitle')
-    case 'goals': return t('planning.reflection.monthly.goalsSubtitle')
     case 'weekly-recap': return t('planning.reflection.monthly.weeklyRecapSubtitle')
     case 'ratings': return t('planning.reflection.monthly.groups.ratings.subtitle')
     default: return ''
@@ -463,7 +457,6 @@ const {
   prevStep,
   goToStep,
   dataBundle,
-  isBundleLoading,
   balanceRating,
   purposeRating,
   growthRating,
@@ -481,6 +474,7 @@ const habitDetails = computed(() => dataBundle.value?.habitDetails ?? [])
 const trackerDetails = computed(() => dataBundle.value?.trackerDetails ?? [])
 const weeklyReflectionDetails = computed(() => dataBundle.value?.weeklyReflectionDetails ?? [])
 const monthWeekRefs = computed(() => dataBundle.value?.monthWeekRefs ?? [])
+const dailyCalendarSummaries = computed(() => dataBundle.value?.dailyCalendarSummaries ?? [])
 
 // Sort habits: missed first, then met, then no-data
 const sortedHabitDetails = computed(() =>

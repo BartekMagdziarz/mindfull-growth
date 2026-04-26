@@ -681,8 +681,12 @@
     "monthly": {
       "title": "Monthly Reflection",
       "progress": "Reflection progress",
-      "reviewSubtitle": "Here's a summary of your month. Review it before reflecting on the bigger picture.",
+      "reviewSubtitle": "Goals, habits, and every day of the month in one view.",
       "goalsSubtitle": "Review the progress of your goals, habits, and trackers this month.",
+      "calendar": {
+        "emotionsCount": "{count} emotions",
+        "journalEntry": "journal entry"
+      },
       "goalsSection": "Goals & Key Results",
       "habitsSection": "Habits",
       "trackersSection": "Trackers",
