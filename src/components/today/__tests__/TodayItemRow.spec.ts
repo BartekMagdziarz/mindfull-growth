@@ -256,7 +256,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     expect(getByLabelText('Decrement')).toBeTruthy()
   })
 
-  it('renders weekly value tracker with click-to-edit value pill (no inline ± buttons)', () => {
+  it('renders weekly value tracker with editable number input (no inline ± buttons)', () => {
     const habit = makeHabit('habit-value', {
       entryMode: 'value',
       target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
@@ -278,8 +278,8 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     // Value mode does not render counter ± controls
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
     expect(container.querySelector('[aria-label="Decrement"]')).toBeNull()
-    // The inline value pill button is present
-    expect(container.querySelector('.today-inline-value-btn')).toBeTruthy()
+    // The inline value input is present
+    expect(container.querySelector('.today-inline-value-input')).toBeTruthy()
   })
 
   it('renders weekly rating tracker with inline ± controls in title row', () => {
@@ -374,7 +374,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     expect(getByLabelText('Decrement')).toBeTruthy()
   })
 
-  it('renders monthly value tracker with click-to-edit value pill (no ± buttons)', () => {
+  it('renders monthly value tracker with editable number input (no ± buttons)', () => {
     const tracker = makeTracker('monthly-value', {
       cadence: 'monthly',
       entryMode: 'value',
@@ -395,8 +395,8 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
       makeEntry('tracker', 'monthly-value', '2026-03-08', 73),
     ])
 
-    // Value pill renders, but no ± buttons
-    expect(container.querySelector('.today-inline-value-btn')).toBeTruthy()
+    // Value input renders, but no ± buttons
+    expect(container.querySelector('.today-inline-value-input')).toBeTruthy()
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
   })
 

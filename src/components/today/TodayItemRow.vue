@@ -59,86 +59,94 @@
           </svg>
         </button>
 
-        <!-- Counter: [−] {value} [+] horizontal pill -->
+        <!-- Counter: number circle with stacked ± on hover (left side) -->
         <div
           v-else-if="viz.entryMode.value === 'counter'"
-          class="today-inline-counter flex items-center gap-1"
+          class="today-inline-stepper-group"
         >
-          <button
-            type="button"
-            class="today-inline-step neo-focus"
-            :disabled="isPending || (viz.currentValue.value ?? 0) <= 0"
-            aria-label="Decrement"
-            @click="handleStep(-1)"
+          <div class="today-inline-stepper" aria-hidden="false">
+            <button
+              type="button"
+              class="today-inline-stepper-btn today-inline-stepper-btn--up neo-focus"
+              :disabled="isPending"
+              aria-label="Increment"
+              @click="handleStep(1)"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              class="today-inline-stepper-btn today-inline-stepper-btn--down neo-focus"
+              :disabled="isPending || (viz.currentValue.value ?? 0) <= 0"
+              aria-label="Decrement"
+              @click="handleStep(-1)"
+            >
+              −
+            </button>
+          </div>
+          <span
+            class="today-inline-number"
+            :class="hasNumericEntry ? 'today-inline-number--filled' : ''"
           >
-            −
-          </button>
-          <span class="min-w-[1.5rem] text-center text-xs font-semibold tabular-nums text-on-surface">
-            {{ viz.currentValue.value ?? 0 }}
+            {{ hasNumericEntry ? viz.currentValue.value : '—' }}
           </span>
-          <button
-            type="button"
-            class="today-inline-step neo-focus"
-            :disabled="isPending"
-            aria-label="Increment"
-            @click="handleStep(1)"
-          >
-            +
-          </button>
         </div>
 
-        <!-- Rating: [−] {value} [+] horizontal pill (clamped to scale) -->
+        <!-- Rating: number circle with stacked ± on hover (left side, clamped) -->
         <div
           v-else-if="viz.entryMode.value === 'rating'"
-          class="today-inline-counter flex items-center gap-1"
+          class="today-inline-stepper-group"
         >
-          <button
-            type="button"
-            class="today-inline-step neo-focus"
-            :disabled="isPending || (viz.currentValue.value ?? 0) <= viz.ratingScaleMin.value"
-            aria-label="Decrement"
-            @click="handleRatingStep(-1)"
+          <div class="today-inline-stepper" aria-hidden="false">
+            <button
+              type="button"
+              class="today-inline-stepper-btn today-inline-stepper-btn--up neo-focus"
+              :disabled="isPending || (viz.currentValue.value ?? 0) >= viz.ratingScale.value"
+              aria-label="Increment"
+              @click="handleRatingStep(1)"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              class="today-inline-stepper-btn today-inline-stepper-btn--down neo-focus"
+              :disabled="isPending || (viz.currentValue.value ?? 0) <= viz.ratingScaleMin.value"
+              aria-label="Decrement"
+              @click="handleRatingStep(-1)"
+            >
+              −
+            </button>
+          </div>
+          <span
+            class="today-inline-number today-inline-number--rating"
+            :class="hasNumericEntry ? 'today-inline-number--filled' : ''"
           >
-            −
-          </button>
-          <span class="min-w-[1.5rem] text-center text-xs font-semibold tabular-nums text-on-surface">
-            {{ viz.currentValue.value || '—' }}
+            <span class="today-inline-number-value">
+              {{ hasNumericEntry ? viz.currentValue.value : '—' }}
+            </span>
+            <span class="today-inline-number-max">/{{ viz.ratingScale.value }}</span>
           </span>
-          <button
-            type="button"
-            class="today-inline-step neo-focus"
-            :disabled="isPending || (viz.currentValue.value ?? 0) >= viz.ratingScale.value"
-            aria-label="Increment"
-            @click="handleRatingStep(1)"
-          >
-            +
-          </button>
         </div>
 
-        <!-- Value: editable inline number pill -->
+        <!-- Value: editable number input shaped like the completion circle -->
         <div v-else-if="viz.entryMode.value === 'value'" class="today-inline-value">
           <input
-            v-if="showValueEdit"
             ref="valueInputRef"
             :value="valueDraft"
             type="number"
             step="0.1"
-            class="neo-input w-16 rounded-full px-2 py-0.5 text-center text-xs"
+            inputmode="decimal"
+            placeholder="—"
+            class="today-inline-value-input neo-focus"
+            :class="hasNumericEntry ? 'today-inline-value-input--filled' : ''"
+            :disabled="isPending"
             @click.stop
+            @focus="onValueFocus"
             @input="valueDraft = ($event.target as HTMLInputElement).value"
             @blur="submitValueDraft($event)"
             @keydown.enter="submitValueDraft($event)"
             @keydown.escape.prevent="cancelValueEdit"
           />
-          <button
-            v-else
-            type="button"
-            class="today-inline-value-btn neo-focus"
-            :disabled="isPending"
-            @click="openValueEdit"
-          >
-            {{ viz.currentValue.value || '—' }}
-          </button>
         </div>
       </div>
     </div>
@@ -378,7 +386,6 @@ const menuRootRef = ref<HTMLElement | null>(null)
 const menuDropdownRef = ref<HTMLElement | null>(null)
 const menuStyle = ref<Record<string, string>>({})
 const moveDateInputRef = ref<HTMLInputElement | null>(null)
-const showValueEdit = ref(false)
 const valueDraft = ref('')
 const valueInputRef = ref<HTMLInputElement | null>(null)
 const justSubmittedValue = ref(false)
@@ -433,6 +440,15 @@ const todayLabel = computed(() => periodLabel(props.todayDayRef, 'daily', locale
 const completionTodayDone = computed(() =>
   viz.completionSlots.value.some(s => s.state === 'today-done'),
 )
+
+// Whether today's entry has a meaningful numeric value. Used to toggle the
+// filled (gradient) style on the inline number circle / value input — mirrors
+// the convention used by `hasTodayEntry` for non-completion modes.
+const hasNumericEntry = computed(() => {
+  if (props.item.kind !== 'measurement') return false
+  const entry = props.item.todayEntry
+  return typeof entry?.value === 'number' && entry.value !== 0
+})
 
 // AggregateBar sits under the chart only for weekly per-day detail charts
 // with a target. Monthly summary primitives and completion charts carry
@@ -511,17 +527,27 @@ function handleRatingStep(delta: number): void {
   emit('save-entry', nextValue)
 }
 
-function openValueEdit(): void {
-  valueDraft.value = viz.currentValue.value ? String(viz.currentValue.value) : ''
-  showValueEdit.value = true
-  void nextTick(() => {
-    valueInputRef.value?.focus()
-    valueInputRef.value?.select()
-  })
+// The value input is always rendered for `entryMode === 'value'`, so keep the
+// local draft in sync with the persisted entry whenever the input is not
+// actively being edited. This matches the "type-to-edit" UX without a toggle.
+watch(
+  () => viz.currentValue.value,
+  (next) => {
+    if (document.activeElement === valueInputRef.value) return
+    valueDraft.value = next ? String(next) : ''
+  },
+  { immediate: true },
+)
+
+function onValueFocus(): void {
+  // Select existing content for fast overwrite on focus.
+  void nextTick(() => valueInputRef.value?.select())
 }
 
 function cancelValueEdit(): void {
-  showValueEdit.value = false
+  // Restore draft to the persisted value and blur the input.
+  valueDraft.value = viz.currentValue.value ? String(viz.currentValue.value) : ''
+  valueInputRef.value?.blur()
 }
 
 function submitValueDraft(event: Event): void {
@@ -532,9 +558,13 @@ function submitValueDraft(event: Event): void {
 
   const input = event.target as HTMLInputElement
   const raw = input.value.trim()
-  showValueEdit.value = false
 
-  if (!raw) return
+  if (!raw) {
+    // Empty input on blur/enter resets draft to current persisted value
+    // (clearing the entry happens via the explicit "Clear entry" menu action).
+    valueDraft.value = viz.currentValue.value ? String(viz.currentValue.value) : ''
+    return
+  }
   const parsed = Number(raw)
   if (!Number.isFinite(parsed)) return
 
@@ -670,15 +700,39 @@ function formatMeasurementValue(value: number): string {
     inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.25);
 }
 
-/* Counter / rating ± buttons */
-.today-inline-step {
+/* Counter / rating layout: stacked ± buttons appear on hover left of number */
+.today-inline-stepper-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Stepper column — hidden until row hover or focus-within */
+.today-inline-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  transform: translateX(4px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.today-item-card:hover .today-inline-stepper,
+.today-inline-stepper-group:focus-within .today-inline-stepper {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.today-inline-stepper-btn {
   width: 22px;
-  height: 22px;
-  border-radius: 9999px;
+  height: 15px; /* two stacked buttons + 2px gap = 32px (matches circle) */
   display: grid;
   place-items: center;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
   color: rgb(var(--color-on-surface));
   background: rgb(var(--neo-surface-base));
   box-shadow:
@@ -687,43 +741,167 @@ function formatMeasurementValue(value: number): string {
   transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
 }
 
-.today-inline-step:hover:not(:disabled) {
-  transform: translateY(-1px);
+.today-inline-stepper-btn--up {
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 
-.today-inline-step:active:not(:disabled) {
+.today-inline-stepper-btn--down {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-left-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+}
+
+.today-inline-stepper-btn:hover:not(:disabled) {
+  color: rgb(var(--color-primary-strong));
+}
+
+.today-inline-stepper-btn:active:not(:disabled) {
   box-shadow:
     inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.4),
     inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.25);
 }
 
-.today-inline-step:disabled {
+.today-inline-stepper-btn:disabled {
   opacity: 0.4;
   pointer-events: none;
 }
 
-/* Inline value pill */
-.today-inline-value-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 24px;
-  min-width: 56px;
-  padding: 0 0.65rem;
+/* Inline number circle — visual twin of `.today-inline-completion` but with
+   a number (or em-dash placeholder) instead of an SVG tick. */
+.today-inline-number {
+  width: 32px;
+  height: 32px;
   border-radius: 9999px;
+  border: 1.5px solid rgb(var(--neo-border) / 0.4);
+  background: rgb(var(--neo-surface-base));
+  display: grid;
+  place-items: center;
   font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: rgb(var(--color-on-surface));
-  background: rgb(var(--neo-surface-base));
   box-shadow:
-    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.7),
-    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.25);
-  transition: color 200ms ease;
+    -1px -1px 2px rgb(var(--neo-shadow-light) / 0.6),
+    1px 1px 2px rgb(var(--neo-shadow-dark) / 0.2);
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease,
+    border-color 200ms ease, color 200ms ease;
 }
 
-.today-inline-value-btn:hover:not(:disabled) {
-  color: rgb(var(--color-primary-strong));
+.today-inline-number--filled {
+  border-color: transparent;
+  color: white;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--neo-chart-primary-start)),
+    rgb(var(--neo-chart-primary-end))
+  );
+  box-shadow:
+    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.4),
+    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.25);
+}
+
+/* Rating variant: stacks the entered value above a smaller "/max" line so the
+   user can see how the rating compares to the scale at a glance. */
+.today-inline-number--rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  gap: 1px;
+}
+
+.today-inline-number--rating .today-inline-number-value {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.today-inline-number--rating .today-inline-number-max {
+  font-size: 8px;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.today-inline-number--rating.today-inline-number--filled .today-inline-number-max {
+  opacity: 0.8;
+}
+
+/* Inline value input — same dimensions / look as the number circle but
+   editable. No ± buttons; users type directly. */
+.today-inline-value-input {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 1.5px solid rgb(var(--neo-border) / 0.4);
+  background: rgb(var(--neo-surface-base));
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--color-on-surface));
+  padding: 0;
+  outline: none;
+  box-shadow:
+    -1px -1px 2px rgb(var(--neo-shadow-light) / 0.6),
+    1px 1px 2px rgb(var(--neo-shadow-dark) / 0.2);
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease,
+    border-color 200ms ease, color 200ms ease;
+  /* Hide native number spinners — we don't want ± controls here. */
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.today-inline-value-input::-webkit-outer-spin-button,
+.today-inline-value-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.today-inline-value-input::placeholder {
+  color: rgb(var(--color-on-surface-variant) / 0.55);
+  font-weight: 600;
+}
+
+.today-inline-value-input:hover:not(:disabled):not(:focus) {
+  transform: translateY(-1px);
+  box-shadow:
+    -2px -2px 4px rgb(var(--neo-shadow-light) / 0.7),
+    2px 2px 4px rgb(var(--neo-shadow-dark) / 0.25);
+}
+
+.today-inline-value-input:focus {
+  border-color: rgb(var(--color-primary-strong) / 0.7);
+  box-shadow:
+    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.5),
+    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.2);
+}
+
+.today-inline-value-input--filled {
+  border-color: transparent;
+  color: white;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--neo-chart-primary-start)),
+    rgb(var(--neo-chart-primary-end))
+  );
+  box-shadow:
+    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.4),
+    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.25);
+}
+
+.today-inline-value-input--filled::placeholder {
+  color: rgb(255 255 255 / 0.7);
+}
+
+.today-inline-value-input:disabled {
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 /* Pills in expanded footer */
