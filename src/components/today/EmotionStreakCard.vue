@@ -116,22 +116,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Legend -->
-      <div v-if="legend.length > 0" class="mt-2 flex flex-wrap gap-x-2 gap-y-1">
-        <div
-          v-for="entry in legend"
-          :key="entry.quadrant"
-          class="flex items-center gap-1"
-        >
-          <span
-            class="block shrink-0 rounded-full"
-            style="width: 7px; height: 7px"
-            :style="{ background: entry.color }"
-          />
-          <span class="text-[8px] text-on-surface-variant/60">{{ entry.label }}</span>
-        </div>
-      </div>
     </div>
 
     <!-- Expand affordance -->
@@ -180,17 +164,10 @@ const QUADRANT_ORDER: Quadrant[] = [
 ]
 
 const QUADRANT_COLOR: Record<Quadrant, string> = {
-  'high-energy-high-pleasantness': 'rgb(var(--color-quadrant-high-energy-high-pleasantness-selected))',
-  'high-energy-low-pleasantness': 'rgb(var(--color-quadrant-high-energy-low-pleasantness-selected))',
-  'low-energy-high-pleasantness': 'rgb(var(--color-quadrant-low-energy-high-pleasantness-selected))',
-  'low-energy-low-pleasantness': 'rgb(var(--color-quadrant-low-energy-low-pleasantness-selected))',
-}
-
-const QUADRANT_LABEL_KEY: Record<Quadrant, string> = {
-  'high-energy-high-pleasantness': 'emotionViews.quadrants.highEnergyPleasant',
-  'high-energy-low-pleasantness': 'emotionViews.quadrants.highEnergyUnpleasant',
-  'low-energy-high-pleasantness': 'emotionViews.quadrants.lowEnergyPleasant',
-  'low-energy-low-pleasantness': 'emotionViews.quadrants.lowEnergyUnpleasant',
+  'high-energy-high-pleasantness': 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
+  'high-energy-low-pleasantness': 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
+  'low-energy-high-pleasantness': 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
+  'low-energy-low-pleasantness': 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
 }
 
 interface DaySegment {
@@ -284,23 +261,6 @@ const quadrantSegments = computed<DonutSegment[]>(() => {
   return result
 })
 
-interface LegendEntry {
-  quadrant: Quadrant
-  color: string
-  label: string
-}
-
-const legend = computed<LegendEntry[]>(() => {
-  const seen = new Set<Quadrant>()
-  for (const slot of slots.value) {
-    for (const seg of slot.segments) seen.add(seg.quadrant)
-  }
-  return QUADRANT_ORDER.filter((q) => seen.has(q)).map((q) => ({
-    quadrant: q,
-    color: QUADRANT_COLOR[q],
-    label: t(QUADRANT_LABEL_KEY[q]),
-  }))
-})
 </script>
 
 <style scoped>
