@@ -246,6 +246,76 @@ describe('CalendarView', () => {
     expect(screen.getByText('8')).toBeInTheDocument()
   })
 
+  it('shows the parent goal icon on day key result cards', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+    const dayRef = parsePeriodRef('2026-03-12') as DayRef
+
+    const goal = await goalDexieRepository.create({
+      title: 'Launch calendar',
+      icon: 'rocket_launch',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const keyResult = await keyResultDexieRepository.create({
+      title: 'Polish day KR card',
+      isActive: true,
+      goalId: goal.id,
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 1,
+      },
+      status: 'open',
+    })
+
+    await planningStateDexieRepository.upsertGoalMonthState({
+      monthRef,
+      goalId: goal.id,
+      activityState: 'active',
+    })
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef,
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    await planningStateDexieRepository.upsertMeasurementDayAssignment({
+      dayRef,
+      subjectType: 'keyResult',
+      subjectId: keyResult.id,
+    })
+
+    const router = createTestRouter()
+    await router.push(`/calendar/day/${dayRef}`)
+    await router.isReady()
+
+    render(CalendarView, {
+      props: {
+        scale: 'day',
+        periodRef: dayRef,
+      },
+      global: {
+        plugins: [router],
+      },
+    })
+
+    expect(await screen.findByRole('heading', { name: 'Polish day KR card' })).toBeInTheDocument()
+    expect(screen.getByText('rocket_launch')).toBeInTheDocument()
+  })
+
   it('routes month cards into the Objects Library detail panel', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { fireEvent, render, type RenderOptions } from '@testing-library/vue'
 import TodayItemRow from '@/components/today/TodayItemRow.vue'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { Habit, Initiative, Tracker } from '@/domain/planning'
+import type { Habit, Initiative, KeyResult, Tracker } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   InitiativePlanState,
@@ -91,10 +91,11 @@ function makeTracker(id: string, overrides: Partial<Tracker> = {}): Tracker {
 
 function makeMeasurementItem(
   subjectType: MeasurementSubjectType,
-  subject: Habit | Tracker,
+  subject: Habit | KeyResult | Tracker,
   measurement: MeasurementSummary,
   planning: MeasurementPlanningSummary = makePlanning(),
   todayEntry?: DailyMeasurementEntry,
+  overrides: Partial<TodayMeasurementItem> = {},
 ): TodayMeasurementItem {
   return {
     kind: 'measurement',
@@ -111,6 +112,7 @@ function makeMeasurementItem(
     canHide: true,
     canReschedule: false,
     canDelete: false,
+    ...overrides,
   }
 }
 
@@ -192,6 +194,39 @@ function renderRow(
 }
 
 describe('TodayItemRow — simplified collapsed + expand-on-click layout', () => {
+  it('uses the parent goal icon for key result rows', () => {
+    const keyResult: KeyResult = {
+      id: 'kr-strength',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+      title: 'Strength KR',
+      isActive: true,
+      goalId: 'goal-strength',
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    }
+    const item = makeMeasurementItem(
+      'keyResult',
+      keyResult,
+      makeSummary({
+        entryMode: 'completion',
+        target: keyResult.target,
+        periodRef: WEEK_REF,
+      }),
+      makePlanning(),
+      undefined,
+      { goalTitle: 'Strength', goalIcon: 'barbell' },
+    )
+
+    const { getByText, queryByText } = renderRow(item)
+
+    expect(getByText('Strength KR')).toBeTruthy()
+    expect(getByText('fitness_center')).toBeTruthy()
+    expect(queryByText('flag')).toBeNull()
+  })
+
   it('renders weekly counter habit with inline ± controls in title row', () => {
     const habit = makeHabit('habit-counter', {
       entryMode: 'counter',

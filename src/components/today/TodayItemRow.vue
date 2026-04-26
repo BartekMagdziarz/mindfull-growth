@@ -10,9 +10,10 @@
         :class="hasTodayEntry ? 'today-item-icon--active' : ''"
         aria-hidden="true"
       >
-        <AppIcon
-          :name="iconName"
-          class="text-[15px] leading-none"
+        <EntityIcon
+          :icon="iconName"
+          size="sm"
+          :circle="false"
           :class="hasTodayEntry ? 'text-primary-strong' : 'text-on-surface-variant/65'"
         />
       </span>
@@ -325,6 +326,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import EntityIcon from '@/components/shared/EntityIcon.vue'
 import CompletionDots from '@/components/today/visualizations/CompletionDots.vue'
 import CompletionRing from '@/components/today/visualizations/CompletionRing.vue'
 import CounterRing from '@/components/today/visualizations/CounterRing.vue'
@@ -405,6 +407,9 @@ const PANEL_TYPE_ICONS: Record<string, string> = {
 const iconName = computed(() => {
   if (props.item.kind === 'initiative') {
     return props.item.initiative.icon || PANEL_TYPE_ICONS.initiative
+  }
+  if (props.item.panelType === 'keyResult' && props.item.goalIcon) {
+    return props.item.goalIcon
   }
   const subject = props.item.subject as { icon?: string }
   if (subject.icon) return subject.icon

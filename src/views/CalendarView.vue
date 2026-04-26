@@ -334,6 +334,7 @@
                   v-for="card in dayScheduledCards"
                   :key="card.key"
                   :title="card.title"
+                  :icon="card.icon"
                   :eyebrow="card.eyebrow"
                   :description="card.description"
                   :badges="card.badges"
@@ -357,6 +358,7 @@
                   v-for="card in dayEntryCards"
                   :key="card.key"
                   :title="card.title"
+                  :icon="card.icon"
                   :eyebrow="card.eyebrow"
                   :description="card.description"
                   :badges="card.badges"
@@ -379,6 +381,7 @@
                   v-for="card in dayWeekContextCards"
                   :key="card.key"
                   :title="card.title"
+                  :icon="card.icon"
                   :eyebrow="card.eyebrow"
                   :description="card.description"
                   :badges="card.badges"
@@ -414,6 +417,7 @@
                   v-for="card in dayMonthContextCards"
                   :key="card.key"
                   :title="card.title"
+                  :icon="card.icon"
                   :eyebrow="card.eyebrow"
                   :description="card.description"
                   :badges="card.badges"
@@ -586,6 +590,7 @@ interface ItemCardModel {
   objectId: string
   panelType: ObjectsLibraryPanelType
   title: string
+  icon?: string
   eyebrow: string
   description?: string
   badges: BadgeModel[]
@@ -1611,11 +1616,23 @@ function buildMeasurementCard(
     objectId: item.subject.id,
     panelType: item.subjectType,
     title: item.subject.title,
+    icon: resolveMeasurementItemIcon(item),
     eyebrow: buildMeasurementEyebrow(periodScope),
     description: item.subject.description,
     badges,
     details: buildMeasurementDetails(item, periodScope),
   }
+}
+
+function resolveMeasurementItemIcon(
+  item: Pick<CalendarMeasurementItem, 'subjectType' | 'subject'>,
+): string | undefined {
+  if ('goalId' in item.subject) {
+    const goalId = item.subject.goalId
+    return dayBundle.value?.goals.find((goal) => goal.id === goalId)?.icon
+  }
+
+  return 'icon' in item.subject ? item.subject.icon : undefined
 }
 
 function buildDayEntryCard(item: DayCalendarBundle['entriesToday'][number]): ItemCardModel {
@@ -1648,6 +1665,7 @@ function buildDayEntryCard(item: DayCalendarBundle['entriesToday'][number]): Ite
     objectId: item.subject.id,
     panelType: item.subjectType,
     title: item.subject.title,
+    icon: resolveMeasurementItemIcon(item),
     eyebrow: t('planning.calendar.sections.entriesToday'),
     description: item.subject.description,
     badges,
@@ -1748,6 +1766,7 @@ function buildInitiativeCard(
     objectId: initiative.id,
     panelType: 'initiative',
     title: initiative.title,
+    icon: initiative.icon,
     eyebrow:
       periodScope === 'day'
         ? t('planning.calendar.sections.scheduledToday')

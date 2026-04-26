@@ -31,6 +31,7 @@ export interface TodayMeasurementItem {
   measurement: MeasurementSummary
   todayEntry?: DailyMeasurementEntry
   goalTitle?: string
+  goalIcon?: string
   contextPeriodRef: PeriodRef
   sourceMonthRef?: MonthRef
   sectionId: TodaySectionId
@@ -211,7 +212,7 @@ function buildMeasurementRecord(
   todayEntry: DailyMeasurementEntry | undefined,
   sectionId: TodaySectionId
 ): TodayMeasurementItem {
-  const goalTitle = 'goalId' in item.subject ? goalMap.get(item.subject.goalId)?.title : undefined
+  const goal = 'goalId' in item.subject ? goalMap.get(item.subject.goalId) : undefined
 
   return {
     kind: 'measurement',
@@ -222,7 +223,8 @@ function buildMeasurementRecord(
     planning: item.planning,
     measurement: item.measurement,
     todayEntry,
-    goalTitle,
+    goalTitle: goal?.title,
+    goalIcon: goal?.icon,
     contextPeriodRef: item.measurement.periodRef,
     sourceMonthRef: item.sourceMonthRef,
     sectionId,

@@ -85,6 +85,7 @@ export interface DayMeasurementEntryItem {
 export interface DayCalendarBundle {
   dayRef: DayRef
   refs: PeriodRefsForDate
+  goals: Goal[]
   weekPlanning: WeekPlanningBundle
   weekReflection: WeekReflectionBundle
   monthPlanning: MonthPlanningBundle
@@ -476,6 +477,7 @@ export async function getDayCalendarBundle(dayRef: DayRef): Promise<DayCalendarB
     return {
       dayRef,
       refs,
+      goals: objects.goals,
       weekPlanning,
       weekReflection,
       monthPlanning,

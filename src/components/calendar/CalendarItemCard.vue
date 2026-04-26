@@ -10,16 +10,19 @@
   >
     <div class="flex h-full flex-col gap-4">
       <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <p v-if="eyebrow" class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
-            {{ eyebrow }}
-          </p>
-          <h3 class="mt-1 text-lg font-semibold text-on-surface">
-            {{ title }}
-          </h3>
-          <p v-if="description" class="mt-2 text-sm leading-6 text-on-surface-variant">
-            {{ description }}
-          </p>
+        <div class="flex min-w-0 gap-3">
+          <EntityIcon v-if="icon" :icon="icon" size="md" class="mt-1" />
+          <div class="min-w-0">
+            <p v-if="eyebrow" class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+              {{ eyebrow }}
+            </p>
+            <h3 class="mt-1 text-lg font-semibold text-on-surface">
+              {{ title }}
+            </h3>
+            <p v-if="description" class="mt-2 text-sm leading-6 text-on-surface-variant">
+              {{ description }}
+            </p>
+          </div>
         </div>
 
         <AppIcon
@@ -51,6 +54,7 @@
 <script setup lang="ts">
 import AppCard from '@/components/AppCard.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import EntityIcon from '@/components/shared/EntityIcon.vue'
 
 type BadgeTone = 'default' | 'accent' | 'success' | 'warning' | 'danger'
 
@@ -61,6 +65,7 @@ interface Badge {
 
 interface Props {
   title: string
+  icon?: string
   eyebrow?: string
   description?: string
   badges?: Badge[]
@@ -71,6 +76,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   eyebrow: undefined,
+  icon: undefined,
   description: undefined,
   badges: () => [],
   details: () => [],
