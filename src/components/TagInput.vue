@@ -10,6 +10,7 @@
       <button
         v-if="!isCreatingTag"
         type="button"
+        :data-testid="`tag-add-${props.tagType}`"
         class="tag-pill inline-flex items-center justify-center w-7 h-7 rounded-full focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
         :aria-label="t('common.tagInput.addNew', { type: tagTypeLower })"
         @click="startCreateTag"
@@ -26,6 +27,7 @@
           ref="createInputRef"
           v-model="newTagName"
           type="text"
+          :data-testid="`tag-new-${props.tagType}`"
           class="bg-transparent border-none outline-none w-20 min-w-0 text-xs"
           :placeholder="t('common.tagInput.placeholder')"
           :aria-label="t('common.tagInput.newTagName', { type: tagTypeLower })"

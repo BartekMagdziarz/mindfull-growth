@@ -137,7 +137,7 @@ describe('buildCompletionSlots', () => {
       scheduledDayRefs: ['2026-03-09', '2026-03-10', '2026-03-14'] as DayRef[],
     })
 
-    const slots = buildCompletionSlots(kr, 'keyResult', entries, assignments, planning, WEEK_REF, TODAY)
+    const slots = buildCompletionSlots(kr, 'keyResult', entries, assignments, planning, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(3)
     expect(slots[0].state).toBe('done')
@@ -155,7 +155,7 @@ describe('buildCompletionSlots', () => {
     ]
     const planning = makePlanning({ scheduleScope: 'whole-week' })
 
-    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY)
+    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(5)
     expect(slots.filter(s => s.state === 'done')).toHaveLength(3)
@@ -173,7 +173,7 @@ describe('buildCompletionSlots', () => {
     ]
     const planning = makePlanning({ scheduleScope: 'whole-week' })
 
-    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY)
+    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(4) // 4 entries > 3 target
     expect(slots.filter(s => s.state === 'done' || s.state === 'today-done')).toHaveLength(4)
@@ -190,7 +190,7 @@ describe('buildCompletionSlots', () => {
     ]
     const planning = makePlanning({ scheduleScope: 'whole-week' })
 
-    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY)
+    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(4) // 3 done + 1 today-pending (beyond target)
     expect(slots.filter(s => s.state === 'done')).toHaveLength(3)
@@ -208,7 +208,7 @@ describe('buildCompletionSlots', () => {
     ]
     const planning = makePlanning({ scheduleScope: 'whole-week' })
 
-    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY)
+    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(3) // 3 done, today already has a slot
     expect(slots.filter(s => s.state === 'today-done')).toHaveLength(1)
@@ -223,7 +223,7 @@ describe('buildCompletionSlots', () => {
     ]
     const planning = makePlanning({ scheduleScope: 'whole-week' })
 
-    const slots = buildCompletionSlots(tracker, 'tracker', entries, [], planning, WEEK_REF, TODAY)
+    const slots = buildCompletionSlots(tracker, 'tracker', entries, [], planning, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(3) // 2 done + today-pending
     expect(slots.filter(s => s.state === 'done')).toHaveLength(2)
@@ -241,7 +241,7 @@ describe('buildDailyBarSlots', () => {
     ]
     const planning = makePlanning({ scheduleScope: 'whole-week' })
 
-    const slots = buildDailyBarSlots(habit, 'habit', entries, [], planning, WEEK_REF, TODAY)
+    const slots = buildDailyBarSlots(habit, 'habit', entries, [], planning, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(7)
     expect(slots[0].value).toBe(5) // Monday
@@ -266,7 +266,7 @@ describe('buildDailyBarSlots', () => {
     ]
     const planning = makePlanning({ scheduleScope: 'specific-days' })
 
-    const slots = buildDailyBarSlots(habit, 'habit', entries, assignments, planning, monthRef, TODAY)
+    const slots = buildDailyBarSlots(habit, 'habit', entries, assignments, planning, monthRef, TODAY, 'en')
 
     expect(slots).toHaveLength(3)
     expect(slots[0].value).toBe(10)
@@ -285,7 +285,7 @@ describe('buildDailyBarSlots', () => {
     ]
     const planning = makePlanning({ scheduleScope: 'whole-month' })
 
-    const slots = buildDailyBarSlots(habit, 'habit', entries, [], planning, monthRef, TODAY)
+    const slots = buildDailyBarSlots(habit, 'habit', entries, [], planning, monthRef, TODAY, 'en')
 
     expect(slots).toHaveLength(3) // 2 entry days + today
     expect(slots[0].label).toBe('1')
@@ -304,7 +304,7 @@ describe('buildValueLineSlots', () => {
       makeEntry('tracker', 't1', '2026-03-11', 4.2),
     ]
 
-    const slots = buildValueLineSlots(tracker, 'tracker', entries, WEEK_REF, TODAY)
+    const slots = buildValueLineSlots(tracker, 'tracker', entries, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(7)
     expect(slots[0].value).toBe(3.5) // Monday
@@ -323,7 +323,7 @@ describe('buildValueLineSlots', () => {
       makeEntry('habit', 'h1', '2026-03-12', 7.4),
     ]
 
-    const slots = buildValueLineSlots(habit, 'habit', entries, WEEK_REF, TODAY)
+    const slots = buildValueLineSlots(habit, 'habit', entries, WEEK_REF, TODAY, 'en')
 
     expect(slots).toHaveLength(7)
     expect(slots[0].value).toBeUndefined()
@@ -340,7 +340,7 @@ describe('buildValueLineSlots', () => {
       makeEntry('tracker', 't1', '2026-03-10', 15),
     ]
 
-    const slots = buildValueLineSlots(tracker, 'tracker', entries, monthRef, TODAY)
+    const slots = buildValueLineSlots(tracker, 'tracker', entries, monthRef, TODAY, 'en')
 
     expect(slots).toHaveLength(2)
     expect(slots[0].value).toBe(10)
@@ -620,7 +620,7 @@ describe('buildValueSparklineData', () => {
       target: habit.target,
     })
 
-    const data = buildValueSparklineData(habit, 'habit', [], MONTH_REF, TODAY, summary)
+    const data = buildValueSparklineData(habit, 'habit', [], MONTH_REF, TODAY, summary, 'en')
 
     expect(data.points).toEqual([])
     expect(data.hasData).toBe(false)
@@ -650,7 +650,7 @@ describe('buildValueSparklineData', () => {
       evaluationStatus: 'met',
     })
 
-    const data = buildValueSparklineData(habit, 'habit', entries, MONTH_REF, TODAY, summary)
+    const data = buildValueSparklineData(habit, 'habit', entries, MONTH_REF, TODAY, summary, 'en')
 
     expect(data.points).toHaveLength(3)
     expect(data.hasData).toBe(true)
@@ -679,7 +679,7 @@ describe('buildValueSparklineData', () => {
       evaluationStatus: 'missed',
     })
 
-    const data = buildValueSparklineData(habit, 'habit', entries, MONTH_REF, TODAY, summary)
+    const data = buildValueSparklineData(habit, 'habit', entries, MONTH_REF, TODAY, summary, 'en')
 
     expect(data.aggregationLabel).toBe('last')
     expect(data.status).toBe('missed')
@@ -699,7 +699,7 @@ describe('buildValueSparklineData', () => {
       entryCount: 2,
     })
 
-    const data = buildValueSparklineData(tracker, 'tracker', entries, MONTH_REF, TODAY, summary)
+    const data = buildValueSparklineData(tracker, 'tracker', entries, MONTH_REF, TODAY, summary, 'en')
 
     expect(data.aggregationLabel).toBe('last')
     expect(data.targetValue).toBeUndefined()
@@ -723,7 +723,7 @@ describe('buildValueSparklineData', () => {
       evaluationStatus: 'met',
     })
 
-    const data = buildValueSparklineData(habit, 'habit', [], MONTH_REF, TODAY, summary)
+    const data = buildValueSparklineData(habit, 'habit', [], MONTH_REF, TODAY, summary, 'en')
 
     expect(data.aggregationLabel).toBe('sum')
   })

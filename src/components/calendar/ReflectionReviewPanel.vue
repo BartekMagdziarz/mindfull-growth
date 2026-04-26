@@ -22,7 +22,12 @@
         </h3>
         <div v-if="bundle.emotionSummary.totalLogs > 0" class="mt-2">
           <p class="text-sm text-on-surface">
-            {{ tp(bundle.emotionSummary.totalLogs, 'planning.reflection.review.emotionLog.one', 'planning.reflection.review.emotionLog.other') }}
+            {{ tp(
+              bundle.emotionSummary.totalLogs,
+              'planning.reflection.review.emotionLog.one',
+              'planning.reflection.review.emotionLog.few',
+              'planning.reflection.review.emotionLog.many',
+            ) }}
           </p>
           <div v-if="bundle.emotionSummary.topEmotions.length > 0" class="mt-2 flex flex-wrap gap-1.5">
             <span
@@ -70,7 +75,12 @@
             {{ t('planning.reflection.review.journals') }}
           </h3>
           <p class="mt-2 text-sm text-on-surface">
-            {{ tp(bundle.journalSummary.totalEntries, 'planning.reflection.review.journalEntry.one', 'planning.reflection.review.journalEntry.other') }}
+            {{ tp(
+              bundle.journalSummary.totalEntries,
+              'planning.reflection.review.journalEntry.one',
+              'planning.reflection.review.journalEntry.few',
+              'planning.reflection.review.journalEntry.many',
+            ) }}
           </p>
           <ul v-if="bundle.journalSummary.entries.length > 0" class="mt-2 space-y-1">
             <li

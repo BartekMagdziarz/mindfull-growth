@@ -583,11 +583,15 @@
       "emotions": "Emotions",
       "emotionLog": {
         "one": "{n} emotion log",
+        "few": "{n} emotion logs",
+        "many": "{n} emotion logs",
         "other": "{n} emotion logs"
       },
       "journals": "Journal Entries",
       "journalEntry": {
         "one": "{n} journal entry",
+        "few": "{n} journal entries",
+        "many": "{n} journal entries",
         "other": "{n} journal entries"
       },
       "untitled": "Untitled entry",

@@ -584,13 +584,15 @@
       "emotionLog": {
         "one": "{n} wpis emocji",
         "few": "{n} wpisy emocji",
-        "many": "{n} wpisów emocji"
+        "many": "{n} wpisów emocji",
+        "other": "{n} wpisów emocji"
       },
       "journals": "Wpisy w dzienniku",
       "journalEntry": {
         "one": "{n} wpis",
         "few": "{n} wpisy",
-        "many": "{n} wpisów"
+        "many": "{n} wpisów",
+        "other": "{n} wpisów"
       },
       "untitled": "Wpis bez tytułu",
       "habits": "Nawyki",

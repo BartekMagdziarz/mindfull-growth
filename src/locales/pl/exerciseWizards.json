@@ -512,7 +512,7 @@
       "title": "Twoje głębokie przekonanie",
       "description": "Na podstawie twojej eksploracji, to wydaje się być głębokim przekonaniem ukrytym pod spodem. Możesz je edytować.",
       "placeholder": "Głębokie przekonanie...",
-      "categóryTitle": "Czego dotyczy to przekonanie?",
+      "categoryTitle": "Czego dotyczy to przekonanie?",
       "categories": {
         "self": {
           "label": "O mnie samym",
@@ -824,7 +824,7 @@
       "description": "Dodaj co najmniej 3 aktywności na ten tydzień. Mieszaj różne kategorie dla najlepszego efektu.",
       "activityNameLabel": "Nazwa aktywności",
       "activityNamePlaceholder": "np. Spacer w parku, Telefon do przyjaciela...",
-      "categóryLabel": "Kategoria",
+      "categoryLabel": "Kategoria",
       "categories": {
         "pleasure": "Przyjemność",
         "mastery": "Mistrzostwo",

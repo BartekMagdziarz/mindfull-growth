@@ -27,7 +27,7 @@ describe('useUserPreferencesStore', () => {
     await store.loadPreferences()
 
     expect(store.themePreference).toBe('current')
-    expect(store.locale).toBe('en')
+    expect(store.locale).toBe('pl')
   })
 
   it('loads a valid theme preference from storage', async () => {

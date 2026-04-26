@@ -6,6 +6,7 @@ import {
 } from '../utils/dbTestUtils'
 import { initializeStores } from './testUtils'
 import type { Emotion } from '@/domain/emotion'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 const getAllEmotions = (emotionStore: ReturnType<typeof initializeStores>['emotionStore']) =>
   emotionStore.emotions as Emotion[]
@@ -17,6 +18,7 @@ describe('Cross Feature Integrations', () => {
 
   it('shares tags between journal entries and emotion logs without duplication', async () => {
     const { emotionStore, tagStore, journalStore, emotionLogStore } = initializeStores()
+    useUserPreferencesStore().$patch({ locale: 'en', isLoaded: true })
 
     await emotionStore.loadEmotions()
     await Promise.all([tagStore.loadPeopleTags(), tagStore.loadContextTags()])
@@ -73,6 +75,7 @@ describe('Cross Feature Integrations', () => {
 
   it('reuses the same emotion definitions across features', async () => {
     const { emotionStore, journalStore, emotionLogStore } = initializeStores()
+    useUserPreferencesStore().$patch({ locale: 'en', isLoaded: true })
 
     await emotionStore.loadEmotions()
     await journalStore.loadEntries()
@@ -101,4 +104,3 @@ describe('Cross Feature Integrations', () => {
     expect(emotionStore.getEmotionById(entryEmotionId)?.name).toBe('Happy')
   })
 })
-

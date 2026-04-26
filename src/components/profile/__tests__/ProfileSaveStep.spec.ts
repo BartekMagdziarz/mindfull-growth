@@ -120,9 +120,9 @@ describe('ProfileSaveStep', () => {
     expect(model.textContent?.trim()).toBe('—')
   })
 
-  it('typing into the note input updates wizard.note.value', async () => {
+  it('typing into the note input emits the next note value', async () => {
     const wizard = buildWizardStub({ note: '' })
-    render(ProfileSaveStep, { props: { wizard: asWizard(wizard) } })
+    const { emitted } = render(ProfileSaveStep, { props: { wizard: asWizard(wizard) } })
 
     const input = document.querySelector(
       '[data-test-save-note]',
@@ -131,7 +131,9 @@ describe('ProfileSaveStep', () => {
     expect(input.maxLength).toBe(120)
 
     await fireEvent.update(input, 'after Big Five')
-    expect(wizard.note.value).toBe('after Big Five')
+    const events = emitted()['update:note'] as unknown[][]
+    expect(events).toBeTruthy()
+    expect(events[0][0]).toBe('after Big Five')
   })
 
   it('hides the edits row and revert button when there are no unsaved edits', () => {

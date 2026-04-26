@@ -54,6 +54,7 @@
           :filters="filters"
           @update:data-types="onDataTypesUpdate"
           @update:date-range="onDateRangeUpdate"
+          @update:filters="onFiltersUpdate"
         />
         <ProfilePreviewStep
           v-else-if="currentStep === 'preview'"
@@ -81,6 +82,7 @@
         <ProfileSaveStep
           v-else-if="currentStep === 'save'"
           :wizard="wizard"
+          @update:note="onNoteUpdate"
         />
         <div v-else class="text-sm text-on-surface-variant">
           {{ t('profile.psychologicalProfile.wizard.generationComingSoon') }}
@@ -144,7 +146,11 @@ import {
   useProfileBuildWizard,
   type ProfileBuildStep,
 } from '@/composables/useProfileBuildWizard'
-import type { ProfileDataType, ProfileDateRange } from '@/domain/userProfile'
+import type {
+  ProfileDataType,
+  ProfileDateRange,
+  ProfileScopeFilters,
+} from '@/domain/userProfile'
 
 const router = useRouter()
 const { t } = useT()
@@ -261,6 +267,14 @@ function onDataTypesUpdate(next: ProfileDataType[]): void {
 
 function onDateRangeUpdate(next: ProfileDateRange): void {
   dateRange.value = next
+}
+
+function onFiltersUpdate(next: ProfileScopeFilters): void {
+  Object.assign(filters, next)
+}
+
+function onNoteUpdate(next: string): void {
+  wizard.note.value = next
 }
 
 async function handleBack(): Promise<void> {

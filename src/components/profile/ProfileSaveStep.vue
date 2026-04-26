@@ -128,6 +128,10 @@ const props = defineProps<{
   wizard: ReturnType<typeof useProfileBuildWizard>
 }>()
 
+const emit = defineEmits<{
+  'update:note': [value: string]
+}>()
+
 const { t } = useT()
 
 const totalItems = computed(() =>
@@ -160,6 +164,6 @@ const dateRangeLabel = computed(() => {
 function onNoteInput(event: Event): void {
   const target = event.target as HTMLInputElement | null
   if (!target) return
-  props.wizard.note.value = target.value
+  emit('update:note', target.value)
 }
 </script>

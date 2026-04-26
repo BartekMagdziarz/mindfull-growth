@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import LifeAreaDetailView from '../LifeAreaDetailView.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 const mockRoute = {
   params: { id: 'la-1' } as Record<string, string>,
@@ -17,6 +18,7 @@ vi.mock('vue-router', () => ({
 describe('LifeAreaDetailView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    useUserPreferencesStore().$patch({ locale: 'en', isLoaded: true })
 
     const lifeAreaStore = useLifeAreaStore()
     const assessmentStore = useLifeAreaAssessmentStore()

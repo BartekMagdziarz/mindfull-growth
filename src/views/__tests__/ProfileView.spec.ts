@@ -42,7 +42,10 @@ describe('ProfileView', () => {
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
-    vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(undefined)
+    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+      if (key === 'preferences.locale') return 'en'
+      return undefined
+    })
     vi.mocked(userSettingsDexieRepository.set).mockResolvedValue(undefined)
   })
 
@@ -68,6 +71,7 @@ describe('ProfileView', () => {
     )
     vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
       if (key === 'preferences.theme') return 'sunrise-cloud'
+      if (key === 'preferences.locale') return 'en'
       return undefined
     })
 
@@ -104,7 +108,11 @@ describe('ProfileView', () => {
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
-    vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(existingKey)
+    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+      if (key === 'openaiApiKey') return existingKey
+      if (key === 'preferences.locale') return 'en'
+      return undefined
+    })
 
     render(ProfileView)
 

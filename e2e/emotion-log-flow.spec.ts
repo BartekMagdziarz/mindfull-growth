@@ -1,5 +1,15 @@
 import { test, expect, type Page } from '@playwright/test'
 
+const HIGH_PLEASANT_QUADRANT = 'emotion-quadrant-high-energy-high-pleasantness'
+const LOW_PLEASANT_QUADRANT = 'emotion-quadrant-low-energy-high-pleasantness'
+const HAPPY_EMOTION = 'emotion-option-e4m10-happy-028'
+const CALM_EMOTION = 'emotion-option-e7m7-calm-067'
+const happyText = /^(Happy|Szczęśliwy)$/
+const calmText = /^(Calm|Opanowany)$/
+const emotionSavedText = /^(Emotion log saved successfully\.|Emotion logged successfully\.|Wpis emocji zapisany pomyślnie\.|Emocja zapisana pomyślnie\.)$/
+const saveButtonName = /^(Save|Zapisz)$/
+const freeFormText = /^(Free form|Swobodny wpis)$/
+
 async function resetDatabase(page: Page) {
   await page.goto('/')
   await page.evaluate(async () => {
@@ -37,30 +47,38 @@ async function signUp(page: Page) {
   const password = `pw-${unique}123`
 
   await page.goto('/signup')
-  await page.getByLabel('Username').fill(username)
-  await page.getByLabel(/^Password$/).fill(password)
-  await page.getByLabel(/^Confirm Password$/).fill(password)
-  await page.getByRole('button', { name: 'Create Account' }).click()
+  await page.getByLabel(/^(Username|Nazwa użytkownika)$/).fill(username)
+  await page.getByLabel(/^(Password|Hasło)$/).fill(password)
+  await page.getByLabel(/^(Confirm Password|Potwierdź hasło)$/).fill(password)
+  await page.getByRole('button', { name: /^(Create Account|Utwórz konto)$/ }).click()
   await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
-  await expect(page.getByText('Free form')).toBeVisible()
+  await expect(page.getByText(freeFormText)).toBeVisible()
 }
 
-async function selectEmotion(page: Page, quadrantLabel: string, emotionName: string) {
-  await page.getByRole('button', { name: `Select ${quadrantLabel} quadrant` }).click()
-  await page.getByRole('gridcell', { name: `Select emotion ${emotionName}` }).click()
+async function selectEmotion(page: Page, quadrantTestId: string, emotionTestId: string) {
+  await page.getByTestId(quadrantTestId).click()
+  await page.getByTestId(emotionTestId).click()
 }
 
 async function addTag(page: Page, type: 'people' | 'context', name: string) {
-  await page.getByRole('button', { name: new RegExp(`Add new ${type} tag`, 'i') }).click()
-  await page.getByLabel(new RegExp(`New ${type} tag name`, 'i')).fill(name)
+  await page.getByTestId(`tag-add-${type}`).click()
+  await page.getByTestId(`tag-new-${type}`).fill(name)
   await page.keyboard.press('Enter')
+}
+
+async function removeEmotion(page: Page, enName: string, plName: string) {
+  await page
+    .getByRole('button', {
+      name: new RegExp(`^(Remove (${enName}|${plName}) from selection|Usuń (${enName}|${plName}) z wyboru)$`),
+    })
+    .click()
 }
 
 async function gotoEmotions(page: Page) {
   await page.goto('/emotions')
   await page.waitForURL((url) => url.pathname === '/emotions', { timeout: 5000 })
-  await expect(page.getByLabel(/note/i)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Save' })).toBeVisible()
+  await expect(page.getByLabel(/note|notatka/i)).toBeVisible()
+  await expect(page.getByRole('button', { name: saveButtonName })).toBeVisible()
 }
 
 async function gotoHistory(page: Page, type: 'journal' | 'emotion-log') {
@@ -87,19 +105,19 @@ async function createJournalEntry(
 ) {
   await page.goto('/journal')
   await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
-  await expect(page.getByText('Free form')).toBeVisible()
-  await page.getByText('Free form').click()
+  await expect(page.getByText(freeFormText)).toBeVisible()
+  await page.getByTestId('journal-free-form-card').click()
   await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
 
   if (title) {
-    await page.getByLabel('Title').fill(title)
+    await page.getByLabel(/^(Title|Tytuł)$/).fill(title)
   }
 
-  await page.getByLabel(/journal entry/i).fill(body)
-  await selectEmotion(page, 'High Energy / High Pleasantness', 'Happy')
+  await page.getByLabel(/journal entry|wpis w dzienniku/i).fill(body)
+  await selectEmotion(page, HIGH_PLEASANT_QUADRANT, HAPPY_EMOTION)
   await addTag(page, 'people', peopleTag)
   await addTag(page, 'context', contextTag)
-  await page.getByRole('button', { name: 'Save' }).click()
+  await page.getByRole('button', { name: saveButtonName }).click()
   await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
 }
 
@@ -118,7 +136,7 @@ async function createEmotionLog(
   }
 ) {
   await gotoEmotions(page)
-  await selectEmotion(page, 'High Energy / High Pleasantness', emotionName)
+  await selectEmotion(page, HIGH_PLEASANT_QUADRANT, emotionName)
 
   if (peopleTag) {
     await addTag(page, 'people', peopleTag)
@@ -129,11 +147,11 @@ async function createEmotionLog(
   }
 
   if (note) {
-    await page.getByLabel(/note/i).fill(note)
+    await page.getByLabel(/note|notatka/i).fill(note)
   }
 
-  await page.getByRole('button', { name: 'Save' }).click()
-  await expect(page.getByText('Emotion log saved successfully.')).toBeVisible()
+  await page.getByRole('button', { name: saveButtonName }).click()
+  await expect(page.getByText(emotionSavedText)).toBeVisible()
 }
 
 test.describe('Emotion Log Flow', () => {
@@ -145,17 +163,17 @@ test.describe('Emotion Log Flow', () => {
   test('complete flow: create, edit, and delete an emotion log', async ({ page }) => {
     await createEmotionLog(page, {
       note: 'Commute note',
-      emotionName: 'Happy',
+      emotionName: HAPPY_EMOTION,
       peopleTag: 'Commuter',
       contextTag: 'Train',
     })
 
-    await expect(page.getByLabel(/note/i)).toHaveValue('')
+    await expect(page.getByLabel(/note|notatka/i)).toHaveValue('')
     await expect(page.getByRole('button', { name: /Remove .* from selection/ })).toHaveCount(0)
 
     await gotoHistory(page, 'emotion-log')
     await expect(page.getByText('Commute note')).toBeVisible()
-    await expect(page.getByText('Happy', { exact: true })).toBeVisible()
+    await expect(page.getByText(happyText)).toBeVisible()
     await expect(page.getByText('Commuter', { exact: true })).toBeVisible()
     await expect(page.getByText('Train', { exact: true })).toBeVisible()
 
@@ -164,27 +182,27 @@ test.describe('Emotion Log Flow', () => {
       timeout: 5000,
     })
 
-    await page.getByLabel(/note/i).fill('Updated commute note')
-    await page.getByRole('button', { name: 'Remove Happy from selection' }).click()
-    await selectEmotion(page, 'Low Energy / High Pleasantness', 'Calm')
+    await page.getByLabel(/note|notatka/i).fill('Updated commute note')
+    await removeEmotion(page, 'Happy', 'Szczęśliwy')
+    await selectEmotion(page, LOW_PLEASANT_QUADRANT, CALM_EMOTION)
     await addTag(page, 'people', 'Coworker')
-    await page.getByRole('button', { name: 'Save' }).click()
+    await page.getByRole('button', { name: saveButtonName }).click()
     await page.waitForURL((url) => url.pathname === '/emotions', { timeout: 5000 })
 
     await gotoHistory(page, 'emotion-log')
     await expect(page.getByText('Updated commute note')).toBeVisible()
-    await expect(page.getByText('Calm', { exact: true })).toBeVisible()
+    await expect(page.getByText(calmText)).toBeVisible()
     await expect(page.getByText('Coworker', { exact: true })).toBeVisible()
 
-    await page.getByRole('button', { name: /Delete emotion log from/ }).click()
-    await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click()
+    await page.getByRole('button', { name: /^(Delete emotion log from|Usuń wpis emocji z)/ }).click()
+    await page.getByRole('dialog').getByRole('button', { name: /^(Delete|Usuń)$/ }).click()
     await expect(page.getByText('Updated commute note')).toHaveCount(0)
   })
 
   test('shows validation error when saving without selecting emotions', async ({ page }) => {
     await gotoEmotions(page)
-    await page.getByRole('button', { name: 'Save' }).click()
-    await expect(page.getByText('Please select at least one emotion.')).toBeVisible()
+    await page.getByRole('button', { name: saveButtonName }).click()
+    await expect(page.getByText(/^(Please select at least one emotion\.|Wybierz co najmniej jedną emocję\.)$/)).toBeVisible()
   })
 
   test('reuses tags created in journal entries', async ({ page }) => {
@@ -196,13 +214,13 @@ test.describe('Emotion Log Flow', () => {
     })
 
     await gotoEmotions(page)
-    await selectEmotion(page, 'High Energy / High Pleasantness', 'Happy')
-    await expect(page.getByRole('button', { name: 'Select people tag Mom' })).toBeVisible()
-    await page.getByRole('button', { name: 'Select people tag Mom' }).click()
-    await expect(page.getByRole('button', { name: 'Select context tag Work' })).toBeVisible()
-    await page.getByRole('button', { name: 'Select context tag Work' }).click()
-    await page.getByRole('button', { name: 'Save' }).click()
-    await expect(page.getByText('Emotion log saved successfully.')).toBeVisible()
+    await selectEmotion(page, HIGH_PLEASANT_QUADRANT, HAPPY_EMOTION)
+    await expect(page.getByRole('button', { name: /^(Select|Zaznacz) tag (people|osoby) Mom$/i })).toBeVisible()
+    await page.getByRole('button', { name: /^(Select|Zaznacz) tag (people|osoby) Mom$/i }).click()
+    await expect(page.getByRole('button', { name: /^(Select|Zaznacz) tag (context|kontekst) Work$/i })).toBeVisible()
+    await page.getByRole('button', { name: /^(Select|Zaznacz) tag (context|kontekst) Work$/i }).click()
+    await page.getByRole('button', { name: saveButtonName }).click()
+    await expect(page.getByText(emotionSavedText)).toBeVisible()
 
     await gotoHistory(page, 'emotion-log')
     await expect(page.getByText('Mom', { exact: true })).toBeVisible()

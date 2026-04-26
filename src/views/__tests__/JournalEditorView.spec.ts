@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { defineComponent, ref, toRefs } from 'vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 const EmotionSelectorStub = defineComponent({
   name: 'EmotionSelectorStub',
@@ -289,6 +290,7 @@ vi.mock('vue-router', () => {
 describe('JournalEditorView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    useUserPreferencesStore().$patch({ locale: 'en', isLoaded: true })
     vi.clearAllMocks()
     mockGetById.mockReset()
     mockGetEntryById.mockReset()

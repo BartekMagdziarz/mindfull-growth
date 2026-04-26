@@ -9,7 +9,15 @@ describe('useT', () => {
   })
 
   describe('t()', () => {
-    it('returns English text by default', () => {
+    it('returns Polish text by default', () => {
+      const { t } = useT()
+      expect(t('common.nav.journal')).toBe('Dziennik')
+    })
+
+    it('returns English text when locale is en', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'en' })
+
       const { t } = useT()
       expect(t('common.nav.journal')).toBe('Journal')
     })
@@ -38,6 +46,9 @@ describe('useT', () => {
     })
 
     it('interpolates named params', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'en' })
+
       const { t } = useT()
       expect(t('common.time.minutesAgo', { n: 5 })).toBe('5 minutes ago')
     })
@@ -51,6 +62,9 @@ describe('useT', () => {
     })
 
     it('preserves unmatched placeholders', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'en' })
+
       const { t } = useT()
       expect(t('common.time.minutesAgo', {})).toBe('{n} minutes ago')
     })
@@ -59,30 +73,39 @@ describe('useT', () => {
       const prefs = useUserPreferencesStore()
       const { t } = useT()
 
-      expect(t('common.nav.journal')).toBe('Journal')
-
-      prefs.$patch({ locale: 'pl' })
       expect(t('common.nav.journal')).toBe('Dziennik')
 
       prefs.$patch({ locale: 'en' })
       expect(t('common.nav.journal')).toBe('Journal')
+
+      prefs.$patch({ locale: 'pl' })
+      expect(t('common.nav.journal')).toBe('Dziennik')
     })
   })
 
   describe('tp()', () => {
     it('returns singular for 1 in English', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'en' })
+
       const { tp } = useT()
       const result = tp(1, 'common.time.minuteAgo', 'common.time.minutesAgo')
       expect(result).toBe('1 minute ago')
     })
 
     it('returns plural for 5 in English', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'en' })
+
       const { tp } = useT()
       const result = tp(5, 'common.time.minuteAgo', 'common.time.minutesAgo')
       expect(result).toBe('5 minutes ago')
     })
 
     it('returns plural for 0 in English', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'en' })
+
       const { tp } = useT()
       const result = tp(0, 'common.time.minuteAgo', 'common.time.minutesAgo')
       expect(result).toBe('0 minutes ago')
@@ -94,10 +117,10 @@ describe('useT', () => {
       const prefs = useUserPreferencesStore()
       const { locale } = useT()
 
-      expect(locale.value).toBe('en')
-
-      prefs.$patch({ locale: 'pl' })
       expect(locale.value).toBe('pl')
+
+      prefs.$patch({ locale: 'en' })
+      expect(locale.value).toBe('en')
     })
   })
 })

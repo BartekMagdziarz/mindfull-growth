@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import DailyIFSCheckInView from '../exercises/DailyIFSCheckInView.vue'
 import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import type { IFSDailyCheckIn } from '@/domain/exercises'
 
 vi.mock('vue-router', () => ({
@@ -25,6 +26,7 @@ describe('DailyIFSCheckInView', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 2, 12, 9, 0))
     setActivePinia(createPinia())
+    useUserPreferencesStore().$patch({ locale: 'en', isLoaded: true })
 
     const checkInStore = useIFSDailyCheckInStore()
     const partStore = useIFSPartStore()

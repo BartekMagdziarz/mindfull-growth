@@ -10,6 +10,7 @@ import plEmotions from '@/locales/pl/emotions.json'
 describe('useEmotionStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    useUserPreferencesStore().$patch({ locale: 'en', isLoaded: true })
   })
 
   it('exposes the full English emotion catalog and marks itself loaded on demand', async () => {

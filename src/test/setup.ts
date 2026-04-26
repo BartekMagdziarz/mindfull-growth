@@ -130,6 +130,7 @@ beforeEach(async () => {
 
   // Clear drafts table to prevent leakage between tests
   await db.drafts.clear()
+  await db.userSettings.put({ key: 'preferences.locale', value: 'en' })
 
   // Lock locale to 'en' so existing text-based test assertions keep working
   const { useUserPreferencesStore } = await import('@/stores/userPreferences.store')

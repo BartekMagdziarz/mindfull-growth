@@ -6,6 +6,7 @@ import ChatView from '../ChatView.vue'
 import type { ChatSession } from '@/domain/chatSession'
 import type { JournalEntry } from '@/domain/journal'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 // Mock functions - use vi.hoisted() to ensure they're available in vi.mock
 const { mockPush, mockBack, mockShow, mockHide, mockRoute } = vi.hoisted(() => {
@@ -155,6 +156,7 @@ vi.mock('@/components/AppDialog.vue', () => ({
 describe('ChatView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    useUserPreferencesStore().$patch({ locale: 'en', isLoaded: true })
     vi.clearAllMocks()
     mockRoute.params = { id: 'entry-123' }
     mockRoute.query = {}

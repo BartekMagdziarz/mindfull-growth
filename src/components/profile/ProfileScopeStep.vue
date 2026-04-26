@@ -201,6 +201,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:dataTypes': [types: ProfileDataType[]]
   'update:dateRange': [range: ProfileDateRange]
+  'update:filters': [filters: ProfileScopeFilters]
 }>()
 
 const { t } = useT()
@@ -281,11 +282,10 @@ function isQuadrantActive(code: EmotionQuadrantCode): boolean {
 
 function toggleQuadrant(code: EmotionQuadrantCode): void {
   const current = props.filters.emotionQuadrants ?? []
-  if (current.includes(code)) {
-    props.filters.emotionQuadrants = current.filter((c) => c !== code)
-  } else {
-    props.filters.emotionQuadrants = [...current, code]
-  }
+  const next = current.includes(code)
+    ? current.filter((c) => c !== code)
+    : [...current, code]
+  emit('update:filters', { ...props.filters, emotionQuadrants: next })
 }
 
 type TagFilterKey = 'lifeAreaIds' | 'peopleTagIds' | 'contextTagIds'
@@ -296,10 +296,9 @@ function isFilterActive(key: TagFilterKey, id: string): boolean {
 
 function toggleFilter(key: TagFilterKey, id: string): void {
   const current = props.filters[key] ?? []
-  if (current.includes(id)) {
-    props.filters[key] = current.filter((x) => x !== id)
-  } else {
-    props.filters[key] = [...current, id]
-  }
+  const next = current.includes(id)
+    ? current.filter((x) => x !== id)
+    : [...current, id]
+  emit('update:filters', { ...props.filters, [key]: next })
 }
 </script>

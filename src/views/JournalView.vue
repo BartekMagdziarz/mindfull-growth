@@ -5,6 +5,7 @@
       <!-- Free form Card -->
       <AppCard
         padding="lg"
+        data-testid="journal-free-form-card"
         class="w-full max-w-md cursor-pointer transition-all duration-200 hover:-translate-y-px"
         @click="handleFreeFormClick"
       >

@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { defineComponent, h, ref } from 'vue'
 import EmotionsView from '../EmotionsView.vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 type EmotionName = { id: string; name: string }
 type TagName = { id: string; name: string }
@@ -171,6 +172,7 @@ describe('EmotionsView', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    useUserPreferencesStore().$patch({ locale: 'en', isLoaded: true })
     vi.clearAllMocks()
     mockEmotionLogStore = createEmotionLogStoreMock()
     mockEmotionStore = createEmotionStoreMock()
