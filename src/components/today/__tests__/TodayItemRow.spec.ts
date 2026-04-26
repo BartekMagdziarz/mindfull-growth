@@ -423,7 +423,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     expect(getByText('Book photographer')).toBeTruthy()
   })
 
-  it('reveals chart and Open button only after expansion', async () => {
+  it('reveals chart and actions menu only after expansion', async () => {
     const habit = makeHabit('habit-expand', {
       entryMode: 'counter',
       target: { kind: 'count', operator: 'min', value: 10 },
@@ -442,15 +442,15 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
       makeEntry('habit', 'habit-expand', '2026-03-10', 4),
     ])
 
-    // Collapsed: no Open button
-    expect(queryByRole('button', { name: /Open object/i })).toBeNull()
+    // Collapsed: no actions menu button (lives in the expanded footer)
+    expect(queryByRole('button', { name: /more actions/i })).toBeNull()
 
     // Click the card body to expand (the card root is the article element)
     const article = container.querySelector('article')
     expect(article).toBeTruthy()
     await fireEvent.click(article!)
 
-    // Expanded: Open button visible
-    expect(getByRole('button', { name: /Open object/i })).toBeTruthy()
+    // Expanded: actions menu button visible
+    expect(getByRole('button', { name: /more actions/i })).toBeTruthy()
   })
 })

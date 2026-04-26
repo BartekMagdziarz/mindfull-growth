@@ -140,87 +140,9 @@
           </button>
         </div>
       </div>
-
-      <!-- More menu (hover-only) -->
-      <div ref="menuRootRef" class="relative shrink-0" @click.stop>
-        <button
-          type="button"
-          class="neo-icon-button neo-focus transition-opacity"
-          :class="menuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
-          aria-label="More actions"
-          @click="menuOpen = !menuOpen"
-        >
-          <AppIcon name="more_horiz" class="text-sm" />
-        </button>
-        <Teleport to="body">
-          <div
-            v-if="menuOpen"
-            ref="menuDropdownRef"
-            class="fixed z-50 min-w-[160px] overflow-hidden rounded-xl border border-white/40 bg-white shadow-lg"
-            :style="menuStyle"
-            @click.stop
-          >
-            <button
-              type="button"
-              class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-              @click="handleMenuAction('open-context')"
-            >
-              {{ t('planning.today.actions.openContext') }}
-            </button>
-            <button
-              type="button"
-              class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-              @click="handleMenuAction('open-object')"
-            >
-              {{ t('planning.objects.actions.open') }}
-            </button>
-            <template v-if="item.isScheduledToday">
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-                @click="handleMoveToDay"
-              >
-                {{ t('planning.today.actions.moveToDay') }}
-              </button>
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-                @click="handleMenuAction('clear-schedule')"
-              >
-                {{ t('planning.today.actions.clearToday') }}
-              </button>
-              <button
-                type="button"
-                class="block w-full border-t border-outline/10 px-4 py-2 text-left text-xs font-medium text-error hover:bg-error/5"
-                @click="handleMenuAction('request-delete')"
-              >
-                {{ t('common.buttons.delete') }}
-              </button>
-            </template>
-            <template v-else>
-              <button
-                v-if="item.canHide"
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-                @click="handleMenuAction('hide')"
-              >
-                {{ t('planning.today.actions.hideForToday') }}
-              </button>
-            </template>
-            <button
-              v-if="item.kind === 'measurement' && item.todayEntry"
-              type="button"
-              class="block w-full border-t border-outline/10 px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-              @click="handleMenuAction('clear-entry')"
-            >
-              {{ t('planning.today.actions.clearEntry') }}
-            </button>
-          </div>
-        </Teleport>
-      </div>
     </div>
 
-    <!-- Expanded section: full chart + footer (cadence/target pills + Open button) -->
+    <!-- Expanded section: full chart + footer (cadence/target pills + actions menu) -->
     <div
       v-if="expanded"
       class="mt-3 border-t border-neu-border/30 pt-3"
@@ -281,7 +203,7 @@
         class="mt-2"
       />
 
-      <!-- Footer: cadence/target pills + Open button -->
+      <!-- Footer: cadence/target pills + actions menu -->
       <div class="mt-3 flex items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-2 text-[10px]">
           <span v-if="cadenceLabel" class="today-pill">
@@ -296,14 +218,82 @@
             <span class="font-semibold text-on-surface">{{ actualPillLabel }}</span>
           </span>
         </div>
-        <button
-          type="button"
-          class="today-item-open-btn neo-focus shrink-0"
-          @click="$emit('open-object')"
-        >
-          <span>{{ t('planning.objects.actions.open') }}</span>
-          <AppIcon name="arrow_outward" class="text-[12px]" />
-        </button>
+        <!-- More menu — pill-shaped, always visible in expanded state -->
+        <div ref="menuRootRef" class="relative shrink-0" @click.stop>
+          <button
+            type="button"
+            class="today-item-menu-btn neo-focus"
+            aria-label="More actions"
+            @click="menuOpen = !menuOpen"
+          >
+            <AppIcon name="more_horiz" class="text-[14px]" />
+          </button>
+          <Teleport to="body">
+            <div
+              v-if="menuOpen"
+              ref="menuDropdownRef"
+              class="fixed z-50 min-w-[160px] overflow-hidden rounded-xl border border-white/40 bg-white shadow-lg"
+              :style="menuStyle"
+              @click.stop
+            >
+              <button
+                type="button"
+                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                @click="handleMenuAction('open-context')"
+              >
+                {{ t('planning.today.actions.openContext') }}
+              </button>
+              <button
+                type="button"
+                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                @click="handleMenuAction('open-object')"
+              >
+                {{ t('planning.objects.actions.open') }}
+              </button>
+              <template v-if="item.isScheduledToday">
+                <button
+                  type="button"
+                  class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="handleMoveToDay"
+                >
+                  {{ t('planning.today.actions.moveToDay') }}
+                </button>
+                <button
+                  type="button"
+                  class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="handleMenuAction('clear-schedule')"
+                >
+                  {{ t('planning.today.actions.clearToday') }}
+                </button>
+                <button
+                  type="button"
+                  class="block w-full border-t border-outline/10 px-4 py-2 text-left text-xs font-medium text-error hover:bg-error/5"
+                  @click="handleMenuAction('request-delete')"
+                >
+                  {{ t('common.buttons.delete') }}
+                </button>
+              </template>
+              <template v-else>
+                <button
+                  v-if="item.canHide"
+                  type="button"
+                  class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="handleMenuAction('hide')"
+                >
+                  {{ t('planning.today.actions.hideForToday') }}
+                </button>
+              </template>
+              <button
+                v-if="item.kind === 'measurement' && item.todayEntry"
+                type="button"
+                class="block w-full border-t border-outline/10 px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                @click="handleMenuAction('clear-entry')"
+              >
+                {{ t('planning.today.actions.clearEntry') }}
+              </button>
+            </div>
+          </Teleport>
+        </div>
       </div>
     </div>
 
@@ -744,15 +734,15 @@ function formatMeasurementValue(value: number): string {
     inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.2);
 }
 
-.today-item-open-btn {
+/* Pill-shaped more-actions button shown in the expanded footer.
+   Shape mirrors the previous open button; colors/style mirror neo-icon-button. */
+.today-item-menu-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
+  justify-content: center;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 500;
-  color: rgb(var(--color-primary-strong));
+  border: 1px solid rgb(var(--neo-border) / 0.3);
   background: linear-gradient(
     145deg,
     rgb(var(--neo-surface-top)),
@@ -761,18 +751,26 @@ function formatMeasurementValue(value: number): string {
   box-shadow:
     -2px -2px 4px rgb(var(--neo-shadow-light) / 0.8),
     2px 2px 4px rgb(var(--neo-shadow-dark) / 0.25);
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  color: rgb(var(--neo-muted));
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease;
 }
 
-.today-item-open-btn:hover:not(:disabled) {
+.today-item-menu-btn:hover:not(:disabled) {
   transform: translateY(-1px);
+  color: rgb(var(--neo-text));
   box-shadow:
     -3px -3px 6px rgb(var(--neo-shadow-light) / 0.85),
     3px 3px 6px rgb(var(--neo-shadow-dark) / 0.3);
 }
 
-.today-item-open-btn:active:not(:disabled) {
+.today-item-menu-btn:active:not(:disabled) {
   transform: translateY(0);
+  background: rgb(var(--neo-surface-base));
   box-shadow:
     inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.5),
     inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.2);
