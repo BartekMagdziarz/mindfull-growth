@@ -30,7 +30,9 @@
     "start": "Rozpocznij",
     "create": "Utwórz",
     "continue": "Kontynuuj",
-    "stay": "Zostań"
+    "stay": "Zostań",
+    "expand": "Rozwiń",
+    "collapse": "Zwiń"
   },
   "days": {
     "0": "Niedziela",

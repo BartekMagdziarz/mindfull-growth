@@ -39,43 +39,54 @@
     />
 
     <template v-else-if="store.bundle">
-      <!-- Wellness cards -->
-      <div class="mb-6 grid gap-4 md:grid-cols-3">
-        <JournalStreakCard
-          :reference-date="wellnessReferenceDate"
-          :day-word-counts="journalDayWordCounts"
-        />
+      <!-- Unified day grid: 168px wellness column + goals/habits/trackers plates -->
+      <div
+        class="grid items-start gap-4"
+        style="grid-template-columns: 168px 1fr 1fr 1fr"
+      >
+        <!-- LEFT: wellness stack -->
+        <div class="flex flex-col gap-4">
+          <JournalStreakCard
+            :reference-date="wellnessReferenceDate"
+            :day-word-counts="journalDayWordCounts"
+          />
 
-        <EmotionStreakCard
-          :reference-date="wellnessReferenceDate"
-          :day-emotion-data="dayEmotionData"
-        />
+          <EmotionStreakCard
+            :reference-date="wellnessReferenceDate"
+            :day-emotion-data="dayEmotionData"
+          />
 
-        <div>
-          <article class="neo-card neo-raised border-primary/10 px-5 py-4 transition-shadow duration-200">
-            <div class="mb-3">
-              <span class="text-sm font-semibold text-on-surface">{{ t('planning.calendar.wellness.exercises') }}</span>
-            </div>
-            <p class="text-center text-xs text-on-surface-variant/50">
-              {{ t('planning.calendar.wellness.exercisesPlaceholder') }}
-            </p>
-          </article>
+          <ExerciseCard />
         </div>
-      </div>
 
-      <!-- 4-column grid -->
-      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <!-- Goals & KRs column -->
-        <section>
-          <h2 class="mb-3 text-base font-semibold tracking-[-0.01em] text-on-surface">
-            {{ t('planning.today.columns.goalsKrs') }}
-          </h2>
+        <!-- Goals & KRs plate -->
+        <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
+          <header class="flex items-center justify-between px-1 pb-0.5">
+            <h2 class="text-sm font-semibold tracking-tight text-on-surface">
+              {{ t('planning.today.columns.goalsKrs') }}
+            </h2>
+            <button
+              type="button"
+              class="today-section-add neo-focus grid place-items-center"
+              :aria-label="t('common.buttons.add')"
+            >
+              <AppIcon name="add" class="text-xs text-on-surface-variant/60" />
+            </button>
+          </header>
           <template v-if="store.goalGroupedKrItems.length > 0">
-            <div v-for="group in store.goalGroupedKrItems" :key="group.goal.id" class="mb-4 last:mb-0">
-              <div class="space-y-2.5 pl-1">
+            <template
+              v-for="(group, groupIndex) in store.goalGroupedKrItems"
+              :key="group.goal.id"
+            >
+              <div
+                v-for="(item, itemIndex) in group.items"
+                :key="item.key"
+              >
+                <div
+                  v-if="!(groupIndex === 0 && itemIndex === 0)"
+                  class="today-section-divider mx-1"
+                />
                 <TodayItemRow
-                  v-for="item in group.items"
-                  :key="item.key"
                   :item="item"
                   :today-day-ref="bundleDayRef"
                   :raw-entries="store.rawEntries"
@@ -92,99 +103,89 @@
                   @request-delete="promptDelete(item)"
                 />
               </div>
+            </template>
+          </template>
+          <p v-else class="py-8 text-center text-[11px] text-on-surface-variant/50">
+            {{ t('planning.today.emptyColumn') }}
+          </p>
+        </section>
+
+        <!-- Habits plate -->
+        <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
+          <header class="flex items-center justify-between px-1 pb-0.5">
+            <h2 class="text-sm font-semibold tracking-tight text-on-surface">
+              {{ t('planning.today.columns.habits') }}
+            </h2>
+            <button
+              type="button"
+              class="today-section-add neo-focus grid place-items-center"
+              :aria-label="t('common.buttons.add')"
+            >
+              <AppIcon name="add" class="text-xs text-on-surface-variant/60" />
+            </button>
+          </header>
+          <template v-if="store.habitItems.length > 0">
+            <div v-for="(item, itemIndex) in store.habitItems" :key="item.key">
+              <div v-if="itemIndex !== 0" class="today-section-divider mx-1" />
+              <TodayItemRow
+                :item="item"
+                :today-day-ref="bundleDayRef"
+                :raw-entries="store.rawEntries"
+                :all-day-assignments="store.allDayAssignments"
+                :is-pending="store.isPending(item.key)"
+                @open-object="openObject(item)"
+                @open-context="openPeriod(item.contextPeriodRef)"
+                @toggle-completion="handleToggleCompletion(item)"
+                @save-entry="handleSaveEntry(item, $event)"
+                @clear-entry="handleClearEntry(item)"
+                @hide="handleHide(item)"
+                @move="handleMove(item, $event)"
+                @clear-schedule="handleClearSchedule(item)"
+                @request-delete="promptDelete(item)"
+              />
             </div>
           </template>
-          <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
+          <p v-else class="py-8 text-center text-[11px] text-on-surface-variant/50">
             {{ t('planning.today.emptyColumn') }}
           </p>
         </section>
 
-        <!-- Habits column -->
-        <section>
-          <h2 class="mb-3 text-base font-semibold tracking-[-0.01em] text-on-surface">
-            {{ t('planning.today.columns.habits') }}
-          </h2>
-          <div v-if="store.habitItems.length > 0" class="space-y-2.5">
-            <TodayItemRow
-              v-for="item in store.habitItems"
-              :key="item.key"
-              :item="item"
-              :today-day-ref="bundleDayRef"
-              :raw-entries="store.rawEntries"
-              :all-day-assignments="store.allDayAssignments"
-              :is-pending="store.isPending(item.key)"
-              @open-object="openObject(item)"
-              @open-context="openPeriod(item.contextPeriodRef)"
-              @toggle-completion="handleToggleCompletion(item)"
-              @save-entry="handleSaveEntry(item, $event)"
-              @clear-entry="handleClearEntry(item)"
-              @hide="handleHide(item)"
-              @move="handleMove(item, $event)"
-              @clear-schedule="handleClearSchedule(item)"
-              @request-delete="promptDelete(item)"
-            />
-          </div>
-          <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
-            {{ t('planning.today.emptyColumn') }}
-          </p>
-        </section>
-
-        <!-- Trackers column -->
-        <section>
-          <h2 class="mb-3 text-base font-semibold tracking-[-0.01em] text-on-surface">
-            {{ t('planning.today.columns.trackers') }}
-          </h2>
-          <div v-if="store.trackerItems.length > 0" class="space-y-2.5">
-            <TodayItemRow
-              v-for="item in store.trackerItems"
-              :key="item.key"
-              :item="item"
-              :today-day-ref="bundleDayRef"
-              :raw-entries="store.rawEntries"
-              :all-day-assignments="store.allDayAssignments"
-              :is-pending="store.isPending(item.key)"
-              @open-object="openObject(item)"
-              @open-context="openPeriod(item.contextPeriodRef)"
-              @toggle-completion="handleToggleCompletion(item)"
-              @save-entry="handleSaveEntry(item, $event)"
-              @clear-entry="handleClearEntry(item)"
-              @hide="handleHide(item)"
-              @move="handleMove(item, $event)"
-              @clear-schedule="handleClearSchedule(item)"
-              @request-delete="promptDelete(item)"
-            />
-          </div>
-          <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
-            {{ t('planning.today.emptyColumn') }}
-          </p>
-        </section>
-
-        <!-- Initiatives column -->
-        <section>
-          <h2 class="mb-3 text-base font-semibold tracking-[-0.01em] text-on-surface">
-            {{ t('planning.today.columns.initiatives') }}
-          </h2>
-          <div v-if="store.initiativeItems.length > 0" class="space-y-2.5">
-            <TodayItemRow
-              v-for="item in store.initiativeItems"
-              :key="item.key"
-              :item="item"
-              :today-day-ref="bundleDayRef"
-              :raw-entries="store.rawEntries"
-              :all-day-assignments="store.allDayAssignments"
-              :is-pending="store.isPending(item.key)"
-              @open-object="openObject(item)"
-              @open-context="openPeriod(item.contextPeriodRef)"
-              @toggle-completion="handleToggleCompletion(item)"
-              @save-entry="handleSaveEntry(item, $event)"
-              @clear-entry="handleClearEntry(item)"
-              @hide="handleHide(item)"
-              @move="handleMove(item, $event)"
-              @clear-schedule="handleClearSchedule(item)"
-              @request-delete="promptDelete(item)"
-            />
-          </div>
-          <p v-else class="py-8 text-center text-xs text-on-surface-variant/50">
+        <!-- Trackers plate -->
+        <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
+          <header class="flex items-center justify-between px-1 pb-0.5">
+            <h2 class="text-sm font-semibold tracking-tight text-on-surface">
+              {{ t('planning.today.columns.trackers') }}
+            </h2>
+            <button
+              type="button"
+              class="today-section-add neo-focus grid place-items-center"
+              :aria-label="t('common.buttons.add')"
+            >
+              <AppIcon name="add" class="text-xs text-on-surface-variant/60" />
+            </button>
+          </header>
+          <template v-if="store.trackerItems.length > 0">
+            <div v-for="(item, itemIndex) in store.trackerItems" :key="item.key">
+              <div v-if="itemIndex !== 0" class="today-section-divider mx-1" />
+              <TodayItemRow
+                :item="item"
+                :today-day-ref="bundleDayRef"
+                :raw-entries="store.rawEntries"
+                :all-day-assignments="store.allDayAssignments"
+                :is-pending="store.isPending(item.key)"
+                @open-object="openObject(item)"
+                @open-context="openPeriod(item.contextPeriodRef)"
+                @toggle-completion="handleToggleCompletion(item)"
+                @save-entry="handleSaveEntry(item, $event)"
+                @clear-entry="handleClearEntry(item)"
+                @hide="handleHide(item)"
+                @move="handleMove(item, $event)"
+                @clear-schedule="handleClearSchedule(item)"
+                @request-delete="promptDelete(item)"
+              />
+            </div>
+          </template>
+          <p v-else class="py-8 text-center text-[11px] text-on-surface-variant/50">
             {{ t('planning.today.emptyColumn') }}
           </p>
         </section>
@@ -247,6 +248,7 @@ import AppSnackbar from '@/components/AppSnackbar.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import JournalStreakCard from '@/components/today/JournalStreakCard.vue'
 import EmotionStreakCard from '@/components/today/EmotionStreakCard.vue'
+import ExerciseCard from '@/components/today/ExerciseCard.vue'
 import TodayItemRow from '@/components/today/TodayItemRow.vue'
 import { useT } from '@/composables/useT'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
@@ -567,3 +569,36 @@ watch(
   }
 )
 </script>
+
+<style scoped>
+.today-section {
+  border-radius: 1.5rem;
+}
+
+.today-section-add {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: rgb(var(--neo-surface-base));
+  box-shadow:
+    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.8),
+    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.33);
+  opacity: 0.7;
+  transition: opacity 200ms ease;
+}
+
+.today-section-add:hover {
+  opacity: 1;
+}
+
+.today-section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--neo-border) / 0.35) 15%,
+    rgb(var(--neo-border) / 0.35) 85%,
+    transparent
+  );
+}
+</style>

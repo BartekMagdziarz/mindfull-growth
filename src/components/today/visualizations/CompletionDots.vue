@@ -54,7 +54,7 @@ const props = withDefaults(
 const containerClass = computed(() =>
   props.size === 'sm'
     ? 'flex w-full items-center justify-end gap-1'
-    : 'grid grid-cols-3 gap-x-4 gap-y-1.5 place-items-center',
+    : 'flex w-full items-end justify-between gap-2',
 )
 
 const dotSizeClass = computed(() => (props.size === 'sm' ? 'h-4 w-4' : 'h-9 w-9'))

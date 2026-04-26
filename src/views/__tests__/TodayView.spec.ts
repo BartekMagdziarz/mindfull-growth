@@ -139,7 +139,11 @@ describe('TodayView', () => {
     expect(goal.id).toBeTruthy()
   })
 
-  it('deletes scheduled initiatives only after confirmation', async () => {
+  // Initiatives are no longer rendered in the day-view grid (the Initiatives
+  // column was removed when the wellness-left-column layout shipped). They
+  // remain manageable from the Objects library, where this scenario should be
+  // covered by ObjectsView tests instead.
+  it.skip('deletes scheduled initiatives only after confirmation', async () => {
     const dayRef = parsePeriodRef('2026-03-12') as DayRef
     const refs = getPeriodRefsForDate(dayRef)
     const initiative = await initiativeDexieRepository.create({

@@ -137,9 +137,12 @@
       "exercises": "Exercises",
       "total": "total",
       "today": "today",
+      "todayShort": "td.",
+      "daysShort": "days",
       "streakDays": "{n}-day streak",
       "newEntry": "New entry",
       "logEmotion": "Log emotion",
+      "logExercise": "Start exercise",
       "exercisesPlaceholder": "Coming soon"
     },
     "empty": {
@@ -267,7 +270,9 @@
     "todayCircleLabel": "Today",
     "details": {
       "goal": "Goal: {title}",
-      "daysLeft": "{n} days left in period"
+      "daysLeft": "{n} days left in period",
+      "targetPrefix": "target",
+      "progressPrefix": "progress"
     },
     "actions": {
       "recordEntry": "Record today",

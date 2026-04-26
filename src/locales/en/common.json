@@ -30,7 +30,9 @@
     "start": "Start",
     "create": "Create",
     "continue": "Continue",
-    "stay": "Stay"
+    "stay": "Stay",
+    "expand": "Expand",
+    "collapse": "Collapse"
   },
   "days": {
     "0": "Sunday",

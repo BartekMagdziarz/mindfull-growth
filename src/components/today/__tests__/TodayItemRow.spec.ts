@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { render, type RenderOptions } from '@testing-library/vue'
+import { fireEvent, render, type RenderOptions } from '@testing-library/vue'
 import TodayItemRow from '@/components/today/TodayItemRow.vue'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { Habit, Initiative, Tracker } from '@/domain/planning'
@@ -191,8 +191,8 @@ function renderRow(
   })
 }
 
-describe('TodayItemRow — unified three-zone layout', () => {
-  it('renders weekly counter habit with DailyBarsChart, AggregateBar, and CounterEntryControl', () => {
+describe('TodayItemRow — simplified collapsed + expand-on-click layout', () => {
+  it('renders weekly counter habit with inline ± controls in title row', () => {
     const habit = makeHabit('habit-counter', {
       entryMode: 'counter',
       target: { kind: 'count', operator: 'min', value: 10 },
@@ -209,21 +209,19 @@ describe('TodayItemRow — unified three-zone layout', () => {
       makePlanning(),
       makeEntry('habit', 'habit-counter', TODAY, 3),
     )
-    const { container, getByText, getByLabelText } = renderRow(item, [
+    const { getByText, getByLabelText } = renderRow(item, [
       makeEntry('habit', 'habit-counter', '2026-03-10', 4),
       makeEntry('habit', 'habit-counter', TODAY, 3),
     ])
 
     // Title button rendered
     expect(getByText('Habit habit-counter')).toBeTruthy()
-    // CounterEntryControl's Increment button present on the right
+    // Inline counter controls in title row
     expect(getByLabelText('Increment')).toBeTruthy()
-    // The chart area uses the three-zone wrapper (left flex:2, right flex:1)
-    expect(container.querySelector('[style*="flex: 2 1 0"]')).toBeTruthy()
-    expect(container.querySelector('[style*="flex: 1 1 0"]')).toBeTruthy()
+    expect(getByLabelText('Decrement')).toBeTruthy()
   })
 
-  it('renders weekly value habit with ValueLineChart and TodayEntryInput', () => {
+  it('renders weekly value tracker with click-to-edit value pill (no inline ± buttons)', () => {
     const habit = makeHabit('habit-value', {
       entryMode: 'value',
       target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
@@ -242,14 +240,14 @@ describe('TodayItemRow — unified three-zone layout', () => {
       makeEntry('habit', 'habit-value', '2026-03-10', 6.8),
     ])
 
-    // Value entries render a number input in the right column
-    const numberInput = container.querySelector('input[type="number"]')
-    expect(numberInput).toBeTruthy()
-    // No Increment button for value mode
+    // Value mode does not render counter ± controls
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
+    expect(container.querySelector('[aria-label="Decrement"]')).toBeNull()
+    // The inline value pill button is present
+    expect(container.querySelector('.today-inline-value-btn')).toBeTruthy()
   })
 
-  it('renders weekly rating tracker with RatingSegmentedBars and counter-style rating input', () => {
+  it('renders weekly rating tracker with inline ± controls in title row', () => {
     const tracker = makeTracker('tracker-rating', { entryMode: 'rating' })
     const item = makeMeasurementItem(
       'tracker',
@@ -262,12 +260,12 @@ describe('TodayItemRow — unified three-zone layout', () => {
       makeEntry('tracker', 'tracker-rating', TODAY, 4),
     ])
 
-    // Rating entries render counter-style ± buttons
+    // Rating entries render inline counter-style ± buttons
     expect(getByLabelText('Increment')).toBeTruthy()
     expect(getByLabelText('Decrement')).toBeTruthy()
   })
 
-  it('renders completion-dots with today circle in right column', () => {
+  it('renders completion-dots with inline today circle (no number input)', () => {
     const habit = makeHabit('habit-completion-small', {
       entryMode: 'completion',
       target: { kind: 'count', operator: 'min', value: 3 },
@@ -286,17 +284,14 @@ describe('TodayItemRow — unified three-zone layout', () => {
       makeEntry('habit', 'habit-completion-small', '2026-03-10'),
     ])
 
-    // Both columns present — today circle in the right column
-    expect(container.querySelector('[style*="flex: 2 1 0"]')).toBeTruthy()
-    expect(container.querySelector('[style*="flex: 1 1 0"]')).toBeTruthy()
     // Today toggle button rendered
     expect(getByRole('button', { name: 'Record today' })).toBeTruthy()
-    // No number input or counter controls
+    // No number input or counter controls in collapsed state
     expect(container.querySelector('input[type="number"]')).toBeNull()
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
   })
 
-  it('renders completion-ring with today circle in right column for count target > 7', () => {
+  it('renders completion-ring with inline today circle for count target > 7', () => {
     const habit = makeHabit('habit-completion-large', {
       entryMode: 'completion',
       target: { kind: 'count', operator: 'min', value: 15 },
@@ -311,16 +306,13 @@ describe('TodayItemRow — unified three-zone layout', () => {
         periodRef: WEEK_REF,
       }),
     )
-    const { container, getByRole } = renderRow(item)
+    const { getByRole } = renderRow(item)
 
-    // Both columns present — ring in left, today toggle in right
-    expect(container.querySelector('[style*="flex: 2 1 0"]')).toBeTruthy()
-    expect(container.querySelector('[style*="flex: 1 1 0"]')).toBeTruthy()
-    // Today toggle button rendered
+    // Inline today toggle button rendered
     expect(getByRole('button', { name: 'Record today' })).toBeTruthy()
   })
 
-  it('renders monthly counter habit with CounterRing and CounterEntryControl', () => {
+  it('renders monthly counter habit with inline ± controls', () => {
     const habit = makeHabit('monthly-counter', {
       cadence: 'monthly',
       entryMode: 'counter',
@@ -338,18 +330,16 @@ describe('TodayItemRow — unified three-zone layout', () => {
         periodRef: MONTH_REF,
       }),
     )
-    const { container, getByLabelText } = renderRow(item, [
+    const { getByLabelText } = renderRow(item, [
       makeEntry('habit', 'monthly-counter', '2026-03-02', 3),
     ])
 
-    // CounterEntryControl's Increment button rendered on the right
+    // CounterEntryControl's Increment button rendered
     expect(getByLabelText('Increment')).toBeTruthy()
-    // Both columns present
-    expect(container.querySelector('[style*="flex: 2 1 0"]')).toBeTruthy()
-    expect(container.querySelector('[style*="flex: 1 1 0"]')).toBeTruthy()
+    expect(getByLabelText('Decrement')).toBeTruthy()
   })
 
-  it('renders monthly value tracker with sparkline and number input', () => {
+  it('renders monthly value tracker with click-to-edit value pill (no ± buttons)', () => {
     const tracker = makeTracker('monthly-value', {
       cadence: 'monthly',
       entryMode: 'value',
@@ -370,13 +360,12 @@ describe('TodayItemRow — unified three-zone layout', () => {
       makeEntry('tracker', 'monthly-value', '2026-03-08', 73),
     ])
 
-    // Value entry input in the right column
-    expect(container.querySelector('input[type="number"]')).toBeTruthy()
-    // Counter controls absent
+    // Value pill renders, but no ± buttons
+    expect(container.querySelector('.today-inline-value-btn')).toBeTruthy()
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
   })
 
-  it('renders monthly rating habit with smooth bar and counter-style rating input', () => {
+  it('renders monthly rating habit with inline ± controls', () => {
     const habit = makeHabit('monthly-rating', {
       cadence: 'monthly',
       entryMode: 'rating',
@@ -398,12 +387,11 @@ describe('TodayItemRow — unified three-zone layout', () => {
       makeEntry('habit', 'monthly-rating', '2026-03-05', 8),
     ])
 
-    // Rating entries render counter-style ± buttons
     expect(getByLabelText('Increment')).toBeTruthy()
     expect(getByLabelText('Decrement')).toBeTruthy()
   })
 
-  it('renders monthly completion tracker with summary number and check button (no number input)', () => {
+  it('renders monthly completion tracker with inline check button (no ± / no number input)', () => {
     const tracker = makeTracker('monthly-completion', {
       cadence: 'monthly',
       entryMode: 'completion',
@@ -418,25 +406,51 @@ describe('TodayItemRow — unified three-zone layout', () => {
         periodRef: MONTH_REF,
       }),
     )
-    const { container } = renderRow(item, [
+    const { container, getByRole } = renderRow(item, [
       makeEntry('tracker', 'monthly-completion', '2026-03-01'),
     ])
 
-    // Right column renders with a check button, not a number input
-    expect(container.querySelector('[style*="flex: 1 1 0"]')).toBeTruthy()
+    // Inline today toggle button rendered with no ± or number input
+    expect(getByRole('button', { name: 'Record today' })).toBeTruthy()
     expect(container.querySelector('input[type="number"]')).toBeNull()
-    // Counter controls absent
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
   })
 
-  it('renders initiative with title row + inlined checkmark and no three-zone grid', () => {
+  it('renders initiative with inlined checkmark and no chart', () => {
     const item = makeInitiativeItem('init-1', 'Book photographer')
-    const { container, getByText } = renderRow(item)
+    const { getByText } = renderRow(item)
 
     expect(getByText('Book photographer')).toBeTruthy()
-    // Initiative uses the compact title row layout — no three-zone grid,
-    // so no flex:2/flex:1 wrappers.
-    expect(container.querySelector('[style*="flex: 2 1 0"]')).toBeNull()
-    expect(container.querySelector('[style*="flex: 1 1 0"]')).toBeNull()
+  })
+
+  it('reveals chart and Open button only after expansion', async () => {
+    const habit = makeHabit('habit-expand', {
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 10 },
+    })
+    const item = makeMeasurementItem(
+      'habit',
+      habit,
+      makeSummary({
+        entryMode: 'counter',
+        actualValue: 7,
+        target: habit.target,
+        periodRef: WEEK_REF,
+      }),
+    )
+    const { container, getByRole, queryByRole } = renderRow(item, [
+      makeEntry('habit', 'habit-expand', '2026-03-10', 4),
+    ])
+
+    // Collapsed: no Open button
+    expect(queryByRole('button', { name: /Open object/i })).toBeNull()
+
+    // Click the card body to expand (the card root is the article element)
+    const article = container.querySelector('article')
+    expect(article).toBeTruthy()
+    await fireEvent.click(article!)
+
+    // Expanded: Open button visible
+    expect(getByRole('button', { name: /Open object/i })).toBeTruthy()
   })
 })

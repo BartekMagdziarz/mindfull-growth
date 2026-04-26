@@ -137,9 +137,12 @@
       "exercises": "Ćwiczenia",
       "total": "łącznie",
       "today": "dziś",
+      "todayShort": "dz.",
+      "daysShort": "dni",
       "streakDays": "{n}-dniowa seria",
       "newEntry": "Nowy wpis",
       "logEmotion": "Zapisz emocję",
+      "logExercise": "Rozpocznij ćwiczenie",
       "exercisesPlaceholder": "Wkrótce"
     },
     "empty": {
@@ -267,7 +270,9 @@
     "todayCircleLabel": "Dziś",
     "details": {
       "goal": "Cel: {title}",
-      "daysLeft": "Do końca okresu: {n} dni"
+      "daysLeft": "Do końca okresu: {n} dni",
+      "targetPrefix": "cel",
+      "progressPrefix": "postęp"
     },
     "actions": {
       "recordEntry": "Zapisz dziś",
