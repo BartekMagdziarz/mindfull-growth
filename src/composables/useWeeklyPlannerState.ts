@@ -289,7 +289,9 @@ export function useWeeklyPlannerState(
   }
 
   function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode): void {
-    if (!item.isActive) return
+    // Inactive items are intentionally allowed here — toggleMeasurementDayAssignment
+    // and toggleMeasurementWeekAssignment activate the item atomically when the user picks
+    // a day/week, so we don't need an explicit activation step.
     activeAssignment.value = {
       subjectType: item.subjectType,
       subjectId: item.id,
@@ -587,8 +589,8 @@ export function useWeeklyPlannerState(
   }
 
   async function applyWholePeriod(item: PlannerMeasurementRow): Promise<void> {
-    if (!item.isActive) return
-
+    // Inactive items are intentionally allowed — toggleMeasurementWeekAssignment activates
+    // the item and assigns the whole week atomically.
     const weekScope = item.weekScopeByRef[weekRef.value]
     if (weekScope === 'whole-week') {
       activeAssignment.value = null

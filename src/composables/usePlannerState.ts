@@ -269,7 +269,9 @@ export function usePlannerState(
   }
 
   function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode): void {
-    if (!item.isActive) return
+    // Inactive items are intentionally allowed — toggleMeasurementDayAssignment,
+    // toggleMeasurementWeekAssignment and assignMeasurementToWholeMonthView activate
+    // the item atomically when the user picks a day/week/whole-month.
     activeAssignment.value = {
       subjectType: item.subjectType,
       subjectId: item.id,
@@ -538,7 +540,8 @@ export function usePlannerState(
   }
 
   async function applyWholePeriod(item: PlannerMeasurementRow): Promise<void> {
-    if (!item.isActive) return
+    // Inactive items are intentionally allowed — assignMeasurementToWholeMonthView
+    // activates and assigns the whole month atomically.
     activeAssignment.value = null
 
     await withSave(`${rowKey(item)}:whole-month`, () =>

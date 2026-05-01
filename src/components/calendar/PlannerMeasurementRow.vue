@@ -56,7 +56,6 @@
           type="button"
           class="neo-pill px-3 py-1 text-[11px] font-semibold neo-focus"
           :class="wholeChipClass"
-          :disabled="!row.isActive"
           @click="$emit('applyWholePeriod')"
         >
           {{ wholeLabel }}
@@ -67,7 +66,6 @@
           type="button"
           class="neo-pill px-3 py-1 text-[11px] font-semibold neo-focus"
           :class="weekChipClass"
-          :disabled="!row.isActive"
           @click="$emit('startAssigning', 'weeks')"
         >
           {{ pickWeeksLabel }}
@@ -77,7 +75,6 @@
           type="button"
           class="neo-pill px-3 py-1 text-[11px] font-semibold neo-focus"
           :class="dayChipClass"
-          :disabled="!row.isActive"
           @click="$emit('startAssigning', 'days')"
         >
           {{ pickDaysLabel }}
@@ -148,20 +145,19 @@ const cardClass = computed(() => {
   return 'bg-neu-base shadow-neu-raised-sm'
 })
 
+// Inactive items keep the primary "click me to plan" styling — picking a day/week
+// auto-activates the item via the planning mutations.
 const wholeChipClass = computed(() => {
-  if (!props.row.isActive) return 'opacity-50 text-on-surface-variant'
   if (props.row.isWholePeriod && props.row.placementEditState === 'idle') return 'neo-pill--success text-success'
   return props.row.placementStatus === 'planned' ? 'text-on-surface' : 'neo-pill--primary text-primary'
 })
 
 const weekChipClass = computed(() => {
-  if (!props.row.isActive) return 'opacity-50 text-on-surface-variant'
   if (props.row.placementEditState === 'pick-weeks') return 'neo-pill--primary text-primary shadow-neu-pressed'
   return props.row.placementStatus === 'planned' ? 'text-on-surface' : 'neo-pill--primary text-primary'
 })
 
 const dayChipClass = computed(() => {
-  if (!props.row.isActive) return 'opacity-50 text-on-surface-variant'
   if (props.row.placementEditState === 'pick-days') return 'neo-pill--primary text-primary shadow-neu-pressed'
   return props.row.placementStatus === 'planned' ? 'text-on-surface' : 'neo-pill--primary text-primary'
 })
