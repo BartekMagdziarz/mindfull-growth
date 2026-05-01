@@ -3,6 +3,12 @@ import { render, screen, waitFor } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import ProfileView from '../ProfileView.vue'
 import { mockConsoleError } from '@/test/utils/console'
+import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
+import {
+  AI_PROVIDER_SETTINGS_KEY,
+  LEGACY_OPENAI_API_KEY,
+  type AIProviderSettings,
+} from '@/services/llmService'
 
 const mockPush = vi.fn()
 
@@ -13,7 +19,6 @@ vi.mock('vue-router', () => ({
   useRoute: () => ({ hash: '' }),
 }))
 
-// Mock the user settings repository
 vi.mock('@/repositories/userSettingsDexieRepository', () => {
   return {
     userSettingsDexieRepository: {
@@ -23,7 +28,6 @@ vi.mock('@/repositories/userSettingsDexieRepository', () => {
   }
 })
 
-// Mock AppSnackbar component
 vi.mock('@/components/AppSnackbar.vue', () => ({
   default: {
     name: 'AppSnackbar',
@@ -35,21 +39,37 @@ vi.mock('@/components/AppSnackbar.vue', () => ({
   },
 }))
 
+async function mockStoredSettings(settings?: AIProviderSettings, legacyKey?: string) {
+  const { userSettingsDexieRepository } = await import(
+    '@/repositories/userSettingsDexieRepository'
+  )
+  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+    if (key === 'preferences.locale') return 'en'
+    if (key === AI_PROVIDER_SETTINGS_KEY && settings) {
+      return JSON.stringify(settings)
+    }
+    if (key === LEGACY_OPENAI_API_KEY) return legacyKey
+    return undefined
+  })
+  return userSettingsDexieRepository
+}
+
+function savedAISettings(): AIProviderSettings {
+  const { calls } = vi.mocked(userSettingsDexieRepository.set).mock
+  const call = calls.find(([key]) => key === AI_PROVIDER_SETTINGS_KEY)
+  if (!call) throw new Error('aiProviderSettings was not saved')
+  return JSON.parse(call[1]) as AIProviderSettings
+}
+
 describe('ProfileView', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     document.documentElement.removeAttribute('data-theme')
-    const { userSettingsDexieRepository } = await import(
-      '@/repositories/userSettingsDexieRepository'
-    )
-    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
-      if (key === 'preferences.locale') return 'en'
-      return undefined
-    })
-    vi.mocked(userSettingsDexieRepository.set).mockResolvedValue(undefined)
+    const repo = await mockStoredSettings()
+    vi.mocked(repo.set).mockResolvedValue(undefined)
   })
 
-  it('renders the profile view with AI Settings section', () => {
+  it('renders the profile view with AI provider settings fields', () => {
     render(ProfileView)
 
     expect(screen.getByText('Account')).toBeInTheDocument()
@@ -59,9 +79,11 @@ describe('ProfileView', () => {
     expect(screen.getByText('AI Settings')).toBeInTheDocument()
     expect(screen.queryByText('Daily Habits')).not.toBeInTheDocument()
     expect(screen.queryByText('Developer Tools')).not.toBeInTheDocument()
-    expect(screen.getByLabelText('OpenAI API Key')).toBeInTheDocument()
+    expect(screen.getByLabelText('AI provider')).toBeInTheDocument()
+    expect(screen.getByLabelText('Base URL')).toBeInTheDocument()
+    expect(screen.getByLabelText('Model')).toBeInTheDocument()
+    expect(screen.getByLabelText('API key')).toBeInTheDocument()
     expect(screen.getByLabelText('Color theme')).toBeInTheDocument()
-    expect(screen.getByText('gpt-4o-mini')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
   })
 
@@ -97,104 +119,174 @@ describe('ProfileView', () => {
     await waitFor(() => {
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
         'preferences.theme',
-        'sky-mist'
+        'sky-mist',
       )
     })
     expect(document.documentElement.getAttribute('data-theme')).toBe('sky-mist')
   })
 
-  it('loads existing API key on mount', async () => {
-    const existingKey = 'sk-test123456789'
+  it('loads an existing legacy OpenAI API key on mount', async () => {
+    await mockStoredSettings(undefined, 'sk-test123456789')
+
+    render(ProfileView)
+
+    await waitFor(() => {
+      expect((screen.getByLabelText('AI provider') as HTMLSelectElement).value).toBe(
+        'openai',
+      )
+      expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
+        'https://api.openai.com/v1',
+      )
+      expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
+        'gpt-5-nano',
+      )
+      expect((screen.getByLabelText('API key') as HTMLInputElement).value).toBe(
+        'sk-test123456789',
+      )
+    })
+  })
+
+  it('saves OpenAI settings under aiProviderSettings and legacy key', async () => {
+    const user = userEvent.setup()
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
-    vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
-      if (key === 'openaiApiKey') return existingKey
-      if (key === 'preferences.locale') return 'en'
-      return undefined
-    })
-
     render(ProfileView)
 
+    await user.type(screen.getByLabelText('API key'), 'sk-test123456789')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
     await waitFor(() => {
-      const input = screen.getByLabelText('OpenAI API Key') as HTMLInputElement
-      expect(input.value).toBe(existingKey)
+      expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+        LEGACY_OPENAI_API_KEY,
+        'sk-test123456789',
+      )
+    })
+    expect(savedAISettings()).toEqual({
+      provider: 'openai',
+      baseUrl: 'https://api.openai.com/v1',
+      model: 'gpt-5-nano',
+      apiKey: 'sk-test123456789',
     })
   })
 
-  it('validates API key format in real-time', async () => {
-    const user = userEvent.setup()
-    render(ProfileView)
-
-    const input = screen.getByLabelText('OpenAI API Key') as HTMLInputElement
-
-    // Type invalid key (doesn't start with sk-)
-    await user.type(input, 'invalid-key')
-    await waitFor(() => {
-      expect(screen.getByText("API key must start with 'sk-'")).toBeInTheDocument()
-    })
-
-    // Clear and type valid key
-    await user.clear(input)
-    await user.type(input, 'sk-valid123456789')
-    await waitFor(() => {
-      expect(screen.queryByText("API key must start with 'sk-'")).not.toBeInTheDocument()
-    })
-  })
-
-  it('disables save button when input is empty', () => {
+  it('requires API key for OpenAI', async () => {
     render(ProfileView)
 
     const saveButton = screen.getByRole('button', { name: 'Save' })
     expect(saveButton).toBeDisabled()
+    expect(await screen.findByText('OpenAI API key is required.')).toBeInTheDocument()
   })
 
-  it('disables save button when API key is invalid', async () => {
-    const user = userEvent.setup()
-    render(ProfileView)
-
-    const input = screen.getByLabelText('OpenAI API Key')
-    const saveButton = screen.getByRole('button', { name: 'Save' })
-
-    await user.type(input, 'invalid-key')
-    await waitFor(() => {
-      expect(saveButton).toBeDisabled()
-    })
-  })
-
-  it('enables save button when API key is valid', async () => {
-    const user = userEvent.setup()
-    render(ProfileView)
-
-    const input = screen.getByLabelText('OpenAI API Key')
-    const saveButton = screen.getByRole('button', { name: 'Save' })
-
-    await user.type(input, 'sk-valid123456789')
-    await waitFor(() => {
-      expect(saveButton).not.toBeDisabled()
-    })
-  })
-
-  it('saves API key successfully', async () => {
+  it('does not require API key for Ollama and applies its preset', async () => {
     const user = userEvent.setup()
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
-    vi.mocked(userSettingsDexieRepository.set).mockResolvedValue(undefined)
-
     render(ProfileView)
 
-    const input = screen.getByLabelText('OpenAI API Key')
-    const saveButton = screen.getByRole('button', { name: 'Save' })
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'ollama')
 
-    await user.type(input, 'sk-test123456789')
-    await user.click(saveButton)
+    expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
+      'http://localhost:11434/v1',
+    )
+    expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
+      'gemma4:e4b',
+    )
+    expect(screen.queryByText('OpenAI API key is required.')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => {
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
-        'openaiApiKey',
-        'sk-test123456789'
+        AI_PROVIDER_SETTINGS_KEY,
+        expect.any(String),
       )
+    })
+    expect(savedAISettings()).toEqual({
+      provider: 'ollama',
+      baseUrl: 'http://localhost:11434/v1',
+      model: 'gemma4:e4b',
+    })
+  })
+
+  it('does not require API key for MLX and applies its preset', async () => {
+    const user = userEvent.setup()
+    render(ProfileView)
+
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'mlx')
+
+    expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
+      'http://localhost:8080/v1',
+    )
+    expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
+      'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit',
+    )
+    expect(screen.queryByText('OpenAI API key is required.')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled()
+  })
+
+  it('reapplies the OpenAI preset when OpenAI is selected', async () => {
+    const user = userEvent.setup()
+    render(ProfileView)
+
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'ollama')
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'openai')
+
+    expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
+      'https://api.openai.com/v1',
+    )
+    expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
+      'gpt-5-nano',
+    )
+  })
+
+  it('requires baseUrl and model for custom providers', async () => {
+    const user = userEvent.setup()
+    render(ProfileView)
+
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'custom')
+    await user.clear(screen.getByLabelText('Base URL'))
+    await user.clear(screen.getByLabelText('Model'))
+
+    await waitFor(() => {
+      expect(screen.getByText('Base URL is required.')).toBeInTheDocument()
+      expect(screen.getByText('Model is required.')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+    })
+  })
+
+  it('does not validate local provider keys with an sk- prefix rule', async () => {
+    const user = userEvent.setup()
+    render(ProfileView)
+
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'ollama')
+    await user.type(screen.getByLabelText('API key'), 'not-an-openai-key')
+
+    expect(screen.queryByText(/must start with 'sk-'/)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled()
+  })
+
+  it('trims baseUrl, model, and apiKey before saving', async () => {
+    const user = userEvent.setup()
+    render(ProfileView)
+
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'custom')
+    await user.clear(screen.getByLabelText('Base URL'))
+    await user.type(screen.getByLabelText('Base URL'), '  http://localhost:9999/v1  ')
+    await user.clear(screen.getByLabelText('Model'))
+    await user.type(screen.getByLabelText('Model'), '  custom-model  ')
+    await user.type(screen.getByLabelText('API key'), '  custom-token  ')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => {
+      expect(savedAISettings()).toEqual({
+        provider: 'custom',
+        baseUrl: 'http://localhost:9999/v1',
+        model: 'custom-model',
+        apiKey: 'custom-token',
+      })
     })
   })
 
@@ -203,20 +295,16 @@ describe('ProfileView', () => {
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
-    // Delay the mock to allow loading state to show
     vi.mocked(userSettingsDexieRepository.set).mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
+      () => new Promise((resolve) => setTimeout(resolve, 100)),
     )
 
     render(ProfileView)
 
-    const input = screen.getByLabelText('OpenAI API Key')
+    await user.type(screen.getByLabelText('API key'), 'sk-test123456789')
     const saveButton = screen.getByRole('button', { name: 'Save' })
-
-    await user.type(input, 'sk-test123456789')
     await user.click(saveButton)
 
-    // Check for loading text
     expect(screen.getByText('Saving...')).toBeInTheDocument()
     expect(saveButton).toBeDisabled()
 
@@ -227,96 +315,38 @@ describe('ProfileView', () => {
 
   it('handles save error gracefully', async () => {
     const user = userEvent.setup()
-    const errorMessage = 'Failed to save setting'
     const consoleError = mockConsoleError()
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
     vi.mocked(userSettingsDexieRepository.set).mockRejectedValue(
-      new Error(errorMessage)
+      new Error('Failed to save setting'),
     )
 
     render(ProfileView)
 
-    const input = screen.getByLabelText('OpenAI API Key')
-    const saveButton = screen.getByRole('button', { name: 'Save' })
-
-    await user.type(input, 'sk-test123456789')
-    await user.click(saveButton)
-
-    await waitFor(() => {
-      expect(userSettingsDexieRepository.set).toHaveBeenCalled()
-    })
-
-    // Error should be logged but snackbar is mocked, so we just verify the call was made
-    expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
-      'openaiApiKey',
-      'sk-test123456789'
-    )
-    expect(consoleError).toHaveBeenCalled()
-    consoleError.mockRestore()
-  })
-
-  it('trims whitespace from API key before saving', async () => {
-    const user = userEvent.setup()
-    const { userSettingsDexieRepository } = await import(
-      '@/repositories/userSettingsDexieRepository'
-    )
-    render(ProfileView)
-
-    const input = screen.getByLabelText('OpenAI API Key')
-    const saveButton = screen.getByRole('button', { name: 'Save' })
-
-    await user.type(input, '  sk-test123456789  ')
-    await user.click(saveButton)
+    await user.type(screen.getByLabelText('API key'), 'sk-test123456789')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => {
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
-        'openaiApiKey',
-        'sk-test123456789'
+        AI_PROVIDER_SETTINGS_KEY,
+        expect.any(String),
       )
     })
+    expect(consoleError).toHaveBeenCalled()
+    consoleError.mockRestore()
   })
 
   it('displays help text with OpenAI link', () => {
     render(ProfileView)
 
-    const helpText = screen.getByText(/Your API key is stored locally/)
-    expect(helpText).toBeInTheDocument()
+    expect(screen.getByText(/API keys are stored locally/)).toBeInTheDocument()
 
     const link = screen.getByRole('link', { name: "OpenAI's website" })
     expect(link).toBeInTheDocument()
     expect(link).toHaveAttribute('href', 'https://platform.openai.com/api-keys')
     expect(link).toHaveAttribute('target', '_blank')
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
-  })
-
-  it('does not show error message when input is empty', async () => {
-    const user = userEvent.setup()
-    render(ProfileView)
-
-    const input = screen.getByLabelText('OpenAI API Key')
-
-    // Type and then clear
-    await user.type(input, 'invalid')
-    await user.clear(input)
-
-    await waitFor(() => {
-      expect(screen.queryByText("API key must start with 'sk-'")).not.toBeInTheDocument()
-    })
-  })
-
-  it('applies error styling when validation fails', async () => {
-    const user = userEvent.setup()
-    render(ProfileView)
-
-    const input = screen.getByLabelText('OpenAI API Key') as HTMLInputElement
-
-    await user.type(input, 'invalid-key')
-
-    await waitFor(() => {
-      // Check for error border class (border-error)
-      expect(input.className).toContain('border-error')
-    })
   })
 })

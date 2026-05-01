@@ -40,8 +40,8 @@ The chat feature lets you have short, focused conversations with an AI about a s
     - `getSystemPrompt(intention, customPrompt?)` chooses the system prompt per intention (reflect, help-see-differently, proactive, thinking-traps, custom).
     - `constructJournalEntryContext(entry, emotionStore, tagStore)` builds a rich context string from title, body, emotions, and tags.
   - `llmService` in `src/services/llmService.ts`:
-    - Reads the API key from `userSettingsDexieRepository`.
-    - Sends `model`, `messages`, and optional system prompt to the OpenAI Chat Completions endpoint.
+    - Reads AI provider settings from `userSettingsDexieRepository`.
+    - Sends `model`, `messages`, and optional system prompt to an OpenAI-compatible Chat Completions endpoint.
     - Normalizes error cases: missing/invalid key, rate limit, network failures, and generic API errors.
 - **Views**:
   - `JournalEditorView` handles entry editing, choosing chat intentions, and starting chat sessions.
@@ -49,11 +49,16 @@ The chat feature lets you have short, focused conversations with an AI about a s
   - `JournalView` shows entry cards, chat badges, and the chat history dialog.
   - `ProfileView` exposes the AI settings / API key input (stored locally).
 
-### Configuration & API key
+### Configuration & AI providers
 
-- The OpenAI API key is stored in IndexedDB via `userSettingsDexieRepository` under the key `openaiApiKey`.
-- `ProfileView` lets users enter and save the key; validation ensures it starts with `sk-` and basic error feedback is shown if saving fails.
-- For development, you can use a test key; the app never sends the key anywhere besides the OpenAI API.
+- AI provider settings are stored in IndexedDB via `userSettingsDexieRepository` under the key `aiProviderSettings`.
+- Existing installs that only have `openaiApiKey` still work: `llmService` falls back to OpenAI with that legacy key when `aiProviderSettings` is missing.
+- `ProfileView` lets users choose OpenAI, local Ollama, local MLX, or a custom OpenAI-compatible endpoint. The final request URL is built as `${baseUrl}/chat/completions`.
+- Supported presets:
+  - OpenAI: `https://api.openai.com/v1`, model `gpt-5-nano`, API key required.
+  - Ollama local: `http://localhost:11434/v1`, model `gemma4:e4b`, no API key required.
+  - MLX local: `http://localhost:8080/v1`, model `mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit`, no API key required.
+- API keys are stored locally in the browser and are only sent to the configured endpoint.
 
 ### Tests
 
@@ -74,5 +79,4 @@ The chat feature lets you have short, focused conversations with an AI about a s
 - **Changing prompts or error copy**:
   - Central shared chat copy lives in `src/constants/chatCopy.ts`.
   - Prefer updating the shared constants and adjusting tests that assert exact messages (`llmService.spec.ts`, `chat.store.spec.ts`, `ChatView.spec.ts`).
-
 

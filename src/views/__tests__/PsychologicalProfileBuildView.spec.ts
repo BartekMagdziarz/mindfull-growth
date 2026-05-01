@@ -184,7 +184,7 @@ describe('PsychologicalProfileBuildView', () => {
 
   it('shows the missing-API-key CTA and navigates to /profile on click', async () => {
     mockBuildProfile.mockRejectedValue(
-      new ProfileBuildError('missingApiKey', 'OpenAI API key is not configured.'),
+      new ProfileBuildError('missingApiKey', 'AI provider is not configured.'),
     )
 
     render(PsychologicalProfileBuildView)

@@ -1,16 +1,43 @@
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { CHAT_COPY } from '@/constants/chatCopy'
 
-// OpenAI API endpoint
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
-
 // Default model configuration
 export const DEFAULT_MODEL = 'gpt-5-nano'
 const DEFAULT_TEMPERATURE = 0.7
 const DEFAULT_MAX_TOKENS = 500
 
-// API key storage key
-const API_KEY_STORAGE_KEY = 'openaiApiKey'
+export type AIProviderId = 'openai' | 'ollama' | 'mlx' | 'custom'
+
+export interface AIProviderSettings {
+  provider: AIProviderId
+  baseUrl: string
+  model: string
+  apiKey?: string
+}
+
+export const AI_PROVIDER_SETTINGS_KEY = 'aiProviderSettings'
+export const LEGACY_OPENAI_API_KEY = 'openaiApiKey'
+
+export const AI_PROVIDER_PRESETS: Record<
+  Exclude<AIProviderId, 'custom'>,
+  AIProviderSettings
+> = {
+  openai: {
+    provider: 'openai',
+    baseUrl: 'https://api.openai.com/v1',
+    model: DEFAULT_MODEL,
+  },
+  ollama: {
+    provider: 'ollama',
+    baseUrl: 'http://localhost:11434/v1',
+    model: 'gemma4:e4b',
+  },
+  mlx: {
+    provider: 'mlx',
+    baseUrl: 'http://localhost:8080/v1',
+    model: 'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit',
+  },
+}
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -21,6 +48,7 @@ interface OpenAIResponse {
   choices: Array<{
     message: {
       content: string
+      reasoning?: unknown
     }
   }>
   error?: {
@@ -29,16 +57,81 @@ interface OpenAIResponse {
   }
 }
 
-/**
- * Retrieves the OpenAI API key from user settings
- * @throws Error if API key is not configured
- */
-async function getApiKey(): Promise<string> {
-  const apiKey = await userSettingsDexieRepository.get(API_KEY_STORAGE_KEY)
-  if (!apiKey) {
-    throw new Error(CHAT_COPY.errors.missingApiKey)
+function isAIProviderId(value: unknown): value is AIProviderId {
+  return (
+    value === 'openai' ||
+    value === 'ollama' ||
+    value === 'mlx' ||
+    value === 'custom'
+  )
+}
+
+function parseProviderSettings(raw: string): AIProviderSettings | null {
+  try {
+    const parsed = JSON.parse(raw) as Partial<AIProviderSettings>
+    if (
+      !isAIProviderId(parsed.provider) ||
+      typeof parsed.baseUrl !== 'string' ||
+      typeof parsed.model !== 'string'
+    ) {
+      return null
+    }
+
+    const baseUrl = parsed.baseUrl.trim()
+    const model = parsed.model.trim()
+    const apiKey =
+      typeof parsed.apiKey === 'string' ? parsed.apiKey.trim() : undefined
+
+    if (!baseUrl || !model) return null
+
+    return {
+      provider: parsed.provider,
+      baseUrl,
+      model,
+      ...(apiKey ? { apiKey } : {}),
+    }
+  } catch {
+    return null
   }
-  return apiKey
+}
+
+export function normaliseBaseUrl(baseUrl: string): string {
+  return baseUrl.trim().replace(/\/+$/, '')
+}
+
+export async function getAIProviderSettings(): Promise<AIProviderSettings> {
+  const storedSettings = await userSettingsDexieRepository.get(
+    AI_PROVIDER_SETTINGS_KEY,
+  )
+  if (storedSettings) {
+    const settings = parseProviderSettings(storedSettings)
+    if (settings?.provider === 'openai' && !settings.apiKey) {
+      throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
+    }
+    if (settings) return settings
+    throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
+  }
+
+  const legacyApiKey = await userSettingsDexieRepository.get(
+    LEGACY_OPENAI_API_KEY,
+  )
+  if (legacyApiKey?.trim()) {
+    return {
+      ...AI_PROVIDER_PRESETS.openai,
+      apiKey: legacyApiKey.trim(),
+    }
+  }
+
+  throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
+}
+
+export async function hasAIProviderConfigured(): Promise<boolean> {
+  try {
+    await getAIProviderSettings()
+    return true
+  } catch {
+    return false
+  }
 }
 
 export interface SendMessageOptions {
@@ -51,7 +144,7 @@ export interface SendMessageOptions {
 }
 
 /**
- * Sends a message to the OpenAI API and returns the assistant's response
+ * Sends a message to an OpenAI-compatible API and returns the assistant's response
  * @param messages Array of conversation messages
  * @param systemPrompt Optional system prompt to set the AI's behavior
  * @param options Optional per-call overrides for model, temperature, and maxTokens
@@ -64,8 +157,7 @@ export async function sendMessage(
   options?: SendMessageOptions
 ): Promise<string> {
   try {
-    // Retrieve API key
-    const apiKey = await getApiKey()
+    const settings = await getAIProviderSettings()
 
     // Construct messages array with system prompt if provided
     const requestMessages: ChatMessage[] = []
@@ -76,19 +168,22 @@ export async function sendMessage(
 
     // Construct request payload
     const requestBody = {
-      model: options?.model ?? DEFAULT_MODEL,
+      model: options?.model ?? settings.model,
       messages: requestMessages,
       temperature: options?.temperature ?? DEFAULT_TEMPERATURE,
       max_tokens: options?.maxTokens ?? DEFAULT_MAX_TOKENS,
     }
 
-    // Send POST request to OpenAI API
-    const response = await fetch(OPENAI_API_URL, {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+    if (settings.apiKey) {
+      headers.Authorization = `Bearer ${settings.apiKey}`
+    }
+
+    const response = await fetch(`${normaliseBaseUrl(settings.baseUrl)}/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
+      headers,
       body: JSON.stringify(requestBody),
     })
 
@@ -159,4 +254,3 @@ export async function sendMessage(
     throw new Error('An unexpected error occurred. Please try again.')
   }
 }
-

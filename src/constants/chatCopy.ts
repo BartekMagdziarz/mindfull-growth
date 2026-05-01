@@ -2,6 +2,8 @@ export const CHAT_COPY = {
   errors: {
     missingApiKey:
       'OpenAI API key is not configured. Please add your API key in Profile settings.',
+    missingAIProviderConfig:
+      'AI provider is not configured. Please add AI provider settings in Profile settings.',
     invalidApiKey:
       'Invalid API key. Please check your API key in Profile settings.',
     network:
@@ -18,5 +20,4 @@ export const CHAT_COPY = {
     noSessionToSave: 'No active chat session to save.',
   },
 } as const
-
 

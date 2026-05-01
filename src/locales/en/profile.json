@@ -187,8 +187,8 @@
         "inFlightHint": "This usually takes 15–45 seconds. You can stay on this screen — we'll take you to the draft as soon as it's ready.",
         "success": "Draft ready.",
         "missingApiKey": {
-          "title": "OpenAI API key required",
-          "help": "Profile generation runs on your own OpenAI account. Add your API key in AI Settings and come back here — your scope selections will be kept.",
+          "title": "AI provider setup required",
+          "help": "Profile generation needs an AI provider. Add OpenAI or a local OpenAI-compatible endpoint in AI Settings and come back here — your scope selections will be kept.",
           "cta": "Go to AI Settings"
         },
         "error": {
@@ -239,16 +239,27 @@
   },
   "aiSettings": {
     "title": "AI Settings",
-    "description": "Connect your own OpenAI API key so the assistant can respond to your journal chats. Your key stays on this device and is never shared.",
-    "apiKeyLabel": "OpenAI API Key",
-    "apiKeyPlaceholder": "sk-...",
-    "apiKeyError": "API key must start with 'sk-'",
-    "apiKeyHint": "Your API key is stored locally in your browser. Get a key from",
+    "description": "Choose OpenAI or a local OpenAI-compatible endpoint for journal chats and profile generation. Settings stay on this device.",
+    "providerLabel": "AI provider",
+    "providers": {
+      "openai": "OpenAI",
+      "ollama": "Ollama local",
+      "mlx": "MLX local",
+      "custom": "Custom OpenAI-compatible"
+    },
+    "baseUrlLabel": "Base URL",
+    "baseUrlPlaceholder": "https://api.openai.com/v1",
+    "baseUrlError": "Base URL is required.",
+    "modelLabel": "Model",
+    "modelPlaceholder": "gpt-5-nano",
+    "modelError": "Model is required.",
+    "apiKeyLabel": "API key",
+    "apiKeyPlaceholder": "Required for OpenAI",
+    "apiKeyRequiredError": "OpenAI API key is required.",
+    "apiKeyHint": "API keys are stored locally in your browser. OpenAI keys can be created on",
     "apiKeyHintLink": "OpenAI's website",
-    "model": "Model",
-    "modelNote": "(can be changed in the future)",
-    "saved": "API key saved successfully.",
-    "saveFailed": "Failed to save API key. Please try again."
+    "saved": "AI provider settings saved.",
+    "saveFailed": "Failed to save AI provider settings. Please try again."
   },
   "feedback": {
     "themeUpdated": "Theme updated.",

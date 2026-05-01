@@ -110,7 +110,12 @@ vi.mock('@/stores/lifeArea.store', () => ({
 import { userProfileDexieRepository } from '@/repositories/userProfileDexieRepository'
 import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDexieRepository'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
-import { sendMessage } from '@/services/llmService'
+import {
+  AI_PROVIDER_SETTINGS_KEY,
+  LEGACY_OPENAI_API_KEY,
+  sendMessage,
+  type AIProviderSettings,
+} from '@/services/llmService'
 
 function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
   const base: UserProfile = {
@@ -133,6 +138,16 @@ function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
     model: overrides.model ?? 'gpt-test',
   }
   return base
+}
+
+function mockAISettings(settings?: AIProviderSettings, legacyKey?: string) {
+  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+    if (key === AI_PROVIDER_SETTINGS_KEY && settings) {
+      return JSON.stringify(settings)
+    }
+    if (key === LEGACY_OPENAI_API_KEY) return legacyKey
+    return undefined
+  })
 }
 
 describe('useUserProfileStore', () => {
@@ -292,8 +307,8 @@ describe('useUserProfileStore', () => {
       expect(profileBuildLogDexieRepository.add).not.toHaveBeenCalled()
     })
 
-    it('throws ProfileBuildError("missingApiKey") when no key is configured', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('')
+    it('throws ProfileBuildError("missingApiKey") when no AI provider is configured', async () => {
+      mockAISettings()
       const store = useUserProfileStore()
 
       const promise = store.buildProfile(validScope)
@@ -304,11 +319,11 @@ describe('useUserProfileStore', () => {
       expect(profileBuildLogDexieRepository.add).toHaveBeenCalledTimes(1)
       const logCall = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
       expect(logCall.success).toBe(false)
-      expect(logCall.errorMessage).toContain('API key')
+      expect(logCall.errorMessage).toContain('AI provider')
     })
 
     it('returns parsed sections and rawResponse on a well-formed LLM answer', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
 
       const store = useUserProfileStore()
@@ -323,8 +338,30 @@ describe('useUserProfileStore', () => {
       expect(result.model).toBe('gpt-5-nano')
     })
 
+    it('uses a configured local model in the result, sendMessage options, and log', async () => {
+      mockAISettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      const result = await store.buildProfile(validScope)
+
+      expect(result.model).toBe('gemma4:e4b')
+      expect(sendMessage).toHaveBeenCalledWith(
+        expect.any(Array),
+        expect.any(String),
+        { maxTokens: 6000, model: 'gemma4:e4b' },
+      )
+      const logPayload = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
+      expect(logPayload.model).toBe('gemma4:e4b')
+      expect(logPayload.requestBody).toContain('"model":"gemma4:e4b"')
+    })
+
     it('flips isBuilding true mid-call and back to false when done', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      mockAISettings(undefined, 'sk-test')
       let duringFlag = false
       vi.mocked(sendMessage).mockImplementation(async () => {
         duringFlag = store.isBuilding
@@ -339,7 +376,7 @@ describe('useUserProfileStore', () => {
     })
 
     it('writes a SUCCESS log with the request/response bodies and latency', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
 
       const store = useUserProfileStore()
@@ -351,13 +388,15 @@ describe('useUserProfileStore', () => {
       expect(payload.responseBody).toContain('## Summary')
       expect(payload.requestBody).toContain('systemPrompt')
       expect(payload.requestBody).toContain('"role":"user"')
+      expect(payload.model).toBe('gpt-5-nano')
+      expect(payload.requestBody).toContain('"model":"gpt-5-nano"')
       expect(typeof payload.latencyMs).toBe('number')
       expect(payload.latencyMs).toBeGreaterThanOrEqual(0)
       expect(payload.scope).toEqual(validScope)
     })
 
     it('re-throws and logs a FAILURE entry when sendMessage rejects', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockRejectedValue(new Error('network is unreachable'))
 
       const store = useUserProfileStore()
@@ -372,7 +411,7 @@ describe('useUserProfileStore', () => {
     })
 
     it('classifies fetch/network style errors with code="network"', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockRejectedValue(new Error('Failed to fetch'))
 
       const store = useUserProfileStore()
@@ -386,7 +425,7 @@ describe('useUserProfileStore', () => {
     })
 
     it('falls back to code="unknown" for unclassified errors', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockRejectedValue(new Error('teapot responded 418'))
 
       const store = useUserProfileStore()
@@ -400,7 +439,7 @@ describe('useUserProfileStore', () => {
     })
 
     it('swallows logging failures without masking the build outcome', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue('sk-test')
+      mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
       vi.mocked(profileBuildLogDexieRepository.add).mockRejectedValue(
         new Error('log write failed'),

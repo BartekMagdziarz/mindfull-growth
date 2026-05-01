@@ -183,7 +183,7 @@ describe('Profile build flow integration', () => {
     expect(profilesInDb).toHaveLength(0)
   })
 
-  it('fails fast with missingApiKey when no OpenAI key is configured', async () => {
+  it('fails fast with missingApiKey when no AI provider is configured', async () => {
     // Undo the beforeEach key seed to simulate a fresh user.
     await userSettingsDexieRepository.delete('openaiApiKey')
 
@@ -201,6 +201,6 @@ describe('Profile build flow integration', () => {
     const logs = await profileBuildLogDexieRepository.list(5)
     expect(logs).toHaveLength(1)
     expect(logs[0].success).toBe(false)
-    expect(logs[0].errorMessage).toMatch(/api\s*key/i)
+    expect(logs[0].errorMessage).toMatch(/AI provider/i)
   })
 })

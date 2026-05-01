@@ -1,17 +1,51 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { sendMessage } from '../llmService'
+import {
+  AI_PROVIDER_SETTINGS_KEY,
+  LEGACY_OPENAI_API_KEY,
+  sendMessage,
+  type AIProviderSettings,
+} from '../llmService'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 
-// Mock the user settings repository
 vi.mock('@/repositories/userSettingsDexieRepository', () => ({
   userSettingsDexieRepository: {
     get: vi.fn(),
   },
 }))
 
-// Mock global fetch
 const mockFetch = vi.fn()
 globalThis.fetch = mockFetch as typeof fetch
+
+function storeSettings(settings?: AIProviderSettings, legacyKey?: string) {
+  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+    if (key === AI_PROVIDER_SETTINGS_KEY && settings) {
+      return JSON.stringify(settings)
+    }
+    if (key === LEGACY_OPENAI_API_KEY) return legacyKey
+    return undefined
+  })
+}
+
+function mockSuccess(content = 'This is a test response from the AI.') {
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({
+      choices: [{ message: { content } }],
+    }),
+  })
+}
+
+function latestRequest() {
+  const fetchCall = mockFetch.mock.calls[0]
+  return {
+    url: fetchCall[0],
+    init: fetchCall[1] as RequestInit & {
+      headers: Record<string, string>
+      body: string
+    },
+    body: JSON.parse(fetchCall[1].body as string),
+  }
+}
 
 describe('llmService', () => {
   beforeEach(() => {
@@ -19,87 +53,133 @@ describe('llmService', () => {
   })
 
   describe('sendMessage', () => {
-    it('should successfully send a message and return response', async () => {
-      const mockApiKey = 'sk-test123456789'
-      const mockResponse = {
-        choices: [
-          {
-            message: {
-              content: 'This is a test response from the AI.',
-            },
-          },
-        ],
-      }
-
-      // Mock API key retrieval
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
-
-      // Mock successful fetch response
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
+    it('sends OpenAI requests with the configured API key', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
       })
+      mockSuccess()
 
       const result = await sendMessage([
         { role: 'user', content: 'Hello, how are you?' },
       ])
 
       expect(result).toBe('This is a test response from the AI.')
-      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith('openaiApiKey')
+      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(
+        AI_PROVIDER_SETTINGS_KEY,
+      )
       expect(mockFetch).toHaveBeenCalledTimes(1)
 
-      // Verify request payload
-      const fetchCall = mockFetch.mock.calls[0]
-      expect(fetchCall[0]).toBe('https://api.openai.com/v1/chat/completions')
-      expect(fetchCall[1].method).toBe('POST')
-      expect(fetchCall[1].headers['Content-Type']).toBe('application/json')
-      expect(fetchCall[1].headers['Authorization']).toBe(`Bearer ${mockApiKey}`)
-
-      const requestBody = JSON.parse(fetchCall[1].body as string)
-      expect(requestBody.model).toBe('gpt-5-nano')
-      expect(requestBody.temperature).toBe(0.7)
-      expect(requestBody.max_tokens).toBe(500)
-      expect(requestBody.messages).toEqual([
+      const request = latestRequest()
+      expect(request.url).toBe('https://api.openai.com/v1/chat/completions')
+      expect(request.init.method).toBe('POST')
+      expect(request.init.headers['Content-Type']).toBe('application/json')
+      expect(request.init.headers.Authorization).toBe('Bearer sk-test123456789')
+      expect(request.body.model).toBe('gpt-5-nano')
+      expect(request.body.temperature).toBe(0.7)
+      expect(request.body.max_tokens).toBe(500)
+      expect(request.body.messages).toEqual([
         { role: 'user', content: 'Hello, how are you?' },
       ])
     })
 
-    it('should include system prompt when provided', async () => {
-      const mockApiKey = 'sk-test123456789'
-      const mockResponse = {
-        choices: [{ message: { content: 'Response with system prompt' } }],
-      }
+    it('falls back to the legacy OpenAI key when provider settings are missing', async () => {
+      storeSettings(undefined, 'sk-legacy')
+      mockSuccess('Legacy response')
 
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
+      await sendMessage([{ role: 'user', content: 'Hello' }])
+
+      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(
+        AI_PROVIDER_SETTINGS_KEY,
+      )
+      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(
+        LEGACY_OPENAI_API_KEY,
+      )
+      const request = latestRequest()
+      expect(request.url).toBe('https://api.openai.com/v1/chat/completions')
+      expect(request.init.headers.Authorization).toBe('Bearer sk-legacy')
+      expect(request.body.model).toBe('gpt-5-nano')
+    })
+
+    it('sends Ollama requests without requiring an API key', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
       })
+      mockSuccess('Ollama response')
+
+      const result = await sendMessage([{ role: 'user', content: 'Hello' }])
+
+      expect(result).toBe('Ollama response')
+      const request = latestRequest()
+      expect(request.url).toBe('http://localhost:11434/v1/chat/completions')
+      expect(request.init.headers.Authorization).toBeUndefined()
+      expect(request.body.model).toBe('gemma4:e4b')
+    })
+
+    it('sends MLX requests without requiring an API key', async () => {
+      storeSettings({
+        provider: 'mlx',
+        baseUrl: 'http://localhost:8080/v1',
+        model: 'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit',
+      })
+      mockSuccess('MLX response')
+
+      await sendMessage([{ role: 'user', content: 'Hello' }])
+
+      const request = latestRequest()
+      expect(request.url).toBe('http://localhost:8080/v1/chat/completions')
+      expect(request.init.headers.Authorization).toBeUndefined()
+      expect(request.body.model).toBe(
+        'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit',
+      )
+    })
+
+    it('adds Authorization for custom providers when an API key is configured', async () => {
+      storeSettings({
+        provider: 'custom',
+        baseUrl: 'http://localhost:9999/v1/',
+        model: 'custom-model',
+        apiKey: 'custom-token',
+      })
+      mockSuccess()
+
+      await sendMessage([{ role: 'user', content: 'Hello' }])
+
+      const request = latestRequest()
+      expect(request.url).toBe('http://localhost:9999/v1/chat/completions')
+      expect(request.init.headers.Authorization).toBe('Bearer custom-token')
+      expect(request.body.model).toBe('custom-model')
+    })
+
+    it('uses an explicit model override when provided', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockSuccess()
 
       await sendMessage(
         [{ role: 'user', content: 'User message' }],
-        'You are a helpful assistant.'
+        undefined,
+        { model: 'override-model' },
       )
 
-      const fetchCall = mockFetch.mock.calls[0]
-      const requestBody = JSON.parse(fetchCall[1].body as string)
-      expect(requestBody.messages).toEqual([
-        { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: 'User message' },
-      ])
+      expect(latestRequest().body.model).toBe('override-model')
     })
 
-    it('should prepend system prompt before existing conversation history', async () => {
-      const mockApiKey = 'sk-test123456789'
-      const mockResponse = {
-        choices: [{ message: { content: 'Combined response' } }],
-      }
-
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
+    it('includes system prompt before existing conversation history', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
       })
+      mockSuccess('Combined response')
 
       await sendMessage(
         [
@@ -107,13 +187,10 @@ describe('llmService', () => {
           { role: 'assistant', content: 'Previous answer' },
           { role: 'user', content: 'Follow-up question' },
         ],
-        'System behavior description'
+        'System behavior description',
       )
 
-      const fetchCall = mockFetch.mock.calls[0]
-      const requestBody = JSON.parse(fetchCall[1].body as string)
-
-      expect(requestBody.messages).toEqual([
+      expect(latestRequest().body.messages).toEqual([
         { role: 'system', content: 'System behavior description' },
         { role: 'user', content: 'First message' },
         { role: 'assistant', content: 'Previous answer' },
@@ -121,21 +198,39 @@ describe('llmService', () => {
       ])
     })
 
-    it('should throw error when API key is missing', async () => {
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(undefined)
+    it('throws when no AI provider is configured', async () => {
+      storeSettings()
 
       await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }])
+        sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow(
-        'OpenAI API key is not configured. Please add your API key in Profile settings.'
+        'AI provider is not configured. Please add AI provider settings in Profile settings.',
       )
-
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
-    it('should throw error on 401 Unauthorized', async () => {
-      const mockApiKey = 'sk-invalid'
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
+    it('throws when OpenAI provider settings have no API key', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+      })
+
+      await expect(
+        sendMessage([{ role: 'user', content: 'Hello' }]),
+      ).rejects.toThrow(
+        'AI provider is not configured. Please add AI provider settings in Profile settings.',
+      )
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
+    it('throws error on 401 Unauthorized', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-invalid',
+      })
 
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -144,15 +239,19 @@ describe('llmService', () => {
       })
 
       await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }])
+        sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow(
-        'Invalid API key. Please check your API key in Profile settings.'
+        'Invalid API key. Please check your API key in Profile settings.',
       )
     })
 
-    it('should throw error on 429 Rate Limit', async () => {
-      const mockApiKey = 'sk-test123456789'
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
+    it('throws error on 429 Rate Limit', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
 
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -161,111 +260,114 @@ describe('llmService', () => {
       })
 
       await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }])
+        sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow('Rate limit exceeded. Please try again in a moment.')
     })
 
-    it('should handle OpenAI error response', async () => {
-      const mockApiKey = 'sk-test123456789'
-      const mockErrorResponse = {
-        error: {
-          message: 'Invalid request parameters',
-          type: 'invalid_request_error',
-        },
-      }
+    it('handles OpenAI-compatible error response bodies', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
 
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
-        json: async () => mockErrorResponse,
+        json: async () => ({
+          error: {
+            message: 'Invalid request parameters',
+            type: 'invalid_request_error',
+          },
+        }),
       })
 
       await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }])
+        sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow('Invalid request parameters')
     })
 
-    it('should handle network errors', async () => {
-      const mockApiKey = 'sk-test123456789'
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
-
-      // Simulate network error
+    it('handles network errors', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
       mockFetch.mockRejectedValueOnce(new TypeError('Failed to fetch'))
 
       await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }])
+        sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow('Network error. Please check your connection and try again.')
     })
 
-    it('should throw error on empty response', async () => {
-      const mockApiKey = 'sk-test123456789'
-      const mockResponse = {
-        choices: [],
-      }
-
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
+    it('throws error on empty choices', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse,
+        json: async () => ({ choices: [] }),
       })
 
       await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }])
+        sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow('Invalid response from API. Please try again.')
     })
 
-    it('should throw error on empty message content', async () => {
-      const mockApiKey = 'sk-test123456789'
-      const mockResponse = {
-        choices: [
-          {
-            message: {
-              content: '',
-            },
-          },
-        ],
-      }
-
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
+    it('throws error on empty message content', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse,
+        json: async () => ({ choices: [{ message: { content: '' } }] }),
       })
 
       await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }])
+        sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow('Empty response from API. Please try again.')
     })
 
-    it('should handle multiple messages in conversation', async () => {
-      const mockApiKey = 'sk-test123456789'
-      const mockResponse = {
-        choices: [{ message: { content: 'Response' } }],
-      }
-
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
+    it('returns only message content and ignores reasoning', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                reasoning: 'private reasoning',
+                content: 'Visible answer',
+              },
+            },
+          ],
+        }),
       })
 
-      await sendMessage([
-        { role: 'user', content: 'First message' },
-        { role: 'assistant', content: 'Previous response' },
-        { role: 'user', content: 'Follow-up question' },
-      ])
-
-      const fetchCall = mockFetch.mock.calls[0]
-      const requestBody = JSON.parse(fetchCall[1].body as string)
-      expect(requestBody.messages).toHaveLength(3)
-      expect(requestBody.messages[0].role).toBe('user')
-      expect(requestBody.messages[0].content).toBe('First message')
+      await expect(
+        sendMessage([{ role: 'user', content: 'Hello' }]),
+      ).resolves.toBe('Visible answer')
     })
 
-    it('should handle generic API errors', async () => {
-      const mockApiKey = 'sk-test123456789'
-      vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(mockApiKey)
+    it('handles generic API errors', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
 
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -274,7 +376,7 @@ describe('llmService', () => {
       })
 
       await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }])
+        sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow('API request failed with status 500')
     })
   })

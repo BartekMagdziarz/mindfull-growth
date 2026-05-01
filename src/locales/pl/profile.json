@@ -187,8 +187,8 @@
         "inFlightHint": "Zwykle zajmuje to 15–45 sekund. Możesz zostać na tym ekranie — przełączę Cię do wersji roboczej, gdy tylko będzie gotowa.",
         "success": "Wersja robocza gotowa.",
         "missingApiKey": {
-          "title": "Wymagany klucz API OpenAI",
-          "help": "Generowanie profilu działa na Twoim koncie OpenAI. Dodaj klucz API w Ustawieniach AI i wróć tutaj — Twoje wybrane ustawienia zakresu zostaną zachowane.",
+          "title": "Wymagana konfiguracja providera AI",
+          "help": "Generowanie profilu wymaga providera AI. Dodaj OpenAI albo lokalny endpoint zgodny z OpenAI w Ustawieniach AI i wróć tutaj — Twoje wybrane ustawienia zakresu zostaną zachowane.",
           "cta": "Przejdź do Ustawień AI"
         },
         "error": {
@@ -239,16 +239,27 @@
   },
   "aiSettings": {
     "title": "Ustawienia AI",
-    "description": "Podłącz swój klucz API OpenAI, aby asystent mógł odpowiadać na czaty w dzienniku. Klucz pozostaje na tym urządzeniu i nie jest udostępniany.",
-    "apiKeyLabel": "Klucz API OpenAI",
-    "apiKeyPlaceholder": "sk-...",
-    "apiKeyError": "Klucz API musi zaczynać się od 'sk-'",
-    "apiKeyHint": "Twój klucz API jest przechowywany lokalnie w przeglądarce. Klucz znajdziesz na",
+    "description": "Wybierz OpenAI albo lokalny endpoint zgodny z OpenAI dla czatów w dzienniku i generowania profilu. Ustawienia pozostają na tym urządzeniu.",
+    "providerLabel": "Provider AI",
+    "providers": {
+      "openai": "OpenAI",
+      "ollama": "Ollama lokalnie",
+      "mlx": "MLX lokalnie",
+      "custom": "Własny zgodny z OpenAI"
+    },
+    "baseUrlLabel": "Bazowy URL",
+    "baseUrlPlaceholder": "https://api.openai.com/v1",
+    "baseUrlError": "Bazowy URL jest wymagany.",
+    "modelLabel": "Model",
+    "modelPlaceholder": "gpt-5-nano",
+    "modelError": "Model jest wymagany.",
+    "apiKeyLabel": "Klucz API",
+    "apiKeyPlaceholder": "Wymagany dla OpenAI",
+    "apiKeyRequiredError": "Klucz API OpenAI jest wymagany.",
+    "apiKeyHint": "Klucze API są przechowywane lokalnie w przeglądarce. Klucze OpenAI utworzysz na",
     "apiKeyHintLink": "stronie OpenAI",
-    "model": "Model",
-    "modelNote": "(można zmienić w przyszłości)",
-    "saved": "Klucz API został zapisany.",
-    "saveFailed": "Nie udało się zapisać klucza API. Spróbuj ponownie."
+    "saved": "Ustawienia providera AI zostały zapisane.",
+    "saveFailed": "Nie udało się zapisać ustawień providera AI. Spróbuj ponownie."
   },
   "feedback": {
     "themeUpdated": "Motyw zaktualizowany.",

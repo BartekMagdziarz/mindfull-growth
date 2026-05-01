@@ -142,8 +142,72 @@
         {{ t('profile.aiSettings.description') }}
       </p>
 
-      <!-- API Key Input -->
+      <!-- Provider Select -->
       <div class="mb-4">
+        <label for="aiProvider" class="block text-sm font-medium text-on-surface mb-2">
+          {{ t('profile.aiSettings.providerLabel') }}
+        </label>
+        <select
+          id="aiProvider"
+          v-model="aiProvider"
+          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
+          @change="handleProviderChange"
+        >
+          <option value="openai">{{ t('profile.aiSettings.providers.openai') }}</option>
+          <option value="ollama">{{ t('profile.aiSettings.providers.ollama') }}</option>
+          <option value="mlx">{{ t('profile.aiSettings.providers.mlx') }}</option>
+          <option value="custom">{{ t('profile.aiSettings.providers.custom') }}</option>
+        </select>
+      </div>
+
+      <!-- Base URL Input -->
+      <div class="mb-4">
+        <label for="baseUrl" class="block text-sm font-medium text-on-surface mb-2">
+          {{ t('profile.aiSettings.baseUrlLabel') }}
+        </label>
+        <input
+          id="baseUrl"
+          v-model="baseUrl"
+          type="url"
+          :placeholder="t('profile.aiSettings.baseUrlPlaceholder')"
+          :class="[
+            'w-full px-4 py-3 rounded-xl border-2 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors',
+            baseUrlError
+              ? 'border-error focus:ring-error'
+              : 'border-outline/30 focus:ring-focus'
+          ]"
+          @input="validateAISettings"
+        />
+        <p v-if="baseUrlError" class="mt-2 text-sm text-error">
+          {{ baseUrlError }}
+        </p>
+      </div>
+
+      <!-- Model Input -->
+      <div class="mb-4">
+        <label for="aiModel" class="block text-sm font-medium text-on-surface mb-2">
+          {{ t('profile.aiSettings.modelLabel') }}
+        </label>
+        <input
+          id="aiModel"
+          v-model="aiModel"
+          type="text"
+          :placeholder="t('profile.aiSettings.modelPlaceholder')"
+          :class="[
+            'w-full px-4 py-3 rounded-xl border-2 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors',
+            modelError
+              ? 'border-error focus:ring-error'
+              : 'border-outline/30 focus:ring-focus'
+          ]"
+          @input="validateAISettings"
+        />
+        <p v-if="modelError" class="mt-2 text-sm text-error">
+          {{ modelError }}
+        </p>
+      </div>
+
+      <!-- API Key Input -->
+      <div class="mb-6">
         <label for="apiKey" class="block text-sm font-medium text-on-surface mb-2">
           {{ t('profile.aiSettings.apiKeyLabel') }}
         </label>
@@ -158,7 +222,7 @@
               ? 'border-error focus:ring-error'
               : 'border-outline/30 focus:ring-focus'
           ]"
-          @input="validateApiKey"
+          @input="validateAISettings"
         />
         <p v-if="apiKeyError" class="mt-2 text-sm text-error">
           {{ apiKeyError }}
@@ -173,14 +237,6 @@
           >
             {{ t('profile.aiSettings.apiKeyHintLink') }}
           </a>.
-        </p>
-      </div>
-
-      <!-- Model Display -->
-      <div class="mb-6">
-        <p class="text-sm text-on-surface-variant">
-          <span class="font-medium">{{ t('profile.aiSettings.model') }}:</span> gpt-4o-mini
-          <span class="text-xs">{{ t('profile.aiSettings.modelNote') }}</span>
         </p>
       </div>
 
@@ -225,14 +281,19 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
+import {
+  AI_PROVIDER_PRESETS,
+  AI_PROVIDER_SETTINGS_KEY,
+  LEGACY_OPENAI_API_KEY,
+  type AIProviderId,
+  type AIProviderSettings,
+} from '@/services/llmService'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useUserProfileStore } from '@/stores/userProfile.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { applyTheme, type ThemeId } from '@/services/theme.service'
 import type { LocaleId, GrammaticalGender } from '@/services/locale.service'
 import { useT } from '@/composables/useT'
-
-const API_KEY_STORAGE_KEY = 'openaiApiKey'
 
 const { t, locale } = useT()
 const router = useRouter()
@@ -244,10 +305,15 @@ const authStore = useAuthStore()
 const username = computed(() => authStore.user?.username || '')
 const displayName = computed(() => authStore.user?.displayName || '')
 
+const aiProvider = ref<AIProviderId>('openai')
+const baseUrl = ref(AI_PROVIDER_PRESETS.openai.baseUrl)
+const aiModel = ref(AI_PROVIDER_PRESETS.openai.model)
 const apiKey = ref('')
 const themePreference = ref<ThemeId>('current')
 const languagePreference = ref<LocaleId>('en')
 const genderPreference = ref<GrammaticalGender>('masculine')
+const baseUrlError = ref('')
+const modelError = ref('')
 const apiKeyError = ref('')
 const isSaving = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
@@ -282,20 +348,82 @@ async function handleUnseed() {
 }
 
 const canSave = computed(() => {
-  return apiKey.value.trim().length > 0 && !apiKeyError.value && !isSaving.value
+  return (
+    aiProvider.value &&
+    baseUrl.value.trim().length > 0 &&
+    aiModel.value.trim().length > 0 &&
+    (aiProvider.value !== 'openai' || apiKey.value.trim().length > 0) &&
+    !baseUrlError.value &&
+    !modelError.value &&
+    !apiKeyError.value &&
+    !isSaving.value
+  )
 })
 
-function validateApiKey() {
-  const trimmedKey = apiKey.value.trim()
-  if (trimmedKey.length === 0) {
-    apiKeyError.value = ''
+function isAIProviderId(value: unknown): value is AIProviderId {
+  return (
+    value === 'openai' ||
+    value === 'ollama' ||
+    value === 'mlx' ||
+    value === 'custom'
+  )
+}
+
+function parseStoredAISettings(raw: string): AIProviderSettings | null {
+  try {
+    const parsed = JSON.parse(raw) as Partial<AIProviderSettings>
+    if (
+      !isAIProviderId(parsed.provider) ||
+      typeof parsed.baseUrl !== 'string' ||
+      typeof parsed.model !== 'string'
+    ) {
+      return null
+    }
+    return {
+      provider: parsed.provider,
+      baseUrl: parsed.baseUrl,
+      model: parsed.model,
+      ...(typeof parsed.apiKey === 'string' ? { apiKey: parsed.apiKey } : {}),
+    }
+  } catch {
+    return null
+  }
+}
+
+function applyAISettings(settings: AIProviderSettings) {
+  aiProvider.value = settings.provider
+  baseUrl.value = settings.baseUrl
+  aiModel.value = settings.model
+  apiKey.value = settings.apiKey ?? ''
+  validateAISettings()
+}
+
+function validateAISettings() {
+  baseUrlError.value =
+    baseUrl.value.trim().length === 0
+      ? t('profile.aiSettings.baseUrlError')
+      : ''
+  modelError.value =
+    aiModel.value.trim().length === 0
+      ? t('profile.aiSettings.modelError')
+      : ''
+  apiKeyError.value =
+    aiProvider.value === 'openai' && apiKey.value.trim().length === 0
+      ? t('profile.aiSettings.apiKeyRequiredError')
+      : ''
+}
+
+function handleProviderChange() {
+  if (aiProvider.value === 'custom') {
+    if (!baseUrl.value.trim()) baseUrl.value = AI_PROVIDER_PRESETS.mlx.baseUrl
+    validateAISettings()
     return
   }
-  if (!trimmedKey.startsWith('sk-')) {
-    apiKeyError.value = t('profile.aiSettings.apiKeyError')
-  } else {
-    apiKeyError.value = ''
-  }
+
+  const preset = AI_PROVIDER_PRESETS[aiProvider.value]
+  baseUrl.value = preset.baseUrl
+  aiModel.value = preset.model
+  validateAISettings()
 }
 
 async function handleSave() {
@@ -305,7 +433,22 @@ async function handleSave() {
 
   isSaving.value = true
   try {
-    await userSettingsDexieRepository.set(API_KEY_STORAGE_KEY, apiKey.value.trim())
+    const settings: AIProviderSettings = {
+      provider: aiProvider.value,
+      baseUrl: baseUrl.value.trim(),
+      model: aiModel.value.trim(),
+      ...(apiKey.value.trim() ? { apiKey: apiKey.value.trim() } : {}),
+    }
+    await userSettingsDexieRepository.set(
+      AI_PROVIDER_SETTINGS_KEY,
+      JSON.stringify(settings),
+    )
+    if (settings.provider === 'openai' && settings.apiKey) {
+      await userSettingsDexieRepository.set(
+        LEGACY_OPENAI_API_KEY,
+        settings.apiKey,
+      )
+    }
     snackbarRef.value?.show(t('profile.aiSettings.saved'))
   } catch (error) {
     const errorMessage =
@@ -313,7 +456,7 @@ async function handleSave() {
         ? error.message
         : t('profile.aiSettings.saveFailed')
     snackbarRef.value?.show(errorMessage)
-    console.error('Error saving API key:', error)
+    console.error('Error saving AI provider settings:', error)
   } finally {
     isSaving.value = false
   }
@@ -382,11 +525,23 @@ function goToPsychologicalProfile() {
 // Load existing settings on mount
 onMounted(async () => {
   try {
-    // Load API key
-    const existingKey = await userSettingsDexieRepository.get(API_KEY_STORAGE_KEY)
-    if (existingKey) {
-      apiKey.value = existingKey
-      validateApiKey()
+    // Load AI provider settings, falling back to the legacy OpenAI key.
+    const existingSettings = await userSettingsDexieRepository.get(
+      AI_PROVIDER_SETTINGS_KEY,
+    )
+    const parsedSettings = existingSettings
+      ? parseStoredAISettings(existingSettings)
+      : null
+    if (parsedSettings) {
+      applyAISettings(parsedSettings)
+    } else {
+      const existingKey = await userSettingsDexieRepository.get(
+        LEGACY_OPENAI_API_KEY,
+      )
+      applyAISettings({
+        ...AI_PROVIDER_PRESETS.openai,
+        ...(existingKey ? { apiKey: existingKey } : {}),
+      })
     }
 
     // Load user preferences

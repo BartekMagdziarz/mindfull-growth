@@ -10,14 +10,17 @@ import type {
 } from '@/domain/userProfile'
 import { userProfileDexieRepository } from '@/repositories/userProfileDexieRepository'
 import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDexieRepository'
-import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
-import { DEFAULT_MODEL, sendMessage } from '@/services/llmService'
+import {
+  getAIProviderSettings,
+  hasAIProviderConfigured,
+  sendMessage,
+} from '@/services/llmService'
 import { resolveDateRange } from '@/composables/useProfileBuildWizard'
 import {
   getProfilePrompts,
@@ -63,20 +66,6 @@ export class ProfileBuildError extends Error {
   ) {
     super(message ?? code)
     this.name = 'ProfileBuildError'
-  }
-}
-
-/**
- * Detect "no OpenAI key" from whatever the repository layer produced. We
- * check both the stored value directly (preferred) and the shape of an
- * error that `llmService.getApiKey()` throws when the key is missing.
- */
-async function hasOpenAIKey(): Promise<boolean> {
-  try {
-    const key = await userSettingsDexieRepository.get('openaiApiKey')
-    return typeof key === 'string' && key.trim().length > 0
-  } catch {
-    return false
   }
 }
 
@@ -200,14 +189,17 @@ export const useUserProfileStore = defineStore('userProfile', () => {
     let rawResponse = ''
     let success = false
     let errorMessage: string | undefined
+    let model = ''
 
     try {
-      if (!(await hasOpenAIKey())) {
+      if (!(await hasAIProviderConfigured())) {
         throw new ProfileBuildError(
           'missingApiKey',
-          'OpenAI API key is not configured.',
+          'AI provider is not configured.',
         )
       }
+      const aiSettings = await getAIProviderSettings()
+      model = aiSettings.model
 
       const { start, end } = resolveDateRange(scope.dateRange)
       const included = scope.includedObjectIds ?? {}
@@ -366,7 +358,7 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       rawResponse = await sendMessage(
         [{ role: 'user', content: payload }],
         promptModule.systemPrompt,
-        { maxTokens: PROFILE_MAX_TOKENS, model: DEFAULT_MODEL },
+        { maxTokens: PROFILE_MAX_TOKENS, model },
       )
 
       const parsed = parseProfileResponse(rawResponse, promptModule)
@@ -374,7 +366,7 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       return {
         sections: parsed.sections,
         rawResponse,
-        model: DEFAULT_MODEL,
+        model,
         extras: parsed.extras,
       }
     } catch (err) {
@@ -401,11 +393,11 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       try {
         await profileBuildLogDexieRepository.add({
           scope,
-          model: DEFAULT_MODEL,
+          model,
           requestBody: JSON.stringify({
             systemPrompt: promptModule.systemPrompt,
             messages: [{ role: 'user', content: payload }],
-            model: DEFAULT_MODEL,
+            model,
             maxTokens: PROFILE_MAX_TOKENS,
           }),
           responseBody: success ? rawResponse : (errorMessage ?? 'unknown error'),
