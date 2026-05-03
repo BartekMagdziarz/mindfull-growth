@@ -63,6 +63,7 @@
       "activeInitiatives": "Initiatives"
     },
     "labels": {
+      "priority": "Priority",
       "goal": "Goal",
       "aggregation": {
         "sum": "Sum",
@@ -339,6 +340,7 @@
       "period": "Period · {period}"
     },
     "families": {
+      "priorities": "Priorities",
       "goals": "Goals",
       "habits": "Habits",
       "trackers": "Trackers",
@@ -375,6 +377,7 @@
       "open": "Open object",
       "showDetails": "Show details",
       "hideDetails": "Hide details",
+      "addPriority": "Add priority",
       "addGoal": "Add goal",
       "addHabit": "Add habit",
       "addTracker": "Add tracker",
@@ -383,6 +386,8 @@
       "editObject": "Edit object",
       "archive": "Archive",
       "unarchive": "Unarchive",
+      "activate": "Activate",
+      "pause": "Pause",
       "showMore": "Show more",
       "showLess": "Show less",
       "months": "Months",
@@ -409,6 +414,10 @@
       "periodReflection": "Period reflection",
       "archived": "Archived",
       "status": {
+        "draft": "Draft",
+        "active": "Active",
+        "paused": "Paused",
+        "closed": "Closed",
         "open": "Open",
         "completed": "Completed",
         "dropped": "Dropped",
@@ -449,7 +458,10 @@
       "noPeriodPlacement": "Not scheduled in calendar periods",
       "scheduledMonth": "Scheduled in a month",
       "scheduledWeek": "Scheduled in a week",
-      "scheduledDay": "Scheduled on a day"
+      "scheduledDay": "Scheduled on a day",
+      "priorityYears": "Years: {years}",
+      "priorityOrder": "Order {n}",
+      "priorityLinkedObjects": "Goals {goals} · Habits {habits} · Trackers {trackers} · Initiatives {initiatives}"
     },
     "reason": {
       "goalMonthState": "Active this month",
@@ -475,6 +487,8 @@
     "messages": {
       "archived": "Object archived.",
       "unarchived": "Object restored.",
+      "activated": "Priority activated.",
+      "paused": "Priority paused.",
       "saved": "Object saved.",
       "deleted": "Object deleted.",
       "saveError": "Could not save this object.",
@@ -504,6 +518,18 @@
       "lifeAreas": "Linked life areas",
       "priorities": "Linked priorities",
       "periods": "Periods",
+      "years": "Years",
+      "whyNow": "Why now",
+      "desiredDirection": "Desired direction",
+      "tradeoffs": "Tradeoffs",
+      "progressSignals": "Progress signals",
+      "riskSignals": "Risk signals",
+      "closedAt": "Closed at",
+      "closingSummary": "Closing summary",
+      "workedWell": "What worked well",
+      "wasDifficult": "What was difficult",
+      "learned": "What I learned",
+      "priorityTitlePlaceholder": "Priority title",
       "goalTitlePlaceholder": "Goal title",
       "goalDescriptionPlaceholder": "Description"
     },

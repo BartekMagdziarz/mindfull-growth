@@ -5,8 +5,10 @@ import ObjectsLibraryView from '@/views/ObjectsLibraryView.vue'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
+import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
+import type { YearRef } from '@/domain/period'
 
 function createTestRouter() {
   return createRouter({
@@ -111,6 +113,45 @@ describe('ObjectsLibraryView', () => {
     expect(router.currentRoute.value.name).toBe('objects-family')
     expect(router.currentRoute.value.params.family).toBe('habits')
     expect(router.currentRoute.value.query.composerMode).toBeUndefined()
+  })
+
+  it('renders priorities as their own object family without charts', async () => {
+    const priority = await priorityDexieRepository.create({
+      title: 'Protect deep work',
+      years: ['2026' as YearRef],
+      status: 'active',
+      lifeAreaIds: [],
+      description: 'Strategic constraint for the year',
+      desiredDirection: 'Make mornings available for important work',
+      tradeoffs: 'Fewer reactive meetings',
+      progressSignals: ['Three protected mornings per week'],
+      riskSignals: ['Reactive calendar'],
+    })
+
+    const router = createTestRouter()
+    await router.push({
+      name: 'objects-family',
+      params: { family: 'priorities' },
+    })
+    await router.isReady()
+
+    render(ObjectsLibraryView, {
+      props: {
+        family: 'priorities',
+      },
+      global: {
+        plugins: [router],
+      },
+    })
+
+    expect(await screen.findByDisplayValue(priority.title)).toBeInTheDocument()
+    expect(screen.getByDisplayValue('2026')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Strategic constraint for the year')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Make mornings available for important work')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Fewer reactive meetings')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Three protected mornings per week')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Reactive calendar')).toBeInTheDocument()
+    expect(screen.queryByText('No active periods')).not.toBeInTheDocument()
   })
 
   it('keeps period input local until commit and shows inline validation errors', async () => {

@@ -21,6 +21,7 @@ describe('planning domain normalization', () => {
     const normalized = normalizePriorityPayload({
       title: '  2026 Focus  ',
       description: '  Annual direction  ',
+      icon: '  self_improvement  ',
       years: [parsePeriodRef('2027') as YearRef, parsePeriodRef('2026') as YearRef, parsePeriodRef('2026') as YearRef],
       status: 'active',
       order: 2,
@@ -35,6 +36,7 @@ describe('planning domain normalization', () => {
     expect(normalized).toEqual({
       title: '2026 Focus',
       description: 'Annual direction',
+      icon: 'self_improvement',
       years: ['2026', '2027'],
       status: 'active',
       order: 2,

@@ -180,6 +180,17 @@
             @kr-archive="handleKrArchive"
           />
 
+          <ObjectsLibraryPriorityCard
+            v-else-if="item.panelType === 'priority'"
+            :item="item"
+            :status-options="statusOptionsForType('priority')"
+            :life-area-options="store.filterOptions.lifeAreas"
+            :is-new="newPriorityId === item.id"
+            @field-change="handlePriorityFieldChange"
+            @archive="handlePriorityArchive"
+            @delete="(id, title) => handleDeleteFromCard('priority', id, title)"
+          />
+
           <!-- Habit/Tracker unified inline card -->
           <ObjectsLibraryMeasurementCard
             v-else-if="item.panelType === 'habit' || item.panelType === 'tracker'"
@@ -216,7 +227,7 @@
           />
 
           <section
-            v-if="item.panelType !== 'goal' && item.panelType !== 'habit' && item.panelType !== 'tracker' && item.panelType !== 'initiative' && isExpansionHost(item.panelType, item.id) && isComposerHostedByItem(item.panelType, item.id) && isComposerReady && !(composerMode === 'edit' && resolvedComposerType === 'keyResult')"
+            v-if="item.panelType !== 'priority' && item.panelType !== 'goal' && item.panelType !== 'habit' && item.panelType !== 'tracker' && item.panelType !== 'initiative' && isExpansionHost(item.panelType, item.id) && isComposerHostedByItem(item.panelType, item.id) && isComposerReady && !(composerMode === 'edit' && resolvedComposerType === 'keyResult')"
             class="rounded-2xl border border-white/40 bg-white/45 p-3"
           >
             <ObjectsLibraryInlineEditor
@@ -278,6 +289,7 @@ import AppSnackbar from '@/components/AppSnackbar.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import ObjectsLibraryFilters from '@/components/objects/ObjectsLibraryFilters.vue'
 import ObjectsLibraryInlineEditor from '@/components/objects/ObjectsLibraryInlineEditor.vue'
+import ObjectsLibraryPriorityCard from '@/components/objects/ObjectsLibraryPriorityCard.vue'
 import ObjectsLibraryGoalCard from '@/components/objects/ObjectsLibraryGoalCard.vue'
 import ObjectsLibraryMeasurementCard from '@/components/objects/ObjectsLibraryMeasurementCard.vue'
 import ObjectsLibraryInitiativeCard from '@/components/objects/ObjectsLibraryInitiativeCard.vue'
@@ -294,6 +306,7 @@ import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
+import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import {
@@ -303,8 +316,8 @@ import {
   unlinkMeasurementPeriod,
 } from '@/services/planningMutations'
 import { isPeriodRef } from '@/utils/periods'
-import type { PeriodRef, MonthRef, WeekRef } from '@/domain/period'
-import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
+import type { PeriodRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
+import type { MeasurementEntryMode, MeasurementTarget, PriorityClosingReflection } from '@/domain/planning'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedMonth } from '@/components/objects/GoalMonthsDropdown.vue'
 
@@ -322,11 +335,20 @@ interface LibraryTargetDraft {
 interface LibraryDraft {
   title: string
   description: string
+  icon?: string
   isActive: boolean
   status: string
   goalId?: string
   priorityIds: string[]
   lifeAreaIds: string[]
+  years?: YearRef[]
+  order?: number
+  whyNow?: string
+  desiredDirection?: string
+  tradeoffs?: string
+  progressSignals?: string[]
+  riskSignals?: string[]
+  closingReflection?: PriorityClosingReflection
   cadence?: 'weekly' | 'monthly'
   entryMode?: MeasurementEntryMode
   target: LibraryTargetDraft
@@ -358,10 +380,12 @@ const expandedMeasurementId = ref<string | null>(null)
 const expandedMeasurementPeriods = ref<LinkedPeriod[]>([])
 const newMeasurementId = ref<string | null>(null)
 const newInitiativeId = ref<string | null>(null)
+const newPriorityId = ref<string | null>(null)
 
 let searchSyncTimeout: ReturnType<typeof setTimeout> | null = null
 
 const familyOptions = computed(() => [
+  { family: 'priorities' as const, label: t('planning.objects.families.priorities') },
   { family: 'goals' as const, label: t('planning.objects.families.goals') },
   { family: 'habits' as const, label: t('planning.objects.families.habits') },
   { family: 'trackers' as const, label: t('planning.objects.families.trackers') },
@@ -377,6 +401,8 @@ const createButtonLabel = computed(() => {
   switch (store.query.family) {
     case 'goals':
       return t('planning.objects.actions.addGoal')
+    case 'priorities':
+      return t('planning.objects.actions.addPriority')
     case 'habits':
       return t('planning.objects.actions.addHabit')
     case 'trackers':
@@ -414,6 +440,7 @@ const composerHeading = computed(() => {
 const showCreateCard = computed(
   () => isComposerOpen.value && isCreateMode.value
     && resolvedComposerType.value !== 'keyResult'
+    && resolvedComposerType.value !== 'priority'
     && resolvedComposerType.value !== 'goal'
     && resolvedComposerType.value !== 'habit'
     && resolvedComposerType.value !== 'tracker'
@@ -442,6 +469,10 @@ const isComposerOpen = computed(() => Boolean(store.query.composerMode))
 const isCreateMode = computed(() => composerMode.value === 'create')
 const isComposerReady = computed(() => composerMode.value !== 'edit' || Boolean(store.composerItem))
 const statusOptions = computed(() => {
+  if (resolvedComposerType.value === 'priority') {
+    return priorityStatusOptions()
+  }
+
   if (resolvedComposerType.value === 'habit' || resolvedComposerType.value === 'tracker') {
     return [
       { value: 'open', label: t('planning.objects.badges.status.open') },
@@ -526,6 +557,24 @@ function initializeDraft(): void {
 
 function createEmptyDraft(panelType: ObjectsLibraryPanelType, goalId?: string): LibraryDraft {
   switch (panelType) {
+    case 'priority':
+      return {
+        title: '',
+        description: '',
+        icon: undefined,
+        isActive: true,
+        status: 'draft',
+        priorityIds: [],
+        lifeAreaIds: [],
+        years: [String(new Date().getFullYear()) as YearRef],
+        whyNow: '',
+        desiredDirection: '',
+        tradeoffs: '',
+        progressSignals: [],
+        riskSignals: [],
+        closingReflection: undefined,
+        target: createDefaultTarget('completion'),
+      }
     case 'goal':
       return {
         title: '',
@@ -864,6 +913,27 @@ async function handleOpenCreate(): Promise<void> {
         status: 'open',
       })
       newGoalId.value = created.id
+      await store.loadBundle()
+    } catch (err) {
+      snackbarRef.value?.show(
+        err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+      )
+    }
+    return
+  }
+
+  if (panelType === 'priority') {
+    try {
+      const created = await priorityDexieRepository.create({
+        title: '',
+        description: undefined,
+        years: [String(new Date().getFullYear()) as YearRef],
+        status: 'draft',
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+      })
+      newPriorityId.value = created.id
       await store.loadBundle()
     } catch (err) {
       snackbarRef.value?.show(
@@ -1536,6 +1606,129 @@ function handleGoalDelete(goalId: string, title: string): void {
   handleDeleteFromCard('goal', goalId, title)
 }
 
+function parseYearRefs(value: string): YearRef[] {
+  const years = Array.from(
+    new Set(
+      value
+        .split(/[\s,;]+/)
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  )
+  return (years.length > 0 ? years : [String(new Date().getFullYear())]).map((year) => year as YearRef)
+}
+
+function parseSignalLines(value: string): string[] {
+  return Array.from(
+    new Set(
+      value
+        .split('\n')
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  )
+}
+
+async function handlePriorityFieldChange(id: string, field: string, value: unknown): Promise<void> {
+  try {
+    let needsReload = true
+    switch (field) {
+      case 'title':
+        await priorityDexieRepository.update(id, { title: (value as string).trim() })
+        if (newPriorityId.value === id) newPriorityId.value = null
+        needsReload = false
+        break
+      case 'description':
+      case 'icon':
+      case 'whyNow':
+      case 'desiredDirection':
+      case 'tradeoffs':
+        await priorityDexieRepository.update(id, {
+          [field]: typeof value === 'string' ? normalizeOptionalText(value) : value,
+        })
+        needsReload = false
+        break
+      case 'status':
+        await priorityDexieRepository.update(id, {
+          status: value as 'draft' | 'active' | 'paused' | 'closed',
+          ...(value === 'closed'
+            ? { closingReflection: { closedAt: new Date().toISOString() } }
+            : {}),
+        })
+        break
+      case 'closingReflection.summary':
+      case 'closingReflection.workedWell':
+      case 'closingReflection.wasDifficult':
+      case 'closingReflection.learned':
+      case 'closingReflection.closedAt':
+        await updatePriorityClosingReflection(id, field.replace('closingReflection.', '') as keyof PriorityClosingReflection, value as string)
+        break
+      case 'years':
+        await priorityDexieRepository.update(id, { years: parseYearRefs(value as string) })
+        break
+      case 'progressSignals':
+        await priorityDexieRepository.update(id, { progressSignals: parseSignalLines(value as string) })
+        break
+      case 'riskSignals':
+        await priorityDexieRepository.update(id, { riskSignals: parseSignalLines(value as string) })
+        break
+      case 'toggleLifeArea': {
+        const priority = await priorityDexieRepository.getById(id)
+        if (!priority) return
+        const lifeAreaId = value as string
+        const lifeAreaIds = priority.lifeAreaIds.includes(lifeAreaId)
+          ? priority.lifeAreaIds.filter((item) => item !== lifeAreaId)
+          : [...priority.lifeAreaIds, lifeAreaId]
+        await priorityDexieRepository.update(id, { lifeAreaIds })
+        break
+      }
+    }
+    if (needsReload) {
+      await store.loadBundle()
+    }
+  } catch (err) {
+    snackbarRef.value?.show(
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+    )
+  }
+}
+
+async function updatePriorityClosingReflection(
+  id: string,
+  field: keyof PriorityClosingReflection,
+  value: string,
+): Promise<void> {
+  const priority = await priorityDexieRepository.getById(id)
+  if (!priority || priority.status !== 'closed') return
+
+  await priorityDexieRepository.update(id, {
+    closingReflection: {
+      closedAt: priority.closingReflection?.closedAt ?? new Date().toISOString(),
+      summary: priority.closingReflection?.summary,
+      workedWell: priority.closingReflection?.workedWell,
+      wasDifficult: priority.closingReflection?.wasDifficult,
+      learned: priority.closingReflection?.learned,
+      [field]: field === 'closedAt' ? value.trim() || new Date().toISOString() : normalizeOptionalText(value),
+    },
+  })
+}
+
+async function handlePriorityArchive(id: string, isCurrentlyActive: boolean): Promise<void> {
+  try {
+    await priorityDexieRepository.update(id, { status: isCurrentlyActive ? 'paused' : 'active' })
+    snackbarRef.value?.show(
+      isCurrentlyActive
+        ? t('planning.objects.messages.paused')
+        : t('planning.objects.messages.activated'),
+    )
+    await store.loadBundle()
+  } catch (err) {
+    snackbarRef.value?.show(
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+    )
+  }
+}
+
 async function handleInitiativeFieldChange(id: string, field: string, value: unknown): Promise<void> {
   try {
     let needsReload = true
@@ -1603,7 +1796,20 @@ function handleCancelComposer(): void {
   void syncRoute()
 }
 
+function priorityStatusOptions(): Array<{ value: string; label: string }> {
+  return [
+    { value: 'draft', label: t('planning.objects.badges.status.draft') },
+    { value: 'active', label: t('planning.objects.badges.status.active') },
+    { value: 'paused', label: t('planning.objects.badges.status.paused') },
+    { value: 'closed', label: t('planning.objects.badges.status.closed') },
+  ]
+}
+
 function statusOptionsForType(panelType: ObjectsLibraryPanelType): Array<{ value: string; label: string }> {
+  if (panelType === 'priority') {
+    return priorityStatusOptions()
+  }
+
   if (panelType === 'habit' || panelType === 'tracker') {
     return [
       { value: 'open', label: t('planning.objects.badges.status.open') },
@@ -1712,6 +1918,24 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
 
   if (mode === 'create') {
     switch (panelType) {
+      case 'priority': {
+        const created = await priorityDexieRepository.create({
+          title: draft.value.title.trim(),
+          description: normalizeOptionalText(draft.value.description),
+          icon: draft.value.icon,
+          years: draft.value.years ?? [String(new Date().getFullYear()) as YearRef],
+          status: draft.value.status as 'draft' | 'active' | 'paused' | 'closed',
+          order: draft.value.order,
+          lifeAreaIds: draft.value.lifeAreaIds,
+          whyNow: normalizeOptionalText(draft.value.whyNow ?? ''),
+          desiredDirection: normalizeOptionalText(draft.value.desiredDirection ?? ''),
+          tradeoffs: normalizeOptionalText(draft.value.tradeoffs ?? ''),
+          progressSignals: draft.value.progressSignals ?? [],
+          riskSignals: draft.value.riskSignals ?? [],
+          closingReflection: draft.value.closingReflection,
+        })
+        return { ...created, type: panelType }
+      }
       case 'goal': {
         const created = await goalDexieRepository.create({
           title: draft.value.title.trim(),
@@ -1784,6 +2008,24 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
   }
 
   switch (panelType) {
+    case 'priority': {
+      const updated = await priorityDexieRepository.update(composerId, {
+        title: draft.value.title.trim(),
+        description: normalizeOptionalText(draft.value.description),
+        icon: draft.value.icon,
+        years: draft.value.years ?? [String(new Date().getFullYear()) as YearRef],
+        status: draft.value.status as 'draft' | 'active' | 'paused' | 'closed',
+        order: draft.value.order,
+        lifeAreaIds: draft.value.lifeAreaIds,
+        whyNow: normalizeOptionalText(draft.value.whyNow ?? ''),
+        desiredDirection: normalizeOptionalText(draft.value.desiredDirection ?? ''),
+        tradeoffs: normalizeOptionalText(draft.value.tradeoffs ?? ''),
+        progressSignals: draft.value.progressSignals ?? [],
+        riskSignals: draft.value.riskSignals ?? [],
+        closingReflection: draft.value.closingReflection,
+      })
+      return { ...updated, type: panelType }
+    }
     case 'goal': {
       const updated = await goalDexieRepository.update(composerId, {
         title: draft.value.title.trim(),
@@ -1856,6 +2098,9 @@ async function updateObjectActive(
   isActive: boolean,
 ): Promise<void> {
   switch (panelType) {
+    case 'priority':
+      await priorityDexieRepository.update(id, { status: isActive ? 'active' : 'paused' })
+      return
     case 'goal':
       await goalDexieRepository.update(id, { isActive })
       return
@@ -1876,6 +2121,9 @@ async function updateObjectActive(
 
 async function deleteObject(panelType: ObjectsLibraryPanelType, id: string): Promise<void> {
   switch (panelType) {
+    case 'priority':
+      await priorityDexieRepository.delete(id)
+      return
     case 'goal':
       await goalDexieRepository.delete(id)
       return

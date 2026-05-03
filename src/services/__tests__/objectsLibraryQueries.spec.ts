@@ -140,6 +140,57 @@ describe('objectsLibraryQueries', () => {
     )
   })
 
+  it('builds priority results as strategic cards without chart data', async () => {
+    const lifeArea = await lifeAreaDexieRepository.create({
+      name: 'Growth',
+      reflectionSignals: [],
+      isActive: true,
+      sortOrder: 0,
+    })
+    const priority = await priorityDexieRepository.create({
+      title: 'Protect deep work',
+      icon: 'self_improvement',
+      years: [parsePeriodRef('2026') as YearRef],
+      status: 'active',
+      lifeAreaIds: [lifeArea.id],
+      desiredDirection: 'Make mornings available for important work',
+      progressSignals: ['Three protected mornings per week'],
+      riskSignals: ['Reactive calendar'],
+    })
+    await goalDexieRepository.create({
+      title: 'Ship focused roadmap',
+      isActive: true,
+      priorityIds: [priority.id],
+      lifeAreaIds: [lifeArea.id],
+      status: 'open',
+    })
+
+    const bundle = await loadObjectsLibraryBundle({
+      family: 'priorities',
+      q: 'mornings',
+      period: parsePeriodRef('2026-03') as MonthRef,
+      lifeAreaIds: [lifeArea.id],
+      priorityIds: [],
+      showClosed: false,
+    })
+
+    expect(bundle.items).toHaveLength(1)
+    expect(bundle.items[0]).toMatchObject({
+      panelType: 'priority',
+      title: priority.title,
+      icon: 'self_improvement',
+      years: ['2026'],
+      desiredDirection: priority.desiredDirection,
+      linkedCounts: {
+        goals: 1,
+        habits: 0,
+        trackers: 0,
+        initiatives: 0,
+      },
+    })
+    expect(bundle.items[0].chartData).toBeUndefined()
+  })
+
   it('exposes measurement badges and actual details for habits', async () => {
     const habit = await habitDexieRepository.create({
       title: 'Deep work',

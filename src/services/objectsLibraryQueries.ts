@@ -9,6 +9,7 @@ import type {
   MeasurementTarget,
   PlanningCadence,
   Priority,
+  PriorityClosingReflection,
   Tracker,
 } from '@/domain/planning'
 import type {
@@ -33,9 +34,9 @@ import { loadPlanningLibraryObjects } from '@/services/planningObjectCollections
 import { loadPlanningCached } from '@/services/planningQueryCache'
 import { comparePeriodRefs, getPeriodRefsForDate, getPeriodType, isPeriodRef, periodIntersectsPeriod } from '@/utils/periods'
 
-export type ObjectsLibraryFamily = 'goals' | 'habits' | 'trackers' | 'initiatives'
+export type ObjectsLibraryFamily = 'priorities' | 'goals' | 'habits' | 'trackers' | 'initiatives'
 export type ObjectsLibraryComposerMode = 'edit' | 'create'
-export type ObjectsLibraryPanelType = 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative'
+export type ObjectsLibraryPanelType = 'priority' | 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative'
 export type ObjectsLibraryBadgeTone = 'default' | 'accent' | 'success' | 'warning' | 'danger'
 export type ObjectsLibraryHistorySource = 'object-reflection' | 'period-reflection'
 export type ObjectsLibraryLinkedPeriodSource =
@@ -157,6 +158,20 @@ export interface ObjectsLibraryListItem {
   lifeAreaIds?: string[]
   goalId?: string
   goalMonthRefs?: string[]
+  years?: YearRef[]
+  order?: number
+  whyNow?: string
+  desiredDirection?: string
+  tradeoffs?: string
+  progressSignals?: string[]
+  riskSignals?: string[]
+  closingReflection?: PriorityClosingReflection
+  linkedCounts?: {
+    goals: number
+    habits: number
+    trackers: number
+    initiatives: number
+  }
   cadence?: PlanningCadence
   entryMode?: MeasurementEntryMode
   ratingScaleMin?: number
@@ -190,6 +205,14 @@ export interface ObjectsLibraryDetailRecord {
     cadence?: 'weekly' | 'monthly'
     entryMode?: MeasurementEntryMode
     target?: MeasurementTarget
+    years?: YearRef[]
+    order?: number
+    whyNow?: string
+    desiredDirection?: string
+    tradeoffs?: string
+    progressSignals?: string[]
+    riskSignals?: string[]
+    closingReflection?: PriorityClosingReflection
   }
 }
 
@@ -350,6 +373,14 @@ function entryModeBadge(entryMode: MeasurementEntryMode): ObjectsLibraryBadge {
 
 function lifecycleBadge(status: string): ObjectsLibraryBadge {
   switch (status) {
+    case 'draft':
+      return { label: libraryLabel('planning.objects.badges.status.draft') }
+    case 'active':
+      return { label: libraryLabel('planning.objects.badges.status.active'), tone: 'accent' }
+    case 'paused':
+      return { label: libraryLabel('planning.objects.badges.status.paused'), tone: 'warning' }
+    case 'closed':
+      return { label: libraryLabel('planning.objects.badges.status.closed'), tone: 'success' }
     case 'completed':
       return { label: libraryLabel('planning.objects.badges.status.completed'), tone: 'success' }
     case 'dropped':
@@ -421,6 +452,17 @@ function matchReasonBadges(reasons: ObjectsLibraryMatchReason[]): ObjectsLibrary
 }
 
 function sortLibraryItems(left: ObjectsLibraryListItem, right: ObjectsLibraryListItem): number {
+  if (left.panelType === 'priority' && right.panelType === 'priority') {
+    const leftStatusWeight = left.status === 'active' ? 0 : left.status === 'draft' ? 1 : 2
+    const rightStatusWeight = right.status === 'active' ? 0 : right.status === 'draft' ? 1 : 2
+    return (
+      leftStatusWeight - rightStatusWeight ||
+      (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
+      (right.years?.[0] ?? '').localeCompare(left.years?.[0] ?? '') ||
+      left.title.localeCompare(right.title)
+    )
+  }
+
   const leftWeight = left.status === 'open' && left.isActive ? 0 : 1
   const rightWeight = right.status === 'open' && right.isActive ? 0 : 1
   if (leftWeight !== rightWeight) {
@@ -436,6 +478,10 @@ function matchesLinkFilters(linkedIds: string[], selectedIds: string[]): boolean
 
 function matchesClosedFilter(isActive: boolean, status: string, showClosed: boolean): boolean {
   return showClosed || (isActive && status === 'open')
+}
+
+function matchesPriorityClosedFilter(status: Priority['status'], showClosed: boolean): boolean {
+  return showClosed || status === 'active' || status === 'draft'
 }
 
 function matchesQueryText(query: string, values: Array<string | undefined>): boolean {
@@ -467,6 +513,8 @@ export function getObjectsLibraryFamilyPanelType(
   family: ObjectsLibraryFamily,
 ): Exclude<ObjectsLibraryPanelType, 'keyResult'> {
   switch (family) {
+    case 'priorities':
+      return 'priority'
     case 'goals':
       return 'goal'
     case 'habits':
@@ -482,6 +530,8 @@ export function getObjectsLibraryFamilyForPanelType(
   panelType: ObjectsLibraryPanelType,
 ): ObjectsLibraryFamily {
   switch (panelType) {
+    case 'priority':
+      return 'priorities'
     case 'goal':
     case 'keyResult':
       return 'goals'
@@ -1077,6 +1127,11 @@ function buildFamilyItems(
   ctx: ObjectRefContext,
 ): ObjectsLibraryListItem[] {
   switch (query.family) {
+    case 'priorities':
+      return deps.priorities
+        .filter((priority) => matchesPriorityFilters(priority, query))
+        .map((priority) => buildPriorityListItem(priority, deps, ctx))
+        .sort(sortLibraryItems)
     case 'goals':
       return deps.goals
         .filter((goal) => matchesGoalFilters(goal, query, deps, ctx))
@@ -1111,6 +1166,8 @@ function getFamilyTotalCount(
   deps: ObjectsLibraryDependencies,
 ): number {
   switch (family) {
+    case 'priorities':
+      return deps.priorities.length
     case 'goals':
       return deps.goals.length
     case 'habits':
@@ -1129,6 +1186,10 @@ function buildPanelRecord(
   ctx: ObjectRefContext,
 ): ObjectsLibraryDetailRecord | undefined {
   switch (panelType) {
+    case 'priority': {
+      const priority = deps.priorities.find((item) => item.id === panelId)
+      return priority ? buildPriorityPanel(priority, ctx) : undefined
+    }
     case 'goal': {
       const goal = deps.goals.find((item) => item.id === panelId)
       return goal ? buildGoalPanel(goal, deps, ctx) : undefined
@@ -1199,6 +1260,24 @@ function matchesStandaloneFilters<
   )
 }
 
+function matchesPriorityFilters(priority: Priority, query: ObjectsLibraryQuery): boolean {
+  return (
+    matchesLinkFilters(priority.lifeAreaIds, query.lifeAreaIds) &&
+    (query.priorityIds.length === 0 || query.priorityIds.includes(priority.id)) &&
+    matchesPriorityClosedFilter(priority.status, query.showClosed) &&
+    matchesQueryText(query.q, [
+      priority.title,
+      priority.description,
+      priority.whyNow,
+      priority.desiredDirection,
+      priority.tradeoffs,
+      ...priority.progressSignals,
+      ...priority.riskSignals,
+    ]) &&
+    (!query.period || priorityMatchesPeriod(priority, query.period))
+  )
+}
+
 function matchesGoalFilters(
   goal: Goal,
   query: ObjectsLibraryQuery,
@@ -1224,6 +1303,74 @@ function matchesGoalFilters(
     (getGoalRelevance(goal.id, query.period, deps, ctx).length > 0 || !query.period) &&
     (query.showClosed || goal.status === 'open' || anyChildOpen || goal.isActive)
   )
+}
+
+function priorityMatchesPeriod(priority: Priority, periodRef: PeriodRef): boolean {
+  const year = periodRef.slice(0, 4) as YearRef
+  return priority.years.includes(year)
+}
+
+function priorityLinkedCounts(
+  priorityId: string,
+  deps: ObjectsLibraryDependencies,
+): NonNullable<ObjectsLibraryListItem['linkedCounts']> {
+  return {
+    goals: deps.goals.filter((item) => item.priorityIds.includes(priorityId)).length,
+    habits: deps.habits.filter((item) => item.priorityIds.includes(priorityId)).length,
+    trackers: deps.trackers.filter((item) => item.priorityIds.includes(priorityId)).length,
+    initiatives: deps.initiatives.filter((item) => item.priorityIds.includes(priorityId)).length,
+  }
+}
+
+function buildPriorityDetails(
+  priority: Priority,
+  deps: ObjectsLibraryDependencies,
+): ObjectsLibraryLabel[] {
+  const counts = priorityLinkedCounts(priority.id, deps)
+  return [
+    libraryLabel('planning.objects.details.priorityYears', { years: priority.years.join(', ') }),
+    libraryLabel('planning.objects.details.priorityLinkedObjects', {
+      goals: counts.goals,
+      habits: counts.habits,
+      trackers: counts.trackers,
+      initiatives: counts.initiatives,
+    }),
+  ]
+}
+
+function buildPriorityListItem(
+  priority: Priority,
+  deps: ObjectsLibraryDependencies,
+  ctx: ObjectRefContext,
+): ObjectsLibraryListItem {
+  return {
+    id: priority.id,
+    panelType: 'priority',
+    title: priority.title,
+    description: priority.description,
+    icon: priority.icon,
+    eyebrow: libraryLabel('planning.objects.labels.priority'),
+    badges: [
+      lifecycleBadge(priority.status),
+      ...priority.years.map((year) => ({ label: year })),
+      ...(priority.order ? [{ label: libraryLabel('planning.objects.details.priorityOrder', { n: priority.order }) }] : []),
+    ],
+    details: buildPriorityDetails(priority, deps),
+    linkedEntities: linkedEntityLabels([], priority.lifeAreaIds, ctx),
+    matchReasons: [],
+    status: priority.status,
+    isActive: priority.status === 'active',
+    lifeAreaIds: [...priority.lifeAreaIds],
+    years: [...priority.years],
+    order: priority.order,
+    whyNow: priority.whyNow,
+    desiredDirection: priority.desiredDirection,
+    tradeoffs: priority.tradeoffs,
+    progressSignals: [...priority.progressSignals],
+    riskSignals: [...priority.riskSignals],
+    closingReflection: priority.closingReflection,
+    linkedCounts: priorityLinkedCounts(priority.id, deps),
+  }
 }
 
 function buildGoalListItem(
@@ -1453,6 +1600,56 @@ function buildGoalPanel(
   }
 }
 
+function buildPriorityPanel(
+  priority: Priority,
+  ctx: ObjectRefContext,
+): ObjectsLibraryDetailRecord {
+  return {
+    id: priority.id,
+    panelType: 'priority',
+    title: priority.title,
+    description: priority.description,
+    badges: [
+      lifecycleBadge(priority.status),
+      ...priority.years.map((year) => ({ label: year })),
+      ...(priority.order ? [{ label: libraryLabel('planning.objects.details.priorityOrder', { n: priority.order }) }] : []),
+    ],
+    fields: [
+      { label: libraryLabel('planning.objects.form.years'), value: priority.years.join(', ') },
+      ...(priority.whyNow ? [{ label: libraryLabel('planning.objects.form.whyNow'), value: priority.whyNow }] : []),
+      ...(priority.desiredDirection ? [{ label: libraryLabel('planning.objects.form.desiredDirection'), value: priority.desiredDirection }] : []),
+      ...(priority.tradeoffs ? [{ label: libraryLabel('planning.objects.form.tradeoffs'), value: priority.tradeoffs }] : []),
+    ],
+    linkedEntities: buildLinkedEntities([], priority.lifeAreaIds, ctx),
+    linkedPeriods: priority.years.map((year) => ({
+      key: `priority:${year}`,
+      periodRef: year,
+      periodType: 'year' as const,
+      reasonLabel: libraryLabel('planning.objects.reason.priorityYear'),
+      sources: ['plan' as const],
+    })),
+    historyItems: [],
+    isActive: priority.status === 'active',
+    status: priority.status,
+    formDefaults: {
+      title: priority.title,
+      description: priority.description ?? '',
+      isActive: priority.status === 'active',
+      status: priority.status,
+      priorityIds: [],
+      lifeAreaIds: [...priority.lifeAreaIds],
+      years: [...priority.years],
+      order: priority.order,
+      whyNow: priority.whyNow,
+      desiredDirection: priority.desiredDirection,
+      tradeoffs: priority.tradeoffs,
+      progressSignals: [...priority.progressSignals],
+      riskSignals: [...priority.riskSignals],
+      closingReflection: priority.closingReflection,
+    },
+  }
+}
+
 function buildKeyResultPanel(
   keyResult: KeyResult,
   deps: ObjectsLibraryDependencies,
@@ -1626,7 +1823,7 @@ export function parseObjectsLibraryQueryFromRoute(
       : undefined
   const composerType =
     typeof routeQuery.composerType === 'string' &&
-    ['goal', 'keyResult', 'habit', 'tracker', 'initiative'].includes(routeQuery.composerType)
+    ['priority', 'goal', 'keyResult', 'habit', 'tracker', 'initiative'].includes(routeQuery.composerType)
       ? (routeQuery.composerType as ObjectsLibraryPanelType)
       : undefined
   const composerId =
@@ -1639,7 +1836,7 @@ export function parseObjectsLibraryQueryFromRoute(
       : undefined
   const expandedType =
     typeof routeQuery.expandedType === 'string' &&
-    ['goal', 'keyResult', 'habit', 'tracker', 'initiative'].includes(routeQuery.expandedType)
+    ['priority', 'goal', 'keyResult', 'habit', 'tracker', 'initiative'].includes(routeQuery.expandedType)
       ? (routeQuery.expandedType as ObjectsLibraryPanelType)
       : undefined
   const expandedId =
@@ -1695,5 +1892,5 @@ export function serializeObjectsLibraryQueryToRoute(
 }
 
 function isObjectsLibraryFamily(value: string): value is ObjectsLibraryFamily {
-  return ['goals', 'habits', 'trackers', 'initiatives'].includes(value)
+  return ['priorities', 'goals', 'habits', 'trackers', 'initiatives'].includes(value)
 }

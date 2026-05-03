@@ -63,6 +63,7 @@
       "activeInitiatives": "Inicjatywy"
     },
     "labels": {
+      "priority": "Priorytet",
       "goal": "Cel",
       "aggregation": {
         "sum": "Suma",
@@ -339,6 +340,7 @@
       "period": "Okres · {period}"
     },
     "families": {
+      "priorities": "Priorytety",
       "goals": "Cele",
       "habits": "Nawyki",
       "trackers": "Trackery",
@@ -375,6 +377,7 @@
       "open": "Otwórz obiekt",
       "showDetails": "Pokaż szczegóły",
       "hideDetails": "Ukryj szczegóły",
+      "addPriority": "Dodaj priorytet",
       "addGoal": "Dodaj cel",
       "addHabit": "Dodaj nawyk",
       "addTracker": "Dodaj tracker",
@@ -383,6 +386,8 @@
       "editObject": "Edytuj obiekt",
       "archive": "Archiwizuj",
       "unarchive": "Przywróć",
+      "activate": "Aktywuj",
+      "pause": "Wstrzymaj",
       "showMore": "Pokaż więcej",
       "showLess": "Pokaż mniej",
       "months": "Miesiące",
@@ -409,6 +414,10 @@
       "periodReflection": "Refleksja okresu",
       "archived": "Zarchiwizowany",
       "status": {
+        "draft": "Szkic",
+        "active": "Aktywny",
+        "paused": "Wstrzymany",
+        "closed": "Zamknięty",
         "open": "Otwarty",
         "completed": "Zakończony",
         "dropped": "Porzucony",
@@ -449,7 +458,10 @@
       "noPeriodPlacement": "Brak przypisania do okresów kalendarza",
       "scheduledMonth": "Zaplanowany w miesiącu",
       "scheduledWeek": "Zaplanowany w tygodniu",
-      "scheduledDay": "Zaplanowany na dzień"
+      "scheduledDay": "Zaplanowany na dzień",
+      "priorityYears": "Lata: {years}",
+      "priorityOrder": "Pozycja {n}",
+      "priorityLinkedObjects": "Cele {goals} · Nawyki {habits} · Trackery {trackers} · Inicjatywy {initiatives}"
     },
     "reason": {
       "goalMonthState": "Aktywny w tym miesiącu",
@@ -475,6 +487,8 @@
     "messages": {
       "archived": "Obiekt zarchiwizowany.",
       "unarchived": "Obiekt przywrócony.",
+      "activated": "Priorytet aktywowany.",
+      "paused": "Priorytet wstrzymany.",
       "saved": "Obiekt zapisany.",
       "deleted": "Obiekt usunięty.",
       "saveError": "Nie udało się zapisać obiektu.",
@@ -504,6 +518,18 @@
       "lifeAreas": "Powiązane obszary życia",
       "priorities": "Powiązane priorytety",
       "periods": "Okresy",
+      "years": "Lata",
+      "whyNow": "Dlaczego teraz",
+      "desiredDirection": "Pożądany kierunek",
+      "tradeoffs": "Świadome kompromisy",
+      "progressSignals": "Sygnały postępu",
+      "riskSignals": "Sygnały ryzyka",
+      "closedAt": "Data zamknięcia",
+      "closingSummary": "Podsumowanie zamknięcia",
+      "workedWell": "Co działało dobrze",
+      "wasDifficult": "Co było trudne",
+      "learned": "Czego się nauczyłem/am",
+      "priorityTitlePlaceholder": "Tytuł priorytetu",
       "goalTitlePlaceholder": "Tytuł celu",
       "goalDescriptionPlaceholder": "Opis"
     },

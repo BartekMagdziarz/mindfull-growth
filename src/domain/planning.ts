@@ -56,6 +56,7 @@ export interface PriorityClosingReflection {
 }
 
 export interface Priority extends Omit<PlanningObjectBase, 'isActive'> {
+  icon?: string
   years: YearRef[]
   status: PriorityStatus
   order?: number
@@ -349,7 +350,7 @@ function normalizePlanningObjectBase(
 function normalizePriorityBase(
   data: PriorityPayloadLike,
   existing?: Priority,
-): Omit<Priority, 'id' | 'createdAt' | 'updatedAt' | 'years' | 'status' | 'order' | 'lifeAreaIds' | 'whyNow' | 'desiredDirection' | 'tradeoffs' | 'progressSignals' | 'riskSignals' | 'closingReflection'> {
+): Omit<Priority, 'id' | 'createdAt' | 'updatedAt' | 'icon' | 'years' | 'status' | 'order' | 'lifeAreaIds' | 'whyNow' | 'desiredDirection' | 'tradeoffs' | 'progressSignals' | 'riskSignals' | 'closingReflection'> {
   return {
     title: normalizeRequiredText(data.title, 'title', existing?.title),
     description: normalizeOptionalText(data.description, 'description', existing?.description),
@@ -466,6 +467,7 @@ export function normalizePriorityPayload(
 
   return {
     ...base,
+    icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     years: normalizeYearRefs(data.years, existing?.years),
     status,
     order: status === 'active' ? normalizeOptionalPositiveOrder(data.order, existing?.order) : undefined,
