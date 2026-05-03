@@ -141,7 +141,7 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
         name: lifeArea.name,
         rating: 5,
         note: '',
-        visionSnapshot: lifeArea.successPicture ?? '',
+        visionSnapshot: lifeArea.desiredState ?? '',
       }))
       notes.value = ''
     }

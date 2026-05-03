@@ -32,15 +32,14 @@ describe('useWheelOfLifeWizard', () => {
     expect(wizard.areas.value).toHaveLength(0)
   })
 
-  it('creates a full assessment using active life areas and prefilled success pictures', async () => {
+  it('creates a full assessment using active life areas and prefilled desired states', async () => {
     const lifeAreaStore = useLifeAreaStore()
     const assessmentStore = useLifeAreaAssessmentStore()
 
     const health = await lifeAreaStore.createLifeArea({
       name: 'Health',
-      successPicture: 'Strong and energized',
-      measures: [],
-      reviewCadence: 'monthly',
+      desiredState: 'Strong and energized',
+      reflectionSignals: [],
       isActive: true,
       sortOrder: 0,
     })
@@ -75,8 +74,7 @@ describe('useWheelOfLifeWizard', () => {
 
     const health = await lifeAreaStore.createLifeArea({
       name: 'Health',
-      measures: [],
-      reviewCadence: 'monthly',
+      reflectionSignals: [],
       isActive: true,
       sortOrder: 0,
     })

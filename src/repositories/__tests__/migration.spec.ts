@@ -5,6 +5,7 @@ import type { EmotionLog } from '@/domain/emotionLog'
 import type { PeopleTag } from '@/domain/tag'
 import type { ContextTag } from '@/domain/tag'
 import type { ChatSession } from '@/domain/chatSession'
+import { UserDatabase } from '@/services/userDatabase.service'
 
 // Test database class that mimics the version 2 schema
 class TestDatabaseV2 extends Dexie {
@@ -20,6 +21,19 @@ class TestDatabaseV2 extends Dexie {
     this.version(2).stores({
       peopleTags: 'id',
       contextTags: 'id',
+    })
+  }
+}
+
+class LegacyLifeAreaDatabaseV13 extends Dexie {
+  lifeAreas!: Table<Record<string, unknown>, string>
+  lifeAreaAssessments!: Table<Record<string, unknown>, string>
+
+  constructor(name: string) {
+    super(name)
+    this.version(13).stores({
+      lifeAreas: 'id, isActive',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
     })
   }
 }
@@ -438,6 +452,84 @@ describe('Database Migration v2→v3', () => {
 
       await dbV3.close()
     })
+  })
+})
+
+describe('Database Migration v13→v14 LifeArea clean model', () => {
+  let dbName: string
+
+  beforeEach(() => {
+    dbName = `LifeAreaMigration_${Date.now()}_${Math.random()}`
+  })
+
+  afterEach(async () => {
+    await Dexie.delete(dbName)
+  })
+
+  it('removes legacy LifeArea fields and preserves structural data and assessments', async () => {
+    const legacyDb = new LegacyLifeAreaDatabaseV13(dbName)
+    await legacyDb.open()
+
+    await legacyDb.lifeAreas.put({
+      id: 'la-legacy',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-02T00:00:00.000Z',
+      name: 'Health',
+      icon: 'heart',
+      color: '#488F84',
+      purpose: 'Legacy purpose',
+      maintenanceStandard: 'Legacy standard',
+      successPicture: 'Legacy 9/10',
+      measures: [{ name: 'Sleep', type: 'leading' }],
+      constraints: ['Overwork'],
+      reviewCadence: 'monthly',
+      isActive: true,
+      sortOrder: 2,
+    })
+
+    await legacyDb.lifeAreaAssessments.put({
+      id: 'assessment-legacy',
+      createdAt: '2026-02-01T00:00:00.000Z',
+      updatedAt: '2026-02-01T00:00:00.000Z',
+      scope: 'full',
+      lifeAreaIds: ['la-legacy'],
+      items: [
+        {
+          lifeAreaId: 'la-legacy',
+          lifeAreaNameSnapshot: 'Health',
+          score: 7,
+          visionSnapshot: 'Historical snapshot remains',
+        },
+      ],
+    })
+
+    await legacyDb.close()
+
+    const migratedDb = new UserDatabase(dbName)
+    await migratedDb.open()
+
+    const migratedArea = (await migratedDb.lifeAreas.get('la-legacy')) as
+      | Record<string, unknown>
+      | undefined
+    expect(migratedArea).toBeDefined()
+    expect(migratedArea?.id).toBe('la-legacy')
+    expect(migratedArea?.name).toBe('Health')
+    expect(migratedArea?.icon).toBe('heart')
+    expect(migratedArea?.color).toBe('#488F84')
+    expect(migratedArea?.isActive).toBe(true)
+    expect(migratedArea?.sortOrder).toBe(2)
+    expect(migratedArea?.reflectionSignals).toEqual([])
+    expect(migratedArea).not.toHaveProperty('purpose')
+    expect(migratedArea).not.toHaveProperty('maintenanceStandard')
+    expect(migratedArea).not.toHaveProperty('successPicture')
+    expect(migratedArea).not.toHaveProperty('measures')
+    expect(migratedArea).not.toHaveProperty('constraints')
+    expect(migratedArea).not.toHaveProperty('reviewCadence')
+
+    const assessment = await migratedDb.lifeAreaAssessments.get('assessment-legacy')
+    expect(assessment?.items[0].visionSnapshot).toBe('Historical snapshot remains')
+
+    await migratedDb.close()
   })
 })
 

@@ -19,8 +19,8 @@
           </div>
           <div>
             <h3 class="text-base font-semibold text-on-surface">{{ area.name }}</h3>
-            <p v-if="area.purpose" class="text-xs text-on-surface-variant line-clamp-1">
-              {{ area.purpose }}
+            <p v-if="area.meaning" class="text-xs text-on-surface-variant line-clamp-1">
+              {{ area.meaning }}
             </p>
           </div>
         </div>
@@ -40,9 +40,9 @@
           </span>
         </div>
       </div>
-      <div v-if="area.maintenanceStandard" class="mt-2">
+      <div v-if="area.desiredState" class="mt-2">
         <p class="text-sm text-on-surface-variant line-clamp-2">
-          {{ area.maintenanceStandard }}
+          {{ area.desiredState }}
         </p>
       </div>
     </AppCard>

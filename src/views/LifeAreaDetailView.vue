@@ -24,8 +24,8 @@
           </div>
           <div>
             <h1 class="text-xl font-bold text-on-surface">{{ area.name }}</h1>
-            <p v-if="area.purpose" class="text-sm text-on-surface-variant">
-              {{ area.purpose }}
+            <p v-if="area.meaning" class="text-sm text-on-surface-variant">
+              {{ area.meaning }}
             </p>
           </div>
         </div>
@@ -52,43 +52,28 @@
 
       <!-- Metadata Cards -->
       <div class="space-y-4">
-        <AppCard v-if="area.maintenanceStandard" padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.maintenanceTitle') }}</h3>
-          <p class="text-sm text-on-surface-variant">{{ area.maintenanceStandard }}</p>
+        <AppCard v-if="area.meaning" padding="lg">
+          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.meaningTitle') }}</h3>
+          <p class="text-sm text-on-surface-variant">{{ area.meaning }}</p>
         </AppCard>
 
-        <AppCard v-if="area.successPicture" padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.successPictureTitle') }}</h3>
-          <p class="text-sm text-on-surface-variant">{{ area.successPicture }}</p>
+        <AppCard v-if="area.desiredState" padding="lg">
+          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.desiredStateTitle') }}</h3>
+          <p class="text-sm text-on-surface-variant">{{ area.desiredState }}</p>
         </AppCard>
 
-        <AppCard v-if="area.measures.length > 0" padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-2">{{ t('lifeAreas.detail.measuresTitle') }}</h3>
-          <div class="space-y-1">
-            <div v-for="(m, i) in area.measures" :key="i" class="flex items-center gap-2 text-sm">
-              <span
-                class="text-xs px-2 py-0.5 rounded-full"
-                :class="m.type === 'leading' ? 'bg-primary-soft text-primary-strong' : 'bg-green-100 text-green-700'"
-              >
-                {{ m.type }}
-              </span>
-              <span class="text-on-surface">{{ m.name }}</span>
-            </div>
-          </div>
+        <AppCard v-if="area.typicalRisks" padding="lg">
+          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.typicalRisksTitle') }}</h3>
+          <p class="text-sm text-on-surface-variant">{{ area.typicalRisks }}</p>
         </AppCard>
 
-        <AppCard v-if="area.constraints && area.constraints.length > 0" padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-2">{{ t('lifeAreas.detail.constraintsTitle') }}</h3>
+        <AppCard v-if="area.reflectionSignals.length > 0" padding="lg">
+          <h3 class="text-sm font-semibold text-on-surface mb-2">{{ t('lifeAreas.detail.reflectionSignalsTitle') }}</h3>
           <ul class="list-disc list-inside space-y-1">
-            <li v-for="(c, i) in area.constraints" :key="i" class="text-sm text-on-surface-variant">
-              {{ c }}
+            <li v-for="(signal, i) in area.reflectionSignals" :key="i" class="text-sm text-on-surface-variant">
+              {{ signal }}
             </li>
           </ul>
-        </AppCard>
-
-        <AppCard padding="lg">
-          <h3 class="text-sm font-semibold text-on-surface mb-1">{{ t('lifeAreas.detail.reviewCadenceTitle') }}</h3>
-          <p class="text-sm text-on-surface-variant capitalize">{{ area.reviewCadence }}</p>
         </AppCard>
 
         <!-- Linked Entities -->

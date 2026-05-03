@@ -6,32 +6,22 @@
  * Relationships). Life Areas persist across years and serve as the canonical source for:
  * - Wheel of Life exercise area names
  * - profile-level life area management
- * - exercise links and score history over time
+ * - reflective context for exercises and score history over time
  */
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type ReviewCadence = 'weekly' | 'monthly' | 'quarterly' | 'yearly'
-
-/**
- * A leading or lagging indicator used to track progress in a life area.
- * Leading = routines/actions you do; Lagging = outcomes you get.
- */
-export interface LifeAreaMeasure {
-  name: string
-  type: 'leading' | 'lagging'
-}
-
 /**
  * LifeArea
  *
  * A persistent life dimension that the user maintains over time.
- * Think of it as an ongoing responsibility with no finish line.
+ * Think of it as a stable part of the user's life map, not a goal, task,
+ * tracker, or measurement system.
  *
- * Each area can hold rich metadata: purpose, maintenance standard,
- * success picture, measures, constraints, and review cadence.
+ * Each area stores the user's own reflective language: meaning, desired
+ * condition, typical risks, and lightweight reflection signals.
  */
 export interface LifeArea {
   id: string // UUID
@@ -40,12 +30,10 @@ export interface LifeArea {
   name: string // e.g., "Health & Fitness"
   icon?: string // Icon id from entity icon catalog (legacy emoji values still render)
   color?: string // Hex color code
-  purpose?: string // Why this area exists for the user (1–2 sentences)
-  maintenanceStandard?: string // "Good enough" baseline (what maintained looks like)
-  successPicture?: string // What a 9/10 looks like in plain language
-  measures: LifeAreaMeasure[] // Leading and lagging indicators
-  constraints?: string[] // Blockers, failure modes, recurring risks
-  reviewCadence: ReviewCadence // How often to review this area
+  meaning?: string // Why this area matters and what role it plays in the user's life
+  desiredState?: string // What healthy / good condition generally looks and feels like
+  typicalRisks?: string // Negative patterns, emotions, neglect, and risks to notice
+  reflectionSignals: string[] // Simple reflective questions or attention points
   isActive: boolean // Soft delete / archive
   sortOrder: number // User-defined ordering
 }

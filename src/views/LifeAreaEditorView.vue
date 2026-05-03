@@ -31,7 +31,6 @@ import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import LifeAreaForm from '@/components/lifeAreas/LifeAreaForm.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
-import type { ReviewCadence, LifeAreaMeasure } from '@/domain/lifeArea'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()
@@ -46,22 +45,18 @@ const form = ref<{
   name: string
   icon?: string
   color?: string
-  purpose?: string
-  maintenanceStandard?: string
-  successPicture?: string
-  measures: LifeAreaMeasure[]
-  constraints?: string[]
-  reviewCadence: ReviewCadence
+  meaning?: string
+  desiredState?: string
+  typicalRisks?: string
+  reflectionSignals: string[]
 }>({
   name: '',
   icon: undefined,
   color: undefined,
-  purpose: undefined,
-  maintenanceStandard: undefined,
-  successPicture: undefined,
-  measures: [],
-  constraints: [],
-  reviewCadence: 'monthly',
+  meaning: undefined,
+  desiredState: undefined,
+  typicalRisks: undefined,
+  reflectionSignals: [],
 })
 
 const canSave = computed(() => form.value.name.trim().length > 0)
@@ -76,54 +71,53 @@ onMounted(async () => {
         name: existing.name,
         icon: existing.icon,
         color: existing.color,
-        purpose: existing.purpose,
-        maintenanceStandard: existing.maintenanceStandard,
-        successPicture: existing.successPicture,
-        measures: [...existing.measures],
-        constraints: existing.constraints ? [...existing.constraints] : [],
-        reviewCadence: existing.reviewCadence,
+        meaning: existing.meaning,
+        desiredState: existing.desiredState,
+        typicalRisks: existing.typicalRisks,
+        reflectionSignals: [...existing.reflectionSignals],
       }
     }
   }
 })
 
+function cleanOptionalText(value: string | undefined): string | undefined {
+  const trimmed = value?.trim() ?? ''
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
+function cleanReflectionSignals(signals: string[]): string[] {
+  return signals.map((signal) => signal.trim()).filter((signal) => signal.length > 0)
+}
+
 async function handleSave() {
   if (!canSave.value) return
 
   try {
+    const payload = {
+      name: form.value.name.trim(),
+      icon: form.value.icon || undefined,
+      color: form.value.color || undefined,
+      meaning: cleanOptionalText(form.value.meaning),
+      desiredState: cleanOptionalText(form.value.desiredState),
+      typicalRisks: cleanOptionalText(form.value.typicalRisks),
+      reflectionSignals: cleanReflectionSignals(form.value.reflectionSignals),
+    }
+
     if (isEditing.value) {
-      await lifeAreaStore.updateLifeArea(route.params.id as string, {
-        name: form.value.name.trim(),
-        icon: form.value.icon || undefined,
-        color: form.value.color || undefined,
-        purpose: form.value.purpose || undefined,
-        maintenanceStandard: form.value.maintenanceStandard || undefined,
-        successPicture: form.value.successPicture || undefined,
-        measures: form.value.measures.filter((m) => m.name.trim()),
-        constraints: form.value.constraints?.filter((c) => c.trim()) || undefined,
-        reviewCadence: form.value.reviewCadence,
-      })
-      snackbarRef.value?.show(t('lifeAreas.editor.updated'))
+      await lifeAreaStore.updateLifeArea(route.params.id as string, payload)
+      snackbarRef.value?.show(t('lifeAreas.editor.successUpdated'))
     } else {
       await lifeAreaStore.createLifeArea({
-        name: form.value.name.trim(),
-        icon: form.value.icon || undefined,
-        color: form.value.color || undefined,
-        purpose: form.value.purpose || undefined,
-        maintenanceStandard: form.value.maintenanceStandard || undefined,
-        successPicture: form.value.successPicture || undefined,
-        measures: form.value.measures.filter((m) => m.name.trim()),
-        constraints: form.value.constraints?.filter((c) => c.trim()) || undefined,
-        reviewCadence: form.value.reviewCadence,
+        ...payload,
         isActive: true,
         sortOrder: lifeAreaStore.lifeAreas.length,
       })
-      snackbarRef.value?.show(t('lifeAreas.editor.created'))
+      snackbarRef.value?.show(t('lifeAreas.editor.successCreated'))
     }
 
     router.push('/areas')
   } catch {
-    snackbarRef.value?.show(t('lifeAreas.editor.saveError'))
+    snackbarRef.value?.show(t('lifeAreas.editor.errorSave'))
   }
 }
 </script>

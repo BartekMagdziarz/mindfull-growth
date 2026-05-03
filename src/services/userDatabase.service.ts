@@ -1032,6 +1032,98 @@ export class UserDatabase extends Dexie {
       userProfiles: 'id, createdAt',
       profileBuildLogs: 'id, timestamp, success',
     })
+
+    this.version(14)
+      .stores({
+        journalEntries: 'id',
+        peopleTags: 'id',
+        contextTags: 'id',
+        emotionLogs: 'id',
+        userSettings: 'key',
+        valuesDiscoveries: 'id',
+        shadowBeliefs: 'id',
+        transformativePurposes: 'id',
+        thoughtRecords: 'id',
+        distortionAssessments: 'id',
+        worryTreeEntries: 'id',
+        coreBeliefsExplorations: 'id',
+        compassionateLetters: 'id',
+        positiveDataLogs: 'id',
+        behavioralExperiments: 'id',
+        behavioralActivations: 'id',
+        structuredProblemSolvings: 'id',
+        gradedExposureHierarchies: 'id',
+        threePathwaysToMeaning: 'id',
+        socraticSelfDialogues: 'id',
+        mountainRangesOfMeaning: 'id',
+        paradoxicalIntentionLabs: 'id',
+        dereflectionPractices: 'id',
+        tragicOptimisms: 'id',
+        attitudinalShifts: 'id',
+        legacyLetters: 'id',
+        ifsParts: 'id',
+        ifsPartsMaps: 'id',
+        ifsUnblendingSessions: 'id',
+        ifsDirectAccessSessions: 'id',
+        ifsTrailheadEntries: 'id',
+        ifsProtectorAppreciations: 'id',
+        ifsExileWitnessings: 'id',
+        ifsSelfEnergyCheckIns: 'id',
+        ifsPartsDialogues: 'id',
+        ifsDailyCheckIns: 'id',
+        ifsConstellations: 'id',
+        lifeAreas: 'id, isActive',
+        lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+        priorities: 'id, year, isActive, *lifeAreaIds',
+        goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+        keyResults: 'id, goalId, status, isActive, cadence, entryMode',
+        habits: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+        trackers: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+        initiatives: 'id, status, isActive, goalId, *priorityIds, *lifeAreaIds',
+        monthPlans: 'id, &monthRef',
+        weekPlans: 'id, &weekRef',
+        goalMonthStates: 'id, monthRef, goalId, activityState, &[monthRef+goalId]',
+        measurementMonthStates:
+          'id, monthRef, subjectType, subjectId, activityState, scheduleScope, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+        measurementWeekStates:
+          'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, scheduleScope, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+        measurementDayAssignments:
+          'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+        dailyMeasurementEntries:
+          'id, subjectType, subjectId, dayRef, &[subjectType+subjectId+dayRef], [subjectType+subjectId]',
+        todayHiddenStates:
+          'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+        initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+        periodReflections: 'id, periodType, periodRef, &[periodType+periodRef]',
+        periodObjectReflections:
+          'id, periodType, periodRef, subjectType, subjectId, &[periodType+periodRef+subjectType+subjectId], [subjectType+subjectId]',
+        assessmentAttempts: 'id, assessmentId',
+        assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
+        drafts: '&key',
+        weeklyReflections: 'id, &weekRef',
+        monthlyReflections: 'id, &monthRef',
+        userProfiles: 'id, createdAt',
+        profileBuildLogs: 'id, timestamp, success',
+      })
+      .upgrade(async (trans) => {
+        await trans
+          .table('lifeAreas')
+          .toCollection()
+          .modify((record: Record<string, unknown>) => {
+            record.reflectionSignals = Array.isArray(record.reflectionSignals)
+              ? record.reflectionSignals.filter(
+                  (signal): signal is string => typeof signal === 'string',
+                )
+              : []
+
+            delete record.purpose
+            delete record.maintenanceStandard
+            delete record.successPicture
+            delete record.measures
+            delete record.constraints
+            delete record.reviewCadence
+          })
+      })
   }
 }
 

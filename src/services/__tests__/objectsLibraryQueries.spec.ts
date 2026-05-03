@@ -27,8 +27,7 @@ describe('objectsLibraryQueries', () => {
 
     const lifeArea = await lifeAreaDexieRepository.create({
       name: 'Health',
-      measures: [],
-      reviewCadence: 'monthly',
+      reflectionSignals: [],
       isActive: true,
       sortOrder: 0,
     })

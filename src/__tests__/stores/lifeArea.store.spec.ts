@@ -22,8 +22,7 @@ function buildLifeArea(id: string, name: string, sortOrder: number, isActive = t
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
     name,
-    measures: [],
-    reviewCadence: 'monthly' as const,
+    reflectionSignals: [],
     isActive,
     sortOrder,
   }
@@ -69,8 +68,8 @@ describe('useLifeAreaStore', () => {
       const created = await store.createLifeArea({
         name: 'Health & Fitness',
         icon: 'heart',
-        measures: [],
-        reviewCadence: 'monthly',
+        meaning: 'Energy and stability',
+        reflectionSignals: ['  Do I feel supported by my body?  ', ''],
         isActive: true,
         sortOrder: 0,
       })
@@ -80,12 +79,15 @@ describe('useLifeAreaStore', () => {
       expect(created.updatedAt).toBeDefined()
       expect(created.name).toBe('Health & Fitness')
       expect(created.icon).toBe('heart')
+      expect(created.meaning).toBe('Energy and stability')
+      expect(created.reflectionSignals).toEqual(['Do I feel supported by my body?'])
 
       const db = getUserDatabase()
       const persisted = await db.lifeAreas.get(created.id)
       expect(persisted).toBeDefined()
       expect(persisted?.name).toBe('Health & Fitness')
       expect(persisted?.icon).toBe('heart')
+      expect(persisted?.reflectionSignals).toEqual(['Do I feel supported by my body?'])
     })
   })
 
@@ -95,8 +97,7 @@ describe('useLifeAreaStore', () => {
 
       const created = await store.createLifeArea({
         name: 'Career',
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: true,
         sortOrder: 0,
       })
@@ -104,12 +105,14 @@ describe('useLifeAreaStore', () => {
       const updated = await store.updateLifeArea(created.id, {
         name: 'Career & Work',
         icon: 'briefcase',
-        reviewCadence: 'quarterly',
+        desiredState: 'Work feels meaningful and sustainable',
+        reflectionSignals: [' What work gave me energy? ', ''],
       })
 
       expect(updated.name).toBe('Career & Work')
       expect(updated.icon).toBe('briefcase')
-      expect(updated.reviewCadence).toBe('quarterly')
+      expect(updated.desiredState).toBe('Work feels meaningful and sustainable')
+      expect(updated.reflectionSignals).toEqual(['What work gave me energy?'])
     })
   })
 
@@ -119,8 +122,7 @@ describe('useLifeAreaStore', () => {
 
       const created = await store.createLifeArea({
         name: 'Finances',
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: true,
         sortOrder: 0,
       })
@@ -139,8 +141,7 @@ describe('useLifeAreaStore', () => {
 
       const created = await store.createLifeArea({
         name: 'Health',
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: true,
         sortOrder: 0,
       })
@@ -171,15 +172,13 @@ describe('useLifeAreaStore', () => {
 
       const first = await store.createLifeArea({
         name: 'Health',
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: true,
         sortOrder: 0,
       })
       const second = await store.createLifeArea({
         name: 'Relationships',
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: true,
         sortOrder: 1,
       })
@@ -201,15 +200,13 @@ describe('useLifeAreaStore', () => {
 
       await store.createLifeArea({
         name: 'Health',
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: true,
         sortOrder: 0,
       })
       await store.createLifeArea({
         name: 'Hobbies',
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: false,
         sortOrder: 1,
       })
@@ -226,8 +223,7 @@ describe('useLifeAreaStore', () => {
 
       const created = await store.createLifeArea({
         name: 'Personal Growth',
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: true,
         sortOrder: 0,
       })
@@ -247,6 +243,8 @@ describe('useLifeAreaStore', () => {
       expect(
         store.lifeAreas.every((lifeArea) => typeof lifeArea.icon === 'string' && lifeArea.icon.length > 0)
       ).toBe(true)
+      expect(store.lifeAreas.every((lifeArea) => Array.isArray(lifeArea.reflectionSignals))).toBe(true)
+      expect(store.lifeAreas.every((lifeArea) => lifeArea.reflectionSignals.length === 0)).toBe(true)
     })
   })
 })

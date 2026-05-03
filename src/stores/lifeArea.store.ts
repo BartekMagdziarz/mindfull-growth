@@ -174,8 +174,7 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
       await createLifeArea({
         name: DEFAULT_LIFE_AREAS[i],
         icon: getDefaultIconIdByLifeAreaName(DEFAULT_LIFE_AREAS[i]),
-        measures: [],
-        reviewCadence: 'monthly',
+        reflectionSignals: [],
         isActive: true,
         sortOrder: i,
       })

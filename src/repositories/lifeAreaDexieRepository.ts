@@ -14,6 +14,29 @@ function toPlain<T>(obj: T): T {
 import type { LifeArea, CreateLifeAreaPayload, UpdateLifeAreaPayload } from '@/domain/lifeArea'
 import type { LifeAreaRepository } from './lifeAreaRepository'
 
+function cleanReflectionSignals(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((signal): signal is string => typeof signal === 'string')
+    .map((signal) => signal.trim())
+    .filter((signal) => signal.length > 0)
+}
+
+function normalizeCreatePayload(data: CreateLifeAreaPayload): CreateLifeAreaPayload {
+  return {
+    ...data,
+    reflectionSignals: cleanReflectionSignals(data.reflectionSignals),
+  }
+}
+
+function normalizeUpdatePayload(data: UpdateLifeAreaPayload): UpdateLifeAreaPayload {
+  if (!('reflectionSignals' in data)) return data
+  return {
+    ...data,
+    reflectionSignals: cleanReflectionSignals(data.reflectionSignals),
+  }
+}
+
 class LifeAreaDexieRepository implements LifeAreaRepository {
   private get db() {
     return getUserDatabase()
@@ -49,11 +72,12 @@ class LifeAreaDexieRepository implements LifeAreaRepository {
   async create(data: CreateLifeAreaPayload): Promise<LifeArea> {
     try {
       const now = new Date().toISOString()
+      const normalizedData = normalizeCreatePayload(data)
       const lifeArea: LifeArea = {
         id: crypto.randomUUID(),
         createdAt: now,
         updatedAt: now,
-        ...data,
+        ...normalizedData,
       }
       await this.db.lifeAreas.add(toPlain(lifeArea))
       invalidatePlanningQueryCache()
@@ -70,9 +94,15 @@ class LifeAreaDexieRepository implements LifeAreaRepository {
       if (!existing) {
         throw new Error(`Life area with id ${id} not found`)
       }
+      const normalizedData = normalizeUpdatePayload(data)
       const updated: LifeArea = {
         ...existing,
-        ...data,
+        ...normalizedData,
+        reflectionSignals: cleanReflectionSignals(
+          'reflectionSignals' in normalizedData
+            ? normalizedData.reflectionSignals
+            : existing.reflectionSignals,
+        ),
         updatedAt: new Date().toISOString(),
       }
       await this.db.lifeAreas.put(toPlain(updated))

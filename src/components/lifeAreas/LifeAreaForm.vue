@@ -50,160 +50,98 @@
       </div>
     </div>
 
-    <!-- Purpose -->
+    <!-- Meaning -->
     <div>
-      <label for="area-purpose" class="block text-sm font-medium text-on-surface mb-2">
-        {{ t('lifeAreas.form.purposeLabel') }}
+      <label for="area-meaning" class="block text-sm font-medium text-on-surface mb-2">
+        {{ t('lifeAreas.form.meaningLabel') }}
       </label>
       <p class="text-xs text-on-surface-variant mb-1">
-        {{ t('lifeAreas.form.purposeHelper') }}
+        {{ t('lifeAreas.form.meaningHelper') }}
       </p>
       <textarea
-        id="area-purpose"
-        v-model="form.purpose"
-        rows="2"
-        :placeholder="t('lifeAreas.form.purposePlaceholder')"
+        id="area-meaning"
+        v-model="form.meaning"
+        rows="3"
+        :placeholder="t('lifeAreas.form.meaningPlaceholder')"
         class="neo-input w-full px-4 py-3 resize-none"
       />
     </div>
 
-    <!-- Maintenance Standard -->
+    <!-- Desired State -->
     <div>
-      <label for="area-standard" class="block text-sm font-medium text-on-surface mb-2">
-        {{ t('lifeAreas.form.maintenanceLabel') }}
+      <label for="area-desired-state" class="block text-sm font-medium text-on-surface mb-2">
+        {{ t('lifeAreas.form.desiredStateLabel') }}
       </label>
       <p class="text-xs text-on-surface-variant mb-1">
-        {{ t('lifeAreas.form.maintenanceHelper') }}
+        {{ t('lifeAreas.form.desiredStateHelper') }}
       </p>
       <textarea
-        id="area-standard"
-        v-model="form.maintenanceStandard"
-        rows="2"
-        :placeholder="t('lifeAreas.form.maintenancePlaceholder')"
+        id="area-desired-state"
+        v-model="form.desiredState"
+        rows="3"
+        :placeholder="t('lifeAreas.form.desiredStatePlaceholder')"
         class="neo-input w-full px-4 py-3 resize-none"
       />
     </div>
 
-    <!-- Success Picture -->
+    <!-- Typical Risks -->
     <div>
-      <label for="area-success" class="block text-sm font-medium text-on-surface mb-2">
-        {{ t('lifeAreas.form.successLabel') }}
+      <label for="area-typical-risks" class="block text-sm font-medium text-on-surface mb-2">
+        {{ t('lifeAreas.form.typicalRisksLabel') }}
       </label>
       <p class="text-xs text-on-surface-variant mb-1">
-        {{ t('lifeAreas.form.successHelper') }}
+        {{ t('lifeAreas.form.typicalRisksHelper') }}
       </p>
       <textarea
-        id="area-success"
-        v-model="form.successPicture"
-        rows="2"
-        :placeholder="t('lifeAreas.form.successPlaceholder')"
+        id="area-typical-risks"
+        v-model="form.typicalRisks"
+        rows="3"
+        :placeholder="t('lifeAreas.form.typicalRisksPlaceholder')"
         class="neo-input w-full px-4 py-3 resize-none"
       />
     </div>
 
-    <!-- Measures -->
+    <!-- Reflection Signals -->
     <div>
       <label class="block text-sm font-medium text-on-surface mb-2">
-        {{ t('lifeAreas.form.measuresLabel') }}
+        {{ t('lifeAreas.form.reflectionSignalsLabel') }}
       </label>
       <p class="text-xs text-on-surface-variant mb-2">
-        {{ t('lifeAreas.form.measuresHelper') }}
+        {{ t('lifeAreas.form.reflectionSignalsHelper') }}
       </p>
       <div class="space-y-2">
         <div
-          v-for="(measure, index) in form.measures"
+          v-for="(_, index) in form.reflectionSignals"
           :key="index"
           class="flex items-center gap-2"
         >
-          <select
-            v-model="measure.type"
-            class="neo-input px-3 py-2 text-sm"
-          >
-            <option value="leading">{{ t('lifeAreas.form.measureTypeOptions.leading') }}</option>
-            <option value="lagging">{{ t('lifeAreas.form.measureTypeOptions.lagging') }}</option>
-          </select>
           <input
-            v-model="measure.name"
+            v-model="form.reflectionSignals[index]"
             type="text"
-            :placeholder="t('lifeAreas.form.measurePlaceholder')"
+            :placeholder="t('lifeAreas.form.reflectionSignalPlaceholder')"
             class="neo-input flex-1 px-3 py-2 text-sm"
           />
           <button
-            @click="removeMeasure(index)"
+            @click="removeReflectionSignal(index)"
             class="p-2 text-on-surface-variant hover:text-error transition-colors"
-            :aria-label="t('lifeAreas.form.removeMeasure')"
+            :aria-label="t('lifeAreas.form.removeReflectionSignal')"
           >
             <AppIcon name="close" class="text-base" />
           </button>
         </div>
       </div>
       <button
-        @click="addMeasure"
+        @click="addReflectionSignal"
         class="mt-2 text-sm text-primary hover:underline"
       >
-        {{ t('lifeAreas.form.addMeasure') }}
+        {{ t('lifeAreas.form.addReflectionSignal') }}
       </button>
-    </div>
-
-    <!-- Constraints -->
-    <div>
-      <label class="block text-sm font-medium text-on-surface mb-2">
-        {{ t('lifeAreas.form.constraintsLabel') }}
-      </label>
-      <p class="text-xs text-on-surface-variant mb-2">
-        {{ t('lifeAreas.form.constraintsHelper') }}
-      </p>
-      <div class="space-y-2">
-        <div
-          v-for="(_, index) in form.constraints"
-          :key="index"
-          class="flex items-center gap-2"
-        >
-          <input
-            v-model="form.constraints![index]"
-            type="text"
-            :placeholder="t('lifeAreas.form.constraintPlaceholder')"
-            class="neo-input flex-1 px-3 py-2 text-sm"
-          />
-          <button
-            @click="removeConstraint(index)"
-            class="p-2 text-on-surface-variant hover:text-error transition-colors"
-            :aria-label="t('lifeAreas.form.removeConstraint')"
-          >
-            <AppIcon name="close" class="text-base" />
-          </button>
-        </div>
-      </div>
-      <button
-        @click="addConstraint"
-        class="mt-2 text-sm text-primary hover:underline"
-      >
-        {{ t('lifeAreas.form.addConstraint') }}
-      </button>
-    </div>
-
-    <!-- Review Cadence -->
-    <div>
-      <label for="area-cadence" class="block text-sm font-medium text-on-surface mb-2">
-        {{ t('lifeAreas.form.reviewCadenceLabel') }}
-      </label>
-      <select
-        id="area-cadence"
-        v-model="form.reviewCadence"
-        class="neo-input w-full px-4 py-3"
-      >
-        <option value="weekly">{{ t('lifeAreas.form.reviewCadenceOptions.weekly') }}</option>
-        <option value="monthly">{{ t('lifeAreas.form.reviewCadenceOptions.monthly') }}</option>
-        <option value="quarterly">{{ t('lifeAreas.form.reviewCadenceOptions.quarterly') }}</option>
-        <option value="yearly">{{ t('lifeAreas.form.reviewCadenceOptions.yearly') }}</option>
-      </select>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LifeAreaMeasure, ReviewCadence } from '@/domain/lifeArea'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import { useT } from '@/composables/useT'
@@ -227,32 +165,19 @@ interface FormData {
   name: string
   icon?: string
   color?: string
-  purpose?: string
-  maintenanceStandard?: string
-  successPicture?: string
-  measures: LifeAreaMeasure[]
-  constraints?: string[]
-  reviewCadence: ReviewCadence
+  meaning?: string
+  desiredState?: string
+  typicalRisks?: string
+  reflectionSignals: string[]
 }
 
 const form = defineModel<FormData>('form', { required: true })
 
-function addMeasure() {
-  form.value.measures.push({ name: '', type: 'leading' })
+function addReflectionSignal() {
+  form.value.reflectionSignals.push('')
 }
 
-function removeMeasure(index: number) {
-  form.value.measures.splice(index, 1)
-}
-
-function addConstraint() {
-  if (!form.value.constraints) {
-    form.value.constraints = []
-  }
-  form.value.constraints.push('')
-}
-
-function removeConstraint(index: number) {
-  form.value.constraints?.splice(index, 1)
+function removeReflectionSignal(index: number) {
+  form.value.reflectionSignals.splice(index, 1)
 }
 </script>

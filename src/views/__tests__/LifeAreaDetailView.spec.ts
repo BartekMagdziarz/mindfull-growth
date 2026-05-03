@@ -32,8 +32,10 @@ describe('LifeAreaDetailView', () => {
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',
         name: 'Health',
-        measures: [],
-        reviewCadence: 'monthly',
+        meaning: 'Energy and stability',
+        desiredState: 'I feel strong and steady.',
+        typicalRisks: 'I ignore rest and tension.',
+        reflectionSignals: ['Did I have enough energy this week?'],
         isActive: true,
         sortOrder: 0,
       },
@@ -54,8 +56,14 @@ describe('LifeAreaDetailView', () => {
     })
 
     expect(screen.getByText('Health')).toBeInTheDocument()
+    expect(screen.getByText('Meaning')).toBeInTheDocument()
+    expect(screen.getByText('Desired State')).toBeInTheDocument()
+    expect(screen.getByText('Typical Risks')).toBeInTheDocument()
+    expect(screen.getByText('Reflection Signals')).toBeInTheDocument()
     expect(screen.queryByText('Yearly Baseline Narrative')).not.toBeInTheDocument()
-    expect(screen.getByText('Linked Data')).toBeInTheDocument()
+    expect(screen.queryByText('Measures')).not.toBeInTheDocument()
+    expect(screen.queryByText('Review Cadence')).not.toBeInTheDocument()
+    expect(screen.getByText('Wheel of Life History')).toBeInTheDocument()
   })
 
   it('hides permanent delete when the life area already has assessment history', () => {
