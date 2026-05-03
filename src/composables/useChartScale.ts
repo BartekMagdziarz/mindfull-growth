@@ -46,6 +46,30 @@ function saveScale(objectId: string, scale: ChartScale): void {
   }
 }
 
+/**
+ * Removes every `mg-chart-scale:*` entry from localStorage.
+ *
+ * Chart-scale preferences are keyed by domain object ID (KR/habit/tracker),
+ * which are unique per user. After a user switch, the previous user's
+ * keys would still match nothing in the new user's library, but they
+ * would accumulate forever and could collide if two users ever shared
+ * an ID. Wiping them on user switch keeps the namespace clean.
+ *
+ * Called by `resetAppState()` in `src/services/appStateReset.ts`.
+ */
+export function clearChartScalePreferences(): void {
+  try {
+    const keys: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key?.startsWith(STORAGE_PREFIX)) keys.push(key)
+    }
+    keys.forEach((k) => localStorage.removeItem(k))
+  } catch {
+    // localStorage unavailable — ignore
+  }
+}
+
 export function useChartScale(
   objectId: Ref<string>,
   objectCadence: Ref<PlanningCadence>,

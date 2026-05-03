@@ -110,6 +110,23 @@ const dayCalendarBundleCache = new Map<
   { revision: number; value: DayCalendarBundle | Promise<DayCalendarBundle> }
 >()
 
+/**
+ * Clears all calendar/reflection view caches in this module.
+ *
+ * These three Map caches live at module scope (i.e., they are shared
+ * across all users in a single browser session). When the active user
+ * changes, the cached bundles refer to the previous user's IndexedDB
+ * data and must be dropped so subsequent reads re-fetch from the new
+ * per-user database connection.
+ *
+ * Called by `resetAppState()` in `src/services/appStateReset.ts`.
+ */
+export function clearCalendarViewCaches(): void {
+  monthReflectionBundleCache.clear()
+  calendarYearSummaryCache.clear()
+  dayCalendarBundleCache.clear()
+}
+
 function isGoalOpen(goal: Goal): boolean {
   return goal.isActive && goal.status === 'open'
 }

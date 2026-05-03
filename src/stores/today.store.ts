@@ -483,6 +483,18 @@ export const useTodayStore = defineStore('today', () => {
     }
   }
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so that user B does not see user A's
+   * Today bundle before the view re-fetches from the new database.
+   */
+  function reset(): void {
+    bundle.value = null
+    isLoading.value = false
+    error.value = null
+    pendingKeys.value = []
+  }
+
   return {
     bundle,
     dayRef,
@@ -513,5 +525,6 @@ export const useTodayStore = defineStore('today', () => {
     moveScheduledItem,
     clearScheduledItem,
     deleteItem,
+    reset,
   }
 })

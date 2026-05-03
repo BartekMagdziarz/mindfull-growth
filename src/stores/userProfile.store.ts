@@ -411,6 +411,19 @@ export const useUserProfileStore = defineStore('userProfile', () => {
     }
   }
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so that user B does not see user A's
+   * profile portraits or build history.
+   */
+  function reset(): void {
+    profiles.value = []
+    buildLogs.value = []
+    isLoading.value = false
+    isBuilding.value = false
+    error.value = null
+  }
+
   return {
     // state
     profiles,
@@ -431,5 +444,6 @@ export const useUserProfileStore = defineStore('userProfile', () => {
     deleteProfile,
     clearBuildLogs,
     buildProfile,
+    reset,
   }
 })

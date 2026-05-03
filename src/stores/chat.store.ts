@@ -439,6 +439,19 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so that user B does not see (or
+   * accidentally save) an in-flight chat session from user A.
+   */
+  function reset(): void {
+    currentChatSession.value = null
+    isLoading.value = false
+    isSaving.value = false
+    error.value = null
+    journalEntryId.value = null
+  }
+
   return {
     // State
     currentChatSession,
@@ -456,5 +469,6 @@ export const useChatStore = defineStore('chat', () => {
     loadChatSessionsForEntry,
     loadChatSession,
     deleteChatSession,
+    reset,
   }
 })

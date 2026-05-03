@@ -90,6 +90,17 @@ export const useGradedExposureStore = defineStore('gradedExposure', () => {
     }
   }
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so user B does not see user A's
+   * data before the next `load*()` re-fetches from the new database.
+   */
+  function reset(): void {
+    hierarchies.value = []
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     hierarchies,
     isLoading,
@@ -101,5 +112,6 @@ export const useGradedExposureStore = defineStore('gradedExposure', () => {
     createHierarchy,
     updateHierarchy,
     deleteHierarchy,
+    reset,
   }
 })

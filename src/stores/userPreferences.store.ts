@@ -100,6 +100,23 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     )
   }
 
+  /**
+   * Resets all in-memory preferences to module-level defaults. Called on
+   * user logout/login by the watcher in `AppShell.vue` so that user B does
+   * not see user A's theme/locale before `loadPreferences()` re-fetches
+   * from the newly-connected per-user Dexie database.
+   *
+   * `isLoaded` MUST be set to `false` — otherwise the early-return guard in
+   * `loadPreferences()` would skip the reload entirely.
+   */
+  function reset(): void {
+    themePreference.value = DEFAULTS.THEME
+    locale.value = DEFAULTS.LOCALE
+    grammaticalGender.value = DEFAULTS.GENDER
+    includeProfileInChatContext.value = DEFAULTS.INCLUDE_PROFILE_IN_CHAT_CONTEXT
+    isLoaded.value = false
+  }
+
   return {
     // State
     themePreference,
@@ -113,5 +130,6 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     setLocale,
     setGrammaticalGender,
     setIncludeProfileInChatContext,
+    reset,
   }
 })

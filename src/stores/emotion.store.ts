@@ -56,6 +56,16 @@ export const useEmotionStore = defineStore('emotion', () => {
     return emotions.value.find((emotion) => emotion.id === id)
   }
 
+  /**
+   * Resets `isLoaded` so that `loadEmotions()` runs again for the new user.
+   * The emotions list itself is statically derived from translation files
+   * via `computed`, so there is no per-user data to clear — the reset
+   * exists for consistency with every other store.
+   */
+  function reset(): void {
+    isLoaded.value = false
+  }
+
   return {
     // State
     emotions,
@@ -66,5 +76,7 @@ export const useEmotionStore = defineStore('emotion', () => {
     getAllEmotions,
     getEmotionsByQuadrant,
     getEmotionById,
+    // Reset
+    reset,
   }
 })

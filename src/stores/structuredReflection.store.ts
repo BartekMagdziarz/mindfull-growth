@@ -117,6 +117,18 @@ export const useStructuredReflectionStore = defineStore('structuredReflection', 
     }
   }
 
+  /**
+   * Resets all in-memory reflections. Called on user logout/login by
+   * `appStateReset` so user B does not see user A's weekly/monthly
+   * reflections before the next `loadAll()` re-fetches from the new DB.
+   */
+  function reset(): void {
+    weeklyReflections.value = []
+    monthlyReflections.value = []
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     weeklyReflections,
     monthlyReflections,
@@ -131,5 +143,6 @@ export const useStructuredReflectionStore = defineStore('structuredReflection', 
     upsertMonthly,
     deleteWeekly,
     deleteMonthly,
+    reset,
   }
 })

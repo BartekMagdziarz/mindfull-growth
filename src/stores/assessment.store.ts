@@ -465,6 +465,20 @@ export const useAssessmentStore = defineStore('assessment', () => {
     }
   }
 
+  /**
+   * Resets all in-memory assessment state to empty. Called on user
+   * logout/login by `appStateReset` so user B does not see user A's
+   * attempts, responses, or active-attempt selections.
+   */
+  function reset(): void {
+    attemptsByAssessment.value = {}
+    responsesByAttemptId.value = {}
+    activeAttemptIdByAssessment.value = {}
+    isLoading.value = false
+    isSaving.value = false
+    error.value = null
+  }
+
   return {
     attemptsByAssessment,
     responsesByAttemptId,
@@ -489,5 +503,6 @@ export const useAssessmentStore = defineStore('assessment', () => {
     recomputeAttempt,
     abandonAttempt,
     getRetakeStatus,
+    reset,
   }
 })

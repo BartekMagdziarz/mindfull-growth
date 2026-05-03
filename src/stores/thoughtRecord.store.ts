@@ -90,6 +90,17 @@ export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
     }
   }
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so user B does not see user A's
+   * data before the next `load*()` re-fetches from the new database.
+   */
+  function reset(): void {
+    records.value = []
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     records,
     isLoading,
@@ -101,5 +112,6 @@ export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
     createRecord,
     updateRecord,
     deleteRecord,
+    reset,
   }
 })

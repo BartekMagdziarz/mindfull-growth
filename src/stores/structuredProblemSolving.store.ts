@@ -99,6 +99,17 @@ export const useStructuredProblemSolvingStore = defineStore('structuredProblemSo
     }
   }
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so user B does not see user A's
+   * data before the next `load*()` re-fetches from the new database.
+   */
+  function reset(): void {
+    sessions.value = []
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     sessions,
     isLoading,
@@ -112,5 +123,6 @@ export const useStructuredProblemSolvingStore = defineStore('structuredProblemSo
     createSession,
     updateSession,
     deleteSession,
+    reset,
   }
 })

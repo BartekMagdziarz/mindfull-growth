@@ -83,6 +83,17 @@ export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
     }
   }
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so user B does not see user A's
+   * data before the next `load*()` re-fetches from the new database.
+   */
+  function reset(): void {
+    constellations.value = []
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     constellations,
     isLoading,
@@ -94,5 +105,6 @@ export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
     createConstellation,
     updateConstellation,
     deleteConstellation,
+    reset,
   }
 })

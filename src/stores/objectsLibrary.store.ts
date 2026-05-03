@@ -164,6 +164,18 @@ export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
     }
   }
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so that user B does not see user A's
+   * library bundle or filter selections.
+   */
+  function reset(): void {
+    query.value = createDefaultObjectsLibraryQuery()
+    bundle.value = null
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     query,
     bundle,
@@ -188,6 +200,7 @@ export const useObjectsLibraryStore = defineStore('objectsLibrary', () => {
     closeComposer,
     expandItem,
     collapseItem,
+    reset,
   }
 })
 

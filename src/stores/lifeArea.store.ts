@@ -186,6 +186,17 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
   // Return Store API
   // ============================================================================
 
+  /**
+   * Resets all in-memory state to initial values. Called on user
+   * logout/login by `appStateReset` so user B does not see user A's
+   * data before the next `load*()` re-fetches from the new database.
+   */
+  function reset(): void {
+    lifeAreas.value = []
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     // State
     lifeAreas,
@@ -207,5 +218,6 @@ export const useLifeAreaStore = defineStore('lifeArea', () => {
     setLifeAreaActive,
     hasAssessmentHistory,
     seedDefaultAreas,
+    reset,
   }
 })

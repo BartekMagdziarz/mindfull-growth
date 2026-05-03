@@ -208,6 +208,17 @@ export const useTagStore = defineStore('tag', () => {
     }
   }
 
+  /**
+   * Resets all in-memory tag lists. Called on user logout/login by
+   * `appStateReset` so user B does not see user A's people/context tags.
+   */
+  function reset(): void {
+    peopleTags.value = []
+    contextTags.value = []
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     // State
     peopleTags,
@@ -226,6 +237,7 @@ export const useTagStore = defineStore('tag', () => {
     deleteContextTag,
     updatePeopleTag,
     updateContextTag,
+    reset,
   }
 })
 
