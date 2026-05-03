@@ -1,7 +1,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import type { Habit, KeyResult, MeasurementTarget, Priority, Tracker } from '@/domain/planning'
-import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type {
   GoalMonthState,
   MeasurementMonthState,
@@ -348,7 +348,13 @@ export function usePlannerState(
       ])
 
       priorityOptions.value = priorities.filter(
-        priority => priority.isActive && priority.year === monthRef.value.slice(0, 4)
+        priority =>
+          priority.status === 'active' &&
+          priority.years.includes(monthRef.value.slice(0, 4) as YearRef)
+      ).sort(
+        (left, right) =>
+          (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
+          left.title.localeCompare(right.title)
       )
 
       const activeGoalIds = new Set(

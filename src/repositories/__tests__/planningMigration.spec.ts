@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import Dexie, { type Table } from 'dexie'
 import { UserDatabase } from '@/services/userDatabase.service'
+import type { YearRef } from '@/domain/period'
 
 class PlanningDatabaseV6 extends Dexie {
   priorities!: Table<Record<string, unknown>, string>
@@ -102,6 +103,17 @@ class PlanningDatabaseV9 extends Dexie {
     this.version(9).stores({
       measurementMonthStates:
         'id, monthRef, subjectType, subjectId, activityState, scheduleScope, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+    })
+  }
+}
+
+class PlanningDatabaseV14 extends Dexie {
+  priorities!: Table<Record<string, unknown>, string>
+
+  constructor(name: string) {
+    super(name)
+    this.version(14).stores({
+      priorities: 'id, year, isActive, *lifeAreaIds',
     })
   }
 }
@@ -420,6 +432,67 @@ describe('planning migration v7 to v8', () => {
     expect(await v8.todayHiddenStates.count()).toBe(0)
 
     await v8.close()
+  })
+})
+
+describe('planning migration v14 to v15', () => {
+  let dbName: string
+
+  beforeEach(() => {
+    dbName = `PlanningMigrationV15_${Date.now()}_${Math.random()}`
+  })
+
+  afterEach(async () => {
+    await Dexie.delete(dbName)
+  })
+
+  it('migrates priorities to strategic status, years, and active order', async () => {
+    const v14 = new PlanningDatabaseV14(dbName)
+    await v14.open()
+
+    for (let index = 0; index < 7; index++) {
+      await v14.priorities.add({
+        id: `priority-${index + 1}`,
+        createdAt: `2026-01-0${Math.min(index + 1, 9)}T00:00:00.000Z`,
+        updatedAt: `2026-01-0${Math.min(index + 1, 9)}T00:00:00.000Z`,
+        title: `Priority ${index + 1}`,
+        isActive: true,
+        year: '2026',
+        lifeAreaIds: [],
+      })
+    }
+    await v14.priorities.add({
+      id: 'priority-inactive',
+      createdAt: '2025-01-01T00:00:00.000Z',
+      updatedAt: '2025-01-01T00:00:00.000Z',
+      title: 'Inactive priority',
+      isActive: false,
+      year: '2025',
+      lifeAreaIds: [],
+    })
+    await v14.close()
+
+    const migrated = new UserDatabase(dbName)
+    await migrated.open()
+
+    const priorities = await migrated.priorities.toArray()
+    const active = priorities
+      .filter(priority => priority.status === 'active')
+      .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
+    const paused = priorities.filter(priority => priority.status === 'paused')
+
+    expect(active).toHaveLength(5)
+    expect(active.map(priority => priority.order)).toEqual([1, 2, 3, 4, 5])
+    expect(active.every(priority => priority.years.includes('2026' as YearRef))).toBe(true)
+    expect(paused).toHaveLength(3)
+    expect(priorities.every(priority => priority.progressSignals.length === 0)).toBe(true)
+    expect(priorities.every(priority => priority.riskSignals.length === 0)).toBe(true)
+    expect(priorities.some(priority => 'year' in priority || 'isActive' in priority)).toBe(false)
+
+    const byYear = await migrated.priorities.where('years').equals('2026').toArray()
+    expect(byYear).toHaveLength(7)
+
+    await migrated.close()
   })
 })
 

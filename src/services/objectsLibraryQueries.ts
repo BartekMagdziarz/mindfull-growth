@@ -1,5 +1,5 @@
 import type { LifeArea } from '@/domain/lifeArea'
-import type { PeriodRef, PeriodType } from '@/domain/period'
+import type { PeriodRef, PeriodType, YearRef } from '@/domain/period'
 import type {
   Goal,
   Habit,
@@ -623,7 +623,7 @@ function buildLinkedEntities(
   for (const priorityId of priorityIds) {
     const priority = ctx.priorityMap.get(priorityId)
     if (priority) {
-      entities.push({ id: priority.id, type: 'priority', label: `${priority.year} · ${priority.title}` })
+      entities.push({ id: priority.id, type: 'priority', label: priorityLabel(priority) })
     }
   }
   for (const lifeAreaId of lifeAreaIds) {
@@ -633,6 +633,18 @@ function buildLinkedEntities(
     }
   }
   return entities
+}
+
+function priorityLabel(priority: Priority): string {
+  return `${priority.years.join(', ')} · ${priority.title}`
+}
+
+function compareActivePriorities(left: Priority, right: Priority): number {
+  return (
+    (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
+    (left.years[0] ?? '').localeCompare(right.years[0] ?? '') ||
+    left.title.localeCompare(right.title)
+  )
 }
 
 function linkedEntityLabels(
@@ -831,11 +843,11 @@ function getGoalRelevance(
   if (goal && targetPeriod && getPeriodType(targetPeriod) === 'year') {
     for (const priorityId of goal.priorityIds) {
       const priority = ctx.priorityMap.get(priorityId)
-      if (priority?.year === targetPeriod) {
+      if (priority?.years.includes(targetPeriod as YearRef)) {
         directReasons.push({
           kind: 'priority-year',
           label: libraryLabel('planning.objects.reason.priorityYear'),
-          periodRef: priority.year,
+          periodRef: targetPeriod,
           periodType: 'year',
         })
       }
@@ -1165,11 +1177,9 @@ export async function loadObjectsLibraryBundle(
           .sort((left, right) => left.sortOrder - right.sortOrder)
           .map((area) => ({ id: area.id, label: area.name })),
         priorities: deps.priorities
-          .filter((priority) => priority.isActive)
-          .sort(
-            (left, right) => left.year.localeCompare(right.year) || left.title.localeCompare(right.title),
-          )
-          .map((priority) => ({ id: priority.id, label: `${priority.year} · ${priority.title}` })),
+          .filter((priority) => priority.status === 'active')
+          .sort(compareActivePriorities)
+          .map((priority) => ({ id: priority.id, label: priorityLabel(priority) })),
         goals: deps.goals
           .filter((goal) => goal.isActive && goal.status === 'open')
           .sort((left, right) => left.title.localeCompare(right.title))

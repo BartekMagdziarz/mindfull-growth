@@ -33,9 +33,11 @@ describe('objectsLibraryQueries', () => {
     })
     const priority = await priorityDexieRepository.create({
       title: 'Ship planning simplification',
-      isActive: true,
-      year: parsePeriodRef('2026') as YearRef,
+      years: [parsePeriodRef('2026') as YearRef],
+      status: 'active',
       lifeAreaIds: [lifeArea.id],
+      progressSignals: [],
+      riskSignals: [],
     })
     const goal = await goalDexieRepository.create({
       title: 'Ship weekly workspace',
@@ -123,7 +125,7 @@ describe('objectsLibraryQueries', () => {
     expect(bundle.familyTotalCount).toBe(1)
     expect(bundle.items[0].childPreviews).toHaveLength(1)
     expect(bundle.items[0].linkedEntities).toEqual(
-      expect.arrayContaining([lifeArea.name, `${priority.year} · ${priority.title}`]),
+      expect.arrayContaining([lifeArea.name, `${priority.years.join(', ')} · ${priority.title}`]),
     )
     expect(bundle.items[0].matchReasons.map((reason) => reason.kind)).toEqual(
       expect.arrayContaining(['linked-key-result', 'linked-initiative']),

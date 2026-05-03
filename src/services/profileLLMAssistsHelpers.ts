@@ -24,10 +24,12 @@ import {
   WEEKLY_EVALUATION_KEYS,
   WEEKLY_STATE_KEYS,
 } from '@/domain/reflection'
+import type { Priority, PriorityClosingReflection } from '@/domain/planning'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import type { ExerciseSessionBundle } from '@/services/reflectionDataQueries'
 
 // ---------------------------------------------------------------------------
@@ -131,6 +133,11 @@ export interface PlanningSnapshot {
   activeKeyResults: Array<{ id: string; title: string; goalId: string; status: string }>
   activeHabits: Array<{ id: string; title: string; status: string; isActive: boolean }>
   activeTrackers: Array<{ id: string; title: string; status: string; isActive: boolean }>
+  priorities: {
+    active: Priority[]
+    paused: Priority[]
+    closed: Priority[]
+  }
   /** Bulleted, human-readable summary suitable for dropping straight into a prompt. */
   snapshot: string
 }
@@ -158,6 +165,60 @@ function formatBulletSection(title: string, items: string[]): string {
   return [header, ...lines].join('\n')
 }
 
+function formatPriority(priority: Priority): string {
+  const lines = [`[${priority.years.join(', ')}] ${priority.title}`]
+  const fields: Array<[string, string | undefined]> = [
+    ['Direction', priority.desiredDirection],
+    ['Why now', priority.whyNow],
+    ['Tradeoffs', priority.tradeoffs],
+  ]
+  for (const [label, value] of fields) {
+    const trimmed = value?.trim()
+    if (trimmed) lines.push(`  ${label}: ${trimmed}`)
+  }
+  if (priority.progressSignals.length > 0) {
+    lines.push(`  Progress signals: ${priority.progressSignals.join('; ')}`)
+  }
+  if (priority.riskSignals.length > 0) {
+    lines.push(`  Risk signals: ${priority.riskSignals.join('; ')}`)
+  }
+  return lines.join('\n')
+}
+
+function formatClosingReflection(reflection: PriorityClosingReflection): string[] {
+  const fields: Array<[string, string | undefined]> = [
+    ['Summary', reflection.summary],
+    ['Worked well', reflection.workedWell],
+    ['Was difficult', reflection.wasDifficult],
+    ['Learned', reflection.learned],
+  ]
+  return fields.flatMap(([label, value]) => {
+    const trimmed = value?.trim()
+    return trimmed ? [`  ${label}: ${trimmed}`] : []
+  })
+}
+
+function formatClosedPriority(priority: Priority): string {
+  const lines = [`[${priority.years.join(', ')}] ${priority.title}`]
+  if (priority.closingReflection) {
+    lines.push(...formatClosingReflection(priority.closingReflection))
+  }
+  return lines.join('\n')
+}
+
+function compareActivePriorities(left: Priority, right: Priority): number {
+  return (
+    (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
+    left.title.localeCompare(right.title)
+  )
+}
+
+function compareClosedPriorities(left: Priority, right: Priority): number {
+  const leftDate = left.closingReflection?.closedAt ?? left.updatedAt
+  const rightDate = right.closingReflection?.closedAt ?? right.updatedAt
+  return rightDate.localeCompare(leftDate) || left.title.localeCompare(right.title)
+}
+
 /**
  * Reads currently-active planning objects from the repositories and returns
  * both a structured view and a bulleted-text snapshot suitable for the
@@ -170,11 +231,12 @@ function formatBulletSection(title: string, items: string[]): string {
  *   - Tracker:  `status === 'open' && isActive !== false`
  */
 export async function buildPlanningSnapshot(): Promise<PlanningSnapshot> {
-  const [goals, keyResults, habits, trackers] = await Promise.all([
+  const [goals, keyResults, habits, trackers, priorities] = await Promise.all([
     safeListAll('goals', () => goalDexieRepository.listAll()),
     safeListAll('keyResults', () => keyResultDexieRepository.listAll()),
     safeListAll('habits', () => habitDexieRepository.listAll()),
     safeListAll('trackers', () => trackerDexieRepository.listAll()),
+    safeListAll('priorities', () => priorityDexieRepository.listAll()),
   ])
 
   const activeGoals = goals
@@ -193,7 +255,27 @@ export async function buildPlanningSnapshot(): Promise<PlanningSnapshot> {
     .filter((t) => t.status === 'open' && t.isActive !== false)
     .map((t) => ({ id: t.id, title: t.title, status: t.status, isActive: t.isActive }))
 
+  const priorityGroups = {
+    active: priorities.filter(priority => priority.status === 'active').sort(compareActivePriorities),
+    paused: priorities
+      .filter(priority => priority.status === 'paused')
+      .sort((left, right) => left.title.localeCompare(right.title)),
+    closed: priorities.filter(priority => priority.status === 'closed').sort(compareClosedPriorities),
+  }
+
   const parts = [
+    formatBulletSection(
+      'Active priorities',
+      priorityGroups.active.map(formatPriority),
+    ),
+    formatBulletSection(
+      'Paused priorities',
+      priorityGroups.paused.map(formatPriority),
+    ),
+    formatBulletSection(
+      'Closed priority reflections',
+      priorityGroups.closed.map(formatClosedPriority),
+    ),
     formatBulletSection(
       'Active goals',
       activeGoals.map((g) => g.title),
@@ -219,6 +301,7 @@ export async function buildPlanningSnapshot(): Promise<PlanningSnapshot> {
     activeKeyResults,
     activeHabits,
     activeTrackers,
+    priorities: priorityGroups,
     snapshot,
   }
 }

@@ -23,11 +23,15 @@ vi.mock('@/repositories/habitDexieRepository', () => ({
 vi.mock('@/repositories/trackerDexieRepository', () => ({
   trackerDexieRepository: { listAll: vi.fn() },
 }))
+vi.mock('@/repositories/priorityDexieRepository', () => ({
+  priorityDexieRepository: { listAll: vi.fn() },
+}))
 
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 
 function makeBundle(overrides: Partial<ExerciseSessionBundle>): ExerciseSessionBundle {
   return {
@@ -171,6 +175,7 @@ describe('extractMonthlyRatings', () => {
 describe('buildPlanningSnapshot', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
   })
 
   it('returns empty arrays and empty snapshot when repositories return nothing', async () => {
@@ -178,6 +183,7 @@ describe('buildPlanningSnapshot', () => {
     vi.mocked(keyResultDexieRepository.listAll).mockResolvedValue([])
     vi.mocked(habitDexieRepository.listAll).mockResolvedValue([])
     vi.mocked(trackerDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
 
     const snapshot = await buildPlanningSnapshot()
 
@@ -206,6 +212,7 @@ describe('buildPlanningSnapshot', () => {
       { id: 't1', title: 'Weight', status: 'open', isActive: true } as never,
       { id: 't2', title: 'Hidden tracker', status: 'open', isActive: false } as never,
     ])
+    vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
 
     const snapshot = await buildPlanningSnapshot()
 
@@ -236,6 +243,7 @@ describe('buildPlanningSnapshot', () => {
       { id: 'h1', title: 'Legacy habit', status: 'open' } as never,
     ])
     vi.mocked(trackerDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
 
     const snapshot = await buildPlanningSnapshot()
     expect(snapshot.activeHabits.map((h) => h.title)).toEqual(['Legacy habit'])
@@ -249,6 +257,7 @@ describe('buildPlanningSnapshot', () => {
     vi.mocked(keyResultDexieRepository.listAll).mockRejectedValue(new Error('boom'))
     vi.mocked(habitDexieRepository.listAll).mockResolvedValue([])
     vi.mocked(trackerDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
 
     const snapshot = await buildPlanningSnapshot()
 
@@ -256,5 +265,99 @@ describe('buildPlanningSnapshot', () => {
     expect(snapshot.activeKeyResults).toEqual([])
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
+  })
+
+  it('includes strategic priority context without drafts', async () => {
+    vi.mocked(goalDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(keyResultDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(habitDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(trackerDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([
+      {
+        id: 'p2',
+        createdAt: '2026-01-02T00:00:00.000Z',
+        updatedAt: '2026-01-02T00:00:00.000Z',
+        title: 'Second active',
+        years: ['2026'],
+        status: 'active',
+        order: 2,
+        lifeAreaIds: [],
+        whyNow: '',
+        desiredDirection: 'Build capacity',
+        tradeoffs: '',
+        progressSignals: ['more recovery'],
+        riskSignals: [],
+      } as never,
+      {
+        id: 'p1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        title: 'First active',
+        years: ['2026', '2027'],
+        status: 'active',
+        order: 1,
+        lifeAreaIds: [],
+        whyNow: 'Current leverage',
+        desiredDirection: 'Health as foundation',
+        tradeoffs: 'Fewer evening launches',
+        progressSignals: [],
+        riskSignals: ['skipping sleep'],
+      } as never,
+      {
+        id: 'paused',
+        createdAt: '2026-01-03T00:00:00.000Z',
+        updatedAt: '2026-01-03T00:00:00.000Z',
+        title: 'Paused direction',
+        years: ['2026'],
+        status: 'paused',
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+      } as never,
+      {
+        id: 'closed',
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-12-31T00:00:00.000Z',
+        title: 'Closed direction',
+        years: ['2025'],
+        status: 'closed',
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+        closingReflection: {
+          closedAt: '2025-12-31T00:00:00.000Z',
+          summary: 'It mattered.',
+          learned: 'Need clearer boundaries.',
+        },
+      } as never,
+      {
+        id: 'draft',
+        createdAt: '2026-01-04T00:00:00.000Z',
+        updatedAt: '2026-01-04T00:00:00.000Z',
+        title: 'Draft direction',
+        years: ['2026'],
+        status: 'draft',
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+      } as never,
+    ])
+
+    const snapshot = await buildPlanningSnapshot()
+
+    expect(snapshot.priorities.active.map(priority => priority.title)).toEqual([
+      'First active',
+      'Second active',
+    ])
+    expect(snapshot.snapshot).toContain('Active priorities')
+    expect(snapshot.snapshot).toContain('[2026, 2027] First active')
+    expect(snapshot.snapshot).toContain('Direction: Health as foundation')
+    expect(snapshot.snapshot).toContain('Risk signals: skipping sleep')
+    expect(snapshot.snapshot).toContain('Paused priorities')
+    expect(snapshot.snapshot).toContain('[2026] Paused direction')
+    expect(snapshot.snapshot).toContain('Closed priority reflections')
+    expect(snapshot.snapshot).toContain('Summary: It mattered.')
+    expect(snapshot.snapshot).toContain('Learned: Need clearer boundaries.')
+    expect(snapshot.snapshot).not.toContain('Draft direction')
   })
 })

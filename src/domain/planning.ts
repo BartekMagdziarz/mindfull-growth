@@ -18,9 +18,12 @@ export type KeyResultStatus = GoalStatus
 export type HabitStatus = 'open' | 'retired' | 'dropped'
 export type TrackerStatus = 'open' | 'retired' | 'dropped'
 export type InitiativeStatus = GoalStatus
+export type PriorityStatus = 'draft' | 'active' | 'paused' | 'closed'
 export type CountTargetOperator = 'min' | 'max'
 export type ComparisonOperator = 'gte' | 'lte'
 export type ValueTargetAggregation = 'sum' | 'average' | 'last'
+
+export const MAX_ACTIVE_PRIORITIES = 5
 
 export interface CountTarget {
   kind: 'count'
@@ -44,9 +47,25 @@ export interface RatingTarget {
 
 export type MeasurementTarget = CountTarget | ValueTarget | RatingTarget
 
-export interface Priority extends PlanningObjectBase {
-  year: YearRef
+export interface PriorityClosingReflection {
+  closedAt: string
+  summary?: string
+  workedWell?: string
+  wasDifficult?: string
+  learned?: string
+}
+
+export interface Priority extends Omit<PlanningObjectBase, 'isActive'> {
+  years: YearRef[]
+  status: PriorityStatus
+  order?: number
   lifeAreaIds: string[]
+  whyNow?: string
+  desiredDirection?: string
+  tradeoffs?: string
+  progressSignals: string[]
+  riskSignals: string[]
+  closingReflection?: PriorityClosingReflection
 }
 
 export interface Goal extends PlanningObjectBase {
@@ -121,6 +140,12 @@ interface PlanningPayloadLike {
   isActive?: unknown
 }
 
+interface PriorityPayloadLike {
+  title?: unknown
+  description?: unknown
+}
+
+const PRIORITY_STATUSES = ['draft', 'active', 'paused', 'closed'] as const
 const GOAL_STATUSES = ['open', 'completed', 'dropped'] as const
 const HABIT_STATUSES = ['open', 'retired', 'dropped'] as const
 const TRACKER_STATUSES = ['open', 'retired', 'dropped'] as const
@@ -204,15 +229,32 @@ function normalizeOptionalId(value: unknown, fieldName: string, fallback?: strin
 function normalizeYearRef(value: unknown, fallback?: YearRef): YearRef {
   const source = value ?? fallback
   if (typeof source !== 'string' || !YEAR_REF_RE.test(source)) {
-    throw new Error('Priority.year must be a valid YearRef')
+    throw new Error('Priority.years must contain only valid YearRefs')
   }
 
   const numericYear = Number(source)
   if (!Number.isInteger(numericYear) || numericYear < 1 || numericYear > 9999) {
-    throw new Error('Priority.year must be a valid YearRef')
+    throw new Error('Priority.years must contain only valid YearRefs')
   }
 
   return source as YearRef
+}
+
+function normalizeYearRefs(value: unknown, fallback?: YearRef[]): YearRef[] {
+  const source = value ?? fallback
+  if (!Array.isArray(source)) {
+    throw new Error('Priority.years must be an array')
+  }
+
+  const normalized = source.map((year) => normalizeYearRef(year))
+  const unique = Array.from(new Set(normalized))
+  unique.sort((left, right) => left.localeCompare(right))
+
+  if (unique.length === 0) {
+    throw new Error('Priority.years must contain at least one YearRef')
+  }
+
+  return unique
 }
 
 function normalizeEnum<T extends string>(
@@ -247,6 +289,31 @@ function normalizeOptionalPositiveInt(value: unknown, fieldName: string, fallbac
   return source
 }
 
+function normalizeOptionalPositiveOrder(value: unknown, fallback?: number): number | undefined {
+  const source = value ?? fallback
+  if (source === undefined) return undefined
+  if (typeof source !== 'number' || !Number.isInteger(source) || source < 1) {
+    throw new Error('Priority.order must be a positive integer')
+  }
+  return source
+}
+
+function normalizeTextArray(value: unknown, fieldName: string, fallback: string[] = []): string[] {
+  const source = value ?? fallback
+  if (!Array.isArray(source)) {
+    throw new Error(`${fieldName} must be an array`)
+  }
+
+  const normalized = source.map((item) => {
+    if (typeof item !== 'string') {
+      throw new Error(`${fieldName} must contain only strings`)
+    }
+    return item.trim()
+  })
+
+  return Array.from(new Set(normalized.filter(Boolean)))
+}
+
 function normalizeNonNegativeInteger(value: unknown, fieldName: string, fallback?: number): number {
   const source = value ?? fallback
   if (typeof source !== 'number' || !Number.isInteger(source) || source < 0) {
@@ -276,6 +343,36 @@ function normalizePlanningObjectBase(
     title: normalizeRequiredText(data.title, 'title', existing?.title),
     description: normalizeOptionalText(data.description, 'description', existing?.description),
     isActive: normalizeBoolean(data.isActive, 'isActive', existing?.isActive ?? true),
+  }
+}
+
+function normalizePriorityBase(
+  data: PriorityPayloadLike,
+  existing?: Priority,
+): Omit<Priority, 'id' | 'createdAt' | 'updatedAt' | 'years' | 'status' | 'order' | 'lifeAreaIds' | 'whyNow' | 'desiredDirection' | 'tradeoffs' | 'progressSignals' | 'riskSignals' | 'closingReflection'> {
+  return {
+    title: normalizeRequiredText(data.title, 'title', existing?.title),
+    description: normalizeOptionalText(data.description, 'description', existing?.description),
+  }
+}
+
+function normalizePriorityClosingReflection(
+  value: unknown,
+  fallback?: PriorityClosingReflection,
+): PriorityClosingReflection | undefined {
+  const source = value ?? fallback
+  if (source === undefined) return undefined
+  if (!isPlainObject(source)) {
+    throw new Error('Priority.closingReflection must be an object')
+  }
+
+  const closedAt = normalizeRequiredText(source.closedAt, 'closingReflection.closedAt', fallback?.closedAt)
+  return {
+    closedAt,
+    summary: normalizeOptionalText(source.summary, 'closingReflection.summary', fallback?.summary),
+    workedWell: normalizeOptionalText(source.workedWell, 'closingReflection.workedWell', fallback?.workedWell),
+    wasDifficult: normalizeOptionalText(source.wasDifficult, 'closingReflection.wasDifficult', fallback?.wasDifficult),
+    learned: normalizeOptionalText(source.learned, 'closingReflection.learned', fallback?.learned),
   }
 }
 
@@ -355,12 +452,30 @@ export function normalizePriorityPayload(
   data: CreatePriorityPayload | UpdatePriorityPayload,
   existing?: Priority,
 ): Omit<Priority, 'id' | 'createdAt' | 'updatedAt'> {
-  const base = normalizePlanningObjectBase(data, existing)
+  assertForbiddenKeys(data as object, ['year', 'isActive'])
+
+  const base = normalizePriorityBase(data, existing)
+  const status = normalizeEnum(data.status, 'status', PRIORITY_STATUSES, existing?.status ?? 'draft')
+
+  if (status !== 'closed' && data.closingReflection !== undefined) {
+    throw new Error('Priority.closingReflection is only supported for closed priorities')
+  }
+  const closingReflection = status === 'closed'
+    ? normalizePriorityClosingReflection(data.closingReflection, existing?.closingReflection)
+    : undefined
 
   return {
     ...base,
-    year: normalizeYearRef(data.year, existing?.year),
+    years: normalizeYearRefs(data.years, existing?.years),
+    status,
+    order: status === 'active' ? normalizeOptionalPositiveOrder(data.order, existing?.order) : undefined,
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
+    whyNow: normalizeOptionalText(data.whyNow, 'whyNow', existing?.whyNow),
+    desiredDirection: normalizeOptionalText(data.desiredDirection, 'desiredDirection', existing?.desiredDirection),
+    tradeoffs: normalizeOptionalText(data.tradeoffs, 'tradeoffs', existing?.tradeoffs),
+    progressSignals: normalizeTextArray(data.progressSignals, 'progressSignals', existing?.progressSignals),
+    riskSignals: normalizeTextArray(data.riskSignals, 'riskSignals', existing?.riskSignals),
+    closingReflection: status === 'closed' ? closingReflection : undefined,
   }
 }
 

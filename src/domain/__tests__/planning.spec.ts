@@ -21,27 +21,91 @@ describe('planning domain normalization', () => {
     const normalized = normalizePriorityPayload({
       title: '  2026 Focus  ',
       description: '  Annual direction  ',
-      isActive: true,
-      year: parsePeriodRef('2026') as YearRef,
+      years: [parsePeriodRef('2027') as YearRef, parsePeriodRef('2026') as YearRef, parsePeriodRef('2026') as YearRef],
+      status: 'active',
+      order: 2,
       lifeAreaIds: ['la-1', 'la-1', ' la-2 '],
+      whyNow: '  There is leverage now  ',
+      desiredDirection: '  Build durable health  ',
+      tradeoffs: '  Fewer evening launches  ',
+      progressSignals: ['  more sleep ', 'more sleep', 'better energy'],
+      riskSignals: ['  skipped recovery '],
     } satisfies CreatePriorityPayload)
 
     expect(normalized).toEqual({
       title: '2026 Focus',
       description: 'Annual direction',
-      isActive: true,
-      year: '2026',
+      years: ['2026', '2027'],
+      status: 'active',
+      order: 2,
       lifeAreaIds: ['la-1', 'la-2'],
+      whyNow: 'There is leverage now',
+      desiredDirection: 'Build durable health',
+      tradeoffs: 'Fewer evening launches',
+      progressSignals: ['more sleep', 'better energy'],
+      riskSignals: ['skipped recovery'],
+      closingReflection: undefined,
     })
 
     expect(() =>
       normalizePriorityPayload({
         title: 'Invalid year',
-        isActive: true,
-        year: '0000' as YearRef,
+        years: ['0000' as YearRef],
+        status: 'active',
         lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
       } satisfies CreatePriorityPayload),
-    ).toThrow('Priority.year must be a valid YearRef')
+    ).toThrow('Priority.years must contain only valid YearRefs')
+  })
+
+  it('enforces priority strategic semantics', () => {
+    const paused = normalizePriorityPayload({
+      title: 'Paused direction',
+      years: ['2026' as YearRef],
+      status: 'paused',
+      order: 1,
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
+    })
+
+    expect(paused.order).toBeUndefined()
+
+    const closed = normalizePriorityPayload({
+      title: 'Closed direction',
+      years: ['2026' as YearRef],
+      status: 'closed',
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
+    })
+
+    expect(closed.status).toBe('closed')
+    expect(closed.closingReflection).toBeUndefined()
+
+    expect(() =>
+      normalizePriorityPayload({
+        title: 'No years',
+        years: [],
+        status: 'draft',
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+      }),
+    ).toThrow('Priority.years must contain at least one YearRef')
+
+    expect(() =>
+      normalizePriorityPayload({
+        title: 'Bad reflection',
+        years: ['2026' as YearRef],
+        status: 'active',
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+        closingReflection: { closedAt: '2026-12-31T00:00:00.000Z' },
+      }),
+    ).toThrow('Priority.closingReflection is only supported for closed priorities')
   })
 
   it('requires key results to use the shared measurement contract', () => {

@@ -24,9 +24,11 @@ describe('planning Dexie repositories', () => {
     const created = await priorityDexieRepository.create({
       title: '  2026 Theme ',
       description: '  Ship the core planning system ',
-      isActive: true,
-      year: parsePeriodRef('2026') as YearRef,
+      years: [parsePeriodRef('2026') as YearRef],
+      status: 'active',
       lifeAreaIds: ['la-1', ' la-1 ', 'la-2'],
+      progressSignals: ['  monthly review '],
+      riskSignals: [],
     })
 
     const listed = await priorityDexieRepository.listAll()
@@ -36,6 +38,115 @@ describe('planning Dexie repositories', () => {
     expect(reloaded).toEqual(created)
     expect(created.lifeAreaIds).toEqual(['la-1', 'la-2'])
     expect(created.description).toBe('Ship the core planning system')
+    expect(created.order).toBe(1)
+    expect(created.progressSignals).toEqual(['monthly review'])
+  })
+
+  it('enforces active priority limits and normalizes active order', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    for (let index = 0; index < 5; index++) {
+      await priorityDexieRepository.create({
+        title: `Priority ${index + 1}`,
+        years: ['2026' as YearRef],
+        status: 'active',
+        lifeAreaIds: [],
+        progressSignals: [],
+        riskSignals: [],
+      })
+    }
+
+    await expect(priorityDexieRepository.create({
+      title: 'Sixth priority',
+      years: ['2026' as YearRef],
+      status: 'active',
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
+    })).rejects.toThrow('Failed to create priority in database')
+
+    await priorityDexieRepository.create({
+      title: 'Draft priority',
+      years: ['2026' as YearRef],
+      status: 'draft',
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
+    })
+
+    const active = (await priorityDexieRepository.listAll())
+      .filter(priority => priority.status === 'active')
+      .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
+    expect(active.map(priority => priority.order)).toEqual([1, 2, 3, 4, 5])
+  })
+
+  it('clears order when pausing and assigns order when reactivating', async () => {
+    const priority = await priorityDexieRepository.create({
+      title: 'Health',
+      years: ['2026' as YearRef],
+      status: 'active',
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
+    })
+
+    const paused = await priorityDexieRepository.update(priority.id, { status: 'paused' })
+    expect(paused.order).toBeUndefined()
+
+    const active = await priorityDexieRepository.update(priority.id, { status: 'active' })
+    expect(active.order).toBe(1)
+  })
+
+  it('cleans priority links when deleting a Priority', async () => {
+    const priority = await priorityDexieRepository.create({
+      title: 'Strategic direction',
+      years: ['2026' as YearRef],
+      status: 'active',
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
+    })
+    const goal = await goalDexieRepository.create({
+      title: 'Goal',
+      isActive: true,
+      priorityIds: [priority.id],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+    const habit = await habitDexieRepository.create({
+      title: 'Habit',
+      isActive: true,
+      priorityIds: [priority.id],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+    const tracker = await trackerDexieRepository.create({
+      title: 'Tracker',
+      isActive: true,
+      priorityIds: [priority.id],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      status: 'open',
+    })
+    const initiative = await initiativeDexieRepository.create({
+      title: 'Initiative',
+      isActive: true,
+      priorityIds: [priority.id],
+      lifeAreaIds: [],
+      status: 'open',
+    })
+
+    await priorityDexieRepository.delete(priority.id)
+
+    expect(await priorityDexieRepository.getById(priority.id)).toBeUndefined()
+    expect((await goalDexieRepository.getById(goal.id))?.priorityIds).toEqual([])
+    expect((await habitDexieRepository.getById(habit.id))?.priorityIds).toEqual([])
+    expect((await trackerDexieRepository.getById(tracker.id))?.priorityIds).toEqual([])
+    expect((await initiativeDexieRepository.getById(initiative.id))?.priorityIds).toEqual([])
   })
 
   it('rejects KeyResult creation when the owning Goal does not exist', async () => {
