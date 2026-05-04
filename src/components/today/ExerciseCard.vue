@@ -2,7 +2,7 @@
   <article class="wellness-card neo-raised group flex flex-col p-3 transition-shadow duration-200">
     <!-- Header: title + add button (disabled-look) -->
     <div class="flex shrink-0 items-center justify-between">
-      <span class="text-sm font-semibold tracking-tight text-on-surface">
+      <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
         {{ t('planning.calendar.wellness.exercises') }}
       </span>
       <span

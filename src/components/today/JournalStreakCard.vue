@@ -8,7 +8,7 @@
     <div class="flex shrink-0 items-center justify-between">
       <button
         type="button"
-        class="text-sm font-semibold tracking-tight text-on-surface transition-colors duration-200 hover:text-primary"
+        class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant transition-colors duration-200 hover:text-primary"
         @click.stop="router.push('/journal')"
       >
         {{ t('planning.calendar.wellness.journal') }}

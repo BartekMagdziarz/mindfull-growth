@@ -62,7 +62,7 @@
         <!-- Goals & KRs plate -->
         <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
           <header class="flex items-center justify-between px-1 pb-0.5">
-            <h2 class="text-sm font-semibold tracking-tight text-on-surface">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('planning.today.columns.goalsKrs') }}
             </h2>
             <button
@@ -113,7 +113,7 @@
         <!-- Habits plate -->
         <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
           <header class="flex items-center justify-between px-1 pb-0.5">
-            <h2 class="text-sm font-semibold tracking-tight text-on-surface">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('planning.today.columns.habits') }}
             </h2>
             <button
@@ -153,7 +153,7 @@
         <!-- Trackers plate -->
         <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
           <header class="flex items-center justify-between px-1 pb-0.5">
-            <h2 class="text-sm font-semibold tracking-tight text-on-surface">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('planning.today.columns.trackers') }}
             </h2>
             <button

@@ -127,7 +127,7 @@
               <div class="grid items-start gap-4 xl:grid-cols-3">
               <!-- Column 1: Goals + inline KRs + orphan KRs -->
                 <div class="space-y-3">
-                <h2 class="text-lg font-semibold text-on-surface">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                   {{ t('planning.calendar.sections.goals') }}
                 </h2>
                 <CalendarGoalSummaryCard
@@ -169,7 +169,7 @@
 
                 <!-- Column 2: Habits -->
                 <div class="space-y-3">
-                <h2 class="text-lg font-semibold text-on-surface">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                   {{ t('planning.calendar.sections.habits') }}
                 </h2>
                 <CalendarMeasurementSummaryCard
@@ -198,7 +198,7 @@
 
                 <!-- Column 3: Trackers -->
                 <div class="space-y-3">
-                <h2 class="text-lg font-semibold text-on-surface">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                   {{ t('planning.calendar.sections.trackers') }}
                 </h2>
                 <CalendarMeasurementSummaryCard
@@ -231,7 +231,7 @@
               <div class="grid items-start gap-4 xl:grid-cols-3">
               <!-- Column 1: Goals + inline KRs + orphan KRs -->
                 <div class="space-y-3">
-                <h2 class="text-lg font-semibold text-on-surface">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                   {{ t('planning.calendar.sections.goals') }}
                 </h2>
                 <CalendarGoalSummaryCard
@@ -273,7 +273,7 @@
 
                 <!-- Column 2: Habits -->
                 <div class="space-y-3">
-                <h2 class="text-lg font-semibold text-on-surface">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                   {{ t('planning.calendar.sections.habits') }}
                 </h2>
                 <CalendarMeasurementSummaryCard
@@ -302,7 +302,7 @@
 
                 <!-- Column 3: Trackers -->
                 <div class="space-y-3">
-                <h2 class="text-lg font-semibold text-on-surface">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                   {{ t('planning.calendar.sections.trackers') }}
                 </h2>
                 <CalendarMeasurementSummaryCard
@@ -333,7 +333,7 @@
 
             <template v-else-if="scale === 'day' && dayBundle">
               <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
+              <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('planning.calendar.sections.scheduledToday') }}
               </h2>
               <div v-if="dayScheduledCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -357,7 +357,7 @@
               </section>
 
               <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
+              <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('planning.calendar.sections.entriesToday') }}
               </h2>
               <div v-if="dayEntryCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -380,7 +380,7 @@
               </section>
 
               <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
+              <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('planning.calendar.sections.activeThisWeek') }}
               </h2>
               <div v-if="dayWeekContextCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -403,7 +403,7 @@
               </section>
 
               <section class="space-y-4">
-              <h2 class="text-xl font-semibold text-on-surface">
+              <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('planning.calendar.sections.monthlyContext') }}
               </h2>
               <div v-if="dayMonthGoalCards.length > 0" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
