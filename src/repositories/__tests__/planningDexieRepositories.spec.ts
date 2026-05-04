@@ -5,6 +5,8 @@ import { initiativeDexieRepository } from '@/repositories/initiativeDexieReposit
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { annualPlanDexieRepository } from '@/repositories/annualPlanDexieRepository'
+import { normalizeAnnualPlanPayload } from '@/domain/annualPlan'
 import { connectTestDatabase } from '@/test/testDatabase'
 import type { YearRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
@@ -18,6 +20,56 @@ describe('planning Dexie repositories', () => {
     await db.trackers.clear()
     await db.initiatives.clear()
     await db.priorities.clear()
+    await db.annualPlans.clear()
+  })
+
+  it('normalizes AnnualPlan payloads and requires a YearRef', () => {
+    const normalized = normalizeAnnualPlanPayload({
+      yearRef: parsePeriodRef('2026') as YearRef,
+      status: 'draft',
+      annualBriefNote: '  Start here  ',
+      narrative: {
+        theme: '  Build quietly  ',
+        story: '',
+      },
+    })
+
+    expect(normalized.yearRef).toBe('2026')
+    expect(normalized.annualBriefNote).toBe('Start here')
+    expect(normalized.narrative).toEqual({ theme: 'Build quietly' })
+
+    expect(() =>
+      normalizeAnnualPlanPayload({
+        yearRef: parsePeriodRef('2026-05') as YearRef,
+        status: 'draft',
+      }),
+    ).toThrow('AnnualPlan.yearRef must be a YearRef')
+  })
+
+  it('upserts one AnnualPlan per year and allows completion without losing data', async () => {
+    const yearRef = parsePeriodRef('2026') as YearRef
+
+    const draft = await annualPlanDexieRepository.upsertForYear(yearRef, {
+      annualBriefNote: 'Brief placeholder',
+      narrative: { theme: 'Year of steadiness' },
+    })
+    const updated = await annualPlanDexieRepository.upsertForYear(yearRef, {
+      status: 'completed',
+      narrative: {
+        theme: 'Year of steadiness',
+        bestHopes: 'More coherent work',
+      },
+    })
+
+    const listed = await annualPlanDexieRepository.listAll()
+    expect(listed).toHaveLength(1)
+    expect(updated.id).toBe(draft.id)
+    expect(updated.status).toBe('completed')
+    expect(updated.annualBriefNote).toBe('Brief placeholder')
+    expect(updated.narrative).toEqual({
+      theme: 'Year of steadiness',
+      bestHopes: 'More coherent work',
+    })
   })
 
   it('persists Priority records with normalized links', async () => {

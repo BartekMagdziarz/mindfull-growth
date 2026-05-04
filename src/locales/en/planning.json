@@ -555,6 +555,77 @@
       "zoomIn": "Show details"
     }
   },
+  "annual": {
+    "title": "Year Plan",
+    "progress": "Annual planning progress",
+    "loading": "Loading the year plan.",
+    "loadError": "Could not load the year plan.",
+    "finish": "Complete plan",
+    "steps": {
+      "brief": "Brief",
+      "lifeAreas": "Life areas",
+      "narrative": "Narrative",
+      "priorities": "Priorities",
+      "execution": "Execution",
+      "summary": "Summary"
+    },
+    "stepsSubtitles": {
+      "brief": "A placeholder for later data context.",
+      "lifeAreas": "Full assessment and life map update.",
+      "narrative": "A short description of the year's direction.",
+      "priorities": "The most important part of the plan.",
+      "execution": "A placeholder for later object translation.",
+      "summary": "Close the plan draft."
+    },
+    "brief": {
+      "title": "Annual brief",
+      "body": "This step is a placeholder. Later it will summarize data, profile, reflections, emotions, and exercises.",
+      "note": "Note",
+      "placeholder": "What should we remember when we return to the annual brief?"
+    },
+    "lifeAreas": {
+      "empty": "No active life areas.",
+      "score": "Score: {score}/10",
+      "expand": "Expand life area",
+      "meaning": "Why does this area matter?",
+      "desiredState": "What does a good state of this area look like?",
+      "typicalRisks": "What risks and patterns are worth noticing?",
+      "reflectionSignals": "Reflection signals, one per line"
+    },
+    "narrative": {
+      "theme": "Year theme",
+      "themePlaceholder": "This is the year of...",
+      "story": "Year story",
+      "storyPlaceholder": "What story would you like to be able to tell about this year?",
+      "fantasticDay": "Fantastic day",
+      "fantasticDayPlaceholder": "What does an ordinary day look like one year from now if this year went well?",
+      "bestHopes": "Best hopes",
+      "bestHopesPlaceholder": "What are you hoping for, and what do you already know about yourself that can help?"
+    },
+    "priorities": {
+      "title": "Annual priorities",
+      "counter": "Active priorities",
+      "add": "Add priority",
+      "defaultTitle": "New priority",
+      "icon": "Priority icon",
+      "emptyTitle": "No active priorities",
+      "emptyBody": "Add the first priority for this year. At most five can be active at once."
+    },
+    "execution": {
+      "title": "Translate into execution objects",
+      "body": "This step is a placeholder. Later we will decide how annual priorities should lead to goals, KRs, habits, trackers, and initiatives.",
+      "note": "Note",
+      "placeholder": "Which questions or decisions should be refined before designing this step?"
+    },
+    "summary": {
+      "status": "Status",
+      "draft": "Draft",
+      "completed": "Completed",
+      "lifeAreas": "Life areas",
+      "priorities": "Priorities",
+      "body": "The year plan stores the narrative, life area assessment, and active priorities. Monthly and weekly connections will be designed in the next stage."
+    }
+  },
   "reflection": {
     "save": "Save Reflection",
     "saving": "Saving...",

@@ -55,6 +55,7 @@ import type {
 } from '@/domain/planningState'
 import type { WeeklyReflection, MonthlyReflection } from '@/domain/reflection'
 import type { UserProfile, ProfileBuildLogEntry } from '@/domain/userProfile'
+import type { AnnualPlan } from '@/domain/annualPlan'
 
 export class UserDatabase extends Dexie {
   journalEntries!: Table<JournalEntry, string>
@@ -122,6 +123,7 @@ export class UserDatabase extends Dexie {
   monthlyReflections!: Table<MonthlyReflection, string>
   userProfiles!: Table<UserProfile, string>
   profileBuildLogs!: Table<ProfileBuildLogEntry, string>
+  annualPlans!: Table<AnnualPlan, string>
 
   constructor(databaseName: string) {
     super(databaseName)
@@ -1250,6 +1252,79 @@ export class UserDatabase extends Dexie {
             delete record.closingReflection
           })
       })
+
+    this.version(16).stores({
+      journalEntries: 'id',
+      peopleTags: 'id',
+      contextTags: 'id',
+      emotionLogs: 'id',
+      userSettings: 'key',
+      valuesDiscoveries: 'id',
+      shadowBeliefs: 'id',
+      transformativePurposes: 'id',
+      thoughtRecords: 'id',
+      distortionAssessments: 'id',
+      worryTreeEntries: 'id',
+      coreBeliefsExplorations: 'id',
+      compassionateLetters: 'id',
+      positiveDataLogs: 'id',
+      behavioralExperiments: 'id',
+      behavioralActivations: 'id',
+      structuredProblemSolvings: 'id',
+      gradedExposureHierarchies: 'id',
+      threePathwaysToMeaning: 'id',
+      socraticSelfDialogues: 'id',
+      mountainRangesOfMeaning: 'id',
+      paradoxicalIntentionLabs: 'id',
+      dereflectionPractices: 'id',
+      tragicOptimisms: 'id',
+      attitudinalShifts: 'id',
+      legacyLetters: 'id',
+      ifsParts: 'id',
+      ifsPartsMaps: 'id',
+      ifsUnblendingSessions: 'id',
+      ifsDirectAccessSessions: 'id',
+      ifsTrailheadEntries: 'id',
+      ifsProtectorAppreciations: 'id',
+      ifsExileWitnessings: 'id',
+      ifsSelfEnergyCheckIns: 'id',
+      ifsPartsDialogues: 'id',
+      ifsDailyCheckIns: 'id',
+      ifsConstellations: 'id',
+      lifeAreas: 'id, isActive',
+      lifeAreaAssessments: 'id, createdAt, *lifeAreaIds',
+      priorities: 'id, status, *years, order, *lifeAreaIds',
+      goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
+      keyResults: 'id, goalId, status, isActive, cadence, entryMode',
+      habits: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+      trackers: 'id, status, isActive, cadence, entryMode, *priorityIds, *lifeAreaIds',
+      initiatives: 'id, status, isActive, goalId, *priorityIds, *lifeAreaIds',
+      monthPlans: 'id, &monthRef',
+      weekPlans: 'id, &weekRef',
+      annualPlans: 'id, &yearRef, status',
+      goalMonthStates: 'id, monthRef, goalId, activityState, &[monthRef+goalId]',
+      measurementMonthStates:
+        'id, monthRef, subjectType, subjectId, activityState, scheduleScope, &[monthRef+subjectType+subjectId], [subjectType+subjectId]',
+      measurementWeekStates:
+        'id, weekRef, sourceMonthRef, subjectType, subjectId, activityState, scheduleScope, [weekRef+subjectType+subjectId], [weekRef+sourceMonthRef+subjectType+subjectId], [subjectType+subjectId]',
+      measurementDayAssignments:
+        'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+      dailyMeasurementEntries:
+        'id, subjectType, subjectId, dayRef, &[subjectType+subjectId+dayRef], [subjectType+subjectId]',
+      todayHiddenStates:
+        'id, dayRef, subjectType, subjectId, &[dayRef+subjectType+subjectId], [subjectType+subjectId]',
+      initiativePlanStates: 'id, &initiativeId, monthRef, weekRef, dayRef',
+      periodReflections: 'id, periodType, periodRef, &[periodType+periodRef]',
+      periodObjectReflections:
+        'id, periodType, periodRef, subjectType, subjectId, &[periodType+periodRef+subjectType+subjectId], [subjectType+subjectId]',
+      assessmentAttempts: 'id, assessmentId',
+      assessmentResponses: 'id, attemptId, itemId, [attemptId+itemId]',
+      drafts: '&key',
+      weeklyReflections: 'id, &weekRef',
+      monthlyReflections: 'id, &monthRef',
+      userProfiles: 'id, createdAt',
+      profileBuildLogs: 'id, timestamp, success',
+    })
   }
 }
 

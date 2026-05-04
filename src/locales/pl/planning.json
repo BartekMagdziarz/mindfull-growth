@@ -555,6 +555,77 @@
       "zoomIn": "Pokaż szczegóły"
     }
   },
+  "annual": {
+    "title": "Plan roczny",
+    "progress": "Postęp planowania rocznego",
+    "loading": "Wczytywanie planu rocznego.",
+    "loadError": "Nie udało się wczytać planu rocznego.",
+    "finish": "Zakończ plan",
+    "steps": {
+      "brief": "Brief",
+      "lifeAreas": "Obszary życia",
+      "narrative": "Narracja",
+      "priorities": "Priorytety",
+      "execution": "Wykonanie",
+      "summary": "Podsumowanie"
+    },
+    "stepsSubtitles": {
+      "brief": "Miejsce na późniejszy kontekst danych.",
+      "lifeAreas": "Pełna ocena i aktualizacja mapy życia.",
+      "narrative": "Krótki opis kierunku roku.",
+      "priorities": "Najważniejsza część planu.",
+      "execution": "Placeholder dla późniejszego przełożenia na obiekty.",
+      "summary": "Domknięcie szkicu planu."
+    },
+    "brief": {
+      "title": "Brief roczny",
+      "body": "Ten krok jest placeholderem. Później pokażemy tu podsumowanie danych, profilu, refleksji, emocji i ćwiczeń.",
+      "note": "Notatka",
+      "placeholder": "Co warto uwzględnić, kiedy wrócimy do briefu rocznego?"
+    },
+    "lifeAreas": {
+      "empty": "Brak aktywnych obszarów życia.",
+      "score": "Ocena: {score}/10",
+      "expand": "Rozwiń obszar życia",
+      "meaning": "Dlaczego ten obszar ma znaczenie?",
+      "desiredState": "Jak wygląda dobry stan tego obszaru?",
+      "typicalRisks": "Jakie ryzyka i wzorce warto zauważać?",
+      "reflectionSignals": "Sygnały refleksji, każdy w osobnej linii"
+    },
+    "narrative": {
+      "theme": "Motyw roku",
+      "themePlaceholder": "To jest rok...",
+      "story": "Historia roku",
+      "storyPlaceholder": "Jaką historię chciałbyś/chciałabyś móc opowiedzieć o tym roku?",
+      "fantasticDay": "Fantastyczny dzień",
+      "fantasticDayPlaceholder": "Jak wygląda zwykły dzień za rok, jeśli ten rok poszedł naprawdę dobrze?",
+      "bestHopes": "Najlepsze nadzieje",
+      "bestHopesPlaceholder": "Na co najbardziej liczysz i co już wiesz o sobie, co może Ci w tym pomóc?"
+    },
+    "priorities": {
+      "title": "Priorytety roczne",
+      "counter": "Aktywne priorytety",
+      "add": "Dodaj priorytet",
+      "defaultTitle": "Nowy priorytet",
+      "icon": "Ikona priorytetu",
+      "emptyTitle": "Brak aktywnych priorytetów",
+      "emptyBody": "Dodaj pierwszy priorytet dla tego roku. Maksymalnie pięć może być aktywnych naraz."
+    },
+    "execution": {
+      "title": "Przekład na obiekty wykonawcze",
+      "body": "Ten krok jest placeholderem. Później zdecydujemy, jak priorytety roczne mają prowadzić do celów, KR-ów, nawyków, trackerów i inicjatyw.",
+      "note": "Notatka",
+      "placeholder": "Jakie pytania lub decyzje warto dopracować przed projektowaniem tego kroku?"
+    },
+    "summary": {
+      "status": "Status",
+      "draft": "Szkic",
+      "completed": "Ukończony",
+      "lifeAreas": "Obszary życia",
+      "priorities": "Priorytety",
+      "body": "Plan roczny zapisuje narrację, ocenę obszarów życia i aktywne priorytety. Miesięczne i tygodniowe połączenia dopracujemy w kolejnym etapie."
+    }
+  },
   "reflection": {
     "save": "Zapisz refleksję",
     "saving": "Zapisywanie...",

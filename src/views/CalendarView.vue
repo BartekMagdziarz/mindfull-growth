@@ -54,8 +54,15 @@
         />
 
         <template v-else>
+          <AnnualPlanningWizard
+            v-if="showAnnualPlanner && activeYearRef"
+            :year-ref="activeYearRef"
+            @close="closeAnnualPlanner"
+            @updated="handleAnnualPlannerUpdated"
+          />
+
           <MonthlyReflectionWizard
-            v-if="showMonthlyReflection && activeMonthRef"
+            v-else-if="showMonthlyReflection && activeMonthRef"
             :month-ref="activeMonthRef"
             @close="closeMonthlyReflection"
             @updated="handleMonthlyReflectionUpdated"
@@ -523,12 +530,15 @@ import MonthlyPlanner from '@/components/calendar/MonthlyPlanner.vue'
 import WeeklyPlanner from '@/components/calendar/WeeklyPlanner.vue'
 import WeeklyReflectionWizard from '@/components/calendar/WeeklyReflectionWizard.vue'
 import MonthlyReflectionWizard from '@/components/calendar/MonthlyReflectionWizard.vue'
+import AnnualPlanningWizard from '@/components/calendar/AnnualPlanningWizard.vue'
 import CalendarSidePanel from '@/components/calendar/CalendarSidePanel.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import { useT } from '@/composables/useT'
 import { clearTrendCache } from '@/services/calendarChartData'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
+import { annualPlanDexieRepository } from '@/repositories/annualPlanDexieRepository'
+import type { AnnualPlan } from '@/domain/annualPlan'
 import {
   countGoalKeyResults,
   filterUnscheduledMonthInitiatives,
@@ -648,6 +658,7 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const isLoading = ref(true)
 const loadError = ref<string | null>(null)
 const yearSummary = ref<CalendarYearSummary | null>(null)
+const annualPlan = ref<AnnualPlan | null>(null)
 const monthPlanning = ref<MonthPlanningBundle | null>(null)
 const monthReflection = ref<MonthReflectionBundle | null>(null)
 const weekPlanning = ref<WeekPlanningBundle | null>(null)
@@ -659,6 +670,8 @@ const monthlyPlannerOpen = ref(false)
 const monthlyPlannerDirty = ref(false)
 const weeklyPlannerOpen = ref(false)
 const weeklyPlannerDirty = ref(false)
+const annualPlannerOpen = ref(false)
+const annualPlannerDirty = ref(false)
 const weeklyReflectionOpen = ref(false)
 const weeklyReflectionDirty = ref(false)
 const monthlyReflectionOpen = ref(false)
@@ -677,6 +690,9 @@ const parsedPeriodRef = computed<PeriodRef | null>(() => {
 const scale = computed(() => props.scale)
 
 const invalidRoute = computed(() => parsedPeriodRef.value === null)
+const activeYearRef = computed(() =>
+  props.scale === 'year' && parsedPeriodRef.value ? (parsedPeriodRef.value as YearRef) : null
+)
 const activeMonthRef = computed(() =>
   props.scale === 'month' && parsedPeriodRef.value ? (parsedPeriodRef.value as MonthRef) : null
 )
@@ -702,6 +718,10 @@ const currentBounds = computed(() =>
 )
 
 const currentPlanRecord = computed(() => {
+  if (props.scale === 'year') {
+    return annualPlan.value
+  }
+
   if (props.scale === 'month') {
     return monthPlanning.value?.monthPlan
   }
@@ -779,6 +799,13 @@ const showReflectionAction = computed(
 const showHeaderActions = computed(() => showPlanAction.value || showReflectionAction.value)
 
 const planActionLabel = computed(() => {
+  if (props.scale === 'year') {
+    return annualPlannerOpen.value
+      ? t('common.buttons.close')
+      : currentPlanRecord.value
+        ? t('planning.calendar.actions.editPlan')
+        : t('planning.calendar.actions.createPlan')
+  }
   if (props.scale === 'month') {
     return monthlyPlannerOpen.value
       ? t('common.buttons.close')
@@ -793,9 +820,7 @@ const planActionLabel = computed(() => {
         ? t('planning.calendar.actions.editPlan')
         : t('planning.calendar.actions.createPlan')
   }
-  return currentPlanRecord.value
-    ? t('planning.calendar.actions.viewPlanRecord')
-    : t('planning.calendar.actions.createPlan')
+  return t('planning.calendar.actions.createPlan')
 })
 
 const reflectionActionLabel = computed(() => {
@@ -811,6 +836,13 @@ const reflectionActionLabel = computed(() => {
 })
 
 const planActionVariant = computed<'filled' | 'tonal'>(() => {
+  if (props.scale === 'year') {
+    return annualPlannerOpen.value
+      ? 'tonal'
+      : currentPlanRecord.value
+        ? 'tonal'
+        : 'filled'
+  }
   if (props.scale === 'month') {
     return monthlyPlannerOpen.value
       ? 'tonal'
@@ -825,7 +857,7 @@ const planActionVariant = computed<'filled' | 'tonal'>(() => {
         ? 'tonal'
         : 'filled'
   }
-  return currentPlanRecord.value ? 'tonal' : 'filled'
+  return 'filled'
 })
 const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
   if (props.scale === 'month' && monthlyReflectionOpen.value) return 'tonal'
@@ -925,6 +957,7 @@ const summaryMetrics = computed<MetricModel[]>(() => {
 const showSummaryMetrics = computed(() =>
   summaryMetrics.value.some(metric => Number(metric.value) > 0)
 )
+const showAnnualPlanner = computed(() => props.scale === 'year' && annualPlannerOpen.value)
 const showMonthlyPlanner = computed(() => props.scale === 'month' && monthlyPlannerOpen.value)
 const showWeeklyPlanner = computed(() => props.scale === 'week' && weeklyPlannerOpen.value)
 const showWeeklyReflection = computed(() => props.scale === 'week' && weeklyReflectionOpen.value)
@@ -1274,6 +1307,7 @@ watch(
   () => [props.scale, props.periodRef] as const,
   async () => {
     panelState.value = null
+    annualPlannerOpen.value = false
     monthlyPlannerOpen.value = false
     weeklyPlannerOpen.value = false
     weeklyReflectionOpen.value = false
@@ -1287,6 +1321,7 @@ watch(
 async function loadCalendarData() {
   clearTrendCache()
   yearSummary.value = null
+  annualPlan.value = null
   monthPlanning.value = null
   monthReflection.value = null
   weekPlanning.value = null
@@ -1305,7 +1340,10 @@ async function loadCalendarData() {
   try {
     switch (props.scale) {
       case 'year':
-        yearSummary.value = await getCalendarYearSummary(parsedPeriodRef.value as YearRef)
+        ;[yearSummary.value, annualPlan.value] = await Promise.all([
+          getCalendarYearSummary(parsedPeriodRef.value as YearRef),
+          annualPlanDexieRepository.getByYearRef(parsedPeriodRef.value as YearRef),
+        ])
         break
       case 'month':
         ;[monthPlanning.value, monthReflection.value] = await Promise.all([
@@ -1407,6 +1445,18 @@ function openObjectsPanel(panelType: ObjectsLibraryPanelType, panelId: string) {
 }
 
 function openPlanPanel() {
+  if (props.scale === 'year') {
+    if (annualPlannerOpen.value) {
+      closeAnnualPlanner()
+      return
+    }
+
+    panelState.value = null
+    annualPlannerOpen.value = true
+    annualPlannerDirty.value = true
+    return
+  }
+
   if (props.scale === 'month') {
     void (async () => {
       if (monthlyPlannerOpen.value) {
@@ -1455,10 +1505,17 @@ function openPlanPanel() {
     return
   }
 
-  switch (props.scale) {
-    case 'year':
-      panelState.value = 'year-plan'
-      break
+}
+
+function handleAnnualPlannerUpdated() {
+  annualPlannerDirty.value = true
+}
+
+function closeAnnualPlanner() {
+  annualPlannerOpen.value = false
+  if (annualPlannerDirty.value) {
+    annualPlannerDirty.value = false
+    void loadCalendarData()
   }
 }
 
