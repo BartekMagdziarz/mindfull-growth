@@ -39,6 +39,8 @@
     "deleteChatTitle": "Usunąć sesję czatu?",
     "deleteChatMessage": "Czy na pewno chcesz usunąć tę rozmowę? Tej operacji nie można cofnąć.",
     "chatDeleted": "Sesja czatu usunięta",
+    "collapseSidePanel": "Schowaj panel boczny",
+    "expandSidePanel": "Pokaż panel boczny",
     "unknownDate": "Nieznana data",
     "todayTime": "Dziś, {time}",
     "entryNotFound": "Wpis nie został znaleziony.",

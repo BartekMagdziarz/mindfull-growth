@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 flex flex-col gap-8 min-h-screen">
+  <div class="container mx-auto px-4 py-6 flex flex-col gap-4 min-h-screen">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center min-h-[200px]">
       <p class="text-on-surface-variant">{{ t('journal.editor.loadingEntry') }}</p>
@@ -69,40 +69,79 @@
         </Transition>
       </Teleport>
 
-      <!-- Unified Journal Sheet -->
-      <section
-        class="neo-inset rounded-[32px] px-6 py-5 flex flex-col gap-4"
+      <!-- Main Editor Grid: text on left, optional collapsible side panel on right -->
+      <div
+        :class="[
+          'grid grid-cols-1 gap-4 md:items-stretch md:gap-2 min-h-[60vh] md:min-h-0 md:h-[78vh]',
+          'md:transition-[grid-template-columns] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)]',
+          isSidePanelOpen
+            ? 'md:grid-cols-[3fr_auto_2fr]'
+            : 'md:grid-cols-[1fr_auto_0fr]',
+        ]"
       >
-        <label for="title" class="sr-only">{{ t('journal.editor.titleLabel') }}</label>
-        <input
-          id="title"
-          v-model="title"
-          type="text"
-          :placeholder="t('journal.editor.titlePlaceholder')"
-          class="w-full bg-transparent text-2xl font-semibold text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0"
-        />
+        <!-- Left: Title + Body textarea (full height) -->
+        <section
+          class="neo-inset rounded-[32px] px-6 py-5 flex flex-col gap-4 min-h-0"
+        >
+          <label for="title" class="sr-only">{{ t('journal.editor.titleLabel') }}</label>
+          <input
+            id="title"
+            v-model="title"
+            type="text"
+            :placeholder="t('journal.editor.titlePlaceholder')"
+            class="w-full bg-transparent text-2xl font-semibold text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0"
+          />
 
-        <label for="body" class="sr-only">{{ t('journal.editor.bodyLabel') }}</label>
-        <textarea
-          id="body"
-          v-model="body"
-          :placeholder="t('journal.editor.bodyPlaceholder')"
-          rows="8"
-          class="w-full bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-y min-h-[160px] md:min-h-[220px]"
-        />
-      </section>
+          <label for="body" class="sr-only">{{ t('journal.editor.bodyLabel') }}</label>
+          <textarea
+            id="body"
+            v-model="body"
+            :placeholder="t('journal.editor.bodyPlaceholder')"
+            class="w-full flex-1 bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none min-h-[240px]"
+          />
+        </section>
 
-      <!-- Tag + context panels -->
-      <section class="space-y-3">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-[1.8fr_1fr_1fr] items-start">
+        <!-- Side panel toggle (desktop only) -->
+        <div class="hidden md:flex items-center justify-center">
+          <button
+            type="button"
+            class="neo-focus flex h-8 w-8 items-center justify-center rounded-full bg-neu-base text-on-surface-variant/70 shadow-neu-raised-sm hover:-translate-y-px hover:text-on-surface hover:shadow-neu-raised transition-all duration-200"
+            :aria-label="isSidePanelOpen ? t('journal.editor.collapseSidePanel') : t('journal.editor.expandSidePanel')"
+            :aria-expanded="isSidePanelOpen"
+            @click="toggleSidePanel"
+          >
+            <AppIcon
+              name="chevron_right"
+              :class="[
+                'text-sm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+                isSidePanelOpen ? '' : 'rotate-180',
+              ]"
+            />
+          </button>
+        </div>
+
+        <!-- Right: Emotions, Context Tags, People Tags (stacked) -->
+        <aside
+          :class="[
+            'flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-x-hidden md:overflow-y-auto md:py-4 md:px-5',
+            'md:transition md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)]',
+            isSidePanelOpen
+              ? 'md:opacity-100 md:translate-x-0'
+              : 'md:opacity-0 md:translate-x-4 md:pointer-events-none',
+          ]"
+        >
           <!-- Emotions Section -->
           <section
             class="neo-card px-5 py-4 flex flex-col gap-4"
           >
             <header class="space-y-2">
               <div class="flex flex-wrap items-center gap-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                   {{ t('journal.editor.emotions') }}
+                  <EmotionQuadrantSuffix
+                    :quadrant="activeEmotionQuadrant"
+                    @clear="activeEmotionQuadrant = null"
+                  />
                 </p>
                 <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
                   <button
@@ -127,29 +166,10 @@
               {{ t('journal.editor.loadingEmotions') }}
             </div>
             <div v-else class="pt-1">
-              <EmotionSelector v-model="selectedEmotionIds" :show-selected-section="false" />
-            </div>
-          </section>
-
-          <!-- People Tags Section -->
-          <section
-            class="neo-card px-5 py-4 flex flex-col gap-4"
-          >
-            <header>
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                {{ t('journal.editor.people') }}
-              </p>
-            </header>
-            <div
-              v-if="arePeopleTagsLoading"
-              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
-            >
-              {{ t('journal.editor.loadingPeople') }}
-            </div>
-            <div v-else class="pt-1">
-              <TagInput
-                v-model="selectedPeopleTagIds"
-                tag-type="people"
+              <EmotionSelector
+                v-model="selectedEmotionIds"
+                v-model:quadrant="activeEmotionQuadrant"
+                :show-selected-section="false"
               />
             </div>
           </section>
@@ -176,8 +196,31 @@
               />
             </div>
           </section>
-        </div>
-      </section>
+
+          <!-- People Tags Section -->
+          <section
+            class="neo-card px-5 py-4 flex flex-col gap-4"
+          >
+            <header>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('journal.editor.people') }}
+              </p>
+            </header>
+            <div
+              v-if="arePeopleTagsLoading"
+              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+            >
+              {{ t('journal.editor.loadingPeople') }}
+            </div>
+            <div v-else class="pt-1">
+              <TagInput
+                v-model="selectedPeopleTagIds"
+                tag-type="people"
+              />
+            </div>
+          </section>
+        </aside>
+      </div>
 
       <!-- Chat sessions section (edit mode only) -->
       <section
@@ -207,7 +250,7 @@
 
       <!-- Bottom Action Bar -->
       <div
-        class="border-t border-neu-border/20 flex justify-end gap-3 px-2 sm:px-4 py-4"
+        class="border-t border-neu-border/20 flex justify-end gap-3 px-2 sm:px-4 py-4 mt-auto"
       >
         <!-- Chat Button with Dropdown -->
         <div v-if="!isLoading" class="relative" ref="chatDropdownContainerRef">
@@ -333,6 +376,7 @@ import { useRouter, useRoute } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import TagInput from '@/components/TagInput.vue'
 import ChatSessionCard from '@/components/ChatSessionCard.vue'
 import { useJournalStore } from '@/stores/journal.store'
@@ -364,6 +408,7 @@ const isSaving = ref(false)
 const isLoading = ref(false)
 const currentEntry = ref<JournalEntry | null>(null)
 const selectedEmotionIds = ref<string[]>([])
+const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const selectedPeopleTagIds = ref<string[]>([])
 const selectedContextTagIds = ref<string[]>([])
 const isEmotionDataLoading = ref(false)
@@ -383,6 +428,13 @@ const showDateTimePicker = ref(false)
 const customCreatedAt = ref<Date | null>(null)
 const selectedDate = ref('')
 const selectedTime = ref('')
+
+// Right side panel (emotions / context / people) collapse state
+// Only meaningful at md+ breakpoints; on mobile the panel is always shown.
+const isSidePanelOpen = ref(true)
+const toggleSidePanel = () => {
+  isSidePanelOpen.value = !isSidePanelOpen.value
+}
 
 // Initialize date/time picker values
 function initDateTimePicker() {
@@ -756,12 +808,27 @@ const saveEntry = async (): Promise<JournalEntry> => {
   }
 }
 
+const resetCreateForm = () => {
+  title.value = ''
+  body.value = ''
+  selectedEmotionIds.value = []
+  selectedPeopleTagIds.value = []
+  selectedContextTagIds.value = []
+  customCreatedAt.value = null
+  currentEntry.value = null
+}
+
 const handleSave = async () => {
   isSaving.value = true
 
   try {
     await saveEntry()
-    // Navigate back to journal list on success
+    // In create mode, /journal redirects to /journal/edit (the route we're on),
+    // so the component is not remounted. Reset the form for a fresh entry.
+    if (!isEditMode.value) {
+      resetCreateForm()
+    }
+    // Navigate back to journal (redirects to /journal/edit)
     router.push('/journal')
   } catch (error) {
     // Error handling: show error message and stay on page
@@ -777,6 +844,11 @@ const handleSave = async () => {
 }
 
 const handleCancel = () => {
+  // In create mode the route doesn't change after navigating to /journal,
+  // so reset the form locally to clear any in-progress draft.
+  if (!isEditMode.value) {
+    resetCreateForm()
+  }
   router.push('/journal')
 }
 

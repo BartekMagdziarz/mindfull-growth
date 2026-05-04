@@ -74,7 +74,7 @@ const router = createRouter({
     {
       path: '/journal',
       name: 'journal',
-      component: () => import('@/views/JournalView.vue'),
+      redirect: '/journal/edit',
     },
     {
       path: '/journal/edit',
