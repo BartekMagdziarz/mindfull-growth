@@ -165,9 +165,18 @@
             </div>
 
             <!-- Emotions -->
-            <div class="space-y-1">
-              <label class="block text-sm font-medium text-on-surface">{{ t('exerciseWizards.exileWitnessing.approach.emotionLabel') }}</label>
-              <EmotionSelector v-model="emotionIds" />
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                {{ t('exerciseWizards.exileWitnessing.approach.emotionLabel') }}
+                <EmotionQuadrantSuffix
+                  :quadrant="activeEmotionQuadrant"
+                  @clear="activeEmotionQuadrant = null"
+                />
+              </p>
+              <EmotionSelector
+                v-model="emotionIds"
+                v-model:quadrant="activeEmotionQuadrant"
+              />
             </div>
 
             <!-- Exile part selection -->
@@ -409,7 +418,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -418,11 +427,13 @@ import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import BodyLocationPicker from '@/components/exercises/ifs/BodyLocationPicker.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import {
   useExileWitnessingWizard,
   type ExileWitnessingStep,
 } from '@/composables/useExileWitnessingWizard'
+import type { Quadrant } from '@/domain/emotion'
 import type { IFSPartRole, IFSBodyLocation } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
 
@@ -432,6 +443,8 @@ const emit = defineEmits<{
 
 const { t } = useT()
 const partStore = useIFSPartStore()
+
+const activeEmotionQuadrant = ref<Quadrant | null>(null)
 
 const STEPS: ExileWitnessingStep[] = [
   'safety', 'protector-check', 'approach', 'witnessing', 'compassion', 'closing', 'reflection',

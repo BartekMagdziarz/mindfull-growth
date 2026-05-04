@@ -65,10 +65,19 @@
           <p class="text-xs text-on-surface-variant italic">
             {{ t('exerciseWizards.attitudinalShift.intro.exampleNote') }}
           </p>
-          <EmotionSelector
-            v-model="emotionIdsBefore"
-            :label="t('exerciseWizards.attitudinalShift.intro.emotionLabel')"
-          />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.attitudinalShift.intro.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantBefore"
+                @clear="activeEmotionQuadrantBefore = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsBefore"
+              v-model:quadrant="activeEmotionQuadrantBefore"
+            />
+          </div>
         </AppCard>
         <div class="flex justify-end">
           <AppButton variant="filled" @click="currentStep = 'statements'">{{ t('common.buttons.start') }}</AppButton>
@@ -339,10 +348,19 @@
             </p>
           </div>
 
-          <EmotionSelector
-            v-model="emotionIdsAfter"
-            :label="t('exerciseWizards.attitudinalShift.summary.emotionLabel')"
-          />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.attitudinalShift.summary.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantAfter"
+                @clear="activeEmotionQuadrantAfter = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsAfter"
+              v-model:quadrant="activeEmotionQuadrantAfter"
+            />
+          </div>
 
           <div>
             <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -396,8 +414,10 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type { CreateAttitudinalShiftPayload, BecauseStatement } from '@/domain/exercises'
 
 const emit = defineEmits<{
@@ -436,6 +456,8 @@ function goToStepByIndex(idx: number) {
 // ─── Form State ──────────────────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
+const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
 const surpriseReflection = ref('')
 const truestReflection = ref('')

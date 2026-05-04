@@ -6,23 +6,32 @@
         <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('emotionViews.logTitle') }}</h2>
 
         <div class="space-y-4">
-          <!-- Selected Emotions Display -->
-          <div
-            v-if="selectedEmotionIds.length > 0"
-            class="flex flex-wrap gap-2 mb-2"
-          >
-            <button
-              v-for="emotion in selectedEmotionList"
-              :key="emotion.id"
-              type="button"
-              :style="getEmotionChipStyle(emotion.id)"
-              class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-on-surface text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
-              :aria-label="`Remove ${emotion.name} from selection`"
-              @click="removeEmotion(emotion.id)"
+          <!-- Emotions header (label + active quadrant suffix + selected chips) -->
+          <div class="flex flex-wrap items-center gap-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('emotionViews.editor.emotions') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrant"
+                @clear="activeEmotionQuadrant = null"
+              />
+            </p>
+            <div
+              v-if="selectedEmotionIds.length > 0"
+              class="flex flex-wrap gap-2"
             >
-              <span>{{ emotion.name }}</span>
-              <AppIcon name="close" class="text-sm" />
-            </button>
+              <button
+                v-for="emotion in selectedEmotionList"
+                :key="emotion.id"
+                type="button"
+                :style="getEmotionChipStyle(emotion.id)"
+                class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-on-surface text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+                :aria-label="`Remove ${emotion.name} from selection`"
+                @click="removeEmotion(emotion.id)"
+              >
+                <span>{{ emotion.name }}</span>
+                <AppIcon name="close" class="text-sm" />
+              </button>
+            </div>
           </div>
 
           <!-- Emotion Selector -->
@@ -33,7 +42,11 @@
             {{ t('emotionViews.loadingEmotions') }}
           </div>
           <div v-else>
-            <EmotionSelector v-model="selectedEmotionIds" :show-selected-section="false" />
+            <EmotionSelector
+              v-model="selectedEmotionIds"
+              v-model:quadrant="activeEmotionQuadrant"
+              :show-selected-section="false"
+            />
           </div>
 
           <!-- Quick Note -->
@@ -131,6 +144,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -148,6 +162,7 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 // Form state
 const selectedEmotionIds = ref<string[]>([])
+const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const note = ref('')
 const selectedPeopleTagIds = ref<string[]>([])
 const selectedContextTagIds = ref<string[]>([])

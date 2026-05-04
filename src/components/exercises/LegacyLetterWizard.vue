@@ -46,7 +46,19 @@
             </p>
             <p class="text-xs text-on-surface-variant mt-1">— Viktor Frankl</p>
           </div>
-          <EmotionSelector v-model="emotionIdsBefore" :label="t('exerciseWizards.legacyLetter.intro.emotionLabel')" />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.legacyLetter.intro.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantBefore"
+                @clear="activeEmotionQuadrantBefore = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsBefore"
+              v-model:quadrant="activeEmotionQuadrantBefore"
+            />
+          </div>
         </AppCard>
         <div class="flex justify-end">
           <AppButton variant="filled" @click="currentStep = 'warmup'">{{ t('common.buttons.start') }}</AppButton>
@@ -335,7 +347,19 @@
             <p class="text-sm text-on-surface-variant">{{ reflectionInsight }}</p>
           </div>
 
-          <EmotionSelector v-model="emotionIdsAfter" :label="t('exerciseWizards.legacyLetter.summary.emotionLabel')" />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.legacyLetter.summary.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantAfter"
+                @clear="activeEmotionQuadrantAfter = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsAfter"
+              v-model:quadrant="activeEmotionQuadrantAfter"
+            />
+          </div>
 
           <div>
             <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -364,9 +388,11 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type { CreateLegacyLetterPayload, SocraticDialogueMessage } from '@/domain/exercises'
 
 const emit = defineEmits<{
@@ -565,6 +591,8 @@ async function handleSend() {
 // ─── Emotions & Notes State ────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
+const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
 
 // ─── Save ──────────────────────────────────────────────────────────────────

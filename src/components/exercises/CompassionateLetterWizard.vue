@@ -123,12 +123,19 @@
     >
       <div v-if="currentStep === 'emotions'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.emotions.title') }}</h2>
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.emotions.title') }}</h2>
+            <EmotionQuadrantSuffix
+              :quadrant="activeEmotionQuadrant"
+              @clear="activeEmotionQuadrant = null"
+            />
+          </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.compassionateLetter.emotions.description') }}
           </p>
           <EmotionSelector
             v-model="selectedEmotionIds"
+            v-model:quadrant="activeEmotionQuadrant"
             :show-selected-section="true"
           />
         </AppCard>
@@ -394,6 +401,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
 import { getQuadrant } from '@/domain/emotion'
@@ -452,6 +460,7 @@ function goToStepByIndex(idx: number) {
 // ─── Form State ──────────────────────────────────────────────────────────────
 const situation = ref('')
 const selectedEmotionIds = ref<string[]>([])
+const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const selfCriticalThoughts = reactive<string[]>([''])
 const compassionateResponse = ref('')
 const takeaways = reactive<string[]>([''])

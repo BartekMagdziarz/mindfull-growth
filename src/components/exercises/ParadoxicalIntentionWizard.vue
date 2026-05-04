@@ -70,10 +70,19 @@
             </div>
           </div>
 
-          <EmotionSelector
-            v-model="emotionIdsBefore"
-            :label="t('exerciseWizards.paradoxicalIntention.intro.emotionLabel')"
-          />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.paradoxicalIntention.intro.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantBefore"
+                @clear="activeEmotionQuadrantBefore = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsBefore"
+              v-model:quadrant="activeEmotionQuadrantBefore"
+            />
+          </div>
         </AppCard>
         <div class="flex justify-end">
           <AppButton variant="filled" @click="currentStep = 'fears'">{{ t('common.buttons.start') }}</AppButton>
@@ -268,10 +277,19 @@
             </div>
           </div>
 
-          <EmotionSelector
-            v-model="emotionIdsAfter"
-            :label="t('exerciseWizards.paradoxicalIntention.practice.emotionLabel')"
-          />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.paradoxicalIntention.practice.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantAfter"
+                @clear="activeEmotionQuadrantAfter = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsAfter"
+              v-model:quadrant="activeEmotionQuadrantAfter"
+            />
+          </div>
         </AppCard>
         <div class="flex justify-between">
           <AppButton variant="text" @click="currentStep = 'craft'">{{ t('common.buttons.back') }}</AppButton>
@@ -336,7 +354,9 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type { CreateParadoxicalIntentionPayload } from '@/domain/exercises'
 
 const emit = defineEmits<{
@@ -431,6 +451,8 @@ async function handleMakeFunnier() {
 // ─── Form State ────────────────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
+const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
 
 // ─── Save ──────────────────────────────────────────────────────────────────

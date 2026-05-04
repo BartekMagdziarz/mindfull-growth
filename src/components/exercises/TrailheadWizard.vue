@@ -54,10 +54,19 @@
               />
             </div>
 
-            <EmotionSelector
-              v-model="emotionIds"
-              :label="t('exerciseWizards.trailhead.trigger.emotionsLabel')"
-            />
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                {{ t('exerciseWizards.trailhead.trigger.emotionsLabel') }}
+                <EmotionQuadrantSuffix
+                  :quadrant="activeEmotionQuadrant"
+                  @clear="activeEmotionQuadrant = null"
+                />
+              </p>
+              <EmotionSelector
+                v-model="emotionIds"
+                v-model:quadrant="activeEmotionQuadrant"
+              />
+            </div>
 
             <RatingSlider
               v-model="intensity"
@@ -358,10 +367,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
@@ -372,6 +383,7 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type { IFSPartRole } from '@/domain/exercises'
 
 const emit = defineEmits<{
@@ -382,6 +394,8 @@ const { t } = useT()
 const partStore = useIFSPartStore()
 const trailheadStore = useIFSTrailheadStore()
 const emotionStore = useEmotionStore()
+
+const activeEmotionQuadrant = ref<Quadrant | null>(null)
 
 const STEPS: TrailheadStep[] = [
   'trigger', 'thoughts', 'sensations', 'images',

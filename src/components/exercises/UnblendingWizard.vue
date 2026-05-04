@@ -42,10 +42,19 @@
               </p>
             </div>
 
-            <EmotionSelector
-              v-model="beforeEmotionIds"
-              :label="t('exerciseWizards.unblending.checkIn.emotionLabel')"
-            />
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                {{ t('exerciseWizards.unblending.checkIn.emotionLabel') }}
+                <EmotionQuadrantSuffix
+                  :quadrant="activeEmotionQuadrantBefore"
+                  @clear="activeEmotionQuadrantBefore = null"
+                />
+              </p>
+              <EmotionSelector
+                v-model="beforeEmotionIds"
+                v-model:quadrant="activeEmotionQuadrantBefore"
+              />
+            </div>
           </AppCard>
 
           <div class="flex justify-end">
@@ -326,10 +335,19 @@
           <AppCard variant="raised" padding="lg" class="space-y-5">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.postCheck.title') }}</h2>
 
-            <EmotionSelector
-              v-model="afterEmotionIds"
-              :label="t('exerciseWizards.unblending.postCheck.emotionLabel')"
-            />
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                {{ t('exerciseWizards.unblending.postCheck.emotionLabel') }}
+                <EmotionQuadrantSuffix
+                  :quadrant="activeEmotionQuadrantAfter"
+                  @clear="activeEmotionQuadrantAfter = null"
+                />
+              </p>
+              <EmotionSelector
+                v-model="afterEmotionIds"
+                v-model:quadrant="activeEmotionQuadrantAfter"
+              />
+            </div>
 
             <!-- Before/After comparison -->
             <div v-if="beforeEmotionIds.length || afterEmotionIds.length" class="grid grid-cols-2 gap-4">
@@ -397,12 +415,14 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import { useUnblendingWizard, type UnblendingStep } from '@/composables/useUnblendingWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 
 const emit = defineEmits<{
   saved: []
@@ -446,6 +466,10 @@ const {
   isSaving,
   save,
 } = useUnblendingWizard()
+
+// Emotion quadrant tracking
+const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
+const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 
 // Awareness step
 const awarenessChoice = ref<'yes' | 'maybe' | 'no' | null>(null)

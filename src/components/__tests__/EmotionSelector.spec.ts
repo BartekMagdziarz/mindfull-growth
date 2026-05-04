@@ -234,26 +234,117 @@ describe('EmotionSelector', () => {
       })
     })
 
-    it('highlights the active quadrant when it is selected', async () => {
+    it('replaces the 4 quadrants with the pill grid when a quadrant is clicked', async () => {
       render(EmotionSelector, {
         props: {
           modelValue: [],
         },
       })
 
-      const quadrantButton = screen.getByRole('button', {
-        name: /Select High Energy \/ High Pleasantness quadrant/i,
-      })
+      // All four quadrants visible initially
+      expect(
+        screen.getByLabelText('Select High Energy / Low Pleasantness quadrant')
+      ).toBeInTheDocument()
+
+      const quadrantButton = screen.getByLabelText(
+        'Select High Energy / High Pleasantness quadrant'
+      )
       await fireEvent.click(quadrantButton)
 
+      // Pills now visible
       await waitFor(() => {
-        expect(quadrantButton).toHaveAttribute('aria-pressed', 'true')
+        expect(screen.getByLabelText('Select emotion Ecstatic')).toBeInTheDocument()
       })
 
-      const otherQuadrant = screen.getByRole('button', {
-        name: /Select High Energy \/ Low Pleasantness quadrant/i,
+      // Quadrant buttons are no longer in the DOM (replaced by pills)
+      expect(
+        screen.queryByLabelText('Select High Energy / Low Pleasantness quadrant')
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('v-model:quadrant Two-Way Binding', () => {
+    it('emits update:quadrant when a quadrant is selected', async () => {
+      const { emitted } = render(EmotionSelector, {
+        props: {
+          modelValue: [],
+        },
       })
-      expect(otherQuadrant).toHaveAttribute('aria-pressed', 'false')
+
+      const quadrantButton = screen.getByLabelText(
+        'Select High Energy / Low Pleasantness quadrant'
+      )
+      await fireEvent.click(quadrantButton)
+
+      expect(emitted('update:quadrant')).toBeTruthy()
+      const lastEmit = emitted('update:quadrant').at(-1) as [Quadrant | null]
+      expect(lastEmit[0]).toBe('high-energy-low-pleasantness')
+    })
+
+    it('returns to the 4-quadrant view when parent clears quadrant via v-model', async () => {
+      // Start with emotions selected so the pill view is genuinely active —
+      // empty modelValue has its own auto-clear semantics that would mask the
+      // behavior we are validating here.
+      const { rerender } = render(EmotionSelector, {
+        props: {
+          modelValue: ['emotion-1'],
+          quadrant: 'high-energy-high-pleasantness' as Quadrant,
+        },
+      })
+
+      // Pills view initially because quadrant prop is set
+      await waitFor(() => {
+        expect(screen.getByLabelText('Deselect emotion Ecstatic')).toBeInTheDocument()
+      })
+
+      // Parent clears the quadrant
+      await rerender({
+        modelValue: ['emotion-1'],
+        quadrant: null,
+      })
+
+      // 4-quadrant view returns
+      await waitFor(() => {
+        expect(
+          screen.getByLabelText('Select Low Energy / Low Pleasantness quadrant')
+        ).toBeInTheDocument()
+      })
+      expect(screen.queryByLabelText('Select emotion Ecstatic')).not.toBeInTheDocument()
+    })
+
+    it('emits update:quadrant null when parent clears quadrant after selection', async () => {
+      const { emitted, rerender } = render(EmotionSelector, {
+        props: {
+          modelValue: ['emotion-1'],
+          quadrant: 'high-energy-high-pleasantness' as Quadrant,
+        },
+      })
+
+      // Wait for pills
+      await screen.findByLabelText('Deselect emotion Ecstatic')
+
+      // Parent clears via v-model
+      await rerender({
+        modelValue: ['emotion-1'],
+        quadrant: null,
+      })
+
+      // Quadrants reappear
+      await waitFor(() => {
+        expect(
+          screen.getByLabelText('Select High Energy / High Pleasantness quadrant')
+        ).toBeInTheDocument()
+      })
+
+      // Selecting another quadrant emits update:quadrant for the new value
+      const otherQuadrant = screen.getByLabelText(
+        'Select Low Energy / Low Pleasantness quadrant'
+      )
+      await fireEvent.click(otherQuadrant)
+
+      const allEmits = (emitted('update:quadrant') ?? []) as [Quadrant | null][]
+      const lastValue = allEmits.at(-1)?.[0]
+      expect(lastValue).toBe('low-energy-low-pleasantness')
     })
   })
 
@@ -340,17 +431,24 @@ describe('EmotionSelector', () => {
   })
 
   describe('Cross-Quadrant Selection', () => {
-    it('preserves selections when switching quadrants', async () => {
-      render(EmotionSelector, {
+    it('preserves selections when switching to a different quadrant via v-model', async () => {
+      const { rerender } = render(EmotionSelector, {
         props: {
           modelValue: ['emotion-1'],
+          quadrant: 'high-energy-high-pleasantness' as Quadrant,
         },
       })
 
       await screen.findByLabelText('Deselect emotion Ecstatic')
 
-      // Switch to different quadrant
-      const quadrant2Button = screen.getByLabelText(
+      // Parent clears quadrant (e.g. user clicked the EmotionQuadrantSuffix)
+      await rerender({
+        modelValue: ['emotion-1'],
+        quadrant: null,
+      })
+
+      // 4-quadrant view returns; user picks a different quadrant
+      const quadrant2Button = await screen.findByLabelText(
         'Select High Energy / Low Pleasantness quadrant'
       )
       await fireEvent.click(quadrant2Button)
@@ -359,33 +457,32 @@ describe('EmotionSelector', () => {
         expect(screen.getByLabelText('Select emotion Enraged')).toBeInTheDocument()
       })
 
-      // Verify selected emotions section still shows the first selection
+      // Selected emotions section still shows the first selection
       expect(screen.getByText('Selected Emotions (1)')).toBeInTheDocument()
       expect(screen.getByLabelText('Remove Ecstatic from selection')).toBeInTheDocument()
     })
 
     it('allows selecting emotions from multiple quadrants', async () => {
-      const { emitted } = render(EmotionSelector, {
+      // Drive the test exclusively through props so v-model:quadrant has a
+      // stable, parent-supplied value the rerender can flip.
+      const { emitted, rerender } = render(EmotionSelector, {
         props: {
-          modelValue: [],
+          modelValue: ['emotion-1'],
+          quadrant: 'high-energy-high-pleasantness' as Quadrant,
         },
       })
 
-      // Select from first quadrant
-      const quadrant1Button = screen.getByLabelText(
-        'Select High Energy / High Pleasantness quadrant'
-      )
-      await fireEvent.click(quadrant1Button)
+      // Pills view for the first quadrant; emotion-1 already selected
+      await screen.findByLabelText('Deselect emotion Ecstatic')
 
-      await waitFor(() => {
-        expect(screen.getByLabelText('Select emotion Ecstatic')).toBeInTheDocument()
+      // Parent clears quadrant (suffix click)
+      await rerender({
+        modelValue: ['emotion-1'],
+        quadrant: null,
       })
 
-      const emotion1 = screen.getByLabelText('Select emotion Ecstatic')
-      await fireEvent.click(emotion1)
-
-      // Switch to second quadrant
-      const quadrant2Button = screen.getByLabelText(
+      // 4-quadrant view returns; user picks a second quadrant
+      const quadrant2Button = await screen.findByLabelText(
         'Select High Energy / Low Pleasantness quadrant'
       )
       await fireEvent.click(quadrant2Button)
@@ -397,11 +494,11 @@ describe('EmotionSelector', () => {
       const emotion2 = screen.getByLabelText('Select emotion Enraged')
       await fireEvent.click(emotion2)
 
-      // Verify both emotions are selected
-      expect(emitted('update:modelValue')).toBeTruthy()
-      const lastEmit = emitted('update:modelValue')[emitted('update:modelValue').length - 1] as string[][]
-      expect(lastEmit[0]).toContain('emotion-1')
-      expect(lastEmit[0]).toContain('emotion-4')
+      // Both emotions accumulated
+      const allModelEmits = emitted('update:modelValue') as string[][][]
+      const last = allModelEmits.at(-1)![0]
+      expect(last).toContain('emotion-1')
+      expect(last).toContain('emotion-4')
     })
   })
 

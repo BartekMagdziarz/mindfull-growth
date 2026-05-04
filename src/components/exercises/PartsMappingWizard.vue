@@ -67,10 +67,19 @@
               </p>
             </div>
 
-            <EmotionSelector
-              v-model="beforeEmotionIds"
-              :label="t('exerciseWizards.partsMapping.intro.emotionLabel')"
-            />
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                {{ t('exerciseWizards.partsMapping.intro.emotionLabel') }}
+                <EmotionQuadrantSuffix
+                  :quadrant="activeEmotionQuadrantIntro"
+                  @clear="activeEmotionQuadrantIntro = null"
+                />
+              </p>
+              <EmotionSelector
+                v-model="beforeEmotionIds"
+                v-model:quadrant="activeEmotionQuadrantIntro"
+              />
+            </div>
           </AppCard>
 
           <div class="flex justify-end">
@@ -100,10 +109,19 @@
               />
             </div>
 
-            <EmotionSelector
-              v-model="trailheadEmotionIds"
-              :label="t('exerciseWizards.partsMapping.trailhead.emotionsLabel')"
-            />
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                {{ t('exerciseWizards.partsMapping.trailhead.emotionsLabel') }}
+                <EmotionQuadrantSuffix
+                  :quadrant="activeEmotionQuadrantTrailhead"
+                  @clear="activeEmotionQuadrantTrailhead = null"
+                />
+              </p>
+              <EmotionSelector
+                v-model="trailheadEmotionIds"
+                v-model:quadrant="activeEmotionQuadrantTrailhead"
+              />
+            </div>
 
             <BodyLocationPicker
               v-model="trailheadBodyLocations"
@@ -503,10 +521,19 @@
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmInsight }}</p>
             </div>
 
-            <EmotionSelector
-              v-model="afterEmotionIds"
-              :label="t('exerciseWizards.partsMapping.summary.emotionLabel')"
-            />
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                {{ t('exerciseWizards.partsMapping.summary.emotionLabel') }}
+                <EmotionQuadrantSuffix
+                  :quadrant="activeEmotionQuadrantSummary"
+                  @clear="activeEmotionQuadrantSummary = null"
+                />
+              </p>
+              <EmotionSelector
+                v-model="afterEmotionIds"
+                v-model:quadrant="activeEmotionQuadrantSummary"
+              />
+            </div>
 
             <div class="space-y-1">
               <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.summary.notesLabel') }}</label>
@@ -537,11 +564,13 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import BodyLocationPicker from '@/components/exercises/ifs/BodyLocationPicker.vue'
 import { usePartsMappingWizard, type PartsMappingStep } from '@/composables/usePartsMappingWizard'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type { IFSPartRole, IFSBodyLocation, IFSRelationship } from '@/domain/exercises'
 
 const emit = defineEmits<{
@@ -605,6 +634,10 @@ const {
 
 // Trailhead body location is an array in BodyLocationPicker
 const trailheadBodyLocations = ref<IFSBodyLocation[]>([])
+
+const activeEmotionQuadrantIntro = ref<Quadrant | null>(null)
+const activeEmotionQuadrantTrailhead = ref<Quadrant | null>(null)
+const activeEmotionQuadrantSummary = ref<Quadrant | null>(null)
 
 const roleOptions = computed(() => [
   { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: 'bg-blue-100 text-blue-700' },

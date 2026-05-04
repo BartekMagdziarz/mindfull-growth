@@ -57,7 +57,19 @@
             </div>
           </div>
 
-          <EmotionSelector v-model="emotionIdsBefore" :label="t('exerciseWizards.tragicOptimism.intro.emotionLabel')" />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.tragicOptimism.intro.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantBefore"
+                @clear="activeEmotionQuadrantBefore = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsBefore"
+              v-model:quadrant="activeEmotionQuadrantBefore"
+            />
+          </div>
         </AppCard>
         <div class="flex justify-end">
           <AppButton variant="filled" @click="currentStep = 'focus'">
@@ -307,7 +319,19 @@
             />
           </div>
 
-          <EmotionSelector v-model="emotionIdsAfter" :label="t('exerciseWizards.tragicOptimism.insights.emotionLabel')" />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.tragicOptimism.insights.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantAfter"
+                @clear="activeEmotionQuadrantAfter = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsAfter"
+              v-model:quadrant="activeEmotionQuadrantAfter"
+            />
+          </div>
 
           <div>
             <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -336,7 +360,9 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type {
   CreateTragicOptimismPayload,
   SocraticDialogueMessage,
@@ -539,6 +565,8 @@ watch(currentStep, async (newStep) => {
 // ─── Emotions & Insights State ─────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
+const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const insightMeaning = ref('')
 const insightCarryForward = ref('')
 const notes = ref('')

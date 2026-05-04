@@ -78,8 +78,12 @@
           >
             <header class="space-y-2">
               <div class="flex flex-wrap items-center gap-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                   {{ t('emotionViews.editor.emotions') }}
+                  <EmotionQuadrantSuffix
+                    :quadrant="activeEmotionQuadrant"
+                    @clear="activeEmotionQuadrant = null"
+                  />
                 </p>
                 <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
                   <button
@@ -104,7 +108,11 @@
               {{ t('emotionViews.loadingEmotions') }}
             </div>
             <div v-else class="pt-1">
-              <EmotionSelector v-model="selectedEmotionIds" :show-selected-section="false" />
+              <EmotionSelector
+                v-model="selectedEmotionIds"
+                v-model:quadrant="activeEmotionQuadrant"
+                :show-selected-section="false"
+              />
             </div>
           </section>
 
@@ -202,6 +210,7 @@ import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -232,6 +241,7 @@ const showSnackbarThenNavigate = async (message: string, path: string) => {
 }
 
 const selectedEmotionIds = ref<string[]>([])
+const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const note = ref('')
 const selectedPeopleTagIds = ref<string[]>([])
 const selectedContextTagIds = ref<string[]>([])

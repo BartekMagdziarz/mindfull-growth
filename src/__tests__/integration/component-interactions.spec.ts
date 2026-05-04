@@ -171,10 +171,15 @@ describe('Component interactions', () => {
 
     await screen.findByRole('button', { name: /Remove Happy from selection/i })
 
-    // Switch quadrants and ensure selection persists
+    // Click the quadrant suffix to return to the 4-quadrant view, then pick
+    // a different quadrant — this mirrors the new UX flow (no inline switch).
     await user.click(
-      screen.getByRole('button', { name: /Select High Energy \/ Low Pleasantness quadrant/i })
+      screen.getByRole('button', { name: /Wróć do wyboru kwadrantu|Back to quadrant selection/i })
     )
+    await user.click(
+      await screen.findByRole('button', { name: /Select High Energy \/ Low Pleasantness quadrant/i })
+    )
+    // Selection persists across the round-trip
     await screen.findByRole('button', { name: /Remove Happy from selection/i })
 
     // Add people tag

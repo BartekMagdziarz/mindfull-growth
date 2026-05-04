@@ -43,10 +43,19 @@
             </p>
             <p class="text-xs text-on-surface-variant mt-1">— Viktor Frankl</p>
           </div>
-          <EmotionSelector
-            v-model="emotionIdsBefore"
-            :label="t('exerciseWizards.dereflection.intro.emotionLabel')"
-          />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.dereflection.intro.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantBefore"
+                @clear="activeEmotionQuadrantBefore = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsBefore"
+              v-model:quadrant="activeEmotionQuadrantBefore"
+            />
+          </div>
         </AppCard>
         <div class="flex justify-end">
           <AppButton variant="filled" @click="currentStep = 'fixation'">{{ t('common.buttons.start') }}</AppButton>
@@ -315,10 +324,19 @@
           </div>
 
           <!-- After emotions -->
-          <EmotionSelector
-            v-model="emotionIdsAfter"
-            :label="t('exerciseWizards.dereflection.summary.emotionLabel')"
-          />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.dereflection.summary.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantAfter"
+                @clear="activeEmotionQuadrantAfter = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsAfter"
+              v-model:quadrant="activeEmotionQuadrantAfter"
+            />
+          </div>
 
           <!-- Notes -->
           <div>
@@ -348,11 +366,13 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type { CreateDereflectionPayload, DereflectionRedirection } from '@/domain/exercises'
 
 const emit = defineEmits<{
@@ -413,6 +433,8 @@ function goToStepByIndex(idx: number) {
 // ─── Form State ──────────────────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
+const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
 const fixation = ref('')
 const fixationIntensity = ref(3)

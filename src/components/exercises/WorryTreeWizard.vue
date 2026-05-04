@@ -39,12 +39,19 @@
         </AppCard>
 
         <AppCard padding="lg" class="space-y-4">
-          <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.capture.emotionsTitle') }}</h3>
+          <div class="flex items-center gap-1.5">
+            <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.capture.emotionsTitle') }}</h3>
+            <EmotionQuadrantSuffix
+              :quadrant="activeEmotionQuadrant"
+              @clear="activeEmotionQuadrant = null"
+            />
+          </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.capture.emotionsDescription') }}
           </p>
           <EmotionSelector
             v-model="selectedEmotionIds"
+            v-model:quadrant="activeEmotionQuadrant"
             :show-selected-section="true"
           />
           <div v-if="selectedEmotionIds.length > 0" class="space-y-2">
@@ -461,8 +468,10 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type {
   EmotionRating,
   LettingGoTechnique,
@@ -491,6 +500,7 @@ const currentStep = ref<Step>('capture')
 // ─── Form State ──────────────────────────────────────────────────────────────
 const worry = ref('')
 const selectedEmotionIds = ref<string[]>([])
+const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const emotionBeforeIntensity = ref(50)
 const emotionAfterIntensity = ref(50)
 

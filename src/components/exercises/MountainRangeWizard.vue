@@ -62,10 +62,19 @@
               </div>
             </div>
           </div>
-          <EmotionSelector
-            v-model="emotionIdsBefore"
-            :label="t('exerciseWizards.mountainRange.intro.emotionLabel')"
-          />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.mountainRange.intro.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantIntro"
+                @clear="activeEmotionQuadrantIntro = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsBefore"
+              v-model:quadrant="activeEmotionQuadrantIntro"
+            />
+          </div>
         </AppCard>
         <div class="flex justify-end">
           <AppButton variant="filled" @click="currentStep = 'peaks'">{{ t('common.buttons.start') }}</AppButton>
@@ -116,10 +125,19 @@
                   class="neo-input neo-focus w-full p-3 text-sm resize-none"
                   rows="2"
                 />
-                <EmotionSelector
-                  v-model="event.emotionIds"
-                  :label="t('exerciseWizards.mountainRange.peaks.emotionLabel')"
-                />
+                <div class="space-y-2">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                    {{ t('exerciseWizards.mountainRange.peaks.emotionLabel') }}
+                    <EmotionQuadrantSuffix
+                      :quadrant="event.activeQuadrant"
+                      @clear="event.activeQuadrant = null"
+                    />
+                  </p>
+                  <EmotionSelector
+                    v-model="event.emotionIds"
+                    v-model:quadrant="event.activeQuadrant"
+                  />
+                </div>
               </div>
               <button
                 v-if="peakEvents.length > 1"
@@ -199,10 +217,19 @@
                   class="neo-input neo-focus w-full p-3 text-sm resize-none"
                   rows="4"
                 />
-                <EmotionSelector
-                  v-model="event.emotionIds"
-                  :label="t('exerciseWizards.mountainRange.peaks.emotionLabel')"
-                />
+                <div class="space-y-2">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                    {{ t('exerciseWizards.mountainRange.peaks.emotionLabel') }}
+                    <EmotionQuadrantSuffix
+                      :quadrant="event.activeQuadrant"
+                      @clear="event.activeQuadrant = null"
+                    />
+                  </p>
+                  <EmotionSelector
+                    v-model="event.emotionIds"
+                    v-model:quadrant="event.activeQuadrant"
+                  />
+                </div>
               </div>
               <button
                 v-if="valleyEvents.length > 1"
@@ -388,10 +415,19 @@
             {{ t('exerciseWizards.mountainRange.future.addAnother') }}
           </AppButton>
 
-          <EmotionSelector
-            v-model="emotionIdsAfter"
-            :label="t('exerciseWizards.mountainRange.future.emotionLabel')"
-          />
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+              {{ t('exerciseWizards.mountainRange.future.emotionLabel') }}
+              <EmotionQuadrantSuffix
+                :quadrant="activeEmotionQuadrantFuture"
+                @clear="activeEmotionQuadrantFuture = null"
+              />
+            </p>
+            <EmotionSelector
+              v-model="emotionIdsAfter"
+              v-model:quadrant="activeEmotionQuadrantFuture"
+            />
+          </div>
 
           <div>
             <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -420,10 +456,12 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import MountainRangeTimeline from '@/components/exercises/MountainRangeTimeline.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useT } from '@/composables/useT'
+import type { Quadrant } from '@/domain/emotion'
 import type { CreateMountainRangePayload, MountainRangeEvent } from '@/domain/exercises'
 
 const emit = defineEmits<{
@@ -467,6 +505,8 @@ function goToStepByIndex(idx: number) {
 // ─── Form State ──────────────────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const activeEmotionQuadrantIntro = ref<Quadrant | null>(null)
+const activeEmotionQuadrantFuture = ref<Quadrant | null>(null)
 const notes = ref('')
 const selectedEventId = ref<string>()
 
@@ -477,6 +517,7 @@ interface EditableEvent {
   ageOrYear: number
   emotionIds: string[]
   reflection: string
+  activeQuadrant: Quadrant | null
 }
 
 function createEvent(type: 'peak' | 'valley'): EditableEvent {
@@ -487,6 +528,7 @@ function createEvent(type: 'peak' | 'valley'): EditableEvent {
     ageOrYear: 0,
     emotionIds: [],
     reflection: '',
+    activeQuadrant: null,
   }
 }
 

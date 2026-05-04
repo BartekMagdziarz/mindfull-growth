@@ -33,96 +33,119 @@
       </div>
     </template>
 
-    <!-- Quadrant Selector -->
-    <div class="quadrant-selector">
-      <div
-        class="grid grid-cols-2 gap-3"
-        role="group"
-        aria-label="Emotion quadrant selection"
+    <!-- Animated swap container: 4 quadrants <-> emotion pill grid -->
+    <div class="selector-swap" :class="{ 'selector-swap--expanded': quadrantModel }">
+      <Transition
+        enter-active-class="es-enter-active"
+        leave-active-class="es-leave-active"
+        enter-from-class="es-from"
+        leave-to-class="es-to"
+        mode="out-in"
       >
-        <button
-          v-for="quadrant in quadrants"
-          :key="quadrant.value"
-          type="button"
-          :data-testid="`emotion-quadrant-${quadrant.value}`"
-          :aria-label="`Select ${quadrant.label} quadrant`"
-          :aria-pressed="selectedQuadrant === quadrant.value"
-          :class="getQuadrantButtonClasses(quadrant.value, selectedQuadrant === quadrant.value)"
-          :style="getQuadrantButtonStyle(quadrant.value, selectedQuadrant === quadrant.value)"
-          @click="selectQuadrant(quadrant.value)"
-        >
-          <div class="flex items-center gap-2.5">
-            <AppIcon
-              :name="quadrant.icon"
-              class="text-xl flex-shrink-0"
-            />
-            <div class="flex flex-col items-start">
-              <span class="text-sm font-semibold leading-snug">
-                {{ quadrant.energyLabel }}
-              </span>
-              <span class="text-sm font-semibold leading-snug">
-                {{ quadrant.pleasantnessLabel }}
-              </span>
-            </div>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Emotion Grid -->
-    <div v-if="selectedQuadrant" class="emotion-selection mt-4">
-      <div v-if="!emotionStore.isLoaded" class="text-center py-4 text-sm">
-        <p class="text-on-surface-variant">{{ t('emotionViews.selector.loadingEmotions') }}</p>
-      </div>
-      <template v-else-if="currentQuadrantEmotions.length > 0">
+        <!-- Quadrant Selector view -->
         <div
-          class="emotion-grid"
-          role="grid"
-          :aria-label="`Emotions in ${getQuadrantLabel(selectedQuadrant)} quadrant`"
+          v-if="!quadrantModel"
+          key="quadrants"
+          class="quadrant-selector"
         >
-          <button
-            v-for="emotion in quadrantGrid"
-            :key="emotion.id"
-            type="button"
-            role="gridcell"
-            :data-testid="`emotion-option-${emotion.id}`"
-            :aria-label="`${isEmotionSelected(emotion.id) ? 'Deselect' : 'Select'} emotion ${emotion.name}`"
-            :aria-pressed="isEmotionSelected(emotion.id)"
-            :class="getEmotionCellClasses(emotion.id)"
-            :style="getEmotionCellStyle(emotion.id)"
-            @click="toggleEmotion(emotion.id)"
-            @pointerenter="hoveredEmotionId = emotion.id"
-            @pointerleave="hoveredEmotionId = null"
+          <div
+            class="grid grid-cols-2 gap-3"
+            role="group"
+            aria-label="Emotion quadrant selection"
           >
-            {{ emotion.name }}
-          </button>
+            <button
+              v-for="quadrant in quadrants"
+              :key="quadrant.value"
+              type="button"
+              :data-testid="`emotion-quadrant-${quadrant.value}`"
+              :aria-label="`Select ${quadrant.label} quadrant`"
+              :class="getQuadrantButtonClasses()"
+              :style="getQuadrantButtonStyle(quadrant.value)"
+              @click="selectQuadrant(quadrant.value)"
+            >
+              <div class="flex items-center gap-2.5">
+                <AppIcon
+                  :name="quadrant.icon"
+                  class="text-xl flex-shrink-0"
+                />
+                <div class="flex flex-col items-start">
+                  <span class="text-sm font-semibold leading-snug">
+                    {{ quadrant.energyLabel }}
+                  </span>
+                  <span class="text-sm font-semibold leading-snug">
+                    {{ quadrant.pleasantnessLabel }}
+                  </span>
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
-        <!-- Emotion description strip -->
-        <div class="emotion-description-strip">
-          <Transition
-            enter-active-class="transition-opacity duration-200 ease-out"
-            leave-active-class="transition-opacity duration-150 ease-in"
-            enter-from-class="opacity-0"
-            enter-to-class="opacity-100"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-            mode="out-in"
+
+        <!-- Emotion Grid view -->
+        <div
+          v-else
+          key="pills"
+          class="emotion-selection"
+        >
+          <div v-if="!emotionStore.isLoaded" class="text-center py-4 text-sm">
+            <p class="text-on-surface-variant">{{ t('emotionViews.selector.loadingEmotions') }}</p>
+          </div>
+          <template v-else-if="quadrantGrid.length > 0">
+            <TransitionGroup
+              tag="div"
+              class="emotion-grid"
+              role="grid"
+              :aria-label="`Emotions in ${getQuadrantLabel(quadrantModel)} quadrant`"
+              enter-active-class="pill-enter-active"
+              enter-from-class="pill-enter-from"
+              leave-active-class="pill-leave-active"
+              leave-to-class="pill-leave-to"
+            >
+              <button
+                v-for="(emotion, i) in quadrantGrid"
+                :key="emotion.id"
+                type="button"
+                role="gridcell"
+                :data-testid="`emotion-option-${emotion.id}`"
+                :aria-label="`${isEmotionSelected(emotion.id) ? 'Deselect' : 'Select'} emotion ${emotion.name}`"
+                :aria-pressed="isEmotionSelected(emotion.id)"
+                :class="getEmotionCellClasses(emotion.id)"
+                :style="getEmotionCellInlineStyle(emotion.id, i)"
+                @click="toggleEmotion(emotion.id)"
+                @pointerenter="hoveredEmotionId = emotion.id"
+                @pointerleave="hoveredEmotionId = null"
+              >
+                {{ emotion.name }}
+              </button>
+            </TransitionGroup>
+            <!-- Emotion description strip -->
+            <div class="emotion-description-strip">
+              <Transition
+                enter-active-class="transition-opacity duration-200 ease-out"
+                leave-active-class="transition-opacity duration-150 ease-in"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+                mode="out-in"
+              >
+                <span v-if="hoveredEmotionDescription" :key="hoveredEmotionDescription.name">
+                  <span class="font-semibold">{{ hoveredEmotionDescription.name }}</span>
+                  <span class="mx-1.5 text-on-surface-variant/40">&mdash;</span>
+                  <span class="text-on-surface-variant">{{ hoveredEmotionDescription.description }}</span>
+                </span>
+                <span v-else>&nbsp;</span>
+              </Transition>
+            </div>
+          </template>
+          <div
+            v-else
+            class="text-center py-4 rounded-2xl bg-section text-on-surface-variant text-sm"
           >
-            <span v-if="hoveredEmotionDescription" :key="hoveredEmotionDescription.name">
-              <span class="font-semibold">{{ hoveredEmotionDescription.name }}</span>
-              <span class="mx-1.5 text-on-surface-variant/40">&mdash;</span>
-              <span class="text-on-surface-variant">{{ hoveredEmotionDescription.description }}</span>
-            </span>
-            <span v-else>&nbsp;</span>
-          </Transition>
+            {{ t('emotionViews.selector.noEmotionsInQuadrant') }}
+          </div>
         </div>
-      </template>
-      <div
-        v-else
-        class="text-center py-4 rounded-2xl bg-section text-on-surface-variant text-sm"
-      >
-        {{ t('emotionViews.selector.noEmotionsInQuadrant') }}
-      </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -131,7 +154,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useT } from '@/composables/useT'
 import type { Quadrant, Emotion } from '@/domain/emotion'
-import { getQuadrant } from '@/domain/emotion'
+import { getQuadrant, getQuadrantDisplayConfig, QUADRANTS_IN_ORDER } from '@/domain/emotion'
 import { useEmotionStore } from '@/stores/emotion.store'
 import AppIcon from '@/components/shared/AppIcon.vue'
 
@@ -149,44 +172,20 @@ const emit = defineEmits<{
   'update:modelValue': [value: string[]]
 }>()
 
+// Two-way binding for the active quadrant — parents can listen to changes
+// or programmatically reset to null (e.g. from the EmotionQuadrantSuffix click).
+const quadrantModel = defineModel<Quadrant | null>('quadrant', { default: null })
+
 const emotionStore = useEmotionStore()
 const { t } = useT()
 const hoveredEmotionId = ref<string | null>(null)
-const selectedQuadrant = ref<Quadrant | null>(null)
 const hasManualQuadrantCollapse = ref(false)
 const selectedEmotionIds = ref<string[]>([])
 
 // Quadrant configuration (ordered: unpleasant on left, pleasant on right)
-const quadrants = computed(() => [
-  {
-    value: 'high-energy-low-pleasantness' as Quadrant,
-    label: t('emotionViews.selector.quadrants.highEnergyUnpleasant'),
-    energyLabel: t('emotionViews.selector.energyLabels.high'),
-    pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.unpleasant'),
-    icon: 'bolt',
-  },
-  {
-    value: 'high-energy-high-pleasantness' as Quadrant,
-    label: t('emotionViews.selector.quadrants.highEnergyPleasant'),
-    energyLabel: t('emotionViews.selector.energyLabels.high'),
-    pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.pleasant'),
-    icon: 'wb_sunny',
-  },
-  {
-    value: 'low-energy-low-pleasantness' as Quadrant,
-    label: t('emotionViews.selector.quadrants.lowEnergyUnpleasant'),
-    energyLabel: t('emotionViews.selector.energyLabels.low'),
-    pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.unpleasant'),
-    icon: 'cloud',
-  },
-  {
-    value: 'low-energy-high-pleasantness' as Quadrant,
-    label: t('emotionViews.selector.quadrants.lowEnergyPleasant'),
-    energyLabel: t('emotionViews.selector.energyLabels.low'),
-    pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.pleasant'),
-    icon: 'auto_awesome',
-  },
-])
+const quadrants = computed(() =>
+  QUADRANTS_IN_ORDER.map((value) => getQuadrantDisplayConfig(value, t))
+)
 
 const quadrantButtonStyles: Record<
   Quadrant,
@@ -220,11 +219,11 @@ const quadrantButtonStyles: Record<
 
 // Computed properties
 const currentQuadrantEmotions = computed(() => {
-  if (!selectedQuadrant.value) return []
-  return emotionStore.getEmotionsByQuadrant(selectedQuadrant.value)
+  if (!quadrantModel.value) return []
+  return emotionStore.getEmotionsByQuadrant(quadrantModel.value)
 })
 
-// Build a 6x6 grid sorted by energy (high→low) then pleasantness (low→high)
+// Build a grid sorted by energy (high→low) then pleasantness (low→high)
 const quadrantGrid = computed(() => {
   return [...currentQuadrantEmotions.value].sort((a, b) => {
     if (a.energy !== b.energy) return b.energy - a.energy
@@ -247,11 +246,11 @@ const selectedEmotions = computed(() => {
 
 // Methods
 function selectQuadrant(quadrant: Quadrant) {
-  if (selectedQuadrant.value === quadrant) {
-    selectedQuadrant.value = null
+  if (quadrantModel.value === quadrant) {
+    quadrantModel.value = null
     hasManualQuadrantCollapse.value = true
   } else {
-    selectedQuadrant.value = quadrant
+    quadrantModel.value = quadrant
     hasManualQuadrantCollapse.value = false
   }
 }
@@ -278,52 +277,43 @@ function isEmotionSelected(emotionId: string): boolean {
   return selectedEmotionIds.value.includes(emotionId)
 }
 
-function getQuadrantButtonClasses(_quadrant: Quadrant, isActive = false): string {
-  const baseClasses =
-    'flex items-center justify-center px-4 py-3 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background text-on-surface neo-quadrant-btn'
-
-  return `${baseClasses}${isActive ? ' neo-quadrant-btn--active' : ''}`
+function getQuadrantButtonClasses(): string {
+  return 'flex items-center justify-center px-4 py-3 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background text-on-surface neo-quadrant-btn'
 }
 
-function getQuadrantButtonStyle(
-  quadrant: Quadrant,
-  isActive = false
-): Record<string, string> {
+function getQuadrantButtonStyle(quadrant: Quadrant): Record<string, string> {
   const styles = quadrantButtonStyles[quadrant]
   if (!styles) return {}
-  
-  if (isActive) {
-    return {
-      backgroundColor: styles.activeBackgroundColor,
-    }
-  }
-  return {
-    backgroundColor: styles.backgroundColor,
-  }
+  return { backgroundColor: styles.backgroundColor }
 }
 
 function getEmotionCellClasses(emotionId: string): string {
-  const base = 'emotion-cell transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-focus'
+  const base = 'emotion-cell focus:outline-none focus:ring-1 focus:ring-focus'
   if (isEmotionSelected(emotionId)) {
     return `${base} emotion-cell--selected`
   }
   return base
 }
 
-function getEmotionCellStyle(emotionId: string): Record<string, string> {
-  if (!selectedQuadrant.value) return {}
-  const styles = quadrantButtonStyles[selectedQuadrant.value]
-  if (!styles) return {}
-  const isSelected = isEmotionSelected(emotionId)
-  return {
-    backgroundColor: isSelected ? styles.selectedBackgroundColor : styles.backgroundColor
+function getEmotionCellInlineStyle(
+  emotionId: string,
+  index: number
+): Record<string, string> {
+  const base: Record<string, string> = {
+    '--stagger': `${Math.min(index * 18, 200)}ms`,
   }
+  if (!quadrantModel.value) return base
+  const styles = quadrantButtonStyles[quadrantModel.value]
+  if (!styles) return base
+  base.backgroundColor = isEmotionSelected(emotionId)
+    ? styles.selectedBackgroundColor
+    : styles.backgroundColor
+  return base
 }
 
 function getQuadrantLabel(quadrant: Quadrant | null): string {
   if (!quadrant) return ''
-  const quadrantConfig = quadrants.value.find((q) => q.value === quadrant)
-  return quadrantConfig?.label || quadrant
+  return getQuadrantDisplayConfig(quadrant, t).label
 }
 
 function getEmotionChipStyle(emotionId: string): Record<string, string> {
@@ -340,7 +330,7 @@ function getEmotionChipStyle(emotionId: string): Record<string, string> {
 
 function syncQuadrantFromSelection(ids: string[]) {
   if (ids.length === 0) {
-    selectedQuadrant.value = null
+    quadrantModel.value = null
     hasManualQuadrantCollapse.value = false
     return
   }
@@ -352,13 +342,13 @@ function syncQuadrantFromSelection(ids: string[]) {
   const hasCurrentQuadrantEmotion = ids.some((id) => {
     const emotion = emotionStore.getEmotionById(id)
     if (!emotion) return false
-    return getQuadrant(emotion) === selectedQuadrant.value
+    return getQuadrant(emotion) === quadrantModel.value
   })
 
   if (!hasCurrentQuadrantEmotion) {
     const first = emotionStore.getEmotionById(ids[0])
     if (first) {
-      selectedQuadrant.value = getQuadrant(first)
+      quadrantModel.value = getQuadrant(first)
     }
   }
 }
@@ -398,6 +388,29 @@ watch(
   }
 )
 
+// When the parent clears the quadrant via v-model:quadrant (e.g. the user
+// clicks the EmotionQuadrantSuffix) WHILE emotions are still selected, treat
+// it as a manual collapse so `syncQuadrantFromSelection` (which can run later
+// in the same tick as the parent's prop update) does not snap us straight
+// back into the previous quadrant.
+//
+// `flush: 'sync'` is critical: without it, the `modelValue` watcher (also
+// triggered when the parent re-renders) runs first and re-asserts a quadrant
+// before this guard fires.
+//
+// The `selectedEmotionIds.length > 0` check prevents clobbering the
+// `hasManualQuadrantCollapse = false` reset that `syncQuadrantFromSelection`
+// performs when the emotion list becomes empty.
+watch(
+  quadrantModel,
+  (newVal, oldVal) => {
+    if (newVal === null && oldVal !== null && selectedEmotionIds.value.length > 0) {
+      hasManualQuadrantCollapse.value = true
+    }
+  },
+  { flush: 'sync' }
+)
+
 // Load emotions on mount
 onMounted(async () => {
   if (!emotionStore.isLoaded) {
@@ -409,6 +422,21 @@ onMounted(async () => {
 <style scoped>
 .emotion-selector {
   @apply w-full;
+}
+
+.selector-swap {
+  position: relative;
+  min-height: 0;
+  transition: min-height 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* When a quadrant is selected, reserve space for the pill grid so the layout
+   does not jump during the out-in swap animation. The 240px value covers most
+   quadrants (3-5 rows × 40px + gaps + description strip); the 6-row quadrant
+   may grow slightly past this, which is OK — the change happens during the
+   enter animation and reads as a natural reveal. */
+.selector-swap--expanded {
+  min-height: 240px;
 }
 
 .emotion-grid {
@@ -482,7 +510,7 @@ onMounted(async () => {
     4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);
 }
 
-.neo-quadrant-btn:hover:not(.neo-quadrant-btn--active) {
+.neo-quadrant-btn:hover {
   transform: translateY(-1px);
   box-shadow:
     -5px -5px 10px rgb(var(--neo-shadow-light) / 0.85),
@@ -504,10 +532,57 @@ onMounted(async () => {
     inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.2);
 }
 
-.neo-quadrant-btn--active {
-  box-shadow:
-    inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
-    inset 3px 3px 6px rgb(var(--neo-inset-dark) / 0.33);
-  border-color: rgb(var(--neo-border) / 0.4);
+/* === Swap animation: 4 quadrants <-> pill grid === */
+.es-enter-active {
+  transition: opacity 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.es-leave-active {
+  transition: opacity 160ms cubic-bezier(0.4, 0, 1, 1),
+    transform 160ms cubic-bezier(0.4, 0, 1, 1);
+}
+.es-from {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.es-to {
+  opacity: 0;
+  transform: scale(1.02);
+}
+
+/* === Pill stagger animation === */
+.pill-enter-active {
+  transition: opacity 220ms ease-out,
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: var(--stagger, 0ms);
+}
+.pill-enter-from {
+  opacity: 0;
+  transform: translateY(4px) scale(0.94);
+}
+.pill-leave-active {
+  transition: opacity 100ms ease-in;
+}
+.pill-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selector-swap {
+    transition: none !important;
+  }
+  .es-enter-active,
+  .es-leave-active,
+  .pill-enter-active,
+  .pill-leave-active {
+    transition: opacity 120ms linear !important;
+    transform: none !important;
+    transition-delay: 0ms !important;
+  }
+  .es-from,
+  .es-to,
+  .pill-enter-from {
+    transform: none;
+  }
 }
 </style>

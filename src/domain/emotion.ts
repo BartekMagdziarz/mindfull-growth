@@ -42,3 +42,68 @@ export function getQuadrant(emotion: Emotion): Quadrant {
   return 'low-energy-low-pleasantness'
 }
 
+/**
+ * Display configuration for a quadrant — its localized label and Material Symbol icon.
+ * Single source of truth shared by EmotionSelector and EmotionQuadrantSuffix.
+ */
+export interface QuadrantDisplayConfig {
+  value: Quadrant
+  label: string
+  energyLabel: string
+  pleasantnessLabel: string
+  icon: string
+}
+
+type Translator = (key: string, params?: Record<string, string | number>) => string
+
+export function getQuadrantDisplayConfig(
+  quadrant: Quadrant,
+  t: Translator
+): QuadrantDisplayConfig {
+  switch (quadrant) {
+    case 'high-energy-low-pleasantness':
+      return {
+        value: 'high-energy-low-pleasantness',
+        label: t('emotionViews.selector.quadrants.highEnergyUnpleasant'),
+        energyLabel: t('emotionViews.selector.energyLabels.high'),
+        pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.unpleasant'),
+        icon: 'bolt',
+      }
+    case 'high-energy-high-pleasantness':
+      return {
+        value: 'high-energy-high-pleasantness',
+        label: t('emotionViews.selector.quadrants.highEnergyPleasant'),
+        energyLabel: t('emotionViews.selector.energyLabels.high'),
+        pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.pleasant'),
+        icon: 'wb_sunny',
+      }
+    case 'low-energy-low-pleasantness':
+      return {
+        value: 'low-energy-low-pleasantness',
+        label: t('emotionViews.selector.quadrants.lowEnergyUnpleasant'),
+        energyLabel: t('emotionViews.selector.energyLabels.low'),
+        pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.unpleasant'),
+        icon: 'cloud',
+      }
+    case 'low-energy-high-pleasantness':
+      return {
+        value: 'low-energy-high-pleasantness',
+        label: t('emotionViews.selector.quadrants.lowEnergyPleasant'),
+        energyLabel: t('emotionViews.selector.energyLabels.low'),
+        pleasantnessLabel: t('emotionViews.selector.pleasantnessLabels.pleasant'),
+        icon: 'auto_awesome',
+      }
+  }
+}
+
+/**
+ * The four quadrants in display order (unpleasant on left, pleasant on right;
+ * high energy on top, low energy on bottom).
+ */
+export const QUADRANTS_IN_ORDER: readonly Quadrant[] = [
+  'high-energy-low-pleasantness',
+  'high-energy-high-pleasantness',
+  'low-energy-low-pleasantness',
+  'low-energy-high-pleasantness',
+] as const
+

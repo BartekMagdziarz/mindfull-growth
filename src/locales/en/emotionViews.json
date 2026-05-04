@@ -45,6 +45,7 @@
     "noSelection": "No emotions selected",
     "loadingEmotions": "Loading emotions...",
     "noEmotionsInQuadrant": "No emotions in this quadrant",
+    "backToQuadrants": "Back to quadrant selection",
     "quadrants": {
       "highEnergyUnpleasant": "High Energy / Low Pleasantness",
       "highEnergyPleasant": "High Energy / High Pleasantness",

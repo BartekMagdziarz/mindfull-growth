@@ -83,12 +83,19 @@
     <!-- Step 3: Emotions Before -->
     <template v-if="step === 2">
       <AppCard padding="lg" class="space-y-4">
-        <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.emotions.title') }}</h2>
+        <div class="flex items-center gap-1.5">
+          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.emotions.title') }}</h2>
+          <EmotionQuadrantSuffix
+            :quadrant="activeEmotionQuadrant"
+            @clear="activeEmotionQuadrant = null"
+          />
+        </div>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.thoughtRecord.emotions.description') }}
         </p>
         <EmotionSelector
           :model-value="selectedEmotionIds"
+          v-model:quadrant="activeEmotionQuadrant"
           @update:model-value="handleEmotionSelectionChange"
         />
         <!-- Intensity sliders for selected emotions -->
@@ -594,9 +601,11 @@ import type { EmotionRating, CreateThoughtRecordPayload } from '@/domain/exercis
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import type { Quadrant } from '@/domain/emotion'
 
 const emit = defineEmits<{
   saved: [data: CreateThoughtRecordPayload]
@@ -629,6 +638,7 @@ const situationDate = ref('')
 
 // --- Step 3: Emotions Before ---
 const emotionsBefore = reactive<EmotionRating[]>([])
+const activeEmotionQuadrant = ref<Quadrant | null>(null)
 
 const selectedEmotionIds = computed(() => emotionsBefore.map((er) => er.emotionId))
 
