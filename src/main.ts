@@ -4,9 +4,15 @@ import App from './App.vue'
 import router from './router'
 import './styles/main.css'
 import { applyCachedTheme } from './services/theme.service'
+import { setupTextareaAutoresize } from './utils/textareaAutoresize'
 
 // Apply theme before Vue mounts to avoid a flash of the default palette.
 applyCachedTheme()
+
+// Make every <textarea> grow with its content instead of showing a scrollbar.
+// Modern browsers handle this via `field-sizing: content` in main.css; this
+// installs a JS fallback for older browsers (no-op when CSS support exists).
+setupTextareaAutoresize()
 
 const app = createApp(App)
 

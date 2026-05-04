@@ -189,6 +189,7 @@
           :disabled="isLoading"
           class="neo-input flex-1 p-3 resize-none min-h-[44px] max-h-[120px] disabled:opacity-60 disabled:cursor-not-allowed"
           rows="1"
+          data-no-autoresize
           @keydown.enter.exact.prevent="handleSend"
           @input="handleTextareaInput"
         />

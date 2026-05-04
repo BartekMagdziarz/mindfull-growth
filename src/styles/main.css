@@ -252,6 +252,30 @@
       );
     background-attachment: fixed;
   }
+
+  /* ======================================================================
+   * Textareas grow with their content instead of showing a scrollbar.
+   *
+   * Uses the modern CSS `field-sizing: content` (Chrome 123+, Edge 123+,
+   * Safari 17.4+, Firefox 134+). The `rows` attribute, `min-height`, and
+   * any `min-h-*` Tailwind utility still set the minimum size; a
+   * `max-height` (rare — e.g. the chat input) caps growth and falls back
+   * to the default internal scrollbar.
+   *
+   * For older browsers without `field-sizing` support, a small JS
+   * fallback in `src/utils/textareaAutoresize.ts` mimics the same
+   * behavior on the `input` event and for new textareas added later.
+   *
+   * Opt out per-textarea with `data-no-autoresize` to preserve the
+   * legacy fixed-row height + scrollbar behavior.
+   * =================================================================== */
+  textarea {
+    field-sizing: content;
+  }
+
+  textarea[data-no-autoresize] {
+    field-sizing: fixed;
+  }
 }
 
 @layer components {
