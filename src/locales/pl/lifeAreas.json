@@ -43,6 +43,8 @@
     "iconLabel": "Ikona",
     "iconAriaLabel": "Wybierz ikonę obszaru życia",
     "colorLabel": "Kolor",
+    "colorAriaLabel": "Wybierz kolor obszaru życia",
+    "clearColor": "Usuń kolor",
     "meaningLabel": "Znaczenie",
     "meaningHelper": "Dlaczego ten obszar jest ważny i jaką rolę pełni w Twoim życiu?",
     "meaningPlaceholder": "np. Zdrowie daje mi energię, stabilność i poczucie, że mogę być obecny w innych obszarach.",
@@ -79,15 +81,15 @@
     "deltaNone": "Bez zmian"
   },
   "colorPresets": {
+    "sky": "Niebieski",
+    "periwinkle": "Barwinkowy",
     "lavender": "Lawendowy",
-    "rose": "Różowy",
+    "orchid": "Orchidea",
+    "rose": "Różany",
     "coral": "Koralowy",
     "amber": "Bursztynowy",
     "sage": "Szałwiowy",
-    "teal": "Morski",
-    "ocean": "Oceaniczny",
-    "periwinkle": "Barwinkowy",
-    "mauve": "Liliowy",
-    "steel": "Stalowy"
+    "mint": "Miętowy",
+    "teal": "Morski"
   }
 }

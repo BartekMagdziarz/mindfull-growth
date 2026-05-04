@@ -43,6 +43,8 @@
     "iconLabel": "Icon",
     "iconAriaLabel": "Select life area icon",
     "colorLabel": "Color",
+    "colorAriaLabel": "Select life area color",
+    "clearColor": "Clear color",
     "meaningLabel": "Meaning",
     "meaningHelper": "Why is this area important, and what role does it play in your life?",
     "meaningPlaceholder": "e.g., Health gives me energy, steadiness, and the capacity to be present in other areas.",
@@ -79,15 +81,15 @@
     "deltaNone": "No change"
   },
   "colorPresets": {
+    "sky": "Sky",
+    "periwinkle": "Periwinkle",
     "lavender": "Lavender",
+    "orchid": "Orchid",
     "rose": "Rose",
     "coral": "Coral",
     "amber": "Amber",
     "sage": "Sage",
-    "teal": "Teal",
-    "ocean": "Ocean",
-    "periwinkle": "Periwinkle",
-    "mauve": "Mauve",
-    "steel": "Steel"
+    "mint": "Mint",
+    "teal": "Teal"
   }
 }
