@@ -145,7 +145,7 @@ describe('ObjectsLibraryView', () => {
     })
 
     expect(await screen.findByDisplayValue(priority.title)).toBeInTheDocument()
-    expect(screen.getByDisplayValue('2026')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /2026/ })).toBeInTheDocument()
     expect(screen.getByDisplayValue('Strategic constraint for the year')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Make mornings available for important work')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Fewer reactive meetings')).toBeInTheDocument()

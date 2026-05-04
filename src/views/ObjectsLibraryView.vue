@@ -187,6 +187,8 @@
             :life-area-options="store.filterOptions.lifeAreas"
             :is-new="newPriorityId === item.id"
             @field-change="handlePriorityFieldChange"
+            @link-year="handlePriorityLinkYear"
+            @unlink-year="handlePriorityUnlinkYear"
             @archive="handlePriorityArchive"
             @delete="(id, title) => handleDeleteFromCard('priority', id, title)"
           />
@@ -1606,18 +1608,6 @@ function handleGoalDelete(goalId: string, title: string): void {
   handleDeleteFromCard('goal', goalId, title)
 }
 
-function parseYearRefs(value: string): YearRef[] {
-  const years = Array.from(
-    new Set(
-      value
-        .split(/[\s,;]+/)
-        .map((item) => item.trim())
-        .filter(Boolean),
-    ),
-  )
-  return (years.length > 0 ? years : [String(new Date().getFullYear())]).map((year) => year as YearRef)
-}
-
 function parseSignalLines(value: string): string[] {
   return Array.from(
     new Set(
@@ -1662,9 +1652,6 @@ async function handlePriorityFieldChange(id: string, field: string, value: unkno
       case 'closingReflection.learned':
       case 'closingReflection.closedAt':
         await updatePriorityClosingReflection(id, field.replace('closingReflection.', '') as keyof PriorityClosingReflection, value as string)
-        break
-      case 'years':
-        await priorityDexieRepository.update(id, { years: parseYearRefs(value as string) })
         break
       case 'progressSignals':
         await priorityDexieRepository.update(id, { progressSignals: parseSignalLines(value as string) })
@@ -1711,6 +1698,36 @@ async function updatePriorityClosingReflection(
       [field]: field === 'closedAt' ? value.trim() || new Date().toISOString() : normalizeOptionalText(value),
     },
   })
+}
+
+async function handlePriorityLinkYear(id: string, yearRef: string): Promise<void> {
+  try {
+    const priority = await priorityDexieRepository.getById(id)
+    if (!priority) return
+    if (priority.years.includes(yearRef as YearRef)) return
+    const years = [...priority.years, yearRef as YearRef].sort((a, b) => a.localeCompare(b))
+    await priorityDexieRepository.update(id, { years })
+    await store.loadBundle()
+  } catch (err) {
+    snackbarRef.value?.show(
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+    )
+  }
+}
+
+async function handlePriorityUnlinkYear(id: string, yearRef: string): Promise<void> {
+  try {
+    const priority = await priorityDexieRepository.getById(id)
+    if (!priority) return
+    const years = priority.years.filter((year) => year !== yearRef)
+    if (years.length === 0) return
+    await priorityDexieRepository.update(id, { years })
+    await store.loadBundle()
+  } catch (err) {
+    snackbarRef.value?.show(
+      err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
+    )
+  }
 }
 
 async function handlePriorityArchive(id: string, isCurrentlyActive: boolean): Promise<void> {

@@ -61,15 +61,11 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-1.5">
-        <label class="neo-pill neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold">
-          <AppIcon name="calendar_today" class="text-xs" />
-          <input
-            :value="yearsText"
-            class="w-24 bg-transparent text-[11px] font-semibold outline-none"
-            :aria-label="t('planning.objects.form.years')"
-            @change="emitFieldChange('years', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
+        <PriorityYearsDropdown
+          :linked-years="linkedYears"
+          @link-year="$emit('link-year', item.id, $event)"
+          @unlink-year="$emit('unlink-year', item.id, $event)"
+        />
 
         <div ref="linksRef" class="relative">
           <button
@@ -216,6 +212,8 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
+import PriorityYearsDropdown from '@/components/objects/PriorityYearsDropdown.vue'
+import type { LinkedYear } from '@/components/objects/PriorityYearsDropdown.vue'
 import { useT } from '@/composables/useT'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 
@@ -228,6 +226,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'field-change': [id: string, field: string, value: unknown]
+  'link-year': [id: string, yearRef: string]
+  'unlink-year': [id: string, yearRef: string]
   archive: [id: string, isCurrentlyActive: boolean]
   delete: [id: string, title: string]
 }>()
@@ -242,7 +242,9 @@ const linksOpen = ref(false)
 let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
 let textDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
-const yearsText = computed(() => (props.item.years ?? []).join(', '))
+const linkedYears = computed<LinkedYear[]>(() =>
+  (props.item.years ?? []).map((year) => ({ yearRef: year, displayLabel: year })),
+)
 
 const linkedMetrics = computed(() => [
   { label: t('planning.objects.families.goals'), value: props.item.linkedCounts?.goals ?? 0 },
