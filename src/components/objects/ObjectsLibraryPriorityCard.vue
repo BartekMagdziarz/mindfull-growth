@@ -118,53 +118,44 @@
       </div>
 
       <textarea
-        :value="item.description ?? ''"
-        rows="2"
-        class="neo-input min-h-[4.25rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
-        :placeholder="t('planning.objects.form.description')"
-        @input="handleTextInput('description', $event)"
-      />
-
-      <textarea
         :value="item.whyNow ?? ''"
-        rows="2"
-        class="neo-input min-h-[4.25rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
+        rows="4"
+        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.whyNow')"
         @input="handleTextInput('whyNow', $event)"
       />
 
       <textarea
         :value="item.desiredDirection ?? ''"
-        rows="2"
-        class="neo-input min-h-[4.25rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
+        rows="4"
+        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.desiredDirection')"
         @input="handleTextInput('desiredDirection', $event)"
       />
 
       <textarea
         :value="item.tradeoffs ?? ''"
-        rows="2"
-        class="neo-input min-h-[4.25rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
+        rows="4"
+        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.tradeoffs')"
         @input="handleTextInput('tradeoffs', $event)"
       />
 
-      <div class="grid gap-2 sm:grid-cols-2">
-        <textarea
-          :value="signalsText(item.progressSignals)"
-          rows="3"
-          class="neo-input min-h-[5.5rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
-          :placeholder="t('planning.objects.form.progressSignals')"
-          @change="emitFieldChange('progressSignals', ($event.target as HTMLTextAreaElement).value)"
-        />
-        <textarea
-          :value="signalsText(item.riskSignals)"
-          rows="3"
-          class="neo-input min-h-[5.5rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
-          :placeholder="t('planning.objects.form.riskSignals')"
-          @change="emitFieldChange('riskSignals', ($event.target as HTMLTextAreaElement).value)"
-        />
-      </div>
+      <textarea
+        :value="signalsText(item.progressSignals)"
+        rows="4"
+        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        :placeholder="t('planning.objects.form.progressSignals')"
+        @change="emitFieldChange('progressSignals', ($event.target as HTMLTextAreaElement).value)"
+      />
+
+      <textarea
+        :value="signalsText(item.riskSignals)"
+        rows="4"
+        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        :placeholder="t('planning.objects.form.riskSignals')"
+        @change="emitFieldChange('riskSignals', ($event.target as HTMLTextAreaElement).value)"
+      />
 
       <section v-if="item.status === 'closed'" class="space-y-2 rounded-xl border border-white/45 bg-white/35 p-2.5">
         <input

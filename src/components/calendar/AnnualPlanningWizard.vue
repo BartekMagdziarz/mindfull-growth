@@ -272,51 +272,40 @@
               </label>
 
               <textarea
-                :value="priority.description ?? ''"
-                rows="2"
-                class="neo-input min-h-[4.25rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                :placeholder="t('planning.objects.form.description')"
-                @input="handlePriorityText(priority.id, 'description', $event)"
+                :value="priority.whyNow ?? ''"
+                rows="4"
+                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                :placeholder="t('planning.objects.form.whyNow')"
+                @input="handlePriorityText(priority.id, 'whyNow', $event)"
               />
-              <div class="grid gap-2 md:grid-cols-3">
-                <textarea
-                  :value="priority.whyNow ?? ''"
-                  rows="3"
-                  class="neo-input min-h-[5.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                  :placeholder="t('planning.objects.form.whyNow')"
-                  @input="handlePriorityText(priority.id, 'whyNow', $event)"
-                />
-                <textarea
-                  :value="priority.desiredDirection ?? ''"
-                  rows="3"
-                  class="neo-input min-h-[5.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                  :placeholder="t('planning.objects.form.desiredDirection')"
-                  @input="handlePriorityText(priority.id, 'desiredDirection', $event)"
-                />
-                <textarea
-                  :value="priority.tradeoffs ?? ''"
-                  rows="3"
-                  class="neo-input min-h-[5.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                  :placeholder="t('planning.objects.form.tradeoffs')"
-                  @input="handlePriorityText(priority.id, 'tradeoffs', $event)"
-                />
-              </div>
-              <div class="grid gap-2 md:grid-cols-2">
-                <textarea
-                  :value="priority.progressSignals.join('\n')"
-                  rows="3"
-                  class="neo-input min-h-[5.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                  :placeholder="t('planning.objects.form.progressSignals')"
-                  @change="handlePriorityValue(priority.id, 'progressSignals', $event)"
-                />
-                <textarea
-                  :value="priority.riskSignals.join('\n')"
-                  rows="3"
-                  class="neo-input min-h-[5.5rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                  :placeholder="t('planning.objects.form.riskSignals')"
-                  @change="handlePriorityValue(priority.id, 'riskSignals', $event)"
-                />
-              </div>
+              <textarea
+                :value="priority.desiredDirection ?? ''"
+                rows="4"
+                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                :placeholder="t('planning.objects.form.desiredDirection')"
+                @input="handlePriorityText(priority.id, 'desiredDirection', $event)"
+              />
+              <textarea
+                :value="priority.tradeoffs ?? ''"
+                rows="4"
+                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                :placeholder="t('planning.objects.form.tradeoffs')"
+                @input="handlePriorityText(priority.id, 'tradeoffs', $event)"
+              />
+              <textarea
+                :value="priority.progressSignals.join('\n')"
+                rows="4"
+                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                :placeholder="t('planning.objects.form.progressSignals')"
+                @change="handlePriorityValue(priority.id, 'progressSignals', $event)"
+              />
+              <textarea
+                :value="priority.riskSignals.join('\n')"
+                rows="4"
+                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+                :placeholder="t('planning.objects.form.riskSignals')"
+                @change="handlePriorityValue(priority.id, 'riskSignals', $event)"
+              />
             </div>
           </article>
         </div>
