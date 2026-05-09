@@ -532,7 +532,9 @@
       "learned": "What I learned",
       "priorityTitlePlaceholder": "Priority title",
       "goalTitlePlaceholder": "Goal title",
-      "goalDescriptionPlaceholder": "Description"
+      "goalDescriptionPlaceholder": "Description",
+      "completionRules": "Completion rules",
+      "completionRulesPlaceholder": "Describe how this object counts as completed"
     },
     "linksDropdown": {
       "goals": "Goals",

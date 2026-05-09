@@ -79,7 +79,7 @@
       <!-- Expanded section -->
       <div
         class="transition-all duration-200 ease-in-out"
-        :style="{ maxHeight: isExpanded ? '500px' : '0', opacity: isExpanded ? 1 : 0, overflow: isExpanded ? 'visible' : 'hidden' }"
+        :style="{ maxHeight: isExpanded ? '700px' : '0', opacity: isExpanded ? 1 : 0, overflow: isExpanded ? 'visible' : 'hidden' }"
       >
         <div class="space-y-3 pt-1">
           <!-- Cadence + Type dropdowns -->
@@ -219,6 +219,19 @@
               </div>
             </div>
           </div>
+
+          <!-- Completion rules -->
+          <div class="space-y-1">
+            <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              {{ t('planning.objects.form.completionRules') }}
+            </div>
+            <textarea
+              :value="child.description ?? ''"
+              class="neo-input min-h-[2.5rem] w-full resize-y px-2 py-1 text-xs"
+              :placeholder="t('planning.objects.form.completionRulesPlaceholder')"
+              @input="handleDescriptionInput"
+            />
+          </div>
         </div>
       </div>
 
@@ -288,6 +301,7 @@ const BATCH_SIZE = 4
 const FUTURE_COUNT = 7
 
 let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
+let descriptionDebounceTimer: ReturnType<typeof setTimeout> | undefined
 let targetValueDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
 const cadenceLabel = computed(() => {
@@ -391,6 +405,14 @@ function handleTitleInput(event: Event): void {
   }, 400)
 }
 
+function handleDescriptionInput(event: Event): void {
+  const value = (event.target as HTMLTextAreaElement).value
+  clearTimeout(descriptionDebounceTimer)
+  descriptionDebounceTimer = setTimeout(() => {
+    emitFieldChange('description', value)
+  }, 400)
+}
+
 function handleTargetValueInput(event: Event): void {
   const raw = (event.target as HTMLInputElement).value
   const value = Number(raw)
@@ -466,6 +488,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
   clearTimeout(titleDebounceTimer)
+  clearTimeout(descriptionDebounceTimer)
   clearTimeout(targetValueDebounceTimer)
 })
 </script>

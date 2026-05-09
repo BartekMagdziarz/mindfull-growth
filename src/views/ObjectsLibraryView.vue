@@ -1111,6 +1111,10 @@ async function handleKrFieldChange(krId: string, field: string, value: unknown):
         await keyResultDexieRepository.update(krId, { title: (value as string).trim() })
         needsReload = false
         break
+      case 'description':
+        await keyResultDexieRepository.update(krId, { description: normalizeOptionalText(value as string) })
+        needsReload = false
+        break
       case 'cadence':
         await keyResultDexieRepository.update(krId, { cadence: value as 'weekly' | 'monthly' })
         break

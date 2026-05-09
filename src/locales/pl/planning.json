@@ -532,7 +532,9 @@
       "learned": "Czego się nauczyłem/am",
       "priorityTitlePlaceholder": "Tytuł priorytetu",
       "goalTitlePlaceholder": "Tytuł celu",
-      "goalDescriptionPlaceholder": "Opis"
+      "goalDescriptionPlaceholder": "Opis",
+      "completionRules": "Zasady zaliczenia",
+      "completionRulesPlaceholder": "Opisz, kiedy ten obiekt uznajesz za zaliczony"
     },
     "linksDropdown": {
       "goals": "Cele",
