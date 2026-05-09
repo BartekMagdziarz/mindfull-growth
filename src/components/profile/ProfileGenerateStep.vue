@@ -7,7 +7,7 @@
       data-test-generate-state="in-flight"
     >
       <div class="relative flex items-center justify-center mb-5">
-        <SparklesIcon class="h-10 w-10 text-primary animate-pulse" />
+        <AppIcon name="auto_awesome" class="text-4xl text-primary animate-pulse" />
         <span
           class="absolute inset-0 rounded-full bg-primary/10 blur-xl animate-pulse"
           aria-hidden="true"
@@ -95,7 +95,6 @@
 </template>
 
 <script setup lang="ts">
-import { SparklesIcon } from '@heroicons/vue/24/outline'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'

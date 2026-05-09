@@ -12,7 +12,7 @@
           data-test-edit-all
           @click="wizard.enterEditAllMode"
         >
-          <PencilIcon class="w-4 h-4 mr-1" />
+          <AppIcon name="edit" class="text-base mr-1" />
           {{ t('profile.psychologicalProfile.wizard.review.editAll') }}
         </AppButton>
         <AppButton
@@ -21,7 +21,7 @@
           data-test-done-editing
           @click="wizard.exitEditAllMode"
         >
-          <CheckIcon class="w-4 h-4 mr-1" />
+          <AppIcon name="check" class="text-base mr-1" />
           {{ t('profile.psychologicalProfile.wizard.review.doneEditing') }}
         </AppButton>
         <AppButton
@@ -29,7 +29,7 @@
           data-test-regenerate
           @click="handleRegenerate"
         >
-          <ArrowPathIcon class="w-4 h-4 mr-1" />
+          <AppIcon name="refresh" class="text-base mr-1" />
           {{ t('profile.psychologicalProfile.wizard.review.regenerate') }}
         </AppButton>
       </div>
@@ -58,11 +58,12 @@
             :data-test-toggle-section="sectionId"
             @click="wizard.toggleEditSection(sectionId)"
           >
-            <CheckIcon
+            <AppIcon
               v-if="wizard.editingPerSection[sectionId]"
-              class="w-4 h-4 text-primary"
+              name="check"
+              class="text-base text-primary"
             />
-            <PencilIcon v-else class="w-4 h-4 text-on-surface-variant" />
+            <AppIcon v-else name="edit" class="text-base text-on-surface-variant" />
           </button>
         </header>
 
@@ -130,9 +131,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { PencilIcon, CheckIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
 import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { useProfileBuildWizard } from '@/composables/useProfileBuildWizard'
 import {
   PROFILE_SECTION_IDS,

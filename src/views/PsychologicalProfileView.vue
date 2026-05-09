@@ -97,7 +97,7 @@
             data-test-edit-version
             @click="editVersion(displayedProfile)"
           >
-            <PencilIcon class="w-4 h-4 mr-1" />
+            <AppIcon name="edit" class="text-base mr-1" />
             {{ t('profile.psychologicalProfile.editVersion') }}
           </AppButton>
           <AppButton
@@ -184,7 +184,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { PencilIcon } from '@heroicons/vue/24/outline'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
