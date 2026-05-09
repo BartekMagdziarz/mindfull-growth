@@ -17,7 +17,7 @@
             type="button"
             :aria-label="`Remove ${emotion.name} from selection`"
             :style="getEmotionChipStyle(emotion.id)"
-            class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-on-surface text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+            class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
             @click="removeEmotion(emotion.id)"
           >
             <span>{{ emotion.name }}</span>
@@ -189,31 +189,41 @@ const quadrants = computed(() =>
 
 const quadrantButtonStyles: Record<
   Quadrant,
-  { backgroundColor: string; borderColor: string; activeBackgroundColor: string; selectedBackgroundColor: string }
+  {
+    backgroundColor: string
+    borderColor: string
+    activeBackgroundColor: string
+    selectedBackgroundColor: string
+    textColor: string
+  }
 > = {
   'high-energy-high-pleasantness': {
     backgroundColor: 'var(--color-quadrant-high-energy-high-pleasantness)',
     borderColor: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
     activeBackgroundColor: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
     selectedBackgroundColor: 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
+    textColor: 'var(--color-quadrant-high-energy-high-pleasantness-text)',
   },
   'high-energy-low-pleasantness': {
     backgroundColor: 'var(--color-quadrant-high-energy-low-pleasantness)',
     borderColor: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
     activeBackgroundColor: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
     selectedBackgroundColor: 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
+    textColor: 'var(--color-quadrant-high-energy-low-pleasantness-text)',
   },
   'low-energy-high-pleasantness': {
     backgroundColor: 'var(--color-quadrant-low-energy-high-pleasantness)',
     borderColor: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
     activeBackgroundColor: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
     selectedBackgroundColor: 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
+    textColor: 'var(--color-quadrant-low-energy-high-pleasantness-text)',
   },
   'low-energy-low-pleasantness': {
     backgroundColor: 'var(--color-quadrant-low-energy-low-pleasantness)',
     borderColor: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
     activeBackgroundColor: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
     selectedBackgroundColor: 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
+    textColor: 'var(--color-quadrant-low-energy-low-pleasantness-text)',
   },
 }
 
@@ -278,13 +288,13 @@ function isEmotionSelected(emotionId: string): boolean {
 }
 
 function getQuadrantButtonClasses(): string {
-  return 'flex items-center justify-center px-4 py-3 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background text-on-surface neo-quadrant-btn'
+  return 'flex items-center justify-center px-4 py-3 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background neo-quadrant-btn'
 }
 
 function getQuadrantButtonStyle(quadrant: Quadrant): Record<string, string> {
   const styles = quadrantButtonStyles[quadrant]
   if (!styles) return {}
-  return { backgroundColor: styles.backgroundColor }
+  return { backgroundColor: styles.backgroundColor, color: styles.textColor }
 }
 
 function getEmotionCellClasses(emotionId: string): string {
@@ -308,6 +318,7 @@ function getEmotionCellInlineStyle(
   base.backgroundColor = isEmotionSelected(emotionId)
     ? styles.selectedBackgroundColor
     : styles.backgroundColor
+  base.color = styles.textColor
   return base
 }
 
@@ -325,6 +336,7 @@ function getEmotionChipStyle(emotionId: string): Record<string, string> {
   return {
     backgroundColor: styles.selectedBackgroundColor,
     border: `1.5px solid ${styles.borderColor}`,
+    color: styles.textColor,
   }
 }
 

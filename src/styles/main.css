@@ -64,15 +64,19 @@
   --color-quadrant-high-energy-high-pleasantness: #a2d2ff;
   --color-quadrant-high-energy-high-pleasantness-border: #84bfe8;
   --color-quadrant-high-energy-high-pleasantness-selected: #5bb3ff;
+  --color-quadrant-high-energy-high-pleasantness-text: #0f3a6a;
   --color-quadrant-high-energy-low-pleasantness: #ffafcc;
   --color-quadrant-high-energy-low-pleasantness-border: #e89ab5;
   --color-quadrant-high-energy-low-pleasantness-selected: #ff7aa8;
+  --color-quadrant-high-energy-low-pleasantness-text: #6e1f3c;
   --color-quadrant-low-energy-high-pleasantness: #bde0fe;
   --color-quadrant-low-energy-high-pleasantness-border: #a0c9e8;
   --color-quadrant-low-energy-high-pleasantness-selected: #7fc5fc;
+  --color-quadrant-low-energy-high-pleasantness-text: #1c4470;
   --color-quadrant-low-energy-low-pleasantness: #cdb4db;
   --color-quadrant-low-energy-low-pleasantness-border: #b59dc4;
   --color-quadrant-low-energy-low-pleasantness-selected: #b08fc4;
+  --color-quadrant-low-energy-low-pleasantness-text: #3f1f55;
 
   /* Text colors on section backgrounds (default: dark text) */
   --color-on-section: var(--color-on-surface);
@@ -138,15 +142,19 @@
   --color-quadrant-high-energy-high-pleasantness: #b5d8f8;
   --color-quadrant-high-energy-high-pleasantness-border: #95c0e8;
   --color-quadrant-high-energy-high-pleasantness-selected: #80b8ec;
+  --color-quadrant-high-energy-high-pleasantness-text: #143b66;
   --color-quadrant-high-energy-low-pleasantness: #f4bfd2;
   --color-quadrant-high-energy-low-pleasantness-border: #e0a9be;
   --color-quadrant-high-energy-low-pleasantness-selected: #df9ab5;
+  --color-quadrant-high-energy-low-pleasantness-text: #6e2440;
   --color-quadrant-low-energy-high-pleasantness: #cfe4f9;
   --color-quadrant-low-energy-high-pleasantness-border: #b2cde8;
   --color-quadrant-low-energy-high-pleasantness-selected: #9ec8eb;
+  --color-quadrant-low-energy-high-pleasantness-text: #1c3f6a;
   --color-quadrant-low-energy-low-pleasantness: #d6c8e5;
   --color-quadrant-low-energy-low-pleasantness-border: #beaed1;
   --color-quadrant-low-energy-low-pleasantness-selected: #b69ccb;
+  --color-quadrant-low-energy-low-pleasantness-text: #3a1d52;
 
   --neo-surface-base: 238 247 255;
   --neo-surface-top: 246 251 255;
@@ -207,15 +215,19 @@
   --color-quadrant-high-energy-high-pleasantness: #ffd9a8;
   --color-quadrant-high-energy-high-pleasantness-border: #e8be86;
   --color-quadrant-high-energy-high-pleasantness-selected: #ffc173;
+  --color-quadrant-high-energy-high-pleasantness-text: #5e3614;
   --color-quadrant-high-energy-low-pleasantness: #ffc0b3;
   --color-quadrant-high-energy-low-pleasantness-border: #e6a598;
   --color-quadrant-high-energy-low-pleasantness-selected: #ff9f8b;
+  --color-quadrant-high-energy-low-pleasantness-text: #5e2014;
   --color-quadrant-low-energy-high-pleasantness: #d8e6f8;
   --color-quadrant-low-energy-high-pleasantness-border: #b8cbe3;
   --color-quadrant-low-energy-high-pleasantness-selected: #afcaec;
+  --color-quadrant-low-energy-high-pleasantness-text: #1c3d62;
   --color-quadrant-low-energy-low-pleasantness: #dcccdf;
   --color-quadrant-low-energy-low-pleasantness-border: #c3b1ca;
   --color-quadrant-low-energy-low-pleasantness-selected: #b99fc2;
+  --color-quadrant-low-energy-low-pleasantness-text: #3a2050;
 
   --neo-surface-base: 252 244 235;
   --neo-surface-top: 255 250 243;
