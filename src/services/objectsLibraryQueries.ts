@@ -1093,7 +1093,15 @@ function buildChartData(
     return []
   }
 
-  const sortedRefs = [...activePeriodRefs].sort((a, b) => a.localeCompare(b))
+  const currentRefs = getPeriodRefsForDate(new Date())
+  const currentRef = subject.cadence === 'monthly' ? currentRefs.month : currentRefs.week
+  const sortedRefs = [...activePeriodRefs]
+    .filter((ref) => ref <= currentRef)
+    .sort((a, b) => a.localeCompare(b))
+
+  if (sortedRefs.length === 0) {
+    return []
+  }
 
   return sortedRefs.map((periodRef) => {
     const summary = buildMeasurementSummary(subject, allEntries, periodRef as MeasurementPeriodRef)

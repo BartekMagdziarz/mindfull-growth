@@ -328,6 +328,98 @@ describe('objectsLibraryQueries', () => {
     expect(chartData?.[2]).toMatchObject({ periodRef: '2026-03', status: 'no-data' })
   })
 
+  it('omits future periods from weekly-cadence chart data', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-03-11T12:00:00'))
+
+    try {
+      const habit = await habitDexieRepository.create({
+        title: 'Weekly counter habit',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        cadence: 'weekly',
+        entryMode: 'counter',
+        target: { kind: 'count', operator: 'min', value: 3 },
+        status: 'open',
+      })
+
+      for (const monthRef of ['2026-02', '2026-03'] as MonthRef[]) {
+        await planningStateDexieRepository.upsertMeasurementMonthState({
+          monthRef,
+          subjectType: 'habit',
+          subjectId: habit.id,
+          activityState: 'active',
+          scheduleScope: 'whole-month',
+        })
+      }
+
+      for (const weekRef of ['2026-W09', '2026-W10', '2026-W11', '2026-W12', '2026-W13'] as WeekRef[]) {
+        await planningStateDexieRepository.upsertMeasurementWeekState({
+          weekRef,
+          subjectType: 'habit',
+          subjectId: habit.id,
+          activityState: 'active',
+          scheduleScope: 'whole-week',
+        })
+      }
+
+      const bundle = await loadObjectsLibraryBundle({
+        family: 'habits',
+        q: '',
+        lifeAreaIds: [],
+        priorityIds: [],
+        showClosed: false,
+      })
+
+      const chartData = bundle.items[0].chartData
+      expect(chartData?.map((point) => point.periodRef)).toEqual(['2026-W09', '2026-W10'])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('omits future periods from monthly-cadence chart data', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-03-11T12:00:00'))
+
+    try {
+      const habit = await habitDexieRepository.create({
+        title: 'Monthly counter habit',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        cadence: 'monthly',
+        entryMode: 'counter',
+        target: { kind: 'count', operator: 'min', value: 3 },
+        status: 'open',
+      })
+
+      for (const monthRef of ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05'] as MonthRef[]) {
+        await planningStateDexieRepository.upsertMeasurementMonthState({
+          monthRef,
+          subjectType: 'habit',
+          subjectId: habit.id,
+          activityState: 'active',
+          scheduleScope: 'whole-month',
+        })
+      }
+
+      const bundle = await loadObjectsLibraryBundle({
+        family: 'habits',
+        q: '',
+        lifeAreaIds: [],
+        priorityIds: [],
+        showClosed: false,
+      })
+
+      const chartData = bundle.items[0].chartData
+      expect(chartData?.map((point) => point.periodRef)).toEqual(['2026-01', '2026-02', '2026-03'])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('parses and serializes the route contract for the library', () => {
     const query = parseObjectsLibraryQueryFromRoute('goals', {
       q: 'energy',
