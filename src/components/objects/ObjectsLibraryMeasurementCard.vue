@@ -95,7 +95,7 @@
             v-if="panelType === 'habit' && item.target"
             class="neo-pill px-2 py-0.5 text-[10px] font-semibold"
           >
-            {{ describeTargetSummary(item.target) }}
+            {{ formatMeasurementTargetSummary(item.target, t) }}
           </span>
         </div>
       </div>
@@ -292,7 +292,7 @@ import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
-import { describeTargetSummary } from '@/services/objectsLibraryQueries'
+import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import { getNextPeriod, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'

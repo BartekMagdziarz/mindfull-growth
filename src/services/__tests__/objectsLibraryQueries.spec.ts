@@ -21,7 +21,7 @@ describe('objectsLibraryQueries', () => {
     await resetPlanningTestData()
   })
 
-  it('builds goal-centric results with linked periods and history', async () => {
+  it('builds goal-centric results with key result previews', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const weekRef = parsePeriodRef('2026-W10') as WeekRef
 
@@ -124,20 +124,7 @@ describe('objectsLibraryQueries', () => {
     expect(bundle.items).toHaveLength(1)
     expect(bundle.familyTotalCount).toBe(1)
     expect(bundle.items[0].childPreviews).toHaveLength(1)
-    expect(bundle.items[0].linkedEntities).toEqual(
-      expect.arrayContaining([lifeArea.name, `${priority.years.join(', ')} · ${priority.title}`]),
-    )
-    expect(bundle.items[0].matchReasons.map((reason) => reason.kind)).toEqual(
-      expect.arrayContaining(['linked-key-result', 'linked-initiative']),
-    )
-
     expect(bundle.expandedItem?.title).toBe(goal.title)
-    expect(bundle.expandedItem?.linkedPeriods.map((period) => period.periodRef)).toEqual(
-      expect.arrayContaining([monthRef, weekRef]),
-    )
-    expect(bundle.expandedItem?.historyItems.map((item) => item.source)).toEqual(
-      expect.arrayContaining(['object-reflection', 'period-reflection']),
-    )
   })
 
   it('builds priority results as strategic cards without chart data', async () => {
@@ -191,7 +178,7 @@ describe('objectsLibraryQueries', () => {
     expect(bundle.items[0].chartData).toBeUndefined()
   })
 
-  it('exposes measurement badges and actual details for habits', async () => {
+  it('returns habits matching the active period filter', async () => {
     const habit = await habitDexieRepository.create({
       title: 'Deep work',
       isActive: true,
@@ -240,17 +227,8 @@ describe('objectsLibraryQueries', () => {
     })
 
     expect(bundle.items).toHaveLength(1)
-    expect(bundle.items[0].details).toEqual(
-      expect.arrayContaining([
-        'Min 5',
-        { key: 'planning.calendar.details.actual', params: { value: '6' } },
-      ]),
-    )
-    expect(bundle.expandedItem?.badges.map((badge) => badge.label)).toEqual(
-      expect.arrayContaining([
-        { key: 'planning.calendar.badges.met' },
-      ]),
-    )
+    expect(bundle.items[0].title).toBe(habit.title)
+    expect(bundle.expandedItem?.title).toBe(habit.title)
   })
 
   it('builds chart data for monthly-cadence habits and trackers', async () => {

@@ -71,7 +71,7 @@
             {{ entryModeLabel }}
           </span>
           <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
-            {{ child.targetSummary }}
+            {{ formatMeasurementTargetSummary(child.target, t) }}
           </span>
         </div>
       </div>
@@ -236,6 +236,7 @@ import { useT } from '@/composables/useT'
 import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
+import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import type { ObjectsLibraryChildPreview } from '@/services/objectsLibraryQueries'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import {
