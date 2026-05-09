@@ -115,7 +115,12 @@
                 @pointerenter="hoveredEmotionId = emotion.id"
                 @pointerleave="hoveredEmotionId = null"
               >
-                {{ emotion.name }}
+                <span
+                  class="emotion-cell__label"
+                  :style="getEmotionLabelStyle(emotion.name)"
+                >
+                  {{ emotion.name }}
+                </span>
               </button>
             </TransitionGroup>
             <!-- Emotion description strip -->
@@ -322,6 +327,17 @@ function getEmotionCellInlineStyle(
   return base
 }
 
+function getEmotionLabelStyle(name: string): Record<string, string> {
+  const length = Array.from(name).length
+
+  if (length >= 16) return { fontSize: '7.5px' }
+  if (length >= 14) return { fontSize: '8px' }
+  if (length >= 12) return { fontSize: '8.5px' }
+  if (length >= 10) return { fontSize: '9px' }
+
+  return {}
+}
+
 function getQuadrantLabel(quadrant: Quadrant | null): string {
   if (!quadrant) return ''
   return getQuadrantDisplayConfig(quadrant, t).label
@@ -468,7 +484,7 @@ onMounted(async () => {
   padding: 6px 2px;
   border-radius: 10px;
   cursor: pointer;
-  word-break: break-word;
+  overflow: hidden;
   min-height: 40px;
   color: rgb(var(--color-on-surface));
   border: 1px solid rgb(var(--neo-border) / 0.2);
@@ -476,6 +492,17 @@ onMounted(async () => {
     -3px -3px 6px rgb(var(--neo-shadow-light) / 0.7),
     3px 3px 6px rgb(var(--neo-shadow-dark) / 0.25);
   transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.emotion-cell__label {
+  display: block;
+  max-width: 100%;
+  line-height: 1.15;
+  letter-spacing: 0;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .emotion-cell:hover:not(.emotion-cell--selected) {
