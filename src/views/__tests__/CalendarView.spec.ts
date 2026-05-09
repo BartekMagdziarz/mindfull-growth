@@ -51,13 +51,15 @@ function createTestRouter() {
   })
 }
 
-async function switchMonthlyPlannerTab(tabLabel: 'Habits' | 'Trackers') {
+async function switchMonthlyPlannerTab(tabLabel: 'Goals' | 'Habits' | 'Trackers') {
   const sidebar = await screen.findByTestId('monthly-planner-sidebar')
-  // Open the tab dropdown (trigger is the first button in the sidebar)
-  const buttons = within(sidebar).getAllByRole('button')
-  await fireEvent.click(buttons[0])
-  // Tab options are teleported to body — search in the full document
-  await fireEvent.click(await screen.findByRole('button', { name: tabLabel }))
+  // Segmented control: click the tab button by name
+  await fireEvent.click(within(sidebar).getByRole('button', { name: new RegExp(`^${tabLabel}\\b`) }))
+}
+
+async function expandPlannerCardActions(cardEl: HTMLElement) {
+  const expandBtn = within(cardEl).getByRole('button', { name: /(More options|Hide options)/i })
+  await fireEvent.click(expandBtn)
 }
 
 describe('CalendarView', () => {
@@ -442,28 +444,14 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Activate goal on the Goals tab
-    const goalTitleEl = within(getPlanner()).getByText(goal.title)
-    const goalCard = goalTitleEl.closest('article')
-    expect(goalCard).toBeTruthy()
-    await fireEvent.click(
-      within(goalCard as HTMLElement).getByRole('button', { name: 'Activate' })
-    )
-
-    await waitFor(async () => {
-      expect(await planningStateDexieRepository.getGoalMonthState(monthRef, goal.id)).toBeTruthy()
-    })
-    await waitFor(() => {
-      expect(
-        within(getPlanner()).queryByRole('heading', { name: 'Loading...' })
-      ).not.toBeInTheDocument()
-    })
-
-    // Switch to Habits tab
+    // Switch to Habits tab via segmented control
     await switchMonthlyPlannerTab('Habits')
 
     const habitRow = within(getPlanner()).getByText(habit.title).closest('article')
     expect(habitRow).toBeTruthy()
+    // Expand the row's options to reveal the activate toggle + whole-period quick action
+    await expandPlannerCardActions(habitRow as HTMLElement)
+
     await fireEvent.click(within(habitRow as HTMLElement).getByRole('button', { name: 'Activate' }))
 
     await waitFor(async () => {
@@ -479,13 +467,15 @@ describe('CalendarView', () => {
 
     await waitFor(() => {
       const row = within(getPlanner()).getByText(habit.title).closest('article')
-      expect(within(row as HTMLElement).getByRole('button', { name: 'All weeks' })).toBeInTheDocument()
+      expect(
+        within(row as HTMLElement).getByRole('button', { name: /Schedule all weeks/i })
+      ).toBeInTheDocument()
     })
 
     const refreshedHabitRow = within(getPlanner()).getByText(habit.title).closest('article')
     expect(refreshedHabitRow).toBeTruthy()
     await fireEvent.click(
-      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'All weeks' })
+      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: /Schedule all weeks/i })
     )
 
     await waitFor(async () => {
@@ -497,12 +487,14 @@ describe('CalendarView', () => {
       expect(monthWeekStates.length).toBeGreaterThanOrEqual(4)
       expect(monthWeekStates.every(state => state.scheduleScope === 'whole-week')).toBe(true)
     })
+
+    void goal
   })
 
-  it('keeps an expanded goal open while toggling a key result state', async () => {
+  it('auto-links the parent goal when activating a key result and toggles its state', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const goal = await goalDexieRepository.create({
-      title: 'Keep goal open',
+      title: 'Auto-link goal',
       isActive: true,
       priorityIds: [],
       lifeAreaIds: [],
@@ -552,32 +544,23 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    const goalRow = within(planner()).getByText(goal.title).closest('article')
-    expect(goalRow).toBeTruthy()
-    await fireEvent.click(within(goalRow as HTMLElement).getByRole('button', { name: 'Activate' }))
-
-    await waitFor(async () => {
-      expect(await planningStateDexieRepository.getGoalMonthState(monthRef, goal.id)).toBeTruthy()
-    })
-
-    const refreshedGoalRow = within(planner()).getByText(goal.title).closest('article')
-    expect(refreshedGoalRow).toBeTruthy()
-    await fireEvent.click(
-      within(refreshedGoalRow as HTMLElement).getByRole('button', { name: 'Expand goal' })
-    )
-
-    await waitFor(() => {
-      expect(within(planner()).getByText(keyResult.title)).toBeInTheDocument()
-    })
-
+    // KRs are flat in the Goals tab — no goal-row, no expand step
     const keyResultRow = within(planner()).getByText(keyResult.title).closest('article')
     expect(keyResultRow).toBeTruthy()
+
+    // Expand the row's options panel and activate the KR — this also auto-links the parent goal
+    await expandPlannerCardActions(keyResultRow as HTMLElement)
     await fireEvent.click(within(keyResultRow as HTMLElement).getByRole('button', { name: 'Activate' }))
 
     await waitFor(async () => {
       expect(
         await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'keyResult', keyResult.id)
       ).toBeTruthy()
+    })
+
+    // Goal is auto-linked when its KR is activated
+    await waitFor(async () => {
+      expect(await planningStateDexieRepository.getGoalMonthState(monthRef, goal.id)).toBeTruthy()
     })
 
     await waitFor(() => {
@@ -652,32 +635,13 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Switch to Habits tab and activate the habit
+    // Switch to Habits tab; the assign button is visible directly on the row
     await switchMonthlyPlannerTab('Habits')
 
     const habitRow = within(planner()).getByText(habit.title).closest('article')
     expect(habitRow).toBeTruthy()
-    await fireEvent.click(within(habitRow as HTMLElement).getByRole('button', { name: 'Activate' }))
-
-    await waitFor(async () => {
-      expect(
-        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
-      ).toBeTruthy()
-    })
-    await waitFor(() => {
-      expect(
-        within(planner()).queryByRole('heading', { name: 'Loading...' })
-      ).not.toBeInTheDocument()
-    })
-
-    await waitFor(() => {
-      const row = within(planner()).getByText(habit.title).closest('article')
-      expect(within(row as HTMLElement).getByRole('button', { name: 'Pick days' })).toBeInTheDocument()
-    })
-
-    const refreshedHabitRow = within(planner()).getByText(habit.title).closest('article')
     await fireEvent.click(
-      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'Pick days' })
+      within(habitRow as HTMLElement).getByRole('button', { name: /Assign in calendar/i })
     )
 
     await waitFor(() => {
@@ -694,6 +658,13 @@ describe('CalendarView', () => {
           'habit',
           habit.id
         )
+      ).toBeTruthy()
+    })
+
+    // Habit auto-activates when a day is picked
+    await waitFor(async () => {
+      expect(
+        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
       ).toBeTruthy()
     })
 
@@ -749,32 +720,13 @@ describe('CalendarView', () => {
       ).not.toBeInTheDocument()
     })
 
-    // Switch to Habits tab and activate the habit
+    // Switch to Habits tab; click the assign button directly to enter assigning mode
     await switchMonthlyPlannerTab('Habits')
 
     const habitRow = within(planner()).getByText(habit.title).closest('article')
     expect(habitRow).toBeTruthy()
-    await fireEvent.click(within(habitRow as HTMLElement).getByRole('button', { name: 'Activate' }))
-
-    await waitFor(async () => {
-      expect(
-        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
-      ).toBeTruthy()
-    })
-    await waitFor(() => {
-      expect(
-        within(planner()).queryByRole('heading', { name: 'Loading...' })
-      ).not.toBeInTheDocument()
-    })
-
-    await waitFor(() => {
-      const row = within(planner()).getByText(habit.title).closest('article')
-      expect(within(row as HTMLElement).getByRole('button', { name: 'Pick days' })).toBeInTheDocument()
-    })
-
-    const refreshedHabitRow = within(planner()).getByText(habit.title).closest('article')
     await fireEvent.click(
-      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: 'Pick days' })
+      within(habitRow as HTMLElement).getByRole('button', { name: /Assign in calendar/i })
     )
 
     await waitFor(() => {
@@ -791,6 +743,13 @@ describe('CalendarView', () => {
           'habit',
           habit.id
         )
+      ).toBeTruthy()
+    })
+
+    // Habit auto-activates when a day is picked
+    await waitFor(async () => {
+      expect(
+        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
       ).toBeTruthy()
     })
 

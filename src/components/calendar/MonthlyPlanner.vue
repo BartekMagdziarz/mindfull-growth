@@ -20,28 +20,26 @@
 
     <div
       v-else
-      class="grid items-start gap-5"
+      class="grid gap-5"
       :class="showSidebar ? 'xl:grid-cols-[minmax(220px,18rem)_minmax(0,1fr)]' : 'grid-cols-1'"
     >
       <PlannerSidebar
         v-if="showSidebar"
         data-testid="monthly-planner-sidebar"
-        class="w-full shrink-0 xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto"
+        class="neo-scroll w-full shrink-0 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto"
         :active-tab="activeTab"
-        :goal-sections="planner.goalSections.value"
+        :key-result-rows="planner.keyResultRows.value"
         :habit-rows="planner.habitRows.value"
         :tracker-rows="planner.trackerRows.value"
         :priorities="planner.priorityOptions.value"
         :saving-key="planner.savingKey.value"
         :is-assignment-active="planner.isAssignmentActive"
         :is-assigned="planner.isAssigned"
-        :assignment-mode="planner.activeAssignment.value?.mode ?? null"
         :month-week-count="planner.calendarWeeks.value.length"
         @update-tab="handleTabChange"
-        @toggle-goal="planner.toggleGoal"
         @toggle-measurement="planner.toggleMeasurement"
         @apply-whole-period="planner.applyWholePeriod"
-        @start-assigning="handleStartAssigning"
+        @start-assigning="planner.toggleAssigning"
         @target-operator-change="(item, val) => planner.handleTargetOperatorChange(item, val)"
         @target-aggregation-change="(item, val) => planner.handleTargetAggregationChange(item, val)"
         @target-value-change="(item, val) => planner.handleTargetValueChange(item, val)"
@@ -52,7 +50,6 @@
         class="min-w-0 flex-1"
         :calendar-weeks="planner.calendarWeeks.value"
         :assignment-row="planner.assignmentRow.value"
-        :assignment-mode="planner.activeAssignment.value?.mode ?? null"
         :weekday-headers="planner.weekdayHeaders.value"
         :row-visible-on-day="planner.rowVisibleOnDay"
         :can-toggle-week="planner.canToggleWeek()"
@@ -74,7 +71,6 @@ import PlannerCalendarGrid from './PlannerCalendarGrid.vue'
 import { useT } from '@/composables/useT'
 import { usePlannerState } from '@/composables/usePlannerState'
 import type { MonthRef } from '@/domain/period'
-import type { PlannerMeasurementRow, PlannerPlacementMode } from './plannerTypes'
 
 const props = defineProps<{
   monthRef: MonthRef
@@ -97,10 +93,6 @@ const activeTab = ref<'goals' | 'habits' | 'trackers'>('goals')
 function handleTabChange(tab: 'goals' | 'habits' | 'trackers') {
   planner.stopAssigning()
   activeTab.value = tab
-}
-
-function handleStartAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode) {
-  planner.startAssigning(item, mode)
 }
 
 function handleFinishAssigning() {

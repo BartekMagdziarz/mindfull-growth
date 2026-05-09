@@ -35,7 +35,7 @@ import type {
   SubjectKind,
 } from '@/components/calendar/plannerTypes'
 
-export type WeeklyPlannerTab = 'goals' | 'habits' | 'trackers' | 'initiatives'
+export type WeeklyPlannerTab = 'goals' | 'habits' | 'trackers'
 
 export function useWeeklyPlannerState(
   weekRef: Ref<WeekRef>,
@@ -68,8 +68,12 @@ export function useWeeklyPlannerState(
     () => new Intl.DateTimeFormat(locale.value, { month: 'short' })
   )
 
+  const keyResultRows = computed<PlannerMeasurementRow[]>(() =>
+    goalSections.value.flatMap(goal => goal.keyResults)
+  )
+
   const allRows = computed(() => [
-    ...goalSections.value.flatMap(goal => goal.keyResults),
+    ...keyResultRows.value,
     ...habitRows.value,
     ...trackerRows.value,
   ])
@@ -288,7 +292,7 @@ export function useWeeklyPlannerState(
     return hasExplicitPlacement(row)
   }
 
-  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode): void {
+  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode = 'days'): void {
     // Inactive items are intentionally allowed here — toggleMeasurementDayAssignment
     // and toggleMeasurementWeekAssignment activate the item atomically when the user picks
     // a day/week, so we don't need an explicit activation step.
@@ -300,15 +304,22 @@ export function useWeeklyPlannerState(
     }
   }
 
+  function toggleAssigning(item: PlannerMeasurementRow): void {
+    if (isAssignmentActive(item)) {
+      activeAssignment.value = null
+      return
+    }
+    startAssigning(item)
+  }
+
   function stopAssigning(): void {
     activeAssignment.value = null
   }
 
   function findNextUnassignedKey(currentTab: WeeklyPlannerTab): string | null {
-    if (currentTab === 'initiatives') return null
     const items =
       currentTab === 'goals'
-        ? goalSections.value.flatMap(g => g.keyResults)
+        ? keyResultRows.value
         : currentTab === 'habits'
           ? habitRows.value
           : trackerRows.value
@@ -636,7 +647,7 @@ export function useWeeklyPlannerState(
 
   async function handleDayToggle(dayRef: DayRef): Promise<void> {
     const row = assignmentRow.value
-    if (!row || activeAssignment.value?.mode !== 'days') return
+    if (!row) return
 
     const dayMonthRef = getPeriodRefsForDate(dayRef).month
 
@@ -652,7 +663,7 @@ export function useWeeklyPlannerState(
   }
 
   function canToggleDay(_day: { inMonth: boolean }): boolean {
-    return activeAssignment.value?.mode === 'days'
+    return Boolean(activeAssignment.value)
   }
 
   return {
@@ -660,6 +671,7 @@ export function useWeeklyPlannerState(
     loadError,
     savingKey,
     goalSections,
+    keyResultRows,
     habitRows,
     trackerRows,
     initiativeRows,
@@ -677,6 +689,7 @@ export function useWeeklyPlannerState(
     isAssignmentActive,
     isAssigned,
     startAssigning,
+    toggleAssigning,
     stopAssigning,
     findNextUnassignedKey,
     toggleMeasurement,

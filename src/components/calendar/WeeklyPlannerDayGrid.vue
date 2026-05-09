@@ -8,11 +8,16 @@
       >
         <div class="flex min-w-0 items-center gap-2.5">
           <span class="neo-icon-button h-9 w-9 rounded-xl text-primary">
-            <AppIcon :name="assignmentMode === 'days' ? 'today' : 'calendar_view_week'" class="text-base" />
+            <AppIcon name="event_available" class="text-base" />
           </span>
-          <p class="min-w-0 truncate text-sm font-semibold text-on-surface">
-            {{ assignmentRow.title }}
-          </p>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-on-surface">
+              {{ assignmentRow.title }}
+            </p>
+            <p class="truncate text-[11px] text-on-surface-variant">
+              {{ t('planning.calendar.planner.assigningHintWeekly') }}
+            </p>
+          </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -83,7 +88,6 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 import type {
   CalendarAssignmentItem,
   CollapsedIconItem,
-  PlannerPlacementMode,
   PlannerMeasurementRow,
   PlannerWeekDay,
   SubjectKind,
@@ -92,7 +96,6 @@ import type {
 const props = defineProps<{
   calendarDays: PlannerWeekDay[]
   assignmentRow: PlannerMeasurementRow | undefined
-  assignmentMode: PlannerPlacementMode | null
   weekdayHeaders: string[]
   rowVisibleOnDay: (row: PlannerMeasurementRow, dayRef: DayRef, inMonth: boolean) => boolean
   canToggleDay: (day: { inMonth: boolean }) => boolean
@@ -141,11 +144,11 @@ function collapsedItems(items: CalendarAssignmentItem[]): CollapsedIconItem[] {
 function dayCellClass(day: PlannerWeekDay): string {
   const row = props.assignmentRow
   const isAssigned = row ? props.rowVisibleOnDay(row, day.dayRef, day.inMonth) : false
-  const dayEditing = props.assignmentMode === 'days'
+  const isAssigning = Boolean(row)
   const isPast = day.dayRef < todayRef
 
   if (isAssigned) return 'shadow-neu-raised-sm bg-primary/7'
-  if (row && dayEditing) return 'shadow-neu-raised-sm hover:shadow-neu-raised'
+  if (isAssigning) return 'shadow-neu-raised-sm hover:shadow-neu-raised'
   return isPast ? 'shadow-neu-pressed-sm opacity-60' : 'shadow-neu-raised-sm'
 }
 

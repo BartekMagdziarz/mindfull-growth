@@ -93,7 +93,7 @@
             />
 
             <section
-              v-if="showSummaryMetrics && scale !== 'month' && scale !== 'week'"
+              v-if="showSummaryMetrics && scale !== 'month' && scale !== 'week' && scale !== 'year'"
               class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4"
             >
               <div
@@ -111,11 +111,11 @@
             </section>
 
             <section v-if="scale === 'year'" class="space-y-4">
-              <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:auto-rows-fr">
                 <CalendarMonthSummaryCard
                   v-for="month in yearSummary?.months ?? []"
                   :key="month.monthRef"
-                  :title="formatMonthTitle(month.monthRef)"
+                  :title="formatMonthName(month.monthRef)"
                   :goal-groups="month.goalGroups"
                   :habit-groups="month.habitGroups"
                   @click="goToMonth(month.monthRef)"
@@ -569,6 +569,7 @@ import {
 } from '@/utils/periods'
 import {
   formatDayTitle as formatDayTitleLabel,
+  formatMonthName as formatMonthNameLabel,
   formatMonthTitle as formatMonthTitleLabel,
   formatTimestamp as formatTimestampLabel,
   formatWeekTitle as formatWeekTitleLabel,
@@ -1340,10 +1341,14 @@ async function loadCalendarData() {
   try {
     switch (props.scale) {
       case 'year':
-        ;[yearSummary.value, annualPlan.value] = await Promise.all([
-          getCalendarYearSummary(parsedPeriodRef.value as YearRef),
-          annualPlanDexieRepository.getByYearRef(parsedPeriodRef.value as YearRef),
-        ])
+        {
+          const [nextYearSummary, nextAnnualPlan] = await Promise.all([
+            getCalendarYearSummary(parsedPeriodRef.value as YearRef),
+            annualPlanDexieRepository.getByYearRef(parsedPeriodRef.value as YearRef),
+          ])
+          yearSummary.value = nextYearSummary
+          annualPlan.value = nextAnnualPlan ?? null
+        }
         break
       case 'month':
         ;[monthPlanning.value, monthReflection.value] = await Promise.all([
@@ -2003,6 +2008,10 @@ function buildActivityBadges(activityState?: string): BadgeModel[] {
 
 function formatMonthTitle(monthRef: MonthRef): string {
   return formatMonthTitleLabel(monthRef, locale.value)
+}
+
+function formatMonthName(monthRef: MonthRef): string {
+  return formatMonthNameLabel(monthRef, locale.value)
 }
 
 function formatWeekTitle(weekRef: WeekRef): string {

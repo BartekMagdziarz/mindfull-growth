@@ -27,6 +27,14 @@ export function formatMonthTitle(monthRef: MonthRef, locale: string): string {
   }).format(new Date(Number(year), monthIndex, 1))
 }
 
+export function formatMonthName(monthRef: MonthRef, locale: string): string {
+  const monthIndex = Number(monthRef.slice(5, 7)) - 1
+  const year = monthRef.slice(0, 4)
+  return new Intl.DateTimeFormat(locale, {
+    month: 'long',
+  }).format(new Date(Number(year), monthIndex, 1))
+}
+
 export function formatWeekTitle(weekRef: WeekRef, locale: string, weekLabel: string): string {
   const bounds = getPeriodBounds(weekRef)
   return (

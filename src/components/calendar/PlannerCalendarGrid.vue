@@ -8,11 +8,16 @@
       >
         <div class="flex min-w-0 items-center gap-2.5">
           <span class="neo-icon-button h-9 w-9 rounded-xl text-primary">
-            <AppIcon :name="assignmentMode === 'weeks' ? 'calendar_view_week' : 'today'" class="text-base" />
+            <AppIcon name="event_available" class="text-base" />
           </span>
-          <p class="min-w-0 truncate text-sm font-semibold text-on-surface">
-            {{ assignmentRow.title }}
-          </p>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-on-surface">
+              {{ assignmentRow.title }}
+            </p>
+            <p class="truncate text-[11px] text-on-surface-variant">
+              {{ t('planning.calendar.planner.assigningHint') }}
+            </p>
+          </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -104,7 +109,6 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 import type {
   CalendarAssignmentItem,
   CollapsedIconItem,
-  PlannerPlacementMode,
   PlannerMeasurementRow,
   PlannerWeek,
   PlannerWeekDay,
@@ -114,7 +118,6 @@ import type {
 const props = defineProps<{
   calendarWeeks: PlannerWeek[]
   assignmentRow: PlannerMeasurementRow | undefined
-  assignmentMode: PlannerPlacementMode | null
   weekdayHeaders: string[]
   rowVisibleOnDay: (row: PlannerMeasurementRow, dayRef: DayRef, inMonth: boolean) => boolean
   canToggleWeek: boolean
@@ -166,30 +169,29 @@ function collapsedItems(items: CalendarAssignmentItem[]): CollapsedIconItem[] {
 function weekButtonClass(week: PlannerWeek): string {
   const row = props.assignmentRow
   if (!row) return 'neo-inset text-on-surface-variant opacity-55'
-  if (props.assignmentMode !== 'weeks') return 'neo-inset text-on-surface-variant opacity-55'
 
   const scope = row.weekScopeByRef[week.weekRef]
   if (scope === 'whole-week') return 'bg-primary text-on-primary shadow-neu-raised-sm'
   if (scope === 'specific-days') return 'neo-inset border border-primary/30 text-on-surface'
-  return 'neo-inset text-on-surface-variant'
+  return 'neo-inset text-on-surface hover:bg-primary/8'
 }
 
 function dayCellClass(day: PlannerWeekDay): string {
   const row = props.assignmentRow
   const isAssigned = row ? props.rowVisibleOnDay(row, day.dayRef, day.inMonth) : false
-  const dayEditing = props.assignmentMode === 'days'
+  const isAssigning = Boolean(row)
   const isPast = day.dayRef < todayRef
 
   if (!day.inMonth) {
     return isAssigned
       ? 'shadow-neu-raised-sm bg-primary/10 opacity-95'
-      : dayEditing
+      : isAssigning
         ? 'shadow-neu-raised-sm hover:shadow-neu-raised opacity-80'
         : 'shadow-neu-pressed-sm opacity-60'
   }
 
   if (isAssigned) return 'shadow-neu-raised-sm bg-primary/7'
-  if (row && dayEditing) return 'shadow-neu-raised-sm hover:shadow-neu-raised'
+  if (isAssigning) return 'shadow-neu-raised-sm hover:shadow-neu-raised'
   return isPast ? 'shadow-neu-pressed-sm opacity-60' : 'shadow-neu-raised-sm'
 }
 

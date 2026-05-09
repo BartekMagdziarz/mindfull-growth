@@ -268,7 +268,7 @@ export function usePlannerState(
     return hasExplicitPlacement(row)
   }
 
-  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode): void {
+  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode = 'days'): void {
     // Inactive items are intentionally allowed — toggleMeasurementDayAssignment,
     // toggleMeasurementWeekAssignment and assignMeasurementToWholeMonthView activate
     // the item atomically when the user picks a day/week/whole-month.
@@ -278,6 +278,21 @@ export function usePlannerState(
       cadence: item.cadence,
       mode,
     }
+  }
+
+  function toggleAssigning(item: PlannerMeasurementRow): void {
+    if (isAssignmentActive(item)) {
+      activeAssignment.value = null
+      return
+    }
+    startAssigning(item)
+  }
+
+  async function ensureGoalLinked(item: PlannerMeasurementRow): Promise<void> {
+    if (item.subjectType !== 'keyResult' || !item.goalId) return
+    const section = goalSections.value.find(goal => goal.id === item.goalId)
+    if (!section || section.isActive) return
+    await linkGoalToMonth(item.goalId, monthRef.value)
   }
 
   function stopAssigning(): void {
@@ -459,6 +474,7 @@ export function usePlannerState(
         })
         return
       }
+      await ensureGoalLinked(item)
       await activateMeasurementInMonth({
         monthRef: monthRef.value,
         subjectType: item.subjectType,
@@ -550,14 +566,15 @@ export function usePlannerState(
     // activates and assigns the whole month atomically.
     activeAssignment.value = null
 
-    await withSave(`${rowKey(item)}:whole-month`, () =>
-      assignMeasurementToWholeMonthView({
+    await withSave(`${rowKey(item)}:whole-month`, async () => {
+      await ensureGoalLinked(item)
+      await assignMeasurementToWholeMonthView({
         monthRef: monthRef.value,
         cadence: item.cadence,
         subjectType: item.subjectType,
         subjectId: item.id,
       })
-    )
+    })
   }
 
   async function handleWholeMonth(): Promise<void> {
@@ -582,45 +599,51 @@ export function usePlannerState(
 
   async function handleWeekToggle(weekRef: WeekRef): Promise<void> {
     const row = assignmentRow.value
-    if (!row || activeAssignment.value?.mode !== 'weeks') return
+    if (!row) return
 
-    await withSave(`${rowKey(row)}:${weekRef}`, () =>
-      toggleMeasurementWeekAssignment({
+    await withSave(`${rowKey(row)}:${weekRef}`, async () => {
+      await ensureGoalLinked(row)
+      await toggleMeasurementWeekAssignment({
         weekRef,
         cadence: row.cadence,
         monthRef: row.cadence === 'monthly' ? monthRef.value : undefined,
         subjectType: row.subjectType,
         subjectId: row.id,
       })
-    )
+    })
   }
 
   async function handleDayToggle(dayRef: DayRef): Promise<void> {
     const row = assignmentRow.value
-    if (!row || activeAssignment.value?.mode !== 'days') return
+    if (!row) return
 
     if (row.cadence === 'monthly' && getPeriodRefsForDate(dayRef).month !== monthRef.value) return
 
-    await withSave(`${rowKey(row)}:${dayRef}`, () =>
-      toggleMeasurementDayAssignment({
+    await withSave(`${rowKey(row)}:${dayRef}`, async () => {
+      await ensureGoalLinked(row)
+      await toggleMeasurementDayAssignment({
         dayRef,
         cadence: row.cadence,
         monthRef: row.cadence === 'monthly' ? monthRef.value : undefined,
         subjectType: row.subjectType,
         subjectId: row.id,
       })
-    )
+    })
   }
 
   function canToggleWeek(): boolean {
-    return Boolean(assignmentRow.value && activeAssignment.value?.mode === 'weeks')
+    return Boolean(assignmentRow.value)
   }
 
   function canToggleDay(day: { inMonth: boolean }): boolean {
-    if (!assignmentRow.value || activeAssignment.value?.mode !== 'days') return false
+    if (!assignmentRow.value) return false
     if (assignmentRow.value.cadence === 'monthly') return day.inMonth
     return true
   }
+
+  const keyResultRows = computed<PlannerMeasurementRow[]>(() =>
+    goalSections.value.flatMap(goal => goal.keyResults)
+  )
 
   return {
     isLoading,
@@ -628,6 +651,7 @@ export function usePlannerState(
     savingKey,
     priorityOptions,
     goalSections,
+    keyResultRows,
     habitRows,
     trackerRows,
     activeAssignment,
@@ -645,6 +669,7 @@ export function usePlannerState(
     isAssigned,
     startAssigning,
     stopAssigning,
+    toggleAssigning,
     findNextUnassignedKey,
     toggleGoal,
     toggleMeasurement,
