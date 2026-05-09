@@ -27,6 +27,7 @@
         <WheelOfLifeTimeline
           :assessments="lifeAreaAssessmentStore.sortedAssessments"
           @edit="editingAssessmentId = $event"
+          @delete="handleDelete"
         />
       </AppCard>
     </div>
@@ -54,5 +55,26 @@ onMounted(() => {
 
 function handleSaved(_assessmentId: string) {
   editingAssessmentId.value = null
+}
+
+async function handleDelete(assessmentId: string) {
+  const assessment = lifeAreaAssessmentStore.getAssessmentById(assessmentId)
+  const date = assessment
+    ? new Date(assessment.createdAt).toLocaleDateString(
+        t('exerciseWizards.wheelOfLife.timeline.dateLocale'),
+        {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        },
+      )
+    : ''
+
+  if (!confirm(t('exerciseWizards.wheelOfLife.timeline.confirmDelete', { date }))) return
+
+  await lifeAreaAssessmentStore.deleteAssessment(assessmentId)
+  if (editingAssessmentId.value === assessmentId) {
+    editingAssessmentId.value = null
+  }
 }
 </script>

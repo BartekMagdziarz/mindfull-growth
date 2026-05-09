@@ -24,9 +24,6 @@
       <h2 class="text-lg font-semibold text-on-surface">
         {{ wizard.currentStepDef.value?.title }}
       </h2>
-      <p class="text-sm text-on-surface-variant mt-1">
-        {{ wizard.currentStepDef.value?.subtitle }}
-      </p>
     </div>
 
     <AppCard padding="lg">
@@ -65,10 +62,6 @@
 
         <div v-else class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-center">
           <div class="space-y-4">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-section/70 text-xs text-on-surface-variant">
-              <span class="w-2 h-2 rounded-full bg-primary/70" />
-              <span>{{ t('exerciseWizards.wheelOfLife.areasFromProfile', { count: wizard.areas.value.length }) }}</span>
-            </div>
             <h3 class="text-xl font-semibold text-on-surface">{{ t('exerciseWizards.wheelOfLife.intro.snapshotHeading') }}</h3>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.wheelOfLife.intro.snapshotDescription') }}
@@ -87,9 +80,6 @@
                 <span>{{ t('exerciseWizards.wheelOfLife.intro.instruction3') }}</span>
               </li>
             </ul>
-            <div class="rounded-xl border border-neu-border/20 bg-section/40 p-3 text-xs text-on-surface-variant">
-              {{ t('exerciseWizards.wheelOfLife.intro.changeSlicesHint') }}
-            </div>
           </div>
 
           <div class="rounded-2xl border border-neu-border/20 bg-section/50 p-4">
@@ -99,36 +89,18 @@
               :padding="60"
               :animated="true"
             />
-            <div class="mt-3 flex items-center justify-center gap-2 text-xs text-on-surface-variant">
-              <span class="h-2 w-2 rounded-full bg-primary/70" />
-              <span>{{ t('exerciseWizards.wheelOfLife.intro.startingShapeCaption') }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="wizard.areas.value.length > 0 && !wizard.needsSetup.value" class="space-y-2">
-          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">
-            {{ t('exerciseWizards.wheelOfLife.intro.areasYoullRate') }}
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <span
-              v-for="area in wizard.areas.value"
-              :key="area.name"
-              class="px-3 py-1 rounded-full bg-section text-xs text-on-surface-variant border border-neu-border/20"
-            >
-              {{ area.name }}
-            </span>
           </div>
         </div>
       </div>
 
       <WheelAreaRater
-        v-else-if="wizard.currentStepDef.value?.id === 'rate' && wizard.currentArea.value"
+        v-else-if="wizard.isRatingStep.value && wizard.currentArea.value"
         :area="wizard.currentArea.value"
         :areas="wizard.areas.value"
         :current-index="wizard.currentAreaIndex.value"
         @rate="wizard.rateArea(wizard.currentAreaIndex.value, $event)"
-        @set-note="wizard.setAreaNote(wizard.currentAreaIndex.value, $event)"
+        @set-positive-influences="wizard.setAreaPositiveInfluences(wizard.currentAreaIndex.value, $event)"
+        @set-negative-influences="wizard.setAreaNegativeInfluences(wizard.currentAreaIndex.value, $event)"
         @set-vision="wizard.setAreaVisionSnapshot(wizard.currentAreaIndex.value, $event)"
       />
 
@@ -151,7 +123,7 @@
     <div class="flex items-center justify-between">
       <div>
         <AppButton
-          v-if="!wizard.isFirstStep.value || (wizard.isRatingStep.value && wizard.currentAreaIndex.value > 0)"
+          v-if="!wizard.isFirstStep.value"
           variant="text"
           @click="wizard.back()"
         >
@@ -177,7 +149,7 @@
           :disabled="!canAdvance"
           @click="wizard.next()"
         >
-          {{ wizard.isRatingStep.value && !wizard.isLastArea.value ? t('exerciseWizards.wheelOfLife.nextArea') : t('exerciseWizards.wheelOfLife.continue') }}
+          {{ t('exerciseWizards.wheelOfLife.continue') }}
         </AppButton>
       </div>
     </div>
@@ -229,7 +201,6 @@ const seedingDefaults = ref(false)
 const canAdvance = computed(() => {
   if (wizard.isLoadingAreas.value) return false
   if (wizard.needsSetup.value) return false
-  if (wizard.isRatingStep.value && !wizard.isLastArea.value) return true
   return wizard.canProceed.value
 })
 

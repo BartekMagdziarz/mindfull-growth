@@ -4,6 +4,7 @@ import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useT } from '@/composables/useT'
 import { sortLifeAreaAssessmentsByCreatedAt } from '@/utils/lifeAreaAssessments'
 import type { WheelChartArea, WheelDraftArea } from '@/components/exercises/wheelOfLifeTypes'
+import type { LifeAreaAssessmentDetails } from '@/domain/lifeAreaAssessment'
 
 export type WheelOfLifeMode = 'standalone' | 'reflection'
 
@@ -25,7 +26,6 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
 
   const currentStep = ref(0)
   const areas = ref<WheelDraftArea[]>([])
-  const currentAreaIndex = ref(0)
   const notes = ref('')
   const isLoadingAreas = ref(false)
 
@@ -48,28 +48,33 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
     return t('exerciseWizards.wheelOfLife.stepSubtitles.intro')
   })
 
-  const steps = computed<WheelOfLifeStep[]>(() => [
-    {
-      id: 'intro',
-      title: stepTitle.value,
-      subtitle: introSubtitle.value,
-    },
-    {
-      id: 'rate',
+  const steps = computed<WheelOfLifeStep[]>(() => {
+    const ratingSteps = areas.value.map((area, index) => ({
+      id: `rate-${area.id || index}`,
       title: t('exerciseWizards.wheelOfLife.stepTitles.rate'),
-      subtitle: t('exerciseWizards.wheelOfLife.stepSubtitles.rate'),
-    },
-    {
-      id: 'reflect',
-      title: t('exerciseWizards.wheelOfLife.stepTitles.reflect'),
-      subtitle: t('exerciseWizards.wheelOfLife.stepSubtitles.reflectStandalone'),
-    },
-  ])
+      subtitle: '',
+    }))
+
+    return [
+      {
+        id: 'intro',
+        title: stepTitle.value,
+        subtitle: introSubtitle.value,
+      },
+      ...ratingSteps,
+      {
+        id: 'reflect',
+        title: t('exerciseWizards.wheelOfLife.stepTitles.reflect'),
+        subtitle: t('exerciseWizards.wheelOfLife.stepSubtitles.reflectStandalone'),
+      },
+    ]
+  })
 
   const currentStepDef = computed(() => steps.value[currentStep.value])
   const isLastStep = computed(() => currentStep.value === steps.value.length - 1)
   const isFirstStep = computed(() => currentStep.value === 0)
-  const isRatingStep = computed(() => currentStepDef.value?.id === 'rate')
+  const isRatingStep = computed(() => currentStepDef.value?.id.startsWith('rate-') ?? false)
+  const currentAreaIndex = computed(() => (isRatingStep.value ? currentStep.value - 1 : 0))
   const isLastArea = computed(() => currentAreaIndex.value === areas.value.length - 1)
   const currentArea = computed(() => areas.value[currentAreaIndex.value])
 
@@ -104,9 +109,10 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
     switch (step.id) {
       case 'intro':
         return areas.value.length > 0
-      case 'rate':
-        return areas.value.length > 0 && isLastArea.value
       default:
+        if (isRatingStep.value) {
+          return areas.value.length > 0
+        }
         return true
     }
   })
@@ -132,6 +138,8 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
         name: item.lifeAreaNameSnapshot,
         rating: item.score,
         note: item.note ?? '',
+        positiveInfluences: getAssessmentDetailText(item.details, 'positiveInfluences') || item.note || '',
+        negativeInfluences: getAssessmentDetailText(item.details, 'negativeInfluences'),
         visionSnapshot: item.visionSnapshot ?? '',
       }))
       notes.value = existingAssessment.notes ?? ''
@@ -141,12 +149,13 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
         name: lifeArea.name,
         rating: 5,
         note: '',
+        positiveInfluences: '',
+        negativeInfluences: '',
         visionSnapshot: lifeArea.desiredState ?? '',
       }))
       notes.value = ''
     }
 
-    currentAreaIndex.value = 0
     currentStep.value = 0
     isLoadingAreas.value = false
   }
@@ -163,41 +172,31 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
     target.note = value
   }
 
+  function setAreaPositiveInfluences(index: number, value: string) {
+    const target = areas.value[index]
+    if (!target) return
+    target.positiveInfluences = value
+  }
+
+  function setAreaNegativeInfluences(index: number, value: string) {
+    const target = areas.value[index]
+    if (!target) return
+    target.negativeInfluences = value
+  }
+
   function setAreaVisionSnapshot(index: number, value: string) {
     const target = areas.value[index]
     if (!target) return
     target.visionSnapshot = value
   }
 
-  function nextArea() {
-    if (currentAreaIndex.value < areas.value.length - 1) {
-      currentAreaIndex.value++
-    }
-  }
-
-  function prevArea() {
-    if (currentAreaIndex.value > 0) {
-      currentAreaIndex.value--
-    }
-  }
-
   function next() {
-    if (isRatingStep.value && !isLastArea.value) {
-      nextArea()
-      return
-    }
-
     if (currentStep.value < steps.value.length - 1) {
       currentStep.value++
     }
   }
 
   function back() {
-    if (isRatingStep.value && currentAreaIndex.value > 0) {
-      prevArea()
-      return
-    }
-
     if (currentStep.value > 0) {
       currentStep.value--
     }
@@ -210,8 +209,9 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
         lifeAreaId: area.id as string,
         lifeAreaNameSnapshot: area.name,
         score: area.rating,
-        note: area.note || undefined,
+        note: undefined,
         visionSnapshot: area.visionSnapshot || undefined,
+        details: createAreaDetails(area),
       }))
 
     if (items.length === 0) {
@@ -253,12 +253,34 @@ export function useWheelOfLifeWizard(options: WheelOfLifeWizardOptions) {
     canProceed,
     rateArea,
     setAreaNote,
+    setAreaPositiveInfluences,
+    setAreaNegativeInfluences,
     setAreaVisionSnapshot,
-    nextArea,
-    prevArea,
     next,
     back,
     save,
     initialize,
   }
+}
+
+function getAssessmentDetailText(
+  details: LifeAreaAssessmentDetails | undefined,
+  key: string,
+): string {
+  const value = details?.[key]
+  return typeof value === 'string' ? value : ''
+}
+
+function createAreaDetails(area: WheelDraftArea): LifeAreaAssessmentDetails | undefined {
+  const details: LifeAreaAssessmentDetails = {}
+
+  if (area.positiveInfluences.trim()) {
+    details.positiveInfluences = area.positiveInfluences.trim()
+  }
+
+  if (area.negativeInfluences.trim()) {
+    details.negativeInfluences = area.negativeInfluences.trim()
+  }
+
+  return Object.keys(details).length > 0 ? details : undefined
 }

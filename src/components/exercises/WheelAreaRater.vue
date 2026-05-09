@@ -1,23 +1,9 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between gap-4 text-sm text-on-surface-variant">
+    <div class="flex items-center gap-2 text-sm text-on-surface-variant">
       <div class="flex items-center gap-2">
         <span class="font-medium text-on-surface">{{ t('exerciseWizards.wheelOfLife.rater.areaLabel', { n: currentIndex + 1 }) }}</span>
         <span>{{ t('exerciseWizards.wheelOfLife.rater.ofTotal', { total: totalAreas }) }}</span>
-        <span
-          v-if="remaining > 0"
-          class="text-[11px] uppercase tracking-[0.2em] rounded-full bg-section px-2 py-0.5 text-on-surface-variant"
-        >
-          {{ t('exerciseWizards.wheelOfLife.rater.remaining', { n: remaining }) }}
-        </span>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <div
-          v-for="i in totalAreas"
-          :key="i"
-          class="w-2.5 h-2.5 rounded-full border transition-all"
-          :class="getDotClass(i - 1)"
-        />
       </div>
     </div>
 
@@ -30,10 +16,6 @@
           :animated="true"
           :highlight-index="currentIndex"
         />
-        <div class="mt-3 flex items-center justify-center gap-2 text-xs text-on-surface-variant">
-          <span class="h-2 w-2 rounded-full bg-primary/70" />
-          <span>{{ t('exerciseWizards.wheelOfLife.rater.highlightCaption') }}</span>
-        </div>
       </div>
 
       <div class="space-y-5">
@@ -42,9 +24,6 @@
             {{ t('exerciseWizards.wheelOfLife.rater.currentlyRating') }}
           </p>
           <h3 class="text-2xl font-semibold text-on-surface">{{ area.name }}</h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.wheelOfLife.rater.alignmentQuestion') }}
-          </p>
         </div>
 
         <div class="flex items-baseline gap-2">
@@ -74,40 +53,46 @@
             <span>{{ t('exerciseWizards.wheelOfLife.rater.sliderMax') }}</span>
           </div>
         </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-on-surface-variant">
+            {{ t('exerciseWizards.wheelOfLife.rater.visionLabel') }}
+          </label>
+          <textarea
+            :value="area.visionSnapshot"
+            rows="3"
+            :placeholder="t('exerciseWizards.wheelOfLife.rater.visionPlaceholder')"
+            class="neo-input w-full min-h-[88px] p-3 text-sm resize-none"
+            @input="$emit('set-vision', ($event.target as HTMLTextAreaElement).value)"
+          />
+        </div>
       </div>
     </div>
 
     <div class="space-y-3">
-      <div class="flex items-center justify-between">
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">
-          {{ t('exerciseWizards.wheelOfLife.rater.detailsLabel') }}
-        </p>
-        <span class="text-[11px] text-on-surface-variant">{{ t('exerciseWizards.wheelOfLife.rater.optional') }}</span>
-      </div>
-
       <div class="space-y-2">
         <label class="text-xs font-medium text-on-surface-variant">
-          {{ t('exerciseWizards.wheelOfLife.rater.noteLabel') }}
+          {{ t('exerciseWizards.wheelOfLife.rater.positiveInfluencesLabel') }}
         </label>
         <textarea
-          :value="area.note"
+          :value="area.positiveInfluences"
           rows="2"
-          :placeholder="t('exerciseWizards.wheelOfLife.rater.notePlaceholder')"
+          :placeholder="t('exerciseWizards.wheelOfLife.rater.positiveInfluencesPlaceholder')"
           class="neo-input w-full min-h-[72px] p-3 text-sm resize-none"
-          @input="$emit('set-note', ($event.target as HTMLTextAreaElement).value)"
+          @input="$emit('set-positive-influences', ($event.target as HTMLTextAreaElement).value)"
         />
       </div>
 
       <div class="space-y-2">
         <label class="text-xs font-medium text-on-surface-variant">
-          {{ t('exerciseWizards.wheelOfLife.rater.visionLabel') }}
+          {{ t('exerciseWizards.wheelOfLife.rater.negativeInfluencesLabel') }}
         </label>
         <textarea
-          :value="area.visionSnapshot"
-          rows="3"
-          :placeholder="t('exerciseWizards.wheelOfLife.rater.visionPlaceholder')"
-          class="neo-input w-full min-h-[88px] p-3 text-sm resize-none"
-          @input="$emit('set-vision', ($event.target as HTMLTextAreaElement).value)"
+          :value="area.negativeInfluences"
+          rows="2"
+          :placeholder="t('exerciseWizards.wheelOfLife.rater.negativeInfluencesPlaceholder')"
+          class="neo-input w-full min-h-[72px] p-3 text-sm resize-none"
+          @input="$emit('set-negative-influences', ($event.target as HTMLTextAreaElement).value)"
         />
       </div>
     </div>
@@ -130,7 +115,8 @@ const props = defineProps<{
 
 defineEmits<{
   rate: [value: number]
-  'set-note': [value: string]
+  'set-positive-influences': [value: string]
+  'set-negative-influences': [value: string]
   'set-vision': [value: string]
 }>()
 
@@ -143,14 +129,7 @@ const ratingColor = computed(() => {
 })
 
 const totalAreas = computed(() => props.areas.length)
-const remaining = computed(() => Math.max(totalAreas.value - props.currentIndex - 1, 0))
 const fillPercent = computed(() => Math.max(0, Math.min((props.area.rating / 10) * 100, 100)))
-
-function getDotClass(index: number): string {
-  if (index < props.currentIndex) return 'bg-primary/70 border-primary/60'
-  if (index === props.currentIndex) return 'bg-primary/20 border-primary/60 scale-110'
-  return 'bg-transparent border-neu-border/30'
-}
 </script>
 
 <style scoped>

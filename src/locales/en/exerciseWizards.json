@@ -38,7 +38,7 @@
     "stepTitles": {
       "intro": "Wheel of Life",
       "edit": "Edit Assessment",
-      "rate": "Rate Your Satisfaction",
+      "rate": "Rate Life Areas",
       "focus": "Review Areas",
       "reflect": "Reflect"
     },
@@ -55,27 +55,23 @@
       "snapshotDescription": "The circle represents your whole life. Each slice is a life area that matters to you. You will rate how aligned each area feels with your values today.",
       "instruction1": "Rate each area from 1\u201310 (10 = most aligned).",
       "instruction2": "Notice where life feels out of balance or out of sync.",
-      "instruction3": "There is no perfect wheel \u2014 the goal is insight, not a \"10\" everywhere.",
-      "changeSlicesHint": "Want to change the slices? Update your Life Areas and come back anytime.",
-      "startingShapeCaption": "This is your starting shape before you rate.",
-      "areasYoullRate": "Areas you'll rate"
+      "instruction3": "There is no perfect wheel \u2014 the goal is insight, not a \"10\" everywhere."
     },
     "rater": {
       "areaLabel": "Area {n}",
       "ofTotal": "of {total}",
       "remaining": "{n} left",
-      "highlightCaption": "Highlighted slice is the area you're rating.",
       "currentlyRating": "Currently rating",
       "alignmentQuestion": "How aligned does this feel with your values today?",
       "outOfTen": "/10",
       "sliderMin": "Out of alignment",
       "sliderMax": "Fully aligned",
-      "detailsLabel": "Optional details",
-      "noteLabel": "What stands out in this area right now?",
-      "notePlaceholder": "Capture the key context behind this score...",
+      "positiveInfluencesLabel": "What positively influenced this score?",
+      "positiveInfluencesPlaceholder": "Capture what worked well or lifted this score...",
+      "negativeInfluencesLabel": "What negatively influenced this score?",
+      "negativeInfluencesPlaceholder": "Capture what felt hard or lowered this score...",
       "visionLabel": "What would 9/10 look like here?",
       "visionPlaceholder": "Describe the success picture you want to remember for this assessment...",
-      "optional": "Optional",
       "prompts": {
         "emotions": {
           "label": "What emotions do you feel when assessing this area?",
@@ -143,7 +139,9 @@
     "timeline": {
       "title": "Past Assessments",
       "emptyState": "No previous assessments yet.",
-      "editSelected": "Edit selected",
+      "editSelected": "Edit",
+      "confirmDelete": "Delete the assessment from {date}? This cannot be undone.",
+      "dateLocale": "en-US",
       "compareWith": "Compare with:",
       "none": "None",
       "partialHint": "This assessment only covered part of your life areas."

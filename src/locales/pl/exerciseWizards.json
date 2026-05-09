@@ -38,7 +38,7 @@
     "stepTitles": {
       "intro": "Koło Życia",
       "edit": "Edytuj ocenę",
-      "rate": "Oceń swoje zadowolenie",
+      "rate": "Oceń obszary życia",
       "focus": "Przejrzyj obszary",
       "reflect": "Refleksja"
     },
@@ -55,27 +55,23 @@
       "snapshotDescription": "Koło reprezentuje całe twoje życię. Każdy wycinek to obszar życia, który ma dla ciebie znaczenie. Ocenisz, jak zgodny z twoimi wartościami jest dzisiaj każdy obszar.",
       "instruction1": "Oceń każdy obszar w skali 1–10 (10 = najbardziej zgodny).",
       "instruction2": "Zauważ, gdzie życię wydaje się niezrównoważone lub niezsynchronizowane.",
-      "instruction3": "Nie ma idealnego koła — celem jest zrozumienie, a nie wszędzie '10'.",
-      "changeSlicesHint": "Chcesz zmienić wycinki? Zaktualizuj swoje obszary życia i wróć w dowolnym momencie.",
-      "startingShapeCaption": "To twój początkowy kształt przed oceną.",
-      "areasYoullRate": "Obszary, które ocenisz"
+      "instruction3": "Nie ma idealnego koła — celem jest zrozumienie, a nie wszędzie '10'."
     },
     "rater": {
       "areaLabel": "Obszar {n}",
       "ofTotal": "z {total}",
       "remaining": "Pozostało {n}",
-      "highlightCaption": "Podświetlony wycinek to obszar, który oceniasz.",
       "currentlyRating": "Obecnie oceniasz",
       "alignmentQuestion": "Jak zgodny z twoimi wartościami czujesz się dzisiaj w tym obszarze?",
       "outOfTen": "/10",
       "sliderMin": "Brak zgodności",
       "sliderMax": "Pełna zgodność",
-      "detailsLabel": "Dodatkowe szczegóły",
-      "noteLabel": "Co najbardziej wyróżnia się w tym obszarze teraz?",
-      "notePlaceholder": "Zapisz najważniejszy kontekst tej oceny...",
+      "positiveInfluencesLabel": "Co wpłynęło pozytywnie na ocenę?",
+      "positiveInfluencesPlaceholder": "Zapisz, co działało dobrze lub podniosło tę ocenę...",
+      "negativeInfluencesLabel": "Co wpłynęło negatywnie na ocenę?",
+      "negativeInfluencesPlaceholder": "Zapisz, co było trudne lub obniżyło tę ocenę...",
       "visionLabel": "Jak wyglądałoby tu 9/10?",
       "visionPlaceholder": "Opisz obraz sukcesu, który chcesz zapamiętać dla tej oceny...",
-      "optional": "Opcjonalnie",
       "prompts": {
         "emotions": {
           "label": "Jakie emocję odczuwasz, oceniając ten obszar?",
@@ -143,7 +139,9 @@
     "timeline": {
       "title": "Poprzednie oceny",
       "emptyState": "Brak poprzednich ocen.",
-      "editSelected": "Edytuj wybraną",
+      "editSelected": "Edytuj",
+      "confirmDelete": "Usunąć ocenę z {date}? Tej operacji nie można cofnąć.",
+      "dateLocale": "pl-PL",
       "compareWith": "Porównaj z:",
       "none": "Brak",
       "partialHint": "Ta ocena obejmowała tylko część obszarów życia."

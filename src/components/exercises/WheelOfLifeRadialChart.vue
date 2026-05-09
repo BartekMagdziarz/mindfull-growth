@@ -85,9 +85,9 @@
         :key="`dot-${i}`"
         :cx="getAnimatedPoint(i).x"
         :cy="getAnimatedPoint(i).y"
-        :r="isHighlighted(i) ? 5 : 4"
+        :r="compact ? 2.6 : isHighlighted(i) ? 5 : 4"
         :class="[getDotColor(area.rating), isHighlighted(i) ? 'stroke-primary-strong' : 'stroke-surface']"
-        :stroke-width="isHighlighted(i) ? 2 : 1.5"
+        :stroke-width="compact ? 1 : isHighlighted(i) ? 2 : 1.5"
       />
 
       <!-- Comparison dots -->
@@ -104,6 +104,7 @@
 
       <!-- Area labels -->
       <text
+        v-if="!compact"
         v-for="(_area, i) in areas"
         :key="`label-${i}`"
         :x="getLabelPosition(i).x"
@@ -128,6 +129,7 @@
 
       <!-- Rating labels -->
       <text
+        v-if="!compact"
         v-for="(area, i) in areas"
         :key="`rating-${i}`"
         :x="getRatingLabelPosition(i).x"
@@ -147,7 +149,7 @@
 
     <!-- Tooltip -->
     <div
-      v-if="hoveredArea !== null"
+      v-if="!compact && hoveredArea !== null"
       class="absolute z-10 px-3 py-2 rounded-xl bg-surface border border-neu-border/30 text-xs pointer-events-none"
       :style="tooltipStyle"
     >
@@ -187,6 +189,7 @@ const props = withDefaults(
     highlightName?: string
     labelFontSize?: number
     ratingFontSize?: number
+    compact?: boolean
   }>(),
   {
     comparisonAreas: undefined,
@@ -197,10 +200,11 @@ const props = withDefaults(
     highlightName: undefined,
     labelFontSize: 11,
     ratingFontSize: 10,
+    compact: false,
   },
 )
 
-const safePadding = computed(() => Math.max(28, props.padding))
+const safePadding = computed(() => (props.compact ? Math.max(8, props.padding) : Math.max(28, props.padding)))
 const outerSize = computed(() => props.size + safePadding.value * 2)
 const outerRadius = computed(() => outerSize.value / 2)
 const center = computed(() => outerRadius.value)
