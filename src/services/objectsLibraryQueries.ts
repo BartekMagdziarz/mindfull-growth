@@ -777,7 +777,7 @@ function buildPriorityListItem(
     lifeAreaIds: [...priority.lifeAreaIds],
     years: [...priority.years],
     order: priority.order,
-    whyNow: priority.whyNow,
+    whyNow: priority.whyNow ?? priority.description,
     desiredDirection: priority.desiredDirection,
     tradeoffs: priority.tradeoffs,
     progressSignals: [...priority.progressSignals],

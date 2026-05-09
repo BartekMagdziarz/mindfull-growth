@@ -3,7 +3,7 @@
     <button
       type="button"
       class="neo-pill neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold"
-      :aria-label="t('planning.objects.actions.years')"
+      :aria-label="buttonLabel"
       @click.stop="open = !open"
     >
       <AppIcon name="calendar_today" class="text-xs" />
@@ -74,6 +74,12 @@ const selectedLabel = computed(() => {
   const sorted = [...props.linkedYears].sort((a, b) => a.yearRef.localeCompare(b.yearRef))
   return sorted.map((y) => y.displayLabel).join(', ')
 })
+
+const buttonLabel = computed(() =>
+  selectedLabel.value
+    ? `${t('planning.objects.actions.years')}: ${selectedLabel.value}`
+    : t('planning.objects.actions.years')
+)
 
 const availableYears = computed(() => {
   const now = new Date()
