@@ -1,5 +1,11 @@
-import type { CreateGoalPayload, Goal, UpdateGoalPayload } from '@/domain/planning'
-import { normalizeGoalPayload } from '@/domain/planning'
+import type {
+  CreateGoalPayload,
+  CreateKeyResultPayload,
+  Goal,
+  KeyResult,
+  UpdateGoalPayload,
+} from '@/domain/planning'
+import { normalizeGoalPayload, normalizeKeyResultPayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { GoalRepository } from './goalRepository'
@@ -37,6 +43,31 @@ class GoalDexieRepository implements GoalRepository {
     } catch (error) {
       console.error('Failed to create goal:', error)
       throw new Error('Failed to create goal in database')
+    }
+  }
+
+  async createWithKeyResults(
+    goalData: CreateGoalPayload,
+    keyResultsData: Omit<CreateKeyResultPayload, 'goalId'>[],
+  ): Promise<{ goal: Goal; keyResults: KeyResult[] }> {
+    try {
+      const goal = createPlanningRecord<Goal>(normalizeGoalPayload(goalData))
+      const keyResults = keyResultsData.map((kr) =>
+        createPlanningRecord<KeyResult>(
+          normalizeKeyResultPayload({ ...kr, goalId: goal.id } as CreateKeyResultPayload),
+        ),
+      )
+      await this.db.transaction('rw', this.db.goals, this.db.keyResults, async () => {
+        await this.db.goals.add(toPlain(goal))
+        for (const kr of keyResults) {
+          await this.db.keyResults.add(toPlain(kr))
+        }
+      })
+      invalidatePlanningQueryCache()
+      return { goal, keyResults }
+    } catch (error) {
+      console.error('Failed to create goal with key results:', error)
+      throw new Error('Failed to create goal with key results in database')
     }
   }
 

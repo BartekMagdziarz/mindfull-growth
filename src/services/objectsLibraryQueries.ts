@@ -112,6 +112,12 @@ export interface ObjectsLibraryListItem {
   ratingScale?: number
   target?: MeasurementTarget
   chartData?: ObjectsLibraryChartPoint[]
+  targetDate?: string
+  successDefinition?: string
+  whyMatters?: string
+  confidenceRating?: number
+  obstacles?: string
+  resources?: string
 }
 
 export interface ObjectsLibraryDetailRecord {
@@ -821,6 +827,13 @@ function buildGoalListItem(
     goalMonthRefs: deps.goalMonthStates
       .filter((s) => s.goalId === goal.id)
       .map((s) => s.monthRef),
+    description: goal.description,
+    targetDate: goal.targetDate,
+    successDefinition: goal.successDefinition,
+    whyMatters: goal.whyMatters,
+    confidenceRating: goal.confidenceRating,
+    obstacles: goal.obstacles,
+    resources: goal.resources,
   }
 }
 

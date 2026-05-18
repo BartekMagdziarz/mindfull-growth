@@ -6,7 +6,9 @@ import type {
   CreatePriorityPayload,
   CreateTrackerPayload,
 } from '@/domain/planning'
+import type { CreateGoalPayload } from '@/domain/planning'
 import {
+  normalizeGoalPayload,
   normalizeHabitPayload,
   normalizeInitiativePayload,
   normalizeKeyResultPayload,
@@ -302,5 +304,81 @@ describe('planning domain normalization', () => {
         checklist: ['step-1'],
       } as CreateInitiativePayload),
     ).toThrow('checklist is not supported for this planning object')
+  })
+
+  describe('normalizeGoalPayload SMART fields', () => {
+    function buildBaseGoal(extra: Partial<CreateGoalPayload> = {}): CreateGoalPayload {
+      return {
+        title: 'My goal',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        status: 'open',
+        ...extra,
+      }
+    }
+
+    it('accepts a complete SMART payload and trims optional text fields', () => {
+      const normalized = normalizeGoalPayload(
+        buildBaseGoal({
+          targetDate: '2026-12-31',
+          successDefinition: '  Ran the 10K  ',
+          whyMatters: '  Health  ',
+          confidenceRating: 7,
+          obstacles: '  Travel weeks  ',
+          resources: '  Coach  ',
+        }),
+      )
+
+      expect(normalized.targetDate).toBe('2026-12-31')
+      expect(normalized.successDefinition).toBe('Ran the 10K')
+      expect(normalized.whyMatters).toBe('Health')
+      expect(normalized.confidenceRating).toBe(7)
+      expect(normalized.obstacles).toBe('Travel weeks')
+      expect(normalized.resources).toBe('Coach')
+    })
+
+    it('accepts undefined for all new SMART fields', () => {
+      const normalized = normalizeGoalPayload(buildBaseGoal())
+      expect(normalized.targetDate).toBeUndefined()
+      expect(normalized.successDefinition).toBeUndefined()
+      expect(normalized.whyMatters).toBeUndefined()
+      expect(normalized.confidenceRating).toBeUndefined()
+      expect(normalized.obstacles).toBeUndefined()
+      expect(normalized.resources).toBeUndefined()
+    })
+
+    it('rejects malformed targetDate strings', () => {
+      expect(() =>
+        normalizeGoalPayload(buildBaseGoal({ targetDate: 'not-a-date' })),
+      ).toThrow(/targetDate must be ISO date YYYY-MM-DD/)
+    })
+
+    it('rejects confidenceRating outside 1..10', () => {
+      expect(() => normalizeGoalPayload(buildBaseGoal({ confidenceRating: 0 }))).toThrow(
+        /confidenceRating must be an integer between 1 and 10/,
+      )
+      expect(() => normalizeGoalPayload(buildBaseGoal({ confidenceRating: 11 }))).toThrow(
+        /confidenceRating must be an integer between 1 and 10/,
+      )
+      expect(() =>
+        normalizeGoalPayload(buildBaseGoal({ confidenceRating: 5.5 })),
+      ).toThrow(/confidenceRating must be an integer between 1 and 10/)
+    })
+
+    it('preserves existing SMART values when patching with undefined', () => {
+      const existing = {
+        ...normalizeGoalPayload(
+          buildBaseGoal({ targetDate: '2026-12-31', confidenceRating: 8 }),
+        ),
+        id: 'goal-1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      }
+
+      const patched = normalizeGoalPayload({ title: 'My goal' }, existing)
+      expect(patched.targetDate).toBe('2026-12-31')
+      expect(patched.confidenceRating).toBe(8)
+    })
   })
 })
