@@ -54,11 +54,6 @@
         :data="viz.summaryNumberData.value"
       />
     </div>
-
-    <footer class="overview-tile__foot">
-      <span class="overview-tile__agg">{{ actualLabel || '—' }}</span>
-      <span v-if="targetLabel" class="overview-tile__target">{{ targetLabel }}</span>
-    </footer>
   </article>
 </template>
 
@@ -77,9 +72,8 @@ import SummaryNumber from '@/components/today/visualizations/SummaryNumber.vue'
 import InitiativeCheckmark from '@/components/today/visualizations/InitiativeCheckmark.vue'
 import { useT } from '@/composables/useT'
 import { useTodayItemVisualization } from '@/composables/useTodayItemVisualization'
-import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
+import type { TodayItem } from '@/services/todayViewQueries'
 import type { DayRef } from '@/domain/period'
-import type { MeasurementTarget } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   MeasurementDayAssignment,
@@ -137,52 +131,17 @@ const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
   const op = viz.aggregateData.value?.operator
   return op === 'gte' || op === 'lte' ? op : undefined
 })
-
-function getUnit(item: TodayMeasurementItem): string {
-  const subject = item.subject as { unit?: string }
-  return subject.unit ?? ''
-}
-
-function formatMeasurementValue(value: number): string {
-  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, '')
-}
-
-function formatTargetCompact(target: MeasurementTarget, unit: string): string {
-  switch (target.kind) {
-    case 'count':
-      return `${target.value}${unit ? ` ${unit}` : ''}`
-    case 'value':
-    case 'rating':
-      return `${target.operator === 'gte' ? '≥' : '≤'} ${formatMeasurementValue(target.value)}${unit ? ` ${unit}` : ''}`
-  }
-}
-
-const actualLabel = computed(() => {
-  if (props.item.kind !== 'measurement') return ''
-  const m = props.item
-  if (m.measurement.actualValue === undefined) return ''
-  return (
-    formatMeasurementValue(m.measurement.actualValue) +
-    (getUnit(m) ? ` ${getUnit(m)}` : '')
-  )
-})
-
-const targetLabel = computed(() => {
-  if (props.item.kind !== 'measurement') return ''
-  const m = props.item
-  const target = m.measurement.target
-  if (!target) return ''
-  return formatTargetCompact(target, getUnit(m))
-})
 </script>
 
 <style scoped>
 .overview-tile {
   border-radius: 18px;
-  padding: 10px 12px 8px;
+  /* Generous horizontal padding so wide things like a 7-dot completion row
+     don't get clipped against the rounded corners. */
+  padding: 10px 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-height: 0;
   background: linear-gradient(
     145deg,
@@ -217,23 +176,24 @@ const targetLabel = computed(() => {
   text-overflow: ellipsis;
 }
 
-/* Body: shorter than the original design (was 74px), keep tight ratio */
+/* Footer-less tile body has more vertical room — keeps charts comfortable
+   without inflating the tile beyond what each viz actually needs. */
 .overview-tile__body {
   flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 4px 0;
-  min-height: 56px;
-  max-height: 80px;
+  min-height: 64px;
+  max-height: 96px;
   overflow: hidden;
 }
 
 /* Scale fixed-size SVG charts (CompletionRing/CounterRing render at 110px) to
-   fit inside the shorter tile body without sacrificing the viewBox. */
+   fit inside the body without sacrificing the viewBox. */
 .overview-tile__body :deep(svg) {
   max-width: 100%;
-  max-height: 70px;
+  max-height: 80px;
 }
 
 /* Center sparkline/summary rows that fill the row width */
@@ -242,31 +202,5 @@ const targetLabel = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.overview-tile__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  font-size: 10.5px;
-  color: rgb(var(--neo-muted));
-  font-weight: 500;
-  padding-top: 5px;
-  border-top: 1px solid rgb(var(--neo-border) / 0.35);
-}
-
-.overview-tile__agg {
-  color: rgb(var(--neo-text));
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.overview-tile__target {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 </style>

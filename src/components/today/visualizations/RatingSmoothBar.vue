@@ -7,12 +7,6 @@
       role="img"
       :aria-label="ariaLabel"
     >
-      <defs>
-        <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
-          <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" />
-        </linearGradient>
-      </defs>
       <!-- Outline frame -->
       <rect
         :x="0.5"
@@ -24,7 +18,7 @@
         stroke="rgb(var(--color-outline) / 0.45)"
         stroke-width="1"
       />
-      <!-- Smooth fill, bottom-up -->
+      <!-- Solid fill colored by ratingBarColor (red below target → blue above) -->
       <rect
         v-if="fillRatio > 0"
         data-testid="rating-smooth-fill"
@@ -33,7 +27,7 @@
         :width="CELL_W - 2"
         :height="fillHeight"
         rx="1.5"
-        :fill="`url(#${gradientIds.met})`"
+        :fill="fillColor"
       />
       <!-- Target tick -->
       <line
@@ -63,18 +57,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useT } from '@/composables/useT'
-import { useGradientIds } from '@/components/objects/sparklines/sparklineUtils'
 import type { TodayRatingSmoothData } from '@/services/todayChartData'
+import { ratingBarColor } from '@/utils/ratingGradient'
 
 const props = defineProps<{
   data: TodayRatingSmoothData
 }>()
 
 const { t } = useT()
-const gradientIds = useGradientIds('rsmooth')
 
-// Match the cell geometry of RatingSegmentedBars so weekly and monthly ratings
-// feel like the same primitive from across the room.
 const CELL_W = 14
 const CELL_H = 52
 
@@ -87,6 +78,16 @@ const fillRatio = computed(() => {
 
 const fillHeight = computed(() => (CELL_H - 2) * fillRatio.value)
 const fillY = computed(() => CELL_H - 1 - fillHeight.value)
+
+const fillColor = computed(() =>
+  ratingBarColor({
+    value: props.data.averageValue,
+    scaleMin: props.data.scaleMin,
+    scaleMax: props.data.scaleMax,
+    targetValue: props.data.targetValue,
+    targetOperator: props.data.targetOperator,
+  }),
+)
 
 const showTargetTick = computed(
   () =>

@@ -101,6 +101,30 @@
   /* Chart primary color (unified palette for all Today view charts) */
   --neo-chart-primary-start: 142 188 240;
   --neo-chart-primary-end: 112 168 232;
+
+  /* Sky palette — sampled from the design "paleta nieba" reference. Used for
+     rating gradients (low → high) and as the unified blue range across charts. */
+  --sky-50: 245 248 255;
+  --sky-100: 232 240 254;
+  --sky-200: 208 225 253;
+  --sky-300: 181 207 247;
+  --sky-400: 141 182 234;
+  --sky-500: 94 146 216;
+  --sky-600: 62 110 184;
+  --sky-700: 45 77 139;
+  --sky-800: 27 47 90;
+
+  /* Rose palette — complementary "below-target" range. Mirrors the sky scale
+     in tonal range; values below an item's target read in pink/red. */
+  --rose-50: 255 241 244;
+  --rose-100: 255 224 230;
+  --rose-200: 250 198 210;
+  --rose-300: 240 168 186;
+  --rose-400: 229 132 156;
+  --rose-500: 216 95 126;
+  --rose-600: 184 67 99;
+  --rose-700: 140 45 73;
+  --rose-800: 95 27 51;
 }
 
 :root[data-theme='sky-mist'] {

@@ -1,54 +1,17 @@
 <template>
-  <div :class="containerClass">
+  <div class="cd-container" :style="containerStyle">
     <div
       v-for="(slot, i) in slots"
       :key="i"
-      class="flex flex-col items-center gap-1"
+      class="cd-slot flex flex-col"
     >
-      <!-- Done dot -->
-      <div
-        v-if="slot.state === 'done'"
-        :class="['rounded-full', dotSizeClass]"
-        style="background: linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)))"
-      />
-
-      <!-- Today done dot — same fill as 'done' with a subtle ring to mark "today". -->
-      <div
-        v-else-if="slot.state === 'today-done'"
-        :class="['rounded-full', dotSizeClass]"
-        :style="`
-          background: linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)));
-          box-shadow: 0 0 0 ${ringWidth}px rgb(var(--neo-chart-primary-end) / 0.35);
-        `"
-      />
-
-      <!-- Today pending dot — solid outline indicating "today, not yet recorded". -->
-      <div
-        v-else-if="slot.state === 'today-pending'"
-        :class="['rounded-full border-2', dotSizeClass]"
-        style="border-color: rgb(var(--color-outline) / 0.55)"
-      />
-
-      <!-- Missed dot -->
-      <div
-        v-else-if="slot.state === 'missed'"
-        :class="['rounded-full', dotSizeClass]"
-        style="background: rgb(var(--color-error) / 0.35)"
-      />
-
-      <!-- Future dot -->
-      <div
-        v-else-if="slot.state === 'future'"
-        :class="['rounded-full border-2 border-dashed', dotSizeClass]"
-        style="border-color: rgb(var(--color-outline) / 0.45)"
-      />
-
-      <!-- Day label — always rendered to keep vertical alignment consistent -->
+      <div :class="dotClasses(slot)" :style="dotStyle(slot)" />
       <span
         v-if="showLabels"
-        :class="[labelSizeClass, 'leading-none text-on-surface-variant/60', { invisible: !slot.label }]"
+        :class="['cd-label', { invisible: !slot.label }]"
+        :style="labelStyle"
       >
-        {{ slot.label || '\u00A0' }}
+        {{ slot.label || ' ' }}
       </span>
     </div>
   </div>
@@ -56,34 +19,152 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { CSSProperties } from 'vue'
 import type { TodayCompletionSlot } from '@/services/todayChartData'
 
 const props = withDefaults(
   defineProps<{
     slots: TodayCompletionSlot[]
-    /** 'md' (default) — 36px dots in a 3-column grid.
-     *  'sm' — 16px dots in a single horizontal row (for compact reflection rows). */
+    /** 'md' (default) — full sized layout for the Today overview tiles.
+     *  'sm' — compact horizontal row for reflection rows. */
     size?: 'md' | 'sm'
   }>(),
   { size: 'md' },
 )
 
-const containerClass = computed(() =>
-  props.size === 'sm'
-    ? 'flex w-full items-center justify-end gap-1'
-    : 'flex w-full items-end justify-between gap-2',
-)
+const count = computed(() => props.slots.length)
 
-const dotSizeClass = computed(() => (props.size === 'sm' ? 'h-4 w-4' : 'h-9 w-9'))
+/**
+ * Single-row layout that shrinks dot diameter (and gap) as count grows so 1-7
+ * dots all fit inside the overview tile without horizontal clipping. With 8+
+ * dots the labels are dropped to free vertical room — they'd be unreadable at
+ * that scale anyway.
+ */
+const dotSizePx = computed(() => {
+  if (props.size === 'sm') return 16
+  switch (count.value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return 36
+    case 4:
+      return 32
+    case 5:
+      return 28
+    case 6:
+      return 24
+    case 7:
+      return 22
+    default:
+      return 18
+  }
+})
 
-// Outer ring width for the today-done indicator. Smaller for the compact
-// reflection rows so it doesn't overflow into neighbours.
-const ringWidth = computed(() => (props.size === 'sm' ? 1.5 : 2))
+const dotGapPx = computed(() => {
+  if (props.size === 'sm') return 4
+  switch (count.value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return 8
+    case 4:
+      return 6
+    case 5:
+      return 6
+    case 6:
+      return 5
+    case 7:
+      return 4
+    default:
+      return 2
+  }
+})
 
-const labelSizeClass = computed(() =>
-  props.size === 'sm' ? 'text-[8px]' : 'text-[11px]',
-)
+const showLabels = computed(() => props.size !== 'sm' && count.value <= 7)
 
-// Labels are too tiny to be useful in compact mode — hide them to save vertical space.
-const showLabels = computed(() => props.size !== 'sm')
+const containerStyle = computed<CSSProperties>(() => ({
+  gap: `${dotGapPx.value}px`,
+}))
+
+function dotClasses(slot: TodayCompletionSlot): string[] {
+  const base = ['cd-dot', 'rounded-full']
+  if (slot.state === 'today-pending') base.push('border-2')
+  if (slot.state === 'future') base.push('border-2', 'border-dashed')
+  return base
+}
+
+function dotStyle(slot: TodayCompletionSlot): CSSProperties {
+  const size = `${dotSizePx.value}px`
+  const base: CSSProperties = { width: size, height: size }
+
+  switch (slot.state) {
+    case 'done':
+      return {
+        ...base,
+        background:
+          'linear-gradient(to bottom, rgb(var(--sky-300)), rgb(var(--sky-500)))',
+      }
+    case 'today-done':
+      return {
+        ...base,
+        background:
+          'linear-gradient(to bottom, rgb(var(--sky-300)), rgb(var(--sky-500)))',
+        boxShadow: `0 0 0 ${dotSizePx.value <= 22 ? 1.5 : 2}px rgb(var(--sky-500) / 0.35)`,
+      }
+    case 'today-pending':
+      return {
+        ...base,
+        borderColor: 'rgb(var(--sky-500) / 0.55)',
+      }
+    case 'missed':
+      return {
+        ...base,
+        background: 'rgb(var(--color-error) / 0.35)',
+      }
+    case 'future':
+      return {
+        ...base,
+        borderColor: 'rgb(var(--color-outline) / 0.45)',
+      }
+  }
+}
+
+const labelStyle = computed<CSSProperties>(() => ({
+  fontSize: props.size === 'sm' ? '8px' : count.value <= 4 ? '11px' : '10px',
+  color: 'rgb(var(--neo-muted) / 0.7)',
+}))
 </script>
+
+<style scoped>
+.cd-container {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.cd-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.cd-dot {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+}
+
+.cd-label {
+  display: inline-block;
+  line-height: 1;
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+</style>

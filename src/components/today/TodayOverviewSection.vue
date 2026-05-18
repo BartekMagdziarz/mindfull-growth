@@ -142,8 +142,20 @@ const filteredItems = computed<TodayItem[]>(() => {
 
 .overview-section__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
+}
+
+@media (max-width: 1340px) {
+  .overview-section__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .overview-section__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .overview-section__empty {
