@@ -26,6 +26,97 @@
     "back": "Wstecz",
     "saveButton": "Zapisz odkrywanie wartości"
   },
+  "valueMap": {
+    "steps": {
+      "start": "Start",
+      "sort": "Sortowanie",
+      "narrow": "Wybór",
+      "rank": "Ranking",
+      "meaning": "Znaczenie",
+      "conflicts": "Napięcia",
+      "areas": "Obszary",
+      "summary": "Podsumowanie"
+    },
+    "importance": {
+      "mostImportant": "Najważniejsze",
+      "veryImportant": "Bardzo ważne",
+      "important": "Ważne",
+      "somewhatImportant": "Trochę ważne",
+      "notImportant": "Nieważne"
+    },
+    "start": {
+      "title": "Zbuduj mapę wartości",
+      "description": "To ćwiczenie pomaga przejść od szerokiej listy wartości do praktycznej mapy: co jest centralne, co wspiera te wartości, gdzie wartości konkurują i które wartości są ważne w różnych obszarach życia.",
+      "sortTitle": "Sortuj szeroko",
+      "sortBody": "Przenieś każdą wartość do wstępnej grupy ważności. Szybkie, niedoskonałe decyzje wystarczą.",
+      "rankTitle": "Ustal priorytety",
+      "rankBody": "Zawęź listę do 5-10 wartości i ustaw je w jasnej kolejności.",
+      "conflictsTitle": "Zauważ napięcia",
+      "conflictsBody": "Zapisz miejsca, w których dwie dobre wartości ciągną w różne strony.",
+      "areasTitle": "Dodaj kontekst",
+      "areasBody": "Przypisz wartości do obszarów życia bez oceniania zgodności i bez planowania działań."
+    },
+    "sort": {
+      "title": "Posortuj karty wartości",
+      "description": "Użyj pięciu kolumn, aby zrobić pierwszą mapę tego, co jest dla ciebie ważne dzisiaj.",
+      "customPlaceholder": "Dodaj własną wartość",
+      "addCustom": "Dodaj wartość",
+      "customDescription": "Wartość dodana przez ciebie.",
+      "expandDescription": "Pokaż opis wartości",
+      "collapseDescription": "Ukryj opis wartości",
+      "unsortedTitle": "Nieposortowane wartości"
+    },
+    "narrow": {
+      "title": "Wybierz 5-10 wartości",
+      "description": "Wybierz wartości, które mają trafić do finalnego rankingu. Mogą pochodzić z grup Najważniejsze lub Bardzo ważne.",
+      "tooFewCandidates": "Masz mniej niż 5 wartości o wysokim priorytecie. Wróć do sortowania i oznacz kilka kolejnych jako Najważniejsze lub Bardzo ważne.",
+      "selectionHint": "Wybrano: {count}. Wybierz co najmniej 5 i maksymalnie 10."
+    },
+    "rank": {
+      "title": "Ułóż wybrane wartości w kolejności",
+      "description": "Ustaw wartości w rankingu. Pierwsze trzy staną się wartościami rdzeniowymi dla kontekstu profilu.",
+      "core": "Wartość rdzeniowa",
+      "supporting": "Wartość wspierająca"
+    },
+    "meaning": {
+      "title": "Zdefiniuj, co dla ciebie znaczą",
+      "description": "Pierwsze trzy wartości wymagają twoich własnych słów. Pozostałe możesz opisać, jeśli chcesz dodać więcej kontekstu.",
+      "placeholder": "Co ta wartość oznacza w twoim życiu?"
+    },
+    "conflicts": {
+      "title": "Nazwij napięcia między wartościami",
+      "description": "Możesz pominąć ten krok, jeśli nic nie przychodzi ci do głowy. Napięcie nie jest problemem, tylko przydatną wskazówką o decyzjach.",
+      "itemQuestion": "Czy {value} często konkuruje u ciebie z inną wartością?",
+      "chooseValue": "Wybierz wartość",
+      "notePlaceholder": "Jak wygląda to napięcie?",
+      "valueA": "Pierwsza wartość",
+      "valueB": "Druga wartość",
+      "addExtra": "Dodaj kolejne napięcie"
+    },
+    "areas": {
+      "title": "Przypisz wartości do obszarów życia",
+      "description": "Wybierz wartości ważne w każdym obszarze. Nie muszą pokrywać się z wartościami z top listy.",
+      "manage": "Zarządzaj obszarami",
+      "empty": "Nie ma aktywnych obszarów życia. Możesz pominąć ten krok albo najpierw utworzyć obszary.",
+      "chooseValue": "Wybierz wartość",
+      "add": "Dodaj",
+      "tensionQuestion": "Czy w tym obszarze jest napięcie między wartościami?"
+    },
+    "summary": {
+      "title": "Przejrzyj mapę wartości",
+      "description": "Sprawdź hierarchię i kontekst przed zapisem.",
+      "core": "Wartości rdzeniowe",
+      "supporting": "Wartości wspierające",
+      "conflicts": "Napięcia między wartościami",
+      "noConflicts": "Nie dodano napięć.",
+      "areas": "Wartości w obszarach życia",
+      "noAreaValues": "Brak przypisanych wartości",
+      "notesPlaceholder": "Dodatkowe notatki o tej mapie..."
+    },
+    "back": "Wstecz",
+    "continue": "Kontynuuj",
+    "save": "Zapisz mapę wartości"
+  },
   "wheelOfLife": {
     "stepIndicator": "Krok {step} z {total}",
     "loadingAreas": "Ładowanie twoich obszarów życia...",

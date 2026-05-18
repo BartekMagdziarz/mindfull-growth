@@ -156,6 +156,11 @@ const router = createRouter({
       component: () => import('@/views/exercises/ValuesDiscoveryView.vue'),
     },
     {
+      path: '/exercises/value-map',
+      name: 'exercise-value-map',
+      component: () => import('@/views/exercises/ValueMapView.vue'),
+    },
+    {
       path: '/exercises/shadow-beliefs',
       name: 'exercise-shadow-beliefs',
       component: () => import('@/views/exercises/ShadowBeliefsView.vue'),

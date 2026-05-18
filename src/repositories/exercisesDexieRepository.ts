@@ -9,6 +9,7 @@ function toPlain<T>(obj: T): T {
 }
 import type {
   ValuesDiscovery,
+  ValueMap,
   ShadowBeliefs,
   TransformativePurpose,
   ThoughtRecord,
@@ -22,6 +23,8 @@ import type {
   StructuredProblemSolving,
   CreateValuesDiscoveryPayload,
   UpdateValuesDiscoveryPayload,
+  CreateValueMapPayload,
+  UpdateValueMapPayload,
   CreateShadowBeliefsPayload,
   UpdateShadowBeliefsPayload,
   CreateTransformativePurposePayload,
@@ -108,6 +111,7 @@ import type {
 } from '@/domain/exercises'
 import type {
   ValuesDiscoveryRepository,
+  ValueMapRepository,
   ShadowBeliefsRepository,
   TransformativePurposeRepository,
   ThoughtRecordRepository,
@@ -210,6 +214,79 @@ class ValuesDiscoveryDexieRepository implements ValuesDiscoveryRepository {
     } catch (error) {
       console.error(`Failed to delete values discovery with id ${id}:`, error)
       throw new Error(`Failed to delete values discovery with id ${id}`)
+    }
+  }
+}
+
+// ============================================================================
+// Value Map Repository
+// ============================================================================
+
+class ValueMapDexieRepository implements ValueMapRepository {
+  private get db() {
+    return getUserDatabase()
+  }
+
+  async getAll(): Promise<ValueMap[]> {
+    try {
+      return await this.db.valueMaps.toArray()
+    } catch (error) {
+      console.error('Failed to get all value maps:', error)
+      throw new Error('Failed to retrieve value maps from database')
+    }
+  }
+
+  async getById(id: string): Promise<ValueMap | undefined> {
+    try {
+      return await this.db.valueMaps.get(id)
+    } catch (error) {
+      console.error(`Failed to get value map with id ${id}:`, error)
+      throw new Error(`Failed to retrieve value map with id ${id}`)
+    }
+  }
+
+  async create(data: CreateValueMapPayload): Promise<ValueMap> {
+    try {
+      const now = new Date().toISOString()
+      const map: ValueMap = {
+        id: crypto.randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+        ...data,
+      }
+      await this.db.valueMaps.add(toPlain(map))
+      return map
+    } catch (error) {
+      console.error('Failed to create value map:', error)
+      throw new Error('Failed to create value map in database')
+    }
+  }
+
+  async update(id: string, data: UpdateValueMapPayload): Promise<ValueMap> {
+    try {
+      const existing = await this.db.valueMaps.get(id)
+      if (!existing) {
+        throw new Error(`Value map with id ${id} not found`)
+      }
+      const updated: ValueMap = {
+        ...existing,
+        ...data,
+        updatedAt: new Date().toISOString(),
+      }
+      await this.db.valueMaps.put(toPlain(updated))
+      return updated
+    } catch (error) {
+      console.error(`Failed to update value map with id ${id}:`, error)
+      throw new Error(`Failed to update value map with id ${id}`)
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    try {
+      await this.db.valueMaps.delete(id)
+    } catch (error) {
+      console.error(`Failed to delete value map with id ${id}:`, error)
+      throw new Error(`Failed to delete value map with id ${id}`)
     }
   }
 }
@@ -2484,6 +2561,7 @@ class IFSConstellationDexieRepository implements IFSConstellationRepository {
 // ============================================================================
 
 export const valuesDiscoveryDexieRepository = new ValuesDiscoveryDexieRepository()
+export const valueMapDexieRepository = new ValueMapDexieRepository()
 export const shadowBeliefsDexieRepository = new ShadowBeliefsDexieRepository()
 export const transformativePurposeDexieRepository = new TransformativePurposeDexieRepository()
 export const thoughtRecordDexieRepository = new ThoughtRecordDexieRepository()

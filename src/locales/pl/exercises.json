@@ -107,6 +107,11 @@
       "subtitle": "Rozpoznaj swoje kluczowe wartości",
       "description": "Wymień osoby, które podziwiasz, wskaż cechy, które cenisz, i wyłoń swoje kluczowe wartości."
     },
+    "valueMap": {
+      "title": "Mapa wartości",
+      "subtitle": "Hierarchia, znaczenie i napięcia",
+      "description": "Posortuj szeroką listę wartości, wybierz najważniejsze, opisz ich znaczenie i zobacz, gdzie wchodzą ze sobą w napięcie."
+    },
     "wheelOfLife": {
       "title": "Koło Życia",
       "subtitle": "Oceń równowagę w swoim życiu",

@@ -26,6 +26,97 @@
     "back": "Back",
     "saveButton": "Save Values Discovery"
   },
+  "valueMap": {
+    "steps": {
+      "start": "Start",
+      "sort": "Sort",
+      "narrow": "Choose",
+      "rank": "Rank",
+      "meaning": "Meaning",
+      "conflicts": "Tensions",
+      "areas": "Areas",
+      "summary": "Summary"
+    },
+    "importance": {
+      "mostImportant": "Most important",
+      "veryImportant": "Very important",
+      "important": "Important",
+      "somewhatImportant": "Somewhat important",
+      "notImportant": "Not important"
+    },
+    "start": {
+      "title": "Map your values",
+      "description": "This exercise helps you move from a broad set of values to a practical map: what is central, what supports it, where values compete, and which values matter in different life areas.",
+      "sortTitle": "Sort broadly",
+      "sortBody": "Move each value into a rough importance group. Fast, imperfect choices are enough.",
+      "rankTitle": "Prioritize",
+      "rankBody": "Narrow the list to 5-10 values and put them in a clear order.",
+      "conflictsTitle": "Notice tensions",
+      "conflictsBody": "Capture places where two good values pull in different directions.",
+      "areasTitle": "Add context",
+      "areasBody": "Assign values to life areas without rating alignment or planning actions."
+    },
+    "sort": {
+      "title": "Sort the value cards",
+      "description": "Use the five columns to make a first-pass map of what matters to you today.",
+      "customPlaceholder": "Add your own value",
+      "addCustom": "Add value",
+      "customDescription": "A value added by you.",
+      "expandDescription": "Show value description",
+      "collapseDescription": "Hide value description",
+      "unsortedTitle": "Unsorted values"
+    },
+    "narrow": {
+      "title": "Choose 5-10 values",
+      "description": "Select the values that should go into your final ranking. They can come from Most important or Very important.",
+      "tooFewCandidates": "You have fewer than 5 high-priority values. Go back to sorting and mark a few more as Most important or Very important.",
+      "selectionHint": "Selected: {count}. Choose at least 5 and at most 10."
+    },
+    "rank": {
+      "title": "Rank your selected values",
+      "description": "Put the values in order. The first three become your core values for profile context.",
+      "core": "Core value",
+      "supporting": "Supporting value"
+    },
+    "meaning": {
+      "title": "Define what they mean to you",
+      "description": "The top three need your own words. Supporting values can be defined if you want more context.",
+      "placeholder": "What does this value mean in your life?"
+    },
+    "conflicts": {
+      "title": "Name value tensions",
+      "description": "You can skip this if nothing comes to mind. A tension is not a problem; it is a useful clue about decisions.",
+      "itemQuestion": "Does {value} often compete with another value?",
+      "chooseValue": "Choose value",
+      "notePlaceholder": "What does this tension look like?",
+      "valueA": "First value",
+      "valueB": "Second value",
+      "addExtra": "Add another tension"
+    },
+    "areas": {
+      "title": "Assign values to life areas",
+      "description": "Choose values that matter in each area. These do not have to match your top values.",
+      "manage": "Manage areas",
+      "empty": "No active life areas are available. You can skip this step or create areas first.",
+      "chooseValue": "Choose a value",
+      "add": "Add",
+      "tensionQuestion": "Is there a value tension in this area?"
+    },
+    "summary": {
+      "title": "Review your value map",
+      "description": "Check the hierarchy and context before saving.",
+      "core": "Core values",
+      "supporting": "Supporting values",
+      "conflicts": "Value tensions",
+      "noConflicts": "No tensions added.",
+      "areas": "Life-area values",
+      "noAreaValues": "No values assigned",
+      "notesPlaceholder": "Any additional notes about this map..."
+    },
+    "back": "Back",
+    "continue": "Continue",
+    "save": "Save value map"
+  },
   "wheelOfLife": {
     "stepIndicator": "Step {step} of {total}",
     "loadingAreas": "Loading your life areas...",

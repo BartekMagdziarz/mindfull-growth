@@ -111,6 +111,60 @@ export interface ValuesDiscovery {
 }
 
 // ============================================================================
+// Value Map
+// ============================================================================
+
+export type ValueImportance =
+  | 'notImportant'
+  | 'somewhatImportant'
+  | 'important'
+  | 'veryImportant'
+  | 'mostImportant'
+
+export interface ValueMapCustomValue {
+  id: string
+  label: string
+}
+
+export interface ValueMapRankedValue {
+  valueId: string
+  rank: number
+  personalMeaning?: string
+}
+
+export interface ValueMapConflict {
+  valueId: string
+  conflictingValueId: string
+  note?: string
+}
+
+export interface ValueMapLifeAreaAssignment {
+  lifeAreaId: string
+  valueIds: string[]
+  tension?: ValueMapConflict
+}
+
+/**
+ * ValueMap
+ *
+ * Captures the user's ranked value hierarchy, personal meanings,
+ * value conflicts, and contextual life-area values.
+ */
+export interface ValueMap {
+  id: string // UUID
+  createdAt: string // ISO timestamp
+  updatedAt: string // ISO timestamp
+  catalogVersion: '2026-05'
+  sort: Record<string, ValueImportance>
+  customValues: ValueMapCustomValue[]
+  rankedValues: ValueMapRankedValue[]
+  coreValues: string[] // Compatibility summary: labels for rank 1-3
+  globalConflicts: ValueMapConflict[]
+  lifeAreaAssignments: ValueMapLifeAreaAssignment[]
+  notes?: string
+}
+
+// ============================================================================
 // Shadow Beliefs (Ex 2.3)
 // ============================================================================
 
@@ -167,6 +221,9 @@ export type CreateValuesDiscoveryPayload = Omit<ValuesDiscovery, 'id' | 'created
 export type UpdateValuesDiscoveryPayload = Partial<
   Omit<ValuesDiscovery, 'id' | 'createdAt' | 'updatedAt'>
 >
+
+export type CreateValueMapPayload = Omit<ValueMap, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateValueMapPayload = Partial<Omit<ValueMap, 'id' | 'createdAt' | 'updatedAt'>>
 
 export type CreateShadowBeliefsPayload = Omit<ShadowBeliefs, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateShadowBeliefsPayload = Partial<

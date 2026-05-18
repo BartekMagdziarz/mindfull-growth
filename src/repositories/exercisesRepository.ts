@@ -4,6 +4,7 @@
 
 import type {
   ValuesDiscovery,
+  ValueMap,
   ShadowBeliefs,
   TransformativePurpose,
   ThoughtRecord,
@@ -14,6 +15,8 @@ import type {
   PositiveDataLog,
   CreateValuesDiscoveryPayload,
   UpdateValuesDiscoveryPayload,
+  CreateValueMapPayload,
+  UpdateValueMapPayload,
   CreateShadowBeliefsPayload,
   UpdateShadowBeliefsPayload,
   CreateTransformativePurposePayload,
@@ -107,6 +110,14 @@ export interface ValuesDiscoveryRepository {
   getById(id: string): Promise<ValuesDiscovery | undefined>
   create(data: CreateValuesDiscoveryPayload): Promise<ValuesDiscovery>
   update(id: string, data: UpdateValuesDiscoveryPayload): Promise<ValuesDiscovery>
+  delete(id: string): Promise<void>
+}
+
+export interface ValueMapRepository {
+  getAll(): Promise<ValueMap[]>
+  getById(id: string): Promise<ValueMap | undefined>
+  create(data: CreateValueMapPayload): Promise<ValueMap>
+  update(id: string, data: UpdateValueMapPayload): Promise<ValueMap>
   delete(id: string): Promise<void>
 }
 
