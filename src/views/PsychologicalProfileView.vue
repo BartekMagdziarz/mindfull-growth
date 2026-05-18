@@ -21,25 +21,21 @@
     </div>
 
     <!-- Empty state -->
-    <AppCard v-if="!userProfileStore.hasProfiles" padding="lg" variant="raised" class="text-center">
-      <div class="neo-icon-circle mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full">
-        <AppIcon name="auto_awesome" class="text-3xl text-primary" />
-      </div>
-      <h2 class="text-lg font-semibold text-on-surface">
-        {{ t('profile.psychologicalProfile.emptyState.title') }}
-      </h2>
-      <p class="text-sm text-on-surface-variant mt-2">
-        {{ t('profile.psychologicalProfile.emptyState.body') }}
-      </p>
-      <div class="mt-4 flex flex-col items-center gap-2">
-        <AppButton variant="filled" @click="startBuild">
-          {{ t('profile.psychologicalProfile.emptyState.cta') }}
-        </AppButton>
-      </div>
-    </AppCard>
+    <PsychologicalProfileFoundationView
+      v-if="!userProfileStore.hasProfiles"
+      embedded
+      :load-on-mount="false"
+    />
 
     <!-- Has profiles -->
     <div v-else class="space-y-6">
+      <FoundationRefreshBanner
+        v-if="showRefreshBanner"
+        :outdated-count="outdatedCount"
+        @open="goToFoundation"
+        @dismiss="dismissFoundationRefreshBanner"
+      />
+
       <!-- Header action row -->
       <div class="flex items-center justify-between gap-3">
         <div class="min-w-0">
@@ -119,47 +115,83 @@
       </div>
     </div>
 
-    <!-- Chat integration toggle: always visible so the user can flip it
-         before they have built a profile; a hint appears when the toggle
-         is on but no profile exists yet. -->
+    <!-- Profile context defaults: each AI button has a per-call toggle, but
+         these defaults seed the initial state. Always visible so the user
+         can flip them before they have built a profile; a hint appears
+         when a default is on but no profile exists yet. -->
     <AppCard class="mt-6" padding="md" variant="raised">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1 min-w-0">
+      <div class="space-y-4">
+        <div class="min-w-0">
           <h3 class="text-base font-semibold text-on-surface">
-            {{ t('profile.psychologicalProfile.chatContext.title') }}
+            {{ t('profile.psychologicalProfile.profileContextDefaults.title') }}
           </h3>
           <p class="text-sm text-on-surface-variant mt-1">
-            {{ t('profile.psychologicalProfile.chatContext.description') }}
+            {{ t('profile.psychologicalProfile.profileContextDefaults.description') }}
           </p>
           <p
-            v-if="includeChatContext && !userProfileStore.currentProfile"
+            v-if="(profileContextDefault || profileContextDefaultJournal) && !userProfileStore.currentProfile"
             class="text-xs text-on-surface-variant mt-2"
-            data-test-chat-context-no-profile
+            data-test-profile-context-no-profile
           >
-            {{ t('profile.psychologicalProfile.chatContext.noProfileWarning') }}
+            {{ t('profile.psychologicalProfile.profileContextDefaults.noProfileWarning') }}
           </p>
         </div>
-        <button
-          type="button"
-          role="switch"
-          :aria-checked="includeChatContext"
-          :aria-label="t('profile.psychologicalProfile.chatContext.toggleAria')"
-          :class="[
-            'neo-toggle-track',
-            includeChatContext ? 'neo-toggle-track--on' : 'neo-toggle-track--off',
-          ]"
-          data-test-chat-context-toggle
-          @click="toggleChatContext"
-        >
-          <span
-            class="neo-toggle-thumb"
-            :style="{
-              transform: includeChatContext
-                ? 'translateX(1.25rem)'
-                : 'translateX(0.1rem)',
-            }"
-          />
-        </button>
+
+        <!-- General default -->
+        <div class="flex items-center justify-between gap-4">
+          <p class="text-sm text-on-surface flex-1 min-w-0">
+            {{ t('profile.psychologicalProfile.profileContextDefaults.general') }}
+          </p>
+          <button
+            type="button"
+            role="switch"
+            :aria-checked="profileContextDefault"
+            :aria-label="t('profile.psychologicalProfile.profileContextDefaults.general')"
+            :class="[
+              'neo-toggle-track',
+              profileContextDefault ? 'neo-toggle-track--on' : 'neo-toggle-track--off',
+            ]"
+            data-test-profile-context-default-toggle
+            @click="toggleProfileContextDefault"
+          >
+            <span
+              class="neo-toggle-thumb"
+              :style="{
+                transform: profileContextDefault
+                  ? 'translateX(1.25rem)'
+                  : 'translateX(0.1rem)',
+              }"
+            />
+          </button>
+        </div>
+
+        <!-- Journal default -->
+        <div class="flex items-center justify-between gap-4">
+          <p class="text-sm text-on-surface flex-1 min-w-0">
+            {{ t('profile.psychologicalProfile.profileContextDefaults.journal') }}
+          </p>
+          <button
+            type="button"
+            role="switch"
+            :aria-checked="profileContextDefaultJournal"
+            :aria-label="t('profile.psychologicalProfile.profileContextDefaults.journal')"
+            :class="[
+              'neo-toggle-track',
+              profileContextDefaultJournal ? 'neo-toggle-track--on' : 'neo-toggle-track--off',
+            ]"
+            data-test-profile-context-default-journal-toggle
+            @click="toggleProfileContextDefaultJournal"
+          >
+            <span
+              class="neo-toggle-thumb"
+              :style="{
+                transform: profileContextDefaultJournal
+                  ? 'translateX(1.25rem)'
+                  : 'translateX(0.1rem)',
+              }"
+            />
+          </button>
+        </div>
       </div>
     </AppCard>
 
@@ -191,10 +223,17 @@ import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ProfileSectionList from '@/components/profile/ProfileSectionList.vue'
 import ProfileBuildLogPanel from '@/components/profile/ProfileBuildLogPanel.vue'
+import FoundationRefreshBanner from '@/components/profile/FoundationRefreshBanner.vue'
+import PsychologicalProfileFoundationView from '@/views/PsychologicalProfileFoundationView.vue'
 import { useUserProfileStore } from '@/stores/userProfile.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { UserProfile } from '@/domain/userProfile'
+import {
+  computeFoundationStatuses,
+  isFoundationOutdated,
+  loadFoundationSourceData,
+} from '@/services/foundationCompleteness'
 
 const router = useRouter()
 const route = useRoute()
@@ -208,33 +247,81 @@ const isDev = import.meta.env.DEV
 // Hand-off key written by `editVersion()` and consumed by the wizard's
 // `loadDraft()` to seed the editor with an existing version's content.
 const EDIT_SOURCE_SESSION_KEY = 'profile-build-edit-source'
+const BANNER_RESHOW_DAYS = 30
 
 const selectedVersionId = ref<string | null>(null)
 const showDeleteDialog = ref(false)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
+const dismissedFoundationRefreshThisSession = ref(false)
 
-const includeChatContext = computed(
-  () => userPreferencesStore.includeProfileInChatContext,
+const profileContextDefault = computed(
+  () => userPreferencesStore.profileContextDefault,
+)
+const profileContextDefaultJournal = computed(
+  () => userPreferencesStore.profileContextDefaultJournal,
 )
 
-async function toggleChatContext() {
+const foundationStatuses = computed(() => computeFoundationStatuses())
+const outdatedCount = computed(() =>
+  foundationStatuses.value.filter((status) => status.state === 'outdated').length,
+)
+
+const dismissedRecently = computed(() => {
+  const at = userPreferencesStore.foundationRefreshDismissedAt
+  if (!at) return false
+
+  const timestamp = Date.parse(at)
+  if (Number.isNaN(timestamp)) return false
+
+  const days = (Date.now() - timestamp) / 86_400_000
+  return days < BANNER_RESHOW_DAYS
+})
+
+const showRefreshBanner = computed(() =>
+  userProfileStore.hasProfiles &&
+  isFoundationOutdated(foundationStatuses.value) &&
+  !dismissedRecently.value &&
+  !dismissedFoundationRefreshThisSession.value,
+)
+
+async function toggleProfileContextDefault() {
   try {
-    await userPreferencesStore.setIncludeProfileInChatContext(
-      !userPreferencesStore.includeProfileInChatContext,
+    await userPreferencesStore.setProfileContextDefault(
+      !userPreferencesStore.profileContextDefault,
     )
     snackbarRef.value?.show(
-      t('profile.psychologicalProfile.chatContext.toggleFeedback'),
+      t('profile.psychologicalProfile.profileContextDefaults.toggleFeedback'),
     )
   } catch (err) {
     snackbarRef.value?.show(
-      t('profile.psychologicalProfile.chatContext.toggleError'),
+      t('profile.psychologicalProfile.profileContextDefaults.toggleError'),
     )
-    console.error('Failed to toggle chat context preference:', err)
+    console.error('Failed to toggle profile context default:', err)
+  }
+}
+
+async function toggleProfileContextDefaultJournal() {
+  try {
+    await userPreferencesStore.setProfileContextDefaultJournal(
+      !userPreferencesStore.profileContextDefaultJournal,
+    )
+    snackbarRef.value?.show(
+      t('profile.psychologicalProfile.profileContextDefaults.toggleFeedback'),
+    )
+  } catch (err) {
+    snackbarRef.value?.show(
+      t('profile.psychologicalProfile.profileContextDefaults.toggleError'),
+    )
+    console.error('Failed to toggle profile context default (journal):', err)
   }
 }
 
 onMounted(async () => {
-  await userProfileStore.loadProfiles()
+  await Promise.all([
+    userProfileStore.loadProfiles(),
+    userPreferencesStore.loadPreferences(),
+    loadFoundationSourceData(),
+  ])
   // If we arrived from the wizard with `?versionId=<id>`, preselect that
   // version (e.g. just-saved profile). Otherwise fall back to the current.
   const queryId = typeof route.query.versionId === 'string'
@@ -288,6 +375,22 @@ function goBack() {
 
 function startBuild() {
   router.push({ name: 'profile-psychological-build' })
+}
+
+function goToFoundation() {
+  router.push({ name: 'profile-psychological-foundation' })
+}
+
+async function dismissFoundationRefreshBanner() {
+  dismissedFoundationRefreshThisSession.value = true
+  try {
+    await userPreferencesStore.setFoundationRefreshDismissedAt(
+      new Date().toISOString(),
+    )
+  } catch (err) {
+    dismissedFoundationRefreshThisSession.value = false
+    console.error('Failed to dismiss foundation refresh banner:', err)
+  }
 }
 
 // Fork an existing version: stash its id in sessionStorage and route to the
