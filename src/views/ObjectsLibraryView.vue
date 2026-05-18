@@ -1,14 +1,8 @@
 <template>
   <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
-    <div class="mb-6 space-y-4">
-      <div class="px-1">
-        <h1 class="text-3xl font-semibold tracking-[-0.03em] text-on-surface md:text-[2.35rem]">
-          {{ activeFamilyTitle }}
-        </h1>
-      </div>
-
-      <div class="flex flex-col gap-4 xl:flex-row xl:items-start">
-        <section class="neo-card flex flex-shrink-0 items-center gap-3 px-5 py-4">
+    <div class="mb-6">
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-center">
+        <div class="flex flex-shrink-0 items-center gap-3">
           <AppButton variant="filled" class="!px-3" :aria-label="createButtonLabel" @click="handleOpenCreate">
             <AppIcon name="add" class="text-base" />
           </AppButton>
@@ -27,7 +21,7 @@
               {{ item.label }}
             </button>
           </div>
-        </section>
+        </div>
 
         <ObjectsLibraryFilters
           class="min-w-0 flex-1"
@@ -277,6 +271,22 @@
       confirm-variant="filled"
       @confirm="handleConfirmDelete"
     />
+    <AppDialog
+      v-model="isGoalWizardOpen"
+      :title="t('planning.goalWizard.title')"
+      size="3xl"
+      :close-on-backdrop="false"
+      @cancel="handleGoalWizardCancelled"
+    >
+      <GoalCreationWizard
+        v-if="isGoalWizardOpen"
+        :priority-options="store.filterOptions.priorities"
+        :life-area-options="store.filterOptions.lifeAreas"
+        @created="handleGoalWizardCreated"
+        @cancelled="handleGoalWizardCancelled"
+        @error="handleGoalWizardError"
+      />
+    </AppDialog>
     <AppSnackbar ref="snackbarRef" />
   </div>
 </template>
@@ -293,6 +303,7 @@ import ObjectsLibraryFilters from '@/components/objects/ObjectsLibraryFilters.vu
 import ObjectsLibraryInlineEditor from '@/components/objects/ObjectsLibraryInlineEditor.vue'
 import ObjectsLibraryPriorityCard from '@/components/objects/ObjectsLibraryPriorityCard.vue'
 import ObjectsLibraryGoalCard from '@/components/objects/ObjectsLibraryGoalCard.vue'
+import GoalCreationWizard from '@/components/objects/GoalCreationWizard.vue'
 import ObjectsLibraryMeasurementCard from '@/components/objects/ObjectsLibraryMeasurementCard.vue'
 import ObjectsLibraryInitiativeCard from '@/components/objects/ObjectsLibraryInitiativeCard.vue'
 import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
@@ -383,6 +394,7 @@ const expandedMeasurementPeriods = ref<LinkedPeriod[]>([])
 const newMeasurementId = ref<string | null>(null)
 const newInitiativeId = ref<string | null>(null)
 const newPriorityId = ref<string | null>(null)
+const isGoalWizardOpen = ref(false)
 
 let searchSyncTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -901,26 +913,32 @@ function handleClearFilters(): void {
   void syncRoute()
 }
 
+async function handleGoalWizardCreated(goalId: string): Promise<void> {
+  isGoalWizardOpen.value = false
+  newGoalId.value = goalId
+  try {
+    await store.loadBundle()
+    snackbarRef.value?.show(t('planning.goalWizard.messages.saved'))
+  } catch (err) {
+    snackbarRef.value?.show(
+      err instanceof Error ? err.message : t('planning.goalWizard.messages.saveError'),
+    )
+  }
+}
+
+function handleGoalWizardCancelled(): void {
+  isGoalWizardOpen.value = false
+}
+
+function handleGoalWizardError(message: string): void {
+  snackbarRef.value?.show(message || t('planning.goalWizard.messages.saveError'))
+}
+
 async function handleOpenCreate(): Promise<void> {
   const panelType = getObjectsLibraryFamilyPanelType(store.query.family)
 
   if (panelType === 'goal') {
-    try {
-      const created = await goalDexieRepository.create({
-        title: '',
-        description: undefined,
-        isActive: true,
-        priorityIds: [],
-        lifeAreaIds: [],
-        status: 'open',
-      })
-      newGoalId.value = created.id
-      await store.loadBundle()
-    } catch (err) {
-      snackbarRef.value?.show(
-        err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
-      )
-    }
+    isGoalWizardOpen.value = true
     return
   }
 

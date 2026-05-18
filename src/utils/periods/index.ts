@@ -499,7 +499,7 @@ function addDays(parts: LocalDateParts, amount: number): LocalDateParts {
   }
 }
 
-function addDaysToDayRef(dayRef: DayRef, amount: number): DayRef {
+export function addDaysToDayRef(dayRef: DayRef, amount: number): DayRef {
   const parts = parseDayRefParts(dayRef)
   if (!parts) {
     throw new Error(`Invalid day ref: ${dayRef}`)

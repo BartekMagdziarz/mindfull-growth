@@ -233,7 +233,7 @@ export function useConstellationWizard() {
   }
 
   // LLM analysis
-  async function requestAnalysis() {
+  async function requestAnalysis(options: { useProfile?: boolean } = {}) {
     isLLMLoading.value = true
     try {
       const selectedParts = selectedPartIds.value
@@ -259,6 +259,7 @@ export function useConstellationWizard() {
         parts: selectedParts,
         relationships: enrichedRelationships,
         locale: locale.value,
+        useProfile: options.useProfile ?? false,
       })
       llmAssistUsed.value = true
     } catch (err) {

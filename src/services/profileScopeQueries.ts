@@ -21,6 +21,11 @@ import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useJournalStore } from '@/stores/journal.store'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
+import {
+  computeFoundationStatuses,
+  foundationCompletionCount,
+  type FoundationItemId,
+} from '@/services/foundationCompleteness'
 import { getExerciseEntriesForPeriod } from '@/services/reflectionDataQueries'
 
 export interface ProfilePreviewObjectHeader {
@@ -40,6 +45,19 @@ const QUADRANT_CODE_MAP: Record<
   'hp-le': 'low-energy-high-pleasantness',
   'lp-he': 'high-energy-low-pleasantness',
   'lp-le': 'low-energy-low-pleasantness',
+}
+
+const FOUNDATION_PREVIEW_TITLES: Record<FoundationItemId, string> = {
+  valuesDiscovery: 'Values discovery',
+  valueMap: 'Value map',
+  transformativePurpose: 'Transformative purpose',
+  vlq: 'VLQ',
+  'ipip-bfm-50': 'IPIP-BFM-50',
+  'ipip-neo-120': 'IPIP-NEO-120',
+  'hexaco-60': 'HEXACO-60',
+  shadowBeliefs: 'Shadow beliefs',
+  wheelOfLife: 'Wheel of life',
+  'pvq-40': 'PVQ-40',
 }
 
 export interface ScopePreviewArgs {
@@ -244,11 +262,25 @@ export async function queryScopePreview(
     }
   }
 
-  // --- Questionnaires ----------------------------------------------------
-  if (enabled.has('questionnaires')) {
-    // TODO(epic 12+): no questionnaire store exists yet. Report 0 for now.
-    countsByType.questionnaires = 0
-    objectIdsByType.questionnaires = []
+  // --- Foundation --------------------------------------------------------
+  if (enabled.has('foundation')) {
+    const statuses = computeFoundationStatuses()
+    const completed = statuses.filter(
+      (s) => s.state === 'completed' || s.state === 'outdated',
+    )
+
+    countsByType.foundation = foundationCompletionCount(statuses)
+    objectIdsByType.foundation = completed.map((s) => s.id)
+
+    for (const status of completed) {
+      headers.push({
+        type: 'foundation',
+        id: status.id,
+        title: FOUNDATION_PREVIEW_TITLES[status.id],
+        date: status.lastCompletedAt ?? new Date(0).toISOString(),
+      })
+      approxTokens += 200
+    }
   }
 
   // --- Planning ----------------------------------------------------------

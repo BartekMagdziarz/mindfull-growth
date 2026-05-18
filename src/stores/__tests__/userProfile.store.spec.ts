@@ -54,11 +54,24 @@ vi.mock('@/services/profileLLMAssistsHelpers', async () => {
   >('@/services/profileLLMAssistsHelpers')
   return {
     ...actual,
+    buildFoundationSnapshot: vi.fn(async () => ({
+      items: [],
+      snapshot: '',
+    })),
+    buildLifeAreasSnapshot: vi.fn(() => ({
+      items: [],
+      snapshot: '',
+    })),
     buildPlanningSnapshot: vi.fn(async () => ({
       activeGoals: [],
       activeKeyResults: [],
       activeHabits: [],
       activeTrackers: [],
+      priorities: {
+        active: [],
+        paused: [],
+        closed: [],
+      },
       snapshot: '',
     })),
   }
@@ -116,6 +129,11 @@ import {
   sendMessage,
   type AIProviderSettings,
 } from '@/services/llmService'
+import {
+  buildFoundationSnapshot,
+  buildLifeAreasSnapshot,
+  buildPlanningSnapshot,
+} from '@/services/profileLLMAssistsHelpers'
 
 function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
   const base: UserProfile = {
@@ -336,6 +354,119 @@ describe('useUserProfileStore', () => {
       // Unmentioned sections stay empty (no hallucinated content).
       expect(result.sections.strengths).toBe('')
       expect(result.model).toBe('gpt-5-nano')
+    })
+
+    it('calls buildFoundationSnapshot once when foundation is in scope', async () => {
+      mockAISettings(undefined, 'sk-test')
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      await store.buildProfile({
+        ...validScope,
+        dataTypes: ['foundation'],
+      })
+
+      expect(buildFoundationSnapshot).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not call foundation, planning or life-area helpers when their types are out of scope', async () => {
+      mockAISettings(undefined, 'sk-test')
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      await store.buildProfile(validScope)
+
+      expect(buildFoundationSnapshot).not.toHaveBeenCalled()
+      expect(buildPlanningSnapshot).not.toHaveBeenCalled()
+      expect(buildLifeAreasSnapshot).not.toHaveBeenCalled()
+    })
+
+    it('calls planning and life-area helpers when planning is in scope', async () => {
+      mockAISettings(undefined, 'sk-test')
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      await store.buildProfile({
+        ...validScope,
+        dataTypes: ['planning'],
+      })
+
+      expect(buildPlanningSnapshot).toHaveBeenCalledTimes(1)
+      expect(buildLifeAreasSnapshot).toHaveBeenCalledTimes(1)
+    })
+
+    it('sends foundation, life-area and planning blocks in the LLM user payload', async () => {
+      mockAISettings(undefined, 'sk-test')
+      vi.mocked(buildFoundationSnapshot).mockResolvedValueOnce({
+        items: [],
+        snapshot: '## Value map\nTop values: care',
+      })
+      vi.mocked(buildLifeAreasSnapshot).mockReturnValueOnce({
+        items: [],
+        snapshot: '- Career\n  Meaning: Build well',
+      })
+      vi.mocked(buildPlanningSnapshot).mockResolvedValueOnce({
+        activeGoals: [],
+        activeKeyResults: [],
+        activeHabits: [],
+        activeTrackers: [],
+        priorities: {
+          active: [],
+          paused: [],
+          closed: [],
+        },
+        snapshot: '- Daily meditation [habit, daily]',
+      })
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      await store.buildProfile({
+        ...validScope,
+        dataTypes: ['foundation', 'planning'],
+      })
+
+      const messages = vi.mocked(sendMessage).mock.calls[0][0]
+      const systemPrompt = vi.mocked(sendMessage).mock.calls[0][1]
+      const userPayload = messages[0].content
+
+      expect(userPayload).toContain('[FOUNDATION SNAPSHOT]')
+      expect(userPayload).toContain('[LIFE AREAS]')
+      expect(userPayload).toContain('[PLANNING SNAPSHOT]')
+      expect(userPayload.indexOf('[FOUNDATION SNAPSHOT]')).toBeLessThan(
+        userPayload.indexOf('[LIFE AREAS]'),
+      )
+      expect(userPayload.indexOf('[LIFE AREAS]')).toBeLessThan(
+        userPayload.indexOf('[PLANNING SNAPSHOT]'),
+      )
+      expect(systemPrompt).toContain('You are a careful, psychologically literate observer')
+      expect(systemPrompt).not.toContain('[USER PROFILE]')
+      expect(systemPrompt).not.toContain('[PROFILE CONTEXT]')
+    })
+
+    it('never injects "## User Profile Context" into the build prompt, even when a saved profile exists', async () => {
+      mockAISettings(undefined, 'sk-test')
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      // Pre-seed a saved profile with populated sections — withProfileContextSystemPrompt
+      // would prepend "## User Profile Context" if useProfile were ever true.
+      // The build path hard-codes useProfile:false, so the marker must NOT appear.
+      store.profiles = [
+        makeProfile({
+          id: 'existing',
+          sections: {
+            ...createEmptySections(),
+            summary: 'Curious, reflective.',
+            values: 'Care, honesty.',
+          },
+        }),
+      ]
+
+      await store.buildProfile(validScope)
+
+      const systemPrompt = vi.mocked(sendMessage).mock.calls[0][1]
+      expect(systemPrompt).not.toContain('## User Profile Context')
+      expect(systemPrompt).not.toContain('Curious, reflective.')
     })
 
     it('uses a configured local model in the result, sendMessage options, and log', async () => {

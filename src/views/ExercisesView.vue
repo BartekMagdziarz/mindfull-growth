@@ -50,6 +50,17 @@
       />
 
       <ExerciseCard
+        :title="t('exercises.cards.valueMap.title')"
+        :subtitle="t('exercises.cards.valueMap.subtitle')"
+        :description="t('exercises.cards.valueMap.description')"
+        :icon="'account_tree'"
+        icon-bg-class="bg-emerald-100"
+        icon-class="text-emerald-600"
+        :last-completed="latestValueMapDate"
+        @click="router.push('/exercises/value-map')"
+      />
+
+      <ExerciseCard
         :title="t('exercises.cards.wheelOfLife.title')"
         :subtitle="t('exercises.cards.wheelOfLife.subtitle')"
         :description="t('exercises.cards.wheelOfLife.description')"
@@ -502,6 +513,7 @@ import { useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
 import ExerciseCard from '@/components/exercises/ExerciseCard.vue'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
+import { useValueMapStore } from '@/stores/valueMap.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
@@ -541,6 +553,7 @@ const { t } = useT()
 
 // Self-discovery stores
 const lifeAreaAssessmentStore = useLifeAreaAssessmentStore()
+const valueMapStore = useValueMapStore()
 const valuesStore = useValuesDiscoveryStore()
 const beliefsStore = useShadowBeliefsStore()
 const purposeStore = useTransformativePurposeStore()
@@ -600,6 +613,7 @@ const tabs = computed(() => [
 
 onMounted(() => {
   lifeAreaAssessmentStore.loadAssessments()
+  valueMapStore.loadMaps()
   valuesStore.loadDiscoveries()
   beliefsStore.loadBeliefs()
   purposeStore.loadPurposes()
@@ -641,6 +655,7 @@ onMounted(() => {
 
 // Self-discovery dates
 const latestWheelDate = computed(() => lifeAreaAssessmentStore.latestFullAssessment?.createdAt)
+const latestValueMapDate = computed(() => valueMapStore.latestMap?.createdAt)
 const latestValuesDate = computed(() => valuesStore.latestDiscovery?.createdAt)
 const latestBeliefsDate = computed(() => beliefsStore.latestBeliefs?.createdAt)
 const latestPurposeDate = computed(() => purposeStore.latestPurpose?.createdAt)

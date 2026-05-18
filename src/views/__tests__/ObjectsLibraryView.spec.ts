@@ -36,7 +36,7 @@ function createTestRouter() {
         name: 'calendar-week',
         component: { template: '<div />' },
       },
-      { path: '/calendar/day/:dayRef', name: 'calendar-day', component: { template: '<div />' } },
+      { path: '/today/:dayRef', name: 'today-day', component: { template: '<div />' } },
       { path: '/areas/:id', name: 'life-area-detail', component: { template: '<div />' } },
     ],
   })
@@ -435,7 +435,7 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
-    expect(await screen.findByRole('heading', { name: 'Cele' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Goals' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Cele' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Goals' })).not.toBeInTheDocument()
   })
 })

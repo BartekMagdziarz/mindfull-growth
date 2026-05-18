@@ -4,6 +4,7 @@ import type { PeopleTag, ContextTag } from '@/domain/tag'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type {
   ValuesDiscovery,
+  ValueMap,
   ShadowBeliefs,
   TransformativePurpose,
   ThoughtRecord,
@@ -65,6 +66,7 @@ export class UserDatabase extends Dexie {
   userSettings!: Table<{ key: string; value: string }, string>
 
   valuesDiscoveries!: Table<ValuesDiscovery, string>
+  valueMaps!: Table<ValueMap, string>
   shadowBeliefs!: Table<ShadowBeliefs, string>
   transformativePurposes!: Table<TransformativePurpose, string>
   thoughtRecords!: Table<ThoughtRecord, string>
@@ -1324,6 +1326,14 @@ export class UserDatabase extends Dexie {
       monthlyReflections: 'id, &monthRef',
       userProfiles: 'id, createdAt',
       profileBuildLogs: 'id, timestamp, success',
+    })
+
+    this.version(17).stores({
+      valueMaps: 'id, createdAt',
+    })
+
+    this.version(18).stores({
+      goals: 'id, status, isActive, *priorityIds, *lifeAreaIds',
     })
   }
 }

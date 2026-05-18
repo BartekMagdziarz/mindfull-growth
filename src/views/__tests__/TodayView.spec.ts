@@ -21,6 +21,17 @@ function createTestRouter() {
       { path: '/', component: { template: '<div />' } },
       { path: '/today', name: 'today', component: TodayView },
       {
+        path: '/today/:dayRef',
+        name: 'today-day',
+        component: TodayView,
+        props: route => ({ dayRef: route.params.dayRef }),
+      },
+      {
+        path: '/calendar/year/:yearRef',
+        name: 'calendar-year',
+        component: { template: '<div />' },
+      },
+      {
         path: '/calendar/week/:weekRef',
         name: 'calendar-week',
         component: { template: '<div />' },
@@ -29,12 +40,6 @@ function createTestRouter() {
         path: '/calendar/month/:monthRef',
         name: 'calendar-month',
         component: { template: '<div />' },
-      },
-      {
-        path: '/calendar/day/:dayRef',
-        name: 'calendar-day',
-        component: TodayView,
-        props: route => ({ dayRef: route.params.dayRef }),
       },
       { path: '/objects/:family', name: 'objects-family', component: { template: '<div />' } },
     ],
@@ -187,7 +192,7 @@ describe('TodayView', () => {
     })
   })
 
-  it('loads the routed calendar day in TodayView', async () => {
+  it('loads the routed today day in TodayView', async () => {
     const routedDayRef = parsePeriodRef('2026-03-13') as DayRef
     const refs = getPeriodRefsForDate(routedDayRef)
     const habit = await habitDexieRepository.create({
@@ -222,7 +227,7 @@ describe('TodayView', () => {
     })
 
     const router = createTestRouter()
-    await router.push(`/calendar/day/${routedDayRef}`)
+    await router.push(`/today/${routedDayRef}`)
     await router.isReady()
 
     render(TodayView, {

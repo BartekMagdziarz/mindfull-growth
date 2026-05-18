@@ -71,11 +71,12 @@ export const EDIT_SOURCE_SESSION_KEY = 'profile-build-edit-source'
 export type ProfilePreviewCounts = Partial<Record<ProfileDataType, number>>
 
 /**
- * Default set of data types — the "diary-like" records most useful for a
- * first-pass portrait. Planning/questionnaires start unchecked since those
- * tend to be noisier and/or not populated yet.
+ * Default set of data types for a first-pass portrait. Foundation starts
+ * checked so structured self-knowledge is available by default; planning
+ * remains opt-in because it can be sparse or noisy.
  */
 const DEFAULT_DATA_TYPES: ProfileDataType[] = [
+  'foundation',
   'journal',
   'emotionLogs',
   'exerciseSessions',
@@ -148,11 +149,25 @@ function isProfileDataType(value: unknown): value is ProfileDataType {
   )
 }
 
+function coerceProfileDataType(value: unknown): ProfileDataType | null {
+  const normalised = value === 'questionnaires' ? 'foundation' : value
+  return isProfileDataType(normalised) ? normalised : null
+}
+
+function coerceProfileDataTypes(values: unknown[]): ProfileDataType[] {
+  const result: ProfileDataType[] = []
+  for (const value of values) {
+    const type = coerceProfileDataType(value)
+    if (type && !result.includes(type)) result.push(type)
+  }
+  return result
+}
+
 function sanitiseDraft(raw: unknown): PersistedDraft | null {
   if (!raw || typeof raw !== 'object') return null
   const obj = raw as Record<string, unknown>
   const dataTypes = Array.isArray(obj.dataTypes)
-    ? (obj.dataTypes.filter(isProfileDataType) as ProfileDataType[])
+    ? coerceProfileDataTypes(obj.dataTypes)
     : null
   const dateRange = obj.dateRange as ProfileDateRange | undefined
   const filters = obj.filters as ProfileScopeFilters | undefined

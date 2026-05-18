@@ -7,6 +7,14 @@ export type MeasurementPeriodRef = MonthRef | WeekRef
 export type MeasurementEvaluationStatus = 'met' | 'missed' | 'no-data'
 export type MeasureableSubject = KeyResult | Habit | Tracker
 
+export const ON_TRACK_BANDS = {
+  AHEAD: 0.75,
+  ON_TRACK: 0.5,
+} as const
+
+export const TRACKER_TREND_DEADBAND_PCT = 0.05
+export const EXECUTION_METRICS_MAX_PERIODS = 12
+
 export interface MeasurementSummary {
   entryMode: MeasurementEntryMode
   cadence: PlanningCadence
@@ -110,6 +118,19 @@ export function buildMeasurementSummary(
   allEntries: DailyMeasurementEntry[],
   periodRef: MeasurementPeriodRef,
 ): MeasurementSummary {
+  /*
+   * Measurement contract:
+   * - Period bounds are inclusive by canonical dayRef.
+   * - Weekly buckets come from getPeriodRefsForDate(dayRef).week.
+   * - Monthly buckets come from getPeriodRefsForDate(dayRef).month.
+   * - completion counts entries in the period.
+   * - counter sums entry values, treating null as 0.
+   * - value uses the target aggregation: sum, average, or last.
+   * - rating uses the arithmetic average.
+   * - No period entries produce actualValue undefined.
+   * - Subjects with a target evaluate to met, missed, or no-data.
+   * - Trackers without a target leave evaluationStatus undefined.
+   */
   const entries = filterEntriesForSubjectAndPeriod(allEntries, subject.id, periodRef)
   const actualValue = computeActualValue(subject, entries)
   const target = 'target' in subject ? subject.target : undefined

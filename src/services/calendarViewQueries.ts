@@ -1,4 +1,4 @@
-import type { DayRef, MonthRef, PeriodRefsForDate, WeekRef, YearRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { Goal, Initiative, KeyResult, Habit, Tracker } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementSubjectType, PeriodObjectReflection, PeriodReflection } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
@@ -9,18 +9,11 @@ import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
 import { loadPlanningCached } from '@/services/planningQueryCache'
 import type {
   MonthGoalPlanningItem,
-  MonthInitiativePlanningItem,
   MonthMeasurementPlanningItem,
   MonthPlanningBundle,
   WeekInitiativePlanningItem,
   WeekMeasurementPlanningItem,
   WeekPlanningBundle,
-  WeekReflectionBundle,
-} from '@/services/planningStateQueries'
-import {
-  getMonthPlanningBundle,
-  getWeekPlanningBundle,
-  getWeekReflectionBundle,
 } from '@/services/planningStateQueries'
 import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
 
@@ -76,27 +69,6 @@ export interface MonthReflectionBundle {
   objectReflections: PeriodObjectReflection[]
 }
 
-export interface DayMeasurementEntryItem {
-  subjectType: MeasurementSubjectType
-  subject: MeasureableSubject
-  entry: DailyMeasurementEntry
-}
-
-export interface DayCalendarBundle {
-  dayRef: DayRef
-  refs: PeriodRefsForDate
-  goals: Goal[]
-  weekPlanning: WeekPlanningBundle
-  weekReflection: WeekReflectionBundle
-  monthPlanning: MonthPlanningBundle
-  monthReflection: MonthReflectionBundle
-  scheduledMeasurementItems: WeekMeasurementPlanningItem[]
-  scheduledInitiativeItems: WeekInitiativePlanningItem[]
-  entriesToday: DayMeasurementEntryItem[]
-  contextMeasurementItems: WeekMeasurementPlanningItem[]
-  contextInitiativeItems: WeekInitiativePlanningItem[]
-}
-
 const monthReflectionBundleCache = new Map<
   string,
   { revision: number; value: MonthReflectionBundle | Promise<MonthReflectionBundle> }
@@ -105,15 +77,11 @@ const calendarYearSummaryCache = new Map<
   string,
   { revision: number; value: CalendarYearSummary | Promise<CalendarYearSummary> }
 >()
-const dayCalendarBundleCache = new Map<
-  string,
-  { revision: number; value: DayCalendarBundle | Promise<DayCalendarBundle> }
->()
 
 /**
  * Clears all calendar/reflection view caches in this module.
  *
- * These three Map caches live at module scope (i.e., they are shared
+ * These Map caches live at module scope (i.e., they are shared
  * across all users in a single browser session). When the active user
  * changes, the cached bundles refer to the previous user's IndexedDB
  * data and must be dropped so subsequent reads re-fetch from the new
@@ -124,7 +92,6 @@ const dayCalendarBundleCache = new Map<
 export function clearCalendarViewCaches(): void {
   monthReflectionBundleCache.clear()
   calendarYearSummaryCache.clear()
-  dayCalendarBundleCache.clear()
 }
 
 function isGoalOpen(goal: Goal): boolean {
@@ -160,18 +127,6 @@ function isInitiativePlanInMonth(
     (planState.weekRef ? getWeekOverlappingMonths(planState.weekRef).includes(monthRef) : false) ||
     (planState.dayRef ? getPeriodRefsForDate(planState.dayRef).month === monthRef : false)
   )
-}
-
-function isMeasurementScheduledOnDay(item: WeekMeasurementPlanningItem, dayRef: DayRef): boolean {
-  return (
-    item.planning.scheduleScope === 'whole-week' ||
-    item.planning.scheduleScope === 'whole-month' ||
-    item.planning.scheduledDayRefs.includes(dayRef)
-  )
-}
-
-function isInitiativeScheduledOnDay(item: WeekInitiativePlanningItem, dayRef: DayRef): boolean {
-  return item.planState.dayRef === dayRef
 }
 
 export async function getMonthReflectionBundle(monthRef: MonthRef): Promise<MonthReflectionBundle> {
@@ -459,78 +414,6 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
   })
 }
 
-export async function getDayCalendarBundle(dayRef: DayRef): Promise<DayCalendarBundle> {
-  return loadPlanningCached(dayCalendarBundleCache, dayRef, async () => {
-    const refs = getPeriodRefsForDate(dayRef)
-    const [weekPlanning, weekReflection, monthPlanning, monthReflection, dailyEntries, objects] =
-      await Promise.all([
-        getWeekPlanningBundle(refs.week),
-        getWeekReflectionBundle(refs.week),
-        getMonthPlanningBundle(refs.month),
-        getMonthReflectionBundle(refs.month),
-        planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(dayRef, dayRef),
-        loadPlanningCoreObjects(),
-      ])
-
-    const subjectMap = new Map(
-      [...objects.keyResults, ...objects.habits, ...objects.trackers]
-        .filter(isMeasurementSubjectOpen)
-        .map((subject) => [`${resolveSubjectType(subject)}:${subject.id}`, subject] as const),
-    )
-
-    const scheduledMeasurementItems = weekPlanning.relevant.measurementItems.filter((item) =>
-      isMeasurementScheduledOnDay(item, dayRef),
-    )
-    const scheduledInitiativeItems = weekPlanning.relevant.initiativeItems.filter((item) =>
-      isInitiativeScheduledOnDay(item, dayRef),
-    )
-    const entriesToday = dailyEntries
-      .filter((entry) => entry.dayRef === dayRef)
-      .flatMap((entry) => {
-        const subject = subjectMap.get(`${entry.subjectType}:${entry.subjectId}`)
-        return subject ? [{ subjectType: entry.subjectType, subject, entry }] : []
-      })
-
-    return {
-      dayRef,
-      refs,
-      goals: objects.goals,
-      weekPlanning,
-      weekReflection,
-      monthPlanning,
-      monthReflection,
-      scheduledMeasurementItems,
-      scheduledInitiativeItems,
-      entriesToday,
-      contextMeasurementItems: weekPlanning.relevant.measurementItems.filter(
-        (item) => !isMeasurementScheduledOnDay(item, dayRef),
-      ),
-      contextInitiativeItems: weekPlanning.relevant.initiativeItems.filter(
-        (item) => !isInitiativeScheduledOnDay(item, dayRef),
-      ),
-    }
-  })
-}
-
-export function countGoalKeyResults(
-  goalId: string,
-  items: Array<{ subjectType: MeasurementSubjectType; subject: MeasureableSubject }>,
-): number {
-  return items.filter(
-    (item) => item.subjectType === 'keyResult' && 'goalId' in item.subject && item.subject.goalId === goalId,
-  ).length
-}
-
-export function hasObjectReflection(
-  subjectType: PeriodObjectReflection['subjectType'],
-  subjectId: string,
-  objectReflections: PeriodObjectReflection[],
-): boolean {
-  return objectReflections.some(
-    (item) => item.subjectType === subjectType && item.subjectId === subjectId,
-  )
-}
-
 export function splitMonthMeasurementItems(bundle: MonthPlanningBundle): {
   keyResults: MonthMeasurementPlanningItem[]
   habits: MonthMeasurementPlanningItem[]
@@ -580,11 +463,4 @@ export function filterMonthGoalsWithLinkedWork(
   )
 
   return monthGoals.filter((item) => goalIdsWithWork.has(item.goal.id))
-}
-
-export function filterUnscheduledMonthInitiatives(
-  initiatives: MonthInitiativePlanningItem[],
-  dayRef: DayRef,
-): MonthInitiativePlanningItem[] {
-  return initiatives.filter((item) => item.planState.dayRef !== dayRef)
 }

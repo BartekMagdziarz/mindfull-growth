@@ -550,7 +550,9 @@
       "goalTitlePlaceholder": "Goal title",
       "goalDescriptionPlaceholder": "Description",
       "completionRules": "Completion rules",
-      "completionRulesPlaceholder": "Describe how this object counts as completed"
+      "completionRulesPlaceholder": "Describe how this object counts as completed",
+      "targetDateLabel": "Target date",
+      "targetDateMissing": "No target date"
     },
     "linksDropdown": {
       "goals": "Goals",
@@ -572,6 +574,130 @@
       "noActivePeriods": "No active periods",
       "zoomOut": "Show trend",
       "zoomIn": "Show details"
+    }
+  },
+  "goalWizard": {
+    "title": "Create a SMART goal",
+    "subtitle": "Step by step, define what you want to achieve and how you'll measure progress.",
+    "stepLabels": {
+      "specific": "Specific",
+      "measurable": "Measurable",
+      "achievable": "Achievable",
+      "relevant": "Relevant",
+      "timebound": "Time-bound",
+      "review": "Review",
+      "short": {
+        "specific": "S",
+        "measurable": "M",
+        "achievable": "A",
+        "relevant": "R",
+        "timebound": "T",
+        "review": "✓"
+      }
+    },
+    "steps": {
+      "specific": {
+        "title": "Make it specific",
+        "subtitle": "What exactly do you want to achieve?",
+        "titleLabel": "Goal title",
+        "titlePlaceholder": "e.g. Run a 10K race",
+        "descriptionLabel": "Description (optional)",
+        "descriptionPlaceholder": "Add context, background, or detail",
+        "successDefinitionLabel": "Definition of success",
+        "successDefinitionPlaceholder": "How will you know you've achieved the goal?",
+        "successDefinitionHint": "Be concrete: \"I completed a 10K under 60 minutes\"."
+      },
+      "measurable": {
+        "title": "How will you measure it?",
+        "subtitle": "Add at least one Key Result that tracks progress.",
+        "hint": "Each Key Result is a measurable target you'll log against this goal.",
+        "addKrButton": "Add Key Result",
+        "krTitleLabel": "Key Result title",
+        "krTitlePlaceholder": "e.g. Run 25km/week",
+        "removeKr": "Remove",
+        "emptyState": "No key results yet. Add at least one to proceed.",
+        "validation": {
+          "atLeastOne": "Please add at least one valid Key Result.",
+          "titleRequired": "Title is required.",
+          "targetRequired": "Target value is required."
+        }
+      },
+      "achievable": {
+        "title": "Is it achievable?",
+        "subtitle": "Reflect on the obstacles and resources you can lean on.",
+        "confidenceLabel": "Confidence",
+        "confidenceLow": "Doubtful",
+        "confidenceHigh": "Very confident",
+        "obstaclesLabel": "Anticipated obstacles (optional)",
+        "obstaclesPlaceholder": "What could get in the way?",
+        "resourcesLabel": "Resources & support (optional)",
+        "resourcesPlaceholder": "Who or what helps you succeed?",
+        "lowConfidenceHint": "Low confidence — consider listing obstacles and resources."
+      },
+      "relevant": {
+        "title": "Why does it matter?",
+        "subtitle": "Connect this goal to your priorities, life areas, and inner motivation.",
+        "prioritiesLabel": "Linked priorities",
+        "lifeAreasLabel": "Linked life areas",
+        "whyMattersLabel": "Why this matters to you (optional)",
+        "whyMattersPlaceholder": "The deeper reason behind this goal",
+        "emptyState": "Link at least one priority or life area, or write why it matters."
+      },
+      "timebound": {
+        "title": "When will you achieve it?",
+        "subtitle": "Set a target date to give the goal urgency.",
+        "dateLabel": "Target date",
+        "presets": {
+          "thirtyDays": "In 30 days",
+          "endOfQuarter": "End of quarter",
+          "endOfYear": "End of year"
+        },
+        "countdown": {
+          "weeks": "{count} weeks from today",
+          "days": "{count} days from today",
+          "today": "Today",
+          "overdue": "Overdue by {count} days"
+        }
+      },
+      "review": {
+        "title": "Review your SMART goal",
+        "subtitle": "Check completeness before saving.",
+        "summary": {
+          "specific": "Specific",
+          "measurable": "Measurable",
+          "achievable": "Achievable",
+          "relevant": "Relevant",
+          "timebound": "Time-bound"
+        },
+        "keyResults": "Key results",
+        "missingHint": "Missing: {letters}. You can save anyway, but the goal won't be fully SMART.",
+        "createButton": "Create goal"
+      }
+    },
+    "buttons": {
+      "next": "Next",
+      "back": "Back",
+      "cancel": "Cancel",
+      "create": "Create goal",
+      "addKr": "Add Key Result"
+    },
+    "completeness": {
+      "label": "SMART {score}/5",
+      "tooltip": {
+        "complete": "Fully SMART",
+        "missing": "Missing: {letters}"
+      },
+      "badge": {
+        "S": "Specific",
+        "M": "Measurable",
+        "A": "Achievable",
+        "R": "Relevant",
+        "T": "Time-bound"
+      }
+    },
+    "messages": {
+      "saveError": "Could not save the goal. Please try again.",
+      "saved": "Goal created."
     }
   },
   "annual": {

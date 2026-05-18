@@ -63,6 +63,74 @@
       "body": "Pick which data to include, let the AI build a first draft, and review it before saving.",
       "cta": "Build your first profile"
     },
+    "foundation": {
+      "title": "Foundation",
+      "subtitle": "Complete these to give the AI a richer starting picture of you.",
+      "progress": "{done} of {total} complete",
+      "buildCta": "Build my first profile",
+      "buildCtaDisabled": "Complete at least {min} foundation items first",
+      "groups": {
+        "values": "Values & meaning",
+        "personality": "Personality & lenses",
+        "lifeBalance": "Life balance"
+      },
+      "items": {
+        "valuesDiscovery": {
+          "title": "Values discovery",
+          "description": "Who do you admire and why?"
+        },
+        "valueMap": {
+          "title": "Value map",
+          "description": "Rank values, find conflicts, link to life areas."
+        },
+        "wheelOfLife": {
+          "title": "Wheel of life",
+          "description": "Rate satisfaction across your life areas."
+        },
+        "shadowBeliefs": {
+          "title": "Shadow beliefs",
+          "description": "Surface and reframe self-sabotaging stories."
+        },
+        "transformativePurpose": {
+          "title": "Transformative purpose",
+          "description": "Find a one-sentence purpose statement."
+        },
+        "ipip-bfm-50": {
+          "title": "Big Five (IPIP-BFM-50)",
+          "description": "Personality across five domains, 50 items."
+        },
+        "ipip-neo-120": {
+          "title": "Big Five (IPIP-NEO-120)",
+          "description": "Big Five with facets, 120 items."
+        },
+        "hexaco-60": {
+          "title": "HEXACO (60)",
+          "description": "Six personality factors, 60 items."
+        },
+        "pvq-40": {
+          "title": "Schwartz values (PVQ-40)",
+          "description": "Ten universal values, 40 items."
+        },
+        "vlq": {
+          "title": "Valued living (VLQ)",
+          "description": "Importance and consistency across life domains."
+        }
+      },
+      "states": {
+        "notStarted": "Not started",
+        "inProgress": "In progress",
+        "completedShort": "Completed",
+        "completed": "Completed {date}",
+        "outdatedShort": "Refresh recommended",
+        "outdated": "Refresh recommended ({date})"
+      },
+      "refreshBanner": {
+        "title": "Some foundation data is over 6 months old",
+        "body": "{count} foundation item(s) may no longer reflect you. Re-take any tile that feels outdated, then build a refreshed profile.",
+        "cta": "Open foundation",
+        "dismiss": "Remind me in 30 days"
+      }
+    },
     "sections": {
       "summary": "Summary",
       "values": "Values and guiding principles",
@@ -76,12 +144,13 @@
       "empty": "No observations in the selected data."
     },
     "devSeed": "(dev) Seed fake profile",
-    "chatContext": {
-      "title": "Include profile in chat context",
-      "description": "When on, chat conversations receive a short summary of your latest profile so the assistant knows a little about you from the start.",
-      "noProfileWarning": "You have no saved profile yet. Build your first profile to give chat this context.",
-      "toggleAria": "Toggle including profile in chat context",
-      "toggleFeedback": "Chat context preference updated.",
+    "profileContextDefaults": {
+      "title": "Use profile in AI calls by default",
+      "description": "Each AI button gets a per-call toggle. These defaults seed the toggle's starting state so you don't have to flip it every time.",
+      "general": "General AI calls (chat, exercises)",
+      "journal": "Journal-scoped chat",
+      "noProfileWarning": "You have no saved profile yet. Build your first profile to give AI calls this context.",
+      "toggleFeedback": "Profile context preference updated.",
       "toggleError": "Could not update the preference. Please try again."
     },
     "wizard": {
@@ -126,9 +195,9 @@
             "title": "Monthly reflections",
             "help": "Your end-of-month structured reviews."
           },
-          "questionnaires": {
-            "title": "Questionnaires",
-            "help": "Self-assessment answers (coming later)."
+          "foundation": {
+            "title": "Foundation",
+            "help": "Completed self-discovery exercises and assessments."
           },
           "planning": {
             "title": "Planning data",
@@ -178,7 +247,7 @@
           "exerciseSessions": "Exercises",
           "weeklyReflections": "Weekly",
           "monthlyReflections": "Monthly",
-          "questionnaires": "Questionnaires",
+          "foundation": "Foundation",
           "planning": "Planning"
         }
       },

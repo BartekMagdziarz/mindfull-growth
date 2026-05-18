@@ -83,6 +83,7 @@ import { useTragicOptimismStore } from '@/stores/tragicOptimism.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useUserProfileStore } from '@/stores/userProfile.store'
+import { useValueMapStore } from '@/stores/valueMap.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useWorryTreeStore } from '@/stores/worryTree.store'
 
@@ -149,6 +150,7 @@ export function resetAppState(): void {
   useTransformativePurposeStore().reset()
   useUserPreferencesStore().reset()
   useUserProfileStore().reset()
+  useValueMapStore().reset()
   useValuesDiscoveryStore().reset()
   useWorryTreeStore().reset()
 

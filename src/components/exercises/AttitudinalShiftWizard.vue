@@ -194,14 +194,16 @@
 
           <!-- LLM assist -->
           <div class="space-y-2">
-            <AppButton
-              v-if="!currentLlmResponse && !isLlmLoading"
-              variant="tonal"
-              @click="handleReframeAssist"
-            >
-              <AppIcon name="auto_awesome" class="text-base mr-1" />
-              {{ t('exerciseWizards.attitudinalShift.shift.helpButton') }}
-            </AppButton>
+            <div v-if="!currentLlmResponse && !isLlmLoading" class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                @click="handleReframeAssist"
+              >
+                <AppIcon name="auto_awesome" class="text-base mr-1" />
+                {{ t('exerciseWizards.attitudinalShift.shift.helpButton') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileReframe" />
+            </div>
             <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">{{ t('exerciseWizards.attitudinalShift.shift.thinking') }}</div>
             <div v-if="currentLlmResponse" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ currentLlmResponse }}</p>
@@ -415,7 +417,9 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateAttitudinalShiftPayload, BecauseStatement } from '@/domain/exercises'
@@ -538,6 +542,8 @@ function enterShiftStep() {
 }
 
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileReframe = ref(userPreferencesStore.profileContextDefault)
 const isLlmLoading = ref(false)
 const llmError = ref('')
 const llmAssistUsed = ref(false)
@@ -560,6 +566,7 @@ async function handleReframeAssist() {
     const response = await reframeAttitudinalShift({
       belief: currentStatement.value.belief,
       locale: locale.value,
+      useProfile: useProfileReframe.value,
     })
     llmResponses.set(currentStatement.value.id, response)
     llmAssistUsed.value = true

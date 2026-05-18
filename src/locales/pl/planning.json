@@ -550,7 +550,9 @@
       "goalTitlePlaceholder": "Tytuł celu",
       "goalDescriptionPlaceholder": "Opis",
       "completionRules": "Zasady zaliczenia",
-      "completionRulesPlaceholder": "Opisz, kiedy ten obiekt uznajesz za zaliczony"
+      "completionRulesPlaceholder": "Opisz, kiedy ten obiekt uznajesz za zaliczony",
+      "targetDateLabel": "Data docelowa",
+      "targetDateMissing": "Brak terminu"
     },
     "linksDropdown": {
       "goals": "Cele",
@@ -572,6 +574,130 @@
       "noActivePeriods": "Brak aktywnych okresów",
       "zoomOut": "Pokaż trend",
       "zoomIn": "Pokaż szczegóły"
+    }
+  },
+  "goalWizard": {
+    "title": "Stwórz cel SMART",
+    "subtitle": "Krok po kroku zdefiniuj, co chcesz osiągnąć i jak będziesz mierzyć postęp.",
+    "stepLabels": {
+      "specific": "Skonkretyzowany",
+      "measurable": "Mierzalny",
+      "achievable": "Osiągalny",
+      "relevant": "Istotny",
+      "timebound": "Określony w czasie",
+      "review": "Podsumowanie",
+      "short": {
+        "specific": "S",
+        "measurable": "M",
+        "achievable": "A",
+        "relevant": "R",
+        "timebound": "T",
+        "review": "✓"
+      }
+    },
+    "steps": {
+      "specific": {
+        "title": "Zrób go skonkretyzowanym",
+        "subtitle": "Co dokładnie chcesz osiągnąć?",
+        "titleLabel": "Tytuł celu",
+        "titlePlaceholder": "np. Przebiec bieg na 10 km",
+        "descriptionLabel": "Opis (opcjonalny)",
+        "descriptionPlaceholder": "Dodaj kontekst, tło lub szczegóły",
+        "successDefinitionLabel": "Definicja sukcesu",
+        "successDefinitionPlaceholder": "Po czym poznasz, że osiągnąłeś cel?",
+        "successDefinitionHint": "Bądź konkretny: \"Ukończyłem 10 km poniżej 60 minut\"."
+      },
+      "measurable": {
+        "title": "Jak to zmierzysz?",
+        "subtitle": "Dodaj co najmniej jeden Kluczowy Rezultat śledzący postęp.",
+        "hint": "Każdy Kluczowy Rezultat to mierzalny cel, który będziesz zapisywać.",
+        "addKrButton": "Dodaj Kluczowy Rezultat",
+        "krTitleLabel": "Tytuł kluczowego rezultatu",
+        "krTitlePlaceholder": "np. Biegać 25km/tydzień",
+        "removeKr": "Usuń",
+        "emptyState": "Brak kluczowych rezultatów. Dodaj co najmniej jeden, aby kontynuować.",
+        "validation": {
+          "atLeastOne": "Dodaj co najmniej jeden prawidłowy Kluczowy Rezultat.",
+          "titleRequired": "Tytuł jest wymagany.",
+          "targetRequired": "Wartość celu jest wymagana."
+        }
+      },
+      "achievable": {
+        "title": "Czy jest osiągalny?",
+        "subtitle": "Zastanów się nad przeszkodami i zasobami, na które możesz liczyć.",
+        "confidenceLabel": "Pewność",
+        "confidenceLow": "Wątpliwa",
+        "confidenceHigh": "Bardzo pewna",
+        "obstaclesLabel": "Przewidywane przeszkody (opcjonalnie)",
+        "obstaclesPlaceholder": "Co może stanąć na drodze?",
+        "resourcesLabel": "Zasoby i wsparcie (opcjonalnie)",
+        "resourcesPlaceholder": "Kto lub co pomaga Ci się powieść?",
+        "lowConfidenceHint": "Niska pewność — rozważ uzupełnienie przeszkód i zasobów."
+      },
+      "relevant": {
+        "title": "Dlaczego to ma znaczenie?",
+        "subtitle": "Połącz ten cel z priorytetami, obszarami życia i wewnętrzną motywacją.",
+        "prioritiesLabel": "Powiązane priorytety",
+        "lifeAreasLabel": "Powiązane obszary życia",
+        "whyMattersLabel": "Dlaczego to ma dla Ciebie znaczenie (opcjonalnie)",
+        "whyMattersPlaceholder": "Głębszy powód stojący za tym celem",
+        "emptyState": "Powiąż co najmniej jeden priorytet lub obszar życia, lub napisz dlaczego to ważne."
+      },
+      "timebound": {
+        "title": "Do kiedy go osiągniesz?",
+        "subtitle": "Ustaw datę docelową, aby nadać celowi pilność.",
+        "dateLabel": "Data docelowa",
+        "presets": {
+          "thirtyDays": "Za 30 dni",
+          "endOfQuarter": "Koniec kwartału",
+          "endOfYear": "Koniec roku"
+        },
+        "countdown": {
+          "weeks": "{count} tyg. od dziś",
+          "days": "{count} dni od dziś",
+          "today": "Dzisiaj",
+          "overdue": "Spóźnione o {count} dni"
+        }
+      },
+      "review": {
+        "title": "Przejrzyj swój cel SMART",
+        "subtitle": "Sprawdź kompletność przed zapisaniem.",
+        "summary": {
+          "specific": "Skonkretyzowany",
+          "measurable": "Mierzalny",
+          "achievable": "Osiągalny",
+          "relevant": "Istotny",
+          "timebound": "Określony w czasie"
+        },
+        "keyResults": "Kluczowe rezultaty",
+        "missingHint": "Brakuje: {letters}. Możesz zapisać, ale cel nie będzie w pełni SMART.",
+        "createButton": "Utwórz cel"
+      }
+    },
+    "buttons": {
+      "next": "Dalej",
+      "back": "Wstecz",
+      "cancel": "Anuluj",
+      "create": "Utwórz cel",
+      "addKr": "Dodaj Kluczowy Rezultat"
+    },
+    "completeness": {
+      "label": "SMART {score}/5",
+      "tooltip": {
+        "complete": "W pełni SMART",
+        "missing": "Brakuje: {letters}"
+      },
+      "badge": {
+        "S": "Skonkretyzowany",
+        "M": "Mierzalny",
+        "A": "Osiągalny",
+        "R": "Istotny",
+        "T": "Określony w czasie"
+      }
+    },
+    "messages": {
+      "saveError": "Nie udało się zapisać celu. Spróbuj ponownie.",
+      "saved": "Cel utworzony."
     }
   },
   "annual": {

@@ -226,23 +226,28 @@
           <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
 
           <!-- Input area -->
-          <div v-if="!reachedMaxExchanges" class="flex gap-2 items-end">
-            <textarea
-              ref="inputRef"
-              v-model="userInput"
-              :placeholder="t('exerciseWizards.socraticDialogue.dialogue.placeholder')"
-              :disabled="isLlmLoading"
-              class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-              rows="1"
-              @keydown.enter.exact.prevent="handleSend"
-            />
-            <AppButton
-              variant="filled"
-              :disabled="!userInput.trim() || isLlmLoading"
-              @click="handleSend"
-            >
-              {{ t('exerciseWizards.socraticDialogue.dialogue.sendButton') }}
-            </AppButton>
+          <div v-if="!reachedMaxExchanges" class="space-y-2">
+            <div class="flex justify-end">
+              <ProfileContextToggle v-model="useProfileDialogue" />
+            </div>
+            <div class="flex gap-2 items-end">
+              <textarea
+                ref="inputRef"
+                v-model="userInput"
+                :placeholder="t('exerciseWizards.socraticDialogue.dialogue.placeholder')"
+                :disabled="isLlmLoading"
+                class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                rows="1"
+                @keydown.enter.exact.prevent="handleSend"
+              />
+              <AppButton
+                variant="filled"
+                :disabled="!userInput.trim() || isLlmLoading"
+                @click="handleSend"
+              >
+                {{ t('exerciseWizards.socraticDialogue.dialogue.sendButton') }}
+              </AppButton>
+            </div>
           </div>
 
           <!-- Exchange status -->
@@ -351,9 +356,11 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useJournalStore } from '@/stores/journal.store'
 import { getDisplayTitle } from '@/domain/journal'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type {
@@ -423,6 +430,8 @@ const selectedLifeAreaId = ref('')
 const additionalContext = ref('')
 
 // ─── Dialogue State ────────────────────────────────────────────────────────
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileDialogue = ref(userPreferencesStore.profileContextDefault)
 const messages = ref<SocraticDialogueMessage[]>([])
 const userInput = ref('')
 const isLlmLoading = ref(false)
@@ -477,6 +486,7 @@ async function sendFirstMessage() {
       userMessage: 'I am ready to begin.',
       contextSummary: contextSummary || undefined,
       locale: locale.value,
+      useProfile: useProfileDialogue.value,
     })
 
     messages.value.push({
@@ -524,6 +534,7 @@ async function handleSend() {
       previousMessages,
       contextSummary: buildContextSummary() || undefined,
       locale: locale.value,
+      useProfile: useProfileDialogue.value,
     })
 
     messages.value.push({

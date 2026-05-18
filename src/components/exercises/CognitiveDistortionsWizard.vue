@@ -309,14 +309,17 @@
 
         <!-- LLM Assist -->
         <AppCard padding="lg" class="space-y-3">
-          <AppButton
-            variant="tonal"
-            :disabled="llmLoading"
-            @click="handleLLMAssist"
-          >
-            <AppIcon name="auto_awesome" class="text-xl" />
-            {{ llmLoading ? t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLoading') : t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLabel') }}
-          </AppButton>
+          <div class="flex flex-wrap items-center gap-2">
+            <AppButton
+              variant="tonal"
+              :disabled="llmLoading"
+              @click="handleLLMAssist"
+            >
+              <AppIcon name="auto_awesome" class="text-xl" />
+              {{ llmLoading ? t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLoading') : t('exerciseWizards.cognitiveDistortions.appliedDistortions.llmLabel') }}
+            </AppButton>
+            <ProfileContextToggle v-model="useProfileSpot" />
+          </div>
 
           <div
             v-if="llmResponse"
@@ -403,7 +406,9 @@ import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { spotDistortions } from '@/services/cbtLLMAssists'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import distortionsMeta from '@/data/cognitiveDistortions-meta.json'
 import enDistortions from '@/locales/en/distortions.json'
@@ -415,6 +420,8 @@ import type {
 } from '@/domain/exercises'
 
 const { t, locale } = useT()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileSpot = ref(userPreferencesStore.profileContextDefault)
 
 type DistortionTranslation = { name: string; aliases: string[]; definition: string; example: string; soundsLike: string; realityCheck: string }
 const translationsByLocale: Record<string, Record<string, DistortionTranslation>> = { en: enDistortions, pl: plDistortions }
@@ -544,7 +551,7 @@ async function handleLLMAssist() {
   if (!appliedDraft.thought.trim()) return
   llmLoading.value = true
   try {
-    llmResponse.value = await spotDistortions({ thought: appliedDraft.thought, locale: locale.value })
+    llmResponse.value = await spotDistortions({ thought: appliedDraft.thought, locale: locale.value, useProfile: useProfileSpot.value })
     llmUsed.value = true
   } catch (err) {
     console.error('LLM assist failed:', err)

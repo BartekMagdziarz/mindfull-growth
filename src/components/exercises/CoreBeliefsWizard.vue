@@ -185,14 +185,17 @@
 
           <!-- LLM Assist: Help me go deeper -->
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
-            <AppButton
-              variant="tonal"
-              :disabled="isDeepenerLoading"
-              @click="handleDeepenerAssist"
-            >
-              <AppIcon name="auto_awesome" class="text-base" />
-              {{ isDeepenerLoading ? t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLoading') : t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLabel') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="isDeepenerLoading"
+                @click="handleDeepenerAssist"
+              >
+                <AppIcon name="auto_awesome" class="text-base" />
+                {{ isDeepenerLoading ? t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLoading') : t('exerciseWizards.coreBeliefs.downwardArrow.deepenerLabel') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileDeepener" />
+            </div>
             <div v-if="deepenerResponse" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-line">{{ deepenerResponse }}</p>
             </div>
@@ -472,14 +475,17 @@
 
           <!-- LLM Assist: Help me find alternatives -->
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
-            <AppButton
-              variant="tonal"
-              :disabled="isAlternativeLoading || !coreBelief.trim()"
-              @click="handleAlternativeAssist"
-            >
-              <AppIcon name="auto_awesome" class="text-base" />
-              {{ isAlternativeLoading ? t('exerciseWizards.coreBeliefs.alternative.llmLoading') : t('exerciseWizards.coreBeliefs.alternative.llmLabel') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="isAlternativeLoading || !coreBelief.trim()"
+                @click="handleAlternativeAssist"
+              >
+                <AppIcon name="auto_awesome" class="text-base" />
+                {{ isAlternativeLoading ? t('exerciseWizards.coreBeliefs.alternative.llmLoading') : t('exerciseWizards.coreBeliefs.alternative.llmLabel') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileAlternative" />
+            </div>
             <div v-if="alternativeMessages.length > 0" class="space-y-2">
               <div
                 v-for="(msg, idx) in alternativeMessages"
@@ -713,6 +719,8 @@ import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { CreateCoreBeliefsExplorationPayload } from '@/domain/exercises'
 
@@ -721,6 +729,9 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useT()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileDeepener = ref(userPreferencesStore.profileContextDefault)
+const useProfileAlternative = ref(userPreferencesStore.profileContextDefault)
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step =
@@ -864,6 +875,7 @@ async function handleDeepenerAssist() {
       startingThought: startingThought.value,
       downwardArrowSteps: allSteps,
       locale: locale.value,
+      useProfile: useProfileDeepener.value,
     })
     llmAssistsUsed.add('identify-belief')
   } catch (err) {
@@ -891,6 +903,7 @@ async function handleAlternativeAssist() {
       evidenceAgainst: filledEvidenceAgainst.value,
       previousMessages: [...alternativeMessages],
       locale: locale.value,
+      useProfile: useProfileAlternative.value,
     })
     alternativeMessages.push({ role: 'assistant', content: result })
     llmAssistsUsed.add('alternative-belief')

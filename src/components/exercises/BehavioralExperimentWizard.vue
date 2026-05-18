@@ -195,14 +195,17 @@
 
           <!-- LLM Assist -->
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
-            <AppButton
-              variant="tonal"
-              :disabled="!targetBelief.trim() || !prediction.trim() || isDesignLoading"
-              @click="handleDesignAssist"
-            >
-              <AppIcon name="auto_awesome" class="text-base" />
-              {{ isDesignLoading ? t('exerciseWizards.behavioralExperiment.design.llmLoading') : t('exerciseWizards.behavioralExperiment.design.llmLabel') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="!targetBelief.trim() || !prediction.trim() || isDesignLoading"
+                @click="handleDesignAssist"
+              >
+                <AppIcon name="auto_awesome" class="text-base" />
+                {{ isDesignLoading ? t('exerciseWizards.behavioralExperiment.design.llmLoading') : t('exerciseWizards.behavioralExperiment.design.llmLabel') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileDesign" />
+            </div>
             <div v-if="designSuggestion" class="neo-panel p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.behavioralExperiment.design.suggestedExperiment') }}
@@ -494,6 +497,8 @@ import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { CreateBehavioralExperimentPayload } from '@/domain/exercises'
 
@@ -502,6 +507,8 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useT()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileDesign = ref(userPreferencesStore.profileContextDefault)
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step = 'intro' | 'belief' | 'prediction' | 'design' | 'safety' | 'outcome' | 'summary'
@@ -570,6 +577,7 @@ async function handleDesignAssist() {
       prediction: prediction.value,
       predictionConfidence: predictionConfidence.value,
       locale: locale.value,
+      useProfile: useProfileDesign.value,
     })
     llmAssistUsed.value = true
   } catch (err) {

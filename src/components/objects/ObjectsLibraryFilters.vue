@@ -1,5 +1,5 @@
 <template>
-  <section class="neo-card p-4 md:p-5">
+  <section>
     <div class="flex flex-col gap-3 xl:flex-row xl:items-center">
       <label class="min-w-0 flex-1">
         <span class="sr-only">{{ searchLabel }}</span>

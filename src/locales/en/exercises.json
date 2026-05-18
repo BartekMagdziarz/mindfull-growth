@@ -107,6 +107,11 @@
       "subtitle": "Identify your core values",
       "description": "List people you admire, identify the qualities you value, and distill your core values."
     },
+    "valueMap": {
+      "title": "Value Map",
+      "subtitle": "Hierarchy, meaning, and tensions",
+      "description": "Sort a broad value list, choose what matters most, define it in your own words, and see where values compete."
+    },
     "wheelOfLife": {
       "title": "Wheel of Life",
       "subtitle": "Assess your life balance",

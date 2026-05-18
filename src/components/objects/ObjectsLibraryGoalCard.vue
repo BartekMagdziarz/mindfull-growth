@@ -84,6 +84,21 @@
           @link-month="$emit('link-month', item.id, $event)"
           @unlink-month="$emit('unlink-month', item.id, $event)"
         />
+        <span
+          class="neo-pill inline-flex items-center gap-1 px-2 py-0.5 text-[0.7rem] font-medium"
+          :class="targetDateChipClass"
+          :title="targetDateTooltip"
+        >
+          <AppIcon name="schedule" class="text-xs" />
+          {{ targetDateLabel }}
+        </span>
+        <span
+          class="neo-pill inline-flex items-center gap-1 px-2 py-0.5 text-[0.7rem] font-semibold"
+          :class="smartBadgeClass"
+          :title="smartBadgeTooltip"
+        >
+          {{ t('planning.goalWizard.completeness.label', { score: smartCompleteness.score }) }}
+        </span>
       </div>
     </div>
 
@@ -118,10 +133,11 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
+import { computeSmartCompleteness } from '@/domain/smartCompleteness'
 import GoalMonthsDropdown from '@/components/objects/GoalMonthsDropdown.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
@@ -173,6 +189,79 @@ const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
 
 let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
+
+const validKrCount = computed(() => (props.item.childPreviews ?? []).length)
+
+const smartCompleteness = computed(() =>
+  computeSmartCompleteness(
+    {
+      title: props.item.title,
+      description: props.item.description,
+      targetDate: props.item.targetDate,
+      successDefinition: props.item.successDefinition,
+      whyMatters: props.item.whyMatters,
+      confidenceRating: props.item.confidenceRating,
+      obstacles: props.item.obstacles,
+      resources: props.item.resources,
+      priorityIds: props.item.priorityIds,
+      lifeAreaIds: props.item.lifeAreaIds,
+    },
+    validKrCount.value,
+  ),
+)
+
+const smartBadgeClass = computed(() => {
+  if (smartCompleteness.value.score === 5) return 'bg-success/15 text-success'
+  if (smartCompleteness.value.score >= 3) return 'bg-amber-100 text-amber-700'
+  return 'bg-amber-100 text-amber-700'
+})
+
+const smartBadgeTooltip = computed(() => {
+  if (smartCompleteness.value.missing.length === 0) {
+    return t('planning.goalWizard.completeness.tooltip.complete')
+  }
+  return t('planning.goalWizard.completeness.tooltip.missing', {
+    letters: smartCompleteness.value.missing.join(', '),
+  })
+})
+
+const targetDateRelative = computed(() => {
+  const targetDate = props.item.targetDate
+  if (!targetDate) return null
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) return null
+  const target = new Date(`${targetDate}T00:00:00Z`)
+  if (Number.isNaN(target.getTime())) return null
+  const now = new Date()
+  const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  const diffDays = Math.round((target.getTime() - todayUtc.getTime()) / 86_400_000)
+  return { diffDays, isoDate: targetDate }
+})
+
+const targetDateLabel = computed(() => {
+  const rel = targetDateRelative.value
+  if (!rel) return t('planning.objects.form.targetDateMissing')
+  if (rel.diffDays === 0) return t('planning.goalWizard.steps.timebound.countdown.today')
+  if (rel.diffDays < 0) {
+    return t('planning.goalWizard.steps.timebound.countdown.overdue', { count: Math.abs(rel.diffDays) })
+  }
+  if (rel.diffDays >= 14) {
+    const weeks = Math.round(rel.diffDays / 7)
+    return t('planning.goalWizard.steps.timebound.countdown.weeks', { count: weeks })
+  }
+  return t('planning.goalWizard.steps.timebound.countdown.days', { count: rel.diffDays })
+})
+
+const targetDateTooltip = computed(() => {
+  const rel = targetDateRelative.value
+  return rel ? rel.isoDate : t('planning.objects.form.targetDateMissing')
+})
+
+const targetDateChipClass = computed(() => {
+  const rel = targetDateRelative.value
+  if (!rel) return 'bg-amber-100 text-amber-700'
+  if (rel.diffDays < 0) return 'bg-error/15 text-error'
+  return 'bg-neu-base text-on-surface-variant shadow-neu-pressed'
+})
 
 function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', props.item.id, field, value)

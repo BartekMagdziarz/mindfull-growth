@@ -165,7 +165,7 @@ async function handleSubmit() {
   )
 
   if (success) {
-    router.push('/journal')
+    router.push('/today')
   }
 }
 </script>

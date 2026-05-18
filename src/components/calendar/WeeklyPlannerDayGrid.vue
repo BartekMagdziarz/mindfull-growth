@@ -54,8 +54,8 @@
               class="flex flex-col rounded-2xl px-1.5 py-1.5 text-left transition-all duration-200"
               :style="dayCellStyle"
               :class="dayCellClass(day)"
-              :disabled="!canToggleDay(day)"
-              @click="$emit('dayToggle', day.dayRef)"
+              :disabled="Boolean(assignmentRow) && !canToggleDay(day)"
+              @click="assignmentRow ? $emit('dayToggle', day.dayRef) : $emit('dayOpen', day.dayRef)"
             >
               <div class="flex shrink-0 items-center justify-between gap-1">
                 <span class="text-xs font-semibold text-on-surface">
@@ -103,6 +103,7 @@ const props = defineProps<{
 
 defineEmits<{
   dayToggle: [dayRef: DayRef]
+  dayOpen: [dayRef: DayRef]
   clearPlacement: []
   finishAssigning: []
 }>()

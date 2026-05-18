@@ -20,7 +20,7 @@ export const PROFILE_DATA_TYPES = [
   'exerciseSessions',
   'weeklyReflections',
   'monthlyReflections',
-  'questionnaires',
+  'foundation',
   'planning',
 ] as const
 

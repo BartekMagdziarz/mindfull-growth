@@ -1,17 +1,34 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import PsychologicalProfileView from '../PsychologicalProfileView.vue'
 import {
   createEmptySections,
   type UserProfile,
 } from '@/domain/userProfile'
+import type { FoundationItemStatus } from '@/services/foundationCompleteness'
 
 const mockPush = vi.fn()
 const mockRouteQuery: { versionId?: string } = {}
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: mockPush }),
   useRoute: () => ({ query: mockRouteQuery }),
+}))
+
+const foundationMock = vi.hoisted(() => ({
+  statuses: [] as FoundationItemStatus[],
+  loadFoundationSourceData: vi.fn(),
+}))
+
+vi.mock('@/services/foundationCompleteness', () => ({
+  FOUNDATION_BUILD_FLOOR: 3,
+  computeFoundationStatuses: () => foundationMock.statuses,
+  foundationCompletionCount: (statuses: FoundationItemStatus[]) =>
+    statuses.filter((status) => status.state === 'completed' || status.state === 'outdated')
+      .length,
+  isFoundationOutdated: (statuses: FoundationItemStatus[]) =>
+    statuses.some((status) => status.state === 'outdated'),
+  loadFoundationSourceData: foundationMock.loadFoundationSourceData,
 }))
 
 // Mock the user profile repository so tests can inject controlled state.
@@ -65,7 +82,8 @@ vi.mock('@/components/AppSnackbar.vue', () => {
 
 import { userProfileDexieRepository } from '@/repositories/userProfileDexieRepository'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
- 
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+
 import * as appSnackbarModule from '@/components/AppSnackbar.vue'
 const snackbarShow = (appSnackbarModule as unknown as { __snackbarShow: ReturnType<typeof vi.fn> })
   .__snackbarShow
@@ -90,16 +108,76 @@ function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
   }
 }
 
+function makeFoundationStatus(
+  id: FoundationItemStatus['id'],
+  group: FoundationItemStatus['group'],
+  state: FoundationItemStatus['state'] = 'not-started',
+  routeParams?: Record<string, string>,
+): FoundationItemStatus {
+  return {
+    id,
+    group,
+    state,
+    lastCompletedAt:
+      state === 'completed' || state === 'outdated'
+        ? '2025-01-01T00:00:00.000Z'
+        : undefined,
+    routeName: routeParams ? 'exercise-assessment' : `exercise-${id}`,
+    routeParams,
+  }
+}
+
+function makeFoundationStatuses(
+  completedCount = 0,
+  outdatedIds: FoundationItemStatus['id'][] = [],
+): FoundationItemStatus[] {
+  const items: Array<{
+    id: FoundationItemStatus['id']
+    group: FoundationItemStatus['group']
+    routeParams?: Record<string, string>
+  }> = [
+    { id: 'valuesDiscovery', group: 'values' },
+    { id: 'valueMap', group: 'values' },
+    { id: 'transformativePurpose', group: 'values' },
+    { id: 'vlq', group: 'values', routeParams: { assessmentId: 'vlq' } },
+    { id: 'ipip-bfm-50', group: 'personality', routeParams: { assessmentId: 'ipip-bfm-50' } },
+    { id: 'ipip-neo-120', group: 'personality', routeParams: { assessmentId: 'ipip-neo-120' } },
+    { id: 'hexaco-60', group: 'personality', routeParams: { assessmentId: 'hexaco-60' } },
+    { id: 'shadowBeliefs', group: 'personality' },
+    { id: 'wheelOfLife', group: 'lifeBalance' },
+    { id: 'pvq-40', group: 'lifeBalance', routeParams: { assessmentId: 'pvq-40' } },
+  ]
+
+  return items.map((item, index) => {
+    const state = outdatedIds.includes(item.id)
+      ? 'outdated'
+      : index < completedCount
+        ? 'completed'
+        : 'not-started'
+
+    return makeFoundationStatus(item.id, item.group, state, item.routeParams)
+  })
+}
+
 describe('PsychologicalProfileView', () => {
   beforeEach(() => {
+    vi.useRealTimers()
     vi.clearAllMocks()
     snackbarShow.mockClear()
+    foundationMock.statuses = makeFoundationStatuses()
+    foundationMock.loadFoundationSourceData.mockResolvedValue(undefined)
     vi.mocked(userProfileDexieRepository.list).mockResolvedValue([])
     vi.mocked(userProfileDexieRepository.delete).mockResolvedValue(undefined)
     // User settings start empty — the preferences store will fall back to
     // its defaults (including `includeProfileInChatContext: false`).
-    vi.mocked(userSettingsDexieRepository.get).mockResolvedValue(undefined)
+    vi.mocked(userSettingsDexieRepository.get).mockImplementation(
+      async (key) => {
+        if (key === 'preferences.locale') return 'en'
+        return undefined
+      },
+    )
     vi.mocked(userSettingsDexieRepository.set).mockResolvedValue(undefined)
+    vi.mocked(userSettingsDexieRepository.delete).mockResolvedValue(undefined)
     // Reset route query and sessionStorage between tests so the
     // edit-handoff key never bleeds over.
     delete mockRouteQuery.versionId
@@ -112,17 +190,18 @@ describe('PsychologicalProfileView', () => {
     render(PsychologicalProfileView)
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { level: 2, name: 'Build your first profile' }),
-      ).toBeInTheDocument()
+      expect(screen.getByText('Values & meaning')).toBeInTheDocument()
     })
+    expect(screen.getByText('0 of 10 complete')).toBeInTheDocument()
     expect(
-      screen.getByText(
+      screen.queryByText(
         'Pick which data to include, let the AI build a first draft, and review it before saving.',
       ),
-    ).toBeInTheDocument()
+    ).not.toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Build your first profile' }),
+      screen.getByRole('button', {
+        name: 'Complete at least 3 foundation items first',
+      }),
     ).toBeInTheDocument()
   })
 
@@ -290,9 +369,7 @@ describe('PsychologicalProfileView', () => {
     render(PsychologicalProfileView)
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { level: 2, name: 'Build your first profile' }),
-      ).toBeInTheDocument()
+      expect(screen.getByText('Values & meaning')).toBeInTheDocument()
     })
 
     const backBtn = screen.getByRole('button', { name: 'Back' })
@@ -303,20 +380,140 @@ describe('PsychologicalProfileView', () => {
 
   it('navigates to the build wizard when the empty-state CTA is clicked', async () => {
     const user = userEvent.setup()
+    foundationMock.statuses = makeFoundationStatuses(3)
+
     render(PsychologicalProfileView)
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: 'Build your first profile' }),
-      ).toBeInTheDocument()
-    })
+    const ctaText = await screen.findByText('Build my first profile')
+    const cta = ctaText.closest('button')
+    expect(cta).toBeTruthy()
 
-    await user.click(
-      screen.getByRole('button', { name: 'Build your first profile' }),
-    )
+    await user.click(cta as HTMLButtonElement)
 
     expect(mockPush).toHaveBeenCalledWith({ name: 'profile-psychological-build' })
     expect(snackbarShow).not.toHaveBeenCalled()
+  })
+
+  describe('foundation refresh banner', () => {
+    it('does not render when a profile exists but no foundation tile is outdated', async () => {
+      const sole = makeProfile({ id: 'exists' })
+      vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+      foundationMock.statuses = makeFoundationStatuses(3)
+
+      render(PsychologicalProfileView)
+
+      await waitFor(() => {
+        expect(screen.getByText('Summary')).toBeInTheDocument()
+      })
+      expect(
+        screen.queryByText('Some foundation data is over 6 months old'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('renders when a profile exists and at least one foundation tile is outdated', async () => {
+      const sole = makeProfile({ id: 'exists' })
+      vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+      foundationMock.statuses = makeFoundationStatuses(3, ['valuesDiscovery'])
+
+      render(PsychologicalProfileView)
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Some foundation data is over 6 months old'),
+        ).toBeInTheDocument()
+      })
+      expect(screen.getByText(/1 foundation item/)).toBeInTheDocument()
+    })
+
+    it('hides when the refresh banner was dismissed recently', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+      vi.setSystemTime(new Date('2026-05-09T12:00:00.000Z'))
+      const sole = makeProfile({ id: 'exists' })
+      vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+      useUserPreferencesStore().$patch({
+        locale: 'en',
+        foundationRefreshDismissedAt: '2026-05-04T12:00:00.000Z',
+        isLoaded: true,
+      })
+      foundationMock.statuses = makeFoundationStatuses(3, ['valuesDiscovery'])
+
+      render(PsychologicalProfileView)
+
+      await waitFor(() => {
+        expect(screen.getByText('Summary')).toBeInTheDocument()
+      })
+      expect(
+        screen.queryByText('Some foundation data is over 6 months old'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('renders when the refresh banner dismissal is older than 30 days', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+      vi.setSystemTime(new Date('2026-05-09T12:00:00.000Z'))
+      const sole = makeProfile({ id: 'exists' })
+      vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+      useUserPreferencesStore().$patch({
+        locale: 'en',
+        foundationRefreshDismissedAt: '2026-04-08T12:00:00.000Z',
+        isLoaded: true,
+      })
+      foundationMock.statuses = makeFoundationStatuses(3, ['valuesDiscovery'])
+
+      render(PsychologicalProfileView)
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Some foundation data is over 6 months old'),
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('navigates to the foundation route from the banner CTA', async () => {
+      const user = userEvent.setup()
+      const sole = makeProfile({ id: 'exists' })
+      vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+      foundationMock.statuses = makeFoundationStatuses(3, ['valuesDiscovery'])
+
+      render(PsychologicalProfileView)
+
+      const openButton = await screen.findByRole('button', {
+        name: 'Open foundation',
+      })
+      await user.click(openButton)
+
+      expect(mockPush).toHaveBeenCalledWith({
+        name: 'profile-psychological-foundation',
+      })
+    })
+
+    it('persists dismissal and hides the banner when dismissed', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true })
+      vi.setSystemTime(new Date('2026-05-09T12:00:00.000Z'))
+      const sole = makeProfile({ id: 'exists' })
+      vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
+      foundationMock.statuses = makeFoundationStatuses(3, ['valuesDiscovery'])
+
+      render(PsychologicalProfileView)
+
+      const dismissButton = await screen.findByRole('button', {
+        name: 'Remind me in 30 days',
+      })
+      await fireEvent.click(dismissButton)
+      vi.advanceTimersByTime(200)
+      await Promise.resolve()
+
+      await waitFor(() => {
+        expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+          'profile.foundationRefreshDismissedAt',
+          '2026-05-09T12:00:00.000Z',
+        )
+      })
+      await waitFor(() => {
+        expect(
+          screen.queryByText('Some foundation data is over 6 months old'),
+        ).not.toBeInTheDocument()
+      })
+    })
   })
 
   it('clicking "Edit this version" stashes the id in sessionStorage and navigates to the build wizard', async () => {
@@ -394,81 +591,93 @@ describe('PsychologicalProfileView', () => {
     ).toBeNull()
   })
 
-  describe('chat context toggle', () => {
-    it('renders the toggle with aria-checked=false by default (no stored preference)', async () => {
-      // Empty storage → preferences store defaults `includeProfileInChatContext`
-      // to false, and the toggle should reflect that.
+  describe('profile context defaults', () => {
+    async function findToggle(
+      attr: 'data-test-profile-context-default-toggle' | 'data-test-profile-context-default-journal-toggle',
+    ): Promise<HTMLElement> {
+      let el: HTMLElement | null = null
+      await waitFor(() => {
+        el = document.querySelector(`[${attr}]`)
+        expect(el).not.toBeNull()
+      })
+      return el as unknown as HTMLElement
+    }
+
+    it('renders both default toggles with aria-checked=true (module defaults)', async () => {
+      // Empty storage → store falls back to module defaults: both true.
       render(PsychologicalProfileView)
 
-      const toggle = await screen.findByRole('switch', {
-        name: 'Toggle including profile in chat context',
-      })
-      expect(toggle).toBeInTheDocument()
-      expect(toggle).toHaveAttribute('aria-checked', 'false')
+      const generalToggle = await findToggle(
+        'data-test-profile-context-default-toggle',
+      )
+      const journalToggle = await findToggle(
+        'data-test-profile-context-default-journal-toggle',
+      )
+      expect(generalToggle).toHaveAttribute('aria-checked', 'true')
+      expect(journalToggle).toHaveAttribute('aria-checked', 'true')
     })
 
-    it('clicking the toggle persists "true" as a string and updates aria-checked', async () => {
+    it('clicking the general toggle persists the new value as a string', async () => {
       const user = userEvent.setup()
       render(PsychologicalProfileView)
 
-      const toggle = await screen.findByRole('switch', {
-        name: 'Toggle including profile in chat context',
-      })
-      expect(toggle).toHaveAttribute('aria-checked', 'false')
+      const toggle = await findToggle(
+        'data-test-profile-context-default-toggle',
+      )
+      expect(toggle).toHaveAttribute('aria-checked', 'true')
 
       await user.click(toggle)
 
-      // The preference is serialized as a string because the underlying
-      // repository only accepts strings (Story 7 design).
       await waitFor(() => {
         expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
-          'preferences.chat.includeProfile',
-          'true',
+          'preferences.profileContext.default',
+          'false',
         )
       })
-      expect(toggle).toHaveAttribute('aria-checked', 'true')
+      expect(toggle).toHaveAttribute('aria-checked', 'false')
     })
 
-    it('shows the "no profile" warning when the preference is on but no profile exists', async () => {
+    it('clicking the journal toggle persists the new value separately', async () => {
       const user = userEvent.setup()
       render(PsychologicalProfileView)
 
-      // Turn the toggle on while there are zero profiles in the store.
-      const toggle = await screen.findByRole('switch', {
-        name: 'Toggle including profile in chat context',
-      })
+      const toggle = await findToggle(
+        'data-test-profile-context-default-journal-toggle',
+      )
       await user.click(toggle)
+
+      await waitFor(() => {
+        expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+          'preferences.profileContext.defaultJournal',
+          'false',
+        )
+      })
+      expect(toggle).toHaveAttribute('aria-checked', 'false')
+    })
+
+    it('shows the "no profile" warning when at least one default is on but no profile exists', async () => {
+      // Module defaults are true → warning should already be visible
+      // because there are zero profiles in the store.
+      render(PsychologicalProfileView)
 
       await waitFor(() => {
         expect(
-          document.querySelector('[data-test-chat-context-no-profile]'),
+          document.querySelector('[data-test-profile-context-no-profile]'),
         ).toBeInTheDocument()
       })
-      expect(
-        screen.getByText(
-          'You have no saved profile yet. Build your first profile to give chat this context.',
-        ),
-      ).toBeInTheDocument()
     })
 
-    it('hides the "no profile" warning when the preference is on and a profile exists', async () => {
-      const user = userEvent.setup()
+    it('hides the "no profile" warning when a profile exists', async () => {
       const sole = makeProfile({ id: 'exists' })
       vi.mocked(userProfileDexieRepository.list).mockResolvedValue([sole])
 
       render(PsychologicalProfileView)
 
-      const toggle = await screen.findByRole('switch', {
-        name: 'Toggle including profile in chat context',
-      })
-      await user.click(toggle)
-
       await waitFor(() => {
-        expect(toggle).toHaveAttribute('aria-checked', 'true')
+        expect(screen.getByText('Summary')).toBeInTheDocument()
       })
-      // Warning must not appear when there is at least one saved profile.
       expect(
-        document.querySelector('[data-test-chat-context-no-profile]'),
+        document.querySelector('[data-test-profile-context-no-profile]'),
       ).toBeNull()
     })
   })

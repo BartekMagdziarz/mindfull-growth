@@ -369,11 +369,14 @@
                 variant="tonal"
                 :loading="isLoadingSummary"
                 class="w-full"
-                @click="requestWeeklySummary()"
+                @click="requestWeeklySummary({ useProfile: useProfileWeeklySummary })"
               >
                 <AppIcon name="auto_awesome" class="text-base mr-1" />
                 {{ t('exerciseWizards.dailyCheckIn.summary.getWeeklySummary') }}
               </AppButton>
+              <div class="flex justify-end">
+                <ProfileContextToggle v-model="useProfileWeeklySummary" />
+              </div>
               <div v-if="weeklySummary" class="neo-surface p-4 rounded-xl">
                 <p class="text-sm text-on-surface whitespace-pre-line">{{ weeklySummary }}</p>
               </div>
@@ -406,14 +409,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useDailyCheckInWizard, type DailyCheckInStep } from '@/composables/useDailyCheckInWizard'
 import { useT } from '@/composables/useT'
 import type { IFSPartRole, IFSDailyCheckInType, SelfEnergyQuality } from '@/domain/exercises'
@@ -427,6 +432,8 @@ const emit = defineEmits<{
 
 const partStore = useIFSPartStore()
 const checkInStore = useIFSDailyCheckInStore()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileWeeklySummary = ref(userPreferencesStore.profileContextDefault)
 const WEEKDAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
 const STEPS: DailyCheckInStep[] = ['select-practice', 'practice', 'save']

@@ -53,6 +53,7 @@
         :row-visible-on-day="planner.rowVisibleOnDay"
         :can-toggle-day="planner.canToggleDay"
         @day-toggle="planner.handleDayToggle"
+        @day-open="openToday"
         @clear-placement="planner.handleClearPlacement"
         @finish-assigning="handleFinishAssigning"
       />
@@ -62,13 +63,14 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import WeeklyPlannerSidebar from './WeeklyPlannerSidebar.vue'
 import WeeklyPlannerDayGrid from './WeeklyPlannerDayGrid.vue'
 import { useT } from '@/composables/useT'
 import { useWeeklyPlannerState } from '@/composables/useWeeklyPlannerState'
 import type { WeeklyPlannerTab } from '@/composables/useWeeklyPlannerState'
-import type { WeekRef } from '@/domain/period'
+import type { DayRef, WeekRef } from '@/domain/period'
 
 const props = defineProps<{
   weekRef: WeekRef
@@ -81,6 +83,7 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useT()
+const router = useRouter()
 
 const weekRefRef = computed(() => props.weekRef as WeekRef)
 
@@ -95,5 +98,9 @@ function handleTabChange(tab: WeeklyPlannerTab) {
 
 function handleFinishAssigning() {
   planner.stopAssigning()
+}
+
+function openToday(dayRef: DayRef): void {
+  void router.push({ name: 'today-day', params: { dayRef } })
 }
 </script>

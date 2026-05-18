@@ -253,23 +253,28 @@
             <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
 
             <!-- Input area -->
-            <div v-if="!reachedMaxExchanges" class="flex gap-2 items-end">
-              <textarea
-                ref="inputRef"
-                v-model="userInput"
-                :placeholder="t('exerciseWizards.legacyLetter.reflect.placeholder')"
-                :disabled="isLlmLoading"
-                class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-                rows="1"
-                @keydown.enter.exact.prevent="handleSend"
-              />
-              <AppButton
-                variant="filled"
-                :disabled="!userInput.trim() || isLlmLoading"
-                @click="handleSend"
-              >
-                {{ t('exerciseWizards.legacyLetter.reflect.sendButton') }}
-              </AppButton>
+            <div v-if="!reachedMaxExchanges" class="space-y-2">
+              <div class="flex justify-end">
+                <ProfileContextToggle v-model="useProfileDialogue" />
+              </div>
+              <div class="flex gap-2 items-end">
+                <textarea
+                  ref="inputRef"
+                  v-model="userInput"
+                  :placeholder="t('exerciseWizards.legacyLetter.reflect.placeholder')"
+                  :disabled="isLlmLoading"
+                  class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  rows="1"
+                  @keydown.enter.exact.prevent="handleSend"
+                />
+                <AppButton
+                  variant="filled"
+                  :disabled="!userInput.trim() || isLlmLoading"
+                  @click="handleSend"
+                >
+                  {{ t('exerciseWizards.legacyLetter.reflect.sendButton') }}
+                </AppButton>
+              </div>
             </div>
 
             <!-- Exchange status -->
@@ -389,8 +394,12 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import { useValueMapStore } from '@/stores/valueMap.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import { getLatestCoreValuesFromStores } from '@/services/valueInsights'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateLegacyLetterPayload, SocraticDialogueMessage } from '@/domain/exercises'
@@ -400,10 +409,14 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useT()
+const valueMapStore = useValueMapStore()
 const valuesStore = useValuesDiscoveryStore()
 const purposeStore = useTransformativePurposeStore()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileDialogue = ref(userPreferencesStore.profileContextDefault)
 
 onMounted(() => {
+  valueMapStore.loadMaps()
   valuesStore.loadDiscoveries()
   purposeStore.loadPurposes()
 })
@@ -467,7 +480,7 @@ const filledPromptCount = computed(() => {
 const letterText = ref('')
 
 const coreValues = computed(() => {
-  return valuesStore.latestDiscovery?.coreValues ?? []
+  return getLatestCoreValuesFromStores(valueMapStore, valuesStore)
 })
 
 const purposeStatement = computed(() => {
@@ -524,6 +537,7 @@ async function sendFirstMessage() {
       coreValues: coreValues.value.length > 0 ? coreValues.value : undefined,
       purposeStatement: purposeStatement.value || undefined,
       locale: locale.value,
+      useProfile: useProfileDialogue.value,
     })
 
     messages.value.push({
@@ -571,6 +585,7 @@ async function handleSend() {
       coreValues: coreValues.value.length > 0 ? coreValues.value : undefined,
       purposeStatement: purposeStatement.value || undefined,
       locale: locale.value,
+      useProfile: useProfileDialogue.value,
     })
 
     messages.value.push({

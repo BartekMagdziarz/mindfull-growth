@@ -216,6 +216,9 @@
                   </div>
                 </div>
               </button>
+              <div class="flex justify-end">
+                <ProfileContextToggle v-model="useProfileResponse" />
+              </div>
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
                 @click="handleResponseMode('self')"
@@ -254,9 +257,12 @@
                     class="neo-input w-full p-3 text-sm resize-none"
                   />
                 </AppCard>
-                <AppButton variant="tonal" @click="handleRegenerate">
-                  Regenerate
-                </AppButton>
+                <div class="flex flex-wrap items-center gap-2">
+                  <AppButton variant="tonal" @click="handleRegenerate">
+                    Regenerate
+                  </AppButton>
+                  <ProfileContextToggle v-model="useProfileResponse" />
+                </div>
               </div>
 
               <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
@@ -432,11 +438,13 @@ import AppButton from '@/components/AppButton.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import {
   useProtectorAppreciationWizard,
   type ProtectorAppreciationStep,
 } from '@/composables/useProtectorAppreciationWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { IFSProtectorBehavior } from '@/domain/exercises'
 
@@ -447,6 +455,8 @@ const emit = defineEmits<{
 }>()
 
 const partStore = useIFSPartStore()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileResponse = ref(userPreferencesStore.profileContextDefault)
 
 const STEPS: ProtectorAppreciationStep[] = [
   'select-protector', 'understand-job', 'write-letter', 'part-response',
@@ -549,14 +559,14 @@ function appendToLetter(prompt: string) {
 function handleResponseMode(mode: 'ai' | 'self') {
   responseMode.value = mode
   if (mode === 'ai' && selectedPart.value) {
-    generateResponse(selectedPart.value)
+    generateResponse(selectedPart.value, { useProfile: useProfileResponse.value })
   }
 }
 
 function handleRegenerate() {
   if (selectedPart.value) {
     partResponse.value = ''
-    generateResponse(selectedPart.value)
+    generateResponse(selectedPart.value, { useProfile: useProfileResponse.value })
   }
 }
 

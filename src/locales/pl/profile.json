@@ -63,6 +63,74 @@
       "body": "Wybierz jakie dane chcesz uwzględnić, pozwól AI zbudować pierwszą wersję i przejrzyj ją zanim ją zapiszesz.",
       "cta": "Zbuduj pierwszy profil"
     },
+    "foundation": {
+      "title": "Fundament profilu",
+      "subtitle": "Ukończ te elementy, żeby AI miało bogatszy punkt wyjścia do opisu Ciebie.",
+      "progress": "{done} z {total} ukończone",
+      "buildCta": "Zbuduj mój pierwszy profil",
+      "buildCtaDisabled": "Ukończ co najmniej {min} elementy fundamentu",
+      "groups": {
+        "values": "Wartości i sens",
+        "personality": "Osobowość i perspektywy",
+        "lifeBalance": "Równowaga życia"
+      },
+      "items": {
+        "valuesDiscovery": {
+          "title": "Odkrywanie wartości",
+          "description": "Kogo podziwiasz i dlaczego?"
+        },
+        "valueMap": {
+          "title": "Mapa wartości",
+          "description": "Uporządkuj wartości, znajdź konflikty i połącz je z obszarami życia."
+        },
+        "wheelOfLife": {
+          "title": "Koło życia",
+          "description": "Oceń satysfakcję w najważniejszych obszarach życia."
+        },
+        "shadowBeliefs": {
+          "title": "Cieniste przekonania",
+          "description": "Zauważ i przeformułuj historie, które Cię sabotują."
+        },
+        "transformativePurpose": {
+          "title": "Transformujący cel",
+          "description": "Znajdź jednozdaniową deklarację sensu."
+        },
+        "ipip-bfm-50": {
+          "title": "Wielka Piątka (IPIP-BFM-50)",
+          "description": "Osobowość w pięciu domenach, 50 pytań."
+        },
+        "ipip-neo-120": {
+          "title": "Wielka Piątka (IPIP-NEO-120)",
+          "description": "Wielka Piątka z aspektami, 120 pytań."
+        },
+        "hexaco-60": {
+          "title": "HEXACO (60)",
+          "description": "Sześć czynników osobowości, 60 pytań."
+        },
+        "pvq-40": {
+          "title": "Wartości Schwartza (PVQ-40)",
+          "description": "Dziesięć uniwersalnych wartości, 40 pytań."
+        },
+        "vlq": {
+          "title": "Życie według wartości (VLQ)",
+          "description": "Ważność i spójność działań w obszarach życia."
+        }
+      },
+      "states": {
+        "notStarted": "Nie rozpoczęte",
+        "inProgress": "W trakcie",
+        "completedShort": "Ukończone",
+        "completed": "Ukończone {date}",
+        "outdatedShort": "Warto odświeżyć",
+        "outdated": "Warto odświeżyć ({date})"
+      },
+      "refreshBanner": {
+        "title": "Część fundamentu ma ponad 6 miesięcy",
+        "body": "Nieaktualne elementy fundamentu: {count}. Wróć do tych kafelków, które wydają się nieaktualne, a potem zbuduj odświeżony profil.",
+        "cta": "Otwórz fundament",
+        "dismiss": "Przypomnij za 30 dni"
+      }
+    },
     "sections": {
       "summary": "Podsumowanie",
       "values": "Wartości i zasady",
@@ -76,12 +144,13 @@
       "empty": "Brak obserwacji w wybranych danych."
     },
     "devSeed": "(dev) Wstaw testowy profil",
-    "chatContext": {
-      "title": "Dodaj profil do kontekstu czatu",
-      "description": "Gdy włączone, rozmowy na czacie dostają krótkie streszczenie Twojego najnowszego profilu, żeby asystent od razu coś o Tobie wiedział.",
-      "noProfileWarning": "Nie masz jeszcze zapisanego profilu. Zbuduj pierwszy profil, żeby czat mógł z niego korzystać.",
-      "toggleAria": "Przełącz dodawanie profilu do kontekstu czatu",
-      "toggleFeedback": "Preferencja kontekstu czatu zaktualizowana.",
+    "profileContextDefaults": {
+      "title": "Użyj profilu w wywołaniach AI domyślnie",
+      "description": "Każdy przycisk AI ma własny przełącznik. Te ustawienia domyślne decydują o jego stanie początkowym, żebyś nie musiał(a) klikać go za każdym razem.",
+      "general": "Ogólne wywołania AI (czat, ćwiczenia)",
+      "journal": "Czat związany z dziennikiem",
+      "noProfileWarning": "Nie masz jeszcze zapisanego profilu. Zbuduj pierwszy profil, żeby AI mogło z niego korzystać.",
+      "toggleFeedback": "Preferencja kontekstu profilu zaktualizowana.",
       "toggleError": "Nie udało się zaktualizować preferencji. Spróbuj ponownie."
     },
     "wizard": {
@@ -126,9 +195,9 @@
             "title": "Refleksje miesięczne",
             "help": "Twoje miesięczne podsumowania."
           },
-          "questionnaires": {
-            "title": "Kwestionariusze",
-            "help": "Odpowiedzi z kwestionariuszy (wkrótce)."
+          "foundation": {
+            "title": "Fundament profilu",
+            "help": "Ukończone ćwiczenia samopoznania i kwestionariusze."
           },
           "planning": {
             "title": "Dane planowania",
@@ -178,7 +247,7 @@
           "exerciseSessions": "Ćwiczenia",
           "weeklyReflections": "Tygodniowe",
           "monthlyReflections": "Miesięczne",
-          "questionnaires": "Kwestionariusze",
+          "foundation": "Fundament",
           "planning": "Planowanie"
         }
       },

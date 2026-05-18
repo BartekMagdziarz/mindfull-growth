@@ -182,14 +182,17 @@
 
         <!-- LLM Assist: Identify thoughts -->
         <div class="border-t border-neu-border/20 pt-4 space-y-3">
-          <AppButton
-            variant="tonal"
-            :disabled="!situation.trim() || isIdentifyLoading"
-            @click="handleIdentifyThoughts"
-          >
-            <AppIcon name="auto_awesome" class="text-base" />
-            {{ isIdentifyLoading ? t('exerciseWizards.thoughtRecord.thoughts.identifyLoading') : t('exerciseWizards.thoughtRecord.thoughts.identifyLabel') }}
-          </AppButton>
+          <div class="flex flex-wrap items-center gap-2">
+            <AppButton
+              variant="tonal"
+              :disabled="!situation.trim() || isIdentifyLoading"
+              @click="handleIdentifyThoughts"
+            >
+              <AppIcon name="auto_awesome" class="text-base" />
+              {{ isIdentifyLoading ? t('exerciseWizards.thoughtRecord.thoughts.identifyLoading') : t('exerciseWizards.thoughtRecord.thoughts.identifyLabel') }}
+            </AppButton>
+            <ProfileContextToggle v-model="useProfileIdentify" />
+          </div>
           <div v-if="identifySuggestions" class="neo-panel p-4 space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.thoughtRecord.thoughts.suggestedThoughts') }}
@@ -297,14 +300,17 @@
 
         <!-- LLM Assist: Find evidence -->
         <div class="border-t border-neu-border/20 pt-4 space-y-3">
-          <AppButton
-            variant="tonal"
-            :disabled="isFindEvidenceLoading"
-            @click="handleFindEvidence"
-          >
-            <AppIcon name="auto_awesome" class="text-base" />
-            {{ isFindEvidenceLoading ? t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLoading') : t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLabel') }}
-          </AppButton>
+          <div class="flex flex-wrap items-center gap-2">
+            <AppButton
+              variant="tonal"
+              :disabled="isFindEvidenceLoading"
+              @click="handleFindEvidence"
+            >
+              <AppIcon name="auto_awesome" class="text-base" />
+              {{ isFindEvidenceLoading ? t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLoading') : t('exerciseWizards.thoughtRecord.evidenceAgainst.findEvidenceLabel') }}
+            </AppButton>
+            <ProfileContextToggle v-model="useProfileEvidence" />
+          </div>
           <div v-if="findEvidenceMessages.length > 0" class="space-y-2">
             <div
               v-for="(msg, idx) in findEvidenceMessages"
@@ -399,14 +405,17 @@
 
         <!-- LLM Assist: Reframe -->
         <div class="border-t border-neu-border/20 pt-4 space-y-3">
-          <AppButton
-            variant="tonal"
-            :disabled="isReframeLoading"
-            @click="handleReframeThought"
-          >
-            <AppIcon name="auto_awesome" class="text-base" />
-            {{ isReframeLoading ? t('exerciseWizards.thoughtRecord.balancedThought.reframeLoading') : t('exerciseWizards.thoughtRecord.balancedThought.reframeLabel') }}
-          </AppButton>
+          <div class="flex flex-wrap items-center gap-2">
+            <AppButton
+              variant="tonal"
+              :disabled="isReframeLoading"
+              @click="handleReframeThought"
+            >
+              <AppIcon name="auto_awesome" class="text-base" />
+              {{ isReframeLoading ? t('exerciseWizards.thoughtRecord.balancedThought.reframeLoading') : t('exerciseWizards.thoughtRecord.balancedThought.reframeLabel') }}
+            </AppButton>
+            <ProfileContextToggle v-model="useProfileReframe" />
+          </div>
           <div v-if="reframeSuggestions.length > 0" class="space-y-2">
             <div
               v-for="(msg, idx) in reframeSuggestions"
@@ -602,7 +611,9 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { Quadrant } from '@/domain/emotion'
@@ -612,7 +623,13 @@ const emit = defineEmits<{
 }>()
 
 const emotionStore = useEmotionStore()
+const userPreferencesStore = useUserPreferencesStore()
 const { t, locale } = useT()
+
+// Per-call profile context toggles, seeded from the general default.
+const useProfileIdentify = ref(userPreferencesStore.profileContextDefault)
+const useProfileEvidence = ref(userPreferencesStore.profileContextDefault)
+const useProfileReframe = ref(userPreferencesStore.profileContextDefault)
 
 // Step state
 const step = ref(0)
@@ -714,6 +731,7 @@ async function handleIdentifyThoughts() {
       situation: situation.value,
       emotions: emotionNamesWithIntensity.value,
       locale: locale.value,
+      useProfile: useProfileIdentify.value,
     })
     llmAssistsUsed.add('identify-thoughts')
   } catch (err) {
@@ -752,6 +770,7 @@ async function handleFindEvidence() {
       evidenceAgainst: filledEvidenceAgainst.value,
       previousMessages: [...findEvidenceMessages],
       locale: locale.value,
+      useProfile: useProfileEvidence.value,
     })
     findEvidenceMessages.push({ role: 'assistant', content: result })
     llmAssistsUsed.add('find-evidence')
@@ -791,6 +810,7 @@ async function handleReframeThought() {
       evidenceAgainst: filledEvidenceAgainst.value,
       previousMessages: [...reframeSuggestions],
       locale: locale.value,
+      useProfile: useProfileReframe.value,
     })
     reframeSuggestions.push({ role: 'assistant', content: result })
     llmAssistsUsed.add('reframe')

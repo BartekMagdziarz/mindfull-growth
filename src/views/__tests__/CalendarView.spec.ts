@@ -19,6 +19,11 @@ function createTestRouter() {
     routes: [
       { path: '/', component: { template: '<div />' } },
       {
+        path: '/today/:dayRef',
+        name: 'today-day',
+        component: { template: '<div />' },
+      },
+      {
         path: '/calendar/year/:yearRef',
         name: 'calendar-year',
         component: CalendarView,
@@ -35,12 +40,6 @@ function createTestRouter() {
         name: 'calendar-week',
         component: CalendarView,
         props: route => ({ scale: 'week', periodRef: route.params.weekRef }),
-      },
-      {
-        path: '/calendar/day/:dayRef',
-        name: 'calendar-day',
-        component: CalendarView,
-        props: route => ({ scale: 'day', periodRef: route.params.dayRef }),
       },
       {
         path: '/objects/:family',
@@ -191,131 +190,15 @@ describe('CalendarView', () => {
     expect(screen.getByRole('button', { name: /edit reflection/i })).toBeInTheDocument()
     expect(screen.getAllByText('Review open work').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Confidence score').length).toBeGreaterThan(0)
-  })
 
-  it('shows day entries for the shared measurement model', async () => {
-    const monthRef = parsePeriodRef('2026-03') as MonthRef
-    const weekRef = parsePeriodRef('2026-W10') as WeekRef
-    const dayRef = parsePeriodRef('2026-03-12') as DayRef
-
-    const tracker = await trackerDexieRepository.create({
-      title: 'Energy',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      cadence: 'weekly',
-      entryMode: 'value',
-      status: 'open',
+    await waitFor(() => {
+      expect(within(screen.getByTestId('weekly-planner')).queryByText('Loading...')).not.toBeInTheDocument()
     })
-
-    await planningStateDexieRepository.upsertMeasurementMonthState({
-      monthRef,
-      subjectType: 'tracker',
-      subjectId: tracker.id,
-      activityState: 'active',
-      scheduleScope: 'whole-month',
+    await fireEvent.click(await screen.findByTestId(`weekly-planner-day-${dayRef}`))
+    await waitFor(() => {
+      expect(router.currentRoute.value.name).toBe('today-day')
     })
-    await planningStateDexieRepository.upsertMeasurementWeekState({
-      weekRef,
-      subjectType: 'tracker',
-      subjectId: tracker.id,
-      activityState: 'active',
-      scheduleScope: 'whole-week',
-    })
-    await planningStateDexieRepository.upsertDailyMeasurementEntry({
-      subjectType: 'tracker',
-      subjectId: tracker.id,
-      dayRef,
-      value: 8,
-    })
-
-    const router = createTestRouter()
-    await router.push(`/calendar/day/${dayRef}`)
-    await router.isReady()
-
-    render(CalendarView, {
-      props: {
-        scale: 'day',
-        periodRef: dayRef,
-      },
-      global: {
-        plugins: [router],
-      },
-    })
-
-    expect(await screen.findByRole('heading', { name: 'Entries today' })).toBeInTheDocument()
-    expect(screen.getAllByText('Energy').length).toBeGreaterThan(0)
-    expect(screen.getByText('8')).toBeInTheDocument()
-  })
-
-  it('shows the parent goal icon on day key result cards', async () => {
-    const monthRef = parsePeriodRef('2026-03') as MonthRef
-    const weekRef = parsePeriodRef('2026-W10') as WeekRef
-    const dayRef = parsePeriodRef('2026-03-12') as DayRef
-
-    const goal = await goalDexieRepository.create({
-      title: 'Launch calendar',
-      icon: 'rocket_launch',
-      isActive: true,
-      priorityIds: [],
-      lifeAreaIds: [],
-      status: 'open',
-    })
-    const keyResult = await keyResultDexieRepository.create({
-      title: 'Polish day KR card',
-      isActive: true,
-      goalId: goal.id,
-      cadence: 'weekly',
-      entryMode: 'completion',
-      target: {
-        kind: 'count',
-        operator: 'min',
-        value: 1,
-      },
-      status: 'open',
-    })
-
-    await planningStateDexieRepository.upsertGoalMonthState({
-      monthRef,
-      goalId: goal.id,
-      activityState: 'active',
-    })
-    await planningStateDexieRepository.upsertMeasurementMonthState({
-      monthRef,
-      subjectType: 'keyResult',
-      subjectId: keyResult.id,
-      activityState: 'active',
-      scheduleScope: 'specific-days',
-    })
-    await planningStateDexieRepository.upsertMeasurementWeekState({
-      weekRef,
-      subjectType: 'keyResult',
-      subjectId: keyResult.id,
-      activityState: 'active',
-      scheduleScope: 'specific-days',
-    })
-    await planningStateDexieRepository.upsertMeasurementDayAssignment({
-      dayRef,
-      subjectType: 'keyResult',
-      subjectId: keyResult.id,
-    })
-
-    const router = createTestRouter()
-    await router.push(`/calendar/day/${dayRef}`)
-    await router.isReady()
-
-    render(CalendarView, {
-      props: {
-        scale: 'day',
-        periodRef: dayRef,
-      },
-      global: {
-        plugins: [router],
-      },
-    })
-
-    expect(await screen.findByRole('heading', { name: 'Polish day KR card' })).toBeInTheDocument()
-    expect(screen.getByText('rocket_launch')).toBeInTheDocument()
+    expect(router.currentRoute.value.params.dayRef).toBe(dayRef)
   })
 
   it('routes month cards into the Objects Library detail panel', async () => {
@@ -382,6 +265,31 @@ describe('CalendarView', () => {
     expect(router.currentRoute.value.params.family).toBe('goals')
     expect(router.currentRoute.value.query.expandedType).toBe('goal')
     expect(router.currentRoute.value.query.expandedId).toBe(goal.id)
+  })
+
+  it('opens Today from month planner day cells when not assigning', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const dayRef = parsePeriodRef('2026-03-12') as DayRef
+
+    const router = createTestRouter()
+    await router.push(`/calendar/month/${monthRef}`)
+    await router.isReady()
+
+    render(CalendarView, {
+      props: {
+        scale: 'month',
+        periodRef: monthRef,
+      },
+      global: {
+        plugins: [router],
+      },
+    })
+
+    await fireEvent.click(await screen.findByTestId(`monthly-planner-day-${dayRef}`))
+    await waitFor(() => {
+      expect(router.currentRoute.value.name).toBe('today-day')
+    })
+    expect(router.currentRoute.value.params.dayRef).toBe(dayRef)
   })
 
   it('opens the monthly planner as a single workspace and assigns weekly objects across the month', async () => {

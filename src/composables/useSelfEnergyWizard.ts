@@ -114,7 +114,7 @@ export function useSelfEnergyWizard() {
   }
 
   // LLM trend review
-  async function requestTrendReview() {
+  async function requestTrendReview(options: { useProfile?: boolean } = {}) {
     if (!selfEnergyStore.hasEnoughForReview) return
     isLoadingReview.value = true
     try {
@@ -123,6 +123,7 @@ export function useSelfEnergyWizard() {
         trailheadEntries: trailheadStore.entries,
         parts: partStore.sortedParts,
         locale: locale.value,
+        useProfile: options.useProfile ?? false,
       })
     } catch (err) {
       console.error('Error reviewing self-energy trends:', err)

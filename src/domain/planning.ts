@@ -74,6 +74,13 @@ export interface Goal extends PlanningObjectBase {
   priorityIds: string[]
   lifeAreaIds: string[]
   status: GoalStatus
+  // SMART extensions
+  targetDate?: string
+  successDefinition?: string
+  whyMatters?: string
+  confidenceRating?: number
+  obstacles?: string
+  resources?: string
 }
 
 export interface KeyResult extends PlanningObjectBase {
@@ -278,6 +285,43 @@ function normalizeFiniteNumber(value: unknown, fieldName: string, fallback?: num
     throw new Error(`${fieldName} must be a finite number`)
   }
 
+  return source
+}
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+function normalizeOptionalIsoDate(
+  value: unknown,
+  fieldName: string,
+  fallback?: string,
+): string | undefined {
+  const source = value ?? fallback
+  if (source === undefined) return undefined
+  if (typeof source !== 'string') {
+    throw new Error(`${fieldName} must be a string`)
+  }
+  const trimmed = source.trim()
+  if (!trimmed) return undefined
+  if (!ISO_DATE_RE.test(trimmed)) {
+    throw new Error(`${fieldName} must be ISO date YYYY-MM-DD`)
+  }
+  const parsed = new Date(`${trimmed}T00:00:00Z`)
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`${fieldName} must be a valid date`)
+  }
+  return trimmed
+}
+
+function normalizeOptionalRating1To10(
+  value: unknown,
+  fieldName: string,
+  fallback?: number,
+): number | undefined {
+  const source = value ?? fallback
+  if (source === undefined) return undefined
+  if (typeof source !== 'number' || !Number.isInteger(source) || source < 1 || source > 10) {
+    throw new Error(`${fieldName} must be an integer between 1 and 10`)
+  }
   return source
 }
 
@@ -493,6 +537,12 @@ export function normalizeGoalPayload(
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
+    targetDate: normalizeOptionalIsoDate(data.targetDate, 'targetDate', existing?.targetDate),
+    successDefinition: normalizeOptionalText(data.successDefinition, 'successDefinition', existing?.successDefinition),
+    whyMatters: normalizeOptionalText(data.whyMatters, 'whyMatters', existing?.whyMatters),
+    confidenceRating: normalizeOptionalRating1To10(data.confidenceRating, 'confidenceRating', existing?.confidenceRating),
+    obstacles: normalizeOptionalText(data.obstacles, 'obstacles', existing?.obstacles),
+    resources: normalizeOptionalText(data.resources, 'resources', existing?.resources),
   }
 }
 

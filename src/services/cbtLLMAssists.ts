@@ -10,6 +10,7 @@ import { sendMessage, type ChatMessage } from '@/services/llmService'
 import type { LocaleId } from '@/services/locale.service'
 import { getCbtPrompts } from '@/services/prompts'
 import type { CbtPromptModule } from '@/services/prompts/types'
+import { withProfileContextSystemPrompt } from '@/services/userContext'
 
 // ============================================================================
 // Context Builders
@@ -67,11 +68,16 @@ export async function identifyThoughts(params: {
   situation: string
   emotions: Array<{ name: string; intensity: number }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const context = buildThoughtRecordContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  return sendMessage(messages, prompts.THOUGHT_RECORD_IDENTIFY_THOUGHTS)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.THOUGHT_RECORD_IDENTIFY_THOUGHTS,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -87,6 +93,7 @@ export async function findEvidence(params: {
   conversationHistory?: ChatMessage[]
   previousMessages?: Array<{ role: 'assistant' | 'user'; content: string }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const context = buildThoughtRecordContext(params, prompts.labels)
@@ -95,7 +102,11 @@ export async function findEvidence(params: {
     { role: 'user', content: context },
     ...history,
   ]
-  return sendMessage(messages, prompts.THOUGHT_RECORD_FIND_EVIDENCE)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.THOUGHT_RECORD_FIND_EVIDENCE,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -112,6 +123,7 @@ export async function reframeThought(params: {
   conversationHistory?: ChatMessage[]
   previousMessages?: Array<{ role: 'assistant' | 'user'; content: string }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const context = buildThoughtRecordContext(params, prompts.labels)
@@ -120,7 +132,11 @@ export async function reframeThought(params: {
     { role: 'user', content: context },
     ...history,
   ]
-  return sendMessage(messages, prompts.THOUGHT_RECORD_REFRAME)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.THOUGHT_RECORD_REFRAME,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -131,6 +147,7 @@ export async function spotDistortions(params: {
   thought: string
   situation?: string
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -139,7 +156,11 @@ export async function spotDistortions(params: {
     content += `\n\n${l.contextSituation}: ${params.situation}`
   }
   const messages: ChatMessage[] = [{ role: 'user', content }]
-  return sendMessage(messages, prompts.DISTORTION_SPOT_TRAPS)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.DISTORTION_SPOT_TRAPS,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 // ============================================================================
@@ -155,6 +176,7 @@ export async function guideCoreBeliefExploration(params: {
   downwardArrowSteps: string[]
   previousMessages?: Array<{ role: 'assistant' | 'user'; content: string }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -172,7 +194,11 @@ export async function guideCoreBeliefExploration(params: {
     { role: 'user', content: parts.join('\n\n') },
     ...history,
   ]
-  return sendMessage(messages, prompts.CORE_BELIEFS_IDENTIFY)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.CORE_BELIEFS_IDENTIFY,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -186,6 +212,7 @@ export async function suggestAlternativeBeliefs(params: {
   evidenceAgainst: string[]
   previousMessages?: Array<{ role: 'assistant' | 'user'; content: string }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -210,7 +237,11 @@ export async function suggestAlternativeBeliefs(params: {
     { role: 'user', content: parts.join('\n\n') },
     ...history,
   ]
-  return sendMessage(messages, prompts.CORE_BELIEFS_ALTERNATIVE)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.CORE_BELIEFS_ALTERNATIVE,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -222,6 +253,7 @@ export async function guideCompassionateResponse(params: {
   emotions: Array<{ name: string; intensity?: number }>
   selfCriticalThoughts: string[]
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -242,7 +274,11 @@ export async function guideCompassionateResponse(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  return sendMessage(messages, prompts.COMPASSIONATE_LETTER_GUIDE)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.COMPASSIONATE_LETTER_GUIDE,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 // ============================================================================
@@ -258,6 +294,7 @@ export async function designBehavioralExperiment(params: {
   prediction: string
   predictionConfidence: number
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -267,7 +304,11 @@ export async function designBehavioralExperiment(params: {
   parts.push(`${l.confidenceInPrediction}: ${params.predictionConfidence}%`)
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  return sendMessage(messages, prompts.BEHAVIORAL_EXPERIMENT_DESIGN)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.BEHAVIORAL_EXPERIMENT_DESIGN,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -278,6 +319,7 @@ export async function brainstormSolutions(params: {
   problemStatement: string
   emotions?: string[]
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -289,7 +331,11 @@ export async function brainstormSolutions(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  return sendMessage(messages, prompts.PROBLEM_SOLVING_BRAINSTORM)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.PROBLEM_SOLVING_BRAINSTORM,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -300,6 +346,7 @@ export async function evaluateSolutions(params: {
   problemStatement: string
   solutions: Array<{ description: string; pros: string[]; cons: string[] }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -318,7 +365,11 @@ export async function evaluateSolutions(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  return sendMessage(messages, prompts.PROBLEM_SOLVING_EVALUATE)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.PROBLEM_SOLVING_EVALUATE,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 // ============================================================================
@@ -335,6 +386,7 @@ export async function reviewPositiveDataLog(params: {
   believabilityInitial: number
   believabilityLatest?: number
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -354,7 +406,11 @@ export async function reviewPositiveDataLog(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  return sendMessage(messages, prompts.POSITIVE_DATA_LOG_REVIEW)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.POSITIVE_DATA_LOG_REVIEW,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 // ============================================================================
@@ -369,6 +425,7 @@ export async function suggestActivities(params: {
   overallMood: number
   existingActivities?: Array<{ activity: string; category: string }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -383,7 +440,11 @@ export async function suggestActivities(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  return sendMessage(messages, prompts.BEHAVIORAL_ACTIVATION_SUGGEST)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.BEHAVIORAL_ACTIVATION_SUGGEST,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -400,6 +461,7 @@ export async function reviewActivationWeek(params: {
     moodAfter?: number
   }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -428,7 +490,11 @@ export async function reviewActivationWeek(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  return sendMessage(messages, prompts.BEHAVIORAL_ACTIVATION_REVIEW)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.BEHAVIORAL_ACTIVATION_REVIEW,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 // ============================================================================
@@ -444,6 +510,7 @@ export async function brainstormExposureSteps(params: {
   ultimateGoal: string
   existingItems?: Array<{ situation: string; sudsRating: number }>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getCbtPrompts(params.locale)
   const l = prompts.labels
@@ -459,5 +526,9 @@ export async function brainstormExposureSteps(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  return sendMessage(messages, prompts.GRADED_EXPOSURE_BRAINSTORM)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.GRADED_EXPOSURE_BRAINSTORM,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }

@@ -250,6 +250,165 @@ describe('buildProfilePayload', () => {
     expect(populated).toContain('[PLANNING SNAPSHOT]')
     expect(populated).toContain('Ship MVP')
   })
+
+  it('omits foundation and life-area blocks when their snapshots are missing', () => {
+    const out = buildProfilePayload(
+      baseInput({
+        dataTypes: ['foundation', 'planning'],
+        planning: { snapshot: 'Plan body' },
+      }),
+      'en',
+    )
+
+    expect(out).not.toContain('[FOUNDATION SNAPSHOT]')
+    expect(out).not.toContain('[LIFE AREAS]')
+    expect(out).toContain('[PLANNING SNAPSHOT]')
+  })
+
+  it('includes foundation immediately after scope when present', () => {
+    const out = buildProfilePayload(
+      baseInput({
+        dataTypes: ['foundation'],
+        foundation: { snapshot: '## Value map\nTop values: care' },
+      }),
+      'en',
+    )
+
+    expect(out).toContain('[FOUNDATION SNAPSHOT]')
+    expect(out).toContain('Top values: care')
+    expect(out.indexOf('[SCOPE]')).toBeLessThan(out.indexOf('[FOUNDATION SNAPSHOT]'))
+    expect(out.indexOf('[FOUNDATION SNAPSHOT]')).toBeLessThan(
+      out.indexOf('[END OF DATA]'),
+    )
+  })
+
+  it('keeps foundation even when journal entries are empty', () => {
+    const out = buildProfilePayload(
+      baseInput({
+        dataTypes: ['foundation', 'journal'],
+        foundation: { snapshot: '## Values discovery\nCore values: honesty' },
+        journalEntries: [],
+      }),
+      'en',
+    )
+
+    expect(out).toContain('[FOUNDATION SNAPSHOT]')
+    expect(out).not.toContain('[JOURNAL ENTRIES]')
+  })
+
+  it('emits life areas immediately before planning when both are present', () => {
+    const out = buildProfilePayload(
+      baseInput({
+        dataTypes: ['planning'],
+        lifeAreas: { snapshot: '- Career\n  Meaning: Build well' },
+        planning: { snapshot: '- Daily meditation [habit, daily]' },
+      }),
+      'en',
+    )
+
+    expect(out).toContain('[LIFE AREAS]')
+    expect(out).toContain('[PLANNING SNAPSHOT]')
+    expect(out.indexOf('[LIFE AREAS]')).toBeLessThan(
+      out.indexOf('[PLANNING SNAPSHOT]'),
+    )
+  })
+
+  it('omits whitespace-only foundation and life-area snapshots', () => {
+    const out = buildProfilePayload(
+      baseInput({
+        dataTypes: ['foundation', 'planning'],
+        foundation: { snapshot: '   ' },
+        lifeAreas: { snapshot: '\n\t' },
+        planning: { snapshot: 'Plan body' },
+      }),
+      'en',
+    )
+
+    expect(out).not.toContain('[FOUNDATION SNAPSHOT]')
+    expect(out).not.toContain('[LIFE AREAS]')
+    expect(out).toContain('[PLANNING SNAPSHOT]')
+  })
+
+  it('emits all data blocks in the documented order', () => {
+    const out = buildProfilePayload(
+      baseInput({
+        dataTypes: [
+          'foundation',
+          'journal',
+          'emotionLogs',
+          'exerciseSessions',
+          'weeklyReflections',
+          'monthlyReflections',
+          'planning',
+        ],
+        foundation: { snapshot: 'Foundation body' },
+        journalEntries: [
+          {
+            id: 'j1',
+            createdAt: '2026-04-01T10:00:00.000Z',
+            body: 'Journal body',
+            emotionNames: [],
+            peopleNames: [],
+            contextNames: [],
+            lifeAreaNames: [],
+          },
+        ],
+        emotionLogs: [
+          {
+            id: 'e1',
+            createdAt: '2026-04-01T11:00:00.000Z',
+            emotionNames: [],
+            note: 'Emotion body',
+            peopleNames: [],
+            contextNames: [],
+          },
+        ],
+        exerciseSessions: [
+          {
+            id: 'x1',
+            type: 'valuesDiscovery',
+            createdAt: '2026-04-02T00:00:00.000Z',
+            summary: 'Exercise body',
+          },
+        ],
+        weeklyReflections: [
+          {
+            weekRef: '2026-W15',
+            ratings: {},
+            promptResponses: {},
+            freeformReflection: 'Weekly body',
+          },
+        ],
+        monthlyReflections: [
+          {
+            monthRef: '2026-04',
+            ratings: {},
+            promptResponses: {},
+            freeformReflection: 'Monthly body',
+          },
+        ],
+        lifeAreas: { snapshot: 'Life areas body' },
+        planning: { snapshot: 'Planning body' },
+      }),
+      'en',
+    )
+
+    const markers = [
+      '[SCOPE]',
+      '[FOUNDATION SNAPSHOT]',
+      '[JOURNAL ENTRIES]',
+      '[EMOTION LOGS]',
+      '[EXERCISE SESSIONS]',
+      '[WEEKLY REFLECTIONS]',
+      '[MONTHLY REFLECTIONS]',
+      '[LIFE AREAS]',
+      '[PLANNING SNAPSHOT]',
+      '[END OF DATA]',
+    ]
+    const positions = markers.map((marker) => out.indexOf(marker))
+    expect(positions.every((position) => position >= 0)).toBe(true)
+    expect(positions).toEqual([...positions].sort((a, b) => a - b))
+  })
 })
 
 describe('parseProfileResponse', () => {

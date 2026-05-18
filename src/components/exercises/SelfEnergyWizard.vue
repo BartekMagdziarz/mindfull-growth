@@ -305,14 +305,17 @@
 
             <!-- Trend Review -->
             <div v-if="selfEnergyStore.hasEnoughForReview" class="space-y-3">
-              <AppButton
-                variant="tonal"
-                :disabled="isLoadingReview"
-                @click="requestTrendReview()"
-              >
-                <AppIcon name="auto_awesome" class="text-base mr-1" />
-                {{ isLoadingReview ? t('exerciseWizards.selfEnergy.summary.trendReviewLoading') : t('exerciseWizards.selfEnergy.summary.trendReviewButton') }}
-              </AppButton>
+              <div class="flex flex-wrap items-center gap-2">
+                <AppButton
+                  variant="tonal"
+                  :disabled="isLoadingReview"
+                  @click="requestTrendReview({ useProfile: useProfileTrendReview })"
+                >
+                  <AppIcon name="auto_awesome" class="text-base mr-1" />
+                  {{ isLoadingReview ? t('exerciseWizards.selfEnergy.summary.trendReviewLoading') : t('exerciseWizards.selfEnergy.summary.trendReviewButton') }}
+                </AppButton>
+                <ProfileContextToggle v-model="useProfileTrendReview" />
+              </div>
 
               <div v-if="trendReview" class="neo-surface p-4 rounded-xl">
                 <p class="text-sm text-on-surface whitespace-pre-wrap">{{ trendReview }}</p>
@@ -388,9 +391,11 @@ import AppButton from '@/components/AppButton.vue'
 import SelfEnergyWheel from '@/components/exercises/ifs/SelfEnergyWheel.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useSelfEnergyWizard, type SelfEnergyStep } from '@/composables/useSelfEnergyWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSSelfEnergyStore } from '@/stores/ifsSelfEnergy.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 
 const emit = defineEmits<{
@@ -400,6 +405,8 @@ const emit = defineEmits<{
 const { t } = useT()
 const partStore = useIFSPartStore()
 const selfEnergyStore = useIFSSelfEnergyStore()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileTrendReview = ref(userPreferencesStore.profileContextDefault)
 
 const STEPS: SelfEnergyStep[] = ['check-in', 'gap', 'micro-practice', 'save']
 const stepLabels = [

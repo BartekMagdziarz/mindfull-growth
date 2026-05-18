@@ -1,28 +1,26 @@
 <template>
   <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
-    <CalendarToolbar
-      class="mb-6"
-      :label="dayLabel"
-      :label-clickable="true"
-      :scale-options="isCalendarDayMode ? scaleOptions : undefined"
-      active-scale="day"
-      :prev-disabled="store.isLoading"
-      :next-disabled="store.isLoading"
-      @prev="void handlePreviousDay()"
-      @next="void handleNextDay()"
-      @label-click="openDatePicker"
-      @scale="goToScale($event as 'year' | 'month' | 'week' | 'day')"
-    >
-      <template #after>
-        <input
-          ref="dateInputRef"
-          type="date"
-          class="sr-only"
-          :value="bundleDayRef"
-          @change="handleDateChange"
-        />
-      </template>
-    </CalendarToolbar>
+    <header class="mb-6 space-y-4">
+      <CalendarToolbar
+        :label="dayLabel"
+        :label-clickable="true"
+        :prev-disabled="store.isLoading"
+        :next-disabled="store.isLoading"
+        @prev="void handlePreviousDay()"
+        @next="void handleNextDay()"
+        @label-click="openDatePicker"
+      >
+        <template #after>
+          <input
+            ref="dateInputRef"
+            type="date"
+            class="sr-only"
+            :value="bundleDayRef"
+            @change="handleDateChange"
+          />
+        </template>
+      </CalendarToolbar>
+    </header>
 
     <PlanningStatePanel
       v-if="store.isLoading && !store.bundle"
@@ -264,7 +262,6 @@ import type { EmotionLog } from '@/domain/emotionLog'
 import { formatDayTitle } from '@/utils/periodLabels'
 import type { DayRef } from '@/domain/period'
 import { getPeriodRefsForDate } from '@/utils/periods'
-import type { RouteLocationRaw } from 'vue-router'
 
 const props = defineProps<{
   dayRef?: DayRef
@@ -284,17 +281,10 @@ const dateInputRef = ref<HTMLInputElement | null>(null)
 
 const bundleDayRef = computed(() => (store.dayRef ?? '') as DayRef)
 const effectiveDayRef = computed(() => props.dayRef ?? bundleDayRef.value)
-const isCalendarDayMode = computed(() => Boolean(props.dayRef))
 const dayLabel = computed(() => {
   if (!store.bundle) return ''
   return formatDayTitle(store.bundle.dayRef, locale.value)
 })
-const scaleOptions = computed(() => [
-  { scale: 'day' as const, label: t('planning.calendar.scales.day') },
-  { scale: 'week' as const, label: t('planning.calendar.scales.week') },
-  { scale: 'month' as const, label: t('planning.calendar.scales.month') },
-  { scale: 'year' as const, label: t('planning.calendar.scales.year') },
-])
 
 const deleteDialogMessage = computed(() => {
   if (!pendingDeleteItem.value) return ''
@@ -407,6 +397,10 @@ function openObject(item: TodayItem): void {
 }
 
 function openPeriod(periodRef: string): void {
+  if (periodRef.length === 4) {
+    void router.push({ name: 'calendar-year', params: { yearRef: periodRef } })
+    return
+  }
   if (periodRef.length === 7 && periodRef.includes('-W')) {
     void router.push({ name: 'calendar-week', params: { weekRef: periodRef } })
     return
@@ -415,7 +409,7 @@ function openPeriod(periodRef: string): void {
     void router.push({ name: 'calendar-month', params: { monthRef: periodRef } })
     return
   }
-  void router.push({ name: 'calendar-day', params: { dayRef: periodRef } })
+  void router.push({ name: 'today-day', params: { dayRef: periodRef } })
 }
 
 async function handleToggleCompletion(item: TodayItem): Promise<void> {
@@ -515,12 +509,7 @@ async function loadInitialBundle(): Promise<void> {
 }
 
 async function navigateToDay(targetDayRef: DayRef): Promise<void> {
-  if (props.dayRef) {
-    await router.push({ name: 'calendar-day', params: { dayRef: targetDayRef } })
-    return
-  }
-
-  await store.goToDay(targetDayRef)
+  await router.push({ name: 'today-day', params: { dayRef: targetDayRef } })
 }
 
 function shiftDay(currentDayRef: DayRef, delta: number): DayRef {
@@ -543,29 +532,13 @@ async function handleNextDay(): Promise<void> {
   await navigateToDay(shiftDay(effectiveDayRef.value, 1))
 }
 
-function goToScale(scale: 'year' | 'month' | 'week' | 'day'): void {
-  if (!effectiveDayRef.value) {
-    return
-  }
-
-  const refs = getPeriodRefsForDate(effectiveDayRef.value)
-  const target: Record<typeof scale, RouteLocationRaw> = {
-    year: { name: 'calendar-year', params: { yearRef: refs.year } },
-    month: { name: 'calendar-month', params: { monthRef: refs.month } },
-    week: { name: 'calendar-week', params: { weekRef: refs.week } },
-    day: { name: 'calendar-day', params: { dayRef: effectiveDayRef.value } },
-  }
-
-  void router.push(target[scale])
-}
-
 watch(
   () => store.bundle?.dayRef,
   (currentDayRef) => {
     if (!currentDayRef || !props.dayRef || currentDayRef === props.dayRef) {
       return
     }
-    void router.replace({ name: 'calendar-day', params: { dayRef: currentDayRef } })
+    void router.replace({ name: 'today-day', params: { dayRef: currentDayRef } })
   }
 )
 </script>

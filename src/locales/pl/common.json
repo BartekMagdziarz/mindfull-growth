@@ -87,5 +87,9 @@
     "deleteTag": "Usuń {name}",
     "selectTag": "Zaznacz tag {type} {name}",
     "deselectTag": "Odznacz tag {type} {name}"
+  },
+  "profileContext": {
+    "on": "Profil wł.",
+    "off": "Profil wył."
   }
 }

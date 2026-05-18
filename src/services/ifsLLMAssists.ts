@@ -10,6 +10,7 @@ import { sendMessage, type ChatMessage } from '@/services/llmService'
 import type { LocaleId } from '@/services/locale.service'
 import { getIfsPrompts } from '@/services/prompts'
 import type { IfsPromptModule } from '@/services/prompts/types'
+import { withProfileContextSystemPrompt } from '@/services/userContext'
 import type {
   IFSPart,
   IFSRelationship,
@@ -269,11 +270,16 @@ export async function reflectOnPartsMap(params: {
   lifeAreaNames?: string[]
   emotionNames?: string[]
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getIfsPrompts(params.locale)
   const context = buildPartsMapContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  return sendMessage(messages, prompts.IFS_PARTS_REFLECTION)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.IFS_PARTS_REFLECTION,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -285,11 +291,16 @@ export async function analyzeTrailheadPatterns(params: {
   partNames?: Record<string, string>
   emotionNames?: Record<string, string>
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getIfsPrompts(params.locale)
   const context = buildTrailheadAnalysisContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  return sendMessage(messages, prompts.IFS_TRAILHEAD_ANALYSIS)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.IFS_TRAILHEAD_ANALYSIS,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -301,11 +312,16 @@ export async function generateProtectorResponse(params: {
   appreciationLetter: string
   behaviors: string[]
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getIfsPrompts(params.locale)
   const context = buildProtectorResponseContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  return sendMessage(messages, prompts.IFS_PROTECTOR_RESPONSE)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.IFS_PROTECTOR_RESPONSE,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -317,11 +333,16 @@ export async function reviewSelfEnergyTrends(params: {
   trailheadEntries?: IFSTrailheadEntry[]
   parts?: IFSPart[]
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getIfsPrompts(params.locale)
   const context = buildSelfEnergyReviewContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  return sendMessage(messages, prompts.IFS_SELF_ENERGY_REVIEW)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.IFS_SELF_ENERGY_REVIEW,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -333,11 +354,16 @@ export async function suggestPartDialogueResponse(params: {
   dialogue: IFSDialogueMessage[]
   intention: string
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getIfsPrompts(params.locale)
   const context = buildPartDialogueContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  return sendMessage(messages, prompts.IFS_DIALOGUE_ASSIST)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.IFS_DIALOGUE_ASSIST,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -348,11 +374,16 @@ export async function generateWeeklySummary(params: {
   checkIns: IFSDailyCheckIn[]
   parts: IFSPart[]
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getIfsPrompts(params.locale)
   const context = buildWeeklySummaryContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  return sendMessage(messages, prompts.IFS_WEEKLY_SUMMARY)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.IFS_WEEKLY_SUMMARY,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 /**
@@ -363,11 +394,16 @@ export async function analyzeConstellation(params: {
   parts: IFSPart[]
   relationships: IFSConstellationRelationship[]
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getIfsPrompts(params.locale)
   const context = buildConstellationContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  return sendMessage(messages, prompts.IFS_CONSTELLATION_ANALYSIS)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.IFS_CONSTELLATION_ANALYSIS,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }
 
 // ============================================================================
@@ -383,6 +419,7 @@ export async function directAccessDialogueTurn(params: {
   userMessage: string
   previousMessages?: IFSDialogueMessage[]
   locale: LocaleId
+  useProfile?: boolean
 }): Promise<string> {
   const prompts = getIfsPrompts(params.locale)
   const context = buildDirectAccessContext(params, prompts.labels)
@@ -402,5 +439,9 @@ export async function directAccessDialogueTurn(params: {
     messages.push({ role: 'user', content: `${context}\n\n${params.userMessage}` })
   }
 
-  return sendMessage(messages, prompts.IFS_DIRECT_ACCESS)
+  const systemPrompt = withProfileContextSystemPrompt(
+    prompts.IFS_DIRECT_ACCESS,
+    { useProfile: params.useProfile ?? false },
+  )
+  return sendMessage(messages, systemPrompt)
 }

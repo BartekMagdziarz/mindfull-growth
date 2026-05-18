@@ -181,6 +181,9 @@
 
     <!-- Input Area -->
     <div class="border-t border-neu-border/30 p-4 bg-background">
+      <div class="flex justify-end mb-2">
+        <ProfileContextToggle v-model="useProfile" />
+      </div>
       <div class="flex gap-2 items-end">
         <textarea
           ref="messageInputRef"
@@ -231,11 +234,13 @@ import { useChatStore } from '@/stores/chat.store'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { getDisplayTitle } from '@/domain/journal'
 import type { JournalEntry } from '@/domain/journal'
 import type { ChatIntention } from '@/domain/chatSession'
@@ -249,6 +254,7 @@ const chatStore = useChatStore()
 const journalStore = useJournalStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
+const userPreferencesStore = useUserPreferencesStore()
 const { t } = useT()
 
 // Use storeToRefs to maintain reactivity
@@ -264,6 +270,7 @@ const messageInputRef = ref<HTMLTextAreaElement | null>(null)
 const messageContainer = ref<HTMLDivElement | null>(null)
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const showDiscardDialog = ref(false)
+const useProfile = ref(false)
 let pendingNavigation: (() => void) | null = null
 
 // Intention label mapping (matching JournalEditorView)
@@ -450,7 +457,7 @@ async function handleSend() {
   if (!text || isLoading.value || isHistoricalView.value) return
 
   try {
-    await chatStore.sendMessage(text)
+    await chatStore.sendMessage(text, { useProfile: useProfile.value })
     messageInput.value = ''
     // Reset textarea height
     if (messageInputRef.value) {
@@ -533,6 +540,14 @@ onBeforeRouteLeave((to, from, next) => {
 })
 
 onMounted(async () => {
+  await userPreferencesStore.loadPreferences()
+  // Journal-scoped chat (this view) seeds from the journal default; if the
+  // route ever lands here without an entry id, fall back to the general
+  // default.
+  useProfile.value = entryId.value
+    ? userPreferencesStore.profileContextDefaultJournal
+    : userPreferencesStore.profileContextDefault
+
   const sessionId = sessionIdFromRoute.value
 
   if (sessionId) {

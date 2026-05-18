@@ -224,14 +224,17 @@
 
           <!-- LLM Assist -->
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
-            <AppButton
-              variant="tonal"
-              :disabled="isLlmLoading || !situation.trim() || filledSelfCriticalThoughts.length === 0"
-              @click="handleCompassionateAssist"
-            >
-              <AppIcon name="auto_awesome" class="text-base mr-1.5" />
-              {{ isLlmLoading ? t('exerciseWizards.compassionateLetter.response.llmLoading') : t('exerciseWizards.compassionateLetter.response.llmLabel') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="isLlmLoading || !situation.trim() || filledSelfCriticalThoughts.length === 0"
+                @click="handleCompassionateAssist"
+              >
+                <AppIcon name="auto_awesome" class="text-base mr-1.5" />
+                {{ isLlmLoading ? t('exerciseWizards.compassionateLetter.response.llmLoading') : t('exerciseWizards.compassionateLetter.response.llmLabel') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileCompassionate" />
+            </div>
 
             <div v-if="llmResponse" class="neo-panel p-4 mt-3">
               <p class="text-xs text-on-surface-variant mb-2 italic">
@@ -402,7 +405,9 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import { getQuadrant } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
@@ -413,7 +418,9 @@ const emit = defineEmits<{
 }>()
 
 const emotionStore = useEmotionStore()
+const userPreferencesStore = useUserPreferencesStore()
 const { t, locale } = useT()
+const useProfileCompassionate = ref(userPreferencesStore.profileContextDefault)
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step =
@@ -514,6 +521,7 @@ async function handleCompassionateAssist() {
       emotions,
       selfCriticalThoughts: filledSelfCriticalThoughts.value,
       locale: locale.value,
+      useProfile: useProfileCompassionate.value,
     })
     llmAssistUsed.value = true
   } catch (err) {

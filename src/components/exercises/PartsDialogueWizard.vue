@@ -174,7 +174,7 @@
             </div>
 
             <!-- LLM assist -->
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <AppButton
                 variant="tonal"
                 :disabled="isLoadingAssist || messages.length === 0"
@@ -182,6 +182,7 @@
               >
                 {{ isLoadingAssist ? 'Thinking...' : 'Help me hear this part' }}
               </AppButton>
+              <ProfileContextToggle v-model="useProfileAssist" />
             </div>
 
             <!-- LLM suggestion -->
@@ -381,8 +382,10 @@ import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import PartDialogueBubble from '@/components/exercises/ifs/PartDialogueBubble.vue'
 import IFSInsightCard from '@/components/exercises/ifs/IFSInsightCard.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { usePartsDialogueWizard, type PartsDialogueStep } from '@/composables/usePartsDialogueWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { IFSInsight } from '@/domain/exercises'
 
@@ -393,6 +396,8 @@ const emit = defineEmits<{
 }>()
 
 const partStore = useIFSPartStore()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileAssist = ref(userPreferencesStore.profileContextDefault)
 
 const STEPS: PartsDialogueStep[] = [
   'part-select', 'intention', 'dialogue', 'insights', 'summary',
@@ -479,7 +484,7 @@ watch(llmSuggestion, (val) => {
 
 function handleRequestAssist() {
   if (!selectedPart.value) return
-  requestAssist(selectedPart.value)
+  requestAssist(selectedPart.value, { useProfile: useProfileAssist.value })
 }
 
 function handleAcceptSuggestion() {

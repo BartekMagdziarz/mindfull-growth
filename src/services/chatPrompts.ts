@@ -40,29 +40,6 @@ export function getSystemPrompt(
 }
 
 /**
- * Returns the system prompt for a chat intention, optionally prepended with
- * a short "User Profile Context" block derived from the user's latest saved
- * psychological profile. Used by the chat store to honour the user's
- * "Include profile in chat context" preference.
- *
- * When `userContext` is an empty string (or missing), the base prompt is
- * returned verbatim so callers do not need to branch.
- *
- * The composition always inserts a blank line between the context block and
- * the base prompt to keep the two sections visually distinct in the LLM
- * payload.
- */
-export function getSystemPromptWithContext(
-  intention: ChatIntention,
-  options: { customPrompt?: string; userContext?: string } = {}
-): string {
-  const base = getSystemPrompt(intention, options.customPrompt)
-  const ctx = (options.userContext ?? '').trim()
-  if (!ctx) return base
-  return `${ctx}\n\n${base}`
-}
-
-/**
  * Constructs a formatted context message from a journal entry for the LLM.
  * Resolves emotion and tag IDs to their names using the provided stores.
  *
