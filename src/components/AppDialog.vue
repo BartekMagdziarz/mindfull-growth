@@ -15,27 +15,36 @@
           role="dialog"
           :aria-labelledby="titleId"
           :aria-describedby="messageId"
-          class="relative z-10 neo-raised-strong p-6 max-w-md w-full mx-4 rounded-2xl"
+          class="relative z-10 neo-raised-strong p-6 w-full mx-4 rounded-2xl"
+          :class="sizeClass"
         >
           <!-- Title -->
           <h2 :id="titleId" class="text-xl font-semibold text-neu-text mb-4">
             {{ title }}
           </h2>
 
-          <!-- Message -->
-          <p :id="messageId" class="text-neu-muted mb-6">
-            {{ message }}
-          </p>
+          <!-- Body: custom slot or default message + actions -->
+          <template v-if="hasDefaultSlot">
+            <div :id="messageId">
+              <slot />
+            </div>
+          </template>
+          <template v-else>
+            <!-- Message -->
+            <p :id="messageId" class="text-neu-muted mb-6">
+              {{ message }}
+            </p>
 
-          <!-- Actions -->
-          <div class="flex gap-3 justify-end">
-            <AppButton variant="text" @click="handleCancel">
-              {{ resolvedCancelText }}
-            </AppButton>
-            <AppButton :variant="confirmVariant" @click="handleConfirm">
-              {{ resolvedConfirmText }}
-            </AppButton>
-          </div>
+            <!-- Actions -->
+            <div class="flex gap-3 justify-end">
+              <AppButton variant="text" @click="handleCancel">
+                {{ resolvedCancelText }}
+              </AppButton>
+              <AppButton :variant="confirmVariant" @click="handleConfirm">
+                {{ resolvedConfirmText }}
+              </AppButton>
+            </div>
+          </template>
         </div>
       </div>
     </Transition>
@@ -43,23 +52,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted, useSlots } from 'vue'
 import AppButton from './AppButton.vue'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()
 
+type DialogSize = 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'
+
 interface Props {
   modelValue: boolean
   title: string
-  message: string
+  message?: string
   confirmText?: string
   cancelText?: string
   confirmVariant?: 'filled' | 'outlined' | 'text' | 'tonal'
+  size?: DialogSize
+  closeOnBackdrop?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   confirmVariant: 'filled',
+  message: '',
+  size: 'md',
+  closeOnBackdrop: true,
+})
+
+const slots = useSlots()
+const hasDefaultSlot = computed(() => Boolean(slots.default))
+
+const sizeClass = computed(() => {
+  switch (props.size) {
+    case 'lg':
+      return 'max-w-lg'
+    case 'xl':
+      return 'max-w-xl'
+    case '2xl':
+      return 'max-w-2xl'
+    case '3xl':
+      return 'max-w-3xl'
+    case '4xl':
+      return 'max-w-4xl'
+    case 'md':
+    default:
+      return 'max-w-md'
+  }
 })
 
 const resolvedConfirmText = computed(() => props.confirmText ?? t('common.buttons.confirm'))
@@ -87,7 +124,9 @@ const handleCancel = () => {
 }
 
 const handleBackdropClick = () => {
-  handleCancel()
+  if (props.closeOnBackdrop) {
+    handleCancel()
+  }
 }
 
 const handleEscapeKey = (event: KeyboardEvent) => {
