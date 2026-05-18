@@ -332,6 +332,24 @@
     "deleteDialog": {
       "title": "Delete object",
       "message": "Delete \"{title}\" and remove it from the planning model?"
+    },
+    "overview": {
+      "title": "Overview",
+      "filters": {
+        "all": "All",
+        "goals": "Goals",
+        "habits": "Habits",
+        "trackers": "Trackers"
+      },
+      "empty": "Nothing to preview yet."
+    },
+    "wellness": {
+      "journal": "Journal",
+      "emotions": "Emotions",
+      "exercises": "Exercises",
+      "journalCaption": "days with entry",
+      "emotionsCaption": "days with log",
+      "exercisesComing": "Coming soon"
     }
   },
   "objects": {

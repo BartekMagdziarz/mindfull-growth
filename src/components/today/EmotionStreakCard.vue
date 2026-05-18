@@ -1,6 +1,6 @@
 <template>
   <article
-    class="wellness-card neo-raised group flex flex-col p-3 transition-shadow duration-200"
+    class="wellness-card neo-raised group flex flex-col gap-2 p-3 transition-shadow duration-200"
     :class="expanded ? 'wellness-card--expanded' : ''"
     @click="expanded = !expanded"
   >
@@ -8,10 +8,10 @@
     <div class="flex shrink-0 items-center justify-between">
       <button
         type="button"
-        class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant transition-colors duration-200 hover:text-primary"
+        class="text-[11px] font-semibold uppercase tracking-[0.10em] text-on-surface-variant transition-colors duration-200 hover:text-primary"
         @click.stop="router.push('/emotions')"
       >
-        {{ t('planning.calendar.wellness.emotions') }}
+        {{ t('planning.today.wellness.emotions') }}
       </button>
       <button
         type="button"
@@ -23,29 +23,29 @@
       </button>
     </div>
 
-    <!-- Donut (collapsed) -->
+    <!-- Donut + caption (collapsed) -->
     <div
-      class="flex items-center justify-center"
+      class="flex flex-col items-center justify-center gap-1.5 py-1"
       :style="{
-        flex: expanded ? '0 0 auto' : '1 1 auto',
-        maxHeight: expanded ? '0px' : '200px',
+        flex: expanded ? '0 0 auto' : '0 0 auto',
+        maxHeight: expanded ? '0px' : '240px',
         opacity: expanded ? 0 : 1,
         overflow: 'hidden',
         pointerEvents: expanded ? 'none' : 'auto',
-        transition: 'max-height 0.35s ease, opacity 0.25s ease, flex 0.35s ease',
+        transition: 'max-height 0.35s ease, opacity 0.25s ease',
       }"
     >
-      <div class="relative" style="width: 64px; height: 64px">
-        <svg width="64" height="64" style="transform: rotate(-90deg)" aria-hidden="true">
+      <div class="relative" style="width: 96px; height: 96px">
+        <svg width="96" height="96" style="transform: rotate(-90deg)" aria-hidden="true">
           <circle
-            cx="32" cy="32" r="28.5"
-            fill="none" stroke="rgb(var(--neo-border))" stroke-opacity="0.25" stroke-width="7"
+            cx="48" cy="48" r="42"
+            fill="none" stroke="rgb(var(--neo-border))" stroke-opacity="0.30" stroke-width="7"
           />
           <template v-if="quadrantSegments.length > 0">
             <circle
               v-for="seg in quadrantSegments"
               :key="seg.quadrant"
-              cx="32" cy="32" r="28.5"
+              cx="48" cy="48" r="42"
               fill="none"
               :stroke="seg.color"
               stroke-width="7"
@@ -55,15 +55,15 @@
             />
           </template>
         </svg>
-        <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span class="text-sm font-bold leading-none text-on-surface">
+        <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <span class="text-[20px] font-semibold leading-none tracking-tight text-on-surface">
             {{ daysLogged }}/{{ totalDays }}
-          </span>
-          <span class="mt-0.5 text-[8px] uppercase tracking-widest text-on-surface-variant/55">
-            {{ t('planning.calendar.wellness.daysShort') }}
           </span>
         </div>
       </div>
+      <span class="text-[11px] text-on-surface-variant/70">
+        {{ t('planning.today.wellness.emotionsCaption') }}
+      </span>
     </div>
 
     <!-- Bars (expanded) -->
@@ -216,8 +216,7 @@ const daysLogged = computed(
 )
 const totalDays = computed(() => slots.value.length)
 
-// Donut: aggregate per-quadrant share across the visible week.
-const DONUT_CIRC = 2 * Math.PI * 28.5
+const DONUT_CIRC = 2 * Math.PI * 42
 
 interface DonutSegment {
   quadrant: Quadrant
@@ -260,21 +259,13 @@ const quadrantSegments = computed<DonutSegment[]>(() => {
   }
   return result
 })
-
 </script>
 
 <style scoped>
 .wellness-card {
-  border-radius: 1.5rem;
+  border-radius: 1.4rem;
   cursor: pointer;
   user-select: none;
-  aspect-ratio: 1;
-  gap: 0;
-}
-
-.wellness-card--expanded {
-  aspect-ratio: auto;
-  gap: 10px;
 }
 
 .wellness-add-btn {
