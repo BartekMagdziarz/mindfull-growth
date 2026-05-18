@@ -325,13 +325,15 @@ describe('ChatView', () => {
       })
     })
 
-    it('shows default title when no session exists', () => {
+    it('shows default title when no session exists', async () => {
       mockCurrentChatSession.value = null
 
       render(ChatView)
 
       // Component redirects when no session, but title is computed before redirect
-      expect(mockPush).toHaveBeenCalledWith('/journal/entry-123/edit')
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/journal/entry-123/edit')
+      })
     })
 
     it('navigates back when back button is clicked', async () => {
@@ -1130,7 +1132,10 @@ describe('ChatView', () => {
       })
 
       await waitFor(() => {
-        expect(mockChatStore.sendMessage).toHaveBeenCalledWith('Hello, AI!')
+        expect(mockChatStore.sendMessage).toHaveBeenCalledWith(
+          'Hello, AI!',
+          expect.objectContaining({ useProfile: expect.any(Boolean) }),
+        )
       })
     })
 
@@ -1162,7 +1167,10 @@ describe('ChatView', () => {
       })
 
       await waitFor(() => {
-        expect(mockChatStore.sendMessage).toHaveBeenCalledWith('Test message')
+        expect(mockChatStore.sendMessage).toHaveBeenCalledWith(
+          'Test message',
+          expect.objectContaining({ useProfile: expect.any(Boolean) }),
+        )
       })
     })
 

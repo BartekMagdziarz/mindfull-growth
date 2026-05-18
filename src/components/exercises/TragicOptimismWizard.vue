@@ -248,23 +248,28 @@
           <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
 
           <!-- Input area -->
-          <div v-if="!reachedMaxExchanges" class="flex gap-2 items-end">
-            <textarea
-              ref="inputRef"
-              v-model="userInput"
-              :placeholder="t('exerciseWizards.tragicOptimism.dialogue.placeholder')"
-              :disabled="isLlmLoading"
-              class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-              rows="1"
-              @keydown.enter.exact.prevent="handleSend"
-            />
-            <AppButton
-              variant="filled"
-              :disabled="!userInput.trim() || isLlmLoading"
-              @click="handleSend"
-            >
-              {{ t('exerciseWizards.tragicOptimism.dialogue.sendButton') }}
-            </AppButton>
+          <div v-if="!reachedMaxExchanges" class="space-y-2">
+            <div class="flex justify-end">
+              <ProfileContextToggle v-model="useProfileDialogue" />
+            </div>
+            <div class="flex gap-2 items-end">
+              <textarea
+                ref="inputRef"
+                v-model="userInput"
+                :placeholder="t('exerciseWizards.tragicOptimism.dialogue.placeholder')"
+                :disabled="isLlmLoading"
+                class="neo-input neo-focus flex-1 p-3 resize-none min-h-[44px] max-h-[120px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                rows="1"
+                @keydown.enter.exact.prevent="handleSend"
+              />
+              <AppButton
+                variant="filled"
+                :disabled="!userInput.trim() || isLlmLoading"
+                @click="handleSend"
+              >
+                {{ t('exerciseWizards.tragicOptimism.dialogue.sendButton') }}
+              </AppButton>
+            </div>
           </div>
 
           <!-- Exchange status -->
@@ -361,6 +366,8 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type {
@@ -459,6 +466,8 @@ watch(selectedFocus, () => {
 })
 
 // ─── Dialogue State ────────────────────────────────────────────────────────
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileDialogue = ref(userPreferencesStore.profileContextDefault)
 const messages = ref<SocraticDialogueMessage[]>([])
 const userInput = ref('')
 const isLlmLoading = ref(false)
@@ -489,6 +498,7 @@ async function sendFirstMessage() {
         ? guidedAnswers.value.filter((a) => a.trim())
         : undefined,
       locale: locale.value,
+      useProfile: useProfileDialogue.value,
     })
 
     messages.value.push({
@@ -538,6 +548,7 @@ async function handleSend() {
         ? guidedAnswers.value.filter((a) => a.trim())
         : undefined,
       locale: locale.value,
+      useProfile: useProfileDialogue.value,
     })
 
     messages.value.push({

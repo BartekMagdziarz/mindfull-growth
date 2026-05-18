@@ -132,7 +132,7 @@ export function useProtectorAppreciationWizard() {
   }
 
   // LLM response generation
-  async function generateResponse(part: IFSPart) {
+  async function generateResponse(part: IFSPart, options: { useProfile?: boolean } = {}) {
     isLoadingResponse.value = true
     llmError.value = null
     try {
@@ -145,6 +145,7 @@ export function useProtectorAppreciationWizard() {
         appreciationLetter: appreciationLetter.value,
         behaviors: allBehaviors,
         locale: locale.value,
+        useProfile: options.useProfile ?? false,
       })
       partResponse.value = response
       llmAssistUsed.value = true

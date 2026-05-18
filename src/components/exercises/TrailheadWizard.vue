@@ -322,14 +322,17 @@
 
             <!-- Pattern Analysis -->
             <div v-if="trailheadStore.hasEnoughForAnalysis" class="space-y-3">
-              <AppButton
-                variant="tonal"
-                :disabled="isLoadingAnalysis"
-                @click="requestPatternAnalysis()"
-              >
-                <AppIcon name="auto_awesome" class="text-base mr-1" />
-                {{ isLoadingAnalysis ? t('exerciseWizards.trailhead.reflection.analyzingPatterns') : t('exerciseWizards.trailhead.reflection.analyzeButton') }}
-              </AppButton>
+              <div class="flex flex-wrap items-center gap-2">
+                <AppButton
+                  variant="tonal"
+                  :disabled="isLoadingAnalysis"
+                  @click="requestPatternAnalysis({ useProfile: useProfileAnalysis })"
+                >
+                  <AppIcon name="auto_awesome" class="text-base mr-1" />
+                  {{ isLoadingAnalysis ? t('exerciseWizards.trailhead.reflection.analyzingPatterns') : t('exerciseWizards.trailhead.reflection.analyzeButton') }}
+                </AppButton>
+                <ProfileContextToggle v-model="useProfileAnalysis" />
+              </div>
 
               <div v-if="patternAnalysis" class="neo-surface p-4 rounded-xl">
                 <p class="text-sm text-on-surface whitespace-pre-wrap">{{ patternAnalysis }}</p>
@@ -378,10 +381,12 @@ import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import BodyLocationPicker from '@/components/exercises/ifs/BodyLocationPicker.vue'
 import TSIBPIndicator from '@/components/exercises/ifs/TSIBPIndicator.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useTrailheadWizard, type TrailheadStep } from '@/composables/useTrailheadWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type { IFSPartRole } from '@/domain/exercises'
@@ -394,6 +399,8 @@ const { t } = useT()
 const partStore = useIFSPartStore()
 const trailheadStore = useIFSTrailheadStore()
 const emotionStore = useEmotionStore()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileAnalysis = ref(userPreferencesStore.profileContextDefault)
 
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 

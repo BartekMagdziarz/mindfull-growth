@@ -1,4 +1,5 @@
 import { PROFILE_SECTION_IDS, type UserProfile } from '@/domain/userProfile'
+import { useUserProfileStore } from '@/stores/userProfile.store'
 
 /**
  * Builds a short markdown block summarising the user's psychological profile,
@@ -58,4 +59,37 @@ export function buildUserContext(
   }
 
   return lines.join('\n').trimEnd()
+}
+
+export interface ProfileContextOptions {
+  useProfile: boolean
+}
+
+/**
+ * Single decision point for whether an LLM call should know about the
+ * user's psychological profile. When `useProfile` is true and a profile
+ * exists, prepends the canonical `## User Profile Context` block to the
+ * given system prompt. Otherwise returns the prompt unchanged.
+ *
+ * Every LLM call site in the app must route its system prompt through
+ * this helper — no other place may invoke `buildUserContext` directly.
+ */
+export function withProfileContextSystemPrompt(
+  systemPrompt: string,
+  opts: ProfileContextOptions,
+): string {
+  if (!opts.useProfile) return systemPrompt
+  const profile = useUserProfileStore().currentProfile
+  if (!profile) return systemPrompt
+  const block = buildUserContext(profile)
+  if (!block) return systemPrompt
+  return `${block}\n\n${systemPrompt}`
+}
+
+/**
+ * Returns true when a current saved profile exists. UI uses this to
+ * decide whether to render the per-call profile-context toggle at all.
+ */
+export function profileContextAvailable(): boolean {
+  return !!useUserProfileStore().currentProfile
 }

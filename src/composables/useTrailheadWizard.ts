@@ -127,7 +127,7 @@ export function useTrailheadWizard() {
   }
 
   // LLM analysis
-  async function requestPatternAnalysis() {
+  async function requestPatternAnalysis(options: { useProfile?: boolean } = {}) {
     if (!trailheadStore.hasEnoughForAnalysis) return
     isLoadingAnalysis.value = true
     try {
@@ -150,6 +150,7 @@ export function useTrailheadWizard() {
         partNames,
         emotionNames,
         locale: locale.value,
+        useProfile: options.useProfile ?? false,
       })
     } catch (err) {
       console.error('Error analyzing trailhead patterns:', err)

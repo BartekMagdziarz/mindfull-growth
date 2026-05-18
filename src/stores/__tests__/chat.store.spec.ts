@@ -40,14 +40,14 @@ vi.mock('../userPreferences.store', () => {
   return {
     useUserPreferencesStore: vi.fn(() => ({
       locale: 'en',
-      includeProfileInChatContext: false,
-      setIncludeProfileInChatContext: vi.fn(),
+      profileContextDefault: false,
+      profileContextDefaultJournal: false,
       $patch: vi.fn(),
     })),
   }
 })
 
-// Mock the user profile store (Story 7 reads currentProfile from here).
+// Mock the user profile store (Story 8 reads currentProfile from here).
 vi.mock('../userProfile.store', () => {
   return {
     useUserProfileStore: vi.fn(() => ({
@@ -62,7 +62,7 @@ vi.mock('../userProfile.store', () => {
 // to the base prompt without depending on the markdown layout.
 vi.mock('@/services/userContext', () => {
   return {
-    buildUserContext: vi.fn(() => ''),
+    withProfileContextSystemPrompt: vi.fn((prompt: string) => prompt),
   }
 })
 
@@ -70,7 +70,6 @@ vi.mock('@/services/userContext', () => {
 vi.mock('@/services/chatPrompts', () => {
   return {
     getSystemPrompt: vi.fn(),
-    getSystemPromptWithContext: vi.fn(),
     constructJournalEntryContext: vi.fn(),
   }
 })
@@ -83,10 +82,10 @@ import { useTagStore } from '../tag.store'
 import { useUserPreferencesStore } from '../userPreferences.store'
 import { useUserProfileStore } from '../userProfile.store'
 import {
-  getSystemPromptWithContext,
+  getSystemPrompt,
   constructJournalEntryContext,
 } from '@/services/chatPrompts'
-import { buildUserContext } from '@/services/userContext'
+import { withProfileContextSystemPrompt } from '@/services/userContext'
 
 describe('useChatStore', () => {
   // Mock stores
@@ -134,28 +133,26 @@ describe('useChatStore', () => {
     // Reset preference + profile store mocks to neutral defaults per test.
     vi.mocked(useUserPreferencesStore).mockReturnValue({
       locale: 'en',
-      includeProfileInChatContext: false,
-      setIncludeProfileInChatContext: vi.fn(),
+      profileContextDefault: false,
+      profileContextDefaultJournal: false,
       $patch: vi.fn(),
-       
+
     } as unknown as any)
     vi.mocked(useUserProfileStore).mockReturnValue({
       profiles: [],
       currentProfile: undefined,
       loadProfiles: vi.fn().mockResolvedValue(undefined),
-       
+
     } as unknown as any)
 
-    vi.mocked(buildUserContext).mockReturnValue('')
+    // Default: pass-through (no profile context injected).
+    vi.mocked(withProfileContextSystemPrompt).mockImplementation(
+      (prompt) => prompt,
+    )
 
-    // Setup default mocks for chat prompts. The compose helper mirrors the
-    // real implementation so tests can assert on the resulting string.
-    vi.mocked(getSystemPromptWithContext).mockImplementation(
-      (intention, options = {}) => {
-        const base = `System prompt for ${intention}`
-        const ctx = (options.userContext ?? '').trim()
-        return ctx ? `${ctx}\n\n${base}` : base
-      },
+    // Default: getSystemPrompt returns a base string keyed off the intention.
+    vi.mocked(getSystemPrompt).mockImplementation(
+      (intention) => `System prompt for ${intention}`,
     )
     vi.mocked(constructJournalEntryContext).mockImplementation((entry) => {
       const title = entry.title || 'Untitled entry'
@@ -1041,161 +1038,178 @@ describe('useChatStore', () => {
       contextTagIds: [],
     }
 
-    // Minimal profile fixture that `buildUserContext` will transform into
-    // the markdown preamble. Only the mocked `buildUserContext` actually
-    // reads it; here we just need a truthy object to pass through.
-    const mockProfile = {
-      id: 'p1',
-      createdAt: '2026-01-01T00:00:00.000Z',
-      updatedAt: '2026-01-01T00:00:00.000Z',
-      scope: {
-        dataTypes: [],
-        dateRange: { kind: 'preset', preset: 'last90' },
-        filters: {},
-        includedObjectIds: {},
-        approxTokenCount: 0,
-        locale: 'en',
-        grammaticalGender: 'masculine',
-      },
-      sections: {
-        summary: 'Curious, reflective.',
-        values: '',
-        emotionalPatterns: '',
-        strengths: '',
-        challenges: '',
-        relationships: '',
-        themes: '',
-        recentArc: '',
-        suggestedDirections: '',
-      },
-      rawResponse: '',
-      model: 'test-model',
-       
-    } as unknown as any
-
-    it('sends the base prompt verbatim when the preference is off', async () => {
+    it('routes the base prompt through withProfileContextSystemPrompt with useProfile=false when preference default is false', async () => {
       mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
       vi.mocked(sendLLMMessage).mockResolvedValue('Response')
 
-      // Preference off (default), profile present but irrelevant — must
-      // not be queried because the gate short-circuits.
+      const loadProfiles = vi.fn().mockResolvedValue(undefined)
       vi.mocked(useUserPreferencesStore).mockReturnValue({
         locale: 'en',
-        includeProfileInChatContext: false,
-        setIncludeProfileInChatContext: vi.fn(),
+        profileContextDefault: false,
+        profileContextDefaultJournal: false,
         $patch: vi.fn(),
-         
+
       } as unknown as any)
-      const loadProfiles = vi.fn().mockResolvedValue(undefined)
       vi.mocked(useUserProfileStore).mockReturnValue({
-        profiles: [mockProfile],
-        currentProfile: mockProfile,
+        profiles: [],
+        currentProfile: undefined,
         loadProfiles,
-         
+
       } as unknown as any)
 
       const store = useChatStore()
       await store.startChatSession('entry-1', 'reflect')
       await store.sendMessage('Hello')
 
-      const call = vi.mocked(sendLLMMessage).mock.calls[0]
-      const systemPrompt = call[1] as string
-      expect(systemPrompt).toBe('System prompt for reflect')
-      expect(systemPrompt).not.toContain('## User Profile Context')
-      expect(buildUserContext).not.toHaveBeenCalled()
+      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith(
+        'System prompt for reflect',
+        { useProfile: false },
+      )
+      // useProfile=false means we never trigger lazy profile load.
       expect(loadProfiles).not.toHaveBeenCalled()
     })
 
-    it('prepends the user context when preference is on and a profile exists', async () => {
+    it('routes the base prompt with useProfile=true when preference default is true', async () => {
       mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
       vi.mocked(sendLLMMessage).mockResolvedValue('Response')
+      vi.mocked(withProfileContextSystemPrompt).mockImplementation(
+        (prompt, opts) =>
+          opts.useProfile
+            ? `## User Profile Context\n\n${prompt}`
+            : prompt,
+      )
 
       vi.mocked(useUserPreferencesStore).mockReturnValue({
         locale: 'en',
-        includeProfileInChatContext: true,
-        setIncludeProfileInChatContext: vi.fn(),
+        profileContextDefault: true,
+        profileContextDefaultJournal: true,
         $patch: vi.fn(),
-         
+
       } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
-        profiles: [mockProfile],
-        currentProfile: mockProfile,
+        profiles: [{ id: 'p1' } as unknown as never],
+        currentProfile: { id: 'p1' },
         loadProfiles: vi.fn().mockResolvedValue(undefined),
-         
+
       } as unknown as any)
-      vi.mocked(buildUserContext).mockReturnValue(
-        '## User Profile Context\n### Summary\nCurious, reflective.',
-      )
 
       const store = useChatStore()
       await store.startChatSession('entry-1', 'reflect')
       await store.sendMessage('Hello')
 
+      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith(
+        'System prompt for reflect',
+        { useProfile: true },
+      )
       const call = vi.mocked(sendLLMMessage).mock.calls[0]
       const systemPrompt = call[1] as string
-      // The mock compose helper joins `${ctx}\n\n${base}`, so the preamble
-      // sits at the very top.
       expect(systemPrompt.startsWith('## User Profile Context')).toBe(true)
-      expect(systemPrompt).toContain('### Summary')
-      expect(systemPrompt).toContain('Curious, reflective.')
-      expect(systemPrompt).toContain('System prompt for reflect')
-      expect(buildUserContext).toHaveBeenCalledWith(mockProfile)
     })
 
-    it('falls back to the base prompt when preference is on but no profile is saved', async () => {
+    it('honours an explicit opts.useProfile=true even when the preference default is false', async () => {
       mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
       vi.mocked(sendLLMMessage).mockResolvedValue('Response')
 
       vi.mocked(useUserPreferencesStore).mockReturnValue({
         locale: 'en',
-        includeProfileInChatContext: true,
-        setIncludeProfileInChatContext: vi.fn(),
+        profileContextDefault: false,
+        profileContextDefaultJournal: false,
         $patch: vi.fn(),
-         
+
       } as unknown as any)
+      vi.mocked(useUserProfileStore).mockReturnValue({
+        profiles: [{ id: 'p1' } as unknown as never],
+        currentProfile: { id: 'p1' },
+        loadProfiles: vi.fn().mockResolvedValue(undefined),
+
+      } as unknown as any)
+
+      const store = useChatStore()
+      await store.startChatSession('entry-1', 'reflect')
+      await store.sendMessage('Hello', { useProfile: true })
+
+      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith(
+        'System prompt for reflect',
+        { useProfile: true },
+      )
+    })
+
+    it('honours an explicit opts.useProfile=false even when the preference default is true', async () => {
+      mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
+      vi.mocked(sendLLMMessage).mockResolvedValue('Response')
+
       const loadProfiles = vi.fn().mockResolvedValue(undefined)
+      vi.mocked(useUserPreferencesStore).mockReturnValue({
+        locale: 'en',
+        profileContextDefault: true,
+        profileContextDefaultJournal: true,
+        $patch: vi.fn(),
+
+      } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
         profiles: [],
         currentProfile: undefined,
         loadProfiles,
-         
+
       } as unknown as any)
-      // Empty profile → `buildUserContext(undefined)` returns ''.
-      vi.mocked(buildUserContext).mockReturnValue('')
+
+      const store = useChatStore()
+      await store.startChatSession('entry-1', 'reflect')
+      await store.sendMessage('Hello', { useProfile: false })
+
+      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith(
+        'System prompt for reflect',
+        { useProfile: false },
+      )
+      expect(loadProfiles).not.toHaveBeenCalled()
+    })
+
+    it('lazy-loads profiles when useProfile is true and the store cache is empty', async () => {
+      mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
+      vi.mocked(sendLLMMessage).mockResolvedValue('Response')
+
+      const loadProfiles = vi.fn().mockResolvedValue(undefined)
+      vi.mocked(useUserPreferencesStore).mockReturnValue({
+        locale: 'en',
+        profileContextDefault: true,
+        profileContextDefaultJournal: true,
+        $patch: vi.fn(),
+
+      } as unknown as any)
+      vi.mocked(useUserProfileStore).mockReturnValue({
+        profiles: [],
+        currentProfile: undefined,
+        loadProfiles,
+
+      } as unknown as any)
 
       const store = useChatStore()
       await store.startChatSession('entry-1', 'reflect')
       await store.sendMessage('Hello')
 
-      // The store should have attempted to hydrate profiles lazily.
       expect(loadProfiles).toHaveBeenCalledTimes(1)
-      const call = vi.mocked(sendLLMMessage).mock.calls[0]
-      const systemPrompt = call[1] as string
-      expect(systemPrompt).toBe('System prompt for reflect')
-      expect(systemPrompt).not.toContain('## User Profile Context')
     })
 
-    it('swallows loadProfiles failures and still sends the base prompt', async () => {
+    it('swallows loadProfiles failures and still sends the message', async () => {
       mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
       vi.mocked(sendLLMMessage).mockResolvedValue('Response')
 
-      vi.mocked(useUserPreferencesStore).mockReturnValue({
-        locale: 'en',
-        includeProfileInChatContext: true,
-        setIncludeProfileInChatContext: vi.fn(),
-        $patch: vi.fn(),
-         
-      } as unknown as any)
       const loadProfiles = vi
         .fn()
         .mockRejectedValue(new Error('db unavailable'))
+      vi.mocked(useUserPreferencesStore).mockReturnValue({
+        locale: 'en',
+        profileContextDefault: true,
+        profileContextDefaultJournal: true,
+        $patch: vi.fn(),
+
+      } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
         profiles: [],
         currentProfile: undefined,
         loadProfiles,
-         
+
       } as unknown as any)
-      vi.mocked(buildUserContext).mockReturnValue('')
 
       const store = useChatStore()
       await store.startChatSession('entry-1', 'reflect')
@@ -1204,9 +1218,6 @@ describe('useChatStore', () => {
       await expect(store.sendMessage('Hello')).resolves.toBeUndefined()
 
       expect(loadProfiles).toHaveBeenCalledTimes(1)
-      const call = vi.mocked(sendLLMMessage).mock.calls[0]
-      const systemPrompt = call[1] as string
-      expect(systemPrompt).toBe('System prompt for reflect')
       expect(store.error).toBeNull()
     })
   })

@@ -228,7 +228,7 @@ export function usePartsMappingWizard() {
   }
 
   // LLM
-  async function fetchLLMInsight(options: { lifeAreaNames?: string[] }) {
+  async function fetchLLMInsight(options: { lifeAreaNames?: string[]; useProfile?: boolean }) {
     if (identifiedParts.value.length < 2) return
     isLoadingLLM.value = true
     try {
@@ -250,6 +250,7 @@ export function usePartsMappingWizard() {
         relationships: relationships.value,
         lifeAreaNames: options.lifeAreaNames,
         locale: locale.value,
+        useProfile: options.useProfile ?? false,
       })
     } catch (err) {
       console.error('Error fetching LLM insight:', err)

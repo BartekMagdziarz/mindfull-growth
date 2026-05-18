@@ -168,14 +168,17 @@
 
           <!-- LLM Assist: Brainstorm Steps -->
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
-            <AppButton
-              variant="tonal"
-              :disabled="isBrainstormLoading"
-              @click="handleBrainstormSteps"
-            >
-              <AppIcon name="auto_awesome" class="text-base" />
-              {{ isBrainstormLoading ? t('exerciseWizards.gradedExposure.buildHierarchy.llmLoading') : t('exerciseWizards.gradedExposure.buildHierarchy.llmLabel') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="isBrainstormLoading"
+                @click="handleBrainstormSteps"
+              >
+                <AppIcon name="auto_awesome" class="text-base" />
+                {{ isBrainstormLoading ? t('exerciseWizards.gradedExposure.buildHierarchy.llmLoading') : t('exerciseWizards.gradedExposure.buildHierarchy.llmLabel') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileBrainstormSteps" />
+            </div>
             <div v-if="brainstormResult" class="neo-panel p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.gradedExposure.buildHierarchy.suggestedSteps') }}
@@ -430,6 +433,8 @@ import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { CreateGradedExposureHierarchyPayload, ExposureItem } from '@/domain/exercises'
 
@@ -438,6 +443,8 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useT()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileBrainstormSteps = ref(userPreferencesStore.profileContextDefault)
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step = 'intro' | 'fear-target' | 'build-hierarchy' | 'safety-behaviors' | 'summary'
@@ -509,6 +516,7 @@ async function handleBrainstormSteps() {
         ? items.value.map((item) => ({ situation: item.situation, sudsRating: item.sudsRating }))
         : undefined,
       locale: locale.value,
+      useProfile: useProfileBrainstormSteps.value,
     })
   } catch (err) {
     brainstormError.value = err instanceof Error ? err.message : 'Failed to get suggestions'

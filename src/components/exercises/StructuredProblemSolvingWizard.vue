@@ -169,14 +169,17 @@
 
           <!-- LLM Assist: Brainstorm -->
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
-            <AppButton
-              variant="tonal"
-              :disabled="!problemStatement.trim() || isBrainstormLoading"
-              @click="handleBrainstormAssist"
-            >
-              <AppIcon name="auto_awesome" class="text-base" />
-              {{ isBrainstormLoading ? t('exerciseWizards.structuredProblemSolving.brainstorm.llmLoading') : t('exerciseWizards.structuredProblemSolving.brainstorm.llmLabel') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="!problemStatement.trim() || isBrainstormLoading"
+                @click="handleBrainstormAssist"
+              >
+                <AppIcon name="auto_awesome" class="text-base" />
+                {{ isBrainstormLoading ? t('exerciseWizards.structuredProblemSolving.brainstorm.llmLoading') : t('exerciseWizards.structuredProblemSolving.brainstorm.llmLabel') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileBrainstorm" />
+            </div>
             <div v-if="brainstormResponse" class="neo-panel p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.structuredProblemSolving.brainstorm.suggestedSolutions') }}
@@ -344,14 +347,17 @@
         <!-- LLM Assist: Evaluate -->
         <AppCard padding="lg" class="space-y-3">
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
-            <AppButton
-              variant="tonal"
-              :disabled="isEvaluateLoading"
-              @click="handleEvaluateAssist"
-            >
-              <AppIcon name="auto_awesome" class="text-base" />
-              {{ isEvaluateLoading ? t('exerciseWizards.structuredProblemSolving.evaluate.llmLoading') : t('exerciseWizards.structuredProblemSolving.evaluate.llmLabel') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="isEvaluateLoading"
+                @click="handleEvaluateAssist"
+              >
+                <AppIcon name="auto_awesome" class="text-base" />
+                {{ isEvaluateLoading ? t('exerciseWizards.structuredProblemSolving.evaluate.llmLoading') : t('exerciseWizards.structuredProblemSolving.evaluate.llmLabel') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileEvaluate" />
+            </div>
             <div v-if="evaluateResponse" class="neo-panel p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.structuredProblemSolving.evaluate.analysis') }}
@@ -797,7 +803,9 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateStructuredProblemSolvingPayload, SolutionOption } from '@/domain/exercises'
@@ -808,6 +816,9 @@ const emit = defineEmits<{
 
 const emotionStore = useEmotionStore()
 const { t, locale } = useT()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileBrainstorm = ref(userPreferencesStore.profileContextDefault)
+const useProfileEvaluate = ref(userPreferencesStore.profileContextDefault)
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step = 'intro' | 'problem' | 'brainstorm' | 'evaluate' | 'choose' | 'review' | 'summary'
@@ -927,6 +938,7 @@ async function handleBrainstormAssist() {
       problemStatement: problemStatement.value,
       emotions: emotionNames.length > 0 ? emotionNames : undefined,
       locale: locale.value,
+      useProfile: useProfileBrainstorm.value,
     })
     llmAssistsUsed.add('brainstorm')
   } catch (err) {
@@ -954,6 +966,7 @@ async function handleEvaluateAssist() {
         cons: s.cons.filter((c) => c.trim()),
       })),
       locale: locale.value,
+      useProfile: useProfileEvaluate.value,
     })
     llmAssistsUsed.add('evaluate')
   } catch (err) {

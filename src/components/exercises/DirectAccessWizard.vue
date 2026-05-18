@@ -207,22 +207,27 @@
             </p>
 
             <!-- Input -->
-            <div class="flex gap-2">
-              <textarea
-                v-model="messageInput"
-                rows="2"
-                :placeholder="t('exerciseWizards.directAccess.dialogue.placeholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
-                @keydown.enter.exact.prevent="handleSend"
-              />
-              <AppButton
-                variant="filled"
-                :disabled="!messageInput.trim() || isLoadingResponse"
-                class="shrink-0 self-end"
-                @click="handleSend"
-              >
-                {{ t('exerciseWizards.directAccess.dialogue.sendButton') }}
-              </AppButton>
+            <div class="space-y-2">
+              <div class="flex justify-end">
+                <ProfileContextToggle v-model="useProfileDialogue" />
+              </div>
+              <div class="flex gap-2">
+                <textarea
+                  v-model="messageInput"
+                  rows="2"
+                  :placeholder="t('exerciseWizards.directAccess.dialogue.placeholder')"
+                  class="neo-input w-full p-3 text-sm resize-none"
+                  @keydown.enter.exact.prevent="handleSend"
+                />
+                <AppButton
+                  variant="filled"
+                  :disabled="!messageInput.trim() || isLoadingResponse"
+                  class="shrink-0 self-end"
+                  @click="handleSend"
+                >
+                  {{ t('exerciseWizards.directAccess.dialogue.sendButton') }}
+                </AppButton>
+              </div>
             </div>
           </AppCard>
 
@@ -433,8 +438,10 @@ import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import PartDialogueBubble from '@/components/exercises/ifs/PartDialogueBubble.vue'
 import IFSInsightCard from '@/components/exercises/ifs/IFSInsightCard.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useDirectAccessWizard, type DirectAccessStep } from '@/composables/useDirectAccessWizard'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { IFSInsight } from '@/domain/exercises'
 
@@ -445,6 +452,8 @@ const emit = defineEmits<{
 const { t } = useT()
 
 const partStore = useIFSPartStore()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileDialogue = ref(userPreferencesStore.profileContextDefault)
 
 const STEPS: DirectAccessStep[] = [
   'part-select', 'self-check', 'dialogue', 'summary', 'save',
@@ -515,7 +524,7 @@ async function handleSend() {
   if (!messageInput.value.trim() || isLoadingResponse.value || !selectedPart.value) return
   const content = messageInput.value.trim()
   messageInput.value = ''
-  await sendMessage(content, selectedPart.value)
+  await sendMessage(content, selectedPart.value, { useProfile: useProfileDialogue.value })
   await nextTick()
   scrollToBottom()
 }

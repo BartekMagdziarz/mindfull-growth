@@ -337,14 +337,16 @@
 
           <!-- LLM Synthesis -->
           <div class="space-y-2">
-            <AppButton
-              v-if="!llmSynthesis && !isLlmLoading"
-              variant="tonal"
-              @click="handleSynthesisAssist"
-            >
-              <AppIcon name="auto_awesome" class="text-base mr-1" />
-              {{ t('exerciseWizards.mountainRange.themes.analyzeButton') }}
-            </AppButton>
+            <div v-if="!llmSynthesis && !isLlmLoading" class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                @click="handleSynthesisAssist"
+              >
+                <AppIcon name="auto_awesome" class="text-base mr-1" />
+                {{ t('exerciseWizards.mountainRange.themes.analyzeButton') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileSynthesis" />
+            </div>
             <div v-if="isLlmLoading" class="text-sm text-on-surface-variant">{{ t('exerciseWizards.mountainRange.themes.thinking') }}</div>
             <div v-if="llmSynthesis" class="neo-panel p-4">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmSynthesis }}</p>
@@ -458,8 +460,12 @@ import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import MountainRangeTimeline from '@/components/exercises/MountainRangeTimeline.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
+import { useValueMapStore } from '@/stores/valueMap.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import { getLatestCoreValuesFromStores } from '@/services/valueInsights'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateMountainRangePayload, MountainRangeEvent } from '@/domain/exercises'
@@ -470,10 +476,12 @@ const emit = defineEmits<{
 
 const { t, locale } = useT()
 const lifeAreaStore = useLifeAreaStore()
+const valueMapStore = useValueMapStore()
 const valuesDiscoveryStore = useValuesDiscoveryStore()
 
 onMounted(() => {
   lifeAreaStore.loadLifeAreas()
+  valueMapStore.loadMaps()
   valuesDiscoveryStore.loadDiscoveries()
 })
 
@@ -589,6 +597,8 @@ const allFilledEvents = computed<MountainRangeEvent[]>(() => {
 })
 
 // ─── LLM Assist ──────────────────────────────────────────────────────────────
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileSynthesis = ref(userPreferencesStore.profileContextDefault)
 const isLlmLoading = ref(false)
 const llmSynthesis = ref('')
 const llmError = ref('')
@@ -599,7 +609,7 @@ async function handleSynthesisAssist() {
   try {
     const { synthesizeMountainRange } = await import('@/services/logotherapyLLMAssists')
 
-    const coreValues = valuesDiscoveryStore.latestDiscovery?.coreValues ?? []
+    const coreValues = getLatestCoreValuesFromStores(valueMapStore, valuesDiscoveryStore)
 
     llmSynthesis.value = await synthesizeMountainRange({
       events: allFilledEvents.value,
@@ -607,6 +617,7 @@ async function handleSynthesisAssist() {
       valleyPatterns: valleyPatterns.value.trim() || undefined,
       coreValues: coreValues.length > 0 ? coreValues : undefined,
       locale: locale.value,
+      useProfile: useProfileSynthesis.value,
     })
   } catch (err) {
     llmError.value = err instanceof Error ? err.message : t('exerciseWizards.mountainRange.errors.themesFailed')

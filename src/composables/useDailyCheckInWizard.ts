@@ -123,7 +123,7 @@ export function useDailyCheckInWizard() {
   }
 
   // Weekly summary
-  async function requestWeeklySummary() {
+  async function requestWeeklySummary(options: { useProfile?: boolean } = {}) {
     if (checkInStore.weeklyCheckInCount < 7) return
     isLoadingSummary.value = true
     try {
@@ -131,6 +131,7 @@ export function useDailyCheckInWizard() {
         checkIns: checkInStore.currentWeekCheckIns,
         parts: partStore.sortedParts,
         locale: locale.value,
+        useProfile: options.useProfile ?? false,
       })
     } catch (err) {
       console.error('Error generating weekly summary:', err)

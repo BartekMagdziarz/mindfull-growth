@@ -392,14 +392,17 @@
               class="neo-input w-full p-3 text-sm resize-none"
             />
 
-            <AppButton
-              variant="tonal"
-              :disabled="identifiedParts.length < 2 || isLoadingLLM"
-              @click="handleFetchInsight"
-            >
-              <AppIcon name="auto_awesome" class="text-base mr-1" />
-              {{ isLoadingLLM ? t('exerciseWizards.partsMapping.reflection.aiButtonLoading') : t('exerciseWizards.partsMapping.reflection.aiButton') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="identifiedParts.length < 2 || isLoadingLLM"
+                @click="handleFetchInsight"
+              >
+                <AppIcon name="auto_awesome" class="text-base mr-1" />
+                {{ isLoadingLLM ? t('exerciseWizards.partsMapping.reflection.aiButtonLoading') : t('exerciseWizards.partsMapping.reflection.aiButton') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileReflection" />
+            </div>
 
             <div v-if="llmInsight" class="neo-surface p-4 rounded-xl">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmInsight }}</p>
@@ -567,8 +570,10 @@ import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import BodyLocationPicker from '@/components/exercises/ifs/BodyLocationPicker.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { usePartsMappingWizard, type PartsMappingStep } from '@/composables/usePartsMappingWizard'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type { IFSPartRole, IFSBodyLocation, IFSRelationship } from '@/domain/exercises'
@@ -581,6 +586,8 @@ const { t } = useT()
 
 const lifeAreaStore = useLifeAreaStore()
 const lifeAreas = computed(() => lifeAreaStore.lifeAreas)
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileReflection = ref(userPreferencesStore.profileContextDefault)
 
 const STEPS: PartsMappingStep[] = [
   'intro', 'trailhead', 'identify-part', 'add-more',
@@ -744,7 +751,7 @@ function toggleLifeArea(partIdx: number, areaId: string) {
 
 async function handleFetchInsight() {
   const lifeAreaNames = lifeAreas.value.map((a) => a.name)
-  await fetchLLMInsight({ lifeAreaNames })
+  await fetchLLMInsight({ lifeAreaNames, useProfile: useProfileReflection.value })
 }
 
 async function handleSave() {

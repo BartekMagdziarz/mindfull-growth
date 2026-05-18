@@ -103,7 +103,7 @@ export function usePartsDialogueWizard() {
     currentSpeaker.value = currentSpeaker.value === 'self' ? 'part' : 'self'
   }
 
-  async function requestAssist(part: IFSPart) {
+  async function requestAssist(part: IFSPart, options: { useProfile?: boolean } = {}) {
     isLoadingAssist.value = true
     llmError.value = null
     llmSuggestion.value = ''
@@ -113,6 +113,7 @@ export function usePartsDialogueWizard() {
         dialogue: [...messages.value],
         intention: intention.value,
         locale: locale.value,
+        useProfile: options.useProfile ?? false,
       })
       llmSuggestion.value = response
     } catch (err) {

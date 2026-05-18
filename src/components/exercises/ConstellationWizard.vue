@@ -361,15 +361,17 @@
 
             <!-- LLM Analysis -->
             <div class="space-y-2">
-              <AppButton
-                v-if="!llmInsight"
-                variant="tonal"
-                :loading="isLLMLoading"
-                @click="requestAnalysis()"
-              >
-                <span class="material-symbols-outlined text-base leading-none mr-1">auto_awesome</span>
-                Analyze My System
-              </AppButton>
+              <div v-if="!llmInsight" class="flex flex-wrap items-center gap-2">
+                <AppButton
+                  variant="tonal"
+                  :loading="isLLMLoading"
+                  @click="requestAnalysis({ useProfile: useProfileAnalysis })"
+                >
+                  <span class="material-symbols-outlined text-base leading-none mr-1">auto_awesome</span>
+                  Analyze My System
+                </AppButton>
+                <ProfileContextToggle v-model="useProfileAnalysis" />
+              </div>
 
               <div v-if="llmInsight" class="neo-surface p-4 rounded-xl space-y-3">
                 <p class="text-sm text-on-surface whitespace-pre-line">{{ llmInsight }}</p>
@@ -459,13 +461,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import {
   useConstellationWizard,
 } from '@/composables/useConstellationWizard'
@@ -476,6 +480,8 @@ const emit = defineEmits<{
 }>()
 
 const partStore = useIFSPartStore()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileAnalysis = ref(userPreferencesStore.profileContextDefault)
 
 const {
   currentStep,

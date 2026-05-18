@@ -334,14 +334,17 @@
 
       <!-- LLM Review Assist -->
       <AppCard v-if="sortedEntries.length >= 3" padding="lg" class="space-y-3">
-        <AppButton
-          variant="tonal"
-          :disabled="isReviewLoading"
-          @click="handleReviewAssist"
-        >
-          <AppIcon name="auto_awesome" class="text-base" />
-          {{ isReviewLoading ? t('exerciseWizards.positiveDataLog.log.reviewLoading') : t('exerciseWizards.positiveDataLog.log.reviewLabel') }}
-        </AppButton>
+        <div class="flex flex-wrap items-center gap-2">
+          <AppButton
+            variant="tonal"
+            :disabled="isReviewLoading"
+            @click="handleReviewAssist"
+          >
+            <AppIcon name="auto_awesome" class="text-base" />
+            {{ isReviewLoading ? t('exerciseWizards.positiveDataLog.log.reviewLoading') : t('exerciseWizards.positiveDataLog.log.reviewLabel') }}
+          </AppButton>
+          <ProfileContextToggle v-model="useProfileReview" />
+        </div>
         <div v-if="reviewSummary" class="neo-panel p-4 space-y-2">
           <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
             {{ t('exerciseWizards.positiveDataLog.log.progressReview') }}
@@ -367,6 +370,8 @@ import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type {
   PositiveDataLog,
@@ -382,6 +387,8 @@ interface Props {
 
 const props = defineProps<Props>()
 const { t, locale } = useT()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileReview = ref(userPreferencesStore.profileContextDefault)
 
 const emit = defineEmits<{
   created: [data: CreatePositiveDataLogPayload]
@@ -484,6 +491,7 @@ async function handleReviewAssist() {
       believabilityInitial: props.existingLog.believabilityInitial,
       believabilityLatest: props.existingLog.believabilityLatest,
       locale: locale.value,
+      useProfile: useProfileReview.value,
     })
   } catch (err) {
     reviewError.value = err instanceof Error ? err.message : t('exerciseWizards.positiveDataLog.errors.reviewFailed')

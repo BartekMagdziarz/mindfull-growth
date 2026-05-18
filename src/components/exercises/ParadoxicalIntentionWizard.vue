@@ -203,14 +203,17 @@
           />
 
           <!-- LLM Assist -->
-          <AppButton
-            variant="tonal"
-            :disabled="isLlmLoading"
-            @click="handleMakeFunnier"
-          >
-            <AppIcon name="auto_awesome" class="text-base mr-1" />
-            {{ isLlmLoading ? t('exerciseWizards.paradoxicalIntention.craft.thinking') : t('exerciseWizards.paradoxicalIntention.craft.funnier') }}
-          </AppButton>
+          <div class="flex flex-wrap items-center gap-2">
+            <AppButton
+              variant="tonal"
+              :disabled="isLlmLoading"
+              @click="handleMakeFunnier"
+            >
+              <AppIcon name="auto_awesome" class="text-base mr-1" />
+              {{ isLlmLoading ? t('exerciseWizards.paradoxicalIntention.craft.thinking') : t('exerciseWizards.paradoxicalIntention.craft.funnier') }}
+            </AppButton>
+            <ProfileContextToggle v-model="useProfileFunnier" />
+          </div>
 
           <div v-if="llmSuggestions[currentFear.id]" class="neo-panel p-4">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">
@@ -355,6 +358,8 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateParadoxicalIntentionPayload } from '@/domain/exercises'
@@ -409,6 +414,8 @@ const validFears = computed(() =>
 )
 
 // ─── Craft State ───────────────────────────────────────────────────────────
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileFunnier = ref(userPreferencesStore.profileContextDefault)
 const currentFearIndex = ref(0)
 const paradoxicalIntentions = reactive<Record<string, string>>({})
 const practiceScripts = reactive<Record<string, string>>({})
@@ -437,6 +444,7 @@ async function handleMakeFunnier() {
       anticipatedCatastrophe: fear.anticipatedCatastrophe,
       userAttempt: paradoxicalIntentions[fear.id] || undefined,
       locale: locale.value,
+      useProfile: useProfileFunnier.value,
     })
 
     llmSuggestions[fear.id] = response

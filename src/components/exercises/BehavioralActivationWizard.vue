@@ -190,14 +190,17 @@
 
           <!-- LLM Assist: Suggest Activities -->
           <div class="border-t border-neu-border/20 pt-4 space-y-3">
-            <AppButton
-              variant="tonal"
-              :disabled="isSuggestLoading"
-              @click="handleSuggestActivities"
-            >
-              <AppIcon name="auto_awesome" class="text-base" />
-              {{ isSuggestLoading ? t('exerciseWizards.behavioralActivation.planActivities.suggestLoading') : t('exerciseWizards.behavioralActivation.planActivities.suggestLabel') }}
-            </AppButton>
+            <div class="flex flex-wrap items-center gap-2">
+              <AppButton
+                variant="tonal"
+                :disabled="isSuggestLoading"
+                @click="handleSuggestActivities"
+              >
+                <AppIcon name="auto_awesome" class="text-base" />
+                {{ isSuggestLoading ? t('exerciseWizards.behavioralActivation.planActivities.suggestLoading') : t('exerciseWizards.behavioralActivation.planActivities.suggestLabel') }}
+              </AppButton>
+              <ProfileContextToggle v-model="useProfileSuggest" />
+            </div>
             <div v-if="suggestResult" class="neo-panel p-4 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                 {{ t('exerciseWizards.behavioralActivation.planActivities.suggestedActivities') }}
@@ -424,14 +427,17 @@
 
         <!-- LLM Assist: Week Review -->
         <AppCard v-if="activities.some((a) => a.completed)" padding="lg" class="space-y-3">
-          <AppButton
-            variant="tonal"
-            :disabled="isReviewLoading"
-            @click="handleReviewWeek"
-          >
-            <AppIcon name="auto_awesome" class="text-base" />
-            {{ isReviewLoading ? t('exerciseWizards.behavioralActivation.summary.reviewLoading') : t('exerciseWizards.behavioralActivation.summary.reviewLabel') }}
-          </AppButton>
+          <div class="flex flex-wrap items-center gap-2">
+            <AppButton
+              variant="tonal"
+              :disabled="isReviewLoading"
+              @click="handleReviewWeek"
+            >
+              <AppIcon name="auto_awesome" class="text-base" />
+              {{ isReviewLoading ? t('exerciseWizards.behavioralActivation.summary.reviewLoading') : t('exerciseWizards.behavioralActivation.summary.reviewLabel') }}
+            </AppButton>
+            <ProfileContextToggle v-model="useProfileReviewWeek" />
+          </div>
           <div v-if="reviewResult" class="neo-panel p-4 space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('exerciseWizards.behavioralActivation.summary.weekReview') }}
@@ -468,6 +474,8 @@ import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type {
   CreateBehavioralActivationPayload,
@@ -481,6 +489,9 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useT()
+const userPreferencesStore = useUserPreferencesStore()
+const useProfileSuggest = ref(userPreferencesStore.profileContextDefault)
+const useProfileReviewWeek = ref(userPreferencesStore.profileContextDefault)
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step = 'intro' | 'mood-baseline' | 'plan-activities' | 'summary'
@@ -577,6 +588,7 @@ async function handleSuggestActivities() {
         category: a.category,
       })),
       locale: locale.value,
+      useProfile: useProfileSuggest.value,
     })
   } catch (err) {
     suggestError.value = err instanceof Error ? err.message : 'Failed to get suggestions'
@@ -605,6 +617,7 @@ async function handleReviewWeek() {
         moodAfter: a.moodAfter,
       })),
       locale: locale.value,
+      useProfile: useProfileReviewWeek.value,
     })
   } catch (err) {
     reviewError.value = err instanceof Error ? err.message : 'Failed to generate review'

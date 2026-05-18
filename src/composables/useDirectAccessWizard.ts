@@ -91,7 +91,7 @@ export function useDirectAccessWizard() {
   }
 
   // Dialogue methods
-  async function sendMessage(content: string, part: IFSPart) {
+  async function sendMessage(content: string, part: IFSPart, options: { useProfile?: boolean } = {}) {
     const userMsg: IFSDialogueMessage = {
       role: 'user',
       content,
@@ -107,6 +107,7 @@ export function useDirectAccessWizard() {
         userMessage: content,
         previousMessages: messages.value.slice(0, -1),
         locale: locale.value,
+        useProfile: options.useProfile ?? false,
       })
       const partMsg: IFSDialogueMessage = {
         role: 'assistant',
