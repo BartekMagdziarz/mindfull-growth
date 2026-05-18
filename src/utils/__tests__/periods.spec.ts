@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import {
+  addDaysToDayRef,
   assertPeriodRef,
   comparePeriodRefs,
   containsDay,
@@ -110,6 +111,8 @@ describe('period helpers', () => {
     }
 
     expect(containsDay(targetWeek, parsePeriodRef('2026-03-12') as DayRef)).toBe(true)
+    expect(containsDay(targetWeek, parsePeriodRef('2026-03-09') as DayRef)).toBe(true)
+    expect(containsDay(targetWeek, parsePeriodRef('2026-03-15') as DayRef)).toBe(true)
     expect(periodIntersectsPeriod(parsePeriodRef('2026-W08'), parsePeriodRef('2026-03'))).toBe(true)
     expect(getAssignmentBounds(marchAssignment)).toEqual({
       start: '2026-03-01',
@@ -177,5 +180,19 @@ describe('period helpers', () => {
   it('compares period refs by start date and then breadth', () => {
     expect(comparePeriodRefs(parsePeriodRef('2026'), parsePeriodRef('2026-01'))).toBeLessThan(0)
     expect(comparePeriodRefs(parsePeriodRef('2026-W10'), parsePeriodRef('2026-03-12'))).toBeLessThan(0)
+  })
+
+  it('adds days across month and year boundaries', () => {
+    expect(addDaysToDayRef('2026-01-31' as DayRef, 1)).toBe('2026-02-01')
+    expect(addDaysToDayRef('2025-12-31' as DayRef, 1)).toBe('2026-01-01')
+    expect(addDaysToDayRef('2026-01-01' as DayRef, -1)).toBe('2025-12-31')
+  })
+
+  it('handles explicit weekly boundary cases', () => {
+    expect(getPreviousPeriod(parsePeriodRef('2026-W01'))).toBe('2025-W52')
+    expect(getPeriodBounds(parsePeriodRef('2026-W08'))).toEqual({
+      start: '2026-02-23',
+      end: '2026-03-01',
+    })
   })
 })

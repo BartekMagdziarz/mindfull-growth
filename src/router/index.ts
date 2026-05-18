@@ -9,7 +9,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/journal',
+      redirect: '/today',
     },
     // Auth routes (public)
     {
@@ -25,16 +25,20 @@ const router = createRouter({
     // Protected routes
     {
       path: '/today',
-      redirect: () => {
-        const { day } = getPeriodRefsForDate(new Date())
-        return { name: 'calendar-day', params: { dayRef: day } }
-      },
+      name: 'today',
+      component: () => import('@/views/TodayView.vue'),
+    },
+    {
+      path: '/today/:dayRef',
+      name: 'today-day',
+      component: () => import('@/views/TodayView.vue'),
+      props: route => ({ dayRef: route.params.dayRef }),
     },
     {
       path: '/calendar',
       redirect: () => {
-        const { day } = getPeriodRefsForDate(new Date())
-        return { name: 'calendar-day', params: { dayRef: day } }
+        const { week } = getPeriodRefsForDate(new Date())
+        return { name: 'calendar-week', params: { weekRef: week } }
       },
     },
     {
@@ -54,12 +58,6 @@ const router = createRouter({
       name: 'calendar-week',
       component: () => import('@/views/CalendarView.vue'),
       props: route => ({ scale: 'week', periodRef: route.params.weekRef }),
-    },
-    {
-      path: '/calendar/day/:dayRef',
-      name: 'calendar-day',
-      component: () => import('@/views/TodayView.vue'),
-      props: route => ({ dayRef: route.params.dayRef }),
     },
     {
       path: '/objects',
@@ -357,7 +355,7 @@ router.beforeEach(async (to, _from, next) => {
   } else if (isAuthenticated && isPublicRoute) {
     // Already authenticated and trying to access login/signup
     // Redirect to home
-    next({ name: 'journal' })
+    next({ name: 'today' })
   } else {
     // Proceed normally
     next()
