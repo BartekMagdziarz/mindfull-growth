@@ -26,12 +26,16 @@ vi.mock('@/repositories/trackerDexieRepository', () => ({
 vi.mock('@/repositories/priorityDexieRepository', () => ({
   priorityDexieRepository: { listAll: vi.fn() },
 }))
+vi.mock('@/repositories/planningStateDexieRepository', () => ({
+  planningStateDexieRepository: { listDailyMeasurementEntriesForDayRange: vi.fn() },
+}))
 
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
+import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 
 function makeBundle(overrides: Partial<ExerciseSessionBundle>): ExerciseSessionBundle {
   return {
@@ -176,6 +180,7 @@ describe('buildPlanningSnapshot', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(planningStateDexieRepository.listDailyMeasurementEntriesForDayRange).mockResolvedValue([])
   })
 
   it('returns empty arrays and empty snapshot when repositories return nothing', async () => {
@@ -265,6 +270,141 @@ describe('buildPlanningSnapshot', () => {
     expect(snapshot.activeKeyResults).toEqual([])
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
+  })
+
+  it('survives measurement entry repository failure and omits metrics', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.mocked(goalDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(keyResultDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(habitDexieRepository.listAll).mockResolvedValue([
+      {
+        id: 'h1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        title: 'Morning walk',
+        status: 'open',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        entryMode: 'completion',
+        cadence: 'weekly',
+        target: { kind: 'count', operator: 'min', value: 1 },
+      } as never,
+    ])
+    vi.mocked(trackerDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(planningStateDexieRepository.listDailyMeasurementEntriesForDayRange)
+      .mockRejectedValue(new Error('entry boom'))
+
+    const snapshot = await buildPlanningSnapshot()
+
+    expect(snapshot.snapshot).toContain('- Morning walk [habit, weekly]')
+    expect(snapshot.snapshot).not.toContain('30d completion')
+    expect(warn).toHaveBeenCalled()
+    warn.mockRestore()
+  })
+
+  it('includes execution metric lines for active habits, key results and trackers', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-03-20T12:00:00.000Z'))
+    vi.mocked(goalDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(keyResultDexieRepository.listAll).mockResolvedValue([
+      {
+        id: 'kr1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        title: 'Long run distance',
+        goalId: 'g1',
+        status: 'open',
+        isActive: true,
+        entryMode: 'value',
+        cadence: 'weekly',
+        target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 42 },
+      } as never,
+    ])
+    vi.mocked(habitDexieRepository.listAll).mockResolvedValue([
+      {
+        id: 'h1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        title: 'Morning walk',
+        status: 'open',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        entryMode: 'completion',
+        cadence: 'weekly',
+        target: { kind: 'count', operator: 'min', value: 1 },
+      } as never,
+    ])
+    vi.mocked(trackerDexieRepository.listAll).mockResolvedValue([
+      {
+        id: 't1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        title: 'Mood',
+        status: 'open',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        entryMode: 'rating',
+        cadence: 'weekly',
+        ratingScaleMin: 1,
+        ratingScale: 10,
+      } as never,
+    ])
+    vi.mocked(priorityDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(planningStateDexieRepository.listDailyMeasurementEntriesForDayRange).mockResolvedValue([
+      {
+        id: 'h1-2026-03-18',
+        createdAt: '2026-03-18T08:00:00.000Z',
+        updatedAt: '2026-03-18T08:00:00.000Z',
+        subjectType: 'habit',
+        subjectId: 'h1',
+        dayRef: '2026-03-18',
+        value: 1,
+      },
+      {
+        id: 'kr1-2026-03-18',
+        createdAt: '2026-03-18T08:00:00.000Z',
+        updatedAt: '2026-03-18T08:00:00.000Z',
+        subjectType: 'keyResult',
+        subjectId: 'kr1',
+        dayRef: '2026-03-18',
+        value: 28,
+      },
+      ...Array.from({ length: 3 }, (_, index) => ({
+        id: `t1-recent-${index}`,
+        createdAt: `2026-03-${18 - index}T08:00:00.000Z`,
+        updatedAt: `2026-03-${18 - index}T08:00:00.000Z`,
+        subjectType: 'tracker' as const,
+        subjectId: 't1',
+        dayRef: `2026-03-${18 - index}` as never,
+        value: 7,
+      })),
+      ...Array.from({ length: 3 }, (_, index) => ({
+        id: `t1-baseline-${index}`,
+        createdAt: `2026-02-0${index + 1}T08:00:00.000Z`,
+        updatedAt: `2026-02-0${index + 1}T08:00:00.000Z`,
+        subjectType: 'tracker' as const,
+        subjectId: 't1',
+        dayRef: `2026-02-0${index + 1}` as never,
+        value: 6,
+      })),
+    ] as never)
+
+    const snapshot = await buildPlanningSnapshot()
+
+    expect(snapshot.snapshot).toContain('- Morning walk [habit, weekly]')
+    expect(snapshot.snapshot).toContain('Streak: 1 weeks * 30d completion:')
+    expect(snapshot.snapshot).toContain('- Long run distance [key result, weekly]')
+    expect(snapshot.snapshot).toContain('Progress: 28/42 (67%)')
+    expect(snapshot.snapshot).toContain('Last entry: 2026-03-18')
+    expect(snapshot.snapshot).toContain('- Mood [tracker, weekly]')
+    expect(snapshot.snapshot).toContain('30d avg:')
+    expect(snapshot.snapshot).toContain('trend rising')
+
+    vi.useRealTimers()
   })
 
   it('includes strategic priority context without drafts', async () => {
