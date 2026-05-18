@@ -220,7 +220,7 @@ const DATA_TYPE_ICONS: Record<ProfileDataType, string> = {
   exerciseSessions: 'self_improvement',
   weeklyReflections: 'calendar_view_week',
   monthlyReflections: 'calendar_month',
-  questionnaires: 'quiz',
+  foundation: 'foundation',
   planning: 'flag',
 }
 

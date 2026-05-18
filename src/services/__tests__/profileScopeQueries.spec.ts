@@ -9,7 +9,15 @@ import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import { queryScopePreview } from '@/services/profileScopeQueries'
+import { computeFoundationStatuses } from '@/services/foundationCompleteness'
 import type { WeekRef } from '@/domain/period'
+
+vi.mock('@/services/foundationCompleteness', () => ({
+  computeFoundationStatuses: vi.fn(() => []),
+  foundationCompletionCount: vi.fn((statuses: Array<{ state: string }>) =>
+    statuses.filter((s) => s.state === 'completed' || s.state === 'outdated').length,
+  ),
+}))
 
 describe('queryScopePreview', () => {
   beforeEach(async () => {
@@ -20,6 +28,7 @@ describe('queryScopePreview', () => {
     await db.emotionLogs.clear()
     await db.weeklyReflections.clear()
     await db.monthlyReflections.clear()
+    vi.mocked(computeFoundationStatuses).mockReturnValue([])
   })
 
   afterEach(async () => {
@@ -136,14 +145,64 @@ describe('queryScopePreview', () => {
     expect(result.headers[0].title).toBe('With Mom')
   })
 
-  it('counts questionnaires and planning as zero (stubbed until later stories)', async () => {
+  it('counts planning as zero while it remains stubbed in preview', async () => {
     const result = await queryScopePreview({
-      dataTypes: ['questionnaires', 'planning'],
+      dataTypes: ['planning'],
       start: '2026-01-01T00:00:00.000Z',
       end: '2026-12-31T23:59:59.999Z',
     })
-    expect(result.countsByType.questionnaires).toBe(0)
     expect(result.countsByType.planning).toBe(0)
+  })
+
+  it('counts completed and outdated foundation tiles', async () => {
+    vi.mocked(computeFoundationStatuses).mockReturnValue([
+      {
+        id: 'valuesDiscovery',
+        group: 'values',
+        state: 'completed',
+        lastCompletedAt: '2026-04-01T00:00:00.000Z',
+        routeName: 'exercise-values',
+      },
+      {
+        id: 'valueMap',
+        group: 'values',
+        state: 'outdated',
+        lastCompletedAt: '2025-01-01T00:00:00.000Z',
+        routeName: 'exercise-value-map',
+      },
+      {
+        id: 'vlq',
+        group: 'values',
+        state: 'completed',
+        lastCompletedAt: '2026-03-01T00:00:00.000Z',
+        routeName: 'exercise-assessment',
+        routeParams: { assessmentId: 'vlq' },
+      },
+      {
+        id: 'shadowBeliefs',
+        group: 'personality',
+        state: 'completed',
+        lastCompletedAt: '2026-02-01T00:00:00.000Z',
+        routeName: 'exercise-shadow-beliefs',
+      },
+      {
+        id: 'wheelOfLife',
+        group: 'lifeBalance',
+        state: 'not-started',
+        routeName: 'exercise-wheel-of-life',
+      },
+    ])
+
+    const result = await queryScopePreview({
+      dataTypes: ['foundation'],
+      start: '2026-01-01T00:00:00.000Z',
+      end: '2026-12-31T23:59:59.999Z',
+    })
+
+    expect(result.countsByType.foundation).toBe(4)
+    expect(result.objectIdsByType.foundation).toHaveLength(4)
+    expect(result.headers).toHaveLength(4)
+    expect(result.headers.every((h) => h.type === 'foundation')).toBe(true)
   })
 
   it('counts weekly reflections in range when the store is populated', async () => {

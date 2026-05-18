@@ -433,6 +433,7 @@ const EXERCISE_TABLES: { table: string; type: string }[] = [
   { table: 'ifsDailyCheckIns', type: 'ifsDailyCheckIn' },
   { table: 'ifsConstellations', type: 'constellation' },
   // Self-Discovery
+  { table: 'valueMaps', type: 'valueMap' },
   { table: 'valuesDiscoveries', type: 'valuesDiscovery' },
   { table: 'shadowBeliefs', type: 'shadowBeliefs' },
   { table: 'transformativePurposes', type: 'transformativePurpose' },

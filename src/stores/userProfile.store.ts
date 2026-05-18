@@ -21,6 +21,7 @@ import {
   hasAIProviderConfigured,
   sendMessage,
 } from '@/services/llmService'
+import { withProfileContextSystemPrompt } from '@/services/userContext'
 import { resolveDateRange } from '@/composables/useProfileBuildWizard'
 import {
   getProfilePrompts,
@@ -33,6 +34,8 @@ import {
   type ProfilePayloadWeeklyReflection,
 } from '@/services/profileLLMAssists'
 import {
+  buildFoundationSnapshot,
+  buildLifeAreasSnapshot,
   buildPlanningSnapshot,
   extractMonthlyRatings,
   extractWeeklyRatings,
@@ -333,11 +336,28 @@ export const useUserProfileStore = defineStore('userProfile', () => {
           }))
       }
 
+      // ---- Foundation -------------------------------------------------------
+      let foundation: { snapshot: string } | undefined
+      if (enabled.has('foundation')) {
+        const snapshot = await buildFoundationSnapshot()
+        if (snapshot.snapshot.trim().length > 0) {
+          foundation = { snapshot: snapshot.snapshot }
+        }
+      }
+
       // ---- Planning ---------------------------------------------------------
+      let lifeAreas: { snapshot: string } | undefined
       let planning: { snapshot: string } | undefined
       if (enabled.has('planning')) {
-        const snapshot = await buildPlanningSnapshot()
-        planning = { snapshot: snapshot.snapshot }
+        const planningSnapshot = await buildPlanningSnapshot()
+        if (planningSnapshot.snapshot.trim().length > 0) {
+          planning = { snapshot: planningSnapshot.snapshot }
+        }
+
+        const lifeAreasSnapshot = buildLifeAreasSnapshot()
+        if (lifeAreasSnapshot.snapshot.trim().length > 0) {
+          lifeAreas = { snapshot: lifeAreasSnapshot.snapshot }
+        }
       }
 
       // ---- Payload + LLM call ----------------------------------------------
@@ -350,14 +370,25 @@ export const useUserProfileStore = defineStore('userProfile', () => {
           exerciseSessions,
           weeklyReflections,
           monthlyReflections,
+          foundation,
+          lifeAreas,
           planning,
         },
         scope.locale,
       )
 
+      // Profile build is the single LLM call site that must NEVER include
+      // the user's psychological profile in its system prompt — using a
+      // profile to generate a profile would conflate prior output with new
+      // input. Hard-coded false; asserted by test.
+      const finalSystemPrompt = withProfileContextSystemPrompt(
+        promptModule.systemPrompt,
+        { useProfile: false },
+      )
+
       rawResponse = await sendMessage(
         [{ role: 'user', content: payload }],
-        promptModule.systemPrompt,
+        finalSystemPrompt,
         { maxTokens: PROFILE_MAX_TOKENS, model },
       )
 

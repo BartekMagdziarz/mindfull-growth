@@ -190,7 +190,11 @@ export interface ProfilePayloadMonthlyReflection {
   freeformReflection: string
 }
 
-export interface ProfilePayloadPlanning {
+export interface ProfilePayloadSnapshot {
+  snapshot: string
+}
+
+export interface ProfilePayloadPlanning extends ProfilePayloadSnapshot {
   /** A bulleted summary of currently active goals / KRs / habits / trackers. */
   snapshot: string
 }
@@ -203,6 +207,8 @@ export interface ProfilePayloadInput {
   exerciseSessions?: ProfilePayloadExerciseSummary[]
   weeklyReflections?: ProfilePayloadWeeklyReflection[]
   monthlyReflections?: ProfilePayloadMonthlyReflection[]
+  foundation?: ProfilePayloadSnapshot
+  lifeAreas?: ProfilePayloadSnapshot
   planning?: ProfilePayloadPlanning
 }
 
@@ -324,6 +330,15 @@ export function buildProfilePayload(
 
   const enabled = new Set(input.dataTypes)
 
+  if (
+    enabled.has('foundation') &&
+    input.foundation &&
+    input.foundation.snapshot.trim().length > 0
+  ) {
+    lines.push('[FOUNDATION SNAPSHOT]')
+    lines.push(input.foundation.snapshot, '')
+  }
+
   if (enabled.has('journal') && input.journalEntries && input.journalEntries.length > 0) {
     lines.push('[JOURNAL ENTRIES]')
     for (const e of input.journalEntries) lines.push(formatJournalEntry(e), '')
@@ -359,6 +374,15 @@ export function buildProfilePayload(
   ) {
     lines.push('[MONTHLY REFLECTIONS]')
     for (const r of input.monthlyReflections) lines.push(formatMonthlyReflection(r), '')
+  }
+
+  if (
+    enabled.has('planning') &&
+    input.lifeAreas &&
+    input.lifeAreas.snapshot.trim().length > 0
+  ) {
+    lines.push('[LIFE AREAS]')
+    lines.push(input.lifeAreas.snapshot, '')
   }
 
   if (enabled.has('planning') && input.planning && input.planning.snapshot.trim().length > 0) {

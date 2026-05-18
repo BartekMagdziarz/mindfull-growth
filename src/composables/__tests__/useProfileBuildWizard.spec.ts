@@ -125,6 +125,7 @@ describe('useProfileBuildWizard', () => {
     expect(wizard.currentStep.value).toBe('scope')
     expect(wizard.stepIndex.value).toBe(0)
     expect(wizard.dataTypes.value).toEqual([
+      'foundation',
       'journal',
       'emotionLogs',
       'exerciseSessions',
@@ -132,6 +133,12 @@ describe('useProfileBuildWizard', () => {
       'monthlyReflections',
     ])
     expect(wizard.dateRange.value).toEqual({ kind: 'preset', preset: 'last90' })
+  })
+
+  it('does not include planning in the default data types', () => {
+    const wizard = mountWizard()
+    expect(wizard.dataTypes.value).toContain('foundation')
+    expect(wizard.dataTypes.value).not.toContain('planning')
   })
 
   it('disables Next on scope when no data types are selected', () => {
@@ -221,6 +228,42 @@ describe('useProfileBuildWizard', () => {
     await nextTick()
     expect(second.dataTypes.value).toEqual(['journal'])
     expect(second.dateRange.value).toEqual({ kind: 'preset', preset: 'last30' })
+  })
+
+  it('coerces legacy questionnaires drafts to foundation', async () => {
+    const storage = await import('@/services/draftStorage')
+    await storage.saveDraftToDB(
+      WIZARD_DRAFT_KEY,
+      JSON.stringify({
+        dataTypes: ['questionnaires', 'journal'],
+        dateRange: { kind: 'preset', preset: 'last30' },
+        filters: {},
+      }),
+    )
+
+    const wizard = mountWizard()
+    await nextTick()
+    await nextTick()
+
+    expect(wizard.dataTypes.value).toEqual(['foundation', 'journal'])
+  })
+
+  it('deduplicates legacy questionnaires drafts when foundation is already present', async () => {
+    const storage = await import('@/services/draftStorage')
+    await storage.saveDraftToDB(
+      WIZARD_DRAFT_KEY,
+      JSON.stringify({
+        dataTypes: ['questionnaires', 'foundation', 'journal'],
+        dateRange: { kind: 'preset', preset: 'last30' },
+        filters: {},
+      }),
+    )
+
+    const wizard = mountWizard()
+    await nextTick()
+    await nextTick()
+
+    expect(wizard.dataTypes.value).toEqual(['foundation', 'journal'])
   })
 
   it('resetDraft clears the persisted payload', async () => {
@@ -713,6 +756,7 @@ describe('useProfileBuildWizard — save state (Story 6)', () => {
 
     expect(wizard.currentStep.value).toBe('scope')
     expect(wizard.dataTypes.value).toEqual([
+      'foundation',
       'journal',
       'emotionLogs',
       'exerciseSessions',
