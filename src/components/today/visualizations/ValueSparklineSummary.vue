@@ -5,6 +5,7 @@
         :points="chartPoints"
         cadence="daily"
         :compact="true"
+        :hide-labels="true"
       />
     </div>
     <div class="flex shrink-0 flex-col items-end leading-tight">

@@ -70,10 +70,14 @@ const CELL_W = 14
 const CELL_H = 52
 
 const fillRatio = computed(() => {
-  const span = props.data.scaleMax - props.data.scaleMin
-  if (span <= 0 || props.data.entryCount === 0) return 0
-  const raw = (props.data.averageValue - props.data.scaleMin) / span
-  return Math.min(1, Math.max(0, raw))
+  // Match RatingSegmentedBars: the lowest possible average (scaleMin) is
+  // still "1 step out of N", not zero, so the bar reads as the worst rating
+  // rather than as "no data".
+  if (props.data.entryCount === 0) return 0
+  const steps = props.data.scaleMax - props.data.scaleMin + 1
+  if (steps <= 1) return 1
+  const stepIndex = props.data.averageValue - props.data.scaleMin + 1
+  return Math.min(1, Math.max(0, stepIndex / steps))
 })
 
 const fillHeight = computed(() => (CELL_H - 2) * fillRatio.value)
@@ -98,9 +102,11 @@ const showTargetTick = computed(
 
 const targetTickY = computed(() => {
   if (props.data.targetValue === undefined) return 0
-  const span = props.data.scaleMax - props.data.scaleMin
-  if (span <= 0) return CELL_H / 2
-  const ratio = (props.data.targetValue - props.data.scaleMin) / span
+  // Use the same step-based mapping as the bar so the tick lands exactly at
+  // the top of a bar whose value equals the target.
+  const steps = props.data.scaleMax - props.data.scaleMin + 1
+  if (steps <= 1) return CELL_H / 2
+  const ratio = (props.data.targetValue - props.data.scaleMin + 1) / steps
   return CELL_H - (CELL_H - 2) * ratio - 1
 })
 

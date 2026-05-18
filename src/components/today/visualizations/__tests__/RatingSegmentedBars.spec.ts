@@ -158,6 +158,29 @@ describe('RatingSegmentedBars', () => {
     expect(getByText('Tu')).toBeTruthy()
   })
 
+  it('gives the lowest rating (1 on a 1-5 scale) a visible bar height', () => {
+    // Regression: previously `(value - scaleMin) / span` produced ratio 0 for
+    // value=scaleMin, making the lowest rating render the same 2px baseline
+    // as a slot with no entry. With step-based mapping the lowest rating
+    // gets 1/5 = 20% of the chart height.
+    const lowestRating = [makeSlot('2026-03-09', 1, { label: 'Mo' })]
+    const lowestEmpty = [makeSlot('2026-03-09', undefined, { label: 'Mo' })]
+    const { container: lowestC } = render(RatingSegmentedBars, {
+      props: { slots: lowestRating, scaleMin: 1, scaleMax: 5 },
+    })
+    const { container: emptyC } = render(RatingSegmentedBars, {
+      props: { slots: lowestEmpty, scaleMin: 1, scaleMax: 5 },
+    })
+
+    const lowestH = Number(valueBars(lowestC)[0].getAttribute('height'))
+    const emptyBaselines = Array.from(emptyC.querySelectorAll('svg rect')).map((r) =>
+      Number((r as SVGRectElement).getAttribute('height')),
+    )
+
+    expect(lowestH).toBeGreaterThan(8)
+    expect(emptyBaselines).toContain(2)
+  })
+
   it('uses the sky palette for values at or below the target (lte)', () => {
     const slots = [makeSlot('2026-03-09', 2, { label: 'Mo' })]
     const { container } = render(RatingSegmentedBars, {

@@ -1,9 +1,21 @@
 <template>
-  <SparklineValueLine
-    :points="chartPoints"
-    cadence="daily"
-    :compact="true"
-  />
+  <div class="flex w-full flex-col gap-1">
+    <SparklineValueLine
+      :points="chartPoints"
+      cadence="daily"
+      :compact="true"
+      :hide-labels="true"
+    />
+    <div class="day-labels">
+      <span
+        v-for="slot in slots"
+        :key="slot.dayRef"
+        class="day-label"
+      >
+        {{ slot.label }}
+      </span>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -26,3 +38,21 @@ const chartPoints = computed<ObjectsLibraryChartPoint[]>(() =>
   })),
 )
 </script>
+
+<style scoped>
+.day-labels {
+  display: flex;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.day-label {
+  flex: 1 1 0;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1;
+  color: rgb(var(--neo-muted) / 0.7);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+</style>

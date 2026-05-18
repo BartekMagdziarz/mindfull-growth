@@ -44,16 +44,17 @@ describe('RatingSmoothBar', () => {
     expect(getByText('—')).toBeTruthy()
   })
 
-  it('sets the fill rect height proportional to averageValue / scaleMax', () => {
+  it('sets the fill rect height proportional to averageValue position in scale steps', () => {
     const { container } = render(RatingSmoothBar, {
       props: { data: makeData({ averageValue: 5.5, scaleMin: 1, scaleMax: 10, entryCount: 5 }) },
     })
 
     const fill = container.querySelector('[data-testid="rating-smooth-fill"]')
     expect(fill).not.toBeNull()
-    // (5.5 - 1) / (10 - 1) = 0.5; fillHeight = (52 - 2) * 0.5 = 25
+    // Step-based mapping: stepIndex = 5.5 - 1 + 1 = 5.5; steps = 10;
+    // ratio = 0.55; fillHeight = (52 - 2) * 0.55 = 27.5
     const height = Number(fill?.getAttribute('height'))
-    expect(height).toBeCloseTo(25, 1)
+    expect(height).toBeCloseTo(27.5, 1)
   })
 
   it('renders the target tick when targetValue is within scale', () => {
@@ -95,9 +96,10 @@ describe('RatingSmoothBar', () => {
     })
 
     const fill = container.querySelector('[data-testid="rating-smooth-fill"]')
-    // (3 - 1) / (5 - 1) = 0.5; fillHeight = (52 - 2) * 0.5 = 25
+    // Step-based mapping: stepIndex = 3 - 1 + 1 = 3; steps = 5;
+    // ratio = 0.6; fillHeight = (52 - 2) * 0.6 = 30
     const height = Number(fill?.getAttribute('height'))
-    expect(height).toBeCloseTo(25, 1)
+    expect(height).toBeCloseTo(30, 1)
   })
 
   it('renders target tick with lte operator', () => {

@@ -132,8 +132,10 @@ function dotStyle(slot: TodayCompletionSlot): CSSProperties {
 }
 
 const labelStyle = computed<CSSProperties>(() => ({
-  fontSize: props.size === 'sm' ? '8px' : count.value <= 4 ? '11px' : '10px',
+  fontSize: props.size === 'sm' ? '8px' : '11px',
   color: 'rgb(var(--neo-muted) / 0.7)',
+  fontWeight: 500,
+  letterSpacing: '0.02em',
 }))
 </script>
 

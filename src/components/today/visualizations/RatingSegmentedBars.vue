@@ -63,9 +63,7 @@
           stroke-dasharray="3 2"
         />
       </svg>
-      <span class="text-[11px] leading-none text-on-surface-variant/60">
-        {{ slot.label }}
-      </span>
+      <span class="day-label">{{ slot.label }}</span>
     </div>
   </div>
 </template>
@@ -115,9 +113,13 @@ const targetTickY = computed(() => {
 })
 
 function valueToY(value: number): number {
-  const span = props.scaleMax - props.scaleMin
-  if (span <= 0) return PAD + CONTENT_H / 2
-  const ratio = Math.max(0, Math.min(1, (value - props.scaleMin) / span))
+  // Treat ratings as discrete steps: the lowest value (scaleMin) is the FIRST
+  // step out of N, so it still draws a visible bar. Using `(v - min) / span`
+  // would map scaleMin to ratio 0, which is indistinguishable from "no entry".
+  const steps = props.scaleMax - props.scaleMin + 1
+  if (steps <= 1) return PAD
+  const stepIndex = value - props.scaleMin + 1
+  const ratio = Math.max(0, Math.min(1, stepIndex / steps))
   return PAD + CONTENT_H - ratio * CONTENT_H
 }
 
@@ -148,3 +150,15 @@ function ariaLabel(slot: TodayDaySlot): string {
   return `${slot.label}: ${value} / ${props.scaleMin}–${props.scaleMax}`
 }
 </script>
+
+<style scoped>
+.day-label {
+  display: inline-block;
+  font-size: 11px;
+  line-height: 1;
+  color: rgb(var(--neo-muted) / 0.7);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+</style>
