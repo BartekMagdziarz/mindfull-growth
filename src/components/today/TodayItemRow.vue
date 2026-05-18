@@ -25,6 +25,7 @@
         <!-- Initiative: dedicated checkmark -->
         <InitiativeCheckmark
           v-if="viz.vizType.value === 'initiative-check'"
+          size="sm"
           :is-complete="item.kind === 'initiative' && !!item.planState.dayRef"
           :day-label="item.kind === 'initiative' && item.planState.dayRef ? todayLabel : undefined"
           :is-pending="isPending"
@@ -472,12 +473,13 @@ function handleMoveDateChange(event: Event): void {
   padding: 0;
 }
 
-/* 55px-ish row matching the design — title, lead icon, entry on right */
+/* Compact day-row: 15% smaller right-side controls (44px → 37px) let the row
+   drop ~7px without crowding the title. */
 .today-item-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 55px;
+  height: 48px;
   padding: 0 2px;
 }
 
@@ -516,19 +518,21 @@ function handleMoveDateChange(event: Event): void {
 }
 
 .today-item-entry {
-  flex: 0 0 44px;
-  height: 44px;
+  flex: 0 0 37px;
+  height: 37px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   position: relative;
 }
 
-/* Unified 44px circle entry cell — every entryMode uses the same shape. */
+/* Unified 37px circle entry cell — 15% smaller than the original 44px so
+   the row reads tighter without shrinking the title font. Every entryMode
+   (completion / counter / rating / value) lives inside this same shape. */
 .today-entry-circle {
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
+  width: 37px;
+  height: 37px;
+  flex: 0 0 37px;
   border-radius: 9999px;
   background: rgb(var(--neo-surface-base));
   box-shadow:
@@ -675,9 +679,9 @@ function handleMoveDateChange(event: Event): void {
   right: calc(100% + 6px);
   top: 50%;
   transform: translate(8px, -50%);
-  width: 24px;
-  height: 42px;
-  border-radius: 14px;
+  width: 20px;
+  height: 36px;
+  border-radius: 12px;
   background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
   box-shadow:
     -2px -2px 5px rgb(var(--neo-shadow-light) / 0.85),
