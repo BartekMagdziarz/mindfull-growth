@@ -1,56 +1,44 @@
 <template>
-  <div class="flex items-end gap-2">
-    <svg
-      :width="CELL_W"
-      :height="CELL_H"
-      :viewBox="`0 0 ${CELL_W} ${CELL_H}`"
-      role="img"
-      :aria-label="ariaLabel"
-    >
-      <!-- Outline frame -->
-      <rect
-        :x="0.5"
-        :y="0.5"
-        :width="CELL_W - 1"
-        :height="CELL_H - 1"
-        rx="2"
-        fill="transparent"
-        stroke="rgb(var(--color-outline) / 0.45)"
-        stroke-width="1"
-      />
-      <!-- Solid fill colored by ratingBarColor (red below target → blue above) -->
-      <rect
-        v-if="fillRatio > 0"
-        data-testid="rating-smooth-fill"
-        :x="1"
-        :y="fillY"
-        :width="CELL_W - 2"
-        :height="fillHeight"
-        rx="1.5"
-        :fill="fillColor"
-      />
-      <!-- Target tick -->
-      <line
-        v-if="showTargetTick"
-        data-testid="rating-smooth-target"
-        :x1="0"
-        :y1="targetTickY"
-        :x2="CELL_W"
-        :y2="targetTickY"
-        stroke="rgb(var(--color-on-surface-variant))"
-        stroke-width="1"
-        stroke-opacity="0.45"
-        stroke-dasharray="3 2"
-      />
-    </svg>
-    <div class="flex shrink-0 flex-col items-end leading-tight">
-      <span class="text-sm font-semibold tabular-nums text-on-surface">
-        {{ formattedAverage }}
-      </span>
-      <span class="mt-0.5 text-[11px] text-on-surface-variant">
-        {{ t('planning.today.summary.entries', { n: data.entryCount }) }}
-      </span>
+  <div class="rating-monthly" :aria-label="ariaLabel">
+    <div class="rating-monthly__readout">
+      <span class="rating-monthly__big">{{ formattedAverage }}</span>
+      <span v-if="hasEntries" class="rating-monthly__max">/ {{ data.scaleMax }}</span>
     </div>
+
+    <div class="rating-monthly__track-wrap">
+      <div class="rating-monthly__track">
+        <div
+          v-if="hasEntries"
+          data-testid="rating-smooth-fill"
+          class="rating-monthly__fill"
+          :style="{ width: `${(fillRatio * 100).toFixed(1)}%`, background: fillColor }"
+        />
+        <div
+          v-if="hasEntries"
+          class="rating-monthly__marker"
+          :style="{
+            left: `calc(${(fillRatio * 100).toFixed(1)}% - 1.5px)`,
+            background: fillColor,
+          }"
+          aria-hidden="true"
+        />
+        <div
+          v-if="showTargetMarker"
+          data-testid="rating-smooth-target"
+          class="rating-monthly__target"
+          :style="{ left: `calc(${(targetRatio * 100).toFixed(1)}% - 0.75px)` }"
+          aria-hidden="true"
+        />
+      </div>
+      <div class="rating-monthly__scale">
+        <span>{{ data.scaleMin }}</span>
+        <span>{{ data.scaleMax }}</span>
+      </div>
+    </div>
+
+    <span class="rating-monthly__count">
+      {{ t('planning.today.summary.entries', { n: data.entryCount }) }}
+    </span>
   </div>
 </template>
 
@@ -66,22 +54,17 @@ const props = defineProps<{
 
 const { t } = useT()
 
-const CELL_W = 14
-const CELL_H = 52
+const hasEntries = computed(() => props.data.entryCount > 0)
 
+// Step-based mapping — the lowest possible value still occupies 1/N of the
+// track so it reads as "worst rating" rather than "no data".
 const fillRatio = computed(() => {
-  // Match RatingSegmentedBars: the lowest possible average (scaleMin) is
-  // still "1 step out of N", not zero, so the bar reads as the worst rating
-  // rather than as "no data".
-  if (props.data.entryCount === 0) return 0
+  if (!hasEntries.value) return 0
   const steps = props.data.scaleMax - props.data.scaleMin + 1
   if (steps <= 1) return 1
   const stepIndex = props.data.averageValue - props.data.scaleMin + 1
   return Math.min(1, Math.max(0, stepIndex / steps))
 })
-
-const fillHeight = computed(() => (CELL_H - 2) * fillRatio.value)
-const fillY = computed(() => CELL_H - 1 - fillHeight.value)
 
 const fillColor = computed(() =>
   ratingBarColor({
@@ -93,29 +76,127 @@ const fillColor = computed(() =>
   }),
 )
 
-const showTargetTick = computed(
+const showTargetMarker = computed(
   () =>
     props.data.targetValue !== undefined &&
     props.data.targetValue >= props.data.scaleMin &&
     props.data.targetValue <= props.data.scaleMax,
 )
 
-const targetTickY = computed(() => {
+const targetRatio = computed(() => {
   if (props.data.targetValue === undefined) return 0
-  // Use the same step-based mapping as the bar so the tick lands exactly at
-  // the top of a bar whose value equals the target.
   const steps = props.data.scaleMax - props.data.scaleMin + 1
-  if (steps <= 1) return CELL_H / 2
-  const ratio = (props.data.targetValue - props.data.scaleMin + 1) / steps
-  return CELL_H - (CELL_H - 2) * ratio - 1
+  if (steps <= 1) return 0.5
+  return (props.data.targetValue - props.data.scaleMin + 1) / steps
 })
 
 const formattedAverage = computed(() => {
-  if (props.data.entryCount === 0) return '—'
+  if (!hasEntries.value) return '—'
   return props.data.averageValue.toFixed(1)
 })
 
 const ariaLabel = computed(
-  () => `average ${formattedAverage.value} of ${props.data.scaleMax}`,
+  () =>
+    `average ${formattedAverage.value} of ${props.data.scaleMax} from ${props.data.entryCount} entries`,
 )
 </script>
+
+<style scoped>
+.rating-monthly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.rating-monthly__readout {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  line-height: 1;
+  color: rgb(var(--neo-text));
+  font-variant-numeric: tabular-nums;
+}
+
+.rating-monthly__big {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.rating-monthly__max {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(var(--neo-muted));
+}
+
+.rating-monthly__track-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Inset track — same neumorphic groove used for value-rating circles so the
+   monthly aggregate reads as the same family of control. */
+.rating-monthly__track {
+  position: relative;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgb(var(--neo-surface-base));
+  box-shadow:
+    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.85),
+    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.3);
+}
+
+.rating-monthly__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 9999px;
+  transition: width 220ms ease, background 220ms ease;
+}
+
+/* Tall sliver marker pointing to the exact average position. Same colour
+   family as the fill so the eye traces marker → fill seamlessly. */
+.rating-monthly__marker {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 3px;
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgb(var(--sky-600) / 0.45);
+}
+
+/* Dashed target marker — shorter than the value marker so the user marker
+   is clearly the dominant signal. */
+.rating-monthly__target {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1.5px;
+  background: rgb(var(--neo-muted));
+  opacity: 0.55;
+  border-radius: 1px;
+}
+
+.rating-monthly__scale {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1px;
+  font-size: 9px;
+  font-weight: 500;
+  color: rgb(var(--neo-muted) / 0.7);
+  font-variant-numeric: tabular-nums;
+}
+
+.rating-monthly__count {
+  font-size: 11px;
+  color: rgb(var(--neo-muted) / 0.85);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+</style>
