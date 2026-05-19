@@ -18,6 +18,7 @@ interface GoalLike {
   successDefinition?: string
   whyMatters?: string
   confidenceRating?: number
+  achievabilityRationale?: string
   obstacles?: string
   resources?: string
   priorityIds?: string[]
@@ -35,7 +36,8 @@ export function computeSmartCompleteness(
 ): SmartCompleteness {
   const specific = hasText(goal.title) && (hasText(goal.successDefinition) || hasText(goal.description))
   const measurable = keyResultCount >= 1
-  const achievable = hasText(goal.obstacles) || hasText(goal.resources)
+  const achievable =
+    hasText(goal.achievabilityRationale) || hasText(goal.obstacles) || hasText(goal.resources)
   const relevant =
     (goal.priorityIds?.length ?? 0) > 0 ||
     (goal.lifeAreaIds?.length ?? 0) > 0 ||

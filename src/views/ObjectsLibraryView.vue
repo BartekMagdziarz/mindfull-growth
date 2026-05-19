@@ -165,6 +165,7 @@
             @unlink-month="handleGoalUnlinkMonth"
             @archive="handleGoalArchive"
             @delete="handleGoalDelete"
+            @edit="handleGoalEdit"
             @add-key-result="handleCreateChildKeyResult"
             @kr-toggle-expand="handleKrToggleExpand"
             @kr-field-change="handleKrFieldChange"
@@ -273,7 +274,7 @@
     />
     <AppDialog
       v-model="isGoalWizardOpen"
-      :title="t('planning.goalWizard.title')"
+      :title="goalWizardMode === 'edit' ? t('planning.goalWizard.editTitle') : t('planning.goalWizard.title')"
       size="3xl"
       :close-on-backdrop="false"
       @cancel="handleGoalWizardCancelled"
@@ -282,7 +283,9 @@
         v-if="isGoalWizardOpen"
         :priority-options="store.filterOptions.priorities"
         :life-area-options="store.filterOptions.lifeAreas"
-        @created="handleGoalWizardCreated"
+        :mode="goalWizardMode"
+        :edit-input="goalWizardEditInput ?? undefined"
+        @saved="handleGoalWizardSaved"
         @cancelled="handleGoalWizardCancelled"
         @error="handleGoalWizardError"
       />
@@ -304,6 +307,7 @@ import ObjectsLibraryInlineEditor from '@/components/objects/ObjectsLibraryInlin
 import ObjectsLibraryPriorityCard from '@/components/objects/ObjectsLibraryPriorityCard.vue'
 import ObjectsLibraryGoalCard from '@/components/objects/ObjectsLibraryGoalCard.vue'
 import GoalCreationWizard from '@/components/objects/GoalCreationWizard.vue'
+import type { GoalWizardEditInput } from '@/composables/useGoalCreationWizard'
 import ObjectsLibraryMeasurementCard from '@/components/objects/ObjectsLibraryMeasurementCard.vue'
 import ObjectsLibraryInitiativeCard from '@/components/objects/ObjectsLibraryInitiativeCard.vue'
 import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
@@ -395,6 +399,8 @@ const newMeasurementId = ref<string | null>(null)
 const newInitiativeId = ref<string | null>(null)
 const newPriorityId = ref<string | null>(null)
 const isGoalWizardOpen = ref(false)
+const goalWizardMode = ref<'create' | 'edit'>('create')
+const goalWizardEditInput = ref<GoalWizardEditInput | null>(null)
 
 let searchSyncTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -913,12 +919,20 @@ function handleClearFilters(): void {
   void syncRoute()
 }
 
-async function handleGoalWizardCreated(goalId: string): Promise<void> {
+async function handleGoalWizardSaved(goalId: string, mode: 'create' | 'edit'): Promise<void> {
   isGoalWizardOpen.value = false
-  newGoalId.value = goalId
+  goalWizardEditInput.value = null
+  goalWizardMode.value = 'create'
+  if (mode === 'create') {
+    newGoalId.value = goalId
+  }
   try {
     await store.loadBundle()
-    snackbarRef.value?.show(t('planning.goalWizard.messages.saved'))
+    snackbarRef.value?.show(
+      mode === 'edit'
+        ? t('planning.goalWizard.messages.updated')
+        : t('planning.goalWizard.messages.saved'),
+    )
   } catch (err) {
     snackbarRef.value?.show(
       err instanceof Error ? err.message : t('planning.goalWizard.messages.saveError'),
@@ -928,10 +942,59 @@ async function handleGoalWizardCreated(goalId: string): Promise<void> {
 
 function handleGoalWizardCancelled(): void {
   isGoalWizardOpen.value = false
+  goalWizardEditInput.value = null
+  goalWizardMode.value = 'create'
 }
 
 function handleGoalWizardError(message: string): void {
   snackbarRef.value?.show(message || t('planning.goalWizard.messages.saveError'))
+}
+
+async function handleGoalEdit(goalId: string): Promise<void> {
+  try {
+    const goal = await goalDexieRepository.getById(goalId)
+    if (!goal) {
+      snackbarRef.value?.show(t('planning.goalWizard.messages.saveError'))
+      return
+    }
+    const allKeyResults = await keyResultDexieRepository.listAll()
+    const keyResults = allKeyResults.filter((kr) => kr.goalId === goalId)
+
+    const goalMonthStates = await planningStateDexieRepository.listGoalMonthStates()
+    const goalMonthRefs = goalMonthStates
+      .filter((state) => state.goalId === goalId && state.activityState === 'active')
+      .map((state) => state.monthRef)
+
+    const krPeriodRefsByKrId: Record<string, string[]> = {}
+    for (const kr of keyResults) {
+      if (kr.cadence === 'monthly') {
+        const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(
+          'keyResult',
+          kr.id,
+        )
+        krPeriodRefsByKrId[kr.id] = states.map((s) => s.monthRef)
+      } else {
+        const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
+          'keyResult',
+          kr.id,
+        )
+        krPeriodRefsByKrId[kr.id] = states.map((s) => s.weekRef)
+      }
+    }
+
+    goalWizardEditInput.value = {
+      goal,
+      keyResults,
+      goalMonthRefs,
+      krPeriodRefsByKrId,
+    }
+    goalWizardMode.value = 'edit'
+    isGoalWizardOpen.value = true
+  } catch (err) {
+    snackbarRef.value?.show(
+      err instanceof Error ? err.message : t('planning.goalWizard.messages.saveError'),
+    )
+  }
 }
 
 async function handleOpenCreate(): Promise<void> {

@@ -79,6 +79,7 @@ export interface Goal extends PlanningObjectBase {
   successDefinition?: string
   whyMatters?: string
   confidenceRating?: number
+  achievabilityRationale?: string
   obstacles?: string
   resources?: string
 }
@@ -541,6 +542,7 @@ export function normalizeGoalPayload(
     successDefinition: normalizeOptionalText(data.successDefinition, 'successDefinition', existing?.successDefinition),
     whyMatters: normalizeOptionalText(data.whyMatters, 'whyMatters', existing?.whyMatters),
     confidenceRating: normalizeOptionalRating1To10(data.confidenceRating, 'confidenceRating', existing?.confidenceRating),
+    achievabilityRationale: normalizeOptionalText(data.achievabilityRationale, 'achievabilityRationale', existing?.achievabilityRationale),
     obstacles: normalizeOptionalText(data.obstacles, 'obstacles', existing?.obstacles),
     resources: normalizeOptionalText(data.resources, 'resources', existing?.resources),
   }

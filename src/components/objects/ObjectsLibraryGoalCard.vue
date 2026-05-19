@@ -47,6 +47,13 @@
               <button
                 type="button"
                 class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                @click="handleEdit"
+              >
+                {{ t('planning.objects.actions.editObject') }}
+              </button>
+              <button
+                type="button"
+                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
                 @click="handleArchive"
               >
                 {{ item.isActive ? t('planning.objects.actions.archive') : t('planning.objects.actions.unarchive') }}
@@ -173,6 +180,7 @@ const emit = defineEmits<{
   'unlink-month': [goalId: string, monthRef: string]
   archive: [goalId: string, isCurrentlyActive: boolean]
   delete: [goalId: string, title: string]
+  edit: [goalId: string]
   'add-key-result': [goalId: string]
   'kr-toggle-expand': [krId: string]
   'kr-field-change': [krId: string, field: string, value: unknown]
@@ -201,6 +209,7 @@ const smartCompleteness = computed(() =>
       successDefinition: props.item.successDefinition,
       whyMatters: props.item.whyMatters,
       confidenceRating: props.item.confidenceRating,
+      achievabilityRationale: props.item.achievabilityRationale,
       obstacles: props.item.obstacles,
       resources: props.item.resources,
       priorityIds: props.item.priorityIds,
@@ -278,6 +287,11 @@ function handleTitleInput(event: Event): void {
 function handleAddKeyResult(): void {
   menuOpen.value = false
   emit('add-key-result', props.item.id)
+}
+
+function handleEdit(): void {
+  menuOpen.value = false
+  emit('edit', props.item.id)
 }
 
 function handleArchive(): void {

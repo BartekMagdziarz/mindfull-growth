@@ -116,6 +116,7 @@ export interface ObjectsLibraryListItem {
   successDefinition?: string
   whyMatters?: string
   confidenceRating?: number
+  achievabilityRationale?: string
   obstacles?: string
   resources?: string
 }
@@ -832,6 +833,7 @@ function buildGoalListItem(
     successDefinition: goal.successDefinition,
     whyMatters: goal.whyMatters,
     confidenceRating: goal.confidenceRating,
+    achievabilityRationale: goal.achievabilityRationale,
     obstacles: goal.obstacles,
     resources: goal.resources,
   }

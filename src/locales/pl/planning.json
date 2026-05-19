@@ -596,6 +596,7 @@
   },
   "goalWizard": {
     "title": "Stwórz cel SMART",
+    "editTitle": "Edytuj cel SMART",
     "subtitle": "",
     "stepLabels": {
       "specific": "Skonkretyzowany",
@@ -615,7 +616,7 @@
     },
     "steps": {
       "specific": {
-        "title": "Zrób go skonkretyzowanym",
+        "title": "Wyznacz konkretny cel",
         "subtitle": "Co dokładnie chcesz osiągnąć?",
         "titleLabel": "Tytuł celu",
         "titlePlaceholder": "np. Przebiec bieg na 10 km",
@@ -638,7 +639,7 @@
         }
       },
       "achievable": {
-        "title": "Czy jest osiągalny?",
+        "title": "Jak go osiągniesz?",
         "subtitle": "Zaplanuj, co zrobisz, kiedy pojawi się tarcie, i jak zwiększysz szanse realizacji.",
         "confidenceLabel": "Pewność",
         "confidenceLow": "Wątpliwa",
@@ -648,13 +649,15 @@
         "resourcesLabel": "Zasoby i wsparcie (opcjonalnie)",
         "resourcesPlaceholder": "Kto lub co pomaga Ci się powieść?",
         "lowConfidenceHint": "Niska pewność — rozważ uzupełnienie przeszkód i zasobów.",
+        "achievabilityRationaleLabel": "Dlaczego sądzisz, że osiągniesz ten cel? (opcjonalnie)",
+        "achievabilityRationalePlaceholder": "Co daje Ci pewność, że dasz radę?",
         "contingencyPlanLabel": "Plan awaryjny (opcjonalnie)",
         "contingencyPlanPlaceholder": "Co może Ci przeszkodzić i jak wtedy zareagujesz?",
         "supportPlanLabel": "Plan wsparcia (opcjonalnie)",
         "supportPlanPlaceholder": "Co zrobisz, żeby zwiększyć szanse wykonania celu i zmniejszyć tarcie?"
       },
       "relevant": {
-        "title": "Dlaczego to ma znaczenie?",
+        "title": "Dlaczego ten cel ma znaczenie?",
         "subtitle": "Połącz ten cel z priorytetami, obszarami życia i wewnętrzną motywacją.",
         "prioritiesLabel": "Powiązane priorytety",
         "lifeAreasLabel": "Powiązane obszary życia",
@@ -662,7 +665,7 @@
         "lifeAreasTagLabel": "Obszary życia",
         "addPriority": "Dodaj priorytet",
         "addLifeArea": "Dodaj obszar życia",
-        "whyMattersLabel": "Dlaczego to ma dla Ciebie znaczenie (opcjonalnie)",
+        "whyMattersLabel": "Dlaczego ten cel jest istotny teraz? (opcjonalnie)",
         "whyMattersPlaceholder": "Głębszy powód stojący za tym celem",
         "emptyState": "Powiąż co najmniej jeden priorytet lub obszar życia, lub napisz dlaczego to ważne."
       },
@@ -670,11 +673,6 @@
         "title": "Do kiedy go osiągniesz?",
         "subtitle": "Ustaw datę docelową, aby nadać celowi pilność.",
         "dateLabel": "Data docelowa",
-        "presets": {
-          "thirtyDays": "Za 30 dni",
-          "endOfQuarter": "Koniec kwartału",
-          "endOfYear": "Koniec roku"
-        },
         "countdown": {
           "weeks": "{count} tyg. od dziś",
           "days": "{count} dni od dziś",
@@ -709,6 +707,7 @@
       "back": "Wstecz",
       "cancel": "Anuluj",
       "create": "Utwórz cel",
+      "save": "Zapisz",
       "addKr": "Dodaj Kluczowy Rezultat"
     },
     "completeness": {
@@ -727,7 +726,8 @@
     },
     "messages": {
       "saveError": "Nie udało się zapisać celu. Spróbuj ponownie.",
-      "saved": "Cel utworzony."
+      "saved": "Cel utworzony.",
+      "updated": "Cel zaktualizowany."
     }
   },
   "annual": {

@@ -596,6 +596,7 @@
   },
   "goalWizard": {
     "title": "Create a SMART goal",
+    "editTitle": "Edit SMART goal",
     "subtitle": "",
     "stepLabels": {
       "specific": "Specific",
@@ -615,7 +616,7 @@
     },
     "steps": {
       "specific": {
-        "title": "Make it specific",
+        "title": "Set a specific goal",
         "subtitle": "What exactly do you want to achieve?",
         "titleLabel": "Goal title",
         "titlePlaceholder": "e.g. Run a 10K race",
@@ -638,7 +639,7 @@
         }
       },
       "achievable": {
-        "title": "Is it achievable?",
+        "title": "How will you achieve it?",
         "subtitle": "Plan how you'll respond when friction appears and how you'll increase the odds of follow-through.",
         "confidenceLabel": "Confidence",
         "confidenceLow": "Doubtful",
@@ -648,13 +649,15 @@
         "resourcesLabel": "Resources & support (optional)",
         "resourcesPlaceholder": "Who or what helps you succeed?",
         "lowConfidenceHint": "Low confidence — consider listing obstacles and resources.",
+        "achievabilityRationaleLabel": "Why do you think you'll achieve this goal? (optional)",
+        "achievabilityRationalePlaceholder": "What gives you confidence you can pull this off?",
         "contingencyPlanLabel": "Contingency plan (optional)",
         "contingencyPlanPlaceholder": "What could get in the way, and how will you respond?",
         "supportPlanLabel": "Support plan (optional)",
         "supportPlanPlaceholder": "What will you do to increase the odds of execution and reduce friction?"
       },
       "relevant": {
-        "title": "Why does it matter?",
+        "title": "Why does this goal matter?",
         "subtitle": "Connect this goal to your priorities, life areas, and inner motivation.",
         "prioritiesLabel": "Linked priorities",
         "lifeAreasLabel": "Linked life areas",
@@ -662,7 +665,7 @@
         "lifeAreasTagLabel": "Life areas",
         "addPriority": "Add priority",
         "addLifeArea": "Add life area",
-        "whyMattersLabel": "Why this matters to you (optional)",
+        "whyMattersLabel": "Why does this goal matter now? (optional)",
         "whyMattersPlaceholder": "The deeper reason behind this goal",
         "emptyState": "Link at least one priority or life area, or write why it matters."
       },
@@ -670,11 +673,6 @@
         "title": "When will you achieve it?",
         "subtitle": "Set a target date to give the goal urgency.",
         "dateLabel": "Target date",
-        "presets": {
-          "thirtyDays": "In 30 days",
-          "endOfQuarter": "End of quarter",
-          "endOfYear": "End of year"
-        },
         "countdown": {
           "weeks": "{count} weeks from today",
           "days": "{count} days from today",
@@ -709,6 +707,7 @@
       "back": "Back",
       "cancel": "Cancel",
       "create": "Create goal",
+      "save": "Save",
       "addKr": "Add Key Result"
     },
     "completeness": {
@@ -727,7 +726,8 @@
     },
     "messages": {
       "saveError": "Could not save the goal. Please try again.",
-      "saved": "Goal created."
+      "saved": "Goal created.",
+      "updated": "Goal updated."
     }
   },
   "annual": {

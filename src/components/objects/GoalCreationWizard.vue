@@ -109,6 +109,18 @@
 
         <label class="block space-y-1">
           <span class="text-sm font-medium text-on-surface">
+            {{ t('planning.goalWizard.steps.achievable.achievabilityRationaleLabel') }}
+          </span>
+          <textarea
+            v-model="achievabilityRationaleModel"
+            rows="3"
+            class="neo-input w-full resize-none px-3 py-2 text-sm"
+            :placeholder="t('planning.goalWizard.steps.achievable.achievabilityRationalePlaceholder')"
+          />
+        </label>
+
+        <label class="block space-y-1">
+          <span class="text-sm font-medium text-on-surface">
             {{ t('planning.goalWizard.steps.achievable.contingencyPlanLabel') }}
           </span>
           <textarea
@@ -285,30 +297,6 @@
                 @input="onTargetDateInput"
               />
             </label>
-
-            <div class="flex flex-wrap gap-2">
-              <button
-                type="button"
-                class="neo-pill neo-focus px-3 py-1.5 text-xs"
-                @click="applyPreset('thirtyDays')"
-              >
-                {{ t('planning.goalWizard.steps.timebound.presets.thirtyDays') }}
-              </button>
-              <button
-                type="button"
-                class="neo-pill neo-focus px-3 py-1.5 text-xs"
-                @click="applyPreset('endOfQuarter')"
-              >
-                {{ t('planning.goalWizard.steps.timebound.presets.endOfQuarter') }}
-              </button>
-              <button
-                type="button"
-                class="neo-pill neo-focus px-3 py-1.5 text-xs"
-                @click="applyPreset('endOfYear')"
-              >
-                {{ t('planning.goalWizard.steps.timebound.presets.endOfYear') }}
-              </button>
-            </div>
 
             <p
               v-if="countdownLabel"
@@ -518,7 +506,7 @@
           :disabled="!canSave"
           @click="onSave"
         >
-          {{ t('planning.goalWizard.buttons.create') }}
+          {{ wizardMode === 'edit' ? t('planning.goalWizard.buttons.save') : t('planning.goalWizard.buttons.create') }}
         </AppButton>
       </div>
     </div>
@@ -531,25 +519,40 @@ import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import KrDraftCard from '@/components/objects/KrDraftCard.vue'
 import { useT } from '@/composables/useT'
-import { useGoalCreationWizard, type GoalWizardStep, type KrDraft } from '@/composables/useGoalCreationWizard'
+import {
+  useGoalCreationWizard,
+  type GoalWizardEditInput,
+  type GoalWizardMode,
+  type GoalWizardStep,
+  type KrDraft,
+} from '@/composables/useGoalCreationWizard'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import type { ObjectsLibraryFilterOption } from '@/services/objectsLibraryQueries'
 import { getChildPeriods, getNextPeriod, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
 
 const { t, locale } = useT()
 
-const props = defineProps<{
-  priorityOptions: ObjectsLibraryFilterOption[]
-  lifeAreaOptions: ObjectsLibraryFilterOption[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    priorityOptions: ObjectsLibraryFilterOption[]
+    lifeAreaOptions: ObjectsLibraryFilterOption[]
+    mode?: GoalWizardMode
+    editInput?: GoalWizardEditInput
+  }>(),
+  {
+    mode: 'create',
+    editInput: undefined,
+  },
+)
 
 const emit = defineEmits<{
-  created: [goalId: string]
+  saved: [goalId: string, mode: GoalWizardMode]
   cancelled: []
   error: [message: string]
 }>()
 
 const {
+  mode: wizardMode,
   currentStep,
   stepIndex,
   canAdvance,
@@ -564,6 +567,7 @@ const {
   addKrDraft,
   removeKrDraft,
   updateKrDraft,
+  loadForEdit,
   save,
   reset,
 } = useGoalCreationWizard()
@@ -586,6 +590,12 @@ const obstaclesModel = computed({
   get: () => goalDraft.obstacles ?? '',
   set: (value: string) => {
     goalDraft.obstacles = value || undefined
+  },
+})
+const achievabilityRationaleModel = computed({
+  get: () => goalDraft.achievabilityRationale ?? '',
+  set: (value: string) => {
+    goalDraft.achievabilityRationale = value || undefined
   },
 })
 const resourcesModel = computed({
@@ -844,44 +854,16 @@ function parseIsoUtc(value: string): Date | null {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
-function formatIsoDate(date: Date): string {
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(date.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
 function onTargetDateInput(event: Event): void {
   const value = (event.target as HTMLInputElement).value
   goalDraft.targetDate = value || undefined
 }
 
-function applyPreset(preset: 'thirtyDays' | 'endOfQuarter' | 'endOfYear'): void {
-  const now = new Date()
-  let target: Date
-  switch (preset) {
-    case 'thirtyDays': {
-      target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 30))
-      break
-    }
-    case 'endOfQuarter': {
-      const month = now.getUTCMonth()
-      const lastMonthOfQuarter = Math.floor(month / 3) * 3 + 2
-      target = new Date(Date.UTC(now.getUTCFullYear(), lastMonthOfQuarter + 1, 0))
-      break
-    }
-    case 'endOfYear': {
-      target = new Date(Date.UTC(now.getUTCFullYear(), 11, 31))
-      break
-    }
-  }
-  goalDraft.targetDate = formatIsoDate(target)
-}
-
 async function onSave(): Promise<void> {
+  const submittingMode = wizardMode.value
   try {
     const id = await save()
-    emit('created', id)
+    emit('saved', id, submittingMode)
   } catch (err) {
     const message = err instanceof Error ? err.message : t('planning.goalWizard.messages.saveError')
     emit('error', message)
@@ -904,6 +886,9 @@ watch(
 
 onMounted(() => {
   document.addEventListener('pointerdown', handleOutsidePointerDown)
+  if (props.mode === 'edit' && props.editInput) {
+    loadForEdit(props.editInput)
+  }
   void nextTick(() => titleInputRef.value?.focus())
 })
 
