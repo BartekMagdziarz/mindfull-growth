@@ -905,7 +905,20 @@
       "aiGenerate": "Wygeneruj",
       "aiGenerating": "Generuję…",
       "aiSummaryMockHeading": "Kluczowy wątek",
-      "aiSummaryMockBody": "Tydzień odzyskiwania rytmu — piątkowy sprint zamknął projektowy ciężar, a weekend przyniósł oddech z bliskimi. Środa wyróżnia się jako najcięższy punkt i warto się jej przyjrzeć."
+      "aiSummaryMockBody": "Tydzień odzyskiwania rytmu — piątkowy sprint zamknął projektowy ciężar, a weekend przyniósł oddech z bliskimi. Środa wyróżnia się jako najcięższy punkt i warto się jej przyjrzeć.",
+      "planVsExecution": {
+        "title": "Plan vs wykonanie",
+        "emptyTitle": "Brak planu na ten tydzień",
+        "emptyDescription": "Utwórz plan, aby zobaczyć realizację celów, nawyków i trackerów.",
+        "createCta": "Utwórz plan",
+        "editButton": "Edytuj plan",
+        "noObjects": "Plan utworzony — dodaj obiekty w planerze.",
+        "ringGoals": "Cele",
+        "ringHabits": "Nawyki",
+        "ringTrackers": "Trackery",
+        "ringValue": "{numerator}/{denominator}",
+        "ringEmpty": "—"
+      }
     },
     "weekly": {
       "title": "Refleksja tygodniowa",

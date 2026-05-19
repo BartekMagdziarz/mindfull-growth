@@ -38,6 +38,8 @@
         <div v-if="$slots.actions" class="flex gap-2">
           <slot name="actions" />
         </div>
+
+        <div id="app-top-bar-end" class="ml-auto flex items-center gap-2"></div>
       </div>
     </div>
   </header>

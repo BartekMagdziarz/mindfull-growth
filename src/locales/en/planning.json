@@ -905,7 +905,20 @@
       "aiGenerate": "Generate",
       "aiGenerating": "Generating…",
       "aiSummaryMockHeading": "Key theme",
-      "aiSummaryMockBody": "A week of recovering rhythm — Friday's sprint closed a heavy project stretch and the weekend brought space with loved ones. Wednesday stood out as the hardest point and may be worth a closer look."
+      "aiSummaryMockBody": "A week of recovering rhythm — Friday's sprint closed a heavy project stretch and the weekend brought space with loved ones. Wednesday stood out as the hardest point and may be worth a closer look.",
+      "planVsExecution": {
+        "title": "Plan vs execution",
+        "emptyTitle": "No plan for this week yet",
+        "emptyDescription": "Create a plan to see how your goals, habits, and trackers progress.",
+        "createCta": "Create plan",
+        "editButton": "Edit plan",
+        "noObjects": "Plan created — add objects in the planner.",
+        "ringGoals": "Goals",
+        "ringHabits": "Habits",
+        "ringTrackers": "Trackers",
+        "ringValue": "{numerator}/{denominator}",
+        "ringEmpty": "—"
+      }
     },
     "weekly": {
       "title": "Weekly Reflection",

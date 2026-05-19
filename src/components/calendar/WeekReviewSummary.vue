@@ -14,11 +14,14 @@
         :all-day-assignments="allDayAssignments"
         :week-ref="weekRef"
         :today-day-ref="todayDayRef"
+        :has-plan="hasPlan"
+        @create-plan="emit('create-plan')"
+        @edit-plan="emit('edit-plan')"
       />
     </div>
 
     <!-- RIGHT: Kontekst — reflection summary or create-reflection CTA. -->
-    <aside class="flex w-full shrink-0 flex-col gap-3 lg:w-[240px] lg:order-3">
+    <aside class="flex w-full shrink-0 flex-col gap-3 lg:w-[288px] lg:order-3">
       <WeekKontextCard
         :week-ref="weekRef"
         :show-actions="kontekstActions"
@@ -50,12 +53,16 @@ withDefaults(
     allDayAssignments: MeasurementDayAssignment[]
     /** When false, the kontekst card shows ratings/empty state without action buttons. */
     kontekstActions?: boolean
+    /** Whether a WeekPlan record exists for this week — drives the plan-vs-execution tile state. */
+    hasPlan?: boolean
   }>(),
-  { kontekstActions: true },
+  { kontekstActions: true, hasPlan: false },
 )
 
 const emit = defineEmits<{
   'create-reflection': []
   'edit-reflection': []
+  'create-plan': []
+  'edit-plan': []
 }>()
 </script>

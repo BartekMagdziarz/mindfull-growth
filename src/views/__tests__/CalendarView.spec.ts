@@ -185,13 +185,19 @@ describe('CalendarView', () => {
     expect(await screen.findByTestId('weekly-planner')).toBeInTheDocument()
     expect(screen.queryByTestId('weekly-planner-sidebar')).not.toBeInTheDocument()
     // Weekly view uses the unified WeekReviewSummary — left column has
-    // Journal + Emotions, right column the Kontekst card (which replaces the
+    // Journal + Emotions, right column the Summary card (which replaces the
     // toolbar reflection action on this scale). Per-type section headings
     // are gone; individual object titles still appear inside the grid tiles.
     expect(await screen.findByText('Journal')).toBeInTheDocument()
     expect(screen.getByText('Emotions')).toBeInTheDocument()
-    expect(screen.getByText('Context')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /edit plan/i })).toBeInTheDocument()
+    expect(screen.getByText('Summary')).toBeInTheDocument()
+    // Plan-vs-Execution tile owns the plan affordance on the week scale —
+    // the toolbar plan button is gone, replaced by the tile's hover edit
+    // icon (when a plan exists) and per-state CTA. The button is in the
+    // DOM but hidden via CSS when not hovered.
+    expect(screen.getByText('Plan vs execution')).toBeInTheDocument()
+    const planButtons = screen.getAllByRole('button', { name: /edit plan/i })
+    expect(planButtons).toHaveLength(1)
     // Reflection button no longer appears in the toolbar on week scale —
     // create/edit affordances live inside the Kontekst card now.
     expect(

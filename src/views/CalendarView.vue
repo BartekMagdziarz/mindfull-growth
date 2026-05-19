@@ -1,7 +1,8 @@
 <template>
   <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
-    <div class="mb-6 space-y-4">
+    <Teleport to="#app-top-bar-end" :disabled="!useTopBarTeleport">
       <CalendarToolbar
+        :class="useTopBarTeleport ? '' : 'mb-6'"
         :label="activePeriodRangeLabel"
         :scale-options="scaleOptions"
         :active-scale="scale"
@@ -24,7 +25,7 @@
           </AppButton>
         </template>
       </CalendarToolbar>
-    </div>
+    </Teleport>
 
     <PlanningStatePanel
       v-if="invalidRoute"
@@ -216,8 +217,11 @@
                 :week-object-items="weekObjectItems"
                 :raw-entries="weekPlanning.rawEntries"
                 :all-day-assignments="weekDayAssignments"
+                :has-plan="Boolean(weekPlanning.weekPlan)"
                 @create-reflection="openReflectionPanel"
                 @edit-reflection="openReflectionPanel"
+                @create-plan="openPlanPanel"
+                @edit-plan="openPlanPanel"
               />
             </template>
 
@@ -279,7 +283,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { MeasurementEntryMode, PlanningCadence } from '@/domain/planning'
 import type { MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
@@ -426,6 +430,20 @@ const parsedPeriodRef = computed<PeriodRef | null>(() => {
 })
 const scale = computed(() => props.scale)
 
+// Week view teleports the toolbar into AppTopAppBar's `#app-top-bar-end`.
+// Tests render CalendarView in isolation (no AppTopAppBar) — fall back to
+// inline rendering when the target is missing so the toolbar still mounts.
+const topBarTargetReady = ref(
+  typeof document !== 'undefined' && document.querySelector('#app-top-bar-end') !== null,
+)
+onMounted(() => {
+  if (!topBarTargetReady.value) {
+    topBarTargetReady.value =
+      typeof document !== 'undefined' && document.querySelector('#app-top-bar-end') !== null
+  }
+})
+const useTopBarTeleport = computed(() => props.scale === 'week' && topBarTargetReady.value)
+
 const invalidRoute = computed(() => parsedPeriodRef.value === null)
 const activeYearRef = computed(() =>
   props.scale === 'year' && parsedPeriodRef.value ? (parsedPeriodRef.value as YearRef) : null
@@ -522,11 +540,12 @@ const activePeriodRangeLabel = computed(() => {
   }
 })
 
+// Week scale moves both actions into per-card affordances inside
+// WeekReviewSummary: the plan action lives on the Plan-vs-Execution tile,
+// the reflection action on the KontextCard.
 const showPlanAction = computed(
-  () => props.scale === 'year' || props.scale === 'month' || props.scale === 'week'
+  () => props.scale === 'year' || props.scale === 'month'
 )
-// Week scale moves the reflection action into the per-week KontextCard inside
-// WeekReviewSummary, so the toolbar action is hidden there.
 const showReflectionAction = computed(
   () => props.scale === 'year' || props.scale === 'month'
 )
