@@ -899,15 +899,18 @@ async function loadCalendarData() {
           getMonthReflectionBundle(parsedPeriodRef.value as MonthRef),
         ])
         break
-      case 'week':
+      case 'week': {
+        const weekRef = parsedPeriodRef.value as WeekRef
+        const weekEnd = getPeriodBounds(weekRef).end as DayRef
         ;[weekPlanning.value, weekReflection.value] = await Promise.all([
-          getWeekPlanningBundle(parsedPeriodRef.value as WeekRef),
-          getWeekReflectionBundle(parsedPeriodRef.value as WeekRef),
+          getWeekPlanningBundle(weekRef, weekEnd),
+          getWeekReflectionBundle(weekRef, weekEnd),
         ])
         weekDayAssignments.value = await loadDayAssignmentsForMonths(
           weekReflection.value?.overlappingMonthRefs ?? [],
         )
         break
+      }
     }
   } catch (error) {
     loadError.value = error instanceof Error ? error.message : String(error)

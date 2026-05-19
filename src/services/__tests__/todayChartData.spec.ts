@@ -229,6 +229,75 @@ describe('buildCompletionSlots', () => {
     expect(slots.filter(s => s.state === 'done')).toHaveLength(2)
     expect(slots.filter(s => s.state === 'today-pending')).toHaveLength(1)
   })
+
+  it('target-count: future-dated entry stays state=done but isFuture=true so the renderer fades it', () => {
+    // Target 5, three past entries + one entry dated AFTER today. The slot for
+    // the future-dated entry must read as "done" (the entry exists, dot is
+    // filled) but flag itself isFuture so the visual renderer can dim it.
+    const kr = makeKR('kr1', { target: { kind: 'count', operator: 'min', value: 5 } })
+    const entries = [
+      makeEntry('keyResult', 'kr1', '2026-03-09'),
+      makeEntry('keyResult', 'kr1', '2026-03-10'),
+      makeEntry('keyResult', 'kr1', '2026-03-11'),
+      makeEntry('keyResult', 'kr1', '2026-03-14'), // Saturday — after TODAY=Thu
+    ]
+    const planning = makePlanning({ scheduleScope: 'whole-week' })
+
+    const slots = buildCompletionSlots(kr, 'keyResult', entries, [], planning, WEEK_REF, TODAY, 'en')
+
+    const futureSlot = slots.find(s => s.dayRef === '2026-03-14')
+    expect(futureSlot).toBeDefined()
+    expect(futureSlot!.state).toBe('done')
+    expect(futureSlot!.isFuture).toBe(true)
+    expect(futureSlot!.hasEntry).toBe(true)
+
+    const pastSlot = slots.find(s => s.dayRef === '2026-03-09')
+    expect(pastSlot!.state).toBe('done')
+    expect(pastSlot!.isFuture).toBe(false)
+  })
+
+  it('tracker (no target): future-dated entry stays done with isFuture=true', () => {
+    const tracker = makeTracker('t1', { entryMode: 'completion' })
+    const entries = [
+      makeEntry('tracker', 't1', '2026-03-09'),
+      makeEntry('tracker', 't1', '2026-03-14'), // future
+    ]
+    const planning = makePlanning({ scheduleScope: 'whole-week' })
+
+    const slots = buildCompletionSlots(tracker, 'tracker', entries, [], planning, WEEK_REF, TODAY, 'en')
+
+    const futureSlot = slots.find(s => s.dayRef === '2026-03-14')
+    expect(futureSlot!.state).toBe('done')
+    expect(futureSlot!.isFuture).toBe(true)
+  })
+
+  it('specific-days: future scheduled day WITH an entry now reads as done+isFuture (was: bare future)', () => {
+    // Scheduled days: Mon, Tue (past), Sat (future). Entry on Sat (pre-filled).
+    // Previously the future state overrode hasEntry, so the dot was empty
+    // dashed. Now the slot is `done` so the dot renders filled, and isFuture
+    // tells the renderer to fade it.
+    const kr = makeKR('kr1')
+    const entries = [
+      makeEntry('keyResult', 'kr1', '2026-03-14'), // Saturday — future
+    ]
+    const assignments = [
+      makeAssignment('keyResult', 'kr1', '2026-03-09'),
+      makeAssignment('keyResult', 'kr1', '2026-03-10'),
+      makeAssignment('keyResult', 'kr1', '2026-03-14'),
+    ]
+    const planning = makePlanning({
+      scheduleScope: 'specific-days',
+      scheduledDayRefs: ['2026-03-09', '2026-03-10', '2026-03-14'] as DayRef[],
+    })
+
+    const slots = buildCompletionSlots(kr, 'keyResult', entries, assignments, planning, WEEK_REF, TODAY, 'en')
+
+    const satSlot = slots.find(s => s.dayRef === '2026-03-14')
+    expect(satSlot).toBeDefined()
+    expect(satSlot!.state).toBe('done')
+    expect(satSlot!.isFuture).toBe(true)
+    expect(satSlot!.hasEntry).toBe(true)
+  })
 })
 
 describe('buildDailyBarSlots', () => {
@@ -345,6 +414,24 @@ describe('buildValueLineSlots', () => {
     expect(slots).toHaveLength(2)
     expect(slots[0].value).toBe(10)
     expect(slots[1].value).toBe(15)
+  })
+
+  it('monthly: future-dated entries flag isFuture=true so the line/area fades on the future tail', () => {
+    const monthRef = '2026-03' as MonthRef as PeriodRef
+    const tracker = makeTracker('t1', { cadence: 'monthly' })
+    const entries = [
+      makeEntry('tracker', 't1', '2026-03-05', 10),
+      makeEntry('tracker', 't1', '2026-03-12', 15), // today
+      makeEntry('tracker', 't1', '2026-03-20', 20), // future
+    ]
+
+    const slots = buildValueLineSlots(tracker, 'tracker', entries, monthRef, TODAY, 'en')
+
+    expect(slots).toHaveLength(3)
+    expect(slots[0].isFuture).toBe(false)
+    expect(slots[1].isFuture).toBe(false) // today is not future
+    expect(slots[1].isToday).toBe(true)
+    expect(slots[2].isFuture).toBe(true)
   })
 })
 

@@ -205,7 +205,10 @@ function resolveCompletionState(
   future: boolean,
 ): TodayCompletionState {
   if (today) return hasEntry ? 'today-done' : 'today-pending'
-  if (future) return 'future'
+  // Future slot with an entry still reads as `done` — the entry exists.
+  // The renderer fades it based on isFuture so it stays visually distinct from
+  // past completed entries without losing the "this day is recorded" signal.
+  if (future) return hasEntry ? 'done' : 'future'
   return hasEntry ? 'done' : 'missed'
 }
 
@@ -226,12 +229,13 @@ function buildTargetCountSlots(
   for (let i = 0; i < doneCount; i++) {
     const day = sortedEntries[i].dayRef
     const today = isToday(day, todayDayRef)
+    const future = isDayFuture(day, todayDayRef)
     slots.push({
       dayRef: day,
       label: isWeekly ? dayLabel(day, locale) : dayOfMonthLabel(day),
       value: 1,
       isToday: today,
-      isFuture: false,
+      isFuture: future,
       isScheduled: false,
       hasEntry: true,
       state: today ? 'today-done' : 'done',
@@ -300,12 +304,13 @@ function buildTrackerCompletionSlots(
   const sorted = [...entries].sort((a, b) => a.dayRef.localeCompare(b.dayRef))
   const slots: TodayCompletionSlot[] = sorted.map(entry => {
     const today = isToday(entry.dayRef, todayDayRef)
+    const future = isDayFuture(entry.dayRef, todayDayRef)
     return {
       dayRef: entry.dayRef,
       label: isWeekly ? dayLabel(entry.dayRef, locale) : dayOfMonthLabel(entry.dayRef),
       value: 1,
       isToday: today,
-      isFuture: false,
+      isFuture: future,
       isScheduled: false,
       hasEntry: true,
       state: today ? 'today-done' : 'done',
@@ -453,7 +458,7 @@ export function buildValueLineSlots(
     label: dayOfMonthLabel(entry.dayRef),
     value: entry.value ?? undefined,
     isToday: isToday(entry.dayRef, todayDayRef),
-    isFuture: false,
+    isFuture: isDayFuture(entry.dayRef, todayDayRef),
     isScheduled: false,
     hasEntry: true,
   }))

@@ -1,5 +1,5 @@
 import type { Habit, KeyResult, MeasurementEntryMode, MeasurementTarget, PlanningCadence, Tracker } from '@/domain/planning'
-import type { MonthRef, WeekRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import { getPeriodRefsForDate, getPeriodType } from '@/utils/periods'
 
@@ -43,10 +43,12 @@ function filterEntriesForSubjectAndPeriod(
   entries: DailyMeasurementEntry[],
   subjectId: string,
   periodRef: MeasurementPeriodRef,
+  asOfDayRef?: DayRef,
 ): DailyMeasurementEntry[] {
   const periodType = getPeriodType(periodRef)
   return entries.filter((entry) => {
     if (entry.subjectId !== subjectId) return false
+    if (asOfDayRef !== undefined && entry.dayRef > asOfDayRef) return false
     const refs = getPeriodRefsForDate(entry.dayRef)
     return periodType === 'week' ? refs.week === periodRef : refs.month === periodRef
   })
@@ -117,12 +119,17 @@ export function buildMeasurementSummary(
   subject: MeasureableSubject,
   allEntries: DailyMeasurementEntry[],
   periodRef: MeasurementPeriodRef,
+  asOfDayRef?: DayRef,
 ): MeasurementSummary {
   /*
    * Measurement contract:
    * - Period bounds are inclusive by canonical dayRef.
    * - Weekly buckets come from getPeriodRefsForDate(dayRef).week.
    * - Monthly buckets come from getPeriodRefsForDate(dayRef).month.
+   * - asOfDayRef, when provided, additionally drops entries with dayRef > asOfDayRef
+   *   so the summary reflects cumulative state through that day. Callers use this
+   *   to scope display aggregates to the time-context they are rendered in
+   *   (today in the Today view, end of the displayed week in weekly views).
    * - completion counts entries in the period.
    * - counter sums entry values, treating null as 0.
    * - value uses the target aggregation: sum, average, or last.
@@ -131,7 +138,7 @@ export function buildMeasurementSummary(
    * - Subjects with a target evaluate to met, missed, or no-data.
    * - Trackers without a target leave evaluationStatus undefined.
    */
-  const entries = filterEntriesForSubjectAndPeriod(allEntries, subject.id, periodRef)
+  const entries = filterEntriesForSubjectAndPeriod(allEntries, subject.id, periodRef, asOfDayRef)
   const actualValue = computeActualValue(subject, entries)
   const target = 'target' in subject ? subject.target : undefined
 

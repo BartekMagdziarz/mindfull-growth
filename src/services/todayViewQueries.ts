@@ -266,7 +266,7 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
   return loadPlanningCached(todayViewBundleCache, dayRef, async () => {
     const refs = getPeriodRefsForDate(dayRef)
     const [weekPlanning, allEntries, hiddenStates, objects] = await Promise.all([
-      getWeekPlanningBundle(refs.week),
+      getWeekPlanningBundle(refs.week, dayRef),
       planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(dayRef, dayRef),
       planningStateDexieRepository.listTodayHiddenStatesForDay(dayRef),
       loadPlanningCoreObjects(),

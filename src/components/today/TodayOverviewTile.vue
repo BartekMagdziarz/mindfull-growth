@@ -123,7 +123,12 @@ const iconName = computed(() => {
 
 const completionRingDoneCount = computed(
   () =>
-    viz.completionSlots.value.filter((s) => s.state === 'done' || s.state === 'today-done').length,
+    viz.completionSlots.value.filter(
+      // Future-dated entries still arrive as `done` so the dot renders filled
+      // and the user can see them, but they must not pad the X / target
+      // counter — that number reads as "what you've completed so far".
+      (s) => !s.isFuture && (s.state === 'done' || s.state === 'today-done'),
+    ).length,
 )
 const completionRingTargetCount = computed(() => viz.targetValue.value ?? 0)
 

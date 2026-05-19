@@ -39,6 +39,7 @@ import {
   buildWeeklySliceCompletionSlots,
   type MonthlyContextFooterData,
 } from '@/services/weeklySliceChartData'
+import { getPeriodBounds } from '@/utils/periods'
 
 export interface UseWeeklySliceItemVisualization {
   vizType: ComputedRef<TodayVizType>
@@ -125,9 +126,15 @@ export function useWeeklySliceItemVisualization(
   const ratingScaleMin = computed<number>(() => subject.value.ratingScaleMin ?? 1)
   const ratingScale = computed<number>(() => subject.value.ratingScale ?? 10)
 
-  const monthlyFooter = computed<MonthlyContextFooterData | undefined>(() =>
-    buildMonthlyContextFooter(subject.value, rawEntries.value, weekRef.value),
-  )
+  const monthlyFooter = computed<MonthlyContextFooterData | undefined>(() => {
+    // Cut off the monthly aggregate at the END of the displayed week so the
+    // footer shows month-to-date as seen from this week, not the full month.
+    // Past weeks → full week included; current week → today is inside the
+    // displayed week so end-of-week ≥ today; future weeks → cumulative state
+    // through the displayed week's last day.
+    const cutoff = getPeriodBounds(weekRef.value).end as DayRef
+    return buildMonthlyContextFooter(subject.value, rawEntries.value, weekRef.value, cutoff)
+  })
 
   return {
     vizType,

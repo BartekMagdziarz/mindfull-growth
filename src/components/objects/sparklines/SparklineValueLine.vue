@@ -21,24 +21,30 @@
       stroke-dasharray="3 2"
     />
 
-    <!-- Area fill (only for contiguous data segments) -->
+    <!-- Area fill (one piece per contiguous data segment; isFuture pieces
+         render at reduced opacity so the area beneath post-cutoff points stays
+         visible but visibly secondary). -->
     <path
-      v-for="(seg, si) in areaSegments"
+      v-for="(piece, si) in dataPieces"
       :key="'area-' + si"
-      :d="seg"
+      :d="piece.areaPath"
       :fill="`url(#${gradientIds.area})`"
+      :opacity="piece.isFuture ? 0.4 : 1"
     />
 
-    <!-- Line stroke (only for contiguous data segments) -->
+    <!-- Line stroke. A run that crosses the current/future boundary is split
+         into two pieces sharing the boundary point so the stroke remains
+         continuous while past+today reads solid and the future tail fades. -->
     <path
-      v-for="(seg, si) in lineSegments"
+      v-for="(piece, si) in dataPieces"
       :key="'line-' + si"
-      :d="seg"
+      :d="piece.linePath"
       fill="none"
       stroke="rgb(var(--neo-chart-primary-end))"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
+      :stroke-opacity="piece.isFuture ? 0.4 : 1"
     />
 
     <!-- Data point dots -->
@@ -188,22 +194,71 @@ function monotonePath(xs: number[], ys: number[]): string {
   return path
 }
 
-const lineSegments = computed(() => {
-  return dataRuns.value.map((run) => {
-    const xs = run.points.map((_, j) => pointX(run.startIndex + j))
-    const ys = run.points.map((p) => pointY(p))
-    return monotonePath(xs, ys)
-  })
-})
+interface DataPiece {
+  linePath: string
+  areaPath: string
+  isFuture: boolean
+}
 
-const areaSegments = computed(() => {
-  return dataRuns.value.map((run) => {
-    const xs = run.points.map((_, j) => pointX(run.startIndex + j))
-    const ys = run.points.map((p) => pointY(p))
-    const linePath = monotonePath(xs, ys)
-    // Close area: go down to baseline, then back to start
-    return `${linePath}L${xs[xs.length - 1]},${baseline.value}L${xs[0]},${baseline.value}Z`
-  })
+function isPointFuture(point: ObjectsLibraryChartPoint): boolean {
+  return point.isCurrent === false
+}
+
+function buildPiece(
+  points: ObjectsLibraryChartPoint[],
+  startIndex: number,
+  isFuture: boolean,
+): DataPiece {
+  const xs = points.map((_, j) => pointX(startIndex + j))
+  const ys = points.map((p) => pointY(p))
+  const linePath = monotonePath(xs, ys)
+  const areaPath = `${linePath}L${xs[xs.length - 1]},${baseline.value}L${xs[0]},${baseline.value}Z`
+  return { linePath, areaPath, isFuture }
+}
+
+/**
+ * Each `DataRun` is one stretch of contiguous data. Within a run, points may
+ * still cross the current/future boundary (e.g. today's entry sits between
+ * past and pre-filled future entries). We split each run there so the stroke
+ * fades on the future side. The boundary point appears in both pieces so the
+ * line stays continuous across the transition.
+ */
+const dataPieces = computed<DataPiece[]>(() => {
+  const pieces: DataPiece[] = []
+
+  for (const run of dataRuns.value) {
+    if (run.points.length === 0) continue
+
+    // Find the last index inside this run whose point is NOT future.
+    let lastCurrent = -1
+    for (let i = run.points.length - 1; i >= 0; i--) {
+      if (!isPointFuture(run.points[i])) {
+        lastCurrent = i
+        break
+      }
+    }
+
+    if (lastCurrent === -1) {
+      // Entire run is future.
+      pieces.push(buildPiece(run.points, run.startIndex, true))
+      continue
+    }
+
+    if (lastCurrent === run.points.length - 1) {
+      // Entire run is current (no future tail).
+      pieces.push(buildPiece(run.points, run.startIndex, false))
+      continue
+    }
+
+    // Mixed: solid 0..lastCurrent (inclusive), faded lastCurrent..end (shared
+    // boundary keeps the visual stroke continuous).
+    const solidPoints = run.points.slice(0, lastCurrent + 1)
+    const fadedPoints = run.points.slice(lastCurrent)
+    pieces.push(buildPiece(solidPoints, run.startIndex, false))
+    pieces.push(buildPiece(fadedPoints, run.startIndex + lastCurrent, true))
+  }
+
+  return pieces
 })
 
 function dotFill(status: ObjectsLibraryChartPoint['status']): string {

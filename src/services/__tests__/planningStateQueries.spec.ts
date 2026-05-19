@@ -397,4 +397,75 @@ describe('planningStateQueries', () => {
     expect(secondWeek.planning.measurementItems.map(item => item.subject.id)).toContain(habit.id)
     expect(thirdWeek.planning.measurementItems.map(item => item.subject.id)).not.toContain(habit.id)
   })
+
+  it('cuts monthly-cadence measurement off at the displayed week end so consecutive weeks show different cumulative totals', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const firstWeekRef = parsePeriodRef('2026-W10') as WeekRef
+    const secondWeekRef = parsePeriodRef('2026-W11') as WeekRef
+
+    const habit = await habitDexieRepository.create({
+      title: 'Monthly mileage',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 20 },
+      status: 'open',
+    })
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: firstWeekRef,
+      sourceMonthRef: monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: secondWeekRef,
+      sourceMonthRef: monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+    })
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'habit',
+      subjectId: habit.id,
+      dayRef: parsePeriodRef('2026-03-03') as DayRef,
+      value: 4,
+    })
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'habit',
+      subjectId: habit.id,
+      dayRef: parsePeriodRef('2026-03-11') as DayRef,
+      value: 9,
+    })
+
+    const firstWeekEnd = '2026-03-08' as DayRef
+    const secondWeekEnd = '2026-03-15' as DayRef
+
+    const firstWeek = await getWeekRelevantObjects(firstWeekRef, firstWeekEnd)
+    const secondWeek = await getWeekRelevantObjects(secondWeekRef, secondWeekEnd)
+
+    const firstItem = firstWeek.reflection.measurementItems.find(item => item.subject.id === habit.id)
+    const secondItem = secondWeek.reflection.measurementItems.find(item => item.subject.id === habit.id)
+
+    expect(firstItem?.measurement.actualValue).toBe(4)
+    expect(firstItem?.measurement.entryCount).toBe(1)
+    expect(secondItem?.measurement.actualValue).toBe(13)
+    expect(secondItem?.measurement.entryCount).toBe(2)
+
+    const uncut = await getWeekRelevantObjects(firstWeekRef)
+    const uncutItem = uncut.reflection.measurementItems.find(item => item.subject.id === habit.id)
+    expect(uncutItem?.measurement.actualValue).toBe(13)
+  })
 })

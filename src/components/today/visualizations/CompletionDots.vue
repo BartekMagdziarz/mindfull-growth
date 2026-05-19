@@ -97,7 +97,15 @@ function dotClasses(slot: TodayCompletionSlot): string[] {
 
 function dotStyle(slot: TodayCompletionSlot): CSSProperties {
   const size = `${dotSizePx.value}px`
-  const base: CSSProperties = { width: size, height: size }
+  // Filled slots whose dayRef is past the cut-off (`isFuture` set on a `done`
+  // state) render at reduced opacity so the user can see the entry exists but
+  // tells it apart from past/today completed entries. Matches the future fade
+  // in DailyBarsChart / RatingSegmentedBars.
+  const base: CSSProperties = {
+    width: size,
+    height: size,
+    opacity: slot.isFuture && slot.hasEntry ? 0.4 : 1,
+  }
 
   // Done / today-done states share the same gradient as the bar charts and
   // task-row tickers so every "completed/positive" blue accent in the Today

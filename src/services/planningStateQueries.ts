@@ -637,6 +637,7 @@ function buildWeeklyPlanningItem(
   dayAssignments: MeasurementDayAssignment[],
   periodRef: WeekRef | MonthRef,
   sourceMonthRef?: MonthRef,
+  asOfDayRef?: DayRef,
 ): WeekMeasurementPlanningItem | undefined {
   const planning = buildPlanningSummary(monthState, weekState, dayAssignments)
   const placement = placementFromState(planning.scheduleScope, dayAssignments.length > 0)
@@ -650,7 +651,7 @@ function buildWeeklyPlanningItem(
     subject,
     sourceMonthRef,
     planning,
-    measurement: buildMeasurementSummary(subject, allEntries, periodRef),
+    measurement: buildMeasurementSummary(subject, allEntries, periodRef, asOfDayRef),
     placement,
   }
 }
@@ -665,6 +666,7 @@ function buildWeeklyReflectionItem(
   dayAssignments: MeasurementDayAssignment[],
   periodRef: WeekRef | MonthRef,
   sourceMonthRef?: MonthRef,
+  asOfDayRef?: DayRef,
 ): WeekMeasurementReflectionItem | undefined {
   const planning = buildPlanningSummary(monthState, weekState, dayAssignments)
   const isScheduled = Boolean(
@@ -681,14 +683,17 @@ function buildWeeklyReflectionItem(
     subject,
     sourceMonthRef,
     planning,
-    measurement: buildMeasurementSummary(subject, allEntries, periodRef),
+    measurement: buildMeasurementSummary(subject, allEntries, periodRef, asOfDayRef),
     hasEntries: weekEntries.length > 0,
     isScheduled,
   }
 }
 
-export async function getWeekRelevantObjects(weekRef: WeekRef): Promise<WeekRelevantObjects> {
-  return loadPlanningCached(weekRelevantObjectsCache, weekRef, async () => {
+export async function getWeekRelevantObjects(
+  weekRef: WeekRef,
+  asOfDayRef?: DayRef,
+): Promise<WeekRelevantObjects> {
+  return loadPlanningCached(weekRelevantObjectsCache, `${weekRef}:${asOfDayRef ?? '-'}`, async () => {
     const overlappingMonthRefs = getWeekOverlappingMonths(weekRef)
     const deps = await loadWeekPlanningDependencies(weekRef)
 
@@ -781,6 +786,7 @@ export async function getWeekRelevantObjects(weekRef: WeekRef): Promise<WeekRele
             weekAssignments,
             monthRef,
             monthRef,
+            asOfDayRef,
           )
           if (planningItem) {
             planningItems.push(planningItem)
@@ -796,6 +802,7 @@ export async function getWeekRelevantObjects(weekRef: WeekRef): Promise<WeekRele
             weekAssignments,
             monthRef,
             monthRef,
+            asOfDayRef,
           )
           if (reflectionItem) {
             reflectionItems.push(reflectionItem)
@@ -821,6 +828,8 @@ export async function getWeekRelevantObjects(weekRef: WeekRef): Promise<WeekRele
         weekState,
         dayAssignments,
         weekRef,
+        undefined,
+        asOfDayRef,
       )
       if (planningItem) {
         planningItems.push(planningItem)
@@ -835,6 +844,8 @@ export async function getWeekRelevantObjects(weekRef: WeekRef): Promise<WeekRele
         weekState,
         dayAssignments,
         weekRef,
+        undefined,
+        asOfDayRef,
       )
       if (reflectionItem) {
         reflectionItems.push(reflectionItem)
@@ -923,11 +934,14 @@ export async function getWeekRelevantObjects(weekRef: WeekRef): Promise<WeekRele
   })
 }
 
-export async function getWeekPlanningBundle(weekRef: WeekRef): Promise<WeekPlanningBundle> {
-  return loadPlanningCached(weekPlanningBundleCache, weekRef, async () => {
+export async function getWeekPlanningBundle(
+  weekRef: WeekRef,
+  asOfDayRef?: DayRef,
+): Promise<WeekPlanningBundle> {
+  return loadPlanningCached(weekPlanningBundleCache, `${weekRef}:${asOfDayRef ?? '-'}`, async () => {
     const [weekPlan, relevant] = await Promise.all([
       periodPlanDexieRepository.getWeekPlan(weekRef),
-      getWeekRelevantObjects(weekRef),
+      getWeekRelevantObjects(weekRef, asOfDayRef),
     ])
 
     return {
@@ -940,13 +954,16 @@ export async function getWeekPlanningBundle(weekRef: WeekRef): Promise<WeekPlann
   })
 }
 
-export async function getWeekReflectionBundle(weekRef: WeekRef): Promise<WeekReflectionBundle> {
-  return loadPlanningCached(weekReflectionBundleCache, weekRef, async () => {
+export async function getWeekReflectionBundle(
+  weekRef: WeekRef,
+  asOfDayRef?: DayRef,
+): Promise<WeekReflectionBundle> {
+  return loadPlanningCached(weekReflectionBundleCache, `${weekRef}:${asOfDayRef ?? '-'}`, async () => {
     const [weekPlan, periodReflection, objectReflections, relevant] = await Promise.all([
       periodPlanDexieRepository.getWeekPlan(weekRef),
       reflectionDexieRepository.getPeriodReflection('week', weekRef),
       reflectionDexieRepository.listPeriodObjectReflections(),
-      getWeekRelevantObjects(weekRef),
+      getWeekRelevantObjects(weekRef, asOfDayRef),
     ])
 
     return {

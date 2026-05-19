@@ -35,6 +35,10 @@ const chartPoints = computed<ObjectsLibraryChartPoint[]>(() =>
     actualValue: slot.value,
     targetValue: props.targetValue,
     status: slot.hasEntry ? ('no-target' as const) : ('no-data' as const),
+    // Mark past/today as current and future as non-current so SparklineValueLine
+    // fades the future portion of the line. `isFuture` is set by the slot
+    // builder relative to the actual day being viewed.
+    isCurrent: !slot.isFuture,
   })),
 )
 </script>

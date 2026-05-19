@@ -1,11 +1,21 @@
 /**
  * Data builders for the **weekly-slice** chart scope (currently consumed by
  * the weekly reflection grid). Sibling to {@link todayChartData} — uses its
- * slot builders for the chart body but adds:
+ * slot builders for the chart body but routes completion-dots through a
+ * scope-aware dispatcher:
  *
- *   1. {@link buildWeeklySliceCompletionSlots} — always 7 day-slots, even for
- *      monthly-cadence completion habits whose target would otherwise spawn
- *      N slots (e.g. "Meditation 15x/month" must render Mon–Sun, not 15 dots).
+ *   1. {@link buildWeeklySliceCompletionSlots} — three paths:
+ *      - `specific-days`: delegate to {@link buildCompletionSlots}; render
+ *        only the days actually scheduled this week. Past+no-entry on a
+ *        scheduled day is `missed` (red).
+ *      - weekly cadence + count target (whole-week / unassigned): delegate
+ *        to {@link buildCompletionSlots}; N slots equal to the target with
+ *        the done entries at the front, mid-week unfilled slots stay
+ *        neutral, end-of-week unfilled slots turn `missed`.
+ *      - everything else (monthly cadence without specific-days, weekly
+ *        trackers without target): always 7 Mon–Sun slots. Past days
+ *        without an entry stay neutral — no per-day weekly plan exists, and
+ *        any monthly deficit is surfaced via the footer below the chart.
  *   2. {@link buildMonthlyContextFooter} — month-scope progress data shown as
  *      a thin footer beneath the weekly chart, ONLY for monthly-cadence
  *      objects.
@@ -19,10 +29,12 @@
  */
 
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { MeasurementTarget } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
 import { buildMeasurementSummary, type MeasureableSubject } from '@/services/measurementProgress'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
 import {
+  buildCompletionSlots,
   buildDailyBarSlots,
   type TodayCompletionSlot,
   type TodayCompletionState,
@@ -60,14 +72,16 @@ export interface MonthlyContextFooterData {
 }
 
 /**
- * Build the 7 day-slots (Mon–Sun) for the weekly-slice completion-dots chart.
+ * Build completion-dot slots for the weekly-slice chart. Dispatches to one of
+ * three paths based on schedule scope and cadence — see the file header for
+ * the routing table.
  *
- * Delegates to {@link buildDailyBarSlots} which already produces exactly 7
- * slots for any weekly contextPeriodRef regardless of the subject's cadence —
- * so a monthly-cadence "Meditation 15x/month" habit also renders 7 dots when
- * sliced into a single week. The slot's completion state is then derived
- * from `hasEntry`/`isToday`/`isFuture` using the same semantics as the Today
- * view's CompletionDots.
+ * Red (`missed`) is reserved for two situations only:
+ *   1. a scheduled day in the past with no entry (specific-days scope), or
+ *   2. an unfilled target slot after the week has ended (whole-week +
+ *      weekly-cadence count target).
+ * Past days that simply weren't part of any plan stay neutral (`future`-style
+ * empty dot) — they're not misses.
  */
 export function buildWeeklySliceCompletionSlots(
   subject: MeasureableSubject,
@@ -79,6 +93,46 @@ export function buildWeeklySliceCompletionSlots(
   todayDayRef: DayRef,
   locale: string,
 ): TodayCompletionSlot[] {
+  const scope = planning.scheduleScope ?? 'unassigned'
+  const target = (subject as { target?: MeasurementTarget }).target
+
+  // Specific-days: only the days actually scheduled this week become slots;
+  // buildCompletionSlots already gives the correct `missed`/`done` semantics.
+  if (scope === 'specific-days') {
+    return buildCompletionSlots(
+      subject,
+      subjectType,
+      rawEntries,
+      allDayAssignments,
+      planning,
+      weekRef,
+      todayDayRef,
+      locale,
+    )
+  }
+
+  // Weekly cadence with a count target → target-count slots. Done entries fill
+  // from the front with their day labels; mid-week unfilled slots are
+  // today-pending / future; end-of-week unfilled slots become `missed`. All of
+  // that already lives inside buildCompletionSlots / buildTargetCountSlots.
+  if (subject.cadence === 'weekly' && target?.kind === 'count') {
+    return buildCompletionSlots(
+      subject,
+      subjectType,
+      rawEntries,
+      allDayAssignments,
+      planning,
+      weekRef,
+      todayDayRef,
+      locale,
+    )
+  }
+
+  // Monthly cadence without specific-days, or weekly trackers without a
+  // target: render 7 Mon–Sun slots so the tile shows the week's distribution,
+  // but keep past-no-entry neutral — there's no per-day weekly plan to "miss".
+  // Any deficit against a monthly target surfaces via the MonthlyContextFooter
+  // below the chart.
   const slots = buildDailyBarSlots(
     subject,
     subjectType,
@@ -91,18 +145,17 @@ export function buildWeeklySliceCompletionSlots(
   )
   return slots.map((slot) => ({
     ...slot,
-    state: resolveCompletionState(slot.hasEntry, slot.isToday, slot.isFuture),
+    state: resolveNeutralCompletionState(slot.hasEntry, slot.isToday),
   }))
 }
 
-function resolveCompletionState(
+function resolveNeutralCompletionState(
   hasEntry: boolean,
   today: boolean,
-  future: boolean,
 ): TodayCompletionState {
   if (today) return hasEntry ? 'today-done' : 'today-pending'
-  if (future) return 'future'
-  return hasEntry ? 'done' : 'missed'
+  if (hasEntry) return 'done'
+  return 'future'
 }
 
 /**
@@ -113,17 +166,22 @@ function resolveCompletionState(
  * For week boundaries that straddle two months we currently use the month
  * containing the **start** of the week. A future enhancement could surface
  * progress for both overlapping months side-by-side.
+ *
+ * `asOfDayRef`, when provided, scopes the monthly aggregate to entries
+ * recorded on or before that day so the footer reflects month-to-date from
+ * the perspective of the displayed week — not the entire month's totals.
  */
 export function buildMonthlyContextFooter(
   subject: MeasureableSubject,
   rawEntries: DailyMeasurementEntry[],
   weekRef: WeekRef,
+  asOfDayRef?: DayRef,
 ): MonthlyContextFooterData | undefined {
   if (subject.cadence !== 'monthly') return undefined
 
   const weekStart = getPeriodBounds(weekRef).start as DayRef
   const monthRef = getPeriodRefsForDate(weekStart).month
-  const summary = buildMeasurementSummary(subject, rawEntries, monthRef)
+  const summary = buildMeasurementSummary(subject, rawEntries, monthRef, asOfDayRef)
   const target = 'target' in subject ? subject.target : undefined
   const current = summary.actualValue ?? 0
   const entryCount = summary.entryCount

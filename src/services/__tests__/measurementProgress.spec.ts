@@ -210,4 +210,92 @@ describe('buildMeasurementSummary', () => {
     expect(summary.actualValue).toBe(6)
     expect(summary.evaluationStatus).toBeUndefined()
   })
+
+  describe('with asOfDayRef cut-off', () => {
+    const monthRef = '2026-03' as unknown as WeekRef
+
+    it('drops entries past the cut-off day for weekly aggregates', () => {
+      const tracker = makeTracker()
+      const summary = buildMeasurementSummary(
+        tracker,
+        [
+          makeEntry(tracker.id, '2026-03-09', 4, { subjectType: 'tracker' }),
+          makeEntry(tracker.id, '2026-03-10', 8, { subjectType: 'tracker' }),
+          makeEntry(tracker.id, '2026-03-12', 10, { subjectType: 'tracker' }),
+        ],
+        weekRef,
+        '2026-03-10' as DayRef,
+      )
+
+      expect(summary.entryCount).toBe(2)
+      expect(summary.actualValue).toBe(6)
+    })
+
+    it('includes entries dated exactly on the cut-off day', () => {
+      const habit = makeHabit()
+      const summary = buildMeasurementSummary(
+        habit,
+        [
+          makeEntry(habit.id, '2026-03-09'),
+          makeEntry(habit.id, '2026-03-10'),
+        ],
+        weekRef,
+        '2026-03-10' as DayRef,
+      )
+
+      expect(summary.entryCount).toBe(2)
+      expect(summary.actualValue).toBe(2)
+    })
+
+    it('treats months cumulatively up to the cut-off day', () => {
+      const kr = makeKeyResult({ cadence: 'monthly' })
+      const summary = buildMeasurementSummary(
+        kr,
+        [
+          makeEntry(kr.id, '2026-03-02', 5, { subjectType: 'keyResult' }),
+          makeEntry(kr.id, '2026-03-09', 7, { subjectType: 'keyResult' }),
+          makeEntry(kr.id, '2026-03-25', 12, { subjectType: 'keyResult' }),
+        ],
+        monthRef,
+        '2026-03-15' as DayRef,
+      )
+
+      expect(summary.entryCount).toBe(2)
+      expect(summary.actualValue).toBe(12)
+    })
+
+    it('reflects cut-off in evaluationStatus (mid-period min target shows missed)', () => {
+      const habit = makeHabit()
+      const summary = buildMeasurementSummary(
+        habit,
+        [
+          makeEntry(habit.id, '2026-03-09'),
+          makeEntry(habit.id, '2026-03-12'),
+          makeEntry(habit.id, '2026-03-13'),
+        ],
+        weekRef,
+        '2026-03-09' as DayRef,
+      )
+
+      expect(summary.entryCount).toBe(1)
+      expect(summary.evaluationStatus).toBe('missed')
+    })
+
+    it('returns no-data when no entries exist on or before the cut-off', () => {
+      const habit = makeHabit()
+      const summary = buildMeasurementSummary(
+        habit,
+        [
+          makeEntry(habit.id, '2026-03-11'),
+          makeEntry(habit.id, '2026-03-12'),
+        ],
+        weekRef,
+        '2026-03-09' as DayRef,
+      )
+
+      expect(summary.entryCount).toBe(0)
+      expect(summary.actualValue).toBeUndefined()
+      expect(summary.evaluationStatus).toBe('no-data')
+    })
+  })
 })

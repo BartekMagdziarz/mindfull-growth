@@ -38,7 +38,10 @@ const chartPoints = computed<ObjectsLibraryChartPoint[]>(() =>
     actualValue: slot.value,
     targetValue: props.data.targetValue,
     status: slot.hasEntry ? ('no-target' as const) : ('no-data' as const),
-    isCurrent: slot.isToday,
+    // Past + today render at full opacity; only future entries fade. Previously
+    // this was `slot.isToday`, which made every non-today dot dim — losing the
+    // distinction between past (recorded) and future (pre-filled).
+    isCurrent: !slot.isFuture,
   })),
 )
 

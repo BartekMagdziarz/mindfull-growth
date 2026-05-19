@@ -1,10 +1,11 @@
 import { ref, computed, watch, onMounted, onUnmounted, type Ref } from 'vue'
-import type { WeekRef } from '@/domain/period'
+import type { DayRef, WeekRef } from '@/domain/period'
 import type { WeeklyReflectionDataBundle } from '@/services/reflectionDataQueries'
 import { getWeeklyReflectionDataBundle } from '@/services/reflectionDataQueries'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
 import type { CreateWeeklyReflectionPayload } from '@/domain/reflection'
+import { getPeriodBounds } from '@/utils/periods'
 
 export type WeeklyReflectionStep =
   | 'review'
@@ -264,7 +265,8 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     // Load data bundle for review step
     isBundleLoading.value = true
     try {
-      dataBundle.value = await getWeeklyReflectionDataBundle(weekRef.value)
+      const weekEnd = getPeriodBounds(weekRef.value).end as DayRef
+      dataBundle.value = await getWeeklyReflectionDataBundle(weekRef.value, weekEnd)
     } catch (err) {
       console.error('Error loading weekly reflection data bundle:', err)
     } finally {

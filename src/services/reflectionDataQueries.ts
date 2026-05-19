@@ -789,7 +789,8 @@ function buildWeeklySummary(
 // ---------------------------------------------------------------------------
 
 export async function getWeeklyReflectionDataBundle(
-  weekRef: WeekRef
+  weekRef: WeekRef,
+  asOfDayRef?: DayRef,
 ): Promise<WeeklyReflectionDataBundle> {
   const bounds = getPeriodBounds(weekRef)
   const startDate = bounds.start + 'T00:00:00.000Z'
@@ -821,7 +822,7 @@ export async function getWeeklyReflectionDataBundle(
   let weekObjectItems: WeekObjectItem[] = []
 
   try {
-    const relevant = await getWeekRelevantObjects(weekRef)
+    const relevant = await getWeekRelevantObjects(weekRef, asOfDayRef)
     const reflectionMeasurements = relevant.reflection.measurementItems
     const habits = reflectionMeasurements.filter((m) => m.subjectType === 'habit')
 
