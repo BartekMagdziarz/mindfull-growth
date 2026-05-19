@@ -123,3 +123,63 @@ export function resolveTodayVizType(input: VisualizationDecisionInput): TodayViz
   // Fallback — should be unreachable for measurements with a valid entryMode.
   return 'daily-bars'
 }
+
+/**
+ * Sibling rule for the **weekly-slice** scope (currently consumed by the weekly
+ * reflection grid). Unlike {@link resolveTodayVizType}, it always renders the
+ * WEEKLY visualisation of an item even when the underlying object has monthly
+ * cadence — the surrounding tile pairs this with a separate
+ * `MonthlyContextFooter` to retain the month-level context.
+ *
+ * The two functions share {@link VisualizationDecisionInput} and the
+ * {@link TodayVizType} enum on purpose: the chart primitives are identical, so
+ * a future caller (e.g. CalendarView's weekly view) can adopt this resolver
+ * without inventing a new visualisation language. When a third caller arrives,
+ * consider renaming this file to a more generic name.
+ *
+ * Routing table (note the differences vs. Today are flagged with `*`):
+ *
+ *   initiative                                          → 'initiative-check'
+ *
+ *   completion + count target ≤ 7                       → 'completion-dots'
+ *   completion + count target > 7                       → 'completion-dots'  *
+ *   completion + tracker (no target)                    → 'completion-dots'  * (always, even monthly)
+ *
+ *   rating + any cadence                                → 'rating-segmented' * (no monthly variant)
+ *
+ *   counter + any cadence                               → 'daily-bars'       * (no monthly variant)
+ *
+ *   value + value-sum target + any cadence              → 'daily-bars'       * (no monthly variant)
+ *   value + value-avg/last target OR no target          → 'value-line'       * (no monthly variant)
+ *
+ * In every monthly-cadence branch the tile additionally shows a small
+ * `MonthlyContextFooter` underneath the chart with the month-scope progress —
+ * that's where the monthly summary information lives in this scope.
+ */
+export function resolveWeeklySliceVizType(input: VisualizationDecisionInput): TodayVizType {
+  if (input.kind === 'initiative') {
+    return 'initiative-check'
+  }
+
+  if (input.entryMode === 'completion') {
+    // Always 7 day-slots — even for "Meditation 15x/month" the user sees Mon-Sun.
+    return 'completion-dots'
+  }
+
+  if (input.entryMode === 'rating') {
+    return 'rating-segmented'
+  }
+
+  if (input.entryMode === 'counter') {
+    return 'daily-bars'
+  }
+
+  if (input.entryMode === 'value') {
+    if (input.target?.kind === 'value' && input.target.aggregation === 'sum') {
+      return 'daily-bars'
+    }
+    return 'value-line'
+  }
+
+  return 'daily-bars'
+}

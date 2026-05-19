@@ -16,6 +16,7 @@ import {
   getMonthPlanningBundle,
 } from '@/services/planningStateQueries'
 import type {
+  MeasurementPlanningSummary,
   WeekCadencedReflectionItem,
   WeekMeasurementReflectionItem,
   WeekTrackerReflectionItem,
@@ -23,6 +24,8 @@ import type {
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
 import { buildMeasurementSummary } from '@/services/measurementProgress'
+import type { MeasureableSubject, MeasurementSummary } from '@/services/measurementProgress'
+import type { MeasurementSubjectType } from '@/domain/planningState'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import type { WeeklyReflection } from '@/domain/reflection'
 import {
@@ -170,6 +173,24 @@ export interface WeekGoalReflectionGroup {
   keyResults: WeekCadencedReflectionItem[]
 }
 
+/**
+ * Flat representation of a goal/habit/tracker that was active during the
+ * reflection week. Consumed by the unified weekly objects grid which replaces
+ * the older three-panel split. KR items carry the parent goal's icon/title
+ * so the tile can show goal-context without the consumer doing extra joins.
+ */
+export interface WeekObjectItem {
+  key: string
+  subjectType: MeasurementSubjectType
+  subject: MeasureableSubject
+  planning: MeasurementPlanningSummary
+  measurement: MeasurementSummary
+  parentGoalId?: string
+  parentGoalIcon?: string
+  parentGoalTitle?: string
+  sortOrder: number
+}
+
 export interface WeeklyReflectionDataBundle {
   weekRef: WeekRef
   emotionSummary: EmotionSummary
@@ -184,6 +205,8 @@ export interface WeeklyReflectionDataBundle {
   goalReflectionGroups: WeekGoalReflectionGroup[]
   habitReflectionItems: WeekCadencedReflectionItem[]
   trackerReflectionItems: WeekTrackerReflectionItem[]
+  /** Flat, sorted list of objects active during the week (KR→habits→trackers). */
+  weekObjectItems: WeekObjectItem[]
 }
 
 export interface WeeklyRatingTrendEntry {
@@ -795,6 +818,7 @@ export async function getWeeklyReflectionDataBundle(
   let goalReflectionGroups: WeekGoalReflectionGroup[] = []
   let habitReflectionItems: WeekCadencedReflectionItem[] = []
   let trackerReflectionItems: WeekTrackerReflectionItem[] = []
+  let weekObjectItems: WeekObjectItem[] = []
 
   try {
     const relevant = await getWeekRelevantObjects(weekRef)
@@ -883,6 +907,46 @@ export async function getWeeklyReflectionDataBundle(
         },
       ]
     })
+
+    // Flatten into a unified list for the weekly objects grid: KR-by-goal,
+    // then habits, then trackers. Each section gets a deterministic sortOrder
+    // band so the grid renders the same order across sessions.
+    weekObjectItems = []
+    goalReflectionGroups.forEach((group, goalIndex) => {
+      group.keyResults.forEach((kr, krIndex) => {
+        weekObjectItems.push({
+          key: `keyResult:${kr.subject.id}`,
+          subjectType: 'keyResult',
+          subject: kr.subject,
+          planning: kr.planning,
+          measurement: kr.measurement,
+          parentGoalId: group.goal.id,
+          parentGoalIcon: group.goal.icon,
+          parentGoalTitle: group.goal.title,
+          sortOrder: 1000 * goalIndex + krIndex,
+        })
+      })
+    })
+    habitReflectionItems.forEach((habit, i) => {
+      weekObjectItems.push({
+        key: `habit:${habit.subject.id}`,
+        subjectType: 'habit',
+        subject: habit.subject,
+        planning: habit.planning,
+        measurement: habit.measurement,
+        sortOrder: 100_000 + i,
+      })
+    })
+    trackerReflectionItems.forEach((tracker, i) => {
+      weekObjectItems.push({
+        key: `tracker:${tracker.subject.id}`,
+        subjectType: 'tracker',
+        subject: tracker.subject,
+        planning: tracker.planning,
+        measurement: tracker.measurement,
+        sortOrder: 200_000 + i,
+      })
+    })
   } catch {
     // Planning data may not exist — build daily breakdown without measurements
     dailyBreakdown = buildDailyBreakdown(weekRef, [], [], exerciseEntries, startDate, endDate)
@@ -901,10 +965,11 @@ export async function getWeeklyReflectionDataBundle(
     goalReflectionGroups,
     habitReflectionItems,
     trackerReflectionItems,
+    weekObjectItems,
   }
 }
 
-async function loadDayAssignmentsForMonths(
+export async function loadDayAssignmentsForMonths(
   monthRefs: MonthRef[],
 ): Promise<MeasurementDayAssignment[]> {
   if (monthRefs.length === 0) return []
