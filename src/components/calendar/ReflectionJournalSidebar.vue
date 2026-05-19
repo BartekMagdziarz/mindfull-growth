@@ -79,8 +79,11 @@
           </button>
         </div>
 
-        <!-- AI week summary (mock) -->
-        <div class="rounded-xl bg-neu-base p-3 shadow-neu-pressed-sm">
+        <!-- AI week summary (mock) — only available when an aiSummary v-model is bound -->
+        <div
+          v-if="props.aiSummary !== undefined"
+          class="rounded-xl bg-neu-base p-3 shadow-neu-pressed-sm"
+        >
           <button
             type="button"
             class="flex w-full items-center gap-2"
@@ -100,7 +103,27 @@
             />
           </button>
           <div v-if="aiSummaryOpen" class="mt-3 flex flex-col gap-2">
-            <template v-if="!aiSummaryGenerated && !aiSummaryLoading">
+            <template v-if="aiSummaryLoading">
+              <div class="flex items-center gap-2 py-1 text-[11px] text-on-surface-variant">
+                <AppIcon name="auto_awesome" class="animate-spin text-xs text-primary" />
+                {{ t('planning.reflection.sidebar.aiSummaryLoading') }}
+              </div>
+            </template>
+            <template v-else-if="hasAiSummary">
+              <p class="text-[11px] leading-relaxed text-on-surface whitespace-pre-wrap">
+                {{ props.aiSummary }}
+              </p>
+              <button
+                type="button"
+                class="neo-focus flex items-center justify-center gap-1 self-start rounded-lg bg-neu-top px-2.5 py-1 text-[10px] font-semibold text-on-surface-variant shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:text-on-surface hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
+                :title="t('planning.reflection.sidebar.aiSummaryClearTitle')"
+                @click="clearAiSummary"
+              >
+                <AppIcon name="delete_sweep" class="text-xs" />
+                {{ t('planning.reflection.sidebar.aiSummaryClear') }}
+              </button>
+            </template>
+            <template v-else>
               <p class="text-[11px] leading-relaxed text-on-surface-variant">
                 {{ t('planning.reflection.sidebar.aiSummaryHint') }}
               </p>
@@ -112,26 +135,6 @@
                 <AppIcon name="auto_awesome" class="text-xs" />
                 {{ t('planning.reflection.sidebar.aiGenerate') }}
               </button>
-            </template>
-            <template v-else-if="aiSummaryLoading">
-              <div class="flex items-center gap-2 py-1 text-[11px] text-on-surface-variant">
-                <AppIcon name="auto_awesome" class="animate-spin text-xs text-primary" />
-                {{ t('planning.reflection.sidebar.aiSummaryLoading') }}
-              </div>
-            </template>
-            <template v-else>
-              <p class="text-[11px] leading-relaxed text-on-surface">
-                {{ t('planning.reflection.sidebar.aiSummaryMockBody') }}
-              </p>
-              <div class="flex flex-wrap gap-1">
-                <span
-                  v-for="tag in aiSummaryMockTags"
-                  :key="tag"
-                  class="inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary"
-                >
-                  {{ tag }}
-                </span>
-              </div>
             </template>
           </div>
         </div>
@@ -185,14 +188,8 @@
           :key="group.title"
           class="rounded-xl bg-neu-base p-3 shadow-neu-pressed-sm"
         >
-          <div class="mb-2 flex items-baseline justify-between gap-2">
+          <div class="mb-2">
             <span class="text-xs font-semibold text-on-surface">{{ group.title }}</span>
-            <span
-              v-if="group.question"
-              class="truncate text-[10px] text-on-surface-variant/80"
-            >
-              {{ group.question }}
-            </span>
           </div>
           <div class="flex flex-col gap-1.5">
             <div
@@ -339,7 +336,6 @@ const { t } = useT()
 
 export interface SidebarRatingGroup {
   title: string
-  question?: string
   items: Array<{ label: string; value: number | null }>
 }
 
@@ -354,10 +350,17 @@ const props = defineProps<{
   ratingGroups: SidebarRatingGroup[]
   dataBundle?: WeeklyReflectionDataBundle | null
   weekRef?: WeekRef
+  /**
+   * Persisted AI summary. When undefined, the AI summary card is hidden
+   * (e.g. monthly wizard does not use it). Empty string means "no summary
+   * yet — show the generate button."
+   */
+  aiSummary?: string
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  'update:aiSummary': [value: string]
 }>()
 
 // ---------------------------------------------------------------------------
@@ -368,8 +371,11 @@ const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const collapsed = ref(false)
 
 const aiSummaryOpen = ref(true)
-const aiSummaryGenerated = ref(false)
 const aiSummaryLoading = ref(false)
+
+const hasAiSummary = computed(
+  () => typeof props.aiSummary === 'string' && props.aiSummary.trim().length > 0,
+)
 
 const aiPromptsGenerated = ref(false)
 const aiPromptsLoading = ref(false)
@@ -535,13 +541,6 @@ function emotionPillStyle(q: Quadrant): Record<string, string> {
 
 // Locale files store these as pipe-separated strings because useT()
 // resolves only string keys (object/array values can't be translated).
-const aiSummaryMockTags = computed<string[]>(() =>
-  t('planning.reflection.sidebar.aiSummaryMockTags')
-    .split('|')
-    .map((s) => s.trim())
-    .filter(Boolean),
-)
-
 const aiMockPrompts = computed<string[]>(() =>
   t('planning.reflection.sidebar.aiPromptsMock')
     .split('|')
@@ -550,13 +549,18 @@ const aiMockPrompts = computed<string[]>(() =>
 )
 
 function generateAiSummary() {
-  if (aiSummaryLoading.value || aiSummaryGenerated.value) return
+  if (aiSummaryLoading.value || hasAiSummary.value) return
   aiSummaryLoading.value = true
-  // NOTE: Intentionally NOT calling the backend — user will wire real AI in a separate session.
+  // NOTE: Intentionally NOT calling the backend — mock body comes from i18n.
+  // The resolved string is emitted up so the wizard can persist it with the reflection.
   setTimeout(() => {
     aiSummaryLoading.value = false
-    aiSummaryGenerated.value = true
+    emit('update:aiSummary', t('planning.reflection.sidebar.aiSummaryMockBody'))
   }, 1200)
+}
+
+function clearAiSummary() {
+  emit('update:aiSummary', '')
 }
 
 function generateAiPrompts() {

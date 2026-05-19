@@ -129,6 +129,7 @@ describe('extractWeeklyRatings', () => {
       selfCareRating: 3,
       promptResponses: {},
       freeformReflection: '',
+      aiSummary: '',
     }
 
     const result = extractWeeklyRatings(reflection)

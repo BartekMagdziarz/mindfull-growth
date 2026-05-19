@@ -806,7 +806,7 @@
     "saving": "Saving...",
     "steps": {
       "review": "Review",
-      "context": "Context",
+      "context": "Effort",
       "state": "State",
       "evaluation": "Evaluation",
       "anchors": "Anchors",
@@ -835,6 +835,8 @@
       "aiSummaryHint": "AI will scan your entries, emotions and ratings and pull out the main themes of the week.",
       "aiSummaryLoading": "AI is reading your week…",
       "aiGenerate": "Generate",
+      "aiSummaryClear": "Clear",
+      "aiSummaryClearTitle": "Clear AI summary",
       "aiSummaryMockBody": "A week of recovering rhythm. After an intense Tuesday that opened important threads, Wednesday became the heaviest point with a packed calendar and unease. From Thursday onward stability returned: dinner with a close friend, a closed sprint on Friday, and a quiet weekend.",
       "aiSummaryMockTags": "recovering rhythm|overloaded Wednesday|closing the sprint",
       "aiPrompts": "AI questions",
@@ -886,14 +888,16 @@
       "noObjects": "No objects to summarize this week.",
       "noJournalEntries": "No journal entries this week.",
       "journalShort": "Journal",
-      "kontekstTitle": "Context",
-      "kontekstGroupContext": "Context",
+      "kontekstTitle": "Summary",
+      "kontekstGroupContext": "Effort",
       "kontekstGroupState": "State",
       "kontekstGroupEvaluation": "Evaluation",
       "kontekstNoReflection": "No reflection for this week yet.",
       "kontekstCreateButton": "Create reflection",
       "kontekstEditButton": "Edit reflection",
       "kontekstFreeformLabel": "Note",
+      "kontekstAiSummaryTitle": "AI summary",
+      "kontekstAnchorsTitle": "Anchor points",
       "thisMonth": "this month",
       "avgLabel": "avg",
       "lastLabel": "last",
@@ -926,7 +930,7 @@
       "reviewSubtitle": "Here's a summary of your week. Take a moment to absorb it before reflecting.",
       "groups": {
         "context": {
-          "title": "Context",
+          "title": "Effort",
           "subtitle": "How demanding was this week?"
         },
         "state": {
@@ -939,10 +943,10 @@
         }
       },
       "dimensions": {
-        "physicalIntensity": "Physical Intensity",
-        "taskLoad": "Task Load",
-        "emotionalIntensity": "Emotional Intensity",
-        "socialIntensity": "Social Intensity",
+        "physicalIntensity": "Physical",
+        "taskLoad": "Tasks",
+        "emotionalIntensity": "Emotional",
+        "socialIntensity": "Social",
         "mood": "Mood",
         "energy": "Energy",
         "calm": "Calm",
@@ -953,9 +957,9 @@
         "selfCare": "Self-Care"
       },
       "dimensionsShort": {
-        "physicalIntensity": "Phys.",
+        "physicalIntensity": "Physical",
         "taskLoad": "Tasks",
-        "emotionalIntensity": "Emot.",
+        "emotionalIntensity": "Emotional",
         "socialIntensity": "Social",
         "emotionalRegulation": "Emo. Reg."
       },
@@ -1009,10 +1013,10 @@
       "weeklyLabel": "weekly",
       "monthlyLabel": "monthly",
       "habitsMet": "{met}/{total} met target",
-      "weeklyRecapSubtitle": "How your context, state, and evaluation evolved across weeks.",
+      "weeklyRecapSubtitle": "How your effort, state, and evaluation evolved across weeks.",
       "weeklyTrendsTitle": "Weekly Dimensions",
       "dimensionGroups": {
-        "context": "Context",
+        "context": "Effort",
         "state": "State",
         "evaluation": "Evaluation"
       },

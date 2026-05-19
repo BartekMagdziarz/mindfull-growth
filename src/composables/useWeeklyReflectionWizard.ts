@@ -85,6 +85,9 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   // Free-form reflection
   const freeformReflection = ref('')
 
+  // AI-generated narrative summary (mock content for now; empty = none)
+  const aiSummary = ref('')
+
   // State
   const isEditing = ref(false)
   const isSaving = ref(false)
@@ -193,6 +196,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       selfCareRating: selfCareRating.value,
       promptResponses: promptResponses.value,
       freeformReflection: freeformReflection.value,
+      aiSummary: aiSummary.value,
     }
   }
 
@@ -231,6 +235,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
       if (data.promptResponses) promptResponses.value = data.promptResponses as Record<string, string>
       if (data.freeformReflection) freeformReflection.value = data.freeformReflection as string
+      if (typeof data.aiSummary === 'string') aiSummary.value = data.aiSummary
     } catch {
       // Invalid draft, ignore
     }
@@ -251,11 +256,12 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     selfCareRating.value = existing.selfCareRating
     promptResponses.value = { ...existing.promptResponses }
     freeformReflection.value = existing.freeformReflection
+    aiSummary.value = existing.aiSummary ?? ''
   }
 
   // Watch fields for auto-save
   watch(
-    [...allRatingRefs, promptResponses, freeformReflection],
+    [...allRatingRefs, promptResponses, freeformReflection, aiSummary],
     scheduleDraftSave,
     { deep: true }
   )
@@ -313,6 +319,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
         selfCareRating: selfCareRating.value,
         promptResponses: { ...promptResponses.value },
         freeformReflection: freeformReflection.value,
+        aiSummary: aiSummary.value,
       }
 
       await store.upsertWeekly(payload)
@@ -359,6 +366,9 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
     // Free-form
     freeformReflection,
+
+    // AI summary
+    aiSummary,
 
     // State
     isEditing,

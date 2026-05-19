@@ -93,7 +93,9 @@
           :rating-groups="weeklyRatingSummary"
           :data-bundle="dataBundle"
           :week-ref="props.weekRef"
+          :ai-summary="aiSummary"
           @update:model-value="freeformReflection = $event"
+          @update:ai-summary="aiSummary = $event"
         />
       </div>
     </Transition>
@@ -186,9 +188,6 @@ const stepLabels = computed(() => [
 const stepSubtitle = computed(() => {
   switch (currentStep.value) {
     case 'review': return t('planning.reflection.weekly.reviewSubtitle')
-    case 'context': return t('planning.reflection.weekly.groups.context.subtitle')
-    case 'state': return t('planning.reflection.weekly.groups.state.subtitle')
-    case 'evaluation': return t('planning.reflection.weekly.groups.evaluation.subtitle')
     default: return ''
   }
 })
@@ -225,6 +224,7 @@ const {
   selfCareRating,
   promptResponses,
   freeformReflection,
+  aiSummary,
   isSaving,
   save,
 } = useWeeklyReflectionWizard(toRef(props, 'weekRef'))
@@ -385,7 +385,6 @@ function handleRatingUpdate(key: string, value: number) {
 const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
   {
     title: t('planning.reflection.weekly.groups.context.title'),
-    question: t('planning.reflection.weekly.groups.context.subtitle'),
     items: [
       { label: t('planning.reflection.weekly.dimensions.physicalIntensity'), value: physicalIntensityRating.value },
       { label: t('planning.reflection.weekly.dimensions.taskLoad'), value: taskLoadRating.value },
@@ -395,7 +394,6 @@ const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
   },
   {
     title: t('planning.reflection.weekly.groups.state.title'),
-    question: t('planning.reflection.weekly.groups.state.subtitle'),
     items: [
       { label: t('planning.reflection.weekly.dimensions.mood'), value: moodRating.value },
       { label: t('planning.reflection.weekly.dimensions.energy'), value: energyRating.value },
@@ -405,7 +403,6 @@ const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
   },
   {
     title: t('planning.reflection.weekly.groups.evaluation.title'),
-    question: t('planning.reflection.weekly.groups.evaluation.subtitle'),
     items: [
       { label: t('planning.reflection.weekly.dimensions.productivity'), value: productivityRating.value },
       { label: t('planning.reflection.weekly.dimensions.engagement'), value: engagementRating.value },

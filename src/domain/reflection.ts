@@ -41,6 +41,9 @@ export interface WeeklyReflection extends ReflectionRecordBase {
 
   // Free-form reflection
   freeformReflection: string
+
+  // AI-generated narrative summary. Empty string means none. Mock content for now.
+  aiSummary: string
 }
 
 export type CreateWeeklyReflectionPayload = Omit<
@@ -185,6 +188,7 @@ export function normalizeWeeklyReflectionPayload(
       existing?.promptResponses ?? {}
     ),
     freeformReflection: normalizeText(data.freeformReflection, existing?.freeformReflection ?? ''),
+    aiSummary: normalizeText(data.aiSummary, existing?.aiSummary ?? ''),
   }
 }
 

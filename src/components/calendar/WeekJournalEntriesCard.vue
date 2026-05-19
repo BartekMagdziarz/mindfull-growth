@@ -158,24 +158,30 @@ function contextTagName(id: string): string | undefined {
 .journal-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .journal-row {
-  border-radius: 10px;
-  background: rgb(var(--neo-surface-base));
-  box-shadow:
-    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.55),
-    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.22);
   overflow: hidden;
-  transition: background 150ms ease;
+  position: relative;
 }
 
-.journal-row[data-expanded='true'] {
-  background: rgb(var(--neo-surface-top));
+.journal-row + .journal-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1px;
+  right: 1px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--neo-border) / 0.45),
+    transparent
+  );
+  pointer-events: none;
 }
 
 .journal-row__head {
@@ -207,6 +213,14 @@ function contextTagName(id: string): string | undefined {
   flex: 0 0 auto;
   font-size: 14px;
   color: rgb(var(--neo-muted) / 0.7);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.journal-row__head:hover .journal-row__chevron,
+.journal-row__head:focus-visible .journal-row__chevron,
+.journal-row[data-expanded='true'] .journal-row__chevron {
+  opacity: 1;
 }
 
 .journal-row__body {

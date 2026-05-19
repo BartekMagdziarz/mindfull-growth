@@ -806,7 +806,7 @@
     "saving": "Zapisywanie...",
     "steps": {
       "review": "Przegląd",
-      "context": "Kontekst",
+      "context": "Wysiłek",
       "state": "Stan",
       "evaluation": "Ocena",
       "anchors": "Punkty zaczepienia",
@@ -835,6 +835,8 @@
       "aiSummaryHint": "AI przeczyta Twoje wpisy, emocje i oceny — i wyciągnie z nich główne wątki tygodnia.",
       "aiSummaryLoading": "AI czyta Twój tydzień…",
       "aiGenerate": "Wygeneruj",
+      "aiSummaryClear": "Wyczyść",
+      "aiSummaryClearTitle": "Wyczyść podsumowanie AI",
       "aiSummaryMockBody": "Tydzień odzyskiwania rytmu. Po intensywnym wtorku, który otworzył ważne wątki, środa stała się najcięższym punktem — przeładowany kalendarz i niepokój. Od czwartku wracała stabilność: kolacja z bliską osobą, domknięty sprint w piątek i spokojny weekend.",
       "aiSummaryMockTags": "odzyskiwanie rytmu|przeładowana środa|domknięcie sprintu",
       "aiPrompts": "Pytania od AI",
@@ -886,14 +888,16 @@
       "noObjects": "Brak obiektów do podsumowania w tym tygodniu.",
       "noJournalEntries": "Brak wpisów w dzienniku w tym tygodniu.",
       "journalShort": "Dziennik",
-      "kontekstTitle": "Kontekst",
-      "kontekstGroupContext": "Kontekst",
+      "kontekstTitle": "Podsumowanie",
+      "kontekstGroupContext": "Wysiłek",
       "kontekstGroupState": "Stan",
       "kontekstGroupEvaluation": "Ocena",
       "kontekstNoReflection": "Brak refleksji dla tego tygodnia.",
       "kontekstCreateButton": "Utwórz refleksję",
       "kontekstEditButton": "Edytuj refleksję",
       "kontekstFreeformLabel": "Notatka",
+      "kontekstAiSummaryTitle": "Podsumowanie AI",
+      "kontekstAnchorsTitle": "Punkty zaczepienia",
       "thisMonth": "w tym miesiącu",
       "avgLabel": "śr.",
       "lastLabel": "ostatnio",
@@ -926,7 +930,7 @@
       "reviewSubtitle": "Oto podsumowanie Twojego tygodnia. Poświęć chwilę na zapoznanie się z nim.",
       "groups": {
         "context": {
-          "title": "Kontekst",
+          "title": "Wysiłek",
           "subtitle": "Jak wymagający był ten tydzień?"
         },
         "state": {
@@ -939,10 +943,10 @@
         }
       },
       "dimensions": {
-        "physicalIntensity": "Intensywność fizyczna",
-        "taskLoad": "Obciążenie zadaniami",
-        "emotionalIntensity": "Intensywność emocjonalna",
-        "socialIntensity": "Intensywność społeczna",
+        "physicalIntensity": "Fizyczny",
+        "taskLoad": "Zadaniowy",
+        "emotionalIntensity": "Emocjonalny",
+        "socialIntensity": "Socjalny",
         "mood": "Nastrój",
         "energy": "Energia",
         "calm": "Spokój",
@@ -953,10 +957,10 @@
         "selfCare": "Dbanie o siebie"
       },
       "dimensionsShort": {
-        "physicalIntensity": "Fiz.",
-        "taskLoad": "Zad.",
-        "emotionalIntensity": "Emoc.",
-        "socialIntensity": "Społ.",
+        "physicalIntensity": "Fizyczny",
+        "taskLoad": "Zadaniowy",
+        "emotionalIntensity": "Emocjonalny",
+        "socialIntensity": "Socjalny",
         "emotionalRegulation": "Reg. em."
       },
       "scaleLabels": {
@@ -1009,10 +1013,10 @@
       "weeklyLabel": "tygodniowy",
       "monthlyLabel": "miesięczny",
       "habitsMet": "{met}/{total} osiągnęło cel",
-      "weeklyRecapSubtitle": "Jak zmieniał się Twój kontekst, stan i ocena w poszczególnych tygodniach.",
+      "weeklyRecapSubtitle": "Jak zmieniał się Twój wysiłek, stan i ocena w poszczególnych tygodniach.",
       "weeklyTrendsTitle": "Wymiary tygodniowe",
       "dimensionGroups": {
-        "context": "Kontekst",
+        "context": "Wysiłek",
         "state": "Stan",
         "evaluation": "Ocena"
       },
