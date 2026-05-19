@@ -596,7 +596,7 @@
   },
   "goalWizard": {
     "title": "Stwórz cel SMART",
-    "subtitle": "Krok po kroku zdefiniuj, co chcesz osiągnąć i jak będziesz mierzyć postęp.",
+    "subtitle": "",
     "stepLabels": {
       "specific": "Skonkretyzowany",
       "measurable": "Mierzalny",
@@ -619,16 +619,13 @@
         "subtitle": "Co dokładnie chcesz osiągnąć?",
         "titleLabel": "Tytuł celu",
         "titlePlaceholder": "np. Przebiec bieg na 10 km",
-        "descriptionLabel": "Opis (opcjonalny)",
-        "descriptionPlaceholder": "Dodaj kontekst, tło lub szczegóły",
         "successDefinitionLabel": "Definicja sukcesu",
-        "successDefinitionPlaceholder": "Po czym poznasz, że osiągnąłeś cel?",
-        "successDefinitionHint": "Bądź konkretny: \"Ukończyłem 10 km poniżej 60 minut\"."
+        "successDefinitionPlaceholder": "Po czym poznasz, że osiągnąłeś cel?"
       },
       "measurable": {
         "title": "Jak to zmierzysz?",
         "subtitle": "Dodaj co najmniej jeden Kluczowy Rezultat śledzący postęp.",
-        "hint": "Każdy Kluczowy Rezultat to mierzalny cel, który będziesz zapisywać.",
+        "hint": "",
         "addKrButton": "Dodaj Kluczowy Rezultat",
         "krTitleLabel": "Tytuł kluczowego rezultatu",
         "krTitlePlaceholder": "np. Biegać 25km/tydzień",
@@ -642,7 +639,7 @@
       },
       "achievable": {
         "title": "Czy jest osiągalny?",
-        "subtitle": "Zastanów się nad przeszkodami i zasobami, na które możesz liczyć.",
+        "subtitle": "Zaplanuj, co zrobisz, kiedy pojawi się tarcie, i jak zwiększysz szanse realizacji.",
         "confidenceLabel": "Pewność",
         "confidenceLow": "Wątpliwa",
         "confidenceHigh": "Bardzo pewna",
@@ -650,13 +647,21 @@
         "obstaclesPlaceholder": "Co może stanąć na drodze?",
         "resourcesLabel": "Zasoby i wsparcie (opcjonalnie)",
         "resourcesPlaceholder": "Kto lub co pomaga Ci się powieść?",
-        "lowConfidenceHint": "Niska pewność — rozważ uzupełnienie przeszkód i zasobów."
+        "lowConfidenceHint": "Niska pewność — rozważ uzupełnienie przeszkód i zasobów.",
+        "contingencyPlanLabel": "Plan awaryjny (opcjonalnie)",
+        "contingencyPlanPlaceholder": "Co może Ci przeszkodzić i jak wtedy zareagujesz?",
+        "supportPlanLabel": "Plan wsparcia (opcjonalnie)",
+        "supportPlanPlaceholder": "Co zrobisz, żeby zwiększyć szanse wykonania celu i zmniejszyć tarcie?"
       },
       "relevant": {
         "title": "Dlaczego to ma znaczenie?",
         "subtitle": "Połącz ten cel z priorytetami, obszarami życia i wewnętrzną motywacją.",
         "prioritiesLabel": "Powiązane priorytety",
         "lifeAreasLabel": "Powiązane obszary życia",
+        "prioritiesTagLabel": "Priorytety",
+        "lifeAreasTagLabel": "Obszary życia",
+        "addPriority": "Dodaj priorytet",
+        "addLifeArea": "Dodaj obszar życia",
         "whyMattersLabel": "Dlaczego to ma dla Ciebie znaczenie (opcjonalnie)",
         "whyMattersPlaceholder": "Głębszy powód stojący za tym celem",
         "emptyState": "Powiąż co najmniej jeden priorytet lub obszar życia, lub napisz dlaczego to ważne."
@@ -675,7 +680,14 @@
           "days": "{count} dni od dziś",
           "today": "Dzisiaj",
           "overdue": "Spóźnione o {count} dni"
-        }
+        },
+        "goalMonthsLabel": "Miesiące celu",
+        "addGoalMonth": "Dodaj miesiąc celu",
+        "noGoalMonths": "Nie wybrano miesięcy",
+        "krPeriodsLabel": "KR w miesiącach lub tygodniach",
+        "addKrPeriod": "Dodaj okres do KR",
+        "untitledKr": "Kluczowy rezultat bez tytułu",
+        "noKrPeriods": "Nie przypięto okresów"
       },
       "review": {
         "title": "Przejrzyj swój cel SMART",

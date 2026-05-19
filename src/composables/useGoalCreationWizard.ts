@@ -1,4 +1,5 @@
 import { computed, reactive, ref } from 'vue'
+import type { MonthRef, WeekRef } from '@/domain/period'
 import type {
   CountTargetOperator,
   CreateGoalPayload,
@@ -12,6 +13,8 @@ import type {
 } from '@/domain/planning'
 import { computeSmartCompleteness, type SmartCompleteness } from '@/domain/smartCompleteness'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
+import { activateMeasurementInMonth, linkGoalToMonth, linkMeasurementPeriod } from '@/services/planningMutations'
+import { getWeekOverlappingMonths } from '@/utils/periods'
 
 export type GoalWizardStep =
   | 'specific'
@@ -53,6 +56,8 @@ export interface GoalDraft {
   obstacles?: string
   resources?: string
   targetDate?: string
+  linkedMonthRefs: string[]
+  krPeriodRefsByLocalId: Record<string, string[]>
 }
 
 function createEmptyGoalDraft(): GoalDraft {
@@ -68,6 +73,8 @@ function createEmptyGoalDraft(): GoalDraft {
     obstacles: undefined,
     resources: undefined,
     targetDate: undefined,
+    linkedMonthRefs: [],
+    krPeriodRefsByLocalId: {},
   }
 }
 
@@ -235,11 +242,65 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
     isSaving.value = true
     try {
       const result = await repo.createWithKeyResults(buildGoalPayload(), buildKrPayloads())
+      await applyPeriodLinks(result.goal.id, result.keyResults)
       reset()
       return result.goal.id
     } finally {
       isSaving.value = false
     }
+  }
+
+  async function applyPeriodLinks(goalId: string, keyResults: { id: string; cadence: PlanningCadence }[]): Promise<void> {
+    const keyResultByLocalId = new Map(
+      keyResults.map((keyResult, index) => [krDrafts.value[index]?.localId, keyResult]),
+    )
+    const goalMonthRefs = new Set<string>(goalDraft.linkedMonthRefs)
+
+    for (const [localId, periodRefs] of Object.entries(goalDraft.krPeriodRefsByLocalId)) {
+      const keyResult = keyResultByLocalId.get(localId)
+      if (!keyResult) continue
+
+      for (const periodRef of periodRefs) {
+        if (keyResult.cadence === 'monthly') {
+          goalMonthRefs.add(periodRef)
+        } else {
+          for (const monthRef of getWeekOverlappingMonths(periodRef as WeekRef)) {
+            goalMonthRefs.add(monthRef)
+          }
+        }
+      }
+    }
+
+    await Promise.all([...goalMonthRefs].map((monthRef) => linkGoalToMonth(goalId, monthRef as MonthRef)))
+
+    const periodLinkTasks: Promise<void>[] = []
+    for (const [localId, periodRefs] of Object.entries(goalDraft.krPeriodRefsByLocalId)) {
+      const keyResult = keyResultByLocalId.get(localId)
+      if (!keyResult) continue
+
+      for (const periodRef of periodRefs) {
+        if (keyResult.cadence === 'monthly') {
+          periodLinkTasks.push(
+            activateMeasurementInMonth({
+              monthRef: periodRef as MonthRef,
+              subjectType: 'keyResult',
+              subjectId: keyResult.id,
+            }),
+          )
+        } else {
+          periodLinkTasks.push(
+            linkMeasurementPeriod({
+              periodRef: periodRef as WeekRef,
+              cadence: keyResult.cadence,
+              subjectType: 'keyResult',
+              subjectId: keyResult.id,
+            }),
+          )
+        }
+      }
+    }
+
+    await Promise.all(periodLinkTasks)
   }
 
   function reset(): void {

@@ -596,7 +596,7 @@
   },
   "goalWizard": {
     "title": "Create a SMART goal",
-    "subtitle": "Step by step, define what you want to achieve and how you'll measure progress.",
+    "subtitle": "",
     "stepLabels": {
       "specific": "Specific",
       "measurable": "Measurable",
@@ -619,16 +619,13 @@
         "subtitle": "What exactly do you want to achieve?",
         "titleLabel": "Goal title",
         "titlePlaceholder": "e.g. Run a 10K race",
-        "descriptionLabel": "Description (optional)",
-        "descriptionPlaceholder": "Add context, background, or detail",
         "successDefinitionLabel": "Definition of success",
-        "successDefinitionPlaceholder": "How will you know you've achieved the goal?",
-        "successDefinitionHint": "Be concrete: \"I completed a 10K under 60 minutes\"."
+        "successDefinitionPlaceholder": "How will you know you've achieved the goal?"
       },
       "measurable": {
         "title": "How will you measure it?",
         "subtitle": "Add at least one Key Result that tracks progress.",
-        "hint": "Each Key Result is a measurable target you'll log against this goal.",
+        "hint": "",
         "addKrButton": "Add Key Result",
         "krTitleLabel": "Key Result title",
         "krTitlePlaceholder": "e.g. Run 25km/week",
@@ -642,7 +639,7 @@
       },
       "achievable": {
         "title": "Is it achievable?",
-        "subtitle": "Reflect on the obstacles and resources you can lean on.",
+        "subtitle": "Plan how you'll respond when friction appears and how you'll increase the odds of follow-through.",
         "confidenceLabel": "Confidence",
         "confidenceLow": "Doubtful",
         "confidenceHigh": "Very confident",
@@ -650,13 +647,21 @@
         "obstaclesPlaceholder": "What could get in the way?",
         "resourcesLabel": "Resources & support (optional)",
         "resourcesPlaceholder": "Who or what helps you succeed?",
-        "lowConfidenceHint": "Low confidence — consider listing obstacles and resources."
+        "lowConfidenceHint": "Low confidence — consider listing obstacles and resources.",
+        "contingencyPlanLabel": "Contingency plan (optional)",
+        "contingencyPlanPlaceholder": "What could get in the way, and how will you respond?",
+        "supportPlanLabel": "Support plan (optional)",
+        "supportPlanPlaceholder": "What will you do to increase the odds of execution and reduce friction?"
       },
       "relevant": {
         "title": "Why does it matter?",
         "subtitle": "Connect this goal to your priorities, life areas, and inner motivation.",
         "prioritiesLabel": "Linked priorities",
         "lifeAreasLabel": "Linked life areas",
+        "prioritiesTagLabel": "Priorities",
+        "lifeAreasTagLabel": "Life areas",
+        "addPriority": "Add priority",
+        "addLifeArea": "Add life area",
         "whyMattersLabel": "Why this matters to you (optional)",
         "whyMattersPlaceholder": "The deeper reason behind this goal",
         "emptyState": "Link at least one priority or life area, or write why it matters."
@@ -675,7 +680,14 @@
           "days": "{count} days from today",
           "today": "Today",
           "overdue": "Overdue by {count} days"
-        }
+        },
+        "goalMonthsLabel": "Goal months",
+        "addGoalMonth": "Add goal month",
+        "noGoalMonths": "No months selected",
+        "krPeriodsLabel": "KRs in months or weeks",
+        "addKrPeriod": "Add period to KR",
+        "untitledKr": "Untitled key result",
+        "noKrPeriods": "No periods linked"
       },
       "review": {
         "title": "Review your SMART goal",

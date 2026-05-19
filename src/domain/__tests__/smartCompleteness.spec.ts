@@ -48,13 +48,7 @@ describe('computeSmartCompleteness', () => {
     expect(result.missing).toContain('S')
   })
 
-  it('marks A false when no confidence or no obstacles/resources', () => {
-    const noConfidence = computeSmartCompleteness(
-      { ...completeGoal, confidenceRating: undefined },
-      1,
-    )
-    expect(noConfidence.A).toBe(false)
-
+  it('marks A false when no contingency or support plan', () => {
     const noFollowUp = computeSmartCompleteness(
       { ...completeGoal, obstacles: undefined, resources: undefined },
       1,

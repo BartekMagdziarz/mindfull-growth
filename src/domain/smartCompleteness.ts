@@ -35,8 +35,7 @@ export function computeSmartCompleteness(
 ): SmartCompleteness {
   const specific = hasText(goal.title) && (hasText(goal.successDefinition) || hasText(goal.description))
   const measurable = keyResultCount >= 1
-  const achievable =
-    typeof goal.confidenceRating === 'number' && (hasText(goal.obstacles) || hasText(goal.resources))
+  const achievable = hasText(goal.obstacles) || hasText(goal.resources)
   const relevant =
     (goal.priorityIds?.length ?? 0) > 0 ||
     (goal.lifeAreaIds?.length ?? 0) > 0 ||
