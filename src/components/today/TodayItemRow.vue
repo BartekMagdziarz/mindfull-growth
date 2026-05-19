@@ -114,7 +114,7 @@
                 cy="22"
                 r="20.5"
                 fill="none"
-                stroke="rgb(var(--color-primary-strong))"
+                stroke="rgb(var(--neo-chart-primary-end))"
                 stroke-width="2"
                 stroke-linecap="round"
                 :stroke-dasharray="RATING_RING_CIRC"
@@ -561,15 +561,17 @@ function handleMoveDateChange(event: Event): void {
   cursor: not-allowed;
 }
 
+/* Use the same chart-primary gradient as the bar charts so tickers and bars
+   in the Today surface read as one colour family. */
 .today-entry-circle--on {
   background: linear-gradient(
     145deg,
-    rgb(var(--color-primary) / 0.96),
-    rgb(var(--color-primary-strong) / 0.96)
+    rgb(var(--neo-chart-primary-start)),
+    rgb(var(--neo-chart-primary-end))
   );
   box-shadow:
     -2px -2px 5px rgb(255 255 255 / 0.6),
-    2.5px 2.5px 6px rgb(var(--color-primary-strong) / 0.42);
+    2.5px 2.5px 6px rgb(var(--neo-chart-primary-end) / 0.42);
   color: #fff;
 }
 

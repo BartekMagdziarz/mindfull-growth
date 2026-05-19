@@ -99,24 +99,27 @@ function dotStyle(slot: TodayCompletionSlot): CSSProperties {
   const size = `${dotSizePx.value}px`
   const base: CSSProperties = { width: size, height: size }
 
+  // Done / today-done states share the same gradient as the bar charts and
+  // task-row tickers so every "completed/positive" blue accent in the Today
+  // surface reads as one colour.
   switch (slot.state) {
     case 'done':
       return {
         ...base,
         background:
-          'linear-gradient(to bottom, rgb(var(--sky-300)), rgb(var(--sky-500)))',
+          'linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)))',
       }
     case 'today-done':
       return {
         ...base,
         background:
-          'linear-gradient(to bottom, rgb(var(--sky-300)), rgb(var(--sky-500)))',
-        boxShadow: `0 0 0 ${dotSizePx.value <= 22 ? 1.5 : 2}px rgb(var(--sky-500) / 0.35)`,
+          'linear-gradient(to bottom, rgb(var(--neo-chart-primary-start)), rgb(var(--neo-chart-primary-end)))',
+        boxShadow: `0 0 0 ${dotSizePx.value <= 22 ? 1.5 : 2}px rgb(var(--neo-chart-primary-end) / 0.35)`,
       }
     case 'today-pending':
       return {
         ...base,
-        borderColor: 'rgb(var(--sky-500) / 0.55)',
+        borderColor: 'rgb(var(--neo-chart-primary-end) / 0.55)',
       }
     case 'missed':
       return {

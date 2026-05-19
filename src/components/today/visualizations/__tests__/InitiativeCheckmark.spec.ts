@@ -3,23 +3,22 @@ import { fireEvent, render } from '@testing-library/vue'
 import InitiativeCheckmark from '../InitiativeCheckmark.vue'
 
 describe('InitiativeCheckmark', () => {
-  it('renders primary background when complete', () => {
+  it('renders the chart-primary gradient state when complete', () => {
     const { container } = render(InitiativeCheckmark, {
       props: { isComplete: true },
     })
 
     const button = container.querySelector('button')!
-    expect(button.className).toContain('bg-primary')
+    expect(button.className).toContain('initiative-check--on')
   })
 
-  it('renders neumorphic raised style when incomplete', () => {
+  it('renders the neumorphic raised state when incomplete', () => {
     const { container } = render(InitiativeCheckmark, {
       props: { isComplete: false },
     })
 
     const button = container.querySelector('button')!
-    expect(button.className).toContain('neo-card')
-    expect(button.className).toContain('neo-raised')
+    expect(button.className).toContain('initiative-check--off')
   })
 
   it('uses white stroke when complete and subdued stroke when incomplete', () => {
