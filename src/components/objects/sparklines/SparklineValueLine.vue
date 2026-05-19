@@ -56,7 +56,7 @@
     <text
       v-for="(point, i) in visiblePoints"
       :key="'label-' + point.periodRef"
-      v-show="shouldShowLabel(i, visiblePoints.length, cadence)"
+      v-show="!hideLabels && shouldShowLabel(i, visiblePoints.length, cadence)"
       :x="pointX(i)"
       :y="vH - 2"
       text-anchor="middle"
@@ -94,8 +94,11 @@ const props = withDefaults(
     points: ObjectsLibraryChartPoint[]
     cadence: 'weekly' | 'monthly' | 'daily'
     compact?: boolean
+    /** Suppress the in-SVG period labels. The Today overview tiles render
+     *  their own HTML labels so all chart types share one label style. */
+    hideLabels?: boolean
   }>(),
-  { compact: false },
+  { compact: false, hideLabels: false },
 )
 
 const { locale } = useT()

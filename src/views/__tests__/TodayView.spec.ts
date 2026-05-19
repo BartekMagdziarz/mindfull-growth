@@ -123,9 +123,12 @@ describe('TodayView', () => {
       },
     })
 
-    expect(await screen.findByText('Morning focus')).toBeInTheDocument()
-    expect(screen.getByText('Habits')).toBeInTheDocument()
-    expect(screen.getByText('Trackers')).toBeInTheDocument()
+    // The same item is rendered both as an interactive row (Zone B) and as a
+    // compact preview tile in the Przegląd grid (Zone C), so titles legitimately
+    // appear more than once.
+    expect((await screen.findAllByText('Morning focus')).length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Habits').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Trackers').length).toBeGreaterThan(0)
 
     await fireEvent.click(screen.getByRole('button', { name: 'Record today' }))
     await waitFor(async () => {
@@ -134,7 +137,9 @@ describe('TodayView', () => {
       ).toBeDefined()
     })
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Morning focus' }))
+    // The interactive title button lives in Zone B; the Przegląd tile shows the
+    // title as a plain span. Click the first matching button.
+    await fireEvent.click(screen.getAllByRole('button', { name: 'Morning focus' })[0])
     await waitFor(() => {
       expect(router.currentRoute.value.name).toBe('objects-family')
     })
@@ -239,7 +244,7 @@ describe('TodayView', () => {
       },
     })
 
-    expect(await screen.findByText('Routed day habit')).toBeInTheDocument()
+    expect((await screen.findAllByText('Routed day habit')).length).toBeGreaterThan(0)
   })
 
   it('renders counter habit and rating tracker cards without errors', async () => {
@@ -301,8 +306,8 @@ describe('TodayView', () => {
 
     render(TodayView, { global: { plugins: [router] } })
 
-    expect(await screen.findByText('Daily pushups')).toBeInTheDocument()
-    expect(screen.getByText('Mood rating')).toBeInTheDocument()
+    expect((await screen.findAllByText('Daily pushups')).length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Mood rating').length).toBeGreaterThan(0)
   })
 
   it('renders a monthly value-sum habit card without errors', async () => {
@@ -334,7 +339,7 @@ describe('TodayView', () => {
 
     render(TodayView, { global: { plugins: [router] } })
 
-    expect(await screen.findByText('Monthly reading pages')).toBeInTheDocument()
+    expect((await screen.findAllByText('Monthly reading pages')).length).toBeGreaterThan(0)
   })
 
   it('renders a keyResult card without errors', async () => {
@@ -384,6 +389,6 @@ describe('TodayView', () => {
 
     render(TodayView, { global: { plugins: [router] } })
 
-    expect(await screen.findByText('Run 100km')).toBeInTheDocument()
+    expect((await screen.findAllByText('Run 100km')).length).toBeGreaterThan(0)
   })
 })

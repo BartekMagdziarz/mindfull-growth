@@ -332,6 +332,24 @@
     "deleteDialog": {
       "title": "Usuń obiekt",
       "message": "Usunąć „{title}” i zdjąć go z modelu planowania?"
+    },
+    "overview": {
+      "title": "Przegląd",
+      "filters": {
+        "all": "Wszystko",
+        "goals": "Cele",
+        "habits": "Nawyki",
+        "trackers": "Trackery"
+      },
+      "empty": "Brak danych do podglądu."
+    },
+    "wellness": {
+      "journal": "Dziennik",
+      "emotions": "Emocje",
+      "exercises": "Ćwiczenia",
+      "journalCaption": "dni z wpisem",
+      "emotionsCaption": "dni z logiem",
+      "exercisesComing": "Wkrótce"
     }
   },
   "objects": {

@@ -1,27 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
-    <header class="mb-6 space-y-4">
-      <CalendarToolbar
-        :label="dayLabel"
-        :label-clickable="true"
-        :prev-disabled="store.isLoading"
-        :next-disabled="store.isLoading"
-        @prev="void handlePreviousDay()"
-        @next="void handleNextDay()"
-        @label-click="openDatePicker"
-      >
-        <template #after>
-          <input
-            ref="dateInputRef"
-            type="date"
-            class="sr-only"
-            :value="bundleDayRef"
-            @change="handleDateChange"
-          />
-        </template>
-      </CalendarToolbar>
-    </header>
-
+  <div class="today-view mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
     <PlanningStatePanel
       v-if="store.isLoading && !store.bundle"
       :title="t('common.loading')"
@@ -37,53 +15,104 @@
     />
 
     <template v-else-if="store.bundle">
-      <!-- Unified day grid: 168px wellness column + goals/habits/trackers plates -->
-      <div
-        class="grid items-start gap-4"
-        style="grid-template-columns: 168px 1fr 1fr 1fr"
-      >
-        <!-- LEFT: wellness stack -->
-        <div class="flex flex-col gap-4">
+      <!-- Three-zone day grid:
+           A. Wellness column with date switcher + Dziennik / Emocje / Ćwiczenia
+           B. Cele / Nawyki / Trackery stacked sections
+           C. Przegląd overview with chart tiles -->
+      <div class="today-grid">
+        <!-- Zone A -->
+        <aside class="zone-a">
+          <TodayDateSwitcher
+            :day-ref="bundleDayRef"
+            :prev-disabled="store.isLoading"
+            :next-disabled="store.isLoading"
+            @prev="void handlePreviousDay()"
+            @next="void handleNextDay()"
+            @pill-click="openDatePicker"
+          />
+          <input
+            ref="dateInputRef"
+            type="date"
+            class="sr-only"
+            :value="bundleDayRef"
+            @change="handleDateChange"
+          />
+
           <JournalStreakCard
             :reference-date="wellnessReferenceDate"
             :day-word-counts="journalDayWordCounts"
           />
-
           <EmotionStreakCard
             :reference-date="wellnessReferenceDate"
             :day-emotion-data="dayEmotionData"
           />
-
           <ExerciseCard />
-        </div>
+        </aside>
 
-        <!-- Goals & KRs plate -->
-        <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
-          <header class="flex items-center justify-between px-1 pb-0.5">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ t('planning.today.columns.goalsKrs') }}
-            </h2>
-            <button
-              type="button"
-              class="today-section-add neo-focus grid place-items-center"
-              :aria-label="t('common.buttons.add')"
-            >
-              <AppIcon name="add" class="text-xs text-on-surface-variant/60" />
-            </button>
-          </header>
-          <template v-if="store.goalGroupedKrItems.length > 0">
-            <template
-              v-for="(group, groupIndex) in store.goalGroupedKrItems"
-              :key="group.goal.id"
-            >
-              <div
-                v-for="(item, itemIndex) in group.items"
-                :key="item.key"
+        <!-- Zone B -->
+        <aside class="zone-b">
+          <section class="zb-section neo-raised">
+            <header class="zb-section__head">
+              <span class="zb-section__label">{{ t('planning.today.columns.goalsKrs') }}</span>
+              <button
+                type="button"
+                class="zb-section__add neo-focus"
+                :aria-label="t('common.buttons.add')"
+              >
+                <AppIcon name="add" class="text-[14px]" />
+              </button>
+            </header>
+            <template v-if="store.goalGroupedKrItems.length > 0">
+              <template
+                v-for="(group, groupIndex) in store.goalGroupedKrItems"
+                :key="group.goal.id"
               >
                 <div
-                  v-if="!(groupIndex === 0 && itemIndex === 0)"
-                  class="today-section-divider mx-1"
-                />
+                  v-for="(item, itemIndex) in group.items"
+                  :key="item.key"
+                >
+                  <div
+                    v-if="!(groupIndex === 0 && itemIndex === 0)"
+                    class="zb-section__divider"
+                  />
+                  <TodayItemRow
+                    :item="item"
+                    :today-day-ref="bundleDayRef"
+                    :raw-entries="store.rawEntries"
+                    :all-day-assignments="store.allDayAssignments"
+                    :is-pending="store.isPending(item.key)"
+                    @open-object="openObject(item)"
+                    @open-context="openPeriod(item.contextPeriodRef)"
+                    @toggle-completion="handleToggleCompletion(item)"
+                    @save-entry="handleSaveEntry(item, $event)"
+                    @clear-entry="handleClearEntry(item)"
+                    @hide="handleHide(item)"
+                    @move="handleMove(item, $event)"
+                    @clear-schedule="handleClearSchedule(item)"
+                    @request-delete="promptDelete(item)"
+                  />
+                </div>
+              </template>
+            </template>
+            <p v-else class="zb-section__empty">
+              {{ t('planning.today.emptyColumn') }}
+            </p>
+          </section>
+
+          <section class="zb-section neo-raised">
+            <header class="zb-section__head">
+              <span class="zb-section__label">{{ t('planning.today.columns.habits') }}</span>
+              <button
+                type="button"
+                class="zb-section__add neo-focus"
+                :aria-label="t('common.buttons.add')"
+              >
+                <AppIcon name="add" class="text-[14px]" />
+              </button>
+            </header>
+            <template v-if="store.habitItems.length > 0">
+              <div v-for="(item, itemIndex) in store.habitItems" :key="item.key">
+                <div v-if="itemIndex !== 0" class="zb-section__divider" />
                 <TodayItemRow
                   :item="item"
                   :today-day-ref="bundleDayRef"
@@ -102,90 +131,59 @@
                 />
               </div>
             </template>
-          </template>
-          <p v-else class="py-8 text-center text-[11px] text-on-surface-variant/50">
-            {{ t('planning.today.emptyColumn') }}
-          </p>
-        </section>
+            <p v-else class="zb-section__empty">
+              {{ t('planning.today.emptyColumn') }}
+            </p>
+          </section>
 
-        <!-- Habits plate -->
-        <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
-          <header class="flex items-center justify-between px-1 pb-0.5">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ t('planning.today.columns.habits') }}
-            </h2>
-            <button
-              type="button"
-              class="today-section-add neo-focus grid place-items-center"
-              :aria-label="t('common.buttons.add')"
-            >
-              <AppIcon name="add" class="text-xs text-on-surface-variant/60" />
-            </button>
-          </header>
-          <template v-if="store.habitItems.length > 0">
-            <div v-for="(item, itemIndex) in store.habitItems" :key="item.key">
-              <div v-if="itemIndex !== 0" class="today-section-divider mx-1" />
-              <TodayItemRow
-                :item="item"
-                :today-day-ref="bundleDayRef"
-                :raw-entries="store.rawEntries"
-                :all-day-assignments="store.allDayAssignments"
-                :is-pending="store.isPending(item.key)"
-                @open-object="openObject(item)"
-                @open-context="openPeriod(item.contextPeriodRef)"
-                @toggle-completion="handleToggleCompletion(item)"
-                @save-entry="handleSaveEntry(item, $event)"
-                @clear-entry="handleClearEntry(item)"
-                @hide="handleHide(item)"
-                @move="handleMove(item, $event)"
-                @clear-schedule="handleClearSchedule(item)"
-                @request-delete="promptDelete(item)"
-              />
-            </div>
-          </template>
-          <p v-else class="py-8 text-center text-[11px] text-on-surface-variant/50">
-            {{ t('planning.today.emptyColumn') }}
-          </p>
-        </section>
+          <section class="zb-section neo-raised">
+            <header class="zb-section__head">
+              <span class="zb-section__label">{{ t('planning.today.columns.trackers') }}</span>
+              <button
+                type="button"
+                class="zb-section__add neo-focus"
+                :aria-label="t('common.buttons.add')"
+              >
+                <AppIcon name="add" class="text-[14px]" />
+              </button>
+            </header>
+            <template v-if="store.trackerItems.length > 0">
+              <div v-for="(item, itemIndex) in store.trackerItems" :key="item.key">
+                <div v-if="itemIndex !== 0" class="zb-section__divider" />
+                <TodayItemRow
+                  :item="item"
+                  :today-day-ref="bundleDayRef"
+                  :raw-entries="store.rawEntries"
+                  :all-day-assignments="store.allDayAssignments"
+                  :is-pending="store.isPending(item.key)"
+                  @open-object="openObject(item)"
+                  @open-context="openPeriod(item.contextPeriodRef)"
+                  @toggle-completion="handleToggleCompletion(item)"
+                  @save-entry="handleSaveEntry(item, $event)"
+                  @clear-entry="handleClearEntry(item)"
+                  @hide="handleHide(item)"
+                  @move="handleMove(item, $event)"
+                  @clear-schedule="handleClearSchedule(item)"
+                  @request-delete="promptDelete(item)"
+                />
+              </div>
+            </template>
+            <p v-else class="zb-section__empty">
+              {{ t('planning.today.emptyColumn') }}
+            </p>
+          </section>
+        </aside>
 
-        <!-- Trackers plate -->
-        <section class="today-section neo-raised flex min-w-0 flex-col gap-2 p-3.5">
-          <header class="flex items-center justify-between px-1 pb-0.5">
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ t('planning.today.columns.trackers') }}
-            </h2>
-            <button
-              type="button"
-              class="today-section-add neo-focus grid place-items-center"
-              :aria-label="t('common.buttons.add')"
-            >
-              <AppIcon name="add" class="text-xs text-on-surface-variant/60" />
-            </button>
-          </header>
-          <template v-if="store.trackerItems.length > 0">
-            <div v-for="(item, itemIndex) in store.trackerItems" :key="item.key">
-              <div v-if="itemIndex !== 0" class="today-section-divider mx-1" />
-              <TodayItemRow
-                :item="item"
-                :today-day-ref="bundleDayRef"
-                :raw-entries="store.rawEntries"
-                :all-day-assignments="store.allDayAssignments"
-                :is-pending="store.isPending(item.key)"
-                @open-object="openObject(item)"
-                @open-context="openPeriod(item.contextPeriodRef)"
-                @toggle-completion="handleToggleCompletion(item)"
-                @save-entry="handleSaveEntry(item, $event)"
-                @clear-entry="handleClearEntry(item)"
-                @hide="handleHide(item)"
-                @move="handleMove(item, $event)"
-                @clear-schedule="handleClearSchedule(item)"
-                @request-delete="promptDelete(item)"
-              />
-            </div>
-          </template>
-          <p v-else class="py-8 text-center text-[11px] text-on-surface-variant/50">
-            {{ t('planning.today.emptyColumn') }}
-          </p>
+        <!-- Zone C: Przegląd -->
+        <section class="zone-c">
+          <TodayOverviewSection
+            :goal-items="overviewGoalItems"
+            :habit-items="store.habitItems"
+            :tracker-items="store.trackerItems"
+            :today-day-ref="bundleDayRef"
+            :raw-entries="store.rawEntries"
+            :all-day-assignments="store.allDayAssignments"
+          />
         </section>
       </div>
 
@@ -240,7 +238,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import CalendarToolbar from '@/components/calendar/CalendarToolbar.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
@@ -248,6 +245,8 @@ import JournalStreakCard from '@/components/today/JournalStreakCard.vue'
 import EmotionStreakCard from '@/components/today/EmotionStreakCard.vue'
 import ExerciseCard from '@/components/today/ExerciseCard.vue'
 import TodayItemRow from '@/components/today/TodayItemRow.vue'
+import TodayDateSwitcher from '@/components/today/TodayDateSwitcher.vue'
+import TodayOverviewSection from '@/components/today/TodayOverviewSection.vue'
 import { useT } from '@/composables/useT'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
 import type { TodayItem } from '@/services/todayViewQueries'
@@ -259,7 +258,6 @@ import { getQuadrant } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
 import type { DayEmotionSummary } from '@/utils/wellnessCalendar'
 import type { EmotionLog } from '@/domain/emotionLog'
-import { formatDayTitle } from '@/utils/periodLabels'
 import type { DayRef } from '@/domain/period'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
@@ -268,7 +266,7 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
-const { t, locale } = useT()
+const { t } = useT()
 const store = useTodayStore()
 const journalStore = useJournalStore()
 const emotionLogStore = useEmotionLogStore()
@@ -281,10 +279,6 @@ const dateInputRef = ref<HTMLInputElement | null>(null)
 
 const bundleDayRef = computed(() => (store.dayRef ?? '') as DayRef)
 const effectiveDayRef = computed(() => props.dayRef ?? bundleDayRef.value)
-const dayLabel = computed(() => {
-  if (!store.bundle) return ''
-  return formatDayTitle(store.bundle.dayRef, locale.value)
-})
 
 const deleteDialogMessage = computed(() => {
   if (!pendingDeleteItem.value) return ''
@@ -292,6 +286,11 @@ const deleteDialogMessage = computed(() => {
     title: itemTitle(pendingDeleteItem.value),
   })
 })
+
+// Flatten grouped KR items into a single list for the Przegląd grid
+const overviewGoalItems = computed<TodayItem[]>(() =>
+  store.goalGroupedKrItems.flatMap((g) => g.items),
+)
 
 // Wellness panel data
 const wellnessReferenceDate = computed(() => {
@@ -544,34 +543,115 @@ watch(
 </script>
 
 <style scoped>
-.today-section {
-  border-radius: 1.5rem;
+.today-view {
+  color: rgb(var(--neo-text));
 }
 
-.today-section-add {
+/* Three-zone day layout. Each column owns its own height (no stretching) so
+   wellness, the goal/habit/tracker stack, and the overview tile grid each
+   stay as tall as their own content. */
+.today-grid {
+  display: grid;
+  grid-template-columns: 168px 360px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.zone-a {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.zone-b {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.zone-c {
+  min-width: 0;
+}
+
+/* Stacked section card (Cele/Nawyki/Trackery) */
+.zb-section {
+  padding: 10px 16px 8px;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.zb-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  margin-bottom: 2px;
+}
+
+.zb-section__label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  color: rgb(var(--neo-muted));
+  text-transform: uppercase;
+}
+
+.zb-section__add {
   width: 22px;
   height: 22px;
   border-radius: 9999px;
-  background: rgb(var(--neo-surface-base));
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(var(--neo-muted));
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
   box-shadow:
-    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.8),
-    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.33);
-  opacity: 0.7;
-  transition: opacity 200ms ease;
+    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.85),
+    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.30);
+  cursor: pointer;
+  transition: transform 200ms ease, color 200ms ease;
 }
 
-.today-section-add:hover {
-  opacity: 1;
+.zb-section__add:hover {
+  transform: translateY(-1px);
+  color: rgb(var(--neo-text));
 }
 
-.today-section-divider {
+.zb-section__divider {
   height: 1px;
+  margin: 0 1px;
   background: linear-gradient(
     90deg,
     transparent,
-    rgb(var(--neo-border) / 0.35) 15%,
-    rgb(var(--neo-border) / 0.35) 85%,
+    rgb(var(--neo-border) / 0.45),
     transparent
   );
+}
+
+.zb-section__empty {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 11px;
+  color: rgb(var(--neo-muted) / 0.7);
+}
+
+@media (max-width: 1180px) {
+  .today-grid {
+    grid-template-columns: 168px 1fr;
+  }
+
+  .zone-c {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 880px) {
+  .today-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -48,8 +48,10 @@ describe('DailyBarsChart', () => {
     ]
     const { container } = render(DailyBarsChart, { props: { slots } })
 
-    const text = container.querySelector('text')
-    expect(text?.textContent?.trim()).toBe('Mo')
+    // Labels moved out of the SVG into a sibling HTML row so they render at
+    // the same 11px size as the rest of the Today overview tiles.
+    const label = container.querySelector('.day-label')
+    expect(label?.textContent?.trim()).toBe('Mo')
   })
 
   it('renders a slot without a value as a no-data dash rect', () => {

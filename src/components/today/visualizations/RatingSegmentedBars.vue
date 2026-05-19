@@ -1,20 +1,5 @@
 <template>
   <div class="flex w-full items-end gap-1.5">
-    <!-- Shared gradient definition, hidden off-flow. SVG IDs are document-scoped
-         so every cell SVG below can reference `gradientIds.met` by URL. -->
-    <svg
-      class="pointer-events-none absolute h-0 w-0 overflow-hidden"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <defs>
-        <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
-          <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" />
-        </linearGradient>
-      </defs>
-    </svg>
-
     <div
       v-for="(slot, i) in visibleSlots"
       :key="slot.dayRef || i"
@@ -28,27 +13,44 @@
       >
         <title>{{ ariaLabel(slot) }}</title>
 
-        <!-- Segments, stacked bottom-to-top. seg=1 is the bottom segment.
-             Only rendered when the slot has a value — empty days show no outlines. -->
-        <template v-if="slot.value !== undefined">
-          <rect
-            v-for="seg in segmentCount"
-            :key="seg"
-            :x="SEG_X"
-            :y="segmentY(seg)"
-            :width="SEG_W"
-            :height="segmentH"
-            rx="1.5"
-            :fill="segmentFill(slot, seg)"
-            :stroke="segmentStroke(slot, seg)"
-            :stroke-width="segmentStrokeWidth(slot, seg)"
-            :stroke-dasharray="segmentStrokeDasharray(slot, seg)"
-          />
-        </template>
+        <!-- Empty baseline strip when no entry yet -->
+        <rect
+          v-if="slot.value === undefined"
+          :x="BAR_X"
+          :y="VB_H - PAD - 2"
+          :width="BAR_W"
+          :height="2"
+          rx="1"
+          fill="rgb(var(--color-outline) / 0.35)"
+        />
 
-        <!-- Target reference tick. The same visual position serves both `gte`
-             ("at least this level") and `lte` ("at most this level"); the
-             AggregateBar below communicates met/missed status. -->
+        <!-- Recorded bar: height ∝ value, fill colour ∝ value vs target -->
+        <rect
+          v-else
+          :x="BAR_X"
+          :y="barY(slot)"
+          :width="BAR_W"
+          :height="barH(slot)"
+          rx="2"
+          :fill="barFill(slot)"
+          :opacity="slot.isFuture ? 0.45 : 1"
+        />
+
+        <!-- Today highlight: hairline around the bar -->
+        <rect
+          v-if="slot.isToday && slot.value !== undefined"
+          :x="BAR_X - 0.5"
+          :y="barY(slot) - 0.5"
+          :width="BAR_W + 1"
+          :height="barH(slot) + 1"
+          rx="2.5"
+          fill="none"
+          stroke="rgb(var(--sky-600))"
+          stroke-width="0.75"
+          stroke-opacity="0.55"
+        />
+
+        <!-- Target reference tick — only when target sits inside the scale -->
         <line
           v-if="showTargetTick"
           :x1="0"
@@ -61,9 +63,7 @@
           stroke-dasharray="3 2"
         />
       </svg>
-      <span class="text-[11px] leading-none text-on-surface-variant/60">
-        {{ slot.label }}
-      </span>
+      <span class="day-label">{{ slot.label }}</span>
     </div>
   </div>
 </template>
@@ -72,7 +72,7 @@
 import { computed } from 'vue'
 import type { TodayDaySlot } from '@/services/todayChartData'
 import { filterToScheduledSlots } from '@/services/todayChartData'
-import { useGradientIds } from '@/components/objects/sparklines/sparklineUtils'
+import { ratingBarColor } from '@/utils/ratingGradient'
 
 interface Props {
   slots: TodayDaySlot[]
@@ -89,24 +89,14 @@ const props = withDefaults(defineProps<Props>(), {
   targetOperator: undefined,
 })
 
-const gradientIds = useGradientIds('rseg')
-
-// viewBox dimensions — the SVG scales to fill the flex-1 container.
-// PAD prevents the rounded corners + stroke of the top/bottom segments
-// from being clipped by the viewBox boundary.
+// viewBox geometry. The bar lives inside CONTENT_H; PAD prevents the rounded
+// top of a max-height bar from being clipped.
 const CELL_W = 20
 const CONTENT_H = 56
 const PAD = 1.5
 const VB_H = CONTENT_H + 2 * PAD
-const SEG_X = 2
-const SEG_W = 16
-const SEG_GAP = 1
-
-const segmentCount = computed(() => props.scaleMax - props.scaleMin + 1)
-
-const segmentH = computed(() =>
-  (CONTENT_H - (segmentCount.value - 1) * SEG_GAP) / segmentCount.value,
-)
+const BAR_X = 2
+const BAR_W = 16
 
 const visibleSlots = computed(() => filterToScheduledSlots(props.slots))
 
@@ -119,38 +109,40 @@ const showTargetTick = computed(
 
 const targetTickY = computed(() => {
   if (props.targetValue === undefined) return 0
-  const segFromBottom = props.targetValue - props.scaleMin + 1
-  return segmentY(segFromBottom)
+  return valueToY(props.targetValue)
 })
 
-// seg runs 1..segmentCount with 1 at the bottom. Returns the top-edge y of the
-// segment's rect, offset by PAD so rounded corners aren't clipped.
-function segmentY(seg: number): number {
-  return PAD + CONTENT_H - seg * segmentH.value - (seg - 1) * SEG_GAP
+function valueToY(value: number): number {
+  // Treat ratings as discrete steps: the lowest value (scaleMin) is the FIRST
+  // step out of N, so it still draws a visible bar. Using `(v - min) / span`
+  // would map scaleMin to ratio 0, which is indistinguishable from "no entry".
+  const steps = props.scaleMax - props.scaleMin + 1
+  if (steps <= 1) return PAD
+  const stepIndex = value - props.scaleMin + 1
+  const ratio = Math.max(0, Math.min(1, stepIndex / steps))
+  return PAD + CONTENT_H - ratio * CONTENT_H
 }
 
-function isFilled(slot: TodayDaySlot, seg: number): boolean {
-  if (slot.value === undefined) return false
-  return seg <= slot.value - props.scaleMin + 1
+function barY(slot: TodayDaySlot): number {
+  if (slot.value === undefined) return PAD + CONTENT_H - 2
+  return valueToY(slot.value)
 }
 
-function segmentFill(slot: TodayDaySlot, seg: number): string {
-  return isFilled(slot, seg) ? `url(#${gradientIds.met})` : 'transparent'
+function barH(slot: TodayDaySlot): number {
+  if (slot.value === undefined) return 2
+  const top = valueToY(slot.value)
+  return Math.max(2, PAD + CONTENT_H - top)
 }
 
-function segmentStroke(slot: TodayDaySlot, seg: number): string {
-  if (isFilled(slot, seg)) return 'none'
-  if (slot.isToday) return 'rgb(var(--neo-chart-primary-end) / 0.5)'
-  return 'rgb(var(--color-outline) / 0.45)'
-}
-
-function segmentStrokeWidth(slot: TodayDaySlot, seg: number): number {
-  return isFilled(slot, seg) ? 0 : 1
-}
-
-function segmentStrokeDasharray(slot: TodayDaySlot, seg: number): string | undefined {
-  if (isFilled(slot, seg)) return undefined
-  return slot.isFuture ? '2 2' : undefined
+function barFill(slot: TodayDaySlot): string {
+  if (slot.value === undefined) return 'rgb(var(--color-outline) / 0.35)'
+  return ratingBarColor({
+    value: slot.value,
+    scaleMin: props.scaleMin,
+    scaleMax: props.scaleMax,
+    targetValue: props.targetValue,
+    targetOperator: props.targetOperator,
+  })
 }
 
 function ariaLabel(slot: TodayDaySlot): string {
@@ -158,3 +150,15 @@ function ariaLabel(slot: TodayDaySlot): string {
   return `${slot.label}: ${value} / ${props.scaleMin}–${props.scaleMax}`
 }
 </script>
+
+<style scoped>
+.day-label {
+  display: inline-block;
+  font-size: 11px;
+  line-height: 1;
+  color: rgb(var(--neo-muted) / 0.7);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+</style>

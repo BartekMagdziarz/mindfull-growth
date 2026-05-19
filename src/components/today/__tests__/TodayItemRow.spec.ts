@@ -306,7 +306,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
     expect(container.querySelector('[aria-label="Decrement"]')).toBeNull()
     // The inline value input is present
-    expect(container.querySelector('.today-inline-value-input')).toBeTruthy()
+    expect(container.querySelector('.today-entry-circle--input')).toBeTruthy()
   })
 
   it('clears a value entry when the input is emptied and blurred', async () => {
@@ -321,7 +321,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     const { container, emitted } = renderRow(item, [
       makeEntry('tracker', 'tracker-value-clear', TODAY, 4.5),
     ])
-    const input = container.querySelector('.today-inline-value-input') as HTMLInputElement
+    const input = container.querySelector('.today-entry-circle--input') as HTMLInputElement
 
     await fireEvent.update(input, '')
     await fireEvent.blur(input)
@@ -342,7 +342,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     const { container, emitted } = renderRow(item, [
       makeEntry('tracker', 'tracker-value-zero', TODAY, 4.5),
     ])
-    const input = container.querySelector('.today-inline-value-input') as HTMLInputElement
+    const input = container.querySelector('.today-entry-circle--input') as HTMLInputElement
 
     await fireEvent.update(input, '0')
     await fireEvent.blur(input)
@@ -484,7 +484,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     ])
 
     // Value input renders, but no ± buttons
-    expect(container.querySelector('.today-inline-value-input')).toBeTruthy()
+    expect(container.querySelector('.today-entry-circle--input')).toBeTruthy()
     expect(container.querySelector('[aria-label="Increment"]')).toBeNull()
   })
 
@@ -546,7 +546,7 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
     expect(getByText('Book photographer')).toBeTruthy()
   })
 
-  it('reveals chart and actions menu only after expansion', async () => {
+  it('reveals action buttons only after expansion', async () => {
     const habit = makeHabit('habit-expand', {
       entryMode: 'counter',
       target: { kind: 'count', operator: 'min', value: 10 },
@@ -561,19 +561,19 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
         periodRef: WEEK_REF,
       }),
     )
-    const { container, getByRole, queryByRole } = renderRow(item, [
+    const { container, queryByTitle, getByTitle } = renderRow(item, [
       makeEntry('habit', 'habit-expand', '2026-03-10', 4),
     ])
 
-    // Collapsed: no actions menu button (lives in the expanded footer)
-    expect(queryByRole('button', { name: /more actions/i })).toBeNull()
+    // Collapsed: no expanded action buttons
+    expect(queryByTitle('Open context')).toBeNull()
 
     // Click the card body to expand (the card root is the article element)
     const article = container.querySelector('article')
     expect(article).toBeTruthy()
     await fireEvent.click(article!)
 
-    // Expanded: actions menu button visible
-    expect(getByRole('button', { name: /more actions/i })).toBeTruthy()
+    // Expanded: action button row visible
+    expect(getByTitle('Open context')).toBeTruthy()
   })
 })
