@@ -156,8 +156,8 @@ const props = defineProps<{
 }>()
 
 // Current system day — drives the "today" marker on the 7-day grid and the
-// ReflectionMeasurementRow chart visualizations. We compute it up-front and
-// keep it static for the lifetime of the wizard (no need to tick per-minute).
+// WeekObjectTile chart visualizations. We compute it up-front and keep it
+// static for the lifetime of the wizard (no need to tick per-minute).
 const todayDayRef: DayRef = getPeriodRefsForDate(new Date()).day
 
 const emit = defineEmits<{

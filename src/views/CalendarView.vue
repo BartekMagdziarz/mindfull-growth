@@ -210,107 +210,15 @@
             </template>
 
             <template v-else-if="scale === 'week' && weekPlanning && weekReflection">
-              <div class="grid items-start gap-4 xl:grid-cols-3">
-              <!-- Column 1: Goals + inline KRs + orphan KRs -->
-                <div class="space-y-3">
-                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {{ t('planning.calendar.sections.goals') }}
-                </h2>
-                <CalendarGoalSummaryCard
-                  v-for="card in weekGoalSummaryCards"
-                  :key="card.key"
-                  :title="card.title"
-                  :icon="card.icon"
-                  :status="card.status"
-                  :children="card.children"
-                  view-scale="week"
-                  :current-period-ref="activeWeekRef!"
-                  :raw-entries="weekPlanning!.rawEntries"
-                  :today-ref="todayRef"
-                  @click="openObjectsPanel('goal', card.objectId)"
-                />
-                <CalendarMeasurementSummaryCard
-                  v-for="card in weekOrphanKrCards"
-                  :key="card.key"
-                  :title="card.title"
-                  :icon="card.icon"
-                  :status="card.status"
-                  :entry-mode="card.entryMode"
-                  :subject="card.subject"
-                  :subject-type="card.subjectType"
-                  :object-cadence="card.objectCadence"
-                  view-scale="week"
-                  :current-period-ref="activeWeekRef!"
-                  :raw-entries="weekPlanning!.rawEntries"
-                  :today-ref="todayRef"
-                  @click="openObjectsPanel(card.panelType, card.objectId)"
-                />
-                <p
-                  v-if="weekGoalSummaryCards.length === 0 && weekOrphanKrCards.length === 0"
-                  class="text-xs text-on-surface-variant/60"
-                >
-                  {{ t('planning.calendar.empty.goals') }}
-                </p>
-                </div>
-
-                <!-- Column 2: Habits -->
-                <div class="space-y-3">
-                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {{ t('planning.calendar.sections.habits') }}
-                </h2>
-                <CalendarMeasurementSummaryCard
-                  v-for="card in weekHabitSummaryCards"
-                  :key="card.key"
-                  :title="card.title"
-                  :icon="card.icon"
-                  :status="card.status"
-                  :entry-mode="card.entryMode"
-                  :subject="card.subject"
-                  :subject-type="card.subjectType"
-                  :object-cadence="card.objectCadence"
-                  view-scale="week"
-                  :current-period-ref="activeWeekRef!"
-                  :raw-entries="weekPlanning!.rawEntries"
-                  :today-ref="todayRef"
-                  @click="openObjectsPanel(card.panelType, card.objectId)"
-                />
-                <p
-                  v-if="weekHabitSummaryCards.length === 0"
-                  class="text-xs text-on-surface-variant/60"
-                >
-                  {{ t('planning.calendar.empty.habits') }}
-                </p>
-                </div>
-
-                <!-- Column 3: Trackers -->
-                <div class="space-y-3">
-                <h2 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {{ t('planning.calendar.sections.trackers') }}
-                </h2>
-                <CalendarMeasurementSummaryCard
-                  v-for="card in weekTrackerSummaryCards"
-                  :key="card.key"
-                  :title="card.title"
-                  :icon="card.icon"
-                  :status="card.status"
-                  :entry-mode="card.entryMode"
-                  :subject="card.subject"
-                  :subject-type="card.subjectType"
-                  :object-cadence="card.objectCadence"
-                  view-scale="week"
-                  :current-period-ref="activeWeekRef!"
-                  :raw-entries="weekPlanning!.rawEntries"
-                  :today-ref="todayRef"
-                  @click="openObjectsPanel(card.panelType, card.objectId)"
-                />
-                <p
-                  v-if="weekTrackerSummaryCards.length === 0"
-                  class="text-xs text-on-surface-variant/60"
-                >
-                  {{ t('planning.calendar.empty.trackers') }}
-                </p>
-                </div>
-              </div>
+              <WeekReviewSummary
+                :week-ref="activeWeekRef!"
+                :today-day-ref="todayRef"
+                :week-object-items="weekObjectItems"
+                :raw-entries="weekPlanning.rawEntries"
+                :all-day-assignments="weekDayAssignments"
+                @create-reflection="openReflectionPanel"
+                @edit-reflection="openReflectionPanel"
+              />
             </template>
 
           </template>
@@ -374,7 +282,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { MeasurementEntryMode, PlanningCadence } from '@/domain/planning'
-import type { MeasurementSubjectType } from '@/domain/planningState'
+import type { MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
 import type {
   MonthMeasurementPlanningItem,
@@ -382,6 +290,8 @@ import type {
   WeekReflectionBundle,
   WeekPlanningBundle,
 } from '@/services/planningStateQueries'
+import type { WeekObjectItem } from '@/services/reflectionDataQueries'
+import { loadDayAssignmentsForMonths } from '@/services/reflectionDataQueries'
 import type {
   CalendarYearSummary,
   MonthReflectionBundle,
@@ -394,6 +304,7 @@ import CalendarToolbar from '@/components/calendar/CalendarToolbar.vue'
 import CalendarGoalSummaryCard from '@/components/calendar/CalendarGoalSummaryCard.vue'
 import CalendarMeasurementSummaryCard from '@/components/calendar/CalendarMeasurementSummaryCard.vue'
 import CalendarMonthSummaryCard from '@/components/calendar/CalendarMonthSummaryCard.vue'
+import WeekReviewSummary from '@/components/calendar/WeekReviewSummary.vue'
 import MonthlyPlanner from '@/components/calendar/MonthlyPlanner.vue'
 import WeeklyPlanner from '@/components/calendar/WeeklyPlanner.vue'
 import WeeklyReflectionWizard from '@/components/calendar/WeeklyReflectionWizard.vue'
@@ -489,6 +400,7 @@ const monthPlanning = ref<MonthPlanningBundle | null>(null)
 const monthReflection = ref<MonthReflectionBundle | null>(null)
 const weekPlanning = ref<WeekPlanningBundle | null>(null)
 const weekReflection = ref<WeekReflectionBundle | null>(null)
+const weekDayAssignments = ref<MeasurementDayAssignment[]>([])
 const anchorDay = ref<DayRef | null>(null)
 const panelState = ref<PanelKind | null>(null)
 const monthlyPlannerOpen = ref(false)
@@ -613,8 +525,10 @@ const activePeriodRangeLabel = computed(() => {
 const showPlanAction = computed(
   () => props.scale === 'year' || props.scale === 'month' || props.scale === 'week'
 )
+// Week scale moves the reflection action into the per-week KontextCard inside
+// WeekReviewSummary, so the toolbar action is hidden there.
 const showReflectionAction = computed(
-  () => props.scale === 'year' || props.scale === 'month' || props.scale === 'week'
+  () => props.scale === 'year' || props.scale === 'month'
 )
 const showHeaderActions = computed(() => showPlanAction.value || showReflectionAction.value)
 
@@ -761,88 +675,76 @@ const monthTrackerSummaryCards = computed<MeasurementSummaryCardModel[]>(() => {
   return monthSplit.value.trackers.map((item) => buildMeasurementSummaryCard(item))
 })
 
-const weekGoalSummaryCards = computed<GoalSummaryCardModel[]>(() => {
-  const planning = weekPlanning.value
+// Flat list of all objects active this week, in the same KR→habit→tracker
+// order used by the reflection wizard. Consumed by WeekReviewSummary.
+const weekObjectItems = computed<WeekObjectItem[]>(() => {
   const reflection = weekReflection.value
-  if (!planning || !reflection) {
-    return []
-  }
+  if (!reflection) return []
 
-  const krItems = planning.relevant.measurementItems.filter((item) => item.subjectType === 'keyResult')
+  const items: WeekObjectItem[] = []
+  const goalMap = new Map(
+    reflection.relevant.goalItems.map((item) => [item.goal.id, item.goal]),
+  )
+
+  const krItems = reflection.relevant.cadencedItems.filter(
+    (item) => item.subjectType === 'keyResult',
+  )
+  const habitItems = reflection.relevant.cadencedItems.filter(
+    (item) => item.subjectType === 'habit',
+  )
+  const trackerItems = reflection.relevant.trackerItems
+
   const krsByGoal = new Map<string, typeof krItems>()
   for (const kr of krItems) {
     if ('goalId' in kr.subject) {
-      const existing = krsByGoal.get(kr.subject.goalId) ?? []
-      existing.push(kr)
-      krsByGoal.set(kr.subject.goalId, existing)
+      const list = krsByGoal.get(kr.subject.goalId) ?? []
+      list.push(kr)
+      krsByGoal.set(kr.subject.goalId, list)
     }
   }
 
-  // Use goal objects from reflection context
-  const goalMap = new Map(reflection.relevant.goalItems.map((item) => [item.goal.id, item.goal]))
-
-  const cards: GoalSummaryCardModel[] = []
-  for (const [goalId, goalKrs] of krsByGoal) {
+  let goalIndex = 0
+  for (const [goalId, krs] of krsByGoal) {
     const goal = goalMap.get(goalId)
-    if (!goal) continue
-
-    cards.push({
-      key: `week-goal:${goalId}`,
-      objectId: goalId,
-      title: goal.title,
-      icon: goal.icon,
-      status: goal.status,
-      children: goalKrs.map((kr) => ({
-        id: kr.subject.id,
-        title: kr.subject.title,
-        entryMode: kr.subject.entryMode,
-        objectCadence: kr.subject.cadence,
-        subject: kr.subject as MeasureableSubject,
-        subjectType: kr.subjectType,
-      })),
+    krs.forEach((kr, krIndex) => {
+      items.push({
+        key: `keyResult:${kr.subject.id}`,
+        subjectType: 'keyResult',
+        subject: kr.subject,
+        planning: kr.planning,
+        measurement: kr.measurement,
+        parentGoalId: goal?.id,
+        parentGoalIcon: goal?.icon,
+        parentGoalTitle: goal?.title,
+        sortOrder: 1000 * goalIndex + krIndex,
+      })
     })
+    goalIndex++
   }
 
-  return cards
-})
+  habitItems.forEach((habit, i) => {
+    items.push({
+      key: `habit:${habit.subject.id}`,
+      subjectType: 'habit',
+      subject: habit.subject,
+      planning: habit.planning,
+      measurement: habit.measurement,
+      sortOrder: 100_000 + i,
+    })
+  })
 
-const weekOrphanKrCards = computed<MeasurementSummaryCardModel[]>(() => {
-  const planning = weekPlanning.value
-  if (!planning) {
-    return []
-  }
+  trackerItems.forEach((tracker, i) => {
+    items.push({
+      key: `tracker:${tracker.subject.id}`,
+      subjectType: 'tracker',
+      subject: tracker.subject,
+      planning: tracker.planning,
+      measurement: tracker.measurement,
+      sortOrder: 200_000 + i,
+    })
+  })
 
-  const goalIdsInCards = new Set(weekGoalSummaryCards.value.map((c) => c.objectId))
-  const orphanKrs = planning.relevant.measurementItems.filter(
-    (item) =>
-      item.subjectType === 'keyResult' &&
-      'goalId' in item.subject &&
-      !goalIdsInCards.has(item.subject.goalId),
-  )
-
-  return orphanKrs.map((item) => buildWeekMeasurementSummaryCard(item))
-})
-
-const weekHabitSummaryCards = computed<MeasurementSummaryCardModel[]>(() => {
-  const planning = weekPlanning.value
-  if (!planning) {
-    return []
-  }
-
-  return planning.relevant.measurementItems
-    .filter((item) => item.subjectType === 'habit')
-    .map((item) => buildWeekMeasurementSummaryCard(item))
-})
-
-const weekTrackerSummaryCards = computed<MeasurementSummaryCardModel[]>(() => {
-  const planning = weekPlanning.value
-  if (!planning) {
-    return []
-  }
-
-  return planning.relevant.measurementItems
-    .filter((item) => item.subjectType === 'tracker')
-    .map((item) => buildWeekMeasurementSummaryCard(item))
+  return items
 })
 
 const panelKind = computed(() => panelState.value ?? 'month-plan')
@@ -968,6 +870,7 @@ async function loadCalendarData() {
   monthReflection.value = null
   weekPlanning.value = null
   weekReflection.value = null
+  weekDayAssignments.value = []
   loadError.value = null
 
   if (!parsedPeriodRef.value) {
@@ -1001,6 +904,9 @@ async function loadCalendarData() {
           getWeekPlanningBundle(parsedPeriodRef.value as WeekRef),
           getWeekReflectionBundle(parsedPeriodRef.value as WeekRef),
         ])
+        weekDayAssignments.value = await loadDayAssignmentsForMonths(
+          weekReflection.value?.overlappingMonthRefs ?? [],
+        )
         break
     }
   } catch (error) {
@@ -1294,23 +1200,6 @@ function buildMeasurementSummaryCard(
 ): MeasurementSummaryCardModel {
   return {
     key: `month:${item.subjectType}:${item.subject.id}`,
-    objectId: item.subject.id,
-    panelType: item.subjectType,
-    title: item.subject.title,
-    icon: 'icon' in item.subject ? item.subject.icon : undefined,
-    status: item.subject.status,
-    entryMode: item.subject.entryMode,
-    subject: item.subject,
-    subjectType: item.subjectType,
-    objectCadence: item.subject.cadence,
-  }
-}
-
-function buildWeekMeasurementSummaryCard(
-  item: WeekPlanningBundle['relevant']['measurementItems'][number],
-): MeasurementSummaryCardModel {
-  return {
-    key: `week:${item.subjectType}:${item.subject.id}:${item.sourceMonthRef ?? 'current'}`,
     objectId: item.subject.id,
     panelType: item.subjectType,
     title: item.subject.title,
