@@ -888,6 +888,8 @@
       "noObjects": "No objects to summarize this week.",
       "noJournalEntries": "No journal entries this week.",
       "journalShort": "Journal",
+      "weeklyRecap": "Weekly recap",
+      "openWeekTitle": "Open weekly view",
       "kontekstTitle": "Summary",
       "kontekstGroupContext": "Effort",
       "kontekstGroupState": "State",

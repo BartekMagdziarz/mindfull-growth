@@ -164,6 +164,7 @@ describe('extractMonthlyRatings', () => {
       agencyRating: null,
       promptResponses: {},
       freeformReflection: '',
+      aiSummary: '',
     }
 
     const result = extractMonthlyRatings(reflection)

@@ -888,6 +888,8 @@
       "noObjects": "Brak obiektów do podsumowania w tym tygodniu.",
       "noJournalEntries": "Brak wpisów w dzienniku w tym tygodniu.",
       "journalShort": "Dziennik",
+      "weeklyRecap": "Refleksje tygodniowe",
+      "openWeekTitle": "Otwórz widok tygodnia",
       "kontekstTitle": "Podsumowanie",
       "kontekstGroupContext": "Wysiłek",
       "kontekstGroupState": "Stan",
