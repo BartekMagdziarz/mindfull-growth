@@ -216,7 +216,7 @@ describe('CalendarView', () => {
     expect(router.currentRoute.value.params.dayRef).toBe(dayRef)
   })
 
-  it('routes month cards into the Objects Library detail panel', async () => {
+  it('renders the unified month review summary with object tiles and Plan-vs-Execution', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
 
     const goal = await goalDexieRepository.create({
@@ -267,19 +267,21 @@ describe('CalendarView', () => {
       },
     })
 
+    // KR tile renders inside the unified objects grid.
     expect(await screen.findByText('Ship weekly milestone')).toBeInTheDocument()
 
-    // KRs are now nested inside goal summary cards — clicking navigates to the goal
-    const goalCard = screen.getByText('Ship weekly workspace').closest('article')
-    expect(goalCard).toBeTruthy()
-    await fireEvent.click(goalCard as HTMLElement)
+    // Three-column layout — left has weekly recap + emotions, right has the
+    // Kontekst Summary, middle hosts the Plan-vs-Execution tile.
+    expect(screen.getByText('Weekly recap')).toBeInTheDocument()
+    expect(screen.getByText('Emotions')).toBeInTheDocument()
+    expect(screen.getByText('Summary')).toBeInTheDocument()
+    expect(screen.getByText('Plan vs execution')).toBeInTheDocument()
 
-    await waitFor(() => {
-      expect(router.currentRoute.value.name).toBe('objects-family')
-    })
-    expect(router.currentRoute.value.params.family).toBe('goals')
-    expect(router.currentRoute.value.query.expandedType).toBe('goal')
-    expect(router.currentRoute.value.query.expandedId).toBe(goal.id)
+    // Toolbar plan/reflection actions are now per-card affordances; the
+    // toolbar buttons should not appear in the document.
+    expect(
+      screen.queryByRole('button', { name: /edit reflection/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('opens Today from month planner day cells when not assigning', async () => {

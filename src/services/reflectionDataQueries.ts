@@ -191,6 +191,24 @@ export interface WeekObjectItem {
   sortOrder: number
 }
 
+/**
+ * Flat representation of a goal/habit/tracker that was active during the
+ * reflection month. Mirrors {@link WeekObjectItem} but measurement is built
+ * against the month period rather than a week, and tiles in the consuming
+ * grid render week-based slots (4-5 segments) instead of day-based slots.
+ */
+export interface MonthObjectItem {
+  key: string
+  subjectType: MeasurementSubjectType
+  subject: MeasureableSubject
+  planning: MeasurementPlanningSummary
+  measurement: MeasurementSummary
+  parentGoalId?: string
+  parentGoalIcon?: string
+  parentGoalTitle?: string
+  sortOrder: number
+}
+
 export interface WeeklyReflectionDataBundle {
   weekRef: WeekRef
   emotionSummary: EmotionSummary

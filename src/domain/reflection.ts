@@ -73,6 +73,9 @@ export interface MonthlyReflection extends ReflectionRecordBase {
 
   // Free-form reflection
   freeformReflection: string
+
+  // AI-generated narrative summary. Empty string means none. Mock content for now.
+  aiSummary: string
 }
 
 export type CreateMonthlyReflectionPayload = Omit<
@@ -210,6 +213,7 @@ export function normalizeMonthlyReflectionPayload(
       existing?.promptResponses ?? {}
     ),
     freeformReflection: normalizeText(data.freeformReflection, existing?.freeformReflection ?? ''),
+    aiSummary: normalizeText(data.aiSummary, existing?.aiSummary ?? ''),
   }
 }
 

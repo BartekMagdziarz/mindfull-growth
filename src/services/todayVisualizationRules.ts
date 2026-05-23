@@ -19,6 +19,13 @@ export type TodayVizType =
   | 'value-sparkline-summary'
   | 'rating-smooth'
   | 'summary-number'
+  /**
+   * Variant used by the monthly-slice scope only: per-week bars whose height
+   * encodes the entry count and whose color follows the week's evaluation
+   * status. The shape differs from {@link 'daily-bars'} because completion
+   * entries don't have a continuous value — only a count + per-week status.
+   */
+  | 'monthly-completion-bars'
 
 /**
  * Inputs to the chart selection decision. A pure data shape with no Vue
@@ -164,6 +171,49 @@ export function resolveWeeklySliceVizType(input: VisualizationDecisionInput): To
   if (input.entryMode === 'completion') {
     // Always 7 day-slots — even for "Meditation 15x/month" the user sees Mon-Sun.
     return 'completion-dots'
+  }
+
+  if (input.entryMode === 'rating') {
+    return 'rating-segmented'
+  }
+
+  if (input.entryMode === 'counter') {
+    return 'daily-bars'
+  }
+
+  if (input.entryMode === 'value') {
+    if (input.target?.kind === 'value' && input.target.aggregation === 'sum') {
+      return 'daily-bars'
+    }
+    return 'value-line'
+  }
+
+  return 'daily-bars'
+}
+
+/**
+ * Sibling rule for the **monthly-slice** scope (consumed by the month reflection
+ * grid). Returns the same weekly-shape primitives as
+ * {@link resolveWeeklySliceVizType}, but the slot array fed to the chart
+ * represents weeks of the month (typically 4-5) rather than days of a week.
+ * Aggregation across weeks is handled by the slot builders in
+ * `monthlySliceChartData.ts`, not by this resolver.
+ *
+ * Same routing as `resolveWeeklySliceVizType` — kept as a separate function so
+ * future divergence (e.g. a monthly-specific "weekly bars" primitive) does not
+ * touch the weekly-scope path.
+ */
+export function resolveMonthlySliceVizType(input: VisualizationDecisionInput): TodayVizType {
+  if (input.kind === 'initiative') {
+    return 'initiative-check'
+  }
+
+  // Completion entries render as bars whose height reflects the number of
+  // entries in each week and whose color reflects the per-week status. The
+  // 4-5 weekly slots make bar-height comparisons meaningful (unlike the dot
+  // layout in the weekly slice where every dot is just on/off).
+  if (input.entryMode === 'completion') {
+    return 'monthly-completion-bars'
   }
 
   if (input.entryMode === 'rating') {
