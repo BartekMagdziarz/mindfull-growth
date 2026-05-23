@@ -1,6 +1,11 @@
 <template>
   <div class="flex w-full flex-col gap-1">
-    <svg :viewBox="`0 0 ${VW} ${VH}`" width="100%" aria-hidden="true">
+    <svg
+      :viewBox="`0 0 ${VW} ${VH}`"
+      width="100%"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
       <defs>
         <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
@@ -49,6 +54,7 @@
             : 'rgb(var(--neo-chart-primary-end))'"
           stroke-width="1"
           stroke-opacity="0.4"
+          vector-effect="non-scaling-stroke"
         />
       </g>
     </svg>
@@ -133,10 +139,13 @@ function barOpacity(slot: TodayCompletionSlot): number {
 </script>
 
 <style scoped>
+/* Padding (1%) and gap (1%) mirror the SVG's PX=4 and GAP=4 against VW=400,
+   so each label centers under its bar regardless of container width. */
 .day-labels {
   display: flex;
   width: 100%;
-  padding: 0 4px;
+  padding: 0 1%;
+  gap: 1%;
 }
 
 .day-label {
