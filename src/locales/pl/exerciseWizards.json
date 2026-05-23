@@ -111,7 +111,8 @@
       "noConflicts": "Nie dodano napięć.",
       "areas": "Wartości w obszarach życia",
       "noAreaValues": "Brak przypisanych wartości",
-      "notesPlaceholder": "Dodatkowe notatki o tej mapie..."
+      "notesPlaceholder": "Dodatkowe notatki o tej mapie...",
+      "saveError": "Nie udało się zapisać mapy wartości. Sprawdź wpisane dane i spróbuj ponownie."
     },
     "back": "Wstecz",
     "continue": "Kontynuuj",

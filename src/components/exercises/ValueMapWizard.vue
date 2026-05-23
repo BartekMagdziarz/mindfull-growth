@@ -447,6 +447,14 @@
         class="neo-input w-full resize-none p-3 text-sm"
         :placeholder="t('exerciseWizards.valueMap.summary.notesPlaceholder')"
       />
+
+      <div
+        v-if="valueMapStore.error"
+        class="rounded-lg border border-error/30 bg-error/10 p-3 text-sm text-error"
+        role="alert"
+      >
+        {{ t('exerciseWizards.valueMap.summary.saveError') }}
+      </div>
     </AppCard>
 
     <div class="flex justify-between">
@@ -793,17 +801,20 @@ async function handleSave(): Promise<void> {
     if (importance) sort[valueId] = importance
   }
 
-  const map = await valueMapStore.createMap({
-    catalogVersion: '2026-05',
-    sort,
-    customValues: customValues.map((value) => ({ ...value })),
-    rankedValues,
-    coreValues: coreRankedIds.value.map(getValueLabel),
-    globalConflicts: compiledGlobalConflicts.value,
-    lifeAreaAssignments: compiledLifeAreaAssignments.value,
-    notes: cleanOptionalText(notes.value),
-  })
-
-  emit('saved', map.id)
+  try {
+    const map = await valueMapStore.createMap({
+      catalogVersion: '2026-05',
+      sort,
+      customValues: customValues.map((value) => ({ ...value })),
+      rankedValues,
+      coreValues: coreRankedIds.value.map(getValueLabel),
+      globalConflicts: compiledGlobalConflicts.value,
+      lifeAreaAssignments: compiledLifeAreaAssignments.value,
+      notes: cleanOptionalText(notes.value),
+    })
+    emit('saved', map.id)
+  } catch {
+    // Store has set valueMapStore.error; the UI surfaces it on the summary step.
+  }
 }
 </script>

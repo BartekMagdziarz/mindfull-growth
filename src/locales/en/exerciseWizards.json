@@ -111,7 +111,8 @@
       "noConflicts": "No tensions added.",
       "areas": "Life-area values",
       "noAreaValues": "No values assigned",
-      "notesPlaceholder": "Any additional notes about this map..."
+      "notesPlaceholder": "Any additional notes about this map...",
+      "saveError": "We couldn't save your value map. Please review your inputs and try again."
     },
     "back": "Back",
     "continue": "Continue",

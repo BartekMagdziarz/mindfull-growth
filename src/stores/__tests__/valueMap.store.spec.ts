@@ -102,6 +102,29 @@ describe('useValueMapStore', () => {
     expect(store.isLoading).toBe(false)
   })
 
+  it('accepts life-area assignments without a tension defined', async () => {
+    const created = makeMap()
+    vi.mocked(valueMapDexieRepository.create).mockResolvedValue(created)
+
+    const store = useValueMapStore()
+
+    await expect(
+      store.createMap({
+        catalogVersion: '2026-05',
+        sort: created.sort,
+        customValues: [],
+        rankedValues: created.rankedValues,
+        coreValues: created.coreValues,
+        globalConflicts: [],
+        lifeAreaAssignments: [
+          { lifeAreaId: 'area-1', valueIds: ['autonomy'] },
+          { lifeAreaId: 'area-2', valueIds: [] },
+        ],
+      }),
+    ).resolves.toEqual(created)
+    expect(store.error).toBeNull()
+  })
+
   it('rejects maps with fewer than five ranked values', async () => {
     const store = useValueMapStore()
 

@@ -37,8 +37,8 @@ export const useValueMapStore = defineStore('valueMap', () => {
 
   async function createMap(data: CreateValueMapPayload): Promise<ValueMap> {
     error.value = null
-    validateValueMapPayload(data)
     try {
+      validateValueMapPayload(data)
       const map = await valueMapDexieRepository.create(data)
       maps.value.push(map)
       return map
@@ -51,11 +51,11 @@ export const useValueMapStore = defineStore('valueMap', () => {
 
   async function updateMap(id: string, data: UpdateValueMapPayload): Promise<ValueMap> {
     error.value = null
-    const existing = maps.value.find((map) => map.id === id)
-    if (existing) {
-      validateValueMapPayload({ ...existing, ...data })
-    }
     try {
+      const existing = maps.value.find((map) => map.id === id)
+      if (existing) {
+        validateValueMapPayload({ ...existing, ...data })
+      }
       const updated = await valueMapDexieRepository.update(id, data)
       const index = maps.value.findIndex((map) => map.id === id)
       if (index !== -1) {
@@ -127,7 +127,10 @@ function validateValueMapPayload(data: CreateValueMapPayload): void {
     if (assignment.valueIds.length > 5) {
       throw new Error('Each life area can include at most 5 values')
     }
-    if (assignment.tension?.valueId === assignment.tension?.conflictingValueId) {
+    if (
+      assignment.tension &&
+      assignment.tension.valueId === assignment.tension.conflictingValueId
+    ) {
       throw new Error('A life-area value tension cannot compare the same value')
     }
   }
