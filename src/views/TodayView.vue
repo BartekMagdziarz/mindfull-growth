@@ -54,13 +54,6 @@
           <section class="zb-section neo-raised">
             <header class="zb-section__head">
               <span class="zb-section__label">{{ t('planning.today.columns.goalsKrs') }}</span>
-              <button
-                type="button"
-                class="zb-section__add neo-focus"
-                :aria-label="t('common.buttons.add')"
-              >
-                <AppIcon name="add" class="text-[14px]" />
-              </button>
             </header>
             <template v-if="store.goalGroupedKrItems.length > 0">
               <template
@@ -102,13 +95,6 @@
           <section class="zb-section neo-raised">
             <header class="zb-section__head">
               <span class="zb-section__label">{{ t('planning.today.columns.habits') }}</span>
-              <button
-                type="button"
-                class="zb-section__add neo-focus"
-                :aria-label="t('common.buttons.add')"
-              >
-                <AppIcon name="add" class="text-[14px]" />
-              </button>
             </header>
             <template v-if="store.habitItems.length > 0">
               <div v-for="(item, itemIndex) in store.habitItems" :key="item.key">
@@ -139,13 +125,6 @@
           <section class="zb-section neo-raised">
             <header class="zb-section__head">
               <span class="zb-section__label">{{ t('planning.today.columns.trackers') }}</span>
-              <button
-                type="button"
-                class="zb-section__add neo-focus"
-                :aria-label="t('common.buttons.add')"
-              >
-                <AppIcon name="add" class="text-[14px]" />
-              </button>
             </header>
             <template v-if="store.trackerItems.length > 0">
               <div v-for="(item, itemIndex) in store.trackerItems" :key="item.key">
@@ -586,7 +565,6 @@ watch(
 .zb-section__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   height: 24px;
   margin-bottom: 2px;
 }
@@ -597,28 +575,6 @@ watch(
   letter-spacing: 0.10em;
   color: rgb(var(--neo-muted));
   text-transform: uppercase;
-}
-
-.zb-section__add {
-  width: 22px;
-  height: 22px;
-  border-radius: 9999px;
-  border: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgb(var(--neo-muted));
-  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
-  box-shadow:
-    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.85),
-    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.30);
-  cursor: pointer;
-  transition: transform 200ms ease, color 200ms ease;
-}
-
-.zb-section__add:hover {
-  transform: translateY(-1px);
-  color: rgb(var(--neo-text));
 }
 
 .zb-section__divider {
