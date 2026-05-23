@@ -806,9 +806,9 @@
     "saving": "Saving...",
     "steps": {
       "review": "Review",
-      "context": "Effort",
+      "demands": "Demands",
+      "actions": "Actions",
       "state": "State",
-      "evaluation": "Evaluation",
       "anchors": "Anchors",
       "journal": "Journal",
       "goals": "Progress",
@@ -891,9 +891,9 @@
       "weeklyRecap": "Weekly recap",
       "openWeekTitle": "Open weekly view",
       "kontekstTitle": "Summary",
-      "kontekstGroupContext": "Effort",
+      "kontekstGroupDemands": "Demands",
+      "kontekstGroupActions": "Actions",
       "kontekstGroupState": "State",
-      "kontekstGroupEvaluation": "Evaluation",
       "kontekstNoReflection": "No reflection for this week yet.",
       "kontekstCreateButton": "Create reflection",
       "kontekstEditButton": "Edit reflection",
@@ -931,53 +931,55 @@
       "progress": "Reflection progress",
       "reviewSubtitle": "Here's a summary of your week. Take a moment to absorb it before reflecting.",
       "groups": {
-        "context": {
-          "title": "Effort",
-          "subtitle": "How demanding was this week?"
+        "demands": {
+          "title": "Demands",
+          "subtitle": "What did this week ask of you?"
+        },
+        "actions": {
+          "title": "Actions",
+          "subtitle": "How did you respond to it?"
         },
         "state": {
           "title": "State",
           "subtitle": "How do you feel at the end of this week?"
-        },
-        "evaluation": {
-          "title": "Evaluation",
-          "subtitle": "How did you do this week?"
         }
       },
       "dimensions": {
-        "physicalIntensity": "Physical",
-        "taskLoad": "Tasks",
-        "emotionalIntensity": "Emotional",
-        "socialIntensity": "Social",
+        "physicalIntensity": "Physical load",
+        "emotionalIntensity": "Emotional intensity",
+        "taskLoad": "Task load",
+        "closeOnesNeeds": "Close ones' needs",
+        "physicalCare": "Physical care",
+        "emotionalProcessing": "Emotional processing",
+        "productivity": "Productivity",
+        "closeOnesSupport": "Supporting close ones",
         "mood": "Mood",
         "energy": "Energy",
         "calm": "Calm",
-        "connection": "Connection",
-        "productivity": "Productivity",
-        "engagement": "Engagement",
-        "emotionalRegulation": "Emotional Regulation",
-        "selfCare": "Self-Care"
+        "connection": "Connection"
       },
       "dimensionsShort": {
-        "physicalIntensity": "Physical",
+        "physicalIntensity": "Body",
+        "emotionalIntensity": "Emotions",
         "taskLoad": "Tasks",
-        "emotionalIntensity": "Emotional",
-        "socialIntensity": "Social",
-        "emotionalRegulation": "Emo. Reg."
+        "closeOnesNeeds": "Close ones",
+        "physicalCare": "Body",
+        "emotionalProcessing": "Emotions",
+        "closeOnesSupport": "Close ones"
       },
       "scaleLabels": {
         "physicalIntensity": { "low": "Restful", "high": "Intense" },
-        "taskLoad": { "low": "Light", "high": "Overloaded" },
         "emotionalIntensity": { "low": "Calm", "high": "Intense" },
-        "socialIntensity": { "low": "Quiet", "high": "Intense" },
+        "taskLoad": { "low": "Light", "high": "Overloaded" },
+        "closeOnesNeeds": { "low": "Quiet", "high": "Intense" },
+        "physicalCare": { "low": "Neglected", "high": "Nourished" },
+        "emotionalProcessing": { "low": "Avoided", "high": "Engaged consciously" },
+        "productivity": { "low": "Avoided/chaos", "high": "Addressed consistently" },
+        "closeOnesSupport": { "low": "Withdrawn", "high": "Supportive and present" },
         "mood": { "low": "Low", "high": "Great" },
         "energy": { "low": "Drained", "high": "Charged" },
         "calm": { "low": "Tense", "high": "Peaceful" },
-        "connection": { "low": "Distant", "high": "Connected" },
-        "productivity": { "low": "Stuck", "high": "Crushing it" },
-        "engagement": { "low": "Autopilot", "high": "Fully present" },
-        "emotionalRegulation": { "low": "Overwhelmed", "high": "Balanced" },
-        "selfCare": { "low": "Neglected", "high": "Nourished" }
+        "connection": { "low": "Distant", "high": "Connected" }
       },
       "anchors": {
         "wentWell": "What went well",
@@ -1015,12 +1017,12 @@
       "weeklyLabel": "weekly",
       "monthlyLabel": "monthly",
       "habitsMet": "{met}/{total} met target",
-      "weeklyRecapSubtitle": "How your effort, state, and evaluation evolved across weeks.",
+      "weeklyRecapSubtitle": "How your demands, actions, and state evolved across weeks.",
       "weeklyTrendsTitle": "Weekly Dimensions",
       "dimensionGroups": {
-        "context": "Effort",
-        "state": "State",
-        "evaluation": "Evaluation"
+        "demands": "Demands",
+        "actions": "Actions",
+        "state": "State"
       },
       "average": "Avg",
       "trend": {

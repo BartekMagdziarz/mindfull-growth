@@ -203,11 +203,18 @@ const LADDER_H = 60
 const LADDER_PAD_X = 14
 const LADDER_PAD_Y = 8
 
-const CONTEXT_DIMS = [
+const DEMANDS_DIMS = [
   { key: 'physicalIntensityRating', dim: 'physicalIntensity' },
-  { key: 'taskLoadRating', dim: 'taskLoad' },
   { key: 'emotionalIntensityRating', dim: 'emotionalIntensity' },
-  { key: 'socialIntensityRating', dim: 'socialIntensity' },
+  { key: 'taskLoadRating', dim: 'taskLoad' },
+  { key: 'closeOnesNeedsRating', dim: 'closeOnesNeeds' },
+] as const
+
+const ACTIONS_DIMS = [
+  { key: 'physicalCareRating', dim: 'physicalCare' },
+  { key: 'emotionalProcessingRating', dim: 'emotionalProcessing' },
+  { key: 'productivityRating', dim: 'productivity' },
+  { key: 'closeOnesSupportRating', dim: 'closeOnesSupport' },
 ] as const
 
 const STATE_DIMS = [
@@ -215,13 +222,6 @@ const STATE_DIMS = [
   { key: 'energyRating', dim: 'energy' },
   { key: 'calmRating', dim: 'calm' },
   { key: 'connectionRating', dim: 'connection' },
-] as const
-
-const EVAL_DIMS = [
-  { key: 'productivityRating', dim: 'productivity' },
-  { key: 'engagementRating', dim: 'engagement' },
-  { key: 'emotionalRegulationRating', dim: 'emotionalRegulation' },
-  { key: 'selfCareRating', dim: 'selfCare' },
 ] as const
 
 // Map weekRefs to trend data
@@ -269,19 +269,19 @@ function buildDimensionRow(ratingKey: string, dimensionKey: string): DimensionRo
 
 const dimensionGroups = computed<DimensionGroup[]>(() => [
   {
-    key: 'context',
-    label: t('planning.reflection.monthly.dimensionGroups.context'),
-    dimensions: CONTEXT_DIMS.map((d) => buildDimensionRow(d.key, d.dim)),
+    key: 'demands',
+    label: t('planning.reflection.monthly.dimensionGroups.demands'),
+    dimensions: DEMANDS_DIMS.map((d) => buildDimensionRow(d.key, d.dim)),
+  },
+  {
+    key: 'actions',
+    label: t('planning.reflection.monthly.dimensionGroups.actions'),
+    dimensions: ACTIONS_DIMS.map((d) => buildDimensionRow(d.key, d.dim)),
   },
   {
     key: 'state',
     label: t('planning.reflection.monthly.dimensionGroups.state'),
     dimensions: STATE_DIMS.map((d) => buildDimensionRow(d.key, d.dim)),
-  },
-  {
-    key: 'evaluation',
-    label: t('planning.reflection.monthly.dimensionGroups.evaluation'),
-    dimensions: EVAL_DIMS.map((d) => buildDimensionRow(d.key, d.dim)),
   },
 ])
 

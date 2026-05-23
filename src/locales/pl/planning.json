@@ -806,9 +806,9 @@
     "saving": "Zapisywanie...",
     "steps": {
       "review": "Przegląd",
-      "context": "Wysiłek",
+      "demands": "Wymagania",
+      "actions": "Działania",
       "state": "Stan",
-      "evaluation": "Ocena",
       "anchors": "Punkty zaczepienia",
       "journal": "Dziennik",
       "goals": "Postępy",
@@ -891,9 +891,9 @@
       "weeklyRecap": "Refleksje tygodniowe",
       "openWeekTitle": "Otwórz widok tygodnia",
       "kontekstTitle": "Podsumowanie",
-      "kontekstGroupContext": "Wysiłek",
+      "kontekstGroupDemands": "Wymagania",
+      "kontekstGroupActions": "Działania",
       "kontekstGroupState": "Stan",
-      "kontekstGroupEvaluation": "Ocena",
       "kontekstNoReflection": "Brak refleksji dla tego tygodnia.",
       "kontekstCreateButton": "Utwórz refleksję",
       "kontekstEditButton": "Edytuj refleksję",
@@ -931,53 +931,55 @@
       "progress": "Postęp refleksji",
       "reviewSubtitle": "Oto podsumowanie Twojego tygodnia. Poświęć chwilę na zapoznanie się z nim.",
       "groups": {
-        "context": {
-          "title": "Wysiłek",
-          "subtitle": "Jak wymagający był ten tydzień?"
+        "demands": {
+          "title": "Wymagania",
+          "subtitle": "Czego ten tydzień ode mnie wymagał?"
+        },
+        "actions": {
+          "title": "Działania",
+          "subtitle": "Jak sobie z tym poradziłem?"
         },
         "state": {
           "title": "Stan",
-          "subtitle": "Jak się czujesz na koniec tego tygodnia?"
-        },
-        "evaluation": {
-          "title": "Ocena",
-          "subtitle": "Jak Ci poszło w tym tygodniu?"
+          "subtitle": "Jak się czuję na koniec tego tygodnia?"
         }
       },
       "dimensions": {
-        "physicalIntensity": "Fizyczny",
-        "taskLoad": "Zadaniowy",
-        "emotionalIntensity": "Emocjonalny",
-        "socialIntensity": "Socjalny",
+        "physicalIntensity": "Obciążenie ciała",
+        "emotionalIntensity": "Intensywność emocji",
+        "taskLoad": "Ciężar zadań",
+        "closeOnesNeeds": "Potrzeby bliskich",
+        "physicalCare": "Dbanie o ciało",
+        "emotionalProcessing": "Praca z emocjami",
+        "productivity": "Produktywność",
+        "closeOnesSupport": "Wspieranie bliskich",
         "mood": "Nastrój",
         "energy": "Energia",
         "calm": "Spokój",
-        "connection": "Połączenie z bliskimi",
-        "productivity": "Produktywność",
-        "engagement": "Zaangażowanie",
-        "emotionalRegulation": "Regulacja emocjonalna",
-        "selfCare": "Dbanie o siebie"
+        "connection": "Połączenie z bliskimi"
       },
       "dimensionsShort": {
-        "physicalIntensity": "Fizyczny",
-        "taskLoad": "Zadaniowy",
-        "emotionalIntensity": "Emocjonalny",
-        "socialIntensity": "Socjalny",
-        "emotionalRegulation": "Reg. em."
+        "physicalIntensity": "Ciało",
+        "emotionalIntensity": "Emocje",
+        "taskLoad": "Zadania",
+        "closeOnesNeeds": "Bliscy",
+        "physicalCare": "Ciało",
+        "emotionalProcessing": "Emocje",
+        "closeOnesSupport": "Bliscy"
       },
       "scaleLabels": {
         "physicalIntensity": { "low": "Spokojny", "high": "Intensywny" },
-        "taskLoad": { "low": "Lekki", "high": "Przeciążony" },
         "emotionalIntensity": { "low": "Spokojny", "high": "Intensywny" },
-        "socialIntensity": { "low": "Cichy", "high": "Intensywny" },
+        "taskLoad": { "low": "Lekki", "high": "Przeciążony" },
+        "closeOnesNeeds": { "low": "Spokojne", "high": "Intensywne" },
+        "physicalCare": { "low": "Zaniedbany", "high": "Zaopiekowany" },
+        "emotionalProcessing": { "low": "Unikałem", "high": "Świadomie pracowałem" },
+        "productivity": { "low": "Unikałem/chaos", "high": "Konsekwentnie adresowałem" },
+        "closeOnesSupport": { "low": "Wycofany", "high": "Wspierający i obecny" },
         "mood": { "low": "Niski", "high": "Świetny" },
         "energy": { "low": "Wyczerpany", "high": "Naładowany" },
         "calm": { "low": "Napięty", "high": "Spokojny" },
-        "connection": { "low": "Oddalony", "high": "Blisko" },
-        "productivity": { "low": "Zablokowany", "high": "Pełna para" },
-        "engagement": { "low": "Autopilot", "high": "W pełni obecny" },
-        "emotionalRegulation": { "low": "Przytłoczony", "high": "Zrównoważony" },
-        "selfCare": { "low": "Zaniedbany", "high": "Zaopiekowany" }
+        "connection": { "low": "Oddalony", "high": "Blisko" }
       },
       "anchors": {
         "wentWell": "Co poszło dobrze",
@@ -1015,12 +1017,12 @@
       "weeklyLabel": "tygodniowy",
       "monthlyLabel": "miesięczny",
       "habitsMet": "{met}/{total} osiągnęło cel",
-      "weeklyRecapSubtitle": "Jak zmieniał się Twój wysiłek, stan i ocena w poszczególnych tygodniach.",
+      "weeklyRecapSubtitle": "Jak zmieniały się Twoje wymagania, działania i stan w poszczególnych tygodniach.",
       "weeklyTrendsTitle": "Wymiary tygodniowe",
       "dimensionGroups": {
-        "context": "Wysiłek",
-        "state": "Stan",
-        "evaluation": "Ocena"
+        "demands": "Wymagania",
+        "actions": "Działania",
+        "state": "Stan"
       },
       "average": "Śr.",
       "trend": {

@@ -29,9 +29,9 @@ import type { MeasurementSubjectType } from '@/domain/planningState'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import type { WeeklyReflection } from '@/domain/reflection'
 import {
-  WEEKLY_CONTEXT_KEYS,
+  WEEKLY_DEMANDS_KEYS,
+  WEEKLY_ACTIONS_KEYS,
   WEEKLY_STATE_KEYS,
-  WEEKLY_EVALUATION_KEYS,
 } from '@/domain/reflection'
 import type { Goal, GoalStatus, MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
@@ -229,21 +229,21 @@ export interface WeeklyReflectionDataBundle {
 
 export interface WeeklyRatingTrendEntry {
   weekRef: WeekRef
-  // Context
+  // Demands
   physicalIntensityRating: number | null
-  taskLoadRating: number | null
   emotionalIntensityRating: number | null
-  socialIntensityRating: number | null
+  taskLoadRating: number | null
+  closeOnesNeedsRating: number | null
+  // Actions
+  physicalCareRating: number | null
+  emotionalProcessingRating: number | null
+  productivityRating: number | null
+  closeOnesSupportRating: number | null
   // State
   moodRating: number | null
   energyRating: number | null
   calmRating: number | null
   connectionRating: number | null
-  // Evaluation
-  productivityRating: number | null
-  engagementRating: number | null
-  emotionalRegulationRating: number | null
-  selfCareRating: number | null
 }
 
 export interface WeeklyReflectionSnippet {
@@ -1173,21 +1173,21 @@ function buildWeeklyRatingTrends(reflections: WeeklyReflection[]): WeeklyRatingT
     .sort((a, b) => a.weekRef.localeCompare(b.weekRef))
     .map((r) => ({
       weekRef: r.weekRef,
-      // Context
-      [WEEKLY_CONTEXT_KEYS[0]]: r[WEEKLY_CONTEXT_KEYS[0]],
-      [WEEKLY_CONTEXT_KEYS[1]]: r[WEEKLY_CONTEXT_KEYS[1]],
-      [WEEKLY_CONTEXT_KEYS[2]]: r[WEEKLY_CONTEXT_KEYS[2]],
-      [WEEKLY_CONTEXT_KEYS[3]]: r[WEEKLY_CONTEXT_KEYS[3]],
+      // Demands
+      [WEEKLY_DEMANDS_KEYS[0]]: r[WEEKLY_DEMANDS_KEYS[0]],
+      [WEEKLY_DEMANDS_KEYS[1]]: r[WEEKLY_DEMANDS_KEYS[1]],
+      [WEEKLY_DEMANDS_KEYS[2]]: r[WEEKLY_DEMANDS_KEYS[2]],
+      [WEEKLY_DEMANDS_KEYS[3]]: r[WEEKLY_DEMANDS_KEYS[3]],
+      // Actions
+      [WEEKLY_ACTIONS_KEYS[0]]: r[WEEKLY_ACTIONS_KEYS[0]],
+      [WEEKLY_ACTIONS_KEYS[1]]: r[WEEKLY_ACTIONS_KEYS[1]],
+      [WEEKLY_ACTIONS_KEYS[2]]: r[WEEKLY_ACTIONS_KEYS[2]],
+      [WEEKLY_ACTIONS_KEYS[3]]: r[WEEKLY_ACTIONS_KEYS[3]],
       // State
       [WEEKLY_STATE_KEYS[0]]: r[WEEKLY_STATE_KEYS[0]],
       [WEEKLY_STATE_KEYS[1]]: r[WEEKLY_STATE_KEYS[1]],
       [WEEKLY_STATE_KEYS[2]]: r[WEEKLY_STATE_KEYS[2]],
       [WEEKLY_STATE_KEYS[3]]: r[WEEKLY_STATE_KEYS[3]],
-      // Evaluation
-      [WEEKLY_EVALUATION_KEYS[0]]: r[WEEKLY_EVALUATION_KEYS[0]],
-      [WEEKLY_EVALUATION_KEYS[1]]: r[WEEKLY_EVALUATION_KEYS[1]],
-      [WEEKLY_EVALUATION_KEYS[2]]: r[WEEKLY_EVALUATION_KEYS[2]],
-      [WEEKLY_EVALUATION_KEYS[3]]: r[WEEKLY_EVALUATION_KEYS[3]],
     })) as WeeklyRatingTrendEntry[]
 }
 

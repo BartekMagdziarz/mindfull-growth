@@ -138,8 +138,8 @@ import { useT } from '@/composables/useT'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import type { WeekRef } from '@/domain/period'
 import {
-  WEEKLY_CONTEXT_KEYS,
-  WEEKLY_EVALUATION_KEYS,
+  WEEKLY_DEMANDS_KEYS,
+  WEEKLY_ACTIONS_KEYS,
   WEEKLY_STATE_KEYS,
   type WeeklyRatingKey,
   type WeeklyReflection,
@@ -190,7 +190,7 @@ interface DimensionItem {
 }
 
 interface DimensionGroup {
-  key: 'context' | 'state' | 'evaluation'
+  key: 'demands' | 'actions' | 'state'
   label: string
   items: DimensionItem[]
 }
@@ -204,17 +204,17 @@ function valueFor(key: WeeklyRatingKey): number | null {
 
 const DIMENSION_LABEL_KEYS: Record<WeeklyRatingKey, string> = {
   physicalIntensityRating: 'planning.reflection.weekly.dimensions.physicalIntensity',
-  taskLoadRating: 'planning.reflection.weekly.dimensions.taskLoad',
   emotionalIntensityRating: 'planning.reflection.weekly.dimensions.emotionalIntensity',
-  socialIntensityRating: 'planning.reflection.weekly.dimensions.socialIntensity',
+  taskLoadRating: 'planning.reflection.weekly.dimensions.taskLoad',
+  closeOnesNeedsRating: 'planning.reflection.weekly.dimensions.closeOnesNeeds',
+  physicalCareRating: 'planning.reflection.weekly.dimensions.physicalCare',
+  emotionalProcessingRating: 'planning.reflection.weekly.dimensions.emotionalProcessing',
+  productivityRating: 'planning.reflection.weekly.dimensions.productivity',
+  closeOnesSupportRating: 'planning.reflection.weekly.dimensions.closeOnesSupport',
   moodRating: 'planning.reflection.weekly.dimensions.mood',
   energyRating: 'planning.reflection.weekly.dimensions.energy',
   calmRating: 'planning.reflection.weekly.dimensions.calm',
   connectionRating: 'planning.reflection.weekly.dimensions.connection',
-  productivityRating: 'planning.reflection.weekly.dimensions.productivity',
-  engagementRating: 'planning.reflection.weekly.dimensions.engagement',
-  emotionalRegulationRating: 'planning.reflection.weekly.dimensions.emotionalRegulation',
-  selfCareRating: 'planning.reflection.weekly.dimensions.selfCare',
 }
 
 function buildItems(keys: readonly WeeklyRatingKey[]): DimensionItem[] {
@@ -227,19 +227,19 @@ function buildItems(keys: readonly WeeklyRatingKey[]): DimensionItem[] {
 
 const ratingGroups = computed<DimensionGroup[]>(() => [
   {
-    key: 'context',
-    label: t('planning.reflection.review.kontekstGroupContext'),
-    items: buildItems(WEEKLY_CONTEXT_KEYS),
+    key: 'demands',
+    label: t('planning.reflection.review.kontekstGroupDemands'),
+    items: buildItems(WEEKLY_DEMANDS_KEYS),
+  },
+  {
+    key: 'actions',
+    label: t('planning.reflection.review.kontekstGroupActions'),
+    items: buildItems(WEEKLY_ACTIONS_KEYS),
   },
   {
     key: 'state',
     label: t('planning.reflection.review.kontekstGroupState'),
     items: buildItems(WEEKLY_STATE_KEYS),
-  },
-  {
-    key: 'evaluation',
-    label: t('planning.reflection.review.kontekstGroupEvaluation'),
-    items: buildItems(WEEKLY_EVALUATION_KEYS),
   },
 ])
 

@@ -210,19 +210,20 @@ describe('queryScopePreview', () => {
     await reflections.upsertWeekly({
       weekRef: '2026-W15' as WeekRef,
       physicalIntensityRating: null,
-      taskLoadRating: null,
       emotionalIntensityRating: null,
-      socialIntensityRating: null,
+      taskLoadRating: null,
+      closeOnesNeedsRating: null,
+      physicalCareRating: null,
+      emotionalProcessingRating: null,
+      productivityRating: null,
+      closeOnesSupportRating: null,
       moodRating: null,
       energyRating: null,
       calmRating: null,
       connectionRating: null,
-      productivityRating: null,
-      engagementRating: null,
-      emotionalRegulationRating: null,
-      selfCareRating: null,
       promptResponses: {},
       freeformReflection: 'Hello week',
+      aiSummary: '',
     })
 
     const result = await queryScopePreview({

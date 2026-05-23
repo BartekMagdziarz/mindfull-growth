@@ -50,10 +50,18 @@
         />
       </div>
 
-      <!-- Step: Context -->
-      <div v-else-if="currentStep === 'context'" key="context" class="space-y-4">
+      <!-- Step: Demands -->
+      <div v-else-if="currentStep === 'demands'" key="demands" class="space-y-4">
         <ReflectionDimensionRatings
-          :groups="contextGroup"
+          :groups="demandsGroup"
+          @update:rating="handleRatingUpdate"
+        />
+      </div>
+
+      <!-- Step: Actions -->
+      <div v-else-if="currentStep === 'actions'" key="actions" class="space-y-4">
+        <ReflectionDimensionRatings
+          :groups="actionsGroup"
           @update:rating="handleRatingUpdate"
         />
       </div>
@@ -62,14 +70,6 @@
       <div v-else-if="currentStep === 'state'" key="state" class="space-y-4">
         <ReflectionDimensionRatings
           :groups="stateGroup"
-          @update:rating="handleRatingUpdate"
-        />
-      </div>
-
-      <!-- Step: Evaluation -->
-      <div v-else-if="currentStep === 'evaluation'" key="evaluation" class="space-y-4">
-        <ReflectionDimensionRatings
-          :groups="evaluationGroup"
           @update:rating="handleRatingUpdate"
         />
       </div>
@@ -169,18 +169,18 @@ const emit = defineEmits<{
 
 const STEPS: WeeklyReflectionStep[] = [
   'review',
-  'context',
+  'demands',
+  'actions',
   'state',
-  'evaluation',
   'anchors',
   'journal',
 ]
 
 const stepLabels = computed(() => [
   t('planning.reflection.steps.review'),
-  t('planning.reflection.steps.context'),
+  t('planning.reflection.steps.demands'),
+  t('planning.reflection.steps.actions'),
   t('planning.reflection.steps.state'),
-  t('planning.reflection.steps.evaluation'),
   t('planning.reflection.steps.anchors'),
   t('planning.reflection.steps.journal'),
 ])
@@ -211,17 +211,17 @@ const {
   dataBundle,
   isBundleLoading,
   physicalIntensityRating,
-  taskLoadRating,
   emotionalIntensityRating,
-  socialIntensityRating,
+  taskLoadRating,
+  closeOnesNeedsRating,
+  physicalCareRating,
+  emotionalProcessingRating,
+  productivityRating,
+  closeOnesSupportRating,
   moodRating,
   energyRating,
   calmRating,
   connectionRating,
-  productivityRating,
-  engagementRating,
-  emotionalRegulationRating,
-  selfCareRating,
   promptResponses,
   freeformReflection,
   aiSummary,
@@ -231,23 +231,26 @@ const {
 
 // Icon sets for each dimension
 const ICONS = {
+  // Demands
   physicalIntensity: ['hotel', 'airline_seat_recline_normal', 'directions_walk', 'directions_run', 'sprint'] as [string, string, string, string, string],
-  taskLoad: ['inbox', 'task', 'checklist', 'assignment_late', 'local_fire_department'] as [string, string, string, string, string],
   emotionalIntensity: ['wb_sunny', 'partly_cloudy_day', 'rainy', 'thunderstorm', 'cyclone'] as [string, string, string, string, string],
-  socialIntensity: ['do_not_disturb_on', 'person', 'group', 'groups', 'stadium'] as [string, string, string, string, string],
+  taskLoad: ['inbox', 'task', 'checklist', 'assignment_late', 'local_fire_department'] as [string, string, string, string, string],
+  closeOnesNeeds: ['bedtime', 'person', 'group', 'priority_high', 'sos'] as [string, string, string, string, string],
+  // Actions
+  physicalCare: ['heart_broken', 'heart_minus', 'heart_check', 'heart_plus', 'favorite'] as [string, string, string, string, string],
+  emotionalProcessing: ['visibility_off', 'sentiment_frustrated', 'sentiment_neutral', 'sentiment_calm', 'shield_with_heart'] as [string, string, string, string, string],
+  productivity: ['block', 'trending_down', 'trending_flat', 'trending_up', 'rocket_launch'] as [string, string, string, string, string],
+  closeOnesSupport: ['do_not_disturb_on', 'person_off', 'person', 'volunteer_activism', 'favorite'] as [string, string, string, string, string],
+  // State
   mood: ['sentiment_very_dissatisfied', 'sentiment_dissatisfied', 'sentiment_neutral', 'sentiment_satisfied', 'sentiment_very_satisfied'] as [string, string, string, string, string],
   energy: ['battery_0_bar', 'battery_2_bar', 'battery_4_bar', 'battery_full', 'battery_charging_full'] as [string, string, string, string, string],
   calm: ['earthquake', 'air', 'airwave', 'waves', 'self_improvement'] as [string, string, string, string, string],
   connection: ['person_off', 'person', 'group', 'diversity_3', 'favorite'] as [string, string, string, string, string],
-  productivity: ['block', 'trending_down', 'trending_flat', 'trending_up', 'rocket_launch'] as [string, string, string, string, string],
-  engagement: ['snooze', 'visibility_off', 'visibility', 'psychology', 'local_fire_department'] as [string, string, string, string, string],
-  emotionalRegulation: ['sentiment_frustrated', 'sentiment_worried', 'sentiment_neutral', 'sentiment_calm', 'shield_with_heart'] as [string, string, string, string, string],
-  selfCare: ['heart_broken', 'heart_minus', 'heart_check', 'heart_plus', 'favorite'] as [string, string, string, string, string],
 }
 
-const contextGroup = computed<RatingGroup[]>(() => [
+const demandsGroup = computed<RatingGroup[]>(() => [
   {
-    title: t('planning.reflection.weekly.groups.context.title'),
+    title: t('planning.reflection.weekly.groups.demands.title'),
     dimensions: [
       {
         key: 'physicalIntensity',
@@ -258,14 +261,6 @@ const contextGroup = computed<RatingGroup[]>(() => [
         highLabel: t('planning.reflection.weekly.scaleLabels.physicalIntensity.high'),
       },
       {
-        key: 'taskLoad',
-        label: t('planning.reflection.weekly.dimensions.taskLoad'),
-        value: taskLoadRating.value,
-        icons: ICONS.taskLoad,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.taskLoad.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.taskLoad.high'),
-      },
-      {
         key: 'emotionalIntensity',
         label: t('planning.reflection.weekly.dimensions.emotionalIntensity'),
         value: emotionalIntensityRating.value,
@@ -274,12 +269,20 @@ const contextGroup = computed<RatingGroup[]>(() => [
         highLabel: t('planning.reflection.weekly.scaleLabels.emotionalIntensity.high'),
       },
       {
-        key: 'socialIntensity',
-        label: t('planning.reflection.weekly.dimensions.socialIntensity'),
-        value: socialIntensityRating.value,
-        icons: ICONS.socialIntensity,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.socialIntensity.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.socialIntensity.high'),
+        key: 'taskLoad',
+        label: t('planning.reflection.weekly.dimensions.taskLoad'),
+        value: taskLoadRating.value,
+        icons: ICONS.taskLoad,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.taskLoad.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.taskLoad.high'),
+      },
+      {
+        key: 'closeOnesNeeds',
+        label: t('planning.reflection.weekly.dimensions.closeOnesNeeds'),
+        value: closeOnesNeedsRating.value,
+        icons: ICONS.closeOnesNeeds,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.closeOnesNeeds.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.closeOnesNeeds.high'),
       },
     ],
   },
@@ -325,10 +328,26 @@ const stateGroup = computed<RatingGroup[]>(() => [
   },
 ])
 
-const evaluationGroup = computed<RatingGroup[]>(() => [
+const actionsGroup = computed<RatingGroup[]>(() => [
   {
-    title: t('planning.reflection.weekly.groups.evaluation.title'),
+    title: t('planning.reflection.weekly.groups.actions.title'),
     dimensions: [
+      {
+        key: 'physicalCare',
+        label: t('planning.reflection.weekly.dimensions.physicalCare'),
+        value: physicalCareRating.value,
+        icons: ICONS.physicalCare,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.physicalCare.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.physicalCare.high'),
+      },
+      {
+        key: 'emotionalProcessing',
+        label: t('planning.reflection.weekly.dimensions.emotionalProcessing'),
+        value: emotionalProcessingRating.value,
+        icons: ICONS.emotionalProcessing,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.emotionalProcessing.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.emotionalProcessing.high'),
+      },
       {
         key: 'productivity',
         label: t('planning.reflection.weekly.dimensions.productivity'),
@@ -338,28 +357,12 @@ const evaluationGroup = computed<RatingGroup[]>(() => [
         highLabel: t('planning.reflection.weekly.scaleLabels.productivity.high'),
       },
       {
-        key: 'engagement',
-        label: t('planning.reflection.weekly.dimensions.engagement'),
-        value: engagementRating.value,
-        icons: ICONS.engagement,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.engagement.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.engagement.high'),
-      },
-      {
-        key: 'emotionalRegulation',
-        label: t('planning.reflection.weekly.dimensions.emotionalRegulation'),
-        value: emotionalRegulationRating.value,
-        icons: ICONS.emotionalRegulation,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.emotionalRegulation.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.emotionalRegulation.high'),
-      },
-      {
-        key: 'selfCare',
-        label: t('planning.reflection.weekly.dimensions.selfCare'),
-        value: selfCareRating.value,
-        icons: ICONS.selfCare,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.selfCare.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.selfCare.high'),
+        key: 'closeOnesSupport',
+        label: t('planning.reflection.weekly.dimensions.closeOnesSupport'),
+        value: closeOnesSupportRating.value,
+        icons: ICONS.closeOnesSupport,
+        lowLabel: t('planning.reflection.weekly.scaleLabels.closeOnesSupport.low'),
+        highLabel: t('planning.reflection.weekly.scaleLabels.closeOnesSupport.high'),
       },
     ],
   },
@@ -368,28 +371,37 @@ const evaluationGroup = computed<RatingGroup[]>(() => [
 function handleRatingUpdate(key: string, value: number) {
   switch (key) {
     case 'physicalIntensity': physicalIntensityRating.value = value; break
-    case 'taskLoad': taskLoadRating.value = value; break
     case 'emotionalIntensity': emotionalIntensityRating.value = value; break
-    case 'socialIntensity': socialIntensityRating.value = value; break
+    case 'taskLoad': taskLoadRating.value = value; break
+    case 'closeOnesNeeds': closeOnesNeedsRating.value = value; break
+    case 'physicalCare': physicalCareRating.value = value; break
+    case 'emotionalProcessing': emotionalProcessingRating.value = value; break
+    case 'productivity': productivityRating.value = value; break
+    case 'closeOnesSupport': closeOnesSupportRating.value = value; break
     case 'mood': moodRating.value = value; break
     case 'energy': energyRating.value = value; break
     case 'calm': calmRating.value = value; break
     case 'connection': connectionRating.value = value; break
-    case 'productivity': productivityRating.value = value; break
-    case 'engagement': engagementRating.value = value; break
-    case 'emotionalRegulation': emotionalRegulationRating.value = value; break
-    case 'selfCare': selfCareRating.value = value; break
   }
 }
 
 const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
   {
-    title: t('planning.reflection.weekly.groups.context.title'),
+    title: t('planning.reflection.weekly.groups.demands.title'),
     items: [
       { label: t('planning.reflection.weekly.dimensions.physicalIntensity'), value: physicalIntensityRating.value },
-      { label: t('planning.reflection.weekly.dimensions.taskLoad'), value: taskLoadRating.value },
       { label: t('planning.reflection.weekly.dimensions.emotionalIntensity'), value: emotionalIntensityRating.value },
-      { label: t('planning.reflection.weekly.dimensions.socialIntensity'), value: socialIntensityRating.value },
+      { label: t('planning.reflection.weekly.dimensions.taskLoad'), value: taskLoadRating.value },
+      { label: t('planning.reflection.weekly.dimensions.closeOnesNeeds'), value: closeOnesNeedsRating.value },
+    ],
+  },
+  {
+    title: t('planning.reflection.weekly.groups.actions.title'),
+    items: [
+      { label: t('planning.reflection.weekly.dimensions.physicalCare'), value: physicalCareRating.value },
+      { label: t('planning.reflection.weekly.dimensions.emotionalProcessing'), value: emotionalProcessingRating.value },
+      { label: t('planning.reflection.weekly.dimensions.productivity'), value: productivityRating.value },
+      { label: t('planning.reflection.weekly.dimensions.closeOnesSupport'), value: closeOnesSupportRating.value },
     ],
   },
   {
@@ -399,15 +411,6 @@ const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
       { label: t('planning.reflection.weekly.dimensions.energy'), value: energyRating.value },
       { label: t('planning.reflection.weekly.dimensions.calm'), value: calmRating.value },
       { label: t('planning.reflection.weekly.dimensions.connection'), value: connectionRating.value },
-    ],
-  },
-  {
-    title: t('planning.reflection.weekly.groups.evaluation.title'),
-    items: [
-      { label: t('planning.reflection.weekly.dimensions.productivity'), value: productivityRating.value },
-      { label: t('planning.reflection.weekly.dimensions.engagement'), value: engagementRating.value },
-      { label: t('planning.reflection.weekly.dimensions.emotionalRegulation'), value: emotionalRegulationRating.value },
-      { label: t('planning.reflection.weekly.dimensions.selfCare'), value: selfCareRating.value },
     ],
   },
 ])

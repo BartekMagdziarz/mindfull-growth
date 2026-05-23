@@ -20,8 +20,8 @@ import type {
 } from '@/domain/reflection'
 import {
   MONTHLY_RATING_KEYS,
-  WEEKLY_CONTEXT_KEYS,
-  WEEKLY_EVALUATION_KEYS,
+  WEEKLY_DEMANDS_KEYS,
+  WEEKLY_ACTIONS_KEYS,
   WEEKLY_STATE_KEYS,
 } from '@/domain/reflection'
 import type {
@@ -148,9 +148,9 @@ export function extractWeeklyRatings(
 ): Record<string, number | null> {
   const out: Record<string, number | null> = {}
   for (const key of [
-    ...WEEKLY_CONTEXT_KEYS,
+    ...WEEKLY_DEMANDS_KEYS,
+    ...WEEKLY_ACTIONS_KEYS,
     ...WEEKLY_STATE_KEYS,
-    ...WEEKLY_EVALUATION_KEYS,
   ]) {
     out[key] = reflection[key]
   }

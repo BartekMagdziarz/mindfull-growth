@@ -9,17 +9,17 @@ import { getPeriodBounds } from '@/utils/periods'
 
 export type WeeklyReflectionStep =
   | 'review'
-  | 'context'
+  | 'demands'
+  | 'actions'
   | 'state'
-  | 'evaluation'
   | 'anchors'
   | 'journal'
 
 const STEP_ORDER: WeeklyReflectionStep[] = [
   'review',
-  'context',
+  'demands',
+  'actions',
   'state',
-  'evaluation',
   'anchors',
   'journal',
 ]
@@ -27,23 +27,18 @@ const STEP_ORDER: WeeklyReflectionStep[] = [
 /** Map old step names to new names for draft migration */
 const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
   review: 'review',
-  reflect: 'context',
-  ratings: 'context',
+  reflect: 'demands',
+  ratings: 'demands',
   write: 'journal',
-  context: 'context',
+  context: 'demands',
+  demands: 'demands',
+  evaluation: 'actions',
+  actions: 'actions',
   state: 'state',
-  evaluation: 'evaluation',
   prompts: 'anchors',
   anchors: 'anchors',
   journal: 'journal',
   ahead: 'anchors',
-}
-
-/** Map old field names to new field names for draft migration */
-const LEGACY_FIELD_MAP: Record<string, string> = {
-  focusRating: 'productivityRating',
-  socialConnectionRating: 'connectionRating',
-  // stressLevelRating needs inversion — handled separately
 }
 
 function getDraftKey(weekRef: WeekRef): string {
@@ -61,23 +56,23 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   const dataBundle = ref<WeeklyReflectionDataBundle | null>(null)
   const isBundleLoading = ref(true)
 
-  // Context ratings (1-5, null = not rated)
+  // Demands ratings (1-5, null = not rated)
   const physicalIntensityRating = ref<number | null>(null)
-  const taskLoadRating = ref<number | null>(null)
   const emotionalIntensityRating = ref<number | null>(null)
-  const socialIntensityRating = ref<number | null>(null)
+  const taskLoadRating = ref<number | null>(null)
+  const closeOnesNeedsRating = ref<number | null>(null)
+
+  // Actions ratings
+  const physicalCareRating = ref<number | null>(null)
+  const emotionalProcessingRating = ref<number | null>(null)
+  const productivityRating = ref<number | null>(null)
+  const closeOnesSupportRating = ref<number | null>(null)
 
   // State ratings
   const moodRating = ref<number | null>(null)
   const energyRating = ref<number | null>(null)
   const calmRating = ref<number | null>(null)
   const connectionRating = ref<number | null>(null)
-
-  // Evaluation ratings
-  const productivityRating = ref<number | null>(null)
-  const engagementRating = ref<number | null>(null)
-  const emotionalRegulationRating = ref<number | null>(null)
-  const selfCareRating = ref<number | null>(null)
 
   // Structured prompt responses
   const promptResponses = ref<Record<string, string>>({})
@@ -97,12 +92,19 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     switch (currentStep.value) {
       case 'review':
         return true
-      case 'context':
+      case 'demands':
         return (
           physicalIntensityRating.value !== null ||
-          taskLoadRating.value !== null ||
           emotionalIntensityRating.value !== null ||
-          socialIntensityRating.value !== null
+          taskLoadRating.value !== null ||
+          closeOnesNeedsRating.value !== null
+        )
+      case 'actions':
+        return (
+          physicalCareRating.value !== null ||
+          emotionalProcessingRating.value !== null ||
+          productivityRating.value !== null ||
+          closeOnesSupportRating.value !== null
         )
       case 'state':
         return (
@@ -110,13 +112,6 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
           energyRating.value !== null ||
           calmRating.value !== null ||
           connectionRating.value !== null
-        )
-      case 'evaluation':
-        return (
-          productivityRating.value !== null ||
-          engagementRating.value !== null ||
-          emotionalRegulationRating.value !== null ||
-          selfCareRating.value !== null
         )
       case 'anchors':
         return true
@@ -148,17 +143,17 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   // All rating refs for watchers
   const allRatingRefs = [
     physicalIntensityRating,
-    taskLoadRating,
     emotionalIntensityRating,
-    socialIntensityRating,
+    taskLoadRating,
+    closeOnesNeedsRating,
+    physicalCareRating,
+    emotionalProcessingRating,
+    productivityRating,
+    closeOnesSupportRating,
     moodRating,
     energyRating,
     calmRating,
     connectionRating,
-    productivityRating,
-    engagementRating,
-    emotionalRegulationRating,
-    selfCareRating,
   ]
 
   // Draft persistence
@@ -183,17 +178,17 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     return {
       currentStep: currentStep.value,
       physicalIntensityRating: physicalIntensityRating.value,
-      taskLoadRating: taskLoadRating.value,
       emotionalIntensityRating: emotionalIntensityRating.value,
-      socialIntensityRating: socialIntensityRating.value,
+      taskLoadRating: taskLoadRating.value,
+      closeOnesNeedsRating: closeOnesNeedsRating.value,
+      physicalCareRating: physicalCareRating.value,
+      emotionalProcessingRating: emotionalProcessingRating.value,
+      productivityRating: productivityRating.value,
+      closeOnesSupportRating: closeOnesSupportRating.value,
       moodRating: moodRating.value,
       energyRating: energyRating.value,
       calmRating: calmRating.value,
       connectionRating: connectionRating.value,
-      productivityRating: productivityRating.value,
-      engagementRating: engagementRating.value,
-      emotionalRegulationRating: emotionalRegulationRating.value,
-      selfCareRating: selfCareRating.value,
       promptResponses: promptResponses.value,
       freeformReflection: freeformReflection.value,
       aiSummary: aiSummary.value,
@@ -208,30 +203,21 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
         if (mapped) currentStep.value = mapped
       }
 
-      // Handle legacy field migration
-      for (const [oldKey, newKey] of Object.entries(LEGACY_FIELD_MAP)) {
-        if (data[oldKey] != null && data[newKey] == null) {
-          data[newKey] = data[oldKey]
-        }
-      }
-      // Invert stressLevelRating → calmRating
-      if (data.stressLevelRating != null && data.calmRating == null) {
-        data.calmRating = 6 - (data.stressLevelRating as number)
-      }
-
-      // Hydrate all rating fields
+      // Hydrate demands
       if (data.physicalIntensityRating != null) physicalIntensityRating.value = data.physicalIntensityRating as number
-      if (data.taskLoadRating != null) taskLoadRating.value = data.taskLoadRating as number
       if (data.emotionalIntensityRating != null) emotionalIntensityRating.value = data.emotionalIntensityRating as number
-      if (data.socialIntensityRating != null) socialIntensityRating.value = data.socialIntensityRating as number
+      if (data.taskLoadRating != null) taskLoadRating.value = data.taskLoadRating as number
+      if (data.closeOnesNeedsRating != null) closeOnesNeedsRating.value = data.closeOnesNeedsRating as number
+      // Hydrate actions
+      if (data.physicalCareRating != null) physicalCareRating.value = data.physicalCareRating as number
+      if (data.emotionalProcessingRating != null) emotionalProcessingRating.value = data.emotionalProcessingRating as number
+      if (data.productivityRating != null) productivityRating.value = data.productivityRating as number
+      if (data.closeOnesSupportRating != null) closeOnesSupportRating.value = data.closeOnesSupportRating as number
+      // Hydrate state
       if (data.moodRating != null) moodRating.value = data.moodRating as number
       if (data.energyRating != null) energyRating.value = data.energyRating as number
       if (data.calmRating != null) calmRating.value = data.calmRating as number
       if (data.connectionRating != null) connectionRating.value = data.connectionRating as number
-      if (data.productivityRating != null) productivityRating.value = data.productivityRating as number
-      if (data.engagementRating != null) engagementRating.value = data.engagementRating as number
-      if (data.emotionalRegulationRating != null) emotionalRegulationRating.value = data.emotionalRegulationRating as number
-      if (data.selfCareRating != null) selfCareRating.value = data.selfCareRating as number
 
       if (data.promptResponses) promptResponses.value = data.promptResponses as Record<string, string>
       if (data.freeformReflection) freeformReflection.value = data.freeformReflection as string
@@ -243,17 +229,17 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
   function hydrateFromExisting(existing: CreateWeeklyReflectionPayload) {
     physicalIntensityRating.value = existing.physicalIntensityRating
-    taskLoadRating.value = existing.taskLoadRating
     emotionalIntensityRating.value = existing.emotionalIntensityRating
-    socialIntensityRating.value = existing.socialIntensityRating
+    taskLoadRating.value = existing.taskLoadRating
+    closeOnesNeedsRating.value = existing.closeOnesNeedsRating
+    physicalCareRating.value = existing.physicalCareRating
+    emotionalProcessingRating.value = existing.emotionalProcessingRating
+    productivityRating.value = existing.productivityRating
+    closeOnesSupportRating.value = existing.closeOnesSupportRating
     moodRating.value = existing.moodRating
     energyRating.value = existing.energyRating
     calmRating.value = existing.calmRating
     connectionRating.value = existing.connectionRating
-    productivityRating.value = existing.productivityRating
-    engagementRating.value = existing.engagementRating
-    emotionalRegulationRating.value = existing.emotionalRegulationRating
-    selfCareRating.value = existing.selfCareRating
     promptResponses.value = { ...existing.promptResponses }
     freeformReflection.value = existing.freeformReflection
     aiSummary.value = existing.aiSummary ?? ''
@@ -306,17 +292,17 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       const payload: CreateWeeklyReflectionPayload = {
         weekRef: weekRef.value,
         physicalIntensityRating: physicalIntensityRating.value,
-        taskLoadRating: taskLoadRating.value,
         emotionalIntensityRating: emotionalIntensityRating.value,
-        socialIntensityRating: socialIntensityRating.value,
+        taskLoadRating: taskLoadRating.value,
+        closeOnesNeedsRating: closeOnesNeedsRating.value,
+        physicalCareRating: physicalCareRating.value,
+        emotionalProcessingRating: emotionalProcessingRating.value,
+        productivityRating: productivityRating.value,
+        closeOnesSupportRating: closeOnesSupportRating.value,
         moodRating: moodRating.value,
         energyRating: energyRating.value,
         calmRating: calmRating.value,
         connectionRating: connectionRating.value,
-        productivityRating: productivityRating.value,
-        engagementRating: engagementRating.value,
-        emotionalRegulationRating: emotionalRegulationRating.value,
-        selfCareRating: selfCareRating.value,
         promptResponses: { ...promptResponses.value },
         freeformReflection: freeformReflection.value,
         aiSummary: aiSummary.value,
@@ -343,23 +329,23 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     dataBundle,
     isBundleLoading,
 
-    // Context ratings
+    // Demands ratings
     physicalIntensityRating,
-    taskLoadRating,
     emotionalIntensityRating,
-    socialIntensityRating,
+    taskLoadRating,
+    closeOnesNeedsRating,
+
+    // Actions ratings
+    physicalCareRating,
+    emotionalProcessingRating,
+    productivityRating,
+    closeOnesSupportRating,
 
     // State ratings
     moodRating,
     energyRating,
     calmRating,
     connectionRating,
-
-    // Evaluation ratings
-    productivityRating,
-    engagementRating,
-    emotionalRegulationRating,
-    selfCareRating,
 
     // Prompts
     promptResponses,
