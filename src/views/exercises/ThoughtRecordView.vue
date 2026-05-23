@@ -105,7 +105,7 @@ function getRecordBeforeIntensity(record: ThoughtRecord, emotionId: string): num
 function getRecordShiftClass(record: ThoughtRecord, emotionId: string): string {
   const before = getRecordBeforeIntensity(record, emotionId)
   const after = record.emotionsAfter.find((e) => e.emotionId === emotionId)?.intensity ?? 0
-  if (after < before) return 'text-green-600'
+  if (after < before) return 'text-status-good-on'
   if (after > before) return 'text-error'
   return 'text-on-surface-variant'
 }

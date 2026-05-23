@@ -12,7 +12,7 @@
     </button>
     <div
       v-if="open"
-      class="absolute left-0 z-20 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-white/40 bg-white shadow-lg"
+      class="absolute left-0 z-20 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
       @click.stop
     >
       <button

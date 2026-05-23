@@ -6,8 +6,8 @@
     <AppCard padding="lg" class="space-y-2 transition-shadow cursor-pointer">
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="iconBgClass">
-            <span class="material-symbols-outlined text-xl leading-none" :class="iconClass">{{ icon }}</span>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="resolvedIconBgClass">
+            <span class="material-symbols-outlined text-xl leading-none" :class="resolvedIconClass">{{ icon }}</span>
           </div>
           <div>
             <h3 class="text-base font-semibold text-on-surface">{{ title }}</h3>
@@ -39,6 +39,10 @@
 import { computed } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import { useT } from '@/composables/useT'
+import {
+  EXERCISE_CATEGORY_CLASSES,
+  type ExerciseCategory,
+} from '@/constants/exerciseColorRoles'
 
 const { t } = useT()
 
@@ -47,11 +51,27 @@ const props = defineProps<{
   subtitle: string
   description: string
   icon: string
+  /**
+   * One of the 4 therapeutic tabs in ExercisesView. When set, the icon
+   * background and foreground use that category's accent palette and the
+   * `iconBgClass` / `iconClass` props are ignored.
+   */
+  category?: ExerciseCategory
   iconBgClass?: string
   iconClass?: string
   lastCompleted?: string // ISO timestamp
   aiAssisted?: boolean
 }>()
+
+const resolvedIconBgClass = computed(() => {
+  if (props.category) return EXERCISE_CATEGORY_CLASSES[props.category].bg
+  return props.iconBgClass ?? ''
+})
+
+const resolvedIconClass = computed(() => {
+  if (props.category) return EXERCISE_CATEGORY_CLASSES[props.category].text
+  return props.iconClass ?? ''
+})
 
 defineEmits<{
   click: []

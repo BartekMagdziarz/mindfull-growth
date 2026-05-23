@@ -122,10 +122,10 @@ defineEmits<{
 
 const ratingColor = computed(() => {
   const rating = props.area.rating
-  if (rating >= 8) return 'text-green-500'
+  if (rating >= 8) return 'text-status-good'
   if (rating >= 6) return 'text-primary'
-  if (rating >= 4) return 'text-amber-500'
-  return 'text-error'
+  if (rating >= 4) return 'text-status-warn'
+  return 'text-status-bad'
 })
 
 const totalAreas = computed(() => props.areas.length)
@@ -156,7 +156,7 @@ const fillPercent = computed(() => Math.max(0, Math.min((props.area.rating / 10)
   border-radius: 9999px;
   background: rgb(var(--color-surface));
   border: 3px solid rgb(var(--color-primary) / 0.7);
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 2px 6px rgb(var(--neo-shadow-dark) / 0.4);
   transition: transform 0.15s ease;
   margin-top: -10px;
 }
@@ -176,7 +176,7 @@ const fillPercent = computed(() => Math.max(0, Math.min((props.area.rating / 10)
   border-radius: 9999px;
   background: rgb(var(--color-surface));
   border: 3px solid rgb(var(--color-primary) / 0.7);
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 2px 6px rgb(var(--neo-shadow-dark) / 0.4);
   transition: transform 0.15s ease;
 }
 

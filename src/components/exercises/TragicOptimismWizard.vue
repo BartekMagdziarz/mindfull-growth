@@ -45,9 +45,9 @@
           </div>
 
           <!-- Professional guidance banner -->
-          <div class="neo-warning p-4 rounded-xl border-l-4 border-orange-400">
+          <div class="neo-warning p-4 rounded-xl border-l-4 border-status-warn">
             <div class="flex items-start gap-3">
-              <AppIcon name="warning" class="text-xl text-orange-500 flex-shrink-0 mt-0.5" />
+              <AppIcon name="warning" class="text-xl text-status-warn flex-shrink-0 mt-0.5" />
               <div class="text-sm text-on-surface">
                 <p class="font-semibold mb-1">{{ t('exerciseWizards.tragicOptimism.intro.warningTitle') }}</p>
                 <p>

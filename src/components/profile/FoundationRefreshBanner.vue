@@ -8,7 +8,7 @@
     leave-to-class="-translate-y-2 opacity-0"
   >
     <div
-      class="rounded-2xl border border-amber-500/40 bg-amber-50/70 p-4 shadow-neu-flat"
+      class="rounded-2xl border border-status-warn/40 bg-status-warn-soft/70 p-4 shadow-neu-flat"
       role="status"
     >
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

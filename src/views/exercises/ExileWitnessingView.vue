@@ -118,9 +118,9 @@ function postStateLabel(state: IFSExilePostState): string {
 
 function postStateBadgeClass(state: IFSExilePostState): string {
   switch (state) {
-    case 'calmer': return 'bg-green-100 text-green-700'
+    case 'calmer': return 'bg-status-good-soft text-status-good-on'
     case 'same': return 'bg-neu-base text-on-surface-variant'
-    case 'more-distressed': return 'bg-orange-100 text-orange-700'
+    case 'more-distressed': return 'bg-status-warn-soft text-status-warn-on'
     default: return 'bg-neu-base text-on-surface-variant'
   }
 }

@@ -85,6 +85,7 @@
 import { ref, computed } from 'vue'
 import { useT } from '@/composables/useT'
 import type { SelfEnergyQuality } from '@/domain/exercises'
+import { getQualityRgba } from '@/utils/selfEnergyColors'
 
 const { t } = useT()
 
@@ -120,16 +121,6 @@ const qualityLabels = computed(() => ({
   connection: t('exerciseWizards.shared.ifs.selfEnergyWheel.qualities.connection'),
 }))
 
-const qualityColors: Record<SelfEnergyQuality, string> = {
-  calm: '#3b82f6',       // blue
-  curiosity: '#8b5cf6',  // violet
-  compassion: '#ec4899', // pink
-  clarity: '#06b6d4',    // cyan
-  courage: '#f97316',    // orange
-  creativity: '#eab308', // yellow
-  confidence: '#22c55e', // green
-  connection: '#14b8a6', // teal
-}
 
 const svgSize = computed(() => {
   switch (props.size) {
@@ -145,11 +136,7 @@ const maxRadius = computed(() => svgSize.value / 2 - 30)
 const selectedQuality = ref<SelfEnergyQuality | null>(null)
 
 function segmentColor(quality: SelfEnergyQuality, opacity: number): string {
-  const hex = qualityColors[quality]
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+  return getQualityRgba(quality, opacity)
 }
 
 function segmentPath(index: number, rating: number): string {

@@ -114,8 +114,8 @@
             </div>
 
             <!-- Blocking message -->
-            <div v-if="isBlocking" class="bg-orange-50 p-3 rounded-lg">
-              <p class="text-sm text-orange-700" v-html="t('exerciseWizards.exileWitnessing.protectorCheck.blockingMessage')" />
+            <div v-if="isBlocking" class="bg-status-warn-soft p-3 rounded-lg">
+              <p class="text-sm text-status-warn-on" v-html="t('exerciseWizards.exileWitnessing.protectorCheck.blockingMessage')" />
             </div>
           </AppCard>
 
@@ -305,8 +305,8 @@
               </button>
             </div>
 
-            <div v-if="postSessionState === 'more-distressed'" class="bg-orange-50 p-3 rounded-lg">
-              <p class="text-sm text-orange-700">
+            <div v-if="postSessionState === 'more-distressed'" class="bg-status-warn-soft p-3 rounded-lg">
+              <p class="text-sm text-status-warn-on">
                 {{ t('exerciseWizards.exileWitnessing.closing.distressedWarning') }}
               </p>
             </div>
@@ -498,24 +498,24 @@ const permissionOptions = computed(() => [
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.yes.label'),
     description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.yes.description'),
     icon: 'check_circle',
-    iconBg: 'bg-green-50',
-    iconColor: 'text-green-600',
+    iconBg: 'bg-status-good-soft',
+    iconColor: 'text-status-good-on',
   },
   {
     value: 'nervous-but-willing' as const,
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.hesitant.label'),
     description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.hesitant.description'),
     icon: 'warning',
-    iconBg: 'bg-yellow-50',
-    iconColor: 'text-yellow-600',
+    iconBg: 'bg-status-warn-soft',
+    iconColor: 'text-status-warn-on',
   },
   {
     value: 'blocking' as const,
     label: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.no.label'),
     description: t('exerciseWizards.exileWitnessing.protectorCheck.permissionOptions.no.description'),
     icon: 'cancel',
-    iconBg: 'bg-red-50',
-    iconColor: 'text-red-600',
+    iconBg: 'bg-status-bad-soft',
+    iconColor: 'text-status-bad-on',
   },
 ])
 
@@ -541,9 +541,9 @@ const postStateLabel = computed(() => {
 
 const postStateBadgeClass = computed(() => {
   switch (postSessionState.value) {
-    case 'calmer': return 'bg-green-100 text-green-700'
+    case 'calmer': return 'bg-status-good-soft text-status-good-on'
     case 'same': return 'bg-neu-base text-on-surface-variant'
-    case 'more-distressed': return 'bg-orange-100 text-orange-700'
+    case 'more-distressed': return 'bg-status-warn-soft text-status-warn-on'
     default: return 'bg-neu-base text-on-surface-variant'
   }
 })

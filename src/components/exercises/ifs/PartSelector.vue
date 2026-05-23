@@ -91,6 +91,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import PartRoleBadge from './PartRoleBadge.vue'
 import type { IFSPart, IFSPartRole } from '@/domain/exercises'
+import { IFS_ROLE_CLASSES } from '@/constants/exerciseColorRoles'
 
 const { t } = useT()
 
@@ -117,9 +118,9 @@ const newPartName = ref('')
 const newPartRole = ref<IFSPartRole>('unknown')
 
 const roleOptions = computed(() => [
-  { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: 'bg-blue-100 text-blue-700' },
-  { value: 'firefighter' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'), activeClass: 'bg-orange-100 text-orange-700' },
-  { value: 'exile' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'), activeClass: 'bg-purple-100 text-purple-700' },
+  { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: `${IFS_ROLE_CLASSES.manager.bg} ${IFS_ROLE_CLASSES.manager.text}` },
+  { value: 'firefighter' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'), activeClass: `${IFS_ROLE_CLASSES.firefighter.bg} ${IFS_ROLE_CLASSES.firefighter.text}` },
+  { value: 'exile' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'), activeClass: `${IFS_ROLE_CLASSES.exile.bg} ${IFS_ROLE_CLASSES.exile.text}` },
   { value: 'unknown' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'), activeClass: 'bg-neu-base text-on-surface' },
 ])
 
@@ -132,11 +133,11 @@ const filteredParts = computed(() => {
 function roleBorderClass(role: IFSPartRole): string {
   switch (role) {
     case 'manager':
-      return 'border-l-4 border-l-blue-400'
+      return 'border-l-4 border-l-ifs-manager'
     case 'firefighter':
-      return 'border-l-4 border-l-orange-400'
+      return 'border-l-4 border-l-ifs-firefighter'
     case 'exile':
-      return 'border-l-4 border-l-purple-400'
+      return 'border-l-4 border-l-ifs-exile'
     default:
       return ''
   }

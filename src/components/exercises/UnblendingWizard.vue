@@ -150,7 +150,7 @@
                 @click="handleMagicAnswer(false)"
               >
                 <div class="flex items-center gap-3">
-                  <AppIcon name="error" class="text-xl text-orange-500 shrink-0" />
+                  <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
                   <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.magicQuestion.options.reactive') }}</span>
                 </div>
               </button>
@@ -213,7 +213,7 @@
                     @click="nextStep()"
                   >
                     <div class="flex items-center gap-3">
-                      <AppIcon name="error" class="text-xl text-orange-500 shrink-0" />
+                      <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
                       <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.options.stillReactive') }}</span>
                     </div>
                   </button>

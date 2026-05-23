@@ -188,7 +188,7 @@
             </button>
             <div
               v-if="openTagMenu === 'priority'"
-              class="absolute right-0 z-20 mt-2 max-h-60 min-w-56 overflow-y-auto rounded-2xl border border-white/40 bg-white p-2 shadow-lg"
+              class="absolute right-0 z-20 mt-2 max-h-60 min-w-56 overflow-y-auto rounded-2xl border border-outline/30 bg-surface p-2 shadow-lg"
             >
               <button
                 v-for="option in priorityOptions"
@@ -240,7 +240,7 @@
             </button>
             <div
               v-if="openTagMenu === 'lifeArea'"
-              class="absolute right-0 z-20 mt-2 max-h-60 min-w-56 overflow-y-auto rounded-2xl border border-white/40 bg-white p-2 shadow-lg"
+              class="absolute right-0 z-20 mt-2 max-h-60 min-w-56 overflow-y-auto rounded-2xl border border-outline/30 bg-surface p-2 shadow-lg"
             >
               <button
                 v-for="option in lifeAreaOptions"
@@ -322,7 +322,7 @@
                 </button>
                 <div
                   v-if="openPeriodMenu === 'goal-months'"
-                  class="absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto rounded-2xl border border-white/40 bg-white p-2 shadow-lg"
+                  class="absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto rounded-2xl border border-outline/30 bg-surface p-2 shadow-lg"
                 >
                   <button
                     v-for="month in availableMonthOptions"
@@ -382,7 +382,7 @@
                     </button>
                     <div
                       v-if="openPeriodMenu === `kr:${kr.localId}`"
-                      class="absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto rounded-2xl border border-white/40 bg-white p-2 shadow-lg"
+                      class="absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto rounded-2xl border border-outline/30 bg-surface p-2 shadow-lg"
                     >
                       <button
                         v-for="period in periodOptionsForKr(kr)"
@@ -685,7 +685,7 @@ const stepLabels = computed<Array<{ key: GoalWizardStep; full: string; short: st
 
 function dotClass(idx: number): string {
   const base = 'w-8 h-8'
-  if (idx === stepIndex.value) return `${base} bg-primary text-white shadow-neu-raised-sm`
+  if (idx === stepIndex.value) return `${base} bg-primary text-on-primary shadow-neu-raised-sm`
   if (idx < stepIndex.value) return `${base} bg-primary/15 text-primary cursor-pointer hover:-translate-y-px`
   return `${base} bg-neu-base text-on-surface-variant shadow-neu-pressed`
 }

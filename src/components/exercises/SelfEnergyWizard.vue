@@ -179,7 +179,7 @@
                   {{ t('exerciseWizards.selfEnergy.microPractice.compassion.description') }}
                 </p>
                 <div class="flex justify-center py-4">
-                  <AppIcon name="favorite" class="text-[4rem] text-pink-400 compassion-pulse" />
+                  <AppIcon name="favorite" class="text-[4rem] text-[rgb(var(--self-compassion))] compassion-pulse" />
                 </div>
                 <textarea
                   v-model="microPracticeNotes"
@@ -386,6 +386,10 @@
 import { ref, onUnmounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { SelfEnergyQuality } from '@/domain/exercises'
+import {
+  SELF_ENERGY_QUALITY_TEXT_CLASS,
+  getQualityVar,
+} from '@/utils/selfEnergyColors'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import SelfEnergyWheel from '@/components/exercises/ifs/SelfEnergyWheel.vue'
@@ -457,34 +461,12 @@ function qualityIcon(q: SelfEnergyQuality): string {
   return qualityIconMap[q]
 }
 
-const qualityIconColors: Record<SelfEnergyQuality, string> = {
-  calm: 'text-blue-500',
-  curiosity: 'text-violet-500',
-  compassion: 'text-pink-500',
-  clarity: 'text-cyan-500',
-  courage: 'text-orange-500',
-  creativity: 'text-yellow-500',
-  confidence: 'text-green-500',
-  connection: 'text-teal-500',
-}
-
 function qualityIconColor(q: SelfEnergyQuality): string {
-  return qualityIconColors[q]
-}
-
-const qualityColors: Record<SelfEnergyQuality, string> = {
-  calm: '#3b82f6',
-  curiosity: '#8b5cf6',
-  compassion: '#ec4899',
-  clarity: '#06b6d4',
-  courage: '#f97316',
-  creativity: '#eab308',
-  confidence: '#22c55e',
-  connection: '#14b8a6',
+  return SELF_ENERGY_QUALITY_TEXT_CLASS[q]
 }
 
 function qualityColor(q: SelfEnergyQuality): string {
-  return qualityColors[q]
+  return getQualityVar(q)
 }
 
 // Box Breathing state

@@ -65,7 +65,7 @@
       </button>
     </div>
 
-    <div v-if="areas.length < 3" class="text-xs text-amber-600">
+    <div v-if="areas.length < 3" class="text-xs text-status-warn-on">
       {{ t('exerciseWizards.wheelOfLife.domainSelector.validationMessage') }}
     </div>
   </div>

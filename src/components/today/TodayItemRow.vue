@@ -570,9 +570,9 @@ function handleMoveDateChange(event: Event): void {
     rgb(var(--neo-chart-primary-end))
   );
   box-shadow:
-    -2px -2px 5px rgb(255 255 255 / 0.6),
+    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6),
     2.5px 2.5px 6px rgb(var(--neo-chart-primary-end) / 0.42);
-  color: #fff;
+  color: rgb(var(--neo-accent-text));
 }
 
 .today-entry-value {
@@ -607,7 +607,7 @@ function handleMoveDateChange(event: Event): void {
 }
 
 .today-entry-circle--input.today-entry-circle--on {
-  color: #fff;
+  color: rgb(var(--neo-accent-text));
 }
 
 .today-entry-circle--input::-webkit-outer-spin-button,
@@ -622,7 +622,7 @@ function handleMoveDateChange(event: Event): void {
 }
 
 .today-entry-circle--input.today-entry-circle--on::placeholder {
-  color: rgb(255 255 255 / 0.6);
+  color: rgb(var(--neo-accent-text) / 0.6);
 }
 
 .today-entry-circle--input-sm {

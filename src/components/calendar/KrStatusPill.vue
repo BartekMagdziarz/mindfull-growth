@@ -21,15 +21,12 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const MISSED_COLOR = '#fda4af' // rose-300
-const NO_DATA_COLOR = '#cbd5e1' // slate-300
+// All three values route through CSS vars so swapping a theme updates the pill
+// without us touching component code.
+const MISSED_COLOR = 'rgb(var(--rose-300))'
+const NO_DATA_COLOR = 'rgb(var(--neo-border))'
 
-const metColor = computed(() => {
-  const rgb = getComputedStyle(document.documentElement)
-    .getPropertyValue('--neo-chart-primary-end')
-    .trim()
-  return rgb ? `rgb(${rgb})` : '#38bdf8'
-})
+const metColor = computed(() => 'rgb(var(--neo-chart-primary-end))')
 
 const pillStyle = computed(() => {
   if (props.cadence === 'monthly') {

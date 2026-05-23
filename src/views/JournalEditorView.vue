@@ -29,7 +29,7 @@
             class="fixed inset-0 z-50 flex items-center justify-center"
             @click.self="showDateTimePicker = false"
           >
-            <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
+            <div class="fixed inset-0 bg-overlay-scrim/50" aria-hidden="true"></div>
             <div
               class="relative z-10 neo-raised-strong rounded-2xl p-6 max-w-sm w-full mx-4"
               role="dialog"
@@ -329,7 +329,7 @@
           @click.self="closeCustomPromptDialog"
         >
           <!-- Backdrop -->
-          <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
+          <div class="fixed inset-0 bg-overlay-scrim/50" aria-hidden="true"></div>
 
           <!-- Dialog Card -->
           <div

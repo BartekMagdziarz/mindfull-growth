@@ -39,111 +39,101 @@
       class="space-y-3"
     >
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.valuesDiscovery.title')"
         :subtitle="t('exercises.cards.valuesDiscovery.subtitle')"
         :description="t('exercises.cards.valuesDiscovery.description')"
         :icon="'favorite'"
-        icon-bg-class="bg-pink-100"
-        icon-class="text-pink-600"
         :last-completed="latestValuesDate"
         @click="router.push('/exercises/values')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.valueMap.title')"
         :subtitle="t('exercises.cards.valueMap.subtitle')"
         :description="t('exercises.cards.valueMap.description')"
         :icon="'account_tree'"
-        icon-bg-class="bg-emerald-100"
-        icon-class="text-emerald-600"
         :last-completed="latestValueMapDate"
         @click="router.push('/exercises/value-map')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.wheelOfLife.title')"
         :subtitle="t('exercises.cards.wheelOfLife.subtitle')"
         :description="t('exercises.cards.wheelOfLife.description')"
         :icon="'pie_chart'"
-        icon-bg-class="bg-primary-soft"
-        icon-class="text-primary"
         :last-completed="latestWheelDate"
         @click="router.push('/exercises/wheel-of-life')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.shadowBeliefs.title')"
         :subtitle="t('exercises.cards.shadowBeliefs.subtitle')"
         :description="t('exercises.cards.shadowBeliefs.description')"
         :icon="'visibility'"
-        icon-bg-class="bg-purple-100"
-        icon-class="text-purple-600"
         :last-completed="latestBeliefsDate"
         @click="router.push('/exercises/shadow-beliefs')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.transformativePurpose.title')"
         :subtitle="t('exercises.cards.transformativePurpose.subtitle')"
         :description="t('exercises.cards.transformativePurpose.description')"
         :icon="'auto_awesome'"
-        icon-bg-class="bg-amber-100"
-        icon-class="text-amber-600"
         :last-completed="latestPurposeDate"
         @click="router.push('/exercises/purpose')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.ipipBfm50.title')"
         :subtitle="t('exercises.cards.ipipBfm50.subtitle')"
         :description="t('exercises.cards.ipipBfm50.description')"
         :icon="'bar_chart'"
-        icon-bg-class="bg-blue-100"
-        icon-class="text-blue-600"
         :last-completed="latestIpipBfm50Date"
         @click="router.push('/exercises/assessments/ipip-bfm-50')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.ipipNeo120.title')"
         :subtitle="t('exercises.cards.ipipNeo120.subtitle')"
         :description="t('exercises.cards.ipipNeo120.description')"
         :icon="'description'"
-        icon-bg-class="bg-indigo-100"
-        icon-class="text-indigo-600"
         :last-completed="latestIpipNeo120Date"
         @click="router.push('/exercises/assessments/ipip-neo-120')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.hexaco60.title')"
         :subtitle="t('exercises.cards.hexaco60.subtitle')"
         :description="t('exercises.cards.hexaco60.description')"
         :icon="'grid_view'"
-        icon-bg-class="bg-teal-100"
-        icon-class="text-teal-600"
         :last-completed="latestHexaco60Date"
         @click="router.push('/exercises/assessments/hexaco-60')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.pvq40.title')"
         :subtitle="t('exercises.cards.pvq40.subtitle')"
         :description="t('exercises.cards.pvq40.description')"
         :icon="'favorite'"
-        icon-bg-class="bg-rose-100"
-        icon-class="text-rose-600"
         :last-completed="latestPvq40Date"
         @click="router.push('/exercises/assessments/pvq-40')"
       />
 
       <ExerciseCard
+        :category="'self-discovery'"
         :title="t('exercises.cards.vlq.title')"
         :subtitle="t('exercises.cards.vlq.subtitle')"
         :description="t('exercises.cards.vlq.description')"
         :icon="'lightbulb'"
-        icon-bg-class="bg-emerald-100"
-        icon-class="text-emerald-600"
         :last-completed="latestVlqDate"
         @click="router.push('/exercises/assessments/vlq')"
       />
@@ -158,119 +148,109 @@
       class="space-y-3"
     >
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.worryTree.title')"
         :subtitle="t('exercises.cards.worryTree.subtitle')"
         :description="t('exercises.cards.worryTree.description')"
         :icon="'zoom_out_map'"
-        icon-bg-class="bg-teal-100"
-        icon-class="text-teal-600"
         :last-completed="latestWorryTreeDate"
         @click="router.push('/exercises/worry-tree')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.cognitiveDistortions.title')"
         :subtitle="t('exercises.cards.cognitiveDistortions.subtitle')"
         :description="t('exercises.cards.cognitiveDistortions.description')"
         :icon="'extension'"
-        icon-bg-class="bg-indigo-100"
-        icon-class="text-indigo-600"
         :last-completed="latestDistortionDate"
         ai-assisted
         @click="router.push('/exercises/cognitive-distortions')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.thoughtRecord.title')"
         :subtitle="t('exercises.cards.thoughtRecord.subtitle')"
         :description="t('exercises.cards.thoughtRecord.description')"
         :icon="'description'"
-        icon-bg-class="bg-sky-100"
-        icon-class="text-sky-600"
         :last-completed="latestThoughtRecordDate"
         ai-assisted
         @click="router.push('/exercises/thought-record')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.coreBeliefs.title')"
         :subtitle="t('exercises.cards.coreBeliefs.subtitle')"
         :description="t('exercises.cards.coreBeliefs.description')"
         :icon="'lightbulb'"
-        icon-bg-class="bg-amber-100"
-        icon-class="text-amber-600"
         :last-completed="latestCoreBeliefsDate"
         ai-assisted
         @click="router.push('/exercises/core-beliefs')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.compassionateLetter.title')"
         :subtitle="t('exercises.cards.compassionateLetter.subtitle')"
         :description="t('exercises.cards.compassionateLetter.description')"
         :icon="'edit_note'"
-        icon-bg-class="bg-rose-100"
-        icon-class="text-rose-600"
         :last-completed="latestCompassionateLetterDate"
         ai-assisted
         @click="router.push('/exercises/compassionate-letter')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.positiveDataLog.title')"
         :subtitle="t('exercises.cards.positiveDataLog.subtitle')"
         :description="t('exercises.cards.positiveDataLog.description')"
         :icon="'assignment'"
-        icon-bg-class="bg-emerald-100"
-        icon-class="text-emerald-600"
         :last-completed="latestPositiveDataLogDate"
         ai-assisted
         @click="router.push('/exercises/positive-data-log')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.behavioralExperiment.title')"
         :subtitle="t('exercises.cards.behavioralExperiment.subtitle')"
         :description="t('exercises.cards.behavioralExperiment.description')"
         :icon="'science'"
-        icon-bg-class="bg-cyan-100"
-        icon-class="text-cyan-600"
         :last-completed="latestBehavioralExperimentDate"
         ai-assisted
         @click="router.push('/exercises/behavioral-experiment')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.behavioralActivation.title')"
         :subtitle="t('exercises.cards.behavioralActivation.subtitle')"
         :description="t('exercises.cards.behavioralActivation.description')"
         :icon="'calendar_month'"
-        icon-bg-class="bg-lime-100"
-        icon-class="text-lime-600"
         :last-completed="latestBehavioralActivationDate"
         ai-assisted
         @click="router.push('/exercises/behavioral-activation')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.structuredProblemSolving.title')"
         :subtitle="t('exercises.cards.structuredProblemSolving.subtitle')"
         :description="t('exercises.cards.structuredProblemSolving.description')"
         :icon="'build'"
-        icon-bg-class="bg-orange-100"
-        icon-class="text-orange-600"
         :last-completed="latestStructuredProblemSolvingDate"
         ai-assisted
         @click="router.push('/exercises/structured-problem-solving')"
       />
 
       <ExerciseCard
+        :category="'cbt'"
         :title="t('exercises.cards.gradedExposure.title')"
         :subtitle="t('exercises.cards.gradedExposure.subtitle')"
         :description="t('exercises.cards.gradedExposure.description')"
         :icon="'trending_up'"
-        icon-bg-class="bg-violet-100"
-        icon-class="text-violet-600"
         :last-completed="latestGradedExposureDate"
         ai-assisted
         @click="router.push('/exercises/graded-exposure')"
@@ -286,95 +266,87 @@
       class="space-y-3"
     >
       <ExerciseCard
+        :category="'logotherapy'"
         :title="t('exercises.cards.threePathways.title')"
         :subtitle="t('exercises.cards.threePathways.subtitle')"
         :description="t('exercises.cards.threePathways.description')"
         :icon="'grid_view'"
-        icon-bg-class="bg-emerald-100"
-        icon-class="text-emerald-600"
         :last-completed="latestThreePathwaysDate"
         ai-assisted
         @click="router.push('/exercises/three-pathways')"
       />
 
       <ExerciseCard
+        :category="'logotherapy'"
         :title="t('exercises.cards.socraticDialogue.title')"
         :subtitle="t('exercises.cards.socraticDialogue.subtitle')"
         :description="t('exercises.cards.socraticDialogue.description')"
         :icon="'forum'"
-        icon-bg-class="bg-sky-100"
-        icon-class="text-sky-600"
         :last-completed="latestSocraticDialogueDate"
         ai-assisted
         @click="router.push('/exercises/socratic-dialogue')"
       />
 
       <ExerciseCard
+        :category="'logotherapy'"
         :title="t('exercises.cards.mountainRange.title')"
         :subtitle="t('exercises.cards.mountainRange.subtitle')"
         :description="t('exercises.cards.mountainRange.description')"
         :icon="'bar_chart'"
-        icon-bg-class="bg-amber-100"
-        icon-class="text-amber-600"
         :last-completed="latestMountainRangeDate"
         ai-assisted
         @click="router.push('/exercises/mountain-range')"
       />
 
       <ExerciseCard
+        :category="'logotherapy'"
         :title="t('exercises.cards.paradoxicalIntention.title')"
         :subtitle="t('exercises.cards.paradoxicalIntention.subtitle')"
         :description="t('exercises.cards.paradoxicalIntention.description')"
         :icon="'mood'"
-        icon-bg-class="bg-yellow-100"
-        icon-class="text-yellow-600"
         :last-completed="latestParadoxicalIntentionDate"
         ai-assisted
         @click="router.push('/exercises/paradoxical-intention')"
       />
 
       <ExerciseCard
+        :category="'logotherapy'"
         :title="t('exercises.cards.dereflection.title')"
         :subtitle="t('exercises.cards.dereflection.subtitle')"
         :description="t('exercises.cards.dereflection.description')"
         :icon="'redo'"
-        icon-bg-class="bg-teal-100"
-        icon-class="text-teal-600"
         :last-completed="latestDereflectionDate"
         @click="router.push('/exercises/dereflection')"
       />
 
       <ExerciseCard
+        :category="'logotherapy'"
         :title="t('exercises.cards.tragicOptimism.title')"
         :subtitle="t('exercises.cards.tragicOptimism.subtitle')"
         :description="t('exercises.cards.tragicOptimism.description')"
         :icon="'wb_sunny'"
-        icon-bg-class="bg-orange-100"
-        icon-class="text-orange-600"
         :last-completed="latestTragicOptimismDate"
         ai-assisted
         @click="router.push('/exercises/tragic-optimism')"
       />
 
       <ExerciseCard
+        :category="'logotherapy'"
         :title="t('exercises.cards.attitudinalShift.title')"
         :subtitle="t('exercises.cards.attitudinalShift.subtitle')"
         :description="t('exercises.cards.attitudinalShift.description')"
         :icon="'refresh'"
-        icon-bg-class="bg-indigo-100"
-        icon-class="text-indigo-600"
         :last-completed="latestAttitudinalShiftDate"
         ai-assisted
         @click="router.push('/exercises/attitudinal-shift')"
       />
 
       <ExerciseCard
+        :category="'logotherapy'"
         :title="t('exercises.cards.legacyLetter.title')"
         :subtitle="t('exercises.cards.legacyLetter.subtitle')"
         :description="t('exercises.cards.legacyLetter.description')"
         :icon="'mail'"
-        icon-bg-class="bg-rose-100"
-        icon-class="text-rose-600"
         :last-completed="latestLegacyLetterDate"
         ai-assisted
         @click="router.push('/exercises/legacy-letter')"
@@ -390,115 +362,105 @@
       class="space-y-3"
     >
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.partsMapping.title')"
         :subtitle="t('exercises.cards.partsMapping.subtitle')"
         :description="t('exercises.cards.partsMapping.description')"
         :icon="'map'"
-        icon-bg-class="bg-violet-100"
-        icon-class="text-violet-600"
         :last-completed="latestPartsMappingDate"
         ai-assisted
         @click="router.push('/exercises/parts-mapping')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.unblending.title')"
         :subtitle="t('exercises.cards.unblending.subtitle')"
         :description="t('exercises.cards.unblending.description')"
         :icon="'zoom_in_map'"
-        icon-bg-class="bg-cyan-100"
-        icon-class="text-cyan-600"
         :last-completed="latestUnblendingDate"
         @click="router.push('/exercises/unblending')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.directAccess.title')"
         :subtitle="t('exercises.cards.directAccess.subtitle')"
         :description="t('exercises.cards.directAccess.description')"
         :icon="'forum'"
-        icon-bg-class="bg-indigo-100"
-        icon-class="text-indigo-600"
         :last-completed="latestDirectAccessDate"
         ai-assisted
         @click="router.push('/exercises/direct-access')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.trailhead.title')"
         :subtitle="t('exercises.cards.trailhead.subtitle')"
         :description="t('exercises.cards.trailhead.description')"
         :icon="'location_on'"
-        icon-bg-class="bg-amber-100"
-        icon-class="text-amber-600"
         :last-completed="latestTrailheadDate"
         @click="router.push('/exercises/trailhead')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.protectorAppreciation.title')"
         :subtitle="t('exercises.cards.protectorAppreciation.subtitle')"
         :description="t('exercises.cards.protectorAppreciation.description')"
         :icon="'verified_user'"
-        icon-bg-class="bg-emerald-100"
-        icon-class="text-emerald-600"
         :last-completed="latestProtectorAppreciationDate"
         ai-assisted
         @click="router.push('/exercises/protector-appreciation')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.exileWitnessing.title')"
         :subtitle="t('exercises.cards.exileWitnessing.subtitle')"
         :description="t('exercises.cards.exileWitnessing.description')"
         :icon="'favorite'"
-        icon-bg-class="bg-rose-100"
-        icon-class="text-rose-600"
         :last-completed="latestExileWitnessingDate"
         @click="router.push('/exercises/exile-witnessing')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.selfEnergy.title')"
         :subtitle="t('exercises.cards.selfEnergy.subtitle')"
         :description="t('exercises.cards.selfEnergy.description')"
         :icon="'wb_sunny'"
-        icon-bg-class="bg-yellow-100"
-        icon-class="text-yellow-600"
         :last-completed="latestSelfEnergyDate"
         @click="router.push('/exercises/self-energy')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.partsDialogue.title')"
         :subtitle="t('exercises.cards.partsDialogue.subtitle')"
         :description="t('exercises.cards.partsDialogue.description')"
         :icon="'edit_note'"
-        icon-bg-class="bg-sky-100"
-        icon-class="text-sky-600"
         :last-completed="latestPartsDialogueDate"
         ai-assisted
         @click="router.push('/exercises/parts-dialogue')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.dailyCheckIn.title')"
         :subtitle="t('exercises.cards.dailyCheckIn.subtitle')"
         :description="t('exercises.cards.dailyCheckIn.description')"
         :icon="'schedule'"
-        icon-bg-class="bg-teal-100"
-        icon-class="text-teal-600"
         :last-completed="latestDailyCheckInDate"
         @click="router.push('/exercises/daily-ifs-checkin')"
       />
 
       <ExerciseCard
+        :category="'ifs'"
         :title="t('exercises.cards.constellation.title')"
         :subtitle="t('exercises.cards.constellation.subtitle')"
         :description="t('exercises.cards.constellation.description')"
         :icon="'public'"
-        icon-bg-class="bg-fuchsia-100"
-        icon-class="text-fuchsia-600"
         :last-completed="latestConstellationDate"
         ai-assisted
         @click="router.push('/exercises/constellation')"

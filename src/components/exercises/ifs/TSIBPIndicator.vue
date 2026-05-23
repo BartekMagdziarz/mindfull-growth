@@ -10,7 +10,7 @@
         :class="idx < currentIndex
           ? 'bg-primary/20 text-primary'
           : idx === currentIndex
-            ? 'neo-step-active bg-primary text-white'
+            ? 'neo-step-active bg-primary text-on-primary'
             : 'neo-surface shadow-neu-pressed text-on-surface-variant/40'"
       >
         {{ label }}

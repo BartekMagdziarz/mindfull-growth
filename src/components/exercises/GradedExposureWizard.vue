@@ -44,16 +44,16 @@
             <!-- Simple visual: low → high anxiety ladder -->
             <div class="flex flex-col gap-1.5">
               <div class="flex items-center gap-3">
-                <span class="w-16 text-right text-xs font-medium text-red-600">{{ t('exerciseWizards.gradedExposure.intro.high') }}</span>
-                <div class="flex-1 h-3 rounded-full bg-red-100" />
+                <span class="w-16 text-right text-xs font-medium text-status-bad-on">{{ t('exerciseWizards.gradedExposure.intro.high') }}</span>
+                <div class="flex-1 h-3 rounded-full bg-status-bad-soft" />
               </div>
               <div class="flex items-center gap-3">
-                <span class="w-16 text-right text-xs font-medium text-amber-600">{{ t('exerciseWizards.gradedExposure.intro.medium') }}</span>
-                <div class="flex-1 h-3 rounded-full bg-amber-100" />
+                <span class="w-16 text-right text-xs font-medium text-status-warn-on">{{ t('exerciseWizards.gradedExposure.intro.medium') }}</span>
+                <div class="flex-1 h-3 rounded-full bg-status-warn-soft" />
               </div>
               <div class="flex items-center gap-3">
-                <span class="w-16 text-right text-xs font-medium text-emerald-600">{{ t('exerciseWizards.gradedExposure.intro.low') }}</span>
-                <div class="flex-1 h-3 rounded-full bg-emerald-100" />
+                <span class="w-16 text-right text-xs font-medium text-status-good-on">{{ t('exerciseWizards.gradedExposure.intro.low') }}</span>
+                <div class="flex-1 h-3 rounded-full bg-status-good-soft" />
               </div>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
@@ -527,9 +527,10 @@ async function handleBrainstormSteps() {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function sudsColorClass(rating: number): string {
-  if (rating <= 30) return 'bg-emerald-100 text-emerald-700'
-  if (rating <= 60) return 'bg-amber-100 text-amber-700'
-  return 'bg-red-100 text-red-700'
+  // SUDS rating: lower distress is better, so invert thresholds.
+  if (rating <= 30) return 'bg-status-good-soft text-status-good-on'
+  if (rating <= 60) return 'bg-status-warn-soft text-status-warn-on'
+  return 'bg-status-bad-soft text-status-bad-on'
 }
 
 function addItem() {

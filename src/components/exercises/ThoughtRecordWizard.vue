@@ -860,7 +860,7 @@ function getBeforeIntensity(emotionId: string): number {
 function getIntensityChangeClass(emotionId: string): string {
   const before = getBeforeIntensity(emotionId)
   const after = emotionsAfter.find((e) => e.emotionId === emotionId)?.intensity ?? 0
-  if (after < before) return 'text-green-600'
+  if (after < before) return 'text-status-good-on'
   if (after > before) return 'text-error'
   return 'text-on-surface-variant'
 }

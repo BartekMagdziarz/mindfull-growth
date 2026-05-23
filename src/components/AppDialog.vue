@@ -7,7 +7,7 @@
         @click.self="handleBackdropClick"
       >
         <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black/50" aria-hidden="true"></div>
+        <div class="fixed inset-0 bg-overlay-scrim/50" aria-hidden="true"></div>
 
         <!-- Dialog Card -->
         <div

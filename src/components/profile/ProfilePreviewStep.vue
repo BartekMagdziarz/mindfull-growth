@@ -16,7 +16,7 @@
       <!-- Error banner -->
       <div
         v-if="error"
-        class="neo-surface rounded-2xl p-3 border border-red-400/30 bg-red-50/40 text-sm text-red-700"
+        class="neo-surface rounded-2xl p-3 border border-status-bad/30 bg-status-bad-soft/40 text-sm text-status-bad-on"
         role="alert"
       >
         {{ error }}
@@ -58,7 +58,7 @@
       <!-- Token warning -->
       <div
         v-if="showTokenWarning"
-        class="neo-surface rounded-2xl p-3 border border-amber-400/30 bg-amber-50/40 text-sm text-amber-800"
+        class="neo-surface rounded-2xl p-3 border border-status-warn/30 bg-status-warn-soft/40 text-sm text-status-warn-on"
         role="status"
       >
         {{ t('profile.psychologicalProfile.wizard.preview.tokenWarning') }}

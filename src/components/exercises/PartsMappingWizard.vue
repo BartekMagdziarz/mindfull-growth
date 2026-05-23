@@ -39,21 +39,21 @@
             </p>
             <div class="neo-surface p-4 rounded-xl space-y-4">
               <div class="flex items-start gap-3">
-                <AppIcon name="group" class="text-xl text-blue-500 shrink-0 mt-0.5" />
+                <AppIcon name="group" class="text-xl text-ifs-manager shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.managers.title') }}</p>
                   <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.managers.description') }}</p>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <AppIcon name="local_fire_department" class="text-xl text-orange-500 shrink-0 mt-0.5" />
+                <AppIcon name="local_fire_department" class="text-xl text-ifs-firefighter shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.firefighters.title') }}</p>
                   <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.firefighters.description') }}</p>
                 </div>
               </div>
               <div class="flex items-start gap-3">
-                <AppIcon name="favorite" class="text-xl text-purple-500 shrink-0 mt-0.5" />
+                <AppIcon name="favorite" class="text-xl text-ifs-exile shrink-0 mt-0.5" />
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsMapping.intro.exiles.title') }}</p>
                   <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsMapping.intro.exiles.description') }}</p>
@@ -577,6 +577,11 @@ import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
 import type { IFSPartRole, IFSBodyLocation, IFSRelationship } from '@/domain/exercises'
+import {
+  IFS_ROLE_CLASSES,
+  IFS_ROLE_SVG_CLASSES,
+  RELATIONSHIP_STROKE_VAR,
+} from '@/constants/exerciseColorRoles'
 
 const emit = defineEmits<{
   saved: []
@@ -647,9 +652,9 @@ const activeEmotionQuadrantTrailhead = ref<Quadrant | null>(null)
 const activeEmotionQuadrantSummary = ref<Quadrant | null>(null)
 
 const roleOptions = computed(() => [
-  { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: 'bg-blue-100 text-blue-700' },
-  { value: 'firefighter' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'), activeClass: 'bg-orange-100 text-orange-700' },
-  { value: 'exile' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'), activeClass: 'bg-purple-100 text-purple-700' },
+  { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: `${IFS_ROLE_CLASSES.manager.bg} ${IFS_ROLE_CLASSES.manager.text}` },
+  { value: 'firefighter' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'), activeClass: `${IFS_ROLE_CLASSES.firefighter.bg} ${IFS_ROLE_CLASSES.firefighter.text}` },
+  { value: 'exile' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'), activeClass: `${IFS_ROLE_CLASSES.exile.bg} ${IFS_ROLE_CLASSES.exile.text}` },
   { value: 'unknown' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'), activeClass: 'bg-neu-base text-on-surface' },
 ])
 
@@ -678,23 +683,11 @@ function partPosition(index: number): { x: number; y: number } {
 }
 
 function partFillClass(role: IFSPartRole): string {
-  switch (role) {
-    case 'manager': return 'fill-blue-100 stroke-blue-400'
-    case 'firefighter': return 'fill-orange-100 stroke-orange-400'
-    case 'exile': return 'fill-purple-100 stroke-purple-400'
-    default: return 'fill-neu-base stroke-neu-border'
-  }
+  return IFS_ROLE_SVG_CLASSES[role]
 }
 
 function relationshipColor(type: IFSRelationship['type']): string {
-  switch (type) {
-    case 'protects': return '#a855f7'
-    case 'polarized': return '#ef4444'
-    case 'allied': return '#3b82f6'
-    case 'triggers': return '#f97316'
-    case 'soothes': return '#22c55e'
-    default: return '#9ca3af'
-  }
+  return RELATIONSHIP_STROKE_VAR[type] ?? RELATIONSHIP_STROKE_VAR.default
 }
 
 function togglePartSelection(idx: number) {

@@ -88,11 +88,11 @@
               </button>
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="showBreathing ? 'shadow-neu-pressed ring-2 ring-orange-400' : ''"
+                :class="showBreathing ? 'shadow-neu-pressed ring-2 ring-status-warn' : ''"
                 @click="handleSelfCheck(false)"
               >
                 <div class="flex items-center gap-3">
-                  <AppIcon name="error" class="text-xl text-orange-500 shrink-0" />
+                  <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
                   <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.options.notQuite') }}</span>
                 </div>
               </button>
@@ -444,6 +444,10 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { IFSInsight } from '@/domain/exercises'
+import {
+  IFS_ROLE_STROKE_VAR,
+  INSIGHT_TAG_CLASSES,
+} from '@/constants/exerciseColorRoles'
 
 const emit = defineEmits<{
   saved: []
@@ -497,12 +501,9 @@ const selectedPart = computed(() => partId.value ? partStore.getPartById(partId.
 const selectedPartName = computed(() => selectedPart.value?.name ?? 'Part')
 const selectedPartRole = computed(() => selectedPart.value?.role ?? null)
 const selectedPartColor = computed(() => {
-  switch (selectedPart.value?.role) {
-    case 'manager': return '#60a5fa'
-    case 'firefighter': return '#fb923c'
-    case 'exile': return '#c084fc'
-    default: return undefined
-  }
+  const role = selectedPart.value?.role
+  if (!role || role === 'unknown') return undefined
+  return IFS_ROLE_STROKE_VAR[role]
 })
 
 // Message input
@@ -585,11 +586,11 @@ const insightTag = ref<IFSInsight['tag'] | null>(null)
 const bookmarkedIndices = ref(new Set<number>())
 
 const insightTags = computed<{ value: IFSInsight['tag']; label: string; activeClass: string }[]>(() => [
-  { value: 'core-fear', label: t('exerciseWizards.directAccess.dialogue.insightTags.coreFear'), activeClass: 'bg-red-100 text-red-700' },
-  { value: 'need', label: t('exerciseWizards.directAccess.dialogue.insightTags.need'), activeClass: 'bg-green-100 text-green-700' },
-  { value: 'positive-intention', label: t('exerciseWizards.directAccess.dialogue.insightTags.positiveIntention'), activeClass: 'bg-blue-100 text-blue-700' },
-  { value: 'memory', label: t('exerciseWizards.directAccess.dialogue.insightTags.memory'), activeClass: 'bg-amber-100 text-amber-700' },
-  { value: 'belief', label: t('exerciseWizards.directAccess.dialogue.insightTags.belief'), activeClass: 'bg-purple-100 text-purple-700' },
+  { value: 'core-fear', label: t('exerciseWizards.directAccess.dialogue.insightTags.coreFear'), activeClass: INSIGHT_TAG_CLASSES['core-fear'] },
+  { value: 'need', label: t('exerciseWizards.directAccess.dialogue.insightTags.need'), activeClass: INSIGHT_TAG_CLASSES.need },
+  { value: 'positive-intention', label: t('exerciseWizards.directAccess.dialogue.insightTags.positiveIntention'), activeClass: INSIGHT_TAG_CLASSES['positive-intention'] },
+  { value: 'memory', label: t('exerciseWizards.directAccess.dialogue.insightTags.memory'), activeClass: INSIGHT_TAG_CLASSES.memory },
+  { value: 'belief', label: t('exerciseWizards.directAccess.dialogue.insightTags.belief'), activeClass: INSIGHT_TAG_CLASSES.belief },
   { value: 'other', label: t('exerciseWizards.directAccess.dialogue.insightTags.other'), activeClass: 'bg-neu-base text-on-surface' },
 ])
 

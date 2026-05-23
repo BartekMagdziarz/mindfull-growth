@@ -21,7 +21,7 @@
           :key="day.label"
           class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium"
           :class="day.completed
-            ? 'bg-primary text-white'
+            ? 'bg-primary text-on-primary'
             : day.isToday
               ? 'border-2 border-primary text-primary'
               : 'bg-neu-border/20 text-on-surface-variant'"

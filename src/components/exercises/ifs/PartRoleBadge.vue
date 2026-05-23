@@ -8,6 +8,7 @@
 import { computed } from 'vue'
 import { useT } from '@/composables/useT'
 import type { IFSPartRole } from '@/domain/exercises'
+import { IFS_ROLE_CLASSES } from '@/constants/exerciseColorRoles'
 
 const { t } = useT()
 
@@ -16,17 +17,8 @@ const props = defineProps<{
 }>()
 
 const badgeClasses = computed(() => {
-  switch (props.role) {
-    case 'manager':
-      return 'bg-blue-100 text-blue-700'
-    case 'firefighter':
-      return 'bg-orange-100 text-orange-700'
-    case 'exile':
-      return 'bg-purple-100 text-purple-700'
-    case 'unknown':
-    default:
-      return 'bg-neu-base text-neu-muted'
-  }
+  const c = IFS_ROLE_CLASSES[props.role]
+  return `${c.bg} ${c.text}`
 })
 
 const label = computed(() => {

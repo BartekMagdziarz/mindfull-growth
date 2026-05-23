@@ -34,7 +34,7 @@
             </button>
             <div
               v-if="menuOpen"
-              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-white/40 bg-white shadow-lg"
+              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
               @click.stop
             >
               <button
@@ -220,9 +220,8 @@ const smartCompleteness = computed(() =>
 )
 
 const smartBadgeClass = computed(() => {
-  if (smartCompleteness.value.score === 5) return 'bg-success/15 text-success'
-  if (smartCompleteness.value.score >= 3) return 'bg-amber-100 text-amber-700'
-  return 'bg-amber-100 text-amber-700'
+  if (smartCompleteness.value.score === 5) return 'bg-status-good-soft text-status-good-on'
+  return 'bg-status-warn-soft text-status-warn-on'
 })
 
 const smartBadgeTooltip = computed(() => {
@@ -267,8 +266,8 @@ const targetDateTooltip = computed(() => {
 
 const targetDateChipClass = computed(() => {
   const rel = targetDateRelative.value
-  if (!rel) return 'bg-amber-100 text-amber-700'
-  if (rel.diffDays < 0) return 'bg-error/15 text-error'
+  if (!rel) return 'bg-status-warn-soft text-status-warn-on'
+  if (rel.diffDays < 0) return 'bg-status-bad-soft text-status-bad-on'
   return 'bg-neu-base text-on-surface-variant shadow-neu-pressed'
 })
 

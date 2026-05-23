@@ -33,7 +33,7 @@
             </button>
             <div
               v-if="menuOpen"
-              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-white/40 bg-white shadow-lg"
+              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
               @click.stop
             >
               <button
@@ -79,13 +79,13 @@
           </button>
           <span
             v-if="(item.lifeAreaIds ?? []).length > 0"
-            class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white"
+            class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-on-primary"
           >
             {{ item.lifeAreaIds?.length }}
           </span>
           <div
             v-if="linksOpen"
-            class="absolute left-0 z-20 mt-1 max-h-56 min-w-[190px] overflow-y-auto rounded-xl border border-white/40 bg-white p-1 shadow-lg"
+            class="absolute left-0 z-20 mt-1 max-h-56 min-w-[190px] overflow-y-auto rounded-xl border border-outline/30 bg-surface p-1 shadow-lg"
             @click.stop
           >
             <button

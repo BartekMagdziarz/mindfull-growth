@@ -32,10 +32,10 @@
               {{ formatDate(map.createdAt) }}
             </span>
             <div class="flex gap-2">
-              <span class="neo-pill text-xs px-2 py-0.5 bg-violet-100 text-violet-700">
+              <span class="neo-pill text-xs px-2 py-0.5 bg-exercise-ifs-soft text-exercise-ifs-on">
                 {{ map.partIds.length !== 1 ? t('exercises.views.partsCount', { n: map.partIds.length }) : t('exercises.views.partCount', { n: map.partIds.length }) }}
               </span>
-              <span v-if="map.relationships.length" class="neo-pill text-xs px-2 py-0.5 bg-blue-100 text-blue-700">
+              <span v-if="map.relationships.length" class="neo-pill text-xs px-2 py-0.5 bg-ifs-manager-soft text-ifs-manager-on">
                 {{ map.relationships.length !== 1 ? t('exercises.views.connectionsCount', { n: map.relationships.length }) : t('exercises.views.connectionCount', { n: map.relationships.length }) }}
               </span>
             </div>
@@ -76,6 +76,7 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSPartsMapStore } from '@/stores/ifsPartsMap.store'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useT } from '@/composables/useT'
+import { IFS_ROLE_CLASSES } from '@/constants/exerciseColorRoles'
 
 const router = useRouter()
 const { t } = useT()
@@ -104,12 +105,8 @@ function getPartNameById(id: string): string {
 function partRoleClass(partId: string): string {
   const part = partStore.getPartById(partId)
   if (!part) return 'bg-neu-base text-on-surface-variant'
-  switch (part.role) {
-    case 'manager': return 'bg-blue-100 text-blue-700'
-    case 'firefighter': return 'bg-orange-100 text-orange-700'
-    case 'exile': return 'bg-purple-100 text-purple-700'
-    default: return 'bg-neu-base text-on-surface-variant'
-  }
+  const c = IFS_ROLE_CLASSES[part.role]
+  return `${c.bg} ${c.text}`
 }
 
 function formatDate(isoString: string): string {

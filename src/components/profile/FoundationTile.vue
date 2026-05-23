@@ -117,7 +117,7 @@ const tileClass = computed(() => {
     case 'in-progress':
       return 'border-primary/30 bg-primary/10 shadow-neu-raised-sm'
     case 'outdated':
-      return 'border-amber-500/40 bg-amber-50/40 shadow-neu-raised-sm'
+      return 'border-status-warn/40 bg-status-warn-soft/40 shadow-neu-raised-sm'
     case 'completed':
     default:
       return 'border-neu-border/30 bg-neu-base shadow-neu-raised-sm'
@@ -131,7 +131,7 @@ const pillClass = computed(() => {
     case 'completed':
       return 'neo-pill--success'
     case 'outdated':
-      return 'border-amber-500/40 bg-amber-100/70 text-amber-800'
+      return 'border-status-warn/40 bg-status-warn-soft/70 text-status-warn-on'
     case 'not-started':
     default:
       return 'text-on-surface-variant'

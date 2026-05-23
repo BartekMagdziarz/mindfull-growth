@@ -40,11 +40,11 @@
           <div v-if="averageRatings" class="flex gap-4 text-xs">
             <div>
               <span class="text-on-surface-variant">{{ t('exercises.views.strongest') }}</span>
-              <span class="ml-1 font-medium text-green-600 capitalize">{{ strongestC }}</span>
+              <span class="ml-1 font-medium text-status-good-on capitalize">{{ strongestC }}</span>
             </div>
             <div>
               <span class="text-on-surface-variant">{{ t('exercises.views.weakest') }}</span>
-              <span class="ml-1 font-medium text-amber-600 capitalize">{{ weakestC }}</span>
+              <span class="ml-1 font-medium text-status-warn-on capitalize">{{ weakestC }}</span>
             </div>
           </div>
         </AppCard>
@@ -64,7 +64,7 @@
                 <span class="text-xs text-on-surface-variant capitalize">
                   {{ t('exercises.views.lowest') }} {{ checkIn.lowestQuality }}
                 </span>
-                <span class="neo-pill text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700">
+                <span class="neo-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn-on">
                   {{ checkIn.ratings[checkIn.lowestQuality] }}/5
                 </span>
               </div>

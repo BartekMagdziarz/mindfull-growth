@@ -155,11 +155,11 @@
     >
       <div class="font-semibold text-on-surface">{{ areas[hoveredArea].name }}</div>
       <div class="text-on-surface-variant">{{ areas[hoveredArea].rating }}/10</div>
-      <div v-if="areas[hoveredArea].rating <= 4" class="text-amber-600 mt-1">
+      <div v-if="areas[hoveredArea].rating <= 4" class="text-status-warn mt-1">
         {{ t('exerciseWizards.wheelOfLife.comparison.attentionHint') }}
       </div>
       <div v-if="getComparisonDelta(hoveredArea) !== null" class="mt-1">
-        <span v-if="getComparisonDelta(hoveredArea)! > 0" class="text-green-600">
+        <span v-if="getComparisonDelta(hoveredArea)! > 0" class="text-status-good-on">
           {{ t('exerciseWizards.wheelOfLife.comparison.fromPrevious', { delta: getComparisonDelta(hoveredArea)! }) }}
         </span>
         <span v-else-if="getComparisonDelta(hoveredArea)! < 0" class="text-error">
@@ -468,17 +468,17 @@ const comparisonPolygonPoints = computed(() => {
 })
 
 function getDotColor(rating: number): string {
-  if (rating >= 8) return 'fill-green-500'
+  if (rating >= 8) return 'fill-status-good'
   if (rating >= 6) return 'fill-primary'
-  if (rating >= 4) return 'fill-amber-500'
-  return 'fill-error'
+  if (rating >= 4) return 'fill-status-warn'
+  return 'fill-status-bad'
 }
 
 function getRatingTextColor(rating: number): string {
-  if (rating >= 8) return 'fill-green-600'
+  if (rating >= 8) return 'fill-status-good-on'
   if (rating >= 6) return 'fill-primary'
-  if (rating >= 4) return 'fill-amber-600'
-  return 'fill-error'
+  if (rating >= 4) return 'fill-status-warn-on'
+  return 'fill-status-bad-on'
 }
 
 function getComparisonDelta(index: number): number | null {

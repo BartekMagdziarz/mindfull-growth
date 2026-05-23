@@ -26,6 +26,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import AppCard from '@/components/AppCard.vue'
 import type { IFSInsight } from '@/domain/exercises'
+import { INSIGHT_TAG_CLASSES } from '@/constants/exerciseColorRoles'
 
 const { t } = useT()
 
@@ -39,21 +40,9 @@ defineEmits<{
 }>()
 
 const tagClasses = computed(() => {
-  switch (props.insight.tag) {
-    case 'core-fear':
-      return 'bg-red-100 text-red-700'
-    case 'need':
-      return 'bg-green-100 text-green-700'
-    case 'positive-intention':
-      return 'bg-blue-100 text-blue-700'
-    case 'memory':
-      return 'bg-amber-100 text-amber-700'
-    case 'belief':
-      return 'bg-purple-100 text-purple-700'
-    case 'other':
-    default:
-      return 'bg-neu-base text-neu-muted'
-  }
+  const tag = props.insight.tag
+  if (tag === 'other') return 'bg-neu-base text-neu-muted'
+  return INSIGHT_TAG_CLASSES[tag]
 })
 
 const tagLabel = computed(() => {

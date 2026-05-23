@@ -1,4 +1,29 @@
 /** @type {import('tailwindcss').Config} */
+
+/**
+ * Build a triplet of Tailwind tokens (`<name>`, `<name>-soft`, `<name>-on`)
+ * that point at matching CSS variables in `src/styles/tokens.css`.
+ *
+ * Lets us declare e.g. the IFS-manager / firefighter / exile roles in a
+ * single line each, instead of repeating the `rgb(var(--…) / <alpha-value>)`
+ * boilerplate for every variant.
+ */
+function role(name) {
+  return {
+    [name]: `rgb(var(--${name}) / <alpha-value>)`,
+    [`${name}-soft`]: `rgb(var(--${name}-soft) / <alpha-value>)`,
+    [`${name}-on`]: `rgb(var(--${name}-on) / <alpha-value>)`,
+  }
+}
+
+/** Same idea but for the 9-stop `sky` / `rose` Tailwind families. */
+function scale(name) {
+  const stops = [50, 100, 200, 300, 400, 500, 600, 700, 800]
+  return Object.fromEntries(
+    stops.map((s) => [s, `rgb(var(--${name}-${s}) / <alpha-value>)`]),
+  )
+}
+
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
@@ -39,6 +64,52 @@ export default {
         'neu-text': 'rgb(var(--neo-text) / <alpha-value>)',
         'neu-muted': 'rgb(var(--neo-muted) / <alpha-value>)',
         'neu-border': 'rgb(var(--neo-border) / <alpha-value>)',
+        'neu-accent-text': 'rgb(var(--neo-accent-text) / <alpha-value>)',
+
+        // --- Override Tailwind's default sky/rose families with our scales.
+        // After this, `bg-sky-100` resolves to the same value as `rgb(var(--sky-100))`.
+        sky: scale('sky'),
+        rose: scale('rose'),
+
+        // --- Semantic role tokens (see src/styles/tokens.css) ----------------
+        ...role('ifs-manager'),
+        ...role('ifs-firefighter'),
+        ...role('ifs-exile'),
+
+        ...role('status-good'),
+        ...role('status-warn'),
+        ...role('status-bad'),
+
+        ...role('insight-fear'),
+        ...role('insight-need'),
+        ...role('insight-intention'),
+        ...role('insight-memory'),
+        ...role('insight-belief'),
+
+        ...role('activity-pleasure'),
+        ...role('activity-mastery'),
+        ...role('activity-social'),
+        ...role('activity-physical'),
+        ...role('activity-values'),
+
+        'exercise-discovery': 'rgb(var(--exercise-discovery) / <alpha-value>)',
+        'exercise-discovery-soft': 'rgb(var(--exercise-discovery-soft) / <alpha-value>)',
+        'exercise-discovery-on': 'rgb(var(--exercise-discovery-on) / <alpha-value>)',
+        'exercise-cbt': 'rgb(var(--exercise-cbt) / <alpha-value>)',
+        'exercise-cbt-soft': 'rgb(var(--exercise-cbt-soft) / <alpha-value>)',
+        'exercise-cbt-on': 'rgb(var(--exercise-cbt-on) / <alpha-value>)',
+        'exercise-logo': 'rgb(var(--exercise-logo) / <alpha-value>)',
+        'exercise-logo-soft': 'rgb(var(--exercise-logo-soft) / <alpha-value>)',
+        'exercise-logo-on': 'rgb(var(--exercise-logo-on) / <alpha-value>)',
+        'exercise-ifs': 'rgb(var(--exercise-ifs) / <alpha-value>)',
+        'exercise-ifs-soft': 'rgb(var(--exercise-ifs-soft) / <alpha-value>)',
+        'exercise-ifs-on': 'rgb(var(--exercise-ifs-on) / <alpha-value>)',
+
+        'rel-polarized': 'rgb(var(--rel-polarized) / <alpha-value>)',
+        'rel-allied': 'rgb(var(--rel-allied) / <alpha-value>)',
+        'rel-protects': 'rgb(var(--rel-protects) / <alpha-value>)',
+
+        'overlay-scrim': 'rgb(var(--overlay-scrim) / <alpha-value>)',
       },
       borderRadius: {
         'md': '0.5rem',

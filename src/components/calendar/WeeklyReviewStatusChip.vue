@@ -18,11 +18,11 @@ const props = defineProps<{
 }>()
 
 const MAP: Record<ChipState, { icon: string; color: string; bg: string }> = {
-  hit: { icon: 'check', color: 'var(--color-primary)', bg: 'var(--color-primary-container, rgba(95,138,201,0.18))' },
-  partial: { icon: 'remove', color: 'var(--color-primary)', bg: 'var(--color-primary-container, rgba(95,138,201,0.12))' },
-  miss: { icon: 'close', color: 'var(--color-error)', bg: 'var(--color-error-container, rgba(212,120,120,0.18))' },
-  logged: { icon: 'check', color: 'var(--color-primary)', bg: 'var(--color-primary-container, rgba(95,138,201,0.12))' },
-  empty: { icon: 'remove', color: 'var(--color-on-surface-variant)', bg: 'var(--color-surface-container, rgba(0,0,0,0.05))' },
+  hit: { icon: 'check', color: 'rgb(var(--color-primary))', bg: 'rgb(var(--color-primary) / 0.18)' },
+  partial: { icon: 'remove', color: 'rgb(var(--color-primary))', bg: 'rgb(var(--color-primary) / 0.12)' },
+  miss: { icon: 'close', color: 'rgb(var(--color-error))', bg: 'rgb(var(--color-error-container))' },
+  logged: { icon: 'check', color: 'rgb(var(--color-primary))', bg: 'rgb(var(--color-primary) / 0.12)' },
+  empty: { icon: 'remove', color: 'rgb(var(--color-on-surface-variant))', bg: 'rgb(var(--color-surface-container))' },
 }
 
 const style = computed(() => MAP[props.state] ?? MAP.empty)

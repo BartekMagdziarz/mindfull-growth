@@ -25,7 +25,7 @@
       </div>
       <!-- Delta indicator -->
       <div v-if="getComparisonRating(area.name) !== null" class="text-xs text-on-surface-variant">
-        <span v-if="area.rating > (getComparisonRating(area.name) ?? 0)" class="text-green-600">
+        <span v-if="area.rating > (getComparisonRating(area.name) ?? 0)" class="text-status-good-on">
           {{ t('exerciseWizards.wheelOfLife.comparison.fromPrevious', { delta: area.rating - (getComparisonRating(area.name) ?? 0) }) }}
         </span>
         <span v-else-if="area.rating < (getComparisonRating(area.name) ?? 0)" class="text-error">
@@ -49,10 +49,10 @@ const props = defineProps<{
 }>()
 
 function getBarColor(rating: number): string {
-  if (rating >= 8) return 'bg-green-500'
+  if (rating >= 8) return 'bg-status-good'
   if (rating >= 6) return 'bg-primary'
-  if (rating >= 4) return 'bg-amber-500'
-  return 'bg-error'
+  if (rating >= 4) return 'bg-status-warn'
+  return 'bg-status-bad'
 }
 
 function getComparisonRating(areaName: string): number | null {

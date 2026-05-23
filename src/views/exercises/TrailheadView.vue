@@ -19,7 +19,7 @@
     <div class="mt-10 space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="text-base font-semibold text-on-surface">{{ t('exercises.views.pastEntries') }}</h2>
-        <span v-if="sortedEntries.length" class="neo-pill text-xs px-2.5 py-0.5 bg-amber-100 text-amber-700">
+        <span v-if="sortedEntries.length" class="neo-pill text-xs px-2.5 py-0.5 bg-status-warn-soft text-status-warn-on">
           {{ sortedEntries.length !== 1 ? t('exercises.views.trailheadsLoggedPlural', { n: sortedEntries.length }) : t('exercises.views.trailheadsLogged', { n: sortedEntries.length }) }}
         </span>
       </div>
@@ -38,13 +38,13 @@
             >
               <!-- Timeline dot -->
               <div class="absolute -left-6 top-3 w-5 h-5 rounded-full neo-surface shadow-neu-raised-sm flex items-center justify-center">
-                <div class="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                <div class="w-2.5 h-2.5 rounded-full bg-status-warn" />
               </div>
 
               <AppCard variant="raised" padding="md" class="space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-                  <span class="neo-pill text-xs px-2 py-0.5 bg-amber-100 text-amber-700 font-semibold">
+                  <span class="neo-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
                     {{ entry.intensity }}/10
                   </span>
                 </div>
@@ -68,7 +68,7 @@
                 <!-- Intensity bar -->
                 <div class="w-full h-1.5 rounded-full bg-neu-border/20">
                   <div
-                    class="h-full rounded-full bg-amber-500 transition-all"
+                    class="h-full rounded-full bg-status-warn transition-all"
                     :style="{ width: `${(entry.intensity / 10) * 100}%` }"
                   />
                 </div>

@@ -12,7 +12,7 @@
     <div
       v-if="open"
       ref="listEl"
-      class="absolute left-0 z-20 mt-1 max-h-[220px] min-w-[140px] overflow-y-auto rounded-xl border border-white/40 bg-white shadow-lg"
+      class="absolute left-0 z-20 mt-1 max-h-[220px] min-w-[140px] overflow-y-auto rounded-xl border border-outline/30 bg-surface shadow-lg"
       @click.stop
       @scroll="onListScroll"
     >

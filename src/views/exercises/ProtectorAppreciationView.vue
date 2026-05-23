@@ -64,7 +64,7 @@
           </p>
 
           <div v-if="entry.commitment" class="flex items-center gap-1">
-            <span class="neo-pill text-xs px-1.5 py-0.5 bg-green-100 text-green-700">
+            <span class="neo-pill text-xs px-1.5 py-0.5 bg-status-good-soft text-status-good-on">
               {{ t('exercises.views.commitmentSet') }}
             </span>
           </div>

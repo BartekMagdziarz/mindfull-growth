@@ -109,6 +109,10 @@ import ConstellationWizard from '@/components/exercises/ConstellationWizard.vue'
 import { useIFSConstellationStore } from '@/stores/ifsConstellation.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import type { IFSConstellation, IFSConstellationRelationType } from '@/domain/exercises'
+import {
+  IFS_ROLE_SVG_CLASSES,
+  RELATIONSHIP_STROKE_VAR,
+} from '@/constants/exerciseColorRoles'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
@@ -152,21 +156,11 @@ function getMiniNodePos(partIds: string[], partId: string): { x: number; y: numb
 }
 
 function miniLineColor(type: IFSConstellationRelationType): string {
-  switch (type) {
-    case 'polarized': return '#f87171'
-    case 'allied': return '#60a5fa'
-    case 'protector-exile': return '#c084fc'
-    default: return '#d1d5db'
-  }
+  return RELATIONSHIP_STROKE_VAR[type] ?? RELATIONSHIP_STROKE_VAR.default
 }
 
 function miniNodeClasses(partId: string): string {
   const role = partStore.getPartById(partId)?.role ?? 'unknown'
-  switch (role) {
-    case 'manager': return 'fill-blue-100 stroke-blue-400'
-    case 'firefighter': return 'fill-orange-100 stroke-orange-400'
-    case 'exile': return 'fill-purple-100 stroke-purple-400'
-    default: return 'fill-gray-100 stroke-gray-400'
-  }
+  return IFS_ROLE_SVG_CLASSES[role]
 }
 </script>

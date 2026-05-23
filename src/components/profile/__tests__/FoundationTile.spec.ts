@@ -67,7 +67,7 @@ describe('FoundationTile', () => {
     })
 
     expect(screen.getByRole('button', { name: 'Values discovery' })).toHaveClass(
-      'border-amber-500/40',
+      'border-status-warn/40',
     )
   })
 

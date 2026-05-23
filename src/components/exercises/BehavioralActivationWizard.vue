@@ -483,6 +483,7 @@ import type {
   ActivityCategory,
 } from '@/domain/exercises'
 import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
+import { ACTIVITY_CATEGORY_CLASSES } from '@/constants/exerciseColorRoles'
 
 const emit = defineEmits<{
   saved: [data: CreateBehavioralActivationPayload]
@@ -519,11 +520,11 @@ function goToStepByIndex(idx: number) {
 
 // ─── Category Definitions ────────────────────────────────────────────────────
 const categories = computed(() => [
-  { id: 'pleasure' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.pleasure'), colorClass: 'bg-emerald-100 text-emerald-700', dotClass: 'bg-emerald-500' },
-  { id: 'mastery' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.mastery'), colorClass: 'bg-blue-100 text-blue-700', dotClass: 'bg-blue-500' },
-  { id: 'social' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.social'), colorClass: 'bg-amber-100 text-amber-700', dotClass: 'bg-amber-500' },
-  { id: 'physical' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.physical'), colorClass: 'bg-rose-100 text-rose-700', dotClass: 'bg-rose-500' },
-  { id: 'values-aligned' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.values'), colorClass: 'bg-purple-100 text-purple-700', dotClass: 'bg-purple-500' },
+  { id: 'pleasure' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.pleasure'), colorClass: ACTIVITY_CATEGORY_CLASSES.pleasure.color, dotClass: ACTIVITY_CATEGORY_CLASSES.pleasure.dot },
+  { id: 'mastery' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.mastery'), colorClass: ACTIVITY_CATEGORY_CLASSES.mastery.color, dotClass: ACTIVITY_CATEGORY_CLASSES.mastery.dot },
+  { id: 'social' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.social'), colorClass: ACTIVITY_CATEGORY_CLASSES.social.color, dotClass: ACTIVITY_CATEGORY_CLASSES.social.dot },
+  { id: 'physical' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.physical'), colorClass: ACTIVITY_CATEGORY_CLASSES.physical.color, dotClass: ACTIVITY_CATEGORY_CLASSES.physical.dot },
+  { id: 'values-aligned' as ActivityCategory, label: t('exerciseWizards.behavioralActivation.planActivities.categories.values'), colorClass: ACTIVITY_CATEGORY_CLASSES['values-aligned'].color, dotClass: ACTIVITY_CATEGORY_CLASSES['values-aligned'].dot },
 ])
 
 function getCategoryColorClass(cat: ActivityCategory): string {

@@ -237,7 +237,7 @@
               :key="`pro-${proIdx}`"
               class="flex items-center gap-2 group"
             >
-              <span class="text-green-600 text-sm flex-shrink-0">+</span>
+              <span class="text-status-good-on text-sm flex-shrink-0">+</span>
               <input
                 :value="pro"
                 type="text"

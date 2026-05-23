@@ -13,7 +13,7 @@
       </button>
       <span
         v-if="totalLinked > 0"
-        class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white"
+        class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-on-primary"
       >
         {{ totalLinked }}
       </span>
@@ -33,7 +33,7 @@
     <!-- Level 1 -->
     <div
       v-if="open"
-      class="absolute left-0 z-20 mt-1 min-w-[160px] rounded-xl border border-white/40 bg-white shadow-lg"
+      class="absolute left-0 z-20 mt-1 min-w-[160px] rounded-xl border border-outline/30 bg-surface shadow-lg"
       @click.stop
     >
       <button
@@ -77,7 +77,7 @@
       <!-- Level 2 -->
       <div
         v-if="activeCategory && activeCategoryOptions.length > 0"
-        class="absolute left-full top-0 z-30 ml-0.5 max-h-[240px] min-w-[160px] overflow-y-auto rounded-xl border border-white/40 bg-white shadow-lg"
+        class="absolute left-full top-0 z-30 ml-0.5 max-h-[240px] min-w-[160px] overflow-y-auto rounded-xl border border-outline/30 bg-surface shadow-lg"
         @click.stop
       >
         <button

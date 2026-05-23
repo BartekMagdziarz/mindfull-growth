@@ -31,7 +31,7 @@
             </button>
             <div
               v-if="menuOpen"
-              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-white/40 bg-white shadow-lg"
+              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
               @click.stop
             >
               <button
@@ -130,7 +130,7 @@
                 <div
                   v-if="periodPickerOpen"
                   ref="periodPickerRef"
-                  class="absolute left-0 top-7 z-20 max-h-[180px] min-w-[140px] overflow-y-auto rounded-xl border border-white/40 bg-white shadow-lg"
+                  class="absolute left-0 top-7 z-20 max-h-[180px] min-w-[140px] overflow-y-auto rounded-xl border border-outline/30 bg-surface shadow-lg"
                   @click.stop
                   @scroll="onPickerScroll"
                 >

@@ -48,12 +48,12 @@
             <div class="neo-surface p-3 rounded-xl flex items-center gap-3">
               <div
                 class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                :class="hasPrerequisites ? 'bg-green-100' : 'bg-orange-100'"
+                :class="hasPrerequisites ? 'bg-status-good-soft' : 'bg-status-warn-soft'"
               >
-                <AppIcon v-if="hasPrerequisites" name="check_circle" class="text-xl text-green-600" />
-                <AppIcon v-else name="warning" class="text-xl text-orange-600" />
+                <AppIcon v-if="hasPrerequisites" name="check_circle" class="text-xl text-status-good" />
+                <AppIcon v-else name="warning" class="text-xl text-status-warn" />
               </div>
-              <p class="text-sm" :class="hasPrerequisites ? 'text-on-surface' : 'text-orange-700'">
+              <p class="text-sm" :class="hasPrerequisites ? 'text-on-surface' : 'text-status-warn-on'">
                 <template v-if="hasPrerequisites">
                   You have {{ partStore.sortedParts.length }} parts mapped. Ready to explore their relationships.
                 </template>
@@ -199,7 +199,7 @@
             >
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm font-semibold text-on-surface">{{ getPartName(dd.partAId) }}</span>
-                <span class="text-xs text-red-500 font-medium">vs</span>
+                <span class="text-xs text-rel-polarized font-medium">vs</span>
                 <span class="text-sm font-semibold text-on-surface">{{ getPartName(dd.partBId) }}</span>
               </div>
 
@@ -325,15 +325,15 @@
             <!-- Legend -->
             <div class="flex flex-wrap gap-4 justify-center text-xs text-on-surface-variant">
               <div class="flex items-center gap-1.5">
-                <div class="w-6 h-0.5 bg-red-400" />
+                <div class="w-6 h-0.5 bg-rel-polarized" />
                 <span>Polarized</span>
               </div>
               <div class="flex items-center gap-1.5">
-                <div class="w-6 h-0.5 bg-blue-400" />
+                <div class="w-6 h-0.5 bg-rel-allied" />
                 <span>Allied</span>
               </div>
               <div class="flex items-center gap-1.5">
-                <div class="w-6 h-0.5 bg-purple-400 border-t border-dashed border-purple-400" style="border-style: dashed" />
+                <div class="w-6 h-0.5 bg-rel-protects border-t border-dashed border-rel-protects" style="border-style: dashed" />
                 <span>Protects</span>
               </div>
             </div>
@@ -474,6 +474,11 @@ import {
   useConstellationWizard,
 } from '@/composables/useConstellationWizard'
 import type { IFSPartRole, IFSConstellationRelationType } from '@/domain/exercises'
+import {
+  IFS_ROLE_SVG_CLASSES,
+  RELATIONSHIP_PILL_CLASSES,
+  RELATIONSHIP_STROKE_VAR,
+} from '@/constants/exerciseColorRoles'
 
 const emit = defineEmits<{
   saved: []
@@ -544,9 +549,9 @@ const relationshipTypes: {
   icon: string
   activeClass: string
 }[] = [
-  { value: 'polarized', label: 'Polarized', icon: 'compare_arrows', activeClass: 'bg-red-100 text-red-700' },
-  { value: 'allied', label: 'Allied', icon: 'group', activeClass: 'bg-blue-100 text-blue-700' },
-  { value: 'protector-exile', label: 'Protects', icon: 'verified_user', activeClass: 'bg-purple-100 text-purple-700' },
+  { value: 'polarized', label: 'Polarized', icon: 'compare_arrows', activeClass: RELATIONSHIP_PILL_CLASSES.polarized },
+  { value: 'allied', label: 'Allied', icon: 'group', activeClass: RELATIONSHIP_PILL_CLASSES.allied },
+  { value: 'protector-exile', label: 'Protects', icon: 'verified_user', activeClass: RELATIONSHIP_PILL_CLASSES['protector-exile'] },
   { value: 'no-relationship', label: 'None', icon: 'remove', activeClass: 'bg-neu-base text-on-surface' },
 ]
 
@@ -578,21 +583,11 @@ function getNodePosition(partId: string): { x: number; y: number } {
 
 function nodeClasses(partId: string): string {
   const role = getPartRole(partId)
-  switch (role) {
-    case 'manager': return 'fill-blue-100 stroke-blue-400'
-    case 'firefighter': return 'fill-orange-100 stroke-orange-400'
-    case 'exile': return 'fill-purple-100 stroke-purple-400'
-    default: return 'fill-neu-base stroke-neu-border'
-  }
+  return IFS_ROLE_SVG_CLASSES[role ?? 'unknown']
 }
 
 function lineColor(type: IFSConstellationRelationType): string {
-  switch (type) {
-    case 'polarized': return '#f87171' // red-400
-    case 'allied': return '#60a5fa' // blue-400
-    case 'protector-exile': return '#c084fc' // purple-400
-    default: return '#d1d5db' // gray-300
-  }
+  return RELATIONSHIP_STROKE_VAR[type] ?? RELATIONSHIP_STROKE_VAR.default
 }
 
 function truncateName(name: string): string {
@@ -609,9 +604,9 @@ function getPartRole(id: string): IFSPartRole {
 
 function roleBorderClass(role: IFSPartRole): string {
   switch (role) {
-    case 'manager': return 'border-l-4 border-l-blue-400'
-    case 'firefighter': return 'border-l-4 border-l-orange-400'
-    case 'exile': return 'border-l-4 border-l-purple-400'
+    case 'manager': return 'border-l-4 border-l-ifs-manager'
+    case 'firefighter': return 'border-l-4 border-l-ifs-firefighter'
+    case 'exile': return 'border-l-4 border-l-ifs-exile'
     default: return ''
   }
 }

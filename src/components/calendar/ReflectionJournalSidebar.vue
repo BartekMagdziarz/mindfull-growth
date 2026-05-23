@@ -234,10 +234,10 @@
               class="rounded-lg px-2.5 py-2 shadow-neu-raised-sm"
               :style="{ backgroundColor: q.color }"
             >
-              <div class="text-sm font-bold" style="color: rgba(255,255,255,0.95)">
+              <div class="text-sm font-bold text-neu-accent-text/95">
                 {{ totalEmotionQuadrants[q.key] }}
               </div>
-              <div class="text-[10px] opacity-90" style="color: rgba(255,255,255,0.9)">
+              <div class="text-[10px] opacity-90 text-neu-accent-text/90">
                 {{ t(q.labelKey) }}
               </div>
             </div>

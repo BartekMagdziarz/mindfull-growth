@@ -33,7 +33,7 @@
               <span class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
                 {{ t('exercises.views.messagesCount', { n: dialogue.messages.length }) }}
               </span>
-              <span v-if="dialogue.insights.length" class="neo-pill text-xs px-2 py-0.5 bg-amber-100 text-amber-700 font-semibold">
+              <span v-if="dialogue.insights.length" class="neo-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
                 {{ t('exercises.views.insightsCount', { n: dialogue.insights.length }) }}
               </span>
             </div>
@@ -55,7 +55,7 @@
           </p>
 
           <div v-if="dialogue.llmAssistUsed" class="flex items-center gap-1">
-            <span class="neo-pill text-xs px-1.5 py-0.5 bg-amber-50 text-amber-600">{{ t('exercises.views.aiAssistedBadge') }}</span>
+            <span class="neo-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn">{{ t('exercises.views.aiAssistedBadge') }}</span>
           </div>
         </AppCard>
       </template>

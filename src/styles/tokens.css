@@ -1,0 +1,400 @@
+/* =============================================================================
+ * Single source of truth for the Mindfull Growth color palette.
+ *
+ * All color values live here, as `R G B` triples (so Tailwind can layer the
+ * <alpha-value> placeholder on top via `rgb(var(--x) / <alpha-value>)`).
+ *
+ * To change the palette, edit ONLY this file. The mappings in
+ * `tailwind.config.js` re-export every token below as a Tailwind class.
+ *
+ * Themes: each `:root[data-theme=…]` overrides whatever the default `:root`
+ * block sets. Tokens not overridden in a theme inherit the default value.
+ * =========================================================================== */
+
+:root {
+  /* --- Surfaces & background ---------------------------------------------- */
+  --color-background: 234 244 255;
+  --color-background-mid: 245 249 255;
+  --color-background-bottom: 224 236 255;
+  --color-cloud-a: 255 255 255;
+  --color-cloud-b: 255 255 255;
+
+  --color-surface: 255 255 255;
+  --color-surface-variant: 223 238 255;
+  --color-surface-container: 245 250 255;
+  --color-section: 229 240 255;
+  --color-section-strong: 208 228 255;
+
+  /* --- Primary ------------------------------------------------------------ */
+  --color-primary: 112 168 232;
+  --color-primary-strong: 86 142 210;
+  --color-primary-soft: 224 236 252;
+  --color-on-primary: 247 251 255;
+
+  /* --- Text & lines ------------------------------------------------------- */
+  --color-on-surface: 15 39 69;
+  --color-on-surface-variant: 61 91 124;
+  --color-outline: 169 191 220;
+
+  /* --- Chips -------------------------------------------------------------- */
+  --color-chip: 230 240 255;
+  --color-chip-border: 180 206 238;
+  --color-chip-text: 31 58 86;
+
+  /* --- Focus & nav -------------------------------------------------------- */
+  --color-focus-ring: 143 196 255;
+  --color-nav: rgba(255, 255, 255, 0.92);
+
+  /* --- Error / success / warning / info ----------------------------------- */
+  --color-error: 194 82 97;
+  --color-on-error: 255 255 255;
+  --color-error-container: 255 233 238;
+  --color-on-error-container: 94 29 39;
+
+  --color-success: 54 140 103;
+  --color-warning: 186 132 52;
+  --color-info: 60 130 204;
+
+  --color-tertiary-container: 255 244 227;
+  --color-on-tertiary-container: 115 72 15;
+
+  /* --- Emotion quadrants -------------------------------------------------- */
+  --color-quadrant-high-energy-high-pleasantness: #a2d2ff;
+  --color-quadrant-high-energy-high-pleasantness-border: #84bfe8;
+  --color-quadrant-high-energy-high-pleasantness-selected: #5bb3ff;
+  --color-quadrant-high-energy-high-pleasantness-text: #0f3a6a;
+  --color-quadrant-high-energy-low-pleasantness: #ffafcc;
+  --color-quadrant-high-energy-low-pleasantness-border: #e89ab5;
+  --color-quadrant-high-energy-low-pleasantness-selected: #ff7aa8;
+  --color-quadrant-high-energy-low-pleasantness-text: #6e1f3c;
+  --color-quadrant-low-energy-high-pleasantness: #bde0fe;
+  --color-quadrant-low-energy-high-pleasantness-border: #a0c9e8;
+  --color-quadrant-low-energy-high-pleasantness-selected: #7fc5fc;
+  --color-quadrant-low-energy-high-pleasantness-text: #1c4470;
+  --color-quadrant-low-energy-low-pleasantness: #cdb4db;
+  --color-quadrant-low-energy-low-pleasantness-border: #b59dc4;
+  --color-quadrant-low-energy-low-pleasantness-selected: #b08fc4;
+  --color-quadrant-low-energy-low-pleasantness-text: #3f1f55;
+
+  /* Text colors on section backgrounds (default: dark text) */
+  --color-on-section: var(--color-on-surface);
+  --color-on-primary-soft: var(--color-on-surface);
+
+  /* --- Neumorphism -------------------------------------------------------- */
+  --neo-surface-base: 235 243 253;
+  --neo-surface-top: 242 248 255;
+  --neo-surface-bottom: 230 240 252;
+  --neo-shadow-light: 255 255 255;
+  --neo-shadow-dark: 145 170 205;
+  --neo-inset-light: 255 255 255;
+  --neo-inset-dark: 143 168 203;
+  --neo-border: 185 205 228;
+  --neo-text: 32 60 96;
+  --neo-muted: 95 122 152;
+  --neo-focus: 37 92 170;
+  --neo-accent-start: 142 188 240;
+  --neo-accent-end: 112 168 232;
+  --neo-accent-text: 255 255 255;
+
+  /* Chart primary color (unified palette for all Today view charts) */
+  --neo-chart-primary-start: 142 188 240;
+  --neo-chart-primary-end: 112 168 232;
+
+  /* --- Sky scale ---------------------------------------------------------- *
+   * Sampled from the design "paleta nieba" reference. Used for rating
+   * gradients (low → high) and as the unified blue range across charts.
+   * Also remapped onto Tailwind's `sky-*` family in tailwind.config.js, so
+   * `bg-sky-100` and `rgb(var(--sky-100))` always resolve to the same value.
+   * --------------------------------------------------------------------- */
+  --sky-50: 245 248 255;
+  --sky-100: 232 240 254;
+  --sky-200: 208 225 253;
+  --sky-300: 181 207 247;
+  --sky-400: 141 182 234;
+  --sky-500: 94 146 216;
+  --sky-600: 62 110 184;
+  --sky-700: 45 77 139;
+  --sky-800: 27 47 90;
+
+  /* --- Rose scale --------------------------------------------------------- *
+   * Complementary "below-target" range. Mirrors the sky scale tonally.
+   * Also remapped onto Tailwind's `rose-*` family.
+   * --------------------------------------------------------------------- */
+  --rose-50: 255 241 244;
+  --rose-100: 255 224 230;
+  --rose-200: 250 198 210;
+  --rose-300: 240 168 186;
+  --rose-400: 229 132 156;
+  --rose-500: 216 95 126;
+  --rose-600: 184 67 99;
+  --rose-700: 140 45 73;
+  --rose-800: 95 27 51;
+
+  /* =====================================================================
+   * Semantic role tokens — added to give names to roles that were
+   * previously expressed via raw Tailwind classes (e.g. `bg-blue-100
+   * text-blue-700` repeated in 7+ files for IFS managers).
+   *
+   * Convention: every role has three variants
+   *   --<role>:        full accent (borders, dots, icon strokes)
+   *   --<role>-soft:   tinted background (chip / pill background)
+   *   --<role>-on:     dark text-on-soft (chip / pill foreground)
+   * ===================================================================== */
+
+  /* --- IFS roles ---------------------------------------------------------- */
+  --ifs-manager: 95 138 201;
+  --ifs-manager-soft: 219 234 254;
+  --ifs-manager-on: 29 78 138;
+  --ifs-firefighter: 220 130 70;
+  --ifs-firefighter-soft: 255 237 213;
+  --ifs-firefighter-on: 154 70 14;
+  --ifs-exile: 155 110 195;
+  --ifs-exile-soft: 243 232 255;
+  --ifs-exile-on: 107 45 165;
+
+  /* --- Status (rating thresholds, deltas, …) ------------------------------ */
+  --status-good: 54 140 103;
+  --status-good-soft: 220 248 230;
+  --status-good-on: 21 105 60;
+  --status-warn: 186 132 52;
+  --status-warn-soft: 254 243 199;
+  --status-warn-on: 122 78 14;
+  --status-bad: 194 82 97;
+  --status-bad-soft: 254 226 226;
+  --status-bad-on: 153 36 53;
+
+  /* --- Insight tags (CBT / IFS dialogue inspections) ---------------------- */
+  --insight-fear: 194 82 97;
+  --insight-fear-soft: 254 226 226;
+  --insight-fear-on: 153 36 53;
+  --insight-need: 54 140 103;
+  --insight-need-soft: 220 248 230;
+  --insight-need-on: 21 105 60;
+  --insight-intention: 95 138 201;
+  --insight-intention-soft: 219 234 254;
+  --insight-intention-on: 29 78 138;
+  --insight-memory: 186 132 52;
+  --insight-memory-soft: 254 243 199;
+  --insight-memory-on: 122 78 14;
+  --insight-belief: 155 110 195;
+  --insight-belief-soft: 243 232 255;
+  --insight-belief-on: 107 45 165;
+
+  /* --- Behavioral Activation categories ----------------------------------- */
+  --activity-pleasure: 75 170 130;
+  --activity-pleasure-soft: 209 250 229;
+  --activity-pleasure-on: 4 120 87;
+  --activity-mastery: 95 138 201;
+  --activity-mastery-soft: 219 234 254;
+  --activity-mastery-on: 29 78 138;
+  --activity-social: 200 145 60;
+  --activity-social-soft: 254 243 199;
+  --activity-social-on: 122 78 14;
+  --activity-physical: 216 95 126;
+  --activity-physical-soft: 255 224 230;
+  --activity-physical-on: 140 45 73;
+  --activity-values: 155 110 195;
+  --activity-values-soft: 243 232 255;
+  --activity-values-on: 107 45 165;
+
+  /* --- Exercise category accents (4 tabs in ExercisesView) ---------------- */
+  --exercise-discovery: 220 105 155;
+  --exercise-discovery-soft: 252 231 243;
+  --exercise-discovery-on: 159 35 99;
+  --exercise-cbt: 75 170 130;
+  --exercise-cbt-soft: 209 250 229;
+  --exercise-cbt-on: 4 120 87;
+  --exercise-logo: 200 145 60;
+  --exercise-logo-soft: 254 243 199;
+  --exercise-logo-on: 122 78 14;
+  --exercise-ifs: 120 110 200;
+  --exercise-ifs-soft: 224 231 255;
+  --exercise-ifs-on: 60 47 156;
+
+  /* --- Constellation / Parts Mapping relationship types ------------------- */
+  --rel-polarized: 220 95 110;
+  --rel-allied: 95 150 220;
+  --rel-protects: 175 130 220;
+
+  /* --- Self-Energy 8 C's qualities (IFS) ---------------------------------- *
+   * Used by the SelfEnergyWheel SVG, which reads these at runtime via
+   * getComputedStyle and composes rgba(r, g, b, opacity) for segment fills.
+   * --------------------------------------------------------------------- */
+  --self-calm: 59 130 246;
+  --self-curiosity: 139 92 246;
+  --self-compassion: 236 72 153;
+  --self-clarity: 6 182 212;
+  --self-courage: 249 115 22;
+  --self-creativity: 234 179 8;
+  --self-confidence: 34 197 94;
+  --self-connection: 20 184 166;
+
+  /* --- Overlay (dialog scrim, modal backdrops) ---------------------------- */
+  --overlay-scrim: 0 0 0;
+}
+
+:root[data-theme='sky-mist'] {
+  --color-background: 242 247 255;
+  --color-background-mid: 248 251 255;
+  --color-background-bottom: 232 241 252;
+  --color-cloud-a: 255 255 255;
+  --color-cloud-b: 247 251 255;
+
+  --color-surface: 255 255 255;
+  --color-surface-variant: 233 241 252;
+  --color-surface-container: 246 250 255;
+  --color-section: 237 245 255;
+  --color-section-strong: 222 236 252;
+
+  --color-primary: 108 164 228;
+  --color-primary-strong: 82 138 208;
+  --color-primary-soft: 221 233 249;
+  --color-on-primary: 247 251 255;
+
+  --color-on-surface: 20 43 69;
+  --color-on-surface-variant: 79 103 129;
+  --color-outline: 178 198 223;
+
+  --color-chip: 228 239 252;
+  --color-chip-border: 186 206 232;
+  --color-chip-text: 36 72 112;
+
+  --color-focus-ring: 136 181 232;
+  --color-nav: rgba(255, 255, 255, 0.9);
+
+  --color-success: 53 137 104;
+  --color-warning: 184 129 53;
+  --color-info: 71 132 196;
+
+  --color-tertiary-container: 255 244 228;
+  --color-on-tertiary-container: 118 76 24;
+
+  --color-quadrant-high-energy-high-pleasantness: #b5d8f8;
+  --color-quadrant-high-energy-high-pleasantness-border: #95c0e8;
+  --color-quadrant-high-energy-high-pleasantness-selected: #80b8ec;
+  --color-quadrant-high-energy-high-pleasantness-text: #143b66;
+  --color-quadrant-high-energy-low-pleasantness: #f4bfd2;
+  --color-quadrant-high-energy-low-pleasantness-border: #e0a9be;
+  --color-quadrant-high-energy-low-pleasantness-selected: #df9ab5;
+  --color-quadrant-high-energy-low-pleasantness-text: #6e2440;
+  --color-quadrant-low-energy-high-pleasantness: #cfe4f9;
+  --color-quadrant-low-energy-high-pleasantness-border: #b2cde8;
+  --color-quadrant-low-energy-high-pleasantness-selected: #9ec8eb;
+  --color-quadrant-low-energy-high-pleasantness-text: #1c3f6a;
+  --color-quadrant-low-energy-low-pleasantness: #d6c8e5;
+  --color-quadrant-low-energy-low-pleasantness-border: #beaed1;
+  --color-quadrant-low-energy-low-pleasantness-selected: #b69ccb;
+  --color-quadrant-low-energy-low-pleasantness-text: #3a1d52;
+
+  --neo-surface-base: 238 247 255;
+  --neo-surface-top: 246 251 255;
+  --neo-surface-bottom: 232 242 254;
+  --neo-shadow-light: 255 255 255;
+  --neo-shadow-dark: 150 178 212;
+  --neo-inset-light: 255 255 255;
+  --neo-inset-dark: 148 176 210;
+  --neo-border: 188 210 236;
+  --neo-text: 30 58 90;
+  --neo-muted: 92 118 148;
+  --neo-focus: 50 98 166;
+  --neo-accent-start: 132 178 232;
+  --neo-accent-end: 108 164 228;
+  --neo-accent-text: 255 255 255;
+
+  --neo-chart-primary-start: 132 178 232;
+  --neo-chart-primary-end: 108 164 228;
+
+  /* Status family adopts the slightly cooler tones of this theme */
+  --status-good: 53 137 104;
+  --status-warn: 184 129 53;
+  --status-bad: 194 82 97;
+
+  --insight-fear: 194 82 97;
+  --insight-need: 53 137 104;
+  --insight-intention: 82 138 208;
+  --insight-memory: 184 129 53;
+  --insight-belief: 155 110 195;
+}
+
+:root[data-theme='sunrise-cloud'] {
+  --color-background: 255 248 238;
+  --color-background-mid: 255 252 247;
+  --color-background-bottom: 255 236 210;
+  --color-cloud-a: 255 255 255;
+  --color-cloud-b: 255 245 230;
+
+  --color-surface: 255 253 249;
+  --color-surface-variant: 255 239 222;
+  --color-surface-container: 255 250 243;
+  --color-section: 255 243 226;
+  --color-section-strong: 255 230 203;
+
+  --color-primary: 112 158 218;
+  --color-primary-strong: 86 132 198;
+  --color-primary-soft: 229 238 249;
+  --color-on-primary: 247 251 255;
+
+  --color-on-surface: 72 56 45;
+  --color-on-surface-variant: 117 97 82;
+  --color-outline: 212 191 173;
+
+  --color-chip: 245 232 215;
+  --color-chip-border: 224 202 184;
+  --color-chip-text: 103 78 58;
+
+  --color-focus-ring: 160 191 231;
+  --color-nav: rgba(255, 253, 249, 0.92);
+
+  --color-success: 64 140 108;
+  --color-warning: 207 138 57;
+  --color-info: 107 147 198;
+
+  --color-tertiary-container: 255 236 206;
+  --color-on-tertiary-container: 124 78 21;
+
+  --color-quadrant-high-energy-high-pleasantness: #ffd9a8;
+  --color-quadrant-high-energy-high-pleasantness-border: #e8be86;
+  --color-quadrant-high-energy-high-pleasantness-selected: #ffc173;
+  --color-quadrant-high-energy-high-pleasantness-text: #5e3614;
+  --color-quadrant-high-energy-low-pleasantness: #ffc0b3;
+  --color-quadrant-high-energy-low-pleasantness-border: #e6a598;
+  --color-quadrant-high-energy-low-pleasantness-selected: #ff9f8b;
+  --color-quadrant-high-energy-low-pleasantness-text: #5e2014;
+  --color-quadrant-low-energy-high-pleasantness: #d8e6f8;
+  --color-quadrant-low-energy-high-pleasantness-border: #b8cbe3;
+  --color-quadrant-low-energy-high-pleasantness-selected: #afcaec;
+  --color-quadrant-low-energy-high-pleasantness-text: #1c3d62;
+  --color-quadrant-low-energy-low-pleasantness: #dcccdf;
+  --color-quadrant-low-energy-low-pleasantness-border: #c3b1ca;
+  --color-quadrant-low-energy-low-pleasantness-selected: #b99fc2;
+  --color-quadrant-low-energy-low-pleasantness-text: #3a2050;
+
+  --neo-surface-base: 252 244 235;
+  --neo-surface-top: 255 250 243;
+  --neo-surface-bottom: 248 237 226;
+  --neo-shadow-light: 255 255 252;
+  --neo-shadow-dark: 170 150 130;
+  --neo-inset-light: 255 255 250;
+  --neo-inset-dark: 168 148 128;
+  --neo-border: 210 192 176;
+  --neo-text: 76 58 46;
+  --neo-muted: 128 108 92;
+  --neo-focus: 89 121 165;
+  --neo-accent-start: 137 177 229;
+  --neo-accent-end: 112 158 218;
+  --neo-accent-text: 255 255 255;
+
+  --neo-chart-primary-start: 137 177 229;
+  --neo-chart-primary-end: 112 158 218;
+
+  /* Warmer tones for status and insight in sunrise-cloud */
+  --status-good: 64 140 108;
+  --status-warn: 207 138 57;
+  --status-bad: 200 95 100;
+
+  --insight-fear: 200 95 100;
+  --insight-need: 64 140 108;
+  --insight-intention: 86 132 198;
+  --insight-memory: 207 138 57;
+  --insight-belief: 155 110 195;
+}

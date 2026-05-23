@@ -209,7 +209,7 @@
                 @click="handleResponseMode('ai')"
               >
                 <div class="flex items-center gap-3">
-                  <AppIcon name="auto_awesome" class="text-xl text-amber-500 shrink-0" />
+                  <AppIcon name="auto_awesome" class="text-xl text-status-warn shrink-0" />
                   <div>
                     <span class="text-sm font-medium text-on-surface">Let AI generate a response</span>
                     <p class="text-xs text-on-surface-variant mt-0.5">Based on what you know about this part</p>

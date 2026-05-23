@@ -73,9 +73,9 @@ const iconSizeClass = computed(() => (props.size === 'sm' ? 'h-[18px] w-[18px]' 
     rgb(var(--neo-chart-primary-end))
   );
   box-shadow:
-    -2px -2px 5px rgb(255 255 255 / 0.6),
+    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6),
     2.5px 2.5px 6px rgb(var(--neo-chart-primary-end) / 0.42);
-  color: #fff;
+  color: rgb(var(--neo-accent-text));
 }
 
 .initiative-check--off {

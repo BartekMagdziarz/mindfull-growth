@@ -55,6 +55,7 @@ import type { LifeArea } from '@/domain/lifeArea'
 import AppCard from '@/components/AppCard.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import { useT } from '@/composables/useT'
+import { ratingPillClasses } from '@/utils/statusColor'
 
 const { t } = useT()
 
@@ -69,8 +70,6 @@ defineEmits<{
 
 const scoreClass = computed(() => {
   if (props.latestScore === undefined) return ''
-  if (props.latestScore >= 7) return 'bg-green-100 text-green-700'
-  if (props.latestScore >= 4) return 'bg-amber-100 text-amber-700'
-  return 'bg-red-100 text-red-700'
+  return ratingPillClasses(props.latestScore, { good: 7, warn: 4 })
 })
 </script>

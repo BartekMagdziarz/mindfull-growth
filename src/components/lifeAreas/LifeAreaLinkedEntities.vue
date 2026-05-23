@@ -123,8 +123,8 @@ const latestDelta = computed(() => {
 
 const deltaClass = computed(() => {
   if (latestDelta.value === null) return 'bg-section text-on-surface-variant'
-  if (latestDelta.value > 0) return 'bg-green-100 text-green-700'
-  if (latestDelta.value < 0) return 'bg-red-100 text-red-700'
+  if (latestDelta.value > 0) return 'bg-status-good-soft text-status-good-on'
+  if (latestDelta.value < 0) return 'bg-status-bad-soft text-status-bad-on'
   return 'bg-section text-on-surface-variant'
 })
 

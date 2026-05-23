@@ -60,7 +60,7 @@
           <!-- Boundary notice (permanent, not dismissible) -->
           <div class="neo-warning p-4 rounded-xl">
             <div class="flex items-start gap-3">
-              <AppIcon name="warning" class="text-xl text-amber-600 flex-shrink-0 mt-0.5" />
+              <AppIcon name="warning" class="text-xl text-status-warn-on flex-shrink-0 mt-0.5" />
               <div class="text-sm text-on-surface">
                 <p class="font-semibold mb-1">{{ t('exerciseWizards.paradoxicalIntention.intro.boundaryTitle') }}</p>
                 <p>
