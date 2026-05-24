@@ -349,7 +349,17 @@
       "exercises": "Ćwiczenia",
       "journalCaption": "dni z wpisem",
       "emotionsCaption": "dni z logiem",
-      "exercisesComing": "Wkrótce"
+      "exercisesComing": "Wkrótce",
+      "badgeEntries": "wpisów",
+      "badgeLogs": "logów",
+      "badgeWeeks": "tyg.",
+      "ariaWeeklyStreak": "Tygodnie z rzędu",
+      "ariaEntriesCount": "Liczba wpisów w 7 dniach",
+      "ariaLogsCount": "Liczba logów w 7 dniach",
+      "ariaEmotionsDonut": "Loguj emocje ({done} z {target})",
+      "ariaEmotionsDonutEmpty": "Dodaj pierwszy log emocji",
+      "ariaJournalDone": "Otwórz dzisiejszy wpis",
+      "ariaJournalEmpty": "Napisz wpis dzisiaj"
     }
   },
   "objects": {

@@ -39,12 +39,15 @@
           />
 
           <JournalStreakCard
-            :reference-date="wellnessReferenceDate"
-            :day-word-counts="journalDayWordCounts"
+            :state="journalState"
+            :entries7d="journalEntries7d"
+            :week-streak="journalWeekStreak"
           />
           <EmotionStreakCard
-            :reference-date="wellnessReferenceDate"
-            :day-emotion-data="dayEmotionData"
+            :target="DAILY_EMOTION_TARGET"
+            :logs="todayEmotionLogs"
+            :logs7d="emotionLogs7d"
+            :week-streak="emotionWeekStreak"
           />
           <ExerciseCard />
         </aside>
@@ -235,10 +238,12 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useTodayStore } from '@/stores/today.store'
 import { getQuadrant } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
-import type { DayEmotionSummary } from '@/utils/wellnessCalendar'
-import type { EmotionLog } from '@/domain/emotionLog'
+import type { EmotionDonutLog } from '@/components/today/EmotionStreakCard.vue'
 import type { DayRef } from '@/domain/period'
 import { getPeriodRefsForDate } from '@/utils/periods'
+import { computeWeeklyStreak, toLocalDateKey } from '@/utils/streaks'
+
+const DAILY_EMOTION_TARGET = 3
 
 const props = defineProps<{
   dayRef?: DayRef
@@ -271,35 +276,58 @@ const overviewGoalItems = computed<TodayItem[]>(() =>
   store.goalGroupedKrItems.flatMap((g) => g.items),
 )
 
-// Wellness panel data
+// Reference date the wellness cards calculate against (= visible bundle day).
 const wellnessReferenceDate = computed(() => {
   const [y, m, d] = bundleDayRef.value.split('-').map(Number)
   return new Date(y, m - 1, d)
 })
-const journalDayWordCounts = computed(() => {
-  const map = new Map<string, number>()
-  for (const entry of journalStore.entries) {
-    const key = entry.createdAt.slice(0, 10)
-    const words =
-      entry.body.split(/\s+/).filter(Boolean).length +
-      (entry.title ? entry.title.split(/\s+/).filter(Boolean).length : 0)
-    map.set(key, (map.get(key) ?? 0) + words)
+
+function lastSevenDayKeys(reference: Date): Set<string> {
+  const set = new Set<string>()
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(reference.getFullYear(), reference.getMonth(), reference.getDate() - i)
+    set.add(toLocalDateKey(d))
   }
-  return map
+  return set
+}
+
+// --- Dziennik / Journal card data ---------------------------------------
+const journalEntryDays = computed<Set<string>>(() => {
+  const set = new Set<string>()
+  for (const entry of journalStore.entries) {
+    set.add(entry.createdAt.slice(0, 10))
+  }
+  return set
 })
 
-const dayEmotionData = computed(() => {
-  const map = new Map<string, DayEmotionSummary>()
-  const logsByDay = new Map<string, EmotionLog[]>()
+const journalState = computed<'empty' | 'done'>(() =>
+  journalEntryDays.value.has(toLocalDateKey(wellnessReferenceDate.value)) ? 'done' : 'empty',
+)
 
-  for (const log of emotionLogStore.logs) {
-    const key = log.createdAt.slice(0, 10)
-    const existing = logsByDay.get(key) ?? []
-    existing.push(log)
-    logsByDay.set(key, existing)
+const journalEntries7d = computed(() => {
+  const window = lastSevenDayKeys(wellnessReferenceDate.value)
+  let count = 0
+  for (const entry of journalStore.entries) {
+    if (window.has(entry.createdAt.slice(0, 10))) count++
   }
+  return count
+})
 
-  for (const [dayKey, logs] of logsByDay) {
+const journalWeekStreak = computed(() =>
+  computeWeeklyStreak(
+    journalStore.entries.map((e) => e.createdAt),
+    wellnessReferenceDate.value,
+  ),
+)
+
+// --- Emocje / Emotions card data ----------------------------------------
+const todayEmotionLogs = computed<EmotionDonutLog[]>(() => {
+  const todayKey = toLocalDateKey(wellnessReferenceDate.value)
+  const logs = emotionLogStore.logs
+    .filter((l) => l.createdAt.slice(0, 10) === todayKey)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+
+  return logs.map((log) => {
     const counts: Record<Quadrant, number> = {
       'high-energy-high-pleasantness': 0,
       'high-energy-low-pleasantness': 0,
@@ -307,29 +335,42 @@ const dayEmotionData = computed(() => {
       'low-energy-low-pleasantness': 0,
     }
     let total = 0
-    for (const log of logs) {
-      for (const eid of log.emotionIds) {
-        const em = emotionStore.getEmotionById(eid)
-        if (em) {
-          counts[getQuadrant(em)]++
-          total++
-        }
+    for (const eid of log.emotionIds) {
+      const em = emotionStore.getEmotionById(eid)
+      if (em) {
+        counts[getQuadrant(em)]++
+        total++
       }
     }
-    const proportions: Record<Quadrant, number> =
-      total > 0
-        ? {
-            'high-energy-high-pleasantness': counts['high-energy-high-pleasantness'] / total,
-            'high-energy-low-pleasantness': counts['high-energy-low-pleasantness'] / total,
-            'low-energy-high-pleasantness': counts['low-energy-high-pleasantness'] / total,
-            'low-energy-low-pleasantness': counts['low-energy-low-pleasantness'] / total,
-          }
-        : counts
-    map.set(dayKey, { logCount: logs.length, quadrantProportions: proportions })
-  }
-
-  return map
+    if (total === 0) {
+      return { quadrants: {} }
+    }
+    return {
+      quadrants: {
+        'high-energy-high-pleasantness': counts['high-energy-high-pleasantness'] / total,
+        'high-energy-low-pleasantness': counts['high-energy-low-pleasantness'] / total,
+        'low-energy-high-pleasantness': counts['low-energy-high-pleasantness'] / total,
+        'low-energy-low-pleasantness': counts['low-energy-low-pleasantness'] / total,
+      },
+    }
+  })
 })
+
+const emotionLogs7d = computed(() => {
+  const window = lastSevenDayKeys(wellnessReferenceDate.value)
+  let count = 0
+  for (const log of emotionLogStore.logs) {
+    if (window.has(log.createdAt.slice(0, 10))) count++
+  }
+  return count
+})
+
+const emotionWeekStreak = computed(() =>
+  computeWeeklyStreak(
+    emotionLogStore.logs.map((l) => l.createdAt),
+    wellnessReferenceDate.value,
+  ),
+)
 
 onMounted(() => {
   void loadInitialBundle()

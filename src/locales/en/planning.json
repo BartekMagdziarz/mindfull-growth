@@ -349,7 +349,17 @@
       "exercises": "Exercises",
       "journalCaption": "days with entry",
       "emotionsCaption": "days with log",
-      "exercisesComing": "Coming soon"
+      "exercisesComing": "Coming soon",
+      "badgeEntries": "entries",
+      "badgeLogs": "logs",
+      "badgeWeeks": "wk",
+      "ariaWeeklyStreak": "Consecutive weeks",
+      "ariaEntriesCount": "Entries in the last 7 days",
+      "ariaLogsCount": "Logs in the last 7 days",
+      "ariaEmotionsDonut": "Log an emotion ({done} of {target})",
+      "ariaEmotionsDonutEmpty": "Log your first emotion of the day",
+      "ariaJournalDone": "Open today's entry",
+      "ariaJournalEmpty": "Write an entry today"
     }
   },
   "objects": {

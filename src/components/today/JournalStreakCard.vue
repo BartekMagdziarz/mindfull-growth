@@ -1,208 +1,275 @@
 <template>
-  <article
-    class="wellness-card neo-raised group flex flex-col gap-2 p-3 transition-shadow duration-200"
-    :class="expanded ? 'wellness-card--expanded' : ''"
-    @click="expanded = !expanded"
-  >
-    <!-- Header: title + add button -->
-    <div class="flex shrink-0 items-center justify-between">
+  <article class="dz-card neo-raised flex flex-col gap-[10px] p-3">
+    <header class="dz-card__head">
       <button
         type="button"
-        class="text-[11px] font-semibold uppercase tracking-[0.10em] text-on-surface-variant transition-colors duration-200 hover:text-primary"
-        @click.stop="router.push('/journal')"
+        class="dz-card__label"
+        @click="router.push('/journal')"
       >
         {{ t('planning.today.wellness.journal') }}
       </button>
       <button
+        v-if="state === 'done'"
         type="button"
-        class="wellness-add-btn neo-focus grid place-items-center"
+        class="dz-card__addbtn neo-focus"
         :aria-label="t('planning.calendar.wellness.newEntry')"
         @click.stop="router.push('/journal/edit')"
       >
-        <AppIcon name="add" class="text-xs text-on-surface-variant/60" />
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="dz-cta">
+      <button
+        type="button"
+        class="dz-slot neo-focus"
+        :class="state === 'done' ? 'dz-slot--filled' : 'dz-slot--empty'"
+        :aria-label="state === 'done'
+          ? t('planning.today.wellness.ariaJournalDone')
+          : t('planning.today.wellness.ariaJournalEmpty')"
+        @click="router.push('/journal/edit')"
+      >
+        <svg
+          v-if="state === 'done'"
+          width="32" height="32" viewBox="0 0 24 24"
+          fill="none" stroke="white" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12l5 5 9-11" />
+        </svg>
+        <svg
+          v-else
+          width="28" height="28" viewBox="0 0 24 24"
+          fill="none" stroke="rgb(var(--color-primary-strong))" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 21l3.5-1 11-11-2.5-2.5-11 11L3 21z" />
+          <path d="M14 6.5L17.5 10" />
+        </svg>
       </button>
     </div>
 
-    <!-- Donut + caption (collapsed) -->
-    <div
-      class="flex flex-col items-center justify-center gap-1.5 py-1"
-      :style="{
-        flex: expanded ? '0 0 auto' : '0 0 auto',
-        maxHeight: expanded ? '0px' : '240px',
-        opacity: expanded ? 0 : 1,
-        overflow: 'hidden',
-        pointerEvents: expanded ? 'none' : 'auto',
-        transition: 'max-height 0.35s ease, opacity 0.25s ease',
-      }"
-    >
-      <div class="relative" style="width: 96px; height: 96px">
-        <svg width="96" height="96" class="-rotate-90" aria-hidden="true">
-          <circle
-            cx="48" cy="48" r="42"
-            fill="none" stroke="rgb(var(--neo-border))" stroke-opacity="0.30" stroke-width="7"
-          />
-          <circle
-            cx="48" cy="48" r="42"
-            fill="none" stroke="rgb(var(--color-primary))" stroke-width="7"
-            :stroke-dasharray="DONUT_CIRC"
-            :stroke-dashoffset="donutOffset"
-            stroke-linecap="round"
-            style="transition: stroke-dashoffset 0.4s ease"
-          />
-        </svg>
-        <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span class="text-[20px] font-semibold leading-none tracking-tight text-on-surface">
-            {{ daysLogged }}/{{ totalDays }}
-          </span>
-        </div>
+    <div class="streak-badges">
+      <div
+        class="streak-badge streak-badge--count"
+        :class="{ 'streak-badge--zero': entries7d === 0 }"
+        :title="t('planning.today.wellness.ariaEntriesCount')"
+        role="status"
+        :aria-label="`${entries7d} ${t('planning.today.wellness.badgeEntries')}`"
+      >
+        <span class="streak-badge__num streak-badge__num--big">{{ entries7d }}</span>
+        <span class="streak-badge__lbl">{{ t('planning.today.wellness.badgeEntries') }}</span>
       </div>
-      <span class="text-[11px] text-on-surface-variant/70">
-        {{ t('planning.today.wellness.journalCaption') }}
-      </span>
-    </div>
 
-    <!-- Bars (expanded) -->
-    <div
-      :style="{
-        maxHeight: expanded ? '300px' : '0',
-        opacity: expanded ? 1 : 0,
-        overflow: 'hidden',
-        pointerEvents: expanded ? 'auto' : 'none',
-        transition: 'max-height 0.4s ease, opacity 0.3s ease 0.05s',
-      }"
-      @click.stop
-    >
-      <div class="flex flex-col gap-[3px] py-1">
-        <div
-          v-for="slot in orderedSlots"
-          :key="slot.dateKey"
-          class="flex h-5 items-center gap-2"
-        >
-          <span
-            class="w-5 shrink-0 text-right text-[9px] leading-none"
-            :class="slot.isToday ? 'font-bold text-on-surface' : 'text-on-surface-variant/50'"
-          >
-            {{ slot.isToday ? t('planning.calendar.wellness.todayShort') : slot.dayLabel }}
+      <div
+        class="streak-badge streak-badge--streak"
+        :class="{ 'streak-badge--zero': weekStreak === 0 }"
+        :title="t('planning.today.wellness.ariaWeeklyStreak')"
+        role="status"
+        :aria-label="`${weekStreak} ${t('planning.today.wellness.badgeWeeks')}`"
+      >
+        <div class="streak-badge__row">
+          <span class="streak-badge__icon streak-badge__icon--big">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3c1 4 5 5 5 10a5 5 0 1 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3-1-3 0-6 1-9z" />
+            </svg>
           </span>
-          <div
-            class="h-[11px] flex-1 overflow-hidden rounded-full"
-            style="background: rgb(var(--neo-border)/0.15)"
-          >
-            <div
-              v-if="!slot.isFuture && (slot.wordCount ?? 0) > 0"
-              class="h-full rounded-full"
-              :style="{
-                width: `${((slot.wordCount ?? 0) / Math.max(maxWords, 1)) * 100}%`,
-                background: 'rgb(var(--color-primary))',
-                opacity: slot.isToday ? 1 : 0.65,
-                transition: 'width 0.5s ease',
-              }"
-            />
-          </div>
+          <span class="streak-badge__num">{{ weekStreak }}</span>
         </div>
+        <span class="streak-badge__lbl">{{ t('planning.today.wellness.badgeWeeks') }}</span>
       </div>
-    </div>
-
-    <!-- Expand affordance -->
-    <div
-      class="flex shrink-0 justify-center transition-opacity duration-200"
-      :class="expanded ? 'opacity-50' : 'opacity-0 group-hover:opacity-40'"
-    >
-      <AppIcon
-        name="expand_more"
-        class="text-[14px] text-on-surface-variant transition-transform duration-300"
-        :class="expanded ? 'rotate-180' : ''"
-      />
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import { buildRecentDays } from '@/utils/wellnessCalendar'
-import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
-const props = defineProps<{
-  referenceDate: Date
-  dayWordCounts: Map<string, number>
+defineProps<{
+  state: 'empty' | 'done'
+  entries7d: number
+  weekStreak: number
 }>()
 
 const router = useRouter()
 const { t } = useT()
-const prefsStore = useUserPreferencesStore()
-
-const expanded = ref(false)
-
-const locale = computed(() => prefsStore.locale ?? 'en')
-const recentDays = computed(() => buildRecentDays(props.referenceDate, 7, locale.value))
-
-interface JournalSlot {
-  dateKey: string
-  dayLabel: string
-  isToday: boolean
-  isFuture: boolean
-  wordCount: number | null
-}
-
-const slots = computed<JournalSlot[]>(() =>
-  recentDays.value.map((s) => ({
-    dateKey: s.dateKey,
-    dayLabel: s.dayLabel,
-    isToday: s.isToday,
-    isFuture: s.isFuture,
-    wordCount: s.isFuture ? null : props.dayWordCounts.get(s.dateKey) ?? 0,
-  })),
-)
-
-const orderedSlots = computed<JournalSlot[]>(() => {
-  const list = slots.value
-  const todayIdx = list.findIndex((s) => s.isToday)
-  if (todayIdx < 0) return list
-  return [...list.slice(todayIdx), ...list.slice(0, todayIdx)]
-})
-
-const daysLogged = computed(
-  () => slots.value.filter((s) => !s.isFuture && (s.wordCount ?? 0) > 0).length,
-)
-const totalDays = computed(() => slots.value.length)
-
-const maxWords = computed(() => {
-  const values = slots.value
-    .map((s) => s.wordCount ?? 0)
-    .filter((v) => v > 0)
-  return values.length > 0 ? Math.max(...values) : 1
-})
-
-const DONUT_CIRC = 2 * Math.PI * 42
-const donutOffset = computed(() => {
-  const ratio = totalDays.value > 0 ? Math.min(daysLogged.value / totalDays.value, 1) : 0
-  return DONUT_CIRC * (1 - ratio)
-})
 </script>
 
 <style scoped>
-.wellness-card {
+.dz-card {
   border-radius: 1.4rem;
-  cursor: pointer;
-  user-select: none;
 }
 
-.wellness-add-btn {
-  width: 22px;
+.dz-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   height: 22px;
+}
+
+.dz-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgb(var(--neo-muted));
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+.dz-card__label:hover {
+  color: rgb(var(--color-primary));
+}
+
+.dz-card__addbtn {
+  width: 24px;
+  height: 24px;
   border-radius: 9999px;
   background: rgb(var(--neo-surface-base));
   box-shadow:
     inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.8),
     inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.33);
-  opacity: 0.7;
-  transition: opacity 200ms ease;
+  display: grid;
+  place-items: center;
+  color: rgb(var(--neo-muted) / 0.8);
+  opacity: 0.85;
+  transition: opacity 200ms ease, color 200ms ease;
+  border: none;
+  cursor: pointer;
+}
+.dz-card__addbtn:hover {
+  opacity: 1;
+  color: rgb(var(--color-primary-strong));
 }
 
-.wellness-add-btn:hover {
-  opacity: 1;
+.dz-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0 2px;
+}
+
+.dz-slot {
+  width: 88px;
+  height: 88px;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, background 200ms ease;
+}
+
+.dz-slot--empty {
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
+  border: 1px dashed rgb(var(--color-primary) / 0.55);
+  box-shadow:
+    -5px -5px 10px rgb(var(--neo-shadow-light) / 0.85),
+    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.30);
+  color: rgb(var(--color-primary-strong));
+}
+.dz-slot--empty:hover {
+  border-color: rgb(var(--color-primary));
+  transform: translateY(-1px);
+  box-shadow:
+    -6px -6px 12px rgb(var(--neo-shadow-light) / 0.9),
+    6px 6px 12px rgb(var(--neo-shadow-dark) / 0.34);
+}
+
+.dz-slot--filled {
+  background: linear-gradient(145deg, rgb(var(--color-primary)), rgb(var(--color-primary-strong)));
+  border: 1px solid rgb(var(--color-primary-strong) / 0.45);
+  box-shadow:
+    -5px -5px 10px rgb(var(--neo-shadow-light) / 0.7),
+    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.25);
+  color: white;
+}
+.dz-slot--filled:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    -6px -6px 12px rgb(var(--neo-shadow-light) / 0.75),
+    6px 6px 12px rgb(var(--neo-shadow-dark) / 0.38),
+    inset 0 1px 0 rgb(255 255 255 / 0.3);
+}
+.dz-slot:active {
+  transform: translateY(0);
+}
+
+.streak-badges {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 2px;
+  margin-top: auto;
+}
+
+.streak-badge {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
+  box-shadow:
+    -2px -2px 4px rgb(var(--neo-shadow-light) / 0.85),
+    2px 2px 4px rgb(var(--neo-shadow-dark) / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 0.35);
+  border: 1px solid rgb(var(--neo-border) / 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  flex: 0 0 auto;
+  transition: opacity 200ms ease;
+}
+.streak-badge--zero { opacity: 0.45; }
+
+.streak-badge__row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 1;
+}
+
+.streak-badge__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.streak-badge__icon--big {
+  width: 22px;
+  height: 22px;
+  color: rgb(217 119 6);
+}
+
+.streak-badge__num {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgb(var(--neo-text));
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.streak-badge__num--big {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+}
+
+.streak-badge__lbl {
+  font-size: 7.5px;
+  font-weight: 500;
+  color: rgb(var(--neo-muted));
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  line-height: 1;
+  margin-top: 1px;
 }
 </style>
