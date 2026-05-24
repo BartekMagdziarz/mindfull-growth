@@ -1,10 +1,45 @@
 {
+  "tabs": {
+    "account": "Konto",
+    "preferences": "Preferencje",
+    "lifeAreas": "Obszary życia",
+    "psychProfile": "Profil psych.",
+    "aiAssistant": "Asystent AI"
+  },
+  "headerStrip": {
+    "fallbackEmail": "—"
+  },
   "account": {
-    "title": "Konto"
+    "title": "Konto",
+    "sectionLabel": "Dane konta",
+    "fields": {
+      "name": "Nazwa",
+      "username": "Nazwa użytkownika",
+      "email": "E-mail",
+      "createdAt": "Konto utworzone",
+      "unknownCreatedAt": "—"
+    },
+    "activity": {
+      "title": "Aktywność",
+      "summary": "{streak} dni passy z rzędu · {entries} wpisy w dzienniku",
+      "cta": "Zobacz statystyki"
+    },
+    "security": {
+      "title": "Bezpieczeństwo i dane",
+      "changePassword": "Zmień hasło",
+      "exportData": "Eksport danych",
+      "deleteAccount": "Usuń konto",
+      "comingSoon": "Funkcja w przygotowaniu."
+    }
   },
   "lifeAreas": {
     "title": "Obszary życia",
-    "description": "Zdefiniuj i zarządzaj kluczowymi wymiarami swojego życia."
+    "description": "Zdefiniuj i zarządzaj kluczowymi wymiarami swojego życia.",
+    "tabDescription": "Zdefiniuj i zarządzaj kluczowymi wymiarami swojego życia. Każdy wpis w dzienniku przypisujesz do obszaru.",
+    "areasDefined": "{n} zdefiniowanych obszarów",
+    "recentlyAdded": "ostatnio dodany: {name}",
+    "noAreas": "Nie masz jeszcze zdefiniowanych obszarów.",
+    "entriesCount": "{n} wpisów"
   },
   "appearance": {
     "title": "Wygląd",
@@ -44,6 +79,11 @@
     "lastBuiltAt": "Ostatnio zbudowany {at}",
     "notBuiltYet": "Profil nie został jeszcze zbudowany.",
     "open": "Otwórz",
+    "rebuild": "Przebuduj",
+    "preview": {
+      "title": "Podgląd cech",
+      "emptyState": "Zbuduj profil, aby zobaczyć podgląd cech."
+    },
     "currentVersion": "Aktualna wersja",
     "buildNew": "Zbuduj nowy profil",
     "wizardComingSoon": "Kreator profilu pojawi się w kolejnej historii.",
@@ -328,7 +368,10 @@
     "apiKeyHint": "Klucze API są przechowywane lokalnie w przeglądarce. Klucze OpenAI utworzysz na",
     "apiKeyHintLink": "stronie OpenAI",
     "saved": "Ustawienia providera AI zostały zapisane.",
-    "saveFailed": "Nie udało się zapisać ustawień providera AI. Spróbuj ponownie."
+    "saveFailed": "Nie udało się zapisać ustawień providera AI. Spróbuj ponownie.",
+    "testConnection": "Testuj",
+    "statusConnected": "Połączony",
+    "statusNotConfigured": "Nieskonfigurowany"
   },
   "feedback": {
     "themeUpdated": "Motyw zaktualizowany.",

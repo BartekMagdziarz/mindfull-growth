@@ -1,10 +1,45 @@
 {
+  "tabs": {
+    "account": "Account",
+    "preferences": "Preferences",
+    "lifeAreas": "Life areas",
+    "psychProfile": "Psych. profile",
+    "aiAssistant": "AI assistant"
+  },
+  "headerStrip": {
+    "fallbackEmail": "—"
+  },
   "account": {
-    "title": "Account"
+    "title": "Account",
+    "sectionLabel": "Account details",
+    "fields": {
+      "name": "Name",
+      "username": "Username",
+      "email": "Email",
+      "createdAt": "Account created",
+      "unknownCreatedAt": "—"
+    },
+    "activity": {
+      "title": "Activity",
+      "summary": "{streak}-day streak · {entries} journal entries",
+      "cta": "View statistics"
+    },
+    "security": {
+      "title": "Security & data",
+      "changePassword": "Change password",
+      "exportData": "Export data",
+      "deleteAccount": "Delete account",
+      "comingSoon": "Coming soon."
+    }
   },
   "lifeAreas": {
     "title": "Life Areas",
-    "description": "Define and manage the key dimensions of your life."
+    "description": "Define and manage the key dimensions of your life.",
+    "tabDescription": "Define and manage the key dimensions of your life. Each journal entry is assigned to an area.",
+    "areasDefined": "{n} areas defined",
+    "recentlyAdded": "recently added: {name}",
+    "noAreas": "You have no life areas defined yet.",
+    "entriesCount": "{n} entries"
   },
   "appearance": {
     "title": "Appearance",
@@ -44,6 +79,11 @@
     "lastBuiltAt": "Last built {at}",
     "notBuiltYet": "No profile built yet.",
     "open": "Open",
+    "rebuild": "Rebuild",
+    "preview": {
+      "title": "Trait preview",
+      "emptyState": "Build a profile to see trait preview."
+    },
     "currentVersion": "Current version",
     "buildNew": "Build new profile",
     "wizardComingSoon": "Profile building wizard is coming in a follow-up story.",
@@ -328,7 +368,10 @@
     "apiKeyHint": "API keys are stored locally in your browser. OpenAI keys can be created on",
     "apiKeyHintLink": "OpenAI's website",
     "saved": "AI provider settings saved.",
-    "saveFailed": "Failed to save AI provider settings. Please try again."
+    "saveFailed": "Failed to save AI provider settings. Please try again.",
+    "testConnection": "Test",
+    "statusConnected": "Connected",
+    "statusNotConfigured": "Not configured"
   },
   "feedback": {
     "themeUpdated": "Theme updated.",

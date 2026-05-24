@@ -1,257 +1,86 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
-    <!-- Account Section -->
-    <AppCard>
-      <h2 class="text-2xl font-semibold text-on-surface mb-4">{{ t('profile.account.title') }}</h2>
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-on-surface font-medium">
-            {{ displayName || username }}
-          </p>
-          <p v-if="displayName" class="text-sm text-on-surface-variant">
-            @{{ username }}
-          </p>
+  <div class="profile-shell mx-auto px-4 py-6">
+    <!-- Slim ID strip -->
+    <header class="id-strip">
+      <span
+        class="avatar-bubble"
+        aria-hidden="true"
+        :style="{ width: '42px', height: '42px', fontSize: '18px' }"
+      >{{ avatarInitial }}</span>
+      <div class="flex-1 min-w-0">
+        <div
+          class="text-base font-bold truncate"
+          style="color: rgb(var(--neo-text))"
+        >{{ displayName || username || '—' }}</div>
+        <div
+          class="text-[12px] truncate"
+          style="color: rgb(var(--neo-muted))"
+        >
+          <span v-if="username">@{{ username }}</span>
+          <span v-if="username"> · </span>
+          <span>{{ t('profile.headerStrip.fallbackEmail') }}</span>
         </div>
-        <AppButton variant="outlined" @click="handleLogout">
-          {{ t('common.buttons.signOut') }}
-        </AppButton>
       </div>
-    </AppCard>
-
-    <!-- Life Areas Link -->
-    <AppCard class="mt-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-xl font-semibold text-on-surface">{{ t('profile.lifeAreas.title') }}</h3>
-          <p class="text-sm text-on-surface-variant">
-            {{ t('profile.lifeAreas.description') }}
-          </p>
-        </div>
-        <AppButton variant="outlined" @click="router.push('/areas')">
-          {{ t('common.buttons.manage') }}
-        </AppButton>
-      </div>
-    </AppCard>
-
-    <!-- Appearance Section -->
-    <AppCard class="mt-6">
-      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.appearance.title') }}</h3>
-      <p class="text-sm text-on-surface-variant mb-4">
-        {{ t('profile.appearance.description') }}
-      </p>
-
-      <div>
-        <label for="themePreference" class="block text-sm font-medium text-on-surface mb-2">
-          {{ t('profile.appearance.colorTheme') }}
-        </label>
-        <select
-          id="themePreference"
-          v-model="themePreference"
-          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
-          @change="handleThemePreferenceChange"
-        >
-          <option value="current">{{ t('profile.appearance.themes.current') }}</option>
-          <option value="sky-mist">{{ t('profile.appearance.themes.skyMist') }}</option>
-          <option value="sunrise-cloud">{{ t('profile.appearance.themes.sunriseCloud') }}</option>
-        </select>
-        <p class="mt-2 text-sm text-on-surface-variant">
-          {{ t('profile.appearance.themeHint') }}
-        </p>
-      </div>
-    </AppCard>
-
-    <!-- Language Section -->
-    <AppCard class="mt-6">
-      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.language.title') }}</h3>
-      <p class="text-sm text-on-surface-variant mb-4">
-        {{ t('profile.language.description') }}
-      </p>
-
-      <div>
-        <label for="languagePreference" class="block text-sm font-medium text-on-surface mb-2">
-          {{ t('profile.language.label') }}
-        </label>
-        <select
-          id="languagePreference"
-          v-model="languagePreference"
-          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
-          @change="handleLanguagePreferenceChange"
-        >
-          <option value="en">{{ t('profile.language.locales.en') }}</option>
-          <option value="pl">{{ t('profile.language.locales.pl') }}</option>
-        </select>
-        <p class="mt-2 text-sm text-on-surface-variant">
-          {{ t('profile.language.hint') }}
-        </p>
-      </div>
-    </AppCard>
-
-    <!-- Grammatical Gender Section -->
-    <AppCard class="mt-6">
-      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.gender.title') }}</h3>
-      <p class="text-sm text-on-surface-variant mb-4">
-        {{ t('profile.gender.description') }}
-      </p>
-
-      <div>
-        <label for="genderPreference" class="block text-sm font-medium text-on-surface mb-2">
-          {{ t('profile.gender.label') }}
-        </label>
-        <select
-          id="genderPreference"
-          v-model="genderPreference"
-          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
-          @change="handleGenderPreferenceChange"
-        >
-          <option value="masculine">{{ t('profile.gender.options.masculine') }}</option>
-          <option value="feminine">{{ t('profile.gender.options.feminine') }}</option>
-        </select>
-        <p class="mt-2 text-sm text-on-surface-variant">
-          {{ t('profile.gender.hint') }}
-        </p>
-      </div>
-    </AppCard>
-
-    <!-- Psychological Profile Section -->
-    <AppCard class="mt-6" padding="lg" variant="raised">
-      <div class="flex items-center justify-between gap-4">
-        <div class="min-w-0">
-          <h3 class="text-xl font-semibold text-on-surface">
-            {{ t('profile.psychologicalProfile.title') }}
-          </h3>
-          <p class="text-sm text-on-surface-variant mt-1">
-            {{ t('profile.psychologicalProfile.shortDescription') }}
-          </p>
-          <p v-if="lastBuiltLabel" class="text-xs text-on-surface-variant mt-2">
-            {{ t('profile.psychologicalProfile.lastBuiltAt', { at: lastBuiltLabel }) }}
-          </p>
-          <p v-else class="text-xs text-on-surface-variant mt-2">
-            {{ t('profile.psychologicalProfile.notBuiltYet') }}
-          </p>
-        </div>
-        <AppButton variant="filled" @click="goToPsychologicalProfile">
-          {{ t('profile.psychologicalProfile.open') }}
-        </AppButton>
-      </div>
-    </AppCard>
-
-    <!-- AI Settings Section -->
-    <AppCard id="ai-settings" class="mt-6">
-      <h3 class="text-xl font-semibold text-on-surface mb-2">{{ t('profile.aiSettings.title') }}</h3>
-      <p class="text-sm text-on-surface-variant mb-4">
-        {{ t('profile.aiSettings.description') }}
-      </p>
-
-      <!-- Provider Select -->
-      <div class="mb-4">
-        <label for="aiProvider" class="block text-sm font-medium text-on-surface mb-2">
-          {{ t('profile.aiSettings.providerLabel') }}
-        </label>
-        <select
-          id="aiProvider"
-          v-model="aiProvider"
-          class="w-full px-4 py-3 rounded-xl border-2 border-outline/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-focus transition-colors"
-          @change="handleProviderChange"
-        >
-          <option value="openai">{{ t('profile.aiSettings.providers.openai') }}</option>
-          <option value="ollama">{{ t('profile.aiSettings.providers.ollama') }}</option>
-          <option value="mlx">{{ t('profile.aiSettings.providers.mlx') }}</option>
-          <option value="custom">{{ t('profile.aiSettings.providers.custom') }}</option>
-        </select>
-      </div>
-
-      <!-- Base URL Input -->
-      <div class="mb-4">
-        <label for="baseUrl" class="block text-sm font-medium text-on-surface mb-2">
-          {{ t('profile.aiSettings.baseUrlLabel') }}
-        </label>
-        <input
-          id="baseUrl"
-          v-model="baseUrl"
-          type="url"
-          :placeholder="t('profile.aiSettings.baseUrlPlaceholder')"
-          :class="[
-            'w-full px-4 py-3 rounded-xl border-2 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors',
-            baseUrlError
-              ? 'border-error focus:ring-error'
-              : 'border-outline/30 focus:ring-focus'
-          ]"
-          @input="validateAISettings"
-        />
-        <p v-if="baseUrlError" class="mt-2 text-sm text-error">
-          {{ baseUrlError }}
-        </p>
-      </div>
-
-      <!-- Model Input -->
-      <div class="mb-4">
-        <label for="aiModel" class="block text-sm font-medium text-on-surface mb-2">
-          {{ t('profile.aiSettings.modelLabel') }}
-        </label>
-        <input
-          id="aiModel"
-          v-model="aiModel"
-          type="text"
-          :placeholder="t('profile.aiSettings.modelPlaceholder')"
-          :class="[
-            'w-full px-4 py-3 rounded-xl border-2 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors',
-            modelError
-              ? 'border-error focus:ring-error'
-              : 'border-outline/30 focus:ring-focus'
-          ]"
-          @input="validateAISettings"
-        />
-        <p v-if="modelError" class="mt-2 text-sm text-error">
-          {{ modelError }}
-        </p>
-      </div>
-
-      <!-- API Key Input -->
-      <div class="mb-6">
-        <label for="apiKey" class="block text-sm font-medium text-on-surface mb-2">
-          {{ t('profile.aiSettings.apiKeyLabel') }}
-        </label>
-        <input
-          id="apiKey"
-          v-model="apiKey"
-          type="password"
-          :placeholder="t('profile.aiSettings.apiKeyPlaceholder')"
-          :class="[
-            'w-full px-4 py-3 rounded-xl border-2 bg-surface text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-focus transition-colors',
-            apiKeyError
-              ? 'border-error focus:ring-error'
-              : 'border-outline/30 focus:ring-focus'
-          ]"
-          @input="validateAISettings"
-        />
-        <p v-if="apiKeyError" class="mt-2 text-sm text-error">
-          {{ apiKeyError }}
-        </p>
-        <p v-else class="mt-2 text-sm text-on-surface-variant">
-          {{ t('profile.aiSettings.apiKeyHint') }}
-          <a
-            href="https://platform.openai.com/api-keys"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-primary hover:underline"
-          >
-            {{ t('profile.aiSettings.apiKeyHintLink') }}
-          </a>.
-        </p>
-      </div>
-
-      <!-- Save Button -->
-      <AppButton
-        variant="filled"
-        :disabled="!canSave"
-        @click="handleSave"
+      <button
+        type="button"
+        class="neo-pill px-3 py-2 text-[12px] font-semibold gap-[6px]"
+        @click="handleLogout"
       >
-        <span v-if="isSaving">{{ t('common.saving') }}</span>
-        <span v-else>{{ t('common.buttons.save') }}</span>
-      </AppButton>
-    </AppCard>
+        <span class="material-symbols-outlined text-[16px]">logout</span>
+        {{ t('common.buttons.signOut') }}
+      </button>
+    </header>
 
-    <!-- Dev-only: Chart test data seed -->
+    <!-- Segmented tab switcher -->
+    <nav
+      class="neo-segmented w-full mb-[14px]"
+      role="tablist"
+      :aria-label="t('profile.account.title')"
+    >
+      <button
+        v-for="tab in tabs"
+        :key="tab.id"
+        :id="`profile-tab-${tab.id}`"
+        type="button"
+        role="tab"
+        class="neo-segmented__item flex-1 text-[12px] sm:text-[13px]"
+        :class="{ 'neo-segmented__item--active': activeTab === tab.id }"
+        :aria-selected="activeTab === tab.id"
+        :aria-controls="`profile-panel-${tab.id}`"
+        :tabindex="activeTab === tab.id ? 0 : -1"
+        @click="setActiveTab(tab.id)"
+      >
+        {{ t(tab.labelKey) }}
+      </button>
+    </nav>
+
+    <!-- Active panel -->
+    <div
+      :id="`profile-panel-${activeTab}`"
+      role="tabpanel"
+      :aria-labelledby="`profile-tab-${activeTab}`"
+    >
+      <ProfileTabAccount
+        v-if="activeTab === 'account'"
+        :show-snackbar="showSnackbar"
+      />
+      <ProfileTabPreferences
+        v-else-if="activeTab === 'preferences'"
+        :show-snackbar="showSnackbar"
+      />
+      <ProfileTabLifeAreas
+        v-else-if="activeTab === 'lifeAreas'"
+      />
+      <ProfileTabPsychProfile
+        v-else-if="activeTab === 'psychProfile'"
+      />
+      <ProfileTabAIAssistant
+        v-else-if="activeTab === 'ai'"
+        :show-snackbar="showSnackbar"
+      />
+    </div>
+
+    <!-- Dev-only: Chart test data seed (kept outside tabs to avoid noise) -->
     <AppCard v-if="isDev" class="mt-6 border-2 border-dashed border-outline/30">
       <h3 class="text-xl font-semibold text-on-surface mb-1">🛠 Dev: Chart test data</h3>
       <p class="text-sm text-on-surface-variant mb-4">
@@ -268,55 +97,96 @@
       </div>
     </AppCard>
 
-    <!-- Snackbar for feedback -->
+    <!-- Snackbar lives at shell level so it survives tab switches -->
     <AppSnackbar ref="snackbarRef" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
-import { seedChartTestData, deleteChartTestData } from '@/dev/chartTestSeed'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
-import {
-  AI_PROVIDER_PRESETS,
-  AI_PROVIDER_SETTINGS_KEY,
-  LEGACY_OPENAI_API_KEY,
-  type AIProviderId,
-  type AIProviderSettings,
-} from '@/services/llmService'
+import ProfileTabAccount from '@/components/profile/ProfileTabAccount.vue'
+import ProfileTabPreferences from '@/components/profile/ProfileTabPreferences.vue'
+import ProfileTabLifeAreas from '@/components/profile/ProfileTabLifeAreas.vue'
+import ProfileTabPsychProfile from '@/components/profile/ProfileTabPsychProfile.vue'
+import ProfileTabAIAssistant from '@/components/profile/ProfileTabAIAssistant.vue'
+import { useAuthStore } from '@/stores/auth.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useUserProfileStore } from '@/stores/userProfile.store'
-import { useAuthStore } from '@/stores/auth.store'
-import { applyTheme, type ThemeId } from '@/services/theme.service'
-import type { LocaleId, GrammaticalGender } from '@/services/locale.service'
 import { useT } from '@/composables/useT'
+import { seedChartTestData, deleteChartTestData } from '@/dev/chartTestSeed'
 
-const { t, locale } = useT()
+type TabId = 'account' | 'preferences' | 'lifeAreas' | 'psychProfile' | 'ai'
+
+const { t } = useT()
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 const userPreferencesStore = useUserPreferencesStore()
 const userProfileStore = useUserProfileStore()
-const authStore = useAuthStore()
 
-const username = computed(() => authStore.user?.username || '')
-const displayName = computed(() => authStore.user?.displayName || '')
+const tabs: Array<{ id: TabId; labelKey: string }> = [
+  { id: 'account',       labelKey: 'profile.tabs.account' },
+  { id: 'preferences',   labelKey: 'profile.tabs.preferences' },
+  { id: 'lifeAreas',     labelKey: 'profile.tabs.lifeAreas' },
+  { id: 'psychProfile',  labelKey: 'profile.tabs.psychProfile' },
+  { id: 'ai',            labelKey: 'profile.tabs.aiAssistant' },
+]
 
-const aiProvider = ref<AIProviderId>('openai')
-const baseUrl = ref(AI_PROVIDER_PRESETS.openai.baseUrl)
-const aiModel = ref(AI_PROVIDER_PRESETS.openai.model)
-const apiKey = ref('')
-const themePreference = ref<ThemeId>('current')
-const languagePreference = ref<LocaleId>('en')
-const genderPreference = ref<GrammaticalGender>('masculine')
-const baseUrlError = ref('')
-const modelError = ref('')
-const apiKeyError = ref('')
-const isSaving = ref(false)
+// Map URL hash → tab id. Mirrors the contract of the old single-page
+// view (`#ai-settings`) so existing links into the AI section keep working.
+const HASH_TO_TAB: Record<string, TabId> = {
+  account: 'account',
+  preferences: 'preferences',
+  appearance: 'preferences',
+  language: 'preferences',
+  'life-areas': 'lifeAreas',
+  lifeareas: 'lifeAreas',
+  psychological: 'psychProfile',
+  'psych-profile': 'psychProfile',
+  'ai-settings': 'ai',
+  ai: 'ai',
+}
+
+function resolveTabFromHash(hash: string): TabId | null {
+  const trimmed = hash.startsWith('#') ? hash.slice(1) : hash
+  if (!trimmed) return null
+  return HASH_TO_TAB[trimmed] ?? null
+}
+
+const activeTab = ref<TabId>(resolveTabFromHash(route.hash) ?? 'preferences')
+
+function setActiveTab(next: TabId) {
+  activeTab.value = next
+}
+
+watch(
+  () => route.hash,
+  (next) => {
+    const tab = resolveTabFromHash(next)
+    if (tab) activeTab.value = tab
+  },
+)
+
+const username = computed(() => authStore.user?.username ?? '')
+const displayName = computed(() => authStore.user?.displayName ?? '')
+const avatarInitial = computed(() => {
+  const source = displayName.value || username.value
+  return source ? source.charAt(0).toUpperCase() : '?'
+})
+
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
+function showSnackbar(message: string) {
+  snackbarRef.value?.show(message)
+}
+
+async function handleLogout() {
+  await authStore.logout()
+  router.push('/login')
+}
 
 const isDev = import.meta.env.DEV
 const seedBusy = ref(false)
@@ -325,10 +195,10 @@ async function handleSeed() {
   seedBusy.value = true
   try {
     await seedChartTestData()
-    snackbarRef.value?.show('Chart test data seeded ✅')
+    showSnackbar('Chart test data seeded ✅')
   } catch (e) {
     console.error(e)
-    snackbarRef.value?.show('Seeding failed — check console')
+    showSnackbar('Seeding failed — check console')
   } finally {
     seedBusy.value = false
   }
@@ -338,250 +208,57 @@ async function handleUnseed() {
   seedBusy.value = true
   try {
     await deleteChartTestData()
-    snackbarRef.value?.show('Seeded data deleted ✅')
+    showSnackbar('Seeded data deleted ✅')
   } catch (e) {
     console.error(e)
-    snackbarRef.value?.show('Delete failed — check console')
+    showSnackbar('Delete failed — check console')
   } finally {
     seedBusy.value = false
   }
 }
 
-const canSave = computed(() => {
-  return (
-    aiProvider.value &&
-    baseUrl.value.trim().length > 0 &&
-    aiModel.value.trim().length > 0 &&
-    (aiProvider.value !== 'openai' || apiKey.value.trim().length > 0) &&
-    !baseUrlError.value &&
-    !modelError.value &&
-    !apiKeyError.value &&
-    !isSaving.value
-  )
-})
-
-function isAIProviderId(value: unknown): value is AIProviderId {
-  return (
-    value === 'openai' ||
-    value === 'ollama' ||
-    value === 'mlx' ||
-    value === 'custom'
-  )
-}
-
-function parseStoredAISettings(raw: string): AIProviderSettings | null {
-  try {
-    const parsed = JSON.parse(raw) as Partial<AIProviderSettings>
-    if (
-      !isAIProviderId(parsed.provider) ||
-      typeof parsed.baseUrl !== 'string' ||
-      typeof parsed.model !== 'string'
-    ) {
-      return null
-    }
-    return {
-      provider: parsed.provider,
-      baseUrl: parsed.baseUrl,
-      model: parsed.model,
-      ...(typeof parsed.apiKey === 'string' ? { apiKey: parsed.apiKey } : {}),
-    }
-  } catch {
-    return null
-  }
-}
-
-function applyAISettings(settings: AIProviderSettings) {
-  aiProvider.value = settings.provider
-  baseUrl.value = settings.baseUrl
-  aiModel.value = settings.model
-  apiKey.value = settings.apiKey ?? ''
-  validateAISettings()
-}
-
-function validateAISettings() {
-  baseUrlError.value =
-    baseUrl.value.trim().length === 0
-      ? t('profile.aiSettings.baseUrlError')
-      : ''
-  modelError.value =
-    aiModel.value.trim().length === 0
-      ? t('profile.aiSettings.modelError')
-      : ''
-  apiKeyError.value =
-    aiProvider.value === 'openai' && apiKey.value.trim().length === 0
-      ? t('profile.aiSettings.apiKeyRequiredError')
-      : ''
-}
-
-function handleProviderChange() {
-  if (aiProvider.value === 'custom') {
-    if (!baseUrl.value.trim()) baseUrl.value = AI_PROVIDER_PRESETS.mlx.baseUrl
-    validateAISettings()
-    return
-  }
-
-  const preset = AI_PROVIDER_PRESETS[aiProvider.value]
-  baseUrl.value = preset.baseUrl
-  aiModel.value = preset.model
-  validateAISettings()
-}
-
-async function handleSave() {
-  if (!canSave.value) {
-    return
-  }
-
-  isSaving.value = true
-  try {
-    const settings: AIProviderSettings = {
-      provider: aiProvider.value,
-      baseUrl: baseUrl.value.trim(),
-      model: aiModel.value.trim(),
-      ...(apiKey.value.trim() ? { apiKey: apiKey.value.trim() } : {}),
-    }
-    await userSettingsDexieRepository.set(
-      AI_PROVIDER_SETTINGS_KEY,
-      JSON.stringify(settings),
-    )
-    if (settings.provider === 'openai' && settings.apiKey) {
-      await userSettingsDexieRepository.set(
-        LEGACY_OPENAI_API_KEY,
-        settings.apiKey,
-      )
-    }
-    snackbarRef.value?.show(t('profile.aiSettings.saved'))
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : t('profile.aiSettings.saveFailed')
-    snackbarRef.value?.show(errorMessage)
-    console.error('Error saving AI provider settings:', error)
-  } finally {
-    isSaving.value = false
-  }
-}
-
-async function handleThemePreferenceChange() {
-  const nextTheme = themePreference.value
-  const previousTheme = userPreferencesStore.themePreference
-
-  // Apply immediately for live preview, then persist.
-  applyTheme(nextTheme)
-
-  try {
-    await userPreferencesStore.setThemePreference(nextTheme)
-    snackbarRef.value?.show(t('profile.feedback.themeUpdated'))
-  } catch (error) {
-    console.error('Error saving theme preference:', error)
-    themePreference.value = previousTheme
-    applyTheme(previousTheme)
-    snackbarRef.value?.show(t('profile.feedback.failedToSave'))
-  }
-}
-
-async function handleLanguagePreferenceChange() {
-  try {
-    await userPreferencesStore.setLocale(languagePreference.value)
-    snackbarRef.value?.show(t('profile.feedback.languageUpdated'))
-  } catch (error) {
-    console.error('Error saving language preference:', error)
-    snackbarRef.value?.show(t('profile.feedback.failedToSave'))
-  }
-}
-
-async function handleGenderPreferenceChange() {
-  try {
-    await userPreferencesStore.setGrammaticalGender(genderPreference.value)
-    snackbarRef.value?.show(t('profile.feedback.genderUpdated'))
-  } catch (error) {
-    console.error('Error saving gender preference:', error)
-    snackbarRef.value?.show(t('profile.feedback.failedToSave'))
-  }
-}
-
-async function handleLogout() {
-  await authStore.logout()
-  router.push('/login')
-}
-
-const lastBuiltLabel = computed(() => {
-  const latest = userProfileStore.currentProfile
-  if (!latest) return ''
-  try {
-    return new Intl.DateTimeFormat(locale.value, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(latest.createdAt))
-  } catch {
-    return latest.createdAt
-  }
-})
-
-function goToPsychologicalProfile() {
-  router.push({ name: 'profile-psychological' })
-}
-
-// Load existing settings on mount
 onMounted(async () => {
   try {
-    // Load AI provider settings, falling back to the legacy OpenAI key.
-    const existingSettings = await userSettingsDexieRepository.get(
-      AI_PROVIDER_SETTINGS_KEY,
-    )
-    const parsedSettings = existingSettings
-      ? parseStoredAISettings(existingSettings)
-      : null
-    if (parsedSettings) {
-      applyAISettings(parsedSettings)
-    } else {
-      const existingKey = await userSettingsDexieRepository.get(
-        LEGACY_OPENAI_API_KEY,
-      )
-      applyAISettings({
-        ...AI_PROVIDER_PRESETS.openai,
-        ...(existingKey ? { apiKey: existingKey } : {}),
-      })
-    }
-
-    // Load user preferences
     await userPreferencesStore.loadPreferences()
-    themePreference.value = userPreferencesStore.themePreference
-    languagePreference.value = userPreferencesStore.locale
-    genderPreference.value = userPreferencesStore.grammaticalGender
   } catch (error) {
-    console.error('Error loading settings:', error)
-    // Don't show error to user on load - just log it
+    console.error('Error loading user preferences:', error)
   }
 
-  // Load psychological profiles for the "last built" label on the entry card.
   try {
     await userProfileStore.loadProfiles()
   } catch (error) {
     console.error('Error loading psychological profiles:', error)
   }
-
-  // Handle an initial hash (e.g. arrived via `{ name: 'profile', hash: '#ai-settings' }`).
-  // The router in this project has no custom scrollBehavior, so we do it ourselves.
-  if (route.hash) {
-    await scrollToHash(route.hash)
-  }
 })
+</script>
 
-async function scrollToHash(hash: string): Promise<void> {
-  const id = hash.startsWith('#') ? hash.slice(1) : hash
-  if (!id) return
-  // Wait a tick so any freshly-mounted anchor targets are in the DOM.
-  await nextTick()
-  const el = document.getElementById(id)
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+<style scoped>
+.profile-shell {
+  max-width: 880px;
 }
 
-// React to subsequent hash changes (e.g. coming back from the build wizard).
-watch(
-  () => route.hash,
-  async (next) => {
-    if (next) await scrollToHash(next)
-  },
-)
-</script>
+.id-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 8px 16px;
+}
+
+.avatar-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--neo-surface-top)),
+    rgb(var(--neo-surface-bottom))
+  );
+  box-shadow:
+    -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
+    4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);
+  color: rgb(var(--neo-focus));
+  font-weight: 700;
+}
+</style>

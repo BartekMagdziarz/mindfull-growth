@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { render, screen, waitFor, within } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import ProfileView from '../ProfileView.vue'
 import { mockConsoleError } from '@/test/utils/console'
@@ -61,7 +61,20 @@ function savedAISettings(): AIProviderSettings {
   return JSON.parse(call[1]) as AIProviderSettings
 }
 
-describe('ProfileView', () => {
+async function switchToAITab() {
+  const user = userEvent.setup()
+  const tab = await screen.findByRole('tab', { name: 'AI assistant' })
+  await user.click(tab)
+  // The tab swap is synchronous but onMounted in the freshly mounted tab
+  // component runs an async settings load — wait for it to settle so the
+  // inputs reflect the persisted values before the test assertions run.
+  await waitFor(() => {
+    expect(screen.getByLabelText('AI provider')).toBeInTheDocument()
+  })
+  return user
+}
+
+describe('ProfileView (shell)', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     document.documentElement.removeAttribute('data-theme')
@@ -69,25 +82,50 @@ describe('ProfileView', () => {
     vi.mocked(repo.set).mockResolvedValue(undefined)
   })
 
-  it('renders the profile view with AI provider settings fields', () => {
+  it('renders the five segmented tabs with Preferences as the default panel', () => {
     render(ProfileView)
 
-    expect(screen.getByText('Account')).toBeInTheDocument()
-    expect(screen.getByText('Life Areas')).toBeInTheDocument()
-    expect(screen.getByText('Appearance')).toBeInTheDocument()
-    expect(screen.getByText('Language')).toBeInTheDocument()
-    expect(screen.getByText('AI Settings')).toBeInTheDocument()
-    expect(screen.queryByText('Daily Habits')).not.toBeInTheDocument()
-    expect(screen.queryByText('Developer Tools')).not.toBeInTheDocument()
-    expect(screen.getByLabelText('AI provider')).toBeInTheDocument()
-    expect(screen.getByLabelText('Base URL')).toBeInTheDocument()
-    expect(screen.getByLabelText('Model')).toBeInTheDocument()
-    expect(screen.getByLabelText('API key')).toBeInTheDocument()
-    expect(screen.getByLabelText('Color theme')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Account' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Preferences' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Life areas' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Psych. profile' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'AI assistant' })).toBeInTheDocument()
+
+    // Default tab is Preferences — theme picker should be visible.
+    expect(screen.getByRole('tab', { name: 'Preferences' }))
+      .toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByText('Color theme')).toBeInTheDocument()
   })
 
-  it('loads saved theme preference on mount', async () => {
+  it('exposes a sign-out button in the ID strip', () => {
+    render(ProfileView)
+    expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument()
+  })
+
+  it('switches to the Account tab and shows account fields + security actions', async () => {
+    const user = userEvent.setup()
+    render(ProfileView)
+
+    await user.click(screen.getByRole('tab', { name: 'Account' }))
+
+    expect(screen.getByText('Account details')).toBeInTheDocument()
+    expect(screen.getByText('Activity')).toBeInTheDocument()
+    expect(screen.getByText('Security & data')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /change password/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /export data/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /delete account/i })).toBeInTheDocument()
+  })
+})
+
+describe('ProfileView › Preferences tab', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    document.documentElement.removeAttribute('data-theme')
+    const repo = await mockStoredSettings()
+    vi.mocked(repo.set).mockResolvedValue(undefined)
+  })
+
+  it('reflects the persisted theme preference on mount', async () => {
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
@@ -100,12 +138,12 @@ describe('ProfileView', () => {
     render(ProfileView)
 
     await waitFor(() => {
-      const select = screen.getByLabelText('Color theme') as HTMLSelectElement
-      expect(select.value).toBe('sunrise-cloud')
+      const sunriseCard = screen.getByRole('button', { name: 'Sunrise Cloud' })
+      expect(sunriseCard).toHaveAttribute('aria-pressed', 'true')
     })
   })
 
-  it('applies and persists theme preference when changed', async () => {
+  it('applies and persists the theme when a theme card is clicked', async () => {
     const user = userEvent.setup()
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
@@ -113,8 +151,7 @@ describe('ProfileView', () => {
 
     render(ProfileView)
 
-    const select = screen.getByLabelText('Color theme')
-    await user.selectOptions(select, 'sky-mist')
+    await user.click(screen.getByRole('button', { name: 'Sky Mist' }))
 
     await waitFor(() => {
       expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
@@ -124,11 +161,32 @@ describe('ProfileView', () => {
     })
     expect(document.documentElement.getAttribute('data-theme')).toBe('sky-mist')
   })
+})
+
+describe('ProfileView › AI assistant tab', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    document.documentElement.removeAttribute('data-theme')
+    const repo = await mockStoredSettings()
+    vi.mocked(repo.set).mockResolvedValue(undefined)
+  })
+
+  it('renders AI provider settings fields after switching to the tab', async () => {
+    render(ProfileView)
+    await switchToAITab()
+
+    expect(screen.getByLabelText('AI provider')).toBeInTheDocument()
+    expect(screen.getByLabelText('Base URL')).toBeInTheDocument()
+    expect(screen.getByLabelText('Model')).toBeInTheDocument()
+    expect(screen.getByLabelText('API key')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+  })
 
   it('loads an existing legacy OpenAI API key on mount', async () => {
     await mockStoredSettings(undefined, 'sk-test123456789')
 
     render(ProfileView)
+    await switchToAITab()
 
     await waitFor(() => {
       expect((screen.getByLabelText('AI provider') as HTMLSelectElement).value).toBe(
@@ -146,12 +204,12 @@ describe('ProfileView', () => {
     })
   })
 
-  it('saves OpenAI settings under aiProviderSettings and legacy key', async () => {
-    const user = userEvent.setup()
+  it('saves OpenAI settings under aiProviderSettings and the legacy key', async () => {
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.type(screen.getByLabelText('API key'), 'sk-test123456789')
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -172,6 +230,7 @@ describe('ProfileView', () => {
 
   it('requires API key for OpenAI', async () => {
     render(ProfileView)
+    await switchToAITab()
 
     const saveButton = screen.getByRole('button', { name: 'Save' })
     expect(saveButton).toBeDisabled()
@@ -179,11 +238,11 @@ describe('ProfileView', () => {
   })
 
   it('does not require API key for Ollama and applies its preset', async () => {
-    const user = userEvent.setup()
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.selectOptions(screen.getByLabelText('AI provider'), 'ollama')
 
@@ -212,8 +271,8 @@ describe('ProfileView', () => {
   })
 
   it('does not require API key for MLX and applies its preset', async () => {
-    const user = userEvent.setup()
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.selectOptions(screen.getByLabelText('AI provider'), 'mlx')
 
@@ -228,8 +287,8 @@ describe('ProfileView', () => {
   })
 
   it('reapplies the OpenAI preset when OpenAI is selected', async () => {
-    const user = userEvent.setup()
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.selectOptions(screen.getByLabelText('AI provider'), 'ollama')
     await user.selectOptions(screen.getByLabelText('AI provider'), 'openai')
@@ -243,8 +302,8 @@ describe('ProfileView', () => {
   })
 
   it('requires baseUrl and model for custom providers', async () => {
-    const user = userEvent.setup()
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.selectOptions(screen.getByLabelText('AI provider'), 'custom')
     await user.clear(screen.getByLabelText('Base URL'))
@@ -258,8 +317,8 @@ describe('ProfileView', () => {
   })
 
   it('does not validate local provider keys with an sk- prefix rule', async () => {
-    const user = userEvent.setup()
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.selectOptions(screen.getByLabelText('AI provider'), 'ollama')
     await user.type(screen.getByLabelText('API key'), 'not-an-openai-key')
@@ -269,8 +328,8 @@ describe('ProfileView', () => {
   })
 
   it('trims baseUrl, model, and apiKey before saving', async () => {
-    const user = userEvent.setup()
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.selectOptions(screen.getByLabelText('AI provider'), 'custom')
     await user.clear(screen.getByLabelText('Base URL'))
@@ -291,7 +350,6 @@ describe('ProfileView', () => {
   })
 
   it('shows loading state while saving', async () => {
-    const user = userEvent.setup()
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
     )
@@ -300,6 +358,7 @@ describe('ProfileView', () => {
     )
 
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.type(screen.getByLabelText('API key'), 'sk-test123456789')
     const saveButton = screen.getByRole('button', { name: 'Save' })
@@ -314,7 +373,6 @@ describe('ProfileView', () => {
   })
 
   it('handles save error gracefully', async () => {
-    const user = userEvent.setup()
     const consoleError = mockConsoleError()
     const { userSettingsDexieRepository } = await import(
       '@/repositories/userSettingsDexieRepository'
@@ -324,6 +382,7 @@ describe('ProfileView', () => {
     )
 
     render(ProfileView)
+    const user = await switchToAITab()
 
     await user.type(screen.getByLabelText('API key'), 'sk-test123456789')
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -338,12 +397,20 @@ describe('ProfileView', () => {
     consoleError.mockRestore()
   })
 
-  it('displays help text with OpenAI link', () => {
+  it('displays help text with OpenAI link once the API key field is valid', async () => {
     render(ProfileView)
+    const user = await switchToAITab()
 
-    expect(screen.getByText(/API keys are stored locally/)).toBeInTheDocument()
+    // The hint takes the slot of the validation error, so fill in a valid key
+    // first so the error clears and the hint can render.
+    await user.type(screen.getByLabelText('API key'), 'sk-test123456789')
 
-    const link = screen.getByRole('link', { name: "OpenAI's website" })
+    await waitFor(() => {
+      expect(screen.getByText(/API keys are stored locally/)).toBeInTheDocument()
+    })
+
+    const aiPanel = screen.getByRole('tabpanel')
+    const link = within(aiPanel).getByRole('link', { name: "OpenAI's website" })
     expect(link).toBeInTheDocument()
     expect(link).toHaveAttribute('href', 'https://platform.openai.com/api-keys')
     expect(link).toHaveAttribute('target', '_blank')
