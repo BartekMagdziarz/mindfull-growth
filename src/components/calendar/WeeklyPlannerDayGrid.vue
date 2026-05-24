@@ -149,8 +149,8 @@ function dayCellClass(day: PlannerWeekDay): string {
   const isPast = day.dayRef < todayRef
 
   if (isAssigned) return 'shadow-neu-raised-sm bg-primary/7'
-  if (isAssigning) return 'shadow-neu-raised-sm hover:shadow-neu-raised'
-  return isPast ? 'shadow-neu-pressed-sm opacity-60' : 'shadow-neu-raised-sm'
+  if (isAssigning) return 'shadow-neu-raised-sm hover:shadow-neu-raised bg-gradient-to-br from-neu-top to-neu-bottom'
+  return isPast ? 'shadow-neu-pressed-sm opacity-60' : 'shadow-neu-raised-sm bg-gradient-to-br from-neu-top to-neu-bottom'
 }
 
 </script>

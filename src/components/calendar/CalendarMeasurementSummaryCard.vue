@@ -1,6 +1,6 @@
 <template>
   <article
-    class="neo-card neo-raised cursor-pointer border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-2.5 transition-shadow hover:shadow-neu-raised-lg"
+    class="neo-card neo-raised cursor-pointer border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-2.5 transition-shadow hover:shadow-neu-raised-lg"
     @click="$emit('click')"
   >
     <div class="space-y-1">

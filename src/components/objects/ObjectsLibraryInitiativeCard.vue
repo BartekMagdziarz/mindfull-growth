@@ -1,6 +1,6 @@
 <template>
   <article
-    class="group/card neo-card neo-raised border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3"
+    class="group/card neo-card neo-raised border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3"
   >
     <div class="space-y-2">
       <!-- Row 1: Icon + Title + [hover: menu] + Status -->

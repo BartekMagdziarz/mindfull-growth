@@ -224,7 +224,7 @@
           <article
             v-for="priority in activePriorities"
             :key="priority.id"
-            class="neo-card border-primary/10 bg-gradient-to-br from-primary-soft/50 via-white/75 to-section/45 p-3.5"
+            class="neo-card border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3.5"
           >
             <div class="space-y-3">
               <div class="flex items-center gap-2">

@@ -1,5 +1,5 @@
 <template>
-  <section class="neo-card neo-card--composer border-primary/10 bg-gradient-to-br from-primary-soft/45 via-white/75 to-section/50 p-3 md:p-3.5">
+  <section class="neo-card neo-card--composer border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3 md:p-3.5">
     <div class="border-b border-white/45 pb-2">
       <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div class="space-y-2">

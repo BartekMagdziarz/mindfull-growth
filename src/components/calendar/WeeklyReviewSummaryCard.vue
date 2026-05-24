@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-3 rounded-2xl bg-neu-top p-4 shadow-neu-raised-sm">
+  <div class="flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-neu-top to-neu-bottom p-4 shadow-neu-raised-sm">
     <div class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0">
         <div

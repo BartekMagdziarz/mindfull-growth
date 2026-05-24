@@ -3,7 +3,7 @@
     padding="lg"
     variant="raised-strong"
     :class="[
-      'h-full border-primary/10 bg-gradient-to-br from-primary-soft/70 via-white/50 to-section/70 transition-all duration-200',
+      'h-full border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom transition-all duration-200',
       interactive ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-neu-raised group' : '',
     ]"
     @click="handleClick"
