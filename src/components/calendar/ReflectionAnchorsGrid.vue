@@ -23,15 +23,15 @@
           <div
             v-for="(line, idx) in getLines(cat.key)"
             :key="idx"
-            class="flex items-center gap-1.5"
+            class="flex items-start gap-1.5"
           >
-            <span class="shrink-0 text-xs text-on-surface-variant">&#x2022;</span>
-            <input
-              :ref="(el) => setLineRef(cat.key, idx, el as HTMLInputElement | null)"
-              type="text"
+            <span class="shrink-0 pt-1 text-xs text-on-surface-variant">&#x2022;</span>
+            <textarea
+              :ref="(el) => setLineRef(cat.key, idx, el as HTMLTextAreaElement | null)"
               :value="line"
-              class="neo-input h-7 w-full rounded-lg px-2 text-sm text-on-surface"
-              @input="updateLine(cat.key, idx, ($event.target as HTMLInputElement).value)"
+              rows="1"
+              class="neo-input block w-full resize-none rounded-lg px-2 py-1 text-sm leading-snug text-on-surface"
+              @input="updateLine(cat.key, idx, ($event.target as HTMLTextAreaElement).value)"
               @keydown.enter.prevent="addLine(cat.key)"
             />
           </div>
@@ -79,13 +79,13 @@ const emit = defineEmits<{
 }>()
 
 const expandedKeys = reactive(new Set<string>())
-const lineRefs = new Map<string, HTMLInputElement>()
+const lineRefs = new Map<string, HTMLTextAreaElement>()
 
 function lineRefKey(catKey: string, idx: number): string {
   return `${catKey}-${idx}`
 }
 
-function setLineRef(catKey: string, idx: number, el: HTMLInputElement | null) {
+function setLineRef(catKey: string, idx: number, el: HTMLTextAreaElement | null) {
   const k = lineRefKey(catKey, idx)
   if (el) lineRefs.set(k, el)
   else lineRefs.delete(k)
