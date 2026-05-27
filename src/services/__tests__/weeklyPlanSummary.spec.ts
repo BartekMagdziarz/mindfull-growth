@@ -185,10 +185,10 @@ describe('buildWeeklyPlanSummary', () => {
       makeEntry('t-1', '2026-03-09'),
       makeEntry('t-1', '2026-03-10'),
       makeEntry('t-1', '2026-03-11'),
-      makeEntry('t-1', '2026-03-12', null), // null = not filled
+      makeEntry('t-1', '2026-03-12', null), // completion toggle — also counts as filled
     ]
     const summary = buildWeeklyPlanSummary([tracker], entries, weekRef)
-    expect(summary.trackers).toEqual({ total: 1, assignedDays: 7, filledDays: 3 })
+    expect(summary.trackers).toEqual({ total: 1, assignedDays: 7, filledDays: 4 })
   })
 
   it('uses scheduledDayRefs as denominator for specific-days trackers', () => {
@@ -233,14 +233,16 @@ describe('buildWeeklyPlanSummary', () => {
     expect(summary.trackers).toEqual({ total: 2, assignedDays: 7 + 2, filledDays: 2 + 1 })
   })
 
-  it('ignores entries with null value when counting filled days for trackers', () => {
+  it('counts entries regardless of stored value — completion toggles use null', () => {
+    // toggleTodayCompletion writes `value: null` for completion-mode subjects,
+    // so the absence of a number must NOT exclude an entry from the fill count.
     const tracker = trackerItem({ scheduleScope: 'whole-week', scheduledDayRefs: [] }, 't-1')
     const entries = [
       makeEntry('t-1', '2026-03-09', null),
       makeEntry('t-1', '2026-03-10', 4),
     ]
     const summary = buildWeeklyPlanSummary([tracker], entries, weekRef)
-    expect(summary.trackers.filledDays).toBe(1)
+    expect(summary.trackers.filledDays).toBe(2)
   })
 
   it('mixes object types in a single bundle', () => {

@@ -70,12 +70,14 @@ export function buildMonthlyPlanSummary(
       const tracker = item.subject as Tracker
       const scope = item.planning.scheduleScope
 
+      // Existence of an entry == filled. `value: null` is the canonical shape
+      // for completion-mode toggles (see toggleTodayCompletion), so filtering
+      // by `value !== null` would drop those legitimate fills.
       if (tracker.cadence === 'monthly') {
         trackers.total += 1
         const hasEntry = rawEntries.some(
           (entry) =>
             entry.subjectId === tracker.id &&
-            entry.value !== null &&
             getPeriodRefsForDate(entry.dayRef).month === monthRef,
         )
         if (hasEntry) trackers.met += 1
@@ -89,7 +91,6 @@ export function buildMonthlyPlanSummary(
           const hasEntry = rawEntries.some(
             (entry) =>
               entry.subjectId === tracker.id &&
-              entry.value !== null &&
               getPeriodRefsForDate(entry.dayRef).week === weekRef,
           )
           if (hasEntry) trackers.met += 1
@@ -103,7 +104,6 @@ export function buildMonthlyPlanSummary(
           const hasEntry = rawEntries.some(
             (entry) =>
               entry.subjectId === tracker.id &&
-              entry.value !== null &&
               scheduledSet.has(entry.dayRef),
           )
           if (hasEntry) trackers.met += 1

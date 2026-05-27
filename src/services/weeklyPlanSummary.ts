@@ -50,10 +50,12 @@ export function buildWeeklyPlanSummary(
 
       if (scope === 'whole-week') {
         trackers.assignedDays += DAYS_IN_WEEK
+        // Existence of an entry == filled. `value: null` is the canonical shape
+        // for completion-mode toggles (see toggleTodayCompletion), so filtering
+        // by `value !== null` would drop those legitimate fills.
         const filled = rawEntries.filter(
           entry =>
             entry.subjectId === item.subject.id &&
-            entry.value !== null &&
             getPeriodRefsForDate(entry.dayRef).week === weekRef,
         ).length
         trackers.filledDays += Math.min(filled, DAYS_IN_WEEK)
@@ -63,7 +65,6 @@ export function buildWeeklyPlanSummary(
         const filled = rawEntries.filter(
           entry =>
             entry.subjectId === item.subject.id &&
-            entry.value !== null &&
             expectedDayRefs.has(entry.dayRef),
         ).length
         trackers.filledDays += filled
