@@ -128,7 +128,7 @@ const weekday = computed(() => {
   height: 40px;
   padding: 4px 8px;
   border-radius: 14px;
-  border: 1px solid rgb(var(--neo-border) / 0.35);
+  border: 1px solid rgb(var(--neo-border) / 0.14);
   background: linear-gradient(
     145deg,
     rgb(var(--neo-surface-top)),

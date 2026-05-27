@@ -69,10 +69,10 @@
                   class="text-xl flex-shrink-0"
                 />
                 <div class="flex flex-col items-start">
-                  <span class="text-sm font-semibold leading-snug">
+                  <span class="text-sm font-medium leading-snug">
                     {{ quadrant.energyLabel }}
                   </span>
-                  <span class="text-sm font-semibold leading-snug">
+                  <span class="text-sm font-medium leading-snug">
                     {{ quadrant.pleasantnessLabel }}
                   </span>
                 </div>
@@ -159,7 +159,12 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useT } from '@/composables/useT'
 import type { Quadrant, Emotion } from '@/domain/emotion'
-import { getQuadrant, getQuadrantDisplayConfig, QUADRANTS_IN_ORDER } from '@/domain/emotion'
+import {
+  getQuadrant,
+  getQuadrantChipStyle,
+  getQuadrantDisplayConfig,
+  QUADRANTS_IN_ORDER,
+} from '@/domain/emotion'
 import { useEmotionStore } from '@/stores/emotion.store'
 import AppIcon from '@/components/shared/AppIcon.vue'
 
@@ -192,42 +197,41 @@ const quadrants = computed(() =>
   QUADRANTS_IN_ORDER.map((value) => getQuadrantDisplayConfig(value, t))
 )
 
+// Style map for the four quadrant buttons and emotion cells.
+// Selected chips/cells reuse the same gradient as unselected (top→bottom) and
+// signal "active" via a colored border + inset shadow rather than a saturated
+// fill — the deeper `-selected` token still exists but is now reserved for
+// accent roles (borders/dots), not for button backgrounds.
 const quadrantButtonStyles: Record<
   Quadrant,
   {
-    backgroundColor: string
+    backgroundGradient: string
     borderColor: string
-    activeBackgroundColor: string
-    selectedBackgroundColor: string
     textColor: string
   }
 > = {
   'high-energy-high-pleasantness': {
-    backgroundColor: 'var(--color-quadrant-high-energy-high-pleasantness)',
+    backgroundGradient:
+      'linear-gradient(145deg, var(--color-quadrant-high-energy-high-pleasantness-top), var(--color-quadrant-high-energy-high-pleasantness-bottom))',
     borderColor: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
-    activeBackgroundColor: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
-    selectedBackgroundColor: 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
     textColor: 'var(--color-quadrant-high-energy-high-pleasantness-text)',
   },
   'high-energy-low-pleasantness': {
-    backgroundColor: 'var(--color-quadrant-high-energy-low-pleasantness)',
+    backgroundGradient:
+      'linear-gradient(145deg, var(--color-quadrant-high-energy-low-pleasantness-top), var(--color-quadrant-high-energy-low-pleasantness-bottom))',
     borderColor: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
-    activeBackgroundColor: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
-    selectedBackgroundColor: 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
     textColor: 'var(--color-quadrant-high-energy-low-pleasantness-text)',
   },
   'low-energy-high-pleasantness': {
-    backgroundColor: 'var(--color-quadrant-low-energy-high-pleasantness)',
+    backgroundGradient:
+      'linear-gradient(145deg, var(--color-quadrant-low-energy-high-pleasantness-top), var(--color-quadrant-low-energy-high-pleasantness-bottom))',
     borderColor: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
-    activeBackgroundColor: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
-    selectedBackgroundColor: 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
     textColor: 'var(--color-quadrant-low-energy-high-pleasantness-text)',
   },
   'low-energy-low-pleasantness': {
-    backgroundColor: 'var(--color-quadrant-low-energy-low-pleasantness)',
+    backgroundGradient:
+      'linear-gradient(145deg, var(--color-quadrant-low-energy-low-pleasantness-top), var(--color-quadrant-low-energy-low-pleasantness-bottom))',
     borderColor: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
-    activeBackgroundColor: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
-    selectedBackgroundColor: 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
     textColor: 'var(--color-quadrant-low-energy-low-pleasantness-text)',
   },
 }
@@ -299,7 +303,7 @@ function getQuadrantButtonClasses(): string {
 function getQuadrantButtonStyle(quadrant: Quadrant): Record<string, string> {
   const styles = quadrantButtonStyles[quadrant]
   if (!styles) return {}
-  return { backgroundColor: styles.backgroundColor, color: styles.textColor }
+  return { background: styles.backgroundGradient, color: styles.textColor }
 }
 
 function getEmotionCellClasses(emotionId: string): string {
@@ -320,10 +324,15 @@ function getEmotionCellInlineStyle(
   if (!quadrantModel.value) return base
   const styles = quadrantButtonStyles[quadrantModel.value]
   if (!styles) return base
-  base.backgroundColor = isEmotionSelected(emotionId)
-    ? styles.selectedBackgroundColor
-    : styles.backgroundColor
+  // Selected and unselected cells share the same gradient — selection is
+  // signaled by the colored border (set below) plus the inset shadow defined
+  // in `.emotion-cell--selected`. Avoids the saturated single-color fill that
+  // previously made selected cells read as disconnected from the muted palette.
+  base.background = styles.backgroundGradient
   base.color = styles.textColor
+  if (isEmotionSelected(emotionId)) {
+    base.borderColor = styles.borderColor
+  }
   return base
 }
 
@@ -346,14 +355,7 @@ function getQuadrantLabel(quadrant: Quadrant | null): string {
 function getEmotionChipStyle(emotionId: string): Record<string, string> {
   const emotion = emotionStore.getEmotionById(emotionId)
   if (!emotion) return {}
-  const quadrant = getQuadrant(emotion)
-  const styles = quadrantButtonStyles[quadrant]
-  if (!styles) return {}
-  return {
-    backgroundColor: styles.selectedBackgroundColor,
-    border: `1.5px solid ${styles.borderColor}`,
-    color: styles.textColor,
-  }
+  return getQuadrantChipStyle(getQuadrant(emotion))
 }
 
 function syncQuadrantFromSelection(ids: string[]) {
@@ -487,7 +489,7 @@ onMounted(async () => {
   overflow: hidden;
   min-height: 40px;
   color: rgb(var(--color-on-surface));
-  border: 1px solid rgb(var(--neo-border) / 0.2);
+  border: 1px solid rgb(var(--neo-border) / 0.12);
   box-shadow:
     -3px -3px 6px rgb(var(--neo-shadow-light) / 0.7),
     3px 3px 6px rgb(var(--neo-shadow-dark) / 0.25);
@@ -507,53 +509,57 @@ onMounted(async () => {
 
 .emotion-cell:hover:not(.emotion-cell--selected) {
   transform: translateY(-1px);
+  filter: brightness(1.04);
   box-shadow:
     -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
     4px 4px 8px rgb(var(--neo-shadow-dark) / 0.3);
 }
 
+/*
+ * Selected cell: the colored border is applied inline by
+ * `getEmotionCellInlineStyle` using the quadrant's `-border` token; the inset
+ * shadow below adds the "pressed in" neumorphic signal. Font weight stays at
+ * the base 500 — selection no longer thickens the label.
+ */
 .emotion-cell--selected {
-  font-weight: 600;
-  border-color: rgb(var(--neo-border) / 0.35);
   box-shadow:
     inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.7),
     inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.25);
   transform: translateY(0);
 }
 
+/*
+ * Chip border-radius + transition only. Background, color, and box-shadow are
+ * driven by the inline style from `getQuadrantChipStyle` so every chip in the
+ * app (EmotionSelector + view headers + ReflectionReviewPanel) shares one
+ * visual recipe.
+ */
 .neo-emotion-chip {
-  border: 1px solid rgb(var(--neo-border) / 0.25);
-  box-shadow:
-    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.7),
-    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.25);
+  border: none;
 }
 
 .neo-emotion-chip:hover {
   transform: translateY(-1px);
-  box-shadow:
-    -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
-    4px 4px 8px rgb(var(--neo-shadow-dark) / 0.3);
+  filter: brightness(1.04);
 }
 
 .neo-emotion-chip:active {
   transform: translateY(0);
-  box-shadow:
-    inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.7),
-    inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.25);
+  filter: brightness(0.98);
 }
 
 .neo-quadrant-btn {
-  border: 1px solid rgb(var(--neo-border) / 0.25);
+  border: 1px solid rgb(var(--neo-border) / 0.10);
   box-shadow:
-    -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
-    4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);
+    -7px -7px 14px rgb(var(--neo-shadow-light) / 0.8),
+    7px 7px 14px rgb(var(--neo-shadow-dark) / 0.33);
 }
 
 .neo-quadrant-btn:hover {
   transform: translateY(-1px);
   box-shadow:
-    -5px -5px 10px rgb(var(--neo-shadow-light) / 0.85),
-    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.36);
+    -8px -8px 16px rgb(var(--neo-shadow-light) / 0.85),
+    8px 8px 16px rgb(var(--neo-shadow-dark) / 0.36);
 }
 
 .emotion-description-strip {
@@ -565,7 +571,7 @@ onMounted(async () => {
   text-align: center;
   color: rgb(var(--neo-text));
   background: rgb(var(--neo-surface-base));
-  border: 1px solid rgb(var(--neo-border) / 0.2);
+  border: 1px solid rgb(var(--neo-border) / 0.12);
   box-shadow:
     inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.7),
     inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.2);

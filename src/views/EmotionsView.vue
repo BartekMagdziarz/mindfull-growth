@@ -2,7 +2,7 @@
   <div class="container mx-auto px-4 py-6">
     <div class="max-w-3xl mx-auto space-y-6">
       <!-- Inline Emotion Logging Form -->
-      <AppCard padding="lg">
+      <AppCard padding="lg" :style="emotionCardStyle">
         <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('emotionViews.logTitle') }}</h2>
 
         <div class="space-y-4">
@@ -150,7 +150,7 @@ import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import type { Emotion, Quadrant } from '@/domain/emotion'
-import { getQuadrant } from '@/domain/emotion'
+import { getQuadrant, getQuadrantChipStyle, getQuadrantTintStyle } from '@/domain/emotion'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
@@ -163,6 +163,7 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 // Form state
 const selectedEmotionIds = ref<string[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
+const emotionCardStyle = computed(() => getQuadrantTintStyle(activeEmotionQuadrant.value))
 const note = ref('')
 const selectedPeopleTagIds = ref<string[]>([])
 const selectedContextTagIds = ref<string[]>([])
@@ -193,35 +194,10 @@ const selectedEmotionList = computed(() => {
     .filter((emotion): emotion is Emotion => Boolean(emotion))
 })
 
-const quadrantChipColors: Record<Quadrant, { bg: string; border: string }> = {
-  'high-energy-high-pleasantness': {
-    bg: 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
-    border: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
-  },
-  'high-energy-low-pleasantness': {
-    bg: 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
-    border: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
-  },
-  'low-energy-high-pleasantness': {
-    bg: 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
-    border: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
-  },
-  'low-energy-low-pleasantness': {
-    bg: 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
-    border: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
-  },
-}
-
 function getEmotionChipStyle(emotionId: string): Record<string, string> {
   const emotion = emotionStore.getEmotionById(emotionId)
   if (!emotion) return {}
-  const quadrant = getQuadrant(emotion)
-  const colors = quadrantChipColors[quadrant]
-  if (!colors) return {}
-  return {
-    backgroundColor: colors.bg,
-    border: `1.5px solid ${colors.border}`,
-  }
+  return getQuadrantChipStyle(getQuadrant(emotion))
 }
 
 function removeEmotion(id: string) {

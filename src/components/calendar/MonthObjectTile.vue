@@ -115,7 +115,7 @@ const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
     rgb(var(--neo-surface-top)),
     rgb(var(--neo-surface-bottom))
   );
-  border: 1px solid rgb(var(--neo-border) / 0.30);
+  border: 1px solid rgb(var(--neo-border) / 0.10);
   box-shadow:
     -4px -4px 9px rgb(var(--neo-shadow-light) / 0.75),
     4px 4px 9px rgb(var(--neo-shadow-dark) / 0.28);

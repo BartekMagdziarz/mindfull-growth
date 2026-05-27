@@ -336,7 +336,7 @@
               <span
                 v-for="id in selectedEmotionIds"
                 :key="id"
-                class="neo-pill px-2.5 py-0.5 text-xs text-white"
+                class="neo-pill px-2.5 py-0.5 text-xs font-medium"
                 :style="getEmotionChipStyle(id)"
               >
                 {{ getEmotionName(id) }}
@@ -409,7 +409,7 @@ import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
-import { getQuadrant } from '@/domain/emotion'
+import { getQuadrant, getQuadrantChipStyle } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateCompassionateLetterPayload } from '@/domain/exercises'
 
@@ -482,13 +482,6 @@ const filledTakeaways = computed(() =>
 )
 
 // ─── Emotion Helpers ─────────────────────────────────────────────────────────
-const quadrantColors: Record<Quadrant, string> = {
-  'high-energy-high-pleasantness': 'var(--color-quadrant-high-energy-high-pleasantness)',
-  'high-energy-low-pleasantness': 'var(--color-quadrant-high-energy-low-pleasantness)',
-  'low-energy-high-pleasantness': 'var(--color-quadrant-low-energy-high-pleasantness)',
-  'low-energy-low-pleasantness': 'var(--color-quadrant-low-energy-low-pleasantness)',
-}
-
 function getEmotionName(id: string): string {
   const emotion = emotionStore.getEmotionById(id)
   return emotion?.name ?? t('common.unknown')
@@ -497,8 +490,7 @@ function getEmotionName(id: string): string {
 function getEmotionChipStyle(id: string): Record<string, string> {
   const emotion = emotionStore.getEmotionById(id)
   if (!emotion) return {}
-  const quadrant = getQuadrant(emotion)
-  return { backgroundColor: quadrantColors[quadrant] }
+  return getQuadrantChipStyle(getQuadrant(emotion))
 }
 
 // ─── LLM Assist ──────────────────────────────────────────────────────────────

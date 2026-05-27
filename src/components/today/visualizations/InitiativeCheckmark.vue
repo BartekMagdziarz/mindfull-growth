@@ -64,17 +64,19 @@ const iconSizeClass = computed(() => (props.size === 'sm' ? 'h-[18px] w-[18px]' 
   cursor: not-allowed;
 }
 
-/* Same chart-primary gradient as the task ticker / completion dots / bar
-   charts so every "filled/positive" blue accent reads as one colour. */
+/* Filled / completed — pressed-in, color-filled to confirm completion.
+   Same chart-primary palette as the task ticker / completion dots / bar
+   charts. Hue-matched inset shadows (sky-600 dark, sky-200 light) for a
+   clean neumorphic depression. */
 .initiative-check--on {
   background: linear-gradient(
-    145deg,
-    rgb(var(--neo-chart-primary-start)),
-    rgb(var(--neo-chart-primary-end))
+    160deg,
+    rgb(var(--neo-chart-primary-end)),
+    rgb(var(--neo-chart-primary-start))
   );
   box-shadow:
-    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6),
-    2.5px 2.5px 6px rgb(var(--neo-chart-primary-end) / 0.42);
+    inset 1.5px 2px 4px rgb(var(--sky-600) / 0.45),
+    inset -1.5px -1.5px 3px rgb(var(--sky-200) / 0.55);
   color: rgb(var(--neo-accent-text));
 }
 
@@ -84,7 +86,7 @@ const iconSizeClass = computed(() => (props.size === 'sm' ? 'h-[18px] w-[18px]' 
     rgb(var(--neo-surface-top)),
     rgb(var(--neo-surface-bottom))
   );
-  border: 1px solid rgb(var(--neo-border) / 0.30);
+  border: 1px solid rgb(var(--neo-border) / 0.10);
   box-shadow:
     -4px -4px 8px rgb(var(--neo-shadow-light) / 0.80),
     4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);

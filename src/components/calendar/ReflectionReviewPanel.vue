@@ -33,7 +33,7 @@
             <span
               v-for="emotion in bundle.emotionSummary.topEmotions"
               :key="emotion.emotionId"
-              :style="{ backgroundColor: quadrantChipColors[emotion.quadrant].bg, border: '1.5px solid ' + quadrantChipColors[emotion.quadrant].border }"
+              :style="getQuadrantChipStyle(emotion.quadrant)"
               class="inline-flex items-center px-2.5 py-0.5 rounded-full text-on-surface text-xs font-medium"
             >
               {{ emotion.name }} ({{ emotion.count }})
@@ -110,7 +110,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Quadrant } from '@/domain/emotion'
+import { getQuadrantChipStyle } from '@/domain/emotion'
 import type {
   WeeklyReflectionDataBundle,
   MonthlyReflectionDataBundle,
@@ -124,25 +124,6 @@ const props = defineProps<{
   bundle: WeeklyReflectionDataBundle | MonthlyReflectionDataBundle | null
   isLoading: boolean
 }>()
-
-const quadrantChipColors: Record<Quadrant, { bg: string; border: string }> = {
-  'high-energy-high-pleasantness': {
-    bg: 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
-    border: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
-  },
-  'high-energy-low-pleasantness': {
-    bg: 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
-    border: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
-  },
-  'low-energy-high-pleasantness': {
-    bg: 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
-    border: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
-  },
-  'low-energy-low-pleasantness': {
-    bg: 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
-    border: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
-  },
-}
 
 const habitPercent = computed(() => {
   if (!props.bundle || props.bundle.habitSummary.totalActive === 0) return 0

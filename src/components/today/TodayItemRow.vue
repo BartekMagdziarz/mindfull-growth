@@ -528,16 +528,23 @@ function handleMoveDateChange(event: Event): void {
 
 /* Unified 37px circle entry cell — 15% smaller than the original 44px so
    the row reads tighter without shrinking the title font. Every entryMode
-   (completion / counter / rating / value) lives inside this same shape. */
+   (completion / counter / rating / value) lives inside this same shape.
+
+   Empty state is RAISED (button-like, invites interaction); the --on
+   modifier presses it INSET to confirm "done / filled". */
 .today-entry-circle {
   width: 37px;
   height: 37px;
   flex: 0 0 37px;
   border-radius: 9999px;
-  background: rgb(var(--neo-surface-base));
+  background: linear-gradient(
+    145deg,
+    rgb(var(--neo-surface-top)),
+    rgb(var(--neo-surface-bottom))
+  );
   box-shadow:
-    inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.85),
-    inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.33);
+    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.85),
+    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.30);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -554,6 +561,10 @@ function handleMoveDateChange(event: Event): void {
 
 .today-entry-circle--btn:hover:not(:disabled) {
   color: rgb(var(--neo-text));
+  transform: translateY(-1px);
+  box-shadow:
+    -3px -3px 7px rgb(var(--neo-shadow-light) / 0.9),
+    3px 3px 7px rgb(var(--neo-shadow-dark) / 0.34);
 }
 
 .today-entry-circle--btn:disabled {
@@ -561,18 +572,29 @@ function handleMoveDateChange(event: Event): void {
   cursor: not-allowed;
 }
 
-/* Use the same chart-primary gradient as the bar charts so tickers and bars
-   in the Today surface read as one colour family. */
+/* Filled state — pressed-in, color-filled to confirm completion.
+   Subtle reversed gradient (darker top-left → lighter bottom-right) reads
+   like the bottom of a well catching ambient light. Inset shadows use
+   hue-matched darker/lighter blues for a clean neumorphic depression
+   without the "dark stain" effect of a contrasting navy. */
 .today-entry-circle--on {
   background: linear-gradient(
-    145deg,
-    rgb(var(--neo-chart-primary-start)),
-    rgb(var(--neo-chart-primary-end))
+    160deg,
+    rgb(var(--neo-chart-primary-end)),
+    rgb(var(--neo-chart-primary-start))
   );
   box-shadow:
-    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6),
-    2.5px 2.5px 6px rgb(var(--neo-chart-primary-end) / 0.42);
+    inset 1.5px 2px 4px rgb(var(--sky-600) / 0.45),
+    inset -1.5px -1.5px 3px rgb(var(--sky-200) / 0.55);
   color: rgb(var(--neo-accent-text));
+  transform: none;
+}
+
+.today-entry-circle--btn.today-entry-circle--on:hover:not(:disabled) {
+  transform: none;
+  box-shadow:
+    inset 1.5px 2px 4px rgb(var(--sky-600) / 0.5),
+    inset -1.5px -1.5px 3px rgb(var(--sky-200) / 0.6);
 }
 
 .today-entry-value {
@@ -633,9 +655,13 @@ function handleMoveDateChange(event: Event): void {
   font-size: 11px;
 }
 
-/* Rating circle: ring around the edge shows progress */
+/* Rating circle: ring around the edge shows progress — keep an inset gauge
+   look regardless of value, so the ring reads against a calm well. */
 .today-entry-circle--rating {
   background: rgb(var(--neo-surface-base));
+  box-shadow:
+    inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.85),
+    inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.33);
 }
 
 .today-entry-circle__ring {

@@ -81,8 +81,7 @@ import { useJournalStore } from '@/stores/journal.store'
 import { useTagStore } from '@/stores/tag.store'
 import { getDisplayTitle } from '@/domain/journal'
 import type { JournalEntry } from '@/domain/journal'
-import { getQuadrant } from '@/domain/emotion'
-import type { Quadrant } from '@/domain/emotion'
+import { getQuadrant, getQuadrantChipStyle } from '@/domain/emotion'
 import type { WeekRef } from '@/domain/period'
 import { getPeriodBounds } from '@/utils/periods'
 
@@ -138,11 +137,7 @@ function emotionName(id: string): string | undefined {
 function emotionPillStyle(id: string): Record<string, string> {
   const emotion = emotionStore.getEmotionById(id)
   if (!emotion) return {}
-  const quadrant: Quadrant = getQuadrant(emotion)
-  return {
-    backgroundColor: `var(--color-quadrant-${quadrant}-selected)`,
-    color: 'white',
-  }
+  return getQuadrantChipStyle(getQuadrant(emotion))
 }
 
 function peopleTagName(id: string): string | undefined {

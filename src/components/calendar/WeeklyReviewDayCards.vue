@@ -484,7 +484,10 @@ const QUADRANT_ORDER: Quadrant[] = [
 ]
 
 function quadrantColor(q: Quadrant): string {
-  return `var(--color-quadrant-${q}-selected)`
+  // Use the muted `-bottom` base (same as selector buttons) so the day cards
+  // sit in the same color world as the rest of the app instead of reading as
+  // saturated chart segments.
+  return `var(--color-quadrant-${q}-bottom)`
 }
 
 function quadrantBorder(q: Quadrant): string {

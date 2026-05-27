@@ -65,7 +65,7 @@
 @layer components {
   .neo-raised {
     border-radius: 1.5rem;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -84,7 +84,7 @@
 
   .neo-raised-strong {
     border-radius: 1.75rem;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -103,7 +103,7 @@
 
   .neo-inset {
     border-radius: 1.25rem;
-    border: 1px solid rgb(var(--neo-border) / 0.25);
+    border: 1px solid rgb(var(--neo-border) / 0.08);
     background: rgb(var(--neo-surface-base));
     box-shadow:
       inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
@@ -151,7 +151,7 @@
     min-height: 40px;
     padding: 0.5rem 0.9rem;
     border-radius: 9999px;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -201,7 +201,7 @@
   }
 
   .neo-control--accent {
-    border-color: rgb(var(--neo-border) / 0.3);
+    border-color: rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       135deg,
       rgb(var(--neo-accent-start) / 0.85),
@@ -231,7 +231,7 @@
     gap: 0.375rem;
     padding: 0.35rem;
     border-radius: 9999px;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: rgb(var(--neo-surface-base));
     box-shadow:
       inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
@@ -261,7 +261,7 @@
   }
 
   .neo-segmented__item--active {
-    border-color: rgb(var(--neo-border) / 0.3);
+    border-color: rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -280,7 +280,7 @@
 
   .neo-card {
     @apply rounded-3xl;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -301,7 +301,7 @@
 
   .neo-panel {
     border-radius: 2rem;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -331,7 +331,7 @@
 
   .neo-surface {
     border-radius: 1rem;
-    border: 1px solid rgb(var(--neo-border) / 0.25);
+    border: 1px solid rgb(var(--neo-border) / 0.08);
     background: rgb(var(--neo-surface-base));
     box-shadow:
       inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
@@ -341,7 +341,7 @@
   .neo-pill {
     @apply inline-flex items-center;
     border-radius: 9999px;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -375,7 +375,7 @@
   }
 
   .neo-pill--primary {
-    border-color: rgb(var(--neo-border) / 0.35);
+    border-color: rgb(var(--neo-border) / 0.14);
     background: linear-gradient(
       135deg,
       rgb(var(--neo-accent-start) / 0.5),
@@ -419,7 +419,7 @@
     min-width: 32px;
     min-height: 32px;
     border-radius: 0.8rem;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -464,7 +464,7 @@
   }
 
   .neo-icon-button--primary {
-    border-color: rgb(var(--neo-border) / 0.35);
+    border-color: rgb(var(--neo-border) / 0.14);
     background: linear-gradient(
       135deg,
       rgb(var(--neo-accent-start) / 0.5),
@@ -505,7 +505,7 @@
 
   .neo-input {
     border-radius: 0.9rem;
-    border: 1px solid rgb(var(--neo-border) / 0.25);
+    border: 1px solid rgb(var(--neo-border) / 0.08);
     background: rgb(var(--neo-surface-base));
     box-shadow:
       inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
@@ -541,18 +541,23 @@
     -moz-appearance: textfield;
   }
 
-  /* Neumorphic checkbox (circular) */
+  /* Neumorphic checkbox (circular). Unchecked = RAISED (button-like, invites
+     a tap); :checked = INSET with color fill (pressed-in, confirms done). */
   .neo-checkbox {
     appearance: none;
     -webkit-appearance: none;
     width: 1rem;
     height: 1rem;
     border-radius: 9999px;
-    border: 1px solid rgb(var(--neo-border) / 0.55);
-    background: rgb(var(--neo-surface-base));
+    border: 1px solid rgb(var(--neo-border) / 0.4);
+    background: linear-gradient(
+      145deg,
+      rgb(var(--neo-surface-top)),
+      rgb(var(--neo-surface-bottom))
+    );
     box-shadow:
-      inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.8),
-      inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.33);
+      -1.5px -1.5px 3px rgb(var(--neo-shadow-light) / 0.85),
+      1.5px 1.5px 3px rgb(var(--neo-shadow-dark) / 0.33);
     display: inline-grid;
     place-content: center;
     cursor: pointer;
@@ -577,10 +582,14 @@
 
   .neo-checkbox:checked {
     border-color: rgb(var(--color-primary));
-    background: rgb(var(--color-primary));
+    background: linear-gradient(
+      160deg,
+      rgb(var(--color-primary)),
+      rgb(var(--color-primary) / 0.78)
+    );
     box-shadow:
-      inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.22),
-      inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.25);
+      inset 1px 1.5px 2.5px rgb(var(--sky-600) / 0.5),
+      inset -1px -1px 2px rgb(var(--sky-200) / 0.55);
   }
 
   .neo-checkbox:checked::before {
@@ -590,8 +599,16 @@
   .neo-checkbox:focus-visible {
     outline: none;
     box-shadow:
-      inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.28),
-      inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.25),
+      -1.5px -1.5px 3px rgb(var(--neo-shadow-light) / 0.85),
+      1.5px 1.5px 3px rgb(var(--neo-shadow-dark) / 0.33),
+      0 0 0 2px rgb(var(--neo-surface-top)),
+      0 0 0 4px rgb(var(--neo-focus) / 0.45);
+  }
+
+  .neo-checkbox:checked:focus-visible {
+    box-shadow:
+      inset 1px 1.5px 2.5px rgb(var(--sky-600) / 0.5),
+      inset -1px -1px 2px rgb(var(--sky-200) / 0.55),
       0 0 0 2px rgb(var(--neo-surface-top)),
       0 0 0 4px rgb(var(--neo-focus) / 0.45);
   }
@@ -601,7 +618,10 @@
     opacity: 0.55;
   }
 
-  /* Neumorphic toggle switch */
+  /* Neumorphic toggle switch.
+     Off = subtle RAISED neutral track (unfilled, inviting); on = INSET
+     colored track (pressed-in, confirms engaged). Thumb stays raised on top
+     in both states so it always reads as the moving knob. */
   .neo-toggle-track {
     position: relative;
     display: inline-flex;
@@ -614,16 +634,24 @@
     transition: box-shadow 200ms ease, background-color 200ms ease;
   }
   .neo-toggle-track--off {
-    background: rgb(var(--neo-surface-base));
+    background: linear-gradient(
+      145deg,
+      rgb(var(--neo-surface-top)),
+      rgb(var(--neo-surface-bottom))
+    );
     box-shadow:
-      inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.8),
-      inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.33);
+      -2px -2px 5px rgb(var(--neo-shadow-light) / 0.75),
+      2px 2px 5px rgb(var(--neo-shadow-dark) / 0.28);
   }
   .neo-toggle-track--on {
-    background: rgb(var(--color-primary) / 0.5);
+    background: linear-gradient(
+      160deg,
+      rgb(var(--color-primary) / 0.75),
+      rgb(var(--color-primary) / 0.55)
+    );
     box-shadow:
-      inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.3),
-      inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.25);
+      inset 1.5px 2px 4px rgb(var(--sky-600) / 0.45),
+      inset -1.5px -1.5px 3px rgb(var(--sky-200) / 0.5);
   }
   .neo-toggle-thumb {
     display: inline-block;
@@ -664,17 +692,19 @@
     transition: width 300ms ease;
   }
 
-  /* Neumorphic step circle states */
+  /* Neumorphic step circle states.
+     Completed = INSET (done, locked in); active = RAISED with strong accent
+     (current focus, invites action); future = RAISED neutral (awaiting). */
   .neo-step-completed {
     background: linear-gradient(
-      135deg,
-      rgb(var(--neo-accent-start) / 0.6),
-      rgb(var(--neo-accent-end) / 0.5)
+      160deg,
+      rgb(var(--neo-accent-end) / 0.75),
+      rgb(var(--neo-accent-start) / 0.6)
     );
     color: rgb(var(--neo-accent-text));
     box-shadow:
-      -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
-      4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);
+      inset 1.5px 2px 4px rgb(var(--sky-600) / 0.45),
+      inset -1.5px -1.5px 3px rgb(var(--sky-200) / 0.5);
   }
   .neo-step-active {
     background: linear-gradient(
@@ -684,13 +714,13 @@
     );
     color: rgb(var(--neo-accent-text));
     box-shadow:
-      inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.5),
-      inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.25);
+      -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
+      4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);
   }
   .neo-step-future {
     background: rgb(var(--neo-surface-base));
     color: rgb(var(--neo-muted));
-    border: 1px solid rgb(var(--neo-border) / 0.25);
+    border: 1px solid rgb(var(--neo-border) / 0.08);
     box-shadow:
       -2px -2px 4px rgb(var(--neo-shadow-light) / 0.8),
       2px 2px 4px rgb(var(--neo-shadow-dark) / 0.33);
@@ -700,7 +730,7 @@
   .neo-footer {
     background: rgb(var(--neo-surface-base) / 0.92);
     backdrop-filter: blur(8px);
-    border-top: 1px solid rgb(var(--neo-border) / 0.2);
+    border-top: 1px solid rgb(var(--neo-border) / 0.12);
     box-shadow:
       0 -4px 12px rgb(var(--neo-shadow-dark) / 0.15),
       0 -1px 4px rgb(var(--neo-shadow-dark) / 0.08);
@@ -709,7 +739,7 @@
   /* Neumorphic selector button (capacity, life area, etc.) */
   .neo-selector {
     border-radius: 0.9rem;
-    border: 1px solid rgb(var(--neo-border) / 0.3);
+    border: 1px solid rgb(var(--neo-border) / 0.10);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -733,7 +763,7 @@
   }
   .neo-selector--active {
     background: rgb(var(--neo-surface-base));
-    border-color: rgb(var(--neo-border) / 0.35);
+    border-color: rgb(var(--neo-border) / 0.14);
     box-shadow:
       inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
       inset 3px 3px 6px rgb(var(--neo-inset-dark) / 0.33);
@@ -742,7 +772,7 @@
   /* Neumorphic checkbox row — styled like mini-cards */
   .neo-checkbox-row {
     border-radius: 0.9rem;
-    border: 1px solid rgb(var(--neo-border) / 0.25);
+    border: 1px solid rgb(var(--neo-border) / 0.08);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -757,7 +787,7 @@
       background-color 200ms ease;
   }
   .neo-checkbox-row--checked {
-    border-color: rgb(var(--neo-border) / 0.3);
+    border-color: rgb(var(--neo-border) / 0.10);
     background: rgb(var(--neo-surface-base));
     box-shadow:
       inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.8),
@@ -767,7 +797,7 @@
   /* Neumorphic embedded quote/note block */
   .neo-embedded {
     border-radius: 0.9rem;
-    border: 1px solid rgb(var(--neo-border) / 0.2);
+    border: 1px solid rgb(var(--neo-border) / 0.12);
     background: rgb(var(--neo-surface-base));
     box-shadow:
       inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
@@ -789,7 +819,7 @@
   /* Neumorphic warning/notice banner */
   .neo-warning {
     border-radius: 0.9rem;
-    border: 1px solid rgb(var(--neo-border) / 0.2);
+    border: 1px solid rgb(var(--neo-border) / 0.12);
     background: rgb(var(--neo-surface-base));
     box-shadow:
       inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.8),
@@ -799,7 +829,7 @@
   /* Neumorphic back button */
   .neo-back-btn {
     border-radius: 0.8rem;
-    border: 1px solid rgb(var(--neo-border) / 0.25);
+    border: 1px solid rgb(var(--neo-border) / 0.08);
     background: linear-gradient(
       145deg,
       rgb(var(--neo-surface-top)),
@@ -892,7 +922,7 @@
   width: 15rem;
   height: 15rem;
   border-radius: 3rem;
-  border: 1px solid rgb(var(--neo-border) / 0.2);
+  border: 1px solid rgb(var(--neo-border) / 0.12);
   background: rgb(var(--neo-surface-base));
   box-shadow:
     inset -3px -3px 6px rgb(var(--neo-inset-light) / 0.8),
@@ -907,7 +937,7 @@
 
 .neo-icon-scale-well--active {
   color: rgb(var(--neo-accent-start));
-  border-color: rgb(var(--neo-border) / 0.35);
+  border-color: rgb(var(--neo-border) / 0.14);
 }
 
 .neo-icon-scale-arrow {

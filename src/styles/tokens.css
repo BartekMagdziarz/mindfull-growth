@@ -58,20 +58,69 @@
   --color-tertiary-container: 255 244 227;
   --color-on-tertiary-container: 115 72 15;
 
-  /* --- Emotion quadrants -------------------------------------------------- */
-  --color-quadrant-high-energy-high-pleasantness: #a2d2ff;
-  --color-quadrant-high-energy-high-pleasantness-border: #84bfe8;
-  --color-quadrant-high-energy-high-pleasantness-selected: #5bb3ff;
-  --color-quadrant-high-energy-high-pleasantness-text: #0f3a6a;
+  /* --- Emotion quadrants -------------------------------------------------- *
+   * Each quadrant exposes:
+   *   `-top` / `-bottom` — gradient pair for unselected quadrant buttons and
+   *     emotion cells. Pleasant quadrants (HEHP/LEHP) use a 30% / 0% white
+   *     mix (top / bottom) for a subtle, almost-flat gradient; unpleasant
+   *     quadrants (HELP/LELP) use ~67% / ~30% to balance their heavier
+   *     perceived saturation while keeping a soft "light from upper-left".
+   *   `-tint` / `-tint-soft` — two-stop wash used as the parent card
+   *     background when a quadrant is active. The card's gradient runs from
+   *     `-tint` (top-left, ~65% white) to `-tint-soft` (bottom-right, ~80%
+   *     white), so the whole surface carries a hint of the quadrant hue
+   *     instead of fading to neutral.
+   *   `-selected` — saturated tone for the active emotion (chips, cells).
+   *     With the new gradient-based selected state, this token now serves as
+   *     the deepest accent in the family — used for borders/dots/text emphasis
+   *     rather than as a button background.
+   *   `-border`   — outline used by selected emotion chips and cells.
+   *   `-text`     — accessible foreground for labels on the gradient.
+   *
+   * HEHP and LEHP draw from a unified blue scale:
+   *   #E6F2FF · #B8DAFF · #8EC5FF · #5CABFF · #2E93FF · #007BFF · #0065D1 ·
+   *   #004FA3 · #003975
+   * where LEHP sits at #B8DAFF (stop 100, soft pastel). HEHP base uses
+   * #85C0FF — `#5CABFF` (stop 300) mixed with 25% white. Keeps the pure-blue
+   * hue (212°) at 100% saturation, but lifts lightness from 68% to 76% so the
+   * button reads as "pastel with presence" instead of a Bootstrap CTA. The
+   * saturated stops are reserved for accent roles: #5CABFF for selected-cell
+   * border, #007BFF for chart and badge identifiers, #003975 for label text.
+   *
+   * The unsuffixed token (no `-bottom`) is the legacy full-saturation hue,
+   * still consumed by HistoryEntryCard / CompassionateLetterWizard as a
+   * quadrant *identifier* (small badges where saturation aids recognition).
+   * Updated to match the new `-bottom` for HEHP/LEHP after the blue refresh.
+   * --------------------------------------------------------------------- */
+  --color-quadrant-high-energy-high-pleasantness: #85C0FF;
+  --color-quadrant-high-energy-high-pleasantness-top: #aad3ff;
+  --color-quadrant-high-energy-high-pleasantness-bottom: #85C0FF;
+  --color-quadrant-high-energy-high-pleasantness-tint: #e1efff;
+  --color-quadrant-high-energy-high-pleasantness-tint-soft: #edf6ff;
+  --color-quadrant-high-energy-high-pleasantness-border: #5CABFF;
+  --color-quadrant-high-energy-high-pleasantness-selected: #007BFF;
+  --color-quadrant-high-energy-high-pleasantness-text: #003975;
   --color-quadrant-high-energy-low-pleasantness: #ffafcc;
+  --color-quadrant-high-energy-low-pleasantness-top: #ffe5ee;
+  --color-quadrant-high-energy-low-pleasantness-bottom: #ffc7db;
+  --color-quadrant-high-energy-low-pleasantness-tint: #ffebf2;
+  --color-quadrant-high-energy-low-pleasantness-tint-soft: #fff3f7;
   --color-quadrant-high-energy-low-pleasantness-border: #e89ab5;
   --color-quadrant-high-energy-low-pleasantness-selected: #ff7aa8;
   --color-quadrant-high-energy-low-pleasantness-text: #6e1f3c;
-  --color-quadrant-low-energy-high-pleasantness: #bde0fe;
-  --color-quadrant-low-energy-high-pleasantness-border: #a0c9e8;
-  --color-quadrant-low-energy-high-pleasantness-selected: #7fc5fc;
-  --color-quadrant-low-energy-high-pleasantness-text: #1c4470;
+  --color-quadrant-low-energy-high-pleasantness: #cce4ff;
+  --color-quadrant-low-energy-high-pleasantness-top: #dbecff;
+  --color-quadrant-low-energy-high-pleasantness-bottom: #cce4ff;
+  --color-quadrant-low-energy-high-pleasantness-tint: #f2f8ff;
+  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f7fbff;
+  --color-quadrant-low-energy-high-pleasantness-border: #8EC5FF;
+  --color-quadrant-low-energy-high-pleasantness-selected: #5CABFF;
+  --color-quadrant-low-energy-high-pleasantness-text: #004FA3;
   --color-quadrant-low-energy-low-pleasantness: #cdb4db;
+  --color-quadrant-low-energy-low-pleasantness-top: #efe6f3;
+  --color-quadrant-low-energy-low-pleasantness-bottom: #dccbe6;
+  --color-quadrant-low-energy-low-pleasantness-tint: #f3ecf6;
+  --color-quadrant-low-energy-low-pleasantness-tint-soft: #f8f4fa;
   --color-quadrant-low-energy-low-pleasantness-border: #b59dc4;
   --color-quadrant-low-energy-low-pleasantness-selected: #b08fc4;
   --color-quadrant-low-energy-low-pleasantness-text: #3f1f55;
@@ -269,19 +318,35 @@
   --color-tertiary-container: 255 244 228;
   --color-on-tertiary-container: 118 76 24;
 
-  --color-quadrant-high-energy-high-pleasantness: #b5d8f8;
-  --color-quadrant-high-energy-high-pleasantness-border: #95c0e8;
-  --color-quadrant-high-energy-high-pleasantness-selected: #80b8ec;
-  --color-quadrant-high-energy-high-pleasantness-text: #143b66;
+  --color-quadrant-high-energy-high-pleasantness: #85C0FF;
+  --color-quadrant-high-energy-high-pleasantness-top: #aad3ff;
+  --color-quadrant-high-energy-high-pleasantness-bottom: #85C0FF;
+  --color-quadrant-high-energy-high-pleasantness-tint: #e1efff;
+  --color-quadrant-high-energy-high-pleasantness-tint-soft: #edf6ff;
+  --color-quadrant-high-energy-high-pleasantness-border: #5CABFF;
+  --color-quadrant-high-energy-high-pleasantness-selected: #007BFF;
+  --color-quadrant-high-energy-high-pleasantness-text: #003975;
   --color-quadrant-high-energy-low-pleasantness: #f4bfd2;
+  --color-quadrant-high-energy-low-pleasantness-top: #fbeaf0;
+  --color-quadrant-high-energy-low-pleasantness-bottom: #f7d2e0;
+  --color-quadrant-high-energy-low-pleasantness-tint: #fceff4;
+  --color-quadrant-high-energy-low-pleasantness-tint-soft: #fdf5f8;
   --color-quadrant-high-energy-low-pleasantness-border: #e0a9be;
   --color-quadrant-high-energy-low-pleasantness-selected: #df9ab5;
   --color-quadrant-high-energy-low-pleasantness-text: #6e2440;
-  --color-quadrant-low-energy-high-pleasantness: #cfe4f9;
-  --color-quadrant-low-energy-high-pleasantness-border: #b2cde8;
-  --color-quadrant-low-energy-high-pleasantness-selected: #9ec8eb;
-  --color-quadrant-low-energy-high-pleasantness-text: #1c3f6a;
+  --color-quadrant-low-energy-high-pleasantness: #cce4ff;
+  --color-quadrant-low-energy-high-pleasantness-top: #dbecff;
+  --color-quadrant-low-energy-high-pleasantness-bottom: #cce4ff;
+  --color-quadrant-low-energy-high-pleasantness-tint: #f2f8ff;
+  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f7fbff;
+  --color-quadrant-low-energy-high-pleasantness-border: #8EC5FF;
+  --color-quadrant-low-energy-high-pleasantness-selected: #5CABFF;
+  --color-quadrant-low-energy-high-pleasantness-text: #004FA3;
   --color-quadrant-low-energy-low-pleasantness: #d6c8e5;
+  --color-quadrant-low-energy-low-pleasantness-top: #f1edf6;
+  --color-quadrant-low-energy-low-pleasantness-bottom: #e2d9ed;
+  --color-quadrant-low-energy-low-pleasantness-tint: #f5f1f9;
+  --color-quadrant-low-energy-low-pleasantness-tint-soft: #f9f7fb;
   --color-quadrant-low-energy-low-pleasantness-border: #beaed1;
   --color-quadrant-low-energy-low-pleasantness-selected: #b69ccb;
   --color-quadrant-low-energy-low-pleasantness-text: #3a1d52;
@@ -353,18 +418,34 @@
   --color-on-tertiary-container: 124 78 21;
 
   --color-quadrant-high-energy-high-pleasantness: #ffd9a8;
+  --color-quadrant-high-energy-high-pleasantness-top: #ffecd3;
+  --color-quadrant-high-energy-high-pleasantness-bottom: #ffd9a8;
+  --color-quadrant-high-energy-high-pleasantness-tint: #fff6e9;
+  --color-quadrant-high-energy-high-pleasantness-tint-soft: #fff9f2;
   --color-quadrant-high-energy-high-pleasantness-border: #e8be86;
   --color-quadrant-high-energy-high-pleasantness-selected: #ffc173;
   --color-quadrant-high-energy-high-pleasantness-text: #5e3614;
   --color-quadrant-high-energy-low-pleasantness: #ffc0b3;
+  --color-quadrant-high-energy-low-pleasantness-top: #ffeae6;
+  --color-quadrant-high-energy-low-pleasantness-bottom: #ffd3ca;
+  --color-quadrant-high-energy-low-pleasantness-tint: #ffefec;
+  --color-quadrant-high-energy-low-pleasantness-tint-soft: #fff6f4;
   --color-quadrant-high-energy-low-pleasantness-border: #e6a598;
   --color-quadrant-high-energy-low-pleasantness-selected: #ff9f8b;
   --color-quadrant-high-energy-low-pleasantness-text: #5e2014;
   --color-quadrant-low-energy-high-pleasantness: #d8e6f8;
+  --color-quadrant-low-energy-high-pleasantness-top: #ecf2fb;
+  --color-quadrant-low-energy-high-pleasantness-bottom: #d8e6f8;
+  --color-quadrant-low-energy-high-pleasantness-tint: #f5f9fd;
+  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f9fbfe;
   --color-quadrant-low-energy-high-pleasantness-border: #b8cbe3;
   --color-quadrant-low-energy-high-pleasantness-selected: #afcaec;
   --color-quadrant-low-energy-high-pleasantness-text: #1c3d62;
   --color-quadrant-low-energy-low-pleasantness: #dcccdf;
+  --color-quadrant-low-energy-low-pleasantness-top: #f3eef4;
+  --color-quadrant-low-energy-low-pleasantness-bottom: #e7dbe9;
+  --color-quadrant-low-energy-low-pleasantness-tint: #f6f2f7;
+  --color-quadrant-low-energy-low-pleasantness-tint-soft: #faf7fa;
   --color-quadrant-low-energy-low-pleasantness-border: #c3b1ca;
   --color-quadrant-low-energy-low-pleasantness-selected: #b99fc2;
   --color-quadrant-low-energy-low-pleasantness-text: #3a2050;

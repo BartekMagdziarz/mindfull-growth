@@ -71,11 +71,14 @@ const props = defineProps<{
 //   [hl][hh]
 //   [ll][lh]
 // (hl = high-energy-low-pleasantness, hh = high-energy-high-pleasantness, etc.)
+// Heatmap dots use the muted `-bottom` token (same as the selector buttons),
+// not the saturated `-selected` accent — the opacity scaling in
+// `quadrantStyle` already conveys intensity, so the base hue can stay soft.
 const QUADRANT_GRID: { key: Quadrant; cssVar: string }[] = [
-  { key: 'high-energy-low-pleasantness', cssVar: '--color-quadrant-high-energy-low-pleasantness-selected' },
-  { key: 'high-energy-high-pleasantness', cssVar: '--color-quadrant-high-energy-high-pleasantness-selected' },
-  { key: 'low-energy-low-pleasantness', cssVar: '--color-quadrant-low-energy-low-pleasantness-selected' },
-  { key: 'low-energy-high-pleasantness', cssVar: '--color-quadrant-low-energy-high-pleasantness-selected' },
+  { key: 'high-energy-low-pleasantness', cssVar: '--color-quadrant-high-energy-low-pleasantness-bottom' },
+  { key: 'high-energy-high-pleasantness', cssVar: '--color-quadrant-high-energy-high-pleasantness-bottom' },
+  { key: 'low-energy-low-pleasantness', cssVar: '--color-quadrant-low-energy-low-pleasantness-bottom' },
+  { key: 'low-energy-high-pleasantness', cssVar: '--color-quadrant-low-energy-high-pleasantness-bottom' },
 ]
 
 /**

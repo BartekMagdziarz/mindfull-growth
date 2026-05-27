@@ -121,7 +121,7 @@ import { useT } from '@/composables/useT'
 import { formatEntryDate } from '@/utils/dateFormat'
 import { getDisplayTitle } from '@/domain/journal'
 import type { UnifiedEntry } from '@/domain/unifiedEntry'
-import { getQuadrant, type Quadrant } from '@/domain/emotion'
+import { getQuadrant, getQuadrantChipStyle } from '@/domain/emotion'
 
 interface Props {
   entry: UnifiedEntry
@@ -141,13 +141,6 @@ defineEmits<{
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
 const { t } = useT()
-
-const quadrantColors: Record<Quadrant, string> = {
-  'high-energy-high-pleasantness': 'var(--color-quadrant-high-energy-high-pleasantness)',
-  'high-energy-low-pleasantness': 'var(--color-quadrant-high-energy-low-pleasantness)',
-  'low-energy-high-pleasantness': 'var(--color-quadrant-low-energy-high-pleasantness)',
-  'low-energy-low-pleasantness': 'var(--color-quadrant-low-energy-low-pleasantness)',
-}
 
 const typeIcon = computed<string>(() => {
   return props.entry.type === 'journal' ? 'edit' : 'favorite'
@@ -194,8 +187,7 @@ function getEmotionName(id: string): string | undefined {
 function getEmotionChipStyle(id: string): Record<string, string> {
   const emotion = emotionStore.getEmotionById(id)
   if (!emotion) return {}
-  const quadrant = getQuadrant(emotion)
-  return { backgroundColor: quadrantColors[quadrant] }
+  return getQuadrantChipStyle(getQuadrant(emotion))
 }
 
 function getPeopleTagName(id: string): string | undefined {

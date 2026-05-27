@@ -136,11 +136,15 @@ const QUADRANT_ORDER: Quadrant[] = [
   'low-energy-low-pleasantness',
 ]
 
+// Donut arcs use the muted `-bottom` token (same base as selector buttons),
+// not the saturated `-selected` accent — keeps the chart in line with the
+// rest of the muted aesthetic instead of reading as a vivid Bootstrap-blue
+// graph on an otherwise pastel surface.
 const QUADRANT_COLOR: Record<Quadrant, string> = {
-  'high-energy-high-pleasantness': 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
-  'high-energy-low-pleasantness': 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
-  'low-energy-high-pleasantness': 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
-  'low-energy-low-pleasantness': 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
+  'high-energy-high-pleasantness': 'var(--color-quadrant-high-energy-high-pleasantness-bottom)',
+  'high-energy-low-pleasantness': 'var(--color-quadrant-high-energy-low-pleasantness-bottom)',
+  'low-energy-high-pleasantness': 'var(--color-quadrant-low-energy-high-pleasantness-bottom)',
+  'low-energy-low-pleasantness': 'var(--color-quadrant-low-energy-low-pleasantness-bottom)',
 }
 
 const targetReached = computed(() => props.logs.length >= props.target)
@@ -328,7 +332,7 @@ const donutPaths = computed<{ tracks: DonutTrack[]; arcs: DonutArc[] }>(() => {
     -2px -2px 4px rgb(var(--neo-shadow-light) / 0.85),
     2px 2px 4px rgb(var(--neo-shadow-dark) / 0.28),
     inset 0 1px 0 rgb(255 255 255 / 0.35);
-  border: 1px solid rgb(var(--neo-border) / 0.25);
+  border: 1px solid rgb(var(--neo-border) / 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;

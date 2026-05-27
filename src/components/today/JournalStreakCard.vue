@@ -221,7 +221,7 @@ const { t } = useT()
     -2px -2px 4px rgb(var(--neo-shadow-light) / 0.85),
     2px 2px 4px rgb(var(--neo-shadow-dark) / 0.28),
     inset 0 1px 0 rgb(255 255 255 / 0.35);
-  border: 1px solid rgb(var(--neo-border) / 0.25);
+  border: 1px solid rgb(var(--neo-border) / 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -232,12 +232,12 @@
               v-for="q in quadrantTiles"
               :key="q.key"
               class="rounded-lg px-2.5 py-2 shadow-neu-raised-sm"
-              :style="{ backgroundColor: q.color }"
+              :style="getQuadrantSurfaceStyle(q.key)"
             >
-              <div class="text-sm font-bold text-neu-accent-text/95">
+              <div class="text-sm font-semibold">
                 {{ totalEmotionQuadrants[q.key] }}
               </div>
-              <div class="text-[10px] opacity-90 text-neu-accent-text/90">
+              <div class="text-[10px] opacity-80">
                 {{ t(q.labelKey) }}
               </div>
             </div>
@@ -246,8 +246,8 @@
             <span
               v-for="emotion in topEmotions"
               :key="emotion.emotionId"
-              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px]"
-              :style="emotionPillStyle(emotion.quadrant)"
+              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+              :style="getQuadrantChipStyle(emotion.quadrant)"
             >
               {{ emotion.name }}
               <span class="font-semibold">×{{ emotion.count }}</span>
@@ -329,6 +329,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { getPeriodBounds } from '@/utils/periods'
 import type { Quadrant } from '@/domain/emotion'
+import { getQuadrantChipStyle, getQuadrantSurfaceStyle } from '@/domain/emotion'
 import type { WeekRef } from '@/domain/period'
 import type { WeeklyReflectionDataBundle } from '@/services/reflectionDataQueries'
 
@@ -504,36 +505,24 @@ const topEmotions = computed(() =>
   (props.dataBundle?.emotionSummary.topEmotions ?? []).slice(0, 4),
 )
 
-const quadrantTiles: { key: Quadrant; color: string; labelKey: string }[] = [
+const quadrantTiles: { key: Quadrant; labelKey: string }[] = [
   {
     key: 'high-energy-low-pleasantness',
-    color: 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
     labelKey: 'planning.reflection.sidebar.quadrants.highEnergyLowPleasantness',
   },
   {
     key: 'high-energy-high-pleasantness',
-    color: 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
     labelKey: 'planning.reflection.sidebar.quadrants.highEnergyHighPleasantness',
   },
   {
     key: 'low-energy-low-pleasantness',
-    color: 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
     labelKey: 'planning.reflection.sidebar.quadrants.lowEnergyLowPleasantness',
   },
   {
     key: 'low-energy-high-pleasantness',
-    color: 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
     labelKey: 'planning.reflection.sidebar.quadrants.lowEnergyHighPleasantness',
   },
 ]
-
-function emotionPillStyle(q: Quadrant): Record<string, string> {
-  return {
-    backgroundColor: `var(--color-quadrant-${q}-selected)`,
-    border: `1.5px solid var(--color-quadrant-${q}-border)`,
-    color: 'var(--color-on-surface)',
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Mock AI content

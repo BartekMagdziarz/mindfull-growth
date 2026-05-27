@@ -75,6 +75,7 @@
           <!-- Emotions Section -->
           <section
             class="neo-card px-5 py-4 flex flex-col gap-4"
+            :style="emotionCardStyle"
           >
             <header class="space-y-2">
               <div class="flex flex-wrap items-center gap-3">
@@ -219,7 +220,7 @@ import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieReposit
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { Emotion, Quadrant } from '@/domain/emotion'
-import { getQuadrant } from '@/domain/emotion'
+import { getQuadrant, getQuadrantChipStyle, getQuadrantTintStyle } from '@/domain/emotion'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
@@ -253,6 +254,8 @@ const arePeopleTagsLoading = ref(false)
 const areContextTagsLoading = ref(false)
 const hasLoadedPeopleTags = ref(tagStore.peopleTags.length > 0)
 const hasLoadedContextTags = ref(tagStore.contextTags.length > 0)
+
+const emotionCardStyle = computed(() => getQuadrantTintStyle(activeEmotionQuadrant.value))
 
 // Date/time picker state
 const showDateTimePicker = ref(false)
@@ -349,35 +352,10 @@ const selectedEmotionList = computed(() => {
     .filter((emotion): emotion is Emotion => Boolean(emotion))
 })
 
-const quadrantChipColors: Record<Quadrant, { bg: string; border: string }> = {
-  'high-energy-high-pleasantness': {
-    bg: 'var(--color-quadrant-high-energy-high-pleasantness-selected)',
-    border: 'var(--color-quadrant-high-energy-high-pleasantness-border)',
-  },
-  'high-energy-low-pleasantness': {
-    bg: 'var(--color-quadrant-high-energy-low-pleasantness-selected)',
-    border: 'var(--color-quadrant-high-energy-low-pleasantness-border)',
-  },
-  'low-energy-high-pleasantness': {
-    bg: 'var(--color-quadrant-low-energy-high-pleasantness-selected)',
-    border: 'var(--color-quadrant-low-energy-high-pleasantness-border)',
-  },
-  'low-energy-low-pleasantness': {
-    bg: 'var(--color-quadrant-low-energy-low-pleasantness-selected)',
-    border: 'var(--color-quadrant-low-energy-low-pleasantness-border)',
-  },
-}
-
 function getEmotionChipStyle(emotionId: string): Record<string, string> {
   const emotion = emotionStore.getEmotionById(emotionId)
   if (!emotion) return {}
-  const quadrant = getQuadrant(emotion)
-  const colors = quadrantChipColors[quadrant]
-  if (!colors) return {}
-  return {
-    backgroundColor: colors.bg,
-    border: `1.5px solid ${colors.border}`,
-  }
+  return getQuadrantChipStyle(getQuadrant(emotion))
 }
 
 const removeEmotion = (id: string) => {
