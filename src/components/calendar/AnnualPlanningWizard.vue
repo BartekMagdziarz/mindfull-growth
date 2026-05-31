@@ -221,93 +221,26 @@
         />
 
         <div v-else class="grid gap-3 xl:grid-cols-2">
-          <article
+          <AnnualPlanningPriorityCard
             v-for="priority in activePriorities"
             :key="priority.id"
-            class="neo-card border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3.5"
-          >
-            <div class="space-y-3">
-              <div class="flex items-center gap-2">
-                <IconPicker
-                  icon-size="lg"
-                  :model-value="priority.icon"
-                  compact
-                  minimal
-                  :allow-clear="true"
-                  :aria-label="t('planning.annual.priorities.icon')"
-                  @update:model-value="updatePriorityField(priority.id, 'icon', $event)"
-                />
-                <input
-                  :value="priority.title"
-                  class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none"
-                  :placeholder="t('planning.objects.form.priorityTitlePlaceholder')"
-                  @input="handlePriorityText(priority.id, 'title', $event)"
-                />
-                <StatusIconButton
-                  :model-value="priority.status"
-                  :options="priorityStatusOptions"
-                  @update:model-value="updatePriorityField(priority.id, 'status', $event)"
-                />
-              </div>
-
-              <ObjectsLibraryPillSelect
-                :model-value="priority.lifeAreaIds"
-                :options="lifeAreaOptions"
-                :label="t('planning.objects.form.lifeAreas')"
-                :empty-label="t('planning.objects.filters.noOptions')"
-                :clear-label="t('planning.objects.filters.clear')"
-                :add-label="t('common.buttons.add')"
-                @update:model-value="updatePriorityField(priority.id, 'lifeAreaIds', $event)"
-              />
-              <label class="block space-y-1">
-                <span class="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-                  {{ t('planning.objects.form.years') }}
-                </span>
-                <input
-                  :value="priority.years.join(', ')"
-                  class="neo-input min-h-10 w-full px-3 py-2 text-xs"
-                  placeholder="2026"
-                  @change="handlePriorityValue(priority.id, 'years', $event)"
-                />
-              </label>
-
-              <textarea
-                :value="priority.whyNow ?? ''"
-                rows="4"
-                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                :placeholder="t('planning.objects.form.whyNow')"
-                @input="handlePriorityText(priority.id, 'whyNow', $event)"
-              />
-              <textarea
-                :value="priority.desiredDirection ?? ''"
-                rows="4"
-                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                :placeholder="t('planning.objects.form.desiredDirection')"
-                @input="handlePriorityText(priority.id, 'desiredDirection', $event)"
-              />
-              <textarea
-                :value="priority.tradeoffs ?? ''"
-                rows="4"
-                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                :placeholder="t('planning.objects.form.tradeoffs')"
-                @input="handlePriorityText(priority.id, 'tradeoffs', $event)"
-              />
-              <textarea
-                :value="priority.progressSignals.join('\n')"
-                rows="4"
-                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                :placeholder="t('planning.objects.form.progressSignals')"
-                @change="handlePriorityValue(priority.id, 'progressSignals', $event)"
-              />
-              <textarea
-                :value="priority.riskSignals.join('\n')"
-                rows="4"
-                class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
-                :placeholder="t('planning.objects.form.riskSignals')"
-                @change="handlePriorityValue(priority.id, 'riskSignals', $event)"
-              />
-            </div>
-          </article>
+            :priority="priority"
+            :status-options="priorityStatusOptions"
+            :life-area-options="lifeAreaOptions"
+            :icon-aria-label="t('planning.annual.priorities.icon')"
+            :title-placeholder="t('planning.objects.form.priorityTitlePlaceholder')"
+            :life-areas-label="t('planning.objects.form.lifeAreas')"
+            :life-areas-empty-label="t('planning.objects.filters.noOptions')"
+            :life-areas-clear-label="t('planning.objects.filters.clear')"
+            :life-areas-add-label="t('common.buttons.add')"
+            :years-label="t('planning.objects.form.years')"
+            :why-now-placeholder="t('planning.objects.form.whyNow')"
+            :desired-direction-placeholder="t('planning.objects.form.desiredDirection')"
+            :tradeoffs-placeholder="t('planning.objects.form.tradeoffs')"
+            :progress-signals-placeholder="t('planning.objects.form.progressSignals')"
+            :risk-signals-placeholder="t('planning.objects.form.riskSignals')"
+            @field-change="(field, value) => void updatePriorityField(priority.id, field, value)"
+          />
         </div>
       </div>
 
@@ -392,13 +325,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, onBeforeUnmount, reactive, toRef } from 'vue'
+import { computed, defineComponent, h, reactive, toRef } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
-import IconPicker from '@/components/shared/IconPicker.vue'
-import ObjectsLibraryPillSelect from '@/components/objects/ObjectsLibraryPillSelect.vue'
-import StatusIconButton from '@/components/objects/StatusIconButton.vue'
+import AnnualPlanningPriorityCard from '@/components/calendar/AnnualPlanningPriorityCard.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import { useAnnualPlanningWizard, type AnnualPlanningStep } from '@/composables/useAnnualPlanningWizard'
 import { useT } from '@/composables/useT'
@@ -425,7 +356,6 @@ const STEPS: AnnualPlanningStep[] = [
 ]
 
 const expandedAreaIds = reactive(new Set<string>())
-const priorityTimers = new Map<string, ReturnType<typeof setTimeout>>()
 const scoreOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 const {
@@ -502,28 +432,6 @@ function handleLifeAreaText(
   void updateLifeAreaField(lifeAreaId, field, (event.target as HTMLTextAreaElement).value)
 }
 
-function handlePriorityText(priorityId: string, field: string, event: Event): void {
-  const value = (event.target as HTMLInputElement | HTMLTextAreaElement).value
-  const key = `${priorityId}:${field}`
-  const existing = priorityTimers.get(key)
-  if (existing) clearTimeout(existing)
-  priorityTimers.set(
-    key,
-    setTimeout(() => {
-      void updatePriorityField(priorityId, field, value)
-      priorityTimers.delete(key)
-    }, 450),
-  )
-}
-
-function handlePriorityValue(priorityId: string, field: string, event: Event): void {
-  void updatePriorityField(
-    priorityId,
-    field,
-    (event.target as HTMLInputElement | HTMLTextAreaElement).value,
-  )
-}
-
 async function handleComplete(): Promise<void> {
   try {
     await completePlan()
@@ -533,11 +441,6 @@ async function handleComplete(): Promise<void> {
     console.error('Failed to complete annual plan:', error)
   }
 }
-
-onBeforeUnmount(() => {
-  for (const timer of priorityTimers.values()) clearTimeout(timer)
-  priorityTimers.clear()
-})
 
 const PlaceholderPanel = defineComponent({
   props: {

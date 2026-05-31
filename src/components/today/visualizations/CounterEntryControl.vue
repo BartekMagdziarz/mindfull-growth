@@ -49,6 +49,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
+import { useEditableField } from '@/composables/useEditableField'
 
 const props = withDefaults(
   defineProps<{
@@ -66,18 +67,16 @@ const emit = defineEmits<{
   'save-value': [value: number]
 }>()
 
-const draftValue = ref('')
 const showInlineEdit = ref(false)
 const inlineInputRef = ref<HTMLInputElement | null>(null)
 const justSubmitted = ref(false)
 
-watch(
-  () => props.currentValue,
-  (value) => {
-    draftValue.value = value ? formatValue(value) : ''
-  },
-  { immediate: true },
-)
+const { value: draftValue } = useEditableField<number, string>({
+  source: () => props.currentValue,
+  format: (v) => (v ? formatValue(v) : ''),
+  isFocused: () =>
+    typeof document !== 'undefined' && document.activeElement === inlineInputRef.value,
+})
 
 watch(showInlineEdit, async (show) => {
   if (show) {

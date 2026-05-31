@@ -15,11 +15,11 @@
         />
         <input
           ref="titleRef"
-          :value="item.title"
+          v-model="title"
           type="text"
           class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
           :placeholder="t('planning.objects.form.priorityTitlePlaceholder')"
-          @input="handleTitleInput"
+          @blur="flushTitle"
         />
         <div class="-mr-10 flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <div ref="menuRef" class="relative">
@@ -114,81 +114,94 @@
       </div>
 
       <textarea
-        :value="item.whyNow ?? ''"
+        ref="whyNowRef"
+        v-model="whyNow"
         rows="4"
         class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.whyNow')"
-        @input="handleTextInput('whyNow', $event)"
+        @blur="flushWhyNow"
       />
 
       <textarea
-        :value="item.desiredDirection ?? ''"
+        ref="desiredDirectionRef"
+        v-model="desiredDirection"
         rows="4"
         class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.desiredDirection')"
-        @input="handleTextInput('desiredDirection', $event)"
+        @blur="flushDesiredDirection"
       />
 
       <textarea
-        :value="item.tradeoffs ?? ''"
+        ref="tradeoffsRef"
+        v-model="tradeoffs"
         rows="4"
         class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.tradeoffs')"
-        @input="handleTextInput('tradeoffs', $event)"
+        @blur="flushTradeoffs"
       />
 
       <textarea
-        :value="signalsText(item.progressSignals)"
+        ref="progressSignalsRef"
+        v-model="progressSignals"
         rows="4"
         class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.progressSignals')"
-        @change="emitFieldChange('progressSignals', ($event.target as HTMLTextAreaElement).value)"
+        @change="flushProgressSignals"
+        @blur="flushProgressSignals"
       />
 
       <textarea
-        :value="signalsText(item.riskSignals)"
+        ref="riskSignalsRef"
+        v-model="riskSignals"
         rows="4"
         class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.riskSignals')"
-        @change="emitFieldChange('riskSignals', ($event.target as HTMLTextAreaElement).value)"
+        @change="flushRiskSignals"
+        @blur="flushRiskSignals"
       />
 
       <section v-if="item.status === 'closed'" class="space-y-2 rounded-xl border border-white/45 bg-white/35 p-2.5">
         <input
-          :value="item.closingReflection?.closedAt ?? ''"
+          ref="closedAtRef"
+          v-model="closedAt"
           type="text"
           class="neo-input w-full px-3 py-2 text-xs"
           :placeholder="t('planning.objects.form.closedAt')"
-          @change="emitFieldChange('closingReflection.closedAt', ($event.target as HTMLInputElement).value)"
+          @change="flushClosedAt"
+          @blur="flushClosedAt"
         />
         <textarea
-          :value="item.closingReflection?.summary ?? ''"
+          ref="closingSummaryRef"
+          v-model="closingSummary"
           rows="2"
           class="neo-input min-h-[4.25rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
           :placeholder="t('planning.objects.form.closingSummary')"
-          @input="handleTextInput('closingReflection.summary', $event)"
+          @blur="flushClosingSummary"
         />
         <div class="grid gap-2 sm:grid-cols-3">
           <textarea
-            :value="item.closingReflection?.workedWell ?? ''"
+            ref="workedWellRef"
+            v-model="workedWell"
             rows="3"
             class="neo-input min-h-[5.5rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
             :placeholder="t('planning.objects.form.workedWell')"
-            @input="handleTextInput('closingReflection.workedWell', $event)"
+            @blur="flushWorkedWell"
           />
           <textarea
-            :value="item.closingReflection?.wasDifficult ?? ''"
+            ref="wasDifficultRef"
+            v-model="wasDifficult"
             rows="3"
             class="neo-input min-h-[5.5rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
             :placeholder="t('planning.objects.form.wasDifficult')"
-            @input="handleTextInput('closingReflection.wasDifficult', $event)"
+            @blur="flushWasDifficult"
           />
           <textarea
-            :value="item.closingReflection?.learned ?? ''"
+            ref="learnedRef"
+            v-model="learned"
             rows="3"
             class="neo-input min-h-[5.5rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
             :placeholder="t('planning.objects.form.learned')"
-            @input="handleTextInput('closingReflection.learned', $event)"
+            @blur="flushLearned"
           />
         </div>
       </section>
@@ -214,6 +227,7 @@ import IconPicker from '@/components/shared/IconPicker.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import PriorityYearsDropdown from '@/components/objects/PriorityYearsDropdown.vue'
 import type { LinkedYear } from '@/components/objects/PriorityYearsDropdown.vue'
+import { useEditableField } from '@/composables/useEditableField'
 import { useT } from '@/composables/useT'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 
@@ -233,14 +247,87 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useT()
-const titleRef = ref<HTMLInputElement | null>(null)
+
+function emitFieldChange(field: string, value: unknown): void {
+  emit('field-change', props.item.id, field, value)
+}
+
+function signalsToText(signals: string[] | undefined): string {
+  return (signals ?? []).join('\n')
+}
+
+const TITLE_DELAY_MS = 400
+const TEXT_DELAY_MS = 500
+
+const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+  source: () => props.item.title,
+  commit: (value) => emitFieldChange('title', value),
+  delay: TITLE_DELAY_MS,
+})
+
+const { value: whyNow, inputRef: whyNowRef, flush: flushWhyNow } = useEditableField({
+  source: () => props.item.whyNow,
+  commit: (value) => emitFieldChange('whyNow', value),
+  delay: TEXT_DELAY_MS,
+})
+
+const { value: desiredDirection, inputRef: desiredDirectionRef, flush: flushDesiredDirection } = useEditableField({
+  source: () => props.item.desiredDirection,
+  commit: (value) => emitFieldChange('desiredDirection', value),
+  delay: TEXT_DELAY_MS,
+})
+
+const { value: tradeoffs, inputRef: tradeoffsRef, flush: flushTradeoffs } = useEditableField({
+  source: () => props.item.tradeoffs,
+  commit: (value) => emitFieldChange('tradeoffs', value),
+  delay: TEXT_DELAY_MS,
+})
+
+const { value: progressSignals, inputRef: progressSignalsRef, flush: flushProgressSignals } = useEditableField<string[], string>({
+  source: () => props.item.progressSignals,
+  format: signalsToText,
+  commit: (value) => emitFieldChange('progressSignals', value),
+})
+
+const { value: riskSignals, inputRef: riskSignalsRef, flush: flushRiskSignals } = useEditableField<string[], string>({
+  source: () => props.item.riskSignals,
+  format: signalsToText,
+  commit: (value) => emitFieldChange('riskSignals', value),
+})
+
+const { value: closedAt, inputRef: closedAtRef, flush: flushClosedAt } = useEditableField({
+  source: () => props.item.closingReflection?.closedAt,
+  commit: (value) => emitFieldChange('closingReflection.closedAt', value),
+})
+
+const { value: closingSummary, inputRef: closingSummaryRef, flush: flushClosingSummary } = useEditableField({
+  source: () => props.item.closingReflection?.summary,
+  commit: (value) => emitFieldChange('closingReflection.summary', value),
+  delay: TEXT_DELAY_MS,
+})
+
+const { value: workedWell, inputRef: workedWellRef, flush: flushWorkedWell } = useEditableField({
+  source: () => props.item.closingReflection?.workedWell,
+  commit: (value) => emitFieldChange('closingReflection.workedWell', value),
+  delay: TEXT_DELAY_MS,
+})
+
+const { value: wasDifficult, inputRef: wasDifficultRef, flush: flushWasDifficult } = useEditableField({
+  source: () => props.item.closingReflection?.wasDifficult,
+  commit: (value) => emitFieldChange('closingReflection.wasDifficult', value),
+  delay: TEXT_DELAY_MS,
+})
+
+const { value: learned, inputRef: learnedRef, flush: flushLearned } = useEditableField({
+  source: () => props.item.closingReflection?.learned,
+  commit: (value) => emitFieldChange('closingReflection.learned', value),
+  delay: TEXT_DELAY_MS,
+})
+
 const menuRef = ref<HTMLElement | null>(null)
 const linksRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
 const linksOpen = ref(false)
-
-let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
-let textDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
 const linkedYears = computed<LinkedYear[]>(() =>
   (props.item.years ?? []).map((year) => ({ yearRef: year, displayLabel: year })),
@@ -252,30 +339,6 @@ const linkedMetrics = computed(() => [
   { label: t('planning.objects.families.trackers'), value: props.item.linkedCounts?.trackers ?? 0 },
   { label: t('planning.objects.families.initiatives'), value: props.item.linkedCounts?.initiatives ?? 0 },
 ])
-
-function emitFieldChange(field: string, value: unknown): void {
-  emit('field-change', props.item.id, field, value)
-}
-
-function handleTitleInput(event: Event): void {
-  const value = (event.target as HTMLInputElement).value
-  clearTimeout(titleDebounceTimer)
-  titleDebounceTimer = setTimeout(() => {
-    emitFieldChange('title', value)
-  }, 400)
-}
-
-function handleTextInput(field: string, event: Event): void {
-  const value = (event.target as HTMLTextAreaElement).value
-  clearTimeout(textDebounceTimer)
-  textDebounceTimer = setTimeout(() => {
-    emitFieldChange(field, value)
-  }, 500)
-}
-
-function signalsText(signals: string[] | undefined): string {
-  return (signals ?? []).join('\n')
-}
 
 function handleArchive(): void {
   menuOpen.value = false
@@ -315,7 +378,5 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
-  clearTimeout(titleDebounceTimer)
-  clearTimeout(textDebounceTimer)
 })
 </script>

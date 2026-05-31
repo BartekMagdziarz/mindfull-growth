@@ -86,6 +86,7 @@
               </AppButton>
 
               <input
+                ref="draftValueRef"
                 v-model="draftValue"
                 type="number"
                 :step="inputStep"
@@ -130,6 +131,7 @@
       <div class="flex flex-wrap gap-2 border-t border-white/35 pt-4">
         <template v-if="item.isScheduledToday">
           <input
+            ref="moveDayInputRef"
             v-model="moveDayRef"
             type="date"
             class="neo-input min-w-[10rem] px-4 py-3 text-sm"
@@ -166,6 +168,7 @@ import type { DayRef } from '@/domain/period'
 import type { MeasurementTarget } from '@/domain/planning'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
+import { useEditableField } from '@/composables/useEditableField'
 import { useT } from '@/composables/useT'
 import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
 import { getPeriodBounds } from '@/utils/periods'
@@ -201,7 +204,28 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useT()
-const draftValue = ref('')
+
+const draftValueRef = ref<HTMLInputElement | null>(null)
+const moveDayInputRef = ref<HTMLInputElement | null>(null)
+
+function getMeasurementDraft(item: TodayItem): string {
+  if (
+    item.kind === 'measurement' &&
+    item.todayEntry?.value !== null &&
+    item.todayEntry?.value !== undefined
+  ) {
+    return formatMeasurementValue(item.todayEntry.value)
+  }
+  return ''
+}
+
+const { value: draftValue } = useEditableField<TodayItem, string>({
+  source: () => props.item,
+  format: (item) => (item ? getMeasurementDraft(item) : ''),
+  isFocused: () =>
+    typeof document !== 'undefined' && document.activeElement === draftValueRef.value,
+})
+
 const moveDayRef = ref(props.todayDayRef)
 
 const title = computed(() =>
@@ -347,13 +371,11 @@ const canMove = computed(() => Boolean(moveDayRef.value) && moveDayRef.value !==
 watch(
   () => props.item,
   () => {
-    moveDayRef.value = props.todayDayRef
-    draftValue.value =
-      props.item.kind === 'measurement' &&
-      props.item.todayEntry?.value !== null &&
-      props.item.todayEntry?.value !== undefined
-        ? formatMeasurementValue(props.item.todayEntry.value)
-        : ''
+    const moveFocused =
+      typeof document !== 'undefined' && document.activeElement === moveDayInputRef.value
+    if (!moveFocused) {
+      moveDayRef.value = props.todayDayRef
+    }
   },
   { immediate: true, deep: true }
 )

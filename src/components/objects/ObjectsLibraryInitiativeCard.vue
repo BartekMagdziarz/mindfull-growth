@@ -16,11 +16,11 @@
         />
         <input
           ref="titleRef"
-          :value="item.title"
+          v-model="title"
           type="text"
           class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
           :placeholder="t('planning.objects.form.title')"
-          @input="handleTitleInput"
+          @blur="flushTitle"
         />
         <div class="-mr-10 flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <div ref="menuRef" class="relative">
@@ -87,6 +87,7 @@ import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
+import { useEditableField } from '@/composables/useEditableField'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 
 const props = defineProps<{
@@ -106,23 +107,18 @@ const emit = defineEmits<{
 
 const { t } = useT()
 
-const titleRef = ref<HTMLInputElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
-
-let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
 function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', props.item.id, field, value)
 }
 
-function handleTitleInput(event: Event): void {
-  const value = (event.target as HTMLInputElement).value
-  clearTimeout(titleDebounceTimer)
-  titleDebounceTimer = setTimeout(() => {
-    emitFieldChange('title', value)
-  }, 400)
-}
+const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+  source: () => props.item.title,
+  commit: (value) => emitFieldChange('title', value),
+  delay: 400,
+})
 
 function handleArchive(): void {
   menuOpen.value = false
@@ -158,6 +154,5 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
-  clearTimeout(titleDebounceTimer)
 })
 </script>

@@ -16,11 +16,11 @@
         />
         <input
           ref="titleRef"
-          :value="item.title"
+          v-model="title"
           type="text"
           class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
           :placeholder="t('planning.objects.form.title')"
-          @input="handleTitleInput"
+          @blur="flushTitle"
         />
         <div class="-mr-[76px] flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <button
@@ -258,11 +258,12 @@
                     {{ t('planning.objects.form.targetValue') }}
                   </span>
                   <input
-                    :value="item.target.value"
+                    ref="targetValueRef"
+                    v-model="targetValue"
                     type="number"
                     step="any"
                     class="neo-input w-16 px-2 py-1 text-xs"
-                    @input="handleTargetValueInput"
+                    @blur="flushTargetValue"
                   />
                 </div>
               </div>
@@ -275,10 +276,11 @@
               {{ t('planning.objects.form.completionRules') }}
             </div>
             <textarea
-              :value="item.description ?? ''"
+              ref="descriptionRef"
+              v-model="description"
               class="neo-input min-h-[2.5rem] w-full resize-y px-2 py-1 text-xs"
               :placeholder="t('planning.objects.form.completionRulesPlaceholder')"
-              @input="handleDescriptionInput"
+              @blur="flushDescription"
             />
           </div>
         </div>
@@ -305,6 +307,7 @@ import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
+import { useEditableField } from '@/composables/useEditableField'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 import type { MonthRef, WeekRef } from '@/domain/period'
@@ -335,7 +338,6 @@ const emit = defineEmits<{
 
 const { t, locale } = useT()
 
-const titleRef = ref<HTMLInputElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
 const periodsAreaRef = ref<HTMLElement | null>(null)
 const periodPickerRef = ref<HTMLElement | null>(null)
@@ -347,9 +349,28 @@ const isLoadingPast = ref(false)
 const BATCH_SIZE = 4
 const FUTURE_COUNT = 7
 
-let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
-let descriptionDebounceTimer: ReturnType<typeof setTimeout> | undefined
-let targetValueDebounceTimer: ReturnType<typeof setTimeout> | undefined
+const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+  source: () => props.item.title,
+  commit: (value) => emitFieldChange('title', value),
+  delay: 400,
+})
+
+const { value: description, inputRef: descriptionRef, flush: flushDescription } = useEditableField({
+  source: () => props.item.description,
+  commit: (value) => emitFieldChange('description', value),
+  delay: 400,
+})
+
+const { value: targetValue, inputRef: targetValueRef, flush: flushTargetValue } = useEditableField<number | undefined, string>({
+  source: () => props.item.target?.value,
+  format: (v) => (v == null ? '' : String(v)),
+  commit: (raw) => {
+    const num = Number(raw)
+    if (!Number.isFinite(num)) return
+    emitFieldChange('target.value', num)
+  },
+  delay: 400,
+})
 
 const cadenceLabel = computed(() => {
   const opt = props.cadenceOptions.find((o) => o.value === props.item.cadence)
@@ -472,32 +493,6 @@ function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', props.item.id, field, value)
 }
 
-function handleTitleInput(event: Event): void {
-  const value = (event.target as HTMLInputElement).value
-  clearTimeout(titleDebounceTimer)
-  titleDebounceTimer = setTimeout(() => {
-    emitFieldChange('title', value)
-  }, 400)
-}
-
-function handleDescriptionInput(event: Event): void {
-  const value = (event.target as HTMLTextAreaElement).value
-  clearTimeout(descriptionDebounceTimer)
-  descriptionDebounceTimer = setTimeout(() => {
-    emitFieldChange('description', value)
-  }, 400)
-}
-
-function handleTargetValueInput(event: Event): void {
-  const raw = (event.target as HTMLInputElement).value
-  const value = Number(raw)
-  if (!Number.isFinite(value)) return
-  clearTimeout(targetValueDebounceTimer)
-  targetValueDebounceTimer = setTimeout(() => {
-    emitFieldChange('target.value', value)
-  }, 400)
-}
-
 watch(periodPickerOpen, async (isOpen) => {
   if (!isOpen) {
     pastBatchCount.value = 1
@@ -571,8 +566,5 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
-  clearTimeout(titleDebounceTimer)
-  clearTimeout(descriptionDebounceTimer)
-  clearTimeout(targetValueDebounceTimer)
 })
 </script>

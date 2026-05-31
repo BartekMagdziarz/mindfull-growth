@@ -115,6 +115,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
+import { useEditableField } from '@/composables/useEditableField'
 import type { MeasurementEntryMode } from '@/domain/planning'
 
 const props = withDefaults(
@@ -135,19 +136,19 @@ const emit = defineEmits<{
   'save-value': [value: number]
 }>()
 
-const draftValue = ref('')
 const showInlineEdit = ref(false)
 const inlineInputRef = ref<HTMLInputElement | null>(null)
 const valueInputRef = ref<HTMLInputElement | null>(null)
 const justSubmitted = ref(false)
 
-watch(
-  () => props.currentValue,
-  (value) => {
-    draftValue.value = value ? formatValue(value) : ''
-  },
-  { immediate: true },
-)
+const { value: draftValue } = useEditableField<number, string>({
+  source: () => props.currentValue,
+  format: (v) => (v ? formatValue(v) : ''),
+  isFocused: () =>
+    typeof document !== 'undefined' &&
+    (document.activeElement === inlineInputRef.value ||
+      document.activeElement === valueInputRef.value),
+})
 
 watch(showInlineEdit, async (show) => {
   if (show) {

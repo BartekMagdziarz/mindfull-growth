@@ -16,11 +16,11 @@
         />
         <input
           ref="titleRef"
-          :value="item.title"
+          v-model="title"
           type="text"
           class="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
           :placeholder="t('planning.objects.form.goalTitlePlaceholder')"
-          @input="handleTitleInput"
+          @blur="flushTitle"
         />
         <div class="-mr-10 flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <div ref="menuRef" class="relative">
@@ -151,6 +151,7 @@ import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import ObjectsLibraryKrCard from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedMonth } from '@/components/objects/GoalMonthsDropdown.vue'
+import { useEditableField } from '@/composables/useEditableField'
 import type {
   ObjectsLibraryFilterOption,
   ObjectsLibraryListItem,
@@ -192,11 +193,18 @@ const emit = defineEmits<{
 
 const { t } = useT()
 
-const titleRef = ref<HTMLInputElement | null>(null)
 const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
 
-let titleDebounceTimer: ReturnType<typeof setTimeout> | undefined
+function emitFieldChange(field: string, value: unknown): void {
+  emit('field-change', props.item.id, field, value)
+}
+
+const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField({
+  source: () => props.item.title,
+  commit: (value) => emitFieldChange('title', value),
+  delay: 400,
+})
 
 const validKrCount = computed(() => (props.item.childPreviews ?? []).length)
 
@@ -271,18 +279,6 @@ const targetDateChipClass = computed(() => {
   return 'bg-neu-base text-on-surface-variant shadow-neu-pressed'
 })
 
-function emitFieldChange(field: string, value: unknown): void {
-  emit('field-change', props.item.id, field, value)
-}
-
-function handleTitleInput(event: Event): void {
-  const value = (event.target as HTMLInputElement).value
-  clearTimeout(titleDebounceTimer)
-  titleDebounceTimer = setTimeout(() => {
-    emitFieldChange('title', value)
-  }, 400)
-}
-
 function handleAddKeyResult(): void {
   menuOpen.value = false
   emit('add-key-result', props.item.id)
@@ -328,6 +324,5 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
-  clearTimeout(titleDebounceTimer)
 })
 </script>
