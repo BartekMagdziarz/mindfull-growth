@@ -31,6 +31,7 @@ import { planningStateDexieRepository } from '@/repositories/planningStateDexieR
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { loadPlanningLibraryObjects } from '@/services/planningObjectCollections'
 import { loadPlanningCached } from '@/services/planningQueryCache'
+import { isGoalOpen } from '@/services/planningVisibility'
 import { getPeriodRefsForDate, getPeriodType, isPeriodRef, periodIntersectsPeriod } from '@/utils/periods'
 
 export type ObjectsLibraryFamily = 'priorities' | 'goals' | 'habits' | 'trackers' | 'initiatives'
@@ -690,7 +691,7 @@ export async function loadObjectsLibraryBundle(
           .sort(compareActivePriorities)
           .map((priority) => ({ id: priority.id, label: priorityLabel(priority) })),
         goals: deps.goals
-          .filter((goal) => goal.isActive && goal.status === 'open')
+          .filter(isGoalOpen)
           .sort((left, right) => left.title.localeCompare(right.title))
           .map((goal) => ({ id: goal.id, label: goal.title })),
       },

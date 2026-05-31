@@ -1,5 +1,5 @@
 import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
-import type { Goal, Initiative, KeyResult, Habit, Tracker } from '@/domain/planning'
+import type { KeyResult, Habit, Tracker } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementSubjectType, PeriodObjectReflection, PeriodReflection } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
@@ -94,20 +94,8 @@ export function clearCalendarViewCaches(): void {
   calendarYearSummaryCache.clear()
 }
 
-function isGoalOpen(goal: Goal): boolean {
-  return goal.isActive && goal.status === 'open'
-}
-
-function isMeasurementSubjectOpen(subject: MeasureableSubject): boolean {
-  return subject.isActive && subject.status === 'open'
-}
-
 function isTracker(subject: MeasureableSubject): subject is Tracker {
   return !('target' in subject)
-}
-
-function isInitiativeActive(initiative: Initiative): boolean {
-  return initiative.isActive && initiative.status === 'open'
 }
 
 function resolveSubjectType(subject: MeasureableSubject): MeasurementSubjectType {
@@ -181,32 +169,37 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
         .filter((item) => item.periodType === 'month')
         .map((item) => item.periodRef as MonthRef),
     )
-    const openGoals = objects.goals.filter(isGoalOpen)
-    const openGoalIds = new Set(openGoals.map((goal) => goal.id))
-    const openGoalMap = new Map(openGoals.map((goal) => [goal.id, goal]))
-    const openKeyResults = objects.keyResults.filter(isMeasurementSubjectOpen)
-    const openKrMap = new Map(openKeyResults.map((kr) => [kr.id, kr]))
-    const openSubjects = [...objects.keyResults, ...objects.habits, ...objects.trackers].filter(
-      isMeasurementSubjectOpen,
+    // History-faithful resolution: include every non-archived object regardless of
+    // status. Whether an object counts for a given month is decided by its link
+    // record's `activityState === 'active'` below — a closed (completed/dropped/
+    // retired) object stays visible in the months it was active. Archived objects
+    // (isActive: false) remain hidden everywhere.
+    const visibleGoals = objects.goals.filter((goal) => goal.isActive)
+    const visibleGoalIds = new Set(visibleGoals.map((goal) => goal.id))
+    const visibleGoalMap = new Map(visibleGoals.map((goal) => [goal.id, goal]))
+    const visibleKeyResults = objects.keyResults.filter((kr) => kr.isActive)
+    const visibleKrMap = new Map(visibleKeyResults.map((kr) => [kr.id, kr]))
+    const visibleSubjects = [...objects.keyResults, ...objects.habits, ...objects.trackers].filter(
+      (subject) => subject.isActive,
     )
-    const openSubjectKeys = new Set(
-      openSubjects.map((subject) => `${resolveSubjectType(subject)}:${subject.id}`),
+    const visibleSubjectKeys = new Set(
+      visibleSubjects.map((subject) => `${resolveSubjectType(subject)}:${subject.id}`),
     )
-    const openTrackerKeys = new Set(
-      openSubjects
+    const visibleTrackerKeys = new Set(
+      visibleSubjects
         .filter(isTracker)
         .map((tracker) => `${resolveSubjectType(tracker)}:${tracker.id}`),
     )
     const activeInitiativeIds = new Set(
-      objects.initiatives.filter(isInitiativeActive).map((initiative) => initiative.id),
+      objects.initiatives.filter((initiative) => initiative.isActive).map((initiative) => initiative.id),
     )
 
     // Filter entries by subject type for pill data
     const krEntries = allEntries.filter((entry) => entry.subjectType === 'keyResult')
     const habitEntries = allEntries.filter((entry) => entry.subjectType === 'habit')
 
-    const openHabits = objects.habits.filter(isMeasurementSubjectOpen)
-    const openHabitMap = new Map(openHabits.map((h) => [h.id, h]))
+    const visibleHabits = objects.habits.filter((habit) => habit.isActive)
+    const visibleHabitMap = new Map(visibleHabits.map((h) => [h.id, h]))
 
     function buildPillData(
       subject: MeasureableSubject,
@@ -250,7 +243,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
             (state) =>
               state.monthRef === monthRef &&
               state.activityState === 'active' &&
-              openGoalIds.has(state.goalId),
+              visibleGoalIds.has(state.goalId),
           )
           .map((state) => state.goalId),
       )
@@ -262,14 +255,14 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
               state.monthRef === monthRef &&
               state.activityState === 'active' &&
               state.subjectType === 'keyResult' &&
-              openKrMap.has(state.subjectId),
+              visibleKrMap.has(state.subjectId),
           )
           .map((state) => state.subjectId),
       )
 
       const krsByGoal = new Map<string, KeyResult[]>()
       for (const krId of activeKrIds) {
-        const kr = openKrMap.get(krId)
+        const kr = visibleKrMap.get(krId)
         if (!kr) continue
         const existing = krsByGoal.get(kr.goalId) ?? []
         existing.push(kr)
@@ -280,7 +273,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       const weekRefs = getChildPeriods(monthRef) as WeekRef[]
 
       return [...activeGoalIdsForMonth].map((goalId) => {
-        const goal = openGoalMap.get(goalId)
+        const goal = visibleGoalMap.get(goalId)
         const krs = krsByGoal.get(goalId) ?? []
 
         return {
@@ -299,7 +292,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
               state.monthRef === monthRef &&
               state.activityState === 'active' &&
               state.subjectType === 'habit' &&
-              openHabitMap.has(state.subjectId),
+              visibleHabitMap.has(state.subjectId),
           )
           .map((state) => state.subjectId),
       )
@@ -307,7 +300,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
       const weekRefs = getChildPeriods(monthRef) as WeekRef[]
 
       return [...activeHabitIds].flatMap((habitId) => {
-        const habit = openHabitMap.get(habitId)
+        const habit = visibleHabitMap.get(habitId)
         if (!habit) return []
         return [{
           habitId,
@@ -329,7 +322,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
               (state) =>
                 state.monthRef === monthRef &&
                 state.activityState === 'active' &&
-                openGoalIds.has(state.goalId),
+                visibleGoalIds.has(state.goalId),
             )
             .map((state) => state.goalId),
         ).size,
@@ -340,7 +333,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
                 state.monthRef === monthRef &&
                 state.activityState === 'active' &&
                 state.subjectType !== 'tracker' &&
-                openSubjectKeys.has(`${state.subjectType}:${state.subjectId}`),
+                visibleSubjectKeys.has(`${state.subjectType}:${state.subjectId}`),
             )
             .map((state) => `${state.subjectType}:${state.subjectId}`),
         ).size,
@@ -351,7 +344,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
                 state.monthRef === monthRef &&
                 state.activityState === 'active' &&
                 state.subjectType === 'tracker' &&
-                openTrackerKeys.has(`${state.subjectType}:${state.subjectId}`),
+                visibleTrackerKeys.has(`${state.subjectType}:${state.subjectId}`),
             )
             .map((state) => `${state.subjectType}:${state.subjectId}`),
         ).size,
@@ -374,7 +367,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
               (state) =>
                 monthRefsSet.has(state.monthRef) &&
                 state.activityState === 'active' &&
-                openGoalIds.has(state.goalId),
+                visibleGoalIds.has(state.goalId),
             )
             .map((state) => state.goalId),
         ).size,
@@ -385,7 +378,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
                 monthRefsSet.has(state.monthRef) &&
                 state.activityState === 'active' &&
                 state.subjectType !== 'tracker' &&
-                openSubjectKeys.has(`${state.subjectType}:${state.subjectId}`),
+                visibleSubjectKeys.has(`${state.subjectType}:${state.subjectId}`),
             )
             .map((state) => `${state.subjectType}:${state.subjectId}`),
         ).size,
@@ -396,7 +389,7 @@ export async function getCalendarYearSummary(yearRef: YearRef): Promise<Calendar
                 monthRefsSet.has(state.monthRef) &&
                 state.activityState === 'active' &&
                 state.subjectType === 'tracker' &&
-                openTrackerKeys.has(`${state.subjectType}:${state.subjectId}`),
+                visibleTrackerKeys.has(`${state.subjectType}:${state.subjectId}`),
             )
             .map((state) => `${state.subjectType}:${state.subjectId}`),
         ).size,

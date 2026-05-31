@@ -236,18 +236,6 @@ function isWeekTrackerReflectionItem(
   return item.subjectType === 'tracker'
 }
 
-function isGoalOpen(goal: Goal): boolean {
-  return goal.isActive && goal.status === 'open'
-}
-
-function isMeasurementSubjectOpen(subject: MeasureableSubject): boolean {
-  return subject.isActive && subject.status === 'open'
-}
-
-function isInitiativeActive(initiative: Initiative): boolean {
-  return initiative.isActive && initiative.status === 'open'
-}
-
 function buildSubjectKey(subjectType: MeasurementSubjectType, subjectId: string): string {
   return `${subjectType}:${subjectId}`
 }
@@ -514,18 +502,18 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
       loadMonthPlanningDependencies(monthRef),
     ])
 
-    const openGoals = new Map(deps.goals.filter(isGoalOpen).map((goal) => [goal.id, goal]))
+    const visibleGoals = new Map(deps.goals.filter((goal) => goal.isActive).map((goal) => [goal.id, goal]))
     const goalItems = deps.goalMonthStates
       .filter((state) => state.monthRef === monthRef)
       .flatMap((state) => {
-        const goal = openGoals.get(state.goalId)
+        const goal = visibleGoals.get(state.goalId)
         return goal ? [{ goal, state }] : []
       })
 
     const subjectMap = buildSubjectMap(
-      deps.keyResults.filter(isMeasurementSubjectOpen),
-      deps.habits.filter(isMeasurementSubjectOpen),
-      deps.trackers.filter(isMeasurementSubjectOpen),
+      deps.keyResults.filter((subject) => subject.isActive),
+      deps.habits.filter((subject) => subject.isActive),
+      deps.trackers.filter((subject) => subject.isActive),
     )
     const monthStates = deps.measurementMonthStates.filter((state) => state.monthRef === monthRef)
     const weekStates = deps.measurementWeekStates.filter((state) =>
@@ -605,13 +593,13 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
 
     const measurementItems = sortMeasurementItems(monthMeasurementItems)
 
-    const openInitiatives = new Map(
-      deps.initiatives.filter(isInitiativeActive).map((initiative) => [initiative.id, initiative]),
+    const visibleInitiatives = new Map(
+      deps.initiatives.filter((initiative) => initiative.isActive).map((initiative) => [initiative.id, initiative]),
     )
     const initiativeItems = deps.initiativePlanStates
       .filter((planState) => isInitiativePlanInMonth(planState, monthRef))
       .flatMap((planState) => {
-        const initiative = openInitiatives.get(planState.initiativeId)
+        const initiative = visibleInitiatives.get(planState.initiativeId)
         return initiative ? [{ initiative, planState }] : []
       })
 
@@ -698,9 +686,9 @@ export async function getWeekRelevantObjects(
     const deps = await loadWeekPlanningDependencies(weekRef)
 
     const subjectMap = buildSubjectMap(
-      deps.keyResults.filter(isMeasurementSubjectOpen),
-      deps.habits.filter(isMeasurementSubjectOpen),
-      deps.trackers.filter(isMeasurementSubjectOpen),
+      deps.keyResults.filter((subject) => subject.isActive),
+      deps.habits.filter((subject) => subject.isActive),
+      deps.trackers.filter((subject) => subject.isActive),
     )
 
     const relevantMonthStates = deps.measurementMonthStates.filter((state) =>
@@ -852,11 +840,11 @@ export async function getWeekRelevantObjects(
       }
     }
 
-    const openInitiatives = new Map(
-      deps.initiatives.filter(isInitiativeActive).map((initiative) => [initiative.id, initiative]),
+    const visibleInitiatives = new Map(
+      deps.initiatives.filter((initiative) => initiative.isActive).map((initiative) => [initiative.id, initiative]),
     )
     const planningInitiatives = deps.initiativePlanStates.flatMap((planState) => {
-      const initiative = openInitiatives.get(planState.initiativeId)
+      const initiative = visibleInitiatives.get(planState.initiativeId)
       if (!initiative) {
         return []
       }
@@ -878,7 +866,7 @@ export async function getWeekRelevantObjects(
       .filter((item) => isInitiativePlanInWeek(item.planState, weekRef))
       .map((item) => ({ initiative: item.initiative, planState: item.planState }))
 
-    const openGoals = new Map(deps.goals.filter(isGoalOpen).map((goal) => [goal.id, goal]))
+    const visibleGoals = new Map(deps.goals.filter((goal) => goal.isActive).map((goal) => [goal.id, goal]))
     const goalMonthStateMap = new Map(
       deps.goalMonthStates
         .filter((state) => overlappingMonthRefs.includes(state.monthRef))
@@ -897,7 +885,7 @@ export async function getWeekRelevantObjects(
     }
 
     const goalItems = [...reflectionGoalIds].flatMap((goalId) => {
-      const goal = openGoals.get(goalId)
+      const goal = visibleGoals.get(goalId)
       if (!goal) {
         return []
       }

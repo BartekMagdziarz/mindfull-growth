@@ -14,6 +14,7 @@ import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepositor
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { isGoalOpen, isMeasurementSubjectOpen } from '@/services/planningVisibility'
 import {
   activateMeasurementInMonth,
   assignMeasurementToWholeMonthView,
@@ -385,10 +386,10 @@ export function usePlannerState(
         }
       }
 
-      const openGoals = goals.filter(goal => goal.isActive && goal.status === 'open')
-      const openKeyResults = keyResults.filter(item => item.isActive && item.status === 'open')
-      const openHabits = habits.filter(item => item.isActive && item.status === 'open')
-      const openTrackers = trackers.filter(item => item.isActive && item.status === 'open')
+      const openGoals = goals.filter(isGoalOpen)
+      const openKeyResults = keyResults.filter(isMeasurementSubjectOpen)
+      const openHabits = habits.filter(isMeasurementSubjectOpen)
+      const openTrackers = trackers.filter(isMeasurementSubjectOpen)
 
       const goalIconMap = new Map<string, string>()
       for (const goal of openGoals) {

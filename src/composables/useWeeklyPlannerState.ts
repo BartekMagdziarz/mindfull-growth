@@ -14,6 +14,7 @@ import { initiativeDexieRepository } from '@/repositories/initiativeDexieReposit
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { isGoalOpen, isInitiativeActive, isMeasurementSubjectOpen } from '@/services/planningVisibility'
 import {
   clearMeasurementPlacementInWeek,
   linkMeasurementPeriod,
@@ -401,11 +402,11 @@ export function useWeeklyPlannerState(
         }
       }
 
-      const openGoals = goals.filter(goal => goal.isActive && goal.status === 'open')
-      const openKeyResults = keyResults.filter(item => item.isActive && item.status === 'open')
-      const openHabits = habits.filter(item => item.isActive && item.status === 'open')
-      const openTrackers = trackers.filter(item => item.isActive && item.status === 'open')
-      const openInitiatives = initiatives.filter(item => item.isActive && item.status === 'open')
+      const openGoals = goals.filter(isGoalOpen)
+      const openKeyResults = keyResults.filter(isMeasurementSubjectOpen)
+      const openHabits = habits.filter(isMeasurementSubjectOpen)
+      const openTrackers = trackers.filter(isMeasurementSubjectOpen)
+      const openInitiatives = initiatives.filter(isInitiativeActive)
 
       const goalIconMap = new Map<string, string>()
       const goalTitleMap = new Map<string, string>()

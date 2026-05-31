@@ -11,6 +11,7 @@ import { planningStateDexieRepository } from '@/repositories/planningStateDexieR
 import { type MeasureableSubject, type MeasurementSummary } from '@/services/measurementProgress'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
 import { loadPlanningCached } from '@/services/planningQueryCache'
+import { isInitiativeActive, isMeasurementSubjectOpen } from '@/services/planningVisibility'
 import {
   getWeekPlanningBundle,
   type MeasurementPlanningSummary,
@@ -297,6 +298,12 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
     const initiativeItems = new Map<string, TodayInitiativeItem>()
 
     for (const item of weekPlanning.relevant.measurementItems) {
+      // Forward gate: the week bundle now keeps closed-but-active subjects for the
+      // calendar's historical display, but Today must still hide anything no longer
+      // open (completed/dropped/retired or archived).
+      if (!isMeasurementSubjectOpen(item.subject)) {
+        continue
+      }
       const sectionId = classifyMeasurementItem(item, dayRef)
       if (!sectionId) {
         continue
@@ -311,6 +318,9 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
     }
 
     for (const item of weekPlanning.relevant.initiativeItems) {
+      if (!isInitiativeActive(item.initiative)) {
+        continue
+      }
       const sectionId = classifyInitiativeItem(item, dayRef, refs)
       if (!sectionId) {
         continue
