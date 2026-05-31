@@ -516,14 +516,17 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
 
     await Promise.all([...goalMonthRefs].map((monthRef) => linkGoalToMonth(goalId, monthRef as MonthRef)))
 
-    const periodLinkTasks: Promise<void>[] = []
+    // Link KR periods sequentially: when one KR spans multiple weeks in the same
+    // month, each week's link upserts the same measurement-month-state record.
+    // Running them concurrently makes every call read "no existing row" before any
+    // write lands, so they all take the insert path and collide on the unique
+    // [monthRef+subjectType+subjectId] index. The edit path (syncEditPeriodLinks)
+    // is sequential for the same reason.
     for (const { localId, id, cadence } of keyResults) {
       for (const periodRef of goalDraft.krPeriodRefsByLocalId[localId] ?? []) {
-        periodLinkTasks.push(linkKrPeriod(id, cadence, periodRef))
+        await linkKrPeriod(id, cadence, periodRef)
       }
     }
-
-    await Promise.all(periodLinkTasks)
   }
 
   function reset(): void {

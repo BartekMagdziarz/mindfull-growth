@@ -469,4 +469,90 @@ describe('planningState Dexie repository', () => {
     ).toHaveLength(1)
     expect(await planningStateDexieRepository.listTodayHiddenStatesForDay(firstDayRef)).toHaveLength(1)
   })
+
+  it('serializes concurrent same-key month-state upserts without a unique-index collision', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Stretch',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+
+    // Both upserts target the identical [monthRef+habit+id]; they are constructed
+    // before awaiting so their transactions overlap. Pre-fix, both read "no row"
+    // and took the add() path, so the second collided on the unique index and
+    // threw ConstraintError ("Failed to persist measurement month state...").
+    await expect(
+      Promise.all([
+        planningStateDexieRepository.upsertMeasurementMonthState({
+          monthRef,
+          subjectType: 'habit',
+          subjectId: habit.id,
+          activityState: 'active',
+          scheduleScope: 'unassigned',
+        }),
+        planningStateDexieRepository.upsertMeasurementMonthState({
+          monthRef,
+          subjectType: 'habit',
+          subjectId: habit.id,
+          activityState: 'paused',
+          scheduleScope: 'unassigned',
+        }),
+      ]),
+    ).resolves.toHaveLength(2)
+
+    expect(await planningStateDexieRepository.listMeasurementMonthStates()).toHaveLength(1)
+  })
+
+  it('serializes concurrent same-key week-state upserts without creating duplicates', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Mobility',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+
+    // An active weekly week-state requires an active overlapping month-state.
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+
+    // measurementWeekStates has NO unique index: a racing duplicate insert would
+    // not throw, it would silently create a second row. Serialization prevents it.
+    await Promise.all([
+      planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef,
+        subjectType: 'habit',
+        subjectId: habit.id,
+        activityState: 'active',
+        scheduleScope: 'whole-week',
+      }),
+      planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef,
+        subjectType: 'habit',
+        subjectId: habit.id,
+        activityState: 'active',
+        scheduleScope: 'specific-days',
+      }),
+    ])
+
+    expect(
+      await planningStateDexieRepository.listMeasurementWeekStatesForSubject('habit', habit.id),
+    ).toHaveLength(1)
+  })
 })

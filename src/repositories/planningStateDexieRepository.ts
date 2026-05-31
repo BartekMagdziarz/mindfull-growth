@@ -59,7 +59,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         .first()
     } catch (error) {
       console.error(`Failed to get goal month state for ${goalId} in ${monthRef}:`, error)
-      throw new Error(`Failed to retrieve goal month state for ${goalId} in ${monthRef}`)
+      throw new Error(`Failed to retrieve goal month state for ${goalId} in ${monthRef}`, { cause: error })
     }
   }
 
@@ -68,7 +68,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.goalMonthStates.toArray()
     } catch (error) {
       console.error('Failed to list goal month states:', error)
-      throw new Error('Failed to retrieve goal month states from database')
+      throw new Error('Failed to retrieve goal month states from database', { cause: error })
     }
   }
 
@@ -81,7 +81,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.goalMonthStates.where('monthRef').anyOf(monthRefs).toArray()
     } catch (error) {
       console.error('Failed to list goal month states for months:', error)
-      throw new Error('Failed to retrieve goal month states from database')
+      throw new Error('Failed to retrieve goal month states from database', { cause: error })
     }
   }
 
@@ -89,24 +89,30 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     data: CreateGoalMonthStatePayload | UpdateGoalMonthStatePayload
   ): Promise<GoalMonthState> {
     try {
-      const existing = await this.findExistingGoalMonthState(data)
-      const normalized = normalizeGoalMonthStatePayload(data, existing)
-      await this.assertGoalExists(normalized.goalId)
+      const record = await this.db.transaction(
+        'rw',
+        [this.db.goalMonthStates, this.db.goals],
+        async () => {
+          const existing = await this.findExistingGoalMonthState(data)
+          const normalized = normalizeGoalMonthStatePayload(data, existing)
+          await this.assertGoalExists(normalized.goalId)
 
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.goalMonthStates.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      }
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await this.db.goalMonthStates.put(toPlain(updated))
+            return updated
+          }
 
-      const created = createPlanningRecord<GoalMonthState>(normalized)
-      await this.db.goalMonthStates.add(toPlain(created))
+          const created = createPlanningRecord<GoalMonthState>(normalized)
+          await this.db.goalMonthStates.add(toPlain(created))
+          return created
+        }
+      )
       invalidatePlanningQueryCache()
-      return created
+      return record
     } catch (error) {
       console.error('Failed to upsert goal month state:', error)
-      throw new Error('Failed to persist goal month state in database')
+      throw new Error('Failed to persist goal month state in database', { cause: error })
     }
   }
 
@@ -119,7 +125,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete goal month state for ${goalId} in ${monthRef}:`, error)
-      throw new Error(`Failed to delete goal month state for ${goalId} in ${monthRef}`)
+      throw new Error(`Failed to delete goal month state for ${goalId} in ${monthRef}`, { cause: error })
     }
   }
 
@@ -138,7 +144,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to get measurement month state for ${subjectType}:${subjectId} in ${monthRef}:`,
         error
       )
-      throw new Error(`Failed to retrieve measurement month state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve measurement month state for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -147,7 +153,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.measurementMonthStates.toArray()
     } catch (error) {
       console.error('Failed to list measurement month states:', error)
-      throw new Error('Failed to retrieve measurement month states from database')
+      throw new Error('Failed to retrieve measurement month states from database', { cause: error })
     }
   }
 
@@ -160,7 +166,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.measurementMonthStates.where('monthRef').anyOf(monthRefs).toArray()
     } catch (error) {
       console.error('Failed to list measurement month states for months:', error)
-      throw new Error('Failed to retrieve measurement month states from database')
+      throw new Error('Failed to retrieve measurement month states from database', { cause: error })
     }
   }
 
@@ -175,7 +181,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         .toArray()
     } catch (error) {
       console.error(`Failed to list measurement month states for ${subjectType}:${subjectId}:`, error)
-      throw new Error(`Failed to retrieve measurement month states for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve measurement month states for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -183,24 +189,36 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     data: CreateMeasurementMonthStatePayload | UpdateMeasurementMonthStatePayload
   ): Promise<MeasurementMonthState> {
     try {
-      const existing = await this.findExistingMeasurementMonthState(data)
-      const normalized = normalizeMeasurementMonthStatePayload(data, existing)
-      await this.assertMeasurementMonthStateAllowed(normalized)
+      const record = await this.db.transaction(
+        'rw',
+        [
+          this.db.measurementMonthStates,
+          this.db.keyResults,
+          this.db.habits,
+          this.db.trackers,
+          this.db.goalMonthStates,
+        ],
+        async () => {
+          const existing = await this.findExistingMeasurementMonthState(data)
+          const normalized = normalizeMeasurementMonthStatePayload(data, existing)
+          await this.assertMeasurementMonthStateAllowed(normalized)
 
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.measurementMonthStates.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      }
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await this.db.measurementMonthStates.put(toPlain(updated))
+            return updated
+          }
 
-      const created = createPlanningRecord<MeasurementMonthState>(normalized)
-      await this.db.measurementMonthStates.add(toPlain(created))
+          const created = createPlanningRecord<MeasurementMonthState>(normalized)
+          await this.db.measurementMonthStates.add(toPlain(created))
+          return created
+        }
+      )
       invalidatePlanningQueryCache()
-      return created
+      return record
     } catch (error) {
       console.error('Failed to upsert measurement month state:', error)
-      throw new Error('Failed to persist measurement month state in database')
+      throw new Error('Failed to persist measurement month state in database', { cause: error })
     }
   }
 
@@ -220,7 +238,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to delete measurement month state for ${subjectType}:${subjectId} in ${monthRef}:`,
         error
       )
-      throw new Error(`Failed to delete measurement month state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to delete measurement month state for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -249,7 +267,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to get measurement week state for ${subjectType}:${subjectId} in ${weekRef}:`,
         error
       )
-      throw new Error(`Failed to retrieve measurement week state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve measurement week state for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -258,7 +276,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.measurementWeekStates.toArray()
     } catch (error) {
       console.error('Failed to list measurement week states:', error)
-      throw new Error('Failed to retrieve measurement week states from database')
+      throw new Error('Failed to retrieve measurement week states from database', { cause: error })
     }
   }
 
@@ -271,7 +289,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.measurementWeekStates.where('weekRef').anyOf(weekRefs).toArray()
     } catch (error) {
       console.error('Failed to list measurement week states for weeks:', error)
-      throw new Error('Failed to retrieve measurement week states from database')
+      throw new Error('Failed to retrieve measurement week states from database', { cause: error })
     }
   }
 
@@ -286,7 +304,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         .toArray()
     } catch (error) {
       console.error(`Failed to list measurement week states for ${subjectType}:${subjectId}:`, error)
-      throw new Error(`Failed to retrieve measurement week states for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve measurement week states for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -294,24 +312,37 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     data: CreateMeasurementWeekStatePayload | UpdateMeasurementWeekStatePayload
   ): Promise<MeasurementWeekState> {
     try {
-      const existing = await this.findExistingMeasurementWeekState(data)
-      const normalized = normalizeMeasurementWeekStatePayload(data, existing)
-      await this.assertMeasurementWeekStateAllowed(normalized)
+      const record = await this.db.transaction(
+        'rw',
+        [
+          this.db.measurementWeekStates,
+          this.db.keyResults,
+          this.db.habits,
+          this.db.trackers,
+          this.db.measurementMonthStates,
+          this.db.goalMonthStates,
+        ],
+        async () => {
+          const existing = await this.findExistingMeasurementWeekState(data)
+          const normalized = normalizeMeasurementWeekStatePayload(data, existing)
+          await this.assertMeasurementWeekStateAllowed(normalized)
 
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.measurementWeekStates.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      }
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await this.db.measurementWeekStates.put(toPlain(updated))
+            return updated
+          }
 
-      const created = createPlanningRecord<MeasurementWeekState>(normalized)
-      await this.db.measurementWeekStates.add(toPlain(created))
+          const created = createPlanningRecord<MeasurementWeekState>(normalized)
+          await this.db.measurementWeekStates.add(toPlain(created))
+          return created
+        }
+      )
       invalidatePlanningQueryCache()
-      return created
+      return record
     } catch (error) {
       console.error('Failed to upsert measurement week state:', error)
-      throw new Error('Failed to persist measurement week state in database')
+      throw new Error('Failed to persist measurement week state in database', { cause: error })
     }
   }
 
@@ -337,7 +368,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to delete measurement week state for ${subjectType}:${subjectId} in ${weekRef}:`,
         error
       )
-      throw new Error(`Failed to delete measurement week state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to delete measurement week state for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -357,7 +388,8 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         error
       )
       throw new Error(
-        `Failed to retrieve measurement day assignment for ${subjectType}:${subjectId}`
+        `Failed to retrieve measurement day assignment for ${subjectType}:${subjectId}`,
+        { cause: error }
       )
     }
   }
@@ -367,7 +399,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.measurementDayAssignments.toArray()
     } catch (error) {
       console.error('Failed to list measurement day assignments:', error)
-      throw new Error('Failed to retrieve measurement day assignments from database')
+      throw new Error('Failed to retrieve measurement day assignments from database', { cause: error })
     }
   }
 
@@ -382,7 +414,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         .toArray()
     } catch (error) {
       console.error('Failed to list measurement day assignments for day range:', error)
-      throw new Error('Failed to retrieve measurement day assignments from database')
+      throw new Error('Failed to retrieve measurement day assignments from database', { cause: error })
     }
   }
 
@@ -390,24 +422,37 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     data: CreateMeasurementDayAssignmentPayload | UpdateMeasurementDayAssignmentPayload
   ): Promise<MeasurementDayAssignment> {
     try {
-      const existing = await this.findExistingMeasurementDayAssignment(data)
-      const normalized = normalizeMeasurementDayAssignmentPayload(data, existing)
-      await this.assertMeasurementDayAssignmentAllowed(normalized)
+      const record = await this.db.transaction(
+        'rw',
+        [
+          this.db.measurementDayAssignments,
+          this.db.keyResults,
+          this.db.habits,
+          this.db.trackers,
+          this.db.measurementWeekStates,
+          this.db.measurementMonthStates,
+        ],
+        async () => {
+          const existing = await this.findExistingMeasurementDayAssignment(data)
+          const normalized = normalizeMeasurementDayAssignmentPayload(data, existing)
+          await this.assertMeasurementDayAssignmentAllowed(normalized)
 
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.measurementDayAssignments.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      }
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await this.db.measurementDayAssignments.put(toPlain(updated))
+            return updated
+          }
 
-      const created = createPlanningRecord<MeasurementDayAssignment>(normalized)
-      await this.db.measurementDayAssignments.add(toPlain(created))
+          const created = createPlanningRecord<MeasurementDayAssignment>(normalized)
+          await this.db.measurementDayAssignments.add(toPlain(created))
+          return created
+        }
+      )
       invalidatePlanningQueryCache()
-      return created
+      return record
     } catch (error) {
       console.error('Failed to upsert measurement day assignment:', error)
-      throw new Error('Failed to persist measurement day assignment in database')
+      throw new Error('Failed to persist measurement day assignment in database', { cause: error })
     }
   }
 
@@ -427,7 +472,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to delete measurement day assignment for ${subjectType}:${subjectId} on ${dayRef}:`,
         error
       )
-      throw new Error(`Failed to delete measurement day assignment for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to delete measurement day assignment for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -446,7 +491,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to get daily measurement entry for ${subjectType}:${subjectId} on ${dayRef}:`,
         error
       )
-      throw new Error(`Failed to retrieve daily measurement entry for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve daily measurement entry for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -455,7 +500,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.dailyMeasurementEntries.toArray()
     } catch (error) {
       console.error('Failed to list daily measurement entries:', error)
-      throw new Error('Failed to retrieve daily measurement entries from database')
+      throw new Error('Failed to retrieve daily measurement entries from database', { cause: error })
     }
   }
 
@@ -470,7 +515,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         .toArray()
     } catch (error) {
       console.error('Failed to list daily measurement entries for day range:', error)
-      throw new Error('Failed to retrieve daily measurement entries from database')
+      throw new Error('Failed to retrieve daily measurement entries from database', { cause: error })
     }
   }
 
@@ -478,24 +523,30 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     data: CreateDailyMeasurementEntryPayload | UpdateDailyMeasurementEntryPayload
   ): Promise<DailyMeasurementEntry> {
     try {
-      const existing = await this.findExistingDailyMeasurementEntry(data)
-      const normalized = normalizeDailyMeasurementEntryPayload(data, existing)
-      await this.assertDailyMeasurementEntryAllowed(normalized)
+      const record = await this.db.transaction(
+        'rw',
+        [this.db.dailyMeasurementEntries, this.db.keyResults, this.db.habits, this.db.trackers],
+        async () => {
+          const existing = await this.findExistingDailyMeasurementEntry(data)
+          const normalized = normalizeDailyMeasurementEntryPayload(data, existing)
+          await this.assertDailyMeasurementEntryAllowed(normalized)
 
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.dailyMeasurementEntries.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      }
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await this.db.dailyMeasurementEntries.put(toPlain(updated))
+            return updated
+          }
 
-      const created = createPlanningRecord<DailyMeasurementEntry>(normalized)
-      await this.db.dailyMeasurementEntries.add(toPlain(created))
+          const created = createPlanningRecord<DailyMeasurementEntry>(normalized)
+          await this.db.dailyMeasurementEntries.add(toPlain(created))
+          return created
+        }
+      )
       invalidatePlanningQueryCache()
-      return created
+      return record
     } catch (error) {
       console.error('Failed to upsert daily measurement entry:', error)
-      throw new Error('Failed to persist daily measurement entry in database')
+      throw new Error('Failed to persist daily measurement entry in database', { cause: error })
     }
   }
 
@@ -515,7 +566,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to delete daily measurement entry for ${subjectType}:${subjectId} on ${dayRef}:`,
         error
       )
-      throw new Error(`Failed to delete daily measurement entry for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to delete daily measurement entry for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -534,7 +585,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to get Today hidden state for ${subjectType}:${subjectId} on ${dayRef}:`,
         error
       )
-      throw new Error(`Failed to retrieve Today hidden state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to retrieve Today hidden state for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -543,7 +594,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.todayHiddenStates.toArray()
     } catch (error) {
       console.error('Failed to list Today hidden states:', error)
-      throw new Error('Failed to retrieve Today hidden states from database')
+      throw new Error('Failed to retrieve Today hidden states from database', { cause: error })
     }
   }
 
@@ -552,7 +603,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.todayHiddenStates.where('dayRef').equals(dayRef).toArray()
     } catch (error) {
       console.error(`Failed to list Today hidden states for ${dayRef}:`, error)
-      throw new Error('Failed to retrieve Today hidden states from database')
+      throw new Error('Failed to retrieve Today hidden states from database', { cause: error })
     }
   }
 
@@ -560,24 +611,36 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     data: CreateTodayHiddenStatePayload | UpdateTodayHiddenStatePayload
   ): Promise<TodayHiddenState> {
     try {
-      const existing = await this.findExistingTodayHiddenState(data)
-      const normalized = normalizeTodayHiddenStatePayload(data, existing)
-      await this.assertTodayHiddenStateAllowed(normalized)
+      const record = await this.db.transaction(
+        'rw',
+        [
+          this.db.todayHiddenStates,
+          this.db.initiatives,
+          this.db.keyResults,
+          this.db.habits,
+          this.db.trackers,
+        ],
+        async () => {
+          const existing = await this.findExistingTodayHiddenState(data)
+          const normalized = normalizeTodayHiddenStatePayload(data, existing)
+          await this.assertTodayHiddenStateAllowed(normalized)
 
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.todayHiddenStates.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      }
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await this.db.todayHiddenStates.put(toPlain(updated))
+            return updated
+          }
 
-      const created = createPlanningRecord<TodayHiddenState>(normalized)
-      await this.db.todayHiddenStates.add(toPlain(created))
+          const created = createPlanningRecord<TodayHiddenState>(normalized)
+          await this.db.todayHiddenStates.add(toPlain(created))
+          return created
+        }
+      )
       invalidatePlanningQueryCache()
-      return created
+      return record
     } catch (error) {
       console.error('Failed to upsert Today hidden state:', error)
-      throw new Error('Failed to persist Today hidden state in database')
+      throw new Error('Failed to persist Today hidden state in database', { cause: error })
     }
   }
 
@@ -597,7 +660,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         `Failed to delete Today hidden state for ${subjectType}:${subjectId} on ${dayRef}:`,
         error
       )
-      throw new Error(`Failed to delete Today hidden state for ${subjectType}:${subjectId}`)
+      throw new Error(`Failed to delete Today hidden state for ${subjectType}:${subjectId}`, { cause: error })
     }
   }
 
@@ -606,7 +669,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.initiativePlanStates.where('initiativeId').equals(initiativeId).first()
     } catch (error) {
       console.error(`Failed to get initiative plan state for ${initiativeId}:`, error)
-      throw new Error(`Failed to retrieve initiative plan state for ${initiativeId}`)
+      throw new Error(`Failed to retrieve initiative plan state for ${initiativeId}`, { cause: error })
     }
   }
 
@@ -615,7 +678,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       return await this.db.initiativePlanStates.toArray()
     } catch (error) {
       console.error('Failed to list initiative plan states:', error)
-      throw new Error('Failed to retrieve initiative plan states from database')
+      throw new Error('Failed to retrieve initiative plan states from database', { cause: error })
     }
   }
 
@@ -623,24 +686,30 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     data: CreateInitiativePlanStatePayload | UpdateInitiativePlanStatePayload
   ): Promise<InitiativePlanState> {
     try {
-      const existing = await this.findExistingInitiativePlanState(data)
-      const normalized = normalizeInitiativePlanStatePayload(data, existing)
-      await this.assertInitiativeExists(normalized.initiativeId)
+      const record = await this.db.transaction(
+        'rw',
+        [this.db.initiativePlanStates, this.db.initiatives],
+        async () => {
+          const existing = await this.findExistingInitiativePlanState(data)
+          const normalized = normalizeInitiativePlanStatePayload(data, existing)
+          await this.assertInitiativeExists(normalized.initiativeId)
 
-      if (existing) {
-        const updated = updatePlanningRecord(existing, normalized)
-        await this.db.initiativePlanStates.put(toPlain(updated))
-        invalidatePlanningQueryCache()
-        return updated
-      }
+          if (existing) {
+            const updated = updatePlanningRecord(existing, normalized)
+            await this.db.initiativePlanStates.put(toPlain(updated))
+            return updated
+          }
 
-      const created = createPlanningRecord<InitiativePlanState>(normalized)
-      await this.db.initiativePlanStates.add(toPlain(created))
+          const created = createPlanningRecord<InitiativePlanState>(normalized)
+          await this.db.initiativePlanStates.add(toPlain(created))
+          return created
+        }
+      )
       invalidatePlanningQueryCache()
-      return created
+      return record
     } catch (error) {
       console.error('Failed to upsert initiative plan state:', error)
-      throw new Error('Failed to persist initiative plan state in database')
+      throw new Error('Failed to persist initiative plan state in database', { cause: error })
     }
   }
 
@@ -653,7 +722,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete initiative plan state for ${initiativeId}:`, error)
-      throw new Error(`Failed to delete initiative plan state for ${initiativeId}`)
+      throw new Error(`Failed to delete initiative plan state for ${initiativeId}`, { cause: error })
     }
   }
 
