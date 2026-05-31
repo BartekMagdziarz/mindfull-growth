@@ -38,16 +38,10 @@
             @change="handleDateChange"
           />
 
-          <JournalStreakCard
-            :state="journalState"
-            :entries7d="journalEntries7d"
-            :week-streak="journalWeekStreak"
-          />
-          <EmotionStreakCard
+          <JournalCard :state="journalState" />
+          <EmotionCard
             :target="DAILY_EMOTION_TARGET"
             :logs="todayEmotionLogs"
-            :logs7d="emotionLogs7d"
-            :week-streak="emotionWeekStreak"
           />
           <ExerciseCard />
         </aside>
@@ -223,8 +217,8 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
-import JournalStreakCard from '@/components/today/JournalStreakCard.vue'
-import EmotionStreakCard from '@/components/today/EmotionStreakCard.vue'
+import JournalCard from '@/components/today/JournalCard.vue'
+import EmotionCard from '@/components/today/EmotionCard.vue'
 import ExerciseCard from '@/components/today/ExerciseCard.vue'
 import TodayItemRow from '@/components/today/TodayItemRow.vue'
 import TodayDateSwitcher from '@/components/today/TodayDateSwitcher.vue'
@@ -238,10 +232,10 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useTodayStore } from '@/stores/today.store'
 import { getQuadrant } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
-import type { EmotionDonutLog } from '@/components/today/EmotionStreakCard.vue'
+import type { EmotionDonutLog } from '@/components/today/EmotionCard.vue'
 import type { DayRef } from '@/domain/period'
 import { getPeriodRefsForDate } from '@/utils/periods'
-import { computeWeeklyStreak, toLocalDateKey } from '@/utils/streaks'
+import { toLocalDateKey } from '@/utils/streaks'
 
 const DAILY_EMOTION_TARGET = 3
 
@@ -282,15 +276,6 @@ const wellnessReferenceDate = computed(() => {
   return new Date(y, m - 1, d)
 })
 
-function lastSevenDayKeys(reference: Date): Set<string> {
-  const set = new Set<string>()
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(reference.getFullYear(), reference.getMonth(), reference.getDate() - i)
-    set.add(toLocalDateKey(d))
-  }
-  return set
-}
-
 // --- Dziennik / Journal card data ---------------------------------------
 const journalEntryDays = computed<Set<string>>(() => {
   const set = new Set<string>()
@@ -302,22 +287,6 @@ const journalEntryDays = computed<Set<string>>(() => {
 
 const journalState = computed<'empty' | 'done'>(() =>
   journalEntryDays.value.has(toLocalDateKey(wellnessReferenceDate.value)) ? 'done' : 'empty',
-)
-
-const journalEntries7d = computed(() => {
-  const window = lastSevenDayKeys(wellnessReferenceDate.value)
-  let count = 0
-  for (const entry of journalStore.entries) {
-    if (window.has(entry.createdAt.slice(0, 10))) count++
-  }
-  return count
-})
-
-const journalWeekStreak = computed(() =>
-  computeWeeklyStreak(
-    journalStore.entries.map((e) => e.createdAt),
-    wellnessReferenceDate.value,
-  ),
 )
 
 // --- Emocje / Emotions card data ----------------------------------------
@@ -355,22 +324,6 @@ const todayEmotionLogs = computed<EmotionDonutLog[]>(() => {
     }
   })
 })
-
-const emotionLogs7d = computed(() => {
-  const window = lastSevenDayKeys(wellnessReferenceDate.value)
-  let count = 0
-  for (const log of emotionLogStore.logs) {
-    if (window.has(log.createdAt.slice(0, 10))) count++
-  }
-  return count
-})
-
-const emotionWeekStreak = computed(() =>
-  computeWeeklyStreak(
-    emotionLogStore.logs.map((l) => l.createdAt),
-    wellnessReferenceDate.value,
-  ),
-)
 
 onMounted(() => {
   void loadInitialBundle()

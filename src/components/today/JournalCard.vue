@@ -52,37 +52,6 @@
         </svg>
       </button>
     </div>
-
-    <div class="streak-badges">
-      <div
-        class="streak-badge streak-badge--count"
-        :class="{ 'streak-badge--zero': entries7d === 0 }"
-        :title="t('planning.today.wellness.ariaEntriesCount')"
-        role="status"
-        :aria-label="`${entries7d} ${t('planning.today.wellness.badgeEntries')}`"
-      >
-        <span class="streak-badge__num streak-badge__num--big">{{ entries7d }}</span>
-        <span class="streak-badge__lbl">{{ t('planning.today.wellness.badgeEntries') }}</span>
-      </div>
-
-      <div
-        class="streak-badge streak-badge--streak"
-        :class="{ 'streak-badge--zero': weekStreak === 0 }"
-        :title="t('planning.today.wellness.ariaWeeklyStreak')"
-        role="status"
-        :aria-label="`${weekStreak} ${t('planning.today.wellness.badgeWeeks')}`"
-      >
-        <div class="streak-badge__row">
-          <span class="streak-badge__icon streak-badge__icon--big">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 3c1 4 5 5 5 10a5 5 0 1 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3-1-3 0-6 1-9z" />
-            </svg>
-          </span>
-          <span class="streak-badge__num">{{ weekStreak }}</span>
-        </div>
-        <span class="streak-badge__lbl">{{ t('planning.today.wellness.badgeWeeks') }}</span>
-      </div>
-    </div>
   </article>
 </template>
 
@@ -92,8 +61,6 @@ import { useT } from '@/composables/useT'
 
 defineProps<{
   state: 'empty' | 'done'
-  entries7d: number
-  weekStreak: number
 }>()
 
 const router = useRouter()
@@ -202,74 +169,5 @@ const { t } = useT()
 }
 .dz-slot:active {
   transform: translateY(0);
-}
-
-.streak-badges {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 2px;
-  margin-top: auto;
-}
-
-.streak-badge {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, rgb(var(--neo-surface-top)), rgb(var(--neo-surface-bottom)));
-  box-shadow:
-    -2px -2px 4px rgb(var(--neo-shadow-light) / 0.85),
-    2px 2px 4px rgb(var(--neo-shadow-dark) / 0.28),
-    inset 0 1px 0 rgb(255 255 255 / 0.35);
-  border: 1px solid rgb(var(--neo-border) / 0.08);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  flex: 0 0 auto;
-  transition: opacity 200ms ease;
-}
-.streak-badge--zero { opacity: 0.45; }
-
-.streak-badge__row {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  line-height: 1;
-}
-
-.streak-badge__icon {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-}
-.streak-badge__icon--big {
-  width: 22px;
-  height: 22px;
-  color: rgb(217 119 6);
-}
-
-.streak-badge__num {
-  font-size: 15px;
-  font-weight: 700;
-  color: rgb(var(--neo-text));
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-.streak-badge__num--big {
-  font-size: 22px;
-  letter-spacing: -0.04em;
-}
-
-.streak-badge__lbl {
-  font-size: 7.5px;
-  font-weight: 500;
-  color: rgb(var(--neo-muted));
-  letter-spacing: 0.06em;
-  text-transform: lowercase;
-  line-height: 1;
-  margin-top: 1px;
 }
 </style>
