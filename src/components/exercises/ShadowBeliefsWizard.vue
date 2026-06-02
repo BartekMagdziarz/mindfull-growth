@@ -7,7 +7,7 @@
       </p>
     </AppCard>
 
-    <!-- Self-sabotaging beliefs -->
+    <!-- Identify beliefs -->
     <AppCard padding="lg" class="space-y-4">
       <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.shadowBeliefs.beliefs.title') }}</h3>
       <p class="text-sm text-on-surface-variant">
@@ -17,50 +17,102 @@
       <!-- Common shadow beliefs as chips -->
       <div class="flex flex-wrap gap-2">
         <button
-          v-for="belief in commonBeliefs"
-          :key="belief"
+          v-for="key in commonBeliefKeys"
+          :key="key"
           type="button"
           class="px-3 py-1.5 rounded-full text-xs font-medium transition-colors border"
-          :class="draft.selfSabotagingBeliefs.includes(belief)
+          :class="isCommonSelected(key)
             ? 'bg-primary/20 text-primary border-primary/40'
             : 'bg-chip text-on-surface border-chip-border hover:bg-section'"
-          @click="toggleBelief(belief)"
+          @click="toggleCommonBelief(key)"
         >
-          {{ belief }}
+          {{ commonLabel(key) }}
         </button>
       </div>
 
-      <!-- Custom beliefs -->
-      <div class="space-y-2">
+      <button
+        type="button"
+        class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
+        @click="addCustomBelief"
+      >
+        <AppIcon name="add" class="text-base" />
+        {{ t('exerciseWizards.shadowBeliefs.beliefs.addCustom') }}
+      </button>
+    </AppCard>
+
+    <!-- Examine each belief: evidence + reframe -->
+    <AppCard v-if="draft.beliefs.length > 0" padding="lg" class="space-y-4">
+      <p class="text-sm text-on-surface-variant">
+        {{ t('exerciseWizards.shadowBeliefs.beliefs.examineHint') }}
+      </p>
+      <div class="space-y-4">
         <div
-          v-for="(belief, index) in customBeliefsList"
+          v-for="(entry, index) in draft.beliefs"
           :key="index"
-          class="flex items-center gap-2 group"
+          class="rounded-xl border border-chip-border p-3 space-y-3"
         >
-          <span class="text-primary">&#8226;</span>
-          <input
-            :value="belief"
-            type="text"
-            :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.customPlaceholder')"
-            class="neo-input flex-1 p-2 text-sm"
-            @input="updateCustomBelief(index, ($event.target as HTMLInputElement).value)"
-          />
-          <button
-            type="button"
-            class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
-            @click="removeCustomBelief(index)"
-          >
-            <AppIcon name="close" class="text-base" />
-          </button>
+          <div class="flex items-center gap-2">
+            <span class="text-primary">&#8226;</span>
+            <span
+              v-if="entry.commonKey"
+              class="flex-1 p-2 text-sm font-medium text-on-surface"
+            >{{ commonLabel(entry.commonKey) }}</span>
+            <input
+              v-else
+              :value="entry.belief"
+              type="text"
+              :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.customPlaceholder')"
+              class="neo-input flex-1 p-2 text-sm font-medium"
+              @input="entry.belief = ($event.target as HTMLInputElement).value"
+            />
+            <button
+              type="button"
+              class="p-1 rounded text-on-surface-variant hover:text-error transition-colors"
+              @click="removeBelief(index)"
+            >
+              <AppIcon name="close" class="text-base" />
+            </button>
+          </div>
+
+          <div class="space-y-1 pl-5">
+            <label class="text-xs font-medium text-on-surface-variant">
+              {{ t('exerciseWizards.shadowBeliefs.beliefs.evidenceForLabel') }}
+            </label>
+            <textarea
+              :value="entry.evidenceFor"
+              rows="2"
+              :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.evidenceForPlaceholder')"
+              class="neo-input w-full p-2 text-sm resize-none"
+              @input="entry.evidenceFor = ($event.target as HTMLTextAreaElement).value"
+            />
+          </div>
+
+          <div class="space-y-1 pl-5">
+            <label class="text-xs font-medium text-on-surface-variant">
+              {{ t('exerciseWizards.shadowBeliefs.beliefs.evidenceAgainstLabel') }}
+            </label>
+            <textarea
+              :value="entry.evidenceAgainst"
+              rows="2"
+              :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.evidenceAgainstPlaceholder')"
+              class="neo-input w-full p-2 text-sm resize-none"
+              @input="entry.evidenceAgainst = ($event.target as HTMLTextAreaElement).value"
+            />
+          </div>
+
+          <div class="space-y-1 pl-5">
+            <label class="text-xs font-medium text-primary">
+              {{ t('exerciseWizards.shadowBeliefs.beliefs.reframeLabel') }}
+            </label>
+            <textarea
+              :value="entry.reframe"
+              rows="2"
+              :placeholder="t('exerciseWizards.shadowBeliefs.beliefs.reframePlaceholder')"
+              class="neo-input w-full p-2 text-sm resize-none"
+              @input="entry.reframe = ($event.target as HTMLTextAreaElement).value"
+            />
+          </div>
         </div>
-        <button
-          type="button"
-          class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
-          @click="addCustomBelief"
-        >
-          <AppIcon name="add" class="text-base" />
-          {{ t('exerciseWizards.shadowBeliefs.beliefs.addCustom') }}
-        </button>
       </div>
     </AppCard>
 
@@ -70,66 +122,72 @@
       <p class="text-sm text-on-surface-variant">
         {{ t('exerciseWizards.shadowBeliefs.advice.description') }}
       </p>
-      <div class="space-y-2">
-        <div v-for="(advice, index) in draft.adviceToOthers" :key="index" class="flex items-center gap-2 group">
-          <span class="text-primary">&#8226;</span>
-          <input
-            :value="advice"
-            type="text"
-            :placeholder="t('exerciseWizards.shadowBeliefs.advice.placeholder')"
-            class="neo-input flex-1 p-2 text-sm"
-            @input="draft.adviceToOthers[index] = ($event.target as HTMLInputElement).value"
-          />
-          <button
-            type="button"
-            class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
-            @click="draft.adviceToOthers.splice(index, 1)"
-          >
-            <AppIcon name="close" class="text-base" />
-          </button>
+      <div class="space-y-4">
+        <div
+          v-for="(item, index) in draft.advice"
+          :key="index"
+          class="rounded-xl border border-chip-border p-3 space-y-3"
+        >
+          <div class="flex items-center gap-2">
+            <span class="text-primary">&#8226;</span>
+            <input
+              :value="item.advice"
+              type="text"
+              :placeholder="t('exerciseWizards.shadowBeliefs.advice.placeholder')"
+              class="neo-input flex-1 p-2 text-sm"
+              @input="item.advice = ($event.target as HTMLInputElement).value"
+            />
+            <button
+              type="button"
+              class="p-1 rounded text-on-surface-variant hover:text-error transition-colors"
+              @click="draft.advice.splice(index, 1)"
+            >
+              <AppIcon name="close" class="text-base" />
+            </button>
+          </div>
+
+          <div class="pl-5 space-y-2">
+            <div class="flex items-center flex-wrap gap-x-3 gap-y-2">
+              <span class="text-xs font-medium text-on-surface-variant">
+                {{ t('exerciseWizards.shadowBeliefs.advice.followLabel') }}
+              </span>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="opt in followOptions"
+                  :key="opt"
+                  type="button"
+                  class="px-3 py-1 rounded-full text-xs font-medium transition-colors border"
+                  :class="item.followsSelf === opt
+                    ? 'bg-primary/20 text-primary border-primary/40'
+                    : 'bg-chip text-on-surface border-chip-border hover:bg-section'"
+                  @click="item.followsSelf = item.followsSelf === opt ? '' : opt"
+                >
+                  {{ t(`exerciseWizards.shadowBeliefs.advice.follow.${opt}`) }}
+                </button>
+              </div>
+            </div>
+
+            <div v-if="item.followsSelf === 'sometimes' || item.followsSelf === 'no'" class="space-y-1 pt-1">
+              <label class="text-xs font-medium text-on-surface-variant">
+                {{ t('exerciseWizards.shadowBeliefs.advice.blockerLabel') }}
+              </label>
+              <textarea
+                :value="item.blocker"
+                rows="2"
+                :placeholder="t('exerciseWizards.shadowBeliefs.advice.blockerPlaceholder')"
+                class="neo-input w-full p-2 text-sm resize-none"
+                @input="item.blocker = ($event.target as HTMLTextAreaElement).value"
+              />
+            </div>
+          </div>
         </div>
         <button
           type="button"
           class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
-          @click="draft.adviceToOthers.push('')"
+          @click="addAdvice"
         >
           <AppIcon name="add" class="text-base" />
           {{ t('exerciseWizards.shadowBeliefs.advice.addAdvice') }}
-        </button>
-      </div>
-    </AppCard>
-
-    <!-- Reframed beliefs -->
-    <AppCard padding="lg" class="space-y-4">
-      <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.shadowBeliefs.reframe.title') }}</h3>
-      <p class="text-sm text-on-surface-variant">
-        {{ t('exerciseWizards.shadowBeliefs.reframe.description') }}
-      </p>
-      <div class="space-y-2">
-        <div v-for="(reframe, index) in draft.reframedBeliefs" :key="index" class="flex items-center gap-2 group">
-          <span class="text-primary">&#8226;</span>
-          <input
-            :value="reframe"
-            type="text"
-            :placeholder="t('exerciseWizards.shadowBeliefs.reframe.placeholder')"
-            class="neo-input flex-1 p-2 text-sm"
-            @input="draft.reframedBeliefs[index] = ($event.target as HTMLInputElement).value"
-          />
-          <button
-            type="button"
-            class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100"
-            @click="draft.reframedBeliefs.splice(index, 1)"
-          >
-            <AppIcon name="close" class="text-base" />
-          </button>
-        </div>
-        <button
-          type="button"
-          class="flex items-center gap-2 text-sm text-primary hover:text-primary-strong transition-colors"
-          @click="draft.reframedBeliefs.push('')"
-        >
-          <AppIcon name="add" class="text-base" />
-          {{ t('exerciseWizards.shadowBeliefs.reframe.addReframe') }}
         </button>
       </div>
     </AppCard>
@@ -140,7 +198,7 @@
       <textarea
         v-model="draft.notes"
         rows="3"
-        :placeholder="t('exerciseWizards.shadowBeliefs.reflectionPlaceholder')"
+        :placeholder="tg('exerciseWizards.shadowBeliefs.reflectionPlaceholder')"
         class="neo-input w-full p-3 text-sm resize-none"
       />
     </AppCard>
@@ -160,8 +218,9 @@ import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useT } from '@/composables/useT'
+import type { AdviceFollowThrough } from '@/domain/exercises'
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const emit = defineEmits<{
   saved: [id: string]
@@ -169,63 +228,103 @@ const emit = defineEmits<{
 
 const shadowBeliefsStore = useShadowBeliefsStore()
 
-const commonBeliefs = computed(() => [
-  t('exerciseWizards.shadowBeliefs.commonBeliefs.somethingWrong'),
-  t('exerciseWizards.shadowBeliefs.commonBeliefs.dontDeserve'),
-  t('exerciseWizards.shadowBeliefs.commonBeliefs.cantTrust'),
-  t('exerciseWizards.shadowBeliefs.commonBeliefs.neverSuccessful'),
-  t('exerciseWizards.shadowBeliefs.commonBeliefs.notGoodEnough'),
-  t('exerciseWizards.shadowBeliefs.commonBeliefs.dontBelong'),
-  t('exerciseWizards.shadowBeliefs.commonBeliefs.doEverythingMyself'),
-  t('exerciseWizards.shadowBeliefs.commonBeliefs.tooLate'),
-])
+const COMMON_BELIEFS_BASE = 'exerciseWizards.shadowBeliefs.commonBeliefs'
+const commonBeliefKeys = [
+  'somethingWrong',
+  'dontDeserve',
+  'cantTrust',
+  'neverSuccessful',
+  'notGoodEnough',
+  'dontBelong',
+  'doEverythingMyself',
+  'tooLate',
+] as const
+
+const followOptions: AdviceFollowThrough[] = ['yes', 'sometimes', 'no']
+
+interface DraftBelief {
+  commonKey?: string // set when this entry came from a common-belief chip
+  belief: string // free text for custom beliefs
+  evidenceFor: string
+  evidenceAgainst: string
+  reframe: string
+}
+
+interface DraftAdvice {
+  advice: string
+  followsSelf: AdviceFollowThrough | ''
+  blocker: string
+}
 
 const draft = reactive({
-  selfSabotagingBeliefs: [] as string[],
-  customBeliefs: [] as string[],
-  adviceToOthers: [''] as string[],
-  reframedBeliefs: [''] as string[],
+  beliefs: [] as DraftBelief[],
+  advice: [{ advice: '', followsSelf: '', blocker: '' }] as DraftAdvice[],
   notes: '',
 })
 
-const customBeliefsList = computed(() => draft.customBeliefs)
+function commonLabel(key: string): string {
+  return tg(`${COMMON_BELIEFS_BASE}.${key}`)
+}
 
-const canSave = computed(() => {
-  return draft.selfSabotagingBeliefs.length > 0 || draft.customBeliefs.some((b) => b.trim().length > 0)
-})
+function isCommonSelected(key: string): boolean {
+  return draft.beliefs.some((b) => b.commonKey === key)
+}
 
-function toggleBelief(belief: string) {
-  const index = draft.selfSabotagingBeliefs.indexOf(belief)
+function toggleCommonBelief(key: string) {
+  const index = draft.beliefs.findIndex((b) => b.commonKey === key)
   if (index === -1) {
-    draft.selfSabotagingBeliefs.push(belief)
+    draft.beliefs.push({ commonKey: key, belief: '', evidenceFor: '', evidenceAgainst: '', reframe: '' })
   } else {
-    draft.selfSabotagingBeliefs.splice(index, 1)
+    draft.beliefs.splice(index, 1)
   }
 }
 
 function addCustomBelief() {
-  draft.customBeliefs.push('')
+  draft.beliefs.push({ belief: '', evidenceFor: '', evidenceAgainst: '', reframe: '' })
 }
 
-function updateCustomBelief(index: number, value: string) {
-  draft.customBeliefs[index] = value
+function removeBelief(index: number) {
+  draft.beliefs.splice(index, 1)
 }
 
-function removeCustomBelief(index: number) {
-  draft.customBeliefs.splice(index, 1)
+function addAdvice() {
+  draft.advice.push({ advice: '', followsSelf: '', blocker: '' })
 }
+
+// Common beliefs display via i18n (so the gendered label stays consistent);
+// custom beliefs use the typed text.
+function beliefText(entry: DraftBelief): string {
+  return entry.commonKey ? commonLabel(entry.commonKey) : entry.belief.trim()
+}
+
+const canSave = computed(() => draft.beliefs.some((b) => beliefText(b).length > 0))
 
 async function handleSave() {
-  const allBeliefs = [
-    ...draft.selfSabotagingBeliefs,
-    ...draft.customBeliefs.filter((b) => b.trim().length > 0),
-  ]
-  const beliefs = await shadowBeliefsStore.createBeliefs({
-    selfSabotagingBeliefs: allBeliefs,
-    adviceToOthers: draft.adviceToOthers.filter((a) => a.trim().length > 0),
-    reframedBeliefs: draft.reframedBeliefs.filter((r) => r.trim().length > 0),
-    notes: draft.notes || undefined,
+  const beliefs = draft.beliefs
+    .map((b) => ({
+      belief: beliefText(b),
+      evidenceFor: b.evidenceFor.trim() || undefined,
+      evidenceAgainst: b.evidenceAgainst.trim() || undefined,
+      reframe: b.reframe.trim() || undefined,
+    }))
+    .filter((b) => b.belief.length > 0)
+
+  const adviceToOthers = draft.advice
+    .map((a) => {
+      const notFollowed = a.followsSelf === 'sometimes' || a.followsSelf === 'no'
+      return {
+        advice: a.advice.trim(),
+        followsSelf: a.followsSelf || undefined,
+        blocker: notFollowed && a.blocker.trim() ? a.blocker.trim() : undefined,
+      }
+    })
+    .filter((a) => a.advice.length > 0)
+
+  const saved = await shadowBeliefsStore.createBeliefs({
+    beliefs,
+    adviceToOthers,
+    notes: draft.notes.trim() || undefined,
   })
-  emit('saved', beliefs.id)
+  emit('saved', saved.id)
 }
 </script>

@@ -246,37 +246,55 @@
   },
   "shadowBeliefs": {
     "title": "Shadow Beliefs",
-    "description": "Shadow beliefs are deep, often unexamined assumptions that can sabotage your behavior. This exercise helps you surface them \u2014 not to judge, but to build awareness.",
+    "description": "Shadow beliefs are deep, often unexamined assumptions that can quietly undermine your decisions and actions. This exercise helps you notice them \u2014 not to judge yourself, but to build awareness.",
     "beliefs": {
-      "title": "Which beliefs resonate with you?",
+      "title": "Which of these beliefs do you recognize in yourself?",
       "description": "Select any that feel familiar, or add your own.",
       "customPlaceholder": "Your own shadow belief",
-      "addCustom": "Add your own"
+      "addCustom": "Add your own belief",
+      "examineHint": "For each belief, you can look at the evidence and search for a truer version. These fields are optional.",
+      "evidenceForLabel": "What seems to support it?",
+      "evidenceForPlaceholder": "Situations you take as proof...",
+      "evidenceAgainstLabel": "What contradicts it?",
+      "evidenceAgainstPlaceholder": "Facts, exceptions, another perspective...",
+      "reframeLabel": "A more constructive version",
+      "reframePlaceholder": "How would this belief sound closer to the truth?"
     },
     "commonBeliefs": {
       "somethingWrong": "There is something wrong with me",
       "dontDeserve": "I don't deserve what I want",
       "cantTrust": "I can't trust people",
       "neverSuccessful": "I will never be successful",
-      "notGoodEnough": "I'm not good enough",
+      "notGoodEnough": {
+        "m": "I'm not good enough",
+        "f": "I'm not good enough"
+      },
       "dontBelong": "I don't belong",
-      "doEverythingMyself": "I have to do everything myself",
+      "doEverythingMyself": {
+        "m": "I have to do everything myself",
+        "f": "I have to do everything myself"
+      },
       "tooLate": "It's too late for me"
     },
     "advice": {
       "title": "Advice You Give Others",
-      "description": "What advice do you frequently give to others? Do you follow it yourself?",
+      "description": "What advice do you often give others? Then check whether you follow it yourself \u2014 the gap between the two often points to a hidden belief.",
       "placeholder": "Advice you give",
-      "addAdvice": "Add advice"
-    },
-    "reframe": {
-      "title": "Reframe Your Beliefs",
-      "description": "For the beliefs you identified, try writing a more constructive version.",
-      "placeholder": "A reframed belief",
-      "addReframe": "Add reframe"
+      "addAdvice": "Add advice",
+      "followLabel": "Do you follow it yourself?",
+      "follow": {
+        "yes": "Yes",
+        "sometimes": "Sometimes",
+        "no": "No"
+      },
+      "blockerLabel": "What stops you from applying it to yourself?",
+      "blockerPlaceholder": "What belief or fear is behind it?"
     },
     "reflectionTitle": "Additional Reflection",
-    "reflectionPlaceholder": "Any thoughts about what you've noticed...",
+    "reflectionPlaceholder": {
+      "m": "Note what you noticed during this exercise...",
+      "f": "Note what you noticed during this exercise..."
+    },
     "saveButton": "Save Shadow Beliefs"
   },
   "transformativePurpose": {

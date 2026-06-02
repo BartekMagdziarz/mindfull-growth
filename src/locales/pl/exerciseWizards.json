@@ -246,37 +246,55 @@
   },
   "shadowBeliefs": {
     "title": "Ukryte przekonania",
-    "description": "Ukryte przekonania to głębokie, często niezbadane założenia, które mogą sabotować twoje zachowanie. To ćwiczenie pomaga je ujawnić — nie po to, by osądzać, ale by budować świadomość.",
+    "description": "Ukryte przekonania to głębokie, często nieuświadomione założenia, które mogą po cichu podkopywać twoje decyzje i działania. To ćwiczenie pomaga je dostrzec — nie po to, by się oceniać, lecz by zyskać świadomość.",
     "beliefs": {
-      "title": "Które przekonania do ciebie przemawiają?",
-      "description": "Wybierz te, które wydają się znajome, lub dodaj własne.",
+      "title": "W których z tych przekonań się rozpoznajesz?",
+      "description": "Zaznacz te, które brzmią znajomo, albo dopisz własne.",
       "customPlaceholder": "Twoje własne ukryte przekonanie",
-      "addCustom": "Dodaj własne"
+      "addCustom": "Dopisz własne przekonanie",
+      "examineHint": "Przy każdym przekonaniu możesz przyjrzeć się dowodom i poszukać prawdziwszej wersji. Te pola są opcjonalne.",
+      "evidenceForLabel": "Co zdaje się je potwierdzać?",
+      "evidenceForPlaceholder": "Sytuacje, które bierzesz za dowód...",
+      "evidenceAgainstLabel": "Co temu przeczy?",
+      "evidenceAgainstPlaceholder": "Fakty, wyjątki, inne spojrzenie...",
+      "reframeLabel": "Bardziej konstruktywna wersja",
+      "reframePlaceholder": "Jak brzmiałoby to przekonanie bliżej prawdy?"
     },
     "commonBeliefs": {
-      "somethingWrong": "Coś jest że mną nie tak",
+      "somethingWrong": "Coś jest ze mną nie tak",
       "dontDeserve": "Nie zasługuję na to, czego pragnę",
       "cantTrust": "Nie mogę ufać ludziom",
       "neverSuccessful": "Nigdy nie odniosę sukcesu",
-      "notGoodEnough": "Nie jestem wystarczająco dobry",
-      "dontBelong": "Nie pasuję do nikąd",
-      "doEverythingMyself": "Muszę wszystko robić sam",
+      "notGoodEnough": {
+        "m": "Nie jestem wystarczająco dobry",
+        "f": "Nie jestem wystarczająco dobra"
+      },
+      "dontBelong": "Nigdzie nie pasuję",
+      "doEverythingMyself": {
+        "m": "Muszę wszystko robić sam",
+        "f": "Muszę wszystko robić sama"
+      },
       "tooLate": "To już dla mnie za późno"
     },
     "advice": {
       "title": "Rady, które dajesz innym",
-      "description": "Jakich rad często udzielasz innym? Czy sam je stosujesz?",
+      "description": "Jakich rad często udzielasz innym? A potem sprawdź, czy stosujesz je u siebie — luka między jednym a drugim często wskazuje na ukryte przekonanie.",
       "placeholder": "Rada, którą dajesz",
-      "addAdvice": "Dodaj radę"
-    },
-    "reframe": {
-      "title": "Przekształć swoje przekonania",
-      "description": "Dla przekonań, które zidentyfikowałeś, spróbuj napisać bardziej konstruktywną wersję.",
-      "placeholder": "Przekształcone przekonanie",
-      "addReframe": "Dodaj przekształcenie"
+      "addAdvice": "Dodaj radę",
+      "followLabel": "Czy stosujesz ją u siebie?",
+      "follow": {
+        "yes": "Tak",
+        "sometimes": "Czasem",
+        "no": "Nie"
+      },
+      "blockerLabel": "Co Cię powstrzymuje przed stosowaniem jej u siebie?",
+      "blockerPlaceholder": "Jakie przekonanie albo obawa za tym stoi?"
     },
     "reflectionTitle": "Dodatkowa refleksja",
-    "reflectionPlaceholder": "Jakiekolwiek myśli na temat tego, co zauważyłeś...",
+    "reflectionPlaceholder": {
+      "m": "Zapisz, co zauważyłeś podczas tego ćwiczenia...",
+      "f": "Zapisz, co zauważyłaś podczas tego ćwiczenia..."
+    },
     "saveButton": "Zapisz ukryte przekonania"
   },
   "transformativePurpose": {

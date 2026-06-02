@@ -169,6 +169,33 @@ export interface ValueMap {
 // ============================================================================
 
 /**
+ * How consistently the user applies, to themselves, the advice they give others.
+ * `undefined` means the question hasn't been answered yet.
+ */
+export type AdviceFollowThrough = 'yes' | 'sometimes' | 'no'
+
+/**
+ * A piece of advice the user often gives others, plus whether they follow it
+ * themselves. The gap between giving and following often reveals a shadow belief.
+ */
+export interface AdviceToOthersItem {
+  advice: string // The advice frequently given to others
+  followsSelf?: AdviceFollowThrough // Whether the user applies it to themselves
+  blocker?: string // What stops them / the belief underneath, when not consistently followed
+}
+
+/**
+ * A self-sabotaging belief together with an optional evidence review and a
+ * reframed, more constructive version.
+ */
+export interface ShadowBeliefEntry {
+  belief: string // The self-sabotaging belief
+  evidenceFor?: string // Evidence that seems to support the belief
+  evidenceAgainst?: string // Evidence that contradicts the belief
+  reframe?: string // A more constructive, truer version of the belief
+}
+
+/**
  * ShadowBeliefs
  *
  * Identifies unconscious self-sabotaging beliefs and creates awareness.
@@ -178,9 +205,8 @@ export interface ShadowBeliefs {
   id: string // UUID
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
-  selfSabotagingBeliefs: string[] // Beliefs that resonate (e.g., "I don't deserve what I want")
-  adviceToOthers: string[] // Advice frequently given to others
-  reframedBeliefs: string[] // Reframed/challenged versions of shadow beliefs
+  beliefs: ShadowBeliefEntry[] // Identified beliefs, each with optional evidence + reframe
+  adviceToOthers: AdviceToOthersItem[] // Advice given to others + self-application
   notes?: string // Additional reflection
 }
 

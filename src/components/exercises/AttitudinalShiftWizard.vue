@@ -503,10 +503,13 @@ interface ShadowBeliefItem {
 const shadowBeliefs = computed<ShadowBeliefItem[]>(() => {
   const latest = shadowBeliefsStore.latestBeliefs
   if (!latest) return []
-  return latest.selfSabotagingBeliefs.map((text) => ({
-    text,
-    sourceId: latest.id,
-  }))
+  return latest.beliefs
+    .map((b) => b.belief)
+    .filter((text) => text.trim().length > 0)
+    .map((text) => ({
+      text,
+      sourceId: latest.id,
+    }))
 })
 
 function addFromShadowBelief(belief: ShadowBeliefItem) {

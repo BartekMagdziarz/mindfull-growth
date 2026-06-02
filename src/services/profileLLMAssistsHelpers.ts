@@ -954,19 +954,34 @@ function formatShadowBeliefs(entry: ShadowBeliefs): FoundationSnapshotItem {
   const date = dateOnly(completedAt)
   const sections: string[] = [`## Shadow beliefs (${date})`]
 
-  if (entry.selfSabotagingBeliefs.length > 0) {
+  const namedBeliefs = entry.beliefs.filter((b) => b.belief.trim())
+  if (namedBeliefs.length > 0) {
     sections.push(
-      ['Self-sabotaging:', ...entry.selfSabotagingBeliefs.map((b) => `- ${b}`)].join('\n'),
+      ['Self-sabotaging:', ...namedBeliefs.map((b) => `- ${b.belief}`)].join('\n'),
     )
   }
-  if (entry.reframedBeliefs.length > 0) {
+  const reframed = entry.beliefs.filter((b) => b.reframe?.trim())
+  if (reframed.length > 0) {
     sections.push(
-      ['Reframes:', ...entry.reframedBeliefs.map((b) => `- ${b}`)].join('\n'),
+      ['Reframes:', ...reframed.map((b) => `- ${b.reframe}`)].join('\n'),
     )
   }
-  if (entry.adviceToOthers.length > 0) {
+  const advice = entry.adviceToOthers.filter((a) => a.advice.trim())
+  if (advice.length > 0) {
     sections.push(
-      ['Advice to others:', ...entry.adviceToOthers.map((a) => `- ${a}`)].join('\n'),
+      [
+        'Advice to others:',
+        ...advice.map((a) => {
+          const follow =
+            a.followsSelf === 'no'
+              ? ' (does not follow it)'
+              : a.followsSelf === 'sometimes'
+                ? ' (follows it sometimes)'
+                : ''
+          const blocker = a.blocker?.trim() ? ` — blocker: ${a.blocker.trim()}` : ''
+          return `- ${a.advice}${follow}${blocker}`
+        }),
+      ].join('\n'),
     )
   }
   if (entry.notes?.trim()) {

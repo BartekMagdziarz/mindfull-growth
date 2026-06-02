@@ -368,9 +368,8 @@ describe('per-formatter unit coverage', () => {
       id: 'sb-1',
       createdAt: '2026-04-15T10:00:00.000Z',
       updatedAt: '2026-04-15T10:00:00.000Z',
-      selfSabotagingBeliefs: ["I don't deserve rest."],
+      beliefs: [{ belief: "I don't deserve rest.", reframe: 'Rest is part of the work.' }],
       adviceToOthers: [],
-      reframedBeliefs: ['Rest is part of the work.'],
       notes: 'Came up after a long week.',
     })
     expect(item.body.startsWith('## Shadow beliefs (2026-04-15)')).toBe(true)
