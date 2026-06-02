@@ -6,6 +6,17 @@ export const DEFAULT_MODEL = 'gpt-5-nano'
 const DEFAULT_TEMPERATURE = 0.7
 const DEFAULT_MAX_TOKENS = 500
 
+/**
+ * Local "thinking" models (e.g. Gemma via Ollama or MLX) emit a chain-of-thought
+ * into a separate `reasoning` field that still counts against `max_tokens`. Without
+ * extra budget the reasoning can swallow the whole allowance and leave `content`
+ * empty. For local providers we add this headroom on top of the requested answer
+ * budget so the visible answer is never starved. Hosted models (OpenAI) are billed
+ * per token and left untouched. The model still stops at its natural end token, so
+ * the larger cap does not slow short replies down.
+ */
+const LOCAL_REASONING_HEADROOM = 2048
+
 export type AIProviderId = 'openai' | 'ollama' | 'mlx' | 'custom'
 
 export interface AIProviderSettings {
@@ -166,12 +177,18 @@ export async function sendMessage(
     }
     requestMessages.push(...messages)
 
-    // Construct request payload
+    // Construct request payload. Local "thinking" providers get extra token budget so
+    // hidden reasoning never starves the visible answer (see LOCAL_REASONING_HEADROOM).
+    const requestedMaxTokens = options?.maxTokens ?? DEFAULT_MAX_TOKENS
+    const isLocalThinkingProvider =
+      settings.provider === 'ollama' || settings.provider === 'mlx'
     const requestBody = {
       model: options?.model ?? settings.model,
       messages: requestMessages,
       temperature: options?.temperature ?? DEFAULT_TEMPERATURE,
-      max_tokens: options?.maxTokens ?? DEFAULT_MAX_TOKENS,
+      max_tokens: isLocalThinkingProvider
+        ? requestedMaxTokens + LOCAL_REASONING_HEADROOM
+        : requestedMaxTokens,
     }
 
     const headers: Record<string, string> = {

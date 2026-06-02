@@ -59,6 +59,7 @@ The chat feature lets you have short, focused conversations with an AI about a s
   - Ollama local: `http://localhost:11434/v1`, model `gemma4:e4b`, no API key required.
   - MLX local: `http://localhost:8080/v1`, model `mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit`, no API key required.
 - API keys are stored locally in the browser and are only sent to the configured endpoint.
+- Local "thinking" models (e.g. Gemma via Ollama/MLX) emit a chain-of-thought into a separate `reasoning` field that still counts against `max_tokens`. For local providers (`ollama`/`mlx`) `llmService` adds `LOCAL_REASONING_HEADROOM` tokens on top of the requested answer budget so the hidden reasoning never starves the visible `content`. Hosted OpenAI requests are left untouched.
 
 ### Tests
 

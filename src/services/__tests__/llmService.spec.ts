@@ -138,6 +138,52 @@ describe('llmService', () => {
       )
     })
 
+    it('adds reasoning headroom to max_tokens for the Ollama provider', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockSuccess('Ollama response')
+
+      await sendMessage([{ role: 'user', content: 'Hello' }])
+
+      // 500 default answer budget + 2048 reasoning headroom
+      expect(latestRequest().body.max_tokens).toBe(2548)
+    })
+
+    it('adds reasoning headroom on top of an explicit maxTokens override for local providers', async () => {
+      storeSettings({
+        provider: 'mlx',
+        baseUrl: 'http://localhost:8080/v1',
+        model: 'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit',
+      })
+      mockSuccess('MLX response')
+
+      await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        maxTokens: 300,
+      })
+
+      // 300 requested + 2048 reasoning headroom
+      expect(latestRequest().body.max_tokens).toBe(2348)
+    })
+
+    it('does not add reasoning headroom for hosted OpenAI requests', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
+      mockSuccess()
+
+      await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        maxTokens: 300,
+      })
+
+      expect(latestRequest().body.max_tokens).toBe(300)
+    })
+
     it('adds Authorization for custom providers when an API key is configured', async () => {
       storeSettings({
         provider: 'custom',
