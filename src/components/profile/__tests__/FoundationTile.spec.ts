@@ -103,4 +103,67 @@ describe('FoundationTile', () => {
       'Completed Apr 10, 2026',
     )
   })
+
+  const bigFiveVariants = [
+    {
+      assessmentId: 'ipip-bfm-50' as const,
+      routeName: 'exercise-assessment',
+      routeParams: { assessmentId: 'ipip-bfm-50' },
+    },
+    {
+      assessmentId: 'ipip-neo-120' as const,
+      routeName: 'exercise-assessment',
+      routeParams: { assessmentId: 'ipip-neo-120' },
+    },
+  ]
+
+  it('offers a depth choice for the not-started Big Five slot', async () => {
+    const { emitted } = render(FoundationTile, {
+      props: {
+        status: makeStatus({
+          id: 'bigFive',
+          group: 'personality',
+          state: 'not-started',
+          routeName: 'exercise-assessment',
+          routeParams: { assessmentId: 'ipip-bfm-50' },
+          variants: bigFiveVariants,
+        }),
+      },
+    })
+
+    expect(screen.getByText('Big Five (personality)')).toBeInTheDocument()
+
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Big Five (personality): Quick test' }),
+    )
+
+    expect(emitted().navigate).toEqual([
+      [{ routeName: 'exercise-assessment', routeParams: { assessmentId: 'ipip-bfm-50' } }],
+    ])
+  })
+
+  it('collapses the Big Five slot to a single tile once completed', () => {
+    render(FoundationTile, {
+      props: {
+        status: makeStatus({
+          id: 'bigFive',
+          group: 'personality',
+          state: 'completed',
+          lastCompletedAt: '2026-04-10T00:00:00.000Z',
+          routeName: 'exercise-assessment',
+          routeParams: { assessmentId: 'ipip-neo-120' },
+          variants: bigFiveVariants,
+          completedVariantId: 'ipip-neo-120',
+        }),
+      },
+    })
+
+    // A single navigable tile, not a chooser.
+    expect(
+      screen.getByRole('button', { name: 'Big Five (personality)' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Big Five (personality): Quick test' }),
+    ).not.toBeInTheDocument()
+  })
 })

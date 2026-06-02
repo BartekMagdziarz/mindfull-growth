@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "Rumination & Reflection (RRQ)",
+    "subtitle": "Two styles of turning your attention inward.",
+    "description": "Twenty-four statements measuring two trait styles of self-focus: rumination (repetitive, distress-driven dwelling on yourself) and reflection (curious, open self-examination).",
+    "category": "Emotions",
+    "disclaimer": "This assessment supports self-reflection and does not provide a clinical diagnosis."
+  },
+  "consent": {
+    "title": "Consent and Disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I consent to store results locally on this device."
+  },
+  "scales": {
+    "rumination": "Rumination",
+    "reflection": "Reflection"
+  },
+  "anchors": {
+    "1": "Strongly disagree",
+    "5": "Strongly agree"
+  },
+  "interpretation": {
+    "low": "You report this style of self-focus less than most.",
+    "medium": "You report a moderate, typical level of this style of self-focus.",
+    "high": "You report this style of self-focus more than most."
+  },
+  "items": {
+    "rrq_01": { "m": "My attention is often focused on aspects of myself I wish I'd stop thinking about.", "f": "My attention is often focused on aspects of myself I wish I'd stop thinking about." },
+    "rrq_02": { "m": "I always seem to be rehashing in my mind recent things I've said or done.", "f": "I always seem to be rehashing in my mind recent things I've said or done." },
+    "rrq_03": "Sometimes it is hard for me to shut off thoughts about myself.",
+    "rrq_04": "Long after an argument or disagreement is over with, my thoughts keep going back to what happened.",
+    "rrq_05": "I tend to \"ruminate\" or dwell over things that happen to me for a really long time afterward.",
+    "rrq_06": "I don't waste time rethinking things that are over and done with.",
+    "rrq_07": { "m": "Often I'm playing back over in my mind how I acted in a past situation.", "f": "Often I'm playing back over in my mind how I acted in a past situation." },
+    "rrq_08": { "m": "I often find myself reevaluating something I've done.", "f": "I often find myself reevaluating something I've done." },
+    "rrq_09": "I never ruminate or dwell on myself for very long.",
+    "rrq_10": "It is easy for me to put unwanted thoughts out of my mind.",
+    "rrq_11": { "m": "I often reflect on episodes in my life that I should no longer concern myself with.", "f": "I often reflect on episodes in my life that I should no longer concern myself with." },
+    "rrq_12": "I spend a great deal of time thinking back over my embarrassing or disappointing moments.",
+    "rrq_13": "Philosophical or abstract thinking doesn't appeal to me that much.",
+    "rrq_14": "I'm not really a meditative type of person.",
+    "rrq_15": "I love exploring my \"inner\" self.",
+    "rrq_16": "My attitudes and feelings about things fascinate me.",
+    "rrq_17": "I don't really care for introspective or self-reflective thinking.",
+    "rrq_18": "I love analyzing why I do things.",
+    "rrq_19": "People often say I'm a \"deep,\" introspective type of person.",
+    "rrq_20": { "m": "I'm not really a self-reflective type of person.", "f": "I'm not really a self-reflective type of person." },
+    "rrq_21": { "m": "I tend to \"ponder\" over things about myself.", "f": "I tend to \"ponder\" over things about myself." },
+    "rrq_22": "I love to meditate on the nature and meaning of things.",
+    "rrq_23": "I often love to look at my life in philosophical ways.",
+    "rrq_24": "Contemplating myself isn't my idea of fun."
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "id": "ipip-via",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.ipipVia.meta.title",
+  "subtitleKey": "assessments.ipipVia.meta.subtitle",
+  "descriptionKey": "assessments.ipipVia.meta.description",
+  "categoryKey": "assessments.ipipVia.meta.category",
+  "disclaimerKey": "assessments.ipipVia.meta.disclaimer",
+  "estimatedMinutes": 7,
+  "responseScale": {
+    "min": 1,
+    "max": 5,
+    "anchors": {
+      "1": "assessments.ipipVia.anchors.1",
+      "5": "assessments.ipipVia.anchors.5"
+    }
+  },
+  "items": [
+    { "id": "ipipvia_01", "textKey": "assessments.ipipVia.items.ipipvia_01", "scaleId": "wisdom", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_02", "textKey": "assessments.ipipVia.items.ipipvia_02", "scaleId": "wisdom", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_03", "textKey": "assessments.ipipVia.items.ipipvia_03", "scaleId": "wisdom", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_04", "textKey": "assessments.ipipVia.items.ipipvia_04", "scaleId": "wisdom", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_05", "textKey": "assessments.ipipVia.items.ipipvia_05", "scaleId": "wisdom", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_06", "textKey": "assessments.ipipVia.items.ipipvia_06", "scaleId": "courage", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_07", "textKey": "assessments.ipipVia.items.ipipvia_07", "scaleId": "courage", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_08", "textKey": "assessments.ipipVia.items.ipipvia_08", "scaleId": "courage", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_09", "textKey": "assessments.ipipVia.items.ipipvia_09", "scaleId": "courage", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_10", "textKey": "assessments.ipipVia.items.ipipvia_10", "scaleId": "courage", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_11", "textKey": "assessments.ipipVia.items.ipipvia_11", "scaleId": "humanity", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_12", "textKey": "assessments.ipipVia.items.ipipvia_12", "scaleId": "humanity", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_13", "textKey": "assessments.ipipVia.items.ipipvia_13", "scaleId": "humanity", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_14", "textKey": "assessments.ipipVia.items.ipipvia_14", "scaleId": "humanity", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_15", "textKey": "assessments.ipipVia.items.ipipvia_15", "scaleId": "humanity", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_16", "textKey": "assessments.ipipVia.items.ipipvia_16", "scaleId": "justice", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_17", "textKey": "assessments.ipipVia.items.ipipvia_17", "scaleId": "justice", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_18", "textKey": "assessments.ipipVia.items.ipipvia_18", "scaleId": "justice", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_19", "textKey": "assessments.ipipVia.items.ipipvia_19", "scaleId": "justice", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_20", "textKey": "assessments.ipipVia.items.ipipvia_20", "scaleId": "justice", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_21", "textKey": "assessments.ipipVia.items.ipipvia_21", "scaleId": "temperance", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_22", "textKey": "assessments.ipipVia.items.ipipvia_22", "scaleId": "temperance", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_23", "textKey": "assessments.ipipVia.items.ipipvia_23", "scaleId": "temperance", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_24", "textKey": "assessments.ipipVia.items.ipipvia_24", "scaleId": "temperance", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_25", "textKey": "assessments.ipipVia.items.ipipvia_25", "scaleId": "temperance", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_26", "textKey": "assessments.ipipVia.items.ipipvia_26", "scaleId": "transcendence", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_27", "textKey": "assessments.ipipVia.items.ipipvia_27", "scaleId": "transcendence", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_28", "textKey": "assessments.ipipVia.items.ipipvia_28", "scaleId": "transcendence", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_29", "textKey": "assessments.ipipVia.items.ipipvia_29", "scaleId": "transcendence", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ipipvia_30", "textKey": "assessments.ipipVia.items.ipipvia_30", "scaleId": "transcendence", "reverse": false, "responseMin": 1, "responseMax": 5 }
+  ],
+  "scales": [
+    { "id": "wisdom", "labelKey": "assessments.ipipVia.scales.wisdom", "itemIds": ["ipipvia_01", "ipipvia_02", "ipipvia_03", "ipipvia_04", "ipipvia_05"], "minAnswered": 4 },
+    { "id": "courage", "labelKey": "assessments.ipipVia.scales.courage", "itemIds": ["ipipvia_06", "ipipvia_07", "ipipvia_08", "ipipvia_09", "ipipvia_10"], "minAnswered": 4 },
+    { "id": "humanity", "labelKey": "assessments.ipipVia.scales.humanity", "itemIds": ["ipipvia_11", "ipipvia_12", "ipipvia_13", "ipipvia_14", "ipipvia_15"], "minAnswered": 4 },
+    { "id": "justice", "labelKey": "assessments.ipipVia.scales.justice", "itemIds": ["ipipvia_16", "ipipvia_17", "ipipvia_18", "ipipvia_19", "ipipvia_20"], "minAnswered": 4 },
+    { "id": "temperance", "labelKey": "assessments.ipipVia.scales.temperance", "itemIds": ["ipipvia_21", "ipipvia_22", "ipipvia_23", "ipipvia_24", "ipipvia_25"], "minAnswered": 4 },
+    { "id": "transcendence", "labelKey": "assessments.ipipVia.scales.transcendence", "itemIds": ["ipipvia_26", "ipipvia_27", "ipipvia_28", "ipipvia_29", "ipipvia_30"], "minAnswered": 4 }
+  ],
+  "missingDataPolicy": {
+    "id": "ipip-via-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 12
+  },
+  "pageSize": 10,
+  "interpretationScale": "1-5"
+}

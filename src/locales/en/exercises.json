@@ -179,6 +179,26 @@
     },
     "positiveDataLog": {
       "title": "Positive Data Log",
+    "erq": {
+      "title": "Emotion Regulation (ERQ)",
+      "subtitle": "Reappraisal vs suppression",
+      "description": "10-item Emotion Regulation Questionnaire measuring cognitive reappraisal and expressive suppression."
+    },
+    "rrq": {
+      "title": "Rumination & Reflection (RRQ)",
+      "subtitle": "Two styles of inward focus",
+      "description": "24-item Rumination-Reflection Questionnaire distinguishing distress-driven rumination from open reflection."
+    },
+    "ecrRs": {
+      "title": "Attachment Style (ECR-RS)",
+      "subtitle": "Avoidance and anxiety",
+      "description": "9-item Experiences in Close Relationships scale measuring attachment-related avoidance and anxiety."
+    },
+    "ipipVia": {
+      "title": "Character Strengths (IPIP-VIA)",
+      "subtitle": "Signature virtues",
+      "description": "30-item public-domain VIA strengths assessment sampling six virtue families."
+    },
       "subtitle": "Collect evidence against negative beliefs",
       "description": "An ongoing log to systematically challenge a core belief by recording contradicting evidence over time."
     },

@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "Ruminacja i refleksja (RRQ)",
+    "subtitle": "Dwa style kierowania uwagi do wewnątrz.",
+    "description": "Dwadzieścia cztery stwierdzenia mierzące dwa dyspozycyjne style koncentracji na sobie: ruminację (powtarzalne, napędzane dyskomfortem rozpamiętywanie siebie) oraz refleksję (ciekawe, otwarte przyglądanie się sobie).",
+    "category": "Emocje",
+    "disclaimer": "To narzędzie wspiera autorefleksję i nie stanowi diagnozy klinicznej."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "rumination": "Ruminacja",
+    "reflection": "Refleksja"
+  },
+  "anchors": {
+    "1": "Zdecydowanie się nie zgadzam",
+    "5": "Zdecydowanie się zgadzam"
+  },
+  "interpretation": {
+    "low": "Deklarujesz rzadsze niż przeciętnie poleganie na tym stylu skupienia na sobie.",
+    "medium": "Deklarujesz umiarkowany, typowy poziom tego stylu skupienia na sobie.",
+    "high": "Deklarujesz częstsze niż przeciętnie poleganie na tym stylu skupienia na sobie."
+  },
+  "items": {
+    "rrq_01": { "m": "Moja uwaga często skupia się na aspektach mnie samego, o których wolałbym przestać myśleć.", "f": "Moja uwaga często skupia się na aspektach mnie samej, o których wolałabym przestać myśleć." },
+    "rrq_02": { "m": "Wydaje mi się, że bez przerwy roztrząsam w myślach to, co niedawno powiedziałem lub zrobiłem.", "f": "Wydaje mi się, że bez przerwy roztrząsam w myślach to, co niedawno powiedziałam lub zrobiłam." },
+    "rrq_03": "Czasami trudno mi wyłączyć myśli o sobie.",
+    "rrq_04": "Jeszcze długo po zakończeniu kłótni czy sporu moje myśli wracają do tego, co się wydarzyło.",
+    "rrq_05": "Mam tendencję do długiego rozpamiętywania rzeczy, które mi się przytrafiły.",
+    "rrq_06": "Nie tracę czasu na ponowne rozmyślanie o sprawach, które są już zakończone.",
+    "rrq_07": { "m": "Często odtwarzam w myślach to, jak zachowałem się w jakiejś sytuacji.", "f": "Często odtwarzam w myślach to, jak zachowałam się w jakiejś sytuacji." },
+    "rrq_08": { "m": "Często przyłapuję się na ponownej ocenie czegoś, co zrobiłem.", "f": "Często przyłapuję się na ponownej ocenie czegoś, co zrobiłam." },
+    "rrq_09": "Nigdy nie rozpamiętuję siebie zbyt długo.",
+    "rrq_10": "Łatwo przychodzi mi pozbycie się niechcianych myśli.",
+    "rrq_11": { "m": "Często rozmyślam o wydarzeniach z mojego życia, którymi nie powinienem się już zajmować.", "f": "Często rozmyślam o wydarzeniach z mojego życia, którymi nie powinnam się już zajmować." },
+    "rrq_12": "Spędzam dużo czasu, wracając myślami do moich krępujących lub rozczarowujących chwil.",
+    "rrq_13": "Myślenie abstrakcyjne czy filozoficzne niezbyt mnie pociąga.",
+    "rrq_14": "Nie jestem zbyt refleksyjnym typem człowieka.",
+    "rrq_15": "Uwielbiam odkrywać moje „wewnętrzne” ja.",
+    "rrq_16": "Moje postawy i uczucia wobec różnych rzeczy fascynują mnie.",
+    "rrq_17": "Niezbyt cenię introspekcję ani myślenie o sobie.",
+    "rrq_18": "Uwielbiam analizować, dlaczego robię różne rzeczy.",
+    "rrq_19": "Ludzie często mówią, że jestem „głębokim”, introspekcyjnym typem osoby.",
+    "rrq_20": { "m": "Nie jestem zbyt skłonny do autorefleksji.", "f": "Nie jestem zbyt skłonna do autorefleksji." },
+    "rrq_21": { "m": "Mam tendencję do rozważania spraw dotyczących samego siebie.", "f": "Mam tendencję do rozważania spraw dotyczących samej siebie." },
+    "rrq_22": "Lubię rozmyślać o naturze i znaczeniu rzeczy.",
+    "rrq_23": "Często lubię patrzeć na swoje życie w sposób filozoficzny.",
+    "rrq_24": "Rozmyślanie o sobie nie sprawia mi przyjemności."
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "title": "Styl przywiązania (ECR-RS)",
+    "subtitle": "Jak budujesz bliskość i więzi w relacjach.",
+    "description": "Dziewięć stwierdzeń o Twoich bliskich relacjach, mierzących dwa wymiary przywiązania: unikanie (dyskomfort z bliskością i poleganiem na innych) oraz lęk (obawa o to, czy jesteś ważny dla innych). Odpowiadaj, myśląc ogólnie o osobach Ci bliskich.",
+    "category": "Relacje",
+    "disclaimer": "To narzędzie wspiera autorefleksję i nie stanowi diagnozy klinicznej."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "avoidance": "Unikanie w przywiązaniu",
+    "anxiety": "Lęk w przywiązaniu"
+  },
+  "anchors": {
+    "1": "Zdecydowanie się nie zgadzam",
+    "7": "Zdecydowanie się zgadzam"
+  },
+  "interpretation": {
+    "low": "Niżej na tym wymiarze przywiązania — oznaka większego poczucia bezpieczeństwa.",
+    "medium": "Środkowy zakres na tym wymiarze przywiązania.",
+    "high": "Wyżej na tym wymiarze przywiązania."
+  },
+  "items": {
+    "ecrrs_01": "W trudnych chwilach pomaga mi zwrócenie się do osób mi bliskich.",
+    "ecrrs_02": "Zazwyczaj omawiam swoje problemy i zmartwienia z osobami mi bliskimi.",
+    "ecrrs_03": "Rozmawiam o różnych sprawach z osobami mi bliskimi.",
+    "ecrrs_04": "Łatwo przychodzi mi poleganie na osobach mi bliskich.",
+    "ecrrs_05": "Nie czuję się komfortowo, otwierając się przed innymi.",
+    "ecrrs_06": "Wolę nie pokazywać innym tego, co naprawdę czuję w głębi.",
+    "ecrrs_07": "Często martwię się, że osoby mi bliskie tak naprawdę o mnie nie dbają.",
+    "ecrrs_08": "Boję się, że osoby mi bliskie mogą mnie opuścić.",
+    "ecrrs_09": "Martwię się, że innym nie będzie na mnie zależeć tak bardzo, jak mnie zależy na nich."
+  }
+}

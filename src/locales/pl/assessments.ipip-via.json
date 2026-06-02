@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "title": "Mocne strony charakteru (IPIP-VIA)",
+    "subtitle": "Twoje sygnaturowe cnoty w sześciu rodzinach.",
+    "description": "Trzydzieści stwierdzeń z domeny publicznej, próbkujących sześć rodzin cnót z modelu mocnych stron charakteru VIA — mądrość, odwagę, człowieczeństwo, sprawiedliwość, umiarkowanie i transcendencję. Oceń, jak trafnie każde z nich Cię opisuje.",
+    "category": "Mocne strony",
+    "disclaimer": "To narzędzie wspiera autorefleksję i nie stanowi diagnozy klinicznej."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "wisdom": "Mądrość (ciekawość)",
+    "courage": "Odwaga (męstwo)",
+    "humanity": "Człowieczeństwo (życzliwość)",
+    "justice": "Sprawiedliwość (uczciwość)",
+    "temperance": "Umiarkowanie (samokontrola)",
+    "transcendence": "Transcendencja (wdzięczność)"
+  },
+  "anchors": {
+    "1": "Bardzo nietrafne",
+    "5": "Bardzo trafne"
+  },
+  "interpretation": {
+    "low": "W Twoich obecnych odpowiedziach mniej sygnaturowa mocna strona.",
+    "medium": "W Twoich obecnych odpowiedziach mocna strona ze środkowego zakresu.",
+    "high": "W Twoich obecnych odpowiedziach bardziej sygnaturowa mocna strona."
+  },
+  "items": {
+    "ipipvia_01": "Świat wydaje mi się bardzo interesującym miejscem.",
+    "ipipvia_02": "Nigdy się nie nudzę.",
+    "ipipvia_03": { "m": "Zawsze jestem zajęty czymś interesującym.", "f": "Zawsze jestem zajęta czymś interesującym." },
+    "ipipvia_04": "Ekscytuje mnie wiele różnych aktywności.",
+    "ipipvia_05": "W każdej sytuacji potrafię znaleźć coś interesującego.",
+    "ipipvia_06": { "m": "Często zajmowałem stanowisko wbrew silnemu sprzeciwowi.", "f": "Często zajmowałam stanowisko wbrew silnemu sprzeciwowi." },
+    "ipipvia_07": "Nie waham się wyrazić niepopularnej opinii.",
+    "ipipvia_08": "Wzywam do działania, gdy inni tylko rozmawiają.",
+    "ipipvia_09": "Potrafię stawić czoła swoim lękom.",
+    "ipipvia_10": "Protestuję, gdy słyszę, że ktoś mówi złośliwe rzeczy.",
+    "ipipvia_11": { "m": "Nigdy nie jestem zbyt zajęty, by pomóc przyjacielowi.", "f": "Nigdy nie jestem zbyt zajęta, by pomóc przyjacielowi." },
+    "ipipvia_12": "Staram się rozweselić osoby, które wyglądają na przygnębione.",
+    "ipipvia_13": "Uwielbiam sprawiać innym radość.",
+    "ipipvia_14": { "m": "W ostatnim miesiącu pomogłem sąsiadowi.", "f": "W ostatnim miesiącu pomogłam sąsiadowi." },
+    "ipipvia_15": "Cieszę się z sukcesów innych tak samo jak ze swoich.",
+    "ipipvia_16": "Przyznaję się, gdy nie mam racji.",
+    "ipipvia_17": "Traktuję wszystkich ludzi jednakowo.",
+    "ipipvia_18": { "m": "Jestem dobrym słuchaczem.", "f": "Jestem dobrą słuchaczką." },
+    "ipipvia_19": "Uważam, że prawa każdego są równie ważne.",
+    "ipipvia_20": "Daję każdemu szansę.",
+    "ipipvia_21": "Nie mam problemu, by zdrowo się odżywiać.",
+    "ipipvia_22": "Jestem osobą bardzo zdyscyplinowaną.",
+    "ipipvia_23": "Rezygnuję z rzeczy, które długofalowo mi szkodzą, nawet jeśli na krótką metę sprawiają mi przyjemność.",
+    "ipipvia_24": "Potrafię utrzymać dietę.",
+    "ipipvia_25": "Zawsze potrafię powiedzieć „dość”.",
+    "ipipvia_26": "Wyrażam wdzięczność tym, którym na mnie zależy.",
+    "ipipvia_27": { "m": "Zostałem w życiu obficie obdarowany.", "f": "Zostałam w życiu obficie obdarowana." },
+    "ipipvia_28": "Zatrzymuję się, by docenić to, co mam.",
+    "ipipvia_29": "Jestem osobą niezwykle wdzięczną.",
+    "ipipvia_30": { "m": "Czuję wdzięczność za to, co otrzymałem w życiu.", "f": "Czuję wdzięczność za to, co otrzymałam w życiu." }
+  }
+}

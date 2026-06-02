@@ -1,0 +1,55 @@
+{
+  "id": "ecr-rs",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.ecrRs.meta.title",
+  "subtitleKey": "assessments.ecrRs.meta.subtitle",
+  "descriptionKey": "assessments.ecrRs.meta.description",
+  "categoryKey": "assessments.ecrRs.meta.category",
+  "disclaimerKey": "assessments.ecrRs.meta.disclaimer",
+  "estimatedMinutes": 3,
+  "responseScale": {
+    "min": 1,
+    "max": 7,
+    "anchors": {
+      "1": "assessments.ecrRs.anchors.1",
+      "7": "assessments.ecrRs.anchors.7"
+    }
+  },
+  "items": [
+    { "id": "ecrrs_01", "textKey": "assessments.ecrRs.items.ecrrs_01", "scaleId": "avoidance", "reverse": true, "responseMin": 1, "responseMax": 7 },
+    { "id": "ecrrs_02", "textKey": "assessments.ecrRs.items.ecrrs_02", "scaleId": "avoidance", "reverse": true, "responseMin": 1, "responseMax": 7 },
+    { "id": "ecrrs_03", "textKey": "assessments.ecrRs.items.ecrrs_03", "scaleId": "avoidance", "reverse": true, "responseMin": 1, "responseMax": 7 },
+    { "id": "ecrrs_04", "textKey": "assessments.ecrRs.items.ecrrs_04", "scaleId": "avoidance", "reverse": true, "responseMin": 1, "responseMax": 7 },
+    { "id": "ecrrs_05", "textKey": "assessments.ecrRs.items.ecrrs_05", "scaleId": "avoidance", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "ecrrs_06", "textKey": "assessments.ecrRs.items.ecrrs_06", "scaleId": "avoidance", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "ecrrs_07", "textKey": "assessments.ecrRs.items.ecrrs_07", "scaleId": "anxiety", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "ecrrs_08", "textKey": "assessments.ecrRs.items.ecrrs_08", "scaleId": "anxiety", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "ecrrs_09", "textKey": "assessments.ecrRs.items.ecrrs_09", "scaleId": "anxiety", "reverse": false, "responseMin": 1, "responseMax": 7 }
+  ],
+  "scales": [
+    {
+      "id": "avoidance",
+      "labelKey": "assessments.ecrRs.scales.avoidance",
+      "itemIds": ["ecrrs_01", "ecrrs_02", "ecrrs_03", "ecrrs_04", "ecrrs_05", "ecrrs_06"],
+      "minAnswered": 5
+    },
+    {
+      "id": "anxiety",
+      "labelKey": "assessments.ecrRs.scales.anxiety",
+      "itemIds": ["ecrrs_07", "ecrrs_08", "ecrrs_09"],
+      "minAnswered": 2
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "ecr-rs-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 12
+  },
+  "pageSize": 9,
+  "interpretationScale": "1-7"
+}

@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "title": "Emotion Regulation (ERQ)",
+    "subtitle": "How you habitually manage your emotions.",
+    "description": "Ten statements measuring two emotion-regulation strategies: cognitive reappraisal (rethinking a situation) and expressive suppression (holding feelings in).",
+    "category": "Emotions",
+    "disclaimer": "This assessment supports self-reflection and does not provide a clinical diagnosis."
+  },
+  "consent": {
+    "title": "Consent and Disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I consent to store results locally on this device."
+  },
+  "scales": {
+    "reappraisal": "Cognitive Reappraisal",
+    "suppression": "Expressive Suppression"
+  },
+  "anchors": {
+    "1": "Strongly disagree",
+    "7": "Strongly agree"
+  },
+  "interpretation": {
+    "low": "You report relying on this strategy less than most.",
+    "medium": "You report a moderate, typical reliance on this strategy.",
+    "high": "You report relying on this strategy more than most."
+  },
+  "items": {
+    "erq_01": "When I want to feel more positive emotion (such as joy or amusement), I change what I'm thinking about.",
+    "erq_02": "I keep my emotions to myself.",
+    "erq_03": "When I want to feel less negative emotion (such as sadness or anger), I change what I'm thinking about.",
+    "erq_04": "When I am feeling positive emotions, I am careful not to express them.",
+    "erq_05": "When I'm faced with a stressful situation, I make myself think about it in a way that helps me stay calm.",
+    "erq_06": "I control my emotions by not expressing them.",
+    "erq_07": "When I want to feel more positive emotion, I change the way I'm thinking about the situation.",
+    "erq_08": "I control my emotions by changing the way I think about the situation I'm in.",
+    "erq_09": "When I am feeling negative emotions, I make sure not to express them.",
+    "erq_10": "When I want to feel less negative emotion, I change the way I'm thinking about the situation."
+  }
+}

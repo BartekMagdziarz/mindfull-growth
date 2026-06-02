@@ -179,6 +179,26 @@
     },
     "positiveDataLog": {
       "title": "Dziennik pozytywnych dowodów",
+    "erq": {
+      "title": "Regulacja emocji (ERQ)",
+      "subtitle": "Przewartościowanie vs tłumienie",
+      "description": "10-itemowy Kwestionariusz Regulacji Emocji mierzący przewartościowanie poznawcze i tłumienie ekspresji."
+    },
+    "rrq": {
+      "title": "Ruminacja i refleksja (RRQ)",
+      "subtitle": "Dwa style uwagi do wewnątrz",
+      "description": "24-itemowy kwestionariusz odróżniający napędzaną dyskomfortem ruminację od otwartej refleksji."
+    },
+    "ecrRs": {
+      "title": "Styl przywiązania (ECR-RS)",
+      "subtitle": "Unikanie i lęk",
+      "description": "9-itemowa skala bliskich relacji mierząca unikanie i lęk w przywiązaniu."
+    },
+    "ipipVia": {
+      "title": "Mocne strony charakteru (IPIP-VIA)",
+      "subtitle": "Sygnaturowe cnoty",
+      "description": "30-itemowa ocena mocnych stron VIA (domena publiczna) z sześciu rodzin cnót."
+    },
       "subtitle": "Zbieraj dowody przeciwko negatywnym przekonaniom",
       "description": "Prowadź dziennik, w którym systematycznie podważasz kluczowe przekonanie, zapisując sprzeczne z nim dowody."
     },

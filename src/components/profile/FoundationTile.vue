@@ -1,9 +1,54 @@
 <template>
+  <!--
+    Merged slot (Big Five): while still not started, offer a depth choice
+    instead of a single navigation target. Completing either depth satisfies
+    the slot, so we never want the user to do both by accident.
+  -->
+  <div
+    v-if="showVariantChooser"
+    class="w-full rounded-2xl border p-4 text-left"
+    :class="tileClass"
+    :data-test-foundation-item="status.id"
+  >
+    <div class="flex items-center justify-between gap-3">
+      <span class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+        <AppIcon :name="iconName" class="text-xl text-primary" />
+      </span>
+      <span class="neo-pill px-2.5 py-1 text-xs" :class="pillClass">
+        {{ pillLabel }}
+      </span>
+    </div>
+
+    <h3 class="mt-3 text-base font-semibold text-on-surface">
+      {{ title }}
+    </h3>
+    <p class="mt-1 text-sm text-on-surface-variant">
+      {{ description }}
+    </p>
+
+    <div class="mt-3 grid grid-cols-2 gap-2">
+      <button
+        v-for="variant in variantOptions"
+        :key="variant.assessmentId"
+        type="button"
+        class="neo-pill flex flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left transition-all duration-200 hover:-translate-y-px active:translate-y-0"
+        :aria-label="`${title}: ${variant.label}`"
+        @click="emit('navigate', { routeName: variant.routeName, routeParams: variant.routeParams })"
+      >
+        <span class="text-sm font-medium text-on-surface">{{ variant.label }}</span>
+        <span class="text-xs text-on-surface-variant">{{ variant.hint }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Standard tile -->
   <button
+    v-else
     type="button"
     class="w-full rounded-2xl border p-4 text-left transition-all duration-200 hover:-translate-y-px active:translate-y-0"
     :class="tileClass"
     :aria-label="title"
+    :data-test-foundation-item="status.id"
     @click="emit('navigate', { routeName: status.routeName, routeParams: status.routeParams })"
   >
     <div class="flex items-center justify-between gap-3">
@@ -53,15 +98,44 @@ const { t, locale } = useT()
 const iconByItem: Record<FoundationItemId, string> = {
   valuesDiscovery: 'favorite',
   valueMap: 'account_tree',
+  transformativePurpose: 'auto_awesome',
+  threePathways: 'alt_route',
+  mountainRange: 'landscape',
   wheelOfLife: 'pie_chart',
   shadowBeliefs: 'visibility',
-  transformativePurpose: 'auto_awesome',
-  'ipip-bfm-50': 'bar_chart',
-  'ipip-neo-120': 'description',
+  ifsPartsMap: 'hub',
+  bigFive: 'bar_chart',
   'hexaco-60': 'grid_view',
-  'pvq-40': 'favorite',
+  'ipip-via': 'star',
+  'pvq-40': 'diversity_3',
   vlq: 'lightbulb',
+  erq: 'mood',
+  rrq: 'replay',
+  'ecr-rs': 'diversity_1',
 }
+
+/** Maps a Big Five variant assessment id to its locale sub-key (depth). */
+const VARIANT_KEY: Record<string, 'quick' | 'deep'> = {
+  'ipip-bfm-50': 'quick',
+  'ipip-neo-120': 'deep',
+}
+
+const showVariantChooser = computed(
+  () => Boolean(props.status.variants?.length) && props.status.state === 'not-started',
+)
+
+const variantOptions = computed(() =>
+  (props.status.variants ?? []).map((variant) => {
+    const key = VARIANT_KEY[variant.assessmentId] ?? 'quick'
+    return {
+      assessmentId: variant.assessmentId,
+      routeName: variant.routeName,
+      routeParams: variant.routeParams,
+      label: t(`profile.psychologicalProfile.foundation.items.${props.status.id}.variants.${key}.label`),
+      hint: t(`profile.psychologicalProfile.foundation.items.${props.status.id}.variants.${key}.hint`),
+    }
+  }),
+)
 
 const title = computed(() =>
   t(`profile.psychologicalProfile.foundation.items.${props.status.id}.title`),

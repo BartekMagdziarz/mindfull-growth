@@ -6,6 +6,10 @@ export type AssessmentId =
   | 'hexaco-60'
   | 'pvq-40'
   | 'vlq'
+  | 'erq'
+  | 'ecr-rs'
+  | 'rrq'
+  | 'ipip-via'
 
 export type InstrumentVersion = string
 export type ScoringKeyVersion = string
@@ -69,7 +73,7 @@ export interface AssessmentDefinition {
   pageSize: number
   supportsCentering?: boolean
   defaultCenteringEnabled?: boolean
-  interpretationScale: '1-5' | '1-6' | '0-10'
+  interpretationScale: '1-5' | '1-6' | '1-7' | '0-10'
 }
 
 export interface ScaleScore {

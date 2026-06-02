@@ -55,7 +55,10 @@ import {
 } from '@/utils/periods'
 import type { ExerciseSessionBundle } from '@/services/reflectionDataQueries'
 import type {
+  IFSPartsMap,
+  MountainRangeOfMeaning,
   ShadowBeliefs,
+  ThreePathwaysToMeaning,
   TransformativePurpose,
   ValueMap,
   ValueMapCustomValue,
@@ -73,6 +76,10 @@ import { useValueMapStore } from '@/stores/valueMap.store'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
+import { useThreePathwaysStore } from '@/stores/threePathways.store'
+import { useMountainRangeStore } from '@/stores/mountainRange.store'
+import { useIFSPartsMapStore } from '@/stores/ifsPartsMap.store'
+import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useAssessmentStore } from '@/stores/assessment.store'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import type { LifeArea } from '@/domain/lifeArea'
@@ -760,7 +767,9 @@ export async function buildPlanningSnapshot(): Promise<PlanningSnapshot> {
 // ---------------------------------------------------------------------------
 
 export interface FoundationSnapshotItem {
-  id: FoundationItemId
+  // Both Big Five depths can appear individually in the snapshot, so the id
+  // space spans foundation tiles *and* raw assessment ids.
+  id: FoundationItemId | AssessmentId
   label: string
   completedAt: string
   body: string
@@ -790,6 +799,10 @@ const ASSESSMENT_LABELS: Record<AssessmentId, string> = {
   'hexaco-60': 'Personality (HEXACO-60)',
   'pvq-40': 'Schwartz values (PVQ-40)',
   vlq: 'Valued living (VLQ)',
+  erq: 'Emotion regulation (ERQ)',
+  'ecr-rs': 'Attachment (ECR-RS)',
+  rrq: 'Rumination-reflection (RRQ)',
+  'ipip-via': 'Character strengths (IPIP-VIA)',
 }
 
 const ASSESSMENT_IDS: readonly AssessmentId[] = [
@@ -798,6 +811,10 @@ const ASSESSMENT_IDS: readonly AssessmentId[] = [
   'hexaco-60',
   'pvq-40',
   'vlq',
+  'erq',
+  'ecr-rs',
+  'rrq',
+  'ipip-via',
 ] as const
 
 /**
@@ -984,6 +1001,118 @@ function formatTransformativePurpose(
   }
 }
 
+function formatThreePathways(entry: ThreePathwaysToMeaning): FoundationSnapshotItem {
+  const completedAt = entry.createdAt
+  const date = dateOnly(completedAt)
+  const sections: string[] = [`## Three pathways to meaning (${date})`]
+
+  const pathway = (label: string, items: ThreePathwaysToMeaning['creativeValues']): void => {
+    const named = items.filter((i) => i.description.trim().length > 0)
+    if (named.length === 0) return
+    sections.push(
+      [
+        `${label}:`,
+        ...named.map((i) => `- ${i.description.trim()} (engagement ${i.engagementRating}/5)`),
+      ].join('\n'),
+    )
+  }
+  pathway('Creative (what I give)', entry.creativeValues)
+  pathway('Experiential (what I receive)', entry.experientialValues)
+  pathway('Attitudinal (stance toward hardship)', entry.attitudinalValues)
+
+  if (entry.notes?.trim()) sections.push(`Notes: ${entry.notes.trim()}`)
+  return {
+    id: 'threePathways',
+    label: 'Three pathways to meaning',
+    completedAt,
+    body: sections.join('\n'),
+  }
+}
+
+function formatMountainRange(entry: MountainRangeOfMeaning): FoundationSnapshotItem {
+  const completedAt = entry.createdAt
+  const date = dateOnly(completedAt)
+  const sections: string[] = [`## Mountain range of meaning (${date})`]
+
+  const peaks = entry.events.filter((e) => e.type === 'peak' && e.description.trim().length > 0)
+  const valleys = entry.events.filter((e) => e.type === 'valley' && e.description.trim().length > 0)
+  if (peaks.length > 0) {
+    sections.push(
+      [
+        'Peaks (greatest meaning):',
+        ...peaks.map((e) => `- ${e.description.trim()} (${e.ageOrYear})`),
+      ].join('\n'),
+    )
+  }
+  if (valleys.length > 0) {
+    sections.push(
+      [
+        'Valleys (deepest struggle):',
+        ...valleys.map((e) => `- ${e.description.trim()} (${e.ageOrYear})`),
+      ].join('\n'),
+    )
+  }
+  if (entry.peakPatterns?.trim()) sections.push(`Peak patterns: ${entry.peakPatterns.trim()}`)
+  if (entry.valleyPatterns?.trim()) sections.push(`Valley patterns: ${entry.valleyPatterns.trim()}`)
+  if (entry.valleyToPeakConnection?.trim()) {
+    sections.push(`Valley-to-peak connection: ${entry.valleyToPeakConnection.trim()}`)
+  }
+  const futurePeaks = (entry.futurePeaks ?? []).filter((p) => p.trim().length > 0)
+  if (futurePeaks.length > 0) sections.push(`Future peaks: ${formatList(futurePeaks)}`)
+  if (entry.notes?.trim()) sections.push(`Notes: ${entry.notes.trim()}`)
+
+  return {
+    id: 'mountainRange',
+    label: 'Mountain range of meaning',
+    completedAt,
+    body: sections.join('\n'),
+  }
+}
+
+const IFS_RELATIONSHIP_VERBS: Record<string, string> = {
+  protects: 'protects',
+  polarized: 'polarized with',
+  allied: 'allied with',
+  triggers: 'triggers',
+  soothes: 'soothes',
+}
+
+function formatIfsPartsMap(
+  entry: IFSPartsMap,
+  resolveName: (id: string) => string,
+): FoundationSnapshotItem {
+  const completedAt = entry.createdAt
+  const date = dateOnly(completedAt)
+  const sections: string[] = [`## Parts map (${date})`]
+
+  if (entry.partIds.length > 0) {
+    sections.push(['Parts:', ...entry.partIds.map((id) => `- ${resolveName(id)}`)].join('\n'))
+  }
+  if (entry.relationships.length > 0) {
+    sections.push(
+      [
+        'Relationships:',
+        ...entry.relationships.map((r) => {
+          const verb = IFS_RELATIONSHIP_VERBS[r.type] ?? r.type
+          const note = r.notes?.trim() ? ` — ${r.notes.trim()}` : ''
+          return `- ${resolveName(r.fromPartId)} ${verb} ${resolveName(r.toPartId)}${note}`
+        }),
+      ].join('\n'),
+    )
+  }
+  if (entry.trailheadSituation?.trim()) {
+    sections.push(`Trailhead: ${entry.trailheadSituation.trim()}`)
+  }
+  if (entry.reflection?.trim()) sections.push(`Reflection: ${entry.reflection.trim()}`)
+
+  return {
+    id: 'ifsPartsMap',
+    label: 'Parts map',
+    completedAt,
+    body: sections.join('\n'),
+  }
+}
+
 function formatScaleScoreLine(scale: ScaleScore): string {
   const label = resolveScaleLabel(scale.labelKey)
   const score = scale.normalizedMean ?? scale.rawMean
@@ -1081,9 +1210,11 @@ async function formatAssessment(
 
 /**
  * Builds the `[FOUNDATION SNAPSHOT]` block content for the profile prompt.
- * Reads the latest completed entry of each of the ten foundation exercises
- * from their respective Pinia stores (already hydrated at app boot) and
- * concatenates them in ascending `completedAt` order.
+ * Reads the latest completed entry of each foundation exercise from their
+ * respective Pinia stores (already hydrated at app boot) and concatenates
+ * them in ascending `completedAt` order. Both Big Five depths are included
+ * if completed — the snapshot favours data; the merge into one slot is a
+ * foundation-UI concern, not a prompt concern.
  *
  * Returns `{ items, snapshot }` where `items` is the structured per-tile
  * list and `snapshot` is the markdown string suitable for direct injection.
@@ -1107,6 +1238,29 @@ export async function buildFoundationSnapshot(): Promise<FoundationSnapshot> {
 
   const purpose = useTransformativePurposeStore().latestPurpose
   if (purpose) items.push(formatTransformativePurpose(purpose))
+
+  const threePathways = useThreePathwaysStore().latestExploration
+  if (threePathways) items.push(formatThreePathways(threePathways))
+
+  const mountainRange = useMountainRangeStore().latestExploration
+  if (mountainRange) items.push(formatMountainRange(mountainRange))
+
+  const partsMap = useIFSPartsMapStore().latestMap
+  if (partsMap) {
+    const partStore = useIFSPartStore()
+    if (partStore.parts.length === 0) {
+      // Best-effort: the parts store may not be hydrated yet. If the load
+      // fails, names degrade to a placeholder rather than failing the build.
+      try {
+        await partStore.loadParts()
+      } catch {
+        /* names degrade gracefully */
+      }
+    }
+    const resolveName = (id: string): string =>
+      partStore.getPartById(id)?.name?.trim() || 'a part'
+    items.push(formatIfsPartsMap(partsMap, resolveName))
+  }
 
   const assessmentStore = useAssessmentStore()
   for (const assessmentId of ASSESSMENT_IDS) {
@@ -1185,6 +1339,9 @@ export const __test__ = {
   formatWheelOfLife,
   formatShadowBeliefs,
   formatTransformativePurpose,
+  formatThreePathways,
+  formatMountainRange,
+  formatIfsPartsMap,
   formatGenericAssessment,
   formatPvq40Assessment,
   formatVlqAssessment,

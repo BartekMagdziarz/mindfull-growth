@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "title": "Regulacja emocji (ERQ)",
+    "subtitle": "Jak zwykle radzisz sobie ze swoimi emocjami.",
+    "description": "Dziesięć stwierdzeń mierzących dwie strategie regulacji emocji: przewartościowanie poznawcze (zmiana sposobu myślenia o sytuacji) oraz tłumienie ekspresji (powstrzymywanie okazywania uczuć).",
+    "category": "Emocje",
+    "disclaimer": "To narzędzie wspiera autorefleksję i nie stanowi diagnozy klinicznej."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "reappraisal": "Przewartościowanie poznawcze",
+    "suppression": "Tłumienie ekspresji"
+  },
+  "anchors": {
+    "1": "Zdecydowanie się nie zgadzam",
+    "7": "Zdecydowanie się zgadzam"
+  },
+  "interpretation": {
+    "low": "Deklarujesz rzadsze niż przeciętnie poleganie na tej strategii.",
+    "medium": "Deklarujesz umiarkowane, typowe poleganie na tej strategii.",
+    "high": "Deklarujesz częstsze niż przeciętnie poleganie na tej strategii."
+  },
+  "items": {
+    "erq_01": "Gdy chcę poczuć więcej pozytywnych emocji (takich jak radość czy rozbawienie), zmieniam to, o czym myślę.",
+    "erq_02": "Zachowuję swoje emocje dla siebie.",
+    "erq_03": "Gdy chcę poczuć mniej negatywnych emocji (takich jak smutek czy złość), zmieniam to, o czym myślę.",
+    "erq_04": "Gdy odczuwam pozytywne emocje, uważam, aby ich nie okazywać.",
+    "erq_05": "Gdy znajdę się w stresującej sytuacji, staram się myśleć o niej w sposób, który pomaga mi zachować spokój.",
+    "erq_06": "Kontroluję swoje emocje, nie okazując ich.",
+    "erq_07": "Gdy chcę poczuć więcej pozytywnych emocji, zmieniam sposób, w jaki myślę o danej sytuacji.",
+    "erq_08": "Kontroluję swoje emocje, zmieniając sposób, w jaki myślę o sytuacji, w której się znajduję.",
+    "erq_09": "Gdy odczuwam negatywne emocje, dbam o to, aby ich nie okazywać.",
+    "erq_10": "Gdy chcę poczuć mniej negatywnych emocji, zmieniam sposób, w jaki myślę o danej sytuacji."
+  }
+}

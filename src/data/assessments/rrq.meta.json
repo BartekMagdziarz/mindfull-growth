@@ -1,0 +1,70 @@
+{
+  "id": "rrq",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.rrq.meta.title",
+  "subtitleKey": "assessments.rrq.meta.subtitle",
+  "descriptionKey": "assessments.rrq.meta.description",
+  "categoryKey": "assessments.rrq.meta.category",
+  "disclaimerKey": "assessments.rrq.meta.disclaimer",
+  "estimatedMinutes": 6,
+  "responseScale": {
+    "min": 1,
+    "max": 5,
+    "anchors": {
+      "1": "assessments.rrq.anchors.1",
+      "5": "assessments.rrq.anchors.5"
+    }
+  },
+  "items": [
+    { "id": "rrq_01", "textKey": "assessments.rrq.items.rrq_01", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_02", "textKey": "assessments.rrq.items.rrq_02", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_03", "textKey": "assessments.rrq.items.rrq_03", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_04", "textKey": "assessments.rrq.items.rrq_04", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_05", "textKey": "assessments.rrq.items.rrq_05", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_06", "textKey": "assessments.rrq.items.rrq_06", "scaleId": "rumination", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_07", "textKey": "assessments.rrq.items.rrq_07", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_08", "textKey": "assessments.rrq.items.rrq_08", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_09", "textKey": "assessments.rrq.items.rrq_09", "scaleId": "rumination", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_10", "textKey": "assessments.rrq.items.rrq_10", "scaleId": "rumination", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_11", "textKey": "assessments.rrq.items.rrq_11", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_12", "textKey": "assessments.rrq.items.rrq_12", "scaleId": "rumination", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_13", "textKey": "assessments.rrq.items.rrq_13", "scaleId": "reflection", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_14", "textKey": "assessments.rrq.items.rrq_14", "scaleId": "reflection", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_15", "textKey": "assessments.rrq.items.rrq_15", "scaleId": "reflection", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_16", "textKey": "assessments.rrq.items.rrq_16", "scaleId": "reflection", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_17", "textKey": "assessments.rrq.items.rrq_17", "scaleId": "reflection", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_18", "textKey": "assessments.rrq.items.rrq_18", "scaleId": "reflection", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_19", "textKey": "assessments.rrq.items.rrq_19", "scaleId": "reflection", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_20", "textKey": "assessments.rrq.items.rrq_20", "scaleId": "reflection", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_21", "textKey": "assessments.rrq.items.rrq_21", "scaleId": "reflection", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_22", "textKey": "assessments.rrq.items.rrq_22", "scaleId": "reflection", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_23", "textKey": "assessments.rrq.items.rrq_23", "scaleId": "reflection", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "rrq_24", "textKey": "assessments.rrq.items.rrq_24", "scaleId": "reflection", "reverse": true, "responseMin": 1, "responseMax": 5 }
+  ],
+  "scales": [
+    {
+      "id": "rumination",
+      "labelKey": "assessments.rrq.scales.rumination",
+      "itemIds": ["rrq_01", "rrq_02", "rrq_03", "rrq_04", "rrq_05", "rrq_06", "rrq_07", "rrq_08", "rrq_09", "rrq_10", "rrq_11", "rrq_12"],
+      "minAnswered": 10
+    },
+    {
+      "id": "reflection",
+      "labelKey": "assessments.rrq.scales.reflection",
+      "itemIds": ["rrq_13", "rrq_14", "rrq_15", "rrq_16", "rrq_17", "rrq_18", "rrq_19", "rrq_20", "rrq_21", "rrq_22", "rrq_23", "rrq_24"],
+      "minAnswered": 10
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "rrq-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 12
+  },
+  "pageSize": 8,
+  "interpretationScale": "1-5"
+}

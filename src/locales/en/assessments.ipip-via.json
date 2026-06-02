@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "title": "Character strengths (IPIP-VIA)",
+    "subtitle": "Your signature virtues, sampled across six families.",
+    "description": "Thirty public-domain statements sampling the six virtue families of the VIA character-strengths model — wisdom, courage, humanity, justice, temperance, and transcendence. Rate how accurately each describes you.",
+    "category": "Strengths",
+    "disclaimer": "This assessment supports self-reflection and does not provide a clinical diagnosis."
+  },
+  "consent": {
+    "title": "Consent and Disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I consent to store results locally on this device."
+  },
+  "scales": {
+    "wisdom": "Wisdom (curiosity)",
+    "courage": "Courage (bravery)",
+    "humanity": "Humanity (kindness)",
+    "justice": "Justice (fairness)",
+    "temperance": "Temperance (self-regulation)",
+    "transcendence": "Transcendence (gratitude)"
+  },
+  "anchors": {
+    "1": "Very inaccurate",
+    "5": "Very accurate"
+  },
+  "interpretation": {
+    "low": "Less of a signature strength for you in your current responses.",
+    "medium": "A mid-range strength for you in your current responses.",
+    "high": "More of a signature strength for you in your current responses."
+  },
+  "items": {
+    "ipipvia_01": "I find the world a very interesting place.",
+    "ipipvia_02": "I am never bored.",
+    "ipipvia_03": { "m": "I am always busy with something interesting.", "f": "I am always busy with something interesting." },
+    "ipipvia_04": "I am excited by many different activities.",
+    "ipipvia_05": "I can find something of interest in any situation.",
+    "ipipvia_06": { "m": "I have taken frequent stands in the face of strong opposition.", "f": "I have taken frequent stands in the face of strong opposition." },
+    "ipipvia_07": "I don't hesitate to express an unpopular opinion.",
+    "ipipvia_08": "I call for action while others talk.",
+    "ipipvia_09": "I can face my fears.",
+    "ipipvia_10": "I speak up in protest when I hear someone say mean things.",
+    "ipipvia_11": { "m": "I am never too busy to help a friend.", "f": "I am never too busy to help a friend." },
+    "ipipvia_12": "I go out of my way to cheer up people who appear down.",
+    "ipipvia_13": "I love to make other people happy.",
+    "ipipvia_14": { "m": "I helped a neighbor in the last month.", "f": "I helped a neighbor in the last month." },
+    "ipipvia_15": "I get as excited about the good fortunes of others as I am about my own.",
+    "ipipvia_16": "I admit when I am wrong.",
+    "ipipvia_17": "I treat all people equally.",
+    "ipipvia_18": { "m": "I am a good listener.", "f": "I am a good listener." },
+    "ipipvia_19": "I believe that everyone's rights are equally important.",
+    "ipipvia_20": "I give everyone a chance.",
+    "ipipvia_21": "I have no trouble eating healthy foods.",
+    "ipipvia_22": "I am a highly disciplined person.",
+    "ipipvia_23": "I forego things that are bad for me in the long run even if they make me feel good in the short run.",
+    "ipipvia_24": "I can stay on a diet.",
+    "ipipvia_25": "I can always say \"enough is enough.\"",
+    "ipipvia_26": "I express my thanks to those who care about me.",
+    "ipipvia_27": { "m": "I have been richly blessed in my life.", "f": "I have been richly blessed in my life." },
+    "ipipvia_28": "I stop to count my blessings.",
+    "ipipvia_29": "I am an extremely grateful person.",
+    "ipipvia_30": { "m": "I feel thankful for what I have received in life.", "f": "I feel thankful for what I have received in life." }
+  }
+}

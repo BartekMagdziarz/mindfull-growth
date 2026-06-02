@@ -30,9 +30,10 @@ export function applyReverse(
   return shouldReverse ? reverseScore(raw, item.responseMin, item.responseMax) : raw
 }
 
-export function deriveBand(value: number | null, interpretationScale: '1-5' | '1-6' | '0-10'):
-  | ScaleBand
-  | undefined {
+export function deriveBand(
+  value: number | null,
+  interpretationScale: '1-5' | '1-6' | '1-7' | '0-10',
+): ScaleBand | undefined {
   if (value === null) return undefined
 
   if (interpretationScale === '1-5') {
@@ -44,6 +45,13 @@ export function deriveBand(value: number | null, interpretationScale: '1-5' | '1
   if (interpretationScale === '1-6') {
     if (value < 3) return 'low'
     if (value <= 4) return 'medium'
+    return 'high'
+  }
+
+  if (interpretationScale === '1-7') {
+    // Symmetric thirds of the 1–7 range (neutral midpoint 4).
+    if (value < 3) return 'low'
+    if (value <= 5) return 'medium'
     return 'high'
   }
 

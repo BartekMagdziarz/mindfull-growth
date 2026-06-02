@@ -51,13 +51,19 @@ const FOUNDATION_PREVIEW_TITLES: Record<FoundationItemId, string> = {
   valuesDiscovery: 'Values discovery',
   valueMap: 'Value map',
   transformativePurpose: 'Transformative purpose',
+  threePathways: 'Three pathways to meaning',
+  mountainRange: 'Mountain range of meaning',
+  ifsPartsMap: 'Parts map',
+  bigFive: 'Big Five personality',
   vlq: 'VLQ',
-  'ipip-bfm-50': 'IPIP-BFM-50',
-  'ipip-neo-120': 'IPIP-NEO-120',
   'hexaco-60': 'HEXACO-60',
+  'ipip-via': 'Character strengths (IPIP-VIA)',
   shadowBeliefs: 'Shadow beliefs',
   wheelOfLife: 'Wheel of life',
   'pvq-40': 'PVQ-40',
+  erq: 'Emotion regulation (ERQ)',
+  rrq: 'Rumination & reflection (RRQ)',
+  'ecr-rs': 'Attachment (ECR-RS)',
 }
 
 export interface ScopePreviewArgs {

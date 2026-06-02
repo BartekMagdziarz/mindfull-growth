@@ -137,6 +137,46 @@
         :last-completed="latestVlqDate"
         @click="router.push('/exercises/assessments/vlq')"
       />
+
+      <ExerciseCard
+        :category="'self-discovery'"
+        :title="t('exercises.cards.erq.title')"
+        :subtitle="t('exercises.cards.erq.subtitle')"
+        :description="t('exercises.cards.erq.description')"
+        :icon="'mood'"
+        :last-completed="latestErqDate"
+        @click="router.push('/exercises/assessments/erq')"
+      />
+
+      <ExerciseCard
+        :category="'self-discovery'"
+        :title="t('exercises.cards.rrq.title')"
+        :subtitle="t('exercises.cards.rrq.subtitle')"
+        :description="t('exercises.cards.rrq.description')"
+        :icon="'psychology'"
+        :last-completed="latestRrqDate"
+        @click="router.push('/exercises/assessments/rrq')"
+      />
+
+      <ExerciseCard
+        :category="'self-discovery'"
+        :title="t('exercises.cards.ecrRs.title')"
+        :subtitle="t('exercises.cards.ecrRs.subtitle')"
+        :description="t('exercises.cards.ecrRs.description')"
+        :icon="'diversity_1'"
+        :last-completed="latestEcrRsDate"
+        @click="router.push('/exercises/assessments/ecr-rs')"
+      />
+
+      <ExerciseCard
+        :category="'self-discovery'"
+        :title="t('exercises.cards.ipipVia.title')"
+        :subtitle="t('exercises.cards.ipipVia.subtitle')"
+        :description="t('exercises.cards.ipipVia.description')"
+        :icon="'military_tech'"
+        :last-completed="latestIpipViaDate"
+        @click="router.push('/exercises/assessments/ipip-via')"
+      />
     </div>
 
     <!-- CBT Tab -->
@@ -613,6 +653,10 @@ onMounted(() => {
   assessmentStore.loadAttempts('hexaco-60')
   assessmentStore.loadAttempts('pvq-40')
   assessmentStore.loadAttempts('vlq')
+  assessmentStore.loadAttempts('erq')
+  assessmentStore.loadAttempts('rrq')
+  assessmentStore.loadAttempts('ecr-rs')
+  assessmentStore.loadAttempts('ipip-via')
 })
 
 // Self-discovery dates
@@ -635,6 +679,18 @@ const latestPvq40Date = computed(
 )
 const latestVlqDate = computed(
   () => assessmentStore.getLatestCompletedAttemptFromState('vlq')?.completedAt,
+)
+const latestErqDate = computed(
+  () => assessmentStore.getLatestCompletedAttemptFromState('erq')?.completedAt,
+)
+const latestRrqDate = computed(
+  () => assessmentStore.getLatestCompletedAttemptFromState('rrq')?.completedAt,
+)
+const latestEcrRsDate = computed(
+  () => assessmentStore.getLatestCompletedAttemptFromState('ecr-rs')?.completedAt,
+)
+const latestIpipViaDate = computed(
+  () => assessmentStore.getLatestCompletedAttemptFromState('ipip-via')?.completedAt,
 )
 
 // CBT dates (Phase 1)

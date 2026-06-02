@@ -1,0 +1,56 @@
+{
+  "id": "erq",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.erq.meta.title",
+  "subtitleKey": "assessments.erq.meta.subtitle",
+  "descriptionKey": "assessments.erq.meta.description",
+  "categoryKey": "assessments.erq.meta.category",
+  "disclaimerKey": "assessments.erq.meta.disclaimer",
+  "estimatedMinutes": 4,
+  "responseScale": {
+    "min": 1,
+    "max": 7,
+    "anchors": {
+      "1": "assessments.erq.anchors.1",
+      "7": "assessments.erq.anchors.7"
+    }
+  },
+  "items": [
+    { "id": "erq_01", "textKey": "assessments.erq.items.erq_01", "scaleId": "reappraisal", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_02", "textKey": "assessments.erq.items.erq_02", "scaleId": "suppression", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_03", "textKey": "assessments.erq.items.erq_03", "scaleId": "reappraisal", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_04", "textKey": "assessments.erq.items.erq_04", "scaleId": "suppression", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_05", "textKey": "assessments.erq.items.erq_05", "scaleId": "reappraisal", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_06", "textKey": "assessments.erq.items.erq_06", "scaleId": "suppression", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_07", "textKey": "assessments.erq.items.erq_07", "scaleId": "reappraisal", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_08", "textKey": "assessments.erq.items.erq_08", "scaleId": "reappraisal", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_09", "textKey": "assessments.erq.items.erq_09", "scaleId": "suppression", "reverse": false, "responseMin": 1, "responseMax": 7 },
+    { "id": "erq_10", "textKey": "assessments.erq.items.erq_10", "scaleId": "reappraisal", "reverse": false, "responseMin": 1, "responseMax": 7 }
+  ],
+  "scales": [
+    {
+      "id": "reappraisal",
+      "labelKey": "assessments.erq.scales.reappraisal",
+      "itemIds": ["erq_01", "erq_03", "erq_05", "erq_07", "erq_08", "erq_10"],
+      "minAnswered": 5
+    },
+    {
+      "id": "suppression",
+      "labelKey": "assessments.erq.scales.suppression",
+      "itemIds": ["erq_02", "erq_04", "erq_06", "erq_09"],
+      "minAnswered": 3
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "erq-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 12
+  },
+  "pageSize": 10,
+  "interpretationScale": "1-7"
+}

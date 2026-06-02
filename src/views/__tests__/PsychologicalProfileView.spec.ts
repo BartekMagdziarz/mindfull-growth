@@ -20,16 +20,32 @@ const foundationMock = vi.hoisted(() => ({
   loadFoundationSourceData: vi.fn(),
 }))
 
-vi.mock('@/services/foundationCompleteness', () => ({
-  FOUNDATION_BUILD_FLOOR: 3,
-  computeFoundationStatuses: () => foundationMock.statuses,
-  foundationCompletionCount: (statuses: FoundationItemStatus[]) =>
-    statuses.filter((status) => status.state === 'completed' || status.state === 'outdated')
-      .length,
-  isFoundationOutdated: (statuses: FoundationItemStatus[]) =>
-    statuses.some((status) => status.state === 'outdated'),
-  loadFoundationSourceData: foundationMock.loadFoundationSourceData,
-}))
+vi.mock('@/services/foundationCompleteness', () => {
+  const GROUP_ORDER = ['values', 'meaning', 'personality', 'lifeBalance'] as const
+  const groupProgress = (statuses: FoundationItemStatus[]) =>
+    GROUP_ORDER.map((group) => {
+      const inGroup = statuses.filter((status) => status.group === group)
+      const completed = inGroup.filter(
+        (status) => status.state === 'completed' || status.state === 'outdated',
+      ).length
+      return { group, total: inGroup.length, completed, minRequired: 1, satisfied: completed >= 1 }
+    })
+  return {
+    FOUNDATION_GROUP_ORDER: GROUP_ORDER,
+    FOUNDATION_COMING_SOON_ORDER: ['emotions', 'strengths', 'relationships'] as const,
+    FOUNDATION_GROUP_MIN_REQUIRED: { values: 1, meaning: 1, personality: 1, lifeBalance: 1 },
+    computeFoundationStatuses: () => foundationMock.statuses,
+    foundationCompletionCount: (statuses: FoundationItemStatus[]) =>
+      statuses.filter((status) => status.state === 'completed' || status.state === 'outdated')
+        .length,
+    isFoundationOutdated: (statuses: FoundationItemStatus[]) =>
+      statuses.some((status) => status.state === 'outdated'),
+    computeFoundationGroupProgress: groupProgress,
+    isFoundationBuildUnlocked: (statuses: FoundationItemStatus[]) =>
+      groupProgress(statuses).every((g) => g.satisfied),
+    loadFoundationSourceData: foundationMock.loadFoundationSourceData,
+  }
+})
 
 // Mock the user profile repository so tests can inject controlled state.
 vi.mock('@/repositories/userProfileDexieRepository', () => ({
@@ -136,16 +152,20 @@ function makeFoundationStatuses(
     group: FoundationItemStatus['group']
     routeParams?: Record<string, string>
   }> = [
+    // First four span one-per-group, so `makeFoundationStatuses(4)` produces
+    // full group coverage (and thus an unlocked build).
     { id: 'valuesDiscovery', group: 'values' },
+    { id: 'transformativePurpose', group: 'meaning' },
+    { id: 'bigFive', group: 'personality', routeParams: { assessmentId: 'ipip-bfm-50' } },
+    { id: 'wheelOfLife', group: 'lifeBalance' },
     { id: 'valueMap', group: 'values' },
-    { id: 'transformativePurpose', group: 'values' },
-    { id: 'vlq', group: 'values', routeParams: { assessmentId: 'vlq' } },
-    { id: 'ipip-bfm-50', group: 'personality', routeParams: { assessmentId: 'ipip-bfm-50' } },
-    { id: 'ipip-neo-120', group: 'personality', routeParams: { assessmentId: 'ipip-neo-120' } },
+    { id: 'threePathways', group: 'meaning' },
+    { id: 'mountainRange', group: 'meaning' },
     { id: 'hexaco-60', group: 'personality', routeParams: { assessmentId: 'hexaco-60' } },
     { id: 'shadowBeliefs', group: 'personality' },
-    { id: 'wheelOfLife', group: 'lifeBalance' },
-    { id: 'pvq-40', group: 'lifeBalance', routeParams: { assessmentId: 'pvq-40' } },
+    { id: 'ifsPartsMap', group: 'personality' },
+    { id: 'pvq-40', group: 'values', routeParams: { assessmentId: 'pvq-40' } },
+    { id: 'vlq', group: 'lifeBalance', routeParams: { assessmentId: 'vlq' } },
   ]
 
   return items.map((item, index) => {
@@ -189,20 +209,18 @@ describe('PsychologicalProfileView', () => {
   it('renders the empty state when there are no saved profiles', async () => {
     render(PsychologicalProfileView)
 
-    await waitFor(() => {
-      expect(screen.getByText('Values & meaning')).toBeInTheDocument()
-    })
-    expect(screen.getByText('0 of 10 complete')).toBeInTheDocument()
+    // All groups empty → keystone shows 0 of 4 covered and the build is locked.
+    await screen.findByText('Group coverage: 0/4')
+    expect(
+      screen.getByRole('button', {
+        name: 'Complete one exercise in each group to unlock',
+      }),
+    ).toBeInTheDocument()
     expect(
       screen.queryByText(
         'Pick which data to include, let the AI build a first draft, and review it before saving.',
       ),
     ).not.toBeInTheDocument()
-    expect(
-      screen.getByRole('button', {
-        name: 'Complete at least 3 foundation items first',
-      }),
-    ).toBeInTheDocument()
   })
 
   it('renders the profile sections when a single profile is loaded', async () => {
@@ -368,11 +386,7 @@ describe('PsychologicalProfileView', () => {
     const user = userEvent.setup()
     render(PsychologicalProfileView)
 
-    await waitFor(() => {
-      expect(screen.getByText('Values & meaning')).toBeInTheDocument()
-    })
-
-    const backBtn = screen.getByRole('button', { name: 'Back' })
+    const backBtn = await screen.findByRole('button', { name: 'Back' })
     await user.click(backBtn)
 
     expect(mockPush).toHaveBeenCalledWith({ name: 'profile' })
@@ -380,7 +394,7 @@ describe('PsychologicalProfileView', () => {
 
   it('navigates to the build wizard when the empty-state CTA is clicked', async () => {
     const user = userEvent.setup()
-    foundationMock.statuses = makeFoundationStatuses(3)
+    foundationMock.statuses = makeFoundationStatuses(4)
 
     render(PsychologicalProfileView)
 

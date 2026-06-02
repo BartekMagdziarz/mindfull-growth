@@ -87,6 +87,10 @@ describe('assessments scoring', () => {
       getAssessmentDefinition('ipip-neo-120'),
       getAssessmentDefinition('hexaco-60'),
       getAssessmentDefinition('pvq-40'),
+      getAssessmentDefinition('erq'),
+      getAssessmentDefinition('ecr-rs'),
+      getAssessmentDefinition('rrq'),
+      getAssessmentDefinition('ipip-via'),
     ]
 
     for (const definition of definitions) {
@@ -95,6 +99,111 @@ describe('assessments scoring', () => {
       expect(mappedItemIds.length).toBe(definition.items.length)
       expect(new Set(mappedItemIds).size).toBe(definition.items.length)
     }
+  })
+
+  it('scores ERQ reappraisal/suppression as 1-7 Likert means with bands', () => {
+    const definition = getAssessmentDefinition('erq')
+    const reappraisal = definition.scales.find((scale) => scale.id === 'reappraisal')?.itemIds ?? []
+    const suppression = definition.scales.find((scale) => scale.id === 'suppression')?.itemIds ?? []
+
+    const values: Record<string, number> = {}
+    for (const itemId of reappraisal) values[itemId] = 6
+    for (const itemId of suppression) values[itemId] = 2
+
+    const result = scoreAssessment({
+      assessmentId: definition.id,
+      responses: responsesFromMap(definition, values),
+    })
+
+    const reappraisalScale = result.computedScales.find((scale) => scale.scaleId === 'reappraisal')
+    const suppressionScale = result.computedScales.find((scale) => scale.scaleId === 'suppression')
+
+    expect(reappraisalScale?.normalizedMean).toBe(6)
+    expect(reappraisalScale?.band).toBe('high')
+    expect(suppressionScale?.normalizedMean).toBe(2)
+    expect(suppressionScale?.band).toBe('low')
+  })
+
+  it('reverse-keys the four security-worded ECR-RS avoidance items', () => {
+    const definition = getAssessmentDefinition('ecr-rs')
+
+    // Security-worded avoidance items (1-4) answered "strongly disagree" (1)
+    // reverse to 7; the two avoidance-worded items (5-6) answered 7 stay 7 —
+    // so a maximally-avoidant profile means avoidance = 7. Anxiety items at 1.
+    const values: Record<string, number> = {
+      ecrrs_01: 1,
+      ecrrs_02: 1,
+      ecrrs_03: 1,
+      ecrrs_04: 1,
+      ecrrs_05: 7,
+      ecrrs_06: 7,
+      ecrrs_07: 1,
+      ecrrs_08: 1,
+      ecrrs_09: 1,
+    }
+
+    const result = scoreAssessment({
+      assessmentId: definition.id,
+      responses: responsesFromMap(definition, values),
+    })
+
+    const avoidance = result.computedScales.find((scale) => scale.scaleId === 'avoidance')
+    const anxiety = result.computedScales.find((scale) => scale.scaleId === 'anxiety')
+
+    expect(avoidance?.normalizedMean).toBe(7)
+    expect(avoidance?.band).toBe('high')
+    expect(anxiety?.normalizedMean).toBe(1)
+    expect(anxiety?.band).toBe('low')
+  })
+
+  it('reverse-keys RRQ rumination and reflection items correctly', () => {
+    const definition = getAssessmentDefinition('rrq')
+    const reverseIds = new Set(definition.items.filter((item) => item.reverse).map((item) => item.id))
+
+    // Answer every item so that, after reverse-keying, all contribute 5 to
+    // rumination and 1 to reflection — isolating the reverse logic.
+    const values: Record<string, number> = {}
+    for (const item of definition.items) {
+      const high = item.scaleId === 'rumination'
+      const raw = high ? 5 : 1
+      values[item.id] = reverseIds.has(item.id) ? 1 + 5 - raw : raw
+    }
+
+    const result = scoreAssessment({
+      assessmentId: definition.id,
+      responses: responsesFromMap(definition, values),
+    })
+
+    const rumination = result.computedScales.find((scale) => scale.scaleId === 'rumination')
+    const reflection = result.computedScales.find((scale) => scale.scaleId === 'reflection')
+
+    expect(rumination?.normalizedMean).toBe(5)
+    expect(rumination?.band).toBe('high')
+    expect(reflection?.normalizedMean).toBe(1)
+    expect(reflection?.band).toBe('low')
+  })
+
+  it('scores IPIP-VIA virtue scales as 1-5 Likert means', () => {
+    const definition = getAssessmentDefinition('ipip-via')
+    const wisdom = definition.scales.find((scale) => scale.id === 'wisdom')?.itemIds ?? []
+    const temperance = definition.scales.find((scale) => scale.id === 'temperance')?.itemIds ?? []
+
+    const values: Record<string, number> = {}
+    for (const itemId of wisdom) values[itemId] = 5
+    for (const itemId of temperance) values[itemId] = 1
+
+    const result = scoreAssessment({
+      assessmentId: definition.id,
+      responses: responsesFromMap(definition, values),
+    })
+
+    const wisdomScale = result.computedScales.find((scale) => scale.scaleId === 'wisdom')
+    const temperanceScale = result.computedScales.find((scale) => scale.scaleId === 'temperance')
+
+    expect(wisdomScale?.normalizedMean).toBe(5)
+    expect(wisdomScale?.band).toBe('high')
+    expect(temperanceScale?.normalizedMean).toBe(1)
+    expect(temperanceScale?.band).toBe('low')
   })
 
   it('handles missing-data boundaries at ~79%, 80%, and 100% for IPIP-NEO-120', () => {

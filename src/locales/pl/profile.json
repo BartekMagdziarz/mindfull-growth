@@ -105,13 +105,20 @@
     },
     "foundation": {
       "title": "Fundament profilu",
-      "subtitle": "Ukończ te elementy, żeby AI miało bogatszy punkt wyjścia do opisu Ciebie.",
-      "progress": "{done} z {total} ukończone",
+      "subtitle": "Ukończ po jednym ćwiczeniu w każdej grupie — wtedy odblokujesz budowę profilu, a AI dostanie pełniejszy obraz Ciebie.",
       "buildCta": "Zbuduj mój pierwszy profil",
-      "buildCtaDisabled": "Ukończ co najmniej {min} elementy fundamentu",
+      "buildCtaDisabled": "Ukończ po jednym ćwiczeniu w każdej grupie, aby odblokować",
+      "gauge": {
+        "locked": "Pokrycie grup: {done}/{total}",
+        "unlocked": "Odblokowano — wszystkie grupy pokryte",
+        "aria": "Pokrycie fundamentu: {done} z {total} grup spełnionych"
+      },
       "groups": {
-        "values": "Wartości i sens",
+        "values": "Wartości",
+        "meaning": "Sens i kierunek",
         "personality": "Osobowość i perspektywy",
+        "emotions": "Emocje i regulacja",
+        "relationships": "Relacje i więzi",
         "lifeBalance": "Równowaga życia"
       },
       "items": {
@@ -123,38 +130,77 @@
           "title": "Mapa wartości",
           "description": "Uporządkuj wartości, znajdź konflikty i połącz je z obszarami życia."
         },
-        "wheelOfLife": {
-          "title": "Koło życia",
-          "description": "Oceń satysfakcję w najważniejszych obszarach życia."
-        },
-        "shadowBeliefs": {
-          "title": "Cieniste przekonania",
-          "description": "Zauważ i przeformułuj historie, które Cię sabotują."
+        "pvq-40": {
+          "title": "Wartości Schwartza (PVQ-40)",
+          "description": "Dziesięć uniwersalnych wartości, 40 pytań."
         },
         "transformativePurpose": {
           "title": "Transformujący cel",
           "description": "Znajdź jednozdaniową deklarację sensu."
         },
-        "ipip-bfm-50": {
-          "title": "Wielka Piątka (IPIP-BFM-50)",
-          "description": "Osobowość w pięciu domenach, 50 pytań."
+        "threePathways": {
+          "title": "Trzy drogi do sensu",
+          "description": "Sens przez to, co dajesz, czego doświadczasz i jak znosisz trudne."
         },
-        "ipip-neo-120": {
-          "title": "Wielka Piątka (IPIP-NEO-120)",
-          "description": "Wielka Piątka z aspektami, 120 pytań."
+        "mountainRange": {
+          "title": "Pasmo górskie sensu",
+          "description": "Szczyty i doliny Twojego życia oraz ich powtarzające się motywy."
+        },
+        "bigFive": {
+          "title": "Wielka Piątka (osobowość)",
+          "description": "Pięć głównych wymiarów osobowości. Wybierz głębokość:",
+          "variants": {
+            "quick": {
+              "label": "Szybki test",
+              "hint": "50 pytań · ~12 min"
+            },
+            "deep": {
+              "label": "Pełny test",
+              "hint": "120 pytań · ~25 min"
+            }
+          }
         },
         "hexaco-60": {
           "title": "HEXACO (60)",
           "description": "Sześć czynników osobowości, 60 pytań."
         },
-        "pvq-40": {
-          "title": "Wartości Schwartza (PVQ-40)",
-          "description": "Dziesięć uniwersalnych wartości, 40 pytań."
+        "shadowBeliefs": {
+          "title": "Ukryte przekonania",
+          "description": "Zauważ i przeformułuj historie, które Cię sabotują."
+        },
+        "ifsPartsMap": {
+          "title": "Mapa części (IFS)",
+          "description": "Nazwij wewnętrzne części i pokaż relacje między nimi."
+        },
+        "ipip-via": {
+          "title": "Mocne strony charakteru (IPIP-VIA)",
+          "description": "Twoje sygnaturowe cnoty w sześciu rodzinach, 30 pytań."
+        },
+        "erq": {
+          "title": "Regulacja emocji (ERQ)",
+          "description": "Przewartościowanie vs. tłumienie, 10 pytań."
+        },
+        "rrq": {
+          "title": "Ruminacja i refleksja (RRQ)",
+          "description": "Dwa style kierowania uwagi do wewnątrz, 24 pytania."
+        },
+        "ecr-rs": {
+          "title": "Styl przywiązania (ECR-RS)",
+          "description": "Unikanie i lęk w bliskich więziach, 9 pytań."
+        },
+        "wheelOfLife": {
+          "title": "Koło życia",
+          "description": "Oceń satysfakcję w najważniejszych obszarach życia."
         },
         "vlq": {
           "title": "Życie według wartości (VLQ)",
           "description": "Ważność i spójność działań w obszarach życia."
         }
+      },
+      "comingSoon": {
+        "title": "Wkrótce — kolejne wymiary",
+        "badge": "Wkrótce",
+        "groups": {}
       },
       "states": {
         "notStarted": "Nie rozpoczęte",

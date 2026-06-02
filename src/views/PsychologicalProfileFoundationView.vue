@@ -1,9 +1,8 @@
 <template>
   <div :class="wrapperClass">
     <FoundationProgressHeader
-      :done="completionCount"
-      :total="statuses.length"
-      :build-enabled="completionCount >= FOUNDATION_BUILD_FLOOR"
+      :groups="groupProgress"
+      :unlocked="unlocked"
       @build="goBuild"
     />
 
@@ -25,21 +24,64 @@
         />
       </div>
     </section>
+
+    <!--
+      Roadmap dimensions we don't have instruments for yet. Shown as locked
+      teasers so the structure (and the gaps) are visible; they never count
+      toward the unlock.
+    -->
+    <section
+      v-if="comingSoonGroups.length > 0"
+      class="mt-8 space-y-3"
+      data-test-foundation-coming-soon
+    >
+      <h2 class="text-sm font-semibold text-on-surface-variant">
+        {{ t('profile.psychologicalProfile.foundation.comingSoon.title') }}
+      </h2>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div
+          v-for="group in comingSoonGroups"
+          :key="group"
+          class="rounded-2xl border border-dashed border-neu-border/40 bg-neu-base/60 p-4 shadow-neu-flat"
+          :data-test-foundation-coming-soon-group="group"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <span
+              class="neo-icon-circle flex h-9 w-9 shrink-0 items-center justify-center rounded-full opacity-70"
+            >
+              <AppIcon :name="comingSoonIcon[group]" class="text-lg text-on-surface-variant" />
+            </span>
+            <span class="neo-pill px-2.5 py-1 text-xs text-on-surface-variant">
+              {{ t('profile.psychologicalProfile.foundation.comingSoon.badge') }}
+            </span>
+          </div>
+          <h3 class="mt-3 text-sm font-semibold text-on-surface">
+            {{ t(`profile.psychologicalProfile.foundation.comingSoon.groups.${group}.title`) }}
+          </h3>
+          <p class="mt-1 text-xs text-on-surface-variant">
+            {{ t(`profile.psychologicalProfile.foundation.comingSoon.groups.${group}.description`) }}
+          </p>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import FoundationProgressHeader from '@/components/profile/FoundationProgressHeader.vue'
 import FoundationTile from '@/components/profile/FoundationTile.vue'
 import { useT } from '@/composables/useT'
 import {
+  computeFoundationGroupProgress,
   computeFoundationStatuses,
-  foundationCompletionCount,
+  isFoundationBuildUnlocked,
   loadFoundationSourceData,
-  FOUNDATION_BUILD_FLOOR,
-  type FoundationGroup,
+  FOUNDATION_COMING_SOON_ORDER,
+  FOUNDATION_GROUP_ORDER,
+  type FoundationComingSoonGroup,
 } from '@/services/foundationCompleteness'
 
 const props = withDefaults(defineProps<{
@@ -60,22 +102,23 @@ const wrapperClass = computed(() =>
 )
 
 const statuses = computed(() => computeFoundationStatuses())
-const completionCount = computed(() => foundationCompletionCount(statuses.value))
-
-const statusesByGroup = computed(() => ({
-  values: statuses.value.filter((status) => status.group === 'values'),
-  personality: statuses.value.filter((status) => status.group === 'personality'),
-  lifeBalance: statuses.value.filter((status) => status.group === 'lifeBalance'),
-}))
-
-const groupOrder: FoundationGroup[] = ['values', 'personality', 'lifeBalance']
+const groupProgress = computed(() => computeFoundationGroupProgress(statuses.value))
+const unlocked = computed(() => isFoundationBuildUnlocked(statuses.value))
 
 const groups = computed(() =>
-  groupOrder.map((id) => ({
+  FOUNDATION_GROUP_ORDER.map((id) => ({
     id,
-    statuses: statusesByGroup.value[id],
+    statuses: statuses.value.filter((status) => status.group === id),
   })),
 )
+
+const comingSoonGroups = FOUNDATION_COMING_SOON_ORDER
+
+const comingSoonIcon: Record<FoundationComingSoonGroup, string> = {
+  emotions: 'mood',
+  strengths: 'bolt',
+  relationships: 'group',
+}
 
 function navigate(payload: {
   routeName: string

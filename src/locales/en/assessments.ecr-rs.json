@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "title": "Attachment style (ECR-RS)",
+    "subtitle": "How you relate and bond in close relationships.",
+    "description": "Nine statements about your close relationships in general, measuring two attachment dimensions: avoidance (discomfort with closeness and depending on others) and anxiety (worry about being cared for). Answer thinking about the people who are close to you overall.",
+    "category": "Relationships",
+    "disclaimer": "This assessment supports self-reflection and does not provide a clinical diagnosis."
+  },
+  "consent": {
+    "title": "Consent and Disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I consent to store results locally on this device."
+  },
+  "scales": {
+    "avoidance": "Attachment Avoidance",
+    "anxiety": "Attachment Anxiety"
+  },
+  "anchors": {
+    "1": "Strongly disagree",
+    "7": "Strongly agree"
+  },
+  "interpretation": {
+    "low": "Lower on this attachment dimension — a sign of greater security here.",
+    "medium": "Mid-range on this attachment dimension.",
+    "high": "Higher on this attachment dimension."
+  },
+  "items": {
+    "ecrrs_01": "It helps to turn to people who are close to me in times of need.",
+    "ecrrs_02": "I usually discuss my problems and concerns with people who are close to me.",
+    "ecrrs_03": "I talk things over with people who are close to me.",
+    "ecrrs_04": "I find it easy to depend on people who are close to me.",
+    "ecrrs_05": "I don't feel comfortable opening up to others.",
+    "ecrrs_06": "I prefer not to show others how I feel deep down.",
+    "ecrrs_07": "I often worry that people who are close to me don't really care for me.",
+    "ecrrs_08": "I'm afraid that people who are close to me may abandon me.",
+    "ecrrs_09": "I worry that others won't care about me as much as I care about them."
+  }
+}

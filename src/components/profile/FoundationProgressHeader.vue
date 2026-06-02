@@ -1,29 +1,27 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex flex-col gap-3 rounded-2xl border border-neu-border/30 bg-neu-base p-4 shadow-neu-raised"
+    class="sticky top-0 z-10 flex flex-col gap-4 rounded-2xl border border-neu-border/30 bg-neu-base p-4 shadow-neu-raised"
   >
     <div>
       <p class="text-xs font-medium uppercase tracking-wide text-on-surface-variant">
         {{ t('profile.psychologicalProfile.foundation.title') }}
       </p>
-      <p class="mt-1 text-sm text-on-surface">
-        {{ t('profile.psychologicalProfile.foundation.progress', { done, total }) }}
-      </p>
       <p class="mt-1 text-xs text-on-surface-variant">
         {{ t('profile.psychologicalProfile.foundation.subtitle') }}
       </p>
     </div>
+
+    <FoundationPillarsGauge :groups="groups" :unlocked="unlocked" />
+
     <AppButton
       variant="filled"
-      :disabled="!buildEnabled"
+      :disabled="!unlocked"
       @click="emit('build')"
     >
       {{
-        buildEnabled
+        unlocked
           ? t('profile.psychologicalProfile.foundation.buildCta')
-          : t('profile.psychologicalProfile.foundation.buildCtaDisabled', {
-              min: FOUNDATION_BUILD_FLOOR,
-            })
+          : t('profile.psychologicalProfile.foundation.buildCtaDisabled')
       }}
     </AppButton>
   </div>
@@ -31,13 +29,13 @@
 
 <script setup lang="ts">
 import AppButton from '@/components/AppButton.vue'
+import FoundationPillarsGauge from '@/components/profile/FoundationPillarsGauge.vue'
 import { useT } from '@/composables/useT'
-import { FOUNDATION_BUILD_FLOOR } from '@/services/foundationCompleteness'
+import type { FoundationGroupProgress } from '@/services/foundationCompleteness'
 
 defineProps<{
-  done: number
-  total: number
-  buildEnabled: boolean
+  groups: FoundationGroupProgress[]
+  unlocked: boolean
 }>()
 
 const emit = defineEmits<{

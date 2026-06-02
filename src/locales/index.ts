@@ -18,6 +18,10 @@ import enAssessmentsIpipNeo120 from './en/assessments.ipip-neo-120.json'
 import enAssessmentsHexaco60 from './en/assessments.hexaco-60.json'
 import enAssessmentsPvq40 from './en/assessments.pvq-40.json'
 import enAssessmentsVlq from './en/assessments.vlq.json'
+import enAssessmentsErq from './en/assessments.erq.json'
+import enAssessmentsEcrRs from './en/assessments.ecr-rs.json'
+import enAssessmentsRrq from './en/assessments.rrq.json'
+import enAssessmentsIpipVia from './en/assessments.ipip-via.json'
 
 import plCommon from './pl/common.json'
 import plAuth from './pl/auth.json'
@@ -39,6 +43,10 @@ import plAssessmentsIpipNeo120 from './pl/assessments.ipip-neo-120.json'
 import plAssessmentsHexaco60 from './pl/assessments.hexaco-60.json'
 import plAssessmentsPvq40 from './pl/assessments.pvq-40.json'
 import plAssessmentsVlq from './pl/assessments.vlq.json'
+import plAssessmentsErq from './pl/assessments.erq.json'
+import plAssessmentsEcrRs from './pl/assessments.ecr-rs.json'
+import plAssessmentsRrq from './pl/assessments.rrq.json'
+import plAssessmentsIpipVia from './pl/assessments.ipip-via.json'
 
 const enMessages = {
   common: enCommon,
@@ -62,6 +70,10 @@ const enMessages = {
     hexaco60: enAssessmentsHexaco60,
     pvq40: enAssessmentsPvq40,
     vlq: enAssessmentsVlq,
+    erq: enAssessmentsErq,
+    ecrRs: enAssessmentsEcrRs,
+    rrq: enAssessmentsRrq,
+    ipipVia: enAssessmentsIpipVia,
   },
 }
 
@@ -87,6 +99,10 @@ const plMessages = {
     hexaco60: plAssessmentsHexaco60,
     pvq40: plAssessmentsPvq40,
     vlq: plAssessmentsVlq,
+    erq: plAssessmentsErq,
+    ecrRs: plAssessmentsEcrRs,
+    rrq: plAssessmentsRrq,
+    ipipVia: plAssessmentsIpipVia,
   },
 }
 

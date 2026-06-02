@@ -105,13 +105,20 @@
     },
     "foundation": {
       "title": "Foundation",
-      "subtitle": "Complete these to give the AI a richer starting picture of you.",
-      "progress": "{done} of {total} complete",
+      "subtitle": "Complete one exercise in each group to unlock the build — and give the AI a fuller picture of you.",
       "buildCta": "Build my first profile",
-      "buildCtaDisabled": "Complete at least {min} foundation items first",
+      "buildCtaDisabled": "Complete one exercise in each group to unlock",
+      "gauge": {
+        "locked": "Group coverage: {done}/{total}",
+        "unlocked": "Unlocked — every group covered",
+        "aria": "Foundation coverage: {done} of {total} groups satisfied"
+      },
       "groups": {
-        "values": "Values & meaning",
+        "values": "Values",
+        "meaning": "Meaning & direction",
         "personality": "Personality & lenses",
+        "emotions": "Emotions & regulation",
+        "relationships": "Relationships & bonds",
         "lifeBalance": "Life balance"
       },
       "items": {
@@ -123,38 +130,77 @@
           "title": "Value map",
           "description": "Rank values, find conflicts, link to life areas."
         },
-        "wheelOfLife": {
-          "title": "Wheel of life",
-          "description": "Rate satisfaction across your life areas."
-        },
-        "shadowBeliefs": {
-          "title": "Shadow beliefs",
-          "description": "Surface and reframe self-sabotaging stories."
+        "pvq-40": {
+          "title": "Schwartz values (PVQ-40)",
+          "description": "Ten universal values, 40 items."
         },
         "transformativePurpose": {
           "title": "Transformative purpose",
           "description": "Find a one-sentence purpose statement."
         },
-        "ipip-bfm-50": {
-          "title": "Big Five (IPIP-BFM-50)",
-          "description": "Personality across five domains, 50 items."
+        "threePathways": {
+          "title": "Three pathways to meaning",
+          "description": "Meaning through what you give, receive, and endure."
         },
-        "ipip-neo-120": {
-          "title": "Big Five (IPIP-NEO-120)",
-          "description": "Big Five with facets, 120 items."
+        "mountainRange": {
+          "title": "Mountain range of meaning",
+          "description": "Your life's peaks and valleys and their recurring themes."
+        },
+        "bigFive": {
+          "title": "Big Five (personality)",
+          "description": "Five core personality domains. Choose your depth:",
+          "variants": {
+            "quick": {
+              "label": "Quick test",
+              "hint": "50 items · ~12 min"
+            },
+            "deep": {
+              "label": "Full test",
+              "hint": "120 items · ~25 min"
+            }
+          }
         },
         "hexaco-60": {
           "title": "HEXACO (60)",
           "description": "Six personality factors, 60 items."
         },
-        "pvq-40": {
-          "title": "Schwartz values (PVQ-40)",
-          "description": "Ten universal values, 40 items."
+        "shadowBeliefs": {
+          "title": "Shadow beliefs",
+          "description": "Surface and reframe self-sabotaging stories."
+        },
+        "ifsPartsMap": {
+          "title": "Parts map (IFS)",
+          "description": "Name your inner parts and map how they relate."
+        },
+        "ipip-via": {
+          "title": "Character strengths (IPIP-VIA)",
+          "description": "Your signature virtues across six families, 30 items."
+        },
+        "erq": {
+          "title": "Emotion regulation (ERQ)",
+          "description": "Reappraisal vs. suppression, 10 items."
+        },
+        "rrq": {
+          "title": "Rumination & reflection (RRQ)",
+          "description": "Two styles of inward focus, 24 items."
+        },
+        "ecr-rs": {
+          "title": "Attachment style (ECR-RS)",
+          "description": "Avoidance and anxiety in close bonds, 9 items."
+        },
+        "wheelOfLife": {
+          "title": "Wheel of life",
+          "description": "Rate satisfaction across your life areas."
         },
         "vlq": {
           "title": "Valued living (VLQ)",
           "description": "Importance and consistency across life domains."
         }
+      },
+      "comingSoon": {
+        "title": "Coming soon — more dimensions",
+        "badge": "Soon",
+        "groups": {}
       },
       "states": {
         "notStarted": "Not started",
