@@ -332,7 +332,7 @@
 
         <AppCard variant="flat" padding="md">
           <p class="text-sm text-on-surface-variant italic leading-relaxed">
-            {{ t('exerciseWizards.worryTree.schedule.encouragement') }}
+            {{ tg('exerciseWizards.worryTree.schedule.encouragement') }}
           </p>
         </AppCard>
 
@@ -483,7 +483,7 @@ const emit = defineEmits<{
 }>()
 
 const emotionStore = useEmotionStore()
-const { t } = useT()
+const { t, tg } = useT()
 
 // ─── Step State ──────────────────────────────────────────────────────────────
 type Step =

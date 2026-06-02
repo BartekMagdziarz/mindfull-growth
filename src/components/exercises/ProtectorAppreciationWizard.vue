@@ -34,17 +34,13 @@
       <template v-if="currentStep === 'select-protector'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">Protector Appreciation</h2>
+            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.selectProtector.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              Build a relationship with a protector part by understanding its job,
-              thanking it, and hearing its response.
+              {{ t('exerciseWizards.protectorAppreciation.selectProtector.description') }}
             </p>
 
             <div v-if="!protectorParts.length" class="neo-surface p-4 rounded-xl">
-              <p class="text-sm text-on-surface-variant">
-                You need protector parts (managers or firefighters) to appreciate.
-                Go to <span class="font-medium text-primary">Parts Mapping</span> to identify them.
-              </p>
+              <p class="text-sm text-on-surface-variant" v-html="t('exerciseWizards.protectorAppreciation.selectProtector.emptyState')" />
             </div>
 
             <PartSelector
@@ -52,14 +48,14 @@
               v-model="partId"
               :parts="partStore.sortedParts"
               :filter-role="['manager', 'firefighter']"
-              label="Which protector would you like to appreciate?"
+              :label="tg('exerciseWizards.protectorAppreciation.selectProtector.label')"
               :allow-create="false"
             />
           </AppCard>
 
           <div class="flex justify-end">
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Next
+              {{ t('common.buttons.next') }}
             </AppButton>
           </div>
         </div>
@@ -69,23 +65,23 @@
       <template v-else-if="currentStep === 'understand-job'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Understanding {{ selectedPartName }}'s Job</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.understandJob.title', { partName: selectedPartName }) }}</h2>
 
             <div class="space-y-1">
               <label class="text-xs font-medium text-on-surface-variant">
-                What does this protector protect you from? When does it activate?
+                {{ t('exerciseWizards.protectorAppreciation.understandJob.triggersLabel') }}
               </label>
               <textarea
                 v-model="activationTriggers"
                 rows="3"
-                placeholder="Describe what triggers this part and what it protects you from..."
+                :placeholder="t('exerciseWizards.protectorAppreciation.understandJob.triggersPlaceholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
             </div>
 
             <div class="space-y-2">
               <label class="text-xs font-medium text-on-surface-variant">
-                How does it protect you? (select all that apply)
+                {{ t('exerciseWizards.protectorAppreciation.understandJob.behaviorsLabel') }}
               </label>
               <div class="flex flex-wrap gap-2">
                 <button
@@ -109,7 +105,7 @@
                   v-model="customBehaviorInput"
                   type="text"
                   class="neo-input flex-1 text-sm"
-                  placeholder="Add custom behavior..."
+                  :placeholder="t('exerciseWizards.protectorAppreciation.understandJob.customBehaviorPlaceholder')"
                   @keydown.enter.prevent="handleAddCustom"
                 />
                 <AppButton
@@ -117,7 +113,7 @@
                   :disabled="!customBehaviorInput.trim()"
                   @click="handleAddCustom"
                 >
-                  Add
+                  {{ t('exerciseWizards.protectorAppreciation.understandJob.addButton') }}
                 </AppButton>
               </div>
               <div v-if="customBehaviors.length" class="flex flex-wrap gap-1">
@@ -134,20 +130,20 @@
 
             <RatingSlider
               v-model="workloadRating"
-              label="How hard is this protector working?"
+              :label="t('exerciseWizards.protectorAppreciation.understandJob.workloadLabel')"
               :min="1"
               :max="10"
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
-              <span>Light duty</span>
-              <span>Constant overtime</span>
+              <span>{{ t('exerciseWizards.protectorAppreciation.understandJob.workloadMin') }}</span>
+              <span>{{ t('exerciseWizards.protectorAppreciation.understandJob.workloadMax') }}</span>
             </div>
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Next
+              {{ t('common.buttons.next') }}
             </AppButton>
           </div>
         </div>
@@ -158,10 +154,10 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">
-              Write to {{ selectedPartName }}
+              {{ t('exerciseWizards.protectorAppreciation.appreciationLetter.title', { partName: selectedPartName }) }}
             </h2>
             <p class="text-sm text-on-surface-variant">
-              Write a letter of appreciation. This might be the first time this part has been thanked instead of fought.
+              {{ t('exerciseWizards.protectorAppreciation.appreciationLetter.description') }}
             </p>
 
             <div class="flex flex-wrap gap-2">
@@ -178,15 +174,15 @@
             <textarea
               v-model="appreciationLetter"
               rows="8"
-              :placeholder="`Dear ${selectedPartName},\n\nI want you to know...`"
+              :placeholder="t('exerciseWizards.protectorAppreciation.appreciationLetter.placeholder', { partName: selectedPartName })"
               class="neo-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Next
+              {{ t('common.buttons.next') }}
             </AppButton>
           </div>
         </div>
@@ -197,12 +193,12 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">
-              {{ selectedPartName }}'s Response
+              {{ t('exerciseWizards.protectorAppreciation.response.title', { partName: selectedPartName }) }}
             </h2>
 
             <div v-if="!responseMode" class="space-y-3">
               <p class="text-sm text-on-surface-variant">
-                How would you like to hear back from {{ selectedPartName }}?
+                {{ tg('exerciseWizards.protectorAppreciation.response.promptQuestion', { partName: selectedPartName }) }}
               </p>
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
@@ -211,8 +207,8 @@
                 <div class="flex items-center gap-3">
                   <AppIcon name="auto_awesome" class="text-xl text-status-warn shrink-0" />
                   <div>
-                    <span class="text-sm font-medium text-on-surface">Let AI generate a response</span>
-                    <p class="text-xs text-on-surface-variant mt-0.5">Based on what you know about this part</p>
+                    <span class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.protectorAppreciation.response.aiOption') }}</span>
+                    <p class="text-xs text-on-surface-variant mt-0.5">{{ t('exerciseWizards.protectorAppreciation.response.aiOptionDescription') }}</p>
                   </div>
                 </div>
               </button>
@@ -226,8 +222,8 @@
                 <div class="flex items-center gap-3">
                   <AppIcon name="edit" class="text-xl text-primary shrink-0" />
                   <div>
-                    <span class="text-sm font-medium text-on-surface">I'll write it myself</span>
-                    <p class="text-xs text-on-surface-variant mt-0.5">Practice listening to what the part would say</p>
+                    <span class="text-sm font-medium text-on-surface">{{ tg('exerciseWizards.protectorAppreciation.response.selfOption') }}</span>
+                    <p class="text-xs text-on-surface-variant mt-0.5">{{ t('exerciseWizards.protectorAppreciation.response.selfOptionDescription') }}</p>
                   </div>
                 </div>
               </button>
@@ -241,7 +237,7 @@
                   <span class="w-2 h-2 rounded-full bg-primary animate-bounce" style="animation-delay: 150ms" />
                   <span class="w-2 h-2 rounded-full bg-primary animate-bounce" style="animation-delay: 300ms" />
                 </div>
-                <p class="text-sm text-on-surface-variant">{{ selectedPartName }} is thinking...</p>
+                <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.response.thinking', { partName: selectedPartName }) }}</p>
               </div>
 
               <div v-else-if="partResponse" class="space-y-3">
@@ -250,7 +246,7 @@
                   padding="md"
                   :class="selectedPartRole === 'manager' ? 'border-l-4 border-l-blue-400' : 'border-l-4 border-l-orange-400'"
                 >
-                  <p class="text-xs font-medium text-on-surface-variant mb-1">{{ selectedPartName }} says:</p>
+                  <p class="text-xs font-medium text-on-surface-variant mb-1">{{ t('exerciseWizards.protectorAppreciation.response.partSays', { partName: selectedPartName }) }}</p>
                   <textarea
                     v-model="partResponse"
                     rows="4"
@@ -259,7 +255,7 @@
                 </AppCard>
                 <div class="flex flex-wrap items-center gap-2">
                   <AppButton variant="tonal" @click="handleRegenerate">
-                    Regenerate
+                    {{ t('exerciseWizards.protectorAppreciation.response.regenerate') }}
                   </AppButton>
                   <ProfileContextToggle v-model="useProfileResponse" />
                 </div>
@@ -273,16 +269,16 @@
               <textarea
                 v-model="partResponse"
                 rows="5"
-                :placeholder="`Write as ${selectedPartName} would respond to your letter...`"
+                :placeholder="t('exerciseWizards.protectorAppreciation.response.selfPlaceholder', { partName: selectedPartName })"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
             </template>
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Next
+              {{ t('common.buttons.next') }}
             </AppButton>
           </div>
         </div>
@@ -292,9 +288,9 @@
       <template v-else-if="currentStep === 'commitment'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Commitment (Optional)</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.commitment.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              Is there something you'd like to offer {{ selectedPartName }} to ease its workload?
+              {{ tg('exerciseWizards.protectorAppreciation.commitment.description', { partName: selectedPartName }) }}
             </p>
 
             <div class="flex flex-wrap gap-2">
@@ -312,15 +308,15 @@
             <textarea
               v-model="commitment"
               rows="3"
-              placeholder="What do you commit to? (optional)"
+              :placeholder="t('exerciseWizards.protectorAppreciation.commitment.placeholder')"
               class="neo-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" @click="nextStep()">
-              {{ commitment.trim() ? 'Next' : 'Skip' }}
+              {{ commitment.trim() ? t('common.buttons.next') : t('exerciseWizards.protectorAppreciation.commitment.skipButton') }}
             </AppButton>
           </div>
         </div>
@@ -330,9 +326,9 @@
       <template v-else-if="currentStep === 'check-in'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Check-In Schedule (Optional)</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.checkIn.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              Would you like to regularly check in with {{ selectedPartName }}?
+              {{ tg('exerciseWizards.protectorAppreciation.checkIn.description', { partName: selectedPartName }) }}
             </p>
 
             <div class="space-y-3">
@@ -349,9 +345,9 @@
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" @click="nextStep()">
-              Review & Save
+              {{ t('exerciseWizards.protectorAppreciation.checkIn.reviewButton') }}
             </AppButton>
           </div>
         </div>
@@ -361,22 +357,22 @@
       <template v-else-if="currentStep === 'summary'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Save Appreciation</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.summary.title') }}</h2>
 
             <div class="space-y-3">
               <div class="flex items-center gap-2">
-                <span class="text-sm text-on-surface-variant">Protector:</span>
+                <span class="text-sm text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.protector') }}</span>
                 <span class="text-sm font-medium text-on-surface">{{ selectedPartName }}</span>
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
               <div class="neo-surface p-3 rounded-lg flex items-center justify-between">
-                <span class="text-sm text-on-surface-variant">Workload</span>
+                <span class="text-sm text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.workload') }}</span>
                 <span class="text-lg font-bold text-primary">{{ workloadRating }}/10</span>
               </div>
 
               <div v-if="behaviors.length" class="space-y-1">
-                <p class="text-xs text-on-surface-variant">Behaviors</p>
+                <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.behaviors') }}</p>
                 <div class="flex flex-wrap gap-1">
                   <span
                     v-for="b in displayBehaviors"
@@ -389,39 +385,39 @@
               </div>
 
               <div>
-                <p class="text-xs text-on-surface-variant">Letter excerpt</p>
+                <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.letterExcerpt') }}</p>
                 <p class="text-xs text-on-surface line-clamp-3">{{ appreciationLetter }}</p>
               </div>
 
               <div v-if="partResponse">
-                <p class="text-xs text-on-surface-variant">Response</p>
+                <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.response') }}</p>
                 <p class="text-xs text-on-surface italic line-clamp-2">"{{ partResponse }}"</p>
               </div>
 
               <p v-if="commitment" class="text-xs text-on-surface">
-                <span class="text-on-surface-variant">Commitment:</span> {{ commitment }}
+                <span class="text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.commitment') }}</span> {{ commitment }}
               </p>
 
               <p v-if="checkInFrequency" class="text-xs text-on-surface">
-                <span class="text-on-surface-variant">Check-in:</span> {{ checkInFrequency }}
+                <span class="text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.checkIn') }}</span> {{ checkInFrequency }}
               </p>
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">Notes (optional)</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.notesLabel') }}</label>
               <textarea
                 v-model="notes"
                 rows="2"
-                placeholder="Any additional notes..."
+                :placeholder="t('exerciseWizards.protectorAppreciation.summary.notesPlaceholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-              {{ isSaving ? 'Saving...' : 'Save Appreciation' }}
+              {{ isSaving ? t('exerciseWizards.protectorAppreciation.summary.saving') : t('exerciseWizards.protectorAppreciation.summary.saveButton') }}
             </AppButton>
           </div>
         </div>
@@ -448,7 +444,7 @@ import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { IFSProtectorBehavior } from '@/domain/exercises'
 
-const { t } = useT()
+const { t, tg, tList } = useT()
 
 const emit = defineEmits<{
   saved: []
@@ -571,7 +567,7 @@ function handleRegenerate() {
 }
 
 // Commitment chips
-const commitmentChips = computed(() => t('exerciseWizards.protectorAppreciation.commitment.chips') as unknown as string[])
+const commitmentChips = computed(() => tList('exerciseWizards.protectorAppreciation.commitment.chips'))
 
 // Frequency options
 const frequencyOptions = computed((): { value: 'weekly' | 'biweekly' | 'monthly' | null; label: string }[] => [

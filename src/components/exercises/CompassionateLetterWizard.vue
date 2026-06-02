@@ -35,7 +35,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.intro.title') }}</h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
-            {{ t('exerciseWizards.compassionateLetter.intro.description') }}
+            {{ tg('exerciseWizards.compassionateLetter.intro.description') }}
           </p>
           <div class="neo-surface p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -91,7 +91,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.situation.title') }}</h2>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.compassionateLetter.situation.description') }}
+            {{ tg('exerciseWizards.compassionateLetter.situation.description') }}
           </p>
           <textarea
             v-model="situation"
@@ -213,12 +213,12 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.response.title') }}</h2>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.compassionateLetter.response.description') }}
+            {{ tg('exerciseWizards.compassionateLetter.response.description') }}
           </p>
           <textarea
             v-model="compassionateResponse"
             rows="8"
-            :placeholder="t('exerciseWizards.compassionateLetter.response.placeholder')"
+            :placeholder="tg('exerciseWizards.compassionateLetter.response.placeholder')"
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
 
@@ -419,7 +419,7 @@ const emit = defineEmits<{
 
 const emotionStore = useEmotionStore()
 const userPreferencesStore = useUserPreferencesStore()
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const useProfileCompassionate = ref(userPreferencesStore.profileContextDefault)
 
 // ─── Step State ──────────────────────────────────────────────────────────────

@@ -96,7 +96,7 @@
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsMapping.trailhead.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.partsMapping.trailhead.description') }}
+              {{ tg('exerciseWizards.partsMapping.trailhead.description') }}
             </p>
 
             <div class="space-y-1">
@@ -125,7 +125,7 @@
 
             <BodyLocationPicker
               v-model="trailheadBodyLocations"
-              :label="t('exerciseWizards.partsMapping.trailhead.bodyLocationLabel')"
+              :label="tg('exerciseWizards.partsMapping.trailhead.bodyLocationLabel')"
               :multiple="false"
             />
 
@@ -157,11 +157,11 @@
               {{ editingPartIndex !== null ? t('exerciseWizards.partsMapping.identifyPart.editTitle') : t('exerciseWizards.partsMapping.identifyPart.title') }}
             </h2>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.partsMapping.identifyPart.description') }}
+              {{ tg('exerciseWizards.partsMapping.identifyPart.description') }}
             </p>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.nameLabel') }}</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{ tg('exerciseWizards.partsMapping.identifyPart.nameLabel') }}</label>
               <input
                 v-model="currentPartName"
                 type="text"
@@ -202,7 +202,7 @@
               <textarea
                 v-model="currentPartFears"
                 rows="2"
-                :placeholder="t('exerciseWizards.partsMapping.identifyPart.fearPlaceholder')"
+                :placeholder="tg('exerciseWizards.partsMapping.identifyPart.fearPlaceholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
             </div>
@@ -381,7 +381,7 @@
       <template v-else-if="currentStep === 'reflection'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsMapping.reflection.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ tg('exerciseWizards.partsMapping.reflection.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.partsMapping.reflection.description') }}
             </p>
@@ -407,7 +407,7 @@
             <div v-if="llmInsight" class="neo-surface p-4 rounded-xl">
               <p class="text-sm text-on-surface whitespace-pre-wrap">{{ llmInsight }}</p>
               <p class="text-xs text-on-surface-variant/60 italic mt-3">
-                {{ t('exerciseWizards.partsMapping.reflection.aiDisclaimer') }}
+                {{ tg('exerciseWizards.partsMapping.reflection.aiDisclaimer') }}
               </p>
             </div>
           </AppCard>
@@ -468,7 +468,7 @@
             <div>
               <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.partsMapping.summary.title') }}</h2>
               <p class="text-xs text-on-surface-variant mt-1">
-                {{ t('exerciseWizards.partsMapping.summary.partCount', { count: identifiedParts.length }) }}
+                {{ tp(identifiedParts.length, 'exerciseWizards.partsMapping.summary.partCount.one', 'exerciseWizards.partsMapping.summary.partCount.few', 'exerciseWizards.partsMapping.summary.partCount.many') }}
               </p>
             </div>
 
@@ -587,7 +587,7 @@ const emit = defineEmits<{
   saved: []
 }>()
 
-const { t } = useT()
+const { t, tg, tp } = useT()
 
 const lifeAreaStore = useLifeAreaStore()
 const lifeAreas = computed(() => lifeAreaStore.lifeAreas)
@@ -655,7 +655,7 @@ const roleOptions = computed(() => [
   { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: `${IFS_ROLE_CLASSES.manager.bg} ${IFS_ROLE_CLASSES.manager.text}` },
   { value: 'firefighter' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'), activeClass: `${IFS_ROLE_CLASSES.firefighter.bg} ${IFS_ROLE_CLASSES.firefighter.text}` },
   { value: 'exile' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'), activeClass: `${IFS_ROLE_CLASSES.exile.bg} ${IFS_ROLE_CLASSES.exile.text}` },
-  { value: 'unknown' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'), activeClass: 'bg-neu-base text-on-surface' },
+  { value: 'unknown' as IFSPartRole, label: tg('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'), activeClass: 'bg-neu-base text-on-surface' },
 ])
 
 const relationshipTypes = computed(() => [

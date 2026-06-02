@@ -17,7 +17,7 @@
           :key="item.id"
           class="space-y-2"
         >
-          <label class="text-sm text-on-surface">{{ t(item.textKey) }}</label>
+          <label class="text-sm text-on-surface">{{ tg(item.textKey) }}</label>
           <div class="flex items-center gap-3">
             <input
               type="range"
@@ -53,7 +53,7 @@
       >
         <p class="text-xs text-on-surface-variant">#{{ pageStartIndex + index + 1 }}</p>
         <p class="text-sm font-medium text-on-surface">
-          {{ t(item.textKey) }}
+          {{ tg(item.textKey) }}
         </p>
 
         <div class="grid grid-cols-5 gap-2 sm:flex sm:flex-wrap sm:gap-2">
@@ -100,7 +100,7 @@ const emit = defineEmits<{
   'update-response': [itemId: string, value: number]
 }>()
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const isVlq = computed(() => props.definition.id === 'vlq')
 

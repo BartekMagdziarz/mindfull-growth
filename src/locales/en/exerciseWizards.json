@@ -16,12 +16,12 @@
     },
     "coreValues": {
       "title": "Your Core Values",
-      "description": "Look at the qualities you listed above. What patterns do you notice? Distill them into your core values \u2014 the principles that drive your decisions.",
-      "qualitiesSummaryLabel": "Qualities you identified:",
+      "description": { "m": "Look at the qualities you listed above. What patterns do you notice? Distill them into your core values \u2014 the principles that drive your decisions.", "f": "Look at the qualities you listed above. What patterns do you notice? Distill them into your core values \u2014 the principles that drive your decisions." },
+      "qualitiesSummaryLabel": { "m": "Qualities you identified:", "f": "Qualities you identified:" },
       "valuePlaceholder": "A core value",
       "addValue": "Add value",
       "reflectionTitle": "Additional Reflection",
-      "reflectionPlaceholder": "Any thoughts about what you've discovered..."
+      "reflectionPlaceholder": { "m": "Any thoughts about what you've discovered...", "f": "Any thoughts about what you've discovered..." }
     },
     "back": "Back",
     "saveButton": "Save Values Discovery"
@@ -137,7 +137,7 @@
     "stepSubtitles": {
       "intro": "A quick check-in across the areas that shape your life",
       "setup": "Create or activate life areas before starting this assessment",
-      "rate": "How fulfilled are you in each area?",
+      "rate": { "m": "How fulfilled are you in each area?", "f": "How fulfilled are you in each area?" },
       "focus": "Pick 2\u20133 areas you want to improve this year",
       "reflectReflection": "What has this year taught you?",
       "reflectStandalone": "What insights does your wheel reveal?"
@@ -154,7 +154,7 @@
       "ofTotal": "of {total}",
       "remaining": "{n} left",
       "currentlyRating": "Currently rating",
-      "alignmentQuestion": "How aligned does this feel with your values today?",
+      "alignmentQuestion": { "m": "How aligned does this feel with your values today?", "f": "How aligned does this feel with your values today?" },
       "outOfTen": "/10",
       "sliderMin": "Out of alignment",
       "sliderMax": "Fully aligned",
@@ -205,10 +205,10 @@
       "overallNotesPlaceholder": "Any overall thoughts about your wheel of life..."
     },
     "reflectionPrompts": {
-      "growth": "Where did you grow the most this year?",
+      "growth": { "m": "Where did you grow the most this year?", "f": "Where did you grow the most this year?" },
       "surprise": "What surprised you about your scores?",
-      "gratitude": "Which area are you most grateful for?",
-      "overallBalance": "How are you satisfied with the overall balance?",
+      "gratitude": { "m": "Which area are you most grateful for?", "f": "Which area are you most grateful for?" },
+      "overallBalance": { "m": "How are you satisfied with the overall balance?", "f": "How are you satisfied with the overall balance?" },
       "negativeImpact": "Which areas negatively impact other areas?",
       "positiveImpact": "Which areas if improved would improve other areas?",
       "energyCare": "Are you investing energy where you actually care?"
@@ -319,7 +319,7 @@
     },
     "problems": {
       "title": "Big Problems",
-      "description": "Around this intersection, what are five big problems you'd love to help solve?",
+      "description": { "m": "Around this intersection, what are five big problems you'd love to help solve?", "f": "Around this intersection, what are five big problems you'd love to help solve?" },
       "placeholder": "A problem you want to solve",
       "nextButton": "Next: Purpose Statement"
     },
@@ -364,7 +364,10 @@
     },
     "thoughts": {
       "title": "What thoughts went through your mind?",
-      "description": "List the automatic thoughts you had. Mark the most emotionally charged one as the \"hot thought.\"",
+      "description": {
+        "m": "List the automatic thoughts you had. Mark the most emotionally charged one as the \"hot thought.\"",
+        "f": "List the automatic thoughts you had. Mark the most emotionally charged one as the \"hot thought.\""
+      },
       "placeholder": "An automatic thought...",
       "addThought": "Add thought",
       "identifyLoading": "Thinking...",
@@ -440,7 +443,7 @@
     "learningIntro": {
       "title": "What Are Cognitive Distortions?",
       "description1": "Cognitive distortions are automatic thinking patterns that distort reality. Everyone has them. Learning to recognise them is the first step to thinking more clearly.",
-      "description2": "In this exercise you will learn 14 common distortions identified by David Burns, then check which ones you recognise in your own thinking.",
+      "description2": "In this exercise you will learn 14 common cognitive distortions from CBT, popularised by David Burns, then check which ones you recognise in your own thinking.",
       "startButton": "Start Learning"
     },
     "carousel": {
@@ -462,7 +465,10 @@
     },
     "learningSummary": {
       "title": "Summary",
-      "recognizedCount": "You recognised {recognized} of {total} distortions."
+      "recognizedCount": {
+        "m": "You recognised {recognized} of {total} distortions.",
+        "f": "You recognised {recognized} of {total} distortions."
+      }
     },
     "appliedThought": {
       "title": "Examine a Thought",
@@ -484,7 +490,10 @@
     "appliedResults": {
       "title": "Results",
       "reframe": "Reframe",
-      "reframePlaceholder": "How could you think about this differently?",
+      "reframePlaceholder": {
+        "m": "How could you think about this differently?",
+        "f": "How could you think about this differently?"
+      },
       "additionalNotes": "Additional Notes",
       "notesPlaceholder": "Any other thoughts about this analysis..."
     }
@@ -535,7 +544,10 @@
       "description": "Even though you can't act right now, you can plan for when you will. Write down what you'll do and when.",
       "placeholder": "When the time is right, I will...",
       "whenLabel": "When?",
-      "encouragement": "You've acknowledged the problem and scheduled a time to deal with it. For now, take a deep breath. You don't need to solve this in this moment.",
+      "encouragement": {
+        "m": "You've acknowledged the problem and scheduled a time to deal with it. For now, take a deep breath. You don't need to solve this in this moment.",
+        "f": "You've acknowledged the problem and scheduled a time to deal with it. For now, take a deep breath. You don't need to solve this in this moment."
+      },
       "complete": "Complete"
     },
     "lettingGo": {
@@ -612,7 +624,10 @@
       "questionLabel": "If that were true, what would it mean?",
       "placeholder": "It would mean that...",
       "addLayer": "Add another layer",
-      "foundIt": "I think I've found it",
+      "foundIt": {
+        "m": "I think I've found it",
+        "f": "I think I've found it"
+      },
       "deepenerLoading": "Thinking...",
       "deepenerLabel": "Help me go deeper"
     },
@@ -623,8 +638,14 @@
       "categoryTitle": "What is this belief about?",
       "categories": {
         "self": {
-          "label": "About Myself",
-          "description": "\"I am unlovable\", \"I am incompetent\", \"I am worthless\""
+          "label": {
+            "m": "About Myself",
+            "f": "About Myself"
+          },
+          "description": {
+            "m": "\"I am unlovable\", \"I am incompetent\", \"I am worthless\"",
+            "f": "\"I am unlovable\", \"I am incompetent\", \"I am worthless\""
+          }
         },
         "others": {
           "label": "About Others",
@@ -702,7 +723,10 @@
     },
     "intro": {
       "title": "Compassionate Letter",
-      "description": "Self-compassion means treating yourself with the same kindness you'd show a good friend. When we struggle, we often become our own harshest critic. This exercise helps you respond to difficult moments with warmth instead of judgment.",
+      "description": {
+        "m": "Self-compassion means treating yourself with the same kindness you'd show a good friend. When we struggle, we often become our own harshest critic. This exercise helps you respond to difficult moments with warmth instead of judgment.",
+        "f": "Self-compassion means treating yourself with the same kindness you'd show a good friend. When we struggle, we often become our own harshest critic. This exercise helps you respond to difficult moments with warmth instead of judgment."
+      },
       "pillarsTitle": "Three Pillars of Self-Compassion",
       "selfKindness": "Self-kindness",
       "selfKindnessDescription": "Being warm toward yourself when you suffer, rather than ignoring your pain or punishing yourself.",
@@ -713,7 +737,10 @@
     },
     "situation": {
       "title": "What happened, or what are you struggling with?",
-      "description": "Describe it as if telling a trusted friend. There's no need to analyze or judge \u2014 just say what's going on.",
+      "description": {
+        "m": "Describe it as if telling a trusted friend. There's no need to analyze or judge \u2014 just say what's going on.",
+        "f": "Describe it as if telling a trusted friend. There's no need to analyze or judge \u2014 just say what's going on."
+      },
       "placeholder": "Something happened that's been weighing on me..."
     },
     "emotions": {
@@ -728,8 +755,14 @@
     },
     "response": {
       "title": "Write your compassionate response",
-      "description": "Write as if you were a caring friend who knows everything about you and loves you unconditionally. What would they say?",
-      "placeholder": "Dear me, I want you to know that...",
+      "description": {
+        "m": "Write as if you were a caring friend who knows everything about you and loves you unconditionally. What would they say?",
+        "f": "Write as if you were a caring friend who knows everything about you and loves you unconditionally. What would they say?"
+      },
+      "placeholder": {
+        "m": "Dear me, I want you to know that...",
+        "f": "Dear me, I want you to know that..."
+      },
       "llmLoading": "Writing...",
       "llmLabel": "Help me find words",
       "llmHint": "Use this as inspiration \u2014 the letter should be in your own words:"
@@ -768,7 +801,10 @@
     },
     "targetBelief": {
       "title": "What negative belief do you want to challenge?",
-      "description": "This should be a core belief like \"I am not good enough\" or \"People can't be trusted.\" If you've completed the Core Beliefs exploration, you can use the belief you identified there.",
+      "description": {
+        "m": "This should be a core belief like \"I am not good enough\" or \"People can't be trusted.\" If you've completed the Core Beliefs exploration, you can use the belief you identified there.",
+        "f": "This should be a core belief like \"I am not good enough\" or \"People can't be trusted.\" If you've completed the Core Beliefs exploration, you can use the belief you identified there."
+      },
       "placeholder": "e.g., 'I am unlovable' or 'I always fail at important things'",
       "believabilityTitle": "How much do you believe this right now?",
       "believabilityLabel": "Initial believability",
@@ -776,7 +812,10 @@
       "completely": "Completely"
     },
     "confirmation": {
-      "title": "Ready to Start Logging",
+      "title": {
+        "m": "Ready to Start Logging",
+        "f": "Ready to Start Logging"
+      },
       "targetBeliefLabel": "Target Belief",
       "initialBelievability": "Initial Believability",
       "description": "Once created, you can return to this log daily to add evidence that contradicts the belief. Over time, you'll see the belief weaken.",
@@ -786,8 +825,12 @@
       "targetBeliefLabel": "Target Belief",
       "currentBelievability": "Current believability:",
       "fromStart": "({change}% from start)",
-      "entryLogged": "{count} entry logged",
-      "entriesLogged": "{count} entries logged",
+      "entryCount": {
+        "one": "{n} entry logged",
+        "few": "{n} entries logged",
+        "many": "{n} entries logged",
+        "other": "{n} entries logged"
+      },
       "addEvidenceTitle": "Add Evidence",
       "addEvidenceDescription": "What happened today that contradicts your belief?",
       "dateLabel": "Date",
@@ -848,9 +891,15 @@
       "title": "What do you predict will happen?",
       "description": "Based on the belief, what specific outcome do you expect? The more concrete, the easier it is to compare with reality afterwards.",
       "placeholder": "e.g., 'People will roll their eyes or interrupt me within 10 seconds.'",
-      "confidenceLabel": "How confident are you in this prediction? {value}%",
+      "confidenceLabel": {
+        "m": "How confident are you in this prediction? {value}%",
+        "f": "How confident are you in this prediction? {value}%"
+      },
       "notAtAll": "Not at all",
-      "completelyCertain": "Completely certain"
+      "completelyCertain": {
+        "m": "Completely certain",
+        "f": "Completely certain"
+      }
     },
     "design": {
       "title": "Design your experiment",
@@ -872,12 +921,21 @@
     },
     "outcome": {
       "title": "What actually happened?",
-      "description": "Describe the outcome as factually as you can. What did you observe? How did people respond? What surprised you?",
+      "description": {
+        "m": "Describe the outcome as factually as you can. What did you observe? How did people respond? What surprised you?",
+        "f": "Describe the outcome as factually as you can. What did you observe? How did people respond? What surprised you?"
+      },
       "predictionLabel": "Your prediction",
       "placeholder": "Describe what actually happened...",
-      "learnedTitle": "What did you learn?",
+      "learnedTitle": {
+        "m": "What did you learn?",
+        "f": "What did you learn?"
+      },
       "learnedDescription": "How does the outcome compare to your prediction? What does this tell you about the original belief?",
-      "learnedPlaceholder": "The key thing I learned is...",
+      "learnedPlaceholder": {
+        "m": "The key thing I learned is...",
+        "f": "The key thing I learned is..."
+      },
       "rerateTitle": "Re-rate the belief",
       "targetBeliefLabel": "Target belief",
       "rerateLabel": "How strongly do you believe this now? {value}%",
@@ -946,7 +1004,12 @@
       "suggestLabel": "Suggest activities",
       "suggestedActivities": "Suggested activities",
       "plannedActivities": "Planned Activities",
-      "addMoreCount": "Add {n} more {word} to continue"
+      "addMore": {
+        "one": "Add {n} more activity to continue",
+        "few": "Add {n} more activities to continue",
+        "many": "Add {n} more activities to continue",
+        "other": "Add {n} more activities to continue"
+      }
     },
     "summary": {
       "title": "Your Week Plan",
@@ -996,7 +1059,10 @@
     },
     "problem": {
       "title": "Define the problem",
-      "description": "Be as specific as possible. A well-defined problem is halfway solved.",
+      "description": {
+        "m": "Be as specific as possible. A well-defined problem is halfway solved.",
+        "f": "Be as specific as possible. A well-defined problem is halfway solved."
+      },
       "placeholder": "Describe the problem clearly and specifically...",
       "emotionsTitle": "How are you feeling about this?",
       "emotionsDescription": "Select the emotions this problem brings up for you."
@@ -1035,7 +1101,10 @@
       "feasibilityLabel": "Feasibility {rating}/5",
       "effectivenessLabel": "Effectiveness {rating}/5",
       "actionPlanTitle": "Action Plan",
-      "actionPlanDescription": "How will you implement this solution? Be specific and concrete.",
+      "actionPlanDescription": {
+        "m": "How will you implement this solution? Be specific and concrete.",
+        "f": "How will you implement this solution? Be specific and concrete."
+      },
       "actionPlanPlaceholder": "My plan is to...",
       "actionSteps": "Action Steps",
       "stepPlaceholder": "Step {n}...",
@@ -1052,7 +1121,10 @@
       "actionSteps": "Action Steps",
       "targetDate": "Target Date",
       "markCompletedTitle": "Mark as completed? (optional)",
-      "markCompletedDescription": "If you've already resolved this problem, you can record the outcome now. Otherwise, leave it as in-progress and come back later.",
+      "markCompletedDescription": {
+        "m": "If you've already resolved this problem, you can record the outcome now. Otherwise, leave it as in-progress and come back later.",
+        "f": "If you've already resolved this problem, you can record the outcome now. Otherwise, leave it as in-progress and come back later."
+      },
       "markCompleted": "Mark as completed",
       "outcomePlaceholder": "What was the outcome? What happened?",
       "emotionsAfterTitle": "How are you feeling now?",
@@ -1104,7 +1176,10 @@
       "fearDescription": "Describe the fear, phobia, or anxiety you want to work on.",
       "fearPlaceholder": "e.g., Public speaking, spiders, social situations...",
       "goalTitle": "What's your ultimate goal?",
-      "goalDescription": "What would you like to be able to do when you've worked through this fear?",
+      "goalDescription": {
+        "m": "What would you like to be able to do when you've worked through this fear?",
+        "f": "What would you like to be able to do when you've worked through this fear?"
+      },
       "goalPlaceholder": "e.g., Give a presentation at work confidently"
     },
     "buildHierarchy": {
@@ -1143,7 +1218,12 @@
       "title": "Your Exposure Hierarchy",
       "fearTarget": "Fear Target",
       "ultimateGoal": "Ultimate Goal",
-      "fearLadder": "Fear Ladder ({count} steps)",
+      "fearLadderCount": {
+        "one": "Fear Ladder ({n} step)",
+        "few": "Fear Ladder ({n} steps)",
+        "many": "Fear Ladder ({n} steps)",
+        "other": "Fear Ladder ({n} steps)"
+      },
       "safetyBehaviors": "Safety Behaviors to Watch",
       "notesTitle": "Notes (optional)",
       "notesPlaceholder": "Any additional thoughts or reminders...",
@@ -1193,7 +1273,10 @@
     },
     "attitudinal": {
       "title": "Attitudinal Values",
-      "description": "How do you respond to unavoidable suffering? Think of times you chose your attitude toward circumstances beyond your control.",
+      "description": {
+        "m": "How do you respond to unavoidable suffering? Think of times you chose your attitude toward circumstances beyond your control.",
+        "f": "How do you respond to unavoidable suffering? Think of times you chose your attitude toward circumstances beyond your control."
+      },
       "placeholder": "e.g., Choosing gratitude despite chronic illness, finding purpose in caregiving...",
       "engagementLabel": "Engagement level",
       "lifeAreaSelect": "Link to Life Area (optional)",
@@ -1246,7 +1329,10 @@
         },
         "emptiness": {
           "label": "Emptiness",
-          "description": "I feel stuck or empty"
+          "description": {
+            "m": "I feel stuck or empty",
+            "f": "I feel stuck or empty"
+          }
         },
         "suffering": {
           "label": "Suffering",
@@ -1292,7 +1378,10 @@
     "insights": {
       "title": "Insights",
       "insightLabel": "What is the most important insight from this conversation?",
-      "insightPlaceholder": "The key thing I discovered...",
+      "insightPlaceholder": {
+        "m": "The key thing I discovered...",
+        "f": "The key thing I discovered..."
+      },
       "rememberLabel": "What would you like to remember?",
       "rememberPlaceholder": "Something to carry forward...",
       "journalCheckbox": "Create a journal entry from these insights",
@@ -1323,16 +1412,25 @@
       "description": "Your life is a landscape of peaks and valleys. Each peak represents a moment of deep meaning; each valley, a time of struggle that shaped you. Together, they form your unique mountain range.",
       "mapTitle": "What you'll map",
       "peaksName": "Peaks",
-      "peaksDescription": "Moments when you felt most alive, fulfilled, or certain life had meaning.",
+      "peaksDescription": {
+        "m": "Moments when you felt most alive, fulfilled, or certain life had meaning.",
+        "f": "Moments when you felt most alive, fulfilled, or certain life had meaning."
+      },
       "valleysName": "Valleys",
       "valleysDescription": "Moments of deepest struggle, loss, or difficulty — and what they taught you.",
       "emotionLabel": "How are you feeling right now?"
     },
     "peaks": {
       "title": "Your Peaks",
-      "description": "Think of 3–7 moments when you felt most alive, most fulfilled, or most certain that life had meaning.",
+      "description": {
+        "m": "Think of 3–7 moments when you felt most alive, most fulfilled, or most certain that life had meaning.",
+        "f": "Think of 3–7 moments when you felt most alive, most fulfilled, or most certain that life had meaning."
+      },
       "eventPlaceholder": "What happened?",
-      "ageLabel": "How old were you?",
+      "ageLabel": {
+        "m": "How old were you?",
+        "f": "How old were you?"
+      },
       "meaningPlaceholder": "What made this meaningful?",
       "emotionLabel": "Emotions (optional)",
       "addAnother": "Add another peak"
@@ -1342,8 +1440,14 @@
       "description": "Now think of 2–5 moments of deepest struggle, loss, or difficulty.",
       "takeYourTime": "Take your time with this. There's no rush.",
       "eventPlaceholder": "What happened?",
-      "ageLabel": "How old were you?",
-      "growthPlaceholder": "What did you learn, or how did you grow?",
+      "ageLabel": {
+        "m": "How old were you?",
+        "f": "How old were you?"
+      },
+      "growthPlaceholder": {
+        "m": "What did you learn, or how did you grow?",
+        "f": "What did you learn, or how did you grow?"
+      },
       "addAnother": "Add another valley"
     },
     "timeline": {
@@ -1469,7 +1573,10 @@
     },
     "redirections": {
       "title": "Meaningful Redirections",
-      "description": "What activities, people, or causes could you redirect your attention toward?",
+      "description": {
+        "m": "What activities, people, or causes could you redirect your attention toward?",
+        "f": "What activities, people, or causes could you redirect your attention toward?"
+      },
       "suggestionsTitle": "Suggestions based on your profile",
       "suggestionsSubtext": "These life areas are going well and could nourish you:",
       "purposeText": "Your purpose:",
@@ -1519,11 +1626,17 @@
       "modes": {
         "suffering": {
           "label": "Suffering",
-          "description": "Something I'm going through or have been through"
+          "description": {
+            "m": "Something I'm going through or have been through",
+            "f": "Something I'm going through or have been through"
+          }
         },
         "guilt": {
           "label": "Guilt",
-          "description": "Something I feel responsible for or regret"
+          "description": {
+            "m": "Something I feel responsible for or regret",
+            "f": "Something I feel responsible for or regret"
+          }
         },
         "finitude": {
           "label": "Finitude",
@@ -1545,14 +1658,23 @@
         "q3": "If this suffering could speak, what would it say it's trying to teach you?"
       },
       "guilt": {
-        "q1": "What do you feel guilty about? Be specific and honest with yourself.",
+        "q1": {
+          "m": "What do you feel guilty about? Be specific and honest with yourself.",
+          "f": "What do you feel guilty about? Be specific and honest with yourself."
+        },
         "q2": "What does this guilt tell you about your values? What matters to you so much that its violation causes pain?",
-        "q3": "If you could partially make amends or learn from this, what would that look like?"
+        "q3": {
+          "m": "If you could partially make amends or learn from this, what would that look like?",
+          "f": "If you could partially make amends or learn from this, what would that look like?"
+        }
       },
       "finitude": {
         "q1": "When you think about the fact that your time is limited, what feelings arise?",
         "q2": "How does awareness of finitude change what matters to you?",
-        "q3": "If you fully accepted that your time is limited, what would you do differently starting today?"
+        "q3": {
+          "m": "If you fully accepted that your time is limited, what would you do differently starting today?",
+          "f": "If you fully accepted that your time is limited, what would you do differently starting today?"
+        }
       }
     },
     "dialogue": {
@@ -1591,11 +1713,17 @@
     },
     "intro": {
       "title": "Attitudinal Shift",
-      "quote": "Between stimulus and response there is a space. In that space is our power to choose our response. In our response lies our growth and our freedom.",
+      "quote": "Everything can be taken from a man but one thing: the last of the human freedoms — to choose one's attitude in any given set of circumstances, to choose one's own way.",
       "description": "This exercise helps you transform the stories you tell yourself about unavoidable circumstances. You'll identify \"because\" statements — the narratives that keep you stuck — and find your choice point.",
       "exampleTitle": "Example",
-      "exampleBefore": "Because I lost my job, I'm a failure.",
-      "exampleAfter": "Although I lost my job, I choose to see this as an opportunity to find work that aligns with my values.",
+      "exampleBefore": {
+        "m": "Because I lost my job, I'm a failure.",
+        "f": "Because I lost my job, I'm a failure."
+      },
+      "exampleAfter": {
+        "m": "Although I lost my job, I choose to see this as an opportunity to find work that aligns with my values.",
+        "f": "Although I lost my job, I choose to see this as an opportunity to find work that aligns with my values."
+      },
       "exampleBeforeLabel": "Before:",
       "exampleAfterLabel": "After:",
       "exampleNote": "The circumstances don't change. Your relationship to them does.",
@@ -1603,15 +1731,24 @@
     },
     "statements": {
       "title": "Your 'Because' Statements",
-      "description": "What stories do you tell yourself that start with \"because\"? These are the narratives where you feel trapped by circumstances.",
+      "description": {
+        "m": "What stories do you tell yourself that start with \"because\"? These are the narratives where you feel trapped by circumstances.",
+        "f": "What stories do you tell yourself that start with \"because\"? These are the narratives where you feel trapped by circumstances."
+      },
       "shadowTitle": "Your shadow beliefs may help you identify patterns:",
-      "placeholder": "e.g., \"Because I grew up poor, I'll never feel financially secure...\"",
+      "placeholder": {
+        "m": "e.g., \"Because I grew up poor, I'll never feel financially secure...\"",
+        "f": "e.g., \"Because I grew up poor, I'll never feel financially secure...\""
+      },
       "addAnother": "Add another statement"
     },
     "shift": {
       "title": "Find Your Choice Point",
       "counter": "{current} of {total}",
-      "acknowledgment": "You wrote:",
+      "acknowledgment": {
+        "m": "You wrote:",
+        "f": "You wrote:"
+      },
       "helpButton": "Help me find my choice point",
       "thinking": "Thinking...",
       "reframeLabel": "Your reframe",
@@ -1654,7 +1791,10 @@
       "title": "Legacy Letter",
       "description": "Viktor Frankl believed that awareness of our finite time can be our greatest motivator. This exercise invites you to write a letter from the perspective of having lived a full, meaningful life.",
       "secondaryDescription": "What would you want to say? What would you want others to know? This isn't about perfection — it's about connecting with what truly matters to you.",
-      "quote": "Live as if you were living already for the second time and as if you had acted the first time as wrongly as you are about to act now.",
+      "quote": {
+        "m": "Live as if you were living already for the second time and as if you had acted the first time as wrongly as you are about to act now.",
+        "f": "Live as if you were living already for the second time and as if you had acted the first time as wrongly as you are about to act now."
+      },
       "emotionLabel": "How are you feeling right now?"
     },
     "warmup": {
@@ -1663,15 +1803,24 @@
       "prompts": {
         "p1": "What do you want your children, family, or community to know about what mattered to you?",
         "p2": "What impact do you want to have had on the world?",
-        "p3": "What wisdom have you earned through experience that you want to pass on?",
+        "p3": {
+          "m": "What wisdom have you earned through experience that you want to pass on?",
+          "f": "What wisdom have you earned through experience that you want to pass on?"
+        },
         "p4": "What would make you feel your time was well-spent?",
-        "p5": "What do you want to be remembered for?"
+        "p5": {
+          "m": "What do you want to be remembered for?",
+          "f": "What do you want to be remembered for?"
+        }
       },
       "responsePlaceholder": "Write a brief response..."
     },
     "write": {
       "title": "Your Letter",
-      "hint": "Consider including: what you've created and contributed, the relationships that shaped you, the suffering you overcame and what it taught you, the values you lived by.",
+      "hint": {
+        "m": "Consider including: what you've created and contributed, the relationships that shaped you, the suffering you overcame and what it taught you, the values you lived by.",
+        "f": "Consider including: what you've created and contributed, the relationships that shaped you, the suffering you overcame and what it taught you, the values you lived by."
+      },
       "placeholder": "Dear [future / family / world]...",
       "valuesTitle": "Your core values",
       "purposeTitle": "Your purpose"
@@ -1686,7 +1835,10 @@
       "sendButton": "Send",
       "exchangeCount": "{count} exchange(s)",
       "finishButton": "Finish discussion",
-      "truthLabel": "What felt most true in what you wrote?",
+      "truthLabel": {
+        "m": "What felt most true in what you wrote?",
+        "f": "What felt most true in what you wrote?"
+      },
       "truthPlaceholder": "Take your time..."
     },
     "summary": {
@@ -1722,7 +1874,10 @@
           "manager": "Manager",
           "firefighter": "Firefighter",
           "exile": "Exile",
-          "notSure": "Not Sure"
+          "notSure": {
+            "m": "Not Sure",
+            "f": "Not Sure"
+          }
         }
       },
       "dialogueBubble": {
@@ -1793,25 +1948,40 @@
     },
     "trailhead": {
       "title": "Start with a Trailhead",
-      "description": "Think of a recent moment when you felt emotionally activated — more reactive than the situation seemed to warrant.",
+      "description": {
+        "m": "Think of a recent moment when you felt emotionally activated — more reactive than the situation seemed to warrant.",
+        "f": "Think of a recent moment when you felt emotionally activated — more reactive than the situation seemed to warrant."
+      },
       "situationLabel": "What situation triggered you?",
       "situationPlaceholder": "Describe what happened...",
       "emotionsLabel": "What emotions came up?",
-      "bodyLocationLabel": "Where did you feel it in your body?",
+      "bodyLocationLabel": {
+        "m": "Where did you feel it in your body?",
+        "f": "Where did you feel it in your body?"
+      },
       "thoughtsLabel": "What thoughts or inner voice showed up?",
       "thoughtsPlaceholder": "e.g., 'You're not good enough', 'Something bad is going to happen'"
     },
     "identifyPart": {
       "title": "Name This Part",
       "editTitle": "Edit Part",
-      "description": "Based on what you just described, let's identify the part that showed up.",
-      "nameLabel": "What would you call this part?",
+      "description": {
+        "m": "Based on what you just described, let's identify the part that showed up.",
+        "f": "Based on what you just described, let's identify the part that showed up."
+      },
+      "nameLabel": {
+        "m": "What would you call this part?",
+        "f": "What would you call this part?"
+      },
       "namePlaceholder": "e.g., The Worrier, The Controller, Little Me",
       "roleLabel": "What role does it play?",
       "protectionLabel": "What is it trying to protect you from?",
       "protectionPlaceholder": "e.g., Being rejected, failing, feeling helpless",
       "fearLabel": "What is it afraid would happen if it stopped?",
-      "fearPlaceholder": "e.g., Everything would fall apart, I'd be overwhelmed",
+      "fearPlaceholder": {
+        "m": "e.g., Everything would fall apart, I'd be overwhelmed",
+        "f": "e.g., Everything would fall apart, I'd be overwhelmed"
+      },
       "protectsFrom": "Protects from: {text}",
       "fears": "Fears: {text}"
     },
@@ -1838,12 +2008,18 @@
       }
     },
     "reflection": {
-      "title": "What Do You Notice?",
+      "title": {
+        "m": "What Do You Notice?",
+        "f": "What Do You Notice?"
+      },
       "description": "Looking at your map, what stands out? Any surprises?",
       "placeholder": "Share your observations...",
       "aiButton": "Get AI Insights on Your Map",
       "aiButtonLoading": "Analyzing your parts map...",
-      "aiDisclaimer": "This reflection is based on patterns in what you've shared. Your inner system is uniquely yours."
+      "aiDisclaimer": {
+        "m": "This reflection is based on patterns in what you've shared. Your inner system is uniquely yours.",
+        "f": "This reflection is based on patterns in what you've shared. Your inner system is uniquely yours."
+      }
     },
     "lifeAreas": {
       "title": "Life Area Connections",
@@ -1852,7 +2028,12 @@
     },
     "summary": {
       "title": "Your Parts Map",
-      "partCount": "{count} part(s) identified",
+      "partCount": {
+        "one": "{n} part identified",
+        "few": "{n} parts identified",
+        "many": "{n} parts identified",
+        "other": "{n} parts identified"
+      },
       "bodyPrefix": "Body:",
       "sections": {
         "parts": "Parts",
@@ -1889,7 +2070,10 @@
       "description": "Is there a strong feeling or reaction running the show right now? Something that feels like it IS you rather than something you're experiencing?",
       "options": {
         "yes": "Yes — something is really active right now",
-        "maybe": "Maybe — I'm not sure",
+        "maybe": {
+          "m": "Maybe — I'm not sure",
+          "f": "Maybe — I'm not sure"
+        },
         "no": "No — I feel pretty calm"
       },
       "noResponse": "That's great. Let's practice noticing anyway — it's a useful skill for when parts do activate.",
@@ -1898,18 +2082,33 @@
     "magicQuestion": {
       "title": "The Magic Question",
       "question": "How do you FEEL TOWARD this feeling or part?",
-      "description": "If you feel curious, compassionate, or calm toward it — that's your Self. If you feel annoyed, scared, or critical — that's another part reacting to the first one.",
+      "description": {
+        "m": "If you feel curious, compassionate, or calm toward it — that's your Self. If you feel annoyed, scared, or critical — that's another part reacting to the first one.",
+        "f": "If you feel curious, compassionate, or calm toward it — that's your Self. If you feel annoyed, scared, or critical — that's another part reacting to the first one."
+      },
       "options": {
-        "selfEnergy": "I feel curious, open, or compassionate",
-        "reactive": "I feel frustrated, scared, or judgmental"
+        "selfEnergy": {
+          "m": "I feel curious, open, or compassionate",
+          "f": "I feel curious, open, or compassionate"
+        },
+        "reactive": {
+          "m": "I feel frustrated, scared, or judgmental",
+          "f": "I feel frustrated, scared, or judgmental"
+        }
       }
     },
     "secondaryCheck": {
       "title": "Another Part Arrived",
-      "description": "That frustration, fear, or judgment is another part. Can you ask it to step back just a little, so you can get curious about the first part?",
+      "description": {
+        "m": "That frustration, fear, or judgment is another part. Can you ask it to step back just a little, so you can get curious about the first part?",
+        "f": "That frustration, fear, or judgment is another part. Can you ask it to step back just a little, so you can get curious about the first part?"
+      },
       "breathingPrompt": "Tap to begin breathing exercise",
       "breathingLabel": {
-        "ready": "Ready",
+        "ready": {
+          "m": "Ready",
+          "f": "Ready"
+        },
         "breatheIn": "Breathe in...",
         "hold": "Hold...",
         "breatheOut": "Breathe out...",
@@ -1919,10 +2118,16 @@
       "breathingButton": "Start Breathing",
       "afterQuestion": "How do you feel toward the original part now?",
       "options": {
-        "better": "I feel more curious or compassionate now",
+        "better": {
+          "m": "I feel more curious or compassionate now",
+          "f": "I feel more curious or compassionate now"
+        },
         "stillReactive": "Still feeling reactive — that's okay"
       },
-      "partLabel": "What would you call this second part? (optional)"
+      "partLabel": {
+        "m": "What would you call this second part? (optional)",
+        "f": "What would you call this second part? (optional)"
+      }
     },
     "steppingBack": {
       "title": "Ask the Part to Step Back",
@@ -1932,12 +2137,18 @@
       "timerTap": "Tap to start",
       "beginButton": "Begin",
       "shiftLabel": "What happened? Did anything shift?",
-      "shiftPlaceholder": "Describe any shift you noticed..."
+      "shiftPlaceholder": {
+        "m": "Describe any shift you noticed...",
+        "f": "Describe any shift you noticed..."
+      }
     },
     "closing": {
       "title": "How Much Space Do You Feel?",
       "sliderLabel": "Space created",
-      "minLabel": "Still blended",
+      "minLabel": {
+        "m": "Still blended",
+        "f": "Still blended"
+      },
       "maxLabel": "Lots of space"
     },
     "postCheck": {
@@ -1966,21 +2177,30 @@
       "title": "Direct Access Dialogue",
       "description": "Have a conversation directly with one of your parts. The AI will respond as the part would, based on what you know about it.",
       "emptyState": "You need to create parts first. Go to <span class=\"font-medium text-primary\">Parts Mapping</span> to identify and name your parts.",
-      "label": "Which part would you like to speak with?"
+      "label": {
+        "m": "Which part would you like to speak with?",
+        "f": "Which part would you like to speak with?"
+      }
     },
     "selfCheck": {
       "title": "Self-Energy Check",
       "description": "Before starting a dialogue, it's important to check that you're coming from a place of curiosity and openness — your Self — rather than from another part.",
       "question": "How do you feel toward {partName}?",
       "options": {
-        "selfEnergy": "I feel curious, open, or compassionate",
+        "selfEnergy": {
+          "m": "I feel curious, open, or compassionate",
+          "f": "I feel curious, open, or compassionate"
+        },
         "notQuite": "Not quite — something else is reacting"
       },
       "breathingPrompt": "Take a moment to breathe",
       "breathingInstructions": "Just breathe...",
       "breathingButton": "Start Breathing",
       "breathingDone": "How do you feel now?",
-      "continueButton": "I feel more open now — let's continue",
+      "continueButton": {
+        "m": "I feel more open now — let's continue",
+        "f": "I feel more open now — let's continue"
+      },
       "breathing": {
         "ready": "Ready",
         "complete": "Complete",
@@ -2003,7 +2223,10 @@
       "sendButton": "Send",
       "insightForm": {
         "title": "Capture Insight",
-        "placeholder": "What did you notice or learn?",
+        "placeholder": {
+          "m": "What did you notice or learn?",
+          "f": "What did you notice or learn?"
+        },
         "saveButton": "Save Insight"
       },
       "savedInsights": "Saved Insights",
@@ -2078,12 +2301,18 @@
       "subtitle": "Use emotional triggers as doorways to understanding your parts",
       "description": "In IFS, a \"trailhead\" is any moment of emotional activation — a time when your reaction felt bigger than the situation warranted. These moments are invitations to discover which parts are at work.",
       "questionLabel": "What happened?",
-      "questionPlaceholder": "Think of a moment in the last day or two when you felt emotionally activated...",
+      "questionPlaceholder": {
+        "m": "Think of a moment in the last day or two when you felt emotionally activated...",
+        "f": "Think of a moment in the last day or two when you felt emotionally activated..."
+      },
       "emotionsLabel": "What emotions came up?",
       "intensityLabel": "How intense was it?",
       "intensityMin": "Mild",
       "intensityMax": "Overwhelming",
-      "bodyLocationLabel": "Where did you feel it in your body?"
+      "bodyLocationLabel": {
+        "m": "Where did you feel it in your body?",
+        "f": "Where did you feel it in your body?"
+      }
     },
     "thoughts": {
       "title": "Thoughts",
@@ -2092,7 +2321,10 @@
     },
     "sensations": {
       "title": "Sensations",
-      "description": "What physical sensations did you notice?",
+      "description": {
+        "m": "What physical sensations did you notice?",
+        "f": "What physical sensations did you notice?"
+      },
       "placeholder": "e.g., tightness in chest, knot in stomach, heat in face, tension in shoulders"
     },
     "images": {
@@ -2103,8 +2335,14 @@
     },
     "behaviors": {
       "title": "Behaviors",
-      "description": "What did you do (or want to do) in response?",
-      "placeholder": "e.g., snapped at someone, withdrew, scrolled my phone, worked harder, ate comfort food"
+      "description": {
+        "m": "What did you do (or want to do) in response?",
+        "f": "What did you do (or want to do) in response?"
+      },
+      "placeholder": {
+        "m": "e.g., snapped at someone, withdrew, scrolled my phone, worked harder, ate comfort food",
+        "f": "e.g., snapped at someone, withdrew, scrolled my phone, worked harder, ate comfort food"
+      }
     },
     "perception": {
       "title": "Overall Perception",
@@ -2115,8 +2353,14 @@
     },
     "partLink": {
       "title": "Which Part Was This?",
-      "description": "Based on what you've described, does this feel like a part you already know?",
-      "unsureMessage": "Not sure? That's fine — you can always link it to a part later."
+      "description": {
+        "m": "Based on what you've described, does this feel like a part you already know?",
+        "f": "Based on what you've described, does this feel like a part you already know?"
+      },
+      "unsureMessage": {
+        "m": "Not sure? That's fine — you can always link it to a part later.",
+        "f": "Not sure? That's fine — you can always link it to a part later."
+      }
     },
     "reflection": {
       "title": "Reflection",
@@ -2131,7 +2375,12 @@
       "analyzeButton": "Analyze Patterns Across Your Trailheads",
       "analyzingPatterns": "Analyzing patterns...",
       "analysisDisclaimer": "This analysis is based on patterns in your trailhead entries. Your inner experience is uniquely yours.",
-      "unlockAnalysis": "Log {count} more trailhead(s) to unlock pattern analysis",
+      "unlockAnalysis": {
+        "one": "Log {n} more trailhead to unlock pattern analysis",
+        "few": "Log {n} more trailheads to unlock pattern analysis",
+        "many": "Log {n} more trailheads to unlock pattern analysis",
+        "other": "Log {n} more trailheads to unlock pattern analysis"
+      },
       "notesLabel": "Notes (optional)",
       "notesPlaceholder": "Any additional notes...",
       "saveButton": "Save Entry",
@@ -2152,7 +2401,10 @@
       "title": "Protector Appreciation",
       "description": "Build a relationship with a protector part by understanding its job, thanking it, and hearing its response.",
       "emptyState": "You need protector parts (managers or firefighters) to appreciate. Go to <span class=\"font-medium text-primary\">Parts Mapping</span> to identify them.",
-      "label": "Which protector would you like to appreciate?",
+      "label": {
+        "m": "Which protector would you like to appreciate?",
+        "f": "Which protector would you like to appreciate?"
+      },
       "defaultName": "Protector"
     },
     "understandJob": {
@@ -2192,10 +2444,16 @@
     },
     "response": {
       "title": "{partName}'s Response",
-      "promptQuestion": "How would you like to hear back from {partName}?",
+      "promptQuestion": {
+        "m": "How would you like to hear back from {partName}?",
+        "f": "How would you like to hear back from {partName}?"
+      },
       "aiOption": "Let AI generate a response",
       "aiOptionDescription": "Based on what you know about this part",
-      "selfOption": "I'll write it myself",
+      "selfOption": {
+        "m": "I'll write it myself",
+        "f": "I'll write it myself"
+      },
       "selfOptionDescription": "Practice listening to what the part would say",
       "thinking": "{partName} is thinking...",
       "partSays": "{partName} says:",
@@ -2204,19 +2462,31 @@
     },
     "commitment": {
       "title": "Commitment (Optional)",
-      "description": "Is there something you'd like to offer {partName} to ease its workload?",
+      "description": {
+        "m": "Is there something you'd like to offer {partName} to ease its workload?",
+        "f": "Is there something you'd like to offer {partName} to ease its workload?"
+      },
       "chips": [
         "I'll try to notice you before reacting",
         "I'll take a break when you activate",
-        "I'll journal when I feel you",
-        "I'll check in with you regularly"
+        {
+          "m": "I'll journal when I feel you",
+          "f": "I'll journal when I feel you"
+        },
+        {
+          "m": "I'll check in with you regularly",
+          "f": "I'll check in with you regularly"
+        }
       ],
       "placeholder": "What do you commit to? (optional)",
       "skipButton": "Skip"
     },
     "checkIn": {
       "title": "Check-In Schedule (Optional)",
-      "description": "Would you like to regularly check in with {partName}?",
+      "description": {
+        "m": "Would you like to regularly check in with {partName}?",
+        "f": "Would you like to regularly check in with {partName}?"
+      },
       "frequencyOptions": {
         "weekly": "Weekly",
         "biweekly": "Every two weeks",
@@ -2255,7 +2525,10 @@
     },
     "safety": {
       "title": "Exile Witnessing & Compassion",
-      "description": "This exercise guides you in gently approaching an exile — a vulnerable part that carries old pain or beliefs. You'll check in with protectors first, then simply be present with the exile and offer compassion.",
+      "description": {
+        "m": "This exercise guides you in gently approaching an exile — a vulnerable part that carries old pain or beliefs. You'll check in with protectors first, then simply be present with the exile and offer compassion.",
+        "f": "This exercise guides you in gently approaching an exile — a vulnerable part that carries old pain or beliefs. You'll check in with protectors first, then simply be present with the exile and offer compassion."
+      },
       "disclaimer": "This is <strong>not</strong> unburdening — it's witnessing. You're creating a moment of connection, not trying to fix or heal. That deeper work is best done with a therapist.",
       "beginButton": "Begin"
     },
@@ -2294,19 +2567,31 @@
     "witness": {
       "title": "Being Present",
       "description": "Simply be with this part. You don't need to fix anything.",
-      "messagePlaceholder": "What does this part want you to know?",
+      "messagePlaceholder": {
+        "m": "What does this part want you to know?",
+        "f": "What does this part want you to know?"
+      },
       "beliefPlaceholder": "What does it believe about you or the world?",
       "beliefNote": "In IFS, these beliefs are called \"burdens\" — things the exile took on from painful experiences."
     },
     "compassion": {
       "title": "Offering Compassion",
-      "description": "What would you like to say to this part?",
+      "description": {
+        "m": "What would you like to say to this part?",
+        "f": "What would you like to say to this part?"
+      },
       "chips": [
         "I see you.",
         "That wasn't your fault.",
-        "You're not alone anymore.",
+        {
+          "m": "You're not alone anymore.",
+          "f": "You're not alone anymore."
+        },
         "I'm here now.",
-        "You didn't deserve that.",
+        {
+          "m": "You didn't deserve that.",
+          "f": "You didn't deserve that."
+        },
         "I'm not going anywhere."
       ],
       "placeholder": "Your message of compassion...",
@@ -2373,13 +2658,19 @@
       "title": "Today's Growth Edge",
       "looksLike": "It looks like {quality} is lower today (rated {rating}/5). That's okay — it often means a part is taking up that space.",
       "partQuestion": "Can you sense which part might be affecting your {quality}?",
-      "unsureMessage": "Not sure? That's perfectly fine — just noticing the gap is valuable."
+      "unsureMessage": {
+        "m": "Not sure? That's perfectly fine — just noticing the gap is valuable.",
+        "f": "Not sure? That's perfectly fine — just noticing the gap is valuable."
+      }
     },
     "microPractice": {
       "title": "{quality} Micro-Practice",
       "calm": {
         "title": "60-Second Box Breathing",
-        "ready": "Ready",
+        "ready": {
+          "m": "Ready",
+          "f": "Ready"
+        },
         "tapToBegin": "Tap to begin",
         "startButton": "Start Breathing",
         "breatheIn": "Breathe in...",
@@ -2390,13 +2681,19 @@
       },
       "curiosity": {
         "title": "The Curiosity Shift",
-        "description": "Pick something you're reacting to today. Ask yourself: \"What if I got curious about this instead of frustrated?\"",
+        "description": {
+          "m": "Pick something you're reacting to today. Ask yourself: \"What if I got curious about this instead of frustrated?\"",
+          "f": "Pick something you're reacting to today. Ask yourself: \"What if I got curious about this instead of frustrated?\""
+        },
         "placeholder": "What happens when you approach it with curiosity?"
       },
       "compassion": {
         "title": "Hand on Heart",
         "description": "Place your hand on your heart. Think of the part that's struggling. Silently say: \"I see you. This is hard.\"",
-        "placeholder": "What did you notice?"
+        "placeholder": {
+          "m": "What did you notice?",
+          "f": "What did you notice?"
+        }
       },
       "clarity": {
         "title": "One True Thing",
@@ -2405,7 +2702,10 @@
       },
       "courage": {
         "title": "One Brave Thing",
-        "description": "What's one small brave thing you could do today?",
+        "description": {
+          "m": "What's one small brave thing you could do today?",
+          "f": "What's one small brave thing you could do today?"
+        },
         "placeholder": "One brave action..."
       },
       "creativity": {
@@ -2415,12 +2715,21 @@
       },
       "confidence": {
         "title": "Recent Win",
-        "description": "Name one thing you handled well recently.",
-        "placeholder": "Something you handled well..."
+        "description": {
+          "m": "Name one thing you handled well recently.",
+          "f": "Name one thing you handled well recently."
+        },
+        "placeholder": {
+          "m": "Something you handled well...",
+          "f": "Something you handled well..."
+        }
       },
       "connection": {
         "title": "Reach Out",
-        "description": "Who could you reach out to today, even briefly?",
+        "description": {
+          "m": "Who could you reach out to today, even briefly?",
+          "f": "Who could you reach out to today, even briefly?"
+        },
         "placeholder": "A person to connect with..."
       }
     },
@@ -2430,7 +2739,12 @@
       "trendReviewButton": "Review My Self-Energy Trends",
       "trendReviewLoading": "Reviewing trends...",
       "trendDisclaimer": "This review is based on patterns in your check-in data. Your experience is uniquely yours.",
-      "unlockTrend": "Complete {count} more check-in(s) to unlock trend analysis",
+      "unlockTrend": {
+        "one": "Complete {n} more check-in to unlock trend analysis",
+        "few": "Complete {n} more check-ins to unlock trend analysis",
+        "many": "Complete {n} more check-ins to unlock trend analysis",
+        "other": "Complete {n} more check-ins to unlock trend analysis"
+      },
       "trendLabel": "Trend",
       "notesLabel": "Notes (optional)",
       "notesPlaceholder": "Any additional notes...",
@@ -2449,7 +2763,10 @@
     "partSelect": {
       "title": "Parts Dialogue Journal",
       "description": "Write a dialogue between your Self and a part. You write both sides of the conversation, practicing your own internal listening.",
-      "label": "Which part would you like to dialogue with?",
+      "label": {
+        "m": "Which part would you like to dialogue with?",
+        "f": "Which part would you like to dialogue with?"
+      },
       "defaultName": "Part"
     },
     "intention": {
@@ -2474,7 +2791,10 @@
       "suggestedQuestions": [
         "What do you need?",
         "What are you afraid of?",
-        "What do you want me to know?",
+        {
+          "m": "What do you want me to know?",
+          "f": "What do you want me to know?"
+        },
         "How can I help?"
       ],
       "selfPlaceholder": "Write as Self...",
@@ -2491,7 +2811,10 @@
       "title": "Capture Insights",
       "description": "Review your dialogue and tag any important moments.",
       "tagThisMoment": "Tag this moment",
-      "whatDidYouNotice": "What did you notice?",
+      "whatDidYouNotice": {
+        "m": "What did you notice?",
+        "f": "What did you notice?"
+      },
       "insightTags": {
         "coreFear": "Core Fear",
         "need": "Need",
@@ -2580,13 +2903,19 @@
           },
           "curiosity": {
             "label": "The Curiosity Shift",
-            "prompt": "Pick something you're reacting to. Ask: \"What if I got curious instead of frustrated?\"",
+            "prompt": {
+              "m": "Pick something you're reacting to. Ask: \"What if I got curious instead of frustrated?\"",
+              "f": "Pick something you're reacting to. Ask: \"What if I got curious instead of frustrated?\""
+            },
             "placeholder": "What happens when you approach it with curiosity?"
           },
           "compassion": {
             "label": "Hand on Heart",
             "prompt": "Place your hand on your heart. Think of the part that's struggling. Silently say: \"I see you. This is hard.\"",
-            "placeholder": "What did you notice?"
+            "placeholder": {
+              "m": "What did you notice?",
+              "f": "What did you notice?"
+            }
           },
           "clarity": {
             "label": "One True Thing",
@@ -2595,7 +2924,10 @@
           },
           "courage": {
             "label": "One Brave Thing",
-            "prompt": "What's one small brave thing you could do today?",
+            "prompt": {
+              "m": "What's one small brave thing you could do today?",
+              "f": "What's one small brave thing you could do today?"
+            },
             "placeholder": "One brave action..."
           },
           "creativity": {
@@ -2605,12 +2937,21 @@
           },
           "confidence": {
             "label": "Recent Win",
-            "prompt": "Name one thing you handled well recently.",
-            "placeholder": "Something you handled well..."
+            "prompt": {
+              "m": "Name one thing you handled well recently.",
+              "f": "Name one thing you handled well recently."
+            },
+            "placeholder": {
+              "m": "Something you handled well...",
+              "f": "Something you handled well..."
+            }
           },
           "connection": {
             "label": "Reach Out",
-            "prompt": "Who could you reach out to today, even briefly?",
+            "prompt": {
+              "m": "Who could you reach out to today, even briefly?",
+              "f": "Who could you reach out to today, even briefly?"
+            },
             "placeholder": "A person to connect with..."
           }
         }
@@ -2621,13 +2962,19 @@
         "activePartsLabel": "Which parts were most active today?",
         "intensityLabel": "Intensity",
         "triggerPlaceholder": "What triggered it?",
-        "responseLabel": "How did you respond today?",
+        "responseLabel": {
+          "m": "How did you respond today?",
+          "f": "How did you respond today?"
+        },
         "leadershipOptions": {
           "mostlySelf": "Mostly from Self",
           "mostlyPart": "Mostly from a part",
           "mixed": "A mix"
         },
-        "reflectionPlaceholder": "What would you do differently? (optional)",
+        "reflectionPlaceholder": {
+          "m": "What would you do differently? (optional)",
+          "f": "What would you do differently? (optional)"
+        },
         "appreciationPlaceholder": "One thing you appreciate about today"
       }
     },
@@ -2644,13 +2991,19 @@
       "focusedOn": "Focused on: {quality}",
       "selfLeadership": "Self-leadership: {label}",
       "appreciation": "Appreciation: {note}",
-      "weeklyCheckIns": "{count} check-in(s) this week",
-      "weeklyCheckInsSingular": "{count} check-in this week",
-      "weeklyCheckInsPlural": "{count} check-ins this week",
+      "weeklyCheckIns": {
+        "one": "{n} check-in this week",
+        "few": "{n} check-ins this week",
+        "many": "{n} check-ins this week",
+        "other": "{n} check-ins this week"
+      },
       "getWeeklySummary": "Get Weekly Parts Summary",
-      "moreForSummary": "Complete {count} more check-in(s) this week for a weekly summary",
-      "moreForSummarySingular": "Complete {count} more check-in this week for a weekly summary",
-      "moreForSummaryPlural": "Complete {count} more check-ins this week for a weekly summary",
+      "moreForSummary": {
+        "one": "Complete {n} more check-in this week for a weekly summary",
+        "few": "Complete {n} more check-ins this week for a weekly summary",
+        "many": "Complete {n} more check-ins this week for a weekly summary",
+        "other": "Complete {n} more check-ins this week for a weekly summary"
+      },
       "notesPlaceholder": "Additional notes (optional)",
       "saveButton": "Save Check-In",
       "saving": "Saving..."
@@ -2674,13 +3027,19 @@
     "prerequisites": {
       "title": "Inner System Constellation",
       "description": "Parts form alliances, oppositions, and cascading chains. A Perfectionist and Procrastinator might look opposite but both protect the same wounded exile.",
-      "checkPassed": "You have {count} parts mapped. Ready to explore their relationships.",
+      "checkPassed": {
+        "m": "You have {count} parts mapped. Ready to explore their relationships.",
+        "f": "You have {count} parts mapped. Ready to explore their relationships."
+      },
       "checkFailed": "You need at least 3 parts mapped. Try Parts Mapping first.",
       "beginButton": "Begin"
     },
     "selectParts": {
       "title": "Choose Your Focus",
-      "description": "Select 3-5 parts you'd like to explore the relationships between.",
+      "description": {
+        "m": "Select 3-5 parts you'd like to explore the relationships between.",
+        "f": "Select 3-5 parts you'd like to explore the relationships between."
+      },
       "counter": "{count} of 3-5 selected"
     },
     "mapRelationships": {
@@ -2733,8 +3092,14 @@
     "cascades": {
       "title": "Cascading Chains",
       "description": "Sometimes one part triggers another in a chain reaction.",
-      "instructions": "If you notice a sequence (e.g., Critic triggers Procrastinator triggers Self-Blame), describe it here.",
-      "placeholder": "Describe any chain reactions you notice..."
+      "instructions": {
+        "m": "If you notice a sequence (e.g., Critic triggers Procrastinator triggers Self-Blame), describe it here.",
+        "f": "If you notice a sequence (e.g., Critic triggers Procrastinator triggers Self-Blame), describe it here."
+      },
+      "placeholder": {
+        "m": "Describe any chain reactions you notice...",
+        "f": "Describe any chain reactions you notice..."
+      }
     },
     "visual": {
       "title": "Your Constellation",
@@ -2750,7 +3115,10 @@
       "placeholder": "Looking at your inner constellation, what patterns do you see?",
       "aiButton": "Analyze My System",
       "aiButtonLoading": "Analyzing your constellation...",
-      "aiDisclaimer": "This analysis reflects patterns in what you've shared. A therapist trained in IFS can help explore these dynamics more deeply, especially where trauma may be involved."
+      "aiDisclaimer": {
+        "m": "This analysis reflects patterns in what you've shared. A therapist trained in IFS can help explore these dynamics more deeply, especially where trauma may be involved.",
+        "f": "This analysis reflects patterns in what you've shared. A therapist trained in IFS can help explore these dynamics more deeply, especially where trauma may be involved."
+      }
     },
     "save": {
       "title": "Save Constellation",

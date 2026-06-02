@@ -21,7 +21,7 @@
     "definition": "Skupianie się wyłącznie na negatywnych szczegółach sytuacji, odfiltrowując wszystkie pozytywne aspekty.",
     "example": "Pochwała od 9 kolegów, ale skupianie się na jednej osobie, która dała krytyczny feedback: \"Wszyscy myślą, że moja praca jest słaba.\"",
     "soundsLike": "Ale co z tą jedną rzeczą, która poszła źle... / Jedyne, co się liczy, to...",
-    "realityCheck": "Oddal perspektywę. Co odfiltrowujesz? Gdybyś wypisał wszystko, co się wydarzyło, jak wyglądałby pełny obraz?"
+    "realityCheck": "Oddal perspektywę. Co odfiltrowujesz? Gdyby wypisać wszystko, co się wydarzyło, jak wyglądałby pełny obraz?"
   },
   "disqualifying-positive": {
     "name": "Dyskwalifikowanie pozytywów",
@@ -29,7 +29,7 @@
     "definition": "Odrzucanie pozytywnych doświadczeń, twierdząc że \"się nie liczą\". Utrzymywanie negatywnego przekonania mimo przeciwnych dowodów.",
     "example": "Po udanej prezentacji: \"Oni byli po prostu mili. To naprawdę nie było takie dobre.\"",
     "soundsLike": "To się nie liczy, bo... / Powiedzieli to tylko z grzeczności / Każdy mógłby to zrobić / To był tylko szczęśliwy traf",
-    "realityCheck": "Czy odrzuciłbyś osiągnięcie przyjaciela w ten sposób? Pozytywne dowody to wciąż dowody."
+    "realityCheck": "Gdyby to było osiągnięcie przyjaciela, czy też nie miałoby znaczenia? Pozytywne dowody to wciąż dowody."
   },
   "mind-reading": {
     "name": "Czytanie w myślach",
@@ -61,7 +61,7 @@
     "definition": "Umniejszanie znaczenia pozytywnych wydarzeń, cech lub osiągnięć. Odwrotność katastrofizowania.",
     "example": "Po ukończeniu maratonu: \"To nie było nic wielkiego. Dużo ludzi to robi.\"",
     "soundsLike": "To nic / Każdy mógłby to zrobić / To naprawdę nie ma znaczenia / Miałem szczęście",
-    "realityCheck": "Gdyby przyjaciel to zrobił, czy minimalizowałbyś? Twoje osiągnięcia zasługują na uznanie."
+    "realityCheck": "Gdyby dokonał tego przyjaciel, czy też byłoby to bez znaczenia? Twoje osiągnięcia zasługują na uznanie."
   },
   "emotional-reasoning": {
     "name": "Rozumowanie emocjonalne",
@@ -69,7 +69,7 @@
     "definition": "Zakładanie, że twoje negatywne emocje odzwierciedlają rzeczywistość. \"Czuję to, więc to musi być prawda.\"",
     "example": "\"Czuję się jak porażka, więc muszę być porażką.\" lub \"Czuję lęk, więc coś złego musi się zaraz zdarzyć.\"",
     "soundsLike": "Czuję [emocję], więc to musi być prawda / Po prostu czuję, że... / Moja intuicja mi mówi...",
-    "realityCheck": "Uczucia to informacja, nie fakty. Lęk nie oznacza niebezpieczeństwa. Poczucie głupoty nie oznacza, że jesteś głupi."
+    "realityCheck": "Uczucia to informacja, nie fakty. Lęk nie oznacza niebezpieczeństwa. Poczucie głupoty nie oznacza, że tak jest."
   },
   "should-statements": {
     "name": "Powinienizmy",

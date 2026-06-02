@@ -63,7 +63,7 @@
       </template>
 
       <p v-else class="text-sm text-on-surface-variant">
-        {{ t('exercises.views.noWitnessingsYet') }}
+        {{ tg('exercises.views.noWitnessingsYet') }}
       </p>
     </div>
   </div>
@@ -83,7 +83,7 @@ import type { IFSExilePostState } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
-const { t } = useT()
+const { t, tg } = useT()
 const witnessingStore = useIFSExileWitnessingStore()
 const partStore = useIFSPartStore()
 

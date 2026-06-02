@@ -23,11 +23,11 @@
 import { computed } from 'vue'
 import { useT } from '@/composables/useT'
 
-const { t } = useT()
+const { tList } = useT()
 
 defineProps<{
   currentIndex: number
 }>()
 
-const labels = computed(() => t('exerciseWizards.shared.ifs.tsibp.labels'))
+const labels = computed(() => tList('exerciseWizards.shared.ifs.tsibp.labels'))
 </script>

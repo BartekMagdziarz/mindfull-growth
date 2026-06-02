@@ -189,7 +189,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.learningSummary.title') }}</h2>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.cognitiveDistortions.learningSummary.recognizedCount', { recognized: learningDraft.recognizedIds.size, total: distortions.length }) }}
+            {{ tg('exerciseWizards.cognitiveDistortions.learningSummary.recognizedCount', { recognized: learningDraft.recognizedIds.size, total: distortions.length }) }}
           </p>
 
           <div class="space-y-3">
@@ -370,7 +370,7 @@
                 <textarea
                   :value="appliedDraft.reframes[id] ?? ''"
                   rows="2"
-                  :placeholder="t('exerciseWizards.cognitiveDistortions.appliedResults.reframePlaceholder')"
+                  :placeholder="tg('exerciseWizards.cognitiveDistortions.appliedResults.reframePlaceholder')"
                   class="neo-input w-full p-2 text-sm resize-none"
                   @input="appliedDraft.reframes[id] = ($event.target as HTMLTextAreaElement).value"
                 />
@@ -419,7 +419,7 @@ import type {
   IdentifiedDistortion,
 } from '@/domain/exercises'
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileSpot = ref(userPreferencesStore.profileContextDefault)
 

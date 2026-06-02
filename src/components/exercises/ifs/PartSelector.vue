@@ -93,7 +93,7 @@ import PartRoleBadge from './PartRoleBadge.vue'
 import type { IFSPart, IFSPartRole } from '@/domain/exercises'
 import { IFS_ROLE_CLASSES } from '@/constants/exerciseColorRoles'
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const props = withDefaults(
   defineProps<{
@@ -121,7 +121,7 @@ const roleOptions = computed(() => [
   { value: 'manager' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.manager'), activeClass: `${IFS_ROLE_CLASSES.manager.bg} ${IFS_ROLE_CLASSES.manager.text}` },
   { value: 'firefighter' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.firefighter'), activeClass: `${IFS_ROLE_CLASSES.firefighter.bg} ${IFS_ROLE_CLASSES.firefighter.text}` },
   { value: 'exile' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.exile'), activeClass: `${IFS_ROLE_CLASSES.exile.bg} ${IFS_ROLE_CLASSES.exile.text}` },
-  { value: 'unknown' as IFSPartRole, label: t('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'), activeClass: 'bg-neu-base text-on-surface' },
+  { value: 'unknown' as IFSPartRole, label: tg('exerciseWizards.shared.ifs.partSelector.roleOptions.notSure'), activeClass: 'bg-neu-base text-on-surface' },
 ])
 
 const filteredParts = computed(() => {

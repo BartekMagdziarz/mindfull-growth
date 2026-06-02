@@ -47,7 +47,7 @@
               v-else
               v-model="partId"
               :parts="partStore.sortedParts"
-              :label="t('exerciseWizards.directAccess.partSelect.label')"
+              :label="tg('exerciseWizards.directAccess.partSelect.label')"
               :allow-create="false"
             />
           </AppCard>
@@ -83,7 +83,7 @@
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
-                  <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.options.selfEnergy') }}</span>
+                  <span class="text-sm text-on-surface">{{ tg('exerciseWizards.directAccess.selfCheck.options.selfEnergy') }}</span>
                 </div>
               </button>
               <button
@@ -132,7 +132,7 @@
                   >
                     <div class="flex items-center gap-3">
                       <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
-                      <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.continueButton') }}</span>
+                      <span class="text-sm text-on-surface">{{ tg('exerciseWizards.directAccess.selfCheck.continueButton') }}</span>
                     </div>
                   </button>
                 </Transition>
@@ -243,7 +243,7 @@
               <textarea
                 v-model="insightContent"
                 rows="2"
-                :placeholder="t('exerciseWizards.directAccess.dialogue.insightForm.placeholder')"
+                :placeholder="tg('exerciseWizards.directAccess.dialogue.insightForm.placeholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
               <div class="flex flex-wrap gap-2">
@@ -453,7 +453,7 @@ const emit = defineEmits<{
   saved: []
 }>()
 
-const { t } = useT()
+const { t, tg, tList } = useT()
 
 const partStore = useIFSPartStore()
 const userPreferencesStore = useUserPreferencesStore()
@@ -510,16 +510,7 @@ const selectedPartColor = computed(() => {
 const messageInput = ref('')
 const chatContainer = ref<HTMLElement | null>(null)
 
-const suggestedQuestions = computed(() => {
-  const questions = t('exerciseWizards.directAccess.dialogue.suggestedQuestions')
-  return Array.isArray(questions) ? questions : [
-    'What is your job?',
-    'What are you protecting?',
-    'What would happen if you stopped?',
-    'What do you need from me?',
-    'How old are you?',
-  ]
-})
+const suggestedQuestions = computed(() => tList('exerciseWizards.directAccess.dialogue.suggestedQuestions'))
 
 async function handleSend() {
   if (!messageInput.value.trim() || isLoadingResponse.value || !selectedPart.value) return

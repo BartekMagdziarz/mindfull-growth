@@ -34,17 +34,26 @@
     "createHabit": "Create Habit",
     "pastMaps": "Past Maps",
     "noMapsYet": "No maps yet. Create your first parts map above.",
-    "partCount": "{n} part",
-    "partsCount": "{n} parts",
-    "connectionCount": "{n} connection",
-    "connectionsCount": "{n} connections",
+    "partCount": {
+      "one": "{n} part",
+      "few": "{n} parts",
+      "many": "{n} parts"
+    },
+    "connectionCount": {
+      "one": "{n} connection",
+      "few": "{n} connections",
+      "many": "{n} connections"
+    },
     "pastAppreciations": "Past Appreciations",
     "noAppreciationsYet": "No appreciations yet. Thank a protector above.",
     "protector": "Protector:",
     "workloadBadge": "Workload: {n}/10",
     "commitmentSet": "Commitment set",
     "pastWitnessings": "Past Witnessings",
-    "noWitnessingsYet": "No witnessings yet. Begin the exercise above when you feel ready.",
+    "noWitnessingsYet": {
+      "m": "No witnessings yet. Begin the exercise above when you feel ready.",
+      "f": "No witnessings yet. Begin the exercise above when you feel ready."
+    },
     "exile": "Exile:",
     "protectors": "Protectors:",
     "postStateCalmer": "Calmer",
@@ -59,13 +68,25 @@
     "selfEnergyHabitPrompt": "Track your daily 8 C's check-in?",
     "selfEnergyHabitDescription": "Build consistency with a habit tracker.",
     "noDialoguesYet": "No dialogues yet. Start your first parts dialogue above.",
-    "messagesCount": "{n} messages",
-    "insightsCount": "{n} insights",
+    "messagesCount": {
+      "one": "{n} message",
+      "few": "{n} messages",
+      "many": "{n} messages"
+    },
+    "insightsCount": {
+      "one": "{n} insight",
+      "few": "{n} insights",
+      "many": "{n} insights"
+    },
     "intention": "Intention:",
     "aiAssistedBadge": "AI-assisted",
     "pastConstellations": "Past Constellations",
     "noConstellationsYet": "No constellations yet. Map at least 3 parts first, then explore how they relate.",
-    "partsLabel": "{n} parts",
+    "partsLabel": {
+      "one": "{n} part",
+      "few": "{n} parts",
+      "many": "{n} parts"
+    },
     "polarized": "polarized",
     "allied": "allied",
     "protectorExile": "protector-exile",
@@ -75,13 +96,19 @@
     "fear": "Fear:",
     "need": "Need:",
     "noTrailheadsYet": "No trailheads yet. Start by capturing a recent emotional trigger above.",
-    "trailheadsLogged": "{n} trailhead logged",
-    "trailheadsLoggedPlural": "{n} trailheads logged",
+    "trailheadsLogged": {
+      "one": "{n} trailhead logged",
+      "few": "{n} trailheads logged",
+      "many": "{n} trailheads logged"
+    },
     "dailyCheckInHabitPrompt": "Track your daily IFS check-in?",
     "dailyCheckInHabitDescription": "Build a streak with a habit tracker.",
     "noCheckInsYetDaily": "No check-ins yet. Pick a quick practice to start.",
-    "checkInsThisWeek": "{n} check-in this week",
-    "checkInsThisWeekPlural": "{n} check-ins this week",
+    "checkInsThisWeek": {
+      "one": "{n} check-in this week",
+      "few": "{n} check-ins this week",
+      "many": "{n} check-ins this week"
+    },
     "practiceWeatherReport": "Weather Report",
     "practiceGratitude": "Gratitude",
     "practiceSelfEnergy": "Self-Energy",
@@ -152,6 +179,26 @@
       "subtitle": "Importance vs consistency",
       "description": "Rate 10 life domains for value importance and living consistency to reveal top values and gaps."
     },
+    "erq": {
+      "title": "Emotion Regulation (ERQ)",
+      "subtitle": "Reappraisal vs suppression",
+      "description": "10-item Emotion Regulation Questionnaire measuring cognitive reappraisal and expressive suppression."
+    },
+    "rrq": {
+      "title": "Rumination & Reflection (RRQ)",
+      "subtitle": "Two styles of inward focus",
+      "description": "24-item Rumination-Reflection Questionnaire distinguishing distress-driven rumination from open reflection."
+    },
+    "ecrRs": {
+      "title": "Attachment Style (ECR-RS)",
+      "subtitle": "Avoidance and anxiety",
+      "description": "9-item Experiences in Close Relationships scale measuring attachment-related avoidance and anxiety."
+    },
+    "ipipVia": {
+      "title": "Character Strengths (IPIP-VIA)",
+      "subtitle": "Signature virtues",
+      "description": "30-item public-domain VIA strengths assessment sampling six virtue families."
+    },
     "worryTree": {
       "title": "Worry Tree",
       "subtitle": "Manage worry in minutes",
@@ -175,30 +222,13 @@
     "compassionateLetter": {
       "title": "Compassionate Letter",
       "subtitle": "Write to yourself with kindness",
-      "description": "Voice your inner critic, then respond with the compassion you'd show a good friend."
+      "description": {
+        "m": "Voice your inner critic, then respond with the compassion you'd show a good friend.",
+        "f": "Voice your inner critic, then respond with the compassion you'd show a good friend."
+      }
     },
     "positiveDataLog": {
       "title": "Positive Data Log",
-    "erq": {
-      "title": "Emotion Regulation (ERQ)",
-      "subtitle": "Reappraisal vs suppression",
-      "description": "10-item Emotion Regulation Questionnaire measuring cognitive reappraisal and expressive suppression."
-    },
-    "rrq": {
-      "title": "Rumination & Reflection (RRQ)",
-      "subtitle": "Two styles of inward focus",
-      "description": "24-item Rumination-Reflection Questionnaire distinguishing distress-driven rumination from open reflection."
-    },
-    "ecrRs": {
-      "title": "Attachment Style (ECR-RS)",
-      "subtitle": "Avoidance and anxiety",
-      "description": "9-item Experiences in Close Relationships scale measuring attachment-related avoidance and anxiety."
-    },
-    "ipipVia": {
-      "title": "Character Strengths (IPIP-VIA)",
-      "subtitle": "Signature virtues",
-      "description": "30-item public-domain VIA strengths assessment sampling six virtue families."
-    },
       "subtitle": "Collect evidence against negative beliefs",
       "description": "An ongoing log to systematically challenge a core belief by recording contradicting evidence over time."
     },

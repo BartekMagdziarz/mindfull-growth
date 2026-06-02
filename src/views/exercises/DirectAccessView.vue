@@ -30,7 +30,7 @@
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-on-surface">{{ formatDate(session.createdAt) }}</span>
             <span class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
-              {{ t('exercises.views.messagesCount', { n: session.messages.length }) }}
+              {{ tp(session.messages.length, 'exercises.views.messagesCount.one', 'exercises.views.messagesCount.few', 'exercises.views.messagesCount.many') }}
             </span>
           </div>
 
@@ -93,7 +93,7 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
-const { t } = useT()
+const { t, tp } = useT()
 const directAccessStore = useIFSDirectAccessStore()
 const partStore = useIFSPartStore()
 

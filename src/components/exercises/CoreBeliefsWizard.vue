@@ -179,7 +179,7 @@
               :disabled="downwardArrowSteps.length === 0 && !currentArrowAnswer.trim()"
               @click="finishDownwardArrow"
             >
-              {{ t('exerciseWizards.coreBeliefs.downwardArrow.foundIt') }}
+              {{ tg('exerciseWizards.coreBeliefs.downwardArrow.foundIt') }}
             </AppButton>
           </div>
 
@@ -728,7 +728,7 @@ const emit = defineEmits<{
   saved: [data: CreateCoreBeliefsExplorationPayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileDeepener = ref(userPreferencesStore.profileContextDefault)
 const useProfileAlternative = ref(userPreferencesStore.profileContextDefault)
@@ -821,8 +821,8 @@ const believabilityAfter = ref(50)
 const beliefCategories = computed(() => [
   {
     value: 'self' as const,
-    label: t('exerciseWizards.coreBeliefs.coreBelief.categories.self.label'),
-    description: t('exerciseWizards.coreBeliefs.coreBelief.categories.self.description'),
+    label: tg('exerciseWizards.coreBeliefs.coreBelief.categories.self.label'),
+    description: tg('exerciseWizards.coreBeliefs.coreBelief.categories.self.description'),
   },
   {
     value: 'others' as const,

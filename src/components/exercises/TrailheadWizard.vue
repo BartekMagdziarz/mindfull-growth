@@ -49,7 +49,7 @@
               <textarea
                 v-model="triggerDescription"
                 rows="3"
-                :placeholder="t('exerciseWizards.trailhead.trigger.questionPlaceholder')"
+                :placeholder="tg('exerciseWizards.trailhead.trigger.questionPlaceholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
             </div>
@@ -81,7 +81,7 @@
 
             <BodyLocationPicker
               v-model="bodyLocations"
-              :label="t('exerciseWizards.trailhead.trigger.bodyLocationLabel')"
+              :label="tg('exerciseWizards.trailhead.trigger.bodyLocationLabel')"
               :multiple="false"
             />
           </AppCard>
@@ -132,7 +132,7 @@
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.sensations.title') }}</h2>
             </div>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.trailhead.sensations.description') }}
+              {{ tg('exerciseWizards.trailhead.sensations.description') }}
             </p>
             <textarea
               v-model="sensations"
@@ -191,12 +191,12 @@
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.behaviors.title') }}</h2>
             </div>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.trailhead.behaviors.description') }}
+              {{ tg('exerciseWizards.trailhead.behaviors.description') }}
             </p>
             <textarea
               v-model="behaviors"
               rows="3"
-              :placeholder="t('exerciseWizards.trailhead.behaviors.placeholder')"
+              :placeholder="tg('exerciseWizards.trailhead.behaviors.placeholder')"
               class="neo-input w-full p-3 text-sm resize-none"
             />
 
@@ -249,7 +249,7 @@
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.trailhead.partLink.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.trailhead.partLink.description') }}
+              {{ tg('exerciseWizards.trailhead.partLink.description') }}
             </p>
 
             <PartSelector
@@ -260,7 +260,7 @@
             />
 
             <p v-if="!linkedPartId" class="text-xs text-on-surface-variant italic">
-              {{ t('exerciseWizards.trailhead.partLink.unsureMessage') }}
+              {{ tg('exerciseWizards.trailhead.partLink.unsureMessage') }}
             </p>
           </AppCard>
 
@@ -342,7 +342,7 @@
               </div>
             </div>
             <p v-else class="text-xs text-on-surface-variant">
-              {{ t('exerciseWizards.trailhead.reflection.unlockAnalysis', { count: 3 - trailheadStore.entries.length }) }}
+              {{ tp(3 - trailheadStore.entries.length, 'exerciseWizards.trailhead.reflection.unlockAnalysis.one', 'exerciseWizards.trailhead.reflection.unlockAnalysis.few', 'exerciseWizards.trailhead.reflection.unlockAnalysis.many') }}
             </p>
 
             <!-- Notes -->
@@ -395,7 +395,7 @@ const emit = defineEmits<{
   saved: []
 }>()
 
-const { t } = useT()
+const { t, tg, tp } = useT()
 const partStore = useIFSPartStore()
 const trailheadStore = useIFSTrailheadStore()
 const emotionStore = useEmotionStore()

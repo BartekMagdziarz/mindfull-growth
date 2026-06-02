@@ -25,7 +25,7 @@
         :key="item.id"
         class="flex items-start justify-between gap-3 rounded-lg border border-outline/30 p-3"
       >
-        <p class="text-sm text-on-surface">{{ t(item.textKey) }}</p>
+        <p class="text-sm text-on-surface">{{ tg(item.textKey) }}</p>
         <AppButton variant="text" @click="$emit('edit-item', item.id)">
           {{ t('common.buttons.edit') }}
         </AppButton>
@@ -63,7 +63,7 @@ defineEmits<{
   'edit-item': [itemId: string]
 }>()
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const answeredCount = computed(() => Object.keys(props.responses).length)
 </script>

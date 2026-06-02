@@ -94,12 +94,12 @@
       <AppCard padding="lg" class="space-y-4">
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valuesDiscovery.coreValues.title') }}</h2>
         <p class="text-sm text-on-surface-variant">
-          {{ t('exerciseWizards.valuesDiscovery.coreValues.description') }}
+          {{ tg('exerciseWizards.valuesDiscovery.coreValues.description') }}
         </p>
 
         <!-- Show qualities summary -->
         <div class="p-3 rounded-lg bg-section">
-          <p class="text-xs font-medium text-on-surface-variant mb-2">{{ t('exerciseWizards.valuesDiscovery.coreValues.qualitiesSummaryLabel') }}</p>
+          <p class="text-xs font-medium text-on-surface-variant mb-2">{{ tg('exerciseWizards.valuesDiscovery.coreValues.qualitiesSummaryLabel') }}</p>
           <div class="flex flex-wrap gap-1.5">
             <span
               v-for="quality in allQualities"
@@ -147,7 +147,7 @@
         <textarea
           v-model="draft.notes"
           rows="3"
-          :placeholder="t('exerciseWizards.valuesDiscovery.coreValues.reflectionPlaceholder')"
+          :placeholder="tg('exerciseWizards.valuesDiscovery.coreValues.reflectionPlaceholder')"
           class="neo-input w-full p-3 text-sm resize-none"
         />
       </AppCard>
@@ -171,7 +171,7 @@ import type { AdmirablePerson } from '@/domain/exercises'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useT } from '@/composables/useT'
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const emit = defineEmits<{
   saved: [id: string]

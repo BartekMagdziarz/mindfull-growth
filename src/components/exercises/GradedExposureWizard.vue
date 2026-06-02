@@ -93,7 +93,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.gradedExposure.fearTarget.goalTitle') }}</h2>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.gradedExposure.fearTarget.goalDescription') }}
+            {{ tg('exerciseWizards.gradedExposure.fearTarget.goalDescription') }}
           </p>
           <textarea
             v-model="ultimateGoal"
@@ -362,7 +362,7 @@
           <!-- Full fear ladder -->
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-              {{ t('exerciseWizards.gradedExposure.summary.fearLadder', { count: sortedItems.length }) }}
+              {{ tp(sortedItems.length, 'exerciseWizards.gradedExposure.summary.fearLadderCount.one', 'exerciseWizards.gradedExposure.summary.fearLadderCount.few', 'exerciseWizards.gradedExposure.summary.fearLadderCount.many') }}
             </p>
             <div class="relative">
               <!-- Connecting line -->
@@ -442,7 +442,7 @@ const emit = defineEmits<{
   saved: [data: CreateGradedExposureHierarchyPayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tp, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileBrainstormSteps = ref(userPreferencesStore.profileContextDefault)
 

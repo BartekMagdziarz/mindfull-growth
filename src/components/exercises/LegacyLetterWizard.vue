@@ -42,7 +42,7 @@
           </p>
           <div class="neo-embedded p-3">
             <p class="text-xs text-on-surface-variant italic">
-              "{{ t('exerciseWizards.legacyLetter.intro.quote') }}"
+              "{{ tg('exerciseWizards.legacyLetter.intro.quote') }}"
             </p>
             <p class="text-xs text-on-surface-variant mt-1">— Viktor Frankl</p>
           </div>
@@ -134,7 +134,7 @@
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.legacyLetter.write.title') }}</h2>
           <div class="neo-embedded p-3">
             <p class="text-xs text-on-surface-variant">
-              {{ t('exerciseWizards.legacyLetter.write.hint') }}
+              {{ tg('exerciseWizards.legacyLetter.write.hint') }}
             </p>
           </div>
           <textarea
@@ -292,7 +292,7 @@
           <template v-if="showReflectionInput">
             <div>
               <label class="text-sm font-medium text-on-surface">
-                {{ t('exerciseWizards.legacyLetter.reflect.truthLabel') }}
+                {{ tg('exerciseWizards.legacyLetter.reflect.truthLabel') }}
               </label>
               <textarea
                 v-model="reflectionInsight"
@@ -408,7 +408,7 @@ const emit = defineEmits<{
   saved: [data: CreateLegacyLetterPayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const valueMapStore = useValueMapStore()
 const valuesStore = useValuesDiscoveryStore()
 const purposeStore = useTransformativePurposeStore()
@@ -450,9 +450,9 @@ function goToStepByIndex(idx: number) {
 const warmUpPromptList = computed(() => [
   t('exerciseWizards.legacyLetter.warmup.prompts.p1'),
   t('exerciseWizards.legacyLetter.warmup.prompts.p2'),
-  t('exerciseWizards.legacyLetter.warmup.prompts.p3'),
+  tg('exerciseWizards.legacyLetter.warmup.prompts.p3'),
   t('exerciseWizards.legacyLetter.warmup.prompts.p4'),
-  t('exerciseWizards.legacyLetter.warmup.prompts.p5'),
+  tg('exerciseWizards.legacyLetter.warmup.prompts.p5'),
 ])
 
 const selectedPromptKeys = ref<Set<string>>(new Set())

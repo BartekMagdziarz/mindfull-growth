@@ -47,7 +47,7 @@
                 <div>
                   <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.mountainRange.intro.peaksName') }}</p>
                   <p class="text-xs text-on-surface-variant">
-                    {{ t('exerciseWizards.mountainRange.intro.peaksDescription') }}
+                    {{ tg('exerciseWizards.mountainRange.intro.peaksDescription') }}
                   </p>
                 </div>
               </div>
@@ -93,7 +93,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.mountainRange.peaks.title') }}</h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
-            {{ t('exerciseWizards.mountainRange.peaks.description') }}
+            {{ tg('exerciseWizards.mountainRange.peaks.description') }}
           </p>
           <div
             v-for="(event, index) in peakEvents"
@@ -110,7 +110,7 @@
                   rows="3"
                 />
                 <div class="flex items-center gap-3">
-                  <label class="text-xs text-on-surface-variant whitespace-nowrap">{{ t('exerciseWizards.mountainRange.peaks.ageLabel') }}</label>
+                  <label class="text-xs text-on-surface-variant whitespace-nowrap">{{ tg('exerciseWizards.mountainRange.peaks.ageLabel') }}</label>
                   <input
                     v-model.number="event.ageOrYear"
                     type="number"
@@ -202,7 +202,7 @@
                   rows="4"
                 />
                 <div class="flex items-center gap-3">
-                  <label class="text-xs text-on-surface-variant whitespace-nowrap">{{ t('exerciseWizards.mountainRange.valleys.ageLabel') }}</label>
+                  <label class="text-xs text-on-surface-variant whitespace-nowrap">{{ tg('exerciseWizards.mountainRange.valleys.ageLabel') }}</label>
                   <input
                     v-model.number="event.ageOrYear"
                     type="number"
@@ -213,7 +213,7 @@
                 </div>
                 <textarea
                   v-model="event.reflection"
-                  :placeholder="t('exerciseWizards.mountainRange.valleys.growthPlaceholder')"
+                  :placeholder="tg('exerciseWizards.mountainRange.valleys.growthPlaceholder')"
                   class="neo-input neo-focus w-full p-3 text-sm resize-none"
                   rows="4"
                 />
@@ -474,7 +474,7 @@ const emit = defineEmits<{
   saved: [data: CreateMountainRangePayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const lifeAreaStore = useLifeAreaStore()
 const valueMapStore = useValueMapStore()
 const valuesDiscoveryStore = useValuesDiscoveryStore()

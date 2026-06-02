@@ -123,4 +123,61 @@ describe('useT', () => {
       expect(locale.value).toBe('en')
     })
   })
+
+  describe('tg() — gendered variants', () => {
+    it('resolves feminine assessment-item variants for feminine users (pl)', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'pl', grammaticalGender: 'feminine' })
+
+      const { tg } = useT()
+      expect(tg('assessments.ipipVia.items.ipipvia_14')).toBe(
+        'W ostatnim miesiącu pomogłam sąsiadowi.',
+      )
+      const rrq01 = tg('assessments.rrq.items.rrq_01')
+      expect(rrq01).toContain('wolałabym')
+      expect(rrq01).toContain('samej')
+    })
+
+    it('resolves masculine assessment-item variants for masculine users (pl)', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'pl', grammaticalGender: 'masculine' })
+
+      const { tg } = useT()
+      expect(tg('assessments.ipipVia.items.ipipvia_14')).toBe(
+        'W ostatnim miesiącu pomogłem sąsiadowi.',
+      )
+    })
+
+    it('falls back to the flat string for non-gendered items', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'pl', grammaticalGender: 'feminine' })
+
+      const { tg } = useT()
+      expect(tg('assessments.ipipVia.items.ipipvia_01')).toBe(
+        'Świat wydaje mi się bardzo interesującym miejscem.',
+      )
+    })
+
+    it('applies user gender to gendered wizard prompts (pl)', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'pl', grammaticalGender: 'feminine' })
+
+      const { tg } = useT()
+      const key = 'exerciseWizards.valuesDiscovery.coreValues.qualitiesSummaryLabel'
+      expect(tg(key)).toBe('Cechy, które zidentyfikowałaś:')
+
+      prefs.$patch({ grammaticalGender: 'masculine' })
+      expect(tg(key)).toBe('Cechy, które zidentyfikowałeś:')
+    })
+
+    it('returns identical English for both genders (en m == f)', () => {
+      const prefs = useUserPreferencesStore()
+      prefs.$patch({ locale: 'en', grammaticalGender: 'feminine' })
+
+      const { tg } = useT()
+      expect(tg('assessments.ipipVia.items.ipipvia_14')).toBe(
+        'I helped a neighbor in the last month.',
+      )
+    })
+  })
 })

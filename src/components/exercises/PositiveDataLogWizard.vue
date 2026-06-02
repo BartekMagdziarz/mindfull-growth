@@ -82,7 +82,7 @@
               {{ t('exerciseWizards.positiveDataLog.targetBelief.title') }}
             </h2>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.positiveDataLog.targetBelief.description') }}
+              {{ tg('exerciseWizards.positiveDataLog.targetBelief.description') }}
             </p>
             <textarea
               v-model="targetBelief"
@@ -138,7 +138,7 @@
       >
         <div v-if="setupStep === 'confirmation'" class="space-y-4">
           <AppCard variant="raised" padding="lg" class="space-y-5">
-            <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.positiveDataLog.confirmation.title') }}</h2>
+            <h2 class="text-lg font-semibold text-on-surface">{{ tg('exerciseWizards.positiveDataLog.confirmation.title') }}</h2>
 
             <div class="space-y-1">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -192,7 +192,7 @@
         </div>
         <div class="flex items-center gap-2 text-xs text-on-surface-variant">
           <AppIcon name="assignment" class="text-base" />
-          <span>{{ existingLog.entries.length === 1 ? t('exerciseWizards.positiveDataLog.log.entryLogged', { count: existingLog.entries.length }) : t('exerciseWizards.positiveDataLog.log.entriesLogged', { count: existingLog.entries.length }) }}</span>
+          <span>{{ tp(existingLog.entries.length, 'exerciseWizards.positiveDataLog.log.entryCount.one', 'exerciseWizards.positiveDataLog.log.entryCount.few', 'exerciseWizards.positiveDataLog.log.entryCount.many') }}</span>
         </div>
       </div>
 
@@ -386,7 +386,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const { t, locale } = useT()
+const { t, tp, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileReview = ref(userPreferencesStore.profileContextDefault)
 

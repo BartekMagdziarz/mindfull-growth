@@ -7,7 +7,7 @@
           v-for="(label, idx) in visibleStepLabels"
           :key="idx"
           type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < mappedStepIndex ? ' (completed)' : idx === mappedStepIndex ? ' (current)' : ''}`"
+          :aria-label="`${t('exerciseWizards.constellation.ariaStepLabel', { index: idx + 1, label })}${idx < mappedStepIndex ? t('exerciseWizards.constellation.ariaStepCompleted') : idx === mappedStepIndex ? t('exerciseWizards.constellation.ariaStepCurrent') : ''}`"
           class="rounded-full transition-all duration-200"
           :class="idx < mappedStepIndex
             ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
@@ -32,10 +32,9 @@
       <template v-if="currentStep === 'prerequisites'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">Inner System Constellation</h2>
+            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.constellation.prerequisites.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              Parts form alliances, oppositions, and cascading chains. A Perfectionist and
-              Procrastinator might look opposite but both protect the same wounded exile.
+              {{ t('exerciseWizards.constellation.prerequisites.description') }}
             </p>
 
             <IFSSafetyBanner
@@ -55,10 +54,10 @@
               </div>
               <p class="text-sm" :class="hasPrerequisites ? 'text-on-surface' : 'text-status-warn-on'">
                 <template v-if="hasPrerequisites">
-                  You have {{ partStore.sortedParts.length }} parts mapped. Ready to explore their relationships.
+                  {{ tg('exerciseWizards.constellation.prerequisites.checkPassed', { count: partStore.sortedParts.length }) }}
                 </template>
                 <template v-else>
-                  You need at least 3 parts mapped. Try Parts Mapping first.
+                  {{ t('exerciseWizards.constellation.prerequisites.checkFailed') }}
                 </template>
               </p>
             </div>
@@ -66,7 +65,7 @@
 
           <div class="flex justify-end">
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Begin
+              {{ t('exerciseWizards.constellation.prerequisites.beginButton') }}
             </AppButton>
           </div>
         </div>
@@ -76,13 +75,13 @@
       <template v-else-if="currentStep === 'select-parts'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Choose Your Focus</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.selectParts.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              Select 3-5 parts you'd like to explore the relationships between.
+              {{ tg('exerciseWizards.constellation.selectParts.description') }}
             </p>
 
             <div class="text-sm text-on-surface-variant text-center font-medium">
-              {{ selectedPartIds.length }} of 3-5 selected
+              {{ t('exerciseWizards.constellation.selectParts.counter', { count: selectedPartIds.length }) }}
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -119,9 +118,9 @@
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Next
+              {{ t('common.buttons.next') }}
             </AppButton>
           </div>
         </div>
@@ -131,7 +130,7 @@
       <template v-else-if="currentStep === 'map-relationships'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-5">
-            <h2 class="text-base font-semibold text-on-surface">How Do They Relate?</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.mapRelationships.title') }}</h2>
 
             <div
               v-for="pair in allPairs"
@@ -142,7 +141,7 @@
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm font-medium text-on-surface">{{ getPartName(pair.partAId) }}</span>
                 <PartRoleBadge :role="getPartRole(pair.partAId)!" />
-                <span class="text-xs text-on-surface-variant">&#8596;</span>
+                <span class="text-xs text-on-surface-variant">{{ t('exerciseWizards.constellation.mapRelationships.pairSeparator') }}</span>
                 <span class="text-sm font-medium text-on-surface">{{ getPartName(pair.partBId) }}</span>
                 <PartRoleBadge :role="getPartRole(pair.partBId)!" />
               </div>
@@ -168,16 +167,16 @@
                 type="text"
                 :value="getRelationship(pair.partAId, pair.partBId)?.notes ?? ''"
                 class="neo-input w-full p-2 text-xs"
-                :placeholder="`When ${getPartName(pair.partAId)} is active, what happens to ${getPartName(pair.partBId)}?`"
+                :placeholder="t('exerciseWizards.constellation.mapRelationships.notePlaceholder', { partA: getPartName(pair.partAId), partB: getPartName(pair.partBId) })"
                 @input="setRelationshipNote(pair.partAId, pair.partBId, ($event.target as HTMLInputElement).value)"
               />
             </div>
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Next
+              {{ t('common.buttons.next') }}
             </AppButton>
           </div>
         </div>
@@ -187,9 +186,9 @@
       <template v-else-if="currentStep === 'polarization-deep-dive'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-5">
-            <h2 class="text-base font-semibold text-on-surface">Exploring Polarizations</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.polarizationDeepDive.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              Polarized parts are often the most revealing — they may both be protecting the same wound.
+              {{ t('exerciseWizards.constellation.polarizationDeepDive.description') }}
             </p>
 
             <div
@@ -199,59 +198,59 @@
             >
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm font-semibold text-on-surface">{{ getPartName(dd.partAId) }}</span>
-                <span class="text-xs text-rel-polarized font-medium">vs</span>
+                <span class="text-xs text-rel-polarized font-medium">{{ t('exerciseWizards.constellation.polarizationDeepDive.vs') }}</span>
                 <span class="text-sm font-semibold text-on-surface">{{ getPartName(dd.partBId) }}</span>
               </div>
 
               <div class="neo-surface p-4 rounded-xl space-y-3">
                 <div>
                   <label class="block text-xs font-medium text-on-surface-variant mb-1">
-                    What does {{ getPartName(dd.partAId) }} think about {{ getPartName(dd.partBId) }}?
+                    {{ t('exerciseWizards.constellation.polarizationDeepDive.partAThinks', { partA: getPartName(dd.partAId), partB: getPartName(dd.partBId) }) }}
                   </label>
                   <textarea
                     v-model="dd.partAThinks"
                     rows="2"
                     class="neo-input w-full p-2 text-sm resize-none"
-                    :placeholder="`e.g., '${getPartName(dd.partBId)} is lazy and irresponsible'`"
+                    :placeholder="t('exerciseWizards.constellation.polarizationDeepDive.partAThinkPlaceholder', { partB: getPartName(dd.partBId) })"
                   />
                 </div>
 
                 <div>
                   <label class="block text-xs font-medium text-on-surface-variant mb-1">
-                    What does {{ getPartName(dd.partBId) }} think about {{ getPartName(dd.partAId) }}?
+                    {{ t('exerciseWizards.constellation.polarizationDeepDive.partBThinks', { partA: getPartName(dd.partAId), partB: getPartName(dd.partBId) }) }}
                   </label>
                   <textarea
                     v-model="dd.partBThinks"
                     rows="2"
                     class="neo-input w-full p-2 text-sm resize-none"
-                    :placeholder="`e.g., '${getPartName(dd.partAId)} is exhausting and never satisfied'`"
+                    :placeholder="t('exerciseWizards.constellation.polarizationDeepDive.partBThinkPlaceholder', { partA: getPartName(dd.partAId) })"
                   />
                 </div>
 
                 <div>
                   <label class="block text-xs font-medium text-on-surface-variant mb-1">
-                    What would happen if one of them "won"?
+                    {{ t('exerciseWizards.constellation.polarizationDeepDive.ifOneWon') }}
                   </label>
                   <textarea
                     v-model="dd.ifOneWon"
                     rows="2"
                     class="neo-input w-full p-2 text-sm resize-none"
-                    placeholder="What if one part completely took over?"
+                    :placeholder="t('exerciseWizards.constellation.polarizationDeepDive.ifOneWonPlaceholder')"
                   />
                 </div>
 
                 <div>
                   <label class="block text-xs font-medium text-on-surface-variant mb-1">
-                    What might they BOTH be protecting?
+                    {{ t('exerciseWizards.constellation.polarizationDeepDive.commonProtection') }}
                   </label>
                   <textarea
                     v-model="dd.commonProtection"
                     rows="2"
                     class="neo-input w-full p-2 text-sm resize-none"
-                    placeholder="Often, polarized parts protect the same exile from different angles."
+                    :placeholder="t('exerciseWizards.constellation.polarizationDeepDive.commonProtectionPlaceholder')"
                   />
                   <p class="text-xs text-on-surface-variant mt-1 italic">
-                    Hint: Polarized parts often guard the same vulnerable part from different angles.
+                    {{ t('exerciseWizards.constellation.polarizationDeepDive.commonProtectionHint') }}
                   </p>
                 </div>
               </div>
@@ -259,8 +258,8 @@
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
-            <AppButton variant="filled" @click="nextStep()">Next</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
           </div>
         </div>
       </template>
@@ -269,7 +268,7 @@
       <template v-else-if="currentStep === 'visual'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Your Constellation</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.visual.title') }}</h2>
 
             <!-- SVG Visualization -->
             <div class="neo-surface rounded-2xl p-4">
@@ -301,7 +300,7 @@
                   :y="center + 5"
                   text-anchor="middle"
                   class="fill-primary text-sm font-semibold"
-                >Self</text>
+                >{{ t('exerciseWizards.constellation.visual.selfLabel') }}</text>
 
                 <!-- Part nodes -->
                 <g v-for="pid in selectedPartIds" :key="pid">
@@ -326,22 +325,22 @@
             <div class="flex flex-wrap gap-4 justify-center text-xs text-on-surface-variant">
               <div class="flex items-center gap-1.5">
                 <div class="w-6 h-0.5 bg-rel-polarized" />
-                <span>Polarized</span>
+                <span>{{ t('exerciseWizards.constellation.visual.legend.polarized') }}</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <div class="w-6 h-0.5 bg-rel-allied" />
-                <span>Allied</span>
+                <span>{{ t('exerciseWizards.constellation.visual.legend.allied') }}</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <div class="w-6 h-0.5 bg-rel-protects border-t border-dashed border-rel-protects" style="border-style: dashed" />
-                <span>Protects</span>
+                <span>{{ t('exerciseWizards.constellation.visual.legend.protects') }}</span>
               </div>
             </div>
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
-            <AppButton variant="filled" @click="nextStep()">Next</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
           </div>
         </div>
       </template>
@@ -350,12 +349,12 @@
       <template v-else-if="currentStep === 'reflection'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">System Insights</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.reflection.title') }}</h2>
 
             <textarea
               v-model="reflection"
               rows="3"
-              placeholder="Looking at your inner constellation, what patterns do you see?"
+              :placeholder="t('exerciseWizards.constellation.reflection.placeholder')"
               class="neo-input w-full p-3 text-sm resize-none"
             />
 
@@ -368,7 +367,7 @@
                   @click="requestAnalysis({ useProfile: useProfileAnalysis })"
                 >
                   <span class="material-symbols-outlined text-base leading-none mr-1">auto_awesome</span>
-                  Analyze My System
+                  {{ t('exerciseWizards.constellation.reflection.aiButton') }}
                 </AppButton>
                 <ProfileContextToggle v-model="useProfileAnalysis" />
               </div>
@@ -376,16 +375,15 @@
               <div v-if="llmInsight" class="neo-surface p-4 rounded-xl space-y-3">
                 <p class="text-sm text-on-surface whitespace-pre-line">{{ llmInsight }}</p>
                 <p class="text-xs text-on-surface-variant italic">
-                  This analysis reflects patterns in what you've shared. A therapist trained in
-                  IFS can help explore these dynamics more deeply, especially where trauma may be involved.
+                  {{ tg('exerciseWizards.constellation.reflection.aiDisclaimer') }}
                 </p>
               </div>
             </div>
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
-            <AppButton variant="filled" @click="nextStep()">Next</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
           </div>
         </div>
       </template>
@@ -394,14 +392,14 @@
       <template v-else-if="currentStep === 'save'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Save Constellation</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.save.title') }}</h2>
 
             <IFSSafetyBanner />
 
             <!-- Summary -->
             <div class="neo-surface p-4 rounded-xl space-y-3 text-sm">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-on-surface-variant">Parts:</span>
+                <span class="text-on-surface-variant">{{ t('exerciseWizards.constellation.save.partsLabel') }}</span>
                 <span
                   v-for="pid in selectedPartIds"
                   :key="pid"
@@ -413,13 +411,13 @@
 
               <div class="flex gap-3 text-xs text-on-surface-variant">
                 <span v-if="relationshipCountByType.polarized">
-                  {{ relationshipCountByType.polarized }} polarized
+                  {{ t('exerciseWizards.constellation.save.countPolarized', { count: relationshipCountByType.polarized }) }}
                 </span>
                 <span v-if="relationshipCountByType.allied">
-                  {{ relationshipCountByType.allied }} allied
+                  {{ t('exerciseWizards.constellation.save.countAllied', { count: relationshipCountByType.allied }) }}
                 </span>
                 <span v-if="relationshipCountByType['protector-exile']">
-                  {{ relationshipCountByType['protector-exile'] }} protector-exile
+                  {{ t('exerciseWizards.constellation.save.countProtectorExile', { count: relationshipCountByType['protector-exile'] }) }}
                 </span>
               </div>
 
@@ -427,31 +425,31 @@
                 <p class="text-xs text-on-surface-variant">
                   <span class="font-medium text-on-surface">{{ getPartName(dd.partAId) }}</span> &
                   <span class="font-medium text-on-surface">{{ getPartName(dd.partBId) }}</span>
-                  may both protect: <span class="italic">{{ dd.commonProtection }}</span>
+                  {{ t('exerciseWizards.constellation.save.mayBothProtect') }} <span class="italic">{{ dd.commonProtection }}</span>
                 </p>
               </div>
 
               <p v-if="reflection.trim()" class="text-xs text-on-surface-variant">
-                Reflection: {{ reflection.trim() }}
+                {{ t('exerciseWizards.constellation.save.reflectionLabel') }} {{ reflection.trim() }}
               </p>
 
               <p v-if="llmInsight" class="text-xs text-on-surface-variant">
-                AI analysis included
+                {{ t('exerciseWizards.constellation.save.aiAnalysisIncluded') }}
               </p>
             </div>
 
             <textarea
               v-model="notes"
               rows="2"
-              placeholder="Additional notes (optional)"
+              :placeholder="t('exerciseWizards.constellation.save.notesPlaceholder')"
               class="neo-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :loading="isSaving" @click="handleSave">
-              Save Constellation
+              {{ t('exerciseWizards.constellation.save.saveButton') }}
             </AppButton>
           </div>
         </div>
@@ -470,6 +468,7 @@ import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
+import { useT } from '@/composables/useT'
 import {
   useConstellationWizard,
 } from '@/composables/useConstellationWizard'
@@ -483,6 +482,8 @@ import {
 const emit = defineEmits<{
   saved: []
 }>()
+
+const { t, tg } = useT()
 
 const partStore = useIFSPartStore()
 const userPreferencesStore = useUserPreferencesStore()
@@ -514,23 +515,31 @@ const {
 } = useConstellationWizard()
 
 // Step labels — dynamically skip polarization if not applicable
-const allStepLabels = ['Prerequisites', 'Select Parts', 'Relationships', 'Polarizations', 'Constellation', 'Insights', 'Save']
+const allStepLabels = computed(() => [
+  t('exerciseWizards.constellation.steps.prerequisites'),
+  t('exerciseWizards.constellation.steps.selectParts'),
+  t('exerciseWizards.constellation.steps.relationships'),
+  t('exerciseWizards.constellation.steps.polarizations'),
+  t('exerciseWizards.constellation.steps.constellation'),
+  t('exerciseWizards.constellation.steps.insights'),
+  t('exerciseWizards.constellation.steps.save'),
+])
 const visibleStepLabels = computed(() => {
   if (!hasPolarized.value) {
-    return allStepLabels.filter((_, i) => i !== 3)
+    return allStepLabels.value.filter((_, i) => i !== 3)
   }
-  return allStepLabels
+  return allStepLabels.value
 })
 
 const currentStepLabel = computed(() => {
   const labels: Record<string, string> = {
-    'prerequisites': 'Prerequisites',
-    'select-parts': 'Select Parts',
-    'map-relationships': 'Relationships',
-    'polarization-deep-dive': 'Polarizations',
-    'visual': 'Constellation',
-    'reflection': 'Insights',
-    'save': 'Save',
+    'prerequisites': t('exerciseWizards.constellation.steps.prerequisites'),
+    'select-parts': t('exerciseWizards.constellation.steps.selectParts'),
+    'map-relationships': t('exerciseWizards.constellation.steps.relationships'),
+    'polarization-deep-dive': t('exerciseWizards.constellation.steps.polarizations'),
+    'visual': t('exerciseWizards.constellation.steps.constellation'),
+    'reflection': t('exerciseWizards.constellation.steps.insights'),
+    'save': t('exerciseWizards.constellation.steps.save'),
   }
   return labels[currentStep.value] ?? ''
 })
@@ -543,17 +552,17 @@ const mappedStepIndex = computed(() => {
   return visibleSteps.indexOf(currentStep.value)
 })
 
-const relationshipTypes: {
+const relationshipTypes = computed<{
   value: IFSConstellationRelationType
   label: string
   icon: string
   activeClass: string
-}[] = [
-  { value: 'polarized', label: 'Polarized', icon: 'compare_arrows', activeClass: RELATIONSHIP_PILL_CLASSES.polarized },
-  { value: 'allied', label: 'Allied', icon: 'group', activeClass: RELATIONSHIP_PILL_CLASSES.allied },
-  { value: 'protector-exile', label: 'Protects', icon: 'verified_user', activeClass: RELATIONSHIP_PILL_CLASSES['protector-exile'] },
-  { value: 'no-relationship', label: 'None', icon: 'remove', activeClass: 'bg-neu-base text-on-surface' },
-]
+}[]>(() => [
+  { value: 'polarized', label: t('exerciseWizards.constellation.mapRelationships.shortLabels.polarized'), icon: 'compare_arrows', activeClass: RELATIONSHIP_PILL_CLASSES.polarized },
+  { value: 'allied', label: t('exerciseWizards.constellation.mapRelationships.shortLabels.allied'), icon: 'group', activeClass: RELATIONSHIP_PILL_CLASSES.allied },
+  { value: 'protector-exile', label: t('exerciseWizards.constellation.mapRelationships.shortLabels.protects'), icon: 'verified_user', activeClass: RELATIONSHIP_PILL_CLASSES['protector-exile'] },
+  { value: 'no-relationship', label: t('exerciseWizards.constellation.mapRelationships.shortLabels.none'), icon: 'remove', activeClass: 'bg-neu-base text-on-surface' },
+])
 
 const relationshipCountByType = computed(() => {
   const counts: Record<string, number> = {}
@@ -595,7 +604,7 @@ function truncateName(name: string): string {
 }
 
 function getPartName(id: string): string {
-  return partStore.getPartById(id)?.name ?? 'Unknown'
+  return partStore.getPartById(id)?.name ?? t('exerciseWizards.constellation.unknownPart')
 }
 
 function getPartRole(id: string): IFSPartRole {

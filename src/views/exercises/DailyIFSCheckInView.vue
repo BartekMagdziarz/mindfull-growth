@@ -30,7 +30,7 @@
         </div>
       </div>
       <p class="text-sm text-on-surface-variant">
-        {{ checkInStore.weeklyCheckInCount === 1 ? t('exercises.views.checkInsThisWeek', { n: checkInStore.weeklyCheckInCount }) : t('exercises.views.checkInsThisWeekPlural', { n: checkInStore.weeklyCheckInCount }) }}
+        {{ tp(checkInStore.weeklyCheckInCount, 'exercises.views.checkInsThisWeek.one', 'exercises.views.checkInsThisWeek.few', 'exercises.views.checkInsThisWeek.many') }}
       </p>
     </div>
 
@@ -100,7 +100,7 @@ import { useT } from '@/composables/useT'
 import { getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
 
 const router = useRouter()
-const { t } = useT()
+const { t, tp } = useT()
 const checkInStore = useIFSDailyCheckInStore()
 const partStore = useIFSPartStore()
 const WEEKDAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']

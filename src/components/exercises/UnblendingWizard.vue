@@ -130,7 +130,7 @@
             </div>
 
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.unblending.magicQuestion.description') }}
+              {{ tg('exerciseWizards.unblending.magicQuestion.description') }}
             </p>
 
             <div class="space-y-3">
@@ -141,7 +141,7 @@
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
-                  <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.magicQuestion.options.selfEnergy') }}</span>
+                  <span class="text-sm text-on-surface">{{ tg('exerciseWizards.unblending.magicQuestion.options.selfEnergy') }}</span>
                 </div>
               </button>
               <button
@@ -151,7 +151,7 @@
               >
                 <div class="flex items-center gap-3">
                   <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
-                  <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.magicQuestion.options.reactive') }}</span>
+                  <span class="text-sm text-on-surface">{{ tg('exerciseWizards.unblending.magicQuestion.options.reactive') }}</span>
                 </div>
               </button>
             </div>
@@ -169,7 +169,7 @@
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.title') }}</h2>
             <p class="text-sm text-on-surface">
-              {{ t('exerciseWizards.unblending.secondaryCheck.description') }}
+              {{ tg('exerciseWizards.unblending.secondaryCheck.description') }}
             </p>
 
             <!-- Breathing circle -->
@@ -205,7 +205,7 @@
                   >
                     <div class="flex items-center gap-3">
                       <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
-                      <span class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.options.better') }}</span>
+                      <span class="text-sm text-on-surface">{{ tg('exerciseWizards.unblending.secondaryCheck.options.better') }}</span>
                     </div>
                   </button>
                   <button
@@ -222,7 +222,7 @@
                 <PartSelector
                   v-model="secondaryPartId"
                   :parts="partStore.sortedParts"
-                  :label="t('exerciseWizards.unblending.secondaryCheck.partLabel')"
+                  :label="tg('exerciseWizards.unblending.secondaryCheck.partLabel')"
                   :allow-create="false"
                 />
               </div>
@@ -286,7 +286,7 @@
                 <textarea
                   v-model="shiftNotes"
                   rows="2"
-                  :placeholder="t('exerciseWizards.unblending.steppingBack.shiftPlaceholder')"
+                  :placeholder="tg('exerciseWizards.unblending.steppingBack.shiftPlaceholder')"
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
@@ -315,7 +315,7 @@
               :max="10"
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
-              <span>{{ t('exerciseWizards.unblending.closing.minLabel') }}</span>
+              <span>{{ tg('exerciseWizards.unblending.closing.minLabel') }}</span>
               <span>{{ t('exerciseWizards.unblending.closing.maxLabel') }}</span>
             </div>
           </AppCard>
@@ -428,7 +428,7 @@ const emit = defineEmits<{
   saved: []
 }>()
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()
@@ -476,7 +476,7 @@ const awarenessChoice = ref<'yes' | 'maybe' | 'no' | null>(null)
 
 const awarenessOptions = computed(() => [
   { value: 'yes' as const, label: t('exerciseWizards.unblending.awareness.options.yes'), icon: 'arrow_forward' },
-  { value: 'maybe' as const, label: t('exerciseWizards.unblending.awareness.options.maybe'), icon: 'help' },
+  { value: 'maybe' as const, label: tg('exerciseWizards.unblending.awareness.options.maybe'), icon: 'help' },
   { value: 'no' as const, label: t('exerciseWizards.unblending.awareness.options.no'), icon: 'mood' },
 ])
 
@@ -492,7 +492,7 @@ function handleMagicAnswer(present: boolean) {
 
 // Breathing animation
 const breathingActive = ref(false)
-const breathingLabel = ref(t('exerciseWizards.unblending.secondaryCheck.breathingLabel.ready'))
+const breathingLabel = ref(tg('exerciseWizards.unblending.secondaryCheck.breathingLabel.ready'))
 let breathingTimer: ReturnType<typeof setTimeout> | null = null
 
 function startBreathing() {

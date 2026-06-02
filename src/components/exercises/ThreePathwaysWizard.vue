@@ -248,7 +248,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.threePathways.attitudinal.title') }}</h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
-            {{ t('exerciseWizards.threePathways.attitudinal.description') }}
+            {{ tg('exerciseWizards.threePathways.attitudinal.description') }}
           </p>
           <div v-for="(item, index) in attitudinalValues" :key="index" class="space-y-2 neo-surface p-3 rounded-xl">
             <div class="flex items-start gap-2">
@@ -499,7 +499,7 @@ const emit = defineEmits<{
   saved: [data: CreateThreePathwaysPayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const lifeAreaStore = useLifeAreaStore()
 const valueMapStore = useValueMapStore()
 const valuesDiscoveryStore = useValuesDiscoveryStore()

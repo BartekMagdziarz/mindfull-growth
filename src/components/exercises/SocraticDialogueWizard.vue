@@ -291,7 +291,7 @@
             </label>
             <textarea
               v-model="insightPrimary"
-              :placeholder="t('exerciseWizards.socraticDialogue.insights.insightPlaceholder')"
+              :placeholder="tg('exerciseWizards.socraticDialogue.insights.insightPlaceholder')"
               class="neo-input neo-focus w-full p-3 text-sm resize-none mt-1"
               rows="3"
             />
@@ -373,7 +373,7 @@ const emit = defineEmits<{
   saved: [data: CreateSocraticDialoguePayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const journalStore = useJournalStore()
 const lifeAreaStore = useLifeAreaStore()
 
@@ -414,7 +414,7 @@ function goToStepByIndex(idx: number) {
 // ─── Focus State ───────────────────────────────────────────────────────────
 const focusModes = computed(() => [
   { value: 'meaning' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.meaning.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.meaning.description'), icon: 'auto_awesome' },
-  { value: 'emptiness' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.description'), icon: 'cloud' },
+  { value: 'emptiness' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.emptiness.label'), description: tg('exerciseWizards.socraticDialogue.focus.modes.emptiness.description'), icon: 'cloud' },
   { value: 'suffering' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.suffering.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.suffering.description'), icon: 'favorite' },
   { value: 'values' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.values.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.values.description'), icon: 'balance' },
   { value: 'decision' as SocraticFocus, label: t('exerciseWizards.socraticDialogue.focus.modes.decision.label'), description: t('exerciseWizards.socraticDialogue.focus.modes.decision.description'), icon: 'compare_arrows' },

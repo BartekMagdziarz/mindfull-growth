@@ -34,7 +34,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.exileWitnessing.safety.title') }}</h2>
-            <p class="text-sm text-on-surface-variant" v-html="t('exerciseWizards.exileWitnessing.safety.description')" />
+            <p class="text-sm text-on-surface-variant" v-html="tg('exerciseWizards.exileWitnessing.safety.description')" />
             <p class="text-sm text-on-surface-variant" v-html="t('exerciseWizards.exileWitnessing.safety.disclaimer')" />
 
             <IFSSafetyBanner
@@ -216,7 +216,7 @@
             <textarea
               v-model="exileMessage"
               rows="3"
-              :placeholder="t('exerciseWizards.exileWitnessing.witness.messagePlaceholder')"
+              :placeholder="tg('exerciseWizards.exileWitnessing.witness.messagePlaceholder')"
               class="neo-input w-full p-3 text-sm resize-none"
             />
 
@@ -246,7 +246,7 @@
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.exileWitnessing.compassion.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.exileWitnessing.compassion.description') }}
+              {{ tg('exerciseWizards.exileWitnessing.compassion.description') }}
             </p>
 
             <!-- Suggestion chips -->
@@ -441,7 +441,7 @@ const emit = defineEmits<{
   saved: []
 }>()
 
-const { t } = useT()
+const { t, tg, tList } = useT()
 const partStore = useIFSPartStore()
 
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
@@ -519,14 +519,7 @@ const permissionOptions = computed(() => [
   },
 ])
 
-const compassionChips = computed(() => [
-  t('exerciseWizards.exileWitnessing.compassion.chips.0'),
-  t('exerciseWizards.exileWitnessing.compassion.chips.1'),
-  t('exerciseWizards.exileWitnessing.compassion.chips.2'),
-  t('exerciseWizards.exileWitnessing.compassion.chips.3'),
-  t('exerciseWizards.exileWitnessing.compassion.chips.4'),
-  t('exerciseWizards.exileWitnessing.compassion.chips.5'),
-])
+const compassionChips = computed(() => tList('exerciseWizards.exileWitnessing.compassion.chips'))
 
 const postStateOptions = computed(() => [
   { value: 'calmer' as const, label: t('exerciseWizards.exileWitnessing.summary.postState.calmer') },

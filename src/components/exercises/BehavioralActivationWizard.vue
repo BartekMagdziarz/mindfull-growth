@@ -256,7 +256,7 @@
           v-if="activities.length > 0 && activities.length < 3"
           class="text-xs text-on-surface-variant text-center"
         >
-          {{ t('exerciseWizards.behavioralActivation.planActivities.addMoreCount', { n: 3 - activities.length, word: activities.length === 2 ? 'activity' : 'activities' }) }}
+          {{ tp(3 - activities.length, 'exerciseWizards.behavioralActivation.planActivities.addMore.one', 'exerciseWizards.behavioralActivation.planActivities.addMore.few', 'exerciseWizards.behavioralActivation.planActivities.addMore.many') }}
         </p>
 
         <div class="flex justify-between">
@@ -489,7 +489,7 @@ const emit = defineEmits<{
   saved: [data: CreateBehavioralActivationPayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tp, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileSuggest = ref(userPreferencesStore.profileContextDefault)
 const useProfileReviewWeek = ref(userPreferencesStore.profileContextDefault)

@@ -34,23 +34,22 @@
       <template v-if="currentStep === 'part-select'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-lg font-bold text-on-surface">Parts Dialogue Journal</h2>
+            <h2 class="text-lg font-bold text-on-surface">{{ t('exerciseWizards.partsDialogue.partSelect.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              Write a dialogue between your Self and a part. You write both sides of the conversation,
-              practicing your own internal listening.
+              {{ t('exerciseWizards.partsDialogue.partSelect.description') }}
             </p>
 
             <PartSelector
               v-model="partId"
               :parts="partStore.sortedParts"
-              label="Which part would you like to dialogue with?"
+              :label="tg('exerciseWizards.partsDialogue.partSelect.label')"
               :allow-create="false"
             />
           </AppCard>
 
           <div class="flex justify-end">
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Next
+              {{ t('common.buttons.next') }}
             </AppButton>
           </div>
         </div>
@@ -60,9 +59,9 @@
       <template v-else-if="currentStep === 'intention'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Set Your Intention</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.intention.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              What do you hope to explore in this dialogue with {{ selectedPartName }}?
+              {{ t('exerciseWizards.partsDialogue.intention.description', { partName: selectedPartName }) }}
             </p>
 
             <div class="flex flex-wrap gap-2">
@@ -80,15 +79,15 @@
             <textarea
               v-model="intention"
               rows="3"
-              placeholder="What do you want to explore?"
+              :placeholder="t('exerciseWizards.partsDialogue.intention.placeholder')"
               class="neo-input w-full p-3 text-sm resize-none"
             />
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Begin Dialogue
+              {{ t('exerciseWizards.partsDialogue.intention.beginButton') }}
             </AppButton>
           </div>
         </div>
@@ -99,7 +98,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">
-              Dialogue with {{ selectedPartName }}
+              {{ t('exerciseWizards.partsDialogue.dialogue.title', { partName: selectedPartName }) }}
             </h2>
 
             <!-- Speaker toggle -->
@@ -111,7 +110,7 @@
                   : 'neo-surface shadow-neu-raised-sm text-on-surface-variant hover:-translate-y-px'"
                 @click="currentSpeaker = 'self'"
               >
-                Self
+                {{ t('exerciseWizards.partsDialogue.dialogue.speakers.self') }}
               </button>
               <button
                 class="flex-1 neo-focus rounded-xl py-2 text-sm font-medium transition-all"
@@ -120,7 +119,7 @@
                   : 'neo-surface shadow-neu-raised-sm text-on-surface-variant hover:-translate-y-px'"
                 @click="currentSpeaker = 'part'"
               >
-                {{ selectedPartName }}
+                {{ t('exerciseWizards.partsDialogue.dialogue.speakers.part', { partName: selectedPartName }) }}
               </button>
             </div>
 
@@ -140,7 +139,7 @@
             <div ref="chatContainer" class="space-y-3 max-h-96 overflow-y-auto p-2">
               <div v-if="!messages.length" class="text-center py-8">
                 <p class="text-sm text-on-surface-variant">
-                  Write as Self first, then switch to {{ selectedPartName }}'s voice.
+                  {{ t('exerciseWizards.partsDialogue.dialogue.emptyState', { partName: selectedPartName }) }}
                 </p>
               </div>
 
@@ -159,7 +158,7 @@
               <textarea
                 v-model="messageInput"
                 rows="2"
-                :placeholder="currentSpeaker === 'self' ? 'Write as Self...' : `Write as ${selectedPartName}...`"
+                :placeholder="currentSpeaker === 'self' ? t('exerciseWizards.partsDialogue.dialogue.selfPlaceholder') : t('exerciseWizards.partsDialogue.dialogue.partPlaceholder', { partName: selectedPartName })"
                 class="neo-input w-full p-3 text-sm resize-none"
                 @keydown.enter.exact.prevent="handleAddMessage"
               />
@@ -169,7 +168,7 @@
                 class="shrink-0 self-end"
                 @click="handleAddMessage"
               >
-                Add
+                {{ t('exerciseWizards.partsDialogue.dialogue.addButton') }}
               </AppButton>
             </div>
 
@@ -180,7 +179,7 @@
                 :disabled="isLoadingAssist || messages.length === 0"
                 @click="handleRequestAssist"
               >
-                {{ isLoadingAssist ? 'Thinking...' : 'Help me hear this part' }}
+                {{ isLoadingAssist ? t('exerciseWizards.partsDialogue.dialogue.assistLoading') : t('exerciseWizards.partsDialogue.dialogue.assistButton') }}
               </AppButton>
               <ProfileContextToggle v-model="useProfileAssist" />
             </div>
@@ -194,7 +193,7 @@
             >
               <div v-if="llmSuggestion" class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3">
                 <p class="text-xs font-medium text-on-surface-variant">
-                  {{ selectedPartName }} might say:
+                  {{ t('exerciseWizards.partsDialogue.dialogue.partMightSay', { partName: selectedPartName }) }}
                 </p>
                 <textarea
                   v-model="editableSuggestion"
@@ -202,8 +201,8 @@
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
                 <div class="flex gap-2 justify-end">
-                  <AppButton variant="text" @click="discardSuggestion()">Discard</AppButton>
-                  <AppButton variant="filled" @click="handleAcceptSuggestion">Accept</AppButton>
+                  <AppButton variant="text" @click="discardSuggestion()">{{ t('exerciseWizards.partsDialogue.dialogue.discard') }}</AppButton>
+                  <AppButton variant="filled" @click="handleAcceptSuggestion">{{ t('exerciseWizards.partsDialogue.dialogue.accept') }}</AppButton>
                 </div>
               </div>
             </Transition>
@@ -212,9 +211,9 @@
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="!canAdvance" @click="nextStep()">
-              Review Insights
+              {{ t('exerciseWizards.partsDialogue.dialogue.reviewInsights') }}
             </AppButton>
           </div>
         </div>
@@ -224,9 +223,9 @@
       <template v-else-if="currentStep === 'insights'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Capture Insights</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.insights.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              Review your dialogue and tag any important moments.
+              {{ t('exerciseWizards.partsDialogue.insights.description') }}
             </p>
 
             <!-- Dialogue review -->
@@ -251,11 +250,11 @@
               leave-to-class="opacity-0 -translate-y-2"
             >
               <div v-if="showInsightForm" class="neo-surface shadow-neu-raised-sm rounded-xl p-4 space-y-3">
-                <h3 class="text-sm font-semibold text-on-surface">Tag this moment</h3>
+                <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.insights.tagThisMoment') }}</h3>
                 <textarea
                   v-model="insightContent"
                   rows="2"
-                  placeholder="What did you notice?"
+                  :placeholder="tg('exerciseWizards.partsDialogue.insights.whatDidYouNotice')"
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
                 <div class="flex flex-wrap gap-2">
@@ -270,13 +269,13 @@
                   </button>
                 </div>
                 <div class="flex gap-2 justify-end">
-                  <AppButton variant="text" @click="closeInsightForm()">Cancel</AppButton>
+                  <AppButton variant="text" @click="closeInsightForm()">{{ t('common.buttons.cancel') }}</AppButton>
                   <AppButton
                     variant="filled"
                     :disabled="!insightContent.trim() || !insightTag"
                     @click="handleAddInsight"
                   >
-                    Save Insight
+                    {{ t('exerciseWizards.partsDialogue.insights.saveInsight') }}
                   </AppButton>
                 </div>
               </div>
@@ -284,7 +283,7 @@
 
             <!-- Saved insights -->
             <div v-if="insights.length" class="space-y-2">
-              <h3 class="text-sm font-semibold text-on-surface">Saved Insights</h3>
+              <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.insights.savedInsights') }}</h3>
               <IFSInsightCard
                 v-for="insight in insights"
                 :key="insight.id"
@@ -296,9 +295,9 @@
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" @click="nextStep()">
-              Summary & Save
+              {{ t('exerciseWizards.partsDialogue.insights.summaryAndSave') }}
             </AppButton>
           </div>
         </div>
@@ -308,64 +307,64 @@
       <template v-else-if="currentStep === 'summary'">
         <div class="space-y-6">
           <AppCard variant="raised" padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">Save Dialogue</h2>
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsDialogue.summary.title') }}</h2>
 
             <!-- Review -->
             <div class="space-y-3">
               <div class="flex items-center gap-2">
-                <span class="text-sm text-on-surface-variant">Part:</span>
+                <span class="text-sm text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.part') }}</span>
                 <span class="text-sm font-medium text-on-surface">{{ selectedPartName }}</span>
                 <PartRoleBadge v-if="selectedPartRole" :role="selectedPartRole" />
               </div>
 
               <div class="neo-surface p-3 rounded-lg grid grid-cols-3 gap-3">
                 <div>
-                  <p class="text-xs text-on-surface-variant">Messages</p>
+                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.messages') }}</p>
                   <p class="text-lg font-bold text-primary">{{ messages.length }}</p>
                 </div>
                 <div>
-                  <p class="text-xs text-on-surface-variant">Insights</p>
+                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.insights') }}</p>
                   <p class="text-lg font-bold text-primary">{{ insights.length }}</p>
                 </div>
                 <div>
-                  <p class="text-xs text-on-surface-variant">AI Assist</p>
+                  <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.aiAssist') }}</p>
                   <p class="text-lg font-bold" :class="llmAssistUsed ? 'text-status-warn' : 'text-on-surface-variant'">
-                    {{ llmAssistUsed ? 'Yes' : 'No' }}
+                    {{ llmAssistUsed ? t('exerciseWizards.partsDialogue.summary.sections.yes') : t('exerciseWizards.partsDialogue.summary.sections.no') }}
                   </p>
                 </div>
               </div>
 
               <div>
-                <p class="text-xs text-on-surface-variant">Intention</p>
+                <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.sections.intention') }}</p>
                 <p class="text-sm text-on-surface">{{ intention }}</p>
               </div>
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">Summary (optional)</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.summaryLabel') }}</label>
               <textarea
                 v-model="summary"
                 rows="3"
-                placeholder="What was the main takeaway?"
+                :placeholder="t('exerciseWizards.partsDialogue.summary.summaryPlaceholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">Notes (optional)</label>
+              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsDialogue.summary.notesLabel') }}</label>
               <textarea
                 v-model="notes"
                 rows="2"
-                placeholder="Any additional notes..."
+                :placeholder="t('exerciseWizards.partsDialogue.summary.notesPlaceholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
             </div>
           </AppCard>
 
           <div class="flex justify-between">
-            <AppButton variant="text" @click="prevStep()">Back</AppButton>
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-              {{ isSaving ? 'Saving...' : 'Save Dialogue' }}
+              {{ isSaving ? t('exerciseWizards.partsDialogue.summary.saving') : t('exerciseWizards.partsDialogue.summary.saveButton') }}
             </AppButton>
           </div>
         </div>
@@ -393,7 +392,7 @@ import {
   INSIGHT_TAG_CLASSES,
 } from '@/constants/exerciseColorRoles'
 
-const { t } = useT()
+const { t, tg, tList } = useT()
 
 const emit = defineEmits<{
   saved: []
@@ -454,10 +453,10 @@ const selectedPartColor = computed(() => {
 })
 
 // Intention chips
-const intentionChips = computed(() => t('exerciseWizards.partsDialogue.intention.chips') as unknown as string[])
+const intentionChips = computed(() => tList('exerciseWizards.partsDialogue.intention.chips'))
 
 // Suggested questions
-const suggestedQuestions = computed(() => t('exerciseWizards.partsDialogue.dialogue.suggestedQuestions') as unknown as string[])
+const suggestedQuestions = computed(() => tList('exerciseWizards.partsDialogue.dialogue.suggestedQuestions'))
 
 // Message input
 const messageInput = ref('')

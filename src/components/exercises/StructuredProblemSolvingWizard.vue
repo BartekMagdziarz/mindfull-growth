@@ -72,7 +72,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.problem.title') }}</h2>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.structuredProblemSolving.problem.description') }}
+            {{ tg('exerciseWizards.structuredProblemSolving.problem.description') }}
           </p>
           <textarea
             v-model="problemStatement"
@@ -438,7 +438,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.choose.actionPlanTitle') }}</h3>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.structuredProblemSolving.choose.actionPlanDescription') }}
+            {{ tg('exerciseWizards.structuredProblemSolving.choose.actionPlanDescription') }}
           </p>
           <textarea
             v-model="actionPlan"
@@ -573,7 +573,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.review.markCompletedTitle') }}</h3>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.structuredProblemSolving.review.markCompletedDescription') }}
+            {{ tg('exerciseWizards.structuredProblemSolving.review.markCompletedDescription') }}
           </p>
           <label class="flex items-center gap-3 text-sm text-on-surface cursor-pointer">
             <input
@@ -815,7 +815,7 @@ const emit = defineEmits<{
 }>()
 
 const emotionStore = useEmotionStore()
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileBrainstorm = ref(userPreferencesStore.profileContextDefault)
 const useProfileEvaluate = ref(userPreferencesStore.profileContextDefault)

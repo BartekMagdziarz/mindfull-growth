@@ -133,7 +133,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.dereflection.redirections.title') }}</h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
-            {{ t('exerciseWizards.dereflection.redirections.description') }}
+            {{ tg('exerciseWizards.dereflection.redirections.description') }}
           </p>
 
           <!-- Suggestions from Wheel of Life / Purpose -->
@@ -379,7 +379,7 @@ const emit = defineEmits<{
   saved: [data: CreateDereflectionPayload]
 }>()
 
-const { t } = useT()
+const { t, tg } = useT()
 const lifeAreaStore = useLifeAreaStore()
 const lifeAreaAssessmentStore = useLifeAreaAssessmentStore()
 const purposeStore = useTransformativePurposeStore()

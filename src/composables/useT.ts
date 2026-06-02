@@ -8,7 +8,7 @@ import { pluralizePl, pluralizeEn } from '@/utils/pluralize'
  * Resolve a dotted key path like "common.nav.journal" from a nested object.
  * Returns undefined if not found.
  */
-function resolve(obj: Record<string, unknown>, path: string): string | undefined {
+function resolveRaw(obj: Record<string, unknown>, path: string): unknown {
   const keys = path.split('.')
   let current: unknown = obj
   for (const key of keys) {
@@ -17,7 +17,12 @@ function resolve(obj: Record<string, unknown>, path: string): string | undefined
     }
     current = (current as Record<string, unknown>)[key]
   }
-  return typeof current === 'string' ? current : undefined
+  return current
+}
+
+function resolve(obj: Record<string, unknown>, path: string): string | undefined {
+  const value = resolveRaw(obj, path)
+  return typeof value === 'string' ? value : undefined
 }
 
 /**
@@ -110,5 +115,34 @@ export function useT() {
     return t(key, params)
   }
 
-  return { t, tp, tg, locale, gender }
+  /**
+   * Resolve a key that points to an array of strings (e.g. suggested questions,
+   * chips). Falls back to English, then to an empty array. Each element may be
+   * either a plain string or a gendered `{ m, f }` object — in the latter case
+   * the form matching the user's grammatical gender is returned.
+   */
+  function tList(key: string): string[] {
+    const currentLocale = locale.value
+    const currentMessages = messages[currentLocale] as Record<string, unknown> | undefined
+    const fallbackMessages = messages[DEFAULT_LOCALE_ID] as Record<string, unknown>
+
+    let raw = currentMessages ? resolveRaw(currentMessages, key) : undefined
+    if (raw === undefined) {
+      raw = resolveRaw(fallbackMessages, key)
+    }
+    if (!Array.isArray(raw)) {
+      return []
+    }
+
+    const suffix = gender.value === 'feminine' ? 'f' : 'm'
+    return raw.map((el) => {
+      if (el && typeof el === 'object') {
+        const variants = el as Record<string, string>
+        return String(variants[suffix] ?? variants.m ?? '')
+      }
+      return String(el)
+    })
+  }
+
+  return { t, tp, tg, tList, locale, gender }
 }

@@ -20,7 +20,7 @@
       <div class="flex items-center justify-between">
         <h2 class="text-base font-semibold text-on-surface">{{ t('exercises.views.pastEntries') }}</h2>
         <span v-if="sortedEntries.length" class="neo-pill text-xs px-2.5 py-0.5 bg-status-warn-soft text-status-warn-on">
-          {{ sortedEntries.length !== 1 ? t('exercises.views.trailheadsLoggedPlural', { n: sortedEntries.length }) : t('exercises.views.trailheadsLogged', { n: sortedEntries.length }) }}
+          {{ tp(sortedEntries.length, 'exercises.views.trailheadsLogged.one', 'exercises.views.trailheadsLogged.few', 'exercises.views.trailheadsLogged.many') }}
         </span>
       </div>
 
@@ -105,7 +105,7 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
-const { t } = useT()
+const { t, tp } = useT()
 const trailheadStore = useIFSTrailheadStore()
 const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()

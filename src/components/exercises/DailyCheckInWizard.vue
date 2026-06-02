@@ -257,7 +257,7 @@
 
               <!-- Self-leadership rating -->
               <div class="space-y-2">
-                <label class="block text-sm font-medium text-on-surface">{{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.responseLabel') }}</label>
+                <label class="block text-sm font-medium text-on-surface">{{ tg('exerciseWizards.dailyCheckIn.practice.eveningReflection.responseLabel') }}</label>
                 <div class="flex flex-wrap gap-2">
                   <button
                     v-for="option in leadershipOptions"
@@ -277,7 +277,7 @@
               <textarea
                 v-model="eveningReflection"
                 rows="3"
-                :placeholder="t('exerciseWizards.dailyCheckIn.practice.eveningReflection.reflectionPlaceholder')"
+                :placeholder="tg('exerciseWizards.dailyCheckIn.practice.eveningReflection.reflectionPlaceholder')"
                 class="neo-input w-full p-3 text-sm resize-none"
               />
 
@@ -356,9 +356,7 @@
                 </div>
               </div>
               <p class="text-xs text-on-surface-variant text-center">
-                {{ checkInStore.weeklyCheckInCount === 1
-                  ? t('exerciseWizards.dailyCheckIn.summary.weeklyCheckInsSingular', { count: checkInStore.weeklyCheckInCount })
-                  : t('exerciseWizards.dailyCheckIn.summary.weeklyCheckInsPlural', { count: checkInStore.weeklyCheckInCount }) }}
+                {{ tp(checkInStore.weeklyCheckInCount, 'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.one', 'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.few', 'exerciseWizards.dailyCheckIn.summary.weeklyCheckIns.many') }}
               </p>
             </div>
 
@@ -382,9 +380,7 @@
               </div>
             </div>
             <p v-else class="text-xs text-on-surface-variant text-center">
-              {{ (7 - checkInStore.weeklyCheckInCount) === 1
-                ? t('exerciseWizards.dailyCheckIn.summary.moreForSummarySingular', { count: 7 - checkInStore.weeklyCheckInCount })
-                : t('exerciseWizards.dailyCheckIn.summary.moreForSummaryPlural', { count: 7 - checkInStore.weeklyCheckInCount }) }}
+              {{ tp(7 - checkInStore.weeklyCheckInCount, 'exerciseWizards.dailyCheckIn.summary.moreForSummary.one', 'exerciseWizards.dailyCheckIn.summary.moreForSummary.few', 'exerciseWizards.dailyCheckIn.summary.moreForSummary.many') }}
             </p>
 
             <!-- Notes -->
@@ -424,7 +420,7 @@ import { useT } from '@/composables/useT'
 import type { IFSPartRole, IFSDailyCheckInType, SelfEnergyQuality } from '@/domain/exercises'
 import { getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
 
-const { t } = useT()
+const { t, tg, tp } = useT()
 
 const emit = defineEmits<{
   saved: []
@@ -525,10 +521,10 @@ const microPracticeLabel = computed(() =>
   selfEnergyQuality.value ? t(`exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.label`) : '',
 )
 const microPracticePrompt = computed(() =>
-  selfEnergyQuality.value ? t(`exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.prompt`) : '',
+  selfEnergyQuality.value ? tg(`exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.prompt`) : '',
 )
 const microPracticePlaceholder = computed(() =>
-  selfEnergyQuality.value ? t(`exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.placeholder`) : '',
+  selfEnergyQuality.value ? tg(`exerciseWizards.dailyCheckIn.practice.selfEnergyMoment.microPractices.${selfEnergyQuality.value}.placeholder`) : '',
 )
 
 const practiceTypeLabel = computed(() => {

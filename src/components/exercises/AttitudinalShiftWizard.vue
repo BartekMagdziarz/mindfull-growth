@@ -51,13 +51,13 @@
               <div class="flex items-start gap-2">
                 <span class="text-xs font-semibold text-error mt-0.5">{{ t('exerciseWizards.attitudinalShift.intro.exampleBeforeLabel') }}</span>
                 <p class="text-sm text-on-surface">
-                  "{{ t('exerciseWizards.attitudinalShift.intro.exampleBefore') }}"
+                  "{{ tg('exerciseWizards.attitudinalShift.intro.exampleBefore') }}"
                 </p>
               </div>
               <div class="flex items-start gap-2">
                 <span class="text-xs font-semibold text-primary mt-0.5">{{ t('exerciseWizards.attitudinalShift.intro.exampleAfterLabel') }}</span>
                 <p class="text-sm text-on-surface">
-                  "{{ t('exerciseWizards.attitudinalShift.intro.exampleAfter') }}"
+                  "{{ tg('exerciseWizards.attitudinalShift.intro.exampleAfter') }}"
                 </p>
               </div>
             </div>
@@ -96,7 +96,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.attitudinalShift.statements.title') }}</h2>
           <p class="text-sm text-on-surface-variant leading-relaxed">
-            {{ t('exerciseWizards.attitudinalShift.statements.description') }}
+            {{ tg('exerciseWizards.attitudinalShift.statements.description') }}
           </p>
 
           <!-- Shadow Beliefs integration -->
@@ -127,7 +127,7 @@
               <div class="flex-1">
                 <textarea
                   v-model="statement.belief"
-                  :placeholder="t('exerciseWizards.attitudinalShift.statements.placeholder')"
+                  :placeholder="tg('exerciseWizards.attitudinalShift.statements.placeholder')"
                   class="neo-input neo-focus w-full p-3 text-sm resize-none"
                   rows="2"
                 />
@@ -189,7 +189,7 @@
 
           <!-- Acknowledge -->
           <p class="text-xs text-on-surface-variant">
-            {{ t('exerciseWizards.attitudinalShift.shift.acknowledgment') }}
+            {{ tg('exerciseWizards.attitudinalShift.shift.acknowledgment') }}
           </p>
 
           <!-- LLM assist -->
@@ -428,7 +428,7 @@ const emit = defineEmits<{
   saved: [data: CreateAttitudinalShiftPayload, commitmentReframe?: string]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const shadowBeliefsStore = useShadowBeliefsStore()
 
 onMounted(() => {

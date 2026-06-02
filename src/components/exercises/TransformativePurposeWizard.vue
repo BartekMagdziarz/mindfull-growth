@@ -77,7 +77,7 @@
       <AppCard padding="lg" class="space-y-4">
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.transformativePurpose.problems.title') }}</h2>
         <p class="text-sm text-on-surface-variant">
-          {{ t('exerciseWizards.transformativePurpose.problems.description') }}
+          {{ tg('exerciseWizards.transformativePurpose.problems.description') }}
         </p>
         <div class="space-y-2">
           <div v-for="(item, index) in draft.problems" :key="index" class="flex items-center gap-2">
@@ -140,7 +140,7 @@ import AppButton from '@/components/AppButton.vue'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'
 import { useT } from '@/composables/useT'
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const emit = defineEmits<{
   saved: [id: string]

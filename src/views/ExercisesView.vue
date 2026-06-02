@@ -234,7 +234,7 @@
         :category="'cbt'"
         :title="t('exercises.cards.compassionateLetter.title')"
         :subtitle="t('exercises.cards.compassionateLetter.subtitle')"
-        :description="t('exercises.cards.compassionateLetter.description')"
+        :description="tg('exercises.cards.compassionateLetter.description')"
         :icon="'edit_note'"
         :last-completed="latestCompassionateLetterDate"
         ai-assisted
@@ -551,7 +551,7 @@ import { useIFSConstellationStore } from '@/stores/ifsConstellation.store'
 import { useAssessmentStore } from '@/stores/assessment.store'
 
 const router = useRouter()
-const { t } = useT()
+const { t, tg } = useT()
 
 // Self-discovery stores
 const lifeAreaAssessmentStore = useLifeAreaAssessmentStore()

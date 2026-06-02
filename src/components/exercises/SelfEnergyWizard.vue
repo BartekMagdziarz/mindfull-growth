@@ -102,7 +102,7 @@
             />
 
             <p v-if="!identifiedPartId" class="text-xs text-on-surface-variant italic">
-              {{ t('exerciseWizards.selfEnergy.gap.unsureMessage') }}
+              {{ tg('exerciseWizards.selfEnergy.gap.unsureMessage') }}
             </p>
           </AppCard>
 
@@ -160,7 +160,7 @@
               <div class="neo-surface p-4 rounded-xl space-y-3">
                 <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.curiosity.title') }}</p>
                 <p class="text-sm text-on-surface-variant">
-                  {{ t('exerciseWizards.selfEnergy.microPractice.curiosity.description') }}
+                  {{ tg('exerciseWizards.selfEnergy.microPractice.curiosity.description') }}
                 </p>
                 <textarea
                   v-model="microPracticeNotes"
@@ -184,7 +184,7 @@
                 <textarea
                   v-model="microPracticeNotes"
                   rows="2"
-                  :placeholder="t('exerciseWizards.selfEnergy.microPractice.compassion.placeholder')"
+                  :placeholder="tg('exerciseWizards.selfEnergy.microPractice.compassion.placeholder')"
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
@@ -211,7 +211,7 @@
               <div class="neo-surface p-4 rounded-xl space-y-3">
                 <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.courage.title') }}</p>
                 <p class="text-sm text-on-surface-variant">
-                  {{ t('exerciseWizards.selfEnergy.microPractice.courage.description') }}
+                  {{ tg('exerciseWizards.selfEnergy.microPractice.courage.description') }}
                 </p>
                 <input
                   v-model="microPracticeNotes"
@@ -243,12 +243,12 @@
               <div class="neo-surface p-4 rounded-xl space-y-3">
                 <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.confidence.title') }}</p>
                 <p class="text-sm text-on-surface-variant">
-                  {{ t('exerciseWizards.selfEnergy.microPractice.confidence.description') }}
+                  {{ tg('exerciseWizards.selfEnergy.microPractice.confidence.description') }}
                 </p>
                 <textarea
                   v-model="microPracticeNotes"
                   rows="2"
-                  :placeholder="t('exerciseWizards.selfEnergy.microPractice.confidence.placeholder')"
+                  :placeholder="tg('exerciseWizards.selfEnergy.microPractice.confidence.placeholder')"
                   class="neo-input w-full p-3 text-sm resize-none"
                 />
               </div>
@@ -259,7 +259,7 @@
               <div class="neo-surface p-4 rounded-xl space-y-3">
                 <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.selfEnergy.microPractice.connection.title') }}</p>
                 <p class="text-sm text-on-surface-variant">
-                  {{ t('exerciseWizards.selfEnergy.microPractice.connection.description') }}
+                  {{ tg('exerciseWizards.selfEnergy.microPractice.connection.description') }}
                 </p>
                 <input
                   v-model="microPracticeNotes"
@@ -325,7 +325,7 @@
               </div>
             </div>
             <p v-else class="text-xs text-on-surface-variant">
-              {{ t('exerciseWizards.selfEnergy.summary.unlockTrend', { count: 14 - selfEnergyStore.checkIns.length }) }}
+              {{ tp(14 - selfEnergyStore.checkIns.length, 'exerciseWizards.selfEnergy.summary.unlockTrend.one', 'exerciseWizards.selfEnergy.summary.unlockTrend.few', 'exerciseWizards.selfEnergy.summary.unlockTrend.many') }}
             </p>
 
             <!-- Trend chart (7+ check-ins) -->
@@ -406,7 +406,7 @@ const emit = defineEmits<{
   saved: []
 }>()
 
-const { t } = useT()
+const { t, tg, tp } = useT()
 const partStore = useIFSPartStore()
 const selfEnergyStore = useIFSSelfEnergyStore()
 const userPreferencesStore = useUserPreferencesStore()
@@ -472,7 +472,7 @@ function qualityColor(q: SelfEnergyQuality): string {
 // Box Breathing state
 const boxActive = ref(false)
 const boxDone = ref(false)
-const boxLabel = ref(t('exerciseWizards.selfEnergy.microPractice.calm.ready'))
+const boxLabel = ref(tg('exerciseWizards.selfEnergy.microPractice.calm.ready'))
 const boxPhaseText = ref(t('exerciseWizards.selfEnergy.microPractice.calm.tapToBegin'))
 const boxPerimeter = 400
 const boxOffset = ref(boxPerimeter)

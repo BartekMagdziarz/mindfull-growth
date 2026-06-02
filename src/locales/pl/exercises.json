@@ -34,22 +34,31 @@
     "createHabit": "Utwórz nawyk",
     "pastMaps": "Poprzednie mapy",
     "noMapsYet": "Brak map. Stwórz swoją pierwszą mapę części powyżej.",
-    "partCount": "{n} część",
-    "partsCount": "{n} części",
-    "connectionCount": "{n} połączenie",
-    "connectionsCount": "{n} połączenia",
+    "partCount": {
+      "one": "{n} część",
+      "few": "{n} części",
+      "many": "{n} części"
+    },
+    "connectionCount": {
+      "one": "{n} połączenie",
+      "few": "{n} połączenia",
+      "many": "{n} połączeń"
+    },
     "pastAppreciations": "Poprzednie docenienia",
     "noAppreciationsYet": "Brak docenień. Podziękuj protektorowi powyżej.",
     "protector": "Protektor:",
     "workloadBadge": "Obciążenie: {n}/10",
     "commitmentSet": "Zobowiązanie ustalone",
     "pastWitnessings": "Poprzednie świadkowania",
-    "noWitnessingsYet": "Brak świadkowań. Rozpocznij ćwiczenie powyżej, gdy poczujesz się gotowy.",
+    "noWitnessingsYet": {
+      "m": "Brak świadkowań. Rozpocznij ćwiczenie powyżej, gdy poczujesz się gotowy.",
+      "f": "Brak świadkowań. Rozpocznij ćwiczenie powyżej, gdy poczujesz się gotowa."
+    },
     "exile": "Wygnaniec:",
     "protectors": "Protektorzy:",
     "postStateCalmer": "Spokojniejszy",
     "postStateSame": "Bez zmian",
-    "postStateMoreDistressed": "Bardziej zestresowany",
+    "postStateMoreDistressed": "Bardziej zaniepokojony",
     "pastCheckIns": "Poprzednie przeglądy",
     "noCheckInsYet": "Brak przeglądów. Rozpocznij swoją pierwszą ocenę powyżej.",
     "totalCheckIns": "Łączna liczba przeglądów",
@@ -59,29 +68,47 @@
     "selfEnergyHabitPrompt": "Śledź swój codzienny przegląd 8 C?",
     "selfEnergyHabitDescription": "Buduj regularność dzięki śledzeniu nawyków.",
     "noDialoguesYet": "Brak dialogów. Rozpocznij swój pierwszy dialog z częściami powyżej.",
-    "messagesCount": "{n} wiadomości",
-    "insightsCount": "{n} spostrzeżeń",
+    "messagesCount": {
+      "one": "{n} wiadomość",
+      "few": "{n} wiadomości",
+      "many": "{n} wiadomości"
+    },
+    "insightsCount": {
+      "one": "{n} spostrzeżenie",
+      "few": "{n} spostrzeżenia",
+      "many": "{n} spostrzeżeń"
+    },
     "intention": "Intencja:",
     "aiAssistedBadge": "Wspomagane AI",
     "pastConstellations": "Poprzednie konstelacje",
     "noConstellationsYet": "Brak konstelacji. Najpierw zmapuj co najmniej 3 części, potem zbadaj ich relacje.",
-    "partsLabel": "{n} części",
+    "partsLabel": {
+      "one": "{n} część",
+      "few": "{n} części",
+      "many": "{n} części"
+    },
     "polarized": "spolaryzowane",
     "allied": "sprzymierzone",
     "protectorExile": "protektor-wygnaniec",
     "selfLabel": "Ja",
     "noDirectAccessYet": "Brak sesji. Rozpocznij swój pierwszy dialog powyżej.",
     "job": "Zadanie:",
-    "fear": "Obawa:",
+    "fear": "Lęk:",
     "need": "Potrzeba:",
     "noTrailheadsYet": "Brak punktów wejścia. Zacznij od uchwycenia niedawnego emocjonalnego wyzwalacza powyżej.",
-    "trailheadsLogged": "{n} punkt wejścia zapisany",
-    "trailheadsLoggedPlural": "{n} punktów wejścia zapisanych",
+    "trailheadsLogged": {
+      "one": "{n} punkt wejścia zapisany",
+      "few": "{n} punkty wejścia zapisane",
+      "many": "{n} punktów wejścia zapisanych"
+    },
     "dailyCheckInHabitPrompt": "Śledź swój codzienny przegląd IFS?",
     "dailyCheckInHabitDescription": "Buduj serię dzięki śledzeniu nawyków.",
     "noCheckInsYetDaily": "Brak przeglądów. Wybierz szybką praktykę, aby zacząć.",
-    "checkInsThisWeek": "{n} przegląd w tym tygodniu",
-    "checkInsThisWeekPlural": "{n} przeglądów w tym tygodniu",
+    "checkInsThisWeek": {
+      "one": "{n} przegląd w tym tygodniu",
+      "few": "{n} przeglądy w tym tygodniu",
+      "many": "{n} przeglądów w tym tygodniu"
+    },
     "practiceWeatherReport": "Raport pogodowy",
     "practiceGratitude": "Wdzięczność",
     "practiceSelfEnergy": "Energia Ja",
@@ -152,6 +179,26 @@
       "subtitle": "Ważność vs konsekwencja",
       "description": "Oceń 10 domen życia pod kątem ważności wartości i konsekwencji działania, aby zobaczyć kluczowe wartości i luki."
     },
+    "erq": {
+      "title": "Regulacja emocji (ERQ)",
+      "subtitle": "Przewartościowanie vs tłumienie",
+      "description": "10-itemowy Kwestionariusz Regulacji Emocji mierzący przewartościowanie poznawcze i tłumienie ekspresji."
+    },
+    "rrq": {
+      "title": "Ruminacja i refleksja (RRQ)",
+      "subtitle": "Dwa style uwagi do wewnątrz",
+      "description": "24-itemowy kwestionariusz odróżniający napędzaną dyskomfortem ruminację od otwartej refleksji."
+    },
+    "ecrRs": {
+      "title": "Styl przywiązania (ECR-RS)",
+      "subtitle": "Unikanie i lęk",
+      "description": "9-itemowa skala bliskich relacji mierząca unikanie i lęk w przywiązaniu."
+    },
+    "ipipVia": {
+      "title": "Mocne strony charakteru (IPIP-VIA)",
+      "subtitle": "Sygnaturowe cnoty",
+      "description": "30-itemowa ocena mocnych stron VIA (domena publiczna) z sześciu rodzin cnót."
+    },
     "worryTree": {
       "title": "Drzewo zmartwień",
       "subtitle": "Opanuj zmartwienie w kilka minut",
@@ -175,30 +222,13 @@
     "compassionateLetter": {
       "title": "List współczucia",
       "subtitle": "Napisz do siebie z życzliwością",
-      "description": "Daj głos wewnętrznemu krytykowi, a potem odpowiedz z takim współczuciem, jakie okazałbyś bliskiemu przyjacielowi."
+      "description": {
+        "m": "Daj głos wewnętrznemu krytykowi, a potem odpowiedz z takim współczuciem, jakie okazałbyś bliskiemu przyjacielowi.",
+        "f": "Daj głos wewnętrznemu krytykowi, a potem odpowiedz z takim współczuciem, jakie okazałabyś bliskiemu przyjacielowi."
+      }
     },
     "positiveDataLog": {
-      "title": "Dziennik pozytywnych dowodów",
-    "erq": {
-      "title": "Regulacja emocji (ERQ)",
-      "subtitle": "Przewartościowanie vs tłumienie",
-      "description": "10-itemowy Kwestionariusz Regulacji Emocji mierzący przewartościowanie poznawcze i tłumienie ekspresji."
-    },
-    "rrq": {
-      "title": "Ruminacja i refleksja (RRQ)",
-      "subtitle": "Dwa style uwagi do wewnątrz",
-      "description": "24-itemowy kwestionariusz odróżniający napędzaną dyskomfortem ruminację od otwartej refleksji."
-    },
-    "ecrRs": {
-      "title": "Styl przywiązania (ECR-RS)",
-      "subtitle": "Unikanie i lęk",
-      "description": "9-itemowa skala bliskich relacji mierząca unikanie i lęk w przywiązaniu."
-    },
-    "ipipVia": {
-      "title": "Mocne strony charakteru (IPIP-VIA)",
-      "subtitle": "Sygnaturowe cnoty",
-      "description": "30-itemowa ocena mocnych stron VIA (domena publiczna) z sześciu rodzin cnót."
-    },
+      "title": "Dziennik pozytywnych danych",
       "subtitle": "Zbieraj dowody przeciwko negatywnym przekonaniom",
       "description": "Prowadź dziennik, w którym systematycznie podważasz kluczowe przekonanie, zapisując sprzeczne z nim dowody."
     },
@@ -218,7 +248,7 @@
       "description": "Zdefiniuj, wymyśl pomysły, oceń i zaplanuj — systematyczne podejście, gdy problemy wydają się zbyt duże."
     },
     "gradedExposure": {
-      "title": "Stopniowa ekspozycja",
+      "title": "Ekspozycja stopniowana",
       "subtitle": "Zbuduj swoją drabinę lęków",
       "description": "Stwórz hierarchię sytuacji budzących lęk — od najłatwiejszych do najtrudniejszych — i systematycznie je przepracuj."
     },

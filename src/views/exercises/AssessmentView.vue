@@ -134,7 +134,7 @@ const { t } = useT()
 
 const assessmentId = computed(() => route.params.assessmentId as string)
 
-const validAssessmentIds: AssessmentId[] = ['ipip-bfm-50', 'ipip-neo-120', 'hexaco-60', 'pvq-40', 'vlq']
+const validAssessmentIds: AssessmentId[] = ['ipip-bfm-50', 'ipip-neo-120', 'hexaco-60', 'pvq-40', 'vlq', 'erq', 'ecr-rs', 'rrq', 'ipip-via']
 const currentAssessmentId = validAssessmentIds.includes(assessmentId.value as AssessmentId)
   ? (assessmentId.value as AssessmentId)
   : 'ipip-bfm-50'

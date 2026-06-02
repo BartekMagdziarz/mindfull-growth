@@ -33,10 +33,10 @@
             </span>
             <div class="flex gap-2">
               <span class="neo-pill text-xs px-2 py-0.5 bg-exercise-ifs-soft text-exercise-ifs-on">
-                {{ map.partIds.length !== 1 ? t('exercises.views.partsCount', { n: map.partIds.length }) : t('exercises.views.partCount', { n: map.partIds.length }) }}
+                {{ tp(map.partIds.length, 'exercises.views.partCount.one', 'exercises.views.partCount.few', 'exercises.views.partCount.many') }}
               </span>
               <span v-if="map.relationships.length" class="neo-pill text-xs px-2 py-0.5 bg-ifs-manager-soft text-ifs-manager-on">
-                {{ map.relationships.length !== 1 ? t('exercises.views.connectionsCount', { n: map.relationships.length }) : t('exercises.views.connectionCount', { n: map.relationships.length }) }}
+                {{ tp(map.relationships.length, 'exercises.views.connectionCount.one', 'exercises.views.connectionCount.few', 'exercises.views.connectionCount.many') }}
               </span>
             </div>
           </div>
@@ -79,7 +79,7 @@ import { useT } from '@/composables/useT'
 import { IFS_ROLE_CLASSES } from '@/constants/exerciseColorRoles'
 
 const router = useRouter()
-const { t } = useT()
+const { t, tp } = useT()
 const partStore = useIFSPartStore()
 const mapStore = useIFSPartsMapStore()
 const lifeAreaStore = useLifeAreaStore()

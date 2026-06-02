@@ -31,7 +31,7 @@
         >
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-            <span class="text-xs text-on-surface-variant">{{ t('exercises.views.partsLabel', { n: entry.selectedPartIds.length }) }}</span>
+            <span class="text-xs text-on-surface-variant">{{ tp(entry.selectedPartIds.length, 'exercises.views.partsLabel.one', 'exercises.views.partsLabel.few', 'exercises.views.partsLabel.many') }}</span>
           </div>
 
           <!-- Parts -->
@@ -116,7 +116,7 @@ import {
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
-const { t } = useT()
+const { t, tp } = useT()
 const constellationStore = useIFSConstellationStore()
 const partStore = useIFSPartStore()
 

@@ -138,7 +138,7 @@
       <AppCard padding="lg" class="space-y-4">
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.thoughts.title') }}</h2>
         <p class="text-sm text-on-surface-variant">
-          {{ t('exerciseWizards.thoughtRecord.thoughts.description') }}
+          {{ tg('exerciseWizards.thoughtRecord.thoughts.description') }}
         </p>
         <div class="space-y-2">
           <div
@@ -624,7 +624,7 @@ const emit = defineEmits<{
 
 const emotionStore = useEmotionStore()
 const userPreferencesStore = useUserPreferencesStore()
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 
 // Per-call profile context toggles, seeded from the general default.
 const useProfileIdentify = ref(userPreferencesStore.profileContextDefault)

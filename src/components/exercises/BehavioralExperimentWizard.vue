@@ -134,7 +134,7 @@
           />
           <div class="space-y-2">
             <label class="text-sm font-medium text-on-surface">
-              {{ t('exerciseWizards.behavioralExperiment.prediction.confidenceLabel', { value: predictionConfidence }) }}
+              {{ tg('exerciseWizards.behavioralExperiment.prediction.confidenceLabel', { value: predictionConfidence }) }}
             </label>
             <input
               v-model.number="predictionConfidence"
@@ -146,7 +146,7 @@
             />
             <div class="flex justify-between text-xs text-on-surface-variant">
               <span>{{ t('exerciseWizards.behavioralExperiment.prediction.notAtAll') }}</span>
-              <span>{{ t('exerciseWizards.behavioralExperiment.prediction.completelyCertain') }}</span>
+              <span>{{ tg('exerciseWizards.behavioralExperiment.prediction.completelyCertain') }}</span>
             </div>
           </div>
         </AppCard>
@@ -303,7 +303,7 @@
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.outcome.title') }}</h2>
           <p class="text-sm text-on-surface-variant">
-            {{ t('exerciseWizards.behavioralExperiment.outcome.description') }}
+            {{ tg('exerciseWizards.behavioralExperiment.outcome.description') }}
           </p>
 
           <!-- Prediction reminder -->
@@ -323,14 +323,14 @@
         </AppCard>
 
         <AppCard padding="lg" class="space-y-4">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.behavioralExperiment.outcome.learnedTitle') }}</h2>
+          <h2 class="text-lg font-semibold text-on-surface">{{ tg('exerciseWizards.behavioralExperiment.outcome.learnedTitle') }}</h2>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.outcome.learnedDescription') }}
           </p>
           <textarea
             v-model="whatLearned"
             rows="3"
-            :placeholder="t('exerciseWizards.behavioralExperiment.outcome.learnedPlaceholder')"
+            :placeholder="tg('exerciseWizards.behavioralExperiment.outcome.learnedPlaceholder')"
             class="neo-input neo-focus w-full p-3 text-sm resize-none"
           />
         </AppCard>
@@ -506,7 +506,7 @@ const emit = defineEmits<{
   saved: [data: CreateBehavioralExperimentPayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileDesign = ref(userPreferencesStore.profileContextDefault)
 

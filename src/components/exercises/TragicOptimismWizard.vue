@@ -380,7 +380,7 @@ const emit = defineEmits<{
   saved: [data: CreateTragicOptimismPayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 const MAX_EXCHANGES = 5
@@ -413,14 +413,14 @@ const focusModes = computed(() => [
   {
     value: 'suffering' as TragicTriadFocus,
     label: t('exerciseWizards.tragicOptimism.focus.modes.suffering.label'),
-    description: t('exerciseWizards.tragicOptimism.focus.modes.suffering.description'),
+    description: tg('exerciseWizards.tragicOptimism.focus.modes.suffering.description'),
     icon: 'favorite',
     iconClass: 'text-rose-600',
   },
   {
     value: 'guilt' as TragicTriadFocus,
     label: t('exerciseWizards.tragicOptimism.focus.modes.guilt.label'),
-    description: t('exerciseWizards.tragicOptimism.focus.modes.guilt.description'),
+    description: tg('exerciseWizards.tragicOptimism.focus.modes.guilt.description'),
     icon: 'balance',
     iconClass: 'text-amber-600',
   },
@@ -446,14 +446,14 @@ const QUESTIONS = computed<Record<TragicTriadFocus, string[]>>(() => ({
     t('exerciseWizards.tragicOptimism.guided.suffering.q3'),
   ],
   guilt: [
-    t('exerciseWizards.tragicOptimism.guided.guilt.q1'),
+    tg('exerciseWizards.tragicOptimism.guided.guilt.q1'),
     t('exerciseWizards.tragicOptimism.guided.guilt.q2'),
-    t('exerciseWizards.tragicOptimism.guided.guilt.q3'),
+    tg('exerciseWizards.tragicOptimism.guided.guilt.q3'),
   ],
   finitude: [
     t('exerciseWizards.tragicOptimism.guided.finitude.q1'),
     t('exerciseWizards.tragicOptimism.guided.finitude.q2'),
-    t('exerciseWizards.tragicOptimism.guided.finitude.q3'),
+    tg('exerciseWizards.tragicOptimism.guided.finitude.q3'),
   ],
 }))
 

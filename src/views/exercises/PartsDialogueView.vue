@@ -31,10 +31,10 @@
             <span class="text-sm font-medium text-on-surface">{{ formatDate(dialogue.createdAt) }}</span>
             <div class="flex items-center gap-2">
               <span class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
-                {{ t('exercises.views.messagesCount', { n: dialogue.messages.length }) }}
+                {{ tp(dialogue.messages.length, 'exercises.views.messagesCount.one', 'exercises.views.messagesCount.few', 'exercises.views.messagesCount.many') }}
               </span>
               <span v-if="dialogue.insights.length" class="neo-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
-                {{ t('exercises.views.insightsCount', { n: dialogue.insights.length }) }}
+                {{ tp(dialogue.insights.length, 'exercises.views.insightsCount.one', 'exercises.views.insightsCount.few', 'exercises.views.insightsCount.many') }}
               </span>
             </div>
           </div>
@@ -79,7 +79,7 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
-const { t } = useT()
+const { t, tp } = useT()
 const dialogueStore = useIFSPartsDialogueStore()
 const partStore = useIFSPartStore()
 
