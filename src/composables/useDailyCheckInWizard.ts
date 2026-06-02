@@ -154,6 +154,7 @@ export function useDailyCheckInWizard() {
         gratitudePartId: practiceType.value === 'gratitude-to-part' ? gratitudePartId.value ?? undefined : undefined,
         gratitudeNote: practiceType.value === 'gratitude-to-part' ? gratitudeNote.value.trim() || undefined : undefined,
         selfEnergyQuality: practiceType.value === 'self-energy-moment' ? selfEnergyQuality.value ?? undefined : undefined,
+        microPracticeNotes: practiceType.value === 'self-energy-moment' ? microPracticeNotes.value.trim() || undefined : undefined,
         eveningReflection: practiceType.value === 'evening-reflection' ? eveningReflection.value.trim() || undefined : undefined,
         selfLeadershipRating: practiceType.value === 'evening-reflection' ? selfLeadershipRating.value ?? undefined : undefined,
         appreciationNote: practiceType.value === 'evening-reflection' ? appreciationNote.value.trim() || undefined : undefined,

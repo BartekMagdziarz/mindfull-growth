@@ -1444,6 +1444,7 @@ export interface IFSDailyCheckIn {
   gratitudePartId?: string
   gratitudeNote?: string
   selfEnergyQuality?: SelfEnergyQuality
+  microPracticeNotes?: string
   eveningReflection?: string
   selfLeadershipRating?: IFSSelfLeadershipRating
   appreciationNote?: string
