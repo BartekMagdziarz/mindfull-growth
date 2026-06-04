@@ -13,17 +13,36 @@
  * read CSS custom properties at runtime, so each theme can swap the palette.
  */
 
-type PaletteStop =
-  | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800
+// Rating-bar ramps, soft → strong (see tokens.css `--rating-*`). These are
+// dedicated, gently-saturated scales that top out at a soft mid-blue / dusty
+// rose rather than dark navy/crimson, so the extreme bars stay calm. Kept off
+// the shared --sky-* / --rose-* scale, which doubles as text-on-light chip
+// colours. Index 0 = at/just past target, last index = extreme.
+const SKY_RAMP = [
+  'rgb(var(--rating-pos-1))',
+  'rgb(var(--rating-pos-2))',
+  'rgb(var(--rating-pos-3))',
+  'rgb(var(--rating-pos-4))',
+  'rgb(var(--rating-pos-5))',
+]
+const ROSE_RAMP = [
+  'rgb(var(--rating-neg-1))',
+  'rgb(var(--rating-neg-2))',
+  'rgb(var(--rating-neg-3))',
+  'rgb(var(--rating-neg-4))',
+  'rgb(var(--rating-neg-5))',
+]
+// Trackers (no target) span the full range: keep a lighter low end (the two
+// lightest shared sky stops) and climb into the gentle positive ramp.
+const TRACKER_RAMP = [
+  'rgb(var(--sky-100))',
+  'rgb(var(--sky-200))',
+  ...SKY_RAMP,
+]
 
-function paletteVar(family: 'sky' | 'rose', stop: PaletteStop): string {
-  return `rgb(var(--${family}-${stop}))`
-}
-
-function lerpStop(stops: PaletteStop[], t: number): PaletteStop {
+function lerpRamp(ramp: string[], t: number): string {
   const clamped = Math.max(0, Math.min(1, t))
-  const idx = Math.round(clamped * (stops.length - 1))
-  return stops[idx]
+  return ramp[Math.round(clamped * (ramp.length - 1))]
 }
 
 export interface RatingGradientOptions {
@@ -43,12 +62,12 @@ export interface RatingGradientOptions {
 export function ratingBarColor(opts: RatingGradientOptions): string {
   const { value, scaleMin, scaleMax, targetValue, targetOperator } = opts
   const span = scaleMax - scaleMin
-  if (span <= 0) return paletteVar('sky', 400)
+  if (span <= 0) return 'rgb(var(--sky-400))'
 
   if (targetValue === undefined) {
-    // No target — just lerp across the sky scale from min → max
+    // No target — just lerp across the tracker ramp from min → max
     const t = (value - scaleMin) / span
-    return paletteVar('sky', lerpStop([100, 200, 300, 400, 500, 600, 700], t))
+    return lerpRamp(TRACKER_RAMP, t)
   }
 
   const operator = targetOperator ?? 'gte'
@@ -65,9 +84,9 @@ export function ratingBarColor(opts: RatingGradientOptions): string {
         : scaleMin === targetValue
           ? 0
           : (targetValue - value) / (targetValue - scaleMin)
-    // Land between sky-300 (just at target) and sky-700 (extreme)
+    // Climb the positive ramp: at-target → soft mid-blue (never dark navy).
     const idx = Math.round(distance * 4) // 0..4
-    return paletteVar('sky', ([300, 400, 500, 600, 700] as PaletteStop[])[idx])
+    return SKY_RAMP[idx]
   }
 
   // Below (or above for lte) the target = rose. Farther = stronger.
@@ -79,9 +98,9 @@ export function ratingBarColor(opts: RatingGradientOptions): string {
       : targetValue === scaleMax
         ? 0
         : (value - targetValue) / (scaleMax - targetValue)
-  // Land between rose-200 (just below target) and rose-600 (worst).
+  // Climb the negative ramp: just-below → dusty rose (never dark crimson).
   const idx = Math.round(distance * 4) // 0..4
-  return paletteVar('rose', ([200, 300, 400, 500, 600] as PaletteStop[])[idx])
+  return ROSE_RAMP[idx]
 }
 
 /**

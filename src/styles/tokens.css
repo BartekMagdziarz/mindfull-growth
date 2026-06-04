@@ -179,6 +179,29 @@
   --rose-700: 140 45 73;
   --rose-800: 95 27 51;
 
+  /* --- Rating-bar ramps --------------------------------------------------- *
+   * Dedicated, gently-saturated ramps for the Today rating bars (see
+   * ratingGradient.ts). Index 1 = at / just past target, index 5 = extreme.
+   *
+   * These are intentionally *trimmed* and lighter than the shared sky/rose
+   * scale: the strong end tops out at a soft mid-blue / dusty rose instead of
+   * the dark navy (--sky-700) and crimson (--rose-600), so the most extreme
+   * bars stay calm rather than heavy. Kept fully separate from --sky-* /
+   * --rose-* because those stops double as text-on-light chip colours, where
+   * lightening them would hurt contrast.
+   * --------------------------------------------------------------------- */
+  --rating-pos-1: 181 207 247; /* at / just above target — airy blue */
+  --rating-pos-2: 157 189 238;
+  --rating-pos-3: 132 167 224;
+  --rating-pos-4: 111 149 208;
+  --rating-pos-5: 94 132 190;  /* best — soft mid-blue (not navy) */
+
+  --rating-neg-1: 250 198 210; /* just below target — pale rose */
+  --rating-neg-2: 240 176 192;
+  --rating-neg-3: 226 157 174;
+  --rating-neg-4: 208 142 160;
+  --rating-neg-5: 190 128 149; /* worst — dusty rose (not crimson) */
+
   /* =====================================================================
    * Semantic role tokens — added to give names to roles that were
    * previously expressed via raw Tailwind classes (e.g. `bg-blue-100
