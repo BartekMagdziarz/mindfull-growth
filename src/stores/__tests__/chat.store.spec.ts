@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { nextTick } from 'vue'
+import { nextTick, watch } from 'vue'
 import { useChatStore } from '../chat.store'
 import type { ChatSession, ChatIntention } from '@/domain/chatSession'
 import type { JournalEntry } from '@/domain/journal'
@@ -438,6 +438,67 @@ describe('useChatStore', () => {
 
       // Check loading is false after API call
       expect(store.isLoading).toBe(false)
+    })
+
+    it('shows the user message immediately and appends streamed assistant tokens', async () => {
+      const store = useChatStore()
+      const mockEntry: JournalEntry = {
+        id: 'entry-1',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        body: 'Test body',
+        emotionIds: [],
+        peopleTagIds: [],
+        contextTagIds: [],
+      }
+
+      mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
+      let finishStream: (() => void) | undefined
+      let emitToken: ((token: string) => void) | undefined
+      vi.mocked(sendLLMMessage).mockImplementation(
+        async (_messages, _systemPrompt, options) => {
+          options?.onReasoning?.()
+          await new Promise<void>((resolve) => {
+            emitToken = options?.onToken
+            finishStream = () => {
+              options?.onToken?.('answer')
+              resolve()
+            }
+          })
+          return 'Streamed answer'
+        },
+      )
+
+      await store.startChatSession('entry-1', 'reflect')
+      const streamedContents: string[] = []
+      const stopWatching = watch(
+        () => store.currentChatSession?.messages[1]?.content,
+        (content) => {
+          if (content !== undefined) streamedContents.push(content)
+        },
+      )
+      const sendPromise = store.sendMessage('Hello')
+      await nextTick()
+
+      expect(store.currentChatSession?.messages[0].content).toBe('Hello')
+      expect(store.currentChatSession?.messages[1].content).toBe('')
+      expect(store.responsePhase).toBe('thinking')
+
+      emitToken?.('Streamed ')
+      await nextTick()
+
+      expect(store.currentChatSession?.messages[1].content).toBe('Streamed ')
+      expect(streamedContents).toContain('Streamed ')
+      expect(store.responsePhase).toBe('responding')
+
+      finishStream?.()
+      await sendPromise
+      stopWatching()
+
+      expect(store.currentChatSession?.messages[1].content).toBe(
+        'Streamed answer',
+      )
+      expect(store.responsePhase).toBeNull()
     })
 
     it('handles LLM service errors gracefully', async () => {

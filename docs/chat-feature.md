@@ -31,7 +31,7 @@ The chat feature lets you have short, focused conversations with an AI about a s
 - **Store**:
   - `useChatStore` in `src/stores/chat.store.ts` owns the live session:
     - `startChatSession(entryId, intention, customPrompt?)` creates an in‑memory session.
-    - `sendMessage(text)` builds the LLM request (with a journal‑context message on the first send) and appends user + assistant messages.
+  - `sendMessage(text)` builds the LLM request (with a journal‑context message on the first send), appends the user message immediately, and streams visible assistant content into a pending message.
     - `saveChatSession()` persists the session back to the owning `JournalEntry` via `useJournalStore`.
     - `loadChatSession(entryId, sessionId)` loads a stored session for historical viewing.
     - `deleteChatSession(entryId, sessionId)` removes a saved session from an entry.
@@ -60,6 +60,9 @@ The chat feature lets you have short, focused conversations with an AI about a s
   - MLX local: `http://localhost:8080/v1`, model `mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit`, no API key required.
 - API keys are stored locally in the browser and are only sent to the configured endpoint.
 - Local "thinking" models (e.g. Gemma via Ollama/MLX) emit a chain-of-thought into a separate `reasoning` field that still counts against `max_tokens`. For local providers (`ollama`/`mlx`) `llmService` adds `LOCAL_REASONING_HEADROOM` tokens on top of the requested answer budget so the hidden reasoning never starves the visible `content`. Hosted OpenAI requests are left untouched.
+- Live chat uses OpenAI-compatible SSE streaming. Hidden `reasoning` / `reasoning_content` chunks only keep the "thinking" status active; their contents are never shown or persisted. Visible `content` chunks are rendered as soon as they arrive.
+- Ollama settings expose `reasoning_effort` (`none`, `low`, `medium`, `high`). This is a provider/model hint rather than an exact reasoning-token budget. Gemma 4 primarily documents thinking as enabled or disabled, so its non-zero levels may behave similarly.
+- Development builds expose `/dev/ai-playground` (also linked from Profile). It runs isolated prompts and reports response-header time, first chunk, reasoning start/duration, first visible token, generation time, total time, provider token usage, observed chunk counts, and raw response metadata. Exact reasoning-token counts are shown only when the provider reports `completion_tokens_details.reasoning_tokens`.
 
 ### Tests
 
@@ -80,4 +83,3 @@ The chat feature lets you have short, focused conversations with an AI about a s
 - **Changing prompts or error copy**:
   - Central shared chat copy lives in `src/constants/chatCopy.ts`.
   - Prefer updating the shared constants and adjusting tests that assert exact messages (`llmService.spec.ts`, `chat.store.spec.ts`, `ChatView.spec.ts`).
-

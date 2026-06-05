@@ -52,6 +52,27 @@
         </select>
       </div>
 
+      <!-- Reasoning effort -->
+      <div v-if="aiProvider === 'ollama'">
+        <label
+          for="reasoningEffort"
+          class="field-label block mb-[6px]"
+        >{{ t('profile.aiSettings.reasoningEffortLabel') }}</label>
+        <select
+          id="reasoningEffort"
+          v-model="reasoningEffort"
+          class="neo-input w-full px-4 py-3"
+        >
+          <option value="none">{{ t('profile.aiSettings.reasoningEfforts.none') }}</option>
+          <option value="low">{{ t('profile.aiSettings.reasoningEfforts.low') }}</option>
+          <option value="medium">{{ t('profile.aiSettings.reasoningEfforts.medium') }}</option>
+          <option value="high">{{ t('profile.aiSettings.reasoningEfforts.high') }}</option>
+        </select>
+        <p class="mt-2 text-[12px]" style="color: rgb(var(--neo-muted))">
+          {{ t('profile.aiSettings.reasoningEffortHint') }}
+        </p>
+      </div>
+
       <!-- Model -->
       <div>
         <label
@@ -151,6 +172,7 @@ import {
   LEGACY_OPENAI_API_KEY,
   type AIProviderId,
   type AIProviderSettings,
+  type ReasoningEffort,
 } from '@/services/llmService'
 import { useT } from '@/composables/useT'
 
@@ -164,6 +186,7 @@ const aiProvider = ref<AIProviderId>('openai')
 const baseUrl = ref(AI_PROVIDER_PRESETS.openai.baseUrl)
 const aiModel = ref(AI_PROVIDER_PRESETS.openai.model)
 const apiKey = ref('')
+const reasoningEffort = ref<ReasoningEffort>('low')
 const baseUrlError = ref('')
 const modelError = ref('')
 const apiKeyError = ref('')
@@ -208,6 +231,9 @@ function parseStoredAISettings(raw: string): AIProviderSettings | null {
       baseUrl: parsed.baseUrl,
       model: parsed.model,
       ...(typeof parsed.apiKey === 'string' ? { apiKey: parsed.apiKey } : {}),
+      ...(isReasoningEffort(parsed.reasoningEffort)
+        ? { reasoningEffort: parsed.reasoningEffort }
+        : {}),
     }
   } catch {
     return null
@@ -219,6 +245,7 @@ function applyAISettings(settings: AIProviderSettings) {
   baseUrl.value = settings.baseUrl
   aiModel.value = settings.model
   apiKey.value = settings.apiKey ?? ''
+  reasoningEffort.value = settings.reasoningEffort ?? 'low'
   validateAISettings()
 }
 
@@ -237,6 +264,15 @@ function validateAISettings() {
       : ''
 }
 
+function isReasoningEffort(value: unknown): value is ReasoningEffort {
+  return (
+    value === 'none' ||
+    value === 'low' ||
+    value === 'medium' ||
+    value === 'high'
+  )
+}
+
 function handleProviderChange() {
   if (aiProvider.value === 'custom') {
     if (!baseUrl.value.trim()) baseUrl.value = AI_PROVIDER_PRESETS.mlx.baseUrl
@@ -247,6 +283,7 @@ function handleProviderChange() {
   const preset = AI_PROVIDER_PRESETS[aiProvider.value]
   baseUrl.value = preset.baseUrl
   aiModel.value = preset.model
+  reasoningEffort.value = preset.reasoningEffort ?? 'low'
   validateAISettings()
 }
 
@@ -260,6 +297,9 @@ async function handleSave() {
       baseUrl: baseUrl.value.trim(),
       model: aiModel.value.trim(),
       ...(apiKey.value.trim() ? { apiKey: apiKey.value.trim() } : {}),
+      ...(aiProvider.value === 'ollama'
+        ? { reasoningEffort: reasoningEffort.value }
+        : {}),
     }
     await userSettingsDexieRepository.set(
       AI_PROVIDER_SETTINGS_KEY,

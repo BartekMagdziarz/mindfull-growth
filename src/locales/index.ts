@@ -12,6 +12,7 @@ import enLifeAreas from './en/lifeAreas.json'
 import enProfile from './en/profile.json'
 import enErrors from './en/errors.json'
 import enPlanning from './en/planning.json'
+import enAIPlayground from './en/aiPlayground.json'
 import enAssessmentsCommon from './en/assessments.common.json'
 import enAssessmentsIpipBfm50 from './en/assessments.ipip-bfm50.json'
 import enAssessmentsIpipNeo120 from './en/assessments.ipip-neo-120.json'
@@ -37,6 +38,7 @@ import plLifeAreas from './pl/lifeAreas.json'
 import plProfile from './pl/profile.json'
 import plErrors from './pl/errors.json'
 import plPlanning from './pl/planning.json'
+import plAIPlayground from './pl/aiPlayground.json'
 import plAssessmentsCommon from './pl/assessments.common.json'
 import plAssessmentsIpipBfm50 from './pl/assessments.ipip-bfm50.json'
 import plAssessmentsIpipNeo120 from './pl/assessments.ipip-neo-120.json'
@@ -63,6 +65,7 @@ const enMessages = {
   profile: enProfile,
   errors: enErrors,
   planning: enPlanning,
+  aiPlayground: enAIPlayground,
   assessments: {
     common: enAssessmentsCommon,
     ipipBfm50: enAssessmentsIpipBfm50,
@@ -92,6 +95,7 @@ const plMessages = {
   profile: plProfile,
   errors: plErrors,
   planning: plPlanning,
+  aiPlayground: plAIPlayground,
   assessments: {
     common: plAssessmentsCommon,
     ipipBfm50: plAssessmentsIpipBfm50,

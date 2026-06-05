@@ -157,7 +157,32 @@
               : 'bg-surface-variant text-on-surface-variant',
           ]"
         >
-          <p class="whitespace-pre-wrap break-words">{{ message.content }}</p>
+          <p class="whitespace-pre-wrap break-words">
+            {{ message.content }}<span
+              v-if="
+                isLoading &&
+                message.role === 'assistant' &&
+                message.content &&
+                index === messages.length - 1
+              "
+              class="streaming-cursor"
+              aria-hidden="true"
+            ></span>
+          </p>
+          <div
+            v-if="
+              isLoading &&
+              message.role === 'assistant' &&
+              !message.content &&
+              index === messages.length - 1
+            "
+            class="flex items-center gap-2"
+          >
+            <div
+              class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"
+            ></div>
+            <span>{{ t('chat.aiThinking') }}</span>
+          </div>
           <p class="text-xs mt-1 opacity-70">
             {{ formatMessageTimestamp(message.timestamp) }}
           </p>
@@ -165,7 +190,7 @@
       </div>
 
       <!-- Loading Indicator -->
-      <div v-if="isLoading" class="flex justify-start">
+      <div v-if="isLoading && !hasPendingAssistantMessage" class="flex justify-start">
         <div
           class="max-w-[80%] rounded-lg px-4 py-2 bg-surface-variant text-on-surface-variant"
         >
@@ -335,6 +360,11 @@ const messages = computed(() => {
 
 const hasMessages = computed(() => {
   return messages.value.length > 0
+})
+
+const hasPendingAssistantMessage = computed(() => {
+  const lastMessage = messages.value[messages.value.length - 1]
+  return lastMessage?.role === 'assistant'
 })
 
 const canSend = computed(() => {
@@ -595,3 +625,22 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.streaming-cursor {
+  display: inline-block;
+  width: 0.45em;
+  height: 1em;
+  margin-left: 0.15em;
+  vertical-align: -0.12em;
+  border-radius: 2px;
+  background: currentColor;
+  animation: streaming-cursor-blink 0.8s steps(1) infinite;
+}
+
+@keyframes streaming-cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+</style>

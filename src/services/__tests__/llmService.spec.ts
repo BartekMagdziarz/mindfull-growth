@@ -3,8 +3,11 @@ import {
   AI_PROVIDER_SETTINGS_KEY,
   LEGACY_OPENAI_API_KEY,
   sendMessage,
+  snapshotLLMDiagnostics,
   type AIProviderSettings,
+  type LLMDiagnostics,
 } from '../llmService'
+import { reactive } from 'vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 
 vi.mock('@/repositories/userSettingsDexieRepository', () => ({
@@ -32,6 +35,21 @@ function mockSuccess(content = 'This is a test response from the AI.') {
     json: async () => ({
       choices: [{ message: { content } }],
     }),
+  })
+}
+
+function mockStream(events: string[]) {
+  const encoder = new TextEncoder()
+  const body = new ReadableStream({
+    start(controller) {
+      events.forEach((event) => controller.enqueue(encoder.encode(event)))
+      controller.close()
+    },
+  })
+
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    body,
   })
 }
 
@@ -138,7 +156,7 @@ describe('llmService', () => {
       )
     })
 
-    it('adds reasoning headroom to max_tokens for the Ollama provider', async () => {
+    it('uses low reasoning effort and its smaller token headroom for Ollama by default', async () => {
       storeSettings({
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
@@ -148,8 +166,124 @@ describe('llmService', () => {
 
       await sendMessage([{ role: 'user', content: 'Hello' }])
 
-      // 500 default answer budget + 2048 reasoning headroom
-      expect(latestRequest().body.max_tokens).toBe(2548)
+      // 500 default answer budget + 512 low-effort reasoning headroom
+      expect(latestRequest().body.max_tokens).toBe(1012)
+      expect(latestRequest().body.reasoning_effort).toBe('low')
+    })
+
+    it('maps Ollama reasoning effort to token headroom', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+        reasoningEffort: 'medium',
+      })
+      mockSuccess('Ollama response')
+
+      await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        maxTokens: 300,
+      })
+
+      expect(latestRequest().body.max_tokens).toBe(1324)
+      expect(latestRequest().body.reasoning_effort).toBe('medium')
+    })
+
+    it('streams visible content while keeping reasoning content hidden', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockStream([
+        'data: {"choices":[{"delta":{"reasoning":"private analysis"}}]}\n\n',
+        'data: {"choices":[{"delta":{"content":"Visible "}}]}\n',
+        '\ndata: {"choices":[{"delta":{"content":"answer"}}]}\n\n',
+        'data: [DONE]\n\n',
+      ])
+      const onToken = vi.fn()
+      const onReasoning = vi.fn()
+
+      const result = await sendMessage(
+        [{ role: 'user', content: 'Hello' }],
+        undefined,
+        { onToken, onReasoning },
+      )
+
+      expect(result).toBe('Visible answer')
+      expect(onReasoning).toHaveBeenCalledTimes(1)
+      expect(onToken.mock.calls.map(([token]) => token)).toEqual([
+        'Visible ',
+        'answer',
+      ])
+      expect(latestRequest().body.stream).toBe(true)
+      expect(latestRequest().body.stream_options).toEqual({
+        include_usage: true,
+      })
+    })
+
+    it('reports timing, observed chunks, and provider token usage', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockStream([
+        'data: {"id":"run-1","model":"gemma4:e4b","choices":[{"delta":{"reasoning":"abc"}}]}\n\n',
+        'data: {"choices":[{"delta":{"content":"Answer"}}]}\n\n',
+        'data: {"choices":[],"usage":{"prompt_tokens":12,"completion_tokens":9,"total_tokens":21,"completion_tokens_details":{"reasoning_tokens":4}}}\n\n',
+        'data: [DONE]\n\n',
+      ])
+      const diagnosticsSnapshots: Array<{
+        usage?: { total_tokens?: number }
+        observed: { reasoningCharacters: number; contentCharacters: number }
+        timing: { totalMs?: number; firstContentMs?: number }
+      }> = []
+
+      await sendMessage(
+        [{ role: 'user', content: 'Hello' }],
+        undefined,
+        {
+          onToken: vi.fn(),
+          onDiagnostics: (diagnostics) => {
+            diagnosticsSnapshots.push(diagnostics)
+          },
+        },
+      )
+
+      const finalDiagnostics =
+        diagnosticsSnapshots[diagnosticsSnapshots.length - 1]
+      expect(finalDiagnostics.usage?.total_tokens).toBe(21)
+      expect(finalDiagnostics.observed.reasoningCharacters).toBe(3)
+      expect(finalDiagnostics.observed.contentCharacters).toBe(6)
+      expect(finalDiagnostics.timing.firstContentMs).toBeTypeOf('number')
+      expect(finalDiagnostics.timing.totalMs).toBeTypeOf('number')
+    })
+
+    it('includes the effective token limits in diagnostics metadata', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockStream([
+        'data: {"choices":[{"delta":{"content":"Answer"}}]}\n\n',
+        'data: [DONE]\n\n',
+      ])
+      const onDiagnostics = vi.fn()
+
+      await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        maxTokens: 300,
+        reasoningEffort: 'medium',
+        onToken: vi.fn(),
+        onDiagnostics,
+      })
+
+      expect(onDiagnostics.mock.calls[0][0].rawMetadata.request).toEqual({
+        answerTokenBudget: 300,
+        reasoningTokenHeadroom: 1024,
+        completionTokenCap: 1324,
+        reasoningControl: 'provider-effort-hint',
+      })
     })
 
     it('adds reasoning headroom on top of an explicit maxTokens override for local providers', async () => {
@@ -425,5 +559,26 @@ describe('llmService', () => {
         sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow('API request failed with status 500')
     })
+  })
+
+  it('creates a plain diagnostics snapshot from a Vue reactive proxy', () => {
+    const diagnostics = reactive<LLMDiagnostics>({
+      provider: 'ollama',
+      model: 'gemma4:e4b',
+      timing: { totalMs: 100 },
+      observed: {
+        reasoningChunks: 1,
+        reasoningCharacters: 20,
+        contentChunks: 1,
+        contentCharacters: 10,
+      },
+      rawMetadata: { request: { completionTokenCap: 1012 } },
+    })
+
+    const snapshot = snapshotLLMDiagnostics(diagnostics)
+
+    expect(snapshot).toEqual(diagnostics)
+    expect(snapshot).not.toBe(diagnostics)
+    expect(snapshot.timing).not.toBe(diagnostics.timing)
   })
 })

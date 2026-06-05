@@ -28,6 +28,7 @@ export const useChatStore = defineStore('chat', () => {
   // State
   const currentChatSession = ref<ChatSession | null>(null)
   const isLoading = ref<boolean>(false)
+  const responsePhase = ref<'thinking' | 'responding' | null>(null)
   const isSaving = ref<boolean>(false)
   const error = ref<string | null>(null)
   const journalEntryId = ref<string | null>(null)
@@ -117,7 +118,11 @@ export const useChatStore = defineStore('chat', () => {
 
     // Set loading state
     isLoading.value = true
+    responsePhase.value = 'thinking'
     error.value = null
+
+    let userMessageAdded = false
+    let assistantMessageAdded = false
 
     try {
       const userPreferencesStore = useUserPreferencesStore()
@@ -146,14 +151,35 @@ export const useChatStore = defineStore('chat', () => {
         useProfile,
       })
 
-      const assistantResponse = await sendLLMMessage(messagesToSend, systemPrompt)
+      const userChatMessage = createChatMessage('user', message)
+      const assistantChatMessage = createChatMessage('assistant', '')
 
-      // Add user message and assistant response to session
-      if (currentChatSession.value) {
-        currentChatSession.value.messages.push(
-          createChatMessage('user', message),
-          createChatMessage('assistant', assistantResponse)
-        )
+      currentChatSession.value.messages.push(
+        userChatMessage,
+        assistantChatMessage,
+      )
+      const assistantMessageIndex =
+        currentChatSession.value.messages.length - 1
+      const streamedAssistantMessage =
+        currentChatSession.value.messages[assistantMessageIndex]
+      userMessageAdded = true
+      assistantMessageAdded = true
+
+      const assistantResponse = await sendLLMMessage(messagesToSend, systemPrompt, {
+        onReasoning: () => {
+          if (responsePhase.value !== 'responding') {
+            responsePhase.value = 'thinking'
+          }
+        },
+        onToken: (token) => {
+          responsePhase.value = 'responding'
+          streamedAssistantMessage.content += token
+        },
+      })
+
+      // Non-streaming mocks and compatible providers may only return final content.
+      if (!streamedAssistantMessage.content) {
+        streamedAssistantMessage.content = assistantResponse
       }
 
       error.value = null
@@ -165,10 +191,13 @@ export const useChatStore = defineStore('chat', () => {
           : 'An unexpected error occurred while sending the message.'
       error.value = errorMessage
       console.error('Error sending message to LLM:', err)
-      // Do NOT add user message to session (Option A approach)
+      if (currentChatSession.value && userMessageAdded && assistantMessageAdded) {
+        currentChatSession.value.messages.splice(-2, 2)
+      }
       throw err
     } finally {
       isLoading.value = false
+      responsePhase.value = null
     }
   }
 
@@ -443,6 +472,7 @@ export const useChatStore = defineStore('chat', () => {
   function reset(): void {
     currentChatSession.value = null
     isLoading.value = false
+    responsePhase.value = null
     isSaving.value = false
     error.value = null
     journalEntryId.value = null
@@ -452,6 +482,7 @@ export const useChatStore = defineStore('chat', () => {
     // State
     currentChatSession,
     isLoading,
+    responsePhase,
     isSaving,
     error,
     journalEntryId,

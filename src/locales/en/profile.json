@@ -408,6 +408,14 @@
     "modelLabel": "Model",
     "modelPlaceholder": "gpt-5-nano",
     "modelError": "Model is required.",
+    "reasoningEffortLabel": "Reasoning effort",
+    "reasoningEffortHint": "This is an Ollama hint, not a guaranteed token budget. Some models, including Gemma 4, may treat low, medium, and high very similarly.",
+    "reasoningEfforts": {
+      "none": "None",
+      "low": "Low — faster",
+      "medium": "Medium",
+      "high": "High — more thorough"
+    },
     "apiKeyLabel": "API key",
     "apiKeyPlaceholder": "Required for OpenAI",
     "apiKeyRequiredError": "OpenAI API key is required.",

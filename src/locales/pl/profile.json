@@ -408,6 +408,14 @@
     "modelLabel": "Model",
     "modelPlaceholder": "gpt-5-nano",
     "modelError": "Model jest wymagany.",
+    "reasoningEffortLabel": "Poziom reasoningu",
+    "reasoningEffortHint": "To wskazówka dla Ollamy, nie gwarantowany budżet tokenów. Część modeli, w tym Gemma 4, może traktować poziomy niski, średni i wysoki bardzo podobnie.",
+    "reasoningEfforts": {
+      "none": "Brak",
+      "low": "Niski — szybciej",
+      "medium": "Średni",
+      "high": "Wysoki — dokładniej"
+    },
     "apiKeyLabel": "Klucz API",
     "apiKeyPlaceholder": "Wymagany dla OpenAI",
     "apiKeyRequiredError": "Klucz API OpenAI jest wymagany.",

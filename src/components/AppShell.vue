@@ -35,7 +35,11 @@ const isEmotionEditorRoute = computed(() => {
 })
 
 const showBackButton = computed(() => {
-  return isJournalEditorRoute.value || isEmotionEditorRoute.value
+  return (
+    isJournalEditorRoute.value ||
+    isEmotionEditorRoute.value ||
+    route.path === '/dev/ai-playground'
+  )
 })
 
 const backRoute = computed(() => {
@@ -45,6 +49,10 @@ const backRoute = computed(() => {
 
   if (isEmotionEditorRoute.value) {
     return '/emotions'
+  }
+
+  if (route.path === '/dev/ai-playground') {
+    return '/profile'
   }
 
   return undefined

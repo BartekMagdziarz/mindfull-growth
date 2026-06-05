@@ -178,6 +178,7 @@ describe('ProfileView › AI assistant tab', () => {
     expect(screen.getByLabelText('AI provider')).toBeInTheDocument()
     expect(screen.getByLabelText('Base URL')).toBeInTheDocument()
     expect(screen.getByLabelText('Model')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Reasoning effort')).not.toBeInTheDocument()
     expect(screen.getByLabelText('API key')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
   })
@@ -253,6 +254,9 @@ describe('ProfileView › AI assistant tab', () => {
       'gemma4:e4b',
     )
     expect(screen.queryByText('OpenAI API key is required.')).not.toBeInTheDocument()
+    expect((screen.getByLabelText('Reasoning effort') as HTMLSelectElement).value).toBe(
+      'low',
+    )
     expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled()
 
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -267,6 +271,20 @@ describe('ProfileView › AI assistant tab', () => {
       provider: 'ollama',
       baseUrl: 'http://localhost:11434/v1',
       model: 'gemma4:e4b',
+      reasoningEffort: 'low',
+    })
+  })
+
+  it('saves the selected Ollama reasoning effort', async () => {
+    render(ProfileView)
+    const user = await switchToAITab()
+
+    await user.selectOptions(screen.getByLabelText('AI provider'), 'ollama')
+    await user.selectOptions(screen.getByLabelText('Reasoning effort'), 'medium')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => {
+      expect(savedAISettings().reasoningEffort).toBe('medium')
     })
   })
 

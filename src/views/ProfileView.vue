@@ -80,22 +80,33 @@
       />
     </div>
 
-    <!-- Dev-only: Chart test data seed (kept outside tabs to avoid noise) -->
-    <AppCard v-if="isDev" class="mt-6 border-2 border-dashed border-outline/30">
-      <h3 class="text-xl font-semibold text-on-surface mb-1">🛠 Dev: Chart test data</h3>
-      <p class="text-sm text-on-surface-variant mb-4">
-        Creates/removes <code class="font-mono">[DEV SEED]</code> goals, KRs, habits and trackers
-        with 6 months of history to test the Objects Library charts.
-      </p>
-      <div class="flex gap-3 flex-wrap">
-        <AppButton variant="filled" :disabled="seedBusy" @click="handleSeed">
-          {{ seedBusy ? 'Seeding…' : 'Seed chart data' }}
+    <div v-if="isDev" class="mt-6 grid gap-4 md:grid-cols-2">
+      <AppCard class="border-2 border-dashed border-outline/30">
+        <h3 class="mb-1 text-xl font-semibold text-on-surface">Dev: AI Playground</h3>
+        <p class="mb-4 text-sm text-on-surface-variant">
+          Test prompts and compare reasoning, streaming, token usage, and generation speed.
+        </p>
+        <AppButton variant="filled" @click="router.push('/dev/ai-playground')">
+          Open AI Playground
         </AppButton>
-        <AppButton variant="outlined" :disabled="seedBusy" @click="handleUnseed">
-          {{ seedBusy ? 'Deleting…' : 'Delete seeded data' }}
-        </AppButton>
-      </div>
-    </AppCard>
+      </AppCard>
+
+      <AppCard class="border-2 border-dashed border-outline/30">
+        <h3 class="text-xl font-semibold text-on-surface mb-1">Dev: Chart test data</h3>
+        <p class="text-sm text-on-surface-variant mb-4">
+          Creates/removes <code class="font-mono">[DEV SEED]</code> goals, KRs, habits and trackers
+          with 6 months of history to test the Objects Library charts.
+        </p>
+        <div class="flex gap-3 flex-wrap">
+          <AppButton variant="filled" :disabled="seedBusy" @click="handleSeed">
+            {{ seedBusy ? 'Seeding…' : 'Seed chart data' }}
+          </AppButton>
+          <AppButton variant="outlined" :disabled="seedBusy" @click="handleUnseed">
+            {{ seedBusy ? 'Deleting…' : 'Delete seeded data' }}
+          </AppButton>
+        </div>
+      </AppCard>
+    </div>
 
     <!-- Snackbar lives at shell level so it survives tab switches -->
     <AppSnackbar ref="snackbarRef" />
