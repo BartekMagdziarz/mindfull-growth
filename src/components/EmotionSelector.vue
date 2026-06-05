@@ -288,8 +288,9 @@ const emotionStore = useEmotionStore()
 const { t } = useT()
 
 // Rozsunięcie kropek w scatter — min. dystans w znormalizowanym polu 0–1
-// (na suwaku strojenia z prototypu to wartość 0.140). Stała — nie część API.
-const SPREAD = 0.14
+// (na suwaku strojenia z prototypu to wartość 0.150). Jedna stała w komponencie
+// → identyczne rozproszenie WSZĘDZIE, gdzie używamy EmotionSelector.
+const SPREAD = 0.15
 const SHOW_ANCHOR_LABELS = true
 
 const selectedEmotionIds = ref<string[]>([])
