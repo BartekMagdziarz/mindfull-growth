@@ -56,7 +56,11 @@ async function signUp(page: Page) {
 
 async function selectEmotion(page: Page, quadrantTestId: string, emotionTestId: string) {
   await page.getByTestId(quadrantTestId).click()
-  await page.getByTestId(emotionTestId).click()
+  // New scatter flow: quadrant -> families -> "show emotions" -> pick a dot.
+  await page.getByTestId('emotion-show-emotions').click()
+  // Scatter dots are absolutely positioned and can slightly overlap; force the
+  // click so a neighbouring dot cannot intercept the pointer.
+  await page.getByTestId(emotionTestId).click({ force: true })
 }
 
 async function addTag(page: Page, type: 'people' | 'context', name: string) {

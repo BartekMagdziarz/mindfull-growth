@@ -70,14 +70,12 @@
             <div class="space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                 {{ t('exerciseWizards.partsMapping.intro.emotionLabel') }}
-                <EmotionQuadrantSuffix
-                  :quadrant="activeEmotionQuadrantIntro"
-                  @clear="activeEmotionQuadrantIntro = null"
-                />
               </p>
               <EmotionSelector
                 v-model="beforeEmotionIds"
+                v-model:families="beforeEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrantIntro"
+                :allow-family-only="true"
               />
             </div>
           </AppCard>
@@ -112,14 +110,12 @@
             <div class="space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                 {{ t('exerciseWizards.partsMapping.trailhead.emotionsLabel') }}
-                <EmotionQuadrantSuffix
-                  :quadrant="activeEmotionQuadrantTrailhead"
-                  @clear="activeEmotionQuadrantTrailhead = null"
-                />
               </p>
               <EmotionSelector
                 v-model="trailheadEmotionIds"
+                v-model:families="trailheadEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrantTrailhead"
+                :allow-family-only="true"
               />
             </div>
 
@@ -527,14 +523,12 @@
             <div class="space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                 {{ t('exerciseWizards.partsMapping.summary.emotionLabel') }}
-                <EmotionQuadrantSuffix
-                  :quadrant="activeEmotionQuadrantSummary"
-                  @clear="activeEmotionQuadrantSummary = null"
-                />
               </p>
               <EmotionSelector
                 v-model="afterEmotionIds"
+                v-model:families="afterEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrantSummary"
+                :allow-family-only="true"
               />
             </div>
 
@@ -567,7 +561,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import BodyLocationPicker from '@/components/exercises/ifs/BodyLocationPicker.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
@@ -619,9 +612,12 @@ const {
   goToStep,
   trailheadSituation,
   trailheadEmotionIds,
+  trailheadEmotionFamilyIds,
   trailheadThoughts,
   beforeEmotionIds,
+  beforeEmotionFamilyIds,
   afterEmotionIds,
+  afterEmotionFamilyIds,
   identifiedParts,
   editingPartIndex,
   currentPartName,

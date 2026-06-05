@@ -65,14 +65,12 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('exerciseWizards.mountainRange.intro.emotionLabel') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrantIntro"
-                @clear="activeEmotionQuadrantIntro = null"
-              />
             </p>
             <EmotionSelector
               v-model="emotionIdsBefore"
+              v-model:families="emotionFamilyIdsBefore"
               v-model:quadrant="activeEmotionQuadrantIntro"
+              :allow-family-only="true"
             />
           </div>
         </AppCard>
@@ -128,14 +126,12 @@
                 <div class="space-y-2">
                   <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                     {{ t('exerciseWizards.mountainRange.peaks.emotionLabel') }}
-                    <EmotionQuadrantSuffix
-                      :quadrant="event.activeQuadrant"
-                      @clear="event.activeQuadrant = null"
-                    />
                   </p>
                   <EmotionSelector
                     v-model="event.emotionIds"
+                    v-model:families="event.emotionFamilyIds"
                     v-model:quadrant="event.activeQuadrant"
+                    :allow-family-only="true"
                   />
                 </div>
               </div>
@@ -220,14 +216,12 @@
                 <div class="space-y-2">
                   <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                     {{ t('exerciseWizards.mountainRange.peaks.emotionLabel') }}
-                    <EmotionQuadrantSuffix
-                      :quadrant="event.activeQuadrant"
-                      @clear="event.activeQuadrant = null"
-                    />
                   </p>
                   <EmotionSelector
                     v-model="event.emotionIds"
+                    v-model:families="event.emotionFamilyIds"
                     v-model:quadrant="event.activeQuadrant"
+                    :allow-family-only="true"
                   />
                 </div>
               </div>
@@ -420,14 +414,12 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('exerciseWizards.mountainRange.future.emotionLabel') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrantFuture"
-                @clear="activeEmotionQuadrantFuture = null"
-              />
             </p>
             <EmotionSelector
               v-model="emotionIdsAfter"
+              v-model:families="emotionFamilyIdsAfter"
               v-model:quadrant="activeEmotionQuadrantFuture"
+              :allow-family-only="true"
             />
           </div>
 
@@ -458,7 +450,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import MountainRangeTimeline from '@/components/exercises/MountainRangeTimeline.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
@@ -512,7 +503,9 @@ function goToStepByIndex(idx: number) {
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
+const emotionFamilyIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const emotionFamilyIdsAfter = ref<string[]>([])
 const activeEmotionQuadrantIntro = ref<Quadrant | null>(null)
 const activeEmotionQuadrantFuture = ref<Quadrant | null>(null)
 const notes = ref('')
@@ -524,6 +517,7 @@ interface EditableEvent {
   description: string
   ageOrYear: number
   emotionIds: string[]
+  emotionFamilyIds: string[]
   reflection: string
   activeQuadrant: Quadrant | null
 }
@@ -535,6 +529,7 @@ function createEvent(type: 'peak' | 'valley'): EditableEvent {
     description: '',
     ageOrYear: 0,
     emotionIds: [],
+    emotionFamilyIds: [],
     reflection: '',
     activeQuadrant: null,
   }
@@ -592,6 +587,7 @@ const allFilledEvents = computed<MountainRangeEvent[]>(() => {
     description: e.description.trim(),
     ageOrYear: e.ageOrYear,
     emotionIds: e.emotionIds.length > 0 ? [...e.emotionIds] : undefined,
+    emotionFamilyIds: e.emotionFamilyIds.length > 0 ? [...e.emotionFamilyIds] : undefined,
     reflection: e.reflection.trim() || undefined,
   }))
 })
@@ -640,7 +636,11 @@ function handleSave() {
     llmSynthesis: llmSynthesis.value || undefined,
     futurePeaks: filledFuturePeaks.length > 0 ? filledFuturePeaks : undefined,
     emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
+    emotionFamilyIdsBefore:
+      emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
+    emotionFamilyIdsAfter:
+      emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
     notes: notes.value.trim() || undefined,
   }
   emit('saved', payload)

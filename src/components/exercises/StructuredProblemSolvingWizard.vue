@@ -85,18 +85,16 @@
         <AppCard padding="lg" class="space-y-4">
           <div class="flex items-center gap-1.5">
             <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.problem.emotionsTitle') }}</h3>
-            <EmotionQuadrantSuffix
-              :quadrant="activeEmotionQuadrantBefore"
-              @clear="activeEmotionQuadrantBefore = null"
-            />
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.problem.emotionsDescription') }}
           </p>
           <EmotionSelector
             v-model="emotionIds"
+            v-model:families="emotionFamilyIds"
             v-model:quadrant="activeEmotionQuadrantBefore"
             :show-selected-section="true"
+            :allow-family-only="true"
           />
         </AppCard>
 
@@ -597,18 +595,16 @@
         <AppCard v-if="markCompleted" padding="lg" class="space-y-4">
           <div class="flex items-center gap-1.5">
             <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.structuredProblemSolving.review.emotionsAfterTitle') }}</h3>
-            <EmotionQuadrantSuffix
-              :quadrant="activeEmotionQuadrantAfter"
-              @clear="activeEmotionQuadrantAfter = null"
-            />
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.review.emotionsAfterDescription') }}
           </p>
           <EmotionSelector
             v-model="emotionIdsAfter"
+            v-model:families="emotionFamilyIdsAfter"
             v-model:quadrant="activeEmotionQuadrantAfter"
             :show-selected-section="true"
+            :allow-family-only="true"
           />
         </AppCard>
 
@@ -802,7 +798,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
@@ -858,6 +853,7 @@ function goToStepByIndex(idx: number) {
 // ─── Form State ──────────────────────────────────────────────────────────────
 const problemStatement = ref('')
 const emotionIds = ref<string[]>([])
+const emotionFamilyIds = ref<string[]>([])
 const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
 const solutions = reactive<SolutionOption[]>([])
 const newSolutionText = ref('')
@@ -868,6 +864,7 @@ const targetDate = ref('')
 const markCompleted = ref(false)
 const outcome = ref('')
 const emotionIdsAfter = ref<string[]>([])
+const emotionFamilyIdsAfter = ref<string[]>([])
 const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
 
@@ -986,6 +983,7 @@ function handleSave() {
   const payload: CreateStructuredProblemSolvingPayload = {
     problemStatement: problemStatement.value.trim(),
     emotionIds: [...emotionIds.value],
+    emotionFamilyIds: [...emotionFamilyIds.value],
     solutions: solutions.map((s) => ({
       id: s.id,
       description: s.description,
@@ -1003,6 +1001,9 @@ function handleSave() {
     outcome: markCompleted.value && outcome.value.trim() ? outcome.value.trim() : undefined,
     emotionIdsAfter: markCompleted.value && emotionIdsAfter.value.length > 0
       ? [...emotionIdsAfter.value]
+      : undefined,
+    emotionFamilyIdsAfter: markCompleted.value && emotionFamilyIdsAfter.value.length > 0
+      ? [...emotionFamilyIdsAfter.value]
       : undefined,
     llmAssistUsed: llmAssistsUsed.size > 0 ? [...llmAssistsUsed] : undefined,
     notes: notes.value.trim() || undefined,

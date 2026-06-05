@@ -134,8 +134,8 @@ describe('Tagging Edge Cases', () => {
           emotionIds: [],
           note: 'Invalid log',
         })
-      ).rejects.toThrow('At least one emotion must be selected')
-      expect(emotionLogStore.error).toBe('At least one emotion must be selected')
+      ).rejects.toThrow('At least one emotion or family must be selected')
+      expect(emotionLogStore.error).toBe('At least one emotion or family must be selected')
     })
 
     it('prevents updating logs to remove all emotion IDs', async () => {
@@ -153,8 +153,8 @@ describe('Tagging Edge Cases', () => {
           ...log,
           emotionIds: [],
         })
-      ).rejects.toThrow('At least one emotion must be selected')
-      expect(emotionLogStore.error).toBe('At least one emotion must be selected')
+      ).rejects.toThrow('At least one emotion or family must be selected')
+      expect(emotionLogStore.error).toBe('At least one emotion or family must be selected')
     })
   })
 

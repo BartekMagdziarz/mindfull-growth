@@ -10,10 +10,6 @@
           <div class="flex flex-wrap items-center gap-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('emotionViews.editor.emotions') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrant"
-                @clear="activeEmotionQuadrant = null"
-              />
             </p>
             <div
               v-if="selectedEmotionIds.length > 0"
@@ -44,7 +40,9 @@
           <div v-else>
             <EmotionSelector
               v-model="selectedEmotionIds"
+              v-model:families="selectedEmotionFamilyIds"
               v-model:quadrant="activeEmotionQuadrant"
+              :allow-family-only="true"
               :show-selected-section="false"
             />
           </div>
@@ -112,7 +110,7 @@
           <div class="flex justify-end mt-6">
             <AppButton
               variant="filled"
-              :disabled="selectedEmotionIds.length === 0 || isSaving"
+              :disabled="(selectedEmotionIds.length === 0 && selectedEmotionFamilyIds.length === 0) || isSaving"
               @click="handleSave"
               class="min-w-[120px]"
             >
@@ -144,7 +142,6 @@ import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -162,6 +159,7 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 // Form state
 const selectedEmotionIds = ref<string[]>([])
+const selectedEmotionFamilyIds = ref<string[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const emotionCardStyle = computed(() => getQuadrantTintStyle(activeEmotionQuadrant.value))
 const note = ref('')
@@ -209,13 +207,14 @@ function removeEmotion(id: string) {
 
 function resetForm() {
   selectedEmotionIds.value = []
+  selectedEmotionFamilyIds.value = []
   note.value = ''
   selectedPeopleTagIds.value = []
   selectedContextTagIds.value = []
 }
 
 async function handleSave() {
-  if (selectedEmotionIds.value.length === 0) {
+  if (selectedEmotionIds.value.length === 0 && selectedEmotionFamilyIds.value.length === 0) {
     snackbarRef.value?.show(t('emotionViews.selectAtLeastOne'))
     return
   }
@@ -224,6 +223,8 @@ async function handleSave() {
 
   const payload = {
     emotionIds: [...selectedEmotionIds.value],
+    emotionFamilyIds:
+      selectedEmotionFamilyIds.value.length > 0 ? [...selectedEmotionFamilyIds.value] : undefined,
     note: note.value.trim() || undefined,
     peopleTagIds: selectedPeopleTagIds.value.length > 0 ? [...selectedPeopleTagIds.value] : undefined,
     contextTagIds: selectedContextTagIds.value.length > 0 ? [...selectedContextTagIds.value] : undefined,

@@ -7,6 +7,7 @@ export interface JournalEntry {
   title?: string
   body: string
   emotionIds?: string[] // Array of Emotion IDs (optional, defaults to empty array)
+  emotionFamilyIds?: string[] // Array of EmotionFamily IDs (rodzina-only, optional)
   peopleTagIds?: string[] // Array of PeopleTag IDs (optional, defaults to empty array)
   contextTagIds?: string[] // Array of ContextTag IDs (optional, defaults to empty array)
   chatSessions?: ChatSession[] // Array of ChatSession objects (optional, defaults to empty array)

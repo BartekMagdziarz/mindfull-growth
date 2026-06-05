@@ -1,0 +1,722 @@
+{
+  "e1m12-ecstatic-001": {
+    "pleasantness": 12,
+    "energy": 12,
+    "anchor": false
+  },
+  "e2m12-empowered-002": {
+    "pleasantness": 7.9,
+    "energy": 6.9,
+    "anchor": false
+  },
+  "e3m12-proud-003": {
+    "pleasantness": 10,
+    "energy": 8.6,
+    "anchor": true
+  },
+  "e4m12-optimistic-004": {
+    "pleasantness": 8.8,
+    "energy": 6.2,
+    "anchor": false
+  },
+  "e5m12-challenged-005": {
+    "pleasantness": 7.7,
+    "energy": 9.1,
+    "anchor": false
+  },
+  "e6m12-accomplished-006": {
+    "pleasantness": 9.6,
+    "energy": 8.3,
+    "anchor": false
+  },
+  "e7m12-blissful-007": {
+    "pleasantness": 11.6,
+    "energy": 2,
+    "anchor": true
+  },
+  "e8m12-connected-008": {
+    "pleasantness": 10.4,
+    "energy": 7.6,
+    "anchor": false
+  },
+  "e9m12-grateful-009": {
+    "pleasantness": 11.7,
+    "energy": 3.3,
+    "anchor": true
+  },
+  "e10m12-moved-010": {
+    "pleasantness": 9.6,
+    "energy": 5,
+    "anchor": false
+  },
+  "e11m12-blessed-011": {
+    "pleasantness": 11.4,
+    "energy": 2.6,
+    "anchor": false
+  },
+  "e12m12-serene-012": {
+    "pleasantness": 11.5,
+    "energy": 1.2,
+    "anchor": false
+  },
+  "e1m11-elated-013": {
+    "pleasantness": 10.71,
+    "energy": 10.46,
+    "anchor": false
+  },
+  "e2m11-inspired-014": {
+    "pleasantness": 9.2,
+    "energy": 9,
+    "anchor": false
+  },
+  "e3m11-productive-015": {
+    "pleasantness": 8.6,
+    "energy": 7.4,
+    "anchor": false
+  },
+  "e4m11-motivated-016": {
+    "pleasantness": 8.2,
+    "energy": 8.6,
+    "anchor": true
+  },
+  "e5m11-engaged-017": {
+    "pleasantness": 7.2,
+    "energy": 7.3,
+    "anchor": false
+  },
+  "e6m11-hopeful-018": {
+    "pleasantness": 9.4,
+    "energy": 6.6,
+    "anchor": true
+  },
+  "e7m11-fulfilled-019": {
+    "pleasantness": 10.4,
+    "energy": 6.8,
+    "anchor": true
+  },
+  "e8m11-loved-020": {
+    "pleasantness": 11.6,
+    "energy": 10.1,
+    "anchor": false
+  },
+  "e9m11-valued-021": {
+    "pleasantness": 9.7,
+    "energy": 4.3,
+    "anchor": false
+  },
+  "e10m11-accepted-022": {
+    "pleasantness": 9.8,
+    "energy": 3.4,
+    "anchor": false
+  },
+  "e11m11-secure-023": {
+    "pleasantness": 7.6,
+    "energy": 5.2,
+    "anchor": false
+  },
+  "e12m11-satisfied-024": {
+    "pleasantness": 10.2,
+    "energy": 3.6,
+    "anchor": false
+  },
+  "e1m10-thrilled-025": {
+    "pleasantness": 9.43,
+    "energy": 8.91,
+    "anchor": true
+  },
+  "e2m10-amazed-026": {
+    "pleasantness": 8,
+    "energy": 10.2,
+    "anchor": false
+  },
+  "e3m10-joyful-027": {
+    "pleasantness": 10.07,
+    "energy": 9.69,
+    "anchor": false
+  },
+  "e4m10-happy-028": {
+    "pleasantness": 11.36,
+    "energy": 11.23,
+    "anchor": true
+  },
+  "e5m10-confident-029": {
+    "pleasantness": 9.1,
+    "energy": 7.9,
+    "anchor": false
+  },
+  "e6m10-wishful-030": {
+    "pleasantness": 10,
+    "energy": 5.6,
+    "anchor": false
+  },
+  "e7m10-respected-031": {
+    "pleasantness": 9.2,
+    "energy": 5.4,
+    "anchor": false
+  },
+  "e8m10-supported-032": {
+    "pleasantness": 10.6,
+    "energy": 5.2,
+    "anchor": false
+  },
+  "e9m10-included-033": {
+    "pleasantness": 9.4,
+    "energy": 2.8,
+    "anchor": false
+  },
+  "e10m10-content-034": {
+    "pleasantness": 8.3,
+    "energy": 6.4,
+    "anchor": false
+  },
+  "e11m10-safe-035": {
+    "pleasantness": 8.8,
+    "energy": 4,
+    "anchor": true
+  },
+  "e12m10-relieved-036": {
+    "pleasantness": 7.2,
+    "energy": 2,
+    "anchor": false
+  },
+  "e1m9-exhilarated-037": {
+    "pleasantness": 8.3,
+    "energy": 7.87,
+    "anchor": false
+  },
+  "e2m9-successful-038": {
+    "pleasantness": 10.4,
+    "energy": 9,
+    "anchor": false
+  },
+  "e3m9-enthusiastic-039": {
+    "pleasantness": 10.3,
+    "energy": 10.53,
+    "anchor": false
+  },
+  "e4m9-upbeat-040": {
+    "pleasantness": 7.8,
+    "energy": 7.2,
+    "anchor": false
+  },
+  "e5m9-alive-041": {
+    "pleasantness": 10.8,
+    "energy": 11.2,
+    "anchor": false
+  },
+  "e6m9-delighted-042": {
+    "pleasantness": 8.14,
+    "energy": 7.37,
+    "anchor": false
+  },
+  "e7m9-understood-043": {
+    "pleasantness": 8.6,
+    "energy": 3.4,
+    "anchor": false
+  },
+  "e8m9-appreciated-044": {
+    "pleasantness": 10.9,
+    "energy": 4.2,
+    "anchor": false
+  },
+  "e9m9-compassionate-045": {
+    "pleasantness": 8.8,
+    "energy": 3,
+    "anchor": false
+  },
+  "e10m9-empathetic-046": {
+    "pleasantness": 6.6,
+    "energy": 5,
+    "anchor": false
+  },
+  "e11m9-balanced-047": {
+    "pleasantness": 8.4,
+    "energy": 4.2,
+    "anchor": false
+  },
+  "e12m9-thankful-048": {
+    "pleasantness": 10.8,
+    "energy": 4.8,
+    "anchor": false
+  },
+  "e1m8-awe-049": {
+    "pleasantness": 9,
+    "energy": 10.6,
+    "anchor": false
+  },
+  "e2m8-determined-050": {
+    "pleasantness": 8.6,
+    "energy": 9.4,
+    "anchor": false
+  },
+  "e3m8-eager-051": {
+    "pleasantness": 7.8,
+    "energy": 7.4,
+    "anchor": false
+  },
+  "e4m8-curious-052": {
+    "pleasantness": 6.4,
+    "energy": 6.6,
+    "anchor": true
+  },
+  "e5m8-focused-053": {
+    "pleasantness": 6.9,
+    "energy": 7.9,
+    "anchor": false
+  },
+  "e6m8-playful-054": {
+    "pleasantness": 8.8,
+    "energy": 8,
+    "anchor": false
+  },
+  "e7m8-at-ease-055": {
+    "pleasantness": 7.2,
+    "energy": 4.2,
+    "anchor": false
+  },
+  "e8m8-thoughtful-056": {
+    "pleasantness": 6.5,
+    "energy": 5.9,
+    "anchor": false
+  },
+  "e9m8-chill-057": {
+    "pleasantness": 7.6,
+    "energy": 2.5,
+    "anchor": false
+  },
+  "e10m8-comfortable-058": {
+    "pleasantness": 7.9,
+    "energy": 3.9,
+    "anchor": false
+  },
+  "e11m8-peaceful-059": {
+    "pleasantness": 8.9,
+    "energy": 4.6,
+    "anchor": true
+  },
+  "e12m8-tranquil-060": {
+    "pleasantness": 11,
+    "energy": 1.6,
+    "anchor": false
+  },
+  "e1m7-surprised-061": {
+    "pleasantness": 6.7,
+    "energy": 9.3,
+    "anchor": false
+  },
+  "e2m7-excited-062": {
+    "pleasantness": 9.8,
+    "energy": 9.87,
+    "anchor": false
+  },
+  "e3m7-energized-063": {
+    "pleasantness": 8.8,
+    "energy": 8.53,
+    "anchor": false
+  },
+  "e4m7-cheerful-064": {
+    "pleasantness": 8.79,
+    "energy": 8.14,
+    "anchor": false
+  },
+  "e5m7-pleasant-065": {
+    "pleasantness": 7,
+    "energy": 6.6,
+    "anchor": false
+  },
+  "e6m7-pleased-066": {
+    "pleasantness": 8,
+    "energy": 5.2,
+    "anchor": false
+  },
+  "e7m7-calm-067": {
+    "pleasantness": 9.4,
+    "energy": 2.2,
+    "anchor": false
+  },
+  "e8m7-good-068": {
+    "pleasantness": 6.9,
+    "energy": 5.5,
+    "anchor": false
+  },
+  "e9m7-relaxed-069": {
+    "pleasantness": 9.9,
+    "energy": 1.8,
+    "anchor": true
+  },
+  "e10m7-sympathetic-070": {
+    "pleasantness": 7.2,
+    "energy": 3.4,
+    "anchor": false
+  },
+  "e11m7-mellow-071": {
+    "pleasantness": 10.4,
+    "energy": 2.4,
+    "anchor": false
+  },
+  "e12m7-carefree-072": {
+    "pleasantness": 10.6,
+    "energy": 1,
+    "anchor": false
+  },
+  "e1m6-hyper-073": {
+    "pleasantness": 9.3,
+    "energy": 9.2,
+    "anchor": false
+  },
+  "e2m6-pressured-074": {
+    "pleasantness": 4.4,
+    "energy": 8.8,
+    "anchor": false
+  },
+  "e3m6-restless-075": {
+    "pleasantness": 5.2,
+    "energy": 9.8,
+    "anchor": false
+  },
+  "e4m6-confused-076": {
+    "pleasantness": 5.6,
+    "energy": 6.5,
+    "anchor": false
+  },
+  "e5m6-tense-077": {
+    "pleasantness": 5.8,
+    "energy": 6.7,
+    "anchor": false
+  },
+  "e6m6-uneasy-078": {
+    "pleasantness": 5.4,
+    "energy": 7.2,
+    "anchor": false
+  },
+  "e7m6-bored-079": {
+    "pleasantness": 5.3,
+    "energy": 4.7,
+    "anchor": true
+  },
+  "e8m6-tired-080": {
+    "pleasantness": 5.7,
+    "energy": 5.1,
+    "anchor": true
+  },
+  "e9m6-fatigued-081": {
+    "pleasantness": 4.6,
+    "energy": 4,
+    "anchor": false
+  },
+  "e10m6-disengaged-082": {
+    "pleasantness": 4.8,
+    "energy": 3.6,
+    "anchor": false
+  },
+  "e11m6-apathetic-083": {
+    "pleasantness": 3.8,
+    "energy": 1.85,
+    "anchor": false
+  },
+  "e12m6-helpless-084": {
+    "pleasantness": 2,
+    "energy": 2.94,
+    "anchor": false
+  },
+  "e1m5-impassioned-085": {
+    "pleasantness": 3.3,
+    "energy": 8.7,
+    "anchor": false
+  },
+  "e2m5-annoyed-086": {
+    "pleasantness": 4.8,
+    "energy": 7,
+    "anchor": false
+  },
+  "e3m5-irritated-087": {
+    "pleasantness": 4.2,
+    "energy": 7.6,
+    "anchor": true
+  },
+  "e4m5-fomo-088": {
+    "pleasantness": 5.4,
+    "energy": 8.2,
+    "anchor": false
+  },
+  "e5m5-concerned-089": {
+    "pleasantness": 4.2,
+    "energy": 7.9,
+    "anchor": true
+  },
+  "e6m5-peeved-090": {
+    "pleasantness": 5.4,
+    "energy": 6.5,
+    "anchor": false
+  },
+  "e7m5-down-091": {
+    "pleasantness": 4.7,
+    "energy": 5.4,
+    "anchor": false
+  },
+  "e8m5-meh-092": {
+    "pleasantness": 5.4,
+    "energy": 5.66,
+    "anchor": false
+  },
+  "e9m5-sad-093": {
+    "pleasantness": 4,
+    "energy": 3.75,
+    "anchor": true
+  },
+  "e10m5-discouraged-094": {
+    "pleasantness": 4.9,
+    "energy": 5.1,
+    "anchor": false
+  },
+  "e11m5-lonely-095": {
+    "pleasantness": 3.6,
+    "energy": 5.12,
+    "anchor": true
+  },
+  "e12m5-exhausted-096": {
+    "pleasantness": 3.6,
+    "energy": 2.8,
+    "anchor": false
+  },
+  "e1m4-shocked-097": {
+    "pleasantness": 5,
+    "energy": 10.6,
+    "anchor": false
+  },
+  "e2m4-stressed-098": {
+    "pleasantness": 4,
+    "energy": 9.6,
+    "anchor": true
+  },
+  "e3m4-apprehensive-099": {
+    "pleasantness": 1.8,
+    "energy": 8.6,
+    "anchor": false
+  },
+  "e4m4-jittery-100": {
+    "pleasantness": 4.8,
+    "energy": 9.2,
+    "anchor": false
+  },
+  "e5m4-embarrassed-101": {
+    "pleasantness": 4.6,
+    "energy": 6.6,
+    "anchor": false
+  },
+  "e6m4-nervous-102": {
+    "pleasantness": 4.4,
+    "energy": 8,
+    "anchor": false
+  },
+  "e7m4-disheartened-103": {
+    "pleasantness": 3.6,
+    "energy": 3.2,
+    "anchor": false
+  },
+  "e8m4-disappointed-104": {
+    "pleasantness": 3.8,
+    "energy": 3.35,
+    "anchor": true
+  },
+  "e9m4-forlorn-105": {
+    "pleasantness": 2.8,
+    "energy": 4.3,
+    "anchor": false
+  },
+  "e10m4-spent-106": {
+    "pleasantness": 3,
+    "energy": 1.71,
+    "anchor": false
+  },
+  "e11m4-nostalgic-107": {
+    "pleasantness": 5.9,
+    "energy": 5.4,
+    "anchor": false
+  },
+  "e12m4-burned-out-108": {
+    "pleasantness": 2.4,
+    "energy": 1.3,
+    "anchor": false
+  },
+  "e1m3-panicked-109": {
+    "pleasantness": 2.6,
+    "energy": 11.2,
+    "anchor": false
+  },
+  "e2m3-overwhelmed-110": {
+    "pleasantness": 3.4,
+    "energy": 10.2,
+    "anchor": false
+  },
+  "e3m3-anxious-111": {
+    "pleasantness": 4,
+    "energy": 8.5,
+    "anchor": false
+  },
+  "e4m3-angry-112": {
+    "pleasantness": 3,
+    "energy": 8.9,
+    "anchor": true
+  },
+  "e5m3-frustrated-113": {
+    "pleasantness": 3.6,
+    "energy": 8.2,
+    "anchor": false
+  },
+  "e6m3-worried-114": {
+    "pleasantness": 4.9,
+    "energy": 7.6,
+    "anchor": false
+  },
+  "e7m3-insecure-115": {
+    "pleasantness": 4.6,
+    "energy": 7.4,
+    "anchor": false
+  },
+  "e8m3-lost-116": {
+    "pleasantness": 2.6,
+    "energy": 3.89,
+    "anchor": false
+  },
+  "e9m3-disconnected-117": {
+    "pleasantness": 2,
+    "energy": 4.71,
+    "anchor": false
+  },
+  "e10m3-excluded-118": {
+    "pleasantness": 2.4,
+    "energy": 5.25,
+    "anchor": false
+  },
+  "e11m3-alienated-119": {
+    "pleasantness": 1.4,
+    "energy": 4.16,
+    "anchor": false
+  },
+  "e12m3-glum-120": {
+    "pleasantness": 3.4,
+    "energy": 3.07,
+    "anchor": false
+  },
+  "e1m2-terrified-121": {
+    "pleasantness": 2,
+    "energy": 10.6,
+    "anchor": false
+  },
+  "e2m2-irate-122": {
+    "pleasantness": 2.4,
+    "energy": 9.6,
+    "anchor": false
+  },
+  "e3m2-frightened-123": {
+    "pleasantness": 2.8,
+    "energy": 9.8,
+    "anchor": true
+  },
+  "e5m2-repulsed-125": {
+    "pleasantness": 2.2,
+    "energy": 6.7,
+    "anchor": false
+  },
+  "e6m2-troubled-126": {
+    "pleasantness": 4,
+    "energy": 5.8,
+    "anchor": false
+  },
+  "e7m2-trapped-127": {
+    "pleasantness": 2.4,
+    "energy": 4.03,
+    "anchor": false
+  },
+  "e8m2-ashamed-128": {
+    "pleasantness": 2.6,
+    "energy": 3.48,
+    "anchor": false
+  },
+  "e9m2-vulnerable-129": {
+    "pleasantness": 3.2,
+    "energy": 5.4,
+    "anchor": false
+  },
+  "e10m2-numb-130": {
+    "pleasantness": 3,
+    "energy": 2.12,
+    "anchor": false
+  },
+  "e11m2-hopeless-131": {
+    "pleasantness": 1.6,
+    "energy": 1.57,
+    "anchor": false
+  },
+  "e12m2-despair-132": {
+    "pleasantness": 1.2,
+    "energy": 1.44,
+    "anchor": false
+  },
+  "e1m1-enraged-133": {
+    "pleasantness": 1,
+    "energy": 11.6,
+    "anchor": false
+  },
+  "e2m1-livid-134": {
+    "pleasantness": 1.9,
+    "energy": 10.3,
+    "anchor": true
+  },
+  "e3m1-furious-135": {
+    "pleasantness": 1.4,
+    "energy": 11,
+    "anchor": false
+  },
+  "e4m1-jealous-136": {
+    "pleasantness": 5.2,
+    "energy": 6.6,
+    "anchor": false
+  },
+  "e5m1-envious-137": {
+    "pleasantness": 2.2,
+    "energy": 7.6,
+    "anchor": false
+  },
+  "e6m1-contempt-138": {
+    "pleasantness": 3,
+    "energy": 6.5,
+    "anchor": false
+  },
+  "e7m1-disgusted-139": {
+    "pleasantness": 1.6,
+    "energy": 6.9,
+    "anchor": false
+  },
+  "e8m1-humiliated-140": {
+    "pleasantness": 2.4,
+    "energy": 7.4,
+    "anchor": false
+  },
+  "e9m1-pessimistic-141": {
+    "pleasantness": 3,
+    "energy": 3.62,
+    "anchor": false
+  },
+  "e10m1-guilty-142": {
+    "pleasantness": 3.4,
+    "energy": 4.44,
+    "anchor": false
+  },
+  "e11m1-depressed-143": {
+    "pleasantness": 4.4,
+    "energy": 4.6,
+    "anchor": true
+  },
+  "e12m1-miserable-144": {
+    "pleasantness": 1.6,
+    "energy": 2.53,
+    "anchor": false
+  },
+  "e4m2-scared-124": {
+    "pleasantness": 3,
+    "energy": 8,
+    "anchor": false
+  }
+}

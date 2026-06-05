@@ -44,6 +44,7 @@ export function useExileWitnessingWizard() {
   const bodyLocation = ref<IFSBodyLocation | null>(null)
   const feltAge = ref<number | null>(null)
   const emotionIds = ref<string[]>([])
+  const emotionFamilyIds = ref<string[]>([])
 
   // Witnessing
   const exileMessage = ref('')
@@ -70,7 +71,7 @@ export function useExileWitnessingWizard() {
       case 'protector-check':
         return protectorPermission.value !== null && protectorPermission.value !== 'blocking'
       case 'approach':
-        return exilePartId.value !== null && bodyLocation.value !== null && emotionIds.value.length > 0
+        return exilePartId.value !== null && bodyLocation.value !== null && (emotionIds.value.length > 0 || emotionFamilyIds.value.length > 0)
       case 'witnessing':
         return exileMessage.value.trim().length > 0
       case 'compassion':
@@ -133,6 +134,7 @@ export function useExileWitnessingWizard() {
         bodyLocation: bodyLocation.value,
         feltAge: feltAge.value ?? undefined,
         emotionIds: [...emotionIds.value],
+        emotionFamilyIds: [...emotionFamilyIds.value],
         exileMessage: exileMessage.value.trim(),
         exileBelief: exileBelief.value.trim(),
         compassionMessage: compassionMessage.value.trim(),
@@ -160,6 +162,7 @@ export function useExileWitnessingWizard() {
     bodyLocation.value = null
     feltAge.value = null
     emotionIds.value = []
+    emotionFamilyIds.value = []
     exileMessage.value = ''
     exileBelief.value = ''
     compassionMessage.value = ''
@@ -192,6 +195,7 @@ export function useExileWitnessingWizard() {
     bodyLocation,
     feltAge,
     emotionIds,
+    emotionFamilyIds,
 
     // Witnessing
     exileMessage,

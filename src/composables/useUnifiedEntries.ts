@@ -26,6 +26,7 @@ export function useUnifiedEntries() {
       body: entry.body,
       chatSessions: entry.chatSessions,
       emotionIds: entry.emotionIds ?? [],
+      emotionFamilyIds: entry.emotionFamilyIds ?? [],
       peopleTagIds: entry.peopleTagIds ?? [],
       contextTagIds: entry.contextTagIds ?? [],
     }))
@@ -40,6 +41,7 @@ export function useUnifiedEntries() {
       updatedAt: log.updatedAt,
       note: log.note,
       emotionIds: log.emotionIds,
+      emotionFamilyIds: log.emotionFamilyIds ?? [],
       peopleTagIds: log.peopleTagIds ?? [],
       contextTagIds: log.contextTagIds ?? [],
     }))

@@ -73,14 +73,12 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('exerciseWizards.paradoxicalIntention.intro.emotionLabel') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrantBefore"
-                @clear="activeEmotionQuadrantBefore = null"
-              />
             </p>
             <EmotionSelector
               v-model="emotionIdsBefore"
               v-model:quadrant="activeEmotionQuadrantBefore"
+              v-model:families="emotionFamilyIdsBefore"
+              :allow-family-only="true"
             />
           </div>
         </AppCard>
@@ -283,14 +281,12 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('exerciseWizards.paradoxicalIntention.practice.emotionLabel') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrantAfter"
-                @clear="activeEmotionQuadrantAfter = null"
-              />
             </p>
             <EmotionSelector
               v-model="emotionIdsAfter"
               v-model:quadrant="activeEmotionQuadrantAfter"
+              v-model:families="emotionFamilyIdsAfter"
+              :allow-family-only="true"
             />
           </div>
         </AppCard>
@@ -357,7 +353,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
@@ -458,7 +453,9 @@ async function handleMakeFunnier() {
 
 // ─── Form State ────────────────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
+const emotionFamilyIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const emotionFamilyIdsAfter = ref<string[]>([])
 const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
 const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
@@ -474,7 +471,9 @@ function handleSave() {
       practiceScript: practiceScripts[f.id]?.trim() || undefined,
     })),
     emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
+    emotionFamilyIdsBefore: emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
+    emotionFamilyIdsAfter: emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
     llmAssistUsed: llmAssistUsed.value || undefined,
     notes: notes.value.trim() || undefined,
   }

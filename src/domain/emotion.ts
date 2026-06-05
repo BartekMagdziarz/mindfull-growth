@@ -44,7 +44,7 @@ export function getQuadrant(emotion: Emotion): Quadrant {
 
 /**
  * Display configuration for a quadrant — its localized label and Material Symbol icon.
- * Single source of truth shared by EmotionSelector and EmotionQuadrantSuffix.
+ * Single source of truth for the EmotionSelector quadrant switcher.
  */
 export interface QuadrantDisplayConfig {
   value: Quadrant

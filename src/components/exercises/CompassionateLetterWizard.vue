@@ -125,18 +125,16 @@
         <AppCard padding="lg" class="space-y-4">
           <div class="flex items-center gap-1.5">
             <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.emotions.title') }}</h2>
-            <EmotionQuadrantSuffix
-              :quadrant="activeEmotionQuadrant"
-              @clear="activeEmotionQuadrant = null"
-            />
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.compassionateLetter.emotions.description') }}
           </p>
           <EmotionSelector
             v-model="selectedEmotionIds"
+            v-model:families="selectedEmotionFamilyIds"
             v-model:quadrant="activeEmotionQuadrant"
             :show-selected-section="true"
+            :allow-family-only="true"
           />
         </AppCard>
 
@@ -144,7 +142,7 @@
           <AppButton variant="text" @click="currentStep = 'situation'">{{ t('common.buttons.back') }}</AppButton>
           <AppButton
             variant="filled"
-            :disabled="selectedEmotionIds.length === 0"
+            :disabled="selectedEmotionIds.length === 0 && selectedEmotionFamilyIds.length === 0"
             @click="currentStep = 'critic'"
           >
             {{ t('common.buttons.next') }}
@@ -404,7 +402,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
@@ -467,6 +464,7 @@ function goToStepByIndex(idx: number) {
 // ─── Form State ──────────────────────────────────────────────────────────────
 const situation = ref('')
 const selectedEmotionIds = ref<string[]>([])
+const selectedEmotionFamilyIds = ref<string[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const selfCriticalThoughts = reactive<string[]>([''])
 const compassionateResponse = ref('')
@@ -528,6 +526,7 @@ function handleSave() {
   const payload: CreateCompassionateLetterPayload = {
     situation: situation.value.trim(),
     emotionIds: [...selectedEmotionIds.value],
+    emotionFamilyIds: [...selectedEmotionFamilyIds.value],
     selfCriticalThoughts: filledSelfCriticalThoughts.value,
     compassionateResponse: compassionateResponse.value.trim(),
     takeaways: filledTakeaways.value,

@@ -55,11 +55,14 @@ export function usePartsMappingWizard() {
   // Trailhead fields
   const trailheadSituation = ref('')
   const trailheadEmotionIds = ref<string[]>([])
+  const trailheadEmotionFamilyIds = ref<string[]>([])
   const trailheadThoughts = ref('')
 
   // Emotion tracking
   const beforeEmotionIds = ref<string[]>([])
+  const beforeEmotionFamilyIds = ref<string[]>([])
   const afterEmotionIds = ref<string[]>([])
+  const afterEmotionFamilyIds = ref<string[]>([])
 
   // Parts
   const identifiedParts = ref<DraftPart[]>([])
@@ -301,6 +304,9 @@ export function usePartsMappingWizard() {
         trailheadEmotionIds: trailheadEmotionIds.value.length
           ? trailheadEmotionIds.value
           : undefined,
+        trailheadEmotionFamilyIds: trailheadEmotionFamilyIds.value.length
+          ? trailheadEmotionFamilyIds.value
+          : undefined,
         trailheadThoughts: trailheadThoughts.value.trim() || undefined,
         reflection: reflection.value.trim() || undefined,
         llmInsight: llmInsight.value ?? undefined,
@@ -324,9 +330,12 @@ export function usePartsMappingWizard() {
     currentStep.value = 'intro'
     trailheadSituation.value = ''
     trailheadEmotionIds.value = []
+    trailheadEmotionFamilyIds.value = []
     trailheadThoughts.value = ''
     beforeEmotionIds.value = []
+    beforeEmotionFamilyIds.value = []
     afterEmotionIds.value = []
+    afterEmotionFamilyIds.value = []
     identifiedParts.value = []
     editingPartIndex.value = null
     resetCurrentPart()
@@ -351,11 +360,14 @@ export function usePartsMappingWizard() {
     // Trailhead
     trailheadSituation,
     trailheadEmotionIds,
+    trailheadEmotionFamilyIds,
     trailheadThoughts,
 
     // Emotions
     beforeEmotionIds,
+    beforeEmotionFamilyIds,
     afterEmotionIds,
+    afterEmotionFamilyIds,
 
     // Parts
     identifiedParts,

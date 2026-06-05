@@ -4,7 +4,7 @@ import { useEmotionLogStore } from '../emotionLog.store'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { EmotionLogRepository } from '@/repositories/emotionLogRepository'
 
-const VALIDATION_ERROR_MESSAGE = 'At least one emotion must be selected'
+const VALIDATION_ERROR_MESSAGE = 'At least one emotion or family must be selected'
 
 vi.mock('@/repositories/emotionLogDexieRepository', () => {
   const mockRepository: EmotionLogRepository = {
@@ -28,6 +28,7 @@ function buildLog(overrides: Partial<EmotionLog>): EmotionLog {
     createdAt: '2024-01-01T00:00:00.000Z',
     updatedAt: '2024-01-01T00:00:00.000Z',
     emotionIds: [],
+    emotionFamilyIds: [],
     peopleTagIds: [],
     contextTagIds: [],
     ...overrides,
@@ -129,6 +130,24 @@ describe('useEmotionLogStore', () => {
       expect(store.logs).toContainEqual(createdLog)
       expect(result).toEqual(createdLog)
       expect(store.error).toBeNull()
+    })
+
+    it('allows creating a log with only families and no specific emotions', async () => {
+      const store = useEmotionLogStore()
+      const payload = { emotionIds: [], emotionFamilyIds: ['radosc'] }
+      const createdLog: EmotionLog = buildLog({
+        id: 'log-family-only',
+        emotionIds: [],
+        emotionFamilyIds: ['radosc'],
+      })
+
+      vi.mocked(emotionLogDexieRepository.create).mockResolvedValue(createdLog)
+
+      const result = await store.createLog(payload)
+
+      expect(result.emotionFamilyIds).toEqual(['radosc'])
+      expect(store.error).toBeNull()
+      expect(emotionLogDexieRepository.create).toHaveBeenCalled()
     })
 
     it('throws validation error when emotion ids are empty', async () => {

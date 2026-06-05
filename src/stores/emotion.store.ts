@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import type { Emotion, Quadrant } from '@/domain/emotion'
 import { getQuadrant } from '@/domain/emotion'
 import emotionsMeta from '@/data/emotions-meta.json'
+import scatterCoords from '@/data/emotions-scatter.json'
 import enEmotions from '@/locales/en/emotions.json'
 import plEmotions from '@/locales/pl/emotions.json'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
@@ -12,6 +13,12 @@ const emotionTranslations: Record<string, Record<string, EmotionTranslation>> = 
   en: enEmotions as Record<string, EmotionTranslation>,
   pl: plEmotions as Record<string, EmotionTranslation>,
 }
+
+// Dostrojone, ciągłe współrzędne (walencja × energia) do układu scatter w
+// EmotionSelector. Oddzielone od całkowitych pleasantness/energy z meta (te
+// nadal sterują ćwiartką przez getQuadrant). Klucz = ID emocji.
+export type EmotionScatterCoord = { pleasantness: number; energy: number; anchor: boolean }
+const scatterCoordMap = scatterCoords as Record<string, EmotionScatterCoord>
 
 export const useEmotionStore = defineStore('emotion', () => {
   const prefsStore = useUserPreferencesStore()
@@ -56,6 +63,11 @@ export const useEmotionStore = defineStore('emotion', () => {
     return emotions.value.find((emotion) => emotion.id === id)
   }
 
+  // Współrzędne scatter (ułamkowe) dla układu pola w EmotionSelector.
+  function getScatterCoord(id: string): EmotionScatterCoord | undefined {
+    return scatterCoordMap[id]
+  }
+
   /**
    * Resets `isLoaded` so that `loadEmotions()` runs again for the new user.
    * The emotions list itself is statically derived from translation files
@@ -76,6 +88,7 @@ export const useEmotionStore = defineStore('emotion', () => {
     getAllEmotions,
     getEmotionsByQuadrant,
     getEmotionById,
+    getScatterCoord,
     // Reset
     reset,
   }

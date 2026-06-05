@@ -11,7 +11,7 @@
   "save": "Save",
   "saving": "Saving...",
   "viewHistory": "View emotion history",
-  "selectAtLeastOne": "Please select at least one emotion.",
+  "selectAtLeastOne": "Please select at least one emotion or family.",
   "loggedSuccess": "Emotion logged successfully.",
   "saveError": "Failed to save emotion log. Please try again.",
   "loadEmotionsError": "Failed to load emotions. Please try again.",
@@ -36,7 +36,7 @@
     "unknownDate": "Unknown date",
     "notFound": "Emotion log not found.",
     "loadError": "Failed to load emotion log. Please try again.",
-    "selectAtLeastOne": "Please select at least one emotion.",
+    "selectAtLeastOne": "Please select at least one emotion or family.",
     "savedSuccess": "Emotion log saved successfully.",
     "saveError": "Failed to save emotion log. Please try again."
   },
@@ -46,6 +46,15 @@
     "loadingEmotions": "Loading emotions...",
     "noEmotionsInQuadrant": "No emotions in this quadrant",
     "backToQuadrants": "Back to quadrant selection",
+    "showEmotions": "Show emotions",
+    "backToFamilies": "Back to families",
+    "scatterHint": "Hover to reveal a name. Click to select.",
+    "axes": {
+      "moreEnergy": "more energy",
+      "lessEnergy": "less energy",
+      "moreUnpleasant": "more unpleasant",
+      "lessUnpleasant": "less unpleasant"
+    },
     "quadrants": {
       "highEnergyUnpleasant": "High Energy / Low Pleasantness",
       "highEnergyPleasant": "High Energy / High Pleasantness",

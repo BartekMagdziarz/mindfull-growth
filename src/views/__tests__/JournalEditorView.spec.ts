@@ -336,6 +336,7 @@ describe('JournalEditorView', () => {
         title: 'Test Title',
         body: 'Test body content',
         emotionIds: [],
+        emotionFamilyIds: [],
         peopleTagIds: [],
         contextTagIds: [],
       })
@@ -424,6 +425,7 @@ describe('JournalEditorView', () => {
         title: undefined,
         body: 'Test body content',
         emotionIds: [],
+        emotionFamilyIds: [],
         peopleTagIds: [],
         contextTagIds: [],
       })
@@ -478,6 +480,7 @@ describe('JournalEditorView', () => {
         title: undefined,
         body: 'Filled body',
         emotionIds: ['emotion-joy'],
+        emotionFamilyIds: [],
         peopleTagIds: ['people-tag-friend'],
         contextTagIds: ['context-tag-home'],
       })
@@ -512,6 +515,7 @@ describe('JournalEditorView', () => {
         title: 'Existing',
         body: 'Updated body content',
         emotionIds: ['emotion-calm'],
+        emotionFamilyIds: [],
         peopleTagIds: ['people-colleague'],
         contextTagIds: ['context-office'],
       })

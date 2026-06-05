@@ -168,14 +168,12 @@
             <div class="space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                 {{ t('exerciseWizards.exileWitnessing.approach.emotionLabel') }}
-                <EmotionQuadrantSuffix
-                  :quadrant="activeEmotionQuadrant"
-                  @clear="activeEmotionQuadrant = null"
-                />
               </p>
               <EmotionSelector
                 v-model="emotionIds"
                 v-model:quadrant="activeEmotionQuadrant"
+                v-model:families="emotionFamilyIds"
+                :allow-family-only="true"
               />
             </div>
 
@@ -427,7 +425,6 @@ import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import BodyLocationPicker from '@/components/exercises/ifs/BodyLocationPicker.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import {
   useExileWitnessingWizard,
@@ -475,6 +472,7 @@ const {
   bodyLocation,
   feltAge,
   emotionIds,
+  emotionFamilyIds,
   exileMessage,
   exileBelief,
   compassionMessage,

@@ -31,7 +31,9 @@ export function useUnblendingWizard() {
 
   // Emotion tracking
   const beforeEmotionIds = ref<string[]>([])
+  const beforeEmotionFamilyIds = ref<string[]>([])
   const afterEmotionIds = ref<string[]>([])
+  const afterEmotionFamilyIds = ref<string[]>([])
 
   // Part references
   const blendedPartId = ref<string | null>(null)
@@ -105,7 +107,9 @@ export function useUnblendingWizard() {
     try {
       const payload: CreateIFSUnblendingPayload = {
         beforeEmotionIds: [...beforeEmotionIds.value],
+        beforeEmotionFamilyIds: [...beforeEmotionFamilyIds.value],
         afterEmotionIds: [...afterEmotionIds.value],
+        afterEmotionFamilyIds: [...afterEmotionFamilyIds.value],
         blendedPartId: blendedPartId.value ?? undefined,
         secondaryPartId: secondaryPartId.value ?? undefined,
         selfEnergyPresent: selfEnergyPresent.value === true,
@@ -128,7 +132,9 @@ export function useUnblendingWizard() {
   function reset() {
     currentStep.value = 'check-in'
     beforeEmotionIds.value = []
+    beforeEmotionFamilyIds.value = []
     afterEmotionIds.value = []
+    afterEmotionFamilyIds.value = []
     blendedPartId.value = null
     secondaryPartId.value = null
     selfEnergyPresent.value = null
@@ -150,7 +156,9 @@ export function useUnblendingWizard() {
 
     // Emotions
     beforeEmotionIds,
+    beforeEmotionFamilyIds,
     afterEmotionIds,
+    afterEmotionFamilyIds,
 
     // Parts
     blendedPartId,

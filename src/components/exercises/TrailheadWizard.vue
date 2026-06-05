@@ -57,14 +57,12 @@
             <div class="space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                 {{ t('exerciseWizards.trailhead.trigger.emotionsLabel') }}
-                <EmotionQuadrantSuffix
-                  :quadrant="activeEmotionQuadrant"
-                  @clear="activeEmotionQuadrant = null"
-                />
               </p>
               <EmotionSelector
                 v-model="emotionIds"
                 v-model:quadrant="activeEmotionQuadrant"
+                v-model:families="emotionFamilyIds"
+                :allow-family-only="true"
               />
             </div>
 
@@ -375,7 +373,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
@@ -429,6 +426,7 @@ const {
   goToStep,
   triggerDescription,
   emotionIds,
+  emotionFamilyIds,
   intensity,
   bodyLocations,
   thoughts,

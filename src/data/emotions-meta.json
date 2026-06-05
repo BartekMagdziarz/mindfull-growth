@@ -36,8 +36,8 @@
   },
   {
     "id": "e8m12-connected-008",
-    "pleasantness": 12,
-    "energy": 5
+    "pleasantness": 10,
+    "energy": 8
   },
   {
     "id": "e9m12-grateful-009",
@@ -91,13 +91,13 @@
   },
   {
     "id": "e7m11-fulfilled-019",
-    "pleasantness": 11,
-    "energy": 6
+    "pleasantness": 10,
+    "energy": 7
   },
   {
     "id": "e8m11-loved-020",
-    "pleasantness": 11,
-    "energy": 5
+    "pleasantness": 12,
+    "energy": 10
   },
   {
     "id": "e9m11-valued-021",
@@ -147,7 +147,7 @@
   {
     "id": "e6m10-wishful-030",
     "pleasantness": 10,
-    "energy": 7
+    "energy": 6
   },
   {
     "id": "e7m10-respected-031",
@@ -166,8 +166,8 @@
   },
   {
     "id": "e10m10-content-034",
-    "pleasantness": 10,
-    "energy": 3
+    "pleasantness": 8,
+    "energy": 7
   },
   {
     "id": "e11m10-safe-035",
@@ -326,8 +326,8 @@
   },
   {
     "id": "e6m7-pleased-066",
-    "pleasantness": 7,
-    "energy": 7
+    "pleasantness": 8,
+    "energy": 5
   },
   {
     "id": "e7m7-calm-067",
@@ -361,8 +361,8 @@
   },
   {
     "id": "e1m6-hyper-073",
-    "pleasantness": 6,
-    "energy": 12
+    "pleasantness": 9,
+    "energy": 9
   },
   {
     "id": "e2m6-pressured-074",
@@ -571,8 +571,8 @@
   },
   {
     "id": "e7m3-insecure-115",
-    "pleasantness": 3,
-    "energy": 6
+    "pleasantness": 5,
+    "energy": 7
   },
   {
     "id": "e8m3-lost-116",
@@ -616,8 +616,8 @@
   },
   {
     "id": "e4m2-scared-124",
-    "pleasantness": 2,
-    "energy": 9
+    "pleasantness": 3,
+    "energy": 8
   },
   {
     "id": "e5m2-repulsed-125",
@@ -626,8 +626,8 @@
   },
   {
     "id": "e6m2-troubled-126",
-    "pleasantness": 2,
-    "energy": 7
+    "pleasantness": 4,
+    "energy": 6
   },
   {
     "id": "e7m2-trapped-127",
@@ -691,13 +691,13 @@
   },
   {
     "id": "e7m1-disgusted-139",
-    "pleasantness": 1,
-    "energy": 6
+    "pleasantness": 2,
+    "energy": 7
   },
   {
     "id": "e8m1-humiliated-140",
-    "pleasantness": 1,
-    "energy": 5
+    "pleasantness": 2,
+    "energy": 7
   },
   {
     "id": "e9m1-pessimistic-141",

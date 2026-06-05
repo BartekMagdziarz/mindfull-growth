@@ -81,10 +81,6 @@
               <div class="flex flex-wrap items-center gap-3">
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                   {{ t('emotionViews.editor.emotions') }}
-                  <EmotionQuadrantSuffix
-                    :quadrant="activeEmotionQuadrant"
-                    @clear="activeEmotionQuadrant = null"
-                  />
                 </p>
                 <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
                   <button
@@ -111,7 +107,9 @@
             <div v-else class="pt-1">
               <EmotionSelector
                 v-model="selectedEmotionIds"
+                v-model:families="selectedEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrant"
+                :allow-family-only="true"
                 :show-selected-section="false"
               />
             </div>
@@ -211,7 +209,6 @@ import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -242,6 +239,7 @@ const showSnackbarThenNavigate = async (message: string, path: string) => {
 }
 
 const selectedEmotionIds = ref<string[]>([])
+const selectedEmotionFamilyIds = ref<string[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const note = ref('')
 const selectedPeopleTagIds = ref<string[]>([])
@@ -265,6 +263,7 @@ const selectedTime = ref('')
 
 function resetForm() {
   selectedEmotionIds.value = []
+  selectedEmotionFamilyIds.value = []
   note.value = ''
   selectedPeopleTagIds.value = []
   selectedContextTagIds.value = []
@@ -344,7 +343,9 @@ const isContextSectionLoading = computed(() => {
   )
 })
 
-const isValid = computed(() => selectedEmotionIds.value.length > 0)
+const isValid = computed(
+  () => selectedEmotionIds.value.length > 0 || selectedEmotionFamilyIds.value.length > 0
+)
 
 const selectedEmotionList = computed(() => {
   return selectedEmotionIds.value
@@ -409,6 +410,7 @@ const formattedTimestamp = computed(() => {
 const syncLogToForm = (log: EmotionLog) => {
   currentLog.value = log
   selectedEmotionIds.value = [...log.emotionIds]
+  selectedEmotionFamilyIds.value = [...(log.emotionFamilyIds ?? [])]
   note.value = log.note ?? ''
   selectedPeopleTagIds.value = [...(log.peopleTagIds ?? [])]
   selectedContextTagIds.value = [...(log.contextTagIds ?? [])]
@@ -518,6 +520,8 @@ const handleSave = async () => {
 
   const payload = {
     emotionIds: [...selectedEmotionIds.value],
+    emotionFamilyIds:
+      selectedEmotionFamilyIds.value.length > 0 ? [...selectedEmotionFamilyIds.value] : undefined,
     note: note.value.trim() || undefined,
     peopleTagIds:
       selectedPeopleTagIds.value.length > 0 ? [...selectedPeopleTagIds.value] : undefined,

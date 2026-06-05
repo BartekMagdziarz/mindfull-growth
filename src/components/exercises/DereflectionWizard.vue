@@ -46,14 +46,12 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('exerciseWizards.dereflection.intro.emotionLabel') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrantBefore"
-                @clear="activeEmotionQuadrantBefore = null"
-              />
             </p>
             <EmotionSelector
               v-model="emotionIdsBefore"
               v-model:quadrant="activeEmotionQuadrantBefore"
+              v-model:families="emotionFamilyIdsBefore"
+              :allow-family-only="true"
             />
           </div>
         </AppCard>
@@ -327,14 +325,12 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('exerciseWizards.dereflection.summary.emotionLabel') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrantAfter"
-                @clear="activeEmotionQuadrantAfter = null"
-              />
             </p>
             <EmotionSelector
               v-model="emotionIdsAfter"
               v-model:quadrant="activeEmotionQuadrantAfter"
+              v-model:families="emotionFamilyIdsAfter"
+              :allow-family-only="true"
             />
           </div>
 
@@ -366,7 +362,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
@@ -433,6 +428,8 @@ function goToStepByIndex(idx: number) {
 // ─── Form State ──────────────────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const emotionFamilyIdsBefore = ref<string[]>([])
+const emotionFamilyIdsAfter = ref<string[]>([])
 const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
 const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const notes = ref('')
@@ -501,7 +498,11 @@ function handleSave() {
     redirections: toPayloadRedirections(redirections),
     chosenRedirections: [...chosenRedirections.value],
     emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
+    emotionFamilyIdsBefore:
+      emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
+    emotionFamilyIdsAfter:
+      emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
     notes: notes.value.trim() || undefined,
   }
   emit('saved', payload)

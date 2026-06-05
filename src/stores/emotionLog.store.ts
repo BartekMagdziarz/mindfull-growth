@@ -3,10 +3,14 @@ import { ref, computed } from 'vue'
 import type { EmotionLog } from '@/domain/emotionLog'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 
-const EMOTION_VALIDATION_ERROR = 'At least one emotion must be selected'
+const EMOTION_VALIDATION_ERROR = 'At least one emotion or family must be selected'
 
-function validateEmotionIds(emotionIds: unknown): asserts emotionIds is string[] {
-  if (!Array.isArray(emotionIds) || emotionIds.length === 0) {
+// Wpis jest ważny, gdy wybrano przynajmniej jedną emocję LUB jedną rodzinę
+// (obsługa „rodzina-only" — użytkownik mógł zatrzymać się na poziomie rodzin).
+function validateSelection(emotionIds: unknown, emotionFamilyIds: unknown): void {
+  const e = Array.isArray(emotionIds) ? emotionIds : []
+  const f = Array.isArray(emotionFamilyIds) ? emotionFamilyIds : []
+  if (e.length === 0 && f.length === 0) {
     throw new Error(EMOTION_VALIDATION_ERROR)
   }
 }
@@ -28,6 +32,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
       peopleTagIds: log.peopleTagIds ?? [],
       contextTagIds: log.contextTagIds ?? [],
       emotionIds: log.emotionIds ?? [],
+      emotionFamilyIds: log.emotionFamilyIds ?? [],
     }
   }
 
@@ -52,7 +57,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
   ): Promise<EmotionLog> {
     error.value = null
     try {
-      validateEmotionIds(payload.emotionIds)
+      validateSelection(payload.emotionIds, payload.emotionFamilyIds)
       const createdLog = withDefaults(await emotionLogDexieRepository.create(payload))
       logs.value.push(createdLog)
       return createdLog
@@ -68,7 +73,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
   async function updateLog(log: EmotionLog): Promise<EmotionLog> {
     error.value = null
     try {
-      validateEmotionIds(log.emotionIds)
+      validateSelection(log.emotionIds, log.emotionFamilyIds)
       const updatedLog = withDefaults(await emotionLogDexieRepository.update(log))
       const index = logs.value.findIndex((existing) => existing.id === log.id)
       if (index !== -1) {

@@ -15,6 +15,7 @@ export interface UnifiedEntry {
   note?: string
   // Shared fields
   emotionIds: string[]
+  emotionFamilyIds?: string[]
   peopleTagIds: string[]
   contextTagIds: string[]
 }

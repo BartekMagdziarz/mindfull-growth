@@ -45,14 +45,12 @@
             <div class="space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                 {{ t('exerciseWizards.unblending.checkIn.emotionLabel') }}
-                <EmotionQuadrantSuffix
-                  :quadrant="activeEmotionQuadrantBefore"
-                  @clear="activeEmotionQuadrantBefore = null"
-                />
               </p>
               <EmotionSelector
                 v-model="beforeEmotionIds"
                 v-model:quadrant="activeEmotionQuadrantBefore"
+                v-model:families="beforeEmotionFamilyIds"
+                :allow-family-only="true"
               />
             </div>
           </AppCard>
@@ -338,14 +336,12 @@
             <div class="space-y-2">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                 {{ t('exerciseWizards.unblending.postCheck.emotionLabel') }}
-                <EmotionQuadrantSuffix
-                  :quadrant="activeEmotionQuadrantAfter"
-                  @clear="activeEmotionQuadrantAfter = null"
-                />
               </p>
               <EmotionSelector
                 v-model="afterEmotionIds"
                 v-model:quadrant="activeEmotionQuadrantAfter"
+                v-model:families="afterEmotionFamilyIds"
+                :allow-family-only="true"
               />
             </div>
 
@@ -415,7 +411,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
 import { useUnblendingWizard, type UnblendingStep } from '@/composables/useUnblendingWizard'
@@ -455,7 +450,9 @@ const {
   prevStep,
   goToStep,
   beforeEmotionIds,
+  beforeEmotionFamilyIds,
   afterEmotionIds,
+  afterEmotionFamilyIds,
   blendedPartId,
   secondaryPartId,
   selfEnergyPresent,

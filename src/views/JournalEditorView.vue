@@ -139,10 +139,6 @@
               <div class="flex flex-wrap items-center gap-3">
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
                   {{ t('journal.editor.emotions') }}
-                  <EmotionQuadrantSuffix
-                    :quadrant="activeEmotionQuadrant"
-                    @clear="activeEmotionQuadrant = null"
-                  />
                 </p>
                 <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
                   <button
@@ -169,7 +165,9 @@
             <div v-else class="pt-1">
               <EmotionSelector
                 v-model="selectedEmotionIds"
+                v-model:families="selectedEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrant"
+                :allow-family-only="true"
                 :show-selected-section="false"
               />
             </div>
@@ -377,7 +375,6 @@ import { useRouter, useRoute } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import TagInput from '@/components/TagInput.vue'
 import ChatSessionCard from '@/components/ChatSessionCard.vue'
 import { useJournalStore } from '@/stores/journal.store'
@@ -409,6 +406,7 @@ const isSaving = ref(false)
 const isLoading = ref(false)
 const currentEntry = ref<JournalEntry | null>(null)
 const selectedEmotionIds = ref<string[]>([])
+const selectedEmotionFamilyIds = ref<string[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const emotionCardStyle = computed(() => getQuadrantTintStyle(activeEmotionQuadrant.value))
 const selectedPeopleTagIds = ref<string[]>([])
@@ -614,6 +612,7 @@ const syncEntryToForm = (entry: JournalEntry) => {
   title.value = entry.title || ''
   body.value = entry.body
   selectedEmotionIds.value = [...(entry.emotionIds ?? [])]
+  selectedEmotionFamilyIds.value = [...(entry.emotionFamilyIds ?? [])]
   selectedPeopleTagIds.value = [...(entry.peopleTagIds ?? [])]
   selectedContextTagIds.value = [...(entry.contextTagIds ?? [])]
 }
@@ -761,6 +760,7 @@ const saveEntry = async (): Promise<JournalEntry> => {
     title: title.value.trim() || undefined,
     body: body.value.trim(),
     emotionIds: [...selectedEmotionIds.value],
+    emotionFamilyIds: [...selectedEmotionFamilyIds.value],
     peopleTagIds: [...selectedPeopleTagIds.value],
     contextTagIds: [...selectedContextTagIds.value],
   }
@@ -789,6 +789,7 @@ const resetCreateForm = () => {
   title.value = ''
   body.value = ''
   selectedEmotionIds.value = []
+  selectedEmotionFamilyIds.value = []
   selectedPeopleTagIds.value = []
   selectedContextTagIds.value = []
   customCreatedAt.value = null

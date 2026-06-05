@@ -11,7 +11,7 @@
   "save": "Zapisz",
   "saving": "Zapisywanie...",
   "viewHistory": "Zobacz historię emocji",
-  "selectAtLeastOne": "Wybierz co najmniej jedną emocję.",
+  "selectAtLeastOne": "Wybierz co najmniej jedną emocję lub rodzinę.",
   "loggedSuccess": "Emocja zapisana pomyślnie.",
   "saveError": "Nie udało się zapisać wpisu emocji. Spróbuj ponownie.",
   "loadEmotionsError": "Nie udało się załadować emocji. Spróbuj ponownie.",
@@ -36,7 +36,7 @@
     "unknownDate": "Nieznana data",
     "notFound": "Nie znaleziono wpisu emocji.",
     "loadError": "Nie udało się załadować wpisu emocji. Spróbuj ponownie.",
-    "selectAtLeastOne": "Wybierz co najmniej jedną emocję.",
+    "selectAtLeastOne": "Wybierz co najmniej jedną emocję lub rodzinę.",
     "savedSuccess": "Wpis emocji zapisany pomyślnie.",
     "saveError": "Nie udało się zapisać wpisu emocji. Spróbuj ponownie."
   },
@@ -46,6 +46,15 @@
     "loadingEmotions": "Ładowanie emocji...",
     "noEmotionsInQuadrant": "Brak emocji w tym kwadrancie",
     "backToQuadrants": "Wróć do wyboru kwadrantu",
+    "showEmotions": "Pokaż emocje",
+    "backToFamilies": "Wróć do rodzin",
+    "scatterHint": "Najedź, aby odkryć nazwę. Kliknij, aby wybrać.",
+    "axes": {
+      "moreEnergy": "więcej energii",
+      "lessEnergy": "mniej energii",
+      "moreUnpleasant": "bardziej nieprzyjemne",
+      "lessUnpleasant": "mniej nieprzyjemne"
+    },
     "quadrants": {
       "highEnergyUnpleasant": "Wysoka energia / Nieprzyjemne",
       "highEnergyPleasant": "Wysoka energia / Przyjemne",

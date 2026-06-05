@@ -82,6 +82,22 @@
         </span>
       </div>
 
+      <!-- Family Chips (rodzina-only) — bez rodzin „wchłoniętych" przez wybraną emocję -->
+      <div
+        v-if="displayedFamilyIds.length > 0"
+        class="flex flex-wrap gap-2"
+      >
+        <span
+          v-for="familyId in displayedFamilyIds"
+          :key="`family-${familyId}`"
+          :style="getFamilyChipStyle(familyId)"
+          class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-on-surface"
+        >
+          <AppIcon name="category" class="text-sm opacity-80" />
+          {{ getFamilyName(familyId) }}
+        </span>
+      </div>
+
       <!-- People & Context Tags -->
       <div
         v-if="hasTags"
@@ -122,6 +138,7 @@ import { formatEntryDate } from '@/utils/dateFormat'
 import { getDisplayTitle } from '@/domain/journal'
 import type { UnifiedEntry } from '@/domain/unifiedEntry'
 import { getQuadrant, getQuadrantChipStyle } from '@/domain/emotion'
+import { getFamilyById, familyOfEmotionId } from '@/domain/emotionFamily'
 
 interface Props {
   entry: UnifiedEntry
@@ -189,6 +206,27 @@ function getEmotionChipStyle(id: string): Record<string, string> {
   if (!emotion) return {}
   return getQuadrantChipStyle(getQuadrant(emotion))
 }
+
+function getFamilyName(id: string): string {
+  return t(`emotionFamilies.${id}.name`)
+}
+
+function getFamilyChipStyle(id: string): Record<string, string> {
+  const family = getFamilyById(id)
+  if (!family) return {}
+  return getQuadrantChipStyle(family.quadrant)
+}
+
+// Reguła „wchłonięcia": nie pokazuj rodziny, jeśli wpis ma już konkretną emocję
+// z tej rodziny (emocja ją reprezentuje) — spójnie z pickerem.
+const displayedFamilyIds = computed(() => {
+  const families = props.entry.emotionFamilyIds ?? []
+  if (families.length === 0) return []
+  const emotionFamilies = new Set(
+    (props.entry.emotionIds ?? []).map((id) => familyOfEmotionId(id)).filter(Boolean)
+  )
+  return families.filter((fid) => !emotionFamilies.has(fid))
+})
 
 function getPeopleTagName(id: string): string | undefined {
   return tagStore.getPeopleTagById(id)?.name

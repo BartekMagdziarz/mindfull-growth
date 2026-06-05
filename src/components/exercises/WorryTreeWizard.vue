@@ -41,10 +41,6 @@
         <AppCard padding="lg" class="space-y-4">
           <div class="flex items-center gap-1.5">
             <h3 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.worryTree.capture.emotionsTitle') }}</h3>
-            <EmotionQuadrantSuffix
-              :quadrant="activeEmotionQuadrant"
-              @clear="activeEmotionQuadrant = null"
-            />
           </div>
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.capture.emotionsDescription') }}
@@ -468,7 +464,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
@@ -545,6 +540,8 @@ const emotionBeforeName = computed(() => {
 })
 
 const canAdvanceFromCapture = computed(() => {
+  // WorryTree ocenia intensywność JEDNEJ konkretnej emocji (EmotionRating), więc
+  // wymaga wskazania emocji — wybór samej rodziny tu nie wystarcza.
   return worry.value.trim().length > 0 && selectedEmotionIds.value.length > 0
 })
 

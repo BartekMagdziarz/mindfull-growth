@@ -17,12 +17,12 @@ vi.mock('vue-router', () => ({
 
 const quadrantEmotions = {
   'high-energy-high-pleasantness': [
-    { id: 'happy', name: 'Happy' },
-    { id: 'joyful', name: 'Joyful' },
+    { id: 'happy', name: 'Happy', pleasantness: 10, energy: 10 },
+    { id: 'joyful', name: 'Joyful', pleasantness: 9, energy: 9 },
   ],
-  'high-energy-low-pleasantness': [{ id: 'angry', name: 'Angry' }],
-  'low-energy-high-pleasantness': [{ id: 'calm', name: 'Calm' }],
-  'low-energy-low-pleasantness': [{ id: 'tired', name: 'Tired' }],
+  'high-energy-low-pleasantness': [{ id: 'angry', name: 'Angry', pleasantness: 2, energy: 9 }],
+  'low-energy-high-pleasantness': [{ id: 'calm', name: 'Calm', pleasantness: 9, energy: 2 }],
+  'low-energy-low-pleasantness': [{ id: 'tired', name: 'Tired', pleasantness: 3, energy: 3 }],
 }
 
 const allEmotions = Object.values(quadrantEmotions).flat()
@@ -44,6 +44,7 @@ const createEmotionStoreMock = () => {
       return quadrantEmotions[quadrant] ?? []
     }),
     getEmotionById: vi.fn((id: string) => allEmotions.find((emotion) => emotion.id === id)),
+    getScatterCoord: vi.fn(() => undefined),
   }
 }
 
@@ -157,28 +158,15 @@ describe('Component interactions', () => {
     const saveButton = await screen.findByRole('button', { name: 'Save' })
     expect(saveButton).toBeDisabled()
 
-    // Select quadrant and emotion
-    await user.click(
-      screen.getByRole('button', { name: /select High Energy \/ High Pleasantness quadrant/i })
-    )
-    await user.click(
-      await screen.findByRole(
-        'gridcell',
-        { name: /Select emotion Happy/i },
-        { timeout: 3000 }
-      )
-    )
+    // Select quadrant -> "show emotions" -> pick the "Happy" dot (new scatter flow)
+    await user.click(screen.getByTestId('emotion-quadrant-high-energy-high-pleasantness'))
+    await user.click(await screen.findByTestId('emotion-show-emotions'))
+    await user.click(await screen.findByTestId('emotion-option-happy'))
 
     await screen.findByRole('button', { name: /Remove Happy from selection/i })
 
-    // Click the quadrant suffix to return to the 4-quadrant view, then pick
-    // a different quadrant — this mirrors the new UX flow (no inline switch).
-    await user.click(
-      screen.getByRole('button', { name: /Wróć do wyboru kwadrantu|Back to quadrant selection/i })
-    )
-    await user.click(
-      await screen.findByRole('button', { name: /Select High Energy \/ Low Pleasantness quadrant/i })
-    )
+    // Switch quadrants via the in-panel switcher (level 2/3); selection persists.
+    await user.click(await screen.findByTestId('emotion-quadrant-switch-high-energy-low-pleasantness'))
     // Selection persists across the round-trip
     await screen.findByRole('button', { name: /Remove Happy from selection/i })
 
@@ -228,26 +216,9 @@ describe('Component interactions', () => {
     expect(mockEmotionLogStore.createLog).not.toHaveBeenCalled()
     await screen.findByText(/Please select at least one emotion/i)
 
-    await user.click(
-      screen.getByRole('button', { name: /select High Energy \/ High Pleasantness quadrant/i })
-    )
-    const getEmotionButton = async (label: string) => {
-      const buttons = await screen.findAllByRole(
-        'gridcell',
-        { name: /Select emotion/i },
-        { timeout: 3000 }
-      )
-      const match = buttons.find((btn) =>
-        btn.getAttribute('aria-label')?.toLowerCase().includes(label.toLowerCase())
-      )
-      if (!match) {
-        throw new Error(`Emotion button for ${label} not rendered`)
-      }
-      return match
-    }
-
-    const joyfulButton = await getEmotionButton('joyful')
-    await user.click(joyfulButton)
+    await user.click(screen.getByTestId('emotion-quadrant-high-energy-high-pleasantness'))
+    await user.click(await screen.findByTestId('emotion-show-emotions'))
+    await user.click(await screen.findByTestId('emotion-option-joyful'))
     expect(saveButton).toBeEnabled()
     await screen.findByRole('button', { name: /Remove Joyful from selection/i })
 

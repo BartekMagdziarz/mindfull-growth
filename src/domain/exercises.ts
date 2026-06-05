@@ -292,7 +292,9 @@ export interface ThoughtRecord {
   situationDate?: string // When the situation occurred (ISO timestamp)
   journalEntryId?: string // Optional link to source journal entry
   emotionsBefore: EmotionRating[] // Emotions + intensity before restructuring
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only)
   emotionsAfter: EmotionRating[] // Emotions + intensity after restructuring
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only)
   automaticThoughts: string[] // Automatic thoughts identified
   hotThoughtIndex: number // Index of the most emotionally charged thought
   distortionIds?: string[] // Cognitive distortions identified (links to static data)
@@ -462,6 +464,7 @@ export interface CompassionateLetter {
   updatedAt: string // ISO timestamp
   situation: string // What happened / what you're struggling with
   emotionIds: string[] // Emotion IDs from EmotionSelector
+  emotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające emotionIds
   selfCriticalThoughts: string[] // What the inner critic says
   compassionateResponse: string // The compassionate letter text
   takeaways: string[] // Key insights from the exercise
@@ -634,6 +637,7 @@ export interface StructuredProblemSolving {
   updatedAt: string // ISO timestamp
   problemStatement: string // Clear, specific problem definition
   emotionIds: string[] // Emotion IDs before solving
+  emotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające emotionIds
   solutions: SolutionOption[]
   chosenSolutionId?: string // ID of the selected solution
   actionPlan?: string // Concrete action plan
@@ -642,6 +646,7 @@ export interface StructuredProblemSolving {
   status: 'in-progress' | 'completed'
   outcome?: string // What happened
   emotionIdsAfter?: string[] // Emotions after resolution
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   llmAssistUsed?: ('brainstorm' | 'evaluate')[]
   notes?: string
 }
@@ -762,7 +767,9 @@ export interface ThreePathwaysToMeaning {
   experientialValues: MeaningPathwayItem[]
   attitudinalValues: MeaningPathwayItem[]
   emotionIdsBefore?: string[]
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsBefore
   emotionIdsAfter?: string[]
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   llmSynthesis?: string
   notes?: string
 }
@@ -798,7 +805,9 @@ export interface SocraticSelfDialogue {
   journalEntryId?: string
   lifeAreaId?: string
   emotionIdsBefore?: string[]
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsBefore
   emotionIdsAfter?: string[]
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   messages: SocraticDialogueMessage[]
   insightPrimary?: string
   insightRemember?: string
@@ -818,6 +827,7 @@ export interface MountainRangeEvent {
   description: string
   ageOrYear: number
   emotionIds?: string[]
+  emotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające emotionIds
   reflection?: string
 }
 
@@ -838,7 +848,9 @@ export interface MountainRangeOfMeaning {
   llmSynthesis?: string
   futurePeaks?: string[]
   emotionIdsBefore?: string[]
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsBefore
   emotionIdsAfter?: string[]
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   notes?: string
 }
 
@@ -869,7 +881,9 @@ export interface ParadoxicalIntentionLab {
   updatedAt: string // ISO timestamp
   fears: ParadoxicalFear[]
   emotionIdsBefore?: string[]
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsBefore
   emotionIdsAfter?: string[]
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   llmAssistUsed?: boolean
   notes?: string
 }
@@ -904,7 +918,9 @@ export interface DereflectionPractice {
   chosenRedirections: string[] // descriptions of chosen activities
   commitmentIds?: string[]
   emotionIdsBefore?: string[]
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsBefore
   emotionIdsAfter?: string[]
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   notes?: string
 }
 
@@ -928,7 +944,9 @@ export interface TragicOptimism {
   freeWriting: string
   guidedAnswers: string[]
   emotionIdsBefore?: string[]
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsBefore
   emotionIdsAfter?: string[]
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   messages?: SocraticDialogueMessage[]
   insightMeaning?: string
   insightCarryForward?: string
@@ -962,7 +980,9 @@ export interface AttitudinalShift {
   updatedAt: string // ISO timestamp
   statements: BecauseStatement[]
   emotionIdsBefore?: string[]
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsBefore
   emotionIdsAfter?: string[]
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   llmAssistUsed?: boolean
   notes?: string
 }
@@ -985,7 +1005,9 @@ export interface LegacyLetter {
   warmUpPrompts: Record<string, string>
   letterText: string
   emotionIdsBefore?: string[]
+  emotionFamilyIdsBefore?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsBefore
   emotionIdsAfter?: string[]
+  emotionFamilyIdsAfter?: string[] // rodziny (rodzina-only) odpowiadające emotionIdsAfter
   messages?: SocraticDialogueMessage[]
   reflectionInsight?: string
   llmAssistUsed?: boolean
@@ -1132,6 +1154,7 @@ export interface IFSPart {
   role: IFSPartRole
   bodyLocations: IFSBodyLocation[]
   emotionIds: string[] // References to emotions
+  emotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające emotionIds
   lifeAreaIds: string[] // References to life areas
   positiveIntention?: string // What it's trying to do for the user
   fears?: string // What it's afraid would happen if it stopped
@@ -1171,6 +1194,7 @@ export interface IFSPartsMap {
   relationships: IFSRelationship[]
   trailheadSituation?: string // Triggering situation that started the mapping
   trailheadEmotionIds?: string[]
+  trailheadEmotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające trailheadEmotionIds
   trailheadBodyLocation?: IFSBodyLocation
   trailheadThoughts?: string
   reflection?: string // User's written reflection
@@ -1195,7 +1219,9 @@ export interface IFSUnblendingSession {
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
   beforeEmotionIds: string[]
+  beforeEmotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające beforeEmotionIds
   afterEmotionIds: string[]
+  afterEmotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające afterEmotionIds
   blendedPartId?: string // The part that was blended
   secondaryPartId?: string // Secondary part noticed during practice
   selfEnergyPresent: boolean // Did user feel Self-energy emerge?
@@ -1255,6 +1281,7 @@ export interface IFSTrailheadEntry {
   updatedAt: string // ISO timestamp
   triggerDescription: string
   emotionIds: string[]
+  emotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające emotionIds
   intensity: number // 1–10
   bodyLocation: IFSBodyLocation
   thoughts: string
@@ -1341,6 +1368,7 @@ export interface IFSExileWitnessing {
   bodyLocation: IFSBodyLocation
   feltAge?: number
   emotionIds: string[]
+  emotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające emotionIds
   exileMessage: string // What the exile wants to say
   exileBelief: string // Core belief the exile carries
   compassionMessage: string // What Self says to the exile

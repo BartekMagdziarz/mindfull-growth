@@ -261,7 +261,7 @@ describe('EmotionLogEditorView', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText('Please select at least one emotion.')
+        screen.getByText('Please select at least one emotion or family.')
       ).toBeInTheDocument()
     })
     expect(mockEmotionLogStore.createLog).not.toHaveBeenCalled()

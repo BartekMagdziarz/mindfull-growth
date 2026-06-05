@@ -45,6 +45,7 @@ export function useTrailheadWizard() {
   // Trigger capture
   const triggerDescription = ref('')
   const emotionIds = ref<string[]>([])
+  const emotionFamilyIds = ref<string[]>([])
   const intensity = ref(5)
   const bodyLocations = ref<IFSBodyLocation[]>([])
 
@@ -74,7 +75,7 @@ export function useTrailheadWizard() {
   const canAdvance = computed(() => {
     switch (currentStep.value) {
       case 'trigger':
-        return triggerDescription.value.trim().length > 0 && emotionIds.value.length > 0
+        return triggerDescription.value.trim().length > 0 && (emotionIds.value.length > 0 || emotionFamilyIds.value.length > 0)
       case 'thoughts':
         return thoughts.value.trim().length > 0
       case 'sensations':
@@ -167,6 +168,7 @@ export function useTrailheadWizard() {
       const payload: CreateIFSTrailheadPayload = {
         triggerDescription: triggerDescription.value.trim(),
         emotionIds: [...emotionIds.value],
+        emotionFamilyIds: [...emotionFamilyIds.value],
         intensity: intensity.value,
         bodyLocation: bodyLocations.value[0] ?? 'chest',
         thoughts: thoughts.value.trim(),
@@ -194,6 +196,7 @@ export function useTrailheadWizard() {
     currentStep.value = 'trigger'
     triggerDescription.value = ''
     emotionIds.value = []
+    emotionFamilyIds.value = []
     intensity.value = 5
     bodyLocations.value = []
     thoughts.value = ''
@@ -222,6 +225,7 @@ export function useTrailheadWizard() {
     // Trigger
     triggerDescription,
     emotionIds,
+    emotionFamilyIds,
     intensity,
     bodyLocations,
 

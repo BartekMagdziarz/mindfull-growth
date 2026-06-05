@@ -46,14 +46,12 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('exerciseWizards.socraticDialogue.intro.emotionLabel') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrantBefore"
-                @clear="activeEmotionQuadrantBefore = null"
-              />
             </p>
             <EmotionSelector
               v-model="emotionIdsBefore"
               v-model:quadrant="activeEmotionQuadrantBefore"
+              v-model:families="emotionFamilyIdsBefore"
+              :allow-family-only="true"
             />
           </div>
         </AppCard>
@@ -317,14 +315,12 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
               {{ t('exerciseWizards.socraticDialogue.insights.emotionLabel') }}
-              <EmotionQuadrantSuffix
-                :quadrant="activeEmotionQuadrantAfter"
-                @clear="activeEmotionQuadrantAfter = null"
-              />
             </p>
             <EmotionSelector
               v-model="emotionIdsAfter"
               v-model:quadrant="activeEmotionQuadrantAfter"
+              v-model:families="emotionFamilyIdsAfter"
+              :allow-family-only="true"
             />
           </div>
 
@@ -355,7 +351,6 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useJournalStore } from '@/stores/journal.store'
 import { getDisplayTitle } from '@/domain/journal'
@@ -562,7 +557,9 @@ watch(currentStep, async (newStep) => {
 
 // ─── Insights State ────────────────────────────────────────────────────────
 const emotionIdsBefore = ref<string[]>([])
+const emotionFamilyIdsBefore = ref<string[]>([])
 const emotionIdsAfter = ref<string[]>([])
+const emotionFamilyIdsAfter = ref<string[]>([])
 const activeEmotionQuadrantBefore = ref<Quadrant | null>(null)
 const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 const insightPrimary = ref('')
@@ -578,7 +575,9 @@ function handleSave() {
     journalEntryId: selectedJournalId.value || undefined,
     lifeAreaId: selectedLifeAreaId.value || undefined,
     emotionIdsBefore: emotionIdsBefore.value.length > 0 ? [...emotionIdsBefore.value] : undefined,
+    emotionFamilyIdsBefore: emotionFamilyIdsBefore.value.length > 0 ? [...emotionFamilyIdsBefore.value] : undefined,
     emotionIdsAfter: emotionIdsAfter.value.length > 0 ? [...emotionIdsAfter.value] : undefined,
+    emotionFamilyIdsAfter: emotionFamilyIdsAfter.value.length > 0 ? [...emotionFamilyIdsAfter.value] : undefined,
     messages: messages.value.map((m) => ({ ...m })),
     insightPrimary: insightPrimary.value.trim() || undefined,
     insightRemember: insightRemember.value.trim() || undefined,

@@ -85,10 +85,6 @@
       <AppCard padding="lg" class="space-y-4">
         <div class="flex items-center gap-1.5">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.thoughtRecord.emotions.title') }}</h2>
-          <EmotionQuadrantSuffix
-            :quadrant="activeEmotionQuadrant"
-            @clear="activeEmotionQuadrant = null"
-          />
         </div>
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.thoughtRecord.emotions.description') }}
@@ -610,7 +606,6 @@ import type { EmotionRating, CreateThoughtRecordPayload } from '@/domain/exercis
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
-import EmotionQuadrantSuffix from '@/components/EmotionQuadrantSuffix.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
