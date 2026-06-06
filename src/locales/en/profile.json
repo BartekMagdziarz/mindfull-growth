@@ -335,6 +335,21 @@
           "monthlyReflections": "Monthly",
           "foundation": "Foundation",
           "planning": "Planning"
+        },
+        "breakdown": {
+          "title": "Token breakdown",
+          "byType": "By type",
+          "byAge": "By age"
+        },
+        "ageBuckets": {
+          "recent": "0–30 days",
+          "quarter": "31–90 days",
+          "year": "91–365 days",
+          "older": "Over a year",
+          "undated": "Snapshots"
+        },
+        "trimmed": {
+          "notice": "Trimmed {dropped} of {total} items to fit the model's context window — the oldest were dropped."
         }
       },
       "generate": {

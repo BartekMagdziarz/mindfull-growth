@@ -484,7 +484,7 @@ describe('useUserProfileStore', () => {
       expect(sendMessage).toHaveBeenCalledWith(
         expect.any(Array),
         expect.any(String),
-        { maxTokens: 6000, model: 'gemma4:e4b' },
+        { maxTokens: 6000, model: 'gemma4:e4b', onDiagnostics: expect.any(Function) },
       )
       const logPayload = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
       expect(logPayload.model).toBe('gemma4:e4b')
@@ -524,6 +524,43 @@ describe('useUserProfileStore', () => {
       expect(typeof payload.latencyMs).toBe('number')
       expect(payload.latencyMs).toBeGreaterThanOrEqual(0)
       expect(payload.scope).toEqual(validScope)
+    })
+
+    it('logs real token usage (snake→camel) captured via onDiagnostics', async () => {
+      mockAISettings(undefined, 'sk-test')
+      const baseDiagnostics = {
+        provider: 'ollama' as const,
+        model: 'gemma4:e4b',
+        timing: {},
+        observed: {
+          reasoningChunks: 0,
+          reasoningCharacters: 0,
+          contentChunks: 0,
+          contentCharacters: 0,
+        },
+        rawMetadata: {},
+      }
+      vi.mocked(sendMessage).mockImplementation(
+        async (_messages, _systemPrompt, options) => {
+          // Non-streaming diagnostics fire twice: first without usage, then with.
+          options?.onDiagnostics?.({ ...baseDiagnostics })
+          options?.onDiagnostics?.({
+            ...baseDiagnostics,
+            usage: { prompt_tokens: 4096, completion_tokens: 512, total_tokens: 4608 },
+          })
+          return aWellFormedResponse()
+        },
+      )
+
+      const store = useUserProfileStore()
+      await store.buildProfile(validScope)
+
+      const payload = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
+      expect(payload.tokenUsage).toEqual({
+        promptTokens: 4096,
+        completionTokens: 512,
+        totalTokens: 4608,
+      })
     })
 
     it('re-throws and logs a FAILURE entry when sendMessage rejects', async () => {
@@ -601,25 +638,31 @@ describe('useUserProfileStore', () => {
       }
     })
 
-    it('throws code="contextTooLarge" for a local provider when the scope cannot fit the largest window', async () => {
+    it('throws code="contextTooLarge" when the mandatory snapshot alone exceeds the budget', async () => {
       mockAISettings({
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
       })
+      // A foundation snapshot far bigger than the ~56k-token Ollama prompt budget
+      // is mandatory (never trimmed) — so the assembler can't fit it and throws.
+      vi.mocked(buildFoundationSnapshot).mockResolvedValueOnce({
+        items: [],
+        snapshot: 'x'.repeat(200_000),
+      })
       const store = useUserProfileStore()
 
       const promise = store.buildProfile({
         ...validScope,
-        approxTokenCount: 100000,
+        dataTypes: ['foundation'],
       })
       await expect(promise).rejects.toBeInstanceOf(ProfileBuildError)
       await expect(promise).rejects.toMatchObject({ code: 'contextTooLarge' })
-      // Guard fires before any model call.
+      // We fail before any model call.
       expect(sendMessage).not.toHaveBeenCalled()
     })
 
-    it('does not apply the contextTooLarge guard to hosted providers', async () => {
+    it('budgets (does not hard-fail) for hosted providers — no local window', async () => {
       mockAISettings(undefined, 'sk-test') // resolves to the OpenAI preset
       vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
 

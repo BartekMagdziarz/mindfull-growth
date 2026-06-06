@@ -26,7 +26,7 @@ import {
   useUserProfileStore,
   ProfileBuildError,
 } from '@/stores/userProfile.store'
-import type { UserProfileScope } from '@/domain/userProfile'
+import { PROFILE_MAX_TOKENS, type UserProfileScope } from '@/domain/userProfile'
 
 // Stub llmService.sendMessage so we can control responses deterministically.
 // Spreading `...actual` preserves DEFAULT_MODEL and other re-exports that the
@@ -37,7 +37,11 @@ vi.mock('@/services/llmService', async () => {
   )
   return { ...actual, sendMessage: vi.fn() }
 })
-import { sendMessage } from '@/services/llmService'
+import {
+  sendMessage,
+  computeMaxPromptTokens,
+  AI_PROVIDER_SETTINGS_KEY,
+} from '@/services/llmService'
 
 // A well-formed mock response covering every EN section header the parser
 // expects. Using the exact headers from `profileLLMAssists.ts`.
@@ -119,7 +123,26 @@ describe('Profile build flow integration', () => {
     await userProfileStore.loadProfiles()
     expect(userProfileStore.profiles).toHaveLength(0)
 
-    vi.mocked(sendMessage).mockResolvedValue(CANNED_SUCCESS_RESPONSE)
+    // Report token usage through the diagnostics callback so we can assert the
+    // build-log captures it end-to-end (snake_case → camelCase).
+    vi.mocked(sendMessage).mockImplementation(
+      async (_messages, _systemPrompt, options) => {
+        options?.onDiagnostics?.({
+          provider: 'ollama',
+          model: 'gemma4:e4b',
+          timing: {},
+          observed: {
+            reasoningChunks: 0,
+            reasoningCharacters: 0,
+            contentChunks: 0,
+            contentCharacters: 0,
+          },
+          usage: { prompt_tokens: 5000, completion_tokens: 600, total_tokens: 5600 },
+          rawMetadata: {},
+        })
+        return CANNED_SUCCESS_RESPONSE
+      },
+    )
 
     // ---- Build ----
     const result = await userProfileStore.buildProfile(testScope())
@@ -158,6 +181,12 @@ describe('Profile build flow integration', () => {
     // Response body should contain the raw LLM text.
     expect(latest.responseBody).toContain('## Summary')
     expect(latest.latencyMs).toBeGreaterThanOrEqual(0)
+    // Real provider token usage captured via onDiagnostics, mapped to camelCase.
+    expect(latest.tokenUsage).toEqual({
+      promptTokens: 5000,
+      completionTokens: 600,
+      totalTokens: 5600,
+    })
   })
 
   it('records a failure log when the LLM call throws and propagates ProfileBuildError', async () => {
@@ -202,5 +231,55 @@ describe('Profile build flow integration', () => {
     expect(logs).toHaveLength(1)
     expect(logs[0].success).toBe(false)
     expect(logs[0].errorMessage).toMatch(/AI provider/i)
+  })
+
+  it('budget-trims a large local-provider scope instead of throwing contextTooLarge', async () => {
+    // Switch to a local provider so the computed prompt budget applies.
+    await userSettingsDexieRepository.set(
+      AI_PROVIDER_SETTINGS_KEY,
+      JSON.stringify({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      }),
+    )
+
+    // Seed many large journal entries — well over the ~56k-token Ollama budget.
+    const { journalStore } = initializeStores()
+    await journalStore.loadEntries()
+    for (let i = 0; i < 20; i++) {
+      await journalStore.createEntry({
+        title: `Big entry ${i}`,
+        body: 'lorem ipsum '.repeat(1000), // ~12k chars ⇒ ~4k tokens each
+        emotionIds: [],
+        peopleTagIds: [],
+        contextTagIds: [],
+        createdAt: `2026-${String((i % 5) + 1).padStart(2, '0')}-01T00:00:00.000Z`,
+      })
+    }
+
+    vi.mocked(sendMessage).mockResolvedValue(CANNED_SUCCESS_RESPONSE)
+
+    const userProfileStore = useUserProfileStore()
+    // Pre-Pillar-2 this scope threw contextTooLarge; now it must build.
+    const result = await userProfileStore.buildProfile(
+      testScope({ dataTypes: ['journal'], dateRange: { kind: 'preset', preset: 'all' } }),
+    )
+
+    expect(result.sections.summary).toContain('Reflective')
+    expect(sendMessage).toHaveBeenCalledTimes(1)
+
+    const logs = await profileBuildLogDexieRepository.list(5)
+    const latest = logs[0]
+    expect(latest.success).toBe(true)
+    // The oldest entries were trimmed to fit.
+    expect(latest.droppedByType?.journal ?? 0).toBeGreaterThan(0)
+
+    // The payload that was actually sent fits the computed budget (chars/3 ≤ budget).
+    const budget = computeMaxPromptTokens('ollama', 'low', PROFILE_MAX_TOKENS) as number
+    const userMsg = (
+      JSON.parse(latest.requestBody) as { messages: { content: string }[] }
+    ).messages[0].content
+    expect(Math.ceil(userMsg.length / 3)).toBeLessThanOrEqual(budget)
   })
 })

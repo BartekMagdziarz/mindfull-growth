@@ -34,6 +34,8 @@ function makeLog(overrides: Partial<ProfileBuildLogEntry> = {}): ProfileBuildLog
     errorMessage: overrides.errorMessage,
     resultProfileId: overrides.resultProfileId,
     tokenUsage: overrides.tokenUsage,
+    estimateBreakdown: overrides.estimateBreakdown,
+    droppedByType: overrides.droppedByType,
   }
 }
 
@@ -292,6 +294,79 @@ describe('ProfileBuildLogPanel', () => {
         '[data-test-build-log-row="log-raw"] [data-test-build-log-request]',
       )
       expect(req?.textContent).toBe('not json at all')
+    })
+  })
+
+  it('renders the estimate breakdown (per-type × age) for an expanded row', async () => {
+    vi.mocked(profileBuildLogDexieRepository.list).mockResolvedValue([
+      makeLog({
+        id: 'log-a',
+        estimateBreakdown: {
+          approxTokens: 9300,
+          tokensByType: { journal: 9100, emotionLogs: 200 },
+          tokensByAge: {
+            '0-30d': 3400,
+            '31-90d': 0,
+            '91-365d': 5900,
+            '365d+': 0,
+            undated: 0,
+          },
+        },
+      }),
+    ])
+    const user = userEvent.setup()
+    const { container } = render(ProfileBuildLogPanel)
+
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-test-build-log-row="log-a"]'),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(
+      container.querySelector(
+        '[data-test-build-log-row="log-a"] button',
+      ) as HTMLButtonElement,
+    )
+
+    await waitFor(() => {
+      const block = container.querySelector('[data-test-estimate-breakdown]')
+      expect(block).toBeInTheDocument()
+      expect(block?.textContent).toContain('9300')
+      expect(block?.textContent).toContain('journal')
+      expect(block?.textContent).toContain('0-30d')
+      expect(block?.textContent).toContain('91-365d')
+      // Zero-cost buckets are dropped.
+      expect(block?.textContent).not.toContain('31-90d')
+    })
+  })
+
+  it('renders the trimmed-to-fit sub-block for an expanded row', async () => {
+    vi.mocked(profileBuildLogDexieRepository.list).mockResolvedValue([
+      makeLog({ id: 'log-a', droppedByType: { journal: 40, emotionLogs: 0 } }),
+    ])
+    const user = userEvent.setup()
+    const { container } = render(ProfileBuildLogPanel)
+
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-test-build-log-row="log-a"]'),
+      ).toBeInTheDocument()
+    })
+
+    await user.click(
+      container.querySelector(
+        '[data-test-build-log-row="log-a"] button',
+      ) as HTMLButtonElement,
+    )
+
+    await waitFor(() => {
+      const block = container.querySelector('[data-test-dropped-by-type]')
+      expect(block).toBeInTheDocument()
+      expect(block?.textContent).toContain('journal')
+      expect(block?.textContent).toContain('40')
+      // Zero-count types are pruned.
+      expect(block?.textContent).not.toContain('emotionLogs')
     })
   })
 

@@ -5,7 +5,10 @@ import {
   sendMessage,
   snapshotLLMDiagnostics,
   computeOllamaNumCtx,
+  computeMaxPromptTokens,
+  NUM_CTX_CHARS_PER_TOKEN,
   OLLAMA_NUM_CTX_CEILING,
+  PROMPT_SAFETY_TOKENS,
   type AIProviderSettings,
   type LLMDiagnostics,
 } from '../llmService'
@@ -135,6 +138,35 @@ describe('llmService', () => {
       expect(request.body.messages).toEqual([
         { role: 'user', content: 'Hello, how are you?' },
       ])
+    })
+
+    it('captures OpenAI non-streaming token usage via onDiagnostics', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
+      // OpenAI returns a usage block on non-streaming responses by default.
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: 'hi' } }],
+          usage: { prompt_tokens: 1200, completion_tokens: 80, total_tokens: 1280 },
+        }),
+      })
+
+      let captured: LLMDiagnostics | undefined
+      await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        // last non-undefined usage wins (the callback fires more than once)
+        onDiagnostics: (d) => {
+          if (d.usage) captured = d
+        },
+      })
+
+      expect(captured?.usage?.prompt_tokens).toBe(1200)
+      expect(captured?.usage?.completion_tokens).toBe(80)
+      expect(captured?.usage?.total_tokens).toBe(1280)
     })
 
     it('falls back to the legacy OpenAI key when provider settings are missing', async () => {
@@ -741,6 +773,34 @@ describe('llmService', () => {
 
     it('clamps at the ceiling', () => {
       expect(computeOllamaNumCtx(600000, 2048)).toBe(OLLAMA_NUM_CTX_CEILING)
+    })
+  })
+
+  describe('computeMaxPromptTokens', () => {
+    it('inverts num_ctx sizing per provider/effort (answer=6000, safety=2048)', () => {
+      expect(computeMaxPromptTokens('ollama', 'none', 6000)).toBe(56976)
+      expect(computeMaxPromptTokens('ollama', 'low', 6000)).toBe(56464)
+      expect(computeMaxPromptTokens('ollama', 'medium', 6000)).toBe(55952)
+      expect(computeMaxPromptTokens('ollama', 'high', 6000)).toBe(54928)
+      // mlx uses a fixed 2048 headroom regardless of effort.
+      expect(computeMaxPromptTokens('mlx', 'low', 6000)).toBe(54928)
+    })
+
+    it('returns null for hosted providers (no hard local window)', () => {
+      expect(computeMaxPromptTokens('openai', 'high', 6000)).toBeNull()
+      expect(computeMaxPromptTokens('custom', 'low', 6000)).toBeNull()
+    })
+
+    it('respects a custom safety margin', () => {
+      expect(computeMaxPromptTokens('ollama', 'low', 6000, 0)).toBe(56464 + PROMPT_SAFETY_TOKENS)
+    })
+
+    it('round-trips with computeOllamaNumCtx (budget leaves exactly CEILING − safety)', () => {
+      const budget = computeMaxPromptTokens('ollama', 'low', 6000) as number
+      // The build's num_predict at low effort = 6000 answer + 512 reasoning headroom.
+      const numCtx = computeOllamaNumCtx(budget * NUM_CTX_CHARS_PER_TOKEN, 6512)
+      expect(numCtx).toBe(OLLAMA_NUM_CTX_CEILING - PROMPT_SAFETY_TOKENS)
+      expect(numCtx).toBeLessThanOrEqual(OLLAMA_NUM_CTX_CEILING)
     })
   })
 

@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/vue'
 import { createPinia, setActivePinia } from 'pinia'
 import ProfilePreviewStep from '../ProfilePreviewStep.vue'
 import type {
+  ProfileAgeBucket,
   ProfileDataType,
   ProfileDateRange,
 } from '@/domain/userProfile'
@@ -146,5 +147,91 @@ describe('ProfilePreviewStep', () => {
     })
 
     expect(screen.getByText('My entry')).toBeInTheDocument()
+  })
+
+  it('renders the per-type × age token breakdown when provided', () => {
+    render(ProfilePreviewStep, {
+      props: {
+        isLoading: false,
+        error: null,
+        countsByType: { journal: 5, emotionLogs: 3 },
+        headers: [],
+        approxTokens: 9300,
+        dataTypes: ['journal', 'emotionLogs'] as ProfileDataType[],
+        dateRange: makeDateRange(),
+        tokensByType: { journal: 9100, emotionLogs: 200 },
+        tokensByAge: {
+          '0-30d': 3400,
+          '31-90d': 0,
+          '91-365d': 5900,
+          '365d+': 0,
+          undated: 0,
+        } as Record<ProfileAgeBucket, number>,
+      },
+    })
+
+    expect(document.querySelector('[data-test="token-breakdown"]')).toBeTruthy()
+    expect(document.querySelector('[data-test-tokens-type="journal"]')).toBeTruthy()
+    expect(document.querySelector('[data-test-tokens-type="emotionLogs"]')).toBeTruthy()
+    expect(document.querySelector('[data-test-tokens-age="0-30d"]')).toBeTruthy()
+    expect(document.querySelector('[data-test-tokens-age="91-365d"]')).toBeTruthy()
+    // Zero-cost buckets are dropped.
+    expect(document.querySelector('[data-test-tokens-age="31-90d"]')).toBeFalsy()
+    expect(document.querySelector('[data-test-tokens-age="undated"]')).toBeFalsy()
+    // Thousands are rendered compactly.
+    expect(screen.getByText('9.1k')).toBeInTheDocument()
+  })
+
+  it('omits the token breakdown when no token data is provided', () => {
+    render(ProfilePreviewStep, {
+      props: {
+        isLoading: false,
+        error: null,
+        countsByType: { journal: 5 },
+        headers: [],
+        approxTokens: 200,
+        dataTypes: ['journal'] as ProfileDataType[],
+        dateRange: makeDateRange(),
+      },
+    })
+
+    expect(document.querySelector('[data-test="token-breakdown"]')).toBeFalsy()
+  })
+
+  it('shows the trimmed notice (K of M) when records were dropped to fit', () => {
+    render(ProfilePreviewStep, {
+      props: {
+        isLoading: false,
+        error: null,
+        countsByType: { journal: 400 },
+        headers: [],
+        approxTokens: 9000,
+        dataTypes: ['journal'] as ProfileDataType[],
+        dateRange: makeDateRange(),
+        droppedByType: { journal: 80 },
+      },
+    })
+
+    const notice = document.querySelector('[data-test="trimmed-notice"]')
+    expect(notice).toBeTruthy()
+    expect(notice?.textContent).toContain('80')
+    expect(notice?.textContent).toContain('400')
+  })
+
+  it('omits the trimmed notice when nothing was dropped', () => {
+    render(ProfilePreviewStep, {
+      props: {
+        isLoading: false,
+        error: null,
+        countsByType: { journal: 5 },
+        headers: [],
+        approxTokens: 200,
+        dataTypes: ['journal'] as ProfileDataType[],
+        dateRange: makeDateRange(),
+        droppedByType: {},
+      },
+    })
+
+    expect(document.querySelector('[data-test="trimmed-notice"]')).toBeFalsy()
   })
 })

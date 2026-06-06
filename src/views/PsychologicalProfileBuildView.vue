@@ -63,6 +63,9 @@
           :counts-by-type="previewCountsByType"
           :headers="previewObjectHeaders"
           :approx-tokens="previewApproxTokens"
+          :tokens-by-type="previewTokensByType"
+          :tokens-by-age="previewTokensByAge"
+          :dropped-by-type="previewDroppedByType"
           :data-types="dataTypes"
           :date-range="dateRange"
           @refresh="computePreview"
@@ -168,6 +171,9 @@ const {
   previewCountsByType,
   previewObjectHeaders,
   previewApproxTokens,
+  previewTokensByType,
+  previewTokensByAge,
+  previewDroppedByType,
   isPreviewLoading,
   previewError,
   generateState,

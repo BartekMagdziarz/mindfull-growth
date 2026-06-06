@@ -1,9 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import {
+  assembleFromInput,
+  ageBucketOf,
   buildProfilePayload,
+  estimateTokens,
   getProfilePrompts,
   parseProfileResponse,
+  selectPayloadWithinBudget,
+  type ProfilePayloadEmotionLog,
   type ProfilePayloadInput,
+  type ProfilePayloadJournalEntry,
+  type ProfilePayloadWeeklyReflection,
   type ProfilePromptModule,
 } from '../profileLLMAssists'
 import { PROFILE_SECTION_IDS } from '@/domain/userProfile'
@@ -588,5 +595,233 @@ describe('parseProfileResponse', () => {
       expect(parsed.sections[id]).toBe('')
     }
     expect(parsed.extras).toBe('')
+  })
+})
+
+describe('estimateTokens', () => {
+  it('divides character count by 3 (matching num_ctx sizing), rounding up', () => {
+    expect(estimateTokens('')).toBe(0)
+    expect(estimateTokens('x'.repeat(9))).toBe(3)
+    expect(estimateTokens('x'.repeat(10))).toBe(4) // ceil(10/3)
+  })
+})
+
+describe('ageBucketOf', () => {
+  const NOW_MS = Date.UTC(2026, 5, 6) // 2026-06-06T00:00:00Z
+  const daysAgo = (n: number) => new Date(NOW_MS - n * 86_400_000).toISOString()
+
+  it('buckets by recency relative to nowMs', () => {
+    expect(ageBucketOf(daysAgo(10), NOW_MS)).toBe('0-30d')
+    expect(ageBucketOf(daysAgo(60), NOW_MS)).toBe('31-90d')
+    expect(ageBucketOf(daysAgo(200), NOW_MS)).toBe('91-365d')
+    expect(ageBucketOf(daysAgo(400), NOW_MS)).toBe('365d+')
+  })
+
+  it('treats missing or unparseable dates as undated', () => {
+    expect(ageBucketOf(undefined, NOW_MS)).toBe('undated')
+    expect(ageBucketOf('not-a-date', NOW_MS)).toBe('undated')
+  })
+})
+
+describe('assembleFromInput', () => {
+  const NOW_MS = Date.UTC(2026, 5, 6)
+  const daysAgo = (n: number) => new Date(NOW_MS - n * 86_400_000).toISOString()
+
+  function journalEntry(id: string, createdAt: string) {
+    return {
+      id,
+      createdAt,
+      title: `Title ${id}`,
+      body: `Body for entry ${id} with enough text to register some tokens.`,
+      emotionNames: ['calm'],
+      peopleNames: [],
+      contextNames: [],
+      lifeAreaNames: [],
+    }
+  }
+
+  it('returns text byte-identical to buildProfilePayload', () => {
+    const input = baseInput({
+      journalEntries: [journalEntry('a', daysAgo(5))],
+    })
+    const out = assembleFromInput(input, 'en', NOW_MS)
+    expect(out.text).toBe(buildProfilePayload(input, 'en'))
+    expect(out.approxTokens).toBe(estimateTokens(out.text))
+  })
+
+  it('attributes per-type and per-age token cost consistently', () => {
+    const input = baseInput({
+      journalEntries: [
+        journalEntry('recent', daysAgo(5)), // 0-30d
+        journalEntry('older', daysAgo(100)), // 91-365d
+      ],
+    })
+    const out = assembleFromInput(input, 'en', NOW_MS)
+
+    expect(out.tokensByType.journal).toBeGreaterThan(0)
+    expect(out.tokensByAge['0-30d']).toBeGreaterThan(0)
+    expect(out.tokensByAge['91-365d']).toBeGreaterThan(0)
+    expect(out.tokensByAge['31-90d']).toBe(0)
+    expect(out.tokensByAge['365d+']).toBe(0)
+    // Journal is the only type and each entry lands in exactly one age bucket,
+    // so the per-type total equals the sum across age buckets.
+    expect(out.tokensByType.journal).toBe(
+      out.tokensByAge['0-30d'] + out.tokensByAge['91-365d'],
+    )
+    // The headline includes bracket scaffolding, so it's ≥ the body attribution.
+    expect(out.approxTokens).toBeGreaterThanOrEqual(out.tokensByType.journal ?? 0)
+  })
+
+  it('files snapshot blocks (foundation/planning) under the undated bucket', () => {
+    const input = baseInput({
+      dataTypes: ['foundation', 'planning'],
+      foundation: { snapshot: 'Purpose: live deliberately.\nValues: clarity, courage.' },
+      planning: { snapshot: 'Active goal: ship the assembler.' },
+      lifeAreas: { snapshot: 'Health: steady. Work: busy.' },
+    })
+    const out = assembleFromInput(input, 'en', NOW_MS)
+
+    expect(out.tokensByType.foundation).toBeGreaterThan(0)
+    expect(out.tokensByType.planning).toBeGreaterThan(0) // planning + life areas
+    expect(out.tokensByAge.undated).toBeGreaterThan(0)
+    expect(out.tokensByAge['0-30d']).toBe(0)
+  })
+})
+
+describe('selectPayloadWithinBudget', () => {
+  const d = (n: number) => `2026-04-${String(n).padStart(2, '0')}T00:00:00.000Z`
+
+  function jEntry(id: string, createdAt: string, bodyLen = 30): ProfilePayloadJournalEntry {
+    return {
+      id,
+      createdAt,
+      body: 'x'.repeat(bodyLen),
+      emotionNames: [],
+      peopleNames: [],
+      contextNames: [],
+      lifeAreaNames: [],
+    }
+  }
+  function eLog(id: string, createdAt: string, noteLen = 30): ProfilePayloadEmotionLog {
+    return { id, createdAt, emotionNames: [], note: 'x'.repeat(noteLen), peopleNames: [], contextNames: [] }
+  }
+  function weekly(weekRef: string, createdAt: string, freeLen: number): ProfilePayloadWeeklyReflection {
+    return { weekRef, createdAt, ratings: {}, promptResponses: {}, freeformReflection: 'x'.repeat(freeLen) }
+  }
+  function scope(over: Partial<ProfilePayloadInput>): ProfilePayloadInput {
+    return { dataTypes: [], dateRange: { kind: 'preset', preset: 'all' }, ...over }
+  }
+
+  it('drops nothing when everything fits', () => {
+    const input = scope({
+      dataTypes: ['journal'],
+      journalEntries: [jEntry('j1', d(1)), jEntry('j2', d(2))],
+    })
+    const res = selectPayloadWithinBudget(input, 100_000)
+    expect(res.input.journalEntries).toHaveLength(2)
+    expect(res.droppedByType).toEqual({})
+    expect(res.fits).toBe(true)
+  })
+
+  it('keeps the newest records and drops the oldest to fit (newest-first)', () => {
+    // body 3000 ⇒ ~1015 tok each; budget 2500 keeps exactly 2.
+    const entries = [1, 2, 3, 4].map((n) => jEntry(`j${n}`, d(n), 3000))
+    const res = selectPayloadWithinBudget(
+      scope({ dataTypes: ['journal'], journalEntries: entries }),
+      2500,
+    )
+    expect((res.input.journalEntries ?? []).map((e) => e.id)).toEqual(['j4', 'j3'])
+    expect(res.droppedByType.journal).toBe(2)
+    expect(res.fits).toBe(true)
+  })
+
+  it('always keeps the bounded snapshots even under heavy pressure', () => {
+    const res = selectPayloadWithinBudget(
+      scope({
+        dataTypes: ['foundation', 'planning', 'journal'],
+        foundation: { snapshot: 'Purpose: clarity.' },
+        planning: { snapshot: 'Goal: ship it.' },
+        lifeAreas: { snapshot: 'Health: ok.' },
+        journalEntries: [1, 2, 3].map((n) => jEntry(`j${n}`, d(n), 3000)),
+      }),
+      50,
+    )
+    expect(res.input.foundation?.snapshot).toBe('Purpose: clarity.')
+    expect(res.input.planning?.snapshot).toBe('Goal: ship it.')
+    expect(res.input.lifeAreas?.snapshot).toBe('Health: ok.')
+    expect(res.input.journalEntries).toEqual([])
+    expect(res.droppedByType.journal).toBe(3)
+    expect(res.fits).toBe(true)
+  })
+
+  it('reports fits=false when mandatory snapshots alone exceed the budget', () => {
+    const res = selectPayloadWithinBudget(
+      scope({ dataTypes: ['foundation'], foundation: { snapshot: 'x'.repeat(3000) } }),
+      100,
+    )
+    expect(res.fits).toBe(false)
+    expect(res.mandatoryTokens).toBeGreaterThan(100)
+  })
+
+  it('splits the remainder ~70/30, never starving emotion logs', () => {
+    const journal = Array.from({ length: 60 }, (_, i) => jEntry(`j${i}`, d((i % 28) + 1)))
+    const logs = Array.from({ length: 60 }, (_, i) => eLog(`l${i}`, d((i % 28) + 1)))
+    const res = selectPayloadWithinBudget(
+      scope({ dataTypes: ['journal', 'emotionLogs'], journalEntries: journal, emotionLogs: logs }),
+      600,
+    )
+    const j = res.input.journalEntries?.length ?? 0
+    const l = res.input.emotionLogs?.length ?? 0
+    expect(j).toBeGreaterThan(0)
+    expect(l).toBeGreaterThan(0) // logs reserved share — not starved by journal
+    expect(j).toBeGreaterThan(l) // journal got the larger 70% share
+  })
+
+  it('donates unused journal budget to emotion logs', () => {
+    const journal = [jEntry('j1', d(5))] // one tiny journal entry → big slack
+    const logs = Array.from({ length: 60 }, (_, i) => eLog(`l${i}`, d((i % 28) + 1)))
+    const res = selectPayloadWithinBudget(
+      scope({ dataTypes: ['journal', 'emotionLogs'], journalEntries: journal, emotionLogs: logs }),
+      600,
+    )
+    expect(res.input.journalEntries).toHaveLength(1) // all journal kept
+    // Logs exceeded their bare 30% quota (~7 records) thanks to journal's slack.
+    expect(res.input.emotionLogs?.length ?? 0).toBeGreaterThan(10)
+  })
+
+  it('donates unused emotion-log budget to journal', () => {
+    const journal = Array.from({ length: 60 }, (_, i) => jEntry(`j${i}`, d((i % 28) + 1)))
+    const logs = [eLog('l1', d(5))]
+    const res = selectPayloadWithinBudget(
+      scope({ dataTypes: ['journal', 'emotionLogs'], journalEntries: journal, emotionLogs: logs }),
+      600,
+    )
+    expect(res.input.emotionLogs).toHaveLength(1)
+    // Journal exceeded its bare 70% quota (~17 records) thanks to the logs' slack.
+    expect(res.input.journalEntries?.length ?? 0).toBeGreaterThan(20)
+  })
+
+  it('admits reflections before journal (high-signal priority crowds journal out)', () => {
+    const res = selectPayloadWithinBudget(
+      scope({
+        dataTypes: ['weeklyReflections', 'journal'],
+        weeklyReflections: [weekly('2026-W20', d(20), 1500)],
+        journalEntries: [1, 2, 3, 4, 5].map((n) => jEntry(`j${n}`, d(n), 3000)),
+      }),
+      600,
+    )
+    expect(res.input.weeklyReflections).toHaveLength(1)
+    expect(res.input.journalEntries?.length ?? 0).toBeLessThan(5)
+  })
+
+  it('keeps input order on equal timestamps (stable)', () => {
+    const res = selectPayloadWithinBudget(
+      scope({
+        dataTypes: ['journal'],
+        journalEntries: [jEntry('a', d(10), 3000), jEntry('b', d(10), 3000)],
+      }),
+      1200, // ~1 entry
+    )
+    expect((res.input.journalEntries ?? []).map((e) => e.id)).toEqual(['a'])
   })
 })

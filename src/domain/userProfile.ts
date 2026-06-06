@@ -26,6 +26,41 @@ export const PROFILE_DATA_TYPES = [
 
 export type ProfileDataType = (typeof PROFILE_DATA_TYPES)[number]
 
+/**
+ * Coarse age buckets for attributing a build payload's token cost by record
+ * recency. `undated` holds snapshot blocks (foundation/planning/life areas)
+ * which have no per-record timestamp.
+ */
+export const PROFILE_AGE_BUCKETS = [
+  '0-30d',
+  '31-90d',
+  '91-365d',
+  '365d+',
+  'undated',
+] as const
+
+export type ProfileAgeBucket = (typeof PROFILE_AGE_BUCKETS)[number]
+
+/**
+ * Per-type and per-age attribution of the estimated token cost of a build
+ * payload. `approxTokens` is the source-of-truth headline (`estimateTokens` of
+ * the full payload text); the breakdowns sum to ≈ that minus bracket scaffolding.
+ */
+export interface ProfileEstimateBreakdown {
+  approxTokens: number
+  tokensByType: Partial<Record<ProfileDataType, number>>
+  tokensByAge: Record<ProfileAgeBucket, number>
+}
+
+/**
+ * Completion tokens reserved for a profile generation. A full 9-section portrait
+ * (~1800–3000 words) comfortably fits under 5000 tokens; 6000 leaves a small
+ * buffer for unusually verbose models without risking hard truncation. Lives in
+ * the domain (not the store) so the payload assembler can reserve for it when
+ * computing the prompt budget without importing the store (cycle-free).
+ */
+export const PROFILE_MAX_TOKENS = 6000
+
 export type ProfileDateRangePreset = 'last30' | 'last90' | 'last12m' | 'all'
 
 export type ProfileDateRange =
@@ -92,6 +127,17 @@ export interface ProfileBuildLogEntry {
     completionTokens: number
     totalTokens: number
   }
+  /**
+   * Per-type × age token-estimate breakdown for this build's payload, captured
+   * at assembly time. Persisted next to the real `tokenUsage` so the build-log
+   * panel can show estimate-vs-actual for calibration.
+   */
+  estimateBreakdown?: ProfileEstimateBreakdown
+  /**
+   * Per-type counts of records dropped by the budget-aware assembler to fit the
+   * model's context window. Empty/absent when nothing was trimmed.
+   */
+  droppedByType?: Partial<Record<ProfileDataType, number>>
   latencyMs: number
   success: boolean
   errorMessage?: string

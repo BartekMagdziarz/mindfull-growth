@@ -7,48 +7,24 @@ import type {
   UserProfileScope,
   ProfileSections,
   ProfileBuildLogEntry,
+  ProfileEstimateBreakdown,
 } from '@/domain/userProfile'
+import { PROFILE_MAX_TOKENS } from '@/domain/userProfile'
 import { userProfileDexieRepository } from '@/repositories/userProfileDexieRepository'
 import { profileBuildLogDexieRepository } from '@/repositories/profileBuildLogDexieRepository'
-import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
-import { useJournalStore } from '@/stores/journal.store'
-import { useEmotionLogStore } from '@/stores/emotionLog.store'
-import { useEmotionStore } from '@/stores/emotion.store'
-import { useTagStore } from '@/stores/tag.store'
-import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import {
   getAIProviderSettings,
   hasAIProviderConfigured,
   sendMessage,
-  OLLAMA_NUM_CTX_CEILING,
+  type LLMUsage,
 } from '@/services/llmService'
 import { withProfileContextSystemPrompt } from '@/services/userContext'
 import { resolveDateRange } from '@/composables/useProfileBuildWizard'
+import { getProfilePrompts, parseProfileResponse } from '@/services/profileLLMAssists'
 import {
-  getProfilePrompts,
-  buildProfilePayload,
-  parseProfileResponse,
-  type ProfilePayloadEmotionLog,
-  type ProfilePayloadExerciseSummary,
-  type ProfilePayloadJournalEntry,
-  type ProfilePayloadMonthlyReflection,
-  type ProfilePayloadWeeklyReflection,
-} from '@/services/profileLLMAssists'
-import {
-  buildFoundationSnapshot,
-  buildLifeAreasSnapshot,
-  buildPlanningSnapshot,
-  extractMonthlyRatings,
-  extractWeeklyRatings,
-  summariseExerciseSession,
-} from '@/services/profileLLMAssistsHelpers'
-import { getExerciseSessionBundlesForPeriod } from '@/services/reflectionDataQueries'
-
-// How many completion tokens to reserve for a profile generation. A full
-// 9-section portrait (~1800–3000 words) comfortably fits under 5000 tokens;
-// 6000 leaves a small buffer for unusually verbose models without risking
-// hard truncation.
-const PROFILE_MAX_TOKENS = 6000
+  assembleProfilePayload,
+  ProfilePayloadTooLargeError,
+} from '@/services/profilePayloadAssembler'
 
 /**
  * Typed failure modes for `buildProfile`. We keep this deliberately small —
@@ -195,6 +171,15 @@ export const useUserProfileStore = defineStore('userProfile', () => {
     let success = false
     let errorMessage: string | undefined
     let model = ''
+    // Real token usage reported by the provider. The diagnostics callback fires
+    // more than once on a non-streaming call (once before usage is known, once
+    // after) — keep the last non-undefined snapshot.
+    let lastUsage: LLMUsage | undefined
+    // Per-type × age token-estimate breakdown, captured at assembly time so the
+    // build-log can show estimate-vs-actual. Undefined if we throw before assembling.
+    let estimateBreakdown: ProfileEstimateBreakdown | undefined
+    // Per-type counts of records the budget-aware assembler trimmed to fit.
+    let droppedByType: ProfileBuildLogEntry['droppedByType']
 
     try {
       if (!(await hasAIProviderConfigured())) {
@@ -206,196 +191,28 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       const aiSettings = await getAIProviderSettings()
       model = aiSettings.model
 
-      // Local models (Ollama/MLX) share one fixed context window between the
-      // prompt and the answer. If even our largest window can't hold this
-      // scope plus the answer budget, fail early with guidance instead of
-      // letting the server truncate the prompt and return nothing. (+2048 ≈
-      // reasoning headroom + chat-template scaffolding.)
-      const isLocalProvider =
-        aiSettings.provider === 'ollama' || aiSettings.provider === 'mlx'
-      if (
-        isLocalProvider &&
-        scope.approxTokenCount + PROFILE_MAX_TOKENS + 2048 >
-          OLLAMA_NUM_CTX_CEILING
-      ) {
-        throw new ProfileBuildError(
-          'contextTooLarge',
-          `Selected scope (~${scope.approxTokenCount} tokens) exceeds the local model's context budget.`,
-        )
-      }
-
+      // Gather, name-resolve, format, budget-trim, and estimate the payload in
+      // one place — the same assembler the wizard preview uses, so "preview ==
+      // build minus the LLM". The assembler fills to the model's context budget
+      // (dropping oldest records, recording droppedByType) and throws only when
+      // the mandatory snapshot blocks alone can't fit. Resolve the window here
+      // and pass it in (the assembler must not import resolveDateRange — cycle).
       const { start, end } = resolveDateRange(scope.dateRange)
-      const included = scope.includedObjectIds ?? {}
-
-      // Lazy store handles — only touch the stores we actually need.
-      const enabled = new Set(scope.dataTypes)
-
-      // ---- Journal ----------------------------------------------------------
-      let journalEntries: ProfilePayloadJournalEntry[] | undefined
-      if (enabled.has('journal')) {
-        const journalStore = useJournalStore()
-        const emotionStore = useEmotionStore()
-        const tagStore = useTagStore()
-        const lifeAreaStore = useLifeAreaStore()
-        const ids = new Set(included.journal ?? [])
-        journalEntries = journalStore.sortedEntries
-          .filter(
-            (e) =>
-              e.createdAt >= start &&
-              e.createdAt <= end &&
-              (ids.size === 0 || ids.has(e.id)),
-          )
-          .map((e) => ({
-            id: e.id,
-            createdAt: e.createdAt,
-            title: e.title,
-            body: e.body ?? '',
-            emotionNames: (e.emotionIds ?? [])
-              .map((id) => emotionStore.getEmotionById(id)?.name)
-              .filter((n): n is string => typeof n === 'string'),
-            peopleNames: (e.peopleTagIds ?? [])
-              .map((id) => tagStore.getPeopleTagById(id)?.name)
-              .filter((n): n is string => typeof n === 'string'),
-            contextNames: (e.contextTagIds ?? [])
-              .map((id) => tagStore.getContextTagById(id)?.name)
-              .filter((n): n is string => typeof n === 'string'),
-            // JournalEntry doesn't store lifeAreaIds directly; derived link resolution
-            // happens client-side in the UI. For now we leave this empty.
-            lifeAreaNames: Array.isArray(
-              (e as unknown as { lifeAreaIds?: string[] }).lifeAreaIds,
-            )
-              ? ((e as unknown as { lifeAreaIds?: string[] }).lifeAreaIds ?? [])
-                  .map((id) => lifeAreaStore.getLifeAreaById(id)?.name)
-                  .filter((n): n is string => typeof n === 'string')
-              : [],
-          }))
+      const assembled = await assembleProfilePayload({
+        dataTypes: scope.dataTypes,
+        start,
+        end,
+        dateRange: scope.dateRange,
+        includedObjectIds: scope.includedObjectIds ?? {},
+        locale: scope.locale,
+      })
+      payload = assembled.text
+      droppedByType = assembled.droppedByType
+      estimateBreakdown = {
+        approxTokens: assembled.approxTokens,
+        tokensByType: assembled.tokensByType,
+        tokensByAge: assembled.tokensByAge,
       }
-
-      // ---- Emotion logs -----------------------------------------------------
-      let emotionLogs: ProfilePayloadEmotionLog[] | undefined
-      if (enabled.has('emotionLogs')) {
-        const emotionLogStore = useEmotionLogStore()
-        const emotionStore = useEmotionStore()
-        const tagStore = useTagStore()
-        const ids = new Set(included.emotionLogs ?? [])
-        emotionLogs = emotionLogStore.sortedLogs
-          .filter(
-            (l) =>
-              l.createdAt >= start &&
-              l.createdAt <= end &&
-              (ids.size === 0 || ids.has(l.id)),
-          )
-          .map((l) => ({
-            id: l.id,
-            createdAt: l.createdAt,
-            emotionNames: l.emotionIds
-              .map((id) => emotionStore.getEmotionById(id)?.name)
-              .filter((n): n is string => typeof n === 'string'),
-            note: l.note ?? '',
-            peopleNames: (l.peopleTagIds ?? [])
-              .map((id) => tagStore.getPeopleTagById(id)?.name)
-              .filter((n): n is string => typeof n === 'string'),
-            contextNames: (l.contextTagIds ?? [])
-              .map((id) => tagStore.getContextTagById(id)?.name)
-              .filter((n): n is string => typeof n === 'string'),
-          }))
-      }
-
-      // ---- Exercise sessions ------------------------------------------------
-      let exerciseSessions: ProfilePayloadExerciseSummary[] | undefined
-      if (enabled.has('exerciseSessions')) {
-        const bundles = await getExerciseSessionBundlesForPeriod(start, end)
-        const ids = new Set(included.exerciseSessions ?? [])
-        exerciseSessions = bundles
-          .filter((b) => ids.size === 0 || ids.has(b.id))
-          .map((b) => ({
-            id: b.id,
-            type: b.type,
-            createdAt: b.createdAt,
-            summary: summariseExerciseSession(b),
-          }))
-      }
-
-      // ---- Weekly reflections -----------------------------------------------
-      let weeklyReflections: ProfilePayloadWeeklyReflection[] | undefined
-      if (enabled.has('weeklyReflections')) {
-        const all = await structuredReflectionDexieRepository.listWeekly()
-        const ids = new Set(included.weeklyReflections ?? [])
-        weeklyReflections = all
-          .filter(
-            (r) =>
-              r.createdAt >= start &&
-              r.createdAt <= end &&
-              (ids.size === 0 || ids.has(r.id)),
-          )
-          .map((r) => ({
-            weekRef: r.weekRef,
-            ratings: extractWeeklyRatings(r),
-            promptResponses: r.promptResponses,
-            freeformReflection: r.freeformReflection,
-          }))
-      }
-
-      // ---- Monthly reflections ----------------------------------------------
-      let monthlyReflections: ProfilePayloadMonthlyReflection[] | undefined
-      if (enabled.has('monthlyReflections')) {
-        const all = await structuredReflectionDexieRepository.listMonthly()
-        const ids = new Set(included.monthlyReflections ?? [])
-        monthlyReflections = all
-          .filter(
-            (r) =>
-              r.createdAt >= start &&
-              r.createdAt <= end &&
-              (ids.size === 0 || ids.has(r.id)),
-          )
-          .map((r) => ({
-            monthRef: r.monthRef,
-            ratings: extractMonthlyRatings(r),
-            promptResponses: r.promptResponses,
-            freeformReflection: r.freeformReflection,
-          }))
-      }
-
-      // ---- Foundation -------------------------------------------------------
-      let foundation: { snapshot: string } | undefined
-      if (enabled.has('foundation')) {
-        const snapshot = await buildFoundationSnapshot()
-        if (snapshot.snapshot.trim().length > 0) {
-          foundation = { snapshot: snapshot.snapshot }
-        }
-      }
-
-      // ---- Planning ---------------------------------------------------------
-      let lifeAreas: { snapshot: string } | undefined
-      let planning: { snapshot: string } | undefined
-      if (enabled.has('planning')) {
-        const planningSnapshot = await buildPlanningSnapshot()
-        if (planningSnapshot.snapshot.trim().length > 0) {
-          planning = { snapshot: planningSnapshot.snapshot }
-        }
-
-        const lifeAreasSnapshot = buildLifeAreasSnapshot()
-        if (lifeAreasSnapshot.snapshot.trim().length > 0) {
-          lifeAreas = { snapshot: lifeAreasSnapshot.snapshot }
-        }
-      }
-
-      // ---- Payload + LLM call ----------------------------------------------
-      payload = buildProfilePayload(
-        {
-          dataTypes: scope.dataTypes,
-          dateRange: scope.dateRange,
-          journalEntries,
-          emotionLogs,
-          exerciseSessions,
-          weeklyReflections,
-          monthlyReflections,
-          foundation,
-          lifeAreas,
-          planning,
-        },
-        scope.locale,
-      )
 
       // Profile build is the single LLM call site that must NEVER include
       // the user's psychological profile in its system prompt — using a
@@ -409,7 +226,13 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       rawResponse = await sendMessage(
         [{ role: 'user', content: payload }],
         finalSystemPrompt,
-        { maxTokens: PROFILE_MAX_TOKENS, model },
+        {
+          maxTokens: PROFILE_MAX_TOKENS,
+          model,
+          onDiagnostics: (d) => {
+            if (d.usage) lastUsage = d.usage
+          },
+        },
       )
 
       const parsed = parseProfileResponse(rawResponse, promptModule)
@@ -442,6 +265,12 @@ export const useUserProfileStore = defineStore('userProfile', () => {
         errorMessage = err.message
         throw err
       }
+      // The budget-aware assembler throws when mandatory snapshots alone can't
+      // fit — map it to the typed contextTooLarge code the UI already handles.
+      if (err instanceof ProfilePayloadTooLargeError) {
+        errorMessage = err.message
+        throw new ProfileBuildError('contextTooLarge', err.message, err)
+      }
       const message = err instanceof Error ? err.message : String(err)
       errorMessage = message
       const code: ProfileBuildErrorCode = /api\s*key/i.test(message)
@@ -456,6 +285,19 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       isBuilding.value = false
       const latencyMs = Math.round(performance.now() - startedAt)
 
+      // Map the provider's snake_case usage into the build-log's camelCase
+      // shape. For Ollama, `completion_tokens` (eval_count) includes thinking
+      // tokens; `promptTokens` is the calibration gold signal for the estimator.
+      const tokenUsage = lastUsage
+        ? {
+            promptTokens: lastUsage.prompt_tokens ?? 0,
+            completionTokens: lastUsage.completion_tokens ?? 0,
+            totalTokens:
+              lastUsage.total_tokens ??
+              (lastUsage.prompt_tokens ?? 0) + (lastUsage.completion_tokens ?? 0),
+          }
+        : undefined
+
       // Best-effort log write — we never let a logging failure mask the
       // real outcome of the build.
       try {
@@ -469,6 +311,9 @@ export const useUserProfileStore = defineStore('userProfile', () => {
             maxTokens: PROFILE_MAX_TOKENS,
           }),
           responseBody: success ? rawResponse : (errorMessage ?? 'unknown error'),
+          tokenUsage,
+          estimateBreakdown,
+          droppedByType,
           latencyMs,
           success,
           errorMessage,

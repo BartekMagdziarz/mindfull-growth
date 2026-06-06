@@ -45,7 +45,11 @@ describe('queryScopePreview', () => {
     expect(result.countsByType.journal).toBe(0)
     expect(result.countsByType.emotionLogs).toBe(0)
     expect(result.headers).toEqual([])
-    expect(result.approxTokens).toBe(0)
+    // The estimate now reflects the REAL assembled payload, which always carries
+    // the [SCOPE]…[END OF DATA] scaffolding even when no records match — so it's
+    // a small non-zero number, and no data type contributes any tokens.
+    expect(result.approxTokens).toBeGreaterThan(0)
+    expect(Object.values(result.tokensByType).some((n) => (n ?? 0) > 0)).toBe(false)
   })
 
   it('counts journal and emotion logs inside the range only', async () => {

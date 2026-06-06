@@ -17,6 +17,7 @@ import {
   PROFILE_SECTION_IDS,
   createEmptySections,
   type CreateUserProfilePayload,
+  type ProfileAgeBucket,
   type ProfileDataType,
   type ProfileDateRange,
   type ProfileDateRangePreset,
@@ -69,6 +70,11 @@ export const WIZARD_DRAFT_KEY = 'profile-build-wizard'
 export const EDIT_SOURCE_SESSION_KEY = 'profile-build-edit-source'
 
 export type ProfilePreviewCounts = Partial<Record<ProfileDataType, number>>
+
+/** A fresh, fully-zeroed per-age token map (every bucket present). */
+function zeroTokensByAge(): Record<ProfileAgeBucket, number> {
+  return { '0-30d': 0, '31-90d': 0, '91-365d': 0, '365d+': 0, undated: 0 }
+}
 
 /**
  * Default set of data types for a first-pass portrait. Foundation starts
@@ -205,6 +211,9 @@ export function useProfileBuildWizard() {
   const previewObjectIdsByType = ref<Partial<Record<ProfileDataType, string[]>>>({})
   const previewObjectHeaders = ref<ProfilePreviewObjectHeader[]>([])
   const previewApproxTokens = ref(0)
+  const previewTokensByType = ref<Partial<Record<ProfileDataType, number>>>({})
+  const previewTokensByAge = ref<Record<ProfileAgeBucket, number>>(zeroTokensByAge())
+  const previewDroppedByType = ref<Partial<Record<ProfileDataType, number>>>({})
   const isPreviewLoading = ref(false)
   const previewError = ref<string | null>(null)
 
@@ -540,6 +549,10 @@ export function useProfileBuildWizard() {
     )
     previewObjectHeaders.value = []
     previewApproxTokens.value = source.scope.approxTokenCount
+    // No persisted breakdown on a saved profile — recomputed on the next preview.
+    previewTokensByType.value = {}
+    previewTokensByAge.value = zeroTokensByAge()
+    previewDroppedByType.value = {}
 
     // Generate: hydrate from the source so review can render.
     generatedSections.value = { ...source.sections }
@@ -583,6 +596,9 @@ export function useProfileBuildWizard() {
     previewObjectIdsByType.value = {}
     previewObjectHeaders.value = []
     previewApproxTokens.value = 0
+    previewTokensByType.value = {}
+    previewTokensByAge.value = zeroTokensByAge()
+    previewDroppedByType.value = {}
     isPreviewLoading.value = false
     previewError.value = null
 
@@ -662,6 +678,10 @@ export function useProfileBuildWizard() {
         dataTypes: [...dataTypes.value],
         start,
         end,
+        // Pass the real descriptor + locale so the assembled-payload estimate
+        // matches the build's [SCOPE] line exactly (single source of truth).
+        dateRange: JSON.parse(JSON.stringify(dateRange.value)) as ProfileDateRange,
+        locale: prefs.locale,
         filters: {
           emotionQuadrants: filters.emotionQuadrants ? [...filters.emotionQuadrants] : [],
           peopleTagIds: filters.peopleTagIds ? [...filters.peopleTagIds] : [],
@@ -673,12 +693,18 @@ export function useProfileBuildWizard() {
       previewObjectIdsByType.value = result.objectIdsByType
       previewObjectHeaders.value = result.headers
       previewApproxTokens.value = result.approxTokens
+      previewTokensByType.value = result.tokensByType ?? {}
+      previewTokensByAge.value = result.tokensByAge ?? zeroTokensByAge()
+      previewDroppedByType.value = result.droppedByType ?? {}
     } catch (err) {
       previewError.value = err instanceof Error ? err.message : 'Preview failed.'
       previewCountsByType.value = {}
       previewObjectIdsByType.value = {}
       previewObjectHeaders.value = []
       previewApproxTokens.value = 0
+      previewTokensByType.value = {}
+      previewTokensByAge.value = zeroTokensByAge()
+      previewDroppedByType.value = {}
     } finally {
       isPreviewLoading.value = false
     }
@@ -821,6 +847,9 @@ export function useProfileBuildWizard() {
     previewObjectIdsByType,
     previewObjectHeaders,
     previewApproxTokens,
+    previewTokensByType,
+    previewTokensByAge,
+    previewDroppedByType,
     previewTotalCount,
     isPreviewLoading,
     previewError,

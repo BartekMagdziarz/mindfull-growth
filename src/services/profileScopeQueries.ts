@@ -14,9 +14,12 @@ import { getQuadrant, type Quadrant } from '@/domain/emotion'
 import { getDisplayTitle } from '@/domain/journal'
 import {
   PROFILE_DATA_TYPES,
+  type ProfileAgeBucket,
   type ProfileDataType,
+  type ProfileDateRange,
   type ProfileScopeFilters,
 } from '@/domain/userProfile'
+import type { LocaleId } from '@/services/locale.service'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useJournalStore } from '@/stores/journal.store'
@@ -27,6 +30,7 @@ import {
   type FoundationItemId,
 } from '@/services/foundationCompleteness'
 import { getExerciseEntriesForPeriod } from '@/services/reflectionDataQueries'
+import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
 
 export interface ProfilePreviewObjectHeader {
   type: ProfileDataType
@@ -71,13 +75,35 @@ export interface ScopePreviewArgs {
   start: string // ISO
   end: string // ISO
   filters?: ProfileScopeFilters
+  /** Locale for the assembled-payload estimate; defaults to 'en'. */
+  locale?: LocaleId
+  /**
+   * The scope's date-range descriptor. Passed through to the assembler so the
+   * [SCOPE] line (and thus the token estimate) matches the build exactly.
+   * Defaults to a custom range derived from `start`/`end`.
+   */
+  dateRange?: ProfileDateRange
 }
 
 export interface ScopePreviewResult {
   countsByType: Partial<Record<ProfileDataType, number>>
   objectIdsByType: Partial<Record<ProfileDataType, string[]>>
   headers: ProfilePreviewObjectHeader[]
+  /**
+   * Honest token estimate — `estimateTokens` of the exact payload the build
+   * would assemble for this scope (single source of truth with the build).
+   */
   approxTokens: number
+  /** Per-type contribution to `approxTokens`. */
+  tokensByType: Partial<Record<ProfileDataType, number>>
+  /** Per record-age contribution to `approxTokens` (snapshots → 'undated'). */
+  tokensByAge: Record<ProfileAgeBucket, number>
+  /**
+   * Per-type counts of records the budget-aware assembler trimmed to fit the
+   * model's window (empty when nothing was dropped). `countsByType` stays the
+   * pre-trim match count, so the UI can show "kept of matched".
+   */
+  droppedByType: Partial<Record<ProfileDataType, number>>
 }
 
 // ---------------------------------------------------------------------------
@@ -86,11 +112,6 @@ export interface ScopePreviewResult {
 
 function isInRange(iso: string, start: string, end: string): boolean {
   return iso >= start && iso <= end
-}
-
-function estimateTokens(text: string): number {
-  if (!text) return 0
-  return Math.ceil(text.length / 4)
 }
 
 function hasAnyOverlap<T>(needles: T[] | undefined, haystack: T[] | undefined): boolean {
@@ -106,7 +127,7 @@ function hasAnyOverlap<T>(needles: T[] | undefined, haystack: T[] | undefined): 
 export async function queryScopePreview(
   args: ScopePreviewArgs,
 ): Promise<ScopePreviewResult> {
-  const { dataTypes, start, end, filters } = args
+  const { dataTypes, start, end, filters, locale = 'en', dateRange } = args
   const enabled = new Set(dataTypes)
   const emotionQuadrantCodes = filters?.emotionQuadrants ?? []
   const resolvedQuadrants = emotionQuadrantCodes.map((code) => QUADRANT_CODE_MAP[code])
@@ -114,7 +135,6 @@ export async function queryScopePreview(
   const countsByType: Partial<Record<ProfileDataType, number>> = {}
   const objectIdsByType: Partial<Record<ProfileDataType, string[]>> = {}
   const headers: ProfilePreviewObjectHeader[] = []
-  let approxTokens = 0
 
   // --- Journal ----------------------------------------------------------
   if (enabled.has('journal')) {
@@ -147,7 +167,6 @@ export async function queryScopePreview(
         title,
         date: entry.createdAt,
       })
-      approxTokens += estimateTokens(`${entry.title ?? ''} ${entry.body ?? ''}`)
     }
   }
 
@@ -191,7 +210,6 @@ export async function queryScopePreview(
         title,
         date: log.createdAt,
       })
-      approxTokens += estimateTokens(log.note ?? '') + 20
     }
   }
 
@@ -212,7 +230,6 @@ export async function queryScopePreview(
         title: entry.type,
         date: entry.createdAt,
       })
-      approxTokens += 200
     }
     objectIdsByType.exerciseSessions = ids
   }
@@ -246,7 +263,6 @@ export async function queryScopePreview(
           title: `Week ${r.weekRef}`,
           date: r.createdAt,
         })
-        approxTokens += estimateTokens(r.freeformReflection ?? '') + 150
       }
     }
 
@@ -263,7 +279,6 @@ export async function queryScopePreview(
           title: `Month ${r.monthRef}`,
           date: r.createdAt,
         })
-        approxTokens += estimateTokens(r.freeformReflection ?? '') + 250
       }
     }
   }
@@ -285,7 +300,6 @@ export async function queryScopePreview(
         title: FOUNDATION_PREVIEW_TITLES[status.id],
         date: status.lastCompletedAt ?? new Date(0).toISOString(),
       })
-      approxTokens += 200
     }
   }
 
@@ -309,11 +323,26 @@ export async function queryScopePreview(
     if (!enabled.has(key)) delete objectIdsByType[key]
   }
 
+  // Honest token estimate: assemble the EXACT payload the build would send for
+  // this scope (with the resolved object-id selection) and count it. This is the
+  // single source of truth shared with the build — preview == build minus the LLM.
+  const assembled = await assembleProfilePayload({
+    dataTypes,
+    start,
+    end,
+    dateRange: dateRange ?? { kind: 'custom', start, end },
+    includedObjectIds: objectIdsByType,
+    locale,
+  })
+
   return {
     countsByType,
     objectIdsByType,
     headers,
-    approxTokens,
+    approxTokens: assembled.approxTokens,
+    tokensByType: assembled.tokensByType,
+    tokensByAge: assembled.tokensByAge,
+    droppedByType: assembled.droppedByType,
   }
 }
 

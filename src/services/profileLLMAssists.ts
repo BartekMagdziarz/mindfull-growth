@@ -14,11 +14,14 @@
  */
 
 import type { GrammaticalGender, LocaleId } from '@/services/locale.service'
+import { NUM_CTX_CHARS_PER_TOKEN } from '@/services/llmService'
 import {
   PROFILE_SECTION_IDS,
   createEmptySections,
+  type ProfileAgeBucket,
   type ProfileDataType,
   type ProfileDateRange,
+  type ProfileEstimateBreakdown,
   type ProfileSectionId,
   type ProfileSections,
 } from '@/domain/userProfile'
@@ -181,6 +184,8 @@ export interface ProfilePayloadWeeklyReflection {
   ratings: Record<string, number | null>
   promptResponses: Record<string, string>
   freeformReflection: string
+  /** Used only for age-bucket attribution; never rendered into the payload. */
+  createdAt?: string
 }
 
 export interface ProfilePayloadMonthlyReflection {
@@ -188,6 +193,8 @@ export interface ProfilePayloadMonthlyReflection {
   ratings: Record<string, number | null>
   promptResponses: Record<string, string>
   freeformReflection: string
+  /** Used only for age-bucket attribution; never rendered into the payload. */
+  createdAt?: string
 }
 
 export interface ProfilePayloadSnapshot {
@@ -392,6 +399,278 @@ export function buildProfilePayload(
 
   lines.push('[END OF DATA]')
   return lines.join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// Token estimation + payload attribution
+// ---------------------------------------------------------------------------
+
+/**
+ * Estimate tokens from character count using the SAME divisor that sizes the
+ * Ollama context window (`NUM_CTX_CHARS_PER_TOKEN`), so the build's pre-flight
+ * guard and the wizard preview can't disagree about how big a scope is.
+ */
+export function estimateTokens(text: string): number {
+  if (!text) return 0
+  return Math.ceil(text.length / NUM_CTX_CHARS_PER_TOKEN)
+}
+
+/** Bucket a record's ISO `createdAt` into a coarse age band relative to `nowMs`. */
+export function ageBucketOf(
+  createdAt: string | undefined,
+  nowMs: number,
+): ProfileAgeBucket {
+  if (!createdAt) return 'undated'
+  const t = Date.parse(createdAt)
+  if (Number.isNaN(t)) return 'undated'
+  const days = (nowMs - t) / 86_400_000
+  if (days <= 30) return '0-30d'
+  if (days <= 90) return '31-90d'
+  if (days <= 365) return '91-365d'
+  return '365d+'
+}
+
+export interface AssembledPayloadBreakdown extends ProfileEstimateBreakdown {
+  /** Full payload text — byte-identical to `buildProfilePayload(input, locale)`. */
+  text: string
+}
+
+/**
+ * Pure assembly: produce the canonical payload text AND attribute its estimated
+ * token cost per data type and per record-age. `text` comes straight from
+ * `buildProfilePayload` (so it stays byte-identical to what the build sends);
+ * the breakdowns re-run the same per-record formatters to attribute cost.
+ * Bracket scaffolding ([SCOPE] / section markers / [END OF DATA]) is uncounted
+ * in the breakdowns — `approxTokens` (the whole text) is the source-of-truth headline.
+ */
+export function assembleFromInput(
+  input: ProfilePayloadInput,
+  locale: LocaleId,
+  nowMs: number,
+): AssembledPayloadBreakdown {
+  const text = buildProfilePayload(input, locale)
+  const enabled = new Set(input.dataTypes)
+
+  const tokensByType: Partial<Record<ProfileDataType, number>> = {}
+  const tokensByAge: Record<ProfileAgeBucket, number> = {
+    '0-30d': 0,
+    '31-90d': 0,
+    '91-365d': 0,
+    '365d+': 0,
+    undated: 0,
+  }
+
+  const add = (
+    type: ProfileDataType,
+    createdAt: string | undefined,
+    formatted: string,
+  ): void => {
+    const cost = estimateTokens(formatted)
+    if (cost === 0) return
+    tokensByType[type] = (tokensByType[type] ?? 0) + cost
+    tokensByAge[ageBucketOf(createdAt, nowMs)] += cost
+  }
+
+  // Mirrors the section gating in `buildProfilePayload` so the attribution
+  // covers exactly the records that appear in `text`.
+  if (enabled.has('foundation') && input.foundation?.snapshot.trim()) {
+    add('foundation', undefined, input.foundation.snapshot)
+  }
+  if (enabled.has('journal') && input.journalEntries) {
+    for (const e of input.journalEntries) add('journal', e.createdAt, formatJournalEntry(e))
+  }
+  if (enabled.has('emotionLogs') && input.emotionLogs) {
+    for (const l of input.emotionLogs) add('emotionLogs', l.createdAt, formatEmotionLog(l))
+  }
+  if (enabled.has('exerciseSessions') && input.exerciseSessions) {
+    for (const s of input.exerciseSessions) add('exerciseSessions', s.createdAt, formatExercise(s))
+  }
+  if (enabled.has('weeklyReflections') && input.weeklyReflections) {
+    for (const r of input.weeklyReflections) {
+      add('weeklyReflections', r.createdAt, formatWeeklyReflection(r))
+    }
+  }
+  if (enabled.has('monthlyReflections') && input.monthlyReflections) {
+    for (const r of input.monthlyReflections) {
+      add('monthlyReflections', r.createdAt, formatMonthlyReflection(r))
+    }
+  }
+  // [LIFE AREAS] and [PLANNING SNAPSHOT] are both gated by the 'planning' type.
+  if (enabled.has('planning')) {
+    if (input.lifeAreas?.snapshot.trim()) add('planning', undefined, input.lifeAreas.snapshot)
+    if (input.planning?.snapshot.trim()) add('planning', undefined, input.planning.snapshot)
+  }
+
+  return {
+    text,
+    approxTokens: estimateTokens(text),
+    tokensByType,
+    tokensByAge,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Budget-aware selection (Pillar 2)
+// ---------------------------------------------------------------------------
+
+export interface BudgetSelectionResult {
+  /** Trimmed copy of the input — newest records kept, oldest dropped to fit. */
+  input: ProfilePayloadInput
+  /** Per-type counts of records removed (zero entries pruned). */
+  droppedByType: Partial<Record<ProfileDataType, number>>
+  /** Token cost of the always-included snapshot blocks. */
+  mandatoryTokens: number
+  /** false ⟺ the mandatory snapshots alone exceed the budget. */
+  fits: boolean
+}
+
+// Each record is rendered as `(formatted, '')` then `join('\n')`, so it costs
+// its own length plus two newlines. Slightly conservative vs the attribution
+// estimate (which omits separators) — guarantees the reassembled payload fits.
+const PER_RECORD_SCAFFOLD_CHARS = 2
+
+function recordTokens(formatted: string): number {
+  return Math.ceil(
+    (formatted.length + PER_RECORD_SCAFFOLD_CHARS) / NUM_CTX_CHARS_PER_TOKEN,
+  )
+}
+
+function parsedTs(createdAt: string | undefined): number {
+  if (!createdAt) return -Infinity
+  const t = Date.parse(createdAt)
+  return Number.isNaN(t) ? -Infinity : t
+}
+
+interface Costed<T> {
+  record: T
+  cost: number
+  ts: number
+}
+
+/** Sort newest-first; undated/unparseable sort oldest. Stable on ties. */
+function costSortDesc<T>(records: T[], cost: (r: T) => number, when: (r: T) => string | undefined): Costed<T>[] {
+  return records
+    .map((record) => ({ record, cost: cost(record), ts: parsedTs(when(record)) }))
+    .sort((a, b) => (a.ts === b.ts ? 0 : b.ts - a.ts))
+}
+
+/** Greedily keep the newest contiguous prefix that fits `cap` (strict prefix). */
+function fillByCost<T>(costed: Costed<T>[], cap: number): { kept: T[]; used: number } {
+  const kept: T[] = []
+  let used = 0
+  for (const c of costed) {
+    if (used + c.cost > cap) break
+    kept.push(c.record)
+    used += c.cost
+  }
+  return { kept, used }
+}
+
+/**
+ * Fill the payload to a token budget instead of dumping everything. Admits the
+ * bounded high-signal snapshots whole (foundation → life areas → planning), then
+ * reflections, then exercises, then splits the remainder between journal (70%)
+ * and emotion logs (30%) with two-pass slack donation — each stream newest-first.
+ * Returns a trimmed input plus per-type drop counts; `fits=false` only when the
+ * mandatory snapshots alone can't fit (the caller turns that into contextTooLarge).
+ */
+export function selectPayloadWithinBudget(
+  input: ProfilePayloadInput,
+  maxPromptTokens: number,
+): BudgetSelectionResult {
+  const enabled = new Set(input.dataTypes)
+  const dropped: Partial<Record<ProfileDataType, number>> = {}
+
+  // 1. Mandatory snapshots (all-or-nothing, never trimmed).
+  let mandatoryTokens = 0
+  if (enabled.has('foundation') && input.foundation?.snapshot.trim()) {
+    mandatoryTokens += estimateTokens(input.foundation.snapshot)
+  }
+  if (enabled.has('planning')) {
+    if (input.lifeAreas?.snapshot.trim()) mandatoryTokens += estimateTokens(input.lifeAreas.snapshot)
+    if (input.planning?.snapshot.trim()) mandatoryTokens += estimateTokens(input.planning.snapshot)
+  }
+  if (mandatoryTokens > maxPromptTokens) {
+    return { input, droppedByType: {}, mandatoryTokens, fits: false }
+  }
+  let remaining = maxPromptTokens - mandatoryTokens
+
+  const out: ProfilePayloadInput = { ...input }
+
+  // 2. Reflections (weekly + monthly merged), newest-first per record.
+  const weekly = enabled.has('weeklyReflections') ? (input.weeklyReflections ?? []) : []
+  const monthly = enabled.has('monthlyReflections') ? (input.monthlyReflections ?? []) : []
+  type ReflTag =
+    | { kind: 'weekly'; r: ProfilePayloadWeeklyReflection }
+    | { kind: 'monthly'; r: ProfilePayloadMonthlyReflection }
+  const reflTagged: ReflTag[] = [
+    ...weekly.map((r): ReflTag => ({ kind: 'weekly', r })),
+    ...monthly.map((r): ReflTag => ({ kind: 'monthly', r })),
+  ]
+  const reflFill = fillByCost(
+    costSortDesc(
+      reflTagged,
+      (t) => recordTokens(t.kind === 'weekly' ? formatWeeklyReflection(t.r) : formatMonthlyReflection(t.r)),
+      (t) => t.r.createdAt,
+    ),
+    remaining,
+  )
+  remaining -= reflFill.used
+  if (enabled.has('weeklyReflections')) {
+    out.weeklyReflections = reflFill.kept.flatMap((t) => (t.kind === 'weekly' ? [t.r] : []))
+    const d = weekly.length - (out.weeklyReflections?.length ?? 0)
+    if (d > 0) dropped.weeklyReflections = d
+  }
+  if (enabled.has('monthlyReflections')) {
+    out.monthlyReflections = reflFill.kept.flatMap((t) => (t.kind === 'monthly' ? [t.r] : []))
+    const d = monthly.length - (out.monthlyReflections?.length ?? 0)
+    if (d > 0) dropped.monthlyReflections = d
+  }
+
+  // 3. Exercises, newest-first per record.
+  const exercises = enabled.has('exerciseSessions') ? (input.exerciseSessions ?? []) : []
+  const exFill = fillByCost(
+    costSortDesc(exercises, (s) => recordTokens(formatExercise(s)), (s) => s.createdAt),
+    remaining,
+  )
+  remaining -= exFill.used
+  if (enabled.has('exerciseSessions')) {
+    out.exerciseSessions = exFill.kept
+    const d = exercises.length - exFill.kept.length
+    if (d > 0) dropped.exerciseSessions = d
+  }
+
+  // 4. Journal 70% / emotion logs 30% of the remainder, with slack donation.
+  const journal = enabled.has('journal') ? (input.journalEntries ?? []) : []
+  const logs = enabled.has('emotionLogs') ? (input.emotionLogs ?? []) : []
+  const jCosted = costSortDesc(journal, (e) => recordTokens(formatJournalEntry(e)), (e) => e.createdAt)
+  const lCosted = costSortDesc(logs, (l) => recordTokens(formatEmotionLog(l)), (l) => l.createdAt)
+
+  const jQuota = Math.floor(remaining * 0.7)
+  const lQuota = remaining - jQuota
+  let jFill = fillByCost(jCosted, jQuota)
+  let lFill = fillByCost(lCosted, lQuota)
+  // Donate unused budget, journal first, capped so the combined total never
+  // exceeds `remaining` (extend journal up to remaining−logsUsed, then logs up
+  // to remaining−journalUsed).
+  if (remaining - jFill.used - lFill.used > 0 && jFill.kept.length < jCosted.length) {
+    jFill = fillByCost(jCosted, remaining - lFill.used)
+  }
+  if (remaining - jFill.used - lFill.used > 0 && lFill.kept.length < lCosted.length) {
+    lFill = fillByCost(lCosted, remaining - jFill.used)
+  }
+  if (enabled.has('journal')) {
+    out.journalEntries = jFill.kept
+    const d = journal.length - jFill.kept.length
+    if (d > 0) dropped.journal = d
+  }
+  if (enabled.has('emotionLogs')) {
+    out.emotionLogs = lFill.kept
+    const d = logs.length - lFill.kept.length
+    if (d > 0) dropped.emotionLogs = d
+  }
+
+  return { input: out, droppedByType: dropped, mandatoryTokens, fits: true }
 }
 
 // ---------------------------------------------------------------------------

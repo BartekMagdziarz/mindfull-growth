@@ -32,10 +32,20 @@ const OLLAMA_REASONING_HEADROOM: Record<ReasoningEffort, number> = {
  * gets a window that fits. The ceiling is a RAM guard and also the threshold
  * above which the profile build reports `contextTooLarge`.
  */
-const NUM_CTX_CHARS_PER_TOKEN = 3 // /4 underestimates Polish; /3 is the safer (bigger-window) bound
+// Exported so the profile-build estimator divides by the *same* ratio used to
+// size `num_ctx` — guard and window can't disagree.
+export const NUM_CTX_CHARS_PER_TOKEN = 3 // /4 underestimates Polish; /3 is the safer (bigger-window) bound
 const NUM_CTX_MARGIN = 512 // chat-template / role / BOS scaffolding
 const NUM_CTX_FLOOR = 4096 // Ollama's default — keeps short chats unaffected
 export const OLLAMA_NUM_CTX_CEILING = 65536
+
+/**
+ * Tokens carved out of the prompt budget for things the per-record estimate
+ * doesn't see: the system prompt (`num_ctx` counts system + user; the profile
+ * system prompt is ~800 tok, larger in gendered Polish), the [SCOPE]/section/
+ * [END OF DATA] scaffolding (~200 tok), and `ceil()`/chat-template slack.
+ */
+export const PROMPT_SAFETY_TOKENS = 2048
 
 /**
  * Pick a context window large enough to hold the prompt and the answer.
@@ -49,6 +59,29 @@ export function computeOllamaNumCtx(
   const promptTokens = Math.ceil(promptChars / NUM_CTX_CHARS_PER_TOKEN)
   const desired = promptTokens + numPredict + NUM_CTX_MARGIN
   return Math.min(OLLAMA_NUM_CTX_CEILING, Math.max(NUM_CTX_FLOOR, desired))
+}
+
+/**
+ * Inverse of {@link computeOllamaNumCtx}: the largest payload (user-message)
+ * token budget that still lets prompt + answer fit under the ceiling without
+ * truncation. Used by the profile-build assembler to fill-to-budget. Returns
+ * `null` for providers with no hard local context window (openai/custom), where
+ * there is nothing to truncate against.
+ *
+ * `answerTokens` is the completion reservation the build requests (PROFILE_MAX_TOKENS);
+ * the reasoning headroom mirrors what `sendMessage` adds to `num_predict` so the
+ * budget and the real request can't disagree.
+ */
+export function computeMaxPromptTokens(
+  provider: AIProviderId,
+  effort: ReasoningEffort,
+  answerTokens: number,
+  safety: number = PROMPT_SAFETY_TOKENS,
+): number | null {
+  if (provider !== 'ollama' && provider !== 'mlx') return null
+  const headroom =
+    provider === 'ollama' ? OLLAMA_REASONING_HEADROOM[effort] : MLX_REASONING_HEADROOM
+  return OLLAMA_NUM_CTX_CEILING - (answerTokens + headroom) - NUM_CTX_MARGIN - safety
 }
 
 export type AIProviderId = 'openai' | 'ollama' | 'mlx' | 'custom'
@@ -99,6 +132,7 @@ interface OpenAIResponse {
       reasoning?: unknown
     }
   }>
+  usage?: LLMUsage
   error?: {
     message: string
     type: string
@@ -448,6 +482,9 @@ const openAiAdapter: WireAdapter = {
     return {
       content: message.content ?? '',
       reasoningChars: reasoningToText(message.reasoning).length,
+      // OpenAI-compatible providers return a usage block on non-streaming
+      // responses; surface it so the profile build can log real token counts.
+      usage: data.usage,
     }
   },
 

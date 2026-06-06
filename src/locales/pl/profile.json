@@ -335,6 +335,21 @@
           "monthlyReflections": "Miesięczne",
           "foundation": "Fundament",
           "planning": "Planowanie"
+        },
+        "breakdown": {
+          "title": "Rozbicie tokenów",
+          "byType": "Według typu",
+          "byAge": "Według wieku"
+        },
+        "ageBuckets": {
+          "recent": "0–30 dni",
+          "quarter": "31–90 dni",
+          "year": "91–365 dni",
+          "older": "Ponad rok",
+          "undated": "Migawki"
+        },
+        "trimmed": {
+          "notice": "Przycięto {dropped} z {total} elementów, aby zmieścić się w oknie kontekstu modelu — pominięto najstarsze."
         }
       },
       "generate": {

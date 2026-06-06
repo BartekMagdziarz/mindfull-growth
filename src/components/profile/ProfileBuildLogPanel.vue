@@ -159,6 +159,69 @@
             </div>
           </div>
 
+          <!-- Estimate breakdown (per-type × age) -->
+          <div v-if="log.estimateBreakdown" data-test-estimate-breakdown>
+            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
+              Estimate (~{{ log.estimateBreakdown.approxTokens }} tok)
+            </h4>
+            <div class="space-y-2">
+              <div v-if="estimateTypeEntries(log).length > 0">
+                <div
+                  class="text-[10px] uppercase tracking-wide text-on-surface-variant mb-1"
+                >
+                  By type
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                  <div
+                    v-for="[type, tokens] in estimateTypeEntries(log)"
+                    :key="type"
+                    class="bg-section rounded-xl p-2"
+                  >
+                    <div class="text-on-surface-variant">{{ type }}</div>
+                    <div class="font-mono text-on-surface">{{ tokens }}</div>
+                  </div>
+                </div>
+              </div>
+              <div v-if="estimateAgeEntries(log).length > 0">
+                <div
+                  class="text-[10px] uppercase tracking-wide text-on-surface-variant mb-1"
+                >
+                  By age
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                  <div
+                    v-for="[bucket, tokens] in estimateAgeEntries(log)"
+                    :key="bucket"
+                    class="bg-section rounded-xl p-2"
+                  >
+                    <div class="text-on-surface-variant">{{ bucket }}</div>
+                    <div class="font-mono text-on-surface">{{ tokens }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trimmed to fit (budget-aware drops) -->
+          <div
+            v-if="droppedEntries(log).length > 0"
+            data-test-dropped-by-type
+          >
+            <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
+              Trimmed to fit
+            </h4>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div
+                v-for="[type, count] in droppedEntries(log)"
+                :key="type"
+                class="bg-section rounded-xl p-2"
+              >
+                <div class="text-on-surface-variant">{{ type }}</div>
+                <div class="font-mono text-on-surface">−{{ count }}</div>
+              </div>
+            </div>
+          </div>
+
           <!-- Scope -->
           <div>
             <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
@@ -315,6 +378,27 @@ function formatScopeSummary(scope: UserProfileScope): string {
     .join(', ')
   if (includedCount) lines.push(`includedObjectIds: ${includedCount}`)
   return lines.join('\n')
+}
+
+/** Non-zero per-type estimate entries for the breakdown grid. */
+function estimateTypeEntries(log: ProfileBuildLogEntry): [string, number][] {
+  return Object.entries(log.estimateBreakdown?.tokensByType ?? {}).filter(
+    (entry): entry is [string, number] => (entry[1] ?? 0) > 0,
+  )
+}
+
+/** Non-zero per-age estimate entries for the breakdown grid. */
+function estimateAgeEntries(log: ProfileBuildLogEntry): [string, number][] {
+  return Object.entries(log.estimateBreakdown?.tokensByAge ?? {}).filter(
+    (entry): entry is [string, number] => (entry[1] ?? 0) > 0,
+  )
+}
+
+/** Non-zero per-type drop counts (records trimmed to fit the budget). */
+function droppedEntries(log: ProfileBuildLogEntry): [string, number][] {
+  return Object.entries(log.droppedByType ?? {}).filter(
+    (entry): entry is [string, number] => (entry[1] ?? 0) > 0,
+  )
 }
 
 onMounted(async () => {
