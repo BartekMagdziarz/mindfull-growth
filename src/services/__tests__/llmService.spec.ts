@@ -4,6 +4,8 @@ import {
   LEGACY_OPENAI_API_KEY,
   sendMessage,
   snapshotLLMDiagnostics,
+  computeOllamaNumCtx,
+  OLLAMA_NUM_CTX_CEILING,
   type AIProviderSettings,
   type LLMDiagnostics,
 } from '../llmService'
@@ -51,6 +53,38 @@ function mockStream(events: string[]) {
     ok: true,
     body,
   })
+}
+
+// Ollama native /api/chat fixtures: `{ message: { content } }` + token counts,
+// and a newline-delimited JSON stream (not SSE `data:` frames).
+function mockOllamaSuccess(
+  content = 'This is a test response from the AI.',
+  extra: {
+    thinking?: string
+    prompt_eval_count?: number
+    eval_count?: number
+  } = {},
+) {
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({
+      message: {
+        role: 'assistant',
+        content,
+        ...(extra.thinking !== undefined ? { thinking: extra.thinking } : {}),
+      },
+      done: true,
+      done_reason: 'stop',
+      prompt_eval_count: extra.prompt_eval_count ?? 11,
+      eval_count: extra.eval_count ?? 7,
+      total_duration: 1234,
+      eval_duration: 567,
+    }),
+  })
+}
+
+function mockOllamaStream(objects: Array<Record<string, unknown>>) {
+  mockStream(objects.map((o) => JSON.stringify(o) + '\n'))
 }
 
 function latestRequest() {
@@ -121,19 +155,19 @@ describe('llmService', () => {
       expect(request.body.model).toBe('gpt-5-nano')
     })
 
-    it('sends Ollama requests without requiring an API key', async () => {
+    it('sends Ollama requests to the native /api/chat endpoint without an API key', async () => {
       storeSettings({
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
       })
-      mockSuccess('Ollama response')
+      mockOllamaSuccess('Ollama response')
 
       const result = await sendMessage([{ role: 'user', content: 'Hello' }])
 
       expect(result).toBe('Ollama response')
       const request = latestRequest()
-      expect(request.url).toBe('http://localhost:11434/v1/chat/completions')
+      expect(request.url).toBe('http://localhost:11434/api/chat')
       expect(request.init.headers.Authorization).toBeUndefined()
       expect(request.body.model).toBe('gemma4:e4b')
     })
@@ -156,49 +190,54 @@ describe('llmService', () => {
       )
     })
 
-    it('uses low reasoning effort and its smaller token headroom for Ollama by default', async () => {
+    it('puts the completion budget in options.num_predict and enables think for Ollama by default', async () => {
       storeSettings({
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
       })
-      mockSuccess('Ollama response')
+      mockOllamaSuccess('Ollama response')
 
       await sendMessage([{ role: 'user', content: 'Hello' }])
 
+      const body = latestRequest().body
       // 500 default answer budget + 512 low-effort reasoning headroom
-      expect(latestRequest().body.max_tokens).toBe(1012)
-      expect(latestRequest().body.reasoning_effort).toBe('low')
+      expect(body.options.num_predict).toBe(1012)
+      expect(body.think).toBe(true)
+      // native /api/chat must not carry the OpenAI-compatible fields
+      expect(body.max_tokens).toBeUndefined()
+      expect(body.reasoning_effort).toBeUndefined()
     })
 
-    it('maps Ollama reasoning effort to token headroom', async () => {
+    it('maps Ollama reasoning effort to the num_predict headroom', async () => {
       storeSettings({
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
         reasoningEffort: 'medium',
       })
-      mockSuccess('Ollama response')
+      mockOllamaSuccess('Ollama response')
 
       await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
         maxTokens: 300,
       })
 
-      expect(latestRequest().body.max_tokens).toBe(1324)
-      expect(latestRequest().body.reasoning_effort).toBe('medium')
+      const body = latestRequest().body
+      expect(body.options.num_predict).toBe(1324)
+      expect(body.think).toBe(true)
     })
 
-    it('streams visible content while keeping reasoning content hidden', async () => {
+    it('streams visible content while keeping thinking hidden (Ollama native)', async () => {
       storeSettings({
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
       })
-      mockStream([
-        'data: {"choices":[{"delta":{"reasoning":"private analysis"}}]}\n\n',
-        'data: {"choices":[{"delta":{"content":"Visible "}}]}\n',
-        '\ndata: {"choices":[{"delta":{"content":"answer"}}]}\n\n',
-        'data: [DONE]\n\n',
+      mockOllamaStream([
+        { message: { thinking: 'private analysis' } },
+        { message: { content: 'Visible ' } },
+        { message: { content: 'answer' } },
+        { message: { content: '' }, done: true, eval_count: 2 },
       ])
       const onToken = vi.fn()
       const onReasoning = vi.fn()
@@ -216,9 +255,8 @@ describe('llmService', () => {
         'answer',
       ])
       expect(latestRequest().body.stream).toBe(true)
-      expect(latestRequest().body.stream_options).toEqual({
-        include_usage: true,
-      })
+      // native /api/chat does not use OpenAI stream_options
+      expect(latestRequest().body.stream_options).toBeUndefined()
     })
 
     it('reports timing, observed chunks, and provider token usage', async () => {
@@ -227,11 +265,15 @@ describe('llmService', () => {
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
       })
-      mockStream([
-        'data: {"id":"run-1","model":"gemma4:e4b","choices":[{"delta":{"reasoning":"abc"}}]}\n\n',
-        'data: {"choices":[{"delta":{"content":"Answer"}}]}\n\n',
-        'data: {"choices":[],"usage":{"prompt_tokens":12,"completion_tokens":9,"total_tokens":21,"completion_tokens_details":{"reasoning_tokens":4}}}\n\n',
-        'data: [DONE]\n\n',
+      mockOllamaStream([
+        { model: 'gemma4:e4b', message: { thinking: 'abc' } },
+        { message: { content: 'Answer' } },
+        {
+          message: { content: '' },
+          done: true,
+          prompt_eval_count: 12,
+          eval_count: 9,
+        },
       ])
       const diagnosticsSnapshots: Array<{
         usage?: { total_tokens?: number }
@@ -259,15 +301,15 @@ describe('llmService', () => {
       expect(finalDiagnostics.timing.totalMs).toBeTypeOf('number')
     })
 
-    it('includes the effective token limits in diagnostics metadata', async () => {
+    it('includes the effective token limits and native request metadata in diagnostics', async () => {
       storeSettings({
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
       })
-      mockStream([
-        'data: {"choices":[{"delta":{"content":"Answer"}}]}\n\n',
-        'data: [DONE]\n\n',
+      mockOllamaStream([
+        { message: { content: 'Answer' } },
+        { message: { content: '' }, done: true, eval_count: 1 },
       ])
       const onDiagnostics = vi.fn()
 
@@ -278,11 +320,15 @@ describe('llmService', () => {
         onDiagnostics,
       })
 
+      // 'Hello' is 5 chars -> ceil(5/3)+1324+512 = 1838 < floor -> 4096
       expect(onDiagnostics.mock.calls[0][0].rawMetadata.request).toEqual({
         answerTokenBudget: 300,
         reasoningTokenHeadroom: 1024,
         completionTokenCap: 1324,
-        reasoningControl: 'provider-effort-hint',
+        reasoningControl: 'native-think',
+        wireFormat: 'ollama-native',
+        numCtx: 4096,
+        think: true,
       })
     })
 
@@ -341,7 +387,7 @@ describe('llmService', () => {
         baseUrl: 'http://localhost:11434/v1',
         model: 'gemma4:e4b',
       })
-      mockSuccess()
+      mockOllamaSuccess()
 
       await sendMessage(
         [{ role: 'user', content: 'User message' }],
@@ -516,7 +562,7 @@ describe('llmService', () => {
       ).rejects.toThrow('Empty response from API. Please try again.')
     })
 
-    it('returns only message content and ignores reasoning', async () => {
+    it('returns only message content and ignores thinking (Ollama native)', async () => {
       storeSettings({
         provider: 'ollama',
         baseUrl: 'http://localhost:11434/v1',
@@ -525,14 +571,11 @@ describe('llmService', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          choices: [
-            {
-              message: {
-                reasoning: 'private reasoning',
-                content: 'Visible answer',
-              },
-            },
-          ],
+          message: {
+            thinking: 'private reasoning',
+            content: 'Visible answer',
+          },
+          done: true,
         }),
       })
 
@@ -558,6 +601,146 @@ describe('llmService', () => {
       await expect(
         sendMessage([{ role: 'user', content: 'Hello' }]),
       ).rejects.toThrow('API request failed with status 500')
+    })
+
+    // --- Ollama native adapter specifics ---
+
+    it('derives the native URL when the Ollama baseUrl has no /v1 suffix', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434',
+        model: 'gemma4:e4b',
+      })
+      mockOllamaSuccess('ok')
+
+      await sendMessage([{ role: 'user', content: 'Hello' }])
+
+      expect(latestRequest().url).toBe('http://localhost:11434/api/chat')
+    })
+
+    it('sends think:false and no headroom when reasoning effort is none', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+        reasoningEffort: 'none',
+      })
+      mockOllamaSuccess('ok')
+
+      await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        maxTokens: 800,
+      })
+
+      const body = latestRequest().body
+      expect(body.think).toBe(false)
+      expect(body.options.num_predict).toBe(800)
+    })
+
+    it('auto-sizes num_ctx above the floor for a large prompt', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockOllamaSuccess('ok')
+
+      const big = 'x'.repeat(30000) // ~10000 tokens at chars/3
+      await sendMessage([{ role: 'user', content: big }], undefined, {
+        maxTokens: 2048,
+        reasoningEffort: 'none',
+      })
+
+      // ceil(30000/3) + 2048 + 512 = 12560
+      expect(latestRequest().body.options.num_ctx).toBe(12560)
+    })
+
+    it('clamps num_ctx at the ceiling for an oversized prompt', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockOllamaSuccess('ok')
+
+      const huge = 'x'.repeat(300000)
+      await sendMessage([{ role: 'user', content: huge }], undefined, {
+        maxTokens: 2048,
+        reasoningEffort: 'none',
+      })
+
+      expect(latestRequest().body.options.num_ctx).toBe(OLLAMA_NUM_CTX_CEILING)
+    })
+
+    it('reassembles a native answer split across stream chunk boundaries', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockStream([
+        '{"message":{"con',
+        'tent":"Hi"}}\n',
+        '{"message":{"content":""},"done":true,"eval_count":1}\n',
+      ])
+
+      const result = await sendMessage(
+        [{ role: 'user', content: 'Hello' }],
+        undefined,
+        { onToken: vi.fn() },
+      )
+
+      expect(result).toBe('Hi')
+    })
+
+    it('throws when a native thinking-only response has no visible content', async () => {
+      storeSettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          message: { thinking: 'lots of reasoning', content: '   ' },
+          done: true,
+        }),
+      })
+
+      await expect(
+        sendMessage([{ role: 'user', content: 'Hello' }]),
+      ).rejects.toThrow('Empty response from API. Please try again.')
+    })
+
+    it('treats a whitespace-only OpenAI response as empty', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5-nano',
+        apiKey: 'sk-test123456789',
+      })
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: '\n  \n' } }] }),
+      })
+
+      await expect(
+        sendMessage([{ role: 'user', content: 'Hello' }]),
+      ).rejects.toThrow('Empty response from API. Please try again.')
+    })
+  })
+
+  describe('computeOllamaNumCtx', () => {
+    it('uses the floor for a tiny prompt', () => {
+      expect(computeOllamaNumCtx(0, 500)).toBe(4096)
+    })
+
+    it('scales above the floor with prompt + answer budget', () => {
+      // ceil(30000/3) + 2048 + 512
+      expect(computeOllamaNumCtx(30000, 2048)).toBe(12560)
+    })
+
+    it('clamps at the ceiling', () => {
+      expect(computeOllamaNumCtx(600000, 2048)).toBe(OLLAMA_NUM_CTX_CEILING)
     })
   })
 

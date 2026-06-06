@@ -531,4 +531,62 @@ describe('parseProfileResponse', () => {
     expect(parsed.sections.summary).toBe('First summary.')
     expect(parsed.extras).toContain('Second summary.')
   })
+
+  it('accepts ATX headings of other levels (#, ###)', () => {
+    const raw = [
+      '# Summary',
+      '',
+      'Top-level summary body.',
+      '',
+      '### Values and guiding principles',
+      '',
+      'Values body.',
+    ].join('\n')
+
+    const parsed = parseProfileResponse(raw, module)
+    expect(parsed.sections.summary).toContain('Top-level summary body.')
+    expect(parsed.sections.values).toContain('Values body.')
+    expect(parsed.extras).toBe('')
+  })
+
+  it('accepts full-line bold pseudo-headings', () => {
+    const raw = [
+      '**Summary**',
+      '',
+      'Bold-header summary body.',
+      '',
+      '**Strengths**',
+      '',
+      'Strengths body.',
+    ].join('\n')
+
+    const parsed = parseProfileResponse(raw, module)
+    expect(parsed.sections.summary).toContain('Bold-header summary body.')
+    expect(parsed.sections.strengths).toContain('Strengths body.')
+    expect(parsed.extras).toBe('')
+  })
+
+  it('strips closed <think> blocks before parsing', () => {
+    const raw = [
+      '<think>I should open with their work-boundaries theme.</think>',
+      '',
+      '## Summary',
+      '',
+      'Clean summary body.',
+    ].join('\n')
+
+    const parsed = parseProfileResponse(raw, module)
+    expect(parsed.sections.summary).toContain('Clean summary body.')
+    expect(parsed.sections.summary).not.toContain('work-boundaries theme')
+    expect(parsed.extras).toBe('')
+  })
+
+  it('drops an orphan <think> with no closing tag (truncated reasoning)', () => {
+    const raw = '<think>reasoning that never finished and never produced sections'
+    const parsed = parseProfileResponse(raw, module)
+    for (const id of PROFILE_SECTION_IDS) {
+      expect(parsed.sections[id]).toBe('')
+    }
+    expect(parsed.extras).toBe('')
+  })
 })

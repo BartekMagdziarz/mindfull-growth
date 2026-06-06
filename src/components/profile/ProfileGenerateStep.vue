@@ -47,6 +47,53 @@
       </AppButton>
     </section>
 
+    <!-- Error: scope too large for the (local) model context -->
+    <section
+      v-else-if="state === 'error' && errorCode === 'contextTooLarge'"
+      class="neo-surface rounded-3xl p-6 space-y-4"
+      data-test-generate-state="context-too-large"
+    >
+      <div class="flex items-start gap-3">
+        <AppIcon name="data_usage" class="text-2xl text-on-surface-variant mt-0.5" />
+        <div class="min-w-0 flex-1">
+          <h2 class="text-base font-semibold text-on-surface">
+            {{ t('profile.psychologicalProfile.wizard.generate.contextTooLarge.title') }}
+          </h2>
+          <p class="text-sm text-on-surface-variant mt-1">
+            {{ t('profile.psychologicalProfile.wizard.generate.contextTooLarge.help') }}
+          </p>
+        </div>
+      </div>
+      <AppButton variant="filled" data-test-edit-scope @click="emit('editScope')">
+        {{ t('profile.psychologicalProfile.wizard.generate.contextTooLarge.cta') }}
+      </AppButton>
+    </section>
+
+    <!-- Error: model returned an empty / unusable response -->
+    <section
+      v-else-if="state === 'error' && errorCode === 'emptyResponse'"
+      class="neo-surface rounded-3xl p-6 space-y-4"
+      data-test-generate-state="empty-response"
+    >
+      <div class="flex items-start gap-3">
+        <AppIcon
+          name="sentiment_dissatisfied"
+          class="text-2xl text-on-surface-variant mt-0.5"
+        />
+        <div class="min-w-0 flex-1">
+          <h2 class="text-base font-semibold text-on-surface">
+            {{ t('profile.psychologicalProfile.wizard.generate.emptyResponse.title') }}
+          </h2>
+          <p class="text-sm text-on-surface-variant mt-1">
+            {{ t('profile.psychologicalProfile.wizard.generate.emptyResponse.help') }}
+          </p>
+        </div>
+      </div>
+      <AppButton variant="filled" data-test-retry @click="emit('retry')">
+        {{ t('profile.psychologicalProfile.wizard.generate.emptyResponse.cta') }}
+      </AppButton>
+    </section>
+
     <!-- Error: generic -->
     <section
       v-else-if="state === 'error'"
@@ -109,6 +156,7 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'retry'): void
   (e: 'goToSettings'): void
+  (e: 'editScope'): void
 }>()
 
 const { t } = useT()

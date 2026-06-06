@@ -23,6 +23,34 @@ const OLLAMA_REASONING_HEADROOM: Record<ReasoningEffort, number> = {
   high: 2048,
 }
 
+/**
+ * Ollama's context window (`num_ctx`) is a single shared budget for the prompt
+ * AND the generated answer. The server default is small (~4096), so a large
+ * prompt silently truncates and leaves no room to generate — the visible answer
+ * comes back empty. We auto-size `num_ctx` from the actual prompt length plus
+ * the completion budget so every Ollama call (chat, exercises, profile build)
+ * gets a window that fits. The ceiling is a RAM guard and also the threshold
+ * above which the profile build reports `contextTooLarge`.
+ */
+const NUM_CTX_CHARS_PER_TOKEN = 3 // /4 underestimates Polish; /3 is the safer (bigger-window) bound
+const NUM_CTX_MARGIN = 512 // chat-template / role / BOS scaffolding
+const NUM_CTX_FLOOR = 4096 // Ollama's default — keeps short chats unaffected
+export const OLLAMA_NUM_CTX_CEILING = 65536
+
+/**
+ * Pick a context window large enough to hold the prompt and the answer.
+ * Pure and exported for unit testing and for the profile build's pre-flight
+ * `contextTooLarge` guard.
+ */
+export function computeOllamaNumCtx(
+  promptChars: number,
+  numPredict: number,
+): number {
+  const promptTokens = Math.ceil(promptChars / NUM_CTX_CHARS_PER_TOKEN)
+  const desired = promptTokens + numPredict + NUM_CTX_MARGIN
+  return Math.min(OLLAMA_NUM_CTX_CEILING, Math.max(NUM_CTX_FLOOR, desired))
+}
+
 export type AIProviderId = 'openai' | 'ollama' | 'mlx' | 'custom'
 export type ReasoningEffort = 'none' | 'low' | 'medium' | 'high'
 
@@ -251,22 +279,323 @@ function nowMs(): number {
   return typeof performance !== 'undefined' ? performance.now() : Date.now()
 }
 
-function reasoningLength(delta?: OpenAIStreamDelta): number {
-  if (!delta) return 0
-  const reasoning = delta.reasoning ?? delta.reasoning_content
-  if (!reasoning) return 0
-  return typeof reasoning === 'string'
-    ? reasoning.length
-    : JSON.stringify(reasoning).length
+// ---------------------------------------------------------------------------
+// Wire-format adapters
+//
+// `sendMessage` keeps ALL shared concerns (settings, token-budget math,
+// diagnostics lifecycle, callbacks, error mapping, empty guard). The two
+// concerns that actually differ per provider — building the HTTP request and
+// parsing the response/stream — live behind this `WireAdapter`. Only
+// `provider === 'ollama'` uses the native adapter; openai/mlx/custom keep the
+// exact OpenAI-compatible behaviour.
+// ---------------------------------------------------------------------------
+
+/** Normalised request intent computed once (shared) and consumed by adapters. */
+interface RequestPlan {
+  model: string
+  messages: ChatMessage[] // system prompt already prepended
+  temperature: number
+  requestedMaxTokens: number
+  reasoningHeadroom: number
+  completionTokenCap: number
+  reasoningEffort: ReasoningEffort
+  stream: boolean
 }
 
-function hasReasoningDelta(delta?: OpenAIStreamDelta): boolean {
-  if (!delta) return false
-  return Boolean(delta.reasoning || delta.reasoning_content)
+/** One normalised streaming event, format-agnostic. */
+interface StreamDelta {
+  contentDelta: string
+  reasoningDelta: string
+  usage?: LLMUsage
+  rawMeta?: Record<string, unknown>
+  error?: string
+}
+
+interface BuiltRequest {
+  url: string
+  headers: Record<string, string>
+  body: Record<string, unknown>
+  /** Folded into `diagnostics.rawMetadata.request` (native: wireFormat/numCtx/think). */
+  requestMeta?: Record<string, unknown>
+}
+
+interface NonStreamingResult {
+  content: string
+  reasoningChars: number
+  usage?: LLMUsage
+  rawMeta?: Record<string, unknown>
+}
+
+interface WireAdapter {
+  format: 'openai' | 'ollama-native'
+  buildRequest(settings: AIProviderSettings, plan: RequestPlan): BuiltRequest
+  /** Throws only on structural invalidity; emptiness is the shared guard's job. */
+  parseNonStreaming(json: unknown): NonStreamingResult
+  splitEvents(buffer: string): { events: string[]; remainder: string }
+  /** Returns null to skip (sentinel / partial line / unparseable). */
+  parseStreamEvent(rawEvent: string): StreamDelta | null
+}
+
+// ---- Shared helpers -------------------------------------------------------
+
+function buildAuthHeaders(settings: AIProviderSettings): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (settings.apiKey) {
+    headers.Authorization = `Bearer ${settings.apiKey}`
+  }
+  return headers
+}
+
+/** Coerce a reasoning payload (string or object) to text for length tracking. */
+function reasoningToText(reasoning: unknown): string {
+  if (!reasoning) return ''
+  return typeof reasoning === 'string' ? reasoning : JSON.stringify(reasoning)
+}
+
+/** Whitespace-only content is treated as empty — a local "thinking" model that
+ *  exhausts its budget can emit just a newline, which must not pass as success. */
+function assertNonEmpty(content: string): void {
+  if (!content.trim()) {
+    throw new Error('Empty response from API. Please try again.')
+  }
+}
+
+function reasoningControlLabel(
+  provider: AIProviderId,
+  reasoningHeadroom: number,
+): string {
+  if (provider === 'ollama') return 'native-think'
+  return reasoningHeadroom > 0 ? 'completion-headroom-only' : 'none'
+}
+
+/** Map Ollama's native token counts into the shared `usage` shape. */
+function nativeUsage(
+  promptCount?: number,
+  evalCount?: number,
+): LLMUsage | undefined {
+  if (typeof promptCount !== 'number' && typeof evalCount !== 'number') {
+    return undefined
+  }
+  const prompt_tokens = promptCount ?? 0
+  const completion_tokens = evalCount ?? 0
+  return {
+    prompt_tokens,
+    completion_tokens,
+    total_tokens: prompt_tokens + completion_tokens,
+  }
+}
+
+const NATIVE_META_KEYS = [
+  'model',
+  'created_at',
+  'done_reason',
+  'total_duration',
+  'load_duration',
+  'prompt_eval_count',
+  'prompt_eval_duration',
+  'eval_count',
+  'eval_duration',
+] as const
+
+function pickNativeMeta(data: Record<string, unknown>): Record<string, unknown> {
+  const meta: Record<string, unknown> = {}
+  for (const key of NATIVE_META_KEYS) {
+    if (data[key] !== undefined) meta[key] = data[key]
+  }
+  return meta
+}
+
+/**
+ * The stored Ollama baseUrl is OpenAI-style (".../v1"); the native API lives at
+ * the server root. Strip a trailing `/v1` (tolerating its absence) and append
+ * `/api/chat`.
+ */
+function deriveOllamaNativeUrl(baseUrl: string): string {
+  const root = normaliseBaseUrl(baseUrl).replace(/\/v1$/, '')
+  return `${root}/api/chat`
+}
+
+// ---- OpenAI-compatible adapter (openai / mlx / custom — unchanged) ---------
+
+const openAiAdapter: WireAdapter = {
+  format: 'openai',
+
+  buildRequest(settings, plan) {
+    const body: Record<string, unknown> = {
+      model: plan.model,
+      messages: plan.messages,
+      temperature: plan.temperature,
+      max_tokens: plan.completionTokenCap,
+      ...(plan.stream
+        ? { stream: true, stream_options: { include_usage: true } }
+        : {}),
+    }
+    return {
+      url: `${normaliseBaseUrl(settings.baseUrl)}/chat/completions`,
+      headers: buildAuthHeaders(settings),
+      body,
+    }
+  },
+
+  parseNonStreaming(json) {
+    const data = json as OpenAIResponse
+    if (!data.choices || data.choices.length === 0) {
+      throw new Error('Invalid response from API. Please try again.')
+    }
+    const message = data.choices[0].message
+    return {
+      content: message.content ?? '',
+      reasoningChars: reasoningToText(message.reasoning).length,
+    }
+  },
+
+  splitEvents(buffer) {
+    const parts = buffer.split(/\r?\n\r?\n/)
+    const remainder = parts.pop() ?? ''
+    return { events: parts, remainder }
+  },
+
+  parseStreamEvent(rawEvent) {
+    const data = rawEvent
+      .split(/\r?\n/)
+      .filter((line) => line.startsWith('data:'))
+      .map((line) => line.slice(5).trimStart())
+      .join('\n')
+      .trim()
+
+    if (!data || data === '[DONE]') return null
+
+    let chunk: OpenAIStreamChunk
+    try {
+      chunk = JSON.parse(data) as OpenAIStreamChunk
+    } catch {
+      return null
+    }
+
+    if (chunk.error?.message) {
+      return { contentDelta: '', reasoningDelta: '', error: chunk.error.message }
+    }
+
+    const choice = chunk.choices?.[0]
+    const reasoning = choice?.delta?.reasoning ?? choice?.delta?.reasoning_content
+    return {
+      contentDelta: choice?.delta?.content ?? choice?.message?.content ?? '',
+      reasoningDelta: reasoningToText(reasoning),
+      usage: chunk.usage,
+      rawMeta: {
+        ...(chunk.id ? { id: chunk.id } : {}),
+        ...(chunk.model ? { model: chunk.model } : {}),
+        ...(chunk.created ? { created: chunk.created } : {}),
+        ...(chunk.usage ? { usage: chunk.usage } : {}),
+      },
+    }
+  },
+}
+
+// ---- Ollama native /api/chat adapter --------------------------------------
+
+interface OllamaNativeMessage {
+  content?: string
+  thinking?: string
+}
+
+interface OllamaNativeChunk {
+  message?: OllamaNativeMessage
+  done?: boolean
+  error?: unknown
+  prompt_eval_count?: number
+  eval_count?: number
+  model?: string
+  [key: string]: unknown
+}
+
+const ollamaNativeAdapter: WireAdapter = {
+  format: 'ollama-native',
+
+  buildRequest(settings, plan) {
+    const promptChars = plan.messages.reduce((n, m) => n + m.content.length, 0)
+    const numCtx = computeOllamaNumCtx(promptChars, plan.completionTokenCap)
+    // Native `think` is boolean — low/medium/high collapse to on/off, but the
+    // reasoning *budget* is still differentiated via num_predict's headroom.
+    const think = plan.reasoningEffort !== 'none'
+    const body: Record<string, unknown> = {
+      model: plan.model,
+      messages: plan.messages,
+      think,
+      // MUST be explicit: native defaults to streaming, which would break the
+      // non-streaming callers (profile build, exercise assists).
+      stream: plan.stream,
+      options: {
+        num_ctx: numCtx,
+        num_predict: plan.completionTokenCap,
+        temperature: plan.temperature,
+      },
+    }
+    return {
+      url: deriveOllamaNativeUrl(settings.baseUrl),
+      headers: buildAuthHeaders(settings),
+      body,
+      requestMeta: { wireFormat: 'ollama-native', numCtx, think },
+    }
+  },
+
+  parseNonStreaming(json) {
+    const data = json as OllamaNativeChunk
+    if (!data.message) {
+      throw new Error('Invalid response from API. Please try again.')
+    }
+    return {
+      content: data.message.content ?? '',
+      reasoningChars: (data.message.thinking ?? '').length,
+      usage: nativeUsage(data.prompt_eval_count, data.eval_count),
+      rawMeta: pickNativeMeta(data),
+    }
+  },
+
+  splitEvents(buffer) {
+    const parts = buffer.split(/\r?\n/)
+    const remainder = parts.pop() ?? ''
+    return { events: parts, remainder }
+  },
+
+  parseStreamEvent(rawEvent) {
+    const line = rawEvent.trim()
+    if (!line) return null
+
+    let obj: OllamaNativeChunk
+    try {
+      obj = JSON.parse(line) as OllamaNativeChunk
+    } catch {
+      // Partial JSON across a chunk boundary — leave it buffered for retry.
+      return null
+    }
+
+    if (obj.error) {
+      return { contentDelta: '', reasoningDelta: '', error: String(obj.error) }
+    }
+
+    const delta: StreamDelta = {
+      contentDelta: obj.message?.content ?? '',
+      reasoningDelta: obj.message?.thinking ?? '',
+    }
+    if (obj.model) delta.rawMeta = { model: obj.model }
+    if (obj.done === true) {
+      delta.usage = nativeUsage(obj.prompt_eval_count, obj.eval_count)
+      delta.rawMeta = { ...(delta.rawMeta ?? {}), ...pickNativeMeta(obj) }
+    }
+    return delta
+  },
+}
+
+function selectAdapter(provider: AIProviderId): WireAdapter {
+  return provider === 'ollama' ? ollamaNativeAdapter : openAiAdapter
 }
 
 async function readStreamingResponse(
   response: Response,
+  adapter: WireAdapter,
   options: SendMessageOptions,
   diagnostics: LLMDiagnostics,
   requestStartedAt: number,
@@ -287,53 +616,37 @@ async function readStreamingResponse(
     options.onDiagnostics?.(snapshotLLMDiagnostics(diagnostics))
   }
 
-  const processEvent = (event: string) => {
-    const data = event
-      .split(/\r?\n/)
-      .filter((line) => line.startsWith('data:'))
-      .map((line) => line.slice(5).trimStart())
-      .join('\n')
-      .trim()
+  const handleRaw = (rawEvent: string) => {
+    const delta = adapter.parseStreamEvent(rawEvent)
+    if (!delta) return
 
-    if (!data || data === '[DONE]') return
-
-    let chunk: OpenAIStreamChunk
-    try {
-      chunk = JSON.parse(data) as OpenAIStreamChunk
-    } catch {
-      return
+    if (delta.error) {
+      throw new Error(delta.error)
     }
 
-    if (chunk.error?.message) {
-      throw new Error(chunk.error.message)
-    }
-
-    const choice = chunk.choices?.[0]
-    const token = choice?.delta?.content ?? choice?.message?.content ?? ''
     const eventAt = nowMs()
 
-    if (chunk.usage) {
-      diagnostics.usage = chunk.usage
+    if (delta.usage) {
+      diagnostics.usage = delta.usage
     }
-    diagnostics.rawMetadata = {
-      ...diagnostics.rawMetadata,
-      ...(chunk.id ? { id: chunk.id } : {}),
-      ...(chunk.model ? { model: chunk.model } : {}),
-      ...(chunk.created ? { created: chunk.created } : {}),
-      ...(chunk.usage ? { usage: chunk.usage } : {}),
+    if (delta.rawMeta) {
+      diagnostics.rawMetadata = {
+        ...diagnostics.rawMetadata,
+        ...delta.rawMeta,
+      }
     }
 
-    if (hasReasoningDelta(choice?.delta)) {
+    if (delta.reasoningDelta) {
       if (reasoningStartedAt === null) {
         reasoningStartedAt = eventAt
         diagnostics.timing.reasoningStartMs = eventAt - requestStartedAt
       }
       diagnostics.observed.reasoningChunks += 1
-      diagnostics.observed.reasoningCharacters += reasoningLength(choice?.delta)
+      diagnostics.observed.reasoningCharacters += delta.reasoningDelta.length
       options.onReasoning?.()
     }
 
-    if (token) {
+    if (delta.contentDelta) {
       if (firstContentAt === null) {
         firstContentAt = eventAt
         diagnostics.timing.firstContentMs = eventAt - requestStartedAt
@@ -342,10 +655,10 @@ async function readStreamingResponse(
             eventAt - reasoningStartedAt
         }
       }
-      content += token
+      content += delta.contentDelta
       diagnostics.observed.contentChunks += 1
       diagnostics.observed.contentCharacters = content.length
-      options.onToken?.(token)
+      options.onToken?.(delta.contentDelta)
     }
 
     emitDiagnostics()
@@ -360,20 +673,18 @@ async function readStreamingResponse(
     }
     buffer += decoder.decode(value, { stream: !done })
 
-    const events = buffer.split(/\r?\n\r?\n/)
-    buffer = events.pop() ?? ''
-    events.forEach(processEvent)
+    const { events, remainder } = adapter.splitEvents(buffer)
+    buffer = remainder
+    events.forEach(handleRaw)
 
     if (done) break
   }
 
   if (buffer.trim()) {
-    processEvent(buffer)
+    handleRaw(buffer)
   }
 
-  if (!content) {
-    throw new Error('Empty response from API. Please try again.')
-  }
+  assertNonEmpty(content)
 
   const completedAt = nowMs()
   diagnostics.timing.totalMs = completedAt - requestStartedAt
@@ -406,6 +717,7 @@ export async function sendMessage(
 ): Promise<string> {
   try {
     const settings = await getAIProviderSettings()
+    const adapter = selectAdapter(settings.provider)
 
     // Construct messages array with system prompt if provided
     const requestMessages: ChatMessage[] = []
@@ -414,8 +726,8 @@ export async function sendMessage(
     }
     requestMessages.push(...messages)
 
-    // Construct request payload. Local "thinking" providers get extra token budget so
-    // hidden reasoning never starves the visible answer (see LOCAL_REASONING_HEADROOM).
+    // Local "thinking" providers get extra completion budget so hidden reasoning
+    // never starves the visible answer (see *_REASONING_HEADROOM).
     const requestedMaxTokens = options?.maxTokens ?? DEFAULT_MAX_TOKENS
     const reasoningEffort =
       options?.reasoningEffort ?? settings.reasoningEffort ?? 'low'
@@ -425,32 +737,24 @@ export async function sendMessage(
         : settings.provider === 'mlx'
           ? MLX_REASONING_HEADROOM
           : 0
-    const requestBody = {
+    const completionTokenCap = requestedMaxTokens + reasoningHeadroom
+
+    const plan: RequestPlan = {
       model: options?.model ?? settings.model,
       messages: requestMessages,
       temperature: options?.temperature ?? DEFAULT_TEMPERATURE,
-      max_tokens: requestedMaxTokens + reasoningHeadroom,
-      ...(options?.onToken
-        ? {
-            stream: true,
-            stream_options: { include_usage: true },
-          }
-        : {}),
-      ...(settings.provider === 'ollama'
-        ? { reasoning_effort: reasoningEffort }
-        : {}),
+      requestedMaxTokens,
+      reasoningHeadroom,
+      completionTokenCap,
+      reasoningEffort,
+      stream: Boolean(options?.onToken),
     }
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
-    if (settings.apiKey) {
-      headers.Authorization = `Bearer ${settings.apiKey}`
-    }
+    const built = adapter.buildRequest(settings, plan)
 
     const diagnostics: LLMDiagnostics = {
       provider: settings.provider,
-      model: options?.model ?? settings.model,
+      model: plan.model,
       ...(settings.provider === 'ollama' ? { reasoningEffort } : {}),
       timing: {},
       observed: {
@@ -463,22 +767,21 @@ export async function sendMessage(
         request: {
           answerTokenBudget: requestedMaxTokens,
           reasoningTokenHeadroom: reasoningHeadroom,
-          completionTokenCap: requestedMaxTokens + reasoningHeadroom,
-          reasoningControl:
-            settings.provider === 'ollama'
-              ? 'provider-effort-hint'
-              : reasoningHeadroom > 0
-                ? 'completion-headroom-only'
-                : 'none',
+          completionTokenCap,
+          reasoningControl: reasoningControlLabel(
+            settings.provider,
+            reasoningHeadroom,
+          ),
+          ...(built.requestMeta ?? {}),
         },
       },
     }
     const requestStartedAt = nowMs()
 
-    const response = await fetch(`${normaliseBaseUrl(settings.baseUrl)}/chat/completions`, {
+    const response = await fetch(built.url, {
       method: 'POST',
-      headers,
-      body: JSON.stringify(requestBody),
+      headers: built.headers,
+      body: JSON.stringify(built.body),
     })
     diagnostics.timing.connectionMs = nowMs() - requestStartedAt
     diagnostics.rawMetadata = {
@@ -497,12 +800,21 @@ export async function sendMessage(
         throw new Error(CHAT_COPY.errors.rateLimit)
       }
 
-      // Try to parse error response from OpenAI
+      // Try to parse an error body. OpenAI nests it under error.message; Ollama
+      // native returns a bare string under `error`.
       let errorMessage: string | null = null
       try {
-        const errorData: OpenAIResponse = await response.json()
-        if (errorData.error?.message) {
-          errorMessage = errorData.error.message
+        const errorData = (await response.json()) as { error?: unknown }
+        const err = errorData.error
+        if (typeof err === 'string') {
+          errorMessage = err
+        } else if (
+          err &&
+          typeof err === 'object' &&
+          'message' in err &&
+          typeof (err as { message?: unknown }).message === 'string'
+        ) {
+          errorMessage = (err as { message: string }).message
         }
       } catch {
         // If parsing fails, use generic error message
@@ -518,25 +830,39 @@ export async function sendMessage(
     if (options?.onToken) {
       return await readStreamingResponse(
         response,
+        adapter,
         options,
         diagnostics,
         requestStartedAt,
       )
     }
 
-    // Parse successful response
-    const data: OpenAIResponse = await response.json()
+    // Parse successful (non-streaming) response.
+    const data: unknown = await response.json()
+    const result = adapter.parseNonStreaming(data)
+    assertNonEmpty(result.content)
 
-    if (!data.choices || data.choices.length === 0) {
-      throw new Error('Invalid response from API. Please try again.')
+    // Parity diagnostics for the non-streaming path so native usage / thinking
+    // reach subscribers (inert when nothing is subscribed).
+    diagnostics.observed.contentChunks = 1
+    diagnostics.observed.contentCharacters = result.content.length
+    if (result.reasoningChars > 0) {
+      diagnostics.observed.reasoningChunks = 1
+      diagnostics.observed.reasoningCharacters = result.reasoningChars
     }
-
-    const content = data.choices[0].message.content
-    if (!content) {
-      throw new Error('Empty response from API. Please try again.')
+    if (result.usage) {
+      diagnostics.usage = result.usage
     }
+    if (result.rawMeta) {
+      diagnostics.rawMetadata = {
+        ...diagnostics.rawMetadata,
+        ...result.rawMeta,
+      }
+    }
+    diagnostics.timing.totalMs = nowMs() - requestStartedAt
+    options?.onDiagnostics?.(snapshotLLMDiagnostics(diagnostics))
 
-    return content
+    return result.content
   } catch (error) {
     // Re-throw user-friendly errors as-is
     if (error instanceof Error && error.message.includes('API key')) {

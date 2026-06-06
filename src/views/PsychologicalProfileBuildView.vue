@@ -74,6 +74,7 @@
           :error-code="generateErrorCode"
           @retry="retryGenerate"
           @go-to-settings="goToSettings"
+          @edit-scope="() => goToStep('scope')"
         />
         <ProfileReviewStep
           v-else-if="currentStep === 'review' && generatedSections"

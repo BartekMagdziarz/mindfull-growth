@@ -346,6 +346,16 @@
           "help": "Generowanie profilu wymaga providera AI. Dodaj OpenAI albo lokalny endpoint zgodny z OpenAI w Ustawieniach AI i wróć tutaj — Twoje wybrane ustawienia zakresu zostaną zachowane.",
           "cta": "Przejdź do Ustawień AI"
         },
+        "contextTooLarge": {
+          "title": "Zakres zbyt duży dla tego modelu",
+          "help": "Wybrane dane przekraczają okno kontekstu Twojego lokalnego modelu. Skróć zakres dat, odznacz część typów danych lub zawęź filtry i spróbuj ponownie.",
+          "cta": "Popraw zakres"
+        },
+        "emptyResponse": {
+          "title": "Model zwrócił pusty profil",
+          "help": "AI nie wygenerowało użytecznych sekcji — często to lokalny model, któremu zabrakło miejsca. Spróbuj ponownie; jeśli się powtarza, zwiększ okno kontekstu modelu albo wybierz mniejszy zakres.",
+          "cta": "Spróbuj ponownie"
+        },
         "error": {
           "title": "Generowanie nie powiodło się",
           "retry": "Spróbuj ponownie"

@@ -426,14 +426,31 @@ interface HeaderHit {
 
 function findHeaders(raw: string): HeaderHit[] {
   const hits: HeaderHit[] = []
-  const regex = /^##\s+(.+)$/gm
+  // Accept ATX headings of any level (`#`..`######`) and full-line bold
+  // pseudo-headings (`**Header**`). Local models don't always emit exactly
+  // `## ` — tolerating the common variants stops a whole portrait from
+  // silently falling into `extras`.
+  const regex = /^(?:#{1,6}\s+(.+?)|\*\*(.+?)\*\*)\s*$/gm
   let match: RegExpExecArray | null
   while ((match = regex.exec(raw)) !== null) {
     const start = match.index
     const end = start + match[0].length
-    hits.push({ start, end, raw: match[1] })
+    hits.push({ start, end, raw: (match[1] ?? match[2]).trim() })
   }
   return hits
+}
+
+/**
+ * Strip chain-of-thought so it never reaches the section parser. Removes closed
+ * `<think>…</think>` blocks and an orphan `<think>` with no close (a truncated
+ * thinking-only response). Native Ollama keeps reasoning in a separate field,
+ * but a model that inlines it into `content` would otherwise pollute `extras`.
+ */
+function stripThinkBlocks(raw: string): string {
+  return raw
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/<think>[\s\S]*$/i, '')
+    .trim()
 }
 
 /**
@@ -447,6 +464,7 @@ export function parseProfileResponse(
 ): ParsedProfileResponse {
   const sections = createEmptySections()
   const extrasChunks: string[] = []
+  const cleaned = stripThinkBlocks(raw)
 
   // Build header lookup from ALL known localisations so we tolerate mixed
   // output (model switches language mid-response, rare but possible).
@@ -459,22 +477,23 @@ export function parseProfileResponse(
     lookup.set(normaliseHeader(PL_HEADERS[id]), id)
   }
 
-  const hits = findHeaders(raw)
+  const hits = findHeaders(cleaned)
   if (hits.length === 0) {
-    // No H2 at all — treat whole response as extras so it isn't lost.
-    return { sections, extras: raw.trim() }
+    // No recognisable header at all — treat whole response as extras so it
+    // isn't lost. (buildProfile turns an all-empty parse into a real error.)
+    return { sections, extras: cleaned.trim() }
   }
 
   // Prose before the first header.
   if (hits[0].start > 0) {
-    const prelude = raw.slice(0, hits[0].start).trim()
+    const prelude = cleaned.slice(0, hits[0].start).trim()
     if (prelude.length > 0) extrasChunks.push(prelude)
   }
 
   for (let i = 0; i < hits.length; i++) {
     const hit = hits[i]
-    const nextStart = i + 1 < hits.length ? hits[i + 1].start : raw.length
-    const body = raw.slice(hit.end, nextStart).trim()
+    const nextStart = i + 1 < hits.length ? hits[i + 1].start : cleaned.length
+    const body = cleaned.slice(hit.end, nextStart).trim()
     const id = lookup.get(normaliseHeader(hit.raw))
     if (id) {
       // If the model somehow emits the same header twice, keep the first

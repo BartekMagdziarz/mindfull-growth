@@ -569,6 +569,70 @@ describe('useUserProfileStore', () => {
       }
     })
 
+    it('classifies a whitespace-only model reply (llmService throw) as code="emptyResponse"', async () => {
+      mockAISettings(undefined, 'sk-test')
+      vi.mocked(sendMessage).mockRejectedValue(
+        new Error('Empty response from API. Please try again.'),
+      )
+
+      const store = useUserProfileStore()
+      try {
+        await store.buildProfile(validScope)
+        throw new Error('should have thrown')
+      } catch (err) {
+        expect(err).toBeInstanceOf(ProfileBuildError)
+        expect((err as ProfileBuildError).code).toBe('emptyResponse')
+      }
+    })
+
+    it('throws code="emptyResponse" when the response parses to all-empty sections', async () => {
+      mockAISettings(undefined, 'sk-test')
+      vi.mocked(sendMessage).mockResolvedValue(
+        'Just some prose with no recognisable headers at all.',
+      )
+
+      const store = useUserProfileStore()
+      try {
+        await store.buildProfile(validScope)
+        throw new Error('should have thrown')
+      } catch (err) {
+        expect(err).toBeInstanceOf(ProfileBuildError)
+        expect((err as ProfileBuildError).code).toBe('emptyResponse')
+      }
+    })
+
+    it('throws code="contextTooLarge" for a local provider when the scope cannot fit the largest window', async () => {
+      mockAISettings({
+        provider: 'ollama',
+        baseUrl: 'http://localhost:11434/v1',
+        model: 'gemma4:e4b',
+      })
+      const store = useUserProfileStore()
+
+      const promise = store.buildProfile({
+        ...validScope,
+        approxTokenCount: 100000,
+      })
+      await expect(promise).rejects.toBeInstanceOf(ProfileBuildError)
+      await expect(promise).rejects.toMatchObject({ code: 'contextTooLarge' })
+      // Guard fires before any model call.
+      expect(sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('does not apply the contextTooLarge guard to hosted providers', async () => {
+      mockAISettings(undefined, 'sk-test') // resolves to the OpenAI preset
+      vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
+
+      const store = useUserProfileStore()
+      const result = await store.buildProfile({
+        ...validScope,
+        approxTokenCount: 100000,
+      })
+
+      expect(result.sections.summary).toContain('A short portrait.')
+      expect(sendMessage).toHaveBeenCalledTimes(1)
+    })
+
     it('swallows logging failures without masking the build outcome', async () => {
       mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())

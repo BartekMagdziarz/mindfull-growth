@@ -20,6 +20,7 @@ import {
   getAIProviderSettings,
   hasAIProviderConfigured,
   sendMessage,
+  OLLAMA_NUM_CTX_CEILING,
 } from '@/services/llmService'
 import { withProfileContextSystemPrompt } from '@/services/userContext'
 import { resolveDateRange } from '@/composables/useProfileBuildWizard'
@@ -58,6 +59,7 @@ const PROFILE_MAX_TOKENS = 6000
 export type ProfileBuildErrorCode =
   | 'missingApiKey'
   | 'contextTooLarge'
+  | 'emptyResponse'
   | 'network'
   | 'unknown'
 
@@ -203,6 +205,24 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       }
       const aiSettings = await getAIProviderSettings()
       model = aiSettings.model
+
+      // Local models (Ollama/MLX) share one fixed context window between the
+      // prompt and the answer. If even our largest window can't hold this
+      // scope plus the answer budget, fail early with guidance instead of
+      // letting the server truncate the prompt and return nothing. (+2048 ≈
+      // reasoning headroom + chat-template scaffolding.)
+      const isLocalProvider =
+        aiSettings.provider === 'ollama' || aiSettings.provider === 'mlx'
+      if (
+        isLocalProvider &&
+        scope.approxTokenCount + PROFILE_MAX_TOKENS + 2048 >
+          OLLAMA_NUM_CTX_CEILING
+      ) {
+        throw new ProfileBuildError(
+          'contextTooLarge',
+          `Selected scope (~${scope.approxTokenCount} tokens) exceeds the local model's context budget.`,
+        )
+      }
 
       const { start, end } = resolveDateRange(scope.dateRange)
       const included = scope.includedObjectIds ?? {}
@@ -393,6 +413,21 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       )
 
       const parsed = parseProfileResponse(rawResponse, promptModule)
+
+      // A non-empty response whose every section is blank means the model
+      // produced nothing the parser could place (wrong format, thinking-only,
+      // or truncated). Surface it as a real error rather than a "successful"
+      // empty profile.
+      const allSectionsEmpty = Object.values(parsed.sections).every(
+        (text) => text.trim().length === 0,
+      )
+      if (allSectionsEmpty) {
+        throw new ProfileBuildError(
+          'emptyResponse',
+          'The model returned no recognisable profile sections.',
+        )
+      }
+
       success = true
       return {
         sections: parsed.sections,
@@ -411,9 +446,11 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       errorMessage = message
       const code: ProfileBuildErrorCode = /api\s*key/i.test(message)
         ? 'missingApiKey'
-        : /network|fetch|timed? out/i.test(message)
-          ? 'network'
-          : 'unknown'
+        : /empty response|pust/i.test(message)
+          ? 'emptyResponse'
+          : /network|fetch|timed? out/i.test(message)
+            ? 'network'
+            : 'unknown'
       throw new ProfileBuildError(code, message, err)
     } finally {
       isBuilding.value = false

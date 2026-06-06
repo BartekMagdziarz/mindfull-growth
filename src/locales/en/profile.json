@@ -346,6 +346,16 @@
           "help": "Profile generation needs an AI provider. Add OpenAI or a local OpenAI-compatible endpoint in AI Settings and come back here — your scope selections will be kept.",
           "cta": "Go to AI Settings"
         },
+        "contextTooLarge": {
+          "title": "Scope too large for this model",
+          "help": "The selected data is too large for your local model's context window. Shorten the date range, uncheck some data types, or narrow the filters, then try again.",
+          "cta": "Adjust scope"
+        },
+        "emptyResponse": {
+          "title": "The model returned an empty profile",
+          "help": "The AI produced no usable sections — often a local model running out of room. Try again; if it keeps happening, give the model a larger context window or pick a smaller scope.",
+          "cta": "Try again"
+        },
         "error": {
           "title": "Generation failed",
           "retry": "Try again"
