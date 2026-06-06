@@ -1,9 +1,15 @@
 // emotionFamilies.ts — warstwa RODZIN emocji (poziom między ćwiartką a emocją).
 //
 // Taksonomia z projektu Claude Design (GROUPS w icons-*.jsx): wyjściowo 7 rodzin na
-// ćwiartkę. Ćwiartkę „Wysoka energia / Przyjemne" przebudowano na 9 rodzin: wydzielono
-// „Ekscytację" (z Radości + Energii) oraz „Zaangażowanie / Przepływ" (z Ciekawości +
-// Pewności). Ćwiartkę „Wysoka energia / Nieprzyjemne" również przebudowano na 9:
+// ćwiartkę. Ćwiartkę „Wysoka energia / Przyjemne" przebudowano na 12 rodzin: rozbito
+// spójnikowe rodziny na czyste pojęcia — „Ciekawość i napęd" → Ciekawość + Determinacja,
+// „Pewność i mistrzostwo" → Pewność siebie + Duma, „Nadzieja i spełnienie" → Nadzieja
+// (Spełniony i Zaspokojony przeniesione do Dumy; Zaspokojony docelowo do LEHP) — oraz
+// wydzielono Rozbawienie (z Bliskości) i dodano 12 nowych emocji. UWAGA: dla zgodności z
+// zapisanymi emotionFamilyIds NIE zmieniamy istniejących slugów — id „ciekawosc-i-naped" /
+// „pewnosc-i-mistrzostwo" / „nadzieja-i-spelnienie" / „zaskoczenie-i-zachwyt" zostają,
+// zmienia się tylko nazwa wyświetlana; nowe rodziny to „rozbawienie", „determinacja",
+// „duma". Ćwiartkę „Wysoka energia / Nieprzyjemne" również przebudowano na 9:
 // rozbito przeładowany „Niepokój" (lęk poznawczy + „Rozedrganie i nerwy") oraz
 // rozdzielono „Wstręt" od „Zażenowania i upokorzenia" („Zdezorientowany" → Stres).
 // Czyste przegrupowanie istniejących emocji — bez dodawania nowych. Ćwiartkę
@@ -35,13 +41,16 @@ export const FAMILIES_BY_QUADRANT: Record<Quadrant, EmotionFamily[]> = {
   "high-energy-high-pleasantness": [
     { id: "radosc", name: "Radość", sub: "radość · pogoda", tint: "#2D74C9", rep: "Radosny", quadrant: "high-energy-high-pleasantness" },
     { id: "ekscytacja", name: "Ekscytacja", sub: "podekscytowanie · uniesienie", tint: "#2F8AE0", rep: "Podekscytowany", quadrant: "high-energy-high-pleasantness" },
-    { id: "energia", name: "Energia", sub: "pobudzenie", tint: "#3E63D8", rep: "Nakręcony", quadrant: "high-energy-high-pleasantness" },
-    { id: "ciekawosc-i-naped", name: "Ciekawość i napęd", sub: "uwaga · dążenie", tint: "#1F8FB0", rep: "Zmotywowany", quadrant: "high-energy-high-pleasantness" },
+    { id: "energia", name: "Energia", sub: "pobudzenie · witalność", tint: "#3E63D8", rep: "Nakręcony", quadrant: "high-energy-high-pleasantness" },
+    { id: "rozbawienie", name: "Rozbawienie", sub: "zabawa · humor", tint: "#2FA0D8", rep: "Figlarny", quadrant: "high-energy-high-pleasantness" },
+    { id: "ciekawosc-i-naped", name: "Ciekawość", sub: "zainteresowanie · dociekliwość", tint: "#1F8FB0", rep: "Ciekawy", quadrant: "high-energy-high-pleasantness" },
     { id: "zaangazowanie", name: "Zaangażowanie", sub: "przepływ · skupienie", tint: "#3AA0A8", rep: "Zaangażowany", quadrant: "high-energy-high-pleasantness" },
-    { id: "pewnosc-i-mistrzostwo", name: "Pewność i mistrzostwo", sub: "pewność siebie", tint: "#6168C9", rep: "Dumny", quadrant: "high-energy-high-pleasantness" },
-    { id: "nadzieja-i-spelnienie", name: "Nadzieja i spełnienie", sub: "pogoda ducha", tint: "#2C9C8F", rep: "Pełen nadziei", quadrant: "high-energy-high-pleasantness" },
-    { id: "zaskoczenie-i-zachwyt", name: "Zaskoczenie i zachwyt", sub: "zdziwienie", tint: "#4A86D8", rep: "Zdumiony", quadrant: "high-energy-high-pleasantness" },
-    { id: "bliskosc", name: "Bliskość", sub: "więź", tint: "#B5638F", rep: "Połączony", quadrant: "high-energy-high-pleasantness" },
+    { id: "determinacja", name: "Determinacja", sub: "napęd · dążenie", tint: "#2C9C8F", rep: "Zmotywowany", quadrant: "high-energy-high-pleasantness" },
+    { id: "pewnosc-i-mistrzostwo", name: "Pewność siebie", sub: "sprawczość · śmiałość", tint: "#6168C9", rep: "Pewny siebie", quadrant: "high-energy-high-pleasantness" },
+    { id: "duma", name: "Duma", sub: "osiągnięcie · sukces", tint: "#7E6AD0", rep: "Dumny", quadrant: "high-energy-high-pleasantness" },
+    { id: "nadzieja-i-spelnienie", name: "Nadzieja", sub: "optymizm", tint: "#3F8FD0", rep: "Pełen nadziei", quadrant: "high-energy-high-pleasantness" },
+    { id: "zaskoczenie-i-zachwyt", name: "Zaskoczenie", sub: "zdziwienie · podziw", tint: "#4A86D8", rep: "Zdumiony", quadrant: "high-energy-high-pleasantness" },
+    { id: "bliskosc", name: "Bliskość", sub: "więź · miłość", tint: "#B5638F", rep: "Połączony", quadrant: "high-energy-high-pleasantness" },
   ],
   "high-energy-low-pleasantness": [
     { id: "gniew", name: "Gniew", sub: "złość", tint: "#c23a52", rep: "Zły", quadrant: "high-energy-low-pleasantness" },
@@ -80,10 +89,10 @@ export const FAMILIES_BY_QUADRANT: Record<Quadrant, EmotionFamily[]> = {
 export const FAMILY_OF: Record<string, string> = {
   "e1m12-ecstatic-001": "ekscytacja", // Zachwycony
   "e2m12-empowered-002": "pewnosc-i-mistrzostwo", // Wzmocniony
-  "e3m12-proud-003": "pewnosc-i-mistrzostwo", // Dumny
+  "e3m12-proud-003": "duma", // Dumny
   "e4m12-optimistic-004": "nadzieja-i-spelnienie", // Optymistyczny
-  "e5m12-challenged-005": "ciekawosc-i-naped", // Zmobilizowany
-  "e6m12-accomplished-006": "pewnosc-i-mistrzostwo", // Kompetentny
+  "e5m12-challenged-005": "determinacja", // Zmobilizowany
+  "e6m12-accomplished-006": "duma", // Kompetentny
   "e7m12-blissful-007": "zadowolenie-i-komfort", // Błogi
   "e8m12-connected-008": "bliskosc", // Połączony
   "e9m12-grateful-009": "wdziecznosc", // Pełen wdzięczności
@@ -93,10 +102,10 @@ export const FAMILY_OF: Record<string, string> = {
   "e1m11-elated-013": "ekscytacja", // Rozradowany
   "e2m11-inspired-014": "ciekawosc-i-naped", // Zainspirowany
   "e3m11-productive-015": "zaangazowanie", // Produktywny
-  "e4m11-motivated-016": "ciekawosc-i-naped", // Zmotywowany
+  "e4m11-motivated-016": "determinacja", // Zmotywowany
   "e5m11-engaged-017": "zaangazowanie", // Zaangażowany
   "e6m11-hopeful-018": "nadzieja-i-spelnienie", // Pełen nadziei
-  "e7m11-fulfilled-019": "nadzieja-i-spelnienie", // Spełniony
+  "e7m11-fulfilled-019": "duma", // Spełniony (przeniesiony z nadziei)
   "e8m11-loved-020": "bliskosc", // Kochany
   "e9m11-valued-021": "uznanie-i-szacunek", // Ceniony
   "e10m11-accepted-022": "przynaleznosc-i-akceptacja", // Akceptowany
@@ -111,11 +120,11 @@ export const FAMILY_OF: Record<string, string> = {
   "e7m10-respected-031": "uznanie-i-szacunek", // Szanowany
   "e8m10-supported-032": "przynaleznosc-i-akceptacja", // Wspierany
   "e9m10-included-033": "przynaleznosc-i-akceptacja", // Przynależny
-  "e10m10-content-034": "nadzieja-i-spelnienie", // Kontent
+  "e10m10-content-034": "duma", // Zaspokojony (tymczasowo; docelowo LEHP „zadowolenie-i-komfort")
   "e11m10-safe-035": "bezpieczenstwo", // Bezpieczny
   "e12m10-relieved-036": "odprezenie-i-swoboda", // Odciążony
   "e1m9-exhilarated-037": "ekscytacja", // Ożywiony
-  "e2m9-successful-038": "pewnosc-i-mistrzostwo", // Zwycięski
+  "e2m9-successful-038": "duma", // Zwycięski
   "e3m9-enthusiastic-039": "energia", // Entuzjastyczny
   "e4m9-upbeat-040": "energia", // Pobudzony
   "e5m9-alive-041": "energia", // Pełen życia
@@ -127,11 +136,11 @@ export const FAMILY_OF: Record<string, string> = {
   "e11m9-balanced-047": "spokoj-i-wyciszenie", // Zrównoważony
   "e12m9-thankful-048": "wdziecznosc", // Wdzięczny
   "e1m8-awe-049": "zaskoczenie-i-zachwyt", // Oniemiały
-  "e2m8-determined-050": "ciekawosc-i-naped", // Zdeterminowany
+  "e2m8-determined-050": "determinacja", // Zdeterminowany
   "e3m8-eager-051": "ekscytacja", // Chętny
   "e4m8-curious-052": "ciekawosc-i-naped", // Ciekawy
   "e5m8-focused-053": "zaangazowanie", // Skupiony
-  "e6m8-playful-054": "bliskosc", // Figlarny
+  "e6m8-playful-054": "rozbawienie", // Figlarny
   "e7m8-at-ease-055": "odprezenie-i-swoboda", // Swobodny
   "e8m8-thoughtful-056": "troska-i-empatia", // Zamyślony
   "e9m8-chill-057": "odprezenie-i-swoboda", // Wyluzowany
@@ -222,6 +231,20 @@ export const FAMILY_OF: Record<string, string> = {
   "e10m1-guilty-142": "wstyd-i-wina", // Winny
   "e11m1-depressed-143": "przygnebienie", // Przygnębiony
   "e12m1-miserable-144": "smutek-i-zal", // Nieszczęśliwy
+
+  // --- Rozszerzenie HEHP (Wysoka energia / Przyjemne): 12 nowych emocji ---
+  "ext-amused-145": "rozbawienie", // Rozbawiony
+  "ext-giddy-146": "rozbawienie", // Rozbrykany
+  "ext-intrigued-147": "ciekawosc-i-naped", // Zaintrygowany
+  "ext-fascinated-148": "ciekawosc-i-naped", // Zafascynowany
+  "ext-absorbed-149": "zaangazowanie", // Pochłonięty
+  "ext-resolute-150": "determinacja", // Zdecydowany
+  "ext-ambitious-151": "determinacja", // Ambitny
+  "ext-bold-152": "pewnosc-i-mistrzostwo", // Śmiały
+  "ext-capable-153": "pewnosc-i-mistrzostwo", // Zdolny
+  "ext-affectionate-154": "bliskosc", // Czuły
+  "ext-attached-155": "bliskosc", // Przywiązany
+  "ext-expectant-156": "nadzieja-i-spelnienie", // Wyczekujący
 }
 
 export function familyOfEmotionId(id: string): string | undefined {

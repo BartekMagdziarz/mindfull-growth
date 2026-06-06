@@ -383,6 +383,19 @@ export const FACE_SPECS: Record<string, FaceSpec> = {
   "Nerwowy": { eyes: "dot", brow: "worry", mouth: ["wavy", 1.4], accent: "sweat" },
   "Wkurzony": { eyes: "dot", brow: "anger", mouth: ["grit", 1.6], accent: "steam" },
   "Zatroskany": { eyes: "dot", brow: "worry", mouth: ["frown", 2.4], accent: "none" },
+  // --- Rozszerzenie HEHP (Wysoka energia / Przyjemne) ---
+  "Rozbawiony": { eyes: "happy", brow: "none", mouth: ["grin", 4.4], accent: "none" },
+  "Rozbrykany": { eyes: "happy", brow: "raise", mouth: ["grin", 5], accent: "spark1" },
+  "Zaintrygowany": { eyes: "dot", brow: "one", mouth: ["smile", 2.2], accent: "none" },
+  "Zafascynowany": { eyes: "star", brow: "raise", mouth: ["smile", 3], accent: "idea" },
+  "Pochłonięty": { eyes: "dot", brow: "flat", mouth: ["calm", 1.6], accent: "none" },
+  "Zdecydowany": { eyes: "dot", brow: "flat", mouth: ["smirk", 0], accent: "none" },
+  "Ambitny": { eyes: "dot", brow: "one", mouth: ["smirk", 0], accent: "spark1" },
+  "Śmiały": { eyes: "dot", brow: "raise", mouth: ["smirk", 0], accent: "none" },
+  "Zdolny": { eyes: "soft", brow: "one", mouth: ["smile", 2.4], accent: "none" },
+  "Czuły": { eyes: "soft", brow: "none", mouth: ["smile", 2.6], accent: "heart" },
+  "Przywiązany": { eyes: "happy", brow: "none", mouth: ["smile", 2.4], accent: "blush" },
+  "Wyczekujący": { eyes: "up", brow: "raise", mouth: ["smile", 1.8], accent: "none" },
 }
 
 // Neutralna twarz — fallback dla nieznanego ID emocji.

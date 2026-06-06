@@ -574,5 +574,53 @@
   "e12m1-miserable-144": {
     "name": "Miserable",
     "description": "Feeling absolutely awful"
+  },
+  "ext-amused-145": {
+    "name": "Amused",
+    "description": "Lightly entertained and tickled by something funny"
+  },
+  "ext-giddy-146": {
+    "name": "Giddy",
+    "description": "Fluttering with lively, playful energy"
+  },
+  "ext-intrigued-147": {
+    "name": "Intrigued",
+    "description": "Caught by curiosity about something puzzling"
+  },
+  "ext-fascinated-148": {
+    "name": "Fascinated",
+    "description": "Absorbed in delighted interest"
+  },
+  "ext-absorbed-149": {
+    "name": "Absorbed",
+    "description": "Fully immersed in what you're doing"
+  },
+  "ext-resolute-150": {
+    "name": "Resolute",
+    "description": "Settled on your choice and ready to act"
+  },
+  "ext-ambitious-151": {
+    "name": "Ambitious",
+    "description": "Driven by the desire to achieve more"
+  },
+  "ext-bold-152": {
+    "name": "Bold",
+    "description": "Ready to take a risk with courage"
+  },
+  "ext-capable-153": {
+    "name": "Capable",
+    "description": "Confident you can handle the task"
+  },
+  "ext-affectionate-154": {
+    "name": "Affectionate",
+    "description": "Warm and tender toward someone"
+  },
+  "ext-attached-155": {
+    "name": "Attached",
+    "description": "Bonded to someone by a close, lasting tie"
+  },
+  "ext-expectant-156": {
+    "name": "Expectant",
+    "description": "Keyed up, waiting for what's about to come"
   }
 }

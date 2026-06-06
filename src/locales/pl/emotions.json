@@ -574,5 +574,53 @@
   "e12m1-miserable-144": {
     "name": "Nieszczęśliwy",
     "description": "Poczucie absolutnie okropnego stanu"
+  },
+  "ext-amused-145": {
+    "name": "Rozbawiony",
+    "description": "Lekko i wesoło rozbawiony czymś zabawnym"
+  },
+  "ext-giddy-146": {
+    "name": "Rozbrykany",
+    "description": "Roztrzepotany żywą, figlarną energią"
+  },
+  "ext-intrigued-147": {
+    "name": "Zaintrygowany",
+    "description": "Zaciekawiony czymś, co budzi pytania"
+  },
+  "ext-fascinated-148": {
+    "name": "Zafascynowany",
+    "description": "Pochłonięty zachwytem nad czymś interesującym"
+  },
+  "ext-absorbed-149": {
+    "name": "Pochłonięty",
+    "description": "Całkowicie zatopiony w tym, co robisz"
+  },
+  "ext-resolute-150": {
+    "name": "Zdecydowany",
+    "description": "Pewny swojego wyboru i gotów działać"
+  },
+  "ext-ambitious-151": {
+    "name": "Ambitny",
+    "description": "Napędzany pragnieniem osiągnięcia czegoś więcej"
+  },
+  "ext-bold-152": {
+    "name": "Śmiały",
+    "description": "Gotów podjąć ryzyko z odwagą"
+  },
+  "ext-capable-153": {
+    "name": "Zdolny",
+    "description": "Przekonany, że poradzisz sobie z zadaniem"
+  },
+  "ext-affectionate-154": {
+    "name": "Czuły",
+    "description": "Pełen ciepła i delikatności wobec kogoś"
+  },
+  "ext-attached-155": {
+    "name": "Przywiązany",
+    "description": "Związany z kimś bliską, trwałą więzią"
+  },
+  "ext-expectant-156": {
+    "name": "Wyczekujący",
+    "description": "Pełen napiętego oczekiwania na to, co nadejdzie"
   }
 }
