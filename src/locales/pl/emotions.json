@@ -622,5 +622,21 @@
   "ext-expectant-156": {
     "name": "Wyczekujący",
     "description": "Pełen napiętego oczekiwania na to, co nadejdzie"
+  },
+  "ext-warmhearted-157": {
+    "name": "Serdeczny",
+    "description": "Pełen ciepła i życzliwości wobec innych"
+  },
+  "ext-tender-158": {
+    "name": "Rozczulony",
+    "description": "Zmiękczony falą czułości"
+  },
+  "ext-enraptured-159": {
+    "name": "Rozanielony",
+    "description": "Promieniejący błogim, łagodnym wzruszeniem"
+  },
+  "ext-reflective-160": {
+    "name": "Refleksyjny",
+    "description": "Spokojnie zatopiony w przemyśleniach"
   }
 }

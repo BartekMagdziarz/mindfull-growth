@@ -13,8 +13,12 @@
 // rozbito przeładowany „Niepokój" (lęk poznawczy + „Rozedrganie i nerwy") oraz
 // rozdzielono „Wstręt" od „Zażenowania i upokorzenia" („Zdezorientowany" → Stres).
 // Czyste przegrupowanie istniejących emocji — bez dodawania nowych. Ćwiartkę
-// „Niska energia / Przyjemne" → 8: rozdzielono „Bliskość i uznanie" na
-// „Przynależność i akceptacja" + „Uznanie i szacunek" (przynależność vs uznanie).
+// „Niska energia / Przyjemne" → 10: nazwy skrócone do jednowyrazowych; wydzielono
+// Czułość (ciepło · rozczulenie) i Zaduma (marzenia · refleksja: Marzący + Zamyślony);
+// Zrozumiany → Przynależność; Zaspokojony przeniesiony tu z HEHP (energia 7→6).
+// Bezpieczeństwo świadomie szczupłe (synonimy by go nie wzbogaciły). Slugi rodzin
+// znów stabilne — nowe to tylko „czulosc" i „zaduma".
+// (wcześniej 8: „Bliskość i uznanie" rozbito na Przynależność + Uznanie.)
 // Ćwiartkę „Niska energia / Nieprzyjemne" → 8: rozbito „Smutek" na „Smutek i żal"
 // (żywy ból: smutny/przybity/zatroskany/nieszczęśliwy) + „Przygnębienie" (płaski,
 // ciężki, przygaszony nastrój: markotny/ponury/przygnębiony).
@@ -64,13 +68,15 @@ export const FAMILIES_BY_QUADRANT: Record<Quadrant, EmotionFamily[]> = {
     { id: "pogarda-i-zazdrosc", name: "Pogarda i zazdrość", sub: "niechęć", tint: "#9c4f8e", rep: "Pogardliwy", quadrant: "high-energy-low-pleasantness" },
   ],
   "low-energy-high-pleasantness": [
-    { id: "spokoj-i-wyciszenie", name: "Spokój i wyciszenie", sub: "ukojenie", tint: "#3a86cc", rep: "Spokojny", quadrant: "low-energy-high-pleasantness" },
-    { id: "odprezenie-i-swoboda", name: "Odprężenie i swoboda", sub: "swoboda", tint: "#3f97bf", rep: "Odprężony", quadrant: "low-energy-high-pleasantness" },
-    { id: "zadowolenie-i-komfort", name: "Zadowolenie i komfort", sub: "komfort", tint: "#4a8fcf", rep: "Błogi", quadrant: "low-energy-high-pleasantness" },
+    { id: "spokoj-i-wyciszenie", name: "Spokój", sub: "ukojenie · harmonia", tint: "#3a86cc", rep: "Spokojny", quadrant: "low-energy-high-pleasantness" },
+    { id: "odprezenie-i-swoboda", name: "Odprężenie", sub: "luz · swoboda", tint: "#3f97bf", rep: "Odprężony", quadrant: "low-energy-high-pleasantness" },
+    { id: "zadowolenie-i-komfort", name: "Zadowolenie", sub: "sytość · komfort", tint: "#4a8fcf", rep: "Błogi", quadrant: "low-energy-high-pleasantness" },
+    { id: "zaduma", name: "Zaduma", sub: "marzenia · refleksja", tint: "#5572B8", rep: "Marzący", quadrant: "low-energy-high-pleasantness" },
     { id: "wdziecznosc", name: "Wdzięczność", sub: "wdzięczność", tint: "#5a86d2", rep: "Pełen wdzięczności", quadrant: "low-energy-high-pleasantness" },
-    { id: "przynaleznosc-i-akceptacja", name: "Przynależność i akceptacja", sub: "więź · akceptacja", tint: "#4f97c8", rep: "Przynależny", quadrant: "low-energy-high-pleasantness" },
-    { id: "uznanie-i-szacunek", name: "Uznanie i szacunek", sub: "uznanie · szacunek", tint: "#5a90cf", rep: "Ceniony", quadrant: "low-energy-high-pleasantness" },
-    { id: "troska-i-empatia", name: "Troska i empatia", sub: "empatia", tint: "#6a86c8", rep: "Troskliwy", quadrant: "low-energy-high-pleasantness" },
+    { id: "czulosc", name: "Czułość", sub: "ciepło · rozczulenie", tint: "#6E84D0", rep: "Rozczulony", quadrant: "low-energy-high-pleasantness" },
+    { id: "troska-i-empatia", name: "Empatia", sub: "współczucie · troska", tint: "#6a86c8", rep: "Troskliwy", quadrant: "low-energy-high-pleasantness" },
+    { id: "przynaleznosc-i-akceptacja", name: "Przynależność", sub: "więź · akceptacja", tint: "#4f97c8", rep: "Przynależny", quadrant: "low-energy-high-pleasantness" },
+    { id: "uznanie-i-szacunek", name: "Uznanie", sub: "uznanie · szacunek", tint: "#5a90cf", rep: "Ceniony", quadrant: "low-energy-high-pleasantness" },
     { id: "bezpieczenstwo", name: "Bezpieczeństwo", sub: "bezpieczeństwo", tint: "#3f8fc4", rep: "Bezpieczny", quadrant: "low-energy-high-pleasantness" },
   ],
   "low-energy-low-pleasantness": [
@@ -116,11 +122,11 @@ export const FAMILY_OF: Record<string, string> = {
   "e3m10-joyful-027": "radosc", // Radosny
   "e4m10-happy-028": "radosc", // Szczęśliwy
   "e5m10-confident-029": "pewnosc-i-mistrzostwo", // Pewny siebie
-  "e6m10-wishful-030": "zadowolenie-i-komfort", // Marzący
+  "e6m10-wishful-030": "zaduma", // Marzący
   "e7m10-respected-031": "uznanie-i-szacunek", // Szanowany
   "e8m10-supported-032": "przynaleznosc-i-akceptacja", // Wspierany
   "e9m10-included-033": "przynaleznosc-i-akceptacja", // Przynależny
-  "e10m10-content-034": "duma", // Zaspokojony (tymczasowo; docelowo LEHP „zadowolenie-i-komfort")
+  "e10m10-content-034": "zadowolenie-i-komfort", // Zaspokojony (przeniesiony z HEHP/Duma; energia 7→6)
   "e11m10-safe-035": "bezpieczenstwo", // Bezpieczny
   "e12m10-relieved-036": "odprezenie-i-swoboda", // Odciążony
   "e1m9-exhilarated-037": "ekscytacja", // Ożywiony
@@ -129,7 +135,7 @@ export const FAMILY_OF: Record<string, string> = {
   "e4m9-upbeat-040": "energia", // Pobudzony
   "e5m9-alive-041": "energia", // Pełen życia
   "e6m9-delighted-042": "radosc", // Ucieszony
-  "e7m9-understood-043": "bezpieczenstwo", // Zrozumiany
+  "e7m9-understood-043": "przynaleznosc-i-akceptacja", // Zrozumiany (z Bezpieczeństwa)
   "e8m9-appreciated-044": "uznanie-i-szacunek", // Doceniony
   "e9m9-compassionate-045": "troska-i-empatia", // Współczujący
   "e10m9-empathetic-046": "troska-i-empatia", // Empatyczny
@@ -142,7 +148,7 @@ export const FAMILY_OF: Record<string, string> = {
   "e5m8-focused-053": "zaangazowanie", // Skupiony
   "e6m8-playful-054": "rozbawienie", // Figlarny
   "e7m8-at-ease-055": "odprezenie-i-swoboda", // Swobodny
-  "e8m8-thoughtful-056": "troska-i-empatia", // Zamyślony
+  "e8m8-thoughtful-056": "zaduma", // Zamyślony
   "e9m8-chill-057": "odprezenie-i-swoboda", // Wyluzowany
   "e10m8-comfortable-058": "zadowolenie-i-komfort", // Komfortowo
   "e11m8-peaceful-059": "spokoj-i-wyciszenie", // Spokojny
@@ -245,6 +251,12 @@ export const FAMILY_OF: Record<string, string> = {
   "ext-affectionate-154": "bliskosc", // Czuły
   "ext-attached-155": "bliskosc", // Przywiązany
   "ext-expectant-156": "nadzieja-i-spelnienie", // Wyczekujący
+
+  // --- Rozszerzenie LEHP (Niska energia / Przyjemne): 4 nowe emocje ---
+  "ext-warmhearted-157": "czulosc", // Serdeczny
+  "ext-tender-158": "czulosc", // Rozczulony
+  "ext-enraptured-159": "czulosc", // Rozanielony
+  "ext-reflective-160": "zaduma", // Refleksyjny
 }
 
 export function familyOfEmotionId(id: string): string | undefined {

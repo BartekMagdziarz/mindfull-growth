@@ -622,5 +622,21 @@
   "ext-expectant-156": {
     "name": "Expectant",
     "description": "Keyed up, waiting for what's about to come"
+  },
+  "ext-warmhearted-157": {
+    "name": "Warm-hearted",
+    "description": "Full of warmth and kindness toward others"
+  },
+  "ext-tender-158": {
+    "name": "Tender",
+    "description": "Softened by a wave of tenderness"
+  },
+  "ext-enraptured-159": {
+    "name": "Enraptured",
+    "description": "Glowing with gentle, blissful tenderness"
+  },
+  "ext-reflective-160": {
+    "name": "Reflective",
+    "description": "Calmly lost in thought"
   }
 }

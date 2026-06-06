@@ -396,6 +396,11 @@ export const FACE_SPECS: Record<string, FaceSpec> = {
   "Czuły": { eyes: "soft", brow: "none", mouth: ["smile", 2.6], accent: "heart" },
   "Przywiązany": { eyes: "happy", brow: "none", mouth: ["smile", 2.4], accent: "blush" },
   "Wyczekujący": { eyes: "up", brow: "raise", mouth: ["smile", 1.8], accent: "none" },
+  // --- Rozszerzenie LEHP (Niska energia / Przyjemne) ---
+  "Serdeczny": { eyes: "happy", brow: "none", mouth: ["smile", 2.8], accent: "heart" },
+  "Rozczulony": { eyes: "soft", brow: "none", mouth: ["smile", 2.4], accent: "heart" },
+  "Rozanielony": { eyes: "closed", brow: "none", mouth: ["smile", 2.6], accent: "heart" },
+  "Refleksyjny": { eyes: "soft", brow: "none", mouth: ["calm", 1.6], accent: "none" },
 }
 
 // Neutralna twarz — fallback dla nieznanego ID emocji.

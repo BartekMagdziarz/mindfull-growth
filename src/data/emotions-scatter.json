@@ -166,7 +166,7 @@
   },
   "e10m10-content-034": {
     "pleasantness": 8.3,
-    "energy": 6.4,
+    "energy": 5.8,
     "anchor": false
   },
   "e11m10-safe-035": {
@@ -777,6 +777,26 @@
   "ext-expectant-156": {
     "pleasantness": 6.4,
     "energy": 8.1,
+    "anchor": false
+  },
+  "ext-warmhearted-157": {
+    "pleasantness": 9.0,
+    "energy": 4.0,
+    "anchor": false
+  },
+  "ext-tender-158": {
+    "pleasantness": 9.2,
+    "energy": 3.2,
+    "anchor": false
+  },
+  "ext-enraptured-159": {
+    "pleasantness": 10.2,
+    "energy": 4.2,
+    "anchor": false
+  },
+  "ext-reflective-160": {
+    "pleasantness": 7.8,
+    "energy": 3.4,
     "anchor": false
   }
 }

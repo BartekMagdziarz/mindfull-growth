@@ -167,7 +167,7 @@
   {
     "id": "e10m10-content-034",
     "pleasantness": 8,
-    "energy": 7
+    "energy": 6
   },
   {
     "id": "e11m10-safe-035",
@@ -778,5 +778,25 @@
     "id": "ext-expectant-156",
     "pleasantness": 7,
     "energy": 8
+  },
+  {
+    "id": "ext-warmhearted-157",
+    "pleasantness": 9,
+    "energy": 4
+  },
+  {
+    "id": "ext-tender-158",
+    "pleasantness": 9,
+    "energy": 3
+  },
+  {
+    "id": "ext-enraptured-159",
+    "pleasantness": 10,
+    "energy": 4
+  },
+  {
+    "id": "ext-reflective-160",
+    "pleasantness": 8,
+    "energy": 3
   }
 ]
