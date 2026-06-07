@@ -395,16 +395,6 @@
     "energy": 5
   },
   {
-    "id": "e9m6-fatigued-081",
-    "pleasantness": 6,
-    "energy": 4
-  },
-  {
-    "id": "e10m6-disengaged-082",
-    "pleasantness": 6,
-    "energy": 3
-  },
-  {
     "id": "e11m6-apathetic-083",
     "pleasantness": 6,
     "energy": 2
@@ -485,11 +475,6 @@
     "energy": 7
   },
   {
-    "id": "e7m4-disheartened-103",
-    "pleasantness": 4,
-    "energy": 6
-  },
-  {
     "id": "e8m4-disappointed-104",
     "pleasantness": 4,
     "energy": 5
@@ -498,11 +483,6 @@
     "id": "e9m4-forlorn-105",
     "pleasantness": 4,
     "energy": 4
-  },
-  {
-    "id": "e10m4-spent-106",
-    "pleasantness": 4,
-    "energy": 3
   },
   {
     "id": "e11m4-nostalgic-107",
@@ -550,11 +530,6 @@
     "energy": 5
   },
   {
-    "id": "e9m3-disconnected-117",
-    "pleasantness": 3,
-    "energy": 4
-  },
-  {
     "id": "e10m3-excluded-118",
     "pleasantness": 3,
     "energy": 3
@@ -583,11 +558,6 @@
     "id": "e5m2-repulsed-125",
     "pleasantness": 2,
     "energy": 8
-  },
-  {
-    "id": "e6m2-troubled-126",
-    "pleasantness": 4,
-    "energy": 6
   },
   {
     "id": "e7m2-trapped-127",
@@ -783,5 +753,30 @@
     "id": "ext-dismissive-166",
     "pleasantness": 3,
     "energy": 7
+  },
+  {
+    "id": "ext-devastated-167",
+    "pleasantness": 2,
+    "energy": 2
+  },
+  {
+    "id": "ext-resigned-168",
+    "pleasantness": 3,
+    "energy": 3
+  },
+  {
+    "id": "ext-empty-169",
+    "pleasantness": 3,
+    "energy": 3
+  },
+  {
+    "id": "ext-longing-170",
+    "pleasantness": 4,
+    "energy": 3
+  },
+  {
+    "id": "ext-regretful-171",
+    "pleasantness": 3,
+    "energy": 3
   }
 ]

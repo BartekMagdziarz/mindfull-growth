@@ -20,9 +20,11 @@
 // Bezpieczeństwo świadomie szczupłe (synonimy by go nie wzbogaciły). Slugi rodzin
 // znów stabilne — nowe to tylko „czulosc" i „zaduma".
 // (wcześniej 8: „Bliskość i uznanie" rozbito na Przynależność + Uznanie.)
-// Ćwiartkę „Niska energia / Nieprzyjemne" → 8: rozbito „Smutek" na „Smutek i żal"
-// (żywy ból: smutny/przybity/zatroskany/nieszczęśliwy) + „Przygnębienie" (płaski,
-// ciężki, przygaszony nastrój: markotny/ponury/przygnębiony).
+// Ćwiartkę „Niska energia / Nieprzyjemne" przebudowano na 10 (nazwy jednowyrazowe):
+// scalono Rozpacz+Bezsilność → „Bezsilność"; wydzielono Pustkę (odrętwienie/zagubienie)
+// i Tęsknotę (nostalgia/rzewność); „Zwątpienie i rozczarowanie" → Zniechęcenie. Usunięto
+// 6 dubletów/przestarzałych (Wymęczony, Wykończony, Wyłączony, Odłączony, Strapiony,
+// Przybity); +5 nowych. Nowe slugi: „pustka", „tesknota".
 // Każda rodzina ma id (slug), polską nazwę, podtytuł, kolor (tint) oraz emocję
 // reprezentatywną (jej twarz służy za ikonę rodziny). FAMILY_OF mapuje ID emocji
 // na ID rodziny — ID emocji są wspólne z produkcyjnym emotions-meta.json, więc ta
@@ -81,14 +83,16 @@ export const FAMILIES_BY_QUADRANT: Record<Quadrant, EmotionFamily[]> = {
     { id: "bezpieczenstwo", name: "Bezpieczeństwo", sub: "bezpieczeństwo", tint: "#3f8fc4", rep: "Bezpieczny", quadrant: "low-energy-high-pleasantness" },
   ],
   "low-energy-low-pleasantness": [
-    { id: "smutek-i-zal", name: "Smutek i żal", sub: "żal · żywy ból", tint: "#6f5aa6", rep: "Smutny", quadrant: "low-energy-low-pleasantness" },
+    { id: "smutek-i-zal", name: "Smutek", sub: "żal · żywy ból", tint: "#6f5aa6", rep: "Smutny", quadrant: "low-energy-low-pleasantness" },
     { id: "przygnebienie", name: "Przygnębienie", sub: "przygaszenie · ciężar", tint: "#6a5ca8", rep: "Przygnębiony", quadrant: "low-energy-low-pleasantness" },
-    { id: "beznadzieja-i-rozpacz", name: "Beznadzieja i rozpacz", sub: "rozpacz", tint: "#5e4f97", rep: "Bezradny", quadrant: "low-energy-low-pleasantness" },
-    { id: "zmeczenie-i-wypalenie", name: "Zmęczenie i wypalenie", sub: "wyczerpanie", tint: "#7a6aaa", rep: "Zmęczony", quadrant: "low-energy-low-pleasantness" },
-    { id: "apatia-i-znudzenie", name: "Apatia i znudzenie", sub: "obojętność", tint: "#8678a8", rep: "Znudzony", quadrant: "low-energy-low-pleasantness" },
-    { id: "samotnosc-i-wykluczenie", name: "Samotność i wykluczenie", sub: "osamotnienie", tint: "#6a5aa2", rep: "Samotny", quadrant: "low-energy-low-pleasantness" },
-    { id: "wstyd-i-wina", name: "Wstyd i wina", sub: "zażenowanie", tint: "#9c5a92", rep: "Winny", quadrant: "low-energy-low-pleasantness" },
-    { id: "zwatpienie-i-rozczarowanie", name: "Zwątpienie i rozczarowanie", sub: "zawód", tint: "#7560a4", rep: "Rozczarowany", quadrant: "low-energy-low-pleasantness" },
+    { id: "beznadzieja-i-rozpacz", name: "Bezsilność", sub: "beznadzieja · uwięzienie", tint: "#5e4f97", rep: "Bezradny", quadrant: "low-energy-low-pleasantness" },
+    { id: "zwatpienie-i-rozczarowanie", name: "Zniechęcenie", sub: "zawód · rezygnacja", tint: "#7560a4", rep: "Rozczarowany", quadrant: "low-energy-low-pleasantness" },
+    { id: "zmeczenie-i-wypalenie", name: "Zmęczenie", sub: "wyczerpanie · wypalenie", tint: "#7a6aaa", rep: "Zmęczony", quadrant: "low-energy-low-pleasantness" },
+    { id: "apatia-i-znudzenie", name: "Apatia", sub: "znudzenie · obojętność", tint: "#8678a8", rep: "Znudzony", quadrant: "low-energy-low-pleasantness" },
+    { id: "pustka", name: "Pustka", sub: "odrętwienie · zagubienie", tint: "#6e6398", rep: "Odrętwiały", quadrant: "low-energy-low-pleasantness" },
+    { id: "samotnosc-i-wykluczenie", name: "Samotność", sub: "osamotnienie · wykluczenie", tint: "#6a5aa2", rep: "Samotny", quadrant: "low-energy-low-pleasantness" },
+    { id: "tesknota", name: "Tęsknota", sub: "rzewność · nostalgia", tint: "#8a6aa6", rep: "Nostalgiczny", quadrant: "low-energy-low-pleasantness" },
+    { id: "wstyd-i-wina", name: "Wstyd", sub: "wstyd · wina · żal", tint: "#9c5a92", rep: "Winny", quadrant: "low-energy-low-pleasantness" },
   ],
 }
 
@@ -173,8 +177,6 @@ export const FAMILY_OF: Record<string, string> = {
   "e6m6-uneasy-078": "niepokoj-i-zmartwienie", // Nieswój
   "e7m6-bored-079": "apatia-i-znudzenie", // Znudzony
   "e8m6-tired-080": "zmeczenie-i-wypalenie", // Zmęczony
-  "e9m6-fatigued-081": "zmeczenie-i-wypalenie", // Wymęczony
-  "e10m6-disengaged-082": "apatia-i-znudzenie", // Wyłączony
   "e11m6-apathetic-083": "apatia-i-znudzenie", // Apatyczny
   "e12m6-helpless-084": "beznadzieja-i-rozpacz", // Bezradny
   "e3m5-irritated-087": "irytacja-i-frustracja", // Zirytowany
@@ -183,7 +185,7 @@ export const FAMILY_OF: Record<string, string> = {
   "e7m5-down-091": "przygnebienie", // Markotny
   "e8m5-meh-092": "apatia-i-znudzenie", // Nijako
   "e9m5-sad-093": "smutek-i-zal", // Smutny
-  "e10m5-discouraged-094": "beznadzieja-i-rozpacz", // Zniechęcony
+  "e10m5-discouraged-094": "zwatpienie-i-rozczarowanie", // Zniechęcony
   "e11m5-lonely-095": "samotnosc-i-wykluczenie", // Samotny
   "e12m5-exhausted-096": "zmeczenie-i-wypalenie", // Wyczerpany
   "e1m4-shocked-097": "zamet", // Wstrząśnięty
@@ -191,11 +193,9 @@ export const FAMILY_OF: Record<string, string> = {
   "e4m4-jittery-100": "niepokoj-i-zmartwienie", // Podenerwowany
   "e5m4-embarrassed-101": "zazenowanie-i-upokorzenie", // Skrępowany
   "e6m4-nervous-102": "niepokoj-i-zmartwienie", // Zdenerwowany
-  "e7m4-disheartened-103": "smutek-i-zal", // Przybity
   "e8m4-disappointed-104": "zwatpienie-i-rozczarowanie", // Rozczarowany
   "e9m4-forlorn-105": "samotnosc-i-wykluczenie", // Opuszczony
-  "e10m4-spent-106": "zmeczenie-i-wypalenie", // Wykończony
-  "e11m4-nostalgic-107": "zwatpienie-i-rozczarowanie", // Nostalgiczny
+  "e11m4-nostalgic-107": "tesknota", // Nostalgiczny
   "e12m4-burned-out-108": "zmeczenie-i-wypalenie", // Wypalony
   "e1m3-panicked-109": "strach-i-panika", // Spanikowany
   "e2m3-overwhelmed-110": "stres-i-przytloczenie", // Przytłoczony
@@ -203,19 +203,17 @@ export const FAMILY_OF: Record<string, string> = {
   "e5m3-frustrated-113": "irytacja-i-frustracja", // Sfrustrowany
   "e6m3-worried-114": "niepokoj-i-zmartwienie", // Zmartwiony
   "e7m3-insecure-115": "niepokoj-i-zmartwienie", // Niepewny
-  "e8m3-lost-116": "zwatpienie-i-rozczarowanie", // Zagubiony
-  "e9m3-disconnected-117": "samotnosc-i-wykluczenie", // Odłączony
+  "e8m3-lost-116": "pustka", // Zagubiony
   "e10m3-excluded-118": "samotnosc-i-wykluczenie", // Wykluczony
   "e11m3-alienated-119": "samotnosc-i-wykluczenie", // Wyobcowany
   "e12m3-glum-120": "przygnebienie", // Ponury
   "e1m2-terrified-121": "strach-i-panika", // Przerażony
   "e3m2-frightened-123": "strach-i-panika", // Przestraszony
   "e5m2-repulsed-125": "wstret", // Zniesmaczony
-  "e6m2-troubled-126": "smutek-i-zal", // Zatroskany
-  "e7m2-trapped-127": "wstyd-i-wina", // Uwięziony
+  "e7m2-trapped-127": "beznadzieja-i-rozpacz", // Uwięziony
   "e8m2-ashamed-128": "wstyd-i-wina", // Zawstydzony
-  "e9m2-vulnerable-129": "wstyd-i-wina", // Bezbronny
-  "e10m2-numb-130": "apatia-i-znudzenie", // Odrętwiały
+  "e9m2-vulnerable-129": "beznadzieja-i-rozpacz", // Bezbronny
+  "e10m2-numb-130": "pustka", // Odrętwiały
   "e11m2-hopeless-131": "beznadzieja-i-rozpacz", // Beznadziejny
   "e12m2-despair-132": "beznadzieja-i-rozpacz", // Zrozpaczony
   "e1m1-enraged-133": "gniew", // Rozwścieczony
@@ -257,6 +255,13 @@ export const FAMILY_OF: Record<string, string> = {
   "ext-flustered-164": "zazenowanie-i-upokorzenie", // Speszony
   "ext-haughty-165": "wstret", // Wyniosły
   "ext-dismissive-166": "wstret", // Lekceważący
+
+  // --- Rozszerzenie LELP (Niska energia / Nieprzyjemne): 5 nowych emocji ---
+  "ext-devastated-167": "smutek-i-zal", // Załamany
+  "ext-resigned-168": "zwatpienie-i-rozczarowanie", // Zrezygnowany
+  "ext-empty-169": "pustka", // Pusty
+  "ext-longing-170": "tesknota", // Stęskniony
+  "ext-regretful-171": "wstyd-i-wina", // Żałujący
 }
 
 export function familyOfEmotionId(id: string): string | undefined {

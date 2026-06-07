@@ -33,12 +33,14 @@
   "uznanie-i-szacunek": { "name": "Uznanie", "sub": "uznanie · szacunek" },
   "bezpieczenstwo": { "name": "Bezpieczeństwo", "sub": "bezpieczeństwo" },
 
-  "smutek-i-zal": { "name": "Smutek i żal", "sub": "żal · żywy ból" },
+  "smutek-i-zal": { "name": "Smutek", "sub": "żal · żywy ból" },
   "przygnebienie": { "name": "Przygnębienie", "sub": "przygaszenie · ciężar" },
-  "beznadzieja-i-rozpacz": { "name": "Beznadzieja i rozpacz", "sub": "rozpacz" },
-  "zmeczenie-i-wypalenie": { "name": "Zmęczenie i wypalenie", "sub": "wyczerpanie" },
-  "apatia-i-znudzenie": { "name": "Apatia i znudzenie", "sub": "obojętność" },
-  "samotnosc-i-wykluczenie": { "name": "Samotność i wykluczenie", "sub": "osamotnienie" },
-  "wstyd-i-wina": { "name": "Wstyd i wina", "sub": "zażenowanie" },
-  "zwatpienie-i-rozczarowanie": { "name": "Zwątpienie i rozczarowanie", "sub": "zawód" }
+  "beznadzieja-i-rozpacz": { "name": "Bezsilność", "sub": "beznadzieja · uwięzienie" },
+  "zwatpienie-i-rozczarowanie": { "name": "Zniechęcenie", "sub": "zawód · rezygnacja" },
+  "zmeczenie-i-wypalenie": { "name": "Zmęczenie", "sub": "wyczerpanie · wypalenie" },
+  "apatia-i-znudzenie": { "name": "Apatia", "sub": "znudzenie · obojętność" },
+  "pustka": { "name": "Pustka", "sub": "odrętwienie · zagubienie" },
+  "samotnosc-i-wykluczenie": { "name": "Samotność", "sub": "osamotnienie · wykluczenie" },
+  "tesknota": { "name": "Tęsknota", "sub": "rzewność · nostalgia" },
+  "wstyd-i-wina": { "name": "Wstyd", "sub": "wstyd · wina · żal" }
 }

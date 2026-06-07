@@ -33,12 +33,14 @@
   "uznanie-i-szacunek": { "name": "Recognition", "sub": "esteem · respect" },
   "bezpieczenstwo": { "name": "Safety", "sub": "security" },
 
-  "smutek-i-zal": { "name": "Sadness & grief", "sub": "sorrow · raw pain" },
+  "smutek-i-zal": { "name": "Sadness", "sub": "sorrow · raw pain" },
   "przygnebienie": { "name": "Dejection", "sub": "heaviness · low mood" },
-  "beznadzieja-i-rozpacz": { "name": "Hopelessness & despair", "sub": "despair" },
-  "zmeczenie-i-wypalenie": { "name": "Fatigue & burnout", "sub": "exhaustion" },
-  "apatia-i-znudzenie": { "name": "Apathy & boredom", "sub": "indifference" },
-  "samotnosc-i-wykluczenie": { "name": "Loneliness & exclusion", "sub": "isolation" },
-  "wstyd-i-wina": { "name": "Shame & guilt", "sub": "self-reproach" },
-  "zwatpienie-i-rozczarowanie": { "name": "Doubt & disappointment", "sub": "letdown" }
+  "beznadzieja-i-rozpacz": { "name": "Powerlessness", "sub": "despair · entrapment" },
+  "zwatpienie-i-rozczarowanie": { "name": "Discouragement", "sub": "letdown · resignation" },
+  "zmeczenie-i-wypalenie": { "name": "Fatigue", "sub": "exhaustion · burnout" },
+  "apatia-i-znudzenie": { "name": "Apathy", "sub": "boredom · indifference" },
+  "pustka": { "name": "Emptiness", "sub": "numbness · adrift" },
+  "samotnosc-i-wykluczenie": { "name": "Loneliness", "sub": "isolation · exclusion" },
+  "tesknota": { "name": "Longing", "sub": "wistfulness · nostalgia" },
+  "wstyd-i-wina": { "name": "Shame", "sub": "shame · guilt · regret" }
 }

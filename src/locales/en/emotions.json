@@ -315,14 +315,6 @@
     "name": "Tired",
     "description": "Feeling like you need to rest"
   },
-  "e9m6-fatigued-081": {
-    "name": "Fatigued",
-    "description": "Feeling physically drained"
-  },
-  "e10m6-disengaged-082": {
-    "name": "Disengaged",
-    "description": "Feeling like you cannot focus; disinterested"
-  },
   "e11m6-apathetic-083": {
     "name": "Apathetic",
     "description": "Lacking enthusiasm or interest"
@@ -387,10 +379,6 @@
     "name": "Nervous",
     "description": "Jumpy and worried about the future or an uncertain event"
   },
-  "e7m4-disheartened-103": {
-    "name": "Disheartened",
-    "description": "Loss of resolve or determination"
-  },
   "e8m4-disappointed-104": {
     "name": "Disappointed",
     "description": "Sad because your expectations were not met"
@@ -398,10 +386,6 @@
   "e9m4-forlorn-105": {
     "name": "Forlorn",
     "description": "Feeling both sad and alone"
-  },
-  "e10m4-spent-106": {
-    "name": "Spent",
-    "description": "Feeling extremely exhausted, both in body and mind"
   },
   "e11m4-nostalgic-107": {
     "name": "Nostalgic",
@@ -439,10 +423,6 @@
     "name": "Lost",
     "description": "Feeling uncomfortably alone and lacking direction"
   },
-  "e9m3-disconnected-117": {
-    "name": "Disconnected",
-    "description": "Feeling separate from others"
-  },
   "e10m3-excluded-118": {
     "name": "Excluded",
     "description": "Feeling left out and unwanted from a desired group"
@@ -466,10 +446,6 @@
   "e5m2-repulsed-125": {
     "name": "Repulsed",
     "description": "Nauseated by someone or something"
-  },
-  "e6m2-troubled-126": {
-    "name": "Troubled",
-    "description": "Feeling worried about a problem or conflict"
   },
   "e7m2-trapped-127": {
     "name": "Trapped",
@@ -626,5 +602,25 @@
   "ext-dismissive-166": {
     "name": "Dismissive",
     "description": "Treating someone or something as beneath your attention"
+  },
+  "ext-devastated-167": {
+    "name": "Devastated",
+    "description": "Crushed, like something inside has collapsed"
+  },
+  "ext-resigned-168": {
+    "name": "Resigned",
+    "description": "Given in to defeat; no fight left"
+  },
+  "ext-empty-169": {
+    "name": "Empty",
+    "description": "A hollow void inside; feeling nothing"
+  },
+  "ext-longing-170": {
+    "name": "Yearning",
+    "description": "A wistful ache for someone or something"
+  },
+  "ext-regretful-171": {
+    "name": "Regretful",
+    "description": "Wishing you had acted differently"
   }
 }

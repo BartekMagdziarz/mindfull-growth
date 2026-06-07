@@ -315,14 +315,6 @@
     "name": "Zmęczony",
     "description": "Poczucie potrzeby odpoczynku"
   },
-  "e9m6-fatigued-081": {
-    "name": "Wymęczony",
-    "description": "Poczucie fizycznego wyczerpania"
-  },
-  "e10m6-disengaged-082": {
-    "name": "Wyłączony",
-    "description": "Niezdolność do skupienia się; brak zainteresowania"
-  },
   "e11m6-apathetic-083": {
     "name": "Apatyczny",
     "description": "Brak entuzjazmu lub zainteresowania"
@@ -387,10 +379,6 @@
     "name": "Zdenerwowany",
     "description": "Nerwowy i zmartwiony przyszłością lub niepewnym wydarzeniem"
   },
-  "e7m4-disheartened-103": {
-    "name": "Przybity",
-    "description": "Utrata determinacji lub postanowienia"
-  },
   "e8m4-disappointed-104": {
     "name": "Rozczarowany",
     "description": "Smutek, bo oczekiwania nie zostały spełnione"
@@ -398,10 +386,6 @@
   "e9m4-forlorn-105": {
     "name": "Opuszczony",
     "description": "Poczucie smutku i samotności jednocześnie"
-  },
-  "e10m4-spent-106": {
-    "name": "Wykończony",
-    "description": "Skrajne wyczerpanie ciała i umysłu"
   },
   "e11m4-nostalgic-107": {
     "name": "Nostalgiczny",
@@ -439,10 +423,6 @@
     "name": "Zagubiony",
     "description": "Poczucie niekomfortowej samotności i braku kierunku"
   },
-  "e9m3-disconnected-117": {
-    "name": "Odłączony",
-    "description": "Poczucie oddzielenia od innych"
-  },
   "e10m3-excluded-118": {
     "name": "Wykluczony",
     "description": "Poczucie bycia pominiętym i niechcianym przez grupę"
@@ -466,10 +446,6 @@
   "e5m2-repulsed-125": {
     "name": "Zniesmaczony",
     "description": "Odraza wobec kogoś lub czegoś"
-  },
-  "e6m2-troubled-126": {
-    "name": "Strapiony",
-    "description": "Zmartwiony problemem lub konfliktem"
   },
   "e7m2-trapped-127": {
     "name": "Uwięziony",
@@ -626,5 +602,25 @@
   "ext-dismissive-166": {
     "name": "Lekceważący",
     "description": "Traktujący kogoś lub coś jako niewarte uwagi"
+  },
+  "ext-devastated-167": {
+    "name": "Załamany",
+    "description": "Zdruzgotany; poczucie, że coś w środku się zawaliło"
+  },
+  "ext-resigned-168": {
+    "name": "Zrezygnowany",
+    "description": "Pogodzony z porażką; już bez sił, by walczyć"
+  },
+  "ext-empty-169": {
+    "name": "Pusty",
+    "description": "Wewnętrzna pustka; nic nie czuję"
+  },
+  "ext-longing-170": {
+    "name": "Stęskniony",
+    "description": "Rzewna tęsknota za kimś lub czymś"
+  },
+  "ext-regretful-171": {
+    "name": "Żałujący",
+    "description": "Żal, że nie postąpiło się inaczej"
   }
 }
