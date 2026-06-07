@@ -92,15 +92,20 @@ vi.mock('@/services/llmService', async () => {
 // Downstream stores used when building the journal / emotion payload. We stub
 // them with empty lists — buildProfile doesn't need real entries for these
 // tests, just enough shape to avoid TypeErrors.
+vi.mock('@/services/foundationCompleteness', () => ({
+  loadFoundationSourceData: vi.fn(async () => {}),
+}))
 vi.mock('@/stores/journal.store', () => ({
-  useJournalStore: vi.fn(() => ({ sortedEntries: [] })),
+  useJournalStore: vi.fn(() => ({ sortedEntries: [], loadEntries: vi.fn(async () => {}) })),
 }))
 vi.mock('@/stores/emotionLog.store', () => ({
-  useEmotionLogStore: vi.fn(() => ({ sortedLogs: [] })),
+  useEmotionLogStore: vi.fn(() => ({ sortedLogs: [], loadLogs: vi.fn(async () => {}) })),
 }))
 vi.mock('@/stores/emotion.store', () => ({
   useEmotionStore: vi.fn(() => ({
     emotions: [],
+    isLoaded: true,
+    loadEmotions: vi.fn(async () => {}),
     getEmotionById: vi.fn(() => undefined),
   })),
 }))
@@ -108,6 +113,8 @@ vi.mock('@/stores/tag.store', () => ({
   useTagStore: vi.fn(() => ({
     peopleTags: [],
     contextTags: [],
+    loadPeopleTags: vi.fn(async () => {}),
+    loadContextTags: vi.fn(async () => {}),
     getPeopleTagById: vi.fn(() => undefined),
     getContextTagById: vi.fn(() => undefined),
   })),
@@ -115,6 +122,7 @@ vi.mock('@/stores/tag.store', () => ({
 vi.mock('@/stores/lifeArea.store', () => ({
   useLifeAreaStore: vi.fn(() => ({
     lifeAreas: [],
+    loadLifeAreas: vi.fn(async () => {}),
     getLifeAreaById: vi.fn(() => undefined),
   })),
 }))

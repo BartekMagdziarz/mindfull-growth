@@ -30,7 +30,10 @@ import {
   type FoundationItemId,
 } from '@/services/foundationCompleteness'
 import { getExerciseSessionBundlesForPeriod } from '@/services/reflectionDataQueries'
-import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
+import {
+  assembleProfilePayload,
+  ensureProfileStoresLoaded,
+} from '@/services/profilePayloadAssembler'
 
 export interface ProfilePreviewObjectHeader {
   type: ProfileDataType
@@ -135,6 +138,11 @@ export async function queryScopePreview(
   const enabled = new Set(dataTypes)
   const emotionQuadrantCodes = filters?.emotionQuadrants ?? []
   const resolvedQuadrants = emotionQuadrantCodes.map((code) => QUADRANT_CODE_MAP[code])
+
+  // Journal/emotion records (+ names) and foundation data live in lazily-loaded
+  // Pinia stores the wizard doesn't otherwise hydrate — load them before counting,
+  // or the preview reports 0 even when data exists. (Other types read Dexie directly.)
+  await ensureProfileStoresLoaded(enabled)
 
   const countsByType: Partial<Record<ProfileDataType, number>> = {}
   const objectIdsByType: Partial<Record<ProfileDataType, string[]>> = {}

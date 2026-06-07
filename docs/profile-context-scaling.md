@@ -4,11 +4,12 @@
 > **Pillar 1 (instrument) → Pillar 2 (budget-assemble) → Pillar 3 (summarize)**.
 > Builds on commit `dd27edc` (Ollama native `/api/chat` + auto `num_ctx`).
 > **Shipped on branch `feat/profile-build-instrumentation`:** Pillar 1 + Pillar 2 (`2ed7d5a`),
-> Pillar 3a deterministic digests (`552c315`), and the four post-real-build fixes #1–#4 below
-> (implemented + tested, **uncommitted**). **Pending:** 1.4 empirical calibration (the 2.5 divisor
-> in #1 is the interim fix), Pillar 3b/3c (redesigned to hybrid LLM-narrative + hierarchy, below).
+> Pillar 3a deterministic digests (`552c315`), post-real-build fixes #1–#4 (`7b66004`), and
+> store-hydration fixes #5–#6 below (implemented + tested, **uncommitted**). **Pending:** 1.4 empirical
+> calibration (the 2.5 divisor in #1 is the interim fix), Pillar 3b/3c (redesigned to hybrid
+> LLM-narrative + hierarchy, below).
 >
-> **Findings from first real build (gemma4:12b, Polish, 2026-06-07) — all four FIXED (see #N tags):**
+> **Findings from real builds (gemma4:12b, Polish, 2026-06-07) — all FIXED (see #N tags):**
 > - **Estimate under-counts ~15–19%** — `estimateTokens=chars/3` vs real `prompt_eval_count`
 >   (Gemma+PL ≈ chars/2.4). This *also* under-sizes `num_ctx` (same `/3`), which **truncated the
 >   answer mid-sentence**. → **FIXED (#1):** `NUM_CTX_CHARS_PER_TOKEN` 3 → 2.5 (one shared constant
@@ -29,6 +30,22 @@
 >   synthetic `type-createdAt` id vs the assembler's real `b.id`). → **FIXED (#4):** preview reads
 >   `getExerciseSessionBundlesForPeriod` and uses `b.id` (real, else `type-createdAt`), matching
 >   the assembler's filter — exercises now flow into the build.
+> - **Journal/emotion-logs missing from a cold build (2nd build):** `journal=0, emotionLogs=0` even
+>   with data present. Exactly the two types read from **lazily-loaded Pinia stores**
+>   (`useJournalStore().sortedEntries` / `useEmotionLogStore().sortedLogs`); everything that worked
+>   reads Dexie directly. The build/wizard isn't reached through a view that hydrates those stores,
+>   so opening it in a fresh session (no Today visit) yields empty `[JOURNAL ENTRIES]`/`[EMOTION
+>   LOGS]` (and unresolved emotion/people/context names). → **FIXED (#5):** `ensureProfileStoresLoaded()`
+>   (guarded, once-per-build) hydrates journal + emotionLog + emotion + tag + lifeArea before the
+>   gather, called from both `assembleProfilePayload` and `queryScopePreview` (gated on the two types).
+> - **Foundation missing from a cold build/preview (3rd build):** same root cause, different stores.
+>   `computeFoundationStatuses()` (preview) and `buildFoundationSnapshot()` (build) read ~10 lazily-
+>   loaded self-discovery + assessment stores via their `latestX` getters and **never** call the
+>   existing `loadFoundationSourceData()` batch loader → cold session shows an empty Foundation even
+>   when the instruments were completed. The same audit found the planning `[LIFE AREAS]` block also
+>   reads a lazy store (`useLifeAreaStore`), so it too was empty cold (the rest of planning reads Dexie).
+>   → **FIXED (#6):** `ensureProfileStoresLoaded(enabled)` now runs `loadFoundationSourceData()` for
+>   `foundation` and loads the life-area store for `planning`, so both paths hydrate before reading.
 
 ## Context (why this exists)
 

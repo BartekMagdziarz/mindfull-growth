@@ -43,6 +43,7 @@ import {
   buildSummarizedHistory,
   rawTierCutoffIso,
 } from '@/services/profilePeriodSummary.service'
+import { loadFoundationSourceData } from '@/services/foundationCompleteness'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useJournalStore } from '@/stores/journal.store'
@@ -117,6 +118,56 @@ async function resolveBudget(): Promise<number | null> {
 }
 
 /**
+ * Hydrate the lazily-loaded Pinia stores the profile build/preview reads. Several
+ * data types come from per-view stores rather than Dexie repositories, so the
+ * section is empty unless the user happened to visit a view that loaded them
+ * first — the build/wizard isn't reached through one. Loaded by `enabled` type:
+ *  - `journal`/`emotionLogs` → the records + their emotion/people/context names
+ *    (otherwise `[JOURNAL ENTRIES]`/`[EMOTION LOGS]` come back empty/unnamed);
+ *  - `planning` → the life-area store behind the `[LIFE AREAS]` block (the rest of
+ *    the planning snapshot reads Dexie repos directly);
+ *  - `foundation` → the ~10 self-discovery + assessment stores that feed both the
+ *    preview's completeness count and the build's `[FOUNDATION SNAPSHOT]`.
+ * Record/name loads are guarded so they hit Dexie at most once; the foundation
+ * loader (`loadFoundationSourceData`) is its own canonical batch.
+ * (reflections/exercises read Dexie directly and need no hydration.)
+ */
+export async function ensureProfileStoresLoaded(
+  enabled: Set<ProfileDataType>,
+): Promise<void> {
+  const tasks: Array<Promise<unknown>> = []
+
+  if (enabled.has('journal') || enabled.has('emotionLogs')) {
+    const journalStore = useJournalStore()
+    const emotionLogStore = useEmotionLogStore()
+    const emotionStore = useEmotionStore()
+    const tagStore = useTagStore()
+    if (journalStore.sortedEntries.length === 0) tasks.push(journalStore.loadEntries())
+    if (emotionLogStore.sortedLogs.length === 0) tasks.push(emotionLogStore.loadLogs())
+    if (!emotionStore.isLoaded) tasks.push(emotionStore.loadEmotions())
+    if (tagStore.peopleTags.length === 0) tasks.push(tagStore.loadPeopleTags())
+    if (tagStore.contextTags.length === 0) tasks.push(tagStore.loadContextTags())
+  }
+
+  // Life areas: resolve entry names (journal/emotion) AND back the `[LIFE AREAS]`
+  // block (planning) — `buildLifeAreasSnapshot` reads this same lazy store.
+  if (
+    enabled.has('journal') ||
+    enabled.has('emotionLogs') ||
+    enabled.has('planning')
+  ) {
+    const lifeAreaStore = useLifeAreaStore()
+    if (lifeAreaStore.lifeAreas.length === 0) tasks.push(lifeAreaStore.loadLifeAreas())
+  }
+
+  if (enabled.has('foundation')) {
+    tasks.push(loadFoundationSourceData())
+  }
+
+  await Promise.all(tasks)
+}
+
+/**
  * Gather in-scope records (honoring the date window AND `includedObjectIds`),
  * resolve their human-readable names + snapshots, then assemble the payload and
  * its per-type × age token breakdown.
@@ -128,6 +179,10 @@ export async function assembleProfilePayload(
   const { dataTypes, start, end, dateRange, includedObjectIds, locale } = scope
   const included = includedObjectIds ?? {}
   const enabled = new Set(dataTypes)
+
+  // Journal/emotion records (+ names) and foundation data live in lazily-loaded
+  // Pinia stores; the build path doesn't go through a view that hydrates them.
+  await ensureProfileStoresLoaded(enabled)
 
   // ---- Journal ----------------------------------------------------------
   let journalEntries: ProfilePayloadJournalEntry[] | undefined

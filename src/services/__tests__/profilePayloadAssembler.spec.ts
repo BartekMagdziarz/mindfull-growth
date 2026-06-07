@@ -13,6 +13,7 @@ import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
 import { estimateTokens } from '@/services/profileLLMAssists'
 import { rawTierCutoffIso } from '@/services/profilePeriodSummary.service'
 import { getPeriodRefsForDate } from '@/utils/periods'
+import { loadFoundationSourceData } from '@/services/foundationCompleteness'
 import { profilePeriodSummaryDexieRepository } from '@/repositories/profilePeriodSummaryDexieRepository'
 import type { ProfileDateRange } from '@/domain/userProfile'
 import type { WeekRef } from '@/domain/period'
@@ -20,6 +21,7 @@ import type { WeekRef } from '@/domain/period'
 vi.mock('@/services/foundationCompleteness', () => ({
   computeFoundationStatuses: vi.fn(() => []),
   foundationCompletionCount: vi.fn(() => 0),
+  loadFoundationSourceData: vi.fn(async () => {}),
 }))
 
 const START = '2026-01-01T00:00:00.000Z'
@@ -89,6 +91,78 @@ describe('assembleProfilePayload', () => {
     expect(preview.tokensByType).toEqual(assembled.tokensByType)
     expect(assembled.tokensByType.journal).toBeGreaterThan(0)
     expect(assembled.tokensByType.emotionLogs).toBeGreaterThan(0)
+  })
+
+  it('self-hydrates the journal store when built cold (records exist only in Dexie)', async () => {
+    // Write straight to Dexie WITHOUT touching the Pinia store — mimics opening the
+    // profile build in a fresh session where no view has hydrated the journal store.
+    const db = getUserDatabase()
+    await db.journalEntries.add({
+      id: 'jrnl-cold-1',
+      createdAt: '2026-04-12T09:00:00.000Z',
+      updatedAt: '2026-04-12T09:00:00.000Z',
+      title: 'Cold start',
+      body: 'COLD_BUILD_BODY that exists only in Dexie',
+      emotionIds: [],
+      peopleTagIds: [],
+      contextTagIds: [],
+    })
+
+    // Build directly (no preview to warm the store first). It must still appear.
+    const assembled = await assembleProfilePayload({
+      dataTypes: ['journal'],
+      start: START,
+      end: END,
+      dateRange: RANGE,
+      includedObjectIds: {},
+      locale: 'en',
+      maxPromptTokens: null,
+    })
+
+    expect(assembled.text).toContain('COLD_BUILD_BODY')
+    expect(assembled.tokensByType.journal ?? 0).toBeGreaterThan(0)
+  })
+
+  it('hydrates foundation source data when foundation is in scope', async () => {
+    vi.mocked(loadFoundationSourceData).mockClear()
+    await assembleProfilePayload({
+      dataTypes: ['foundation'],
+      start: START,
+      end: END,
+      dateRange: RANGE,
+      includedObjectIds: {},
+      locale: 'en',
+      maxPromptTokens: null,
+    })
+    // Without this the build's [FOUNDATION SNAPSHOT] reads empty cold stores.
+    expect(loadFoundationSourceData).toHaveBeenCalled()
+  })
+
+  it('self-hydrates the life-area store for the planning [LIFE AREAS] block when cold', async () => {
+    // A life area exists only in Dexie; the lifeArea store is cold (fresh Pinia).
+    const db = getUserDatabase()
+    await db.lifeAreas.add({
+      id: 'la-cold-1',
+      name: 'COLD_LIFE_AREA Health',
+      isActive: true,
+      sortOrder: 0,
+      reflectionSignals: [],
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+
+    const assembled = await assembleProfilePayload({
+      dataTypes: ['planning'],
+      start: START,
+      end: END,
+      dateRange: RANGE,
+      includedObjectIds: {},
+      locale: 'en',
+      maxPromptTokens: null,
+    })
+
+    expect(assembled.text).toContain('[LIFE AREAS]')
+    expect(assembled.text).toContain('COLD_LIFE_AREA Health')
   })
 
   it('never leaks a reflection aiSummary into the payload (Pillar 3 boundary)', async () => {

@@ -10,7 +10,10 @@ import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import { queryScopePreview } from '@/services/profileScopeQueries'
 import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
-import { computeFoundationStatuses } from '@/services/foundationCompleteness'
+import {
+  computeFoundationStatuses,
+  loadFoundationSourceData,
+} from '@/services/foundationCompleteness'
 import type { WeekRef } from '@/domain/period'
 
 vi.mock('@/services/foundationCompleteness', () => ({
@@ -18,6 +21,7 @@ vi.mock('@/services/foundationCompleteness', () => ({
   foundationCompletionCount: vi.fn((statuses: Array<{ state: string }>) =>
     statuses.filter((s) => s.state === 'completed' || s.state === 'outdated').length,
   ),
+  loadFoundationSourceData: vi.fn(async () => {}),
 }))
 
 describe('queryScopePreview', () => {
@@ -83,6 +87,44 @@ describe('queryScopePreview', () => {
     expect(result.countsByType.emotionLogs).toBe(1)
     expect(result.objectIdsByType.journal).toHaveLength(1)
     expect(result.approxTokens).toBeGreaterThan(0)
+  })
+
+  it('self-hydrates the journal store so a cold-start preview still counts entries', async () => {
+    // Write straight to Dexie WITHOUT touching the Pinia store — mimics opening the
+    // wizard in a fresh session where no view has hydrated the journal store.
+    const db = getUserDatabase()
+    await db.journalEntries.add({
+      id: 'jrnl-cold-1',
+      createdAt: '2026-04-12T09:00:00.000Z',
+      updatedAt: '2026-04-12T09:00:00.000Z',
+      title: 'Cold start',
+      body: 'COLD_START_BODY entry that exists only in Dexie',
+      emotionIds: [],
+      peopleTagIds: [],
+      contextTagIds: [],
+    })
+
+    const preview = await queryScopePreview({
+      dataTypes: ['journal'],
+      start: '2026-04-01T00:00:00.000Z',
+      end: '2026-04-30T23:59:59.999Z',
+    })
+
+    // Before the fix the cold store yielded 0 even though the entry exists.
+    expect(preview.countsByType.journal).toBe(1)
+    expect(preview.objectIdsByType.journal).toEqual(['jrnl-cold-1'])
+  })
+
+  it('hydrates foundation source data before counting it (cold-start)', async () => {
+    vi.mocked(loadFoundationSourceData).mockClear()
+    await queryScopePreview({
+      dataTypes: ['foundation'],
+      start: '2026-01-01T00:00:00.000Z',
+      end: '2026-12-31T23:59:59.999Z',
+    })
+    // The ~10 self-discovery/assessment stores must be loaded, or the preview
+    // reports an empty Foundation even when those exercises were completed.
+    expect(loadFoundationSourceData).toHaveBeenCalled()
   })
 
   it('exposes real exercise-session ids so the build includes them (Fix #4)', async () => {
