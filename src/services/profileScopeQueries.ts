@@ -23,6 +23,7 @@ import type { LocaleId } from '@/services/locale.service'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useJournalStore } from '@/stores/journal.store'
+import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import {
   computeFoundationStatuses,
@@ -318,11 +319,26 @@ export async function queryScopePreview(
 
   // --- Planning ----------------------------------------------------------
   if (enabled.has('planning')) {
-    // TODO(epic 12+): planning stores (goals, habits, trackers, etc.) are
-    // not summarised here — only diary-like sources are included in Story 3.
-    // When wired up, this branch should filter by `filters.lifeAreaIds`.
-    countsByType.planning = 0
-    objectIdsByType.planning = []
+    // Life areas are the enumerable planning entity and back the `[LIFE AREAS]`
+    // block the build sends — count + list them so the preview reflects what's
+    // actually passed (the store is hydrated up-front by ensureProfileStoresLoaded).
+    const lifeAreaStore = useLifeAreaStore()
+    const areas = lifeAreaStore.lifeAreas.filter(
+      (a) => a.isActive && a.name.trim().length > 0,
+    )
+    countsByType.planning = areas.length
+    objectIdsByType.planning = areas.map((a) => a.id)
+    for (const area of areas) {
+      headers.push({
+        type: 'planning',
+        id: area.id,
+        title: area.name,
+        date: area.createdAt,
+      })
+    }
+    // TODO(epic 12+): the rest of the planning snapshot (goals, habits, trackers,
+    // priorities) is an aggregate that contributes tokens but isn't object-counted
+    // here yet; when wired up, this branch should also filter by `filters.lifeAreaIds`.
   }
 
   // Guarantee stable ordering for the source list.

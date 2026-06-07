@@ -230,13 +230,35 @@ describe('queryScopePreview', () => {
     expect(result.headers[0].title).toBe('With Mom')
   })
 
-  it('counts planning as zero while it remains stubbed in preview', async () => {
+  it('counts and lists active life areas under planning (so the preview shows them)', async () => {
+    const db = getUserDatabase()
+    const la = (id: string, name: string, isActive: boolean, day: string) => ({
+      id,
+      name,
+      isActive,
+      sortOrder: 0,
+      reflectionSignals: [],
+      createdAt: `2026-01-${day}T00:00:00.000Z`,
+      updatedAt: `2026-01-${day}T00:00:00.000Z`,
+    })
+    await db.lifeAreas.bulkAdd([
+      la('la1', 'Health', true, '01'),
+      la('la2', 'Work', true, '02'),
+      la('la3', 'Archived', false, '03'),
+    ])
+
     const result = await queryScopePreview({
       dataTypes: ['planning'],
       start: '2026-01-01T00:00:00.000Z',
       end: '2026-12-31T23:59:59.999Z',
     })
-    expect(result.countsByType.planning).toBe(0)
+
+    // Active areas are counted + listed (so they're visible in the preview);
+    // the archived one is excluded.
+    expect(result.countsByType.planning).toBe(2)
+    expect((result.objectIdsByType.planning ?? []).slice().sort()).toEqual(['la1', 'la2'])
+    const planningHeaders = result.headers.filter((h) => h.type === 'planning')
+    expect(planningHeaders.map((h) => h.title).sort()).toEqual(['Health', 'Work'])
   })
 
   it('counts completed and outdated foundation tiles', async () => {
