@@ -163,12 +163,12 @@ describe('Component interactions', () => {
     await user.click(await screen.findByTestId('emotion-show-emotions'))
     await user.click(await screen.findByTestId('emotion-option-happy'))
 
-    await screen.findByRole('button', { name: /Remove Happy from selection/i })
+    await screen.findByRole('button', { name: /Remove Happy/i })
 
     // Switch quadrants via the in-panel switcher (level 2/3); selection persists.
     await user.click(await screen.findByTestId('emotion-quadrant-switch-high-energy-low-pleasantness'))
     // Selection persists across the round-trip
-    await screen.findByRole('button', { name: /Remove Happy from selection/i })
+    await screen.findByRole('button', { name: /Remove Happy/i })
 
     // Add people tag
     await user.click(screen.getByRole('button', { name: /Add new people tag/i }))
@@ -220,7 +220,7 @@ describe('Component interactions', () => {
     await user.click(await screen.findByTestId('emotion-show-emotions'))
     await user.click(await screen.findByTestId('emotion-option-joyful'))
     expect(saveButton).toBeEnabled()
-    await screen.findByRole('button', { name: /Remove Joyful from selection/i })
+    await screen.findByRole('button', { name: /Remove Joyful/i })
 
     // Add tags then save
     await user.click(screen.getByRole('button', { name: /Add new people tag/i }))

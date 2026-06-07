@@ -77,26 +77,10 @@
             class="neo-card px-5 py-4 flex flex-col gap-4"
             :style="emotionCardStyle"
           >
-            <header class="space-y-2">
-              <div class="flex flex-wrap items-center gap-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                  {{ t('emotionViews.editor.emotions') }}
-                </p>
-                <div class="flex flex-wrap gap-2 min-h-[1.5rem]">
-                  <button
-                    v-for="emotion in selectedEmotionList"
-                    :key="emotion.id"
-                    type="button"
-                    :style="getEmotionChipStyle(emotion.id)"
-                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-on-surface text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
-                    :aria-label="`Remove ${emotion.name} from selection`"
-                    @click="removeEmotion(emotion.id)"
-                  >
-                    <span>{{ emotion.name }}</span>
-                    <AppIcon name="close" class="text-sm" />
-                  </button>
-                </div>
-              </div>
+            <header>
+              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                {{ t('emotionViews.editor.emotions') }}
+              </p>
             </header>
             <div
               v-if="isEmotionSectionLoading"
@@ -110,7 +94,7 @@
                 v-model:families="selectedEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrant"
                 :allow-family-only="true"
-                :show-selected-section="false"
+                :show-empty-state="false"
               />
             </div>
           </section>
@@ -216,8 +200,8 @@ import { useTagStore } from '@/stores/tag.store'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { formatEntryDate } from '@/utils/dateFormat'
 import type { EmotionLog } from '@/domain/emotionLog'
-import type { Emotion, Quadrant } from '@/domain/emotion'
-import { getQuadrant, getQuadrantChipStyle, getQuadrantTintStyle } from '@/domain/emotion'
+import type { Quadrant } from '@/domain/emotion'
+import { getQuadrantTintStyle } from '@/domain/emotion'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
@@ -346,25 +330,6 @@ const isContextSectionLoading = computed(() => {
 const isValid = computed(
   () => selectedEmotionIds.value.length > 0 || selectedEmotionFamilyIds.value.length > 0
 )
-
-const selectedEmotionList = computed(() => {
-  return selectedEmotionIds.value
-    .map((id) => emotionStore.getEmotionById(id))
-    .filter((emotion): emotion is Emotion => Boolean(emotion))
-})
-
-function getEmotionChipStyle(emotionId: string): Record<string, string> {
-  const emotion = emotionStore.getEmotionById(emotionId)
-  if (!emotion) return {}
-  return getQuadrantChipStyle(getQuadrant(emotion))
-}
-
-const removeEmotion = (id: string) => {
-  const index = selectedEmotionIds.value.indexOf(id)
-  if (index > -1) {
-    selectedEmotionIds.value.splice(index, 1)
-  }
-}
 
 const formattedTimestamp = computed(() => {
   // Use custom date if set and valid

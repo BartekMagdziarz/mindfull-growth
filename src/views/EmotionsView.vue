@@ -6,29 +6,10 @@
         <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('emotionViews.logTitle') }}</h2>
 
         <div class="space-y-4">
-          <!-- Emotions header (label + active quadrant suffix + selected chips) -->
-          <div class="flex flex-wrap items-center gap-3">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-              {{ t('emotionViews.editor.emotions') }}
-            </p>
-            <div
-              v-if="selectedEmotionIds.length > 0"
-              class="flex flex-wrap gap-2"
-            >
-              <button
-                v-for="emotion in selectedEmotionList"
-                :key="emotion.id"
-                type="button"
-                :style="getEmotionChipStyle(emotion.id)"
-                class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-on-surface text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
-                :aria-label="`Remove ${emotion.name} from selection`"
-                @click="removeEmotion(emotion.id)"
-              >
-                <span>{{ emotion.name }}</span>
-                <AppIcon name="close" class="text-sm" />
-              </button>
-            </div>
-          </div>
+          <!-- Emotions header (label) -->
+          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+            {{ t('emotionViews.editor.emotions') }}
+          </p>
 
           <!-- Emotion Selector -->
           <div
@@ -43,7 +24,7 @@
               v-model:families="selectedEmotionFamilyIds"
               v-model:quadrant="activeEmotionQuadrant"
               :allow-family-only="true"
-              :show-selected-section="false"
+              :show-empty-state="false"
             />
           </div>
 
@@ -146,8 +127,8 @@ import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
-import type { Emotion, Quadrant } from '@/domain/emotion'
-import { getQuadrant, getQuadrantChipStyle, getQuadrantTintStyle } from '@/domain/emotion'
+import type { Quadrant } from '@/domain/emotion'
+import { getQuadrantTintStyle } from '@/domain/emotion'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
@@ -185,25 +166,6 @@ const isPeopleSectionLoading = computed(() => {
 const isContextSectionLoading = computed(() => {
   return areContextTagsLoading.value || (!hasLoadedContextTags.value && tagStore.contextTags.length === 0)
 })
-
-const selectedEmotionList = computed(() => {
-  return selectedEmotionIds.value
-    .map((id) => emotionStore.getEmotionById(id))
-    .filter((emotion): emotion is Emotion => Boolean(emotion))
-})
-
-function getEmotionChipStyle(emotionId: string): Record<string, string> {
-  const emotion = emotionStore.getEmotionById(emotionId)
-  if (!emotion) return {}
-  return getQuadrantChipStyle(getQuadrant(emotion))
-}
-
-function removeEmotion(id: string) {
-  const index = selectedEmotionIds.value.indexOf(id)
-  if (index > -1) {
-    selectedEmotionIds.value.splice(index, 1)
-  }
-}
 
 function resetForm() {
   selectedEmotionIds.value = []

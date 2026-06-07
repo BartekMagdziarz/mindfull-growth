@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/vue'
+import { render, screen, fireEvent, within } from '@testing-library/vue'
 import { setActivePinia, createPinia } from 'pinia'
 import EmotionSelector from '../EmotionSelector.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
-import { FAMILIES_BY_QUADRANT } from '@/domain/emotionFamily'
+import { FAMILIES_BY_QUADRANT, FAMILY_OF } from '@/domain/emotionFamily'
 import type { Quadrant } from '@/domain/emotion'
 
 const HEHP: Quadrant = 'high-energy-high-pleasantness'
@@ -119,9 +119,9 @@ describe('EmotionSelector (scatter picker)', () => {
       await fireEvent.click(await screen.findByTestId(`emotion-family-${family.id}`))
       expect(lastEmit(emitted(), 'update:families')).toEqual([[family.id]])
 
-      // The selected-family chip strip (its own accessible list) appears.
+      // The selected chips now live in one combined accessible list.
       expect(
-        await screen.findByRole('list', { name: 'Selected emotion families' })
+        await screen.findByRole('list', { name: 'Selected emotions and families' })
       ).toBeInTheDocument()
     })
 
@@ -132,8 +132,28 @@ describe('EmotionSelector (scatter picker)', () => {
       const family = FAMILIES_BY_QUADRANT[HEHP][0]
       await fireEvent.click(await screen.findByTestId(`emotion-family-${family.id}`))
       expect(
-        screen.queryByRole('list', { name: 'Selected emotion families' })
+        screen.queryByRole('list', { name: 'Selected emotions and families' })
       ).not.toBeInTheDocument()
+    })
+
+    it('shows selected emotions and families together in one list', async () => {
+      const emotion = emotionsIn(HEHP)[0]
+      // Pick a family the emotion does NOT belong to, so it isn't absorbed.
+      const otherFamily = FAMILIES_BY_QUADRANT[HEHP].find(
+        (f) => f.id !== FAMILY_OF[emotion.id]
+      )!
+      render(EmotionSelector, {
+        props: { modelValue: [emotion.id], allowFamilyOnly: true },
+      })
+      await fireEvent.click(screen.getByTestId(`emotion-quadrant-${HEHP}`))
+      await fireEvent.click(await screen.findByTestId(`emotion-family-${otherFamily.id}`))
+
+      // Emotion chip and family chip share ONE combined list (no second strip).
+      const list = await screen.findByRole('list', {
+        name: 'Selected emotions and families',
+      })
+      expect(within(list).getByText(emotion.name)).toBeInTheDocument()
+      expect(within(list).getAllByRole('button')).toHaveLength(2)
     })
   })
 })

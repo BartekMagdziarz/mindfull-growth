@@ -20,18 +20,32 @@
 -->
 <template>
   <div class="emotion-selector">
-    <!-- Wybrane rodziny — zawsze widoczne, gdy allowFamilyOnly (niezależnie od
-         showSelectedSection: po zwinięciu pickera znika podświetlenie na kartach,
-         więc chip jest jedynym śladem wyboru „rodzina-only"). -->
+    <!-- Wspólne pole wybranych — konkretne emocje ORAZ nie-wchłonięte rodziny w
+         JEDNYM rzędzie (emocje najpierw, potem rodziny). Każdy rodzaj bramkowany
+         niezależnie (emocje: showSelectedSection, rodziny: allowFamilyOnly), ale
+         renderowany w tym samym kontenerze. Reguła wchłonięcia bez zmian: rodzina
+         znika z chipów, gdy wybrano emocję z tej rodziny (displayedFamilyChips). -->
     <div
-      v-if="props.allowFamilyOnly && displayedFamilyChips.length > 0"
-      class="mb-3 flex flex-wrap gap-2 overflow-x-auto pb-1"
+      v-if="hasDisplayedChips"
+      class="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-1"
       role="list"
-      aria-label="Selected emotion families"
+      aria-label="Selected emotions and families"
     >
       <button
-        v-for="family in displayedFamilyChips"
-        :key="family.id"
+        v-for="emotion in chipEmotions"
+        :key="`emotion-${emotion.id}`"
+        type="button"
+        :aria-label="`Remove ${emotion.name}`"
+        :style="getEmotionChipStyle(emotion.id)"
+        class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+        @click="removeEmotion(emotion.id)"
+      >
+        <span>{{ emotion.name }}</span>
+        <AppIcon name="close" class="text-base" />
+      </button>
+      <button
+        v-for="family in chipFamilies"
+        :key="`family-${family.id}`"
         type="button"
         :aria-label="`Remove ${familyName(family)}`"
         :style="getQuadrantChipStyle(family.quadrant)"
@@ -43,35 +57,12 @@
         <AppIcon name="close" class="text-base" />
       </button>
     </div>
-
-    <!-- Sekcja wybranych EMOCJI (sterowana showSelectedSection, jak dotychczas) -->
-    <template v-if="props.showSelectedSection">
-      <div
-        v-if="selectedEmotionIds.length > 0"
-        class="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-1"
-        role="list"
-        aria-label="Selected emotions"
-      >
-        <button
-          v-for="emotion in selectedEmotions"
-          :key="emotion.id"
-          type="button"
-          :aria-label="`Remove ${emotion.name}`"
-          :style="getEmotionChipStyle(emotion.id)"
-          class="neo-emotion-chip inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
-          @click="removeEmotion(emotion.id)"
-        >
-          <span>{{ emotion.name }}</span>
-          <AppIcon name="close" class="text-base" />
-        </button>
-      </div>
-      <div
-        v-else-if="!hasAnySelection"
-        class="mb-4 p-3 rounded-2xl bg-section text-center text-on-surface-variant text-xs border border-neu-border/30"
-      >
-        {{ t('emotionViews.selector.noSelection') }}
-      </div>
-    </template>
+    <div
+      v-else-if="props.showSelectedSection && props.showEmptyState && !hasAnySelection"
+      class="mb-4 p-3 rounded-2xl bg-section text-center text-on-surface-variant text-xs border border-neu-border/30"
+    >
+      {{ t('emotionViews.selector.noSelection') }}
+    </div>
 
     <!-- Wspólne pole/panel — 3 poziomy z animacjami zagłębiania -->
     <div class="es-panel" :class="{ 'es-panel--expanded': level !== 'quadrants' }" :style="panelStyle">
@@ -265,12 +256,16 @@ interface Props {
   // Pozwala zatrzymać się na rodzinie (zapisywać emotionFamilyIds). Gdy false,
   // rodziny działają tylko jako filtr pola scatter (zachowanie domyślne/drop-in).
   allowFamilyOnly?: boolean
+  // Placeholder „brak wyboru" w pustej sekcji wybranych. Wyłączany tam, gdzie
+  // picker i tak jest zawsze widoczny pod spodem (widoki logowania emocji).
+  showEmptyState?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
   showSelectedSection: true,
   allowFamilyOnly: false,
+  showEmptyState: true,
 })
 
 const emit = defineEmits<{
@@ -353,6 +348,19 @@ const hasAnySelection = computed(
   () =>
     selectedEmotionIds.value.length > 0 ||
     (props.allowFamilyOnly && familiesModel.value.length > 0)
+)
+
+// Wspólny rząd chipów: emocje (gdy showSelectedSection) najpierw, potem
+// nie-wchłonięte rodziny (gdy allowFamilyOnly). Każdy rodzaj bramkowany osobno,
+// ale renderowany w jednym kontenerze.
+const chipEmotions = computed<Emotion[]>(() =>
+  props.showSelectedSection ? selectedEmotions.value : []
+)
+const chipFamilies = computed<EmotionFamily[]>(() =>
+  props.allowFamilyOnly ? displayedFamilyChips.value : []
+)
+const hasDisplayedChips = computed(
+  () => chipEmotions.value.length > 0 || chipFamilies.value.length > 0
 )
 
 const hoveredEmotion = computed(() =>
@@ -626,7 +634,12 @@ onMounted(async () => {
   position: relative;
   min-height: 168px;
   border-radius: 18px;
+  /* clip + margines zamiast samego hidden: neumorficzne cienie przycisków przy
+     krawędziach pola nie są ucinane, a przeskalowania animacji nadal maskowane.
+     overflow:hidden zostaje jako fallback dla silników bez `overflow: clip`. */
   overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 16px;
   transition: min-height 260ms cubic-bezier(0.2, 0.8, 0.2, 1), background 280ms ease;
 }
 .es-panel--expanded {
