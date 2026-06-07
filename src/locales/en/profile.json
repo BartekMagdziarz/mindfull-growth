@@ -434,10 +434,11 @@
     "baseUrlPlaceholder": "https://api.openai.com/v1",
     "baseUrlError": "Base URL is required.",
     "modelLabel": "Model",
-    "modelPlaceholder": "gpt-5-nano",
+    "modelPlaceholder": "gpt-5.4-nano",
     "modelError": "Model is required.",
     "reasoningEffortLabel": "Reasoning effort",
     "reasoningEffortHint": "This is an Ollama hint, not a guaranteed token budget. Some models, including Gemma 4, may treat low, medium, and high very similarly.",
+    "reasoningEffortHintOpenai": "Controls how much OpenAI reasoning models (GPT-5 / o-series) think before answering. Higher effort is more thorough but slower, and the extra (billed) reasoning tokens come out of the response budget. Non-reasoning models like gpt-4o ignore this.",
     "reasoningEfforts": {
       "none": "None",
       "low": "Low — faster",

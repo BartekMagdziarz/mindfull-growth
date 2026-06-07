@@ -178,7 +178,9 @@ describe('ProfileView › AI assistant tab', () => {
     expect(screen.getByLabelText('AI provider')).toBeInTheDocument()
     expect(screen.getByLabelText('Base URL')).toBeInTheDocument()
     expect(screen.getByLabelText('Model')).toBeInTheDocument()
-    expect(screen.queryByLabelText('Reasoning effort')).not.toBeInTheDocument()
+    // OpenAI (the default provider) runs reasoning models, so the effort
+    // selector is shown.
+    expect(screen.getByLabelText('Reasoning effort')).toBeInTheDocument()
     expect(screen.getByLabelText('API key')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
   })
@@ -197,7 +199,7 @@ describe('ProfileView › AI assistant tab', () => {
         'https://api.openai.com/v1',
       )
       expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
-        'gpt-5-nano',
+        'gpt-5.4-nano',
       )
       expect((screen.getByLabelText('API key') as HTMLInputElement).value).toBe(
         'sk-test123456789',
@@ -224,8 +226,9 @@ describe('ProfileView › AI assistant tab', () => {
     expect(savedAISettings()).toEqual({
       provider: 'openai',
       baseUrl: 'https://api.openai.com/v1',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       apiKey: 'sk-test123456789',
+      reasoningEffort: 'low',
     })
   })
 
@@ -315,7 +318,7 @@ describe('ProfileView › AI assistant tab', () => {
       'https://api.openai.com/v1',
     )
     expect((screen.getByLabelText('Model') as HTMLInputElement).value).toBe(
-      'gpt-5-nano',
+      'gpt-5.4-nano',
     )
   })
 

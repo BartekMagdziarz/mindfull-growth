@@ -55,7 +55,7 @@ The chat feature lets you have short, focused conversations with an AI about a s
 - Existing installs that only have `openaiApiKey` still work: `llmService` falls back to OpenAI with that legacy key when `aiProviderSettings` is missing.
 - `ProfileView` lets users choose OpenAI, local Ollama, local MLX, or a custom OpenAI-compatible endpoint. The final request URL is built as `${baseUrl}/chat/completions`.
 - Supported presets:
-  - OpenAI: `https://api.openai.com/v1`, model `gpt-5-nano`, API key required.
+  - OpenAI: `https://api.openai.com/v1`, model `gpt-5.4-nano`, API key required.
   - Ollama local: `http://localhost:11434/v1`, model `gemma4:e4b`, no API key required.
   - MLX local: `http://localhost:8080/v1`, model `mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit`, no API key required.
 - API keys are stored locally in the browser and are only sent to the configured endpoint.

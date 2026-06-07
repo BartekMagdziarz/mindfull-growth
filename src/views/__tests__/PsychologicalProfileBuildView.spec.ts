@@ -117,7 +117,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockBuildProfile.mockResolvedValue({
       sections: { ...createEmptySections(), summary: 'Generated summary.' },
       rawResponse: '## Summary\n\nGenerated summary.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
 
@@ -174,7 +174,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockBuildProfile.mockResolvedValueOnce({
       sections: { ...createEmptySections(), summary: 'After retry.' },
       rawResponse: '## Summary\n\nAfter retry.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
     const retryBtn = document.querySelector('[data-test-retry]') as HTMLButtonElement
@@ -215,7 +215,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockBuildProfile.mockResolvedValue({
       sections: { ...createEmptySections(), summary: 'Generated summary.' },
       rawResponse: '## Summary\n\nGenerated summary.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
 
@@ -238,7 +238,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockBuildProfile.mockResolvedValue({
       sections: { ...createEmptySections(), summary: 'Generated.' },
       rawResponse: '## Summary\n\nGenerated.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
 
@@ -271,7 +271,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockBuildProfile.mockResolvedValue({
       sections: { ...createEmptySections(), summary: 'Generated.' },
       rawResponse: '## Summary\n\nGenerated.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
     mockCreateProfile.mockResolvedValue({
@@ -289,7 +289,7 @@ describe('PsychologicalProfileBuildView', () => {
       },
       sections: { ...createEmptySections(), summary: 'Generated.' },
       rawResponse: '## Summary\n\nGenerated.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
     })
 
     render(PsychologicalProfileBuildView)
@@ -349,7 +349,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockBuildProfile.mockResolvedValue({
       sections: { ...createEmptySections(), summary: 'Generated.' },
       rawResponse: '## Summary\n\nGenerated.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
     mockCreateProfile.mockRejectedValue(new Error('Quota exceeded'))
@@ -391,7 +391,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockBuildProfile.mockResolvedValue({
       sections: { ...createEmptySections(), summary: 'Generated summary.' },
       rawResponse: '## Summary\n\nGenerated summary.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
 
@@ -450,7 +450,7 @@ describe('PsychologicalProfileBuildView', () => {
     mockBuildProfile.mockResolvedValue({
       sections: { ...createEmptySections(), summary: 'Generated.' },
       rawResponse: '## Summary\n\nGenerated.',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
 
@@ -510,7 +510,7 @@ describe('PsychologicalProfileBuildView', () => {
     resolveBuild({
       sections: createEmptySections(),
       rawResponse: '',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
   })

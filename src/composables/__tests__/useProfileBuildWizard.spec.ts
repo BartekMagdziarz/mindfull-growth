@@ -187,7 +187,7 @@ describe('useProfileBuildWizard', () => {
     resolveBuild({
       sections: {} as Record<string, string>,
       rawResponse: '',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
     await nextPromise
@@ -312,14 +312,14 @@ describe('useProfileBuildWizard — review state (Story 5)', () => {
         suggestedDirections: 'SD',
       },
       rawResponse: 'raw',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     },
   ) {
     buildProfileMock.mockResolvedValueOnce({
       sections: result.sections,
       rawResponse: result.rawResponse ?? 'raw',
-      model: result.model ?? 'gpt-5-nano',
+      model: result.model ?? 'gpt-5.4-nano',
       extras: result.extras ?? '',
     })
     const wizard = mountWizard()
@@ -440,7 +440,7 @@ describe('useProfileBuildWizard — review state (Story 5)', () => {
         suggestedDirections: '',
       },
       rawResponse: 'raw2',
-      model: 'gpt-5-nano',
+      model: 'gpt-5.4-nano',
       extras: '',
     })
 

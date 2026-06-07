@@ -434,10 +434,11 @@
     "baseUrlPlaceholder": "https://api.openai.com/v1",
     "baseUrlError": "Bazowy URL jest wymagany.",
     "modelLabel": "Model",
-    "modelPlaceholder": "gpt-5-nano",
+    "modelPlaceholder": "gpt-5.4-nano",
     "modelError": "Model jest wymagany.",
     "reasoningEffortLabel": "Poziom reasoningu",
     "reasoningEffortHint": "To wskazówka dla Ollamy, nie gwarantowany budżet tokenów. Część modeli, w tym Gemma 4, może traktować poziomy niski, średni i wysoki bardzo podobnie.",
+    "reasoningEffortHintOpenai": "Określa, jak długo modele rozumujące OpenAI (GPT-5 / o-series) analizują, zanim odpowiedzą. Wyższy poziom jest dokładniejszy, ale wolniejszy, a dodatkowe (płatne) tokeny rozumowania zużywają budżet odpowiedzi. Modele bez rozumowania, np. gpt-4o, ignorują to ustawienie.",
     "reasoningEfforts": {
       "none": "Brak",
       "low": "Niski — szybciej",

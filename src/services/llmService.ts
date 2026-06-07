@@ -1,8 +1,10 @@
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { CHAT_COPY } from '@/constants/chatCopy'
 
-// Default model configuration
-export const DEFAULT_MODEL = 'gpt-5-nano'
+// Default model configuration. gpt-5.4-nano is OpenAI's smallest/cheapest
+// reasoning model (alias `gpt-5.4-nano`, snapshot gpt-5.4-nano-2026-03-17,
+// 400k context) — fast and inexpensive for journal chats and profile builds.
+export const DEFAULT_MODEL = 'gpt-5.4-nano'
 const DEFAULT_TEMPERATURE = 0.7
 const DEFAULT_MAX_TOKENS = 500
 
@@ -454,17 +456,54 @@ function deriveOllamaNativeUrl(baseUrl: string): string {
   return `${root}/api/chat`
 }
 
-// ---- OpenAI-compatible adapter (openai / mlx / custom — unchanged) ---------
+// ---- OpenAI-compatible adapter (openai / mlx / custom) ---------------------
+
+/**
+ * OpenAI's hosted API renamed the completion cap. Its reasoning models — the
+ * o-series and the GPT-5 family — reject `max_tokens` outright with
+ * "Unsupported parameter: 'max_tokens' is not supported with this model. Use
+ * 'max_completion_tokens' instead.", and every current OpenAI chat model also
+ * accepts `max_completion_tokens`, so real OpenAI requests always send the new
+ * field. Local OpenAI-compatible servers (mlx / custom: llama.cpp, LM Studio,
+ * vLLM, MLX) predate the rename and commonly understand only `max_tokens`, so
+ * they keep the legacy field.
+ */
+function completionTokenField(
+  provider: AIProviderId,
+): 'max_tokens' | 'max_completion_tokens' {
+  return provider === 'openai' ? 'max_completion_tokens' : 'max_tokens'
+}
+
+/**
+ * OpenAI's reasoning families — the o-series and the GPT-5 line (gpt-5,
+ * gpt-5.4, …) — differ from the classic chat models in two ways the request
+ * builder must respect:
+ *   1. They lock sampling to the default: any explicit `temperature` other than
+ *      1 returns "Unsupported value: 'temperature' …", so we omit the field.
+ *   2. They accept a `reasoning_effort` control that the classic models reject.
+ * Classic OpenAI chat models (gpt-3.5 / gpt-4 / gpt-4o) and local servers do
+ * neither. Matches o1/o3/o4… and gpt-5 / gpt-5-mini / gpt-5.4-nano …, but NOT
+ * gpt-4o (not `o`-prefixed).
+ */
+function isOpenAIReasoningModel(provider: AIProviderId, model: string): boolean {
+  return provider === 'openai' && /^(o\d|gpt-5)/i.test(model)
+}
 
 const openAiAdapter: WireAdapter = {
   format: 'openai',
 
   buildRequest(settings, plan) {
+    const reasoningModel = isOpenAIReasoningModel(settings.provider, plan.model)
     const body: Record<string, unknown> = {
       model: plan.model,
       messages: plan.messages,
-      temperature: plan.temperature,
-      max_tokens: plan.completionTokenCap,
+      // Reasoning models reject a non-default temperature; classic models honour it.
+      ...(reasoningModel ? {} : { temperature: plan.temperature }),
+      [completionTokenField(settings.provider)]: plan.completionTokenCap,
+      // Our effort enum (none/low/medium/high) maps 1:1 onto the GPT-5.4 line's
+      // reasoning_effort values; higher effort spends more (billed) reasoning
+      // tokens out of the completion budget. Sent only where it's accepted.
+      ...(reasoningModel ? { reasoning_effort: plan.reasoningEffort } : {}),
       ...(plan.stream
         ? { stream: true, stream_options: { include_usage: true } }
         : {}),

@@ -361,7 +361,7 @@ describe('useUserProfileStore', () => {
       expect(result.sections.emotionalPatterns).toContain('Patterns body.')
       // Unmentioned sections stay empty (no hallucinated content).
       expect(result.sections.strengths).toBe('')
-      expect(result.model).toBe('gpt-5-nano')
+      expect(result.model).toBe('gpt-5.4-nano')
     })
 
     it('calls buildFoundationSnapshot once when foundation is in scope', async () => {
@@ -527,8 +527,8 @@ describe('useUserProfileStore', () => {
       expect(payload.responseBody).toContain('## Summary')
       expect(payload.requestBody).toContain('systemPrompt')
       expect(payload.requestBody).toContain('"role":"user"')
-      expect(payload.model).toBe('gpt-5-nano')
-      expect(payload.requestBody).toContain('"model":"gpt-5-nano"')
+      expect(payload.model).toBe('gpt-5.4-nano')
+      expect(payload.requestBody).toContain('"model":"gpt-5.4-nano"')
       expect(typeof payload.latencyMs).toBe('number')
       expect(payload.latencyMs).toBeGreaterThanOrEqual(0)
       expect(payload.scope).toEqual(validScope)

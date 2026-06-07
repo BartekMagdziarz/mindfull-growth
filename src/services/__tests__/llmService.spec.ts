@@ -112,7 +112,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
       mockSuccess()
@@ -132,19 +132,59 @@ describe('llmService', () => {
       expect(request.init.method).toBe('POST')
       expect(request.init.headers['Content-Type']).toBe('application/json')
       expect(request.init.headers.Authorization).toBe('Bearer sk-test123456789')
-      expect(request.body.model).toBe('gpt-5-nano')
-      expect(request.body.temperature).toBe(0.7)
-      expect(request.body.max_tokens).toBe(500)
+      expect(request.body.model).toBe('gpt-5.4-nano')
+      // gpt-5 / o-series reject `max_tokens` and any non-default temperature.
+      expect(request.body.max_completion_tokens).toBe(500)
+      expect(request.body.max_tokens).toBeUndefined()
+      expect(request.body.temperature).toBeUndefined()
+      // reasoning_effort defaults to 'low' and is sent for GPT-5 reasoning models.
+      expect(request.body.reasoning_effort).toBe('low')
       expect(request.body.messages).toEqual([
         { role: 'user', content: 'Hello, how are you?' },
       ])
+    })
+
+    it('uses max_completion_tokens but keeps temperature for non-reasoning OpenAI models', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-4o',
+        apiKey: 'sk-test123456789',
+      })
+      mockSuccess()
+
+      await sendMessage([{ role: 'user', content: 'Hello' }])
+
+      const body = latestRequest().body
+      // The hosted OpenAI API requires the renamed completion cap…
+      expect(body.max_completion_tokens).toBe(500)
+      expect(body.max_tokens).toBeUndefined()
+      // …but gpt-4o is not a reasoning model, so temperature is still honoured
+      // and no reasoning_effort is sent.
+      expect(body.temperature).toBe(0.7)
+      expect(body.reasoning_effort).toBeUndefined()
+    })
+
+    it('forwards the configured reasoning effort to OpenAI reasoning models', async () => {
+      storeSettings({
+        provider: 'openai',
+        baseUrl: 'https://api.openai.com/v1',
+        model: 'gpt-5.4-nano',
+        apiKey: 'sk-test123456789',
+        reasoningEffort: 'high',
+      })
+      mockSuccess()
+
+      await sendMessage([{ role: 'user', content: 'Hello' }])
+
+      expect(latestRequest().body.reasoning_effort).toBe('high')
     })
 
     it('captures OpenAI non-streaming token usage via onDiagnostics', async () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
       // OpenAI returns a usage block on non-streaming responses by default.
@@ -184,7 +224,7 @@ describe('llmService', () => {
       const request = latestRequest()
       expect(request.url).toBe('https://api.openai.com/v1/chat/completions')
       expect(request.init.headers.Authorization).toBe('Bearer sk-legacy')
-      expect(request.body.model).toBe('gpt-5-nano')
+      expect(request.body.model).toBe('gpt-5.4-nano')
     })
 
     it('sends Ollama requests to the native /api/chat endpoint without an API key', async () => {
@@ -378,13 +418,15 @@ describe('llmService', () => {
 
       // 300 requested + 2048 reasoning headroom
       expect(latestRequest().body.max_tokens).toBe(2348)
+      // reasoning_effort is OpenAI-only — local servers never receive it.
+      expect(latestRequest().body.reasoning_effort).toBeUndefined()
     })
 
     it('does not add reasoning headroom for hosted OpenAI requests', async () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
       mockSuccess()
@@ -393,7 +435,11 @@ describe('llmService', () => {
         maxTokens: 300,
       })
 
-      expect(latestRequest().body.max_tokens).toBe(300)
+      const body = latestRequest().body
+      // No headroom added: the cap equals the requested 300 (not 300 + headroom),
+      // sent under the renamed OpenAI field.
+      expect(body.max_completion_tokens).toBe(300)
+      expect(body.max_tokens).toBeUndefined()
     })
 
     it('adds Authorization for custom providers when an API key is configured', async () => {
@@ -434,7 +480,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
       mockSuccess('Combined response')
@@ -471,7 +517,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
       })
 
       await expect(
@@ -486,7 +532,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-invalid',
       })
 
@@ -507,7 +553,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
 
@@ -526,7 +572,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
 
@@ -550,7 +596,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
       mockFetch.mockRejectedValueOnce(new TypeError('Failed to fetch'))
@@ -564,7 +610,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
       mockFetch.mockResolvedValueOnce({
@@ -581,7 +627,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
       mockFetch.mockResolvedValueOnce({
@@ -620,7 +666,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
 
@@ -747,7 +793,7 @@ describe('llmService', () => {
       storeSettings({
         provider: 'openai',
         baseUrl: 'https://api.openai.com/v1',
-        model: 'gpt-5-nano',
+        model: 'gpt-5.4-nano',
         apiKey: 'sk-test123456789',
       })
       mockFetch.mockResolvedValueOnce({

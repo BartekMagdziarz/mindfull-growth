@@ -52,8 +52,8 @@
         </select>
       </div>
 
-      <!-- Reasoning effort -->
-      <div v-if="aiProvider === 'ollama'">
+      <!-- Reasoning effort (Ollama native think; OpenAI reasoning models) -->
+      <div v-if="aiProvider === 'ollama' || aiProvider === 'openai'">
         <label
           for="reasoningEffort"
           class="field-label block mb-[6px]"
@@ -69,7 +69,9 @@
           <option value="high">{{ t('profile.aiSettings.reasoningEfforts.high') }}</option>
         </select>
         <p class="mt-2 text-[12px]" style="color: rgb(var(--neo-muted))">
-          {{ t('profile.aiSettings.reasoningEffortHint') }}
+          {{ aiProvider === 'openai'
+            ? t('profile.aiSettings.reasoningEffortHintOpenai')
+            : t('profile.aiSettings.reasoningEffortHint') }}
         </p>
       </div>
 
@@ -297,7 +299,7 @@ async function handleSave() {
       baseUrl: baseUrl.value.trim(),
       model: aiModel.value.trim(),
       ...(apiKey.value.trim() ? { apiKey: apiKey.value.trim() } : {}),
-      ...(aiProvider.value === 'ollama'
+      ...(aiProvider.value === 'ollama' || aiProvider.value === 'openai'
         ? { reasoningEffort: reasoningEffort.value }
         : {}),
     }
