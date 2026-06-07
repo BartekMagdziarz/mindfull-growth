@@ -295,10 +295,6 @@
     "name": "Pressured",
     "description": "Feeling as if an important outcome depends on you"
   },
-  "e3m6-restless-075": {
-    "name": "Restless",
-    "description": "Unable to relax due to anxiety or boredom"
-  },
   "e4m6-confused-076": {
     "name": "Confused",
     "description": "Feeling unable to make sense of something"
@@ -335,14 +331,6 @@
     "name": "Helpless",
     "description": "Feeling like there's nothing you can do"
   },
-  "e1m5-impassioned-085": {
-    "name": "Impassioned",
-    "description": "Filled with lots of emotion"
-  },
-  "e2m5-annoyed-086": {
-    "name": "Annoyed",
-    "description": "Bothered by something displeasing or uncomfortable"
-  },
   "e3m5-irritated-087": {
     "name": "Irritated",
     "description": "Slightly angry with or annoyed by an action or event"
@@ -350,10 +338,6 @@
   "e4m5-fomo-088": {
     "name": "Fomo",
     "description": "Fear of missing out"
-  },
-  "e5m5-concerned-089": {
-    "name": "Concerned",
-    "description": "Wondering if someone or something is okay"
   },
   "e6m5-peeved-090": {
     "name": "Peeved",
@@ -390,10 +374,6 @@
   "e2m4-stressed-098": {
     "name": "Stressed",
     "description": "Strained mentally or emotionally from too many demands and not enough resources"
-  },
-  "e3m4-apprehensive-099": {
-    "name": "Apprehensive",
-    "description": "Unease and worry about something that might happen"
   },
   "e4m4-jittery-100": {
     "name": "Jittery",
@@ -439,10 +419,6 @@
     "name": "Overwhelmed",
     "description": "Feeling like you have been taken over by strong feelings"
   },
-  "e3m3-anxious-111": {
-    "name": "Anxious",
-    "description": "Worried and uneasy about an uncertain outcome"
-  },
   "e4m3-angry-112": {
     "name": "Angry",
     "description": "Strongly bothered about a perceived injustice"
@@ -483,17 +459,9 @@
     "name": "Terrified",
     "description": "Consumed by fear"
   },
-  "e2m2-irate-122": {
-    "name": "Irate",
-    "description": "Feeling like your anger is almost out of control"
-  },
   "e3m2-frightened-123": {
     "name": "Frightened",
     "description": "Afraid or fearful"
-  },
-  "e4m2-scared-124": {
-    "name": "Scared",
-    "description": "Perceiving threat or danger, whether physical or physiological"
   },
   "e5m2-repulsed-125": {
     "name": "Repulsed",
@@ -534,10 +502,6 @@
   "e2m1-livid-134": {
     "name": "Livid",
     "description": "Feeling furious about something or someone"
-  },
-  "e3m1-furious-135": {
-    "name": "Furious",
-    "description": "Full of extreme or wild anger"
   },
   "e4m1-jealous-136": {
     "name": "Jealous",
@@ -638,5 +602,29 @@
   "ext-reflective-160": {
     "name": "Reflective",
     "description": "Calmly lost in thought"
+  },
+  "ext-offended-161": {
+    "name": "Offended",
+    "description": "Stung and wounded in your pride"
+  },
+  "ext-impatient-162": {
+    "name": "Impatient",
+    "description": "Restless with waiting; you want things to move faster"
+  },
+  "ext-torn-163": {
+    "name": "Torn",
+    "description": "Pulled between conflicting options or feelings"
+  },
+  "ext-flustered-164": {
+    "name": "Flustered",
+    "description": "Thrown off and self-conscious in a social moment"
+  },
+  "ext-haughty-165": {
+    "name": "Haughty",
+    "description": "Looking down on others with a sense of superiority"
+  },
+  "ext-dismissive-166": {
+    "name": "Dismissive",
+    "description": "Treating someone or something as beneath your attention"
   }
 }

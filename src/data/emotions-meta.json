@@ -370,11 +370,6 @@
     "energy": 11
   },
   {
-    "id": "e3m6-restless-075",
-    "pleasantness": 6,
-    "energy": 10
-  },
-  {
     "id": "e4m6-confused-076",
     "pleasantness": 6,
     "energy": 9
@@ -420,16 +415,6 @@
     "energy": 1
   },
   {
-    "id": "e1m5-impassioned-085",
-    "pleasantness": 5,
-    "energy": 12
-  },
-  {
-    "id": "e2m5-annoyed-086",
-    "pleasantness": 5,
-    "energy": 11
-  },
-  {
     "id": "e3m5-irritated-087",
     "pleasantness": 5,
     "energy": 10
@@ -438,11 +423,6 @@
     "id": "e4m5-fomo-088",
     "pleasantness": 5,
     "energy": 9
-  },
-  {
-    "id": "e5m5-concerned-089",
-    "pleasantness": 5,
-    "energy": 8
   },
   {
     "id": "e6m5-peeved-090",
@@ -488,11 +468,6 @@
     "id": "e2m4-stressed-098",
     "pleasantness": 4,
     "energy": 11
-  },
-  {
-    "id": "e3m4-apprehensive-099",
-    "pleasantness": 4,
-    "energy": 10
   },
   {
     "id": "e4m4-jittery-100",
@@ -550,11 +525,6 @@
     "energy": 11
   },
   {
-    "id": "e3m3-anxious-111",
-    "pleasantness": 3,
-    "energy": 10
-  },
-  {
     "id": "e4m3-angry-112",
     "pleasantness": 3,
     "energy": 9
@@ -605,19 +575,9 @@
     "energy": 12
   },
   {
-    "id": "e2m2-irate-122",
-    "pleasantness": 2,
-    "energy": 11
-  },
-  {
     "id": "e3m2-frightened-123",
     "pleasantness": 2,
     "energy": 10
-  },
-  {
-    "id": "e4m2-scared-124",
-    "pleasantness": 3,
-    "energy": 8
   },
   {
     "id": "e5m2-repulsed-125",
@@ -668,11 +628,6 @@
     "id": "e2m1-livid-134",
     "pleasantness": 1,
     "energy": 11
-  },
-  {
-    "id": "e3m1-furious-135",
-    "pleasantness": 1,
-    "energy": 10
   },
   {
     "id": "e4m1-jealous-136",
@@ -798,5 +753,35 @@
     "id": "ext-reflective-160",
     "pleasantness": 8,
     "energy": 3
+  },
+  {
+    "id": "ext-offended-161",
+    "pleasantness": 3,
+    "energy": 8
+  },
+  {
+    "id": "ext-impatient-162",
+    "pleasantness": 4,
+    "energy": 8
+  },
+  {
+    "id": "ext-torn-163",
+    "pleasantness": 4,
+    "energy": 7
+  },
+  {
+    "id": "ext-flustered-164",
+    "pleasantness": 4,
+    "energy": 8
+  },
+  {
+    "id": "ext-haughty-165",
+    "pleasantness": 2,
+    "energy": 7
+  },
+  {
+    "id": "ext-dismissive-166",
+    "pleasantness": 3,
+    "energy": 7
   }
 ]

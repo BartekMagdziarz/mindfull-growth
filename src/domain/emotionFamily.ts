@@ -9,10 +9,11 @@
 // zapisanymi emotionFamilyIds NIE zmieniamy istniejących slugów — id „ciekawosc-i-naped" /
 // „pewnosc-i-mistrzostwo" / „nadzieja-i-spelnienie" / „zaskoczenie-i-zachwyt" zostają,
 // zmienia się tylko nazwa wyświetlana; nowe rodziny to „rozbawienie", „determinacja",
-// „duma". Ćwiartkę „Wysoka energia / Nieprzyjemne" również przebudowano na 9:
-// rozbito przeładowany „Niepokój" (lęk poznawczy + „Rozedrganie i nerwy") oraz
-// rozdzielono „Wstręt" od „Zażenowania i upokorzenia" („Zdezorientowany" → Stres).
-// Czyste przegrupowanie istniejących emocji — bez dodawania nowych. Ćwiartkę
+// „duma". Ćwiartkę „Wysoka energia / Nieprzyjemne" przebudowano na 9 (nazwy jednowyrazowe):
+// Nerwy wchłonięte w Niepokój, Pogarda w „Niechęć" (wstręt+pogarda); wydzielono Zamęt
+// (Zdezorientowany + Wstrząśnięty + Rozdarty); usunięto 9 archaizmów/dubletów (m.in.
+// Rozsierdzony, Rozjuszony, Strwożony, Zlękniony) — slug „rozedrganie-i-nerwy" zniknął.
+// Nowy slug: „zamet"; +6 nowych emocji. Ćwiartkę
 // „Niska energia / Przyjemne" → 10: nazwy skrócone do jednowyrazowych; wydzielono
 // Czułość (ciepło · rozczulenie) i Zaduma (marzenia · refleksja: Marzący + Zamyślony);
 // Zrozumiany → Przynależność; Zaspokojony przeniesiony tu z HEHP (energia 7→6).
@@ -58,14 +59,14 @@ export const FAMILIES_BY_QUADRANT: Record<Quadrant, EmotionFamily[]> = {
   ],
   "high-energy-low-pleasantness": [
     { id: "gniew", name: "Gniew", sub: "złość", tint: "#c23a52", rep: "Zły", quadrant: "high-energy-low-pleasantness" },
-    { id: "irytacja-i-frustracja", name: "Irytacja i frustracja", sub: "rozdrażnienie", tint: "#cc5560", rep: "Zirytowany", quadrant: "high-energy-low-pleasantness" },
-    { id: "strach-i-panika", name: "Strach i panika", sub: "lęk", tint: "#b8447e", rep: "Przestraszony", quadrant: "high-energy-low-pleasantness" },
-    { id: "niepokoj-i-zmartwienie", name: "Niepokój i zmartwienie", sub: "troska · lęk", tint: "#a85a92", rep: "Zaniepokojony", quadrant: "high-energy-low-pleasantness" },
-    { id: "rozedrganie-i-nerwy", name: "Rozedrganie i nerwy", sub: "nerwowość · rozdygotanie", tint: "#b85a86", rep: "Roztrzęsiony", quadrant: "high-energy-low-pleasantness" },
-    { id: "stres-i-przytloczenie", name: "Stres i przytłoczenie", sub: "napięcie", tint: "#c25a6c", rep: "Zestresowany", quadrant: "high-energy-low-pleasantness" },
-    { id: "wstret", name: "Wstręt", sub: "odraza · niesmak", tint: "#8f5aa0", rep: "Zbrzydzony", quadrant: "high-energy-low-pleasantness" },
-    { id: "zazenowanie-i-upokorzenie", name: "Zażenowanie i upokorzenie", sub: "zażenowanie · upokorzenie", tint: "#a05a96", rep: "Skrępowany", quadrant: "high-energy-low-pleasantness" },
-    { id: "pogarda-i-zazdrosc", name: "Pogarda i zazdrość", sub: "niechęć", tint: "#9c4f8e", rep: "Pogardliwy", quadrant: "high-energy-low-pleasantness" },
+    { id: "irytacja-i-frustracja", name: "Irytacja", sub: "rozdrażnienie", tint: "#cc5560", rep: "Zirytowany", quadrant: "high-energy-low-pleasantness" },
+    { id: "strach-i-panika", name: "Strach", sub: "lęk · panika", tint: "#b8447e", rep: "Przestraszony", quadrant: "high-energy-low-pleasantness" },
+    { id: "niepokoj-i-zmartwienie", name: "Niepokój", sub: "lęk · nerwy", tint: "#a85a92", rep: "Zmartwiony", quadrant: "high-energy-low-pleasantness" },
+    { id: "stres-i-przytloczenie", name: "Stres", sub: "napięcie · przeciążenie", tint: "#c25a6c", rep: "Zestresowany", quadrant: "high-energy-low-pleasantness" },
+    { id: "zamet", name: "Zamęt", sub: "dezorientacja · rozbicie", tint: "#b85a86", rep: "Zdezorientowany", quadrant: "high-energy-low-pleasantness" },
+    { id: "zazenowanie-i-upokorzenie", name: "Zażenowanie", sub: "skrępowanie · wstyd", tint: "#a05a96", rep: "Skrępowany", quadrant: "high-energy-low-pleasantness" },
+    { id: "wstret", name: "Niechęć", sub: "wstręt · pogarda", tint: "#8f5aa0", rep: "Zbrzydzony", quadrant: "high-energy-low-pleasantness" },
+    { id: "pogarda-i-zazdrosc", name: "Zazdrość", sub: "zazdrość · zawiść", tint: "#9c4f8e", rep: "Zazdrosny", quadrant: "high-energy-low-pleasantness" },
   ],
   "low-energy-high-pleasantness": [
     { id: "spokoj-i-wyciszenie", name: "Spokój", sub: "ukojenie · harmonia", tint: "#3a86cc", rep: "Spokojny", quadrant: "low-energy-high-pleasantness" },
@@ -167,8 +168,7 @@ export const FAMILY_OF: Record<string, string> = {
   "e12m7-carefree-072": "odprezenie-i-swoboda", // Beztroski
   "e1m6-hyper-073": "energia", // Nakręcony
   "e2m6-pressured-074": "stres-i-przytloczenie", // Pod presją
-  "e3m6-restless-075": "rozedrganie-i-nerwy", // Rozedrgany
-  "e4m6-confused-076": "stres-i-przytloczenie", // Zdezorientowany
+  "e4m6-confused-076": "zamet", // Zdezorientowany
   "e5m6-tense-077": "stres-i-przytloczenie", // Spięty
   "e6m6-uneasy-078": "niepokoj-i-zmartwienie", // Nieswój
   "e7m6-bored-079": "apatia-i-znudzenie", // Znudzony
@@ -177,11 +177,8 @@ export const FAMILY_OF: Record<string, string> = {
   "e10m6-disengaged-082": "apatia-i-znudzenie", // Wyłączony
   "e11m6-apathetic-083": "apatia-i-znudzenie", // Apatyczny
   "e12m6-helpless-084": "beznadzieja-i-rozpacz", // Bezradny
-  "e1m5-impassioned-085": "stres-i-przytloczenie", // Rozgorączkowany
-  "e2m5-annoyed-086": "irytacja-i-frustracja", // Poirytowany
   "e3m5-irritated-087": "irytacja-i-frustracja", // Zirytowany
-  "e4m5-fomo-088": "irytacja-i-frustracja", // FOMO
-  "e5m5-concerned-089": "niepokoj-i-zmartwienie", // Zaniepokojony
+  "e4m5-fomo-088": "niepokoj-i-zmartwienie", // FOMO
   "e6m5-peeved-090": "irytacja-i-frustracja", // Podrażniony
   "e7m5-down-091": "przygnebienie", // Markotny
   "e8m5-meh-092": "apatia-i-znudzenie", // Nijako
@@ -189,12 +186,11 @@ export const FAMILY_OF: Record<string, string> = {
   "e10m5-discouraged-094": "beznadzieja-i-rozpacz", // Zniechęcony
   "e11m5-lonely-095": "samotnosc-i-wykluczenie", // Samotny
   "e12m5-exhausted-096": "zmeczenie-i-wypalenie", // Wyczerpany
-  "e1m4-shocked-097": "strach-i-panika", // Wstrząśnięty
+  "e1m4-shocked-097": "zamet", // Wstrząśnięty
   "e2m4-stressed-098": "stres-i-przytloczenie", // Zestresowany
-  "e3m4-apprehensive-099": "strach-i-panika", // Pełen obaw
-  "e4m4-jittery-100": "rozedrganie-i-nerwy", // Roztrzęsiony
+  "e4m4-jittery-100": "niepokoj-i-zmartwienie", // Podenerwowany
   "e5m4-embarrassed-101": "zazenowanie-i-upokorzenie", // Skrępowany
-  "e6m4-nervous-102": "rozedrganie-i-nerwy", // Nerwowy
+  "e6m4-nervous-102": "niepokoj-i-zmartwienie", // Zdenerwowany
   "e7m4-disheartened-103": "smutek-i-zal", // Przybity
   "e8m4-disappointed-104": "zwatpienie-i-rozczarowanie", // Rozczarowany
   "e9m4-forlorn-105": "samotnosc-i-wykluczenie", // Opuszczony
@@ -203,7 +199,6 @@ export const FAMILY_OF: Record<string, string> = {
   "e12m4-burned-out-108": "zmeczenie-i-wypalenie", // Wypalony
   "e1m3-panicked-109": "strach-i-panika", // Spanikowany
   "e2m3-overwhelmed-110": "stres-i-przytloczenie", // Przytłoczony
-  "e3m3-anxious-111": "niepokoj-i-zmartwienie", // Niespokojny
   "e4m3-angry-112": "gniew", // Zły
   "e5m3-frustrated-113": "irytacja-i-frustracja", // Sfrustrowany
   "e6m3-worried-114": "niepokoj-i-zmartwienie", // Zmartwiony
@@ -214,9 +209,7 @@ export const FAMILY_OF: Record<string, string> = {
   "e11m3-alienated-119": "samotnosc-i-wykluczenie", // Wyobcowany
   "e12m3-glum-120": "przygnebienie", // Ponury
   "e1m2-terrified-121": "strach-i-panika", // Przerażony
-  "e2m2-irate-122": "gniew", // Wkurzony
   "e3m2-frightened-123": "strach-i-panika", // Przestraszony
-  "e4m2-scared-124": "strach-i-panika", // Wystraszony
   "e5m2-repulsed-125": "wstret", // Zniesmaczony
   "e6m2-troubled-126": "smutek-i-zal", // Zatroskany
   "e7m2-trapped-127": "wstyd-i-wina", // Uwięziony
@@ -227,10 +220,9 @@ export const FAMILY_OF: Record<string, string> = {
   "e12m2-despair-132": "beznadzieja-i-rozpacz", // Zrozpaczony
   "e1m1-enraged-133": "gniew", // Rozwścieczony
   "e2m1-livid-134": "gniew", // Wściekły
-  "e3m1-furious-135": "gniew", // Rozjuszony
   "e4m1-jealous-136": "pogarda-i-zazdrosc", // Zazdrosny
   "e5m1-envious-137": "pogarda-i-zazdrosc", // Zawistny
-  "e6m1-contempt-138": "pogarda-i-zazdrosc", // Pogardliwy
+  "e6m1-contempt-138": "wstret", // Pogardliwy
   "e7m1-disgusted-139": "wstret", // Zbrzydzony
   "e8m1-humiliated-140": "zazenowanie-i-upokorzenie", // Upokorzony
   "e9m1-pessimistic-141": "beznadzieja-i-rozpacz", // Pesymistyczny
@@ -257,6 +249,14 @@ export const FAMILY_OF: Record<string, string> = {
   "ext-tender-158": "czulosc", // Rozczulony
   "ext-enraptured-159": "czulosc", // Rozanielony
   "ext-reflective-160": "zaduma", // Refleksyjny
+
+  // --- Rozszerzenie HELP (Wysoka energia / Nieprzyjemne): 6 nowych emocji ---
+  "ext-offended-161": "gniew", // Urażony
+  "ext-impatient-162": "irytacja-i-frustracja", // Zniecierpliwiony
+  "ext-torn-163": "zamet", // Rozdarty
+  "ext-flustered-164": "zazenowanie-i-upokorzenie", // Speszony
+  "ext-haughty-165": "wstret", // Wyniosły
+  "ext-dismissive-166": "wstret", // Lekceważący
 }
 
 export function familyOfEmotionId(id: string): string | undefined {

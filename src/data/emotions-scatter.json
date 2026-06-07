@@ -369,11 +369,6 @@
     "energy": 8.8,
     "anchor": false
   },
-  "e3m6-restless-075": {
-    "pleasantness": 5.2,
-    "energy": 9.8,
-    "anchor": false
-  },
   "e4m6-confused-076": {
     "pleasantness": 5.6,
     "energy": 6.5,
@@ -419,16 +414,6 @@
     "energy": 2.94,
     "anchor": false
   },
-  "e1m5-impassioned-085": {
-    "pleasantness": 3.3,
-    "energy": 8.7,
-    "anchor": false
-  },
-  "e2m5-annoyed-086": {
-    "pleasantness": 4.8,
-    "energy": 7,
-    "anchor": false
-  },
   "e3m5-irritated-087": {
     "pleasantness": 4.2,
     "energy": 7.6,
@@ -438,11 +423,6 @@
     "pleasantness": 5.4,
     "energy": 8.2,
     "anchor": false
-  },
-  "e5m5-concerned-089": {
-    "pleasantness": 4.2,
-    "energy": 7.9,
-    "anchor": true
   },
   "e6m5-peeved-090": {
     "pleasantness": 5.4,
@@ -488,11 +468,6 @@
     "pleasantness": 4,
     "energy": 9.6,
     "anchor": true
-  },
-  "e3m4-apprehensive-099": {
-    "pleasantness": 1.8,
-    "energy": 8.6,
-    "anchor": false
   },
   "e4m4-jittery-100": {
     "pleasantness": 4.8,
@@ -549,11 +524,6 @@
     "energy": 10.2,
     "anchor": false
   },
-  "e3m3-anxious-111": {
-    "pleasantness": 4,
-    "energy": 8.5,
-    "anchor": false
-  },
   "e4m3-angry-112": {
     "pleasantness": 3,
     "energy": 8.9,
@@ -602,11 +572,6 @@
   "e1m2-terrified-121": {
     "pleasantness": 2,
     "energy": 10.6,
-    "anchor": false
-  },
-  "e2m2-irate-122": {
-    "pleasantness": 2.4,
-    "energy": 9.6,
     "anchor": false
   },
   "e3m2-frightened-123": {
@@ -664,11 +629,6 @@
     "energy": 10.3,
     "anchor": true
   },
-  "e3m1-furious-135": {
-    "pleasantness": 1.4,
-    "energy": 11,
-    "anchor": false
-  },
   "e4m1-jealous-136": {
     "pleasantness": 5.2,
     "energy": 6.6,
@@ -714,11 +674,6 @@
     "energy": 2.53,
     "anchor": false
   },
-  "e4m2-scared-124": {
-    "pleasantness": 3,
-    "energy": 8,
-    "anchor": false
-  },
   "ext-amused-145": {
     "pleasantness": 8.6,
     "energy": 7.8,
@@ -741,7 +696,7 @@
   },
   "ext-absorbed-149": {
     "pleasantness": 6.7,
-    "energy": 8.0,
+    "energy": 8,
     "anchor": false
   },
   "ext-resolute-150": {
@@ -780,8 +735,8 @@
     "anchor": false
   },
   "ext-warmhearted-157": {
-    "pleasantness": 9.0,
-    "energy": 4.0,
+    "pleasantness": 9,
+    "energy": 4,
     "anchor": false
   },
   "ext-tender-158": {
@@ -797,6 +752,36 @@
   "ext-reflective-160": {
     "pleasantness": 7.8,
     "energy": 3.4,
+    "anchor": false
+  },
+  "ext-offended-161": {
+    "pleasantness": 3.4,
+    "energy": 7.6,
+    "anchor": false
+  },
+  "ext-impatient-162": {
+    "pleasantness": 4.6,
+    "energy": 8.2,
+    "anchor": false
+  },
+  "ext-torn-163": {
+    "pleasantness": 4,
+    "energy": 7,
+    "anchor": false
+  },
+  "ext-flustered-164": {
+    "pleasantness": 4.8,
+    "energy": 7.6,
+    "anchor": false
+  },
+  "ext-haughty-165": {
+    "pleasantness": 2.4,
+    "energy": 7.2,
+    "anchor": false
+  },
+  "ext-dismissive-166": {
+    "pleasantness": 3,
+    "energy": 6.9,
     "anchor": false
   }
 }
