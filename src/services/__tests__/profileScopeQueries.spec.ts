@@ -9,6 +9,7 @@ import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import { queryScopePreview } from '@/services/profileScopeQueries'
+import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
 import { computeFoundationStatuses } from '@/services/foundationCompleteness'
 import type { WeekRef } from '@/domain/period'
 
@@ -82,6 +83,44 @@ describe('queryScopePreview', () => {
     expect(result.countsByType.emotionLogs).toBe(1)
     expect(result.objectIdsByType.journal).toHaveLength(1)
     expect(result.approxTokens).toBeGreaterThan(0)
+  })
+
+  it('exposes real exercise-session ids so the build includes them (Fix #4)', async () => {
+    const db = getUserDatabase()
+    const createdAt = '2026-04-12T09:00:00.000Z'
+    // Seed a real exercise row (with its own `id`) directly into an exercise table.
+    await db.table('thoughtRecords').add({
+      id: 'tr-real-1',
+      createdAt,
+      updatedAt: createdAt,
+      situation: 'Presentation nerves',
+      automaticThoughts: 'I will freeze',
+    })
+
+    const scope = {
+      dataTypes: ['exerciseSessions'] as const,
+      start: '2026-04-01T00:00:00.000Z',
+      end: '2026-04-30T23:59:59.999Z',
+    }
+    const preview = await queryScopePreview({ ...scope, dataTypes: [...scope.dataTypes] })
+
+    // Preview reports the REAL row id, not a synthetic `type-createdAt`.
+    expect(preview.countsByType.exerciseSessions).toBe(1)
+    expect(preview.objectIdsByType.exerciseSessions).toEqual(['tr-real-1'])
+
+    // Feeding those ids to the assembler actually includes the exercise — before
+    // Fix #4 the synthetic preview id never matched the assembler's `b.id` filter.
+    const assembled = await assembleProfilePayload({
+      dataTypes: [...scope.dataTypes],
+      start: scope.start,
+      end: scope.end,
+      dateRange: { kind: 'custom', start: '2026-04-01', end: '2026-04-30' },
+      includedObjectIds: preview.objectIdsByType,
+      locale: 'en',
+      maxPromptTokens: null,
+    })
+    expect(assembled.text).toContain('[EXERCISE SESSIONS]')
+    expect(assembled.tokensByType.exerciseSessions ?? 0).toBeGreaterThan(0)
   })
 
   it('sorts headers by date descending', async () => {

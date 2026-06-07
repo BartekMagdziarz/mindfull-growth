@@ -11,6 +11,8 @@ import { useStructuredReflectionStore } from '@/stores/structuredReflection.stor
 import { queryScopePreview } from '@/services/profileScopeQueries'
 import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
 import { estimateTokens } from '@/services/profileLLMAssists'
+import { rawTierCutoffIso } from '@/services/profilePeriodSummary.service'
+import { getPeriodRefsForDate } from '@/utils/periods'
 import { profilePeriodSummaryDexieRepository } from '@/repositories/profilePeriodSummaryDexieRepository'
 import type { ProfileDateRange } from '@/domain/userProfile'
 import type { WeekRef } from '@/domain/period'
@@ -149,13 +151,13 @@ describe('assembleProfilePayload', () => {
         dateRange: RANGE,
         includedObjectIds: {},
         locale: 'en',
-        maxPromptTokens: 2500, // ~2 of the 4 entries (each ~1015 tok)
+        maxPromptTokens: 3000, // ~2 of the 4 entries (each ~1219 tok at chars/2.5)
       },
       NOW_MS,
     )
 
     // The conservative cost model holds end-to-end: the reassembled estimate fits.
-    expect(assembled.approxTokens).toBeLessThanOrEqual(2500)
+    expect(assembled.approxTokens).toBeLessThanOrEqual(3000)
     expect(assembled.droppedByType.journal).toBeGreaterThan(0)
     expect(assembled.text).toContain('NEWEST_MARKER')
     expect(assembled.text).not.toContain('OLDEST_MARKER')
@@ -186,6 +188,39 @@ describe('assembleProfilePayload', () => {
     expect(assembled.text.match(/--- Entry/g)?.length).toBe(5)
   })
 
+  it('sends old history raw with no summarization when the payload fits the budget', async () => {
+    // Fix #2: tiering is gated on budget pressure. A 3-month-old entry (older than
+    // the ~8-week raw cutoff) stays RAW + verbatim when the budget isn't pressured.
+    const NOW_MS = Date.parse('2026-06-15T00:00:00.000Z')
+    const journal = useJournalStore()
+    await journal.createEntry({
+      title: 'old but small',
+      body: 'OLD_RAW_FULL_TEXT from months ago',
+      createdAt: '2026-03-01T00:00:00.000Z',
+    })
+
+    const assembled = await assembleProfilePayload(
+      {
+        dataTypes: ['journal'],
+        start: START,
+        end: END,
+        dateRange: RANGE,
+        includedObjectIds: {},
+        locale: 'en',
+        maxPromptTokens: 100_000, // raw fits comfortably → no tiering
+      },
+      NOW_MS,
+    )
+
+    expect(assembled.text).not.toContain('[SUMMARIZED HISTORY]')
+    expect(assembled.text).toContain('OLD_RAW_FULL_TEXT from months ago')
+    expect(assembled.summarizedPeriods ?? 0).toBe(0)
+    expect(assembled.droppedSummarizedPeriods).toBe(0)
+    expect(assembled.droppedByType).toEqual({})
+    // Nothing summarized → no digest cached.
+    expect((await profilePeriodSummaryDexieRepository.list()).length).toBe(0)
+  })
+
   it('tiers older diary records into [SUMMARIZED HISTORY] and keeps recent raw', async () => {
     const NOW_MS = Date.parse('2026-06-15T00:00:00.000Z')
     const journal = useJournalStore()
@@ -200,16 +235,22 @@ describe('assembleProfilePayload', () => {
       createdAt: '2026-03-01T00:00:00.000Z',
     })
 
+    const base = {
+      dataTypes: ['journal'] as const,
+      start: START,
+      end: END,
+      dateRange: RANGE,
+      includedObjectIds: {},
+      locale: 'en' as const,
+    }
+    // Measure the full raw size, then budget one token below it: the raw payload
+    // no longer fits → tiering activates, while the tiny digest fits comfortably.
+    const raw = await assembleProfilePayload(
+      { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: null },
+      NOW_MS,
+    )
     const assembled = await assembleProfilePayload(
-      {
-        dataTypes: ['journal'],
-        start: START,
-        end: END,
-        dateRange: RANGE,
-        includedObjectIds: {},
-        locale: 'en',
-        maxPromptTokens: 100_000, // generous → nothing dropped, just tiered
-      },
+      { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: raw.approxTokens - 1 },
       NOW_MS,
     )
 
@@ -231,21 +272,79 @@ describe('assembleProfilePayload', () => {
     const journal = useJournalStore()
     await journal.createEntry({
       title: 'old',
-      body: 'word '.repeat(50),
+      body: 'word '.repeat(400),
       createdAt: '2026-03-01T00:00:00.000Z',
     })
-    const scope = {
+    const base = {
       dataTypes: ['journal'] as const,
       start: START,
       end: END,
       dateRange: RANGE,
       includedObjectIds: {},
       locale: 'en' as const,
-      maxPromptTokens: 100_000,
     }
-    const a = await assembleProfilePayload({ ...scope, dataTypes: [...scope.dataTypes] }, NOW_MS)
-    const b = await assembleProfilePayload({ ...scope, dataTypes: [...scope.dataTypes] }, NOW_MS)
+    // Self-calibrate a pressured budget so tiering activates (see test above).
+    const raw = await assembleProfilePayload(
+      { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: null },
+      NOW_MS,
+    )
+    const budget = raw.approxTokens - 1
+    const a = await assembleProfilePayload(
+      { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: budget },
+      NOW_MS,
+    )
+    const b = await assembleProfilePayload(
+      { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: budget },
+      NOW_MS,
+    )
     expect(a.text).toContain('[SUMMARIZED HISTORY]')
     expect(a.text).toBe(b.text)
+  })
+
+  it('keeps the raw-boundary week raw-only — no record in both raw and a digest (#3)', async () => {
+    const NOW_MS = Date.parse('2026-06-15T00:00:00.000Z')
+    const rawCutoff = rawTierCutoffIso(NOW_MS)
+    const boundaryWeek = getPeriodRefsForDate(rawCutoff).week
+
+    const journal = useJournalStore()
+    // A record exactly at the raw cutoff: it's in the boundary ISO week AND
+    // `createdAt >= rawCutoff`, so it must stay RAW — never also summarized.
+    await journal.createEntry({
+      title: 'boundary',
+      body: 'BOUNDARY_RECORD_MARKER right at the cutoff',
+      createdAt: rawCutoff,
+    })
+    // A clearly-older record so a real digest exists (forces [SUMMARIZED HISTORY]).
+    await journal.createEntry({
+      title: 'older',
+      body: 'word '.repeat(400),
+      createdAt: '2026-01-15T00:00:00.000Z',
+    })
+
+    const base = {
+      dataTypes: ['journal'] as const,
+      start: START,
+      end: END,
+      dateRange: RANGE,
+      includedObjectIds: {},
+      locale: 'en' as const,
+    }
+    // Pressure the budget so tiering activates (self-calibrated, see above).
+    const raw = await assembleProfilePayload(
+      { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: null },
+      NOW_MS,
+    )
+    const assembled = await assembleProfilePayload(
+      { ...base, dataTypes: [...base.dataTypes], maxPromptTokens: raw.approxTokens - 1 },
+      NOW_MS,
+    )
+
+    // Tiering ran (the older record is summarized) ...
+    expect(assembled.text).toContain('[SUMMARIZED HISTORY]')
+    // ... but the boundary record is RAW and appears exactly once (no double-count).
+    expect(assembled.text).toContain('[JOURNAL ENTRIES]')
+    expect(assembled.text.split('BOUNDARY_RECORD_MARKER').length - 1).toBe(1)
+    // The boundary week itself is never summarized — that was the overlap bug.
+    expect(assembled.text).not.toContain(`### Week ${boundaryWeek}`)
   })
 })

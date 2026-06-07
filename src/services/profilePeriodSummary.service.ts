@@ -305,7 +305,12 @@ export async function buildSummarizedHistory(args: {
   }
 
   // Weekly tier: [max(scopeStart, weeklyCutoff), rawCutoff), newest first.
-  let weekRef = getPeriodRefsForDate(new Date(rawCutoffMs - 1).toISOString()).week
+  // The ISO week the raw cutoff snaps to is RAW-only; start digests at the week
+  // strictly before it, in ref-space. Deriving the start from `rawCutoffMs - 1`
+  // (an instant) re-buckets onto the boundary week itself in non-UTC zones (the
+  // user is UTC+1/+2), so its records showed up in BOTH raw and a digest.
+  const rawBoundaryWeek = getPeriodRefsForDate(new Date(rawCutoffMs).toISOString()).week
+  let weekRef = getPreviousPeriod(rawBoundaryWeek) as WeekRef
   while (guard++ < 600) {
     const b = getPeriodBounds(weekRef)
     const startMs = Date.parse(`${b.start}T00:00:00.000Z`)
@@ -316,6 +321,11 @@ export async function buildSummarizedHistory(args: {
   }
 
   // Monthly tier: months before weeklyCutoff, overlapping scope, newest first.
+  // TODO(3b/3c): the weekly↔monthly handoff (a month straddling the 26-week
+  // cutoff) and the sub-week UTC-seam (a record on the boundary day whose local
+  // week differs from its UTC instant) can still double-count or skip a sliver.
+  // Both need record-level partitioning (clamp digests to the cutoff instant),
+  // which lands with the tiering rework — narrow + rare now that #2 gates tiering.
   let monthRef = getPeriodRefsForDate(new Date(weeklyCutoffMs - 1).toISOString()).month
   while (guard++ < 1200) {
     const b = getPeriodBounds(monthRef)

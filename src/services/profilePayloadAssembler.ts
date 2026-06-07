@@ -297,44 +297,45 @@ export async function assembleProfilePayload(
     planning,
   }
 
-  // Fill-to-budget: trim oldest records to fit the model's window. `undefined`
-  // → resolve from settings (preview == build); `null` → no budgeting (hosted /
-  // unconfigured). Throw only when the mandatory snapshots alone can't fit.
+  // Resolve the prompt budget. `undefined` → from settings (preview == build);
+  // `null` → no budgeting (hosted / unconfigured); a number → explicit (tests).
   const budget =
     scope.maxPromptTokens === undefined ? await resolveBudget() : scope.maxPromptTokens
 
-  let finalInput = input
-  let droppedByType: Partial<Record<ProfileDataType, number>> = {}
-  let droppedSummarizedPeriods = 0
-  if (budget != null) {
-    // Pillar 3: keep the last ~8 weeks raw; replace older diary records with
-    // deterministic per-period digests so old history survives as aggregates
-    // instead of being trimmed away. (Only under a budget — hosted/null is unchanged.)
-    const rawCutoff = rawTierCutoffIso(nowMs)
-    input.journalEntries = input.journalEntries?.filter((e) => e.createdAt >= rawCutoff)
-    input.emotionLogs = input.emotionLogs?.filter((l) => l.createdAt >= rawCutoff)
-    input.exerciseSessions = input.exerciseSessions?.filter((s) => s.createdAt >= rawCutoff)
-    input.summarizedHistory = await buildSummarizedHistory({
-      scopeStartIso: start,
-      scopeEndIso: end,
-      nowMs,
-      enabled: {
-        journal: enabled.has('journal'),
-        emotionLogs: enabled.has('emotionLogs'),
-        exerciseSessions: enabled.has('exerciseSessions'),
-      },
-      exerciseBundles: allExerciseBundles,
-    })
-
-    const selection = selectPayloadWithinBudget(input, budget)
-    if (!selection.fits) {
-      throw new ProfilePayloadTooLargeError(selection.mandatoryTokens, budget)
-    }
-    finalInput = selection.input
-    droppedByType = selection.droppedByType
-    droppedSummarizedPeriods = selection.droppedSummarizedPeriods
+  // Assemble raw first. With no budget, or when the full raw payload already
+  // fits, send it raw — full content, no tiering/summarization (cheaper and more
+  // faithful). Only summarize when raw would overflow the budget.
+  const rawBreakdown = assembleFromInput(input, locale, nowMs)
+  if (budget == null || rawBreakdown.approxTokens <= budget) {
+    return { ...rawBreakdown, droppedByType: {}, droppedSummarizedPeriods: 0 }
   }
 
-  const breakdown = assembleFromInput(finalInput, locale, nowMs)
-  return { ...breakdown, droppedByType, droppedSummarizedPeriods }
+  // Over budget → keep the last ~8 weeks raw, replace older diary records with
+  // deterministic per-period digests, then fill-to-budget.
+  const rawCutoff = rawTierCutoffIso(nowMs)
+  input.journalEntries = input.journalEntries?.filter((e) => e.createdAt >= rawCutoff)
+  input.emotionLogs = input.emotionLogs?.filter((l) => l.createdAt >= rawCutoff)
+  input.exerciseSessions = input.exerciseSessions?.filter((s) => s.createdAt >= rawCutoff)
+  input.summarizedHistory = await buildSummarizedHistory({
+    scopeStartIso: start,
+    scopeEndIso: end,
+    nowMs,
+    enabled: {
+      journal: enabled.has('journal'),
+      emotionLogs: enabled.has('emotionLogs'),
+      exerciseSessions: enabled.has('exerciseSessions'),
+    },
+    exerciseBundles: allExerciseBundles,
+  })
+
+  const selection = selectPayloadWithinBudget(input, budget)
+  if (!selection.fits) {
+    throw new ProfilePayloadTooLargeError(selection.mandatoryTokens, budget)
+  }
+  const breakdown = assembleFromInput(selection.input, locale, nowMs)
+  return {
+    ...breakdown,
+    droppedByType: selection.droppedByType,
+    droppedSummarizedPeriods: selection.droppedSummarizedPeriods,
+  }
 }

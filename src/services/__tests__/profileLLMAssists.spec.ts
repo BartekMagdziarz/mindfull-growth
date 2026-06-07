@@ -599,10 +599,10 @@ describe('parseProfileResponse', () => {
 })
 
 describe('estimateTokens', () => {
-  it('divides character count by 3 (matching num_ctx sizing), rounding up', () => {
+  it('divides character count by NUM_CTX_CHARS_PER_TOKEN (2.5), rounding up', () => {
     expect(estimateTokens('')).toBe(0)
-    expect(estimateTokens('x'.repeat(9))).toBe(3)
-    expect(estimateTokens('x'.repeat(10))).toBe(4) // ceil(10/3)
+    expect(estimateTokens('x'.repeat(5))).toBe(2) // ceil(5/2.5)
+    expect(estimateTokens('x'.repeat(9))).toBe(4) // ceil(9/2.5)
   })
 })
 
@@ -797,8 +797,8 @@ describe('selectPayloadWithinBudget', () => {
       600,
     )
     expect(res.input.emotionLogs).toHaveLength(1)
-    // Journal exceeded its bare 70% quota (~17 records) thanks to the logs' slack.
-    expect(res.input.journalEntries?.length ?? 0).toBeGreaterThan(20)
+    // Journal exceeded its bare 70% quota (~14 records) thanks to the logs' slack.
+    expect(res.input.journalEntries?.length ?? 0).toBeGreaterThan(15)
   })
 
   it('admits reflections before journal (high-signal priority crowds journal out)', () => {
@@ -808,7 +808,7 @@ describe('selectPayloadWithinBudget', () => {
         weeklyReflections: [weekly('2026-W20', d(20), 1500)],
         journalEntries: [1, 2, 3, 4, 5].map((n) => jEntry(`j${n}`, d(n), 3000)),
       }),
-      600,
+      1000, // fits the ~613-tok weekly, leaves too little for a ~1219-tok journal entry
     )
     expect(res.input.weeklyReflections).toHaveLength(1)
     expect(res.input.journalEntries?.length ?? 0).toBeLessThan(5)
@@ -820,7 +820,7 @@ describe('selectPayloadWithinBudget', () => {
         dataTypes: ['journal'],
         journalEntries: [jEntry('a', d(10), 3000), jEntry('b', d(10), 3000)],
       }),
-      1200, // ~1 entry
+      1300, // ~1 entry (~1219 tok each at chars/2.5)
     )
     expect((res.input.journalEntries ?? []).map((e) => e.id)).toEqual(['a'])
   })

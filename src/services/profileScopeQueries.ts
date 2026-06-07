@@ -29,7 +29,7 @@ import {
   foundationCompletionCount,
   type FoundationItemId,
 } from '@/services/foundationCompleteness'
-import { getExerciseEntriesForPeriod } from '@/services/reflectionDataQueries'
+import { getExerciseSessionBundlesForPeriod } from '@/services/reflectionDataQueries'
 import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
 
 export interface ProfilePreviewObjectHeader {
@@ -219,20 +219,21 @@ export async function queryScopePreview(
 
   // --- Exercise sessions -------------------------------------------------
   if (enabled.has('exerciseSessions')) {
-    const entries = await getExerciseEntriesForPeriod(start, end)
-    countsByType.exerciseSessions = entries.length
+    // Use the SAME bundle source + id as the assembler — `b.id` (the row's real
+    // id when it has one, else `type-createdAt`). The preview previously always
+    // synthesised `type-createdAt`, so for rows WITH a real id the preview's
+    // object ids never matched the build's `ids.has(b.id)` filter and exercises
+    // silently dropped out of the build. (Fix #4.)
+    const bundles = await getExerciseSessionBundlesForPeriod(start, end)
+    countsByType.exerciseSessions = bundles.length
     const ids: string[] = []
-    for (const entry of entries) {
-      // Exercise tables don't share a common `id` field in the slim bundle
-      // returned here, so synthesise one from (type, createdAt). Good enough
-      // for "reproduce which sessions were in scope".
-      const id = `${entry.type}-${entry.createdAt}`
-      ids.push(id)
+    for (const b of bundles) {
+      ids.push(b.id)
       headers.push({
         type: 'exerciseSessions',
-        id,
-        title: entry.type,
-        date: entry.createdAt,
+        id: b.id,
+        title: b.type,
+        date: b.createdAt,
       })
     }
     objectIdsByType.exerciseSessions = ids

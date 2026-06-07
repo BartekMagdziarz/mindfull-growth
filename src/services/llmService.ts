@@ -33,8 +33,11 @@ const OLLAMA_REASONING_HEADROOM: Record<ReasoningEffort, number> = {
  * above which the profile build reports `contextTooLarge`.
  */
 // Exported so the profile-build estimator divides by the *same* ratio used to
-// size `num_ctx` — guard and window can't disagree.
-export const NUM_CTX_CHARS_PER_TOKEN = 3 // /4 underestimates Polish; /3 is the safer (bigger-window) bound
+// size `num_ctx` — guard and window can't disagree. The first real build
+// (gemma4:12b, Polish) measured ≈2.6 chars/token; `/3` under-counted by ~15–19%
+// and under-sized `num_ctx`, truncating the answer. 2.5 over-reserves slightly
+// (safe). Per-model empirical calibration is a later follow-up.
+export const NUM_CTX_CHARS_PER_TOKEN = 2.5
 const NUM_CTX_MARGIN = 512 // chat-template / role / BOS scaffolding
 const NUM_CTX_FLOOR = 4096 // Ollama's default — keeps short chats unaffected
 export const OLLAMA_NUM_CTX_CEILING = 65536

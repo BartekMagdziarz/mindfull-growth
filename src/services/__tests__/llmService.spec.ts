@@ -676,14 +676,14 @@ describe('llmService', () => {
       })
       mockOllamaSuccess('ok')
 
-      const big = 'x'.repeat(30000) // ~10000 tokens at chars/3
+      const big = 'x'.repeat(30000) // ~12000 tokens at chars/2.5
       await sendMessage([{ role: 'user', content: big }], undefined, {
         maxTokens: 2048,
         reasoningEffort: 'none',
       })
 
-      // ceil(30000/3) + 2048 + 512 = 12560
-      expect(latestRequest().body.options.num_ctx).toBe(12560)
+      // ceil(30000/2.5) + 2048 + 512 = 14560
+      expect(latestRequest().body.options.num_ctx).toBe(14560)
     })
 
     it('clamps num_ctx at the ceiling for an oversized prompt', async () => {
@@ -767,8 +767,8 @@ describe('llmService', () => {
     })
 
     it('scales above the floor with prompt + answer budget', () => {
-      // ceil(30000/3) + 2048 + 512
-      expect(computeOllamaNumCtx(30000, 2048)).toBe(12560)
+      // ceil(30000/2.5) + 2048 + 512
+      expect(computeOllamaNumCtx(30000, 2048)).toBe(14560)
     })
 
     it('clamps at the ceiling', () => {

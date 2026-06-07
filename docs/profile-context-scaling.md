@@ -1,8 +1,34 @@
 # AI Assistant — Scaling the Profile-Build & Chat Context
 
-> **Status:** Approved 2026-06-06, not yet implemented. Source of truth for this initiative.
-> Sequenced: **Pillar 1 (instrument) → Pillar 2 (budget-assemble) → Pillar 3 (summarize)**.
+> **Status (2026-06-07):** Source of truth for this initiative. Sequenced:
+> **Pillar 1 (instrument) → Pillar 2 (budget-assemble) → Pillar 3 (summarize)**.
 > Builds on commit `dd27edc` (Ollama native `/api/chat` + auto `num_ctx`).
+> **Shipped on branch `feat/profile-build-instrumentation`:** Pillar 1 + Pillar 2 (`2ed7d5a`),
+> Pillar 3a deterministic digests (`552c315`), and the four post-real-build fixes #1–#4 below
+> (implemented + tested, **uncommitted**). **Pending:** 1.4 empirical calibration (the 2.5 divisor
+> in #1 is the interim fix), Pillar 3b/3c (redesigned to hybrid LLM-narrative + hierarchy, below).
+>
+> **Findings from first real build (gemma4:12b, Polish, 2026-06-07) — all four FIXED (see #N tags):**
+> - **Estimate under-counts ~15–19%** — `estimateTokens=chars/3` vs real `prompt_eval_count`
+>   (Gemma+PL ≈ chars/2.4). This *also* under-sizes `num_ctx` (same `/3`), which **truncated the
+>   answer mid-sentence**. → **FIXED (#1):** `NUM_CTX_CHARS_PER_TOKEN` 3 → 2.5 (one shared constant
+>   → honest estimate *and* a larger `num_ctx`). Empirical per-model calibration stays a 1.4
+>   follow-up; partial-truncation detection (we only catch all-empty) + bigger answer headroom deferred.
+> - **Over-eager tiering:** 3a summarizes everything older than 8 weeks even when the whole raw
+>   payload fits the budget (real case: ~9k tok vs ~56k budget), needlessly compressing a single
+>   old journal entry to "1 entry, ~198 words" + an 8-word lead → content lost before the model.
+>   → **FIXED (#2):** assemble raw first; if it fits the budget, send raw (zero summaries); only
+>   tier when over budget. Also the prerequisite for 3b (don't burn LLM summaries when raw fits).
+> - **Raw/summarized boundary overlap (timezone):** `rawCutoff` is computed in UTC but period
+>   bucketing (`getPeriodRefsForDate`/`getPeriodBounds`) uses *local* date parts → in UTC+2 the
+>   boundary ISO week lands in both tiers, **double-counting** its records. → **FIXED (#3):** the
+>   boundary ISO week is raw-only; weekly digests start at the week strictly *before* it, in
+>   ref-space. Residual weekly↔monthly straddle + sub-week UTC seam deferred to the 3b/3c tiering
+>   rework (needs record-level partitioning; narrow + rare now that #2 gates tiering).
+> - **Exercise-id bug confirmed live:** exercises in scope never reach the payload (preview's
+>   synthetic `type-createdAt` id vs the assembler's real `b.id`). → **FIXED (#4):** preview reads
+>   `getExerciseSessionBundlesForPeriod` and uses `b.id` (real, else `type-createdAt`), matching
+>   the assembler's filter — exercises now flow into the build.
 
 ## Context (why this exists)
 
@@ -142,7 +168,12 @@ peopleTagIds / contextTagIds (lifeAreaIds stored but a no-op today).
 
 ## Part 2 — Improvement plan (sequenced: instrument → assemble → summarize)
 
-### Pillar 1 — Instrumentation (committed first; the measurement foundation)
+### Pillar 1 — Instrumentation (committed first; the measurement foundation) — SHIPPED `2ed7d5a`
+
+> As shipped: 1.1–1.3 done; the shared assembler is `src/services/profilePayloadAssembler.ts`
+> (`assembleProfilePayload`), with the pure `assembleFromInput`/`estimateTokens`/`ageBucketOf` in
+> `profileLLMAssists.ts`. Also fixed the OpenAI non-streaming `usage` parse. **1.4 pending and now
+> load-bearing** (the first real build truncated because `/3` under-sizes `num_ctx` — see Status).
 
 **1.1 Log real usage (zero view change).** In `buildProfile`, pass `onDiagnostics` to the
 `sendMessage` call (`userProfile.store.ts:409`), capture `lastUsage = d.usage ?? lastUsage`
@@ -169,7 +200,14 @@ the right home; leave the AIPlayground live panel alone).
 `charsPerToken = payloadChars / prompt_eval_count` (rolling, per model+Polish) and feed it back
 into `estimateTokens`. Ship chars/3 now; calibrate later.
 
-### Pillar 2 — Budget-aware payload assembler
+### Pillar 2 — Budget-aware payload assembler — SHIPPED `2ed7d5a`
+
+> As shipped (deltas from the plan below): `includedObjectIds` treated as a **budgetable candidate
+> pool** (no pin/de-select UI built); **hosted providers → no budget** (`null`, no soft cap yet);
+> the old pre-flight guard **removed** (assembler throws `ProfilePayloadTooLargeError` → store maps
+> to `contextTooLarge`). `computeMaxPromptTokens` lives in `llmService`; `PROFILE_MAX_TOKENS` moved
+> to `domain/userProfile.ts`. **TODO (from real-build findings):** gate trimming/tiering on actual
+> budget pressure (assemble raw first; only trim when it doesn't fit).
 
 Turn `assembleProfilePayload` from "dump everything then throw" into "fill to a budget."
 
@@ -194,23 +232,57 @@ Turn `assembleProfilePayload` from "dump everything then throw" into "fill to a 
 
 ### Pillar 3 — Progressive summarization
 
-- **Tiers (assembler-driven defaults):** Tier 0 raw = last **8 weeks**; Tier 1 weekly aggregates
-  = weeks 9–26; Tier 2 monthly aggregates = months 7+. The raw boundary shrinks under budget pressure.
-- **Deterministic per-period rollup** (one record per ISO week / month), reusing existing
-  primitives — offline, free, exact: emotion **quadrant distribution** (`getQuadrant`) + top
-  emotions; journal `{entryCount, topPeople, topContexts, wordCount, capped 1-line leads}`;
-  averaged `extract*Ratings`; exercise counts; planning exec-metrics pattern scoped to the
-  period. ~50–150 tok/period vs thousands raw, shaped like the existing snapshot builders.
-- **Narrative (LLM, sparing):** only for periods being **dropped** where qualitative texture
-  matters; **monthly only**, one `sendMessage` over that month's raw.
-- **Storage + invalidation:** **new Dexie table `profilePeriodSummaries` at `version(21)`**
-  (current latest is 20) — `{id, periodRef, kind, tier, content, inputHash, recordCount, model?,
-  createdAt}`. **Do NOT reuse `aiSummary`** (live user-authored field, different period
-  semantics). Invalidate by **content hash** over the period's sorted record ids + `updatedAt`
-  (no store hooks needed for v1; optional eager deletion in `journal.store`/`emotionLog.store`
-  update/delete seams later).
-- **Strategy: hybrid** — deterministic always (carries the bulk of the signal), narrative LLM
-  only for the dropped tail. Compute lazily at build time; optional pre-warm at month rollover.
+**3a — deterministic per-period digests — SHIPPED `552c315`.** One markdown block per ISO week
+(weeks 9–26) / month (27wk+), reusing `getQuadrant` + tag store + `getDisplayTitle`: emotion
+quadrant distribution + top emotions, journal `{entryCount, topPeople, topContexts, wordCount,
+1-line leads}`, exercise counts. Cached in `profilePeriodSummaries` (v21), `cyrb53` content-hash
+invalidation, rendered as `[SUMMARIZED HISTORY]`, slotted into the budget selector after
+reflections. Service: `src/services/profilePeriodSummary.service.ts`. **Two fixes pending** (from
+the first real build, see Status): tier **only under budget pressure**, and fix the **UTC/local
+boundary overlap**.
+
+**3b/3c — hybrid LLM-narrative + hierarchy (refined design 2026-06-07; decisions locked).** The
+deterministic digest preserves *numbers* exactly (LLMs count badly) but discards *content* — a lone
+old entry collapses to "1 entry, ~198 words" + an 8-word lead, so its meaning never reaches the
+model. 3b adds the missing half: an LLM-written narrative per period. **Locked decisions:**
+(1) **same model** as the profile build (reuse the configured Ollama model via `sendMessage`);
+(2) **hybrid** — numbers deterministic, narrative LLM; (3) **lazy-at-build first**, eager later.
+
+- **Per-period block (stable template)** so the profile model reads it and higher tiers can
+  aggregate it:
+  ```
+  ### {Tydzień|Miesiąc|Rok} {ref} (zakres)
+  Narracja: 3–6 zdań, neutralnie/3. os., faktograficznie — wątki, łuk nastroju, wydarzenia,
+  relacje, sukcesy/trudności. (interpretację robi dopiero model profilu)
+  Sygnały: <deterministyczne liczby: kwadranty, top emocje, liczniki, top osoby/konteksty, oceny>
+  ```
+  Narrative = LLM; `Sygnały` = computed. Narrative stays **descriptive, not interpretive** (avoid
+  stacking two interpretation layers).
+- **Periods + granularity:** summarize **closed** ISO weeks, months, years. The build chooses
+  granularity by age to fit the budget: recent N weeks raw → older weeks → older months → oldest
+  years. **Only under budget pressure** — if the raw payload fits, send it raw (zero summaries:
+  cheaper *and* more faithful). This is the Pillar-2 "raw boundary shrinks under pressure" done properly.
+- **Aggregation rule (the crux):** **numbers always recomputed from raw** (exact, no drift, no
+  model); **narrative built hierarchically** — week from the week's raw; month from its 4–5
+  *weekly narratives*; year from its 12 *monthly narratives*. This keeps every summarizer call's
+  input **bounded**, so it scales to arbitrarily long history (a year of raw would itself blow the
+  summarizer's context). Trade-off: narrative-of-narrative drift → mitigate with short, factual
+  prose anchored by the exact numbers.
+- **Model + prompt:** reuse the configured build model with a **dedicated summarizer system
+  prompt** (neutral, factual, no-invention, emit only the template) — distinct from the profile prompt.
+- **Storage + invalidation:** reuse `profilePeriodSummaries` (`kind:'narrative'`, add a `year`
+  tier; the stored block can carry both narrative + signals). **Cascade invalidation:** leaf-week
+  `inputHash` over its raw records (already built); a parent's hash includes its children's hashes,
+  so editing one raw entry recomputes its week → month → year. Bonus: these blocks can power other
+  UI (e.g. "rok w pigułce"). **Never reuse `aiSummary`** (live user field).
+- **Timing:** **lazy-at-build first** (compute missing summaries during a build — simple, correct,
+  works regardless). Then **eager at period close + background backfill** of already-closed periods
+  (instant builds; spreads cost; a first build over years is otherwise 100+ local generations).
+- **Trade-offs / guards:** local LLM is free but slow in bulk → eager/background backfill; same
+  model = decent quality but every period is one generation; **hallucination risk** (a narrative
+  could distort the profile's "don't invent" rule) → keep narratives short + factual, anchor with
+  the exact numbers, keep the `[SUMMARIZED HISTORY]` "aggregates, lower fidelity" legend; and again
+  — **only summarize under real budget pressure**, never when raw fits.
 
 ---
 
@@ -219,15 +291,21 @@ Turn `assembleProfilePayload` from "dump everything then throw" into "fill to a 
 1. **Estimator: assemble-real-payload vs patch-per-type estimators** → **assemble-real-payload**.
    Patching still needs name resolution + snapshots to be honest and converges on the same code;
    the assembler reuses it. Tradeoff: preview does the full bounded gather (slightly slower, exact).
-2. **Tokenizer ratio: chars/4 vs chars/3 vs calibrated** → **chars/3 now, calibrated later**.
-   Matches `num_ctx`, kills the truncation gap. Tradeoff: may over-reserve slightly.
+2. **Tokenizer ratio: chars/4 vs chars/3 vs calibrated** → ~~chars/3 now, calibrated later~~
+   ~~**(2026-06-07 — REVISED) calibrate NOW.**~~ **(2026-06-07 — RESOLVED via #1) constant chars/2.5.**
+   The first real build showed `chars/3` *under*-counts PL+Gemma by ~15–19% (real ≈ chars/2.4),
+   which under-sized `num_ctx` and **truncated the answer**. Shipped a single shared
+   `NUM_CTX_CHARS_PER_TOKEN = 2.5` (slightly over-reserves vs 2.4 = safe). Empirical per-model
+   calibration from the captured `prompt_eval_count` (the rolling-ratio version of 1.4) remains a
+   later follow-up; 2.5 is the interim constant.
 3. **Budget: fixed reserve vs computed-from-settings** → **computed** (invert
    `computeOllamaNumCtx` + per-effort headroom). Tradeoff: small coupling to llmService constants.
-4. **Aggregates: deterministic vs LLM vs hybrid** → **hybrid**. Tradeoff: more parts, but
-   offline-friendly and cost-bounded.
-5. **Summary timing: at-close vs cadence vs lazy-at-build** → **lazy-at-build** (deterministic
-   always; narrative for dropped periods), optional rollover pre-warm. Tradeoff: first build over
-   huge history pays narrative latency unless pre-warmed.
+4. **Aggregates: deterministic vs LLM vs hybrid** → **hybrid** (LOCKED 2026-06-07): **numbers
+   deterministic-from-raw** (exact, no drift) + **narrative LLM, hierarchical** (week from raw →
+   month from weekly narratives → year from monthly narratives), **same model** as the build.
+5. **Summary timing: at-close vs cadence vs lazy-at-build** → **lazy-at-build first** (LOCKED
+   2026-06-07), then eager-at-close + background backfill. Tradeoff: first build over huge history
+   pays narrative latency until pre-warm lands.
 6. **Invalidation: content-hash vs store-hook eager** → **content-hash v1**, eager deletion later
    if build-time recompute is slow. Tradeoff: recompute cost on read vs added mutation coupling.
 7. **Storage: reuse `aiSummary` vs new `profilePeriodSummaries`** → **new table (v21)**. Tradeoff:
@@ -237,7 +315,8 @@ Turn `assembleProfilePayload` from "dump everything then throw" into "fill to a 
 9. **Reflections: depend on vs enrich-where-present** → **compute independently, enrich with the
    user's reflection text/ratings when they exist**. Tradeoff: can't lean on sparse reflections.
 10. **`includedObjectIds`: treat auto-filled set as pins vs distinguish de-selection** →
-    **distinguish**; pins always in, remainder auto-budgeted. Tradeoff: one extra wizard flag.
+    ~~distinguish~~ **(2026-06-07 — shipped as a budgetable candidate pool, NO pins UI)** — simpler;
+    revisit only if users need explicit per-object pin/de-select.
 
 ---
 
