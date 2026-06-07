@@ -233,7 +233,7 @@ describe('Profile build flow integration', () => {
     expect(logs[0].errorMessage).toMatch(/AI provider/i)
   })
 
-  it('budget-trims a large local-provider scope instead of throwing contextTooLarge', async () => {
+  it('summarizes older history (keeps recent raw) for a large local scope instead of throwing', async () => {
     // Switch to a local provider so the computed prompt budget applies.
     await userSettingsDexieRepository.set(
       AI_PROVIDER_SETTINGS_KEY,
@@ -244,9 +244,12 @@ describe('Profile build flow integration', () => {
       }),
     )
 
-    // Seed many large journal entries — well over the ~56k-token Ollama budget.
+    // 20 large entries, one per week going back — relative to "now" so the
+    // raw/summarized split is deterministic regardless of when the test runs.
+    // ~7 land in the raw window (≤8 weeks), the rest become weekly digests.
     const { journalStore } = initializeStores()
     await journalStore.loadEntries()
+    const weekMs = 7 * 86_400_000
     for (let i = 0; i < 20; i++) {
       await journalStore.createEntry({
         title: `Big entry ${i}`,
@@ -254,14 +257,15 @@ describe('Profile build flow integration', () => {
         emotionIds: [],
         peopleTagIds: [],
         contextTagIds: [],
-        createdAt: `2026-${String((i % 5) + 1).padStart(2, '0')}-01T00:00:00.000Z`,
+        createdAt: new Date(Date.now() - (i + 1) * weekMs).toISOString(),
       })
     }
 
     vi.mocked(sendMessage).mockResolvedValue(CANNED_SUCCESS_RESPONSE)
 
     const userProfileStore = useUserProfileStore()
-    // Pre-Pillar-2 this scope threw contextTooLarge; now it must build.
+    // Pre-Pillar-2 this scope threw contextTooLarge; now it builds — recent weeks
+    // raw, older weeks condensed into [SUMMARIZED HISTORY].
     const result = await userProfileStore.buildProfile(
       testScope({ dataTypes: ['journal'], dateRange: { kind: 'preset', preset: 'all' } }),
     )
@@ -272,14 +276,15 @@ describe('Profile build flow integration', () => {
     const logs = await profileBuildLogDexieRepository.list(5)
     const latest = logs[0]
     expect(latest.success).toBe(true)
-    // The oldest entries were trimmed to fit.
-    expect(latest.droppedByType?.journal ?? 0).toBeGreaterThan(0)
 
-    // The payload that was actually sent fits the computed budget (chars/3 ≤ budget).
-    const budget = computeMaxPromptTokens('ollama', 'low', PROFILE_MAX_TOKENS) as number
     const userMsg = (
       JSON.parse(latest.requestBody) as { messages: { content: string }[] }
     ).messages[0].content
+    // Older periods were summarized, recent ones kept raw, and it fits the budget.
+    expect(userMsg).toContain('[SUMMARIZED HISTORY]')
+    expect(userMsg).toContain('[JOURNAL ENTRIES]')
+    expect(latest.estimateBreakdown?.summarizedPeriods ?? 0).toBeGreaterThan(0)
+    const budget = computeMaxPromptTokens('ollama', 'low', PROFILE_MAX_TOKENS) as number
     expect(Math.ceil(userMsg.length / 3)).toBeLessThanOrEqual(budget)
   })
 })

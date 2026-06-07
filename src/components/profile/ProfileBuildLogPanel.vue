@@ -164,6 +164,17 @@
             <h4 class="text-xs font-semibold text-on-surface-variant mb-1">
               Estimate (~{{ log.estimateBreakdown.approxTokens }} tok)
             </h4>
+            <div
+              v-if="(log.estimateBreakdown.summarizedPeriods ?? 0) > 0"
+              class="text-xs text-on-surface-variant mb-1"
+            >
+              Summarized history: {{ log.estimateBreakdown.summarizedPeriods }} periods (~{{
+                log.estimateBreakdown.summarizedHistoryTokens ?? 0
+              }}
+              tok)<span v-if="(log.droppedSummarizedPeriods ?? 0) > 0">
+                · {{ log.droppedSummarizedPeriods }} dropped</span
+              >
+            </div>
             <div class="space-y-2">
               <div v-if="estimateTypeEntries(log).length > 0">
                 <div

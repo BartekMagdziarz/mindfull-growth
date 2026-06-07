@@ -234,4 +234,40 @@ describe('ProfilePreviewStep', () => {
 
     expect(document.querySelector('[data-test="trimmed-notice"]')).toBeFalsy()
   })
+
+  it('shows the summarized-history notice when older periods were summarized', () => {
+    render(ProfilePreviewStep, {
+      props: {
+        isLoading: false,
+        error: null,
+        countsByType: { journal: 200 },
+        headers: [],
+        approxTokens: 9000,
+        dataTypes: ['journal'] as ProfileDataType[],
+        dateRange: makeDateRange(),
+        summarizedPeriods: 12,
+      },
+    })
+
+    const notice = document.querySelector('[data-test="summarized-notice"]')
+    expect(notice).toBeTruthy()
+    expect(notice?.textContent).toContain('12')
+  })
+
+  it('omits the summarized-history notice when nothing was summarized', () => {
+    render(ProfilePreviewStep, {
+      props: {
+        isLoading: false,
+        error: null,
+        countsByType: { journal: 5 },
+        headers: [],
+        approxTokens: 200,
+        dataTypes: ['journal'] as ProfileDataType[],
+        dateRange: makeDateRange(),
+        summarizedPeriods: 0,
+      },
+    })
+
+    expect(document.querySelector('[data-test="summarized-notice"]')).toBeFalsy()
+  })
 })

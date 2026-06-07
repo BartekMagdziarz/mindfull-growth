@@ -350,6 +350,9 @@
         },
         "trimmed": {
           "notice": "Przycięto {dropped} z {total} elementów, aby zmieścić się w oknie kontekstu modelu — pominięto najstarsze."
+        },
+        "summarizedHistory": {
+          "notice": "{n} starszych okresów zwięźle podsumowano, dzięki czemu najnowsze wpisy pozostają szczegółowe."
         }
       },
       "generate": {

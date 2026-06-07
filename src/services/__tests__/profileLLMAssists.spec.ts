@@ -824,4 +824,29 @@ describe('selectPayloadWithinBudget', () => {
     )
     expect((res.input.journalEntries ?? []).map((e) => e.id)).toEqual(['a'])
   })
+
+  it('trims summarized-history periods oldest-first under budget', () => {
+    const sh = [
+      { periodRef: '2026-W20', periodEndIso: '2026-05-17T00:00:00.000Z', content: 'NEW '.repeat(300) },
+      { periodRef: '2026-W19', periodEndIso: '2026-05-10T00:00:00.000Z', content: 'MID '.repeat(300) },
+      { periodRef: '2026-W18', periodEndIso: '2026-05-03T00:00:00.000Z', content: 'OLD '.repeat(300) },
+    ]
+    const res = selectPayloadWithinBudget(scope({ summarizedHistory: sh }), 800) // ~401 tok each
+    expect((res.input.summarizedHistory ?? []).map((s) => s.periodRef)).toEqual(['2026-W20'])
+    expect(res.droppedSummarizedPeriods).toBe(2)
+    expect(res.fits).toBe(true)
+  })
+
+  it('admits summarized history ahead of raw journal under pressure', () => {
+    const sh = [{ periodRef: '2026-W18', periodEndIso: '2026-05-03T00:00:00.000Z', content: 'DIGEST '.repeat(100) }]
+    const journal = Array.from({ length: 10 }, (_, i) => jEntry(`j${i}`, d((i % 28) + 1), 3000))
+    const res = selectPayloadWithinBudget(
+      scope({ dataTypes: ['journal'], summarizedHistory: sh, journalEntries: journal }),
+      1500,
+    )
+    expect(res.input.summarizedHistory).toHaveLength(1) // digest survived
+    expect(res.input.journalEntries?.length ?? 0).toBeGreaterThanOrEqual(1)
+    expect(res.input.journalEntries?.length ?? 0).toBeLessThan(10) // raw journal trimmed
+    expect(res.droppedSummarizedPeriods).toBe(0)
+  })
 })

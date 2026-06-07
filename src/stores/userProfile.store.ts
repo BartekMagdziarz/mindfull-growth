@@ -180,6 +180,8 @@ export const useUserProfileStore = defineStore('userProfile', () => {
     let estimateBreakdown: ProfileEstimateBreakdown | undefined
     // Per-type counts of records the budget-aware assembler trimmed to fit.
     let droppedByType: ProfileBuildLogEntry['droppedByType']
+    // Count of summarized-history periods dropped to fit the budget (Pillar 3).
+    let droppedSummarizedPeriods: ProfileBuildLogEntry['droppedSummarizedPeriods']
 
     try {
       if (!(await hasAIProviderConfigured())) {
@@ -208,10 +210,13 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       })
       payload = assembled.text
       droppedByType = assembled.droppedByType
+      droppedSummarizedPeriods = assembled.droppedSummarizedPeriods
       estimateBreakdown = {
         approxTokens: assembled.approxTokens,
         tokensByType: assembled.tokensByType,
         tokensByAge: assembled.tokensByAge,
+        summarizedHistoryTokens: assembled.summarizedHistoryTokens,
+        summarizedPeriods: assembled.summarizedPeriods,
       }
 
       // Profile build is the single LLM call site that must NEVER include
@@ -314,6 +319,7 @@ export const useUserProfileStore = defineStore('userProfile', () => {
           tokenUsage,
           estimateBreakdown,
           droppedByType,
+          droppedSummarizedPeriods,
           latencyMs,
           success,
           errorMessage,

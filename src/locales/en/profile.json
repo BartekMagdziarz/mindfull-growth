@@ -350,6 +350,9 @@
         },
         "trimmed": {
           "notice": "Trimmed {dropped} of {total} items to fit the model's context window — the oldest were dropped."
+        },
+        "summarizedHistory": {
+          "notice": "{n} older periods condensed into a summarized history, so recent entries stay detailed."
         }
       },
       "generate": {

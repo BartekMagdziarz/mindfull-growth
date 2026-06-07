@@ -104,6 +104,10 @@ export interface ScopePreviewResult {
    * pre-trim match count, so the UI can show "kept of matched".
    */
   droppedByType: Partial<Record<ProfileDataType, number>>
+  /** Number of older periods rendered as digests (Pillar 3). */
+  summarizedPeriods: number
+  /** Number of summarized periods dropped to fit the budget. */
+  droppedSummarizedPeriods: number
 }
 
 // ---------------------------------------------------------------------------
@@ -343,6 +347,8 @@ export async function queryScopePreview(
     tokensByType: assembled.tokensByType,
     tokensByAge: assembled.tokensByAge,
     droppedByType: assembled.droppedByType,
+    summarizedPeriods: assembled.summarizedPeriods ?? 0,
+    droppedSummarizedPeriods: assembled.droppedSummarizedPeriods,
   }
 }
 

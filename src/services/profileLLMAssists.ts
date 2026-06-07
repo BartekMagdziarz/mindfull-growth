@@ -25,6 +25,7 @@ import {
   type ProfileSectionId,
   type ProfileSections,
 } from '@/domain/userProfile'
+import type { ProfilePayloadSummary } from '@/domain/profilePeriodSummary'
 
 // ---------------------------------------------------------------------------
 // Prompt module
@@ -217,6 +218,8 @@ export interface ProfilePayloadInput {
   foundation?: ProfilePayloadSnapshot
   lifeAreas?: ProfilePayloadSnapshot
   planning?: ProfilePayloadPlanning
+  /** Older periods rendered as deterministic digests (Pillar 3), newest-first. */
+  summarizedHistory?: ProfilePayloadSummary[]
 }
 
 function formatDateRange(range: ProfileDateRange, locale: LocaleId): string {
@@ -383,6 +386,17 @@ export function buildProfilePayload(
     for (const r of input.monthlyReflections) lines.push(formatMonthlyReflection(r), '')
   }
 
+  if (input.summarizedHistory && input.summarizedHistory.length > 0) {
+    lines.push('[SUMMARIZED HISTORY]')
+    lines.push(
+      'Older periods as deterministic aggregates (counts + top items, not verbatim). ' +
+        'Quadrants: HE-HP=high-energy/pleasant, HE-LP=high-energy/unpleasant, ' +
+        'LE-HP=low-energy/pleasant, LE-LP=low-energy/unpleasant.',
+      '',
+    )
+    for (const s of input.summarizedHistory) lines.push(s.content, '')
+  }
+
   if (
     enabled.has('planning') &&
     input.lifeAreas &&
@@ -501,11 +515,23 @@ export function assembleFromInput(
     if (input.planning?.snapshot.trim()) add('planning', undefined, input.planning.snapshot)
   }
 
+  // [SUMMARIZED HISTORY] digests attribute to their own scalar + the age bucket
+  // of the period they cover (not to a ProfileDataType).
+  let summarizedHistoryTokens = 0
+  const summarizedPeriods = input.summarizedHistory?.length ?? 0
+  for (const s of input.summarizedHistory ?? []) {
+    const cost = estimateTokens(s.content)
+    summarizedHistoryTokens += cost
+    tokensByAge[ageBucketOf(s.periodEndIso, nowMs)] += cost
+  }
+
   return {
     text,
     approxTokens: estimateTokens(text),
     tokensByType,
     tokensByAge,
+    summarizedHistoryTokens,
+    summarizedPeriods,
   }
 }
 
@@ -518,6 +544,8 @@ export interface BudgetSelectionResult {
   input: ProfilePayloadInput
   /** Per-type counts of records removed (zero entries pruned). */
   droppedByType: Partial<Record<ProfileDataType, number>>
+  /** Count of summarized-history periods dropped (oldest first) to fit. */
+  droppedSummarizedPeriods: number
   /** Token cost of the always-included snapshot blocks. */
   mandatoryTokens: number
   /** false ⟺ the mandatory snapshots alone exceed the budget. */
@@ -591,7 +619,7 @@ export function selectPayloadWithinBudget(
     if (input.planning?.snapshot.trim()) mandatoryTokens += estimateTokens(input.planning.snapshot)
   }
   if (mandatoryTokens > maxPromptTokens) {
-    return { input, droppedByType: {}, mandatoryTokens, fits: false }
+    return { input, droppedByType: {}, droppedSummarizedPeriods: 0, mandatoryTokens, fits: false }
   }
   let remaining = maxPromptTokens - mandatoryTokens
 
@@ -625,6 +653,19 @@ export function selectPayloadWithinBudget(
     out.monthlyReflections = reflFill.kept.flatMap((t) => (t.kind === 'monthly' ? [t.r] : []))
     const d = monthly.length - (out.monthlyReflections?.length ?? 0)
     if (d > 0) dropped.monthlyReflections = d
+  }
+
+  // 2b. Summarized history (period digests) — high-signal skeleton of older
+  // history; admitted before raw detail, trimmed oldest-period-first.
+  let droppedSummarizedPeriods = 0
+  if (input.summarizedHistory && input.summarizedHistory.length > 0) {
+    const shFill = fillByCost(
+      costSortDesc(input.summarizedHistory, (s) => recordTokens(s.content), (s) => s.periodEndIso),
+      remaining,
+    )
+    remaining -= shFill.used
+    out.summarizedHistory = shFill.kept
+    droppedSummarizedPeriods = input.summarizedHistory.length - shFill.kept.length
   }
 
   // 3. Exercises, newest-first per record.
@@ -670,7 +711,7 @@ export function selectPayloadWithinBudget(
     if (d > 0) dropped.emotionLogs = d
   }
 
-  return { input: out, droppedByType: dropped, mandatoryTokens, fits: true }
+  return { input: out, droppedByType: dropped, droppedSummarizedPeriods, mandatoryTokens, fits: true }
 }
 
 // ---------------------------------------------------------------------------

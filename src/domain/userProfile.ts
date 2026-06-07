@@ -50,6 +50,10 @@ export interface ProfileEstimateBreakdown {
   approxTokens: number
   tokensByType: Partial<Record<ProfileDataType, number>>
   tokensByAge: Record<ProfileAgeBucket, number>
+  /** Token cost of the kept [SUMMARIZED HISTORY] digests (Pillar 3). */
+  summarizedHistoryTokens?: number
+  /** Number of older periods rendered as digests in this payload. */
+  summarizedPeriods?: number
 }
 
 /**
@@ -138,6 +142,8 @@ export interface ProfileBuildLogEntry {
    * model's context window. Empty/absent when nothing was trimmed.
    */
   droppedByType?: Partial<Record<ProfileDataType, number>>
+  /** Count of summarized periods dropped to fit the budget (Pillar 3). */
+  droppedSummarizedPeriods?: number
   latencyMs: number
   success: boolean
   errorMessage?: string

@@ -56,6 +56,7 @@ import type {
 } from '@/domain/planningState'
 import type { WeeklyReflection, MonthlyReflection } from '@/domain/reflection'
 import type { UserProfile, ProfileBuildLogEntry } from '@/domain/userProfile'
+import type { ProfilePeriodSummary } from '@/domain/profilePeriodSummary'
 import type { AnnualPlan } from '@/domain/annualPlan'
 
 export class UserDatabase extends Dexie {
@@ -125,6 +126,7 @@ export class UserDatabase extends Dexie {
   monthlyReflections!: Table<MonthlyReflection, string>
   userProfiles!: Table<UserProfile, string>
   profileBuildLogs!: Table<ProfileBuildLogEntry, string>
+  profilePeriodSummaries!: Table<ProfilePeriodSummary, string>
   annualPlans!: Table<AnnualPlan, string>
 
   constructor(databaseName: string) {
@@ -1407,6 +1409,12 @@ export class UserDatabase extends Dexie {
             record.adviceToOthers = oldAdvice.map((advice) => ({ advice }))
           })
       })
+
+    // Pillar 3: cached per-ISO-period (week/month) profile summaries. New table,
+    // no data migration. Unique on [periodRef+kind] for upsert-by-period.
+    this.version(21).stores({
+      profilePeriodSummaries: 'id, &[periodRef+kind]',
+    })
   }
 }
 

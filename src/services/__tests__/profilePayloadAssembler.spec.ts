@@ -11,6 +11,7 @@ import { useStructuredReflectionStore } from '@/stores/structuredReflection.stor
 import { queryScopePreview } from '@/services/profileScopeQueries'
 import { assembleProfilePayload } from '@/services/profilePayloadAssembler'
 import { estimateTokens } from '@/services/profileLLMAssists'
+import { profilePeriodSummaryDexieRepository } from '@/repositories/profilePeriodSummaryDexieRepository'
 import type { ProfileDateRange } from '@/domain/userProfile'
 import type { WeekRef } from '@/domain/period'
 
@@ -123,35 +124,42 @@ describe('assembleProfilePayload', () => {
   })
 
   it('trims oldest records to fit an explicit budget (end-to-end ≤ budget)', async () => {
+    // Keep all fixtures inside the ~8-week raw window (relative to NOW_MS) so this
+    // exercises raw budget-trimming, not Pillar-3 tiering.
+    const NOW_MS = Date.parse('2026-04-15T00:00:00.000Z')
     const journal = useJournalStore()
     await journal.createEntry({
       title: 'oldest',
       body: 'OLDEST_MARKER ' + 'x'.repeat(3000),
-      createdAt: '2026-01-01T00:00:00.000Z',
+      createdAt: '2026-03-20T00:00:00.000Z',
     })
-    await journal.createEntry({ title: 'mid1', body: 'x'.repeat(3000), createdAt: '2026-02-01T00:00:00.000Z' })
-    await journal.createEntry({ title: 'mid2', body: 'x'.repeat(3000), createdAt: '2026-03-01T00:00:00.000Z' })
+    await journal.createEntry({ title: 'mid1', body: 'x'.repeat(3000), createdAt: '2026-03-27T00:00:00.000Z' })
+    await journal.createEntry({ title: 'mid2', body: 'x'.repeat(3000), createdAt: '2026-04-03T00:00:00.000Z' })
     await journal.createEntry({
       title: 'newest',
       body: 'NEWEST_MARKER ' + 'x'.repeat(3000),
-      createdAt: '2026-04-01T00:00:00.000Z',
+      createdAt: '2026-04-10T00:00:00.000Z',
     })
 
-    const assembled = await assembleProfilePayload({
-      dataTypes: ['journal'],
-      start: START,
-      end: END,
-      dateRange: RANGE,
-      includedObjectIds: {},
-      locale: 'en',
-      maxPromptTokens: 2500, // ~2 of the 4 entries (each ~1015 tok)
-    })
+    const assembled = await assembleProfilePayload(
+      {
+        dataTypes: ['journal'],
+        start: START,
+        end: END,
+        dateRange: RANGE,
+        includedObjectIds: {},
+        locale: 'en',
+        maxPromptTokens: 2500, // ~2 of the 4 entries (each ~1015 tok)
+      },
+      NOW_MS,
+    )
 
     // The conservative cost model holds end-to-end: the reassembled estimate fits.
     expect(assembled.approxTokens).toBeLessThanOrEqual(2500)
     expect(assembled.droppedByType.journal).toBeGreaterThan(0)
     expect(assembled.text).toContain('NEWEST_MARKER')
     expect(assembled.text).not.toContain('OLDEST_MARKER')
+    expect(assembled.text).not.toContain('[SUMMARIZED HISTORY]') // all in raw tier
   })
 
   it('does not trim when the budget is null (hosted / unconfigured)', async () => {
@@ -176,5 +184,68 @@ describe('assembleProfilePayload', () => {
 
     expect(assembled.droppedByType).toEqual({})
     expect(assembled.text.match(/--- Entry/g)?.length).toBe(5)
+  })
+
+  it('tiers older diary records into [SUMMARIZED HISTORY] and keeps recent raw', async () => {
+    const NOW_MS = Date.parse('2026-06-15T00:00:00.000Z')
+    const journal = useJournalStore()
+    await journal.createEntry({
+      title: 'recent',
+      body: 'RECENT_RAW_BODY about this week',
+      createdAt: '2026-06-01T00:00:00.000Z',
+    })
+    await journal.createEntry({
+      title: 'old',
+      body: 'leadword ' + 'x'.repeat(2000) + ' OLD_TAIL_MARKER',
+      createdAt: '2026-03-01T00:00:00.000Z',
+    })
+
+    const assembled = await assembleProfilePayload(
+      {
+        dataTypes: ['journal'],
+        start: START,
+        end: END,
+        dateRange: RANGE,
+        includedObjectIds: {},
+        locale: 'en',
+        maxPromptTokens: 100_000, // generous → nothing dropped, just tiered
+      },
+      NOW_MS,
+    )
+
+    // Recent entry stays raw + verbatim.
+    expect(assembled.text).toContain('[JOURNAL ENTRIES]')
+    expect(assembled.text).toContain('RECENT_RAW_BODY about this week')
+    // Older entry is summarized (digest), not dumped verbatim.
+    expect(assembled.text).toContain('[SUMMARIZED HISTORY]')
+    expect(assembled.text).toMatch(/### Week 2026-W\d+/)
+    expect(assembled.text).not.toContain('OLD_TAIL_MARKER')
+    expect(assembled.summarizedPeriods ?? 0).toBeGreaterThanOrEqual(1)
+    expect(assembled.droppedSummarizedPeriods).toBe(0)
+    // The digest was cached.
+    expect((await profilePeriodSummaryDexieRepository.list()).length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('is deterministic across builds with summarization (cache reuse)', async () => {
+    const NOW_MS = Date.parse('2026-06-15T00:00:00.000Z')
+    const journal = useJournalStore()
+    await journal.createEntry({
+      title: 'old',
+      body: 'word '.repeat(50),
+      createdAt: '2026-03-01T00:00:00.000Z',
+    })
+    const scope = {
+      dataTypes: ['journal'] as const,
+      start: START,
+      end: END,
+      dateRange: RANGE,
+      includedObjectIds: {},
+      locale: 'en' as const,
+      maxPromptTokens: 100_000,
+    }
+    const a = await assembleProfilePayload({ ...scope, dataTypes: [...scope.dataTypes] }, NOW_MS)
+    const b = await assembleProfilePayload({ ...scope, dataTypes: [...scope.dataTypes] }, NOW_MS)
+    expect(a.text).toContain('[SUMMARIZED HISTORY]')
+    expect(a.text).toBe(b.text)
   })
 })

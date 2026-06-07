@@ -33,9 +33,16 @@ import {
   extractWeeklyRatings,
   summariseExerciseSession,
 } from '@/services/profileLLMAssistsHelpers'
-import { getExerciseSessionBundlesForPeriod } from '@/services/reflectionDataQueries'
+import {
+  getExerciseSessionBundlesForPeriod,
+  type ExerciseSessionBundle,
+} from '@/services/reflectionDataQueries'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { getAIProviderSettings, computeMaxPromptTokens } from '@/services/llmService'
+import {
+  buildSummarizedHistory,
+  rawTierCutoffIso,
+} from '@/services/profilePeriodSummary.service'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useJournalStore } from '@/stores/journal.store'
@@ -86,6 +93,8 @@ export interface ProfileAssemblyScope {
 export interface AssembledProfilePayload extends AssembledPayloadBreakdown {
   /** Per-type counts of records dropped to fit the budget (empty when nothing trimmed). */
   droppedByType: Partial<Record<ProfileDataType, number>>
+  /** Count of summarized-history periods dropped to fit the budget (Pillar 3). */
+  droppedSummarizedPeriods: number
 }
 
 /**
@@ -193,10 +202,13 @@ export async function assembleProfilePayload(
 
   // ---- Exercise sessions ------------------------------------------------
   let exerciseSessions: ProfilePayloadExerciseSummary[] | undefined
+  // Whole-span bundles kept around for the period digests (Pillar 3) so we don't
+  // re-sweep the ~30 exercise tables per period.
+  let allExerciseBundles: ExerciseSessionBundle[] = []
   if (enabled.has('exerciseSessions')) {
-    const bundles = await getExerciseSessionBundlesForPeriod(start, end)
+    allExerciseBundles = await getExerciseSessionBundlesForPeriod(start, end)
     const ids = new Set(included.exerciseSessions ?? [])
-    exerciseSessions = bundles
+    exerciseSessions = allExerciseBundles
       .filter((b) => ids.size === 0 || ids.has(b.id))
       .map((b) => ({
         id: b.id,
@@ -293,15 +305,36 @@ export async function assembleProfilePayload(
 
   let finalInput = input
   let droppedByType: Partial<Record<ProfileDataType, number>> = {}
+  let droppedSummarizedPeriods = 0
   if (budget != null) {
+    // Pillar 3: keep the last ~8 weeks raw; replace older diary records with
+    // deterministic per-period digests so old history survives as aggregates
+    // instead of being trimmed away. (Only under a budget — hosted/null is unchanged.)
+    const rawCutoff = rawTierCutoffIso(nowMs)
+    input.journalEntries = input.journalEntries?.filter((e) => e.createdAt >= rawCutoff)
+    input.emotionLogs = input.emotionLogs?.filter((l) => l.createdAt >= rawCutoff)
+    input.exerciseSessions = input.exerciseSessions?.filter((s) => s.createdAt >= rawCutoff)
+    input.summarizedHistory = await buildSummarizedHistory({
+      scopeStartIso: start,
+      scopeEndIso: end,
+      nowMs,
+      enabled: {
+        journal: enabled.has('journal'),
+        emotionLogs: enabled.has('emotionLogs'),
+        exerciseSessions: enabled.has('exerciseSessions'),
+      },
+      exerciseBundles: allExerciseBundles,
+    })
+
     const selection = selectPayloadWithinBudget(input, budget)
     if (!selection.fits) {
       throw new ProfilePayloadTooLargeError(selection.mandatoryTokens, budget)
     }
     finalInput = selection.input
     droppedByType = selection.droppedByType
+    droppedSummarizedPeriods = selection.droppedSummarizedPeriods
   }
 
   const breakdown = assembleFromInput(finalInput, locale, nowMs)
-  return { ...breakdown, droppedByType }
+  return { ...breakdown, droppedByType, droppedSummarizedPeriods }
 }

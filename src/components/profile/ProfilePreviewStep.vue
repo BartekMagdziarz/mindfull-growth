@@ -79,6 +79,20 @@
         }}
       </div>
 
+      <!-- Summarized-history notice (older periods as digests) -->
+      <div
+        v-if="(summarizedPeriods ?? 0) > 0"
+        class="neo-surface rounded-2xl p-3 text-sm text-on-surface-variant"
+        role="status"
+        data-test="summarized-notice"
+      >
+        {{
+          t('profile.psychologicalProfile.wizard.preview.summarizedHistory.notice', {
+            n: summarizedPeriods ?? 0,
+          })
+        }}
+      </div>
+
       <!-- Per-type counts grid -->
       <div v-if="activeTypes.length > 0" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div
@@ -224,6 +238,7 @@ const props = defineProps<{
   tokensByType?: Partial<Record<ProfileDataType, number>>
   tokensByAge?: Partial<Record<ProfileAgeBucket, number>>
   droppedByType?: Partial<Record<ProfileDataType, number>>
+  summarizedPeriods?: number
 }>()
 
 const emit = defineEmits<{ refresh: [] }>()

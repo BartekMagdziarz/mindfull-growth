@@ -214,6 +214,7 @@ export function useProfileBuildWizard() {
   const previewTokensByType = ref<Partial<Record<ProfileDataType, number>>>({})
   const previewTokensByAge = ref<Record<ProfileAgeBucket, number>>(zeroTokensByAge())
   const previewDroppedByType = ref<Partial<Record<ProfileDataType, number>>>({})
+  const previewSummarizedPeriods = ref(0)
   const isPreviewLoading = ref(false)
   const previewError = ref<string | null>(null)
 
@@ -553,6 +554,7 @@ export function useProfileBuildWizard() {
     previewTokensByType.value = {}
     previewTokensByAge.value = zeroTokensByAge()
     previewDroppedByType.value = {}
+    previewSummarizedPeriods.value = 0
 
     // Generate: hydrate from the source so review can render.
     generatedSections.value = { ...source.sections }
@@ -599,6 +601,7 @@ export function useProfileBuildWizard() {
     previewTokensByType.value = {}
     previewTokensByAge.value = zeroTokensByAge()
     previewDroppedByType.value = {}
+    previewSummarizedPeriods.value = 0
     isPreviewLoading.value = false
     previewError.value = null
 
@@ -696,6 +699,7 @@ export function useProfileBuildWizard() {
       previewTokensByType.value = result.tokensByType ?? {}
       previewTokensByAge.value = result.tokensByAge ?? zeroTokensByAge()
       previewDroppedByType.value = result.droppedByType ?? {}
+      previewSummarizedPeriods.value = result.summarizedPeriods ?? 0
     } catch (err) {
       previewError.value = err instanceof Error ? err.message : 'Preview failed.'
       previewCountsByType.value = {}
@@ -705,6 +709,7 @@ export function useProfileBuildWizard() {
       previewTokensByType.value = {}
       previewTokensByAge.value = zeroTokensByAge()
       previewDroppedByType.value = {}
+      previewSummarizedPeriods.value = 0
     } finally {
       isPreviewLoading.value = false
     }
@@ -850,6 +855,7 @@ export function useProfileBuildWizard() {
     previewTokensByType,
     previewTokensByAge,
     previewDroppedByType,
+    previewSummarizedPeriods,
     previewTotalCount,
     isPreviewLoading,
     previewError,

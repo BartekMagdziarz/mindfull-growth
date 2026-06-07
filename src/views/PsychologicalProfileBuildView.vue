@@ -66,6 +66,7 @@
           :tokens-by-type="previewTokensByType"
           :tokens-by-age="previewTokensByAge"
           :dropped-by-type="previewDroppedByType"
+          :summarized-periods="previewSummarizedPeriods"
           :data-types="dataTypes"
           :date-range="dateRange"
           @refresh="computePreview"
@@ -174,6 +175,7 @@ const {
   previewTokensByType,
   previewTokensByAge,
   previewDroppedByType,
+  previewSummarizedPeriods,
   isPreviewLoading,
   previewError,
   generateState,
