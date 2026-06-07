@@ -295,10 +295,6 @@
     "name": "Przyciśnięty",
     "description": "Poczucie, że ważny wynik zależy od ciebie"
   },
-  "e3m6-restless-075": {
-    "name": "Niespokojny",
-    "description": "Niezdolność do odprężenia się z powodu lęku lub nudy"
-  },
   "e4m6-confused-076": {
     "name": "Zdezorientowany",
     "description": "Niezdolność do zrozumienia czegoś"
@@ -319,14 +315,6 @@
     "name": "Zmęczony",
     "description": "Poczucie potrzeby odpoczynku"
   },
-  "e9m6-fatigued-081": {
-    "name": "Wymęczony",
-    "description": "Poczucie fizycznego wyczerpania"
-  },
-  "e10m6-disengaged-082": {
-    "name": "Wyłączony",
-    "description": "Niezdolność do skupienia się; brak zainteresowania"
-  },
   "e11m6-apathetic-083": {
     "name": "Apatyczny",
     "description": "Brak entuzjazmu lub zainteresowania"
@@ -335,14 +323,6 @@
     "name": "Bezradny",
     "description": "Poczucie, że nic nie można zrobić"
   },
-  "e1m5-impassioned-085": {
-    "name": "Rozgorączkowany",
-    "description": "Przepełniony silnymi emocjami"
-  },
-  "e2m5-annoyed-086": {
-    "name": "Poirytowany",
-    "description": "Zdenerwowany czymś nieprzyjemnym lub niekomfortowym"
-  },
   "e3m5-irritated-087": {
     "name": "Zirytowany",
     "description": "Lekko zły lub podrażniony działaniem lub zdarzeniem"
@@ -350,10 +330,6 @@
   "e4m5-fomo-088": {
     "name": "FOMO",
     "description": "Lęk przed przegapieniem"
-  },
-  "e5m5-concerned-089": {
-    "name": "Zaniepokojony",
-    "description": "Zastanawianie się, czy ktoś lub coś jest w porządku"
   },
   "e6m5-peeved-090": {
     "name": "Podrażniony",
@@ -391,10 +367,6 @@
     "name": "Zestresowany",
     "description": "Napięcie psychiczne lub emocjonalne z powodu zbyt wielu wymagań"
   },
-  "e3m4-apprehensive-099": {
-    "name": "Strwożony",
-    "description": "Niepokój i zmartwienie czymś, co może się wydarzyć"
-  },
   "e4m4-jittery-100": {
     "name": "Podenerwowany",
     "description": "Poczucie bycia na krawędzi i nerwowości"
@@ -407,10 +379,6 @@
     "name": "Zdenerwowany",
     "description": "Nerwowy i zmartwiony przyszłością lub niepewnym wydarzeniem"
   },
-  "e7m4-disheartened-103": {
-    "name": "Przybity",
-    "description": "Utrata determinacji lub postanowienia"
-  },
   "e8m4-disappointed-104": {
     "name": "Rozczarowany",
     "description": "Smutek, bo oczekiwania nie zostały spełnione"
@@ -418,10 +386,6 @@
   "e9m4-forlorn-105": {
     "name": "Opuszczony",
     "description": "Poczucie smutku i samotności jednocześnie"
-  },
-  "e10m4-spent-106": {
-    "name": "Wykończony",
-    "description": "Skrajne wyczerpanie ciała i umysłu"
   },
   "e11m4-nostalgic-107": {
     "name": "Nostalgiczny",
@@ -438,10 +402,6 @@
   "e2m3-overwhelmed-110": {
     "name": "Przytłoczony",
     "description": "Poczucie bycia zdominowanym przez silne uczucia"
-  },
-  "e3m3-anxious-111": {
-    "name": "Zlękniony",
-    "description": "Zmartwiony i zaniepokojony niepewnym wynikiem"
   },
   "e4m3-angry-112": {
     "name": "Zły",
@@ -463,10 +423,6 @@
     "name": "Zagubiony",
     "description": "Poczucie niekomfortowej samotności i braku kierunku"
   },
-  "e9m3-disconnected-117": {
-    "name": "Odłączony",
-    "description": "Poczucie oddzielenia od innych"
-  },
   "e10m3-excluded-118": {
     "name": "Wykluczony",
     "description": "Poczucie bycia pominiętym i niechcianym przez grupę"
@@ -483,25 +439,13 @@
     "name": "Przerażony",
     "description": "Pochłonięty przez strach"
   },
-  "e2m2-irate-122": {
-    "name": "Rozsierdzony",
-    "description": "Poczucie, że złość wymyka się spod kontroli"
-  },
   "e3m2-frightened-123": {
     "name": "Przestraszony",
     "description": "Pełen lęku lub strachu"
   },
-  "e4m2-scared-124": {
-    "name": "Wystraszony",
-    "description": "Postrzeganie zagrożenia lub niebezpieczeństwa"
-  },
   "e5m2-repulsed-125": {
     "name": "Zniesmaczony",
     "description": "Odraza wobec kogoś lub czegoś"
-  },
-  "e6m2-troubled-126": {
-    "name": "Strapiony",
-    "description": "Zmartwiony problemem lub konfliktem"
   },
   "e7m2-trapped-127": {
     "name": "Uwięziony",
@@ -534,10 +478,6 @@
   "e2m1-livid-134": {
     "name": "Wściekły",
     "description": "Furia wobec kogoś lub czegoś"
-  },
-  "e3m1-furious-135": {
-    "name": "Rozjuszony",
-    "description": "Pełen ekstremalnego lub dzikiego gniewu"
   },
   "e4m1-jealous-136": {
     "name": "Zazdrosny",
@@ -574,5 +514,113 @@
   "e12m1-miserable-144": {
     "name": "Nieszczęśliwy",
     "description": "Poczucie absolutnie okropnego stanu"
+  },
+  "ext-amused-145": {
+    "name": "Rozbawiony",
+    "description": "Lekko i wesoło rozbawiony czymś zabawnym"
+  },
+  "ext-giddy-146": {
+    "name": "Rozbrykany",
+    "description": "Roztrzepotany żywą, figlarną energią"
+  },
+  "ext-intrigued-147": {
+    "name": "Zaintrygowany",
+    "description": "Zaciekawiony czymś, co budzi pytania"
+  },
+  "ext-fascinated-148": {
+    "name": "Zafascynowany",
+    "description": "Pochłonięty zachwytem nad czymś interesującym"
+  },
+  "ext-absorbed-149": {
+    "name": "Pochłonięty",
+    "description": "Całkowicie zatopiony w tym, co robisz"
+  },
+  "ext-resolute-150": {
+    "name": "Zdecydowany",
+    "description": "Pewny swojego wyboru i gotów działać"
+  },
+  "ext-ambitious-151": {
+    "name": "Ambitny",
+    "description": "Napędzany pragnieniem osiągnięcia czegoś więcej"
+  },
+  "ext-bold-152": {
+    "name": "Śmiały",
+    "description": "Gotów podjąć ryzyko z odwagą"
+  },
+  "ext-capable-153": {
+    "name": "Zdolny",
+    "description": "Przekonany, że poradzisz sobie z zadaniem"
+  },
+  "ext-affectionate-154": {
+    "name": "Czuły",
+    "description": "Pełen ciepła i delikatności wobec kogoś"
+  },
+  "ext-attached-155": {
+    "name": "Przywiązany",
+    "description": "Związany z kimś bliską, trwałą więzią"
+  },
+  "ext-expectant-156": {
+    "name": "Wyczekujący",
+    "description": "Pełen napiętego oczekiwania na to, co nadejdzie"
+  },
+  "ext-warmhearted-157": {
+    "name": "Serdeczny",
+    "description": "Pełen ciepła i życzliwości wobec innych"
+  },
+  "ext-tender-158": {
+    "name": "Rozczulony",
+    "description": "Zmiękczony falą czułości"
+  },
+  "ext-enraptured-159": {
+    "name": "Rozanielony",
+    "description": "Promieniejący błogim, łagodnym wzruszeniem"
+  },
+  "ext-reflective-160": {
+    "name": "Refleksyjny",
+    "description": "Spokojnie zatopiony w przemyśleniach"
+  },
+  "ext-offended-161": {
+    "name": "Urażony",
+    "description": "Dotknięty do żywego; zraniona duma"
+  },
+  "ext-impatient-162": {
+    "name": "Zniecierpliwiony",
+    "description": "Poirytowany czekaniem; chcesz, żeby działo się szybciej"
+  },
+  "ext-torn-163": {
+    "name": "Rozdarty",
+    "description": "Szarpany między sprzecznymi opcjami lub uczuciami"
+  },
+  "ext-flustered-164": {
+    "name": "Speszony",
+    "description": "Zmieszany i wytrącony z równowagi w sytuacji społecznej"
+  },
+  "ext-haughty-165": {
+    "name": "Wyniosły",
+    "description": "Patrzący na innych z poczuciem wyższości"
+  },
+  "ext-dismissive-166": {
+    "name": "Lekceważący",
+    "description": "Traktujący kogoś lub coś jako niewarte uwagi"
+  },
+  "ext-devastated-167": {
+    "name": "Załamany",
+    "description": "Zdruzgotany; poczucie, że coś w środku się zawaliło"
+  },
+  "ext-resigned-168": {
+    "name": "Zrezygnowany",
+    "description": "Pogodzony z porażką; już bez sił, by walczyć"
+  },
+  "ext-empty-169": {
+    "name": "Pusty",
+    "description": "Wewnętrzna pustka; nic nie czuję"
+  },
+  "ext-longing-170": {
+    "name": "Stęskniony",
+    "description": "Rzewna tęsknota za kimś lub czymś"
+  },
+  "ext-regretful-171": {
+    "name": "Żałujący",
+    "description": "Żal, że nie postąpiło się inaczej"
   }
 }

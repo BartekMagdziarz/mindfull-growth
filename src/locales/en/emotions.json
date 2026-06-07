@@ -295,10 +295,6 @@
     "name": "Pressured",
     "description": "Feeling as if an important outcome depends on you"
   },
-  "e3m6-restless-075": {
-    "name": "Restless",
-    "description": "Unable to relax due to anxiety or boredom"
-  },
   "e4m6-confused-076": {
     "name": "Confused",
     "description": "Feeling unable to make sense of something"
@@ -319,14 +315,6 @@
     "name": "Tired",
     "description": "Feeling like you need to rest"
   },
-  "e9m6-fatigued-081": {
-    "name": "Fatigued",
-    "description": "Feeling physically drained"
-  },
-  "e10m6-disengaged-082": {
-    "name": "Disengaged",
-    "description": "Feeling like you cannot focus; disinterested"
-  },
   "e11m6-apathetic-083": {
     "name": "Apathetic",
     "description": "Lacking enthusiasm or interest"
@@ -335,14 +323,6 @@
     "name": "Helpless",
     "description": "Feeling like there's nothing you can do"
   },
-  "e1m5-impassioned-085": {
-    "name": "Impassioned",
-    "description": "Filled with lots of emotion"
-  },
-  "e2m5-annoyed-086": {
-    "name": "Annoyed",
-    "description": "Bothered by something displeasing or uncomfortable"
-  },
   "e3m5-irritated-087": {
     "name": "Irritated",
     "description": "Slightly angry with or annoyed by an action or event"
@@ -350,10 +330,6 @@
   "e4m5-fomo-088": {
     "name": "Fomo",
     "description": "Fear of missing out"
-  },
-  "e5m5-concerned-089": {
-    "name": "Concerned",
-    "description": "Wondering if someone or something is okay"
   },
   "e6m5-peeved-090": {
     "name": "Peeved",
@@ -391,10 +367,6 @@
     "name": "Stressed",
     "description": "Strained mentally or emotionally from too many demands and not enough resources"
   },
-  "e3m4-apprehensive-099": {
-    "name": "Apprehensive",
-    "description": "Unease and worry about something that might happen"
-  },
   "e4m4-jittery-100": {
     "name": "Jittery",
     "description": "Feeling on edge and jumpy"
@@ -407,10 +379,6 @@
     "name": "Nervous",
     "description": "Jumpy and worried about the future or an uncertain event"
   },
-  "e7m4-disheartened-103": {
-    "name": "Disheartened",
-    "description": "Loss of resolve or determination"
-  },
   "e8m4-disappointed-104": {
     "name": "Disappointed",
     "description": "Sad because your expectations were not met"
@@ -418,10 +386,6 @@
   "e9m4-forlorn-105": {
     "name": "Forlorn",
     "description": "Feeling both sad and alone"
-  },
-  "e10m4-spent-106": {
-    "name": "Spent",
-    "description": "Feeling extremely exhausted, both in body and mind"
   },
   "e11m4-nostalgic-107": {
     "name": "Nostalgic",
@@ -438,10 +402,6 @@
   "e2m3-overwhelmed-110": {
     "name": "Overwhelmed",
     "description": "Feeling like you have been taken over by strong feelings"
-  },
-  "e3m3-anxious-111": {
-    "name": "Anxious",
-    "description": "Worried and uneasy about an uncertain outcome"
   },
   "e4m3-angry-112": {
     "name": "Angry",
@@ -463,10 +423,6 @@
     "name": "Lost",
     "description": "Feeling uncomfortably alone and lacking direction"
   },
-  "e9m3-disconnected-117": {
-    "name": "Disconnected",
-    "description": "Feeling separate from others"
-  },
   "e10m3-excluded-118": {
     "name": "Excluded",
     "description": "Feeling left out and unwanted from a desired group"
@@ -483,25 +439,13 @@
     "name": "Terrified",
     "description": "Consumed by fear"
   },
-  "e2m2-irate-122": {
-    "name": "Irate",
-    "description": "Feeling like your anger is almost out of control"
-  },
   "e3m2-frightened-123": {
     "name": "Frightened",
     "description": "Afraid or fearful"
   },
-  "e4m2-scared-124": {
-    "name": "Scared",
-    "description": "Perceiving threat or danger, whether physical or physiological"
-  },
   "e5m2-repulsed-125": {
     "name": "Repulsed",
     "description": "Nauseated by someone or something"
-  },
-  "e6m2-troubled-126": {
-    "name": "Troubled",
-    "description": "Feeling worried about a problem or conflict"
   },
   "e7m2-trapped-127": {
     "name": "Trapped",
@@ -534,10 +478,6 @@
   "e2m1-livid-134": {
     "name": "Livid",
     "description": "Feeling furious about something or someone"
-  },
-  "e3m1-furious-135": {
-    "name": "Furious",
-    "description": "Full of extreme or wild anger"
   },
   "e4m1-jealous-136": {
     "name": "Jealous",
@@ -574,5 +514,113 @@
   "e12m1-miserable-144": {
     "name": "Miserable",
     "description": "Feeling absolutely awful"
+  },
+  "ext-amused-145": {
+    "name": "Amused",
+    "description": "Lightly entertained and tickled by something funny"
+  },
+  "ext-giddy-146": {
+    "name": "Giddy",
+    "description": "Fluttering with lively, playful energy"
+  },
+  "ext-intrigued-147": {
+    "name": "Intrigued",
+    "description": "Caught by curiosity about something puzzling"
+  },
+  "ext-fascinated-148": {
+    "name": "Fascinated",
+    "description": "Absorbed in delighted interest"
+  },
+  "ext-absorbed-149": {
+    "name": "Absorbed",
+    "description": "Fully immersed in what you're doing"
+  },
+  "ext-resolute-150": {
+    "name": "Resolute",
+    "description": "Settled on your choice and ready to act"
+  },
+  "ext-ambitious-151": {
+    "name": "Ambitious",
+    "description": "Driven by the desire to achieve more"
+  },
+  "ext-bold-152": {
+    "name": "Bold",
+    "description": "Ready to take a risk with courage"
+  },
+  "ext-capable-153": {
+    "name": "Capable",
+    "description": "Confident you can handle the task"
+  },
+  "ext-affectionate-154": {
+    "name": "Affectionate",
+    "description": "Warm and tender toward someone"
+  },
+  "ext-attached-155": {
+    "name": "Attached",
+    "description": "Bonded to someone by a close, lasting tie"
+  },
+  "ext-expectant-156": {
+    "name": "Expectant",
+    "description": "Keyed up, waiting for what's about to come"
+  },
+  "ext-warmhearted-157": {
+    "name": "Warm-hearted",
+    "description": "Full of warmth and kindness toward others"
+  },
+  "ext-tender-158": {
+    "name": "Tender",
+    "description": "Softened by a wave of tenderness"
+  },
+  "ext-enraptured-159": {
+    "name": "Enraptured",
+    "description": "Glowing with gentle, blissful tenderness"
+  },
+  "ext-reflective-160": {
+    "name": "Reflective",
+    "description": "Calmly lost in thought"
+  },
+  "ext-offended-161": {
+    "name": "Offended",
+    "description": "Stung and wounded in your pride"
+  },
+  "ext-impatient-162": {
+    "name": "Impatient",
+    "description": "Restless with waiting; you want things to move faster"
+  },
+  "ext-torn-163": {
+    "name": "Torn",
+    "description": "Pulled between conflicting options or feelings"
+  },
+  "ext-flustered-164": {
+    "name": "Flustered",
+    "description": "Thrown off and self-conscious in a social moment"
+  },
+  "ext-haughty-165": {
+    "name": "Haughty",
+    "description": "Looking down on others with a sense of superiority"
+  },
+  "ext-dismissive-166": {
+    "name": "Dismissive",
+    "description": "Treating someone or something as beneath your attention"
+  },
+  "ext-devastated-167": {
+    "name": "Devastated",
+    "description": "Crushed, like something inside has collapsed"
+  },
+  "ext-resigned-168": {
+    "name": "Resigned",
+    "description": "Given in to defeat; no fight left"
+  },
+  "ext-empty-169": {
+    "name": "Empty",
+    "description": "A hollow void inside; feeling nothing"
+  },
+  "ext-longing-170": {
+    "name": "Yearning",
+    "description": "A wistful ache for someone or something"
+  },
+  "ext-regretful-171": {
+    "name": "Regretful",
+    "description": "Wishing you had acted differently"
   }
 }
