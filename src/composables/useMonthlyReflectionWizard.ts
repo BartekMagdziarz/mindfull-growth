@@ -7,15 +7,11 @@ import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/dra
 import type { CreateMonthlyReflectionPayload } from '@/domain/reflection'
 
 export type MonthlyReflectionStep =
-  | 'review'
-  | 'weekly-recap'
   | 'ratings'
   | 'anchors'
   | 'journal'
 
 const STEP_ORDER: MonthlyReflectionStep[] = [
-  'review',
-  'weekly-recap',
   'ratings',
   'anchors',
   'journal',
@@ -23,11 +19,11 @@ const STEP_ORDER: MonthlyReflectionStep[] = [
 
 /** Map old step names to new names for draft migration */
 const LEGACY_STEP_MAP: Record<string, MonthlyReflectionStep> = {
-  review: 'review',
-  // The previous "goals" step was merged into "review" in the redesign,
-  // so existing drafts at that step land back on the combined review screen.
-  goals: 'review',
-  'weekly-recap': 'weekly-recap',
+  // The review and weekly-recap steps were removed — the period summary
+  // (including weekly trends) now stays visible on the calendar page.
+  review: 'ratings',
+  goals: 'ratings',
+  'weekly-recap': 'ratings',
   ratings: 'ratings',
   prompts: 'anchors',
   anchors: 'anchors',
@@ -43,10 +39,10 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   const store = useStructuredReflectionStore()
 
   // Step management
-  const currentStep = ref<MonthlyReflectionStep>('review')
+  const currentStep = ref<MonthlyReflectionStep>('ratings')
   const stepIndex = computed(() => STEP_ORDER.indexOf(currentStep.value))
 
-  // Data bundle for review step
+  // Data bundle backing the journal step (emotion/weekly context + AI summary payload)
   const dataBundle = ref<MonthlyReflectionDataBundle | null>(null)
   const isBundleLoading = ref(true)
 
@@ -73,10 +69,6 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   // Step validation
   const canAdvance = computed(() => {
     switch (currentStep.value) {
-      case 'review':
-        return true
-      case 'weekly-recap':
-        return true
       case 'ratings':
         return (
           balanceRating.value !== null ||
@@ -200,7 +192,7 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
 
   // Initialization
   onMounted(async () => {
-    // Load data bundle for review step
+    // Load the data bundle backing the journal step / AI summary context
     isBundleLoading.value = true
     try {
       dataBundle.value = await getMonthlyReflectionDataBundle(monthRef.value)

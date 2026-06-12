@@ -62,23 +62,25 @@
             @updated="handleAnnualPlannerUpdated"
           />
 
-          <MonthlyReflectionWizard
-            v-else-if="showMonthlyReflection && activeMonthRef"
-            :month-ref="activeMonthRef"
-            @close="closeMonthlyReflection"
-            @updated="handleMonthlyReflectionUpdated"
-          />
-
-          <WeeklyReflectionWizard
-            v-else-if="showWeeklyReflection && activeWeekRef"
-            :week-ref="activeWeekRef"
-            @close="closeWeeklyReflection"
-            @updated="handleWeeklyReflectionUpdated"
-          />
-
           <template v-else>
+            <!-- Reflection mode swaps the planner grid for the reflection form;
+                 the period summary below stays visible the whole time. -->
+            <MonthlyReflectionWizard
+              v-if="showMonthlyReflection && activeMonthRef"
+              :month-ref="activeMonthRef"
+              @close="closeMonthlyReflection"
+              @updated="handleMonthlyReflectionUpdated"
+            />
+
+            <WeeklyReflectionWizard
+              v-else-if="showWeeklyReflection && activeWeekRef"
+              :week-ref="activeWeekRef"
+              @close="closeWeeklyReflection"
+              @updated="handleWeeklyReflectionUpdated"
+            />
+
             <MonthlyPlanner
-              v-if="scale === 'month' && activeMonthRef"
+              v-else-if="scale === 'month' && activeMonthRef"
               :month-ref="activeMonthRef"
               :show-sidebar="showMonthlyPlanner"
               @close="closeMonthlyPlanner"
@@ -113,6 +115,7 @@
                 :month-object-items="monthObjectItems"
                 :raw-entries="monthPlanning.rawEntries"
                 :has-plan="Boolean(monthPlanning.monthPlan)"
+                :kontekst-actions="!showMonthlyReflection"
                 @create-reflection="openReflectionPanel"
                 @edit-reflection="openReflectionPanel"
                 @create-plan="openPlanPanel"
@@ -128,6 +131,7 @@
                 :raw-entries="weekPlanning.rawEntries"
                 :all-day-assignments="weekDayAssignments"
                 :has-plan="Boolean(weekPlanning.weekPlan)"
+                :kontekst-actions="!showWeeklyReflection"
                 @create-reflection="openReflectionPanel"
                 @edit-reflection="openReflectionPanel"
                 @create-plan="openPlanPanel"

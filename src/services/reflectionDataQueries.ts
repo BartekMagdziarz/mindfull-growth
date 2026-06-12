@@ -1168,7 +1168,12 @@ export async function getMonthlyReflectionDataBundle(
 // Weekly trends helpers
 // ---------------------------------------------------------------------------
 
-function buildWeeklyRatingTrends(reflections: WeeklyReflection[]): WeeklyRatingTrendEntry[] {
+/**
+ * Map weekly reflections to chart-ready rating trend entries (sorted by week).
+ * Exported so the month view's weekly recap card can render the trends heatmap
+ * from already-loaded store data without fetching the full monthly bundle.
+ */
+export function buildWeeklyRatingTrends(reflections: WeeklyReflection[]): WeeklyRatingTrendEntry[] {
   return [...reflections]
     .sort((a, b) => a.weekRef.localeCompare(b.weekRef))
     .map((r) => ({

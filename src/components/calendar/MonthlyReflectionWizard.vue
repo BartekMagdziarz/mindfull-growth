@@ -29,6 +29,13 @@
         <span class="text-xs font-medium text-on-surface-variant">
           {{ stepLabels[stepIndex] }}
         </span>
+        <AppButton
+          variant="text"
+          :aria-label="t('common.buttons.close')"
+          @click="emit('close')"
+        >
+          <AppIcon name="close" class="text-lg" />
+        </AppButton>
       </div>
     </div>
 
@@ -40,283 +47,8 @@
       leave-to-class="opacity-0"
       mode="out-in"
     >
-      <!-- Step: Review (calendar + goals/habits/trackers dashboard) -->
-      <div v-if="currentStep === 'review'" key="review" class="space-y-5">
-
-        <!-- Month calendar with per-day emotion quadrants + journal flag -->
-        <MonthCalendarSummary
-          v-if="dailyCalendarSummaries.length > 0"
-          :summaries="dailyCalendarSummaries"
-        />
-
-        <!-- 3-column layout: Goals | Habits | Trackers -->
-        <div
-          v-if="goalSummaries.length > 0 || habitDetails.length > 0 || trackerDetails.length > 0"
-          class="flex gap-4 items-start"
-        >
-
-          <!-- COLUMN: Goals & Key Results -->
-          <div v-if="goalSummaries.length > 0" class="flex-[2] min-w-0 space-y-3">
-            <h4 class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-              <span class="material-symbols-outlined text-[14px] text-primary">flag</span>
-              {{ t('planning.reflection.monthly.goalsSection') }}
-            </h4>
-
-            <div
-              v-for="goalSummary in goalSummaries"
-              :key="goalSummary.goal.id"
-              class="space-y-1.5"
-            >
-              <div class="flex items-center gap-1.5 min-w-0">
-                <EntityIcon
-                  v-if="goalSummary.goal.icon"
-                  :icon="goalSummary.goal.icon"
-                  size="xs"
-                />
-                <span class="text-xs font-semibold text-on-surface truncate">{{ goalSummary.goal.title }}</span>
-              </div>
-
-              <div
-                v-if="goalSummary.keyResults.length > 0"
-                class="grid gap-1.5"
-                style="grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr))"
-              >
-                <div
-                  v-for="kr in goalSummary.keyResults"
-                  :key="kr.id"
-                  class="neo-inset rounded-lg p-2 flex flex-col"
-                >
-                  <span class="text-[11px] font-medium text-on-surface leading-tight line-clamp-2 mb-1.5">{{ kr.title }}</span>
-
-                  <!-- Weekly KR: bar chart -->
-                  <div
-                    v-if="kr.cadence === 'weekly' && kr.weeklyBreakdown"
-                    class="flex items-end gap-[3px] h-12 mt-auto"
-                    :title="weeklyBarChartTitle(kr.weeklyBreakdown, kr.target)"
-                  >
-                    <div
-                      v-for="(week, wIdx) in kr.weeklyBreakdown"
-                      :key="wIdx"
-                      class="flex-1 rounded-t-sm min-h-[3px]"
-                      :class="barColor(week.evaluationStatus)"
-                      :style="{ height: `${weekBarHeight(week, kr.target)}%` }"
-                    />
-                  </div>
-
-                  <!-- Monthly KR: donut ring -->
-                  <div
-                    v-else-if="kr.cadence === 'monthly' && kr.target"
-                    class="flex items-center justify-center mt-auto py-1"
-                  >
-                    <svg viewBox="0 0 36 36" class="w-11 h-11">
-                      <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" stroke="rgb(var(--color-outline))" stroke-opacity="0.2" />
-                      <circle
-                        v-if="kr.actualValue != null"
-                        cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5"
-                        stroke-linecap="round"
-                        :stroke="kr.evaluationStatus === 'met' ? 'rgb(var(--neo-chart-primary-end))' : 'rgb(var(--color-error))'"
-                        :stroke-dasharray="`${progressPercent(kr.actualValue, kr.target)} ${100 - progressPercent(kr.actualValue, kr.target)}`"
-                        stroke-dashoffset="25"
-                      />
-                      <text x="18" y="19" text-anchor="middle" dominant-baseline="central" class="fill-on-surface text-[9px] font-bold">
-                        {{ kr.actualValue != null ? progressPercent(kr.actualValue, kr.target) + '%' : '—' }}
-                      </text>
-                    </svg>
-                  </div>
-
-                  <div v-else class="h-12 mt-auto" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- COLUMN: Habits -->
-          <div v-if="habitDetails.length > 0" class="flex-1 min-w-0 space-y-3">
-            <h4 class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-              <span class="material-symbols-outlined text-[14px] text-primary">repeat</span>
-              {{ t('planning.reflection.monthly.habitsSection') }}
-            </h4>
-
-            <div class="space-y-1.5">
-              <div
-                v-for="habit in sortedHabitDetails"
-                :key="habit.id"
-                class="neo-inset rounded-lg p-2 flex flex-col"
-              >
-                <div class="flex items-center gap-1 min-w-0 mb-1.5">
-                  <EntityIcon v-if="habit.icon" :icon="habit.icon" size="xs" />
-                  <span class="text-[11px] font-medium text-on-surface leading-tight line-clamp-2">{{ habit.title }}</span>
-                </div>
-
-                <!-- Weekly habit: bar chart -->
-                <div
-                  v-if="habit.cadence === 'weekly' && habit.weeklyBreakdown"
-                  class="flex items-end gap-[3px] h-12 mt-auto"
-                  :title="weeklyBarChartTitle(habit.weeklyBreakdown, habit.target)"
-                >
-                  <div
-                    v-for="(week, wIdx) in habit.weeklyBreakdown"
-                    :key="wIdx"
-                    class="flex-1 rounded-t-sm min-h-[3px]"
-                    :class="barColor(week.evaluationStatus)"
-                    :style="{ height: `${weekBarHeight(week, habit.target)}%` }"
-                  />
-                </div>
-
-                <!-- Monthly habit: donut ring -->
-                <div
-                  v-else-if="habit.cadence === 'monthly' && habit.target"
-                  class="flex items-center justify-center mt-auto py-1"
-                >
-                  <svg viewBox="0 0 36 36" class="w-11 h-11">
-                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5" stroke="rgb(var(--color-outline))" stroke-opacity="0.2" />
-                    <circle
-                      v-if="habit.actualValue != null"
-                      cx="18" cy="18" r="15.9155" fill="none" stroke-width="2.5"
-                      stroke-linecap="round"
-                      :stroke="habit.evaluationStatus === 'met' ? 'rgb(var(--neo-chart-primary-end))' : 'rgb(var(--color-error))'"
-                      :stroke-dasharray="`${progressPercent(habit.actualValue, habit.target)} ${100 - progressPercent(habit.actualValue, habit.target)}`"
-                      stroke-dashoffset="25"
-                    />
-                    <text x="18" y="19" text-anchor="middle" dominant-baseline="central" class="fill-on-surface text-[9px] font-bold">
-                      {{ habit.actualValue != null ? progressPercent(habit.actualValue, habit.target) + '%' : '—' }}
-                    </text>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- COLUMN: Trackers -->
-          <div v-if="trackerDetails.length > 0" class="flex-1 min-w-0 space-y-3">
-            <h4 class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-              <span class="material-symbols-outlined text-[14px] text-primary">monitoring</span>
-              {{ t('planning.reflection.monthly.trackersSection') }}
-            </h4>
-
-            <div class="space-y-1.5">
-              <div
-                v-for="tracker in trackerDetails"
-                :key="tracker.id"
-                class="neo-inset rounded-lg p-2 flex flex-col"
-              >
-                <div class="flex items-center gap-1 min-w-0 mb-1.5">
-                  <EntityIcon v-if="tracker.icon" :icon="tracker.icon" size="xs" />
-                  <span class="text-[11px] font-medium text-on-surface leading-tight line-clamp-2">{{ tracker.title }}</span>
-                </div>
-                <div class="flex items-end gap-px h-12 mt-auto">
-                  <div
-                    v-for="(entry, eIdx) in trackerSparkEntries(tracker)"
-                    :key="eIdx"
-                    class="flex-1 max-w-2 rounded-t-sm bg-primary/50"
-                    :style="{ height: `${entry.heightPct}%` }"
-                    :title="`${entry.dayRef}: ${entry.value ?? '—'}`"
-                  />
-                </div>
-                <div v-if="tracker.latestValue != null" class="text-xs font-medium text-on-surface text-center mt-1 tabular-nums">
-                  {{ formatMeasurementValue(tracker.latestValue) }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step: Weekly Trends -->
-      <div v-else-if="currentStep === 'weekly-recap'" key="weekly-recap" class="space-y-6">
-
-        <!-- Dot ladder trend visualization (per-dimension line + dots across weeks) -->
-        <WeeklyDimensionHeatmap
-          v-if="weeklyTrends.length > 0"
-          :trends="weeklyTrends"
-          :week-refs="monthWeekRefs"
-        />
-
-        <!-- Weekly reflection cards -->
-        <div v-if="weeklyReflectionDetails.length > 0" class="space-y-3">
-          <h4 class="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-            {{ t('planning.reflection.monthly.weeklyReflections') }}
-          </h4>
-
-          <div
-            v-for="detail in weeklyReflectionDetails"
-            :key="detail.weekRef"
-            class="neo-inset rounded-2xl overflow-hidden transition-all duration-200"
-          >
-            <!-- Card header (always visible, clickable) -->
-            <button
-              type="button"
-              class="w-full flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-on-surface/[0.02] transition-colors"
-              @click="toggleWeekExpanded(detail.weekRef)"
-            >
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="text-sm font-semibold text-on-surface">
-                  {{ formatWeekLabel(detail.weekRef) }}
-                </span>
-                <span
-                  v-for="highlight in weekHighlights(detail.weekRef)"
-                  :key="highlight.key"
-                  class="text-[10px] text-on-surface-variant"
-                >
-                  {{ highlight.label }}
-                </span>
-              </div>
-              <span
-                class="material-symbols-outlined text-base text-on-surface-variant transition-transform duration-200"
-                :class="{ 'rotate-180': expandedWeeks.has(detail.weekRef) }"
-              >expand_more</span>
-            </button>
-
-            <!-- Expandable content -->
-            <Transition
-              enter-active-class="transition-all duration-200 ease-out"
-              leave-active-class="transition-all duration-150 ease-in"
-              enter-from-class="opacity-0 max-h-0"
-              enter-to-class="opacity-100 max-h-[32rem]"
-              leave-from-class="opacity-100 max-h-[32rem]"
-              leave-to-class="opacity-0 max-h-0"
-            >
-              <div
-                v-if="expandedWeeks.has(detail.weekRef)"
-                class="px-4 pb-3 space-y-3 overflow-hidden"
-              >
-                <!-- Freeform reflection -->
-                <p
-                  v-if="detail.freeformReflection.trim()"
-                  class="text-sm text-on-surface leading-relaxed whitespace-pre-line"
-                >{{ detail.freeformReflection }}</p>
-
-                <!-- Prompt responses -->
-                <div
-                  v-for="(text, key) in nonEmptyPrompts(detail.promptResponses)"
-                  :key="key"
-                  class="space-y-0.5"
-                >
-                  <p class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">
-                    {{ weeklyAnchorLabel(key as string) }}
-                  </p>
-                  <p class="text-sm text-on-surface whitespace-pre-line">{{ text }}</p>
-                </div>
-
-                <p
-                  v-if="!detail.freeformReflection.trim() && Object.keys(nonEmptyPrompts(detail.promptResponses)).length === 0"
-                  class="text-sm text-on-surface-variant italic"
-                >—</p>
-              </div>
-            </Transition>
-          </div>
-        </div>
-
-        <p
-          v-if="weeklyTrends.length === 0 && weeklyReflectionDetails.length === 0"
-          class="text-sm text-on-surface-variant"
-        >
-          {{ t('planning.reflection.monthly.noWeeklyData') }}
-        </p>
-      </div>
-
       <!-- Step: Ratings -->
-      <div v-else-if="currentStep === 'ratings'" key="ratings" class="space-y-4">
+      <div v-if="currentStep === 'ratings'" key="ratings" class="space-y-4">
         <ReflectionDimensionRatings
           :groups="monthlyGroups"
           @update:rating="handleRatingUpdate"
@@ -340,7 +72,10 @@
           :anchors="promptResponses"
           :anchor-categories="monthlyAnchorCategories"
           :rating-groups="monthlyRatingSummary"
+          :ai-summary="aiSummary"
+          :summary-context="summaryContext"
           @update:model-value="freeformReflection = $event"
+          @update:ai-summary="aiSummary = $event"
         />
       </div>
     </Transition>
@@ -379,15 +114,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, toRef } from 'vue'
+import { computed, toRef } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import EntityIcon from '@/components/shared/EntityIcon.vue'
-import MonthCalendarSummary from './MonthCalendarSummary.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
-import WeeklyDimensionHeatmap from './WeeklyDimensionHeatmap.vue'
 import type { RatingGroup } from './ReflectionDimensionRatings.vue'
 import type { SidebarRatingGroup } from './ReflectionJournalSidebar.vue'
 import {
@@ -396,13 +128,11 @@ import {
 } from '@/composables/useMonthlyReflectionWizard'
 import { useT } from '@/composables/useT'
 import type { MonthRef, WeekRef } from '@/domain/period'
-import type { MeasurementTarget } from '@/domain/planning'
-import type {
-  KRWeeklyBreakdown,
-  TrackerReflectionDetail,
-} from '@/services/reflectionDataQueries'
-import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
 import { getPeriodBounds } from '@/utils/periods'
+import {
+  emotionContextFromSummary,
+  type ReflectionSummaryContext,
+} from '@/services/reflectionSummaryService'
 
 const { t } = useT()
 
@@ -416,16 +146,12 @@ const emit = defineEmits<{
 }>()
 
 const STEPS: MonthlyReflectionStep[] = [
-  'review',
-  'weekly-recap',
   'ratings',
   'anchors',
   'journal',
 ]
 
 const stepLabels = computed(() => [
-  t('planning.reflection.steps.review'),
-  t('planning.reflection.steps.weeklyRecap'),
   t('planning.reflection.steps.ratings'),
   t('planning.reflection.steps.anchors'),
   t('planning.reflection.steps.journal'),
@@ -433,8 +159,6 @@ const stepLabels = computed(() => [
 
 const stepSubtitle = computed(() => {
   switch (currentStep.value) {
-    case 'review': return t('planning.reflection.monthly.reviewSubtitle')
-    case 'weekly-recap': return t('planning.reflection.monthly.weeklyRecapSubtitle')
     case 'ratings': return t('planning.reflection.monthly.groups.ratings.subtitle')
     default: return ''
   }
@@ -464,82 +188,14 @@ const {
   agencyRating,
   promptResponses,
   freeformReflection,
+  aiSummary,
   isSaving,
   save,
 } = useMonthlyReflectionWizard(toRef(props, 'monthRef'))
 
-const weeklyTrends = computed(() => dataBundle.value?.weeklyRatingTrends ?? [])
-const goalSummaries = computed(() => dataBundle.value?.goalSummaries ?? [])
-const habitDetails = computed(() => dataBundle.value?.habitDetails ?? [])
-const trackerDetails = computed(() => dataBundle.value?.trackerDetails ?? [])
-const weeklyReflectionDetails = computed(() => dataBundle.value?.weeklyReflectionDetails ?? [])
-const monthWeekRefs = computed(() => dataBundle.value?.monthWeekRefs ?? [])
-const dailyCalendarSummaries = computed(() => dataBundle.value?.dailyCalendarSummaries ?? [])
-
-// Sort habits: missed first, then met, then no-data
-const sortedHabitDetails = computed(() =>
-  [...habitDetails.value].sort((a, b) => {
-    const order: Record<string, number> = { missed: 0, 'no-data': 1, met: 2 }
-    return (order[a.evaluationStatus] ?? 1) - (order[b.evaluationStatus] ?? 1)
-  })
-)
-
-// Expandable week cards
-const expandedWeeks = reactive(new Set<WeekRef>())
-function toggleWeekExpanded(weekRef: WeekRef) {
-  if (expandedWeeks.has(weekRef)) expandedWeeks.delete(weekRef)
-  else expandedWeeks.add(weekRef)
-}
-
-// ---------------------------------------------------------------------------
-// Weekly bar chart helpers
-// ---------------------------------------------------------------------------
-
-function barColor(status: MeasurementEvaluationStatus): string {
-  switch (status) {
-    case 'met': return 'bg-primary'
-    case 'missed': return 'bg-error/40'
-    default: return 'bg-on-surface/15'
-  }
-}
-
-function weekBarHeight(week: KRWeeklyBreakdown, target?: MeasurementTarget): number {
-  if (week.actualValue == null || week.actualValue === 0) return 10
-  if (!target || target.value === 0) return 60
-  return Math.max(15, Math.min(100, Math.round((week.actualValue / target.value) * 100)))
-}
-
-function weeklyBarChartTitle(breakdown: KRWeeklyBreakdown[], target?: MeasurementTarget): string {
-  return breakdown
-    .map((w) => `${weekDotLabel(w.weekRef)}: ${w.actualValue ?? '—'}${target ? '/' + target.value : ''}`)
-    .join(' | ')
-}
-
-// ---------------------------------------------------------------------------
-// Progress / target helpers
-// ---------------------------------------------------------------------------
-
-function progressPercent(actual: number | undefined, target: MeasurementTarget | undefined): number {
-  if (actual == null || !target) return 0
-  const targetValue = target.value
-  if (targetValue === 0) return actual > 0 ? 100 : 0
-  return Math.min(100, Math.round((actual / targetValue) * 100))
-}
-
-function formatMeasurementValue(v: number): string {
-  return Number.isInteger(v) ? String(v) : v.toFixed(1)
-}
-
 // ---------------------------------------------------------------------------
 // Week label helpers
 // ---------------------------------------------------------------------------
-
-function weekDotLabel(weekRef: WeekRef): string {
-  const bounds = getPeriodBounds(weekRef)
-  const startDay = bounds.start.slice(8, 10).replace(/^0/, '')
-  const endDay = bounds.end.slice(8, 10).replace(/^0/, '')
-  return `${startDay}–${endDay}`
-}
 
 function formatWeekLabel(weekRef: WeekRef): string {
   const bounds = getPeriodBounds(weekRef)
@@ -552,68 +208,6 @@ function formatWeekLabel(weekRef: WeekRef): string {
     return `${startDay}–${endDay} ${months[startMonth]}`
   }
   return `${startDay} ${months[startMonth]}–${endDay} ${months[endMonth]}`
-}
-
-// ---------------------------------------------------------------------------
-// Week highlights (best/worst dimension)
-// ---------------------------------------------------------------------------
-
-function weekHighlights(weekRef: WeekRef): { key: string; label: string }[] {
-  const trend = weeklyTrends.value.find((t) => t.weekRef === weekRef)
-  if (!trend) return []
-
-  const stateDims = [
-    { key: 'mood', val: trend.moodRating, label: t('planning.reflection.weekly.dimensions.mood') },
-    { key: 'energy', val: trend.energyRating, label: t('planning.reflection.weekly.dimensions.energy') },
-    { key: 'calm', val: trend.calmRating, label: t('planning.reflection.weekly.dimensions.calm') },
-    { key: 'connection', val: trend.connectionRating, label: t('planning.reflection.weekly.dimensions.connection') },
-  ].filter((d) => d.val != null) as { key: string; val: number; label: string }[]
-
-  if (stateDims.length === 0) return []
-
-  const best = stateDims.reduce((a, b) => (b.val > a.val ? b : a))
-  const worst = stateDims.reduce((a, b) => (b.val < a.val ? b : a))
-
-  const highlights: { key: string; label: string }[] = []
-  if (best.val >= 4) highlights.push({ key: 'best', label: `${best.label} ${best.val}` })
-  if (worst.val <= 2 && worst.key !== best.key) highlights.push({ key: 'worst', label: `${worst.label} ${worst.val}` })
-  return highlights
-}
-
-// ---------------------------------------------------------------------------
-// Weekly anchor labels
-// ---------------------------------------------------------------------------
-
-const WEEKLY_ANCHOR_KEYS = ['wentWell', 'challenges', 'gratitude', 'lessons', 'improvements', 'lookingAhead'] as const
-
-function weeklyAnchorLabel(key: string): string {
-  if (WEEKLY_ANCHOR_KEYS.includes(key as typeof WEEKLY_ANCHOR_KEYS[number])) {
-    return t(`planning.reflection.weekly.anchors.${key}`)
-  }
-  return key
-}
-
-function nonEmptyPrompts(responses: Record<string, string>): Record<string, string> {
-  const result: Record<string, string> = {}
-  for (const [key, value] of Object.entries(responses)) {
-    if (value.trim()) result[key] = value
-  }
-  return result
-}
-
-// ---------------------------------------------------------------------------
-// Tracker sparkline
-// ---------------------------------------------------------------------------
-
-function trackerSparkEntries(tracker: TrackerReflectionDetail) {
-  const entries = tracker.entries.slice(-20) // last 20 entries max
-  const values = entries.map((e) => e.value ?? 0)
-  const maxVal = Math.max(...values, 1)
-  return entries.map((e) => ({
-    dayRef: e.dayRef,
-    value: e.value,
-    heightPct: Math.max(10, Math.round(((e.value ?? 0) / maxVal) * 100)),
-  }))
 }
 
 // Icon sets for monthly dimensions
@@ -695,6 +289,57 @@ const monthlyRatingSummary = computed<SidebarRatingGroup[]>(() => [
     ],
   },
 ])
+
+const summaryPeriodLabel = computed(() => {
+  const parts = props.monthRef.split('-')
+  const y = Number(parts[0])
+  const m = Number(parts[1])
+  if (!Number.isFinite(y) || !Number.isFinite(m)) return props.monthRef
+  return new Date(y, m - 1, 1).toLocaleDateString(undefined, {
+    month: 'long',
+    year: 'numeric',
+  })
+})
+
+// Localized, kind-agnostic payload the AI summary/questions are built from.
+// Monthly feeds the full month context: weekly trends, weekly reflection
+// excerpts, and goal/habit/tracker outcomes.
+const summaryContext = computed<ReflectionSummaryContext>(() => {
+  const bundle = dataBundle.value
+  return {
+    kind: 'monthly',
+    periodLabel: summaryPeriodLabel.value,
+    ratings: monthlyRatingSummary.value.flatMap((g) => g.items),
+    anchors: monthlyAnchorCategories.value
+      .map((c) => ({ label: c.label, text: (promptResponses.value[c.key] ?? '').trim() }))
+      .filter((a) => a.text.length > 0),
+    freeform: freeformReflection.value,
+    emotions: bundle ? emotionContextFromSummary(bundle.emotionSummary) : undefined,
+    weeklyTrends: (bundle?.weeklyRatingTrends ?? []).map((tr) => ({
+      weekLabel: formatWeekLabel(tr.weekRef),
+      mood: tr.moodRating,
+      energy: tr.energyRating,
+      calm: tr.calmRating,
+      connection: tr.connectionRating,
+    })),
+    weeklyExcerpts: (bundle?.weeklyReflectionDetails ?? [])
+      .map((d) => ({ weekLabel: formatWeekLabel(d.weekRef), text: d.freeformReflection }))
+      .filter((w) => w.text.trim().length > 0),
+    goals: (bundle?.goalSummaries ?? []).map((g) => ({
+      title: g.goal.title,
+      metKRs: g.keyResults.filter((k) => k.evaluationStatus === 'met').length,
+      totalKRs: g.keyResults.length,
+    })),
+    habits: (bundle?.habitDetails ?? []).map((h) => ({
+      title: h.title,
+      status: h.evaluationStatus,
+    })),
+    trackers: (bundle?.trackerDetails ?? []).map((tr) => ({
+      title: tr.title,
+      latest: tr.latestValue ?? null,
+    })),
+  }
+})
 
 async function handleSave() {
   try {

@@ -809,14 +809,11 @@
     "save": "Zapisz refleksję",
     "saving": "Zapisywanie...",
     "steps": {
-      "review": "Przegląd",
       "demands": "Wymagania",
       "actions": "Działania",
       "state": "Stan",
       "anchors": "Punkty zaczepienia",
       "journal": "Dziennik",
-      "goals": "Postępy",
-      "weeklyRecap": "Trendy tygodniowe",
       "ratings": "Oceny"
     },
     "sidebar": {
@@ -836,18 +833,21 @@
       "collapse": "Zwiń panel kontekstu",
       "expand": "Rozwiń panel kontekstu",
       "aiSummary": "Podsumowanie AI",
-      "aiSummaryHint": "AI przeczyta Twoje wpisy, emocje i oceny — i wyciągnie z nich główne wątki tygodnia.",
-      "aiSummaryLoading": "AI czyta Twój tydzień…",
+      "aiSummaryHint": "AI przeczyta Twoje oceny, emocje i notatki — i wyciągnie z nich główne wątki.",
+      "aiSummaryLoading": "AI czyta Twoją refleksję…",
       "aiGenerate": "Wygeneruj",
       "aiSummaryClear": "Wyczyść",
       "aiSummaryClearTitle": "Wyczyść podsumowanie AI",
-      "aiSummaryMockBody": "Tydzień odzyskiwania rytmu. Po intensywnym wtorku, który otworzył ważne wątki, środa stała się najcięższym punktem — przeładowany kalendarz i niepokój. Od czwartku wracała stabilność: kolacja z bliską osobą, domknięty sprint w piątek i spokojny weekend.",
-      "aiSummaryMockTags": "odzyskiwanie rytmu|przeładowana środa|domknięcie sprintu",
+      "aiSummaryError": "Nie udało się wygenerować podsumowania. Spróbuj ponownie.",
+      "aiMissingProvider": "Najpierw podłącz dostawcę AI w Profil → Asystent AI.",
+      "aiRetry": "Spróbuj ponownie",
       "aiPrompts": "Pytania od AI",
       "aiPromptsHint": "AI zaproponuje pytania, które pomogą Ci pogłębić refleksję.",
-      "aiPromptsLoading": "AI przygląda się Twojemu tygodniowi…",
+      "aiPromptsLoading": "AI przygląda się Twojej refleksji…",
       "aiPromptsGenerate": "Wygeneruj pytania",
-      "aiPromptsMock": "Co sprawiło, że środa czuła się cięższa niż reszta tygodnia?|Jakie warunki sprzyjały Twoim momentom wdzięczności?|Co chciałbyś zabrać z tego tygodnia w kolejny?",
+      "aiPromptsRegenerate": "Wygeneruj ponownie",
+      "aiPromptsError": "Nie udało się wygenerować pytań. Spróbuj ponownie.",
+      "aiPromptsEmpty": "Model nie zwrócił żadnych pytań. Spróbuj ponownie.",
       "emotionsTitle": "Emocje",
       "pleasant": "przyjemne",
       "quadrants": {
@@ -865,7 +865,6 @@
         "many": "{n} wpisów emocji",
         "other": "{n} wpisów emocji"
       },
-      "journals": "Wpisy w dzienniku",
       "journalEntry": {
         "one": "{n} wpis",
         "few": "{n} wpisy",
@@ -875,17 +874,12 @@
       "untitled": "Wpis bez tytułu",
       "habits": "Nawyki",
       "habitsMet": "spełniło cel",
-      "exercises": "Ćwiczenia",
-      "exercisesCompleted": "ukończonych",
       "keyResults": "Kluczowe rezultaty",
-      "trackers": "Trackery",
       "summary": "Podsumowanie tygodnia",
       "weeklyHabits": "Nawyki tygodniowe",
       "monthlyHabits": "Nawyki miesięczne",
       "thisWeek": "w tym tygodniu",
-      "noData": "Brak danych dla tego okresu",
       "goals": "Cele",
-      "goalsAndHabits": "Cele i nawyki",
       "noGoals": "Brak celów w tym tygodniu.",
       "noHabits": "Brak nawyków w tym tygodniu.",
       "noTrackers": "Brak wpisów trackerów w tym tygodniu.",
@@ -933,7 +927,6 @@
     "weekly": {
       "title": "Refleksja tygodniowa",
       "progress": "Postęp refleksji",
-      "reviewSubtitle": "Oto podsumowanie Twojego tygodnia. Poświęć chwilę na zapoznanie się z nim.",
       "groups": {
         "demands": {
           "title": "Wymagania",
@@ -969,21 +962,62 @@
         "closeOnesNeeds": "Bliscy",
         "physicalCare": "Ciało",
         "emotionalProcessing": "Emocje",
-        "closeOnesSupport": "Bliscy"
+        "closeOnesSupport": "Bliscy",
+        "productivity": "Produktywność",
+        "mood": "Nastrój",
+        "energy": "Energia",
+        "calm": "Spokój",
+        "connection": "Więź"
       },
       "scaleLabels": {
-        "physicalIntensity": { "low": "Spokojny", "high": "Intensywny" },
-        "emotionalIntensity": { "low": "Spokojny", "high": "Intensywny" },
-        "taskLoad": { "low": "Lekki", "high": "Przeciążony" },
-        "closeOnesNeeds": { "low": "Spokojne", "high": "Intensywne" },
-        "physicalCare": { "low": "Zaniedbany", "high": "Zaopiekowany" },
-        "emotionalProcessing": { "low": "Unikałem", "high": "Świadomie pracowałem" },
-        "productivity": { "low": "Unikałem/chaos", "high": "Konsekwentnie adresowałem" },
-        "closeOnesSupport": { "low": "Wycofany", "high": "Wspierający i obecny" },
-        "mood": { "low": "Niski", "high": "Świetny" },
-        "energy": { "low": "Wyczerpany", "high": "Naładowany" },
-        "calm": { "low": "Napięty", "high": "Spokojny" },
-        "connection": { "low": "Oddalony", "high": "Blisko" }
+        "physicalIntensity": {
+          "low": "Spokojny",
+          "high": "Intensywny"
+        },
+        "emotionalIntensity": {
+          "low": "Spokojny",
+          "high": "Intensywny"
+        },
+        "taskLoad": {
+          "low": "Lekki",
+          "high": "Przeciążony"
+        },
+        "closeOnesNeeds": {
+          "low": "Spokojne",
+          "high": "Intensywne"
+        },
+        "physicalCare": {
+          "low": "Zaniedbany",
+          "high": "Zaopiekowany"
+        },
+        "emotionalProcessing": {
+          "low": "Unikałem",
+          "high": "Świadomie pracowałem"
+        },
+        "productivity": {
+          "low": "Unikałem/chaos",
+          "high": "Konsekwentnie adresowałem"
+        },
+        "closeOnesSupport": {
+          "low": "Wycofany",
+          "high": "Wspierający i obecny"
+        },
+        "mood": {
+          "low": "Niski",
+          "high": "Świetny"
+        },
+        "energy": {
+          "low": "Wyczerpany",
+          "high": "Naładowany"
+        },
+        "calm": {
+          "low": "Napięty",
+          "high": "Spokojny"
+        },
+        "connection": {
+          "low": "Oddalony",
+          "high": "Blisko"
+        }
       },
       "anchors": {
         "wentWell": "Co poszło dobrze",
@@ -998,45 +1032,12 @@
     "monthly": {
       "title": "Refleksja miesięczna",
       "progress": "Postęp refleksji",
-      "reviewSubtitle": "Cele, nawyki i wszystkie dni miesiąca w jednym widoku.",
-      "goalsSubtitle": "Przejrzyj postępy celów, nawyków i trackerów w tym miesiącu.",
-      "calendar": {
-        "emotionsCount": "{count} emocji",
-        "journalEntry": "wpis w dzienniku"
-      },
-      "goalsSection": "Cele i kluczowe rezultaty",
-      "habitsSection": "Nawyki",
-      "trackersSection": "Trackery",
-      "noGoals": "Brak aktywnych celów w tym miesiącu.",
-      "noHabits": "Brak aktywnych nawyków w tym miesiącu.",
-      "noTrackers": "Brak aktywnych trackerów w tym miesiącu.",
-      "noProgress": "Brak aktywnych celów, nawyków ani trackerów.",
-      "krStatus": {
-        "met": "Osiągnięty",
-        "missed": "Nieosiągnięty",
-        "noData": "Brak danych"
-      },
-      "krOfTotal": "{met}/{total} KR",
-      "weeksLabel": "tyg.",
-      "weeklyLabel": "tygodniowy",
-      "monthlyLabel": "miesięczny",
-      "habitsMet": "{met}/{total} osiągnęło cel",
-      "weeklyRecapSubtitle": "Jak zmieniały się Twoje wymagania, działania i stan w poszczególnych tygodniach.",
-      "weeklyTrendsTitle": "Wymiary tygodniowe",
       "dimensionGroups": {
         "demands": "Wymagania",
         "actions": "Działania",
         "state": "Stan"
       },
       "average": "Śr.",
-      "trend": {
-        "rising": "Rosnący",
-        "falling": "Malejący",
-        "stable": "Stabilny"
-      },
-      "weeklyReflections": "Refleksje tygodniowe",
-      "weekLabel": "Tydzień",
-      "noWeeklyData": "Brak refleksji tygodniowych w tym miesiącu.",
       "groups": {
         "ratings": {
           "title": "Wymiary miesięczne",
@@ -1051,11 +1052,26 @@
         "agency": "Sprawczość"
       },
       "scaleLabels": {
-        "balance": { "low": "Niezrównoważony", "high": "Zrównoważony" },
-        "purpose": { "low": "Zagubiony", "high": "Pełen sensu" },
-        "growth": { "low": "Stagnacja", "high": "Wzrost" },
-        "coherence": { "low": "Rozproszony", "high": "Spójny" },
-        "agency": { "low": "Dryfujący", "high": "Sprawczy" }
+        "balance": {
+          "low": "Niezrównoważony",
+          "high": "Zrównoważony"
+        },
+        "purpose": {
+          "low": "Zagubiony",
+          "high": "Pełen sensu"
+        },
+        "growth": {
+          "low": "Stagnacja",
+          "high": "Wzrost"
+        },
+        "coherence": {
+          "low": "Rozproszony",
+          "high": "Spójny"
+        },
+        "agency": {
+          "low": "Dryfujący",
+          "high": "Sprawczy"
+        }
       },
       "anchors": {
         "proudOf": "Z czego jestem dumny",

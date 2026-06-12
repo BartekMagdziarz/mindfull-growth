@@ -809,14 +809,11 @@
     "save": "Save Reflection",
     "saving": "Saving...",
     "steps": {
-      "review": "Review",
       "demands": "Demands",
       "actions": "Actions",
       "state": "State",
       "anchors": "Anchors",
       "journal": "Journal",
-      "goals": "Progress",
-      "weeklyRecap": "Weekly Trends",
       "ratings": "Ratings"
     },
     "sidebar": {
@@ -836,18 +833,21 @@
       "collapse": "Collapse context panel",
       "expand": "Expand context panel",
       "aiSummary": "AI summary",
-      "aiSummaryHint": "AI will scan your entries, emotions and ratings and pull out the main themes of the week.",
-      "aiSummaryLoading": "AI is reading your week…",
+      "aiSummaryHint": "AI will scan your ratings, emotions and notes and pull out the main themes.",
+      "aiSummaryLoading": "AI is reading your reflection…",
       "aiGenerate": "Generate",
       "aiSummaryClear": "Clear",
       "aiSummaryClearTitle": "Clear AI summary",
-      "aiSummaryMockBody": "A week of recovering rhythm. After an intense Tuesday that opened important threads, Wednesday became the heaviest point with a packed calendar and unease. From Thursday onward stability returned: dinner with a close friend, a closed sprint on Friday, and a quiet weekend.",
-      "aiSummaryMockTags": "recovering rhythm|overloaded Wednesday|closing the sprint",
+      "aiSummaryError": "Couldn't generate the summary. Please try again.",
+      "aiMissingProvider": "Connect an AI provider first in Profile → AI Assistant.",
+      "aiRetry": "Try again",
       "aiPrompts": "AI questions",
       "aiPromptsHint": "AI can suggest questions to deepen your reflection.",
-      "aiPromptsLoading": "AI is looking at your week…",
+      "aiPromptsLoading": "AI is looking at your reflection…",
       "aiPromptsGenerate": "Generate questions",
-      "aiPromptsMock": "What made Wednesday feel heavier than the rest of the week?|Which conditions supported your moments of gratitude?|What do you want to carry from this week into the next?",
+      "aiPromptsRegenerate": "Regenerate",
+      "aiPromptsError": "Couldn't generate questions. Please try again.",
+      "aiPromptsEmpty": "The model didn't return any questions. Try again.",
       "emotionsTitle": "Emotions",
       "pleasant": "pleasant",
       "quadrants": {
@@ -865,7 +865,6 @@
         "many": "{n} emotion logs",
         "other": "{n} emotion logs"
       },
-      "journals": "Journal Entries",
       "journalEntry": {
         "one": "{n} journal entry",
         "few": "{n} journal entries",
@@ -875,17 +874,12 @@
       "untitled": "Untitled entry",
       "habits": "Habits",
       "habitsMet": "met target",
-      "exercises": "Exercises",
-      "exercisesCompleted": "completed",
       "keyResults": "Key Results",
-      "trackers": "Trackers",
       "summary": "Week Summary",
       "weeklyHabits": "Weekly Habits",
       "monthlyHabits": "Monthly Habits",
       "thisWeek": "this week",
-      "noData": "No data for this period",
       "goals": "Goals",
-      "goalsAndHabits": "Goals and Habits",
       "noGoals": "No goals this week.",
       "noHabits": "No habits tracked this week.",
       "noTrackers": "No tracker entries this week.",
@@ -933,7 +927,6 @@
     "weekly": {
       "title": "Weekly Reflection",
       "progress": "Reflection progress",
-      "reviewSubtitle": "Here's a summary of your week. Take a moment to absorb it before reflecting.",
       "groups": {
         "demands": {
           "title": "Demands",
@@ -969,21 +962,62 @@
         "closeOnesNeeds": "Close ones",
         "physicalCare": "Body",
         "emotionalProcessing": "Emotions",
-        "closeOnesSupport": "Close ones"
+        "closeOnesSupport": "Close ones",
+        "productivity": "Productivity",
+        "mood": "Mood",
+        "energy": "Energy",
+        "calm": "Calm",
+        "connection": "Connection"
       },
       "scaleLabels": {
-        "physicalIntensity": { "low": "Restful", "high": "Intense" },
-        "emotionalIntensity": { "low": "Calm", "high": "Intense" },
-        "taskLoad": { "low": "Light", "high": "Overloaded" },
-        "closeOnesNeeds": { "low": "Quiet", "high": "Intense" },
-        "physicalCare": { "low": "Neglected", "high": "Nourished" },
-        "emotionalProcessing": { "low": "Avoided", "high": "Engaged consciously" },
-        "productivity": { "low": "Avoided/chaos", "high": "Addressed consistently" },
-        "closeOnesSupport": { "low": "Withdrawn", "high": "Supportive and present" },
-        "mood": { "low": "Low", "high": "Great" },
-        "energy": { "low": "Drained", "high": "Charged" },
-        "calm": { "low": "Tense", "high": "Peaceful" },
-        "connection": { "low": "Distant", "high": "Connected" }
+        "physicalIntensity": {
+          "low": "Restful",
+          "high": "Intense"
+        },
+        "emotionalIntensity": {
+          "low": "Calm",
+          "high": "Intense"
+        },
+        "taskLoad": {
+          "low": "Light",
+          "high": "Overloaded"
+        },
+        "closeOnesNeeds": {
+          "low": "Quiet",
+          "high": "Intense"
+        },
+        "physicalCare": {
+          "low": "Neglected",
+          "high": "Nourished"
+        },
+        "emotionalProcessing": {
+          "low": "Avoided",
+          "high": "Engaged consciously"
+        },
+        "productivity": {
+          "low": "Avoided/chaos",
+          "high": "Addressed consistently"
+        },
+        "closeOnesSupport": {
+          "low": "Withdrawn",
+          "high": "Supportive and present"
+        },
+        "mood": {
+          "low": "Low",
+          "high": "Great"
+        },
+        "energy": {
+          "low": "Drained",
+          "high": "Charged"
+        },
+        "calm": {
+          "low": "Tense",
+          "high": "Peaceful"
+        },
+        "connection": {
+          "low": "Distant",
+          "high": "Connected"
+        }
       },
       "anchors": {
         "wentWell": "What went well",
@@ -998,45 +1032,12 @@
     "monthly": {
       "title": "Monthly Reflection",
       "progress": "Reflection progress",
-      "reviewSubtitle": "Goals, habits, and every day of the month in one view.",
-      "goalsSubtitle": "Review the progress of your goals, habits, and trackers this month.",
-      "calendar": {
-        "emotionsCount": "{count} emotions",
-        "journalEntry": "journal entry"
-      },
-      "goalsSection": "Goals & Key Results",
-      "habitsSection": "Habits",
-      "trackersSection": "Trackers",
-      "noGoals": "No active goals this month.",
-      "noHabits": "No active habits this month.",
-      "noTrackers": "No active trackers this month.",
-      "noProgress": "No active goals, habits, or trackers.",
-      "krStatus": {
-        "met": "On target",
-        "missed": "Off target",
-        "noData": "No data"
-      },
-      "krOfTotal": "{met}/{total} KR",
-      "weeksLabel": "wk",
-      "weeklyLabel": "weekly",
-      "monthlyLabel": "monthly",
-      "habitsMet": "{met}/{total} met target",
-      "weeklyRecapSubtitle": "How your demands, actions, and state evolved across weeks.",
-      "weeklyTrendsTitle": "Weekly Dimensions",
       "dimensionGroups": {
         "demands": "Demands",
         "actions": "Actions",
         "state": "State"
       },
       "average": "Avg",
-      "trend": {
-        "rising": "Rising",
-        "falling": "Falling",
-        "stable": "Stable"
-      },
-      "weeklyReflections": "Weekly Reflections",
-      "weekLabel": "Week",
-      "noWeeklyData": "No weekly reflections recorded this month.",
       "groups": {
         "ratings": {
           "title": "Monthly Dimensions",
@@ -1051,11 +1052,26 @@
         "agency": "Agency"
       },
       "scaleLabels": {
-        "balance": { "low": "Imbalanced", "high": "Balanced" },
-        "purpose": { "low": "Lost", "high": "Purposeful" },
-        "growth": { "low": "Stagnant", "high": "Growing" },
-        "coherence": { "low": "Scattered", "high": "Aligned" },
-        "agency": { "low": "Drifting", "high": "In control" }
+        "balance": {
+          "low": "Imbalanced",
+          "high": "Balanced"
+        },
+        "purpose": {
+          "low": "Lost",
+          "high": "Purposeful"
+        },
+        "growth": {
+          "low": "Stagnant",
+          "high": "Growing"
+        },
+        "coherence": {
+          "low": "Scattered",
+          "high": "Aligned"
+        },
+        "agency": {
+          "low": "Drifting",
+          "high": "In control"
+        }
       },
       "anchors": {
         "proudOf": "What I'm most proud of",

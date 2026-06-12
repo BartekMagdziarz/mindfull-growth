@@ -103,17 +103,37 @@
             />
           </button>
           <div v-if="aiSummaryOpen" class="mt-3 flex flex-col gap-2">
-            <template v-if="aiSummaryLoading">
-              <div class="flex items-center gap-2 py-1 text-[11px] text-on-surface-variant">
-                <AppIcon name="auto_awesome" class="animate-spin text-xs text-primary" />
-                {{ t('planning.reflection.sidebar.aiSummaryLoading') }}
-              </div>
+            <template v-if="aiSummaryError">
+              <p class="text-[11px] leading-relaxed text-on-surface-variant">
+                {{
+                  aiSummaryError === 'missingProvider'
+                    ? t('planning.reflection.sidebar.aiMissingProvider')
+                    : t('planning.reflection.sidebar.aiSummaryError')
+                }}
+              </p>
+              <button
+                v-if="aiSummaryError !== 'missingProvider'"
+                type="button"
+                class="neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[11px] font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
+                @click="generateAiSummary"
+              >
+                <AppIcon name="refresh" class="text-xs" />
+                {{ t('planning.reflection.sidebar.aiRetry') }}
+              </button>
             </template>
             <template v-else-if="hasAiSummary">
               <p class="text-[11px] leading-relaxed text-on-surface whitespace-pre-wrap">
                 {{ props.aiSummary }}
               </p>
+              <div
+                v-if="aiSummaryLoading"
+                class="flex items-center gap-2 py-1 text-[11px] text-on-surface-variant"
+              >
+                <AppIcon name="auto_awesome" class="animate-spin text-xs text-primary" />
+                {{ t('planning.reflection.sidebar.aiSummaryLoading') }}
+              </div>
               <button
+                v-else
                 type="button"
                 class="neo-focus flex items-center justify-center gap-1 self-start rounded-lg bg-neu-top px-2.5 py-1 text-[10px] font-semibold text-on-surface-variant shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:text-on-surface hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
                 :title="t('planning.reflection.sidebar.aiSummaryClearTitle')"
@@ -123,13 +143,20 @@
                 {{ t('planning.reflection.sidebar.aiSummaryClear') }}
               </button>
             </template>
+            <template v-else-if="aiSummaryLoading">
+              <div class="flex items-center gap-2 py-1 text-[11px] text-on-surface-variant">
+                <AppIcon name="auto_awesome" class="animate-spin text-xs text-primary" />
+                {{ t('planning.reflection.sidebar.aiSummaryLoading') }}
+              </div>
+            </template>
             <template v-else>
               <p class="text-[11px] leading-relaxed text-on-surface-variant">
                 {{ t('planning.reflection.sidebar.aiSummaryHint') }}
               </p>
               <button
                 type="button"
-                class="neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[11px] font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
+                class="neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[11px] font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-neu-raised-sm"
+                :disabled="!summaryContext"
                 @click="generateAiSummary"
               >
                 <AppIcon name="auto_awesome" class="text-xs" />
@@ -139,7 +166,7 @@
           </div>
         </div>
 
-        <!-- AI prompts (mock) -->
+        <!-- AI questions -->
         <div class="rounded-xl bg-neu-base p-3 shadow-neu-pressed-sm">
           <div class="mb-2 flex items-center gap-1.5">
             <AppIcon name="auto_awesome" class="text-sm text-primary" />
@@ -147,17 +174,24 @@
               {{ t('planning.reflection.sidebar.aiPrompts') }}
             </span>
           </div>
-          <template v-if="!aiPromptsGenerated && !aiPromptsLoading">
+          <template v-if="aiPromptsError">
             <p class="mb-2 text-[11px] leading-relaxed text-on-surface-variant">
-              {{ t('planning.reflection.sidebar.aiPromptsHint') }}
+              {{
+                aiPromptsError === 'missingProvider'
+                  ? t('planning.reflection.sidebar.aiMissingProvider')
+                  : aiPromptsError === 'empty'
+                    ? t('planning.reflection.sidebar.aiPromptsEmpty')
+                    : t('planning.reflection.sidebar.aiPromptsError')
+              }}
             </p>
             <button
+              v-if="aiPromptsError !== 'missingProvider'"
               type="button"
               class="neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[11px] font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
               @click="generateAiPrompts"
             >
-              <AppIcon name="auto_awesome" class="text-xs" />
-              {{ t('planning.reflection.sidebar.aiPromptsGenerate') }}
+              <AppIcon name="refresh" class="text-xs" />
+              {{ t('planning.reflection.sidebar.aiRetry') }}
             </button>
           </template>
           <template v-else-if="aiPromptsLoading">
@@ -166,10 +200,10 @@
               {{ t('planning.reflection.sidebar.aiPromptsLoading') }}
             </div>
           </template>
-          <template v-else>
+          <template v-else-if="aiPrompts.length > 0">
             <div class="flex flex-col gap-1.5">
               <button
-                v-for="(prompt, i) in aiMockPrompts"
+                v-for="(prompt, i) in aiPrompts"
                 :key="i"
                 type="button"
                 class="neo-focus flex items-start gap-1.5 rounded-xl bg-neu-top px-3 py-2 text-left text-[11px] leading-snug text-on-surface-variant shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:text-on-surface hover:shadow-neu-raised"
@@ -178,7 +212,29 @@
                 <AppIcon name="add" class="mt-0.5 shrink-0 text-xs text-primary" />
                 <span>{{ prompt }}</span>
               </button>
+              <button
+                type="button"
+                class="neo-focus mt-0.5 flex items-center justify-center gap-1 self-start rounded-lg bg-neu-top px-2.5 py-1 text-[10px] font-semibold text-on-surface-variant shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:text-on-surface hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
+                @click="generateAiPrompts"
+              >
+                <AppIcon name="refresh" class="text-xs" />
+                {{ t('planning.reflection.sidebar.aiPromptsRegenerate') }}
+              </button>
             </div>
+          </template>
+          <template v-else>
+            <p class="mb-2 text-[11px] leading-relaxed text-on-surface-variant">
+              {{ t('planning.reflection.sidebar.aiPromptsHint') }}
+            </p>
+            <button
+              type="button"
+              class="neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[11px] font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-neu-raised-sm"
+              :disabled="!summaryContext"
+              @click="generateAiPrompts"
+            >
+              <AppIcon name="auto_awesome" class="text-xs" />
+              {{ t('planning.reflection.sidebar.aiPromptsGenerate') }}
+            </button>
           </template>
         </div>
 
@@ -332,8 +388,14 @@ import type { Quadrant } from '@/domain/emotion'
 import { getQuadrantChipStyle, getQuadrantSurfaceStyle } from '@/domain/emotion'
 import type { WeekRef } from '@/domain/period'
 import type { WeeklyReflectionDataBundle } from '@/services/reflectionDataQueries'
+import {
+  generateReflectionQuestions,
+  generateReflectionSummary,
+  type ReflectionSummaryContext,
+} from '@/services/reflectionSummaryService'
+import { hasAIProviderConfigured } from '@/services/llmService'
 
-const { t } = useT()
+const { t, locale, gender } = useT()
 
 export interface SidebarRatingGroup {
   title: string
@@ -352,11 +414,15 @@ const props = defineProps<{
   dataBundle?: WeeklyReflectionDataBundle | null
   weekRef?: WeekRef
   /**
-   * Persisted AI summary. When undefined, the AI summary card is hidden
-   * (e.g. monthly wizard does not use it). Empty string means "no summary
-   * yet — show the generate button."
+   * Persisted AI summary. When undefined, the AI summary card is hidden.
+   * Empty string means "no summary yet — show the generate button."
    */
   aiSummary?: string
+  /**
+   * Localized, kind-agnostic data the AI summary/questions are built from.
+   * When absent, the generate buttons are disabled (nothing to summarize).
+   */
+  summaryContext?: ReflectionSummaryContext | null
 }>()
 
 const emit = defineEmits<{
@@ -373,13 +439,15 @@ const collapsed = ref(false)
 
 const aiSummaryOpen = ref(true)
 const aiSummaryLoading = ref(false)
+const aiSummaryError = ref<'missingProvider' | 'generic' | null>(null)
 
 const hasAiSummary = computed(
   () => typeof props.aiSummary === 'string' && props.aiSummary.trim().length > 0,
 )
 
-const aiPromptsGenerated = ref(false)
+const aiPrompts = ref<string[]>([])
 const aiPromptsLoading = ref(false)
+const aiPromptsError = ref<'missingProvider' | 'generic' | 'empty' | null>(null)
 
 const anchorCategoryOpen = reactive<Record<string, boolean>>({})
 
@@ -525,40 +593,63 @@ const quadrantTiles: { key: Quadrant; labelKey: string }[] = [
 ]
 
 // ---------------------------------------------------------------------------
-// Mock AI content
+// AI summary & questions (real LLM via reflectionSummaryService)
 // ---------------------------------------------------------------------------
 
-// Locale files store these as pipe-separated strings because useT()
-// resolves only string keys (object/array values can't be translated).
-const aiMockPrompts = computed<string[]>(() =>
-  t('planning.reflection.sidebar.aiPromptsMock')
-    .split('|')
-    .map((s) => s.trim())
-    .filter(Boolean),
-)
-
-function generateAiSummary() {
+async function generateAiSummary() {
   if (aiSummaryLoading.value || hasAiSummary.value) return
+  const ctx = props.summaryContext
+  if (!ctx) return
+  aiSummaryError.value = null
+  if (!(await hasAIProviderConfigured())) {
+    aiSummaryError.value = 'missingProvider'
+    return
+  }
   aiSummaryLoading.value = true
-  // NOTE: Intentionally NOT calling the backend — mock body comes from i18n.
-  // The resolved string is emitted up so the wizard can persist it with the reflection.
-  setTimeout(() => {
+  try {
+    const text = await generateReflectionSummary(ctx, {
+      locale: locale.value,
+      gender: gender.value,
+      onToken: (full) => emit('update:aiSummary', full),
+    })
+    emit('update:aiSummary', text)
+  } catch (err) {
+    console.error('Reflection summary generation failed:', err)
+    aiSummaryError.value = 'generic'
+    // Discard any partial stream so a broken summary is never persisted.
+    emit('update:aiSummary', '')
+  } finally {
     aiSummaryLoading.value = false
-    emit('update:aiSummary', t('planning.reflection.sidebar.aiSummaryMockBody'))
-  }, 1200)
+  }
 }
 
 function clearAiSummary() {
+  aiSummaryError.value = null
   emit('update:aiSummary', '')
 }
 
-function generateAiPrompts() {
-  if (aiPromptsLoading.value || aiPromptsGenerated.value) return
+async function generateAiPrompts() {
+  if (aiPromptsLoading.value) return
+  const ctx = props.summaryContext
+  if (!ctx) return
+  aiPromptsError.value = null
+  if (!(await hasAIProviderConfigured())) {
+    aiPromptsError.value = 'missingProvider'
+    return
+  }
   aiPromptsLoading.value = true
-  // NOTE: Intentionally NOT calling the backend — user will wire real AI in a separate session.
-  setTimeout(() => {
+  try {
+    const questions = await generateReflectionQuestions(ctx, {
+      locale: locale.value,
+      gender: gender.value,
+    })
+    aiPrompts.value = questions
+    if (questions.length === 0) aiPromptsError.value = 'empty'
+  } catch (err) {
+    console.error('Reflection questions generation failed:', err)
+    aiPromptsError.value = 'generic'
+  } finally {
     aiPromptsLoading.value = false
-    aiPromptsGenerated.value = true
-  }, 1200)
+  }
 }
 </script>

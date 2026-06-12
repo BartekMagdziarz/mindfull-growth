@@ -8,7 +8,6 @@ import type { CreateWeeklyReflectionPayload } from '@/domain/reflection'
 import { getPeriodBounds } from '@/utils/periods'
 
 export type WeeklyReflectionStep =
-  | 'review'
   | 'demands'
   | 'actions'
   | 'state'
@@ -16,7 +15,6 @@ export type WeeklyReflectionStep =
   | 'journal'
 
 const STEP_ORDER: WeeklyReflectionStep[] = [
-  'review',
   'demands',
   'actions',
   'state',
@@ -26,7 +24,9 @@ const STEP_ORDER: WeeklyReflectionStep[] = [
 
 /** Map old step names to new names for draft migration */
 const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
-  review: 'review',
+  // The review step was removed — the period summary now stays visible on the
+  // calendar page while the reflection form is open.
+  review: 'demands',
   reflect: 'demands',
   ratings: 'demands',
   write: 'journal',
@@ -49,10 +49,10 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   const store = useStructuredReflectionStore()
 
   // Step management
-  const currentStep = ref<WeeklyReflectionStep>('review')
+  const currentStep = ref<WeeklyReflectionStep>('demands')
   const stepIndex = computed(() => STEP_ORDER.indexOf(currentStep.value))
 
-  // Data bundle for review step
+  // Data bundle backing the journal step (emotion context + AI summary payload)
   const dataBundle = ref<WeeklyReflectionDataBundle | null>(null)
   const isBundleLoading = ref(true)
 
@@ -90,8 +90,6 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   // Step validation
   const canAdvance = computed(() => {
     switch (currentStep.value) {
-      case 'review':
-        return true
       case 'demands':
         return (
           physicalIntensityRating.value !== null ||
@@ -254,7 +252,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
   // Initialization
   onMounted(async () => {
-    // Load data bundle for review step
+    // Load the data bundle backing the journal step / AI summary context
     isBundleLoading.value = true
     try {
       const weekEnd = getPeriodBounds(weekRef.value).end as DayRef

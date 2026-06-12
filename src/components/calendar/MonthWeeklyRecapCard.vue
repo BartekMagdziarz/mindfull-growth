@@ -1,5 +1,13 @@
 <template>
   <SummaryCard :title="t('planning.reflection.review.weeklyRecap')">
+    <!-- Rating trends across the month's weeks (from saved weekly reflections) -->
+    <WeeklyDimensionHeatmap
+      v-if="trendEntries.length > 0"
+      class="mb-3"
+      :trends="trendEntries"
+      :week-refs="weekRefs"
+    />
+
     <p v-if="rows.length === 0" class="text-center text-xs text-on-surface-variant/70">
       —
     </p>
@@ -32,9 +40,12 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import SummaryCard from './WeeklyReviewSummaryCard.vue'
+import WeeklyDimensionHeatmap from './WeeklyDimensionHeatmap.vue'
 import { useT } from '@/composables/useT'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { WeeklyReflection } from '@/domain/reflection'
+import { buildWeeklyRatingTrends } from '@/services/reflectionDataQueries'
 import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
 
 const props = defineProps<{
@@ -68,9 +79,18 @@ function truncate(text: string, max: number): string {
   return trimmed.slice(0, max - 1).trimEnd() + '…'
 }
 
+const weekRefs = computed(() => getChildPeriods(props.monthRef) as WeekRef[])
+
+const trendEntries = computed(() =>
+  buildWeeklyRatingTrends(
+    weekRefs.value
+      .map((weekRef) => reflectionStore.getWeeklyByRef(weekRef))
+      .filter((r): r is WeeklyReflection => r !== undefined),
+  )
+)
+
 const rows = computed<RecapRow[]>(() => {
-  const weeks = getChildPeriods(props.monthRef) as WeekRef[]
-  return weeks.map((weekRef) => {
+  return weekRefs.value.map((weekRef) => {
     const bounds = getPeriodBounds(weekRef)
     const num = weekRef.slice(-2)
     const label = `W${num}: ${formatShortDay(bounds.start)} - ${formatShortDay(bounds.end)}`

@@ -2,12 +2,9 @@
   <section data-testid="weekly-reflection-wizard" class="neo-card space-y-8 px-4 py-4 md:px-5">
     <!-- Header with step indicator -->
     <div class="flex items-center justify-between">
-      <div class="flex items-baseline gap-2">
-        <h2 class="text-lg font-bold text-on-surface">
-          {{ t('planning.reflection.weekly.title') }}
-        </h2>
-        <span v-if="stepSubtitle" class="text-xs text-on-surface-variant">— {{ stepSubtitle }}</span>
-      </div>
+      <h2 class="text-lg font-bold text-on-surface">
+        {{ t('planning.reflection.weekly.title') }}
+      </h2>
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.reflection.weekly.progress')">
           <button
@@ -29,6 +26,13 @@
         <span class="text-xs font-medium text-on-surface-variant">
           {{ stepLabels[stepIndex] }}
         </span>
+        <AppButton
+          variant="text"
+          :aria-label="t('common.buttons.close')"
+          @click="emit('close')"
+        >
+          <AppIcon name="close" class="text-lg" />
+        </AppButton>
       </div>
     </div>
 
@@ -40,18 +44,8 @@
       leave-to-class="opacity-0"
       mode="out-in"
     >
-      <!-- Step: Review -->
-      <div v-if="currentStep === 'review'" key="review" class="space-y-4">
-        <WeeklyReviewDayCards
-          :data-bundle="dataBundle"
-          :week-ref="props.weekRef"
-          :today-day-ref="todayDayRef"
-          :is-loading="isBundleLoading"
-        />
-      </div>
-
       <!-- Step: Demands -->
-      <div v-else-if="currentStep === 'demands'" key="demands" class="space-y-4">
+      <div v-if="currentStep === 'demands'" key="demands" class="space-y-4">
         <ReflectionDimensionRatings
           :groups="demandsGroup"
           @update:rating="handleRatingUpdate"
@@ -94,6 +88,7 @@
           :data-bundle="dataBundle"
           :week-ref="props.weekRef"
           :ai-summary="aiSummary"
+          :summary-context="summaryContext"
           @update:model-value="freeformReflection = $event"
           @update:ai-summary="aiSummary = $event"
         />
@@ -137,7 +132,6 @@
 import { computed, toRef } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import WeeklyReviewDayCards from './WeeklyReviewDayCards.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
@@ -148,8 +142,12 @@ import {
   type WeeklyReflectionStep,
 } from '@/composables/useWeeklyReflectionWizard'
 import { useT } from '@/composables/useT'
-import type { DayRef, WeekRef } from '@/domain/period'
-import { getPeriodRefsForDate } from '@/utils/periods'
+import type { WeekRef } from '@/domain/period'
+import { getPeriodBounds } from '@/utils/periods'
+import {
+  emotionContextFromSummary,
+  type ReflectionSummaryContext,
+} from '@/services/reflectionSummaryService'
 
 const { t } = useT()
 
@@ -157,18 +155,12 @@ const props = defineProps<{
   weekRef: WeekRef
 }>()
 
-// Current system day — drives the "today" marker on the 7-day grid and the
-// WeekObjectTile chart visualizations. We compute it up-front and keep it
-// static for the lifetime of the wizard (no need to tick per-minute).
-const todayDayRef: DayRef = getPeriodRefsForDate(new Date()).day
-
 const emit = defineEmits<{
   close: []
   updated: []
 }>()
 
 const STEPS: WeeklyReflectionStep[] = [
-  'review',
   'demands',
   'actions',
   'state',
@@ -177,20 +169,12 @@ const STEPS: WeeklyReflectionStep[] = [
 ]
 
 const stepLabels = computed(() => [
-  t('planning.reflection.steps.review'),
   t('planning.reflection.steps.demands'),
   t('planning.reflection.steps.actions'),
   t('planning.reflection.steps.state'),
   t('planning.reflection.steps.anchors'),
   t('planning.reflection.steps.journal'),
 ])
-
-const stepSubtitle = computed(() => {
-  switch (currentStep.value) {
-    case 'review': return t('planning.reflection.weekly.reviewSubtitle')
-    default: return ''
-  }
-})
 
 const weeklyAnchorCategories = computed(() => [
   { key: 'wentWell', label: t('planning.reflection.weekly.anchors.wentWell'), icon: 'thumb_up' },
@@ -209,7 +193,6 @@ const {
   prevStep,
   goToStep,
   dataBundle,
-  isBundleLoading,
   physicalIntensityRating,
   emotionalIntensityRating,
   taskLoadRating,
@@ -414,6 +397,32 @@ const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
     ],
   },
 ])
+
+const summaryPeriodLabel = computed(() => {
+  const bounds = getPeriodBounds(props.weekRef)
+  const start = new Date(bounds.start + 'T12:00:00')
+  const end = new Date(bounds.end + 'T12:00:00')
+  const startFmt = start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+  const endFmt = end.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+  const match = /W(\d+)/.exec(props.weekRef)
+  const weekLabel = match ? `W${match[1]}` : props.weekRef
+  return `${weekLabel} · ${startFmt}–${endFmt}`
+})
+
+// Localized, kind-agnostic payload the AI summary/questions are built from.
+const summaryContext = computed<ReflectionSummaryContext>(() => {
+  const bundle = dataBundle.value
+  return {
+    kind: 'weekly',
+    periodLabel: summaryPeriodLabel.value,
+    ratings: weeklyRatingSummary.value.flatMap((g) => g.items),
+    anchors: weeklyAnchorCategories.value
+      .map((c) => ({ label: c.label, text: (promptResponses.value[c.key] ?? '').trim() }))
+      .filter((a) => a.text.length > 0),
+    freeform: freeformReflection.value,
+    emotions: bundle ? emotionContextFromSummary(bundle.emotionSummary) : undefined,
+  }
+})
 
 async function handleSave() {
   try {
