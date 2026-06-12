@@ -471,6 +471,10 @@ function gradients(q: Quadrant) {
     backgroundGradient: `linear-gradient(145deg, ${v('top')}, ${v('bottom')})`,
     softGradient: `linear-gradient(145deg, ${v('tint-soft')}, ${v('tint')})`,
     discGradient: `linear-gradient(145deg, #ffffff, ${v('tint-soft')})`,
+    // Ciemna połowa cienia neumorficznego krążka — zamiast neutralnego
+    // błękitno-szarego (fallback w EmotionFaceIcon) odcień ćwiartki.
+    discShadow: `color-mix(in srgb, ${v('border')} 42%, transparent)`,
+    discShadowStrong: `color-mix(in srgb, ${v('border')} 50%, transparent)`,
     textColor: v('text'),
     borderColor: v('border'),
   }
@@ -496,6 +500,7 @@ function familyCardStyle(isSelectedCard: boolean): Record<string, string> {
     background: isSelectedCard ? s.backgroundGradient : s.softGradient,
     color: s.textColor,
     '--disc': s.discGradient,
+    '--disc-shadow': s.discShadow,
   }
   if (isSelectedCard) style.borderColor = s.borderColor
   return style
@@ -585,7 +590,16 @@ const relaxedPositions = computed(() => {
   return map
 })
 function dotStyle(e: Emotion): Record<string, string> {
-  return relaxedPositions.value.get(e.id) ?? { left: '50%', top: '50%' }
+  const pos = relaxedPositions.value.get(e.id) ?? { left: '50%', top: '50%' }
+  // Krążek twarzy w kolorze ćwiartki emocji (biel → tint-soft): jaśniejszy od
+  // tła pola, ale w tym samym odcieniu. Cienie analogicznie (zamiast szarych).
+  const s = quadrantButtonStyles[getQuadrant(e)]
+  return {
+    ...pos,
+    '--disc': s.discGradient,
+    '--disc-shadow': s.discShadow,
+    '--disc-shadow-strong': s.discShadowStrong,
+  }
 }
 function labelVisible(e: Emotion): boolean {
   if (hoveredId.value === e.id || isSelected(e.id)) return true
@@ -741,9 +755,8 @@ onMounted(async () => {
 .fam-card__icon {
   flex-shrink: 0;
 }
-.fam-card :deep(.neuface) {
-  background: var(--disc);
-}
+/* Tło i cień krążka twarzy przejmuje EmotionFaceIcon przez dziedziczone
+   zmienne --disc / --disc-shadow (ustawiane w familyCardStyle / dotStyle). */
 .fam-card__name {
   font-size: 12.5px;
   font-weight: 700;
@@ -767,7 +780,7 @@ onMounted(async () => {
   background: var(--disc, linear-gradient(145deg, #f1f6fc, #dde6f1));
   box-shadow:
     -3px -3px 6px rgba(255, 255, 255, 0.92),
-    3px 3px 7px rgba(120, 150, 190, 0.42),
+    3px 3px 7px var(--disc-shadow, rgba(120, 150, 190, 0.42)),
     inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
@@ -906,7 +919,7 @@ onMounted(async () => {
   opacity: 1;
   box-shadow:
     -4px -4px 8px rgba(255, 255, 255, 0.95),
-    4px 4px 9px rgba(120, 150, 190, 0.5),
+    4px 4px 9px var(--disc-shadow-strong, rgba(120, 150, 190, 0.5)),
     inset 0 0 0 1px rgba(255, 255, 255, 0.45);
 }
 .empty {
