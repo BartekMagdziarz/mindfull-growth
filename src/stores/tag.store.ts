@@ -28,6 +28,7 @@ export const useTagStore = defineStore('tag', () => {
   const peopleTags = ref<PeopleTag[]>([])
   const contextTags = ref<ContextTag[]>([])
   const isLoading = ref(false)
+  const isLoaded = ref(false)
   const error = ref<string | null>(null)
 
   // Getters
@@ -69,6 +70,21 @@ export const useTagStore = defineStore('tag', () => {
       console.error('Error loading context tags:', err)
     } finally {
       isLoading.value = false
+    }
+  }
+
+  /**
+   * Hydrates both tag lists from Dexie at most once. Components that
+   * resolve tag names directly (e.g. calendar summary cards) call this
+   * on mount so they work on a cold start, without re-reading the
+   * database on every navigation. After a failed load `isLoaded` stays
+   * false, so the next caller retries.
+   */
+  async function ensureLoaded() {
+    if (isLoaded.value || isLoading.value) return
+    await Promise.all([loadPeopleTags(), loadContextTags()])
+    if (!error.value) {
+      isLoaded.value = true
     }
   }
 
@@ -216,6 +232,7 @@ export const useTagStore = defineStore('tag', () => {
     peopleTags.value = []
     contextTags.value = []
     isLoading.value = false
+    isLoaded.value = false
     error.value = null
   }
 
@@ -224,6 +241,7 @@ export const useTagStore = defineStore('tag', () => {
     peopleTags,
     contextTags,
     isLoading,
+    isLoaded,
     error,
     // Getters
     getPeopleTagById,
@@ -231,6 +249,7 @@ export const useTagStore = defineStore('tag', () => {
     // Actions
     loadPeopleTags,
     loadContextTags,
+    ensureLoaded,
     createPeopleTag,
     createContextTag,
     deletePeopleTag,

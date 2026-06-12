@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import SummaryCard from './WeeklyReviewSummaryCard.vue'
 import { useT } from '@/composables/useT'
@@ -93,6 +93,13 @@ const { t } = useT()
 const journalStore = useJournalStore()
 const emotionStore = useEmotionStore()
 const tagStore = useTagStore()
+
+// The stores are lazy — on a cold start (reload straight into the calendar)
+// nothing else has hydrated them yet.
+onMounted(() => {
+  void journalStore.ensureLoaded()
+  void tagStore.ensureLoaded()
+})
 
 const entries = computed<JournalEntry[]>(() => {
   const bounds = getPeriodBounds(props.weekRef)

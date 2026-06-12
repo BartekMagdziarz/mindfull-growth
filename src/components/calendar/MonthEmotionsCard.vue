@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import SummaryCard from './WeeklyReviewSummaryCard.vue'
 import { useT } from '@/composables/useT'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
@@ -64,6 +64,12 @@ const props = defineProps<{
 const { t } = useT()
 const emotionLogStore = useEmotionLogStore()
 const emotionStore = useEmotionStore()
+
+// The store is lazy — on a cold start (reload straight into the calendar)
+// nothing else has hydrated it yet.
+onMounted(() => {
+  void emotionLogStore.ensureLoaded()
+})
 
 const QUADRANT_ORDER: Quadrant[] = [
   'high-energy-high-pleasantness',

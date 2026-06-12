@@ -18,6 +18,7 @@ function validateSelection(emotionIds: unknown, emotionFamilyIds: unknown): void
 export const useEmotionLogStore = defineStore('emotionLog', () => {
   const logs = ref<EmotionLog[]>([])
   const isLoading = ref(false)
+  const isLoaded = ref(false)
   const error = ref<string | null>(null)
 
   const sortedLogs = computed(() => {
@@ -42,6 +43,7 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
     try {
       const loadedLogs = await emotionLogDexieRepository.getAll()
       logs.value = loadedLogs.map(withDefaults)
+      isLoaded.value = true
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to load emotion logs'
@@ -50,6 +52,18 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
     } finally {
       isLoading.value = false
     }
+  }
+
+  /**
+   * Hydrates the store from Dexie at most once. Components that read
+   * `sortedLogs` directly (e.g. calendar summary cards) call this on
+   * mount so they work on a cold start, without re-reading the database
+   * on every navigation. After a failed load `isLoaded` stays false, so
+   * the next caller retries.
+   */
+  async function ensureLoaded(): Promise<void> {
+    if (isLoaded.value || isLoading.value) return
+    await loadLogs()
   }
 
   async function createLog(
@@ -111,15 +125,18 @@ export const useEmotionLogStore = defineStore('emotionLog', () => {
   function reset(): void {
     logs.value = []
     isLoading.value = false
+    isLoaded.value = false
     error.value = null
   }
 
   return {
     logs,
     isLoading,
+    isLoaded,
     error,
     sortedLogs,
     loadLogs,
+    ensureLoaded,
     createLog,
     updateLog,
     deleteLog,

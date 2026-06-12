@@ -332,6 +332,51 @@ describe('useJournalStore', () => {
     })
   })
 
+  describe('ensureLoaded', () => {
+    it('loads entries on first call and skips the repository on subsequent calls', async () => {
+      const store = useJournalStore()
+      vi.mocked(journalDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+      await store.ensureLoaded()
+
+      expect(journalDexieRepository.getAll).toHaveBeenCalledOnce()
+      expect(store.isLoaded).toBe(true)
+    })
+
+    it('retries on the next call when the initial load failed', async () => {
+      const store = useJournalStore()
+      vi.mocked(journalDexieRepository.getAll).mockRejectedValueOnce(
+        new Error('Database error')
+      )
+
+      await store.ensureLoaded()
+
+      expect(store.isLoaded).toBe(false)
+
+      vi.mocked(journalDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+
+      expect(journalDexieRepository.getAll).toHaveBeenCalledTimes(2)
+      expect(store.isLoaded).toBe(true)
+    })
+
+    it('loads again after reset()', async () => {
+      const store = useJournalStore()
+      vi.mocked(journalDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+      store.reset()
+
+      expect(store.isLoaded).toBe(false)
+
+      await store.ensureLoaded()
+
+      expect(journalDexieRepository.getAll).toHaveBeenCalledTimes(2)
+    })
+  })
+
   describe('updateEntry', () => {
     it('updates entry with tagging fields', async () => {
       const store = useJournalStore()

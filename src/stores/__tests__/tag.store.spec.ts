@@ -279,6 +279,56 @@ describe('useTagStore', () => {
     })
   })
 
+  describe('ensureLoaded', () => {
+    it('loads both tag lists on first call and skips the repositories on subsequent calls', async () => {
+      const store = useTagStore()
+      vi.mocked(peopleTagDexieRepository.getAll).mockResolvedValue([])
+      vi.mocked(contextTagDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+      await store.ensureLoaded()
+
+      expect(peopleTagDexieRepository.getAll).toHaveBeenCalledOnce()
+      expect(contextTagDexieRepository.getAll).toHaveBeenCalledOnce()
+      expect(store.isLoaded).toBe(true)
+    })
+
+    it('retries on the next call when a load failed', async () => {
+      const store = useTagStore()
+      vi.mocked(peopleTagDexieRepository.getAll).mockResolvedValue([])
+      vi.mocked(contextTagDexieRepository.getAll).mockRejectedValueOnce(
+        new Error('Database error')
+      )
+
+      await store.ensureLoaded()
+
+      expect(store.isLoaded).toBe(false)
+
+      vi.mocked(contextTagDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+
+      expect(contextTagDexieRepository.getAll).toHaveBeenCalledTimes(2)
+      expect(store.isLoaded).toBe(true)
+    })
+
+    it('loads again after reset()', async () => {
+      const store = useTagStore()
+      vi.mocked(peopleTagDexieRepository.getAll).mockResolvedValue([])
+      vi.mocked(contextTagDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+      store.reset()
+
+      expect(store.isLoaded).toBe(false)
+
+      await store.ensureLoaded()
+
+      expect(peopleTagDexieRepository.getAll).toHaveBeenCalledTimes(2)
+      expect(contextTagDexieRepository.getAll).toHaveBeenCalledTimes(2)
+    })
+  })
+
   describe('deletePeopleTag', () => {
     it('removes the tag from peopleTags', async () => {
       const store = useTagStore()

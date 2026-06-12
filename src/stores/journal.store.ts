@@ -7,6 +7,7 @@ export const useJournalStore = defineStore('journal', () => {
   // State
   const entries = ref<JournalEntry[]>([])
   const isLoading = ref(false)
+  const isLoaded = ref(false)
   const error = ref<string | null>(null)
 
   // Getters
@@ -33,6 +34,7 @@ export const useJournalStore = defineStore('journal', () => {
     try {
       const loadedEntries = await journalDexieRepository.getAll()
       entries.value = loadedEntries.map(withDefaults)
+      isLoaded.value = true
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to load journal entries'
@@ -41,6 +43,18 @@ export const useJournalStore = defineStore('journal', () => {
     } finally {
       isLoading.value = false
     }
+  }
+
+  /**
+   * Hydrates the store from Dexie at most once. Components that read
+   * `sortedEntries` directly (e.g. calendar summary cards) call this on
+   * mount so they work on a cold start, without re-reading the database
+   * on every navigation. After a failed load `isLoaded` stays false, so
+   * the next caller retries.
+   */
+  async function ensureLoaded() {
+    if (isLoaded.value || isLoading.value) return
+    await loadEntries()
   }
 
   async function createEntry(payload: {
@@ -138,6 +152,7 @@ export const useJournalStore = defineStore('journal', () => {
   function reset(): void {
     entries.value = []
     isLoading.value = false
+    isLoaded.value = false
     error.value = null
   }
 
@@ -145,11 +160,13 @@ export const useJournalStore = defineStore('journal', () => {
     // State
     entries,
     isLoading,
+    isLoaded,
     error,
     // Getters
     sortedEntries,
     // Actions
     loadEntries,
+    ensureLoaded,
     createEntry,
     updateEntry,
     deleteEntry,

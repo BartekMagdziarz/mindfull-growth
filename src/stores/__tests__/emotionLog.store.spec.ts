@@ -108,6 +108,51 @@ describe('useEmotionLogStore', () => {
     })
   })
 
+  describe('ensureLoaded', () => {
+    it('loads logs on first call and skips the repository on subsequent calls', async () => {
+      const store = useEmotionLogStore()
+      vi.mocked(emotionLogDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+      await store.ensureLoaded()
+
+      expect(emotionLogDexieRepository.getAll).toHaveBeenCalledOnce()
+      expect(store.isLoaded).toBe(true)
+    })
+
+    it('retries on the next call when the initial load failed', async () => {
+      const store = useEmotionLogStore()
+      vi.mocked(emotionLogDexieRepository.getAll).mockRejectedValueOnce(
+        new Error('Database failure')
+      )
+
+      await store.ensureLoaded()
+
+      expect(store.isLoaded).toBe(false)
+
+      vi.mocked(emotionLogDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+
+      expect(emotionLogDexieRepository.getAll).toHaveBeenCalledTimes(2)
+      expect(store.isLoaded).toBe(true)
+    })
+
+    it('loads again after reset()', async () => {
+      const store = useEmotionLogStore()
+      vi.mocked(emotionLogDexieRepository.getAll).mockResolvedValue([])
+
+      await store.ensureLoaded()
+      store.reset()
+
+      expect(store.isLoaded).toBe(false)
+
+      await store.ensureLoaded()
+
+      expect(emotionLogDexieRepository.getAll).toHaveBeenCalledTimes(2)
+    })
+  })
+
   describe('createLog', () => {
     it('validates emotion ids and creates a log', async () => {
       const store = useEmotionLogStore()
