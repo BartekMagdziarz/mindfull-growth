@@ -15,24 +15,28 @@
         :week-ref="weekRef"
         :today-day-ref="todayDayRef"
         :has-plan="hasPlan"
-        @create-plan="emit('create-plan')"
-        @edit-plan="emit('edit-plan')"
       />
     </div>
 
-    <!-- RIGHT: Kontekst — reflection summary or create-reflection CTA. -->
+    <!-- RIGHT: Kontekst — plan-vs-execution + reflection summary with their CTAs. -->
     <aside class="flex w-full shrink-0 flex-col gap-3 lg:w-[288px] lg:order-3">
       <WeekKontextCard
         :week-ref="weekRef"
+        :today-day-ref="todayDayRef"
+        :has-plan="hasPlan"
+        :plan-summary="planSummary"
         :show-actions="kontekstActions"
         @create-reflection="emit('create-reflection')"
         @edit-reflection="emit('edit-reflection')"
+        @create-plan="emit('create-plan')"
+        @edit-plan="emit('edit-plan')"
       />
     </aside>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import WeekEmotionsCard from './WeekEmotionsCard.vue'
 import WeekJournalEntriesCard from './WeekJournalEntriesCard.vue'
 import WeekKontextCard from './WeekKontextCard.vue'
@@ -43,8 +47,9 @@ import type {
   MeasurementDayAssignment,
 } from '@/domain/planningState'
 import type { WeekObjectItem } from '@/services/reflectionDataQueries'
+import { buildWeeklyPlanSummary } from '@/services/weeklyPlanSummary'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     weekRef: WeekRef
     todayDayRef: DayRef
@@ -53,7 +58,7 @@ withDefaults(
     allDayAssignments: MeasurementDayAssignment[]
     /** When false, the kontekst card shows ratings/empty state without action buttons. */
     kontekstActions?: boolean
-    /** Whether a WeekPlan record exists for this week — drives the plan-vs-execution tile state. */
+    /** Whether a WeekPlan record exists for this week — drives the plan-vs-execution section state. */
     hasPlan?: boolean
   }>(),
   { kontekstActions: true, hasPlan: false },
@@ -65,4 +70,8 @@ const emit = defineEmits<{
   'create-plan': []
   'edit-plan': []
 }>()
+
+const planSummary = computed(() =>
+  buildWeeklyPlanSummary(props.weekObjectItems, props.rawEntries, props.weekRef),
+)
 </script>

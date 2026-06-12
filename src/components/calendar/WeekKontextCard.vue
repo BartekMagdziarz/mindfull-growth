@@ -13,11 +13,27 @@
         </button>
       </template>
 
+      <!-- Plan vs execution — rings when a plan exists, create CTA otherwise.
+           Lives here so plan + reflection share one "summary" home. -->
+      <PlanExecutionSection
+        class="kontekst-section"
+        :has-plan="hasPlan"
+        :has-objects="planHasObjects"
+        :rings="planRings"
+        :show-actions="showActions"
+        @create-plan="$emit('create-plan')"
+        @edit-plan="$emit('edit-plan')"
+      />
+
       <template v-if="!hasReflection">
+        <!-- A week that hasn't started yet has nothing to reflect on. -->
+        <p v-if="isFutureWeek" class="kontekst-section kontekst-future">
+          {{ t('planning.reflection.review.kontekstFutureWeekHint') }}
+        </p>
         <button
-          v-if="showActions"
+          v-else-if="showActions"
           type="button"
-          class="neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
+          class="kontekst-section neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
           @click.stop="$emit('create-reflection')"
         >
           <AppIcon name="auto_awesome" class="text-sm" />
@@ -25,7 +41,7 @@
         </button>
         <p
           v-else
-          class="text-center text-xs text-on-surface-variant/70"
+          class="kontekst-section text-center text-xs text-on-surface-variant/70"
         >
           —
         </p>
@@ -133,10 +149,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import PlanExecutionSection, { type PlanExecutionRing } from './PlanExecutionSection.vue'
 import SummaryCard from './WeeklyReviewSummaryCard.vue'
 import { useT } from '@/composables/useT'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
-import type { WeekRef } from '@/domain/period'
+import type { DayRef, WeekRef } from '@/domain/period'
 import {
   WEEKLY_DEMANDS_KEYS,
   WEEKLY_ACTIONS_KEYS,
@@ -144,10 +161,16 @@ import {
   type WeeklyRatingKey,
   type WeeklyReflection,
 } from '@/domain/reflection'
+import type { WeekPlanSummary } from '@/services/weeklyPlanSummary'
+import { getPeriodBounds } from '@/utils/periods'
 
 const props = withDefaults(
   defineProps<{
     weekRef: WeekRef
+    todayDayRef: DayRef
+    /** Whether a WeekPlan record exists for this week — drives the plan-vs-execution section state. */
+    hasPlan: boolean
+    planSummary: WeekPlanSummary
     /** When false, hides create/edit buttons (e.g. inside the reflection wizard). */
     showActions?: boolean
   }>(),
@@ -157,6 +180,8 @@ const props = withDefaults(
 defineEmits<{
   'create-reflection': []
   'edit-reflection': []
+  'create-plan': []
+  'edit-plan': []
 }>()
 
 const showActions = computed(() => props.showActions !== false)
@@ -178,6 +203,40 @@ const reflection = computed<WeeklyReflection | undefined>(
 )
 
 const hasReflection = computed(() => reflection.value !== undefined)
+
+// Reflection is offered only once the week has started; a stored reflection
+// (e.g. created before navigating ahead) still renders for future weeks.
+const isFutureWeek = computed(
+  () => (getPeriodBounds(props.weekRef).start as DayRef) > props.todayDayRef,
+)
+
+const planHasObjects = computed(
+  () =>
+    props.planSummary.keyResults.total > 0 ||
+    props.planSummary.habits.total > 0 ||
+    props.planSummary.trackers.total > 0,
+)
+
+const planRings = computed<PlanExecutionRing[]>(() => [
+  {
+    key: 'goals',
+    label: t('planning.reflection.review.planVsExecution.ringGoals'),
+    numerator: props.planSummary.keyResults.met,
+    denominator: props.planSummary.keyResults.total,
+  },
+  {
+    key: 'habits',
+    label: t('planning.reflection.review.planVsExecution.ringHabits'),
+    numerator: props.planSummary.habits.met,
+    denominator: props.planSummary.habits.total,
+  },
+  {
+    key: 'trackers',
+    label: t('planning.reflection.review.planVsExecution.ringTrackers'),
+    numerator: props.planSummary.trackers.filledDays,
+    denominator: props.planSummary.trackers.assignedDays,
+  },
+])
 
 // AI summary may be missing on legacy records — fall back to empty string.
 const aiSummary = computed(() => reflection.value?.aiSummary?.trim() ?? '')
@@ -594,5 +653,14 @@ function handleHostClick(_event: MouseEvent) {
   color: rgb(var(--neo-text) / 0.85);
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* ---------------- Future-period hint ---------------- */
+.kontekst-future {
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: rgb(var(--neo-muted));
+  text-align: center;
+  padding: 2px 0;
 }
 </style>

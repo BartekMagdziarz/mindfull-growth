@@ -1,12 +1,6 @@
 <template>
   <section class="month-grid neo-raised">
-    <div class="month-grid__grid">
-      <MonthPlanSummaryTile
-        :has-plan="hasPlan"
-        :summary="planSummary"
-        @create-plan="emit('create-plan')"
-        @edit-plan="emit('edit-plan')"
-      />
+    <div v-if="items.length > 0" class="month-grid__grid">
       <MonthObjectTile
         v-for="item in items"
         :key="item.key"
@@ -20,19 +14,25 @@
         :parent-goal-icon="item.parentGoalIcon"
       />
     </div>
+    <!-- Quiet empty state — the create-plan CTA lives in the Summary panel. -->
+    <p v-else class="month-grid__empty">
+      {{
+        hasPlan
+          ? t('planning.reflection.review.planVsExecution.noObjects')
+          : t('planning.reflection.review.planVsExecution.gridEmptyNoPlan')
+      }}
+    </p>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import MonthObjectTile from '@/components/calendar/MonthObjectTile.vue'
-import MonthPlanSummaryTile from '@/components/calendar/MonthPlanSummaryTile.vue'
+import { useT } from '@/composables/useT'
 import type { DayRef, MonthRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { MonthObjectItem } from '@/services/reflectionDataQueries'
-import { buildMonthlyPlanSummary } from '@/services/monthlyPlanSummary'
 
-const props = defineProps<{
+defineProps<{
   items: MonthObjectItem[]
   rawEntries: DailyMeasurementEntry[]
   monthRef: MonthRef
@@ -40,14 +40,7 @@ const props = defineProps<{
   hasPlan: boolean
 }>()
 
-const emit = defineEmits<{
-  'create-plan': []
-  'edit-plan': []
-}>()
-
-const planSummary = computed(() =>
-  buildMonthlyPlanSummary(props.items, props.rawEntries, props.monthRef, props.todayDayRef),
-)
+const { t } = useT()
 </script>
 
 <style scoped>
@@ -61,5 +54,13 @@ const planSummary = computed(() =>
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
+}
+
+.month-grid__empty {
+  padding: 18px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgb(var(--neo-muted));
+  text-align: center;
 }
 </style>

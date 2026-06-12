@@ -1,36 +1,41 @@
 <template>
-  <article class="plan-tile" :data-empty="!hasPlan">
-    <header class="plan-tile__head">
-      <span class="plan-tile__title">{{ t('planning.reflection.review.planVsExecution.title') }}</span>
+  <section class="plan-exec">
+    <header class="plan-exec__head">
+      <span class="plan-exec__title">{{ t('planning.reflection.review.planVsExecution.title') }}</span>
       <button
-        v-if="hasPlan"
+        v-if="hasPlan && showActions"
         type="button"
-        class="plan-tile__edit neo-focus"
+        class="plan-exec__edit neo-focus"
         :title="t('planning.reflection.review.planVsExecution.editButton')"
         :aria-label="t('planning.reflection.review.planVsExecution.editButton')"
-        @click="$emit('edit-plan')"
+        @click.stop="$emit('edit-plan')"
       >
         <AppIcon name="edit" class="text-[11px]" />
       </button>
     </header>
 
-    <div v-if="!hasPlan" class="plan-tile__empty">
-      <p class="plan-tile__empty-desc">
+    <div v-if="!hasPlan" class="plan-exec__empty">
+      <p class="plan-exec__empty-desc">
         {{ t('planning.reflection.review.planVsExecution.emptyDescription') }}
       </p>
-      <button type="button" class="plan-tile__cta neo-focus" @click="$emit('create-plan')">
+      <button
+        v-if="showActions"
+        type="button"
+        class="neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
+        @click.stop="$emit('create-plan')"
+      >
         <AppIcon name="add" class="text-sm" />
         {{ t('planning.reflection.review.planVsExecution.createCta') }}
       </button>
     </div>
 
-    <div v-else-if="!hasObjects" class="plan-tile__no-objects">
+    <div v-else-if="!hasObjects" class="plan-exec__no-objects">
       {{ t('planning.reflection.review.planVsExecution.noObjects') }}
     </div>
 
-    <div v-else class="plan-tile__rings">
+    <div v-else class="plan-exec__rings">
       <div
-        v-for="ring in rings"
+        v-for="ring in ringModels"
         :key="ring.key"
         class="plan-ring-cell"
       >
@@ -56,19 +61,35 @@
         <span class="plan-ring__label">{{ ring.label }}</span>
       </div>
     </div>
-  </article>
+  </section>
 </template>
+
+<script lang="ts">
+/** One Plan-vs-Execution ring: label is pre-translated by the owning card. */
+export interface PlanExecutionRing {
+  key: string
+  label: string
+  numerator: number
+  denominator: number
+}
+</script>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import type { WeekPlanSummary } from '@/services/weeklyPlanSummary'
 
-const props = defineProps<{
-  hasPlan: boolean
-  summary: WeekPlanSummary
-}>()
+const props = withDefaults(
+  defineProps<{
+    hasPlan: boolean
+    /** Whether any object is in scope — drives the "plan exists, no objects" state. */
+    hasObjects: boolean
+    rings: PlanExecutionRing[]
+    /** When false, hides the create/edit affordances (e.g. inside the reflection wizard). */
+    showActions?: boolean
+  }>(),
+  { showActions: true },
+)
 
 defineEmits<{
   'create-plan': []
@@ -77,18 +98,7 @@ defineEmits<{
 
 const { t } = useT()
 
-const hasObjects = computed(
-  () =>
-    props.summary.keyResults.total > 0 ||
-    props.summary.habits.total > 0 ||
-    props.summary.trackers.total > 0,
-)
-
-interface RingModel {
-  key: string
-  label: string
-  numerator: number
-  denominator: number
+interface RingModel extends PlanExecutionRing {
   percent: number
   text: string
 }
@@ -105,55 +115,23 @@ function ringValueText(numerator: number, denominator: number): string {
   return t('planning.reflection.review.planVsExecution.ringValue', { numerator, denominator })
 }
 
-const rings = computed<RingModel[]>(() => [
-  {
-    key: 'goals',
-    label: t('planning.reflection.review.planVsExecution.ringGoals'),
-    numerator: props.summary.keyResults.met,
-    denominator: props.summary.keyResults.total,
-    percent: ratioPercent(props.summary.keyResults.met, props.summary.keyResults.total),
-    text: ringValueText(props.summary.keyResults.met, props.summary.keyResults.total),
-  },
-  {
-    key: 'habits',
-    label: t('planning.reflection.review.planVsExecution.ringHabits'),
-    numerator: props.summary.habits.met,
-    denominator: props.summary.habits.total,
-    percent: ratioPercent(props.summary.habits.met, props.summary.habits.total),
-    text: ringValueText(props.summary.habits.met, props.summary.habits.total),
-  },
-  {
-    key: 'trackers',
-    label: t('planning.reflection.review.planVsExecution.ringTrackers'),
-    numerator: props.summary.trackers.filledDays,
-    denominator: props.summary.trackers.assignedDays,
-    percent: ratioPercent(props.summary.trackers.filledDays, props.summary.trackers.assignedDays),
-    text: ringValueText(props.summary.trackers.filledDays, props.summary.trackers.assignedDays),
-  },
-])
+const ringModels = computed<RingModel[]>(() =>
+  props.rings.map((ring) => ({
+    ...ring,
+    percent: ratioPercent(ring.numerator, ring.denominator),
+    text: ringValueText(ring.numerator, ring.denominator),
+  })),
+)
 </script>
 
 <style scoped>
-.plan-tile {
-  position: relative;
-  border-radius: 14px;
-  padding: 8px 10px;
+.plan-exec {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-height: 0;
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
-  border: 1px solid rgb(var(--neo-border) / 0.10);
-  box-shadow:
-    -4px -4px 9px rgb(var(--neo-shadow-light) / 0.75),
-    4px 4px 9px rgb(var(--neo-shadow-dark) / 0.28);
 }
 
-.plan-tile__head {
+.plan-exec__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -161,7 +139,7 @@ const rings = computed<RingModel[]>(() => [
   min-height: 18px;
 }
 
-.plan-tile__title {
+.plan-exec__title {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -172,7 +150,7 @@ const rings = computed<RingModel[]>(() => [
   text-overflow: ellipsis;
 }
 
-.plan-tile__edit {
+.plan-exec__edit {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,65 +169,33 @@ const rings = computed<RingModel[]>(() => [
   flex: 0 0 auto;
 }
 
-.plan-tile:hover .plan-tile__edit,
-.plan-tile__edit:focus-visible {
+.plan-exec:hover .plan-exec__edit,
+.plan-exec__edit:focus-visible {
   opacity: 1;
 }
 
-.plan-tile__edit:hover {
+.plan-exec__edit:hover {
   color: rgb(var(--color-primary-strong));
   transform: translateY(-1px);
 }
 
-.plan-tile__empty {
+.plan-exec__empty {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
   gap: 8px;
-  flex: 1 1 auto;
-  padding: 4px 0 2px;
+  padding: 2px 0;
 }
 
-.plan-tile__empty-desc {
+.plan-exec__empty-desc {
   font-size: 10.5px;
   line-height: 1.35;
   color: rgb(var(--neo-muted));
   text-align: center;
 }
 
-.plan-tile__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  border: 0;
-  background: rgb(var(--color-primary));
-  color: rgb(var(--color-on-primary));
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 150ms ease, box-shadow 150ms ease;
-  box-shadow:
-    -2px -2px 4px rgb(var(--neo-shadow-light) / 0.6),
-    2px 2px 4px rgb(var(--neo-shadow-dark) / 0.28);
-}
-
-.plan-tile__cta:hover {
-  transform: translateY(-1px);
-}
-
-.plan-tile__cta:active {
-  transform: translateY(0);
-  box-shadow:
-    inset -1px -1px 3px rgb(var(--neo-shadow-light) / 0.4),
-    inset 1px 1px 3px rgb(var(--neo-shadow-dark) / 0.3);
-}
-
-.plan-tile__no-objects {
-  flex: 1 1 auto;
+.plan-exec__no-objects {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -260,11 +206,10 @@ const rings = computed<RingModel[]>(() => [
   text-align: center;
 }
 
-.plan-tile__rings {
+.plan-exec__rings {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
-  flex: 1 1 auto;
   padding-top: 4px;
 }
 

@@ -1,12 +1,6 @@
 <template>
   <section class="week-grid neo-raised">
-    <div class="week-grid__grid">
-      <WeekPlanSummaryTile
-        :has-plan="hasPlan"
-        :summary="planSummary"
-        @create-plan="emit('create-plan')"
-        @edit-plan="emit('edit-plan')"
-      />
+    <div v-if="items.length > 0" class="week-grid__grid">
       <WeekObjectTile
         v-for="item in items"
         :key="item.key"
@@ -21,22 +15,28 @@
         :parent-goal-icon="item.parentGoalIcon"
       />
     </div>
+    <!-- Quiet empty state — the create-plan CTA lives in the Summary panel. -->
+    <p v-else class="week-grid__empty">
+      {{
+        hasPlan
+          ? t('planning.reflection.review.planVsExecution.noObjects')
+          : t('planning.reflection.review.planVsExecution.gridEmptyNoPlan')
+      }}
+    </p>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import WeekObjectTile from '@/components/calendar/WeekObjectTile.vue'
-import WeekPlanSummaryTile from '@/components/calendar/WeekPlanSummaryTile.vue'
+import { useT } from '@/composables/useT'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type {
   DailyMeasurementEntry,
   MeasurementDayAssignment,
 } from '@/domain/planningState'
 import type { WeekObjectItem } from '@/services/reflectionDataQueries'
-import { buildWeeklyPlanSummary } from '@/services/weeklyPlanSummary'
 
-const props = defineProps<{
+defineProps<{
   items: WeekObjectItem[]
   rawEntries: DailyMeasurementEntry[]
   allDayAssignments: MeasurementDayAssignment[]
@@ -45,14 +45,7 @@ const props = defineProps<{
   hasPlan: boolean
 }>()
 
-const emit = defineEmits<{
-  'create-plan': []
-  'edit-plan': []
-}>()
-
-const planSummary = computed(() =>
-  buildWeeklyPlanSummary(props.items, props.rawEntries, props.weekRef),
-)
+const { t } = useT()
 </script>
 
 <style scoped>
@@ -69,5 +62,13 @@ const planSummary = computed(() =>
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
+}
+
+.week-grid__empty {
+  padding: 18px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgb(var(--neo-muted));
+  text-align: center;
 }
 </style>

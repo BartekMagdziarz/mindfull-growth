@@ -427,8 +427,8 @@ const activePeriodRangeLabel = computed(() => {
 })
 
 // Week and month scales move both actions into per-card affordances inside
-// WeekReviewSummary / MonthReviewSummary: the plan action lives on the
-// Plan-vs-Execution tile, the reflection action on the KontextCard.
+// WeekReviewSummary / MonthReviewSummary: both the plan and reflection
+// actions live in the KontextCard ("Podsumowanie" panel).
 const showPlanAction = computed(() => props.scale === 'year')
 const showReflectionAction = computed(() => props.scale === 'year')
 const showHeaderActions = computed(() => showPlanAction.value || showReflectionAction.value)
