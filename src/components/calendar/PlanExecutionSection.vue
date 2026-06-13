@@ -1,7 +1,6 @@
 <template>
   <section class="plan-exec">
     <header class="plan-exec__head">
-      <span class="plan-exec__title">{{ t('planning.reflection.review.planVsExecution.title') }}</span>
       <button
         v-if="hasPlan && showActions"
         type="button"
@@ -139,16 +138,6 @@ const ringModels = computed<RingModel[]>(() =>
   min-height: 18px;
 }
 
-.plan-exec__title {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgb(var(--neo-muted));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 .plan-exec__edit {
   display: flex;
