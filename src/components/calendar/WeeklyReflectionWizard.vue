@@ -420,6 +420,8 @@ const summaryContext = computed<ReflectionSummaryContext>(() => {
       .map((c) => ({ label: c.label, text: (promptResponses.value[c.key] ?? '').trim() }))
       .filter((a) => a.text.length > 0),
     freeform: freeformReflection.value,
+    journalEntries: bundle?.journalEntries ?? [],
+    emotionLogs: bundle?.emotionLogs ?? [],
     emotions: bundle ? emotionContextFromSummary(bundle.emotionSummary) : undefined,
   }
 })

@@ -5,6 +5,10 @@ import {
   parseReflectionQuestions,
   type ReflectionSummaryContext,
 } from '../reflectionSummaryService'
+import type {
+  ReflectionEmotionLogDetail,
+  ReflectionJournalEntryDetail,
+} from '../reflectionDataQueries'
 
 function baseContext(
   overrides: Partial<ReflectionSummaryContext> = {},
@@ -198,5 +202,115 @@ describe('emotionContextFromSummary', () => {
         { name: 'tense', count: 4 },
       ],
     })
+  })
+})
+
+describe('buildReflectionSummaryPayload — journal entries & emotion logs', () => {
+  function journalEntry(
+    over: Partial<ReflectionJournalEntryDetail> = {},
+  ): ReflectionJournalEntryDetail {
+    return {
+      id: 'j1',
+      createdAt: '2026-06-10T09:00:00.000Z',
+      title: '',
+      body: 'Body text',
+      emotions: [],
+      people: [],
+      contexts: [],
+      ...over,
+    }
+  }
+
+  function emotionLog(
+    over: Partial<ReflectionEmotionLogDetail> = {},
+  ): ReflectionEmotionLogDetail {
+    return {
+      id: 'e1',
+      createdAt: '2026-06-10T18:00:00.000Z',
+      emotions: [],
+      note: '',
+      people: [],
+      contexts: [],
+      ...over,
+    }
+  }
+
+  it('renders journal entries (title, tags, body) and leads with them, before ratings', () => {
+    const text = buildReflectionSummaryPayload(
+      baseContext({
+        ratings: [{ label: 'Mood', value: 4 }],
+        journalEntries: [
+          journalEntry({
+            title: 'Hard Tuesday',
+            body: 'The deadline crushed me.',
+            emotions: ['anxious'],
+            people: ['Anna'],
+            contexts: ['work'],
+          }),
+        ],
+      }),
+      'en',
+    )
+    expect(text).toContain('[JOURNAL ENTRIES]')
+    expect(text).toContain('Hard Tuesday')
+    expect(text).toContain('Emotions: anxious | People: Anna | Contexts: work')
+    expect(text).toContain('The deadline crushed me.')
+    // Journal is the primary source — it must precede the ratings block.
+    expect(text.indexOf('[JOURNAL ENTRIES]')).toBeLessThan(text.indexOf('[RATINGS'))
+  })
+
+  it('truncates long journal bodies', () => {
+    const text = buildReflectionSummaryPayload(
+      baseContext({ journalEntries: [journalEntry({ body: 'y'.repeat(2000) })] }),
+      'en',
+    )
+    expect(text).toContain('…')
+    expect(text).not.toContain('y'.repeat(1001))
+  })
+
+  it('includes only emotion logs that carry a note or tags', () => {
+    const text = buildReflectionSummaryPayload(
+      baseContext({
+        emotionLogs: [
+          emotionLog({ emotions: ['calm'] }), // no note/tags → skipped
+          emotionLog({
+            emotions: ['tense'],
+            note: 'before the meeting',
+            contexts: ['work'],
+          }),
+        ],
+      }),
+      'en',
+    )
+    expect(text).toContain('[EMOTION LOGS]')
+    expect(text).toContain('tense')
+    expect(text).toContain('Note: before the meeting')
+    expect(text).toContain('Contexts: work')
+    // The noteless / tagless log contributes nothing.
+    expect(text).not.toContain('calm')
+  })
+
+  it('omits the emotion-logs section entirely when no log carries context', () => {
+    const text = buildReflectionSummaryPayload(
+      baseContext({ emotionLogs: [emotionLog({ emotions: ['calm'] })] }),
+      'en',
+    )
+    expect(text).not.toContain('[EMOTION LOGS]')
+  })
+
+  it('localizes the journal / emotion-log headers and meta labels in Polish', () => {
+    const text = buildReflectionSummaryPayload(
+      baseContext({
+        journalEntries: [
+          journalEntry({ body: 'Ciężki dzień', emotions: ['lęk'], people: ['Anna'] }),
+        ],
+        emotionLogs: [emotionLog({ emotions: ['spokój'], note: 'po spacerze' })],
+      }),
+      'pl',
+    )
+    expect(text).toContain('[WPISY Z DZIENNIKA]')
+    expect(text).toContain('Emocje: lęk | Osoby: Anna')
+    expect(text).toContain('[LOGI EMOCJI]')
+    expect(text).toContain('Notatka: po spacerze')
   })
 })

@@ -9,6 +9,7 @@ import { getDisplayTitle } from '@/domain/journal'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useJournalStore } from '@/stores/journal.store'
+import { useTagStore } from '@/stores/tag.store'
 import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import {
@@ -225,6 +226,10 @@ export interface WeeklyReflectionDataBundle {
   trackerReflectionItems: WeekTrackerReflectionItem[]
   /** Flat, sorted list of objects active during the week (KR→habits→trackers). */
   weekObjectItems: WeekObjectItem[]
+  /** Full journal entries written during the week (powers the AI summary). */
+  journalEntries: ReflectionJournalEntryDetail[]
+  /** Emotion logs with their notes + tags from the week (powers the AI summary). */
+  emotionLogs: ReflectionEmotionLogDetail[]
 }
 
 export interface WeeklyRatingTrendEntry {
@@ -280,6 +285,112 @@ export interface MonthlyReflectionDataBundle {
   weeklyReflectionDetails: WeeklyReflectionDetail[]
   monthWeekRefs: WeekRef[]
   dailyCalendarSummaries: DailyCalendarSummary[]
+  /** Emotion logs with their notes + tags from the month (powers the AI summary). */
+  emotionLogs: ReflectionEmotionLogDetail[]
+}
+
+// ---------------------------------------------------------------------------
+// Reflection entry sources (full journal entries + emotion logs with notes/tags)
+// ---------------------------------------------------------------------------
+
+/**
+ * A journal entry resolved for AI consumption: human-readable names instead of
+ * ids, plus the full body. Mirrors the profile build's journal payload entry.
+ */
+export interface ReflectionJournalEntryDetail {
+  id: string
+  createdAt: string
+  title: string
+  body: string
+  emotions: string[]
+  people: string[]
+  contexts: string[]
+}
+
+/**
+ * An emotion log resolved for AI consumption — the note and tags are the
+ * meaningful context, so they ride along with the emotion names.
+ */
+export interface ReflectionEmotionLogDetail {
+  id: string
+  createdAt: string
+  emotions: string[]
+  note: string
+  people: string[]
+  contexts: string[]
+}
+
+export interface ReflectionEntrySources {
+  journalEntries: ReflectionJournalEntryDetail[]
+  emotionLogs: ReflectionEmotionLogDetail[]
+}
+
+/**
+ * Gather the full journal entries and emotion logs in [startDate, endDate],
+ * resolving emotion / people / context ids to display names. Ensures the
+ * backing stores are loaded first, so it is safe on a cold start. Both lists
+ * are returned in chronological (ascending) order so the period reads as an arc.
+ */
+export async function getReflectionEntrySources(
+  startDate: string,
+  endDate: string,
+): Promise<ReflectionEntrySources> {
+  const journalStore = useJournalStore()
+  const emotionLogStore = useEmotionLogStore()
+  const emotionStore = useEmotionStore()
+  const tagStore = useTagStore()
+
+  await Promise.all([
+    journalStore.ensureLoaded(),
+    emotionLogStore.ensureLoaded(),
+    emotionStore.isLoaded ? Promise.resolve() : emotionStore.loadEmotions(),
+    tagStore.ensureLoaded(),
+  ])
+
+  const resolveEmotions = (ids: string[] | undefined): string[] =>
+    (ids ?? [])
+      .map((id) => emotionStore.getEmotionById(id)?.name)
+      .filter((n): n is string => typeof n === 'string')
+  const resolvePeople = (ids: string[] | undefined): string[] =>
+    (ids ?? [])
+      .map((id) => tagStore.getPeopleTagById(id)?.name)
+      .filter((n): n is string => typeof n === 'string')
+  const resolveContexts = (ids: string[] | undefined): string[] =>
+    (ids ?? [])
+      .map((id) => tagStore.getContextTagById(id)?.name)
+      .filter((n): n is string => typeof n === 'string')
+
+  const inRange = (createdAt: string): boolean =>
+    createdAt >= startDate && createdAt <= endDate
+
+  // sortedEntries / sortedLogs are newest-first; reverse the filtered slice so
+  // the model reads the week/month chronologically.
+  const journalEntries: ReflectionJournalEntryDetail[] = journalStore.sortedEntries
+    .filter((e) => inRange(e.createdAt))
+    .map((e) => ({
+      id: e.id,
+      createdAt: e.createdAt,
+      title: getDisplayTitle(e),
+      body: e.body ?? '',
+      emotions: resolveEmotions(e.emotionIds),
+      people: resolvePeople(e.peopleTagIds),
+      contexts: resolveContexts(e.contextTagIds),
+    }))
+    .reverse()
+
+  const emotionLogs: ReflectionEmotionLogDetail[] = emotionLogStore.sortedLogs
+    .filter((l) => inRange(l.createdAt))
+    .map((l) => ({
+      id: l.id,
+      createdAt: l.createdAt,
+      emotions: resolveEmotions(l.emotionIds),
+      note: l.note ?? '',
+      people: resolvePeople(l.peopleTagIds),
+      contexts: resolveContexts(l.contextTagIds),
+    }))
+    .reverse()
+
+  return { journalEntries, emotionLogs }
 }
 
 // ---------------------------------------------------------------------------
@@ -817,6 +928,9 @@ export async function getWeeklyReflectionDataBundle(
   const emotionSummary = buildEmotionSummary(startDate, endDate)
   const journalSummary = buildJournalSummary(startDate, endDate)
 
+  // Full journal entries + emotion logs (with notes/tags) for the AI summary.
+  const { journalEntries, emotionLogs } = await getReflectionEntrySources(startDate, endDate)
+
   // Exercises from database
   const exerciseEntries = await getExerciseEntriesForPeriod(startDate, endDate)
   const exerciseSummary = buildExerciseSummary(exerciseEntries)
@@ -985,6 +1099,8 @@ export async function getWeeklyReflectionDataBundle(
     habitReflectionItems,
     trackerReflectionItems,
     weekObjectItems,
+    journalEntries,
+    emotionLogs,
   }
 }
 
@@ -1023,6 +1139,11 @@ export async function getMonthlyReflectionDataBundle(
 
   const emotionSummary = buildEmotionSummary(startDate, endDate)
   const journalSummary = buildJournalSummary(startDate, endDate)
+
+  // Emotion logs (with notes/tags) for the AI summary. Monthly leans on the
+  // per-week reflection excerpts for narrative, so journal bodies are not
+  // re-sent here — only the emotion logs, which carry standalone context.
+  const { emotionLogs } = await getReflectionEntrySources(startDate, endDate)
 
   const monthWeekRefs = getChildPeriods(monthRef) as WeekRef[]
 
@@ -1161,6 +1282,7 @@ export async function getMonthlyReflectionDataBundle(
     weeklyReflectionDetails,
     monthWeekRefs,
     dailyCalendarSummaries,
+    emotionLogs,
   }
 }
 

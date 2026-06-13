@@ -18,7 +18,11 @@
 
 import type { GrammaticalGender, LocaleId } from '@/services/locale.service'
 import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
-import type { EmotionSummary } from '@/services/reflectionDataQueries'
+import type {
+  EmotionSummary,
+  ReflectionEmotionLogDetail,
+  ReflectionJournalEntryDetail,
+} from '@/services/reflectionDataQueries'
 import { type ChatMessage, sendMessage } from '@/services/llmService'
 
 // ---------------------------------------------------------------------------
@@ -89,6 +93,14 @@ export interface ReflectionSummaryContext {
   ratings: ReflectionRatingLine[]
   anchors: ReflectionAnchorLine[]
   freeform: string
+  /**
+   * Full journal entries written during the period (title + body + resolved
+   * emotion/people/context tags). The primary, most personal source — the
+   * summary should lean on these first.
+   */
+  journalEntries?: ReflectionJournalEntryDetail[]
+  /** Emotion logs whose notes + tags carry standalone context. */
+  emotionLogs?: ReflectionEmotionLogDetail[]
   emotions?: ReflectionEmotionContext
   // Monthly-only extras
   weeklyTrends?: ReflectionWeeklyTrendLine[]
@@ -105,14 +117,26 @@ export interface GenerateReflectionOptions {
   onToken?: (fullText: string) => void
 }
 
-// Completion budgets — a reflection summary is a few short paragraphs and the
-// question list is even shorter, so these stay well below the profile build's 6k.
-const SUMMARY_MAX_TOKENS = 900
-const QUESTIONS_MAX_TOKENS = 400
+// Completion budgets. This cap covers BOTH the visible answer AND any hidden
+// reasoning — local "thinking" models (Gemma) and hosted reasoning models
+// (gpt-5.4-nano) both spend tokens on reasoning that count against it. The
+// summary is now 2–4 paragraphs, often in token-heavy Polish, so the old 900
+// was too low: reasoning + answer hit the cap and the text was truncated
+// mid-sentence. These stay well under the profile build's 6k.
+const SUMMARY_MAX_TOKENS = 2000
+const QUESTIONS_MAX_TOKENS = 800
 
 // Keep individual weekly excerpts from dominating a monthly payload.
 const EXCERPT_CHAR_LIMIT = 400
 const MAX_WEEKLY_EXCERPTS = 5
+
+// Journal entries are the primary source — give them room, but cap per-entry
+// body length and the overall count so a heavy journaler can't blow a local
+// model's context window. Emotion logs are short; cap their count + note length.
+const JOURNAL_BODY_CHAR_LIMIT = 1000
+const MAX_JOURNAL_ENTRIES = 15
+const EMOTION_NOTE_CHAR_LIMIT = 300
+const MAX_EMOTION_LOGS = 30
 
 // ---------------------------------------------------------------------------
 // Context helpers
@@ -148,6 +172,8 @@ export function emotionContextFromSummary(
 
 type SectionKey =
   | 'period'
+  | 'journal'
+  | 'emotionLogs'
   | 'ratings'
   | 'emotions'
   | 'anchors'
@@ -162,6 +188,8 @@ type SectionKey =
 const SECTION_LABELS: Record<LocaleId, Record<SectionKey, string>> = {
   en: {
     period: 'PERIOD',
+    journal: 'JOURNAL ENTRIES',
+    emotionLogs: 'EMOTION LOGS',
     ratings: 'RATINGS (1–5)',
     emotions: 'EMOTIONS',
     anchors: 'ANCHORS',
@@ -175,6 +203,8 @@ const SECTION_LABELS: Record<LocaleId, Record<SectionKey, string>> = {
   },
   pl: {
     period: 'OKRES',
+    journal: 'WPISY Z DZIENNIKA',
+    emotionLogs: 'LOGI EMOCJI',
     ratings: 'OCENY (1–5)',
     emotions: 'EMOCJE',
     anchors: 'KOTWICE',
@@ -186,6 +216,11 @@ const SECTION_LABELS: Record<LocaleId, Record<SectionKey, string>> = {
     trackers: 'POMIARY',
     end: 'KONIEC DANYCH',
   },
+}
+
+const META_LABELS: Record<LocaleId, { emotions: string; people: string; contexts: string; note: string }> = {
+  en: { emotions: 'Emotions', people: 'People', contexts: 'Contexts', note: 'Note' },
+  pl: { emotions: 'Emocje', people: 'Osoby', contexts: 'Konteksty', note: 'Notatka' },
 }
 
 const STATE_DIMENSION_LABELS: Record<LocaleId, Record<'mood' | 'energy' | 'calm' | 'connection', string>> = {
@@ -217,11 +252,67 @@ export function buildReflectionSummaryPayload(
   locale: LocaleId,
 ): string {
   const L = SECTION_LABELS[locale]
+  const M = META_LABELS[locale]
   const lines: string[] = []
 
   lines.push(`[${L.period}]`)
   lines.push(ctx.periodLabel)
   lines.push('')
+
+  // Journal entries — the primary, most personal source. Lead with them.
+  if (ctx.journalEntries && ctx.journalEntries.length > 0) {
+    const entries = ctx.journalEntries.slice(0, MAX_JOURNAL_ENTRIES)
+    lines.push(`[${L.journal}]`)
+    for (const e of entries) {
+      const title = e.title.trim()
+      lines.push(
+        title.length > 0
+          ? `--- ${formatEntryDate(e.createdAt, locale)} · ${title}`
+          : `--- ${formatEntryDate(e.createdAt, locale)}`,
+      )
+      const meta = metaLine([
+        [M.emotions, e.emotions],
+        [M.people, e.people],
+        [M.contexts, e.contexts],
+      ])
+      if (meta) lines.push(meta)
+      const body = e.body.trim()
+      if (body.length > 0) lines.push(truncate(body, JOURNAL_BODY_CHAR_LIMIT))
+      lines.push('')
+    }
+    if (ctx.journalEntries.length > entries.length) {
+      lines.push(omittedNote(ctx.journalEntries.length - entries.length, locale))
+      lines.push('')
+    }
+  }
+
+  // Emotion logs whose note/tags carry standalone context (pure emotion-only
+  // logs are already represented by the [EMOTIONS] aggregate below).
+  if (ctx.emotionLogs && ctx.emotionLogs.length > 0) {
+    const meaningful = ctx.emotionLogs.filter(
+      (l) => l.note.trim().length > 0 || l.people.length > 0 || l.contexts.length > 0,
+    )
+    const logs = meaningful.slice(0, MAX_EMOTION_LOGS)
+    if (logs.length > 0) {
+      lines.push(`[${L.emotionLogs}]`)
+      for (const l of logs) {
+        const emo = l.emotions.length > 0 ? ` · ${l.emotions.join(', ')}` : ''
+        lines.push(`--- ${formatEntryDate(l.createdAt, locale)}${emo}`)
+        const meta = metaLine([
+          [M.people, l.people],
+          [M.contexts, l.contexts],
+        ])
+        if (meta) lines.push(meta)
+        const note = l.note.trim()
+        if (note.length > 0) lines.push(`${M.note}: ${truncate(note, EMOTION_NOTE_CHAR_LIMIT)}`)
+        lines.push('')
+      }
+      if (meaningful.length > logs.length) {
+        lines.push(omittedNote(meaningful.length - logs.length, locale))
+        lines.push('')
+      }
+    }
+  }
 
   const ratedLines = ctx.ratings.filter((r) => r.value !== null)
   if (ratedLines.length > 0) {
@@ -324,6 +415,31 @@ function truncate(text: string, limit: number): string {
   return text.slice(0, limit).trimEnd() + '…'
 }
 
+/** Short, locale-aware date for an entry/log marker line, e.g. "Mon, Jun 10". */
+function formatEntryDate(iso: string, locale: LocaleId): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleDateString(locale === 'pl' ? 'pl-PL' : 'en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
+}
+
+/** Join the non-empty "Label: a, b" segments of an entry's metadata line. */
+function metaLine(parts: Array<[string, string[]]>): string | null {
+  const segments = parts
+    .filter(([, values]) => values.length > 0)
+    .map(([label, values]) => `${label}: ${values.join(', ')}`)
+  return segments.length > 0 ? segments.join(' | ') : null
+}
+
+function omittedNote(n: number, locale: LocaleId): string {
+  return locale === 'pl'
+    ? `(+${n} pominięto, by zmieścić się w kontekście)`
+    : `(+${n} omitted to fit the context)`
+}
+
 // ---------------------------------------------------------------------------
 // Question parsing
 // ---------------------------------------------------------------------------
@@ -371,29 +487,35 @@ function summarySystemPrompt(
         ? 'Zwracaj się do osoby w drugiej osobie, w rodzaju żeńskim (np. "zauważyłaś", "czułaś").'
         : 'Zwracaj się do osoby w drugiej osobie, w rodzaju męskim (np. "zauważyłeś", "czułeś").'
     return [
-      `Jesteś uważnym, życzliwym obserwatorem. Czytasz dane z refleksji ${periodWord(kind, 'pl')} jednej osoby — oceny, kotwice, emocje i jej własną notatkę.`,
+      `Jesteś uważnym, życzliwym obserwatorem. Czytasz dane z ${periodWord(kind, 'pl')} jednej osoby. NAJWAŻNIEJSZYM źródłem są jej wpisy z dziennika oraz logi emocji (z notatkami i tagami) — to w nich kryją się konkrety. Oceny, kotwice i statystyki traktuj jako tło.`,
       '',
-      `Napisz krótkie, osadzone w danych podsumowanie tego ${periodWord(kind, 'pl')} (3–5 zdań, 1–2 akapity).`,
+      `Napisz osadzone w danych podsumowanie tego ${periodWord(kind, 'pl')}: 2–4 krótkie akapity.`,
       personalForm,
       '',
       'Zasady:',
-      '- Trzymaj się danych; nie zmyślaj. Wyłap 1–2 główne wątki, nie streszczaj wszystkiego.',
-      '- Bądź konkretny/a zamiast ogólny/a; możesz krótko nawiązać do liczb lub słów osoby.',
-      '- Bądź ciepły/a, ale uczciwy/a. Nie diagnozuj, nie dawaj rad — opisuj.',
-      '- Pisz zwykłą prozą po polsku. Bez nagłówków, list i bloków kodu.',
+      '- Kotwicz się we WPISACH i LOGACH: przywołuj konkretne sytuacje, decyzje i wydarzenia; nazywaj konteksty i osoby tak, jak zapisała je ta osoba. Wpleć 1–2 krótkie cytaty jej własnych słów (w cudzysłowie).',
+      '- Wiąż emocje z ich przyczynami — korzystaj z notatek i kontekstów przy logach emocji (np. „napięcie przy …", „ulga po …"), zamiast tylko wyliczać emocje.',
+      `- Pokaż łuk tego ${periodWord(kind, 'pl')}: co go obciążało, jak ta osoba na to reagowała i w jakim stanie się skończył.`,
+      '- Nazwij 1–2 powracające wątki lub wzorce widoczne w danych — to one mówią najwięcej o tej osobie.',
+      '- Bądź konkretny/a, nie ogólny/a. Unikaj pustych formułek i języka „wellness". Nie zmyślaj; jeśli czegoś nie ma w danych, pomiń.',
+      '- Bądź ciepły/a, ale uczciwy/a. Nie diagnozuj i nie dawaj rad — opisuj.',
+      '- Pisz zwykłą prozą po polsku, w drugiej osobie. Bez nagłówków, list i bloków kodu.',
     ].join('\n')
   }
   return [
-    `You are a careful, kind observer. You are reading one person's ${periodWord(kind, 'en')} reflection data — ratings, anchors, emotions, and their own note.`,
+    `You are a careful, kind observer. You are reading one person's ${periodWord(kind, 'en')} of data. The MOST IMPORTANT sources are their journal entries and emotion logs (with notes and tags) — that is where the specifics live. Treat ratings, anchors, and statistics as background.`,
     '',
-    `Write a short, grounded summary of the ${periodWord(kind, 'en')} (3–5 sentences, 1–2 paragraphs).`,
+    `Write a grounded summary of the ${periodWord(kind, 'en')}: 2–4 short paragraphs.`,
     'Write in the second person ("you"), speaking directly to the person.',
     '',
     'Rules:',
-    '- Stay close to the data; do not invent. Surface 1–2 main threads rather than recapping everything.',
-    '- Be specific rather than generic; you may briefly reference the numbers or the person\'s own words.',
+    '- Anchor in the ENTRIES and LOGS: name concrete situations, decisions, and events; name the contexts and people the way the person logged them. Weave in 1–2 short quotes of their own words (in quotation marks).',
+    '- Tie emotions to their causes — use the notes and contexts on the emotion logs (e.g. "tension around …", "relief after …") rather than just listing emotions.',
+    `- Show the arc of the ${periodWord(kind, 'en')}: what weighed on it, how the person responded, and the state it ended in.`,
+    '- Name 1–2 recurring threads or patterns visible in the data — these say the most about this person.',
+    '- Be specific, not generic. Avoid empty phrases and "wellness" language. Do not invent; if something is not in the data, leave it out.',
     '- Be warm but honest. Do not diagnose or give advice — describe.',
-    '- Write plain prose. No headings, lists, or code fences.',
+    '- Write plain prose in the second person. No headings, lists, or code fences.',
   ].join('\n')
 }
 
@@ -414,7 +536,7 @@ function questionsSystemPrompt(
       personalForm,
       '',
       'Zasady:',
-      '- Pytania mają wynikać z danych (np. z wyróżniającej się oceny, emocji czy wątku z notatki).',
+      '- Pytania mają wynikać z danych — najlepiej z wątku we wpisie z dziennika, z notatki przy logu emocji albo z wyróżniającej się oceny.',
       '- Każde pytanie krótkie, otwarte (nie tak/nie), nieoceniające.',
       '- Zwróć WYŁĄCZNIE pytania, po jednym w linii. Bez numeracji, wypunktowań i wstępu.',
     ].join('\n')
@@ -425,7 +547,7 @@ function questionsSystemPrompt(
     'Propose 3–5 open, deepening questions that help this person look more closely at the period.',
     '',
     'Rules:',
-    '- Ground each question in the data (e.g. a standout rating, an emotion, or a thread from the note).',
+    '- Ground each question in the data — ideally a thread from a journal entry, a note on an emotion log, or a standout rating.',
     '- Keep each question short, open (not yes/no), and non-judgmental.',
     '- Return ONLY the questions, one per line. No numbering, bullets, or preamble.',
   ].join('\n')
