@@ -1,5 +1,5 @@
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { Goal, Initiative, Habit, KeyResult, Tracker } from '@/domain/planning'
+import type { Goal, Initiative, Habit, KeyResult, Tracker, WeeklyIntention } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
@@ -16,6 +16,7 @@ import type {
 } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import {
   applyMeasurementTargetOverride,
@@ -178,6 +179,7 @@ interface PlanningStateDependencies {
   keyResults: KeyResult[]
   habits: Habit[]
   trackers: Tracker[]
+  weeklyIntentions: WeeklyIntention[]
   initiatives: Initiative[]
 }
 
@@ -259,9 +261,10 @@ function buildSubjectMap(
   keyResults: KeyResult[],
   habits: Habit[],
   trackers: Tracker[],
+  weeklyIntentions: WeeklyIntention[],
 ): SubjectMap {
   return new Map(
-    [...keyResults, ...habits, ...trackers].map((subject) => [
+    [...keyResults, ...habits, ...trackers, ...weeklyIntentions].map((subject) => [
       buildSubjectKey(resolveSubjectType(subject), subject.id),
       subject,
     ]),
@@ -271,6 +274,10 @@ function buildSubjectMap(
 function resolveSubjectType(subject: MeasureableSubject): MeasurementSubjectType {
   if ('goalId' in subject) {
     return 'keyResult'
+  }
+
+  if ('weekRef' in subject) {
+    return 'weeklyIntention'
   }
 
   return 'priorityIds' in subject && 'target' in subject ? 'habit' : 'tracker'
@@ -455,6 +462,8 @@ async function loadMonthPlanningDependencies(monthRef: MonthRef): Promise<Planni
     keyResults: objects.keyResults,
     habits: objects.habits,
     trackers: objects.trackers,
+    // Weekly intentions are week-scoped; never relevant to a whole-month bundle.
+    weeklyIntentions: [],
     initiatives: objects.initiatives,
   }
 }
@@ -463,7 +472,7 @@ async function loadWeekPlanningDependencies(weekRef: WeekRef): Promise<PlanningS
   const overlappingMonthRefs = getWeekOverlappingMonths(weekRef)
   const weekBounds = getPeriodBounds(weekRef)
   const monthContextBounds = getMonthContextBounds(overlappingMonthRefs)
-  const [goalMonthStates, measurementMonthStates, measurementWeekStates, measurementDayAssignments, dailyMeasurementEntries, initiativePlanStates, objects] =
+  const [goalMonthStates, measurementMonthStates, measurementWeekStates, measurementDayAssignments, dailyMeasurementEntries, initiativePlanStates, objects, weeklyIntentions] =
     await Promise.all([
       planningStateDexieRepository.listGoalMonthStatesForMonths(overlappingMonthRefs),
       planningStateDexieRepository.listMeasurementMonthStatesForMonths(overlappingMonthRefs),
@@ -478,6 +487,7 @@ async function loadWeekPlanningDependencies(weekRef: WeekRef): Promise<PlanningS
       ),
       planningStateDexieRepository.listInitiativePlanStates(),
       loadPlanningCoreObjects(),
+      weeklyIntentionDexieRepository.listByWeek(weekRef),
     ])
 
   return {
@@ -487,6 +497,7 @@ async function loadWeekPlanningDependencies(weekRef: WeekRef): Promise<PlanningS
     measurementDayAssignments,
     dailyMeasurementEntries,
     initiativePlanStates,
+    weeklyIntentions,
     goals: objects.goals,
     keyResults: objects.keyResults,
     habits: objects.habits,
@@ -514,6 +525,7 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
       deps.keyResults.filter((subject) => subject.isActive),
       deps.habits.filter((subject) => subject.isActive),
       deps.trackers.filter((subject) => subject.isActive),
+      deps.weeklyIntentions.filter((subject) => subject.isActive),
     )
     const monthStates = deps.measurementMonthStates.filter((state) => state.monthRef === monthRef)
     const weekStates = deps.measurementWeekStates.filter((state) =>
@@ -689,6 +701,7 @@ export async function getWeekRelevantObjects(
       deps.keyResults.filter((subject) => subject.isActive),
       deps.habits.filter((subject) => subject.isActive),
       deps.trackers.filter((subject) => subject.isActive),
+      deps.weeklyIntentions.filter((subject) => subject.isActive),
     )
 
     const relevantMonthStates = deps.measurementMonthStates.filter((state) =>

@@ -276,8 +276,10 @@
       "goalsKrs": "Goals",
       "habits": "Habits",
       "trackers": "Trackers",
+      "weeklyIntentions": "Week intentions",
       "initiatives": "Initiatives"
     },
+    "topPriorityBadge": "Top priority this week",
     "emptyColumn": "No active items",
     "sectionLabel": {
       "scheduled": "Today",
@@ -354,6 +356,35 @@
       "ariaEmotionsDonutEmpty": "Log your first emotion of the day",
       "ariaJournalDone": "Open today's entry",
       "ariaJournalEmpty": "Write an entry today"
+    }
+  },
+  "weekPlanning": {
+    "title": "Plan the week",
+    "intro": "Set this week's intentions, then pick the few priorities you want to deliver.",
+    "next": "Next",
+    "back": "Back",
+    "save": "Save",
+    "close": "Close",
+    "editGrid": "Edit day grid",
+    "steps": {
+      "intentions": "Week intentions",
+      "priorities": "Top priorities"
+    },
+    "intentions": {
+      "empty": "No intentions for this week yet.",
+      "titleLabel": "Intention title",
+      "titlePlaceholder": "e.g. Wake up at 6am",
+      "add": "Add intention"
+    },
+    "priorities": {
+      "empty": "Nothing active to prioritise yet — add an intention or activate an objective.",
+      "softLimitWarning": "More than {n} priorities makes a week hard to deliver — sure?"
+    },
+    "subjectType": {
+      "keyResult": "Key result",
+      "habit": "Habit",
+      "tracker": "Tracker",
+      "weeklyIntention": "Intention"
     }
   },
   "objects": {
@@ -809,6 +840,7 @@
     "save": "Save Reflection",
     "saving": "Saving...",
     "steps": {
+      "review": "Review",
       "demands": "Demands",
       "actions": "Actions",
       "state": "State",
@@ -858,6 +890,11 @@
       }
     },
     "review": {
+      "intro": "See how the week went and add a note to anything worth remembering — click an object to comment.",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "What stood out about this?",
+      "empty": "No active objects this week.",
+      "hasComment": "Has a comment",
       "emotions": "Emotions",
       "emotionLog": {
         "one": "{n} emotion log",

@@ -1,11 +1,11 @@
-import type { Habit, KeyResult, MeasurementEntryMode, MeasurementTarget, PlanningCadence, Tracker } from '@/domain/planning'
+import type { Habit, KeyResult, MeasurementEntryMode, MeasurementTarget, PlanningCadence, Tracker, WeeklyIntention } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import { getPeriodRefsForDate, getPeriodType } from '@/utils/periods'
 
 export type MeasurementPeriodRef = MonthRef | WeekRef
 export type MeasurementEvaluationStatus = 'met' | 'missed' | 'no-data'
-export type MeasureableSubject = KeyResult | Habit | Tracker
+export type MeasureableSubject = KeyResult | Habit | Tracker | WeeklyIntention
 
 export const ON_TRACK_BANDS = {
   AHEAD: 0.75,

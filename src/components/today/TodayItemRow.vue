@@ -20,6 +20,14 @@
         {{ title }}
       </button>
 
+      <span
+        v-if="isTopPriority"
+        class="today-item-top-badge"
+        :title="t('planning.today.topPriorityBadge')"
+      >
+        <AppIcon name="star" />
+      </span>
+
       <!-- Inline today control -->
       <div class="today-item-entry" @click.stop>
         <!-- Initiative: dedicated checkmark -->
@@ -298,8 +306,13 @@ const PANEL_TYPE_ICONS: Record<string, string> = {
   habit: 'loop',
   tracker: 'monitoring',
   keyResult: 'flag',
+  weeklyIntention: 'target',
   initiative: 'rocket_launch',
 }
+
+const isTopPriority = computed(
+  () => props.item.kind === 'measurement' && props.item.isTopPriority,
+)
 
 const iconName = computed(() => {
   if (props.item.kind === 'initiative') {
@@ -515,6 +528,16 @@ function handleMoveDateChange(event: Event): void {
 
 .today-item-title:hover {
   color: rgb(var(--color-primary-strong));
+}
+
+.today-item-top-badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  font-size: 15px;
+  line-height: 1;
+  color: rgb(var(--color-amber-500, 245 158 11));
 }
 
 .today-item-entry {

@@ -44,8 +44,28 @@
       leave-to-class="opacity-0"
       mode="out-in"
     >
+      <!-- Step: Review (confrontation + per-object comments) -->
+      <div v-if="currentStep === 'review'" key="review" class="space-y-3">
+        <p class="text-sm text-on-surface-variant">
+          {{ t('planning.reflection.review.intro') }}
+        </p>
+        <ReflectionObjectReview
+          v-if="dataBundle"
+          v-model:comments="objectComments"
+          :items="dataBundle.weekObjectItems"
+          :raw-entries="dataBundle.rawEntries"
+          :all-day-assignments="dataBundle.allDayAssignments"
+          :week-ref="props.weekRef"
+          :today-day-ref="reviewTodayDayRef"
+          :top-priority-keys="topPriorityKeys"
+        />
+        <p v-else class="text-sm text-on-surface-variant">
+          {{ t('common.loading') }}
+        </p>
+      </div>
+
       <!-- Step: Demands -->
-      <div v-if="currentStep === 'demands'" key="demands" class="space-y-4">
+      <div v-else-if="currentStep === 'demands'" key="demands" class="space-y-4">
         <ReflectionDimensionRatings
           :groups="demandsGroup"
           @update:rating="handleRatingUpdate"
@@ -135,6 +155,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
+import ReflectionObjectReview from './ReflectionObjectReview.vue'
 import type { RatingGroup } from './ReflectionDimensionRatings.vue'
 import type { SidebarRatingGroup } from './ReflectionJournalSidebar.vue'
 import {
@@ -142,10 +163,11 @@ import {
   type WeeklyReflectionStep,
 } from '@/composables/useWeeklyReflectionWizard'
 import { useT } from '@/composables/useT'
-import type { WeekRef } from '@/domain/period'
+import type { DayRef, WeekRef } from '@/domain/period'
 import { getPeriodBounds } from '@/utils/periods'
 import {
   emotionContextFromSummary,
+  type ReflectionPriorityLine,
   type ReflectionSummaryContext,
 } from '@/services/reflectionSummaryService'
 
@@ -161,6 +183,7 @@ const emit = defineEmits<{
 }>()
 
 const STEPS: WeeklyReflectionStep[] = [
+  'review',
   'demands',
   'actions',
   'state',
@@ -169,6 +192,7 @@ const STEPS: WeeklyReflectionStep[] = [
 ]
 
 const stepLabels = computed(() => [
+  t('planning.reflection.steps.review'),
   t('planning.reflection.steps.demands'),
   t('planning.reflection.steps.actions'),
   t('planning.reflection.steps.state'),
@@ -193,6 +217,8 @@ const {
   prevStep,
   goToStep,
   dataBundle,
+  objectComments,
+  topPriorityKeys,
   physicalIntensityRating,
   emotionalIntensityRating,
   taskLoadRating,
@@ -211,6 +237,9 @@ const {
   isSaving,
   save,
 } = useWeeklyReflectionWizard(toRef(props, 'weekRef'))
+
+// Charts in the review step mark "today" at the week's end (the reflection's as-of day).
+const reviewTodayDayRef = computed(() => getPeriodBounds(props.weekRef).end as DayRef)
 
 // Icon sets for each dimension
 const ICONS = {
@@ -410,6 +439,22 @@ const summaryPeriodLabel = computed(() => {
 })
 
 // Localized, kind-agnostic payload the AI summary/questions are built from.
+// Top-3 + any commented object, with outcome — grounds the AI summary in the week's priorities.
+const summaryPriorities = computed<ReflectionPriorityLine[]>(() => {
+  const bundle = dataBundle.value
+  if (!bundle) return []
+  const keys = new Set(topPriorityKeys.value)
+  return bundle.weekObjectItems
+    .filter(
+      (item) => keys.has(item.key) || (objectComments.value[item.key] ?? '').trim().length > 0,
+    )
+    .map((item) => ({
+      title: item.subject.title,
+      status: item.measurement.evaluationStatus,
+      comment: objectComments.value[item.key],
+    }))
+})
+
 const summaryContext = computed<ReflectionSummaryContext>(() => {
   const bundle = dataBundle.value
   return {
@@ -423,6 +468,7 @@ const summaryContext = computed<ReflectionSummaryContext>(() => {
     journalEntries: bundle?.journalEntries ?? [],
     emotionLogs: bundle?.emotionLogs ?? [],
     emotions: bundle ? emotionContextFromSummary(bundle.emotionSummary) : undefined,
+    priorities: summaryPriorities.value,
   }
 })
 

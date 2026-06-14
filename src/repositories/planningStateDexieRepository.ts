@@ -1,5 +1,5 @@
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { Habit, KeyResult, Tracker } from '@/domain/planning'
+import type { Habit, KeyResult, Tracker, WeeklyIntention } from '@/domain/planning'
 import type {
   CreateDailyMeasurementEntryPayload,
   CreateGoalMonthStatePayload,
@@ -44,7 +44,7 @@ import {
   updatePlanningRecord,
 } from './planningDexieRepository.shared'
 
-type MeasurementSubject = KeyResult | Habit | Tracker
+type MeasurementSubject = KeyResult | Habit | Tracker | WeeklyIntention
 
 class PlanningStateDexieRepository implements PlanningStateRepository {
   private get db() {
@@ -196,6 +196,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
           this.db.keyResults,
           this.db.habits,
           this.db.trackers,
+          this.db.weeklyIntentions,
           this.db.goalMonthStates,
         ],
         async () => {
@@ -319,6 +320,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
           this.db.keyResults,
           this.db.habits,
           this.db.trackers,
+          this.db.weeklyIntentions,
           this.db.measurementMonthStates,
           this.db.goalMonthStates,
         ],
@@ -429,6 +431,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
           this.db.keyResults,
           this.db.habits,
           this.db.trackers,
+          this.db.weeklyIntentions,
           this.db.measurementWeekStates,
           this.db.measurementMonthStates,
         ],
@@ -525,7 +528,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
     try {
       const record = await this.db.transaction(
         'rw',
-        [this.db.dailyMeasurementEntries, this.db.keyResults, this.db.habits, this.db.trackers],
+        [this.db.dailyMeasurementEntries, this.db.keyResults, this.db.habits, this.db.trackers, this.db.weeklyIntentions],
         async () => {
           const existing = await this.findExistingDailyMeasurementEntry(data)
           const normalized = normalizeDailyMeasurementEntryPayload(data, existing)
@@ -619,6 +622,7 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
           this.db.keyResults,
           this.db.habits,
           this.db.trackers,
+          this.db.weeklyIntentions,
         ],
         async () => {
           const existing = await this.findExistingTodayHiddenState(data)
@@ -836,6 +840,14 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
         }
 
         return tracker
+      }
+      case 'weeklyIntention': {
+        const intention = await this.db.weeklyIntentions.get(subjectId)
+        if (!intention) {
+          throw new Error(`Weekly intention with id ${subjectId} not found`)
+        }
+
+        return intention
       }
     }
   }

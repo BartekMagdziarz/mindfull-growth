@@ -85,6 +85,7 @@ const PANEL_TYPE_ICONS: Record<MeasurementSubjectType, string> = {
   habit: 'loop',
   tracker: 'monitoring',
   keyResult: 'flag',
+  weeklyIntention: 'target',
 }
 
 const iconName = computed(() => {

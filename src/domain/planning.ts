@@ -1,6 +1,7 @@
-import type { YearRef } from '@/domain/period'
+import type { WeekRef, YearRef } from '@/domain/period'
 
 const YEAR_REF_RE = /^\d{4}$/
+const WEEK_REF_RE = /^\d{4}-W\d{2}$/
 
 export interface PlanningObjectBase {
   id: string
@@ -17,6 +18,7 @@ export type GoalStatus = 'open' | 'completed' | 'dropped'
 export type KeyResultStatus = GoalStatus
 export type HabitStatus = 'open' | 'retired' | 'dropped'
 export type TrackerStatus = 'open' | 'retired' | 'dropped'
+export type WeeklyIntentionStatus = 'open' | 'retired' | 'dropped'
 export type InitiativeStatus = GoalStatus
 export type PriorityStatus = 'draft' | 'active' | 'paused' | 'closed'
 export type CountTargetOperator = 'min' | 'max'
@@ -117,6 +119,24 @@ export interface Tracker extends PlanningObjectBase {
   status: TrackerStatus
 }
 
+/**
+ * A lightweight, week-scoped intention. Behaves like a Habit (entryMode + target,
+ * tracked via the normal measurement pipeline) but lives only in `weekRef` — it is
+ * its own object type (`subjectType: 'weeklyIntention'`) so it never pollutes the
+ * habit library / monthly planner / profile snapshot. `weekRef` doubles as the
+ * structural discriminator (no other measureable subject carries it).
+ */
+export interface WeeklyIntention extends PlanningObjectBase {
+  icon?: string
+  weekRef: WeekRef
+  entryMode: MeasurementEntryMode
+  cadence: 'weekly'
+  target: MeasurementTarget
+  ratingScaleMin?: number
+  ratingScale?: number
+  status: WeeklyIntentionStatus
+}
+
 export interface Initiative extends PlanningObjectBase {
   goalId?: string
   icon?: string
@@ -140,6 +160,9 @@ export type UpdateHabitPayload = Partial<Omit<Habit, 'id' | 'createdAt' | 'updat
 export type CreateTrackerPayload = Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateTrackerPayload = Partial<Omit<Tracker, 'id' | 'createdAt' | 'updatedAt'>>
 
+export type CreateWeeklyIntentionPayload = Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdateWeeklyIntentionPayload = Partial<Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'>>
+
 export type CreateInitiativePayload = Omit<Initiative, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdateInitiativePayload = Partial<Omit<Initiative, 'id' | 'createdAt' | 'updatedAt'>>
 
@@ -158,6 +181,7 @@ const PRIORITY_STATUSES = ['draft', 'active', 'paused', 'closed'] as const
 const GOAL_STATUSES = ['open', 'completed', 'dropped'] as const
 const HABIT_STATUSES = ['open', 'retired', 'dropped'] as const
 const TRACKER_STATUSES = ['open', 'retired', 'dropped'] as const
+const WEEKLY_INTENTION_STATUSES = ['open', 'retired', 'dropped'] as const
 const CADENCES = ['weekly', 'monthly'] as const
 const ENTRY_MODES = ['completion', 'counter', 'value', 'rating'] as const
 const COUNT_TARGET_OPERATORS = ['min', 'max'] as const
@@ -247,6 +271,15 @@ function normalizeYearRef(value: unknown, fallback?: YearRef): YearRef {
   }
 
   return source as YearRef
+}
+
+function normalizeWeekRef(value: unknown, fallback?: WeekRef): WeekRef {
+  const source = value ?? fallback
+  if (typeof source !== 'string' || !WEEK_REF_RE.test(source)) {
+    throw new Error('WeeklyIntention.weekRef must be a valid WeekRef (YYYY-Www)')
+  }
+
+  return source as WeekRef
 }
 
 function normalizeYearRefs(value: unknown, fallback?: YearRef[]): YearRef[] {
@@ -616,6 +649,41 @@ export function normalizeHabitPayload(
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     status: normalizeEnum(data.status, 'status', HABIT_STATUSES, existing?.status ?? 'open'),
+  }
+}
+
+export function normalizeWeeklyIntentionPayload(
+  data: CreateWeeklyIntentionPayload | UpdateWeeklyIntentionPayload,
+  existing?: WeeklyIntention,
+): Omit<WeeklyIntention, 'id' | 'createdAt' | 'updatedAt'> {
+  assertForbiddenKeys(data as object, [
+    'goalId',
+    'goalIds',
+    'priorityIds',
+    'lifeAreaIds',
+    'analysisPeriod',
+    'kind',
+    'config',
+  ])
+
+  const base = normalizePlanningObjectBase(data, existing)
+  const entryMode = normalizeEnum(
+    data.entryMode,
+    'entryMode',
+    ENTRY_MODES,
+    existing?.entryMode ?? 'completion',
+  )
+
+  return {
+    ...base,
+    icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
+    weekRef: normalizeWeekRef(data.weekRef, existing?.weekRef),
+    entryMode,
+    cadence: 'weekly',
+    target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
+    ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
+    ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    status: normalizeEnum(data.status, 'status', WEEKLY_INTENTION_STATUSES, existing?.status ?? 'open'),
   }
 }
 

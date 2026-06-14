@@ -1080,6 +1080,20 @@ export async function getWeeklyReflectionDataBundle(
         sortOrder: 200_000 + i,
       })
     })
+    // Week-scoped intentions (own subjectType; pulled from the full measurement list,
+    // since cadencedItems is typed/narrowed to KR/habit).
+    relevant.reflection.measurementItems
+      .filter((item) => item.subjectType === 'weeklyIntention')
+      .forEach((intention, i) => {
+        weekObjectItems.push({
+          key: `weeklyIntention:${intention.subject.id}`,
+          subjectType: 'weeklyIntention',
+          subject: intention.subject,
+          planning: intention.planning,
+          measurement: intention.measurement,
+          sortOrder: 300_000 + i,
+        })
+      })
   } catch {
     // Planning data may not exist — build daily breakdown without measurements
     dailyBreakdown = buildDailyBreakdown(weekRef, [], [], exerciseEntries, startDate, endDate)

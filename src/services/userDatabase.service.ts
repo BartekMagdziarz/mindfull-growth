@@ -40,7 +40,7 @@ import type {
 import type { LifeArea } from '@/domain/lifeArea'
 import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
 import type { AssessmentAttempt, AssessmentResponse } from '@/domain/assessments'
-import { MAX_ACTIVE_PRIORITIES, type Goal, type Habit, type Initiative, type KeyResult, type Priority, type Tracker } from '@/domain/planning'
+import { MAX_ACTIVE_PRIORITIES, type Goal, type Habit, type Initiative, type KeyResult, type Priority, type Tracker, type WeeklyIntention } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
@@ -107,6 +107,7 @@ export class UserDatabase extends Dexie {
   keyResults!: Table<KeyResult, string>
   habits!: Table<Habit, string>
   trackers!: Table<Tracker, string>
+  weeklyIntentions!: Table<WeeklyIntention, string>
   initiatives!: Table<Initiative, string>
   monthPlans!: Table<MonthPlan, string>
   weekPlans!: Table<WeekPlan, string>
@@ -1414,6 +1415,12 @@ export class UserDatabase extends Dexie {
     // no data migration. Unique on [periodRef+kind] for upsert-by-period.
     this.version(21).stores({
       profilePeriodSummaries: 'id, &[periodRef+kind]',
+    })
+
+    // Weekly intentions: lightweight week-scoped measurement objects (own table so they
+    // never leak into habit listings). New table → no data migration needed.
+    this.version(22).stores({
+      weeklyIntentions: 'id, weekRef, status, isActive, entryMode',
     })
   }
 }

@@ -80,6 +80,13 @@ export interface ReflectionTrackerLine {
   latest: number | null
 }
 
+/** A week's top priority / commented object: title + outcome + the user's note. */
+export interface ReflectionPriorityLine {
+  title: string
+  status?: MeasurementEvaluationStatus
+  comment?: string
+}
+
 /**
  * Everything the model needs to write a summary / propose questions, already
  * localized by the caller. Weekly reflections populate `ratings`, `anchors`,
@@ -108,6 +115,8 @@ export interface ReflectionSummaryContext {
   goals?: ReflectionGoalLine[]
   habits?: ReflectionMeasurableLine[]
   trackers?: ReflectionTrackerLine[]
+  /** This week's top-3 + any commented object: title, outcome, and the user's note. */
+  priorities?: ReflectionPriorityLine[]
 }
 
 export interface GenerateReflectionOptions {
@@ -183,6 +192,7 @@ type SectionKey =
   | 'goals'
   | 'habits'
   | 'trackers'
+  | 'priorities'
   | 'end'
 
 const SECTION_LABELS: Record<LocaleId, Record<SectionKey, string>> = {
@@ -199,6 +209,7 @@ const SECTION_LABELS: Record<LocaleId, Record<SectionKey, string>> = {
     goals: 'GOALS',
     habits: 'HABITS',
     trackers: 'TRACKERS',
+    priorities: 'TOP PRIORITIES',
     end: 'END OF DATA',
   },
   pl: {
@@ -214,6 +225,7 @@ const SECTION_LABELS: Record<LocaleId, Record<SectionKey, string>> = {
     goals: 'CELE',
     habits: 'NAWYKI',
     trackers: 'POMIARY',
+    priorities: 'PRIORYTETY',
     end: 'KONIEC DANYCH',
   },
 }
@@ -373,6 +385,19 @@ export function buildReflectionSummaryPayload(
     lines.push(`[${L.trackers}]`)
     for (const tr of ctx.trackers) {
       lines.push(tr.latest !== null ? `${tr.title}: ${tr.latest}` : tr.title)
+    }
+    lines.push('')
+  }
+
+  if (ctx.priorities && ctx.priorities.length > 0) {
+    const sl = STATUS_LABELS[locale]
+    lines.push(`[${L.priorities}]`)
+    for (const p of ctx.priorities) {
+      const parts = [p.title]
+      if (p.status) parts.push(sl[p.status])
+      const comment = p.comment?.trim()
+      if (comment) parts.push(comment)
+      lines.push(parts.join(' — '))
     }
     lines.push('')
   }

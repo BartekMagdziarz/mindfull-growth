@@ -385,6 +385,8 @@ function buildContext(deps: ObjectsLibraryDependencies): ObjectRefContext {
 
   const subjectEntryMap = new Map<string, DailyMeasurementEntry[]>()
   for (const entry of deps.dailyMeasurementEntries) {
+    // Weekly intentions are week-scoped and never shown in the object library.
+    if (entry.subjectType === 'weeklyIntention') continue
     const key = buildSubjectKey(entry.subjectType, entry.subjectId)
     const existing = subjectEntryMap.get(key) ?? []
     existing.push(entry)

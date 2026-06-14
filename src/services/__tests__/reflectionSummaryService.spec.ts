@@ -53,6 +53,28 @@ describe('buildReflectionSummaryPayload', () => {
     expect(text).toContain('[KONIEC DANYCH]')
   })
 
+  it('emits the priorities section with status + comment', () => {
+    const en = buildReflectionSummaryPayload(
+      baseContext({
+        priorities: [
+          { title: 'Wake at 6am', status: 'met', comment: 'Felt great' },
+          { title: 'Deep work', status: 'missed' },
+        ],
+      }),
+      'en',
+    )
+    expect(en).toContain('[TOP PRIORITIES]')
+    expect(en).toContain('Wake at 6am — met — Felt great')
+    expect(en).toContain('Deep work — missed')
+
+    const pl = buildReflectionSummaryPayload(
+      baseContext({ priorities: [{ title: 'X', status: 'met' }] }),
+      'pl',
+    )
+    expect(pl).toContain('[PRIORYTETY]')
+    expect(pl).toContain('X — zrealizowany')
+  })
+
   it('skips unrated dimensions but keeps rated ones', () => {
     const text = buildReflectionSummaryPayload(
       baseContext({

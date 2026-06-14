@@ -37,6 +37,7 @@ export interface TodayMeasurementItem {
   sourceMonthRef?: MonthRef
   sectionId: TodaySectionId
   isScheduledToday: boolean
+  isTopPriority: boolean
   canHide: boolean
   canReschedule: boolean
   canDelete: boolean
@@ -66,6 +67,8 @@ export interface TodayViewBundle {
   hiddenItems: TodayItem[]
   rawEntries: DailyMeasurementEntry[]
   allDayAssignments: MeasurementDayAssignment[]
+  /** Keys (`subjectType:subjectId`) of this week's top-3 picks — used to badge items. */
+  topPriorityKeys: string[]
 }
 
 const todayViewBundleCache = new Map<
@@ -211,13 +214,15 @@ function buildMeasurementRecord(
   item: WeekMeasurementPlanningItem,
   goalMap: Map<string, Goal>,
   todayEntry: DailyMeasurementEntry | undefined,
-  sectionId: TodaySectionId
+  sectionId: TodaySectionId,
+  topPriorityKeys: string[]
 ): TodayMeasurementItem {
   const goal = 'goalId' in item.subject ? goalMap.get(item.subject.goalId) : undefined
+  const key = buildMeasurementKey(item.subjectType, item.subject.id)
 
   return {
     kind: 'measurement',
-    key: buildMeasurementKey(item.subjectType, item.subject.id),
+    key,
     panelType: item.subjectType,
     subjectType: item.subjectType,
     subject: item.subject,
@@ -230,6 +235,7 @@ function buildMeasurementRecord(
     sourceMonthRef: item.sourceMonthRef,
     sectionId,
     isScheduledToday: sectionId === 'scheduled',
+    isTopPriority: topPriorityKeys.includes(key),
     canHide: sectionId !== 'scheduled',
     canReschedule: sectionId === 'scheduled',
     canDelete: sectionId === 'scheduled',
@@ -294,6 +300,9 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
     const goalMap = buildGoalMap(objects.goals)
     const todayEntries = buildTodayEntryMap(allEntries, dayRef)
     const hiddenKeys = buildHiddenKeySet(dayRef, hiddenStates)
+    const topPriorityKeys = (weekPlanning.weekPlan?.topPriorities ?? []).map((ref) =>
+      buildMeasurementKey(ref.subjectType, ref.subjectId),
+    )
     const measurementItems = new Map<string, TodayMeasurementItem>()
     const initiativeItems = new Map<string, TodayInitiativeItem>()
 
@@ -310,7 +319,7 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
       }
 
       const key = buildMeasurementKey(item.subjectType, item.subject.id)
-      const record = buildMeasurementRecord(item, goalMap, todayEntries.get(key), sectionId)
+      const record = buildMeasurementRecord(item, goalMap, todayEntries.get(key), sectionId, topPriorityKeys)
       measurementItems.set(
         key,
         chooseMeasurementItem(measurementItems.get(key), record, refs.month),
@@ -358,6 +367,7 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
       hiddenItems: sortTodayItems(hiddenItems),
       rawEntries: weekPlanning.rawEntries,
       allDayAssignments,
+      topPriorityKeys,
     }
   })
 }

@@ -118,6 +118,17 @@ export const useTodayStore = defineStore('today', () => {
     )
   )
 
+  const intentionItems = computed<TodayMeasurementItem[]>(() =>
+    sortBySectionThenTitle(
+      allVisibleItems.value.filter(
+        (item): item is TodayMeasurementItem =>
+          item.kind === 'measurement' && item.panelType === 'weeklyIntention'
+      )
+    )
+  )
+
+  const topPriorityKeys = computed<string[]>(() => bundle.value?.topPriorityKeys ?? [])
+
   const initiativeItems = computed<TodayInitiativeItem[]>(() =>
     sortBySectionThenTitle(
       allVisibleItems.value.filter(
@@ -508,8 +519,10 @@ export const useTodayStore = defineStore('today', () => {
     goalKrItems,
     habitItems,
     trackerItems,
+    intentionItems,
     initiativeItems,
     goalGroupedKrItems,
+    topPriorityKeys,
     isLoading,
     error,
     isPending,

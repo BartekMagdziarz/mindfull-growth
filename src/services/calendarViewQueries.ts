@@ -1,5 +1,5 @@
 import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
-import type { KeyResult, Habit, Tracker } from '@/domain/planning'
+import type { KeyResult, Habit, Tracker, WeeklyIntention } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementSubjectType, PeriodObjectReflection, PeriodReflection } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
@@ -17,7 +17,7 @@ import type {
 } from '@/services/planningStateQueries'
 import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
 
-type MeasureableSubject = KeyResult | Habit | Tracker
+type MeasureableSubject = KeyResult | Habit | Tracker | WeeklyIntention
 
 export interface YearMonthPillData {
   id: string
@@ -101,6 +101,10 @@ function isTracker(subject: MeasureableSubject): subject is Tracker {
 function resolveSubjectType(subject: MeasureableSubject): MeasurementSubjectType {
   if ('goalId' in subject) {
     return 'keyResult'
+  }
+
+  if ('weekRef' in subject) {
+    return 'weeklyIntention'
   }
 
   return 'target' in subject ? 'habit' : 'tracker'

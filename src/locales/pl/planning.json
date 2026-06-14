@@ -276,8 +276,10 @@
       "goalsKrs": "Cele",
       "habits": "Nawyki",
       "trackers": "Trackery",
+      "weeklyIntentions": "Intencje tygodnia",
       "initiatives": "Inicjatywy"
     },
+    "topPriorityBadge": "Priorytet tego tygodnia",
     "emptyColumn": "Brak aktywnych elementów",
     "sectionLabel": {
       "scheduled": "Dzisiaj",
@@ -354,6 +356,35 @@
       "ariaEmotionsDonutEmpty": "Dodaj pierwszy log emocji",
       "ariaJournalDone": "Otwórz dzisiejszy wpis",
       "ariaJournalEmpty": "Napisz wpis dzisiaj"
+    }
+  },
+  "weekPlanning": {
+    "title": "Zaplanuj tydzień",
+    "intro": "Ustal intencje na ten tydzień, a potem wybierz kilka priorytetów, które chcesz dowieźć.",
+    "next": "Dalej",
+    "back": "Wstecz",
+    "save": "Zapisz",
+    "close": "Zamknij",
+    "editGrid": "Edytuj siatkę dni",
+    "steps": {
+      "intentions": "Intencje tygodnia",
+      "priorities": "Najważniejsze priorytety"
+    },
+    "intentions": {
+      "empty": "Brak intencji na ten tydzień.",
+      "titleLabel": "Nazwa intencji",
+      "titlePlaceholder": "np. Wstawać o 6:00",
+      "add": "Dodaj intencję"
+    },
+    "priorities": {
+      "empty": "Nie ma jeszcze nic aktywnego do spriorytetyzowania — dodaj intencję lub aktywuj cel.",
+      "softLimitWarning": "Więcej niż {n} priorytety trudno dowieźć w tygodniu — na pewno?"
+    },
+    "subjectType": {
+      "keyResult": "Kluczowy rezultat",
+      "habit": "Nawyk",
+      "tracker": "Tracker",
+      "weeklyIntention": "Intencja"
     }
   },
   "objects": {
@@ -809,6 +840,7 @@
     "save": "Zapisz refleksję",
     "saving": "Zapisywanie...",
     "steps": {
+      "review": "Przegląd",
       "demands": "Wymagania",
       "actions": "Działania",
       "state": "Stan",
@@ -858,6 +890,11 @@
       }
     },
     "review": {
+      "intro": "Zobacz, jak poszedł tydzień, i dopisz notatkę do tego, co warto zapamiętać — kliknij obiekt, by skomentować.",
+      "commentLabel": "Komentarz",
+      "commentPlaceholder": "Co zwróciło Twoją uwagę?",
+      "empty": "Brak aktywnych obiektów w tym tygodniu.",
+      "hasComment": "Ma komentarz",
       "emotions": "Emocje",
       "emotionLog": {
         "one": "{n} wpis emocji",

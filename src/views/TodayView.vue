@@ -48,6 +48,31 @@
 
         <!-- Zone B -->
         <aside class="zone-b">
+          <section v-if="store.intentionItems.length > 0" class="zb-section neo-raised">
+            <header class="zb-section__head">
+              <span class="zb-section__label">{{ t('planning.today.columns.weeklyIntentions') }}</span>
+            </header>
+            <div v-for="(item, itemIndex) in store.intentionItems" :key="item.key">
+              <div v-if="itemIndex !== 0" class="zb-section__divider" />
+              <TodayItemRow
+                :item="item"
+                :today-day-ref="bundleDayRef"
+                :raw-entries="store.rawEntries"
+                :all-day-assignments="store.allDayAssignments"
+                :is-pending="store.isPending(item.key)"
+                @open-object="openObject(item)"
+                @open-context="openPeriod(item.contextPeriodRef)"
+                @toggle-completion="handleToggleCompletion(item)"
+                @save-entry="handleSaveEntry(item, $event)"
+                @clear-entry="handleClearEntry(item)"
+                @hide="handleHide(item)"
+                @move="handleMove(item, $event)"
+                @clear-schedule="handleClearSchedule(item)"
+                @request-delete="promptDelete(item)"
+              />
+            </div>
+          </section>
+
           <section class="zb-section neo-raised">
             <header class="zb-section__head">
               <span class="zb-section__label">{{ t('planning.today.columns.goalsKrs') }}</span>
@@ -356,6 +381,10 @@ function handleDateChange(event: Event): void {
 }
 
 function openObject(item: TodayItem): void {
+  // Weekly intentions have no library detail page — they're managed in the week-planning
+  // wizard, so opening them is a no-op for now.
+  if (item.panelType === 'weeklyIntention') return
+
   void router.push({
     name: 'objects-family',
     params: {

@@ -225,6 +225,11 @@ class ReflectionDexieRepository implements ReflectionRepository {
         if (!(await this.db.initiatives.get(subjectId))) {
           throw new Error(`Initiative with id ${subjectId} not found`)
         }
+        return
+      case 'weeklyIntention':
+        if (!(await this.db.weeklyIntentions.get(subjectId))) {
+          throw new Error(`Weekly intention with id ${subjectId} not found`)
+        }
     }
   }
 }

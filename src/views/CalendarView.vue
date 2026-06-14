@@ -79,6 +79,14 @@
               @updated="handleWeeklyReflectionUpdated"
             />
 
+            <WeekPlanningWizard
+              v-else-if="showWeekPlanning && activeWeekRef"
+              :week-ref="activeWeekRef"
+              @close="closeWeekPlanning"
+              @updated="handleWeekPlanningUpdated"
+              @open-grid="openWeeklyGrid"
+            />
+
             <MonthlyPlanner
               v-else-if="scale === 'month' && activeMonthRef"
               :month-ref="activeMonthRef"
@@ -131,7 +139,7 @@
                 :raw-entries="weekPlanning.rawEntries"
                 :all-day-assignments="weekDayAssignments"
                 :has-plan="Boolean(weekPlanning.weekPlan)"
-                :kontekst-actions="!showWeeklyReflection"
+                :kontekst-actions="!showWeeklyReflection && !showWeekPlanning"
                 @create-reflection="openReflectionPanel"
                 @edit-reflection="openReflectionPanel"
                 @create-plan="openPlanPanel"
@@ -221,6 +229,7 @@ import MonthReviewSummary from '@/components/calendar/MonthReviewSummary.vue'
 import WeekReviewSummary from '@/components/calendar/WeekReviewSummary.vue'
 import MonthlyPlanner from '@/components/calendar/MonthlyPlanner.vue'
 import WeeklyPlanner from '@/components/calendar/WeeklyPlanner.vue'
+import WeekPlanningWizard from '@/components/calendar/WeekPlanningWizard.vue'
 import WeeklyReflectionWizard from '@/components/calendar/WeeklyReflectionWizard.vue'
 import MonthlyReflectionWizard from '@/components/calendar/MonthlyReflectionWizard.vue'
 import AnnualPlanningWizard from '@/components/calendar/AnnualPlanningWizard.vue'
@@ -294,6 +303,8 @@ const monthlyPlannerOpen = ref(false)
 const monthlyPlannerDirty = ref(false)
 const weeklyPlannerOpen = ref(false)
 const weeklyPlannerDirty = ref(false)
+const weekPlanningOpen = ref(false)
+const weekPlanningDirty = ref(false)
 const annualPlannerOpen = ref(false)
 const annualPlannerDirty = ref(false)
 const weeklyReflectionOpen = ref(false)
@@ -504,6 +515,7 @@ const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
 const showAnnualPlanner = computed(() => props.scale === 'year' && annualPlannerOpen.value)
 const showMonthlyPlanner = computed(() => props.scale === 'month' && monthlyPlannerOpen.value)
 const showWeeklyPlanner = computed(() => props.scale === 'week' && weeklyPlannerOpen.value)
+const showWeekPlanning = computed(() => props.scale === 'week' && weekPlanningOpen.value)
 const showWeeklyReflection = computed(() => props.scale === 'week' && weeklyReflectionOpen.value)
 const showMonthlyReflection = computed(() => props.scale === 'month' && monthlyReflectionOpen.value)
 
@@ -913,29 +925,37 @@ function openPlanPanel() {
   }
 
   if (props.scale === 'week') {
-    void (async () => {
-      if (weeklyPlannerOpen.value) {
-        closeWeeklyPlanner()
-        return
-      }
-
-      if (!parsedPeriodRef.value) {
-        return
-      }
-
-      if (!weekPlanning.value?.weekPlan) {
-        await periodPlanDexieRepository.createWeekPlan({
-          weekRef: parsedPeriodRef.value as WeekRef,
-        })
-        await loadCalendarData()
-      }
-
-      weeklyPlannerOpen.value = true
-      weeklyPlannerDirty.value = false
-    })()
+    // The guided week-planning wizard is the primary entry; the day-grid planner
+    // stays reachable as a secondary action from inside the wizard (open-grid).
+    if (weekPlanningOpen.value) {
+      closeWeekPlanning()
+      return
+    }
+    weeklyPlannerOpen.value = false
+    weekPlanningOpen.value = true
+    weekPlanningDirty.value = false
     return
   }
 
+}
+
+function handleWeekPlanningUpdated() {
+  weekPlanningDirty.value = true
+}
+
+function closeWeekPlanning() {
+  weekPlanningOpen.value = false
+  if (weekPlanningDirty.value) {
+    weekPlanningDirty.value = false
+    void loadCalendarData()
+  }
+}
+
+/** Secondary access: leave the guided wizard and open the day-by-day grid planner. */
+function openWeeklyGrid() {
+  weekPlanningOpen.value = false
+  weeklyPlannerOpen.value = true
+  weeklyPlannerDirty.value = false
 }
 
 function handleAnnualPlannerUpdated() {

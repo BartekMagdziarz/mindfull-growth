@@ -18,6 +18,7 @@ export async function resetPlanningTestData() {
   await db.goals.clear()
   await db.habits.clear()
   await db.trackers.clear()
+  await db.weeklyIntentions.clear()
   await db.initiatives.clear()
   await db.priorities.clear()
   await db.lifeAreas.clear()

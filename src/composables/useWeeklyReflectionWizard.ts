@@ -5,9 +5,13 @@ import { getWeeklyReflectionDataBundle } from '@/services/reflectionDataQueries'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
 import type { CreateWeeklyReflectionPayload } from '@/domain/reflection'
+import type { ReflectionSubjectType } from '@/domain/planningState'
+import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
+import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { getPeriodBounds } from '@/utils/periods'
 
 export type WeeklyReflectionStep =
+  | 'review'
   | 'demands'
   | 'actions'
   | 'state'
@@ -15,6 +19,7 @@ export type WeeklyReflectionStep =
   | 'journal'
 
 const STEP_ORDER: WeeklyReflectionStep[] = [
+  'review',
   'demands',
   'actions',
   'state',
@@ -24,9 +29,8 @@ const STEP_ORDER: WeeklyReflectionStep[] = [
 
 /** Map old step names to new names for draft migration */
 const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
-  // The review step was removed — the period summary now stays visible on the
-  // calendar page while the reflection form is open.
-  review: 'demands',
+  // 'review' is now the object-review/confrontation step (first step again).
+  review: 'review',
   reflect: 'demands',
   ratings: 'demands',
   write: 'journal',
@@ -49,12 +53,19 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   const store = useStructuredReflectionStore()
 
   // Step management
-  const currentStep = ref<WeeklyReflectionStep>('demands')
+  const currentStep = ref<WeeklyReflectionStep>('review')
   const stepIndex = computed(() => STEP_ORDER.indexOf(currentStep.value))
 
   // Data bundle backing the journal step (emotion context + AI summary payload)
   const dataBundle = ref<WeeklyReflectionDataBundle | null>(null)
   const isBundleLoading = ref(true)
+
+  // Review step: per-object free-text comments (key = `subjectType:subjectId`),
+  // persisted as PeriodObjectReflection. topPriorityKeys highlights the week's top-3.
+  const objectComments = ref<Record<string, string>>({})
+  const topPriorityKeys = ref<string[]>([])
+  // Snapshot of comments at load time, to diff for upsert vs delete on save.
+  let initialComments: Record<string, string> = {}
 
   // Demands ratings (1-5, null = not rated)
   const physicalIntensityRating = ref<number | null>(null)
@@ -90,6 +101,8 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   // Step validation
   const canAdvance = computed(() => {
     switch (currentStep.value) {
+      case 'review':
+        return true
       case 'demands':
         return (
           physicalIntensityRating.value !== null ||
@@ -190,6 +203,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       promptResponses: promptResponses.value,
       freeformReflection: freeformReflection.value,
       aiSummary: aiSummary.value,
+      objectComments: objectComments.value,
     }
   }
 
@@ -220,6 +234,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       if (data.promptResponses) promptResponses.value = data.promptResponses as Record<string, string>
       if (data.freeformReflection) freeformReflection.value = data.freeformReflection as string
       if (typeof data.aiSummary === 'string') aiSummary.value = data.aiSummary
+      if (data.objectComments) objectComments.value = data.objectComments as Record<string, string>
     } catch {
       // Invalid draft, ignore
     }
@@ -245,7 +260,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
   // Watch fields for auto-save
   watch(
-    [...allRatingRefs, promptResponses, freeformReflection, aiSummary],
+    [...allRatingRefs, promptResponses, freeformReflection, aiSummary, objectComments],
     scheduleDraftSave,
     { deep: true }
   )
@@ -256,7 +271,24 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     isBundleLoading.value = true
     try {
       const weekEnd = getPeriodBounds(weekRef.value).end as DayRef
-      dataBundle.value = await getWeeklyReflectionDataBundle(weekRef.value, weekEnd)
+      const [bundle, weekPlan, allObjectReflections] = await Promise.all([
+        getWeeklyReflectionDataBundle(weekRef.value, weekEnd),
+        periodPlanDexieRepository.getWeekPlan(weekRef.value),
+        reflectionDexieRepository.listPeriodObjectReflections(),
+      ])
+      dataBundle.value = bundle
+      topPriorityKeys.value = (weekPlan?.topPriorities ?? []).map(
+        (ref) => `${ref.subjectType}:${ref.subjectId}`,
+      )
+      const existingComments: Record<string, string> = {}
+      for (const reflection of allObjectReflections) {
+        if (reflection.periodType === 'week' && reflection.periodRef === weekRef.value) {
+          existingComments[`${reflection.subjectType}:${reflection.subjectId}`] = reflection.note
+        }
+      }
+      initialComments = { ...existingComments }
+      // Seed from DB; a restored draft (hydrated just below) overrides if present.
+      objectComments.value = { ...existingComments }
     } catch (err) {
       console.error('Error loading weekly reflection data bundle:', err)
     } finally {
@@ -307,10 +339,46 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       }
 
       await store.upsertWeekly(payload)
+      await persistObjectComments()
       await clearDraftFromDB(getDraftKey(weekRef.value))
     } finally {
       isSaving.value = false
     }
+  }
+
+  /** Sync per-object comments to PeriodObjectReflection: upsert non-empty, delete cleared. */
+  async function persistObjectComments(): Promise<void> {
+    const keys = new Set([...Object.keys(initialComments), ...Object.keys(objectComments.value)])
+    const ops: Promise<unknown>[] = []
+    for (const key of keys) {
+      const sep = key.indexOf(':')
+      if (sep < 0) continue
+      const subjectType = key.slice(0, sep) as ReflectionSubjectType
+      const subjectId = key.slice(sep + 1)
+      const note = (objectComments.value[key] ?? '').trim()
+      if (note) {
+        ops.push(
+          reflectionDexieRepository.upsertPeriodObjectReflection({
+            periodType: 'week',
+            periodRef: weekRef.value,
+            subjectType,
+            subjectId,
+            note,
+          }),
+        )
+      } else if (initialComments[key]) {
+        ops.push(
+          reflectionDexieRepository.deletePeriodObjectReflection(
+            'week',
+            weekRef.value,
+            subjectType,
+            subjectId,
+          ),
+        )
+      }
+    }
+    await Promise.all(ops)
+    initialComments = { ...objectComments.value }
   }
 
   return {
@@ -326,6 +394,10 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     // Data bundle
     dataBundle,
     isBundleLoading,
+
+    // Review step
+    objectComments,
+    topPriorityKeys,
 
     // Demands ratings
     physicalIntensityRating,

@@ -14,10 +14,10 @@ export interface PlanningStateRecordBase {
 }
 
 export type PeriodActivityState = 'active' | 'paused'
-export type MeasurementSubjectType = 'keyResult' | 'habit' | 'tracker'
+export type MeasurementSubjectType = 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention'
 export type TodayHiddenSubjectType = MeasurementSubjectType | 'initiative'
 export type ReflectionPeriodType = 'month' | 'week'
-export type ReflectionSubjectType = 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative'
+export type ReflectionSubjectType = 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative' | 'weeklyIntention'
 export type MonthScheduleScope = 'unassigned' | 'specific-days' | 'whole-month'
 export type WeekScheduleScope = 'unassigned' | 'specific-days' | 'whole-week'
 export type DailyMeasurementEntryValue = number | null
@@ -26,8 +26,15 @@ export interface MonthPlan extends PlanningStateRecordBase {
   monthRef: MonthRef
 }
 
+export interface WeekTopPriorityRef {
+  subjectType: MeasurementSubjectType
+  subjectId: string
+}
+
 export interface WeekPlan extends PlanningStateRecordBase {
   weekRef: WeekRef
+  /** ≤3 measurement subjects the user picked as this week's priorities (drives reflection focus). */
+  topPriorities?: WeekTopPriorityRef[]
 }
 
 export interface GoalMonthState extends PlanningStateRecordBase {
@@ -166,10 +173,10 @@ export type UpdatePeriodObjectReflectionPayload = Partial<
 >
 
 const PERIOD_ACTIVITY_STATES = ['active', 'paused'] as const
-const MEASUREMENT_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker'] as const
-const TODAY_HIDDEN_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'initiative'] as const
+const MEASUREMENT_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'weeklyIntention'] as const
+const TODAY_HIDDEN_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'weeklyIntention', 'initiative'] as const
 const REFLECTION_PERIOD_TYPES = ['month', 'week'] as const
-const REFLECTION_SUBJECT_TYPES = ['goal', 'keyResult', 'habit', 'tracker', 'initiative'] as const
+const REFLECTION_SUBJECT_TYPES = ['goal', 'keyResult', 'habit', 'tracker', 'initiative', 'weeklyIntention'] as const
 const MONTH_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-month'] as const
 const WEEK_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-week'] as const
 const COUNT_TARGET_OPERATORS = ['min', 'max'] as const
@@ -422,12 +429,41 @@ export function normalizeMonthPlanPayload(
   }
 }
 
+function normalizeTopPriorities(
+  value: unknown,
+  existing?: WeekTopPriorityRef[]
+): WeekTopPriorityRef[] | undefined {
+  const source = value ?? existing
+  if (source === undefined) {
+    return undefined
+  }
+  if (!Array.isArray(source)) {
+    throw new Error('topPriorities must be an array')
+  }
+
+  return source.map((ref) => {
+    if (typeof ref !== 'object' || ref === null) {
+      throw new Error('topPriorities entries must be objects')
+    }
+    const candidate = ref as { subjectType?: unknown; subjectId?: unknown }
+    return {
+      subjectType: normalizeEnum(
+        candidate.subjectType,
+        'topPriorities.subjectType',
+        MEASUREMENT_SUBJECT_TYPES
+      ),
+      subjectId: normalizeTrimmedText(candidate.subjectId, 'topPriorities.subjectId'),
+    }
+  })
+}
+
 export function normalizeWeekPlanPayload(
   data: CreateWeekPlanPayload | UpdateWeekPlanPayload,
   existing?: WeekPlan
 ): Omit<WeekPlan, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     weekRef: normalizeWeekRef(data.weekRef, 'weekRef', existing?.weekRef),
+    topPriorities: normalizeTopPriorities(data.topPriorities, existing?.topPriorities),
   }
 }
 
