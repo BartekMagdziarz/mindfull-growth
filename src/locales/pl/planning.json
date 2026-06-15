@@ -366,15 +366,20 @@
     "save": "Zapisz",
     "close": "Zamknij",
     "editGrid": "Edytuj siatkę dni",
+    "stepProgress": "Krok {current} z {total}",
     "steps": {
       "intentions": "Intencje tygodnia",
       "priorities": "Najważniejsze priorytety"
     },
     "intentions": {
       "empty": "Brak intencji na ten tydzień.",
+      "heading": "Nowa intencja",
       "titleLabel": "Nazwa intencji",
       "titlePlaceholder": "np. Wstawać o 6:00",
-      "add": "Dodaj intencję"
+      "add": "Dodaj intencję",
+      "layoutPreview": "Podgląd układu",
+      "layoutCompact": "Zwarty wiersz",
+      "layoutStacked": "Composer z segmentem"
     },
     "priorities": {
       "empty": "Nie ma jeszcze nic aktywnego do spriorytetyzowania — dodaj intencję lub aktywuj cel.",

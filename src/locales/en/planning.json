@@ -366,15 +366,20 @@
     "save": "Save",
     "close": "Close",
     "editGrid": "Edit day grid",
+    "stepProgress": "Step {current} of {total}",
     "steps": {
       "intentions": "Week intentions",
       "priorities": "Top priorities"
     },
     "intentions": {
       "empty": "No intentions for this week yet.",
+      "heading": "New intention",
       "titleLabel": "Intention title",
       "titlePlaceholder": "e.g. Wake up at 6am",
-      "add": "Add intention"
+      "add": "Add intention",
+      "layoutPreview": "Layout preview",
+      "layoutCompact": "Compact row",
+      "layoutStacked": "Stacked composer"
     },
     "priorities": {
       "empty": "Nothing active to prioritise yet — add an intention or activate an objective.",
