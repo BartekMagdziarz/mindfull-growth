@@ -73,18 +73,12 @@
             />
 
             <WeeklyReflectionWizard
-              v-else-if="showWeeklyReflection && activeWeekRef"
+              v-else-if="showWeekWizard && activeWeekRef"
               :week-ref="activeWeekRef"
-              @close="closeWeeklyReflection"
-              @updated="handleWeeklyReflectionUpdated"
-            />
-
-            <WeekPlanningWizard
-              v-else-if="showWeekPlanning && activeWeekRef"
-              :week-ref="activeWeekRef"
-              @close="closeWeekPlanning"
-              @updated="handleWeekPlanningUpdated"
+              @close="closeWeekWizard"
+              @updated="handleWeekWizardUpdated"
               @open-grid="openWeeklyGrid"
+              @plan-next-week="planNextWeek"
             />
 
             <MonthlyPlanner
@@ -139,11 +133,11 @@
                 :raw-entries="weekPlanning.rawEntries"
                 :all-day-assignments="weekDayAssignments"
                 :has-plan="Boolean(weekPlanning.weekPlan)"
-                :kontekst-actions="!showWeeklyReflection && !showWeekPlanning"
-                @create-reflection="openReflectionPanel"
-                @edit-reflection="openReflectionPanel"
-                @create-plan="openPlanPanel"
-                @edit-plan="openPlanPanel"
+                :kontekst-actions="!showWeekWizard"
+                @create-reflection="openWeekWizard"
+                @edit-reflection="openWeekWizard"
+                @create-plan="openWeekWizard"
+                @edit-plan="openWeekWizard"
               />
             </template>
 
@@ -229,7 +223,6 @@ import MonthReviewSummary from '@/components/calendar/MonthReviewSummary.vue'
 import WeekReviewSummary from '@/components/calendar/WeekReviewSummary.vue'
 import MonthlyPlanner from '@/components/calendar/MonthlyPlanner.vue'
 import WeeklyPlanner from '@/components/calendar/WeeklyPlanner.vue'
-import WeekPlanningWizard from '@/components/calendar/WeekPlanningWizard.vue'
 import WeeklyReflectionWizard from '@/components/calendar/WeeklyReflectionWizard.vue'
 import MonthlyReflectionWizard from '@/components/calendar/MonthlyReflectionWizard.vue'
 import AnnualPlanningWizard from '@/components/calendar/AnnualPlanningWizard.vue'
@@ -303,12 +296,14 @@ const monthlyPlannerOpen = ref(false)
 const monthlyPlannerDirty = ref(false)
 const weeklyPlannerOpen = ref(false)
 const weeklyPlannerDirty = ref(false)
-const weekPlanningOpen = ref(false)
-const weekPlanningDirty = ref(false)
+// One unified week ritual wizard (planning + date-gated reflection) replaces the
+// separate week-planning and week-reflection panels.
+const weekWizardOpen = ref(false)
+const weekWizardDirty = ref(false)
+// Set just before navigating W → W+1 so the watcher re-opens the wizard after the route change.
+const pendingOpenWizard = ref(false)
 const annualPlannerOpen = ref(false)
 const annualPlannerDirty = ref(false)
-const weeklyReflectionOpen = ref(false)
-const weeklyReflectionDirty = ref(false)
 const monthlyReflectionOpen = ref(false)
 const monthlyReflectionDirty = ref(false)
 const reflectionNote = ref('')
@@ -473,7 +468,7 @@ const reflectionActionLabel = computed(() => {
   if (props.scale === 'month' && monthlyReflectionOpen.value) {
     return t('common.buttons.close')
   }
-  if (props.scale === 'week' && weeklyReflectionOpen.value) {
+  if (props.scale === 'week' && weekWizardOpen.value) {
     return t('common.buttons.close')
   }
   return currentReflectionRecord.value
@@ -507,7 +502,7 @@ const planActionVariant = computed<'filled' | 'tonal'>(() => {
 })
 const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
   if (props.scale === 'month' && monthlyReflectionOpen.value) return 'tonal'
-  if (props.scale === 'week' && weeklyReflectionOpen.value) return 'tonal'
+  if (props.scale === 'week' && weekWizardOpen.value) return 'tonal'
   if (!currentPlanRecord.value) return 'tonal'
   return currentReflectionRecord.value ? 'tonal' : 'filled'
 })
@@ -515,8 +510,7 @@ const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
 const showAnnualPlanner = computed(() => props.scale === 'year' && annualPlannerOpen.value)
 const showMonthlyPlanner = computed(() => props.scale === 'month' && monthlyPlannerOpen.value)
 const showWeeklyPlanner = computed(() => props.scale === 'week' && weeklyPlannerOpen.value)
-const showWeekPlanning = computed(() => props.scale === 'week' && weekPlanningOpen.value)
-const showWeeklyReflection = computed(() => props.scale === 'week' && weeklyReflectionOpen.value)
+const showWeekWizard = computed(() => props.scale === 'week' && weekWizardOpen.value)
 const showMonthlyReflection = computed(() => props.scale === 'month' && monthlyReflectionOpen.value)
 
 // Flat list of all objects active this week, in the same KR→habit→tracker
@@ -772,10 +766,16 @@ watch(
     annualPlannerOpen.value = false
     monthlyPlannerOpen.value = false
     weeklyPlannerOpen.value = false
-    weeklyReflectionOpen.value = false
+    weekWizardOpen.value = false
     monthlyReflectionOpen.value = false
     reflectionNote.value = ''
     await loadCalendarData()
+    // W → W+1 hand-off: re-open the unified wizard on the freshly navigated week.
+    if (pendingOpenWizard.value && props.scale === 'week') {
+      pendingOpenWizard.value = false
+      weekWizardOpen.value = true
+      weekWizardDirty.value = false
+    }
   },
   { immediate: true }
 )
@@ -925,35 +925,43 @@ function openPlanPanel() {
   }
 
   if (props.scale === 'week') {
-    // The guided week-planning wizard is the primary entry; the day-grid planner
-    // stays reachable as a secondary action from inside the wizard (open-grid).
-    if (weekPlanningOpen.value) {
-      closeWeekPlanning()
-      return
-    }
-    weeklyPlannerOpen.value = false
-    weekPlanningOpen.value = true
-    weekPlanningDirty.value = false
+    openWeekWizard()
     return
   }
 
 }
 
-function handleWeekPlanningUpdated() {
-  weekPlanningDirty.value = true
+// One entry for the whole week ritual (planning + date-gated reflection).
+function openWeekWizard() {
+  if (props.scale !== 'week') return
+  weeklyPlannerOpen.value = false
+  weekWizardOpen.value = true
+  weekWizardDirty.value = false
 }
 
-function closeWeekPlanning() {
-  weekPlanningOpen.value = false
-  if (weekPlanningDirty.value) {
-    weekPlanningDirty.value = false
+function handleWeekWizardUpdated() {
+  weekWizardDirty.value = true
+}
+
+function closeWeekWizard() {
+  weekWizardOpen.value = false
+  if (weekWizardDirty.value) {
+    weekWizardDirty.value = false
     void loadCalendarData()
   }
 }
 
+/** Last reflection step → navigate to next week and re-open the wizard (lands on planning). */
+function planNextWeek() {
+  if (!parsedPeriodRef.value) return
+  weekWizardOpen.value = false
+  pendingOpenWizard.value = true
+  navigateTo('week', getNextPeriod(parsedPeriodRef.value))
+}
+
 /** Secondary access: leave the guided wizard and open the day-by-day grid planner. */
 function openWeeklyGrid() {
-  weekPlanningOpen.value = false
+  weekWizardOpen.value = false
   weeklyPlannerOpen.value = true
   weeklyPlannerDirty.value = false
 }
@@ -1009,25 +1017,8 @@ function openReflectionPanel() {
       }
       break
     case 'week':
-      if (weeklyReflectionOpen.value) {
-        closeWeeklyReflection()
-      } else {
-        weeklyReflectionOpen.value = true
-        weeklyReflectionDirty.value = false
-      }
+      openWeekWizard()
       break
-  }
-}
-
-function handleWeeklyReflectionUpdated() {
-  weeklyReflectionDirty.value = true
-}
-
-function closeWeeklyReflection() {
-  weeklyReflectionOpen.value = false
-  if (weeklyReflectionDirty.value) {
-    weeklyReflectionDirty.value = false
-    void loadCalendarData()
   }
 }
 

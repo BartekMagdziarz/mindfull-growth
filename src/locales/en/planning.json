@@ -358,6 +358,18 @@
       "ariaJournalEmpty": "Write an entry today"
     }
   },
+  "weekWizard": {
+    "title": "Week",
+    "openButton": "Open week",
+    "prioritiesIntro": "Pick the few things that matter most this week.",
+    "reflectionLockedHint": "Reflection unlocks from Saturday.",
+    "planNextWeek": "Plan next week →",
+    "done": "Done",
+    "steps": {
+      "intentions": "Intentions",
+      "priorities": "Priorities"
+    }
+  },
   "weekPlanning": {
     "title": "Plan the week",
     "intro": "Set this week's intentions, then pick the few priorities you want to deliver.",

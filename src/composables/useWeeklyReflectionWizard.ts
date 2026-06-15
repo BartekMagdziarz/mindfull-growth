@@ -8,9 +8,13 @@ import type { CreateWeeklyReflectionPayload } from '@/domain/reflection'
 import type { ReflectionSubjectType } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
-import { getPeriodBounds } from '@/utils/periods'
+import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 
+// The week ritual is one wizard: planning steps (always available) then reflection
+// steps (unlocked only from the penultimate day of the week onward — see reflectionUnlocked).
 export type WeeklyReflectionStep =
+  | 'intentions'
+  | 'priorities'
   | 'review'
   | 'demands'
   | 'actions'
@@ -18,18 +22,16 @@ export type WeeklyReflectionStep =
   | 'anchors'
   | 'journal'
 
-const STEP_ORDER: WeeklyReflectionStep[] = [
-  'review',
-  'demands',
-  'actions',
-  'state',
-  'anchors',
-  'journal',
-]
+const PLANNING_STEPS: WeeklyReflectionStep[] = ['intentions', 'priorities']
+const REFLECTION_STEPS: WeeklyReflectionStep[] = ['review', 'demands', 'actions', 'state', 'anchors', 'journal']
+
+const STEP_ORDER: WeeklyReflectionStep[] = [...PLANNING_STEPS, ...REFLECTION_STEPS]
 
 /** Map old step names to new names for draft migration */
 const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
-  // 'review' is now the object-review/confrontation step (first step again).
+  intentions: 'intentions',
+  priorities: 'priorities',
+  // 'review' is now the object-review/confrontation step (first reflection step).
   review: 'review',
   reflect: 'demands',
   ratings: 'demands',
@@ -49,12 +51,39 @@ function getDraftKey(weekRef: WeekRef): string {
   return `weekly-reflection-${weekRef}`
 }
 
+/**
+ * Reflection unlocks from the penultimate day (Saturday) of the week onward — which also
+ * covers every already-ended week. Future weeks and the early current week stay planning-only.
+ * Pure + exported so the gate can be unit-tested without mounting the wizard.
+ */
+export function isReflectionUnlocked(weekRef: WeekRef, todayDayRef: DayRef): boolean {
+  const penultimateDay = getChildPeriods(weekRef)[5] // [Mon..Sun] → [5] = Saturday
+  return penultimateDay ? todayDayRef >= penultimateDay : true
+}
+
 export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   const store = useStructuredReflectionStore()
 
-  // Step management
-  const currentStep = ref<WeeklyReflectionStep>('review')
+  // Step management — start on planning; reflection unlocks late in the week.
+  const currentStep = ref<WeeklyReflectionStep>('intentions')
   const stepIndex = computed(() => STEP_ORDER.indexOf(currentStep.value))
+
+  // Reflection unlocks from the penultimate day (Saturday) of the week onward, which also
+  // covers every already-ended week. Future weeks and the early current week stay planning-only.
+  const reflectionUnlocked = computed(() =>
+    isReflectionUnlocked(weekRef.value, getPeriodRefsForDate(new Date()).day),
+  )
+
+  function isStepLocked(step: WeeklyReflectionStep): boolean {
+    return REFLECTION_STEPS.includes(step) && !reflectionUnlocked.value
+  }
+
+  // The last step the user can reach right now (priorities when reflection is locked,
+  // journal when it's unlocked). The footer shows Save/Done here instead of Next.
+  const isLastStep = computed(() => {
+    const next = STEP_ORDER[stepIndex.value + 1]
+    return !next || isStepLocked(next)
+  })
 
   // Data bundle backing the journal step (emotion context + AI summary payload)
   const dataBundle = ref<WeeklyReflectionDataBundle | null>(null)
@@ -101,6 +130,9 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   // Step validation
   const canAdvance = computed(() => {
     switch (currentStep.value) {
+      case 'intentions':
+      case 'priorities':
+        return true
       case 'review':
         return true
       case 'demands':
@@ -135,8 +167,10 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
   function nextStep() {
     const idx = STEP_ORDER.indexOf(currentStep.value)
-    if (idx < STEP_ORDER.length - 1) {
-      currentStep.value = STEP_ORDER[idx + 1]
+    const next = STEP_ORDER[idx + 1]
+    // Never advance into a locked (not-yet-unlocked reflection) step.
+    if (next && !isStepLocked(next)) {
+      currentStep.value = next
     }
   }
 
@@ -148,6 +182,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   }
 
   function goToStep(step: WeeklyReflectionStep) {
+    if (isStepLocked(step)) return
     currentStep.value = step
   }
 
@@ -309,6 +344,11 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
         isEditing.value = true
       }
     }
+
+    // Defensive: a restored draft could point at a now-locked reflection step.
+    if (isStepLocked(currentStep.value)) {
+      currentStep.value = 'priorities'
+    }
   })
 
   onUnmounted(() => {
@@ -390,6 +430,11 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     nextStep,
     prevStep,
     goToStep,
+
+    // Step gating (planning always available; reflection unlocks late in the week)
+    reflectionUnlocked,
+    isStepLocked,
+    isLastStep,
 
     // Data bundle
     dataBundle,

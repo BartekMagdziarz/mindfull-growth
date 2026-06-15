@@ -358,6 +358,18 @@
       "ariaJournalEmpty": "Napisz wpis dzisiaj"
     }
   },
+  "weekWizard": {
+    "title": "Tydzień",
+    "openButton": "Otwórz tydzień",
+    "prioritiesIntro": "Wybierz kilka rzeczy, które są w tym tygodniu najważniejsze.",
+    "reflectionLockedHint": "Refleksja odblokuje się od soboty.",
+    "planNextWeek": "Zaplanuj następny tydzień →",
+    "done": "Gotowe",
+    "steps": {
+      "intentions": "Intencje",
+      "priorities": "Priorytety"
+    }
+  },
   "weekPlanning": {
     "title": "Zaplanuj tydzień",
     "intro": "Ustal intencje na ten tydzień, a potem wybierz kilka priorytetów, które chcesz dowieźć.",

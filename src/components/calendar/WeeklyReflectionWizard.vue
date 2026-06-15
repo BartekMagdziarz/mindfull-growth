@@ -1,9 +1,9 @@
 <template>
   <section data-testid="weekly-reflection-wizard" class="neo-card space-y-8 px-4 py-4 md:px-5">
     <!-- Header with step indicator -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-3">
       <h2 class="text-lg font-bold text-on-surface">
-        {{ t('planning.reflection.weekly.title') }}
+        {{ t('planning.weekWizard.title') }}
       </h2>
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.reflection.weekly.progress')">
@@ -11,14 +11,17 @@
             v-for="(label, idx) in stepLabels"
             :key="idx"
             type="button"
-            :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
+            :disabled="isStepLocked(STEPS[idx])"
+            :aria-label="`${idx + 1}. ${label}${isStepLocked(STEPS[idx]) ? ' (locked)' : idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
             class="rounded-full transition-all duration-200"
             :class="
-              idx < stepIndex
-                ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-                : idx === stepIndex
-                  ? 'neo-step-active w-3.5 h-3.5'
-                  : 'neo-step-future w-2.5 h-2.5'
+              isStepLocked(STEPS[idx])
+                ? 'neo-step-future w-2.5 h-2.5 opacity-40 cursor-not-allowed'
+                : idx < stepIndex
+                  ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
+                  : idx === stepIndex
+                    ? 'neo-step-active w-3.5 h-3.5'
+                    : 'neo-step-future w-2.5 h-2.5'
             "
             @click="idx < stepIndex && goToStep(STEPS[idx])"
           />
@@ -26,6 +29,9 @@
         <span class="text-xs font-medium text-on-surface-variant">
           {{ stepLabels[stepIndex] }}
         </span>
+        <AppButton variant="text" @click="emit('open-grid')">
+          {{ t('planning.weekPlanning.editGrid') }}
+        </AppButton>
         <AppButton
           variant="text"
           :aria-label="t('common.buttons.close')"
@@ -44,8 +50,57 @@
       leave-to-class="opacity-0"
       mode="out-in"
     >
+      <!-- Step: Intentions (planning) -->
+      <div v-if="currentStep === 'intentions'" key="intentions" class="space-y-4">
+        <ul v-if="intentions.length > 0" class="space-y-2">
+          <li
+            v-for="intention in intentions"
+            :key="intention.id"
+            class="neo-surface flex items-center gap-2 rounded-xl px-3 py-2 text-sm shadow-neu-raised-sm"
+          >
+            <AppIcon name="target" class="text-base text-on-surface-variant" />
+            <span class="min-w-0 flex-1 truncate font-medium text-on-surface">{{ intention.title }}</span>
+            <span class="shrink-0 text-xs text-on-surface-variant">{{ targetSummary(intention) }}</span>
+          </li>
+        </ul>
+        <p v-else class="text-xs text-on-surface-variant">
+          {{ t('planning.weekPlanning.intentions.empty') }}
+        </p>
+        <IntentionComposer :week-ref="props.weekRef" layout="stacked" @created="onIntentionCreated" />
+      </div>
+
+      <!-- Step: Priorities / top-3 (planning) -->
+      <div v-else-if="currentStep === 'priorities'" key="priorities" class="space-y-3">
+        <p class="text-sm text-on-surface-variant">
+          {{ t('planning.weekWizard.prioritiesIntro') }}
+        </p>
+        <ul v-if="candidates.length > 0" class="space-y-2">
+          <li v-for="candidate in candidates" :key="candidate.key">
+            <button
+              type="button"
+              class="neo-surface flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm shadow-neu-raised-sm transition-all"
+              :class="selectedKeys.includes(candidate.key) ? 'bg-primary/15 text-primary font-semibold' : 'text-on-surface'"
+              @click="toggleCandidate(candidate.key)"
+            >
+              <AppIcon :name="selectedKeys.includes(candidate.key) ? 'check_circle' : 'radio_button_unchecked'" class="text-base" />
+              <span class="min-w-0 flex-1 truncate">{{ candidate.title }}</span>
+              <span class="shrink-0 text-xs text-on-surface-variant">{{ candidate.typeLabel }}</span>
+            </button>
+          </li>
+        </ul>
+        <p v-else class="text-xs text-on-surface-variant">
+          {{ t('planning.weekPlanning.priorities.empty') }}
+        </p>
+        <p v-if="selectedKeys.length > SOFT_LIMIT" class="text-xs font-medium text-amber-600">
+          {{ t('planning.weekPlanning.priorities.softLimitWarning', { n: SOFT_LIMIT }) }}
+        </p>
+        <p v-if="!reflectionUnlocked" class="text-xs text-on-surface-variant">
+          {{ t('planning.weekWizard.reflectionLockedHint') }}
+        </p>
+      </div>
+
       <!-- Step: Review (confrontation + per-object comments) -->
-      <div v-if="currentStep === 'review'" key="review" class="space-y-3">
+      <div v-else-if="currentStep === 'review'" key="review" class="space-y-3">
         <p class="text-sm text-on-surface-variant">
           {{ t('planning.reflection.review.intro') }}
         </p>
@@ -127,37 +182,54 @@
       </AppButton>
       <div v-else />
 
-      <AppButton
-        v-if="currentStep === 'journal'"
-        variant="filled"
-        :disabled="isSaving"
-        @click="handleSave"
-      >
-        {{ isSaving ? t('planning.reflection.saving') : t('planning.reflection.save') }}
-      </AppButton>
-      <AppButton
-        v-else
-        variant="filled"
-        :disabled="!canAdvance"
-        :aria-label="t('common.buttons.next')"
-        @click="nextStep()"
-      >
-        <AppIcon name="arrow_forward" class="text-lg" />
-      </AppButton>
+      <div class="flex items-center gap-2">
+        <!-- Last reflection step: save + jump to planning next week. -->
+        <template v-if="currentStep === 'journal'">
+          <AppButton variant="text" :disabled="isSaving" @click="handleSaveAndPlanNext">
+            {{ t('planning.weekWizard.planNextWeek') }}
+          </AppButton>
+          <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
+            {{ isSaving ? t('planning.reflection.saving') : t('planning.reflection.save') }}
+          </AppButton>
+        </template>
+        <!-- Last reachable step while reflection is still locked: planning is saved live, just close. -->
+        <AppButton
+          v-else-if="isLastStep"
+          variant="filled"
+          @click="emit('close')"
+        >
+          {{ t('planning.weekWizard.done') }}
+        </AppButton>
+        <AppButton
+          v-else
+          variant="filled"
+          :disabled="!canAdvance"
+          :aria-label="t('common.buttons.next')"
+          @click="nextStep()"
+        >
+          <AppIcon name="arrow_forward" class="text-lg" />
+        </AppButton>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue'
+import { computed, onMounted, ref, toRef, watch } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import IntentionComposer from './IntentionComposer.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
 import ReflectionObjectReview from './ReflectionObjectReview.vue'
 import type { RatingGroup } from './ReflectionDimensionRatings.vue'
 import type { SidebarRatingGroup } from './ReflectionJournalSidebar.vue'
+import type { WeeklyIntention } from '@/domain/planning'
+import type { MeasurementSubjectType, WeekTopPriorityRef } from '@/domain/planningState'
+import { getWeekPlanningBundle } from '@/services/planningStateQueries'
+import { isMeasurementSubjectOpen } from '@/services/planningVisibility'
+import { listWeeklyIntentions, setWeekTopPriorities } from '@/services/weeklyIntentionService'
 import {
   useWeeklyReflectionWizard,
   type WeeklyReflectionStep,
@@ -180,9 +252,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   close: []
   updated: []
+  'open-grid': []
+  'plan-next-week': []
 }>()
 
+// Unified week ritual: planning steps first, then the (date-gated) reflection steps.
 const STEPS: WeeklyReflectionStep[] = [
+  'intentions',
+  'priorities',
   'review',
   'demands',
   'actions',
@@ -192,6 +269,8 @@ const STEPS: WeeklyReflectionStep[] = [
 ]
 
 const stepLabels = computed(() => [
+  t('planning.weekWizard.steps.intentions'),
+  t('planning.weekWizard.steps.priorities'),
   t('planning.reflection.steps.review'),
   t('planning.reflection.steps.demands'),
   t('planning.reflection.steps.actions'),
@@ -200,13 +279,14 @@ const stepLabels = computed(() => [
   t('planning.reflection.steps.journal'),
 ])
 
+// Slimmed to a 3-anchor core (D2): wins / hard parts / synthesis. The forward-looking
+// anchors (improvements, lookingAhead) moved to the planning side (week intention + top-3),
+// and gratitude was dropped from the default set. Object-level recap now lives in the
+// review step's per-object comments.
 const weeklyAnchorCategories = computed(() => [
   { key: 'wentWell', label: t('planning.reflection.weekly.anchors.wentWell'), icon: 'thumb_up' },
   { key: 'challenges', label: t('planning.reflection.weekly.anchors.challenges'), icon: 'warning' },
-  { key: 'gratitude', label: t('planning.reflection.weekly.anchors.gratitude'), icon: 'favorite' },
   { key: 'lessons', label: t('planning.reflection.weekly.anchors.lessons'), icon: 'lightbulb' },
-  { key: 'improvements', label: t('planning.reflection.weekly.anchors.improvements'), icon: 'build' },
-  { key: 'lookingAhead', label: t('planning.reflection.weekly.anchors.lookingAhead'), icon: 'arrow_forward' },
 ])
 
 const {
@@ -216,6 +296,9 @@ const {
   nextStep,
   prevStep,
   goToStep,
+  reflectionUnlocked,
+  isStepLocked,
+  isLastStep,
   dataBundle,
   objectComments,
   topPriorityKeys,
@@ -240,6 +323,102 @@ const {
 
 // Charts in the review step mark "today" at the week's end (the reflection's as-of day).
 const reviewTodayDayRef = computed(() => getPeriodBounds(props.weekRef).end as DayRef)
+
+// --- Planning steps (intentions + top-3) ---------------------------------------------
+// Planning persists live: intentions via IntentionComposer (creates on submit), top-3 via
+// setWeekTopPriorities on every toggle. The wizard's explicit Save is purely for reflection.
+const intentions = ref<WeeklyIntention[]>([])
+
+interface Candidate {
+  key: string
+  subjectType: MeasurementSubjectType
+  subjectId: string
+  title: string
+  typeLabel: string
+}
+const candidates = ref<Candidate[]>([])
+const selectedKeys = ref<string[]>([])
+const isSavingPlan = ref(false)
+
+function targetSummary(intention: WeeklyIntention): string {
+  const target = intention.target
+  const operator = t(`planning.objects.targetOperators.${target.operator}`)
+  if (target.kind === 'count') return `${operator} ${target.value}`
+  const aggregation = t(`planning.objects.targetAggregations.${target.aggregation}`)
+  return `${aggregation} ${operator} ${target.value}`
+}
+
+function typeLabelFor(subjectType: MeasurementSubjectType): string {
+  return t(`planning.weekPlanning.subjectType.${subjectType}`)
+}
+
+async function loadIntentions(): Promise<void> {
+  intentions.value = await listWeeklyIntentions(props.weekRef)
+}
+
+async function loadCandidates(): Promise<void> {
+  const bundle = await getWeekPlanningBundle(props.weekRef)
+  const seen = new Set<string>()
+  const list: Candidate[] = []
+  for (const item of bundle.relevant.measurementItems) {
+    if (item.subjectType === 'tracker') continue // no target → not an eligible priority
+    if (!isMeasurementSubjectOpen(item.subject)) continue
+    const key = `${item.subjectType}:${item.subject.id}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    list.push({
+      key,
+      subjectType: item.subjectType,
+      subjectId: item.subject.id,
+      title: item.subject.title,
+      typeLabel: typeLabelFor(item.subjectType),
+    })
+  }
+  candidates.value = list
+  selectedKeys.value = (bundle.weekPlan?.topPriorities ?? []).map(
+    (ref) => `${ref.subjectType}:${ref.subjectId}`,
+  )
+}
+
+async function persistTopPriorities(): Promise<void> {
+  const byKey = new Map(candidates.value.map((c) => [c.key, c]))
+  const refs: WeekTopPriorityRef[] = selectedKeys.value
+    .map((key) => byKey.get(key))
+    .filter((c): c is Candidate => Boolean(c))
+    .map((c) => ({ subjectType: c.subjectType, subjectId: c.subjectId }))
+  isSavingPlan.value = true
+  try {
+    await setWeekTopPriorities(props.weekRef, refs)
+    emit('updated')
+  } finally {
+    isSavingPlan.value = false
+  }
+}
+
+function toggleCandidate(key: string): void {
+  selectedKeys.value = selectedKeys.value.includes(key)
+    ? selectedKeys.value.filter((value) => value !== key)
+    : [...selectedKeys.value, key]
+  void persistTopPriorities()
+}
+
+async function onIntentionCreated(): Promise<void> {
+  await Promise.all([loadIntentions(), loadCandidates()])
+  emit('updated')
+}
+
+const SOFT_LIMIT = 3
+
+onMounted(() => {
+  void Promise.all([loadIntentions(), loadCandidates()])
+})
+
+watch(
+  () => props.weekRef,
+  () => {
+    void Promise.all([loadIntentions(), loadCandidates()])
+  },
+)
 
 // Icon sets for each dimension
 const ICONS = {
@@ -477,6 +656,17 @@ async function handleSave() {
     await save()
     emit('updated')
     emit('close')
+  } catch (err) {
+    console.error('Failed to save weekly reflection:', err)
+  }
+}
+
+// Last reflection step: save this week's reflection, then jump to planning next week (W+1).
+async function handleSaveAndPlanNext() {
+  try {
+    await save()
+    emit('updated')
+    emit('plan-next-week')
   } catch (err) {
     console.error('Failed to save weekly reflection:', err)
   }

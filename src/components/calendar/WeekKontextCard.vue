@@ -1,53 +1,27 @@
 <template>
   <div class="kontekst-host" @click="handleHostClick">
     <SummaryCard :title="t('planning.reflection.review.kontekstTitle')">
-      <template v-if="hasReflection && showActions" #header-action>
-        <button
-          type="button"
-          class="kontekst-edit neo-focus"
-          :title="t('planning.reflection.review.kontekstEditButton')"
-          :aria-label="t('planning.reflection.review.kontekstEditButton')"
-          @click.stop="$emit('edit-reflection')"
-        >
-          <AppIcon name="edit" class="text-sm" />
-        </button>
-      </template>
-
-      <!-- Plan vs execution — rings when a plan exists, create CTA otherwise.
-           Lives here so plan + reflection share one "summary" home. -->
+      <!-- Plan-vs-execution rings (display only — the single button below is the entry). -->
       <PlanExecutionSection
         class="kontekst-section"
         :has-plan="hasPlan"
         :has-objects="planHasObjects"
         :rings="planRings"
-        :show-actions="showActions"
-        @create-plan="$emit('create-plan')"
-        @edit-plan="$emit('edit-plan')"
+        :show-actions="false"
       />
 
-      <template v-if="!hasReflection">
-        <!-- A week that hasn't started yet has nothing to reflect on. -->
-        <p v-if="isFutureWeek" class="kontekst-section kontekst-future">
-          {{ t('planning.reflection.review.kontekstFutureWeekHint') }}
-        </p>
-        <button
-          v-else-if="showActions"
-          type="button"
-          class="kontekst-section neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
-          @click.stop="$emit('create-reflection')"
-        >
-          <AppIcon name="auto_awesome" class="text-sm" />
-          {{ t('planning.reflection.review.kontekstCreateButton') }}
-        </button>
-        <p
-          v-else
-          class="kontekst-section text-center text-xs text-on-surface-variant/70"
-        >
-          —
-        </p>
-      </template>
+      <!-- One entry to the whole week ritual: planning now, reflection unlocks late in the week. -->
+      <button
+        v-if="showActions"
+        type="button"
+        class="kontekst-section neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
+        @click.stop="$emit('create-reflection')"
+      >
+        <AppIcon name="calendar_view_week" class="text-sm" />
+        {{ t('planning.weekWizard.openButton') }}
+      </button>
 
-      <template v-else>
+      <template v-if="hasReflection">
         <!-- AI summary (expandable) — only when persisted on the reflection -->
         <div v-if="aiSummary" class="kontekst-section kontekst-ai">
           <button
@@ -162,7 +136,6 @@ import {
   type WeeklyReflection,
 } from '@/domain/reflection'
 import type { WeekPlanSummary } from '@/services/weeklyPlanSummary'
-import { getPeriodBounds } from '@/utils/periods'
 
 const props = withDefaults(
   defineProps<{
@@ -203,12 +176,6 @@ const reflection = computed<WeeklyReflection | undefined>(
 )
 
 const hasReflection = computed(() => reflection.value !== undefined)
-
-// Reflection is offered only once the week has started; a stored reflection
-// (e.g. created before navigating ahead) still renders for future weeks.
-const isFutureWeek = computed(
-  () => (getPeriodBounds(props.weekRef).start as DayRef) > props.todayDayRef,
-)
 
 const planHasObjects = computed(
   () =>
@@ -302,14 +269,11 @@ const ratingGroups = computed<DimensionGroup[]>(() => [
   },
 ])
 
-// Anchor categories — kept in sync with WeeklyReflectionWizard.weeklyAnchorCategories
+// Anchor categories — kept in sync with WeeklyReflectionWizard.weeklyAnchorCategories (D2: 3-anchor core)
 const anchorCategories = computed(() => [
   { key: 'wentWell', label: t('planning.reflection.weekly.anchors.wentWell'), icon: 'thumb_up' },
   { key: 'challenges', label: t('planning.reflection.weekly.anchors.challenges'), icon: 'warning' },
-  { key: 'gratitude', label: t('planning.reflection.weekly.anchors.gratitude'), icon: 'favorite' },
   { key: 'lessons', label: t('planning.reflection.weekly.anchors.lessons'), icon: 'lightbulb' },
-  { key: 'improvements', label: t('planning.reflection.weekly.anchors.improvements'), icon: 'build' },
-  { key: 'lookingAhead', label: t('planning.reflection.weekly.anchors.lookingAhead'), icon: 'arrow_forward' },
 ])
 
 function getAnchorLines(key: string): string[] {
