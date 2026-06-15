@@ -430,13 +430,13 @@ function formatMeasurementTarget(target: MeasurementTarget): string {
     case 'value':
       return t('planning.calendar.details.targetRule', {
         aggregation: t(`planning.calendar.labels.aggregation.${target.aggregation}`),
-        operator: formatComparisonOperator(target.operator),
+        operator: t(`planning.objects.targetOperators.${target.operator}`),
         value: formatMeasurementValue(target.value),
       })
     case 'rating':
       return t('planning.calendar.details.targetRule', {
         aggregation: t('planning.calendar.labels.aggregation.average'),
-        operator: formatComparisonOperator(target.operator),
+        operator: t(`planning.objects.targetOperators.${target.operator}`),
         value: formatMeasurementValue(target.value),
       })
   }
@@ -450,10 +450,6 @@ function formatMeasurementActual(item: TodayMeasurementItem): string {
   return t('planning.calendar.details.actual', {
     value: formatMeasurementValue(item.measurement.actualValue),
   })
-}
-
-function formatComparisonOperator(operator: 'gte' | 'lte'): string {
-  return operator === 'gte' ? '>=' : '<='
 }
 
 function formatMeasurementValue(value: number): string {

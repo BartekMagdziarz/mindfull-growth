@@ -378,7 +378,6 @@
     "save": "Zapisz",
     "close": "Zamknij",
     "editGrid": "Edytuj siatkę dni",
-    "stepProgress": "Krok {current} z {total}",
     "steps": {
       "intentions": "Intencje tygodnia",
       "priorities": "Najważniejsze priorytety"
@@ -388,10 +387,7 @@
       "heading": "Nowa intencja",
       "titleLabel": "Nazwa intencji",
       "titlePlaceholder": "np. Wstawać o 6:00",
-      "add": "Dodaj intencję",
-      "layoutPreview": "Podgląd układu",
-      "layoutCompact": "Zwarty wiersz",
-      "layoutStacked": "Composer z segmentem"
+      "add": "Dodaj intencję"
     },
     "priorities": {
       "empty": "Nie ma jeszcze nic aktywnego do spriorytetyzowania — dodaj intencję lub aktywuj cel.",
@@ -632,13 +628,19 @@
     "targetOperators": {
       "min": "Co najmniej",
       "max": "Co najwyżej",
-      "gte": ">=",
-      "lte": "<="
+      "gte": "Co najmniej",
+      "lte": "Co najwyżej"
     },
     "targetAggregations": {
       "sum": "Suma",
       "average": "Średnia",
       "last": "Ostatnia wartość"
+    },
+    "targetSentence": {
+      "perWeek": "w tygodniu",
+      "perMonth": "w miesiącu",
+      "timesUnit": "razy",
+      "ratingOutOf": "na {max}"
     },
     "chart": {
       "noActivePeriods": "Brak aktywnych okresów",

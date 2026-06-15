@@ -378,7 +378,6 @@
     "save": "Save",
     "close": "Close",
     "editGrid": "Edit day grid",
-    "stepProgress": "Step {current} of {total}",
     "steps": {
       "intentions": "Week intentions",
       "priorities": "Top priorities"
@@ -388,10 +387,7 @@
       "heading": "New intention",
       "titleLabel": "Intention title",
       "titlePlaceholder": "e.g. Wake up at 6am",
-      "add": "Add intention",
-      "layoutPreview": "Layout preview",
-      "layoutCompact": "Compact row",
-      "layoutStacked": "Stacked composer"
+      "add": "Add intention"
     },
     "priorities": {
       "empty": "Nothing active to prioritise yet — add an intention or activate an objective.",
@@ -632,13 +628,19 @@
     "targetOperators": {
       "min": "At least",
       "max": "At most",
-      "gte": ">=",
-      "lte": "<="
+      "gte": "At least",
+      "lte": "At most"
     },
     "targetAggregations": {
       "sum": "Sum",
       "average": "Average",
       "last": "Last value"
+    },
+    "targetSentence": {
+      "perWeek": "per week",
+      "perMonth": "per month",
+      "timesUnit": "times",
+      "ratingOutOf": "out of {max}"
     },
     "chart": {
       "noActivePeriods": "No active periods",
