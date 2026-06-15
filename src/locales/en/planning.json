@@ -640,7 +640,13 @@
       "perWeek": "per week",
       "perMonth": "per month",
       "timesUnit": "times",
-      "ratingOutOf": "out of {max}"
+      "ratingOutOf": "out of {max}",
+      "mode": {
+        "completion": "Do",
+        "counter": "Count",
+        "value": "Measure",
+        "rating": "Rate"
+      }
     },
     "chart": {
       "noActivePeriods": "No active periods",

@@ -20,6 +20,8 @@ const props = withDefaults(
     ratingScaleMin?: number
     /** Render the leading entry-mode pill. Hosts that pick the mode elsewhere can hide it. */
     showMode?: boolean
+    /** Render only the pills, without the inset surface wrapper (the host provides it). */
+    bare?: boolean
     disabled?: boolean
   }>(),
   {
@@ -27,6 +29,7 @@ const props = withDefaults(
     ratingScale: 5,
     ratingScaleMin: 1,
     showMode: true,
+    bare: false,
     disabled: false,
   },
 )
@@ -44,11 +47,13 @@ function commit(entryMode: MeasurementEntryMode, target: MeasurementTarget): voi
   emit('update:measurement', { entryMode, target })
 }
 
+// Verb forms ("Wykonuj / Zliczaj / Mierz / Oceniaj") so the mode pill reads as the
+// start of a sentence. The noun badges stay where they label/summarise the mode.
 const entryModeOptions = computed(() => [
-  { value: 'completion', label: t('planning.objects.badges.entryMode.completion') },
-  { value: 'counter', label: t('planning.objects.badges.entryMode.counter') },
-  { value: 'value', label: t('planning.objects.badges.entryMode.value') },
-  { value: 'rating', label: t('planning.objects.badges.entryMode.rating') },
+  { value: 'completion', label: t('planning.objects.targetSentence.mode.completion') },
+  { value: 'counter', label: t('planning.objects.targetSentence.mode.counter') },
+  { value: 'value', label: t('planning.objects.targetSentence.mode.value') },
+  { value: 'rating', label: t('planning.objects.targetSentence.mode.rating') },
 ])
 
 // Operator labels are now words ("co najmniej / co najwyżej") for every kind, so the
@@ -150,8 +155,8 @@ function onValue(raw: string): void {
 
 <template>
   <div
-    class="neo-surface flex flex-wrap items-center gap-x-1.5 gap-y-2 rounded-xl px-3 py-2 text-sm text-on-surface"
-    :class="disabled ? 'pointer-events-none opacity-60' : ''"
+    class="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm text-on-surface"
+    :class="[bare ? '' : 'neo-surface rounded-xl px-3 py-2', disabled ? 'pointer-events-none opacity-60' : '']"
   >
     <KrPillDropdown
       v-if="showMode"
@@ -160,7 +165,6 @@ function onValue(raw: string): void {
       :disabled="disabled"
       @update:model-value="onMode"
     />
-    <span v-if="showMode" aria-hidden="true" class="text-on-surface-variant/50">·</span>
 
     <!-- rating: aggregation is fixed to 'average', shown as a plain word -->
     <span v-if="entryMode === 'rating'" class="text-on-surface-variant">

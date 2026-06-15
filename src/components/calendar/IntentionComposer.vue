@@ -53,28 +53,32 @@ async function addIntention(): Promise<void> {
 </script>
 
 <template>
-  <div data-testid="intention-composer" class="neo-card neo-card--composer space-y-3 rounded-2xl p-4">
+  <div data-testid="intention-composer" class="max-w-md space-y-3">
     <h4 class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
       {{ t('planning.weekPlanning.intentions.heading') }}
     </h4>
 
-    <label class="block">
-      <span class="sr-only">{{ t('planning.weekPlanning.intentions.titleLabel') }}</span>
-      <input
-        v-model="draft.title"
-        type="text"
-        class="neo-input w-full max-w-sm px-3 py-2 text-sm font-medium text-on-surface"
-        :placeholder="t('planning.weekPlanning.intentions.titlePlaceholder')"
-        @keydown.enter.prevent="addIntention"
-      />
-    </label>
+    <!-- One inset field: title on top, target sentence (pills) below. -->
+    <div class="neo-surface space-y-3 rounded-2xl px-3.5 py-3">
+      <label class="block border-b border-neu-border/15 pb-2.5">
+        <span class="sr-only">{{ t('planning.weekPlanning.intentions.titleLabel') }}</span>
+        <input
+          v-model="draft.title"
+          type="text"
+          class="w-full bg-transparent text-sm font-medium text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none"
+          :placeholder="t('planning.weekPlanning.intentions.titlePlaceholder')"
+          @keydown.enter.prevent="addIntention"
+        />
+      </label>
 
-    <MeasurementTargetSentence
-      :entry-mode="draft.entryMode"
-      :target="draft.target"
-      cadence="weekly"
-      @update:measurement="onUpdateMeasurement"
-    />
+      <MeasurementTargetSentence
+        bare
+        :entry-mode="draft.entryMode"
+        :target="draft.target"
+        cadence="weekly"
+        @update:measurement="onUpdateMeasurement"
+      />
+    </div>
 
     <div class="flex justify-end">
       <AppButton variant="filled" :disabled="!canAddIntention || isSaving" @click="addIntention">

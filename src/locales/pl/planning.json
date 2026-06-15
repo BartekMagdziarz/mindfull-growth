@@ -640,7 +640,13 @@
       "perWeek": "w tygodniu",
       "perMonth": "w miesiącu",
       "timesUnit": "razy",
-      "ratingOutOf": "na {max}"
+      "ratingOutOf": "na {max}",
+      "mode": {
+        "completion": "Wykonuj",
+        "counter": "Zliczaj",
+        "value": "Mierz",
+        "rating": "Oceniaj"
+      }
     },
     "chart": {
       "noActivePeriods": "Brak aktywnych okresów",
