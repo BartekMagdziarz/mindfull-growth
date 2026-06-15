@@ -51,23 +51,17 @@
       mode="out-in"
     >
       <!-- Step: Intentions (planning) -->
-      <div v-if="currentStep === 'intentions'" key="intentions" class="space-y-4">
-        <ul v-if="intentions.length > 0" class="space-y-2">
-          <li
+      <div v-if="currentStep === 'intentions'" key="intentions">
+        <!-- Created intentions are slots; the composer is the trailing slot and
+             shifts right as each new intention fills the slot it occupied. -->
+        <div class="flex flex-wrap items-start gap-4">
+          <IntentionCard
             v-for="intention in intentions"
             :key="intention.id"
-            class="neo-surface flex items-center gap-2 rounded-xl px-3 py-2 text-sm shadow-neu-raised-sm"
-          >
-            <AppIcon name="target" class="text-base text-on-surface-variant" />
-            <span class="min-w-0 flex-1 truncate font-medium text-on-surface">{{ intention.title }}</span>
-            <span class="shrink-0 text-xs text-on-surface-variant">{{ targetSummary(intention) }}</span>
-          </li>
-        </ul>
-        <p v-else class="text-xs text-on-surface-variant">
-          {{ t('planning.weekPlanning.intentions.empty') }}
-        </p>
-
-        <IntentionComposer :week-ref="props.weekRef" @created="onIntentionCreated" />
+            :intention="intention"
+          />
+          <IntentionComposer :week-ref="props.weekRef" @created="onIntentionCreated" />
+        </div>
       </div>
 
       <!-- Step: Priorities / top-3 (planning) -->
@@ -219,6 +213,7 @@
 import { computed, onMounted, ref, toRef, watch } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import IntentionCard from './IntentionCard.vue'
 import IntentionComposer from './IntentionComposer.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
@@ -340,14 +335,6 @@ interface Candidate {
 const candidates = ref<Candidate[]>([])
 const selectedKeys = ref<string[]>([])
 const isSavingPlan = ref(false)
-
-function targetSummary(intention: WeeklyIntention): string {
-  const target = intention.target
-  const operator = t(`planning.objects.targetOperators.${target.operator}`)
-  if (target.kind === 'count') return `${operator} ${target.value}`
-  const aggregation = t(`planning.objects.targetAggregations.${target.aggregation}`)
-  return `${aggregation} ${operator} ${target.value}`
-}
 
 function typeLabelFor(subjectType: MeasurementSubjectType): string {
   return t(`planning.weekPlanning.subjectType.${subjectType}`)

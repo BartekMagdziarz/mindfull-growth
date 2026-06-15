@@ -53,7 +53,7 @@ async function addIntention(): Promise<void> {
 </script>
 
 <template>
-  <div data-testid="intention-composer" class="max-w-md space-y-3">
+  <div data-testid="intention-composer" class="w-full space-y-3 sm:w-[28rem]">
     <h4 class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
       {{ t('planning.weekPlanning.intentions.heading') }}
     </h4>
