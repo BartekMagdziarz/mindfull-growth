@@ -102,55 +102,15 @@
           class="neo-surface rounded-xl p-2.5"
         >
           <div class="text-xs font-semibold text-on-surface">{{ labels.target }}</div>
-          <div class="mt-3 grid gap-3 md:grid-cols-[minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,0.7fr)]">
-            <div class="space-y-2">
-              <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-                {{ labels.targetOperator }}
-              </span>
-              <div class="neo-segmented flex w-full flex-wrap">
-                <button
-                  v-for="option in targetOperatorOptions"
-                  :key="option.value"
-                  type="button"
-                  :class="optionClass(draft.target.operator === option.value)"
-                  :aria-pressed="draft.target.operator === option.value"
-                  @click="draft.target.operator = option.value"
-                >
-                  {{ option.label }}
-                </button>
-              </div>
-            </div>
-
-            <div v-if="showTargetAggregation" class="space-y-2">
-              <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-                {{ labels.targetAggregation }}
-              </span>
-              <div class="neo-segmented flex w-full flex-wrap">
-                <button
-                  v-for="option in targetAggregationOptions"
-                  :key="option.value"
-                  type="button"
-                  :class="optionClass(draft.target.aggregation === option.value)"
-                  :aria-pressed="draft.target.aggregation === option.value"
-                  @click="draft.target.aggregation = option.value"
-                >
-                  {{ option.label }}
-                </button>
-              </div>
-            </div>
-
-            <label class="space-y-1">
-              <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-                {{ labels.targetValue }}
-              </span>
-              <input
-                v-model.number="draft.target.value"
-                type="number"
-                step="any"
-                class="neo-input w-full px-3 py-1.5 text-sm"
-              />
-            </label>
-          </div>
+          <MeasurementTargetSentence
+            bare
+            :entry-mode="sentenceEntryMode"
+            :target="sentenceTarget"
+            :cadence="draft.cadence === 'monthly' ? 'monthly' : 'weekly'"
+            :show-mode="false"
+            class="mt-3"
+            @update:measurement="onTargetMeasurement"
+          />
         </div>
       </div>
 
@@ -221,10 +181,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import ObjectsLibraryPillSelect from '@/components/objects/ObjectsLibraryPillSelect.vue'
+import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryPanelType } from '@/services/objectsLibraryQueries'
-import type { MeasurementEntryMode } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 
 interface LibraryTargetDraft {
   kind: 'count' | 'value' | 'rating'
@@ -334,5 +296,43 @@ function optionClass(active: boolean): string {
     '!text-xs',
     active ? 'neo-segmented__item--active' : '',
   ].join(' ')
+}
+
+// Adapter: the draft holds a flat LibraryTargetDraft; the sentence speaks the domain
+// MeasurementTarget. Derive the mode from target.kind (authoritative for operator/
+// aggregation options), falling back to draft.entryMode only for completion-vs-counter.
+const sentenceEntryMode = computed<MeasurementEntryMode>(() => {
+  const kind = draft.value.target.kind
+  if (kind === 'value') return 'value'
+  if (kind === 'rating') return 'rating'
+  return draft.value.entryMode === 'counter' ? 'counter' : 'completion'
+})
+
+const sentenceTarget = computed<MeasurementTarget>(() => {
+  const d = draft.value.target
+  if (d.kind === 'count') {
+    return { kind: 'count', operator: d.operator === 'max' ? 'max' : 'min', value: d.value }
+  }
+  if (d.kind === 'rating') {
+    return { kind: 'rating', aggregation: 'average', operator: d.operator === 'lte' ? 'lte' : 'gte', value: d.value }
+  }
+  return {
+    kind: 'value',
+    aggregation: d.aggregation ?? 'sum',
+    operator: d.operator === 'lte' ? 'lte' : 'gte',
+    value: d.value,
+  }
+})
+
+function onTargetMeasurement(measurement: {
+  entryMode: MeasurementEntryMode
+  target: MeasurementTarget
+}): void {
+  const next = measurement.target
+  const target = draft.value.target
+  target.kind = next.kind
+  target.operator = next.operator
+  target.value = next.value
+  target.aggregation = next.kind === 'value' || next.kind === 'rating' ? next.aggregation : undefined
 }
 </script>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
 import { useT } from '@/composables/useT'
 import type {
@@ -145,9 +145,22 @@ function onAggregation(value: string): void {
   }
 }
 
-function onValue(raw: string): void {
-  const parsed = Number(raw)
-  if (!Number.isFinite(parsed)) return
+// Local buffer for the value: typing stays local (no autosave thrash, no controlled-input
+// cursor jumps), committing only on blur/Enter, and re-syncs when the target changes externally.
+const localValue = ref(String(props.target.value))
+watch(
+  () => props.target.value,
+  (value) => {
+    localValue.value = String(value)
+  },
+)
+
+function commitValue(): void {
+  const parsed = Number(localValue.value)
+  if (!Number.isFinite(parsed)) {
+    localValue.value = String(props.target.value)
+    return
+  }
   const value = props.target.kind === 'count' ? Math.round(parsed) : parsed
   commit(props.entryMode, { ...props.target, value } as MeasurementTarget)
 }
@@ -187,13 +200,14 @@ function onValue(raw: string): void {
     />
 
     <input
+      v-model="localValue"
       type="number"
       v-bind="valueAttrs"
-      :value="target.value"
       :disabled="disabled"
       class="neo-input w-16 rounded-full px-2 py-1 text-center text-sm font-semibold text-on-surface"
       :aria-label="t('planning.objects.form.targetValue')"
-      @input="onValue(($event.target as HTMLInputElement).value)"
+      @change="commitValue"
+      @keydown.enter.prevent="commitValue"
     />
 
     <span class="text-on-surface-variant">{{ unitSuffix }}</span>

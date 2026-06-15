@@ -227,46 +227,15 @@
               <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
                 {{ t('planning.objects.form.target') }}
               </div>
-              <div class="space-y-1.5">
-                <!-- Aggregation (only for value/rating) -->
-                <div v-if="showTargetAggregation" class="flex items-center gap-2">
-                  <span class="text-[8px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant/70">
-                    {{ t('planning.objects.form.targetAggregation') }}
-                  </span>
-                  <KrPillDropdown
-                    :model-value="targetAggregationValue"
-                    :options="targetAggregationOptions"
-                    @update:model-value="emitFieldChange('target.aggregation', $event)"
-                  />
-                </div>
-
-                <!-- Operator -->
-                <div class="flex items-center gap-2">
-                  <span class="text-[8px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant/70">
-                    {{ t('planning.objects.form.targetOperator') }}
-                  </span>
-                  <KrPillDropdown
-                    :model-value="item.target.operator"
-                    :options="targetOperatorOptions"
-                    @update:model-value="emitFieldChange('target.operator', $event)"
-                  />
-                </div>
-
-                <!-- Value -->
-                <div class="flex items-center gap-2">
-                  <span class="text-[8px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant/70">
-                    {{ t('planning.objects.form.targetValue') }}
-                  </span>
-                  <input
-                    ref="targetValueRef"
-                    v-model="targetValue"
-                    type="number"
-                    step="any"
-                    class="neo-input w-16 px-2 py-1 text-xs"
-                    @blur="flushTargetValue"
-                  />
-                </div>
-              </div>
+              <MeasurementTargetSentence
+                :entry-mode="item.entryMode ?? 'completion'"
+                :target="item.target"
+                :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                :rating-scale="item.ratingScale"
+                :rating-scale-min="item.ratingScaleMin"
+                :show-mode="false"
+                @update:measurement="onTargetMeasurement"
+              />
             </div>
           </div>
 
@@ -304,12 +273,14 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
+import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
+import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import { getNextPeriod, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
@@ -361,17 +332,6 @@ const { value: description, inputRef: descriptionRef, flush: flushDescription } 
   delay: 400,
 })
 
-const { value: targetValue, inputRef: targetValueRef, flush: flushTargetValue } = useEditableField<number | undefined, string>({
-  source: () => props.item.target?.value,
-  format: (v) => (v == null ? '' : String(v)),
-  commit: (raw) => {
-    const num = Number(raw)
-    if (!Number.isFinite(num)) return
-    emitFieldChange('target.value', num)
-  },
-  delay: 400,
-})
-
 const cadenceLabel = computed(() => {
   const opt = props.cadenceOptions.find((o) => o.value === props.item.cadence)
   return opt?.label ?? props.item.cadence ?? ''
@@ -410,40 +370,23 @@ function handleScaleMaxChange(event: Event): void {
   }
 }
 
-const showTargetAggregation = computed(() => {
-  return props.item.entryMode === 'value' || props.item.entryMode === 'rating'
-})
-
-const targetOperatorOptions = computed(() => {
-  if (props.item.entryMode === 'completion' || props.item.entryMode === 'counter') {
-    return [
-      { value: 'min', label: t('planning.objects.targetOperators.min') },
-      { value: 'max', label: t('planning.objects.targetOperators.max') },
-    ]
+// Map the sentence's full {entryMode, target} update back to the card's granular
+// field-change autosave (target.kind is fixed here — the mode pill lives in Row A).
+function onTargetMeasurement(measurement: {
+  entryMode: MeasurementEntryMode
+  target: MeasurementTarget
+}): void {
+  const current = props.item.target
+  if (!current) return
+  const next = measurement.target
+  if (next.operator !== current.operator) emitFieldChange('target.operator', next.operator)
+  const nextAggregation = 'aggregation' in next ? next.aggregation : undefined
+  const currentAggregation = 'aggregation' in current ? current.aggregation : undefined
+  if (nextAggregation !== undefined && nextAggregation !== currentAggregation) {
+    emitFieldChange('target.aggregation', nextAggregation)
   }
-  return [
-    { value: 'gte', label: t('planning.objects.targetOperators.gte') },
-    { value: 'lte', label: t('planning.objects.targetOperators.lte') },
-  ]
-})
-
-const targetAggregationOptions = computed(() => {
-  if (props.item.entryMode === 'rating') {
-    return [{ value: 'average', label: t('planning.objects.targetAggregations.average') }]
-  }
-  return [
-    { value: 'sum', label: t('planning.objects.targetAggregations.sum') },
-    { value: 'average', label: t('planning.objects.targetAggregations.average') },
-    { value: 'last', label: t('planning.objects.targetAggregations.last') },
-  ]
-})
-
-const targetAggregationValue = computed(() => {
-  const target = props.item.target
-  if (!target) return 'sum'
-  if (target.kind === 'value' || target.kind === 'rating') return target.aggregation
-  return 'sum'
-})
+  if (next.value !== current.value) emitFieldChange('target.value', next.value)
+}
 
 const linkedPeriodRefs = computed(() => new Set(props.linkedPeriods.map((p) => p.periodRef)))
 

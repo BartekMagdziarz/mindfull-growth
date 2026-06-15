@@ -179,46 +179,13 @@
               <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
                 {{ t('planning.objects.form.target') }}
               </div>
-              <div class="space-y-1.5">
-                <!-- Aggregation (only for value/rating) -->
-                <div v-if="showTargetAggregation" class="flex items-center gap-2">
-                  <span class="text-[8px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant/70">
-                    {{ t('planning.objects.form.targetAggregation') }}
-                  </span>
-                  <KrPillDropdown
-                    :model-value="child.target.kind === 'value' || child.target.kind === 'rating' ? (child.target as any).aggregation : 'sum'"
-                    :options="targetAggregationOptions"
-                    @update:model-value="emitFieldChange('target.aggregation', $event)"
-                  />
-                </div>
-
-                <!-- Operator -->
-                <div class="flex items-center gap-2">
-                  <span class="text-[8px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant/70">
-                    {{ t('planning.objects.form.targetOperator') }}
-                  </span>
-                  <KrPillDropdown
-                    :model-value="child.target.operator"
-                    :options="targetOperatorOptions"
-                    @update:model-value="emitFieldChange('target.operator', $event)"
-                  />
-                </div>
-
-                <!-- Value -->
-                <div class="flex items-center gap-2">
-                  <span class="text-[8px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant/70">
-                    {{ t('planning.objects.form.targetValue') }}
-                  </span>
-                  <input
-                    ref="targetValueRef"
-                    v-model="targetValue"
-                    type="number"
-                    step="any"
-                    class="neo-input w-16 px-2 py-1 text-xs"
-                    @blur="flushTargetValue"
-                  />
-                </div>
-              </div>
+              <MeasurementTargetSentence
+                :entry-mode="child.entryMode ?? 'completion'"
+                :target="child.target"
+                :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
+                :show-mode="false"
+                @update:measurement="onTargetMeasurement"
+              />
             </div>
           </div>
 
@@ -250,11 +217,13 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
+import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import type { ObjectsLibraryChildPreview } from '@/services/objectsLibraryQueries'
+import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import {
   getChildPeriods,
@@ -320,16 +289,21 @@ const { value: description, inputRef: descriptionRef, flush: flushDescription } 
   delay: 400,
 })
 
-const { value: targetValue, inputRef: targetValueRef, flush: flushTargetValue } = useEditableField<number | undefined, string>({
-  source: () => props.child.target.value,
-  format: (v) => (v == null ? '' : String(v)),
-  commit: (raw) => {
-    const num = Number(raw)
-    if (!Number.isFinite(num)) return
-    emitFieldChange('target.value', num)
-  },
-  delay: 400,
-})
+// Map the sentence's {entryMode, target} update to granular field-change autosave.
+function onTargetMeasurement(measurement: {
+  entryMode: MeasurementEntryMode
+  target: MeasurementTarget
+}): void {
+  const current = props.child.target
+  const next = measurement.target
+  if (next.operator !== current.operator) emitFieldChange('target.operator', next.operator)
+  const nextAggregation = 'aggregation' in next ? next.aggregation : undefined
+  const currentAggregation = 'aggregation' in current ? current.aggregation : undefined
+  if (nextAggregation !== undefined && nextAggregation !== currentAggregation) {
+    emitFieldChange('target.aggregation', nextAggregation)
+  }
+  if (next.value !== current.value) emitFieldChange('target.value', next.value)
+}
 
 const cadenceLabel = computed(() => {
   const opt = props.cadenceOptions.find((o) => o.value === props.child.cadence)
