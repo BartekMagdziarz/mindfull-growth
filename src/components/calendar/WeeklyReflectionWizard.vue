@@ -66,7 +66,38 @@
         <p v-else class="text-xs text-on-surface-variant">
           {{ t('planning.weekPlanning.intentions.empty') }}
         </p>
-        <IntentionComposer :week-ref="props.weekRef" layout="stacked" @created="onIntentionCreated" />
+
+        <div class="flex items-center justify-end gap-2">
+          <span class="text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant">
+            {{ t('planning.weekPlanning.intentions.layoutPreview') }}
+          </span>
+          <div
+            class="neo-segmented"
+            role="group"
+            :aria-label="t('planning.weekPlanning.intentions.layoutPreview')"
+          >
+            <button
+              type="button"
+              class="neo-segmented__item neo-focus !min-w-0 !px-3 !py-1.5 !text-xs"
+              :class="composerLayout === 'compact' ? 'neo-segmented__item--active' : ''"
+              :aria-pressed="composerLayout === 'compact'"
+              @click="setComposerLayout('compact')"
+            >
+              {{ t('planning.weekPlanning.intentions.layoutCompact') }}
+            </button>
+            <button
+              type="button"
+              class="neo-segmented__item neo-focus !min-w-0 !px-3 !py-1.5 !text-xs"
+              :class="composerLayout === 'stacked' ? 'neo-segmented__item--active' : ''"
+              :aria-pressed="composerLayout === 'stacked'"
+              @click="setComposerLayout('stacked')"
+            >
+              {{ t('planning.weekPlanning.intentions.layoutStacked') }}
+            </button>
+          </div>
+        </div>
+
+        <IntentionComposer :week-ref="props.weekRef" :layout="composerLayout" @created="onIntentionCreated" />
       </div>
 
       <!-- Step: Priorities / top-3 (planning) -->
@@ -218,7 +249,7 @@
 import { computed, onMounted, ref, toRef, watch } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import IntentionComposer from './IntentionComposer.vue'
+import IntentionComposer, { type ComposerLayout } from './IntentionComposer.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
@@ -328,6 +359,26 @@ const reviewTodayDayRef = computed(() => getPeriodBounds(props.weekRef).end as D
 // Planning persists live: intentions via IntentionComposer (creates on submit), top-3 via
 // setWeekTopPriorities on every toggle. The wizard's explicit Save is purely for reflection.
 const intentions = ref<WeeklyIntention[]>([])
+
+// Temporary layout-preview toggle: compare the compact vs stacked intention composer.
+const LAYOUT_KEY = 'mg:intentionComposerLayout'
+function readStoredLayout(): ComposerLayout {
+  try {
+    const stored = localStorage.getItem(LAYOUT_KEY)
+    return stored === 'compact' || stored === 'stacked' ? stored : 'stacked'
+  } catch {
+    return 'stacked'
+  }
+}
+const composerLayout = ref<ComposerLayout>(readStoredLayout())
+function setComposerLayout(layout: ComposerLayout): void {
+  composerLayout.value = layout
+  try {
+    localStorage.setItem(LAYOUT_KEY, layout)
+  } catch {
+    /* ignore storage failures */
+  }
+}
 
 interface Candidate {
   key: string
