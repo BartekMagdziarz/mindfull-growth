@@ -4,7 +4,7 @@
     <div v-if="iconOnly" class="relative">
       <button
         type="button"
-        class="neo-icon-button neo-focus"
+        class="neo-icon-button neo-icon-button--flat neo-focus"
         :title="t('planning.objects.actions.links')"
         :aria-label="t('planning.objects.actions.links')"
         @click.stop="open = !open"

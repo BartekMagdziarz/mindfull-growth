@@ -1,5 +1,5 @@
 <template>
-  <div class="group/card neo-surface rounded-lg">
+  <div class="group/card neo-raised rounded-lg border border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom">
     <div class="space-y-2 p-2.5">
       <!-- Row 1: Title + [hover: expand, menu] + Status -->
       <div class="flex items-center gap-2">
@@ -14,7 +14,7 @@
         <div class="-mr-[76px] flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <button
             type="button"
-            class="neo-icon-button neo-focus shrink-0"
+            class="neo-icon-button neo-icon-button--flat neo-focus shrink-0"
             :aria-label="isExpanded ? t('planning.objects.actions.hideDetails') : t('planning.objects.actions.showDetails')"
             @click="$emit('toggle-expand')"
           >
@@ -24,7 +24,7 @@
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-focus shrink-0"
+              class="neo-icon-button neo-icon-button--flat neo-focus shrink-0"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >

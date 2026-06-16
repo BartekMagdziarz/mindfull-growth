@@ -25,7 +25,7 @@
         <div class="-mr-[76px] flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <button
             type="button"
-            class="neo-icon-button neo-focus shrink-0"
+            class="neo-icon-button neo-icon-button--flat neo-focus shrink-0"
             :aria-label="isExpanded ? t('planning.objects.actions.hideDetails') : t('planning.objects.actions.showDetails')"
             @click="$emit('toggle-expand')"
           >
@@ -35,7 +35,7 @@
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-focus shrink-0"
+              class="neo-icon-button neo-icon-button--flat neo-focus shrink-0"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >

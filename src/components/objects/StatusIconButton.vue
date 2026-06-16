@@ -2,7 +2,7 @@
   <div ref="rootRef" class="relative">
     <button
       type="button"
-      class="neo-icon-button neo-focus"
+      class="neo-icon-button neo-icon-button--flat neo-focus"
       :class="toneClass"
       :title="selectedLabel"
       :aria-label="`Status: ${selectedLabel}`"

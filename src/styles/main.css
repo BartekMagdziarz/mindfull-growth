@@ -509,6 +509,23 @@
     color: rgb(var(--neo-muted));
   }
 
+  /* Flat icon button (no raised shadow). Tone modifiers keep their icon color. */
+  .neo-icon-button--flat {
+    border-color: rgb(255 255 255 / 0.55);
+    background: rgb(255 255 255 / 0.45);
+    box-shadow: none;
+  }
+  .neo-icon-button--flat:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.7);
+    box-shadow: none;
+    transform: none;
+  }
+  .neo-icon-button--flat:active:not(:disabled) {
+    background: rgb(255 255 255 / 0.55);
+    box-shadow: none;
+    transform: none;
+  }
+
   .neo-input {
     border-radius: 0.9rem;
     border: 1px solid rgb(var(--neo-border) / 0.08);

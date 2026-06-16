@@ -26,7 +26,7 @@
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-focus"
+              class="neo-icon-button neo-icon-button--flat neo-focus"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >
