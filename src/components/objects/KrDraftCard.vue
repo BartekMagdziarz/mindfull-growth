@@ -20,37 +20,18 @@
       </button>
     </div>
 
-    <div class="space-y-1">
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ t('planning.objects.form.cadence') }}
-      </span>
-      <div class="flex flex-wrap gap-1">
-        <button
-          v-for="option in cadenceOptions"
-          :key="option.value"
-          type="button"
-          class="neo-pill neo-focus px-2 py-1 text-xs transition-all"
-          :class="modelValue.cadence === option.value
-            ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
-            : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
-          @click="onCadence(option.value)"
-        >
-          {{ option.label }}
-        </button>
-      </div>
-    </div>
-
     <MeasurementTargetSentence
       :entry-mode="modelValue.entryMode"
       :target="modelValue.target"
       :cadence="modelValue.cadence"
+      show-cadence
       @update:measurement="onUpdateMeasurement"
+      @update:cadence="onCadence"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import { useT } from '@/composables/useT'
@@ -68,11 +49,6 @@ const emit = defineEmits<{
   'update:modelValue': [value: KrDraft]
   remove: []
 }>()
-
-const cadenceOptions = computed(() => [
-  { value: 'weekly' as PlanningCadence, label: t('planning.objects.badges.cadence.weekly') },
-  { value: 'monthly' as PlanningCadence, label: t('planning.objects.badges.cadence.monthly') },
-])
 
 function patch(update: Partial<KrDraft>): void {
   emit('update:modelValue', { ...props.modelValue, ...update })

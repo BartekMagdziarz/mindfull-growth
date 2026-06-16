@@ -106,52 +106,30 @@
         :style="{ maxHeight: isExpanded ? '700px' : '0', opacity: isExpanded ? 1 : 0, overflow: isExpanded ? 'visible' : 'hidden' }"
       >
         <div class="space-y-3 pt-1">
-          <!-- Cadence + Type (entryMode) + Rating Scale -->
-          <div class="grid gap-3" :class="item.entryMode === 'rating' ? 'grid-cols-3' : 'grid-cols-2'">
-            <div class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-                {{ t('planning.objects.form.cadence') }}
-              </div>
-              <KrPillDropdown
-                :model-value="item.cadence ?? 'weekly'"
-                :options="cadenceOptions"
-                @update:model-value="emitFieldChange('cadence', $event)"
-              />
+          <!-- Rating scale (only when rating; cadence + mode live in the sentence below) -->
+          <div v-if="item.entryMode === 'rating'" class="space-y-1">
+            <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              {{ t('planning.objects.form.ratingScale') }}
             </div>
-            <div class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-                {{ t('planning.objects.form.entryMode') }}
-              </div>
-              <KrPillDropdown
-                :model-value="item.entryMode ?? 'completion'"
-                :options="entryModeOptions"
-                @update:model-value="emitFieldChange('entryMode', $event)"
+            <div class="flex items-center gap-1.5">
+              <label class="text-[9px] text-on-surface-variant/70">{{ t('planning.objects.form.ratingScaleMin') }}</label>
+              <input
+                :value="item.ratingScaleMin ?? 1"
+                type="number"
+                step="1"
+                min="0"
+                class="neo-input w-12 px-1.5 py-1 text-center text-xs"
+                @change="handleScaleMinChange"
               />
-            </div>
-            <div v-if="item.entryMode === 'rating'" class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-                {{ t('planning.objects.form.ratingScale') }}
-              </div>
-              <div class="flex items-center gap-1.5">
-                <label class="text-[9px] text-on-surface-variant/70">{{ t('planning.objects.form.ratingScaleMin') }}</label>
-                <input
-                  :value="item.ratingScaleMin ?? 1"
-                  type="number"
-                  step="1"
-                  min="0"
-                  class="neo-input w-12 px-1.5 py-1 text-center text-xs"
-                  @change="handleScaleMinChange"
-                />
-                <label class="text-[9px] text-on-surface-variant/70">{{ t('planning.objects.form.ratingScaleMax') }}</label>
-                <input
-                  :value="item.ratingScale ?? 10"
-                  type="number"
-                  step="1"
-                  min="1"
-                  class="neo-input w-12 px-1.5 py-1 text-center text-xs"
-                  @change="handleScaleMaxChange"
-                />
-              </div>
+              <label class="text-[9px] text-on-surface-variant/70">{{ t('planning.objects.form.ratingScaleMax') }}</label>
+              <input
+                :value="item.ratingScale ?? 10"
+                type="number"
+                step="1"
+                min="1"
+                class="neo-input w-12 px-1.5 py-1 text-center text-xs"
+                @change="handleScaleMaxChange"
+              />
             </div>
           </div>
 
@@ -233,8 +211,9 @@
                 :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
                 :rating-scale="item.ratingScale"
                 :rating-scale-min="item.ratingScaleMin"
-                :show-mode="false"
+                show-cadence
                 @update:measurement="onTargetMeasurement"
+                @update:cadence="onCadence"
               />
             </div>
           </div>
@@ -272,7 +251,6 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
-import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
@@ -280,7 +258,7 @@ import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
-import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import { getNextPeriod, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
@@ -372,10 +350,20 @@ function handleScaleMaxChange(event: Event): void {
 
 // Map the sentence's full {entryMode, target} update back to the card's granular
 // field-change autosave (target.kind is fixed here — the mode pill lives in Row A).
+function onCadence(value: PlanningCadence): void {
+  emitFieldChange('cadence', value)
+}
+
 function onTargetMeasurement(measurement: {
   entryMode: MeasurementEntryMode
   target: MeasurementTarget
 }): void {
+  // Mode change: emit entryMode alone — the store rebuilds the matching target
+  // (buildTargetForEntryMode), so emitting target fields here would race it.
+  if (measurement.entryMode !== (props.item.entryMode ?? 'completion')) {
+    emitFieldChange('entryMode', measurement.entryMode)
+    return
+  }
   const current = props.item.target
   if (!current) return
   const next = measurement.target

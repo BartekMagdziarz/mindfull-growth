@@ -83,31 +83,7 @@
         :style="{ maxHeight: isExpanded ? '700px' : '0', opacity: isExpanded ? 1 : 0, overflow: isExpanded ? 'visible' : 'hidden' }"
       >
         <div class="space-y-3 pt-1">
-          <!-- Cadence + Type dropdowns -->
-          <div class="grid grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-                {{ t('planning.objects.form.cadence') }}
-              </div>
-              <KrPillDropdown
-                :model-value="child.cadence"
-                :options="cadenceOptions"
-                @update:model-value="emitFieldChange('cadence', $event)"
-              />
-            </div>
-            <div class="space-y-1">
-              <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-                {{ t('planning.objects.form.entryMode') }}
-              </div>
-              <KrPillDropdown
-                :model-value="child.entryMode"
-                :options="entryModeOptions"
-                @update:model-value="emitFieldChange('entryMode', $event)"
-              />
-            </div>
-          </div>
-
-          <!-- Periods + Target -->
+          <!-- Periods + Target (cadence + mode live in the sentence) -->
           <div class="grid grid-cols-2 gap-3">
             <!-- Periods -->
             <div class="space-y-1">
@@ -183,8 +159,9 @@
                 :entry-mode="child.entryMode ?? 'completion'"
                 :target="child.target"
                 :cadence="child.cadence === 'monthly' ? 'monthly' : 'weekly'"
-                :show-mode="false"
+                show-cadence
                 @update:measurement="onTargetMeasurement"
+                @update:cadence="onCadence"
               />
             </div>
           </div>
@@ -216,14 +193,13 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import KrPillDropdown from '@/components/objects/KrPillDropdown.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import type { ObjectsLibraryChildPreview } from '@/services/objectsLibraryQueries'
-import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import {
   getChildPeriods,
@@ -290,10 +266,19 @@ const { value: description, inputRef: descriptionRef, flush: flushDescription } 
 })
 
 // Map the sentence's {entryMode, target} update to granular field-change autosave.
+function onCadence(value: PlanningCadence): void {
+  emitFieldChange('cadence', value)
+}
+
 function onTargetMeasurement(measurement: {
   entryMode: MeasurementEntryMode
   target: MeasurementTarget
 }): void {
+  // Mode change: emit entryMode alone — the store rebuilds the matching target.
+  if (measurement.entryMode !== (props.child.entryMode ?? 'completion')) {
+    emitFieldChange('entryMode', measurement.entryMode)
+    return
+  }
   const current = props.child.target
   const next = measurement.target
   if (next.operator !== current.operator) emitFieldChange('target.operator', next.operator)

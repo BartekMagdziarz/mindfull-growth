@@ -58,43 +58,6 @@
             </select>
           </label>
 
-          <div
-            v-if="panelType === 'habit' || panelType === 'keyResult' || panelType === 'tracker'"
-            class="space-y-1"
-          >
-            <span class="text-xs font-semibold text-on-surface">{{ labels.cadence }}</span>
-            <div class="neo-segmented flex w-full flex-wrap">
-              <button
-                v-for="option in cadenceOptions"
-                :key="option.value"
-                type="button"
-                :class="optionClass(draft.cadence === option.value)"
-                :aria-pressed="draft.cadence === option.value"
-                @click="draft.cadence = option.value"
-              >
-                {{ option.label }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div
-          v-if="panelType === 'habit' || panelType === 'keyResult' || panelType === 'tracker'"
-          class="space-y-1"
-        >
-          <span class="text-xs font-semibold text-on-surface">{{ labels.entryMode }}</span>
-          <div class="neo-segmented flex w-full flex-wrap">
-            <button
-              v-for="option in entryModeOptions"
-              :key="option.value"
-              type="button"
-              :class="optionClass(draft.entryMode === option.value)"
-              :aria-pressed="draft.entryMode === option.value"
-              @click="draft.entryMode = option.value"
-            >
-              {{ option.label }}
-            </button>
-          </div>
         </div>
 
         <div
@@ -107,9 +70,10 @@
             :entry-mode="sentenceEntryMode"
             :target="sentenceTarget"
             :cadence="draft.cadence === 'monthly' ? 'monthly' : 'weekly'"
-            :show-mode="false"
+            show-cadence
             class="mt-3"
             @update:measurement="onTargetMeasurement"
+            @update:cadence="onCadence"
           />
         </div>
       </div>
@@ -186,7 +150,7 @@ import AppButton from '@/components/AppButton.vue'
 import ObjectsLibraryPillSelect from '@/components/objects/ObjectsLibraryPillSelect.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryPanelType } from '@/services/objectsLibraryQueries'
-import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
 
 interface LibraryTargetDraft {
   kind: 'count' | 'value' | 'rating'
@@ -328,11 +292,16 @@ function onTargetMeasurement(measurement: {
   entryMode: MeasurementEntryMode
   target: MeasurementTarget
 }): void {
+  draft.value.entryMode = measurement.entryMode
   const next = measurement.target
   const target = draft.value.target
   target.kind = next.kind
   target.operator = next.operator
   target.value = next.value
   target.aggregation = next.kind === 'value' || next.kind === 'rating' ? next.aggregation : undefined
+}
+
+function onCadence(value: PlanningCadence): void {
+  draft.value.cadence = value
 }
 </script>

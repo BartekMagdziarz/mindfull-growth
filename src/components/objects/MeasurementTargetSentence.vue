@@ -22,6 +22,8 @@ const props = withDefaults(
     showMode?: boolean
     /** Render only the pills, without the inset surface wrapper (the host provides it). */
     bare?: boolean
+    /** Render the cadence ("per week / per month") as a pill the host can change. */
+    showCadence?: boolean
     disabled?: boolean
   }>(),
   {
@@ -30,6 +32,7 @@ const props = withDefaults(
     ratingScaleMin: 1,
     showMode: true,
     bare: false,
+    showCadence: false,
     disabled: false,
   },
 )
@@ -39,6 +42,7 @@ const props = withDefaults(
 // the second emit would overwrite the first with stale props.
 const emit = defineEmits<{
   'update:measurement': [value: { entryMode: MeasurementEntryMode; target: MeasurementTarget }]
+  'update:cadence': [value: PlanningCadence]
 }>()
 
 const { t } = useT()
@@ -95,19 +99,20 @@ const valueAttrs = computed(() => {
   return { step: 'any', inputmode: 'decimal' as const }
 })
 
-const unitSuffix = computed(() => {
-  if (props.entryMode === 'rating') {
-    return t('planning.objects.targetSentence.ratingOutOf', { max: props.ratingScale })
-  }
-  const period =
-    props.cadence === 'monthly'
-      ? t('planning.objects.targetSentence.perMonth')
-      : t('planning.objects.targetSentence.perWeek')
-  if (props.entryMode === 'completion') {
-    return `${t('planning.objects.targetSentence.timesUnit')} ${period}`
-  }
-  return period
-})
+const periodText = computed(() =>
+  props.cadence === 'monthly'
+    ? t('planning.objects.targetSentence.perMonth')
+    : t('planning.objects.targetSentence.perWeek'),
+)
+
+const cadenceOptions = computed(() => [
+  { value: 'weekly', label: t('planning.objects.targetSentence.perWeek') },
+  { value: 'monthly', label: t('planning.objects.targetSentence.perMonth') },
+])
+
+function onCadence(value: string): void {
+  emit('update:cadence', value as PlanningCadence)
+}
 
 function defaultTargetFor(mode: MeasurementEntryMode): MeasurementTarget {
   switch (mode) {
@@ -210,6 +215,20 @@ function commitValue(): void {
       @keydown.enter.prevent="commitValue"
     />
 
-    <span class="text-on-surface-variant">{{ unitSuffix }}</span>
+    <span v-if="entryMode === 'rating'" class="text-on-surface-variant">
+      {{ t('planning.objects.targetSentence.ratingOutOf', { max: ratingScale }) }}
+    </span>
+    <span v-else-if="entryMode === 'completion'" class="text-on-surface-variant">
+      {{ t('planning.objects.targetSentence.timesUnit') }}
+    </span>
+
+    <KrPillDropdown
+      v-if="showCadence"
+      :model-value="cadence"
+      :options="cadenceOptions"
+      :disabled="disabled"
+      @update:model-value="onCadence"
+    />
+    <span v-else-if="entryMode !== 'rating'" class="text-on-surface-variant">{{ periodText }}</span>
   </div>
 </template>
