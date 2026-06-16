@@ -92,7 +92,7 @@
           @unlink-month="$emit('unlink-month', item.id, $event)"
         />
         <span
-          class="neo-pill inline-flex items-center gap-1 px-2 py-0.5 text-[0.7rem] font-medium"
+          class="neo-badge gap-1 px-2 py-0.5 text-[0.7rem]"
           :class="targetDateChipClass"
           :title="targetDateTooltip"
         >
@@ -100,7 +100,7 @@
           {{ targetDateLabel }}
         </span>
         <span
-          class="neo-pill inline-flex items-center gap-1 px-2 py-0.5 text-[0.7rem] font-semibold"
+          class="neo-badge gap-1 px-2 py-0.5 text-[0.7rem] font-semibold"
           :class="smartBadgeClass"
           :title="smartBadgeTooltip"
         >
@@ -276,7 +276,7 @@ const targetDateChipClass = computed(() => {
   const rel = targetDateRelative.value
   if (!rel) return 'bg-status-warn-soft text-status-warn-on'
   if (rel.diffDays < 0) return 'bg-status-bad-soft text-status-bad-on'
-  return 'bg-neu-base text-on-surface-variant shadow-neu-pressed'
+  return ''
 })
 
 function handleAddKeyResult(): void {

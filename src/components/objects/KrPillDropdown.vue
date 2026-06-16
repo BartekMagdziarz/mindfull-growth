@@ -5,7 +5,7 @@
       class="neo-focus flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px]"
       :class="[
         flat
-          ? 'border border-white/55 bg-white/45 font-medium text-on-surface-variant transition-colors hover:bg-white/70'
+          ? 'neo-badge transition-colors hover:bg-white/70'
           : ['neo-pill font-semibold', toneClass],
         { 'cursor-default opacity-70': disabled },
       ]"

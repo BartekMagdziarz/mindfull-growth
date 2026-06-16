@@ -414,6 +414,12 @@
     color: rgb(var(--neo-muted));
   }
 
+  /* Flat translucent chip (matches the period badges) — the "non-puffy" alternative
+     to .neo-pill, used for read-only summary badges and the target-sentence tokens. */
+  .neo-badge {
+    @apply inline-flex items-center rounded-full border border-white/55 bg-white/45 font-medium text-on-surface-variant;
+  }
+
   .neo-icon-button {
     @apply inline-flex items-center justify-center;
     min-width: 32px;

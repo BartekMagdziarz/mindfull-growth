@@ -22,7 +22,7 @@
     <button
       v-else
       type="button"
-      class="neo-pill neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold"
+      class="neo-badge neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] transition-colors hover:bg-white/70"
       @click.stop="open = !open"
     >
       {{ t('planning.objects.actions.links') }}

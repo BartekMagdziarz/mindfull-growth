@@ -65,13 +65,13 @@
           v-if="!isExpanded"
           class="flex flex-1 flex-wrap gap-1.5"
         >
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+          <span class="neo-badge px-2 py-0.5 text-[10px]">
             {{ cadenceLabel }}
           </span>
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+          <span class="neo-badge px-2 py-0.5 text-[10px]">
             {{ entryModeLabel }}
           </span>
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+          <span class="neo-badge px-2 py-0.5 text-[10px]">
             {{ formatMeasurementTargetSummary(child.target, t) }}
           </span>
         </div>

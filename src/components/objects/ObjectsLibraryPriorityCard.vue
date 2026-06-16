@@ -107,7 +107,7 @@
 
         <span
           v-if="item.order"
-          class="neo-pill px-2.5 py-1 text-[11px] font-semibold text-on-surface-variant"
+          class="neo-badge px-2.5 py-1 text-[11px]"
         >
           #{{ item.order }}
         </span>

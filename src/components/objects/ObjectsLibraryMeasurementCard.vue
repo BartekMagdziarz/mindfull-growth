@@ -85,15 +85,15 @@
           class="flex flex-1 flex-wrap gap-1.5 py-0.5 transition-all duration-200 ease-in-out"
           :style="{ maxHeight: isExpanded ? '0' : '2.5rem', opacity: isExpanded ? 0 : 1, overflow: isExpanded ? 'hidden' : 'visible' }"
         >
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+          <span class="neo-badge px-2 py-0.5 text-[10px]">
             {{ cadenceLabel }}
           </span>
-          <span class="neo-pill px-2 py-0.5 text-[10px] font-semibold">
+          <span class="neo-badge px-2 py-0.5 text-[10px]">
             {{ entryModeLabel }}
           </span>
           <span
             v-if="panelType === 'habit' && item.target"
-            class="neo-pill px-2 py-0.5 text-[10px] font-semibold"
+            class="neo-badge px-2 py-0.5 text-[10px]"
           >
             {{ formatMeasurementTargetSummary(item.target, t) }}
           </span>

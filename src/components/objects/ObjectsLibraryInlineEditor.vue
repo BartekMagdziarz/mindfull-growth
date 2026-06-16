@@ -7,10 +7,10 @@
             <span class="neo-pill neo-pill--primary px-3 py-1 text-xs font-semibold">
               {{ modeLabel }}
             </span>
-            <span class="neo-pill px-3 py-1 text-xs font-semibold">
+            <span class="neo-badge px-3 py-1 text-xs">
               {{ typeLabel }}
             </span>
-            <span v-if="parentLabel" class="neo-pill px-3 py-1 text-xs font-semibold">
+            <span v-if="parentLabel" class="neo-badge px-3 py-1 text-xs">
               {{ parentLabel }}
             </span>
           </div>

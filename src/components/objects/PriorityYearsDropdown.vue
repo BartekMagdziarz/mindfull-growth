@@ -2,7 +2,7 @@
   <div ref="rootRef" class="relative">
     <button
       type="button"
-      class="neo-pill neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold"
+      class="neo-badge neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] transition-colors hover:bg-white/70"
       :aria-label="buttonLabel"
       @click.stop="open = !open"
     >
