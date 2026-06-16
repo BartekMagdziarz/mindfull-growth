@@ -2,8 +2,13 @@
   <div ref="rootRef" class="relative">
     <button
       type="button"
-      class="neo-pill neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold"
-      :class="[toneClass, { 'cursor-default opacity-70': disabled }]"
+      class="neo-focus flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px]"
+      :class="[
+        flat
+          ? 'border border-white/55 bg-white/45 font-medium text-on-surface-variant transition-colors hover:bg-white/70'
+          : ['neo-pill font-semibold', toneClass],
+        { 'cursor-default opacity-70': disabled },
+      ]"
       :disabled="disabled"
       @click.stop="toggle"
     >
@@ -38,10 +43,13 @@ const props = withDefaults(
     modelValue: string
     options: Array<{ value: string; label: string }>
     tone?: 'primary' | 'success' | 'danger' | 'warning'
+    /** Flat "badge" look (like the period chips) instead of the raised neo-pill. */
+    flat?: boolean
     disabled?: boolean
   }>(),
   {
     tone: undefined,
+    flat: false,
     disabled: false,
   },
 )

@@ -178,6 +178,7 @@ function commitValue(): void {
   >
     <KrPillDropdown
       v-if="showMode"
+      flat
       :model-value="entryMode"
       :options="entryModeOptions"
       :disabled="disabled"
@@ -191,6 +192,7 @@ function commitValue(): void {
 
     <KrPillDropdown
       v-if="showAggregation"
+      flat
       :model-value="aggregationValue ?? 'sum'"
       :options="aggregationOptions"
       :disabled="disabled"
@@ -198,6 +200,7 @@ function commitValue(): void {
     />
 
     <KrPillDropdown
+      flat
       :model-value="target.operator"
       :options="operatorOptions"
       :disabled="disabled"
@@ -209,7 +212,7 @@ function commitValue(): void {
       type="number"
       v-bind="valueAttrs"
       :disabled="disabled"
-      class="neo-input w-16 rounded-full px-2 py-1 text-center text-sm font-semibold text-on-surface"
+      class="w-16 rounded-full border border-white/55 bg-white/45 px-2 py-1 text-center text-sm font-semibold text-on-surface transition-colors focus:border-primary/50 focus:bg-white/70 focus:outline-none"
       :aria-label="t('planning.objects.form.targetValue')"
       @change="commitValue"
       @keydown.enter.prevent="commitValue"
@@ -224,6 +227,7 @@ function commitValue(): void {
 
     <KrPillDropdown
       v-if="showCadence"
+      flat
       :model-value="cadence"
       :options="cadenceOptions"
       :disabled="disabled"
