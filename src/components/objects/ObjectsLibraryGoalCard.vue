@@ -99,13 +99,6 @@
           <AppIcon name="schedule" class="text-xs" />
           {{ targetDateLabel }}
         </span>
-        <span
-          class="neo-badge gap-1 px-2 py-0.5 text-[0.7rem] font-semibold"
-          :class="smartBadgeClass"
-          :title="smartBadgeTooltip"
-        >
-          {{ t('planning.goalWizard.completeness.label', { score: smartCompleteness.score }) }}
-        </span>
       </div>
     </div>
 
@@ -144,7 +137,6 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
-import { computeSmartCompleteness } from '@/domain/smartCompleteness'
 import GoalMonthsDropdown from '@/components/objects/GoalMonthsDropdown.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
@@ -204,41 +196,6 @@ const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField
   source: () => props.item.title,
   commit: (value) => emitFieldChange('title', value),
   delay: 400,
-})
-
-const validKrCount = computed(() => (props.item.childPreviews ?? []).length)
-
-const smartCompleteness = computed(() =>
-  computeSmartCompleteness(
-    {
-      title: props.item.title,
-      description: props.item.description,
-      targetDate: props.item.targetDate,
-      successDefinition: props.item.successDefinition,
-      whyMatters: props.item.whyMatters,
-      confidenceRating: props.item.confidenceRating,
-      achievabilityRationale: props.item.achievabilityRationale,
-      obstacles: props.item.obstacles,
-      resources: props.item.resources,
-      priorityIds: props.item.priorityIds,
-      lifeAreaIds: props.item.lifeAreaIds,
-    },
-    validKrCount.value,
-  ),
-)
-
-const smartBadgeClass = computed(() => {
-  if (smartCompleteness.value.score === 5) return 'bg-status-good-soft text-status-good-on'
-  return 'bg-status-warn-soft text-status-warn-on'
-})
-
-const smartBadgeTooltip = computed(() => {
-  if (smartCompleteness.value.missing.length === 0) {
-    return t('planning.goalWizard.completeness.tooltip.complete')
-  }
-  return t('planning.goalWizard.completeness.tooltip.missing', {
-    letters: smartCompleteness.value.missing.join(', '),
-  })
 })
 
 const targetDateRelative = computed(() => {
