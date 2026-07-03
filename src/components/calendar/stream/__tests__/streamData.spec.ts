@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import type { MonthRef, DayRef } from '@/domain/period'
+import type { MonthRef, DayRef, WeekRef } from '@/domain/period'
+import type { WeeklyIntention } from '@/domain/planning'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { Quadrant } from '@/domain/emotion'
 import type { MonthlyReflection, WeeklyReflection } from '@/domain/reflection'
@@ -129,11 +130,45 @@ describe('streamData · matrix from weekly reflection', () => {
 describe('streamData · rings', () => {
   it('future periods read "—" (null, plan-only)', () => {
     const rings = ringsForPeriod([], [], '2020-01' as MonthRef, 'future', '2020-01-31' as DayRef)
-    expect(rings.map((r) => r.key)).toEqual(['goals', 'habits', 'trackers'])
+    expect(rings.map((r) => r.key)).toEqual(['goals', 'habits', 'intentions'])
     expect(rings.every((r) => r.pct === null && r.planOnly)).toBe(true)
   })
 
-  it('year-month rings are Goals + Habits only (trackers ring dropped)', () => {
+  it('intentions ring is the met-ratio across evaluated weekly intentions', () => {
+    const intention = (id: string, targetValue: number): WeeklyIntention =>
+      ({
+        id,
+        title: id,
+        isActive: true,
+        weekRef: '2020-W01' as WeekRef,
+        entryMode: 'completion',
+        cadence: 'weekly',
+        target: { kind: 'count', operator: 'min', value: targetValue },
+        status: 'open',
+        priorityIds: [],
+        createdAt: '',
+        updatedAt: '',
+      }) as WeeklyIntention
+    const subjects = [
+      { subjectType: 'weeklyIntention' as const, subject: intention('i-met', 2) },
+      { subjectType: 'weeklyIntention' as const, subject: intention('i-missed', 3) },
+      { subjectType: 'weeklyIntention' as const, subject: intention('i-no-data', 1) },
+    ]
+    const entries = [
+      { subjectType: 'weeklyIntention', subjectId: 'i-met', dayRef: '2020-01-06', value: 1 },
+      { subjectType: 'weeklyIntention', subjectId: 'i-met', dayRef: '2020-01-07', value: 1 },
+      { subjectType: 'weeklyIntention', subjectId: 'i-missed', dayRef: '2020-01-08', value: 1 },
+    ] as DailyMeasurementEntry[]
+
+    const rings = ringsForPeriod(subjects, entries, '2020-W01' as WeekRef, 'past', '2020-01-12' as DayRef)
+    const intentions = rings.find((r) => r.key === 'intentions')!
+    // i-met 2/2 → met, i-missed 1/3 → missed, i-no-data has no entries → excluded.
+    expect(intentions.pct).toBe(50)
+    expect(intentions.num).toBe(1)
+    expect(intentions.den).toBe(2)
+  })
+
+  it('year-month rings are Goals + Habits only (no intentions ring)', () => {
     const summary = {
       goalGroups: [
         { goalId: 'g1', pills: [{ cadence: 'weekly', weeksMet: 2, weeksTotal: 4 } as YearMonthPillData] },

@@ -1,9 +1,9 @@
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
-import type { Habit, KeyResult, Tracker } from '@/domain/planning'
+import type { Habit, KeyResult, WeeklyIntention } from '@/domain/planning'
 import type { MonthObjectItem } from '@/services/reflectionDataQueries'
 import { buildMeasurementSummary } from '@/services/measurementProgress'
-import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
+import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
 
 export interface MonthPlanRowSummary {
   total: number
@@ -13,7 +13,7 @@ export interface MonthPlanRowSummary {
 export interface MonthPlanSummary {
   keyResults: MonthPlanRowSummary
   habits: MonthPlanRowSummary
-  trackers: MonthPlanRowSummary
+  intentions: MonthPlanRowSummary
 }
 
 /**
@@ -24,6 +24,8 @@ export interface MonthPlanSummary {
  * For weekly-cadence KRs/habits each scheduled week of the month counts as one
  * unit toward `total`; a met evaluation in that week counts toward `met`. For
  * monthly-cadence objects the month-level evaluation contributes a single unit.
+ * Weekly intentions (passed separately — they are week-scoped and never part
+ * of the month bundle) contribute one unit per intention in their own week.
  *
  * Future weeks (whose start falls after `todayDayRef`) are excluded so the
  * "planned" denominator only reflects weeks that have actually started. The
@@ -34,83 +36,48 @@ export function buildMonthlyPlanSummary(
   rawEntries: DailyMeasurementEntry[],
   monthRef: MonthRef,
   todayDayRef: DayRef,
+  weeklyIntentions: WeeklyIntention[] = [],
 ): MonthPlanSummary {
   const keyResults: MonthPlanRowSummary = { total: 0, met: 0 }
   const habits: MonthPlanRowSummary = { total: 0, met: 0 }
-  const trackers: MonthPlanRowSummary = { total: 0, met: 0 }
+  const intentions: MonthPlanRowSummary = { total: 0, met: 0 }
 
   const weeks = getChildPeriods(monthRef) as WeekRef[]
   const startedWeeks = weeks.filter((weekRef) => {
     const start = getPeriodBounds(weekRef).start as DayRef
     return start <= todayDayRef
   })
+  const startedWeekSet = new Set<WeekRef>(startedWeeks)
 
   for (const item of items) {
-    if (item.subjectType === 'keyResult' || item.subjectType === 'habit') {
-      const subject = item.subject as KeyResult | Habit
-      const row = item.subjectType === 'keyResult' ? keyResults : habits
+    if (item.subjectType !== 'keyResult' && item.subjectType !== 'habit') continue
 
-      if (subject.cadence === 'monthly') {
-        row.total += 1
-        if (item.measurement.evaluationStatus === 'met') row.met += 1
-        continue
-      }
+    const subject = item.subject as KeyResult | Habit
+    const row = item.subjectType === 'keyResult' ? keyResults : habits
 
-      for (const weekRef of startedWeeks) {
-        row.total += 1
-        const weekEnd = getPeriodBounds(weekRef).end as DayRef
-        const clipRef = (todayDayRef < weekEnd ? todayDayRef : weekEnd) as DayRef
-        const weekSummary = buildMeasurementSummary(subject, rawEntries, weekRef, clipRef)
-        if (weekSummary.evaluationStatus === 'met') row.met += 1
-      }
+    if (subject.cadence === 'monthly') {
+      row.total += 1
+      if (item.measurement.evaluationStatus === 'met') row.met += 1
       continue
     }
 
-    if (item.subjectType === 'tracker') {
-      const tracker = item.subject as Tracker
-      const scope = item.planning.scheduleScope
-
-      // Existence of an entry == filled. `value: null` is the canonical shape
-      // for completion-mode toggles (see toggleTodayCompletion), so filtering
-      // by `value !== null` would drop those legitimate fills.
-      if (tracker.cadence === 'monthly') {
-        trackers.total += 1
-        const hasEntry = rawEntries.some(
-          (entry) =>
-            entry.subjectId === tracker.id &&
-            getPeriodRefsForDate(entry.dayRef).month === monthRef,
-        )
-        if (hasEntry) trackers.met += 1
-        continue
-      }
-
-      for (const weekRef of startedWeeks) {
-        const weekBounds = getPeriodBounds(weekRef)
-        if (scope === 'whole-week' || scope === 'whole-month') {
-          trackers.total += 1
-          const hasEntry = rawEntries.some(
-            (entry) =>
-              entry.subjectId === tracker.id &&
-              getPeriodRefsForDate(entry.dayRef).week === weekRef,
-          )
-          if (hasEntry) trackers.met += 1
-        } else if (scope === 'specific-days') {
-          const weekScheduledDays = (item.planning.scheduledDayRefs ?? []).filter(
-            (d) => d >= weekBounds.start && d <= weekBounds.end,
-          )
-          if (weekScheduledDays.length === 0) continue
-          trackers.total += 1
-          const scheduledSet = new Set(weekScheduledDays)
-          const hasEntry = rawEntries.some(
-            (entry) =>
-              entry.subjectId === tracker.id &&
-              scheduledSet.has(entry.dayRef),
-          )
-          if (hasEntry) trackers.met += 1
-        }
-      }
+    for (const weekRef of startedWeeks) {
+      row.total += 1
+      const weekEnd = getPeriodBounds(weekRef).end as DayRef
+      const clipRef = (todayDayRef < weekEnd ? todayDayRef : weekEnd) as DayRef
+      const weekSummary = buildMeasurementSummary(subject, rawEntries, weekRef, clipRef)
+      if (weekSummary.evaluationStatus === 'met') row.met += 1
     }
   }
 
-  return { keyResults, habits, trackers }
+  for (const intention of weeklyIntentions) {
+    if (!intention.isActive || !startedWeekSet.has(intention.weekRef)) continue
+    intentions.total += 1
+    const weekEnd = getPeriodBounds(intention.weekRef).end as DayRef
+    const clipRef = (todayDayRef < weekEnd ? todayDayRef : weekEnd) as DayRef
+    const summary = buildMeasurementSummary(intention, rawEntries, intention.weekRef, clipRef)
+    if (summary.evaluationStatus === 'met') intentions.met += 1
+  }
+
+  return { keyResults, habits, intentions }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Habit, KeyResult, Tracker } from '@/domain/planning'
+import type { Habit, KeyResult, WeeklyIntention } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
@@ -45,18 +45,19 @@ function makeKeyResult(overrides: Partial<KeyResult> = {}): KeyResult {
   }
 }
 
-function makeTracker(overrides: Partial<Tracker> = {}): Tracker {
+function makeIntention(weekRef: WeekRef, overrides: Partial<WeeklyIntention> = {}): WeeklyIntention {
   return {
-    id: 'tracker-1',
+    id: 'intention-1',
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
-    title: 'Mood',
+    title: 'Call a friend',
     isActive: true,
-    priorityIds: [],
-    lifeAreaIds: [],
-    entryMode: 'rating',
+    weekRef,
+    entryMode: 'completion',
     cadence: 'weekly',
+    target: { kind: 'count', operator: 'min', value: 1 },
     status: 'open',
+    priorityIds: [],
     ...overrides,
   }
 }
@@ -83,7 +84,7 @@ function makeMeasurement(overrides: Partial<MeasurementSummary> = {}): Measureme
 function makeCompletionEntry(
   subjectId: string,
   dayRef: string,
-  subjectType: 'habit' | 'keyResult' | 'tracker' = 'habit',
+  subjectType: 'habit' | 'keyResult' | 'weeklyIntention' = 'habit',
 ): DailyMeasurementEntry {
   return {
     id: `${subjectId}-${dayRef}`,
@@ -140,19 +141,10 @@ function weeklyHabitItem(id = 'habit-weekly'): MonthObjectItem {
   }
 }
 
-function trackerItem(
-  planning: Partial<MeasurementPlanningSummary>,
-  id = 'tracker-1',
-  cadence: 'weekly' | 'monthly' = 'weekly',
-): MonthObjectItem {
-  return {
-    key: `tracker:${id}`,
-    subjectType: 'tracker',
-    subject: makeTracker({ id, cadence }),
-    planning: makePlanning(planning),
-    measurement: makeMeasurement({ cadence, entryMode: 'rating' }),
-    sortOrder: 200,
-  }
+/** A day of `weekRef` guaranteed to sit inside that week's bucket. */
+function dayOfWeekRef(weekRef: WeekRef, index = 0): DayRef {
+  const days = getChildPeriods(weekRef) as DayRef[]
+  return days[index]
 }
 
 describe('buildMonthlyPlanSummary', () => {
@@ -161,7 +153,7 @@ describe('buildMonthlyPlanSummary', () => {
     expect(summary).toEqual({
       keyResults: { total: 0, met: 0 },
       habits: { total: 0, met: 0 },
-      trackers: { total: 0, met: 0 },
+      intentions: { total: 0, met: 0 },
     })
   })
 
@@ -246,35 +238,38 @@ describe('buildMonthlyPlanSummary', () => {
     expect(summary.habits.total).toBeGreaterThan(0)
   })
 
-  it('counts a monthly tracker with at least one in-month entry as met', () => {
-    const tracker = trackerItem({ scheduleScope: 'whole-month' }, 'tm', 'monthly')
-    const entries = [makeCompletionEntry('tm', '2026-05-15', 'tracker')]
-    const summary = buildMonthlyPlanSummary([tracker], entries, monthRef, endOfMonth)
-    expect(summary.trackers).toEqual({ total: 1, met: 1 })
+  it('counts each intention once in its own week — unmet without entries', () => {
+    const met = makeIntention(monthWeeks[0], { id: 'i-met' })
+    const unmet = makeIntention(monthWeeks[1], { id: 'i-unmet' })
+    const entries = [
+      makeCompletionEntry('i-met', dayOfWeekRef(monthWeeks[0]), 'weeklyIntention'),
+    ]
+    const summary = buildMonthlyPlanSummary([], entries, monthRef, endOfMonth, [met, unmet])
+    expect(summary.intentions).toEqual({ total: 2, met: 1 })
   })
 
-  it('counts a monthly tracker with no entries as not met', () => {
-    const tracker = trackerItem({ scheduleScope: 'whole-month' }, 'tm', 'monthly')
-    const summary = buildMonthlyPlanSummary([tracker], [], monthRef, endOfMonth)
-    expect(summary.trackers).toEqual({ total: 1, met: 0 })
-  })
-
-  it('treats a weekly whole-week tracker as one unit per started week', () => {
-    const tracker = trackerItem({ scheduleScope: 'whole-week' }, 'tw', 'weekly')
-    const summary = buildMonthlyPlanSummary([tracker], [], monthRef, endOfMonth)
-    expect(summary.trackers.total).toBe(monthWeeks.length)
-    expect(summary.trackers.met).toBe(0)
-  })
-
-  it('counts specific-days trackers only in weeks with scheduled days', () => {
-    const scheduledDays = ['2026-05-04', '2026-05-11'] as DayRef[] // weeks W19 + W20
-    const tracker = trackerItem(
-      { scheduleScope: 'specific-days', scheduledDayRefs: scheduledDays },
-      'ts',
-      'weekly',
+  it('excludes intentions of not-yet-started weeks and inactive intentions', () => {
+    const firstWeek = makeIntention(monthWeeks[0], { id: 'i-first' })
+    const lastWeek = makeIntention(monthWeeks[monthWeeks.length - 1], { id: 'i-last' })
+    const inactive = makeIntention(monthWeeks[0], { id: 'i-inactive', isActive: false })
+    const summary = buildMonthlyPlanSummary(
+      [],
+      [],
+      monthRef,
+      // Today = first day of the month → only the first (already started) week counts.
+      '2026-05-01' as DayRef,
+      [firstWeek, lastWeek, inactive],
     )
-    const summary = buildMonthlyPlanSummary([tracker], [], monthRef, endOfMonth)
-    expect(summary.trackers.total).toBe(2)
-    expect(summary.trackers.met).toBe(0)
+    expect(summary.intentions).toEqual({ total: 1, met: 0 })
+  })
+
+  it('clips intention evaluation to todayDayRef inside the current week', () => {
+    const intention = makeIntention(monthWeeks[1], { id: 'i-clip' })
+    const weekDays = getChildPeriods(monthWeeks[1]) as DayRef[]
+    // Entry exists later in the week, but "today" is the week's first day →
+    // the entry must not count yet.
+    const entries = [makeCompletionEntry('i-clip', weekDays[3], 'weeklyIntention')]
+    const summary = buildMonthlyPlanSummary([], entries, monthRef, weekDays[0], [intention])
+    expect(summary.intentions).toEqual({ total: 1, met: 0 })
   })
 })

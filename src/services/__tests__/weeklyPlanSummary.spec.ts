@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Habit, KeyResult, Tracker } from '@/domain/planning'
+import type { Habit, KeyResult, WeeklyIntention } from '@/domain/planning'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
@@ -42,18 +42,19 @@ function makeKeyResult(overrides: Partial<KeyResult> = {}): KeyResult {
   }
 }
 
-function makeTracker(overrides: Partial<Tracker> = {}): Tracker {
+function makeIntention(overrides: Partial<WeeklyIntention> = {}): WeeklyIntention {
   return {
-    id: 'tracker-1',
+    id: 'intention-1',
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
-    title: 'Mood',
+    title: 'Call a friend',
     isActive: true,
-    priorityIds: [],
-    lifeAreaIds: [],
-    entryMode: 'rating',
+    weekRef,
+    entryMode: 'completion',
     cadence: 'weekly',
+    target: { kind: 'count', operator: 'min', value: 1 },
     status: 'open',
+    priorityIds: [],
     ...overrides,
   }
 }
@@ -86,7 +87,7 @@ function makeEntry(
     id: `${subjectId}-${dayRef}`,
     createdAt: `${dayRef}T08:00:00.000Z`,
     updatedAt: `${dayRef}T08:00:00.000Z`,
-    subjectType: 'tracker',
+    subjectType: 'weeklyIntention',
     subjectId,
     dayRef: dayRef as DayRef,
     value,
@@ -121,24 +122,13 @@ function habitItem(
   }
 }
 
-function trackerItem(planning: Partial<MeasurementPlanningSummary>, id = 'tracker-1'): WeekObjectItem {
-  return {
-    key: `tracker:${id}`,
-    subjectType: 'tracker',
-    subject: makeTracker({ id }),
-    planning: makePlanning(planning),
-    measurement: makeMeasurement({ entryMode: 'rating' }),
-    sortOrder: 200,
-  }
-}
-
 describe('buildWeeklyPlanSummary', () => {
   it('returns zeroed buckets for an empty input', () => {
     const summary = buildWeeklyPlanSummary([], [], weekRef)
     expect(summary).toEqual({
       keyResults: { total: 0, met: 0 },
       habits: { total: 0, met: 0 },
-      trackers: { total: 0, assignedDays: 0, filledDays: 0 },
+      intentions: { total: 0, met: 0 },
     })
   })
 
@@ -179,70 +169,53 @@ describe('buildWeeklyPlanSummary', () => {
     expect(summary.habits).toEqual({ total: 1, met: 0 })
   })
 
-  it('treats whole-week trackers as 7 assigned days and caps fills at 7', () => {
-    const tracker = trackerItem({ scheduleScope: 'whole-week', scheduledDayRefs: [] }, 't-1')
-    const entries = [
-      makeEntry('t-1', '2026-03-09'),
-      makeEntry('t-1', '2026-03-10'),
-      makeEntry('t-1', '2026-03-11'),
-      makeEntry('t-1', '2026-03-12', null), // completion toggle — also counts as filled
-    ]
-    const summary = buildWeeklyPlanSummary([tracker], entries, weekRef)
-    expect(summary.trackers).toEqual({ total: 1, assignedDays: 7, filledDays: 4 })
-  })
-
-  it('uses scheduledDayRefs as denominator for specific-days trackers', () => {
-    const tracker = trackerItem(
-      {
-        scheduleScope: 'specific-days',
-        scheduledDayRefs: ['2026-03-09', '2026-03-11', '2026-03-13'] as DayRef[],
-      },
-      't-2',
+  it('evaluates intentions against the week entries — unmet without entries', () => {
+    const met = makeIntention({ id: 'i-met' })
+    const unmet = makeIntention({ id: 'i-unmet' })
+    const summary = buildWeeklyPlanSummary(
+      [],
+      [makeEntry('i-met', '2026-03-09')],
+      weekRef,
+      [met, unmet],
     )
-    const entries = [
-      makeEntry('t-2', '2026-03-09'),
-      makeEntry('t-2', '2026-03-11'),
-      makeEntry('t-2', '2026-03-10'), // not in scheduled set — ignored
-    ]
-    const summary = buildWeeklyPlanSummary([tracker], entries, weekRef)
-    expect(summary.trackers).toEqual({ total: 1, assignedDays: 3, filledDays: 2 })
+    // Plan-vs-execution semantics: a no-data intention still counts as planned.
+    expect(summary.intentions).toEqual({ total: 2, met: 1 })
   })
 
-  it('skips assigned-day accounting for unassigned trackers but still counts them', () => {
-    const tracker = trackerItem({ scheduleScope: 'unassigned', scheduledDayRefs: [] }, 't-3')
-    const summary = buildWeeklyPlanSummary([tracker], [], weekRef)
-    expect(summary.trackers).toEqual({ total: 1, assignedDays: 0, filledDays: 0 })
-  })
-
-  it('aggregates across multiple trackers with different scopes', () => {
-    const wholeWeek = trackerItem({ scheduleScope: 'whole-week', scheduledDayRefs: [] }, 't-a')
-    const specific = trackerItem(
-      {
-        scheduleScope: 'specific-days',
-        scheduledDayRefs: ['2026-03-09', '2026-03-10'] as DayRef[],
-      },
-      't-b',
-    )
-    const entries = [
-      makeEntry('t-a', '2026-03-09'),
-      makeEntry('t-a', '2026-03-10'),
-      makeEntry('t-b', '2026-03-09'),
-      makeEntry('t-b', '2026-03-16'), // outside week — ignored for whole-week filter
-    ]
-    const summary = buildWeeklyPlanSummary([wholeWeek, specific], entries, weekRef)
-    expect(summary.trackers).toEqual({ total: 2, assignedDays: 7 + 2, filledDays: 2 + 1 })
-  })
-
-  it('counts entries regardless of stored value — completion toggles use null', () => {
+  it('counts intention entries regardless of stored value — completion toggles use null', () => {
     // toggleTodayCompletion writes `value: null` for completion-mode subjects,
-    // so the absence of a number must NOT exclude an entry from the fill count.
-    const tracker = trackerItem({ scheduleScope: 'whole-week', scheduledDayRefs: [] }, 't-1')
-    const entries = [
-      makeEntry('t-1', '2026-03-09', null),
-      makeEntry('t-1', '2026-03-10', 4),
-    ]
-    const summary = buildWeeklyPlanSummary([tracker], entries, weekRef)
-    expect(summary.trackers.filledDays).toBe(2)
+    // so the absence of a number must NOT exclude an entry from the count.
+    const intention = makeIntention({ id: 'i-1' })
+    const summary = buildWeeklyPlanSummary([], [makeEntry('i-1', '2026-03-10', null)], weekRef, [
+      intention,
+    ])
+    expect(summary.intentions).toEqual({ total: 1, met: 1 })
+  })
+
+  it('ignores inactive intentions and entries outside the week', () => {
+    const inactive = makeIntention({ id: 'i-inactive', isActive: false })
+    const active = makeIntention({ id: 'i-active' })
+    const summary = buildWeeklyPlanSummary(
+      [],
+      [makeEntry('i-active', '2026-03-16')], // next week — ignored
+      weekRef,
+      [inactive, active],
+    )
+    expect(summary.intentions).toEqual({ total: 1, met: 0 })
+  })
+
+  it('respects a multi-entry intention target', () => {
+    const intention = makeIntention({
+      id: 'i-3x',
+      target: { kind: 'count', operator: 'min', value: 3 },
+    })
+    const summary = buildWeeklyPlanSummary(
+      [],
+      [makeEntry('i-3x', '2026-03-09'), makeEntry('i-3x', '2026-03-10')],
+      weekRef,
+      [intention],
+    )
+    expect(summary.intentions).toEqual({ total: 1, met: 0 })
   })
 
   it('mixes object types in a single bundle', () => {
@@ -253,13 +226,13 @@ describe('buildWeeklyPlanSummary', () => {
         habitItem({ id: 'h-a', status: 'met' }),
         habitItem({ id: 'h-b', status: 'met' }),
         habitItem({ id: 'h-c', status: 'no-data' }),
-        trackerItem({ scheduleScope: 'whole-week', scheduledDayRefs: [] }, 't-a'),
       ],
-      [makeEntry('t-a', '2026-03-09')],
+      [makeEntry('i-a', '2026-03-09')],
       weekRef,
+      [makeIntention({ id: 'i-a' }), makeIntention({ id: 'i-b' })],
     )
     expect(summary.keyResults).toEqual({ total: 2, met: 1 })
     expect(summary.habits).toEqual({ total: 3, met: 2 })
-    expect(summary.trackers).toEqual({ total: 1, assignedDays: 7, filledDays: 1 })
+    expect(summary.intentions).toEqual({ total: 2, met: 1 })
   })
 })

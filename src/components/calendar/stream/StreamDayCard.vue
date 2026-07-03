@@ -9,7 +9,7 @@ const props = defineProps<{
   weekdayLabel: string
   journalLabel: string
   emotionsLabel: string
-  ringLabels: Record<'goals' | 'habits' | 'trackers', string>
+  ringLabels: Record<'goals' | 'habits' | 'intentions', string>
   index: number
 }>()
 

@@ -4,7 +4,7 @@
  * Replaces the old deterministic demo generator. Each loader maps a real period
  * to the same view-model shapes the cards consume (so the components are
  * unchanged):
- *   - rings  → goal/habit attainment (met-ratio) + tracker engagement,
+ *   - rings  → goal/habit/weekly-intention attainment (met-ratio),
  *   - month-card life-area bars → the user's real Life Areas (per-area execution),
  *   - week-card 4×3 matrix (life areas × Demands/Actions/State) → weekly-reflection ratings,
  *   - day-card journal/emotions → journal entries + emotion logs.
@@ -30,6 +30,7 @@ import {
 } from '@/services/calendarViewQueries'
 import { getMonthPlanningBundle, getWeekPlanningBundle } from '@/services/planningStateQueries'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
@@ -62,7 +63,7 @@ interface ActiveSubject {
 const RING_DEFS: { key: StreamRingVM['key']; icon: string }[] = [
   { key: 'goals', icon: 'flag' },
   { key: 'habits', icon: 'task_alt' },
-  { key: 'trackers', icon: 'monitoring' },
+  { key: 'intentions', icon: 'target' },
 ]
 
 const DAY_RING_DEFS: { key: StreamRingVM['key']; icon: string }[] = [
@@ -161,9 +162,10 @@ export function matrixFromReflection(
 }
 
 /**
- * goals/habits/trackers rings for a month/week period: goal & habit attainment
- * (met-ratio across evaluated objects), tracker engagement (% logged). Future
- * periods carry no execution data, so all three read "—".
+ * goals/habits/intentions rings for a month/week period: attainment (met-ratio
+ * across evaluated objects) per subject kind — weekly intentions carry a target
+ * like habits, so all three are met/missed ratios. Future periods carry no
+ * execution data, so all three read "—".
  */
 export function ringsForPeriod(
   subjects: ActiveSubject[],
@@ -180,8 +182,8 @@ export function ringsForPeriod(
   let goalEval = 0
   let habitMet = 0
   let habitEval = 0
-  let trackerActive = 0
-  let trackerEngaged = 0
+  let intentionMet = 0
+  let intentionEval = 0
 
   for (const { subjectType, subject } of subjects) {
     const summary = buildMeasurementSummary(subject, entries, periodRef, asOfDayRef)
@@ -199,9 +201,13 @@ export function ringsForPeriod(
       } else if (summary.evaluationStatus === 'missed') {
         habitEval++
       }
-    } else if (subjectType === 'tracker') {
-      trackerActive++
-      if (summary.entryCount > 0) trackerEngaged++
+    } else if (subjectType === 'weeklyIntention') {
+      if (summary.evaluationStatus === 'met') {
+        intentionEval++
+        intentionMet++
+      } else if (summary.evaluationStatus === 'missed') {
+        intentionEval++
+      }
     }
   }
 
@@ -209,12 +215,12 @@ export function ringsForPeriod(
     { key: 'goals', icon: 'flag', pct: pct(goalMet, goalEval), planOnly: false, num: goalMet, den: goalEval },
     { key: 'habits', icon: 'task_alt', pct: pct(habitMet, habitEval), planOnly: false, num: habitMet, den: habitEval },
     {
-      key: 'trackers',
-      icon: 'monitoring',
-      pct: pct(trackerEngaged, trackerActive),
+      key: 'intentions',
+      icon: 'target',
+      pct: pct(intentionMet, intentionEval),
       planOnly: false,
-      num: trackerEngaged,
-      den: trackerActive,
+      num: intentionMet,
+      den: intentionEval,
     },
   ]
 }
@@ -262,7 +268,7 @@ const YEAR_RING_DEFS: { key: StreamRingVM['key']; icon: string }[] = [
 
 /**
  * Goals + Habits rings for a year-view month card, from the year summary pills.
- * (The trackers ring was dropped in this layout.) Each goal contributes once
+ * (Intentions are week-scoped, so there is no third ring here.) Each goal contributes once
  * (the mean of its KR pills), then goals are averaged — so a goal with many KRs
  * doesn't dominate.
  */
@@ -387,20 +393,30 @@ export async function loadStreamYear(yearRef: YearRef): Promise<StreamMonthVM[]>
 
 export async function loadStreamMonth(monthRef: MonthRef): Promise<StreamWeekVM[]> {
   const today = todayDayRef()
-  const [bundle, weeklyReflections] = await Promise.all([
+  const weekRefs = getChildPeriods(monthRef) as WeekRef[]
+  // Weekly intentions are week-scoped, so the month bundle never carries them —
+  // load each week's list separately for the intentions ring.
+  const [bundle, weeklyReflections, intentionsPerWeek] = await Promise.all([
     getMonthPlanningBundle(monthRef),
     structuredReflectionDexieRepository.getWeeklyForMonth(monthRef),
+    Promise.all(weekRefs.map((weekRef) => weeklyIntentionDexieRepository.listByWeek(weekRef))),
   ])
 
   const reflectionByWeek = new Map(weeklyReflections.map((r) => [r.weekRef, r]))
-  const subjects: ActiveSubject[] = [
-    ...bundle.cadencedItems.map((i) => ({ subjectType: i.subjectType, subject: i.subject })),
-    ...bundle.trackerItems.map((i) => ({ subjectType: 'tracker' as const, subject: i.subject })),
-  ]
+  const monthSubjects: ActiveSubject[] = bundle.cadencedItems.map((i) => ({
+    subjectType: i.subjectType,
+    subject: i.subject,
+  }))
 
-  return getChildPeriods(monthRef).map((weekRef) => {
+  return weekRefs.map((weekRef, weekIndex) => {
     const bounds = getPeriodBounds(weekRef)
     const timeState = spanTimeState(bounds.start, bounds.end, today)
+    const subjects: ActiveSubject[] = [
+      ...monthSubjects,
+      ...intentionsPerWeek[weekIndex]
+        .filter((subject) => subject.isActive)
+        .map((subject) => ({ subjectType: 'weeklyIntention' as const, subject })),
+    ]
     return {
       weekRef,
       weekNumber: Number(weekRef.slice(-2)),

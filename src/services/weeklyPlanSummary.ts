@@ -1,35 +1,29 @@
 import type { WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
+import type { WeeklyIntention } from '@/domain/planning'
 import type { WeekObjectItem } from '@/services/reflectionDataQueries'
-import { getPeriodRefsForDate } from '@/utils/periods'
+import { buildMeasurementSummary } from '@/services/measurementProgress'
 
 export interface WeekPlanRowSummary {
   total: number
   met: number
 }
 
-export interface WeekPlanTrackerSummary {
-  total: number
-  assignedDays: number
-  filledDays: number
-}
-
 export interface WeekPlanSummary {
   keyResults: WeekPlanRowSummary
   habits: WeekPlanRowSummary
-  trackers: WeekPlanTrackerSummary
+  intentions: WeekPlanRowSummary
 }
-
-const DAYS_IN_WEEK = 7
 
 export function buildWeeklyPlanSummary(
   items: WeekObjectItem[],
   rawEntries: DailyMeasurementEntry[],
   weekRef: WeekRef,
+  weeklyIntentions: WeeklyIntention[] = [],
 ): WeekPlanSummary {
   const keyResults: WeekPlanRowSummary = { total: 0, met: 0 }
   const habits: WeekPlanRowSummary = { total: 0, met: 0 }
-  const trackers: WeekPlanTrackerSummary = { total: 0, assignedDays: 0, filledDays: 0 }
+  const intentions: WeekPlanRowSummary = { total: 0, met: 0 }
 
   for (const item of items) {
     if (item.subjectType === 'keyResult') {
@@ -41,36 +35,15 @@ export function buildWeeklyPlanSummary(
     if (item.subjectType === 'habit') {
       habits.total += 1
       if (item.measurement.evaluationStatus === 'met') habits.met += 1
-      continue
-    }
-
-    if (item.subjectType === 'tracker') {
-      trackers.total += 1
-      const scope = item.planning.scheduleScope
-
-      if (scope === 'whole-week') {
-        trackers.assignedDays += DAYS_IN_WEEK
-        // Existence of an entry == filled. `value: null` is the canonical shape
-        // for completion-mode toggles (see toggleTodayCompletion), so filtering
-        // by `value !== null` would drop those legitimate fills.
-        const filled = rawEntries.filter(
-          entry =>
-            entry.subjectId === item.subject.id &&
-            getPeriodRefsForDate(entry.dayRef).week === weekRef,
-        ).length
-        trackers.filledDays += Math.min(filled, DAYS_IN_WEEK)
-      } else if (scope === 'specific-days') {
-        const expectedDayRefs = new Set(item.planning.scheduledDayRefs)
-        trackers.assignedDays += expectedDayRefs.size
-        const filled = rawEntries.filter(
-          entry =>
-            entry.subjectId === item.subject.id &&
-            expectedDayRefs.has(entry.dayRef),
-        ).length
-        trackers.filledDays += filled
-      }
     }
   }
 
-  return { keyResults, habits, trackers }
+  for (const intention of weeklyIntentions) {
+    if (!intention.isActive) continue
+    intentions.total += 1
+    const summary = buildMeasurementSummary(intention, rawEntries, weekRef)
+    if (summary.evaluationStatus === 'met') intentions.met += 1
+  }
+
+  return { keyResults, habits, intentions }
 }

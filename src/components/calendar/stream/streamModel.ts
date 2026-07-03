@@ -11,9 +11,9 @@ import { getPeriodRefsForDate } from '@/utils/periods'
 
 export type PeriodTimeState = 'past' | 'current' | 'future'
 
-/** A single goal/habit/tracker completion ring. `pct === null` ⇒ no data ("—"). */
+/** A single goal/habit/intention completion ring. `pct === null` ⇒ no data ("—"). */
 export interface StreamRingVM {
-  key: 'goals' | 'habits' | 'trackers'
+  key: 'goals' | 'habits' | 'intentions'
   icon: string
   pct: number | null
   /** Future periods render dimmed (no execution data yet). */
@@ -74,7 +74,7 @@ export interface StreamMonthVM {
   isCurrent: boolean
   /** Bars = the 5 monthly-reflection dimensions. */
   areas: StreamBarVM[]
-  /** Year-view rings are Goals + Habits (trackers ring removed in this layout). */
+  /** Year-view rings are Goals + Habits (intentions are week-scoped, so no third ring here). */
   rings: StreamRingVM[]
   /** Month top-3 priorities — always 3 slots; unfilled slots render a "—". */
   priorities: StreamPriorityVM[]

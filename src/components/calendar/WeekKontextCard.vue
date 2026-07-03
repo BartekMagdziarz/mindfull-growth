@@ -182,7 +182,7 @@ const planHasObjects = computed(
   () =>
     props.planSummary.keyResults.total > 0 ||
     props.planSummary.habits.total > 0 ||
-    props.planSummary.trackers.total > 0,
+    props.planSummary.intentions.total > 0,
 )
 
 const planRings = computed<PlanExecutionRing[]>(() => [
@@ -199,10 +199,10 @@ const planRings = computed<PlanExecutionRing[]>(() => [
     denominator: props.planSummary.habits.total,
   },
   {
-    key: 'trackers',
-    label: t('planning.reflection.review.planVsExecution.ringTrackers'),
-    numerator: props.planSummary.trackers.filledDays,
-    denominator: props.planSummary.trackers.assignedDays,
+    key: 'intentions',
+    label: t('planning.reflection.review.planVsExecution.ringIntentions'),
+    numerator: props.planSummary.intentions.met,
+    denominator: props.planSummary.intentions.total,
   },
 ])
 

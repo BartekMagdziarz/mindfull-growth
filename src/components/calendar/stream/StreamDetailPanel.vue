@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { WeeklyIntention } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { MonthObjectItem, WeekObjectItem } from '@/services/reflectionDataQueries'
 import { getPeriodBounds } from '@/utils/periods'
@@ -11,7 +12,12 @@ import {
   getWeekReflectionBundle,
 } from '@/services/planningStateQueries'
 import { loadDayAssignmentsForMonths } from '@/services/reflectionDataQueries'
-import { buildMonthObjectItems, buildWeekObjectItems } from '@/components/calendar/objectItems'
+import { listWeeklyIntentionsForMonth } from '@/services/weeklyIntentionService'
+import {
+  buildMonthObjectItems,
+  buildWeekObjectItems,
+  extractWeekIntentions,
+} from '@/components/calendar/objectItems'
 import MonthReviewSummary from '@/components/calendar/MonthReviewSummary.vue'
 import WeekReviewSummary from '@/components/calendar/WeekReviewSummary.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
@@ -54,11 +60,13 @@ const loadError = ref<string | null>(null)
 const monthItems = ref<MonthObjectItem[]>([])
 const monthRawEntries = ref<DailyMeasurementEntry[]>([])
 const monthHasPlan = ref(false)
+const monthIntentions = ref<WeeklyIntention[]>([])
 
 const weekItems = ref<WeekObjectItem[]>([])
 const weekRawEntries = ref<DailyMeasurementEntry[]>([])
 const weekHasPlan = ref(false)
 const weekDayAssignments = ref<MeasurementDayAssignment[]>([])
+const weekIntentions = ref<WeeklyIntention[]>([])
 
 // Monotonic token guards against out-of-order async resolution when the user
 // navigates faster than a load completes.
@@ -73,11 +81,15 @@ async function load() {
 
   try {
     if (props.scale === 'month') {
-      const bundle = await getMonthPlanningBundle(props.monthRef)
+      const [bundle, intentions] = await Promise.all([
+        getMonthPlanningBundle(props.monthRef),
+        listWeeklyIntentionsForMonth(props.monthRef),
+      ])
       if (token !== loadToken) return
       monthItems.value = buildMonthObjectItems(bundle)
       monthRawEntries.value = bundle.rawEntries
       monthHasPlan.value = Boolean(bundle.monthPlan)
+      monthIntentions.value = intentions
     } else {
       const weekEnd = getPeriodBounds(props.weekRef).end as DayRef
       const [planning, reflection] = await Promise.all([
@@ -90,6 +102,7 @@ async function load() {
       weekRawEntries.value = planning.rawEntries
       weekHasPlan.value = Boolean(planning.weekPlan)
       weekDayAssignments.value = assignments
+      weekIntentions.value = extractWeekIntentions(reflection)
     }
   } catch (error) {
     if (token !== loadToken) return
@@ -127,6 +140,7 @@ watch(() => [props.scale, props.monthRef, props.weekRef], load, { immediate: tru
       :month-object-items="monthItems"
       :raw-entries="monthRawEntries"
       :has-plan="monthHasPlan"
+      :weekly-intentions="monthIntentions"
       @create-plan="openClassicAction('plan')"
       @edit-plan="openClassicAction('plan')"
       @create-reflection="openClassicAction('reflect')"
@@ -140,6 +154,7 @@ watch(() => [props.scale, props.monthRef, props.weekRef], load, { immediate: tru
       :raw-entries="weekRawEntries"
       :all-day-assignments="weekDayAssignments"
       :has-plan="weekHasPlan"
+      :weekly-intentions="weekIntentions"
       @create-plan="openClassicAction('plan')"
       @edit-plan="openClassicAction('plan')"
       @create-reflection="openClassicAction('reflect')"

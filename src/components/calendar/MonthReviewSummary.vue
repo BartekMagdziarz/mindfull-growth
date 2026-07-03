@@ -41,6 +41,7 @@ import MonthKontextCard from './MonthKontextCard.vue'
 import MonthObjectsGrid from './MonthObjectsGrid.vue'
 import MonthWeeklyRecapCard from './MonthWeeklyRecapCard.vue'
 import type { DayRef, MonthRef } from '@/domain/period'
+import type { WeeklyIntention } from '@/domain/planning'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { MonthObjectItem } from '@/services/reflectionDataQueries'
 import { buildMonthlyPlanSummary } from '@/services/monthlyPlanSummary'
@@ -55,8 +56,10 @@ const props = withDefaults(
     kontekstActions?: boolean
     /** Whether a MonthPlan record exists for this month — drives the plan-vs-execution section state. */
     hasPlan?: boolean
+    /** All intentions of the month's weeks — feed the plan-vs-execution "Intencje" ring. */
+    weeklyIntentions?: WeeklyIntention[]
   }>(),
-  { kontekstActions: true, hasPlan: false },
+  { kontekstActions: true, hasPlan: false, weeklyIntentions: () => [] },
 )
 
 const emit = defineEmits<{
@@ -67,6 +70,12 @@ const emit = defineEmits<{
 }>()
 
 const planSummary = computed(() =>
-  buildMonthlyPlanSummary(props.monthObjectItems, props.rawEntries, props.monthRef, props.todayDayRef),
+  buildMonthlyPlanSummary(
+    props.monthObjectItems,
+    props.rawEntries,
+    props.monthRef,
+    props.todayDayRef,
+    props.weeklyIntentions,
+  ),
 )
 </script>

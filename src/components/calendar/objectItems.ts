@@ -8,6 +8,7 @@
  * trackers → weekly intentions).
  */
 import { buildMeasurementSummary } from '@/services/measurementProgress'
+import type { WeeklyIntention } from '@/domain/planning'
 import type { MonthPlanningBundle, WeekReflectionBundle } from '@/services/planningStateQueries'
 import type { MonthObjectItem, WeekObjectItem } from '@/services/reflectionDataQueries'
 import type { WeekCadencedReflectionItem } from '@/services/planningStateQueries'
@@ -75,6 +76,17 @@ export function buildWeekObjectItems(reflection: WeekReflectionBundle): WeekObje
   })
 
   return items
+}
+
+/**
+ * The week's weekly intentions from the reflection bundle (they ride along in
+ * `relevant.cadencedItems` but are kept out of the objects grid) — feeds the
+ * Kontekst plan-vs-execution "Intencje" ring.
+ */
+export function extractWeekIntentions(reflection: WeekReflectionBundle): WeeklyIntention[] {
+  return reflection.relevant.cadencedItems
+    .filter((item) => item.subjectType === 'weeklyIntention')
+    .map((item) => item.subject as WeeklyIntention)
 }
 
 /**

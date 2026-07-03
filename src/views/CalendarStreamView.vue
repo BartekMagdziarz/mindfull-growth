@@ -221,7 +221,7 @@ const showDetailPanel = computed(() => scale.value === 'month' || scale.value ==
 const ringLabels = computed(() => ({
   goals: t('planning.calendar.stream.rings.goals'),
   habits: t('planning.calendar.stream.rings.habits'),
-  trackers: t('planning.calendar.stream.rings.trackers'),
+  intentions: t('planning.calendar.stream.rings.intentions'),
 }))
 
 // Matrix column headers reuse the weekly-reflection group titles

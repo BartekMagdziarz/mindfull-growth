@@ -11,7 +11,7 @@ const props = defineProps<{
   weekLabel: string
   rangeLabel: string
   sectionLabels: Record<MatrixSection, string>
-  ringLabels: Record<'goals' | 'habits' | 'trackers', string>
+  ringLabels: Record<'goals' | 'habits' | 'intentions', string>
   index: number
 }>()
 

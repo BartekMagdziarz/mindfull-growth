@@ -110,6 +110,7 @@
                 :month-object-items="monthObjectItems"
                 :raw-entries="monthPlanning.rawEntries"
                 :has-plan="Boolean(monthPlanning.monthPlan)"
+                :weekly-intentions="monthWeeklyIntentions"
                 :kontekst-actions="!showMonthlyReflection"
                 @create-reflection="openReflectionPanel"
                 @edit-reflection="openReflectionPanel"
@@ -126,6 +127,7 @@
                 :raw-entries="weekPlanning.rawEntries"
                 :all-day-assignments="weekDayAssignments"
                 :has-plan="Boolean(weekPlanning.weekPlan)"
+                :weekly-intentions="weekIntentions"
                 :kontekst-actions="!showWeekWizard"
                 @create-reflection="openWeekWizard"
                 @edit-reflection="openWeekWizard"
@@ -201,9 +203,15 @@ import type {
   WeekReflectionBundle,
   WeekPlanningBundle,
 } from '@/services/planningStateQueries'
+import type { WeeklyIntention } from '@/domain/planning'
 import type { MonthObjectItem, WeekObjectItem } from '@/services/reflectionDataQueries'
 import { loadDayAssignmentsForMonths } from '@/services/reflectionDataQueries'
-import { buildMonthObjectItems, buildWeekObjectItems } from '@/components/calendar/objectItems'
+import { listWeeklyIntentionsForMonth } from '@/services/weeklyIntentionService'
+import {
+  buildMonthObjectItems,
+  buildWeekObjectItems,
+  extractWeekIntentions,
+} from '@/components/calendar/objectItems'
 import type {
   CalendarYearSummary,
   MonthReflectionBundle,
@@ -280,6 +288,7 @@ const yearSummary = ref<CalendarYearSummary | null>(null)
 const annualPlan = ref<AnnualPlan | null>(null)
 const monthPlanning = ref<MonthPlanningBundle | null>(null)
 const monthReflection = ref<MonthReflectionBundle | null>(null)
+const monthWeeklyIntentions = ref<WeeklyIntention[]>([])
 const weekPlanning = ref<WeekPlanningBundle | null>(null)
 const weekReflection = ref<WeekReflectionBundle | null>(null)
 const weekDayAssignments = ref<MeasurementDayAssignment[]>([])
@@ -518,6 +527,10 @@ const weekObjectItems = computed<WeekObjectItem[]>(() =>
   weekReflection.value ? buildWeekObjectItems(weekReflection.value) : [],
 )
 
+const weekIntentions = computed<WeeklyIntention[]>(() =>
+  weekReflection.value ? extractWeekIntentions(weekReflection.value) : [],
+)
+
 const monthObjectItems = computed<MonthObjectItem[]>(() =>
   monthPlanning.value ? buildMonthObjectItems(monthPlanning.value) : [],
 )
@@ -702,6 +715,7 @@ async function loadCalendarData() {
   annualPlan.value = null
   monthPlanning.value = null
   monthReflection.value = null
+  monthWeeklyIntentions.value = []
   weekPlanning.value = null
   weekReflection.value = null
   weekDayAssignments.value = []
@@ -728,9 +742,10 @@ async function loadCalendarData() {
         }
         break
       case 'month':
-        ;[monthPlanning.value, monthReflection.value] = await Promise.all([
+        ;[monthPlanning.value, monthReflection.value, monthWeeklyIntentions.value] = await Promise.all([
           getMonthPlanningBundle(parsedPeriodRef.value as MonthRef),
           getMonthReflectionBundle(parsedPeriodRef.value as MonthRef),
+          listWeeklyIntentionsForMonth(parsedPeriodRef.value as MonthRef),
         ])
         break
       case 'week': {

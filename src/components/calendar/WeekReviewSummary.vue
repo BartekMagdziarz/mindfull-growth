@@ -42,6 +42,7 @@ import WeekJournalEntriesCard from './WeekJournalEntriesCard.vue'
 import WeekKontextCard from './WeekKontextCard.vue'
 import WeekObjectsGrid from './WeekObjectsGrid.vue'
 import type { DayRef, WeekRef } from '@/domain/period'
+import type { WeeklyIntention } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   MeasurementDayAssignment,
@@ -60,8 +61,10 @@ const props = withDefaults(
     kontekstActions?: boolean
     /** Whether a WeekPlan record exists for this week — drives the plan-vs-execution section state. */
     hasPlan?: boolean
+    /** The week's weekly intentions — feed the plan-vs-execution "Intencje" ring. */
+    weeklyIntentions?: WeeklyIntention[]
   }>(),
-  { kontekstActions: true, hasPlan: false },
+  { kontekstActions: true, hasPlan: false, weeklyIntentions: () => [] },
 )
 
 const emit = defineEmits<{
@@ -72,6 +75,6 @@ const emit = defineEmits<{
 }>()
 
 const planSummary = computed(() =>
-  buildWeeklyPlanSummary(props.weekObjectItems, props.rawEntries, props.weekRef),
+  buildWeeklyPlanSummary(props.weekObjectItems, props.rawEntries, props.weekRef, props.weeklyIntentions),
 )
 </script>

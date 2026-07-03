@@ -21,7 +21,7 @@
       "rings": {
         "goals": "Goals",
         "habits": "Habits",
-        "trackers": "Trackers"
+        "intentions": "Intentions"
       },
       "day": {
         "journal": "Journal",
@@ -1047,7 +1047,7 @@
         "gridEmptyNoPlan": "No plan yet — create one in the Summary panel.",
         "ringGoals": "Goals",
         "ringHabits": "Habits",
-        "ringTrackers": "Trackers",
+        "ringIntentions": "Intentions",
         "ringValue": "{numerator}/{denominator}",
         "ringEmpty": "—"
       }

@@ -1,9 +1,10 @@
 import type { MeasurementEntryMode, MeasurementTarget, WeeklyIntention } from '@/domain/planning'
-import type { WeekRef } from '@/domain/period'
+import type { MonthRef, WeekRef } from '@/domain/period'
 import type { WeekPlan, WeekTopPriorityRef } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { linkMeasurementPeriod, unlinkMeasurementPeriod } from '@/services/planningMutations'
+import { getChildPeriods } from '@/utils/periods'
 
 export interface CreateWeeklyIntentionInput {
   weekRef: WeekRef
@@ -54,6 +55,15 @@ export async function createWeeklyIntention(
 
 export function listWeeklyIntentions(weekRef: WeekRef): Promise<WeeklyIntention[]> {
   return weeklyIntentionDexieRepository.listByWeek(weekRef)
+}
+
+/** All intentions of the month's (child-period) weeks, in week order. */
+export async function listWeeklyIntentionsForMonth(monthRef: MonthRef): Promise<WeeklyIntention[]> {
+  const weekRefs = getChildPeriods(monthRef) as WeekRef[]
+  const lists = await Promise.all(
+    weekRefs.map((weekRef) => weeklyIntentionDexieRepository.listByWeek(weekRef)),
+  )
+  return lists.flat()
 }
 
 export interface UpdateWeeklyIntentionInput {
