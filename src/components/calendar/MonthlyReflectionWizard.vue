@@ -14,16 +14,19 @@
             v-for="(label, idx) in stepLabels"
             :key="idx"
             type="button"
+            :disabled="isStepLocked(STEPS[idx])"
             :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
             class="rounded-full transition-all duration-200"
             :class="
-              idx < stepIndex
-                ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-                : idx === stepIndex
-                  ? 'neo-step-active w-3.5 h-3.5'
-                  : 'neo-step-future w-2.5 h-2.5'
+              isStepLocked(STEPS[idx])
+                ? 'neo-step-future h-2.5 w-2.5 opacity-40'
+                : idx < stepIndex
+                  ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
+                  : idx === stepIndex
+                    ? 'neo-step-active w-3.5 h-3.5'
+                    : 'neo-step-future w-2.5 h-2.5'
             "
-            @click="idx < stepIndex && goToStep(STEPS[idx])"
+            @click="!isStepLocked(STEPS[idx]) && idx < stepIndex && goToStep(STEPS[idx])"
           />
         </div>
         <span class="text-xs font-medium text-on-surface-variant">
@@ -47,16 +50,204 @@
       leave-to-class="opacity-0"
       mode="out-in"
     >
+      <!-- Step: Plan (pick the month's top priorities) -->
+      <div v-if="currentStep === 'plan'" key="plan" class="space-y-4">
+        <header class="space-y-1">
+          <p class="text-xs font-semibold uppercase tracking-wide text-primary-strong">
+            {{ t('planning.monthlyPlanning.priorities.eyebrow') }}
+          </p>
+          <h3 class="text-base font-bold text-on-surface">
+            {{ t('planning.monthlyPlanning.priorities.title') }}
+          </h3>
+          <p class="text-sm text-on-surface-variant">
+            {{ t('planning.monthlyPlanning.priorities.description') }}
+          </p>
+        </header>
+
+        <p v-if="activePriorities.length === 0" class="text-sm text-on-surface-variant">
+          {{ t('planning.monthlyPlanning.priorities.empty') }}
+        </p>
+        <ul v-else class="space-y-2">
+          <li v-for="priority in activePriorities" :key="priority.id">
+            <button
+              type="button"
+              class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition"
+              :class="selectedPriorityIds.includes(priority.id)
+                ? 'bg-primary/15 font-semibold text-primary-strong'
+                : 'text-on-surface hover:bg-section/60'"
+              @click="toggleTopPriority(priority.id)"
+            >
+              <AppIcon
+                :name="selectedPriorityIds.includes(priority.id) ? 'check_circle' : 'radio_button_unchecked'"
+                class="text-lg"
+              />
+              <span class="min-w-0 flex-1 truncate">{{ priority.title }}</span>
+              <AppIcon
+                v-if="selectedPriorityIds.includes(priority.id)"
+                name="star"
+                class="text-sm text-primary-strong"
+              />
+            </button>
+          </li>
+        </ul>
+
+        <p
+          v-if="selectedPriorityIds.length > MONTH_TOP_PRIORITY_SOFT_LIMIT"
+          class="text-xs font-medium text-amber-600"
+        >
+          {{ t('planning.monthlyPlanning.priorities.softLimitWarning', { n: MONTH_TOP_PRIORITY_SOFT_LIMIT }) }}
+        </p>
+      </div>
+
+      <!-- Step: Priorities review (effort + verdict per active priority) -->
+      <div v-else-if="currentStep === 'priorities-review'" key="priorities-review" class="space-y-4">
+        <header class="space-y-1">
+          <h3 class="text-base font-bold text-on-surface">
+            {{ t('planning.reflection.monthly.prioritiesReview.title') }}
+          </h3>
+          <p class="text-sm text-on-surface-variant">
+            {{ t('planning.reflection.monthly.prioritiesReview.description') }}
+          </p>
+        </header>
+
+        <p v-if="activePriorities.length === 0" class="text-sm text-on-surface-variant">
+          {{ t('planning.reflection.monthly.prioritiesReview.empty') }}
+        </p>
+        <div
+          v-else
+          class="grid gap-3"
+          :style="{ gridTemplateColumns: `repeat(${activePriorities.length}, minmax(0, 1fr))` }"
+        >
+          <div
+            v-for="priority in activePriorities"
+            :key="priority.id"
+            class="flex min-w-0 flex-col gap-2.5 rounded-xl bg-section/50 p-2.5"
+          >
+            <!-- header -->
+            <div class="flex items-center gap-1">
+              <AppIcon
+                v-if="selectedPriorityIds.includes(priority.id)"
+                name="star"
+                class="text-xs text-primary-strong"
+              />
+              <span
+                class="min-w-0 flex-1 truncate text-sm font-semibold text-on-surface"
+                :title="priority.title"
+              >
+                {{ priority.title }}
+              </span>
+            </div>
+
+            <!-- effort 1–5 -->
+            <div>
+              <span class="block text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('planning.reflection.monthly.prioritiesReview.effortLabel') }}
+              </span>
+              <div class="mt-1 flex gap-1">
+                <button
+                  v-for="n in 5"
+                  :key="n"
+                  type="button"
+                  class="h-6 flex-1 rounded text-xs font-semibold transition"
+                  :class="assessmentFor(priority.id).effort === n
+                    ? 'bg-primary text-on-primary'
+                    : 'bg-surface text-on-surface-variant hover:bg-primary/10'"
+                  @click="setEffort(priority.id, n)"
+                >
+                  {{ n }}
+                </button>
+              </div>
+            </div>
+
+            <!-- verdict (compact select) -->
+            <div>
+              <span class="block text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('planning.reflection.monthly.prioritiesReview.verdictLabel') }}
+              </span>
+              <select
+                class="mt-1 w-full rounded-lg bg-surface px-2 py-1.5 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/40"
+                :value="assessmentFor(priority.id).verdict ?? ''"
+                @change="onVerdictChange(priority.id, $event)"
+              >
+                <option value="">—</option>
+                <option v-for="v in VERDICTS" :key="v" :value="v">{{ verdictLabel(v) }}</option>
+              </select>
+            </div>
+
+            <!-- reason -->
+            <textarea
+              :value="assessmentFor(priority.id).note"
+              rows="2"
+              class="w-full resize-none rounded-lg bg-surface px-2 py-1.5 text-xs text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary/40"
+              :placeholder="t('planning.reflection.monthly.prioritiesReview.reasonPlaceholder')"
+              @input="setNote(priority.id, ($event.target as HTMLTextAreaElement).value)"
+            />
+
+            <!-- M4: weekly focus rolled up to this priority -->
+            <div class="mt-0.5 border-t border-outline/15 pt-2">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                  {{ t('planning.reflection.monthly.prioritiesReview.focusLabel') }}
+                </span>
+                <span class="flex items-center gap-0.5">
+                  <span
+                    v-for="i in weeksInMonth"
+                    :key="i"
+                    class="h-1.5 w-1.5 rounded-full"
+                    :class="i <= focusCount(priority.id) ? 'bg-primary' : 'bg-on-surface-variant/25'"
+                  />
+                </span>
+                <span class="text-[10px] font-semibold tabular-nums text-on-surface-variant">
+                  {{ focusCount(priority.id) }}/{{ weeksInMonth }}
+                </span>
+              </div>
+              <p class="mt-1 line-clamp-2 text-[11px] leading-snug text-on-surface-variant">
+                <template v-if="focusObjects(priority.id).length">
+                  {{ focusObjects(priority.id).join(', ') }}
+                </template>
+                <template v-else>—</template>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- M4: drift — weekly picks that didn't land on any active month priority -->
+        <div v-if="driftPicks.length" class="rounded-xl bg-section/40 p-3">
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+            {{ t('planning.reflection.monthly.prioritiesReview.driftTitle') }}
+          </span>
+          <ul class="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
+            <li
+              v-for="d in driftPicks"
+              :key="d.subjectType + ':' + d.subjectId"
+              class="flex items-center gap-1 text-xs text-on-surface-variant"
+            >
+              <span class="truncate">{{ d.title }}</span>
+              <span
+                v-if="d.subjectType === 'weeklyIntention'"
+                class="text-[10px] text-on-surface-variant/70"
+              >
+                ({{ t('planning.reflection.monthly.prioritiesReview.intentionTag') }})
+              </span>
+              <span class="text-[10px] tabular-nums text-on-surface-variant/60">{{ d.weekRefs.length }}×</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
       <!-- Step: Ratings -->
-      <div v-if="currentStep === 'ratings'" key="ratings" class="space-y-4">
+      <div v-else-if="currentStep === 'ratings'" key="ratings" class="space-y-4">
         <ReflectionDimensionRatings
           :groups="monthlyGroups"
           @update:rating="handleRatingUpdate"
         />
       </div>
 
-      <!-- Step: Anchors -->
-      <div v-else-if="currentStep === 'anchors'" key="anchors">
+      <!-- Step: Anchors (optional) -->
+      <div v-else-if="currentStep === 'anchors'" key="anchors" class="space-y-3">
+        <p class="text-xs text-on-surface-variant">
+          {{ t('planning.reflection.monthly.anchorsOptionalHint') }}
+        </p>
         <ReflectionAnchorsGrid
           :categories="monthlyAnchorCategories"
           :model-value="promptResponses"
@@ -101,6 +292,13 @@
         {{ isSaving ? t('planning.reflection.saving') : t('planning.reflection.save') }}
       </AppButton>
       <AppButton
+        v-else-if="isLastStep"
+        variant="filled"
+        @click="emit('close')"
+      >
+        {{ t('planning.monthlyPlanning.finishPlanning') }}
+      </AppButton>
+      <AppButton
         v-else
         variant="filled"
         :disabled="!canAdvance"
@@ -124,13 +322,16 @@ import type { RatingGroup } from './ReflectionDimensionRatings.vue'
 import type { SidebarRatingGroup } from './ReflectionJournalSidebar.vue'
 import {
   useMonthlyReflectionWizard,
+  MONTH_TOP_PRIORITY_SOFT_LIMIT,
   type MonthlyReflectionStep,
 } from '@/composables/useMonthlyReflectionWizard'
 import { useT } from '@/composables/useT'
 import type { MonthRef, WeekRef } from '@/domain/period'
+import type { PriorityVerdict } from '@/domain/planningState'
 import { getPeriodBounds } from '@/utils/periods'
 import {
   emotionContextFromSummary,
+  type ReflectionPriorityLine,
   type ReflectionSummaryContext,
 } from '@/services/reflectionSummaryService'
 
@@ -145,13 +346,11 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const STEPS: MonthlyReflectionStep[] = [
-  'ratings',
-  'anchors',
-  'journal',
-]
+const STEPS: MonthlyReflectionStep[] = ['plan', 'priorities-review', 'ratings', 'anchors', 'journal']
 
 const stepLabels = computed(() => [
+  t('planning.reflection.steps.plan'),
+  t('planning.reflection.steps.prioritiesReview'),
   t('planning.reflection.steps.ratings'),
   t('planning.reflection.steps.anchors'),
   t('planning.reflection.steps.journal'),
@@ -159,19 +358,26 @@ const stepLabels = computed(() => [
 
 const stepSubtitle = computed(() => {
   switch (currentStep.value) {
+    case 'plan': return t('planning.monthlyPlanning.priorities.subtitle')
+    case 'priorities-review': return t('planning.reflection.monthly.prioritiesReview.subtitle')
     case 'ratings': return t('planning.reflection.monthly.groups.ratings.subtitle')
     default: return ''
   }
 })
 
+// Slimmed to 3 anchors (was 6) — mirrors the weekly slim; the month review summary card
+// still renders any historical 6-anchor reflections (it filters empty categories).
 const monthlyAnchorCategories = computed(() => [
   { key: 'proudOf', label: t('planning.reflection.monthly.anchors.proudOf'), icon: 'emoji_events' },
   { key: 'challenges', label: t('planning.reflection.monthly.anchors.challenges'), icon: 'warning' },
   { key: 'growth', label: t('planning.reflection.monthly.anchors.growth'), icon: 'trending_up' },
-  { key: 'patterns', label: t('planning.reflection.monthly.anchors.patterns'), icon: 'pattern' },
-  { key: 'carryForward', label: t('planning.reflection.monthly.anchors.carryForward'), icon: 'arrow_forward' },
-  { key: 'letGo', label: t('planning.reflection.monthly.anchors.letGo'), icon: 'delete_sweep' },
 ])
+
+const VERDICTS: PriorityVerdict[] = ['continue', 'adjust', 'pause', 'drop']
+
+function verdictLabel(v: PriorityVerdict): string {
+  return t(`planning.reflection.monthly.verdicts.${v}`)
+}
 
 const {
   currentStep,
@@ -180,7 +386,15 @@ const {
   nextStep,
   prevStep,
   goToStep,
+  isStepLocked,
+  isLastStep,
   dataBundle,
+  activePriorities,
+  selectedPriorityIds,
+  toggleTopPriority,
+  assessmentFor,
+  updateAssessment,
+  focusConfrontation,
   balanceRating,
   purposeRating,
   growthRating,
@@ -192,6 +406,33 @@ const {
   isSaving,
   save,
 } = useMonthlyReflectionWizard(toRef(props, 'monthRef'))
+
+// Toggling effort/verdict on a value that's already selected clears it.
+function setEffort(priorityId: string, n: number) {
+  updateAssessment(priorityId, { effort: assessmentFor(priorityId).effort === n ? null : n })
+}
+
+function onVerdictChange(priorityId: string, event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  updateAssessment(priorityId, { verdict: (value || null) as PriorityVerdict | null })
+}
+
+function setNote(priorityId: string, note: string) {
+  updateAssessment(priorityId, { note })
+}
+
+// M4 — weekly focus rolled up by priority (read-only).
+const focusByPriority = computed(
+  () => new Map((focusConfrontation.value?.perPriority ?? []).map((p) => [p.priorityId, p])),
+)
+const weeksInMonth = computed(() => focusConfrontation.value?.weekRefs.length ?? 0)
+const driftPicks = computed(() => focusConfrontation.value?.drift ?? [])
+function focusCount(priorityId: string): number {
+  return focusByPriority.value.get(priorityId)?.focusWeekRefs.length ?? 0
+}
+function focusObjects(priorityId: string): string[] {
+  return (focusByPriority.value.get(priorityId)?.objects ?? []).map((o) => o.title)
+}
 
 // ---------------------------------------------------------------------------
 // Week label helpers
@@ -301,15 +542,27 @@ const summaryPeriodLabel = computed(() => {
   })
 })
 
+// Active priorities that are top-3 OR carry an assessment → fed to the AI as [PRIORYTETY].
+const summaryPriorities = computed<ReflectionPriorityLine[]>(() =>
+  activePriorities.value
+    .filter((p) => {
+      const a = assessmentFor(p.id)
+      return selectedPriorityIds.value.includes(p.id) || a.effort != null || a.verdict != null || a.note.trim().length > 0
+    })
+    .map((p) => {
+      const a = assessmentFor(p.id)
+      return { title: p.title, effort: a.effort, verdict: a.verdict, comment: a.note.trim() || undefined }
+    }),
+)
+
 // Localized, kind-agnostic payload the AI summary/questions are built from.
-// Monthly feeds the full month context: weekly trends, weekly reflection
-// excerpts, and goal/habit/tracker outcomes.
 const summaryContext = computed<ReflectionSummaryContext>(() => {
   const bundle = dataBundle.value
   return {
     kind: 'monthly',
     periodLabel: summaryPeriodLabel.value,
     ratings: monthlyRatingSummary.value.flatMap((g) => g.items),
+    priorities: summaryPriorities.value,
     anchors: monthlyAnchorCategories.value
       .map((c) => ({ label: c.label, text: (promptResponses.value[c.key] ?? '').trim() }))
       .filter((a) => a.text.length > 0),

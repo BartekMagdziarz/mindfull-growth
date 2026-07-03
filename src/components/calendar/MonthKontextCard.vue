@@ -26,19 +26,20 @@
       />
 
       <template v-if="!hasReflection">
-        <!-- A month that hasn't started yet has nothing to reflect on. -->
-        <p v-if="isFutureMonth" class="kontekst-section kontekst-future">
-          {{ t('planning.reflection.review.kontekstFutureMonthHint') }}
-        </p>
+        <!-- The unified month ritual: plan the top-3 now (reflection unlocks at month-end).
+             Available for any month so the user can plan ahead. -->
         <button
-          v-else-if="showActions"
+          v-if="showActions"
           type="button"
           class="kontekst-section neo-focus flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary shadow-neu-raised-sm transition-all duration-150 hover:-translate-y-px hover:shadow-neu-raised active:translate-y-0 active:shadow-neu-pressed-sm"
           @click.stop="$emit('create-reflection')"
         >
           <AppIcon name="auto_awesome" class="text-sm" />
-          {{ t('planning.reflection.review.kontekstCreateButton') }}
+          {{ t('planning.reflection.review.kontekstOpenMonthButton') }}
         </button>
+        <p v-else-if="isFutureMonth" class="kontekst-section kontekst-future">
+          {{ t('planning.reflection.review.kontekstFutureMonthHint') }}
+        </p>
         <p
           v-else
           class="kontekst-section text-center text-xs text-on-surface-variant/70"

@@ -4,6 +4,38 @@
     "subtitle": "Navigate one planning workspace across year, month, week, and day.",
     "invalidPeriod": "This calendar route points to an invalid period.",
     "loadError": "Couldn't load the calendar workspace.",
+    "stream": {
+      "eyebrow": "Stream · navigation",
+      "today": "Today",
+      "prevPeriod": "Previous period",
+      "nextPeriod": "Next period",
+      "weekShort": "Wk {n}",
+      "weekLong": "Week {n}",
+      "detailsTitle": "Details",
+      "detailsLoading": "Loading the period details…",
+      "hint": {
+        "year": "Click a month to step into its weeks",
+        "month": "Click a week to see its days",
+        "week": "Deepest scale — individual days"
+      },
+      "rings": {
+        "goals": "Goals",
+        "habits": "Habits",
+        "trackers": "Trackers"
+      },
+      "day": {
+        "journal": "Journal",
+        "emotions": "Emotions"
+      },
+      "prioritiesTitle": "Priorities",
+      "dimShort": {
+        "balance": "Balance",
+        "purpose": "Purpose",
+        "growth": "Growth",
+        "coherence": "Values",
+        "agency": "Influence"
+      }
+    },
     "scales": {
       "year": "Year",
       "month": "Month",
@@ -366,8 +398,21 @@
     "planNextWeek": "Plan next week →",
     "done": "Done",
     "steps": {
+      "plan": "Plan",
+      "days": "Days",
       "intentions": "Intentions",
       "priorities": "Priorities"
+    }
+  },
+  "monthlyPlanning": {
+    "finishPlanning": "Finish planning",
+    "priorities": {
+      "eyebrow": "Plan the month",
+      "title": "Which priorities will you focus on this month?",
+      "description": "Pick up to 3 of your active priorities to commit to. These are the ones you'll especially hold yourself to in this month's reflection.",
+      "subtitle": "Pick the month's focus",
+      "empty": "No active priorities for this month yet — add or activate a priority first.",
+      "softLimitWarning": "More than {n} priorities makes a month hard to focus — sure?"
     }
   },
   "weekPlanning": {
@@ -377,7 +422,6 @@
     "back": "Back",
     "save": "Save",
     "close": "Close",
-    "editGrid": "Edit day grid",
     "steps": {
       "intentions": "Week intentions",
       "priorities": "Top priorities"
@@ -387,11 +431,25 @@
       "heading": "New intention",
       "titleLabel": "Intention title",
       "titlePlaceholder": "e.g. Wake up at 6am",
-      "add": "Add intention"
+      "add": "Add intention",
+      "edit": "Edit intention",
+      "delete": "Delete intention"
     },
     "priorities": {
       "empty": "Nothing active to prioritise yet — add an intention or activate an objective.",
-      "softLimitWarning": "More than {n} priorities makes a week hard to deliver — sure?"
+      "softLimitWarning": "More than {n} priorities makes a week hard to deliver — sure?",
+      "counter": "{n}/{max} selected",
+      "toggle": "Mark as a top priority"
+    },
+    "details": {
+      "toggle": "Details"
+    },
+    "days": {
+      "intro": "Place each object on the days you'll act on it.",
+      "empty": "No active objects to place this week yet.",
+      "assigningHint": "Pick the days for “{title}”.",
+      "wholeWeek": "Whole week",
+      "clear": "Clear"
     },
     "subjectType": {
       "keyResult": "Key result",
@@ -865,6 +923,8 @@
     "save": "Save Reflection",
     "saving": "Saving...",
     "steps": {
+      "plan": "Plan",
+      "prioritiesReview": "Priorities",
       "review": "Review",
       "demands": "Demands",
       "actions": "Actions",
@@ -956,6 +1016,7 @@
       "kontekstGroupState": "State",
       "kontekstNoReflection": "No reflection for this week yet.",
       "kontekstCreateButton": "Create reflection",
+      "kontekstOpenMonthButton": "Open month",
       "kontekstEditButton": "Edit reflection",
       "kontekstFreeformLabel": "Note",
       "kontekstAiSummaryTitle": "AI summary",
@@ -1113,8 +1174,8 @@
         "balance": "Balance",
         "purpose": "Sense of Purpose",
         "growth": "Personal Growth",
-        "coherence": "Coherence",
-        "agency": "Agency"
+        "coherence": "Values",
+        "agency": "Influence"
       },
       "scaleLabels": {
         "balance": {
@@ -1145,6 +1206,25 @@
         "patterns": "Patterns I noticed",
         "carryForward": "What to carry forward",
         "letGo": "What to let go"
+      },
+      "anchorsOptionalHint": "Optional — jot a few anchors, or skip ahead.",
+      "prioritiesReview": {
+        "title": "How did your priorities go?",
+        "description": "Rate the effort you gave each active priority and decide its fate. Your top-3 are starred.",
+        "subtitle": "Effort & verdicts",
+        "empty": "No active priorities to review this month.",
+        "effortLabel": "Effort",
+        "verdictLabel": "Verdict",
+        "reasonPlaceholder": "Why? (optional)",
+        "focusLabel": "Weekly focus",
+        "driftTitle": "Off the month plan",
+        "intentionTag": "intention"
+      },
+      "verdicts": {
+        "continue": "Continue",
+        "adjust": "Adjust",
+        "pause": "Pause",
+        "drop": "Drop"
       },
       "journalPlaceholder": "Reflect on your month..."
     }

@@ -4,6 +4,38 @@
     "subtitle": "Jedna przestrzeń do planowania i refleksji w skali roku, miesiąca, tygodnia i dnia.",
     "invalidPeriod": "Ten adres kalendarza wskazuje nieprawidłowy okres.",
     "loadError": "Nie udało się wczytać widoku kalendarza.",
+    "stream": {
+      "eyebrow": "Strumień · nawigacja",
+      "today": "Dziś",
+      "prevPeriod": "Poprzedni okres",
+      "nextPeriod": "Następny okres",
+      "weekShort": "Tydz. {n}",
+      "weekLong": "Tydzień {n}",
+      "detailsTitle": "Szczegóły",
+      "detailsLoading": "Wczytywanie szczegółów okresu…",
+      "hint": {
+        "year": "Kliknij miesiąc, aby wejść w jego tygodnie",
+        "month": "Kliknij tydzień, aby zobaczyć poszczególne dni",
+        "week": "Najgłębsza skala — poszczególne dni"
+      },
+      "rings": {
+        "goals": "Cele",
+        "habits": "Nawyki",
+        "trackers": "Trackery"
+      },
+      "day": {
+        "journal": "Dziennik",
+        "emotions": "Emocje"
+      },
+      "prioritiesTitle": "Priorytety",
+      "dimShort": {
+        "balance": "Balans",
+        "purpose": "Sens",
+        "growth": "Rozwój",
+        "coherence": "Wartości",
+        "agency": "Wpływ"
+      }
+    },
     "scales": {
       "year": "Rok",
       "month": "Miesiąc",
@@ -366,8 +398,21 @@
     "planNextWeek": "Zaplanuj następny tydzień →",
     "done": "Gotowe",
     "steps": {
+      "plan": "Plan",
+      "days": "Dni",
       "intentions": "Intencje",
       "priorities": "Priorytety"
+    }
+  },
+  "monthlyPlanning": {
+    "finishPlanning": "Zakończ planowanie",
+    "priorities": {
+      "eyebrow": "Zaplanuj miesiąc",
+      "title": "Na których priorytetach skupisz się w tym miesiącu?",
+      "description": "Wybierz do 3 swoich aktywnych priorytetów, którym się zobowiązujesz. To one będą szczególnie rozliczane w refleksji na koniec miesiąca.",
+      "subtitle": "Wybierz fokus miesiąca",
+      "empty": "Brak aktywnych priorytetów na ten miesiąc — najpierw dodaj lub aktywuj priorytet.",
+      "softLimitWarning": "Więcej niż {n} priorytety trudno utrzymać w fokusie przez miesiąc — na pewno?"
     }
   },
   "weekPlanning": {
@@ -377,7 +422,6 @@
     "back": "Wstecz",
     "save": "Zapisz",
     "close": "Zamknij",
-    "editGrid": "Edytuj siatkę dni",
     "steps": {
       "intentions": "Intencje tygodnia",
       "priorities": "Najważniejsze priorytety"
@@ -387,11 +431,25 @@
       "heading": "Nowa intencja",
       "titleLabel": "Nazwa intencji",
       "titlePlaceholder": "np. Wstawać o 6:00",
-      "add": "Dodaj intencję"
+      "add": "Dodaj intencję",
+      "edit": "Edytuj intencję",
+      "delete": "Usuń intencję"
     },
     "priorities": {
       "empty": "Nie ma jeszcze nic aktywnego do spriorytetyzowania — dodaj intencję lub aktywuj cel.",
-      "softLimitWarning": "Więcej niż {n} priorytety trudno dowieźć w tygodniu — na pewno?"
+      "softLimitWarning": "Więcej niż {n} priorytety trudno dowieźć w tygodniu — na pewno?",
+      "counter": "Wybrano {n}/{max}",
+      "toggle": "Oznacz jako priorytet"
+    },
+    "details": {
+      "toggle": "Szczegóły"
+    },
+    "days": {
+      "intro": "Rozmieść każdy obiekt na dniach, w których chcesz nad nim działać.",
+      "empty": "Brak aktywnych obiektów do rozmieszczenia w tym tygodniu.",
+      "assigningHint": "Wybierz dni dla „{title}”.",
+      "wholeWeek": "Cały tydzień",
+      "clear": "Wyczyść"
     },
     "subjectType": {
       "keyResult": "Kluczowy rezultat",
@@ -865,6 +923,8 @@
     "save": "Zapisz refleksję",
     "saving": "Zapisywanie...",
     "steps": {
+      "plan": "Plan",
+      "prioritiesReview": "Priorytety",
       "review": "Przegląd",
       "demands": "Wymagania",
       "actions": "Działania",
@@ -956,6 +1016,7 @@
       "kontekstGroupState": "Stan",
       "kontekstNoReflection": "Brak refleksji dla tego tygodnia.",
       "kontekstCreateButton": "Utwórz refleksję",
+      "kontekstOpenMonthButton": "Otwórz miesiąc",
       "kontekstEditButton": "Edytuj refleksję",
       "kontekstFreeformLabel": "Notatka",
       "kontekstAiSummaryTitle": "Podsumowanie AI",
@@ -1113,8 +1174,8 @@
         "balance": "Równowaga",
         "purpose": "Poczucie sensu",
         "growth": "Rozwój osobisty",
-        "coherence": "Spójność",
-        "agency": "Sprawczość"
+        "coherence": "Wartości",
+        "agency": "Wpływ"
       },
       "scaleLabels": {
         "balance": {
@@ -1145,6 +1206,25 @@
         "patterns": "Zauważone wzorce",
         "carryForward": "Co zabieram ze sobą",
         "letGo": "Co puszczam"
+      },
+      "anchorsOptionalHint": "Opcjonalnie — zapisz kilka punktów albo przejdź dalej.",
+      "prioritiesReview": {
+        "title": "Jak poszło z priorytetami?",
+        "description": "Oceń włożony wysiłek w każdy aktywny priorytet i zdecyduj o jego losie. Twój top-3 jest oznaczony gwiazdką.",
+        "subtitle": "Wysiłek i werdykty",
+        "empty": "Brak aktywnych priorytetów do oceny w tym miesiącu.",
+        "effortLabel": "Wysiłek",
+        "verdictLabel": "Werdykt",
+        "reasonPlaceholder": "Dlaczego? (opcjonalnie)",
+        "focusLabel": "Fokus tygodni",
+        "driftTitle": "Poza planem miesiąca",
+        "intentionTag": "intencja"
+      },
+      "verdicts": {
+        "continue": "Kontynuuj",
+        "adjust": "Dostosuj",
+        "pause": "Wstrzymaj",
+        "drop": "Porzuć"
       },
       "journalPlaceholder": "Napisz refleksję nad minionym miesiącem..."
     }

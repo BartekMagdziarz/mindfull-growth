@@ -18,6 +18,7 @@
 
 import type { GrammaticalGender, LocaleId } from '@/services/locale.service'
 import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
+import type { PriorityVerdict } from '@/domain/planningState'
 import type {
   EmotionSummary,
   ReflectionEmotionLogDetail,
@@ -80,11 +81,15 @@ export interface ReflectionTrackerLine {
   latest: number | null
 }
 
-/** A week's top priority / commented object: title + outcome + the user's note. */
+/** A top priority / commented object: title + outcome + the user's note (+ monthly effort/verdict). */
 export interface ReflectionPriorityLine {
   title: string
   status?: MeasurementEvaluationStatus
   comment?: string
+  /** 1–5 effort self-rating (monthly priorities). */
+  effort?: number | null
+  /** Monthly verdict (continue/adjust/pause/drop). */
+  verdict?: PriorityVerdict | null
 }
 
 /**
@@ -250,6 +255,11 @@ const PLEASANT_LABELS: Record<LocaleId, string> = {
   pl: 'przyjemne',
 }
 
+const VERDICT_LABELS: Record<LocaleId, Record<PriorityVerdict, string>> = {
+  en: { continue: 'continue', adjust: 'adjust', pause: 'pause', drop: 'drop' },
+  pl: { continue: 'kontynuuj', adjust: 'dostosuj', pause: 'wstrzymaj', drop: 'porzuć' },
+}
+
 // ---------------------------------------------------------------------------
 // Payload assembly
 // ---------------------------------------------------------------------------
@@ -391,9 +401,12 @@ export function buildReflectionSummaryPayload(
 
   if (ctx.priorities && ctx.priorities.length > 0) {
     const sl = STATUS_LABELS[locale]
+    const vl = VERDICT_LABELS[locale]
     lines.push(`[${L.priorities}]`)
     for (const p of ctx.priorities) {
       const parts = [p.title]
+      if (typeof p.effort === 'number') parts.push(`${p.effort}/5`)
+      if (p.verdict) parts.push(vl[p.verdict])
       if (p.status) parts.push(sl[p.status])
       const comment = p.comment?.trim()
       if (comment) parts.push(comment)
