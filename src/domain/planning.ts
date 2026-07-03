@@ -135,6 +135,8 @@ export interface WeeklyIntention extends PlanningObjectBase {
   ratingScaleMin?: number
   ratingScale?: number
   status: WeeklyIntentionStatus
+  /** Priorities this intention serves — links it into the monthly focus confrontation (M4). */
+  priorityIds: string[]
 }
 
 export interface Initiative extends PlanningObjectBase {
@@ -659,7 +661,6 @@ export function normalizeWeeklyIntentionPayload(
   assertForbiddenKeys(data as object, [
     'goalId',
     'goalIds',
-    'priorityIds',
     'lifeAreaIds',
     'analysisPeriod',
     'kind',
@@ -684,6 +685,7 @@ export function normalizeWeeklyIntentionPayload(
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     status: normalizeEnum(data.status, 'status', WEEKLY_INTENTION_STATUSES, existing?.status ?? 'open'),
+    priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
   }
 }
 

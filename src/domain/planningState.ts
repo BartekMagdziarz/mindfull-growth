@@ -17,13 +17,16 @@ export type PeriodActivityState = 'active' | 'paused'
 export type MeasurementSubjectType = 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention'
 export type TodayHiddenSubjectType = MeasurementSubjectType | 'initiative'
 export type ReflectionPeriodType = 'month' | 'week'
-export type ReflectionSubjectType = 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative' | 'weeklyIntention'
+export type ReflectionSubjectType = 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative' | 'weeklyIntention' | 'priority'
+export type PriorityVerdict = 'continue' | 'adjust' | 'pause' | 'drop'
 export type MonthScheduleScope = 'unassigned' | 'specific-days' | 'whole-month'
 export type WeekScheduleScope = 'unassigned' | 'specific-days' | 'whole-week'
 export type DailyMeasurementEntryValue = number | null
 
 export interface MonthPlan extends PlanningStateRecordBase {
   monthRef: MonthRef
+  /** ≤3 active Priority ids picked as this month's focus (soft limit; drives monthly reflection). */
+  topPriorityIds?: string[]
 }
 
 export interface WeekTopPriorityRef {
@@ -101,6 +104,10 @@ export interface PeriodObjectReflection extends PlanningStateRecordBase {
   subjectType: ReflectionSubjectType
   subjectId: string
   note: string
+  /** Subjective effort/engagement self-rating 1–5 (monthly priority assessment). */
+  effort?: number | null
+  /** Monthly per-priority verdict. */
+  verdict?: PriorityVerdict | null
 }
 
 export type CreateMonthPlanPayload = Omit<MonthPlan, 'id' | 'createdAt' | 'updatedAt'>
@@ -176,7 +183,8 @@ const PERIOD_ACTIVITY_STATES = ['active', 'paused'] as const
 const MEASUREMENT_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'weeklyIntention'] as const
 const TODAY_HIDDEN_SUBJECT_TYPES = ['keyResult', 'habit', 'tracker', 'weeklyIntention', 'initiative'] as const
 const REFLECTION_PERIOD_TYPES = ['month', 'week'] as const
-const REFLECTION_SUBJECT_TYPES = ['goal', 'keyResult', 'habit', 'tracker', 'initiative', 'weeklyIntention'] as const
+const REFLECTION_SUBJECT_TYPES = ['goal', 'keyResult', 'habit', 'tracker', 'initiative', 'weeklyIntention', 'priority'] as const
+const PRIORITY_VERDICTS = ['continue', 'adjust', 'pause', 'drop'] as const
 const MONTH_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-month'] as const
 const WEEK_SCHEDULE_SCOPES = ['unassigned', 'specific-days', 'whole-week'] as const
 const COUNT_TARGET_OPERATORS = ['min', 'max'] as const
@@ -420,12 +428,44 @@ function normalizeReflectionSubjectId(
   return normalizeTrimmedText(value, fieldName, fallback)
 }
 
+function normalizeReflectionEffort(
+  value: unknown,
+  fallback?: number | null
+): number | null | undefined {
+  const source = value === undefined ? fallback : value
+  if (source === undefined) {
+    return undefined
+  }
+  if (source === null) {
+    return null
+  }
+  if (typeof source !== 'number' || !Number.isInteger(source) || source < 1 || source > 5) {
+    throw new Error('effort must be an integer between 1 and 5, or null')
+  }
+  return source
+}
+
+function normalizeReflectionVerdict(
+  value: unknown,
+  fallback?: PriorityVerdict | null
+): PriorityVerdict | null | undefined {
+  const source = value === undefined ? fallback : value
+  if (source === undefined) {
+    return undefined
+  }
+  if (source === null) {
+    return null
+  }
+  return normalizeEnum(source, 'verdict', PRIORITY_VERDICTS)
+}
+
 export function normalizeMonthPlanPayload(
   data: CreateMonthPlanPayload | UpdateMonthPlanPayload,
   existing?: MonthPlan
 ): Omit<MonthPlan, 'id' | 'createdAt' | 'updatedAt'> {
   return {
     monthRef: normalizeMonthRef(data.monthRef, 'monthRef', existing?.monthRef),
+    topPriorityIds: normalizeTopPriorityIds(data.topPriorityIds, existing?.topPriorityIds),
   }
 }
 
@@ -455,6 +495,20 @@ function normalizeTopPriorities(
       subjectId: normalizeTrimmedText(candidate.subjectId, 'topPriorities.subjectId'),
     }
   })
+}
+
+function normalizeTopPriorityIds(
+  value: unknown,
+  existing?: string[]
+): string[] | undefined {
+  const source = value ?? existing
+  if (source === undefined) {
+    return undefined
+  }
+  if (!Array.isArray(source)) {
+    throw new Error('topPriorityIds must be an array')
+  }
+  return source.map((id) => normalizeTrimmedText(id, 'topPriorityIds entry'))
 }
 
 export function normalizeWeekPlanPayload(
@@ -715,7 +769,9 @@ export function normalizePeriodObjectReflectionPayload(
       existing?.subjectType
     ),
     subjectId: normalizeReflectionSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
-    note: normalizeTrimmedText(data.note, 'note', existing?.note),
+    note: normalizeOptionalText(data.note, 'note', existing?.note) ?? '',
+    effort: normalizeReflectionEffort(data.effort, existing?.effort),
+    verdict: normalizeReflectionVerdict(data.verdict, existing?.verdict),
   }
 }
 

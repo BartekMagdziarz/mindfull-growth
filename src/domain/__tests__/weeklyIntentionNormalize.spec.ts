@@ -35,7 +35,34 @@ describe('normalizeWeeklyIntentionPayload', () => {
     ).toThrow()
   })
 
-  it('rejects habit-only keys (own object type, not a habit)', () => {
+  it('accepts and normalizes priorityIds (links an intention to priorities)', () => {
+    const result = normalizeWeeklyIntentionPayload({
+      weekRef: WEEK,
+      title: 'x',
+      isActive: true,
+      entryMode: 'completion',
+      cadence: 'weekly',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+      priorityIds: ['p1', 'p2'],
+    })
+    expect(result.priorityIds).toEqual(['p1', 'p2'])
+  })
+
+  it('defaults priorityIds to an empty array when omitted', () => {
+    const result = normalizeWeeklyIntentionPayload({
+      weekRef: WEEK,
+      title: 'x',
+      isActive: true,
+      entryMode: 'completion',
+      cadence: 'weekly',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+    expect(result.priorityIds).toEqual([])
+  })
+
+  it('still rejects other habit-only keys (own object type, not a habit)', () => {
     expect(() =>
       normalizeWeeklyIntentionPayload({
         weekRef: WEEK,
@@ -45,8 +72,8 @@ describe('normalizeWeeklyIntentionPayload', () => {
         cadence: 'weekly',
         target: { kind: 'count', operator: 'min', value: 1 },
         status: 'open',
-        // @ts-expect-error priorityIds is not part of a WeeklyIntention
-        priorityIds: [],
+        // @ts-expect-error goalId is not part of a WeeklyIntention
+        goalId: 'g1',
       }),
     ).toThrow()
   })
