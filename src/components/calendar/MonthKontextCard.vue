@@ -71,29 +71,6 @@
           </p>
         </div>
 
-        <div class="kontekst-section kontekst-group">
-          <div class="kontekst-group__items">
-            <div
-              v-for="item in dimensions"
-              :key="item.key"
-              class="kontekst-dim"
-            >
-              <span class="kontekst-dim__label">{{ item.label }}</span>
-              <div class="kontekst-dim__bar">
-                <div
-                  v-if="item.value !== null"
-                  class="kontekst-dim__fill"
-                  :style="{ width: valuePercent(item.value) + '%' }"
-                />
-              </div>
-              <span class="kontekst-dim__value">
-                <template v-if="item.value !== null">{{ item.value }}<span class="kontekst-dim__max">/5</span></template>
-                <template v-else>—</template>
-              </span>
-            </div>
-          </div>
-        </div>
-
         <div v-if="visibleAnchorCategories.length > 0" class="kontekst-section kontekst-anchors">
           <div class="kontekst-anchors__title">
             {{ t('planning.reflection.review.kontekstAnchorsTitle') }}
@@ -146,11 +123,7 @@ import SummaryCard from './WeeklyReviewSummaryCard.vue'
 import { useT } from '@/composables/useT'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import type { DayRef, MonthRef } from '@/domain/period'
-import {
-  MONTHLY_RATING_KEYS,
-  type MonthlyRatingKey,
-  type MonthlyReflection,
-} from '@/domain/reflection'
+import type { MonthlyReflection } from '@/domain/reflection'
 import type { MonthPlanSummary } from '@/services/monthlyPlanSummary'
 import { getPeriodBounds } from '@/utils/periods'
 
@@ -228,35 +201,6 @@ const planRings = computed<PlanExecutionRing[]>(() => [
 const aiSummary = computed(() => reflection.value?.aiSummary?.trim() ?? '')
 const aiSummaryOpen = ref(false)
 
-interface DimensionItem {
-  key: MonthlyRatingKey
-  label: string
-  value: number | null
-}
-
-function valueFor(key: MonthlyRatingKey): number | null {
-  const r = reflection.value
-  if (!r) return null
-  const v = r[key]
-  return typeof v === 'number' ? v : null
-}
-
-const DIMENSION_LABEL_KEYS: Record<MonthlyRatingKey, string> = {
-  balanceRating: 'planning.reflection.monthly.dimensions.balance',
-  purposeRating: 'planning.reflection.monthly.dimensions.purpose',
-  growthRating: 'planning.reflection.monthly.dimensions.growth',
-  coherenceRating: 'planning.reflection.monthly.dimensions.coherence',
-  agencyRating: 'planning.reflection.monthly.dimensions.agency',
-}
-
-const dimensions = computed<DimensionItem[]>(() =>
-  MONTHLY_RATING_KEYS.map((key) => ({
-    key,
-    label: t(DIMENSION_LABEL_KEYS[key]),
-    value: valueFor(key),
-  })),
-)
-
 // Anchor categories — kept in sync with MonthlyReflectionWizard.monthlyAnchorCategories
 const anchorCategories = computed(() => [
   { key: 'proudOf', label: t('planning.reflection.monthly.anchors.proudOf'), icon: 'emoji_events' },
@@ -290,10 +234,6 @@ const freeformPreview = computed(() => {
   if (!text) return ''
   return text.length > 160 ? text.slice(0, 157) + '…' : text
 })
-
-function valuePercent(value: number): number {
-  return Math.max(0, Math.min(100, ((value - 1) / 4) * 100))
-}
 
 function handleHostClick(_event: MouseEvent) {
   // Reserved for future "open detail" interaction. Explicit buttons handle
@@ -407,68 +347,6 @@ function handleHostClick(_event: MouseEvent) {
   color: rgb(var(--neo-text) / 0.9);
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-.kontekst-group__items {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.kontekst-dim {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.kontekst-dim__label {
-  font-size: 10px;
-  color: rgb(var(--neo-text) / 0.85);
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.kontekst-dim__bar {
-  position: relative;
-  flex: 0 0 88px;
-  height: 5px;
-  border-radius: 9999px;
-  background: rgb(var(--neo-surface-base));
-  box-shadow:
-    inset -1px -1px 1.5px rgb(var(--neo-inset-light) / 0.85),
-    inset 1px 1px 1.5px rgb(var(--neo-inset-dark) / 0.3);
-}
-
-.kontekst-dim__fill {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  border-radius: 9999px;
-  background: linear-gradient(
-    90deg,
-    rgb(var(--neo-chart-primary-start)),
-    rgb(var(--neo-chart-primary-end))
-  );
-  transition: width 220ms ease;
-}
-
-.kontekst-dim__value {
-  font-size: 10px;
-  font-weight: 600;
-  color: rgb(var(--neo-text));
-  font-variant-numeric: tabular-nums;
-  flex: 0 0 auto;
-  min-width: 28px;
-  text-align: right;
-}
-
-.kontekst-dim__max {
-  color: rgb(var(--neo-muted));
-  font-weight: 500;
 }
 
 .kontekst-anchors {

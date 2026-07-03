@@ -561,9 +561,10 @@ const panelBody = computed(() => {
 })
 
 const panelMeta = computed(() => {
-  const items: Array<{ label: string; value: string }> = [
-    { label: t('planning.calendar.title'), value: activePeriodLabel.value },
-  ]
+  const items: Array<{ label: string; value: string }> =
+    props.scale === 'year'
+      ? [{ label: t('planning.calendar.title'), value: activePeriodLabel.value }]
+      : []
 
   if (currentPlanRecord.value) {
     items.push(

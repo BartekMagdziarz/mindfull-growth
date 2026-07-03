@@ -56,14 +56,6 @@ function areaIconStyle(row: StreamMatrixRowVM) {
   }
 }
 
-function sectionLabelColor(section: MatrixSection) {
-  const hasData = props.week.matrix.some(
-    (row) => row.cells.find((cell) => cell.section === section)?.rating !== null,
-  )
-  return hasData
-    ? 'rgb(var(--stream-bar, 86 142 210) / 0.95)'
-    : 'rgb(var(--stream-faint, 169 191 220))'
-}
 </script>
 
 <template>
@@ -81,16 +73,6 @@ function sectionLabelColor(section: MatrixSection) {
     <!-- 4×3 reflection matrix: life-area rows × Demands/Actions/State columns.
          Rose = strain (Demands inverted), sky = ease/wellbeing. -->
     <div class="stream-week__matrix">
-      <span />
-      <span
-        v-for="section in MATRIX_SECTIONS"
-        :key="section"
-        class="stream-week__section-name"
-        :style="{ color: sectionLabelColor(section) }"
-      >
-        {{ sectionLabels[section] }}
-      </span>
-
       <template v-for="row in week.matrix" :key="row.areaKey">
         <span class="material-symbols-outlined" :style="areaIconStyle(row)" aria-hidden="true">
           {{ row.icon }}
@@ -103,6 +85,15 @@ function sectionLabelColor(section: MatrixSection) {
           :title="cellTitle(row, cell)"
         />
       </template>
+
+      <span />
+      <span
+        v-for="section in MATRIX_SECTIONS"
+        :key="section"
+        class="stream-week__section-name"
+      >
+        {{ sectionLabels[section] }}
+      </span>
     </div>
 
     <div class="stream-divider" />
@@ -163,9 +154,11 @@ function sectionLabelColor(section: MatrixSection) {
 }
 
 .stream-week__section-name {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  padding-top: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgb(var(--stream-muted, 95 122 152));
   text-transform: uppercase;
   white-space: nowrap;
 }

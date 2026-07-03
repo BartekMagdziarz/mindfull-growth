@@ -6,7 +6,6 @@ import {
   getChildPeriods,
   getNextPeriod,
   getParentPeriod,
-  getPeriodBounds,
   getPeriodRefsForDate,
   getPeriodType,
   getPreviousPeriod,
@@ -217,18 +216,6 @@ const todayDayRef = computed(() => getPeriodRefsForDate(new Date()).day)
 
 const showDetailPanel = computed(() => scale.value === 'month' || scale.value === 'week')
 
-const detailPeriodLabel = computed(() => {
-  if (scale.value === 'month') {
-    return `${monthName(monthRef.value)} ${yearRef.value}`
-  }
-  if (scale.value === 'week') {
-    const n = Number(weekRef.value.slice(-2))
-    const bounds = getPeriodBounds(weekRef.value)
-    return `${t('planning.calendar.stream.weekLong', { n })} · ${rangeLabel(bounds.start as DayRef, bounds.end as DayRef)}`
-  }
-  return ''
-})
-
 // --- localized labels --------------------------------------------------------
 
 const ringLabels = computed(() => ({
@@ -427,11 +414,7 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
     <!-- Full detail for the focused month / week — the classic review summary. -->
     <section v-if="showDetailPanel" class="stream-detail">
       <div class="stream-detail__head">
-        <span class="material-symbols-outlined stream-detail__icon" aria-hidden="true"
-          >dashboard</span
-        >
         <h2 class="stream-detail__title">{{ t('planning.calendar.stream.detailsTitle') }}</h2>
-        <span class="stream-detail__period">{{ detailPeriodLabel }}</span>
       </div>
       <StreamDetailPanel
         :scale="scale"
@@ -648,17 +631,7 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
 }
 
 .stream-detail__head {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
   margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.stream-detail__icon {
-  font-size: 18px;
-  color: rgb(var(--stream-accent));
-  align-self: center;
 }
 
 .stream-detail__title {
@@ -667,13 +640,6 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
   font-weight: 700;
   color: rgb(var(--stream-ink));
   letter-spacing: -0.01em;
-}
-
-.stream-detail__period {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgb(var(--stream-muted));
-  text-transform: capitalize;
 }
 
 @keyframes streamFadeUp {
