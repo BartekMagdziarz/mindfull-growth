@@ -1,5 +1,5 @@
 <template>
-  <article class="week-tile" :data-with-footer="hasFooter">
+  <article class="week-tile">
     <header class="week-tile__head">
       <EntityIcon
         :icon="iconName"
@@ -8,7 +8,12 @@
         class="week-tile__icon"
       />
       <span class="week-tile__title">{{ title }}</span>
+      <ContextChip v-if="viz.contextChip.value" :data="viz.contextChip.value" />
     </header>
+
+    <p v-if="planning.successNote" class="week-tile__success" :title="planning.successNote">
+      {{ t('planning.calendar.details.successNote', { note: planning.successNote }) }}
+    </p>
 
     <div class="week-tile__body">
       <CompletionDots
@@ -34,11 +39,6 @@
         :target-operator="ratingTargetOperator"
       />
     </div>
-
-    <MonthlyProgressFooter
-      v-if="viz.monthlyFooter.value"
-      :data="viz.monthlyFooter.value"
-    />
   </article>
 </template>
 
@@ -49,7 +49,7 @@ import CompletionDots from '@/components/today/visualizations/CompletionDots.vue
 import DailyBarsChart from '@/components/today/visualizations/DailyBarsChart.vue'
 import RatingSegmentedBars from '@/components/today/visualizations/RatingSegmentedBars.vue'
 import ValueLineChart from '@/components/today/visualizations/ValueLineChart.vue'
-import MonthlyProgressFooter from '@/components/calendar/MonthlyProgressFooter.vue'
+import ContextChip from '@/components/today/visualizations/ContextChip.vue'
 import { useT } from '@/composables/useT'
 import { useWeeklySliceItemVisualization } from '@/composables/useWeeklySliceItemVisualization'
 import type { DayRef, WeekRef } from '@/domain/period'
@@ -78,7 +78,7 @@ const props = withDefaults(defineProps<Props>(), {
   parentGoalIcon: undefined,
 })
 
-const { locale } = useT()
+const { t, locale } = useT()
 
 const viz = useWeeklySliceItemVisualization(
   toRef(props, 'subject'),
@@ -114,8 +114,6 @@ const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
   const op = viz.aggregateData.value?.operator
   return op === 'gte' || op === 'lte' ? op : undefined
 })
-
-const hasFooter = computed(() => Boolean(viz.monthlyFooter.value))
 </script>
 
 <style scoped>
@@ -152,6 +150,7 @@ const hasFooter = computed(() => Boolean(viz.monthlyFooter.value))
 }
 
 .week-tile__title {
+  flex: 1 1 auto;
   font-size: 11px;
   font-weight: 500;
   color: rgb(var(--neo-text));
@@ -160,6 +159,20 @@ const hasFooter = computed(() => Boolean(viz.monthlyFooter.value))
   text-overflow: ellipsis;
   line-height: 1.15;
   min-width: 0;
+}
+
+/* "What success looks like" — the per-object successNote, surfaced in the planning grid
+   and the reflection confrontation (both render this shared tile). */
+.week-tile__success {
+  font-size: 9.5px;
+  line-height: 1.25;
+  font-style: italic;
+  color: rgb(var(--neo-text) / 0.62);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 .week-tile__body {
@@ -171,11 +184,6 @@ const hasFooter = computed(() => Boolean(viz.monthlyFooter.value))
   min-height: 48px;
   max-height: 70px;
   overflow: hidden;
-}
-
-.week-tile[data-with-footer='true'] .week-tile__body {
-  min-height: 40px;
-  max-height: 58px;
 }
 
 /* Scale fixed-size SVG charts to fit inside the body. */

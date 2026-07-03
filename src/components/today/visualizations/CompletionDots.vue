@@ -139,6 +139,13 @@ function dotStyle(slot: TodayCompletionSlot): CSSProperties {
         ...base,
         borderColor: 'rgb(var(--color-outline) / 0.45)',
       }
+    case 'not-assigned':
+      // A day with no plan and no entry — a faint placeholder that keeps the
+      // 7-day grid uniform without competing with real done/scheduled dots.
+      return {
+        ...base,
+        background: 'rgb(var(--color-outline) / 0.14)',
+      }
   }
 }
 

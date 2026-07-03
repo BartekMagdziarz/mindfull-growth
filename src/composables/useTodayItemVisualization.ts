@@ -1,5 +1,5 @@
 import { computed, type Ref } from 'vue'
-import type { DayRef } from '@/domain/period'
+import type { DayRef, WeekRef } from '@/domain/period'
 import type { MeasurementTarget } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
@@ -23,8 +23,27 @@ import {
   buildValueSparklineData,
 } from '@/services/todayChartData'
 import { resolveTodayVizType, type TodayVizType } from '@/services/todayVisualizationRules'
+import {
+  buildContextChipData,
+  buildWeeklySliceCompletionSlots,
+  type ContextChipData,
+} from '@/services/weeklySliceChartData'
+import { getPeriodType } from '@/utils/periods'
 
 export type { TodayVizType }
+
+/**
+ * Detail charts that show a trend/distribution but no numeric target readout —
+ * these get a ContextChip beside the title. The monthly-summary viz types
+ * (completion-ring, counter-ring, rating-smooth, value-sparkline-summary,
+ * summary-number) already render their own number/target, so they get no chip.
+ */
+const CHIP_VIZ_TYPES = new Set<TodayVizType>([
+  'completion-dots',
+  'daily-bars',
+  'value-line',
+  'rating-segmented',
+])
 
 export function useTodayItemVisualization(
   item: Ref<TodayItem>,
@@ -56,6 +75,22 @@ export function useTodayItemVisualization(
       return []
     }
     const m = item.value as TodayMeasurementItem
+    // Weekly `completion-dots` render as 7 uniform Mon–Sun circles, matching the
+    // calendar tiles. The `completion-ring` path (monthly count > 7 — a pie) and
+    // month-scoped dots (e.g. "3×/month") keep the achievement-dot builder, so
+    // their done-count stays accurate over the month.
+    if (vizType.value === 'completion-dots' && getPeriodType(m.contextPeriodRef) === 'week') {
+      return buildWeeklySliceCompletionSlots(
+        m.subject,
+        m.subjectType,
+        rawEntries.value,
+        allDayAssignments.value,
+        m.planning,
+        m.contextPeriodRef as WeekRef,
+        todayDayRef.value,
+        locale.value,
+      )
+    }
     return buildCompletionSlots(
       m.subject,
       m.subjectType,
@@ -178,6 +213,16 @@ export function useTodayItemVisualization(
     return m.subject.ratingScale ?? 10
   })
 
+  const contextChip = computed<ContextChipData | undefined>(() => {
+    if (item.value.kind !== 'measurement' || !CHIP_VIZ_TYPES.has(vizType.value)) return undefined
+    const m = item.value as TodayMeasurementItem
+    // `m.measurement` is scoped to the object's natural period (the same period
+    // the chart shows), so the chip target is directly comparable — no suppress.
+    const chip = buildContextChipData(m.subject, m.measurement, false)
+    // Hide the chip only when there's nothing to say — no target and no entries.
+    return chip.target !== undefined || chip.entryCount > 0 ? chip : undefined
+  })
+
   return {
     vizType,
     completionSlots,
@@ -193,5 +238,6 @@ export function useTodayItemVisualization(
     targetValue,
     ratingScaleMin,
     ratingScale,
+    contextChip,
   }
 }

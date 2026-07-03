@@ -19,7 +19,15 @@ export interface TodayDaySlot {
   hasEntry: boolean
 }
 
-export type TodayCompletionState = 'done' | 'missed' | 'future' | 'today-pending' | 'today-done'
+export type TodayCompletionState =
+  | 'done'
+  | 'missed'
+  | 'future'
+  | 'today-pending'
+  | 'today-done'
+  /** A weekday with no plan and no entry — a faint placeholder in the 7-day
+   *  grid (distinct from `future`, which is a scheduled-but-upcoming day). */
+  | 'not-assigned'
 
 export interface TodayCompletionSlot extends TodayDaySlot {
   state: TodayCompletionState

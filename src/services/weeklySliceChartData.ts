@@ -29,15 +29,18 @@
  */
 
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { MeasurementTarget } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
-import { buildMeasurementSummary, type MeasureableSubject } from '@/services/measurementProgress'
+import {
+  buildMeasurementSummary,
+  type MeasureableSubject,
+  type MeasurementSummary,
+} from '@/services/measurementProgress'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
 import {
-  buildCompletionSlots,
   buildDailyBarSlots,
   type TodayCompletionSlot,
   type TodayCompletionState,
+  type TodayDaySlot,
 } from '@/services/todayChartData'
 import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 
@@ -49,10 +52,13 @@ export type MonthlyContextFooterVariant =
 
 export type MonthlyContextAggregationLabel = 'sum' | 'avg' | 'last' | 'days'
 
-export interface MonthlyContextFooterData {
+/**
+ * Compact target + performance data for the ContextChip shown beside an object
+ * tile's title (weekly + monthly scale). Period-agnostic — the current value is
+ * whatever period-scoped {@link MeasurementSummary} it was built from.
+ */
+export interface ContextChipData {
   variant: MonthlyContextFooterVariant
-  /** The month this progress refers to (always start-month for boundary weeks). */
-  monthRef: MonthRef
   /** Sum / average / last / completion-count, depending on entryMode. */
   current: number
   /** Optional target value (count or value or rating). */
@@ -67,21 +73,28 @@ export interface MonthlyContextFooterData {
   scaleMax?: number
   /** Aggregation label for `value-label` rendering. */
   aggregationLabel?: MonthlyContextAggregationLabel
-  /** Total entry count in the month — useful for "Σ … (N entries)" labels. */
+  /** Total entry count in the period. */
   entryCount: number
 }
 
+export interface MonthlyContextFooterData extends ContextChipData {
+  /** The month this progress refers to (always start-month for boundary weeks). */
+  monthRef: MonthRef
+}
+
 /**
- * Build completion-dot slots for the weekly-slice chart. Dispatches to one of
- * three paths based on schedule scope and cadence — see the file header for
- * the routing table.
+ * Build completion-dot slots for the weekly-slice chart. Always renders 7
+ * Mon–Sun day-circles; the per-day appearance encodes state:
+ *   - `done` / `today-done`  — an entry exists on that day
+ *   - `today-pending`        — today, no entry, but loggable
+ *   - `future`               — a scheduled (specific-days) day still upcoming
+ *   - `missed`               — a scheduled (specific-days) PAST day, no entry
+ *   - `not-assigned`         — a day with no plan and no entry (faint)
  *
- * Red (`missed`) is reserved for two situations only:
- *   1. a scheduled day in the past with no entry (specific-days scope), or
- *   2. an unfilled target slot after the week has ended (whole-week +
- *      weekly-cadence count target).
- * Past days that simply weren't part of any plan stay neutral (`future`-style
- * empty dot) — they're not misses.
+ * Count targets ("do X N times per week, ANY day") don't map onto 7 fixed days,
+ * so the target and any deficit are surfaced by the ContextChip beside the tile
+ * title — NOT by reddening individual weekdays. Unscheduled empty days stay
+ * neutral (`not-assigned`); only scheduled past days without an entry are red.
  */
 export function buildWeeklySliceCompletionSlots(
   subject: MeasureableSubject,
@@ -93,46 +106,7 @@ export function buildWeeklySliceCompletionSlots(
   todayDayRef: DayRef,
   locale: string,
 ): TodayCompletionSlot[] {
-  const scope = planning.scheduleScope ?? 'unassigned'
-  const target = (subject as { target?: MeasurementTarget }).target
-
-  // Specific-days: only the days actually scheduled this week become slots;
-  // buildCompletionSlots already gives the correct `missed`/`done` semantics.
-  if (scope === 'specific-days') {
-    return buildCompletionSlots(
-      subject,
-      subjectType,
-      rawEntries,
-      allDayAssignments,
-      planning,
-      weekRef,
-      todayDayRef,
-      locale,
-    )
-  }
-
-  // Weekly cadence with a count target → target-count slots. Done entries fill
-  // from the front with their day labels; mid-week unfilled slots are
-  // today-pending / future; end-of-week unfilled slots become `missed`. All of
-  // that already lives inside buildCompletionSlots / buildTargetCountSlots.
-  if (subject.cadence === 'weekly' && target?.kind === 'count') {
-    return buildCompletionSlots(
-      subject,
-      subjectType,
-      rawEntries,
-      allDayAssignments,
-      planning,
-      weekRef,
-      todayDayRef,
-      locale,
-    )
-  }
-
-  // Monthly cadence without specific-days, or weekly trackers without a
-  // target: render 7 Mon–Sun slots so the tile shows the week's distribution,
-  // but keep past-no-entry neutral — there's no per-day weekly plan to "miss".
-  // Any deficit against a monthly target surfaces via the MonthlyContextFooter
-  // below the chart.
+  const isSpecificDays = (planning.scheduleScope ?? 'unassigned') === 'specific-days'
   const slots = buildDailyBarSlots(
     subject,
     subjectType,
@@ -145,44 +119,43 @@ export function buildWeeklySliceCompletionSlots(
   )
   return slots.map((slot) => ({
     ...slot,
-    state: resolveNeutralCompletionState(slot.hasEntry, slot.isToday),
+    state: resolveWeekdayCompletionState(slot, isSpecificDays),
   }))
 }
 
-function resolveNeutralCompletionState(
-  hasEntry: boolean,
-  today: boolean,
+function resolveWeekdayCompletionState(
+  slot: TodayDaySlot,
+  isSpecificDays: boolean,
 ): TodayCompletionState {
-  if (today) return hasEntry ? 'today-done' : 'today-pending'
-  if (hasEntry) return 'done'
-  return 'future'
+  if (slot.hasEntry) return slot.isToday ? 'today-done' : 'done'
+  if (slot.isToday) {
+    // Today is "expected" (loggable) for any-day count/tracker objects, or for a
+    // scheduled day under specific-days planning; otherwise it's just unplanned.
+    return !isSpecificDays || slot.isScheduled ? 'today-pending' : 'not-assigned'
+  }
+  // A scheduled day (specific-days) that's empty: upcoming → future, past → missed.
+  if (isSpecificDays && slot.isScheduled) {
+    return slot.isFuture ? 'future' : 'missed'
+  }
+  // Any other empty day (unscheduled, or any-day objects): neutral placeholder.
+  return 'not-assigned'
 }
 
 /**
- * Build the monthly-progress footer data shown beneath the weekly chart on
- * each tile. Returns `undefined` for weekly-cadence subjects — those have no
- * additional month context to surface.
- *
- * For week boundaries that straddle two months we currently use the month
- * containing the **start** of the week. A future enhancement could surface
- * progress for both overlapping months side-by-side.
- *
- * `asOfDayRef`, when provided, scopes the monthly aggregate to entries
- * recorded on or before that day so the footer reflects month-to-date from
- * the perspective of the displayed week — not the entire month's totals.
+ * Build compact target + performance data (the ContextChip) from a
+ * period-scoped {@link MeasurementSummary}. Period-agnostic: the caller supplies
+ * the summary for whatever period is relevant (this week for weekly-cadence,
+ * this month for monthly-cadence). When `suppressTarget` is set — e.g. a
+ * weekly-cadence object shown at month scale, where a per-week target isn't
+ * comparable to a monthly aggregate — the chip shows a bare aggregate instead
+ * of an "X / target" comparison.
  */
-export function buildMonthlyContextFooter(
+export function buildContextChipData(
   subject: MeasureableSubject,
-  rawEntries: DailyMeasurementEntry[],
-  weekRef: WeekRef,
-  asOfDayRef?: DayRef,
-): MonthlyContextFooterData | undefined {
-  if (subject.cadence !== 'monthly') return undefined
-
-  const weekStart = getPeriodBounds(weekRef).start as DayRef
-  const monthRef = getPeriodRefsForDate(weekStart).month
-  const summary = buildMeasurementSummary(subject, rawEntries, monthRef, asOfDayRef)
-  const target = 'target' in subject ? subject.target : undefined
+  summary: MeasurementSummary,
+  suppressTarget = false,
+): ContextChipData {
+  const target = suppressTarget ? undefined : 'target' in subject ? subject.target : undefined
   const current = summary.actualValue ?? 0
   const entryCount = summary.entryCount
   const status = mapStatus(summary.evaluationStatus)
@@ -190,60 +163,23 @@ export function buildMonthlyContextFooter(
   switch (subject.entryMode) {
     case 'completion':
       if (target?.kind === 'count') {
-        return {
-          variant: 'count-progress',
-          monthRef,
-          current: entryCount,
-          target: target.value,
-          status,
-          targetOperator: target.operator,
-          entryCount,
-        }
+        return { variant: 'count-progress', current: entryCount, target: target.value, status, targetOperator: target.operator, entryCount }
       }
-      return {
-        variant: 'value-label',
-        monthRef,
-        current: entryCount,
-        aggregationLabel: 'days',
-        entryCount,
-      }
+      return { variant: 'value-label', current: entryCount, aggregationLabel: 'days', entryCount }
 
     case 'counter':
       if (target?.kind === 'count') {
-        return {
-          variant: 'count-progress',
-          monthRef,
-          current,
-          target: target.value,
-          status,
-          targetOperator: target.operator,
-          entryCount,
-        }
+        return { variant: 'count-progress', current, target: target.value, status, targetOperator: target.operator, entryCount }
       }
-      return {
-        variant: 'value-label',
-        monthRef,
-        current,
-        aggregationLabel: 'sum',
-        entryCount,
-      }
+      return { variant: 'value-label', current, aggregationLabel: 'sum', entryCount }
 
     case 'value':
       if (target?.kind === 'value' && target.aggregation === 'sum') {
-        return {
-          variant: 'value-progress',
-          monthRef,
-          current,
-          target: target.value,
-          status,
-          targetOperator: target.operator,
-          entryCount,
-        }
+        return { variant: 'value-progress', current, target: target.value, status, targetOperator: target.operator, entryCount }
       }
       if (target?.kind === 'value') {
         return {
           variant: 'value-label',
-          monthRef,
           current,
           target: target.value,
           status,
@@ -252,19 +188,12 @@ export function buildMonthlyContextFooter(
           entryCount,
         }
       }
-      return {
-        variant: 'value-label',
-        monthRef,
-        current,
-        aggregationLabel: 'last',
-        entryCount,
-      }
+      return { variant: 'value-label', current, aggregationLabel: 'last', entryCount }
 
     case 'rating':
       if (target?.kind === 'rating') {
         return {
           variant: 'avg-marker',
-          monthRef,
           current,
           target: target.value,
           status,
@@ -275,14 +204,27 @@ export function buildMonthlyContextFooter(
           entryCount,
         }
       }
-      return {
-        variant: 'value-label',
-        monthRef,
-        current,
-        aggregationLabel: 'avg',
-        entryCount,
-      }
+      return { variant: 'value-label', current, aggregationLabel: 'avg', entryCount }
   }
+}
+
+/**
+ * Month-scoped context data for **monthly-cadence** objects — keyed by the month
+ * containing the start of the displayed week. Returns `undefined` for
+ * weekly-cadence subjects. `asOfDayRef` scopes the aggregate to month-to-date as
+ * of that day. Thin wrapper over {@link buildContextChipData}.
+ */
+export function buildMonthlyContextFooter(
+  subject: MeasureableSubject,
+  rawEntries: DailyMeasurementEntry[],
+  weekRef: WeekRef,
+  asOfDayRef?: DayRef,
+): MonthlyContextFooterData | undefined {
+  if (subject.cadence !== 'monthly') return undefined
+  const weekStart = getPeriodBounds(weekRef).start as DayRef
+  const monthRef = getPeriodRefsForDate(weekStart).month
+  const summary = buildMeasurementSummary(subject, rawEntries, monthRef, asOfDayRef)
+  return { ...buildContextChipData(subject, summary), monthRef }
 }
 
 function mapStatus(

@@ -35,6 +35,7 @@ import {
   buildMonthlySliceCompletionSlots,
   buildMonthlySliceValueLineSlots,
 } from '@/services/monthlySliceChartData'
+import { buildContextChipData, type ContextChipData } from '@/services/weeklySliceChartData'
 
 export interface UseMonthlySliceItemVisualization {
   vizType: ComputedRef<TodayVizType>
@@ -45,6 +46,7 @@ export interface UseMonthlySliceItemVisualization {
   targetValue: ComputedRef<number | undefined>
   ratingScaleMin: ComputedRef<number>
   ratingScale: ComputedRef<number>
+  contextChip: ComputedRef<ContextChipData | undefined>
 }
 
 export function useMonthlySliceItemVisualization(
@@ -108,6 +110,19 @@ export function useMonthlySliceItemVisualization(
   const ratingScaleMin = computed<number>(() => subject.value.ratingScaleMin ?? 1)
   const ratingScale = computed<number>(() => subject.value.ratingScale ?? 10)
 
+  const contextChip = computed<ContextChipData | undefined>(() => {
+    // The passed `measurement` is already month-scoped. A weekly-cadence object's
+    // per-week target isn't comparable to a monthly aggregate, so suppress the
+    // target for those and show a bare aggregate instead.
+    const chip = buildContextChipData(
+      subject.value,
+      measurement.value,
+      subject.value.cadence !== 'monthly',
+    )
+    // Hide the chip only when there's nothing to say — no target and no entries.
+    return chip.target !== undefined || chip.entryCount > 0 ? chip : undefined
+  })
+
   return {
     vizType,
     completionSlots,
@@ -117,5 +132,6 @@ export function useMonthlySliceItemVisualization(
     targetValue,
     ratingScaleMin,
     ratingScale,
+    contextChip,
   }
 }

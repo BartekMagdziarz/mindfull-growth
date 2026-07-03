@@ -8,6 +8,7 @@
         class="month-tile__icon"
       />
       <span class="month-tile__title">{{ title }}</span>
+      <ContextChip v-if="viz.contextChip.value" :data="viz.contextChip.value" />
     </header>
 
     <div class="month-tile__body">
@@ -44,6 +45,7 @@ import DailyBarsChart from '@/components/today/visualizations/DailyBarsChart.vue
 import MonthlyCompletionBarsChart from '@/components/today/visualizations/MonthlyCompletionBarsChart.vue'
 import RatingSegmentedBars from '@/components/today/visualizations/RatingSegmentedBars.vue'
 import ValueLineChart from '@/components/today/visualizations/ValueLineChart.vue'
+import ContextChip from '@/components/today/visualizations/ContextChip.vue'
 import { useMonthlySliceItemVisualization } from '@/composables/useMonthlySliceItemVisualization'
 import type { DayRef, MonthRef } from '@/domain/period'
 import type {
@@ -137,6 +139,7 @@ const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
 }
 
 .month-tile__title {
+  flex: 1 1 auto;
   font-size: 11px;
   font-weight: 500;
   color: rgb(var(--neo-text));

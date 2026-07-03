@@ -3,6 +3,7 @@
     <header class="overview-tile__head">
       <EntityIcon :icon="iconName" size="sm" :circle="false" class="overview-tile__icon" />
       <span class="overview-tile__title">{{ title }}</span>
+      <ContextChip v-if="viz.contextChip.value" :data="viz.contextChip.value" />
     </header>
 
     <div class="overview-tile__body">
@@ -70,6 +71,7 @@ import RatingSegmentedBars from '@/components/today/visualizations/RatingSegment
 import RatingSmoothBar from '@/components/today/visualizations/RatingSmoothBar.vue'
 import SummaryNumber from '@/components/today/visualizations/SummaryNumber.vue'
 import InitiativeCheckmark from '@/components/today/visualizations/InitiativeCheckmark.vue'
+import ContextChip from '@/components/today/visualizations/ContextChip.vue'
 import { useT } from '@/composables/useT'
 import { useTodayItemVisualization } from '@/composables/useTodayItemVisualization'
 import type { TodayItem } from '@/services/todayViewQueries'
@@ -173,6 +175,8 @@ const ratingTargetOperator = computed<'gte' | 'lte' | undefined>(() => {
 }
 
 .overview-tile__title {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 12px;
   font-weight: 500;
   color: rgb(var(--neo-text));
