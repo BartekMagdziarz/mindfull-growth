@@ -26,6 +26,8 @@ dist-ssr
 # Testing
 coverage
 .nyc_output
+test-results/
+playwright-report/
 
 # Ideas folder - not tracked
 ideas/
