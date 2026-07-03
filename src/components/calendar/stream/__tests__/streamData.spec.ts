@@ -5,8 +5,8 @@ import type { Quadrant } from '@/domain/emotion'
 import type { MonthlyReflection, WeeklyReflection } from '@/domain/reflection'
 import type { CalendarYearMonthSummary, YearMonthPillData } from '@/services/calendarViewQueries'
 import {
-  clustersFromReflection,
   dayRings,
+  matrixFromReflection,
   monthlyDimensionBars,
   monthPriorities,
   nonNullMean,
@@ -17,6 +17,7 @@ import {
   ringsForPeriod,
   yearMonthRings,
 } from '../streamData'
+import { divergingRatingColor } from '@/utils/ratingGradient'
 
 describe('streamData · number helpers', () => {
   it('pct rounds and guards zero denominator', () => {
@@ -78,33 +79,50 @@ describe('streamData · emotion segments', () => {
   })
 })
 
-describe('streamData · clusters from weekly reflection', () => {
-  it('dims every cluster when the week has no reflection', () => {
-    const clusters = clustersFromReflection(undefined, 'future')
-    expect(clusters.map((c) => c.key)).toEqual(['W', 'D', 'S'])
-    for (const cluster of clusters) {
-      expect(cluster.hasData).toBe(false)
-      expect(cluster.bars).toHaveLength(4)
-      expect(cluster.bars.every((b) => b.value === null)).toBe(true)
+describe('streamData · matrix from weekly reflection', () => {
+  it('renders 4 area rows × 3 empty cells when the week has no reflection', () => {
+    const matrix = matrixFromReflection(undefined)
+    expect(matrix.map((row) => row.areaKey)).toEqual(['body', 'emotions', 'tasks', 'closeOnes'])
+    for (const row of matrix) {
+      expect(row.cells.map((cell) => cell.section)).toEqual(['demands', 'actions', 'state'])
+      expect(row.cells.every((cell) => cell.rating === null && cell.color === null)).toBe(true)
     }
   })
 
-  it('maps ratings into bar heights', () => {
+  it('passes raw ratings through and inverts only the Demands column colors', () => {
     const reflection = {
-      physicalIntensityRating: 5,
-      emotionalIntensityRating: null,
-      taskLoadRating: 3,
-      closeOnesNeedsRating: 1,
-      moodRating: 4,
+      taskLoadRating: 5,
+      physicalIntensityRating: 1,
+      moodRating: 5,
+      energyRating: 3,
+      calmRating: null,
     } as unknown as WeeklyReflection
-    const clusters = clustersFromReflection(reflection, 'past')
-    const demands = clusters.find((c) => c.key === 'W')!
-    expect(demands.hasData).toBe(true)
-    expect(demands.bars[0].value).toBe(1) // 5/5
-    expect(demands.bars[1].value).toBeNull() // unrated
-    expect(demands.bars[2].value).toBeCloseTo(0.6) // 3/5
-    const state = clusters.find((c) => c.key === 'S')!
-    expect(state.bars[0].value).toBeCloseTo(0.8) // mood 4/5
+    const matrix = matrixFromReflection(reflection)
+    const tasks = matrix.find((row) => row.areaKey === 'tasks')!
+    const body = matrix.find((row) => row.areaKey === 'body')!
+    const emotions = matrix.find((row) => row.areaKey === 'emotions')!
+
+    // Heavy task load: raw rating kept, color inverted → strong rose (strain).
+    const taskDemands = tasks.cells.find((cell) => cell.section === 'demands')!
+    expect(taskDemands.rating).toBe(5)
+    expect(taskDemands.color).toBe(divergingRatingColor(5, { invert: true }))
+    expect(taskDemands.color).toBe('rgb(var(--rating-neg-5))')
+
+    // Light physical load inverts the other way → strong sky (ease).
+    const bodyDemands = body.cells.find((cell) => cell.section === 'demands')!
+    expect(bodyDemands.color).toBe('rgb(var(--rating-pos-5))')
+
+    // State/Actions columns are not inverted: great mood → strong sky.
+    const moodCell = emotions.cells.find((cell) => cell.section === 'state')!
+    expect(moodCell.rating).toBe(5)
+    expect(moodCell.color).toBe('rgb(var(--rating-pos-5))')
+
+    // Mid rating → neutral stop; unrated cell stays colorless.
+    const energyCell = body.cells.find((cell) => cell.section === 'state')!
+    expect(energyCell.color).toBe('rgb(var(--rating-neutral))')
+    const calmCell = tasks.cells.find((cell) => cell.section === 'state')!
+    expect(calmCell.rating).toBeNull()
+    expect(calmCell.color).toBeNull()
   })
 })
 

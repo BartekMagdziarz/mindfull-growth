@@ -237,12 +237,12 @@ const ringLabels = computed(() => ({
   trackers: t('planning.calendar.stream.rings.trackers'),
 }))
 
-// Cluster labels reuse the weekly-reflection group titles (Demands/Actions/State),
-// since the clusters now render those exact reflection ratings.
-const clusterLabels = computed(() => ({
-  W: t('planning.reflection.weekly.groups.demands.title'),
-  D: t('planning.reflection.weekly.groups.actions.title'),
-  S: t('planning.reflection.weekly.groups.state.title'),
+// Matrix column headers reuse the weekly-reflection group titles
+// (Demands/Actions/State) — the week-card matrix renders those exact ratings.
+const sectionLabels = computed(() => ({
+  demands: t('planning.reflection.weekly.groups.demands.title'),
+  actions: t('planning.reflection.weekly.groups.actions.title'),
+  state: t('planning.reflection.weekly.groups.state.title'),
 }))
 
 function monthName(ref: MonthRef): string {
@@ -400,7 +400,7 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
           :week="week"
           :week-label="weekShortLabel(week.weekNumber)"
           :range-label="rangeLabel(week.startDayRef, week.endDayRef)"
-          :cluster-labels="clusterLabels"
+          :section-labels="sectionLabels"
           :ring-labels="ringLabels"
           :index="i"
           @select="drillToWeek(week.weekRef)"

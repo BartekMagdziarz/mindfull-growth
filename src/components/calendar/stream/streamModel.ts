@@ -6,6 +6,7 @@
  * owns the shared shapes and the past/current/future classification.
  */
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { LifeAreaKey, MatrixSection } from '@/domain/reflectionMatrix'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
 export type PeriodTimeState = 'past' | 'current' | 'future'
@@ -28,7 +29,7 @@ export interface StreamRingVM {
   mean?: boolean
 }
 
-/** A single bar in a life-area row or a Demands/Actions/State cluster. */
+/** A single bar in a month-card dimension row. */
 export interface StreamBarVM {
   key: string
   /** 0..1 fill ratio, or null when there is no data (rendered dimmed). */
@@ -36,11 +37,21 @@ export interface StreamBarVM {
   icon?: string
 }
 
-export interface StreamClusterVM {
-  key: 'W' | 'D' | 'S'
-  bars: StreamBarVM[]
-  /** Whether this cluster has a rating for the period (else its bars dim). */
-  hasData: boolean
+/** One cell of the week-card 4×3 reflection matrix (area row × section column). */
+export interface StreamMatrixCellVM {
+  section: MatrixSection
+  /** Raw 1–5 rating (tooltips show "n/5"), null = unrated. */
+  rating: number | null
+  /** Resolved diverging swatch color (Demands inverted), null = empty treatment. */
+  color: string | null
+}
+
+/** A week-card matrix row: one life area with its demands/actions/state cells. */
+export interface StreamMatrixRowVM {
+  areaKey: LifeAreaKey
+  icon: string
+  /** Always 3 cells, in demands → actions → state order. */
+  cells: StreamMatrixCellVM[]
 }
 
 /** A month top-3 priority slot for the year ribbon (effort colours the ring). */
@@ -76,7 +87,8 @@ export interface StreamWeekVM {
   endDayRef: DayRef
   timeState: PeriodTimeState
   isCurrent: boolean
-  clusters: StreamClusterVM[]
+  /** 4×3 reflection matrix (life-area rows × Demands/Actions/State columns). */
+  matrix: StreamMatrixRowVM[]
   rings: StreamRingVM[]
 }
 

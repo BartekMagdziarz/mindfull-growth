@@ -2,14 +2,15 @@
 import { computed } from 'vue'
 import StreamCard from './StreamCard.vue'
 import StreamRing from './StreamRing.vue'
-import type { StreamBarVM, StreamWeekVM } from './streamModel'
+import type { StreamMatrixCellVM, StreamMatrixRowVM, StreamWeekVM } from './streamModel'
+import { MATRIX_SECTIONS, composeCellLabel, type MatrixSection } from '@/domain/reflectionMatrix'
 import { useT } from '@/composables/useT'
 
 const props = defineProps<{
   week: StreamWeekVM
   weekLabel: string
   rangeLabel: string
-  clusterLabels: Record<'W' | 'D' | 'S', string>
+  sectionLabels: Record<MatrixSection, string>
   ringLabels: Record<'goals' | 'habits' | 'trackers', string>
   index: number
 }>()
@@ -18,43 +19,45 @@ defineEmits<{ select: [] }>()
 
 const { t } = useT()
 
-/** Each cluster bar is a weekly-reflection dimension; its key resolves to a label. */
-function dimensionLabel(key: string): string {
-  return t(`planning.reflection.weekly.dimensions.${key}`)
-}
-
 const labelStyle = computed(() => ({
   color: props.week.isCurrent
     ? 'rgb(var(--stream-accent, 112 168 232))'
     : 'rgb(var(--stream-ink, 15 39 69))',
 }))
 
-function barStyle(bar: StreamBarVM) {
-  if (bar.value === null) {
+/** Composed cell label + raw rating, e.g. "Wymagania · Zadania: 5/5". */
+function cellTitle(row: StreamMatrixRowVM, cell: StreamMatrixCellVM): string {
+  const rating = cell.rating === null ? '—' : `${cell.rating}/5`
+  return `${composeCellLabel(t, row.areaKey, cell.section)}: ${rating}`
+}
+
+function cellStyle(cell: StreamMatrixCellVM) {
+  if (cell.color === null) {
     return {
-      height: '6px',
       background: 'rgb(var(--stream-track, 185 205 228) / 0.34)',
       boxShadow: 'none',
     }
   }
   return {
-    height: `${Math.max(5, Math.round(bar.value * 50))}px`,
-    background: 'rgb(var(--stream-bar, 86 142 210))',
-    boxShadow: '0 1px 4px rgb(var(--stream-bar, 86 142 210) / 0.4)',
+    background: cell.color,
+    boxShadow: '0 1px 3px rgb(var(--neo-shadow-dark, 145 170 205) / 0.35)',
   }
 }
 
-function iconStyle(bar: StreamBarVM) {
+function areaIconStyle(row: StreamMatrixRowVM) {
+  const hasData = row.cells.some((cell) => cell.rating !== null)
   return {
     fontSize: '13px',
-    color:
-      bar.value === null
-        ? 'rgb(var(--stream-faint, 169 191 220))'
-        : 'rgb(var(--stream-bar, 86 142 210) / 0.85)',
+    color: hasData
+      ? 'rgb(var(--stream-bar, 86 142 210) / 0.85)'
+      : 'rgb(var(--stream-faint, 169 191 220))',
   }
 }
 
-function clusterLabelColor(hasData: boolean) {
+function sectionLabelColor(section: MatrixSection) {
+  const hasData = props.week.matrix.some(
+    (row) => row.cells.find((cell) => cell.section === section)?.rating !== null,
+  )
   return hasData
     ? 'rgb(var(--stream-bar, 86 142 210) / 0.95)'
     : 'rgb(var(--stream-faint, 169 191 220))'
@@ -73,20 +76,31 @@ function clusterLabelColor(hasData: boolean) {
       <span class="stream-week__range">{{ rangeLabel }}</span>
     </div>
 
-    <div class="stream-week__clusters">
-      <div v-for="cluster in week.clusters" :key="cluster.key" class="stream-week__cluster">
-        <div class="stream-week__bars">
-          <div v-for="bar in cluster.bars" :key="bar.key" class="stream-week__bar-col">
-            <span class="stream-week__bar" :style="barStyle(bar)" :title="dimensionLabel(bar.key)" />
-            <span class="material-symbols-outlined" :style="iconStyle(bar)" aria-hidden="true">{{
-              bar.icon
-            }}</span>
-          </div>
-        </div>
-        <span class="stream-week__cluster-name" :style="{ color: clusterLabelColor(cluster.hasData) }">
-          {{ clusterLabels[cluster.key] }}
+    <!-- 4×3 reflection matrix: life-area rows × Demands/Actions/State columns.
+         Rose = strain (Demands inverted), sky = ease/wellbeing. -->
+    <div class="stream-week__matrix">
+      <span />
+      <span
+        v-for="section in MATRIX_SECTIONS"
+        :key="section"
+        class="stream-week__section-name"
+        :style="{ color: sectionLabelColor(section) }"
+      >
+        {{ sectionLabels[section] }}
+      </span>
+
+      <template v-for="row in week.matrix" :key="row.areaKey">
+        <span class="material-symbols-outlined" :style="areaIconStyle(row)" aria-hidden="true">
+          {{ row.icon }}
         </span>
-      </div>
+        <span
+          v-for="cell in row.cells"
+          :key="cell.section"
+          class="stream-week__cell"
+          :style="cellStyle(cell)"
+          :title="cellTitle(row, cell)"
+        />
+      </template>
     </div>
 
     <div class="stream-divider" />
@@ -129,44 +143,24 @@ function clusterLabelColor(hasData: boolean) {
   font-weight: 500;
 }
 
-.stream-week__clusters {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
+.stream-week__matrix {
+  display: grid;
+  grid-template-columns: auto repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: 7px 10px;
   width: 100%;
 }
 
-.stream-week__cluster {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
+.stream-week__cell {
+  width: 100%;
+  max-width: 32px;
+  height: 14px;
+  border-radius: 5px;
+  animation: streamCellIn 0.4s both;
 }
 
-.stream-week__bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 5px;
-  height: 58px;
-}
-
-.stream-week__bar-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 5px;
-}
-
-.stream-week__bar {
-  width: 9px;
-  border-radius: 4px 4px 0 0;
-  animation: streamGrowUp 0.5s both;
-}
-
-.stream-week__cluster-name {
+.stream-week__section-name {
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -189,11 +183,10 @@ function clusterLabelColor(hasData: boolean) {
   width: 100%;
 }
 
-@keyframes streamGrowUp {
+@keyframes streamCellIn {
   from {
     opacity: 0;
-    transform: scaleY(0.4);
-    transform-origin: bottom;
+    transform: scale(0.7);
   }
   to {
     opacity: 1;
@@ -202,7 +195,7 @@ function clusterLabelColor(hasData: boolean) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stream-week__bar {
+  .stream-week__cell {
     animation: none;
   }
 }

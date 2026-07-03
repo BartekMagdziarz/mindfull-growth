@@ -6,7 +6,7 @@
  * unchanged):
  *   - rings  → goal/habit attainment (met-ratio) + tracker engagement,
  *   - month-card life-area bars → the user's real Life Areas (per-area execution),
- *   - week-card Demands/Actions/State clusters → weekly-reflection ratings,
+ *   - week-card 4×3 matrix (life areas × Demands/Actions/State) → weekly-reflection ratings,
  *   - day-card journal/emotions → journal entries + emotion logs.
  *
  * Pure metric helpers are exported for unit tests; the async loaders pull from
@@ -36,6 +36,8 @@ import { reflectionDexieRepository } from '@/repositories/reflectionDexieReposit
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { MATRIX_SECTIONS, REFLECTION_MATRIX_AREAS } from '@/domain/reflectionMatrix'
+import { divergingRatingColor } from '@/utils/ratingGradient'
 import {
   dayTimeState,
   monthTimeState,
@@ -43,9 +45,9 @@ import {
   todayDayRef,
   type PeriodTimeState,
   type StreamBarVM,
-  type StreamClusterVM,
   type StreamDayVM,
   type StreamEmotionSegment,
+  type StreamMatrixRowVM,
   type StreamMonthVM,
   type StreamPriorityVM,
   type StreamRingVM,
@@ -66,41 +68,6 @@ const RING_DEFS: { key: StreamRingVM['key']; icon: string }[] = [
 const DAY_RING_DEFS: { key: StreamRingVM['key']; icon: string }[] = [
   { key: 'goals', icon: 'flag' },
   { key: 'habits', icon: 'task_alt' },
-]
-
-// Weekly-reflection rating fields, grouped into the three clusters. `dim` is the
-// i18n key under `planning.reflection.weekly.dimensions.*` (the card resolves it).
-const REFLECTION_CLUSTERS: {
-  key: StreamClusterVM['key']
-  fields: { field: keyof WeeklyReflection; dim: string; icon: string }[]
-}[] = [
-  {
-    key: 'W',
-    fields: [
-      { field: 'physicalIntensityRating', dim: 'physicalIntensity', icon: 'fitness_center' },
-      { field: 'emotionalIntensityRating', dim: 'emotionalIntensity', icon: 'thunderstorm' },
-      { field: 'taskLoadRating', dim: 'taskLoad', icon: 'checklist' },
-      { field: 'closeOnesNeedsRating', dim: 'closeOnesNeeds', icon: 'groups' },
-    ],
-  },
-  {
-    key: 'D',
-    fields: [
-      { field: 'physicalCareRating', dim: 'physicalCare', icon: 'spa' },
-      { field: 'emotionalProcessingRating', dim: 'emotionalProcessing', icon: 'self_improvement' },
-      { field: 'productivityRating', dim: 'productivity', icon: 'bolt' },
-      { field: 'closeOnesSupportRating', dim: 'closeOnesSupport', icon: 'volunteer_activism' },
-    ],
-  },
-  {
-    key: 'S',
-    fields: [
-      { field: 'moodRating', dim: 'mood', icon: 'sentiment_satisfied' },
-      { field: 'energyRating', dim: 'energy', icon: 'battery_charging_full' },
-      { field: 'calmRating', dim: 'calm', icon: 'waves' },
-      { field: 'connectionRating', dim: 'connection', icon: 'diversity_1' },
-    ],
-  },
 ]
 
 const QUADRANT_ORDER: Quadrant[] = [
@@ -170,20 +137,27 @@ function emptyQuadrantCounts(): Record<Quadrant, number> {
   }
 }
 
-/** Demands/Actions/State clusters from a week's reflection (undefined ⇒ all dim). */
-export function clustersFromReflection(
+/**
+ * The week-card 4×3 reflection matrix (life-area rows × Demands/Actions/State
+ * columns) from a week's reflection (undefined ⇒ all cells empty). The Demands
+ * column is value-inverted so rose reads "strain" across the whole card while
+ * sky reads "ease/wellbeing".
+ */
+export function matrixFromReflection(
   reflection: WeeklyReflection | undefined,
-  timeState: PeriodTimeState,
-): StreamClusterVM[] {
-  void timeState
-  return REFLECTION_CLUSTERS.map((cluster) => {
-    const bars: StreamBarVM[] = cluster.fields.map((f) => ({
-      key: f.dim,
-      icon: f.icon,
-      value: ratingToValue(reflection ? (reflection[f.field] as number | null) : null),
-    }))
-    return { key: cluster.key, bars, hasData: bars.some((b) => b.value !== null) }
-  })
+): StreamMatrixRowVM[] {
+  return REFLECTION_MATRIX_AREAS.map((area) => ({
+    areaKey: area.key,
+    icon: area.icon,
+    cells: MATRIX_SECTIONS.map((section) => {
+      const rating = reflection ? (reflection[area.fields[section]] as number | null) : null
+      return {
+        section,
+        rating,
+        color: divergingRatingColor(rating, { invert: section === 'demands' }),
+      }
+    }),
+  }))
 }
 
 /**
@@ -434,7 +408,7 @@ export async function loadStreamMonth(monthRef: MonthRef): Promise<StreamWeekVM[
       endDayRef: bounds.end,
       timeState,
       isCurrent: timeState === 'current',
-      clusters: clustersFromReflection(reflectionByWeek.get(weekRef), timeState),
+      matrix: matrixFromReflection(reflectionByWeek.get(weekRef)),
       rings: ringsForPeriod(subjects, bundle.rawEntries, weekRef, timeState, today),
     }
   })
