@@ -4,7 +4,13 @@
       <p v-if="group.subtitle" class="text-sm text-on-surface-variant">
         {{ group.subtitle }}
       </p>
-      <div class="flex items-start justify-around gap-2">
+      <div
+        :class="
+          layout === 'rows'
+            ? 'flex flex-col items-center gap-8'
+            : 'flex items-start justify-around gap-2'
+        "
+      >
         <IconScaleSelector
           v-for="dim in group.dimensions"
           :key="dim.key"
@@ -38,9 +44,14 @@ export interface RatingGroup {
   dimensions: IconRatingDimension[]
 }
 
-defineProps<{
-  groups: RatingGroup[]
-}>()
+withDefaults(
+  defineProps<{
+    groups: RatingGroup[]
+    /** 'columns' = dimensions side by side (default); 'rows' = stacked full-width rows. */
+    layout?: 'columns' | 'rows'
+  }>(),
+  { layout: 'columns' }
+)
 
 defineEmits<{
   'update:rating': [key: string, value: number]

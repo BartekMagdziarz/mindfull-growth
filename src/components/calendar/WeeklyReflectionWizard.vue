@@ -11,11 +11,11 @@
             v-for="(label, idx) in stepLabels"
             :key="idx"
             type="button"
-            :disabled="isStepLocked(STEPS[idx])"
-            :aria-label="`${idx + 1}. ${label}${isStepLocked(STEPS[idx]) ? ' (locked)' : idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
+            :disabled="isStepLocked(STEP_ORDER[idx])"
+            :aria-label="`${idx + 1}. ${label}${isStepLocked(STEP_ORDER[idx]) ? ' (locked)' : idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
             class="rounded-full transition-all duration-200"
             :class="
-              isStepLocked(STEPS[idx])
+              isStepLocked(STEP_ORDER[idx])
                 ? 'neo-step-future w-2.5 h-2.5 opacity-40 cursor-not-allowed'
                 : idx < stepIndex
                   ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
@@ -23,7 +23,7 @@
                     ? 'neo-step-active w-3.5 h-3.5'
                     : 'neo-step-future w-2.5 h-2.5'
             "
-            @click="idx < stepIndex && goToStep(STEPS[idx])"
+            @click="idx < stepIndex && goToStep(STEP_ORDER[idx])"
           />
         </div>
         <span class="text-xs font-medium text-on-surface-variant">
@@ -135,26 +135,18 @@
         </p>
       </div>
 
-      <!-- Step: Demands -->
-      <div v-else-if="currentStep === 'demands'" key="demands" class="space-y-4">
+      <!-- Steps: matrix area ratings — one life area per step, questions in
+           causal order: demand → action → state -->
+      <div v-else-if="currentArea" :key="currentArea.key" class="space-y-5">
+        <div class="flex items-center justify-center gap-2">
+          <AppIcon :name="currentArea.icon" class="text-xl text-primary-strong" />
+          <h3 class="text-base font-semibold text-on-surface">
+            {{ t(areaTitleKey(currentArea.key)) }}
+          </h3>
+        </div>
         <ReflectionDimensionRatings
-          :groups="demandsGroup"
-          @update:rating="handleRatingUpdate"
-        />
-      </div>
-
-      <!-- Step: Actions -->
-      <div v-else-if="currentStep === 'actions'" key="actions" class="space-y-4">
-        <ReflectionDimensionRatings
-          :groups="actionsGroup"
-          @update:rating="handleRatingUpdate"
-        />
-      </div>
-
-      <!-- Step: State -->
-      <div v-else-if="currentStep === 'state'" key="state" class="space-y-4">
-        <ReflectionDimensionRatings
-          :groups="stateGroup"
+          :groups="areaGroups"
+          layout="rows"
           @update:rating="handleRatingUpdate"
         />
       </div>
@@ -256,9 +248,20 @@ import {
   updateWeeklyIntention,
 } from '@/services/weeklyIntentionService'
 import {
+  STEP_ORDER,
   useWeeklyReflectionWizard,
   type WeeklyReflectionStep,
 } from '@/composables/useWeeklyReflectionWizard'
+import type { WeeklyRatingKey } from '@/domain/reflection'
+import {
+  MATRIX_CELL_ICONS,
+  MATRIX_SECTIONS,
+  REFLECTION_MATRIX_AREAS,
+  areaTitleKey,
+  cellAnchorKey,
+  cellQuestionKey,
+  sectionTitleKey,
+} from '@/domain/reflectionMatrix'
 import { useSerializedSave } from '@/composables/useSerializedSave'
 import { useT } from '@/composables/useT'
 import type { DayRef, WeekRef } from '@/domain/period'
@@ -269,7 +272,7 @@ import {
   type ReflectionSummaryContext,
 } from '@/services/reflectionSummaryService'
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const props = defineProps<{
   weekRef: WeekRef
@@ -281,28 +284,27 @@ const emit = defineEmits<{
   'plan-next-week': []
 }>()
 
-// Unified week ritual: one planning step first, then the (date-gated) reflection steps.
-const STEPS: WeeklyReflectionStep[] = [
-  'plan',
-  'days',
-  'review',
-  'demands',
-  'actions',
-  'state',
-  'anchors',
-  'journal',
-]
+// Unified week ritual: step order comes from the composable (planning steps first,
+// then the date-gated reflection steps — one rating step per matrix life area).
+function stepLabel(step: WeeklyReflectionStep): string {
+  switch (step) {
+    case 'plan':
+      return t('planning.weekWizard.steps.plan')
+    case 'days':
+      return t('planning.weekWizard.steps.days')
+    case 'review':
+      return t('planning.reflection.steps.review')
+    case 'anchors':
+      return t('planning.reflection.steps.anchors')
+    case 'journal':
+      return t('planning.reflection.steps.journal')
+    default:
+      // Area steps: the pip label is the area name itself.
+      return t(areaTitleKey(step))
+  }
+}
 
-const stepLabels = computed(() => [
-  t('planning.weekWizard.steps.plan'),
-  t('planning.weekWizard.steps.days'),
-  t('planning.reflection.steps.review'),
-  t('planning.reflection.steps.demands'),
-  t('planning.reflection.steps.actions'),
-  t('planning.reflection.steps.state'),
-  t('planning.reflection.steps.anchors'),
-  t('planning.reflection.steps.journal'),
-])
+const stepLabels = computed(() => STEP_ORDER.map(stepLabel))
 
 // Slimmed to a 3-anchor core (D2): wins / hard parts / synthesis. The forward-looking
 // anchors (improvements, lookingAhead) moved to the planning side (week intention + top-3),
@@ -327,18 +329,7 @@ const {
   dataBundle,
   objectComments,
   topPriorityKeys,
-  physicalIntensityRating,
-  emotionalIntensityRating,
-  taskLoadRating,
-  closeOnesNeedsRating,
-  physicalCareRating,
-  emotionalProcessingRating,
-  productivityRating,
-  closeOnesSupportRating,
-  moodRating,
-  energyRating,
-  calmRating,
-  connectionRating,
+  ratingRefsByKey,
   promptResponses,
   freeformReflection,
   aiSummary,
@@ -492,191 +483,47 @@ watch(
   },
 )
 
-// Icon sets for each dimension
-const ICONS = {
-  // Demands
-  physicalIntensity: ['hotel', 'airline_seat_recline_normal', 'directions_walk', 'directions_run', 'sprint'] as [string, string, string, string, string],
-  emotionalIntensity: ['wb_sunny', 'partly_cloudy_day', 'rainy', 'thunderstorm', 'cyclone'] as [string, string, string, string, string],
-  taskLoad: ['inbox', 'task', 'checklist', 'assignment_late', 'local_fire_department'] as [string, string, string, string, string],
-  closeOnesNeeds: ['bedtime', 'person', 'group', 'priority_high', 'sos'] as [string, string, string, string, string],
-  // Actions
-  physicalCare: ['heart_broken', 'heart_minus', 'heart_check', 'heart_plus', 'favorite'] as [string, string, string, string, string],
-  emotionalProcessing: ['visibility_off', 'sentiment_frustrated', 'sentiment_neutral', 'sentiment_calm', 'shield_with_heart'] as [string, string, string, string, string],
-  productivity: ['block', 'trending_down', 'trending_flat', 'trending_up', 'rocket_launch'] as [string, string, string, string, string],
-  closeOnesSupport: ['do_not_disturb_on', 'person_off', 'person', 'volunteer_activism', 'favorite'] as [string, string, string, string, string],
-  // State
-  mood: ['sentiment_very_dissatisfied', 'sentiment_dissatisfied', 'sentiment_neutral', 'sentiment_satisfied', 'sentiment_very_satisfied'] as [string, string, string, string, string],
-  energy: ['battery_0_bar', 'battery_2_bar', 'battery_4_bar', 'battery_full', 'battery_charging_full'] as [string, string, string, string, string],
-  calm: ['earthquake', 'air', 'airwave', 'waves', 'self_improvement'] as [string, string, string, string, string],
-  connection: ['person_off', 'person', 'group', 'diversity_3', 'favorite'] as [string, string, string, string, string],
-}
+// The matrix area whose ratings the current step edits (undefined on non-area steps).
+const currentArea = computed(() =>
+  REFLECTION_MATRIX_AREAS.find((area) => area.key === currentStep.value),
+)
 
-const demandsGroup = computed<RatingGroup[]>(() => [
-  {
-    title: t('planning.reflection.weekly.groups.demands.title'),
-    dimensions: [
-      {
-        key: 'physicalIntensity',
-        label: t('planning.reflection.weekly.dimensions.physicalIntensity'),
-        value: physicalIntensityRating.value,
-        icons: ICONS.physicalIntensity,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.physicalIntensity.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.physicalIntensity.high'),
-      },
-      {
-        key: 'emotionalIntensity',
-        label: t('planning.reflection.weekly.dimensions.emotionalIntensity'),
-        value: emotionalIntensityRating.value,
-        icons: ICONS.emotionalIntensity,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.emotionalIntensity.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.emotionalIntensity.high'),
-      },
-      {
-        key: 'taskLoad',
-        label: t('planning.reflection.weekly.dimensions.taskLoad'),
-        value: taskLoadRating.value,
-        icons: ICONS.taskLoad,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.taskLoad.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.taskLoad.high'),
-      },
-      {
-        key: 'closeOnesNeeds',
-        label: t('planning.reflection.weekly.dimensions.closeOnesNeeds'),
-        value: closeOnesNeedsRating.value,
-        icons: ICONS.closeOnesNeeds,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.closeOnesNeeds.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.closeOnesNeeds.high'),
-      },
-    ],
-  },
-])
-
-const stateGroup = computed<RatingGroup[]>(() => [
-  {
-    title: t('planning.reflection.weekly.groups.state.title'),
-    dimensions: [
-      {
-        key: 'mood',
-        label: t('planning.reflection.weekly.dimensions.mood'),
-        value: moodRating.value,
-        icons: ICONS.mood,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.mood.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.mood.high'),
-      },
-      {
-        key: 'energy',
-        label: t('planning.reflection.weekly.dimensions.energy'),
-        value: energyRating.value,
-        icons: ICONS.energy,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.energy.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.energy.high'),
-      },
-      {
-        key: 'calm',
-        label: t('planning.reflection.weekly.dimensions.calm'),
-        value: calmRating.value,
-        icons: ICONS.calm,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.calm.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.calm.high'),
-      },
-      {
-        key: 'connection',
-        label: t('planning.reflection.weekly.dimensions.connection'),
-        value: connectionRating.value,
-        icons: ICONS.connection,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.connection.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.connection.high'),
-      },
-    ],
-  },
-])
-
-const actionsGroup = computed<RatingGroup[]>(() => [
-  {
-    title: t('planning.reflection.weekly.groups.actions.title'),
-    dimensions: [
-      {
-        key: 'physicalCare',
-        label: t('planning.reflection.weekly.dimensions.physicalCare'),
-        value: physicalCareRating.value,
-        icons: ICONS.physicalCare,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.physicalCare.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.physicalCare.high'),
-      },
-      {
-        key: 'emotionalProcessing',
-        label: t('planning.reflection.weekly.dimensions.emotionalProcessing'),
-        value: emotionalProcessingRating.value,
-        icons: ICONS.emotionalProcessing,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.emotionalProcessing.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.emotionalProcessing.high'),
-      },
-      {
-        key: 'productivity',
-        label: t('planning.reflection.weekly.dimensions.productivity'),
-        value: productivityRating.value,
-        icons: ICONS.productivity,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.productivity.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.productivity.high'),
-      },
-      {
-        key: 'closeOnesSupport',
-        label: t('planning.reflection.weekly.dimensions.closeOnesSupport'),
-        value: closeOnesSupportRating.value,
-        icons: ICONS.closeOnesSupport,
-        lowLabel: t('planning.reflection.weekly.scaleLabels.closeOnesSupport.low'),
-        highLabel: t('planning.reflection.weekly.scaleLabels.closeOnesSupport.high'),
-      },
-    ],
-  },
-])
+// One group per area step: 3 questions in causal order (demand → action → state).
+// The question text (gendered via tg) carries the semantics; the cell itself has
+// no standalone name — it is identified by area × section.
+const areaGroups = computed<RatingGroup[]>(() => {
+  const area = currentArea.value
+  if (!area) return []
+  return [
+    {
+      title: t(areaTitleKey(area.key)),
+      dimensions: MATRIX_SECTIONS.map((section) => ({
+        key: area.fields[section],
+        label: tg(cellQuestionKey(area.key, section)),
+        value: ratingRefsByKey[area.fields[section]].value,
+        icons: MATRIX_CELL_ICONS[area.key][section],
+        lowLabel: t(cellAnchorKey(area.key, section, 'low')),
+        highLabel: t(cellAnchorKey(area.key, section, 'high')),
+      })),
+    },
+  ]
+})
 
 function handleRatingUpdate(key: string, value: number) {
-  switch (key) {
-    case 'physicalIntensity': physicalIntensityRating.value = value; break
-    case 'emotionalIntensity': emotionalIntensityRating.value = value; break
-    case 'taskLoad': taskLoadRating.value = value; break
-    case 'closeOnesNeeds': closeOnesNeedsRating.value = value; break
-    case 'physicalCare': physicalCareRating.value = value; break
-    case 'emotionalProcessing': emotionalProcessingRating.value = value; break
-    case 'productivity': productivityRating.value = value; break
-    case 'closeOnesSupport': closeOnesSupportRating.value = value; break
-    case 'mood': moodRating.value = value; break
-    case 'energy': energyRating.value = value; break
-    case 'calm': calmRating.value = value; break
-    case 'connection': connectionRating.value = value; break
-  }
+  const ratingRef = ratingRefsByKey[key as WeeklyRatingKey]
+  if (ratingRef) ratingRef.value = value
 }
 
-const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() => [
-  {
-    title: t('planning.reflection.weekly.groups.demands.title'),
-    items: [
-      { label: t('planning.reflection.weekly.dimensions.physicalIntensity'), value: physicalIntensityRating.value },
-      { label: t('planning.reflection.weekly.dimensions.emotionalIntensity'), value: emotionalIntensityRating.value },
-      { label: t('planning.reflection.weekly.dimensions.taskLoad'), value: taskLoadRating.value },
-      { label: t('planning.reflection.weekly.dimensions.closeOnesNeeds'), value: closeOnesNeedsRating.value },
-    ],
-  },
-  {
-    title: t('planning.reflection.weekly.groups.actions.title'),
-    items: [
-      { label: t('planning.reflection.weekly.dimensions.physicalCare'), value: physicalCareRating.value },
-      { label: t('planning.reflection.weekly.dimensions.emotionalProcessing'), value: emotionalProcessingRating.value },
-      { label: t('planning.reflection.weekly.dimensions.productivity'), value: productivityRating.value },
-      { label: t('planning.reflection.weekly.dimensions.closeOnesSupport'), value: closeOnesSupportRating.value },
-    ],
-  },
-  {
-    title: t('planning.reflection.weekly.groups.state.title'),
-    items: [
-      { label: t('planning.reflection.weekly.dimensions.mood'), value: moodRating.value },
-      { label: t('planning.reflection.weekly.dimensions.energy'), value: energyRating.value },
-      { label: t('planning.reflection.weekly.dimensions.calm'), value: calmRating.value },
-      { label: t('planning.reflection.weekly.dimensions.connection'), value: connectionRating.value },
-    ],
-  },
-])
+// Journal-sidebar summary: section groups (Demands/Actions/State) with area-name items.
+const weeklyRatingSummary = computed<SidebarRatingGroup[]>(() =>
+  MATRIX_SECTIONS.map((section) => ({
+    title: t(sectionTitleKey(section)),
+    items: REFLECTION_MATRIX_AREAS.map((area) => ({
+      label: t(areaTitleKey(area.key)),
+      value: ratingRefsByKey[area.fields[section]].value,
+    })),
+  })),
+)
 
 const summaryPeriodLabel = computed(() => {
   const bounds = getPeriodBounds(props.weekRef)

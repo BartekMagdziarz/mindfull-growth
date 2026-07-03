@@ -41,6 +41,15 @@
         <span class="material-symbols-outlined text-xl">chevron_right</span>
       </button>
     </div>
+
+    <!-- Scale anchors (1 ↔ 5) -->
+    <div
+      v-if="lowLabel || highLabel"
+      class="flex w-full max-w-[14rem] items-baseline justify-between gap-3 text-[10px] leading-tight text-on-surface-variant/80"
+    >
+      <span class="text-left">{{ lowLabel }}</span>
+      <span class="text-right">{{ highLabel }}</span>
+    </div>
   </div>
 </template>
 

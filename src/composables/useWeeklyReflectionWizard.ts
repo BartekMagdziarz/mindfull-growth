@@ -4,7 +4,8 @@ import type { WeeklyReflectionDataBundle } from '@/services/reflectionDataQuerie
 import { getWeeklyReflectionDataBundle } from '@/services/reflectionDataQueries'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
-import type { CreateWeeklyReflectionPayload } from '@/domain/reflection'
+import type { CreateWeeklyReflectionPayload, WeeklyRatingKey } from '@/domain/reflection'
+import { MATRIX_SECTIONS, REFLECTION_MATRIX_AREAS, type LifeAreaKey } from '@/domain/reflectionMatrix'
 import type { ReflectionSubjectType } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
@@ -12,23 +13,23 @@ import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/
 
 // The week ritual is one wizard: planning steps (always available) then reflection
 // steps (unlocked only from the penultimate day of the week onward — see reflectionUnlocked).
+// Ratings are grouped by life area (one step per matrix row: demand → action → state).
 export type WeeklyReflectionStep =
   | 'plan'
   | 'days'
   | 'review'
-  | 'demands'
-  | 'actions'
-  | 'state'
+  | LifeAreaKey
   | 'anchors'
   | 'journal'
 
 const PLANNING_STEPS: WeeklyReflectionStep[] = ['plan', 'days']
-const REFLECTION_STEPS: WeeklyReflectionStep[] = ['review', 'demands', 'actions', 'state', 'anchors', 'journal']
+const AREA_STEPS: WeeklyReflectionStep[] = REFLECTION_MATRIX_AREAS.map((area) => area.key)
+const REFLECTION_STEPS: WeeklyReflectionStep[] = ['review', ...AREA_STEPS, 'anchors', 'journal']
 
-const STEP_ORDER: WeeklyReflectionStep[] = [...PLANNING_STEPS, ...REFLECTION_STEPS]
+export const STEP_ORDER: WeeklyReflectionStep[] = [...PLANNING_STEPS, ...REFLECTION_STEPS]
 
-/** Map old step names to new names for draft migration */
-const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
+/** Map old step names to new names for draft migration (exported for tests). */
+export const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
   // The former 'intentions' + 'priorities' planning steps merged into one 'plan' step.
   intentions: 'plan',
   priorities: 'plan',
@@ -36,14 +37,21 @@ const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
   days: 'days',
   // 'review' is now the object-review/confrontation step (first reflection step).
   review: 'review',
-  reflect: 'demands',
-  ratings: 'demands',
+  // Old section-grouped rating steps (any vintage) land on the first area step;
+  // rating field values in the draft carry over untouched.
+  reflect: 'body',
+  ratings: 'body',
+  context: 'body',
+  demands: 'body',
+  evaluation: 'body',
+  actions: 'body',
+  state: 'body',
+  // Current area steps (identity — every draft goes through this map).
+  body: 'body',
+  emotions: 'emotions',
+  tasks: 'tasks',
+  closeOnes: 'closeOnes',
   write: 'journal',
-  context: 'demands',
-  demands: 'demands',
-  evaluation: 'actions',
-  actions: 'actions',
-  state: 'state',
   prompts: 'anchors',
   anchors: 'anchors',
   journal: 'journal',
@@ -130,43 +138,31 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   const isEditing = ref(false)
   const isSaving = ref(false)
 
-  // Step validation
+  // Rating refs keyed by their WeeklyReflection field name (matrix cells).
+  const ratingRefsByKey: Record<WeeklyRatingKey, Ref<number | null>> = {
+    physicalIntensityRating,
+    emotionalIntensityRating,
+    taskLoadRating,
+    closeOnesNeedsRating,
+    physicalCareRating,
+    emotionalProcessingRating,
+    productivityRating,
+    closeOnesSupportRating,
+    moodRating,
+    energyRating,
+    calmRating,
+    connectionRating,
+  }
+
+  // Step validation: an area step needs at least one of its 3 ratings.
   const canAdvance = computed(() => {
-    switch (currentStep.value) {
-      case 'plan':
-        return true
-      case 'days':
-        return true
-      case 'review':
-        return true
-      case 'demands':
-        return (
-          physicalIntensityRating.value !== null ||
-          emotionalIntensityRating.value !== null ||
-          taskLoadRating.value !== null ||
-          closeOnesNeedsRating.value !== null
-        )
-      case 'actions':
-        return (
-          physicalCareRating.value !== null ||
-          emotionalProcessingRating.value !== null ||
-          productivityRating.value !== null ||
-          closeOnesSupportRating.value !== null
-        )
-      case 'state':
-        return (
-          moodRating.value !== null ||
-          energyRating.value !== null ||
-          calmRating.value !== null ||
-          connectionRating.value !== null
-        )
-      case 'anchors':
-        return true
-      case 'journal':
-        return true
-      default:
-        return false
+    const area = REFLECTION_MATRIX_AREAS.find((a) => a.key === currentStep.value)
+    if (area) {
+      return MATRIX_SECTIONS.some(
+        (section) => ratingRefsByKey[area.fields[section]].value !== null,
+      )
     }
+    return true
   })
 
   function nextStep() {
@@ -191,20 +187,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   }
 
   // All rating refs for watchers
-  const allRatingRefs = [
-    physicalIntensityRating,
-    emotionalIntensityRating,
-    taskLoadRating,
-    closeOnesNeedsRating,
-    physicalCareRating,
-    emotionalProcessingRating,
-    productivityRating,
-    closeOnesSupportRating,
-    moodRating,
-    energyRating,
-    calmRating,
-    connectionRating,
-  ]
+  const allRatingRefs = Object.values(ratingRefsByKey)
 
   // Draft persistence
   let draftSaveTimer: ReturnType<typeof setTimeout> | null = null
@@ -447,6 +430,9 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
     // Review step
     objectComments,
     topPriorityKeys,
+
+    // Matrix rating refs keyed by WeeklyReflection field name
+    ratingRefsByKey,
 
     // Demands ratings
     physicalIntensityRating,
