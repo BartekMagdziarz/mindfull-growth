@@ -50,8 +50,9 @@ async function signUp(page: Page) {
   await page.getByLabel(/^(Password|Hasło)$/).fill(password)
   await page.getByLabel(/^(Confirm Password|Potwierdź hasło)$/).fill(password)
   await page.getByRole('button', { name: /^(Create Account|Utwórz konto)$/ }).click()
-  await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
-  await expect(page.getByText(freeFormText)).toBeVisible()
+  // Signup now lands on the Today view; journal-page assertions happen after
+  // the explicit goto('/journal') in each flow.
+  await page.waitForURL((url) => url.pathname === '/today', { timeout: 5000 })
 }
 
 async function selectEmotion(page: Page, quadrantTestId: string, emotionTestId: string) {
@@ -72,7 +73,7 @@ async function addTag(page: Page, type: 'people' | 'context', name: string) {
 async function removeEmotion(page: Page, enName: string, plName: string) {
   await page
     .getByRole('button', {
-      name: new RegExp(`^(Remove (${enName}|${plName}) from selection|Usuń (${enName}|${plName}) z wyboru)$`),
+      name: new RegExp(`^Remove (${enName}|${plName})$`),
     })
     .click()
 }
@@ -101,10 +102,8 @@ async function createJournalEntry(
     contextTag: string
   }
 ) {
+  // /journal now redirects straight to the free-form editor (no mode picker).
   await page.goto('/journal')
-  await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
-  await expect(page.getByText(freeFormText)).toBeVisible()
-  await page.getByTestId('journal-free-form-card').click()
   await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
 
   await expect(page.getByRole('button', { name: saveButtonName })).toBeDisabled()
@@ -120,7 +119,10 @@ async function createJournalEntry(
 
   await expect(page.getByRole('button', { name: saveButtonName })).toBeEnabled()
   await page.getByRole('button', { name: saveButtonName }).click()
-  await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
+  // Post-save navigation lands back on the editor (/journal redirects to
+  // /journal/edit) with a cleared form — that's the "saved" signal.
+  await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
+  await expect(page.getByLabel(/journal entry|wpis w dzienniku/i)).toHaveValue('')
 }
 
 test.describe('Journal Flow', () => {
@@ -158,7 +160,7 @@ test.describe('Journal Flow', () => {
     await selectEmotion(page, LOW_PLEASANT_QUADRANT, CALM_EMOTION)
     await addTag(page, 'people', 'Dad')
     await page.getByRole('button', { name: saveButtonName }).click()
-    await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
+    await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
 
     await gotoHistory(page, 'journal')
     await expect(page.getByRole('heading', { name: 'Edited Reflection' })).toBeVisible()

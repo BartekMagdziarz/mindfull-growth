@@ -51,8 +51,9 @@ async function signUp(page: Page) {
   await page.getByLabel(/^(Password|Hasło)$/).fill(password)
   await page.getByLabel(/^(Confirm Password|Potwierdź hasło)$/).fill(password)
   await page.getByRole('button', { name: /^(Create Account|Utwórz konto)$/ }).click()
-  await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
-  await expect(page.getByText(freeFormText)).toBeVisible()
+  // Signup now lands on the Today view; journal-page assertions happen after
+  // the explicit goto('/journal') in each flow.
+  await page.waitForURL((url) => url.pathname === '/today', { timeout: 5000 })
 }
 
 async function selectEmotion(page: Page, quadrantTestId: string, emotionTestId: string) {
@@ -73,7 +74,7 @@ async function addTag(page: Page, type: 'people' | 'context', name: string) {
 async function removeEmotion(page: Page, enName: string, plName: string) {
   await page
     .getByRole('button', {
-      name: new RegExp(`^(Remove (${enName}|${plName}) from selection|Usuń (${enName}|${plName}) z wyboru)$`),
+      name: new RegExp(`^Remove (${enName}|${plName})$`),
     })
     .click()
 }
@@ -107,10 +108,8 @@ async function createJournalEntry(
     contextTag: string
   }
 ) {
+  // /journal now redirects straight to the free-form editor (no mode picker).
   await page.goto('/journal')
-  await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
-  await expect(page.getByText(freeFormText)).toBeVisible()
-  await page.getByTestId('journal-free-form-card').click()
   await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
 
   if (title) {
@@ -122,7 +121,10 @@ async function createJournalEntry(
   await addTag(page, 'people', peopleTag)
   await addTag(page, 'context', contextTag)
   await page.getByRole('button', { name: saveButtonName }).click()
-  await page.waitForURL((url) => url.pathname === '/journal', { timeout: 5000 })
+  // Post-save navigation lands back on the editor (/journal redirects to
+  // /journal/edit) with a cleared form — that's the "saved" signal.
+  await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
+  await expect(page.getByLabel(/journal entry|wpis w dzienniku/i)).toHaveValue('')
 }
 
 async function createEmotionLog(
@@ -173,7 +175,7 @@ test.describe('Emotion Log Flow', () => {
     })
 
     await expect(page.getByLabel(/note|notatka/i)).toHaveValue('')
-    await expect(page.getByRole('button', { name: /Remove .* from selection/ })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /^Remove / })).toHaveCount(0)
 
     await gotoHistory(page, 'emotion-log')
     await expect(page.getByText('Commute note')).toBeVisible()
@@ -206,7 +208,7 @@ test.describe('Emotion Log Flow', () => {
   test('shows validation error when saving without selecting emotions', async ({ page }) => {
     await gotoEmotions(page)
     await page.getByRole('button', { name: saveButtonName }).click()
-    await expect(page.getByText(/^(Please select at least one emotion\.|Wybierz co najmniej jedną emocję\.)$/)).toBeVisible()
+    await expect(page.getByText(/^(Please select at least one emotion( or family)?\.|Wybierz co najmniej jedną emocję( lub rodzinę)?\.)$/)).toBeVisible()
   })
 
   test('reuses tags created in journal entries', async ({ page }) => {

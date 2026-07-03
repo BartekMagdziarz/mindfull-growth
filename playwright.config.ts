@@ -1,15 +1,14 @@
 import { defineConfig, devices } from '@playwright/test'
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
  * See https://playwright.dev/docs/test-configuration.
+ *
+ * Two projects on two dedicated origins (IndexedDB is per-origin):
+ *  - `chromium` (port 5183): the destructive flow specs — their resetDatabase()
+ *    wipes ALL IndexedDB on its origin, so they must NEVER run against the real
+ *    dev server on 5173.
+ *  - `verification` (port 5199): read-mostly smoke specs against the seeded,
+ *    auto-logged-in verification instance (npm run dev:verify).
  */
 export default defineConfig({
   testDir: './e2e',
@@ -25,26 +24,34 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://127.0.0.1:5173',
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
 
-  /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      testIgnore: /verification-.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:5183' },
+    },
+    {
+      name: 'verification',
+      testMatch: /verification-.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:5199' },
     },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npm run dev -- --host 127.0.0.1',
-    url: 'http://127.0.0.1:5173',
-    reuseExistingServer: !process.env.CI,
-  },
+  /* Run the local dev servers before starting the tests */
+  webServer: [
+    {
+      command: 'npm run dev -- --port 5183 --host 127.0.0.1 --strictPort',
+      url: 'http://127.0.0.1:5183',
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: 'npm run dev:verify',
+      url: 'http://127.0.0.1:5199',
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 })
-
