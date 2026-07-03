@@ -33,8 +33,10 @@ function cellTitle(row: StreamMatrixRowVM, cell: StreamMatrixCellVM): string {
 
 function cellStyle(cell: StreamMatrixCellVM) {
   if (cell.color === null) {
+    // Unrated: flat achromatic ghost — hue is reserved for actual ratings
+    // (a mid rating of 3 is the solid blue-gray pill, see --rating-neutral).
     return {
-      background: 'rgb(var(--stream-track, 185 205 228) / 0.34)',
+      background: 'rgb(205 210 218 / 0.45)',
       boxShadow: 'none',
     }
   }

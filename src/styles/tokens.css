@@ -202,10 +202,11 @@
   --rating-neg-4: 208 142 160;
   --rating-neg-5: 190 128 149; /* worst — dusty rose (not crimson) */
 
-  /* Diverging midpoint (rating 3 on the no-target rose↔sky scale). Full
-   * opacity cool gray so it reads "rated, middling" — clearly distinct from
-   * the 0.45-alpha empty/unrated treatment. */
-  --rating-neutral: 205 210 218;
+  /* Diverging midpoint (rating 3 on the no-target rose↔sky scale). A solid
+   * cool blue-gray from the border/track family — reads "rated, middling".
+   * Deliberately NOT achromatic gray: gray reads as disabled/no-data (user
+   * feedback 2026-07-03), so unrated cells get the quiet gray ghost instead. */
+  --rating-neutral: 185 205 228;
 
   /* =====================================================================
    * Semantic role tokens — added to give names to roles that were
