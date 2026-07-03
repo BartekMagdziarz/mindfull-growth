@@ -19,7 +19,6 @@ const app = createApp(App)
 // Pinia must be installed before router (router guard uses auth store)
 const pinia = createPinia()
 app.use(pinia)
-app.use(router)
 
 if (import.meta.env.DEV) {
   Promise.all([
@@ -45,4 +44,18 @@ if (import.meta.env.DEV) {
   })
 }
 
-app.mount('#app')
+async function start(): Promise<void> {
+  // Verification mode (npm run dev:verify): create + connect the fixed verification
+  // account and seed its database BEFORE router install — the initial navigation
+  // runs the one-shot auth initialize(), so the user must already exist for the
+  // VITE_DEV_AUTO_LOGIN_USER_ID bypass. Statically eliminated from prod builds.
+  if (import.meta.env.DEV && import.meta.env.VITE_VERIFICATION_MODE === '1') {
+    const { bootstrapVerificationEnvironment } = await import('./dev/verificationSeed')
+    await bootstrapVerificationEnvironment()
+  }
+
+  app.use(router)
+  app.mount('#app')
+}
+
+void start()
