@@ -44,14 +44,10 @@
         fill="rgb(var(--color-outline))"
         fill-opacity="0.20"
       />
-      <!-- Actual data bar -->
-      <rect
+      <!-- Actual data bar: rounded top, flat base -->
+      <path
         v-else
-        :x="barX(i)"
-        :y="barY(point)"
-        :width="barW"
-        :height="barHeightPx(point)"
-        rx="3.5"
+        :d="topRoundedBarPath(barX(i), barY(point), barW, barHeightPx(point))"
         :fill="barFill(point.status)"
         :opacity="point.isCurrent === false ? 0.7 : 1"
       />
@@ -89,6 +85,7 @@ import {
   shouldShowLabel,
   periodLabel,
   useGradientIds,
+  topRoundedBarPath,
 } from './sparklineUtils'
 
 const props = withDefaults(

@@ -29,14 +29,10 @@
           fill="rgb(var(--color-outline))"
           fill-opacity="0.25"
         />
-        <!-- Data bar — height tracks entryCount; fill tracks per-week state. -->
-        <rect
+        <!-- Data bar — rounded top, flat base; height tracks entryCount, fill tracks per-week state. -->
+        <path
           v-else
-          :x="barX(i)"
-          :y="barY(slot)"
-          :width="barW"
-          :height="barHeight(slot)"
-          rx="3"
+          :d="topRoundedBarPath(barX(i), barY(slot), barW, barHeight(slot))"
           :fill="barFill(slot)"
           :opacity="barOpacity(slot)"
         />
@@ -73,7 +69,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TodayCompletionSlot } from '@/services/todayChartData'
-import { useGradientIds } from '@/components/objects/sparklines/sparklineUtils'
+import { useGradientIds, topRoundedBarPath } from '@/components/objects/sparklines/sparklineUtils'
 
 const props = defineProps<{
   slots: TodayCompletionSlot[]

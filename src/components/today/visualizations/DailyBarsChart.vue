@@ -29,14 +29,10 @@
           fill="rgb(var(--color-outline))"
           fill-opacity="0.25"
         />
-        <!-- Data bar -->
-        <rect
+        <!-- Data bar: rounded top, flat base -->
+        <path
           v-else
-          :x="barX(i)"
-          :y="barY(slot)"
-          :width="barW"
-          :height="barHeight(slot)"
-          rx="3"
+          :d="topRoundedBarPath(barX(i), barY(slot), barW, barHeight(slot))"
           :fill="barGradient"
           :opacity="slot.isFuture ? 0.4 : 1"
         />
@@ -71,7 +67,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TodayDaySlot } from '@/services/todayChartData'
-import { useGradientIds } from '@/components/objects/sparklines/sparklineUtils'
+import { useGradientIds, topRoundedBarPath } from '@/components/objects/sparklines/sparklineUtils'
 
 const props = defineProps<{
   slots: TodayDaySlot[]

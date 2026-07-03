@@ -24,14 +24,10 @@
           fill="rgb(var(--color-outline) / 0.35)"
         />
 
-        <!-- Recorded bar: height ∝ value, fill colour ∝ value vs target -->
-        <rect
+        <!-- Recorded bar: rounded top, flat base; height ∝ value, fill ∝ value vs target -->
+        <path
           v-else
-          :x="BAR_X"
-          :y="barY(slot)"
-          :width="BAR_W"
-          :height="barH(slot)"
-          rx="2"
+          :d="topRoundedBarPath(BAR_X, barY(slot), BAR_W, barH(slot))"
           :fill="barFill(slot)"
           :opacity="slot.isFuture ? 0.45 : 1"
         />
@@ -72,6 +68,7 @@
 import { computed } from 'vue'
 import type { TodayDaySlot } from '@/services/todayChartData'
 import { filterToScheduledSlots } from '@/services/todayChartData'
+import { topRoundedBarPath } from '@/components/objects/sparklines/sparklineUtils'
 import { ratingBarColor } from '@/utils/ratingGradient'
 
 interface Props {

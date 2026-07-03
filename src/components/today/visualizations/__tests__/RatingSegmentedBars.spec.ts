@@ -21,19 +21,23 @@ function makeSlot(
   }
 }
 
-function valueBars(container: Element): SVGRectElement[] {
-  // Each scheduled slot now renders a single value bar (or an empty baseline).
-  // Filter the bars by their height — the baseline is a flat 2px strip.
-  return Array.from(container.querySelectorAll('svg rect')).filter((r) => {
-    const h = Number((r as SVGRectElement).getAttribute('height'))
-    return Number.isFinite(h) && h > 2
-  }) as SVGRectElement[]
+function valueBars(container: Element): SVGPathElement[] {
+  // Each scheduled slot now renders its value bar as a rounded-top <path>
+  // (flat base); the empty baseline is still a flat 2px <rect>.
+  return Array.from(container.querySelectorAll('svg path')) as SVGPathElement[]
 }
 
 function baselineBars(container: Element): SVGRectElement[] {
   return Array.from(container.querySelectorAll('svg rect')).filter((r) => {
     return Number((r as SVGRectElement).getAttribute('height')) === 2
   }) as SVGRectElement[]
+}
+
+/** Bar height from a top-rounded path's `d` (max-y minus min-y; coords are x,y pairs). */
+function barHeight(path: Element): number {
+  const nums = (path.getAttribute('d') ?? '').match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? []
+  const ys = nums.filter((_, i) => i % 2 === 1)
+  return ys.length ? Math.max(...ys) - Math.min(...ys) : 0
 }
 
 describe('RatingSegmentedBars', () => {
@@ -86,7 +90,7 @@ describe('RatingSegmentedBars', () => {
     })
 
     const bar = valueBars(container)[0]
-    expect(bar.getAttribute('fill')).toMatch(/--rose-/)
+    expect(bar.getAttribute('fill')).toMatch(/--rating-neg-/)
   })
 
   it('uses the sky palette for values at or above the target (gte)', () => {
@@ -96,7 +100,7 @@ describe('RatingSegmentedBars', () => {
     })
 
     const bar = valueBars(container)[0]
-    expect(bar.getAttribute('fill')).toMatch(/--sky-/)
+    expect(bar.getAttribute('fill')).toMatch(/--rating-pos-/)
   })
 
   it('uses the sky palette across the full scale when no target is provided', () => {
@@ -107,7 +111,8 @@ describe('RatingSegmentedBars', () => {
     const { container } = render(RatingSegmentedBars, { props: { slots } })
 
     for (const bar of valueBars(container)) {
-      expect(bar.getAttribute('fill')).toMatch(/--sky-/)
+      // No-target ramp climbs --sky-* (low) into --rating-pos-* (high) — both blue-family.
+      expect(bar.getAttribute('fill')).toMatch(/(?:--sky-|--rating-pos-)/)
     }
   })
 
@@ -172,7 +177,7 @@ describe('RatingSegmentedBars', () => {
       props: { slots: lowestEmpty, scaleMin: 1, scaleMax: 5 },
     })
 
-    const lowestH = Number(valueBars(lowestC)[0].getAttribute('height'))
+    const lowestH = barHeight(valueBars(lowestC)[0])
     const emptyBaselines = Array.from(emptyC.querySelectorAll('svg rect')).map((r) =>
       Number((r as SVGRectElement).getAttribute('height')),
     )
@@ -188,7 +193,7 @@ describe('RatingSegmentedBars', () => {
     })
 
     const bar = valueBars(container)[0]
-    expect(bar.getAttribute('fill')).toMatch(/--sky-/)
+    expect(bar.getAttribute('fill')).toMatch(/--rating-pos-/)
   })
 
   it('uses the rose palette for values above the target (lte)', () => {
@@ -198,6 +203,6 @@ describe('RatingSegmentedBars', () => {
     })
 
     const bar = valueBars(container)[0]
-    expect(bar.getAttribute('fill')).toMatch(/--rose-/)
+    expect(bar.getAttribute('fill')).toMatch(/--rating-neg-/)
   })
 })

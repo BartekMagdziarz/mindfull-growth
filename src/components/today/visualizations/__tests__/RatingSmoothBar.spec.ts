@@ -103,7 +103,7 @@ describe('RatingSmoothBar', () => {
     })
 
     const fill = container.querySelector('[data-testid="rating-smooth-fill"]') as HTMLElement
-    expect(fill.getAttribute('style')).toMatch(/--sky-/)
+    expect(fill.getAttribute('style')).toMatch(/--rating-pos-/)
   })
 
   it('uses rose palette when value below gte target', () => {
@@ -119,7 +119,7 @@ describe('RatingSmoothBar', () => {
     })
 
     const fill = container.querySelector('[data-testid="rating-smooth-fill"]') as HTMLElement
-    expect(fill.getAttribute('style')).toMatch(/--rose-/)
+    expect(fill.getAttribute('style')).toMatch(/--rating-neg-/)
   })
 
   it('renders the scale endpoints (min and max) as visible labels', () => {

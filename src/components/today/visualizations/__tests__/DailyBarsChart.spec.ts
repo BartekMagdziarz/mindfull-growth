@@ -26,9 +26,9 @@ describe('DailyBarsChart', () => {
     ]
     const { container } = render(DailyBarsChart, { props: { slots } })
 
-    // 2 data bars + 1 no-data dash = 3 rects total (inside <g>)
-    const rects = container.querySelectorAll('g > rect')
-    expect(rects.length).toBe(3)
+    // Data bars are rounded-top <path>; the no-data slot is a flat dash <rect>.
+    expect(container.querySelectorAll('g > path').length).toBe(2)
+    expect(container.querySelectorAll('g > rect').length).toBe(1)
   })
 
   it('highlights today bar', () => {
@@ -37,9 +37,9 @@ describe('DailyBarsChart', () => {
     ]
     const { container } = render(DailyBarsChart, { props: { slots } })
 
-    // Today gets an extra highlight rect
-    const rects = container.querySelectorAll('g > rect')
-    expect(rects.length).toBe(2) // data bar + highlight
+    // Data bar is a <path>; today gets an extra highlight <rect>.
+    expect(container.querySelectorAll('g > path').length).toBe(1)
+    expect(container.querySelectorAll('g > rect').length).toBe(1)
   })
 
   it('renders day labels', () => {
@@ -75,9 +75,8 @@ describe('DailyBarsChart', () => {
       props: { slots, periodStatus: 'missed' },
     })
 
-    const rects = container.querySelectorAll('g > rect')
-    // The data bar should use the missed gradient fill (url(#dbars-missed-...))
-    const fill = rects[0].getAttribute('fill')
+    // The data bar (now a <path>) should use the missed gradient fill (url(#dbars-missed-...))
+    const fill = container.querySelector('g > path')?.getAttribute('fill')
     expect(fill).toContain('missed')
   })
 })

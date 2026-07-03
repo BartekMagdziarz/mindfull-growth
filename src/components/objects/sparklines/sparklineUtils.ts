@@ -67,6 +67,43 @@ export function periodLabel(periodRef: string, cadence: 'weekly' | 'monthly' | '
     .slice(0, 3)
 }
 
+/**
+ * Top-corner radius as a FRACTION of bar width. A fixed radius in viewBox units
+ * renders inconsistently because charts scale their viewBox very differently on
+ * screen: `r=3` in a 400-wide viewBox (daily/monthly/sparkline bars, often with
+ * `preserveAspectRatio="none"`) shrinks to ~1px and looks square, while the same
+ * 3 in a 20-wide rating cell renders ~3px. Scaling the radius with bar width
+ * makes every bar's rounded top cover the same proportion (~this fraction × 2 of
+ * its width), so they read the same regardless of viewBox scale.
+ */
+export const BAR_CORNER_FRACTION = 0.2
+
+/**
+ * SVG path for a bar with rounded TOP corners and a flat base — the app-wide
+ * house style for baseline-anchored bars. (A `<rect rx>` rounds all four
+ * corners, which makes a bar look like it floats rather than sitting planted on
+ * the baseline.) `x,y` is the top-left corner; `h` grows downward to the base.
+ * The radius defaults to a fraction of width and is clamped so thin/short bars
+ * stay valid.
+ */
+export function topRoundedBarPath(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r = w * BAR_CORNER_FRACTION,
+): string {
+  const rr = Math.max(0, Math.min(r, w / 2, h))
+  return (
+    `M${x},${y + h}` +
+    `L${x},${y + rr}` +
+    `Q${x},${y} ${x + rr},${y}` +
+    `L${x + w - rr},${y}` +
+    `Q${x + w},${y} ${x + w},${y + rr}` +
+    `L${x + w},${y + h}Z`
+  )
+}
+
 /** Generate unique gradient IDs to avoid SVG collisions across multiple instances. */
 export function useGradientIds(prefix: string) {
   const suffix = Math.random().toString(36).slice(2, 8)
