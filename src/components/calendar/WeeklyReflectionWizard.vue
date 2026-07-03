@@ -29,9 +29,6 @@
         <span class="text-xs font-medium text-on-surface-variant">
           {{ stepLabels[stepIndex] }}
         </span>
-        <AppButton variant="text" @click="emit('open-grid')">
-          {{ t('planning.weekPlanning.editGrid') }}
-        </AppButton>
         <AppButton
           variant="text"
           :aria-label="t('common.buttons.close')"
@@ -50,48 +47,53 @@
       leave-to-class="opacity-0"
       mode="out-in"
     >
-      <!-- Step: Intentions (planning) -->
-      <div v-if="currentStep === 'intentions'" key="intentions">
-        <!-- Created intentions are slots; the composer is the trailing slot and
-             shifts right as each new intention fills the slot it occupied. -->
-        <div class="flex flex-wrap items-start gap-4">
-          <IntentionCard
-            v-for="intention in intentions"
-            :key="intention.id"
-            :intention="intention"
-          />
-          <IntentionComposer :week-ref="props.weekRef" @created="onIntentionCreated" />
+      <!-- Step: Plan (intentions + top-3, combined) -->
+      <div v-if="currentStep === 'plan'" key="plan" class="space-y-4">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <p class="text-sm text-on-surface-variant">
+            {{ t('planning.weekWizard.prioritiesIntro') }}
+          </p>
+          <span
+            v-if="candidates.length > 0"
+            class="shrink-0 text-xs font-semibold"
+            :class="selectedKeys.length > SOFT_LIMIT ? 'text-amber-600' : 'text-on-surface-variant'"
+          >
+            {{ t('planning.weekPlanning.priorities.counter', { n: selectedKeys.length, max: SOFT_LIMIT }) }}
+          </span>
         </div>
-      </div>
 
-      <!-- Step: Priorities / top-3 (planning) -->
-      <div v-else-if="currentStep === 'priorities'" key="priorities" class="space-y-3">
-        <p class="text-sm text-on-surface-variant">
-          {{ t('planning.weekWizard.prioritiesIntro') }}
-        </p>
-        <ul v-if="candidates.length > 0" class="space-y-2">
-          <li v-for="candidate in candidates" :key="candidate.key">
-            <button
-              type="button"
-              class="neo-surface flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm shadow-neu-raised-sm transition-all"
-              :class="selectedKeys.includes(candidate.key) ? 'bg-primary/15 text-primary font-semibold' : 'text-on-surface'"
-              @click="toggleCandidate(candidate.key)"
-            >
-              <AppIcon :name="selectedKeys.includes(candidate.key) ? 'check_circle' : 'radio_button_unchecked'" class="text-base" />
-              <span class="min-w-0 flex-1 truncate">{{ candidate.title }}</span>
-              <span class="shrink-0 text-xs text-on-surface-variant">{{ candidate.typeLabel }}</span>
-            </button>
-          </li>
-        </ul>
+        <div v-if="candidates.length > 0" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <WeekPlanObjectCard
+            v-for="candidate in candidates"
+            :key="candidate.key"
+            :candidate="candidate"
+            :selected="selectedKeys.includes(candidate.key)"
+            @toggle="toggleCandidate(candidate.key)"
+            @save="(payload) => onSaveIntention(candidate, payload)"
+            @delete="onDeleteIntention(candidate)"
+          />
+        </div>
         <p v-else class="text-xs text-on-surface-variant">
           {{ t('planning.weekPlanning.priorities.empty') }}
         </p>
+
         <p v-if="selectedKeys.length > SOFT_LIMIT" class="text-xs font-medium text-amber-600">
           {{ t('planning.weekPlanning.priorities.softLimitWarning', { n: SOFT_LIMIT }) }}
         </p>
+
+        <!-- Inline composer to add a new intention; new intentions join the grid above. -->
+        <div class="neo-card neo-raised border border-neu-border/30 p-3.5">
+          <IntentionComposer :week-ref="props.weekRef" @created="onIntentionCreated" />
+        </div>
+
         <p v-if="!reflectionUnlocked" class="text-xs text-on-surface-variant">
           {{ t('planning.weekWizard.reflectionLockedHint') }}
         </p>
+      </div>
+
+      <!-- Step: Days (assign objects to specific days, stream-style) -->
+      <div v-else-if="currentStep === 'days'" key="days">
+        <WeekDayAssignmentStep :week-ref="props.weekRef" @updated="emit('updated')" />
       </div>
 
       <!-- Step: Review (confrontation + per-object comments) -->
@@ -213,19 +215,26 @@
 import { computed, onMounted, ref, toRef, watch } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import IntentionCard from './IntentionCard.vue'
 import IntentionComposer from './IntentionComposer.vue'
+import WeekPlanObjectCard from './WeekPlanObjectCard.vue'
+import WeekDayAssignmentStep from './WeekDayAssignmentStep.vue'
+import type { WeekPlanCandidate } from './weekPlanCandidate'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
 import ReflectionObjectReview from './ReflectionObjectReview.vue'
 import type { RatingGroup } from './ReflectionDimensionRatings.vue'
 import type { SidebarRatingGroup } from './ReflectionJournalSidebar.vue'
-import type { WeeklyIntention } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import type { MeasurementSubjectType, WeekTopPriorityRef } from '@/domain/planningState'
+import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { getWeekPlanningBundle } from '@/services/planningStateQueries'
 import { isMeasurementSubjectOpen } from '@/services/planningVisibility'
-import { listWeeklyIntentions, setWeekTopPriorities } from '@/services/weeklyIntentionService'
+import {
+  deleteWeeklyIntention,
+  setWeekTopPriorities,
+  updateWeeklyIntention,
+} from '@/services/weeklyIntentionService'
 import {
   useWeeklyReflectionWizard,
   type WeeklyReflectionStep,
@@ -248,14 +257,13 @@ const props = defineProps<{
 const emit = defineEmits<{
   close: []
   updated: []
-  'open-grid': []
   'plan-next-week': []
 }>()
 
-// Unified week ritual: planning steps first, then the (date-gated) reflection steps.
+// Unified week ritual: one planning step first, then the (date-gated) reflection steps.
 const STEPS: WeeklyReflectionStep[] = [
-  'intentions',
-  'priorities',
+  'plan',
+  'days',
   'review',
   'demands',
   'actions',
@@ -265,8 +273,8 @@ const STEPS: WeeklyReflectionStep[] = [
 ]
 
 const stepLabels = computed(() => [
-  t('planning.weekWizard.steps.intentions'),
-  t('planning.weekWizard.steps.priorities'),
+  t('planning.weekWizard.steps.plan'),
+  t('planning.weekWizard.steps.days'),
   t('planning.reflection.steps.review'),
   t('planning.reflection.steps.demands'),
   t('planning.reflection.steps.actions'),
@@ -320,19 +328,10 @@ const {
 // Charts in the review step mark "today" at the week's end (the reflection's as-of day).
 const reviewTodayDayRef = computed(() => getPeriodBounds(props.weekRef).end as DayRef)
 
-// --- Planning steps (intentions + top-3) ---------------------------------------------
+// --- Planning step (intentions + top-3, combined) ------------------------------------
 // Planning persists live: intentions via IntentionComposer (creates on submit), top-3 via
 // setWeekTopPriorities on every toggle. The wizard's explicit Save is purely for reflection.
-const intentions = ref<WeeklyIntention[]>([])
-
-interface Candidate {
-  key: string
-  subjectType: MeasurementSubjectType
-  subjectId: string
-  title: string
-  typeLabel: string
-}
-const candidates = ref<Candidate[]>([])
+const candidates = ref<WeekPlanCandidate[]>([])
 const selectedKeys = ref<string[]>([])
 const isSavingPlan = ref(false)
 
@@ -340,27 +339,45 @@ function typeLabelFor(subjectType: MeasurementSubjectType): string {
   return t(`planning.weekPlanning.subjectType.${subjectType}`)
 }
 
-async function loadIntentions(): Promise<void> {
-  intentions.value = await listWeeklyIntentions(props.weekRef)
-}
-
 async function loadCandidates(): Promise<void> {
-  const bundle = await getWeekPlanningBundle(props.weekRef)
+  // Kept on getWeekPlanningBundle (which includes weeklyIntentions) rather than
+  // buildWeekObjectItems, which drops them. Goals enrich KR cards with their parent.
+  const [bundle, goals] = await Promise.all([
+    getWeekPlanningBundle(props.weekRef),
+    goalDexieRepository.listAll(),
+  ])
+  const goalMap = new Map(goals.map((goal) => [goal.id, goal]))
   const seen = new Set<string>()
-  const list: Candidate[] = []
+  const list: WeekPlanCandidate[] = []
   for (const item of bundle.relevant.measurementItems) {
-    if (item.subjectType === 'tracker') continue // no target → not an eligible priority
-    if (!isMeasurementSubjectOpen(item.subject)) continue
-    const key = `${item.subjectType}:${item.subject.id}`
+    const subject = item.subject
+    // Trackers have no measurement target → not an eligible priority.
+    if (!('target' in subject)) continue
+    if (!isMeasurementSubjectOpen(subject)) continue
+    const key = `${item.subjectType}:${subject.id}`
     if (seen.has(key)) continue
     seen.add(key)
-    list.push({
+
+    const candidate: WeekPlanCandidate = {
       key,
       subjectType: item.subjectType,
-      subjectId: item.subject.id,
-      title: item.subject.title,
+      subjectId: subject.id,
+      title: subject.title,
       typeLabel: typeLabelFor(item.subjectType),
-    })
+      entryMode: subject.entryMode,
+      target: subject.target,
+      description: subject.description,
+      icon: 'icon' in subject ? subject.icon : undefined,
+    }
+
+    if ('goalId' in subject) {
+      const goal = goalMap.get(subject.goalId)
+      candidate.parentGoalTitle = goal?.title
+      candidate.parentGoalIcon = goal?.icon
+      candidate.icon = candidate.icon ?? goal?.icon
+    }
+
+    list.push(candidate)
   }
   candidates.value = list
   selectedKeys.value = (bundle.weekPlan?.topPriorities ?? []).map(
@@ -372,7 +389,7 @@ async function persistTopPriorities(): Promise<void> {
   const byKey = new Map(candidates.value.map((c) => [c.key, c]))
   const refs: WeekTopPriorityRef[] = selectedKeys.value
     .map((key) => byKey.get(key))
-    .filter((c): c is Candidate => Boolean(c))
+    .filter((c): c is WeekPlanCandidate => Boolean(c))
     .map((c) => ({ subjectType: c.subjectType, subjectId: c.subjectId }))
   isSavingPlan.value = true
   try {
@@ -391,20 +408,40 @@ function toggleCandidate(key: string): void {
 }
 
 async function onIntentionCreated(): Promise<void> {
-  await Promise.all([loadIntentions(), loadCandidates()])
+  await loadCandidates()
+  emit('updated')
+}
+
+async function onSaveIntention(
+  candidate: WeekPlanCandidate,
+  payload: { title: string; entryMode: MeasurementEntryMode; target: MeasurementTarget },
+): Promise<void> {
+  await updateWeeklyIntention(candidate.subjectId, payload)
+  await loadCandidates()
+  emit('updated')
+}
+
+async function onDeleteIntention(candidate: WeekPlanCandidate): Promise<void> {
+  await deleteWeeklyIntention(candidate.subjectId, props.weekRef)
+  // Prune a now-dangling top-3 ref so the persisted plan doesn't keep a stale entry.
+  if (selectedKeys.value.includes(candidate.key)) {
+    selectedKeys.value = selectedKeys.value.filter((key) => key !== candidate.key)
+    await persistTopPriorities()
+  }
+  await loadCandidates()
   emit('updated')
 }
 
 const SOFT_LIMIT = 3
 
 onMounted(() => {
-  void Promise.all([loadIntentions(), loadCandidates()])
+  void loadCandidates()
 })
 
 watch(
   () => props.weekRef,
   () => {
-    void Promise.all([loadIntentions(), loadCandidates()])
+    void loadCandidates()
   },
 )
 

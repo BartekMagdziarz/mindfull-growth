@@ -2,6 +2,7 @@
   <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
     <Teleport to="#app-top-bar-end" :disabled="!useTopBarTeleport">
       <CalendarToolbar
+        v-if="!wizardActive"
         :class="useTopBarTeleport ? '' : 'mb-6'"
         :label="activePeriodRangeLabel"
         :scale-options="scaleOptions"
@@ -77,7 +78,6 @@
               :week-ref="activeWeekRef"
               @close="closeWeekWizard"
               @updated="handleWeekWizardUpdated"
-              @open-grid="openWeeklyGrid"
               @plan-next-week="planNextWeek"
             />
 
@@ -89,13 +89,6 @@
               @updated="handleMonthlyPlannerUpdated"
             />
 
-            <WeeklyPlanner
-              v-else-if="scale === 'week' && activeWeekRef"
-              :week-ref="activeWeekRef"
-              :show-sidebar="showWeeklyPlanner"
-              @close="closeWeeklyPlanner"
-              @updated="handleWeeklyPlannerUpdated"
-            />
 
             <section v-if="scale === 'year'" class="space-y-4">
               <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:auto-rows-fr">
@@ -200,7 +193,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import type { MeasurementDayAssignment } from '@/domain/planningState'
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
 import type {
@@ -210,7 +203,7 @@ import type {
 } from '@/services/planningStateQueries'
 import type { MonthObjectItem, WeekObjectItem } from '@/services/reflectionDataQueries'
 import { loadDayAssignmentsForMonths } from '@/services/reflectionDataQueries'
-import { buildMeasurementSummary } from '@/services/measurementProgress'
+import { buildMonthObjectItems, buildWeekObjectItems } from '@/components/calendar/objectItems'
 import type {
   CalendarYearSummary,
   MonthReflectionBundle,
@@ -222,7 +215,6 @@ import CalendarMonthSummaryCard from '@/components/calendar/CalendarMonthSummary
 import MonthReviewSummary from '@/components/calendar/MonthReviewSummary.vue'
 import WeekReviewSummary from '@/components/calendar/WeekReviewSummary.vue'
 import MonthlyPlanner from '@/components/calendar/MonthlyPlanner.vue'
-import WeeklyPlanner from '@/components/calendar/WeeklyPlanner.vue'
 import WeeklyReflectionWizard from '@/components/calendar/WeeklyReflectionWizard.vue'
 import MonthlyReflectionWizard from '@/components/calendar/MonthlyReflectionWizard.vue'
 import AnnualPlanningWizard from '@/components/calendar/AnnualPlanningWizard.vue'
@@ -278,6 +270,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const router = useRouter()
+const route = useRoute()
 const { t, locale } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
@@ -294,14 +287,15 @@ const anchorDay = ref<DayRef | null>(null)
 const panelState = ref<PanelKind | null>(null)
 const monthlyPlannerOpen = ref(false)
 const monthlyPlannerDirty = ref(false)
-const weeklyPlannerOpen = ref(false)
-const weeklyPlannerDirty = ref(false)
 // One unified week ritual wizard (planning + date-gated reflection) replaces the
 // separate week-planning and week-reflection panels.
 const weekWizardOpen = ref(false)
 const weekWizardDirty = ref(false)
 // Set just before navigating W → W+1 so the watcher re-opens the wizard after the route change.
 const pendingOpenWizard = ref(false)
+// Set when the wizard was opened from the Strumień stream (deep-link ?origin=stream); on close we
+// navigate back to the stream instead of stranding the user in the classic calendar.
+const returnToStream = ref(false)
 const annualPlannerOpen = ref(false)
 const annualPlannerDirty = ref(false)
 const monthlyReflectionOpen = ref(false)
@@ -455,11 +449,9 @@ const planActionLabel = computed(() => {
         : t('planning.calendar.actions.createPlan')
   }
   if (props.scale === 'week') {
-    return weeklyPlannerOpen.value
-      ? t('common.buttons.close')
-      : currentPlanRecord.value
-        ? t('planning.calendar.actions.editPlan')
-        : t('planning.calendar.actions.createPlan')
+    return currentPlanRecord.value
+      ? t('planning.calendar.actions.editPlan')
+      : t('planning.calendar.actions.createPlan')
   }
   return t('planning.calendar.actions.createPlan')
 })
@@ -492,11 +484,7 @@ const planActionVariant = computed<'filled' | 'tonal'>(() => {
         : 'filled'
   }
   if (props.scale === 'week') {
-    return weeklyPlannerOpen.value
-      ? 'tonal'
-      : currentPlanRecord.value
-        ? 'tonal'
-        : 'filled'
+    return currentPlanRecord.value ? 'tonal' : 'filled'
   }
   return 'filled'
 })
@@ -509,155 +497,30 @@ const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
 
 const showAnnualPlanner = computed(() => props.scale === 'year' && annualPlannerOpen.value)
 const showMonthlyPlanner = computed(() => props.scale === 'month' && monthlyPlannerOpen.value)
-const showWeeklyPlanner = computed(() => props.scale === 'week' && weeklyPlannerOpen.value)
 const showWeekWizard = computed(() => props.scale === 'week' && weekWizardOpen.value)
 const showMonthlyReflection = computed(() => props.scale === 'month' && monthlyReflectionOpen.value)
 
-// Flat list of all objects active this week, in the same KR→habit→tracker
-// order used by the reflection wizard. Consumed by WeekReviewSummary.
-const weekObjectItems = computed<WeekObjectItem[]>(() => {
-  const reflection = weekReflection.value
-  if (!reflection) return []
+// While any planner/reflection wizard owns the body, hide the period/scale toolbar:
+// it otherwise leaks into the global top bar (esp. when launched from the Strumień stream)
+// and its scale switcher can silently navigate away and discard the open wizard.
+const wizardActive = computed(
+  () =>
+    showAnnualPlanner.value ||
+    showMonthlyPlanner.value ||
+    showWeekWizard.value ||
+    showMonthlyReflection.value,
+)
 
-  const items: WeekObjectItem[] = []
-  const goalMap = new Map(
-    reflection.relevant.goalItems.map((item) => [item.goal.id, item.goal]),
-  )
+// Flat, sorted object lists for the period summaries. The derivation is shared
+// with the Strumień stream view via buildWeekObjectItems / buildMonthObjectItems
+// so both calendars render the same objects in the same order.
+const weekObjectItems = computed<WeekObjectItem[]>(() =>
+  weekReflection.value ? buildWeekObjectItems(weekReflection.value) : [],
+)
 
-  const krItems = reflection.relevant.cadencedItems.filter(
-    (item) => item.subjectType === 'keyResult',
-  )
-  const habitItems = reflection.relevant.cadencedItems.filter(
-    (item) => item.subjectType === 'habit',
-  )
-  const trackerItems = reflection.relevant.trackerItems
-
-  const krsByGoal = new Map<string, typeof krItems>()
-  for (const kr of krItems) {
-    if ('goalId' in kr.subject) {
-      const list = krsByGoal.get(kr.subject.goalId) ?? []
-      list.push(kr)
-      krsByGoal.set(kr.subject.goalId, list)
-    }
-  }
-
-  let goalIndex = 0
-  for (const [goalId, krs] of krsByGoal) {
-    const goal = goalMap.get(goalId)
-    krs.forEach((kr, krIndex) => {
-      items.push({
-        key: `keyResult:${kr.subject.id}`,
-        subjectType: 'keyResult',
-        subject: kr.subject,
-        planning: kr.planning,
-        measurement: kr.measurement,
-        parentGoalId: goal?.id,
-        parentGoalIcon: goal?.icon,
-        parentGoalTitle: goal?.title,
-        sortOrder: 1000 * goalIndex + krIndex,
-      })
-    })
-    goalIndex++
-  }
-
-  habitItems.forEach((habit, i) => {
-    items.push({
-      key: `habit:${habit.subject.id}`,
-      subjectType: 'habit',
-      subject: habit.subject,
-      planning: habit.planning,
-      measurement: habit.measurement,
-      sortOrder: 100_000 + i,
-    })
-  })
-
-  trackerItems.forEach((tracker, i) => {
-    items.push({
-      key: `tracker:${tracker.subject.id}`,
-      subjectType: 'tracker',
-      subject: tracker.subject,
-      planning: tracker.planning,
-      measurement: tracker.measurement,
-      sortOrder: 200_000 + i,
-    })
-  })
-
-  return items
-})
-
-// Flat list of all objects active this month, mirroring weekObjectItems in
-// structure. Consumed by MonthReviewSummary. Per-object measurement is built
-// against the month period; per-week aggregates for chart slots are computed
-// inside the tile components via monthlySliceChartData.
-const monthObjectItems = computed<MonthObjectItem[]>(() => {
-  const bundle = monthPlanning.value
-  if (!bundle) return []
-
-  const items: MonthObjectItem[] = []
-  const goalMap = new Map(bundle.goalItems.map((item) => [item.goal.id, item.goal]))
-
-  const krItems = bundle.cadencedItems.filter((item) => item.subjectType === 'keyResult')
-  const habitItems = bundle.cadencedItems.filter((item) => item.subjectType === 'habit')
-  const trackerItems = bundle.trackerItems
-
-  const krsByGoal = new Map<string, typeof krItems>()
-  for (const kr of krItems) {
-    if ('goalId' in kr.subject) {
-      const list = krsByGoal.get(kr.subject.goalId) ?? []
-      list.push(kr)
-      krsByGoal.set(kr.subject.goalId, list)
-    }
-  }
-
-  let goalIndex = 0
-  for (const [goalId, krs] of krsByGoal) {
-    const goal = goalMap.get(goalId)
-    krs.forEach((kr, krIndex) => {
-      items.push({
-        key: `keyResult:${kr.subject.id}`,
-        subjectType: 'keyResult',
-        subject: kr.subject,
-        planning: kr.planning,
-        measurement:
-          kr.measurement ??
-          buildMeasurementSummary(kr.subject, bundle.rawEntries, bundle.monthRef),
-        parentGoalId: goal?.id,
-        parentGoalIcon: goal?.icon,
-        parentGoalTitle: goal?.title,
-        sortOrder: 1000 * goalIndex + krIndex,
-      })
-    })
-    goalIndex++
-  }
-
-  habitItems.forEach((habit, i) => {
-    items.push({
-      key: `habit:${habit.subject.id}`,
-      subjectType: 'habit',
-      subject: habit.subject,
-      planning: habit.planning,
-      measurement:
-        habit.measurement ??
-        buildMeasurementSummary(habit.subject, bundle.rawEntries, bundle.monthRef),
-      sortOrder: 100_000 + i,
-    })
-  })
-
-  trackerItems.forEach((tracker, i) => {
-    items.push({
-      key: `tracker:${tracker.subject.id}`,
-      subjectType: 'tracker',
-      subject: tracker.subject,
-      planning: tracker.planning,
-      measurement:
-        tracker.measurement ??
-        buildMeasurementSummary(tracker.subject, bundle.rawEntries, bundle.monthRef),
-      sortOrder: 200_000 + i,
-    })
-  })
-
-  return items
-})
+const monthObjectItems = computed<MonthObjectItem[]>(() =>
+  monthPlanning.value ? buildMonthObjectItems(monthPlanning.value) : [],
+)
 
 const panelKind = computed(() => panelState.value ?? 'month-plan')
 const panelMode = computed<'plan' | 'reflection'>(() =>
@@ -765,10 +628,12 @@ watch(
     panelState.value = null
     annualPlannerOpen.value = false
     monthlyPlannerOpen.value = false
-    weeklyPlannerOpen.value = false
     weekWizardOpen.value = false
     monthlyReflectionOpen.value = false
     reflectionNote.value = ''
+    // Preserve the stream-origin flag across the planNextWeek W → W+1 hand-off; otherwise a
+    // fresh navigation (paging, manual nav) means we're no longer "returning to" the stream.
+    if (!pendingOpenWizard.value) returnToStream.value = false
     await loadCalendarData()
     // W → W+1 hand-off: re-open the unified wizard on the freshly navigated week.
     if (pendingOpenWizard.value && props.scale === 'week') {
@@ -776,9 +641,59 @@ watch(
       weekWizardOpen.value = true
       weekWizardDirty.value = false
     }
+    // Deep-link hand-off from the Strumień detail panel: ?action=plan|reflect
+    // opens the matching planner/reflection wizard once the period has loaded.
+    consumePendingAction()
   },
   { immediate: true }
 )
+
+/**
+ * When arriving with `?action=plan` or `?action=reflect` (e.g. from the Strumień
+ * stream's Kontekst CTAs), open the corresponding wizard for this period, then
+ * strip the query so paging prev/next doesn't re-trigger it.
+ */
+function consumePendingAction() {
+  const action = route.query.action
+  if (action !== 'plan' && action !== 'reflect') {
+    return
+  }
+
+  // Remember if we arrived from the Strumień stream so we can return there on close.
+  if (route.query.origin === 'stream') {
+    returnToStream.value = true
+  }
+
+  const nextQuery = { ...route.query }
+  delete nextQuery.action
+  delete nextQuery.origin
+  void router.replace({ query: nextQuery })
+
+  if (action === 'plan') {
+    openPlanPanel()
+  } else {
+    openReflectionPanel()
+  }
+}
+
+/**
+ * If the wizard/planner was opened from the Strumień stream (origin=stream), navigate back to
+ * the stream view on close rather than leaving the user in the classic calendar. Stream is keyed
+ * by a periodRef it drills from; from a week we land on the month containing it (matching the
+ * `/calendar` redirect). Returns true when a navigation was triggered.
+ */
+function maybeReturnToStream(): boolean {
+  if (!returnToStream.value) return false
+  returnToStream.value = false
+  const periodRef = parsedPeriodRef.value
+  if (!periodRef) return false
+  const streamRef =
+    props.scale === 'week'
+      ? getPeriodRefsForDate(getPeriodBounds(periodRef).start).month
+      : (periodRef as string)
+  void router.push({ name: 'calendar-stream', params: { periodRef: streamRef } })
+  return true
+}
 
 async function loadCalendarData() {
   clearTrendCache()
@@ -934,7 +849,6 @@ function openPlanPanel() {
 // One entry for the whole week ritual (planning + date-gated reflection).
 function openWeekWizard() {
   if (props.scale !== 'week') return
-  weeklyPlannerOpen.value = false
   weekWizardOpen.value = true
   weekWizardDirty.value = false
 }
@@ -945,6 +859,7 @@ function handleWeekWizardUpdated() {
 
 function closeWeekWizard() {
   weekWizardOpen.value = false
+  if (maybeReturnToStream()) return
   if (weekWizardDirty.value) {
     weekWizardDirty.value = false
     void loadCalendarData()
@@ -957,13 +872,6 @@ function planNextWeek() {
   weekWizardOpen.value = false
   pendingOpenWizard.value = true
   navigateTo('week', getNextPeriod(parsedPeriodRef.value))
-}
-
-/** Secondary access: leave the guided wizard and open the day-by-day grid planner. */
-function openWeeklyGrid() {
-  weekWizardOpen.value = false
-  weeklyPlannerOpen.value = true
-  weeklyPlannerDirty.value = false
 }
 
 function handleAnnualPlannerUpdated() {
@@ -984,20 +892,9 @@ function handleMonthlyPlannerUpdated() {
 
 function closeMonthlyPlanner() {
   monthlyPlannerOpen.value = false
+  if (maybeReturnToStream()) return
   if (monthlyPlannerDirty.value) {
     monthlyPlannerDirty.value = false
-    void loadCalendarData()
-  }
-}
-
-function handleWeeklyPlannerUpdated() {
-  weeklyPlannerDirty.value = true
-}
-
-function closeWeeklyPlanner() {
-  weeklyPlannerOpen.value = false
-  if (weeklyPlannerDirty.value) {
-    weeklyPlannerDirty.value = false
     void loadCalendarData()
   }
 }
@@ -1028,6 +925,7 @@ function handleMonthlyReflectionUpdated() {
 
 function closeMonthlyReflection() {
   monthlyReflectionOpen.value = false
+  if (maybeReturnToStream()) return
   if (monthlyReflectionDirty.value) {
     monthlyReflectionDirty.value = false
     void loadCalendarData()

@@ -3,7 +3,7 @@ import type { WeekRef } from '@/domain/period'
 import type { WeekPlan, WeekTopPriorityRef } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
-import { linkMeasurementPeriod } from '@/services/planningMutations'
+import { linkMeasurementPeriod, unlinkMeasurementPeriod } from '@/services/planningMutations'
 
 export interface CreateWeeklyIntentionInput {
   weekRef: WeekRef
@@ -14,6 +14,8 @@ export interface CreateWeeklyIntentionInput {
   target: MeasurementTarget
   ratingScaleMin?: number
   ratingScale?: number
+  /** Optional priorities this intention serves (links it to the monthly focus confrontation). */
+  priorityIds?: string[]
 }
 
 /**
@@ -37,6 +39,7 @@ export async function createWeeklyIntention(
     ratingScaleMin: input.ratingScaleMin,
     ratingScale: input.ratingScale,
     status: 'open',
+    priorityIds: input.priorityIds ?? [],
   })
 
   await linkMeasurementPeriod({
@@ -51,6 +54,40 @@ export async function createWeeklyIntention(
 
 export function listWeeklyIntentions(weekRef: WeekRef): Promise<WeeklyIntention[]> {
   return weeklyIntentionDexieRepository.listByWeek(weekRef)
+}
+
+export interface UpdateWeeklyIntentionInput {
+  title?: string
+  description?: string
+  icon?: string
+  entryMode?: MeasurementEntryMode
+  target?: MeasurementTarget
+  ratingScaleMin?: number
+  ratingScale?: number
+  priorityIds?: string[]
+}
+
+/** Edit an existing intention's title / measurement. */
+export function updateWeeklyIntention(
+  id: string,
+  input: UpdateWeeklyIntentionInput,
+): Promise<WeeklyIntention> {
+  return weeklyIntentionDexieRepository.update(id, input)
+}
+
+/**
+ * Delete a week-scoped intention. `createWeeklyIntention` links it into its week + overlapping
+ * months via `linkMeasurementPeriod`; unlink first so we don't orphan those week/month planning
+ * states (and any day assignments) before removing the row itself.
+ */
+export async function deleteWeeklyIntention(id: string, weekRef: WeekRef): Promise<void> {
+  await unlinkMeasurementPeriod({
+    subjectType: 'weeklyIntention',
+    subjectId: id,
+    cadence: 'weekly',
+    periodRef: weekRef,
+  })
+  await weeklyIntentionDexieRepository.delete(id)
 }
 
 /** Lazily upsert the week's plan record with the chosen top-3 priority refs. */

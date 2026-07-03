@@ -13,8 +13,8 @@ import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/
 // The week ritual is one wizard: planning steps (always available) then reflection
 // steps (unlocked only from the penultimate day of the week onward — see reflectionUnlocked).
 export type WeeklyReflectionStep =
-  | 'intentions'
-  | 'priorities'
+  | 'plan'
+  | 'days'
   | 'review'
   | 'demands'
   | 'actions'
@@ -22,15 +22,18 @@ export type WeeklyReflectionStep =
   | 'anchors'
   | 'journal'
 
-const PLANNING_STEPS: WeeklyReflectionStep[] = ['intentions', 'priorities']
+const PLANNING_STEPS: WeeklyReflectionStep[] = ['plan', 'days']
 const REFLECTION_STEPS: WeeklyReflectionStep[] = ['review', 'demands', 'actions', 'state', 'anchors', 'journal']
 
 const STEP_ORDER: WeeklyReflectionStep[] = [...PLANNING_STEPS, ...REFLECTION_STEPS]
 
 /** Map old step names to new names for draft migration */
 const LEGACY_STEP_MAP: Record<string, WeeklyReflectionStep> = {
-  intentions: 'intentions',
-  priorities: 'priorities',
+  // The former 'intentions' + 'priorities' planning steps merged into one 'plan' step.
+  intentions: 'plan',
+  priorities: 'plan',
+  plan: 'plan',
+  days: 'days',
   // 'review' is now the object-review/confrontation step (first reflection step).
   review: 'review',
   reflect: 'demands',
@@ -65,7 +68,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   const store = useStructuredReflectionStore()
 
   // Step management — start on planning; reflection unlocks late in the week.
-  const currentStep = ref<WeeklyReflectionStep>('intentions')
+  const currentStep = ref<WeeklyReflectionStep>('plan')
   const stepIndex = computed(() => STEP_ORDER.indexOf(currentStep.value))
 
   // Reflection unlocks from the penultimate day (Saturday) of the week onward, which also
@@ -130,8 +133,9 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
   // Step validation
   const canAdvance = computed(() => {
     switch (currentStep.value) {
-      case 'intentions':
-      case 'priorities':
+      case 'plan':
+        return true
+      case 'days':
         return true
       case 'review':
         return true
@@ -347,7 +351,7 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
 
     // Defensive: a restored draft could point at a now-locked reflection step.
     if (isStepLocked(currentStep.value)) {
-      currentStep.value = 'priorities'
+      currentStep.value = 'plan'
     }
   })
 

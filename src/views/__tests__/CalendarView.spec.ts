@@ -182,38 +182,28 @@ describe('CalendarView', () => {
       },
     })
 
-    expect(await screen.findByTestId('weekly-planner')).toBeInTheDocument()
-    expect(screen.queryByTestId('weekly-planner-sidebar')).not.toBeInTheDocument()
     // Weekly view uses the unified WeekReviewSummary — left column has
-    // Journal + Emotions, right column the Summary card (which replaces the
-    // toolbar reflection action on this scale). Per-type section headings
-    // are gone; individual object titles still appear inside the grid tiles.
+    // Journal + Emotions, right column the Summary (Kontekst) card. Per-type
+    // section headings are gone; individual object titles still appear inside
+    // the grid tiles. (The old WeeklyPlanner grid + its day-cell → Today
+    // navigation moved into the weekly ritual's day-assignment step, so there
+    // is no longer a `weekly-planner` grid on this scale.)
     expect(await screen.findByText('Journal')).toBeInTheDocument()
     expect(screen.getByText('Emotions')).toBeInTheDocument()
     expect(screen.getByText('Summary')).toBeInTheDocument()
-    // Plan-vs-Execution tile owns the plan affordance on the week scale —
-    // the toolbar plan button is gone, replaced by the tile's hover edit
-    // icon (when a plan exists) and per-state CTA. The button is in the
-    // DOM but hidden via CSS when not hovered.
-    expect(screen.getByText('Plan vs execution')).toBeInTheDocument()
-    const planButtons = screen.getAllByRole('button', { name: /edit plan/i })
-    expect(planButtons).toHaveLength(1)
-    // Reflection button no longer appears in the toolbar on week scale —
-    // create/edit affordances live inside the Kontekst card now.
+    // Plan-vs-Execution rings live inside the Kontekst card and are display-only
+    // on the week scale (WeekKontextCard passes show-actions=false → no inline
+    // edit-plan button). The single plan/reflection affordance is the "Open week"
+    // ritual entry; there is no toolbar plan/reflection button on this scale.
+    expect(screen.getByRole('button', { name: /open week/i })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /edit plan/i }),
+    ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: /edit reflection/i }),
     ).not.toBeInTheDocument()
     expect(screen.getAllByText('Review open work').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Confidence score').length).toBeGreaterThan(0)
-
-    await waitFor(() => {
-      expect(within(screen.getByTestId('weekly-planner')).queryByText('Loading...')).not.toBeInTheDocument()
-    })
-    await fireEvent.click(await screen.findByTestId(`weekly-planner-day-${dayRef}`))
-    await waitFor(() => {
-      expect(router.currentRoute.value.name).toBe('today-day')
-    })
-    expect(router.currentRoute.value.params.dayRef).toBe(dayRef)
   })
 
   it('renders the unified month review summary with object tiles and Plan-vs-Execution', async () => {
@@ -270,12 +260,16 @@ describe('CalendarView', () => {
     // KR tile renders inside the unified objects grid.
     expect(await screen.findByText('Ship weekly milestone')).toBeInTheDocument()
 
-    // Three-column layout — left has weekly recap + emotions, right has the
-    // Kontekst Summary, middle hosts the Plan-vs-Execution tile.
+    // Three-column layout — left has weekly recap + emotions, middle the
+    // objects grid, right the Kontekst Summary card. Plan-vs-Execution lives
+    // inside that card; with no MonthPlan yet it shows its create-plan prompt
+    // (the section title text "Plan vs execution" is no longer rendered).
     expect(screen.getByText('Weekly recap')).toBeInTheDocument()
     expect(screen.getByText('Emotions')).toBeInTheDocument()
     expect(screen.getByText('Summary')).toBeInTheDocument()
-    expect(screen.getByText('Plan vs execution')).toBeInTheDocument()
+    expect(
+      screen.getByText('Create a plan to see how your goals, habits, and trackers progress.'),
+    ).toBeInTheDocument()
 
     // Toolbar plan/reflection actions are now per-card affordances; the
     // toolbar buttons should not appear in the document.

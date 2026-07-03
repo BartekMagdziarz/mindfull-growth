@@ -37,8 +37,11 @@ const router = createRouter({
     {
       path: '/calendar',
       redirect: () => {
-        const { week } = getPeriodRefsForDate(new Date())
-        return { name: 'calendar-week', params: { weekRef: week } }
+        // The "Kalendarz" view now opens the Strumień stream calendar, landed on
+        // the current month (ribbon of weeks + the month detail panel). The
+        // classic planning/reflection view stays reachable from there.
+        const { month } = getPeriodRefsForDate(new Date())
+        return { name: 'calendar-stream', params: { periodRef: month } }
       },
     },
     {
@@ -58,6 +61,14 @@ const router = createRouter({
       name: 'calendar-week',
       component: () => import('@/views/CalendarView.vue'),
       props: route => ({ scale: 'week', periodRef: route.params.weekRef }),
+    },
+    // Alternative "Strumień" (stream) calendar view — a single drill-down stream
+    // of cards across year → month → week. Kept alongside the classic calendar.
+    {
+      path: '/calendar/stream/:periodRef?',
+      name: 'calendar-stream',
+      component: () => import('@/views/CalendarStreamView.vue'),
+      props: route => ({ periodRef: route.params.periodRef }),
     },
     {
       path: '/objects',
