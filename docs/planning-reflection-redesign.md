@@ -105,10 +105,11 @@ the month theme (or seeds it).
   "week 2 of 4, here's where targets stand"). Week top-3 is chosen from the month portfolio.
 - **Weeks feed the month:** existing Weekly Recap + new lightweight per-object "works /
   grinds" flags raised during weekly rituals feed the monthly verdicts.
-- **Reflection feeds the next plan (loop closure):** monthly per-object verdicts
-  (*continue / adjust / pause / drop*) pre-populate next month's portfolio; weekly
-  `improvements`/`lookingAhead` answers surface as next week's intention suggestions.
-  Nothing lands in a write-only text field anymore.
+- **Reflection feeds the next plan — DROPPED (2026-06-21, roadmap L3).** The forward-feed idea
+  (weekly `improvements`/`lookingAhead` → next-week suggestions; verdicts → next-month portfolio)
+  has no backing data — those anchors were removed (D2/1c) and never persisted. Loop closure is
+  carried solely by the **confrontation/continuity thread** (next bullet), which is shipped for the
+  week. No write-only forward fields are added.
 - **Continuity thread:** every reflection opens by confronting the previous period's
   intention and top-3 with what actually happened.
 
@@ -301,3 +302,155 @@ Resolutions on the sub-decisions:
   to existing Priorities).
 - Rebuilding tracking UX or entry modes.
 - Automatic plan mutation by AI — AI suggests, user decides.
+
+## 12. Monthly priority-focus layer — top-3 + effort + verdicts (resolved 2026-06-21)
+
+The redesign gave the month a **portfolio + per-object verdicts + theme + OUT** model (§3, §6.2)
+but never a **monthly top-3 focus layer** mirroring the week's. This section fills that gap.
+It is the month-level analog of the weekly intention layer (§10), but pitched at the *strategic*
+altitude the month owns: the focus picks are **annual Priorities**, not measurement subjects.
+
+### 12.1 Resolved decisions (M1–M3)
+
+- **M1 — The monthly top-3 is over annual `Priority` objects**, not measurement subjects. At
+  month-open the user picks ≤3 of their **active Priorities** (status `active` ∧ `years` includes
+  the month's year; ≤5 active globally, so the pool is small). This is deliberately *different*
+  from the weekly top-3 (which is KRs/habits/intentions) — week = which deliverables; month =
+  which strategic directions. The user's own wording made the distinction ("obiekty" for the week,
+  "priorytety" for the month).
+- **M2 — Effort is a subjective 1–5 self-rating per Priority**, not derived from execution data.
+  Priorities are qualitative containers (no `target`, not a `MeasurementSubjectType`), so there is
+  nothing to auto-evaluate. In monthly reflection the user rates *their own effort/engagement*
+  toward each **active** Priority; the chosen top-3 are the ones they especially want to score
+  highly on. (Rolled-up execution of objects linked via `priorityIds` MAY be shown as read-only
+  context later — enrichment, not v1.)
+- **M3 — Full ritual: top-3 + effort + verdict together.** The monthly review step rates each
+  active Priority on (a) effort 1–5, (b) verdict `continue|adjust|pause|drop` (§6.2 / D4), and
+  (c) an optional one-line reason. Top-3 picks are starred. This finally revives the dead
+  `PeriodObjectReflection` for its intended purpose (§8) — but keyed to Priorities.
+
+### 12.2 How it composes with the existing month model
+
+The Priority **is** the portfolio object. So:
+- **Portfolio** (§3) = the set of active Priorities for the month (already derivable).
+- **Top-3** = the focus subset the user commits to (new: `MonthPlan.topPriorityIds`).
+- **Verdict** (§6.2 step 2) = `continue|adjust|pause|drop`, now attached to a Priority.
+- **Effort** (new) = the subjective accountability axis the doc lacked — it makes the month mirror
+  the week's "top-3 → confrontation" loop.
+- **OUT list / theme** (§6.2) stay as separate future work; a `pause`/`drop` verdict is already a
+  lightweight "letting go" signal, so the explicit OUT list can wait.
+
+### 12.3 Data model (reuse, minimal new shape)
+
+1. **`MonthPlan.topPriorityIds?: string[]`** — ≤3 Priority IDs (soft limit, exceedable with a
+   gentle warning at the app layer, like the weekly `SOFT_LIMIT`). A plain ID array, **not** a
+   `{subjectType, subjectId}` ref, because the subject is always a Priority — this avoids the
+   `MEASUREMENT_SUBJECT_TYPES` constraint baked into `normalizeTopPriorities`. New
+   `normalizeMonthTopPriorityIds()` (array of trimmed non-empty strings) wired into
+   `normalizeMonthPlanPayload` (planningState.ts:423). *(If a mixed portfolio is ever wanted,
+   switch to a ref shape then.)*
+2. **`PeriodObjectReflection` extended** (planningState.ts:98) to carry the assessment:
+   - add `'priority'` to `ReflectionSubjectType` (line 20) + `REFLECTION_SUBJECT_TYPES` (line 179);
+   - add `effort?: number | null` (integer 1–5) + `normalizeEffort()`;
+   - add `verdict?: 'continue' | 'adjust' | 'pause' | 'drop' | null`;
+   - make `note` **optional** (currently required via `normalizeTrimmedText`) so a row can carry
+     just effort/verdict. A row is deleted only when note **and** effort **and** verdict are all
+     empty — update the weekly delete-on-empty path in `useWeeklyReflectionWizard` accordingly.
+   - `assertReflectionSubjectExists` (reflectionDexieRepository) gets a `'priority'` branch →
+     `priorityDexieRepository.getById`.
+   - **No Dexie migration** — these are non-indexed fields on an existing table; the composite
+     index `[periodType+periodRef+subjectType+subjectId]` already covers `subjectType:'priority'`.
+3. **Services** (mirror `weeklyIntentionService`):
+   - `setMonthTopPriorities(monthRef, priorityIds)` — lazy upsert `MonthPlan` (copy of
+     `setWeekTopPriorities`).
+   - `setMonthlyPriorityAssessment(monthRef, priorityId, { effort, verdict, note })` — upsert/
+     delete the `PeriodObjectReflection` row (`periodType:'month'`, `subjectType:'priority'`).
+   - `getActivePrioritiesForMonth(monthRef)` — extract the existing filter from
+     `usePlannerState.ts:366-374` (status `active` ∧ `years` ⊇ month's year), sorted by `order`.
+4. **`getMonthlyReflectionDataBundle`** (reflectionDataQueries.ts:1147) loads: active Priorities +
+   `MonthPlan.topPriorityIds` + existing month `PeriodObjectReflection` rows → exposes a
+   `priorityItems: { priority, isTopPriority, effort?, verdict?, note? }[]` for the review step
+   (this bundle currently loads zero per-object data for the month).
+
+### 12.4 UX
+
+- **Pick the top-3 (planning, month-open). DECIDED 2026-06-21 = full "Zaplanuj miesiąc" ritual**
+  (not the inline card picker). Mirror the weekly unified-wizard pattern *in the monthly wizard*: a
+  `priorities` planning step (intro framing + ≤3 picker over active Priorities), date-gated so the
+  reflection steps stay locked until month-end. Entered from `MonthKontextCard`; persists via
+  `setMonthTopPriorities`. (The lightweight card picker was the cheaper alt — rejected.)
+- **Rate effort + verdict (reflection, month-close).** New **"priorities review"** step in
+  `MonthlyReflectionWizard` (currently `ratings → anchors → journal`), inserted first. Lists active
+  Priorities, stars the top-3, each row: effort 1–5 control + `continue/adjust/pause/drop` picker +
+  optional reason. Generalize `ReflectionObjectReview.vue` (today weekly-only, renders
+  `WeekObjectItem`) to accept a priority item, or build a sibling. Effort control can reuse the
+  `ReflectionDimensionRatings` 1–5 face/scale.
+- **Today/stream badge** for monthly top-3 is **out of v1** — its value is the accounting, not a
+  surface (same call the user made for the weekly top-3).
+
+### 12.5 AI payload
+
+`ReflectionSummaryContext.priorities: ReflectionPriorityLine[]` already exists and is serialized
+into a `[PRIORYTETY]/[TOP PRIORITIES]` section, but the **monthly** wizard never populates it
+(`MonthlyReflectionWizard` `summaryContext` omits `priorities`). Populate it from `priorityItems`,
+extending `ReflectionPriorityLine` with `effort?` + `verdict?` (additive; weekly keeps working).
+Gender/locale infra (`tg()`, `SECTION_LABELS`) is ready.
+
+### 12.6 Build order
+
+- **M-A (pick layer):** `MonthPlan.topPriorityIds` + normalizer + `setMonthTopPriorities` +
+  `getActivePrioritiesForMonth` + the "Zaplanuj miesiąc" ritual planning step + `monthlyPlanning.*`
+  i18n. Ships the commitment half on its own. *(Data + services SHIPPED 2026-06-22; UI pending.)*
+- **M-B (assessment layer):** `PeriodObjectReflection` extension (`'priority'`, `effort`,
+  `verdict`, optional `note`, assert branch) + monthly review step + persistence + bundle load.
+  Ships effort + verdicts.
+- **M-C (AI + history):** populate `summaryContext.priorities`; later, top-3 hit-rate / effort
+  trend across months (joins `MonthPlan.topPriorityIds` × prior `PeriodObjectReflection`).
+
+### 12.7 Risks / open
+
+- **`ReflectionSubjectType += 'priority'` ripple.** Grep all usages + every `switch`/`===` on it
+  (the union is not exhaustiveness-guarded — §10 1b). Mostly string compares; contained but must be
+  swept, esp. `assertReflectionSubjectExists` and any reflection-bundle mappers.
+- **`note` → optional ripple.** The weekly per-object comment path deletes a row when the note is
+  cleared; that delete must now also check effort/verdict are empty.
+- **"Active in month" is year-derived only** (no per-month pause for Priorities). Pausing a Priority
+  mid-year drops it from the pool — acceptable for v1.
+- **Open UX choice:** Kontext-card inline picker (recommended, cheap) vs. a full "Zaplanuj miesiąc"
+  ritual (doc-aligned, larger). M-A assumes the former.
+
+### 12.8 Reconciliation with prior monthly plans (there is no separate one)
+
+Checked for a pre-existing monthly *implementation* plan analogous to the weekly one: **none
+exists.** No monthly branch; no monthly UI audit (the weekly work has
+`docs/weekly-planning-steps-design-audit.md`, but there is no monthly counterpart); no
+monthly-wizard/portfolio/verdict code (`MonthPlan` is bare, `MonthlyReflectionWizard` is still
+`ratings→anchors→journal`). The monthly layer was always "the big remaining piece" — its only prior
+specification is **§6.2 + D4 + §10b here**, which §12 extends consistently (§12.2).
+
+But §12 must stay aligned with **one adjacent, already-shipped artifact**: the 3-row **stream
+calendar** (`docs/calendar-3row-design-brief.md`, now the live "Strumień" view —
+[[stream-calendar-view]]). That brief is the *display* side; §12 is the *producer*. Its data
+inventory (brief §"Inwentarz danych", "Wkrótce — redesign planowania") already reserves slots to
+surface:
+- **monthly per-object verdicts** `kontynuuj / dostosuj / wstrzymaj / porzuć` ("pasek werdyktów",
+  "churn portfela" — brief line 66) → **use these exact PL labels** as the i18n for §12's
+  `continue/adjust/pause/drop`. Already aligned; just reuse them.
+- **month theme** (krótka etykieta — brief line 65) → stays separate/future (§12.2 leaves the
+  theme/OUT list out of v1; a `pause`/`drop` verdict already signals "letting go").
+- the weekly **top-3** as a candidate main calendar metric ("x/3 dotrzymane" — brief line 63).
+
+Merge actions:
+1. **New display signal the brief predates.** §12 adds a *monthly top-3 over Priorities* + *effort*
+   that the brief's data inventory and month-tile dimension (brief lines 62–66, 72) do **not** list.
+   Add a candidate month-tile signal **"x/3 priorytetów"** + an effort micro-print, exactly
+   analogous to the weekly "x/3 dotrzymane". Surfacing target = stream **month tile** +
+   `StreamDetailPanel` (which already loads `MonthPlanningBundle`/`monthHasPlan`). This is the
+   month analog of the weekly top-3 badge we deferred — out of §12 v1, but it is where M-C/“later”
+   lands, not a new mechanism.
+2. **Stale slot in the brief.** Brief line 64 ("prognoza Wymagań → kalibracja") is obsolete per
+   **D6** (prospective Demands dropped); the month has no Demands forecast — its comparative axis is
+   the 5 monthly dimensions + (now) effort/verdict. Flag when that brief is next revised.
+
+Net: nothing to "merge back" — §12 is the missing producer for display slots the stream brief
+already anticipated, plus one new signal (monthly top-3 + effort) to add to that brief's inventory.
