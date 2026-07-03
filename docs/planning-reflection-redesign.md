@@ -12,6 +12,14 @@
 > "Podsumowanie" Kontext card (week+month) as the future single ritual entry point;
 > time-aware cards. The §2 "as-is" wizard description below is therefore partially stale —
 > see the project memory note `planning-reflection-redesign` for the exact deltas.
+>
+> **Matrix redesign shipped (2026-07-03):** the weekly ratings are now an explicit
+> 4-areas × 3-sections matrix (`src/domain/reflectionMatrix.ts`): wizard rating steps
+> regrouped by life area (plan→days→review→body→emotions→tasks→closeOnes→anchors→journal),
+> per-dimension display names dropped in favour of coordinates + per-cell questions/anchors,
+> and the stream week card / month heatmap / Kontext card all render the matrix on a
+> diverging rose↔sky scale with the Demands column value-inverted. See the D2 amendment
+> in §7 — retrospective Demands ratings were retained (revising this doc's earlier claim).
 
 ## 1. Problem statement — why the current process "lacks something"
 
@@ -124,7 +132,15 @@ the month theme (or seeds it).
    (went well / ok / grinds) + an optional one-line reason. The reason line is where
    "why it didn't happen" lives (replaces the dropped daily miss-note, see §10). Feeds the
    monthly verdicts.
-3. **Actions/State ratings** (2 min) — as today.
+3. **Matrix ratings** (2–3 min, revised 2026-07-03) — the 4×3 rating matrix
+   (life areas × Demands/Actions/State), grouped **by area**: four steps
+   (body → emotions → tasks → close ones), each asking the area's three questions in
+   causal order demand → action → state. Cells have no standalone names — a cell is
+   identified by its coordinates ("Stan · Zadania"); question texts + 1–5 anchors carry
+   the semantics. `calmRating` is reinterpreted as "on top of tasks / not overwhelmed"
+   (field name kept). Shipped: `src/domain/reflectionMatrix.ts` + area steps in
+   `WeeklyReflectionWizard`; week cards/heatmaps render the matrix with a diverging
+   rose↔sky scale (Demands column value-inverted so rose = strain everywhere).
 4. **Anchors + journal** (2–3 min, slimmed: ~3 anchors with optional "expand more"; AI
    optional) — with AI summary as today.
 
@@ -136,8 +152,11 @@ the month theme (or seeds it).
 7. **Day assignment** (1–2 min) — existing mechanic, now the last placement step.
 8. **Obstacle + if-then plan** (1 min) — optional, single implementation intention.
 
-Retrospective Demands ratings are gone (D6): the confrontation in step 1 carries the
-"plan vs reality" weight, qualitatively, against last week's intention + top-3.
+~~Retrospective Demands ratings are gone (D6): the confrontation in step 1 carries the
+"plan vs reality" weight, qualitatively, against last week's intention + top-3.~~
+**Corrected (2026-07-03):** retrospective Demands ratings stay (see the D2 amendment in
+§7) — they are the Demands column of the matrix in step 3. The confrontation still
+carries plan-vs-reality qualitatively; it just doesn't replace the load ratings.
 
 **Data review:** the old 7-day grid step was removed when `WeeklyReviewDayCards` was deleted;
 if a review surface is wanted back in the ritual it must be revived from git history.
@@ -167,7 +186,15 @@ month → open week. UX for this chain (length, skippability) is an open topic.
 - **D1 — One flow.** Weekly ritual is a single "transition to the new week" wizard
   (reflection flows into planning). Not separate entry points.
 - **D2 — Slim the reflection to fit ~12–15 min.** Anchors 6 → ~3 with optional expansion;
-  retrospective Demands replaced by confrontation with prospective ones; AI steps optional.
+  ~~retrospective Demands replaced by confrontation with prospective ones~~; AI steps optional.
+  **Amended (2026-07-03):** retrospective Demands ratings STAY — as the Demands row of the
+  4-areas × 3-sections rating matrix (body/emotions/tasks/close-ones ×
+  demands/actions/state, see the matrix amendment under §6.1 step 3). The original
+  replacement mechanism ("confront actuals against the prospective forecast") evaporated
+  when D6 dropped the forecast, and the intention/top-3 confrontation measures plan
+  execution, not load — Demands is the load context that makes Actions/State interpretable.
+  The confrontation step remains, but no longer replaces Demands. D6 itself is unchanged:
+  still no prospective Demands forecast at week-open.
 - **D3 — Soft limit + explicit OUT.** Top-3 per week as the norm, exceedable with a gentle
   warning; month plan has an explicit "consciously letting go" section. Selection is
   visible, but the user rules.
