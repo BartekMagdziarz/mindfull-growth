@@ -446,6 +446,9 @@
     "details": {
       "toggle": "Szczegóły"
     },
+    "priorityLink": {
+      "label": "Powiąż z priorytetami (opcjonalnie)"
+    },
     "days": {
       "intro": "Rozmieść każdy obiekt na dniach, w których chcesz nad nim działać.",
       "empty": "Brak aktywnych obiektów do rozmieszczenia w tym tygodniu.",

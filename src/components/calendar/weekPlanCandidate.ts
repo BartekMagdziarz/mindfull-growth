@@ -1,4 +1,4 @@
-import type { MeasurementEntryMode, MeasurementTarget, WeeklyIntention } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import type { MeasurementSubjectType } from '@/domain/planningState'
 
 /**
@@ -18,6 +18,13 @@ export interface WeekPlanCandidate {
   description?: string
   parentGoalTitle?: string
   parentGoalIcon?: string
-  /** Present only for weeklyIntention candidates — enables inline edit + delete. */
-  intention?: WeeklyIntention
+  /** Present only for weeklyIntention candidates — the priorities this intention serves (M5),
+   * used to prefill the edit-mode priority picker. */
+  priorityIds?: string[]
+}
+
+/** A pickable priority in the weekly composer / intention edit (link to monthly focus, M5b). */
+export interface WeekPlanPriorityOption {
+  id: string
+  title: string
 }

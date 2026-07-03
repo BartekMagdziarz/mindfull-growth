@@ -6,6 +6,7 @@ import {
   createWeeklyIntention,
   listWeeklyIntentions,
   setWeekTopPriorities,
+  updateWeeklyIntention,
 } from '@/services/weeklyIntentionService'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
 import { parsePeriodRef } from '@/utils/periods'
@@ -52,6 +53,34 @@ describe('weeklyIntentionService', () => {
     expect(
       otherWeek.planning.measurementItems.some((m) => m.subjectType === 'weeklyIntention'),
     ).toBe(false)
+  })
+
+  it('links an intention to the chosen priorities (M5b picker)', async () => {
+    const intention = await createWeeklyIntention({
+      ...makeIntentionInput(WEEK),
+      priorityIds: ['p1', 'p2'],
+    })
+    expect(intention.priorityIds).toEqual(['p1', 'p2'])
+
+    const [stored] = await listWeeklyIntentions(WEEK)
+    expect(stored.priorityIds).toEqual(['p1', 'p2'])
+  })
+
+  it('defaults priorityIds to an empty array when the picker is left untouched', async () => {
+    const intention = await createWeeklyIntention(makeIntentionInput(WEEK))
+    expect(intention.priorityIds).toEqual([])
+  })
+
+  it('updates the priority links of an existing intention (edit picker)', async () => {
+    const intention = await createWeeklyIntention({
+      ...makeIntentionInput(WEEK),
+      priorityIds: ['p1'],
+    })
+
+    await updateWeeklyIntention(intention.id, { priorityIds: ['p2', 'p3'] })
+
+    const [stored] = await listWeeklyIntentions(WEEK)
+    expect(stored.priorityIds).toEqual(['p2', 'p3'])
   })
 
   it('lazily creates then updates the week plan top priorities', async () => {

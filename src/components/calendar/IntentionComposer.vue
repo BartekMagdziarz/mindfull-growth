@@ -6,8 +6,10 @@ import { useT } from '@/composables/useT'
 import type { WeekRef } from '@/domain/period'
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import { createWeeklyIntention } from '@/services/weeklyIntentionService'
+import PriorityLinkPicker from './PriorityLinkPicker.vue'
+import type { WeekPlanPriorityOption } from './weekPlanCandidate'
 
-const props = defineProps<{ weekRef: WeekRef }>()
+const props = defineProps<{ weekRef: WeekRef; priorities?: WeekPlanPriorityOption[] }>()
 const emit = defineEmits<{ created: [] }>()
 
 const { t } = useT()
@@ -16,16 +18,27 @@ interface IntentionDraft {
   title: string
   entryMode: MeasurementEntryMode
   target: MeasurementTarget
+  priorityIds: string[]
 }
 
 function emptyDraft(): IntentionDraft {
-  return { title: '', entryMode: 'completion', target: { kind: 'count', operator: 'min', value: 1 } }
+  return {
+    title: '',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 1 },
+    priorityIds: [],
+  }
 }
 
 const draft = ref<IntentionDraft>(emptyDraft())
 const isSaving = ref(false)
 
 const canAddIntention = computed(() => draft.value.title.trim().length > 0)
+const priorityOptions = computed(() => props.priorities ?? [])
+
+function setPriorityIds(ids: string[]): void {
+  draft.value = { ...draft.value, priorityIds: ids }
+}
 
 function onUpdateMeasurement(measurement: {
   entryMode: MeasurementEntryMode
@@ -43,6 +56,7 @@ async function addIntention(): Promise<void> {
       title: draft.value.title.trim(),
       entryMode: draft.value.entryMode,
       target: draft.value.target,
+      priorityIds: draft.value.priorityIds,
     })
     draft.value = emptyDraft()
     emit('created')
@@ -77,6 +91,14 @@ async function addIntention(): Promise<void> {
         :target="draft.target"
         cadence="weekly"
         @update:measurement="onUpdateMeasurement"
+      />
+
+      <PriorityLinkPicker
+        v-if="priorityOptions.length > 0"
+        class="border-t border-neu-border/15 pt-2.5"
+        :options="priorityOptions"
+        :model-value="draft.priorityIds"
+        @update:model-value="setPriorityIds"
       />
     </div>
 

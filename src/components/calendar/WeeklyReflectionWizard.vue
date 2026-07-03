@@ -82,6 +82,7 @@
             :key="candidate.key"
             :candidate="candidate"
             :selected="selectedKeys.includes(candidate.key)"
+            :priorities="activePriorities"
             @toggle="toggleCandidate(candidate.key)"
             @save="(payload) => onSaveIntention(candidate, payload)"
             @delete="onDeleteIntention(candidate)"
@@ -97,7 +98,11 @@
 
         <!-- Inline composer to add a new intention; new intentions join the grid above. -->
         <div class="neo-card neo-raised border border-neu-border/30 p-3.5">
-          <IntentionComposer :week-ref="props.weekRef" @created="onIntentionCreated" />
+          <IntentionComposer
+            :week-ref="props.weekRef"
+            :priorities="activePriorities"
+            @created="onIntentionCreated"
+          />
         </div>
 
         <p v-if="!reflectionUnlocked" class="text-xs text-on-surface-variant">
@@ -232,7 +237,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import IntentionComposer from './IntentionComposer.vue'
 import WeekPlanObjectCard from './WeekPlanObjectCard.vue'
 import WeekDayAssignmentStep from './WeekDayAssignmentStep.vue'
-import type { WeekPlanCandidate } from './weekPlanCandidate'
+import type { WeekPlanCandidate, WeekPlanPriorityOption } from './weekPlanCandidate'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
@@ -244,6 +249,7 @@ import type { MeasurementSubjectType, WeekTopPriorityRef } from '@/domain/planni
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { getWeekPlanningBundle } from '@/services/planningStateQueries'
 import { isMeasurementSubjectOpen } from '@/services/planningVisibility'
+import { getActivePrioritiesForMonth } from '@/services/monthlyPriorityService'
 import {
   deleteWeeklyIntention,
   setWeekTopPriorities,
@@ -256,7 +262,7 @@ import {
 import { useSerializedSave } from '@/composables/useSerializedSave'
 import { useT } from '@/composables/useT'
 import type { DayRef, WeekRef } from '@/domain/period'
-import { getPeriodBounds } from '@/utils/periods'
+import { getParentPeriod, getPeriodBounds } from '@/utils/periods'
 import {
   emotionContextFromSummary,
   type ReflectionPriorityLine,
@@ -348,9 +354,19 @@ const reviewTodayDayRef = computed(() => getPeriodBounds(props.weekRef).end as D
 // setWeekTopPriorities on every toggle. The wizard's explicit Save is purely for reflection.
 const candidates = ref<WeekPlanCandidate[]>([])
 const selectedKeys = ref<string[]>([])
+// The month's active priorities, offered as optional links when creating/editing an
+// intention (M5) so it maps in the monthly focus confrontation instead of drifting.
+// A boundary week is attributed to the month holding its start (getParentPeriod).
+const activePriorities = ref<WeekPlanPriorityOption[]>([])
 
 function typeLabelFor(subjectType: MeasurementSubjectType): string {
   return t(`planning.weekPlanning.subjectType.${subjectType}`)
+}
+
+async function loadActivePriorities(): Promise<void> {
+  const monthRef = getParentPeriod(props.weekRef)
+  const priorities = await getActivePrioritiesForMonth(monthRef)
+  activePriorities.value = priorities.map((priority) => ({ id: priority.id, title: priority.title }))
 }
 
 async function loadCandidates(): Promise<void> {
@@ -389,6 +405,11 @@ async function loadCandidates(): Promise<void> {
       candidate.parentGoalTitle = goal?.title
       candidate.parentGoalIcon = goal?.icon
       candidate.icon = candidate.icon ?? goal?.icon
+    }
+
+    // Intentions carry the priority links (M5) — prefill the edit-mode picker.
+    if (item.subjectType === 'weeklyIntention' && 'priorityIds' in subject) {
+      candidate.priorityIds = subject.priorityIds
     }
 
     list.push(candidate)
@@ -433,7 +454,12 @@ async function onIntentionCreated(): Promise<void> {
 
 async function onSaveIntention(
   candidate: WeekPlanCandidate,
-  payload: { title: string; entryMode: MeasurementEntryMode; target: MeasurementTarget },
+  payload: {
+    title: string
+    entryMode: MeasurementEntryMode
+    target: MeasurementTarget
+    priorityIds: string[]
+  },
 ): Promise<void> {
   await updateWeeklyIntention(candidate.subjectId, payload)
   await loadCandidates()
@@ -455,12 +481,14 @@ const SOFT_LIMIT = 3
 
 onMounted(() => {
   void loadCandidates()
+  void loadActivePriorities()
 })
 
 watch(
   () => props.weekRef,
   () => {
     void loadCandidates()
+    void loadActivePriorities()
   },
 )
 

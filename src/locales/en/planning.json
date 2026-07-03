@@ -446,6 +446,9 @@
     "details": {
       "toggle": "Details"
     },
+    "priorityLink": {
+      "label": "Link to priorities (optional)"
+    },
     "days": {
       "intro": "Place each object on the days you'll act on it.",
       "empty": "No active objects to place this week yet.",

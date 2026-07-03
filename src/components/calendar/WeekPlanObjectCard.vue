@@ -4,17 +4,29 @@ import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import PriorityLinkPicker from './PriorityLinkPicker.vue'
 import { useT } from '@/composables/useT'
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
-import type { WeekPlanCandidate } from './weekPlanCandidate'
+import type { WeekPlanCandidate, WeekPlanPriorityOption } from './weekPlanCandidate'
 
-const props = defineProps<{ candidate: WeekPlanCandidate; selected: boolean }>()
+const props = defineProps<{
+  candidate: WeekPlanCandidate
+  selected: boolean
+  priorities?: WeekPlanPriorityOption[]
+}>()
 
 const emit = defineEmits<{
   toggle: []
   delete: []
-  save: [payload: { title: string; entryMode: MeasurementEntryMode; target: MeasurementTarget }]
+  save: [
+    payload: {
+      title: string
+      entryMode: MeasurementEntryMode
+      target: MeasurementTarget
+      priorityIds: string[]
+    },
+  ]
 }>()
 
 const { t } = useT()
@@ -33,12 +45,15 @@ const editing = ref(false)
 const draftTitle = ref('')
 const draftEntryMode = ref<MeasurementEntryMode>('completion')
 const draftTarget = ref<MeasurementTarget>({ kind: 'count', operator: 'min', value: 1 })
+const draftPriorityIds = ref<string[]>([])
 const canSave = computed(() => draftTitle.value.trim().length > 0)
+const priorityOptions = computed(() => props.priorities ?? [])
 
 function startEdit(): void {
   draftTitle.value = props.candidate.title
   draftEntryMode.value = props.candidate.entryMode
   draftTarget.value = props.candidate.target
+  draftPriorityIds.value = [...(props.candidate.priorityIds ?? [])]
   expanded.value = false
   editing.value = true
 }
@@ -49,7 +64,12 @@ function cancelEdit(): void {
 
 function saveEdit(): void {
   if (!canSave.value) return
-  emit('save', { title: draftTitle.value.trim(), entryMode: draftEntryMode.value, target: draftTarget.value })
+  emit('save', {
+    title: draftTitle.value.trim(),
+    entryMode: draftEntryMode.value,
+    target: draftTarget.value,
+    priorityIds: draftPriorityIds.value,
+  })
   editing.value = false
 }
 
@@ -83,6 +103,12 @@ function onMeasurement(m: { entryMode: MeasurementEntryMode; target: Measurement
         :target="draftTarget"
         cadence="weekly"
         @update:measurement="onMeasurement"
+      />
+      <PriorityLinkPicker
+        v-if="priorityOptions.length > 0"
+        :options="priorityOptions"
+        :model-value="draftPriorityIds"
+        @update:model-value="draftPriorityIds = $event"
       />
       <div class="flex justify-end gap-2">
         <AppButton variant="text" @click="cancelEdit">{{ t('common.buttons.cancel') }}</AppButton>
