@@ -109,3 +109,39 @@ export function ratingBarColor(opts: RatingGradientOptions): string {
  */
 export const RATING_BAR_EMPTY_COLOR =
   'rgb(var(--neo-border) / 0.45)'
+
+// ---------------------------------------------------------------------------
+// Diverging 1–5 mapping (no target)
+// ---------------------------------------------------------------------------
+
+// 1 → strong rose … 3 → neutral … 5 → strong sky. Two stops per side keeps the
+// steps legible at small swatch sizes.
+const DIVERGING_STOPS = [
+  ROSE_RAMP[4],
+  ROSE_RAMP[2],
+  'rgb(var(--rating-neutral))',
+  SKY_RAMP[2],
+  SKY_RAMP[4],
+]
+
+export interface DivergingRatingColorOptions {
+  /**
+   * Flip the scale so 5 lands on strong rose. Used for the weekly-reflection
+   * Demands column, where high = heavy load: rose then reads "strain" across
+   * the whole matrix while sky reads "ease/wellbeing".
+   */
+  invert?: boolean
+}
+
+/**
+ * Maps a 1–5 rating to a diverging rose↔sky color. Returns null for an
+ * unrated value so each surface can keep its own empty treatment.
+ */
+export function divergingRatingColor(
+  rating: number | null | undefined,
+  opts: DivergingRatingColorOptions = {}
+): string | null {
+  if (rating === null || rating === undefined) return null
+  const clamped = Math.max(1, Math.min(5, Math.round(rating)))
+  return DIVERGING_STOPS[opts.invert ? 5 - clamped : clamped - 1]
+}

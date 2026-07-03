@@ -202,6 +202,11 @@
   --rating-neg-4: 208 142 160;
   --rating-neg-5: 190 128 149; /* worst — dusty rose (not crimson) */
 
+  /* Diverging midpoint (rating 3 on the no-target rose↔sky scale). Full
+   * opacity cool gray so it reads "rated, middling" — clearly distinct from
+   * the 0.45-alpha empty/unrated treatment. */
+  --rating-neutral: 205 210 218;
+
   /* =====================================================================
    * Semantic role tokens — added to give names to roles that were
    * previously expressed via raw Tailwind classes (e.g. `bg-blue-100

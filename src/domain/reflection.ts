@@ -33,6 +33,8 @@ export interface WeeklyReflection extends ReflectionRecordBase {
   // State — how do I feel at end of week? (1–5)
   moodRating: number | null
   energyRating: number | null
+  // Matrix cell tasks × state: "on top of tasks / not overwhelmed". Field name
+  // kept for data compatibility (no Dexie migration).
   calmRating: number | null
   connectionRating: number | null
 
