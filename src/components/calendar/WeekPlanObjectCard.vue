@@ -97,13 +97,14 @@ function onMeasurement(m: { entryMode: MeasurementEntryMode; target: Measurement
       <div class="flex items-center gap-2">
         <button
           type="button"
+          role="checkbox"
           class="shrink-0 leading-none"
-          :aria-pressed="selected"
+          :aria-checked="selected"
           :title="t('planning.weekPlanning.priorities.toggle')"
           @click="emit('toggle')"
         >
           <AppIcon
-            :name="selected ? 'check_circle' : 'radio_button_unchecked'"
+            :name="selected ? 'check_box' : 'check_box_outline_blank'"
             class="text-xl"
             :class="selected ? 'text-primary' : 'text-on-surface-variant'"
           />

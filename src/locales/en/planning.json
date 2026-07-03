@@ -439,7 +439,9 @@
       "empty": "Nothing active to prioritise yet — add an intention or activate an objective.",
       "softLimitWarning": "More than {n} priorities makes a week hard to deliver — sure?",
       "counter": "{n}/{max} selected",
-      "toggle": "Mark as a top priority"
+      "toggle": "Mark as a top priority",
+      "saving": "Saving…",
+      "saved": "Saved"
     },
     "details": {
       "toggle": "Details"

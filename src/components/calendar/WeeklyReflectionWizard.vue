@@ -53,13 +53,27 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('planning.weekWizard.prioritiesIntro') }}
           </p>
-          <span
-            v-if="candidates.length > 0"
-            class="shrink-0 text-xs font-semibold"
-            :class="selectedKeys.length > SOFT_LIMIT ? 'text-amber-600' : 'text-on-surface-variant'"
-          >
-            {{ t('planning.weekPlanning.priorities.counter', { n: selectedKeys.length, max: SOFT_LIMIT }) }}
-          </span>
+          <div class="flex shrink-0 items-baseline gap-2">
+            <span
+              v-if="isSavingPlan || hasSavedPlan"
+              class="inline-flex items-center gap-1 text-[11px] font-medium text-on-surface-variant/80"
+              :aria-live="'polite'"
+            >
+              <AppIcon
+                :name="isSavingPlan ? 'sync' : 'cloud_done'"
+                class="text-sm"
+                :class="isSavingPlan ? 'animate-spin' : 'text-primary'"
+              />
+              {{ isSavingPlan ? t('planning.weekPlanning.priorities.saving') : t('planning.weekPlanning.priorities.saved') }}
+            </span>
+            <span
+              v-if="candidates.length > 0"
+              class="text-xs font-semibold"
+              :class="selectedKeys.length > SOFT_LIMIT ? 'text-amber-600' : 'text-on-surface-variant'"
+            >
+              {{ t('planning.weekPlanning.priorities.counter', { n: selectedKeys.length, max: SOFT_LIMIT }) }}
+            </span>
+          </div>
         </div>
 
         <div v-if="candidates.length > 0" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -239,6 +253,7 @@ import {
   useWeeklyReflectionWizard,
   type WeeklyReflectionStep,
 } from '@/composables/useWeeklyReflectionWizard'
+import { useSerializedSave } from '@/composables/useSerializedSave'
 import { useT } from '@/composables/useT'
 import type { DayRef, WeekRef } from '@/domain/period'
 import { getPeriodBounds } from '@/utils/periods'
@@ -333,7 +348,6 @@ const reviewTodayDayRef = computed(() => getPeriodBounds(props.weekRef).end as D
 // setWeekTopPriorities on every toggle. The wizard's explicit Save is purely for reflection.
 const candidates = ref<WeekPlanCandidate[]>([])
 const selectedKeys = ref<string[]>([])
-const isSavingPlan = ref(false)
 
 function typeLabelFor(subjectType: MeasurementSubjectType): string {
   return t(`planning.weekPlanning.subjectType.${subjectType}`)
@@ -385,20 +399,25 @@ async function loadCandidates(): Promise<void> {
   )
 }
 
-async function persistTopPriorities(): Promise<void> {
+function buildTopPriorityRefs(): WeekTopPriorityRef[] {
   const byKey = new Map(candidates.value.map((c) => [c.key, c]))
-  const refs: WeekTopPriorityRef[] = selectedKeys.value
+  return selectedKeys.value
     .map((key) => byKey.get(key))
     .filter((c): c is WeekPlanCandidate => Boolean(c))
     .map((c) => ({ subjectType: c.subjectType, subjectId: c.subjectId }))
-  isSavingPlan.value = true
-  try {
-    await setWeekTopPriorities(props.weekRef, refs)
-    emit('updated')
-  } finally {
-    isSavingPlan.value = false
-  }
 }
+
+// Top-3 persists live on every toggle. Serialize the writes so rapid clicks never
+// overlap and the last selection always wins: `buildTopPriorityRefs` reads the current
+// `selectedKeys` on each write, and a toggle mid-write re-runs it (see useSerializedSave).
+const {
+  save: persistTopPriorities,
+  isSaving: isSavingPlan,
+  hasSaved: hasSavedPlan,
+} = useSerializedSave(async () => {
+  await setWeekTopPriorities(props.weekRef, buildTopPriorityRefs())
+  emit('updated')
+})
 
 function toggleCandidate(key: string): void {
   selectedKeys.value = selectedKeys.value.includes(key)
