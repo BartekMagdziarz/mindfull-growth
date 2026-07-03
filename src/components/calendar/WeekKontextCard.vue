@@ -64,7 +64,7 @@
                 <div
                   v-if="item.value !== null"
                   class="kontekst-dim__fill"
-                  :style="{ width: valuePercent(item.value) + '%' }"
+                  :style="{ width: valuePercent(item.value) + '%', background: item.color ?? undefined }"
                 />
               </div>
               <span class="kontekst-dim__value">
@@ -128,13 +128,14 @@ import SummaryCard from './WeeklyReviewSummaryCard.vue'
 import { useT } from '@/composables/useT'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import type { DayRef, WeekRef } from '@/domain/period'
+import type { WeeklyRatingKey, WeeklyReflection } from '@/domain/reflection'
 import {
-  WEEKLY_DEMANDS_KEYS,
-  WEEKLY_ACTIONS_KEYS,
-  WEEKLY_STATE_KEYS,
-  type WeeklyRatingKey,
-  type WeeklyReflection,
-} from '@/domain/reflection'
+  MATRIX_SECTIONS,
+  REFLECTION_MATRIX_AREAS,
+  areaTitleKey,
+  type MatrixSection,
+} from '@/domain/reflectionMatrix'
+import { divergingRatingColor } from '@/utils/ratingGradient'
 import type { WeekPlanSummary } from '@/services/weeklyPlanSummary'
 
 const props = withDefaults(
@@ -213,10 +214,12 @@ interface DimensionItem {
   key: WeeklyRatingKey
   label: string
   value: number | null
+  /** Diverging fill color (Demands inverted: rose = strain), null when unrated. */
+  color: string | null
 }
 
 interface DimensionGroup {
-  key: 'demands' | 'actions' | 'state'
+  key: MatrixSection
   label: string
   items: DimensionItem[]
 }
@@ -228,46 +231,30 @@ function valueFor(key: WeeklyRatingKey): number | null {
   return typeof v === 'number' ? v : null
 }
 
-const DIMENSION_LABEL_KEYS: Record<WeeklyRatingKey, string> = {
-  physicalIntensityRating: 'planning.reflection.weekly.dimensions.physicalIntensity',
-  emotionalIntensityRating: 'planning.reflection.weekly.dimensions.emotionalIntensity',
-  taskLoadRating: 'planning.reflection.weekly.dimensions.taskLoad',
-  closeOnesNeedsRating: 'planning.reflection.weekly.dimensions.closeOnesNeeds',
-  physicalCareRating: 'planning.reflection.weekly.dimensions.physicalCare',
-  emotionalProcessingRating: 'planning.reflection.weekly.dimensions.emotionalProcessing',
-  productivityRating: 'planning.reflection.weekly.dimensions.productivity',
-  closeOnesSupportRating: 'planning.reflection.weekly.dimensions.closeOnesSupport',
-  moodRating: 'planning.reflection.weekly.dimensions.mood',
-  energyRating: 'planning.reflection.weekly.dimensions.energy',
-  calmRating: 'planning.reflection.weekly.dimensions.calm',
-  connectionRating: 'planning.reflection.weekly.dimensions.connection',
+const KONTEKST_GROUP_LABEL_KEYS: Record<MatrixSection, string> = {
+  demands: 'planning.reflection.review.kontekstGroupDemands',
+  actions: 'planning.reflection.review.kontekstGroupActions',
+  state: 'planning.reflection.review.kontekstGroupState',
 }
 
-function buildItems(keys: readonly WeeklyRatingKey[]): DimensionItem[] {
-  return keys.map((key) => ({
-    key,
-    label: t(DIMENSION_LABEL_KEYS[key]),
-    value: valueFor(key),
-  }))
-}
-
-const ratingGroups = computed<DimensionGroup[]>(() => [
-  {
-    key: 'demands',
-    label: t('planning.reflection.review.kontekstGroupDemands'),
-    items: buildItems(WEEKLY_DEMANDS_KEYS),
-  },
-  {
-    key: 'actions',
-    label: t('planning.reflection.review.kontekstGroupActions'),
-    items: buildItems(WEEKLY_ACTIONS_KEYS),
-  },
-  {
-    key: 'state',
-    label: t('planning.reflection.review.kontekstGroupState'),
-    items: buildItems(WEEKLY_STATE_KEYS),
-  },
-])
+// Matrix-driven rows: one item per life area, labeled by area name (the group
+// header carries the section).
+const ratingGroups = computed<DimensionGroup[]>(() =>
+  MATRIX_SECTIONS.map((section) => ({
+    key: section,
+    label: t(KONTEKST_GROUP_LABEL_KEYS[section]),
+    items: REFLECTION_MATRIX_AREAS.map((area) => {
+      const key = area.fields[section]
+      const value = valueFor(key)
+      return {
+        key,
+        label: t(areaTitleKey(area.key)),
+        value,
+        color: divergingRatingColor(value, { invert: section === 'demands' }),
+      }
+    }),
+  })),
+)
 
 // Anchor categories — kept in sync with WeeklyReflectionWizard.weeklyAnchorCategories (D2: 3-anchor core)
 const anchorCategories = computed(() => [
@@ -478,11 +465,8 @@ function handleHostClick(_event: MouseEvent) {
   bottom: 0;
   left: 0;
   border-radius: 9999px;
-  background: linear-gradient(
-    90deg,
-    rgb(var(--neo-chart-primary-start)),
-    rgb(var(--neo-chart-primary-end))
-  );
+  /* Fallback only — the inline style sets the diverging rating color. */
+  background: rgb(var(--neo-chart-primary-end));
   transition: width 220ms ease;
 }
 

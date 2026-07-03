@@ -55,7 +55,7 @@
           :title="`${dim.label} · ${weekLabels[idx]}: ${value == null ? '—' : `${value}/5`}`"
         >
           <div class="cell-track">
-            <div v-if="value != null" class="cell-fill" :style="fillStyle(value)" />
+            <div v-if="value != null" class="cell-fill" :style="fillStyle(value, dim.section)" />
             <div v-else class="cell-empty" />
           </div>
         </div>
@@ -79,6 +79,14 @@
 import { computed } from 'vue'
 import type { WeekRef } from '@/domain/period'
 import type { WeeklyRatingTrendEntry } from '@/services/reflectionDataQueries'
+import {
+  MATRIX_SECTIONS,
+  REFLECTION_MATRIX_AREAS,
+  areaTitleKey,
+  composeCellLabel,
+  type MatrixSection,
+} from '@/domain/reflectionMatrix'
+import { divergingRatingColor } from '@/utils/ratingGradient'
 import { useT } from '@/composables/useT'
 
 const { t } = useT()
@@ -90,6 +98,7 @@ const props = defineProps<{
 
 interface DimensionRow {
   key: string
+  section: MatrixSection
   label: string
   shortLabel: string
   values: (number | null)[]
@@ -102,27 +111,6 @@ interface DimensionGroup {
   dimensions: DimensionRow[]
 }
 
-const DEMANDS_DIMS = [
-  { key: 'physicalIntensityRating', dim: 'physicalIntensity' },
-  { key: 'emotionalIntensityRating', dim: 'emotionalIntensity' },
-  { key: 'taskLoadRating', dim: 'taskLoad' },
-  { key: 'closeOnesNeedsRating', dim: 'closeOnesNeeds' },
-] as const
-
-const ACTIONS_DIMS = [
-  { key: 'physicalCareRating', dim: 'physicalCare' },
-  { key: 'emotionalProcessingRating', dim: 'emotionalProcessing' },
-  { key: 'productivityRating', dim: 'productivity' },
-  { key: 'closeOnesSupportRating', dim: 'closeOnesSupport' },
-] as const
-
-const STATE_DIMS = [
-  { key: 'moodRating', dim: 'mood' },
-  { key: 'energyRating', dim: 'energy' },
-  { key: 'calmRating', dim: 'calm' },
-  { key: 'connectionRating', dim: 'connection' },
-] as const
-
 // Map weekRefs to trend data
 const trendByWeek = computed(() => {
   const map = new Map<string, WeeklyRatingTrendEntry>()
@@ -132,11 +120,15 @@ const trendByWeek = computed(() => {
   return map
 })
 
-function buildDimensionRow(ratingKey: string, dimensionKey: string): DimensionRow {
-  const label = t(`planning.reflection.weekly.dimensions.${dimensionKey}`)
-  // Rows show the short form (duplicates like "Ciało" are disambiguated by the
-  // group headers); the full label lives in the row/cell tooltips.
-  const shortLabel = t(`planning.reflection.weekly.dimensionsShort.${dimensionKey}`)
+function buildDimensionRow(
+  area: (typeof REFLECTION_MATRIX_AREAS)[number],
+  section: MatrixSection,
+): DimensionRow {
+  const ratingKey = area.fields[section]
+  // Rows show the area name (the group header carries the section); the
+  // composed cell label ("Stan · Zadania") lives in the row/cell tooltips.
+  const label = composeCellLabel(t, area.key, section)
+  const shortLabel = t(areaTitleKey(area.key))
 
   const values = props.weekRefs.map((wr) => {
     const entry = trendByWeek.value.get(wr)
@@ -151,26 +143,16 @@ function buildDimensionRow(ratingKey: string, dimensionKey: string): DimensionRo
       ? nonNull.reduce((a, b) => a + b, 0) / nonNull.length
       : null
 
-  return { key: ratingKey, label, shortLabel, values, average }
+  return { key: ratingKey, section, label, shortLabel, values, average }
 }
 
-const dimensionGroups = computed<DimensionGroup[]>(() => [
-  {
-    key: 'demands',
-    label: t('planning.reflection.monthly.dimensionGroups.demands'),
-    dimensions: DEMANDS_DIMS.map((d) => buildDimensionRow(d.key, d.dim)),
-  },
-  {
-    key: 'actions',
-    label: t('planning.reflection.monthly.dimensionGroups.actions'),
-    dimensions: ACTIONS_DIMS.map((d) => buildDimensionRow(d.key, d.dim)),
-  },
-  {
-    key: 'state',
-    label: t('planning.reflection.monthly.dimensionGroups.state'),
-    dimensions: STATE_DIMS.map((d) => buildDimensionRow(d.key, d.dim)),
-  },
-])
+const dimensionGroups = computed<DimensionGroup[]>(() =>
+  MATRIX_SECTIONS.map((section) => ({
+    key: section,
+    label: t(`planning.reflection.monthly.dimensionGroups.${section}`),
+    dimensions: REFLECTION_MATRIX_AREAS.map((area) => buildDimensionRow(area, section)),
+  })),
+)
 
 // "W23"-style column labels — same axis language as the object tiles in the
 // month grid, so both views read against the same week markers.
@@ -185,12 +167,11 @@ const gridStyle = computed(() => ({
   columnGap: '2px',
 }))
 
-// Cell fill: height encodes the 1–5 value, opacity ramps with it so high
-// ratings read stronger even at this tiny size.
-function fillStyle(value: number): Record<string, string> {
+// Cell fill: full-cell diverging swatch (rose = strain, sky = ease). The
+// Demands rows are value-inverted so a heavy week reads rose there too.
+function fillStyle(value: number, section: MatrixSection): Record<string, string> {
   return {
-    height: `${(value / 5) * 100}%`,
-    opacity: (0.45 + (value / 5) * 0.5).toFixed(2),
+    background: divergingRatingColor(value, { invert: section === 'demands' }) ?? '',
   }
 }
 </script>
@@ -209,11 +190,8 @@ function fillStyle(value: number): Record<string, string> {
 
 .cell-fill {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  border-radius: 4px 4px 0 0;
-  background: rgb(var(--neo-chart-primary-end));
+  inset: 0;
+  border-radius: 4px;
 }
 
 .cell-empty {

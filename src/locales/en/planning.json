@@ -931,9 +931,6 @@
       "plan": "Plan",
       "prioritiesReview": "Priorities",
       "review": "Review",
-      "demands": "Demands",
-      "actions": "Actions",
-      "state": "State",
       "anchors": "Anchors",
       "journal": "Journal",
       "ratings": "Ratings"
@@ -1060,16 +1057,13 @@
       "progress": "Reflection progress",
       "groups": {
         "demands": {
-          "title": "Demands",
-          "subtitle": "What did this week ask of you?"
+          "title": "Demands"
         },
         "actions": {
-          "title": "Actions",
-          "subtitle": "How did you respond to it?"
+          "title": "Actions"
         },
         "state": {
-          "title": "State",
-          "subtitle": "How do you feel at the end of this week?"
+          "title": "State"
         }
       },
       "areas": {
@@ -1180,84 +1174,6 @@
             "low": "Distant",
             "high": "Close"
           }
-        }
-      },
-      "dimensions": {
-        "physicalIntensity": "Physical load",
-        "emotionalIntensity": "Emotional intensity",
-        "taskLoad": "Task load",
-        "closeOnesNeeds": "Close ones' needs",
-        "physicalCare": "Physical care",
-        "emotionalProcessing": "Emotional processing",
-        "productivity": "Productivity",
-        "closeOnesSupport": "Supporting close ones",
-        "mood": "Mood",
-        "energy": "Energy",
-        "calm": "Calm",
-        "connection": "Connection"
-      },
-      "dimensionsShort": {
-        "physicalIntensity": "Body",
-        "emotionalIntensity": "Emotions",
-        "taskLoad": "Tasks",
-        "closeOnesNeeds": "Close ones",
-        "physicalCare": "Body",
-        "emotionalProcessing": "Emotions",
-        "closeOnesSupport": "Close ones",
-        "productivity": "Productivity",
-        "mood": "Mood",
-        "energy": "Energy",
-        "calm": "Calm",
-        "connection": "Connection"
-      },
-      "scaleLabels": {
-        "physicalIntensity": {
-          "low": "Restful",
-          "high": "Intense"
-        },
-        "emotionalIntensity": {
-          "low": "Calm",
-          "high": "Intense"
-        },
-        "taskLoad": {
-          "low": "Light",
-          "high": "Overloaded"
-        },
-        "closeOnesNeeds": {
-          "low": "Quiet",
-          "high": "Intense"
-        },
-        "physicalCare": {
-          "low": "Neglected",
-          "high": "Nourished"
-        },
-        "emotionalProcessing": {
-          "low": "Avoided",
-          "high": "Engaged consciously"
-        },
-        "productivity": {
-          "low": "Avoided/chaos",
-          "high": "Addressed consistently"
-        },
-        "closeOnesSupport": {
-          "low": "Withdrawn",
-          "high": "Supportive and present"
-        },
-        "mood": {
-          "low": "Low",
-          "high": "Great"
-        },
-        "energy": {
-          "low": "Drained",
-          "high": "Charged"
-        },
-        "calm": {
-          "low": "Tense",
-          "high": "Peaceful"
-        },
-        "connection": {
-          "low": "Distant",
-          "high": "Connected"
         }
       },
       "anchors": {

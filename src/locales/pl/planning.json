@@ -931,9 +931,6 @@
       "plan": "Plan",
       "prioritiesReview": "Priorytety",
       "review": "Przegląd",
-      "demands": "Wymagania",
-      "actions": "Działania",
-      "state": "Stan",
       "anchors": "Punkty zaczepienia",
       "journal": "Dziennik",
       "ratings": "Oceny"
@@ -1060,16 +1057,13 @@
       "progress": "Postęp refleksji",
       "groups": {
         "demands": {
-          "title": "Wymagania",
-          "subtitle": "Czego ten tydzień ode mnie wymagał?"
+          "title": "Wymagania"
         },
         "actions": {
-          "title": "Działania",
-          "subtitle": "Jak sobie z tym poradziłem?"
+          "title": "Działania"
         },
         "state": {
-          "title": "Stan",
-          "subtitle": "Jak się czuję na koniec tego tygodnia?"
+          "title": "Stan"
         }
       },
       "areas": {
@@ -1180,84 +1174,6 @@
             "low": "Oddalenie",
             "high": "Bliskość"
           }
-        }
-      },
-      "dimensions": {
-        "physicalIntensity": "Obciążenie ciała",
-        "emotionalIntensity": "Intensywność emocji",
-        "taskLoad": "Ciężar zadań",
-        "closeOnesNeeds": "Potrzeby bliskich",
-        "physicalCare": "Dbanie o ciało",
-        "emotionalProcessing": "Praca z emocjami",
-        "productivity": "Produktywność",
-        "closeOnesSupport": "Wspieranie bliskich",
-        "mood": "Nastrój",
-        "energy": "Energia",
-        "calm": "Spokój",
-        "connection": "Połączenie z bliskimi"
-      },
-      "dimensionsShort": {
-        "physicalIntensity": "Ciało",
-        "emotionalIntensity": "Emocje",
-        "taskLoad": "Zadania",
-        "closeOnesNeeds": "Bliscy",
-        "physicalCare": "Ciało",
-        "emotionalProcessing": "Emocje",
-        "closeOnesSupport": "Bliscy",
-        "productivity": "Produktywność",
-        "mood": "Nastrój",
-        "energy": "Energia",
-        "calm": "Spokój",
-        "connection": "Więź"
-      },
-      "scaleLabels": {
-        "physicalIntensity": {
-          "low": "Spokojny",
-          "high": "Intensywny"
-        },
-        "emotionalIntensity": {
-          "low": "Spokojny",
-          "high": "Intensywny"
-        },
-        "taskLoad": {
-          "low": "Lekki",
-          "high": "Przeciążony"
-        },
-        "closeOnesNeeds": {
-          "low": "Spokojne",
-          "high": "Intensywne"
-        },
-        "physicalCare": {
-          "low": "Zaniedbany",
-          "high": "Zaopiekowany"
-        },
-        "emotionalProcessing": {
-          "low": "Unikałem",
-          "high": "Świadomie pracowałem"
-        },
-        "productivity": {
-          "low": "Unikałem/chaos",
-          "high": "Konsekwentnie adresowałem"
-        },
-        "closeOnesSupport": {
-          "low": "Wycofany",
-          "high": "Wspierający i obecny"
-        },
-        "mood": {
-          "low": "Niski",
-          "high": "Świetny"
-        },
-        "energy": {
-          "low": "Wyczerpany",
-          "high": "Naładowany"
-        },
-        "calm": {
-          "low": "Napięty",
-          "high": "Spokojny"
-        },
-        "connection": {
-          "low": "Oddalony",
-          "high": "Blisko"
         }
       },
       "anchors": {
