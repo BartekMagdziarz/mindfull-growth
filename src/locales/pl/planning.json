@@ -1072,6 +1072,116 @@
           "subtitle": "Jak się czuję na koniec tego tygodnia?"
         }
       },
+      "areas": {
+        "body": {
+          "title": "Ciało",
+          "demands": {
+            "question": {
+              "m": "Jak bardzo ten tydzień obciążał Twoje ciało?",
+              "f": "Jak bardzo ten tydzień obciążał Twoje ciało?"
+            },
+            "low": "Spokojnie",
+            "high": "Intensywnie"
+          },
+          "actions": {
+            "question": {
+              "m": "Jak zadbałeś o swoje ciało w tym tygodniu?",
+              "f": "Jak zadbałaś o swoje ciało w tym tygodniu?"
+            },
+            "low": "Zaniedbanie",
+            "high": "Pełna troska"
+          },
+          "state": {
+            "question": {
+              "m": "Z jaką energią kończysz ten tydzień?",
+              "f": "Z jaką energią kończysz ten tydzień?"
+            },
+            "low": "Wyczerpanie",
+            "high": "Pełnia energii"
+          }
+        },
+        "emotions": {
+          "title": "Emocje",
+          "demands": {
+            "question": {
+              "m": "Jak intensywne emocje przyniósł ten tydzień?",
+              "f": "Jak intensywne emocje przyniósł ten tydzień?"
+            },
+            "low": "Spokojne",
+            "high": "Burzliwe"
+          },
+          "actions": {
+            "question": {
+              "m": "Jak pracowałeś ze swoimi emocjami?",
+              "f": "Jak pracowałaś ze swoimi emocjami?"
+            },
+            "low": "Unikanie",
+            "high": "Świadoma praca"
+          },
+          "state": {
+            "question": {
+              "m": "W jakim nastroju kończysz ten tydzień?",
+              "f": "W jakim nastroju kończysz ten tydzień?"
+            },
+            "low": "Niski",
+            "high": "Świetny"
+          }
+        },
+        "tasks": {
+          "title": "Zadania",
+          "demands": {
+            "question": {
+              "m": "Jak duży był ciężar zadań i obowiązków w tym tygodniu?",
+              "f": "Jak duży był ciężar zadań i obowiązków w tym tygodniu?"
+            },
+            "low": "Lekki",
+            "high": "Przytłaczający"
+          },
+          "actions": {
+            "question": {
+              "m": "Jak konsekwentnie realizowałeś swoje zadania?",
+              "f": "Jak konsekwentnie realizowałaś swoje zadania?"
+            },
+            "low": "Chaos i unikanie",
+            "high": "Pełna konsekwencja"
+          },
+          "state": {
+            "question": {
+              "m": "Czy czułeś się na bieżąco z zadaniami — bez poczucia przytłoczenia?",
+              "f": "Czy czułaś się na bieżąco z zadaniami — bez poczucia przytłoczenia?"
+            },
+            "low": "Przytłoczenie",
+            "high": "Pełna kontrola"
+          }
+        },
+        "closeOnes": {
+          "title": "Bliscy",
+          "demands": {
+            "question": {
+              "m": "Jak dużo uwagi potrzebowali w tym tygodniu Twoi bliscy?",
+              "f": "Jak dużo uwagi potrzebowali w tym tygodniu Twoi bliscy?"
+            },
+            "low": "Spokojnie",
+            "high": "Intensywnie"
+          },
+          "actions": {
+            "question": {
+              "m": "Jak wspierałeś swoich bliskich?",
+              "f": "Jak wspierałaś swoich bliskich?"
+            },
+            "low": "Wycofanie",
+            "high": "Wsparcie i obecność"
+          },
+          "state": {
+            "question": {
+              "m": "Jak silną więź czujesz z bliskimi na koniec tygodnia?",
+              "f": "Jak silną więź czujesz z bliskimi na koniec tygodnia?"
+            },
+            "low": "Oddalenie",
+            "high": "Bliskość"
+          }
+        }
+      },
       "dimensions": {
         "physicalIntensity": "Obciążenie ciała",
         "emotionalIntensity": "Intensywność emocji",

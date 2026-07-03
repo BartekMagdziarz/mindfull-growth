@@ -1072,6 +1072,116 @@
           "subtitle": "How do you feel at the end of this week?"
         }
       },
+      "areas": {
+        "body": {
+          "title": "Body",
+          "demands": {
+            "question": {
+              "m": "How hard was this week on your body?",
+              "f": "How hard was this week on your body?"
+            },
+            "low": "Restful",
+            "high": "Intense"
+          },
+          "actions": {
+            "question": {
+              "m": "How well did you care for your body this week?",
+              "f": "How well did you care for your body this week?"
+            },
+            "low": "Neglected",
+            "high": "Well cared for"
+          },
+          "state": {
+            "question": {
+              "m": "How is your energy as the week ends?",
+              "f": "How is your energy as the week ends?"
+            },
+            "low": "Depleted",
+            "high": "Fully charged"
+          }
+        },
+        "emotions": {
+          "title": "Emotions",
+          "demands": {
+            "question": {
+              "m": "How intense were the emotions this week brought?",
+              "f": "How intense were the emotions this week brought?"
+            },
+            "low": "Calm",
+            "high": "Stormy"
+          },
+          "actions": {
+            "question": {
+              "m": "How did you work with your emotions?",
+              "f": "How did you work with your emotions?"
+            },
+            "low": "Avoidance",
+            "high": "Conscious work"
+          },
+          "state": {
+            "question": {
+              "m": "What is your mood as the week ends?",
+              "f": "What is your mood as the week ends?"
+            },
+            "low": "Low",
+            "high": "Great"
+          }
+        },
+        "tasks": {
+          "title": "Tasks",
+          "demands": {
+            "question": {
+              "m": "How heavy was the load of tasks and duties this week?",
+              "f": "How heavy was the load of tasks and duties this week?"
+            },
+            "low": "Light",
+            "high": "Overwhelming"
+          },
+          "actions": {
+            "question": {
+              "m": "How consistently did you work through your tasks?",
+              "f": "How consistently did you work through your tasks?"
+            },
+            "low": "Chaos & avoidance",
+            "high": "Fully consistent"
+          },
+          "state": {
+            "question": {
+              "m": "Do you feel on top of your tasks — not overwhelmed?",
+              "f": "Do you feel on top of your tasks — not overwhelmed?"
+            },
+            "low": "Overwhelmed",
+            "high": "In control"
+          }
+        },
+        "closeOnes": {
+          "title": "Close ones",
+          "demands": {
+            "question": {
+              "m": "How much attention did your close ones need this week?",
+              "f": "How much attention did your close ones need this week?"
+            },
+            "low": "Calm",
+            "high": "Intense"
+          },
+          "actions": {
+            "question": {
+              "m": "How did you support your close ones?",
+              "f": "How did you support your close ones?"
+            },
+            "low": "Withdrawn",
+            "high": "Supportive & present"
+          },
+          "state": {
+            "question": {
+              "m": "How connected do you feel to your close ones as the week ends?",
+              "f": "How connected do you feel to your close ones as the week ends?"
+            },
+            "low": "Distant",
+            "high": "Close"
+          }
+        }
+      },
       "dimensions": {
         "physicalIntensity": "Physical load",
         "emotionalIntensity": "Emotional intensity",
