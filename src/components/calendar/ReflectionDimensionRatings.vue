@@ -4,7 +4,7 @@
       <p v-if="group.subtitle" class="text-sm text-on-surface-variant">
         {{ group.subtitle }}
       </p>
-      <div class="flex flex-wrap items-start justify-center gap-4">
+      <div class="flex flex-wrap items-start justify-center gap-x-12 gap-y-8">
         <IconScaleSelector
           v-for="dim in group.dimensions"
           :key="dim.key"

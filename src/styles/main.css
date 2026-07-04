@@ -942,7 +942,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: min(15rem, 100%);
+  /* Fixed square; max-width lets it shrink on narrow columns. A percentage
+     width would collapse here — the shrink-to-fit wrapper sizes FROM the well. */
+  width: 13rem;
+  max-width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 3rem;
   border: 1px solid rgb(var(--neo-border) / 0.12);

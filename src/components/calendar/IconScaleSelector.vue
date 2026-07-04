@@ -1,5 +1,5 @@
 <template>
-  <div class="group/scale flex flex-1 flex-col items-center gap-1.5">
+  <div class="group/scale flex w-64 max-w-full flex-col items-center gap-1.5">
     <!-- Label above -->
     <span class="text-center text-sm font-semibold text-on-surface">{{ label }}</span>
 
