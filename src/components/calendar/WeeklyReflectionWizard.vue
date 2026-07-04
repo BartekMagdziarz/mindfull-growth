@@ -39,13 +39,12 @@
       </div>
     </div>
 
-    <!-- Step Content -->
+    <!-- Step Content. Enter-only fade: an interruptible leave (out-in) could
+         strand the incoming step at opacity-0 when autosave re-renders land
+         mid-transition. -->
     <Transition
       enter-active-class="transition-opacity duration-200"
-      leave-active-class="transition-opacity duration-200"
       enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
-      mode="out-in"
     >
       <!-- Step: Plan (intentions + top-3, combined) -->
       <div v-if="currentStep === 'plan'" key="plan" class="space-y-4">
