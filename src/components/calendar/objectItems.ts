@@ -9,7 +9,11 @@
  */
 import { buildMeasurementSummary } from '@/services/measurementProgress'
 import type { WeeklyIntention } from '@/domain/planning'
-import type { MonthPlanningBundle, WeekReflectionBundle } from '@/services/planningStateQueries'
+import type {
+  MonthPlanningBundle,
+  WeekMeasurementReflectionItem,
+  WeekReflectionBundle,
+} from '@/services/planningStateQueries'
 import type { MonthObjectItem, WeekObjectItem } from '@/services/reflectionDataQueries'
 import type { WeekCadencedReflectionItem } from '@/services/planningStateQueries'
 import type { MonthCadencedPlanningItem } from '@/services/planningStateQueries'
@@ -86,7 +90,10 @@ export function buildWeekObjectItems(reflection: WeekReflectionBundle): WeekObje
  * Kontekst plan-vs-execution "Intencje" ring.
  */
 export function extractWeekIntentions(reflection: WeekReflectionBundle): WeeklyIntention[] {
-  return reflection.relevant.cadencedItems
+  // Upcast: the cadenced narrowing ('keyResult' | 'habit') is a lie at runtime —
+  // the guard only excludes trackers, so weeklyIntention items ride along too.
+  const items: WeekMeasurementReflectionItem[] = reflection.relevant.cadencedItems
+  return items
     .filter((item) => item.subjectType === 'weeklyIntention')
     .map((item) => item.subject as WeeklyIntention)
 }
