@@ -2,9 +2,10 @@
   <SummaryCard :title="t('planning.reflection.review.emotions')">
     <p
       v-if="weekLogs.length === 0"
-      class="text-center text-xs text-on-surface-variant/70"
+      class="flex items-center gap-1.5 text-xs text-on-surface-variant/70"
     >
-      —
+      <AppIcon name="mood" class="text-sm" />
+      {{ t('planning.calendar.empty.emotionsPeriod') }}
     </p>
     <div v-else class="grid grid-cols-2 items-start gap-3">
       <!-- 2x2 quadrant grid -->
@@ -50,6 +51,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import SummaryCard from './WeeklyReviewSummaryCard.vue'
 import { useT } from '@/composables/useT'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'

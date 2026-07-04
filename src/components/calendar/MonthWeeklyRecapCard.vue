@@ -1,7 +1,8 @@
 <template>
   <SummaryCard :title="t('planning.reflection.review.weeklyRecap')">
-    <p v-if="rows.length === 0" class="text-center text-xs text-on-surface-variant/70">
-      —
+    <p v-if="rows.length === 0" class="flex items-center gap-1.5 text-xs text-on-surface-variant/70">
+      <AppIcon name="history_edu" class="text-sm" />
+      {{ t('planning.calendar.empty.weeklyRecaps') }}
     </p>
     <ul v-else class="recap-list">
       <li

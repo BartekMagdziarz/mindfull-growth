@@ -183,7 +183,10 @@
       "initiatives": "No initiatives for this period.",
       "reflection": "No reflection-relevant objects yet.",
       "today": "No day assignments for this date.",
-      "entries": "No entries for this date."
+      "entries": "No entries for this date.",
+      "journalPeriod": "No entries this period",
+      "emotionsPeriod": "No emotions this period",
+      "weeklyRecaps": "No weekly reflections yet"
     },
     "panel": {
       "closedTitle": "Open a panel",

@@ -183,7 +183,10 @@
       "initiatives": "Brak inicjatyw dla tego okresu.",
       "reflection": "Brak obiektów do refleksji.",
       "today": "Brak przypisań dziennych dla tej daty.",
-      "entries": "Brak wpisów dla tej daty."
+      "entries": "Brak wpisów dla tej daty.",
+      "journalPeriod": "Brak wpisów w tym okresie",
+      "emotionsPeriod": "Brak emocji w tym okresie",
+      "weeklyRecaps": "Jeszcze bez refleksji tygodniowych"
     },
     "panel": {
       "closedTitle": "Otwórz panel",

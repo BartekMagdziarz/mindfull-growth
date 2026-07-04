@@ -1,7 +1,8 @@
 <template>
   <SummaryCard :title="t('planning.reflection.review.journalShort')">
-    <p v-if="entries.length === 0" class="text-center text-xs text-on-surface-variant/70">
-      —
+    <p v-if="entries.length === 0" class="flex items-center gap-1.5 text-xs text-on-surface-variant/70">
+      <AppIcon name="edit_note" class="text-sm" />
+      {{ t('planning.calendar.empty.journalPeriod') }}
     </p>
     <ul v-else class="journal-list">
       <li
