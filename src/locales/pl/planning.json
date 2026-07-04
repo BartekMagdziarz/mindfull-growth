@@ -419,6 +419,13 @@
       "days": "Dni",
       "intentions": "Intencje",
       "priorities": "Priorytety"
+    },
+    "stepSubtitles": {
+      "plan": "Wybierz zobowiązania tygodnia",
+      "days": "Rozłóż na dni",
+      "review": "Jak poszło z obiektami",
+      "area": "Wymagania, działania, stan",
+      "journal": "Wolna refleksja"
     }
   },
   "monthlyPlanning": {

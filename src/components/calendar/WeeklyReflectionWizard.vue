@@ -1,43 +1,16 @@
 <template>
   <section data-testid="weekly-reflection-wizard" class="neo-card space-y-8 px-4 py-4 md:px-5">
     <!-- Header with step indicator -->
-    <div class="flex items-center justify-between gap-3">
-      <h2 class="text-lg font-bold text-on-surface">
-        {{ t('planning.weekWizard.title') }}
-      </h2>
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.reflection.weekly.progress')">
-          <button
-            v-for="(label, idx) in stepLabels"
-            :key="idx"
-            type="button"
-            :disabled="isStepLocked(STEP_ORDER[idx])"
-            :aria-label="`${idx + 1}. ${label}${isStepLocked(STEP_ORDER[idx]) ? ' (locked)' : idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-            class="rounded-full transition-all duration-200"
-            :class="
-              isStepLocked(STEP_ORDER[idx])
-                ? 'neo-step-future w-2.5 h-2.5 opacity-40 cursor-not-allowed'
-                : idx < stepIndex
-                  ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-                  : idx === stepIndex
-                    ? 'neo-step-active w-3.5 h-3.5'
-                    : 'neo-step-future w-2.5 h-2.5'
-            "
-            @click="idx < stepIndex && goToStep(STEP_ORDER[idx])"
-          />
-        </div>
-        <span class="text-xs font-medium text-on-surface-variant">
-          {{ stepLabels[stepIndex] }}
-        </span>
-        <AppButton
-          variant="text"
-          :aria-label="t('common.buttons.close')"
-          @click="emit('close')"
-        >
-          <AppIcon name="close" class="text-lg" />
-        </AppButton>
-      </div>
-    </div>
+    <WizardHeader
+      :title="t('planning.weekWizard.title')"
+      :subtitle="stepSubtitle"
+      :step-labels="stepLabels"
+      :step-index="stepIndex"
+      :locked-steps="lockedSteps"
+      :progress-label="t('planning.reflection.weekly.progress')"
+      @close="emit('close')"
+      @go-to-step="goToStep(STEP_ORDER[$event])"
+    />
 
     <!-- Step Content. Enter-only fade: an interruptible leave (out-in) could
          strand the incoming step at opacity-0 when autosave re-renders land
@@ -178,46 +151,34 @@
     </Transition>
 
     <!-- Navigation Footer -->
-    <div class="flex items-center justify-between pt-2">
+    <WizardFooter :show-back="stepIndex > 0" @back="prevStep()">
+      <!-- Last reflection step: save + jump to planning next week. -->
+      <template v-if="currentStep === 'journal'">
+        <AppButton variant="text" :disabled="isSaving" @click="handleSaveAndPlanNext">
+          {{ t('planning.weekWizard.planNextWeek') }}
+        </AppButton>
+        <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
+          {{ isSaving ? t('planning.reflection.saving') : t('planning.reflection.save') }}
+        </AppButton>
+      </template>
+      <!-- Last reachable step while reflection is still locked: planning is saved live, just close. -->
       <AppButton
-        v-if="stepIndex > 0"
-        variant="tonal"
-        :aria-label="t('common.buttons.back')"
-        @click="prevStep()"
+        v-else-if="isLastStep"
+        variant="filled"
+        @click="emit('close')"
       >
-        <AppIcon name="arrow_back" class="text-lg" />
+        {{ t('planning.weekWizard.done') }}
       </AppButton>
-      <div v-else />
-
-      <div class="flex items-center gap-2">
-        <!-- Last reflection step: save + jump to planning next week. -->
-        <template v-if="currentStep === 'journal'">
-          <AppButton variant="text" :disabled="isSaving" @click="handleSaveAndPlanNext">
-            {{ t('planning.weekWizard.planNextWeek') }}
-          </AppButton>
-          <AppButton variant="filled" :disabled="isSaving" @click="handleSave">
-            {{ isSaving ? t('planning.reflection.saving') : t('planning.reflection.save') }}
-          </AppButton>
-        </template>
-        <!-- Last reachable step while reflection is still locked: planning is saved live, just close. -->
-        <AppButton
-          v-else-if="isLastStep"
-          variant="filled"
-          @click="emit('close')"
-        >
-          {{ t('planning.weekWizard.done') }}
-        </AppButton>
-        <AppButton
-          v-else
-          variant="filled"
-          :disabled="!canAdvance"
-          :aria-label="t('common.buttons.next')"
-          @click="nextStep()"
-        >
-          <AppIcon name="arrow_forward" class="text-lg" />
-        </AppButton>
-      </div>
-    </div>
+      <AppButton
+        v-else
+        variant="filled"
+        :disabled="!canAdvance"
+        :aria-label="t('common.buttons.next')"
+        @click="nextStep()"
+      >
+        <AppIcon name="arrow_forward" class="text-lg" />
+      </AppButton>
+    </WizardFooter>
   </section>
 </template>
 
@@ -228,6 +189,8 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import IntentionComposer from './IntentionComposer.vue'
 import WeekPlanObjectCard from './WeekPlanObjectCard.vue'
 import WeekDayAssignmentStep from './WeekDayAssignmentStep.vue'
+import WizardHeader from './WizardHeader.vue'
+import WizardFooter from './WizardFooter.vue'
 import type { WeekPlanCandidate, WeekPlanPriorityOption } from './weekPlanCandidate'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
@@ -304,6 +267,26 @@ function stepLabel(step: WeeklyReflectionStep): string {
 }
 
 const stepLabels = computed(() => STEP_ORDER.map(stepLabel))
+
+const lockedSteps = computed(() => STEP_ORDER.map((step) => isStepLocked(step)))
+
+const stepSubtitle = computed(() => {
+  switch (currentStep.value) {
+    case 'plan':
+      return t('planning.weekWizard.stepSubtitles.plan')
+    case 'days':
+      return t('planning.weekWizard.stepSubtitles.days')
+    case 'review':
+      return t('planning.weekWizard.stepSubtitles.review')
+    case 'anchors':
+      return ''
+    case 'journal':
+      return t('planning.weekWizard.stepSubtitles.journal')
+    default:
+      // Area rating steps share the causal-chain subtitle.
+      return t('planning.weekWizard.stepSubtitles.area')
+  }
+})
 
 // Slimmed to a 3-anchor core (D2): wins / hard parts / synthesis. The forward-looking
 // anchors (improvements, lookingAhead) moved to the planning side (week intention + top-3),

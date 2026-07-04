@@ -419,6 +419,13 @@
       "days": "Days",
       "intentions": "Intentions",
       "priorities": "Priorities"
+    },
+    "stepSubtitles": {
+      "plan": "Pick the week's commitments",
+      "days": "Spread across days",
+      "review": "How the objects went",
+      "area": "Demands, actions, state",
+      "journal": "Free-form reflection"
     }
   },
   "monthlyPlanning": {

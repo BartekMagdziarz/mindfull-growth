@@ -1,46 +1,16 @@
 <template>
   <section data-testid="monthly-reflection-wizard" class="neo-card space-y-8 px-4 py-4 md:px-5">
     <!-- Header with step indicator -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-baseline gap-2">
-        <h2 class="text-lg font-bold text-on-surface">
-          {{ t('planning.reflection.monthly.title') }}
-        </h2>
-        <span v-if="stepSubtitle" class="text-xs text-on-surface-variant">— {{ stepSubtitle }}</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5" role="group" :aria-label="t('planning.reflection.monthly.progress')">
-          <button
-            v-for="(label, idx) in stepLabels"
-            :key="idx"
-            type="button"
-            :disabled="isStepLocked(STEPS[idx])"
-            :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-            class="rounded-full transition-all duration-200"
-            :class="
-              isStepLocked(STEPS[idx])
-                ? 'neo-step-future h-2.5 w-2.5 opacity-40'
-                : idx < stepIndex
-                  ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-                  : idx === stepIndex
-                    ? 'neo-step-active w-3.5 h-3.5'
-                    : 'neo-step-future w-2.5 h-2.5'
-            "
-            @click="!isStepLocked(STEPS[idx]) && idx < stepIndex && goToStep(STEPS[idx])"
-          />
-        </div>
-        <span class="text-xs font-medium text-on-surface-variant">
-          {{ stepLabels[stepIndex] }}
-        </span>
-        <AppButton
-          variant="text"
-          :aria-label="t('common.buttons.close')"
-          @click="emit('close')"
-        >
-          <AppIcon name="close" class="text-lg" />
-        </AppButton>
-      </div>
-    </div>
+    <WizardHeader
+      :title="t('planning.reflection.monthly.title')"
+      :subtitle="stepSubtitle"
+      :step-labels="stepLabels"
+      :step-index="stepIndex"
+      :locked-steps="lockedSteps"
+      :progress-label="t('planning.reflection.monthly.progress')"
+      @close="emit('close')"
+      @go-to-step="goToStep(STEPS[$event])"
+    />
 
     <!-- Step Content. Enter-only fade: an interruptible leave (out-in) could
          strand the incoming step at opacity-0 when autosave re-renders land
@@ -271,17 +241,7 @@
     </Transition>
 
     <!-- Navigation Footer -->
-    <div class="flex items-center justify-between pt-2">
-      <AppButton
-        v-if="stepIndex > 0"
-        variant="tonal"
-        :aria-label="t('common.buttons.back')"
-        @click="prevStep()"
-      >
-        <AppIcon name="arrow_back" class="text-lg" />
-      </AppButton>
-      <div v-else />
-
+    <WizardFooter :show-back="stepIndex > 0" @back="prevStep()">
       <AppButton
         v-if="currentStep === 'journal'"
         variant="filled"
@@ -306,7 +266,7 @@
       >
         <AppIcon name="arrow_forward" class="text-lg" />
       </AppButton>
-    </div>
+    </WizardFooter>
   </section>
 </template>
 
@@ -317,6 +277,8 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
+import WizardHeader from './WizardHeader.vue'
+import WizardFooter from './WizardFooter.vue'
 import type { RatingGroup } from './ReflectionDimensionRatings.vue'
 import type { SidebarRatingGroup } from './ReflectionJournalSidebar.vue'
 import {
@@ -363,6 +325,8 @@ const stepSubtitle = computed(() => {
     default: return ''
   }
 })
+
+const lockedSteps = computed(() => STEPS.map((step) => isStepLocked(step)))
 
 // Slimmed to 3 anchors (was 6) — mirrors the weekly slim; the month review summary card
 // still renders any historical 6-anchor reflections (it filters empty categories).
