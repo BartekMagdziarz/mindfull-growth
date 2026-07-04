@@ -1,9 +1,8 @@
 import type { LifeArea } from '@/domain/lifeArea'
-import type { PeriodRef, YearRef } from '@/domain/period'
+import type { PeriodRef, WeekRef, YearRef } from '@/domain/period'
 import type {
   Goal,
   Habit,
-  Initiative,
   KeyResult,
   MeasurementEntryMode,
   MeasurementTarget,
@@ -11,11 +10,11 @@ import type {
   Priority,
   PriorityClosingReflection,
   Tracker,
+  WeeklyIntention,
 } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
-  InitiativePlanState,
   MeasurementDayAssignment,
   MeasurementMonthState,
   MeasurementWeekState,
@@ -29,14 +28,15 @@ import {
 } from '@/services/measurementProgress'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { loadPlanningLibraryObjects } from '@/services/planningObjectCollections'
 import { loadPlanningCached } from '@/services/planningQueryCache'
 import { isGoalOpen } from '@/services/planningVisibility'
 import { getPeriodRefsForDate, getPeriodType, isPeriodRef, periodIntersectsPeriod } from '@/utils/periods'
 
-export type ObjectsLibraryFamily = 'priorities' | 'goals' | 'habits' | 'trackers' | 'initiatives'
+export type ObjectsLibraryFamily = 'priorities' | 'goals' | 'habits' | 'trackers' | 'intentions'
 export type ObjectsLibraryComposerMode = 'edit' | 'create'
-export type ObjectsLibraryPanelType = 'priority' | 'goal' | 'keyResult' | 'habit' | 'tracker' | 'initiative'
+export type ObjectsLibraryPanelType = 'priority' | 'goal' | 'keyResult' | 'habit' | 'tracker' | 'weeklyIntention'
 
 export interface ObjectsLibraryQuery {
   family: ObjectsLibraryFamily
@@ -105,8 +105,9 @@ export interface ObjectsLibraryListItem {
     goals: number
     habits: number
     trackers: number
-    initiatives: number
+    intentions: number
   }
+  weekRef?: WeekRef
   cadence?: PlanningCadence
   entryMode?: MeasurementEntryMode
   ratingScaleMin?: number
@@ -169,13 +170,12 @@ interface ObjectsLibraryDependencies {
   keyResults: KeyResult[]
   habits: Habit[]
   trackers: Tracker[]
-  initiatives: Initiative[]
+  weeklyIntentions: WeeklyIntention[]
   goalMonthStates: GoalMonthState[]
   measurementMonthStates: MeasurementMonthState[]
   measurementWeekStates: MeasurementWeekState[]
   measurementDayAssignments: MeasurementDayAssignment[]
   dailyMeasurementEntries: DailyMeasurementEntry[]
-  initiativePlanStates: InitiativePlanState[]
   periodReflections: PeriodReflection[]
   objectReflections: PeriodObjectReflection[]
 }
@@ -185,7 +185,6 @@ interface ObjectRefContext {
   lifeAreaMap: Map<string, LifeArea>
   goalMap: Map<string, Goal>
   keyResultsByGoalId: Map<string, KeyResult[]>
-  initiativePlanStateById: Map<string, InitiativePlanState>
   subjectEntryMap: Map<string, DailyMeasurementEntry[]>
 }
 
@@ -215,6 +214,14 @@ function buildSubjectKey(panelType: 'keyResult' | 'habit' | 'tracker', subjectId
 }
 
 function sortLibraryItems(left: ObjectsLibraryListItem, right: ObjectsLibraryListItem): number {
+  if (left.panelType === 'weeklyIntention' && right.panelType === 'weeklyIntention') {
+    // Week-scoped items read as a timeline: newest week first, no open-first weighting.
+    return (
+      (right.weekRef ?? '').localeCompare(left.weekRef ?? '') ||
+      left.title.localeCompare(right.title)
+    )
+  }
+
   if (left.panelType === 'priority' && right.panelType === 'priority') {
     const leftStatusWeight = left.status === 'active' ? 0 : left.status === 'draft' ? 1 : 2
     const rightStatusWeight = right.status === 'active' ? 0 : right.status === 'draft' ? 1 : 2
@@ -272,8 +279,8 @@ export function getObjectsLibraryFamilyPanelType(
       return 'habit'
     case 'trackers':
       return 'tracker'
-    case 'initiatives':
-      return 'initiative'
+    case 'intentions':
+      return 'weeklyIntention'
   }
 }
 
@@ -290,8 +297,8 @@ export function getObjectsLibraryFamilyForPanelType(
       return 'habits'
     case 'tracker':
       return 'trackers'
-    case 'initiative':
-      return 'initiatives'
+    case 'weeklyIntention':
+      return 'intentions'
   }
 }
 
@@ -310,22 +317,22 @@ export function createDefaultObjectsLibraryQuery(
 async function loadDependencies(): Promise<ObjectsLibraryDependencies> {
   const [
     libraryObjects,
+    weeklyIntentions,
     goalMonthStates,
     measurementMonthStates,
     measurementWeekStates,
     measurementDayAssignments,
     dailyMeasurementEntries,
-    initiativePlanStates,
     periodReflections,
     objectReflections,
   ] = await Promise.all([
     loadPlanningLibraryObjects(),
+    weeklyIntentionDexieRepository.listAll(),
     planningStateDexieRepository.listGoalMonthStates(),
     planningStateDexieRepository.listMeasurementMonthStates(),
     planningStateDexieRepository.listMeasurementWeekStates(),
     planningStateDexieRepository.listMeasurementDayAssignments(),
     planningStateDexieRepository.listDailyMeasurementEntries(),
-    planningStateDexieRepository.listInitiativePlanStates(),
     reflectionDexieRepository.listPeriodReflections(),
     reflectionDexieRepository.listPeriodObjectReflections(),
   ])
@@ -337,13 +344,12 @@ async function loadDependencies(): Promise<ObjectsLibraryDependencies> {
     keyResults: libraryObjects.keyResults,
     habits: libraryObjects.habits,
     trackers: libraryObjects.trackers,
-    initiatives: libraryObjects.initiatives,
+    weeklyIntentions,
     goalMonthStates,
     measurementMonthStates,
     measurementWeekStates,
     measurementDayAssignments,
     dailyMeasurementEntries,
-    initiativePlanStates,
     periodReflections,
     objectReflections,
   }
@@ -379,10 +385,6 @@ function buildContext(deps: ObjectsLibraryDependencies): ObjectRefContext {
     keyResultsByGoalId.set(keyResult.goalId, existing)
   }
 
-  const initiativePlanStateById = new Map(
-    deps.initiativePlanStates.map((item) => [item.initiativeId, item]),
-  )
-
   const subjectEntryMap = new Map<string, DailyMeasurementEntry[]>()
   for (const entry of deps.dailyMeasurementEntries) {
     // Weekly intentions are week-scoped and never shown in the object library.
@@ -398,7 +400,6 @@ function buildContext(deps: ObjectsLibraryDependencies): ObjectRefContext {
     lifeAreaMap,
     goalMap,
     keyResultsByGoalId,
-    initiativePlanStateById,
     subjectEntryMap,
   }
 }
@@ -437,34 +438,6 @@ function hasMeasurementRelevance(
   return false
 }
 
-function hasInitiativeRelevance(
-  initiativeId: string,
-  targetPeriod: PeriodRef | undefined,
-  deps: ObjectsLibraryDependencies,
-): boolean {
-  if (!targetPeriod) {
-    return true
-  }
-
-  const planState = deps.initiativePlanStates.find((item) => item.initiativeId === initiativeId)
-  if (planState?.monthRef && matchesTargetPeriod(planState.monthRef, targetPeriod)) return true
-  if (planState?.weekRef && matchesTargetPeriod(planState.weekRef, targetPeriod)) return true
-  if (planState?.dayRef && matchesTargetPeriod(planState.dayRef, targetPeriod)) return true
-
-  if (
-    deps.objectReflections.some(
-      (reflection) =>
-        reflection.subjectType === 'initiative' &&
-        reflection.subjectId === initiativeId &&
-        matchesTargetPeriod(reflection.periodRef, targetPeriod),
-    )
-  ) {
-    return true
-  }
-
-  return false
-}
-
 function hasGoalRelevance(
   goalId: string,
   targetPeriod: PeriodRef | undefined,
@@ -490,8 +463,6 @@ function hasGoalRelevance(
 
   const linkedKeyResults = ctx.keyResultsByGoalId.get(goalId) ?? []
   if (linkedKeyResults.some((kr) => hasMeasurementRelevance('keyResult', kr.id, targetPeriod, deps))) return true
-
-  if (deps.initiatives.some((initiative) => initiative.goalId === goalId && hasInitiativeRelevance(initiative.id, targetPeriod, deps))) return true
 
   if (getPeriodType(targetPeriod) === 'year') {
     const goal = ctx.goalMap.get(goalId)
@@ -602,12 +573,18 @@ function buildFamilyItems(
         .filter((tracker) => hasMeasurementRelevance('tracker', tracker.id, query.period, deps))
         .map((tracker) => buildTrackerListItem(tracker, deps, ctx))
         .sort(sortLibraryItems)
-    case 'initiatives':
-      return deps.initiatives
-        .filter((initiative) => matchesStandaloneFilters(initiative, query))
-        .filter((initiative) => matchesQueryText(query.q, [initiative.title, initiative.description]))
-        .filter((initiative) => hasInitiativeRelevance(initiative.id, query.period, deps))
-        .map((initiative) => buildInitiativeListItem(initiative))
+    case 'intentions':
+      // Weekly intentions carry no life areas by design, so any life-area
+      // filter excludes them wholesale instead of silently ignoring it.
+      if (query.lifeAreaIds.length > 0) {
+        return []
+      }
+      return deps.weeklyIntentions
+        .filter((intention) => matchesLinkFilters(intention.priorityIds, query.priorityIds))
+        .filter((intention) => matchesClosedFilter(intention.isActive, intention.status, query.showClosed))
+        .filter((intention) => matchesQueryText(query.q, [intention.title, intention.description]))
+        .filter((intention) => matchesTargetPeriod(intention.weekRef, query.period))
+        .map((intention) => buildWeeklyIntentionListItem(intention))
         .sort(sortLibraryItems)
   }
 }
@@ -625,8 +602,8 @@ function getFamilyTotalCount(
       return deps.habits.length
     case 'trackers':
       return deps.trackers.length
-    case 'initiatives':
-      return deps.initiatives.length
+    case 'intentions':
+      return deps.weeklyIntentions.length
   }
 }
 
@@ -657,10 +634,9 @@ function buildPanelRecord(
       const tracker = deps.trackers.find((item) => item.id === panelId)
       return tracker ? buildTrackerPanel(tracker) : undefined
     }
-    case 'initiative': {
-      const initiative = deps.initiatives.find((item) => item.id === panelId)
-      return initiative ? buildInitiativePanel(initiative) : undefined
-    }
+    case 'weeklyIntention':
+      // Weekly intentions are edited inline on their card — no composer panel.
+      return undefined
   }
 }
 
@@ -769,7 +745,7 @@ function priorityLinkedCounts(
     goals: deps.goals.filter((item) => item.priorityIds.includes(priorityId)).length,
     habits: deps.habits.filter((item) => item.priorityIds.includes(priorityId)).length,
     trackers: deps.trackers.filter((item) => item.priorityIds.includes(priorityId)).length,
-    initiatives: deps.initiatives.filter((item) => item.priorityIds.includes(priorityId)).length,
+    intentions: deps.weeklyIntentions.filter((item) => item.priorityIds.includes(priorityId)).length,
   }
 }
 
@@ -893,16 +869,22 @@ function buildTrackerListItem(
   }
 }
 
-function buildInitiativeListItem(initiative: Initiative): ObjectsLibraryListItem {
+function buildWeeklyIntentionListItem(intention: WeeklyIntention): ObjectsLibraryListItem {
   return {
-    id: initiative.id,
-    panelType: 'initiative',
-    title: initiative.title,
-    status: initiative.status,
-    isActive: initiative.isActive,
-    goalId: initiative.goalId,
-    priorityIds: initiative.priorityIds,
-    lifeAreaIds: initiative.lifeAreaIds,
+    id: intention.id,
+    panelType: 'weeklyIntention',
+    title: intention.title,
+    description: intention.description,
+    icon: intention.icon,
+    status: intention.status,
+    isActive: intention.isActive,
+    priorityIds: [...intention.priorityIds],
+    weekRef: intention.weekRef,
+    cadence: intention.cadence,
+    entryMode: intention.entryMode,
+    ratingScaleMin: intention.ratingScaleMin,
+    ratingScale: intention.ratingScale,
+    target: intention.target,
   }
 }
 
@@ -1009,23 +991,6 @@ function buildTrackerPanel(tracker: Tracker): ObjectsLibraryDetailRecord {
   }
 }
 
-function buildInitiativePanel(initiative: Initiative): ObjectsLibraryDetailRecord {
-  return {
-    id: initiative.id,
-    panelType: 'initiative',
-    title: initiative.title,
-    formDefaults: {
-      title: initiative.title,
-      description: initiative.description ?? '',
-      isActive: initiative.isActive,
-      status: initiative.status,
-      goalId: initiative.goalId,
-      priorityIds: [...initiative.priorityIds],
-      lifeAreaIds: [...initiative.lifeAreaIds],
-    },
-  }
-}
-
 export function parseObjectsLibraryQueryFromRoute(
   familyParam: string | string[] | undefined,
   routeQuery: Record<string, unknown>,
@@ -1037,7 +1002,7 @@ export function parseObjectsLibraryQueryFromRoute(
       : undefined
   const composerType =
     typeof routeQuery.composerType === 'string' &&
-    ['priority', 'goal', 'keyResult', 'habit', 'tracker', 'initiative'].includes(routeQuery.composerType)
+    ['priority', 'goal', 'keyResult', 'habit', 'tracker'].includes(routeQuery.composerType)
       ? (routeQuery.composerType as ObjectsLibraryPanelType)
       : undefined
   const composerId =
@@ -1050,7 +1015,7 @@ export function parseObjectsLibraryQueryFromRoute(
       : undefined
   const expandedType =
     typeof routeQuery.expandedType === 'string' &&
-    ['priority', 'goal', 'keyResult', 'habit', 'tracker', 'initiative'].includes(routeQuery.expandedType)
+    ['priority', 'goal', 'keyResult', 'habit', 'tracker'].includes(routeQuery.expandedType)
       ? (routeQuery.expandedType as ObjectsLibraryPanelType)
       : undefined
   const expandedId =
@@ -1106,5 +1071,5 @@ export function serializeObjectsLibraryQueryToRoute(
 }
 
 function isObjectsLibraryFamily(value: string): value is ObjectsLibraryFamily {
-  return ['priorities', 'goals', 'habits', 'trackers', 'initiatives'].includes(value)
+  return ['priorities', 'goals', 'habits', 'trackers', 'intentions'].includes(value)
 }

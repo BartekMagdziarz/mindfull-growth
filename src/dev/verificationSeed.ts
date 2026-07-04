@@ -46,6 +46,7 @@ import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { hashPassword } from '@/services/crypto.service'
 import { setMonthTopPriorities, setMonthlyPriorityAssessment } from '@/services/monthlyPriorityService'
 import {
@@ -65,7 +66,7 @@ import {
 } from './verificationAccount'
 
 /** Bump after changing the dataset — forces a reset+re-seed on next verification boot. */
-export const SEED_VERSION = 1
+export const SEED_VERSION = 2
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 const WEEKS_BACK = 8
@@ -630,6 +631,24 @@ export async function seedVerificationData(): Promise<void> {
       await addEntries('weeklyIntention', first.id, weekDays(weekRef, [2]), null)
     }
   }
+
+  // Closed intentions in the most recent past week — gives the objects-library
+  // "show closed and archived" filter something to reveal.
+  const closedIntentionWeek = pastWeeks[pastWeeks.length - 1]
+  const retiredIntention = await createWeeklyIntention({
+    weekRef: closedIntentionWeek,
+    title: 'Wieczór bez ekranów po 21:00',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 1 },
+  })
+  await weeklyIntentionDexieRepository.update(retiredIntention.id, { status: 'retired' })
+  const droppedIntention = await createWeeklyIntention({
+    weekRef: closedIntentionWeek,
+    title: 'Zimny prysznic codziennie rano',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 1 },
+  })
+  await weeklyIntentionDexieRepository.update(droppedIntention.id, { status: 'dropped' })
 
   // ── 9. Week plans (top-3) + review notes for closed weeks ─────────────────
 

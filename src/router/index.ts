@@ -74,6 +74,11 @@ const router = createRouter({
       path: '/objects',
       redirect: '/objects/goals',
     },
+    // The dormant "initiatives" family was replaced by weekly intentions.
+    {
+      path: '/objects/initiatives',
+      redirect: '/objects/intentions',
+    },
     {
       path: '/objects/:family',
       name: 'objects-family',

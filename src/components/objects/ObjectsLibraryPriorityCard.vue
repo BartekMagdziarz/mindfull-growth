@@ -337,7 +337,7 @@ const linkedMetrics = computed(() => [
   { label: t('planning.objects.families.goals'), value: props.item.linkedCounts?.goals ?? 0 },
   { label: t('planning.objects.families.habits'), value: props.item.linkedCounts?.habits ?? 0 },
   { label: t('planning.objects.families.trackers'), value: props.item.linkedCounts?.trackers ?? 0 },
-  { label: t('planning.objects.families.initiatives'), value: props.item.linkedCounts?.initiatives ?? 0 },
+  { label: t('planning.objects.families.intentions'), value: props.item.linkedCounts?.intentions ?? 0 },
 ])
 
 function handleArchive(): void {

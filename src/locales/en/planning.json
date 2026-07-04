@@ -499,7 +499,8 @@
       "keyResult": "Key result",
       "habit": "Habit",
       "tracker": "Tracker",
-      "initiative": "Initiative"
+      "initiative": "Initiative",
+      "weeklyIntention": "Intention"
     },
     "header": {
       "familiesLabel": "Object families",
@@ -514,7 +515,7 @@
       "goals": "Goals",
       "habits": "Habits",
       "trackers": "Trackers",
-      "initiatives": "Initiatives"
+      "intentions": "Intentions"
     },
     "filters": {
       "search": "Search",
@@ -551,7 +552,6 @@
       "addGoal": "Add goal",
       "addHabit": "Add habit",
       "addTracker": "Add tracker",
-      "addInitiative": "Add initiative",
       "addKeyResult": "Add key result",
       "editObject": "Edit object",
       "archive": "Archive",
@@ -568,7 +568,8 @@
       "familyTitle": "No objects in this family yet.",
       "familyBody": "Create the first object in this family to start using the library.",
       "filteredTitle": "No objects match the current filters.",
-      "filteredBody": "Try clearing some filters, widening the period, or showing closed and archived objects."
+      "filteredBody": "Try clearing some filters, widening the period, or showing closed and archived objects.",
+      "intentionsTitle": "No intentions yet — create the first one or plan your week."
     },
     "panel": {
       "createHelp": "Create a new object inside the active family without leaving the library.",
@@ -632,7 +633,7 @@
       "scheduledDay": "Scheduled on a day",
       "priorityYears": "Years: {years}",
       "priorityOrder": "Order {n}",
-      "priorityLinkedObjects": "Goals {goals} · Habits {habits} · Trackers {trackers} · Initiatives {initiatives}"
+      "priorityLinkedObjects": "Goals {goals} · Habits {habits} · Trackers {trackers} · Intentions {intentions}"
     },
     "reason": {
       "goalMonthState": "Active this month",

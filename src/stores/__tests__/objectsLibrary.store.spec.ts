@@ -74,10 +74,10 @@ describe('useObjectsLibraryStore', () => {
       expandedId: 'goal-1',
     })
 
-    store.setFamily('initiatives')
+    store.setFamily('intentions')
 
     expect(store.query).toEqual({
-      family: 'initiatives',
+      family: 'intentions',
       q: '',
       period: '2026-03',
       lifeAreaIds: ['la-1'],
@@ -85,16 +85,16 @@ describe('useObjectsLibraryStore', () => {
       showClosed: true,
     })
 
-    store.openComposer('create', 'initiative')
+    store.openComposer('create', 'habit')
     expect(store.query.composerMode).toBe('create')
-    expect(store.query.composerType).toBe('initiative')
+    expect(store.query.composerType).toBe('habit')
     expect(store.query.composerId).toBeUndefined()
     expect(store.query.composerParentType).toBeUndefined()
     expect(store.query.composerParentId).toBeUndefined()
 
-    store.expandItem('initiative', 'initiative-1')
-    expect(store.query.expandedType).toBe('initiative')
-    expect(store.query.expandedId).toBe('initiative-1')
+    store.expandItem('habit', 'habit-1')
+    expect(store.query.expandedType).toBe('habit')
+    expect(store.query.expandedId).toBe('habit-1')
 
     store.closeComposer()
     expect(store.query.composerMode).toBeUndefined()

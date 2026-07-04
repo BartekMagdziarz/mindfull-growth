@@ -4,12 +4,13 @@ import { parsePeriodRef } from '@/utils/periods'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
+import { createWeeklyIntention } from '@/services/weeklyIntentionService'
 import {
   loadObjectsLibraryBundle,
   parseObjectsLibraryQueryFromRoute,
@@ -59,15 +60,6 @@ describe('objectsLibraryQueries', () => {
       },
       status: 'open',
     })
-    const initiative = await initiativeDexieRepository.create({
-      title: 'Run launch checklist',
-      isActive: true,
-      goalId: goal.id,
-      priorityIds: [priority.id],
-      lifeAreaIds: [lifeArea.id],
-      status: 'open',
-    })
-
     await planningStateDexieRepository.upsertGoalMonthState({
       monthRef,
       goalId: goal.id,
@@ -91,11 +83,6 @@ describe('objectsLibraryQueries', () => {
       dayRef: parsePeriodRef('2026-03-12') as DayRef,
       subjectType: 'keyResult',
       subjectId: keyResult.id,
-    })
-    await planningStateDexieRepository.upsertInitiativePlanState({
-      initiativeId: initiative.id,
-      monthRef,
-      weekRef,
     })
     await reflectionDexieRepository.upsertPeriodReflection({
       periodType: 'week',
@@ -172,7 +159,7 @@ describe('objectsLibraryQueries', () => {
         goals: 1,
         habits: 0,
         trackers: 0,
-        initiatives: 0,
+        intentions: 0,
       },
     })
     expect(bundle.items[0].chartData).toBeUndefined()
@@ -396,6 +383,136 @@ describe('objectsLibraryQueries', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('lists weekly intentions newest week first and narrows by period, priority, and life area', async () => {
+    const priority = await priorityDexieRepository.create({
+      title: 'Focus on delivery',
+      years: [parsePeriodRef('2026') as YearRef],
+      status: 'active',
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
+    })
+    await createWeeklyIntention({
+      weekRef: parsePeriodRef('2026-W09') as WeekRef,
+      title: 'Older linked intention',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      priorityIds: [priority.id],
+    })
+    await createWeeklyIntention({
+      weekRef: parsePeriodRef('2026-W10') as WeekRef,
+      title: 'Newer intention',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+    })
+
+    const baseQuery = {
+      family: 'intentions' as const,
+      q: '',
+      lifeAreaIds: [],
+      priorityIds: [],
+      showClosed: false,
+    }
+
+    const bundle = await loadObjectsLibraryBundle(baseQuery)
+    expect(bundle.items.map((item) => item.title)).toEqual([
+      'Newer intention',
+      'Older linked intention',
+    ])
+    expect(bundle.items[0]).toMatchObject({
+      panelType: 'weeklyIntention',
+      weekRef: '2026-W10',
+      cadence: 'weekly',
+      entryMode: 'completion',
+    })
+    expect(bundle.familyTotalCount).toBe(2)
+
+    const periodBundle = await loadObjectsLibraryBundle({
+      ...baseQuery,
+      period: parsePeriodRef('2026-W09') as WeekRef,
+    })
+    expect(periodBundle.items.map((item) => item.title)).toEqual(['Older linked intention'])
+
+    const priorityBundle = await loadObjectsLibraryBundle({
+      ...baseQuery,
+      priorityIds: [priority.id],
+    })
+    expect(priorityBundle.items.map((item) => item.title)).toEqual(['Older linked intention'])
+
+    // Weekly intentions carry no life areas, so a life-area filter excludes them all.
+    const lifeAreaBundle = await loadObjectsLibraryBundle({
+      ...baseQuery,
+      lifeAreaIds: ['la-any'],
+    })
+    expect(lifeAreaBundle.items).toHaveLength(0)
+  })
+
+  it('hides retired and dropped intentions unless showClosed is on and counts priority links', async () => {
+    const priority = await priorityDexieRepository.create({
+      title: 'Recover energy',
+      years: [parsePeriodRef('2026') as YearRef],
+      status: 'active',
+      lifeAreaIds: [],
+      progressSignals: [],
+      riskSignals: [],
+    })
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+    await createWeeklyIntention({
+      weekRef,
+      title: 'Open intention',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      priorityIds: [priority.id],
+    })
+    const retired = await createWeeklyIntention({
+      weekRef,
+      title: 'Retired intention',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      priorityIds: [priority.id],
+    })
+    await weeklyIntentionDexieRepository.update(retired.id, { status: 'retired' })
+    const dropped = await createWeeklyIntention({
+      weekRef,
+      title: 'Dropped intention',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+    })
+    await weeklyIntentionDexieRepository.update(dropped.id, { status: 'dropped' })
+
+    const openBundle = await loadObjectsLibraryBundle({
+      family: 'intentions',
+      q: '',
+      lifeAreaIds: [],
+      priorityIds: [],
+      showClosed: false,
+    })
+    expect(openBundle.items.map((item) => item.title)).toEqual(['Open intention'])
+    expect(openBundle.familyTotalCount).toBe(3)
+
+    const closedBundle = await loadObjectsLibraryBundle({
+      family: 'intentions',
+      q: '',
+      lifeAreaIds: [],
+      priorityIds: [],
+      showClosed: true,
+    })
+    expect(closedBundle.items.map((item) => item.title)).toEqual([
+      'Dropped intention',
+      'Open intention',
+      'Retired intention',
+    ])
+
+    const priorityBundle = await loadObjectsLibraryBundle({
+      family: 'priorities',
+      q: '',
+      lifeAreaIds: [],
+      priorityIds: [],
+      showClosed: false,
+    })
+    expect(priorityBundle.items[0].linkedCounts).toMatchObject({ intentions: 2 })
   })
 
   it('parses and serializes the route contract for the library', () => {

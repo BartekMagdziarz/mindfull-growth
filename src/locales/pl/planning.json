@@ -499,7 +499,8 @@
       "keyResult": "Kluczowy rezultat",
       "habit": "Nawyk",
       "tracker": "Tracker",
-      "initiative": "Inicjatywa"
+      "initiative": "Inicjatywa",
+      "weeklyIntention": "Intencja"
     },
     "header": {
       "familiesLabel": "Rodziny obiektów",
@@ -514,7 +515,7 @@
       "goals": "Cele",
       "habits": "Nawyki",
       "trackers": "Trackery",
-      "initiatives": "Inicjatywy"
+      "intentions": "Intencje"
     },
     "filters": {
       "search": "Szukaj",
@@ -551,7 +552,6 @@
       "addGoal": "Dodaj cel",
       "addHabit": "Dodaj nawyk",
       "addTracker": "Dodaj tracker",
-      "addInitiative": "Dodaj inicjatywę",
       "addKeyResult": "Dodaj kluczowy rezultat",
       "editObject": "Edytuj obiekt",
       "archive": "Archiwizuj",
@@ -568,7 +568,8 @@
       "familyTitle": "Ta rodzina nie ma jeszcze żadnych obiektów.",
       "familyBody": "Utwórz pierwszy obiekt w tej rodzinie, aby zacząć korzystać z biblioteki.",
       "filteredTitle": "Żaden obiekt nie pasuje do bieżących filtrów.",
-      "filteredBody": "Spróbuj poluzować filtry, poszerzyć okres albo pokazać zamknięte i zarchiwizowane obiekty."
+      "filteredBody": "Spróbuj poluzować filtry, poszerzyć okres albo pokazać zamknięte i zarchiwizowane obiekty.",
+      "intentionsTitle": "Brak intencji — utwórz pierwszą albo zaplanuj tydzień."
     },
     "panel": {
       "createHelp": "Utwórz nowy obiekt w aktywnej rodzinie bez wychodzenia z biblioteki.",
@@ -632,7 +633,7 @@
       "scheduledDay": "Zaplanowany na dzień",
       "priorityYears": "Lata: {years}",
       "priorityOrder": "Pozycja {n}",
-      "priorityLinkedObjects": "Cele {goals} · Nawyki {habits} · Trackery {trackers} · Inicjatywy {initiatives}"
+      "priorityLinkedObjects": "Cele {goals} · Nawyki {habits} · Trackery {trackers} · Intencje {intentions}"
     },
     "reason": {
       "goalMonthState": "Aktywny w tym miesiącu",

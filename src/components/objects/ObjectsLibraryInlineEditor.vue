@@ -46,7 +46,7 @@
 
         <div class="grid gap-4 md:grid-cols-2">
           <label
-            v-if="(panelType === 'keyResult' || panelType === 'initiative') && !hideGoalSelect"
+            v-if="panelType === 'keyResult' && !hideGoalSelect"
             class="space-y-1"
           >
             <span class="text-xs font-semibold text-on-surface">{{ labels.goal }}</span>

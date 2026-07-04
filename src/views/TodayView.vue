@@ -381,9 +381,9 @@ function handleDateChange(event: Event): void {
 }
 
 function openObject(item: TodayItem): void {
-  // Weekly intentions have no library detail page — they're managed in the week-planning
-  // wizard, so opening them is a no-op for now.
-  if (item.panelType === 'weeklyIntention') return
+  // Weekly intentions are managed in the week-planning wizard and initiatives no longer
+  // have a library family, so neither has a library detail page — opening is a no-op.
+  if (item.kind === 'initiative' || item.panelType === 'weeklyIntention') return
 
   void router.push({
     name: 'objects-family',
@@ -392,7 +392,7 @@ function openObject(item: TodayItem): void {
     },
     query: {
       expandedType: item.panelType,
-      expandedId: item.kind === 'initiative' ? item.initiative.id : item.subject.id,
+      expandedId: item.subject.id,
     },
   })
 }

@@ -20,7 +20,7 @@ function makePriorityItem(overrides: Partial<ObjectsLibraryListItem> = {}): Obje
     progressSignals: [],
     riskSignals: [],
     closingReflection: undefined,
-    linkedCounts: { goals: 0, habits: 0, trackers: 0, initiatives: 0 },
+    linkedCounts: { goals: 0, habits: 0, trackers: 0, intentions: 0 },
     ...overrides,
   } as unknown as ObjectsLibraryListItem
 }

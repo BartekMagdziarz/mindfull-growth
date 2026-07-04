@@ -75,7 +75,7 @@
 
       <PlanningStatePanel
         v-else-if="store.items.length === 0 && isFamilyEmptyState && !isComposerOpen"
-        :title="t('planning.objects.empty.familyTitle')"
+        :title="familyEmptyTitle"
         :eyebrow="activeFamilyTitle"
         :action-label="createButtonLabel"
         @action="handleOpenCreate"
@@ -209,22 +209,18 @@
             @delete="(id, title) => handleDeleteFromCard(item.panelType, id, title)"
           />
 
-          <!-- Initiative unified inline card -->
-          <ObjectsLibraryInitiativeCard
-            v-else-if="item.panelType === 'initiative'"
+          <!-- Weekly intention inline card -->
+          <ObjectsLibraryIntentionCard
+            v-else-if="item.panelType === 'weeklyIntention'"
             :item="item"
-            :status-options="statusOptionsForType('initiative')"
             :priority-options="store.filterOptions.priorities"
-            :life-area-options="store.filterOptions.lifeAreas"
-            :goal-options="store.filterOptions.goals"
-            :is-new="newInitiativeId === item.id"
-            @field-change="handleInitiativeFieldChange"
-            @archive="(id, isActive) => handleArchiveFromCard('initiative', id, isActive)"
-            @delete="(id, title) => handleDeleteFromCard('initiative', id, title)"
+            :is-new="newIntentionId === item.id"
+            @save="handleIntentionSave"
+            @delete="(id, title) => handleDeleteFromCard('weeklyIntention', id, title)"
           />
 
           <section
-            v-if="item.panelType !== 'priority' && item.panelType !== 'goal' && item.panelType !== 'habit' && item.panelType !== 'tracker' && item.panelType !== 'initiative' && isExpansionHost(item.panelType, item.id) && isComposerHostedByItem(item.panelType, item.id) && isComposerReady && !(composerMode === 'edit' && resolvedComposerType === 'keyResult')"
+            v-if="item.panelType !== 'priority' && item.panelType !== 'goal' && item.panelType !== 'habit' && item.panelType !== 'tracker' && item.panelType !== 'weeklyIntention' && isExpansionHost(item.panelType, item.id) && isComposerHostedByItem(item.panelType, item.id) && isComposerReady && !(composerMode === 'edit' && resolvedComposerType === 'keyResult')"
             class="rounded-2xl border border-white/40 bg-white/45 p-3"
           >
             <ObjectsLibraryInlineEditor
@@ -309,7 +305,7 @@ import ObjectsLibraryGoalCard from '@/components/objects/ObjectsLibraryGoalCard.
 import GoalCreationWizard from '@/components/objects/GoalCreationWizard.vue'
 import type { GoalWizardEditInput } from '@/composables/useGoalCreationWizard'
 import ObjectsLibraryMeasurementCard from '@/components/objects/ObjectsLibraryMeasurementCard.vue'
-import ObjectsLibraryInitiativeCard from '@/components/objects/ObjectsLibraryInitiativeCard.vue'
+import ObjectsLibraryIntentionCard from '@/components/objects/ObjectsLibraryIntentionCard.vue'
 import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
 import { useT } from '@/composables/useT'
 import type {
@@ -321,18 +317,23 @@ import type {
 import { getObjectsLibraryFamilyPanelType } from '@/services/objectsLibraryQueries'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
-import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import {
   linkGoalToMonth,
   unlinkGoalFromMonth,
   linkMeasurementPeriod,
   unlinkMeasurementPeriod,
 } from '@/services/planningMutations'
-import { isPeriodRef } from '@/utils/periods'
+import {
+  createWeeklyIntention,
+  deleteWeeklyIntention,
+  updateWeeklyIntention,
+} from '@/services/weeklyIntentionService'
+import { getPeriodRefsForDate, isPeriodRef } from '@/utils/periods'
 import type { PeriodRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { MeasurementEntryMode, MeasurementTarget, PriorityClosingReflection } from '@/domain/planning'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
@@ -396,7 +397,7 @@ const newGoalId = ref<string | null>(null)
 const expandedMeasurementId = ref<string | null>(null)
 const expandedMeasurementPeriods = ref<LinkedPeriod[]>([])
 const newMeasurementId = ref<string | null>(null)
-const newInitiativeId = ref<string | null>(null)
+const newIntentionId = ref<string | null>(null)
 const newPriorityId = ref<string | null>(null)
 const isGoalWizardOpen = ref(false)
 const goalWizardMode = ref<'create' | 'edit'>('create')
@@ -409,7 +410,7 @@ const familyOptions = computed(() => [
   { family: 'goals' as const, label: t('planning.objects.families.goals') },
   { family: 'habits' as const, label: t('planning.objects.families.habits') },
   { family: 'trackers' as const, label: t('planning.objects.families.trackers') },
-  { family: 'initiatives' as const, label: t('planning.objects.families.initiatives') },
+  { family: 'intentions' as const, label: t('planning.objects.families.intentions') },
 ])
 
 const activeFamilyTitle = computed(() => {
@@ -427,12 +428,18 @@ const createButtonLabel = computed(() => {
       return t('planning.objects.actions.addHabit')
     case 'trackers':
       return t('planning.objects.actions.addTracker')
-    case 'initiatives':
-      return t('planning.objects.actions.addInitiative')
+    case 'intentions':
+      return t('planning.weekPlanning.intentions.add')
     default:
       return ''
   }
 })
+
+const familyEmptyTitle = computed(() =>
+  store.query.family === 'intentions'
+    ? t('planning.objects.empty.intentionsTitle')
+    : t('planning.objects.empty.familyTitle'),
+)
 
 const editorLabels = computed(() => ({
   title: t('planning.objects.form.title'),
@@ -464,7 +471,7 @@ const showCreateCard = computed(
     && resolvedComposerType.value !== 'goal'
     && resolvedComposerType.value !== 'habit'
     && resolvedComposerType.value !== 'tracker'
-    && resolvedComposerType.value !== 'initiative',
+    && resolvedComposerType.value !== 'weeklyIntention',
 )
 
 const composerParentGoalLabel = computed(() => {
@@ -642,15 +649,17 @@ function createEmptyDraft(panelType: ObjectsLibraryPanelType, goalId?: string): 
         entryMode: 'completion',
         target: createDefaultTarget('completion'),
       }
-    case 'initiative':
+    case 'weeklyIntention':
+      // Weekly intentions never open the composer; this only satisfies the
+      // family-default draft initialization when the intentions tab is active.
       return {
         title: '',
         description: '',
         isActive: true,
         status: 'open',
-        goalId: undefined,
         priorityIds: [],
         lifeAreaIds: [],
+        entryMode: 'completion',
         target: createDefaultTarget('completion'),
       }
   }
@@ -1075,17 +1084,16 @@ async function handleOpenCreate(): Promise<void> {
     return
   }
 
-  if (panelType === 'initiative') {
+  if (panelType === 'weeklyIntention') {
     try {
-      const created = await initiativeDexieRepository.create({
+      // Same defaults as IntentionComposer's empty draft; always the current week.
+      const created = await createWeeklyIntention({
+        weekRef: getPeriodRefsForDate(new Date()).week,
         title: '',
-        description: undefined,
-        isActive: true,
-        priorityIds: [],
-        lifeAreaIds: [],
-        status: 'open',
+        entryMode: 'completion',
+        target: { kind: 'count', operator: 'min', value: 1 },
       })
-      newInitiativeId.value = created.id
+      newIntentionId.value = created.id
       await store.loadBundle()
     } catch (err) {
       snackbarRef.value?.show(
@@ -1831,52 +1839,19 @@ async function handlePriorityArchive(id: string, isCurrentlyActive: boolean): Pr
   }
 }
 
-async function handleInitiativeFieldChange(id: string, field: string, value: unknown): Promise<void> {
+async function handleIntentionSave(
+  id: string,
+  payload: {
+    title: string
+    entryMode: MeasurementEntryMode
+    target: MeasurementTarget
+    priorityIds: string[]
+  },
+): Promise<void> {
   try {
-    let needsReload = true
-    switch (field) {
-      case 'title':
-        await initiativeDexieRepository.update(id, { title: (value as string).trim() })
-        if (newInitiativeId.value === id) newInitiativeId.value = null
-        needsReload = false
-        break
-      case 'icon':
-        await initiativeDexieRepository.update(id, { icon: (value as string | undefined) ?? undefined })
-        break
-      case 'description':
-        await initiativeDexieRepository.update(id, { description: normalizeOptionalText(value as string) })
-        needsReload = false
-        break
-      case 'status':
-        await initiativeDexieRepository.update(id, { status: value as 'open' | 'completed' | 'dropped' })
-        break
-      case 'goalId':
-        await initiativeDexieRepository.update(id, { goalId: (value as string | undefined) || undefined })
-        break
-      case 'togglePriority': {
-        const initiative = await initiativeDexieRepository.getById(id)
-        if (!initiative) return
-        const pid = value as string
-        const newIds = initiative.priorityIds.includes(pid)
-          ? initiative.priorityIds.filter((x) => x !== pid)
-          : [...initiative.priorityIds, pid]
-        await initiativeDexieRepository.update(id, { priorityIds: newIds })
-        break
-      }
-      case 'toggleLifeArea': {
-        const initiative = await initiativeDexieRepository.getById(id)
-        if (!initiative) return
-        const lid = value as string
-        const newIds = initiative.lifeAreaIds.includes(lid)
-          ? initiative.lifeAreaIds.filter((x) => x !== lid)
-          : [...initiative.lifeAreaIds, lid]
-        await initiativeDexieRepository.update(id, { lifeAreaIds: newIds })
-        break
-      }
-    }
-    if (needsReload) {
-      await store.loadBundle()
-    }
+    await updateWeeklyIntention(id, payload)
+    if (newIntentionId.value === id) newIntentionId.value = null
+    await store.loadBundle()
   } catch (err) {
     snackbarRef.value?.show(
       err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
@@ -2090,18 +2065,9 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
         })
         return { ...created, type: panelType }
       }
-      case 'initiative': {
-        const created = await initiativeDexieRepository.create({
-          title: draft.value.title.trim(),
-          description: normalizeOptionalText(draft.value.description),
-          isActive: true,
-          goalId: draft.value.goalId || undefined,
-          priorityIds: draft.value.priorityIds,
-          lifeAreaIds: draft.value.lifeAreaIds,
-          status: draft.value.status as 'open' | 'completed' | 'dropped',
-        })
-        return { ...created, type: panelType }
-      }
+      case 'weeklyIntention':
+        // Weekly intentions are created inline on their card, never via the composer.
+        break
     }
   }
 
@@ -2179,18 +2145,9 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
       })
       return { ...updated, type: panelType }
     }
-    case 'initiative': {
-      const updated = await initiativeDexieRepository.update(composerId, {
-        title: draft.value.title.trim(),
-        description: normalizeOptionalText(draft.value.description),
-        isActive: draft.value.isActive,
-        goalId: draft.value.goalId || undefined,
-        priorityIds: draft.value.priorityIds,
-        lifeAreaIds: draft.value.lifeAreaIds,
-        status: draft.value.status as 'open' | 'completed' | 'dropped',
-      })
-      return { ...updated, type: panelType }
-    }
+    case 'weeklyIntention':
+      // Weekly intentions are edited inline on their card, never via the composer.
+      throw new Error(t('planning.objects.messages.missingObject'))
   }
 }
 
@@ -2215,8 +2172,8 @@ async function updateObjectActive(
     case 'tracker':
       await trackerDexieRepository.update(id, { isActive })
       return
-    case 'initiative':
-      await initiativeDexieRepository.update(id, { isActive })
+    case 'weeklyIntention':
+      // Weekly intentions have no archive affordance in the library.
       return
   }
 }
@@ -2238,9 +2195,14 @@ async function deleteObject(panelType: ObjectsLibraryPanelType, id: string): Pro
     case 'tracker':
       await trackerDexieRepository.delete(id)
       return
-    case 'initiative':
-      await initiativeDexieRepository.delete(id)
+    case 'weeklyIntention': {
+      const intention = await weeklyIntentionDexieRepository.getById(id)
+      if (intention) {
+        // The service unlinks the week/month measurement states before deleting.
+        await deleteWeeklyIntention(id, intention.weekRef)
+      }
       return
+    }
   }
 }
 

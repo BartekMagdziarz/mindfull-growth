@@ -219,10 +219,10 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
-    await fireEvent.click(await screen.findByRole('button', { name: 'Initiatives' }))
+    await fireEvent.click(await screen.findByRole('button', { name: 'Intentions' }))
 
     await waitFor(() => {
-      expect(router.currentRoute.value.params.family).toBe('initiatives')
+      expect(router.currentRoute.value.params.family).toBe('intentions')
     })
     expect(router.currentRoute.value.query.q).toBeUndefined()
     expect(router.currentRoute.value.query.period).toBe('2026-W10')
