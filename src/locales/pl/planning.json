@@ -471,7 +471,8 @@
       "empty": "Brak aktywnych obiektów do rozmieszczenia w tym tygodniu.",
       "assigningHint": "Wybierz dni dla „{title}”.",
       "wholeWeek": "Cały tydzień",
-      "clear": "Wyczyść"
+      "clear": "Wyczyść",
+      "weekTarget": "Cel na ten tydzień"
     },
     "subjectType": {
       "keyResult": "Kluczowy rezultat",

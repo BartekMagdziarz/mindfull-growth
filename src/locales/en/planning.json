@@ -471,7 +471,8 @@
       "empty": "No active objects to place this week yet.",
       "assigningHint": "Pick the days for “{title}”.",
       "wholeWeek": "Whole week",
-      "clear": "Clear"
+      "clear": "Clear",
+      "weekTarget": "Target for this week"
     },
     "subjectType": {
       "keyResult": "Key result",

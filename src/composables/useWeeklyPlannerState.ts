@@ -21,13 +21,18 @@ import {
   toggleMeasurementDayAssignment,
   toggleMeasurementWeekAssignment,
   unlinkMeasurementPeriod,
-  updateMeasurementTargetOverride,
+  updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
-import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
+import {
+  getChildPeriods,
+  getParentPeriod,
+  getPeriodBounds,
+  getPeriodRefsForDate,
+  getWeekOverlappingMonths,
+} from '@/utils/periods'
 import type {
   ActiveAssignment,
   CalendarAssignmentItem,
-  EditableSubjectKind,
   GoalSection,
   PlannerInitiativeRow,
   PlannerPlacementMode,
@@ -160,6 +165,16 @@ export function useWeeklyPlannerState(
       }
     }
 
+    // The state whose targetOverride governs this week: monthly-cadence rows are
+    // attributed to the week's parent month (consistent with buildMonthlyContextFooter),
+    // weekly-cadence rows use the month-agnostic state.
+    const governingWeekState =
+      item.cadence === 'monthly'
+        ? relevantWeekStates.find(
+            state => state.sourceMonthRef === getParentPeriod(weekRef.value)
+          ) ?? relevantWeekStates[0]
+        : relevantWeekStates.find(state => !state.sourceMonthRef)
+
     const scheduledDayRefs = dayAssignments
       .filter(
         assignment =>
@@ -184,7 +199,8 @@ export function useWeeklyPlannerState(
       subjectType,
       cadence: item.cadence,
       target: 'target' in item ? item.target : undefined,
-      targetOverride: monthState?.targetOverride,
+      // Week-effective: week override → month override → (base target via editableTarget).
+      targetOverride: governingWeekState?.targetOverride ?? monthState?.targetOverride,
       goalId: 'goalId' in item ? item.goalId : undefined,
       isActive:
         monthState?.activityState === 'active' ||
@@ -495,10 +511,6 @@ export function useWeeklyPlannerState(
     }
   }
 
-  function editableSubjectType(subjectType: SubjectKind): EditableSubjectKind {
-    return subjectType === 'keyResult' ? 'keyResult' : 'habit'
-  }
-
   async function toggleMeasurement(item: PlannerMeasurementRow): Promise<void> {
     await withSave(rowKey(item), async () => {
       if (item.isActive) {
@@ -520,37 +532,24 @@ export function useWeeklyPlannerState(
     })
   }
 
+  /**
+   * Target edits made in the weekly flow are scoped to THIS week (week-state
+   * targetOverride) — not the month. The old behavior wrote the month override
+   * via overlappingMonthRefs[0], silently changing every week of (possibly the
+   * wrong) month on a boundary week.
+   */
   async function saveTargetOverride(
-    subjectType: EditableSubjectKind,
-    payload: { subjectId: string; target: MeasurementTarget }
+    item: PlannerMeasurementRow,
+    target: MeasurementTarget | undefined
   ): Promise<void> {
-    // Use first overlapping month for target overrides
-    const monthRef = overlappingMonthRefs.value[0]
-    if (!monthRef) return
-
-    await withSave(`${subjectType}:${payload.subjectId}:target`, () =>
-      updateMeasurementTargetOverride({
-        monthRef,
-        subjectType,
-        subjectId: payload.subjectId,
-        targetOverride: payload.target,
-      })
-    )
-  }
-
-  async function clearTargetOverride(
-    subjectType: EditableSubjectKind,
-    subjectId: string
-  ): Promise<void> {
-    const monthRef = overlappingMonthRefs.value[0]
-    if (!monthRef) return
-
-    await withSave(`${subjectType}:${subjectId}:target`, () =>
-      updateMeasurementTargetOverride({
-        monthRef,
-        subjectType,
-        subjectId,
-        targetOverride: undefined,
+    await withSave(`${item.subjectType}:${item.id}:target`, () =>
+      updateMeasurementWeekTargetOverride({
+        weekRef: weekRef.value,
+        subjectType: item.subjectType,
+        subjectId: item.id,
+        cadence: item.cadence,
+        monthRef: item.cadence === 'monthly' ? getParentPeriod(weekRef.value) : undefined,
+        targetOverride: target,
       })
     )
   }
@@ -562,13 +561,12 @@ export function useWeeklyPlannerState(
     const target = editableTarget(item)
     if (!target || item.subjectType === 'tracker') return
 
-    await saveTargetOverride(editableSubjectType(item.subjectType), {
-      subjectId: item.id,
-      target:
-        target.kind === 'count'
-          ? { ...target, operator: value as typeof target.operator }
-          : { ...target, operator: value as typeof target.operator },
-    })
+    await saveTargetOverride(
+      item,
+      target.kind === 'count'
+        ? { ...target, operator: value as typeof target.operator }
+        : { ...target, operator: value as typeof target.operator }
+    )
   }
 
   async function handleTargetAggregationChange(
@@ -578,13 +576,12 @@ export function useWeeklyPlannerState(
     const target = editableTarget(item)
     if (!target || target.kind === 'count' || item.subjectType === 'tracker') return
 
-    await saveTargetOverride(editableSubjectType(item.subjectType), {
-      subjectId: item.id,
-      target:
-        target.kind === 'rating'
-          ? { ...target, aggregation: 'average' }
-          : { ...target, aggregation: value as typeof target.aggregation },
-    })
+    await saveTargetOverride(
+      item,
+      target.kind === 'rating'
+        ? { ...target, aggregation: 'average' }
+        : { ...target, aggregation: value as typeof target.aggregation }
+    )
   }
 
   async function handleTargetValueChange(
@@ -594,15 +591,12 @@ export function useWeeklyPlannerState(
     const target = editableTarget(item)
     if (!target || item.subjectType === 'tracker') return
 
-    await saveTargetOverride(editableSubjectType(item.subjectType), {
-      subjectId: item.id,
-      target: { ...target, value },
-    })
+    await saveTargetOverride(item, { ...target, value })
   }
 
   async function handleClearOverride(item: PlannerMeasurementRow): Promise<void> {
     if (item.subjectType === 'tracker') return
-    await clearTargetOverride(editableSubjectType(item.subjectType), item.id)
+    await saveTargetOverride(item, undefined)
   }
 
   async function applyWholePeriod(item: PlannerMeasurementRow): Promise<void> {

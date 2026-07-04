@@ -4,6 +4,7 @@ import StreamCard from './stream/StreamCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
+import PlannerWeekTargetPill from './PlannerWeekTargetPill.vue'
 import { useT } from '@/composables/useT'
 import { useWeeklyPlannerState } from '@/composables/useWeeklyPlannerState'
 import type { WeekRef } from '@/domain/period'
@@ -34,7 +35,20 @@ const {
   canToggleDay,
   applyWholePeriod,
   handleClearPlacement,
+  editableTarget,
+  handleTargetValueChange,
+  handleClearOverride,
 } = planner
+
+const weekTargetEditable = computed(() => {
+  const row = assignmentRow.value
+  return Boolean(row && row.subjectType !== 'tracker' && editableTarget(row))
+})
+
+const hasWeekOverride = computed(() => {
+  const row = assignmentRow.value
+  return Boolean(row && row.weekTargetOverrideByRef[props.weekRef])
+})
 
 const rows = computed<PlannerMeasurementRow[]>(() => [
   ...keyResultRows.value,
@@ -92,7 +106,7 @@ async function onWholeWeek(): Promise<void> {
       {{ t('planning.weekPlanning.days.empty') }}
     </p>
 
-    <!-- Active-object toolbar: whole-week / clear shortcuts. -->
+    <!-- Active-object toolbar: week target + whole-week / clear shortcuts. -->
     <div
       v-if="assignmentRow"
       class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2"
@@ -100,7 +114,23 @@ async function onWholeWeek(): Promise<void> {
       <span class="min-w-0 truncate text-xs text-on-surface-variant">
         {{ t('planning.weekPlanning.days.assigningHint', { title: assignmentRow.title }) }}
       </span>
-      <div class="flex shrink-0 gap-2">
+      <div class="flex shrink-0 flex-wrap items-center gap-2">
+        <!-- Week target editor — writes THIS week's override, never the month's. -->
+        <div
+          v-if="weekTargetEditable"
+          data-testid="week-day-step-target"
+          class="flex items-center gap-1.5"
+        >
+          <span class="text-[11px] text-on-surface-variant">
+            {{ t('planning.weekPlanning.days.weekTarget') }}
+          </span>
+          <PlannerWeekTargetPill
+            :target="editableTarget(assignmentRow)!"
+            :has-override="hasWeekOverride"
+            @change="value => handleTargetValueChange(assignmentRow!, value)"
+            @clear="handleClearOverride(assignmentRow!)"
+          />
+        </div>
         <AppButton variant="text" @click="handleClearPlacement">
           {{ t('planning.weekPlanning.days.clear') }}
         </AppButton>
