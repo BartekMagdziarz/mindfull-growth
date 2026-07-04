@@ -183,7 +183,7 @@ describe('updateMeasurementWeekTargetOverride', () => {
     expect(monthState?.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 5 })
   })
 
-  it('un-toggles a monthly-cadence week placement without touching the month state', async () => {
+  it('un-toggling the last monthly-cadence week placement deactivates the month (active ⇔ placed)', async () => {
     const habitId = await createMonthlyHabit([MONTH])
 
     await toggleMeasurementWeekAssignment({
@@ -209,11 +209,69 @@ describe('updateMeasurementWeekTargetOverride', () => {
     expect(
       await planningStateDexieRepository.getMeasurementWeekState(WEEK, 'habit', habitId, MONTH)
     ).toBeUndefined()
-    // The object stays active in the month portfolio.
+    // Last placement removed → the 'unassigned' month state is cleaned up too.
+    expect(
+      await planningStateDexieRepository.getMeasurementMonthState(MONTH, 'habit', habitId)
+    ).toBeUndefined()
+  })
+
+  it('un-toggling one of several monthly-cadence week placements keeps the month active', async () => {
+    const habitId = await createMonthlyHabit([MONTH])
+    const otherWeek = parsePeriodRef('2026-W12') as WeekRef
+
+    for (const weekRef of [WEEK, otherWeek]) {
+      await toggleMeasurementWeekAssignment({
+        weekRef,
+        subjectType: 'habit',
+        subjectId: habitId,
+        cadence: 'monthly',
+        monthRef: MONTH,
+      })
+    }
+
+    await toggleMeasurementWeekAssignment({
+      weekRef: WEEK,
+      subjectType: 'habit',
+      subjectId: habitId,
+      cadence: 'monthly',
+      monthRef: MONTH,
+    })
+
     expect(
       (await planningStateDexieRepository.getMeasurementMonthState(MONTH, 'habit', habitId))
         ?.activityState
     ).toBe('active')
+  })
+
+  it('whole-month scope survives un-toggling a week placement (it is a placement itself)', async () => {
+    const habitId = await createMonthlyHabit([MONTH])
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: MONTH,
+      subjectType: 'habit',
+      subjectId: habitId,
+      activityState: 'active',
+      scheduleScope: 'whole-month',
+    })
+
+    await toggleMeasurementWeekAssignment({
+      weekRef: WEEK,
+      subjectType: 'habit',
+      subjectId: habitId,
+      cadence: 'monthly',
+      monthRef: MONTH,
+    })
+    await toggleMeasurementWeekAssignment({
+      weekRef: WEEK,
+      subjectType: 'habit',
+      subjectId: habitId,
+      cadence: 'monthly',
+      monthRef: MONTH,
+    })
+
+    expect(
+      (await planningStateDexieRepository.getMeasurementMonthState(MONTH, 'habit', habitId))
+        ?.scheduleScope
+    ).toBe('whole-month')
   })
 
   it('requires monthRef for monthly cadence subjects', async () => {
