@@ -48,7 +48,12 @@
           </div>
         </div>
 
-        <div v-if="candidates.length > 0" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <p v-if="candidates.length === 0" class="text-xs text-on-surface-variant">
+          {{ t('planning.weekPlanning.priorities.empty') }}
+        </p>
+
+        <!-- Candidates + inline composer as the trailing "add" cell of the same grid. -->
+        <div class="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <WeekPlanObjectCard
             v-for="candidate in candidates"
             :key="candidate.key"
@@ -59,23 +64,18 @@
             @save="(payload) => onSaveIntention(candidate, payload)"
             @delete="onDeleteIntention(candidate)"
           />
+          <div class="neo-card border border-dashed border-neu-border/40 p-3.5">
+            <IntentionComposer
+              :week-ref="props.weekRef"
+              :priorities="activePriorities"
+              @created="onIntentionCreated"
+            />
+          </div>
         </div>
-        <p v-else class="text-xs text-on-surface-variant">
-          {{ t('planning.weekPlanning.priorities.empty') }}
-        </p>
 
         <p v-if="selectedKeys.length > SOFT_LIMIT" class="text-xs font-medium text-amber-600">
           {{ t('planning.weekPlanning.priorities.softLimitWarning', { n: SOFT_LIMIT }) }}
         </p>
-
-        <!-- Inline composer to add a new intention; new intentions join the grid above. -->
-        <div class="neo-card neo-raised border border-neu-border/30 p-3.5">
-          <IntentionComposer
-            :week-ref="props.weekRef"
-            :priorities="activePriorities"
-            @created="onIntentionCreated"
-          />
-        </div>
 
         <p v-if="!reflectionUnlocked" class="text-xs text-on-surface-variant">
           {{ t('planning.weekWizard.reflectionLockedHint') }}

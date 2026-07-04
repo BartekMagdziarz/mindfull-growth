@@ -36,14 +36,14 @@
         <p v-if="activePriorities.length === 0" class="text-sm text-on-surface-variant">
           {{ t('planning.monthlyPlanning.priorities.empty') }}
         </p>
-        <ul v-else class="space-y-2">
+        <ul v-else class="grid gap-3 sm:grid-cols-2">
           <li v-for="priority in activePriorities" :key="priority.id">
             <button
               type="button"
-              class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition"
+              class="neo-card neo-raised flex w-full items-center gap-2 border p-3 text-left text-sm transition"
               :class="selectedPriorityIds.includes(priority.id)
-                ? 'bg-primary/15 font-semibold text-primary-strong'
-                : 'text-on-surface hover:bg-section/60'"
+                ? 'border-primary/50 bg-primary/5 font-semibold text-primary-strong'
+                : 'border-neu-border/30 text-on-surface'"
               @click="toggleTopPriority(priority.id)"
             >
               <AppIcon
@@ -84,13 +84,12 @@
         </p>
         <div
           v-else
-          class="grid gap-3"
-          :style="{ gridTemplateColumns: `repeat(${activePriorities.length}, minmax(0, 1fr))` }"
+          class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
         >
           <div
             v-for="priority in activePriorities"
             :key="priority.id"
-            class="flex min-w-0 flex-col gap-2.5 rounded-xl bg-section/50 p-2.5"
+            class="neo-card neo-raised flex min-w-0 flex-col gap-2.5 border border-neu-border/30 p-3"
           >
             <!-- header -->
             <div class="flex items-center gap-1">
