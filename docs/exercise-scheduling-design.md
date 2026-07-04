@@ -9,6 +9,13 @@
 > live in the Today wellness column (Zone A) as compact tiles, following the
 > `JournalCard`/`EmotionCard` direct-store pattern. Zone B, `todayViewQueries`,
 > `today.store` and the dormant initiative plumbing are **not touched**.
+>
+> **Self-sufficiency:** this doc is written so each phase can be planned and implemented
+> in a fresh session from the doc + repo alone. §7 carries per-phase scope and
+> "done when" criteria; **Appendix A** carries the as-is codebase anchors (patterns,
+> files, symbols) discovered during design — start there before re-exploring. Line
+> numbers are as of 2026-07-04 and may drift (concurrent sessions commit to `main`);
+> symbol names are the durable reference.
 
 ## 1. Feature statement
 
@@ -79,8 +86,14 @@ interface ExerciseCatalogEntry {
   micro?: boolean                 // eligible for the daily suggestion card
   suggestedRepeatDays?: number    // prefill for "zaplanuj powtórkę"
   aiAssisted?: boolean
+  legacyTable?: string            // Dexie table holding this exercise's result records
+                                  // (v23 completion-backfill source; absent for kind:'micro')
 }
 ```
+
+For `kind: 'assessment'` entries the backfill source is `assessmentAttempts`
+(rows with `status === 'completed'`, slug = `assessmentId`) rather than a per-exercise
+table.
 
 Types in `src/domain/exerciseCatalog.ts`, data in `src/data/exerciseCatalog.ts`.
 Existing exercises flagged `micro: true`: `worry-tree`, `daily-ifs-checkin`,
@@ -119,9 +132,22 @@ A small data-driven runner, NOT bespoke wizards per micro exercise:
   `/exercises/micro/:slug` + `src/components/exercises/MicroExerciseRunner.vue`
   (dot indicators, `AppCard` steps, neo tokens — same look as existing wizards).
 
-**Initial micro content (5–6):** gratitude list (3 things), savoring / best moment of the
-day, self-compassion break (Neff — consistent with `compassionate-letter`), grounding
-5-4-3-2-1, box breathing, "one small win".
+**Initial micro content (6) — step outlines** (final copy authored in Phase 1, EN/PL,
+step keys map to `exerciseWizards.micro.<slug>.<step>.*`):
+
+1. `gratitude-list` — info intro → `textList` (3 prompts: "za co jesteś dziś
+   wdzięczny/a") → optional `textarea` (why the first one matters).
+2. `savoring-moment` — `textarea` (best moment of the day) → `slider` (pleasantness
+   0–100) → `textarea` (sensory details, to deepen the savoring).
+3. `self-compassion-break` — Neff's 3-part structure as info+`textarea` steps:
+   mindfulness (name what hurts) → common humanity → kind words to yourself.
+   Tone consistent with `compassionate-letter`.
+4. `grounding-54321` — guided `textList` sequence: 5 things you see → 4 you feel →
+   3 you hear → 2 you smell → 1 you taste.
+5. `box-breathing` — `breathTimer` (4-4-4-4, ~2 min) with optional `emotionPick`
+   before/after (reuses the emotion-before/after convention from existing wizards).
+6. `one-small-win` — `textarea` (today's small win) → `textarea` (what it says
+   about you).
 
 **Today surface:** the Zone A placeholder `ExerciseCard.vue` becomes "Ćwiczenie na dziś":
 - Deterministic local suggestion (`src/services/exerciseSuggestion.ts`): seeded by
@@ -233,12 +259,15 @@ entries).
 
 ## 5. Data model / Dexie
 
-New tables only (no reshaping of existing rows). One version bump per phase, matching
-trunk-based delivery:
+New tables only (no reshaping of existing rows). Schema lives in
+`src/services/userDatabase.service.ts` (`class UserDatabase extends Dexie`); current
+version is **22** as of 2026-07-04 — verify the latest `this.version(N)` before bumping.
+One version bump per phase, matching trunk-based delivery:
 
 - **v23 (Phase 1):** `exerciseCompletions: 'id, exerciseSlug, dayRef, completedAt'`,
   `microExerciseEntries: 'id, exerciseSlug, createdAt'` + upgrade backfilling
-  completions from existing exercise tables.
+  completions from the legacy exercise tables (`legacyTable` per catalog entry, one
+  completion row per record's `createdAt`) and from completed `assessmentAttempts`.
 - **v24 (Phase 2):** `exercisePlanItems: 'id, exerciseSlug, dayRef, status, source'`.
 - **v25 (Phase 3):** `programEnrollments: 'id, programSlug, status'`.
 
@@ -276,6 +305,14 @@ commit (seed additions + `SEED_VERSION` bump per phase).
 4. Today: live `ExerciseCard.vue` + `exerciseSuggestion.ts`.
 5. Stream day chip (§4.7). Seeds: a few historical completions.
 
+**Done when:** `ExercisesView` renders entirely from the catalog (incl. the new `micro`
+tab) with no behavior change for existing cards; every exercise/assessment save writes
+an `exerciseCompletions` row; the v23 backfill populated historical completions; the
+Today card suggests a micro exercise (stable within a day, "pokaż inne" works), starts
+it, and shows the done state; all 6 micro exercises playable end-to-end in PL and EN;
+stream day cards show the exercise chip; seeded instance (5199) demonstrates all of the
+above; gates green.
+
 ### Phase 2 — repeats (type 2)
 
 1. Dexie v24; `src/domain/exercisePlan.ts`, repository, `exercisePlanService.ts`,
@@ -285,12 +322,25 @@ commit (seed additions + `SEED_VERSION` bump per phase).
 3. Today tile `PlannedExercisesCard.vue` (due + overdue). Seeds: one due plan, one
    overdue plan.
 
+**Done when:** every exercise's saved state (and assessment results) offers the repeat
+chip row with correct prefill; created plans persist and surface on the Today tile on
+their day; overdue plans stay visible with the "zaległe" marker; completing the exercise
+auto-ticks the matching plan (no manual tick exists); move/skip work from the tile's
+affordances; seeded due + overdue plans verified on 5199; gates green.
+
 ### Phase 3 — programs (type 3)
 
 1. Dexie v25; `src/domain/program.ts`, `src/data/programCatalog.ts` (3 programs + EN/PL
    content), enrollment repository + store, `programSchedulerService.ts`.
 2. UI: "Ścieżki" tab, program detail view (timeline), enroll/pause/abandon flows.
 3. Today tile `ProgramCard.vue`. Seeds: one active enrollment mid-path.
+
+**Done when:** the three programs are enrollable from the "Ścieżki" tab; the scheduler
+idempotently materializes exactly one pending plan item for the current step at the
+correct earliest-eligible day; completing the step's exercise advances the enrollment
+(last step → `completed`); pause/abandon behave sanely (no orphaned pending plan items);
+the program detail timeline reflects step states; the Today tile shows the active
+program with step progress; seeded mid-path enrollment verified on 5199; gates green.
 
 ## 8. Content & i18n notes
 
@@ -312,3 +362,115 @@ commit (seed additions + `SEED_VERSION` bump per phase).
 - Notifications/reminders outside the app — no notification surface exists app-wide;
   out of scope.
 - Program authoring UI (programs stay code-defined for now).
+
+## Appendix A — as-is codebase anchors (for fresh-session implementation)
+
+Discovered during the 2026-07-04 design exploration. Symbol names are durable; line
+numbers may drift.
+
+### Today wellness column (Zone A)
+
+- `src/views/TodayView.vue` — 3-zone grid, `grid-template-columns: 168px 360px 1fr`
+  (Zone A is the narrow 168px column — tiles must be compact). Zone A template ≈ lines
+  24–47: `TodayDateSwitcher` → `JournalCard` → `EmotionCard` → `ExerciseCard`
+  (placeholder). Wellness cards are wired **directly to stores in the view script**
+  (≈ lines 305–351, journal/emotion refs) — the pattern the three new tiles follow.
+  The view is date-scoped via the `dayRef` prop (routes `today` / `today-day` in
+  `src/router/index.ts`); tiles must respect the visible day (historical days: that
+  day's completions, no CTAs).
+- Placeholder to replace: `src/components/today/ExerciseCard.vue` (currently
+  opacity 0.6, i18n `planning.today.wellness.exercisesComing` in
+  `src/locales/{en,pl}/planning.json`).
+- Visual reference for tiles: `src/components/today/JournalCard.vue` /
+  `EmotionCard.vue` (`neo-raised`, radius 1.4rem, state empty/done, link-out).
+
+### Exercise subsystem
+
+- Hardcoded catalog to replace: `src/views/ExercisesView.vue` — 4 tabs
+  (`self-discovery|cbt|logotherapy|ifs`), grid of `<ExerciseCard>` with per-card i18n
+  keys/icons/routes/`ai-assisted`; `onMounted` loads ~36 stores + 9 assessments to
+  compute per-card `lastCompleted` (replaced by `exerciseCompletions` after Phase 1).
+- Card component: `src/components/exercises/ExerciseCard.vue`; category accents:
+  `src/constants/exerciseColorRoles.ts` (`EXERCISE_CATEGORY_CLASSES` — extend for
+  `micro`).
+- Domain: `src/domain/exercises.ts` — one interface per exercise +
+  `Create<X>Payload`/`Update<X>Payload` pairs; no shared base type (by design, stays
+  that way — the catalog is the unifier).
+- Store pattern (where `recordCompletion` hooks in): `src/stores/worryTree.store.ts` —
+  setup store, `create*` action calls the repo; add the one-line completion call in
+  each exercise store's `create*` (enumerate by grepping `src/stores/` for exercise
+  stores). Assessments hook instead in `src/composables/useAssessmentSession.ts`
+  (attempt-completion path).
+- Host-view pattern (where `RepeatPlanPrompt` mounts): `src/views/exercises/*.vue`
+  (34 files), e.g. `WorryTreeView.vue` — back button + wizard component, listens
+  `@saved` → `store.create<X>`, past-entries list below. Wizards live in
+  `src/components/exercises/*Wizard.vue` (dot indicators, `AppCard`, neo tokens — the
+  look `MicroExerciseRunner.vue` should match).
+- Repositories: interfaces `src/repositories/exercisesRepository.ts`, impls
+  `src/repositories/exercisesDexieRepository.ts` (create = `crypto.randomUUID()` +
+  ISO timestamps + `toPlain()` + `.add()`); for the new planning-adjacent entities
+  follow `src/repositories/weeklyIntentionDexieRepository.ts`.
+- Assessments engine (data-driven precedent for the micro runner):
+  `src/domain/assessments.ts` (`AssessmentDefinition.estimatedMinutes`,
+  `retakePolicy`, `AssessmentAttempt.retakeEligibleAt` — Phase 2 prefill),
+  `src/services/assessments/registry.ts`, runner
+  `src/views/exercises/AssessmentView.vue`.
+- Routes: exercise routes block in `src/router/index.ts` (lazy host views) — register
+  `/exercises/micro/:slug` and the program detail route there.
+
+### Dexie schema
+
+- `src/services/userDatabase.service.ts` — `class UserDatabase extends Dexie`; table
+  fields typed `Table<T, string>` near the top; versions declared sequentially
+  (`this.version(N).stores({...})`); **new tables need no `.upgrade`** (see v21/v22
+  comments); reshape example with `.upgrade`: v19/v20. The 33 exercise tables are
+  declared in the class field block — the source list for the v23 backfill (plus
+  `assessmentAttempts: 'id, assessmentId'`).
+- DB name: `MindfullGrowthDB_simplify_<userId>`; singleton `getUserDatabase()`.
+
+### Foundation (program #2 + outdated→repeat suggestions)
+
+- `src/services/foundationCompleteness.ts` — `FOUNDATION_ITEMS` (16 slots → group +
+  route), `deriveState` → `not-started/in-progress/completed/outdated`
+  (`FOUNDATION_OUTDATED_DAYS` = 180), `isFoundationBuildUnlocked`,
+  `computeFoundationGroupProgress`; Big Five merged slot
+  (`FOUNDATION_BIG_FIVE_VARIANTS`).
+- Program-timeline visual pattern: `src/components/profile/FoundationTile.vue`,
+  `FoundationProgressHeader.vue`, `FoundationPillarsGauge.vue`.
+
+### Stream calendar
+
+- `src/components/calendar/stream/streamModel.ts` — `StreamDayVM` (`dayRef,
+  weekdayIndex, dayNumber, isToday, isFuture, journalWritten, emotionCount,
+  emotionSegments, rings`) — add `exerciseCount`.
+- `streamData.ts` — `loadStreamWeek(weekRef)` builds day VMs; follow the
+  journal/emotion pattern (load store/repo, filter by day bounds, blank when
+  `isFuture`). Render in `StreamDayCard.vue`.
+
+### i18n
+
+- Helper: `src/composables/useT.ts` — `t` (fallback EN→raw key), `tp` (PL 3 plural
+  forms), `tg` (gendered `key.m`/`key.f` — variants must exist in BOTH `en/` and
+  `pl/`), `tList` (arrays, elements may be gendered objects).
+- Parity gate: `npm run check-locales` (`scripts/check-locale-keys.mjs`).
+- Files: `src/locales/{en,pl}/exercises.json` (catalog chrome),
+  `exerciseWizards.json` (step content — add the `micro.*` namespace),
+  `planning.json` (`planning.today.*` — tile strings), new `programs.json` for
+  Phase 3.
+
+### Seeds & verification
+
+- `src/dev/verificationSeed.ts` — `SEED_VERSION` (**2** as of 2026-07-04; bump per
+  phase), `seedVerificationData()` creates entities via repos imported at top;
+  deterministic only (no `Date.now()` randomness — helpers like `weekDays`,
+  `isMet`); re-seed hook `window.__verifySeed()`.
+- Verify on the isolated instance: verify-app skill / `npm run dev:verify`
+  (port 5199, auto-login). Never seed or e2e against 5173 (real data).
+
+### Conventions (from CLAUDE.md, restated for completeness)
+
+- Gates before any commit: `npx vue-tsc --noEmit` (0 errors) + `npx vitest run`
+  (green). Conventional commits, lowercase, straight to `main`.
+- Concurrent sessions share this checkout: check `HEAD` before committing, stage
+  explicit paths only (`git add <files>`), never `git add -A`.
+- Data writes go through repositories/services — never raw IndexedDB.
