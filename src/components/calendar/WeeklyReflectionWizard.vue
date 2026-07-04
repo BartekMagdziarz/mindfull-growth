@@ -118,7 +118,6 @@
         </div>
         <ReflectionDimensionRatings
           :groups="areaGroups"
-          layout="rows"
           @update:rating="handleRatingUpdate"
         />
       </div>

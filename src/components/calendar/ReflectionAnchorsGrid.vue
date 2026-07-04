@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-3 gap-3">
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
     <div v-for="cat in categories" :key="cat.key">
       <!-- Expanded: raised card with inset bullet lines -->
       <div
