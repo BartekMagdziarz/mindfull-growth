@@ -14,11 +14,10 @@
     - allowFamilyOnly=false → wybór samej rodziny nie istnieje (WorryTree,
       ThoughtRecord), więc klik w całą kartę po prostu rozwija emocje.
 
-  Przełącznik ćwiartek ma DWA warianty ('tabs' pełnowymiarowe zakładki na górze
-  panelu / 'capsule' — segmentowana kapsuła 1×4 ikon w prawym rogu rzędu
-  tytułu+chipów, poza panelem) za TYMCZASOWYM przełącznikiem DEV (localStorage),
-  do porównania na żywo — po decyzji użytkownika jeden wariant zostaje, toggle
-  znika. Prod jest zablokowany na 'tabs'.
+  Przełącznik ćwiartek = segmentowana kapsuła 1×4 ikon w prawym rogu rzędu
+  tytułu+chipów (poza panelem), widoczna tylko przy aktywnej ćwiartce. Klik w
+  aktywny segment = powrót do kroku 1. (Wybrana przez użytkownika 2026-07-04
+  spośród dwóch wariantów; odrzucone pełnowymiarowe zakładki usunięte.)
 
   Dawny poziom 3 (scatter całej ćwiartki) został wyjęty do nieużywanego
   komponentu src/components/emotion/EmotionScatter.vue.
@@ -42,7 +41,11 @@
       v-if="props.label || hasDisplayedChips || capsuleVisible"
       class="mb-4 flex items-start gap-3"
     >
+      <!-- Kontener listy tylko gdy ma zawartość — bez etykiety i chipów nie
+           zostawiamy pustej roli list w drzewie dostępności (sama kapsuła
+           dopycha się wtedy do prawej przez margin-left:auto). -->
       <div
+        v-if="props.label || hasDisplayedChips"
         class="flex flex-wrap items-center gap-2 flex-1 min-w-0"
         role="list"
         aria-label="Selected emotions and families"
@@ -139,53 +142,9 @@
           </div>
         </div>
 
-        <!-- Ramka aktywnej ćwiartki: przełącznik + siatka rodzin z rozwinięciem -->
+        <!-- Ramka aktywnej ćwiartki: siatka rodzin z rozwinięciem (przełącznik
+             ćwiartek to kapsuła w rzędzie tytułu, poza panelem) -->
         <div v-else key="active" class="active-frame" :style="originStyle">
-          <!-- Przełącznik ćwiartek — wariant 'tabs': pełnowymiarowe zakładki
-               (aktywna = pełny gradient ćwiartki, zlana z tłem panelu) + jawny
-               przycisk powrotu do kroku 1. Klik w aktywną zakładkę = no-op. -->
-          <div v-if="switcherVariant === 'tabs'" class="q-head">
-            <div class="q-tabs" role="group" :aria-label="t('emotionViews.selector.backToQuadrants')">
-              <button
-                v-for="quadrant in quadrants"
-                :key="quadrant.value"
-                type="button"
-                class="q-tabs__seg"
-                :class="{ 'q-tabs__seg--active': quadrant.value === quadrantModel }"
-                :data-testid="`emotion-quadrant-switch-${quadrant.value}`"
-                :style="getQuadrantButtonStyle(quadrant.value)"
-                :title="quadrant.label"
-                :aria-label="quadrant.label"
-                :aria-pressed="quadrant.value === quadrantModel"
-                @click="onSwitcherClick(quadrant.value)"
-              >
-                <AppIcon :name="quadrant.icon" class="q-tabs__icon" />
-                <span class="q-tabs__text">
-                  <span>{{ quadrant.energyLabel }}</span>
-                  <span>{{ quadrant.pleasantnessLabel }}</span>
-                </span>
-              </button>
-            </div>
-            <button
-              type="button"
-              class="q-collapse"
-              data-testid="emotion-quadrant-collapse"
-              :title="t('emotionViews.selector.backToQuadrants')"
-              :aria-label="t('emotionViews.selector.backToQuadrants')"
-              @click="collapseToQuadrants"
-            >
-              <AppIcon name="undo" class="text-base" />
-            </button>
-          </div>
-
-          <!-- TYMCZASOWE (DEV): przełącznik wariantu przełącznika ćwiartek,
-               do porównania na żywo. Do usunięcia po decyzji. -->
-          <div v-if="isDev" class="dev-variant-row">
-            <button type="button" class="dev-variant-btn" @click="toggleSwitcherVariant">
-              ⇄ przełącznik: {{ switcherVariant === 'tabs' ? 'zakładki' : 'kapsuła' }}
-            </button>
-          </div>
-
           <Transition :name="transitionName" mode="out-in">
             <!-- 2. Rodziny z rozwinięciem w miejscu -->
             <div :key="`fam-${quadrantModel}`" class="lvl-inner">
@@ -318,40 +277,6 @@
   </div>
 </template>
 
-<script lang="ts">
-// Wariant przełącznika ćwiartek — stan WSPÓŁDZIELONY między wszystkimi
-// instancjami selektora (moduł), TYMCZASOWY na czas porównania wariantów.
-// Prod zablokowany na 'tabs'; w DEV wybór trzymany w localStorage.
-import { ref as moduleRef, type Ref as ModuleRef } from 'vue'
-
-type SwitcherVariant = 'tabs' | 'capsule'
-const SWITCHER_VARIANT_KEY = 'mg-emotion-switcher-variant'
-
-function loadSwitcherVariant(): SwitcherVariant {
-  if (!import.meta.env.DEV) return 'tabs'
-  try {
-    const stored = localStorage.getItem(SWITCHER_VARIANT_KEY)
-    if (stored === 'tabs' || stored === 'capsule') return stored
-    // 'minimap' = poprzednia forma drugiego wariantu (2×2 w nagłówku panelu),
-    // zastąpiona kapsułą w rzędzie tytułu.
-    if (stored === 'minimap') return 'capsule'
-  } catch {
-    // localStorage niedostępny
-  }
-  return 'tabs'
-}
-
-const sharedSwitcherVariant: ModuleRef<SwitcherVariant> = moduleRef(loadSwitcherVariant())
-
-function persistSwitcherVariant(variant: SwitcherVariant): void {
-  try {
-    localStorage.setItem(SWITCHER_VARIANT_KEY, variant)
-  } catch {
-    // localStorage niedostępny
-  }
-}
-</script>
-
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useT } from '@/composables/useT'
@@ -407,18 +332,9 @@ const familiesModel = defineModel<string[]>('families', { default: () => [] })
 const emotionStore = useEmotionStore()
 const { t } = useT()
 
-const isDev = import.meta.env.DEV
-const switcherVariant = sharedSwitcherVariant
-function toggleSwitcherVariant(): void {
-  switcherVariant.value = switcherVariant.value === 'tabs' ? 'capsule' : 'tabs'
-  persistSwitcherVariant(switcherVariant.value)
-}
-
 // Kapsuła żyje w rzędzie tytułu+chipów (poza panelem) i tylko przy aktywnej
 // ćwiartce — na kroku 1 dublowałaby wielką kratę 2×2 tuż pod sobą.
-const capsuleVisible = computed(
-  () => switcherVariant.value === 'capsule' && quadrantModel.value !== null
-)
+const capsuleVisible = computed(() => quadrantModel.value !== null)
 
 const selectedEmotionIds = ref<string[]>([])
 const expandedFamilyId = ref<string | null>(null)
@@ -594,13 +510,9 @@ function collapseToQuadrants(): void {
   hoveredId.value = null
 }
 function onSwitcherClick(quadrant: Quadrant): void {
-  if (quadrant === quadrantModel.value) {
-    // Zakładki: klik w aktywną = no-op (powrót przez jawny przycisk ↩).
-    // Kapsuła: klik w aktywny segment = powrót do kroku 1.
-    if (switcherVariant.value === 'capsule') collapseToQuadrants()
-    return
-  }
-  switchQuadrant(quadrant)
+  // Klik w aktywny segment kapsuły = powrót do kroku 1.
+  if (quadrant === quadrantModel.value) collapseToQuadrants()
+  else switchQuadrant(quadrant)
 }
 
 // --- Styl panelu + punkt rozwinięcia (transform-origin z rogu ćwiartki) ---
@@ -761,100 +673,7 @@ onMounted(async () => {
     8px 8px 16px rgb(var(--neo-shadow-dark) / 0.36);
 }
 
-/* === Przełącznik ćwiartek — nagłówek panelu (wariant 'tabs') === */
-.q-head {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-/* Wariant 'tabs': segmenty na całą szerokość */
-.q-tabs {
-  display: flex;
-  flex: 1;
-  gap: 6px;
-  min-width: 0;
-}
-.q-tabs__seg {
-  flex: 1;
-  min-width: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 7px 8px;
-  border-radius: 13px;
-  cursor: pointer;
-  border: 1px solid rgb(var(--neo-border) / 0.12);
-  opacity: 0.72;
-  filter: saturate(0.82);
-  box-shadow:
-    -3px -3px 7px rgb(var(--neo-shadow-light) / 0.6),
-    3px 3px 7px rgb(var(--neo-shadow-dark) / 0.24);
-  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease, opacity 150ms ease;
-}
-.q-tabs__seg:hover {
-  transform: translateY(-1px);
-  opacity: 0.92;
-  filter: saturate(1);
-}
-.q-tabs__seg--active {
-  opacity: 1;
-  filter: saturate(1);
-  border-width: 1.5px;
-  cursor: default;
-  box-shadow:
-    0 0 0 2px rgb(255 255 255 / 0.75),
-    inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.55),
-    inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.24);
-}
-.q-tabs__seg--active:hover {
-  transform: none;
-}
-.q-tabs__icon {
-  font-size: 17px;
-  flex-shrink: 0;
-}
-.q-tabs__text {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-  font-size: 10.5px;
-  font-weight: 700;
-  line-height: 1.25;
-  text-align: left;
-}
-.q-tabs__text > span {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Jawny powrót do kroku 1 (dawny ukryty klik w aktywną ćwiartkę) */
-.q-collapse {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  border-radius: 12px;
-  flex-shrink: 0;
-  color: rgb(var(--neo-text));
-  background: rgb(255 255 255 / 0.55);
-  border: 1px solid rgb(var(--neo-border) / 0.12);
-  box-shadow:
-    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.6),
-    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.22);
-  cursor: pointer;
-  transition: transform 150ms ease;
-}
-.q-collapse:hover {
-  transform: translateY(-1px);
-}
-
-/* Wariant 'capsule': segmentowana kapsuła 1×4 w rzędzie tytułu+chipów.
+/* === Przełącznik ćwiartek: segmentowana kapsuła 1×4 w rzędzie tytułu+chipów.
    Wysokość ~26px = wysokość chipów, więc rząd nie rośnie. Jedna kontrolka
    (wspólna otoczka), nie cztery luźne przyciski — żeby nie zlewała się
    z chipami wybranych emocji w tym samym rzędzie. */
@@ -865,6 +684,7 @@ onMounted(async () => {
   padding: 2px;
   border-radius: 999px;
   flex-shrink: 0;
+  margin-left: auto;
   background: rgb(255 255 255 / 0.5);
   border: 1px solid rgb(var(--neo-border) / 0.14);
   box-shadow:
@@ -899,27 +719,6 @@ onMounted(async () => {
   box-shadow:
     inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.6),
     inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.3);
-}
-
-/* TYMCZASOWE (DEV): przełącznik wariantu — do usunięcia po decyzji */
-.dev-variant-row {
-  display: flex;
-  justify-content: flex-end;
-  margin: -4px 0 8px;
-}
-.dev-variant-btn {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: rgb(var(--neo-text) / 0.55);
-  background: rgb(255 255 255 / 0.4);
-  border: 1px dashed rgb(var(--neo-border) / 0.3);
-  cursor: pointer;
-}
-.dev-variant-btn:hover {
-  color: rgb(var(--neo-text) / 0.8);
 }
 
 .lvl-inner {
