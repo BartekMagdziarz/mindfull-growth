@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
+  <PageContainer>
     <div class="mb-6">
       <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.title') }}</h1>
       <p class="text-sm text-on-surface-variant">
@@ -36,7 +36,7 @@
       id="exercises-panel-self-discovery"
       role="tabpanel"
       aria-label="Self-discovery exercises"
-      class="space-y-3"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
     >
       <ExerciseCard
         :category="'self-discovery'"
@@ -185,7 +185,7 @@
       id="exercises-panel-cbt"
       role="tabpanel"
       aria-label="CBT exercises"
-      class="space-y-3"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
     >
       <ExerciseCard
         :category="'cbt'"
@@ -303,7 +303,7 @@
       id="exercises-panel-logotherapy"
       role="tabpanel"
       aria-label="Logotherapy exercises"
-      class="space-y-3"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
     >
       <ExerciseCard
         :category="'logotherapy'"
@@ -399,7 +399,7 @@
       id="exercises-panel-ifs"
       role="tabpanel"
       aria-label="IFS exercises"
-      class="space-y-3"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
     >
       <ExerciseCard
         :category="'ifs'"
@@ -506,13 +506,14 @@
         @click="router.push('/exercises/constellation')"
       />
     </div>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
+import PageContainer from '@/components/layout/PageContainer.vue'
 import ExerciseCard from '@/components/exercises/ExerciseCard.vue'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useValueMapStore } from '@/stores/valueMap.store'
