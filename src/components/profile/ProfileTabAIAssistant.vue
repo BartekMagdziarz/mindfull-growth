@@ -52,29 +52,6 @@
         </select>
       </div>
 
-      <!-- Reasoning effort (Ollama native think; OpenAI reasoning models) -->
-      <div v-if="aiProvider === 'ollama' || aiProvider === 'openai'">
-        <label
-          for="reasoningEffort"
-          class="field-label block mb-[6px]"
-        >{{ t('profile.aiSettings.reasoningEffortLabel') }}</label>
-        <select
-          id="reasoningEffort"
-          v-model="reasoningEffort"
-          class="neo-input w-full px-4 py-3"
-        >
-          <option value="none">{{ t('profile.aiSettings.reasoningEfforts.none') }}</option>
-          <option value="low">{{ t('profile.aiSettings.reasoningEfforts.low') }}</option>
-          <option value="medium">{{ t('profile.aiSettings.reasoningEfforts.medium') }}</option>
-          <option value="high">{{ t('profile.aiSettings.reasoningEfforts.high') }}</option>
-        </select>
-        <p class="mt-2 text-[12px]" style="color: rgb(var(--neo-muted))">
-          {{ aiProvider === 'openai'
-            ? t('profile.aiSettings.reasoningEffortHintOpenai')
-            : t('profile.aiSettings.reasoningEffortHint') }}
-        </p>
-      </div>
-
       <!-- Model -->
       <div>
         <label
@@ -95,8 +72,36 @@
         </p>
       </div>
 
-      <!-- Base URL (full width) -->
-      <div class="md:col-span-2">
+      <!-- Reasoning effort (Ollama native think; OpenAI reasoning models) -->
+      <div
+        v-if="aiProvider === 'ollama' || aiProvider === 'openai'"
+        class="md:col-span-2 grid grid-cols-1 gap-[14px] md:grid-cols-2 md:items-center"
+      >
+        <div>
+          <label
+            for="reasoningEffort"
+            class="field-label block mb-[6px]"
+          >{{ t('profile.aiSettings.reasoningEffortLabel') }}</label>
+          <select
+            id="reasoningEffort"
+            v-model="reasoningEffort"
+            class="neo-input w-full px-4 py-3"
+          >
+            <option value="none">{{ t('profile.aiSettings.reasoningEfforts.none') }}</option>
+            <option value="low">{{ t('profile.aiSettings.reasoningEfforts.low') }}</option>
+            <option value="medium">{{ t('profile.aiSettings.reasoningEfforts.medium') }}</option>
+            <option value="high">{{ t('profile.aiSettings.reasoningEfforts.high') }}</option>
+          </select>
+        </div>
+        <p class="text-[12px] m-0" style="color: rgb(var(--neo-muted))">
+          {{ aiProvider === 'openai'
+            ? t('profile.aiSettings.reasoningEffortHintOpenai')
+            : t('profile.aiSettings.reasoningEffortHint') }}
+        </p>
+      </div>
+
+      <!-- Base URL -->
+      <div>
         <label
           for="baseUrl"
           class="field-label block mb-[6px]"
@@ -115,8 +120,8 @@
         </p>
       </div>
 
-      <!-- API key (full width) -->
-      <div class="md:col-span-2">
+      <!-- API key -->
+      <div>
         <label
           for="apiKey"
           class="field-label block mb-[6px]"
