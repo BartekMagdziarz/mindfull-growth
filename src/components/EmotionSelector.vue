@@ -15,9 +15,10 @@
       ThoughtRecord), więc klik w całą kartę po prostu rozwija emocje.
 
   Przełącznik ćwiartek ma DWA warianty ('tabs' pełnowymiarowe zakładki na górze
-  panelu / 'minimap' 2×2 odbicie kroku 1) za TYMCZASOWYM przełącznikiem DEV
-  (localStorage), do porównania na żywo — po decyzji użytkownika jeden wariant
-  zostaje, toggle znika. Prod jest zablokowany na 'tabs'.
+  panelu / 'capsule' — segmentowana kapsuła 1×4 ikon w prawym rogu rzędu
+  tytułu+chipów, poza panelem) za TYMCZASOWYM przełącznikiem DEV (localStorage),
+  do porównania na żywo — po decyzji użytkownika jeden wariant zostaje, toggle
+  znika. Prod jest zablokowany na 'tabs'.
 
   Dawny poziom 3 (scatter całej ćwiartki) został wyjęty do nieużywanego
   komponentu src/components/emotion/EmotionScatter.vue.
@@ -32,16 +33,20 @@
 -->
 <template>
   <div class="emotion-selector">
-    <!-- Wspólny rząd: etykieta pola + wybrane chipy (emocje, potem nie-wchłonięte
-         rodziny) w jednym flex-wrap. Bez limitu — przy większej liczbie chipów
-         rząd naturalnie się zawija. Reguła wchłonięcia bez zmian: rodzina znika
-         z chipów, gdy wybrano emocję z tej rodziny (displayedFamilyChips). -->
+    <!-- Wspólny rząd: [etykieta pola + wybrane chipy (flex-wrap, własny kontener
+         z role=list)] + [kapsuła przełącznika ćwiartek przypięta z prawej,
+         wariant 'capsule']. Chipy zawijają się we własnym obszarze, kapsuła
+         zostaje w prawym górnym rogu. Reguła wchłonięcia bez zmian: rodzina
+         znika z chipów, gdy wybrano emocję z tej rodziny (displayedFamilyChips). -->
     <div
-      v-if="props.label || hasDisplayedChips"
-      class="mb-4 flex flex-wrap items-center gap-2"
-      role="list"
-      aria-label="Selected emotions and families"
+      v-if="props.label || hasDisplayedChips || capsuleVisible"
+      class="mb-4 flex items-start gap-3"
     >
+      <div
+        class="flex flex-wrap items-center gap-2 flex-1 min-w-0"
+        role="list"
+        aria-label="Selected emotions and families"
+      >
       <span
         v-if="props.label"
         class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mr-1"
@@ -71,6 +76,34 @@
         <span>{{ familyName(family) }}</span>
         <AppIcon name="close" class="text-base" />
       </button>
+      </div>
+
+      <!-- Kapsuła przełącznika ćwiartek (wariant 'capsule'): jedna segmentowana
+           kontrolka 1×4, tylko przy aktywnej ćwiartce. Celowo POZA kontenerem
+           role=list (testy liczą przyciski chipów wewnątrz listy). Klik w
+           aktywny segment = powrót do kroku 1. -->
+      <div
+        v-if="capsuleVisible"
+        class="q-capsule"
+        role="group"
+        :aria-label="t('emotionViews.selector.backToQuadrants')"
+      >
+        <button
+          v-for="quadrant in quadrants"
+          :key="quadrant.value"
+          type="button"
+          class="q-capsule__seg"
+          :class="{ 'q-capsule__seg--active': quadrant.value === quadrantModel }"
+          :data-testid="`emotion-quadrant-switch-${quadrant.value}`"
+          :style="capsuleSegStyle(quadrant.value)"
+          :title="quadrant.value === quadrantModel ? t('emotionViews.selector.backToQuadrants') : quadrant.label"
+          :aria-label="quadrant.value === quadrantModel ? t('emotionViews.selector.backToQuadrants') : quadrant.label"
+          :aria-pressed="quadrant.value === quadrantModel"
+          @click="onSwitcherClick(quadrant.value)"
+        >
+          <AppIcon :name="quadrant.icon" />
+        </button>
+      </div>
     </div>
     <div
       v-else-if="props.showSelectedSection && props.showEmptyState && !props.label && !hasAnySelection"
@@ -145,34 +178,11 @@
             </button>
           </div>
 
-          <!-- Wariant 'minimap': kompaktowe 2×2 w prawym górnym rogu panelu,
-               przestrzennie 1:1 z krokiem 1. Klik w aktywną komórkę = powrót
-               do kroku 1 (dawne ukryte zachowanie, teraz z tooltipem). -->
-          <div v-else class="q-head q-head--mini">
-            <div class="q-minimap" role="group" :aria-label="t('emotionViews.selector.backToQuadrants')">
-              <button
-                v-for="quadrant in quadrants"
-                :key="quadrant.value"
-                type="button"
-                class="q-minimap__cell"
-                :class="{ 'q-minimap__cell--active': quadrant.value === quadrantModel }"
-                :data-testid="`emotion-quadrant-switch-${quadrant.value}`"
-                :style="getQuadrantButtonStyle(quadrant.value)"
-                :title="quadrant.value === quadrantModel ? t('emotionViews.selector.backToQuadrants') : quadrant.label"
-                :aria-label="quadrant.value === quadrantModel ? t('emotionViews.selector.backToQuadrants') : quadrant.label"
-                :aria-pressed="quadrant.value === quadrantModel"
-                @click="onSwitcherClick(quadrant.value)"
-              >
-                <AppIcon :name="quadrant.icon" />
-              </button>
-            </div>
-          </div>
-
           <!-- TYMCZASOWE (DEV): przełącznik wariantu przełącznika ćwiartek,
                do porównania na żywo. Do usunięcia po decyzji. -->
           <div v-if="isDev" class="dev-variant-row">
             <button type="button" class="dev-variant-btn" @click="toggleSwitcherVariant">
-              ⇄ przełącznik: {{ switcherVariant === 'tabs' ? 'zakładki' : 'minimapa' }}
+              ⇄ przełącznik: {{ switcherVariant === 'tabs' ? 'zakładki' : 'kapsuła' }}
             </button>
           </div>
 
@@ -314,14 +324,17 @@
 // Prod zablokowany na 'tabs'; w DEV wybór trzymany w localStorage.
 import { ref as moduleRef, type Ref as ModuleRef } from 'vue'
 
-type SwitcherVariant = 'tabs' | 'minimap'
+type SwitcherVariant = 'tabs' | 'capsule'
 const SWITCHER_VARIANT_KEY = 'mg-emotion-switcher-variant'
 
 function loadSwitcherVariant(): SwitcherVariant {
   if (!import.meta.env.DEV) return 'tabs'
   try {
     const stored = localStorage.getItem(SWITCHER_VARIANT_KEY)
-    if (stored === 'tabs' || stored === 'minimap') return stored
+    if (stored === 'tabs' || stored === 'capsule') return stored
+    // 'minimap' = poprzednia forma drugiego wariantu (2×2 w nagłówku panelu),
+    // zastąpiona kapsułą w rzędzie tytułu.
+    if (stored === 'minimap') return 'capsule'
   } catch {
     // localStorage niedostępny
   }
@@ -397,9 +410,15 @@ const { t } = useT()
 const isDev = import.meta.env.DEV
 const switcherVariant = sharedSwitcherVariant
 function toggleSwitcherVariant(): void {
-  switcherVariant.value = switcherVariant.value === 'tabs' ? 'minimap' : 'tabs'
+  switcherVariant.value = switcherVariant.value === 'tabs' ? 'capsule' : 'tabs'
   persistSwitcherVariant(switcherVariant.value)
 }
+
+// Kapsuła żyje w rzędzie tytułu+chipów (poza panelem) i tylko przy aktywnej
+// ćwiartce — na kroku 1 dublowałaby wielką kratę 2×2 tuż pod sobą.
+const capsuleVisible = computed(
+  () => switcherVariant.value === 'capsule' && quadrantModel.value !== null
+)
 
 const selectedEmotionIds = ref<string[]>([])
 const expandedFamilyId = ref<string | null>(null)
@@ -577,8 +596,8 @@ function collapseToQuadrants(): void {
 function onSwitcherClick(quadrant: Quadrant): void {
   if (quadrant === quadrantModel.value) {
     // Zakładki: klik w aktywną = no-op (powrót przez jawny przycisk ↩).
-    // Minimapa: klik w aktywną komórkę = powrót do kroku 1.
-    if (switcherVariant.value === 'minimap') collapseToQuadrants()
+    // Kapsuła: klik w aktywny segment = powrót do kroku 1.
+    if (switcherVariant.value === 'capsule') collapseToQuadrants()
     return
   }
   switchQuadrant(quadrant)
@@ -626,6 +645,15 @@ function getQuadrantButtonClasses(): string {
 function getQuadrantButtonStyle(quadrant: Quadrant): Record<string, string> {
   const s = quadrantButtonStyles[quadrant]
   return { background: s.backgroundGradient, color: s.textColor }
+}
+// Segment kapsuły: aktywny = pełny gradient ćwiartki (wiąże kapsułę z tintem
+// panelu niżej), nieaktywny = sama barwa atramentu na tle kapsuły.
+function capsuleSegStyle(quadrant: Quadrant): Record<string, string> {
+  const s = quadrantButtonStyles[quadrant]
+  if (quadrant === quadrantModel.value) {
+    return { background: s.backgroundGradient, color: s.textColor }
+  }
+  return { color: s.textColor }
 }
 function familyCardStyle(isSelectedCard: boolean): Record<string, string> {
   const q = quadrantModel.value
@@ -733,16 +761,12 @@ onMounted(async () => {
     8px 8px 16px rgb(var(--neo-shadow-dark) / 0.36);
 }
 
-/* === Przełącznik ćwiartek — nagłówek panelu (oba warianty) === */
+/* === Przełącznik ćwiartek — nagłówek panelu (wariant 'tabs') === */
 .q-head {
   display: flex;
   align-items: stretch;
   gap: 8px;
   margin-bottom: 10px;
-}
-.q-head--mini {
-  justify-content: flex-end;
-  align-items: flex-start;
 }
 
 /* Wariant 'tabs': segmenty na całą szerokość */
@@ -830,40 +854,51 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 
-/* Wariant 'minimap': 2×2 przestrzennie 1:1 z krokiem 1 */
-.q-minimap {
-  display: grid;
-  grid-template-columns: repeat(2, 38px);
-  gap: 5px;
+/* Wariant 'capsule': segmentowana kapsuła 1×4 w rzędzie tytułu+chipów.
+   Wysokość ~26px = wysokość chipów, więc rząd nie rośnie. Jedna kontrolka
+   (wspólna otoczka), nie cztery luźne przyciski — żeby nie zlewała się
+   z chipami wybranych emocji w tym samym rzędzie. */
+.q-capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(255 255 255 / 0.5);
+  border: 1px solid rgb(var(--neo-border) / 0.14);
+  box-shadow:
+    -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6),
+    2px 2px 5px rgb(var(--neo-shadow-dark) / 0.2);
 }
-.q-minimap__cell {
-  height: 30px;
-  border-radius: 10px;
+.q-capsule__seg {
+  width: 27px;
+  height: 20px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 13px;
+  padding: 0;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  border: 1px solid rgb(var(--neo-border) / 0.12);
-  opacity: 0.75;
-  box-shadow:
-    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.6),
-    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.24);
-  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease, opacity 150ms ease;
+  opacity: 0.55;
+  transition: opacity 120ms ease, filter 120ms ease;
 }
-.q-minimap__cell:hover {
-  transform: translateY(-1px);
+.q-capsule__seg:hover {
   opacity: 1;
-  filter: brightness(1.04);
-}
-.q-minimap__cell--active {
-  opacity: 1;
-  border-width: 1.5px;
   filter: brightness(1.05);
+}
+.q-capsule__seg:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(var(--color-focus));
+}
+.q-capsule__seg--active {
+  opacity: 1;
   box-shadow:
-    0 0 0 2px rgb(255 255 255 / 0.85),
-    inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.65),
-    inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.28);
+    inset -1px -1px 2px rgb(var(--neo-inset-light) / 0.6),
+    inset 1px 1px 2px rgb(var(--neo-inset-dark) / 0.3);
 }
 
 /* TYMCZASOWE (DEV): przełącznik wariantu — do usunięcia po decyzji */
