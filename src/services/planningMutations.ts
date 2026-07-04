@@ -563,6 +563,19 @@ export async function toggleMeasurementWeekAssignment({
   )
 
   if (existing && existing.scheduleScope === 'whole-week') {
+    if (cadence === 'monthly') {
+      // Un-toggle removes only this week's placement; the month state (and the
+      // object's place in the month portfolio) stays. unlinkMeasurementPeriod
+      // must not be used here — its monthly branch expects a MonthRef and
+      // would silently no-op on a weekRef.
+      await planningStateDexieRepository.deleteMeasurementWeekState(
+        weekRef,
+        subjectType,
+        subjectId,
+        existing.sourceMonthRef
+      )
+      return
+    }
     await unlinkMeasurementPeriod({
       subjectType,
       subjectId,

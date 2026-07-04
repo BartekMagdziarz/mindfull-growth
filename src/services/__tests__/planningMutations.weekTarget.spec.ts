@@ -183,6 +183,39 @@ describe('updateMeasurementWeekTargetOverride', () => {
     expect(monthState?.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 5 })
   })
 
+  it('un-toggles a monthly-cadence week placement without touching the month state', async () => {
+    const habitId = await createMonthlyHabit([MONTH])
+
+    await toggleMeasurementWeekAssignment({
+      weekRef: WEEK,
+      subjectType: 'habit',
+      subjectId: habitId,
+      cadence: 'monthly',
+      monthRef: MONTH,
+    })
+    expect(
+      (await planningStateDexieRepository.getMeasurementWeekState(WEEK, 'habit', habitId, MONTH))
+        ?.scheduleScope
+    ).toBe('whole-week')
+
+    await toggleMeasurementWeekAssignment({
+      weekRef: WEEK,
+      subjectType: 'habit',
+      subjectId: habitId,
+      cadence: 'monthly',
+      monthRef: MONTH,
+    })
+
+    expect(
+      await planningStateDexieRepository.getMeasurementWeekState(WEEK, 'habit', habitId, MONTH)
+    ).toBeUndefined()
+    // The object stays active in the month portfolio.
+    expect(
+      (await planningStateDexieRepository.getMeasurementMonthState(MONTH, 'habit', habitId))
+        ?.activityState
+    ).toBe('active')
+  })
+
   it('requires monthRef for monthly cadence subjects', async () => {
     const habitId = await createMonthlyHabit([MONTH])
 
