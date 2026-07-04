@@ -30,12 +30,18 @@ const props = defineProps<{
   todayRef: DayRef
 }>()
 
+const emit = defineEmits<{
+  /** Month reflection opens in-place in the stream (no classic-route round-trip). */
+  'open-month-wizard': []
+}>()
+
 const { t } = useT()
 const router = useRouter()
 
 /**
- * The planning/reflection wizards live in the classic CalendarView. Route there
- * for the focused period with `?action`, so the wizard opens straight away.
+ * Month planning (the MonthlyPlanner grid) and the whole weekly ritual still live
+ * in the classic CalendarView. Route there for the focused period with `?action`,
+ * so the workspace opens straight away.
  */
 function openClassicAction(action: 'plan' | 'reflect') {
   // origin=stream lets CalendarView return here when the wizard closes (see maybeReturnToStream).
@@ -143,8 +149,8 @@ watch(() => [props.scale, props.monthRef, props.weekRef], load, { immediate: tru
       :weekly-intentions="monthIntentions"
       @create-plan="openClassicAction('plan')"
       @edit-plan="openClassicAction('plan')"
-      @create-reflection="openClassicAction('reflect')"
-      @edit-reflection="openClassicAction('reflect')"
+      @create-reflection="emit('open-month-wizard')"
+      @edit-reflection="emit('open-month-wizard')"
     />
     <WeekReviewSummary
       v-else-if="scale === 'week'"

@@ -28,6 +28,7 @@ import StreamMonthCard from '@/components/calendar/stream/StreamMonthCard.vue'
 import StreamWeekCard from '@/components/calendar/stream/StreamWeekCard.vue'
 import StreamDayCard from '@/components/calendar/stream/StreamDayCard.vue'
 import StreamDetailPanel from '@/components/calendar/stream/StreamDetailPanel.vue'
+import MonthlyReflectionWizard from '@/components/calendar/MonthlyReflectionWizard.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 
 type StreamScale = 'year' | 'month' | 'week'
@@ -93,6 +94,27 @@ function initFromParam(raw?: string) {
 
 initFromParam(props.periodRef)
 
+// --- monthly reflection wizard (hosted in-stream) ----------------------------
+
+const monthWizardOpen = ref(false)
+const detailDirty = ref(false)
+const detailReloadKey = ref(0)
+
+// Consume `?action=reflect` before the first syncUrl — router.replace below
+// rewrites the URL with params only, silently dropping the query.
+if (router.currentRoute.value.query.action === 'reflect' && scale.value === 'month') {
+  monthWizardOpen.value = true
+}
+
+function closeMonthWizard() {
+  monthWizardOpen.value = false
+  if (detailDirty.value) {
+    detailDirty.value = false
+    // Remount the detail panel so it reloads the just-saved reflection.
+    detailReloadKey.value++
+  }
+}
+
 // --- active period + URL sync ------------------------------------------------
 
 const activeRef = computed<PeriodRef>(() =>
@@ -122,6 +144,11 @@ function drillToMonth(next: MonthRef) {
   setFromMonth(next)
   scale.value = 'month'
 }
+
+// Paging or re-scaling away closes the in-stream wizard — it is bound to one month.
+watch([scale, monthRef], () => {
+  monthWizardOpen.value = false
+})
 
 function drillToWeek(next: WeekRef) {
   // Boundary weeks (whose Monday falls in an adjacent month) are still listed
@@ -411,17 +438,28 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
       </div>
     </div>
 
-    <!-- Full detail for the focused month / week — the classic review summary. -->
+    <!-- Full detail for the focused month / week — the classic review summary,
+         or the monthly reflection wizard hosted in-place. -->
     <section v-if="showDetailPanel" class="stream-detail">
-      <div class="stream-detail__head">
-        <h2 class="stream-detail__title">{{ t('planning.calendar.stream.detailsTitle') }}</h2>
-      </div>
-      <StreamDetailPanel
-        :scale="scale"
+      <MonthlyReflectionWizard
+        v-if="scale === 'month' && monthWizardOpen"
         :month-ref="monthRef"
-        :week-ref="weekRef"
-        :today-ref="todayDayRef"
+        @close="closeMonthWizard"
+        @updated="detailDirty = true"
       />
+      <template v-else>
+        <div class="stream-detail__head">
+          <h2 class="stream-detail__title">{{ t('planning.calendar.stream.detailsTitle') }}</h2>
+        </div>
+        <StreamDetailPanel
+          :key="detailReloadKey"
+          :scale="scale"
+          :month-ref="monthRef"
+          :week-ref="weekRef"
+          :today-ref="todayDayRef"
+          @open-month-wizard="monthWizardOpen = true"
+        />
+      </template>
     </section>
   </div>
 </template>
