@@ -46,8 +46,10 @@
     "loadingEmotions": "Loading emotions...",
     "noEmotionsInQuadrant": "No emotions in this quadrant",
     "backToQuadrants": "Back to quadrant selection",
-    "showEmotions": "Show emotions",
-    "backToFamilies": "Back to families",
+    "expandFamily": "Expand family {name}",
+    "collapseFamily": "Collapse family {name}",
+    "selectedInFamily": "Selected in this family: {count}",
+    "pickHint": "Click an emotion to select it.",
     "scatterHint": "Hover to reveal a name. Click to select.",
     "axes": {
       "moreEnergy": "more energy",

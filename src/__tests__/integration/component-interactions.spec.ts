@@ -15,14 +15,23 @@ vi.mock('vue-router', () => ({
   useRoute: () => mockRoute,
 }))
 
+// Real catalog ids: the selector resolves family membership through the real
+// FAMILY_OF import (not the mocked store), so fixture ids must exist there.
+// happy/joyful -> family "radosc", angry -> "gniew", calm -> "spokoj-i-wyciszenie".
 const quadrantEmotions = {
   'high-energy-high-pleasantness': [
-    { id: 'happy', name: 'Happy', pleasantness: 10, energy: 10 },
-    { id: 'joyful', name: 'Joyful', pleasantness: 9, energy: 9 },
+    { id: 'e4m10-happy-028', name: 'Happy', pleasantness: 10, energy: 10 },
+    { id: 'e3m10-joyful-027', name: 'Joyful', pleasantness: 9, energy: 9 },
   ],
-  'high-energy-low-pleasantness': [{ id: 'angry', name: 'Angry', pleasantness: 2, energy: 9 }],
-  'low-energy-high-pleasantness': [{ id: 'calm', name: 'Calm', pleasantness: 9, energy: 2 }],
-  'low-energy-low-pleasantness': [{ id: 'tired', name: 'Tired', pleasantness: 3, energy: 3 }],
+  'high-energy-low-pleasantness': [
+    { id: 'e4m3-angry-112', name: 'Angry', pleasantness: 2, energy: 9 },
+  ],
+  'low-energy-high-pleasantness': [
+    { id: 'e7m7-calm-067', name: 'Calm', pleasantness: 9, energy: 2 },
+  ],
+  'low-energy-low-pleasantness': [
+    { id: 'e8m6-tired-080', name: 'Tired', pleasantness: 3, energy: 3 },
+  ],
 }
 
 const allEmotions = Object.values(quadrantEmotions).flat()
@@ -158,14 +167,14 @@ describe('Component interactions', () => {
     const saveButton = await screen.findByRole('button', { name: 'Save' })
     expect(saveButton).toBeDisabled()
 
-    // Select quadrant -> "show emotions" -> pick the "Happy" dot (new scatter flow)
+    // Select quadrant -> expand the "radosc" family in place -> pick "Happy"
     await user.click(screen.getByTestId('emotion-quadrant-high-energy-high-pleasantness'))
-    await user.click(await screen.findByTestId('emotion-show-emotions'))
-    await user.click(await screen.findByTestId('emotion-option-happy'))
+    await user.click(await screen.findByTestId('emotion-family-expand-radosc'))
+    await user.click(await screen.findByTestId('emotion-option-e4m10-happy-028'))
 
     await screen.findByRole('button', { name: /Remove Happy/i })
 
-    // Switch quadrants via the in-panel switcher (level 2/3); selection persists.
+    // Switch quadrants via the in-panel switcher; selection persists.
     await user.click(await screen.findByTestId('emotion-quadrant-switch-high-energy-low-pleasantness'))
     // Selection persists across the round-trip
     await screen.findByRole('button', { name: /Remove Happy/i })
@@ -195,7 +204,7 @@ describe('Component interactions', () => {
       expect.objectContaining({
         title: undefined,
         body: 'Today I felt amazing after a morning run.',
-        emotionIds: ['happy'],
+        emotionIds: ['e4m10-happy-028'],
         peopleTagIds: ['people-1'],
         contextTagIds: ['context-1'],
       })
@@ -217,8 +226,8 @@ describe('Component interactions', () => {
     await screen.findByText(/Please select at least one emotion/i)
 
     await user.click(screen.getByTestId('emotion-quadrant-high-energy-high-pleasantness'))
-    await user.click(await screen.findByTestId('emotion-show-emotions'))
-    await user.click(await screen.findByTestId('emotion-option-joyful'))
+    await user.click(await screen.findByTestId('emotion-family-expand-radosc'))
+    await user.click(await screen.findByTestId('emotion-option-e3m10-joyful-027'))
     expect(saveButton).toBeEnabled()
     await screen.findByRole('button', { name: /Remove Joyful/i })
 
@@ -234,7 +243,7 @@ describe('Component interactions', () => {
     await waitFor(() => {
       expect(mockEmotionLogStore.createLog).toHaveBeenCalledWith(
         expect.objectContaining({
-          emotionIds: ['joyful'],
+          emotionIds: ['e3m10-joyful-027'],
           note: 'Reflection note',
           peopleTagIds: ['people-1'],
           contextTagIds: undefined,

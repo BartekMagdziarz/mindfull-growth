@@ -1,36 +1,51 @@
 <!--
-  EmotionSelector — produkcyjny, trójpoziomowy wybór emocji (wielokrotny).
+  EmotionSelector — produkcyjny, dwupoziomowy wybór emocji (wielokrotny).
 
-    1. Ćwiartka — 4 przyciski (jak dotychczas).
-    2. Rodziny  — po wejściu w ćwiartkę panel przyjmuje jej kolor; w nagłówku
-                  pojawia się stały przełącznik ćwiartek. Rodziny służą jako filtr
-                  pola emocji (poziom 3).
-    3. Emocje   — „Pokaż emocje" otwiera scatter: emocje leżą na ciągłych
-                  współrzędnych (walencja × energia) z drobnymi twarzami. Klik
-                  zaznacza/odznacza emocję (wybór wielokrotny).
+    1. Ćwiartka — 4 duże przyciski 2×2 (jak dotychczas).
+    2. Rodziny  — siatka kart rodzin w kolorze ćwiartki. Karta rozwija się
+                  W MIEJSCU do pełnego rzędu siatki i pokazuje 2–6 emocji tej
+                  rodziny jako duże, zawsze podpisane przyciski; pozostałe karty
+                  dosuwają się (grid dense + FLIP). Naraz rozwinięta jest
+                  dokładnie jedna rodzina.
 
-  Publiczne API zachowane 1:1 z poprzednią wersją, dzięki czemu komponent jest
-  podmianą drop-in we wszystkich ~30 miejscach:
+  Podział interakcji na karcie zależy od trybu:
+    - allowFamilyOnly=true  → korpus karty zaznacza/odznacza RODZINĘ (zapisywana
+      odpowiedź), osobny pasek ▾ pod kartą rozwija emocje;
+    - allowFamilyOnly=false → wybór samej rodziny nie istnieje (WorryTree,
+      ThoughtRecord), więc klik w całą kartę po prostu rozwija emocje.
+
+  Przełącznik ćwiartek ma DWA warianty ('tabs' pełnowymiarowe zakładki na górze
+  panelu / 'minimap' 2×2 odbicie kroku 1) za TYMCZASOWYM przełącznikiem DEV
+  (localStorage), do porównania na żywo — po decyzji użytkownika jeden wariant
+  zostaje, toggle znika. Prod jest zablokowany na 'tabs'.
+
+  Dawny poziom 3 (scatter całej ćwiartki) został wyjęty do nieużywanego
+  komponentu src/components/emotion/EmotionScatter.vue.
+
+  Publiczne API zachowane (drop-in we wszystkich ~20 miejscach):
     - v-model            → tablica ID emocji (string[])
     - v-model:quadrant   → aktywna ćwiartka (Quadrant | null)
-    - :show-selected-section → sekcja wybranych chipów
-
-  Dane pochodzą z useEmotionStore (nazwy zlokalizowane), współrzędne scatter z
-  getScatterCoord(), twarze są kluczowane ID emocji (działają w EN i PL).
+    - v-model:families   → wybrane rodziny (string[])
+    - :show-selected-section / :allow-family-only / :show-empty-state
+    - :label (NOWE)      → etykieta pola renderowana w JEDNYM rzędzie z chipami
+                           wybranych (zastępuje osobny nagłówek u rodzica)
 -->
 <template>
   <div class="emotion-selector">
-    <!-- Wspólne pole wybranych — konkretne emocje ORAZ nie-wchłonięte rodziny w
-         JEDNYM rzędzie (emocje najpierw, potem rodziny). Każdy rodzaj bramkowany
-         niezależnie (emocje: showSelectedSection, rodziny: allowFamilyOnly), ale
-         renderowany w tym samym kontenerze. Reguła wchłonięcia bez zmian: rodzina
-         znika z chipów, gdy wybrano emocję z tej rodziny (displayedFamilyChips). -->
+    <!-- Wspólny rząd: etykieta pola + wybrane chipy (emocje, potem nie-wchłonięte
+         rodziny) w jednym flex-wrap. Bez limitu — przy większej liczbie chipów
+         rząd naturalnie się zawija. Reguła wchłonięcia bez zmian: rodzina znika
+         z chipów, gdy wybrano emocję z tej rodziny (displayedFamilyChips). -->
     <div
-      v-if="hasDisplayedChips"
-      class="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-1"
+      v-if="props.label || hasDisplayedChips"
+      class="mb-4 flex flex-wrap items-center gap-2"
       role="list"
       aria-label="Selected emotions and families"
     >
+      <span
+        v-if="props.label"
+        class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mr-1"
+      >{{ props.label }}</span>
       <button
         v-for="emotion in chipEmotions"
         :key="`emotion-${emotion.id}`"
@@ -58,13 +73,13 @@
       </button>
     </div>
     <div
-      v-else-if="props.showSelectedSection && props.showEmptyState && !hasAnySelection"
+      v-else-if="props.showSelectedSection && props.showEmptyState && !props.label && !hasAnySelection"
       class="mb-4 p-3 rounded-2xl bg-section text-center text-on-surface-variant text-xs border border-neu-border/30"
     >
       {{ t('emotionViews.selector.noSelection') }}
     </div>
 
-    <!-- Wspólne pole/panel — 3 poziomy z animacjami zagłębiania -->
+    <!-- Wspólne pole/panel — 2 poziomy z animacjami zagłębiania -->
     <div class="es-panel" :class="{ 'es-panel--expanded': level !== 'quadrants' }" :style="panelStyle">
       <Transition :name="transitionName" mode="out-in">
         <!-- 1. Wybór ćwiartki — duże przyciski (krok 1), wprost na polu „Emocje" -->
@@ -91,140 +106,200 @@
           </div>
         </div>
 
-        <!-- Ramka aktywnej ćwiartki (poziomy 2 i 3): przełącznik + rodziny/scatter -->
+        <!-- Ramka aktywnej ćwiartki: przełącznik + siatka rodzin z rozwinięciem -->
         <div v-else key="active" class="active-frame" :style="originStyle">
-          <!-- Przełącznik ćwiartek — zmiana bez cofania do dużych przycisków -->
-          <div class="q-switch" role="group" :aria-label="t('emotionViews.selector.backToQuadrants')">
+          <!-- Przełącznik ćwiartek — wariant 'tabs': pełnowymiarowe zakładki
+               (aktywna = pełny gradient ćwiartki, zlana z tłem panelu) + jawny
+               przycisk powrotu do kroku 1. Klik w aktywną zakładkę = no-op. -->
+          <div v-if="switcherVariant === 'tabs'" class="q-head">
+            <div class="q-tabs" role="group" :aria-label="t('emotionViews.selector.backToQuadrants')">
+              <button
+                v-for="quadrant in quadrants"
+                :key="quadrant.value"
+                type="button"
+                class="q-tabs__seg"
+                :class="{ 'q-tabs__seg--active': quadrant.value === quadrantModel }"
+                :data-testid="`emotion-quadrant-switch-${quadrant.value}`"
+                :style="getQuadrantButtonStyle(quadrant.value)"
+                :title="quadrant.label"
+                :aria-label="quadrant.label"
+                :aria-pressed="quadrant.value === quadrantModel"
+                @click="onSwitcherClick(quadrant.value)"
+              >
+                <AppIcon :name="quadrant.icon" class="q-tabs__icon" />
+                <span class="q-tabs__text">
+                  <span>{{ quadrant.energyLabel }}</span>
+                  <span>{{ quadrant.pleasantnessLabel }}</span>
+                </span>
+              </button>
+            </div>
             <button
-              v-for="quadrant in quadrants"
-              :key="quadrant.value"
               type="button"
-              class="q-switch__btn"
-              :class="{ 'q-switch__btn--active': quadrant.value === quadrantModel }"
-              :data-testid="`emotion-quadrant-switch-${quadrant.value}`"
-              :style="getQuadrantButtonStyle(quadrant.value)"
-              :title="quadrant.label"
-              :aria-label="quadrant.label"
-              :aria-pressed="quadrant.value === quadrantModel"
-              @click="onSwitcherClick(quadrant.value)"
+              class="q-collapse"
+              data-testid="emotion-quadrant-collapse"
+              :title="t('emotionViews.selector.backToQuadrants')"
+              :aria-label="t('emotionViews.selector.backToQuadrants')"
+              @click="collapseToQuadrants"
             >
-              <AppIcon :name="quadrant.icon" />
+              <AppIcon name="undo" class="text-base" />
+            </button>
+          </div>
+
+          <!-- Wariant 'minimap': kompaktowe 2×2 w prawym górnym rogu panelu,
+               przestrzennie 1:1 z krokiem 1. Klik w aktywną komórkę = powrót
+               do kroku 1 (dawne ukryte zachowanie, teraz z tooltipem). -->
+          <div v-else class="q-head q-head--mini">
+            <div class="q-minimap" role="group" :aria-label="t('emotionViews.selector.backToQuadrants')">
+              <button
+                v-for="quadrant in quadrants"
+                :key="quadrant.value"
+                type="button"
+                class="q-minimap__cell"
+                :class="{ 'q-minimap__cell--active': quadrant.value === quadrantModel }"
+                :data-testid="`emotion-quadrant-switch-${quadrant.value}`"
+                :style="getQuadrantButtonStyle(quadrant.value)"
+                :title="quadrant.value === quadrantModel ? t('emotionViews.selector.backToQuadrants') : quadrant.label"
+                :aria-label="quadrant.value === quadrantModel ? t('emotionViews.selector.backToQuadrants') : quadrant.label"
+                :aria-pressed="quadrant.value === quadrantModel"
+                @click="onSwitcherClick(quadrant.value)"
+              >
+                <AppIcon :name="quadrant.icon" />
+              </button>
+            </div>
+          </div>
+
+          <!-- TYMCZASOWE (DEV): przełącznik wariantu przełącznika ćwiartek,
+               do porównania na żywo. Do usunięcia po decyzji. -->
+          <div v-if="isDev" class="dev-variant-row">
+            <button type="button" class="dev-variant-btn" @click="toggleSwitcherVariant">
+              ⇄ przełącznik: {{ switcherVariant === 'tabs' ? 'zakładki' : 'minimapa' }}
             </button>
           </div>
 
           <Transition :name="transitionName" mode="out-in">
-            <!-- 2. Wybór rodzin (filtr) -->
-            <div v-if="level === 'families'" :key="`fam-${quadrantModel}`" class="lvl-inner">
-              <div class="fam-grid">
-                <button
+            <!-- 2. Rodziny z rozwinięciem w miejscu -->
+            <div :key="`fam-${quadrantModel}`" class="lvl-inner">
+              <TransitionGroup tag="div" name="fam" class="fam-grid">
+                <div
                   v-for="f in quadrantFamilies"
                   :key="f.id"
-                  type="button"
-                  :data-testid="`emotion-family-${f.id}`"
-                  class="fam-card"
-                  :class="{ 'fam-card--selected': isFamilySelected(f.id) }"
-                  :style="familyCardStyle(isFamilySelected(f.id))"
-                  @click="toggleFamily(f.id)"
+                  class="fam-card-wrap"
+                  :class="{ 'fam-card-wrap--expanded': f.id === expandedFamilyId }"
+                  :style="wrapStyle(f)"
                 >
-                  <span class="fam-card__icon">
-                    <EmotionFaceIcon :name="f.rep" :color="quadrantInk" :size="30" />
-                  </span>
-                  <span class="fam-card__name">{{ familyName(f) }}</span>
-                  <AppIcon v-if="isFamilySelected(f.id)" name="check_circle" class="fam-card__check" />
-                </button>
+                  <!-- Karta zwinięta -->
+                  <template v-if="f.id !== expandedFamilyId">
+                    <button
+                      type="button"
+                      :data-testid="`emotion-family-${f.id}`"
+                      class="fam-card"
+                      :class="{
+                        'fam-card--selected': isFamilySelected(f.id),
+                        'fam-card--split': props.allowFamilyOnly,
+                      }"
+                      :style="familyCardStyle(isFamilySelected(f.id))"
+                      @click="onCardBodyClick(f)"
+                    >
+                      <span class="fam-card__icon">
+                        <EmotionFaceIcon :name="f.rep" :color="quadrantInk" :size="30" />
+                      </span>
+                      <span class="fam-card__name">{{ familyName(f) }}</span>
+                      <AppIcon v-if="isFamilySelected(f.id)" name="check_circle" class="fam-card__check" />
+                      <span
+                        v-if="selectedCountByFamily.get(f.id)"
+                        class="fam-badge-count"
+                        :aria-label="t('emotionViews.selector.selectedInFamily', { count: selectedCountByFamily.get(f.id) ?? 0 })"
+                      >{{ selectedCountByFamily.get(f.id) }}</span>
+                      <AppIcon v-if="!props.allowFamilyOnly" name="expand_more" class="fam-card__chevron" />
+                    </button>
+                    <button
+                      v-if="props.allowFamilyOnly"
+                      type="button"
+                      class="fam-expand-strip"
+                      :data-testid="`emotion-family-expand-${f.id}`"
+                      :aria-label="t('emotionViews.selector.expandFamily', { name: familyName(f) })"
+                      aria-expanded="false"
+                      :style="familyCardStyle(false)"
+                      @click="toggleExpand(f.id)"
+                    >
+                      <AppIcon name="expand_more" class="text-base" />
+                    </button>
+                  </template>
 
-                <button
-                  type="button"
-                  data-testid="emotion-show-emotions"
-                  class="fam-card fam-card--cta"
-                  :style="familyCardStyle(false)"
-                  @click="goDeeper"
-                >
-                  <span class="fam-card__icon cta-disc">
-                    <AppIcon name="arrow_forward" :style="{ color: quadrantInk }" />
-                  </span>
-                  <span class="fam-card__name">{{ t('emotionViews.selector.showEmotions') }}</span>
-                </button>
-              </div>
-            </div>
+                  <!-- Karta rozwinięta: pełny rząd siatki, emocje rodziny -->
+                  <div v-else class="fam-expanded" :style="familyCardStyle(false)">
+                    <div class="fam-expanded__inner">
+                      <div class="fam-expanded__top">
+                        <component
+                          :is="props.allowFamilyOnly ? 'button' : 'div'"
+                          :type="props.allowFamilyOnly ? 'button' : undefined"
+                          :data-testid="`emotion-family-${f.id}`"
+                          class="fam-expanded__head"
+                          :class="{
+                            'fam-expanded__head--selectable': props.allowFamilyOnly,
+                            'fam-expanded__head--selected': isFamilySelected(f.id),
+                          }"
+                          :style="props.allowFamilyOnly ? familyCardStyle(isFamilySelected(f.id)) : undefined"
+                          @click="props.allowFamilyOnly ? toggleFamily(f.id) : undefined"
+                        >
+                          <EmotionFaceIcon :name="f.rep" :color="quadrantInk" :size="28" />
+                          <span class="fam-card__name">{{ familyName(f) }}</span>
+                          <AppIcon v-if="isFamilySelected(f.id)" name="check_circle" class="text-base" />
+                        </component>
 
-            <!-- 3. Scatter emocji (wielokrotny wybór) -->
-            <div v-else key="emotions" class="lvl-inner">
-              <div class="fam-tray">
-                <div class="fam-pills">
-                  <button
-                    v-for="f in quadrantFamilies"
-                    :key="f.id"
-                    type="button"
-                    class="fam-pill"
-                    :class="{ 'fam-pill--selected': isFamilySelected(f.id) }"
-                    :style="familyCardStyle(isFamilySelected(f.id))"
-                    @click="toggleFamily(f.id)"
-                  >{{ familyName(f) }}</button>
-                  <button
-                    type="button"
-                    class="back-btn"
-                    :title="t('emotionViews.selector.backToFamilies')"
-                    :aria-label="t('emotionViews.selector.backToFamilies')"
-                    @click="backToFamilies"
-                  >
-                    <AppIcon name="arrow_back" class="text-base" />
-                  </button>
+                        <div class="fam-expanded__emotions" @pointerleave="hoveredId = null">
+                          <button
+                            v-for="e in expandedEmotions"
+                            :key="e.id"
+                            type="button"
+                            class="emotion-btn"
+                            :class="{ 'emotion-btn--selected': isSelected(e.id) }"
+                            :style="familyCardStyle(isSelected(e.id))"
+                            :data-testid="`emotion-option-${e.id}`"
+                            :aria-pressed="isSelected(e.id)"
+                            @pointerenter="hoveredId = e.id"
+                            @focus="hoveredId = e.id"
+                            @click="toggleEmotion(e.id)"
+                          >
+                            <EmotionFaceIcon :id="e.id" :color="quadrantInk" :size="26" />
+                            <span>{{ e.name }}</span>
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          class="fam-collapse"
+                          :data-testid="`emotion-family-expand-${f.id}`"
+                          :aria-label="t('emotionViews.selector.collapseFamily', { name: familyName(f) })"
+                          aria-expanded="true"
+                          @click="toggleExpand(f.id)"
+                        >
+                          <AppIcon name="expand_less" class="text-base" />
+                        </button>
+                      </div>
+
+                      <div class="emotion-description-strip">
+                        <Transition
+                          enter-active-class="transition-opacity duration-200 ease-out"
+                          leave-active-class="transition-opacity duration-150 ease-in"
+                          enter-from-class="opacity-0"
+                          leave-to-class="opacity-0"
+                          mode="out-in"
+                        >
+                          <span v-if="hoveredEmotion" :key="hoveredEmotion.id">
+                            <span class="font-semibold">{{ hoveredEmotion.name }}</span>
+                            <template v-if="hoveredEmotion.description">
+                              <span class="mx-1.5 text-on-surface-variant/40">&mdash;</span>
+                              <span class="text-on-surface-variant">{{ hoveredEmotion.description }}</span>
+                            </template>
+                          </span>
+                          <span v-else>{{ t('emotionViews.selector.pickHint') }}</span>
+                        </Transition>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              <div class="scatter-field" @pointerleave="hoveredId = null">
-                <span class="axis axis--top">{{ t('emotionViews.selector.axes.moreEnergy') }} ▲</span>
-                <span class="axis axis--bottom">▼ {{ t('emotionViews.selector.axes.lessEnergy') }}</span>
-                <span class="axis axis--left">◀ {{ t('emotionViews.selector.axes.moreUnpleasant') }}</span>
-                <span class="axis axis--right">{{ t('emotionViews.selector.axes.lessUnpleasant') }} ▶</span>
-
-                <template v-if="visibleEmotions.length">
-                  <button
-                    v-for="e in visibleEmotions"
-                    :key="e.id"
-                    type="button"
-                    class="dot"
-                    :class="{
-                      'dot--hovered': hoveredId === e.id,
-                      'dot--selected': isSelected(e.id),
-                      'dot--muted': isMuted(e),
-                    }"
-                    :style="dotStyle(e)"
-                    :data-testid="`emotion-option-${e.id}`"
-                    :title="e.name"
-                    :aria-label="e.name"
-                    :aria-pressed="isSelected(e.id)"
-                    @pointerenter="hoveredId = e.id"
-                    @focus="hoveredId = e.id"
-                    @click="toggleEmotion(e.id)"
-                  >
-                    <EmotionFaceIcon class="dot__icon" :id="e.id" :color="emotionInk(e)" :size="28" />
-                    <span v-if="labelVisible(e)" class="dot__label" :style="labelStyle(e)">{{ e.name }}</span>
-                  </button>
-                </template>
-
-                <p v-else class="empty">{{ t('emotionViews.selector.noEmotionsInQuadrant') }}</p>
-              </div>
-
-              <div class="emotion-description-strip">
-                <Transition
-                  enter-active-class="transition-opacity duration-200 ease-out"
-                  leave-active-class="transition-opacity duration-150 ease-in"
-                  enter-from-class="opacity-0"
-                  leave-to-class="opacity-0"
-                  mode="out-in"
-                >
-                  <span v-if="hoveredEmotion" :key="hoveredEmotion.id">
-                    <span class="font-semibold">{{ hoveredEmotion.name }}</span>
-                    <template v-if="hoveredEmotion.description">
-                      <span class="mx-1.5 text-on-surface-variant/40">&mdash;</span>
-                      <span class="text-on-surface-variant">{{ hoveredEmotion.description }}</span>
-                    </template>
-                  </span>
-                  <span v-else>{{ t('emotionViews.selector.scatterHint') }}</span>
-                </Transition>
-              </div>
+              </TransitionGroup>
             </div>
           </Transition>
         </div>
@@ -232,6 +307,37 @@
     </div>
   </div>
 </template>
+
+<script lang="ts">
+// Wariant przełącznika ćwiartek — stan WSPÓŁDZIELONY między wszystkimi
+// instancjami selektora (moduł), TYMCZASOWY na czas porównania wariantów.
+// Prod zablokowany na 'tabs'; w DEV wybór trzymany w localStorage.
+import { ref as moduleRef, type Ref as ModuleRef } from 'vue'
+
+type SwitcherVariant = 'tabs' | 'minimap'
+const SWITCHER_VARIANT_KEY = 'mg-emotion-switcher-variant'
+
+function loadSwitcherVariant(): SwitcherVariant {
+  if (!import.meta.env.DEV) return 'tabs'
+  try {
+    const stored = localStorage.getItem(SWITCHER_VARIANT_KEY)
+    if (stored === 'tabs' || stored === 'minimap') return stored
+  } catch {
+    // localStorage niedostępny
+  }
+  return 'tabs'
+}
+
+const sharedSwitcherVariant: ModuleRef<SwitcherVariant> = moduleRef(loadSwitcherVariant())
+
+function persistSwitcherVariant(variant: SwitcherVariant): void {
+  try {
+    localStorage.setItem(SWITCHER_VARIANT_KEY, variant)
+  } catch {
+    // localStorage niedostępny
+  }
+}
+</script>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
@@ -253,12 +359,16 @@ import EmotionFaceIcon from '@/components/emotion/EmotionFaceIcon.vue'
 interface Props {
   modelValue: string[]
   showSelectedSection?: boolean
-  // Pozwala zatrzymać się na rodzinie (zapisywać emotionFamilyIds). Gdy false,
-  // rodziny działają tylko jako filtr pola scatter (zachowanie domyślne/drop-in).
+  // Pozwala zatrzymać się na rodzinie (zapisywać emotionFamilyIds). Włącza też
+  // podział interakcji na karcie: korpus = zaznacz rodzinę, pasek ▾ = rozwiń.
+  // Gdy false (WorryTree/ThoughtRecord), cała karta rozwija emocje.
   allowFamilyOnly?: boolean
   // Placeholder „brak wyboru" w pustej sekcji wybranych. Wyłączany tam, gdzie
   // picker i tak jest zawsze widoczny pod spodem (widoki logowania emocji).
   showEmptyState?: boolean
+  // Etykieta pola renderowana w jednym rzędzie z chipami wybranych. Zastępuje
+  // osobny nagłówek u rodzica (chipy i tytuł dzielą jeden zawijany rząd).
+  label?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -266,6 +376,7 @@ const props = withDefaults(defineProps<Props>(), {
   showSelectedSection: true,
   allowFamilyOnly: false,
   showEmptyState: true,
+  label: undefined,
 })
 
 const emit = defineEmits<{
@@ -276,45 +387,72 @@ const emit = defineEmits<{
 // przełącznikiem ćwiartek w nagłówku; parent może też ustawić null (np. reset).
 const quadrantModel = defineModel<Quadrant | null>('quadrant', { default: null })
 // Wybrane rodziny (emotionFamilyIds). Z allowFamilyOnly stają się zapisywaną
-// odpowiedzią („zatrzymałem się na rodzinie"); bez niego działają jak filtr pola.
+// odpowiedzią („zatrzymałem się na rodzinie"); bez niego są nieużywane (brak
+// wyboru rodzin w tym trybie — rozwinięcie to czysta nawigacja).
 const familiesModel = defineModel<string[]>('families', { default: () => [] })
 
 const emotionStore = useEmotionStore()
 const { t } = useT()
 
-// Rozsunięcie kropek w scatter — min. dystans w znormalizowanym polu 0–1
-// (na suwaku strojenia z prototypu to wartość 0.150). Jedna stała w komponencie
-// → identyczne rozproszenie WSZĘDZIE, gdzie używamy EmotionSelector.
-const SPREAD = 0.15
-const SHOW_ANCHOR_LABELS = true
+const isDev = import.meta.env.DEV
+const switcherVariant = sharedSwitcherVariant
+function toggleSwitcherVariant(): void {
+  switcherVariant.value = switcherVariant.value === 'tabs' ? 'minimap' : 'tabs'
+  persistSwitcherVariant(switcherVariant.value)
+}
 
 const selectedEmotionIds = ref<string[]>([])
-const deepened = ref(false)
+const expandedFamilyId = ref<string | null>(null)
 const hoveredId = ref<string | null>(null)
-const transitionName = ref<'dive' | 'deeper' | 'rise' | 'surface' | 'switch'>('dive')
+const transitionName = ref<'dive' | 'surface' | 'switch'>('dive')
 
 // --- Poziomy / dane ze sklepu ---
 const quadrants = computed(() =>
   QUADRANTS_IN_ORDER.map((value) => getQuadrantDisplayConfig(value, t))
 )
 
-const level = computed<'quadrants' | 'families' | 'emotions'>(() => {
-  if (!quadrantModel.value) return 'quadrants'
-  return deepened.value ? 'emotions' : 'families'
-})
-
-const visibleEmotions = computed<Emotion[]>(() =>
-  quadrantModel.value ? emotionStore.getEmotionsByQuadrant(quadrantModel.value) : []
+const level = computed<'quadrants' | 'families'>(() =>
+  quadrantModel.value ? 'families' : 'quadrants'
 )
 
 const quadrantFamilies = computed<EmotionFamily[]>(() =>
   quadrantModel.value ? FAMILIES_BY_QUADRANT[quadrantModel.value] : []
 )
 
-// Rodziny wybrane W BIEŻĄCEJ ćwiartce — sterują wyróżnieniem/wygaszeniem kropek.
-const activeFilterFamilies = computed(() => {
-  const inQuadrant = new Set(quadrantFamilies.value.map((f) => f.id))
-  return new Set(familiesModel.value.filter((id) => inQuadrant.has(id)))
+// Emocje rozwiniętej rodziny, od łagodnych do intensywnych. Heurystyka
+// intensywności = odległość od neutralnego środka siatki (6.5, 6.5) na
+// całkowitych współrzędnych meta (nie scatter — te są ciągłe i strojone
+// wizualnie). Metryka max, tie-break suma, potem id (stabilnie).
+function intensityMax(e: Emotion): number {
+  return Math.max(Math.abs(e.pleasantness - 6.5), Math.abs(e.energy - 6.5))
+}
+function intensitySum(e: Emotion): number {
+  return Math.abs(e.pleasantness - 6.5) + Math.abs(e.energy - 6.5)
+}
+const expandedEmotions = computed<Emotion[]>(() => {
+  const q = quadrantModel.value
+  const famId = expandedFamilyId.value
+  if (!q || !famId) return []
+  return emotionStore
+    .getEmotionsByQuadrant(q)
+    .filter((e) => FAMILY_OF[e.id] === famId)
+    .sort(
+      (a, b) =>
+        intensityMax(a) - intensityMax(b) ||
+        intensitySum(a) - intensitySum(b) ||
+        a.id.localeCompare(b.id)
+    )
+})
+
+// Licznik wybranych emocji per rodzina — plakietka ●N na zwiniętej karcie
+// (wybory pozostają widoczne po zwinięciu/przełączeniu rozwinięcia).
+const selectedCountByFamily = computed(() => {
+  const counts = new Map<string, number>()
+  for (const id of selectedEmotionIds.value) {
+    const famId = FAMILY_OF[id]
+    if (famId) counts.set(famId, (counts.get(famId) ?? 0) + 1)
+  }
+  return counts
 })
 
 // Pełne obiekty wybranych rodzin (do chipów w sekcji wybranych).
@@ -328,9 +466,9 @@ function isFamilySelected(id: string): boolean {
 }
 
 // Reguła „wchłonięcia": jeśli wybrano konkretną emocję z danej rodziny, ta
-// rodzina NIE pojawia się jako osobny chip (emocja ją reprezentuje). Pastylki/
-// karty rodzin nadal podświetlają się jako filtr — to dotyczy tylko chipów
-// „wybranej odpowiedzi". Stosujemy tę samą zasadę po stronie odczytu (historia).
+// rodzina NIE pojawia się jako osobny chip (emocja ją reprezentuje). Karty
+// rodzin nadal pokazują swój stan — to dotyczy tylko chipów „wybranej
+// odpowiedzi". Stosujemy tę samą zasadę po stronie odczytu (historia).
 const emotionFamilySet = computed(
   () => new Set(selectedEmotionIds.value.map((id) => FAMILY_OF[id]).filter(Boolean))
 )
@@ -352,7 +490,7 @@ const hasAnySelection = computed(
 
 // Wspólny rząd chipów: emocje (gdy showSelectedSection) najpierw, potem
 // nie-wchłonięte rodziny (gdy allowFamilyOnly). Każdy rodzaj bramkowany osobno,
-// ale renderowany w jednym kontenerze.
+// ale renderowany w jednym kontenerze (razem z etykietą pola, gdy podana).
 const chipEmotions = computed<Emotion[]>(() =>
   props.showSelectedSection ? selectedEmotions.value : []
 )
@@ -389,15 +527,7 @@ function removeEmotion(id: string): void {
   }
 }
 
-// --- Rodziny: wybór (emotionFamilyIds) + wyróżnienie/wygaszenie kropek ---
-function isInSelectedFamily(e: Emotion): boolean {
-  return activeFilterFamilies.value.has(FAMILY_OF[e.id])
-}
-function isMuted(e: Emotion): boolean {
-  if (activeFilterFamilies.value.size === 0) return false
-  if (isSelected(e.id) || hoveredId.value === e.id) return false
-  return !isInSelectedFamily(e)
-}
+// --- Rodziny: wybór (emotionFamilyIds) + rozwinięcie w miejscu ---
 function toggleFamily(id: string): void {
   if (familiesModel.value.includes(id)) {
     familiesModel.value = familiesModel.value.filter((x) => x !== id)
@@ -409,12 +539,22 @@ function removeFamily(id: string): void {
   familiesModel.value = familiesModel.value.filter((x) => x !== id)
 }
 
+// Rozwinięcie to czysta nawigacja — nie zmienia modeli. Jedna rodzina naraz
+// (pojedynczy ref); rozwinięcie innej samo zwija poprzednią.
+function toggleExpand(id: string): void {
+  expandedFamilyId.value = expandedFamilyId.value === id ? null : id
+  hoveredId.value = null
+}
+function onCardBodyClick(f: EmotionFamily): void {
+  if (props.allowFamilyOnly) toggleFamily(f.id)
+  else toggleExpand(f.id)
+}
+
 // --- Nawigacja (z kierunkiem animacji) ---
 function resetQuadrantNav(): void {
-  deepened.value = false
+  expandedFamilyId.value = null
   hoveredId.value = null
-  // Bez allowFamilyOnly rodziny są tylko lokalnym filtrem ćwiartki i zerują się
-  // przy zmianie. Jako zapisywana odpowiedź — kumulują się między ćwiartkami.
+  // Bez allowFamilyOnly rodziny nie są używane; czyścimy dla higieny stanu.
   if (!props.allowFamilyOnly) familiesModel.value = []
 }
 function selectQuadrant(quadrant: Quadrant): void {
@@ -431,21 +571,17 @@ function switchQuadrant(quadrant: Quadrant): void {
 function collapseToQuadrants(): void {
   transitionName.value = 'surface'
   quadrantModel.value = null
-  deepened.value = false
+  expandedFamilyId.value = null
+  hoveredId.value = null
 }
 function onSwitcherClick(quadrant: Quadrant): void {
-  if (quadrant === quadrantModel.value) collapseToQuadrants()
-  else switchQuadrant(quadrant)
-}
-function goDeeper(): void {
-  transitionName.value = 'deeper'
-  deepened.value = true
-  hoveredId.value = null
-}
-function backToFamilies(): void {
-  transitionName.value = 'rise'
-  deepened.value = false
-  hoveredId.value = null
+  if (quadrant === quadrantModel.value) {
+    // Zakładki: klik w aktywną = no-op (powrót przez jawny przycisk ↩).
+    // Minimapa: klik w aktywną komórkę = powrót do kroku 1.
+    if (switcherVariant.value === 'minimap') collapseToQuadrants()
+    return
+  }
+  switchQuadrant(quadrant)
 }
 
 // --- Styl panelu + punkt rozwinięcia (transform-origin z rogu ćwiartki) ---
@@ -464,7 +600,7 @@ const panelStyle = computed(() =>
     : { transition: 'background 280ms ease' }
 )
 
-// --- Styl przycisków ćwiartek / kart / pastylek rodzin (wspólny język) ---
+// --- Styl przycisków ćwiartek / kart rodzin / przycisków emocji ---
 function gradients(q: Quadrant) {
   const v = (suffix: string) => `var(--color-quadrant-${q}-${suffix})`
   return {
@@ -474,7 +610,6 @@ function gradients(q: Quadrant) {
     // Ciemna połowa cienia neumorficznego krążka — zamiast neutralnego
     // błękitno-szarego (fallback w EmotionFaceIcon) odcień ćwiartki.
     discShadow: `color-mix(in srgb, ${v('border')} 42%, transparent)`,
-    discShadowStrong: `color-mix(in srgb, ${v('border')} 50%, transparent)`,
     textColor: v('text'),
     borderColor: v('border'),
   }
@@ -505,6 +640,13 @@ function familyCardStyle(isSelectedCard: boolean): Record<string, string> {
   if (isSelectedCard) style.borderColor = s.borderColor
   return style
 }
+// Obrys wrapa karty przejmuje kolor ćwiartki, gdy rodzina jest zaznaczona
+// (obwódka na całości: korpus + pasek ▾ czytają się jako jedna karta).
+function wrapStyle(f: EmotionFamily): Record<string, string> {
+  const q = quadrantModel.value
+  if (!q || !isFamilySelected(f.id) || f.id === expandedFamilyId.value) return {}
+  return { borderColor: quadrantButtonStyles[q].borderColor }
+}
 
 // Atrament twarzy = token tekstu ćwiartki (paleta zależna od motywu).
 function quadrantInkVar(q: Quadrant): string {
@@ -513,99 +655,11 @@ function quadrantInkVar(q: Quadrant): string {
 const quadrantInk = computed(() =>
   quadrantInkVar(quadrantModel.value ?? 'high-energy-high-pleasantness')
 )
-function emotionInk(e: Emotion): string {
-  if (activeFilterFamilies.value.size > 0 && !isInSelectedFamily(e)) return '#9aa6b8'
-  return quadrantInkVar(getQuadrant(e))
-}
-function labelStyle(e: Emotion): Record<string, string> {
-  const q = quadrantModel.value
-  if (!q) return {}
-  const s = quadrantButtonStyles[q]
-  const sel = isSelected(e.id)
-  return {
-    background: sel ? s.backgroundGradient : s.softGradient,
-    color: s.textColor,
-    borderColor: s.borderColor,
-  }
-}
 
 function getEmotionChipStyle(emotionId: string): Record<string, string> {
   const emotion = emotionStore.getEmotionById(emotionId)
   if (!emotion) return {}
   return getQuadrantChipStyle(getQuadrant(emotion))
-}
-
-// --- Rozmieszczenie scatter (anchored relaxation), współrzędne ze sklepu ---
-function clamp01(v: number): number {
-  return v < 0 ? 0 : v > 1 ? 1 : v
-}
-function coordOf(e: Emotion): { pleasantness: number; energy: number } {
-  const c = emotionStore.getScatterCoord(e.id)
-  return c ? { pleasantness: c.pleasantness, energy: c.energy } : { pleasantness: e.pleasantness, energy: e.energy }
-}
-function anchorXY(e: Emotion): { x: number; y: number } {
-  const { pleasantness, energy } = coordOf(e)
-  const x = pleasantness <= 6 ? (pleasantness - 1) / 5 : (pleasantness - 6) / 6
-  const y = energy > 6 ? (12 - energy) / 6 : (6 - energy) / 5
-  return { x: clamp01(x), y: clamp01(y) }
-}
-const relaxedPositions = computed(() => {
-  const items = visibleEmotions.value
-  const anchors = items.map(anchorXY)
-  const pts = anchors.map((a, i) => ({
-    x: a.x + Math.cos(i * 2.3999632) * 0.0015,
-    y: a.y + Math.sin(i * 2.3999632) * 0.0015,
-  }))
-  const md = SPREAD
-  if (md > 0) {
-    for (let iter = 0; iter < 90; iter++) {
-      for (let i = 0; i < pts.length; i++) {
-        for (let j = i + 1; j < pts.length; j++) {
-          const dx = pts[j].x - pts[i].x
-          const dy = pts[j].y - pts[i].y
-          const d = Math.hypot(dx, dy) || 0.0001
-          if (d < md) {
-            const push = (md - d) / 2
-            const ux = dx / d
-            const uy = dy / d
-            pts[i].x -= ux * push
-            pts[i].y -= uy * push
-            pts[j].x += ux * push
-            pts[j].y += uy * push
-          }
-        }
-      }
-      for (let i = 0; i < pts.length; i++) {
-        pts[i].x += (anchors[i].x - pts[i].x) * 0.08
-        pts[i].y += (anchors[i].y - pts[i].y) * 0.08
-        pts[i].x = clamp01(pts[i].x)
-        pts[i].y = clamp01(pts[i].y)
-      }
-    }
-  }
-  const map = new Map<string, { left: string; top: string }>()
-  items.forEach((e, i) => {
-    map.set(e.id, { left: `${6 + pts[i].x * 88}%`, top: `${6 + pts[i].y * 88}%` })
-  })
-  return map
-})
-function dotStyle(e: Emotion): Record<string, string> {
-  const pos = relaxedPositions.value.get(e.id) ?? { left: '50%', top: '50%' }
-  // Krążek twarzy w kolorze ćwiartki emocji (biel → tint-soft): jaśniejszy od
-  // tła pola, ale w tym samym odcieniu. Cienie analogicznie (zamiast szarych).
-  const s = quadrantButtonStyles[getQuadrant(e)]
-  return {
-    ...pos,
-    '--disc': s.discGradient,
-    '--disc-shadow': s.discShadow,
-    '--disc-shadow-strong': s.discShadowStrong,
-  }
-}
-function labelVisible(e: Emotion): boolean {
-  if (hoveredId.value === e.id || isSelected(e.id)) return true
-  if (activeFilterFamilies.value.size > 0) return isInSelectedFamily(e)
-  const coord = emotionStore.getScatterCoord(e.id)
-  return SHOW_ANCHOR_LABELS && !!coord?.anchor
 }
 
 // --- Synchronizacja z modelValue ---
@@ -626,7 +680,8 @@ watch(
 watch(quadrantModel, (val, old) => {
   if (val === null && old !== null) {
     transitionName.value = 'surface'
-    deepened.value = false
+    expandedFamilyId.value = null
+    hoveredId.value = null
   }
 })
 
@@ -657,7 +712,7 @@ onMounted(async () => {
   transition: min-height 260ms cubic-bezier(0.2, 0.8, 0.2, 1), background 280ms ease;
 }
 .es-panel--expanded {
-  min-height: 430px;
+  min-height: 240px;
 }
 .lvl,
 .active-frame {
@@ -678,34 +733,131 @@ onMounted(async () => {
     8px 8px 16px rgb(var(--neo-shadow-dark) / 0.36);
 }
 
-/* === Przełącznik ćwiartek (poziom 2/3) === */
-.q-switch {
+/* === Przełącznik ćwiartek — nagłówek panelu (oba warianty) === */
+.q-head {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
+  margin-bottom: 10px;
 }
-.q-switch__btn {
-  width: 44px;
-  height: 36px;
-  border-radius: 12px;
+.q-head--mini {
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+/* Wariant 'tabs': segmenty na całą szerokość */
+.q-tabs {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+  min-width: 0;
+}
+.q-tabs__seg {
+  flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  gap: 7px;
+  padding: 7px 8px;
+  border-radius: 13px;
   cursor: pointer;
   border: 1px solid rgb(var(--neo-border) / 0.12);
+  opacity: 0.72;
+  filter: saturate(0.82);
   box-shadow:
-    -4px -4px 8px rgb(var(--neo-shadow-light) / 0.7),
-    4px 4px 8px rgb(var(--neo-shadow-dark) / 0.3);
-  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+    -3px -3px 7px rgb(var(--neo-shadow-light) / 0.6),
+    3px 3px 7px rgb(var(--neo-shadow-dark) / 0.24);
+  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease, opacity 150ms ease;
 }
-.q-switch__btn:hover {
+.q-tabs__seg:hover {
   transform: translateY(-1px);
+  opacity: 0.92;
+  filter: saturate(1);
+}
+.q-tabs__seg--active {
+  opacity: 1;
+  filter: saturate(1);
+  border-width: 1.5px;
+  cursor: default;
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.75),
+    inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.55),
+    inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.24);
+}
+.q-tabs__seg--active:hover {
+  transform: none;
+}
+.q-tabs__icon {
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.q-tabs__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: left;
+}
+.q-tabs__text > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Jawny powrót do kroku 1 (dawny ukryty klik w aktywną ćwiartkę) */
+.q-collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  color: rgb(var(--neo-text));
+  background: rgb(255 255 255 / 0.55);
+  border: 1px solid rgb(var(--neo-border) / 0.12);
+  box-shadow:
+    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.6),
+    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.22);
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+.q-collapse:hover {
+  transform: translateY(-1px);
+}
+
+/* Wariant 'minimap': 2×2 przestrzennie 1:1 z krokiem 1 */
+.q-minimap {
+  display: grid;
+  grid-template-columns: repeat(2, 38px);
+  gap: 5px;
+}
+.q-minimap__cell {
+  height: 30px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid rgb(var(--neo-border) / 0.12);
+  opacity: 0.75;
+  box-shadow:
+    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.6),
+    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.24);
+  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease, opacity 150ms ease;
+}
+.q-minimap__cell:hover {
+  transform: translateY(-1px);
+  opacity: 1;
   filter: brightness(1.04);
 }
-.q-switch__btn--active {
+.q-minimap__cell--active {
+  opacity: 1;
   border-width: 1.5px;
   filter: brightness(1.05);
   box-shadow:
@@ -713,19 +865,70 @@ onMounted(async () => {
     inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.65),
     inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.28);
 }
+
+/* TYMCZASOWE (DEV): przełącznik wariantu — do usunięcia po decyzji */
+.dev-variant-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: -4px 0 8px;
+}
+.dev-variant-btn {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: rgb(var(--neo-text) / 0.55);
+  background: rgb(255 255 255 / 0.4);
+  border: 1px dashed rgb(var(--neo-border) / 0.3);
+  cursor: pointer;
+}
+.dev-variant-btn:hover {
+  color: rgb(var(--neo-text) / 0.8);
+}
+
 .lvl-inner {
   position: relative;
 }
 
-/* === Siatka rodzin (poziom 2) === */
+/* === Siatka rodzin (poziom 2) z rozwinięciem w miejscu === */
+/* dense: po rozwinięciu karty do pełnego rzędu kolejne karty dosuwają się w
+   powstałą lukę — rozwinięcie ląduje tuż pod rzędem klikniętej karty. */
 .fam-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-auto-flow: dense;
   gap: 10px;
 }
+/* FLIP przemieszczeń kart przy rozwijaniu/zwijaniu (TransitionGroup) */
+.fam-move {
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.fam-card-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid rgb(var(--neo-border) / 0.1);
+  box-shadow:
+    -5px -5px 10px rgb(var(--neo-shadow-light) / 0.8),
+    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.3);
+  transition: transform 150ms ease, filter 150ms ease, border-color 150ms ease;
+}
+.fam-card-wrap:not(.fam-card-wrap--expanded):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+.fam-card-wrap--expanded {
+  grid-column: 1 / -1;
+}
+
+/* Korpus karty (zaznacz rodzinę / w trybie bez rodzin: rozwiń) */
 .fam-card {
   position: relative;
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -733,30 +936,33 @@ onMounted(async () => {
   min-height: 88px;
   padding: 14px 10px;
   border-radius: 16px;
+  border: none;
   text-align: center;
   cursor: pointer;
-  border: 1px solid rgb(var(--neo-border) / 0.1);
-  box-shadow:
-    -5px -5px 10px rgb(var(--neo-shadow-light) / 0.8),
-    5px 5px 10px rgb(var(--neo-shadow-dark) / 0.3);
-  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
 }
-.fam-card:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.04);
+.fam-card--split {
+  min-height: 74px;
+  padding-bottom: 10px;
+  border-radius: 16px 16px 0 0;
 }
 .fam-card--selected {
-  border-width: 1.5px;
-  transform: translateY(0);
   box-shadow:
     inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.7),
     inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.25);
+}
+.fam-card:focus-visible,
+.fam-expand-strip:focus-visible,
+.fam-collapse:focus-visible,
+.emotion-btn:focus-visible,
+.fam-expanded__head--selectable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(var(--color-focus));
 }
 .fam-card__icon {
   flex-shrink: 0;
 }
 /* Tło i cień krążka twarzy przejmuje EmotionFaceIcon przez dziedziczone
-   zmienne --disc / --disc-shadow (ustawiane w familyCardStyle / dotStyle). */
+   zmienne --disc / --disc-shadow (ustawiane w familyCardStyle). */
 .fam-card__name {
   font-size: 12.5px;
   font-weight: 700;
@@ -769,56 +975,136 @@ onMounted(async () => {
   font-size: 16px;
   color: inherit;
 }
-.cta-disc {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+/* Plakietka ●N: liczba wybranych emocji z tej rodziny (stan „wchłonięty") */
+.fam-badge-count {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  background: var(--disc, linear-gradient(145deg, #f1f6fc, #dde6f1));
-  box-shadow:
-    -3px -3px 6px rgba(255, 255, 255, 0.92),
-    3px 3px 7px var(--disc-shadow, rgba(120, 150, 190, 0.42)),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: inherit;
+  background: rgb(255 255 255 / 0.75);
+  box-shadow: inset 0 0 0 1px rgb(var(--neo-border) / 0.18);
+}
+/* Bierna strzałka w trybie bez podziału stref (cała karta = rozwiń) */
+.fam-card__chevron {
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 14px;
+  opacity: 0.45;
 }
 
-/* === Pastylki rodzin (poziom 3) === */
-.fam-tray {
+/* Pasek ▾ pod korpusem (tryb allowFamilyOnly): druga strefa karty */
+.fam-expand-strip {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
-}
-.fam-pills {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-.fam-pill {
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 999px;
+  justify-content: center;
+  padding: 2px 0 3px;
+  border: none;
+  border-top: 1px solid rgb(var(--neo-border) / 0.14);
+  border-radius: 0 0 16px 16px;
+  color: inherit;
   cursor: pointer;
-  border: 1px solid rgb(var(--neo-border) / 0.1);
+  filter: brightness(0.985);
+  transition: filter 120ms ease;
+}
+.fam-expand-strip:hover {
+  filter: brightness(1.06);
+}
+.fam-expand-strip :deep(.text-base),
+.fam-expand-strip .text-base {
+  opacity: 0.65;
+}
+.fam-expand-strip:hover .text-base {
+  opacity: 1;
+}
+
+/* === Karta rozwinięta: pełny rząd, emocje rodziny === */
+.fam-expanded {
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+.fam-expanded__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fam-expand-in 180ms ease-out;
+}
+.fam-expanded__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.fam-expanded__head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 6px 12px 6px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  color: inherit;
+}
+.fam-expanded__head--selectable {
+  cursor: pointer;
+  border-color: rgb(var(--neo-border) / 0.14);
   box-shadow:
-    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.7),
-    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.28);
-  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.55),
+    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.2);
+  transition: transform 150ms ease, box-shadow 150ms ease;
 }
-.fam-pill:hover {
+.fam-expanded__head--selectable:hover {
   transform: translateY(-1px);
-  filter: brightness(1.04);
 }
-.fam-pill--selected {
-  border-width: 1.5px;
+.fam-expanded__head--selected {
   box-shadow:
     inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.7),
     inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.25);
 }
-.back-btn {
+.fam-expanded__emotions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.emotion-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--neo-border) / 0.12);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow:
+    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.6),
+    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.24);
+  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+.emotion-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+.emotion-btn--selected {
+  border-width: 1.5px;
+  transform: none;
+  box-shadow:
+    inset -2px -2px 4px rgb(var(--neo-inset-light) / 0.7),
+    inset 2px 2px 4px rgb(var(--neo-inset-dark) / 0.25);
+}
+.fam-collapse {
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -826,117 +1112,30 @@ onMounted(async () => {
   height: 28px;
   padding: 0;
   border-radius: 999px;
-  font-size: 16px;
-  color: rgb(var(--neo-text));
-  background: rgb(255 255 255 / 0.6);
-  border: 1px solid rgb(var(--neo-border) / 0.12);
-  box-shadow:
-    -3px -3px 6px rgb(var(--neo-shadow-light) / 0.6),
-    3px 3px 6px rgb(var(--neo-shadow-dark) / 0.22);
+  flex-shrink: 0;
+  color: inherit;
+  background: rgb(255 255 255 / 0.5);
+  border: 1px solid rgb(var(--neo-border) / 0.14);
   cursor: pointer;
   transition: transform 150ms ease;
-  flex-shrink: 0;
 }
-.back-btn:hover {
+.fam-collapse:hover {
   transform: translateY(-1px);
 }
 
-/* === Pole scatter === */
-.scatter-field {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 18px;
-  border: 1px solid rgb(255 255 255 / 0.4);
-  overflow: hidden;
-  background: rgb(255 255 255 / 0.22);
-  box-shadow: inset 0 1px 4px rgb(0 0 0 / 0.08);
-}
-.axis {
-  position: absolute;
-  font-size: 10px;
-  letter-spacing: 0.03em;
-  color: rgb(0 0 0 / 0.45);
-  pointer-events: none;
-  user-select: none;
-}
-.axis--top { top: 6px; left: 50%; transform: translateX(-50%); }
-.axis--bottom { bottom: 6px; left: 50%; transform: translateX(-50%); }
-.axis--left { left: 8px; top: 50%; transform: translateY(-50%) rotate(180deg); writing-mode: vertical-rl; }
-.axis--right { right: 8px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; }
-
-.dot {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: transform 120ms ease;
-  z-index: 1;
-}
-.dot:focus-visible {
-  outline: none;
-}
-.dot:focus-visible .dot__icon {
-  box-shadow: 0 0 0 2px rgb(var(--color-focus));
-  border-radius: 50%;
-}
-.dot__icon {
-  line-height: 1;
-  transition: transform 150ms ease, opacity 150ms ease;
-}
-.dot__label {
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  padding: 1px 7px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  box-shadow: 0 1px 3px rgb(90 130 180 / 0.22);
-}
-.dot--muted {
-  z-index: 0;
-}
-.dot--muted .dot__icon {
-  transform: scale(0.62);
-  opacity: 0.4;
-}
-.dot--hovered,
-.dot--selected {
-  z-index: 10;
-}
-.dot--hovered .dot__icon {
-  transform: scale(1.55);
-  opacity: 1;
-}
-.dot--selected .dot__icon {
-  transform: scale(1.35);
-  opacity: 1;
-  box-shadow:
-    -4px -4px 8px rgba(255, 255, 255, 0.95),
-    4px 4px 9px var(--disc-shadow-strong, rgba(120, 150, 190, 0.5)),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.45);
-}
-.empty {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 24px;
-  font-size: 14px;
-  color: rgb(0 0 0 / 0.55);
+@keyframes fam-expand-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .emotion-description-strip {
-  margin-top: 8px;
-  padding: 8px 12px;
+  padding: 7px 12px;
   border-radius: 12px;
   font-size: 12px;
   line-height: 1.4;
@@ -973,16 +1172,6 @@ onMounted(async () => {
 .surface-enter-from { opacity: 0; transform: scale(1.12); }
 .surface-leave-to { opacity: 0; transform: scale(0.72); }
 
-.deeper-enter-active { transition: opacity 300ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1); }
-.deeper-leave-active { transition: opacity 180ms ease, transform 180ms ease; }
-.deeper-enter-from { opacity: 0; transform: scale(0.9) translateY(14px); }
-.deeper-leave-to { opacity: 0; transform: scale(1.06); }
-
-.rise-enter-active { transition: opacity 280ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1); }
-.rise-leave-active { transition: opacity 180ms ease, transform 180ms ease; }
-.rise-enter-from { opacity: 0; transform: scale(1.06); }
-.rise-leave-to { opacity: 0; transform: scale(0.9) translateY(14px); }
-
 .switch-enter-active { transition: opacity 260ms ease, transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1); }
 .switch-leave-active { transition: opacity 150ms ease, transform 150ms ease; }
 .switch-enter-from { opacity: 0; transform: scale(0.94); }
@@ -990,21 +1179,18 @@ onMounted(async () => {
 
 @media (prefers-reduced-motion: reduce) {
   .es-panel { transition: none !important; }
+  .fam-move { transition: none !important; }
+  .fam-expanded__inner { animation: none !important; }
   .dive-enter-active, .dive-leave-active,
   .surface-enter-active, .surface-leave-active,
-  .deeper-enter-active, .deeper-leave-active,
-  .rise-enter-active, .rise-leave-active,
   .switch-enter-active, .switch-leave-active {
     transition: opacity 120ms linear !important;
     transform: none !important;
   }
   .dive-enter-from, .dive-leave-to,
   .surface-enter-from, .surface-leave-to,
-  .deeper-enter-from, .deeper-leave-to,
-  .rise-enter-from, .rise-leave-to,
   .switch-enter-from, .switch-leave-to {
     transform: none;
   }
-  .dot, .dot__icon { transition: none; }
 }
 </style>

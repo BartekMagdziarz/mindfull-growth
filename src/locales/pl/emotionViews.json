@@ -46,8 +46,10 @@
     "loadingEmotions": "Ładowanie emocji...",
     "noEmotionsInQuadrant": "Brak emocji w tym kwadrancie",
     "backToQuadrants": "Wróć do wyboru kwadrantu",
-    "showEmotions": "Pokaż emocje",
-    "backToFamilies": "Wróć do rodzin",
+    "expandFamily": "Rozwiń rodzinę {name}",
+    "collapseFamily": "Zwiń rodzinę {name}",
+    "selectedInFamily": "Wybrane w tej rodzinie: {count}",
+    "pickHint": "Kliknij emocję, aby ją zaznaczyć.",
     "scatterHint": "Najedź, aby odkryć nazwę. Kliknij, aby wybrać.",
     "axes": {
       "moreEnergy": "więcej energii",

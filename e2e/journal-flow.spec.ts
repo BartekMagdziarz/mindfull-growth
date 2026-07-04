@@ -2,6 +2,8 @@ import { test, expect, type Page } from '@playwright/test'
 
 const HIGH_PLEASANT_QUADRANT = 'emotion-quadrant-high-energy-high-pleasantness'
 const LOW_PLEASANT_QUADRANT = 'emotion-quadrant-low-energy-high-pleasantness'
+const HAPPY_FAMILY = 'emotion-family-expand-radosc'
+const CALM_FAMILY = 'emotion-family-expand-spokoj-i-wyciszenie'
 const HAPPY_EMOTION = 'emotion-option-e4m10-happy-028'
 const CALM_EMOTION = 'emotion-option-e7m7-calm-067'
 const happyText = /^(Happy|Szczęśliwy)$/
@@ -55,13 +57,17 @@ async function signUp(page: Page) {
   await page.waitForURL((url) => url.pathname === '/today', { timeout: 5000 })
 }
 
-async function selectEmotion(page: Page, quadrantTestId: string, emotionTestId: string) {
+async function selectEmotion(
+  page: Page,
+  quadrantTestId: string,
+  familyExpandTestId: string,
+  emotionTestId: string
+) {
+  // Family-expansion flow: quadrant -> expand the family in place -> pick an
+  // emotion button (normal flow layout, no forced clicks needed).
   await page.getByTestId(quadrantTestId).click()
-  // New scatter flow: quadrant -> families -> "show emotions" -> pick a dot.
-  await page.getByTestId('emotion-show-emotions').click()
-  // Scatter dots are absolutely positioned and can slightly overlap; force the
-  // click so a neighbouring dot cannot intercept the pointer.
-  await page.getByTestId(emotionTestId).click({ force: true })
+  await page.getByTestId(familyExpandTestId).click()
+  await page.getByTestId(emotionTestId).click()
 }
 
 async function addTag(page: Page, type: 'people' | 'context', name: string) {
@@ -113,7 +119,7 @@ async function createJournalEntry(
   }
 
   await page.getByLabel(/journal entry|wpis w dzienniku/i).fill(body)
-  await selectEmotion(page, HIGH_PLEASANT_QUADRANT, emotionName)
+  await selectEmotion(page, HIGH_PLEASANT_QUADRANT, HAPPY_FAMILY, emotionName)
   await addTag(page, 'people', peopleTag)
   await addTag(page, 'context', contextTag)
 
@@ -157,7 +163,7 @@ test.describe('Journal Flow', () => {
     await page.getByLabel(/^(Title|Tytuł)$/).fill('Edited Reflection')
     await page.getByLabel(/journal entry|wpis w dzienniku/i).fill('Updated body content')
     await removeEmotion(page, 'Happy', 'Szczęśliwy')
-    await selectEmotion(page, LOW_PLEASANT_QUADRANT, CALM_EMOTION)
+    await selectEmotion(page, LOW_PLEASANT_QUADRANT, CALM_FAMILY, CALM_EMOTION)
     await addTag(page, 'people', 'Dad')
     await page.getByRole('button', { name: saveButtonName }).click()
     await page.waitForURL((url) => url.pathname === '/journal/edit', { timeout: 5000 })
