@@ -46,12 +46,8 @@
     "actions": {
       "createPlan": "Utwórz plan",
       "editPlan": "Edytuj plan",
-      "viewPlanRecord": "Pokaż rekord planu",
       "createReflection": "Utwórz refleksję",
       "editReflection": "Edytuj refleksję",
-      "openMonth": "Otwórz miesiąc",
-      "openWeek": "Otwórz tydzień",
-      "openDay": "Otwórz dzień",
       "saveReflection": "Zapisz refleksję",
       "createPlanRecord": "Utwórz rekord planu"
     },

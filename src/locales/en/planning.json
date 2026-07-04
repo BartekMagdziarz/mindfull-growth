@@ -46,12 +46,8 @@
     "actions": {
       "createPlan": "Create plan",
       "editPlan": "Edit plan",
-      "viewPlanRecord": "View plan record",
       "createReflection": "Create reflection",
       "editReflection": "Edit reflection",
-      "openMonth": "Open month",
-      "openWeek": "Open week",
-      "openDay": "Open day",
       "saveReflection": "Save reflection",
       "createPlanRecord": "Create plan record"
     },
