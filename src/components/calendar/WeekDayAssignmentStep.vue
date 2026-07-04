@@ -1,80 +1,135 @@
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
-import StreamCard from './stream/StreamCard.vue'
-import AppButton from '@/components/AppButton.vue'
-import AppIcon from '@/components/shared/AppIcon.vue'
-import EntityIcon from '@/components/shared/EntityIcon.vue'
+import AssignmentMatrix from './AssignmentMatrix.vue'
 import PlannerWeekTargetPill from './PlannerWeekTargetPill.vue'
 import { useT } from '@/composables/useT'
 import { useWeeklyPlannerState } from '@/composables/useWeeklyPlannerState'
-import type { WeekRef } from '@/domain/period'
-import type { PlannerMeasurementRow, PlannerWeekDay } from './plannerTypes'
+import type { DayRef, WeekRef } from '@/domain/period'
+import type { PlannerMeasurementRow } from './plannerTypes'
+import type {
+  AssignmentMatrixColumn,
+  AssignmentMatrixRow,
+  AssignmentMatrixSection,
+} from './assignmentMatrixTypes'
 
 const props = defineProps<{ weekRef: WeekRef }>()
 const emit = defineEmits<{ updated: [] }>()
 
-const { t, locale } = useT()
+const { t } = useT()
+const { locale } = useT()
 
-// Reuse the classic planner's day-assignment machinery (load + toggle + persist), rendered
-// in the Strumień stream's day-card visual language instead of the classic grid.
 const weekRefRef = toRef(props, 'weekRef')
 const planner = useWeeklyPlannerState(weekRefRef, locale, () => emit('updated'))
-const {
-  isLoading,
-  calendarDays,
-  weekdayHeaders,
-  assignmentRow,
-  keyResultRows,
-  habitRows,
-  trackerRows,
-  toggleAssigning,
-  startAssigning,
-  isAssignmentActive,
-  handleDayToggle,
-  rowVisibleOnDay,
-  canToggleDay,
-  applyWholePeriod,
-  handleClearPlacement,
-  editableTarget,
-  handleTargetValueChange,
-  handleClearOverride,
-} = planner
 
-const weekTargetEditable = computed(() => {
-  const row = assignmentRow.value
-  return Boolean(row && row.subjectType !== 'tracker' && editableTarget(row))
+const rowByKey = computed(() => {
+  const map = new Map<string, PlannerMeasurementRow>()
+  for (const row of planner.allRows.value) {
+    map.set(planner.rowKey(row), row)
+  }
+  return map
 })
 
-const hasWeekOverride = computed(() => {
-  const row = assignmentRow.value
-  return Boolean(row && row.weekTargetOverrideByRef[props.weekRef])
+const columns = computed<AssignmentMatrixColumn[]>(() =>
+  planner.calendarDays.value.map((day, idx) => ({
+    key: day.dayRef,
+    label: planner.weekdayHeaders.value[idx]?.replace('.', '') ?? '',
+    sublabel: day.inMonth
+      ? String(Number(day.label))
+      : `${Number(day.label)} ${day.monthLabel.toLowerCase()}`,
+  }))
+)
+
+function toMatrixRow(row: PlannerMeasurementRow): AssignmentMatrixRow {
+  const softKind = planner.rowSoftKind(row)
+  return {
+    key: planner.rowKey(row),
+    title: row.title,
+    icon: row.icon,
+    subjectType: row.subjectType,
+    cells: Object.fromEntries(
+      planner.calendarDays.value.map(day => [
+        day.dayRef,
+        { state: planner.dayCellState(row, day.dayRef) },
+      ])
+    ),
+    softLabel:
+      softKind === 'whole-week'
+        ? t('planning.weekPlanning.days.wholeWeekPill')
+        : softKind === 'whole-month'
+          ? t('planning.weekPlanning.days.wholeMonthPill')
+          : undefined,
+    isWholePeriod: softKind === 'whole-week',
+    hasPlacement: planner.rowHasWeekPlacement(row),
+  }
+}
+
+const sections = computed<AssignmentMatrixSection[]>(() => {
+  const result: AssignmentMatrixSection[] = []
+  const groups: Array<{ key: string; label: string; rows: PlannerMeasurementRow[] }> = [
+    {
+      key: 'goals',
+      label: t('planning.calendar.planner.steps.goals'),
+      rows: planner.engagedKeyResultRows.value,
+    },
+    {
+      key: 'habits',
+      label: t('planning.calendar.planner.steps.habits'),
+      rows: planner.engagedHabitRows.value,
+    },
+    {
+      key: 'trackers',
+      label: t('planning.calendar.planner.steps.trackers'),
+      rows: planner.engagedTrackerRows.value,
+    },
+  ]
+  for (const group of groups) {
+    if (group.rows.length === 0) continue
+    result.push({
+      key: group.key,
+      label: `${group.label} (${group.rows.length})`,
+      rows: group.rows.map(toMatrixRow),
+    })
+  }
+  if (planner.dormantRows.value.length > 0) {
+    result.push({
+      key: 'rest',
+      label: t('planning.weekPlanning.days.restSection', {
+        n: planner.dormantRows.value.length,
+      }),
+      rows: planner.dormantRows.value.map(toMatrixRow),
+      collapsible: true,
+    })
+  }
+  return result
 })
 
-const rows = computed<PlannerMeasurementRow[]>(() => [
-  ...keyResultRows.value,
-  ...habitRows.value,
-  ...trackerRows.value,
-])
+const hasAnyRows = computed(() => sections.value.length > 0)
 
-function dayAssigned(day: PlannerWeekDay): boolean {
-  const row = assignmentRow.value
-  return row ? rowVisibleOnDay(row, day.dayRef, day.inMonth) : false
+function findRow(rowKey: string): PlannerMeasurementRow | undefined {
+  return rowByKey.value.get(rowKey)
 }
 
-function onDayClick(day: PlannerWeekDay): void {
-  if (!canToggleDay(day)) return
-  void handleDayToggle(day.dayRef)
-}
-
-// applyWholePeriod clears the active selection as part of saving, but this step renders
-// day state only from the selection — so without re-selecting, every day card reverts
-// and the whole-week placement looks like it did nothing. Re-select after the save reload
-// (matches on subjectType/id, which survive it) so all 7 days light up.
-async function onWholeWeek(): Promise<void> {
-  const row = assignmentRow.value
+function onCellToggle(rowKey: string, columnKey: string): void {
+  const row = findRow(rowKey)
   if (!row) return
-  await applyWholePeriod(row)
-  startAssigning(row)
+  void planner.handleMatrixCellToggle(row, columnKey as DayRef)
+}
+
+function onWholePeriod(rowKey: string): void {
+  const row = findRow(rowKey)
+  if (!row) return
+  void planner.handleWholeWeekToggle(row)
+}
+
+function onClearRow(rowKey: string): void {
+  const row = findRow(rowKey)
+  if (!row) return
+  void planner.handleRowClear(row)
+}
+
+function pillTarget(rowKey: string) {
+  const row = findRow(rowKey)
+  return row ? planner.editableTarget(row) : undefined
 }
 </script>
 
@@ -84,94 +139,33 @@ async function onWholeWeek(): Promise<void> {
       {{ t('planning.weekPlanning.days.intro') }}
     </p>
 
-    <!-- Object picker: choose which object to place across the week. -->
-    <div v-if="rows.length > 0" class="flex flex-wrap gap-2">
-      <button
-        v-for="row in rows"
-        :key="`${row.subjectType}:${row.id}`"
-        type="button"
-        class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all"
-        :class="
-          isAssignmentActive(row)
-            ? 'bg-primary/15 text-primary shadow-neu-pressed-sm'
-            : 'text-on-surface shadow-neu-raised-sm bg-gradient-to-br from-neu-top to-neu-bottom'
-        "
-        @click="toggleAssigning(row)"
+    <div v-if="!planner.isLoading.value" class="overflow-x-auto pb-1">
+      <AssignmentMatrix
+        v-if="hasAnyRows"
+        :columns="columns"
+        :sections="sections"
+        :target-label="t('planning.weekPlanning.days.weekTarget')"
+        :whole-period-label="t('planning.weekPlanning.days.wholeWeek')"
+        :clear-label="t('planning.weekPlanning.days.clear')"
+        @cell-toggle="onCellToggle"
+        @whole-period="onWholePeriod"
+        @clear-row="onClearRow"
       >
-        <EntityIcon :icon="row.icon" size="xs" />
-        <span class="max-w-[11rem] truncate">{{ row.title }}</span>
-      </button>
-    </div>
-    <p v-else class="text-xs text-on-surface-variant">
-      {{ t('planning.weekPlanning.days.empty') }}
-    </p>
-
-    <!-- Active-object toolbar: week target + whole-week / clear shortcuts. -->
-    <div
-      v-if="assignmentRow"
-      class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2"
-    >
-      <span class="min-w-0 truncate text-xs text-on-surface-variant">
-        {{ t('planning.weekPlanning.days.assigningHint', { title: assignmentRow.title }) }}
-      </span>
-      <div class="flex shrink-0 flex-wrap items-center gap-2">
-        <!-- Week target editor — writes THIS week's override, never the month's. -->
-        <div
-          v-if="weekTargetEditable"
-          data-testid="week-day-step-target"
-          class="flex items-center gap-1.5"
-        >
-          <span class="text-[11px] text-on-surface-variant">
-            {{ t('planning.weekPlanning.days.weekTarget') }}
-          </span>
+        <template #target="{ row }">
           <PlannerWeekTargetPill
-            :target="editableTarget(assignmentRow)!"
-            :has-override="hasWeekOverride"
-            @change="value => handleTargetValueChange(assignmentRow!, value)"
-            @clear="handleClearOverride(assignmentRow!)"
+            v-if="findRow(row.key)?.subjectType !== 'tracker' && pillTarget(row.key)"
+            :target="pillTarget(row.key)!"
+            :has-override="planner.hasWeekOverride(findRow(row.key)!)"
+            :disabled="!planner.weekTargetEditable(findRow(row.key)!)"
+            @change="value => planner.handleTargetValueChange(findRow(row.key)!, value)"
+            @clear="planner.handleClearOverride(findRow(row.key)!)"
           />
-        </div>
-        <AppButton variant="text" @click="handleClearPlacement">
-          {{ t('planning.weekPlanning.days.clear') }}
-        </AppButton>
-        <AppButton variant="tonal" @click="onWholeWeek">
-          {{ t('planning.weekPlanning.days.wholeWeek') }}
-        </AppButton>
-      </div>
-    </div>
-
-    <!-- 7 day cards in the stream visual language. -->
-    <div v-if="!isLoading" class="grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-7">
-      <StreamCard v-for="(day, idx) in calendarDays" :key="day.dayRef" tag="div" :delay-ms="idx * 30">
-        <button
-          type="button"
-          class="flex w-full flex-col gap-2.5 text-left disabled:cursor-default"
-          :disabled="!canToggleDay(day)"
-          :aria-pressed="dayAssigned(day)"
-          @click="onDayClick(day)"
-        >
-          <div class="flex w-full items-center justify-between">
-            <span class="text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">
-              {{ weekdayHeaders[idx] }}
-            </span>
-            <span class="text-sm font-bold text-on-surface">{{ day.label }}</span>
-          </div>
-          <div
-            class="flex h-9 w-full items-center justify-center rounded-xl transition-all"
-            :class="
-              dayAssigned(day)
-                ? 'bg-primary/15 text-primary shadow-neu-pressed-sm'
-                : 'text-on-surface-variant shadow-neu-raised-sm'
-            "
-          >
-            <AppIcon
-              :name="dayAssigned(day) ? 'check' : 'add'"
-              class="text-base"
-              :class="assignmentRow ? '' : 'opacity-30'"
-            />
-          </div>
-        </button>
-      </StreamCard>
+          <span v-else class="text-xs text-on-surface-variant/50">—</span>
+        </template>
+      </AssignmentMatrix>
+      <p v-else class="text-xs text-on-surface-variant">
+        {{ t('planning.weekPlanning.days.empty') }}
+      </p>
     </div>
   </div>
 </template>

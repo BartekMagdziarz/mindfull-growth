@@ -1,5 +1,5 @@
 import type { MeasurementTarget } from '@/domain/planning'
-import type { DayRef, WeekRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { MeasurementMonthState, MeasurementWeekState } from '@/domain/planningState'
 
 export type SubjectKind = 'keyResult' | 'habit' | 'tracker'
@@ -20,6 +20,8 @@ export interface PlannerMeasurementRow {
   goalId?: string
   isActive: boolean
   monthScheduleScope?: MeasurementMonthState['scheduleScope']
+  /** Month the governing month state belongs to (weekly planner: parent-month preferred). */
+  monthStateRef?: MonthRef
   weekScopeByRef: Partial<Record<string, MeasurementWeekState['scheduleScope']>>
   weekTargetOverrideByRef: Partial<Record<string, MeasurementTarget>>
   scheduledDayRefs: DayRef[]

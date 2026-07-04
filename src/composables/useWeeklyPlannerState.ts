@@ -1,7 +1,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import type { Habit, KeyResult, MeasurementTarget, Tracker } from '@/domain/planning'
-import type { DayRef, WeekRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
   GoalMonthState,
   MeasurementMonthState,
@@ -16,11 +16,10 @@ import { planningStateDexieRepository } from '@/repositories/planningStateDexieR
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { isGoalOpen, isInitiativeActive, isMeasurementSubjectOpen } from '@/services/planningVisibility'
 import {
-  clearMeasurementPlacementInWeek,
-  linkMeasurementPeriod,
+  materializeMeasurementDayAssignments,
+  materializeMeasurementWeekPlacements,
   toggleMeasurementDayAssignment,
   toggleMeasurementWeekAssignment,
-  unlinkMeasurementPeriod,
   updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
 import {
@@ -31,17 +30,16 @@ import {
   getWeekOverlappingMonths,
 } from '@/utils/periods'
 import type {
-  ActiveAssignment,
-  CalendarAssignmentItem,
   GoalSection,
   PlannerInitiativeRow,
-  PlannerPlacementMode,
   PlannerMeasurementRow,
   PlannerWeekDay,
   SubjectKind,
 } from '@/components/calendar/plannerTypes'
+import type { AssignmentMatrixCellState } from '@/components/calendar/assignmentMatrixTypes'
 
-export type WeeklyPlannerTab = 'goals' | 'habits' | 'trackers'
+/** Soft (inherited) coverage of a row in this week, shown as soft-filled cells. */
+export type WeekRowSoftKind = 'whole-week' | 'whole-month' | null
 
 export function useWeeklyPlannerState(
   weekRef: Ref<WeekRef>,
@@ -55,10 +53,10 @@ export function useWeeklyPlannerState(
   const habitRows = ref<PlannerMeasurementRow[]>([])
   const trackerRows = ref<PlannerMeasurementRow[]>([])
   const initiativeRows = ref<PlannerInitiativeRow[]>([])
-  const activeAssignment = ref<ActiveAssignment | null>(null)
   const hasLoadedOnce = ref(false)
 
   const overlappingMonthRefs = computed(() => getWeekOverlappingMonths(weekRef.value))
+  const parentMonthRef = computed(() => getParentPeriod(weekRef.value) as MonthRef)
   const weekDayRefs = computed(() => getChildPeriods(weekRef.value) as DayRef[])
   const weekDayRefSet = computed(() => new Set(weekDayRefs.value))
   const bounds = computed(() => getPeriodBounds(weekRef.value))
@@ -84,42 +82,48 @@ export function useWeeklyPlannerState(
     ...trackerRows.value,
   ])
 
-  const rowMap = computed(() => {
-    const map = new Map<string, PlannerMeasurementRow>()
-    for (const row of allRows.value) {
-      map.set(rowKey(row), row)
-    }
-    return map
-  })
-
-  const assignmentRow = computed(() =>
-    activeAssignment.value
-      ? rowMap.value.get(
-          `${activeAssignment.value.subjectType}:${activeAssignment.value.subjectId}`
-        )
-      : undefined
-  )
-
   const calendarDays = computed<PlannerWeekDay[]>(() =>
     weekDayRefs.value.map(dayRef => {
       const dayMonth = getPeriodRefsForDate(dayRef).month
       return {
         dayRef,
         label: dayRef.slice(-2),
-        inMonth: overlappingMonthRefs.value.includes(dayMonth),
+        inMonth: dayMonth === parentMonthRef.value,
         monthLabel: monthBadgeFormatter.value
           .format(new Date(`${dayRef}T00:00:00`))
           .replace('.', '')
           .toUpperCase(),
-        items: activeRowsForDay(dayRef),
+        items: [],
       }
     })
+  )
+
+  // Progressive disclosure: rows engaged this week (placed here, or in the month
+  // portfolio of an overlapping month) form the main sections; open weekly-cadence
+  // objects with no involvement land in a collapsed "rest" bucket.
+  const engagedKeyResultRows = computed(() => keyResultRows.value.filter(isEngaged))
+  const engagedHabitRows = computed(() => habitRows.value.filter(isEngaged))
+  const engagedTrackerRows = computed(() => trackerRows.value.filter(isEngaged))
+
+  const typeOrder: Record<SubjectKind, number> = {
+    keyResult: 0,
+    habit: 1,
+    tracker: 2,
+  }
+
+  const dormantRows = computed(() =>
+    allRows.value
+      .filter(row => !isEngaged(row))
+      .sort(
+        (left, right) =>
+          typeOrder[left.subjectType] - typeOrder[right.subjectType] ||
+          left.title.localeCompare(right.title)
+      )
   )
 
   watch(
     () => weekRef.value,
     async () => {
-      activeAssignment.value = null
       await loadPlannerData({ showLoading: true })
     },
     { immediate: true }
@@ -142,13 +146,7 @@ export function useWeeklyPlannerState(
     goalIconMap?: Map<string, string>
   ): PlannerMeasurementRow {
     const key = `${subjectType}:${item.id}`
-
-    // For weekly planner, find month states from any overlapping month
-    const monthState =
-      monthStates.get(key) ??
-      [...monthStates.values()].find(
-        state => state.subjectType === subjectType && state.subjectId === item.id
-      )
+    const monthState = monthStates.get(key)
 
     // Filter week states to just this week
     const relevantWeekStates = weekStates.filter(state => {
@@ -171,7 +169,7 @@ export function useWeeklyPlannerState(
     const governingWeekState =
       item.cadence === 'monthly'
         ? relevantWeekStates.find(
-            state => state.sourceMonthRef === getParentPeriod(weekRef.value)
+            state => state.sourceMonthRef === parentMonthRef.value
           ) ?? relevantWeekStates[0]
         : relevantWeekStates.find(state => !state.sourceMonthRef)
 
@@ -207,6 +205,7 @@ export function useWeeklyPlannerState(
         Object.keys(weekScopeByRef).length > 0 ||
         scheduledDayRefs.length > 0,
       monthScheduleScope: monthState?.scheduleScope,
+      monthStateRef: monthState?.monthRef,
       weekScopeByRef,
       weekTargetOverrideByRef,
       scheduledDayRefs,
@@ -214,14 +213,20 @@ export function useWeeklyPlannerState(
   }
 
   function isVisible(row: PlannerMeasurementRow): boolean {
-    // Weekly cadence: always show all open items
+    // Weekly cadence: always show all open items (dormant ones go to the rest bucket)
     if (row.cadence === 'weekly') return true
-    // Monthly cadence: only if has month state, week state, or day assignments
+    // Monthly cadence: only if in the month portfolio (placed) or grandfathered whole-month
     if (row.isActive) return true
     if (row.monthScheduleScope === 'whole-month') return true
     return false
   }
 
+  function isEngaged(row: PlannerMeasurementRow): boolean {
+    if (row.cadence === 'monthly') return true
+    return row.isActive
+  }
+
+  /** Explicit placement in THIS week (week scope or scheduled days). */
   function hasExplicitPlacement(row: PlannerMeasurementRow): boolean {
     return (
       Object.values(row.weekScopeByRef).some(
@@ -230,123 +235,57 @@ export function useWeeklyPlannerState(
     )
   }
 
-  function rowVisibleOnDay(row: PlannerMeasurementRow, dayRef: DayRef, inMonth: boolean): boolean {
-    if (!row.isActive) return false
-    if (row.scheduledDayRefs.includes(dayRef)) return true
-
-    const weekScope = row.weekScopeByRef[weekRef.value]
-    if (weekScope === 'whole-week') return true
-
-    if (row.cadence === 'monthly') {
-      if (hasExplicitPlacement(row)) return false
-      return row.monthScheduleScope === 'whole-month' && inMonth
+  function rowSoftKind(row: PlannerMeasurementRow): WeekRowSoftKind {
+    if (row.weekScopeByRef[weekRef.value] === 'whole-week') return 'whole-week'
+    if (
+      row.cadence === 'monthly' &&
+      !hasExplicitPlacement(row) &&
+      row.monthScheduleScope === 'whole-month'
+    ) {
+      return 'whole-month'
     }
-
-    return false
+    return null
   }
 
-  const typeOrder: Record<SubjectKind, number> = {
-    keyResult: 0,
-    habit: 1,
-    tracker: 2,
+  /** Days softly covered by a whole-month scope: this week's days inside that month. */
+  function wholeMonthCoveredDays(row: PlannerMeasurementRow): DayRef[] {
+    if (!row.monthStateRef) return []
+    return weekDayRefs.value.filter(
+      dayRef => getPeriodRefsForDate(dayRef).month === row.monthStateRef
+    )
   }
 
-  function activeRowsForDay(dayRef: DayRef): CalendarAssignmentItem[] {
-    const dayMonth = getPeriodRefsForDate(dayRef).month
-    const inMonth = overlappingMonthRefs.value.includes(dayMonth)
+  function dayCellState(row: PlannerMeasurementRow, dayRef: DayRef): AssignmentMatrixCellState {
+    if (row.scheduledDayRefs.includes(dayRef)) return 'checked'
+    const softKind = rowSoftKind(row)
+    if (softKind === 'whole-week') return 'soft'
+    if (softKind === 'whole-month' && wholeMonthCoveredDays(row).includes(dayRef)) {
+      return 'soft'
+    }
+    return 'empty'
+  }
 
-    return allRows.value
-      .filter(row => rowVisibleOnDay(row, dayRef, inMonth))
-      .map(row => ({
-        key: rowKey(row),
-        title: row.title,
-        icon: row.icon,
-        subjectType: row.subjectType,
-        isActiveAssignment: isAssignmentActive(row),
-        groupKey: row.goalId ?? row.id,
-      }))
-      .sort((left, right) => {
-        if (left.isActiveAssignment && !right.isActiveAssignment) return -1
-        if (!left.isActiveAssignment && right.isActiveAssignment) return 1
-        const typeA = typeOrder[left.subjectType]
-        const typeB = typeOrder[right.subjectType]
-        if (typeA !== typeB) return typeA - typeB
-        return left.title.localeCompare(right.title)
-      })
+  /** Row can be cleared / has anything placed or inherited in this week. */
+  function rowHasWeekPlacement(row: PlannerMeasurementRow): boolean {
+    return hasExplicitPlacement(row) || rowSoftKind(row) !== null
   }
 
   function editableTarget(item: PlannerMeasurementRow): MeasurementTarget | undefined {
     return item.targetOverride ?? item.target
   }
 
-  function operatorOptions(target: MeasurementTarget): string[] {
-    return target.kind === 'count' ? ['min', 'max'] : ['gte', 'lte']
+  function hasWeekOverride(row: PlannerMeasurementRow): boolean {
+    return Boolean(row.weekTargetOverrideByRef[weekRef.value])
   }
 
-  function aggregationOptions(target: MeasurementTarget): string[] {
-    if (target.kind === 'count') return []
-    return target.kind === 'rating' ? ['average'] : ['sum', 'average', 'last']
-  }
-
-  function aggregationValue(target: MeasurementTarget): string {
-    switch (target.kind) {
-      case 'count':
-        return ''
-      case 'rating':
-        return 'average'
-      case 'value':
-        return target.aggregation
-    }
-  }
-
-  function isAssignmentActive(item: PlannerMeasurementRow): boolean {
+  /** Week target pill is editable only on rows placed in this week (active ⇔ placed:
+   * writing an override on an unplaced row would resurrect an unassigned state). */
+  function weekTargetEditable(row: PlannerMeasurementRow): boolean {
     return (
-      activeAssignment.value?.subjectType === item.subjectType &&
-      activeAssignment.value?.subjectId === item.id
+      row.subjectType !== 'tracker' &&
+      Boolean(editableTarget(row)) &&
+      rowHasWeekPlacement(row)
     )
-  }
-
-  function isAssigned(row: PlannerMeasurementRow): boolean {
-    if (!row.isActive) return false
-    if (row.cadence === 'monthly') {
-      return row.monthScheduleScope === 'whole-month' || hasExplicitPlacement(row)
-    }
-    return hasExplicitPlacement(row)
-  }
-
-  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode = 'days'): void {
-    // Inactive items are intentionally allowed here — toggleMeasurementDayAssignment
-    // and toggleMeasurementWeekAssignment activate the item atomically when the user picks
-    // a day/week, so we don't need an explicit activation step.
-    activeAssignment.value = {
-      subjectType: item.subjectType,
-      subjectId: item.id,
-      cadence: item.cadence,
-      mode,
-    }
-  }
-
-  function toggleAssigning(item: PlannerMeasurementRow): void {
-    if (isAssignmentActive(item)) {
-      activeAssignment.value = null
-      return
-    }
-    startAssigning(item)
-  }
-
-  function stopAssigning(): void {
-    activeAssignment.value = null
-  }
-
-  function findNextUnassignedKey(currentTab: WeeklyPlannerTab): string | null {
-    const items =
-      currentTab === 'goals'
-        ? keyResultRows.value
-        : currentTab === 'habits'
-          ? habitRows.value
-          : trackerRows.value
-    const next = items.find(item => item.isActive && !isAssigned(item))
-    return next ? rowKey(next) : null
   }
 
   async function withSave<T>(key: string, action: () => Promise<T>): Promise<void> {
@@ -411,15 +350,15 @@ export function useWeeklyPlannerState(
           .map(state => state.goalId)
       )
 
-      // Build month state map keyed by subjectType:subjectId
-      // For overlapping months, pick the first active state found
+      // Build month state map keyed by subjectType:subjectId. On boundary weeks
+      // both months may carry a state — prefer the week's parent month (same
+      // attribution rule as week target overrides, §13).
       const monthStateMap = new Map<string, MeasurementMonthState>()
       for (const state of monthStates) {
-        if (state.activityState === 'active') {
-          const key = `${state.subjectType}:${state.subjectId}`
-          if (!monthStateMap.has(key)) {
-            monthStateMap.set(key, state)
-          }
+        if (state.activityState !== 'active') continue
+        const key = `${state.subjectType}:${state.subjectId}`
+        if (state.monthRef === parentMonthRef.value || !monthStateMap.has(key)) {
+          monthStateMap.set(key, state)
         }
       }
 
@@ -495,41 +434,12 @@ export function useWeeklyPlannerState(
         })
         .filter(row => row.isPlannedThisWeek)
 
-      if (activeAssignment.value) {
-        const current = rowMap.value.get(
-          `${activeAssignment.value.subjectType}:${activeAssignment.value.subjectId}`
-        )
-        if (!current?.isActive) {
-          activeAssignment.value = null
-        }
-      }
       hasLoadedOnce.value = true
     } catch (error) {
       loadError.value = error instanceof Error ? error.message : String(error)
     } finally {
       isLoading.value = false
     }
-  }
-
-  async function toggleMeasurement(item: PlannerMeasurementRow): Promise<void> {
-    await withSave(rowKey(item), async () => {
-      if (item.isActive) {
-        if (isAssignmentActive(item)) activeAssignment.value = null
-        await unlinkMeasurementPeriod({
-          periodRef: weekRef.value,
-          cadence: item.cadence,
-          subjectType: item.subjectType,
-          subjectId: item.id,
-        })
-        return
-      }
-      await linkMeasurementPeriod({
-        periodRef: weekRef.value,
-        cadence: item.cadence,
-        subjectType: item.subjectType,
-        subjectId: item.id,
-      })
-    })
   }
 
   /**
@@ -548,39 +458,9 @@ export function useWeeklyPlannerState(
         subjectType: item.subjectType,
         subjectId: item.id,
         cadence: item.cadence,
-        monthRef: item.cadence === 'monthly' ? getParentPeriod(weekRef.value) : undefined,
+        monthRef: item.cadence === 'monthly' ? parentMonthRef.value : undefined,
         targetOverride: target,
       })
-    )
-  }
-
-  async function handleTargetOperatorChange(
-    item: PlannerMeasurementRow,
-    value: string
-  ): Promise<void> {
-    const target = editableTarget(item)
-    if (!target || item.subjectType === 'tracker') return
-
-    await saveTargetOverride(
-      item,
-      target.kind === 'count'
-        ? { ...target, operator: value as typeof target.operator }
-        : { ...target, operator: value as typeof target.operator }
-    )
-  }
-
-  async function handleTargetAggregationChange(
-    item: PlannerMeasurementRow,
-    value: string
-  ): Promise<void> {
-    const target = editableTarget(item)
-    if (!target || target.kind === 'count' || item.subjectType === 'tracker') return
-
-    await saveTargetOverride(
-      item,
-      target.kind === 'rating'
-        ? { ...target, aggregation: 'average' }
-        : { ...target, aggregation: value as typeof target.aggregation }
     )
   }
 
@@ -599,58 +479,58 @@ export function useWeeklyPlannerState(
     await saveTargetOverride(item, undefined)
   }
 
-  async function applyWholePeriod(item: PlannerMeasurementRow): Promise<void> {
-    // Inactive items are intentionally allowed — toggleMeasurementWeekAssignment activates
-    // the item and assigns the whole week atomically.
-    const weekScope = item.weekScopeByRef[weekRef.value]
-    if (weekScope === 'whole-week') {
-      activeAssignment.value = null
+  /** Toggle a single day cell, materializing soft coverage first so the rest of
+   * the whole-week / whole-month coverage never silently collapses. */
+  async function handleMatrixCellToggle(
+    row: PlannerMeasurementRow,
+    dayRef: DayRef
+  ): Promise<void> {
+    const softKind = rowSoftKind(row)
+
+    if (softKind === 'whole-week') {
+      const dayRefs = weekDayRefs.value.filter(day => day !== dayRef)
+      await withSave(`${rowKey(row)}:${dayRef}`, () =>
+        materializeMeasurementDayAssignments({
+          weekRef: weekRef.value,
+          cadence: row.cadence,
+          subjectType: row.subjectType,
+          subjectId: row.id,
+          dayRefs,
+        })
+      )
       return
     }
 
-    const monthRef = item.cadence === 'monthly' ? overlappingMonthRefs.value[0] : undefined
-    activeAssignment.value = null
+    if (softKind === 'whole-month' && row.monthStateRef) {
+      const monthRef = row.monthStateRef
+      const covered = wholeMonthCoveredDays(row)
+      const dayRefs = covered.includes(dayRef)
+        ? covered.filter(day => day !== dayRef)
+        : [...covered, dayRef]
+      const otherWeeks = (getChildPeriods(monthRef) as WeekRef[]).filter(
+        week => week !== weekRef.value
+      )
 
-    await withSave(`${rowKey(item)}:whole-week`, () =>
-      toggleMeasurementWeekAssignment({
-        weekRef: weekRef.value,
-        cadence: item.cadence,
-        monthRef,
-        subjectType: item.subjectType,
-        subjectId: item.id,
+      await withSave(`${rowKey(row)}:${dayRef}`, async () => {
+        await materializeMeasurementWeekPlacements({
+          monthRef,
+          cadence: row.cadence,
+          subjectType: row.subjectType,
+          subjectId: row.id,
+          weekRefs: otherWeeks,
+        })
+        await materializeMeasurementDayAssignments({
+          weekRef: weekRef.value,
+          cadence: row.cadence,
+          subjectType: row.subjectType,
+          subjectId: row.id,
+          dayRefs,
+        })
       })
-    )
-  }
-
-  async function handleWholeWeek(): Promise<void> {
-    const row = assignmentRow.value
-    if (!row) return
-    await applyWholePeriod(row)
-  }
-
-  async function handleClearPlacement(): Promise<void> {
-    const row = assignmentRow.value
-    if (!row) return
-
-    const monthRef = row.cadence === 'monthly' ? overlappingMonthRefs.value[0] : undefined
-
-    await withSave(`${rowKey(row)}:clear`, () =>
-      clearMeasurementPlacementInWeek({
-        weekRef: weekRef.value,
-        cadence: row.cadence,
-        monthRef,
-        subjectType: row.subjectType,
-        subjectId: row.id,
-      })
-    )
-  }
-
-  async function handleDayToggle(dayRef: DayRef): Promise<void> {
-    const row = assignmentRow.value
-    if (!row) return
+      return
+    }
 
     const dayMonthRef = getPeriodRefsForDate(dayRef).month
-
     await withSave(`${rowKey(row)}:${dayRef}`, () =>
       toggleMeasurementDayAssignment({
         dayRef,
@@ -662,8 +542,65 @@ export function useWeeklyPlannerState(
     )
   }
 
-  function canToggleDay(_day: { inMonth: boolean }): boolean {
-    return Boolean(activeAssignment.value)
+  /** Whole-week quick action. On whole-month rows it materializes the month into
+   * explicit whole-week placements (coverage unchanged, state normalized);
+   * otherwise it toggles this week's whole-week placement. */
+  async function handleWholeWeekToggle(row: PlannerMeasurementRow): Promise<void> {
+    if (rowSoftKind(row) === 'whole-month' && row.monthStateRef) {
+      const monthRef = row.monthStateRef
+      await withSave(`${rowKey(row)}:whole-week`, () =>
+        materializeMeasurementWeekPlacements({
+          monthRef,
+          cadence: row.cadence,
+          subjectType: row.subjectType,
+          subjectId: row.id,
+          weekRefs: getChildPeriods(monthRef) as WeekRef[],
+        })
+      )
+      return
+    }
+
+    await withSave(`${rowKey(row)}:whole-week`, () =>
+      toggleMeasurementWeekAssignment({
+        weekRef: weekRef.value,
+        cadence: row.cadence,
+        monthRef: row.cadence === 'monthly' ? parentMonthRef.value : undefined,
+        subjectType: row.subjectType,
+        subjectId: row.id,
+      })
+    )
+  }
+
+  /** Clear the row's placement in this week. Whole-month rows keep their other
+   * weeks (materialized minus this one); explicit placements are removed and —
+   * per active ⇔ placed — the object may drop out of the week entirely. */
+  async function handleRowClear(row: PlannerMeasurementRow): Promise<void> {
+    if (rowSoftKind(row) === 'whole-month' && row.monthStateRef) {
+      const monthRef = row.monthStateRef
+      const otherWeeks = (getChildPeriods(monthRef) as WeekRef[]).filter(
+        week => week !== weekRef.value
+      )
+      await withSave(`${rowKey(row)}:clear`, () =>
+        materializeMeasurementWeekPlacements({
+          monthRef,
+          cadence: row.cadence,
+          subjectType: row.subjectType,
+          subjectId: row.id,
+          weekRefs: otherWeeks,
+        })
+      )
+      return
+    }
+
+    await withSave(`${rowKey(row)}:clear`, () =>
+      materializeMeasurementDayAssignments({
+        weekRef: weekRef.value,
+        cadence: row.cadence,
+        subjectType: row.subjectType,
+        subjectId: row.id,
+        dayRefs: [],
+      })
+    )
   }
 
   return {
@@ -675,33 +612,26 @@ export function useWeeklyPlannerState(
     habitRows,
     trackerRows,
     initiativeRows,
-    activeAssignment,
-    assignmentRow,
+    allRows,
     calendarDays,
     weekdayHeaders,
-    allRows,
+    parentMonthRef,
+    engagedKeyResultRows,
+    engagedHabitRows,
+    engagedTrackerRows,
+    dormantRows,
     loadPlannerData,
     rowKey,
     editableTarget,
-    operatorOptions,
-    aggregationOptions,
-    aggregationValue,
-    isAssignmentActive,
-    isAssigned,
-    startAssigning,
-    toggleAssigning,
-    stopAssigning,
-    findNextUnassignedKey,
-    toggleMeasurement,
-    applyWholePeriod,
-    handleTargetOperatorChange,
-    handleTargetAggregationChange,
+    hasWeekOverride,
+    weekTargetEditable,
+    rowSoftKind,
+    rowHasWeekPlacement,
+    dayCellState,
     handleTargetValueChange,
     handleClearOverride,
-    handleWholeWeek,
-    handleClearPlacement,
-    handleDayToggle,
-    canToggleDay,
-    rowVisibleOnDay,
+    handleMatrixCellToggle,
+    handleWholeWeekToggle,
+    handleRowClear,
   }
 }

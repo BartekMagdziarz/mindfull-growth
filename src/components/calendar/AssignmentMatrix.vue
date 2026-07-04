@@ -59,7 +59,7 @@
         >
           <!-- Leading: icon + title + soft pill -->
           <div class="flex min-w-0 items-center gap-2 py-0.5 pl-1">
-            <EntityIcon :icon="row.icon" size="xs" />
+            <EntityIcon :icon="row.icon ?? TYPE_ICONS[row.subjectType]" size="xs" />
             <span class="min-w-0 truncate text-sm font-medium text-on-surface" :title="row.title">
               {{ row.title }}
             </span>
@@ -198,6 +198,13 @@ defineEmits<{
   wholePeriod: [rowKey: string]
   clearRow: [rowKey: string]
 }>()
+
+// Same type-icon fallback as WeekObjectTile/MonthObjectTile panels.
+const TYPE_ICONS: Record<string, string> = {
+  keyResult: 'flag',
+  habit: 'loop',
+  tracker: 'monitoring',
+}
 
 const gridTemplateColumns = computed(
   () =>

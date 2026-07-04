@@ -481,10 +481,12 @@
     "days": {
       "intro": "Rozmieść każdy obiekt na dniach, w których chcesz nad nim działać.",
       "empty": "Brak aktywnych obiektów do rozmieszczenia w tym tygodniu.",
-      "assigningHint": "Wybierz dni dla „{title}”.",
       "wholeWeek": "Cały tydzień",
       "clear": "Wyczyść",
-      "weekTarget": "Cel na ten tydzień"
+      "weekTarget": "Cel na ten tydzień",
+      "wholeWeekPill": "cały tydzień",
+      "wholeMonthPill": "cały miesiąc",
+      "restSection": "Pozostałe obiekty ({n})"
     },
     "subjectType": {
       "keyResult": "Kluczowy rezultat",
