@@ -39,6 +39,25 @@ export function applyMeasurementTargetOverride(
   }
 }
 
+/**
+ * Resolves the effective target for evaluating `subject` over `periodRef`.
+ * Week periods cascade week override → month override → base target;
+ * month periods only ever see the month override — a week sub-target must
+ * never leak into month-level evaluation.
+ */
+export function applyMeasurementTargetCascade(
+  subject: MeasureableSubject,
+  periodRef: MeasurementPeriodRef,
+  overrides: { monthOverride?: MeasurementTarget; weekOverride?: MeasurementTarget }
+): MeasureableSubject {
+  const effectiveOverride =
+    getPeriodType(periodRef) === 'week'
+      ? overrides.weekOverride ?? overrides.monthOverride
+      : overrides.monthOverride
+
+  return applyMeasurementTargetOverride(subject, effectiveOverride)
+}
+
 function filterEntriesForSubjectAndPeriod(
   entries: DailyMeasurementEntry[],
   subjectId: string,

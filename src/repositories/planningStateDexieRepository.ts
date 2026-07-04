@@ -897,6 +897,18 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       throw new Error('Tracker week state does not support successNote')
     }
 
+    if (normalized.targetOverride) {
+      if (normalized.subjectType === 'tracker') {
+        throw new Error('Tracker week state does not support targetOverride')
+      }
+      if (normalized.subjectType === 'weeklyIntention') {
+        throw new Error('Weekly intention week state does not support targetOverride')
+      }
+      if ('target' in subject && subject.target.kind !== normalized.targetOverride.kind) {
+        throw new Error('Measurement week targetOverride must match the base target kind')
+      }
+    }
+
     if (subject.cadence === 'monthly' && !normalized.sourceMonthRef) {
       throw new Error('Monthly cadence subjects require sourceMonthRef on week state')
     }

@@ -63,6 +63,8 @@ export interface MeasurementWeekState extends PlanningStateRecordBase {
   activityState: PeriodActivityState
   sourceMonthRef?: MonthRef
   scheduleScope: WeekScheduleScope
+  /** Per-week target override (weekly cadence) or per-week sub-target (monthly cadence). */
+  targetOverride?: MeasurementTarget
   successNote?: string
 }
 
@@ -598,6 +600,14 @@ export function normalizeMeasurementWeekStatePayload(
     }
   }
 
+  const hasTargetOverride = Object.prototype.hasOwnProperty.call(data, 'targetOverride')
+  const targetOverride =
+    hasTargetOverride || existing?.targetOverride
+      ? hasTargetOverride && data.targetOverride === undefined
+        ? undefined
+        : normalizeMeasurementTarget(data.targetOverride, existing?.targetOverride)
+      : undefined
+
   return {
     weekRef,
     subjectType: normalizeEnum(
@@ -620,6 +630,7 @@ export function normalizeMeasurementWeekStatePayload(
       WEEK_SCHEDULE_SCOPES,
       existing?.scheduleScope ?? 'unassigned'
     ),
+    targetOverride,
     successNote: normalizeOptionalText(data.successNote, 'successNote', existing?.successNote),
   }
 }

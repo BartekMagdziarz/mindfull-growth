@@ -84,6 +84,30 @@ async function upsertMeasurementMonthState(
   })
 }
 
+/**
+ * Ensure an active month state exists without mutating what's already there —
+ * preserves scheduleScope and targetOverride (an upsert with an explicit
+ * `targetOverride: undefined` key would clear the stored override).
+ */
+async function ensureActiveMeasurementMonthState(
+  monthRef: MonthRef,
+  subjectType: MeasurementSubjectType,
+  subjectId: string
+): Promise<MeasurementMonthState> {
+  const existing = await planningStateDexieRepository.getMeasurementMonthState(
+    monthRef,
+    subjectType,
+    subjectId
+  )
+  return upsertMeasurementMonthState(
+    monthRef,
+    subjectType,
+    subjectId,
+    existing?.scheduleScope ?? 'unassigned',
+    existing?.targetOverride
+  )
+}
+
 async function clearMonthAssignments(
   monthRef: MonthRef,
   subjectType: MeasurementSubjectType,
@@ -202,6 +226,36 @@ export async function updateMeasurementTargetOverride({
 
   await planningStateDexieRepository.upsertMeasurementMonthState({
     monthRef,
+    subjectType,
+    subjectId,
+    activityState: existing?.activityState ?? 'active',
+    scheduleScope: existing?.scheduleScope ?? 'unassigned',
+    targetOverride,
+  })
+}
+
+export async function updateMeasurementWeekTargetOverride({
+  weekRef,
+  subjectType,
+  subjectId,
+  cadence,
+  monthRef,
+  targetOverride,
+}: MeasurementWeekRef & { targetOverride?: MeasurementTarget }): Promise<void> {
+  if (cadence === 'monthly' && !monthRef) {
+    throw new Error('Monthly cadence week target overrides require monthRef')
+  }
+  const sourceMonthRef = cadence === 'monthly' ? monthRef : undefined
+  const existing = await planningStateDexieRepository.getMeasurementWeekState(
+    weekRef,
+    subjectType,
+    subjectId,
+    sourceMonthRef
+  )
+
+  await planningStateDexieRepository.upsertMeasurementWeekState({
+    weekRef,
+    sourceMonthRef,
     subjectType,
     subjectId,
     activityState: existing?.activityState ?? 'active',
@@ -406,7 +460,7 @@ export async function linkMeasurementPeriod({
   const overlappingMonths = getWeekOverlappingMonths(weekRef)
   await Promise.all(
     overlappingMonths.map(overlappingMonth =>
-      upsertMeasurementMonthState(overlappingMonth, subjectType, subjectId, 'unassigned')
+      ensureActiveMeasurementMonthState(overlappingMonth, subjectType, subjectId)
     )
   )
   await planningStateDexieRepository.upsertMeasurementWeekState({
@@ -610,7 +664,7 @@ export async function toggleMeasurementDayAssignment({
   } else {
     await Promise.all(
       getWeekOverlappingMonths(refs.week).map(overlappingMonth =>
-        upsertMeasurementMonthState(overlappingMonth, subjectType, subjectId, 'unassigned')
+        ensureActiveMeasurementMonthState(overlappingMonth, subjectType, subjectId)
       )
     )
   }

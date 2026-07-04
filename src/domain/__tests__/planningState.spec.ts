@@ -83,6 +83,87 @@ describe('planningState domain normalization', () => {
     expect(cleared.targetOverride).toBeUndefined()
   })
 
+  it('supports week-level target overrides, preserving and clearing them', () => {
+    const created = normalizeMeasurementWeekStatePayload({
+      weekRef: parsePeriodRef('2026-W10') as CreateMeasurementWeekStatePayload['weekRef'],
+      subjectType: 'habit',
+      subjectId: 'habit-1',
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+      targetOverride: {
+        kind: 'count',
+        operator: 'min',
+        value: 2,
+      },
+    } satisfies CreateMeasurementWeekStatePayload)
+
+    expect(created.targetOverride).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 2,
+    })
+
+    const existing = {
+      id: 'week-state-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      ...created,
+    }
+
+    // Upsert without the targetOverride key preserves the stored override.
+    const preserved = normalizeMeasurementWeekStatePayload(
+      {
+        scheduleScope: 'specific-days',
+      },
+      existing,
+    )
+    expect(preserved.targetOverride).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 2,
+    })
+
+    // Explicit undefined clears it.
+    const cleared = normalizeMeasurementWeekStatePayload(
+      {
+        targetOverride: undefined,
+      },
+      existing,
+    )
+    expect(cleared.targetOverride).toBeUndefined()
+  })
+
+  it('falls back to existing week override fields when partially updated', () => {
+    const existing = {
+      id: 'week-state-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      weekRef: '2026-W10' as CreateMeasurementWeekStatePayload['weekRef'],
+      subjectType: 'habit' as const,
+      subjectId: 'habit-1',
+      activityState: 'active' as const,
+      scheduleScope: 'whole-week' as const,
+      targetOverride: {
+        kind: 'count' as const,
+        operator: 'min' as const,
+        value: 2,
+      },
+    }
+
+    const updated = normalizeMeasurementWeekStatePayload(
+      {
+        targetOverride: { value: 4 },
+      } as never,
+      existing,
+    )
+
+    expect(updated.targetOverride).toEqual({
+      kind: 'count',
+      operator: 'min',
+      value: 4,
+    })
+  })
+
   it('validates overlapping sourceMonthRef for week states', () => {
     expect(() =>
       normalizeMeasurementWeekStatePayload({

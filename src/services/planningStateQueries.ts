@@ -1,5 +1,5 @@
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { Goal, Initiative, Habit, KeyResult, Tracker, WeeklyIntention } from '@/domain/planning'
+import type { Goal, Initiative, Habit, KeyResult, MeasurementTarget, Tracker, WeeklyIntention } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
@@ -19,6 +19,7 @@ import { planningStateDexieRepository } from '@/repositories/planningStateDexieR
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import {
+  applyMeasurementTargetCascade,
   applyMeasurementTargetOverride,
   buildMeasurementSummary,
   type MeasurementSummary,
@@ -49,6 +50,8 @@ export interface MonthMeasurementPlanningItem {
   measurement?: MeasurementSummary
   sourceMonthRef?: MonthRef
   relatedWeekCount: number
+  /** Explicit per-week target overrides within this month (week sub-targets). */
+  weekTargetOverrides?: Partial<Record<WeekRef, MeasurementTarget>>
 }
 
 export type MonthCadencedPlanningItem = MonthMeasurementPlanningItem & {
@@ -83,6 +86,8 @@ export interface WeekMeasurementPlanningItem {
   sourceMonthRef?: MonthRef
   planning: MeasurementPlanningSummary
   measurement: MeasurementSummary
+  /** Week-period met/missed for monthly-cadence subjects with a week sub-target. */
+  weekMeasurement?: MeasurementSummary
   placement: WeekMeasurementPlacement
 }
 
@@ -102,6 +107,8 @@ export interface WeekMeasurementReflectionItem {
   sourceMonthRef?: MonthRef
   planning: MeasurementPlanningSummary
   measurement: MeasurementSummary
+  /** Week-period met/missed for monthly-cadence subjects with a week sub-target. */
+  weekMeasurement?: MeasurementSummary
   hasEntries: boolean
   isScheduled: boolean
 }
@@ -574,6 +581,12 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
         subjectEntries,
       )
       const subjectType = resolveSubjectType(effectiveSubject)
+      const weekTargetOverrides: Partial<Record<WeekRef, MeasurementTarget>> = {}
+      for (const state of subjectWeekStates) {
+        if (state.targetOverride) {
+          weekTargetOverrides[state.weekRef] = state.targetOverride
+        }
+      }
       const itemBase = {
         planning: {
           activityState: monthState.activityState,
@@ -582,9 +595,17 @@ export async function getMonthPlanningBundle(monthRef: MonthRef): Promise<MonthP
           successNote: monthState.successNote,
         },
         measurement: measurementPeriodRef
-          ? buildMeasurementSummary(effectiveSubject, allEntriesBySubject.get(key) ?? [], measurementPeriodRef)
+          ? buildMeasurementSummary(
+              applyMeasurementTargetCascade(subject, measurementPeriodRef, {
+                monthOverride: monthState.targetOverride,
+                weekOverride: weekTargetOverrides[measurementPeriodRef as WeekRef],
+              }),
+              allEntriesBySubject.get(key) ?? [],
+              measurementPeriodRef,
+            )
           : undefined,
         relatedWeekCount: new Set(subjectWeekStates.map((state) => state.weekRef)).size,
+        weekTargetOverrides: Object.keys(weekTargetOverrides).length > 0 ? weekTargetOverrides : undefined,
       }
 
       if (subjectType === 'tracker') {
@@ -638,6 +659,7 @@ function buildWeeklyPlanningItem(
   periodRef: WeekRef | MonthRef,
   sourceMonthRef?: MonthRef,
   asOfDayRef?: DayRef,
+  weekMeasurement?: MeasurementSummary,
 ): WeekMeasurementPlanningItem | undefined {
   const planning = buildPlanningSummary(monthState, weekState, dayAssignments)
   const placement = placementFromState(planning.scheduleScope, dayAssignments.length > 0)
@@ -652,6 +674,7 @@ function buildWeeklyPlanningItem(
     sourceMonthRef,
     planning,
     measurement: buildMeasurementSummary(subject, allEntries, periodRef, asOfDayRef),
+    weekMeasurement,
     placement,
   }
 }
@@ -667,6 +690,7 @@ function buildWeeklyReflectionItem(
   periodRef: WeekRef | MonthRef,
   sourceMonthRef?: MonthRef,
   asOfDayRef?: DayRef,
+  weekMeasurement?: MeasurementSummary,
 ): WeekMeasurementReflectionItem | undefined {
   const planning = buildPlanningSummary(monthState, weekState, dayAssignments)
   const isScheduled = Boolean(
@@ -684,6 +708,7 @@ function buildWeeklyReflectionItem(
     sourceMonthRef,
     planning,
     measurement: buildMeasurementSummary(subject, allEntries, periodRef, asOfDayRef),
+    weekMeasurement,
     hasEntries: weekEntries.length > 0,
     isScheduled,
   }
@@ -777,6 +802,14 @@ export async function getWeekRelevantObjects(
             (entry) => getPeriodRefsForDate(entry.dayRef).month === monthRef,
           )
           const effectiveSubject = applyMeasurementTargetOverride(subject, monthState.targetOverride)
+          const weekMeasurement = weekState?.targetOverride
+            ? buildMeasurementSummary(
+                applyMeasurementTargetOverride(subject, weekState.targetOverride),
+                allEntries,
+                weekRef,
+                asOfDayRef,
+              )
+            : undefined
 
           const planningItem = buildWeeklyPlanningItem(
             effectiveSubject,
@@ -788,6 +821,7 @@ export async function getWeekRelevantObjects(
             monthRef,
             monthRef,
             asOfDayRef,
+            weekMeasurement,
           )
           if (planningItem) {
             planningItems.push(planningItem)
@@ -804,6 +838,7 @@ export async function getWeekRelevantObjects(
             monthRef,
             monthRef,
             asOfDayRef,
+            weekMeasurement,
           )
           if (reflectionItem) {
             reflectionItems.push(reflectionItem)
@@ -819,7 +854,10 @@ export async function getWeekRelevantObjects(
       }
 
       const weekState = weekStates.find((state) => !state.sourceMonthRef)
-      const effectiveSubject = applyMeasurementTargetOverride(subject, activeMonthState.targetOverride)
+      const effectiveSubject = applyMeasurementTargetCascade(subject, weekRef, {
+        monthOverride: activeMonthState.targetOverride,
+        weekOverride: weekState?.targetOverride,
+      })
 
       const planningItem = buildWeeklyPlanningItem(
         effectiveSubject,

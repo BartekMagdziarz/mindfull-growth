@@ -5,6 +5,7 @@ import { initiativeDexieRepository } from '@/repositories/initiativeDexieReposit
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import { getPeriodRefsForDate, parsePeriodRef } from '@/utils/periods'
@@ -236,6 +237,127 @@ describe('planningState Dexie repository', () => {
         },
       }),
     ).rejects.toThrow('Failed to persist measurement month state in database')
+  })
+
+  it('stores week target overrides, preserves them across upserts, and enforces kind match', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Meditation',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 3,
+      },
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const weekRef = parsePeriodRef('2026-W11') as WeekRef
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+
+    const created = await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+      targetOverride: {
+        kind: 'count',
+        operator: 'min',
+        value: 2,
+      },
+    })
+    expect(created.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 2 })
+
+    const preserved = await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'specific-days',
+    })
+    expect(preserved.id).toBe(created.id)
+    expect(preserved.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 2 })
+
+    await expect(
+      planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef,
+        subjectType: 'habit',
+        subjectId: habit.id,
+        activityState: 'active',
+        scheduleScope: 'whole-week',
+        targetOverride: {
+          kind: 'value',
+          aggregation: 'sum',
+          operator: 'gte',
+          value: 5,
+        },
+      }),
+    ).rejects.toThrow('Failed to persist measurement week state in database')
+  })
+
+  it('rejects week target overrides for trackers and weekly intentions', async () => {
+    const tracker = await trackerDexieRepository.create({
+      title: 'Energy',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'value',
+      status: 'open',
+    })
+    const weekRef = parsePeriodRef('2026-W11') as WeekRef
+
+    await expect(
+      planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef,
+        subjectType: 'tracker',
+        subjectId: tracker.id,
+        activityState: 'paused',
+        scheduleScope: 'unassigned',
+        targetOverride: {
+          kind: 'count',
+          operator: 'min',
+          value: 2,
+        },
+      }),
+    ).rejects.toThrow('Failed to persist measurement week state in database')
+
+    const intention = await weeklyIntentionDexieRepository.create({
+      weekRef,
+      title: 'Wake up early',
+      isActive: true,
+      entryMode: 'completion',
+      cadence: 'weekly',
+      target: { kind: 'count', operator: 'min', value: 5 },
+      status: 'open',
+      priorityIds: [],
+    })
+
+    await expect(
+      planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef,
+        subjectType: 'weeklyIntention',
+        subjectId: intention.id,
+        activityState: 'paused',
+        scheduleScope: 'unassigned',
+        targetOverride: {
+          kind: 'count',
+          operator: 'min',
+          value: 3,
+        },
+      }),
+    ).rejects.toThrow('Failed to persist measurement week state in database')
   })
 
   it('enforces one daily entry per subject and validates entry mode payloads', async () => {

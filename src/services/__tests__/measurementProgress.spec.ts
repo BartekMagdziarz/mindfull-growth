@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Habit, KeyResult, Tracker } from '@/domain/planning'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { DayRef, WeekRef } from '@/domain/period'
-import { buildMeasurementSummary } from '@/services/measurementProgress'
+import { applyMeasurementTargetCascade, buildMeasurementSummary } from '@/services/measurementProgress'
 
 function makeEntry(
   subjectId: string,
@@ -297,5 +297,50 @@ describe('buildMeasurementSummary', () => {
       expect(summary.actualValue).toBeUndefined()
       expect(summary.evaluationStatus).toBe('no-data')
     })
+  })
+})
+
+describe('applyMeasurementTargetCascade', () => {
+  const weekRef = '2026-W11' as WeekRef
+  const monthRef = '2026-03'
+  const monthOverride = { kind: 'count', operator: 'min', value: 8 } as const
+  const weekOverride = { kind: 'count', operator: 'min', value: 2 } as const
+
+  it('prefers the week override for week periods', () => {
+    const subject = applyMeasurementTargetCascade(makeHabit(), weekRef, {
+      monthOverride,
+      weekOverride,
+    })
+    expect('target' in subject && subject.target).toEqual(weekOverride)
+  })
+
+  it('falls back to the month override for week periods without a week override', () => {
+    const subject = applyMeasurementTargetCascade(makeHabit(), weekRef, {
+      monthOverride,
+    })
+    expect('target' in subject && subject.target).toEqual(monthOverride)
+  })
+
+  it('never applies a week override to month periods', () => {
+    const subject = applyMeasurementTargetCascade(
+      makeHabit({ cadence: 'monthly' }),
+      monthRef as Parameters<typeof applyMeasurementTargetCascade>[1],
+      { monthOverride, weekOverride },
+    )
+    expect('target' in subject && subject.target).toEqual(monthOverride)
+  })
+
+  it('keeps the base target when no overrides exist', () => {
+    const habit = makeHabit()
+    const subject = applyMeasurementTargetCascade(habit, weekRef, {})
+    expect(subject).toBe(habit)
+  })
+
+  it('ignores overrides for subjects without a target', () => {
+    const tracker = makeTracker()
+    const subject = applyMeasurementTargetCascade(tracker, weekRef, {
+      weekOverride,
+    })
+    expect(subject).toBe(tracker)
   })
 })

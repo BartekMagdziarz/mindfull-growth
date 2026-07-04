@@ -13,6 +13,10 @@ import {
   getWeekReflectionBundle,
   getWeekRelevantObjects,
 } from '@/services/planningStateQueries'
+import {
+  toggleMeasurementWeekAssignment,
+  updateMeasurementWeekTargetOverride,
+} from '@/services/planningMutations'
 import { getPeriodRefsForDate, parsePeriodRef } from '@/utils/periods'
 
 describe('planningStateQueries', () => {
@@ -156,6 +160,139 @@ describe('planningStateQueries', () => {
       operator: 'min',
       value: 4,
     })
+  })
+
+  it('keeps month evaluation on the month target while week sub-targets drive weekMeasurement', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Strength training',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 12 },
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+    const otherWeekRef = parsePeriodRef('2026-W11') as WeekRef
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+      targetOverride: { kind: 'count', operator: 'min', value: 10 },
+    })
+    // Explicit week placement in W10 and W11, sub-target only on W10.
+    for (const week of [weekRef, otherWeekRef]) {
+      await toggleMeasurementWeekAssignment({
+        weekRef: week,
+        subjectType: 'habit',
+        subjectId: habit.id,
+        cadence: 'monthly',
+        monthRef,
+      })
+    }
+    await updateMeasurementWeekTargetOverride({
+      weekRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      cadence: 'monthly',
+      monthRef,
+      targetOverride: { kind: 'count', operator: 'min', value: 3 },
+    })
+    for (const dayRef of ['2026-03-09', '2026-03-10']) {
+      await planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        dayRef: parsePeriodRef(dayRef) as DayRef,
+        value: null,
+      })
+    }
+
+    // Month bundle: evaluation stays on the month override, sub-targets only ride along.
+    const monthBundle = await getMonthPlanningBundle(monthRef)
+    const monthItem = monthBundle.measurementItems[0]
+    expect(monthItem?.measurement?.target).toEqual({ kind: 'count', operator: 'min', value: 10 })
+    expect(monthItem?.measurement?.periodRef).toBe(monthRef)
+    expect(monthItem?.weekTargetOverrides).toEqual({
+      [weekRef]: { kind: 'count', operator: 'min', value: 3 },
+    })
+
+    // Week bundle W10: month-to-date measurement unchanged + real week-period verdict.
+    const weekBundle = await getWeekPlanningBundle(weekRef)
+    const weekItem = weekBundle.relevant.measurementItems.find((m) => m.subject.id === habit.id)
+    expect(weekItem?.measurement.target).toEqual({ kind: 'count', operator: 'min', value: 10 })
+    expect(weekItem?.measurement.periodRef).toBe(monthRef)
+    expect(weekItem?.weekMeasurement?.target).toEqual({ kind: 'count', operator: 'min', value: 3 })
+    expect(weekItem?.weekMeasurement?.periodRef).toBe(weekRef)
+    expect(weekItem?.weekMeasurement?.actualValue).toBe(2)
+    expect(weekItem?.weekMeasurement?.evaluationStatus).toBe('missed')
+
+    // Week bundle W11: no sub-target → no weekMeasurement.
+    const otherBundle = await getWeekPlanningBundle(otherWeekRef)
+    const otherItem = otherBundle.relevant.measurementItems.find((m) => m.subject.id === habit.id)
+    expect(otherItem).toBeTruthy()
+    expect(otherItem?.weekMeasurement).toBeUndefined()
+  })
+
+  it('cascades week target overrides over month overrides for weekly-cadence items', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Meditation',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 3 },
+      status: 'open',
+    })
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+    const otherWeekRef = parsePeriodRef('2026-W11') as WeekRef
+
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+      targetOverride: { kind: 'count', operator: 'min', value: 5 },
+    })
+    await toggleMeasurementWeekAssignment({
+      weekRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      cadence: 'weekly',
+    })
+    await updateMeasurementWeekTargetOverride({
+      weekRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      cadence: 'weekly',
+      targetOverride: { kind: 'count', operator: 'min', value: 2 },
+    })
+    for (const dayRef of ['2026-03-09', '2026-03-10']) {
+      await planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        dayRef: parsePeriodRef(dayRef) as DayRef,
+        value: null,
+      })
+    }
+
+    // W10: week override wins over the month override and flips the verdict to met.
+    const weekBundle = await getWeekPlanningBundle(weekRef)
+    const weekItem = weekBundle.relevant.measurementItems.find((m) => m.subject.id === habit.id)
+    expect(weekItem?.measurement.target).toEqual({ kind: 'count', operator: 'min', value: 2 })
+    expect(weekItem?.measurement.evaluationStatus).toBe('met')
+
+    // W11 (no week override): the month override applies.
+    const otherBundle = await getWeekPlanningBundle(otherWeekRef)
+    const otherItem = otherBundle.relevant.measurementItems.find((m) => m.subject.id === habit.id)
+    expect(otherItem?.measurement.target).toEqual({ kind: 'count', operator: 'min', value: 5 })
   })
 
   it('splits weekly planning into planned, assigned, and unassigned measurement work', async () => {
