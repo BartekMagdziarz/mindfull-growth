@@ -48,10 +48,20 @@ const MonthReviewSummaryStub = {
   `,
 }
 
-async function renderMonthPanel() {
+const WeekReviewSummaryStub = {
+  name: 'WeekReviewSummary',
+  template: `
+    <div>
+      <button data-testid="stub-week-reflection" @click="$emit('create-reflection')">reflect</button>
+      <button data-testid="stub-week-plan" @click="$emit('create-plan')">plan</button>
+    </div>
+  `,
+}
+
+async function renderPanel(scale: 'month' | 'week', readyTestId: string) {
   const utils = render(StreamDetailPanel, {
     props: {
-      scale: 'month' as const,
+      scale,
       monthRef: '2026-06' as MonthRef,
       weekRef: '2026-W26' as WeekRef,
       todayRef: '2026-07-04' as DayRef,
@@ -59,16 +69,19 @@ async function renderMonthPanel() {
     global: {
       stubs: {
         MonthReviewSummary: MonthReviewSummaryStub,
-        WeekReviewSummary: true,
+        WeekReviewSummary: WeekReviewSummaryStub,
         PlanningStatePanel: true,
       },
     },
   })
   await waitFor(() => {
-    expect(utils.getByTestId('stub-create-reflection')).toBeInTheDocument()
+    expect(utils.getByTestId(readyTestId)).toBeInTheDocument()
   })
   return utils
 }
+
+const renderMonthPanel = () => renderPanel('month', 'stub-create-reflection')
+const renderWeekPanel = () => renderPanel('week', 'stub-week-reflection')
 
 describe('StreamDetailPanel', () => {
   beforeEach(() => {
@@ -97,5 +110,15 @@ describe('StreamDetailPanel', () => {
         query: expect.objectContaining({ action: 'plan', origin: 'stream' }),
       }),
     )
+  })
+
+  it('emits open-week-wizard for both week CTAs instead of routing', async () => {
+    const { getByTestId, emitted } = await renderWeekPanel()
+
+    getByTestId('stub-week-reflection').click()
+    getByTestId('stub-week-plan').click()
+
+    expect(emitted()['open-week-wizard']).toHaveLength(2)
+    expect(pushMock).not.toHaveBeenCalled()
   })
 })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
 import {
@@ -29,6 +29,7 @@ import StreamWeekCard from '@/components/calendar/stream/StreamWeekCard.vue'
 import StreamDayCard from '@/components/calendar/stream/StreamDayCard.vue'
 import StreamDetailPanel from '@/components/calendar/stream/StreamDetailPanel.vue'
 import MonthlyReflectionWizard from '@/components/calendar/MonthlyReflectionWizard.vue'
+import WeeklyReflectionWizard from '@/components/calendar/WeeklyReflectionWizard.vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 
 type StreamScale = 'year' | 'month' | 'week'
@@ -94,25 +95,73 @@ function initFromParam(raw?: string) {
 
 initFromParam(props.periodRef)
 
-// --- monthly reflection wizard (hosted in-stream) ----------------------------
+// --- reflection wizards (hosted in-stream, above the detail panel) -----------
 
 const monthWizardOpen = ref(false)
+const weekWizardOpen = ref(false)
 const detailDirty = ref(false)
 const detailReloadKey = ref(0)
+const wizardSectionRef = ref<HTMLElement | null>(null)
 
-// Consume `?action=reflect` before the first syncUrl — router.replace below
-// rewrites the URL with params only, silently dropping the query.
-if (router.currentRoute.value.query.action === 'reflect' && scale.value === 'month') {
+// Consume `?action=` before the first syncUrl — router.replace below rewrites
+// the URL with params only, silently dropping the query. Month `plan` stays
+// with the classic MonthlyPlanner route, so only `reflect` opens the month
+// wizard; the weekly ritual is one wizard for both actions.
+{
+  const action = router.currentRoute.value.query.action
+  if (action === 'reflect' && scale.value === 'month') {
+    monthWizardOpen.value = true
+  }
+  if ((action === 'reflect' || action === 'plan') && scale.value === 'week') {
+    weekWizardOpen.value = true
+  }
+}
+
+function scrollWizardIntoView() {
+  void nextTick(() => {
+    wizardSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
+}
+
+function openMonthWizard() {
   monthWizardOpen.value = true
+  scrollWizardIntoView()
+}
+
+function openWeekWizard() {
+  weekWizardOpen.value = true
+  scrollWizardIntoView()
+}
+
+function refreshDetailIfDirty() {
+  if (detailDirty.value) {
+    detailDirty.value = false
+    // Remount the detail panel so it reloads what the wizard just saved.
+    detailReloadKey.value++
+  }
 }
 
 function closeMonthWizard() {
   monthWizardOpen.value = false
-  if (detailDirty.value) {
-    detailDirty.value = false
-    // Remount the detail panel so it reloads the just-saved reflection.
-    detailReloadKey.value++
-  }
+  refreshDetailIfDirty()
+}
+
+function closeWeekWizard() {
+  weekWizardOpen.value = false
+  refreshDetailIfDirty()
+}
+
+// "Zaplanuj następny tydzień →" from the weekly journal step: advance the
+// stream to the next week and keep the wizard open on its planning step.
+let keepWizardsAcrossPeriodChange = false
+
+function planNextWeekInStream() {
+  keepWizardsAcrossPeriodChange = true
+  refreshDetailIfDirty()
+  setFromWeek(getNextPeriod(weekRef.value) as WeekRef)
+  scale.value = 'week'
+  weekWizardOpen.value = true
+  scrollWizardIntoView()
 }
 
 // --- active period + URL sync ------------------------------------------------
@@ -145,9 +194,15 @@ function drillToMonth(next: MonthRef) {
   scale.value = 'month'
 }
 
-// Paging or re-scaling away closes the in-stream wizard — it is bound to one month.
-watch([scale, monthRef], () => {
+// Paging or re-scaling away closes the in-stream wizards — each is bound to
+// one period. planNextWeekInStream() re-opens across its own week change.
+watch([scale, monthRef, weekRef], () => {
+  if (keepWizardsAcrossPeriodChange) {
+    keepWizardsAcrossPeriodChange = false
+    return
+  }
   monthWizardOpen.value = false
+  weekWizardOpen.value = false
 })
 
 function drillToWeek(next: WeekRef) {
@@ -438,28 +493,42 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
       </div>
     </div>
 
-    <!-- Full detail for the focused month / week — the classic review summary,
-         or the monthly reflection wizard hosted in-place. -->
-    <section v-if="showDetailPanel" class="stream-detail">
+    <!-- Reflection wizards hosted above the detail panel, so the user can
+         still peek at the period details below while working through steps. -->
+    <section
+      v-if="(scale === 'month' && monthWizardOpen) || (scale === 'week' && weekWizardOpen)"
+      ref="wizardSectionRef"
+      class="stream-wizard"
+    >
       <MonthlyReflectionWizard
-        v-if="scale === 'month' && monthWizardOpen"
+        v-if="scale === 'month'"
         :month-ref="monthRef"
         @close="closeMonthWizard"
         @updated="detailDirty = true"
       />
-      <template v-else>
-        <div class="stream-detail__head">
-          <h2 class="stream-detail__title">{{ t('planning.calendar.stream.detailsTitle') }}</h2>
-        </div>
-        <StreamDetailPanel
-          :key="detailReloadKey"
-          :scale="scale"
-          :month-ref="monthRef"
-          :week-ref="weekRef"
-          :today-ref="todayDayRef"
-          @open-month-wizard="monthWizardOpen = true"
-        />
-      </template>
+      <WeeklyReflectionWizard
+        v-else
+        :week-ref="weekRef"
+        @close="closeWeekWizard"
+        @updated="detailDirty = true"
+        @plan-next-week="planNextWeekInStream"
+      />
+    </section>
+
+    <!-- Full detail for the focused month / week — the classic review summary. -->
+    <section v-if="showDetailPanel" class="stream-detail">
+      <div class="stream-detail__head">
+        <h2 class="stream-detail__title">{{ t('planning.calendar.stream.detailsTitle') }}</h2>
+      </div>
+      <StreamDetailPanel
+        :key="detailReloadKey"
+        :scale="scale"
+        :month-ref="monthRef"
+        :week-ref="weekRef"
+        :today-ref="todayDayRef"
+        @open-month-wizard="openMonthWizard"
+        @open-week-wizard="openWeekWizard"
+      />
     </section>
   </div>
 </template>
@@ -659,6 +728,15 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 10px;
   min-width: 840px;
+}
+
+.stream-wizard {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgb(var(--stream-track) / 0.4);
+  animation: streamFadeUp 0.6s both;
+  /* Anchor for scrollIntoView so the wizard lands below the sticky top bar. */
+  scroll-margin-top: 64px;
 }
 
 .stream-detail {

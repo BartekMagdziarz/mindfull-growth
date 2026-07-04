@@ -31,33 +31,25 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  /** Month reflection opens in-place in the stream (no classic-route round-trip). */
+  /** Reflection wizards open in-place in the stream (no classic-route round-trip). */
   'open-month-wizard': []
+  'open-week-wizard': []
 }>()
 
 const { t } = useT()
 const router = useRouter()
 
 /**
- * Month planning (the MonthlyPlanner grid) and the whole weekly ritual still live
- * in the classic CalendarView. Route there for the focused period with `?action`,
- * so the workspace opens straight away.
+ * Month planning still lives in the classic CalendarView (the MonthlyPlanner
+ * grid). Route there with `?action=plan`, so the workspace opens straight away;
+ * origin=stream lets CalendarView return here when it closes.
  */
-function openClassicAction(action: 'plan' | 'reflect') {
-  // origin=stream lets CalendarView return here when the wizard closes (see maybeReturnToStream).
-  if (props.scale === 'month') {
-    void router.push({
-      name: 'calendar-month',
-      params: { monthRef: props.monthRef },
-      query: { action, origin: 'stream' },
-    })
-  } else if (props.scale === 'week') {
-    void router.push({
-      name: 'calendar-week',
-      params: { weekRef: props.weekRef },
-      query: { action, origin: 'stream' },
-    })
-  }
+function openClassicMonthPlan() {
+  void router.push({
+    name: 'calendar-month',
+    params: { monthRef: props.monthRef },
+    query: { action: 'plan', origin: 'stream' },
+  })
 }
 
 const isLoading = ref(false)
@@ -147,8 +139,8 @@ watch(() => [props.scale, props.monthRef, props.weekRef], load, { immediate: tru
       :raw-entries="monthRawEntries"
       :has-plan="monthHasPlan"
       :weekly-intentions="monthIntentions"
-      @create-plan="openClassicAction('plan')"
-      @edit-plan="openClassicAction('plan')"
+      @create-plan="openClassicMonthPlan"
+      @edit-plan="openClassicMonthPlan"
       @create-reflection="emit('open-month-wizard')"
       @edit-reflection="emit('open-month-wizard')"
     />
@@ -161,10 +153,10 @@ watch(() => [props.scale, props.monthRef, props.weekRef], load, { immediate: tru
       :all-day-assignments="weekDayAssignments"
       :has-plan="weekHasPlan"
       :weekly-intentions="weekIntentions"
-      @create-plan="openClassicAction('plan')"
-      @edit-plan="openClassicAction('plan')"
-      @create-reflection="openClassicAction('reflect')"
-      @edit-reflection="openClassicAction('reflect')"
+      @create-plan="emit('open-week-wizard')"
+      @edit-plan="emit('open-week-wizard')"
+      @create-reflection="emit('open-week-wizard')"
+      @edit-reflection="emit('open-week-wizard')"
     />
   </div>
 </template>
