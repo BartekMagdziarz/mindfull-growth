@@ -315,6 +315,14 @@
         "sumUnder": "Allocated: {assigned} of {total} — {rest} outside weeks",
         "sumOver": "Allocated: {assigned} of {total} — {over} over target",
         "wholeMonthChip": "whole month"
+      },
+      "matrix": {
+        "monthTarget": "Month target",
+        "weekShort": "W{n}",
+        "expand": "Target & week split",
+        "subTargets": "Week sub-targets",
+        "boundaryHint": "Week spans two months",
+        "empty": "No open objects to plan yet."
       }
     }
   },

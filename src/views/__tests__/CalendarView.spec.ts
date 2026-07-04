@@ -12,7 +12,7 @@ import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
 import { toggleMeasurementDayAssignment } from '@/services/planningMutations'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import { parsePeriodRef } from '@/utils/periods'
+import { getChildPeriods, parsePeriodRef } from '@/utils/periods'
 
 function createTestRouter() {
   return createRouter({
@@ -53,25 +53,14 @@ function createTestRouter() {
 
 /**
  * The month's assignment workspace is the month wizard's second ("Weeks") step:
- * open the month ritual, advance one step, and wait for the planner sidebar.
+ * open the month ritual, advance one step, and wait for the assignment matrix.
  */
 async function openWizardWeeksStep() {
   await fireEvent.click(await screen.findByRole('button', { name: /open month/i }))
   await fireEvent.click(await screen.findByRole('button', { name: /^next$/i }))
   await waitFor(() => {
-    expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
+    expect(screen.getByTestId('assignment-matrix')).toBeInTheDocument()
   })
-}
-
-async function switchMonthlyPlannerTab(tabLabel: 'Goals' | 'Habits' | 'Trackers') {
-  const sidebar = await screen.findByTestId('monthly-planner-sidebar')
-  // Segmented control: click the tab button by name
-  await fireEvent.click(within(sidebar).getByRole('button', { name: new RegExp(`^${tabLabel}\\b`) }))
-}
-
-async function expandPlannerCardActions(cardEl: HTMLElement) {
-  const expandBtn = within(cardEl).getByRole('button', { name: /(More options|Hide options)/i })
-  await fireEvent.click(expandBtn)
 }
 
 describe('CalendarView', () => {
@@ -294,8 +283,18 @@ describe('CalendarView', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('renders the month planner as week rows without day cells', async () => {
+  it('renders the month planner as a week matrix without day cells', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const habit = await habitDexieRepository.create({
+      title: 'Matrix habit',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 4 },
+      status: 'open',
+    })
 
     const router = createTestRouter()
     await router.push(`/calendar/month/${monthRef}`)
@@ -311,8 +310,15 @@ describe('CalendarView', () => {
       },
     })
 
-    expect(await screen.findByTestId('monthly-planner-week-2026-W10')).toBeInTheDocument()
-    // Day-level click targets no longer exist at month scale — days belong to the weekly ritual.
+    // One toggle cell per month week, no day-level click targets — days belong
+    // to the weekly ritual.
+    const monthWeeks = getChildPeriods(monthRef) as WeekRef[]
+    expect(
+      await screen.findByTestId(`matrix-cell-habit:${habit.id}-${monthWeeks[0]}`)
+    ).toBeInTheDocument()
+    for (const weekRef of monthWeeks) {
+      expect(screen.getByTestId(`matrix-cell-habit:${habit.id}-${weekRef}`)).toBeInTheDocument()
+    }
     expect(screen.queryByTestId('monthly-planner-day-2026-03-12')).not.toBeInTheDocument()
   })
 
@@ -359,47 +365,9 @@ describe('CalendarView', () => {
 
     await openWizardWeeksStep()
 
-    const getPlanner = () => screen.getByTestId('monthly-planner')
-
-    await waitFor(() => {
-      expect(
-        within(getPlanner()).queryByRole('heading', { name: 'Loading...' })
-      ).not.toBeInTheDocument()
-    })
-
-    // Switch to Habits tab via segmented control
-    await switchMonthlyPlannerTab('Habits')
-
-    const habitRow = within(getPlanner()).getByText(habit.title).closest('article')
-    expect(habitRow).toBeTruthy()
-    // Expand the row's options to reveal the activate toggle + whole-period quick action
-    await expandPlannerCardActions(habitRow as HTMLElement)
-
-    await fireEvent.click(within(habitRow as HTMLElement).getByRole('button', { name: 'Activate' }))
-
-    await waitFor(async () => {
-      expect(
-        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
-      ).toBeTruthy()
-    })
-    await waitFor(() => {
-      expect(
-        within(getPlanner()).queryByRole('heading', { name: 'Loading...' })
-      ).not.toBeInTheDocument()
-    })
-
-    await waitFor(() => {
-      const row = within(getPlanner()).getByText(habit.title).closest('article')
-      expect(
-        within(row as HTMLElement).getByRole('button', { name: /Schedule all weeks/i })
-      ).toBeInTheDocument()
-    })
-
-    const refreshedHabitRow = within(getPlanner()).getByText(habit.title).closest('article')
-    expect(refreshedHabitRow).toBeTruthy()
-    await fireEvent.click(
-      within(refreshedHabitRow as HTMLElement).getByRole('button', { name: /Schedule all weeks/i })
-    )
+    // No tabs, no activation toggle — the whole-month row action places the
+    // weekly habit on every week (activation is implicit in placement).
+    await fireEvent.click(await screen.findByTestId(`matrix-whole-habit:${habit.id}`))
 
     await waitFor(async () => {
       const weekStates = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(
@@ -409,6 +377,11 @@ describe('CalendarView', () => {
       const monthWeekStates = weekStates.filter(state => state.weekRef.startsWith('2026-W'))
       expect(monthWeekStates.length).toBeGreaterThanOrEqual(4)
       expect(monthWeekStates.every(state => state.scheduleScope === 'whole-week')).toBe(true)
+    })
+    await waitFor(async () => {
+      expect(
+        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
+      ).toBeTruthy()
     })
 
     void goal
@@ -453,59 +426,32 @@ describe('CalendarView', () => {
 
     await openWizardWeeksStep()
 
-    const planner = () => screen.getByTestId('monthly-planner')
-
-    await waitFor(() => {
-      expect(
-        within(planner()).queryByRole('heading', { name: 'Loading...' })
-      ).not.toBeInTheDocument()
-    })
-
-    // KRs are flat in the Goals tab — no goal-row, no expand step
-    const keyResultRow = within(planner()).getByText(keyResult.title).closest('article')
-    expect(keyResultRow).toBeTruthy()
-
-    // Expand the row's options panel and activate the KR — this also auto-links the parent goal
-    await expandPlannerCardActions(keyResultRow as HTMLElement)
-    await fireEvent.click(within(keyResultRow as HTMLElement).getByRole('button', { name: 'Activate' }))
+    // Placing the KR on a week auto-links the parent goal (activation is
+    // implicit in placement — there is no separate activate toggle).
+    await fireEvent.click(
+      await screen.findByTestId(`matrix-cell-keyResult:${keyResult.id}-2026-W10`)
+    )
 
     await waitFor(async () => {
       expect(
         await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'keyResult', keyResult.id)
       ).toBeTruthy()
     })
-
-    // Goal is auto-linked when its KR is activated
     await waitFor(async () => {
       expect(await planningStateDexieRepository.getGoalMonthState(monthRef, goal.id)).toBeTruthy()
     })
 
-    await waitFor(() => {
-      const row = within(planner()).getByText(keyResult.title).closest('article')
-      expect(row).toBeTruthy()
-      expect(within(row as HTMLElement).getByRole('button', { name: 'Deactivate' })).toBeInTheDocument()
-    })
-
-    const activeKeyResultRow = within(planner()).getByText(keyResult.title).closest('article')
-    expect(activeKeyResultRow).toBeTruthy()
-    await fireEvent.click(
-      within(activeKeyResultRow as HTMLElement).getByRole('button', { name: 'Deactivate' })
-    )
+    // Clearing the row removes placement AND month activation (active ⇔ placed).
+    await fireEvent.click(screen.getByTestId(`matrix-clear-keyResult:${keyResult.id}`))
 
     await waitFor(async () => {
       expect(
         await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'keyResult', keyResult.id)
       ).toBeUndefined()
     })
-
-    await waitFor(() => {
-      const row = within(planner()).getByText(keyResult.title).closest('article')
-      expect(row).toBeTruthy()
-      expect(within(row as HTMLElement).getByRole('button', { name: 'Activate' })).toBeInTheDocument()
-    })
   })
 
-  it('assigns a weekly habit to a week and stores a week sub-target from the planner', async () => {
+  it('assigns a weekly habit to a week and stores the month target override from the planner', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const habit = await habitDexieRepository.create({
       title: 'Day planning habit',
@@ -538,31 +484,11 @@ describe('CalendarView', () => {
 
     await openWizardWeeksStep()
 
-    const planner = () => screen.getByTestId('monthly-planner')
-
-    await waitFor(() => {
-      expect(
-        within(planner()).queryByRole('heading', { name: 'Loading...' })
-      ).not.toBeInTheDocument()
-    })
-
-    // Switch to Habits tab; the assign button is visible directly on the row
-    await switchMonthlyPlannerTab('Habits')
-
-    const habitRow = within(planner()).getByText(habit.title).closest('article')
-    expect(habitRow).toBeTruthy()
+    // Clicking the week cell places the habit and auto-activates the month.
     await fireEvent.click(
-      within(habitRow as HTMLElement).getByRole('button', { name: /Assign in calendar/i })
+      await screen.findByTestId(`matrix-cell-habit:${habit.id}-2026-W11`)
     )
 
-    await waitFor(() => {
-      expect(within(planner()).getByRole('button', { name: 'Done' })).toBeInTheDocument()
-    })
-
-    const weekRow = within(planner()).getByTestId('monthly-planner-week-2026-W11')
-    await fireEvent.click(weekRow)
-
-    // Week placement + auto-activation land in the store
     await waitFor(async () => {
       const weekState = await planningStateDexieRepository.getMeasurementWeekState(
         parsePeriodRef('2026-W11') as WeekRef,
@@ -577,19 +503,19 @@ describe('CalendarView', () => {
       ).toBeTruthy()
     })
 
-    // The placed week offers a sub-target pill; committing a value stores the week override.
-    const pill = await within(planner()).findByTestId('monthly-planner-week-target-2026-W11')
-    const input = within(pill).getByRole('spinbutton')
+    // Once placed, the row's target pill edits the month override.
+    const row = screen.getByTestId(`matrix-row-habit:${habit.id}`)
+    const input = within(row).getByRole('spinbutton')
     await fireEvent.update(input, '1')
     await fireEvent.change(input)
 
     await waitFor(async () => {
-      const weekState = await planningStateDexieRepository.getMeasurementWeekState(
-        parsePeriodRef('2026-W11') as WeekRef,
+      const monthState = await planningStateDexieRepository.getMeasurementMonthState(
+        monthRef,
         'habit',
         habit.id
       )
-      expect(weekState?.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 1 })
+      expect(monthState?.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 1 })
     })
   })
 
@@ -643,37 +569,12 @@ describe('CalendarView', () => {
 
     await openWizardWeeksStep()
 
-    const planner = () => screen.getByTestId('monthly-planner')
-
-    await waitFor(() => {
-      expect(
-        within(planner()).queryByRole('heading', { name: 'Loading...' })
-      ).not.toBeInTheDocument()
-    })
-
-    // Switch to Habits tab; click the assign button directly to enter assigning mode
-    await switchMonthlyPlannerTab('Habits')
-
-    // Scope to the sidebar — the placed habit also renders as a text chip in the idle grid.
-    // Already-placed objects sit in the collapsed "Planned" section; expand it first.
-    const sidebar = () => screen.getByTestId('monthly-planner-sidebar')
-    await fireEvent.click(await within(sidebar()).findByRole('button', { name: /^Planned$/i }))
-    const habitRow = (await within(sidebar()).findByText(habit.title)).closest('article')
-    expect(habitRow).toBeTruthy()
-    await fireEvent.click(
-      within(habitRow as HTMLElement).getByRole('button', { name: /Edit assignments/i })
-    )
-
-    await waitFor(() => {
-      expect(within(planner()).getByRole('button', { name: 'Done' })).toBeInTheDocument()
-    })
-
-    // The 2026-03-12 day assignment shows as a read-only badge on its week row.
-    const badge = within(planner()).getByTestId('monthly-planner-day-badge-2026-W10')
-    expect(badge.tagName).toBe('SPAN')
+    // The 2026-03-12 day assignment shows as a read-only badge on its week cell.
+    const dayCell = await screen.findByTestId(`matrix-cell-habit:${habit.id}-2026-W10`)
+    expect(within(dayCell).getByText('1')).toBeInTheDocument()
 
     // Toggling another week writes a sourceMonthRef-scoped week state.
-    await fireEvent.click(within(planner()).getByTestId('monthly-planner-week-2026-W12'))
+    await fireEvent.click(screen.getByTestId(`matrix-cell-habit:${habit.id}-2026-W12`))
     await waitFor(async () => {
       const weekState = await planningStateDexieRepository.getMeasurementWeekState(
         parsePeriodRef('2026-W12') as WeekRef,

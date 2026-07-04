@@ -84,7 +84,6 @@
 
         <MonthlyPlanner
           :month-ref="monthRef"
-          show-sidebar
           @updated="emit('updated')"
         />
       </div>

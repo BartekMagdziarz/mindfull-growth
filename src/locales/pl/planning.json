@@ -315,6 +315,14 @@
         "sumUnder": "Rozpisane: {assigned} z {total} — {rest} poza tygodniami",
         "sumOver": "Rozpisane: {assigned} z {total} — {over} ponad cel",
         "wholeMonthChip": "cały miesiąc"
+      },
+      "matrix": {
+        "monthTarget": "Cel miesiąca",
+        "weekShort": "T{n}",
+        "expand": "Cel i rozpisanie",
+        "subTargets": "Cele tygodniowe",
+        "boundaryHint": "Tydzień na granicy miesięcy",
+        "empty": "Brak otwartych obiektów do zaplanowania."
       }
     }
   },
