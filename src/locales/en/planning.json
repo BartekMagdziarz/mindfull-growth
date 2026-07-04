@@ -436,6 +436,12 @@
       "subtitle": "Pick the month's focus",
       "empty": "No active priorities for this month yet — add or activate a priority first.",
       "softLimitWarning": "More than {n} priorities makes a month hard to focus — sure?"
+    },
+    "weeks": {
+      "eyebrow": "Plan the month",
+      "title": "Assign objects to weeks",
+      "description": "Activate goals, habits, and trackers for this month, then assign them to specific weeks.",
+      "subtitle": "Assign objects to weeks"
     }
   },
   "weekPlanning": {
@@ -954,6 +960,7 @@
     "saving": "Saving...",
     "steps": {
       "plan": "Plan",
+      "weeks": "Weeks",
       "prioritiesReview": "Priorities",
       "review": "Review",
       "anchors": "Anchors",
@@ -1066,10 +1073,12 @@
         "title": "Plan vs execution",
         "emptyTitle": "No plan for this week yet",
         "emptyDescription": "Create a plan to see how your goals, habits, and trackers progress.",
+        "emptyDescriptionMonth": "Open the month to plan it and assign objects to weeks.",
         "createCta": "Create plan",
         "editButton": "Edit plan",
         "noObjects": "Plan created — add objects in the planner.",
         "gridEmptyNoPlan": "No plan yet — create one in the Summary panel.",
+        "gridEmptyNoPlanMonth": "No plan yet — open the month to assign objects to weeks.",
         "ringGoals": "Goals",
         "ringHabits": "Habits",
         "ringIntentions": "Intentions",

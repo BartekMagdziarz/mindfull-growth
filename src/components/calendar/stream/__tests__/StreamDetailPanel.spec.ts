@@ -97,19 +97,15 @@ describe('StreamDetailPanel', () => {
     expect(pushMock).not.toHaveBeenCalled()
   })
 
-  it('still routes month planning to the classic calendar view', async () => {
+  it('ignores month create-plan — planning lives in the month wizard, not a classic route', async () => {
     const { getByTestId, emitted } = await renderMonthPanel()
 
+    // The month card no longer exposes a plan affordance; a stray create-plan
+    // emit must neither route to the classic calendar nor open the wizard.
     getByTestId('stub-create-plan').click()
 
     expect(emitted()['open-month-wizard']).toBeFalsy()
-    expect(pushMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'calendar-month',
-        params: { monthRef: '2026-06' },
-        query: expect.objectContaining({ action: 'plan', origin: 'stream' }),
-      }),
-    )
+    expect(pushMock).not.toHaveBeenCalled()
   })
 
   it('emits open-week-wizard for both week CTAs instead of routing', async () => {

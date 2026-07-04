@@ -51,6 +51,18 @@ function createTestRouter() {
   })
 }
 
+/**
+ * The month's assignment workspace is the month wizard's second ("Weeks") step:
+ * open the month ritual, advance one step, and wait for the planner sidebar.
+ */
+async function openWizardWeeksStep() {
+  await fireEvent.click(await screen.findByRole('button', { name: /open month/i }))
+  await fireEvent.click(await screen.findByRole('button', { name: /^next$/i }))
+  await waitFor(() => {
+    expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
+  })
+}
+
 async function switchMonthlyPlannerTab(tabLabel: 'Goals' | 'Habits' | 'Trackers') {
   const sidebar = await screen.findByTestId('monthly-planner-sidebar')
   // Segmented control: click the tab button by name
@@ -263,14 +275,17 @@ describe('CalendarView', () => {
 
     // Three-column layout — left has weekly recap + emotions, middle the
     // objects grid, right the Kontekst Summary card. Plan-vs-Execution lives
-    // inside that card; with no MonthPlan yet it shows its create-plan prompt
-    // (the section title text "Plan vs execution" is no longer rendered).
+    // inside that card; with no MonthPlan yet it points at the month wizard
+    // (planning moved into its "Weeks" step — no create/edit plan affordance).
     expect(screen.getByText('Weekly recap')).toBeInTheDocument()
     expect(screen.getByText('Emotions')).toBeInTheDocument()
     expect(screen.getByText('Summary')).toBeInTheDocument()
     expect(
-      screen.getByText('Create a plan to see how your goals, habits, and trackers progress.'),
+      screen.getByText('Open the month to plan it and assign objects to weeks.'),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /create plan/i }),
+    ).not.toBeInTheDocument()
 
     // Toolbar plan/reflection actions are now per-card affordances; the
     // toolbar buttons should not appear in the document.
@@ -342,19 +357,10 @@ describe('CalendarView', () => {
     expect(await screen.findByTestId('monthly-planner')).toBeInTheDocument()
     expect(screen.queryByTestId('monthly-planner-sidebar')).not.toBeInTheDocument()
 
-    await fireEvent.click(await screen.findByRole('button', { name: /create plan/i }))
+    await openWizardWeeksStep()
 
     const getPlanner = () => screen.getByTestId('monthly-planner')
 
-    await waitFor(
-      () => {
-        expect(screen.getByTestId('monthly-planner')).toBeInTheDocument()
-      },
-      { timeout: 3000 }
-    )
-    await waitFor(() => {
-      expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
-    })
     await waitFor(() => {
       expect(
         within(getPlanner()).queryByRole('heading', { name: 'Loading...' })
@@ -445,13 +451,7 @@ describe('CalendarView', () => {
       },
     })
 
-    await fireEvent.click(await screen.findByRole('button', { name: /create plan/i }))
-    await waitFor(() => {
-      expect(screen.getByTestId('monthly-planner')).toBeInTheDocument()
-    })
-    await waitFor(() => {
-      expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
-    })
+    await openWizardWeeksStep()
 
     const planner = () => screen.getByTestId('monthly-planner')
 
@@ -536,13 +536,7 @@ describe('CalendarView', () => {
       },
     })
 
-    await fireEvent.click(await screen.findByRole('button', { name: /create plan/i }))
-    await waitFor(() => {
-      expect(screen.getByTestId('monthly-planner')).toBeInTheDocument()
-    })
-    await waitFor(() => {
-      expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
-    })
+    await openWizardWeeksStep()
 
     const planner = () => screen.getByTestId('monthly-planner')
 
@@ -617,7 +611,7 @@ describe('CalendarView', () => {
     })
     // Pre-existing day assignment made in the weekly ritual — the month planner
     // must surface it read-only on the week row. (This also creates the MonthPlan
-    // record, so the Kontekst card shows the edit-plan pencil, not the create CTA.)
+    // record up front, so the wizard's weeks step reuses it instead of creating one.)
     await planningStateDexieRepository.upsertMeasurementMonthState({
       monthRef,
       subjectType: 'habit',
@@ -647,13 +641,7 @@ describe('CalendarView', () => {
       },
     })
 
-    await fireEvent.click(await screen.findByRole('button', { name: /edit plan/i }))
-    await waitFor(() => {
-      expect(screen.getByTestId('monthly-planner')).toBeInTheDocument()
-    })
-    await waitFor(() => {
-      expect(screen.getByTestId('monthly-planner-sidebar')).toBeInTheDocument()
-    })
+    await openWizardWeeksStep()
 
     const planner = () => screen.getByTestId('monthly-planner')
 

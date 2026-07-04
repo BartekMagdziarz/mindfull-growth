@@ -20,17 +20,18 @@ import { useStructuredReflectionStore } from '@/stores/structuredReflection.stor
 import { loadDraftFromDB, saveDraftToDB, clearDraftFromDB } from '@/services/draftStorage'
 import type { CreateMonthlyReflectionPayload } from '@/domain/reflection'
 
-// The month ritual is one wizard: a planning step ("Zaplanuj miesiąc" — pick the month's top
-// priorities) then reflection steps (unlocked only in the month's closing stretch — see
-// isMonthlyReflectionUnlocked). Mirrors the weekly transition wizard.
+// The month ritual is one wizard: planning steps ("Zaplanuj miesiąc" — pick the month's top
+// priorities, then assign objects to weeks) then reflection steps (unlocked only in the month's
+// closing stretch — see isMonthlyReflectionUnlocked). Mirrors the weekly transition wizard.
 export type MonthlyReflectionStep =
   | 'plan'
+  | 'weeks'
   | 'priorities-review'
   | 'ratings'
   | 'anchors'
   | 'journal'
 
-const PLANNING_STEPS: MonthlyReflectionStep[] = ['plan']
+const PLANNING_STEPS: MonthlyReflectionStep[] = ['plan', 'weeks']
 const REFLECTION_STEPS: MonthlyReflectionStep[] = ['priorities-review', 'ratings', 'anchors', 'journal']
 const STEP_ORDER: MonthlyReflectionStep[] = [...PLANNING_STEPS, ...REFLECTION_STEPS]
 
@@ -40,6 +41,7 @@ export const MONTH_TOP_PRIORITY_SOFT_LIMIT = 3
 /** Map old/removed step names to current ones for draft migration. */
 const LEGACY_STEP_MAP: Record<string, MonthlyReflectionStep> = {
   plan: 'plan',
+  weeks: 'weeks',
   'priorities-review': 'priorities-review',
   review: 'priorities-review',
   goals: 'priorities-review',
@@ -141,6 +143,8 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
   const canAdvance = computed(() => {
     switch (currentStep.value) {
       case 'plan':
+        return true
+      case 'weeks':
         return true
       case 'priorities-review':
         return true

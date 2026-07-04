@@ -104,12 +104,12 @@ const detailReloadKey = ref(0)
 const wizardSectionRef = ref<HTMLElement | null>(null)
 
 // Consume `?action=` before the first syncUrl — router.replace below rewrites
-// the URL with params only, silently dropping the query. Month `plan` stays
-// with the classic MonthlyPlanner route, so only `reflect` opens the month
-// wizard; the weekly ritual is one wizard for both actions.
+// the URL with params only, silently dropping the query. Both rituals are one
+// wizard per period (month planning lives in the month wizard's weeks step),
+// so `plan` and `reflect` open the same wizard.
 {
   const action = router.currentRoute.value.query.action
-  if (action === 'reflect' && scale.value === 'month') {
+  if ((action === 'reflect' || action === 'plan') && scale.value === 'month') {
     monthWizardOpen.value = true
   }
   if ((action === 'reflect' || action === 'plan') && scale.value === 'week') {

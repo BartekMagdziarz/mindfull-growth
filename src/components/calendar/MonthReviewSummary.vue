@@ -27,8 +27,6 @@
         :show-actions="kontekstActions"
         @create-reflection="emit('create-reflection')"
         @edit-reflection="emit('edit-reflection')"
-        @create-plan="emit('create-plan')"
-        @edit-plan="emit('edit-plan')"
       />
     </aside>
   </div>
@@ -65,8 +63,6 @@ const props = withDefaults(
 const emit = defineEmits<{
   'create-reflection': []
   'edit-reflection': []
-  'create-plan': []
-  'edit-plan': []
 }>()
 
 const planSummary = computed(() =>

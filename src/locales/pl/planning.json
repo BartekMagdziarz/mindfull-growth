@@ -436,6 +436,12 @@
       "subtitle": "Wybierz fokus miesiąca",
       "empty": "Brak aktywnych priorytetów na ten miesiąc — najpierw dodaj lub aktywuj priorytet.",
       "softLimitWarning": "Więcej niż {n} priorytety trudno utrzymać w fokusie przez miesiąc — na pewno?"
+    },
+    "weeks": {
+      "eyebrow": "Zaplanuj miesiąc",
+      "title": "Przypisz obiekty do tygodni",
+      "description": "Aktywuj cele, nawyki i trackery na ten miesiąc, a potem przypisz je do konkretnych tygodni.",
+      "subtitle": "Przypisz obiekty do tygodni"
     }
   },
   "weekPlanning": {
@@ -954,6 +960,7 @@
     "saving": "Zapisywanie...",
     "steps": {
       "plan": "Plan",
+      "weeks": "Tygodnie",
       "prioritiesReview": "Priorytety",
       "review": "Przegląd",
       "anchors": "Punkty zaczepienia",
@@ -1066,10 +1073,12 @@
         "title": "Plan vs wykonanie",
         "emptyTitle": "Brak planu na ten tydzień",
         "emptyDescription": "Utwórz plan, aby zobaczyć realizację celów, nawyków i trackerów.",
+        "emptyDescriptionMonth": "Otwórz miesiąc, aby zaplanować go i przypisać obiekty do tygodni.",
         "createCta": "Utwórz plan",
         "editButton": "Edytuj plan",
         "noObjects": "Plan utworzony — dodaj obiekty w planerze.",
         "gridEmptyNoPlan": "Brak planu — utwórz go w panelu Podsumowanie.",
+        "gridEmptyNoPlanMonth": "Brak planu — otwórz miesiąc, aby przypisać obiekty do tygodni.",
         "ringGoals": "Cele",
         "ringHabits": "Nawyki",
         "ringIntentions": "Intencje",

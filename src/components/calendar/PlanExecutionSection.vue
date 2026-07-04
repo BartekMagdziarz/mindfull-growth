@@ -15,7 +15,7 @@
 
     <div v-if="!hasPlan" class="plan-exec__empty">
       <p class="plan-exec__empty-desc">
-        {{ t('planning.reflection.review.planVsExecution.emptyDescription') }}
+        {{ emptyDescription || t('planning.reflection.review.planVsExecution.emptyDescription') }}
       </p>
       <button
         v-if="showActions"
@@ -86,8 +86,10 @@ const props = withDefaults(
     rings: PlanExecutionRing[]
     /** When false, hides the create/edit affordances (e.g. inside the reflection wizard). */
     showActions?: boolean
+    /** Overrides the default no-plan copy (e.g. the month card points at its wizard). */
+    emptyDescription?: string
   }>(),
-  { showActions: true },
+  { showActions: true, emptyDescription: '' },
 )
 
 defineEmits<{

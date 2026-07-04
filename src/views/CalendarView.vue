@@ -81,12 +81,11 @@
               @plan-next-week="planNextWeek"
             />
 
+            <!-- Read-only weeks grid; the assignment workspace (sidebar) lives in the
+                 month wizard's weeks step. -->
             <MonthlyPlanner
               v-else-if="scale === 'month' && activeMonthRef"
               :month-ref="activeMonthRef"
-              :show-sidebar="showMonthlyPlanner"
-              @close="closeMonthlyPlanner"
-              @updated="handleMonthlyPlannerUpdated"
             />
 
 
@@ -114,8 +113,6 @@
                 :kontekst-actions="!showMonthlyReflection"
                 @create-reflection="openReflectionPanel"
                 @edit-reflection="openReflectionPanel"
-                @create-plan="openPlanPanel"
-                @edit-plan="openPlanPanel"
               />
             </template>
 
@@ -294,8 +291,6 @@ const weekReflection = ref<WeekReflectionBundle | null>(null)
 const weekDayAssignments = ref<MeasurementDayAssignment[]>([])
 const anchorDay = ref<DayRef | null>(null)
 const panelState = ref<PanelKind | null>(null)
-const monthlyPlannerOpen = ref(false)
-const monthlyPlannerDirty = ref(false)
 // One unified week ritual wizard (planning + date-gated reflection) replaces the
 // separate week-planning and week-reflection panels.
 const weekWizardOpen = ref(false)
@@ -450,19 +445,9 @@ const planActionLabel = computed(() => {
         ? t('planning.calendar.actions.editPlan')
         : t('planning.calendar.actions.createPlan')
   }
-  if (props.scale === 'month') {
-    return monthlyPlannerOpen.value
-      ? t('common.buttons.close')
-      : currentPlanRecord.value
-        ? t('planning.calendar.actions.editPlan')
-        : t('planning.calendar.actions.createPlan')
-  }
-  if (props.scale === 'week') {
-    return currentPlanRecord.value
-      ? t('planning.calendar.actions.editPlan')
-      : t('planning.calendar.actions.createPlan')
-  }
-  return t('planning.calendar.actions.createPlan')
+  return currentPlanRecord.value
+    ? t('planning.calendar.actions.editPlan')
+    : t('planning.calendar.actions.createPlan')
 })
 
 const reflectionActionLabel = computed(() => {
@@ -478,24 +463,10 @@ const reflectionActionLabel = computed(() => {
 })
 
 const planActionVariant = computed<'filled' | 'tonal'>(() => {
-  if (props.scale === 'year') {
-    return annualPlannerOpen.value
-      ? 'tonal'
-      : currentPlanRecord.value
-        ? 'tonal'
-        : 'filled'
+  if (props.scale === 'year' && annualPlannerOpen.value) {
+    return 'tonal'
   }
-  if (props.scale === 'month') {
-    return monthlyPlannerOpen.value
-      ? 'tonal'
-      : currentPlanRecord.value
-        ? 'tonal'
-        : 'filled'
-  }
-  if (props.scale === 'week') {
-    return currentPlanRecord.value ? 'tonal' : 'filled'
-  }
-  return 'filled'
+  return currentPlanRecord.value ? 'tonal' : 'filled'
 })
 const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
   if (props.scale === 'month' && monthlyReflectionOpen.value) return 'tonal'
@@ -505,7 +476,6 @@ const reflectionActionVariant = computed<'filled' | 'tonal'>(() => {
 })
 
 const showAnnualPlanner = computed(() => props.scale === 'year' && annualPlannerOpen.value)
-const showMonthlyPlanner = computed(() => props.scale === 'month' && monthlyPlannerOpen.value)
 const showWeekWizard = computed(() => props.scale === 'week' && weekWizardOpen.value)
 const showMonthlyReflection = computed(() => props.scale === 'month' && monthlyReflectionOpen.value)
 
@@ -515,7 +485,6 @@ const showMonthlyReflection = computed(() => props.scale === 'month' && monthlyR
 const wizardActive = computed(
   () =>
     showAnnualPlanner.value ||
-    showMonthlyPlanner.value ||
     showWeekWizard.value ||
     showMonthlyReflection.value,
 )
@@ -641,7 +610,6 @@ watch(
   async () => {
     panelState.value = null
     annualPlannerOpen.value = false
-    monthlyPlannerOpen.value = false
     weekWizardOpen.value = false
     monthlyReflectionOpen.value = false
     reflectionNote.value = ''
@@ -832,26 +800,9 @@ function openPlanPanel() {
   }
 
   if (props.scale === 'month') {
-    void (async () => {
-      if (monthlyPlannerOpen.value) {
-        closeMonthlyPlanner()
-        return
-      }
-
-      if (!parsedPeriodRef.value) {
-        return
-      }
-
-      if (!monthPlanning.value?.monthPlan) {
-        await periodPlanDexieRepository.createMonthPlan({
-          monthRef: parsedPeriodRef.value as MonthRef,
-        })
-        await loadCalendarData()
-      }
-
-      monthlyPlannerOpen.value = true
-      monthlyPlannerDirty.value = false
-    })()
+    // Month planning lives inside the month wizard (its weeks step), so a plan
+    // deep-link lands in the same unified wizard as a reflect one.
+    openReflectionPanel()
     return
   }
 
@@ -898,19 +849,6 @@ function closeAnnualPlanner() {
   annualPlannerOpen.value = false
   if (annualPlannerDirty.value) {
     annualPlannerDirty.value = false
-    void loadCalendarData()
-  }
-}
-
-function handleMonthlyPlannerUpdated() {
-  monthlyPlannerDirty.value = true
-}
-
-function closeMonthlyPlanner() {
-  monthlyPlannerOpen.value = false
-  if (maybeReturnToStream()) return
-  if (monthlyPlannerDirty.value) {
-    monthlyPlannerDirty.value = false
     void loadCalendarData()
   }
 }

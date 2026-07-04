@@ -13,16 +13,15 @@
         </button>
       </template>
 
-      <!-- Plan vs execution — rings when a plan exists, create CTA otherwise.
-           Lives here so plan + reflection share one "summary" home. -->
+      <!-- Plan vs execution — read-only rings; the assignment workspace lives in the
+           month wizard's weeks step ("Otwórz miesiąc"), so no create/edit affordance here. -->
       <PlanExecutionSection
         class="kontekst-section"
         :has-plan="hasPlan"
         :has-objects="planHasObjects"
         :rings="planRings"
-        :show-actions="showActions"
-        @create-plan="$emit('create-plan')"
-        @edit-plan="$emit('edit-plan')"
+        :show-actions="false"
+        :empty-description="t('planning.reflection.review.planVsExecution.emptyDescriptionMonth')"
       />
 
       <template v-if="!hasReflection">
@@ -143,8 +142,6 @@ const props = withDefaults(
 defineEmits<{
   'create-reflection': []
   'edit-reflection': []
-  'create-plan': []
-  'edit-plan': []
 }>()
 
 const showActions = computed(() => props.showActions !== false)

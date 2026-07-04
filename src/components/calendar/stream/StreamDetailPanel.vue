@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { WeeklyIntention } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
@@ -37,20 +36,6 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useT()
-const router = useRouter()
-
-/**
- * Month planning still lives in the classic CalendarView (the MonthlyPlanner
- * grid). Route there with `?action=plan`, so the workspace opens straight away;
- * origin=stream lets CalendarView return here when it closes.
- */
-function openClassicMonthPlan() {
-  void router.push({
-    name: 'calendar-month',
-    params: { monthRef: props.monthRef },
-    query: { action: 'plan', origin: 'stream' },
-  })
-}
 
 const isLoading = ref(false)
 const loadError = ref<string | null>(null)
@@ -139,8 +124,6 @@ watch(() => [props.scale, props.monthRef, props.weekRef], load, { immediate: tru
       :raw-entries="monthRawEntries"
       :has-plan="monthHasPlan"
       :weekly-intentions="monthIntentions"
-      @create-plan="openClassicMonthPlan"
-      @edit-plan="openClassicMonthPlan"
       @create-reflection="emit('open-month-wizard')"
       @edit-reflection="emit('open-month-wizard')"
     />

@@ -68,6 +68,27 @@
         </p>
       </div>
 
+      <!-- Step: Weeks (activate objects and assign them to the month's weeks) -->
+      <div v-else-if="currentStep === 'weeks'" key="weeks" class="space-y-4">
+        <header class="space-y-1">
+          <p class="text-xs font-semibold uppercase tracking-wide text-primary-strong">
+            {{ t('planning.monthlyPlanning.weeks.eyebrow') }}
+          </p>
+          <h3 class="text-base font-bold text-on-surface">
+            {{ t('planning.monthlyPlanning.weeks.title') }}
+          </h3>
+          <p class="text-sm text-on-surface-variant">
+            {{ t('planning.monthlyPlanning.weeks.description') }}
+          </p>
+        </header>
+
+        <MonthlyPlanner
+          :month-ref="monthRef"
+          show-sidebar
+          @updated="emit('updated')"
+        />
+      </div>
+
       <!-- Step: Priorities review (effort + verdict per active priority) -->
       <div v-else-if="currentStep === 'priorities-review'" key="priorities-review" class="space-y-4">
         <header class="space-y-1">
@@ -270,9 +291,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRef } from 'vue'
+import { computed, toRef, watch } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import MonthlyPlanner from './MonthlyPlanner.vue'
 import ReflectionDimensionRatings from './ReflectionDimensionRatings.vue'
 import ReflectionAnchorsGrid from './ReflectionAnchorsGrid.vue'
 import ReflectionJournalSidebar from './ReflectionJournalSidebar.vue'
@@ -288,6 +310,7 @@ import {
 import { useT } from '@/composables/useT'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import type { PriorityVerdict } from '@/domain/planningState'
+import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { getPeriodBounds } from '@/utils/periods'
 import {
   emotionContextFromSummary,
@@ -306,10 +329,11 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const STEPS: MonthlyReflectionStep[] = ['plan', 'priorities-review', 'ratings', 'anchors', 'journal']
+const STEPS: MonthlyReflectionStep[] = ['plan', 'weeks', 'priorities-review', 'ratings', 'anchors', 'journal']
 
 const stepLabels = computed(() => [
   t('planning.reflection.steps.plan'),
+  t('planning.reflection.steps.weeks'),
   t('planning.reflection.steps.prioritiesReview'),
   t('planning.reflection.steps.ratings'),
   t('planning.reflection.steps.anchors'),
@@ -319,6 +343,7 @@ const stepLabels = computed(() => [
 const stepSubtitle = computed(() => {
   switch (currentStep.value) {
     case 'plan': return t('planning.monthlyPlanning.priorities.subtitle')
+    case 'weeks': return t('planning.monthlyPlanning.weeks.subtitle')
     case 'priorities-review': return t('planning.reflection.monthly.prioritiesReview.subtitle')
     case 'ratings': return t('planning.reflection.monthly.groups.ratings.subtitle')
     default: return ''
@@ -368,6 +393,23 @@ const {
   isSaving,
   save,
 } = useMonthlyReflectionWizard(toRef(props, 'monthRef'))
+
+// The weeks step is the month's assignment workspace (formerly the standalone
+// "create/edit plan" affordance) — entering it guarantees the MonthPlan record
+// that backs the plan-vs-execution summary. `immediate` covers drafts restored
+// straight onto this step.
+watch(
+  currentStep,
+  async (step) => {
+    if (step !== 'weeks') return
+    const existing = await periodPlanDexieRepository.getMonthPlan(props.monthRef)
+    if (!existing) {
+      await periodPlanDexieRepository.createMonthPlan({ monthRef: props.monthRef })
+      emit('updated')
+    }
+  },
+  { immediate: true },
+)
 
 // Toggling effort/verdict on a value that's already selected clears it.
 function setEffort(priorityId: string, n: number) {

@@ -86,7 +86,7 @@ const emptyText = computed(() => {
   }
   return props.hasPlan
     ? t('planning.reflection.review.planVsExecution.noObjects')
-    : t('planning.reflection.review.planVsExecution.gridEmptyNoPlan')
+    : t('planning.reflection.review.planVsExecution.gridEmptyNoPlanMonth')
 })
 </script>
 
