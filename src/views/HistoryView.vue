@@ -1,64 +1,62 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
-    <div class="max-w-3xl mx-auto">
-      <!-- Filters Section -->
-      <HistoryFilters
-        v-model:type-filter="typeFilter"
-        v-model:date-range="dateRange"
-        v-model:sort-order="sortOrder"
-      />
+  <PageContainer>
+    <!-- Filters Section -->
+    <HistoryFilters
+      v-model:type-filter="typeFilter"
+      v-model:date-range="dateRange"
+      v-model:sort-order="sortOrder"
+    />
 
-      <!-- Loading State -->
+    <!-- Loading State -->
+    <div
+      v-if="isLoading"
+      class="text-on-surface-variant text-center py-8"
+    >
+      {{ t('history.loading') }}
+    </div>
+
+    <!-- Error State -->
+    <div
+      v-else-if="error"
+      class="bg-error-container text-on-error-container border border-error/30 rounded-lg p-4 space-y-3"
+    >
+      <div>
+        <p class="font-semibold">{{ t('history.errorTitle') }}</p>
+        <p class="text-sm">{{ error }}</p>
+      </div>
+      <div class="flex justify-center">
+        <AppButton variant="outlined" @click="handleRetryLoad">
+          {{ t('history.tryAgain') }}
+        </AppButton>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div v-else>
+      <!-- Empty State -->
       <div
-        v-if="isLoading"
-        class="text-on-surface-variant text-center py-8"
+        v-if="filteredEntries.length === 0"
+        class="text-center py-12"
       >
-        {{ t('history.loading') }}
+        <p class="text-on-surface-variant">
+          {{ emptyStateMessage }}
+        </p>
       </div>
 
-      <!-- Error State -->
+      <!-- Entries List -->
       <div
-        v-else-if="error"
-        class="bg-error-container text-on-error-container border border-error/30 rounded-lg p-4 space-y-3"
+        v-else
+        class="grid gap-4 md:grid-cols-2 items-start"
       >
-        <div>
-          <p class="font-semibold">{{ t('history.errorTitle') }}</p>
-          <p class="text-sm">{{ error }}</p>
-        </div>
-        <div class="flex justify-center">
-          <AppButton variant="outlined" @click="handleRetryLoad">
-            {{ t('history.tryAgain') }}
-          </AppButton>
-        </div>
-      </div>
-
-      <!-- Content -->
-      <div v-else>
-        <!-- Empty State -->
-        <div
-          v-if="filteredEntries.length === 0"
-          class="text-center py-12"
-        >
-          <p class="text-on-surface-variant">
-            {{ emptyStateMessage }}
-          </p>
-        </div>
-
-        <!-- Entries List -->
-        <div
-          v-else
-          class="flex flex-col gap-4"
-        >
-          <HistoryEntryCard
-            v-for="entry in filteredEntries"
-            :key="`${entry.type}-${entry.id}`"
-            :entry="entry"
-            :is-deleting="isDeleting && deletingEntryId === entry.id"
-            @click="handleEntryClick(entry)"
-            @delete="handleDeleteClick(entry)"
-            @view-chats="handleViewChats(entry)"
-          />
-        </div>
+        <HistoryEntryCard
+          v-for="entry in filteredEntries"
+          :key="`${entry.type}-${entry.id}`"
+          :entry="entry"
+          :is-deleting="isDeleting && deletingEntryId === entry.id"
+          @click="handleEntryClick(entry)"
+          @delete="handleDeleteClick(entry)"
+          @view-chats="handleViewChats(entry)"
+        />
       </div>
     </div>
 
@@ -123,13 +121,14 @@
     </Teleport>
 
     <AppSnackbar ref="snackbarRef" />
-  </div>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
+import PageContainer from '@/components/layout/PageContainer.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import ChatSessionCard from '@/components/ChatSessionCard.vue'

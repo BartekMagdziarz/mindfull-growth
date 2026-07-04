@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
+  <PageContainer>
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-xl font-bold text-on-surface">{{ t('lifeAreas.views.title') }}</h1>
@@ -28,7 +28,7 @@
     </div>
 
     <!-- Area list -->
-    <div v-else class="space-y-3">
+    <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <LifeAreaCard
         v-for="area in sortedAreas"
         :key="area.id"
@@ -39,13 +39,14 @@
     </div>
 
     <AppSnackbar ref="snackbarRef" />
-  </div>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
+import PageContainer from '@/components/layout/PageContainer.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import LifeAreaCard from '@/components/lifeAreas/LifeAreaCard.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
