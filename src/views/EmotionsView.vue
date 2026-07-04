@@ -6,11 +6,6 @@
         <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('emotionViews.logTitle') }}</h2>
 
         <div class="space-y-4">
-          <!-- Emotions header (label) -->
-          <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-            {{ t('emotionViews.editor.emotions') }}
-          </p>
-
           <!-- Emotion Selector -->
           <div
             v-if="isEmotionSectionLoading"
@@ -20,6 +15,7 @@
           </div>
           <div v-else>
             <EmotionSelector
+              :label="t('emotionViews.editor.emotions')"
               v-model="selectedEmotionIds"
               v-model:families="selectedEmotionFamilyIds"
               v-model:quadrant="activeEmotionQuadrant"

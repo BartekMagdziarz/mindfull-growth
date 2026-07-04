@@ -77,11 +77,6 @@
             class="neo-card px-5 py-4 flex flex-col gap-4"
             :style="emotionCardStyle"
           >
-            <header>
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                {{ t('emotionViews.editor.emotions') }}
-              </p>
-            </header>
             <div
               v-if="isEmotionSectionLoading"
               class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
@@ -90,6 +85,7 @@
             </div>
             <div v-else class="pt-1">
               <EmotionSelector
+                :label="t('emotionViews.editor.emotions')"
                 v-model="selectedEmotionIds"
                 v-model:families="selectedEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrant"

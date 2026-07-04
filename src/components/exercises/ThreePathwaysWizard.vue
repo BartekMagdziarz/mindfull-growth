@@ -78,10 +78,8 @@
             <p class="text-xs text-on-surface-variant mt-1">— Viktor Frankl</p>
           </div>
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-              {{ t('exerciseWizards.threePathways.intro.emotionLabel') }}
-            </p>
             <EmotionSelector
+              :label="t('exerciseWizards.threePathways.intro.emotionLabel')"
               v-model="emotionIdsBefore"
               v-model:quadrant="activeEmotionQuadrantBefore"
               v-model:families="emotionFamilyIdsBefore"
@@ -440,10 +438,8 @@
 
           <!-- After emotions -->
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-              {{ t('exerciseWizards.threePathways.summary.emotionLabel') }}
-            </p>
             <EmotionSelector
+              :label="t('exerciseWizards.threePathways.summary.emotionLabel')"
               v-model="emotionIdsAfter"
               v-model:quadrant="activeEmotionQuadrantAfter"
               v-model:families="emotionFamilyIdsAfter"

@@ -166,10 +166,8 @@
 
             <!-- Emotions -->
             <div class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                {{ t('exerciseWizards.exileWitnessing.approach.emotionLabel') }}
-              </p>
               <EmotionSelector
+                :label="t('exerciseWizards.exileWitnessing.approach.emotionLabel')"
                 v-model="emotionIds"
                 v-model:quadrant="activeEmotionQuadrant"
                 v-model:families="emotionFamilyIds"

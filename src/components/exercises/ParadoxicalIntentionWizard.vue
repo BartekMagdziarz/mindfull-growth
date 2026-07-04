@@ -71,10 +71,8 @@
           </div>
 
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-              {{ t('exerciseWizards.paradoxicalIntention.intro.emotionLabel') }}
-            </p>
             <EmotionSelector
+              :label="t('exerciseWizards.paradoxicalIntention.intro.emotionLabel')"
               v-model="emotionIdsBefore"
               v-model:quadrant="activeEmotionQuadrantBefore"
               v-model:families="emotionFamilyIdsBefore"
@@ -279,10 +277,8 @@
           </div>
 
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-              {{ t('exerciseWizards.paradoxicalIntention.practice.emotionLabel') }}
-            </p>
             <EmotionSelector
+              :label="t('exerciseWizards.paradoxicalIntention.practice.emotionLabel')"
               v-model="emotionIdsAfter"
               v-model:quadrant="activeEmotionQuadrantAfter"
               v-model:families="emotionFamilyIdsAfter"

@@ -63,10 +63,8 @@
             </div>
           </div>
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-              {{ t('exerciseWizards.mountainRange.intro.emotionLabel') }}
-            </p>
             <EmotionSelector
+              :label="t('exerciseWizards.mountainRange.intro.emotionLabel')"
               v-model="emotionIdsBefore"
               v-model:families="emotionFamilyIdsBefore"
               v-model:quadrant="activeEmotionQuadrantIntro"
@@ -124,10 +122,8 @@
                   rows="2"
                 />
                 <div class="space-y-2">
-                  <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                    {{ t('exerciseWizards.mountainRange.peaks.emotionLabel') }}
-                  </p>
                   <EmotionSelector
+                    :label="t('exerciseWizards.mountainRange.peaks.emotionLabel')"
                     v-model="event.emotionIds"
                     v-model:families="event.emotionFamilyIds"
                     v-model:quadrant="event.activeQuadrant"
@@ -214,10 +210,8 @@
                   rows="4"
                 />
                 <div class="space-y-2">
-                  <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                    {{ t('exerciseWizards.mountainRange.peaks.emotionLabel') }}
-                  </p>
                   <EmotionSelector
+                    :label="t('exerciseWizards.mountainRange.peaks.emotionLabel')"
                     v-model="event.emotionIds"
                     v-model:families="event.emotionFamilyIds"
                     v-model:quadrant="event.activeQuadrant"
@@ -412,10 +406,8 @@
           </AppButton>
 
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-              {{ t('exerciseWizards.mountainRange.future.emotionLabel') }}
-            </p>
             <EmotionSelector
+              :label="t('exerciseWizards.mountainRange.future.emotionLabel')"
               v-model="emotionIdsAfter"
               v-model:families="emotionFamilyIdsAfter"
               v-model:quadrant="activeEmotionQuadrantFuture"

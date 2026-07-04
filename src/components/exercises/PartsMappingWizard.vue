@@ -68,10 +68,8 @@
             </div>
 
             <div class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                {{ t('exerciseWizards.partsMapping.intro.emotionLabel') }}
-              </p>
               <EmotionSelector
+                :label="t('exerciseWizards.partsMapping.intro.emotionLabel')"
                 v-model="beforeEmotionIds"
                 v-model:families="beforeEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrantIntro"
@@ -108,10 +106,8 @@
             </div>
 
             <div class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                {{ t('exerciseWizards.partsMapping.trailhead.emotionsLabel') }}
-              </p>
               <EmotionSelector
+                :label="t('exerciseWizards.partsMapping.trailhead.emotionsLabel')"
                 v-model="trailheadEmotionIds"
                 v-model:families="trailheadEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrantTrailhead"
@@ -521,10 +517,8 @@
             </div>
 
             <div class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                {{ t('exerciseWizards.partsMapping.summary.emotionLabel') }}
-              </p>
               <EmotionSelector
+                :label="t('exerciseWizards.partsMapping.summary.emotionLabel')"
                 v-model="afterEmotionIds"
                 v-model:families="afterEmotionFamilyIds"
                 v-model:quadrant="activeEmotionQuadrantSummary"

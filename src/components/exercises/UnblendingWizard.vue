@@ -43,10 +43,8 @@
             </div>
 
             <div class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                {{ t('exerciseWizards.unblending.checkIn.emotionLabel') }}
-              </p>
               <EmotionSelector
+                :label="t('exerciseWizards.unblending.checkIn.emotionLabel')"
                 v-model="beforeEmotionIds"
                 v-model:quadrant="activeEmotionQuadrantBefore"
                 v-model:families="beforeEmotionFamilyIds"
@@ -334,10 +332,8 @@
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.unblending.postCheck.title') }}</h2>
 
             <div class="space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
-                {{ t('exerciseWizards.unblending.postCheck.emotionLabel') }}
-              </p>
               <EmotionSelector
+                :label="t('exerciseWizards.unblending.postCheck.emotionLabel')"
                 v-model="afterEmotionIds"
                 v-model:quadrant="activeEmotionQuadrantAfter"
                 v-model:families="afterEmotionFamilyIds"
