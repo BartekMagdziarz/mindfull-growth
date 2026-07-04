@@ -21,6 +21,7 @@ export interface PlannerMeasurementRow {
   isActive: boolean
   monthScheduleScope?: MeasurementMonthState['scheduleScope']
   weekScopeByRef: Partial<Record<string, MeasurementWeekState['scheduleScope']>>
+  weekTargetOverrideByRef: Partial<Record<string, MeasurementTarget>>
   scheduledDayRefs: DayRef[]
 }
 
@@ -33,6 +34,7 @@ export interface GoalSection {
   keyResults: PlannerMeasurementRow[]
 }
 
+/** One day card of the weekly planner's day-assignment step. */
 export interface PlannerWeekDay {
   dayRef: DayRef
   label: string
@@ -41,10 +43,43 @@ export interface PlannerWeekDay {
   items: CalendarAssignmentItem[]
 }
 
-export interface PlannerWeek {
+export interface PlannerMonthWeekDayBadge {
+  count: number
+  /** Short weekday names of the scheduled days, e.g. "wt, czw, sob". */
+  days: string
+}
+
+/** One row of the month planner's week grid. */
+export interface PlannerMonthWeekRow {
   weekRef: WeekRef
+  /** Week number, e.g. "10". */
   label: string
-  days: PlannerWeekDay[]
+  /** Localized date range, e.g. "9–15 mar". */
+  rangeLabel: string
+  /** Week overlaps the adjacent month. */
+  isBoundary: boolean
+  /** Idle mode: objects placed in this week. Empty while an assignment is active. */
+  chips: CalendarAssignmentItem[]
+  /** Active assignment row's schedule scope in this week. */
+  assignmentScope?: MeasurementWeekState['scheduleScope']
+  /** Active row counts as assigned here (explicit placement, scheduled days, or whole-month). */
+  isAssignedInWeek: boolean
+  /** Active monthly-cadence row covers this week via its whole-month placement. */
+  viaWholeMonth: boolean
+  /** Read-only summary of the active row's day assignments in this week (edited in the weekly ritual). */
+  dayBadge?: PlannerMonthWeekDayBadge
+  /** The active row's explicit sub-target for this week. */
+  weekTargetOverride?: MeasurementTarget
+  /** week override → month override → base target. */
+  effectiveTarget?: MeasurementTarget
+  /** Sub-target pill is offered only on explicitly placed weeks of a non-tracker row. */
+  canEditTarget: boolean
+}
+
+/** Soft "rozpisane X z Y" indicator inputs for the active monthly-cadence row. */
+export interface PlannerWeekTargetSummary {
+  assigned: number
+  total: number
 }
 
 export interface CalendarAssignmentItem {

@@ -299,6 +299,23 @@
         "initiativeUnplanned": "Niezaplanowane",
         "emptyInitiatives": "Brak inicjatyw powiązanych z tym tygodniem.",
         "dayAssignments": "{n} przypisanych dni"
+      },
+      "weekRow": {
+        "assigningHint": "Klikaj tygodnie, aby przypisać obiekt. Cele tygodniowe ustawisz pigułką obok tygodnia.",
+        "dayBadge": {
+          "one": "{n} dzień",
+          "few": "{n} dni",
+          "many": "{n} dni"
+        },
+        "dayBadgeHint": "Dni edytujesz w rytuale tygodniowym",
+        "boundaryWeek": "na granicy",
+        "weekTarget": "Cel tygodnia",
+        "clearWeekTarget": "Wyczyść cel tygodnia",
+        "distributeEvenly": "Rozłóż równomiernie",
+        "sumOk": "Rozpisane: {assigned} z {total} ✓",
+        "sumUnder": "Rozpisane: {assigned} z {total} — {rest} poza tygodniami",
+        "sumOver": "Rozpisane: {assigned} z {total} — {over} ponad cel",
+        "wholeMonthChip": "cały miesiąc"
       }
     }
   },

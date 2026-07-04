@@ -152,8 +152,12 @@ export function useWeeklyPlannerState(
     })
 
     const weekScopeByRef: PlannerMeasurementRow['weekScopeByRef'] = {}
+    const weekTargetOverrideByRef: PlannerMeasurementRow['weekTargetOverrideByRef'] = {}
     for (const state of relevantWeekStates) {
       weekScopeByRef[state.weekRef] = state.scheduleScope
+      if (state.targetOverride) {
+        weekTargetOverrideByRef[state.weekRef] = state.targetOverride
+      }
     }
 
     const scheduledDayRefs = dayAssignments
@@ -188,6 +192,7 @@ export function useWeeklyPlannerState(
         scheduledDayRefs.length > 0,
       monthScheduleScope: monthState?.scheduleScope,
       weekScopeByRef,
+      weekTargetOverrideByRef,
       scheduledDayRefs,
     }
   }

@@ -21,12 +21,18 @@ import {
   clearMeasurementPlacementInMonthView,
   deactivateMeasurementFromMonthView,
   linkGoalToMonth,
-  toggleMeasurementDayAssignment,
   toggleMeasurementWeekAssignment,
   unlinkGoalFromMonth,
   updateMeasurementTargetOverride,
+  updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
-import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
+import { distributeTargetEvenly } from '@/domain/weekTargetDistribution'
+import {
+  getChildPeriods,
+  getPeriodBounds,
+  getPeriodRefsForDate,
+  getWeekOverlappingMonths,
+} from '@/utils/periods'
 import type {
   ActiveAssignment,
   CalendarAssignmentItem,
@@ -34,7 +40,8 @@ import type {
   GoalSection,
   PlannerPlacementMode,
   PlannerMeasurementRow,
-  PlannerWeek,
+  PlannerMonthWeekRow,
+  PlannerWeekTargetSummary,
   SubjectKind,
 } from '@/components/calendar/plannerTypes'
 
@@ -56,19 +63,6 @@ export function usePlannerState(
   const monthWeekRefs = computed(() => getChildPeriods(monthRef.value) as WeekRef[])
   const monthWeekRefSet = computed(() => new Set(monthWeekRefs.value))
   const bounds = computed(() => getPeriodBounds(monthRef.value))
-
-  const weekdayHeaders = computed(() => {
-    const formatter = new Intl.DateTimeFormat(locale.value, { weekday: 'short' })
-    const firstWeek = getChildPeriods(monthRef.value)[0] as WeekRef | undefined
-    if (!firstWeek) return []
-    return (getChildPeriods(firstWeek) as DayRef[]).map(dayRef =>
-      formatter.format(new Date(`${dayRef}T00:00:00`))
-    )
-  })
-
-  const monthBadgeFormatter = computed(
-    () => new Intl.DateTimeFormat(locale.value, { month: 'short' })
-  )
 
   const allRows = computed(() => [
     ...goalSections.value.flatMap(goal => goal.keyResults),
@@ -92,22 +86,99 @@ export function usePlannerState(
       : undefined
   )
 
-  const calendarWeeks = computed<PlannerWeek[]>(() =>
-    monthWeekRefs.value.map(weekRef => ({
-      weekRef,
-      label: weekRef.slice(6),
-      days: (getChildPeriods(weekRef) as DayRef[]).map(dayRef => ({
-        dayRef,
-        label: dayRef.slice(-2),
-        inMonth: getPeriodRefsForDate(dayRef).month === monthRef.value,
-        monthLabel: monthBadgeFormatter.value
-          .format(new Date(`${dayRef}T00:00:00`))
-          .replace('.', '')
-          .toUpperCase(),
-        items: activeRowsForDay(dayRef, getPeriodRefsForDate(dayRef).month === monthRef.value),
-      })),
-    }))
-  )
+  function formatWeekRange(weekRef: WeekRef): string {
+    const { start, end } = getPeriodBounds(weekRef)
+    const startDate = new Date(`${start}T00:00:00`)
+    const endDate = new Date(`${end}T00:00:00`)
+    const dayMonth = new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'short' })
+    if (start.slice(0, 7) === end.slice(0, 7)) {
+      const dayOnly = new Intl.DateTimeFormat(locale.value, { day: 'numeric' })
+      return `${dayOnly.format(startDate)}–${dayMonth.format(endDate)}`
+    }
+    return `${dayMonth.format(startDate)} – ${dayMonth.format(endDate)}`
+  }
+
+  function qualifiesForWeekTargetSum(target: MeasurementTarget): boolean {
+    return target.kind === 'count' || (target.kind === 'value' && target.aggregation === 'sum')
+  }
+
+  function explicitlyPlacedWeeks(row: PlannerMeasurementRow): WeekRef[] {
+    return monthWeekRefs.value.filter(weekRef => {
+      const scope = row.weekScopeByRef[weekRef]
+      return scope === 'whole-week' || scope === 'specific-days'
+    })
+  }
+
+  const weekRows = computed<PlannerMonthWeekRow[]>(() => {
+    const row = assignmentRow.value
+    const weekdayFormatter = new Intl.DateTimeFormat(locale.value, { weekday: 'short' })
+    const rowViaWholeMonth = Boolean(
+      row &&
+        row.cadence === 'monthly' &&
+        row.monthScheduleScope === 'whole-month' &&
+        !hasExplicitPlacement(row)
+    )
+
+    return monthWeekRefs.value.map(weekRef => {
+      const scope = row?.weekScopeByRef[weekRef]
+      const isExplicit = scope === 'whole-week' || scope === 'specific-days'
+      const scheduledInWeek = row
+        ? row.scheduledDayRefs.filter(dayRef => getPeriodRefsForDate(dayRef).week === weekRef)
+        : []
+      const weekTargetOverride = row?.weekTargetOverrideByRef[weekRef]
+
+      return {
+        weekRef,
+        label: weekRef.slice(6),
+        rangeLabel: formatWeekRange(weekRef),
+        isBoundary: getWeekOverlappingMonths(weekRef).length > 1,
+        chips: row ? [] : activeRowsForWeek(weekRef),
+        assignmentScope: scope,
+        isAssignedInWeek: Boolean(
+          row && (isExplicit || scheduledInWeek.length > 0 || rowViaWholeMonth)
+        ),
+        viaWholeMonth: rowViaWholeMonth,
+        dayBadge:
+          scheduledInWeek.length > 0
+            ? {
+                count: scheduledInWeek.length,
+                days: scheduledInWeek
+                  .map(dayRef => weekdayFormatter.format(new Date(`${dayRef}T00:00:00`)))
+                  .join(', '),
+              }
+            : undefined,
+        weekTargetOverride,
+        effectiveTarget:
+          row && row.subjectType !== 'tracker'
+            ? weekTargetOverride ?? editableTarget(row)
+            : undefined,
+        canEditTarget: Boolean(row && row.subjectType !== 'tracker' && isExplicit),
+      }
+    })
+  })
+
+  const weekTargetSummary = computed<PlannerWeekTargetSummary | null>(() => {
+    const row = assignmentRow.value
+    if (!row || row.cadence !== 'monthly' || row.subjectType === 'tracker') return null
+    const target = editableTarget(row)
+    if (!target || !qualifiesForWeekTargetSum(target)) return null
+
+    const overrides = monthWeekRefs.value.flatMap(weekRef => {
+      const override = row.weekTargetOverrideByRef[weekRef]
+      return override ? [override.value] : []
+    })
+    if (overrides.length === 0) return null
+
+    const assigned = Math.round(overrides.reduce((sum, value) => sum + value, 0) * 100) / 100
+    return { assigned, total: target.value }
+  })
+
+  const canDistributeWeekTargets = computed(() => {
+    const row = assignmentRow.value
+    if (!row || row.cadence !== 'monthly' || row.subjectType === 'tracker') return false
+    const target = editableTarget(row)
+    return Boolean(target && qualifiesForWeekTargetSum(target) && explicitlyPlacedWeeks(row).length > 0)
+  })
 
   watch(
     () => monthRef.value,
@@ -143,8 +214,12 @@ export function usePlannerState(
     })
 
     const weekScopeByRef: PlannerMeasurementRow['weekScopeByRef'] = {}
+    const weekTargetOverrideByRef: PlannerMeasurementRow['weekTargetOverrideByRef'] = {}
     for (const state of relevantWeekStates) {
       weekScopeByRef[state.weekRef] = state.scheduleScope
+      if (state.targetOverride) {
+        weekTargetOverrideByRef[state.weekRef] = state.targetOverride
+      }
     }
 
     const scheduledDayRefs = dayAssignments
@@ -176,6 +251,7 @@ export function usePlannerState(
         scheduledDayRefs.length > 0,
       monthScheduleScope: monthState?.scheduleScope,
       weekScopeByRef,
+      weekTargetOverrideByRef,
       scheduledDayRefs,
     }
   }
@@ -188,16 +264,17 @@ export function usePlannerState(
     )
   }
 
-  function rowVisibleOnDay(row: PlannerMeasurementRow, dayRef: DayRef, inMonth: boolean): boolean {
+  function rowVisibleInWeek(row: PlannerMeasurementRow, weekRef: WeekRef): boolean {
     if (!row.isActive) return false
-    if (row.scheduledDayRefs.includes(dayRef)) return true
 
-    const weekScope = row.weekScopeByRef[getPeriodRefsForDate(dayRef).week]
-    if (weekScope === 'whole-week') return true
+    const scope = row.weekScopeByRef[weekRef]
+    if (scope === 'whole-week' || scope === 'specific-days') return true
+    if (row.scheduledDayRefs.some(dayRef => getPeriodRefsForDate(dayRef).week === weekRef)) {
+      return true
+    }
 
-    if (row.cadence === 'monthly') {
-      if (hasExplicitPlacement(row)) return false
-      return row.monthScheduleScope === 'whole-month' && inMonth
+    if (row.cadence === 'monthly' && !hasExplicitPlacement(row)) {
+      return row.monthScheduleScope === 'whole-month'
     }
 
     return false
@@ -209,9 +286,9 @@ export function usePlannerState(
     tracker: 2,
   }
 
-  function activeRowsForDay(dayRef: DayRef, inMonth: boolean): CalendarAssignmentItem[] {
+  function activeRowsForWeek(weekRef: WeekRef): CalendarAssignmentItem[] {
     return allRows.value
-      .filter(row => rowVisibleOnDay(row, dayRef, inMonth))
+      .filter(row => rowVisibleInWeek(row, weekRef))
       .map(row => ({
         key: rowKey(row),
         title: row.title,
@@ -269,10 +346,10 @@ export function usePlannerState(
     return hasExplicitPlacement(row)
   }
 
-  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode = 'days'): void {
-    // Inactive items are intentionally allowed — toggleMeasurementDayAssignment,
-    // toggleMeasurementWeekAssignment and assignMeasurementToWholeMonthView activate
-    // the item atomically when the user picks a day/week/whole-month.
+  function startAssigning(item: PlannerMeasurementRow, mode: PlannerPlacementMode = 'weeks'): void {
+    // Inactive items are intentionally allowed — toggleMeasurementWeekAssignment
+    // and assignMeasurementToWholeMonthView activate the item atomically when the
+    // user picks a week/whole-month.
     activeAssignment.value = {
       subjectType: item.subjectType,
       subjectId: item.id,
@@ -614,32 +691,67 @@ export function usePlannerState(
     })
   }
 
-  async function handleDayToggle(dayRef: DayRef): Promise<void> {
+  async function handleWeekTargetChange(weekRef: WeekRef, value: number): Promise<void> {
     const row = assignmentRow.value
-    if (!row) return
+    if (!row || row.subjectType === 'tracker') return
+    const target = editableTarget(row)
+    if (!target || !Number.isFinite(value)) return
 
-    if (row.cadence === 'monthly' && getPeriodRefsForDate(dayRef).month !== monthRef.value) return
-
-    await withSave(`${rowKey(row)}:${dayRef}`, async () => {
-      await ensureGoalLinked(row)
-      await toggleMeasurementDayAssignment({
-        dayRef,
-        cadence: row.cadence,
-        monthRef: row.cadence === 'monthly' ? monthRef.value : undefined,
+    const normalizedValue = target.kind === 'count' ? Math.max(0, Math.round(value)) : value
+    await withSave(`${rowKey(row)}:${weekRef}:target`, () =>
+      updateMeasurementWeekTargetOverride({
+        weekRef,
         subjectType: row.subjectType,
         subjectId: row.id,
+        cadence: row.cadence,
+        monthRef: row.cadence === 'monthly' ? monthRef.value : undefined,
+        targetOverride: { ...target, value: normalizedValue } as MeasurementTarget,
       })
+    )
+  }
+
+  async function handleWeekTargetClear(weekRef: WeekRef): Promise<void> {
+    const row = assignmentRow.value
+    if (!row || row.subjectType === 'tracker') return
+
+    await withSave(`${rowKey(row)}:${weekRef}:target`, () =>
+      updateMeasurementWeekTargetOverride({
+        weekRef,
+        subjectType: row.subjectType,
+        subjectId: row.id,
+        cadence: row.cadence,
+        monthRef: row.cadence === 'monthly' ? monthRef.value : undefined,
+        targetOverride: undefined,
+      })
+    )
+  }
+
+  async function handleDistributeEvenly(): Promise<void> {
+    const row = assignmentRow.value
+    if (!row || row.cadence !== 'monthly' || row.subjectType === 'tracker') return
+    const target = editableTarget(row)
+    if (!target || !qualifiesForWeekTargetSum(target)) return
+
+    const weeks = explicitlyPlacedWeeks(row)
+    if (weeks.length === 0) return
+
+    const values = distributeTargetEvenly(target.value, weeks.length, target.kind === 'count')
+    await withSave(`${rowKey(row)}:distribute`, async () => {
+      for (const [index, weekRef] of weeks.entries()) {
+        await updateMeasurementWeekTargetOverride({
+          weekRef,
+          subjectType: row.subjectType,
+          subjectId: row.id,
+          cadence: row.cadence,
+          monthRef: monthRef.value,
+          targetOverride: { ...target, value: values[index] ?? 0 } as MeasurementTarget,
+        })
+      }
     })
   }
 
   function canToggleWeek(): boolean {
     return Boolean(assignmentRow.value)
-  }
-
-  function canToggleDay(day: { inMonth: boolean }): boolean {
-    if (!assignmentRow.value) return false
-    if (assignmentRow.value.cadence === 'monthly') return day.inMonth
-    return true
   }
 
   const keyResultRows = computed<PlannerMeasurementRow[]>(() =>
@@ -657,8 +769,9 @@ export function usePlannerState(
     trackerRows,
     activeAssignment,
     assignmentRow,
-    calendarWeeks,
-    weekdayHeaders,
+    weekRows,
+    weekTargetSummary,
+    canDistributeWeekTargets,
     allRows,
     loadPlannerData,
     rowKey,
@@ -682,9 +795,10 @@ export function usePlannerState(
     handleWholeMonth,
     handleClearPlacement,
     handleWeekToggle,
-    handleDayToggle,
+    handleWeekTargetChange,
+    handleWeekTargetClear,
+    handleDistributeEvenly,
     canToggleWeek,
-    canToggleDay,
-    rowVisibleOnDay,
+    rowVisibleInWeek,
   }
 }

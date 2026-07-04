@@ -35,7 +35,7 @@
         :saving-key="planner.savingKey.value"
         :is-assignment-active="planner.isAssignmentActive"
         :is-assigned="planner.isAssigned"
-        :month-week-count="planner.calendarWeeks.value.length"
+        :month-week-count="planner.weekRows.value.length"
         @update-tab="handleTabChange"
         @toggle-measurement="planner.toggleMeasurement"
         @apply-whole-period="planner.applyWholePeriod"
@@ -46,17 +46,17 @@
         @clear-override="planner.handleClearOverride"
       />
 
-      <PlannerCalendarGrid
+      <PlannerMonthWeeksGrid
         class="min-w-0 flex-1"
-        :calendar-weeks="planner.calendarWeeks.value"
+        :week-rows="planner.weekRows.value"
         :assignment-row="planner.assignmentRow.value"
-        :weekday-headers="planner.weekdayHeaders.value"
-        :row-visible-on-day="planner.rowVisibleOnDay"
+        :week-target-summary="planner.weekTargetSummary.value"
+        :can-distribute="planner.canDistributeWeekTargets.value"
         :can-toggle-week="planner.canToggleWeek()"
-        :can-toggle-day="planner.canToggleDay"
         @week-toggle="planner.handleWeekToggle"
-        @day-toggle="planner.handleDayToggle"
-        @day-open="openToday"
+        @week-target-change="planner.handleWeekTargetChange"
+        @week-target-clear="planner.handleWeekTargetClear"
+        @distribute-evenly="planner.handleDistributeEvenly"
         @clear-placement="planner.handleClearPlacement"
         @finish-assigning="handleFinishAssigning"
       />
@@ -66,13 +66,12 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import PlannerSidebar from './PlannerSidebar.vue'
-import PlannerCalendarGrid from './PlannerCalendarGrid.vue'
+import PlannerMonthWeeksGrid from './PlannerMonthWeeksGrid.vue'
 import { useT } from '@/composables/useT'
 import { usePlannerState } from '@/composables/usePlannerState'
-import type { DayRef, MonthRef } from '@/domain/period'
+import type { MonthRef } from '@/domain/period'
 
 const props = defineProps<{
   monthRef: MonthRef
@@ -85,7 +84,6 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useT()
-const router = useRouter()
 
 const monthRefRef = computed(() => props.monthRef as MonthRef)
 
@@ -100,9 +98,5 @@ function handleTabChange(tab: 'goals' | 'habits' | 'trackers') {
 
 function handleFinishAssigning() {
   planner.stopAssigning()
-}
-
-function openToday(dayRef: DayRef): void {
-  void router.push({ name: 'today-day', params: { dayRef } })
 }
 </script>

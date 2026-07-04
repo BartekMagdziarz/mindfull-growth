@@ -10,6 +10,7 @@ import { planningStateDexieRepository } from '@/repositories/planningStateDexieR
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { resetPlanningTestData } from '@/test/planningTestUtils'
+import { toggleMeasurementDayAssignment } from '@/services/planningMutations'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
 
@@ -278,9 +279,8 @@ describe('CalendarView', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('opens Today from month planner day cells when not assigning', async () => {
+  it('renders the month planner as week rows without day cells', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
-    const dayRef = parsePeriodRef('2026-03-12') as DayRef
 
     const router = createTestRouter()
     await router.push(`/calendar/month/${monthRef}`)
@@ -296,11 +296,9 @@ describe('CalendarView', () => {
       },
     })
 
-    await fireEvent.click(await screen.findByTestId(`monthly-planner-day-${dayRef}`))
-    await waitFor(() => {
-      expect(router.currentRoute.value.name).toBe('today-day')
-    })
-    expect(router.currentRoute.value.params.dayRef).toBe(dayRef)
+    expect(await screen.findByTestId('monthly-planner-week-2026-W10')).toBeInTheDocument()
+    // Day-level click targets no longer exist at month scale — days belong to the weekly ritual.
+    expect(screen.queryByTestId('monthly-planner-day-2026-03-12')).not.toBeInTheDocument()
   })
 
   it('opens the monthly planner as a single workspace and assigns weekly objects across the month', async () => {
@@ -507,7 +505,7 @@ describe('CalendarView', () => {
     })
   })
 
-  it('reflects day assignments inside the monthly planner calendar', async () => {
+  it('assigns a weekly habit to a week and stores a week sub-target from the planner', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const habit = await habitDexieRepository.create({
       title: 'Day planning habit',
@@ -567,32 +565,41 @@ describe('CalendarView', () => {
       expect(within(planner()).getByRole('button', { name: 'Done' })).toBeInTheDocument()
     })
 
-    const dayCell = within(planner()).getByTestId('monthly-planner-day-2026-03-12')
-    await fireEvent.click(dayCell)
+    const weekRow = within(planner()).getByTestId('monthly-planner-week-2026-W11')
+    await fireEvent.click(weekRow)
 
+    // Week placement + auto-activation land in the store
     await waitFor(async () => {
-      expect(
-        await planningStateDexieRepository.getMeasurementDayAssignment(
-          parsePeriodRef('2026-03-12') as DayRef,
-          'habit',
-          habit.id
-        )
-      ).toBeTruthy()
+      const weekState = await planningStateDexieRepository.getMeasurementWeekState(
+        parsePeriodRef('2026-W11') as WeekRef,
+        'habit',
+        habit.id
+      )
+      expect(weekState?.scheduleScope).toBe('whole-week')
     })
-
-    // Habit auto-activates when a day is picked
     await waitFor(async () => {
       expect(
         await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
       ).toBeTruthy()
     })
 
-    await waitFor(() => {
-      expect(within(planner()).getAllByText(habit.title).length).toBeGreaterThan(1)
+    // The placed week offers a sub-target pill; committing a value stores the week override.
+    const pill = await within(planner()).findByTestId('monthly-planner-week-target-2026-W11')
+    const input = within(pill).getByRole('spinbutton')
+    await fireEvent.update(input, '1')
+    await fireEvent.change(input)
+
+    await waitFor(async () => {
+      const weekState = await planningStateDexieRepository.getMeasurementWeekState(
+        parsePeriodRef('2026-W11') as WeekRef,
+        'habit',
+        habit.id
+      )
+      expect(weekState?.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 1 })
     })
   })
 
-  it('reflects monthly day assignments inside the monthly planner calendar', async () => {
+  it('assigns monthly habits to weeks and shows existing day assignments as a badge', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const habit = await habitDexieRepository.create({
       title: 'Monthly categorization',
@@ -607,6 +614,23 @@ describe('CalendarView', () => {
         value: 1,
       },
       status: 'open',
+    })
+    // Pre-existing day assignment made in the weekly ritual — the month planner
+    // must surface it read-only on the week row. (This also creates the MonthPlan
+    // record, so the Kontekst card shows the edit-plan pencil, not the create CTA.)
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    await toggleMeasurementDayAssignment({
+      dayRef: parsePeriodRef('2026-03-12') as DayRef,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      cadence: 'monthly',
+      monthRef,
     })
 
     const router = createTestRouter()
@@ -623,7 +647,7 @@ describe('CalendarView', () => {
       },
     })
 
-    await fireEvent.click(await screen.findByRole('button', { name: /create plan/i }))
+    await fireEvent.click(await screen.findByRole('button', { name: /edit plan/i }))
     await waitFor(() => {
       expect(screen.getByTestId('monthly-planner')).toBeInTheDocument()
     })
@@ -642,38 +666,35 @@ describe('CalendarView', () => {
     // Switch to Habits tab; click the assign button directly to enter assigning mode
     await switchMonthlyPlannerTab('Habits')
 
-    const habitRow = within(planner()).getByText(habit.title).closest('article')
+    // Scope to the sidebar — the placed habit also renders as a text chip in the idle grid.
+    // Already-placed objects sit in the collapsed "Planned" section; expand it first.
+    const sidebar = () => screen.getByTestId('monthly-planner-sidebar')
+    await fireEvent.click(await within(sidebar()).findByRole('button', { name: /^Planned$/i }))
+    const habitRow = (await within(sidebar()).findByText(habit.title)).closest('article')
     expect(habitRow).toBeTruthy()
     await fireEvent.click(
-      within(habitRow as HTMLElement).getByRole('button', { name: /Assign in calendar/i })
+      within(habitRow as HTMLElement).getByRole('button', { name: /Edit assignments/i })
     )
 
     await waitFor(() => {
       expect(within(planner()).getByRole('button', { name: 'Done' })).toBeInTheDocument()
     })
 
-    const dayCell = within(planner()).getByTestId('monthly-planner-day-2026-03-12')
-    await fireEvent.click(dayCell)
+    // The 2026-03-12 day assignment shows as a read-only badge on its week row.
+    const badge = within(planner()).getByTestId('monthly-planner-day-badge-2026-W10')
+    expect(badge.tagName).toBe('SPAN')
 
+    // Toggling another week writes a sourceMonthRef-scoped week state.
+    await fireEvent.click(within(planner()).getByTestId('monthly-planner-week-2026-W12'))
     await waitFor(async () => {
-      expect(
-        await planningStateDexieRepository.getMeasurementDayAssignment(
-          parsePeriodRef('2026-03-12') as DayRef,
-          'habit',
-          habit.id
-        )
-      ).toBeTruthy()
-    })
-
-    // Habit auto-activates when a day is picked
-    await waitFor(async () => {
-      expect(
-        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'habit', habit.id)
-      ).toBeTruthy()
-    })
-
-    await waitFor(() => {
-      expect(within(planner()).getAllByText(habit.title).length).toBeGreaterThan(1)
+      const weekState = await planningStateDexieRepository.getMeasurementWeekState(
+        parsePeriodRef('2026-W12') as WeekRef,
+        'habit',
+        habit.id,
+        monthRef
+      )
+      expect(weekState?.scheduleScope).toBe('whole-week')
+      expect(weekState?.sourceMonthRef).toBe(monthRef)
     })
   })
 })
