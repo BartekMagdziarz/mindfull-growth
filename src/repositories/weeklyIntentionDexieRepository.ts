@@ -10,6 +10,15 @@ import { getUserDatabase } from '@/services/userDatabase.service'
 import type { WeeklyIntentionRepository } from './weeklyIntentionRepository'
 import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
 
+/**
+ * Records written before intentions could link priorities have no
+ * `priorityIds` in Dexie — default it on every read so consumers can
+ * iterate/spread the field safely without per-call-site guards.
+ */
+function hydrate(record: WeeklyIntention): WeeklyIntention {
+  return Array.isArray(record.priorityIds) ? record : { ...record, priorityIds: [] }
+}
+
 class WeeklyIntentionDexieRepository implements WeeklyIntentionRepository {
   private get db() {
     return getUserDatabase()
@@ -17,7 +26,8 @@ class WeeklyIntentionDexieRepository implements WeeklyIntentionRepository {
 
   async getById(id: string): Promise<WeeklyIntention | undefined> {
     try {
-      return await this.db.weeklyIntentions.get(id)
+      const record = await this.db.weeklyIntentions.get(id)
+      return record ? hydrate(record) : undefined
     } catch (error) {
       console.error(`Failed to get weekly intention with id ${id}:`, error)
       throw new Error(`Failed to retrieve weekly intention with id ${id}`)
@@ -26,7 +36,7 @@ class WeeklyIntentionDexieRepository implements WeeklyIntentionRepository {
 
   async listAll(): Promise<WeeklyIntention[]> {
     try {
-      return await this.db.weeklyIntentions.toArray()
+      return (await this.db.weeklyIntentions.toArray()).map(hydrate)
     } catch (error) {
       console.error('Failed to list weekly intentions:', error)
       throw new Error('Failed to retrieve weekly intentions from database')
@@ -35,7 +45,9 @@ class WeeklyIntentionDexieRepository implements WeeklyIntentionRepository {
 
   async listByWeek(weekRef: WeekRef): Promise<WeeklyIntention[]> {
     try {
-      return await this.db.weeklyIntentions.where('weekRef').equals(weekRef).toArray()
+      return (await this.db.weeklyIntentions.where('weekRef').equals(weekRef).toArray()).map(
+        hydrate,
+      )
     } catch (error) {
       console.error(`Failed to list weekly intentions for week ${weekRef}:`, error)
       throw new Error(`Failed to retrieve weekly intentions for week ${weekRef}`)
@@ -56,9 +68,11 @@ class WeeklyIntentionDexieRepository implements WeeklyIntentionRepository {
 
   async update(id: string, data: UpdateWeeklyIntentionPayload): Promise<WeeklyIntention> {
     try {
-      const existing = requireRecord(
-        await this.db.weeklyIntentions.get(id),
-        `Weekly intention with id ${id} not found`,
+      const existing = hydrate(
+        requireRecord(
+          await this.db.weeklyIntentions.get(id),
+          `Weekly intention with id ${id} not found`,
+        ),
       )
       const updated = updatePlanningRecord(existing, normalizeWeeklyIntentionPayload(data, existing))
       await this.db.weeklyIntentions.put(toPlain(updated))
