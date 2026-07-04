@@ -219,36 +219,38 @@
               ({{ activities.length }})
             </span>
           </h3>
-          <AppCard
-            v-for="(act, idx) in activities"
-            :key="act.id"
-            padding="md"
-          >
-            <div class="flex justify-between items-start group">
-              <div class="flex-1 space-y-1">
-                <div class="flex items-center gap-2">
-                  <span
-                    class="inline-block px-2 py-0.5 text-xs font-medium rounded-full"
-                    :class="getCategoryColorClass(act.category)"
-                  >
-                    {{ getCategoryLabel(act.category) }}
-                  </span>
-                  <span class="text-xs text-on-surface-variant">
-                    {{ formatActivityDate(act.date) }}
-                  </span>
+          <div class="grid gap-3 sm:grid-cols-2 items-start">
+            <AppCard
+              v-for="(act, idx) in activities"
+              :key="act.id"
+              padding="md"
+            >
+              <div class="flex justify-between items-start group">
+                <div class="flex-1 space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="inline-block px-2 py-0.5 text-xs font-medium rounded-full"
+                      :class="getCategoryColorClass(act.category)"
+                    >
+                      {{ getCategoryLabel(act.category) }}
+                    </span>
+                    <span class="text-xs text-on-surface-variant">
+                      {{ formatActivityDate(act.date) }}
+                    </span>
+                  </div>
+                  <p class="text-sm font-medium text-on-surface">{{ act.activity }}</p>
                 </div>
-                <p class="text-sm font-medium text-on-surface">{{ act.activity }}</p>
+                <button
+                  type="button"
+                  class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 ml-2"
+                  :aria-label="`Remove ${act.activity}`"
+                  @click="removeActivity(idx)"
+                >
+                  <AppIcon name="close" class="text-base" />
+                </button>
               </div>
-              <button
-                type="button"
-                class="p-1 rounded text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 ml-2"
-                :aria-label="`Remove ${act.activity}`"
-                @click="removeActivity(idx)"
-              >
-                <AppIcon name="close" class="text-base" />
-              </button>
-            </div>
-          </AppCard>
+            </AppCard>
+          </div>
         </div>
 
         <!-- Minimum activities notice -->
