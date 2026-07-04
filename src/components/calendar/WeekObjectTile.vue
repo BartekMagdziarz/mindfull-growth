@@ -66,6 +66,8 @@ interface Props {
   subjectType: MeasurementSubjectType
   planning: MeasurementPlanningSummary
   measurement: MeasurementSummary
+  /** Week-period verdict for monthly-cadence subjects with a week sub-target. */
+  weekMeasurement?: MeasurementSummary
   rawEntries: DailyMeasurementEntry[]
   allDayAssignments: MeasurementDayAssignment[]
   weekRef: WeekRef
@@ -75,6 +77,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  weekMeasurement: undefined,
   parentGoalIcon: undefined,
 })
 
@@ -90,6 +93,7 @@ const viz = useWeeklySliceItemVisualization(
   toRef(props, 'weekRef'),
   toRef(props, 'todayDayRef'),
   computed(() => locale.value),
+  toRef(props, 'weekMeasurement'),
 )
 
 const title = computed(() => props.subject.title)

@@ -160,6 +160,21 @@ describe('buildWeeklyPlanSummary', () => {
     expect(summary.keyResults).toEqual({ total: 1, met: 1 })
   })
 
+  it('prefers the week-period verdict (weekMeasurement) over the month-to-date one', () => {
+    // Monthly-cadence habit: month-to-date says missed, but this week's
+    // sub-target verdict is met — the week ring counts the week verdict.
+    const subTargeted: WeekObjectItem = {
+      ...habitItem({ id: 'h-sub', status: 'missed' }),
+      weekMeasurement: makeMeasurement({ evaluationStatus: 'met' }),
+    }
+    const inverse: WeekObjectItem = {
+      ...habitItem({ id: 'h-inv', status: 'met' }),
+      weekMeasurement: makeMeasurement({ evaluationStatus: 'missed' }),
+    }
+    const summary = buildWeeklyPlanSummary([subTargeted, inverse], [], weekRef)
+    expect(summary.habits).toEqual({ total: 2, met: 1 })
+  })
+
   it('does not count habits without an evaluation status as met', () => {
     const summary = buildWeeklyPlanSummary(
       [habitItem({ id: 'h-a' })], // no status — defaults to undefined

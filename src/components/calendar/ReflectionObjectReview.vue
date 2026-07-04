@@ -30,6 +30,7 @@
             :subject-type="item.subjectType"
             :planning="item.planning"
             :measurement="item.measurement"
+            :week-measurement="item.weekMeasurement"
             :raw-entries="rawEntries"
             :all-day-assignments="allDayAssignments"
             :week-ref="weekRef"

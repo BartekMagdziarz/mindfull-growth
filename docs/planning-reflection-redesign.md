@@ -216,6 +216,12 @@ month → open week. UX for this chain (length, skippability) is an open topic.
   "micro-capture at tracking time" item.)
 - **D9 — Existing planners stay as ad-hoc edit mode.** The guided ritual is the primary path;
   the monthly/weekly planner grids remain for quick edits outside the ritual.
+  **Amended (2026-07-04):** the *monthly* ad-hoc editor edits **portfolio + week placement +
+  targets — not days**. Its day-cell calendar was replaced by week rows (§13): objects are
+  placed onto weeks or the whole month; existing day assignments render read-only per week
+  ("2 dni (wt, czw)"). Day assignment is exclusively the weekly ritual's "days" step, closing
+  the month/week overlap §3 diagnosed (both grids were editing the same shared
+  `MeasurementDayAssignment` rows from two places).
 
 ## 8. Mapping to the existing data model (reuse, not rebuild)
 
@@ -481,3 +487,59 @@ Merge actions:
 
 Net: nothing to "merge back" — §12 is the missing producer for display slots the stream brief
 already anticipated, plus one new signal (monthly top-3 + effort) to add to that brief's inventory.
+
+## 13. Week targets — per-week override + month-target rozpisanie (resolved 2026-07-04)
+
+Companion to the D9 amendment (month planner = week rows). Shipped in four increments:
+data+cascade → month planner UI → weekly flow repoint → consumers.
+
+### 13.1 Model
+
+- **`MeasurementWeekState.targetOverride?: MeasurementTarget`** — mirror of the month field,
+  non-indexed (no Dexie migration). For weekly-cadence subjects it means "this week's target
+  differs" (vacation week 2× instead of 3×); for monthly-cadence subjects it is a **week
+  sub-target** — the month target "rozpisany" onto a week.
+- **Cascade (week periods): week override → month override → base target.** Centralized in
+  `applyMeasurementTargetCascade` (`measurementProgress.ts`) and applied at the three
+  query-layer sites in `planningStateQueries.ts`, so Today, weekly reflection, rings, and the
+  stream inherit it.
+- **Invariant — month accounting never changes:** a month period only ever sees the month
+  override; week sub-targets are *weekly commitments*, structurally unable to leak into the
+  month verdict. (The month is accounted top-down from its own target, not from the sum of
+  weeks.)
+- Repo guard mirrors the month one: no overrides for trackers (no target) or weekly
+  intentions (their target IS the week target); `kind` must match the base target.
+
+### 13.2 UX
+
+- **Month planner (ad-hoc editor, D9):** week rows with a compact per-week target pill on
+  explicitly placed weeks of KRs/habits. Monthly-cadence rows add **"Rozłóż równomiernie"**
+  (largest-remainder prefill over placed weeks, extras to earlier weeks: 10/4 → 3/3/2/2) and
+  a **soft sum indicator** ("Rozpisane: X z Y ✓ / — N poza tygodniami / — N ponad cel").
+  No enforcement — soft-limit philosophy, like the top-3. Sum shown only for `count` and
+  `value/sum` targets; for average/rating targets a week override is just a different
+  threshold (no sum semantics).
+- **Weekly ritual (days step):** "Cel na ten tydzień" pill in the active-object toolbar.
+  This **repointed** the weekly flow's target editing — it previously wrote the MONTH
+  override via `overlappingMonthRefs[0]` (all weeks at once, possibly the wrong month on a
+  boundary week). Monthly-cadence writes attribute to the week's parent month (week-start
+  month, same rule as the month-to-date footer).
+- **Un-toggling a week deletes its week state** → the sub-target dies with it (no orphaned
+  numbers). "Cały miesiąc" for weekly cadence recreates all week states → also resets
+  sub-targets (accepted: whole-month is a reset).
+
+### 13.3 Accounting effects
+
+- Monthly-cadence objects **with** a sub-target get a true week-period met/missed
+  (`weekMeasurement` on week bundle items): the "2/4 w tym tygodniu" chip in the weekly
+  reflection review and Today, and the week ring counts the week verdict. Without a
+  sub-target, behavior is unchanged (month-to-date footer, no week verdict).
+- Weekly-cadence per-week evaluations (month rings, monthly-reflection weekly breakdowns)
+  honor the sub-target — a lowered vacation week no longer reads as falsely "missed".
+- Boundary weeks: weekly cadence has ONE week state (visible from both months' planners; the
+  soft sum counts it in each month it is placed in — soft, so no conflict). Monthly cadence
+  keys states by `sourceMonthRef` → independent sub-targets per month; a sub-target's
+  `weekMeasurement` spans the full ISO week.
+- Fixed en passant: `linkMeasurementPeriod` / weekly `toggleMeasurementDayAssignment` upserted
+  month states with an explicit `targetOverride: undefined` key, silently wiping the month
+  calibration on every week/day toggle. Both now preserve existing scope + override.

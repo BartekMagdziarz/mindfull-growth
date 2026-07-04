@@ -30,6 +30,8 @@ export interface TodayMeasurementItem {
   subject: MeasureableSubject
   planning: MeasurementPlanningSummary
   measurement: MeasurementSummary
+  /** Week-period met/missed for monthly-cadence subjects with a week sub-target. */
+  weekMeasurement?: MeasurementSummary
   todayEntry?: DailyMeasurementEntry
   goalTitle?: string
   goalIcon?: string
@@ -228,6 +230,7 @@ function buildMeasurementRecord(
     subject: item.subject,
     planning: item.planning,
     measurement: item.measurement,
+    weekMeasurement: item.weekMeasurement,
     todayEntry,
     goalTitle: goal?.title,
     goalIcon: goal?.icon,

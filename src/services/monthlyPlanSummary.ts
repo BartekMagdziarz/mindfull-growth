@@ -2,7 +2,7 @@ import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { Habit, KeyResult, WeeklyIntention } from '@/domain/planning'
 import type { MonthObjectItem } from '@/services/reflectionDataQueries'
-import { buildMeasurementSummary } from '@/services/measurementProgress'
+import { applyMeasurementTargetOverride, buildMeasurementSummary } from '@/services/measurementProgress'
 import { getChildPeriods, getPeriodBounds } from '@/utils/periods'
 
 export interface MonthPlanRowSummary {
@@ -65,7 +65,13 @@ export function buildMonthlyPlanSummary(
       row.total += 1
       const weekEnd = getPeriodBounds(weekRef).end as DayRef
       const clipRef = (todayDayRef < weekEnd ? todayDayRef : weekEnd) as DayRef
-      const weekSummary = buildMeasurementSummary(subject, rawEntries, weekRef, clipRef)
+      // Honor an explicit week sub-target — a vacation week with a lowered
+      // target no longer counts as missed against the base weekly target.
+      const weekSubject = applyMeasurementTargetOverride(
+        subject,
+        item.weekTargetOverrides?.[weekRef]
+      )
+      const weekSummary = buildMeasurementSummary(weekSubject, rawEntries, weekRef, clipRef)
       if (weekSummary.evaluationStatus === 'met') row.met += 1
     }
   }

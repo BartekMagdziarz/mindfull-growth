@@ -7,9 +7,14 @@ import type {
 } from '@/domain/planningState'
 import type { MeasurementPlanningSummary } from '@/services/planningStateQueries'
 import {
+  buildContextChipData,
   buildMonthlyContextFooter,
   buildWeeklySliceCompletionSlots,
 } from '@/services/weeklySliceChartData'
+import {
+  applyMeasurementTargetOverride,
+  buildMeasurementSummary,
+} from '@/services/measurementProgress'
 
 // --- Test helpers (mirrors todayChartData.spec.ts) ---
 
@@ -514,6 +519,33 @@ describe('buildMonthlyContextFooter', () => {
       // No cut-off → all March entries counted regardless of weekRef.
       expect(footer!.current).toBe(3)
       expect(footer!.entryCount).toBe(3)
+    })
+  })
+
+  describe('buildContextChipData with week sub-targets', () => {
+    it('reads the target the summary was evaluated against, not the base subject target', () => {
+      const habit = makeHabit('h1', {
+        cadence: 'monthly',
+        entryMode: 'completion',
+        target: { kind: 'count', operator: 'min', value: 12 },
+      })
+      const entries = [
+        makeEntry('habit', 'h1', '2026-03-09'),
+        makeEntry('habit', 'h1', '2026-03-10'),
+      ]
+      // Week sub-target min 3: the week summary carries that target and a
+      // real week verdict — the chip must show 2/3 missed, not 2/12.
+      const weekSummary = buildMeasurementSummary(
+        applyMeasurementTargetOverride(habit, { kind: 'count', operator: 'min', value: 3 }),
+        entries,
+        '2026-W10' as WeekRef,
+      )
+
+      const chip = buildContextChipData(habit, weekSummary)
+      expect(chip.variant).toBe('count-progress')
+      expect(chip.current).toBe(2)
+      expect(chip.target).toBe(3)
+      expect(chip.status).toBe('missed')
     })
   })
 })

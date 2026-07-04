@@ -155,7 +155,13 @@ export function buildContextChipData(
   summary: MeasurementSummary,
   suppressTarget = false,
 ): ContextChipData {
-  const target = suppressTarget ? undefined : 'target' in subject ? subject.target : undefined
+  // Prefer the summary's target — it is the one the summary was evaluated
+  // against (incl. week sub-targets), while subject.target may be only
+  // month-effective. Legacy callers always build the summary from the same
+  // subject they pass here, so for them this is a no-op.
+  const target = suppressTarget
+    ? undefined
+    : summary.target ?? ('target' in subject ? subject.target : undefined)
   const current = summary.actualValue ?? 0
   const entryCount = summary.entryCount
   const status = mapStatus(summary.evaluationStatus)

@@ -26,15 +26,20 @@ export function buildWeeklyPlanSummary(
   const intentions: WeekPlanRowSummary = { total: 0, met: 0 }
 
   for (const item of items) {
+    // Monthly-cadence objects with a week sub-target carry a true week-period
+    // verdict in weekMeasurement — the week ring should reflect it instead of
+    // the month-to-date evaluation.
+    const verdict = (item.weekMeasurement ?? item.measurement).evaluationStatus
+
     if (item.subjectType === 'keyResult') {
       keyResults.total += 1
-      if (item.measurement.evaluationStatus === 'met') keyResults.met += 1
+      if (verdict === 'met') keyResults.met += 1
       continue
     }
 
     if (item.subjectType === 'habit') {
       habits.total += 1
-      if (item.measurement.evaluationStatus === 'met') habits.met += 1
+      if (verdict === 'met') habits.met += 1
     }
   }
 

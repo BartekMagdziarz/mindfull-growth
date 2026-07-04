@@ -69,6 +69,8 @@ export function useWeeklySliceItemVisualization(
   weekRef: Ref<WeekRef>,
   todayDayRef: Ref<DayRef>,
   locale: Ref<string>,
+  /** Week-period verdict for monthly-cadence subjects with a week sub-target. */
+  weekMeasurement?: Ref<MeasurementSummary | undefined>,
 ): UseWeeklySliceItemVisualization {
   const vizType = computed<TodayVizType>(() =>
     resolveWeeklySliceVizType({
@@ -136,11 +138,15 @@ export function useWeeklySliceItemVisualization(
     // Scope the aggregate to the object's cadence period, cut off at the END of
     // the displayed week (so it reads as "…to date, as seen from this week"):
     //   - weekly cadence → this week's progress vs. its weekly target;
-    //   - monthly cadence → month-to-date vs. the monthly target.
+    //   - monthly cadence with a week sub-target → this week's progress vs.
+    //     the sub-target (real met/missed, e.g. "2/4 this week");
+    //   - other monthly cadence → month-to-date vs. the monthly target.
     const cutoff = getPeriodBounds(weekRef.value).end as DayRef
     const chip =
       subject.value.cadence === 'monthly'
-        ? buildMonthlyContextFooter(subject.value, rawEntries.value, weekRef.value, cutoff)
+        ? weekMeasurement?.value
+          ? buildContextChipData(subject.value, weekMeasurement.value, false)
+          : buildMonthlyContextFooter(subject.value, rawEntries.value, weekRef.value, cutoff)
         : buildContextChipData(
             subject.value,
             buildMeasurementSummary(subject.value, rawEntries.value, weekRef.value, cutoff),

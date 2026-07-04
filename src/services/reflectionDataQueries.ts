@@ -24,7 +24,7 @@ import type {
 } from '@/services/planningStateQueries'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { loadPlanningCoreObjects } from '@/services/planningObjectCollections'
-import { buildMeasurementSummary } from '@/services/measurementProgress'
+import { applyMeasurementTargetOverride, buildMeasurementSummary } from '@/services/measurementProgress'
 import type { MeasureableSubject, MeasurementSummary } from '@/services/measurementProgress'
 import type { MeasurementSubjectType } from '@/domain/planningState'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
@@ -182,6 +182,8 @@ export interface WeekObjectItem {
   subject: MeasureableSubject
   planning: MeasurementPlanningSummary
   measurement: MeasurementSummary
+  /** Week-period met/missed for monthly-cadence subjects with a week sub-target. */
+  weekMeasurement?: MeasurementSummary
   parentGoalId?: string
   parentGoalIcon?: string
   parentGoalTitle?: string
@@ -200,6 +202,8 @@ export interface MonthObjectItem {
   subject: MeasureableSubject
   planning: MeasurementPlanningSummary
   measurement: MeasurementSummary
+  /** Explicit per-week target overrides within the month (week sub-targets). */
+  weekTargetOverrides?: Partial<Record<WeekRef, MeasurementTarget>>
   parentGoalId?: string
   parentGoalIcon?: string
   parentGoalTitle?: string
@@ -936,6 +940,7 @@ export async function getWeeklyReflectionDataBundle(
           subject: kr.subject,
           planning: kr.planning,
           measurement: kr.measurement,
+          weekMeasurement: kr.weekMeasurement,
           parentGoalId: group.goal.id,
           parentGoalIcon: group.goal.icon,
           parentGoalTitle: group.goal.title,
@@ -950,6 +955,7 @@ export async function getWeeklyReflectionDataBundle(
         subject: habit.subject,
         planning: habit.planning,
         measurement: habit.measurement,
+        weekMeasurement: habit.weekMeasurement,
         sortOrder: 100_000 + i,
       })
     })
@@ -1063,7 +1069,11 @@ export async function getMonthlyReflectionDataBundle(
       const h = habit.subject as import('@/domain/planning').Habit
       const weeklyBreakdown: KRWeeklyBreakdown[] = h.cadence === 'weekly'
         ? monthWeekRefs.map((weekRef) => {
-            const ws = buildMeasurementSummary(habit.subject, planningBundle.rawEntries, weekRef)
+            const ws = buildMeasurementSummary(
+              applyMeasurementTargetOverride(habit.subject, habit.weekTargetOverrides?.[weekRef]),
+              planningBundle.rawEntries,
+              weekRef
+            )
             return { weekRef, evaluationStatus: ws.evaluationStatus ?? 'no-data', actualValue: ws.actualValue }
           })
         : []
@@ -1122,7 +1132,11 @@ export async function getMonthlyReflectionDataBundle(
           const krSubject = kr.subject as import('@/domain/planning').KeyResult
           const weeklyBreakdown: KRWeeklyBreakdown[] = krSubject.cadence === 'weekly'
             ? monthWeekRefs.map((weekRef) => {
-                const ws = buildMeasurementSummary(kr.subject, planningBundle.rawEntries, weekRef)
+                const ws = buildMeasurementSummary(
+                  applyMeasurementTargetOverride(kr.subject, kr.weekTargetOverrides?.[weekRef]),
+                  planningBundle.rawEntries,
+                  weekRef
+                )
                 return { weekRef, evaluationStatus: ws.evaluationStatus ?? 'no-data', actualValue: ws.actualValue }
               })
             : []

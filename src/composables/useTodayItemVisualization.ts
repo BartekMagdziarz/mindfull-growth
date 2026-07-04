@@ -218,7 +218,9 @@ export function useTodayItemVisualization(
     const m = item.value as TodayMeasurementItem
     // `m.measurement` is scoped to the object's natural period (the same period
     // the chart shows), so the chip target is directly comparable — no suppress.
-    const chip = buildContextChipData(m.subject, m.measurement, false)
+    // Monthly-cadence subjects with a week sub-target instead show this week's
+    // verdict against the sub-target (e.g. "2/4 this week").
+    const chip = buildContextChipData(m.subject, m.weekMeasurement ?? m.measurement, false)
     // Hide the chip only when there's nothing to say — no target and no entries.
     return chip.target !== undefined || chip.entryCount > 0 ? chip : undefined
   })

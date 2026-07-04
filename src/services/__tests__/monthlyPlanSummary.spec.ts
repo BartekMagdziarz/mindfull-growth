@@ -263,6 +263,38 @@ describe('buildMonthlyPlanSummary', () => {
     expect(summary.intentions).toEqual({ total: 1, met: 0 })
   })
 
+  it('honors week sub-targets for weekly rows and ignores them for monthly rows', () => {
+    // Weekly habit with base target min 3/week; a single entry per week would miss.
+    // A sub-target of min 1 on the second week flips exactly that week to met.
+    const secondWeek = monthWeeks[1]
+    const weeklyDays = getChildPeriods(secondWeek) as DayRef[]
+    const item: MonthObjectItem = {
+      ...weeklyHabitItem('habit-sub'),
+      subject: makeHabit({ id: 'habit-sub', cadence: 'weekly' }), // target min 3
+      weekTargetOverrides: {
+        [secondWeek]: { kind: 'count', operator: 'min', value: 1 },
+      },
+    }
+    const entries = [
+      makeCompletionEntry('habit-sub', weeklyDays.find((d) => d.startsWith('2026-05')) ?? weeklyDays[0]),
+    ]
+
+    const summary = buildMonthlyPlanSummary([item], entries, monthRef, endOfMonth)
+    expect(summary.habits.total).toBe(monthWeeks.length)
+    expect(summary.habits.met).toBe(1)
+
+    // Monthly rows evaluate against item.measurement only — sub-targets never
+    // leak into the month verdict (design invariant).
+    const monthlyItem: MonthObjectItem = {
+      ...monthlyHabitItem('missed', 'habit-monthly'),
+      weekTargetOverrides: {
+        [secondWeek]: { kind: 'count', operator: 'min', value: 0 },
+      },
+    }
+    const monthlySummary = buildMonthlyPlanSummary([monthlyItem], [], monthRef, endOfMonth)
+    expect(monthlySummary.habits).toEqual({ total: 1, met: 0 })
+  })
+
   it('clips intention evaluation to todayDayRef inside the current week', () => {
     const intention = makeIntention(monthWeeks[1], { id: 'i-clip' })
     const weekDays = getChildPeriods(monthWeeks[1]) as DayRef[]

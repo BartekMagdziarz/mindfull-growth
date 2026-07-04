@@ -44,6 +44,7 @@ export function buildWeekObjectItems(reflection: WeekReflectionBundle): WeekObje
         subject: kr.subject,
         planning: kr.planning,
         measurement: kr.measurement,
+        weekMeasurement: kr.weekMeasurement,
         parentGoalId: goal?.id,
         parentGoalIcon: goal?.icon,
         parentGoalTitle: goal?.title,
@@ -60,6 +61,7 @@ export function buildWeekObjectItems(reflection: WeekReflectionBundle): WeekObje
       subject: habit.subject,
       planning: habit.planning,
       measurement: habit.measurement,
+      weekMeasurement: habit.weekMeasurement,
       sortOrder: 100_000 + i,
     })
   })
@@ -122,6 +124,7 @@ export function buildMonthObjectItems(bundle: MonthPlanningBundle): MonthObjectI
         planning: kr.planning,
         measurement:
           kr.measurement ?? buildMeasurementSummary(kr.subject, bundle.rawEntries, bundle.monthRef),
+        weekTargetOverrides: kr.weekTargetOverrides,
         parentGoalId: goal?.id,
         parentGoalIcon: goal?.icon,
         parentGoalTitle: goal?.title,
@@ -139,6 +142,7 @@ export function buildMonthObjectItems(bundle: MonthPlanningBundle): MonthObjectI
       planning: habit.planning,
       measurement:
         habit.measurement ?? buildMeasurementSummary(habit.subject, bundle.rawEntries, bundle.monthRef),
+      weekTargetOverrides: habit.weekTargetOverrides,
       sortOrder: 100_000 + i,
     })
   })
