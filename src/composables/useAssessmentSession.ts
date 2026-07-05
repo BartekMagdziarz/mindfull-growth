@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import type { AssessmentComputation, AssessmentId, AssessmentItemDefinition } from '@/domain/assessments'
 import { getAssessmentDefinition } from '@/services/assessments/registry'
 import { useAssessmentStore } from '@/stores/assessment.store'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
 export type AssessmentSessionStep = 'intro' | 'consent' | 'questions' | 'review' | 'results'
@@ -196,6 +197,11 @@ export function useAssessmentSession(assessmentId: AssessmentId) {
         centeredScoringEnabled: centeredResultsEnabled.value,
       },
     )
+
+    // Assessment ids double as catalog slugs in the unified completion log.
+    void useExerciseCompletionsStore()
+      .record(assessmentId, attempt.id)
+      .catch((err) => console.error('Failed to record exercise completion:', err))
 
     currentAttemptId.value = attempt.id
     resultComputation.value = computation

@@ -6,6 +6,7 @@ import type {
   UpdateIFSDailyCheckInPayload,
 } from '@/domain/exercises'
 import { ifsDailyCheckInDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { filterItemsByPeriod, getPeriodRefsForDate } from '@/utils/periods'
 
 export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
@@ -55,6 +56,9 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
     error.value = null
     try {
       const checkIn = await ifsDailyCheckInDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('daily-ifs-checkin', checkIn.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       checkIns.value.push(checkIn)
       return checkIn
     } catch (err) {

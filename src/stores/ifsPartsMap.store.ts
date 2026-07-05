@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { IFSPartsMap, CreateIFSPartsMapPayload, UpdateIFSPartsMapPayload } from '@/domain/exercises'
 import { ifsPartsMapDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSPartsMapStore = defineStore('ifsPartsMap', () => {
   const maps = ref<IFSPartsMap[]>([])
@@ -39,6 +40,9 @@ export const useIFSPartsMapStore = defineStore('ifsPartsMap', () => {
     error.value = null
     try {
       const map = await ifsPartsMapDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('parts-mapping', map.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       maps.value.push(map)
       return map
     } catch (err) {

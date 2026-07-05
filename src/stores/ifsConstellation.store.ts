@@ -6,6 +6,7 @@ import type {
   UpdateIFSConstellationPayload,
 } from '@/domain/exercises'
 import { ifsConstellationDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
   const constellations = ref<IFSConstellation[]>([])
@@ -43,6 +44,9 @@ export const useIFSConstellationStore = defineStore('ifsConstellation', () => {
     error.value = null
     try {
       const constellation = await ifsConstellationDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('constellation', constellation.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       constellations.value.push(constellation)
       return constellation
     } catch (err) {

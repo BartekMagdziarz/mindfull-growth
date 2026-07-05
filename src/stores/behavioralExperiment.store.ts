@@ -13,6 +13,7 @@ import type {
   UpdateBehavioralExperimentPayload,
 } from '@/domain/exercises'
 import { behavioralExperimentDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useBehavioralExperimentStore = defineStore('behavioralExperiment', () => {
   const experiments = ref<BehavioralExperiment[]>([])
@@ -58,6 +59,9 @@ export const useBehavioralExperimentStore = defineStore('behavioralExperiment', 
     error.value = null
     try {
       const experiment = await behavioralExperimentDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('behavioral-experiment', experiment.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       experiments.value.push(experiment)
       return experiment
     } catch (err) {

@@ -13,6 +13,7 @@ import type {
   UpdatePositiveDataLogPayload,
 } from '@/domain/exercises'
 import { positiveDataLogDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const usePositiveDataLogStore = defineStore('positiveDataLog', () => {
   const logs = ref<PositiveDataLog[]>([])
@@ -54,6 +55,9 @@ export const usePositiveDataLogStore = defineStore('positiveDataLog', () => {
     error.value = null
     try {
       const log = await positiveDataLogDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('positive-data-log', log.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       logs.value.push(log)
       return log
     } catch (err) {
@@ -69,7 +73,15 @@ export const usePositiveDataLogStore = defineStore('positiveDataLog', () => {
   ): Promise<PositiveDataLog> {
     error.value = null
     try {
+      const previousEntryCount = logs.value.find((l) => l.id === id)?.entries.length ?? 0
       const updated = await positiveDataLogDexieRepository.update(id, data)
+      // Adding an entry to an ongoing log IS the exercise ("add one piece of
+      // evidence") — edits/removals are not completions.
+      if (updated.entries.length > previousEntryCount) {
+        void useExerciseCompletionsStore()
+          .record('positive-data-log', updated.id)
+          .catch((err) => console.error('Failed to record exercise completion:', err))
+      }
       const index = logs.value.findIndex((l) => l.id === id)
       if (index !== -1) {
         logs.value[index] = updated

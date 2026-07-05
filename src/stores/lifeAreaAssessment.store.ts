@@ -6,6 +6,7 @@ import type {
   UpdateLifeAreaAssessmentPayload,
 } from '@/domain/lifeAreaAssessment'
 import { lifeAreaAssessmentDexieRepository } from '@/repositories/lifeAreaAssessmentDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import {
   filterLifeAreaAssessmentsByDateRange,
   filterLifeAreaAssessmentsByScope,
@@ -78,6 +79,13 @@ export const useLifeAreaAssessmentStore = defineStore('lifeAreaAssessment', () =
 
     try {
       const created = await lifeAreaAssessmentDexieRepository.create(data)
+      // Only full assessments are the Wheel of Life exercise — the table is
+      // shared with per-life-area partial assessments.
+      if (created.scope === 'full') {
+        void useExerciseCompletionsStore()
+          .record('wheel-of-life', created.id)
+          .catch((err) => console.error('Failed to record exercise completion:', err))
+      }
       assessments.value = sortLifeAreaAssessmentsByCreatedAt([...assessments.value, created])
       return created
     } catch (err) {

@@ -12,6 +12,7 @@ import type {
   UpdateThreePathwaysPayload,
 } from '@/domain/exercises'
 import { threePathwaysDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useThreePathwaysStore = defineStore('threePathways', () => {
   const explorations = ref<ThreePathwaysToMeaning[]>([])
@@ -49,6 +50,9 @@ export const useThreePathwaysStore = defineStore('threePathways', () => {
     error.value = null
     try {
       const item = await threePathwaysDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('three-pathways', item.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       explorations.value.push(item)
       return item
     } catch (err) {

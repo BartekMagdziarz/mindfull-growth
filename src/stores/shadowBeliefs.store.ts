@@ -12,6 +12,7 @@ import type {
   UpdateShadowBeliefsPayload,
 } from '@/domain/exercises'
 import { shadowBeliefsDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useShadowBeliefsStore = defineStore('shadowBeliefs', () => {
   const beliefsList = ref<ShadowBeliefs[]>([])
@@ -49,6 +50,9 @@ export const useShadowBeliefsStore = defineStore('shadowBeliefs', () => {
     error.value = null
     try {
       const beliefs = await shadowBeliefsDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('shadow-beliefs', beliefs.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       beliefsList.value.push(beliefs)
       return beliefs
     } catch (err) {

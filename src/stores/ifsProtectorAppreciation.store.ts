@@ -6,6 +6,7 @@ import type {
   UpdateIFSProtectorAppreciationPayload,
 } from '@/domain/exercises'
 import { ifsProtectorAppreciationDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSProtectorAppreciationStore = defineStore('ifsProtectorAppreciation', () => {
   const appreciations = ref<IFSProtectorAppreciation[]>([])
@@ -45,6 +46,9 @@ export const useIFSProtectorAppreciationStore = defineStore('ifsProtectorAppreci
     error.value = null
     try {
       const appreciation = await ifsProtectorAppreciationDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('protector-appreciation', appreciation.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       appreciations.value.push(appreciation)
       return appreciation
     } catch (err) {

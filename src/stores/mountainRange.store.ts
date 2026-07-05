@@ -12,6 +12,7 @@ import type {
   UpdateMountainRangePayload,
 } from '@/domain/exercises'
 import { mountainRangeDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useMountainRangeStore = defineStore('mountainRange', () => {
   const explorations = ref<MountainRangeOfMeaning[]>([])
@@ -49,6 +50,9 @@ export const useMountainRangeStore = defineStore('mountainRange', () => {
     error.value = null
     try {
       const item = await mountainRangeDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('mountain-range', item.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       explorations.value.push(item)
       return item
     } catch (err) {

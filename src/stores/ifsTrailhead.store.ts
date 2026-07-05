@@ -6,6 +6,7 @@ import type {
   UpdateIFSTrailheadPayload,
 } from '@/domain/exercises'
 import { ifsTrailheadDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSTrailheadStore = defineStore('ifsTrailhead', () => {
   const entries = ref<IFSTrailheadEntry[]>([])
@@ -47,6 +48,9 @@ export const useIFSTrailheadStore = defineStore('ifsTrailhead', () => {
     error.value = null
     try {
       const entry = await ifsTrailheadDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('trailhead', entry.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       entries.value.push(entry)
       return entry
     } catch (err) {

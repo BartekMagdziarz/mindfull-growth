@@ -6,6 +6,7 @@ import type {
   UpdateIFSPartsDialoguePayload,
 } from '@/domain/exercises'
 import { ifsPartsDialogueDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSPartsDialogueStore = defineStore('ifsPartsDialogue', () => {
   const dialogues = ref<IFSPartsDialogue[]>([])
@@ -43,6 +44,9 @@ export const useIFSPartsDialogueStore = defineStore('ifsPartsDialogue', () => {
     error.value = null
     try {
       const dialogue = await ifsPartsDialogueDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('parts-dialogue', dialogue.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       dialogues.value.push(dialogue)
       return dialogue
     } catch (err) {

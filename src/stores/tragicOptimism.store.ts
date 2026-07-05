@@ -13,6 +13,7 @@ import type {
   UpdateTragicOptimismPayload,
 } from '@/domain/exercises'
 import { tragicOptimismDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useTragicOptimismStore = defineStore('tragicOptimism', () => {
   const entries = ref<TragicOptimism[]>([])
@@ -50,6 +51,9 @@ export const useTragicOptimismStore = defineStore('tragicOptimism', () => {
     error.value = null
     try {
       const entry = await tragicOptimismDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('tragic-optimism', entry.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       entries.value.push(entry)
       return entry
     } catch (err) {

@@ -13,6 +13,7 @@ import type {
   UpdateDereflectionPayload,
 } from '@/domain/exercises'
 import { dereflectionDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useDereflectionStore = defineStore('dereflection', () => {
   const practices = ref<DereflectionPractice[]>([])
@@ -50,6 +51,9 @@ export const useDereflectionStore = defineStore('dereflection', () => {
     error.value = null
     try {
       const practice = await dereflectionDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('dereflection', practice.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       practices.value.push(practice)
       return practice
     } catch (err) {

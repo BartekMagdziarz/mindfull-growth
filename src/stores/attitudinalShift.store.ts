@@ -13,6 +13,7 @@ import type {
   UpdateAttitudinalShiftPayload,
 } from '@/domain/exercises'
 import { attitudinalShiftDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useAttitudinalShiftStore = defineStore('attitudinalShift', () => {
   const shifts = ref<AttitudinalShift[]>([])
@@ -50,6 +51,9 @@ export const useAttitudinalShiftStore = defineStore('attitudinalShift', () => {
     error.value = null
     try {
       const shift = await attitudinalShiftDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('attitudinal-shift', shift.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       shifts.value.push(shift)
       return shift
     } catch (err) {

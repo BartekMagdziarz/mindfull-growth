@@ -6,6 +6,7 @@ import type {
   UpdateIFSUnblendingPayload,
 } from '@/domain/exercises'
 import { ifsUnblendingDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSUnblendingStore = defineStore('ifsUnblending', () => {
   const sessions = ref<IFSUnblendingSession[]>([])
@@ -43,6 +44,9 @@ export const useIFSUnblendingStore = defineStore('ifsUnblending', () => {
     error.value = null
     try {
       const session = await ifsUnblendingDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('unblending', session.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       sessions.value.push(session)
       return session
     } catch (err) {

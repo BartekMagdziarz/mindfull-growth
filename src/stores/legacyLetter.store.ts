@@ -13,6 +13,7 @@ import type {
   UpdateLegacyLetterPayload,
 } from '@/domain/exercises'
 import { legacyLetterDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useLegacyLetterStore = defineStore('legacyLetter', () => {
   const letters = ref<LegacyLetter[]>([])
@@ -50,6 +51,9 @@ export const useLegacyLetterStore = defineStore('legacyLetter', () => {
     error.value = null
     try {
       const letter = await legacyLetterDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('legacy-letter', letter.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       letters.value.push(letter)
       return letter
     } catch (err) {

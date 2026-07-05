@@ -12,6 +12,7 @@ import type {
   UpdateSocraticDialoguePayload,
 } from '@/domain/exercises'
 import { socraticDialogueDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useSocraticDialogueStore = defineStore('socraticDialogue', () => {
   const dialogues = ref<SocraticSelfDialogue[]>([])
@@ -49,6 +50,9 @@ export const useSocraticDialogueStore = defineStore('socraticDialogue', () => {
     error.value = null
     try {
       const item = await socraticDialogueDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('socratic-dialogue', item.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       dialogues.value.push(item)
       return item
     } catch (err) {

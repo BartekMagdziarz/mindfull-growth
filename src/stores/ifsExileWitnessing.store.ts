@@ -6,6 +6,7 @@ import type {
   UpdateIFSExileWitnessingPayload,
 } from '@/domain/exercises'
 import { ifsExileWitnessingDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSExileWitnessingStore = defineStore('ifsExileWitnessing', () => {
   const witnessings = ref<IFSExileWitnessing[]>([])
@@ -43,6 +44,9 @@ export const useIFSExileWitnessingStore = defineStore('ifsExileWitnessing', () =
     error.value = null
     try {
       const witnessing = await ifsExileWitnessingDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('exile-witnessing', witnessing.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       witnessings.value.push(witnessing)
       return witnessing
     } catch (err) {

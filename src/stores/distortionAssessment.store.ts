@@ -13,6 +13,7 @@ import type {
   UpdateDistortionAssessmentPayload,
 } from '@/domain/exercises'
 import { distortionAssessmentDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useDistortionAssessmentStore = defineStore('distortionAssessment', () => {
   const assessments = ref<DistortionAssessment[]>([])
@@ -52,6 +53,9 @@ export const useDistortionAssessmentStore = defineStore('distortionAssessment', 
     error.value = null
     try {
       const assessment = await distortionAssessmentDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('cognitive-distortions', assessment.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       assessments.value.push(assessment)
       return assessment
     } catch (err) {

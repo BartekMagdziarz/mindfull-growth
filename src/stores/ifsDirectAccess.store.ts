@@ -6,6 +6,7 @@ import type {
   UpdateIFSDirectAccessPayload,
 } from '@/domain/exercises'
 import { ifsDirectAccessDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useIFSDirectAccessStore = defineStore('ifsDirectAccess', () => {
   const sessions = ref<IFSDirectAccessSession[]>([])
@@ -43,6 +44,9 @@ export const useIFSDirectAccessStore = defineStore('ifsDirectAccess', () => {
     error.value = null
     try {
       const session = await ifsDirectAccessDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('direct-access', session.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       sessions.value.push(session)
       return session
     } catch (err) {

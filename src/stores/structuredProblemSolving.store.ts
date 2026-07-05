@@ -14,6 +14,7 @@ import type {
   UpdateStructuredProblemSolvingPayload,
 } from '@/domain/exercises'
 import { structuredProblemSolvingDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useStructuredProblemSolvingStore = defineStore('structuredProblemSolving', () => {
   const sessions = ref<StructuredProblemSolving[]>([])
@@ -59,6 +60,9 @@ export const useStructuredProblemSolvingStore = defineStore('structuredProblemSo
     error.value = null
     try {
       const session = await structuredProblemSolvingDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('structured-problem-solving', session.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       sessions.value.push(session)
       return session
     } catch (err) {

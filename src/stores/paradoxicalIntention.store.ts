@@ -12,6 +12,7 @@ import type {
   UpdateParadoxicalIntentionPayload,
 } from '@/domain/exercises'
 import { paradoxicalIntentionDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useParadoxicalIntentionStore = defineStore('paradoxicalIntention', () => {
   const labs = ref<ParadoxicalIntentionLab[]>([])
@@ -49,6 +50,9 @@ export const useParadoxicalIntentionStore = defineStore('paradoxicalIntention', 
     error.value = null
     try {
       const item = await paradoxicalIntentionDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('paradoxical-intention', item.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       labs.value.push(item)
       return item
     } catch (err) {

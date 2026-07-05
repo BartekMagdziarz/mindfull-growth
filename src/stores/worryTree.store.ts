@@ -13,6 +13,7 @@ import type {
   UpdateWorryTreeEntryPayload,
 } from '@/domain/exercises'
 import { worryTreeEntryDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useWorryTreeStore = defineStore('worryTree', () => {
   const entries = ref<WorryTreeEntry[]>([])
@@ -50,6 +51,9 @@ export const useWorryTreeStore = defineStore('worryTree', () => {
     error.value = null
     try {
       const entry = await worryTreeEntryDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('worry-tree', entry.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       entries.value.push(entry)
       return entry
     } catch (err) {

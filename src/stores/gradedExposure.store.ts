@@ -13,6 +13,7 @@ import type {
   UpdateGradedExposureHierarchyPayload,
 } from '@/domain/exercises'
 import { gradedExposureHierarchyDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useGradedExposureStore = defineStore('gradedExposure', () => {
   const hierarchies = ref<GradedExposureHierarchy[]>([])
@@ -50,6 +51,9 @@ export const useGradedExposureStore = defineStore('gradedExposure', () => {
     error.value = null
     try {
       const hierarchy = await gradedExposureHierarchyDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('graded-exposure', hierarchy.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       hierarchies.value.push(hierarchy)
       return hierarchy
     } catch (err) {

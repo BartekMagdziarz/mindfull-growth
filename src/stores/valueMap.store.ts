@@ -6,6 +6,7 @@ import type {
   ValueMap,
 } from '@/domain/exercises'
 import { valueMapDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useValueMapStore = defineStore('valueMap', () => {
   const maps = ref<ValueMap[]>([])
@@ -40,6 +41,9 @@ export const useValueMapStore = defineStore('valueMap', () => {
     try {
       validateValueMapPayload(data)
       const map = await valueMapDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('value-map', map.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       maps.value.push(map)
       return map
     } catch (err) {

@@ -13,6 +13,7 @@ import type {
   UpdateCompassionateLetterPayload,
 } from '@/domain/exercises'
 import { compassionateLetterDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useCompassionateLetterStore = defineStore('compassionateLetter', () => {
   const letters = ref<CompassionateLetter[]>([])
@@ -50,6 +51,9 @@ export const useCompassionateLetterStore = defineStore('compassionateLetter', ()
     error.value = null
     try {
       const letter = await compassionateLetterDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('compassionate-letter', letter.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       letters.value.push(letter)
       return letter
     } catch (err) {

@@ -13,6 +13,7 @@ import type {
   UpdateThoughtRecordPayload,
 } from '@/domain/exercises'
 import { thoughtRecordDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
   const records = ref<ThoughtRecord[]>([])
@@ -50,6 +51,9 @@ export const useThoughtRecordStore = defineStore('thoughtRecord', () => {
     error.value = null
     try {
       const record = await thoughtRecordDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('thought-record', record.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       records.value.push(record)
       return record
     } catch (err) {

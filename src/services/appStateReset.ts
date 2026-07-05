@@ -39,7 +39,7 @@ import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 // --- localStorage cleanup ---------------------------------------------------
 import { clearChartScalePreferences } from '@/composables/useChartScale'
 
-// --- Pinia stores (45 — auth.store excluded by design) ----------------------
+// --- Pinia stores (46 — auth.store excluded by design) ----------------------
 import { useAssessmentStore } from '@/stores/assessment.store'
 import { useAttitudinalShiftStore } from '@/stores/attitudinalShift.store'
 import { useBehavioralActivationStore } from '@/stores/behavioralActivation.store'
@@ -51,6 +51,7 @@ import { useDereflectionStore } from '@/stores/dereflection.store'
 import { useDistortionAssessmentStore } from '@/stores/distortionAssessment.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { useGradedExposureStore } from '@/stores/gradedExposure.store'
 import { useIFSConstellationStore } from '@/stores/ifsConstellation.store'
 import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
@@ -118,6 +119,7 @@ export function resetAppState(): void {
   useDistortionAssessmentStore().reset()
   useEmotionStore().reset()
   useEmotionLogStore().reset()
+  useExerciseCompletionsStore().reset()
   useGradedExposureStore().reset()
   useIFSConstellationStore().reset()
   useIFSDailyCheckInStore().reset()

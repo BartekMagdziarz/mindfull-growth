@@ -13,6 +13,7 @@ import type {
   UpdateCoreBeliefsExplorationPayload,
 } from '@/domain/exercises'
 import { coreBeliefsExplorationDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useCoreBeliefsStore = defineStore('coreBeliefs', () => {
   const explorations = ref<CoreBeliefsExploration[]>([])
@@ -50,6 +51,9 @@ export const useCoreBeliefsStore = defineStore('coreBeliefs', () => {
     error.value = null
     try {
       const exploration = await coreBeliefsExplorationDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('core-beliefs', exploration.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       explorations.value.push(exploration)
       return exploration
     } catch (err) {

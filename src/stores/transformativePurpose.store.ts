@@ -12,6 +12,7 @@ import type {
   UpdateTransformativePurposePayload,
 } from '@/domain/exercises'
 import { transformativePurposeDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useTransformativePurposeStore = defineStore('transformativePurpose', () => {
   const purposes = ref<TransformativePurpose[]>([])
@@ -52,6 +53,9 @@ export const useTransformativePurposeStore = defineStore('transformativePurpose'
     error.value = null
     try {
       const purpose = await transformativePurposeDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('purpose', purpose.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       purposes.value.push(purpose)
       return purpose
     } catch (err) {

@@ -7,6 +7,7 @@ import type {
   SelfEnergyQuality,
 } from '@/domain/exercises'
 import { ifsSelfEnergyDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 const ALL_QUALITIES: SelfEnergyQuality[] = [
   'calm', 'curiosity', 'compassion', 'clarity',
@@ -77,6 +78,9 @@ export const useIFSSelfEnergyStore = defineStore('ifsSelfEnergy', () => {
     error.value = null
     try {
       const checkIn = await ifsSelfEnergyDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('self-energy', checkIn.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       checkIns.value.push(checkIn)
       return checkIn
     } catch (err) {

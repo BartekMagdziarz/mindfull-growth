@@ -12,6 +12,7 @@ import type {
   UpdateValuesDiscoveryPayload,
 } from '@/domain/exercises'
 import { valuesDiscoveryDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useValuesDiscoveryStore = defineStore('valuesDiscovery', () => {
   const discoveries = ref<ValuesDiscovery[]>([])
@@ -49,6 +50,9 @@ export const useValuesDiscoveryStore = defineStore('valuesDiscovery', () => {
     error.value = null
     try {
       const discovery = await valuesDiscoveryDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('values', discovery.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       discoveries.value.push(discovery)
       return discovery
     } catch (err) {

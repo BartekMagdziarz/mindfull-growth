@@ -13,6 +13,7 @@ import type {
   UpdateBehavioralActivationPayload,
 } from '@/domain/exercises'
 import { behavioralActivationDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 
 export const useBehavioralActivationStore = defineStore('behavioralActivation', () => {
   const activations = ref<BehavioralActivation[]>([])
@@ -50,6 +51,9 @@ export const useBehavioralActivationStore = defineStore('behavioralActivation', 
     error.value = null
     try {
       const activation = await behavioralActivationDexieRepository.create(data)
+      void useExerciseCompletionsStore()
+        .record('behavioral-activation', activation.id)
+        .catch((err) => console.error('Failed to record exercise completion:', err))
       activations.value.push(activation)
       return activation
     } catch (err) {
