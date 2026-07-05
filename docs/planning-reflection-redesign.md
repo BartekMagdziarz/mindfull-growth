@@ -543,3 +543,69 @@ data+cascade → month planner UI → weekly flow repoint → consumers.
 - Fixed en passant: `linkMeasurementPeriod` / weekly `toggleMeasurementDayAssignment` upserted
   month states with an explicit `targetOverride: undefined` key, silently wiping the month
   calibration on every week/day toggle. Both now preserve existing scope + override.
+
+## 14. Assignment matrix — unified week/month assignment steps (resolved 2026-07-05)
+
+Both wizard assignment steps (weekly "Rozłóż na dni", monthly "Przypisz obiekty do
+tygodni") now share one visual + interaction system: `AssignmentMatrix.vue` —
+rows = objects in sectioned lists (Cele/Nawyki/Trackery with counts, flat KRs with
+goal-inherited icons), columns = period slots (7 days / month weeks), trailing
+column = always-visible target pill, row actions = whole-period / clear / detail
+strip. Cells toggle placements directly; the select-an-object-then-paint mode, its
+active-object toolbar, the sidebar+week-rows split and the tabs are all gone
+(`PlannerSidebar`, `PlannerObjectCard`, `PlannerMonthWeeksGrid`, `DayCellIcons`
+retired).
+
+### 14.1 Active ⇔ placed
+
+- **Invariant:** a measurement participates in a period iff it has a placement
+  there ('whole-month'/'whole-week' scopes count as placements). The explicit
+  "Aktywny" toggle is gone — placing activates (as before), and removing the last
+  explicit placement of a monthly-cadence object deletes its 'unassigned' month
+  state (`cleanupMonthlyMonthState`, mirroring the weekly-cadence cleanup).
+- **Overrides die with the row:** clearing a row removes its month override and
+  sub-targets (consistent with §13's "sub-target dies with the week"). Target
+  pills are disabled on unplaced rows — writing an override there would resurrect
+  an active-unassigned state.
+- **Grandfathering:** residual active-but-unassigned states (old data; also still
+  produced by the goal-creation wizard's activateMeasurementInMonth and Objects
+  Library links) render as soft whole-month coverage — honest, since downstream
+  (Today sections, month bundle membership) they behave exactly like whole-month.
+  First cell edit normalizes them into explicit placements.
+
+### 14.2 Materialization
+
+Editing a single cell of softly-covered rows must not collapse the remaining
+coverage (the old day-toggle on a whole-week row left only the clicked day). Two
+mutations set the full placement set explicitly:
+
+- `materializeMeasurementWeekPlacements` — whole-month row → explicit whole-week
+  states on all weeks minus the clicked one; month scope drops to 'unassigned';
+  kept weeks preserve sub-targets.
+- `materializeMeasurementDayAssignments` — whole-week row → 'specific-days' +
+  day assignments on all days minus the clicked one; empty set clears the week
+  placement (and cascades the active ⇔ placed cleanup). Monthly cadence keys week
+  states by each day's month (same attribution as toggleMeasurementDayAssignment).
+
+In the week matrix, a whole-month row materializes in two steps (month → explicit
+weeks, this week → explicit days).
+
+### 14.3 Step-scoped target editing
+
+- **Week step:** per-row "Cel na ten tydzień" pill (week override, §13 attribution
+  to the parent month), editable once placed in the week.
+- **Month step:** per-row month-target pill; the expandable strip holds full
+  calibration (operator/aggregation via `PlannerTargetControls`) and — for
+  summable monthly-cadence targets — per-week sub-targets with "Rozłóż
+  równomiernie" and a now permanently visible soft sum.
+- Weekly-cadence per-week overrides are **no longer editable from the month
+  planner** (they were pills on placed week rows) — the week is where weekly
+  commitments are calibrated; the month step keeps to week placement, month
+  targets and rozpisanie.
+
+### 14.4 Progressive disclosure (week step)
+
+Main sections list the month portfolio (objects placed/active in an overlapping
+month) plus anything already placed this week; remaining open weekly-cadence
+objects collapse into "Pozostałe obiekty (N)" at the bottom — the step still
+supports pulling extras into the week without drowning the main flow.
