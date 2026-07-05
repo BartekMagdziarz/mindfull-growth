@@ -129,6 +129,34 @@
     "ifs": "IFS",
     "micro": "Quick exercises"
   },
+  "repeatPrompt": {
+    "title": "Plan a repeat?",
+    "plannedFor": "Repeat planned for {date}",
+    "suggested": "Suggested interval",
+    "undo": "Undo",
+    "chips": {
+      "tomorrow": "tomorrow",
+      "inDays": {
+        "one": "in {n} day",
+        "few": "in {n} days",
+        "many": "in {n} days"
+      },
+      "in3Days": "in 3 days",
+      "inWeek": "in a week",
+      "in2Weeks": "in 2 weeks",
+      "inMonth": "in a month",
+      "customDate": "custom date"
+    }
+  },
+  "savedPanel": {
+    "title": "Saved!",
+    "description": {
+      "m": "You've completed the exercise. Well done.",
+      "f": "You've completed the exercise. Well done."
+    },
+    "doAgain": "Do it again",
+    "backToExercises": "Back to exercises"
+  },
   "cards": {
     "valuesDiscovery": {
       "title": "Values Discovery",

@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <WorryTreeWizard @saved="handleSaved" />
+    <WorryTreeWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="worry-tree" @again="saved = false" />
 
     <!-- Past entries section -->
     <div v-if="worryTreeStore.sortedEntries.length > 0" class="mt-8">
@@ -44,6 +45,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import WorryTreeWizard from '@/components/exercises/WorryTreeWizard.vue'
 import { useWorryTreeStore } from '@/stores/worryTree.store'
 import type { CreateWorryTreeEntryPayload } from '@/domain/exercises'

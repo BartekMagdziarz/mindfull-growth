@@ -3156,10 +3156,6 @@
   "micro": {
     "shared": {
       "intensityLabel": "Intensywność ({value}/100)",
-      "savedTitle": "Zapisane!",
-      "savedDescription": "Ćwiczenie ukończone. Dobra robota.",
-      "doAgain": "Jeszcze raz",
-      "backToExercises": "Wróć do ćwiczeń",
       "breath": {
         "start": "Zacznij",
         "ready": {

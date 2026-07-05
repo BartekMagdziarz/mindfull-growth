@@ -129,6 +129,34 @@
     "ifs": "IFS",
     "micro": "Szybkie ćwiczenia"
   },
+  "repeatPrompt": {
+    "title": "Zaplanować powtórkę?",
+    "plannedFor": "Powtórka zaplanowana na {date}",
+    "suggested": "Sugerowany odstęp",
+    "undo": "Cofnij",
+    "chips": {
+      "tomorrow": "jutro",
+      "inDays": {
+        "one": "za {n} dzień",
+        "few": "za {n} dni",
+        "many": "za {n} dni"
+      },
+      "in3Days": "za 3 dni",
+      "inWeek": "za tydzień",
+      "in2Weeks": "za 2 tygodnie",
+      "inMonth": "za miesiąc",
+      "customDate": "własna data"
+    }
+  },
+  "savedPanel": {
+    "title": "Zapisane!",
+    "description": {
+      "m": "Ukończyłeś ćwiczenie. Dobra robota.",
+      "f": "Ukończyłaś ćwiczenie. Dobra robota."
+    },
+    "doAgain": "Jeszcze raz",
+    "backToExercises": "Wróć do ćwiczeń"
+  },
   "cards": {
     "valuesDiscovery": {
       "title": "Odkrywanie wartości",

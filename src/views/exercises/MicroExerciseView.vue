@@ -24,23 +24,7 @@
       @saved="handleSaved"
     />
 
-    <AppCard v-else padding="lg" class="space-y-4 text-center">
-      <AppIcon name="check_circle" class="text-4xl text-primary" />
-      <h2 class="text-lg font-semibold text-on-surface">
-        {{ t('exerciseWizards.micro.shared.savedTitle') }}
-      </h2>
-      <p class="text-sm text-on-surface-variant">
-        {{ tg('exerciseWizards.micro.shared.savedDescription') }}
-      </p>
-      <div class="flex justify-center gap-3">
-        <AppButton variant="text" @click="saved = false">
-          {{ t('exerciseWizards.micro.shared.doAgain') }}
-        </AppButton>
-        <AppButton variant="filled" @click="router.push('/exercises')">
-          {{ t('exerciseWizards.micro.shared.backToExercises') }}
-        </AppButton>
-      </div>
-    </AppCard>
+    <ExerciseSavedPanel v-else :exercise-slug="slug" @again="saved = false" />
 
     <!-- Past entries section -->
     <div v-if="pastEntries.length > 0" class="mt-8">
@@ -64,9 +48,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import MicroExerciseRunner from '@/components/exercises/MicroExerciseRunner.vue'
 import { useT } from '@/composables/useT'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
@@ -76,7 +60,7 @@ import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 
 const route = useRoute()
 const router = useRouter()
-const { t, tg } = useT()
+const { t } = useT()
 const entryStore = useMicroExerciseEntryStore()
 
 const slug = computed(() => String(route.params.slug ?? ''))
