@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <StructuredProblemSolvingWizard @saved="handleSaved" />
+    <StructuredProblemSolvingWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="structured-problem-solving" @again="saved = false" />
 
     <!-- Past sessions section -->
     <div v-if="spsStore.sortedSessions.length > 0" class="mt-8">
@@ -46,10 +47,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import StructuredProblemSolvingWizard from '@/components/exercises/StructuredProblemSolvingWizard.vue'
 import { useStructuredProblemSolvingStore } from '@/stores/structuredProblemSolving.store'
 import type { CreateStructuredProblemSolvingPayload } from '@/domain/exercises'
@@ -58,6 +60,7 @@ import { useT } from '@/composables/useT'
 const router = useRouter()
 const { t } = useT()
 const spsStore = useStructuredProblemSolvingStore()
+const saved = ref(false)
 
 onMounted(() => {
   spsStore.loadSessions()
@@ -65,6 +68,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateStructuredProblemSolvingPayload) {
   await spsStore.createSession(data)
+  saved.value = true
   await spsStore.loadSessions()
 }
 

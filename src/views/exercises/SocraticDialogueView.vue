@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <SocraticDialogueWizard @saved="handleSaved" />
+    <SocraticDialogueWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="socratic-dialogue" @again="saved = false" />
 
     <!-- Past dialogues -->
     <div v-if="socraticStore.sortedDialogues.length > 0" class="mt-8">
@@ -49,10 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import SocraticDialogueWizard from '@/components/exercises/SocraticDialogueWizard.vue'
 import { useSocraticDialogueStore } from '@/stores/socraticDialogue.store'
 import { useT } from '@/composables/useT'
@@ -61,6 +63,7 @@ import type { CreateSocraticDialoguePayload, SocraticFocus } from '@/domain/exer
 const router = useRouter()
 const { t } = useT()
 const socraticStore = useSocraticDialogueStore()
+const saved = ref(false)
 
 onMounted(() => {
   socraticStore.loadDialogues()
@@ -68,6 +71,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateSocraticDialoguePayload) {
   await socraticStore.createDialogue(data)
+  saved.value = true
   await socraticStore.loadDialogues()
 }
 

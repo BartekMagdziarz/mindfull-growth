@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <DereflectionWizard @saved="handleSaved" />
+    <DereflectionWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="dereflection" @again="saved = false" />
 
     <!-- Past practices -->
     <div v-if="dereflectionStore.sortedPractices.length > 0" class="mt-8">
@@ -42,10 +43,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import DereflectionWizard from '@/components/exercises/DereflectionWizard.vue'
 import { useDereflectionStore } from '@/stores/dereflection.store'
 import { useT } from '@/composables/useT'
@@ -54,6 +56,7 @@ import type { CreateDereflectionPayload } from '@/domain/exercises'
 const router = useRouter()
 const { t } = useT()
 const dereflectionStore = useDereflectionStore()
+const saved = ref(false)
 
 onMounted(() => {
   dereflectionStore.loadPractices()
@@ -61,6 +64,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateDereflectionPayload) {
   await dereflectionStore.createPractice(data)
+  saved.value = true
   await dereflectionStore.loadPractices()
 }
 

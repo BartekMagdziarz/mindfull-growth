@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <CompassionateLetterWizard @saved="handleSaved" />
+    <CompassionateLetterWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="compassionate-letter" @again="saved = false" />
 
     <!-- Past letters section -->
     <div v-if="compassionateLetterStore.sortedLetters.length > 0" class="mt-8">
@@ -39,10 +40,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import CompassionateLetterWizard from '@/components/exercises/CompassionateLetterWizard.vue'
 import { useCompassionateLetterStore } from '@/stores/compassionateLetter.store'
 import type { CreateCompassionateLetterPayload } from '@/domain/exercises'
@@ -51,6 +53,7 @@ import { useT } from '@/composables/useT'
 const router = useRouter()
 const { t } = useT()
 const compassionateLetterStore = useCompassionateLetterStore()
+const saved = ref(false)
 
 onMounted(() => {
   compassionateLetterStore.loadLetters()
@@ -58,6 +61,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateCompassionateLetterPayload) {
   await compassionateLetterStore.createLetter(data)
+  saved.value = true
   // Reload letters so the new one shows up in the past letters list
   await compassionateLetterStore.loadLetters()
 }

@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <ProtectorAppreciationWizard @saved="handleSaved" />
+    <ProtectorAppreciationWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="protector-appreciation" @again="saved = false" />
 
     <!-- Past Appreciations -->
     <div class="mt-10 space-y-4">
@@ -79,10 +80,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import ProtectorAppreciationWizard from '@/components/exercises/ProtectorAppreciationWizard.vue'
 import { useIFSProtectorAppreciationStore } from '@/stores/ifsProtectorAppreciation.store'
@@ -93,6 +95,7 @@ const router = useRouter()
 const { t } = useT()
 const appreciationStore = useIFSProtectorAppreciationStore()
 const partStore = useIFSPartStore()
+const saved = ref(false)
 
 onMounted(() => {
   appreciationStore.loadAppreciations()
@@ -102,6 +105,7 @@ onMounted(() => {
 const sortedAppreciations = computed(() => appreciationStore.sortedAppreciations)
 
 function handleSaved() {
+  saved.value = true
   appreciationStore.loadAppreciations()
 }
 

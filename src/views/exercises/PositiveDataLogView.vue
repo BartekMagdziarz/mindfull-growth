@@ -102,17 +102,23 @@
         @entry-removed="handleEntryRemoved"
         @updated="handleUpdated"
       />
+
+      <!-- Adding an entry records a completion — offer the next repeat here. -->
+      <AppCard v-if="entryJustAdded" padding="lg" class="mt-4">
+        <RepeatPlanPrompt exercise-slug="positive-data-log" />
+      </AppCard>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PositiveDataLogWizard from '@/components/exercises/PositiveDataLogWizard.vue'
+import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
 import { usePositiveDataLogStore } from '@/stores/positiveDataLog.store'
 import type {
   CreatePositiveDataLogPayload,
@@ -126,6 +132,7 @@ const positiveDataLogStore = usePositiveDataLogStore()
 
 const selectedLogId = ref<string | null>(null)
 const showSetupWizard = ref(false)
+const entryJustAdded = ref(false)
 
 const selectedLog = computed(() => {
   if (!selectedLogId.value) return null
@@ -134,6 +141,11 @@ const selectedLog = computed(() => {
 
 onMounted(() => {
   positiveDataLogStore.loadLogs()
+})
+
+// The prompt belongs to the log it was earned in — hide it on switch.
+watch(selectedLogId, () => {
+  entryJustAdded.value = false
 })
 
 function handleBack() {
@@ -155,6 +167,7 @@ async function handleEntryAdded(entry: PositiveDataEntry) {
   if (!selectedLogId.value || !selectedLog.value) return
   const updatedEntries = [...selectedLog.value.entries, entry]
   await positiveDataLogStore.updateLog(selectedLogId.value, { entries: updatedEntries })
+  entryJustAdded.value = true
   await positiveDataLogStore.loadLogs()
 }
 

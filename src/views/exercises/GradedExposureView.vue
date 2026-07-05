@@ -10,7 +10,8 @@
       </div>
     </div>
 
-    <GradedExposureWizard @saved="handleSaved" />
+    <GradedExposureWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="graded-exposure" @again="saved = false" />
 
     <!-- Past hierarchies section -->
     <div v-if="exposureStore.sortedHierarchies.length > 0" class="mt-8">
@@ -34,10 +35,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import GradedExposureWizard from '@/components/exercises/GradedExposureWizard.vue'
 import { useGradedExposureStore } from '@/stores/gradedExposure.store'
 import type { CreateGradedExposureHierarchyPayload } from '@/domain/exercises'
@@ -46,6 +48,7 @@ import { useT } from '@/composables/useT'
 const router = useRouter()
 const { t } = useT()
 const exposureStore = useGradedExposureStore()
+const saved = ref(false)
 
 onMounted(() => {
   exposureStore.loadHierarchies()
@@ -53,6 +56,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateGradedExposureHierarchyPayload) {
   await exposureStore.createHierarchy(data)
+  saved.value = true
   await exposureStore.loadHierarchies()
 }
 

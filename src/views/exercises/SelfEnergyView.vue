@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <SelfEnergyWizard @saved="handleSaved" />
+    <SelfEnergyWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="self-energy" @again="saved = false" />
 
     <!-- Past Check-Ins -->
     <div class="mt-10 space-y-4">
@@ -85,11 +86,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { SelfEnergyQuality } from '@/domain/exercises'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import SelfEnergyWheel from '@/components/exercises/ifs/SelfEnergyWheel.vue'
 import SelfEnergyWizard from '@/components/exercises/SelfEnergyWizard.vue'
 import { useIFSSelfEnergyStore } from '@/stores/ifsSelfEnergy.store'
@@ -102,6 +104,7 @@ const { t } = useT()
 const selfEnergyStore = useIFSSelfEnergyStore()
 const partStore = useIFSPartStore()
 const trailheadStore = useIFSTrailheadStore()
+const saved = ref(false)
 
 onMounted(() => {
   selfEnergyStore.loadCheckIns()
@@ -144,6 +147,7 @@ const weakestC = computed(() => {
 })
 
 function handleSaved() {
+  saved.value = true
   selfEnergyStore.loadCheckIns()
 }
 

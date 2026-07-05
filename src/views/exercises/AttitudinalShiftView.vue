@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <AttitudinalShiftWizard @saved="handleSaved" />
+    <AttitudinalShiftWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="attitudinal-shift" @again="saved = false" />
 
     <!-- Past shifts -->
     <div v-if="attitudinalShiftStore.sortedShifts.length > 0" class="mt-8">
@@ -45,10 +46,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import AttitudinalShiftWizard from '@/components/exercises/AttitudinalShiftWizard.vue'
 import { useAttitudinalShiftStore } from '@/stores/attitudinalShift.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -61,6 +63,7 @@ const { t } = useT()
 const attitudinalShiftStore = useAttitudinalShiftStore()
 const emotionStore = useEmotionStore()
 const shadowBeliefsStore = useShadowBeliefsStore()
+const saved = ref(false)
 
 onMounted(() => {
   if (!emotionStore.isLoaded) {
@@ -72,6 +75,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateAttitudinalShiftPayload, _commitmentReframe?: string) {
   await attitudinalShiftStore.createShift(data)
+  saved.value = true
 
   await attitudinalShiftStore.loadShifts()
 }

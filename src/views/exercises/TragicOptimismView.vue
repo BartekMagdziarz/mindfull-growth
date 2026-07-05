@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <TragicOptimismWizard @saved="handleSaved" />
+    <TragicOptimismWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="tragic-optimism" @again="saved = false" />
 
     <!-- Past entries -->
     <div v-if="tragicOptimismStore.sortedEntries.length > 0" class="mt-8">
@@ -49,10 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import TragicOptimismWizard from '@/components/exercises/TragicOptimismWizard.vue'
 import { useTragicOptimismStore } from '@/stores/tragicOptimism.store'
 import { useT } from '@/composables/useT'
@@ -61,6 +63,7 @@ import type { CreateTragicOptimismPayload, TragicTriadFocus } from '@/domain/exe
 const router = useRouter()
 const { t } = useT()
 const tragicOptimismStore = useTragicOptimismStore()
+const saved = ref(false)
 
 onMounted(() => {
   tragicOptimismStore.loadEntries()
@@ -68,6 +71,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateTragicOptimismPayload) {
   await tragicOptimismStore.createEntry(data)
+  saved.value = true
   await tragicOptimismStore.loadEntries()
 }
 

@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <ThreePathwaysWizard @saved="handleSaved" />
+    <ThreePathwaysWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="three-pathways" @again="saved = false" />
 
     <!-- Past explorations -->
     <div v-if="threePathwaysStore.sortedExplorations.length > 0" class="mt-8">
@@ -43,10 +44,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import ThreePathwaysWizard from '@/components/exercises/ThreePathwaysWizard.vue'
 import { useThreePathwaysStore } from '@/stores/threePathways.store'
 import { useT } from '@/composables/useT'
@@ -55,6 +57,7 @@ import type { CreateThreePathwaysPayload } from '@/domain/exercises'
 const router = useRouter()
 const { t } = useT()
 const threePathwaysStore = useThreePathwaysStore()
+const saved = ref(false)
 
 onMounted(() => {
   threePathwaysStore.loadExplorations()
@@ -62,6 +65,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateThreePathwaysPayload) {
   await threePathwaysStore.createExploration(data)
+  saved.value = true
   await threePathwaysStore.loadExplorations()
 }
 

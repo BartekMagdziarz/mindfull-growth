@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <PartsMappingWizard @saved="handleSaved" />
+    <PartsMappingWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="parts-mapping" @again="saved = false" />
 
     <!-- Past Maps -->
     <div class="mt-10 space-y-4">
@@ -67,10 +68,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import PartsMappingWizard from '@/components/exercises/PartsMappingWizard.vue'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSPartsMapStore } from '@/stores/ifsPartsMap.store'
@@ -83,6 +85,7 @@ const { t, tp } = useT()
 const partStore = useIFSPartStore()
 const mapStore = useIFSPartsMapStore()
 const lifeAreaStore = useLifeAreaStore()
+const saved = ref(false)
 
 onMounted(() => {
   partStore.loadParts()
@@ -94,6 +97,7 @@ const sortedMaps = computed(() => mapStore.sortedMaps)
 
 function handleSaved() {
   // Wizard already persisted via composable; reload to refresh
+  saved.value = true
   mapStore.loadMaps()
   partStore.loadParts()
 }

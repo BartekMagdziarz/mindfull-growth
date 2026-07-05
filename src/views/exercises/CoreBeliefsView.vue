@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <CoreBeliefsWizard @saved="handleSaved" />
+    <CoreBeliefsWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="core-beliefs" @again="saved = false" />
 
     <!-- Past entries section -->
     <div v-if="coreBeliefsStore.sortedExplorations.length > 0" class="mt-8">
@@ -40,10 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import CoreBeliefsWizard from '@/components/exercises/CoreBeliefsWizard.vue'
 import { useCoreBeliefsStore } from '@/stores/coreBeliefs.store'
 import type { CreateCoreBeliefsExplorationPayload } from '@/domain/exercises'
@@ -52,6 +54,7 @@ import { useT } from '@/composables/useT'
 const router = useRouter()
 const { t } = useT()
 const coreBeliefsStore = useCoreBeliefsStore()
+const saved = ref(false)
 
 onMounted(() => {
   coreBeliefsStore.loadExplorations()
@@ -59,6 +62,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateCoreBeliefsExplorationPayload) {
   await coreBeliefsStore.createExploration(data)
+  saved.value = true
   // Reload explorations so the new one shows up in the past entries list
   await coreBeliefsStore.loadExplorations()
 }

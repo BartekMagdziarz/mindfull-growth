@@ -15,7 +15,8 @@
 
     <IFSSafetyBanner class="mb-6" />
 
-    <ExileWitnessingWizard @saved="handleSaved" />
+    <ExileWitnessingWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="exile-witnessing" @again="saved = false" />
 
     <!-- Past Witnessings -->
     <div class="mt-10 space-y-4">
@@ -70,10 +71,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import ExileWitnessingWizard from '@/components/exercises/ExileWitnessingWizard.vue'
@@ -86,6 +88,7 @@ const router = useRouter()
 const { t, tg } = useT()
 const witnessingStore = useIFSExileWitnessingStore()
 const partStore = useIFSPartStore()
+const saved = ref(false)
 
 onMounted(() => {
   witnessingStore.loadWitnessings()
@@ -95,6 +98,7 @@ onMounted(() => {
 const sortedWitnessings = computed(() => witnessingStore.sortedWitnessings)
 
 function handleSaved() {
+  saved.value = true
   witnessingStore.loadWitnessings()
 }
 

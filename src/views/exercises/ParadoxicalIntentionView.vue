@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <ParadoxicalIntentionWizard @saved="handleSaved" />
+    <ParadoxicalIntentionWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="paradoxical-intention" @again="saved = false" />
 
     <!-- Past labs -->
     <div v-if="paradoxicalStore.sortedLabs.length > 0" class="mt-8">
@@ -51,10 +52,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import ParadoxicalIntentionWizard from '@/components/exercises/ParadoxicalIntentionWizard.vue'
 import { useParadoxicalIntentionStore } from '@/stores/paradoxicalIntention.store'
 import { useT } from '@/composables/useT'
@@ -63,6 +65,7 @@ import type { CreateParadoxicalIntentionPayload } from '@/domain/exercises'
 const router = useRouter()
 const { t } = useT()
 const paradoxicalStore = useParadoxicalIntentionStore()
+const saved = ref(false)
 
 onMounted(() => {
   paradoxicalStore.loadLabs()
@@ -70,6 +73,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateParadoxicalIntentionPayload) {
   await paradoxicalStore.createLab(data)
+  saved.value = true
   await paradoxicalStore.loadLabs()
 }
 

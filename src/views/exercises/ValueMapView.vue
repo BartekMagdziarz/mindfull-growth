@@ -13,20 +13,24 @@
       </div>
     </div>
 
-    <ValueMapWizard @saved="handleSaved" />
+    <ValueMapWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="value-map" @again="saved = false" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import ValueMapWizard from '@/components/exercises/ValueMapWizard.vue'
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
 const { t } = useT()
+const saved = ref(false)
 
 function handleSaved(_id: string) {
-  router.push('/exercises')
+  saved.value = true
 }
 </script>

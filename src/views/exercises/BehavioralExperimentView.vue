@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <BehavioralExperimentWizard @saved="handleSaved" />
+    <BehavioralExperimentWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="behavioral-experiment" @again="saved = false" />
 
     <!-- Past experiments section -->
     <div v-if="experimentStore.sortedExperiments.length > 0" class="mt-8">
@@ -40,10 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import BehavioralExperimentWizard from '@/components/exercises/BehavioralExperimentWizard.vue'
 import { useBehavioralExperimentStore } from '@/stores/behavioralExperiment.store'
 import type { CreateBehavioralExperimentPayload } from '@/domain/exercises'
@@ -52,6 +54,7 @@ import { useT } from '@/composables/useT'
 const router = useRouter()
 const { t } = useT()
 const experimentStore = useBehavioralExperimentStore()
+const saved = ref(false)
 
 onMounted(() => {
   experimentStore.loadExperiments()
@@ -59,6 +62,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateBehavioralExperimentPayload) {
   await experimentStore.createExperiment(data)
+  saved.value = true
   await experimentStore.loadExperiments()
 }
 

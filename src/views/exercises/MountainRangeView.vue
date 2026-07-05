@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <MountainRangeWizard @saved="handleSaved" />
+    <MountainRangeWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="mountain-range" @again="saved = false" />
 
     <!-- Past explorations -->
     <div v-if="mountainRangeStore.sortedExplorations.length > 0" class="mt-8">
@@ -42,10 +43,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import MountainRangeWizard from '@/components/exercises/MountainRangeWizard.vue'
 import { useMountainRangeStore } from '@/stores/mountainRange.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -56,6 +58,7 @@ const router = useRouter()
 const { t } = useT()
 const mountainRangeStore = useMountainRangeStore()
 const emotionStore = useEmotionStore()
+const saved = ref(false)
 
 onMounted(() => {
   if (!emotionStore.isLoaded) {
@@ -66,6 +69,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateMountainRangePayload) {
   await mountainRangeStore.createExploration(data)
+  saved.value = true
   await mountainRangeStore.loadExplorations()
 }
 

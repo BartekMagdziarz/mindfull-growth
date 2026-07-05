@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <CognitiveDistortionsWizard @saved="handleSaved" />
+    <CognitiveDistortionsWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="cognitive-distortions" @again="saved = false" />
 
     <!-- Past assessments -->
     <template v-if="distortionStore.sortedAssessments.length > 0">
@@ -46,10 +47,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import CognitiveDistortionsWizard from '@/components/exercises/CognitiveDistortionsWizard.vue'
 import { useDistortionAssessmentStore } from '@/stores/distortionAssessment.store'
 import type { CreateDistortionAssessmentPayload } from '@/domain/exercises'
@@ -58,6 +60,7 @@ import { useT } from '@/composables/useT'
 const router = useRouter()
 const { t } = useT()
 const distortionStore = useDistortionAssessmentStore()
+const saved = ref(false)
 
 onMounted(() => {
   distortionStore.loadAssessments()
@@ -73,6 +76,7 @@ function formatDate(iso: string): string {
 
 async function handleSaved(data: CreateDistortionAssessmentPayload) {
   await distortionStore.createAssessment(data)
-  router.push('/exercises')
+  saved.value = true
+  await distortionStore.loadAssessments()
 }
 </script>

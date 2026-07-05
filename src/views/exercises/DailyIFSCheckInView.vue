@@ -34,7 +34,8 @@
       </p>
     </div>
 
-    <DailyCheckInWizard @saved="handleSaved" />
+    <DailyCheckInWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="daily-ifs-checkin" @again="saved = false" />
 
     <!-- Past Check-Ins -->
     <div class="mt-10 space-y-4">
@@ -88,10 +89,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import DailyCheckInWizard from '@/components/exercises/DailyCheckInWizard.vue'
 import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
@@ -104,6 +106,7 @@ const { t, tp } = useT()
 const checkInStore = useIFSDailyCheckInStore()
 const partStore = useIFSPartStore()
 const WEEKDAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const saved = ref(false)
 
 onMounted(() => {
   checkInStore.loadCheckIns()
@@ -113,6 +116,7 @@ onMounted(() => {
 const sortedCheckIns = computed(() => checkInStore.sortedCheckIns)
 
 function handleSaved() {
+  saved.value = true
   checkInStore.loadCheckIns()
 }
 

@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <DirectAccessWizard @saved="handleSaved" />
+    <DirectAccessWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="direct-access" @again="saved = false" />
 
     <!-- Past Sessions -->
     <div class="mt-10 space-y-4">
@@ -82,10 +83,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import DirectAccessWizard from '@/components/exercises/DirectAccessWizard.vue'
 import { useIFSDirectAccessStore } from '@/stores/ifsDirectAccess.store'
@@ -96,6 +98,7 @@ const router = useRouter()
 const { t, tp } = useT()
 const directAccessStore = useIFSDirectAccessStore()
 const partStore = useIFSPartStore()
+const saved = ref(false)
 
 onMounted(() => {
   directAccessStore.loadSessions()
@@ -105,6 +108,7 @@ onMounted(() => {
 const sortedSessions = computed(() => directAccessStore.sortedSessions)
 
 function handleSaved() {
+  saved.value = true
   directAccessStore.loadSessions()
 }
 

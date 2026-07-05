@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <LegacyLetterWizard @saved="handleSaved" />
+    <LegacyLetterWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="legacy-letter" @again="saved = false" />
 
     <!-- Past letters -->
     <div v-if="legacyLetterStore.sortedLetters.length > 0" class="mt-8">
@@ -41,10 +42,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import LegacyLetterWizard from '@/components/exercises/LegacyLetterWizard.vue'
 import { useLegacyLetterStore } from '@/stores/legacyLetter.store'
 import { useT } from '@/composables/useT'
@@ -53,6 +55,7 @@ import type { CreateLegacyLetterPayload } from '@/domain/exercises'
 const router = useRouter()
 const { t } = useT()
 const legacyLetterStore = useLegacyLetterStore()
+const saved = ref(false)
 
 onMounted(() => {
   legacyLetterStore.loadLetters()
@@ -60,6 +63,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateLegacyLetterPayload) {
   await legacyLetterStore.createLetter(data)
+  saved.value = true
   await legacyLetterStore.loadLetters()
 }
 

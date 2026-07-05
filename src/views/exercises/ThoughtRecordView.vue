@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <ThoughtRecordWizard @saved="handleSaved" />
+    <ThoughtRecordWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="thought-record" @again="saved = false" />
 
     <!-- Past Records -->
     <div v-if="thoughtRecordStore.sortedRecords.length > 0" class="mt-10 space-y-4">
@@ -62,10 +63,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import ThoughtRecordWizard from '@/components/exercises/ThoughtRecordWizard.vue'
 import { useThoughtRecordStore } from '@/stores/thoughtRecord.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -76,6 +78,7 @@ const router = useRouter()
 const { t } = useT()
 const thoughtRecordStore = useThoughtRecordStore()
 const emotionStore = useEmotionStore()
+const saved = ref(false)
 
 onMounted(async () => {
   if (!emotionStore.isLoaded) {
@@ -86,7 +89,8 @@ onMounted(async () => {
 
 async function handleSaved(data: CreateThoughtRecordPayload) {
   await thoughtRecordStore.createRecord(data)
-  router.push('/exercises')
+  saved.value = true
+  await thoughtRecordStore.loadRecords()
 }
 
 function getEmotionName(emotionId: string): string {

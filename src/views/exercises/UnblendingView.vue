@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <UnblendingWizard @saved="handleSaved" />
+    <UnblendingWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="unblending" @again="saved = false" />
 
     <!-- Past Sessions -->
     <div class="mt-10 space-y-4">
@@ -89,10 +90,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import UnblendingWizard from '@/components/exercises/UnblendingWizard.vue'
 import { useIFSUnblendingStore } from '@/stores/ifsUnblending.store'
@@ -105,6 +107,7 @@ const { t } = useT()
 const unblendingStore = useIFSUnblendingStore()
 const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()
+const saved = ref(false)
 
 onMounted(() => {
   unblendingStore.loadSessions()
@@ -121,6 +124,7 @@ const averageShift = computed(() => {
 })
 
 function handleSaved() {
+  saved.value = true
   unblendingStore.loadSessions()
 }
 

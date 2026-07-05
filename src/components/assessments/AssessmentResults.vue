@@ -108,6 +108,10 @@
       <p class="text-sm text-on-surface-variant">{{ t('assessments.common.results.noScales') }}</p>
     </AppCard>
 
+    <AppCard padding="lg">
+      <RepeatPlanPrompt :exercise-slug="definition.id" :suggested-days="suggestedRetakeDays" />
+    </AppCard>
+
     <div class="flex items-center justify-between gap-2">
       <AppButton variant="text" @click="$emit('back')">
         {{ t('common.buttons.back') }}
@@ -123,8 +127,10 @@
 import { computed } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
+import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
 import type { AssessmentComputation, AssessmentDefinition, ScaleBand, ScaleScore } from '@/domain/assessments'
 import { useT } from '@/composables/useT'
+import { retakeSuggestedDays } from '@/services/exercisePlanService'
 
 const props = defineProps<{
   definition: AssessmentDefinition
@@ -143,6 +149,9 @@ defineEmits<{
 }>()
 
 const { t } = useT()
+
+/** Assessment ids double as catalog slugs; retake window drives the prefill (design §4.4). */
+const suggestedRetakeDays = computed(() => retakeSuggestedDays(props.retakeEligibleAt))
 
 const scaleLabelById = computed(() => {
   return new Map(props.definition.scales.map((scale) => [scale.id, scale.labelKey]))

@@ -22,11 +22,15 @@
       @cancel="editingAssessmentId = null"
     />
 
+    <AppCard v-if="justSaved" padding="lg" class="mt-8">
+      <RepeatPlanPrompt exercise-slug="wheel-of-life" />
+    </AppCard>
+
     <div v-if="lifeAreaAssessmentStore.sortedAssessments.length > 0" class="mt-8">
       <AppCard padding="lg">
         <WheelOfLifeTimeline
           :assessments="lifeAreaAssessmentStore.sortedAssessments"
-          @edit="editingAssessmentId = $event"
+          @edit="startEditing"
           @delete="handleDelete"
         />
       </AppCard>
@@ -39,6 +43,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
 import WheelOfLifeExercise from '@/components/exercises/WheelOfLifeExercise.vue'
 import WheelOfLifeTimeline from '@/components/exercises/WheelOfLifeTimeline.vue'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
@@ -48,6 +53,7 @@ const router = useRouter()
 const { t } = useT()
 const lifeAreaAssessmentStore = useLifeAreaAssessmentStore()
 const editingAssessmentId = ref<string | null>(null)
+const justSaved = ref(false)
 
 onMounted(() => {
   lifeAreaAssessmentStore.loadAssessments()
@@ -55,6 +61,12 @@ onMounted(() => {
 
 function handleSaved(_assessmentId: string) {
   editingAssessmentId.value = null
+  justSaved.value = true
+}
+
+function startEditing(assessmentId: string) {
+  justSaved.value = false
+  editingAssessmentId.value = assessmentId
 }
 
 async function handleDelete(assessmentId: string) {

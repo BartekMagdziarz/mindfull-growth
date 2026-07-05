@@ -13,7 +13,8 @@
       </div>
     </div>
 
-    <BehavioralActivationWizard @saved="handleSaved" />
+    <BehavioralActivationWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="behavioral-activation" @again="saved = false" />
 
     <!-- Past plans section -->
     <div v-if="activationStore.sortedActivations.length > 0" class="mt-8">
@@ -43,10 +44,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import BehavioralActivationWizard from '@/components/exercises/BehavioralActivationWizard.vue'
 import { useBehavioralActivationStore } from '@/stores/behavioralActivation.store'
 import type { CreateBehavioralActivationPayload } from '@/domain/exercises'
@@ -55,6 +57,7 @@ import { useT } from '@/composables/useT'
 const router = useRouter()
 const { t } = useT()
 const activationStore = useBehavioralActivationStore()
+const saved = ref(false)
 
 onMounted(() => {
   activationStore.loadActivations()
@@ -62,6 +65,7 @@ onMounted(() => {
 
 async function handleSaved(data: CreateBehavioralActivationPayload) {
   await activationStore.createActivation(data)
+  saved.value = true
   await activationStore.loadActivations()
 }
 

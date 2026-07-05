@@ -15,7 +15,8 @@
 
     <IFSSafetyBanner class="mb-6" />
 
-    <ConstellationWizard @saved="handleSaved" />
+    <ConstellationWizard v-if="!saved" @saved="handleSaved" />
+    <ExerciseSavedPanel v-else exercise-slug="constellation" @again="saved = false" />
 
     <!-- Past Constellations -->
     <div class="mt-10 space-y-4">
@@ -100,10 +101,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
+import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
 import ConstellationWizard from '@/components/exercises/ConstellationWizard.vue'
 import { useIFSConstellationStore } from '@/stores/ifsConstellation.store'
@@ -119,6 +121,7 @@ const router = useRouter()
 const { t, tp } = useT()
 const constellationStore = useIFSConstellationStore()
 const partStore = useIFSPartStore()
+const saved = ref(false)
 
 onMounted(() => {
   constellationStore.loadConstellations()
@@ -128,6 +131,7 @@ onMounted(() => {
 const sortedConstellations = computed(() => constellationStore.sortedConstellations)
 
 function handleSaved() {
+  saved.value = true
   constellationStore.loadConstellations()
 }
 
