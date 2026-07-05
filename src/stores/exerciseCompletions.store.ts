@@ -14,6 +14,7 @@ import type { ExerciseCompletion } from '@/domain/exerciseCompletion'
 import type { DayRef } from '@/domain/period'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { recordCompletion } from '@/services/exerciseCompletionService'
+import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 
 export const useExerciseCompletionsStore = defineStore('exerciseCompletions', () => {
   const completions = ref<ExerciseCompletion[]>([])
@@ -67,8 +68,11 @@ export const useExerciseCompletionsStore = defineStore('exerciseCompletions', ()
    * failure never breaks the exercise save itself.
    */
   async function record(slug: string, recordId?: string): Promise<ExerciseCompletion> {
-    const completion = await recordCompletion(slug, recordId)
+    const { completion, completedPlan } = await recordCompletion(slug, recordId)
     completions.value.push(completion)
+    // Mirror an auto-completed plan into its store so the Today tile
+    // reacts without a reload (design §4.4).
+    if (completedPlan) useExercisePlanStore().applyUpdate(completedPlan)
     return completion
   }
 

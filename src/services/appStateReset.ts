@@ -52,6 +52,7 @@ import { useDistortionAssessmentStore } from '@/stores/distortionAssessment.stor
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
+import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { useGradedExposureStore } from '@/stores/gradedExposure.store'
 import { useIFSConstellationStore } from '@/stores/ifsConstellation.store'
 import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
@@ -121,6 +122,7 @@ export function resetAppState(): void {
   useEmotionStore().reset()
   useEmotionLogStore().reset()
   useExerciseCompletionsStore().reset()
+  useExercisePlanStore().reset()
   useGradedExposureStore().reset()
   useIFSConstellationStore().reset()
   useIFSDailyCheckInStore().reset()

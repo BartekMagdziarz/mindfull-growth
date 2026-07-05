@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CreateExerciseCompletionPayload } from '@/domain/exerciseCompletion'
+import type { ExercisePlanItem } from '@/domain/exercisePlan'
+import type { DayRef } from '@/domain/period'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { recordCompletion } from '@/services/exerciseCompletionService'
+import { autoCompleteFor } from '@/services/exercisePlanService'
 
 vi.mock('@/repositories/exerciseCompletionDexieRepository', () => ({
   exerciseCompletionDexieRepository: {
@@ -11,6 +14,21 @@ vi.mock('@/repositories/exerciseCompletionDexieRepository', () => ({
     })),
   },
 }))
+
+vi.mock('@/services/exercisePlanService', () => ({
+  autoCompleteFor: vi.fn(async () => null),
+}))
+
+const completedPlanFixture: ExercisePlanItem = {
+  id: 'plan-1',
+  exerciseSlug: 'worry-tree',
+  dayRef: '2026-03-10' as DayRef,
+  status: 'done',
+  source: 'repeat',
+  recordId: 'record-1',
+  createdAt: '2026-03-01T10:00:00.000Z',
+  updatedAt: '2026-03-12T00:30:00.000Z',
+}
 
 describe('recordCompletion', () => {
   beforeEach(() => {
@@ -48,5 +66,41 @@ describe('recordCompletion', () => {
     const payload = vi.mocked(exerciseCompletionDexieRepository.create).mock.calls[0]?.[0]
     expect(payload?.recordId).toBeUndefined()
     expect(payload?.dayRef).toBe('2026-06-01')
+  })
+
+  it('writes source plan and returns the plan when auto-complete matches', async () => {
+    vi.setSystemTime(new Date(2026, 2, 12, 0, 30, 0))
+    vi.mocked(autoCompleteFor).mockResolvedValueOnce(completedPlanFixture)
+
+    const result = await recordCompletion('worry-tree', 'record-1')
+
+    expect(vi.mocked(autoCompleteFor).mock.calls[0]).toEqual([
+      'worry-tree',
+      '2026-03-12',
+      'record-1',
+    ])
+    expect(result.completedPlan).toEqual(completedPlanFixture)
+    const payload = vi.mocked(exerciseCompletionDexieRepository.create).mock.calls[0]?.[0]
+    expect(payload?.source).toBe('plan')
+  })
+
+  it('stays standalone with a null plan when nothing matches', async () => {
+    vi.setSystemTime(new Date(2026, 5, 1, 12, 0, 0))
+
+    const result = await recordCompletion('worry-tree')
+
+    expect(result.completedPlan).toBeNull()
+    expect(result.completion.source).toBe('standalone')
+  })
+
+  it('still writes the completion when auto-complete throws', async () => {
+    vi.setSystemTime(new Date(2026, 5, 1, 12, 0, 0))
+    vi.mocked(autoCompleteFor).mockRejectedValueOnce(new Error('dexie down'))
+
+    const result = await recordCompletion('worry-tree')
+
+    expect(result.completion.source).toBe('standalone')
+    expect(result.completedPlan).toBeNull()
+    expect(exerciseCompletionDexieRepository.create).toHaveBeenCalledTimes(1)
   })
 })

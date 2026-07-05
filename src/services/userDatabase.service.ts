@@ -59,6 +59,7 @@ import type { UserProfile, ProfileBuildLogEntry } from '@/domain/userProfile'
 import type { ProfilePeriodSummary } from '@/domain/profilePeriodSummary'
 import type { AnnualPlan } from '@/domain/annualPlan'
 import type { ExerciseCompletion } from '@/domain/exerciseCompletion'
+import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
@@ -158,6 +159,7 @@ export class UserDatabase extends Dexie {
   ifsConstellations!: Table<IFSConstellation, string>
   exerciseCompletions!: Table<ExerciseCompletion, string>
   microExerciseEntries!: Table<MicroExerciseEntry, string>
+  exercisePlanItems!: Table<ExercisePlanItem, string>
 
   lifeAreas!: Table<LifeArea, string>
   lifeAreaAssessments!: Table<LifeAreaAssessment, string>
@@ -1533,6 +1535,13 @@ export class UserDatabase extends Dexie {
 
         await trans.table('exerciseCompletions').bulkAdd(rows)
       })
+
+    // Exercise scheduling Phase 2 (docs/exercise-scheduling-design.md §4.4/§5):
+    // planned repeats (and Phase 3 program steps — one entity, `source`
+    // discriminator). New table → no data migration needed.
+    this.version(24).stores({
+      exercisePlanItems: 'id, exerciseSlug, dayRef, status, source',
+    })
   }
 }
 
