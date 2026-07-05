@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-2">
     <p class="text-sm font-medium text-on-surface">
-      <template v-if="createdItem">
+      <template v-if="activeItem">
         {{ t('exercises.repeatPrompt.plannedFor', { date: plannedDateLabel }) }}
       </template>
       <template v-else>{{ t('exercises.repeatPrompt.title') }}</template>
@@ -15,7 +15,7 @@
         class="neo-pill neo-focus px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
         :class="{
           'neo-pill--primary': isSelected(option.days),
-          'repeat-chip--suggested': option.suggested && !createdItem,
+          'repeat-chip--suggested': option.suggested && !activeItem,
         }"
         :title="option.suggested ? t('exercises.repeatPrompt.suggested') : undefined"
         @click="pickDays(option.days)"
@@ -33,7 +33,7 @@
       </button>
 
       <button
-        v-if="createdItem"
+        v-if="activeItem"
         type="button"
         class="neo-focus px-2 py-1 text-xs font-medium text-on-surface-variant transition-colors hover:text-on-surface"
         @click="undo"
@@ -77,7 +77,8 @@ const { t, tp, locale } = useT()
 const planStore = useExercisePlanStore()
 
 const dateInputRef = ref<HTMLInputElement | null>(null)
-const createdItem = ref<ExercisePlanItem | null>(null)
+/** Id of the plan this prompt created/moved — resolved against the store below. */
+const managedItemId = ref<string | null>(null)
 
 const todayRef = computed(() => getPeriodRefsForDate(new Date()).day)
 const minCustomDate = computed(() => addDaysToDayRef(todayRef.value, 1))
@@ -88,23 +89,31 @@ const effectiveSuggested = computed(
 const chipOptions = computed(() => buildRepeatChipOptions(effectiveSuggested.value))
 
 /**
- * Adopt an already-pending plan for this exercise so repeated saves
- * (or a revisit of the results view) move the existing item instead
- * of stacking a new one.
+ * The plan the chips operate on, resolved reactively from the store:
+ * the one this prompt created, else the oldest already-pending plan
+ * for the exercise (so repeated saves move it instead of stacking).
+ * Resolving by id — not holding the object — matters right after a
+ * save: the just-recorded completion auto-completes that pending plan
+ * a beat after this prompt mounts, and the store update must flip the
+ * prompt back to idle instead of leaving chips wired to a done item.
  */
-function adoptExistingPlan(): void {
-  createdItem.value = planStore.oldestPendingForSlug(props.exerciseSlug) ?? null
-}
+const activeItem = computed<ExercisePlanItem | null>(() => {
+  const managed = managedItemId.value
+    ? planStore.items.find(
+        (item) => item.id === managedItemId.value && item.status === 'pending',
+      )
+    : undefined
+  return managed ?? planStore.oldestPendingForSlug(props.exerciseSlug) ?? null
+})
 
-onMounted(async () => {
-  await planStore.ensureLoaded()
-  adoptExistingPlan()
+onMounted(() => {
+  void planStore.ensureLoaded()
 })
 
 watch(
   () => props.exerciseSlug,
   () => {
-    if (planStore.isLoaded) adoptExistingPlan()
+    managedItemId.value = null
   },
 )
 
@@ -113,18 +122,18 @@ function dayRefForDays(days: number): DayRef {
 }
 
 function isSelected(days: number): boolean {
-  return createdItem.value?.dayRef === dayRefForDays(days)
+  return activeItem.value?.dayRef === dayRefForDays(days)
 }
 
 /** True when the planned day matches no chip — the custom chip shows the date. */
 const customSelected = computed(() => {
-  if (!createdItem.value) return false
+  if (!activeItem.value) return false
   return !chipOptions.value.some((option) => isSelected(option.days))
 })
 
 const plannedDateLabel = computed(() => {
-  if (!createdItem.value) return ''
-  return new Date(createdItem.value.dayRef).toLocaleDateString(locale.value, {
+  if (!activeItem.value) return ''
+  return new Date(activeItem.value.dayRef).toLocaleDateString(locale.value, {
     day: 'numeric',
     month: 'long',
   })
@@ -144,9 +153,10 @@ function chipLabel(option: RepeatChipOption): string {
 
 async function planFor(dayRef: DayRef): Promise<void> {
   try {
-    createdItem.value = createdItem.value
-      ? await planStore.movePlan(createdItem.value.id, dayRef)
+    const item = activeItem.value
+      ? await planStore.movePlan(activeItem.value.id, dayRef)
       : await planStore.createPlan(props.exerciseSlug, dayRef, 'repeat')
+    managedItemId.value = item.id
   } catch (err) {
     // Planning is auxiliary — never break the saved state over it.
     console.error('Failed to plan exercise repeat:', err)
@@ -168,10 +178,10 @@ function handleDateChange(event: Event): void {
 }
 
 async function undo(): Promise<void> {
-  if (!createdItem.value) return
+  if (!activeItem.value) return
   try {
-    await planStore.cancelPlan(createdItem.value.id)
-    createdItem.value = null
+    await planStore.cancelPlan(activeItem.value.id)
+    managedItemId.value = null
   } catch (err) {
     console.error('Failed to cancel exercise repeat:', err)
   }
