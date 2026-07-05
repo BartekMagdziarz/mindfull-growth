@@ -327,26 +327,6 @@ export async function assignMeasurementToWholeMonth({
   )
 }
 
-export async function clearMeasurementMonthPlacement({
-  monthRef,
-  subjectType,
-  subjectId,
-}: MeasurementMonthRef): Promise<void> {
-  const existing = await planningStateDexieRepository.getMeasurementMonthState(
-    monthRef,
-    subjectType,
-    subjectId
-  )
-  await clearMonthAssignments(monthRef, subjectType, subjectId)
-  await upsertMeasurementMonthState(
-    monthRef,
-    subjectType,
-    subjectId,
-    'unassigned',
-    existing?.targetOverride
-  )
-}
-
 async function clearWeeklyMeasurementPlacementsInMonth(
   monthRef: MonthRef,
   subjectType: MeasurementSubjectType,
@@ -430,28 +410,6 @@ export async function assignMeasurementToWholeMonthView({
       })
     )
   )
-}
-
-export async function clearMeasurementPlacementInMonthView({
-  monthRef,
-  cadence,
-  subjectType,
-  subjectId,
-}: MeasurementMonthViewRef): Promise<void> {
-  if (cadence === 'monthly') {
-    await clearMeasurementMonthPlacement({ monthRef, subjectType, subjectId })
-    return
-  }
-
-  const existing = await planningStateDexieRepository.getMeasurementMonthState(
-    monthRef,
-    subjectType,
-    subjectId
-  )
-  await clearWeeklyMeasurementPlacementsInMonth(monthRef, subjectType, subjectId, {
-    preserveMonthState: true,
-    targetOverride: existing?.targetOverride,
-  })
 }
 
 export async function deactivateMeasurementFromMonthView({
@@ -547,39 +505,6 @@ export async function unlinkMeasurementPeriod({
   if (cadence === 'weekly') {
     await cleanupWeeklyMonthStates(subjectType, subjectId, getWeekOverlappingMonths(weekRef))
   }
-}
-
-export async function clearMeasurementPlacementInWeek({
-  weekRef,
-  subjectType,
-  subjectId,
-  cadence,
-  monthRef,
-}: MeasurementWeekRef): Promise<void> {
-  const dayAssignments = await listSubjectDayAssignments(subjectType, subjectId)
-  const assignmentsInWeek = dayAssignments.filter(assignment =>
-    isAssignmentInWeek(assignment, weekRef)
-  )
-
-  await Promise.all(
-    assignmentsInWeek.map(assignment =>
-      planningStateDexieRepository.deleteMeasurementDayAssignment(
-        assignment.dayRef,
-        assignment.subjectType,
-        assignment.subjectId
-      )
-    )
-  )
-
-  const sourceMonthRef = cadence === 'monthly' ? monthRef : undefined
-  await planningStateDexieRepository.upsertMeasurementWeekState({
-    weekRef,
-    sourceMonthRef,
-    subjectType,
-    subjectId,
-    activityState: 'active',
-    scheduleScope: 'unassigned',
-  })
 }
 
 export async function toggleMeasurementWeekAssignment({

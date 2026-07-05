@@ -11,9 +11,6 @@ import type {
   MonthGoalPlanningItem,
   MonthMeasurementPlanningItem,
   MonthPlanningBundle,
-  WeekInitiativePlanningItem,
-  WeekMeasurementPlanningItem,
-  WeekPlanningBundle,
 } from '@/services/planningStateQueries'
 import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
 
@@ -420,32 +417,6 @@ export function splitMonthMeasurementItems(bundle: MonthPlanningBundle): {
     keyResults: bundle.measurementItems.filter((item) => item.subjectType === 'keyResult'),
     habits: bundle.measurementItems.filter((item) => item.subjectType === 'habit'),
     trackers: bundle.measurementItems.filter((item) => item.subjectType === 'tracker'),
-  }
-}
-
-export function splitWeekMeasurementItems(items: WeekPlanningBundle['relevant']['measurementItems']): {
-  plannedThisWeek: WeekMeasurementPlanningItem[]
-  assignedToDays: WeekMeasurementPlanningItem[]
-  toPlanThisWeek: WeekMeasurementPlanningItem[]
-} {
-  return {
-    plannedThisWeek: items.filter((item) => item.placement === 'planned'),
-    assignedToDays: items.filter((item) => item.placement === 'assigned'),
-    toPlanThisWeek: items.filter((item) => item.placement === 'unassigned'),
-  }
-}
-
-export function splitWeekInitiativeItems(
-  items: WeekPlanningBundle['relevant']['initiativeItems'],
-): {
-  plannedThisWeek: WeekInitiativePlanningItem[]
-  assignedToDays: WeekInitiativePlanningItem[]
-  toPlanThisWeek: WeekInitiativePlanningItem[]
-} {
-  return {
-    plannedThisWeek: items.filter((item) => item.placement === 'planned'),
-    assignedToDays: items.filter((item) => item.placement === 'assigned'),
-    toPlanThisWeek: items.filter((item) => item.placement === 'unassigned'),
   }
 }
 
