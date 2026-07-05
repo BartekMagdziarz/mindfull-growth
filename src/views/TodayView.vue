@@ -43,7 +43,12 @@
             :target="DAILY_EMOTION_TARGET"
             :logs="todayEmotionLogs"
           />
-          <ExerciseCard />
+          <ExerciseCard
+            :day-ref="bundleDayRef"
+            :is-today="wellnessIsToday"
+            :completions="exerciseCompletionsStore.completions"
+            :day-count="exerciseDayCompletions.length"
+          />
         </aside>
 
         <!-- Zone B -->
@@ -254,6 +259,7 @@ import type { TodayItem } from '@/services/todayViewQueries'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { useTodayStore } from '@/stores/today.store'
 import { getQuadrant } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
@@ -274,6 +280,7 @@ const store = useTodayStore()
 const journalStore = useJournalStore()
 const emotionLogStore = useEmotionLogStore()
 const emotionStore = useEmotionStore()
+const exerciseCompletionsStore = useExerciseCompletionsStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const hiddenExpanded = ref(false)
 const deleteDialogOpen = ref(false)
@@ -314,6 +321,16 @@ const journalState = computed<'empty' | 'done'>(() =>
   journalEntryDays.value.has(toLocalDateKey(wellnessReferenceDate.value)) ? 'done' : 'empty',
 )
 
+// --- Ćwiczenia / Exercises card data -------------------------------------
+const exerciseDayCompletions = computed(() =>
+  exerciseCompletionsStore.completionsForDay(bundleDayRef.value),
+)
+
+// Historical days show that day's record without CTAs (design §4.6).
+const wellnessIsToday = computed(
+  () => bundleDayRef.value === getPeriodRefsForDate(new Date()).day,
+)
+
 // --- Emocje / Emotions card data ----------------------------------------
 const todayEmotionLogs = computed<EmotionDonutLog[]>(() => {
   const todayKey = toLocalDateKey(wellnessReferenceDate.value)
@@ -352,7 +369,12 @@ const todayEmotionLogs = computed<EmotionDonutLog[]>(() => {
 
 onMounted(() => {
   void loadInitialBundle()
-  Promise.all([journalStore.loadEntries(), emotionLogStore.loadLogs(), emotionStore.loadEmotions()])
+  Promise.all([
+    journalStore.loadEntries(),
+    emotionLogStore.loadLogs(),
+    emotionStore.loadEmotions(),
+    exerciseCompletionsStore.ensureLoaded(),
+  ])
 })
 
 watch(

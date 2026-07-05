@@ -318,7 +318,16 @@
       "exercises": "Exercises",
       "journalCaption": "days with entry",
       "emotionsCaption": "days with log",
-      "exercisesComing": "Coming soon",
+      "exerciseShowAnother": "Show another",
+      "exerciseMinutes": "{n} min",
+      "exerciseDoneCount": {
+        "one": "{n} exercise today",
+        "few": "{n} exercises today",
+        "many": "{n} exercises today"
+      },
+      "exerciseNoneHistorical": "No exercises",
+      "ariaExerciseStart": "Start the suggested exercise",
+      "ariaExerciseDone": "Exercises done — see all exercises",
       "ariaEmotionsDonut": "Log an emotion ({done} of {target})",
       "ariaEmotionsDonutEmpty": "Log your first emotion of the day",
       "ariaJournalDone": "Open today's entry",

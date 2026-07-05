@@ -318,7 +318,16 @@
       "exercises": "Ćwiczenia",
       "journalCaption": "dni z wpisem",
       "emotionsCaption": "dni z logiem",
-      "exercisesComing": "Wkrótce",
+      "exerciseShowAnother": "Pokaż inne",
+      "exerciseMinutes": "{n} min",
+      "exerciseDoneCount": {
+        "one": "{n} ćwiczenie dzisiaj",
+        "few": "{n} ćwiczenia dzisiaj",
+        "many": "{n} ćwiczeń dzisiaj"
+      },
+      "exerciseNoneHistorical": "Brak ćwiczeń",
+      "ariaExerciseStart": "Rozpocznij sugerowane ćwiczenie",
+      "ariaExerciseDone": "Ćwiczenia ukończone — zobacz wszystkie",
       "ariaEmotionsDonut": "Loguj emocje ({done} z {target})",
       "ariaEmotionsDonutEmpty": "Dodaj pierwszy log emocji",
       "ariaJournalDone": "Otwórz dzisiejszy wpis",
