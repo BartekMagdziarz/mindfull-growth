@@ -39,7 +39,7 @@ import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 // --- localStorage cleanup ---------------------------------------------------
 import { clearChartScalePreferences } from '@/composables/useChartScale'
 
-// --- Pinia stores (46 — auth.store excluded by design) ----------------------
+// --- Pinia stores (47 — auth.store excluded by design) ----------------------
 import { useAssessmentStore } from '@/stores/assessment.store'
 import { useAttitudinalShiftStore } from '@/stores/attitudinalShift.store'
 import { useBehavioralActivationStore } from '@/stores/behavioralActivation.store'
@@ -68,6 +68,7 @@ import { useJournalStore } from '@/stores/journal.store'
 import { useLegacyLetterStore } from '@/stores/legacyLetter.store'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
+import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import { useMountainRangeStore } from '@/stores/mountainRange.store'
 import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
 import { useParadoxicalIntentionStore } from '@/stores/paradoxicalIntention.store'
@@ -136,6 +137,7 @@ export function resetAppState(): void {
   useLegacyLetterStore().reset()
   useLifeAreaStore().reset()
   useLifeAreaAssessmentStore().reset()
+  useMicroExerciseEntryStore().reset()
   useMountainRangeStore().reset()
   useObjectsLibraryStore().reset()
   useParadoxicalIntentionStore().reset()

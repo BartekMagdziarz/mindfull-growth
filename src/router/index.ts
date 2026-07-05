@@ -138,6 +138,11 @@ const router = createRouter({
       name: 'exercise-assessment',
       component: () => import('@/views/exercises/AssessmentView.vue'),
     },
+    {
+      path: '/exercises/micro/:slug',
+      name: 'micro-exercise',
+      component: () => import('@/views/exercises/MicroExerciseView.vue'),
+    },
     // Life Areas
     {
       path: '/areas',

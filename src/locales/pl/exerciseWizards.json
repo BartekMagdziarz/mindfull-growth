@@ -3152,5 +3152,144 @@
     "ariaStepLabel": "Krok {index}: {label}",
     "ariaStepCompleted": " (ukończony)",
     "ariaStepCurrent": " (bieżący)"
+  },
+  "micro": {
+    "shared": {
+      "intensityLabel": "Intensywność ({value}/100)",
+      "savedTitle": "Zapisane!",
+      "savedDescription": "Ćwiczenie ukończone. Dobra robota.",
+      "doAgain": "Jeszcze raz",
+      "backToExercises": "Wróć do ćwiczeń",
+      "breath": {
+        "start": "Zacznij",
+        "ready": {
+          "m": "Gotowy?",
+          "f": "Gotowa?"
+        },
+        "tapToBegin": "Naciśnij start, aby zacząć",
+        "breatheIn": "Wdech",
+        "hold": "Zatrzymaj",
+        "breatheOut": "Wydech",
+        "done": "Koniec",
+        "complete": "Dobra robota. Zabierz ten spokój ze sobą."
+      }
+    },
+    "gratitudeList": {
+      "intro": {
+        "title": "Chwila wdzięczności",
+        "description": "Wdzięczność działa najmocniej, gdy zauważasz ją celowo. Przypomnij sobie dzisiejszy dzień — co było dobre, nawet jeśli drobne?"
+      },
+      "items": {
+        "title": {
+          "m": "Za co jesteś dziś wdzięczny?",
+          "f": "Za co jesteś dziś wdzięczna?"
+        },
+        "description": "Trzy rzeczy wystarczą. Konkret pomaga: zamiast „rodzina” — „rozmowa z mamą przy kawie”.",
+        "placeholder": {
+          "m": "Jestem wdzięczny za…",
+          "f": "Jestem wdzięczna za…"
+        }
+      },
+      "why": {
+        "title": "Dlaczego to ważne?",
+        "description": "Wybierz jedną z rzeczy powyżej. Dlaczego akurat ona ma dziś znaczenie? (Opcjonalne.)",
+        "placeholder": "To ważne, bo…"
+      }
+    },
+    "savoringMoment": {
+      "moment": {
+        "title": "Najlepszy moment dnia",
+        "description": "Co było dziś najprzyjemniejsze? Może coś małego — smak, widok, czyjś gest.",
+        "placeholder": "Najlepszy moment to…"
+      },
+      "pleasantness": {
+        "title": "Jak przyjemny był ten moment?",
+        "description": "Oceń ten moment — sama ocena sprawia, że przeżywasz go jeszcze raz.",
+        "minLabel": "Ledwo",
+        "maxLabel": "Wyjątkowy"
+      },
+      "senses": {
+        "title": "Wróć tam na chwilę",
+        "description": "Opisz szczegóły zmysłowe: co widzisz, słyszysz, czujesz? Im dokładniej, tym mocniej wraca przyjemność.",
+        "placeholder": "Widzę… słyszę… czuję…"
+      }
+    },
+    "selfCompassionBreak": {
+      "intro": {
+        "title": "Przerwa na współczucie",
+        "description": "Trzy kroki: zauważ, że jest trudno; przypomnij sobie, że nie tylko ty tak masz; powiedz sobie coś życzliwego. Nie musisz niczego naprawiać."
+      },
+      "mindfulness": {
+        "title": "Uważność: co teraz boli?",
+        "description": "Nazwij to, co jest trudne, bez oceniania. Samo nazwanie już zmniejsza napięcie.",
+        "placeholder": "Teraz jest mi trudno, bo…"
+      },
+      "humanity": {
+        "title": "Wspólne człowieczeństwo",
+        "description": {
+          "m": "Trudności są częścią bycia człowiekiem. Inni też znają to uczucie — nie jesteś z tym sam.",
+          "f": "Trudności są częścią bycia człowiekiem. Inni też znają to uczucie — nie jesteś z tym sama."
+        },
+        "placeholder": "Nie tylko ja…"
+      },
+      "kindness": {
+        "title": "Życzliwe słowa do siebie",
+        "description": "Co powiedziałaby ci osoba, która naprawdę ci sprzyja? Powiedz to sobie.",
+        "placeholder": "Chcę sobie powiedzieć, że…"
+      }
+    },
+    "grounding54321": {
+      "see": {
+        "title": "5 rzeczy, które widzisz",
+        "description": "Rozejrzyj się powoli. Wymień pięć rzeczy w zasięgu wzroku.",
+        "placeholder": "Widzę…"
+      },
+      "feel": {
+        "title": "4 rzeczy, które czujesz dotykiem",
+        "description": "Podłoże pod stopami, ubranie, temperatura…",
+        "placeholder": "Czuję…"
+      },
+      "hear": {
+        "title": "3 dźwięki, które słyszysz",
+        "description": "Bliskie i dalekie. Nasłuchuj przez chwilę.",
+        "placeholder": "Słyszę…"
+      },
+      "smell": {
+        "title": "2 zapachy",
+        "description": "Jeśli żadnych nie ma, wymień dwa, które lubisz.",
+        "placeholder": "Czuję zapach…"
+      },
+      "taste": {
+        "title": "1 smak",
+        "description": "Smak w ustach teraz — albo jeden, który lubisz.",
+        "placeholder": "Czuję smak…"
+      }
+    },
+    "boxBreathing": {
+      "before": {
+        "title": "Jak się teraz czujesz?",
+        "description": "Zaznacz emocje przed ćwiczeniem — porównasz je po oddechu. Możesz to pominąć."
+      },
+      "breath": {
+        "title": "Oddychaj w rytmie pudełka",
+        "description": "Wdech 4 s → zatrzymanie 4 s → wydech 4 s → zatrzymanie 4 s. Podążaj za wskaźnikiem."
+      },
+      "after": {
+        "title": "A jak teraz?",
+        "description": "Zaznacz emocje po ćwiczeniu. Możesz to pominąć."
+      }
+    },
+    "oneSmallWin": {
+      "win": {
+        "title": "Co się dziś udało?",
+        "description": "Jedna rzecz wystarczy — nawet drobna. Ważne, że twoja.",
+        "placeholder": "Dziś udało mi się…"
+      },
+      "meaning": {
+        "title": "Co to o tobie mówi?",
+        "description": "Jaka twoja cecha albo umiejętność za tym stoi?",
+        "placeholder": "To pokazuje, że…"
+      }
+    }
   }
 }

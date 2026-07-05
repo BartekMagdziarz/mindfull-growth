@@ -36,7 +36,7 @@ describe('exercise catalog', () => {
     expect(catalogEntriesForTab('cbt')).toHaveLength(10)
     expect(catalogEntriesForTab('logotherapy')).toHaveLength(8)
     expect(catalogEntriesForTab('ifs')).toHaveLength(10)
-    expect(EXERCISE_CATALOG).toHaveLength(42)
+    expect(EXERCISE_CATALOG).toHaveLength(48)
   })
 
   it('has card copy for every entry in both locales', () => {
@@ -78,10 +78,32 @@ describe('exercise catalog', () => {
       .map((e) => e.slug)
       .sort()
     expect(microSlugs).toEqual(
-      ['daily-ifs-checkin', 'positive-data-log', 'self-energy', 'worry-tree'].sort(),
+      [
+        'daily-ifs-checkin',
+        'positive-data-log',
+        'self-energy',
+        'worry-tree',
+        'gratitude-list',
+        'savoring-moment',
+        'self-compassion-break',
+        'grounding-54321',
+        'box-breathing',
+        'one-small-win',
+      ].sort(),
     )
     // The micro tab shows all micro-eligible entries (user decision 2026-07-04).
     expect(catalogEntriesForTab('micro')).toHaveLength(microSlugs.length)
+  })
+
+  it('every micro definition has a catalog entry and vice versa', async () => {
+    const { MICRO_EXERCISES } = await import('@/data/microExercises')
+    const microKindSlugs = EXERCISE_CATALOG.filter((e) => e.kind === 'micro').map((e) => e.slug)
+    expect(MICRO_EXERCISES.map((d) => d.slug).sort()).toEqual(microKindSlugs.sort())
+    for (const definition of MICRO_EXERCISES) {
+      const entry = EXERCISE_CATALOG.find((e) => e.slug === definition.slug)
+      expect(entry?.i18nKey).toBe(definition.i18nKey)
+      expect(entry?.route).toBe(`/exercises/micro/${definition.slug}`)
+    }
   })
 
   it('every micro candidate fits the 2–5 minute promise', () => {

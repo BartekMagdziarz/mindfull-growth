@@ -3152,5 +3152,144 @@
     "ariaStepLabel": "Step {index}: {label}",
     "ariaStepCompleted": " (completed)",
     "ariaStepCurrent": " (current)"
+  },
+  "micro": {
+    "shared": {
+      "intensityLabel": "Intensity ({value}/100)",
+      "savedTitle": "Saved!",
+      "savedDescription": "Exercise completed. Well done.",
+      "doAgain": "Do it again",
+      "backToExercises": "Back to exercises",
+      "breath": {
+        "start": "Start",
+        "ready": {
+          "m": "Ready?",
+          "f": "Ready?"
+        },
+        "tapToBegin": "Press start to begin",
+        "breatheIn": "Breathe in",
+        "hold": "Hold",
+        "breatheOut": "Breathe out",
+        "done": "Done",
+        "complete": "Well done. Carry this calm with you."
+      }
+    },
+    "gratitudeList": {
+      "intro": {
+        "title": "A moment of gratitude",
+        "description": "Gratitude works best when you notice it on purpose. Think back over today — what was good, even if small?"
+      },
+      "items": {
+        "title": {
+          "m": "What are you grateful for today?",
+          "f": "What are you grateful for today?"
+        },
+        "description": "Three things are enough. Being specific helps: instead of “family” — “coffee and a chat with mom”.",
+        "placeholder": {
+          "m": "I'm grateful for…",
+          "f": "I'm grateful for…"
+        }
+      },
+      "why": {
+        "title": "Why does it matter?",
+        "description": "Pick one of the things above. Why does it matter today? (Optional.)",
+        "placeholder": "It matters because…"
+      }
+    },
+    "savoringMoment": {
+      "moment": {
+        "title": "The best moment of your day",
+        "description": "What was the most pleasant thing today? It can be tiny — a taste, a view, someone's gesture.",
+        "placeholder": "The best moment was…"
+      },
+      "pleasantness": {
+        "title": "How pleasant was it?",
+        "description": "Rate the moment — rating it makes you relive it.",
+        "minLabel": "Barely",
+        "maxLabel": "Exceptional"
+      },
+      "senses": {
+        "title": "Go back there for a moment",
+        "description": "Describe the sensory details: what do you see, hear, feel? The more precise, the stronger the pleasure returns.",
+        "placeholder": "I see… I hear… I feel…"
+      }
+    },
+    "selfCompassionBreak": {
+      "intro": {
+        "title": "Self-compassion break",
+        "description": "Three steps: notice that this is hard, remember you're not the only one, and say something kind to yourself. You don't have to fix anything."
+      },
+      "mindfulness": {
+        "title": "Mindfulness: what hurts right now?",
+        "description": "Name what is hard, without judging it. Naming alone eases the tension.",
+        "placeholder": "Right now it's hard because…"
+      },
+      "humanity": {
+        "title": "Common humanity",
+        "description": {
+          "m": "Struggling is part of being human. Others know this feeling too — you are not alone in it.",
+          "f": "Struggling is part of being human. Others know this feeling too — you are not alone in it."
+        },
+        "placeholder": "I'm not the only one…"
+      },
+      "kindness": {
+        "title": "Kind words to yourself",
+        "description": "What would someone who truly cares about you say? Say it to yourself.",
+        "placeholder": "I want to tell myself that…"
+      }
+    },
+    "grounding54321": {
+      "see": {
+        "title": "5 things you can see",
+        "description": "Look around slowly. Name five things within sight.",
+        "placeholder": "I can see…"
+      },
+      "feel": {
+        "title": "4 things you can feel",
+        "description": "The ground under your feet, your clothes, the temperature…",
+        "placeholder": "I can feel…"
+      },
+      "hear": {
+        "title": "3 sounds you can hear",
+        "description": "Near and far. Listen for a moment.",
+        "placeholder": "I can hear…"
+      },
+      "smell": {
+        "title": "2 things you can smell",
+        "description": "If there are none, name two you like.",
+        "placeholder": "I can smell…"
+      },
+      "taste": {
+        "title": "1 thing you can taste",
+        "description": "The taste in your mouth right now — or one you like.",
+        "placeholder": "I can taste…"
+      }
+    },
+    "boxBreathing": {
+      "before": {
+        "title": "How do you feel right now?",
+        "description": "Mark your emotions before the exercise — you'll compare them afterwards. You can skip this."
+      },
+      "breath": {
+        "title": "Breathe in a box rhythm",
+        "description": "Inhale 4 s → hold 4 s → exhale 4 s → hold 4 s. Follow the indicator."
+      },
+      "after": {
+        "title": "And how about now?",
+        "description": "Mark your emotions after the exercise. You can skip this."
+      }
+    },
+    "oneSmallWin": {
+      "win": {
+        "title": "What went well today?",
+        "description": "One thing is enough — even a small one. What matters is that it's yours.",
+        "placeholder": "Today I managed to…"
+      },
+      "meaning": {
+        "title": "What does it say about you?",
+        "description": "What strength or skill of yours made it happen?",
+        "placeholder": "It shows that…"
+      }
+    }
   }
 }

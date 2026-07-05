@@ -126,7 +126,8 @@
     "selfDiscovery": "Samopoznanie",
     "cbt": "CBT",
     "logotherapy": "Logoterapia",
-    "ifs": "IFS"
+    "ifs": "IFS",
+    "micro": "Szybkie ćwiczenia"
   },
   "cards": {
     "valuesDiscovery": {
@@ -341,6 +342,39 @@
       "title": "Konstelacja wewnętrznego systemu",
       "subtitle": "Zmapuj relacje między częściami",
       "description": "Zmapuj dynamiczne relacje między częściami — sojusze, konflikty i ukryte powiązania. Zalecana konsultacja z profesjonalistą."
+    },
+    "gratitudeList": {
+      "title": "Lista wdzięczności",
+      "subtitle": "Trzy rzeczy, za które dziękujesz",
+      "description": {
+        "m": "Wypisz trzy rzeczy, za które jesteś dziś wdzięczny — małe też się liczą.",
+        "f": "Wypisz trzy rzeczy, za które jesteś dziś wdzięczna — małe też się liczą."
+      }
+    },
+    "savoringMoment": {
+      "title": "Delektowanie",
+      "subtitle": "Zatrzymaj dobry moment",
+      "description": "Wróć do najlepszego momentu dnia i pogłęb go, przeżywając go ponownie zmysłami."
+    },
+    "selfCompassionBreak": {
+      "title": "Przerwa na współczucie",
+      "subtitle": "Trzy kroki Kristin Neff",
+      "description": "Krótka praktyka na trudny moment: uważność, wspólne człowieczeństwo i życzliwe słowa do siebie."
+    },
+    "grounding54321": {
+      "title": "Uziemienie 5-4-3-2-1",
+      "subtitle": "Wróć do tu i teraz",
+      "description": "Technika na niepokój: przejdź przez pięć zmysłów i wróć uwagą do otoczenia."
+    },
+    "boxBreathing": {
+      "title": "Oddech pudełkowy",
+      "subtitle": "4-4-4-4 przez dwie minuty",
+      "description": "Równy rytm oddechu, który uspokaja układ nerwowy w kilka minut."
+    },
+    "oneSmallWin": {
+      "title": "Mały sukces",
+      "subtitle": "Dostrzeż, co się udało",
+      "description": "Zapisz jedną rzecz, która dziś wyszła, i co mówi o tobie."
     }
   }
 }

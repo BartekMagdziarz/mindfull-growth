@@ -79,6 +79,7 @@ const tabs = computed(() => [
   { id: 'cbt' as const, label: t('exercises.tabs.cbt') },
   { id: 'logotherapy' as const, label: t('exercises.tabs.logotherapy') },
   { id: 'ifs' as const, label: t('exercises.tabs.ifs') },
+  { id: 'micro' as const, label: t('exercises.tabs.micro') },
 ])
 
 const activeTabLabel = computed(

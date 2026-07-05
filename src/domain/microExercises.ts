@@ -46,6 +46,8 @@ export type MicroExerciseStep = MicroStepBase &
 export interface MicroExerciseDefinition {
   /** Catalog slug (`kind: 'micro'` entries). */
   slug: string
+  /** camelCase key: step copy lives at `exerciseWizards.micro.<i18nKey>.*`. */
+  i18nKey: string
   steps: MicroExerciseStep[]
 }
 

@@ -126,7 +126,8 @@
     "selfDiscovery": "Self-Discovery",
     "cbt": "CBT",
     "logotherapy": "Logotherapy",
-    "ifs": "IFS"
+    "ifs": "IFS",
+    "micro": "Quick exercises"
   },
   "cards": {
     "valuesDiscovery": {
@@ -341,6 +342,39 @@
       "title": "Inner System Constellation",
       "subtitle": "Map part relationships",
       "description": "Map the dynamic relationships between your parts — alliances, conflicts, and hidden connections. Professional guidance recommended."
+    },
+    "gratitudeList": {
+      "title": "Gratitude List",
+      "subtitle": "Three things you're thankful for",
+      "description": {
+        "m": "List three things you're grateful for today — small ones count too.",
+        "f": "List three things you're grateful for today — small ones count too."
+      }
+    },
+    "savoringMoment": {
+      "title": "Savoring",
+      "subtitle": "Hold on to a good moment",
+      "description": "Return to the best moment of your day and deepen it by reliving it with your senses."
+    },
+    "selfCompassionBreak": {
+      "title": "Self-Compassion Break",
+      "subtitle": "Kristin Neff's three steps",
+      "description": "A short practice for a hard moment: mindfulness, common humanity, and kind words to yourself."
+    },
+    "grounding54321": {
+      "title": "5-4-3-2-1 Grounding",
+      "subtitle": "Come back to the here and now",
+      "description": "An anxiety-relief technique: walk through your five senses and return your attention to your surroundings."
+    },
+    "boxBreathing": {
+      "title": "Box Breathing",
+      "subtitle": "4-4-4-4 for two minutes",
+      "description": "An even breathing rhythm that calms your nervous system in a couple of minutes."
+    },
+    "oneSmallWin": {
+      "title": "One Small Win",
+      "subtitle": "Notice what went well",
+      "description": "Write down one thing that went well today and what it says about you."
     }
   }
 }
