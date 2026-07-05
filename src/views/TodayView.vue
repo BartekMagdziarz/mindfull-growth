@@ -49,6 +49,11 @@
             :completions="exerciseCompletionsStore.completions"
             :day-count="exerciseDayCompletions.length"
           />
+          <PlannedExercisesCard
+            v-if="wellnessIsToday && duePlanItems.length > 0"
+            :items="duePlanItems"
+            :today-ref="bundleDayRef"
+          />
         </aside>
 
         <!-- Zone B -->
@@ -250,6 +255,7 @@ import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import JournalCard from '@/components/today/JournalCard.vue'
 import EmotionCard from '@/components/today/EmotionCard.vue'
 import ExerciseCard from '@/components/today/ExerciseCard.vue'
+import PlannedExercisesCard from '@/components/today/PlannedExercisesCard.vue'
 import TodayItemRow from '@/components/today/TodayItemRow.vue'
 import TodayDateSwitcher from '@/components/today/TodayDateSwitcher.vue'
 import TodayOverviewSection from '@/components/today/TodayOverviewSection.vue'
@@ -260,6 +266,7 @@ import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
+import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { useTodayStore } from '@/stores/today.store'
 import { getQuadrant } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
@@ -281,6 +288,7 @@ const journalStore = useJournalStore()
 const emotionLogStore = useEmotionLogStore()
 const emotionStore = useEmotionStore()
 const exerciseCompletionsStore = useExerciseCompletionsStore()
+const exercisePlanStore = useExercisePlanStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const hiddenExpanded = ref(false)
 const deleteDialogOpen = ref(false)
@@ -331,6 +339,11 @@ const wellnessIsToday = computed(
   () => bundleDayRef.value === getPeriodRefsForDate(new Date()).day,
 )
 
+// Due + overdue plans — the tile is a today-only CTA (design §4.4/§4.6).
+const duePlanItems = computed(() =>
+  wellnessIsToday.value ? exercisePlanStore.dueItems(bundleDayRef.value) : [],
+)
+
 // --- Emocje / Emotions card data ----------------------------------------
 const todayEmotionLogs = computed<EmotionDonutLog[]>(() => {
   const todayKey = toLocalDateKey(wellnessReferenceDate.value)
@@ -374,6 +387,7 @@ onMounted(() => {
     emotionLogStore.loadLogs(),
     emotionStore.loadEmotions(),
     exerciseCompletionsStore.ensureLoaded(),
+    exercisePlanStore.ensureLoaded(),
   ])
 })
 

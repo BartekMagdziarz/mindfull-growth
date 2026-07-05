@@ -327,6 +327,19 @@
         "many": "{n} exercises done"
       },
       "exerciseNoneHistorical": "No exercises",
+      "plannedExercises": "Repeats",
+      "plannedOverdue": "overdue",
+      "plannedForToday": "for today",
+      "plannedMoreCount": {
+        "one": "+ {n} more",
+        "few": "+ {n} more",
+        "many": "+ {n} more"
+      },
+      "plannedMoveTomorrow": "Move to tomorrow",
+      "plannedPickDate": "Pick a date…",
+      "plannedSkip": "Skip",
+      "ariaPlannedStart": "Start the planned exercise",
+      "ariaPlannedActions": "Planned exercise actions",
       "ariaExerciseStart": "Start the suggested exercise",
       "ariaExerciseDone": "Exercises done — see all exercises",
       "ariaEmotionsDonut": "Log an emotion ({done} of {target})",

@@ -327,6 +327,19 @@
         "many": "{n} ćwiczeń ukończonych"
       },
       "exerciseNoneHistorical": "Brak ćwiczeń",
+      "plannedExercises": "Powtórki",
+      "plannedOverdue": "zaległe",
+      "plannedForToday": "na dziś",
+      "plannedMoreCount": {
+        "one": "+ {n} kolejna",
+        "few": "+ {n} kolejne",
+        "many": "+ {n} kolejnych"
+      },
+      "plannedMoveTomorrow": "Przenieś na jutro",
+      "plannedPickDate": "Wybierz datę…",
+      "plannedSkip": "Pomiń",
+      "ariaPlannedStart": "Rozpocznij zaplanowane ćwiczenie",
+      "ariaPlannedActions": "Akcje zaplanowanego ćwiczenia",
       "ariaExerciseStart": "Rozpocznij sugerowane ćwiczenie",
       "ariaExerciseDone": "Ćwiczenia ukończone — zobacz wszystkie",
       "ariaEmotionsDonut": "Loguj emocje ({done} z {target})",
