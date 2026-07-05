@@ -322,9 +322,9 @@
       "exerciseShowAnother": "Pokaż inne",
       "exerciseMinutes": "{n} min",
       "exerciseDoneCount": {
-        "one": "{n} ćwiczenie dzisiaj",
-        "few": "{n} ćwiczenia dzisiaj",
-        "many": "{n} ćwiczeń dzisiaj"
+        "one": "{n} ćwiczenie ukończone",
+        "few": "{n} ćwiczenia ukończone",
+        "many": "{n} ćwiczeń ukończonych"
       },
       "exerciseNoneHistorical": "Brak ćwiczeń",
       "ariaExerciseStart": "Rozpocznij sugerowane ćwiczenie",
