@@ -25,7 +25,8 @@
       },
       "day": {
         "journal": "Dziennik",
-        "emotions": "Emocje"
+        "emotions": "Emocje",
+        "exercises": "Ćwiczenia"
       },
       "prioritiesTitle": "Priorytety",
       "dimShort": {

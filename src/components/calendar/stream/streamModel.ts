@@ -108,6 +108,7 @@ export interface StreamDayVM {
   journalWritten: boolean
   emotionCount: number
   emotionSegments: StreamEmotionSegment[]
+  exerciseCount: number
   rings: StreamRingVM[]
 }
 

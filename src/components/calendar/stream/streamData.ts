@@ -37,6 +37,7 @@ import { reflectionDexieRepository } from '@/repositories/reflectionDexieReposit
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { MATRIX_SECTIONS, REFLECTION_MATRIX_AREAS } from '@/domain/reflectionMatrix'
 import { divergingRatingColor } from '@/utils/ratingGradient'
 import {
@@ -438,10 +439,12 @@ export async function loadStreamWeek(weekRef: WeekRef): Promise<StreamDayVM[]> {
   const journalStore = useJournalStore()
   const emotionLogStore = useEmotionLogStore()
   const emotionStore = useEmotionStore()
+  const exerciseCompletionsStore = useExerciseCompletionsStore()
   await Promise.all([
     journalStore.ensureLoaded(),
     emotionLogStore.ensureLoaded(),
     emotionStore.isLoaded ? Promise.resolve() : emotionStore.loadEmotions(),
+    exerciseCompletionsStore.ensureLoaded(),
   ])
 
   const krIds = new Set(
@@ -474,6 +477,12 @@ export async function loadStreamWeek(weekRef: WeekRef): Promise<StreamDayVM[]> {
 
     const dayEntries = bundle.rawEntries.filter((e) => e.dayRef === dayRef)
 
+    // Exact dayRef match, NOT the UTC window above: completions already
+    // store the canonical local day.
+    const exerciseCount = isFuture
+      ? 0
+      : exerciseCompletionsStore.completions.filter((c) => c.dayRef === dayRef).length
+
     return {
       dayRef,
       weekdayIndex,
@@ -483,6 +492,7 @@ export async function loadStreamWeek(weekRef: WeekRef): Promise<StreamDayVM[]> {
       journalWritten,
       emotionCount: dayLogs.length,
       emotionSegments: quadrantSegments(counts),
+      exerciseCount,
       rings: dayRings(krIds, habitIds, dayEntries, timeState),
     }
   })

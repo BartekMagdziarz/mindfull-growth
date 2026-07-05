@@ -487,6 +487,7 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
           :weekday-label="weekdayLabel(day.dayRef)"
           :journal-label="t('planning.calendar.stream.day.journal')"
           :emotions-label="t('planning.calendar.stream.day.emotions')"
+          :exercises-label="t('planning.calendar.stream.day.exercises')"
           :ring-labels="ringLabels"
           :index="i"
         />

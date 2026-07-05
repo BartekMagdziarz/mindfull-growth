@@ -9,6 +9,7 @@ const props = defineProps<{
   weekdayLabel: string
   journalLabel: string
   emotionsLabel: string
+  exercisesLabel: string
   ringLabels: Record<'goals' | 'habits' | 'intentions', string>
   index: number
 }>()
@@ -75,6 +76,29 @@ const emoCountStyle = computed(() => ({
 }))
 
 const emoCountText = computed(() => (props.day.emotionCount === 0 ? '—' : String(props.day.emotionCount)))
+
+const exerciseBoxStyle = computed(() => {
+  if (props.day.exerciseCount > 0) {
+    return {
+      background: 'rgb(var(--exercise-micro, 56 170 190))',
+      boxShadow:
+        '-4px -4px 8px rgb(var(--neo-shadow-light, 255 255 255) / 0.8), 4px 4px 8px rgb(var(--neo-shadow-dark, 145 170 205) / 0.33)',
+    }
+  }
+  return {
+    background: 'rgb(var(--color-surface-container, 245 250 255))',
+    boxShadow:
+      'inset -2px -2px 5px rgb(var(--neo-inset-light, 255 255 255) / 0.8), inset 2px 2px 5px rgb(var(--neo-inset-dark, 143 168 203) / 0.33)',
+  }
+})
+
+const exerciseCountStyle = computed(() => ({
+  color: props.day.exerciseCount > 0 ? '#fff' : 'rgb(var(--stream-faint, 169 191 220))',
+}))
+
+const exerciseCountText = computed(() =>
+  props.day.exerciseCount === 0 ? '—' : String(props.day.exerciseCount),
+)
 </script>
 
 <template>
@@ -100,6 +124,12 @@ const emoCountText = computed(() => (props.day.emotionCount === 0 ? '—' : Stri
           </div>
         </div>
         <span class="stream-day__indicator-name">{{ emotionsLabel }}</span>
+      </div>
+      <div class="stream-day__indicator">
+        <span class="stream-day__exercise" :style="exerciseBoxStyle">
+          <span class="stream-day__exercise-count" :style="exerciseCountStyle">{{ exerciseCountText }}</span>
+        </span>
+        <span class="stream-day__indicator-name">{{ exercisesLabel }}</span>
       </div>
     </div>
 
@@ -187,6 +217,20 @@ const emoCountText = computed(() => (props.day.emotionCount === 0 ? '—' : Stri
 }
 
 .stream-day__emo-count {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stream-day__exercise {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stream-day__exercise-count {
   font-size: 13px;
   font-weight: 700;
 }

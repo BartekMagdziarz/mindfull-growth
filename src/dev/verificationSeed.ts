@@ -36,11 +36,13 @@ import {
 } from '@/utils/periods'
 import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
+import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
+import { microExerciseEntryDexieRepository } from '@/repositories/microExerciseEntryDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
@@ -66,7 +68,7 @@ import {
 } from './verificationAccount'
 
 /** Bump after changing the dataset — forces a reset+re-seed on next verification boot. */
-export const SEED_VERSION = 2
+export const SEED_VERSION = 3
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 const WEEKS_BACK = 8
@@ -808,4 +810,44 @@ export async function seedVerificationData(): Promise<void> {
   console.log(
     `[verificationSeed] Created ${journalIdx + 1} journal entries and ${emotionIdx + 1} emotion logs`,
   )
+
+  // ── 13. Exercise completions + micro entries ────────────────────────────────
+  // Fresh seed DBs are created at the latest schema version, so the v23
+  // completion backfill never runs here — completions are written explicitly.
+  // dayRef must equal the local day of completedAt; midday-UTC stamps keep
+  // that true for the PL timezone (same convention as §12). TODAY is left
+  // without completions so the Today card demonstrates the suggestion state;
+  // gratitude-list/worry-tree at −4/−5 days sit just outside the 3-day
+  // exclusion window of the suggestion service.
+  const completionSeeds: Array<[slug: string, daysAgo: number]> = [
+    ['vlq', 20],
+    ['worry-tree', 16],
+    ['gratitude-list', 12],
+    ['box-breathing', 9],
+    ['daily-ifs-checkin', 6],
+    ['worry-tree', 5],
+    ['gratitude-list', 4],
+  ]
+
+  const gratitudeEntry = await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'gratitude-list',
+    responses: {
+      items: ['zdrowie', 'spokojny poranek', 'rozmowa z przyjaciółką'],
+      why: 'Spokojny poranek nadał ton całemu dniu.',
+    },
+    createdAt: `${addDaysToDayRef(todayRef, -4)}T12:00:00.000Z`,
+  })
+
+  for (const [slug, daysAgo] of completionSeeds) {
+    const dayRef = addDaysToDayRef(todayRef, -daysAgo)
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: slug,
+      dayRef,
+      completedAt: `${dayRef}T12:00:00.000Z`,
+      recordId: slug === 'gratitude-list' && daysAgo === 4 ? gratitudeEntry.id : undefined,
+      source: 'standalone',
+    })
+  }
+
+  console.log(`[verificationSeed] Created ${completionSeeds.length} exercise completions`)
 }
