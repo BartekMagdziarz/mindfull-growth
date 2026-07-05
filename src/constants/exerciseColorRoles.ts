@@ -152,6 +152,7 @@ export type ExerciseCategory =
   | 'cbt'
   | 'logotherapy'
   | 'ifs'
+  | 'micro'
 
 export const EXERCISE_CATEGORY_CLASSES: Record<
   ExerciseCategory,
@@ -172,5 +173,9 @@ export const EXERCISE_CATEGORY_CLASSES: Record<
   ifs: {
     bg: 'bg-exercise-ifs-soft',
     text: 'text-exercise-ifs-on',
+  },
+  micro: {
+    bg: 'bg-exercise-micro-soft',
+    text: 'text-exercise-micro-on',
   },
 }

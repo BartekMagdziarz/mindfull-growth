@@ -104,6 +104,9 @@ export default {
         'exercise-ifs': 'rgb(var(--exercise-ifs) / <alpha-value>)',
         'exercise-ifs-soft': 'rgb(var(--exercise-ifs-soft) / <alpha-value>)',
         'exercise-ifs-on': 'rgb(var(--exercise-ifs-on) / <alpha-value>)',
+        'exercise-micro': 'rgb(var(--exercise-micro) / <alpha-value>)',
+        'exercise-micro-soft': 'rgb(var(--exercise-micro-soft) / <alpha-value>)',
+        'exercise-micro-on': 'rgb(var(--exercise-micro-on) / <alpha-value>)',
 
         'rel-polarized': 'rgb(var(--rel-polarized) / <alpha-value>)',
         'rel-allied': 'rgb(var(--rel-allied) / <alpha-value>)',

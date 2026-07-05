@@ -275,7 +275,7 @@
   --activity-values-soft: 243 232 255;
   --activity-values-on: 107 45 165;
 
-  /* --- Exercise category accents (4 tabs in ExercisesView) ---------------- */
+  /* --- Exercise category accents (5 tabs in ExercisesView) ---------------- */
   --exercise-discovery: 220 105 155;
   --exercise-discovery-soft: 252 231 243;
   --exercise-discovery-on: 159 35 99;
@@ -288,6 +288,9 @@
   --exercise-ifs: 120 110 200;
   --exercise-ifs-soft: 224 231 255;
   --exercise-ifs-on: 60 47 156;
+  --exercise-micro: 56 170 190;
+  --exercise-micro-soft: 207 246 250;
+  --exercise-micro-on: 14 116 144;
 
   /* --- Constellation / Parts Mapping relationship types ------------------- */
   --rel-polarized: 220 95 110;
