@@ -37,6 +37,7 @@ import {
 import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
+import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
@@ -68,7 +69,7 @@ import {
 } from './verificationAccount'
 
 /** Bump after changing the dataset — forces a reset+re-seed on next verification boot. */
-export const SEED_VERSION = 3
+export const SEED_VERSION = 4
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 const WEEKS_BACK = 8
@@ -850,4 +851,23 @@ export async function seedVerificationData(): Promise<void> {
   }
 
   console.log(`[verificationSeed] Created ${completionSeeds.length} exercise completions`)
+
+  // ── 14. Exercise plan items (Phase 2 repeats) ───────────────────────────────
+  // Explicit dayRefs, NOT derived from suggestedRepeatDays — the tile needs
+  // one due and one overdue plan today regardless of the completion history
+  // above. Both stay 'pending': seeds write via the repo, so recordCompletion's
+  // auto-complete never runs. Completing either exercise in-app demonstrates
+  // the auto-tick end to end; a micro slug keeps that a 2-minute affair.
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'box-breathing',
+    dayRef: todayRef,
+    source: 'repeat',
+  })
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'gratitude-list',
+    dayRef: addDaysToDayRef(todayRef, -3),
+    source: 'repeat',
+  })
+
+  console.log('[verificationSeed] Created 2 exercise plan items (1 due, 1 overdue)')
 }
