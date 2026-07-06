@@ -23,10 +23,12 @@ authenticated.
 
 ## 2. Drive the app
 
-Two interchangeable options:
+Two verification paths:
 
-- **Browser (exploratory):** use claude-in-chrome against
-  `http://127.0.0.1:5199`. Best for visual checks, new features, screenshots.
+- **Codex exploratory verification:** use the `codex-computer-use` skill for
+  visual checks, new features, browser automation, console inspection, and
+  screenshots. Claude/Fable should not spend its own Browser/Computer-use
+  context on this project; if Codex is unavailable, report the blocker.
 - **Playwright (scripted):** `npm run test:e2e:verify` runs the smoke suite
   (`e2e/verification-smoke.spec.ts`); extend it or write a one-off spec under
   the `verification` project for repeatable checks.
