@@ -30,8 +30,25 @@
       </div>
     </div>
 
+    <!-- Programs ("ścieżki") render from src/data/programCatalog.ts -->
+    <div
+      v-if="activeTab === 'programs'"
+      :id="`exercises-panel-${activeTab}`"
+      role="tabpanel"
+      :aria-label="activeTabLabel"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      <ProgramCatalogCard
+        v-for="program in PROGRAM_CATALOG"
+        :key="program.slug"
+        :program="program"
+        :enrollment="enrollmentStore.enrollmentForProgram(program.slug)"
+      />
+    </div>
+
     <!-- Cards render from the catalog (src/data/exerciseCatalog.ts) -->
     <div
+      v-else
       :id="`exercises-panel-${activeTab}`"
       role="tabpanel"
       :aria-label="activeTabLabel"
@@ -63,16 +80,23 @@ import { useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
 import PageContainer from '@/components/layout/PageContainer.vue'
 import ExerciseCard from '@/components/exercises/ExerciseCard.vue'
+import ProgramCatalogCard from '@/components/exercises/ProgramCatalogCard.vue'
 import type { ExerciseCatalogCategory } from '@/domain/exerciseCatalog'
 import { catalogEntriesForTab } from '@/data/exerciseCatalog'
+import { PROGRAM_CATALOG } from '@/data/programCatalog'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
+import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 
 const router = useRouter()
 const { t, tg } = useT()
 
 const completionsStore = useExerciseCompletionsStore()
+const enrollmentStore = useProgramEnrollmentStore()
 
-const activeTab = ref<ExerciseCatalogCategory>('self-discovery')
+/** Catalog categories plus the programs ("ścieżki") tab. */
+type ExercisesTab = ExerciseCatalogCategory | 'programs'
+
+const activeTab = ref<ExercisesTab>('self-discovery')
 
 const tabs = computed(() => [
   { id: 'self-discovery' as const, label: t('exercises.tabs.selfDiscovery') },
@@ -80,13 +104,16 @@ const tabs = computed(() => [
   { id: 'logotherapy' as const, label: t('exercises.tabs.logotherapy') },
   { id: 'ifs' as const, label: t('exercises.tabs.ifs') },
   { id: 'micro' as const, label: t('exercises.tabs.micro') },
+  { id: 'programs' as const, label: t('exercises.tabs.programs') },
 ])
 
 const activeTabLabel = computed(
   () => tabs.value.find((tab) => tab.id === activeTab.value)?.label ?? '',
 )
 
-const visibleEntries = computed(() => catalogEntriesForTab(activeTab.value))
+const visibleEntries = computed(() =>
+  activeTab.value === 'programs' ? [] : catalogEntriesForTab(activeTab.value),
+)
 
 // "Last completed" badges come from the unified completion log (one
 // query) — the v23 backfill covers pre-log history.
@@ -94,5 +121,6 @@ const lastCompletedBySlug = computed(() => completionsStore.latestBySlug)
 
 onMounted(() => {
   void completionsStore.ensureLoaded()
+  void enrollmentStore.ensureLoaded()
 })
 </script>

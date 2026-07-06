@@ -1,0 +1,112 @@
+{
+  "ui": {
+    "enroll": "Start this path",
+    "reenroll": "Start again",
+    "pause": "Pause",
+    "resume": "Resume",
+    "abandon": "Abandon",
+    "abandonConfirmTitle": "Abandon this path?",
+    "abandonConfirmMessage": "Your completed steps stay in history, but the scheduled step will be removed. You can start the path again later.",
+    "skipOptional": "Skip",
+    "optionalBadge": "optional",
+    "start": "Start",
+    "statusActive": "in progress",
+    "statusPaused": "paused",
+    "statusCompleted": "completed",
+    "stepDone": "completed {date}",
+    "stepSkipped": "skipped",
+    "stepLocked": "unlocks after the previous step",
+    "plannedFor": "planned for {date}",
+    "overdue": "overdue",
+    "availableFrom": "available from {date}",
+    "stepProgress": "step {current} of {total}",
+    "stepLabel": "Step {n}",
+    "stepsCount": {
+      "one": "{n} step",
+      "few": "{n} steps",
+      "many": "{n} steps"
+    },
+    "weeksCount": {
+      "one": "~{n} week",
+      "few": "~{n} weeks",
+      "many": "~{n} weeks"
+    },
+    "completedTitle": "Path completed!",
+    "completedMessage": "Every step is behind you. You can start the path again whenever you like.",
+    "pausedNote": "This path is paused — resume it to continue."
+  },
+  "ifs-parts": {
+    "title": "Meet your parts",
+    "description": "A four-week IFS path: from a parts map, through unblending and trailheads, to a dialogue with your parts.",
+    "steps": {
+      "step1": {
+        "intro": "Start with a map: gather the parts you already know and see how they relate to each other."
+      },
+      "step2": {
+        "intro": "A short unblending practice — notice the part that carries you away and take a step back into Self."
+      },
+      "step3": {
+        "intro": "Follow a trailhead: a strong reaction from recent days is a trail leading to a part."
+      },
+      "step4": {
+        "intro": "Appreciate a protector — get to know its intention before asking for deeper access."
+      },
+      "step5": {
+        "intro": "Witness an exile: let a younger part tell its story at the pace it chooses."
+      },
+      "step6": {
+        "intro": "Check your Self-energy (the 8 Cs) — after exile work, see how much calm and compassion is present."
+      },
+      "step7": {
+        "intro": "Close the path with a dialogue: talk with the part that needs your attention most."
+      }
+    }
+  },
+  "foundation": {
+    "title": "Foundation of self-knowledge",
+    "description": "Six steps — one for each Foundation area: values, meaning, personality, emotions, relationships and life balance. At the end you build your profile.",
+    "finaleCta": "Build the Foundation",
+    "finaleDescription": "Every area is covered — you can now build your psychological profile.",
+    "steps": {
+      "step1": {
+        "intro": "Discover what truly matters to you — the axis the rest of the profile is built around."
+      },
+      "step2": {
+        "intro": "Transformative purpose: name the direction that gives your actions meaning."
+      },
+      "step3": {
+        "intro": "A short Big Five measure — a map of your personality traits."
+      },
+      "step4": {
+        "intro": "Emotion regulation (ERQ): check how you usually handle emotions."
+      },
+      "step5": {
+        "intro": "Attachment style (ECR-RS): look at your patterns in close relationships."
+      },
+      "step6": {
+        "intro": "Wheel of Life: rate the balance of your life areas and close the Foundation."
+      }
+    }
+  },
+  "cbt-thoughts": {
+    "title": "CBT: thoughts under the lens",
+    "description": "Learn the cognitive distortions, practice the thought record over a few rounds and descend to the core beliefs beneath them.",
+    "steps": {
+      "step1": {
+        "intro": "Theory in practice first: learn to recognize the common cognitive distortions."
+      },
+      "step2": {
+        "intro": "Your first thought record — catch a hot thought and work it through step by step."
+      },
+      "step3": {
+        "intro": "Second round: the thought record works best as a regular practice."
+      },
+      "step4": {
+        "intro": "An optional third round — consolidate the habit before going deeper."
+      },
+      "step5": {
+        "intro": "The finale: from single thoughts to the core beliefs that feed them."
+      }
+    }
+  }
+}

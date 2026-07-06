@@ -1,0 +1,112 @@
+{
+  "ui": {
+    "enroll": "Rozpocznij ścieżkę",
+    "reenroll": "Rozpocznij ponownie",
+    "pause": "Wstrzymaj",
+    "resume": "Wznów",
+    "abandon": "Porzuć",
+    "abandonConfirmTitle": "Porzucić tę ścieżkę?",
+    "abandonConfirmMessage": "Ukończone kroki zostaną w historii, ale zaplanowany krok zniknie. Ścieżkę można później zacząć od nowa.",
+    "skipOptional": "Pomiń",
+    "optionalBadge": "opcjonalny",
+    "start": "Rozpocznij",
+    "statusActive": "w trakcie",
+    "statusPaused": "wstrzymana",
+    "statusCompleted": "ukończona",
+    "stepDone": "ukończono {date}",
+    "stepSkipped": "pominięto",
+    "stepLocked": "odblokuje się po poprzednim kroku",
+    "plannedFor": "zaplanowano na {date}",
+    "overdue": "zaległe",
+    "availableFrom": "dostępne od {date}",
+    "stepProgress": "krok {current} z {total}",
+    "stepLabel": "Krok {n}",
+    "stepsCount": {
+      "one": "{n} krok",
+      "few": "{n} kroki",
+      "many": "{n} kroków"
+    },
+    "weeksCount": {
+      "one": "~{n} tydzień",
+      "few": "~{n} tygodnie",
+      "many": "~{n} tygodni"
+    },
+    "completedTitle": "Ścieżka ukończona!",
+    "completedMessage": "Wszystkie kroki za Tobą. Możesz zacząć ścieżkę ponownie, kiedy zechcesz.",
+    "pausedNote": "Ścieżka jest wstrzymana — wznów ją, aby kontynuować."
+  },
+  "ifs-parts": {
+    "title": "Poznaj swoje części",
+    "description": "Czterotygodniowa ścieżka IFS: od mapy części, przez odmieszanie i punkty wejścia, po dialog z częściami.",
+    "steps": {
+      "step1": {
+        "intro": "Zacznij od mapy: zbierz części, które już znasz, i zobacz, jak się ze sobą łączą."
+      },
+      "step2": {
+        "intro": "Krótka praktyka odmieszania — zauważ część, która Cię porywa, i zrób krok wstecz do Ja."
+      },
+      "step3": {
+        "intro": "Podążaj za punktem wejścia: mocna reakcja z ostatnich dni to trop prowadzący do części."
+      },
+      "step4": {
+        "intro": "Doceń protektora — poznaj jego intencję, zanim poprosisz o głębszy dostęp."
+      },
+      "step5": {
+        "intro": "Świadkowanie wygnańcowi: pozwól młodszej części opowiedzieć swoją historię w tempie, które sama wybierze."
+      },
+      "step6": {
+        "intro": "Sprawdź energię Ja (8 C) — po pracy z wygnańcem zobacz, ile spokoju i współczucia jest w Tobie."
+      },
+      "step7": {
+        "intro": "Domknij ścieżkę dialogiem: porozmawiaj z częścią, która najbardziej potrzebuje Twojej uwagi."
+      }
+    }
+  },
+  "foundation": {
+    "title": "Fundament samopoznania",
+    "description": "Sześć kroków — po jednym na każdy obszar Fundamentu: wartości, sens, osobowość, emocje, relacje i równowagę życia. Na końcu zbudujesz swój profil.",
+    "finaleCta": "Zbuduj Fundament",
+    "finaleDescription": "Wszystkie obszary pokryte — możesz zbudować swój profil psychologiczny.",
+    "steps": {
+      "step1": {
+        "intro": "Odkryj, co jest dla Ciebie naprawdę ważne — to oś, wokół której układa się reszta profilu."
+      },
+      "step2": {
+        "intro": "Cel transformacyjny: nazwij kierunek, który nadaje Twoim działaniom sens."
+      },
+      "step3": {
+        "intro": "Krótki pomiar Wielkiej Piątki — mapa Twoich cech osobowości."
+      },
+      "step4": {
+        "intro": "Regulacja emocji (ERQ): sprawdź, jak zwykle radzisz sobie z emocjami."
+      },
+      "step5": {
+        "intro": "Styl przywiązania (ECR-RS): przyjrzyj się swoim wzorcom w bliskich relacjach."
+      },
+      "step6": {
+        "intro": "Koło Życia: oceń równowagę obszarów i domknij Fundament."
+      }
+    }
+  },
+  "cbt-thoughts": {
+    "title": "CBT: myśli pod lupą",
+    "description": "Poznaj zniekształcenia poznawcze, przećwicz rejestr myśli w kilku rundach i zejdź do przekonań kluczowych, które za nimi stoją.",
+    "steps": {
+      "step1": {
+        "intro": "Najpierw teoria w praktyce: naucz się rozpoznawać typowe zniekształcenia poznawcze."
+      },
+      "step2": {
+        "intro": "Pierwszy rejestr myśli — złap gorącą myśl i przepracuj ją krok po kroku."
+      },
+      "step3": {
+        "intro": "Druga runda: rejestr myśli działa najlepiej jako regularna praktyka."
+      },
+      "step4": {
+        "intro": "Opcjonalna trzecia runda — utrwal nawyk, zanim zejdziesz głębiej."
+      },
+      "step5": {
+        "intro": "Finał: od pojedynczych myśli do przekonań kluczowych, które je zasilają."
+      }
+    }
+  }
+}

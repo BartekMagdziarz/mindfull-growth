@@ -143,6 +143,11 @@ const router = createRouter({
       name: 'micro-exercise',
       component: () => import('@/views/exercises/MicroExerciseView.vue'),
     },
+    {
+      path: '/exercises/programs/:slug',
+      name: 'program-detail',
+      component: () => import('@/views/exercises/ProgramDetailView.vue'),
+    },
     // Life Areas
     {
       path: '/areas',

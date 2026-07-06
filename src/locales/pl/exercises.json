@@ -127,7 +127,8 @@
     "cbt": "CBT",
     "logotherapy": "Logoterapia",
     "ifs": "IFS",
-    "micro": "Szybkie ćwiczenia"
+    "micro": "Szybkie ćwiczenia",
+    "programs": "Ścieżki"
   },
   "repeatPrompt": {
     "title": "Zaplanować powtórkę?",

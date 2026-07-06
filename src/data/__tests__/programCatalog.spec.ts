@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { PROGRAM_CATALOG, getProgramDefinition } from '@/data/programCatalog'
 import { getCatalogEntry } from '@/data/exerciseCatalog'
+import enPrograms from '@/locales/en/programs.json'
+import plPrograms from '@/locales/pl/programs.json'
 
 describe('program catalog', () => {
   it('has unique program slugs', () => {
@@ -63,6 +65,31 @@ describe('program catalog', () => {
       program.steps.forEach((step, index) => {
         expect(step.introKey).toBe(`programs.${program.slug}.steps.step${index + 1}.intro`)
       })
+    }
+  })
+
+  it('has copy for every program and step intro in both locales', () => {
+    for (const locale of [enPrograms, plPrograms]) {
+      const copy = locale as unknown as Record<
+        string,
+        { title?: string; description?: string; steps?: Record<string, { intro?: string }> }
+      >
+      for (const program of PROGRAM_CATALOG) {
+        const node = copy[program.slug]
+        expect(node?.title, `${program.slug}.title missing`).toBeTruthy()
+        expect(node?.description, `${program.slug}.description missing`).toBeTruthy()
+        program.steps.forEach((_, index) => {
+          expect(
+            node?.steps?.[`step${index + 1}`]?.intro,
+            `${program.slug}.steps.step${index + 1}.intro missing`,
+          ).toBeTruthy()
+        })
+        if (program.finaleRouteName) {
+          const finale = node as { finaleCta?: string; finaleDescription?: string }
+          expect(finale?.finaleCta, `${program.slug}.finaleCta missing`).toBeTruthy()
+          expect(finale?.finaleDescription, `${program.slug}.finaleDescription missing`).toBeTruthy()
+        }
+      }
     }
   })
 
