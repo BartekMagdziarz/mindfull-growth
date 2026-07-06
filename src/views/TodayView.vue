@@ -54,6 +54,11 @@
             :items="duePlanItems"
             :today-ref="bundleDayRef"
           />
+          <ProgramCard
+            v-if="wellnessIsToday && activeEnrollments.length > 0"
+            :enrollments="activeEnrollments"
+            :today-ref="bundleDayRef"
+          />
         </aside>
 
         <!-- Zone B -->
@@ -256,6 +261,7 @@ import JournalCard from '@/components/today/JournalCard.vue'
 import EmotionCard from '@/components/today/EmotionCard.vue'
 import ExerciseCard from '@/components/today/ExerciseCard.vue'
 import PlannedExercisesCard from '@/components/today/PlannedExercisesCard.vue'
+import ProgramCard from '@/components/today/ProgramCard.vue'
 import TodayItemRow from '@/components/today/TodayItemRow.vue'
 import TodayDateSwitcher from '@/components/today/TodayDateSwitcher.vue'
 import TodayOverviewSection from '@/components/today/TodayOverviewSection.vue'
@@ -267,6 +273,7 @@ import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
+import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import { useTodayStore } from '@/stores/today.store'
 import { getQuadrant } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
@@ -289,6 +296,7 @@ const emotionLogStore = useEmotionLogStore()
 const emotionStore = useEmotionStore()
 const exerciseCompletionsStore = useExerciseCompletionsStore()
 const exercisePlanStore = useExercisePlanStore()
+const programEnrollmentStore = useProgramEnrollmentStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const hiddenExpanded = ref(false)
 const deleteDialogOpen = ref(false)
@@ -344,6 +352,11 @@ const duePlanItems = computed(() =>
   wellnessIsToday.value ? exercisePlanStore.dueItems(bundleDayRef.value) : [],
 )
 
+// Active program paths — the tile is a today-only surface (design §4.5/§4.6).
+const activeEnrollments = computed(() =>
+  wellnessIsToday.value ? programEnrollmentStore.activeEnrollments : [],
+)
+
 // --- Emocje / Emotions card data ----------------------------------------
 const todayEmotionLogs = computed<EmotionDonutLog[]>(() => {
   const todayKey = toLocalDateKey(wellnessReferenceDate.value)
@@ -382,13 +395,16 @@ const todayEmotionLogs = computed<EmotionDonutLog[]>(() => {
 
 onMounted(() => {
   void loadInitialBundle()
-  Promise.all([
+  // The scheduler runs strictly after both stores are hydrated, so the
+  // plan items it materializes land in a loaded cache (design D2).
+  void Promise.all([
     journalStore.loadEntries(),
     emotionLogStore.loadLogs(),
     emotionStore.loadEmotions(),
     exerciseCompletionsStore.ensureLoaded(),
     exercisePlanStore.ensureLoaded(),
-  ])
+    programEnrollmentStore.ensureLoaded(),
+  ]).then(() => programEnrollmentStore.runScheduler())
 })
 
 watch(

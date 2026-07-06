@@ -345,7 +345,12 @@
       "ariaEmotionsDonut": "Log an emotion ({done} of {target})",
       "ariaEmotionsDonutEmpty": "Log your first emotion of the day",
       "ariaJournalDone": "Open today's entry",
-      "ariaJournalEmpty": "Write an entry today"
+      "ariaJournalEmpty": "Write an entry today",
+      "programs": "Paths",
+      "programStepProgress": "step {current} of {total}",
+      "programFrom": "from {date}",
+      "ariaProgramStart": "Start the path's step",
+      "ariaProgramOpen": "Open path details"
     }
   },
   "weekWizard": {

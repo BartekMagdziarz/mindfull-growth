@@ -345,7 +345,12 @@
       "ariaEmotionsDonut": "Loguj emocje ({done} z {target})",
       "ariaEmotionsDonutEmpty": "Dodaj pierwszy log emocji",
       "ariaJournalDone": "Otwórz dzisiejszy wpis",
-      "ariaJournalEmpty": "Napisz wpis dzisiaj"
+      "ariaJournalEmpty": "Napisz wpis dzisiaj",
+      "programs": "Ścieżki",
+      "programStepProgress": "krok {current} z {total}",
+      "programFrom": "od {date}",
+      "ariaProgramStart": "Rozpocznij krok ścieżki",
+      "ariaProgramOpen": "Otwórz szczegóły ścieżki"
     }
   },
   "weekWizard": {
