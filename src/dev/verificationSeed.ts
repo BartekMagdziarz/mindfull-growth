@@ -38,6 +38,7 @@ import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
+import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
@@ -69,7 +70,7 @@ import {
 } from './verificationAccount'
 
 /** Bump after changing the dataset — forces a reset+re-seed on next verification boot. */
-export const SEED_VERSION = 4
+export const SEED_VERSION = 5
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 const WEEKS_BACK = 8
@@ -870,4 +871,43 @@ export async function seedVerificationData(): Promise<void> {
   })
 
   console.log('[verificationSeed] Created 2 exercise plan items (1 due, 1 overdue)')
+
+  // ── 15. Program enrollment (Phase 3 ścieżki) ────────────────────────────────
+  // "Poznaj swoje części" mid-path: steps 0–1 done (−9/−4 days), step 2
+  // (trailhead, minGapDays 4) pending and due exactly TODAY — consistent
+  // with eligibleDayForStep, so the Today-load scheduler idempotently
+  // no-ops over this seed. Matching §13-style completions keep the
+  // history coherent (midday-UTC stamps, same convention).
+  const enrollmentStart = addDaysToDayRef(todayRef, -9)
+  const ifsEnrollment = await programEnrollmentDexieRepository.create({
+    programSlug: 'ifs-parts',
+    startedAt: `${enrollmentStart}T12:00:00.000Z`,
+  })
+  await programEnrollmentDexieRepository.update(ifsEnrollment.id, {
+    currentStepIndex: 2,
+    completedSteps: [
+      { stepIndex: 0, completedAt: `${enrollmentStart}T12:00:00.000Z` },
+      { stepIndex: 1, completedAt: `${addDaysToDayRef(todayRef, -4)}T12:00:00.000Z` },
+    ],
+  })
+  for (const [slug, daysAgo] of [
+    ['parts-mapping', 9],
+    ['unblending', 4],
+  ] as const) {
+    const dayRef = addDaysToDayRef(todayRef, -daysAgo)
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: slug,
+      dayRef,
+      completedAt: `${dayRef}T12:00:00.000Z`,
+      source: 'plan',
+    })
+  }
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'trailhead',
+    dayRef: todayRef,
+    source: 'program',
+    sourceRef: ifsEnrollment.id,
+  })
+
+  console.log('[verificationSeed] Created 1 active program enrollment (ifs-parts, step 3/7)')
 }
