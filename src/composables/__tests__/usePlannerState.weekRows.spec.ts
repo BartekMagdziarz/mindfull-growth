@@ -206,3 +206,97 @@ describe('usePlannerState month matrix', () => {
     ).toBeUndefined()
   })
 })
+
+describe('usePlannerState entry-days condition (P2)', () => {
+  beforeEach(async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    await resetPlanningTestData()
+  })
+
+  /** Starts unplanned (no month state) so matrix toggles place weeks one by one. */
+  async function createMonthlyHabitWithEntryDays(): Promise<string> {
+    const habit = await habitDexieRepository.create({
+      title: 'Strength with days',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'monthly',
+      entryMode: 'counter',
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 12,
+        entryDays: { operator: 'min', value: 9 },
+      },
+      status: 'open',
+    })
+    return habit.id
+  }
+
+  it('adds, adjusts, and removes the condition on the month override', async () => {
+    const habitId = await createMonthlyHabit('whole-month')
+    const planner = setupPlanner()
+    await planner.loadPlannerData()
+
+    await planner.handleEntryDaysChange(habitRow(planner, habitId), {
+      operator: 'min',
+      value: 10,
+    })
+    let monthState = await planningStateDexieRepository.getMeasurementMonthState(
+      MONTH,
+      'habit',
+      habitId
+    )
+    expect(monthState?.targetOverride?.entryDays).toEqual({ operator: 'min', value: 10 })
+
+    await planner.handleEntryDaysChange(habitRow(planner, habitId), undefined)
+    monthState = await planningStateDexieRepository.getMeasurementMonthState(
+      MONTH,
+      'habit',
+      habitId
+    )
+    expect(monthState?.targetOverride?.entryDays).toBeUndefined()
+    // The rest of the override survives condition removal.
+    expect(monthState?.targetOverride).toEqual({ kind: 'count', operator: 'min', value: 12 })
+  })
+
+  it('distributes entry days alongside the value in Rozłóż równo', async () => {
+    const habitId = await createMonthlyHabitWithEntryDays()
+    const planner = setupPlanner()
+    await planner.loadPlannerData()
+
+    const weeks = (getChildPeriods(MONTH) as WeekRef[]).slice(0, 3)
+    for (const weekRef of weeks) {
+      await planner.handleMatrixCellToggle(habitRow(planner, habitId), weekRef)
+    }
+    await planner.handleDistributeEvenly(habitRow(planner, habitId))
+
+    const row = habitRow(planner, habitId)
+    const values = weeks.map(weekRef => row.weekTargetOverrideByRef[weekRef]?.value)
+    const days = weeks.map(weekRef => row.weekTargetOverrideByRef[weekRef]?.entryDays?.value)
+    expect(values).toEqual([4, 4, 4])
+    expect(days).toEqual([3, 3, 3])
+  })
+
+  it('adjusts the entry-days value on a single week sub-target', async () => {
+    const habitId = await createMonthlyHabitWithEntryDays()
+    const planner = setupPlanner()
+    await planner.loadPlannerData()
+
+    const weeks = (getChildPeriods(MONTH) as WeekRef[]).slice(0, 2)
+    for (const weekRef of weeks) {
+      await planner.handleMatrixCellToggle(habitRow(planner, habitId), weekRef)
+    }
+
+    await planner.handleWeekEntryDaysValueChange(habitRow(planner, habitId), weeks[0], 4)
+
+    const row = habitRow(planner, habitId)
+    expect(row.weekTargetOverrideByRef[weeks[0]]?.entryDays).toEqual({
+      operator: 'min',
+      value: 4,
+    })
+    // The main value is inherited from the effective target, untouched.
+    expect(row.weekTargetOverrideByRef[weeks[0]]?.value).toBe(12)
+    expect(row.weekTargetOverrideByRef[weeks[1]]).toBeUndefined()
+  })
+})

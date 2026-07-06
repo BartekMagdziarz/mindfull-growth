@@ -196,6 +196,7 @@ export function useWeeklyPlannerState(
       icon: resolvedIcon,
       subjectType,
       cadence: item.cadence,
+      entryMode: item.entryMode,
       target: 'target' in item ? item.target : undefined,
       // Week-effective: week override → month override → (base target via editableTarget).
       targetOverride: governingWeekState?.targetOverride ?? monthState?.targetOverride,
@@ -479,6 +480,20 @@ export function useWeeklyPlannerState(
     await saveTargetOverride(item, undefined)
   }
 
+  /** Adjust the entry-days value on this week's override; the condition itself
+   * (operator, presence) is inherited from the effective target. */
+  async function handleEntryDaysValueChange(
+    item: PlannerMeasurementRow,
+    days: number
+  ): Promise<void> {
+    const target = editableTarget(item)
+    const condition = target?.entryDays
+    if (!target || !condition || item.subjectType === 'tracker' || !Number.isFinite(days)) return
+
+    const value = Math.min(7, Math.max(1, Math.round(days)))
+    await saveTargetOverride(item, { ...target, entryDays: { ...condition, value } })
+  }
+
   /** Toggle a single day cell, materializing soft coverage first so the rest of
    * the whole-week / whole-month coverage never silently collapses. */
   async function handleMatrixCellToggle(
@@ -630,6 +645,7 @@ export function useWeeklyPlannerState(
     dayCellState,
     handleTargetValueChange,
     handleClearOverride,
+    handleEntryDaysValueChange,
     handleMatrixCellToggle,
     handleWholeWeekToggle,
     handleRowClear,

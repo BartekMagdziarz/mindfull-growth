@@ -38,6 +38,9 @@
             :parent-goal-icon="item.parentGoalIcon"
           />
         </div>
+        <p v-if="entryDaysBreakdown(item)" class="review-item__breakdown">
+          {{ entryDaysBreakdown(item) }}
+        </p>
         <textarea
           v-if="isExpanded(item.key)"
           :value="comments[item.key] ?? ''"
@@ -103,6 +106,35 @@ function toggle(key: string): void {
 function onComment(key: string, value: string): void {
   comments.value = { ...comments.value, [key]: value }
 }
+
+/**
+ * "Why missed" one-liner for targets with an entry-days condition: the status
+ * badge only says missed — this names which leg of the conjunction failed
+ * (metric, day count, or both). Null for met/no-data and unconditioned targets.
+ */
+function entryDaysBreakdown(item: WeekObjectItem): string | null {
+  const measurement = item.measurement
+  const condition = measurement.target?.entryDays
+  if (
+    !condition ||
+    measurement.evaluationStatus !== 'missed' ||
+    measurement.primaryMet === undefined ||
+    measurement.presenceMet === undefined
+  ) {
+    return null
+  }
+
+  const days = `${measurement.qualifiedEntryDays ?? 0}/${condition.value}`
+  if (measurement.primaryMet && !measurement.presenceMet) {
+    return condition.operator === 'min'
+      ? t('planning.reflection.review.entryDays.presenceMissedMin', { days })
+      : t('planning.reflection.review.entryDays.presenceMissedMax', { days })
+  }
+  if (!measurement.primaryMet && measurement.presenceMet) {
+    return t('planning.reflection.review.entryDays.primaryMissed', { days })
+  }
+  return t('planning.reflection.review.entryDays.bothMissed', { days })
+}
 </script>
 
 <style scoped>
@@ -158,6 +190,14 @@ function onComment(key: string, value: string): void {
   font-size: 14px;
   line-height: 1;
   color: rgb(var(--color-primary));
+}
+
+.review-item__breakdown {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: rgb(var(--color-error));
 }
 
 .review-item__comment {

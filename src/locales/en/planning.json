@@ -209,6 +209,9 @@
       "clearPlacement": "Clear",
       "clearOverride": "Reset override",
       "target": "Target",
+      "entryDaysAdd": "+ days",
+      "entryDaysRemove": "Remove days condition",
+      "entryDaysOperator": "Days condition operator",
       "steps": {
         "goals": "Goals",
         "habits": "Habits",
@@ -222,6 +225,7 @@
         },
         "dayBadgeHint": "Edit days in the weekly ritual",
         "weekTarget": "Week target",
+        "entryDaysTarget": "Days with an entry",
         "clearWeekTarget": "Clear week target",
         "distributeEvenly": "Distribute evenly",
         "sumOk": "Allocated: {assigned} of {total} ✓",
@@ -968,6 +972,12 @@
       "commentPlaceholder": "What stood out about this?",
       "empty": "No active objects this week.",
       "hasComment": "Has a comment",
+      "entryDays": {
+        "presenceMissedMin": "Metric met, not enough entry days ({days})",
+        "presenceMissedMax": "Metric met, day limit exceeded ({days})",
+        "primaryMissed": "Entry days OK ({days}), metric below target",
+        "bothMissed": "Below target: metric and entry days ({days})"
+      },
       "emotions": "Emotions",
       "emotionLog": {
         "one": "{n} emotion log",

@@ -40,6 +40,53 @@
       @change="$emit('valueChange', Number(($event.target as HTMLInputElement).value))"
     />
 
+    <template v-if="entryDays">
+      <span class="text-[11px] text-on-surface-variant">·</span>
+      <select
+        class="neo-inset min-w-0 flex-none rounded-xl py-0.5 pl-1.5 pr-4 text-[11px] text-on-surface"
+        :value="entryDays.operator"
+        :disabled="disabled"
+        :aria-label="t('planning.calendar.planner.entryDaysOperator')"
+        @change="onEntryDaysOperator(($event.target as HTMLSelectElement).value)"
+      >
+        <option value="min">min</option>
+        <option value="max">max</option>
+      </select>
+      <input
+        class="neo-inset w-10 min-w-0 flex-none rounded-xl py-0.5 px-1.5 text-[11px] text-on-surface"
+        type="number"
+        min="1"
+        :max="entryDaysMax"
+        step="1"
+        :value="entryDays.value"
+        :disabled="disabled"
+        :aria-label="t('planning.objects.targetSentence.entryDaysValueLabel')"
+        @change="onEntryDaysValue(Number(($event.target as HTMLInputElement).value))"
+      />
+      <span class="text-[11px] text-on-surface-variant">
+        {{ t('planning.objects.targetSentence.entryDaysUnit') }}
+      </span>
+      <button
+        type="button"
+        class="rounded-full p-0.5 text-on-surface-variant transition-colors hover:bg-section hover:text-primary"
+        :title="t('planning.calendar.planner.entryDaysRemove')"
+        :disabled="disabled"
+        @click="$emit('entryDaysChange', undefined)"
+      >
+        <AppIcon name="close" class="text-xs" />
+      </button>
+    </template>
+    <button
+      v-else-if="allowEntryDays"
+      type="button"
+      class="rounded-full px-1.5 py-0.5 text-[11px] font-medium text-on-surface-variant underline decoration-dotted underline-offset-2 transition-colors hover:text-on-surface"
+      :title="t('planning.objects.targetSentence.addEntryDays')"
+      :disabled="disabled"
+      @click="$emit('entryDaysChange', { operator: 'min', value: entryDaysDefault })"
+    >
+      {{ t('planning.calendar.planner.entryDaysAdd') }}
+    </button>
+
     <button
       v-if="hasOverride"
       type="button"
@@ -56,22 +103,34 @@
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
-import type { MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryDaysCondition, MeasurementTarget } from '@/domain/planning'
 
-const props = defineProps<{
-  target: MeasurementTarget
-  hasOverride: boolean
-  disabled?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    target: MeasurementTarget
+    hasOverride: boolean
+    disabled?: boolean
+    /** Offer the "+ dni" affordance (false for completion-mode subjects). */
+    allowEntryDays?: boolean
+    /** Upper bound for the entry-days input (7 for weekly rows, 31 for monthly). */
+    entryDaysMax?: number
+    /** Default day count when the condition is added. */
+    entryDaysDefault?: number
+  }>(),
+  { allowEntryDays: false, entryDaysMax: 7, entryDaysDefault: 5 },
+)
 
-defineEmits<{
+const emit = defineEmits<{
   operatorChange: [value: string]
   aggregationChange: [value: string]
   valueChange: [value: number]
+  entryDaysChange: [condition: MeasurementEntryDaysCondition | undefined]
   clearOverride: []
 }>()
 
 const { t } = useT()
+
+const entryDays = computed(() => props.target.entryDays)
 
 const operatorOpts = computed(() =>
   props.target.kind === 'count' ? ['min', 'max'] : ['gte', 'lte']
@@ -94,4 +153,17 @@ const aggValue = computed(() => {
       return ''
   }
 })
+
+function onEntryDaysOperator(value: string): void {
+  const condition = entryDays.value
+  if (!condition) return
+  emit('entryDaysChange', { ...condition, operator: value === 'max' ? 'max' : 'min' })
+}
+
+function onEntryDaysValue(value: number): void {
+  const condition = entryDays.value
+  if (!condition || !Number.isFinite(value)) return
+  const days = Math.min(props.entryDaysMax, Math.max(1, Math.round(value)))
+  emit('entryDaysChange', { ...condition, value: days })
+}
 </script>

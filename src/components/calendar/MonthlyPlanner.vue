@@ -37,7 +37,9 @@
             :target="monthTarget(row.key)!"
             :has-override="Boolean(findRow(row.key)?.targetOverride)"
             :disabled="!planner.rowHasPlacement(findRow(row.key)!)"
+            :entry-days-max="findRow(row.key)!.cadence === 'monthly' ? 31 : 7"
             @change="value => planner.handleTargetValueChange(findRow(row.key)!, value)"
+            @entry-days-change="days => onMonthEntryDaysValue(row.key, days)"
             @clear="planner.handleClearOverride(findRow(row.key)!)"
           />
           <span v-else class="text-xs text-on-surface-variant/50">—</span>
@@ -53,9 +55,13 @@
               <PlannerTargetControls
                 :target="monthTarget(row.key)!"
                 :has-override="Boolean(findRow(row.key)!.targetOverride)"
+                :allow-entry-days="findRow(row.key)!.entryMode !== 'completion'"
+                :entry-days-max="findRow(row.key)!.cadence === 'monthly' ? 31 : 7"
+                :entry-days-default="findRow(row.key)!.cadence === 'monthly' ? 20 : 5"
                 @operator-change="planner.handleTargetOperatorChange(findRow(row.key)!, $event)"
                 @aggregation-change="planner.handleTargetAggregationChange(findRow(row.key)!, $event)"
                 @value-change="planner.handleTargetValueChange(findRow(row.key)!, $event)"
+                @entry-days-change="planner.handleEntryDaysChange(findRow(row.key)!, $event)"
                 @clear-override="planner.handleClearOverride(findRow(row.key)!)"
               />
             </div>
@@ -80,6 +86,7 @@
                   :target="weekSubTarget(row.key, weekRef)!"
                   :has-override="Boolean(findRow(row.key)!.weekTargetOverrideByRef[weekRef])"
                   @change="value => planner.handleWeekTargetChange(findRow(row.key)!, weekRef, value)"
+                  @entry-days-change="days => planner.handleWeekEntryDaysValueChange(findRow(row.key)!, weekRef, days)"
                   @clear="planner.handleWeekTargetClear(findRow(row.key)!, weekRef)"
                 />
               </div>
@@ -266,6 +273,14 @@ function sumIndicatorClass(rowKey: string): string {
   const summary = row ? planner.rowWeekTargetSummary(row) : null
   if (!summary) return ''
   return summary.assigned === summary.total ? 'text-primary-strong' : 'text-on-surface-variant'
+}
+
+/** Month pill's entry-days input adjusts the day count on the month override. */
+function onMonthEntryDaysValue(rowKey: string, days: number): void {
+  const row = findRow(rowKey)
+  const condition = row ? planner.editableTarget(row)?.entryDays : undefined
+  if (!row || !condition) return
+  void planner.handleEntryDaysChange(row, { ...condition, value: days })
 }
 
 function onCellToggle(rowKey: string, columnKey: string): void {

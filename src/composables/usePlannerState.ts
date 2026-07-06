@@ -1,6 +1,6 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import type { Ref } from 'vue'
-import type { Habit, KeyResult, MeasurementTarget, Tracker } from '@/domain/planning'
+import type { Habit, KeyResult, MeasurementEntryDaysCondition, MeasurementTarget, Tracker } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
   GoalMonthState,
@@ -160,6 +160,7 @@ export function usePlannerState(
       icon: resolvedIcon,
       subjectType,
       cadence: item.cadence,
+      entryMode: item.entryMode,
       target: 'target' in item ? item.target : undefined,
       targetOverride: monthState?.targetOverride,
       goalId: 'goalId' in item ? item.goalId : undefined,
@@ -472,6 +473,22 @@ export function usePlannerState(
     })
   }
 
+  /** Set, adjust or remove (condition = undefined) the entry-days condition on
+   * the month-level override. The rest of the target is carried over. */
+  async function handleEntryDaysChange(
+    item: PlannerMeasurementRow,
+    condition: MeasurementEntryDaysCondition | undefined
+  ): Promise<void> {
+    const target = editableTarget(item)
+    if (!target || item.subjectType === 'tracker' || item.entryMode === 'completion') return
+
+    const { entryDays: _dropped, ...rest } = target
+    await saveTargetOverride(editableSubjectType(item.subjectType), {
+      subjectId: item.id,
+      target: (condition ? { ...rest, entryDays: condition } : rest) as MeasurementTarget,
+    })
+  }
+
   /** Toggle a week cell. Soft whole-month coverage materializes first (minus the
    * clicked week); weeks holding ritual-scheduled days clear those days with the
    * placement instead of silently flipping to whole-week. */
@@ -591,6 +608,31 @@ export function usePlannerState(
     )
   }
 
+  /** Adjust the entry-days value on a single week's sub-target override. The
+   * condition itself (operator, presence) is inherited from the effective target. */
+  async function handleWeekEntryDaysValueChange(
+    row: PlannerMeasurementRow,
+    weekRef: WeekRef,
+    days: number
+  ): Promise<void> {
+    if (row.subjectType === 'tracker') return
+    const target = row.weekTargetOverrideByRef[weekRef] ?? editableTarget(row)
+    const condition = target?.entryDays
+    if (!target || !condition || !Number.isFinite(days)) return
+
+    const value = Math.max(1, Math.round(days))
+    await withSave(`${rowKey(row)}:${weekRef}:target`, () =>
+      updateMeasurementWeekTargetOverride({
+        weekRef,
+        subjectType: row.subjectType,
+        subjectId: row.id,
+        cadence: row.cadence,
+        monthRef: row.cadence === 'monthly' ? monthRef.value : undefined,
+        targetOverride: { ...target, entryDays: { ...condition, value } } as MeasurementTarget,
+      })
+    )
+  }
+
   async function handleDistributeEvenly(row: PlannerMeasurementRow): Promise<void> {
     if (!canDistribute(row)) return
     const target = editableTarget(row)
@@ -598,15 +640,25 @@ export function usePlannerState(
 
     const weeks = explicitlyPlacedWeeks(row)
     const values = distributeTargetEvenly(target.value, weeks.length, target.kind === 'count')
+    // Entry days are summable across weeks too — split them alongside the value.
+    // A week whose share falls to 0 gets no condition instead of an invalid "0 days".
+    const daysShares = target.entryDays
+      ? distributeTargetEvenly(target.entryDays.value, weeks.length, true)
+      : undefined
     await withSave(`${rowKey(row)}:distribute`, async () => {
       for (const [index, weekRef] of weeks.entries()) {
+        const daysShare = daysShares?.[index] ?? 0
+        const entryDays =
+          target.entryDays && daysShare >= 1
+            ? { ...target.entryDays, value: daysShare }
+            : undefined
         await updateMeasurementWeekTargetOverride({
           weekRef,
           subjectType: row.subjectType,
           subjectId: row.id,
           cadence: row.cadence,
           monthRef: monthRef.value,
-          targetOverride: { ...target, value: values[index] ?? 0 } as MeasurementTarget,
+          targetOverride: { ...target, value: values[index] ?? 0, entryDays } as MeasurementTarget,
         })
       }
     })
@@ -640,11 +692,13 @@ export function usePlannerState(
     handleTargetAggregationChange,
     handleTargetValueChange,
     handleClearOverride,
+    handleEntryDaysChange,
     handleMatrixCellToggle,
     handleWholeMonthToggle,
     handleRowClear,
     handleWeekTargetChange,
     handleWeekTargetClear,
+    handleWeekEntryDaysValueChange,
     handleDistributeEvenly,
   }
 }

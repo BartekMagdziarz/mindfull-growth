@@ -209,6 +209,9 @@
       "clearPlacement": "Wyczyść",
       "clearOverride": "Resetuj nadpisanie",
       "target": "Cel",
+      "entryDaysAdd": "+ dni",
+      "entryDaysRemove": "Usuń warunek dni",
+      "entryDaysOperator": "Operator warunku dni",
       "steps": {
         "goals": "Cele",
         "habits": "Nawyki",
@@ -222,6 +225,7 @@
         },
         "dayBadgeHint": "Dni edytujesz w rytuale tygodniowym",
         "weekTarget": "Cel tygodnia",
+        "entryDaysTarget": "Liczba dni z wpisem",
         "clearWeekTarget": "Wyczyść cel tygodnia",
         "distributeEvenly": "Rozłóż równomiernie",
         "sumOk": "Rozpisane: {assigned} z {total} ✓",
@@ -968,6 +972,12 @@
       "commentPlaceholder": "Co zwróciło Twoją uwagę?",
       "empty": "Brak aktywnych obiektów w tym tygodniu.",
       "hasComment": "Ma komentarz",
+      "entryDays": {
+        "presenceMissedMin": "Metryka osiągnięta, zabrakło dni z wpisem ({days})",
+        "presenceMissedMax": "Metryka osiągnięta, przekroczony limit dni ({days})",
+        "primaryMissed": "Dni z wpisem OK ({days}), metryka poniżej celu",
+        "bothMissed": "Poniżej celu: metryka i dni z wpisem ({days})"
+      },
       "emotions": "Emocje",
       "emotionLog": {
         "one": "{n} wpis emocji",

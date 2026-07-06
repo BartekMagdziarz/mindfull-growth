@@ -129,3 +129,77 @@ describe('useWeeklyPlannerState week target overrides', () => {
     }
   })
 })
+
+describe('useWeeklyPlannerState entry-days condition (P2)', () => {
+  beforeEach(async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    await resetPlanningTestData()
+  })
+
+  it('writes a week override adjusting only the entry-days value', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Morning routine',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'rating',
+      target: {
+        kind: 'rating',
+        aggregation: 'average',
+        operator: 'gte',
+        value: 3,
+        entryDays: { operator: 'min', value: 5 },
+      },
+      status: 'open',
+    })
+    await planningStateDexieRepository.upsertMeasurementMonthState({
+      monthRef: MONTH,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'unassigned',
+    })
+    await planningStateDexieRepository.upsertMeasurementWeekState({
+      weekRef: WEEK,
+      subjectType: 'habit',
+      subjectId: habit.id,
+      activityState: 'active',
+      scheduleScope: 'whole-week',
+    })
+
+    const planner = await setupPlanner(WEEK)
+    const row = planner.habitRows.value.find(item => item.id === habit.id)
+    expect(row).toBeDefined()
+
+    await planner.handleEntryDaysValueChange(row!, 3)
+
+    const weekState = await planningStateDexieRepository.getMeasurementWeekState(
+      WEEK,
+      'habit',
+      habit.id
+    )
+    expect(weekState?.targetOverride).toEqual({
+      kind: 'rating',
+      aggregation: 'average',
+      operator: 'gte',
+      value: 3,
+      entryDays: { operator: 'min', value: 3 },
+    })
+  })
+
+  it('ignores the change when the effective target has no condition', async () => {
+    const habitId = await createHabit('weekly', [MONTH])
+    const planner = await setupPlanner(WEEK)
+    const row = planner.habitRows.value.find(item => item.id === habitId)
+
+    await planner.handleEntryDaysValueChange(row!, 3)
+
+    const weekState = await planningStateDexieRepository.getMeasurementWeekState(
+      WEEK,
+      'habit',
+      habitId
+    )
+    expect(weekState?.targetOverride).toBeUndefined()
+  })
+})

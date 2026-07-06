@@ -158,6 +158,7 @@ function pillTarget(rowKey: string) {
             :has-override="planner.hasWeekOverride(findRow(row.key)!)"
             :disabled="!planner.weekTargetEditable(findRow(row.key)!)"
             @change="value => planner.handleTargetValueChange(findRow(row.key)!, value)"
+            @entry-days-change="days => planner.handleEntryDaysValueChange(findRow(row.key)!, days)"
             @clear="planner.handleClearOverride(findRow(row.key)!)"
           />
           <span v-else class="text-xs text-on-surface-variant/50">—</span>

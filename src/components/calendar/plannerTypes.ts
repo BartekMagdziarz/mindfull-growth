@@ -1,4 +1,4 @@
-import type { MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { MeasurementMonthState, MeasurementWeekState } from '@/domain/planningState'
 
@@ -15,6 +15,8 @@ export interface PlannerMeasurementRow {
   icon?: string
   subjectType: SubjectKind
   cadence: 'weekly' | 'monthly'
+  /** Gates the entry-days affordance (the condition is redundant for completion). */
+  entryMode?: MeasurementEntryMode
   target?: MeasurementTarget
   targetOverride?: MeasurementTarget
   goalId?: string
