@@ -1,7 +1,20 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <AppTopAppBar :show-back="showBackButton" :back-route="backRoute" />
-    <main class="flex-1 overflow-y-auto">
+    <AppNavDock
+      :pinned="userPreferencesStore.dockPinned"
+      @update:pinned="userPreferencesStore.setDockPinned($event)"
+    />
+    <button
+      v-if="showBackButton && backRoute"
+      type="button"
+      class="neo-back-btn neo-focus fixed top-4 z-30 p-2 text-neu-text"
+      :class="userPreferencesStore.dockPinned ? 'left-[122px]' : 'left-10'"
+      :aria-label="t('common.buttons.back')"
+      @click="router.push(backRoute)"
+    >
+      <AppIcon name="arrow_back" class="text-xl" />
+    </button>
+    <main class="flex-1 overflow-y-auto" :class="mainClasses">
       <router-view />
     </main>
   </div>
@@ -9,16 +22,29 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import AppTopAppBar from './AppTopAppBar.vue'
+import { useRoute, useRouter } from 'vue-router'
+import AppNavDock from './AppNavDock.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
+import { useT } from '@/composables/useT'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { applyTheme, DEFAULT_THEME_ID } from '@/services/theme.service'
 import { resetAppState } from '@/services/appStateReset'
 
 const route = useRoute()
+const router = useRouter()
+const { t } = useT()
 const authStore = useAuthStore()
 const userPreferencesStore = useUserPreferencesStore()
+
+// Pinned dock pushes content right via padding (not margin) so main's
+// scrollbar stays at the viewport edge. The padding transition is gated on
+// isLoaded — preferences arrive async from Dexie, and animating the initial
+// 0 → 106px jump on every app boot would read as layout jank.
+const mainClasses = computed(() => [
+  userPreferencesStore.dockPinned ? 'pl-[106px]' : '',
+  userPreferencesStore.isLoaded ? 'transition-[padding] duration-300' : '',
+])
 
 const isJournalEditorRoute = computed(() => {
   return (

@@ -1,32 +1,30 @@
 <template>
   <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
-    <Teleport to="#app-top-bar-end" :disabled="!useTopBarTeleport">
-      <CalendarToolbar
-        v-if="!wizardActive"
-        :class="useTopBarTeleport ? '' : 'mb-6'"
-        :label="activePeriodRangeLabel"
-        :scale-options="scaleOptions"
-        :active-scale="scale"
-        @prev="goToPreviousPeriod"
-        @next="goToNextPeriod"
-        @scale="goToScale($event as CalendarScale)"
-      >
-        <template v-if="showHeaderActions" #actions>
-          <AppButton v-if="showPlanAction" :variant="planActionVariant" @click="openPlanPanel">
-            <AppIcon name="calendar_month" class="text-base" />
-            {{ planActionLabel }}
-          </AppButton>
-          <AppButton
-            v-if="showReflectionAction"
-            :variant="reflectionActionVariant"
-            @click="openReflectionPanel"
-          >
-            <AppIcon name="auto_awesome" class="text-base" />
-            {{ reflectionActionLabel }}
-          </AppButton>
-        </template>
-      </CalendarToolbar>
-    </Teleport>
+    <CalendarToolbar
+      v-if="!wizardActive"
+      class="mb-6"
+      :label="activePeriodRangeLabel"
+      :scale-options="scaleOptions"
+      :active-scale="scale"
+      @prev="goToPreviousPeriod"
+      @next="goToNextPeriod"
+      @scale="goToScale($event as CalendarScale)"
+    >
+      <template v-if="showHeaderActions" #actions>
+        <AppButton v-if="showPlanAction" :variant="planActionVariant" @click="openPlanPanel">
+          <AppIcon name="calendar_month" class="text-base" />
+          {{ planActionLabel }}
+        </AppButton>
+        <AppButton
+          v-if="showReflectionAction"
+          :variant="reflectionActionVariant"
+          @click="openReflectionPanel"
+        >
+          <AppIcon name="auto_awesome" class="text-base" />
+          {{ reflectionActionLabel }}
+        </AppButton>
+      </template>
+    </CalendarToolbar>
 
     <PlanningStatePanel
       v-if="invalidRoute"
@@ -191,7 +189,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { MeasurementDayAssignment } from '@/domain/planningState'
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
@@ -316,23 +314,6 @@ const parsedPeriodRef = computed<PeriodRef | null>(() => {
   }
 })
 const scale = computed(() => props.scale)
-
-// Week and month views teleport the toolbar into AppTopAppBar's
-// `#app-top-bar-end`. Tests render CalendarView in isolation (no AppTopAppBar)
-// — fall back to inline rendering when the target is missing so the toolbar
-// still mounts.
-const topBarTargetReady = ref(
-  typeof document !== 'undefined' && document.querySelector('#app-top-bar-end') !== null,
-)
-onMounted(() => {
-  if (!topBarTargetReady.value) {
-    topBarTargetReady.value =
-      typeof document !== 'undefined' && document.querySelector('#app-top-bar-end') !== null
-  }
-})
-const useTopBarTeleport = computed(
-  () => (props.scale === 'week' || props.scale === 'month') && topBarTargetReady.value,
-)
 
 const invalidRoute = computed(() => parsedPeriodRef.value === null)
 const activeYearRef = computed(() =>

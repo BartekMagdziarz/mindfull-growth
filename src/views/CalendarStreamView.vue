@@ -736,8 +736,9 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
   padding-top: 24px;
   border-top: 1px solid rgb(var(--stream-track) / 0.4);
   animation: streamFadeUp 0.6s both;
-  /* Anchor for scrollIntoView so the wizard lands below the sticky top bar. */
-  scroll-margin-top: 64px;
+  /* Breathing room for scrollIntoView — no sticky chrome above <main> since
+     the nav moved into the floating dock. */
+  scroll-margin-top: 16px;
 }
 
 .stream-detail {
