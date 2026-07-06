@@ -61,6 +61,7 @@ import type { AnnualPlan } from '@/domain/annualPlan'
 import type { ExerciseCompletion } from '@/domain/exerciseCompletion'
 import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
+import type { ProgramEnrollment } from '@/domain/program'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
 /**
@@ -160,6 +161,7 @@ export class UserDatabase extends Dexie {
   exerciseCompletions!: Table<ExerciseCompletion, string>
   microExerciseEntries!: Table<MicroExerciseEntry, string>
   exercisePlanItems!: Table<ExercisePlanItem, string>
+  programEnrollments!: Table<ProgramEnrollment, string>
 
   lifeAreas!: Table<LifeArea, string>
   lifeAreaAssessments!: Table<LifeAreaAssessment, string>
@@ -1541,6 +1543,13 @@ export class UserDatabase extends Dexie {
     // discriminator). New table → no data migration needed.
     this.version(24).stores({
       exercisePlanItems: 'id, exerciseSlug, dayRef, status, source',
+    })
+
+    // Exercise scheduling Phase 3 (docs/exercise-scheduling-design.md §4.5/§5):
+    // program ("ścieżka") enrollments; step delivery reuses exercisePlanItems.
+    // New table → no data migration needed.
+    this.version(25).stores({
+      programEnrollments: 'id, programSlug, status',
     })
   }
 }

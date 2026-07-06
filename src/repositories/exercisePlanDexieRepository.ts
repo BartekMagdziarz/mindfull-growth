@@ -54,6 +54,19 @@ class ExercisePlanDexieRepository implements ExercisePlanRepository {
     }
   }
 
+  async listPendingByProgramSourceRef(sourceRef: string): Promise<ExercisePlanItem[]> {
+    try {
+      return await this.db.exercisePlanItems
+        .where('source')
+        .equals('program')
+        .filter((item) => item.sourceRef === sourceRef && item.status === 'pending')
+        .toArray()
+    } catch (error) {
+      console.error(`Failed to list pending program plans for ${sourceRef}:`, error)
+      throw new Error(`Failed to retrieve pending program plans for ${sourceRef}`)
+    }
+  }
+
   async create(payload: CreateExercisePlanItemPayload): Promise<ExercisePlanItem> {
     try {
       const item = createPlanningRecord<ExercisePlanItem>({

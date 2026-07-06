@@ -26,7 +26,7 @@ export interface ExercisePlanItem {
   dayRef: DayRef
   status: ExercisePlanStatus
   source: ExercisePlanSource
-  /** Program slug when `source === 'program'` (Phase 3). */
+  /** Enrollment id when `source === 'program'` (Phase 3, §4.5). */
   sourceRef?: string
   /** Id of the completing exercise's result record, set on auto-complete. */
   recordId?: string
