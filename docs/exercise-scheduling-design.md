@@ -206,10 +206,16 @@ interface ProgramDefinition {
 
 ```
 programEnrollments: 'id, programSlug, status'
-{ id, programSlug, status: 'active'|'completed'|'abandoned',
+{ id, programSlug, status: 'active'|'paused'|'completed'|'abandoned',
   startedAt, currentStepIndex,
   completedSteps: [{ stepIndex, completedAt, recordId? }] }
 ```
+
+> **Phase 3 amendments (2026-07-06):** `status` gained `'paused'` (pause deletes the
+> pending program plan item, resume re-materializes; the scheduler skips paused).
+> `ExercisePlanItem.sourceRef` holds the **enrollment id** (not the program slug) —
+> deterministic plan→enrollment mapping, immune to abandon→re-enroll. At most one
+> non-terminal enrollment per program; different programs may run concurrently.
 
 - **Pacing (D2): sequential unlock with minimum gaps**, not fixed calendar dates. A small
   `src/services/programSchedulerService.ts` runs on Today load: for each active

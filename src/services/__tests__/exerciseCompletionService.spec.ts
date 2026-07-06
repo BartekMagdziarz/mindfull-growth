@@ -5,6 +5,7 @@ import type { DayRef } from '@/domain/period'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { recordCompletion } from '@/services/exerciseCompletionService'
 import { autoCompleteFor } from '@/services/exercisePlanService'
+import { advanceEnrollmentForPlan } from '@/services/programSchedulerService'
 
 vi.mock('@/repositories/exerciseCompletionDexieRepository', () => ({
   exerciseCompletionDexieRepository: {
@@ -17,6 +18,10 @@ vi.mock('@/repositories/exerciseCompletionDexieRepository', () => ({
 
 vi.mock('@/services/exercisePlanService', () => ({
   autoCompleteFor: vi.fn(async () => null),
+}))
+
+vi.mock('@/services/programSchedulerService', () => ({
+  advanceEnrollmentForPlan: vi.fn(async () => null),
 }))
 
 const completedPlanFixture: ExercisePlanItem = {
@@ -101,6 +106,51 @@ describe('recordCompletion', () => {
 
     expect(result.completion.source).toBe('standalone')
     expect(result.completedPlan).toBeNull()
+    expect(exerciseCompletionDexieRepository.create).toHaveBeenCalledTimes(1)
+  })
+
+  it('advances the program when the completed plan is a program step', async () => {
+    vi.setSystemTime(new Date(2026, 5, 1, 12, 0, 0))
+    const programPlan: ExercisePlanItem = {
+      ...completedPlanFixture,
+      source: 'program',
+      sourceRef: 'enrollment-1',
+    }
+    const advancement = { enrollment: { id: 'enrollment-1' }, nextPlanItem: null }
+    vi.mocked(autoCompleteFor).mockResolvedValueOnce(programPlan)
+    vi.mocked(advanceEnrollmentForPlan).mockResolvedValueOnce(
+      advancement as unknown as Awaited<ReturnType<typeof advanceEnrollmentForPlan>>,
+    )
+
+    const result = await recordCompletion('worry-tree', 'record-1')
+
+    expect(vi.mocked(advanceEnrollmentForPlan).mock.calls[0]?.[0]).toEqual(programPlan)
+    expect(result.programAdvancement).toEqual(advancement)
+  })
+
+  it('does not touch program advancement for non-program plans', async () => {
+    vi.setSystemTime(new Date(2026, 5, 1, 12, 0, 0))
+    vi.mocked(autoCompleteFor).mockResolvedValueOnce(completedPlanFixture)
+
+    const result = await recordCompletion('worry-tree', 'record-1')
+
+    expect(advanceEnrollmentForPlan).not.toHaveBeenCalled()
+    expect(result.programAdvancement).toBeNull()
+  })
+
+  it('still returns the completion when program advancement throws', async () => {
+    vi.setSystemTime(new Date(2026, 5, 1, 12, 0, 0))
+    vi.mocked(autoCompleteFor).mockResolvedValueOnce({
+      ...completedPlanFixture,
+      source: 'program',
+      sourceRef: 'enrollment-1',
+    })
+    vi.mocked(advanceEnrollmentForPlan).mockRejectedValueOnce(new Error('dexie down'))
+
+    const result = await recordCompletion('worry-tree')
+
+    expect(result.completion.source).toBe('plan')
+    expect(result.programAdvancement).toBeNull()
     expect(exerciseCompletionDexieRepository.create).toHaveBeenCalledTimes(1)
   })
 })
