@@ -20,6 +20,7 @@
  *   Habit "[DEV SEED] Habit Monthly Counter"      (monthly, counter,   min 20/month)
  *   Habit "[DEV SEED] Habit Weekly Value Sum"     (weekly,  value,     sum ≥100/week)
  *   Habit "[DEV SEED] Habit Weekly Rating Avg"    (weekly,  rating,    avg ≥3.5/week)
+ *   Habit "[DEV SEED] Habit Weekly Rating + EntryDays" (weekly, rating, avg ≥3.5/week AND ≥5 entry days)
  *   Habit "[DEV SEED] Habit Monthly Rating Avg"   (monthly, rating,    avg ≥3.5/month)
  *   Habit "[DEV SEED] Habit No Entries"           (weekly,  completion) — active, but all no-data bars
  *   Habit "[DEV SEED] Habit No Periods"           (weekly,  completion) — no period states → empty chart
@@ -365,6 +366,24 @@ export async function seedChartTestData(): Promise<void> {
     lifeAreaIds: [],
   })
 
+  // Habit5b: weekly rating with an entry-days condition (avg ≥3.5 AND ≥5 days)
+  const habit5b = await habitDexieRepository.create({
+    title: `${SEED_PREFIX} Habit Weekly Rating + EntryDays (≥3.5 & ≥5 days)`,
+    isActive: true,
+    status: 'open',
+    cadence: 'weekly',
+    entryMode: 'rating',
+    target: {
+      kind: 'rating',
+      aggregation: 'average',
+      operator: 'gte',
+      value: 3.5,
+      entryDays: { operator: 'min', value: 5 },
+    },
+    priorityIds: [],
+    lifeAreaIds: [],
+  })
+
   // Habit6: monthly rating, target avg ≥3.5/month
   const habit6 = await habitDexieRepository.create({
     title: `${SEED_PREFIX} Habit Monthly Rating Avg (≥3.5/month)`,
@@ -444,6 +463,7 @@ export async function seedChartTestData(): Promise<void> {
     { subjectType: 'habit', id: habit1.id },
     { subjectType: 'habit', id: habit3.id },
     { subjectType: 'habit', id: habit5.id },
+    { subjectType: 'habit', id: habit5b.id },
     { subjectType: 'habit', id: habit4.id },
     { subjectType: 'tracker', id: tracker1.id },
     { subjectType: 'tracker', id: tracker3.id },
@@ -495,6 +515,7 @@ export async function seedChartTestData(): Promise<void> {
     await createWeeklyEntries('habit', habit1.id, wr, 'completion', pattern)
     await createWeeklyEntries('habit', habit3.id, wr, 'value', pattern)
     await createWeeklyEntries('habit', habit5.id, wr, 'rating', pattern)
+    await createWeeklyEntries('habit', habit5b.id, wr, 'rating', pattern)
     await createWeeklyEntries('tracker', tracker1.id, wr, 'counter', pattern)
     await createWeeklyEntries('tracker', tracker3.id, wr, 'rating', pattern)
     // habit4: deliberately no entries

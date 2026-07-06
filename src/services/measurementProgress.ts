@@ -23,6 +23,15 @@ export interface MeasurementSummary {
   evaluationStatus?: MeasurementEvaluationStatus
   entryCount: number
   periodRef: MeasurementPeriodRef
+  /**
+   * Conjunction breakdown + qualified-day count — set only when the effective
+   * target defines an `entryDays` condition. `evaluationStatus === 'met'` ⟺
+   * `primaryMet && presenceMet`; zero entries still yield 'no-data' and leave
+   * primaryMet/presenceMet undefined.
+   */
+  primaryMet?: boolean
+  presenceMet?: boolean
+  qualifiedEntryDays?: number
 }
 
 export function applyMeasurementTargetOverride(
@@ -134,6 +143,31 @@ function compareActualToTarget(actualValue: number, target: MeasurementTarget): 
   }
 }
 
+/**
+ * Days that count toward the entryDays condition. Entries are unique per
+ * (subject, day), so entries map 1:1 to days. A qualifying day is any day with
+ * an entry, except for counters where an explicitly logged zero is not an
+ * execution — only entries with value >= 1 qualify.
+ */
+function countQualifiedEntryDays(
+  entryMode: MeasurementEntryMode,
+  entries: DailyMeasurementEntry[],
+): number {
+  if (entryMode === 'counter') {
+    return entries.filter((entry) => (entry.value ?? 0) >= 1).length
+  }
+  return entries.length
+}
+
+function compareEntryDays(
+  qualifiedDays: number,
+  condition: NonNullable<MeasurementTarget['entryDays']>,
+): boolean {
+  return condition.operator === 'min'
+    ? qualifiedDays >= condition.value
+    : qualifiedDays <= condition.value
+}
+
 export function buildMeasurementSummary(
   subject: MeasureableSubject,
   allEntries: DailyMeasurementEntry[],
@@ -156,24 +190,44 @@ export function buildMeasurementSummary(
    * - No period entries produce actualValue undefined.
    * - Subjects with a target evaluate to met, missed, or no-data.
    * - Trackers without a target leave evaluationStatus undefined.
+   * - Targets with an entryDays condition evaluate as a conjunction: the
+   *   primary metric AND the qualified-day count must both hold for 'met'.
+   *   Zero entries stay 'no-data' (also under a max condition), matching the
+   *   behaviour of targets without the condition.
    */
   const entries = filterEntriesForSubjectAndPeriod(allEntries, subject.id, periodRef, asOfDayRef)
   const actualValue = computeActualValue(subject, entries)
   const target = 'target' in subject ? subject.target : undefined
+  const entryDaysCondition = target?.entryDays
+  const qualifiedEntryDays = entryDaysCondition
+    ? countQualifiedEntryDays(subject.entryMode, entries)
+    : undefined
+
+  let evaluationStatus: MeasurementEvaluationStatus | undefined
+  let primaryMet: boolean | undefined
+  let presenceMet: boolean | undefined
+  if (target) {
+    if (actualValue === undefined) {
+      evaluationStatus = 'no-data'
+    } else if (entryDaysCondition && qualifiedEntryDays !== undefined) {
+      primaryMet = compareActualToTarget(actualValue, target)
+      presenceMet = compareEntryDays(qualifiedEntryDays, entryDaysCondition)
+      evaluationStatus = primaryMet && presenceMet ? 'met' : 'missed'
+    } else {
+      evaluationStatus = compareActualToTarget(actualValue, target) ? 'met' : 'missed'
+    }
+  }
 
   return {
     entryMode: subject.entryMode,
     cadence: subject.cadence,
     target,
     actualValue,
-    evaluationStatus: target
-      ? actualValue === undefined
-        ? 'no-data'
-        : compareActualToTarget(actualValue, target)
-          ? 'met'
-          : 'missed'
-      : undefined,
+    evaluationStatus,
     entryCount: entries.length,
     periodRef,
+    primaryMet,
+    presenceMet,
+    qualifiedEntryDays,
   }
 }

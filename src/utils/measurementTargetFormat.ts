@@ -11,16 +11,28 @@ export function formatMeasurementTargetSummary(target: MeasurementTarget, t: Tra
   // Operators render as words ("Co najmniej / Co najwyżej") for every kind, matching the
   // inline target editor — no more >= / <= notation in user-facing summaries.
   const operator = t(`planning.objects.targetOperators.${target.operator}`)
+  let base: string
   switch (target.kind) {
     case 'count':
-      return `${operator} ${value}`
+      base = `${operator} ${value}`
+      break
     case 'value': {
       const aggregation = t(`planning.objects.targetAggregations.${target.aggregation}`)
-      return `${aggregation} ${operator} ${value}`
+      base = `${aggregation} ${operator} ${value}`
+      break
     }
     case 'rating': {
       const aggregation = t('planning.objects.targetAggregations.average')
-      return `${aggregation} ${operator} ${value}`
+      base = `${aggregation} ${operator} ${value}`
+      break
     }
   }
+
+  const entryDays = target.entryDays
+  if (!entryDays) {
+    return base
+  }
+  // The condition stays symbolic ("· ≥ 5 dni") to keep the summary compact.
+  const symbol = entryDays.operator === 'min' ? '≥' : '≤'
+  return `${base} · ${symbol} ${entryDays.value} ${t('planning.objects.targetSentence.entryDaysUnit')}`
 }

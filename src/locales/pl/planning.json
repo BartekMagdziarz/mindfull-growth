@@ -138,6 +138,7 @@
       "actualNoData": "Wynik: brak danych",
       "assignedDays": "{n} przypisanych dni",
       "entryCount": "{n} wpisów",
+      "entryDaysProgress": "Dni z wpisem: {current}/{target}",
       "loggedValue": "Zapisana wartość: {value}",
       "recordedToday": "Zapisano dziś",
       "successNote": "Notatka sukcesu: {note}",
@@ -684,6 +685,10 @@
       "perMonth": "w miesiącu",
       "timesUnit": "razy",
       "ratingOutOf": "na {max}",
+      "entryDaysAnd": "i loguj",
+      "entryDaysUnit": "dni",
+      "entryDaysValueLabel": "Liczba dni z wpisem",
+      "addEntryDays": "+ warunek dni",
       "mode": {
         "completion": "Wykonuj",
         "counter": "Zliczaj",

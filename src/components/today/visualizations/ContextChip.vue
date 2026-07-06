@@ -7,6 +7,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useT } from '@/composables/useT'
 import type { ContextChipData } from '@/services/weeklySliceChartData'
 
 /**
@@ -15,6 +16,8 @@ import type { ContextChipData } from '@/services/weeklySliceChartData'
  * stays short and language-neutral; coloured by evaluation status.
  */
 const props = defineProps<{ data: ContextChipData }>()
+
+const { t } = useT()
 
 /** Compact number: 1-decimal for fractions, "k" suffix from 1000 up. */
 function fmt(value: number): string {
@@ -26,7 +29,7 @@ function fmt(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(/\.0$/, '')
 }
 
-const chipText = computed<string>(() => {
+const baseChipText = computed<string>(() => {
   const d = props.data
   switch (d.variant) {
     case 'count-progress':
@@ -50,6 +53,14 @@ const chipText = computed<string>(() => {
       }
   }
   return fmt(props.data.current)
+})
+
+// Entry-days condition readout ("3/5 dni") appended after the primary aggregate.
+const chipText = computed<string>(() => {
+  const ed = props.data.entryDays
+  if (!ed) return baseChipText.value
+  const unit = t('planning.objects.targetSentence.entryDaysUnit')
+  return `${baseChipText.value} · ${fmt(ed.current)}/${fmt(ed.target)} ${unit}`
 })
 </script>
 

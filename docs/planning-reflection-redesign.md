@@ -488,7 +488,7 @@ Merge actions:
 Net: nothing to "merge back" — §12 is the missing producer for display slots the stream brief
 already anticipated, plus one new signal (monthly top-3 + effort) to add to that brief's inventory.
 
-> 2026-07-06: targets gain an optional `entryDays` presence condition (`{operator: min|max, value}`, AND-evaluated, opt-in) — design settled in the local HTML plan `ideas/html-plans/2026-07-06-measurement-min-entry-days.html` (not yet implemented).
+> 2026-07-06: targets gain an optional `entryDays` presence condition (`{operator: min|max, value}`, AND-evaluated, opt-in) — design settled in the local HTML plan `ideas/html-plans/2026-07-06-measurement-min-entry-days.html`. P1 SHIPPED same day: all three target shapes carry the field, both normalizers (planning.ts + planningState.ts) validate it (int ≥ 1, stripped for completion), `buildMeasurementSummary` evaluates the conjunction and exposes `primaryMet`/`presenceMet`/`qualifiedEntryDays` (counter days qualify only with value ≥ 1; zero entries stay no-data), the target-sentence editor grows an "i loguj [co najmniej|co najwyżej] N dni" clause ("+ warunek dni", clearing the value removes it), summaries append "· ≥/≤ N dni", the ContextChip appends "x/N dni". P2 (planner pill editing of the day threshold, "Rozłóż równo" for days, reflection-wizard primary/presence breakdown) still open.
 
 ## 13. Week targets — per-week override + month-target rozpisanie (resolved 2026-07-04)
 

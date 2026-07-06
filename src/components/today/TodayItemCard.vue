@@ -301,6 +301,17 @@ const details = computed(() => {
   nextDetails.push(
     t('planning.calendar.details.entryCount', { n: props.item.measurement.entryCount })
   )
+  if (
+    props.item.measurement.target?.entryDays &&
+    props.item.measurement.qualifiedEntryDays !== undefined
+  ) {
+    nextDetails.push(
+      t('planning.calendar.details.entryDaysProgress', {
+        current: props.item.measurement.qualifiedEntryDays,
+        target: props.item.measurement.target.entryDays.value,
+      })
+    )
+  }
   nextDetails.push(t('planning.today.details.daysLeft', { n: daysRemaining(props.item) }))
 
   if (props.item.planning.successNote) {
@@ -419,27 +430,37 @@ function handleMove(): void {
 }
 
 function formatMeasurementTarget(target: MeasurementTarget): string {
+  let base: string
   switch (target.kind) {
     case 'count':
-      return t(
+      base = t(
         target.operator === 'min'
           ? 'planning.calendar.details.targetCountMin'
           : 'planning.calendar.details.targetCountMax',
         { n: target.value }
       )
+      break
     case 'value':
-      return t('planning.calendar.details.targetRule', {
+      base = t('planning.calendar.details.targetRule', {
         aggregation: t(`planning.calendar.labels.aggregation.${target.aggregation}`),
         operator: t(`planning.objects.targetOperators.${target.operator}`),
         value: formatMeasurementValue(target.value),
       })
+      break
     case 'rating':
-      return t('planning.calendar.details.targetRule', {
+      base = t('planning.calendar.details.targetRule', {
         aggregation: t('planning.calendar.labels.aggregation.average'),
         operator: t(`planning.objects.targetOperators.${target.operator}`),
         value: formatMeasurementValue(target.value),
       })
+      break
   }
+
+  if (!target.entryDays) {
+    return base
+  }
+  const symbol = target.entryDays.operator === 'min' ? '≥' : '≤'
+  return `${base} · ${symbol} ${target.entryDays.value} ${t('planning.objects.targetSentence.entryDaysUnit')}`
 }
 
 function formatMeasurementActual(item: TodayMeasurementItem): string {

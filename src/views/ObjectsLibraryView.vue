@@ -335,7 +335,7 @@ import {
 } from '@/services/weeklyIntentionService'
 import { getPeriodRefsForDate, isPeriodRef } from '@/utils/periods'
 import type { PeriodRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
-import type { MeasurementEntryMode, MeasurementTarget, PriorityClosingReflection } from '@/domain/planning'
+import type { MeasurementEntryDaysCondition, MeasurementEntryMode, MeasurementTarget, PriorityClosingReflection } from '@/domain/planning'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedMonth } from '@/components/objects/GoalMonthsDropdown.vue'
 
@@ -348,6 +348,7 @@ interface LibraryTargetDraft {
   operator: 'min' | 'max' | 'gte' | 'lte'
   aggregation?: 'sum' | 'average' | 'last'
   value: number
+  entryDays?: MeasurementEntryDaysCondition
 }
 
 interface LibraryDraft {
@@ -684,13 +685,14 @@ function toTargetDraft(target: MeasurementTarget | undefined, entryMode: Measure
 
   switch (target.kind) {
     case 'count':
-      return { kind: 'count', operator: target.operator, value: target.value }
+      return { kind: 'count', operator: target.operator, value: target.value, entryDays: target.entryDays }
     case 'value':
       return {
         kind: 'value',
         aggregation: target.aggregation,
         operator: target.operator,
         value: target.value,
+        entryDays: target.entryDays,
       }
     case 'rating':
       return {
@@ -698,6 +700,7 @@ function toTargetDraft(target: MeasurementTarget | undefined, entryMode: Measure
         aggregation: 'average',
         operator: target.operator,
         value: target.value,
+        entryDays: target.entryDays,
       }
   }
 }
@@ -726,6 +729,11 @@ function syncTargetToEntryMode(entryMode: MeasurementEntryMode): void {
     } else if (current.operator !== 'min' && current.operator !== 'max') {
       draft.value.target = { kind: 'count', operator: 'min', value: current.value || 1 }
     }
+    // The entry-days condition is redundant for completion (the metric already
+    // counts entry days) — the normalizer strips it, so drop it from the draft too.
+    if (entryMode === 'completion' && draft.value.target.entryDays) {
+      draft.value.target = { ...draft.value.target, entryDays: undefined }
+    }
     return
   }
 
@@ -751,6 +759,15 @@ function syncTargetToEntryMode(entryMode: MeasurementEntryMode): void {
 }
 
 function normalizeTargetDraft(entryMode: MeasurementEntryMode, target: LibraryTargetDraft): MeasurementTarget {
+  // Redundant for completion — the domain normalizer strips it there too.
+  const entryDays =
+    entryMode !== 'completion' && target.entryDays
+      ? {
+          operator: target.entryDays.operator === 'max' ? ('max' as const) : ('min' as const),
+          value: Math.max(1, Math.trunc(target.entryDays.value)),
+        }
+      : undefined
+
   switch (entryMode) {
     case 'completion':
     case 'counter':
@@ -758,6 +775,7 @@ function normalizeTargetDraft(entryMode: MeasurementEntryMode, target: LibraryTa
         kind: 'count',
         operator: target.operator === 'max' ? 'max' : 'min',
         value: Math.max(0, Math.trunc(target.value)),
+        ...(entryDays ? { entryDays } : {}),
       }
     case 'value':
       return {
@@ -765,6 +783,7 @@ function normalizeTargetDraft(entryMode: MeasurementEntryMode, target: LibraryTa
         aggregation: target.aggregation === 'average' || target.aggregation === 'last' ? target.aggregation : 'sum',
         operator: target.operator === 'lte' ? 'lte' : 'gte',
         value: Number(target.value),
+        ...(entryDays ? { entryDays } : {}),
       }
     case 'rating':
       return {
@@ -772,6 +791,7 @@ function normalizeTargetDraft(entryMode: MeasurementEntryMode, target: LibraryTa
         aggregation: 'average',
         operator: target.operator === 'lte' ? 'lte' : 'gte',
         value: Number(target.value),
+        ...(entryDays ? { entryDays } : {}),
       }
   }
 }
@@ -1239,6 +1259,16 @@ async function handleKrFieldChange(krId: string, field: string, value: unknown):
         await keyResultDexieRepository.update(krId, { target: updated })
         break
       }
+      case 'target.entryDays': {
+        const updated = updateTargetField(
+          child.entryMode,
+          child.target,
+          'entryDays',
+          value as MeasurementEntryDaysCondition | undefined,
+        )
+        await keyResultDexieRepository.update(krId, { target: updated })
+        break
+      }
     }
     if (needsReload) {
       await store.loadBundle()
@@ -1268,9 +1298,12 @@ function buildTargetForEntryMode(entryMode: MeasurementEntryMode, currentTarget:
 function updateTargetField(
   _entryMode: MeasurementEntryMode,
   currentTarget: MeasurementTarget,
-  field: 'operator' | 'aggregation' | 'value',
-  value: string | number,
+  field: 'operator' | 'aggregation' | 'value' | 'entryDays',
+  value: string | number | MeasurementEntryDaysCondition | undefined,
 ): MeasurementTarget {
+  if (field === 'entryDays') {
+    return { ...currentTarget, entryDays: value as MeasurementEntryDaysCondition | undefined }
+  }
   switch (currentTarget.kind) {
     case 'count':
       if (field === 'operator') return { ...currentTarget, operator: value as 'min' | 'max' }
@@ -1486,6 +1519,17 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
       case 'target.value': {
         if (!item.target || !isHabit) break
         const updated = updateTargetField(item.entryMode ?? 'completion', item.target, 'value', value as number)
+        await habitDexieRepository.update(id, { target: updated })
+        break
+      }
+      case 'target.entryDays': {
+        if (!item.target || !isHabit) break
+        const updated = updateTargetField(
+          item.entryMode ?? 'completion',
+          item.target,
+          'entryDays',
+          value as MeasurementEntryDaysCondition | undefined,
+        )
         await habitDexieRepository.update(id, { target: updated })
         break
       }

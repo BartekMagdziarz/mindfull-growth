@@ -344,3 +344,136 @@ describe('applyMeasurementTargetCascade', () => {
     expect(subject).toBe(tracker)
   })
 })
+
+describe('entryDays condition (conjunction)', () => {
+  const weekRef = '2026-W10' as WeekRef
+
+  function makeRatingHabit(entryDays: { operator: 'min' | 'max'; value: number }): Habit {
+    return makeHabit({
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 3, entryDays },
+    })
+  }
+
+  it('marks missed when the primary metric holds but too few entry days (min)', () => {
+    const habit = makeRatingHabit({ operator: 'min', value: 5 })
+    const summary = buildMeasurementSummary(habit, [
+      makeEntry(habit.id, '2026-03-09', 3),
+    ], weekRef)
+
+    expect(summary.actualValue).toBe(3)
+    expect(summary.evaluationStatus).toBe('missed')
+    expect(summary.primaryMet).toBe(true)
+    expect(summary.presenceMet).toBe(false)
+    expect(summary.qualifiedEntryDays).toBe(1)
+  })
+
+  it('marks met when both the primary metric and the min day count hold', () => {
+    const habit = makeRatingHabit({ operator: 'min', value: 5 })
+    const summary = buildMeasurementSummary(habit, [
+      makeEntry(habit.id, '2026-03-09', 3),
+      makeEntry(habit.id, '2026-03-10', 4),
+      makeEntry(habit.id, '2026-03-11', 3),
+      makeEntry(habit.id, '2026-03-12', 5),
+      makeEntry(habit.id, '2026-03-13', 3),
+    ], weekRef)
+
+    expect(summary.evaluationStatus).toBe('met')
+    expect(summary.primaryMet).toBe(true)
+    expect(summary.presenceMet).toBe(true)
+    expect(summary.qualifiedEntryDays).toBe(5)
+  })
+
+  it('marks missed when the day count holds but the primary metric fails', () => {
+    const habit = makeRatingHabit({ operator: 'min', value: 3 })
+    const summary = buildMeasurementSummary(habit, [
+      makeEntry(habit.id, '2026-03-09', 2),
+      makeEntry(habit.id, '2026-03-10', 2),
+      makeEntry(habit.id, '2026-03-11', 2),
+    ], weekRef)
+
+    expect(summary.evaluationStatus).toBe('missed')
+    expect(summary.primaryMet).toBe(false)
+    expect(summary.presenceMet).toBe(true)
+  })
+
+  it('marks missed when a max day limit is exceeded despite a met metric', () => {
+    const habit = makeRatingHabit({ operator: 'max', value: 3 })
+    const summary = buildMeasurementSummary(habit, [
+      makeEntry(habit.id, '2026-03-09', 4),
+      makeEntry(habit.id, '2026-03-10', 4),
+      makeEntry(habit.id, '2026-03-11', 4),
+      makeEntry(habit.id, '2026-03-12', 4),
+    ], weekRef)
+
+    expect(summary.evaluationStatus).toBe('missed')
+    expect(summary.primaryMet).toBe(true)
+    expect(summary.presenceMet).toBe(false)
+    expect(summary.qualifiedEntryDays).toBe(4)
+  })
+
+  it('does not count an explicitly logged zero as a counter execution day', () => {
+    const habit = makeHabit({
+      entryMode: 'counter',
+      target: { kind: 'count', operator: 'min', value: 4, entryDays: { operator: 'min', value: 3 } },
+    })
+    const summary = buildMeasurementSummary(habit, [
+      makeEntry(habit.id, '2026-03-09', 2),
+      makeEntry(habit.id, '2026-03-10', 2),
+      makeEntry(habit.id, '2026-03-11', 0),
+    ], weekRef)
+
+    expect(summary.actualValue).toBe(4)
+    expect(summary.primaryMet).toBe(true)
+    expect(summary.qualifiedEntryDays).toBe(2)
+    expect(summary.presenceMet).toBe(false)
+    expect(summary.evaluationStatus).toBe('missed')
+  })
+
+  it('returns no-data with zero entries, for min and max conditions alike', () => {
+    for (const operator of ['min', 'max'] as const) {
+      const summary = buildMeasurementSummary(makeRatingHabit({ operator, value: 3 }), [], weekRef)
+      expect(summary.evaluationStatus).toBe('no-data')
+      expect(summary.primaryMet).toBeUndefined()
+      expect(summary.presenceMet).toBeUndefined()
+      expect(summary.qualifiedEntryDays).toBe(0)
+    }
+  })
+
+  it('leaves the breakdown fields undefined for targets without the condition', () => {
+    const habit = makeHabit({
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 3 },
+    })
+    const summary = buildMeasurementSummary(habit, [
+      makeEntry(habit.id, '2026-03-09', 4),
+    ], weekRef)
+
+    expect(summary.evaluationStatus).toBe('met')
+    expect(summary.primaryMet).toBeUndefined()
+    expect(summary.presenceMet).toBeUndefined()
+    expect(summary.qualifiedEntryDays).toBeUndefined()
+  })
+
+  it('carries the condition through week target overrides', () => {
+    const habit = makeHabit({
+      entryMode: 'rating',
+      target: { kind: 'rating', aggregation: 'average', operator: 'gte', value: 3 },
+    })
+    const subject = applyMeasurementTargetCascade(habit, weekRef, {
+      weekOverride: {
+        kind: 'rating',
+        aggregation: 'average',
+        operator: 'gte',
+        value: 3,
+        entryDays: { operator: 'min', value: 2 },
+      },
+    })
+    const summary = buildMeasurementSummary(subject, [
+      makeEntry(habit.id, '2026-03-09', 4),
+    ], weekRef)
+
+    expect(summary.evaluationStatus).toBe('missed')
+    expect(summary.presenceMet).toBe(false)
+  })
+})

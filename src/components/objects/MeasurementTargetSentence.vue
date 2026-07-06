@@ -5,6 +5,7 @@ import { useT } from '@/composables/useT'
 import type {
   ComparisonOperator,
   CountTargetOperator,
+  MeasurementEntryDaysCondition,
   MeasurementEntryMode,
   MeasurementTarget,
   PlanningCadence,
@@ -169,6 +170,60 @@ function commitValue(): void {
   const value = props.target.kind === 'count' ? Math.round(parsed) : parsed
   commit(props.entryMode, { ...props.target, value } as MeasurementTarget)
 }
+
+// --- entryDays clause ("i loguj co najmniej N dni") -------------------------
+// Redundant for completion (the primary metric already counts entry days),
+// so the clause and its add-button are hidden there.
+const entryDays = computed(() => props.target.entryDays)
+const canHaveEntryDays = computed(() => props.entryMode !== 'completion')
+
+const entryDaysMax = computed(() => (props.cadence === 'monthly' ? 31 : 7))
+const entryDaysDefault = computed(() => (props.cadence === 'monthly' ? 20 : 5))
+
+const entryDaysOperatorOptions = computed(() => [
+  { value: 'min', label: t('planning.objects.targetOperators.min') },
+  { value: 'max', label: t('planning.objects.targetOperators.max') },
+])
+
+const localEntryDaysValue = ref<string | number>(entryDays.value ? String(entryDays.value.value) : '')
+watch(entryDays, (condition) => {
+  localEntryDaysValue.value = condition ? String(condition.value) : ''
+})
+
+function commitEntryDays(condition: MeasurementEntryDaysCondition | undefined): void {
+  const { entryDays: _dropped, ...rest } = props.target
+  const next = (condition ? { ...rest, entryDays: condition } : rest) as MeasurementTarget
+  commit(props.entryMode, next)
+}
+
+function addEntryDays(): void {
+  commitEntryDays({ operator: 'min', value: entryDaysDefault.value })
+}
+
+function onEntryDaysOperator(value: string): void {
+  const current = entryDays.value
+  if (!current) return
+  commitEntryDays({ ...current, operator: value as CountTargetOperator })
+}
+
+// Clearing the value is how the condition is removed (no separate delete button).
+function commitEntryDaysValue(): void {
+  const current = entryDays.value
+  if (!current) return
+  // v-model on a number input can hold a number, not a string.
+  const raw = String(localEntryDaysValue.value ?? '').trim()
+  if (!raw) {
+    commitEntryDays(undefined)
+    return
+  }
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed)) {
+    localEntryDaysValue.value = String(current.value)
+    return
+  }
+  const value = Math.min(entryDaysMax.value, Math.max(1, Math.round(parsed)))
+  commitEntryDays({ ...current, value })
+}
 </script>
 
 <template>
@@ -225,6 +280,35 @@ function commitValue(): void {
       {{ t('planning.objects.targetSentence.timesUnit') }}
     </span>
 
+    <template v-if="entryDays">
+      <span class="text-on-surface-variant">
+        {{ t('planning.objects.targetSentence.entryDaysAnd') }}
+      </span>
+      <KrPillDropdown
+        flat
+        :model-value="entryDays.operator"
+        :options="entryDaysOperatorOptions"
+        :disabled="disabled"
+        @update:model-value="onEntryDaysOperator"
+      />
+      <input
+        v-model="localEntryDaysValue"
+        type="number"
+        :min="1"
+        :max="entryDaysMax"
+        step="1"
+        inputmode="numeric"
+        :disabled="disabled"
+        class="neo-badge w-16 px-2 py-1 text-center text-sm font-semibold text-on-surface transition-colors focus:border-primary/50 focus:bg-white/70 focus:outline-none"
+        :aria-label="t('planning.objects.targetSentence.entryDaysValueLabel')"
+        @change="commitEntryDaysValue"
+        @keydown.enter.prevent="commitEntryDaysValue"
+      />
+      <span class="text-on-surface-variant">
+        {{ t('planning.objects.targetSentence.entryDaysUnit') }}
+      </span>
+    </template>
+
     <KrPillDropdown
       v-if="showCadence"
       flat
@@ -234,5 +318,14 @@ function commitValue(): void {
       @update:model-value="onCadence"
     />
     <span v-else-if="entryMode !== 'rating'" class="text-on-surface-variant">{{ periodText }}</span>
+
+    <button
+      v-if="canHaveEntryDays && !entryDays && !disabled"
+      type="button"
+      class="rounded-full px-2 py-0.5 text-xs font-medium text-on-surface-variant underline decoration-dotted underline-offset-2 transition-colors hover:text-on-surface focus:outline-none focus:ring-2 focus:ring-focus"
+      @click="addEntryDays"
+    >
+      {{ t('planning.objects.targetSentence.addEntryDays') }}
+    </button>
   </div>
 </template>

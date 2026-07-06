@@ -42,6 +42,14 @@ export function auditMeasurementRecords(
         reason: 'completion entry mode requires count target',
       })
     }
+    if (habit.entryMode === 'completion' && habit.target.entryDays) {
+      invalid.push({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        title: habit.title,
+        reason: 'completion entry mode must not carry an entryDays condition',
+      })
+    }
   }
 
   for (const kr of keyResults) {
@@ -51,6 +59,14 @@ export function auditMeasurementRecords(
         subjectId: kr.id,
         title: kr.title,
         reason: 'completion entry mode requires count target',
+      })
+    }
+    if (kr.entryMode === 'completion' && kr.target.entryDays) {
+      invalid.push({
+        subjectType: 'keyResult',
+        subjectId: kr.id,
+        title: kr.title,
+        reason: 'completion entry mode must not carry an entryDays condition',
       })
     }
   }

@@ -374,6 +374,12 @@ function onTargetMeasurement(measurement: {
     emitFieldChange('target.aggregation', nextAggregation)
   }
   if (next.value !== current.value) emitFieldChange('target.value', next.value)
+  if (
+    next.entryDays?.operator !== current.entryDays?.operator ||
+    next.entryDays?.value !== current.entryDays?.value
+  ) {
+    emitFieldChange('target.entryDays', next.entryDays)
+  }
 }
 
 const linkedPeriodRefs = computed(() => new Set(props.linkedPeriods.map((p) => p.periodRef)))

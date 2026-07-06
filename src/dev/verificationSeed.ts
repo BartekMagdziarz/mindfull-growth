@@ -70,7 +70,7 @@ import {
 } from './verificationAccount'
 
 /** Bump after changing the dataset — forces a reset+re-seed on next verification boot. */
-export const SEED_VERSION = 5
+export const SEED_VERSION = 6
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 const WEEKS_BACK = 8
@@ -472,6 +472,46 @@ export async function seedVerificationData(): Promise<void> {
     priorityIds: [p4.id],
     lifeAreaIds: [areaGrowth.id],
   })
+  // entryDays min: "średnia ≥ 3 I loguj ≥ 5 dni" — missed weeks log a single
+  // good rating, so the primary metric is met while presence fails.
+  const h4 = await habitDexieRepository.create({
+    title: 'Poranna rutyna',
+    isActive: true,
+    status: 'open',
+    cadence: 'weekly',
+    entryMode: 'rating',
+    target: {
+      kind: 'rating',
+      aggregation: 'average',
+      operator: 'gte',
+      value: 3,
+      entryDays: { operator: 'min', value: 5 },
+    },
+    ratingScaleMin: 1,
+    ratingScale: 5,
+    priorityIds: [p1.id],
+    lifeAreaIds: [areaHealth.id],
+  })
+  // entryDays max: track satisfaction but play at most 3 days — missed weeks
+  // log 4 days, so the metric holds while the limit is exceeded.
+  const h5 = await habitDexieRepository.create({
+    title: 'Granie wieczorem',
+    isActive: true,
+    status: 'open',
+    cadence: 'weekly',
+    entryMode: 'rating',
+    target: {
+      kind: 'rating',
+      aggregation: 'average',
+      operator: 'gte',
+      value: 3,
+      entryDays: { operator: 'max', value: 3 },
+    },
+    ratingScaleMin: 1,
+    ratingScale: 5,
+    priorityIds: [p4.id],
+    lifeAreaIds: [areaGrowth.id],
+  })
 
   const t1 = await trackerDexieRepository.create({
     title: 'Jakość snu',
@@ -503,6 +543,8 @@ export async function seedVerificationData(): Promise<void> {
     { subjectType: 'habit', id: h1.id },
     { subjectType: 'habit', id: h2.id },
     { subjectType: 'habit', id: h3.id },
+    { subjectType: 'habit', id: h4.id },
+    { subjectType: 'habit', id: h5.id },
     { subjectType: 'tracker', id: t1.id },
     { subjectType: 'tracker', id: t2.id },
   ]
@@ -576,6 +618,22 @@ export async function seedVerificationData(): Promise<void> {
       h3.id,
       upToToday(weekDays(weekRef, isMet(weekIdx, 0) ? [0, 1, 2, 3] : [0, 3])),
       null,
+    )
+    // h4 (entryDays min 5): met weeks log 5 days of "4"; missed weeks a single "3"
+    // → primaryMet ∧ ¬presenceMet.
+    await addEntries(
+      'habit',
+      h4.id,
+      upToToday(weekDays(weekRef, isMet(weekIdx, 0) ? [0, 1, 2, 3, 4] : [2])),
+      isMet(weekIdx, 0) ? 4 : 3,
+    )
+    // h5 (entryDays max 3): met weeks stay within the 3-day limit; missed weeks
+    // log 4 days of good ratings → primaryMet ∧ ¬presenceMet (limit exceeded).
+    await addEntries(
+      'habit',
+      h5.id,
+      upToToday(weekDays(weekRef, isMet(weekIdx, 1) ? [1, 3] : [1, 2, 4, 5])),
+      4,
     )
     for (const [dayIdx, dayRef] of upToToday(weekDays(weekRef, [0, 2, 4, 6])).entries()) {
       await addEntries('tracker', t1.id, [dayRef], 2 + ((weekIdx + dayIdx) % 4))

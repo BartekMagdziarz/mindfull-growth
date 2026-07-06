@@ -1,4 +1,4 @@
-import type { MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryDaysCondition, MeasurementTarget } from '@/domain/planning'
 import type { DayRef, MonthRef, PeriodRef, WeekRef } from '@/domain/period'
 import {
   assertPeriodRef,
@@ -345,6 +345,31 @@ function normalizeNonNegativeInteger(value: unknown, fieldName: string, fallback
   return source
 }
 
+function normalizeEntryDaysCondition(
+  value: unknown
+): MeasurementEntryDaysCondition | undefined {
+  if (value === undefined || value === null) {
+    return undefined
+  }
+
+  if (!isPlainObject(value)) {
+    throw new Error('targetOverride.entryDays must be an object')
+  }
+
+  const operator = normalizeEnum(
+    value.operator,
+    'targetOverride.entryDays.operator',
+    COUNT_TARGET_OPERATORS,
+    'min'
+  )
+  const days = value.value
+  if (typeof days !== 'number' || !Number.isInteger(days) || days < 1) {
+    throw new Error('targetOverride.entryDays.value must be an integer >= 1')
+  }
+
+  return { operator, value: days }
+}
+
 function normalizeMeasurementTarget(
   value: unknown,
   fallback?: MeasurementTarget
@@ -361,6 +386,11 @@ function normalizeMeasurementTarget(
     fallback?.kind
   )
 
+  // No fallback to the existing override's entryDays — editors send the full
+  // target object, so omitting entryDays removes the condition (twin of the
+  // base-target normalizer in planning.ts; change both together).
+  const entryDays = normalizeEntryDaysCondition(source.entryDays)
+
   switch (kind) {
     case 'count':
       return {
@@ -376,6 +406,7 @@ function normalizeMeasurementTarget(
           'targetOverride.value',
           fallback?.kind === 'count' ? fallback.value : undefined
         ),
+        ...(entryDays ? { entryDays } : {}),
       }
     case 'value':
       return {
@@ -397,6 +428,7 @@ function normalizeMeasurementTarget(
           'targetOverride.value',
           fallback?.kind === 'value' ? fallback.value : undefined
         ),
+        ...(entryDays ? { entryDays } : {}),
       }
     case 'rating':
       return {
@@ -418,6 +450,7 @@ function normalizeMeasurementTarget(
           'targetOverride.value',
           fallback?.kind === 'rating' ? fallback.value : undefined
         ),
+        ...(entryDays ? { entryDays } : {}),
       }
   }
 }

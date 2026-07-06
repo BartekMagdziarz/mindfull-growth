@@ -150,13 +150,19 @@ import AppButton from '@/components/AppButton.vue'
 import ObjectsLibraryPillSelect from '@/components/objects/ObjectsLibraryPillSelect.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryPanelType } from '@/services/objectsLibraryQueries'
-import type { MeasurementEntryMode, MeasurementTarget, PlanningCadence } from '@/domain/planning'
+import type {
+  MeasurementEntryDaysCondition,
+  MeasurementEntryMode,
+  MeasurementTarget,
+  PlanningCadence,
+} from '@/domain/planning'
 
 interface LibraryTargetDraft {
   kind: 'count' | 'value' | 'rating'
   operator: 'min' | 'max' | 'gte' | 'lte'
   aggregation?: 'sum' | 'average' | 'last'
   value: number
+  entryDays?: MeasurementEntryDaysCondition
 }
 
 interface LibraryDraft {
@@ -274,17 +280,19 @@ const sentenceEntryMode = computed<MeasurementEntryMode>(() => {
 
 const sentenceTarget = computed<MeasurementTarget>(() => {
   const d = draft.value.target
+  const entryDays = d.entryDays ? { entryDays: d.entryDays } : {}
   if (d.kind === 'count') {
-    return { kind: 'count', operator: d.operator === 'max' ? 'max' : 'min', value: d.value }
+    return { kind: 'count', operator: d.operator === 'max' ? 'max' : 'min', value: d.value, ...entryDays }
   }
   if (d.kind === 'rating') {
-    return { kind: 'rating', aggregation: 'average', operator: d.operator === 'lte' ? 'lte' : 'gte', value: d.value }
+    return { kind: 'rating', aggregation: 'average', operator: d.operator === 'lte' ? 'lte' : 'gte', value: d.value, ...entryDays }
   }
   return {
     kind: 'value',
     aggregation: d.aggregation ?? 'sum',
     operator: d.operator === 'lte' ? 'lte' : 'gte',
     value: d.value,
+    ...entryDays,
   }
 })
 
@@ -299,6 +307,7 @@ function onTargetMeasurement(measurement: {
   target.operator = next.operator
   target.value = next.value
   target.aggregation = next.kind === 'value' || next.kind === 'rating' ? next.aggregation : undefined
+  target.entryDays = next.entryDays
 }
 
 function onCadence(value: PlanningCadence): void {

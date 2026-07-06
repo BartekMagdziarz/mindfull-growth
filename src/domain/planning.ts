@@ -27,10 +27,21 @@ export type ValueTargetAggregation = 'sum' | 'average' | 'last'
 
 export const MAX_ACTIVE_PRIORITIES = 5
 
+/**
+ * Optional entry-days condition: the target is met only when the number of
+ * days with a qualifying entry in the cadence period also satisfies this
+ * comparison (min = at least, max = at most). Undefined = no condition.
+ */
+export interface MeasurementEntryDaysCondition {
+  operator: CountTargetOperator
+  value: number
+}
+
 export interface CountTarget {
   kind: 'count'
   operator: CountTargetOperator
   value: number
+  entryDays?: MeasurementEntryDaysCondition
 }
 
 export interface ValueTarget {
@@ -38,6 +49,7 @@ export interface ValueTarget {
   aggregation: ValueTargetAggregation
   operator: ComparisonOperator
   value: number
+  entryDays?: MeasurementEntryDaysCondition
 }
 
 export interface RatingTarget {
@@ -45,6 +57,7 @@ export interface RatingTarget {
   aggregation: 'average'
   operator: ComparisonOperator
   value: number
+  entryDays?: MeasurementEntryDaysCondition
 }
 
 export type MeasurementTarget = CountTarget | ValueTarget | RatingTarget
@@ -457,6 +470,35 @@ function normalizePriorityClosingReflection(
   }
 }
 
+function normalizeEntryDaysCondition(
+  entryMode: MeasurementEntryMode,
+  value: unknown,
+  fieldName = 'target.entryDays',
+): MeasurementEntryDaysCondition | undefined {
+  // For completion the condition is redundant (the primary metric already
+  // counts entry days), so it is stripped instead of stored.
+  if (value === undefined || value === null || entryMode === 'completion') {
+    return undefined
+  }
+
+  if (!isPlainObject(value)) {
+    throw new Error(`${fieldName} must be an object`)
+  }
+
+  const operator = normalizeEnum(
+    value.operator,
+    `${fieldName}.operator`,
+    COUNT_TARGET_OPERATORS,
+    'min',
+  )
+  const days = value.value
+  if (typeof days !== 'number' || !Number.isInteger(days) || days < 1) {
+    throw new Error(`${fieldName}.value must be an integer >= 1`)
+  }
+
+  return { operator, value: days }
+}
+
 function normalizeMeasurementTarget(
   entryMode: MeasurementEntryMode,
   targetValue: unknown,
@@ -466,6 +508,10 @@ function normalizeMeasurementTarget(
   if (!isPlainObject(source)) {
     throw new Error('target must be an object')
   }
+
+  // Intentionally no per-field fallback to existing.entryDays: the editors emit
+  // the full target object, so omitting entryDays is how the condition is removed.
+  const entryDays = normalizeEntryDaysCondition(entryMode, source.entryDays)
 
   switch (entryMode) {
     case 'completion':
@@ -483,6 +529,7 @@ function normalizeMeasurementTarget(
           'target.value',
           existing?.kind === 'count' ? existing.value : undefined,
         ),
+        ...(entryDays ? { entryDays } : {}),
       }
     case 'value':
       return {
@@ -504,6 +551,7 @@ function normalizeMeasurementTarget(
           'target.value',
           existing?.kind === 'value' ? existing.value : undefined,
         ),
+        ...(entryDays ? { entryDays } : {}),
       }
     case 'rating':
       return {
@@ -525,6 +573,7 @@ function normalizeMeasurementTarget(
           'target.value',
           existing?.kind === 'rating' ? existing.value : undefined,
         ),
+        ...(entryDays ? { entryDays } : {}),
       }
   }
 }

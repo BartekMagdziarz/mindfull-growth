@@ -138,6 +138,7 @@
       "actualNoData": "Actual: no data",
       "assignedDays": "{n} assigned days",
       "entryCount": "{n} entries",
+      "entryDaysProgress": "Days with an entry: {current}/{target}",
       "loggedValue": "Logged value: {value}",
       "recordedToday": "Recorded today",
       "successNote": "Success note: {note}",
@@ -684,6 +685,10 @@
       "perMonth": "per month",
       "timesUnit": "times",
       "ratingOutOf": "out of {max}",
+      "entryDaysAnd": "and log",
+      "entryDaysUnit": "days",
+      "entryDaysValueLabel": "Days with an entry",
+      "addEntryDays": "+ days condition",
       "mode": {
         "completion": "Do",
         "counter": "Count",

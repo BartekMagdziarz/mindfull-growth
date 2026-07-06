@@ -75,6 +75,12 @@ export interface ContextChipData {
   aggregationLabel?: MonthlyContextAggregationLabel
   /** Total entry count in the period. */
   entryCount: number
+  /** Entry-days condition readout — set only when the target defines `entryDays`. */
+  entryDays?: {
+    current: number
+    target: number
+    operator: 'min' | 'max'
+  }
 }
 
 export interface MonthlyContextFooterData extends ContextChipData {
@@ -162,6 +168,25 @@ export function buildContextChipData(
   const target = suppressTarget
     ? undefined
     : summary.target ?? ('target' in subject ? subject.target : undefined)
+  const chip = buildBaseContextChipData(subject, target, summary)
+
+  const entryDaysCondition = target?.entryDays
+  if (entryDaysCondition && summary.qualifiedEntryDays !== undefined) {
+    chip.entryDays = {
+      current: summary.qualifiedEntryDays,
+      target: entryDaysCondition.value,
+      operator: entryDaysCondition.operator,
+    }
+  }
+
+  return chip
+}
+
+function buildBaseContextChipData(
+  subject: MeasureableSubject,
+  target: MeasurementSummary['target'],
+  summary: MeasurementSummary,
+): ContextChipData {
   const current = summary.actualValue ?? 0
   const entryCount = summary.entryCount
   const status = mapStatus(summary.evaluationStatus)
