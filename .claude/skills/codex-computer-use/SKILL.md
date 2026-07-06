@@ -47,14 +47,34 @@ PROMPT="$ARTIFACT_DIR/prompt.md"
 codex exec \
   -C "$PWD" \
   --add-dir "$ARTIFACT_DIR" \
-  -s workspace-write \
+  -s "$SANDBOX_MODE" \
   -o "$REPORT" \
   - < "$PROMPT"
 ```
 
-Use `workspace-write` so Codex can write reports, screenshots, and temporary
-verification scripts in the artifact directory. The prompt must tell Codex not
-to edit tracked app files.
+### Sandbox mode — pick by whether a browser launches
+
+- **Browser automation (Playwright/Chromium): `SANDBOX_MODE=danger-full-access`.**
+  User-approved default (2026-07-06). Headless Chromium cannot launch under
+  `workspace-write` on macOS — Seatbelt denies its Mach-port bootstrap
+  (`bootstrap_check_in … Permission denied (1100)`), every launch dies
+  instantly, and Codex burns minutes silently retrying workarounds that cannot
+  succeed. With the filesystem sandbox off, the prompt rules below are the only
+  guardrail — always include the "no edits", "artifact dir only" and "5199
+  only" lines, and skim `git status` after the run.
+- **No browser involved** (HTTP checks, log inspection, plain node scripts):
+  `SANDBOX_MODE=workspace-write`, plus
+  `-c sandbox_workspace_write.network_access=true` when the task talks to
+  127.0.0.1:5199 (workspace-write blocks network by default).
+
+### Hang vs. silent reasoning
+
+Codex at high reasoning effort (summaries disabled) can go several minutes with
+zero new output while thinking — that alone is not a hang. Before killing a
+run, check whether `$ARTIFACT_DIR` gained files and whether the `codex exec`
+process is still alive. Do kill and rerun when the transcript shows a
+Playwright launch failure under `workspace-write` (see above) — iteration will
+not fix a sandbox denial.
 
 ## Prompt Requirements
 
@@ -65,9 +85,14 @@ Tell Codex:
 - that the app is seeded and auto-logged-in through `npm run dev:verify`
 - that it must not touch `5173` or real user data
 - that it must not edit app source files
+- that ALL byproducts (scripts, reports, screenshots, probe dirs) MUST be
+  written inside `$ARTIFACT_DIR` — never next to the files under inspection
+  (Codex otherwise drops helpers into the repo; verified 2026-07-06)
 - whether screenshots are expected
 - which console errors or warnings to capture
 - to report pass, fail, or blocked
+- to list only artifacts that actually exist on disk (a failed run must not
+  report screenshot paths it never wrote)
 
 Ask for this report shape:
 
