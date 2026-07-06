@@ -8,7 +8,11 @@
     "history": "Historia",
     "exercises": "Ćwiczenia",
     "lifeAreas": "Obszary życia",
-    "profile": "Profil"
+    "profile": "Profil",
+    "mainNavigation": "Nawigacja główna",
+    "openNavigation": "Otwórz nawigację",
+    "pinDock": "Przypnij nawigację",
+    "unpinDock": "Odepnij nawigację"
   },
   "buttons": {
     "save": "Zapisz",

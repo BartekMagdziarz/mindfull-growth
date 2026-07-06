@@ -8,7 +8,11 @@
     "history": "History",
     "exercises": "Exercises",
     "lifeAreas": "Life Areas",
-    "profile": "Profile"
+    "profile": "Profile",
+    "mainNavigation": "Main navigation",
+    "openNavigation": "Open navigation",
+    "pinDock": "Pin navigation",
+    "unpinDock": "Unpin navigation"
   },
   "buttons": {
     "save": "Save",
