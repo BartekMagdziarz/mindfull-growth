@@ -221,6 +221,65 @@ describe('useUserPreferencesStore', () => {
     })
   })
 
+  describe('dockPinned preference', () => {
+    it('defaults to false (peek mode) when nothing is stored', async () => {
+      const store = useUserPreferencesStore()
+
+      await store.loadPreferences()
+
+      expect(store.dockPinned).toBe(false)
+    })
+
+    it("loads the stored 'true' value as the boolean true", async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
+        async (key) => {
+          if (key === 'preferences.dockPinned') return 'true'
+          return undefined
+        },
+      )
+
+      const store = useUserPreferencesStore()
+      await store.loadPreferences()
+
+      expect(store.dockPinned).toBe(true)
+    })
+
+    it('falls back to the default when the stored value is an unexpected string', async () => {
+      vi.mocked(userSettingsDexieRepository.get).mockImplementation(
+        async (key) => {
+          if (key === 'preferences.dockPinned') return 'sideways'
+          return undefined
+        },
+      )
+
+      const store = useUserPreferencesStore()
+      await store.loadPreferences()
+
+      expect(store.dockPinned).toBe(false)
+    })
+
+    it("persists a true value as the string 'true' and updates the ref", async () => {
+      const store = useUserPreferencesStore()
+
+      await store.setDockPinned(true)
+
+      expect(userSettingsDexieRepository.set).toHaveBeenCalledWith(
+        'preferences.dockPinned',
+        'true',
+      )
+      expect(store.dockPinned).toBe(true)
+    })
+
+    it('resets to the default on reset()', async () => {
+      const store = useUserPreferencesStore()
+
+      await store.setDockPinned(true)
+      store.reset()
+
+      expect(store.dockPinned).toBe(false)
+    })
+  })
+
   describe('legacy preference migration', () => {
     it("migrates 'true' from legacy chat preference into profileContextDefault and deletes the old key", async () => {
       vi.mocked(userSettingsDexieRepository.get).mockImplementation(

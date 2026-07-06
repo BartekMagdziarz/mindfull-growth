@@ -16,6 +16,7 @@ const KEYS = {
   // are serialised as `'true'` / `'false'` and parsed on load.
   PROFILE_CONTEXT_DEFAULT: 'preferences.profileContext.default',
   PROFILE_CONTEXT_DEFAULT_JOURNAL: 'preferences.profileContext.defaultJournal',
+  DOCK_PINNED: 'preferences.dockPinned',
   // Legacy key — read once during loadPreferences() to migrate the value
   // into PROFILE_CONTEXT_DEFAULT, then deleted. Do not introduce new
   // writes against this key.
@@ -30,6 +31,9 @@ const DEFAULTS = {
   GENDER: DEFAULT_GENDER as GrammaticalGender,
   PROFILE_CONTEXT_DEFAULT: true,
   PROFILE_CONTEXT_DEFAULT_JOURNAL: true,
+  // Nav dock starts unpinned ("peek" mode): hidden behind the left edge,
+  // revealed on edge hover. Pinning keeps it visible and offsets <main>.
+  DOCK_PINNED: false,
 }
 
 export const useUserPreferencesStore = defineStore('userPreferences', () => {
@@ -41,6 +45,7 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
   const profileContextDefaultJournal = ref<boolean>(
     DEFAULTS.PROFILE_CONTEXT_DEFAULT_JOURNAL,
   )
+  const dockPinned = ref<boolean>(DEFAULTS.DOCK_PINNED)
   const foundationRefreshDismissedAt = ref<string | undefined>(undefined)
   const isLoaded = ref(false)
 
@@ -105,6 +110,16 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
             ? false
             : DEFAULTS.PROFILE_CONTEXT_DEFAULT_JOURNAL
 
+      const storedDockPinned = await userSettingsDexieRepository.get(
+        KEYS.DOCK_PINNED,
+      )
+      dockPinned.value =
+        storedDockPinned === 'true'
+          ? true
+          : storedDockPinned === 'false'
+            ? false
+            : DEFAULTS.DOCK_PINNED
+
       foundationRefreshDismissedAt.value = await userSettingsDexieRepository.get(
         KEYS.PROFILE_FOUNDATION_REFRESH_DISMISSED_AT,
       )
@@ -156,6 +171,15 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     )
   }
 
+  async function setDockPinned(value: boolean): Promise<void> {
+    const normalized = !!value
+    dockPinned.value = normalized
+    await userSettingsDexieRepository.set(
+      KEYS.DOCK_PINNED,
+      normalized ? 'true' : 'false',
+    )
+  }
+
   async function setFoundationRefreshDismissedAt(
     value: string | undefined,
   ): Promise<void> {
@@ -193,6 +217,7 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     grammaticalGender.value = DEFAULTS.GENDER
     profileContextDefault.value = DEFAULTS.PROFILE_CONTEXT_DEFAULT
     profileContextDefaultJournal.value = DEFAULTS.PROFILE_CONTEXT_DEFAULT_JOURNAL
+    dockPinned.value = DEFAULTS.DOCK_PINNED
     foundationRefreshDismissedAt.value = undefined
     isLoaded.value = false
   }
@@ -204,6 +229,7 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     grammaticalGender,
     profileContextDefault,
     profileContextDefaultJournal,
+    dockPinned,
     foundationRefreshDismissedAt,
     isLoaded,
     // Actions
@@ -213,6 +239,7 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     setGrammaticalGender,
     setProfileContextDefault,
     setProfileContextDefaultJournal,
+    setDockPinned,
     setFoundationRefreshDismissedAt,
     clearFoundationRefreshDismissedAt,
     reset,
