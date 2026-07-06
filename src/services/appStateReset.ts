@@ -74,6 +74,7 @@ import { useMountainRangeStore } from '@/stores/mountainRange.store'
 import { useObjectsLibraryStore } from '@/stores/objectsLibrary.store'
 import { useParadoxicalIntentionStore } from '@/stores/paradoxicalIntention.store'
 import { usePositiveDataLogStore } from '@/stores/positiveDataLog.store'
+import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useSocraticDialogueStore } from '@/stores/socraticDialogue.store'
 import { useStructuredProblemSolvingStore } from '@/stores/structuredProblemSolving.store'
@@ -144,6 +145,7 @@ export function resetAppState(): void {
   useObjectsLibraryStore().reset()
   useParadoxicalIntentionStore().reset()
   usePositiveDataLogStore().reset()
+  useProgramEnrollmentStore().reset()
   useShadowBeliefsStore().reset()
   useSocraticDialogueStore().reset()
   useStructuredProblemSolvingStore().reset()

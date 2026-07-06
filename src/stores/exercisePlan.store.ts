@@ -84,6 +84,16 @@ export const useExercisePlanStore = defineStore('exercisePlan', () => {
     }
   }
 
+  /**
+   * Cache eviction for items hard-deleted elsewhere (program pause /
+   * abandon in `programSchedulerService`) — `cancelPlan` would try to
+   * delete them from Dexie a second time.
+   */
+  function applyRemoval(id: string): void {
+    if (!isLoaded.value) return
+    items.value = items.value.filter((item) => item.id !== id)
+  }
+
   async function createPlan(
     slug: string,
     dayRef: DayRef,
@@ -134,6 +144,7 @@ export const useExercisePlanStore = defineStore('exercisePlan', () => {
     loadItems,
     ensureLoaded,
     applyUpdate,
+    applyRemoval,
     createPlan,
     movePlan,
     skipPlan,
