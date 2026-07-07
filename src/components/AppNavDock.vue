@@ -183,9 +183,11 @@ watch(
 
 watch(
   () => props.pinned,
-  () => {
+  (pinned, wasPinned) => {
     clearTimers()
-    revealed.value = false
+    // Unpinning happens with the pointer on the dock — keep it revealed so it
+    // doesn't vanish under the cursor; it tucks away on pointerleave/focusout.
+    revealed.value = wasPinned === true && pinned === false
   },
 )
 
@@ -222,8 +224,11 @@ onBeforeUnmount(clearTimers)
     box-shadow 220ms ease;
 }
 
+/* Expand on hover, or on KEYBOARD focus only (:focus-visible) — a mouse
+   click also focuses the clicked link/button, and plain :focus-within would
+   keep the capsule stuck expanded after clicking the pin toggle. */
 .dock-capsule:hover,
-.dock-capsule:focus-within {
+.dock-capsule:has(:focus-visible) {
   width: 220px;
   box-shadow:
     -9px -9px 18px rgb(var(--neo-shadow-light) / 0.8),
@@ -331,7 +336,7 @@ onBeforeUnmount(clearTimers)
 }
 
 .dock-capsule:hover .dock-label,
-.dock-capsule:focus-within .dock-label {
+.dock-capsule:has(:focus-visible) .dock-label {
   opacity: 1;
   transform: none;
 }
