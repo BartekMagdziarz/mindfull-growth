@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { JournalEntry } from '@/domain/journal'
+import type { EmotionSelection } from '@/domain/emotionWheel'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
 
 export const useJournalStore = defineStore('journal', () => {
@@ -61,6 +62,8 @@ export const useJournalStore = defineStore('journal', () => {
     title?: string
     body: string
     emotionIds?: string[]
+    emotionFamilyIds?: string[]
+    emotions?: EmotionSelection[]
     peopleTagIds?: string[]
     contextTagIds?: string[]
     createdAt?: string

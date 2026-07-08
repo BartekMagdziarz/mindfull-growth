@@ -69,35 +69,34 @@
         </Transition>
       </Teleport>
 
-      <!-- Emotions + Note Row -->
-      <section class="space-y-3">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-[1.8fr_1fr] items-stretch">
-          <!-- Emotions Section -->
-          <section
-            class="neo-card px-5 py-4 flex flex-col gap-4"
-            :style="emotionCardStyle"
+      <!-- Dwie kolumny na jeden ekran: szerokie koło (niemal kwadrat) po lewej,
+           notatka + tagi (zwinięte do kilku rzędów) + akcje po prawej -->
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr] items-stretch">
+        <!-- Lewa kolumna: koło emocji -->
+        <section
+          class="neo-card px-5 py-4 flex flex-col gap-4"
+          :style="emotionCardStyle"
+        >
+          <div
+            v-if="isEmotionSectionLoading"
+            class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
           >
-            <div
-              v-if="isEmotionSectionLoading"
-              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
-            >
-              {{ t('emotionViews.loadingEmotions') }}
-            </div>
-            <div v-else class="pt-1">
-              <EmotionSelector
-                :label="t('emotionViews.editor.emotions')"
-                v-model="selectedEmotionIds"
-                v-model:families="selectedEmotionFamilyIds"
-                v-model:quadrant="activeEmotionQuadrant"
-                :allow-family-only="true"
-                :show-empty-state="false"
-              />
-            </div>
-          </section>
+            {{ t('emotionViews.loadingEmotions') }}
+          </div>
+          <div v-else class="pt-1">
+            <EmotionWheel
+              :label="t('emotionViews.editor.emotions')"
+              v-model="wheelSelections"
+              v-model:quadrant="activeEmotionQuadrant"
+            />
+          </div>
+        </section>
 
+        <!-- Prawa kolumna: notatka, osoby, kontekst, akcje -->
+        <div class="flex flex-col gap-4 min-w-0">
           <!-- Note Section -->
           <section
-            class="neo-inset rounded-[32px] px-6 py-5 flex flex-col gap-3 self-stretch"
+            class="neo-inset rounded-[32px] px-6 py-5 flex flex-col gap-3"
           >
             <label for="note" class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('emotionViews.editor.note') }}
@@ -106,18 +105,13 @@
               id="note"
               v-model="note"
               :placeholder="t('emotionViews.editor.notePlaceholder')"
-              class="w-full h-full bg-transparent text-sm leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none flex-1"
+              class="w-full min-h-[96px] bg-transparent text-sm leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none flex-1"
             />
           </section>
-        </div>
-      </section>
 
-      <!-- People + Context Row -->
-      <section class="space-y-3">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 items-start">
           <!-- People Tags Section -->
           <section
-            class="neo-card px-5 py-4 flex flex-col gap-4"
+            class="neo-card px-5 py-4 flex flex-col gap-3"
           >
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -131,13 +125,13 @@
               {{ t('emotionViews.editor.loadingPeopleTags') }}
             </div>
             <div v-else class="pt-1">
-              <TagInput v-model="selectedPeopleTagIds" tag-type="people" />
+              <TagInput v-model="selectedPeopleTagIds" tag-type="people" :visible-limit="8" />
             </div>
           </section>
 
           <!-- Context Tags Section -->
           <section
-            class="neo-card px-5 py-4 flex flex-col gap-4"
+            class="neo-card px-5 py-4 flex flex-col gap-3"
           >
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -151,31 +145,29 @@
               {{ t('emotionViews.editor.loadingContextTags') }}
             </div>
             <div v-else class="pt-1">
-              <TagInput v-model="selectedContextTagIds" tag-type="context" />
+              <TagInput v-model="selectedContextTagIds" tag-type="context" :visible-limit="8" />
             </div>
           </section>
-        </div>
-      </section>
 
-      <!-- Bottom Action Bar -->
-      <div
-        class="border-t border-neu-border/20 flex justify-end gap-3 px-2 sm:px-4 py-4"
-      >
-        <AppButton
-          variant="text"
-          @click="handleCancel"
-          :disabled="isSaving"
-        >
-          {{ t('emotionViews.editor.cancel') }}
-        </AppButton>
-        <AppButton
-          variant="filled"
-          @click="handleSave"
-          :disabled="isSaving"
-          class="min-w-[140px]"
-        >
-          {{ isSaving ? t('emotionViews.editor.saving') : t('emotionViews.editor.save') }}
-        </AppButton>
+          <!-- Akcje na dole prawej kolumny (zamiast osobnego paska pod całością) -->
+          <div class="mt-auto flex justify-end gap-3 pt-1">
+            <AppButton
+              variant="text"
+              @click="handleCancel"
+              :disabled="isSaving"
+            >
+              {{ t('emotionViews.editor.cancel') }}
+            </AppButton>
+            <AppButton
+              variant="filled"
+              @click="handleSave"
+              :disabled="isSaving"
+              class="min-w-[140px]"
+            >
+              {{ isSaving ? t('emotionViews.editor.saving') : t('emotionViews.editor.save') }}
+            </AppButton>
+          </div>
+        </div>
       </div>
     </template>
 
@@ -188,7 +180,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionWheel from '@/components/emotion/EmotionWheel.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -198,6 +190,8 @@ import { formatEntryDate } from '@/utils/dateFormat'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { Quadrant } from '@/domain/emotion'
 import { getQuadrantTintStyle } from '@/domain/emotion'
+import type { EmotionSelection } from '@/domain/emotionWheel'
+import { legacyToSelections, selectionsToLegacyFamilyIds } from '@/domain/emotionWheel'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
@@ -218,8 +212,7 @@ const showSnackbarThenNavigate = async (message: string, path: string) => {
   await router.push(path)
 }
 
-const selectedEmotionIds = ref<string[]>([])
-const selectedEmotionFamilyIds = ref<string[]>([])
+const wheelSelections = ref<EmotionSelection[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const note = ref('')
 const selectedPeopleTagIds = ref<string[]>([])
@@ -242,8 +235,7 @@ const selectedDate = ref('')
 const selectedTime = ref('')
 
 function resetForm() {
-  selectedEmotionIds.value = []
-  selectedEmotionFamilyIds.value = []
+  wheelSelections.value = []
   note.value = ''
   selectedPeopleTagIds.value = []
   selectedContextTagIds.value = []
@@ -323,9 +315,7 @@ const isContextSectionLoading = computed(() => {
   )
 })
 
-const isValid = computed(
-  () => selectedEmotionIds.value.length > 0 || selectedEmotionFamilyIds.value.length > 0
-)
+const isValid = computed(() => wheelSelections.value.length > 0)
 
 const formattedTimestamp = computed(() => {
   // Use custom date if set and valid
@@ -370,8 +360,8 @@ const formattedTimestamp = computed(() => {
 
 const syncLogToForm = (log: EmotionLog) => {
   currentLog.value = log
-  selectedEmotionIds.value = [...log.emotionIds]
-  selectedEmotionFamilyIds.value = [...(log.emotionFamilyIds ?? [])]
+  // Adapter historii: wpisy sprzed koła (słowa/rodziny) → promienie ± natężenie
+  wheelSelections.value = legacyToSelections(log)
   note.value = log.note ?? ''
   selectedPeopleTagIds.value = [...(log.peopleTagIds ?? [])]
   selectedContextTagIds.value = [...(log.contextTagIds ?? [])]
@@ -479,10 +469,13 @@ const handleSave = async () => {
 
   isSaving.value = true
 
+  // Koło zapisuje wybory w `emotions`; `emotionFamilyIds` = mostek zgodności
+  // (slugi promieni == slugi rodzin). Uwaga: edycja starego wpisu nadpisuje
+  // dawne słowa (`emotionIds`) — świadoma strata przy spłaszczonym katalogu.
   const payload = {
-    emotionIds: [...selectedEmotionIds.value],
-    emotionFamilyIds:
-      selectedEmotionFamilyIds.value.length > 0 ? [...selectedEmotionFamilyIds.value] : undefined,
+    emotionIds: [],
+    emotionFamilyIds: selectionsToLegacyFamilyIds(wheelSelections.value),
+    emotions: wheelSelections.value.map((s) => ({ ...s })),
     note: note.value.trim() || undefined,
     peopleTagIds:
       selectedPeopleTagIds.value.length > 0 ? [...selectedPeopleTagIds.value] : undefined,

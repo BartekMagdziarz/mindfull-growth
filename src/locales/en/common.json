@@ -90,7 +90,9 @@
     "editTagName": "Edit {type} tag name",
     "deleteTag": "Delete {name}",
     "selectTag": "Select {type} tag {name}",
-    "deselectTag": "Deselect {type} tag {name}"
+    "deselectTag": "Deselect {type} tag {name}",
+    "showMore": "+{count} more",
+    "showLess": "Show less"
   },
   "profileContext": {
     "on": "Profile on",

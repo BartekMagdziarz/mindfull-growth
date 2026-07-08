@@ -2,28 +2,41 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue'
 import { defineComponent, ref, toRefs } from 'vue'
 
-const EmotionSelectorStub = defineComponent({
-  name: 'EmotionSelectorStub',
+type StubSelection = { emotionId: string; intensity?: number }
+
+const EmotionWheelStub = defineComponent({
+  name: 'EmotionWheelStub',
   props: {
     modelValue: {
       type: Array,
       default: () => [],
+    },
+    label: {
+      type: String,
+      default: undefined,
     },
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
     const { modelValue } = toRefs(props)
     const selectEmotion = () => {
-      emit('update:modelValue', [...modelValue.value, 'emotion-joy'])
+      emit('update:modelValue', [
+        ...(modelValue.value as StubSelection[]),
+        { emotionId: 'gniew', intensity: 3 },
+      ])
     }
-    return { selectedEmotionIds: modelValue, selectEmotion }
+    const formatted = () =>
+      (modelValue.value as StubSelection[])
+        .map((s) => s.emotionId + (s.intensity != null ? ':' + s.intensity : ''))
+        .join(',')
+    return { formatted, selectEmotion }
   },
   template: `
     <div data-testid="emotion-selector-stub">
       <button data-testid="emotion-add" type="button" @click="selectEmotion">
         Add Emotion
       </button>
-      <span data-testid="emotion-values">{{ selectedEmotionIds.join(',') }}</span>
+      <span data-testid="emotion-values">{{ formatted() }}</span>
     </div>
   `,
 })
@@ -191,7 +204,7 @@ const renderEditor = () =>
   render(EmotionLogEditorView, {
     global: {
       stubs: {
-        EmotionSelector: EmotionSelectorStub,
+        EmotionWheel: EmotionWheelStub,
         TagInput: TagInputStub,
       },
     },
@@ -247,7 +260,7 @@ describe('EmotionLogEditorView', () => {
 
     expect(
       (screen.getByTestId('emotion-values') as HTMLElement).textContent
-    ).toContain('emotion-joy')
+    ).toContain('gniew:3')
     expect(saveButton.disabled).toBe(false)
   })
 
@@ -291,10 +304,13 @@ describe('EmotionLogEditorView', () => {
 
     await waitFor(() => {
       expect(mockEmotionLogStore.createLog).toHaveBeenCalledWith({
-        emotionIds: ['emotion-joy'],
+        emotionIds: [],
+        emotionFamilyIds: ['gniew'],
+        emotions: [{ emotionId: 'gniew', intensity: 3 }],
         note: 'Feeling ready',
         peopleTagIds: ['people-tag-ally'],
         contextTagIds: ['context-tag-home'],
+        createdAt: undefined,
       })
     })
     expect(
@@ -324,11 +340,12 @@ describe('EmotionLogEditorView', () => {
   })
 
   it('pre-populates fields and updates the log in edit mode', async () => {
+    // Opanowany = podpowiedź poziomu 2 promienia „Spokój" — sprawdza adapter historii
     const existingLog: EmotionLog = {
       id: 'log-123',
       createdAt: '2025-02-01T08:00:00.000Z',
       updatedAt: '2025-02-01T08:00:00.000Z',
-      emotionIds: ['emotion-calm'],
+      emotionIds: ['e7m7-calm-067'],
       note: 'Initial note',
       peopleTagIds: ['people-tag-mentor'],
       contextTagIds: ['context-tag-office'],
@@ -353,7 +370,12 @@ describe('EmotionLogEditorView', () => {
     await waitFor(() => {
       expect(mockEmotionLogStore.updateLog).toHaveBeenCalledWith({
         ...existingLog,
-        emotionIds: ['emotion-calm', 'emotion-joy'],
+        emotionIds: [],
+        emotionFamilyIds: ['spokoj-i-wyciszenie', 'gniew'],
+        emotions: [
+          { emotionId: 'spokoj-i-wyciszenie', intensity: 2 },
+          { emotionId: 'gniew', intensity: 3 },
+        ],
         note: 'Initial note',
         peopleTagIds: ['people-tag-mentor', 'people-tag-ally'],
         contextTagIds: ['context-tag-office'],

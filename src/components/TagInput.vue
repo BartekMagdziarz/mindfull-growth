@@ -38,7 +38,7 @@
       </div>
 
       <!-- Existing Tags -->
-      <template v-for="tag in availableTags" :key="tag.id">
+      <template v-for="tag in visibleTags" :key="tag.id">
         <!-- Edit Mode -->
         <div
           v-if="editingTagId === tag.id"
@@ -77,6 +77,26 @@
           {{ tag.name }}
         </button>
       </template>
+
+      <!-- Collapse/expand toggle (only when visibleLimit is set and hides something) -->
+      <button
+        v-if="hiddenCount > 0"
+        type="button"
+        class="px-3 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-focus"
+        :data-testid="`tag-show-more-${props.tagType}`"
+        @click="isExpanded = true"
+      >
+        {{ t('common.tagInput.showMore', { count: hiddenCount }) }}
+      </button>
+      <button
+        v-else-if="isExpanded && canCollapse"
+        type="button"
+        class="px-3 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-focus"
+        :data-testid="`tag-show-less-${props.tagType}`"
+        @click="isExpanded = false"
+      >
+        {{ t('common.tagInput.showLess') }}
+      </button>
     </div>
 
     <!-- Error Message -->
@@ -98,12 +118,15 @@ interface Props {
   tagType: 'people' | 'context'
   compact?: boolean
   hideSelectedSection?: boolean
+  /** Ile tagów pokazywać w stanie zwiniętym (zaznaczone zawsze widoczne); brak = wszystkie. */
+  visibleLimit?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
   compact: false,
   hideSelectedSection: false,
+  visibleLimit: undefined,
 })
 
 const emit = defineEmits<{
@@ -146,6 +169,30 @@ const availableTags = computed(() => {
     ? tagStore.peopleTags
     : tagStore.contextTags
 })
+
+// Zwijanie długich list: pierwsze N tagów + wszystkie ZAZNACZONE (nie mogą zniknąć).
+// TODO(popularność): gdy będą statystyki użycia tagów, sortować tu malejąco po użyciach.
+const isExpanded = ref(false)
+
+const visibleTags = computed(() => {
+  const limit = props.visibleLimit
+  if (limit == null || isExpanded.value) return availableTags.value
+  const base = availableTags.value.slice(0, limit)
+  const extraSelected = availableTags.value
+    .slice(limit)
+    .filter((tag) => selectedTagIds.value.includes(tag.id))
+  return [...base, ...extraSelected]
+})
+
+const hiddenCount = computed(() =>
+  props.visibleLimit == null || isExpanded.value
+    ? 0
+    : availableTags.value.length - visibleTags.value.length,
+)
+
+const canCollapse = computed(
+  () => props.visibleLimit != null && availableTags.value.length > props.visibleLimit,
+)
 
 // Methods
 function isTagSelected(tagId: string): boolean {

@@ -156,7 +156,7 @@ describe('Component interactions', () => {
     vi.clearAllMocks()
   })
 
-  it('syncs EmotionSelector and TagInput selections inside JournalEditorView', async () => {
+  it('syncs EmotionWheel and TagInput selections inside JournalEditorView', async () => {
     const user = userEvent.setup()
     render(JournalEditorView)
 
@@ -167,17 +167,16 @@ describe('Component interactions', () => {
     const saveButton = await screen.findByRole('button', { name: 'Save' })
     expect(saveButton).toBeDisabled()
 
-    // Select quadrant -> expand the "radosc" family in place -> pick "Happy"
+    // Open the quadrant fan -> pick „Radość" at intensity 4
     await user.click(screen.getByTestId('emotion-quadrant-high-energy-high-pleasantness'))
-    await user.click(await screen.findByTestId('emotion-family-expand-radosc'))
-    await user.click(await screen.findByTestId('emotion-option-e4m10-happy-028'))
+    await user.click(await screen.findByTestId('emotion-wheel-dot-radosc-4'))
 
-    await screen.findByRole('button', { name: /Remove Happy/i })
+    await screen.findByRole('button', { name: /Remove Joy/i })
 
-    // Switch quadrants via the in-panel switcher; selection persists.
-    await user.click(await screen.findByTestId('emotion-quadrant-switch-high-energy-low-pleasantness'))
+    // Switch quadrants via the capsule under the fan; selection persists.
+    await user.click(await screen.findByTestId('emotion-quadrant-high-energy-low-pleasantness'))
     // Selection persists across the round-trip
-    await screen.findByRole('button', { name: /Remove Happy/i })
+    await screen.findByRole('button', { name: /Remove Joy/i })
 
     // Add people tag
     await user.click(screen.getByRole('button', { name: /Add new people tag/i }))
@@ -204,7 +203,9 @@ describe('Component interactions', () => {
       expect.objectContaining({
         title: undefined,
         body: 'Today I felt amazing after a morning run.',
-        emotionIds: ['e4m10-happy-028'],
+        emotionIds: [],
+        emotionFamilyIds: ['radosc'],
+        emotions: [{ emotionId: 'radosc', intensity: 4 }],
         peopleTagIds: ['people-1'],
         contextTagIds: ['context-1'],
       })
@@ -226,10 +227,9 @@ describe('Component interactions', () => {
     await screen.findByText(/Please select at least one emotion/i)
 
     await user.click(screen.getByTestId('emotion-quadrant-high-energy-high-pleasantness'))
-    await user.click(await screen.findByTestId('emotion-family-expand-radosc'))
-    await user.click(await screen.findByTestId('emotion-option-e3m10-joyful-027'))
+    await user.click(await screen.findByTestId('emotion-wheel-dot-radosc-4'))
     expect(saveButton).toBeEnabled()
-    await screen.findByRole('button', { name: /Remove Joyful/i })
+    await screen.findByRole('button', { name: /Remove Joy/i })
 
     // Add tags then save
     await user.click(screen.getByRole('button', { name: /Add new people tag/i }))
@@ -243,7 +243,9 @@ describe('Component interactions', () => {
     await waitFor(() => {
       expect(mockEmotionLogStore.createLog).toHaveBeenCalledWith(
         expect.objectContaining({
-          emotionIds: ['e3m10-joyful-027'],
+          emotionIds: [],
+          emotionFamilyIds: ['radosc'],
+          emotions: [{ emotionId: 'radosc', intensity: 4 }],
           note: 'Reflection note',
           peopleTagIds: ['people-1'],
           contextTagIds: undefined,

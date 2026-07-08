@@ -69,15 +69,10 @@
         </Transition>
       </Teleport>
 
-      <!-- Main Editor Grid: text on left, optional collapsible side panel on right -->
+      <!-- Main Editor Grid: pisanie (bohater) po lewej, koło emocji + tagi po prawej —
+           całość mieści się na jednym ekranie (koło zastąpiło zwijany panel boczny) -->
       <div
-        :class="[
-          'grid grid-cols-1 gap-4 md:items-stretch md:gap-2 min-h-[60vh] md:min-h-0 md:h-[78vh]',
-          'md:transition-[grid-template-columns] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)]',
-          isSidePanelOpen
-            ? 'md:grid-cols-[3fr_auto_2fr]'
-            : 'md:grid-cols-[1fr_auto_0fr]',
-        ]"
+        class="grid grid-cols-1 gap-4 md:items-stretch min-h-[60vh] md:min-h-0 md:h-[78vh] md:grid-cols-[1.1fr_1fr]"
       >
         <!-- Left: Title + Body textarea (full height) -->
         <section
@@ -101,38 +96,10 @@
           />
         </section>
 
-        <!-- Side panel toggle (desktop only) -->
-        <div class="hidden md:flex items-center justify-center">
-          <button
-            type="button"
-            class="neo-focus flex h-8 w-8 items-center justify-center rounded-full bg-neu-base text-on-surface-variant/70 shadow-neu-raised-sm hover:-translate-y-px hover:text-on-surface hover:shadow-neu-raised transition-all duration-200"
-            :aria-label="isSidePanelOpen ? t('journal.editor.collapseSidePanel') : t('journal.editor.expandSidePanel')"
-            :aria-expanded="isSidePanelOpen"
-            @click="toggleSidePanel"
-          >
-            <AppIcon
-              name="chevron_right"
-              :class="[
-                'text-sm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
-                isSidePanelOpen ? '' : 'rotate-180',
-              ]"
-            />
-          </button>
-        </div>
-
-        <!-- Right: Emotions, Context Tags, People Tags (stacked) -->
-        <aside
-          :class="[
-            'flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-x-hidden md:overflow-y-auto md:py-4 md:px-5',
-            'md:transition md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)]',
-            isSidePanelOpen
-              ? 'md:opacity-100 md:translate-x-0'
-              : 'md:opacity-0 md:translate-x-4 md:pointer-events-none',
-          ]"
-        >
-          <!-- Emotions Section -->
+        <!-- Right: koło emocji + tagi (Kontekst | Osoby obok siebie, zwinięte) -->
+        <div class="flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-y-auto">
           <section
-            class="neo-card px-5 py-4 flex flex-col gap-4"
+            class="neo-card px-5 py-4 flex flex-col gap-3"
             :style="emotionCardStyle"
           >
             <div
@@ -142,63 +109,64 @@
               {{ t('journal.editor.loadingEmotions') }}
             </div>
             <div v-else class="pt-1">
-              <EmotionSelector
+              <EmotionWheel
                 :label="t('journal.editor.emotions')"
-                v-model="selectedEmotionIds"
-                v-model:families="selectedEmotionFamilyIds"
+                v-model="wheelSelections"
                 v-model:quadrant="activeEmotionQuadrant"
-                :allow-family-only="true"
-                :show-empty-state="false"
               />
             </div>
           </section>
 
-          <!-- Context Tags Section -->
-          <section
-            class="neo-card px-5 py-4 flex flex-col gap-4"
-          >
-            <header>
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                {{ t('journal.editor.context') }}
-              </p>
-            </header>
-            <div
-              v-if="areContextTagsLoading"
-              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Context Tags Section -->
+            <section
+              class="neo-card px-5 py-4 flex flex-col gap-3"
             >
-              {{ t('journal.editor.loadingContext') }}
-            </div>
-            <div v-else class="pt-1">
-              <TagInput
-                v-model="selectedContextTagIds"
-                tag-type="context"
-              />
-            </div>
-          </section>
+              <header>
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  {{ t('journal.editor.context') }}
+                </p>
+              </header>
+              <div
+                v-if="areContextTagsLoading"
+                class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+              >
+                {{ t('journal.editor.loadingContext') }}
+              </div>
+              <div v-else class="pt-1">
+                <TagInput
+                  v-model="selectedContextTagIds"
+                  tag-type="context"
+                  :visible-limit="6"
+                />
+              </div>
+            </section>
 
-          <!-- People Tags Section -->
-          <section
-            class="neo-card px-5 py-4 flex flex-col gap-4"
-          >
-            <header>
-              <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                {{ t('journal.editor.people') }}
-              </p>
-            </header>
-            <div
-              v-if="arePeopleTagsLoading"
-              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+            <!-- People Tags Section -->
+            <section
+              class="neo-card px-5 py-4 flex flex-col gap-3"
             >
-              {{ t('journal.editor.loadingPeople') }}
-            </div>
-            <div v-else class="pt-1">
-              <TagInput
-                v-model="selectedPeopleTagIds"
-                tag-type="people"
-              />
-            </div>
-          </section>
-        </aside>
+              <header>
+                <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  {{ t('journal.editor.people') }}
+                </p>
+              </header>
+              <div
+                v-if="arePeopleTagsLoading"
+                class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+              >
+                {{ t('journal.editor.loadingPeople') }}
+              </div>
+              <div v-else class="pt-1">
+                <TagInput
+                  v-model="selectedPeopleTagIds"
+                  tag-type="people"
+                  :visible-limit="6"
+                />
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
 
       <!-- Chat sessions section (edit mode only) -->
@@ -354,7 +322,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionWheel from '@/components/emotion/EmotionWheel.vue'
 import TagInput from '@/components/TagInput.vue'
 import ChatSessionCard from '@/components/ChatSessionCard.vue'
 import { useJournalStore } from '@/stores/journal.store'
@@ -366,6 +334,8 @@ import { formatEntryDate } from '@/utils/dateFormat'
 import type { JournalEntry } from '@/domain/journal'
 import type { Quadrant } from '@/domain/emotion'
 import { getQuadrantTintStyle } from '@/domain/emotion'
+import type { EmotionSelection } from '@/domain/emotionWheel'
+import { legacyToSelections, selectionsToLegacyFamilyIds } from '@/domain/emotionWheel'
 import type { ChatIntention, ChatSession } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -385,8 +355,7 @@ const body = ref('')
 const isSaving = ref(false)
 const isLoading = ref(false)
 const currentEntry = ref<JournalEntry | null>(null)
-const selectedEmotionIds = ref<string[]>([])
-const selectedEmotionFamilyIds = ref<string[]>([])
+const wheelSelections = ref<EmotionSelection[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const emotionCardStyle = computed(() => getQuadrantTintStyle(activeEmotionQuadrant.value))
 const selectedPeopleTagIds = ref<string[]>([])
@@ -408,13 +377,6 @@ const showDateTimePicker = ref(false)
 const customCreatedAt = ref<Date | null>(null)
 const selectedDate = ref('')
 const selectedTime = ref('')
-
-// Right side panel (emotions / context / people) collapse state
-// Only meaningful at md+ breakpoints; on mobile the panel is always shown.
-const isSidePanelOpen = ref(true)
-const toggleSidePanel = () => {
-  isSidePanelOpen.value = !isSidePanelOpen.value
-}
 
 // Initialize date/time picker values
 function initDateTimePicker() {
@@ -572,8 +534,8 @@ const syncEntryToForm = (entry: JournalEntry) => {
   currentEntry.value = entry
   title.value = entry.title || ''
   body.value = entry.body
-  selectedEmotionIds.value = [...(entry.emotionIds ?? [])]
-  selectedEmotionFamilyIds.value = [...(entry.emotionFamilyIds ?? [])]
+  // Adapter historii: wpisy sprzed koła (słowa/rodziny) → promienie ± natężenie
+  wheelSelections.value = legacyToSelections(entry)
   selectedPeopleTagIds.value = [...(entry.peopleTagIds ?? [])]
   selectedContextTagIds.value = [...(entry.contextTagIds ?? [])]
 }
@@ -717,11 +679,15 @@ const saveEntry = async (): Promise<JournalEntry> => {
     throw new Error(t('journal.editor.emptyContentError'))
   }
 
+  // Koło zapisuje wybory w `emotions`; `emotionFamilyIds` = mostek zgodności
+  // (slugi promieni == slugi rodzin). Edycja starego wpisu nadpisuje dawne
+  // słowa (`emotionIds`) — świadoma strata przy spłaszczonym katalogu.
   const payload = {
     title: title.value.trim() || undefined,
     body: body.value.trim(),
-    emotionIds: [...selectedEmotionIds.value],
-    emotionFamilyIds: [...selectedEmotionFamilyIds.value],
+    emotionIds: [],
+    emotionFamilyIds: selectionsToLegacyFamilyIds(wheelSelections.value),
+    emotions: wheelSelections.value.map((s) => ({ ...s })),
     peopleTagIds: [...selectedPeopleTagIds.value],
     contextTagIds: [...selectedContextTagIds.value],
   }
@@ -749,8 +715,7 @@ const saveEntry = async (): Promise<JournalEntry> => {
 const resetCreateForm = () => {
   title.value = ''
   body.value = ''
-  selectedEmotionIds.value = []
-  selectedEmotionFamilyIds.value = []
+  wheelSelections.value = []
   selectedPeopleTagIds.value = []
   selectedContextTagIds.value = []
   customCreatedAt.value = null

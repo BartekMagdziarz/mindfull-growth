@@ -1,4 +1,5 @@
 import type { ChatSession } from './chatSession'
+import type { EmotionSelection } from './emotionWheel'
 
 export interface JournalEntry {
   id: string // UUID
@@ -8,6 +9,7 @@ export interface JournalEntry {
   body: string
   emotionIds?: string[] // Array of Emotion IDs (optional, defaults to empty array)
   emotionFamilyIds?: string[] // Array of EmotionFamily IDs (rodzina-only, optional)
+  emotions?: EmotionSelection[] // Wybory koła emocji (promień + natężenie); emotionFamilyIds trzyma mostek zgodności
   peopleTagIds?: string[] // Array of PeopleTag IDs (optional, defaults to empty array)
   contextTagIds?: string[] // Array of ContextTag IDs (optional, defaults to empty array)
   chatSessions?: ChatSession[] // Array of ChatSession objects (optional, defaults to empty array)

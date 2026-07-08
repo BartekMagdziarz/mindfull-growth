@@ -6,6 +6,7 @@ import enHistory from './en/history.json'
 import enEmotions from './en/emotions.json'
 import enEmotionViews from './en/emotionViews.json'
 import enEmotionFamilies from './en/emotionFamilies.json'
+import enEmotionWheel from './en/emotionWheel.json'
 import enDistortions from './en/distortions.json'
 import enExercises from './en/exercises.json'
 import enExerciseWizards from './en/exerciseWizards.json'
@@ -34,6 +35,7 @@ import plHistory from './pl/history.json'
 import plEmotions from './pl/emotions.json'
 import plEmotionViews from './pl/emotionViews.json'
 import plEmotionFamilies from './pl/emotionFamilies.json'
+import plEmotionWheel from './pl/emotionWheel.json'
 import plDistortions from './pl/distortions.json'
 import plExercises from './pl/exercises.json'
 import plExerciseWizards from './pl/exerciseWizards.json'
@@ -63,6 +65,7 @@ const enMessages = {
   emotions: enEmotions,
   emotionViews: enEmotionViews,
   emotionFamilies: enEmotionFamilies,
+  emotionWheel: enEmotionWheel,
   distortions: enDistortions,
   exercises: enExercises,
   exerciseWizards: enExerciseWizards,
@@ -95,6 +98,7 @@ const plMessages = {
   emotions: plEmotions,
   emotionViews: plEmotionViews,
   emotionFamilies: plEmotionFamilies,
+  emotionWheel: plEmotionWheel,
   distortions: plDistortions,
   exercises: plExercises,
   exerciseWizards: plExerciseWizards,

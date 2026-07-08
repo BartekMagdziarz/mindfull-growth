@@ -90,7 +90,9 @@
     "editTagName": "Edytuj nazwę tagu {type}",
     "deleteTag": "Usuń {name}",
     "selectTag": "Zaznacz tag {type} {name}",
-    "deselectTag": "Odznacz tag {type} {name}"
+    "deselectTag": "Odznacz tag {type} {name}",
+    "showMore": "+{count} więcej",
+    "showLess": "Zwiń"
   },
   "profileContext": {
     "on": "Profil wł.",

@@ -1,98 +1,81 @@
 <template>
   <div class="container mx-auto px-4 py-6">
-    <div class="max-w-3xl mx-auto space-y-6">
+    <!-- Dwie kolumny: szerokie koło (potrzebuje niemal kwadratu) + notatka/tagi -->
+    <div class="max-w-6xl mx-auto space-y-6">
       <!-- Inline Emotion Logging Form -->
       <AppCard padding="lg" :style="emotionCardStyle">
         <h2 class="text-lg font-semibold text-on-surface mb-4">{{ t('emotionViews.logTitle') }}</h2>
 
-        <div class="space-y-4">
-          <!-- Emotion Selector -->
+        <div class="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 items-stretch">
+          <!-- Lewa kolumna: koło emocji -->
           <div
             v-if="isEmotionSectionLoading"
             class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
           >
             {{ t('emotionViews.loadingEmotions') }}
           </div>
-          <div v-else>
-            <EmotionSelector
+          <div v-else class="min-w-0">
+            <EmotionWheel
               :label="t('emotionViews.editor.emotions')"
-              v-model="selectedEmotionIds"
-              v-model:families="selectedEmotionFamilyIds"
+              v-model="wheelSelections"
               v-model:quadrant="activeEmotionQuadrant"
-              :allow-family-only="true"
-              :show-empty-state="false"
             />
           </div>
 
-          <!-- Quick Note -->
-          <div class="mt-4">
-            <label
-              for="quick-note"
-              class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant"
-            >
-              {{ t('emotionViews.quickNoteLabel') }}
-            </label>
-            <textarea
-              id="quick-note"
-              v-model="note"
-              :placeholder="t('emotionViews.quickNotePlaceholder')"
-              class="neo-input w-full mt-2 p-3 text-on-surface resize-none"
-              rows="2"
-            />
-          </div>
-
-          <!-- Collapsible Tags Section -->
-          <details class="mt-4 group">
-            <summary
-              class="text-sm text-on-surface-variant cursor-pointer hover:text-on-surface transition-colors list-none flex items-center gap-2"
-            >
-              <AppIcon
-                name="chevron_right"
-                class="text-base transition-transform group-open:rotate-90"
+          <!-- Prawa kolumna: notatka + tagi (zwinięte do kilku rzędów) + zapis -->
+          <div class="flex flex-col gap-4 min-w-0">
+            <div>
+              <label
+                for="quick-note"
+                class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant"
+              >
+                {{ t('emotionViews.quickNoteLabel') }}
+              </label>
+              <textarea
+                id="quick-note"
+                v-model="note"
+                :placeholder="t('emotionViews.quickNotePlaceholder')"
+                class="neo-input w-full mt-2 p-3 text-on-surface resize-none"
+                rows="3"
               />
-              {{ t('emotionViews.addTagsLabel') }}
-            </summary>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 pt-3 border-t border-neu-border/20">
-              <!-- People Tags -->
-              <div class="space-y-2">
-                <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {{ t('emotionViews.people') }}
-                </label>
-                <div
-                  v-if="isPeopleSectionLoading"
-                  class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
-                >
-                  {{ t('emotionViews.loadingPeopleTags') }}
-                </div>
-                <TagInput v-else v-model="selectedPeopleTagIds" tag-type="people" />
-              </div>
-
-              <!-- Context Tags -->
-              <div class="space-y-2">
-                <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {{ t('emotionViews.context') }}
-                </label>
-                <div
-                  v-if="isContextSectionLoading"
-                  class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
-                >
-                  {{ t('emotionViews.loadingContextTags') }}
-                </div>
-                <TagInput v-else v-model="selectedContextTagIds" tag-type="context" />
-              </div>
             </div>
-          </details>
 
-          <!-- Save Button -->
-          <div class="flex justify-end mt-6">
-            <AppButton
-              variant="filled"
-              :disabled="(selectedEmotionIds.length === 0 && selectedEmotionFamilyIds.length === 0) || isSaving"
-              @click="handleSave"
-              class="min-w-[120px]"
-            >
-              {{ isSaving ? t('emotionViews.saving') : t('emotionViews.save') }}
-            </AppButton>
+            <div class="space-y-2">
+              <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('emotionViews.people') }}
+              </label>
+              <div
+                v-if="isPeopleSectionLoading"
+                class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+              >
+                {{ t('emotionViews.loadingPeopleTags') }}
+              </div>
+              <TagInput v-else v-model="selectedPeopleTagIds" tag-type="people" :visible-limit="8" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                {{ t('emotionViews.context') }}
+              </label>
+              <div
+                v-if="isContextSectionLoading"
+                class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+              >
+                {{ t('emotionViews.loadingContextTags') }}
+              </div>
+              <TagInput v-else v-model="selectedContextTagIds" tag-type="context" :visible-limit="8" />
+            </div>
+
+            <div class="mt-auto flex justify-end pt-2">
+              <AppButton
+                variant="filled"
+                :disabled="wheelSelections.length === 0 || isSaving"
+                @click="handleSave"
+                class="min-w-[120px]"
+              >
+                {{ isSaving ? t('emotionViews.saving') : t('emotionViews.save') }}
+              </AppButton>
+            </div>
           </div>
         </div>
       </AppCard>
@@ -118,13 +101,15 @@ import { computed, onMounted, ref } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionWheel from '@/components/emotion/EmotionWheel.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import type { Quadrant } from '@/domain/emotion'
 import { getQuadrantTintStyle } from '@/domain/emotion'
+import type { EmotionSelection } from '@/domain/emotionWheel'
+import { selectionsToLegacyFamilyIds } from '@/domain/emotionWheel'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
@@ -135,8 +120,7 @@ const { t } = useT()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 
 // Form state
-const selectedEmotionIds = ref<string[]>([])
-const selectedEmotionFamilyIds = ref<string[]>([])
+const wheelSelections = ref<EmotionSelection[]>([])
 const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const emotionCardStyle = computed(() => getQuadrantTintStyle(activeEmotionQuadrant.value))
 const note = ref('')
@@ -164,25 +148,26 @@ const isContextSectionLoading = computed(() => {
 })
 
 function resetForm() {
-  selectedEmotionIds.value = []
-  selectedEmotionFamilyIds.value = []
+  wheelSelections.value = []
   note.value = ''
   selectedPeopleTagIds.value = []
   selectedContextTagIds.value = []
 }
 
 async function handleSave() {
-  if (selectedEmotionIds.value.length === 0 && selectedEmotionFamilyIds.value.length === 0) {
+  if (wheelSelections.value.length === 0) {
     snackbarRef.value?.show(t('emotionViews.selectAtLeastOne'))
     return
   }
 
   isSaving.value = true
 
+  // Koło zapisuje wybory w `emotions`; `emotionFamilyIds` = mostek zgodności
+  // (slugi promieni == slugi rodzin), dzięki któremu historia/rollupy działają.
   const payload = {
-    emotionIds: [...selectedEmotionIds.value],
-    emotionFamilyIds:
-      selectedEmotionFamilyIds.value.length > 0 ? [...selectedEmotionFamilyIds.value] : undefined,
+    emotionIds: [],
+    emotionFamilyIds: selectionsToLegacyFamilyIds(wheelSelections.value),
+    emotions: wheelSelections.value.map((s) => ({ ...s })),
     note: note.value.trim() || undefined,
     peopleTagIds: selectedPeopleTagIds.value.length > 0 ? [...selectedPeopleTagIds.value] : undefined,
     contextTagIds: selectedContextTagIds.value.length > 0 ? [...selectedContextTagIds.value] : undefined,

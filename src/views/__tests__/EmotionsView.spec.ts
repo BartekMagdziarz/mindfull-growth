@@ -99,17 +99,18 @@ vi.mock('@/stores/tag.store', () => {
   }
 })
 
-vi.mock('@/components/EmotionSelector.vue', () => {
+vi.mock('@/components/emotion/EmotionWheel.vue', () => {
   return {
     default: defineComponent({
-      name: 'EmotionSelectorStub',
+      name: 'EmotionWheelStub',
       props: {
         modelValue: { type: Array, default: () => [] },
-        showSelectedSection: { type: Boolean, default: false },
+        label: { type: String, default: undefined },
       },
       emits: ['update:modelValue'],
       setup(_, { emit }) {
-        const selectEmotion = () => emit('update:modelValue', ['emotion-1'])
+        const selectEmotion = () =>
+          emit('update:modelValue', [{ emotionId: 'gniew', intensity: 3 }])
         return () =>
           h('button', { type: 'button', onClick: selectEmotion }, 'Select emotion')
       },
@@ -235,7 +236,9 @@ describe('EmotionsView', () => {
     await waitFor(() => {
       expect(mockEmotionLogStore.createLog).toHaveBeenCalledWith(
         expect.objectContaining({
-          emotionIds: ['emotion-1'],
+          emotionIds: [],
+          emotionFamilyIds: ['gniew'],
+          emotions: [{ emotionId: 'gniew', intensity: 3 }],
           note: 'Feeling good',
         })
       )

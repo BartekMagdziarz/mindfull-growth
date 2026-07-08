@@ -4,28 +4,41 @@ import { createPinia, setActivePinia } from 'pinia'
 import { defineComponent, ref, toRefs } from 'vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 
-const EmotionSelectorStub = defineComponent({
-  name: 'EmotionSelectorStub',
+type StubSelection = { emotionId: string; intensity?: number }
+
+const EmotionWheelStub = defineComponent({
+  name: 'EmotionWheelStub',
   props: {
     modelValue: {
       type: Array,
       default: () => [],
+    },
+    label: {
+      type: String,
+      default: undefined,
     },
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
     const { modelValue } = toRefs(props)
     const selectEmotion = () => {
-      emit('update:modelValue', [...modelValue.value, 'emotion-joy'])
+      emit('update:modelValue', [
+        ...(modelValue.value as StubSelection[]),
+        { emotionId: 'gniew', intensity: 3 },
+      ])
     }
-    return { selectEmotion, selectedEmotionIds: modelValue }
+    const formatted = () =>
+      (modelValue.value as StubSelection[])
+        .map((s) => s.emotionId + (s.intensity != null ? ':' + s.intensity : ''))
+        .join(',')
+    return { selectEmotion, formatted }
   },
   template: `
     <div data-testid="emotion-selector-stub">
       <button data-testid="add-emotion" type="button" @click="selectEmotion">
         Add Emotion
       </button>
-      <span data-testid="emotion-values">{{ selectedEmotionIds.join(',') }}</span>
+      <span data-testid="emotion-values">{{ formatted() }}</span>
     </div>
   `,
 })
@@ -252,7 +265,7 @@ const renderEditor = () =>
   render(JournalEditorView, {
     global: {
       stubs: {
-        EmotionSelector: EmotionSelectorStub,
+        EmotionWheel: EmotionWheelStub,
         TagInput: TagInputStub,
         ChatSessionCard: ChatSessionCardStub,
         AppDialog: AppDialogStub,
@@ -337,6 +350,7 @@ describe('JournalEditorView', () => {
         body: 'Test body content',
         emotionIds: [],
         emotionFamilyIds: [],
+        emotions: [],
         peopleTagIds: [],
         contextTagIds: [],
       })
@@ -426,6 +440,7 @@ describe('JournalEditorView', () => {
         body: 'Test body content',
         emotionIds: [],
         emotionFamilyIds: [],
+        emotions: [],
         peopleTagIds: [],
         contextTagIds: [],
       })
@@ -479,8 +494,9 @@ describe('JournalEditorView', () => {
       expect(mockCreateEntry).toHaveBeenCalledWith({
         title: undefined,
         body: 'Filled body',
-        emotionIds: ['emotion-joy'],
-        emotionFamilyIds: [],
+        emotionIds: [],
+        emotionFamilyIds: ['gniew'],
+        emotions: [{ emotionId: 'gniew', intensity: 3 }],
         peopleTagIds: ['people-tag-friend'],
         contextTagIds: ['context-tag-home'],
       })
@@ -488,13 +504,14 @@ describe('JournalEditorView', () => {
   })
 
   it('pre-populates selections in edit mode and passes them to updateEntry', async () => {
+    // Opanowany = podpowiedź poziomu 2 promienia „Spokój" — sprawdza adapter historii
     const existingEntry = {
       id: 'entry-123',
       createdAt: '2024-01-02T00:00:00.000Z',
       updatedAt: '2024-01-03T00:00:00.000Z',
       title: 'Existing',
       body: 'Existing body',
-      emotionIds: ['emotion-calm'],
+      emotionIds: ['e7m7-calm-067'],
       peopleTagIds: ['people-colleague'],
       contextTagIds: ['context-office'],
     }
@@ -514,8 +531,9 @@ describe('JournalEditorView', () => {
         ...existingEntry,
         title: 'Existing',
         body: 'Updated body content',
-        emotionIds: ['emotion-calm'],
-        emotionFamilyIds: [],
+        emotionIds: [],
+        emotionFamilyIds: ['spokoj-i-wyciszenie'],
+        emotions: [{ emotionId: 'spokoj-i-wyciszenie', intensity: 2 }],
         peopleTagIds: ['people-colleague'],
         contextTagIds: ['context-office'],
       })
