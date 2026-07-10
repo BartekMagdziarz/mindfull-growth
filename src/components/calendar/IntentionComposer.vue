@@ -2,9 +2,10 @@
 import { computed, ref } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import { useT } from '@/composables/useT'
 import type { WeekRef } from '@/domain/period'
-import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget, MultiCompletionItem } from '@/domain/planning'
 import { createWeeklyIntention } from '@/services/weeklyIntentionService'
 import PriorityLinkPicker from './PriorityLinkPicker.vue'
 import type { WeekPlanPriorityOption } from './weekPlanCandidate'
@@ -18,6 +19,8 @@ interface IntentionDraft {
   title: string
   entryMode: MeasurementEntryMode
   target: MeasurementTarget
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
   priorityIds: string[]
 }
 
@@ -47,6 +50,10 @@ function onUpdateMeasurement(measurement: {
   draft.value = { ...draft.value, entryMode: measurement.entryMode, target: measurement.target }
 }
 
+function onMultiConfig(config: { items: MultiCompletionItem[]; threshold: number | undefined }): void {
+  draft.value = { ...draft.value, multiItems: config.items, multiDailyThreshold: config.threshold }
+}
+
 async function addIntention(): Promise<void> {
   if (!canAddIntention.value || isSaving.value) return
   isSaving.value = true
@@ -56,6 +63,8 @@ async function addIntention(): Promise<void> {
       title: draft.value.title.trim(),
       entryMode: draft.value.entryMode,
       target: draft.value.target,
+      multiItems: draft.value.multiItems,
+      multiDailyThreshold: draft.value.multiDailyThreshold,
       priorityIds: draft.value.priorityIds,
     })
     draft.value = emptyDraft()
@@ -91,6 +100,13 @@ async function addIntention(): Promise<void> {
         :target="draft.target"
         cadence="weekly"
         @update:measurement="onUpdateMeasurement"
+      />
+
+      <MultiItemsEditor
+        v-if="draft.entryMode === 'multi-completion'"
+        :items="draft.multiItems ?? []"
+        :threshold="draft.multiDailyThreshold"
+        @update:config="onMultiConfig"
       />
 
       <PriorityLinkPicker

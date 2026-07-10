@@ -58,6 +58,11 @@ export interface MultiCompletionItem {
 /** Readability cap for the stacked weekly chart and daily checklist. */
 export const MULTI_COMPLETION_MAX_ACTIVE_ITEMS = 8
 
+/** Fresh checkable item with a generated id and the default weight. */
+export function createMultiCompletionItem(label: string): MultiCompletionItem {
+  return { id: crypto.randomUUID(), label, weight: 1 }
+}
+
 export interface CountTarget {
   kind: 'count'
   operator: CountTargetOperator
@@ -610,6 +615,11 @@ function normalizeMultiCompletionItems(
  * Daily points threshold for multi-completion. Undefined means "all active
  * items" (the effective threshold follows the current item list); an explicit
  * `null` clears a stored value back to that default.
+ *
+ * Fallback contract: callers pass `existing` only when the payload does NOT
+ * touch `multiItems`. Editors emit the whole multi config ({items, threshold})
+ * atomically, so a payload with items but no threshold means "reset to all
+ * items" — while a partial update (e.g. status only) keeps the stored value.
  */
 function normalizeMultiDailyThreshold(
   entryMode: MeasurementEntryMode,
@@ -802,7 +812,11 @@ export function normalizeKeyResultPayload(
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
-    multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, data.multiDailyThreshold, existing?.multiDailyThreshold),
+    multiDailyThreshold: normalizeMultiDailyThreshold(
+      entryMode,
+      data.multiDailyThreshold,
+      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined,
+    ),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
   }
 }
@@ -838,7 +852,11 @@ export function normalizeHabitPayload(
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
-    multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, data.multiDailyThreshold, existing?.multiDailyThreshold),
+    multiDailyThreshold: normalizeMultiDailyThreshold(
+      entryMode,
+      data.multiDailyThreshold,
+      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined,
+    ),
     status: normalizeEnum(data.status, 'status', HABIT_STATUSES, existing?.status ?? 'open'),
   }
 }
@@ -874,7 +892,11 @@ export function normalizeWeeklyIntentionPayload(
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
-    multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, data.multiDailyThreshold, existing?.multiDailyThreshold),
+    multiDailyThreshold: normalizeMultiDailyThreshold(
+      entryMode,
+      data.multiDailyThreshold,
+      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined,
+    ),
     status: normalizeEnum(data.status, 'status', WEEKLY_INTENTION_STATUSES, existing?.status ?? 'open'),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
   }
@@ -904,7 +926,11 @@ export function normalizeTrackerPayload(
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
     multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
-    multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, data.multiDailyThreshold, existing?.multiDailyThreshold),
+    multiDailyThreshold: normalizeMultiDailyThreshold(
+      entryMode,
+      data.multiDailyThreshold,
+      data.multiItems === undefined ? existing?.multiDailyThreshold : undefined,
+    ),
     status: normalizeEnum(data.status, 'status', TRACKER_STATUSES, existing?.status ?? 'open'),
   }
 }

@@ -15,6 +15,7 @@ import type {
   UpdateKeyResultPayload,
   ValueTargetAggregation,
 } from '@/domain/planning'
+import { createMultiCompletionItem } from '@/domain/planning'
 import { computeSmartCompleteness, type SmartCompleteness } from '@/domain/smartCompleteness'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
@@ -146,7 +147,8 @@ function isKrDraftValid(kr: KrDraft): boolean {
 
 interface UseGoalCreationWizardOptions {
   repo?: Pick<typeof goalDexieRepository, 'createWithKeyResults' | 'update'>
-  krRepo?: Pick<typeof keyResultDexieRepository, 'create' | 'update' | 'delete'>
+  krRepo?: Pick<typeof keyResultDexieRepository, 'create' | 'update' | 'delete'> &
+    Partial<Pick<typeof keyResultDexieRepository, 'getById'>>
 }
 
 export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}) {
@@ -397,8 +399,21 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
         ratingScaleMin: draft.ratingScaleMin,
         ratingScale: draft.ratingScale,
       } satisfies UpdateKeyResultPayload
+      // The wizard doesn't edit multi-completion items; seed one default item
+      // (named after the KR) when the mode requires items and none exist yet —
+      // the full item editor lives on the library KR card.
+      const multiSeed = () => ({
+        multiItems: [createMultiCompletionItem(draft.title.trim() || draft.localId)],
+      })
       if (draft.existingId) {
-        const updated = await krRepo.update(draft.existingId, payload)
+        let updatePayload: UpdateKeyResultPayload = payload
+        if (draft.entryMode === 'multi-completion') {
+          const existing = await krRepo.getById?.(draft.existingId)
+          if (!existing?.multiItems?.length) {
+            updatePayload = { ...payload, ...multiSeed() }
+          }
+        }
+        const updated = await krRepo.update(draft.existingId, updatePayload)
         resolved.push({ localId: draft.localId, id: updated.id, cadence: updated.cadence })
       } else {
         const created = await krRepo.create({
@@ -406,6 +421,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
           isActive: true,
           status: 'open' as KeyResultStatus,
           ...payload,
+          ...(draft.entryMode === 'multi-completion' ? multiSeed() : {}),
         })
         resolved.push({ localId: draft.localId, id: created.id, cadence: created.cadence })
       }

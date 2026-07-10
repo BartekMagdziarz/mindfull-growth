@@ -20,6 +20,12 @@
         cadence="weekly"
         @update:measurement="onMeasurement"
       />
+      <MultiItemsEditor
+        v-if="draftEntryMode === 'multi-completion'"
+        :items="draftMultiItems"
+        :threshold="draftMultiDailyThreshold"
+        @update:config="onMultiConfig"
+      />
       <PriorityLinkPicker
         v-if="pickerOptions.length > 0"
         :options="pickerOptions"
@@ -96,9 +102,10 @@ import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import PriorityLinkPicker from '@/components/calendar/PriorityLinkPicker.vue'
 import { useT } from '@/composables/useT'
-import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget, MultiCompletionItem } from '@/domain/planning'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryListItem } from '@/services/objectsLibraryQueries'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import { formatDayRange } from '@/utils/periodLabels'
@@ -117,6 +124,8 @@ const emit = defineEmits<{
       title: string
       entryMode: MeasurementEntryMode
       target: MeasurementTarget
+      multiItems?: MultiCompletionItem[]
+      multiDailyThreshold?: number
       priorityIds: string[]
     },
   ]
@@ -156,6 +165,8 @@ const titleInputRef = ref<HTMLInputElement | null>(null)
 const draftTitle = ref('')
 const draftEntryMode = ref<MeasurementEntryMode>('completion')
 const draftTarget = ref<MeasurementTarget>({ kind: 'count', operator: 'min', value: 1 })
+const draftMultiItems = ref<MultiCompletionItem[]>([])
+const draftMultiDailyThreshold = ref<number | undefined>(undefined)
 const draftPriorityIds = ref<string[]>([])
 const canSave = computed(() => draftTitle.value.trim().length > 0)
 
@@ -163,6 +174,8 @@ function startEdit(): void {
   draftTitle.value = props.item.title
   draftEntryMode.value = props.item.entryMode ?? 'completion'
   draftTarget.value = props.item.target ?? { kind: 'count', operator: 'min', value: 1 }
+  draftMultiItems.value = [...(props.item.multiItems ?? [])]
+  draftMultiDailyThreshold.value = props.item.multiDailyThreshold
   draftPriorityIds.value = [...(props.item.priorityIds ?? [])]
   editing.value = true
   void nextTick(() => {
@@ -182,6 +195,9 @@ function saveEdit(): void {
     title: draftTitle.value.trim(),
     entryMode: draftEntryMode.value,
     target: draftTarget.value,
+    ...(draftEntryMode.value === 'multi-completion' && draftMultiItems.value.length > 0
+      ? { multiItems: draftMultiItems.value, multiDailyThreshold: draftMultiDailyThreshold.value }
+      : {}),
     priorityIds: draftPriorityIds.value,
   })
   editing.value = false
@@ -193,6 +209,11 @@ function onMeasurement(measurement: {
 }): void {
   draftEntryMode.value = measurement.entryMode
   draftTarget.value = measurement.target
+}
+
+function onMultiConfig(config: { items: MultiCompletionItem[]; threshold: number | undefined }): void {
+  draftMultiItems.value = config.items
+  draftMultiDailyThreshold.value = config.threshold
 }
 
 watch(

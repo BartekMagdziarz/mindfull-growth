@@ -166,6 +166,14 @@
             </div>
           </div>
 
+          <!-- Multi-completion items + daily threshold -->
+          <MultiItemsEditor
+            v-if="child.entryMode === 'multi-completion'"
+            :items="child.multiItems ?? []"
+            :threshold="child.multiDailyThreshold"
+            @update:config="emitFieldChange('multiConfig', $event)"
+          />
+
           <!-- Completion rules -->
           <div class="space-y-1">
             <div class="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
@@ -194,6 +202,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'
 import { useEditableField } from '@/composables/useEditableField'

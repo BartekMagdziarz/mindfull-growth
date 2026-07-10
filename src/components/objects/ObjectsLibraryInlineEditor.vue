@@ -75,6 +75,13 @@
             @update:measurement="onTargetMeasurement"
             @update:cadence="onCadence"
           />
+          <MultiItemsEditor
+            v-if="draft.entryMode === 'multi-completion'"
+            class="mt-3"
+            :items="draft.multiItems ?? []"
+            :threshold="draft.multiDailyThreshold"
+            @update:config="onMultiConfig"
+          />
         </div>
       </div>
 
@@ -150,10 +157,12 @@ import AppButton from '@/components/AppButton.vue'
 import ObjectsLibraryPillSelect from '@/components/objects/ObjectsLibraryPillSelect.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
 import type { ObjectsLibraryFilterOption, ObjectsLibraryPanelType } from '@/services/objectsLibraryQueries'
+import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import type {
   MeasurementEntryDaysCondition,
   MeasurementEntryMode,
   MeasurementTarget,
+  MultiCompletionItem,
   PlanningCadence,
 } from '@/domain/planning'
 
@@ -176,6 +185,8 @@ interface LibraryDraft {
   cadence?: 'weekly' | 'monthly'
   entryMode?: MeasurementEntryMode
   target: LibraryTargetDraft
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
 }
 
 interface SelectOption {
@@ -270,13 +281,22 @@ function optionClass(active: boolean): string {
 
 // Adapter: the draft holds a flat LibraryTargetDraft; the sentence speaks the domain
 // MeasurementTarget. Derive the mode from target.kind (authoritative for operator/
-// aggregation options), falling back to draft.entryMode only for completion-vs-counter.
+// aggregation options), falling back to draft.entryMode for the count-kind modes
+// (completion / counter / multi-completion all share the count target).
 const sentenceEntryMode = computed<MeasurementEntryMode>(() => {
   const kind = draft.value.target.kind
   if (kind === 'value') return 'value'
   if (kind === 'rating') return 'rating'
-  return draft.value.entryMode === 'counter' ? 'counter' : 'completion'
+  if (draft.value.entryMode === 'counter' || draft.value.entryMode === 'multi-completion') {
+    return draft.value.entryMode
+  }
+  return 'completion'
 })
+
+function onMultiConfig(config: { items: MultiCompletionItem[]; threshold: number | undefined }): void {
+  draft.value.multiItems = config.items
+  draft.value.multiDailyThreshold = config.threshold
+}
 
 const sentenceTarget = computed<MeasurementTarget>(() => {
   const d = draft.value.target

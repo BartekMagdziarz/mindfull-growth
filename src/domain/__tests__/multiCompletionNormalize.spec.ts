@@ -141,6 +141,21 @@ describe('normalize multi-completion object payloads', () => {
     expect(result.multiDailyThreshold).toBe(2)
   })
 
+  it('resets the threshold when a payload rewrites items without one', () => {
+    // Editors emit the whole multi config atomically: a payload that touches
+    // multiItems but omits the threshold means "back to all active items".
+    const existing: Habit = {
+      id: 'habit-1',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      ...normalizeHabitPayload(multiHabitPayload({ multiDailyThreshold: 2 })),
+    }
+
+    const result = normalizeHabitPayload({ multiItems: items }, existing)
+    expect(result.multiItems).toEqual(existing.multiItems)
+    expect(result.multiDailyThreshold).toBeUndefined()
+  })
+
   it('supports trackers (no target) with multi items', () => {
     const result = normalizeTrackerPayload({
       title: 'Rutyna wieczorna',

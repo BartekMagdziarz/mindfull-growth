@@ -1,4 +1,5 @@
-import type { MeasurementEntryMode, MeasurementTarget, WeeklyIntention } from '@/domain/planning'
+import type { MeasurementEntryMode, MeasurementTarget, MultiCompletionItem, WeeklyIntention } from '@/domain/planning'
+import { createMultiCompletionItem } from '@/domain/planning'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import type { WeekPlan, WeekTopPriorityRef } from '@/domain/planningState'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
@@ -15,8 +16,20 @@ export interface CreateWeeklyIntentionInput {
   target: MeasurementTarget
   ratingScaleMin?: number
   ratingScale?: number
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
   /** Optional priorities this intention serves (links it to the monthly focus confrontation). */
   priorityIds?: string[]
+}
+
+/**
+ * Multi-completion requires a non-empty item list; every intention editing
+ * surface (composer, library card, week-plan card) may switch the mode without
+ * configuring items, so the service seeds a single default item named after
+ * the intention itself.
+ */
+function seedMultiItems(title: string): MultiCompletionItem[] {
+  return [createMultiCompletionItem(title.trim() || '—')]
 }
 
 /**
@@ -39,6 +52,13 @@ export async function createWeeklyIntention(
     target: input.target,
     ratingScaleMin: input.ratingScaleMin,
     ratingScale: input.ratingScale,
+    multiItems:
+      input.entryMode === 'multi-completion'
+        ? input.multiItems?.length
+          ? input.multiItems
+          : seedMultiItems(input.title)
+        : undefined,
+    multiDailyThreshold: input.multiDailyThreshold,
     status: 'open',
     priorityIds: input.priorityIds ?? [],
   })
@@ -74,14 +94,24 @@ export interface UpdateWeeklyIntentionInput {
   target?: MeasurementTarget
   ratingScaleMin?: number
   ratingScale?: number
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
   priorityIds?: string[]
 }
 
 /** Edit an existing intention's title / measurement. */
-export function updateWeeklyIntention(
+export async function updateWeeklyIntention(
   id: string,
   input: UpdateWeeklyIntentionInput,
 ): Promise<WeeklyIntention> {
+  if (input.entryMode === 'multi-completion' && !input.multiItems) {
+    // Switching to multi-completion from a surface that doesn't edit items:
+    // keep stored items when they exist, otherwise seed the default one.
+    const existing = await weeklyIntentionDexieRepository.getById(id)
+    if (!existing?.multiItems?.length) {
+      input = { ...input, multiItems: seedMultiItems(input.title ?? existing?.title ?? '') }
+    }
+  }
   return weeklyIntentionDexieRepository.update(id, input)
 }
 

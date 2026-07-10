@@ -56,6 +56,7 @@ function commit(entryMode: MeasurementEntryMode, target: MeasurementTarget): voi
 // start of a sentence. The noun badges stay where they label/summarise the mode.
 const entryModeOptions = computed(() => [
   { value: 'completion', label: t('planning.objects.targetSentence.mode.completion') },
+  { value: 'multi-completion', label: t('planning.objects.targetSentence.mode.multi-completion') },
   { value: 'counter', label: t('planning.objects.targetSentence.mode.counter') },
   { value: 'value', label: t('planning.objects.targetSentence.mode.value') },
   { value: 'rating', label: t('planning.objects.targetSentence.mode.rating') },
@@ -64,7 +65,7 @@ const entryModeOptions = computed(() => [
 // Operator labels are now words ("co najmniej / co najwyżej") for every kind, so the
 // sentence reads naturally instead of exposing >= / <= notation.
 const operatorOptions = computed(() => {
-  if (props.entryMode === 'completion' || props.entryMode === 'counter') {
+  if (props.entryMode === 'completion' || props.entryMode === 'counter' || props.entryMode === 'multi-completion') {
     return [
       { value: 'min', label: t('planning.objects.targetOperators.min') },
       { value: 'max', label: t('planning.objects.targetOperators.max') },
@@ -279,6 +280,9 @@ function commitEntryDaysValue(): void {
     </span>
     <span v-else-if="entryMode === 'completion'" class="text-on-surface-variant">
       {{ t('planning.objects.targetSentence.timesUnit') }}
+    </span>
+    <span v-else-if="entryMode === 'multi-completion'" class="text-on-surface-variant">
+      {{ t('planning.objects.targetSentence.metDaysUnit') }}
     </span>
 
     <template v-if="entryDays">

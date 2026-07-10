@@ -6,6 +6,7 @@ import type {
   KeyResult,
   MeasurementEntryMode,
   MeasurementTarget,
+  MultiCompletionItem,
   PlanningCadence,
   Priority,
   PriorityClosingReflection,
@@ -66,6 +67,8 @@ export interface ObjectsLibraryChildPreview {
   cadence: 'weekly' | 'monthly'
   entryMode: MeasurementEntryMode
   target: MeasurementTarget
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
   status: string
   goalId: string
   isActive: boolean
@@ -112,6 +115,8 @@ export interface ObjectsLibraryListItem {
   entryMode?: MeasurementEntryMode
   ratingScaleMin?: number
   ratingScale?: number
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
   target?: MeasurementTarget
   chartData?: ObjectsLibraryChartPoint[]
   targetDate?: string
@@ -139,6 +144,8 @@ export interface ObjectsLibraryDetailRecord {
     cadence?: 'weekly' | 'monthly'
     entryMode?: MeasurementEntryMode
     target?: MeasurementTarget
+    multiItems?: MultiCompletionItem[]
+    multiDailyThreshold?: number
     years?: YearRef[]
     order?: number
     whyNow?: string
@@ -794,6 +801,8 @@ function buildGoalListItem(
         cadence: item.cadence,
         entryMode: item.entryMode,
         target: item.target,
+        multiItems: item.multiItems,
+        multiDailyThreshold: item.multiDailyThreshold,
         status: item.status,
         goalId: goal.id,
         isActive: item.isActive,
@@ -839,6 +848,8 @@ function buildHabitListItem(
     entryMode: habit.entryMode,
     ratingScaleMin: habit.ratingScaleMin,
     ratingScale: habit.ratingScale,
+    multiItems: habit.multiItems,
+    multiDailyThreshold: habit.multiDailyThreshold,
     target: habit.target,
     chartData: buildChartData(habit, 'habit', entries, deps.measurementMonthStates, deps.measurementWeekStates),
   }
@@ -865,6 +876,8 @@ function buildTrackerListItem(
     entryMode: tracker.entryMode,
     ratingScaleMin: tracker.ratingScaleMin,
     ratingScale: tracker.ratingScale,
+    multiItems: tracker.multiItems,
+    multiDailyThreshold: tracker.multiDailyThreshold,
     chartData: buildChartData(tracker, 'tracker', entries, deps.measurementMonthStates, deps.measurementWeekStates),
   }
 }
@@ -884,6 +897,8 @@ function buildWeeklyIntentionListItem(intention: WeeklyIntention): ObjectsLibrar
     entryMode: intention.entryMode,
     ratingScaleMin: intention.ratingScaleMin,
     ratingScale: intention.ratingScale,
+    multiItems: intention.multiItems,
+    multiDailyThreshold: intention.multiDailyThreshold,
     target: intention.target,
   }
 }
@@ -950,6 +965,8 @@ function buildKeyResultPanel(
       cadence: keyResult.cadence,
       entryMode: keyResult.entryMode,
       target: keyResult.target,
+      multiItems: keyResult.multiItems,
+      multiDailyThreshold: keyResult.multiDailyThreshold,
     },
   }
 }
@@ -969,6 +986,8 @@ function buildHabitPanel(habit: Habit): ObjectsLibraryDetailRecord {
       cadence: habit.cadence,
       entryMode: habit.entryMode,
       target: habit.target,
+      multiItems: habit.multiItems,
+      multiDailyThreshold: habit.multiDailyThreshold,
     },
   }
 }
@@ -987,6 +1006,8 @@ function buildTrackerPanel(tracker: Tracker): ObjectsLibraryDetailRecord {
       lifeAreaIds: [...tracker.lifeAreaIds],
       cadence: tracker.cadence,
       entryMode: tracker.entryMode,
+      multiItems: tracker.multiItems,
+      multiDailyThreshold: tracker.multiDailyThreshold,
     },
   }
 }

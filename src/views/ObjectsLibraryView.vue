@@ -335,7 +335,8 @@ import {
 } from '@/services/weeklyIntentionService'
 import { getPeriodRefsForDate, isPeriodRef } from '@/utils/periods'
 import type { PeriodRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
-import type { MeasurementEntryDaysCondition, MeasurementEntryMode, MeasurementTarget, PriorityClosingReflection } from '@/domain/planning'
+import type { MeasurementEntryDaysCondition, MeasurementEntryMode, MeasurementTarget, MultiCompletionItem, PriorityClosingReflection } from '@/domain/planning'
+import { createMultiCompletionItem } from '@/domain/planning'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedMonth } from '@/components/objects/GoalMonthsDropdown.vue'
 
@@ -371,6 +372,8 @@ interface LibraryDraft {
   cadence?: 'weekly' | 'monthly'
   entryMode?: MeasurementEntryMode
   target: LibraryTargetDraft
+  multiItems?: MultiCompletionItem[]
+  multiDailyThreshold?: number
 }
 
 const props = defineProps<Props>()
@@ -521,6 +524,7 @@ const cadenceOptions = computed(() => [
 ])
 const entryModeOptions = computed(() => [
   { value: 'completion' as const, label: t('planning.objects.badges.entryMode.completion') },
+  { value: 'multi-completion' as const, label: t('planning.objects.badges.entryMode.multi-completion') },
   { value: 'counter' as const, label: t('planning.objects.badges.entryMode.counter') },
   { value: 'value' as const, label: t('planning.objects.badges.entryMode.value') },
   { value: 'rating' as const, label: t('planning.objects.badges.entryMode.rating') },
@@ -756,6 +760,31 @@ function syncTargetToEntryMode(entryMode: MeasurementEntryMode): void {
       operator: current.operator === 'gte' || current.operator === 'lte' ? current.operator : 'gte',
       value: current.value,
     }
+  }
+}
+
+/** Default single item for objects switched to multi-completion without a configured list. */
+function defaultMultiItemsFor(title: string): MultiCompletionItem[] {
+  return [
+    createMultiCompletionItem(
+      title.trim() || t('planning.objects.form.multiItems.defaultItemLabel'),
+    ),
+  ]
+}
+
+/**
+ * Multi-completion config carried by the composer draft. Only meaningful for
+ * the multi-completion mode; the domain normalizer strips the fields otherwise.
+ * Always sends items (default single item when the draft has none) so switching
+ * an existing object to multi-completion passes the required-items validation.
+ */
+function multiPayloadFromDraft(): { multiItems?: MultiCompletionItem[]; multiDailyThreshold?: number } {
+  if (draft.value.entryMode !== 'multi-completion') return {}
+  return {
+    multiItems: draft.value.multiItems?.length
+      ? draft.value.multiItems
+      : defaultMultiItemsFor(draft.value.title),
+    multiDailyThreshold: draft.value.multiDailyThreshold,
   }
 }
 
@@ -1235,7 +1264,23 @@ async function handleKrFieldChange(krId: string, field: string, value: unknown):
       case 'entryMode': {
         const newEntryMode = value as MeasurementEntryMode
         const newTarget = buildTargetForEntryMode(newEntryMode, child.target)
-        await keyResultDexieRepository.update(krId, { entryMode: newEntryMode, target: newTarget })
+        await keyResultDexieRepository.update(krId, {
+          entryMode: newEntryMode,
+          target: newTarget,
+          // Switching to multi-completion requires items; seed a single default
+          // one (the normalizer keeps existing items on later partial updates).
+          ...(newEntryMode === 'multi-completion' && !child.multiItems?.length
+            ? { multiItems: defaultMultiItemsFor(child.title) }
+            : {}),
+        })
+        break
+      }
+      case 'multiConfig': {
+        const config = value as { items: MultiCompletionItem[]; threshold: number | undefined }
+        await keyResultDexieRepository.update(krId, {
+          multiItems: config.items,
+          multiDailyThreshold: config.threshold,
+        })
         break
       }
       case 'ratingScaleMin': {
@@ -1489,12 +1534,25 @@ async function handleMeasurementFieldChange(id: string, field: string, value: un
       }
       case 'entryMode': {
         const newEntryMode = value as MeasurementEntryMode
+        // Switching to multi-completion requires items; seed a single default
+        // one (the normalizer keeps existing items on later partial updates).
+        const multiSeed =
+          newEntryMode === 'multi-completion' && !item.multiItems?.length
+            ? { multiItems: defaultMultiItemsFor(item.title) }
+            : {}
         if (isHabit) {
           const newTarget = buildTargetForEntryMode(newEntryMode, item.target ?? { kind: 'count', operator: 'min', value: 1 })
-          await habitDexieRepository.update(id, { entryMode: newEntryMode, target: newTarget })
+          await habitDexieRepository.update(id, { entryMode: newEntryMode, target: newTarget, ...multiSeed })
         } else {
-          await trackerDexieRepository.update(id, { entryMode: newEntryMode })
+          await trackerDexieRepository.update(id, { entryMode: newEntryMode, ...multiSeed })
         }
+        break
+      }
+      case 'multiConfig': {
+        const config = value as { items: MultiCompletionItem[]; threshold: number | undefined }
+        const multiUpdate = { multiItems: config.items, multiDailyThreshold: config.threshold }
+        if (isHabit) await habitDexieRepository.update(id, multiUpdate)
+        else await trackerDexieRepository.update(id, multiUpdate)
         break
       }
       case 'ratingScaleMin': {
@@ -1892,6 +1950,8 @@ async function handleIntentionSave(
     title: string
     entryMode: MeasurementEntryMode
     target: MeasurementTarget
+    multiItems?: MultiCompletionItem[]
+    multiDailyThreshold?: number
     priorityIds: string[]
   },
 ): Promise<void> {
@@ -2081,6 +2141,7 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
           entryMode: draft.value.entryMode ?? 'completion',
           cadence: draft.value.cadence ?? 'weekly',
           target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
+          ...multiPayloadFromDraft(),
           status: draft.value.status as 'open' | 'completed' | 'dropped',
         })
         return { ...created, type: panelType }
@@ -2095,6 +2156,7 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
           entryMode: draft.value.entryMode ?? 'completion',
           cadence: draft.value.cadence ?? 'weekly',
           target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
+          ...multiPayloadFromDraft(),
           status: draft.value.status as 'open' | 'retired' | 'dropped',
         })
         return { ...created, type: panelType }
@@ -2108,6 +2170,7 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
           lifeAreaIds: draft.value.lifeAreaIds,
           cadence: draft.value.cadence ?? 'weekly',
           entryMode: draft.value.entryMode ?? 'completion',
+          ...multiPayloadFromDraft(),
           status: draft.value.status as 'open' | 'retired' | 'dropped',
         })
         return { ...created, type: panelType }
@@ -2161,6 +2224,7 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
         entryMode: draft.value.entryMode ?? 'completion',
         cadence: draft.value.cadence ?? 'weekly',
         target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
+        ...multiPayloadFromDraft(),
         status: draft.value.status as 'open' | 'completed' | 'dropped',
       })
       return { ...updated, type: panelType }
@@ -2175,6 +2239,7 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
         entryMode: draft.value.entryMode ?? 'completion',
         cadence: draft.value.cadence ?? 'weekly',
         target: normalizeTargetDraft(draft.value.entryMode ?? 'completion', draft.value.target),
+        ...multiPayloadFromDraft(),
         status: draft.value.status as 'open' | 'retired' | 'dropped',
       })
       return { ...updated, type: panelType }
@@ -2188,6 +2253,7 @@ async function saveDraft(): Promise<{ id: string; type: ObjectsLibraryPanelType 
         lifeAreaIds: draft.value.lifeAreaIds,
         cadence: draft.value.cadence ?? 'weekly',
         entryMode: draft.value.entryMode ?? 'completion',
+        ...multiPayloadFromDraft(),
         status: draft.value.status as 'open' | 'retired' | 'dropped',
       })
       return { ...updated, type: panelType }

@@ -282,7 +282,8 @@
       "input": {
         "counter": "Dzisiejsza wartość licznika",
         "value": "Dzisiejsza wartość",
-        "rating": "Dzisiejsza ocena"
+        "rating": "Dzisiejsza ocena",
+        "multi-completion": "Dzisiejsza checklista"
       }
     },
     "messages": {
@@ -566,7 +567,8 @@
         "completion": "Wykonanie",
         "counter": "Licznik",
         "value": "Wartość",
-        "rating": "Ocena"
+        "rating": "Ocena",
+        "multi-completion": "Checklista"
       }
     },
     "fields": {
@@ -666,7 +668,24 @@
       "completionRules": "Zasady zaliczenia",
       "completionRulesPlaceholder": "Opisz, kiedy ten obiekt uznajesz za zaliczony",
       "targetDateLabel": "Data docelowa",
-      "targetDateMissing": "Brak terminu"
+      "targetDateMissing": "Brak terminu",
+      "multiItems": {
+        "heading": "Elementy",
+        "addItem": "Dodaj element",
+        "labelPlaceholder": "Nazwa elementu",
+        "weightLabel": "waga",
+        "archive": "Archiwizuj",
+        "restore": "Przywróć",
+        "remove": "Usuń",
+        "archivedHeading": "Zarchiwizowane ({count})",
+        "thresholdLabel": "Zalicz dzień przy",
+        "thresholdAll": "komplecie elementów",
+        "thresholdCustom": "progu punktowym",
+        "thresholdOfPoints": "z {max} pkt",
+        "thresholdOfItems": "z {max} elementów",
+        "defaultItemLabel": "Element 1",
+        "maxItemsHint": "Maksymalnie {max} aktywnych elementów"
+      }
     },
     "linksDropdown": {
       "goals": "Cele",
@@ -697,8 +716,10 @@
         "completion": "Wykonuj",
         "counter": "Zliczaj",
         "value": "Mierz",
-        "rating": "Oceniaj"
-      }
+        "rating": "Oceniaj",
+        "multi-completion": "Odhaczaj"
+      },
+      "metDaysUnit": "dni z zaliczeniem"
     },
     "chart": {
       "noActivePeriods": "Brak aktywnych okresów",

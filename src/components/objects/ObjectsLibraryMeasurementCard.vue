@@ -133,6 +133,14 @@
             </div>
           </div>
 
+          <!-- Multi-completion items + daily threshold -->
+          <MultiItemsEditor
+            v-if="item.entryMode === 'multi-completion'"
+            :items="item.multiItems ?? []"
+            :threshold="item.multiDailyThreshold"
+            @update:config="emitFieldChange('multiConfig', $event)"
+          />
+
           <!-- Periods + Target -->
           <div class="grid gap-3" :class="panelType === 'habit' ? 'grid-cols-2' : 'grid-cols-1'">
             <!-- Periods -->
@@ -252,6 +260,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import MeasurementTargetSentence from '@/components/objects/MeasurementTargetSentence.vue'
+import MultiItemsEditor from '@/components/objects/MultiItemsEditor.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
 import MeasurementSparkline from '@/components/objects/MeasurementSparkline.vue'

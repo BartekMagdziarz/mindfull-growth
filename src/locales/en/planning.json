@@ -282,7 +282,8 @@
       "input": {
         "counter": "Today's counter value",
         "value": "Today's value",
-        "rating": "Today's rating"
+        "rating": "Today's rating",
+        "multi-completion": "Today's checklist"
       }
     },
     "messages": {
@@ -566,7 +567,8 @@
         "completion": "Completion",
         "counter": "Counter",
         "value": "Value",
-        "rating": "Rating"
+        "rating": "Rating",
+        "multi-completion": "Checklist"
       }
     },
     "fields": {
@@ -666,7 +668,24 @@
       "completionRules": "Completion rules",
       "completionRulesPlaceholder": "Describe how this object counts as completed",
       "targetDateLabel": "Target date",
-      "targetDateMissing": "No target date"
+      "targetDateMissing": "No target date",
+      "multiItems": {
+        "heading": "Items",
+        "addItem": "Add item",
+        "labelPlaceholder": "Item name",
+        "weightLabel": "weight",
+        "archive": "Archive",
+        "restore": "Restore",
+        "remove": "Remove",
+        "archivedHeading": "Archived ({count})",
+        "thresholdLabel": "Day counts when",
+        "thresholdAll": "everything is checked",
+        "thresholdCustom": "a points threshold is reached",
+        "thresholdOfPoints": "of {max} pts",
+        "thresholdOfItems": "of {max} items",
+        "defaultItemLabel": "Item 1",
+        "maxItemsHint": "Up to {max} active items"
+      }
     },
     "linksDropdown": {
       "goals": "Goals",
@@ -697,8 +716,10 @@
         "completion": "Do",
         "counter": "Count",
         "value": "Measure",
-        "rating": "Rate"
-      }
+        "rating": "Rate",
+        "multi-completion": "Check off"
+      },
+      "metDaysUnit": "days met"
     },
     "chart": {
       "noActivePeriods": "No active periods",
