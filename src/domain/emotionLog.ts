@@ -1,4 +1,4 @@
-import type { EmotionSelection } from './emotionWheel'
+import type { EmotionGroupSelection as EmotionSelection } from './emotionGroups'
 
 export interface EmotionLog {
   id: string // UUID

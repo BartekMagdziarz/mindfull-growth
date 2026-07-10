@@ -84,7 +84,7 @@
             {{ t('emotionViews.loadingEmotions') }}
           </div>
           <div v-else class="pt-1">
-            <EmotionWheel
+            <EmotionGroupPicker
               :label="t('emotionViews.editor.emotions')"
               v-model="wheelSelections"
               v-model:quadrant="activeEmotionQuadrant"
@@ -180,7 +180,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import EmotionWheel from '@/components/emotion/EmotionWheel.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
@@ -190,8 +190,8 @@ import { formatEntryDate } from '@/utils/dateFormat'
 import type { EmotionLog } from '@/domain/emotionLog'
 import type { Quadrant } from '@/domain/emotion'
 import { getQuadrantTintStyle } from '@/domain/emotion'
-import type { EmotionSelection } from '@/domain/emotionWheel'
-import { legacyToSelections, selectionsToLegacyFamilyIds } from '@/domain/emotionWheel'
+import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotionGroups'
+import { legacyToGroupSelections, groupSelectionsToFamilyIds } from '@/domain/emotionGroups'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
@@ -361,7 +361,7 @@ const formattedTimestamp = computed(() => {
 const syncLogToForm = (log: EmotionLog) => {
   currentLog.value = log
   // Adapter historii: wpisy sprzed koła (słowa/rodziny) → promienie ± natężenie
-  wheelSelections.value = legacyToSelections(log)
+  wheelSelections.value = legacyToGroupSelections(log)
   note.value = log.note ?? ''
   selectedPeopleTagIds.value = [...(log.peopleTagIds ?? [])]
   selectedContextTagIds.value = [...(log.contextTagIds ?? [])]
@@ -474,7 +474,7 @@ const handleSave = async () => {
   // dawne słowa (`emotionIds`) — świadoma strata przy spłaszczonym katalogu.
   const payload = {
     emotionIds: [],
-    emotionFamilyIds: selectionsToLegacyFamilyIds(wheelSelections.value),
+    emotionFamilyIds: groupSelectionsToFamilyIds(wheelSelections.value),
     emotions: wheelSelections.value.map((s) => ({ ...s })),
     note: note.value.trim() || undefined,
     peopleTagIds:

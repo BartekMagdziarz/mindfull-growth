@@ -55,10 +55,6 @@
     "name": "Zainspirowany",
     "description": "Głęboko poruszony czymś, co motywuje do działania"
   },
-  "e3m11-productive-015": {
-    "name": "Produktywny",
-    "description": "Poczucie sprawności — robisz swoje, praca idzie do przodu"
-  },
   "e4m11-motivated-016": {
     "name": "Zmotywowany",
     "description": "Odczuwający zapał i chęć, by coś zrobić"
@@ -622,5 +618,121 @@
   "ext-regretful-171": {
     "name": "Żałujący",
     "description": "Żal, że nie postąpiło się inaczej"
+  },
+  "ext-astonished-172": {
+    "name": "Zdziwiony",
+    "description": "Lekko zdziwiony czymś niespodziewanym"
+  },
+  "ext-loving-173": {
+    "name": "Kochający",
+    "description": "Pełen miłości do kogoś; chcesz być blisko i dawać"
+  },
+  "ext-inlove-174": {
+    "name": "Zakochany",
+    "description": "Zakochany; myśli i serce krążą wokół tej osoby"
+  },
+  "ext-admiring-175": {
+    "name": "Pełen podziwu",
+    "description": "Uniesiony podziwem wobec czegoś wielkiego, pięknego lub wspaniałego"
+  },
+  "ext-appreciative-176": {
+    "name": "Doceniający",
+    "description": "Dostrzegający i doceniający wartość tego, co się ma"
+  },
+  "ext-doting-177": {
+    "name": "Tkliwy",
+    "description": "Pełen tkliwej, miękkiej czułości"
+  },
+  "ext-concerned-178": {
+    "name": "Przejęty",
+    "description": "Przejęty czyjąś sprawą; bierzesz ją sobie do serca"
+  },
+  "ext-noticed-179": {
+    "name": "Zauważony",
+    "description": "Poczucie, że inni cię widzą i zauważają"
+  },
+  "ext-dazed-180": {
+    "name": "Oszołomiony",
+    "description": "Oszołomiony nagłym zdarzeniem; nie wiesz, co się właściwie stało"
+  },
+  "ext-stunned-181": {
+    "name": "Zszokowany",
+    "description": "W szoku po czymś nagłym, w co trudno uwierzyć"
+  },
+  "ext-dumbfounded-182": {
+    "name": "Osłupiały",
+    "description": "Osłupiały; zamarły ze zdumienia wobec tego, co zaszło"
+  },
+  "ext-apprehensive-183": {
+    "name": "Pełen obaw",
+    "description": "Odczuwający niepokój i obawę przed tym, co może się zdarzyć"
+  },
+  "ext-indignant-184": {
+    "name": "Oburzony",
+    "description": "Ogarnięty moralnym oburzeniem wobec czegoś niesprawiedliwego"
+  },
+  "ext-ridiculed-185": {
+    "name": "Ośmieszony",
+    "description": "Ośmieszony przez kogoś na oczach innych"
+  },
+  "ext-demeaned-186": {
+    "name": "Poniżony",
+    "description": "Potraktowany przez kogoś jak ktoś gorszy; pozbawiony godności"
+  },
+  "ext-disgraced-187": {
+    "name": "Zhańbiony",
+    "description": "Poczucie utraty czci i dobrego imienia; okryty hańbą"
+  },
+  "ext-abashed-188": {
+    "name": "Zażenowany",
+    "description": "Zmieszany i lekko zawstydzony niezręcznością sytuacji"
+  },
+  "ext-contrite-189": {
+    "name": "Skruszony",
+    "description": "Żałujący winy i gotów ją naprawić; pełen skruchy"
+  },
+  "ext-wounded-190": {
+    "name": "Zraniony",
+    "description": "Boleśnie dotknięty przez kogoś, na kim ci zależy"
+  },
+  "ext-stung-191": {
+    "name": "Dotknięty",
+    "description": "Zabolały cię czyjeś słowa lub zachowanie"
+  },
+  "ext-wronged-192": {
+    "name": "Skrzywdzony",
+    "description": "Poczucie, że ktoś wyrządził ci krzywdę lub niesprawiedliwość"
+  },
+  "ext-embittered-193": {
+    "name": "Rozgoryczony",
+    "description": "Pełen goryczy po doznanej krzywdzie lub zawodzie, który wciąż wraca"
+  },
+  "ext-soured-194": {
+    "name": "Zrażony",
+    "description": "Zrażony złymi doświadczeniami; odechciewa ci się próbować"
+  },
+  "ext-bitter-195": {
+    "name": "Zgorzkniały",
+    "description": "Trwale zgorzkniały, bo życie raz po raz zawodziło oczekiwania"
+  },
+  "ext-letdown-196": {
+    "name": "Zawiedziony",
+    "description": "Zawiedziony, bo ktoś lub coś nie spełniło pokładanych nadziei"
+  },
+  "ext-wistful-197": {
+    "name": "Rzewny",
+    "description": "Ogarnięty rzewnym, łagodnie smutnym rozczuleniem"
+  },
+  "ext-weary-198": {
+    "name": "Znużony",
+    "description": "Znużony jednostajnością; siły i chęci powoli się wyczerpują"
+  },
+  "ext-indifferent-199": {
+    "name": "Obojętny",
+    "description": "Zobojętniały; sprawy przestały cię obchodzić"
+  },
+  "ext-dulled-200": {
+    "name": "Otępiały",
+    "description": "Otępiały; bodźce ledwo docierają, reakcje są przygaszone"
   }
 }

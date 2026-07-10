@@ -109,7 +109,7 @@
               {{ t('journal.editor.loadingEmotions') }}
             </div>
             <div v-else class="pt-1">
-              <EmotionWheel
+              <EmotionGroupPicker
                 :label="t('journal.editor.emotions')"
                 v-model="wheelSelections"
                 v-model:quadrant="activeEmotionQuadrant"
@@ -322,7 +322,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import EmotionWheel from '@/components/emotion/EmotionWheel.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import TagInput from '@/components/TagInput.vue'
 import ChatSessionCard from '@/components/ChatSessionCard.vue'
 import { useJournalStore } from '@/stores/journal.store'
@@ -334,8 +334,8 @@ import { formatEntryDate } from '@/utils/dateFormat'
 import type { JournalEntry } from '@/domain/journal'
 import type { Quadrant } from '@/domain/emotion'
 import { getQuadrantTintStyle } from '@/domain/emotion'
-import type { EmotionSelection } from '@/domain/emotionWheel'
-import { legacyToSelections, selectionsToLegacyFamilyIds } from '@/domain/emotionWheel'
+import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotionGroups'
+import { legacyToGroupSelections, groupSelectionsToFamilyIds } from '@/domain/emotionGroups'
 import type { ChatIntention, ChatSession } from '@/domain/chatSession'
 import { CHAT_INTENTIONS } from '@/domain/chatSession'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -535,7 +535,7 @@ const syncEntryToForm = (entry: JournalEntry) => {
   title.value = entry.title || ''
   body.value = entry.body
   // Adapter historii: wpisy sprzed koła (słowa/rodziny) → promienie ± natężenie
-  wheelSelections.value = legacyToSelections(entry)
+  wheelSelections.value = legacyToGroupSelections(entry)
   selectedPeopleTagIds.value = [...(entry.peopleTagIds ?? [])]
   selectedContextTagIds.value = [...(entry.contextTagIds ?? [])]
 }
@@ -686,7 +686,7 @@ const saveEntry = async (): Promise<JournalEntry> => {
     title: title.value.trim() || undefined,
     body: body.value.trim(),
     emotionIds: [],
-    emotionFamilyIds: selectionsToLegacyFamilyIds(wheelSelections.value),
+    emotionFamilyIds: groupSelectionsToFamilyIds(wheelSelections.value),
     emotions: wheelSelections.value.map((s) => ({ ...s })),
     peopleTagIds: [...selectedPeopleTagIds.value],
     contextTagIds: [...selectedContextTagIds.value],

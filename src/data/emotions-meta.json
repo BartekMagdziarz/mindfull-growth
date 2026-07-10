@@ -70,11 +70,6 @@
     "energy": 11
   },
   {
-    "id": "e3m11-productive-015",
-    "pleasantness": 11,
-    "energy": 10
-  },
-  {
     "id": "e4m11-motivated-016",
     "pleasantness": 11,
     "energy": 9
@@ -467,7 +462,7 @@
   {
     "id": "e5m4-embarrassed-101",
     "pleasantness": 4,
-    "energy": 8
+    "energy": 5
   },
   {
     "id": "e6m4-nervous-102",
@@ -526,8 +521,8 @@
   },
   {
     "id": "e8m3-lost-116",
-    "pleasantness": 3,
-    "energy": 5
+    "pleasantness": 4,
+    "energy": 7
   },
   {
     "id": "e10m3-excluded-118",
@@ -692,7 +687,7 @@
   {
     "id": "ext-affectionate-154",
     "pleasantness": 10,
-    "energy": 7
+    "energy": 5
   },
   {
     "id": "ext-attached-155",
@@ -727,7 +722,7 @@
   {
     "id": "ext-offended-161",
     "pleasantness": 3,
-    "energy": 8
+    "energy": 4
   },
   {
     "id": "ext-impatient-162",
@@ -741,8 +736,8 @@
   },
   {
     "id": "ext-flustered-164",
-    "pleasantness": 4,
-    "energy": 8
+    "pleasantness": 3,
+    "energy": 5
   },
   {
     "id": "ext-haughty-165",
@@ -778,5 +773,150 @@
     "id": "ext-regretful-171",
     "pleasantness": 3,
     "energy": 3
+  },
+  {
+    "id": "ext-astonished-172",
+    "pleasantness": 7,
+    "energy": 11
+  },
+  {
+    "id": "ext-loving-173",
+    "pleasantness": 11,
+    "energy": 8
+  },
+  {
+    "id": "ext-inlove-174",
+    "pleasantness": 11,
+    "energy": 10
+  },
+  {
+    "id": "ext-admiring-175",
+    "pleasantness": 10,
+    "energy": 9
+  },
+  {
+    "id": "ext-appreciative-176",
+    "pleasantness": 10,
+    "energy": 4
+  },
+  {
+    "id": "ext-doting-177",
+    "pleasantness": 9,
+    "energy": 4
+  },
+  {
+    "id": "ext-concerned-178",
+    "pleasantness": 7,
+    "energy": 5
+  },
+  {
+    "id": "ext-noticed-179",
+    "pleasantness": 10,
+    "energy": 4
+  },
+  {
+    "id": "ext-dazed-180",
+    "pleasantness": 5,
+    "energy": 10
+  },
+  {
+    "id": "ext-stunned-181",
+    "pleasantness": 3,
+    "energy": 11
+  },
+  {
+    "id": "ext-dumbfounded-182",
+    "pleasantness": 4,
+    "energy": 9
+  },
+  {
+    "id": "ext-apprehensive-183",
+    "pleasantness": 4,
+    "energy": 8
+  },
+  {
+    "id": "ext-indignant-184",
+    "pleasantness": 3,
+    "energy": 9
+  },
+  {
+    "id": "ext-ridiculed-185",
+    "pleasantness": 2,
+    "energy": 8
+  },
+  {
+    "id": "ext-demeaned-186",
+    "pleasantness": 2,
+    "energy": 7
+  },
+  {
+    "id": "ext-disgraced-187",
+    "pleasantness": 1,
+    "energy": 7
+  },
+  {
+    "id": "ext-abashed-188",
+    "pleasantness": 3,
+    "energy": 5
+  },
+  {
+    "id": "ext-contrite-189",
+    "pleasantness": 2,
+    "energy": 3
+  },
+  {
+    "id": "ext-wounded-190",
+    "pleasantness": 2,
+    "energy": 4
+  },
+  {
+    "id": "ext-stung-191",
+    "pleasantness": 3,
+    "energy": 5
+  },
+  {
+    "id": "ext-wronged-192",
+    "pleasantness": 2,
+    "energy": 3
+  },
+  {
+    "id": "ext-embittered-193",
+    "pleasantness": 3,
+    "energy": 3
+  },
+  {
+    "id": "ext-soured-194",
+    "pleasantness": 4,
+    "energy": 4
+  },
+  {
+    "id": "ext-bitter-195",
+    "pleasantness": 2,
+    "energy": 2
+  },
+  {
+    "id": "ext-letdown-196",
+    "pleasantness": 3,
+    "energy": 4
+  },
+  {
+    "id": "ext-wistful-197",
+    "pleasantness": 4,
+    "energy": 3
+  },
+  {
+    "id": "ext-weary-198",
+    "pleasantness": 5,
+    "energy": 4
+  },
+  {
+    "id": "ext-indifferent-199",
+    "pleasantness": 5,
+    "energy": 3
+  },
+  {
+    "id": "ext-dulled-200",
+    "pleasantness": 3,
+    "energy": 2
   }
 ]

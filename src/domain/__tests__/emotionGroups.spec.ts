@@ -11,17 +11,21 @@ import {
   legacyToGroupSelections,
   groupSelectionsToFamilyIds,
 } from '@/domain/emotionGroups'
-import { ALL_FAMILIES, FAMILY_OF } from '@/domain/emotionFamily'
-import { WHEEL_SPOKES } from '@/domain/emotionWheel'
+import { ALL_FAMILIES, FAMILY_OF, getFamilyById } from '@/domain/emotionFamily'
 import emotionsMeta from '@/data/emotions-meta.json'
 import plEmotions from '@/locales/pl/emotions.json'
+import enEmotions from '@/locales/en/emotions.json'
 import plGroups from '@/locales/pl/emotionGroups.json'
 import enGroups from '@/locales/en/emotionGroups.json'
+import plFamilies from '@/locales/pl/emotionFamilies.json'
+import enFamilies from '@/locales/en/emotionFamilies.json'
 
 const catalogIds = (emotionsMeta as { id: string }[]).map((e) => e.id)
 const groupSlugs = new Set(EMOTION_GROUPS.map((g) => g.slug))
-// Produktywny: usuwany w P3 — mapowany dla historii, nieobecny w wordIds grup
-const PRODUCTIVE_ID = 'e3m11-productive-015'
+// Produktywny: usunięty z katalogu; GROUP_OF_WORD mapuje go nadal (stare wpisy)
+const LEGACY_REMOVED_ID = 'e3m11-productive-015'
+// dawne slugi rodzin bez własnej grupy (spadkobiercy)
+const LEGACY_FAMILY_SLUGS = ['energia', 'przygnebienie', 'bezpieczenstwo', 'zazenowanie-i-upokorzenie']
 
 describe('emotionGroups — struktura taksonomii v2', () => {
   it('ma 45 grup w układzie 12/11/12/10 na ćwiartkę, z unikalnymi slugami', () => {
@@ -40,18 +44,46 @@ describe('emotionGroups — struktura taksonomii v2', () => {
     )
   })
 
-  it('każda grupa ma ikonę, aux i przynajmniej jedno słowo (istniejące lub oczekujące)', () => {
+  it('katalog ma 184 słowa, a każda grupa ikonę, ≥2 słowa i 2 auxIds ze swoich słów', () => {
+    expect(catalogIds).toHaveLength(184)
     for (const g of EMOTION_GROUPS) {
       expect(g.icon.length, g.slug).toBeGreaterThan(0)
-      expect(g.aux.length, g.slug).toBeGreaterThan(0)
-      expect(g.wordIds.length + g.pendingWordNames.length, g.slug).toBeGreaterThan(0)
+      expect(g.wordIds.length, g.slug).toBeGreaterThanOrEqual(2)
+      expect(g.auxIds, g.slug).toHaveLength(2)
+      for (const a of g.auxIds) expect(g.wordIds, `${g.slug}: ${a}`).toContain(a)
     }
   })
 
-  it('na P3 czeka dokładnie 29 nowych słów', () => {
-    const pending = EMOTION_GROUPS.flatMap((g) => g.pendingWordNames)
-    expect(pending).toHaveLength(29)
-    expect(new Set(pending).size).toBe(29)
+  it('każde słowo katalogu ma dokładnie jedną grupę; słowa zgodne między mapami', () => {
+    const seen = new Set<string>()
+    const catalog = new Set(catalogIds)
+    for (const g of EMOTION_GROUPS) {
+      for (const id of g.wordIds) {
+        expect(catalog.has(id), id).toBe(true)
+        expect(seen.has(id), id).toBe(false)
+        seen.add(id)
+        expect(GROUP_OF_WORD[id]).toBe(g.slug)
+      }
+    }
+    expect(seen.size).toBe(catalogIds.length)
+    // + wpis legacy dla usuniętego Produktywnego
+    expect(Object.keys(GROUP_OF_WORD)).toHaveLength(catalogIds.length + 1)
+    expect(GROUP_OF_WORD[LEGACY_REMOVED_ID]).toBe('zaangazowanie')
+    expect(catalog.has(LEGACY_REMOVED_ID)).toBe(false)
+  })
+
+  it('każde słowo ma ćwiartkę zgodną z ćwiartką swojej grupy', () => {
+    const meta = Object.fromEntries(
+      (emotionsMeta as { id: string; energy: number; pleasantness: number }[]).map((e) => [e.id, e]),
+    )
+    for (const g of EMOTION_GROUPS) {
+      for (const id of g.wordIds) {
+        const e = meta[id]
+        const q =
+          (e.energy > 6 ? 'high' : 'low') + '-energy-' + (e.pleasantness > 6 ? 'high' : 'low') + '-pleasantness'
+        expect(q, `${g.slug}: ${id}`).toBe(g.quadrant)
+      }
+    }
   })
 
   it('QUADRANT_STYLES pokrywa 4 ćwiartki kolorami hex', () => {
@@ -63,87 +95,30 @@ describe('emotionGroups — struktura taksonomii v2', () => {
   })
 })
 
-describe('emotionGroups — pokrycie katalogu słów', () => {
-  it('GROUP_OF_WORD mapuje każde ze 156 słów katalogu na istniejącą grupę', () => {
-    expect(Object.keys(GROUP_OF_WORD)).toHaveLength(catalogIds.length)
-    for (const id of catalogIds) {
-      expect(GROUP_OF_WORD[id], id).toBeDefined()
-      expect(groupSlugs.has(GROUP_OF_WORD[id]), id).toBe(true)
-    }
-  })
-
-  it('wordIds grup są rozłączne, istnieją w katalogu i zgadzają się z GROUP_OF_WORD', () => {
-    const seen = new Set<string>()
-    const catalog = new Set(catalogIds)
-    for (const g of EMOTION_GROUPS) {
-      for (const id of g.wordIds) {
-        expect(catalog.has(id), id).toBe(true)
-        expect(seen.has(id), id).toBe(false)
-        seen.add(id)
-        expect(GROUP_OF_WORD[id]).toBe(g.slug)
-      }
-    }
-    // jedyne słowo mapowane, ale nieprezentowane: Produktywny (do usunięcia w P3)
-    expect(seen.size).toBe(catalogIds.length - 1)
-    expect(seen.has(PRODUCTIVE_ID)).toBe(false)
-    expect(GROUP_OF_WORD[PRODUCTIVE_ID]).toBe('zaangazowanie')
-  })
-
-  it('przenosiny słów v2 są odwzorowane (jakość idzie za nowym przypisaniem)', () => {
-    const byName = Object.fromEntries(
-      Object.entries(plEmotions as Record<string, { name: string }>).map(([id, v]) => [v.name, id]),
-    )
-    expect(GROUP_OF_WORD[byName['Zachwycony']]).toBe('podziw')
-    expect(GROUP_OF_WORD[byName['Rozradowany']]).toBe('radosc')
-    expect(GROUP_OF_WORD[byName['Oniemiały']]).toBe('podziw')
-    expect(GROUP_OF_WORD[byName['Zainspirowany']]).toBe('podziw')
-    expect(GROUP_OF_WORD[byName['Kompetentny']]).toBe('pewnosc-i-mistrzostwo')
-    expect(GROUP_OF_WORD[byName['Czuły']]).toBe('czulosc')
-    expect(GROUP_OF_WORD[byName['Poruszony']]).toBe('wzruszenie')
-    expect(GROUP_OF_WORD[byName['Wstrząśnięty']]).toBe('szok')
-    expect(GROUP_OF_WORD[byName['Zagubiony']]).toBe('zamet')
-    expect(GROUP_OF_WORD[byName['Urażony']]).toBe('zranienie')
-    expect(GROUP_OF_WORD[byName['Pogardliwy']]).toBe('pogarda')
-    expect(GROUP_OF_WORD[byName['Upokorzony']]).toBe('upokorzenie')
-    expect(GROUP_OF_WORD[byName['Speszony']]).toBe('wstyd-i-wina')
-    expect(GROUP_OF_WORD[byName['Rozczarowany']]).toBe('rozczarowanie')
-  })
-})
-
 describe('emotionGroups — spadkobiercy dawnych slugów', () => {
-  it('każda z 41 dawnych rodzin ma spadkobiercę-grupę', () => {
-    expect(ALL_FAMILIES).toHaveLength(41)
-    for (const f of ALL_FAMILIES) {
-      const heir = GROUP_OF_FAMILY[f.id]
-      expect(heir, f.id).toBeDefined()
-      expect(groupSlugs.has(heir), f.id).toBe(true)
-    }
-  })
-
-  it('każdy z 33 promieni koła v1 ma spadkobiercę-grupę', () => {
-    for (const spoke of WHEEL_SPOKES) {
-      expect(groupSlugs.has(GROUP_OF_FAMILY[spoke.id]), spoke.id).toBe(true)
-    }
-  })
-
-  it('jawni spadkobiercy fuzji/rozdzieleń są poprawni', () => {
+  it('dawne rodziny bez własnej grupy mają poprawnych spadkobierców', () => {
     expect(resolveGroupSlug('energia')).toBe('ekscytacja')
     expect(resolveGroupSlug('przygnebienie')).toBe('smutek-i-zal')
     expect(resolveGroupSlug('bezpieczenstwo')).toBe('spokoj-i-wyciszenie')
     expect(resolveGroupSlug('zazenowanie-i-upokorzenie')).toBe('wstyd-i-wina')
-    // nowe slugi grup rozwiązują się na siebie
     expect(resolveGroupSlug('podziw')).toBe('podziw')
     expect(resolveGroupSlug('zranienie')).toBe('zranienie')
+  })
+
+  it('GROUP_OF_FAMILY pokrywa 45 grup + 4 dawne slugi i celuje w istniejące grupy', () => {
+    expect(Object.keys(GROUP_OF_FAMILY)).toHaveLength(49)
+    for (const [from, to] of Object.entries(GROUP_OF_FAMILY)) {
+      expect(groupSlugs.has(to), from).toBe(true)
+    }
   })
 })
 
 describe('emotionGroups — tabela legacy natężeń', () => {
-  it('zawiera wyłącznie słowa katalogu z poziomami 1–5', () => {
+  it('zawiera wyłącznie słowa katalogu z poziomami 1–5 i grupą', () => {
     for (const [id, lvl] of Object.entries(LEGACY_WORD_INTENSITY)) {
       expect(catalogIds).toContain(id)
       expect(lvl).toBeGreaterThanOrEqual(1)
       expect(lvl).toBeLessThanOrEqual(5)
-      // słowo z poziomem musi też mieć grupę
       expect(GROUP_OF_WORD[id]).toBeDefined()
     }
     expect(Object.keys(LEGACY_WORD_INTENSITY)).toHaveLength(125)
@@ -151,27 +126,28 @@ describe('emotionGroups — tabela legacy natężeń', () => {
 })
 
 describe('legacyToGroupSelections — adapter odczytu historii', () => {
-  it('mapuje wpisy emotions (slug promienia lub grupy) na grupy z zachowaniem natężenia', () => {
-    expect(
-      legacyToGroupSelections({ emotions: [{ emotionId: 'gniew', intensity: 4 }] }),
-    ).toEqual([{ emotionId: 'gniew', intensity: 4 }])
-    expect(
-      legacyToGroupSelections({ emotions: [{ emotionId: 'bezpieczenstwo', intensity: 2 }] }),
-    ).toEqual([{ emotionId: 'spokoj-i-wyciszenie', intensity: 2 }])
+  it('mapuje wpisy emotions (slug promienia lub grupy) z zachowaniem natężenia', () => {
+    expect(legacyToGroupSelections({ emotions: [{ emotionId: 'gniew', intensity: 4 }] })).toEqual([
+      { emotionId: 'gniew', intensity: 4 },
+    ])
+    expect(legacyToGroupSelections({ emotions: [{ emotionId: 'bezpieczenstwo', intensity: 2 }] })).toEqual([
+      { emotionId: 'spokoj-i-wyciszenie', intensity: 2 },
+    ])
   })
 
   it('stare słowa odzyskują grupę i natężenie z dawnej drabinki', () => {
-    // Wściekły = dawna podpowiedź L5 na promieniu gniew
     expect(legacyToGroupSelections({ emotionIds: ['e2m1-livid-134'] })).toEqual([
       { emotionId: 'gniew', intensity: 5 },
     ])
-    // Sfrustrowany nie był podpowiedzią — grupa bez natężenia
     expect(legacyToGroupSelections({ emotionIds: ['e5m3-frustrated-113'] })).toEqual([
       { emotionId: 'irytacja-i-frustracja' },
     ])
-    // Urażony: przenosiny do Zranienia (bez poziomu)
     expect(legacyToGroupSelections({ emotionIds: ['ext-offended-161'] })).toEqual([
       { emotionId: 'zranienie' },
+    ])
+    // usunięty Produktywny nadal czytelny w historii
+    expect(legacyToGroupSelections({ emotionIds: [LEGACY_REMOVED_ID] })).toEqual([
+      { emotionId: 'zaangazowanie' },
     ])
   })
 
@@ -201,8 +177,38 @@ describe('legacyToGroupSelections — adapter odczytu historii', () => {
   })
 })
 
+describe('warstwa rodzin = grupy (emotionFamily po regeneracji)', () => {
+  it('ALL_FAMILIES to dokładnie 45 grup z rep/tint/sub', () => {
+    expect(ALL_FAMILIES).toHaveLength(45)
+    const plByName = new Set(Object.values(plEmotions as Record<string, { name: string }>).map((v) => v.name))
+    for (const f of ALL_FAMILIES) {
+      expect(groupSlugs.has(f.id), f.id).toBe(true)
+      expect(f.tint).toMatch(/^#[0-9a-fA-F]{6}$/)
+      expect(plByName.has(f.rep), `${f.id}: rep ${f.rep}`).toBe(true)
+      expect(getGroup(f.id)?.quadrant).toBe(f.quadrant)
+    }
+  })
+
+  it('FAMILY_OF jest tożsame z GROUP_OF_WORD dla słów katalogu', () => {
+    expect(Object.keys(FAMILY_OF).sort()).toEqual([...catalogIds].sort())
+    for (const [id, fam] of Object.entries(FAMILY_OF)) {
+      expect(fam, id).toBe(GROUP_OF_WORD[id])
+    }
+  })
+
+  it('getFamilyById rozwiązuje dawne slugi rodzin przez spadkobierców', () => {
+    for (const legacy of LEGACY_FAMILY_SLUGS) {
+      const fam = getFamilyById(legacy)
+      expect(fam, legacy).toBeDefined()
+      expect(fam!.id).toBe(GROUP_OF_FAMILY[legacy])
+    }
+    expect(getFamilyById('radosc')?.id).toBe('radosc')
+    expect(getFamilyById('nie-ma')).toBeUndefined()
+  })
+})
+
 describe('emotionGroups — locale', () => {
-  it('PL i EN mają wpisy (name + appraisal) dla wszystkich 45 grup oraz skalę 1–5', () => {
+  it('PL i EN mają wpisy dla wszystkich 45 grup (groups + families) oraz skalę 1–5', () => {
     for (const locale of [plGroups, enGroups] as const) {
       const entries = locale.groups as Record<string, { name: string; appraisal: string }>
       expect(Object.keys(entries).sort()).toEqual([...groupSlugs].sort())
@@ -212,59 +218,28 @@ describe('emotionGroups — locale', () => {
       }
       expect(Object.keys(locale.scale).sort()).toEqual(['1', '2', '3', '4', '5'])
     }
+    for (const locale of [plFamilies, enFamilies] as const) {
+      const entries = locale as Record<string, { name: string; sub: string }>
+      expect(Object.keys(entries).sort()).toEqual([...groupSlugs].sort())
+    }
+  })
+
+  it('każde słowo katalogu ma nazwę i opis w PL i EN', () => {
+    for (const id of catalogIds) {
+      for (const locale of [plEmotions, enEmotions] as const) {
+        const entry = (locale as Record<string, { name: string; description?: string }>)[id]
+        expect(entry, id).toBeDefined()
+        expect(entry.name.length, id).toBeGreaterThan(0)
+        expect((entry.description ?? '').length, id).toBeGreaterThan(0)
+      }
+    }
   })
 
   it('nazwy PL grup zgadzają się z zamrożoną taksonomią (spot-check)', () => {
-    const pl = (plGroups.groups as Record<string, { name: string }>)
+    const pl = plGroups.groups as Record<string, { name: string }>
     expect(pl['wstyd-i-wina'].name).toBe('Wstyd · Zażenowanie')
     expect(pl['zaskoczenie-i-zachwyt'].name).toBe('Zaskoczenie')
     expect(pl['pogarda-i-zazdrosc'].name).toBe('Zazdrość · Zawiść')
     expect(pl['gniew'].name).toBe('Złość')
-  })
-
-  it('aux każdej grupy to słowa tej grupy (istniejące lub oczekujące na P3)', () => {
-    const nameById = Object.fromEntries(
-      Object.entries(plEmotions as Record<string, { name: string }>).map(([id, v]) => [id, v.name]),
-    )
-    for (const g of EMOTION_GROUPS) {
-      const allowed = new Set([...g.wordIds.map((id) => nameById[id]), ...g.pendingWordNames])
-      for (const a of g.aux) expect(allowed.has(a), `${g.slug}: ${a}`).toBe(true)
-    }
-  })
-
-  it('getGroup zwraca grupę po slugu', () => {
-    expect(getGroup('wzruszenie')?.quadrant).toBe('low-energy-high-pleasantness')
-    expect(getGroup('nie-ma')).toBeUndefined()
-  })
-})
-
-describe('emotionGroups — spójność z warstwą rodzin (do czasu P3)', () => {
-  it('słowa bez przenosin zachowują grupę zgodną ze spadkobiercą dawnej rodziny', () => {
-    const moved = new Set([
-      'e1m12-ecstatic-001', // Zachwycony → podziw
-      'e1m11-elated-013', // Rozradowany → radosc
-      'e1m8-awe-049', // Oniemiały → podziw
-      'e2m11-inspired-014', // Zainspirowany → podziw
-      'e6m12-accomplished-006', // Kompetentny → pewność
-      'ext-affectionate-154', // Czuły → czulosc
-      'e10m12-moved-010', // Poruszony → wzruszenie
-      'ext-enraptured-159', // Rozanielony → wzruszenie
-      'e1m4-shocked-097', // Wstrząśnięty → szok
-      'e8m3-lost-116', // Zagubiony → zamet
-      'ext-offended-161', // Urażony → zranienie
-      'e6m1-contempt-138', // Pogardliwy → pogarda
-      'ext-haughty-165', // Wyniosły → pogarda
-      'ext-dismissive-166', // Lekceważący → pogarda
-      'e8m1-humiliated-140', // Upokorzony → upokorzenie
-      'e5m4-embarrassed-101', // Skrępowany → wstyd-i-wina
-      'ext-flustered-164', // Speszony → wstyd-i-wina
-      'e8m4-disappointed-104', // Rozczarowany → rozczarowanie
-      'e10m1-guilty-142', // Winny → wina-i-zal (split Wstydu)
-      'ext-regretful-171', // Żałujący → wina-i-zal
-    ])
-    for (const [wordId, family] of Object.entries(FAMILY_OF)) {
-      if (moved.has(wordId)) continue
-      expect(GROUP_OF_WORD[wordId], wordId).toBe(GROUP_OF_FAMILY[family])
-    }
   })
 })

@@ -99,7 +99,7 @@ vi.mock('@/stores/tag.store', () => {
   }
 })
 
-vi.mock('@/components/emotion/EmotionWheel.vue', () => {
+vi.mock('@/components/emotion/EmotionGroupPicker.vue', () => {
   return {
     default: defineComponent({
       name: 'EmotionWheelStub',

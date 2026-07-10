@@ -15,7 +15,7 @@
             {{ t('emotionViews.loadingEmotions') }}
           </div>
           <div v-else class="min-w-0">
-            <EmotionWheel
+            <EmotionGroupPicker
               :label="t('emotionViews.editor.emotions')"
               v-model="wheelSelections"
               v-model:quadrant="activeEmotionQuadrant"
@@ -101,15 +101,15 @@ import { computed, onMounted, ref } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import EmotionWheel from '@/components/emotion/EmotionWheel.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useTagStore } from '@/stores/tag.store'
 import type { Quadrant } from '@/domain/emotion'
 import { getQuadrantTintStyle } from '@/domain/emotion'
-import type { EmotionSelection } from '@/domain/emotionWheel'
-import { selectionsToLegacyFamilyIds } from '@/domain/emotionWheel'
+import type { EmotionGroupSelection as EmotionSelection } from '@/domain/emotionGroups'
+import { groupSelectionsToFamilyIds } from '@/domain/emotionGroups'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 
@@ -166,7 +166,7 @@ async function handleSave() {
   // (slugi promieni == slugi rodzin), dzięki któremu historia/rollupy działają.
   const payload = {
     emotionIds: [],
-    emotionFamilyIds: selectionsToLegacyFamilyIds(wheelSelections.value),
+    emotionFamilyIds: groupSelectionsToFamilyIds(wheelSelections.value),
     emotions: wheelSelections.value.map((s) => ({ ...s })),
     note: note.value.trim() || undefined,
     peopleTagIds: selectedPeopleTagIds.value.length > 0 ? [...selectedPeopleTagIds.value] : undefined,

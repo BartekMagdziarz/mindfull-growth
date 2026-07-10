@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { render, screen, waitFor, within } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import { ref } from 'vue'
 import JournalEditorView from '@/views/JournalEditorView.vue'
@@ -156,7 +156,7 @@ describe('Component interactions', () => {
     vi.clearAllMocks()
   })
 
-  it('syncs EmotionWheel and TagInput selections inside JournalEditorView', async () => {
+  it('syncs EmotionGroupPicker and TagInput selections inside JournalEditorView', async () => {
     const user = userEvent.setup()
     render(JournalEditorView)
 
@@ -167,14 +167,18 @@ describe('Component interactions', () => {
     const saveButton = await screen.findByRole('button', { name: 'Save' })
     expect(saveButton).toBeDisabled()
 
-    // Open the quadrant fan -> pick „Radość" at intensity 4
-    await user.click(screen.getByTestId('emotion-quadrant-high-energy-high-pleasantness'))
-    await user.click(await screen.findByTestId('emotion-wheel-dot-radosc-4'))
+    // Drill into the pleasant quadrant -> pick „Radość" at intensity 4
+    // (keyboard on the slider thumb — jsdom has no layout for pointer math)
+    await user.click(screen.getByTestId('egp-quadrant-high-energy-high-pleasantness'))
+    const joyTile = await screen.findByTestId('egp-tile-radosc')
+    const joyThumb = within(joyTile).getAllByRole('button')[1]
+    joyThumb.focus()
+    await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}')
 
     await screen.findByRole('button', { name: /Remove Joy/i })
 
-    // Switch quadrants via the capsule under the fan; selection persists.
-    await user.click(await screen.findByTestId('emotion-quadrant-high-energy-low-pleasantness'))
+    // Switch quadrants via the mini switcher; selection persists.
+    await user.click(await screen.findByTestId('egp-quadrant-mini-high-energy-low-pleasantness'))
     // Selection persists across the round-trip
     await screen.findByRole('button', { name: /Remove Joy/i })
 
@@ -226,8 +230,11 @@ describe('Component interactions', () => {
     expect(mockEmotionLogStore.createLog).not.toHaveBeenCalled()
     await screen.findByText(/Please select at least one emotion/i)
 
-    await user.click(screen.getByTestId('emotion-quadrant-high-energy-high-pleasantness'))
-    await user.click(await screen.findByTestId('emotion-wheel-dot-radosc-4'))
+    await user.click(screen.getByTestId('egp-quadrant-high-energy-high-pleasantness'))
+    const logJoyTile = await screen.findByTestId('egp-tile-radosc')
+    const logJoyThumb = within(logJoyTile).getAllByRole('button')[1]
+    logJoyThumb.focus()
+    await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}')
     expect(saveButton).toBeEnabled()
     await screen.findByRole('button', { name: /Remove Joy/i })
 

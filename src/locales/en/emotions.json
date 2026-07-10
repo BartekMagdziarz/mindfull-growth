@@ -55,10 +55,6 @@
     "name": "Inspired",
     "description": "Affected powerfully by something in a way that motivates you to do something"
   },
-  "e3m11-productive-015": {
-    "name": "Productive",
-    "description": "Feeling like you are accomplishing your tasks or achieving your goals"
-  },
   "e4m11-motivated-016": {
     "name": "Motivated",
     "description": "Enthusiastic about doing something"
@@ -622,5 +618,121 @@
   "ext-regretful-171": {
     "name": "Regretful",
     "description": "Wishing you had acted differently"
+  },
+  "ext-astonished-172": {
+    "name": "Astonished",
+    "description": "Mildly astonished by something unexpected"
+  },
+  "ext-loving-173": {
+    "name": "Loving",
+    "description": "Full of love for someone; wanting to be close and to give"
+  },
+  "ext-inlove-174": {
+    "name": "In love",
+    "description": "In love; thoughts and heart circling around that person"
+  },
+  "ext-admiring-175": {
+    "name": "Full of admiration",
+    "description": "Lifted by admiration for something great, beautiful or magnificent"
+  },
+  "ext-appreciative-176": {
+    "name": "Appreciative",
+    "description": "Noticing and appreciating the value of what one has"
+  },
+  "ext-doting-177": {
+    "name": "Doting",
+    "description": "Full of soft, doting tenderness"
+  },
+  "ext-concerned-178": {
+    "name": "Concerned",
+    "description": "Concerned with someone’s situation; you take it to heart"
+  },
+  "ext-noticed-179": {
+    "name": "Noticed",
+    "description": "Feeling seen and noticed by others"
+  },
+  "ext-dazed-180": {
+    "name": "Dazed",
+    "description": "Dazed by a sudden event; not sure what just happened"
+  },
+  "ext-stunned-181": {
+    "name": "Stunned",
+    "description": "Stunned by something sudden and hard to believe"
+  },
+  "ext-dumbfounded-182": {
+    "name": "Dumbfounded",
+    "description": "Dumbfounded; frozen in disbelief at what happened"
+  },
+  "ext-apprehensive-183": {
+    "name": "Apprehensive",
+    "description": "Feeling apprehension about what might happen"
+  },
+  "ext-indignant-184": {
+    "name": "Indignant",
+    "description": "Filled with moral indignation at something unjust"
+  },
+  "ext-ridiculed-185": {
+    "name": "Ridiculed",
+    "description": "Made to look ridiculous in front of others"
+  },
+  "ext-demeaned-186": {
+    "name": "Demeaned",
+    "description": "Treated as lesser; stripped of dignity"
+  },
+  "ext-disgraced-187": {
+    "name": "Disgraced",
+    "description": "A sense of lost honour and good name; covered in disgrace"
+  },
+  "ext-abashed-188": {
+    "name": "Abashed",
+    "description": "Abashed and mildly ashamed by the awkwardness of a situation"
+  },
+  "ext-contrite-189": {
+    "name": "Contrite",
+    "description": "Regretting one’s fault and ready to repair it; full of contrition"
+  },
+  "ext-wounded-190": {
+    "name": "Wounded",
+    "description": "Painfully hurt by someone you care about"
+  },
+  "ext-stung-191": {
+    "name": "Stung",
+    "description": "Stung by someone’s words or behaviour"
+  },
+  "ext-wronged-192": {
+    "name": "Wronged",
+    "description": "Feeling wronged or treated unjustly by someone"
+  },
+  "ext-embittered-193": {
+    "name": "Embittered",
+    "description": "Full of bitterness after a hurt or letdown that keeps coming back"
+  },
+  "ext-soured-194": {
+    "name": "Soured",
+    "description": "Soured by bad experiences; no longer willing to try"
+  },
+  "ext-bitter-195": {
+    "name": "Bitter",
+    "description": "Lastingly bitter because life kept falling short of hopes"
+  },
+  "ext-letdown-196": {
+    "name": "Let down",
+    "description": "Let down because someone or something failed the hopes placed in it"
+  },
+  "ext-wistful-197": {
+    "name": "Wistful",
+    "description": "Overcome by wistful, gently sad tenderness"
+  },
+  "ext-weary-198": {
+    "name": "Weary",
+    "description": "Weary of monotony; strength and will slowly draining"
+  },
+  "ext-indifferent-199": {
+    "name": "Indifferent",
+    "description": "Indifferent; things have stopped mattering to you"
+  },
+  "ext-dulled-200": {
+    "name": "Dulled",
+    "description": "Dulled; stimuli barely register and reactions are dimmed"
   }
 }

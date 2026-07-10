@@ -187,5 +187,17 @@
     "3": "clear",
     "4": "strong",
     "5": "overwhelming"
+  },
+  "ui": {
+    "title": "Emotions",
+    "selected": "Selected",
+    "empty": "nothing yet",
+    "dunno": "I don't know what I feel",
+    "other": "Other…",
+    "comingSoon": "This path is coming soon.",
+    "removeSelection": "Remove {name}",
+    "intensityOf": "{name}, intensity {level} of 5",
+    "selectGroup": "{name}, select without intensity",
+    "isNew": "new group"
   }
 }

@@ -204,7 +204,7 @@ const renderEditor = () =>
   render(EmotionLogEditorView, {
     global: {
       stubs: {
-        EmotionWheel: EmotionWheelStub,
+        EmotionGroupPicker: EmotionWheelStub,
         TagInput: TagInputStub,
       },
     },

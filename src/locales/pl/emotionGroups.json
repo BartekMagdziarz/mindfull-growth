@@ -187,5 +187,17 @@
     "3": "wyraźne",
     "4": "silne",
     "5": "przytłaczające"
+  },
+  "ui": {
+    "title": "Emocje",
+    "selected": "Wybrane",
+    "empty": "nic jeszcze",
+    "dunno": "Nie wiem, co czuję",
+    "other": "Inne…",
+    "comingSoon": "Ta ścieżka pojawi się wkrótce.",
+    "removeSelection": "Usuń {name}",
+    "intensityOf": "{name}, natężenie {level} z 5",
+    "selectGroup": "{name}, zaznacz bez natężenia",
+    "isNew": "nowa grupa"
   }
 }

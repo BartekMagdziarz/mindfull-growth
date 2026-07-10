@@ -1,5 +1,5 @@
 import type { ChatSession } from './chatSession'
-import type { EmotionSelection } from './emotionWheel'
+import type { EmotionGroupSelection as EmotionSelection } from './emotionGroups'
 
 export interface JournalEntry {
   id: string // UUID

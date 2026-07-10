@@ -1,25 +1,21 @@
 // emotionGroups.ts — taksonomia v2 „grupy + suwak” (45 grup; 12/11/12/10 na ćwiartkę).
 //
-// Zastępuje model promieni z drabinkami podpowiedzi (emotionWheel.ts): słowa katalogu
-// są PRZYKŁADAMI jakości grupy, bez przypisanego natężenia — natężenie 1–5 wybiera
-// użytkownik suwakiem. Zapis wyboru pozostaje w kształcie { emotionId, intensity? },
-// gdzie emotionId = slug grupy; mostek emotionFamilyIds działa dalej (grupy to nowa
-// warstwa „rodzin”). Slugi: 37 dawnych rodzin bez zmian + 8 nowych (podziw, wzruszenie,
-// szok, pogarda, upokorzenie, wina-i-zal, zranienie, rozczarowanie).
+// Zastąpiła model promieni z drabinkami podpowiedzi: słowa katalogu są PRZYKŁADAMI
+// jakości grupy, bez przypisanego natężenia — natężenie 1–5 wybiera użytkownik
+// suwakiem. Zapis wyboru pozostaje w kształcie { emotionId, intensity? }, gdzie
+// emotionId = slug grupy; mostek emotionFamilyIds działa dalej (grupy SĄ warstwą
+// „rodzin” — patrz emotionFamily.ts, generowany z tych samych danych).
 //
 // Spadkobiercy historii (stare wpisy family-only): energia→ekscytacja,
 // przygnebienie→smutek-i-zal, bezpieczenstwo→spokoj-i-wyciszenie,
-// zazenowanie-i-upokorzenie→wstyd-i-wina (decyzja 2026-07-10 — dawna rodzina
-// częściej znaczyła speszenie niż upokorzenie). Stare wpisy-słowa odzyskują
-// natężenie z LEGACY_WORD_INTENSITY (dawne drabinki — wyłącznie do odczytu),
-// a grupę z GROUP_OF_WORD (przenosiny słów już uwzględnione, np. Urażony→zranienie).
+// zazenowanie-i-upokorzenie→wstyd-i-wina. Stare wpisy-słowa odzyskują natężenie
+// z LEGACY_WORD_INTENSITY (dawne drabinki koła v1 — wyłącznie do odczytu),
+// a grupę z GROUP_OF_WORD (przenosiny słów v2 uwzględnione, np. Urażony→zranienie;
+// usunięty z katalogu Produktywny mapowany jest tu nadal — dla starych wpisów).
 //
-// pendingWordNames = słowa dosypane w taksonomii/designie, których nie ma jeszcze
-// w katalogu — dopisuje je P3 (wtedy wchodzą do wordIds i znikają stąd).
-// Produktywny: usuwany w P3; GROUP_OF_WORD mapuje go dla historii, wordIds nie.
-// Nazwy i appraisale grup: locales/{pl,en}/emotionGroups.json. Ikony: Material Symbols.
+// Nazwy i appraisale grup: locales/{pl,en}/emotionGroups.json. Ikony: Material
+// Symbols. Twarze grup: src/assets/emotion-faces/<slug>.svg (CSS mask w pickerze).
 // Źródło danych: ideas/design/emotion-picker-v3/handoff/emotion-data.js (design 6c).
-// Plan: ideas/html-plans/2026-07-10-emotion-picker-v3-implementation.html
 
 import type { Quadrant } from '@/domain/emotion'
 
@@ -36,14 +32,12 @@ export interface EmotionGroup {
   quadrant: Quadrant
   /** Grupa nowa w taksonomii v2 (kropka „nowe” na kaflu pickera). */
   isNew: boolean
-  /** Ikona Material Symbols Rounded (podpowiedź na gałce/liście). */
+  /** Ikona Material Symbols Rounded. */
   icon: string
   /** Słowa katalogu należące do grupy (kolejność z designu; bez natężeń). */
   wordIds: string[]
-  /** Słowa czekające na dopisanie do katalogu w P3 (nazwy PL). */
-  pendingWordNames: string[]
-  /** Dwa słowa-wizytówki kafla (nazwy PL; część z nich dochodzi w P3). */
-  aux: string[]
+  /** Dwa słowa-wizytówki kafla (ID — nazwy lokalizowane przez emotions.<id>.name). */
+  auxIds: string[]
 }
 
 export interface QuadrantStyle {
@@ -61,145 +55,145 @@ export const GROUPS_BY_QUADRANT: Record<Quadrant, EmotionGroup[]> = {
   'high-energy-high-pleasantness': [
     { slug: 'radosc', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'sentiment_very_satisfied',
       wordIds: ['e5m7-pleasant-065', 'e4m7-cheerful-064', 'e6m9-delighted-042', 'e3m10-joyful-027', 'e4m10-happy-028', 'e1m11-elated-013'],
-      pendingWordNames: [], aux: ['Pogodny', 'Szczęśliwy'] },
+      auxIds: ['e5m7-pleasant-065', 'e4m10-happy-028'] },
     { slug: 'rozbawienie', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'mood',
       wordIds: ['e6m8-playful-054', 'ext-amused-145', 'ext-giddy-146'],
-      pendingWordNames: [], aux: ['Figlarny', 'Rozbrykany'] },
+      auxIds: ['e6m8-playful-054', 'ext-giddy-146'] },
     { slug: 'ekscytacja', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'celebration',
       wordIds: ['e1m10-thrilled-025', 'e2m7-excited-062', 'e3m8-eager-051', 'e3m9-enthusiastic-039', 'e3m7-energized-063', 'e4m9-upbeat-040', 'e1m6-hyper-073', 'e5m9-alive-041', 'e1m9-exhilarated-037'],
-      pendingWordNames: [], aux: ['Ożywiony', 'Nakręcony'] },
+      auxIds: ['e1m9-exhilarated-037', 'e1m6-hyper-073'] },
     { slug: 'ciekawosc-i-naped', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'travel_explore',
       wordIds: ['e4m8-curious-052', 'ext-intrigued-147', 'ext-fascinated-148'],
-      pendingWordNames: [], aux: ['Zaintrygowany', 'Zafascynowany'] },
+      auxIds: ['ext-intrigued-147', 'ext-fascinated-148'] },
     { slug: 'zaangazowanie', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'target',
       wordIds: ['e5m8-focused-053', 'e5m11-engaged-017', 'ext-absorbed-149'],
-      pendingWordNames: [], aux: ['Skupiony', 'Pochłonięty'] },
+      auxIds: ['e5m8-focused-053', 'ext-absorbed-149'] },
     { slug: 'determinacja', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'rocket_launch',
       wordIds: ['e5m12-challenged-005', 'e4m11-motivated-016', 'ext-resolute-150', 'ext-ambitious-151', 'e2m8-determined-050'],
-      pendingWordNames: [], aux: ['Zdecydowany', 'Ambitny'] },
+      auxIds: ['ext-resolute-150', 'ext-ambitious-151'] },
     { slug: 'pewnosc-i-mistrzostwo', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'verified',
       wordIds: ['ext-capable-153', 'e5m10-confident-029', 'ext-bold-152', 'e2m12-empowered-002', 'e6m12-accomplished-006'],
-      pendingWordNames: [], aux: ['Zdolny', 'Śmiały'] },
+      auxIds: ['ext-capable-153', 'ext-bold-152'] },
     { slug: 'duma', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'trophy',
       wordIds: ['e3m12-proud-003', 'e2m9-successful-038', 'e7m11-fulfilled-019'],
-      pendingWordNames: [], aux: ['Spełniony', 'Zwycięski'] },
+      auxIds: ['e7m11-fulfilled-019', 'e2m9-successful-038'] },
     { slug: 'nadzieja-i-spelnienie', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'wb_twilight',
       wordIds: ['e4m12-optimistic-004', 'e6m11-hopeful-018', 'ext-expectant-156'],
-      pendingWordNames: [], aux: ['Wyczekujący', 'Optymistyczny'] },
+      auxIds: ['ext-expectant-156', 'e4m12-optimistic-004'] },
     { slug: 'zaskoczenie-i-zachwyt', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'stars',
-      wordIds: ['e1m7-surprised-061', 'e2m10-amazed-026'],
-      pendingWordNames: ['Zdziwiony'], aux: ['Zdziwiony', 'Zdumiony'] },
+      wordIds: ['ext-astonished-172', 'e1m7-surprised-061', 'e2m10-amazed-026'],
+      auxIds: ['ext-astonished-172', 'e2m10-amazed-026'] },
     { slug: 'bliskosc', quadrant: 'high-energy-high-pleasantness', isNew: false, icon: 'favorite',
-      wordIds: ['e8m11-loved-020', 'e8m12-connected-008', 'ext-attached-155'],
-      pendingWordNames: ['Kochający', 'Zakochany'], aux: ['Połączony', 'Zakochany'] },
+      wordIds: ['e8m11-loved-020', 'e8m12-connected-008', 'ext-attached-155', 'ext-loving-173', 'ext-inlove-174'],
+      auxIds: ['e8m12-connected-008', 'ext-inlove-174'] },
     { slug: 'podziw', quadrant: 'high-energy-high-pleasantness', isNew: true, icon: 'auto_awesome',
-      wordIds: ['e2m11-inspired-014', 'e1m8-awe-049', 'e1m12-ecstatic-001'],
-      pendingWordNames: ['Pełen podziwu'], aux: ['Zainspirowany', 'Oniemiały'] },
+      wordIds: ['e2m11-inspired-014', 'e1m8-awe-049', 'e1m12-ecstatic-001', 'ext-admiring-175'],
+      auxIds: ['e2m11-inspired-014', 'e1m8-awe-049'] },
   ],
   'high-energy-low-pleasantness': [
     { slug: 'stres-i-przytloczenie', quadrant: 'high-energy-low-pleasantness', isNew: false, icon: 'compress',
       wordIds: ['e5m6-tense-077', 'e2m4-stressed-098', 'e2m3-overwhelmed-110', 'e2m6-pressured-074'],
-      pendingWordNames: [], aux: ['Spięty', 'Przytłoczony'] },
+      auxIds: ['e5m6-tense-077', 'e2m3-overwhelmed-110'] },
     { slug: 'szok', quadrant: 'high-energy-low-pleasantness', isNew: true, icon: 'flash_on',
-      wordIds: ['e1m4-shocked-097'],
-      pendingWordNames: ['Oszołomiony', 'Zszokowany', 'Osłupiały'], aux: ['Wstrząśnięty', 'Osłupiały'] },
+      wordIds: ['ext-dazed-180', 'e1m4-shocked-097', 'ext-stunned-181', 'ext-dumbfounded-182'],
+      auxIds: ['e1m4-shocked-097', 'ext-dumbfounded-182'] },
     { slug: 'zamet', quadrant: 'high-energy-low-pleasantness', isNew: false, icon: 'sync_problem',
       wordIds: ['e4m6-confused-076', 'ext-torn-163', 'e8m3-lost-116'],
-      pendingWordNames: [], aux: ['Rozdarty', 'Zagubiony'] },
+      auxIds: ['ext-torn-163', 'e8m3-lost-116'] },
     { slug: 'niepokoj-i-zmartwienie', quadrant: 'high-energy-low-pleasantness', isNew: false, icon: 'sentiment_stressed',
       wordIds: ['e6m6-uneasy-078', 'e7m3-insecure-115', 'e6m3-worried-114', 'e6m4-nervous-102', 'e4m4-jittery-100', 'e4m5-fomo-088'],
-      pendingWordNames: [], aux: ['Nieswój', 'Zdenerwowany'] },
+      auxIds: ['e6m6-uneasy-078', 'e6m4-nervous-102'] },
     { slug: 'strach-i-panika', quadrant: 'high-energy-low-pleasantness', isNew: false, icon: 'crisis_alert',
-      wordIds: ['e3m2-frightened-123', 'e1m2-terrified-121', 'e1m3-panicked-109'],
-      pendingWordNames: ['Pełen obaw'], aux: ['Pełen obaw', 'Przerażony'] },
+      wordIds: ['e3m2-frightened-123', 'e1m2-terrified-121', 'e1m3-panicked-109', 'ext-apprehensive-183'],
+      auxIds: ['ext-apprehensive-183', 'e1m2-terrified-121'] },
     { slug: 'irytacja-i-frustracja', quadrant: 'high-energy-low-pleasantness', isNew: false, icon: 'sentiment_extremely_dissatisfied',
       wordIds: ['e6m5-peeved-090', 'ext-impatient-162', 'e3m5-irritated-087', 'e5m3-frustrated-113'],
-      pendingWordNames: [], aux: ['Zirytowany', 'Sfrustrowany'] },
+      auxIds: ['e3m5-irritated-087', 'e5m3-frustrated-113'] },
     { slug: 'gniew', quadrant: 'high-energy-low-pleasantness', isNew: false, icon: 'local_fire_department',
-      wordIds: ['e4m3-angry-112', 'e2m1-livid-134', 'e1m1-enraged-133'],
-      pendingWordNames: ['Oburzony'], aux: ['Oburzony', 'Wściekły'] },
+      wordIds: ['e4m3-angry-112', 'e2m1-livid-134', 'e1m1-enraged-133', 'ext-indignant-184'],
+      auxIds: ['ext-indignant-184', 'e2m1-livid-134'] },
     { slug: 'pogarda-i-zazdrosc', quadrant: 'high-energy-low-pleasantness', isNew: false, icon: 'visibility',
       wordIds: ['e4m1-jealous-136', 'e5m1-envious-137'],
-      pendingWordNames: [], aux: ['Zazdrosny', 'Zawistny'] },
+      auxIds: ['e4m1-jealous-136', 'e5m1-envious-137'] },
     { slug: 'wstret', quadrant: 'high-energy-low-pleasantness', isNew: false, icon: 'sick',
       wordIds: ['e5m2-repulsed-125', 'e7m1-disgusted-139'],
-      pendingWordNames: [], aux: ['Zniesmaczony', 'Zbrzydzony'] },
+      auxIds: ['e5m2-repulsed-125', 'e7m1-disgusted-139'] },
     { slug: 'pogarda', quadrant: 'high-energy-low-pleasantness', isNew: true, icon: 'thumb_down',
       wordIds: ['ext-dismissive-166', 'ext-haughty-165', 'e6m1-contempt-138'],
-      pendingWordNames: [], aux: ['Lekceważący', 'Wyniosły'] },
+      auxIds: ['ext-dismissive-166', 'ext-haughty-165'] },
     { slug: 'upokorzenie', quadrant: 'high-energy-low-pleasantness', isNew: true, icon: 'trending_down',
-      wordIds: ['e8m1-humiliated-140'],
-      pendingWordNames: ['Ośmieszony', 'Poniżony', 'Zhańbiony'], aux: ['Ośmieszony', 'Zhańbiony'] },
+      wordIds: ['ext-ridiculed-185', 'e8m1-humiliated-140', 'ext-demeaned-186', 'ext-disgraced-187'],
+      auxIds: ['ext-ridiculed-185', 'ext-disgraced-187'] },
   ],
   'low-energy-low-pleasantness': [
     { slug: 'wstyd-i-wina', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'masks',
-      wordIds: ['ext-flustered-164', 'e5m4-embarrassed-101', 'e8m2-ashamed-128'],
-      pendingWordNames: ['Zażenowany'], aux: ['Speszony', 'Zażenowany'] },
+      wordIds: ['ext-flustered-164', 'e5m4-embarrassed-101', 'e8m2-ashamed-128', 'ext-abashed-188'],
+      auxIds: ['ext-flustered-164', 'ext-abashed-188'] },
     { slug: 'wina-i-zal', quadrant: 'low-energy-low-pleasantness', isNew: true, icon: 'gavel',
-      wordIds: ['e10m1-guilty-142', 'ext-regretful-171'],
-      pendingWordNames: ['Skruszony'], aux: ['Żałujący', 'Skruszony'] },
+      wordIds: ['e10m1-guilty-142', 'ext-regretful-171', 'ext-contrite-189'],
+      auxIds: ['ext-regretful-171', 'ext-contrite-189'] },
     { slug: 'zranienie', quadrant: 'low-energy-low-pleasantness', isNew: true, icon: 'heart_broken',
-      wordIds: ['ext-offended-161'],
-      pendingWordNames: ['Zraniony', 'Dotknięty', 'Skrzywdzony', 'Rozgoryczony'], aux: ['Dotknięty', 'Skrzywdzony'] },
+      wordIds: ['ext-offended-161', 'ext-wounded-190', 'ext-stung-191', 'ext-wronged-192', 'ext-embittered-193'],
+      auxIds: ['ext-stung-191', 'ext-wronged-192'] },
     { slug: 'smutek-i-zal', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'rainy',
       wordIds: ['e7m5-down-091', 'e9m5-sad-093', 'e12m3-glum-120', 'e11m1-depressed-143', 'ext-devastated-167', 'e12m1-miserable-144'],
-      pendingWordNames: [], aux: ['Markotny', 'Załamany'] },
+      auxIds: ['e7m5-down-091', 'ext-devastated-167'] },
     { slug: 'beznadzieja-i-rozpacz', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'storm',
       wordIds: ['e12m6-helpless-084', 'e7m2-trapped-127', 'e11m2-hopeless-131', 'e12m2-despair-132', 'e9m1-pessimistic-141', 'e9m2-vulnerable-129'],
-      pendingWordNames: [], aux: ['Bezradny', 'Zrozpaczony'] },
+      auxIds: ['e12m6-helpless-084', 'e12m2-despair-132'] },
     { slug: 'zwatpienie-i-rozczarowanie', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'do_not_disturb_on',
-      wordIds: ['e10m5-discouraged-094', 'ext-resigned-168'],
-      pendingWordNames: ['Zrażony'], aux: ['Zrażony', 'Zrezygnowany'] },
+      wordIds: ['ext-soured-194', 'e10m5-discouraged-094', 'ext-resigned-168'],
+      auxIds: ['ext-soured-194', 'ext-resigned-168'] },
     { slug: 'rozczarowanie', quadrant: 'low-energy-low-pleasantness', isNew: true, icon: 'trending_down',
-      wordIds: ['e8m4-disappointed-104'],
-      pendingWordNames: ['Zawiedziony', 'Zgorzkniały'], aux: ['Zawiedziony', 'Zgorzkniały'] },
+      wordIds: ['e8m4-disappointed-104', 'ext-letdown-196', 'ext-bitter-195'],
+      auxIds: ['ext-letdown-196', 'ext-bitter-195'] },
     { slug: 'samotnosc-i-wykluczenie', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'person_off',
       wordIds: ['e11m5-lonely-095', 'e9m4-forlorn-105', 'e10m3-excluded-118', 'e11m3-alienated-119'],
-      pendingWordNames: [], aux: ['Wyobcowany', 'Opuszczony'] },
+      auxIds: ['e11m3-alienated-119', 'e9m4-forlorn-105'] },
     { slug: 'tesknota', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'distance',
-      wordIds: ['ext-longing-170', 'e11m4-nostalgic-107'],
-      pendingWordNames: ['Rzewny'], aux: ['Nostalgiczny', 'Rzewny'] },
+      wordIds: ['ext-longing-170', 'e11m4-nostalgic-107', 'ext-wistful-197'],
+      auxIds: ['e11m4-nostalgic-107', 'ext-wistful-197'] },
     { slug: 'zmeczenie-i-wypalenie', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'battery_1_bar',
-      wordIds: ['e8m6-tired-080', 'e12m5-exhausted-096', 'e12m4-burned-out-108'],
-      pendingWordNames: ['Znużony'], aux: ['Znużony', 'Wypalony'] },
+      wordIds: ['ext-weary-198', 'e8m6-tired-080', 'e12m5-exhausted-096', 'e12m4-burned-out-108'],
+      auxIds: ['ext-weary-198', 'e12m4-burned-out-108'] },
     { slug: 'apatia-i-znudzenie', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'hourglass_empty',
-      wordIds: ['e7m6-bored-079', 'e8m5-meh-092', 'e11m6-apathetic-083'],
-      pendingWordNames: ['Obojętny'], aux: ['Znudzony', 'Obojętny'] },
+      wordIds: ['e7m6-bored-079', 'e8m5-meh-092', 'e11m6-apathetic-083', 'ext-indifferent-199'],
+      auxIds: ['e7m6-bored-079', 'ext-indifferent-199'] },
     { slug: 'pustka', quadrant: 'low-energy-low-pleasantness', isNew: false, icon: 'blur_circular',
-      wordIds: ['e10m2-numb-130', 'ext-empty-169'],
-      pendingWordNames: ['Otępiały'], aux: ['Otępiały', 'Odrętwiały'] },
+      wordIds: ['e10m2-numb-130', 'ext-empty-169', 'ext-dulled-200'],
+      auxIds: ['ext-dulled-200', 'e10m2-numb-130'] },
   ],
   'low-energy-high-pleasantness': [
     { slug: 'spokoj-i-wyciszenie', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'spa',
       wordIds: ['e7m7-calm-067', 'e11m9-balanced-047', 'e11m8-peaceful-059', 'e11m7-mellow-071', 'e12m8-tranquil-060', 'e12m12-serene-012', 'e11m10-safe-035', 'e11m11-secure-023'],
-      pendingWordNames: [], aux: ['Opanowany', 'Wyciszony'] },
+      auxIds: ['e7m7-calm-067', 'e12m8-tranquil-060'] },
     { slug: 'odprezenie-i-swoboda', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'self_improvement',
       wordIds: ['e7m8-at-ease-055', 'e9m8-chill-057', 'e9m7-relaxed-069', 'e12m7-carefree-072', 'e12m10-relieved-036'],
-      pendingWordNames: [], aux: ['Swobodny', 'Beztroski'] },
+      auxIds: ['e7m8-at-ease-055', 'e12m7-carefree-072'] },
     { slug: 'zadowolenie-i-komfort', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'weekend',
       wordIds: ['e8m7-good-068', 'e10m8-comfortable-058', 'e6m7-pleased-066', 'e10m10-content-034', 'e12m11-satisfied-024', 'e7m12-blissful-007'],
-      pendingWordNames: [], aux: ['Dobrze', 'Błogi'] },
+      auxIds: ['e8m7-good-068', 'e7m12-blissful-007'] },
     { slug: 'zaduma', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'psychology_alt',
       wordIds: ['e8m8-thoughtful-056', 'ext-reflective-160', 'e6m10-wishful-030'],
-      pendingWordNames: [], aux: ['Zamyślony', 'Refleksyjny'] },
+      auxIds: ['e8m8-thoughtful-056', 'ext-reflective-160'] },
     { slug: 'wdziecznosc', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'volunteer_activism',
-      wordIds: ['e12m9-thankful-048', 'e9m12-grateful-009', 'e11m12-blessed-011'],
-      pendingWordNames: ['Doceniający'], aux: ['Wdzięczny', 'Doceniający'] },
+      wordIds: ['e12m9-thankful-048', 'e9m12-grateful-009', 'e11m12-blessed-011', 'ext-appreciative-176'],
+      auxIds: ['e12m9-thankful-048', 'ext-appreciative-176'] },
     { slug: 'wzruszenie', quadrant: 'low-energy-high-pleasantness', isNew: true, icon: 'blur_on',
       wordIds: ['e10m12-moved-010', 'ext-enraptured-159'],
-      pendingWordNames: [], aux: ['Poruszony', 'Rozanielony'] },
+      auxIds: ['e10m12-moved-010', 'ext-enraptured-159'] },
     { slug: 'czulosc', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'front_hand',
-      wordIds: ['ext-warmhearted-157', 'ext-tender-158', 'ext-affectionate-154'],
-      pendingWordNames: ['Tkliwy'], aux: ['Serdeczny', 'Tkliwy'] },
+      wordIds: ['ext-warmhearted-157', 'ext-tender-158', 'ext-affectionate-154', 'ext-doting-177'],
+      auxIds: ['ext-warmhearted-157', 'ext-doting-177'] },
     { slug: 'troska-i-empatia', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'diversity_1',
-      wordIds: ['e10m7-sympathetic-070', 'e9m9-compassionate-045', 'e10m9-empathetic-046'],
-      pendingWordNames: ['Przejęty'], aux: ['Troskliwy', 'Przejęty'] },
+      wordIds: ['e10m7-sympathetic-070', 'e9m9-compassionate-045', 'e10m9-empathetic-046', 'ext-concerned-178'],
+      auxIds: ['e10m7-sympathetic-070', 'ext-concerned-178'] },
     { slug: 'przynaleznosc-i-akceptacja', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'diversity_3',
       wordIds: ['e10m11-accepted-022', 'e9m10-included-033', 'e8m10-supported-032', 'e7m9-understood-043'],
-      pendingWordNames: [], aux: ['Akceptowany', 'Wspierany'] },
+      auxIds: ['e10m11-accepted-022', 'e8m10-supported-032'] },
     { slug: 'uznanie-i-szacunek', quadrant: 'low-energy-high-pleasantness', isNew: false, icon: 'workspace_premium',
-      wordIds: ['e9m11-valued-021', 'e8m9-appreciated-044', 'e7m10-respected-031'],
-      pendingWordNames: ['Zauważony'], aux: ['Doceniony', 'Szanowany'] },
+      wordIds: ['ext-noticed-179', 'e9m11-valued-021', 'e8m9-appreciated-044', 'e7m10-respected-031'],
+      auxIds: ['e8m9-appreciated-044', 'e7m10-respected-031'] },
   ],
 }
 
@@ -279,7 +273,7 @@ export function resolveGroupSlug(familyOrGroupSlug: string): string | undefined 
   return GROUP_OF_FAMILY[familyOrGroupSlug]
 }
 
-/** ID słowa katalogu → slug grupy (przenosiny słów v2 już uwzględnione). */
+/** ID słowa → slug grupy. Obejmuje też usunięte z katalogu Produktywny (historia). */
 export const GROUP_OF_WORD: Record<string, string> = {
   'e10m1-guilty-142': 'wina-i-zal',
   'e10m10-content-034': 'zadowolenie-i-komfort',
@@ -410,15 +404,30 @@ export const GROUP_OF_WORD: Record<string, string> = {
   'e9m7-relaxed-069': 'odprezenie-i-swoboda',
   'e9m8-chill-057': 'odprezenie-i-swoboda',
   'e9m9-compassionate-045': 'troska-i-empatia',
+  'ext-abashed-188': 'wstyd-i-wina',
   'ext-absorbed-149': 'zaangazowanie',
+  'ext-admiring-175': 'podziw',
   'ext-affectionate-154': 'czulosc',
   'ext-ambitious-151': 'determinacja',
   'ext-amused-145': 'rozbawienie',
+  'ext-appreciative-176': 'wdziecznosc',
+  'ext-apprehensive-183': 'strach-i-panika',
+  'ext-astonished-172': 'zaskoczenie-i-zachwyt',
   'ext-attached-155': 'bliskosc',
+  'ext-bitter-195': 'rozczarowanie',
   'ext-bold-152': 'pewnosc-i-mistrzostwo',
   'ext-capable-153': 'pewnosc-i-mistrzostwo',
+  'ext-concerned-178': 'troska-i-empatia',
+  'ext-contrite-189': 'wina-i-zal',
+  'ext-dazed-180': 'szok',
+  'ext-demeaned-186': 'upokorzenie',
   'ext-devastated-167': 'smutek-i-zal',
+  'ext-disgraced-187': 'upokorzenie',
   'ext-dismissive-166': 'pogarda',
+  'ext-doting-177': 'czulosc',
+  'ext-dulled-200': 'pustka',
+  'ext-dumbfounded-182': 'szok',
+  'ext-embittered-193': 'zranienie',
   'ext-empty-169': 'pustka',
   'ext-enraptured-159': 'wzruszenie',
   'ext-expectant-156': 'nadzieja-i-spelnienie',
@@ -427,16 +436,30 @@ export const GROUP_OF_WORD: Record<string, string> = {
   'ext-giddy-146': 'rozbawienie',
   'ext-haughty-165': 'pogarda',
   'ext-impatient-162': 'irytacja-i-frustracja',
+  'ext-indifferent-199': 'apatia-i-znudzenie',
+  'ext-indignant-184': 'gniew',
+  'ext-inlove-174': 'bliskosc',
   'ext-intrigued-147': 'ciekawosc-i-naped',
+  'ext-letdown-196': 'rozczarowanie',
   'ext-longing-170': 'tesknota',
+  'ext-loving-173': 'bliskosc',
+  'ext-noticed-179': 'uznanie-i-szacunek',
   'ext-offended-161': 'zranienie',
   'ext-reflective-160': 'zaduma',
   'ext-regretful-171': 'wina-i-zal',
   'ext-resigned-168': 'zwatpienie-i-rozczarowanie',
   'ext-resolute-150': 'determinacja',
+  'ext-ridiculed-185': 'upokorzenie',
+  'ext-soured-194': 'zwatpienie-i-rozczarowanie',
+  'ext-stung-191': 'zranienie',
+  'ext-stunned-181': 'szok',
   'ext-tender-158': 'czulosc',
   'ext-torn-163': 'zamet',
   'ext-warmhearted-157': 'czulosc',
+  'ext-weary-198': 'zmeczenie-i-wypalenie',
+  'ext-wistful-197': 'tesknota',
+  'ext-wounded-190': 'zranienie',
+  'ext-wronged-192': 'zranienie',
 }
 
 // Dawne drabinki podpowiedzi koła v1 (słowo → poziom 1–5) — WYŁĄCZNIE do odczytu
@@ -606,7 +629,7 @@ export function legacyToGroupSelections(input: {
 }
 
 /**
- * Mostek zapisu wstecz: grupy → emotionFamilyIds (grupy są nową warstwą rodzin),
+ * Mostek zapisu wstecz: grupy → emotionFamilyIds (grupy są warstwą rodzin),
  * dzięki czemu historia/rollupy/chipy działają bez zmian.
  */
 export function groupSelectionsToFamilyIds(selections: EmotionGroupSelection[]): string[] {

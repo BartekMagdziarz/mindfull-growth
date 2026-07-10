@@ -265,7 +265,7 @@ const renderEditor = () =>
   render(JournalEditorView, {
     global: {
       stubs: {
-        EmotionWheel: EmotionWheelStub,
+        EmotionGroupPicker: EmotionWheelStub,
         TagInput: TagInputStub,
         ChatSessionCard: ChatSessionCardStub,
         AppDialog: AppDialogStub,

@@ -1,46 +1,182 @@
 {
-  "radosc": { "name": "Joy", "sub": "joy · cheer" },
-  "ekscytacja": { "name": "Excitement", "sub": "thrill · elation" },
-  "energia": { "name": "Energy", "sub": "arousal · vitality" },
-  "rozbawienie": { "name": "Amusement", "sub": "fun · humor" },
-  "ciekawosc-i-naped": { "name": "Curiosity", "sub": "interest · inquiry" },
-  "zaangazowanie": { "name": "Engagement", "sub": "flow · focus" },
-  "determinacja": { "name": "Determination", "sub": "drive · striving" },
-  "pewnosc-i-mistrzostwo": { "name": "Confidence", "sub": "self-assurance · boldness" },
-  "duma": { "name": "Pride", "sub": "achievement · success" },
-  "nadzieja-i-spelnienie": { "name": "Hope", "sub": "optimism" },
-  "zaskoczenie-i-zachwyt": { "name": "Surprise", "sub": "wonder · awe" },
-  "bliskosc": { "name": "Closeness", "sub": "bond · love" },
-
-  "gniew": { "name": "Anger", "sub": "rage" },
-  "irytacja-i-frustracja": { "name": "Irritation", "sub": "annoyance" },
-  "strach-i-panika": { "name": "Fear", "sub": "dread · panic" },
-  "niepokoj-i-zmartwienie": { "name": "Anxiety", "sub": "worry · nerves" },
-  "stres-i-przytloczenie": { "name": "Stress", "sub": "tension · overwhelm" },
-  "zamet": { "name": "Turmoil", "sub": "disorientation · being torn" },
-  "zazenowanie-i-upokorzenie": { "name": "Embarrassment", "sub": "awkwardness · shame" },
-  "wstret": { "name": "Aversion", "sub": "disgust · contempt" },
-  "pogarda-i-zazdrosc": { "name": "Envy", "sub": "jealousy · envy" },
-
-  "spokoj-i-wyciszenie": { "name": "Calm", "sub": "soothing · harmony" },
-  "odprezenie-i-swoboda": { "name": "Relaxation", "sub": "ease · unwinding" },
-  "zadowolenie-i-komfort": { "name": "Contentment", "sub": "satiety · comfort" },
-  "zaduma": { "name": "Reverie", "sub": "daydreams · reflection" },
-  "wdziecznosc": { "name": "Gratitude", "sub": "thankfulness" },
-  "czulosc": { "name": "Tenderness", "sub": "warmth · fondness" },
-  "troska-i-empatia": { "name": "Empathy", "sub": "compassion · care" },
-  "przynaleznosc-i-akceptacja": { "name": "Belonging", "sub": "connection · acceptance" },
-  "uznanie-i-szacunek": { "name": "Recognition", "sub": "esteem · respect" },
-  "bezpieczenstwo": { "name": "Safety", "sub": "security" },
-
-  "smutek-i-zal": { "name": "Sadness", "sub": "sorrow · raw pain" },
-  "przygnebienie": { "name": "Dejection", "sub": "heaviness · low mood" },
-  "beznadzieja-i-rozpacz": { "name": "Powerlessness", "sub": "despair · entrapment" },
-  "zwatpienie-i-rozczarowanie": { "name": "Discouragement", "sub": "letdown · resignation" },
-  "zmeczenie-i-wypalenie": { "name": "Fatigue", "sub": "exhaustion · burnout" },
-  "apatia-i-znudzenie": { "name": "Apathy", "sub": "boredom · indifference" },
-  "pustka": { "name": "Emptiness", "sub": "numbness · adrift" },
-  "samotnosc-i-wykluczenie": { "name": "Loneliness", "sub": "isolation · exclusion" },
-  "tesknota": { "name": "Longing", "sub": "wistfulness · nostalgia" },
-  "wstyd-i-wina": { "name": "Shame", "sub": "shame · guilt · regret" }
+  "radosc": {
+    "name": "Joy",
+    "sub": "pleasant · happy"
+  },
+  "rozbawienie": {
+    "name": "Amusement",
+    "sub": "playful · giddy"
+  },
+  "ekscytacja": {
+    "name": "Excitement · Energy",
+    "sub": "exhilarated · hyper"
+  },
+  "ciekawosc-i-naped": {
+    "name": "Curiosity",
+    "sub": "intrigued · fascinated"
+  },
+  "zaangazowanie": {
+    "name": "Engagement",
+    "sub": "focused · absorbed"
+  },
+  "determinacja": {
+    "name": "Determination",
+    "sub": "resolute · ambitious"
+  },
+  "pewnosc-i-mistrzostwo": {
+    "name": "Confidence",
+    "sub": "capable · bold"
+  },
+  "duma": {
+    "name": "Pride",
+    "sub": "fulfilled · successful"
+  },
+  "nadzieja-i-spelnienie": {
+    "name": "Hope",
+    "sub": "expectant · optimistic"
+  },
+  "zaskoczenie-i-zachwyt": {
+    "name": "Surprise",
+    "sub": "astonished · amazed"
+  },
+  "bliskosc": {
+    "name": "Closeness",
+    "sub": "connected · in love"
+  },
+  "podziw": {
+    "name": "Admiration · Inspiration",
+    "sub": "inspired · awe"
+  },
+  "spokoj-i-wyciszenie": {
+    "name": "Calm · Safety",
+    "sub": "calm · tranquil"
+  },
+  "odprezenie-i-swoboda": {
+    "name": "Relaxation · Relief",
+    "sub": "at ease · carefree"
+  },
+  "zadowolenie-i-komfort": {
+    "name": "Contentment · Comfort",
+    "sub": "good · blissful"
+  },
+  "zaduma": {
+    "name": "Reverie",
+    "sub": "thoughtful · reflective"
+  },
+  "wdziecznosc": {
+    "name": "Gratitude",
+    "sub": "thankful · appreciative"
+  },
+  "wzruszenie": {
+    "name": "Being moved",
+    "sub": "moved · enraptured"
+  },
+  "czulosc": {
+    "name": "Tenderness",
+    "sub": "warm-hearted · doting"
+  },
+  "troska-i-empatia": {
+    "name": "Compassion · Care",
+    "sub": "sympathetic · concerned"
+  },
+  "przynaleznosc-i-akceptacja": {
+    "name": "Belonging · Acceptance",
+    "sub": "accepted · supported"
+  },
+  "uznanie-i-szacunek": {
+    "name": "Recognition · Appreciation",
+    "sub": "appreciated · respected"
+  },
+  "stres-i-przytloczenie": {
+    "name": "Stress · Overwhelm",
+    "sub": "tense · overwhelmed"
+  },
+  "szok": {
+    "name": "Shock",
+    "sub": "shocked · dumbfounded"
+  },
+  "zamet": {
+    "name": "Confusion · Torn",
+    "sub": "torn · lost"
+  },
+  "niepokoj-i-zmartwienie": {
+    "name": "Anxiety · Worry",
+    "sub": "uneasy · nervous"
+  },
+  "strach-i-panika": {
+    "name": "Fear · Panic",
+    "sub": "apprehensive · terrified"
+  },
+  "irytacja-i-frustracja": {
+    "name": "Irritation · Frustration",
+    "sub": "irritated · frustrated"
+  },
+  "gniew": {
+    "name": "Anger",
+    "sub": "indignant · livid"
+  },
+  "pogarda-i-zazdrosc": {
+    "name": "Jealousy · Envy",
+    "sub": "jealous · envious"
+  },
+  "wstret": {
+    "name": "Disgust",
+    "sub": "repulsed · disgusted"
+  },
+  "pogarda": {
+    "name": "Contempt",
+    "sub": "dismissive · haughty"
+  },
+  "upokorzenie": {
+    "name": "Humiliation",
+    "sub": "ridiculed · disgraced"
+  },
+  "wstyd-i-wina": {
+    "name": "Shame · Embarrassment",
+    "sub": "flustered · abashed"
+  },
+  "wina-i-zal": {
+    "name": "Guilt · Regret",
+    "sub": "regretful · contrite"
+  },
+  "zranienie": {
+    "name": "Hurt",
+    "sub": "stung · wronged"
+  },
+  "smutek-i-zal": {
+    "name": "Sadness · Dejection",
+    "sub": "down · devastated"
+  },
+  "beznadzieja-i-rozpacz": {
+    "name": "Helplessness · Despair",
+    "sub": "helpless · despair"
+  },
+  "zwatpienie-i-rozczarowanie": {
+    "name": "Discouragement",
+    "sub": "soured · resigned"
+  },
+  "rozczarowanie": {
+    "name": "Disappointment",
+    "sub": "let down · bitter"
+  },
+  "samotnosc-i-wykluczenie": {
+    "name": "Loneliness · Exclusion",
+    "sub": "alienated · forlorn"
+  },
+  "tesknota": {
+    "name": "Longing",
+    "sub": "nostalgic · wistful"
+  },
+  "zmeczenie-i-wypalenie": {
+    "name": "Fatigue · Burnout",
+    "sub": "weary · burned out"
+  },
+  "apatia-i-znudzenie": {
+    "name": "Apathy · Boredom",
+    "sub": "bored · indifferent"
+  },
+  "pustka": {
+    "name": "Emptiness",
+    "sub": "dulled · numb"
+  }
 }

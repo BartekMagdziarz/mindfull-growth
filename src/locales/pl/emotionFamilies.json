@@ -1,46 +1,182 @@
 {
-  "radosc": { "name": "Radość", "sub": "radość · pogoda" },
-  "ekscytacja": { "name": "Ekscytacja", "sub": "podekscytowanie · uniesienie" },
-  "energia": { "name": "Energia", "sub": "pobudzenie · witalność" },
-  "rozbawienie": { "name": "Rozbawienie", "sub": "zabawa · humor" },
-  "ciekawosc-i-naped": { "name": "Ciekawość", "sub": "zainteresowanie · dociekliwość" },
-  "zaangazowanie": { "name": "Zaangażowanie", "sub": "przepływ · skupienie" },
-  "determinacja": { "name": "Determinacja", "sub": "napęd · dążenie" },
-  "pewnosc-i-mistrzostwo": { "name": "Pewność siebie", "sub": "sprawczość · śmiałość" },
-  "duma": { "name": "Duma", "sub": "osiągnięcie · sukces" },
-  "nadzieja-i-spelnienie": { "name": "Nadzieja", "sub": "optymizm" },
-  "zaskoczenie-i-zachwyt": { "name": "Zaskoczenie", "sub": "zdziwienie · podziw" },
-  "bliskosc": { "name": "Bliskość", "sub": "więź · miłość" },
-
-  "gniew": { "name": "Gniew", "sub": "złość" },
-  "irytacja-i-frustracja": { "name": "Irytacja", "sub": "rozdrażnienie" },
-  "strach-i-panika": { "name": "Strach", "sub": "lęk · panika" },
-  "niepokoj-i-zmartwienie": { "name": "Niepokój", "sub": "lęk · nerwy" },
-  "stres-i-przytloczenie": { "name": "Stres", "sub": "napięcie · przeciążenie" },
-  "zamet": { "name": "Zamęt", "sub": "dezorientacja · rozbicie" },
-  "zazenowanie-i-upokorzenie": { "name": "Zażenowanie", "sub": "skrępowanie · wstyd" },
-  "wstret": { "name": "Niechęć", "sub": "wstręt · pogarda" },
-  "pogarda-i-zazdrosc": { "name": "Zazdrość", "sub": "zazdrość · zawiść" },
-
-  "spokoj-i-wyciszenie": { "name": "Spokój", "sub": "ukojenie · harmonia" },
-  "odprezenie-i-swoboda": { "name": "Odprężenie", "sub": "luz · swoboda" },
-  "zadowolenie-i-komfort": { "name": "Zadowolenie", "sub": "sytość · komfort" },
-  "zaduma": { "name": "Zaduma", "sub": "marzenia · refleksja" },
-  "wdziecznosc": { "name": "Wdzięczność", "sub": "wdzięczność" },
-  "czulosc": { "name": "Czułość", "sub": "ciepło · rozczulenie" },
-  "troska-i-empatia": { "name": "Empatia", "sub": "współczucie · troska" },
-  "przynaleznosc-i-akceptacja": { "name": "Przynależność", "sub": "więź · akceptacja" },
-  "uznanie-i-szacunek": { "name": "Uznanie", "sub": "uznanie · szacunek" },
-  "bezpieczenstwo": { "name": "Bezpieczeństwo", "sub": "bezpieczeństwo" },
-
-  "smutek-i-zal": { "name": "Smutek", "sub": "żal · żywy ból" },
-  "przygnebienie": { "name": "Przygnębienie", "sub": "przygaszenie · ciężar" },
-  "beznadzieja-i-rozpacz": { "name": "Bezsilność", "sub": "beznadzieja · uwięzienie" },
-  "zwatpienie-i-rozczarowanie": { "name": "Zniechęcenie", "sub": "zawód · rezygnacja" },
-  "zmeczenie-i-wypalenie": { "name": "Zmęczenie", "sub": "wyczerpanie · wypalenie" },
-  "apatia-i-znudzenie": { "name": "Apatia", "sub": "znudzenie · obojętność" },
-  "pustka": { "name": "Pustka", "sub": "odrętwienie · zagubienie" },
-  "samotnosc-i-wykluczenie": { "name": "Samotność", "sub": "osamotnienie · wykluczenie" },
-  "tesknota": { "name": "Tęsknota", "sub": "rzewność · nostalgia" },
-  "wstyd-i-wina": { "name": "Wstyd", "sub": "wstyd · wina · żal" }
+  "radosc": {
+    "name": "Radość",
+    "sub": "pogodny · szczęśliwy"
+  },
+  "rozbawienie": {
+    "name": "Rozbawienie",
+    "sub": "figlarny · rozbrykany"
+  },
+  "ekscytacja": {
+    "name": "Ekscytacja · Energia",
+    "sub": "ożywiony · nakręcony"
+  },
+  "ciekawosc-i-naped": {
+    "name": "Ciekawość",
+    "sub": "zaintrygowany · zafascynowany"
+  },
+  "zaangazowanie": {
+    "name": "Zaangażowanie",
+    "sub": "skupiony · pochłonięty"
+  },
+  "determinacja": {
+    "name": "Determinacja",
+    "sub": "zdecydowany · ambitny"
+  },
+  "pewnosc-i-mistrzostwo": {
+    "name": "Pewność siebie",
+    "sub": "zdolny · śmiały"
+  },
+  "duma": {
+    "name": "Duma",
+    "sub": "spełniony · zwycięski"
+  },
+  "nadzieja-i-spelnienie": {
+    "name": "Nadzieja",
+    "sub": "wyczekujący · optymistyczny"
+  },
+  "zaskoczenie-i-zachwyt": {
+    "name": "Zaskoczenie",
+    "sub": "zdziwiony · zdumiony"
+  },
+  "bliskosc": {
+    "name": "Bliskość",
+    "sub": "połączony · zakochany"
+  },
+  "podziw": {
+    "name": "Podziw · Inspiracja",
+    "sub": "zainspirowany · oniemiały"
+  },
+  "spokoj-i-wyciszenie": {
+    "name": "Spokój · Bezpieczeństwo",
+    "sub": "opanowany · wyciszony"
+  },
+  "odprezenie-i-swoboda": {
+    "name": "Odprężenie · Ulga",
+    "sub": "swobodny · beztroski"
+  },
+  "zadowolenie-i-komfort": {
+    "name": "Zadowolenie · Komfort",
+    "sub": "dobrze · błogi"
+  },
+  "zaduma": {
+    "name": "Zaduma",
+    "sub": "zamyślony · refleksyjny"
+  },
+  "wdziecznosc": {
+    "name": "Wdzięczność",
+    "sub": "wdzięczny · doceniający"
+  },
+  "wzruszenie": {
+    "name": "Wzruszenie",
+    "sub": "poruszony · rozanielony"
+  },
+  "czulosc": {
+    "name": "Czułość",
+    "sub": "serdeczny · tkliwy"
+  },
+  "troska-i-empatia": {
+    "name": "Współczucie · Troska",
+    "sub": "troskliwy · przejęty"
+  },
+  "przynaleznosc-i-akceptacja": {
+    "name": "Przynależność · Akceptacja",
+    "sub": "akceptowany · wspierany"
+  },
+  "uznanie-i-szacunek": {
+    "name": "Uznanie · Docenienie",
+    "sub": "doceniony · szanowany"
+  },
+  "stres-i-przytloczenie": {
+    "name": "Stres · Przytłoczenie",
+    "sub": "spięty · przytłoczony"
+  },
+  "szok": {
+    "name": "Szok · Wstrząs",
+    "sub": "wstrząśnięty · osłupiały"
+  },
+  "zamet": {
+    "name": "Zamęt · Rozdarcie",
+    "sub": "rozdarty · zagubiony"
+  },
+  "niepokoj-i-zmartwienie": {
+    "name": "Niepokój · Zmartwienie",
+    "sub": "nieswój · zdenerwowany"
+  },
+  "strach-i-panika": {
+    "name": "Strach · Panika",
+    "sub": "pełen obaw · przerażony"
+  },
+  "irytacja-i-frustracja": {
+    "name": "Irytacja · Frustracja",
+    "sub": "zirytowany · sfrustrowany"
+  },
+  "gniew": {
+    "name": "Złość",
+    "sub": "oburzony · wściekły"
+  },
+  "pogarda-i-zazdrosc": {
+    "name": "Zazdrość · Zawiść",
+    "sub": "zazdrosny · zawistny"
+  },
+  "wstret": {
+    "name": "Wstręt",
+    "sub": "zniesmaczony · zbrzydzony"
+  },
+  "pogarda": {
+    "name": "Pogarda",
+    "sub": "lekceważący · wyniosły"
+  },
+  "upokorzenie": {
+    "name": "Upokorzenie · Poniżenie",
+    "sub": "ośmieszony · zhańbiony"
+  },
+  "wstyd-i-wina": {
+    "name": "Wstyd · Zażenowanie",
+    "sub": "speszony · zażenowany"
+  },
+  "wina-i-zal": {
+    "name": "Wina · Żal",
+    "sub": "żałujący · skruszony"
+  },
+  "zranienie": {
+    "name": "Zranienie",
+    "sub": "dotknięty · skrzywdzony"
+  },
+  "smutek-i-zal": {
+    "name": "Smutek · Przygnębienie",
+    "sub": "markotny · załamany"
+  },
+  "beznadzieja-i-rozpacz": {
+    "name": "Bezsilność · Rozpacz",
+    "sub": "bezradny · zrozpaczony"
+  },
+  "zwatpienie-i-rozczarowanie": {
+    "name": "Zniechęcenie",
+    "sub": "zrażony · zrezygnowany"
+  },
+  "rozczarowanie": {
+    "name": "Rozczarowanie",
+    "sub": "zawiedziony · zgorzkniały"
+  },
+  "samotnosc-i-wykluczenie": {
+    "name": "Samotność · Wykluczenie",
+    "sub": "wyobcowany · opuszczony"
+  },
+  "tesknota": {
+    "name": "Tęsknota",
+    "sub": "nostalgiczny · rzewny"
+  },
+  "zmeczenie-i-wypalenie": {
+    "name": "Zmęczenie · Wypalenie",
+    "sub": "znużony · wypalony"
+  },
+  "apatia-i-znudzenie": {
+    "name": "Apatia · Znudzenie",
+    "sub": "znudzony · obojętny"
+  },
+  "pustka": {
+    "name": "Pustka",
+    "sub": "otępiały · odrętwiały"
+  }
 }
