@@ -1,0 +1,191 @@
+{
+  "groups": {
+    "radosc": {
+      "name": "Radość",
+      "appraisal": "Coś dobrego jest lub się dzieje — pogoda ducha, aż po euforię. Bez obiektu-zabawy (Rozbawienie) i bez sytości (Zadowolenie)."
+    },
+    "rozbawienie": {
+      "name": "Rozbawienie",
+      "appraisal": "Coś jest zabawne — humor, śmiech, lekkość zabawy (GEW Amusement)."
+    },
+    "ekscytacja": {
+      "name": "Ekscytacja · Energia",
+      "appraisal": "Organizm na wysokich obrotach: napięcie antycypacji („zaraz się wydarzy”) albo czysta witalność bez obiektu."
+    },
+    "ciekawosc-i-naped": {
+      "name": "Ciekawość",
+      "appraisal": "Coś nieznanego przyciąga uwagę i budzi pytania."
+    },
+    "zaangazowanie": {
+      "name": "Zaangażowanie",
+      "appraisal": "Pochłonięcie czynnością — flow, skupienie, zatopienie w robieniu."
+    },
+    "determinacja": {
+      "name": "Determinacja",
+      "appraisal": "Cel przede mną i mobilizacja woli, żeby go osiągnąć."
+    },
+    "pewnosc-i-mistrzostwo": {
+      "name": "Pewność siebie",
+      "appraisal": "Wiara we własną sprawczość — „poradzę sobie” (prospektywnie, przed działaniem)."
+    },
+    "duma": {
+      "name": "Duma",
+      "appraisal": "Patrzę wstecz na osiągnięcie — moje lub bliskiej osoby — z satysfakcją i podniesioną głową."
+    },
+    "nadzieja-i-spelnienie": {
+      "name": "Nadzieja",
+      "appraisal": "Dobra przyszłość wydaje się możliwa — optymistyczne wychylenie w przód."
+    },
+    "zaskoczenie-i-zachwyt": {
+      "name": "Zaskoczenie",
+      "appraisal": "Coś niespodziewanego — pozytywne zdziwienie (bez zachwytu: ten mieszka w Podziwie)."
+    },
+    "bliskosc": {
+      "name": "Bliskość",
+      "appraisal": "Miłość i chęć bliskości kierowane NA ZEWNĄTRZ — kocham, lgnę, chcę być blisko; bycie kochanym też tu mieszka, bo energetyzuje."
+    },
+    "podziw": {
+      "name": "Podziw · Inspiracja",
+      "appraisal": "Wielkość, piękno lub doskonałość poza mną unosi mnie i pociąga w górę (GEW Admiration + awe)."
+    },
+    "spokoj-i-wyciszenie": {
+      "name": "Spokój · Bezpieczeństwo",
+      "appraisal": "Brak zagrożenia i zakłóceń — równowaga, wyciszenie, grunt pod nogami."
+    },
+    "odprezenie-i-swoboda": {
+      "name": "Odprężenie · Ulga",
+      "appraisal": "Napięcie zeszło — luz w ciele i głowie; ulga, gdy zeszło przed chwilą."
+    },
+    "zadowolenie-i-komfort": {
+      "name": "Zadowolenie · Komfort",
+      "appraisal": "Jest wystarczająco dobrze — sytość, komfort, ciche „niczego mi nie brakuje”."
+    },
+    "zaduma": {
+      "name": "Zaduma",
+      "appraisal": "Łagodne zanurzenie w myślach, wspomnieniach lub marzeniach."
+    },
+    "wdziecznosc": {
+      "name": "Wdzięczność",
+      "appraisal": "Otrzymałem coś dobrego — od kogoś, od losu — i to doceniam."
+    },
+    "wzruszenie": {
+      "name": "Wzruszenie",
+      "appraisal": "Nagłe, miękkie poruszenie pięknem, dobrocią lub doniosłością chwili — ściska w gardle, czasem łzy (kama muta)."
+    },
+    "czulosc": {
+      "name": "Czułość",
+      "appraisal": "Ciepło i miękkość wobec konkretnej istoty — delikatność, serdeczność."
+    },
+    "troska-i-empatia": {
+      "name": "Współczucie · Troska",
+      "appraisal": "Los drugiej istoty mnie obchodzi — jej cierpienie lub potrzeba rezonuje we mnie."
+    },
+    "przynaleznosc-i-akceptacja": {
+      "name": "Przynależność · Akceptacja",
+      "appraisal": "Grupa lub osoba mnie przyjmuje — jestem częścią, widzą mnie, wspierają."
+    },
+    "uznanie-i-szacunek": {
+      "name": "Uznanie · Docenienie",
+      "appraisal": "Inni widzą moją wartość — cenią, szanują, doceniają to, co wnoszę."
+    },
+    "stres-i-przytloczenie": {
+      "name": "Stres · Przytłoczenie",
+      "appraisal": "Wymagania przekraczają moje zasoby — napięcie pod obciążeniem, które trwa."
+    },
+    "szok": {
+      "name": "Szok · Wstrząs",
+      "appraisal": "Coś nagłego mną wstrząsnęło — jeszcze nie mieści się w głowie; świat się na moment zatrzymał (zdarzenie)."
+    },
+    "zamet": {
+      "name": "Zamęt · Rozdarcie",
+      "appraisal": "Nie umiem tego poskładać ani wybrać — dezorientacja, szarpanie między sprzecznymi opcjami lub uczuciami (proces)."
+    },
+    "niepokoj-i-zmartwienie": {
+      "name": "Niepokój · Zmartwienie",
+      "appraisal": "Coś może pójść źle — niejasne lub przyszłe zagrożenie krąży w tle."
+    },
+    "strach-i-panika": {
+      "name": "Strach · Panika",
+      "appraisal": "Zagrożenie jest tu i teraz — ciało chce uciekać albo zamiera."
+    },
+    "irytacja-i-frustracja": {
+      "name": "Irytacja · Frustracja",
+      "appraisal": "Coś mnie drażni albo blokuje mój cel — narastające rozdrażnienie oporem świata."
+    },
+    "gniew": {
+      "name": "Złość",
+      "appraisal": "Ktoś przekroczył granicę, stała się niesprawiedliwość — energia, żeby się przeciwstawić."
+    },
+    "pogarda-i-zazdrosc": {
+      "name": "Zazdrość · Zawiść",
+      "appraisal": "Ktoś ma coś, czego pragnę dla siebie — od neutralnego pragnienia po nieżyczliwość wobec posiadacza."
+    },
+    "wstret": {
+      "name": "Wstręt",
+      "appraisal": "Coś mnie odpycha — fizycznie lub moralnie chcę się odsunąć."
+    },
+    "pogarda": {
+      "name": "Pogarda",
+      "appraisal": "Ktoś stoi w moich oczach niżej — patrzę z góry, odmawiam wartości (moralne, międzyosobowe)."
+    },
+    "upokorzenie": {
+      "name": "Upokorzenie · Poniżenie",
+      "appraisal": "Ktoś (lub coś) obnażył przed innymi moją wadę, brak lub błąd — godność w dół, a uczucie zwraca się też na zewnątrz, ku sprawcy (złość, niesprawiedliwość)."
+    },
+    "wstyd-i-wina": {
+      "name": "Wstyd · Zażenowanie",
+      "appraisal": "Moje zachowanie, cecha albo sama ekspozycja zostały (lub mogłyby zostać) źle odebrane — zmieszanie i chęć zniknięcia z oczu, obrócone do wewnątrz: od lekkiego speszenia po głęboki wstyd (zimne, dołujące, wycofujące)."
+    },
+    "wina-i-zal": {
+      "name": "Wina · Żal",
+      "appraisal": "Zrobiłem coś złego — odpowiedzialność za czyn i żal, chęć naprawienia (behawioralne)."
+    },
+    "zranienie": {
+      "name": "Zranienie",
+      "appraisal": "Ktoś, na kim mi zależy, zadał mi ból — zaufanie naruszone, boli więź; od świeżego ukłucia po przeżuwaną gorycz."
+    },
+    "smutek-i-zal": {
+      "name": "Smutek · Przygnębienie",
+      "appraisal": "Strata albo zawód — ciężar na sercu, świat traci kolor; od chandry po zdruzgotanie."
+    },
+    "beznadzieja-i-rozpacz": {
+      "name": "Bezsilność · Rozpacz",
+      "appraisal": "Nie mam wpływu — nie widzę wyjścia ani nadziei, ręce opadają."
+    },
+    "zwatpienie-i-rozczarowanie": {
+      "name": "Zniechęcenie",
+      "appraisal": "Napęd się wyczerpał — nie wierzę już, że warto próbować (procesowe, w przód)."
+    },
+    "rozczarowanie": {
+      "name": "Rozczarowanie",
+      "appraisal": "Oczekiwałem czegoś dobrego i to nie nadeszło — zawód wobec konkretu (punktowe, wstecz)."
+    },
+    "samotnosc-i-wykluczenie": {
+      "name": "Samotność · Wykluczenie",
+      "appraisal": "Brak więzi — jestem sam, pominięty, porzucony albo obcy wśród ludzi."
+    },
+    "tesknota": {
+      "name": "Tęsknota",
+      "appraisal": "Brakuje mi kogoś lub czegoś, co było dobre — rzewne przyciąganie do nieobecnego."
+    },
+    "zmeczenie-i-wypalenie": {
+      "name": "Zmęczenie · Wypalenie",
+      "appraisal": "Zasoby wyczerpane — od potrzeby odpoczynku po wypalenie przewlekłym stresem."
+    },
+    "apatia-i-znudzenie": {
+      "name": "Apatia · Znudzenie",
+      "appraisal": "Nic mnie nie ciągnie — zobojętnienie i nuda; coś jeszcze czuję (nudę, nijakość), ale nic nie budzi chęci."
+    },
+    "pustka": {
+      "name": "Pustka",
+      "appraisal": "Wyłączenie czucia — odrętwienie, „nic nie czuję” (sygnał istotny klinicznie)."
+    }
+  },
+  "scale": {
+    "1": "ledwo zauważalne",
+    "2": "lekkie",
+    "3": "wyraźne",
+    "4": "silne",
+    "5": "przytłaczające"
+  }
+}

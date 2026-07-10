@@ -1,0 +1,191 @@
+{
+  "groups": {
+    "radosc": {
+      "name": "Joy",
+      "appraisal": "Something good is here or happening — lightness of heart, up to euphoria. Without the object of play (Amusement) and without satiety (Contentment)."
+    },
+    "rozbawienie": {
+      "name": "Amusement",
+      "appraisal": "Something is funny — humor, laughter, the lightness of play (GEW Amusement)."
+    },
+    "ekscytacja": {
+      "name": "Excitement · Energy",
+      "appraisal": "The body running high: the tension of anticipation (“it’s about to happen”) or pure, objectless vitality."
+    },
+    "ciekawosc-i-naped": {
+      "name": "Curiosity",
+      "appraisal": "Something unknown draws attention and raises questions."
+    },
+    "zaangazowanie": {
+      "name": "Engagement",
+      "appraisal": "Absorbed in an activity — flow, focus, sunk into the doing."
+    },
+    "determinacja": {
+      "name": "Determination",
+      "appraisal": "A goal ahead of me and the will mobilized to reach it."
+    },
+    "pewnosc-i-mistrzostwo": {
+      "name": "Confidence",
+      "appraisal": "Faith in my own agency — “I can handle it” (prospective, before acting)."
+    },
+    "duma": {
+      "name": "Pride",
+      "appraisal": "Looking back at an achievement — mine or a loved one’s — with satisfaction and head held high."
+    },
+    "nadzieja-i-spelnienie": {
+      "name": "Hope",
+      "appraisal": "A good future seems possible — an optimistic lean forward."
+    },
+    "zaskoczenie-i-zachwyt": {
+      "name": "Surprise",
+      "appraisal": "Something unexpected — positive astonishment (without delight: that lives in Admiration)."
+    },
+    "bliskosc": {
+      "name": "Closeness",
+      "appraisal": "Love and the pull toward closeness directed OUTWARD — I love, I cling, I want to be near; being loved lives here too, because it energizes."
+    },
+    "podziw": {
+      "name": "Admiration · Inspiration",
+      "appraisal": "Greatness, beauty or excellence beyond me lifts me and pulls me upward (GEW Admiration + awe)."
+    },
+    "spokoj-i-wyciszenie": {
+      "name": "Calm · Safety",
+      "appraisal": "No threat and no disturbance — balance, stillness, ground under my feet."
+    },
+    "odprezenie-i-swoboda": {
+      "name": "Relaxation · Relief",
+      "appraisal": "The tension has drained away — ease in body and mind; relief when it lifted just now."
+    },
+    "zadowolenie-i-komfort": {
+      "name": "Contentment · Comfort",
+      "appraisal": "It is good enough — satiety, comfort, a quiet “I lack nothing”."
+    },
+    "zaduma": {
+      "name": "Reverie",
+      "appraisal": "Gentle immersion in thoughts, memories or daydreams."
+    },
+    "wdziecznosc": {
+      "name": "Gratitude",
+      "appraisal": "I received something good — from someone, from fate — and I appreciate it."
+    },
+    "wzruszenie": {
+      "name": "Being moved",
+      "appraisal": "A sudden, soft stirring by beauty, kindness or the weight of a moment — a lump in the throat, sometimes tears (kama muta)."
+    },
+    "czulosc": {
+      "name": "Tenderness",
+      "appraisal": "Warmth and softness toward a particular being — gentleness, heartfelt care."
+    },
+    "troska-i-empatia": {
+      "name": "Compassion · Care",
+      "appraisal": "Another being’s fate matters to me — their suffering or need resonates in me."
+    },
+    "przynaleznosc-i-akceptacja": {
+      "name": "Belonging · Acceptance",
+      "appraisal": "A group or a person takes me in — I am part of it, seen and supported."
+    },
+    "uznanie-i-szacunek": {
+      "name": "Recognition · Appreciation",
+      "appraisal": "Others see my worth — they value, respect and appreciate what I bring."
+    },
+    "stres-i-przytloczenie": {
+      "name": "Stress · Overwhelm",
+      "appraisal": "Demands exceed my resources — strain under a load that keeps pressing."
+    },
+    "szok": {
+      "name": "Shock",
+      "appraisal": "Something sudden shook me — it does not fit in my head yet; the world stopped for a moment (an event)."
+    },
+    "zamet": {
+      "name": "Confusion · Torn",
+      "appraisal": "I cannot piece it together or choose — disorientation, being torn between conflicting options or feelings (a process)."
+    },
+    "niepokoj-i-zmartwienie": {
+      "name": "Anxiety · Worry",
+      "appraisal": "Something may go wrong — a vague or future threat circles in the background."
+    },
+    "strach-i-panika": {
+      "name": "Fear · Panic",
+      "appraisal": "The threat is here and now — the body wants to flee or freezes."
+    },
+    "irytacja-i-frustracja": {
+      "name": "Irritation · Frustration",
+      "appraisal": "Something grates on me or blocks my goal — mounting irritation at the world’s resistance."
+    },
+    "gniew": {
+      "name": "Anger",
+      "appraisal": "Someone crossed a line, an injustice happened — energy to push back."
+    },
+    "pogarda-i-zazdrosc": {
+      "name": "Jealousy · Envy",
+      "appraisal": "Someone has something I want for myself — from neutral wanting to ill will toward the one who has it."
+    },
+    "wstret": {
+      "name": "Disgust",
+      "appraisal": "Something repels me — physically or morally I want to pull away."
+    },
+    "pogarda": {
+      "name": "Contempt",
+      "appraisal": "Someone stands lower in my eyes — I look down on them, denying them worth (moral, interpersonal)."
+    },
+    "upokorzenie": {
+      "name": "Humiliation",
+      "appraisal": "Someone (or something) exposed my flaw, lack or mistake before others — dignity down, and the feeling also turns outward, toward the perpetrator (anger, injustice)."
+    },
+    "wstyd-i-wina": {
+      "name": "Shame · Embarrassment",
+      "appraisal": "My behaviour, trait or mere exposure was (or could be) received badly — embarrassment and the urge to vanish, turned inward: from light abashment to deep shame (cold, deflating, withdrawing)."
+    },
+    "wina-i-zal": {
+      "name": "Guilt · Regret",
+      "appraisal": "I did something wrong — responsibility for the act and regret, the urge to repair (behavioural)."
+    },
+    "zranienie": {
+      "name": "Hurt",
+      "appraisal": "Someone I care about caused me pain — trust breached, the bond aches; from a fresh sting to long-chewed bitterness."
+    },
+    "smutek-i-zal": {
+      "name": "Sadness · Dejection",
+      "appraisal": "Loss or letdown — a weight on the heart, the world loses colour; from the blues to devastation."
+    },
+    "beznadzieja-i-rozpacz": {
+      "name": "Helplessness · Despair",
+      "appraisal": "I have no influence — no way out and no hope in sight; arms drop."
+    },
+    "zwatpienie-i-rozczarowanie": {
+      "name": "Discouragement",
+      "appraisal": "The drive has run dry — I no longer believe trying is worth it (a process, facing forward)."
+    },
+    "rozczarowanie": {
+      "name": "Disappointment",
+      "appraisal": "I expected something good and it did not come — a letdown about something concrete (pointwise, facing back)."
+    },
+    "samotnosc-i-wykluczenie": {
+      "name": "Loneliness · Exclusion",
+      "appraisal": "No bond — I am alone, passed over, abandoned or a stranger among people."
+    },
+    "tesknota": {
+      "name": "Longing",
+      "appraisal": "I miss someone or something that was good — a wistful pull toward the absent."
+    },
+    "zmeczenie-i-wypalenie": {
+      "name": "Fatigue · Burnout",
+      "appraisal": "Resources spent — from needing rest to burnout from chronic stress."
+    },
+    "apatia-i-znudzenie": {
+      "name": "Apathy · Boredom",
+      "appraisal": "Nothing draws me — listlessness and boredom; I still feel something (boredom, blandness), but nothing sparks desire."
+    },
+    "pustka": {
+      "name": "Emptiness",
+      "appraisal": "Feeling switched off — numbness, “I feel nothing” (a clinically significant signal)."
+    }
+  },
+  "scale": {
+    "1": "barely noticeable",
+    "2": "mild",
+    "3": "clear",
+    "4": "strong",
+    "5": "overwhelming"
+  }
+}
