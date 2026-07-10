@@ -132,10 +132,22 @@
         </div>
       </div>
 
+      <div v-if="!activeQuad && props.showFallbacks" class="fbrow">
+        <button type="button" class="fb-btn" data-testid="egp-dunno" @click="onFallback('dunno')">
+          <span class="msr fb-ico">psychology_alt</span>
+          {{ t('emotionGroups.ui.dunno') }}
+        </button>
+        <button type="button" class="fb-btn" data-testid="egp-other" @click="onFallback('other')">
+          <span class="msr fb-ico">more_horiz</span>
+          {{ t('emotionGroups.ui.other') }}
+        </button>
+        <span v-if="fallbackNote" class="fb-note">{{ t('emotionGroups.ui.comingSoon') }}</span>
+      </div>
+
       <div class="ep-foot">
         <span class="f-lab">{{ t('emotionGroups.ui.selected') }}</span>
         <span v-if="chips.length === 0" class="f-empty">{{ t('emotionGroups.ui.empty') }}</span>
-        <div v-else class="f-scroll">
+        <div v-else class="f-chips">
           <span
             v-for="c in chips"
             :key="c.slug"
@@ -155,16 +167,6 @@
             </button>
           </span>
         </div>
-        <template v-if="!activeQuad && props.showFallbacks">
-          <span class="f-sp"></span>
-          <span v-if="fallbackNote" class="f-note">{{ t('emotionGroups.ui.comingSoon') }}</span>
-          <button type="button" class="f-link" data-testid="egp-dunno" @click="onFallback('dunno')">
-            {{ t('emotionGroups.ui.dunno') }}
-          </button>
-          <button type="button" class="f-link" data-testid="egp-other" @click="onFallback('other')">
-            {{ t('emotionGroups.ui.other') }}
-          </button>
-        </template>
       </div>
     </div>
   </div>
@@ -193,20 +195,21 @@ const activeQuad = defineModel<Quadrant | null>('quadrant', { default: null })
 
 const { t } = useT()
 
-// twarze grup: assets/emotion-faces/<slug>.svg jako maski CSS (barwione color-mix)
-const faceModules = import.meta.glob('@/assets/emotion-faces/*.svg', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-}) as Record<string, string>
-const faceBySlug: Record<string, string> = Object.fromEntries(
-  Object.entries(faceModules).map(([path, url]) => [path.split('/').pop()!.replace('.svg', ''), url]),
-)
+// twarze grup: assets/emotion-faces/<slug>.svg jako maski CSS (barwione color-mix);
+// new URL(..., import.meta.url) — wzorzec Vite działający w dev i buildzie
 function faceUrl(slug: string): string {
-  return faceBySlug[slug] ?? ''
+  return new URL(`../../assets/emotion-faces/${slug}.svg`, import.meta.url).href
 }
 
-const quadrantList = Object.values(QUADRANT_STYLES)
+// układ przeglądu 2×2 wg cyrkumpleksu: HEHP w prawym górnym rogu
+// (rząd 1: HELP · HEHP, rząd 2: LELP · LEHP) — feedback usera 2026-07-10
+const OVERVIEW_ORDER: Quadrant[] = [
+  'high-energy-low-pleasantness',
+  'high-energy-high-pleasantness',
+  'low-energy-low-pleasantness',
+  'low-energy-high-pleasantness',
+]
+const quadrantList = OVERVIEW_ORDER.map((q) => QUADRANT_STYLES[q])
 const activeGroups = computed<EmotionGroup[]>(() =>
   activeQuad.value ? GROUPS_BY_QUADRANT[activeQuad.value] : [],
 )
@@ -360,14 +363,14 @@ function thumbPos(slug: string): string {
 }
 
 const accent = computed(() => (activeQuad.value ? QUADRANT_STYLES[activeQuad.value].accent : '#2E93FF'))
+// tło daje karta widoku-rodzica (tintowana przez v-model:quadrant);
+// tu tintujemy tylko parę cieni neumorficznych, żeby kafle/suwaki szły za akcentem
 const panelStyle = computed(() => {
-  const DEFAULT_FIELD = 'linear-gradient(162deg,#EAF4FF,#E0ECFB)'
   if (!activeQuad.value) {
-    return { '--field-bg': DEFAULT_FIELD, '--shw': 'rgba(255,255,255,.9)', '--shd': '#8CA6CA' }
+    return { '--shw': 'rgba(255,255,255,.9)', '--shd': '#8CA6CA' }
   }
   const a = accent.value
   return {
-    '--field-bg': `linear-gradient(162deg, color-mix(in srgb, ${a} 12%, white), color-mix(in srgb, ${a} 22%, white))`,
     '--shw': `color-mix(in srgb, ${a} 14%, rgba(255,255,255,.72))`,
     '--shd': `color-mix(in srgb, ${a} 42%, #8CA6CA)`,
   }
@@ -391,9 +394,11 @@ const chips = computed(() =>
 <style scoped>
 .egp-wrap {
   container-type: inline-size;
-  display: flex;
-  justify-content: center;
+  width: 100%;
 }
+/* Panel jest bezramkowy: pojedyncze, szerokie tło daje karta widoku-rodzica
+   (tintowana przez v-model:quadrant + getQuadrantTintStyle). Wysokość rośnie
+   z zawartością — m.in. gdy chipy wybranych zawijają się w kolejne rzędy. */
 .ep {
   --shw: rgba(255, 255, 255, 0.9);
   --shd: #8ca6ca;
@@ -404,31 +409,21 @@ const chips = computed(() =>
   --sh-press-sm: inset -2px -2px 4px var(--shw), inset 2px 2px 5px color-mix(in srgb, var(--shd) 42%, transparent);
   --sh-flat: -2px -2px 5px var(--shw), 2px 2px 5px color-mix(in srgb, var(--shd) 30%, transparent);
   --muted: #6c86a6;
-  width: 660px;
-  max-width: 100%;
-  height: 474px;
-  background: var(--field-bg, linear-gradient(162deg, #eaf4ff, #e0ecfb));
-  border-radius: 26px;
-  padding: 20px 22px;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow:
-    0 26px 60px -30px rgba(40, 70, 120, 0.55),
-    var(--sh-flat);
   position: relative;
-  transition: background 0.4s ease;
   color: #0f2745;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 .ep-head {
-  height: 58px;
+  height: 44px;
   flex: none;
   display: flex;
   align-items: center;
 }
 .ep-stage {
-  flex: 1;
-  min-height: 0;
+  flex: none;
   position: relative;
 }
 .ep-stage > div {
@@ -445,15 +440,15 @@ const chips = computed(() =>
   }
 }
 .ep-foot {
-  height: 52px;
+  /* bez scrolla: pole z chipami zawija się i rośnie razem z panelem */
+  min-height: 52px;
   flex: none;
   margin-top: 14px;
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 0 4px;
+  padding: 8px 4px;
   border-top: 1px solid rgba(120, 150, 190, 0.18);
-  overflow: hidden;
 }
 .msr {
   font-family: 'Material Symbols Rounded';
@@ -559,9 +554,8 @@ const chips = computed(() =>
 .qgrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-auto-rows: minmax(168px, 1fr);
   gap: 14px;
-  height: 100%;
 }
 .qbtn {
   position: relative;
@@ -632,9 +626,8 @@ const chips = computed(() =>
 .etgrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-rows: 1fr;
+  grid-auto-rows: minmax(104px, auto);
   gap: 12px;
-  height: 100%;
 }
 .etile {
   position: relative;
@@ -792,8 +785,15 @@ const chips = computed(() =>
   display: block;
   pointer-events: none;
   background: color-mix(in srgb, var(--c) 55%, #14304f);
-  -webkit-mask: var(--fi) center/contain no-repeat;
-  mask: var(--fi) center/contain no-repeat;
+  /* longhand — skróty maski z var() bywają odrzucane w całości */
+  -webkit-mask-image: var(--fi);
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: var(--fi);
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
 }
 
 /* ---- tooltip ---- */
@@ -855,11 +855,12 @@ const chips = computed(() =>
   color: #9db2ce;
   font-style: italic;
 }
-.f-scroll {
+.f-chips {
   display: flex;
+  flex-wrap: wrap;
   gap: 7px;
-  overflow-x: auto;
   padding: 2px 0;
+  min-width: 0;
 }
 .fchip {
   display: inline-flex;
@@ -894,33 +895,52 @@ const chips = computed(() =>
 .fx:hover {
   background: rgba(255, 255, 255, 0.5);
 }
-.f-sp {
-  flex: 1;
+/* ---- fallbacki: dyskretne neumorficzne pille pod siatką ćwiartek ---- */
+.fbrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
 }
-.f-note {
+.fb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font: 500 12px 'Roboto', sans-serif;
+  color: var(--muted);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.65), rgba(226, 237, 251, 0.65));
+  box-shadow: var(--sh-raise-sm);
+  transition:
+    transform 0.16s,
+    box-shadow 0.16s,
+    color 0.16s;
+}
+.fb-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sh-raise);
+  color: #3d5b7c;
+}
+.fb-btn:active {
+  transform: none;
+  box-shadow: var(--sh-press-sm);
+}
+.fb-ico {
+  font-size: 15px;
+  opacity: 0.8;
+}
+.fb-note {
   font: italic 400 11px 'Roboto', sans-serif;
   color: #8399b7;
-  white-space: nowrap;
-}
-.f-link {
-  border: 0;
-  background: none;
-  cursor: pointer;
-  padding: 0;
-  font: 500 12px 'Roboto', sans-serif;
-  color: #568ed2;
-  white-space: nowrap;
-}
-.f-link:hover {
-  color: #3e6eb8;
 }
 
 /* ---- wariant wąski: 3 kolumny kafli, 4 rzędy (decyzja usera 2026-07-10) ---- */
 @container (max-width: 699px) {
-  .ep {
-    width: 503px;
-    height: 566px;
-  }
   .etgrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
