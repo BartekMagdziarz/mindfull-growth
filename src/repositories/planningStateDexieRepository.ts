@@ -1022,12 +1022,33 @@ class PlanningStateDexieRepository implements PlanningStateRepository {
       normalized.subjectId
     )
 
+    if (subject.entryMode !== 'multi-completion' && normalized.checkedItemIds !== undefined) {
+      throw new Error('checkedItemIds is only supported for multi-completion subjects')
+    }
+
     switch (subject.entryMode) {
       case 'completion':
         if (normalized.value !== null) {
           throw new Error('Completion entries must store null value')
         }
         return
+      case 'multi-completion': {
+        if (normalized.value !== null) {
+          throw new Error('Multi-completion entries must store null value')
+        }
+        if (!normalized.checkedItemIds || normalized.checkedItemIds.length === 0) {
+          throw new Error('Multi-completion entries must check at least one item')
+        }
+        // Archived items stay resolvable on purpose — retro edits of old days
+        // may keep ids that have since been archived.
+        const knownItemIds = new Set((subject.multiItems ?? []).map((item) => item.id))
+        for (const itemId of normalized.checkedItemIds) {
+          if (!knownItemIds.has(itemId)) {
+            throw new Error(`Unknown multi-completion item id: ${itemId}`)
+          }
+        }
+        return
+      }
       case 'counter':
         if (
           typeof normalized.value !== 'number' ||

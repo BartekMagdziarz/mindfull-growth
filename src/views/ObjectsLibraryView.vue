@@ -670,6 +670,7 @@ function createDefaultTarget(entryMode: MeasurementEntryMode): LibraryTargetDraf
   switch (entryMode) {
     case 'completion':
     case 'counter':
+    case 'multi-completion':
       return { kind: 'count', operator: 'min', value: 1 }
     case 'value':
       return { kind: 'value', aggregation: 'sum', operator: 'gte', value: 1 }
@@ -723,7 +724,7 @@ function createDraftFromDefaults(
 function syncTargetToEntryMode(entryMode: MeasurementEntryMode): void {
   const current = draft.value.target
 
-  if (entryMode === 'completion' || entryMode === 'counter') {
+  if (entryMode === 'completion' || entryMode === 'counter' || entryMode === 'multi-completion') {
     if (current.kind !== 'count') {
       draft.value.target = createDefaultTarget(entryMode)
     } else if (current.operator !== 'min' && current.operator !== 'max') {
@@ -771,6 +772,7 @@ function normalizeTargetDraft(entryMode: MeasurementEntryMode, target: LibraryTa
   switch (entryMode) {
     case 'completion':
     case 'counter':
+    case 'multi-completion':
       return {
         kind: 'count',
         operator: target.operator === 'max' ? 'max' : 'min',
@@ -1284,6 +1286,7 @@ function buildTargetForEntryMode(entryMode: MeasurementEntryMode, currentTarget:
   switch (entryMode) {
     case 'completion':
     case 'counter':
+    case 'multi-completion':
       if (currentTarget.kind === 'count') return currentTarget
       return { kind: 'count', operator: 'min', value: 1 }
     case 'value':

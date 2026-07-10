@@ -119,6 +119,7 @@ function defaultTargetFor(mode: MeasurementEntryMode): MeasurementTarget {
   switch (mode) {
     case 'completion':
     case 'counter':
+    case 'multi-completion':
       return { kind: 'count', operator: 'min', value: 1 }
     case 'value':
       return { kind: 'value', aggregation: 'sum', operator: 'gte', value: 1 }

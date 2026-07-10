@@ -1,4 +1,4 @@
-import type { Habit, KeyResult, MeasurementEntryMode, MeasurementTarget, PlanningCadence, Tracker, WeeklyIntention } from '@/domain/planning'
+import type { Habit, KeyResult, MeasurementEntryMode, MeasurementTarget, MultiCompletionItem, PlanningCadence, Tracker, WeeklyIntention } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import { getPeriodRefsForDate, getPeriodType } from '@/utils/periods'
@@ -102,6 +102,46 @@ function lastEntryValue(entries: DailyMeasurementEntry[]): number | undefined {
   return [...entries].sort((left, right) => left.dayRef.localeCompare(right.dayRef)).at(-1)?.value ?? undefined
 }
 
+/** Non-archived multi-completion items, in stored order. */
+export function multiCompletionActiveItems(subject: MeasureableSubject): MultiCompletionItem[] {
+  return (subject.multiItems ?? []).filter((item) => !item.archived)
+}
+
+/**
+ * Effective daily points threshold. Undefined stored threshold means "all
+ * active items" and follows the current item list; an explicit threshold is
+ * clamped to [1, sum of active weights] so it cannot go stale above the
+ * reachable maximum after items are archived or weights lowered.
+ */
+export function multiCompletionEffectiveThreshold(subject: MeasureableSubject): number {
+  const activeWeightSum = multiCompletionActiveItems(subject).reduce(
+    (sum, item) => sum + item.weight,
+    0,
+  )
+  const reachableMax = Math.max(activeWeightSum, 1)
+  return Math.min(Math.max(subject.multiDailyThreshold ?? reachableMax, 1), reachableMax)
+}
+
+/**
+ * Points earned on a day = sum of CURRENT weights of the checked items
+ * (live-recompute contract: editing weights re-scores history). Archived items
+ * still resolve; ids no longer present contribute nothing.
+ */
+export function multiCompletionDayPoints(
+  subject: MeasureableSubject,
+  entry: DailyMeasurementEntry,
+): number {
+  const weightById = new Map((subject.multiItems ?? []).map((item) => [item.id, item.weight]))
+  return (entry.checkedItemIds ?? []).reduce((sum, id) => sum + (weightById.get(id) ?? 0), 0)
+}
+
+export function multiCompletionDayMet(
+  subject: MeasureableSubject,
+  entry: DailyMeasurementEntry,
+): boolean {
+  return multiCompletionDayPoints(subject, entry) >= multiCompletionEffectiveThreshold(subject)
+}
+
 function computeActualValue(
   subject: MeasureableSubject,
   entries: DailyMeasurementEntry[],
@@ -130,6 +170,10 @@ function computeActualValue(
     }
     case 'rating':
       return averageEntryValues(entries)
+    case 'multi-completion':
+      // The aggregate is the number of MET days (daily points threshold
+      // reached), not the number of entries — partial days don't count.
+      return entries.filter((entry) => multiCompletionDayMet(subject, entry)).length
   }
 }
 
@@ -147,7 +191,9 @@ function compareActualToTarget(actualValue: number, target: MeasurementTarget): 
  * Days that count toward the entryDays condition. Entries are unique per
  * (subject, day), so entries map 1:1 to days. A qualifying day is any day with
  * an entry, except for counters where an explicitly logged zero is not an
- * execution — only entries with value >= 1 qualify.
+ * execution — only entries with value >= 1 qualify. Multi-completion entries
+ * always qualify (an entry exists only with at least one checked item), even
+ * when the day stays below the daily threshold.
  */
 function countQualifiedEntryDays(
   entryMode: MeasurementEntryMode,
@@ -187,6 +233,10 @@ export function buildMeasurementSummary(
    * - counter sums entry values, treating null as 0.
    * - value uses the target aggregation: sum, average, or last.
    * - rating uses the arithmetic average.
+   * - multi-completion counts MET days: entries whose checked-item points
+   *   (current weights) reach the effective daily threshold. Points, threshold
+   *   and thus historical met-status are recomputed live from the subject's
+   *   current multiItems/multiDailyThreshold.
    * - No period entries produce actualValue undefined.
    * - Subjects with a target evaluate to met, missed, or no-data.
    * - Trackers without a target leave evaluationStatus undefined.

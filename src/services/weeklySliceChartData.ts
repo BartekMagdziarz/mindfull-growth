@@ -221,6 +221,14 @@ function buildBaseContextChipData(
       }
       return { variant: 'value-label', current, aggregationLabel: 'last', entryCount }
 
+    case 'multi-completion':
+      // `current` (actualValue) is the number of MET days — unlike completion
+      // it can be lower than entryCount because partial days don't count.
+      if (target?.kind === 'count') {
+        return { variant: 'count-progress', current, target: target.value, status, targetOperator: target.operator, entryCount }
+      }
+      return { variant: 'value-label', current, aggregationLabel: 'days', entryCount }
+
     case 'rating':
       if (target?.kind === 'rating') {
         return {

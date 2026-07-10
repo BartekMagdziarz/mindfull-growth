@@ -79,6 +79,13 @@ export interface DailyMeasurementEntry extends PlanningStateRecordBase {
   subjectId: string
   dayRef: DayRef
   value: DailyMeasurementEntryValue
+  /**
+   * Multi-completion only: ids of the subject's `multiItems` checked that day
+   * (source of truth — points/day-met are recomputed from current weights at
+   * read time; `value` stays null). Non-empty when present: a day with nothing
+   * checked is represented by deleting the entry, like completion.
+   */
+  checkedItemIds?: string[]
 }
 
 export interface TodayHiddenState extends PlanningStateRecordBase {
@@ -321,6 +328,33 @@ function normalizeDailyMeasurementValue(
 
 function normalizeSubjectId(value: unknown, fieldName: string, fallback?: string): string {
   return normalizeTrimmedText(value, fieldName, fallback)
+}
+
+function normalizeCheckedItemIds(
+  value: unknown,
+  fallback?: string[]
+): string[] | undefined {
+  const source = value === undefined ? fallback : value
+  if (source === undefined || source === null) {
+    return undefined
+  }
+
+  if (!Array.isArray(source) || source.length === 0) {
+    throw new Error('DailyMeasurementEntry.checkedItemIds must be a non-empty array when present')
+  }
+
+  const seen = new Set<string>()
+  for (const id of source) {
+    if (typeof id !== 'string' || id.trim() === '') {
+      throw new Error('DailyMeasurementEntry.checkedItemIds must contain non-empty strings')
+    }
+    if (seen.has(id)) {
+      throw new Error(`DailyMeasurementEntry.checkedItemIds contains a duplicate id: ${id}`)
+    }
+    seen.add(id)
+  }
+
+  return [...source]
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -698,6 +732,7 @@ export function normalizeDailyMeasurementEntryPayload(
     subjectId: normalizeSubjectId(data.subjectId, 'subjectId', existing?.subjectId),
     dayRef: normalizeDayRef(data.dayRef, 'dayRef', existing?.dayRef),
     value: normalizeDailyMeasurementValue(data.value, existing?.value),
+    checkedItemIds: normalizeCheckedItemIds(data.checkedItemIds, existing?.checkedItemIds),
   }
 }
 

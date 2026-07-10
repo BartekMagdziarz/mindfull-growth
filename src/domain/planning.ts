@@ -13,7 +13,7 @@ export interface PlanningObjectBase {
 }
 
 export type PlanningCadence = 'weekly' | 'monthly'
-export type MeasurementEntryMode = 'completion' | 'counter' | 'value' | 'rating'
+export type MeasurementEntryMode = 'completion' | 'counter' | 'value' | 'rating' | 'multi-completion'
 export type GoalStatus = 'open' | 'completed' | 'dropped'
 export type KeyResultStatus = GoalStatus
 export type HabitStatus = 'open' | 'retired' | 'dropped'
@@ -36,6 +36,27 @@ export interface MeasurementEntryDaysCondition {
   operator: CountTargetOperator
   value: number
 }
+
+/**
+ * One checkable element of a multi-completion subject. Checked ids are the
+ * source of truth on daily entries; points and day-met status are always
+ * recomputed from the CURRENT items (weights, archived flags) at read time.
+ * Items that ever appeared in an entry must be archived, never removed —
+ * history keeps rendering through their id.
+ */
+export interface MultiCompletionItem {
+  id: string
+  label: string
+  /** Material Symbols name (same convention as object `icon`). */
+  icon?: string
+  /** Integer >= 1. Points a checked item contributes toward the daily threshold. */
+  weight: number
+  /** Hidden from the daily checklist; still resolves in historical entries. */
+  archived?: boolean
+}
+
+/** Readability cap for the stacked weekly chart and daily checklist. */
+export const MULTI_COMPLETION_MAX_ACTIVE_ITEMS = 8
 
 export interface CountTarget {
   kind: 'count'
@@ -106,6 +127,9 @@ export interface KeyResult extends PlanningObjectBase {
   target: MeasurementTarget
   ratingScaleMin?: number
   ratingScale?: number
+  multiItems?: MultiCompletionItem[]
+  /** Daily points required for a met day; undefined = sum of active item weights. */
+  multiDailyThreshold?: number
   status: KeyResultStatus
 }
 
@@ -118,6 +142,9 @@ export interface Habit extends PlanningObjectBase {
   target: MeasurementTarget
   ratingScaleMin?: number
   ratingScale?: number
+  multiItems?: MultiCompletionItem[]
+  /** Daily points required for a met day; undefined = sum of active item weights. */
+  multiDailyThreshold?: number
   status: HabitStatus
 }
 
@@ -129,6 +156,9 @@ export interface Tracker extends PlanningObjectBase {
   cadence: PlanningCadence
   ratingScaleMin?: number
   ratingScale?: number
+  multiItems?: MultiCompletionItem[]
+  /** Daily points required for a met day; undefined = sum of active item weights. */
+  multiDailyThreshold?: number
   status: TrackerStatus
 }
 
@@ -147,6 +177,9 @@ export interface WeeklyIntention extends PlanningObjectBase {
   target: MeasurementTarget
   ratingScaleMin?: number
   ratingScale?: number
+  multiItems?: MultiCompletionItem[]
+  /** Daily points required for a met day; undefined = sum of active item weights. */
+  multiDailyThreshold?: number
   status: WeeklyIntentionStatus
   /** Priorities this intention serves — links it into the monthly focus confrontation (M4). */
   priorityIds: string[]
@@ -198,7 +231,7 @@ const HABIT_STATUSES = ['open', 'retired', 'dropped'] as const
 const TRACKER_STATUSES = ['open', 'retired', 'dropped'] as const
 const WEEKLY_INTENTION_STATUSES = ['open', 'retired', 'dropped'] as const
 const CADENCES = ['weekly', 'monthly'] as const
-const ENTRY_MODES = ['completion', 'counter', 'value', 'rating'] as const
+const ENTRY_MODES = ['completion', 'counter', 'value', 'rating', 'multi-completion'] as const
 const COUNT_TARGET_OPERATORS = ['min', 'max'] as const
 const COMPARISON_OPERATORS = ['gte', 'lte'] as const
 const VALUE_TARGET_AGGREGATIONS = ['sum', 'average', 'last'] as const
@@ -476,7 +509,9 @@ function normalizeEntryDaysCondition(
   fieldName = 'target.entryDays',
 ): MeasurementEntryDaysCondition | undefined {
   // For completion the condition is redundant (the primary metric already
-  // counts entry days), so it is stripped instead of stored.
+  // counts entry days), so it is stripped instead of stored. Multi-completion
+  // keeps it: an entry's presence does NOT imply a met day there (partial
+  // days), so "log at least N days" carries real meaning.
   if (value === undefined || value === null || entryMode === 'completion') {
     return undefined
   }
@@ -499,6 +534,104 @@ function normalizeEntryDaysCondition(
   return { operator, value: days }
 }
 
+/**
+ * Multi-completion item list. Present (and required non-empty) only for the
+ * multi-completion entry mode; stripped for every other mode. Falls back to
+ * `existing` like the other object fields so partial update payloads keep the
+ * stored list.
+ */
+function normalizeMultiCompletionItems(
+  entryMode: MeasurementEntryMode,
+  value: unknown,
+  existing?: MultiCompletionItem[],
+): MultiCompletionItem[] | undefined {
+  if (entryMode !== 'multi-completion') {
+    return undefined
+  }
+
+  const source = value ?? existing
+  if (!Array.isArray(source)) {
+    throw new Error('multiItems must be an array for the multi-completion entry mode')
+  }
+
+  const seenIds = new Set<string>()
+  const items = source.map((item, index) => {
+    const fieldName = `multiItems[${index}]`
+    if (!isPlainObject(item)) {
+      throw new Error(`${fieldName} must be an object`)
+    }
+
+    const id = normalizeRequiredText(item.id, `${fieldName}.id`)
+    if (id === '') {
+      throw new Error(`${fieldName}.id must be a non-empty string`)
+    }
+    if (seenIds.has(id)) {
+      throw new Error(`${fieldName}.id is duplicated: ${id}`)
+    }
+    seenIds.add(id)
+
+    const label = normalizeRequiredText(item.label, `${fieldName}.label`)
+    if (label === '') {
+      throw new Error(`${fieldName}.label must be a non-empty string`)
+    }
+
+    const weight = item.weight === undefined ? 1 : item.weight
+    if (typeof weight !== 'number' || !Number.isInteger(weight) || weight < 1) {
+      throw new Error(`${fieldName}.weight must be an integer >= 1`)
+    }
+
+    if (item.archived !== undefined && typeof item.archived !== 'boolean') {
+      throw new Error(`${fieldName}.archived must be a boolean`)
+    }
+
+    return {
+      id,
+      label,
+      icon: normalizeOptionalText(item.icon, `${fieldName}.icon`),
+      weight,
+      ...(item.archived === true ? { archived: true } : {}),
+    }
+  })
+
+  const activeCount = items.filter((item) => !item.archived).length
+  if (activeCount < 1) {
+    throw new Error('multiItems must contain at least one non-archived item')
+  }
+  if (activeCount > MULTI_COMPLETION_MAX_ACTIVE_ITEMS) {
+    throw new Error(
+      `multiItems must contain at most ${MULTI_COMPLETION_MAX_ACTIVE_ITEMS} non-archived items`,
+    )
+  }
+
+  return items
+}
+
+/**
+ * Daily points threshold for multi-completion. Undefined means "all active
+ * items" (the effective threshold follows the current item list); an explicit
+ * `null` clears a stored value back to that default.
+ */
+function normalizeMultiDailyThreshold(
+  entryMode: MeasurementEntryMode,
+  value: unknown,
+  existing?: number,
+): number | undefined {
+  if (entryMode !== 'multi-completion') {
+    return undefined
+  }
+
+  const source = value === undefined ? existing : value
+  if (source === undefined || source === null) {
+    return undefined
+  }
+
+  if (typeof source !== 'number' || !Number.isInteger(source) || source < 1) {
+    throw new Error('multiDailyThreshold must be an integer >= 1')
+  }
+
+  return source
+}
+
 function normalizeMeasurementTarget(
   entryMode: MeasurementEntryMode,
   targetValue: unknown,
@@ -516,6 +649,9 @@ function normalizeMeasurementTarget(
   switch (entryMode) {
     case 'completion':
     case 'counter':
+    // Multi-completion targets count MET days (daily threshold reached), so the
+    // period-level shape is the same count target as completion.
+    case 'multi-completion':
       return {
         kind: normalizeEnum(source.kind, 'target.kind', ['count'] as const, 'count'),
         operator: normalizeEnum(
@@ -665,6 +801,8 @@ export function normalizeKeyResultPayload(
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
+    multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, data.multiDailyThreshold, existing?.multiDailyThreshold),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
   }
 }
@@ -699,6 +837,8 @@ export function normalizeHabitPayload(
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
+    multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, data.multiDailyThreshold, existing?.multiDailyThreshold),
     status: normalizeEnum(data.status, 'status', HABIT_STATUSES, existing?.status ?? 'open'),
   }
 }
@@ -733,6 +873,8 @@ export function normalizeWeeklyIntentionPayload(
     target: normalizeMeasurementTarget(entryMode, data.target, existing?.target),
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
+    multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, data.multiDailyThreshold, existing?.multiDailyThreshold),
     status: normalizeEnum(data.status, 'status', WEEKLY_INTENTION_STATUSES, existing?.status ?? 'open'),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
   }
@@ -745,21 +887,24 @@ export function normalizeTrackerPayload(
   assertForbiddenKeys(data as object, ['goalId', 'goalIds', 'analysisPeriod', 'kind', 'config', 'target'])
 
   const base = normalizePlanningObjectBase(data, existing)
+  const entryMode = normalizeEnum(
+    data.entryMode,
+    'entryMode',
+    ENTRY_MODES,
+    existing?.entryMode ?? 'completion',
+  )
 
   return {
     ...base,
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
-    entryMode: normalizeEnum(
-      data.entryMode,
-      'entryMode',
-      ENTRY_MODES,
-      existing?.entryMode ?? 'completion',
-    ),
+    entryMode,
     cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),
     ratingScaleMin: normalizeOptionalPositiveInt(data.ratingScaleMin, 'ratingScaleMin', existing?.ratingScaleMin),
     ratingScale: normalizeOptionalPositiveInt(data.ratingScale, 'ratingScale', existing?.ratingScale),
+    multiItems: normalizeMultiCompletionItems(entryMode, data.multiItems, existing?.multiItems),
+    multiDailyThreshold: normalizeMultiDailyThreshold(entryMode, data.multiDailyThreshold, existing?.multiDailyThreshold),
     status: normalizeEnum(data.status, 'status', TRACKER_STATUSES, existing?.status ?? 'open'),
   }
 }

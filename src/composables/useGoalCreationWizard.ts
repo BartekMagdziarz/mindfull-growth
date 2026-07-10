@@ -106,6 +106,7 @@ function defaultTargetFor(entryMode: MeasurementEntryMode): MeasurementTarget {
   switch (entryMode) {
     case 'completion':
     case 'counter':
+    case 'multi-completion':
       return { kind: 'count', operator: 'min' as CountTargetOperator, value: 1 }
     case 'value':
       return {

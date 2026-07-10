@@ -435,6 +435,87 @@ describe('planningState Dexie repository', () => {
     expect(initiativeState.initiativeId).toBe(initiative.id)
   })
 
+  it('validates multi-completion entries against the subject item list', async () => {
+    const habit = await habitDexieRepository.create({
+      title: 'Poranna rutyna',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'multi-completion',
+      multiItems: [
+        { id: 'wake', label: 'Pobudka 6:00', weight: 1 },
+        { id: 'train', label: 'Trening', weight: 2 },
+      ],
+      target: { kind: 'count', operator: 'min', value: 3 },
+      status: 'open',
+    })
+    const completionHabit = await habitDexieRepository.create({
+      title: 'Spacer',
+      isActive: true,
+      priorityIds: [],
+      lifeAreaIds: [],
+      cadence: 'weekly',
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: 1 },
+      status: 'open',
+    })
+    const dayRef = parsePeriodRef('2026-03-12') as DayRef
+
+    const created = await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'habit',
+      subjectId: habit.id,
+      dayRef,
+      value: null,
+      checkedItemIds: ['wake', 'train'],
+    })
+    expect(created.checkedItemIds).toEqual(['wake', 'train'])
+    expect(created.value).toBeNull()
+
+    // Non-null value is rejected for multi-completion subjects.
+    await expect(
+      planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        dayRef: parsePeriodRef('2026-03-13') as DayRef,
+        value: 1,
+        checkedItemIds: ['wake'],
+      })
+    ).rejects.toThrow('Failed to persist daily measurement entry in database')
+
+    // Ids must resolve to the subject's items.
+    await expect(
+      planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        dayRef: parsePeriodRef('2026-03-13') as DayRef,
+        value: null,
+        checkedItemIds: ['ghost'],
+      })
+    ).rejects.toThrow('Failed to persist daily measurement entry in database')
+
+    // An entry without checked items is invalid — the UI deletes instead.
+    await expect(
+      planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: habit.id,
+        dayRef: parsePeriodRef('2026-03-13') as DayRef,
+        value: null,
+      })
+    ).rejects.toThrow('Failed to persist daily measurement entry in database')
+
+    // checkedItemIds is rejected for other entry modes.
+    await expect(
+      planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'habit',
+        subjectId: completionHabit.id,
+        dayRef,
+        value: null,
+        checkedItemIds: ['wake'],
+      })
+    ).rejects.toThrow('Failed to persist daily measurement entry in database')
+  })
+
   it('stores one hidden state per day and subject', async () => {
     const habit = await habitDexieRepository.create({
       title: 'Deep work',

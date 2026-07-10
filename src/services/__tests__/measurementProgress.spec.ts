@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest'
 import type { Habit, KeyResult, Tracker } from '@/domain/planning'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { DayRef, WeekRef } from '@/domain/period'
-import { applyMeasurementTargetCascade, buildMeasurementSummary } from '@/services/measurementProgress'
+import {
+  applyMeasurementTargetCascade,
+  buildMeasurementSummary,
+  multiCompletionDayMet,
+  multiCompletionDayPoints,
+  multiCompletionEffectiveThreshold,
+} from '@/services/measurementProgress'
 
 function makeEntry(
   subjectId: string,
@@ -475,5 +481,135 @@ describe('entryDays condition (conjunction)', () => {
 
     expect(summary.evaluationStatus).toBe('missed')
     expect(summary.presenceMet).toBe(false)
+  })
+})
+
+describe('multi-completion evaluation', () => {
+  const weekRef = '2026-W10' as WeekRef
+  const multiItems = [
+    { id: 'wake', label: 'Pobudka 6:00', weight: 1 },
+    { id: 'meditate', label: 'Medytacja', weight: 1 },
+    { id: 'train', label: 'Trening', weight: 2 },
+  ]
+
+  function makeMultiHabit(overrides: Partial<Habit> = {}): Habit {
+    return makeHabit({
+      entryMode: 'multi-completion',
+      multiItems,
+      target: { kind: 'count', operator: 'min', value: 2 },
+      ...overrides,
+    })
+  }
+
+  function makeMultiEntry(subjectId: string, dayRef: string, checkedItemIds: string[]): DailyMeasurementEntry {
+    return makeEntry(subjectId, dayRef, null, { checkedItemIds })
+  }
+
+  it('counts only days whose points reach the default all-items threshold', () => {
+    const habit = makeMultiHabit()
+    const summary = buildMeasurementSummary(habit, [
+      makeMultiEntry(habit.id, '2026-03-09', ['wake', 'meditate', 'train']),
+      makeMultiEntry(habit.id, '2026-03-10', ['wake', 'meditate']),
+      makeMultiEntry(habit.id, '2026-03-11', ['train', 'wake']),
+    ], weekRef)
+
+    expect(summary.actualValue).toBe(1)
+    expect(summary.entryCount).toBe(3)
+    expect(summary.evaluationStatus).toBe('missed')
+  })
+
+  it('respects an explicit daily threshold and weighted items', () => {
+    const habit = makeMultiHabit({ multiDailyThreshold: 2 })
+    const summary = buildMeasurementSummary(habit, [
+      makeMultiEntry(habit.id, '2026-03-09', ['train']),
+      makeMultiEntry(habit.id, '2026-03-10', ['wake', 'meditate']),
+      makeMultiEntry(habit.id, '2026-03-11', ['wake']),
+    ], weekRef)
+
+    expect(summary.actualValue).toBe(2)
+    expect(summary.evaluationStatus).toBe('met')
+  })
+
+  it('recomputes the default threshold from the current active item list', () => {
+    const entries = [makeMultiEntry('habit-1', '2026-03-09', ['wake', 'meditate', 'train'])]
+
+    const met = buildMeasurementSummary(makeMultiHabit(), entries, weekRef)
+    expect(met.actualValue).toBe(1)
+
+    const extended = makeMultiHabit({
+      multiItems: [...multiItems, { id: 'read', label: 'Czytanie', weight: 1 }],
+    })
+    const nowPartial = buildMeasurementSummary(extended, entries, weekRef)
+    expect(nowPartial.actualValue).toBe(0)
+  })
+
+  it('clamps a stale explicit threshold to the active weight sum', () => {
+    const habit = makeMultiHabit({
+      multiDailyThreshold: 4,
+      multiItems: [
+        { id: 'wake', label: 'Pobudka 6:00', weight: 1 },
+        { id: 'meditate', label: 'Medytacja', weight: 1 },
+        { id: 'train', label: 'Trening', weight: 2, archived: true },
+      ],
+    })
+
+    expect(multiCompletionEffectiveThreshold(habit)).toBe(2)
+    expect(multiCompletionDayMet(habit, makeMultiEntry(habit.id, '2026-03-09', ['wake', 'meditate']))).toBe(true)
+  })
+
+  it('still scores archived item weights in historical entries', () => {
+    const habit = makeMultiHabit({
+      multiItems: [
+        { id: 'wake', label: 'Pobudka 6:00', weight: 1 },
+        { id: 'meditate', label: 'Medytacja', weight: 1 },
+        { id: 'train', label: 'Trening', weight: 2, archived: true },
+      ],
+    })
+    const entry = makeMultiEntry(habit.id, '2026-03-09', ['train'])
+
+    expect(multiCompletionDayPoints(habit, entry)).toBe(2)
+    expect(multiCompletionDayMet(habit, entry)).toBe(true)
+  })
+
+  it('ignores ids that no longer resolve to an item', () => {
+    const habit = makeMultiHabit()
+    const entry = makeMultiEntry(habit.id, '2026-03-09', ['ghost'])
+
+    expect(multiCompletionDayPoints(habit, entry)).toBe(0)
+    expect(multiCompletionDayMet(habit, entry)).toBe(false)
+  })
+
+  it('treats every entry as a qualified day for the entryDays condition', () => {
+    const habit = makeMultiHabit({
+      target: { kind: 'count', operator: 'min', value: 1, entryDays: { operator: 'min', value: 3 } },
+    })
+    const entries = [
+      makeMultiEntry(habit.id, '2026-03-09', ['wake', 'meditate', 'train']),
+      makeMultiEntry(habit.id, '2026-03-10', ['wake']),
+      makeMultiEntry(habit.id, '2026-03-11', ['meditate']),
+    ]
+
+    const summary = buildMeasurementSummary(habit, entries, weekRef)
+    expect(summary.actualValue).toBe(1)
+    expect(summary.qualifiedEntryDays).toBe(3)
+    expect(summary.primaryMet).toBe(true)
+    expect(summary.presenceMet).toBe(true)
+    expect(summary.evaluationStatus).toBe('met')
+
+    const stricter = makeMultiHabit({
+      target: { kind: 'count', operator: 'min', value: 1, entryDays: { operator: 'min', value: 4 } },
+    })
+    expect(buildMeasurementSummary(stricter, entries, weekRef).evaluationStatus).toBe('missed')
+  })
+
+  it('leaves trackers without a target unevaluated but aggregates met days', () => {
+    const tracker = makeTracker({ entryMode: 'multi-completion', multiItems })
+    const summary = buildMeasurementSummary(tracker, [
+      makeMultiEntry(tracker.id, '2026-03-09', ['wake', 'meditate', 'train']),
+      makeMultiEntry(tracker.id, '2026-03-10', ['wake']),
+    ], weekRef)
+
+    expect(summary.actualValue).toBe(1)
+    expect(summary.evaluationStatus).toBeUndefined()
   })
 })
