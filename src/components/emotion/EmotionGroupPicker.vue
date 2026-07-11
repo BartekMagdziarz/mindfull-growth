@@ -118,7 +118,7 @@
                 @keydown.left.prevent="nudge(g.slug, -1)"
                 @keydown.right.prevent="nudge(g.slug, 1)"
               >
-                <span class="fico" :style="{ '--fi': `url('${faceUrl(g.slug)}')` }"></span>
+                <span class="fico" :style="{ '--fi': faceMask(g.slug) }"></span>
               </button>
             </div>
             <div v-if="hovered === g.slug" class="ttip">
@@ -196,9 +196,12 @@ const activeQuad = defineModel<Quadrant | null>('quadrant', { default: null })
 const { t } = useT()
 
 // twarze grup: assets/emotion-faces/<slug>.svg jako maski CSS (barwione color-mix);
-// new URL(..., import.meta.url) — wzorzec Vite działający w dev i buildzie
-function faceUrl(slug: string): string {
-  return new URL(`../../assets/emotion-faces/${slug}.svg`, import.meta.url).href
+// new URL(..., import.meta.url) — wzorzec Vite działający w dev i buildzie.
+// UWAGA: małe SVG Vite inlinuje jako data: URI z SUROWYMI apostrofami w środku,
+// więc wartość url() MUSI być w cudzysłowach (apostrofy ucinałyby string —
+// mask-image robił się nieparsowalny i twarz znikała; zdiagnozowane 2026-07-11).
+function faceMask(slug: string): string {
+  return `url("${new URL(`../../assets/emotion-faces/${slug}.svg`, import.meta.url).href}")`
 }
 
 // układ przeglądu 2×2 wg cyrkumpleksu: HEHP w prawym górnym rogu
