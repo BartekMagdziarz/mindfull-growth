@@ -70,7 +70,7 @@ import {
 } from './verificationAccount'
 
 /** Bump after changing the dataset — forces a reset+re-seed on next verification boot. */
-export const SEED_VERSION = 6
+export const SEED_VERSION = 7
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 const WEEKS_BACK = 8
@@ -271,6 +271,25 @@ async function addEntries(
         subjectId,
         dayRef,
         value,
+      }),
+    ),
+  )
+}
+
+async function addMultiEntries(
+  subjectType: MeasurementSubjectType,
+  subjectId: string,
+  days: DayRef[],
+  checkedItemIds: string[],
+): Promise<void> {
+  await Promise.all(
+    days.map(dayRef =>
+      planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType,
+        subjectId,
+        dayRef,
+        value: null,
+        checkedItemIds,
       }),
     ),
   )
@@ -513,6 +532,25 @@ export async function seedVerificationData(): Promise<void> {
     lifeAreaIds: [areaGrowth.id],
   })
 
+  // Multi-completion: 3 weighted items, explicit threshold 3 of 4 pts — the
+  // stack chart shows full (met), partial and empty days side by side.
+  const h6 = await habitDexieRepository.create({
+    title: 'Poranna checklista',
+    isActive: true,
+    status: 'open',
+    cadence: 'weekly',
+    entryMode: 'multi-completion',
+    target: { kind: 'count', operator: 'min', value: 4 },
+    multiItems: [
+      { id: 'wake', label: 'Pobudka 6:00', icon: 'alarm', weight: 1 },
+      { id: 'meditate', label: 'Medytacja', icon: 'self_improvement', weight: 1 },
+      { id: 'train', label: 'Trening', icon: 'fitness_center', weight: 2 },
+    ],
+    multiDailyThreshold: 3,
+    priorityIds: [p1.id],
+    lifeAreaIds: [areaHealth.id],
+  })
+
   const t1 = await trackerDexieRepository.create({
     title: 'Jakość snu',
     isActive: true,
@@ -531,6 +569,20 @@ export async function seedVerificationData(): Promise<void> {
     priorityIds: [],
     lifeAreaIds: [areaWork.id],
   })
+  // Multi-completion tracker (no target): default threshold = all active items.
+  const t3 = await trackerDexieRepository.create({
+    title: 'Wieczorne wyciszenie',
+    isActive: true,
+    status: 'open',
+    cadence: 'weekly',
+    entryMode: 'multi-completion',
+    multiItems: [
+      { id: 'no-screens', label: 'Bez ekranów po 22', icon: 'mobile_off', weight: 1 },
+      { id: 'journal', label: 'Wieczorny dziennik', icon: 'edit_note', weight: 1 },
+    ],
+    priorityIds: [p1.id],
+    lifeAreaIds: [areaHealth.id],
+  })
 
   console.log('[verificationSeed] Created planning objects')
 
@@ -545,8 +597,10 @@ export async function seedVerificationData(): Promise<void> {
     { subjectType: 'habit', id: h3.id },
     { subjectType: 'habit', id: h4.id },
     { subjectType: 'habit', id: h5.id },
+    { subjectType: 'habit', id: h6.id },
     { subjectType: 'tracker', id: t1.id },
     { subjectType: 'tracker', id: t2.id },
+    { subjectType: 'tracker', id: t3.id },
   ]
 
   // Fixed weekday placement per subject (0=Mon … 6=Sun) — feeds the ritual's
@@ -635,6 +689,28 @@ export async function seedVerificationData(): Promise<void> {
       upToToday(weekDays(weekRef, isMet(weekIdx, 1) ? [1, 3] : [1, 2, 4, 5])),
       4,
     )
+    // h6 (multi, threshold 3/4 pts): met weeks = 4 full days + 1 partial
+    // (2 pts, amber); missed weeks = 2 low-point partials + 1 met day.
+    if (isMet(weekIdx, 2)) {
+      await addMultiEntries(
+        'habit',
+        h6.id,
+        upToToday(weekDays(weekRef, [0, 1, 2, 3])),
+        ['wake', 'meditate', 'train'],
+      )
+      await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [4])), ['wake', 'meditate'])
+    } else {
+      await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [1, 3])), ['wake'])
+      await addMultiEntries('habit', h6.id, upToToday(weekDays(weekRef, [5])), ['wake', 'train'])
+    }
+    // t3 (multi tracker, all-items threshold): alternating full and partial days.
+    await addMultiEntries(
+      'tracker',
+      t3.id,
+      upToToday(weekDays(weekRef, [0, 2])),
+      ['no-screens', 'journal'],
+    )
+    await addMultiEntries('tracker', t3.id, upToToday(weekDays(weekRef, [4])), ['journal'])
     for (const [dayIdx, dayRef] of upToToday(weekDays(weekRef, [0, 2, 4, 6])).entries()) {
       await addEntries('tracker', t1.id, [dayRef], 2 + ((weekIdx + dayIdx) % 4))
     }

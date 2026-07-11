@@ -29,7 +29,11 @@
       </span>
 
       <!-- Inline today control -->
-      <div class="today-item-entry" @click.stop>
+      <div
+        class="today-item-entry"
+        :class="viz.entryMode.value === 'multi-completion' ? 'today-item-entry--multi' : ''"
+        @click.stop
+      >
         <!-- Initiative: dedicated checkmark -->
         <InitiativeCheckmark
           v-if="viz.vizType.value === 'initiative-check'"
@@ -56,7 +60,7 @@
         <!-- Multi-completion: one toggle chip per checkable item -->
         <div
           v-else-if="viz.entryMode.value === 'multi-completion'"
-          class="flex max-w-[220px] flex-wrap items-center justify-end gap-1"
+          class="flex max-w-[248px] flex-wrap items-center justify-end gap-1"
         >
           <button
             v-for="multiItem in multiActiveItems"
@@ -586,6 +590,15 @@ function handleMoveDateChange(event: Event): void {
   align-items: center;
   justify-content: flex-end;
   position: relative;
+}
+
+/* Multi-completion renders one chip per item — the fixed 37px circle slot
+   would stack them vertically over the neighbouring rows, so let it grow
+   horizontally instead. */
+.today-item-entry--multi {
+  flex: 0 1 auto;
+  height: auto;
+  min-height: 37px;
 }
 
 /* Unified 37px circle entry cell — 15% smaller than the original 44px so
