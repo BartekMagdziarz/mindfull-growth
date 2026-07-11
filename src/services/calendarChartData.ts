@@ -2,7 +2,7 @@ import type { DayRef, MonthRef, PeriodRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementSubjectType } from '@/domain/planningState'
 import type { MeasureableSubject } from '@/services/measurementProgress'
 import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
-import { buildMeasurementSummary } from '@/services/measurementProgress'
+import { buildMeasurementSummary, multiCompletionDayPoints } from '@/services/measurementProgress'
 import { getChildPeriods, getPeriodBounds, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 
@@ -91,6 +91,9 @@ export function buildWeekDailyChartPoints(
     if (entry) {
       if (subject.entryMode === 'completion') {
         actualValue = 1
+      } else if (subject.entryMode === 'multi-completion') {
+        // Bar height = points earned that day (checked-item weights).
+        actualValue = multiCompletionDayPoints(subject, entry)
       } else {
         actualValue = entry.value ?? undefined
       }

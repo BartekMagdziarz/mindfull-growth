@@ -231,3 +231,23 @@ describe('resolveWeeklySliceVizType', () => {
     })
   })
 })
+
+describe('resolveWeeklySliceVizType — multi-completion', () => {
+  it('routes multi-completion to the item-stack grid regardless of cadence', () => {
+    expect(
+      resolveWeeklySliceVizType(
+        measurement({
+          panelType: 'habit',
+          entryMode: 'multi-completion',
+          target: { kind: 'count', operator: 'min', value: 3 },
+          cadence: 'weekly',
+        }),
+      ),
+    ).toBe('multi-completion-stack')
+    expect(
+      resolveWeeklySliceVizType(
+        measurement({ panelType: 'tracker', entryMode: 'multi-completion', cadence: 'monthly' }),
+      ),
+    ).toBe('multi-completion-stack')
+  })
+})

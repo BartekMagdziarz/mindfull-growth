@@ -33,47 +33,69 @@ export function auditMeasurementRecords(
 ): InvalidMeasurementRecord[] {
   const invalid: InvalidMeasurementRecord[] = []
 
-  for (const habit of habits) {
-    if (habit.entryMode === 'completion' && habit.target.kind !== 'count') {
+  function auditTargeted(
+    subjectType: 'habit' | 'keyResult',
+    subject: Habit | KeyResult,
+  ): void {
+    if (subject.entryMode === 'completion' && subject.target.kind !== 'count') {
       invalid.push({
-        subjectType: 'habit',
-        subjectId: habit.id,
-        title: habit.title,
+        subjectType,
+        subjectId: subject.id,
+        title: subject.title,
         reason: 'completion entry mode requires count target',
       })
     }
-    if (habit.entryMode === 'completion' && habit.target.entryDays) {
+    if (subject.entryMode === 'completion' && subject.target.entryDays) {
       invalid.push({
-        subjectType: 'habit',
-        subjectId: habit.id,
-        title: habit.title,
+        subjectType,
+        subjectId: subject.id,
+        title: subject.title,
         reason: 'completion entry mode must not carry an entryDays condition',
       })
     }
+    if (subject.entryMode === 'multi-completion' && subject.target.kind !== 'count') {
+      invalid.push({
+        subjectType,
+        subjectId: subject.id,
+        title: subject.title,
+        reason: 'multi-completion entry mode requires count target',
+      })
+    }
+    if (
+      subject.entryMode === 'multi-completion' &&
+      !subject.multiItems?.some((item) => !item.archived)
+    ) {
+      invalid.push({
+        subjectType,
+        subjectId: subject.id,
+        title: subject.title,
+        reason: 'multi-completion entry mode requires at least one active item',
+      })
+    }
+  }
+
+  for (const habit of habits) {
+    auditTargeted('habit', habit)
   }
 
   for (const kr of keyResults) {
-    if (kr.entryMode === 'completion' && kr.target.kind !== 'count') {
+    auditTargeted('keyResult', kr)
+  }
+
+  // Trackers have no `target`, but the multi-completion item invariant applies.
+  for (const tracker of trackers) {
+    if (
+      tracker.entryMode === 'multi-completion' &&
+      !tracker.multiItems?.some((item) => !item.archived)
+    ) {
       invalid.push({
-        subjectType: 'keyResult',
-        subjectId: kr.id,
-        title: kr.title,
-        reason: 'completion entry mode requires count target',
-      })
-    }
-    if (kr.entryMode === 'completion' && kr.target.entryDays) {
-      invalid.push({
-        subjectType: 'keyResult',
-        subjectId: kr.id,
-        title: kr.title,
-        reason: 'completion entry mode must not carry an entryDays condition',
+        subjectType: 'tracker',
+        subjectId: tracker.id,
+        title: tracker.title,
+        reason: 'multi-completion entry mode requires at least one active item',
       })
     }
   }
-
-  // Tracker has no `target` field in the domain type, so there is nothing to
-  // audit. Reference the parameter so linters do not flag it as unused.
-  void trackers
 
   return invalid
 }

@@ -97,3 +97,18 @@ describe('resolveMonthlySliceVizType', () => {
     ).toBe('value-line')
   })
 })
+
+describe('resolveMonthlySliceVizType — multi-completion', () => {
+  it('routes multi-completion to per-week completion bars (heights = met days)', () => {
+    expect(
+      resolveMonthlySliceVizType(
+        measurement({
+          panelType: 'habit',
+          entryMode: 'multi-completion',
+          target: { kind: 'count', operator: 'min', value: 3 },
+          cadence: 'weekly',
+        }),
+      ),
+    ).toBe('monthly-completion-bars')
+  })
+})

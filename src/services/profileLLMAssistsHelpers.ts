@@ -43,8 +43,10 @@ import { planningStateDexieRepository } from '@/repositories/planningStateDexieR
 import {
   buildMeasurementSummary,
   EXECUTION_METRICS_MAX_PERIODS,
+  multiCompletionDayPoints,
   ON_TRACK_BANDS,
   TRACKER_TREND_DEADBAND_PCT,
+  type MeasureableSubject,
   type MeasurementPeriodRef,
 } from '@/services/measurementProgress'
 import {
@@ -449,14 +451,34 @@ export function computeKRExecutionMetrics(
   }
 }
 
-function averageNumericEntries(entries: DailyMeasurementEntry[]): number | undefined {
-  const values = entries.flatMap((entry) => (typeof entry.value === 'number' ? [entry.value] : []))
+/**
+ * Numeric reading of an entry for trend math. Multi-completion entries store
+ * null values, so their "number" is the day's earned points (live weights).
+ */
+function numericEntryValue(
+  subject: MeasureableSubject,
+  entry: DailyMeasurementEntry,
+): number | undefined {
+  if (subject.entryMode === 'multi-completion') {
+    return multiCompletionDayPoints(subject, entry)
+  }
+  return typeof entry.value === 'number' ? entry.value : undefined
+}
+
+function averageNumericEntries(
+  subject: MeasureableSubject,
+  entries: DailyMeasurementEntry[],
+): number | undefined {
+  const values = entries.flatMap((entry) => {
+    const value = numericEntryValue(subject, entry)
+    return value === undefined ? [] : [value]
+  })
   if (values.length === 0) return undefined
   return values.reduce((sum, value) => sum + value, 0) / values.length
 }
 
-function numericEntryCount(entries: DailyMeasurementEntry[]): number {
-  return entries.filter((entry) => typeof entry.value === 'number').length
+function numericEntryCount(subject: MeasureableSubject, entries: DailyMeasurementEntry[]): number {
+  return entries.filter((entry) => numericEntryValue(subject, entry) !== undefined).length
 }
 
 function trackerTypicalRange(tracker: Tracker): number {
@@ -485,15 +507,15 @@ export function computeTrackerExecutionMetrics(
   const baselineEntries = sortedEntries.filter((entry) => (
     entry.dayRef.localeCompare(start90d) >= 0 && entry.dayRef.localeCompare(start30d) < 0
   ))
-  const avg30d = averageNumericEntries(entries30d)
-  const avg90d = averageNumericEntries(entries90d)
+  const avg30d = averageNumericEntries(tracker, entries30d)
+  const avg90d = averageNumericEntries(tracker, entries90d)
   let trend: TrackerTrend = 'flat'
 
   if (
     avg30d !== undefined &&
     avg90d !== undefined &&
-    numericEntryCount(entries30d) >= 3 &&
-    numericEntryCount(baselineEntries) >= 3
+    numericEntryCount(tracker, entries30d) >= 3 &&
+    numericEntryCount(tracker, baselineEntries) >= 3
   ) {
     const diff = avg30d - avg90d
     const deadband = TRACKER_TREND_DEADBAND_PCT * trackerTypicalRange(tracker)

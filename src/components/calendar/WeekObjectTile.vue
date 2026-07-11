@@ -20,6 +20,10 @@
         v-if="viz.vizType.value === 'completion-dots'"
         :slots="viz.completionSlots.value"
       />
+      <MultiCompletionStack
+        v-else-if="viz.vizType.value === 'multi-completion-stack' && viz.multiStackData.value"
+        :data="viz.multiStackData.value"
+      />
       <DailyBarsChart
         v-else-if="viz.vizType.value === 'daily-bars'"
         :slots="viz.barSlots.value"
@@ -47,6 +51,7 @@ import { computed, toRef } from 'vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import CompletionDots from '@/components/today/visualizations/CompletionDots.vue'
 import DailyBarsChart from '@/components/today/visualizations/DailyBarsChart.vue'
+import MultiCompletionStack from '@/components/today/visualizations/MultiCompletionStack.vue'
 import RatingSegmentedBars from '@/components/today/visualizations/RatingSegmentedBars.vue'
 import ValueLineChart from '@/components/today/visualizations/ValueLineChart.vue'
 import ContextChip from '@/components/today/visualizations/ContextChip.vue'

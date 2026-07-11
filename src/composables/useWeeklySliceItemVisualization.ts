@@ -42,14 +42,17 @@ import { resolveWeeklySliceVizType, type TodayVizType } from '@/services/todayVi
 import {
   buildContextChipData,
   buildMonthlyContextFooter,
+  buildMultiCompletionStackData,
   buildWeeklySliceCompletionSlots,
   type ContextChipData,
+  type MultiCompletionStackData,
 } from '@/services/weeklySliceChartData'
 import { getPeriodBounds } from '@/utils/periods'
 
 export interface UseWeeklySliceItemVisualization {
   vizType: ComputedRef<TodayVizType>
   completionSlots: ComputedRef<TodayCompletionSlot[]>
+  multiStackData: ComputedRef<MultiCompletionStackData | undefined>
   barSlots: ComputedRef<TodayDaySlot[]>
   valueLineSlots: ComputedRef<TodayDaySlot[]>
   aggregateData: ComputedRef<TodayAggregateData | undefined>
@@ -85,6 +88,20 @@ export function useWeeklySliceItemVisualization(
   const completionSlots = computed<TodayCompletionSlot[]>(() => {
     if (vizType.value !== 'completion-dots') return []
     return buildWeeklySliceCompletionSlots(
+      subject.value,
+      subjectType.value,
+      rawEntries.value,
+      allDayAssignments.value,
+      planning.value,
+      weekRef.value,
+      todayDayRef.value,
+      locale.value,
+    )
+  })
+
+  const multiStackData = computed<MultiCompletionStackData | undefined>(() => {
+    if (vizType.value !== 'multi-completion-stack') return undefined
+    return buildMultiCompletionStackData(
       subject.value,
       subjectType.value,
       rawEntries.value,
@@ -159,6 +176,7 @@ export function useWeeklySliceItemVisualization(
   return {
     vizType,
     completionSlots,
+    multiStackData,
     barSlots,
     valueLineSlots,
     aggregateData,

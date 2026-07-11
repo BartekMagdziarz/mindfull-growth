@@ -173,6 +173,8 @@ export function resolveTodayVizType(input: VisualizationDecisionInput): TodayViz
  *   completion + count target > 7                       → 'completion-dots'  *
  *   completion + tracker (no target)                    → 'completion-dots'  * (always, even monthly)
  *
+ *   multi-completion + any cadence                      → 'multi-completion-stack' * (weekly shape)
+ *
  *   rating + any cadence                                → 'rating-segmented' * (no monthly variant)
  *
  *   counter + any cadence                               → 'daily-bars'       * (no monthly variant)
@@ -192,6 +194,11 @@ export function resolveWeeklySliceVizType(input: VisualizationDecisionInput): To
   if (input.entryMode === 'completion') {
     // Always 7 day-slots — even for "Meditation 15x/month" the user sees Mon-Sun.
     return 'completion-dots'
+  }
+
+  if (input.entryMode === 'multi-completion') {
+    // Weekly shape by definition — the stack always renders 7 Mon-Sun columns.
+    return 'multi-completion-stack'
   }
 
   if (input.entryMode === 'rating') {
@@ -234,6 +241,12 @@ export function resolveMonthlySliceVizType(input: VisualizationDecisionInput): T
   // 4-5 weekly slots make bar-height comparisons meaningful (unlike the dot
   // layout in the weekly slice where every dot is just on/off).
   if (input.entryMode === 'completion') {
+    return 'monthly-completion-bars'
+  }
+
+  // Multi-completion aggregates to met-days per week — the same count-plus-status
+  // shape as completion, so it shares the per-week bars (heights = met days).
+  if (input.entryMode === 'multi-completion') {
     return 'monthly-completion-bars'
   }
 

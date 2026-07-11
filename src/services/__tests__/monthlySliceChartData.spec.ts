@@ -241,3 +241,34 @@ describe('buildMonthlySliceValueLineSlots', () => {
     expect(line.length).toBe(bar.length)
   })
 })
+
+describe('buildMonthlySliceCompletionSlots — multi-completion', () => {
+  it('uses MET days (not entry count) for the bar height', () => {
+    const habit = makeHabit({
+      entryMode: 'multi-completion',
+      multiItems: [
+        { id: 'a', label: 'A', weight: 1 },
+        { id: 'b', label: 'B', weight: 1 },
+      ],
+      target: { kind: 'count', operator: 'min', value: 2 },
+    })
+    const firstWeekDays = getChildPeriods(weeks[0]) as DayRef[]
+    const entries: DailyMeasurementEntry[] = [
+      { ...makeEntry(habit.id, firstWeekDays[0], null), checkedItemIds: ['a', 'b'] },
+      { ...makeEntry(habit.id, firstWeekDays[1], null), checkedItemIds: ['a'] },
+      { ...makeEntry(habit.id, firstWeekDays[2], null), checkedItemIds: ['a', 'b'] },
+    ]
+
+    const slots = buildMonthlySliceCompletionSlots(
+      habit,
+      entries,
+      monthRef,
+      '2026-06-15' as DayRef,
+    )
+
+    // 3 entries but only 2 met days — the partial day adds no height.
+    expect(slots[0].value).toBe(2)
+    expect(slots[0].hasEntry).toBe(true)
+    expect(slots[0].state).toBe('done')
+  })
+})

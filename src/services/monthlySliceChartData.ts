@@ -94,10 +94,14 @@ export function buildMonthlySliceCompletionSlots(
       : buildMeasurementSummary(subject, rawEntries, ctx.weekRef, ctx.clipRef)
     const hasEntry = (summary?.entryCount ?? 0) > 0
     const state = resolveCompletionState(summary?.evaluationStatus, ctx, hasEntry)
+    // Bar height: completion counts entries; multi-completion counts MET days
+    // (its actualValue) — partial days keep hasEntry/state but don't add height.
+    const value =
+      subject.entryMode === 'multi-completion' ? summary?.actualValue ?? 0 : summary?.entryCount
     return {
       dayRef: ctx.start,
       label: ctx.label,
-      value: summary?.entryCount ?? undefined,
+      value: summary ? value : undefined,
       isToday: ctx.isCurrent,
       isFuture: ctx.isFuture,
       isScheduled: true,
