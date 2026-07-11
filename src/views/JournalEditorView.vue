@@ -119,11 +119,13 @@
           </button>
         </div>
 
-        <!-- Right: zwijany panel — picker emocji + tagi (px/py dają miejsce cieniom,
-             overflow-y-auto inaczej by je przycinał) -->
+        <!-- Right: zwijany panel — picker emocji + tagi. Paddingi dają miejsce cieniom
+             wewnątrz scrollportu (overflow-y-auto inaczej by je przycinał); pr-4/-mr-4
+             znosi się nawzajem, więc karty sięgają krawędzi kontenera i prawy margines
+             strony jest równy lewemu. -->
         <aside
           :class="[
-            'flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-x-hidden md:overflow-y-auto md:py-4 md:px-5',
+            'neo-scroll journal-aside flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-x-hidden md:overflow-y-auto md:py-4 md:pl-5 md:pr-4 md:-mr-4',
             'md:transition md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)]',
             isSidePanelOpen
               ? 'md:opacity-100 md:translate-x-0'
@@ -981,5 +983,24 @@ onUnmounted(() => {
 .dialog-leave-to .neo-raised-strong {
   transform: scale(0.95);
   opacity: 0;
+}
+
+/* Scrollbar panelu bocznego: neo-scroll + chowanie do czasu interakcji —
+   kciuk jest przezroczysty, pojawia się dopiero gdy kursor jest nad panelem
+   (desktop-only; scrollowanie kółkiem implikuje hover). */
+.journal-aside {
+  scrollbar-color: transparent transparent;
+}
+.journal-aside:hover {
+  scrollbar-color: rgb(var(--neo-border) / 0.55) transparent;
+}
+.journal-aside::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+.journal-aside:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--neo-border) / 0.45);
+}
+.journal-aside:hover::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--neo-border) / 0.7);
 }
 </style>

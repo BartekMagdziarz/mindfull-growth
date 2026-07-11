@@ -452,7 +452,7 @@ const chips = computed(() =>
   margin-top: -6px;
 }
 .oh-t {
-  font: 700 14px/1.1 'Roboto', sans-serif;
+  font: 700 12px/1.1 'Roboto', sans-serif;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--muted);
