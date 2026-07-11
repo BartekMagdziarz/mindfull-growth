@@ -69,10 +69,14 @@
         </Transition>
       </Teleport>
 
-      <!-- Main Editor Grid: pisanie (bohater) po lewej, koło emocji + tagi po prawej —
-           całość mieści się na jednym ekranie (koło zastąpiło zwijany panel boczny) -->
+      <!-- Main Editor Grid: pisanie (bohater) po lewej, zwijany panel boczny
+           (picker emocji + tagi) po prawej — chevron w środkowej kolumnie -->
       <div
-        class="grid grid-cols-1 gap-4 md:items-stretch min-h-[60vh] md:min-h-0 md:h-[78vh] md:grid-cols-[1.1fr_1fr]"
+        :class="[
+          'grid grid-cols-1 gap-4 md:items-stretch md:gap-2 min-h-[60vh] md:min-h-0 md:h-[78vh]',
+          'md:transition-[grid-template-columns] md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)]',
+          isSidePanelOpen ? 'md:grid-cols-[3fr_auto_2fr]' : 'md:grid-cols-[1fr_auto_0fr]',
+        ]"
       >
         <!-- Left: Title + Body textarea (full height) -->
         <section
@@ -96,8 +100,36 @@
           />
         </section>
 
-        <!-- Right: koło emocji + tagi (Kontekst | Osoby obok siebie, zwinięte) -->
-        <div class="flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-y-auto">
+        <!-- Side panel toggle (desktop only) -->
+        <div class="hidden md:flex items-center justify-center">
+          <button
+            type="button"
+            class="neo-focus flex h-8 w-8 items-center justify-center rounded-full bg-neu-base text-on-surface-variant/70 shadow-neu-raised-sm hover:-translate-y-px hover:text-on-surface hover:shadow-neu-raised transition-all duration-200"
+            :aria-label="isSidePanelOpen ? t('journal.editor.collapseSidePanel') : t('journal.editor.expandSidePanel')"
+            :aria-expanded="isSidePanelOpen"
+            @click="toggleSidePanel"
+          >
+            <AppIcon
+              name="chevron_right"
+              :class="[
+                'text-sm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+                isSidePanelOpen ? '' : 'rotate-180',
+              ]"
+            />
+          </button>
+        </div>
+
+        <!-- Right: zwijany panel — picker emocji + tagi (px/py dają miejsce cieniom,
+             overflow-y-auto inaczej by je przycinał) -->
+        <aside
+          :class="[
+            'flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-x-hidden md:overflow-y-auto md:py-4 md:px-5',
+            'md:transition md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)]',
+            isSidePanelOpen
+              ? 'md:opacity-100 md:translate-x-0'
+              : 'md:opacity-0 md:translate-x-4 md:pointer-events-none',
+          ]"
+        >
           <section
             class="neo-card px-5 py-4 flex flex-col gap-3"
             :style="emotionCardStyle"
@@ -166,7 +198,7 @@
               </div>
             </section>
           </div>
-        </div>
+        </aside>
       </div>
 
       <!-- Chat sessions section (edit mode only) -->
@@ -375,6 +407,12 @@ const chatSessionToDelete = ref<ChatSession | null>(null)
 // Date/time picker state
 const showDateTimePicker = ref(false)
 const customCreatedAt = ref<Date | null>(null)
+// Zwijany panel boczny (emocje / kontekst / osoby) — tylko md+; na mobile zawsze widoczny.
+const isSidePanelOpen = ref(true)
+const toggleSidePanel = () => {
+  isSidePanelOpen.value = !isSidePanelOpen.value
+}
+
 const selectedDate = ref('')
 const selectedTime = ref('')
 

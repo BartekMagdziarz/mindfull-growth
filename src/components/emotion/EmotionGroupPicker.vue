@@ -132,18 +132,6 @@
         </div>
       </div>
 
-      <div v-if="!activeQuad && props.showFallbacks" class="fbrow">
-        <button type="button" class="fb-btn" data-testid="egp-dunno" @click="onFallback('dunno')">
-          <span class="msr fb-ico">psychology_alt</span>
-          {{ t('emotionGroups.ui.dunno') }}
-        </button>
-        <button type="button" class="fb-btn" data-testid="egp-other" @click="onFallback('other')">
-          <span class="msr fb-ico">more_horiz</span>
-          {{ t('emotionGroups.ui.other') }}
-        </button>
-        <span v-if="fallbackNote" class="fb-note">{{ t('emotionGroups.ui.comingSoon') }}</span>
-      </div>
-
       <div class="ep-foot">
         <span class="f-lab">{{ t('emotionGroups.ui.selected') }}</span>
         <span v-if="chips.length === 0" class="f-empty">{{ t('emotionGroups.ui.empty') }}</span>
@@ -184,11 +172,7 @@ import {
   type GroupIntensity,
 } from '@/domain/emotionGroups'
 
-const props = withDefaults(defineProps<{ label?: string; showFallbacks?: boolean }>(), {
-  label: undefined,
-  showFallbacks: true,
-})
-const emit = defineEmits<{ (e: 'fallback', kind: 'dunno' | 'other'): void }>()
+const props = defineProps<{ label?: string }>()
 
 const selections = defineModel<EmotionGroupSelection[]>({ default: () => [] })
 const activeQuad = defineModel<Quadrant | null>('quadrant', { default: null })
@@ -259,7 +243,6 @@ function nudge(slug: string, delta: number) {
 // ---- nawigacja ----
 function openQuad(q: Quadrant) {
   activeQuad.value = q
-  fallbackNote.value = false
 }
 function back() {
   activeQuad.value = null
@@ -318,11 +301,6 @@ function slideUp(slug: string) {
 
 // ---- prezentacja ----
 const hovered = ref<string | null>(null)
-const fallbackNote = ref(false)
-function onFallback(kind: 'dunno' | 'other') {
-  fallbackNote.value = true
-  emit('fallback', kind)
-}
 
 function groupName(slug: string): string {
   return t(`emotionGroups.groups.${slug}.name`)
@@ -898,50 +876,6 @@ const chips = computed(() =>
 .fx:hover {
   background: rgba(255, 255, 255, 0.5);
 }
-/* ---- fallbacki: dyskretne neumorficzne pille pod siatką ćwiartek ---- */
-.fbrow {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
-}
-.fb-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 0;
-  cursor: pointer;
-  border-radius: 999px;
-  padding: 8px 16px;
-  font: 500 12px 'Roboto', sans-serif;
-  color: var(--muted);
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.65), rgba(226, 237, 251, 0.65));
-  box-shadow: var(--sh-raise-sm);
-  transition:
-    transform 0.16s,
-    box-shadow 0.16s,
-    color 0.16s;
-}
-.fb-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--sh-raise);
-  color: #3d5b7c;
-}
-.fb-btn:active {
-  transform: none;
-  box-shadow: var(--sh-press-sm);
-}
-.fb-ico {
-  font-size: 15px;
-  opacity: 0.8;
-}
-.fb-note {
-  font: italic 400 11px 'Roboto', sans-serif;
-  color: #8399b7;
-}
-
 /* ---- wariant wąski: 3 kolumny kafli, 4 rzędy (decyzja usera 2026-07-10) ---- */
 @container (max-width: 699px) {
   .etgrid {
