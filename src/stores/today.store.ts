@@ -13,6 +13,7 @@ import {
   restoreTodayItem,
   saveTodayMeasurementEntry,
   toggleTodayCompletion,
+  toggleTodayMultiItem,
 } from '@/services/todayViewActions'
 import {
   getTodayViewBundle,
@@ -353,6 +354,34 @@ export const useTodayStore = defineStore('today', () => {
     }
   }
 
+  async function toggleMultiItem(item: TodayMeasurementItem, multiItemId: string): Promise<void> {
+    if (!bundle.value) {
+      return
+    }
+
+    setPending(item.key, true)
+    const current = item.todayEntry?.checkedItemIds ?? []
+    const next = current.includes(multiItemId)
+      ? current.filter(id => id !== multiItemId)
+      : [...current, multiItemId]
+    patchMeasurementEntry(
+      item.key,
+      next.length === 0
+        ? undefined
+        : { ...createOptimisticEntry(item, bundle.value.dayRef, null), checkedItemIds: next }
+    )
+
+    try {
+      await toggleTodayMultiItem(item, bundle.value.dayRef, multiItemId)
+      await reloadCurrentDay()
+    } catch (err) {
+      await reloadCurrentDay()
+      throw err
+    } finally {
+      setPending(item.key, false)
+    }
+  }
+
   async function saveEntry(item: TodayMeasurementItem, value: number): Promise<void> {
     if (!bundle.value) {
       return
@@ -531,6 +560,7 @@ export const useTodayStore = defineStore('today', () => {
     goToNextDay,
     goToDay,
     toggleCompletion,
+    toggleMultiItem,
     saveEntry,
     clearEntry,
     hideItem,

@@ -53,6 +53,34 @@
           <AppIcon name="check" class="text-[18px]" />
         </button>
 
+        <!-- Multi-completion: one toggle chip per checkable item -->
+        <div
+          v-else-if="viz.entryMode.value === 'multi-completion'"
+          class="flex max-w-[220px] flex-wrap items-center justify-end gap-1"
+        >
+          <button
+            v-for="multiItem in multiActiveItems"
+            :key="multiItem.id"
+            type="button"
+            class="today-multi-chip neo-focus"
+            :class="multiCheckedIds.has(multiItem.id) ? 'today-multi-chip--on' : ''"
+            :disabled="isPending"
+            :title="multiItem.label"
+            :aria-label="multiItem.label"
+            :aria-pressed="multiCheckedIds.has(multiItem.id)"
+            @click="$emit('toggle-multi-item', multiItem.id)"
+          >
+            <span
+              v-if="multiItem.icon"
+              class="material-symbols-outlined text-[15px] leading-none"
+              aria-hidden="true"
+            >{{ multiItem.icon }}</span>
+            <span v-else class="text-[11px] font-semibold leading-none">
+              {{ multiItem.label.slice(0, 1).toUpperCase() }}
+            </span>
+          </button>
+        </div>
+
         <!-- Counter: number circle + hover ± pill -->
         <div
           v-else-if="viz.entryMode.value === 'counter'"
@@ -274,6 +302,7 @@ const emit = defineEmits<{
   'open-object': []
   'open-context': []
   'toggle-completion': []
+  'toggle-multi-item': [itemId: string]
   'save-entry': [value: number]
   'clear-entry': []
   hide: []
@@ -341,6 +370,16 @@ const todayLabel = computed(() => periodLabel(props.todayDayRef, 'daily', locale
 const completionTodayDone = computed(() =>
   viz.completionSlots.value.some(s => s.state === 'today-done'),
 )
+
+const multiActiveItems = computed(() => {
+  if (props.item.kind !== 'measurement') return []
+  return (props.item.subject.multiItems ?? []).filter(entry => !entry.archived)
+})
+
+const multiCheckedIds = computed(() => {
+  if (props.item.kind !== 'measurement') return new Set<string>()
+  return new Set(props.item.todayEntry?.checkedItemIds ?? [])
+})
 
 const hasNumericEntry = computed(() => {
   if (props.item.kind !== 'measurement') return false
@@ -826,5 +865,52 @@ function handleMoveDateChange(event: Event): void {
 
 .today-action-btn--danger:hover {
   color: rgb(var(--color-error));
+}
+
+/* Multi-completion: one 28px raised chip per checkable item; the --on state
+   presses it inset + fills with the primary gradient, mirroring the unified
+   entry-circle language at a smaller scale. */
+.today-multi-chip {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9999px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--neo-surface-top)),
+    rgb(var(--neo-surface-bottom))
+  );
+  box-shadow:
+    -2px -2px 4px rgb(var(--neo-shadow-light) / 0.85),
+    2px 2px 4px rgb(var(--neo-shadow-dark) / 0.28);
+  color: rgb(var(--neo-muted));
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease;
+}
+
+.today-multi-chip:hover:not(:disabled) {
+  transform: translateY(-1px);
+  color: rgb(var(--neo-text));
+}
+
+.today-multi-chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.today-multi-chip--on {
+  background: linear-gradient(
+    160deg,
+    rgb(var(--neo-chart-primary-end)),
+    rgb(var(--neo-chart-primary-start))
+  );
+  box-shadow:
+    inset 1px 1.5px 3px rgb(var(--sky-600) / 0.45),
+    inset -1px -1.5px 3px rgb(var(--sky-300) / 0.4);
+  color: white;
 }
 </style>

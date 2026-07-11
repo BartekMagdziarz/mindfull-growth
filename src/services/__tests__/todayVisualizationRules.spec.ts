@@ -390,3 +390,49 @@ describe('resolveTodayVizType — monthly cadence', () => {
     ).toBe('completion-ring')
   })
 })
+
+describe('resolveTodayVizType — multi-completion', () => {
+  const MULTI_COUNT_TARGET = { kind: 'count' as const, operator: 'min' as const, value: 4 }
+
+  it('routes weekly multi-completion to the item-stack grid', () => {
+    expect(
+      resolveTodayVizType(
+        measurement({
+          panelType: 'habit',
+          entryMode: 'multi-completion',
+          target: MULTI_COUNT_TARGET,
+          cadence: 'weekly',
+        }),
+      ),
+    ).toBe('multi-completion-stack')
+  })
+
+  it('routes weekly multi-completion trackers (no target) to the item-stack grid', () => {
+    expect(
+      resolveTodayVizType(
+        measurement({ panelType: 'tracker', entryMode: 'multi-completion', cadence: 'weekly' }),
+      ),
+    ).toBe('multi-completion-stack')
+  })
+
+  it('routes monthly multi-completion with a count target to CounterRing (met days / target)', () => {
+    expect(
+      resolveTodayVizType(
+        measurement({
+          panelType: 'habit',
+          entryMode: 'multi-completion',
+          target: MULTI_COUNT_TARGET,
+          cadence: 'monthly',
+        }),
+      ),
+    ).toBe('counter-ring')
+  })
+
+  it('routes monthly multi-completion trackers (no target) to SummaryNumber', () => {
+    expect(
+      resolveTodayVizType(
+        measurement({ panelType: 'tracker', entryMode: 'multi-completion', cadence: 'monthly' }),
+      ),
+    ).toBe('summary-number')
+  })
+})

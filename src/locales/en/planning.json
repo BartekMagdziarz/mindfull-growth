@@ -298,7 +298,8 @@
     "summary": {
       "daysLogged": "{n} days logged",
       "totalSum": "{n} total",
-      "entries": "{n} entries"
+      "entries": "{n} entries",
+      "daysMet": "{n} days met"
     },
     "hidden": {
       "title": "Hidden for today ({n})",
@@ -684,7 +685,9 @@
         "thresholdOfPoints": "of {max} pts",
         "thresholdOfItems": "of {max} items",
         "defaultItemLabel": "Item 1",
-        "maxItemsHint": "Up to {max} active items"
+        "maxItemsHint": "Up to {max} active items",
+        "progressItems": "{n} of {max} items",
+        "progressPoints": "{n} / {max} pts"
       }
     },
     "linksDropdown": {

@@ -26,6 +26,12 @@ export type TodayVizType =
    * entries don't have a continuous value — only a count + per-week status.
    */
   | 'monthly-completion-bars'
+  /**
+   * Multi-completion weekly grid: 7 Mon–Sun columns, each stacking one cell
+   * per checkable item (checked = filled icon), with a per-day met/partial
+   * underline. Data comes from `buildMultiCompletionStackData`.
+   */
+  | 'multi-completion-stack'
 
 /**
  * Inputs to the chart selection decision. A pure data shape with no Vue
@@ -65,6 +71,10 @@ export interface VisualizationDecisionInput {
  *   completion + tracker (no target) + weekly           → 'completion-dots'
  *   completion + tracker (no target) + monthly          → 'summary-number'
  *
+ *   multi-completion + weekly                           → 'multi-completion-stack'
+ *   multi-completion + count target + monthly           → 'counter-ring' (met days / target)
+ *   multi-completion + tracker (no target) + monthly    → 'summary-number' (met days)
+ *
  *   rating + weekly                                     → 'rating-segmented'
  *   rating + monthly                                    → 'rating-smooth'
  *
@@ -96,6 +106,17 @@ export function resolveTodayVizType(input: VisualizationDecisionInput): TodayViz
     // Tracker (no target): monthly gets a summary number; weekly keeps the
     // familiar dot row.
     return isMonthly ? 'summary-number' : 'completion-dots'
+  }
+
+  // --- multi-completion ---
+  // Weekly shows the item-stack grid. Monthly aggregates are day counts (met
+  // days), so the generic count primitives fit: ring with a target, summary
+  // number without one.
+  if (input.entryMode === 'multi-completion') {
+    if (isMonthly) {
+      return input.target?.kind === 'count' ? 'counter-ring' : 'summary-number'
+    }
+    return 'multi-completion-stack'
   }
 
   // --- rating ---

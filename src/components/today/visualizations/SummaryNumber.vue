@@ -31,6 +31,8 @@ const sublabel = computed(() => {
       return t('planning.today.summary.daysLogged', { n: props.data.value })
     case 'total-sum':
       return t('planning.today.summary.totalSum', { n: props.data.value })
+    case 'days-met':
+      return t('planning.today.summary.daysMet', { n: props.data.value })
     case 'entries':
       return t('planning.today.summary.entries', { n: props.data.entryCount })
   }

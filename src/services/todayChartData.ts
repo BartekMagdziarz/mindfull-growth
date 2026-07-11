@@ -77,7 +77,7 @@ export interface TodayRatingSmoothData {
 export interface TodaySummaryNumberData {
   value: number
   entryCount: number
-  sublabelKind: 'days-logged' | 'entries' | 'total-sum'
+  sublabelKind: 'days-logged' | 'entries' | 'total-sum' | 'days-met'
 }
 
 function dayLabel(dayRef: DayRef, locale: string): string {
@@ -680,8 +680,9 @@ export function buildRatingSmoothData(
 /**
  * Build summary-number data for monthly trackers without targets.
  *
- * Only two entryModes reach this builder per the routing tree:
+ * The entryModes reaching this builder per the routing tree:
  * - `completion` tracker → "N days logged" (value = entryCount)
+ * - `multi-completion` tracker → "N days met" (value = actualValue = met days)
  * - `counter` tracker → "N total" (value = actualValue, which is the sum for
  *   counter entries per `computeActualValue` in measurementProgress.ts)
  *
@@ -702,6 +703,13 @@ export function buildSummaryNumberData(
       value: measurement.entryCount,
       entryCount: measurement.entryCount,
       sublabelKind: 'days-logged',
+    }
+  }
+  if (subject.entryMode === 'multi-completion') {
+    return {
+      value: measurement.actualValue ?? 0,
+      entryCount: measurement.entryCount,
+      sublabelKind: 'days-met',
     }
   }
   // counter — actualValue is the sum for counter entries

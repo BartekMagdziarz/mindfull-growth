@@ -72,6 +72,40 @@
           </AppButton>
         </div>
 
+        <div
+          v-else-if="item.subject.entryMode === 'multi-completion'"
+          class="space-y-2"
+        >
+          <button
+            v-for="multiItem in multiActiveItems"
+            :key="multiItem.id"
+            type="button"
+            class="flex w-full items-center gap-2.5 rounded-xl border px-3 py-2 text-left text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-focus"
+            :class="
+              multiCheckedIds.has(multiItem.id)
+                ? 'border-primary/40 bg-primary/10 text-on-surface'
+                : 'border-white/40 bg-white/30 text-on-surface-variant hover:text-on-surface'
+            "
+            :disabled="isPending"
+            :aria-pressed="multiCheckedIds.has(multiItem.id)"
+            @click="$emit('toggle-multi-item', multiItem.id)"
+          >
+            <AppIcon
+              :name="multiCheckedIds.has(multiItem.id) ? 'check_circle' : 'radio_button_unchecked'"
+              class="text-base"
+              :class="multiCheckedIds.has(multiItem.id) ? 'text-primary-strong' : 'text-on-surface-variant/60'"
+            />
+            <EntityIcon v-if="multiItem.icon" :icon="multiItem.icon" size="xs" :circle="false" />
+            <span class="min-w-0 flex-1 truncate">{{ multiItem.label }}</span>
+            <span v-if="multiItem.weight !== 1" class="shrink-0 text-xs text-on-surface-variant">
+              {{ multiItem.weight }} pkt
+            </span>
+          </button>
+          <p class="text-xs text-on-surface-variant">
+            {{ multiProgressLabel }}
+          </p>
+        </div>
+
         <div v-else class="space-y-3">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div class="flex items-center gap-2">
@@ -168,8 +202,14 @@ import type { DayRef } from '@/domain/period'
 import type { MeasurementTarget } from '@/domain/planning'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
+import EntityIcon from '@/components/shared/EntityIcon.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { useT } from '@/composables/useT'
+import {
+  multiCompletionDayPoints,
+  multiCompletionEffectiveThreshold,
+} from '@/services/measurementProgress'
 import type { TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
 import { getPeriodBounds } from '@/utils/periods'
 import { formatPeriodLabel } from '@/utils/periodLabels'
@@ -195,6 +235,7 @@ const emit = defineEmits<{
   'open-object': []
   'open-context': []
   'toggle-completion': []
+  'toggle-multi-item': [itemId: string]
   'save-entry': [value: number]
   'clear-entry': []
   hide: []
@@ -207,6 +248,29 @@ const { t, locale } = useT()
 
 const draftValueRef = ref<HTMLInputElement | null>(null)
 const moveDayInputRef = ref<HTMLInputElement | null>(null)
+
+const multiActiveItems = computed(() => {
+  if (props.item.kind !== 'measurement') return []
+  return (props.item.subject.multiItems ?? []).filter(entry => !entry.archived)
+})
+
+const multiCheckedIds = computed(() => {
+  if (props.item.kind !== 'measurement') return new Set<string>()
+  return new Set(props.item.todayEntry?.checkedItemIds ?? [])
+})
+
+const multiProgressLabel = computed(() => {
+  if (props.item.kind !== 'measurement') return ''
+  const subject = props.item.subject
+  const threshold = multiCompletionEffectiveThreshold(subject)
+  const entry = props.item.todayEntry
+  const points = entry ? multiCompletionDayPoints(subject, entry) : 0
+  const allWeightsAreOne = multiActiveItems.value.every(entry => entry.weight === 1)
+  const key = allWeightsAreOne
+    ? 'planning.objects.form.multiItems.progressItems'
+    : 'planning.objects.form.multiItems.progressPoints'
+  return t(key, { n: points, max: threshold })
+})
 
 function getMeasurementDraft(item: TodayItem): string {
   if (

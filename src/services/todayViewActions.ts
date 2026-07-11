@@ -125,6 +125,39 @@ export async function toggleTodayCompletion(
   })
 }
 
+/**
+ * Toggle one multi-completion item on today's checklist. The entry stores the
+ * checked ids (value stays null); unchecking the last item deletes the entry —
+ * a day with nothing checked is represented by no entry, like completion.
+ */
+export async function toggleTodayMultiItem(
+  item: TodayMeasurementItem,
+  dayRef: DayRef,
+  multiItemId: string
+): Promise<void> {
+  const current = item.todayEntry?.checkedItemIds ?? []
+  const next = current.includes(multiItemId)
+    ? current.filter(id => id !== multiItemId)
+    : [...current, multiItemId]
+
+  if (next.length === 0) {
+    await planningStateDexieRepository.deleteDailyMeasurementEntry(
+      item.subjectType,
+      item.subject.id,
+      dayRef
+    )
+    return
+  }
+
+  await planningStateDexieRepository.upsertDailyMeasurementEntry({
+    subjectType: item.subjectType,
+    subjectId: item.subject.id,
+    dayRef,
+    value: null,
+    checkedItemIds: next,
+  })
+}
+
 export async function saveTodayMeasurementEntry(
   item: TodayMeasurementItem,
   dayRef: DayRef,

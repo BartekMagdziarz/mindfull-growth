@@ -15,6 +15,10 @@
         v-else-if="viz.vizType.value === 'completion-dots'"
         :slots="viz.completionSlots.value"
       />
+      <MultiCompletionStack
+        v-else-if="viz.vizType.value === 'multi-completion-stack' && viz.multiStackData.value"
+        :data="viz.multiStackData.value"
+      />
       <CompletionRing
         v-else-if="viz.vizType.value === 'completion-ring'"
         :done-count="completionRingDoneCount"
@@ -63,6 +67,7 @@ import { computed, toRef } from 'vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import CompletionDots from '@/components/today/visualizations/CompletionDots.vue'
 import CompletionRing from '@/components/today/visualizations/CompletionRing.vue'
+import MultiCompletionStack from '@/components/today/visualizations/MultiCompletionStack.vue'
 import CounterRing from '@/components/today/visualizations/CounterRing.vue'
 import DailyBarsChart from '@/components/today/visualizations/DailyBarsChart.vue'
 import ValueLineChart from '@/components/today/visualizations/ValueLineChart.vue'

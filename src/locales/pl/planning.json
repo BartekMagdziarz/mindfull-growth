@@ -298,7 +298,8 @@
     "summary": {
       "daysLogged": "{n} dni zapisanych",
       "totalSum": "{n} w sumie",
-      "entries": "{n} wpisów"
+      "entries": "{n} wpisów",
+      "daysMet": "{n} dni z zaliczeniem"
     },
     "hidden": {
       "title": "Ukryte na dziś ({n})",
@@ -684,7 +685,9 @@
         "thresholdOfPoints": "z {max} pkt",
         "thresholdOfItems": "z {max} elementów",
         "defaultItemLabel": "Element 1",
-        "maxItemsHint": "Maksymalnie {max} aktywnych elementów"
+        "maxItemsHint": "Maksymalnie {max} aktywnych elementów",
+        "progressItems": "{n} z {max} elementów",
+        "progressPoints": "{n} / {max} pkt"
       }
     },
     "linksDropdown": {

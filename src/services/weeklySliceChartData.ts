@@ -32,6 +32,10 @@ import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
 import {
   buildMeasurementSummary,
+  multiCompletionActiveItems,
+  multiCompletionDayMet,
+  multiCompletionDayPoints,
+  multiCompletionEffectiveThreshold,
   type MeasureableSubject,
   type MeasurementSummary,
 } from '@/services/measurementProgress'
@@ -127,6 +131,88 @@ export function buildWeeklySliceCompletionSlots(
     ...slot,
     state: resolveWeekdayCompletionState(slot, isSpecificDays),
   }))
+}
+
+/** One row of the multi-completion stack grid (a checkable item). */
+export interface MultiCompletionStackRow {
+  id: string
+  label: string
+  icon?: string
+  archived: boolean
+}
+
+export interface MultiCompletionStackSlot extends TodayCompletionSlot {
+  checkedIds: string[]
+  points: number
+  /** Daily threshold reached — drives the underline color (met vs partial). */
+  met: boolean
+}
+
+export interface MultiCompletionStackData {
+  /** Active items in stored order + archived items checked somewhere this week. */
+  rows: MultiCompletionStackRow[]
+  slots: MultiCompletionStackSlot[]
+  threshold: number
+}
+
+/**
+ * Build the 7-column item-stack grid for a multi-completion subject. Row set
+ * is identical across all columns so the grid lines up: active items in
+ * stored order, plus any archived items still referenced by one of the week's
+ * entries (history keeps rendering). Day-level scheduling states reuse
+ * {@link resolveWeekdayCompletionState}; `met`/`points` add the multi layer.
+ */
+export function buildMultiCompletionStackData(
+  subject: MeasureableSubject,
+  subjectType: MeasurementSubjectType,
+  rawEntries: DailyMeasurementEntry[],
+  allDayAssignments: MeasurementDayAssignment[],
+  planning: MeasurementPlanningSummary,
+  weekRef: WeekRef,
+  todayDayRef: DayRef,
+  locale: string,
+): MultiCompletionStackData {
+  const baseSlots = buildWeeklySliceCompletionSlots(
+    subject,
+    subjectType,
+    rawEntries,
+    allDayAssignments,
+    planning,
+    weekRef,
+    todayDayRef,
+    locale,
+  )
+
+  const entryByDay = new Map(
+    rawEntries
+      .filter((entry) => entry.subjectType === subjectType && entry.subjectId === subject.id)
+      .map((entry) => [entry.dayRef, entry] as const),
+  )
+
+  const slots: MultiCompletionStackSlot[] = baseSlots.map((slot) => {
+    const entry = entryByDay.get(slot.dayRef)
+    return {
+      ...slot,
+      checkedIds: entry?.checkedItemIds ?? [],
+      points: entry ? multiCompletionDayPoints(subject, entry) : 0,
+      met: entry ? multiCompletionDayMet(subject, entry) : false,
+    }
+  })
+
+  const checkedThisWeek = new Set(slots.flatMap((slot) => slot.checkedIds))
+  const rows: MultiCompletionStackRow[] = [
+    ...multiCompletionActiveItems(subject).map((item) => ({
+      id: item.id,
+      label: item.label,
+      icon: item.icon,
+      archived: false,
+    })),
+    ...(subject.multiItems ?? [])
+      .filter((item) => item.archived && checkedThisWeek.has(item.id))
+      .map((item) => ({ id: item.id, label: item.label, icon: item.icon, archived: true })),
+  ]
+
+  return { rows, slots, threshold: multiCompletionEffectiveThreshold(subject) }
 }
 
 function resolveWeekdayCompletionState(

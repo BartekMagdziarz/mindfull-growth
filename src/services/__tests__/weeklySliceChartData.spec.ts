@@ -9,6 +9,7 @@ import type { MeasurementPlanningSummary } from '@/services/planningStateQueries
 import {
   buildContextChipData,
   buildMonthlyContextFooter,
+  buildMultiCompletionStackData,
   buildWeeklySliceCompletionSlots,
 } from '@/services/weeklySliceChartData'
 import {
@@ -547,5 +548,90 @@ describe('buildMonthlyContextFooter', () => {
       expect(chip.target).toBe(3)
       expect(chip.status).toBe('missed')
     })
+  })
+})
+
+describe('buildMultiCompletionStackData', () => {
+  const multiItems = [
+    { id: 'wake', label: 'Pobudka', icon: 'alarm', weight: 1 },
+    { id: 'meditate', label: 'Medytacja', weight: 1 },
+    { id: 'train', label: 'Trening', weight: 2 },
+  ]
+
+  function makeMultiHabit(overrides: Partial<Habit> = {}): Habit {
+    return makeHabit('multi-1', {
+      cadence: 'weekly',
+      entryMode: 'multi-completion',
+      multiItems,
+      target: { kind: 'count', operator: 'min', value: 3 },
+      ...overrides,
+    })
+  }
+
+  function makeMultiEntry(dayRef: string, checkedItemIds: string[]): DailyMeasurementEntry {
+    return { ...makeEntry('habit', 'multi-1', dayRef, null), checkedItemIds }
+  }
+
+  it('builds 7 aligned columns with per-day points, met flag and checked ids', () => {
+    const habit = makeMultiHabit()
+    const data = buildMultiCompletionStackData(
+      habit,
+      'habit',
+      [
+        makeMultiEntry('2026-03-09', ['wake', 'meditate', 'train']),
+        makeMultiEntry('2026-03-10', ['wake']),
+      ],
+      [],
+      makePlanning(),
+      WEEK_REF,
+      TODAY,
+      'pl',
+    )
+
+    expect(data.slots).toHaveLength(7)
+    expect(data.rows.map((row) => row.id)).toEqual(['wake', 'meditate', 'train'])
+    expect(data.threshold).toBe(4)
+
+    const monday = data.slots[0]
+    expect(monday.checkedIds).toEqual(['wake', 'meditate', 'train'])
+    expect(monday.points).toBe(4)
+    expect(monday.met).toBe(true)
+
+    const tuesday = data.slots[1]
+    expect(tuesday.points).toBe(1)
+    expect(tuesday.met).toBe(false)
+    expect(tuesday.hasEntry).toBe(true)
+
+    const wednesday = data.slots[2]
+    expect(wednesday.points).toBe(0)
+    expect(wednesday.hasEntry).toBe(false)
+  })
+
+  it('appends archived items checked this week as extra rows, but not unchecked ones', () => {
+    const habit = makeMultiHabit({
+      multiItems: [
+        ...multiItems.slice(0, 2),
+        { ...multiItems[2], archived: true },
+        { id: 'old', label: 'Stare', weight: 1, archived: true },
+      ],
+    })
+    const data = buildMultiCompletionStackData(
+      habit,
+      'habit',
+      [makeMultiEntry('2026-03-09', ['wake', 'train'])],
+      [],
+      makePlanning(),
+      WEEK_REF,
+      TODAY,
+      'pl',
+    )
+
+    expect(data.rows.map((row) => row.id)).toEqual(['wake', 'meditate', 'train'])
+    expect(data.rows[2].archived).toBe(true)
+    // Threshold follows ACTIVE items only (wake + meditate).
+    expect(data.threshold).toBe(2)
+    // The archived item's weight still scores the historical day.
+    expect(data.slots[0].points).toBe(3)
+    expect(data.slots[0].met).toBe(true)
   })
 })

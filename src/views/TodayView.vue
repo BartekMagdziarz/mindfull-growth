@@ -78,6 +78,7 @@
                 @open-object="openObject(item)"
                 @open-context="openPeriod(item.contextPeriodRef)"
                 @toggle-completion="handleToggleCompletion(item)"
+                @toggle-multi-item="handleToggleMultiItem(item, $event)"
                 @save-entry="handleSaveEntry(item, $event)"
                 @clear-entry="handleClearEntry(item)"
                 @hide="handleHide(item)"
@@ -114,6 +115,7 @@
                     @open-object="openObject(item)"
                     @open-context="openPeriod(item.contextPeriodRef)"
                     @toggle-completion="handleToggleCompletion(item)"
+                    @toggle-multi-item="handleToggleMultiItem(item, $event)"
                     @save-entry="handleSaveEntry(item, $event)"
                     @clear-entry="handleClearEntry(item)"
                     @hide="handleHide(item)"
@@ -145,6 +147,7 @@
                   @open-object="openObject(item)"
                   @open-context="openPeriod(item.contextPeriodRef)"
                   @toggle-completion="handleToggleCompletion(item)"
+                @toggle-multi-item="handleToggleMultiItem(item, $event)"
                   @save-entry="handleSaveEntry(item, $event)"
                   @clear-entry="handleClearEntry(item)"
                   @hide="handleHide(item)"
@@ -175,6 +178,7 @@
                   @open-object="openObject(item)"
                   @open-context="openPeriod(item.contextPeriodRef)"
                   @toggle-completion="handleToggleCompletion(item)"
+                @toggle-multi-item="handleToggleMultiItem(item, $event)"
                   @save-entry="handleSaveEntry(item, $event)"
                   @clear-entry="handleClearEntry(item)"
                   @hide="handleHide(item)"
@@ -469,6 +473,15 @@ async function handleToggleCompletion(item: TodayItem): Promise<void> {
   if (item.kind !== 'measurement') return
   try {
     await store.toggleCompletion(item)
+  } catch (err) {
+    showError(err)
+  }
+}
+
+async function handleToggleMultiItem(item: TodayItem, multiItemId: string): Promise<void> {
+  if (item.kind !== 'measurement') return
+  try {
+    await store.toggleMultiItem(item, multiItemId)
   } catch (err) {
     showError(err)
   }

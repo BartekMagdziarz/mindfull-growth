@@ -25,8 +25,10 @@ import {
 import { resolveTodayVizType, type TodayVizType } from '@/services/todayVisualizationRules'
 import {
   buildContextChipData,
+  buildMultiCompletionStackData,
   buildWeeklySliceCompletionSlots,
   type ContextChipData,
+  type MultiCompletionStackData,
 } from '@/services/weeklySliceChartData'
 import { getPeriodType } from '@/utils/periods'
 
@@ -43,6 +45,7 @@ const CHIP_VIZ_TYPES = new Set<TodayVizType>([
   'daily-bars',
   'value-line',
   'rating-segmented',
+  'multi-completion-stack',
 ])
 
 export function useTodayItemVisualization(
@@ -98,6 +101,26 @@ export function useTodayItemVisualization(
       allDayAssignments.value,
       m.planning,
       m.contextPeriodRef,
+      todayDayRef.value,
+      locale.value,
+    )
+  })
+
+  const multiStackData = computed<MultiCompletionStackData | undefined>(() => {
+    if (vizType.value !== 'multi-completion-stack' || item.value.kind !== 'measurement') {
+      return undefined
+    }
+    const m = item.value as TodayMeasurementItem
+    // The stack is a weekly-shape chart; the Today resolver only routes weekly
+    // scopes here, so the context period is a week ref.
+    if (getPeriodType(m.contextPeriodRef) !== 'week') return undefined
+    return buildMultiCompletionStackData(
+      m.subject,
+      m.subjectType,
+      rawEntries.value,
+      allDayAssignments.value,
+      m.planning,
+      m.contextPeriodRef as WeekRef,
       todayDayRef.value,
       locale.value,
     )
@@ -228,6 +251,7 @@ export function useTodayItemVisualization(
   return {
     vizType,
     completionSlots,
+    multiStackData,
     barSlots,
     valueLineSlots,
     aggregateData,
