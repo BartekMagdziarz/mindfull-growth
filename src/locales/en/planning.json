@@ -244,7 +244,38 @@
     },
     "monthV2": {
       "overview": "Month at a glance",
-      "experimentBadge": "Month V2 experiment"
+      "experimentBadge": "Month V2 experiment",
+      "week": "Week {number}",
+      "currentWeek": "Current",
+      "expandSection": "Expand the {section} section",
+      "collapseSection": "Collapse the {section} section",
+      "coverage": "{active}/{total} with an entry",
+      "remainingResults": "Other results",
+      "noObjects": "No objects this month",
+      "monthResult": "Month: {value}",
+      "entryDaysChip": "{count}/{target} days",
+      "compass": "Monthly reflection",
+      "activity": "Activity",
+      "noReflection": "No weekly reflection",
+      "openWeek": "Open week {number}",
+      "sections": {
+        "intentions": "Intentions"
+      },
+      "experiment": {
+        "title": "Month V2",
+        "chart": "Charts",
+        "density": "Density",
+        "hybrid": "Hybrid",
+        "capsules": "Capsules",
+        "axis": "Axis",
+        "comfortable": "Comfortable",
+        "compact": "Compact"
+      },
+      "planning": {
+        "open": "Planning",
+        "close": "Done planning",
+        "saveError": "Saving the change failed. Try again."
+      }
     }
   },
   "today": {

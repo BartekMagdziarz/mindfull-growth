@@ -85,6 +85,9 @@
               :month-ref="activeMonthRef"
               :chart-mode="chartMode"
               :density="density"
+              @open-week="navigateTo('week', $event)"
+              @open-object="openMonthV2Object"
+              @open-reflection="openReflectionPanel"
             />
 
             <!-- Read-only weeks grid; the assignment workspace (sidebar) lives in the
@@ -803,6 +806,21 @@ function navigateTo(scale: CalendarScale, periodRef: PeriodRef) {
       router.push({ name: 'calendar-week', params: { weekRef: periodRef }, query })
       break
   }
+}
+
+/**
+ * Month V2 object clicks: intentions open their home week (they live in the
+ * weekly ritual); everything else opens the matching objects-library family
+ * (there is no per-object detail route).
+ */
+function openMonthV2Object(payload: { type: string; id: string; homeWeekRef?: WeekRef }) {
+  if (payload.type === 'weeklyIntention' && payload.homeWeekRef) {
+    navigateTo('week', payload.homeWeekRef)
+    return
+  }
+  const family =
+    payload.type === 'habit' ? 'habits' : payload.type === 'tracker' ? 'trackers' : 'goals'
+  void router.push({ name: 'objects-family', params: { family } })
 }
 
 function openPlanPanel() {

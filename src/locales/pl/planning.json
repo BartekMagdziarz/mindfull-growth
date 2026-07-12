@@ -244,7 +244,38 @@
     },
     "monthV2": {
       "overview": "Miesiąc w skrócie",
-      "experimentBadge": "Eksperyment Month V2"
+      "experimentBadge": "Eksperyment Month V2",
+      "week": "Tydzień {number}",
+      "currentWeek": "Bieżący",
+      "expandSection": "Rozwiń sekcję {section}",
+      "collapseSection": "Zwiń sekcję {section}",
+      "coverage": "{active}/{total} z wpisem",
+      "remainingResults": "Pozostałe rezultaty",
+      "noObjects": "Brak obiektów w tym miesiącu",
+      "monthResult": "Miesiąc: {value}",
+      "entryDaysChip": "{count}/{target} dni",
+      "compass": "Refleksja miesiąca",
+      "activity": "Aktywność",
+      "noReflection": "Brak refleksji tygodniowej",
+      "openWeek": "Otwórz tydzień {number}",
+      "sections": {
+        "intentions": "Intencje"
+      },
+      "experiment": {
+        "title": "Month V2",
+        "chart": "Wykresy",
+        "density": "Gęstość",
+        "hybrid": "Hybrid",
+        "capsules": "Kapsuły",
+        "axis": "Oś",
+        "comfortable": "Komfort",
+        "compact": "Kompakt"
+      },
+      "planning": {
+        "open": "Planowanie",
+        "close": "Zakończ planowanie",
+        "saveError": "Nie udało się zapisać zmiany. Spróbuj ponownie."
+      }
     }
   },
   "today": {
