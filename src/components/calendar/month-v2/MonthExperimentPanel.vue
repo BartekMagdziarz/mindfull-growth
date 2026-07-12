@@ -1,7 +1,6 @@
 <template>
   <div v-if="isDev" class="month-experiment" data-testid="month-v2-experiment">
-    <span class="month-experiment__title">{{ t('planning.calendar.monthV2.experiment.title') }}</span>
-
+    <!-- No panel title: the shell's eyebrow already says "Month V2 experiment". -->
     <div class="month-experiment__group" role="group" :aria-label="t('planning.calendar.monthV2.experiment.chart')">
       <button
         v-for="mode in CHART_MODES"

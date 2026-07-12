@@ -1,5 +1,5 @@
 <template>
-  <section class="month-section neo-raised" :data-section="section.key">
+  <section class="month-section" :data-section="section.key">
     <button
       type="button"
       class="month-section__toggle neo-focus"
@@ -169,22 +169,24 @@ function rowSubline(row: MonthV2Row): string | null {
 </script>
 
 <style scoped>
-.month-section {
-  border-radius: 22px;
-}
-
+/* Flat variant: collapsed section headers sit directly on the page background
+   (no raised card); the expanded content is a single inset "table" well. */
 .month-section__toggle {
   align-items: center;
   background: none;
   border: none;
-  border-radius: inherit;
+  border-radius: 12px;
   color: inherit;
   cursor: pointer;
   display: flex;
   font: inherit;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 9px 10px;
   width: 100%;
+}
+
+.month-section__toggle:hover {
+  background: rgb(var(--neo-inset-dark) / 0.1);
 }
 
 .month-section__toggle-left {
@@ -196,16 +198,12 @@ function rowSubline(row: MonthV2Row): string | null {
 
 .month-section__icon {
   align-items: center;
-  border-radius: 11px;
-  box-shadow:
-    inset 1px 1px 3px rgb(var(--neo-inset-dark) / 0.28),
-    inset -1px -1px 3px rgb(var(--neo-inset-light) / 0.6);
   color: rgb(var(--color-primary-strong));
   display: flex;
-  font-size: 16px;
-  height: 32px;
+  font-size: 15px;
+  height: 24px;
   justify-content: center;
-  width: 32px;
+  width: 24px;
 }
 
 .month-section__title {
@@ -243,12 +241,13 @@ function rowSubline(row: MonthV2Row): string | null {
 }
 
 .month-section__content {
+  background: rgb(var(--neo-surface-base) / 0.55);
   border-radius: 17px;
   box-shadow:
-    inset 1px 1px 4px rgb(var(--neo-inset-dark) / 0.25),
-    inset -1px -1px 4px rgb(var(--neo-inset-light) / 0.55);
-  margin: 0 10px 12px;
-  padding: 8px 6px;
+    inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.28),
+    inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.6);
+  margin: 2px 0 10px;
+  padding: 6px 0;
 }
 
 .month-section__empty {
@@ -292,14 +291,16 @@ function rowSubline(row: MonthV2Row): string | null {
   display: grid;
   gap: 8px;
   grid-template-columns: var(--month-v2-label-width, minmax(184px, 1.18fr)) minmax(0, 4fr);
-  min-height: 62px;
+  min-height: 56px;
+  padding: 0 4px;
 }
 
 .month-section--compact .month-section__row {
-  min-height: 50px;
+  min-height: 46px;
 }
 
-.month-section__row + .month-section__row {
+.month-section__row + .month-section__row,
+.month-section__group-head + .month-section__row {
   border-top: 1px solid rgb(var(--neo-border) / 0.35);
 }
 

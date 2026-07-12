@@ -298,10 +298,21 @@ function matrixTitle(week: MonthV2WeekColumn): string {
   opacity: 0.55;
 }
 
+/* Sections sit flat on the background, separated from the raised week cards
+   above by a single hairline; between sections only hairlines — the whole
+   area reads as one table. */
 .month-grid__sections {
+  border-top: 1px solid rgb(var(--neo-border) / 0.55);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.month-grid__sections > * + * {
+  border-top: 1px solid rgb(var(--neo-border) / 0.35);
+  padding-top: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

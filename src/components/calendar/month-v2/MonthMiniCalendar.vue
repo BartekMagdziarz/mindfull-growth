@@ -15,14 +15,16 @@
         }"
         :title="dayTitle(day)"
       >
+        <!-- Emotion volume as a proportional fill: quadrant shares split the
+             cell horizontally, intensity scales with the day's session count
+             relative to the month's busiest day. -->
+        <span
+          v-if="day.emotionCount > 0"
+          class="month-mini__fill"
+          :style="emotionFillStyle(day)"
+        />
         <span class="month-mini__num">{{ dayNumber(day.dayRef) }}</span>
         <span class="month-mini__markers">
-          <span
-            v-for="segment in emotionSegments(day)"
-            :key="segment.quadrant"
-            class="month-mini__dot"
-            :style="{ background: segment.color }"
-          />
           <AppIcon v-if="day.journalWritten" name="menu_book" class="month-mini__icon" />
           <AppIcon v-if="day.exerciseCount > 0" name="self_improvement" class="month-mini__icon" />
         </span>
@@ -52,10 +54,14 @@ const QUADRANT_COLOR: Record<Quadrant, string> = {
 }
 
 const weekdayLabels = computed(() => {
-  // Monday-first, matching the app's canonical weeks.
-  const formatter = new Intl.DateTimeFormat(locale.value, { weekday: 'narrow' })
+  // Monday-first, matching the app's canonical weeks. Two-letter short form:
+  // the narrow one is ambiguous in Polish (P = poniedziałek AND piątek).
+  const formatter = new Intl.DateTimeFormat(locale.value, { weekday: 'short' })
   return Array.from({ length: 7 }, (_, i) =>
-    formatter.format(new Date(Date.UTC(2024, 0, i + 1, 12))) // 2024-01-01 is a Monday
+    formatter
+      .format(new Date(Date.UTC(2024, 0, i + 1, 12))) // 2024-01-01 is a Monday
+      .replace(/\.$/, '')
+      .slice(0, 2)
   )
 })
 
@@ -66,10 +72,36 @@ function dayNumber(dayRef: string): number {
   return Number(dayRef.slice(-2))
 }
 
-function emotionSegments(day: MonthV2ActivityDay): Array<{ quadrant: string; color: string }> {
-  return (Object.keys(day.quadrantCounts) as Quadrant[])
-    .filter((quadrant) => day.quadrantCounts[quadrant] > 0)
-    .map((quadrant) => ({ quadrant, color: QUADRANT_COLOR[quadrant] }))
+const maxEmotionCount = computed(() =>
+  Math.max(1, ...props.days.map((day) => day.emotionCount))
+)
+
+/**
+ * Hard-stop gradient: each quadrant occupies a slice proportional to its share
+ * of the day's logged emotions; overall opacity scales with the day's volume.
+ */
+function emotionFillStyle(day: MonthV2ActivityDay): Record<string, string> {
+  const entries = (Object.keys(day.quadrantCounts) as Quadrant[])
+    .map((quadrant) => ({ quadrant, count: day.quadrantCounts[quadrant] }))
+    .filter((entry) => entry.count > 0)
+  const total = entries.reduce((sum, entry) => sum + entry.count, 0)
+
+  let acc = 0
+  const stops = entries.map((entry) => {
+    const from = (acc / total) * 100
+    acc += entry.count
+    const to = (acc / total) * 100
+    return `${QUADRANT_COLOR[entry.quadrant]} ${from.toFixed(1)}% ${to.toFixed(1)}%`
+  })
+
+  const intensity = 0.18 + 0.42 * Math.min(1, day.emotionCount / maxEmotionCount.value)
+  return {
+    background:
+      stops.length === 1
+        ? QUADRANT_COLOR[entries[0]!.quadrant]
+        : `linear-gradient(90deg, ${stops.join(', ')})`,
+    opacity: intensity.toFixed(2),
+  }
 }
 
 function dayTitle(day: MonthV2ActivityDay): string {
@@ -115,7 +147,21 @@ function dayTitle(day: MonthV2ActivityDay): string {
   gap: 2px;
   justify-content: center;
   min-height: 30px;
+  overflow: hidden;
   padding: 3px 1px;
+  position: relative;
+}
+
+.month-mini__fill {
+  border-radius: inherit;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.month-mini__num,
+.month-mini__markers {
+  position: relative;
 }
 
 .month-mini__day--future {
@@ -142,13 +188,6 @@ function dayTitle(day: MonthV2ActivityDay): string {
   display: flex;
   gap: 2px;
   min-height: 8px;
-}
-
-.month-mini__dot {
-  border-radius: 999px;
-  display: inline-block;
-  height: 5px;
-  width: 5px;
 }
 
 .month-mini__icon {

@@ -393,6 +393,7 @@ const weeksDescription = computed(() =>
 
 .month-series__cells {
   display: grid;
+  gap: 8px; /* mirrors the week-head column gap so cells align with the axis */
   min-height: 44px;
 }
 
@@ -408,11 +409,7 @@ const weeksDescription = computed(() =>
   justify-content: center;
   min-width: 0;
   opacity: 0.9;
-  padding-inline: 8px;
-}
-
-.month-series__cell + .month-series__cell {
-  border-left: 1px solid rgb(var(--neo-border) / 0.45);
+  padding-inline: 4px;
 }
 
 .month-series__cell--future {
