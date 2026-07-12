@@ -160,6 +160,7 @@ const ariaDescription = computed(() =>
 
 .month-compass__svg {
   display: block;
+  overflow: visible; /* axis labels sit outside the radar's viewBox */
   width: 100%;
 }
 </style>

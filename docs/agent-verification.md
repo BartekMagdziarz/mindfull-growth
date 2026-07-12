@@ -73,10 +73,11 @@ invariants.
 |---|---|
 | Life areas ×4 | Zdrowie, Praca, Relacje, Rozwój |
 | Priorities ×4 (active) | „Regularny ruch i kondycja" (P1), „Dowieźć projekt Strumień" (P2), „Obecność dla bliskich" (P3), „Codzienna nauka" (P4); P1–P3 are every month's top-3 |
-| Goals ×2 | „Przebiec 10 km bez zatrzymania" → P1; „Wydać MVP aplikacji" → P2 |
-| Key results ×4 | „Biegi 3 razy w tygodniu" (weekly completion), „15 km tygodniowo" (weekly value), „Dwie funkcje miesięcznie" (monthly counter), „Cztery sesje deep work w tygodniu" (weekly completion) |
-| Habits ×3 | „Poranne rozciąganie" (P1), „Wspólna kolacja" (P3), „Czytanie 20 minut" (P4) — with fixed weekday assignments |
-| Trackers ×2 | „Jakość snu" (rating), „Kawy w ciągu dnia" (counter) |
+| Goals ×3 | „Przebiec 10 km bez zatrzymania" → P1; „Wydać MVP aplikacji" → P2; „Cel bez miesięcznego planu" (never month-linked → its KR renders as an orphan under „Pozostałe rezultaty") |
+| Key results ×7 | „Biegi 3 razy w tygodniu" (weekly completion), „15 km tygodniowo" (weekly value/sum; month override 20 + one week override 8 in the current month), „Dwie funkcje miesięcznie" (monthly counter; week sub-targets on the current month's first two weeks), „Cztery sesje deep work w tygodniu" (weekly completion), „Średnio 7 godzin snu" (weekly value/average gte), „Utrzymać wagę poniżej 80 kg…" (weekly value/last **lte**, long title), „Rezultat bez aktywnego celu" (orphan) |
+| Habits ×10 | „Poranne rozciąganie" (P1), „Wspólna kolacja" (P3), „Czytanie 20 minut" (P4) — fixed weekday assignments; „Poranna rutyna" (rating + entryDays min), „Granie wieczorem" (rating + entryDays max), „Poranna checklista" (weighted multi-completion, threshold 3/4), „Maksymalnie 10 kaw w tygodniu" (counter **max**), „Głębokie porządki" (monthly multi, boundary-week entries), „Ruch: 12 dni w miesiącu" (monthly completion target > 7, specific-days from the boundary week), „Prasa poranna (wycofane)" (retired, historical weeks only) |
+| Trackers ×3 | „Jakość snu" (rating), „Kawy w ciągu dnia" (counter), „Wieczorne wyciszenie" (multi-completion, no target) |
+| Monthly reflections | both closed months; the most recent one is **partial** (coherence + agency unrated → compass dots without a polygon) |
 | Weekly intentions | 1–2 per week from a fixed list, priority-linked |
 | Week top-3 | „Poranne rozciąganie" + „Cztery sesje deep work…" + that week's intention |
 | Month top-3 | P1, P2, P3 (all three months) |

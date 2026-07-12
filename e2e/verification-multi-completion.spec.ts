@@ -123,8 +123,18 @@ test.describe('multi-completion', () => {
 
     await page.goto('/objects/habits')
     // Measurement-card titles live in <input> fields (no text content), so
-    // anchor on the entry-mode badge — only the multi habit carries it.
-    const card = page.locator('article').filter({ hasText: 'Checklista' }).first()
+    // anchor on the entry-mode badge and then resolve the exact card by the
+    // title input's value — the seed has several multi-completion habits.
+    const multiCards = page.locator('article').filter({ hasText: 'Checklista' })
+    await expect(multiCards.first()).toBeVisible()
+    let card = multiCards.first()
+    for (let i = 0; i < (await multiCards.count()); i++) {
+      const candidate = multiCards.nth(i)
+      if ((await candidate.getByRole('textbox').first().inputValue()) === 'Poranna checklista') {
+        card = candidate
+        break
+      }
+    }
     await expect(card).toBeVisible()
     await card.hover()
     await card.getByRole('button', { name: 'Pokaż szczegóły' }).click()

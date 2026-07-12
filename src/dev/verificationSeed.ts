@@ -29,6 +29,7 @@ import type { User } from '@/domain/user'
 import emotionsMeta from '@/data/emotions-meta.json'
 import {
   addDaysToDayRef,
+  getChildPeriods,
   getPeriodBounds,
   getPeriodRefsForDate,
   getPreviousPeriod,
@@ -57,6 +58,8 @@ import {
   linkGoalToMonth,
   linkMeasurementPeriod,
   toggleMeasurementDayAssignment,
+  updateMeasurementTargetOverride,
+  updateMeasurementWeekTargetOverride,
 } from '@/services/planningMutations'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { connectUserDatabase, disconnectUserDatabase } from '@/services/userDatabase.service'
@@ -70,7 +73,7 @@ import {
 } from './verificationAccount'
 
 /** Bump after changing the dataset — forces a reset+re-seed on next verification boot. */
-export const SEED_VERSION = 7
+export const SEED_VERSION = 8
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 const WEEKS_BACK = 8
@@ -741,6 +744,201 @@ export async function seedVerificationData(): Promise<void> {
   await addEntries('keyResult', kr3.id, [addDaysToDayRef(monthStart(monthM1), 9)], 1)
   await addEntries('keyResult', kr3.id, upToToday([monthStart(currentMonth)]), 1)
 
+  // ── 7b. Month V2 coverage objects ──────────────────────────────────────────
+  // Cases the base dataset lacked: value average/last aggregations, lte/max
+  // primary operators, a completion target > 7, monthly cadence in more entry
+  // modes (incl. multi + specific-days on a boundary week), an orphan KR, a
+  // retired historical habit with a long name, and month/week target overrides.
+
+  const currentMonthWeeks = getChildPeriods(currentMonth) as WeekRef[]
+
+  // Weekly value/average with gte — line chart, average aggregation.
+  const kr5 = await keyResultDexieRepository.create({
+    title: 'Średnio 7 godzin snu',
+    isActive: true,
+    status: 'open',
+    goalId: g1.id,
+    cadence: 'weekly',
+    entryMode: 'value',
+    target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
+  })
+  // Weekly value/last with lte + deliberately long title (layout stress).
+  const kr6 = await keyResultDexieRepository.create({
+    title: 'Utrzymać wagę poniżej 80 kg mimo sezonu urlopowego i rodzinnych obiadów',
+    isActive: true,
+    status: 'open',
+    goalId: g1.id,
+    cadence: 'weekly',
+    entryMode: 'value',
+    target: { kind: 'value', aggregation: 'last', operator: 'lte', value: 80 },
+  })
+  // Orphan KR: the data layer requires an active GoalMonthState before a KR
+  // can be linked, so the orphan is produced the only way it can happen for
+  // real — the goal gets archived AFTER its KR was planned. Month bundles then
+  // drop the goal (isActive filter) while the KR stays → "Pozostałe rezultaty".
+  const g3 = await goalDexieRepository.create({
+    title: 'Cel zarchiwizowany w trakcie',
+    isActive: true,
+    priorityIds: [],
+    lifeAreaIds: [areaGrowth.id],
+    status: 'open',
+  })
+  for (const monthRef of monthSet) {
+    await linkGoalToMonth(g3.id, monthRef)
+  }
+  const kr7 = await keyResultDexieRepository.create({
+    title: 'Rezultat bez aktywnego celu',
+    isActive: true,
+    status: 'open',
+    goalId: g3.id,
+    cadence: 'weekly',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 2 },
+  })
+  // Weekly counter with a MAX primary target (limit, not floor).
+  const h7 = await habitDexieRepository.create({
+    title: 'Maksymalnie 10 kaw w tygodniu',
+    isActive: true,
+    status: 'open',
+    cadence: 'weekly',
+    entryMode: 'counter',
+    target: { kind: 'count', operator: 'max', value: 10 },
+    priorityIds: [p1.id],
+    lifeAreaIds: [areaHealth.id],
+  })
+  // Monthly multi-completion (default all-items threshold) with entries in the
+  // month's boundary week — the out-of-month day must not leak into July.
+  const h8 = await habitDexieRepository.create({
+    title: 'Głębokie porządki',
+    isActive: true,
+    status: 'open',
+    cadence: 'monthly',
+    entryMode: 'multi-completion',
+    target: { kind: 'count', operator: 'min', value: 4 },
+    multiItems: [
+      { id: 'plan', label: 'Plan strefy', icon: 'checklist', weight: 1 },
+      { id: 'do', label: 'Sprzątnięta strefa', icon: 'cleaning_services', weight: 1 },
+    ],
+    priorityIds: [p3.id],
+    lifeAreaIds: [areaRelations.id],
+  })
+  // Monthly completion with target > 7 and specific-days placement that starts
+  // in the month's boundary week.
+  const h9 = await habitDexieRepository.create({
+    title: 'Ruch: 12 dni w miesiącu',
+    isActive: true,
+    status: 'open',
+    cadence: 'monthly',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 12 },
+    priorityIds: [p1.id],
+    lifeAreaIds: [areaHealth.id],
+  })
+  // Retired historical habit: placed and logged only in past weeks — stays
+  // visible in history, is not editable in planners.
+  const h10 = await habitDexieRepository.create({
+    title: 'Prasa poranna (wycofane)',
+    isActive: true,
+    status: 'retired',
+    cadence: 'weekly',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 2 },
+    priorityIds: [],
+    lifeAreaIds: [areaGrowth.id],
+  })
+
+  for (const [weekIdx, weekRef] of allWeeks.entries()) {
+    for (const id of [kr5.id, kr6.id, kr7.id]) {
+      await linkMeasurementPeriod({ subjectType: 'keyResult', subjectId: id, cadence: 'weekly', periodRef: weekRef })
+    }
+    await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h7.id, cadence: 'weekly', periodRef: weekRef })
+
+    // kr5: sleep hours on 4 days — met weeks average 7.5, missed 6.5.
+    for (const [dayIdx, dayRef] of upToToday(weekDays(weekRef, [0, 2, 4, 6])).entries()) {
+      await addEntries('keyResult', kr5.id, [dayRef], (isMet(weekIdx, 0) ? 7 : 6) + (dayIdx % 2))
+    }
+    // kr6: two weigh-ins; the LAST one decides (79.4 ≤ 80 met, 81.2 missed).
+    await addEntries('keyResult', kr6.id, upToToday(weekDays(weekRef, [1])), 80.5)
+    await addEntries('keyResult', kr6.id, upToToday(weekDays(weekRef, [4])), isMet(weekIdx, 1) ? 79.4 : 81.2)
+    // kr7: orphan KR logs twice on met weeks.
+    await addEntries('keyResult', kr7.id, upToToday(weekDays(weekRef, isMet(weekIdx, 2) ? [2, 5] : [2])), null)
+    // h7: coffee counter — met weeks total 8 (within limit), missed 12 (over).
+    for (const dayRef of upToToday(weekDays(weekRef, [0, 2, 4]))) {
+      await addEntries('habit', h7.id, [dayRef], isMet(weekIdx, 2) ? 3 : 4)
+    }
+  }
+
+  // Archive g3 now that its KR is planned — from here on it is the orphan case.
+  await goalDexieRepository.update(g3.id, { isActive: false })
+
+  // h10: only the older half of past weeks (retired since).
+  for (const weekRef of pastWeeks.slice(0, Math.ceil(pastWeeks.length / 2))) {
+    await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h10.id, cadence: 'weekly', periodRef: weekRef })
+    await addEntries('habit', h10.id, weekDays(weekRef, [1, 3]), null)
+  }
+
+  // Monthly-cadence coverage: h8 (multi) and h9 (specific-days, target > 7).
+  for (const monthRef of [monthM1, currentMonth]) {
+    await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h8.id, cadence: 'monthly', periodRef: monthRef })
+    await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h9.id, cadence: 'monthly', periodRef: monthRef })
+  }
+  // h8 entries: boundary-week days of the current month (in-month only) + one
+  // partial mid-month; previous month gets two full days.
+  const currentMonthStart = monthStart(currentMonth)
+  await addMultiEntries('habit', h8.id, upToToday([currentMonthStart]), ['plan', 'do'])
+  await addMultiEntries('habit', h8.id, upToToday([addDaysToDayRef(currentMonthStart, 1)]), ['plan'])
+  await addMultiEntries(
+    'habit',
+    h8.id,
+    [addDaysToDayRef(monthStart(monthM1), 5), addDaysToDayRef(monthStart(monthM1), 12)],
+    ['plan', 'do'],
+  )
+  // h9: specific days across the current month (starting in the boundary week),
+  // roughly half of them logged.
+  const h9Days = [0, 2, 4, 7, 9, 11, 14, 16, 18, 21, 23, 25].map(offset =>
+    addDaysToDayRef(currentMonthStart, offset),
+  )
+  for (const dayRef of h9Days) {
+    await toggleMeasurementDayAssignment({
+      subjectType: 'habit',
+      subjectId: h9.id,
+      cadence: 'monthly',
+      dayRef,
+      monthRef: currentMonth,
+    })
+  }
+  await addEntries('habit', h9.id, upToToday(h9Days.filter((_, i) => i % 2 === 0)), null)
+
+  // Target overrides: a month override + a weekly per-week override on kr2, and
+  // monthly week sub-targets (the planner's "Rozłóż"/Σ machinery) on kr3.
+  await updateMeasurementTargetOverride({
+    monthRef: currentMonth,
+    subjectType: 'keyResult',
+    subjectId: kr2.id,
+    targetOverride: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 20 },
+  })
+  if (currentMonthWeeks[1]) {
+    await updateMeasurementWeekTargetOverride({
+      weekRef: currentMonthWeeks[1],
+      subjectType: 'keyResult',
+      subjectId: kr2.id,
+      cadence: 'weekly',
+      targetOverride: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 8 },
+    })
+  }
+  for (const weekRef of currentMonthWeeks.slice(0, 2)) {
+    await updateMeasurementWeekTargetOverride({
+      weekRef,
+      subjectType: 'keyResult',
+      subjectId: kr3.id,
+      cadence: 'monthly',
+      monthRef: currentMonth,
+      targetOverride: { kind: 'count', operator: 'min', value: 1 },
+    })
+  }
+
+  console.log('[verificationSeed] Added Month V2 coverage objects and overrides')
+
   // ── 8. Weekly intentions (all weeks incl. current) ─────────────────────────
 
   const firstIntentionByWeek = new Map<WeekRef, string>()
@@ -881,13 +1079,16 @@ export async function seedVerificationData(): Promise<void> {
 
   for (const [monthIdx, monthRef] of closedMonths.entries()) {
     const rating = (dim: number): number => clampRating(3 + ((monthIdx + dim) % 3))
+    // The most recent closed month is deliberately PARTIAL (two axes unrated) —
+    // compass renderers must show dots without a polygon and never coerce to 0.
+    const partial = monthRef === monthM1
     await structuredReflectionDexieRepository.upsertMonthly({
       monthRef,
       balanceRating: rating(0),
       purposeRating: rating(1),
       growthRating: rating(2),
-      coherenceRating: rating(3),
-      agencyRating: rating(4),
+      coherenceRating: partial ? null : rating(3),
+      agencyRating: partial ? null : rating(4),
       promptResponses: {},
       freeformReflection: MONTH_FREEFORM_TEXTS[monthIdx % MONTH_FREEFORM_TEXTS.length],
       aiSummary: '',

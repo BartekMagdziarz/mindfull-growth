@@ -64,6 +64,7 @@
           <button
             type="button"
             class="month-section__row-label neo-focus"
+            :title="row.title"
             @click="
               emit('openObject', { type: row.subjectType, id: row.subjectId, homeWeekRef: row.homeWeekRef })
             "
