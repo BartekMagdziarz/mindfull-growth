@@ -519,6 +519,75 @@ describe('CalendarView', () => {
     })
   })
 
+  it('renders the legacy month renderer when no layout query is present', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const router = createTestRouter()
+    await router.push(`/calendar/month/${monthRef}`)
+    await router.isReady()
+
+    render(CalendarView, {
+      props: { scale: 'month', periodRef: monthRef },
+      global: { plugins: [router] },
+    })
+
+    expect(await screen.findByTestId('monthly-planner')).toBeInTheDocument()
+    expect(screen.queryByTestId('month-v2-summary-rail')).not.toBeInTheDocument()
+  })
+
+  it('renders the Month V2 shell behind layout=v2 instead of the V1 summary', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const router = createTestRouter()
+    await router.push(`/calendar/month/${monthRef}?layout=v2`)
+    await router.isReady()
+
+    render(CalendarView, {
+      props: { scale: 'month', periodRef: monthRef, layout: 'v2' },
+      global: { plugins: [router] },
+    })
+
+    expect(await screen.findByTestId('month-v2-summary-rail')).toBeInTheDocument()
+    expect(await screen.findByTestId('month-v2-week-grid')).toBeInTheDocument()
+    expect(screen.queryByTestId('monthly-planner')).not.toBeInTheDocument()
+    expect(screen.queryByText('Weekly recap')).not.toBeInTheDocument()
+
+    // The shell's reflection action opens the shared monthly wizard; closing it
+    // remounts the V2 shell (fresh model → compass/matrices refresh).
+    await fireEvent.click(screen.getByRole('button', { name: /create reflection/i }))
+    expect(await screen.findByTestId('monthly-reflection-wizard')).toBeInTheDocument()
+    expect(screen.queryByTestId('month-v2-week-grid')).not.toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+    expect(await screen.findByTestId('month-v2-week-grid')).toBeInTheDocument()
+  })
+
+  it('keeps the experiment query while paging months and drops it when leaving the month scale', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const router = createTestRouter()
+    await router.push(`/calendar/month/${monthRef}?layout=v2&chart=axis`)
+    await router.isReady()
+
+    const { container } = render(CalendarView, {
+      props: { scale: 'month', periodRef: monthRef, layout: 'v2', chartMode: 'axis' },
+      global: { plugins: [router] },
+    })
+
+    // Toolbar: [prev] [label] [next] — paging months keeps the experiment flags.
+    const controls = container.querySelectorAll('button.neo-control')
+    await fireEvent.click(controls[1]!)
+    await waitFor(() => {
+      expect(router.currentRoute.value.params.monthRef).toBe('2026-04')
+    })
+    expect(router.currentRoute.value.query).toMatchObject({ layout: 'v2', chart: 'axis' })
+
+    // Switching to the week scale drops layout/chart/density (and only them).
+    await fireEvent.click(screen.getByRole('button', { name: 'Week' }))
+    await waitFor(() => {
+      expect(router.currentRoute.value.name).toBe('calendar-week')
+    })
+    expect(router.currentRoute.value.query.layout).toBeUndefined()
+    expect(router.currentRoute.value.query.chart).toBeUndefined()
+  })
+
   it('assigns monthly habits to weeks and shows existing day assignments as a badge', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const habit = await habitDexieRepository.create({
