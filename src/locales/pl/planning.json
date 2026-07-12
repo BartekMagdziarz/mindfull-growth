@@ -277,6 +277,24 @@
         "close": "Zakończ planowanie",
         "saveError": "Nie udało się zapisać zmiany. Spróbuj ponownie."
       }
+    },
+    "weekV2": {
+      "overview": "Tydzień w skrócie",
+      "experimentBadge": "Eksperyment Week V2",
+      "today": "Dziś",
+      "coverage": "{active}/{total} z wpisem",
+      "noObjects": "Brak obiektów w tym tygodniu",
+      "weekResult": "Tydzień: {value}",
+      "monthContext": "Miesiąc do dziś: {value}",
+      "entryDaysChip": "{count}/{target} dni",
+      "matrix": "Macierz tygodnia",
+      "activity": "Aktywność · 7 dni",
+      "topPriorities": "Top-3 tygodnia",
+      "noPriorities": "Brak wybranych priorytetów",
+      "noReflection": "Dodaj refleksję tygodnia",
+      "reflectionLocked": "Refleksja odblokuje się w sobotę",
+      "sections": { "intentions": "Intencje" },
+      "planning": { "open": "Planowanie", "close": "Zakończ planowanie", "saveError": "Nie udało się zapisać zmiany. Spróbuj ponownie." }
     }
   },
   "today": {

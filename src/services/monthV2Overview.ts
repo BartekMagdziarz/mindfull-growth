@@ -24,7 +24,7 @@
  * - Multi-completion is its own series: per-day met/partial/empty plus the
  *   week's MET-day count — never reduced to a plain value series.
  */
-import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { DayRef, MonthRef, PeriodRef, WeekRef } from '@/domain/period'
 import type {
   MeasurementEntryMode,
   MeasurementTarget,
@@ -34,7 +34,6 @@ import type {
 import type { DailyMeasurementEntry } from '@/domain/planningState'
 import type { MonthlyReflection, WeeklyReflection, MonthlyRatingKey } from '@/domain/reflection'
 import { MONTHLY_RATING_KEYS } from '@/domain/reflection'
-import type { Quadrant } from '@/domain/emotion'
 import { getQuadrant } from '@/domain/emotion'
 import type { MonthPlanningBundle } from '@/services/planningStateQueries'
 import { getMonthPlanningBundle } from '@/services/planningStateQueries'
@@ -51,12 +50,19 @@ import { buildMonthObjectItems } from '@/components/calendar/objectItems'
 import { matrixFromReflection } from '@/components/calendar/stream/streamData'
 import type { StreamMatrixRowVM } from '@/components/calendar/stream/streamModel'
 import { listWeeklyIntentionsForMonth } from '@/services/weeklyIntentionService'
+import { addDaysToDayRef, getChildPeriods, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 import {
-  addDaysToDayRef,
-  getChildPeriods,
-  getPeriodBounds,
-  getPeriodRefsForDate,
-} from '@/utils/periods'
+  buildPeriodActivity,
+  type PeriodActivity,
+  type PeriodActivityDay,
+  type PeriodActivitySources,
+} from '@/services/periodActivity'
+import {
+  computePeriodContribution,
+  measurementValueAggregation,
+  periodColumnStatus,
+  periodNumericScale,
+} from '@/services/periodSeriesModel'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
@@ -102,6 +108,8 @@ export interface MonthV2MultiDaySlot {
 
 export interface MonthV2WeekDatum {
   weekRef: WeekRef
+  /** Scale-neutral chart key; Week V2 uses a day ref while Month V2 omits it. */
+  columnRef?: PeriodRef
   phase: MonthV2Phase
   /** undefined = no data → render "—", never 0. */
   actualValue?: number
@@ -189,21 +197,8 @@ export interface MonthV2CompassAxis {
   max: 5
 }
 
-export interface MonthV2ActivityDay {
-  dayRef: DayRef
-  weekdayIndex: number
-  isToday: boolean
-  isFuture: boolean
-  journalWritten: boolean
-  emotionCount: number
-  quadrantCounts: Record<Quadrant, number>
-  exerciseCount: number
-}
-
-export interface MonthV2Activity {
-  days: MonthV2ActivityDay[]
-  totals: { emotionSessions: number; journalEntries: number; exercises: number }
-}
+export type MonthV2ActivityDay = PeriodActivityDay
+export type MonthV2Activity = PeriodActivity
 
 export interface MonthV2Rail {
   /** null unless a monthly reflection exists with ≥1 rated axis. */
@@ -233,22 +228,9 @@ export interface MonthV2OverviewData {
 }
 
 /** Raw per-source inputs for the activity mini-calendar (pure, testable). */
-export interface MonthV2ActivitySources {
-  journalCreatedAts: string[]
-  emotionLogs: Array<{ createdAt: string; quadrants: Quadrant[] }>
-  exerciseDayRefs: DayRef[]
-}
+export type MonthV2ActivitySources = PeriodActivitySources
 
 // ── Pure helpers ─────────────────────────────────────────────────────────────
-
-function emptyQuadrantCounts(): Record<Quadrant, number> {
-  return {
-    'high-energy-high-pleasantness': 0,
-    'high-energy-low-pleasantness': 0,
-    'low-energy-high-pleasantness': 0,
-    'low-energy-low-pleasantness': 0,
-  }
-}
 
 /**
  * Per-day journal/emotion/exercise markers for the rail mini-calendar.
@@ -262,53 +244,11 @@ export function buildMonthV2Activity(
   sources: MonthV2ActivitySources
 ): MonthV2Activity {
   const bounds = getPeriodBounds(monthRef)
-  const days: MonthV2ActivityDay[] = []
-
+  const dayRefs: DayRef[] = []
   for (let dayRef = bounds.start; dayRef <= bounds.end; dayRef = addDaysToDayRef(dayRef, 1)) {
-    const isFuture = dayRef > todayRef
-    const dayStart = `${dayRef}T00:00:00.000Z`
-    const dayEnd = `${dayRef}T23:59:59.999Z`
-
-    const dayLogs = isFuture
-      ? []
-      : sources.emotionLogs.filter((log) => log.createdAt >= dayStart && log.createdAt <= dayEnd)
-    const quadrantCounts = emptyQuadrantCounts()
-    for (const log of dayLogs) {
-      for (const quadrant of log.quadrants) {
-        quadrantCounts[quadrant]++
-      }
-    }
-
-    days.push({
-      dayRef,
-      weekdayIndex: weekdayIndexOf(dayRef),
-      isToday: dayRef === todayRef,
-      isFuture,
-      journalWritten:
-        !isFuture &&
-        sources.journalCreatedAts.some((createdAt) => createdAt >= dayStart && createdAt <= dayEnd),
-      emotionCount: dayLogs.length,
-      quadrantCounts,
-      exerciseCount: isFuture
-        ? 0
-        : sources.exerciseDayRefs.filter((ref) => ref === dayRef).length,
-    })
+    dayRefs.push(dayRef)
   }
-
-  return {
-    days,
-    totals: {
-      emotionSessions: days.reduce((sum, day) => sum + day.emotionCount, 0),
-      journalEntries: days.filter((day) => day.journalWritten).length,
-      exercises: days.reduce((sum, day) => sum + day.exerciseCount, 0),
-    },
-  }
-}
-
-/** 0 = Monday … 6 = Sunday, from the canonical day ref. */
-function weekdayIndexOf(dayRef: DayRef): number {
-  const date = new Date(`${dayRef}T12:00:00.000Z`)
-  return (date.getUTCDay() + 6) % 7
+  return buildPeriodActivity(dayRefs, todayRef, sources)
 }
 
 function buildWeekColumns(
@@ -348,13 +288,7 @@ function numericTargetValue(subject: MeasureableSubject): number | undefined {
 }
 
 function valueAggregation(subject: MeasureableSubject): 'sum' | 'average' | 'last' {
-  return 'target' in subject && subject.target?.kind === 'value'
-    ? subject.target.aggregation
-    : 'last'
-}
-
-function hasData(datum: { actualValue?: number; entryCount: number }): boolean {
-  return datum.actualValue !== undefined || datum.entryCount > 0
+  return measurementValueAggregation(subject)
 }
 
 /**
@@ -362,71 +296,9 @@ function hasData(datum: { actualValue?: number; entryCount: number }): boolean {
  * never judged; past evaluated weeks surface the real evaluation, past rows
  * without a target (trackers) stay neutral.
  */
-function weekStatus(
-  phase: MonthV2Phase,
-  contributionOnly: boolean,
-  datum: { actualValue?: number; entryCount: number },
-  evaluationStatus?: MeasurementSummary['evaluationStatus']
-): MonthV2WeekStatus {
-  if (contributionOnly || phase !== 'past') {
-    return hasData(datum) ? 'in-progress' : 'no-data'
-  }
-  return evaluationStatus ?? (hasData(datum) ? 'in-progress' : 'no-data')
-}
-
-/** Neutral raw aggregate over an arbitrary slice of a subject's entries. */
-function computeContribution(
-  subject: MeasureableSubject,
-  entries: DailyMeasurementEntry[]
-): number | undefined {
-  if (entries.length === 0) return undefined
-  switch (subject.entryMode) {
-    case 'completion':
-      return entries.length
-    case 'counter':
-      return entries.reduce((sum, entry) => sum + (entry.value ?? 0), 0)
-    case 'value': {
-      switch (valueAggregation(subject)) {
-        case 'sum':
-          return entries.reduce((sum, entry) => sum + (entry.value ?? 0), 0)
-        case 'average':
-          return entries.reduce((sum, entry) => sum + (entry.value ?? 0), 0) / entries.length
-        case 'last':
-          return (
-            [...entries].sort((a, b) => a.dayRef.localeCompare(b.dayRef)).at(-1)?.value ?? undefined
-          )
-      }
-      break
-    }
-    case 'rating':
-      return entries.reduce((sum, entry) => sum + (entry.value ?? 0), 0) / entries.length
-    case 'multi-completion':
-      return entries.filter((entry) => multiCompletionDayMet(subject, entry)).length
-  }
-}
-
-interface ScaleOptions {
-  includeZero?: boolean
-  fixedMin?: number
-  fixedMax?: number
-  extraValues?: number[]
-}
-
-function numericScale(weeks: MonthV2WeekDatum[], options: ScaleOptions = {}): MonthV2NumericScale {
-  const values: number[] = [...(options.extraValues ?? [])]
-  for (const week of weeks) {
-    if (week.actualValue !== undefined) values.push(week.actualValue)
-    if (week.targetValue !== undefined) values.push(week.targetValue)
-  }
-  if (options.includeZero) values.push(0)
-
-  let min = values.length > 0 ? Math.min(...values) : 0
-  let max = values.length > 0 ? Math.max(...values) : 1
-  if (options.fixedMin !== undefined) min = options.fixedMin
-  if (options.fixedMax !== undefined) max = options.fixedMax
-  if (min === max) max = min + 1
-  return { min, max }
-}
+const weekStatus = periodColumnStatus
+const computeContribution = computePeriodContribution
+const numericScale = periodNumericScale
 
 // ── Series building ──────────────────────────────────────────────────────────
 

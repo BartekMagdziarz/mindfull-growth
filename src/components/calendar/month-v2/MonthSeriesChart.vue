@@ -22,7 +22,7 @@
       </defs>
 
       <template v-if="axisRenderer === 'bars'">
-        <g v-for="(week, i) in series.weeks" :key="week.weekRef">
+        <g v-for="(week, i) in series.weeks" :key="week.columnRef ?? week.weekRef">
           <!-- Per-week target tick (handles differing week overrides). -->
           <line
             v-if="week.targetValue !== undefined && !week.contributionOnly"
@@ -77,7 +77,7 @@
           stroke-linejoin="round"
           :stroke-opacity="piece.isFuture ? 0.4 : 0.95"
         />
-        <g v-for="(week, i) in series.weeks" :key="week.weekRef">
+        <g v-for="(week, i) in series.weeks" :key="week.columnRef ?? week.weekRef">
           <line
             v-if="week.targetValue !== undefined && !week.contributionOnly"
             :x1="slotX(i) + slotWidth * 0.08"
@@ -122,7 +122,7 @@
     >
       <div
         v-for="week in series.weeks"
-        :key="week.weekRef"
+        :key="week.columnRef ?? week.weekRef"
         class="month-series__cell"
         :class="{
           'month-series__cell--future': week.phase === 'future',
@@ -368,7 +368,7 @@ function cellValueText(week: MonthV2WeekDatum): string {
 }
 
 function weekTitle(week: MonthV2WeekDatum): string {
-  return `${week.weekRef}: ${week.inactive ? '—' : cellValueText(week)}`
+  return `${week.columnRef ?? week.weekRef}: ${week.inactive ? '—' : cellValueText(week)}`
 }
 
 const weeksDescription = computed(() =>

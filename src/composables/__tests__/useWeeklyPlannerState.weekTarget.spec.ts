@@ -6,6 +6,7 @@ import { planningStateDexieRepository } from '@/repositories/planningStateDexieR
 import { resetPlanningTestData } from '@/test/planningTestUtils'
 import type { MonthRef, WeekRef } from '@/domain/period'
 import { parsePeriodRef } from '@/utils/periods'
+import * as planningMutations from '@/services/planningMutations'
 
 const MONTH = parsePeriodRef('2026-03') as MonthRef
 const WEEK = parsePeriodRef('2026-W11') as WeekRef
@@ -45,6 +46,7 @@ async function setupPlanner(weekRef: WeekRef) {
 
 describe('useWeeklyPlannerState week target overrides', () => {
   beforeEach(async () => {
+    vi.restoreAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     await resetPlanningTestData()
   })
@@ -128,10 +130,40 @@ describe('useWeeklyPlannerState week target overrides', () => {
       ).toEqual({ kind: 'count', operator: 'min', value: 5 })
     }
   })
+
+  it('captures mutation failures, reloads truth and clears the busy state', async () => {
+    const habitId = await createHabit('weekly', [MONTH])
+    const planner = await setupPlanner(WEEK)
+    const row = planner.habitRows.value.find(item => item.id === habitId)!
+    vi.spyOn(planningMutations, 'updateMeasurementWeekTargetOverride').mockRejectedValueOnce(new Error('boom'))
+
+    await expect(planner.handleTargetValueChange(row, 2)).resolves.toBeUndefined()
+    expect(planner.mutationError.value).toBe('boom')
+    expect(planner.savingKey.value).toBe('')
+    expect(planner.habitRows.value.some(item => item.id === habitId)).toBe(true)
+  })
+
+  it('drops a concurrent mutation while the first save is in flight', async () => {
+    const habitId = await createHabit('weekly', [MONTH])
+    const planner = await setupPlanner(WEEK)
+    const row = planner.habitRows.value.find(item => item.id === habitId)!
+    let resolveFirst: () => void = () => {}
+    const pending = new Promise<void>(resolve => { resolveFirst = resolve })
+    const spy = vi.spyOn(planningMutations, 'updateMeasurementWeekTargetOverride').mockImplementation(() => pending)
+
+    const first = planner.handleTargetValueChange(row, 2)
+    const second = planner.handleTargetValueChange(row, 4)
+    resolveFirst()
+    await Promise.all([first, second])
+
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(planner.savingKey.value).toBe('')
+  })
 })
 
 describe('useWeeklyPlannerState entry-days condition (P2)', () => {
   beforeEach(async () => {
+    vi.restoreAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     await resetPlanningTestData()
   })

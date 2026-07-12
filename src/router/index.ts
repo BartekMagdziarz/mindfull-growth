@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { getPeriodRefsForDate } from '@/utils/periods'
-import { resolveCalendarMonthExperiment } from './calendarExperimentQuery'
+import { resolveCalendarExperiment } from './calendarExperimentQuery'
 
 const PUBLIC_ROUTES = ['login', 'signup']
 
@@ -60,14 +60,18 @@ const router = createRouter({
       props: route => ({
         scale: 'month',
         periodRef: route.params.monthRef,
-        ...resolveCalendarMonthExperiment(route.query),
+        ...resolveCalendarExperiment(route.query),
       }),
     },
     {
       path: '/calendar/week/:weekRef',
       name: 'calendar-week',
       component: () => import('@/views/CalendarView.vue'),
-      props: route => ({ scale: 'week', periodRef: route.params.weekRef }),
+      props: route => ({
+        scale: 'week',
+        periodRef: route.params.weekRef,
+        ...resolveCalendarExperiment(route.query),
+      }),
     },
     // Alternative "Strumień" (stream) calendar view — a single drill-down stream
     // of cards across year → month → week. Kept alongside the classic calendar.

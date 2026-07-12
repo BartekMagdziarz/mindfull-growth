@@ -49,6 +49,7 @@ export function useWeeklyPlannerState(
   const isLoading = ref(true)
   const loadError = ref<string | null>(null)
   const savingKey = ref('')
+  const mutationError = ref<string | null>(null)
   const goalSections = ref<GoalSection[]>([])
   const habitRows = ref<PlannerMeasurementRow[]>([])
   const trackerRows = ref<PlannerMeasurementRow[]>([])
@@ -290,9 +291,11 @@ export function useWeeklyPlannerState(
   }
 
   async function withSave<T>(key: string, action: () => Promise<T>): Promise<void> {
+    if (savingKey.value !== '') return
     const scrollX = window.scrollX
     const scrollY = window.scrollY
     savingKey.value = key
+    mutationError.value = null
     try {
       await action()
       await loadPlannerData({ showLoading: false })
@@ -303,6 +306,9 @@ export function useWeeklyPlannerState(
         })
       }
       emit('updated')
+    } catch (error) {
+      mutationError.value = error instanceof Error ? error.message : String(error)
+      await loadPlannerData({ showLoading: false })
     } finally {
       savingKey.value = ''
     }
@@ -622,6 +628,7 @@ export function useWeeklyPlannerState(
     isLoading,
     loadError,
     savingKey,
+    mutationError,
     goalSections,
     keyResultRows,
     habitRows,

@@ -91,6 +91,18 @@
               @experiment-change="handleMonthExperimentChange"
             />
 
+            <WeeklyOverviewV2
+              v-else-if="scale === 'week' && activeWeekRef && isWeekV2"
+              :week-ref="activeWeekRef"
+              :chart-mode="chartMode"
+              :density="density"
+              @open-object="openMonthV2Object"
+              @open-reflection="openWeekWizard"
+              @open-month="navigateTo('month', $event)"
+              @experiment-change="handleMonthExperimentChange"
+              @updated="void loadCalendarData()"
+            />
+
             <!-- Read-only weeks grid; the assignment workspace (sidebar) lives in the
                  month wizard's weeks step. -->
             <MonthlyPlanner
@@ -126,7 +138,7 @@
               />
             </template>
 
-            <template v-else-if="scale === 'week' && weekPlanning && weekReflection">
+            <template v-else-if="scale === 'week' && !isWeekV2 && weekPlanning && weekReflection">
               <WeekReviewSummary
                 :week-ref="activeWeekRef!"
                 :today-day-ref="todayRef"
@@ -268,16 +280,19 @@ import {
 } from '@/utils/periodLabels'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type {
-  CalendarMonthChartMode,
-  CalendarMonthDensity,
-  CalendarMonthLayout,
+  CalendarChartMode,
+  CalendarDensity,
+  CalendarLayout,
 } from '@/router/calendarExperimentQuery'
-import { CALENDAR_MONTH_EXPERIMENT_QUERY_KEYS } from '@/router/calendarExperimentQuery'
+import { CALENDAR_EXPERIMENT_QUERY_KEYS } from '@/router/calendarExperimentQuery'
 
 // Heavy experimental renderer — loaded only when a URL opts in via ?layout=v2,
 // so the default (legacy) month view never pays for the V2 bundle.
 const MonthlyOverviewV2 = defineAsyncComponent(
   () => import('@/components/calendar/month-v2/MonthlyOverviewV2.vue')
+)
+const WeeklyOverviewV2 = defineAsyncComponent(
+  () => import('@/components/calendar/week-v2/WeeklyOverviewV2.vue')
 )
 
 type CalendarScale = 'year' | 'month' | 'week'
@@ -292,10 +307,10 @@ type PanelKind =
 interface Props {
   scale: CalendarScale
   periodRef: string
-  /** Month V2 experiment flags — injected by the calendar-month route from the URL query. */
-  layout?: CalendarMonthLayout
-  chartMode?: CalendarMonthChartMode
-  density?: CalendarMonthDensity
+  /** Calendar V2 experiment flags — injected by the month/week route query. */
+  layout?: CalendarLayout
+  chartMode?: CalendarChartMode
+  density?: CalendarDensity
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -359,6 +374,7 @@ const activeWeekRef = computed(() =>
 )
 const todayRef = computed(() => getPeriodRefsForDate(new Date()).day)
 const isMonthV2 = computed(() => props.scale === 'month' && props.layout === 'v2')
+const isWeekV2 = computed(() => props.scale === 'week' && props.layout === 'v2')
 
 const calendarLayoutClasses = computed(() => [
   'grid gap-6',
@@ -787,11 +803,10 @@ function goToMonth(monthRef: MonthRef) {
 }
 
 function navigateTo(scale: CalendarScale, periodRef: PeriodRef) {
-  // Month V2 experiment flags travel in the query: keep them while paging
-  // between months, drop them (and only them) when leaving the month scale.
+  // Calendar V2 flags travel across month/week paging and drill-down.
   const query = { ...route.query }
-  if (scale !== 'month') {
-    for (const key of CALENDAR_MONTH_EXPERIMENT_QUERY_KEYS) {
+  if (scale !== 'month' && scale !== 'week') {
+    for (const key of CALENDAR_EXPERIMENT_QUERY_KEYS) {
       delete query[key]
     }
   }
@@ -826,8 +841,8 @@ function openMonthV2Object(payload: { type: string; id: string; homeWeekRef?: We
 
 /** DEV experiment panel writes both variant params back into the URL query. */
 function handleMonthExperimentChange(config: {
-  chartMode: CalendarMonthChartMode
-  density: CalendarMonthDensity
+  chartMode: CalendarChartMode
+  density: CalendarDensity
 }) {
   void router.replace({
     query: { ...route.query, layout: 'v2', chart: config.chartMode, density: config.density },

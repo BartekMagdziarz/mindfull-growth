@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, toRef } from 'vue'
+import { computed, ref, toRef, watch } from 'vue'
 import AssignmentMatrix from './AssignmentMatrix.vue'
 import PlannerWeekTargetPill from './PlannerWeekTargetPill.vue'
+import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
+import AppSnackbar from '@/components/AppSnackbar.vue'
 import { useT } from '@/composables/useT'
 import { useWeeklyPlannerState } from '@/composables/useWeeklyPlannerState'
 import type { DayRef, WeekRef } from '@/domain/period'
@@ -20,6 +22,11 @@ const { locale } = useT()
 
 const weekRefRef = toRef(props, 'weekRef')
 const planner = useWeeklyPlannerState(weekRefRef, locale, () => emit('updated'))
+const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
+
+watch(planner.mutationError, (message) => {
+  if (message) snackbarRef.value?.show(t('planning.calendar.weekV2.planning.saveError'))
+})
 
 const rowByKey = computed(() => {
   const map = new Map<string, PlannerMeasurementRow>()
@@ -134,12 +141,28 @@ function pillTarget(rowKey: string) {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4" data-testid="week-day-assignment-step">
     <p class="text-sm text-on-surface-variant">
       {{ t('planning.weekPlanning.days.intro') }}
     </p>
 
-    <div v-if="!planner.isLoading.value" class="overflow-x-auto pb-1">
+    <PlanningStatePanel
+      v-if="planner.isLoading.value"
+      compact
+      :title="t('common.loading')"
+      :body="t('planning.weekPlanning.days.intro')"
+      :eyebrow="t('planning.calendar.weekV2.planning.open')"
+    />
+    <PlanningStatePanel
+      v-else-if="planner.loadError.value"
+      compact
+      :title="t('planning.calendar.planner.loadError')"
+      :body="planner.loadError.value"
+      :eyebrow="t('planning.calendar.weekV2.planning.open')"
+      :action-label="t('common.buttons.tryAgain')"
+      @action="void planner.loadPlannerData()"
+    />
+    <div v-else class="overflow-x-auto pb-1" :aria-busy="planner.savingKey.value !== ''">
       <AssignmentMatrix
         v-if="hasAnyRows"
         :columns="columns"
@@ -168,5 +191,6 @@ function pillTarget(rowKey: string) {
         {{ t('planning.weekPlanning.days.empty') }}
       </p>
     </div>
+    <AppSnackbar ref="snackbarRef" />
   </div>
 </template>

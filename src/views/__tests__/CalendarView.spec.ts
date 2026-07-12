@@ -560,7 +560,23 @@ describe('CalendarView', () => {
     expect(await screen.findByTestId('month-v2-week-grid')).toBeInTheDocument()
   })
 
-  it('keeps the experiment query while paging months and drops it when leaving the month scale', async () => {
+  it('renders the Week V2 shell behind layout=v2 while legacy stays the default', async () => {
+    const weekRef = parsePeriodRef('2026-W10') as WeekRef
+    const router = createTestRouter()
+    await router.push(`/calendar/week/${weekRef}?layout=v2`)
+    await router.isReady()
+
+    render(CalendarView, {
+      props: { scale: 'week', periodRef: weekRef, layout: 'v2' },
+      global: { plugins: [router] },
+    })
+
+    expect(await screen.findByTestId('week-v2-summary-rail')).toBeInTheDocument()
+    expect(await screen.findByTestId('week-v2-day-grid')).toBeInTheDocument()
+    expect(screen.queryByText('Weekly recap')).not.toBeInTheDocument()
+  })
+
+  it('keeps the experiment query across month/week and drops it on year', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const router = createTestRouter()
     await router.push(`/calendar/month/${monthRef}?layout=v2&chart=axis`)
@@ -579,11 +595,15 @@ describe('CalendarView', () => {
     })
     expect(router.currentRoute.value.query).toMatchObject({ layout: 'v2', chart: 'axis' })
 
-    // Switching to the week scale drops layout/chart/density (and only them).
+    // Month → week is the V2 drill-down and preserves the experiment namespace.
     await fireEvent.click(screen.getByRole('button', { name: 'Week' }))
     await waitFor(() => {
       expect(router.currentRoute.value.name).toBe('calendar-week')
     })
+    expect(router.currentRoute.value.query).toMatchObject({ layout: 'v2', chart: 'axis' })
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Year' }))
+    await waitFor(() => expect(router.currentRoute.value.name).toBe('calendar-year'))
     expect(router.currentRoute.value.query.layout).toBeUndefined()
     expect(router.currentRoute.value.query.chart).toBeUndefined()
   })

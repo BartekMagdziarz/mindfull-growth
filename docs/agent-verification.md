@@ -130,6 +130,12 @@ re-seed automatically on next load.
    `days` steps always available (intentions, top-3, day assignments);
    reflection steps filled on closed weeks, locked on the current week.
 4. **Today view** (`/today`) — scheduled objects with seeded entries.
+5. **Week V2 experiment** — `/calendar/week/<YYYY-Www>?layout=v2`. Use W−1
+   for a closed week: the left rail contains the 4×3 reflection matrix,
+   seven-day activity and top-3; the right side contains seven day columns and
+   four persisted disclosure sections. Month V2 drill-down must preserve
+   `layout`, `chart` and `density`. Use the current week for the in-place
+   seven-day planning matrix.
 
 Period refs must match the app's custom Monday-week scheme — compute them with
 `getPeriodRefsForDate`/`getPreviousPeriod` from `src/utils/periods` rather than

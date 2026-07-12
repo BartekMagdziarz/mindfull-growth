@@ -277,6 +277,24 @@
         "close": "Done planning",
         "saveError": "Saving the change failed. Try again."
       }
+    },
+    "weekV2": {
+      "overview": "Week at a glance",
+      "experimentBadge": "Week V2 experiment",
+      "today": "Today",
+      "coverage": "{active}/{total} with an entry",
+      "noObjects": "No objects this week",
+      "weekResult": "Week: {value}",
+      "monthContext": "Month to date: {value}",
+      "entryDaysChip": "{count}/{target} days",
+      "matrix": "Week matrix",
+      "activity": "Activity · 7 days",
+      "topPriorities": "Week top 3",
+      "noPriorities": "No priorities selected",
+      "noReflection": "Add a weekly reflection",
+      "reflectionLocked": "Reflection unlocks on Saturday",
+      "sections": { "intentions": "Intentions" },
+      "planning": { "open": "Planning", "close": "Done planning", "saveError": "Saving the change failed. Try again." }
     }
   },
   "today": {
