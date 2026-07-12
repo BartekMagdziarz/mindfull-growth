@@ -240,7 +240,8 @@
         "subTargets": "Week sub-targets",
         "boundaryHint": "Week spans two months",
         "empty": "No open objects to plan yet."
-      }
+      },
+      "saveError": "Saving the change failed. Try again."
     },
     "monthV2": {
       "overview": "Month at a glance",

@@ -240,7 +240,8 @@
         "subTargets": "Cele tygodniowe",
         "boundaryHint": "Tydzień na granicy miesięcy",
         "empty": "Brak otwartych obiektów do zaplanowania."
-      }
+      },
+      "saveError": "Nie udało się zapisać zmiany. Spróbuj ponownie."
     },
     "monthV2": {
       "overview": "Miesiąc w skrócie",

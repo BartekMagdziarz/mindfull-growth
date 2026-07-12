@@ -59,6 +59,8 @@ export function usePlannerState(
   const isLoading = ref(true)
   const loadError = ref<string | null>(null)
   const savingKey = ref('')
+  /** Message of the last failed mutation; hosts watch it to show a snackbar. */
+  const mutationError = ref<string | null>(null)
   const goalSections = ref<GoalSection[]>([])
   const habitRows = ref<PlannerMeasurementRow[]>([])
   const trackerRows = ref<PlannerMeasurementRow[]>([])
@@ -297,9 +299,13 @@ export function usePlannerState(
   }
 
   async function withSave<T>(key: string, action: () => Promise<T>): Promise<void> {
+    // Busy guard: mutations are serialized — a click landing while a save is
+    // in flight is dropped instead of racing the pending reload.
+    if (savingKey.value !== '') return
     const scrollX = window.scrollX
     const scrollY = window.scrollY
     savingKey.value = key
+    mutationError.value = null
     try {
       await action()
       await loadPlannerData({ showLoading: false })
@@ -310,6 +316,11 @@ export function usePlannerState(
         })
       }
       emit('updated')
+    } catch (error) {
+      // Surface the failure (hosts show a snackbar) and reload so the matrix
+      // reflects the persisted truth rather than a half-applied click.
+      mutationError.value = error instanceof Error ? error.message : String(error)
+      await loadPlannerData({ showLoading: false })
     } finally {
       savingKey.value = ''
     }
@@ -668,6 +679,7 @@ export function usePlannerState(
     isLoading,
     loadError,
     savingKey,
+    mutationError,
     goalSections,
     keyResultRows,
     habitRows,

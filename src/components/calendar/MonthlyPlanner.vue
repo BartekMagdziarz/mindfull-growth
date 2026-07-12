@@ -18,7 +18,7 @@
       @action="void planner.loadPlannerData()"
     />
 
-    <div v-else class="overflow-x-auto pb-1">
+    <div v-else class="overflow-x-auto pb-1" :aria-busy="planner.savingKey.value !== ''">
       <AssignmentMatrix
         v-if="hasAnyRows"
         :columns="columns"
@@ -114,13 +114,16 @@
         {{ t('planning.calendar.planner.matrix.empty') }}
       </p>
     </div>
+
+    <AppSnackbar ref="snackbarRef" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
 import AppButton from '@/components/AppButton.vue'
+import AppSnackbar from '@/components/AppSnackbar.vue'
 import AssignmentMatrix from './AssignmentMatrix.vue'
 import PlannerTargetControls from './PlannerTargetControls.vue'
 import PlannerWeekTargetPill from './PlannerWeekTargetPill.vue'
@@ -149,6 +152,15 @@ const { t, locale } = useT()
 const monthRefRef = computed(() => props.monthRef as MonthRef)
 
 const planner = usePlannerState(monthRefRef, locale, () => emit('updated'))
+const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
+
+// A failed mutation surfaces as a snackbar; the matrix itself has already been
+// reloaded back to the persisted truth by the composable.
+watch(planner.mutationError, (message) => {
+  if (message) {
+    snackbarRef.value?.show(t('planning.calendar.planner.saveError'))
+  }
+})
 
 const rowByKey = computed(() => {
   const map = new Map<string, PlannerMeasurementRow>()
