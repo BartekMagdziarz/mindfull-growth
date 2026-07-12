@@ -1,7 +1,14 @@
 <template>
   <section class="month-v2" :aria-label="t('planning.calendar.monthV2.overview')">
     <div class="month-v2__bar">
-      <p class="month-v2__eyebrow">{{ t('planning.calendar.monthV2.experimentBadge') }}</p>
+      <div class="month-v2__bar-left">
+        <p class="month-v2__eyebrow">{{ t('planning.calendar.monthV2.experimentBadge') }}</p>
+        <MonthExperimentPanel
+          :chart-mode="chartMode"
+          :density="density"
+          @change="emit('experimentChange', $event)"
+        />
+      </div>
       <div class="month-v2__actions">
         <AppButton :variant="planningOpen ? 'tonal' : 'filled'" @click="togglePlanning">
           <AppIcon name="calendar_month" class="text-base" />
@@ -75,6 +82,7 @@ import MonthlyPlanner from '@/components/calendar/MonthlyPlanner.vue'
 import { useT } from '@/composables/useT'
 import MonthSummaryRail from './MonthSummaryRail.vue'
 import MonthWeekGrid from './MonthWeekGrid.vue'
+import MonthExperimentPanel from './MonthExperimentPanel.vue'
 import type { MonthChartMode, MonthDensity } from './monthV2Types'
 
 const props = withDefaults(
@@ -90,6 +98,7 @@ const emit = defineEmits<{
   openWeek: [weekRef: WeekRef]
   openObject: [payload: { type: string; id: string; homeWeekRef?: WeekRef }]
   openReflection: []
+  experimentChange: [config: { chartMode: MonthChartMode; density: MonthDensity }]
   updated: []
 }>()
 
@@ -164,6 +173,13 @@ function togglePlanning(): void {
   display: flex;
   gap: 12px;
   justify-content: space-between;
+}
+
+.month-v2__bar-left {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
 .month-v2__eyebrow {

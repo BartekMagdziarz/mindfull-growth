@@ -88,6 +88,7 @@
               @open-week="navigateTo('week', $event)"
               @open-object="openMonthV2Object"
               @open-reflection="openReflectionPanel"
+              @experiment-change="handleMonthExperimentChange"
             />
 
             <!-- Read-only weeks grid; the assignment workspace (sidebar) lives in the
@@ -821,6 +822,16 @@ function openMonthV2Object(payload: { type: string; id: string; homeWeekRef?: We
   const family =
     payload.type === 'habit' ? 'habits' : payload.type === 'tracker' ? 'trackers' : 'goals'
   void router.push({ name: 'objects-family', params: { family } })
+}
+
+/** DEV experiment panel writes both variant params back into the URL query. */
+function handleMonthExperimentChange(config: {
+  chartMode: CalendarMonthChartMode
+  density: CalendarMonthDensity
+}) {
+  void router.replace({
+    query: { ...route.query, layout: 'v2', chart: config.chartMode, density: config.density },
+  })
 }
 
 function openPlanPanel() {
