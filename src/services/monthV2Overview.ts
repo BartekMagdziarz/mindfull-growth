@@ -745,17 +745,21 @@ function buildSections(
   const habitRows = sorted.filter((item) => item.subjectType === 'habit').map(toRow)
   const trackerRows = sorted.filter((item) => item.subjectType === 'tracker').map(toRow)
 
-  const intentionRows = [...intentions]
-    .sort(
-      (a, b) => a.weekRef.localeCompare(b.weekRef) || a.title.localeCompare(b.title)
-    )
-    .map((intention) => rowFromIntention(intention, columns, rawEntries, todayRef))
+  // Intentions live in exactly one week each — grouping them per week keeps
+  // the section compact and gives the single active cell its context.
+  const intentionGroups: MonthV2Group[] = columns.flatMap((column) => {
+    const rows = intentions
+      .filter((intention) => intention.weekRef === column.weekRef)
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .map((intention) => rowFromIntention(intention, columns, rawEntries, todayRef))
+    return rows.length > 0 ? [{ key: `week:${column.weekRef}`, rows }] : []
+  })
 
   return [
     buildSection('goals', goalGroupList, goalGroups.size),
     buildSection('habits', [{ key: 'habits', rows: habitRows }]),
     buildSection('trackers', [{ key: 'trackers', rows: trackerRows }]),
-    buildSection('intentions', [{ key: 'intentions', rows: intentionRows }]),
+    buildSection('intentions', intentionGroups),
   ]
 }
 

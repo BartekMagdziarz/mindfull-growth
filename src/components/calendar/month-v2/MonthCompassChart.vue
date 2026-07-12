@@ -85,7 +85,7 @@ const { t } = useT()
 const fillId = `mv2-compass-${useId().replace(/:/g, '')}`
 
 const CENTER = { x: 130, y: 105 }
-const RADIUS = 66
+const RADIUS = 56
 const RINGS = [1, 2, 3, 4, 5]
 
 const compass = computed(() => props.compass)

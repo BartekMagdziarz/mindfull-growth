@@ -72,13 +72,11 @@ function dayNumber(dayRef: string): number {
   return Number(dayRef.slice(-2))
 }
 
-const maxEmotionCount = computed(() =>
-  Math.max(1, ...props.days.map((day) => day.emotionCount))
-)
-
 /**
  * Hard-stop gradient: each quadrant occupies a slice proportional to its share
- * of the day's logged emotions; overall opacity scales with the day's volume.
+ * of the day's logged emotions. Intensity uses FIXED volume thresholds
+ * (1 / 2 / 3+ sessions) so past days don't visually change when a new,
+ * busier day lands later in the month.
  */
 function emotionFillStyle(day: MonthV2ActivityDay): Record<string, string> {
   const entries = (Object.keys(day.quadrantCounts) as Quadrant[])
@@ -94,7 +92,7 @@ function emotionFillStyle(day: MonthV2ActivityDay): Record<string, string> {
     return `${QUADRANT_COLOR[entry.quadrant]} ${from.toFixed(1)}% ${to.toFixed(1)}%`
   })
 
-  const intensity = 0.18 + 0.42 * Math.min(1, day.emotionCount / maxEmotionCount.value)
+  const intensity = day.emotionCount >= 3 ? 0.55 : day.emotionCount === 2 ? 0.4 : 0.25
   return {
     background:
       stops.length === 1
@@ -119,7 +117,7 @@ function dayTitle(day: MonthV2ActivityDay): string {
 .month-mini__weekdays {
   color: rgb(var(--neo-muted));
   display: grid;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
   gap: 2px;
   grid-template-columns: repeat(7, 1fr);
@@ -177,7 +175,7 @@ function dayTitle(day: MonthV2ActivityDay): string {
 
 .month-mini__num {
   color: rgb(var(--neo-text));
-  font-size: 9px;
+  font-size: 10px;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   line-height: 1;
@@ -191,7 +189,7 @@ function dayTitle(day: MonthV2ActivityDay): string {
 }
 
 .month-mini__icon {
-  color: rgb(var(--neo-muted));
+  color: rgb(var(--neo-text) / 0.75);
   font-size: 9px;
 }
 </style>

@@ -7,7 +7,10 @@
     <p class="month-rail__eyebrow">{{ t('planning.calendar.monthV2.overview') }}</p>
 
     <section v-if="rail.compass" class="month-rail__section">
-      <p class="month-rail__label">{{ t('planning.calendar.monthV2.compass') }}</p>
+      <p class="month-rail__label">
+        {{ t('planning.calendar.monthV2.compass') }}
+        <span class="month-rail__label-hint">{{ t('planning.calendar.monthV2.compassScale') }}</span>
+      </p>
       <MonthCompassChart :compass="rail.compass" />
     </section>
 
@@ -76,11 +79,20 @@ const { t } = useT()
 }
 
 .month-rail__label {
+  align-items: baseline;
   color: rgb(var(--neo-muted));
+  display: flex;
+  gap: 6px;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.month-rail__label-hint {
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .month-rail__metrics {
@@ -109,14 +121,14 @@ const { t } = useT()
 
 .month-rail__metric-value {
   color: rgb(var(--neo-text));
-  font-size: 13px;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
 }
 
 .month-rail__metric-label {
   color: rgb(var(--neo-muted));
-  font-size: 8px;
+  font-size: 9.5px;
   max-width: 100%;
   overflow: hidden;
   text-align: center;

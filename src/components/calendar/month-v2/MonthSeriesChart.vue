@@ -49,16 +49,16 @@
             v-else
             :d="barPath(i, week.actualValue)"
             :fill="`url(#${gradientId})`"
-            :opacity="week.phase === 'future' ? 0.45 : 1"
+            :opacity="week.phase === 'future' ? 0.7 : 1"
           />
           <text
             v-if="showValues && week.actualValue !== undefined"
             :x="slotX(i) + slotWidth / 2"
             :y="valueY(week.actualValue) - 3"
             text-anchor="middle"
-            font-size="9"
+            font-size="10.5"
             fill="rgb(var(--color-on-surface-variant))"
-            fill-opacity="0.75"
+            fill-opacity="0.85"
           >
             {{ formatValue(week.actualValue) }}
           </text>
@@ -75,7 +75,7 @@
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          :stroke-opacity="piece.isFuture ? 0.4 : 0.95"
+          :stroke-opacity="piece.isFuture ? 0.6 : 0.95"
         />
         <g v-for="(week, i) in series.weeks" :key="week.weekRef">
           <line
@@ -97,16 +97,16 @@
             fill="rgb(var(--neo-chart-primary-end))"
             stroke="rgb(var(--neo-surface-top))"
             stroke-width="1.5"
-            :opacity="week.phase === 'future' ? 0.45 : 1"
+            :opacity="week.phase === 'future' ? 0.7 : 1"
           />
           <text
             v-if="showValues && week.actualValue !== undefined"
             :x="slotX(i) + slotWidth / 2"
             :y="valueY(week.actualValue) - 6"
             text-anchor="middle"
-            font-size="9"
+            font-size="10.5"
             fill="rgb(var(--color-on-surface-variant))"
-            fill-opacity="0.75"
+            fill-opacity="0.85"
           >
             {{ formatValue(week.actualValue) }}
           </text>
@@ -131,9 +131,10 @@
         }"
         :title="weekTitle(week)"
       >
-        <template v-if="week.inactive">
-          <span class="month-series__empty">—</span>
-        </template>
+        <!-- Intention rows: weeks outside the home week stay visually empty
+             (a column of dashes would just be noise). -->
+        <template v-if="week.inactive" />
+
 
         <!-- specific-days: 7 fixed Mon–Sun micro slots -->
         <template v-else-if="week.days">
@@ -254,10 +255,15 @@ const axisRenderer = computed(() =>
 // ── Axis geometry ────────────────────────────────────────────────────────────
 
 const SLOT_W = 80
+/** Mirrors the CSS 8px column gap (~5% of a column) so bars/dots line up with
+ *  the week cards above even though the SVG stretches to the row width. */
+const GAP_W = 4.5
 const PAD_TOP = 12
 const PAD_BOTTOM = 6
 
-const svgWidth = computed(() => props.series.weeks.length * SLOT_W)
+const svgWidth = computed(
+  () => props.series.weeks.length * SLOT_W + (props.series.weeks.length - 1) * GAP_W
+)
 const svgHeight = computed(() => (props.density === 'compact' ? 44 : 60))
 const chartBottom = computed(() => svgHeight.value - PAD_BOTTOM)
 const slotWidth = SLOT_W
@@ -270,7 +276,7 @@ const scale = computed(() => {
 })
 
 function slotX(i: number): number {
-  return i * SLOT_W
+  return i * (SLOT_W + GAP_W)
 }
 
 function valueY(value: number): number {
@@ -413,7 +419,7 @@ const weeksDescription = computed(() =>
 }
 
 .month-series__cell--future {
-  opacity: 0.42;
+  opacity: 0.78;
 }
 
 .month-series__cell--current {
@@ -504,14 +510,14 @@ const weeksDescription = computed(() =>
 
 .month-series__value {
   color: rgb(var(--neo-muted));
-  font-size: 9px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
 
 .month-series__empty {
   color: rgb(var(--neo-muted));
-  font-size: 10px;
+  font-size: 11px;
   opacity: 0.55;
 }
 </style>

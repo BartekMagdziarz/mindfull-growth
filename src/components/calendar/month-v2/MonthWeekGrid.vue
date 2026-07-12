@@ -24,7 +24,11 @@
             <span class="month-grid__week-num">
               {{ t('planning.calendar.scales.weekShort') }}{{ weekNumber(week) }}
             </span>
-            <span v-if="week.isBoundary" class="month-grid__week-marker" aria-hidden="true">◦</span>
+            <span
+              v-if="week.isBoundary"
+              class="month-grid__week-marker"
+              :title="t('planning.calendar.planner.matrix.boundaryHint')"
+            >◦</span>
             <span v-if="week.phase === 'current'" class="month-grid__week-badge">
               {{ t('planning.calendar.monthV2.currentWeek') }}
             </span>
@@ -36,7 +40,8 @@
             v-if="week.reflectionMatrix"
             class="month-grid__matrix"
             :title="matrixTitle(week)"
-            aria-hidden="true"
+            role="img"
+            :aria-label="matrixTitle(week)"
           >
             <span v-for="row in week.reflectionMatrix" :key="row.areaKey" class="month-grid__matrix-row">
               <span
@@ -166,7 +171,7 @@ function matrixTitle(week: MonthV2WeekColumn): string {
 
 <style scoped>
 .month-grid {
-  --month-v2-label-width: minmax(184px, 1.18fr);
+  --month-v2-label-width: minmax(208px, 1.3fr);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -174,14 +179,20 @@ function matrixTitle(week: MonthV2WeekColumn): string {
 }
 
 .month-grid--compact {
-  --month-v2-label-width: minmax(170px, 1.08fr);
+  --month-v2-label-width: minmax(188px, 1.15fr);
 }
 
 .month-grid__axis {
   align-items: stretch;
+  background: rgb(var(--neo-surface-base));
+  border-radius: 0 0 14px 14px;
   display: grid;
   gap: 8px;
   grid-template-columns: var(--month-v2-label-width) minmax(0, 4fr);
+  padding-bottom: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 6;
 }
 
 .month-grid__heads {
@@ -230,7 +241,7 @@ function matrixTitle(week: MonthV2WeekColumn): string {
 }
 
 .month-grid__week--future {
-  opacity: 0.54;
+  opacity: 0.8;
 }
 
 .month-grid__week-top {
@@ -241,7 +252,7 @@ function matrixTitle(week: MonthV2WeekColumn): string {
 
 .month-grid__week-num {
   color: rgb(var(--neo-text));
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -254,7 +265,7 @@ function matrixTitle(week: MonthV2WeekColumn): string {
   background: rgb(var(--neo-chart-primary-end) / 0.18);
   border-radius: 999px;
   color: rgb(var(--color-primary-strong));
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.06em;
   padding: 1px 6px;
@@ -263,7 +274,7 @@ function matrixTitle(week: MonthV2WeekColumn): string {
 
 .month-grid__week-range {
   color: rgb(var(--neo-muted));
-  font-size: 9px;
+  font-size: 10.5px;
   white-space: nowrap;
 }
 

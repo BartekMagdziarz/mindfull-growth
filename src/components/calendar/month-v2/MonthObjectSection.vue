@@ -1,5 +1,9 @@
 <template>
-  <section class="month-section" :data-section="section.key">
+  <section
+    class="month-section"
+    :class="{ 'month-section--dense': section.key === 'intentions' }"
+    :data-section="section.key"
+  >
     <button
       type="button"
       class="month-section__toggle neo-focus"
@@ -22,7 +26,6 @@
         <span class="month-section__title">{{ sectionTitle }}</span>
       </span>
       <span class="month-section__toggle-right">
-        <span class="month-section__count">{{ section.rowCount }}</span>
         <span class="month-section__coverage">
           {{
             t('planning.calendar.monthV2.coverage', {
@@ -58,6 +61,9 @@
         <p v-else-if="group.key === 'goal:unlinked'" class="month-section__group-head">
           <AppIcon name="more_horiz" />
           <span>{{ t('planning.calendar.monthV2.remainingResults') }}</span>
+        </p>
+        <p v-else-if="group.key.startsWith('week:')" class="month-section__group-head">
+          <span>{{ weekGroupLabel(group.key) }}</span>
         </p>
 
         <div v-for="row in group.rows" :key="row.key" class="month-section__row" :data-row-key="row.key">
@@ -95,6 +101,7 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue'
 import type { WeekRef } from '@/domain/period'
+import { getPeriodBounds } from '@/utils/periods'
 import type { MonthV2Row, MonthV2Section } from '@/services/monthV2Overview'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
@@ -117,8 +124,18 @@ const emit = defineEmits<{
   openObject: [payload: { type: string; id: string; homeWeekRef?: WeekRef }]
 }>()
 
-const { t } = useT()
+const { t, locale } = useT()
 const contentId = `month-section-${useId().replace(/:/g, '')}`
+
+/** "T27 · 6 lip – 12 lip" header for the per-week intention groups. */
+function weekGroupLabel(groupKey: string): string {
+  const weekRef = groupKey.slice('week:'.length) as WeekRef
+  const bounds = getPeriodBounds(weekRef)
+  const formatter = new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'short' })
+  const start = formatter.format(new Date(`${bounds.start}T12:00:00`))
+  const end = formatter.format(new Date(`${bounds.end}T12:00:00`))
+  return `${t('planning.calendar.scales.weekShort')}${weekRef.slice(-2)} · ${start} – ${end}`
+}
 
 const SECTION_ICONS: Record<MonthV2Section['key'], string> = {
   goals: 'flag',
@@ -208,7 +225,7 @@ function rowSubline(row: MonthV2Row): string | null {
 
 .month-section__title {
   color: rgb(var(--neo-text));
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -216,19 +233,12 @@ function rowSubline(row: MonthV2Row): string | null {
   align-items: center;
   color: rgb(var(--neo-muted));
   display: flex;
-  font-size: 11px;
+  font-size: 11.5px;
   gap: 10px;
 }
 
-.month-section__count {
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-}
-
 .month-section__coverage {
-  border-left: 1px solid rgb(var(--neo-border) / 0.6);
   font-variant-numeric: tabular-nums;
-  padding-left: 10px;
 }
 
 .month-section__chevron {
@@ -252,7 +262,7 @@ function rowSubline(row: MonthV2Row): string | null {
 
 .month-section__empty {
   color: rgb(var(--neo-muted));
-  font-size: 12px;
+  font-size: 12.5px;
   padding: 10px 12px;
 }
 
@@ -266,7 +276,7 @@ function rowSubline(row: MonthV2Row): string | null {
   align-items: center;
   color: rgb(var(--neo-muted));
   display: flex;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   gap: 6px;
   padding: 6px 10px 2px;
@@ -278,7 +288,7 @@ function rowSubline(row: MonthV2Row): string | null {
   border-radius: 9px;
   cursor: pointer;
   font: inherit;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
 }
 
@@ -297,6 +307,10 @@ function rowSubline(row: MonthV2Row): string | null {
 
 .month-section--compact .month-section__row {
   min-height: 46px;
+}
+
+.month-section--dense .month-section__row {
+  min-height: 38px;
 }
 
 .month-section__row + .month-section__row,
@@ -336,7 +350,7 @@ function rowSubline(row: MonthV2Row): string | null {
 
 .month-section__row-title {
   color: rgb(var(--neo-text));
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -345,7 +359,7 @@ function rowSubline(row: MonthV2Row): string | null {
 
 .month-section__row-subline {
   color: rgb(var(--neo-muted));
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-variant-numeric: tabular-nums;
 }
 

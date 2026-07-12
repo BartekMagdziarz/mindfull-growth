@@ -8,7 +8,9 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/.claude/**'],
+    // ideas/ holds local artifacts AND nested git worktrees of concurrent
+    // sessions — scanning it re-runs (and cross-fails) their whole suites.
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/.claude/**', 'ideas/**'],
     pool: 'forks',
     threads: false,
   },

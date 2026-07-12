@@ -276,6 +276,15 @@
         "open": "Planning",
         "close": "Done planning",
         "saveError": "Saving the change failed. Try again."
+      },
+      "compassScale": "· scale 1–5",
+      "legend": {
+        "toggle": "How to read this view?",
+        "matrix": "The mini-grid on a week: 4 areas (body, emotions, tasks, close ones) × Demands / Actions / State. Colour = 1–5 rating: rose — strain, sky — resource. “—” = no weekly reflection.",
+        "charts": "Segments and capsules = executions vs the week target; the 7-slot strip = specific days (solid — done, half-tone — partial, outline — scheduled); bars and lines = weekly values with a target tick.",
+        "contribution": "“+N” = a week’s neutral contribution to a monthly goal — the month target is settled once and shown next to the object name.",
+        "boundary": "“◦” next to a week number = boundary week, it also spans days of the adjacent month.",
+        "neutral": "The current and future weeks are neutral — a missing entry is not a failure."
       }
     }
   },

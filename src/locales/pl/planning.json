@@ -276,6 +276,15 @@
         "open": "Planowanie",
         "close": "Zakończ planowanie",
         "saveError": "Nie udało się zapisać zmiany. Spróbuj ponownie."
+      },
+      "compassScale": "· skala 1–5",
+      "legend": {
+        "toggle": "Jak czytać ten widok?",
+        "matrix": "Miniatura przy tygodniu: 4 obszary (ciało, emocje, zadania, bliscy) × Wymagania / Działania / Stan. Kolor = ocena 1–5: róż — obciążenie, błękit — zasób. „—” = brak refleksji tygodniowej.",
+        "charts": "Segmenty i kapsuły = wykonania względem celu tygodnia; pasek 7 pól = konkretne dni (pełne — zrobione, półton — częściowe, obwódka — zaplanowane); słupki i linie = wartości tygodni z kreską celu.",
+        "contribution": "„+N” = neutralny wkład tygodnia w cel miesięczny — cel miesiąca rozliczany jest raz i widnieje przy nazwie obiektu.",
+        "boundary": "„◦” przy numerze tygodnia = tydzień graniczny, obejmuje też dni sąsiedniego miesiąca.",
+        "neutral": "Bieżący i przyszłe tygodnie są neutralne — brak wpisu to nie porażka."
       }
     }
   },
