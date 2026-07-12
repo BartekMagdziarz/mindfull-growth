@@ -241,6 +241,10 @@
         "boundaryHint": "Tydzień na granicy miesięcy",
         "empty": "Brak otwartych obiektów do zaplanowania."
       }
+    },
+    "monthV2": {
+      "overview": "Miesiąc w skrócie",
+      "experimentBadge": "Eksperyment Month V2"
     }
   },
   "today": {

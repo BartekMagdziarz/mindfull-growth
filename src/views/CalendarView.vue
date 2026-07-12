@@ -79,6 +79,14 @@
               @plan-next-week="planNextWeek"
             />
 
+            <!-- Experimental month renderer, opt-in via ?layout=v2 (V1 stays default). -->
+            <MonthlyOverviewV2
+              v-else-if="scale === 'month' && activeMonthRef && isMonthV2"
+              :month-ref="activeMonthRef"
+              :chart-mode="chartMode"
+              :density="density"
+            />
+
             <!-- Read-only weeks grid; the assignment workspace (sidebar) lives in the
                  month wizard's weeks step. -->
             <MonthlyPlanner
@@ -100,7 +108,7 @@
               </div>
             </section>
 
-            <template v-else-if="scale === 'month' && monthPlanning && monthReflection">
+            <template v-else-if="scale === 'month' && !isMonthV2 && monthPlanning && monthReflection">
               <MonthReviewSummary
                 :month-ref="activeMonthRef!"
                 :today-day-ref="todayRef"
@@ -189,7 +197,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { MeasurementDayAssignment } from '@/domain/planningState'
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
@@ -255,6 +263,18 @@ import {
   formatWeekTitle as formatWeekTitleLabel,
 } from '@/utils/periodLabels'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import type {
+  CalendarMonthChartMode,
+  CalendarMonthDensity,
+  CalendarMonthLayout,
+} from '@/router/calendarExperimentQuery'
+import { CALENDAR_MONTH_EXPERIMENT_QUERY_KEYS } from '@/router/calendarExperimentQuery'
+
+// Heavy experimental renderer — loaded only when a URL opts in via ?layout=v2,
+// so the default (legacy) month view never pays for the V2 bundle.
+const MonthlyOverviewV2 = defineAsyncComponent(
+  () => import('@/components/calendar/month-v2/MonthlyOverviewV2.vue')
+)
 
 type CalendarScale = 'year' | 'month' | 'week'
 type PanelKind =
@@ -268,9 +288,17 @@ type PanelKind =
 interface Props {
   scale: CalendarScale
   periodRef: string
+  /** Month V2 experiment flags — injected by the calendar-month route from the URL query. */
+  layout?: CalendarMonthLayout
+  chartMode?: CalendarMonthChartMode
+  density?: CalendarMonthDensity
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  layout: 'legacy',
+  chartMode: 'hybrid',
+  density: 'comfortable',
+})
 
 const router = useRouter()
 const route = useRoute()
@@ -326,6 +354,7 @@ const activeWeekRef = computed(() =>
   props.scale === 'week' && parsedPeriodRef.value ? (parsedPeriodRef.value as WeekRef) : null
 )
 const todayRef = computed(() => getPeriodRefsForDate(new Date()).day)
+const isMonthV2 = computed(() => props.scale === 'month' && props.layout === 'v2')
 
 const calendarLayoutClasses = computed(() => [
   'grid gap-6',
@@ -754,15 +783,24 @@ function goToMonth(monthRef: MonthRef) {
 }
 
 function navigateTo(scale: CalendarScale, periodRef: PeriodRef) {
+  // Month V2 experiment flags travel in the query: keep them while paging
+  // between months, drop them (and only them) when leaving the month scale.
+  const query = { ...route.query }
+  if (scale !== 'month') {
+    for (const key of CALENDAR_MONTH_EXPERIMENT_QUERY_KEYS) {
+      delete query[key]
+    }
+  }
+
   switch (scale) {
     case 'year':
-      router.push({ name: 'calendar-year', params: { yearRef: periodRef } })
+      router.push({ name: 'calendar-year', params: { yearRef: periodRef }, query })
       break
     case 'month':
-      router.push({ name: 'calendar-month', params: { monthRef: periodRef } })
+      router.push({ name: 'calendar-month', params: { monthRef: periodRef }, query })
       break
     case 'week':
-      router.push({ name: 'calendar-week', params: { weekRef: periodRef } })
+      router.push({ name: 'calendar-week', params: { weekRef: periodRef }, query })
       break
   }
 }

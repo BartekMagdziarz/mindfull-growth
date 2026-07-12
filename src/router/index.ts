@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { getPeriodRefsForDate } from '@/utils/periods'
+import { resolveCalendarMonthExperiment } from './calendarExperimentQuery'
 
 const PUBLIC_ROUTES = ['login', 'signup']
 
@@ -54,7 +55,13 @@ const router = createRouter({
       path: '/calendar/month/:monthRef',
       name: 'calendar-month',
       component: () => import('@/views/CalendarView.vue'),
-      props: route => ({ scale: 'month', periodRef: route.params.monthRef }),
+      // Month V2 experiment flags (?layout=v2&chart=…&density=…) resolve to props
+      // with per-field fallbacks; without them the legacy renderer is the default.
+      props: route => ({
+        scale: 'month',
+        periodRef: route.params.monthRef,
+        ...resolveCalendarMonthExperiment(route.query),
+      }),
     },
     {
       path: '/calendar/week/:weekRef',
