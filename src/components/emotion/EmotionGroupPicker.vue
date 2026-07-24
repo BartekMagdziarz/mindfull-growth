@@ -48,7 +48,7 @@
               :data-testid="`egp-quadrant-mini-${q.id}`"
               @click="openQuad(q.id)"
             >
-              <span class="msr">{{ q.icon }}</span>
+              <AppIcon :name="q.icon" class="egp-icon" />
             </button>
           </div>
         </div>
@@ -65,7 +65,7 @@
             :data-testid="`egp-quadrant-${q.id}`"
             @click="openQuad(q.id)"
           >
-            <span class="msr">{{ q.icon }}</span>
+            <AppIcon :name="q.icon" class="egp-icon" />
             <span class="q-name">
               <span class="q-en">{{ energyLabel(q.id) }}</span>
               <span class="q-div"></span>
@@ -163,8 +163,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useT } from '@/composables/useT'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import type { Quadrant } from '@/domain/emotion'
 import {
+  EGP_DEFAULT_ACCENT,
+  EGP_SHADOW_BASE,
   GROUPS_BY_QUADRANT,
   QUADRANT_STYLES,
   type EmotionGroup,
@@ -343,17 +346,19 @@ function thumbPos(slug: string): string {
   return `calc(${(lvl / 5) * 100}% - ${(lvl / 5) * 26}px)`
 }
 
-const accent = computed(() => (activeQuad.value ? QUADRANT_STYLES[activeQuad.value].accent : '#2E93FF'))
+const accent = computed(() =>
+  activeQuad.value ? QUADRANT_STYLES[activeQuad.value].accent : EGP_DEFAULT_ACCENT,
+)
 // tło daje karta widoku-rodzica (tintowana przez v-model:quadrant);
 // tu tintujemy tylko parę cieni neumorficznych, żeby kafle/suwaki szły za akcentem
 const panelStyle = computed(() => {
   if (!activeQuad.value) {
-    return { '--shw': 'rgba(255,255,255,.9)', '--shd': '#8CA6CA' }
+    return { '--egp-sh-light': EGP_SHADOW_BASE.light, '--egp-sh-dark': EGP_SHADOW_BASE.dark }
   }
   const a = accent.value
   return {
-    '--shw': `color-mix(in srgb, ${a} 14%, rgba(255,255,255,.72))`,
-    '--shd': `color-mix(in srgb, ${a} 42%, #8CA6CA)`,
+    '--egp-sh-light': `color-mix(in srgb, ${a} 14%, ${EGP_SHADOW_BASE.lightTint})`,
+    '--egp-sh-dark': `color-mix(in srgb, ${a} 42%, ${EGP_SHADOW_BASE.dark})`,
   }
 })
 
@@ -365,7 +370,7 @@ const chips = computed(() =>
     return {
       slug: s.emotionId,
       name: shortName(s.emotionId),
-      color: g ? QUADRANT_STYLES[g.quadrant].accent : '#2E93FF',
+      color: g ? QUADRANT_STYLES[g.quadrant].accent : EGP_DEFAULT_ACCENT,
       suffix: s.intensity ? `${s.intensity}/5` : '',
     }
   }),
@@ -381,21 +386,19 @@ const chips = computed(() =>
    (tintowana przez v-model:quadrant + getQuadrantTintStyle). Wysokość rośnie
    z zawartością — m.in. gdy chipy wybranych zawijają się w kolejne rzędy. */
 .ep {
-  --shw: rgba(255, 255, 255, 0.9);
-  --shd: #8ca6ca;
-  --sh-raise: -6px -6px 13px var(--shw), 6px 6px 13px color-mix(in srgb, var(--shd) 36%, transparent);
-  --sh-raise-lg: -9px -9px 18px var(--shw), 9px 9px 18px color-mix(in srgb, var(--shd) 40%, transparent);
-  --sh-raise-sm: -4px -4px 8px var(--shw), 4px 4px 8px color-mix(in srgb, var(--shd) 32%, transparent);
-  --sh-press: inset -3px -3px 6px var(--shw), inset 3px 3px 7px color-mix(in srgb, var(--shd) 44%, transparent);
-  --sh-press-sm: inset -2px -2px 4px var(--shw), inset 2px 2px 5px color-mix(in srgb, var(--shd) 42%, transparent);
-  --sh-flat: -2px -2px 5px var(--shw), 2px 2px 5px color-mix(in srgb, var(--shd) 30%, transparent);
-  --muted: #6c86a6;
+  /* --egp-sh-light / --egp-sh-dark (kolory bazowe cieni) przychodzą inline z panelStyle
+     (stałe domenowe EGP_SHADOW_BASE, po drill-downie mieszane z akcentem) */
+  --mg-shadow-egp-raise: -6px -6px 13px var(--egp-sh-light), 6px 6px 13px color-mix(in srgb, var(--egp-sh-dark) 36%, transparent);
+  --mg-shadow-egp-raise-lg: -9px -9px 18px var(--egp-sh-light), 9px 9px 18px color-mix(in srgb, var(--egp-sh-dark) 40%, transparent);
+  --mg-shadow-egp-raise-sm: -4px -4px 8px var(--egp-sh-light), 4px 4px 8px color-mix(in srgb, var(--egp-sh-dark) 32%, transparent);
+  --mg-shadow-egp-press: inset -3px -3px 6px var(--egp-sh-light), inset 3px 3px 7px color-mix(in srgb, var(--egp-sh-dark) 44%, transparent);
+  --mg-shadow-egp-press-sm: inset -2px -2px 4px var(--egp-sh-light), inset 2px 2px 5px color-mix(in srgb, var(--egp-sh-dark) 42%, transparent);
+  --mg-shadow-egp-flat: -2px -2px 5px var(--egp-sh-light), 2px 2px 5px color-mix(in srgb, var(--egp-sh-dark) 30%, transparent);
   width: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
-  color: #0f2745;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--mg-color-ink);
 }
 .ep-head {
   height: 44px;
@@ -408,7 +411,7 @@ const chips = computed(() =>
   position: relative;
 }
 .ep-stage > div {
-  animation: epfade 0.28s ease;
+  animation: epfade var(--mg-duration-normal) var(--mg-ease-standard);
 }
 @keyframes epfade {
   from {
@@ -429,18 +432,11 @@ const chips = computed(() =>
   align-items: center;
   gap: 9px;
   padding: 8px 4px;
-  border-top: 1px solid rgba(120, 150, 190, 0.18);
+  border-top: 1px solid color-mix(in srgb, var(--mg-color-muted) 18%, transparent);
 }
-.msr {
-  font-family: 'Material Symbols Rounded';
-  font-weight: 400;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
+.egp-icon {
   display: inline-block;
   white-space: nowrap;
-  font-feature-settings: 'liga';
 }
 
 /* ---- nagłówek ---- */
@@ -452,10 +448,12 @@ const chips = computed(() =>
   margin-top: -6px;
 }
 .oh-t {
-  font: 700 12px/1.1 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.1;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--mg-color-muted);
 }
 .dh {
   display: flex;
@@ -484,7 +482,7 @@ const chips = computed(() =>
   width: 1px;
   height: 14px;
   flex: none;
-  background: color-mix(in srgb, var(--muted) 55%, transparent);
+  background: color-mix(in srgb, var(--mg-color-muted) 55%, transparent);
 }
 .mini {
   display: grid;
@@ -497,22 +495,22 @@ const chips = computed(() =>
 .mcell {
   border: 0;
   cursor: pointer;
-  border-radius: 9px;
+  border-radius: var(--mg-radius-sm);
   padding: 0;
   display: grid;
   place-items: center;
   color: var(--mtx);
   background: linear-gradient(150deg, var(--mt), var(--mb));
-  box-shadow: var(--sh-raise-sm);
+  box-shadow: var(--mg-shadow-egp-raise-sm);
   opacity: 0.5;
   filter: saturate(0.7);
   transition:
-    transform 0.16s,
-    box-shadow 0.16s,
-    opacity 0.16s,
-    filter 0.16s;
+    transform var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    opacity var(--mg-duration-fast) var(--mg-ease-standard),
+    filter var(--mg-duration-fast) var(--mg-ease-standard);
 }
-.mcell .msr {
+.mcell .egp-icon {
   font-size: 15px;
   opacity: 0.92;
 }
@@ -520,15 +518,16 @@ const chips = computed(() =>
   opacity: 0.88;
   filter: saturate(0.9);
   transform: translateY(-1.5px);
-  box-shadow: var(--sh-raise);
+  box-shadow: var(--mg-shadow-egp-raise);
 }
 .mcell.active {
+  --mg-shadow-egp-mini-active:
+    var(--mg-shadow-egp-raise-sm),
+    0 0 0 2.5px color-mix(in srgb, var(--mb) 55%, white);
   opacity: 1;
   filter: none;
   transform: translateY(-1.5px);
-  box-shadow:
-    var(--sh-raise-sm),
-    0 0 0 2.5px color-mix(in srgb, var(--mb) 55%, white);
+  box-shadow: var(--mg-shadow-egp-mini-active);
 }
 
 /* ---- przegląd 2×2 ---- */
@@ -542,7 +541,7 @@ const chips = computed(() =>
   position: relative;
   border: 0;
   cursor: pointer;
-  border-radius: 20px;
+  border-radius: var(--mg-radius-lg);
   padding: 16px 18px;
   text-align: left;
   display: flex;
@@ -550,20 +549,20 @@ const chips = computed(() =>
   justify-content: space-between;
   background: linear-gradient(150deg, var(--qt), var(--qb));
   color: var(--qtx);
-  box-shadow: var(--sh-raise);
+  box-shadow: var(--mg-shadow-egp-raise);
   transition:
-    transform 0.16s,
-    box-shadow 0.16s;
+    transform var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
 }
 .qbtn:hover {
   transform: translateY(-2px);
-  box-shadow: var(--sh-raise-lg);
+  box-shadow: var(--mg-shadow-egp-raise-lg);
 }
 .qbtn:active {
   transform: translateY(0);
-  box-shadow: var(--sh-press);
+  box-shadow: var(--mg-shadow-egp-press);
 }
-.qbtn .msr {
+.qbtn .egp-icon {
   font-size: 25px;
   opacity: 0.85;
 }
@@ -574,7 +573,9 @@ const chips = computed(() =>
 }
 .q-en,
 .q-pl {
-  font: 700 13px/1.15 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.15;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -587,20 +588,23 @@ const chips = computed(() =>
   margin: 6px 0;
 }
 .qbadge {
+  --mg-shadow-egp-badge: 0 1px 2px color-mix(in srgb, var(--mg-color-ink) 12%, transparent);
   position: absolute;
   top: 14px;
   right: 15px;
   min-width: 23px;
   height: 23px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.55);
+  border-radius: var(--mg-radius-pill);
+  background: color-mix(in srgb, white 55%, transparent);
   color: var(--qtx);
-  font: 700 12px 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: normal;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 7px;
-  box-shadow: 0 1px 2px rgba(40, 60, 90, 0.12);
+  box-shadow: var(--mg-shadow-egp-badge);
 }
 
 /* ---- kafle grup ---- */
@@ -612,7 +616,7 @@ const chips = computed(() =>
 }
 .etile {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--mg-radius-md);
   padding: 14px 13px 15px;
   display: flex;
   flex-direction: column;
@@ -623,25 +627,26 @@ const chips = computed(() =>
     color-mix(in srgb, var(--c) 16%, white),
     color-mix(in srgb, var(--c) 30%, white)
   );
-  box-shadow: var(--sh-raise-sm);
+  box-shadow: var(--mg-shadow-egp-raise-sm);
   transition:
-    transform 0.15s,
-    box-shadow 0.15s,
-    background 0.2s;
+    transform var(--mg-duration-fast) var(--mg-ease-standard),
+    box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
+    background var(--mg-duration-fast) var(--mg-ease-standard);
 }
 .etile:hover {
   transform: translateY(-2px);
-  box-shadow: var(--sh-raise);
+  box-shadow: var(--mg-shadow-egp-raise);
 }
 .etile.sel {
+  --mg-shadow-egp-tile-sel:
+    var(--mg-shadow-egp-raise-sm),
+    inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent);
   background: linear-gradient(
     150deg,
     color-mix(in srgb, var(--c) 26%, white),
     color-mix(in srgb, var(--c) 42%, white)
   );
-  box-shadow:
-    var(--sh-raise-sm),
-    inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent);
+  box-shadow: var(--mg-shadow-egp-tile-sel);
 }
 .ethead {
   border: 0;
@@ -655,10 +660,12 @@ const chips = computed(() =>
   min-width: 0;
 }
 .etname {
-  font: 700 10px/1.25 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 1.25;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--c) 55%, #14304f);
+  color: color-mix(in srgb, var(--c) 55%, var(--mg-color-ink));
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -666,24 +673,28 @@ const chips = computed(() =>
   overflow: hidden;
 }
 .etile.sel .etname {
-  color: color-mix(in srgb, var(--c) 70%, #14304f);
+  color: color-mix(in srgb, var(--c) 70%, var(--mg-color-ink));
 }
 .etaux {
-  font: italic 400 9.5px/1.2 'Roboto', sans-serif;
-  color: var(--muted);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 9.5px;
+  line-height: 1.2;
+  color: var(--mg-color-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .etnew {
+  --mg-shadow-egp-new: 0 0 0 3px color-mix(in srgb, var(--c) 20%, transparent);
   position: absolute;
   top: 9px;
   right: 10px;
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--mg-radius-pill);
   background: var(--c);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 20%, transparent);
+  box-shadow: var(--mg-shadow-egp-new);
 }
 
 /* ---- suwak poziomy ---- */
@@ -703,9 +714,9 @@ const chips = computed(() =>
   position: relative;
   flex: 1;
   height: 14px;
-  border-radius: 8px;
+  border-radius: var(--mg-radius-sm);
   background: color-mix(in srgb, var(--c) 14%, transparent);
-  box-shadow: var(--sh-press-sm);
+  box-shadow: var(--mg-shadow-egp-press-sm);
   overflow: hidden;
 }
 .hfillbar {
@@ -714,9 +725,9 @@ const chips = computed(() =>
   top: 0;
   bottom: 0;
   width: var(--fw, 0%);
-  border-radius: 8px;
+  border-radius: var(--mg-radius-sm);
   background: linear-gradient(90deg, color-mix(in srgb, var(--c) 62%, white), var(--c));
-  transition: width 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width var(--mg-duration-normal) cubic-bezier(0.4, 0, 0.2, 1);
 }
 .hzones {
   position: absolute;
@@ -732,6 +743,12 @@ const chips = computed(() =>
   border-right: 1px solid color-mix(in srgb, var(--c) 26%, transparent);
 }
 .hthumb {
+  --mg-shadow-egp-thumb:
+    var(--mg-shadow-egp-raise-sm),
+    inset 0 1px 1.5px color-mix(in srgb, white 50%, transparent);
+  --mg-shadow-egp-thumb-hover:
+    var(--mg-shadow-egp-raise),
+    inset 0 1px 1.5px color-mix(in srgb, white 50%, transparent);
   position: absolute;
   top: 50%;
   left: var(--tp, 0px);
@@ -742,7 +759,8 @@ const chips = computed(() =>
   border: 0;
   cursor: pointer;
   padding: 0;
-  border-radius: 50%;
+  /* pełne koło — gałka nosi maskowaną twarz, radius organiczny by z nią walczył */
+  border-radius: var(--mg-radius-pill);
   background: radial-gradient(
     circle at 34% 30%,
     color-mix(in srgb, var(--c) 38%, white),
@@ -750,22 +768,18 @@ const chips = computed(() =>
   );
   display: grid;
   place-items: center;
-  box-shadow:
-    var(--sh-raise-sm),
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
-  transition: left 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--mg-shadow-egp-thumb);
+  transition: left var(--mg-duration-normal) cubic-bezier(0.4, 0, 0.2, 1);
 }
 .hthumb:hover {
-  box-shadow:
-    var(--sh-raise),
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
+  box-shadow: var(--mg-shadow-egp-thumb-hover);
 }
 .fico {
   width: 20px;
   height: 20px;
   display: block;
   pointer-events: none;
-  background: color-mix(in srgb, var(--c) 55%, #14304f);
+  background: color-mix(in srgb, var(--c) 55%, var(--mg-color-ink));
   /* longhand — skróty maski z var() bywają odrzucane w całości */
   -webkit-mask-image: var(--fi);
   -webkit-mask-position: center;
@@ -779,17 +793,18 @@ const chips = computed(() =>
 
 /* ---- tooltip ---- */
 .ttip {
+  --mg-shadow-egp-ttip: 0 16px 34px -10px color-mix(in srgb, var(--mg-color-ink) 60%, transparent);
   position: absolute;
   left: 50%;
   bottom: calc(100% + 8px);
   transform: translateX(-50%);
   width: 210px;
   z-index: 60;
-  background: #12314f;
-  color: #eaf3ff;
-  border-radius: 13px;
+  background: var(--mg-color-inverse);
+  color: var(--mg-color-inverse-ink);
+  border-radius: var(--mg-radius-md);
   padding: 11px 13px;
-  box-shadow: 0 16px 34px -10px rgba(20, 45, 80, 0.6);
+  box-shadow: var(--mg-shadow-egp-ttip);
   pointer-events: none;
 }
 .ttip::after {
@@ -799,15 +814,19 @@ const chips = computed(() =>
   left: 50%;
   transform: translateX(-50%);
   border: 7px solid transparent;
-  border-top-color: #12314f;
+  border-top-color: var(--mg-color-inverse);
 }
 .ttip-n {
-  font: 700 13px 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: normal;
   margin-bottom: 5px;
 }
 .ttip-ap {
-  font: 400 11px/1.5 'Roboto', sans-serif;
-  color: #cfe2f6;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--mg-color-inverse-ink) 85%, var(--mg-color-inverse));
 }
 .ttip-w {
   display: flex;
@@ -816,24 +835,30 @@ const chips = computed(() =>
   margin-top: 9px;
 }
 .ttip-w span {
-  font: 500 10px 'Roboto', sans-serif;
-  background: rgba(255, 255, 255, 0.14);
-  color: #eaf3ff;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: normal;
+  background: color-mix(in srgb, var(--mg-color-inverse-ink) 14%, transparent);
+  color: var(--mg-color-inverse-ink);
   padding: 3px 7px;
-  border-radius: 6px;
+  border-radius: var(--mg-radius-sm);
 }
 
 /* ---- stopka ---- */
 .f-lab {
-  font: 700 10px 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: normal;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #8399b7;
+  color: var(--mg-color-muted);
   flex: none;
 }
 .f-empty {
-  font: 400 12px 'Roboto', sans-serif;
-  color: #9db2ce;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: normal;
+  color: var(--mg-color-muted);
   font-style: italic;
 }
 .f-chips {
@@ -848,13 +873,15 @@ const chips = computed(() =>
   align-items: center;
   gap: 6px;
   padding: 5px 6px 5px 12px;
-  border-radius: 999px;
+  border-radius: var(--mg-radius-pill);
   white-space: nowrap;
   flex: none;
-  color: #fff;
-  font: 600 12px 'Roboto', sans-serif;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: normal;
   background: linear-gradient(150deg, color-mix(in srgb, var(--c) 86%, white), var(--c));
-  box-shadow: var(--sh-raise-sm);
+  box-shadow: var(--mg-shadow-egp-raise-sm);
 }
 .fchip .fn {
   opacity: 0.85;
@@ -865,16 +892,16 @@ const chips = computed(() =>
   width: 17px;
   height: 17px;
   border: 0;
-  border-radius: 50%;
+  border-radius: var(--mg-radius-pill);
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.28);
-  color: #fff;
+  background: color-mix(in srgb, white 28%, transparent);
+  color: white;
   font-size: 9px;
   display: grid;
   place-items: center;
 }
 .fx:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: color-mix(in srgb, white 50%, transparent);
 }
 /* ---- wariant wąski: 3 kolumny kafli, 4 rzędy (decyzja usera 2026-07-10) ---- */
 @container (max-width: 699px) {

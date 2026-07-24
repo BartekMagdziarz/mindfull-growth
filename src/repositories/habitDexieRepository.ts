@@ -3,7 +3,7 @@ import { normalizeHabitPayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { HabitRepository } from './habitRepository'
-import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
+import { createPlanningRecord, requireRecord, retirePriorityLinksForSubject, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
 
 class HabitDexieRepository implements HabitRepository {
   private get db() {
@@ -55,7 +55,10 @@ class HabitDexieRepository implements HabitRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await this.db.habits.delete(id)
+      await this.db.transaction('rw', [this.db.habits, this.db.priorityLinks], async () => {
+        await this.db.habits.delete(id)
+        await retirePriorityLinksForSubject(this.db.priorityLinks, { subjectType: 'habit', subjectId: id })
+      })
       invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete habit with id ${id}:`, error)

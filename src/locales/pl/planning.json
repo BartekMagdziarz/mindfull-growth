@@ -262,6 +262,43 @@
       "sections": {
         "intentions": "Intencje"
       },
+      "dashboard": {
+        "priorities": "Priorytety miesiąca",
+        "noPriorities": "Nie wybrano jeszcze priorytetów na ten miesiąc.",
+        "categoriesLabel": "Obszary miesiąca",
+        "openCategory": "Otwórz widok: {category}",
+        "back": "Wróć do przeglądu miesiąca",
+        "fillMonthlyReflection": "Uzupełnij refleksję miesiąca",
+        "requirements": "Wymagania",
+        "state": "Stan",
+        "radarAxes": "Ciało ↑ · Emocje → · Zadania ↓ · Bliscy ←",
+        "weekRadar": "Tydzień {number}. Wymagania: {requirements}. Stan: {state}.",
+        "noWeeklyReflection": "Brak refleksji",
+        "monthResult": "Wynik miesiąca",
+        "linkedGoal": "Cel: {goal}",
+        "entries": "{count} wpisów",
+        "completed": "{met} z {total}",
+        "dailyEntries": "Wpisy codzienne",
+        "reflections": "Refleksje",
+        "weeklyReflection": "Refleksja tygodniowa",
+        "monthlyReflection": "Refleksja miesięczna",
+        "noData": "Brak danych",
+        "monthAxes": {
+          "balance": "Balans",
+          "purpose": "Sens",
+          "growth": "Rozwój",
+          "coherence": "Zasady",
+          "agency": "Wpływ"
+        },
+        "categories": {
+          "goals": "Cele",
+          "habits": "Nawyki",
+          "trackers": "Trackery",
+          "intentions": "Intencje",
+          "emotions": "Emocje",
+          "journal": "Dziennik"
+        }
+      },
       "experiment": {
         "title": "Month V2",
         "chart": "Wykresy",
@@ -980,6 +1017,153 @@
       "lifeAreas": "Obszary życia",
       "priorities": "Priorytety",
       "body": "Plan roczny zapisuje narrację, ocenę obszarów życia i aktywne priorytety. Miesięczne i tygodniowe połączenia dopracujemy w kolejnym etapie."
+    }
+  },
+  "priorityRitual": {
+    "eyebrow": "Rzadki rytuał",
+    "title": "Nowy priorytet",
+    "description": "Od znaczenia przez mapę wsparcia do świadomie wybranych obiektów startowych.",
+    "resume": {
+      "banner": "Masz niedokończony rytuał z {date}. Możesz kontynuować albo zacząć od nowa.",
+      "discard": "Odrzuć szkic"
+    },
+    "steps": {
+      "meaning": {
+        "label": "Znaczenie",
+        "title": "Nazwij to, co jest naprawdę ważne"
+      },
+      "boundaries": {
+        "label": "Granice",
+        "title": "Oddziel wpływ od tego, czego nie kontrolujesz"
+      },
+      "signals": {
+        "label": "Sygnały",
+        "title": "Określ kierunek i naturalne zakończenie"
+      },
+      "support": {
+        "label": "Wsparcie",
+        "title": "Zbuduj mapę możliwego wsparcia"
+      },
+      "relations": {
+        "label": "Relacje",
+        "title": "Wyjaśnij, jak każdy obiekt ma pomagać"
+      },
+      "review": {
+        "label": "Przegląd",
+        "title": "Sprawdź zobowiązania przed aktywacją"
+      }
+    },
+    "meaning": {
+      "titleLabel": "Nazwa kierunku",
+      "titlePlaceholder": "Np. Dążenie do równowagi między pracą a regeneracją",
+      "whyNow": "Dlaczego właśnie teraz?",
+      "whyNowPlaceholder": "Co sprawia, że ten kierunek jest ważny w tym momencie życia?",
+      "direction": "Jakiej zmiany chcesz doświadczać?",
+      "directionPlaceholder": "Opisz stan, w którego stronę chcesz się przesuwać — nie wynik.",
+      "requiredHint": "Do utworzenia wystarczą nazwa i kierunek — resztę możesz uzupełnić później."
+    },
+    "boundaries": {
+      "influence": "Co pozostaje w Twoim wpływie?",
+      "influencePlaceholder": "Rytm dnia, rozmowy, proszenie o wsparcie, dbanie o ciało…",
+      "notControlled": "Co jest poza pełną kontrolą?",
+      "notControlledPlaceholder": "Decyzje innych, biologia, czas potrzebny na zmianę…",
+      "tradeoffs": "Jakie kompromisy świadomie akceptujesz?",
+      "tradeoffsPlaceholder": "Z czego zrobisz mniej, żeby zrobić miejsce na ten kierunek?",
+      "portfolioTitle": "Ten kierunek dołączy do",
+      "portfolioEmpty": "Nie masz teraz żadnych aktywnych priorytetów.",
+      "limitTitle": "Portfel jest pełny ({count}/{max})",
+      "limitBody": "Nowy kierunek zapisze się jako szkic czekający na slot — albo zwolnij miejsce, wstrzymując któryś z obecnych.",
+      "pause": "Wstrzymaj"
+    },
+    "signals": {
+      "progressTitle": "Sygnały postępu",
+      "riskTitle": "Sygnały ryzyka",
+      "addPlaceholder": "Dodaj sygnał i zatwierdź Enterem",
+      "endingLabel": "Czy ten kierunek ma naturalne zakończenie?",
+      "endingOpen": "Bezterminowy",
+      "endingOpenHint": "Coroczne potwierdzenie",
+      "endingNatural": "Naturalne zakończenie",
+      "endingNaturalHint": "Wydarzenie, nie wymuszony deadline",
+      "endingDescriptionLabel": "Po czym poznasz, że ten rozdział się zakończył?",
+      "endingDescriptionPlaceholder": "Opisz wydarzenie lub stan, który naturalnie zamknie ten kierunek."
+    },
+    "support": {
+      "intro": "Propozycje są materiałem do namysłu — nie zobowiązaniem. Obiektami staną się dopiero wybrane.",
+      "newTitle": "Nowe propozycje",
+      "newHint": "Powstaną jako szkice do skonfigurowania po rytuale.",
+      "addTitlePlaceholder": "Nazwa nowego obiektu",
+      "addButton": "Dodaj",
+      "libraryTitle": "Z Twojej biblioteki",
+      "libraryHint": "Zaznaczenie tworzy samo powiązanie — obiekt już istnieje.",
+      "libraryEmpty": "Brak otwartych obiektów do podpięcia.",
+      "noneYet": "Mapa jest pusta — dodaj własną propozycję albo podepnij coś z biblioteki.",
+      "removeLabel": "Usuń propozycję",
+      "types": {
+        "goal": "Cel",
+        "habit": "Nawyk",
+        "tracker": "Tracker",
+        "weeklyIntention": "Intencja"
+      }
+    },
+    "relations": {
+      "intro": "Ten sam obiekt może wspierać kilka priorytetów na różne sposoby.",
+      "contributionLabel": "Pomaga, ponieważ…",
+      "contributionPlaceholder": "Jak ten obiekt realnie wspiera kierunek?",
+      "expectedSignalLabel": "Oczekiwany sygnał",
+      "expectedSignalPlaceholder": "Po czym poznasz, że to wsparcie działa?",
+      "empty": "Nie wybrano żadnych obiektów wsparcia. Wróć do mapy wsparcia albo utwórz sam priorytet.",
+      "newBadge": "Nowy szkic",
+      "existingBadge": "Z biblioteki"
+    },
+    "review": {
+      "meaningTitle": "Znaczenie",
+      "endingTitle": "Zakończenie",
+      "endingOpenText": "Bezterminowy, potwierdzany corocznie.",
+      "signalsTitle": "Sygnały",
+      "signalsEmpty": "Bez zdefiniowanych sygnałów — wrócą w refleksji miesięcznej, gdy je dodasz.",
+      "supportTitle": "Obiekty startowe",
+      "supportEmpty": "Bez obiektów wsparcia — mapę uzupełnisz później.",
+      "draftNotice": "Portfel jest pełny — priorytet zapisze się jako szkic czekający na slot.",
+      "pendingNotice": "Propozycje nowych obiektów ({count}) powstaną jako szkice do skonfigurowania."
+    },
+    "footer": {
+      "back": "Wstecz",
+      "next": "Dalej",
+      "finish": "Utwórz priorytet",
+      "finishWithCount": "Utwórz priorytet i obiekty: {count}",
+      "finishDraft": "Zapisz jako szkic",
+      "saving": "Tworzenie…"
+    },
+    "success": {
+      "eyebrowActive": "Priorytet aktywny",
+      "eyebrowDraft": "Szkic zapisany",
+      "body": "Utworzono kierunek i wybrane powiązania. Każda relacja ma opis wkładu i oczekiwany sygnał.",
+      "pendingTitle": "Do dokończenia",
+      "pendingHint": "Te propozycje czekają na konfigurację w bibliotece obiektów.",
+      "goToLibrary": "Przejdź do biblioteki"
+    },
+    "errors": {
+      "finishFailed": "Nie udało się utworzyć priorytetu. Spróbuj ponownie."
+    },
+    "entry": {
+      "start": "Rozpocznij rytuał"
+    },
+    "drafts": {
+      "title": "Do dokończenia",
+      "count": "{count}",
+      "hint": "Te propozycje czekają na utworzenie i konfigurację.",
+      "finish": "Utwórz i dokończ",
+      "creating": "Tworzenie…",
+      "remove": "Usuń propozycję",
+      "createdToast": "Utworzono „{title}”. Dokończ konfigurację w zakładce obiektów.",
+      "errorCreate": "Nie udało się utworzyć obiektu z propozycji.",
+      "errorRemove": "Nie udało się usunąć propozycji.",
+      "types": {
+        "goal": "Cel",
+        "habit": "Nawyk",
+        "tracker": "Tracker",
+        "weeklyIntention": "Intencja"
+      }
     }
   },
   "reflection": {

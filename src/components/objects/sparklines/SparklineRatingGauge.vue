@@ -1,20 +1,5 @@
 <template>
   <svg :viewBox="`0 0 ${VIEWBOX_W} ${vH}`" width="100%" aria-hidden="true">
-    <defs>
-      <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
-        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" />
-      </linearGradient>
-      <linearGradient :id="gradientIds.missed" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgb(var(--color-error))" stop-opacity="0.45" />
-        <stop offset="100%" stop-color="rgb(var(--color-error))" stop-opacity="0.40" />
-      </linearGradient>
-      <linearGradient :id="gradientIds.neutral" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-end))" stop-opacity="0.65" />
-        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" stop-opacity="0.60" />
-      </linearGradient>
-    </defs>
-
     <g v-for="(point, i) in visiblePoints" :key="point.periodRef">
       <!-- Background track (full scale) -->
       <rect
@@ -22,9 +7,8 @@
         :y="PADDING_TOP"
         :width="colW"
         :height="cH"
-        rx="3"
-        fill="rgb(var(--color-outline))"
-        fill-opacity="0.08"
+        rx="4"
+        fill="rgb(var(--sky-100) / 0.58)"
       />
 
       <!-- Filled portion -->
@@ -34,7 +18,7 @@
         :y="fillY(point)"
         :width="colW"
         :height="fillHeight(point)"
-        rx="3"
+        rx="4"
         :fill="gaugeFill(point.status)"
         :opacity="point.isCurrent === false ? 0.7 : 1"
       />
@@ -47,8 +31,8 @@
         :width="colW"
         :height="1"
         rx="0.5"
-        fill="rgb(var(--color-outline))"
-        fill-opacity="0.20"
+        fill="rgb(var(--neo-border))"
+        fill-opacity="0.35"
       />
 
       <!-- Target tick within column -->
@@ -58,21 +42,23 @@
         :y1="targetTickY(point.targetValue)"
         :x2="colX(i) + colW"
         :y2="targetTickY(point.targetValue)"
-        stroke="rgb(var(--color-on-surface-variant))"
-        stroke-opacity="0.35"
+        stroke="rgb(var(--color-primary))"
+        stroke-opacity="0.7"
         stroke-width="1"
-        stroke-dasharray="2 1"
+        stroke-linecap="round"
+        stroke-dasharray="3 3"
       />
 
       <!-- Period label -->
       <text
         v-if="shouldShowLabel(i, visiblePoints.length, cadence)"
+        class="sparkline-label"
         :x="colX(i) + colW / 2"
         :y="vH - 2"
         text-anchor="middle"
         font-size="9"
-        fill="rgb(var(--color-on-surface-variant))"
-        fill-opacity="0.6"
+        font-weight="700"
+        fill="rgb(var(--neo-muted))"
       >
         {{ periodLabel(point.periodRef, cadence, locale) }}
       </text>
@@ -95,7 +81,6 @@ import {
   getVisiblePoints,
   shouldShowLabel,
   periodLabel,
-  useGradientIds,
 } from './sparklineUtils'
 
 const props = withDefaults(
@@ -108,7 +93,6 @@ const props = withDefaults(
 )
 
 const { locale } = useT()
-const gradientIds = useGradientIds('gauge')
 
 const vH = computed(() => (props.compact ? COMPACT_VIEWBOX_H : VIEWBOX_H))
 const cH = computed(() => (props.compact ? COMPACT_CHART_HEIGHT : CHART_HEIGHT))
@@ -155,13 +139,30 @@ function targetTickY(targetValue: number): number {
 function gaugeFill(status: ObjectsLibraryChartPoint['status']): string {
   switch (status) {
     case 'met':
-      return `url(#${gradientIds.met})`
+      return 'rgb(var(--sky-300) / 0.72)'
     case 'missed':
-      return `url(#${gradientIds.missed})`
+      return 'rgb(var(--rose-200) / 0.72)'
     case 'no-target':
-      return `url(#${gradientIds.neutral})`
+      return 'rgb(var(--sky-200) / 0.72)'
     default:
       return 'rgb(var(--color-outline))'
   }
 }
 </script>
+
+<style scoped>
+.sparkline-label {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+svg:hover .sparkline-label {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkline-label {
+    transition: none;
+  }
+}
+</style>

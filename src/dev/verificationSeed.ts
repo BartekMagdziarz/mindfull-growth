@@ -3,17 +3,17 @@
  *
  * Creates the fixed verification account (see ./verificationAccount) and fills its
  * per-user database with a deterministic dataset relative to the real "today":
- *   - 4 life areas, 4 active priorities, 2 goals + 4 KRs, 3 habits, 2 trackers
- *   - 8 fully closed weeks (plans, day assignments, entries, reflections)
+ *   - 4 life areas, 4 active priorities, 3 goals + 7 KRs, 10 habits, 3 trackers
+ *   - 16 fully closed weeks (plans, day assignments, entries, reflections)
  *     + the current week planning-only
- *   - 2 fully closed months (top-3, priority assessments, monthly reflection)
+ *   - 6 fully closed months (top-3, priority assessments, monthly reflection)
  *     + the current month planning-only
  *   - journal entries + emotion logs over the last ~5 weeks
  *
  * Idempotency: `runVerificationSeed` ALWAYS resets first (delete DB → reconnect →
  * seed), so re-runs never duplicate data. `bootstrapVerificationEnvironment` skips
- * seeding on reloads via a versioned localStorage marker; bump SEED_VERSION after
- * changing the dataset to force a re-seed on next boot.
+ * seeding on reloads via a profile/version/day localStorage marker. Bump the
+ * rich scenario version after changing the dataset to force a re-seed.
  *
  * Reachability: imported ONLY via the dynamic, DEV-guarded import in main.ts
  * (verification mode) — never statically from prod-reachable code.
@@ -32,7 +32,6 @@ import {
   getChildPeriods,
   getPeriodBounds,
   getPeriodRefsForDate,
-  getPreviousPeriod,
   getWeekOverlappingMonths,
 } from '@/utils/periods'
 import { authDexieRepository } from '@/repositories/authDexieRepository'
@@ -48,12 +47,16 @@ import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
 import { microExerciseEntryDexieRepository } from '@/repositories/microExerciseEntryDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
+import { priorityLinkDexieRepository } from '@/repositories/priorityLinkDexieRepository'
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { hashPassword } from '@/services/crypto.service'
+import { saveDraftToDB } from '@/services/draftStorage'
 import { setMonthTopPriorities, setMonthlyPriorityAssessment } from '@/services/monthlyPriorityService'
+import { createActiveLink } from '@/services/priorityLinkService'
+import { PRIORITY_CREATOR_DRAFT_KEY } from '@/composables/usePriorityCreatorRitual'
 import {
   linkGoalToMonth,
   linkMeasurementPeriod,
@@ -71,12 +74,20 @@ import {
   VERIFY_USERNAME,
   VERIFY_USER_ID,
 } from './verificationAccount'
+import {
+  buildRichVerificationScenario,
+  fixtureMarkerValue,
+  type VerifyBridgeResponse,
+} from './richVerificationScenario'
+import {
+  UX_LAB_ORIGIN,
+  answerVerifyBridgeRequest,
+  isAllowedUxLabOrigin,
+  parseVerifyBridgeRequest,
+} from './verificationBridge'
+import { createVerificationScenarioIdRegistry } from './verificationScenarioAdapter'
 
-/** Bump after changing the dataset — forces a reset+re-seed on next verification boot. */
-export const SEED_VERSION = 8
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
-
-const WEEKS_BACK = 8
 
 // ─── Account ─────────────────────────────────────────────────────────────────
 
@@ -121,7 +132,10 @@ export async function runVerificationSeed(options: RunVerificationSeedOptions = 
   await seedVerificationData()
 
   invalidatePlanningQueryCache()
-  window.localStorage.setItem(SEED_MARKER_KEY, String(SEED_VERSION))
+  window.localStorage.setItem(
+    SEED_MARKER_KEY,
+    fixtureMarkerValue(buildRichVerificationScenario().meta),
+  )
   console.log('[verificationSeed] ✅ Seed complete.')
 
   if (options.reload !== false) {
@@ -138,17 +152,48 @@ export async function bootstrapVerificationEnvironment(): Promise<void> {
   await ensureVerificationUser()
   await connectUserDatabase(VERIFY_USER_ID)
 
-  if (window.localStorage.getItem(SEED_MARKER_KEY) !== String(SEED_VERSION)) {
+  const expectedMarker = fixtureMarkerValue(buildRichVerificationScenario().meta)
+  if (window.localStorage.getItem(SEED_MARKER_KEY) !== expectedMarker) {
     await runVerificationSeed({ reload: false })
   }
 
   installVerificationHelpers()
+  installVerificationBridge()
 }
 
 /** Expose the re-seed hook for DevTools / Playwright (`await window.__verifySeed()`). */
 export function installVerificationHelpers(): void {
   Object.assign(window, { __verifySeed: runVerificationSeed })
   console.log('[verificationSeed] Helper installed: window.__verifySeed()')
+}
+
+/**
+ * Narrow, verification-only bridge used by UX Lab. It exposes seed status and
+ * an explicit reset command; it never exposes repositories, records or an
+ * arbitrary command channel. Cross-origin messages are accepted only from the
+ * fixed local Lab origin.
+ */
+export function installVerificationBridge(): void {
+  const respond = (source: MessageEventSource | null, response: VerifyBridgeResponse) => {
+    if (!source || !('postMessage' in source)) return
+    source.postMessage(response, { targetOrigin: UX_LAB_ORIGIN })
+  }
+
+  window.addEventListener('message', event => {
+    if (!isAllowedUxLabOrigin(event.origin)) return
+    const request = parseVerifyBridgeRequest(event.data)
+    if (!request) return
+
+    void answerVerifyBridgeRequest(request, {
+      getMeta: () => buildRichVerificationScenario().meta,
+      reset: () => runVerificationSeed({ reload: false }),
+    }).then(response => {
+      respond(event.source, response)
+      if (response.type === 'mindful-growth:verify:reset-result' && response.ok) {
+        window.setTimeout(() => window.location.reload(), 80)
+      }
+    })
+  })
 }
 
 // ─── Deterministic content (Polish, mirrors real usage) ─────────────────────
@@ -306,27 +351,28 @@ function clampRating(value: number): number {
 
 export async function seedVerificationData(): Promise<void> {
   const today = new Date()
+  const scenario = buildRichVerificationScenario(today)
+  const semanticIds = createVerificationScenarioIdRegistry(scenario)
   const refs = getPeriodRefsForDate(today)
   const todayRef = refs.day
   const currentMonth = refs.month
-  const monthM1 = getPreviousPeriod(currentMonth) as MonthRef
-  const monthM2 = getPreviousPeriod(monthM1) as MonthRef
-  const closedMonths = [monthM2, monthM1]
+  const closedMonths = scenario.months
+    .filter(month => month.monthRef !== currentMonth)
+    .map(month => month.monthRef)
+  const monthM1 = closedMonths.at(-1)!
+  const monthM2 = closedMonths.at(-2)!
 
   const currentWeek = refs.week
-  const pastWeeks: WeekRef[] = []
-  let cursor: WeekRef = currentWeek
-  for (let i = 0; i < WEEKS_BACK; i++) {
-    cursor = getPreviousPeriod(cursor) as WeekRef
-    pastWeeks.unshift(cursor)
-  }
+  const pastWeeks = scenario.weeks
+    .filter(week => week.weekRef !== currentWeek)
+    .map(week => week.weekRef)
   const allWeeks = [...pastWeeks, currentWeek]
 
   /** Only days that already happened — the current week must stay believable. */
   const upToToday = (days: DayRef[]): DayRef[] => days.filter(day => day <= todayRef)
 
   console.log(
-    `[verificationSeed] Seeding: months ${monthM2}…${currentMonth}, weeks ${pastWeeks[0]}…${currentWeek}`,
+    `[verificationSeed] Seeding ${scenario.meta.profileId}: months ${closedMonths[0]}…${currentMonth}, weeks ${pastWeeks[0]}…${currentWeek}`,
   )
 
   // ── 1. Life areas ──────────────────────────────────────────────────────────
@@ -349,68 +395,66 @@ export async function seedVerificationData(): Promise<void> {
 
   // ── 2. Priorities (4 active — stays under the 5-active limit) ─────────────
 
-  const p1 = await priorityDexieRepository.create({
-    title: 'Regularny ruch i kondycja',
-    years: [refs.year],
-    status: 'active',
-    lifeAreaIds: [areaHealth.id],
-    whyNow: 'Po zimie czuję wyraźny spadek formy, a energia przekłada się na wszystko inne.',
-    desiredDirection: 'Ruch 4–5 razy w tygodniu jako oczywisty element dnia.',
-    progressSignals: ['Biegam bez zadyszki', 'Lepszy sen'],
-    riskSignals: ['Odpuszczanie po intensywnym dniu pracy'],
-  })
-  const p2 = await priorityDexieRepository.create({
-    title: 'Dowieźć projekt Strumień',
-    years: [refs.year],
-    status: 'active',
-    lifeAreaIds: [areaWork.id],
-    whyNow: 'Najbliższe miesiące decydują o tym, czy projekt wejdzie do użycia.',
-    desiredDirection: 'Stabilne, cotygodniowe przyrosty zamiast zrywów.',
-    progressSignals: ['Regularne wydania funkcji'],
-    riskSignals: ['Rozpraszanie się pobocznymi pomysłami'],
-  })
-  const p3 = await priorityDexieRepository.create({
-    title: 'Obecność dla bliskich',
-    years: [refs.year],
-    status: 'active',
-    lifeAreaIds: [areaRelations.id],
-    whyNow: 'Praca łatwo zjada wieczory — chcę to odwrócić, zanim stanie się normą.',
-    desiredDirection: 'Wspólne wieczory i weekendy bez ekranów.',
-    progressSignals: ['Wspólne kolacje kilka razy w tygodniu'],
-    riskSignals: ['Telefon przy stole'],
-  })
-  const p4 = await priorityDexieRepository.create({
-    title: 'Codzienna nauka',
-    years: [refs.year],
-    status: 'active',
-    lifeAreaIds: [areaGrowth.id],
-    whyNow: 'Mała, codzienna dawka nauki daje mi poczucie kierunku.',
-    desiredDirection: 'Czytanie i kursy jako stały poranny rytuał.',
-    progressSignals: ['Skończone książki i rozdziały kursów'],
-    riskSignals: ['Scrollowanie zamiast czytania'],
-  })
+  const lifeAreaIdByPriorityKey = new Map([
+    ['movement', areaHealth.id],
+    ['stream', areaWork.id],
+    ['relationships', areaRelations.id],
+    ['learning', areaGrowth.id],
+  ])
+  const createdPriorities = await Promise.all(scenario.priorities.map(async priority => ({
+    key: priority.key,
+    record: await priorityDexieRepository.create({
+      title: priority.title,
+      years: [refs.year],
+      status: 'active',
+      lifeAreaIds: [lifeAreaIdByPriorityKey.get(priority.key)!],
+      whyNow: priority.whyNow,
+      desiredDirection: priority.desiredDirection,
+      progressSignals: priority.progressSignals,
+      riskSignals: priority.riskSignals,
+    }),
+  })))
+  const priorityByKey = new Map(createdPriorities.map(priority => {
+    semanticIds.registerPriority(priority.key, priority.record.id)
+    return [priority.key, priority.record]
+  }))
+  const p1 = priorityByKey.get('movement')!
+  const p2 = priorityByKey.get('stream')!
+  const p3 = priorityByKey.get('relationships')!
+  const p4 = priorityByKey.get('learning')!
   const priorities = [p1, p2, p3, p4]
+
+  const fixtureObject = (key: string) => {
+    const object = scenario.objects.find(candidate => candidate.key === key)
+    if (!object) throw new Error(`Missing rich-v1 object: ${key}`)
+    return object
+  }
+  const priorityIdsFor = (key: string) => semanticIds.priorityIdsForObject(key)
+  const rememberObject = <T extends { id: string }>(key: string, record: T): T => {
+    semanticIds.registerObject(key, record.id)
+    return record
+  }
 
   // ── 3. Goals ───────────────────────────────────────────────────────────────
 
-  const g1 = await goalDexieRepository.create({
-    title: 'Przebiec 10 km bez zatrzymania',
+  const g1 = rememberObject('goal-10k', await goalDexieRepository.create({
+    title: fixtureObject('goal-10k').title,
     isActive: true,
     status: 'open',
-    priorityIds: [p1.id],
+    priorityIds: priorityIdsFor('goal-10k'),
     lifeAreaIds: [areaHealth.id],
     successDefinition: 'Ciągły bieg 10 km w spokojnym tempie, bez marszobiegu.',
     whyMatters: 'Konkretny, mierzalny dowód, że kondycja wróciła.',
-  })
-  const g2 = await goalDexieRepository.create({
-    title: 'Wydać MVP aplikacji',
+  }))
+  const g2 = rememberObject('goal-mvp', await goalDexieRepository.create({
+    title: fixtureObject('goal-mvp').title,
     isActive: true,
     status: 'open',
-    priorityIds: [p2.id],
+    priorityIds: priorityIdsFor('goal-mvp'),
     lifeAreaIds: [areaWork.id],
     successDefinition: 'Działająca wersja z kluczowymi przepływami u pierwszych użytkowników.',
     whyMatters: 'Bez wydania nie ma informacji zwrotnej.',
-  })
+  }))
 
   // ── 4. Activate goals in every month touched by the seeded periods ────────
   // (KR month states require an active GoalMonthState; weekly linking below
@@ -427,77 +471,77 @@ export async function seedVerificationData(): Promise<void> {
 
   // ── 5. Key results, habits, trackers ──────────────────────────────────────
 
-  const kr1 = await keyResultDexieRepository.create({
-    title: 'Biegi 3 razy w tygodniu',
+  const kr1 = rememberObject('kr-runs', await keyResultDexieRepository.create({
+    title: fixtureObject('kr-runs').title,
     isActive: true,
     status: 'open',
     goalId: g1.id,
     cadence: 'weekly',
     entryMode: 'completion',
     target: { kind: 'count', operator: 'min', value: 3 },
-  })
-  const kr2 = await keyResultDexieRepository.create({
-    title: '15 km tygodniowo',
+  }))
+  const kr2 = rememberObject('kr-distance', await keyResultDexieRepository.create({
+    title: fixtureObject('kr-distance').title,
     isActive: true,
     status: 'open',
     goalId: g1.id,
     cadence: 'weekly',
     entryMode: 'value',
     target: { kind: 'value', aggregation: 'sum', operator: 'gte', value: 15 },
-  })
-  const kr3 = await keyResultDexieRepository.create({
-    title: 'Dwie funkcje miesięcznie',
+  }))
+  const kr3 = rememberObject('kr-functions', await keyResultDexieRepository.create({
+    title: fixtureObject('kr-functions').title,
     isActive: true,
     status: 'open',
     goalId: g2.id,
     cadence: 'monthly',
     entryMode: 'counter',
     target: { kind: 'count', operator: 'min', value: 2 },
-  })
-  const kr4 = await keyResultDexieRepository.create({
-    title: 'Cztery sesje deep work w tygodniu',
+  }))
+  const kr4 = rememberObject('kr-deep-work', await keyResultDexieRepository.create({
+    title: fixtureObject('kr-deep-work').title,
     isActive: true,
     status: 'open',
     goalId: g2.id,
     cadence: 'weekly',
     entryMode: 'completion',
     target: { kind: 'count', operator: 'min', value: 4 },
-  })
+  }))
 
-  const h1 = await habitDexieRepository.create({
-    title: 'Poranne rozciąganie',
+  const h1 = rememberObject('habit-stretch', await habitDexieRepository.create({
+    title: fixtureObject('habit-stretch').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
     entryMode: 'completion',
     target: { kind: 'count', operator: 'min', value: 5 },
-    priorityIds: [p1.id],
+    priorityIds: priorityIdsFor('habit-stretch'),
     lifeAreaIds: [areaHealth.id],
-  })
-  const h2 = await habitDexieRepository.create({
-    title: 'Wspólna kolacja',
+  }))
+  const h2 = rememberObject('habit-dinner', await habitDexieRepository.create({
+    title: fixtureObject('habit-dinner').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
     entryMode: 'completion',
     target: { kind: 'count', operator: 'min', value: 3 },
-    priorityIds: [p3.id],
+    priorityIds: priorityIdsFor('habit-dinner'),
     lifeAreaIds: [areaRelations.id],
-  })
-  const h3 = await habitDexieRepository.create({
-    title: 'Czytanie 20 minut',
+  }))
+  const h3 = rememberObject('habit-reading', await habitDexieRepository.create({
+    title: fixtureObject('habit-reading').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
     entryMode: 'completion',
     target: { kind: 'count', operator: 'min', value: 4 },
-    priorityIds: [p4.id],
+    priorityIds: priorityIdsFor('habit-reading'),
     lifeAreaIds: [areaGrowth.id],
-  })
+  }))
   // entryDays min: "średnia ≥ 3 I loguj ≥ 5 dni" — missed weeks log a single
   // good rating, so the primary metric is met while presence fails.
-  const h4 = await habitDexieRepository.create({
-    title: 'Poranna rutyna',
+  const h4 = rememberObject('habit-routine', await habitDexieRepository.create({
+    title: fixtureObject('habit-routine').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
@@ -511,13 +555,13 @@ export async function seedVerificationData(): Promise<void> {
     },
     ratingScaleMin: 1,
     ratingScale: 5,
-    priorityIds: [p1.id],
+    priorityIds: priorityIdsFor('habit-routine'),
     lifeAreaIds: [areaHealth.id],
-  })
+  }))
   // entryDays max: track satisfaction but play at most 3 days — missed weeks
   // log 4 days, so the metric holds while the limit is exceeded.
-  const h5 = await habitDexieRepository.create({
-    title: 'Granie wieczorem',
+  const h5 = rememberObject('habit-gaming', await habitDexieRepository.create({
+    title: fixtureObject('habit-gaming').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
@@ -531,14 +575,14 @@ export async function seedVerificationData(): Promise<void> {
     },
     ratingScaleMin: 1,
     ratingScale: 5,
-    priorityIds: [p4.id],
+    priorityIds: priorityIdsFor('habit-gaming'),
     lifeAreaIds: [areaGrowth.id],
-  })
+  }))
 
   // Multi-completion: 3 weighted items, explicit threshold 3 of 4 pts — the
   // stack chart shows full (met), partial and empty days side by side.
-  const h6 = await habitDexieRepository.create({
-    title: 'Poranna checklista',
+  const h6 = rememberObject('habit-checklist', await habitDexieRepository.create({
+    title: fixtureObject('habit-checklist').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
@@ -550,31 +594,31 @@ export async function seedVerificationData(): Promise<void> {
       { id: 'train', label: 'Trening', icon: 'fitness_center', weight: 2 },
     ],
     multiDailyThreshold: 3,
-    priorityIds: [p1.id],
+    priorityIds: priorityIdsFor('habit-checklist'),
     lifeAreaIds: [areaHealth.id],
-  })
+  }))
 
-  const t1 = await trackerDexieRepository.create({
-    title: 'Jakość snu',
+  const t1 = rememberObject('tracker-sleep', await trackerDexieRepository.create({
+    title: fixtureObject('tracker-sleep').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
     entryMode: 'rating',
-    priorityIds: [p1.id],
+    priorityIds: priorityIdsFor('tracker-sleep'),
     lifeAreaIds: [areaHealth.id],
-  })
-  const t2 = await trackerDexieRepository.create({
-    title: 'Kawy w ciągu dnia',
+  }))
+  const t2 = rememberObject('tracker-coffee', await trackerDexieRepository.create({
+    title: fixtureObject('tracker-coffee').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
     entryMode: 'counter',
-    priorityIds: [],
+    priorityIds: priorityIdsFor('tracker-coffee'),
     lifeAreaIds: [areaWork.id],
-  })
+  }))
   // Multi-completion tracker (no target): default threshold = all active items.
-  const t3 = await trackerDexieRepository.create({
-    title: 'Wieczorne wyciszenie',
+  const t3 = rememberObject('tracker-evening', await trackerDexieRepository.create({
+    title: fixtureObject('tracker-evening').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
@@ -583,9 +627,9 @@ export async function seedVerificationData(): Promise<void> {
       { id: 'no-screens', label: 'Bez ekranów po 22', icon: 'mobile_off', weight: 1 },
       { id: 'journal', label: 'Wieczorny dziennik', icon: 'edit_note', weight: 1 },
     ],
-    priorityIds: [p1.id],
+    priorityIds: priorityIdsFor('tracker-evening'),
     lifeAreaIds: [areaHealth.id],
-  })
+  }))
 
   console.log('[verificationSeed] Created planning objects')
 
@@ -735,13 +779,17 @@ export async function seedVerificationData(): Promise<void> {
     })
   }
   const monthStart = (monthRef: MonthRef): DayRef => getPeriodBounds(monthRef).start
-  await addEntries(
-    'keyResult',
-    kr3.id,
-    [addDaysToDayRef(monthStart(monthM2), 4), addDaysToDayRef(monthStart(monthM2), 14)],
-    1,
-  )
-  await addEntries('keyResult', kr3.id, [addDaysToDayRef(monthStart(monthM1), 9)], 1)
+  for (const [monthIndex, monthRef] of closedMonths.entries()) {
+    const cycle = monthIndex % 4
+    if (cycle === 3) continue
+    const offsets = cycle === 2 ? [9] : [4, 14]
+    await addEntries(
+      'keyResult',
+      kr3.id,
+      offsets.map(offset => addDaysToDayRef(monthStart(monthRef), offset)),
+      1,
+    )
+  }
   await addEntries('keyResult', kr3.id, upToToday([monthStart(currentMonth)]), 1)
 
   // ── 7b. Month V2 coverage objects ──────────────────────────────────────────
@@ -753,63 +801,63 @@ export async function seedVerificationData(): Promise<void> {
   const currentMonthWeeks = getChildPeriods(currentMonth) as WeekRef[]
 
   // Weekly value/average with gte — line chart, average aggregation.
-  const kr5 = await keyResultDexieRepository.create({
-    title: 'Średnio 7 godzin snu',
+  const kr5 = rememberObject('kr-sleep', await keyResultDexieRepository.create({
+    title: fixtureObject('kr-sleep').title,
     isActive: true,
     status: 'open',
     goalId: g1.id,
     cadence: 'weekly',
     entryMode: 'value',
     target: { kind: 'value', aggregation: 'average', operator: 'gte', value: 7 },
-  })
+  }))
   // Weekly value/last with lte + deliberately long title (layout stress).
-  const kr6 = await keyResultDexieRepository.create({
-    title: 'Utrzymać wagę poniżej 80 kg mimo sezonu urlopowego i rodzinnych obiadów',
+  const kr6 = rememberObject('kr-weight', await keyResultDexieRepository.create({
+    title: fixtureObject('kr-weight').title,
     isActive: true,
     status: 'open',
     goalId: g1.id,
     cadence: 'weekly',
     entryMode: 'value',
     target: { kind: 'value', aggregation: 'last', operator: 'lte', value: 80 },
-  })
+  }))
   // Orphan KR: the data layer requires an active GoalMonthState before a KR
   // can be linked, so the orphan is produced the only way it can happen for
   // real — the goal gets archived AFTER its KR was planned. Month bundles then
   // drop the goal (isActive filter) while the KR stays → "Pozostałe rezultaty".
-  const g3 = await goalDexieRepository.create({
-    title: 'Cel zarchiwizowany w trakcie',
+  const g3 = rememberObject('goal-orphan', await goalDexieRepository.create({
+    title: fixtureObject('goal-orphan').title,
     isActive: true,
     priorityIds: [],
     lifeAreaIds: [areaGrowth.id],
     status: 'open',
-  })
+  }))
   for (const monthRef of monthSet) {
     await linkGoalToMonth(g3.id, monthRef)
   }
-  const kr7 = await keyResultDexieRepository.create({
-    title: 'Rezultat bez aktywnego celu',
+  const kr7 = rememberObject('kr-orphan', await keyResultDexieRepository.create({
+    title: fixtureObject('kr-orphan').title,
     isActive: true,
     status: 'open',
     goalId: g3.id,
     cadence: 'weekly',
     entryMode: 'completion',
     target: { kind: 'count', operator: 'min', value: 2 },
-  })
+  }))
   // Weekly counter with a MAX primary target (limit, not floor).
-  const h7 = await habitDexieRepository.create({
-    title: 'Maksymalnie 10 kaw w tygodniu',
+  const h7 = rememberObject('habit-coffee-max', await habitDexieRepository.create({
+    title: fixtureObject('habit-coffee-max').title,
     isActive: true,
     status: 'open',
     cadence: 'weekly',
     entryMode: 'counter',
     target: { kind: 'count', operator: 'max', value: 10 },
-    priorityIds: [p1.id],
+    priorityIds: priorityIdsFor('habit-coffee-max'),
     lifeAreaIds: [areaHealth.id],
-  })
+  }))
   // Monthly multi-completion (default all-items threshold) with entries in the
   // month's boundary week — the out-of-month day must not leak into July.
-  const h8 = await habitDexieRepository.create({
-    title: 'Głębokie porządki',
+  const h8 = rememberObject('habit-deep-clean', await habitDexieRepository.create({
+    title: fixtureObject('habit-deep-clean').title,
     isActive: true,
     status: 'open',
     cadence: 'monthly',
@@ -819,25 +867,25 @@ export async function seedVerificationData(): Promise<void> {
       { id: 'plan', label: 'Plan strefy', icon: 'checklist', weight: 1 },
       { id: 'do', label: 'Sprzątnięta strefa', icon: 'cleaning_services', weight: 1 },
     ],
-    priorityIds: [p3.id],
+    priorityIds: priorityIdsFor('habit-deep-clean'),
     lifeAreaIds: [areaRelations.id],
-  })
+  }))
   // Monthly completion with target > 7 and specific-days placement that starts
   // in the month's boundary week.
-  const h9 = await habitDexieRepository.create({
-    title: 'Ruch: 12 dni w miesiącu',
+  const h9 = rememberObject('habit-monthly-move', await habitDexieRepository.create({
+    title: fixtureObject('habit-monthly-move').title,
     isActive: true,
     status: 'open',
     cadence: 'monthly',
     entryMode: 'completion',
     target: { kind: 'count', operator: 'min', value: 12 },
-    priorityIds: [p1.id],
+    priorityIds: priorityIdsFor('habit-monthly-move'),
     lifeAreaIds: [areaHealth.id],
-  })
+  }))
   // Retired historical habit: placed and logged only in past weeks — stays
   // visible in history, is not editable in planners.
-  const h10 = await habitDexieRepository.create({
-    title: 'Prasa poranna (wycofane)',
+  const h10 = rememberObject('habit-retired', await habitDexieRepository.create({
+    title: fixtureObject('habit-retired').title,
     isActive: true,
     status: 'retired',
     cadence: 'weekly',
@@ -845,7 +893,7 @@ export async function seedVerificationData(): Promise<void> {
     target: { kind: 'count', operator: 'min', value: 2 },
     priorityIds: [],
     lifeAreaIds: [areaGrowth.id],
-  })
+  }))
 
   for (const [weekIdx, weekRef] of allWeeks.entries()) {
     for (const id of [kr5.id, kr6.id, kr7.id]) {
@@ -1040,6 +1088,66 @@ export async function seedVerificationData(): Promise<void> {
     })
   }
 
+  // ── 10b. Priority links + an unfinished creator-ritual draft ──────────────
+  // Showcases the object↔priority relations (P0–P2): a couple of active links
+  // (one still needing enrichment, mimicking a legacy backfill), two proposed
+  // links on `stream` so its card shows the "Do dokończenia" checklist, and a
+  // half-finished ritual draft so the resume banner appears.
+
+  await createActiveLink(p1.id, { subjectType: 'goal', subjectId: g1.id }, {
+    contribution: 'Bieganie to najprostszy dowód, że kondycja wraca.',
+    expectedSignal: 'Ciągły bieg 10 km bez marszobiegu',
+  })
+  await createActiveLink(p1.id, { subjectType: 'habit', subjectId: h1.id }, {
+    contribution: 'Rozciąganie chroni przed kontuzją przy większym kilometrażu.',
+    expectedSignal: 'Brak przeciążeń mimo częstszych biegów',
+  })
+  // Legacy-style link: linked but never described (needsEnrichment).
+  await priorityLinkDexieRepository.create({
+    priorityId: p3.id,
+    status: 'active',
+    subjectRef: { subjectType: 'habit', subjectId: h2.id },
+    contribution: '',
+    expectedSignal: '',
+    validFrom: h2.createdAt,
+    needsEnrichment: true,
+  })
+  // Proposed links: objects the ritual suggested but the user has not created yet.
+  await priorityLinkDexieRepository.create({
+    priorityId: p2.id,
+    status: 'proposed',
+    proposal: { objectType: 'habit', title: 'Codzienny blok deep work' },
+    contribution: 'Chronione bloki bez spotkań utrzymują cotygodniowe przyrosty.',
+    expectedSignal: 'Co najmniej 3 bloki deep work w tygodniu',
+    validFrom: p2.createdAt,
+  })
+  await priorityLinkDexieRepository.create({
+    priorityId: p2.id,
+    status: 'proposed',
+    proposal: { objectType: 'tracker', title: 'Rozproszenia w ciągu dnia' },
+    contribution: 'Świadomość rozproszeń pomaga wracać do jednego wątku.',
+    expectedSignal: 'Spadek liczby przełączeń kontekstu',
+    validFrom: p2.createdAt,
+  })
+
+  await saveDraftToDB(PRIORITY_CREATOR_DRAFT_KEY, JSON.stringify({
+    stepIndex: 1,
+    form: {
+      title: 'Więcej spokoju finansowego',
+      whyNow: 'Chcę przestać odkładać decyzje o budżecie na później.',
+      direction: 'Świadome wydatki i poduszka bezpieczeństwa bez presji.',
+      influence: 'Regularny przegląd wydatków, rozmowy, automatyczne odkładanie.',
+      notControlled: 'Inflacja i nieprzewidziane wydatki.',
+      tradeoffs: '',
+      endingType: 'open',
+      endingDescription: '',
+    },
+    progressSignals: ['Miesiąc domknięty na plusie'],
+    riskSignals: [],
+    proposals: [],
+    savedAt: `${refs.day}T09:00:00.000Z`,
+  }))
+
   // ── 11. Month plans, priority assessments, monthly reflections ────────────
 
   for (const monthRef of [...closedMonths, currentMonth]) {
@@ -1050,16 +1158,20 @@ export async function seedVerificationData(): Promise<void> {
     effort: 3,
     verdict: 'continue',
     note: 'Rozkręcanie się po zimie — kierunek dobry.',
+    // Signals defined on the priority, checked as "noticed this month".
+    observedProgressSignals: ['Lepszy sen'],
   })
   await setMonthlyPriorityAssessment(monthM2, p2.id, {
     effort: 4,
     verdict: 'continue',
     note: 'Solidne tempo, regularne wydania.',
+    observedProgressSignals: ['Regularne wydania funkcji'],
   })
   await setMonthlyPriorityAssessment(monthM2, p3.id, {
     effort: 3,
     verdict: 'adjust',
     note: 'Wieczory zbyt często zjadane przez pracę.',
+    observedRiskSignals: ['Telefon przy stole'],
   })
   await setMonthlyPriorityAssessment(monthM1, p1.id, {
     effort: 4,
@@ -1076,6 +1188,26 @@ export async function seedVerificationData(): Promise<void> {
     verdict: 'pause',
     note: 'Miesiąc zdominowany przez pracę; wracam do tego za miesiąc.',
   })
+
+  for (const [monthIndex, monthRef] of closedMonths.slice(0, -2).entries()) {
+    await setMonthlyPriorityAssessment(monthRef, p1.id, {
+      effort: 2 + (monthIndex % 3),
+      verdict: monthIndex % 3 === 2 ? 'adjust' : 'continue',
+      note: monthIndex % 2 === 0
+        ? 'Rytm stopniowo się stabilizował.'
+        : 'Potrzebna była lżejsza wersja planu.',
+    })
+    await setMonthlyPriorityAssessment(monthRef, p2.id, {
+      effort: 3 + (monthIndex % 2),
+      verdict: monthIndex % 4 === 3 ? 'pause' : 'continue',
+      note: 'Najwięcej wnosiły chronione bloki pracy bez spotkań.',
+    })
+    await setMonthlyPriorityAssessment(monthRef, p3.id, {
+      effort: 2 + ((monthIndex + 1) % 3),
+      verdict: monthIndex % 2 === 0 ? 'adjust' : 'continue',
+      note: 'Wspólne wieczory działały, gdy były zaplanowane z wyprzedzeniem.',
+    })
+  }
 
   for (const [monthIdx, monthRef] of closedMonths.entries()) {
     const rating = (dim: number): number => clampRating(3 + ((monthIdx + dim) % 3))

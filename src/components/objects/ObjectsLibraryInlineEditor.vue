@@ -1,16 +1,16 @@
 <template>
-  <section class="neo-card neo-card--composer border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3 md:p-3.5">
-    <div class="border-b border-white/45 pb-2">
+  <section class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper p-3 md:p-3.5">
+    <div class="inline-editor-divider border-b pb-2">
       <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div class="space-y-2">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="neo-pill neo-pill--primary px-3 py-1 text-xs font-semibold">
+            <span class="mg-v2-pill mg-v2-pill--primary">
               {{ modeLabel }}
             </span>
-            <span class="neo-badge px-3 py-1 text-xs">
+            <span class="mg-v2-badge">
               {{ typeLabel }}
             </span>
-            <span v-if="parentLabel" class="neo-badge px-3 py-1 text-xs">
+            <span v-if="parentLabel" class="mg-v2-badge">
               {{ parentLabel }}
             </span>
           </div>
@@ -32,7 +32,7 @@
           <input
             v-model="draft.title"
             type="text"
-            class="neo-input w-full px-3 py-1.5 text-sm"
+            class="mg-v2-field w-full text-sm"
           />
         </label>
 
@@ -40,7 +40,7 @@
           <span class="text-xs font-semibold text-on-surface">{{ labels.description }}</span>
           <textarea
             v-model="draft.description"
-            class="neo-input min-h-[2.5rem] w-full resize-y px-3 py-1.5 text-sm"
+            class="mg-v2-field w-full resize-y text-sm"
           />
         </label>
 
@@ -50,7 +50,7 @@
             class="space-y-1"
           >
             <span class="text-xs font-semibold text-on-surface">{{ labels.goal }}</span>
-            <select v-model="draft.goalId" class="neo-input w-full px-3 py-1.5 text-sm">
+            <select v-model="draft.goalId" class="mg-v2-field w-full text-sm">
               <option value="">{{ noneLabel }}</option>
               <option v-for="goal in goalOptions" :key="goal.id" :value="goal.id">
                 {{ goal.label }}
@@ -62,7 +62,7 @@
 
         <div
           v-if="panelType === 'habit' || panelType === 'keyResult'"
-          class="neo-surface rounded-xl p-2.5"
+          class="mg-v2-surface mg-v2-surface--inset p-2.5"
         >
           <div class="text-xs font-semibold text-on-surface">{{ labels.target }}</div>
           <MeasurementTargetSentence
@@ -88,12 +88,11 @@
       <div class="space-y-2">
         <div class="space-y-1">
           <span class="text-xs font-semibold text-on-surface">{{ labels.status }}</span>
-          <div class="neo-segmented flex w-full flex-wrap">
+          <div class="mg-v2-segmented w-full">
             <button
               v-for="option in statusOptions"
               :key="option.value"
               type="button"
-              :class="optionClass(draft.status === option.value)"
               :aria-pressed="draft.status === option.value"
               @click="draft.status = option.value"
             >
@@ -104,9 +103,9 @@
 
         <label
           v-if="!isCreateMode"
-          class="neo-surface flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium text-on-surface"
+          class="mg-v2-surface mg-v2-surface--flat flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-on-surface"
         >
-          <input v-model="draft.isActive" type="checkbox" class="neo-checkbox" />
+          <input v-model="draft.isActive" type="checkbox" class="mg-v2-checkbox" />
           {{ labels.activeHint }}
         </label>
 
@@ -132,11 +131,11 @@
       </div>
     </div>
 
-    <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/45 pt-3">
+    <div class="inline-editor-divider mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-3">
       <button
         v-if="showDelete"
         type="button"
-        class="neo-pill neo-focus px-4 py-2 text-sm font-semibold text-danger"
+        class="mg-v2-pill mg-v2-pill--danger cursor-pointer"
         @click="$emit('delete')"
       >
         {{ deleteLabel }}
@@ -265,20 +264,6 @@ defineEmits<{
   delete: []
 }>()
 
-function optionClass(active: boolean): string {
-  return [
-    'neo-segmented__item',
-    'neo-focus',
-    'flex-1',
-    'whitespace-nowrap',
-    '!min-h-[34px]',
-    '!py-1',
-    '!px-2.5',
-    '!text-xs',
-    active ? 'neo-segmented__item--active' : '',
-  ].join(' ')
-}
-
 // Adapter: the draft holds a flat LibraryTargetDraft; the sentence speaks the domain
 // MeasurementTarget. Derive the mode from target.kind (authoritative for operator/
 // aggregation options), falling back to draft.entryMode for the count-kind modes
@@ -334,3 +319,9 @@ function onCadence(value: PlanningCadence): void {
   draft.value.cadence = value
 }
 </script>
+
+<style scoped>
+.inline-editor-divider {
+  border-color: var(--mg-color-border);
+}
+</style>

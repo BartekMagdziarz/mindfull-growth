@@ -1,6 +1,6 @@
 <template>
   <article
-    class="group/card neo-card neo-raised border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3.5"
+    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5"
   >
     <div class="space-y-2">
       <!-- Row 1: Icon + Title + [hover: menu] + Status -->
@@ -26,7 +26,7 @@
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-icon-button--flat neo-focus"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >
@@ -34,7 +34,7 @@
             </button>
             <div
               v-if="menuOpen"
-              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
+              class="mg-v2-popover absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden"
               @click.stop
             >
               <button
@@ -92,7 +92,7 @@
           @unlink-month="$emit('unlink-month', item.id, $event)"
         />
         <span
-          class="neo-badge gap-1 px-2 py-0.5 text-[0.7rem]"
+          class="mg-v2-badge gap-1"
           :class="targetDateChipClass"
           :title="targetDateTooltip"
         >

@@ -117,6 +117,15 @@ export interface PeriodObjectReflection extends PlanningStateRecordBase {
   effort?: number | null
   /** Monthly per-priority verdict. */
   verdict?: PriorityVerdict | null
+  /**
+   * Progress signals the user checked as "noticed this month" (monthly priority
+   * assessment). Stores the literal signal strings, not references — a chip
+   * survives in history even if the signal is later renamed or removed from the
+   * priority's definition.
+   */
+  observedProgressSignals?: string[]
+  /** Risk signals checked as "noticed this month". Same literal-string storage. */
+  observedRiskSignals?: string[]
 }
 
 export type CreateMonthPlanPayload = Omit<MonthPlan, 'id' | 'createdAt' | 'updatedAt'>
@@ -851,7 +860,46 @@ export function normalizePeriodObjectReflectionPayload(
     note: normalizeOptionalText(data.note, 'note', existing?.note) ?? '',
     effort: normalizeReflectionEffort(data.effort, existing?.effort),
     verdict: normalizeReflectionVerdict(data.verdict, existing?.verdict),
+    observedProgressSignals: normalizeObservedSignals(
+      data.observedProgressSignals,
+      'observedProgressSignals',
+      existing?.observedProgressSignals,
+    ),
+    observedRiskSignals: normalizeObservedSignals(
+      data.observedRiskSignals,
+      'observedRiskSignals',
+      existing?.observedRiskSignals,
+    ),
   }
+}
+
+/**
+ * Trimmed, de-duplicated signal strings, or undefined when none are checked
+ * (so an empty list is never stored). Preserves literal strings verbatim.
+ */
+function normalizeObservedSignals(
+  value: unknown,
+  fieldName: string,
+  existing?: string[],
+): string[] | undefined {
+  const source = value ?? existing
+  if (source === undefined) {
+    return undefined
+  }
+  if (!Array.isArray(source)) {
+    throw new Error(`${fieldName} must be an array`)
+  }
+  const normalized = Array.from(
+    new Set(
+      source.map((item) => {
+        if (typeof item !== 'string') {
+          throw new Error(`${fieldName} must contain only strings`)
+        }
+        return item.trim()
+      }).filter(Boolean),
+    ),
+  )
+  return normalized.length > 0 ? normalized : undefined
 }
 
 export function isMonthPlanPeriodRef(periodRef: PeriodRef): periodRef is MonthRef {

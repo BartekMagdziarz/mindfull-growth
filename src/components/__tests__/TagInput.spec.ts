@@ -233,7 +233,7 @@ describe('TagInput', () => {
       })
 
       const selectedTag = screen.getByLabelText('Deselect people tag Mom')
-      expect(selectedTag).toHaveClass('shadow-neu-pressed', 'bg-neu-base', 'text-primary')
+      expect(selectedTag).toHaveClass('mg-v2-pill', 'mg-v2-pill--primary', 'mg-v2-pill--selected')
     })
   })
 

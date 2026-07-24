@@ -6,7 +6,7 @@
         <input
           :value="query.q"
           type="search"
-          class="neo-input w-full px-4 py-3"
+          class="mg-v2-field w-full px-4 py-3"
           :placeholder="searchPlaceholder"
           @input="$emit('update:search', ($event.target as HTMLInputElement).value)"
         />
@@ -17,8 +17,8 @@
         <input
           :value="periodValue"
           type="text"
-          class="neo-input w-full px-4 py-3"
-          :class="periodError ? 'border-danger/60 text-danger' : ''"
+          class="mg-v2-field w-full px-4 py-3"
+          :class="periodError ? 'objects-filters-v2__field--error' : ''"
           :placeholder="periodPlaceholder"
           :aria-invalid="periodError ? 'true' : 'false'"
           :aria-describedby="periodError ? 'objects-library-period-error' : undefined"
@@ -31,7 +31,7 @@
       <div class="flex flex-wrap items-center gap-2 xl:justify-end">
         <button
           type="button"
-          class="neo-pill neo-focus gap-2 px-4 py-2 text-sm font-semibold"
+          class="mg-v2-pill gap-2 px-4 py-2 text-sm font-semibold"
           :aria-expanded="filtersExpanded"
           @click="filtersExpanded = !filtersExpanded"
         >
@@ -44,7 +44,7 @@
         <button
           v-if="hasActiveFilters"
           type="button"
-          class="neo-pill neo-focus px-4 py-2 text-sm font-semibold"
+          class="mg-v2-pill px-4 py-2 text-sm font-semibold"
           @click="$emit('reset:all')"
         >
           {{ resetAllLabel }}
@@ -65,7 +65,7 @@
         v-for="chip in activeFilterChips"
         :key="chip.key"
         type="button"
-        class="neo-pill neo-focus gap-2 px-3 py-1.5 text-xs font-semibold"
+        class="mg-v2-pill gap-2 px-3 py-1.5 text-xs font-semibold"
         @click="removeFilterChip(chip)"
       >
         <span>{{ chip.label }}</span>
@@ -75,7 +75,7 @@
 
     <section
       v-if="filtersExpanded"
-      class="neo-surface mt-4 grid gap-4 rounded-[1.6rem] p-4 xl:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]"
+      class="mg-v2-surface mg-v2-surface--flat mt-4 grid gap-4 p-4 xl:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)]"
     >
       <div class="space-y-3 xl:min-w-[14rem]">
         <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
@@ -83,8 +83,8 @@
         </div>
         <button
           type="button"
-          class="neo-pill neo-focus px-4 py-2 text-sm font-semibold"
-          :class="query.showClosed ? 'neo-pill--primary' : ''"
+          class="mg-v2-pill px-4 py-2 text-sm font-semibold"
+          :class="query.showClosed ? 'mg-v2-pill--primary mg-v2-pill--selected' : ''"
           :aria-pressed="query.showClosed"
           @click="$emit('toggle:closed')"
         >
@@ -112,8 +112,8 @@
             v-for="option in lifeAreas"
             :key="option.id"
             type="button"
-            class="neo-pill neo-focus px-3 py-1.5 text-sm"
-            :class="query.lifeAreaIds.includes(option.id) ? 'neo-pill--primary' : ''"
+            class="mg-v2-pill px-3 py-1.5 text-sm"
+            :class="query.lifeAreaIds.includes(option.id) ? 'mg-v2-pill--primary mg-v2-pill--selected' : ''"
             :aria-pressed="query.lifeAreaIds.includes(option.id)"
             @click="$emit('toggle:lifeArea', option.id)"
           >
@@ -142,8 +142,8 @@
             v-for="option in priorities"
             :key="option.id"
             type="button"
-            class="neo-pill neo-focus px-3 py-1.5 text-sm"
-            :class="query.priorityIds.includes(option.id) ? 'neo-pill--primary' : ''"
+            class="mg-v2-pill px-3 py-1.5 text-sm"
+            :class="query.priorityIds.includes(option.id) ? 'mg-v2-pill--primary mg-v2-pill--selected' : ''"
             :aria-pressed="query.priorityIds.includes(option.id)"
             @click="$emit('toggle:priority', option.id)"
           >
@@ -267,3 +267,10 @@ function removeFilterChip(chip: ActiveFilterChip): void {
   }
 }
 </script>
+
+<style scoped>
+.objects-filters-v2__field--error {
+  border-color: var(--mg-color-rose);
+  color: var(--mg-color-rose);
+}
+</style>

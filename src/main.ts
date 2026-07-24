@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import './styles/main.css'
+import './design-system/index.css'
 import { applyCachedTheme } from './services/theme.service'
 import { setupTextareaAutoresize } from './utils/textareaAutoresize'
 
@@ -20,7 +21,7 @@ const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && import.meta.env.VITE_VERIFICATION_MODE !== '1') {
   Promise.all([
     import('./services/todayVisualizationAudit'),
     import('./repositories/habitDexieRepository'),

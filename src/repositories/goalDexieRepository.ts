@@ -9,7 +9,7 @@ import { normalizeGoalPayload, normalizeKeyResultPayload } from '@/domain/planni
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { GoalRepository } from './goalRepository'
-import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
+import { createPlanningRecord, requireRecord, retirePriorityLinksForSubject, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
 
 class GoalDexieRepository implements GoalRepository {
   private get db() {
@@ -86,9 +86,14 @@ class GoalDexieRepository implements GoalRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await this.db.transaction('rw', this.db.goals, this.db.keyResults, async () => {
+      await this.db.transaction('rw', [this.db.goals, this.db.keyResults, this.db.priorityLinks], async () => {
+        const keyResultIds = (await this.db.keyResults.where('goalId').equals(id).primaryKeys()) as string[]
         await this.db.keyResults.where('goalId').equals(id).delete()
         await this.db.goals.delete(id)
+        await retirePriorityLinksForSubject(this.db.priorityLinks, { subjectType: 'goal', subjectId: id })
+        for (const keyResultId of keyResultIds) {
+          await retirePriorityLinksForSubject(this.db.priorityLinks, { subjectType: 'keyResult', subjectId: keyResultId })
+        }
       })
       invalidatePlanningQueryCache()
     } catch (error) {

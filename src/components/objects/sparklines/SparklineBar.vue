@@ -1,23 +1,5 @@
 <template>
   <svg :viewBox="`0 0 ${VIEWBOX_W} ${vH}`" width="100%" aria-hidden="true">
-    <defs>
-      <!-- Met: primary blue vertical gradient -->
-      <linearGradient :id="gradientIds.met" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" />
-        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" />
-      </linearGradient>
-      <!-- Missed: soft muted rose -->
-      <linearGradient :id="gradientIds.missed" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgb(var(--color-error))" stop-opacity="0.45" />
-        <stop offset="100%" stop-color="rgb(var(--color-error))" stop-opacity="0.40" />
-      </linearGradient>
-      <!-- No-target: softer variant -->
-      <linearGradient :id="gradientIds.neutral" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-end))" stop-opacity="0.65" />
-        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-end))" stop-opacity="0.60" />
-      </linearGradient>
-    </defs>
-
     <!-- Target reference line -->
     <line
       v-if="showTargetLine"
@@ -25,10 +7,11 @@
       :y1="tLineY"
       :x2="VIEWBOX_W - PADDING_X"
       :y2="tLineY"
-      stroke="rgb(var(--color-on-surface-variant))"
-      stroke-opacity="0.25"
+      stroke="rgb(var(--color-primary))"
+      stroke-opacity="0.8"
       stroke-width="1"
-      stroke-dasharray="3 2"
+      stroke-linecap="round"
+      stroke-dasharray="6 6"
     />
 
     <!-- Bars + labels -->
@@ -41,8 +24,8 @@
         :width="barW"
         :height="1"
         rx="0.5"
-        fill="rgb(var(--color-outline))"
-        fill-opacity="0.20"
+        fill="rgb(var(--neo-border))"
+        fill-opacity="0.35"
       />
       <!-- Actual data bar: rounded top, flat base -->
       <path
@@ -54,12 +37,13 @@
       <!-- Period label -->
       <text
         v-if="shouldShowLabel(i, visiblePoints.length, cadence)"
+        class="sparkline-label"
         :x="barX(i) + barW / 2"
         :y="vH - 2"
         text-anchor="middle"
         font-size="9"
-        fill="rgb(var(--color-on-surface-variant))"
-        fill-opacity="0.6"
+        font-weight="700"
+        fill="rgb(var(--neo-muted))"
       >
         {{ periodLabel(point.periodRef, cadence, locale) }}
       </text>
@@ -84,7 +68,6 @@ import {
   targetLineY,
   shouldShowLabel,
   periodLabel,
-  useGradientIds,
   topRoundedBarPath,
 } from './sparklineUtils'
 
@@ -98,7 +81,6 @@ const props = withDefaults(
 )
 
 const { locale } = useT()
-const gradientIds = useGradientIds('bar')
 
 const vH = computed(() => (props.compact ? COMPACT_VIEWBOX_H : VIEWBOX_H))
 const cH = computed(() => (props.compact ? COMPACT_CHART_HEIGHT : CHART_HEIGHT))
@@ -141,13 +123,30 @@ function barY(point: ObjectsLibraryChartPoint): number {
 function barFill(status: ObjectsLibraryChartPoint['status']): string {
   switch (status) {
     case 'met':
-      return `url(#${gradientIds.met})`
+      return 'rgb(var(--sky-200) / 0.72)'
     case 'missed':
-      return `url(#${gradientIds.missed})`
+      return 'rgb(var(--rose-200) / 0.72)'
     case 'no-target':
-      return `url(#${gradientIds.neutral})`
+      return 'rgb(var(--sky-300) / 0.72)'
     default:
       return 'rgb(var(--color-outline))'
   }
 }
 </script>
+
+<style scoped>
+.sparkline-label {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+svg:hover .sparkline-label {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkline-label {
+    transition: none;
+  }
+}
+</style>

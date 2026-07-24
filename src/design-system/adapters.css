@@ -1,0 +1,86 @@
+.mg-design-v2 .planning-next__ritual-adapter :where(.neo-card, .neo-raised) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-lg);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-surface);
+  box-shadow: var(--mg-shadow-raised);
+}
+
+.mg-design-v2 .planning-next__ritual-adapter :where(.neo-inset, .neo-input) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-canvas);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-design-v2 :where(.overview-tile, .dz-card, .em-card) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+}
+
+/* Generic bridges for legacy shared components rendered inside any V2 root
+   (ChatSessionCard, StatusIconButton, MultiItemsEditor, EntityIcon chrome).
+   :where() keeps specificity at zero so mg-v2-* classes always win. */
+.mg-design-v2 :where(.neo-card, .neo-raised, .neo-raised-strong, .neo-surface) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-lg);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 :where(.neo-inset, .neo-input) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-canvas);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-design-v2 :where(.neo-icon-button) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-organic-a);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-surface);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 :where(.neo-icon-button--success) {
+  color: var(--mg-color-good-on);
+  background: var(--mg-color-good-soft);
+}
+
+.mg-design-v2 :where(.neo-icon-button--warning) {
+  color: var(--mg-color-warn-on);
+  background: var(--mg-color-warn-soft);
+}
+
+.mg-design-v2 :where(.neo-icon-button--danger) {
+  color: var(--mg-color-rose);
+  background: var(--mg-color-rose-soft);
+}
+
+.mg-design-v2 :where(.neo-icon-button--flat) {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mg-design-v2 :where(.neo-checkbox) {
+  border-color: var(--mg-color-border);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 :where(.neo-pill) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-pill);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 :where(.neo-badge) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-pill);
+  color: var(--mg-color-muted);
+  background: var(--mg-color-paper);
+}

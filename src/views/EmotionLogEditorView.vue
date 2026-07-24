@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 flex flex-col gap-6 min-h-screen">
+  <div class="mg-design-v2 emotions-v2 mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-6 py-6 flex flex-col gap-6 min-h-screen">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center min-h-[200px]">
       <p class="text-on-surface-variant">{{ t('emotionViews.editor.loading') }}</p>
@@ -26,12 +26,12 @@
         <Transition name="dialog">
           <div
             v-if="showDateTimePicker"
-            class="fixed inset-0 z-50 flex items-center justify-center"
+            class="mg-design-v2 mg-v2-overlay"
             @click.self="showDateTimePicker = false"
           >
-            <div class="fixed inset-0 bg-overlay-scrim/50" aria-hidden="true"></div>
+            <div class="mg-v2-overlay__scrim" aria-hidden="true"></div>
             <div
-              class="relative z-10 neo-raised-strong rounded-2xl p-6 max-w-sm w-full mx-4"
+              class="dialog-panel mg-v2-surface mg-v2-surface--raised relative z-10 p-6 max-w-sm w-full mx-4"
               role="dialog"
               aria-modal="true"
             >
@@ -45,7 +45,7 @@
                     id="log-date"
                     type="date"
                     v-model="selectedDate"
-                    class="neo-input w-full p-3 text-on-surface"
+                    class="mg-v2-field w-full text-on-surface"
                   />
                 </div>
                 <div>
@@ -56,13 +56,13 @@
                     id="log-time"
                     type="time"
                     v-model="selectedTime"
-                    class="neo-input w-full p-3 text-on-surface"
+                    class="mg-v2-field w-full text-on-surface"
                   />
                 </div>
               </div>
               <div class="flex gap-3 justify-end mt-6">
-                <AppButton variant="text" @click="showDateTimePicker = false">{{ t('emotionViews.editor.cancel') }}</AppButton>
-                <AppButton variant="filled" @click="applyDateTime">{{ t('emotionViews.editor.apply') }}</AppButton>
+                <DsButton variant="quiet" @click="showDateTimePicker = false">{{ t('emotionViews.editor.cancel') }}</DsButton>
+                <DsButton @click="applyDateTime">{{ t('emotionViews.editor.apply') }}</DsButton>
               </div>
             </div>
           </div>
@@ -74,12 +74,12 @@
       <div class="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr] items-stretch">
         <!-- Lewa kolumna: koło emocji -->
         <section
-          class="neo-card px-5 py-4 flex flex-col gap-4"
+          class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-4"
           :style="emotionCardStyle"
         >
           <div
             v-if="isEmotionSectionLoading"
-            class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+            class="emotions-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
           >
             {{ t('emotionViews.loadingEmotions') }}
           </div>
@@ -96,7 +96,7 @@
         <div class="flex flex-col gap-4 min-w-0">
           <!-- Note Section -->
           <section
-            class="neo-inset rounded-[32px] px-6 py-5 flex flex-col gap-3"
+            class="mg-v2-editor-canvas px-6 py-5 flex flex-col gap-3"
           >
             <label for="note" class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('emotionViews.editor.note') }}
@@ -111,7 +111,7 @@
 
           <!-- People Tags Section -->
           <section
-            class="neo-card px-5 py-4 flex flex-col gap-3"
+            class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
           >
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -120,7 +120,7 @@
             </header>
             <div
               v-if="isPeopleSectionLoading"
-              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+              class="emotions-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
             >
               {{ t('emotionViews.editor.loadingPeopleTags') }}
             </div>
@@ -131,7 +131,7 @@
 
           <!-- Context Tags Section -->
           <section
-            class="neo-card px-5 py-4 flex flex-col gap-3"
+            class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
           >
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -140,7 +140,7 @@
             </header>
             <div
               v-if="isContextSectionLoading"
-              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+              class="emotions-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
             >
               {{ t('emotionViews.editor.loadingContextTags') }}
             </div>
@@ -151,21 +151,20 @@
 
           <!-- Akcje na dole prawej kolumny (zamiast osobnego paska pod całością) -->
           <div class="mt-auto flex justify-end gap-3 pt-1">
-            <AppButton
-              variant="text"
+            <DsButton
+              variant="quiet"
               @click="handleCancel"
               :disabled="isSaving"
             >
               {{ t('emotionViews.editor.cancel') }}
-            </AppButton>
-            <AppButton
-              variant="filled"
+            </DsButton>
+            <DsButton
               @click="handleSave"
               :disabled="isSaving"
               class="min-w-[140px]"
             >
               {{ isSaving ? t('emotionViews.editor.saving') : t('emotionViews.editor.save') }}
-            </AppButton>
+            </DsButton>
           </div>
         </div>
       </div>
@@ -178,8 +177,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
+import { DsButton } from '@/design-system/components'
 import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
@@ -528,13 +527,26 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* The v2 root's min-width/canvas background are meant for full-viewport
+   workspaces; this view is a centered column inside AppShell. */
+.emotions-v2 {
+  min-width: 0;
+  background: transparent;
+}
+
+.emotions-v2__placeholder {
+  border: 1px dashed var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-canvas);
+}
+
 .dialog-enter-active,
 .dialog-leave-active {
   transition: opacity 0.2s ease;
 }
 
-.dialog-enter-active .neo-raised-strong,
-.dialog-leave-active .neo-raised-strong {
+.dialog-enter-active .dialog-panel,
+.dialog-leave-active .dialog-panel {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -543,8 +555,8 @@ onMounted(async () => {
   opacity: 0;
 }
 
-.dialog-enter-from .neo-raised-strong,
-.dialog-leave-to .neo-raised-strong {
+.dialog-enter-from .dialog-panel,
+.dialog-leave-to .dialog-panel {
   transform: scale(0.95);
   opacity: 0;
 }

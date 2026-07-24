@@ -5,7 +5,7 @@
     <div ref="rootRef" class="relative">
       <button
         type="button"
-        class="neo-input neo-focus flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+        class="mg-v2-field flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
         :aria-expanded="open"
         @click="open = !open"
       >
@@ -21,7 +21,7 @@
 
       <div
         v-if="open"
-        class="neo-card absolute left-0 right-0 z-20 mt-3 rounded-[1.5rem] p-3 shadow-neu-raised"
+        class="mg-v2-popover absolute left-0 right-0 z-20 mt-3 p-3"
       >
         <div v-if="options.length === 0" class="px-2 py-3 text-sm text-on-surface-variant">
           {{ emptyLabel }}
@@ -31,12 +31,12 @@
           <label
             v-for="option in options"
             :key="option.id"
-            class="neo-surface flex cursor-pointer items-center gap-3 rounded-[1.2rem] px-3 py-2.5 text-sm text-on-surface"
+            class="mg-v2-surface mg-v2-surface--flat flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm text-on-surface"
           >
             <input
               :checked="modelValue.includes(option.id)"
               type="checkbox"
-              class="neo-checkbox"
+              class="mg-v2-checkbox"
               @change="toggleOption(option.id)"
             />
             <span class="min-w-0 flex-1 truncate">{{ option.label }}</span>

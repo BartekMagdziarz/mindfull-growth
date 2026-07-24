@@ -1,0 +1,85 @@
+.mg-design-v2 {
+  color-scheme: light;
+
+  --mg-font-sans: 'Nunito', 'Avenir Next', sans-serif;
+  --mg-font-size-xs: 0.6875rem;
+  --mg-font-size-sm: 0.8125rem;
+  --mg-font-size-md: 0.9375rem;
+  --mg-font-size-lg: 1.125rem;
+  --mg-font-size-xl: 1.5rem;
+  --mg-font-size-2xl: 2rem;
+
+  --mg-space-1: 0.25rem;
+  --mg-space-2: 0.5rem;
+  --mg-space-3: 0.75rem;
+  --mg-space-4: 1rem;
+  --mg-space-5: 1.25rem;
+  --mg-space-6: 1.5rem;
+  --mg-space-8: 2rem;
+
+  /* Sky-with-clouds tonal ladder: canvas (sky) is the bluest, large surfaces
+     a lighter blue, cards/paper nearly white — like clouds on the sky. */
+  --mg-color-canvas: color-mix(in srgb, rgb(var(--sky-100)) 55%, rgb(var(--sky-200)));
+  --mg-color-surface: rgb(var(--sky-100));
+  --mg-color-mist: rgb(var(--sky-50));
+  --mg-color-paper: color-mix(in srgb, white 70%, rgb(var(--sky-50)));
+  --mg-color-ink: rgb(var(--color-on-surface));
+  /* Muted ink darkened vs legacy neo-muted: the bluer canvas/surface tones
+     of the sky ladder would otherwise drop small labels below ~3:1. */
+  --mg-color-muted: color-mix(in srgb, rgb(var(--neo-muted)) 70%, rgb(var(--color-on-surface)));
+  --mg-color-border: rgb(var(--neo-border) / 0.14);
+  --mg-color-primary: rgb(var(--color-primary));
+  /* Deepened vs product primary-strong: small accent labels (eyebrows, active
+     tabs, dock) must clear ~4:1 on the bluer sky-ladder backgrounds. */
+  --mg-color-primary-strong: color-mix(in srgb, rgb(var(--color-primary-strong)) 55%, rgb(var(--sky-700)));
+  --mg-color-primary-soft: rgb(var(--color-primary-soft) / 0.68);
+  --mg-color-sky-field: rgb(var(--sky-200) / 0.72);
+  --mg-color-sky-well: rgb(var(--sky-200) / 0.6);
+  --mg-color-rose: rgb(var(--rose-700));
+  --mg-color-rose-soft: rgb(var(--rose-100) / 0.62);
+  --mg-color-effort: rgb(var(--rose-400));
+  --mg-color-effort-soft: rgb(var(--rose-200) / 0.72);
+  --mg-color-state: rgb(var(--sky-600));
+  --mg-color-state-soft: rgb(var(--sky-300) / 0.72);
+  --mg-color-lavender: rgb(155 110 195);
+  --mg-color-mint: rgb(var(--color-success));
+  --mg-color-danger: rgb(var(--color-error));
+  --mg-color-focus: rgb(var(--sky-700));
+  --mg-color-on-primary: rgb(var(--neo-accent-text));
+  --mg-color-good: rgb(var(--status-good));
+  --mg-color-good-soft: rgb(var(--status-good-soft) / 0.85);
+  --mg-color-good-on: rgb(var(--status-good-on));
+  --mg-color-warn: rgb(var(--status-warn));
+  --mg-color-warn-soft: rgb(var(--status-warn-soft) / 0.85);
+  --mg-color-warn-on: rgb(var(--status-warn-on));
+  --mg-color-inverse: rgb(var(--neo-text));
+  --mg-color-inverse-ink: rgb(var(--color-surface-container));
+  --mg-color-scrim: rgb(var(--overlay-scrim) / 0.5);
+
+  --mg-shadow-raised: -5px -5px 11px rgb(var(--neo-shadow-light) / 0.7), 5px 5px 11px rgb(var(--neo-shadow-dark) / 0.16);
+  --mg-shadow-raised-sm: -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6), 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.13);
+  --mg-shadow-inset: inset -5px -5px 12px rgb(var(--neo-inset-light) / 0.58), inset 5px 5px 12px rgb(var(--neo-inset-dark) / 0.13);
+  --mg-shadow-inset-sm: inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.58), inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.13);
+
+  --mg-radius-sm: 11px 14px 10px 13px;
+  --mg-radius-md: 17px 14px 18px 15px;
+  --mg-radius-lg: 25px 30px 24px 28px;
+  --mg-radius-xl: 34px 27px 32px 25px;
+  --mg-radius-pill: 999px;
+  --mg-radius-organic-a: 52% 48% 54% 46% / 47% 53% 46% 54%;
+  --mg-radius-organic-b: 47% 53% 49% 51% / 54% 46% 53% 47%;
+  --mg-radius-organic-c: 54% 46% 47% 53% / 48% 52% 55% 45%;
+  --mg-radius-icon-field-a: 22% 17% 20% 16% / 18% 24% 16% 22%;
+  --mg-radius-icon-field-b: 17% 22% 16% 20% / 24% 18% 22% 16%;
+  --mg-radius-icon-field-c: 20% 16% 22% 18% / 16% 22% 18% 24%;
+  --mg-icon-board-size: 3.25rem;
+
+  --mg-duration-fast: 160ms;
+  --mg-duration-normal: 240ms;
+  --mg-ease-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --mg-focus-ring: 0 0 0 3px rgb(var(--sky-400) / 0.42);
+
+  --mg-layer-base: 0;
+  --mg-layer-sticky: 20;
+  --mg-layer-dialog: 80;
+}

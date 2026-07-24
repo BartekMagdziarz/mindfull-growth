@@ -15,6 +15,8 @@
             :key="label"
             type="button"
             :aria-label="`Step ${idx + 1}: ${label}`"
+            :aria-current="idx === stepIndex ? 'step' : undefined"
+            :disabled="idx > stepIndex"
             class="rounded-full transition-all duration-200"
             :class="
               idx < stepIndex
@@ -202,11 +204,10 @@
           </div>
           <AppButton
             variant="filled"
-            :disabled="!canCreatePriority"
-            @click="void createPriority(t('planning.annual.priorities.defaultTitle'))"
+            @click="startPriorityRitual"
           >
-            <AppIcon name="add" class="text-base" />
-            {{ t('planning.annual.priorities.add') }}
+            <AppIcon name="edit_square" class="text-base" />
+            {{ t('planning.priorityRitual.entry.start') }}
           </AppButton>
         </div>
 
@@ -216,8 +217,8 @@
           :title="t('planning.annual.priorities.emptyTitle')"
           :body="t('planning.annual.priorities.emptyBody')"
           :eyebrow="t('planning.annual.priorities.title')"
-          :action-label="t('planning.annual.priorities.add')"
-          @action="void createPriority(t('planning.annual.priorities.defaultTitle'))"
+          :action-label="t('planning.priorityRitual.entry.start')"
+          @action="startPriorityRitual"
         />
 
         <div v-else class="grid gap-3 xl:grid-cols-2">
@@ -326,6 +327,7 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, h, reactive, toRef } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
@@ -382,12 +384,22 @@ const {
   updateLifeAreaField,
   activePriorities,
   activePriorityCount,
-  canCreatePriority,
-  createPriority,
   updatePriorityField,
   completePlan,
   maxActivePriorities,
 } = useAnnualPlanningWizard(toRef(props, 'yearRef'))
+
+const route = useRoute()
+const router = useRouter()
+
+// Priorities are created through the transactional ritual on its own route;
+// returnTo brings the user back into this wizard step afterwards.
+function startPriorityRitual(): void {
+  void router.push({
+    name: 'priority-creator-ritual',
+    query: { returnTo: route.fullPath },
+  })
+}
 
 const stepLabels = computed(() => [
   t('planning.annual.steps.brief'),

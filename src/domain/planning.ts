@@ -21,6 +21,7 @@ export type TrackerStatus = 'open' | 'retired' | 'dropped'
 export type WeeklyIntentionStatus = 'open' | 'retired' | 'dropped'
 export type InitiativeStatus = GoalStatus
 export type PriorityStatus = 'draft' | 'active' | 'paused' | 'closed'
+export type PriorityEndingType = 'open' | 'natural'
 export type CountTargetOperator = 'min' | 'max'
 export type ComparisonOperator = 'gte' | 'lte'
 export type ValueTargetAggregation = 'sum' | 'average' | 'last'
@@ -105,6 +106,14 @@ export interface Priority extends Omit<PlanningObjectBase, 'isActive'> {
   whyNow?: string
   desiredDirection?: string
   tradeoffs?: string
+  /** What stays within the user's influence (creator ritual, boundaries step). */
+  influence?: string
+  /** What is outside full control (creator ritual, boundaries step). */
+  notControlled?: string
+  /** Open-ended (yearly re-confirmation) vs. a natural ending event. */
+  endingType?: PriorityEndingType
+  /** How the user will recognize the natural ending; only for endingType 'natural'. */
+  endingDescription?: string
   progressSignals: string[]
   riskSignals: string[]
   closingReflection?: PriorityClosingReflection
@@ -198,6 +207,66 @@ export interface Initiative extends PlanningObjectBase {
   status: InitiativeStatus
 }
 
+/**
+ * First-class object↔priority relation (creator ritual, future priority hub).
+ * Replaces the semantics-free `priorityIds[]` tag; during the transition the
+ * arrays stay authoritative for existing readers and links are dual-written.
+ *
+ * Lifecycle: 'proposed' (ritual brainstorm pick — carries the proposal, no
+ * real object exists yet) → 'active' (subjectRef set, proposal dropped) →
+ * 'retired' (validTo set; history kept). Proposed links that are abandoned
+ * are hard-deleted instead of retired.
+ */
+export type PriorityLinkStatus = 'proposed' | 'active' | 'retired'
+export type PriorityLinkSubjectType =
+  | 'goal'
+  | 'keyResult'
+  | 'habit'
+  | 'tracker'
+  | 'weeklyIntention'
+  | 'initiative'
+/**
+ * Object types the creator ritual can propose as new. Goals/habits/trackers
+ * need later setup (checklist); intentions are complete with a title, so the
+ * ritual resolves their proposals immediately after the finale transaction —
+ * an interrupted finale degrades to a checklist row instead of losing data.
+ */
+export type PriorityLinkProposalObjectType = 'goal' | 'habit' | 'tracker' | 'weeklyIntention'
+
+export interface PriorityLinkSubjectRef {
+  subjectType: PriorityLinkSubjectType
+  subjectId: string
+}
+
+export interface PriorityLinkProposal {
+  objectType: PriorityLinkProposalObjectType
+  title: string
+}
+
+export interface PriorityLink {
+  id: string
+  createdAt: string
+  updatedAt: string
+  priorityId: string
+  status: PriorityLinkStatus
+  /** Present for 'active'/'retired'; absent while 'proposed'. */
+  subjectRef?: PriorityLinkSubjectRef
+  /** Present only while 'proposed'. */
+  proposal?: PriorityLinkProposal
+  /** "Pomaga, ponieważ…" — may be empty on backfilled links. */
+  contribution: string
+  /** Expected qualitative signal, prose (no measurement ref by design). */
+  expectedSignal: string
+  validFrom: string
+  /** Set when the link is retired. */
+  validTo?: string
+  /** Backfilled from priorityIds[] without contribution — hub prompts to describe it. */
+  needsEnrichment?: boolean
+}
+
+export type CreatePriorityLinkPayload = Omit<PriorityLink, 'id' | 'createdAt' | 'updatedAt'>
+export type UpdatePriorityLinkPayload = Partial<CreatePriorityLinkPayload>
+
 export type CreatePriorityPayload = Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>
 export type UpdatePriorityPayload = Partial<Omit<Priority, 'id' | 'createdAt' | 'updatedAt'>>
 
@@ -231,6 +300,17 @@ interface PriorityPayloadLike {
 }
 
 const PRIORITY_STATUSES = ['draft', 'active', 'paused', 'closed'] as const
+const PRIORITY_ENDING_TYPES = ['open', 'natural'] as const
+const PRIORITY_LINK_STATUSES = ['proposed', 'active', 'retired'] as const
+const PRIORITY_LINK_SUBJECT_TYPES = [
+  'goal',
+  'keyResult',
+  'habit',
+  'tracker',
+  'weeklyIntention',
+  'initiative',
+] as const
+const PRIORITY_LINK_PROPOSAL_TYPES = ['goal', 'habit', 'tracker', 'weeklyIntention'] as const
 const GOAL_STATUSES = ['open', 'completed', 'dropped'] as const
 const HABIT_STATUSES = ['open', 'retired', 'dropped'] as const
 const TRACKER_STATUSES = ['open', 'retired', 'dropped'] as const
@@ -740,6 +820,11 @@ export function normalizePriorityPayload(
     ? normalizePriorityClosingReflection(data.closingReflection, existing?.closingReflection)
     : undefined
 
+  const endingTypeSource = data.endingType ?? existing?.endingType
+  const endingType = endingTypeSource === undefined
+    ? undefined
+    : normalizeEnum(endingTypeSource, 'endingType', PRIORITY_ENDING_TYPES, endingTypeSource)
+
   return {
     ...base,
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
@@ -750,6 +835,13 @@ export function normalizePriorityPayload(
     whyNow: normalizeOptionalText(data.whyNow, 'whyNow', existing?.whyNow),
     desiredDirection: normalizeOptionalText(data.desiredDirection, 'desiredDirection', existing?.desiredDirection),
     tradeoffs: normalizeOptionalText(data.tradeoffs, 'tradeoffs', existing?.tradeoffs),
+    influence: normalizeOptionalText(data.influence, 'influence', existing?.influence),
+    notControlled: normalizeOptionalText(data.notControlled, 'notControlled', existing?.notControlled),
+    endingType,
+    // The description only means anything next to a natural ending.
+    endingDescription: endingType === 'natural'
+      ? normalizeOptionalText(data.endingDescription, 'endingDescription', existing?.endingDescription)
+      : undefined,
     progressSignals: normalizeTextArray(data.progressSignals, 'progressSignals', existing?.progressSignals),
     riskSignals: normalizeTextArray(data.riskSignals, 'riskSignals', existing?.riskSignals),
     closingReflection: status === 'closed' ? closingReflection : undefined,
@@ -950,4 +1042,119 @@ export function normalizeInitiativePayload(
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
   }
+}
+
+function normalizePriorityLinkSubjectRef(
+  value: unknown,
+  fallback?: PriorityLinkSubjectRef,
+): PriorityLinkSubjectRef | undefined {
+  const source = value ?? fallback
+  if (source === undefined) return undefined
+  if (!isPlainObject(source)) {
+    throw new Error('PriorityLink.subjectRef must be an object')
+  }
+
+  const subjectType = source.subjectType ?? fallback?.subjectType
+  if (
+    typeof subjectType !== 'string' ||
+    !PRIORITY_LINK_SUBJECT_TYPES.includes(subjectType as PriorityLinkSubjectType)
+  ) {
+    throw new Error(
+      `PriorityLink.subjectRef.subjectType must be one of: ${PRIORITY_LINK_SUBJECT_TYPES.join(', ')}`,
+    )
+  }
+
+  const subjectId = normalizeRequiredText(source.subjectId, 'subjectRef.subjectId', fallback?.subjectId)
+  if (!subjectId) {
+    throw new Error('PriorityLink.subjectRef.subjectId must not be empty')
+  }
+
+  return { subjectType: subjectType as PriorityLinkSubjectType, subjectId }
+}
+
+function normalizePriorityLinkProposal(
+  value: unknown,
+  fallback?: PriorityLinkProposal,
+): PriorityLinkProposal | undefined {
+  const source = value ?? fallback
+  if (source === undefined) return undefined
+  if (!isPlainObject(source)) {
+    throw new Error('PriorityLink.proposal must be an object')
+  }
+
+  const objectType = source.objectType ?? fallback?.objectType
+  if (
+    typeof objectType !== 'string' ||
+    !PRIORITY_LINK_PROPOSAL_TYPES.includes(objectType as PriorityLinkProposalObjectType)
+  ) {
+    throw new Error(
+      `PriorityLink.proposal.objectType must be one of: ${PRIORITY_LINK_PROPOSAL_TYPES.join(', ')}`,
+    )
+  }
+
+  const title = normalizeRequiredText(source.title, 'proposal.title', fallback?.title)
+  if (!title) {
+    throw new Error('PriorityLink.proposal.title must not be empty')
+  }
+
+  return { objectType: objectType as PriorityLinkProposalObjectType, title }
+}
+
+/**
+ * Status-driven shape: 'proposed' carries the proposal and no subject yet;
+ * 'active'/'retired' point at a real object and never keep the proposal.
+ * Mismatched fields are stripped (not errors) so a status transition in an
+ * update payload does not have to explicitly null the other side.
+ */
+export function normalizePriorityLinkPayload(
+  data: CreatePriorityLinkPayload | UpdatePriorityLinkPayload,
+  existing?: PriorityLink,
+): Omit<PriorityLink, 'id' | 'createdAt' | 'updatedAt'> {
+  const status = normalizeEnum(data.status, 'status', PRIORITY_LINK_STATUSES, existing?.status ?? 'proposed')
+
+  const priorityId = normalizeRequiredText(data.priorityId, 'priorityId', existing?.priorityId)
+  if (!priorityId) {
+    throw new Error('PriorityLink.priorityId must not be empty')
+  }
+
+  const validFrom = normalizeRequiredText(data.validFrom, 'validFrom', existing?.validFrom)
+  if (!validFrom) {
+    throw new Error('PriorityLink.validFrom must not be empty')
+  }
+
+  const needsEnrichment = data.needsEnrichment ?? existing?.needsEnrichment
+  if (needsEnrichment !== undefined && typeof needsEnrichment !== 'boolean') {
+    throw new Error('PriorityLink.needsEnrichment must be a boolean')
+  }
+
+  const shared = {
+    priorityId,
+    contribution: normalizeOptionalText(data.contribution, 'contribution', existing?.contribution) ?? '',
+    expectedSignal: normalizeOptionalText(data.expectedSignal, 'expectedSignal', existing?.expectedSignal) ?? '',
+    validFrom,
+    needsEnrichment,
+  }
+
+  if (status === 'proposed') {
+    const proposal = normalizePriorityLinkProposal(data.proposal, existing?.proposal)
+    if (!proposal) {
+      throw new Error('PriorityLink with status proposed requires a proposal')
+    }
+    return { ...shared, status, proposal, subjectRef: undefined, validTo: undefined }
+  }
+
+  const subjectRef = normalizePriorityLinkSubjectRef(data.subjectRef, existing?.subjectRef)
+  if (!subjectRef) {
+    throw new Error(`PriorityLink with status ${status} requires a subjectRef`)
+  }
+
+  if (status === 'retired') {
+    const validTo = normalizeRequiredText(data.validTo, 'validTo', existing?.validTo)
+    if (!validTo) {
+      throw new Error('PriorityLink with status retired requires validTo')
+    }
+    return { ...shared, status, subjectRef, proposal: undefined, validTo }
+  }
+
+  return { ...shared, status, subjectRef, proposal: undefined, validTo: undefined }
 }

@@ -1,26 +1,18 @@
 <template>
-  <div class="mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
+  <div class="mg-design-v2 objects-v2 mx-auto w-full max-w-[1600px] px-4 py-6 pb-16">
     <div class="mb-6">
       <div class="flex flex-col gap-4 xl:flex-row xl:items-center">
         <div class="flex flex-shrink-0 items-center gap-3">
-          <AppButton variant="filled" class="!px-3" :aria-label="createButtonLabel" @click="handleOpenCreate">
+          <DsButton icon-only :aria-label="createButtonLabel" @click="handleOpenCreate">
             <AppIcon name="add" class="text-base" />
-          </AppButton>
+          </DsButton>
 
-          <div class="neo-segmented">
-            <button
-              v-for="item in familyOptions"
-              :key="item.family"
-              type="button"
-              :class="[
-                'neo-segmented__item neo-focus',
-                item.family === store.query.family ? 'neo-segmented__item--active' : '',
-              ]"
-              @click="handleFamilyChange(item.family)"
-            >
-              {{ item.label }}
-            </button>
-          </div>
+          <DsSegmentedControl
+            :label="t('planning.objects.title')"
+            :model-value="store.query.family"
+            :options="familyOptions.map((item) => ({ value: item.family, label: item.label }))"
+            @update:model-value="handleFamilyChange"
+          />
         </div>
 
         <ObjectsLibraryFilters
@@ -57,47 +49,48 @@
     </div>
 
     <section class="mt-6 space-y-4">
-      <PlanningStatePanel
+      <DsState
         v-if="store.isLoading && !isComposerOpen"
         :title="t('common.loading')"
         :body="activeFamilyTitle"
-        :eyebrow="activeFamilyTitle"
       />
 
-      <PlanningStatePanel
+      <DsState
         v-else-if="store.error && !isComposerOpen"
+        icon="error"
         :title="t('planning.objects.loadError')"
         :body="store.error"
-        :eyebrow="activeFamilyTitle"
         :action-label="t('common.buttons.tryAgain')"
         @action="void store.loadBundle()"
       />
 
-      <PlanningStatePanel
+      <DsState
         v-else-if="store.items.length === 0 && isFamilyEmptyState && !isComposerOpen"
+        icon="inbox"
         :title="familyEmptyTitle"
-        :eyebrow="activeFamilyTitle"
+        :body="activeFamilyTitle"
         :action-label="createButtonLabel"
         @action="handleOpenCreate"
       />
 
-      <PlanningStatePanel
+      <DsState
         v-else-if="store.items.length === 0 && !isComposerOpen"
+        icon="filter_alt"
         :title="t('planning.objects.empty.filteredTitle')"
-        :eyebrow="activeFamilyTitle"
+        :body="activeFamilyTitle"
       >
         <template #actions>
           <div class="flex flex-wrap justify-center gap-3">
-            <AppButton variant="outlined" @click="handleClearFilters">
+            <DsButton variant="quiet" @click="handleClearFilters">
               {{ t('planning.objects.filters.resetAll') }}
-            </AppButton>
-            <AppButton variant="filled" @click="handleOpenCreate">
+            </DsButton>
+            <DsButton @click="handleOpenCreate">
               <AppIcon name="add" class="text-base" />
               {{ createButtonLabel }}
-            </AppButton>
+            </DsButton>
           </div>
         </template>
-      </PlanningStatePanel>
+      </DsState>
 
       <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <div
@@ -186,6 +179,9 @@
             @unlink-year="handlePriorityUnlinkYear"
             @archive="handlePriorityArchive"
             @delete="(id, title) => handleDeleteFromCard('priority', id, title)"
+            @drafts-changed="handlePriorityDraftsChanged"
+            @drafts-notify="(message) => snackbarRef?.show(message)"
+            @drafts-error="(message) => snackbarRef?.show(message)"
           />
 
           <!-- Habit/Tracker unified inline card -->
@@ -221,7 +217,7 @@
 
           <section
             v-if="item.panelType !== 'priority' && item.panelType !== 'goal' && item.panelType !== 'habit' && item.panelType !== 'tracker' && item.panelType !== 'weeklyIntention' && isExpansionHost(item.panelType, item.id) && isComposerHostedByItem(item.panelType, item.id) && isComposerReady && !(composerMode === 'edit' && resolvedComposerType === 'keyResult')"
-            class="rounded-2xl border border-white/40 bg-white/45 p-3"
+            class="mg-v2-surface mg-v2-surface--flat p-3"
           >
             <ObjectsLibraryInlineEditor
               v-model:draft="draft"
@@ -266,6 +262,7 @@
       :message="deleteDialogMessage"
       :confirm-text="t('common.buttons.delete')"
       confirm-variant="filled"
+      panel-class="mg-v2-surface mg-v2-surface--raised"
       @confirm="handleConfirmDelete"
     />
     <AppDialog
@@ -273,6 +270,7 @@
       :title="goalWizardMode === 'edit' ? t('planning.goalWizard.editTitle') : t('planning.goalWizard.title')"
       size="3xl"
       :close-on-backdrop="false"
+      panel-class="mg-v2-surface mg-v2-surface--raised"
       @cancel="handleGoalWizardCancelled"
     >
       <GoalCreationWizard
@@ -294,10 +292,9 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
-import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
-import PlanningStatePanel from '@/components/planning/PlanningStatePanel.vue'
+import { DsButton, DsSegmentedControl, DsState } from '@/design-system/components'
 import ObjectsLibraryFilters from '@/components/objects/ObjectsLibraryFilters.vue'
 import ObjectsLibraryInlineEditor from '@/components/objects/ObjectsLibraryInlineEditor.vue'
 import ObjectsLibraryPriorityCard from '@/components/objects/ObjectsLibraryPriorityCard.vue'
@@ -1066,23 +1063,9 @@ async function handleOpenCreate(): Promise<void> {
   }
 
   if (panelType === 'priority') {
-    try {
-      const created = await priorityDexieRepository.create({
-        title: '',
-        description: undefined,
-        years: [String(new Date().getFullYear()) as YearRef],
-        status: 'draft',
-        lifeAreaIds: [],
-        progressSignals: [],
-        riskSignals: [],
-      })
-      newPriorityId.value = created.id
-      await store.loadBundle()
-    } catch (err) {
-      snackbarRef.value?.show(
-        err instanceof Error ? err.message : t('planning.objects.messages.saveError'),
-      )
-    }
+    // Priorities are created through the transactional ritual — no empty
+    // draft records in the library.
+    await router.push({ name: 'priority-creator-ritual' })
     return
   }
 
@@ -1928,6 +1911,12 @@ async function handlePriorityUnlinkYear(id: string, yearRef: string): Promise<vo
   }
 }
 
+async function handlePriorityDraftsChanged(): Promise<void> {
+  // A proposed link became a real object (or was abandoned) — reload so new
+  // objects and updated linked counts show up.
+  await store.loadBundle()
+}
+
 async function handlePriorityArchive(id: string, isCurrentlyActive: boolean): Promise<void> {
   try {
     await priorityDexieRepository.update(id, { status: isCurrentlyActive ? 'paused' : 'active' })
@@ -2366,3 +2355,12 @@ function resolvePanelTypeLabel(panelType: ObjectsLibraryPanelType): string {
 
 
 </script>
+
+<style scoped>
+/* The v2 root's min-width/canvas background are meant for full-viewport
+   workspaces; this view is a centered column inside AppShell. */
+.objects-v2 {
+  min-width: 0;
+  background: transparent;
+}
+</style>

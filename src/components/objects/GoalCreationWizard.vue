@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="mg-design-v2 goal-wizard-v2 space-y-6">
     <!-- Step Indicator -->
     <div class="flex flex-col items-center gap-2">
       <div class="flex items-center gap-2" role="group" aria-label="SMART wizard progress">
@@ -7,7 +7,7 @@
           v-for="(label, idx) in stepLabels"
           :key="label.key"
           type="button"
-          class="flex items-center justify-center rounded-full text-xs font-semibold transition-all duration-200 neo-focus"
+          class="mg-v2-progress-marker wizard-step"
           :class="dotClass(idx)"
           :aria-label="`Step ${idx + 1}: ${label.full}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
           @click="idx <= stepIndex && goToStep(label.key)"
@@ -46,7 +46,7 @@
             ref="titleInputRef"
             v-model="goalDraft.title"
             type="text"
-            class="neo-input w-full px-3 py-2 text-sm"
+            class="mg-v2-field w-full text-sm"
             :placeholder="t('planning.goalWizard.steps.specific.titlePlaceholder')"
           />
         </label>
@@ -58,7 +58,7 @@
           <textarea
             v-model="successDefinitionModel"
             rows="2"
-            class="neo-input w-full resize-none px-3 py-2 text-sm"
+            class="mg-v2-field w-full resize-none text-sm"
             :placeholder="t('planning.goalWizard.steps.specific.successDefinitionPlaceholder')"
           />
         </label>
@@ -75,7 +75,7 @@
           </p>
         </div>
 
-        <div v-if="krDrafts.length === 0" class="neo-surface rounded-2xl p-4 text-center text-sm text-on-surface-variant">
+        <div v-if="krDrafts.length === 0" class="mg-v2-surface mg-v2-surface--flat p-4 text-center text-sm text-on-surface-variant">
           {{ t('planning.goalWizard.steps.measurable.emptyState') }}
         </div>
 
@@ -90,10 +90,10 @@
           />
         </div>
 
-        <AppButton variant="tonal" class="w-full" @click="addKrDraft">
+        <DsButton class="w-full" @click="addKrDraft">
           <AppIcon name="add" class="text-base" />
           {{ t('planning.goalWizard.buttons.addKr') }}
-        </AppButton>
+        </DsButton>
       </div>
 
       <!-- Achievable -->
@@ -114,7 +114,7 @@
           <textarea
             v-model="achievabilityRationaleModel"
             rows="3"
-            class="neo-input w-full resize-none px-3 py-2 text-sm"
+            class="mg-v2-field w-full resize-none text-sm"
             :placeholder="t('planning.goalWizard.steps.achievable.achievabilityRationalePlaceholder')"
           />
         </label>
@@ -126,7 +126,7 @@
           <textarea
             v-model="obstaclesModel"
             rows="3"
-            class="neo-input w-full resize-none px-3 py-2 text-sm"
+            class="mg-v2-field w-full resize-none text-sm"
             :placeholder="t('planning.goalWizard.steps.achievable.contingencyPlanPlaceholder')"
           />
         </label>
@@ -138,7 +138,7 @@
           <textarea
             v-model="resourcesModel"
             rows="3"
-            class="neo-input w-full resize-none px-3 py-2 text-sm"
+            class="mg-v2-field w-full resize-none text-sm"
             :placeholder="t('planning.goalWizard.steps.achievable.supportPlanPlaceholder')"
           />
         </label>
@@ -157,7 +157,7 @@
 
         <div
           v-if="priorityOptions.length > 0"
-          class="neo-surface flex flex-col gap-3 rounded-2xl px-4 py-3 sm:flex-row sm:items-center"
+          class="mg-v2-surface mg-v2-surface--flat flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center"
         >
           <span class="w-32 shrink-0 text-sm font-semibold text-on-surface">
             {{ t('planning.goalWizard.steps.relevant.prioritiesTagLabel') }}
@@ -167,7 +167,7 @@
               v-for="option in selectedPriorityOptions"
               :key="option.id"
               type="button"
-              class="neo-pill neo-focus inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium"
+              class="mg-v2-pill"
               @click="removePriority(option.id)"
             >
               <span>{{ option.label }}</span>
@@ -180,7 +180,7 @@
           <div ref="priorityMenuRef" class="relative shrink-0">
             <button
               type="button"
-              class="neo-icon-button neo-focus"
+              class="mg-v2-button mg-v2-button--icon"
               :aria-label="t('planning.goalWizard.steps.relevant.addPriority')"
               @click="toggleTagMenu('priority')"
             >
@@ -188,7 +188,7 @@
             </button>
             <div
               v-if="openTagMenu === 'priority'"
-              class="absolute right-0 z-20 mt-2 max-h-60 min-w-56 overflow-y-auto rounded-2xl border border-outline/30 bg-surface p-2 shadow-lg"
+              class="mg-v2-popover absolute right-0 z-20 mt-2 max-h-60 min-w-56 overflow-y-auto p-2"
             >
               <button
                 v-for="option in priorityOptions"
@@ -209,7 +209,7 @@
 
         <div
           v-if="lifeAreaOptions.length > 0"
-          class="neo-surface flex flex-col gap-3 rounded-2xl px-4 py-3 sm:flex-row sm:items-center"
+          class="mg-v2-surface mg-v2-surface--flat flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center"
         >
           <span class="w-32 shrink-0 text-sm font-semibold text-on-surface">
             {{ t('planning.goalWizard.steps.relevant.lifeAreasTagLabel') }}
@@ -219,7 +219,7 @@
               v-for="option in selectedLifeAreaOptions"
               :key="option.id"
               type="button"
-              class="neo-pill neo-focus inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium"
+              class="mg-v2-pill"
               @click="removeLifeArea(option.id)"
             >
               <span>{{ option.label }}</span>
@@ -232,7 +232,7 @@
           <div ref="lifeAreaMenuRef" class="relative shrink-0">
             <button
               type="button"
-              class="neo-icon-button neo-focus"
+              class="mg-v2-button mg-v2-button--icon"
               :aria-label="t('planning.goalWizard.steps.relevant.addLifeArea')"
               @click="toggleTagMenu('lifeArea')"
             >
@@ -240,7 +240,7 @@
             </button>
             <div
               v-if="openTagMenu === 'lifeArea'"
-              class="absolute right-0 z-20 mt-2 max-h-60 min-w-56 overflow-y-auto rounded-2xl border border-outline/30 bg-surface p-2 shadow-lg"
+              class="mg-v2-popover absolute right-0 z-20 mt-2 max-h-60 min-w-56 overflow-y-auto p-2"
             >
               <button
                 v-for="option in lifeAreaOptions"
@@ -266,7 +266,7 @@
           <textarea
             v-model="whyMattersModel"
             rows="3"
-            class="neo-input w-full resize-none px-3 py-2 text-sm"
+            class="mg-v2-field w-full resize-none text-sm"
             :placeholder="t('planning.goalWizard.steps.relevant.whyMattersPlaceholder')"
           />
         </label>
@@ -292,7 +292,7 @@
               <input
                 :value="goalDraft.targetDate ?? ''"
                 type="date"
-                class="neo-input w-full px-3 py-2 text-sm"
+                class="mg-v2-field w-full text-sm"
                 :min="today"
                 @input="onTargetDateInput"
               />
@@ -300,13 +300,13 @@
 
             <p
               v-if="countdownLabel"
-              class="rounded-xl bg-neu-base px-3 py-2 text-xs text-on-surface-variant shadow-neu-pressed"
+              class="mg-v2-surface mg-v2-surface--inset px-3 py-2 text-xs text-on-surface-variant"
             >
               {{ countdownLabel }}
             </p>
           </div>
 
-          <div class="neo-surface space-y-3 rounded-2xl p-4">
+          <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
             <div class="flex items-center justify-between gap-3">
               <span class="text-sm font-semibold text-on-surface">
                 {{ t('planning.goalWizard.steps.timebound.goalMonthsLabel') }}
@@ -314,7 +314,7 @@
               <div ref="goalMonthsMenuRef" class="relative">
                 <button
                   type="button"
-                  class="neo-icon-button neo-focus"
+                  class="mg-v2-button mg-v2-button--icon"
                   :aria-label="t('planning.goalWizard.steps.timebound.addGoalMonth')"
                   @click="togglePeriodMenu('goal-months')"
                 >
@@ -322,7 +322,7 @@
                 </button>
                 <div
                   v-if="openPeriodMenu === 'goal-months'"
-                  class="absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto rounded-2xl border border-outline/30 bg-surface p-2 shadow-lg"
+                  class="mg-v2-popover absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto p-2"
                 >
                   <button
                     v-for="month in availableMonthOptions"
@@ -345,7 +345,7 @@
                 v-for="month in selectedGoalMonthOptions"
                 :key="month.ref"
                 type="button"
-                class="neo-pill neo-focus inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium"
+                class="mg-v2-pill"
                 @click="toggleGoalMonth(month.ref)"
               >
                 {{ month.label }}
@@ -357,7 +357,7 @@
             </div>
           </div>
 
-          <div class="neo-surface space-y-3 rounded-2xl p-4">
+          <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
             <p class="text-sm font-semibold text-on-surface">
               {{ t('planning.goalWizard.steps.timebound.krPeriodsLabel') }}
             </p>
@@ -365,7 +365,7 @@
               <div
                 v-for="kr in krDrafts"
                 :key="kr.localId"
-                class="flex flex-col gap-2 rounded-xl bg-neu-base px-3 py-2 shadow-neu-pressed"
+                class="mg-v2-surface mg-v2-surface--inset flex flex-col gap-2 px-3 py-2"
               >
                 <div class="flex items-center justify-between gap-3">
                   <span class="min-w-0 truncate text-xs font-semibold text-on-surface">
@@ -374,7 +374,7 @@
                   <div :ref="(el) => setKrPeriodMenuRef(kr.localId, el)" class="relative shrink-0">
                     <button
                       type="button"
-                      class="neo-icon-button neo-focus h-8 w-8"
+                      class="mg-v2-button mg-v2-button--icon"
                       :aria-label="t('planning.goalWizard.steps.timebound.addKrPeriod')"
                       @click="togglePeriodMenu(`kr:${kr.localId}`)"
                     >
@@ -382,7 +382,7 @@
                     </button>
                     <div
                       v-if="openPeriodMenu === `kr:${kr.localId}`"
-                      class="absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto rounded-2xl border border-outline/30 bg-surface p-2 shadow-lg"
+                      class="mg-v2-popover absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto p-2"
                     >
                       <button
                         v-for="period in periodOptionsForKr(kr)"
@@ -405,7 +405,7 @@
                     v-for="period in selectedKrPeriodOptions(kr)"
                     :key="period.ref"
                     type="button"
-                    class="neo-pill neo-focus inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium"
+                    class="mg-v2-pill"
                     @click="toggleKrPeriod(kr.localId, period.ref)"
                   >
                     {{ period.label }}
@@ -432,7 +432,7 @@
           </p>
         </div>
 
-        <div class="neo-surface space-y-2 rounded-2xl p-4">
+        <div class="mg-v2-surface mg-v2-surface--flat space-y-2 p-4">
           <p class="text-sm font-semibold text-on-surface">
             {{ goalDraft.title || '—' }}
           </p>
@@ -466,7 +466,7 @@
             <li
               v-for="kr in krDrafts"
               :key="kr.localId"
-              class="rounded-xl bg-neu-base px-3 py-1.5 text-xs text-on-surface shadow-neu-pressed"
+              class="mg-v2-surface mg-v2-surface--inset px-3 py-1.5 text-xs text-on-surface"
             >
               {{ kr.title || '—' }}
             </li>
@@ -484,30 +484,28 @@
 
     <!-- Footer -->
     <div class="flex items-center justify-between gap-2 pt-2">
-      <AppButton variant="text" @click="onCancel">
+      <DsButton variant="quiet" @click="onCancel">
         {{ t('planning.goalWizard.buttons.cancel') }}
-      </AppButton>
+      </DsButton>
       <div class="flex items-center gap-2">
-        <AppButton v-if="stepIndex > 0" variant="text" @click="prevStep">
+        <DsButton v-if="stepIndex > 0" variant="quiet" @click="prevStep">
           {{ t('planning.goalWizard.buttons.back') }}
-        </AppButton>
-        <AppButton
+        </DsButton>
+        <DsButton
           v-if="currentStep !== 'review'"
-          variant="filled"
           :disabled="!canAdvance"
           @click="nextStep"
         >
           {{ t('planning.goalWizard.buttons.next') }}
-        </AppButton>
-        <AppButton
+        </DsButton>
+        <DsButton
           v-else
-          variant="filled"
           :loading="isSaving"
           :disabled="!canSave"
           @click="onSave"
         >
           {{ wizardMode === 'edit' ? t('planning.goalWizard.buttons.save') : t('planning.goalWizard.buttons.create') }}
-        </AppButton>
+        </DsButton>
       </div>
     </div>
   </div>
@@ -515,7 +513,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import AppButton from '@/components/AppButton.vue'
+import { DsButton } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import KrDraftCard from '@/components/objects/KrDraftCard.vue'
 import { useT } from '@/composables/useT'
@@ -684,10 +682,9 @@ const stepLabels = computed<Array<{ key: GoalWizardStep; full: string; short: st
 ])
 
 function dotClass(idx: number): string {
-  const base = 'w-8 h-8'
-  if (idx === stepIndex.value) return `${base} bg-primary text-on-primary shadow-neu-raised-sm`
-  if (idx < stepIndex.value) return `${base} bg-primary/15 text-primary cursor-pointer hover:-translate-y-px`
-  return `${base} bg-neu-base text-on-surface-variant shadow-neu-pressed`
+  if (idx === stepIndex.value) return 'wizard-step--current'
+  if (idx < stepIndex.value) return 'mg-v2-progress-marker--done wizard-step--done'
+  return 'wizard-step--upcoming'
 }
 
 function toggleTagMenu(menu: 'priority' | 'lifeArea'): void {
@@ -896,3 +893,38 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsidePointerDown)
 })
 </script>
+
+<style scoped>
+/* The v2 root's min-width/canvas background are meant for full-viewport
+   workspaces; this wizard renders inside an AppDialog panel. */
+.goal-wizard-v2 {
+  min-width: 0;
+  background: transparent;
+}
+
+.wizard-step {
+  width: 2rem;
+  height: 2rem;
+}
+
+.wizard-step--current {
+  border-color: var(--mg-color-primary);
+  color: var(--mg-color-on-primary);
+  background: var(--mg-color-primary);
+}
+
+.wizard-step--done {
+  cursor: pointer;
+  /* Match DsProgressMarker: completed steps show the dot, not the letter. */
+  font-size: 0;
+}
+
+.wizard-step--done:hover {
+  transform: translateY(-1px);
+}
+
+.wizard-step--upcoming {
+  color: var(--mg-color-muted);
+  background: var(--mg-color-paper);
+}
+</style>

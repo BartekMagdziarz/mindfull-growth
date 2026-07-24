@@ -215,6 +215,21 @@ export const QUADRANT_STYLES: Record<Quadrant, QuadrantStyle> = {
   'low-energy-high-pleasantness': { id: 'low-energy-high-pleasantness', icon: 'auto_awesome', top: '#dbecff', bottom: '#cce4ff', accent: '#5CABFF', text: '#004FA3' },
 }
 
+/**
+ * Stałe kolorystyczne EmotionGroupPicker. Plik .vue jest pod strażnikiem
+ * design-systemu v2 (zero surowych hex/rgba w komponencie), więc literały
+ * bazowe akcentu i pary cieni neumorficznych żyją tu, w warstwie domenowej.
+ */
+export const EGP_DEFAULT_ACCENT = '#2E93FF'
+export const EGP_SHADOW_BASE = {
+  /** jasna strona cienia (przegląd ćwiartek, bez tinty) */
+  light: 'rgba(255,255,255,.9)',
+  /** ciemna strona cienia (baza mieszana z akcentem po drill-downie) */
+  dark: '#8CA6CA',
+  /** jasna baza mieszana z akcentem po drill-downie */
+  lightTint: 'rgba(255,255,255,.72)',
+} as const
+
 /** Dawny slug rodziny/promienia → slug grupy (identyczność + 4 spadkobierców). */
 export const GROUP_OF_FAMILY: Record<string, string> = {
   'apatia-i-znudzenie': 'apatia-i-znudzenie',

@@ -4,6 +4,7 @@
       <div
         v-if="modelValue"
         class="fixed inset-0 z-50 flex items-center justify-center"
+        :class="panelClass ? 'mg-design-v2 mg-v2-overlay' : ''"
         @click.self="handleBackdropClick"
       >
         <!-- Backdrop -->
@@ -15,8 +16,8 @@
           role="dialog"
           :aria-labelledby="titleId"
           :aria-describedby="messageId"
-          class="relative z-10 neo-raised-strong p-6 w-full mx-4 rounded-2xl"
-          :class="sizeClass"
+          class="dialog-panel relative z-10 p-6 w-full mx-4"
+          :class="[sizeClass, panelClass || 'neo-raised-strong rounded-2xl']"
         >
           <!-- Title -->
           <h2 :id="titleId" class="text-xl font-semibold text-neu-text mb-4">
@@ -69,6 +70,9 @@ interface Props {
   confirmVariant?: 'filled' | 'outlined' | 'text' | 'tonal'
   size?: DialogSize
   closeOnBackdrop?: boolean
+  /** Design V2 opt-in: replaces the legacy panel skin (neo-raised-strong) and
+      scopes the overlay with .mg-design-v2 so --mg-* tokens resolve. */
+  panelClass?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -76,6 +80,7 @@ const props = withDefaults(defineProps<Props>(), {
   message: '',
   size: 'md',
   closeOnBackdrop: true,
+  panelClass: '',
 })
 
 const slots = useSlots()
@@ -181,8 +186,8 @@ onUnmounted(() => {
   transition: opacity 0.2s ease;
 }
 
-.dialog-enter-active .neo-raised-strong,
-.dialog-leave-active .neo-raised-strong {
+.dialog-enter-active .dialog-panel,
+.dialog-leave-active .dialog-panel {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -191,8 +196,8 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-.dialog-enter-from .neo-raised-strong,
-.dialog-leave-to .neo-raised-strong {
+.dialog-enter-from .dialog-panel,
+.dialog-leave-to .dialog-panel {
   transform: scale(0.95);
   opacity: 0;
 }

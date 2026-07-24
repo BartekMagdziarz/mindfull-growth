@@ -10,7 +10,16 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     // ideas/ holds local artifacts AND nested git worktrees of concurrent
     // sessions — scanning it re-runs (and cross-fails) their whole suites.
-    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/.claude/**', 'ideas/**'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/e2e/**',
+      '**/.claude/**',
+      'ideas/**',
+      // UX Lab is an intentionally separate Vite/Vitest project with its own
+      // aliases (notably `~lab`) and independent quality gates.
+      'ux-lab/**',
+    ],
     pool: 'forks',
     threads: false,
   },
@@ -20,4 +29,3 @@ export default defineConfig({
     },
   },
 })
-

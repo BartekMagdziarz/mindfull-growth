@@ -91,7 +91,6 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
 
   const canAdvance = computed(() => true)
   const activePriorityCount = computed(() => activePriorities.value.length)
-  const canCreatePriority = computed(() => activePriorityCount.value < MAX_ACTIVE_PRIORITIES)
 
   let autosaveTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -259,23 +258,8 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
     }
   }
 
-  async function createPriority(title: string): Promise<void> {
-    if (!canCreatePriority.value) return
-    savingKey.value = 'priority:create'
-    try {
-      await priorityDexieRepository.create({
-        title,
-        years: [yearRef.value],
-        status: 'active',
-        lifeAreaIds: [],
-        progressSignals: [],
-        riskSignals: [],
-      })
-      await loadPriorities()
-    } finally {
-      savingKey.value = ''
-    }
-  }
+  // Priority creation moved to the transactional creator ritual
+  // (usePriorityCreatorRitual) — this wizard only lists and edits.
 
   async function updatePriorityField(
     priorityId: string,
@@ -383,8 +367,6 @@ export function useAnnualPlanningWizard(yearRef: Ref<YearRef>) {
     updateLifeAreaField,
     activePriorities,
     activePriorityCount,
-    canCreatePriority,
-    createPriority,
     updatePriorityField,
     completePlan,
     maxActivePriorities: MAX_ACTIVE_PRIORITIES,

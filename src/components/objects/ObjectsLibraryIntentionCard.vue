@@ -1,6 +1,6 @@
 <template>
   <article
-    class="group/card neo-card neo-raised border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3"
+    class="group/card mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper p-3"
   >
     <!-- Edit mode -->
     <div v-if="editing" class="space-y-3">
@@ -8,7 +8,7 @@
         ref="titleInputRef"
         v-model="draftTitle"
         type="text"
-        class="w-full border-b border-neu-border/20 bg-transparent pb-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
+        class="intention-title-input w-full border-b bg-transparent pb-1.5 text-sm font-semibold text-on-surface outline-none placeholder:text-on-surface-variant/40"
         :placeholder="t('planning.weekPlanning.intentions.titlePlaceholder')"
         :aria-label="t('planning.weekPlanning.intentions.titleLabel')"
         @keydown.enter.prevent="saveEdit"
@@ -52,7 +52,7 @@
         >
           <button
             type="button"
-            class="neo-icon-button neo-focus h-7 w-7 rounded-lg"
+            class="mg-v2-button mg-v2-button--icon card-icon-sm"
             :title="t('planning.weekPlanning.intentions.edit')"
             :aria-label="t('planning.weekPlanning.intentions.edit')"
             @click="startEdit"
@@ -61,7 +61,7 @@
           </button>
           <button
             type="button"
-            class="neo-icon-button neo-focus h-7 w-7 rounded-lg text-danger"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--danger card-icon-sm"
             :title="t('planning.weekPlanning.intentions.delete')"
             :aria-label="t('planning.weekPlanning.intentions.delete')"
             @click="emit('delete', item.id, item.title)"
@@ -71,7 +71,7 @@
         </div>
         <span
           v-if="item.status !== 'open'"
-          class="neo-badge shrink-0 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+          class="mg-v2-badge shrink-0 uppercase tracking-wide"
         >
           {{ t(`planning.objects.badges.status.${item.status}`) }}
         </span>
@@ -87,7 +87,7 @@
         <span
           v-for="label in linkedPriorityLabels"
           :key="label"
-          class="rounded-full border border-neu-border/40 px-2 py-0.5 text-[11px] font-medium text-on-surface-variant"
+          class="mg-v2-badge"
         >
           {{ label }}
         </span>
@@ -226,3 +226,14 @@ watch(
   { immediate: true },
 )
 </script>
+
+<style scoped>
+.intention-title-input {
+  border-color: var(--mg-color-border);
+}
+
+.card-icon-sm {
+  width: 1.75rem;
+  min-height: 1.75rem;
+}
+</style>

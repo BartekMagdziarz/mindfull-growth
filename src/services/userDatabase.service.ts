@@ -40,7 +40,7 @@ import type {
 import type { LifeArea } from '@/domain/lifeArea'
 import type { LifeAreaAssessment } from '@/domain/lifeAreaAssessment'
 import type { AssessmentAttempt, AssessmentResponse } from '@/domain/assessments'
-import { MAX_ACTIVE_PRIORITIES, type Goal, type Habit, type Initiative, type KeyResult, type Priority, type Tracker, type WeeklyIntention } from '@/domain/planning'
+import { MAX_ACTIVE_PRIORITIES, type Goal, type Habit, type Initiative, type KeyResult, type Priority, type PriorityLink, type PriorityLinkSubjectType, type Tracker, type WeeklyIntention } from '@/domain/planning'
 import type {
   DailyMeasurementEntry,
   GoalMonthState,
@@ -166,6 +166,7 @@ export class UserDatabase extends Dexie {
   lifeAreas!: Table<LifeArea, string>
   lifeAreaAssessments!: Table<LifeAreaAssessment, string>
   priorities!: Table<Priority, string>
+  priorityLinks!: Table<PriorityLink, string>
   goals!: Table<Goal, string>
   keyResults!: Table<KeyResult, string>
   habits!: Table<Habit, string>
@@ -1551,6 +1552,65 @@ export class UserDatabase extends Dexie {
     this.version(25).stores({
       programEnrollments: 'id, programSlug, status',
     })
+
+    // Priority creator ritual (ideas/html-plans/2026-07-23-priority-creator-port.html):
+    // first-class object↔priority links. The upgrade backfills one 'active'
+    // link per (object, priorityId) pair from the legacy priorityIds[] arrays;
+    // the arrays stay authoritative for existing readers (dual-write) until a
+    // later phase migrates them. Ritual drafts reuse the generic `drafts`
+    // key-value table, so no extra table here.
+    this.version(26)
+      .stores({
+        priorityLinks: 'id, priorityId, status, [subjectRef.subjectType+subjectRef.subjectId]',
+      })
+      .upgrade(async (trans) => {
+        const priorityIds = new Set<string>(
+          (await trans.table('priorities').toArray()).map((priority) => String(priority.id)),
+        )
+
+        const sources: Array<{ table: string; subjectType: PriorityLinkSubjectType }> = [
+          { table: 'goals', subjectType: 'goal' },
+          { table: 'habits', subjectType: 'habit' },
+          { table: 'trackers', subjectType: 'tracker' },
+          { table: 'weeklyIntentions', subjectType: 'weeklyIntention' },
+          { table: 'initiatives', subjectType: 'initiative' },
+        ]
+
+        const now = new Date().toISOString()
+        const links: PriorityLink[] = []
+        const seenPairs = new Set<string>()
+
+        for (const source of sources) {
+          for (const record of await trans.table(source.table).toArray()) {
+            // Defensive per-record skips: malformed rows must not strand the
+            // user at a failed DB open.
+            if (typeof record.id !== 'string' || !Array.isArray(record.priorityIds)) continue
+            for (const priorityId of record.priorityIds) {
+              if (typeof priorityId !== 'string') continue
+              // Stale ids (e.g. weekly intentions never unlinked on priority
+              // delete) are dropped instead of becoming dangling links.
+              if (!priorityIds.has(priorityId)) continue
+              const pairKey = `${priorityId}:${source.subjectType}:${record.id}`
+              if (seenPairs.has(pairKey)) continue
+              seenPairs.add(pairKey)
+              links.push({
+                id: crypto.randomUUID(),
+                createdAt: now,
+                updatedAt: now,
+                priorityId,
+                status: 'active',
+                subjectRef: { subjectType: source.subjectType, subjectId: record.id },
+                contribution: '',
+                expectedSignal: '',
+                validFrom: typeof record.createdAt === 'string' && record.createdAt ? record.createdAt : now,
+                needsEnrichment: true,
+              })
+            }
+          }
+        }
+
+        await trans.table('priorityLinks').bulkAdd(links)
+      })
   }
 }
 

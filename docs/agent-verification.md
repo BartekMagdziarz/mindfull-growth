@@ -8,6 +8,7 @@ real flows, and report findings without any risk to the real user's data.
 
 ```bash
 npm run dev:verify          # → http://127.0.0.1:5199, auto-logged-in + seeded
+npm run dev:lab             # → verify :5199 + UX Lab :5201 w jednym procesie
 npm run test:e2e:verify     # Playwright smoke over the seeded instance
 ```
 
@@ -50,9 +51,9 @@ sync with `.env.verification` by `src/dev/__tests__/verificationAccount.spec.ts`
 The dataset is generated **relative to the real "today"** using the app's own
 period utilities, so the structure is identical on any date:
 
-- 2 fully **closed months** (M−2, M−1): month plan with top-3 priorities,
+- 6 fully **closed months**: month plan with top-3 priorities,
   per-priority effort/verdict assessments, monthly reflection ratings.
-- 8 fully **closed weeks**: week plans with top-3, day assignments, measurement
+- 16 fully **closed weeks**: week plans with top-3, day assignments, measurement
   entries (staggered met/missed), weekly reflection ratings, review notes.
 - **Current month + current week: planning-only** (plans exist, reflections do
   not) — matching the app's gates: monthly reflection unlocks in the last 6
@@ -77,12 +78,12 @@ invariants.
 | Key results ×7 | „Biegi 3 razy w tygodniu" (weekly completion), „15 km tygodniowo" (weekly value/sum; month override 20 + one week override 8 in the current month), „Dwie funkcje miesięcznie" (monthly counter; week sub-targets on the current month's first two weeks), „Cztery sesje deep work w tygodniu" (weekly completion), „Średnio 7 godzin snu" (weekly value/average gte), „Utrzymać wagę poniżej 80 kg…" (weekly value/last **lte**, long title), „Rezultat bez aktywnego celu" (orphan) |
 | Habits ×10 | „Poranne rozciąganie" (P1), „Wspólna kolacja" (P3), „Czytanie 20 minut" (P4) — fixed weekday assignments; „Poranna rutyna" (rating + entryDays min), „Granie wieczorem" (rating + entryDays max), „Poranna checklista" (weighted multi-completion, threshold 3/4), „Maksymalnie 10 kaw w tygodniu" (counter **max**), „Głębokie porządki" (monthly multi, boundary-week entries), „Ruch: 12 dni w miesiącu" (monthly completion target > 7, specific-days from the boundary week), „Prasa poranna (wycofane)" (retired, historical weeks only) |
 | Trackers ×3 | „Jakość snu" (rating), „Kawy w ciągu dnia" (counter), „Wieczorne wyciszenie" (multi-completion, no target) |
-| Monthly reflections | both closed months; the most recent one is **partial** (coherence + agency unrated → compass dots without a polygon) |
+| Monthly reflections | all six closed months; the most recent one is **partial** (coherence + agency unrated → compass dots without a polygon) |
 | Weekly intentions | 1–2 per week from a fixed list, priority-linked |
 | Week top-3 | „Poranne rozciąganie" + „Cztery sesje deep work…" + that week's intention |
 | Month top-3 | P1, P2, P3 (all three months) |
 | Priority assessments | varied effort 2–4 and verdicts continue/adjust/pause (closed months only) |
-| Journal ~16 / emotion logs ~26 | Polish entries, last ~5 weeks + today |
+| Journal / emotion logs | Polish entries spread across the seeded horizon + today |
 
 Details and exact patterns: `src/dev/verificationSeed.ts`.
 
@@ -99,6 +100,17 @@ npm run dev:verify
   seconds, watch `[verificationSeed]` in the console); later loads skip
   seeding via a versioned localStorage marker.
 
+To launch the verification instance together with the UX workbench, use:
+
+```bash
+npm run dev:lab
+```
+
+This starts `verify` at `http://127.0.0.1:5199` and UX Lab at
+`http://127.0.0.1:5201`. Both servers stop after one `Ctrl+C`, and either port
+conflict stops the whole launcher. The two origins share the deterministic
+`rich-v1` fixture contract but keep separate IndexedDB/in-memory state.
+
 ### Re-seeding
 
 From DevTools on the verification origin:
@@ -109,9 +121,13 @@ await window.__verifySeed({ reload: false }) // reset + seed, no reload
 ```
 
 Keep a **single tab** open while re-seeding — a second tab holds the database
-open and blocks the delete. After changing the dataset in
-`verificationSeed.ts`, bump `SEED_VERSION` so existing browser profiles
-re-seed automatically on next load.
+open and blocks the delete. The seed marker contains the `rich-v1` profile
+version and current day, so a changed fixture version or calendar day triggers
+an automatic re-seed. Bump `RICH_SCENARIO_VERSION` after changing the dataset.
+
+UX Lab can request the same safe reset through its verification-only
+`postMessage` bridge. The bridge accepts only status and reset requests from
+the exact `http://127.0.0.1:5201` origin and is not reachable in production.
 
 ## Flows to walk
 

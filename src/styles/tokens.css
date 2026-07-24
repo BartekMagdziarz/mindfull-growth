@@ -13,9 +13,9 @@
 
 :root {
   /* --- Surfaces & background ---------------------------------------------- */
-  --color-background: 234 244 255;
-  --color-background-mid: 245 249 255;
-  --color-background-bottom: 224 236 255;
+  --color-background: 225 238 254;
+  --color-background-mid: 236 244 255;
+  --color-background-bottom: 212 229 252;
   --color-cloud-a: 255 255 255;
   --color-cloud-b: 255 255 255;
 

@@ -58,10 +58,14 @@ export interface PriorityAssessment {
   effort: number | null
   verdict: PriorityVerdict | null
   note: string
+  /** Progress signals checked as "noticed this month" (literal strings). */
+  observedProgressSignals: string[]
+  /** Risk signals checked as "noticed this month" (literal strings). */
+  observedRiskSignals: string[]
 }
 
 function emptyAssessment(): PriorityAssessment {
-  return { effort: null, verdict: null, note: '' }
+  return { effort: null, verdict: null, note: '', observedProgressSignals: [], observedRiskSignals: [] }
 }
 
 function getDraftKey(monthRef: MonthRef): string {
@@ -211,6 +215,17 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
     }
   }
 
+  /** Toggle a signal string in the priority's "noticed this month" list. */
+  function toggleObservedSignal(priorityId: string, kind: 'progress' | 'risk', signal: string): void {
+    const current = assessmentFor(priorityId)
+    const key = kind === 'progress' ? 'observedProgressSignals' : 'observedRiskSignals'
+    const list = current[key]
+    const next = list.includes(signal)
+      ? list.filter((item) => item !== signal)
+      : [...list, signal]
+    updateAssessment(priorityId, { [key]: next })
+  }
+
   // All rating refs for watchers
   const allRatingRefs = [balanceRating, purposeRating, growthRating, coherenceRating, agencyRating]
 
@@ -265,7 +280,20 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
         selectedPriorityIds.value = data.selectedPriorityIds as string[]
       }
       if (data.priorityAssessments && typeof data.priorityAssessments === 'object') {
-        priorityAssessments.value = data.priorityAssessments as Record<string, PriorityAssessment>
+        // Backfill signal arrays so drafts saved before this field never leave
+        // the toggle helper reading `undefined.includes`.
+        const raw = data.priorityAssessments as Record<string, Partial<PriorityAssessment>>
+        const normalized: Record<string, PriorityAssessment> = {}
+        for (const [id, value] of Object.entries(raw)) {
+          normalized[id] = {
+            effort: value.effort ?? null,
+            verdict: value.verdict ?? null,
+            note: value.note ?? '',
+            observedProgressSignals: Array.isArray(value.observedProgressSignals) ? value.observedProgressSignals : [],
+            observedRiskSignals: Array.isArray(value.observedRiskSignals) ? value.observedRiskSignals : [],
+          }
+        }
+        priorityAssessments.value = normalized
       }
 
       if (data.balanceRating != null) balanceRating.value = data.balanceRating as number
@@ -334,6 +362,8 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
             effort: reflection.effort ?? null,
             verdict: reflection.verdict ?? null,
             note: reflection.note ?? '',
+            observedProgressSignals: reflection.observedProgressSignals ?? [],
+            observedRiskSignals: reflection.observedRiskSignals ?? [],
           }
         }
       }
@@ -439,6 +469,7 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
     priorityAssessments,
     assessmentFor,
     updateAssessment,
+    toggleObservedSignal,
     focusConfrontation,
 
     // Ratings

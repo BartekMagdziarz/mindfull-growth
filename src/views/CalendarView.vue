@@ -85,9 +85,11 @@
               :month-ref="activeMonthRef"
               :chart-mode="chartMode"
               :density="density"
+              :focus="focus"
               @open-week="navigateTo('week', $event)"
               @open-object="openMonthV2Object"
               @open-reflection="openReflectionPanel"
+              @focus-change="handleMonthFocusChange"
               @experiment-change="handleMonthExperimentChange"
             />
 
@@ -97,7 +99,6 @@
               v-else-if="scale === 'month' && activeMonthRef"
               :month-ref="activeMonthRef"
             />
-
 
             <section v-if="scale === 'year'" class="space-y-4">
               <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:auto-rows-fr">
@@ -112,7 +113,9 @@
               </div>
             </section>
 
-            <template v-else-if="scale === 'month' && !isMonthV2 && monthPlanning && monthReflection">
+            <template
+              v-else-if="scale === 'month' && !isMonthV2 && monthPlanning && monthReflection"
+            >
               <MonthReviewSummary
                 :month-ref="activeMonthRef!"
                 :today-day-ref="todayRef"
@@ -142,7 +145,6 @@
                 @edit-plan="openWeekWizard"
               />
             </template>
-
           </template>
         </template>
       </div>
@@ -219,10 +221,7 @@ import {
   buildWeekObjectItems,
   extractWeekIntentions,
 } from '@/components/calendar/objectItems'
-import type {
-  CalendarYearSummary,
-  MonthReflectionBundle,
-} from '@/services/calendarViewQueries'
+import type { CalendarYearSummary, MonthReflectionBundle } from '@/services/calendarViewQueries'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import CalendarToolbar from '@/components/calendar/CalendarToolbar.vue'
@@ -241,10 +240,7 @@ import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieReposit
 import { reflectionDexieRepository } from '@/repositories/reflectionDexieRepository'
 import { annualPlanDexieRepository } from '@/repositories/annualPlanDexieRepository'
 import type { AnnualPlan } from '@/domain/annualPlan'
-import {
-  getCalendarYearSummary,
-  getMonthReflectionBundle,
-} from '@/services/calendarViewQueries'
+import { getCalendarYearSummary, getMonthReflectionBundle } from '@/services/calendarViewQueries'
 import {
   getMonthPlanningBundle,
   getWeekPlanningBundle,
@@ -271,8 +267,12 @@ import type {
   CalendarMonthChartMode,
   CalendarMonthDensity,
   CalendarMonthLayout,
+  MonthFocusKey,
 } from '@/router/calendarExperimentQuery'
-import { CALENDAR_MONTH_EXPERIMENT_QUERY_KEYS } from '@/router/calendarExperimentQuery'
+import {
+  CALENDAR_MONTH_EXPERIMENT_QUERY_KEYS,
+  serializeMonthFocusKey,
+} from '@/router/calendarExperimentQuery'
 
 // Heavy experimental renderer — loaded only when a URL opts in via ?layout=v2,
 // so the default (legacy) month view never pays for the V2 bundle.
@@ -296,12 +296,14 @@ interface Props {
   layout?: CalendarMonthLayout
   chartMode?: CalendarMonthChartMode
   density?: CalendarMonthDensity
+  focus?: MonthFocusKey | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   layout: 'legacy',
   chartMode: 'hybrid',
   density: 'comfortable',
+  focus: null,
 })
 
 const router = useRouter()
@@ -444,11 +446,10 @@ const activePeriodRangeLabel = computed(() => {
   }
 })
 
-// Week and month scales move both actions into per-card affordances inside
-// WeekReviewSummary / MonthReviewSummary: both the plan and reflection
-// actions live in the KontextCard ("Podsumowanie" panel).
-const showPlanAction = computed(() => props.scale === 'year')
-const showReflectionAction = computed(() => props.scale === 'year')
+// Legacy week/month summaries keep actions in their Kontext cards. Month V2
+// deliberately owns no second action bar: planning and reflection live here.
+const showPlanAction = computed(() => props.scale === 'year' || isMonthV2.value)
+const showReflectionAction = computed(() => props.scale === 'year' || isMonthV2.value)
 const showHeaderActions = computed(() => showPlanAction.value || showReflectionAction.value)
 
 const planActionLabel = computed(() => {
@@ -497,25 +498,22 @@ const showMonthlyReflection = computed(() => props.scale === 'month' && monthlyR
 // it otherwise leaks into the global top bar (esp. when launched from the Strumień stream)
 // and its scale switcher can silently navigate away and discard the open wizard.
 const wizardActive = computed(
-  () =>
-    showAnnualPlanner.value ||
-    showWeekWizard.value ||
-    showMonthlyReflection.value,
+  () => showAnnualPlanner.value || showWeekWizard.value || showMonthlyReflection.value
 )
 
 // Flat, sorted object lists for the period summaries. The derivation is shared
 // with the Strumień stream view via buildWeekObjectItems / buildMonthObjectItems
 // so both calendars render the same objects in the same order.
 const weekObjectItems = computed<WeekObjectItem[]>(() =>
-  weekReflection.value ? buildWeekObjectItems(weekReflection.value) : [],
+  weekReflection.value ? buildWeekObjectItems(weekReflection.value) : []
 )
 
 const weekIntentions = computed<WeeklyIntention[]>(() =>
-  weekReflection.value ? extractWeekIntentions(weekReflection.value) : [],
+  weekReflection.value ? extractWeekIntentions(weekReflection.value) : []
 )
 
 const monthObjectItems = computed<MonthObjectItem[]>(() =>
-  monthPlanning.value ? buildMonthObjectItems(monthPlanning.value) : [],
+  monthPlanning.value ? buildMonthObjectItems(monthPlanning.value) : []
 )
 
 const panelKind = computed(() => panelState.value ?? 'month-plan')
@@ -724,11 +722,12 @@ async function loadCalendarData() {
         }
         break
       case 'month':
-        ;[monthPlanning.value, monthReflection.value, monthWeeklyIntentions.value] = await Promise.all([
-          getMonthPlanningBundle(parsedPeriodRef.value as MonthRef),
-          getMonthReflectionBundle(parsedPeriodRef.value as MonthRef),
-          listWeeklyIntentionsForMonth(parsedPeriodRef.value as MonthRef),
-        ])
+        ;[monthPlanning.value, monthReflection.value, monthWeeklyIntentions.value] =
+          await Promise.all([
+            getMonthPlanningBundle(parsedPeriodRef.value as MonthRef),
+            getMonthReflectionBundle(parsedPeriodRef.value as MonthRef),
+            listWeeklyIntentionsForMonth(parsedPeriodRef.value as MonthRef),
+          ])
         break
       case 'week': {
         const weekRef = parsedPeriodRef.value as WeekRef
@@ -738,7 +737,7 @@ async function loadCalendarData() {
           getWeekReflectionBundle(weekRef, weekEnd),
         ])
         weekDayAssignments.value = await loadDayAssignmentsForMonths(
-          weekReflection.value?.overlappingMonthRefs ?? [],
+          weekReflection.value?.overlappingMonthRefs ?? []
         )
         break
       }
@@ -834,6 +833,14 @@ function handleMonthExperimentChange(config: {
   })
 }
 
+/** Keep Month V2 progressive disclosure shareable without adding history entries. */
+function handleMonthFocusChange(focus: MonthFocusKey | null) {
+  const serializedFocus = serializeMonthFocusKey(focus)
+  void router.replace({
+    query: { ...route.query, layout: 'v2', focus: serializedFocus },
+  })
+}
+
 function openPlanPanel() {
   if (props.scale === 'year') {
     if (annualPlannerOpen.value) {
@@ -858,7 +865,6 @@ function openPlanPanel() {
     openWeekWizard()
     return
   }
-
 }
 
 // One entry for the whole week ritual (planning + date-gated reflection).

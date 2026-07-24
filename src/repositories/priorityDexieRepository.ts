@@ -1,9 +1,16 @@
-import type { CreatePriorityPayload, Goal, Habit, Initiative, Priority, Tracker, UpdatePriorityPayload } from '@/domain/planning'
+import type { CreatePriorityPayload, Goal, Habit, Initiative, Priority, Tracker, UpdatePriorityPayload, WeeklyIntention } from '@/domain/planning'
 import { MAX_ACTIVE_PRIORITIES, normalizePriorityPayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { PriorityRepository } from './priorityRepository'
-import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
+import {
+  createPlanningRecord,
+  deletePriorityLinksForPriority,
+  requireRecord,
+  retirePriorityLinksForPriority,
+  toPlain,
+  updatePlanningRecord,
+} from './planningDexieRepository.shared'
 
 class PriorityDexieRepository implements PriorityRepository {
   private get db() {
@@ -65,8 +72,13 @@ class PriorityDexieRepository implements PriorityRepository {
           : undefined,
       })
 
-      await this.db.transaction('rw', this.db.priorities, async () => {
+      await this.db.transaction('rw', [this.db.priorities, this.db.priorityLinks], async () => {
         await this.db.priorities.put(toPlain(updated))
+        // Closing ends the chapter: links become history (proposed ones are
+        // dropped — their objects never existed). Pausing keeps links live.
+        if (updated.status === 'closed' && existing.status !== 'closed') {
+          await retirePriorityLinksForPriority(this.db.priorityLinks, id)
+        }
         await this.normalizeActivePriorityOrders()
       })
       invalidatePlanningQueryCache()
@@ -81,13 +93,23 @@ class PriorityDexieRepository implements PriorityRepository {
     try {
       await this.db.transaction(
         'rw',
-        [this.db.priorities, this.db.goals, this.db.habits, this.db.trackers, this.db.initiatives],
+        [
+          this.db.priorities,
+          this.db.priorityLinks,
+          this.db.goals,
+          this.db.habits,
+          this.db.trackers,
+          this.db.weeklyIntentions,
+          this.db.initiatives,
+        ],
         async () => {
           await this.db.priorities.delete(id)
+          await deletePriorityLinksForPriority(this.db.priorityLinks, id)
           await Promise.all([
             this.unlinkPriorityFromTable<Goal>(this.db.goals, id),
             this.unlinkPriorityFromTable<Habit>(this.db.habits, id),
             this.unlinkPriorityFromTable<Tracker>(this.db.trackers, id),
+            this.unlinkPriorityFromTable<WeeklyIntention>(this.db.weeklyIntentions, id),
             this.unlinkPriorityFromTable<Initiative>(this.db.initiatives, id),
           ])
           await this.normalizeActivePriorityOrders()

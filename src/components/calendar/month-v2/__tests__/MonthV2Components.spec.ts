@@ -40,6 +40,7 @@ function makeColumn(weekRef: WeekRef, overrides: Partial<MonthV2WeekColumn> = {}
     isBoundary: false,
     phase: 'past',
     reflectionMatrix: null,
+    radar: null,
     ...overrides,
   }
 }

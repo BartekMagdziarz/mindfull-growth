@@ -11,7 +11,7 @@
         v-if="!isCreatingTag"
         type="button"
         :data-testid="`tag-add-${props.tagType}`"
-        class="tag-pill inline-flex items-center justify-center w-7 h-7 rounded-full focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background transition-all duration-200"
+        class="mg-v2-button mg-v2-button--icon mg-v2-button--quiet"
         :aria-label="t('common.tagInput.addNew', { type: tagTypeLower })"
         @click="startCreateTag"
       >
@@ -21,7 +21,7 @@
       <!-- Creating New Tag (appears after + button position) -->
       <div
         v-if="isCreatingTag"
-        class="inline-flex items-center px-3 py-1.5 rounded-full bg-primary-soft ring-2 ring-primary text-on-primary-soft text-xs font-medium transition-all duration-200"
+        class="mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected"
       >
         <input
           ref="createInputRef"
@@ -42,7 +42,7 @@
         <!-- Edit Mode -->
         <div
           v-if="editingTagId === tag.id"
-          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary-soft ring-2 ring-primary text-on-primary-soft text-xs font-medium transition-all duration-200"
+          class="mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected"
         >
           <input
             ref="editInputRef"
@@ -201,14 +201,7 @@ function isTagSelected(tagId: string): boolean {
 
 function getTagClasses(tagId: string): string {
   const isSelected = isTagSelected(tagId)
-  const baseClasses =
-    'px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background'
-
-  if (isSelected) {
-    return `${baseClasses} shadow-neu-pressed bg-neu-base text-primary border border-neu-border/40`
-  } else {
-    return `${baseClasses} tag-pill`
-  }
+  return isSelected ? 'mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected' : 'mg-v2-pill'
 }
 
 function handleTagClick(tagId: string) {
@@ -420,15 +413,5 @@ onMounted(async () => {
 <style scoped>
 .tag-input {
   @apply w-full;
-}
-
-.tag-pill {
-  background-color: rgb(var(--color-surface-variant) / 0.6);
-  border: 1.5px solid rgb(var(--color-outline) / 0.45);
-  color: rgb(var(--color-primary-strong));
-}
-
-.tag-pill:hover {
-  background-color: rgb(var(--color-surface) / 0.95);
 }
 </style>

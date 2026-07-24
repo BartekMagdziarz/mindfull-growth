@@ -12,27 +12,53 @@ import type { LocationQuery, LocationQueryValue } from 'vue-router'
 export type CalendarMonthLayout = 'legacy' | 'v2'
 export type CalendarMonthChartMode = 'hybrid' | 'capsules' | 'axis'
 export type CalendarMonthDensity = 'comfortable' | 'compact'
+export const CALENDAR_MONTH_FOCUS_KEYS = [
+  'goals',
+  'habits',
+  'trackers',
+  'intentions',
+  'emotions',
+  'journal',
+] as const
+export type MonthFocusKey = (typeof CALENDAR_MONTH_FOCUS_KEYS)[number]
 
 export interface CalendarMonthExperiment {
   layout: CalendarMonthLayout
   chartMode: CalendarMonthChartMode
   density: CalendarMonthDensity
+  focus: MonthFocusKey | null
 }
 
 export const CALENDAR_MONTH_EXPERIMENT_DEFAULTS: CalendarMonthExperiment = {
   layout: 'legacy',
   chartMode: 'hybrid',
   density: 'comfortable',
+  focus: null,
 }
 
 /** Query keys owned by the experiment; dropped when leaving the month scale. */
-export const CALENDAR_MONTH_EXPERIMENT_QUERY_KEYS = ['layout', 'chart', 'density'] as const
+export const CALENDAR_MONTH_EXPERIMENT_QUERY_KEYS = ['layout', 'chart', 'density', 'focus'] as const
 
 function firstQueryValue(
   value: LocationQueryValue | LocationQueryValue[] | undefined
 ): string | undefined {
   const first = Array.isArray(value) ? value[0] : value
   return typeof first === 'string' && first.length > 0 ? first : undefined
+}
+
+/** Parse the optional Month V2 disclosure state from a Vue Router query value. */
+export function parseMonthFocusKey(
+  value: LocationQueryValue | LocationQueryValue[] | undefined
+): MonthFocusKey | null {
+  const focus = firstQueryValue(value)
+  return CALENDAR_MONTH_FOCUS_KEYS.find(key => key === focus) ?? null
+}
+
+/** Serialize focus for Vue Router; `null` removes the optional query key. */
+export function serializeMonthFocusKey(
+  focus: MonthFocusKey | null | undefined
+): MonthFocusKey | undefined {
+  return focus ?? undefined
 }
 
 export function resolveCalendarMonthExperiment(query: LocationQuery): CalendarMonthExperiment {
@@ -50,5 +76,6 @@ export function resolveCalendarMonthExperiment(query: LocationQuery): CalendarMo
       density === 'compact' || density === 'comfortable'
         ? density
         : CALENDAR_MONTH_EXPERIMENT_DEFAULTS.density,
+    focus: parseMonthFocusKey(query.focus),
   }
 }

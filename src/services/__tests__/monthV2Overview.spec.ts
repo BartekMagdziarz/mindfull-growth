@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { Habit, KeyResult, Tracker, WeeklyIntention } from '@/domain/planning'
+import type { Goal, Habit, KeyResult, Priority, Tracker, WeeklyIntention } from '@/domain/planning'
 import type { DailyMeasurementEntry } from '@/domain/planningState'
-import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { DayRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { MonthlyReflection, WeeklyReflection } from '@/domain/reflection'
 import type { MonthPlanningBundle } from '@/services/planningStateQueries'
 import type { MonthObjectItem } from '@/services/reflectionDataQueries'
@@ -10,6 +10,7 @@ import type { MonthV2OverviewData, MonthV2Series } from '@/services/monthV2Overv
 import {
   buildMonthV2Activity,
   buildMonthV2OverviewViewModel,
+  localDayRefFromTimestamp,
 } from '@/services/monthV2Overview'
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
@@ -101,6 +102,35 @@ function makeIntention(overrides: Partial<WeeklyIntention> = {}): WeeklyIntentio
   }
 }
 
+function makeGoal(overrides: Partial<Goal> = {}): Goal {
+  return {
+    id: 'goal-1',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+    title: 'Zdrowie',
+    isActive: true,
+    priorityIds: [],
+    lifeAreaIds: [],
+    status: 'open',
+    ...overrides,
+  }
+}
+
+function makePriority(overrides: Partial<Priority> = {}): Priority {
+  return {
+    id: 'priority-1',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+    title: 'Zdrowie i energia',
+    years: ['2026' as YearRef],
+    status: 'active',
+    lifeAreaIds: [],
+    progressSignals: [],
+    riskSignals: [],
+    ...overrides,
+  }
+}
+
 function makeItem(
   subject: KeyResult | Habit | Tracker,
   subjectType: MonthObjectItem['subjectType'],
@@ -152,7 +182,7 @@ function dataWithItems(
 }
 
 function sectionOf(vm: ReturnType<typeof buildMonthV2OverviewViewModel>, key: string) {
-  const section = vm.sections.find((s) => s.key === key)
+  const section = vm.sections.find(s => s.key === key)
   if (!section) throw new Error(`missing section ${key}`)
   return section
 }
@@ -165,7 +195,7 @@ function firstRow(vm: ReturnType<typeof buildMonthV2OverviewViewModel>, key: str
 }
 
 function weekOf(series: MonthV2Series, weekRef: string) {
-  const week = series.weeks.find((w) => w.weekRef === weekRef)
+  const week = series.weeks.find(w => w.weekRef === weekRef)
   if (!week) throw new Error(`missing week ${weekRef}`)
   return week
 }
@@ -175,7 +205,7 @@ function weekOf(series: MonthV2Series, weekRef: string) {
 describe('month V2 week columns', () => {
   it('keeps the natural week count and canonical week refs (July 2026 = 5 weeks)', () => {
     const vm = buildMonthV2OverviewViewModel(makeData())
-    expect(vm.weeks.map((w) => w.weekRef)).toEqual([
+    expect(vm.weeks.map(w => w.weekRef)).toEqual([
       '2026-W26',
       '2026-W27',
       '2026-W28',
@@ -192,12 +222,17 @@ describe('month V2 week columns', () => {
     // year's first Monday) — a strict-ISO implementation would say 2026-W01.
     expect(vm.weeks[0]?.weekRef).toBe('2025-W52')
     expect(vm.weeks[0]?.isBoundary).toBe(true)
-    expect(vm.weeks[0]?.inMonthDayRefs).toEqual(['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04'])
+    expect(vm.weeks[0]?.inMonthDayRefs).toEqual([
+      '2026-01-01',
+      '2026-01-02',
+      '2026-01-03',
+      '2026-01-04',
+    ])
   })
 
   it('derives the phase from the visible in-month span', () => {
     const vm = buildMonthV2OverviewViewModel(makeData())
-    expect(vm.weeks.map((w) => w.phase)).toEqual(['past', 'past', 'current', 'future', 'future'])
+    expect(vm.weeks.map(w => w.phase)).toEqual(['past', 'past', 'current', 'future', 'future'])
   })
 
   it('marks boundary weeks and restricts inMonthDayRefs to the viewed month', () => {
@@ -234,14 +269,28 @@ describe('month V2 week columns', () => {
     } as WeeklyReflection
 
     const vm = buildMonthV2OverviewViewModel(makeData({ weeklyReflections: [reflection] }))
-    const withMatrix = vm.weeks.find((w) => w.weekRef === '2026-W27')!
+    const withMatrix = vm.weeks.find(w => w.weekRef === '2026-W27')!
     expect(withMatrix.reflectionMatrix).toHaveLength(4)
     expect(withMatrix.reflectionMatrix![0]!.cells).toHaveLength(3)
     // Unrated cell → null rating, neutral (null) color.
-    const closeOnesRow = withMatrix.reflectionMatrix!.find((r) => r.areaKey === 'closeOnes')!
+    const closeOnesRow = withMatrix.reflectionMatrix!.find(r => r.areaKey === 'closeOnes')!
     expect(closeOnesRow.cells[0]!.rating).toBeNull()
     expect(closeOnesRow.cells[0]!.color).toBeNull()
-    expect(vm.weeks.find((w) => w.weekRef === '2026-W26')!.reflectionMatrix).toBeNull()
+    expect(Object.keys(withMatrix.radar!)).toEqual(['requirements', 'state'])
+    expect(withMatrix.radar?.requirements).toEqual([
+      { key: 'body', value: 4, max: 5 },
+      { key: 'emotions', value: 3, max: 5 },
+      { key: 'tasks', value: 5, max: 5 },
+      { key: 'closeOnes', value: null, max: 5 },
+    ])
+    expect(withMatrix.radar?.state).toEqual([
+      { key: 'body', value: 3, max: 5 },
+      { key: 'emotions', value: 4, max: 5 },
+      { key: 'tasks', value: 2, max: 5 },
+      { key: 'closeOnes', value: 5, max: 5 },
+    ])
+    expect(vm.weeks.find(w => w.weekRef === '2026-W26')!.reflectionMatrix).toBeNull()
+    expect(vm.weeks.find(w => w.weekRef === '2026-W26')!.radar).toBeNull()
   })
 })
 
@@ -298,7 +347,7 @@ describe('month V2 cadence semantics', () => {
     const row = firstRow(vm, 'habits')
     expect(row.monthSummary?.actualValue).toBe(2)
     expect(row.monthSummary?.evaluationStatus).toBe('met')
-    expect(row.series.weeks.every((w) => w.targetValue === undefined)).toBe(true)
+    expect(row.series.weeks.every(w => w.targetValue === undefined)).toBe(true)
   })
 })
 
@@ -372,10 +421,10 @@ describe('month V2 series selection', () => {
     expect(series.kind).toBe('scheduled-days')
     const week = weekOf(series, '2026-W26')
     expect(week.days).toHaveLength(7)
-    expect(week.days!.filter((d) => d.scheduled)).toHaveLength(2)
-    expect(week.days!.filter((d) => d.completed)).toHaveLength(1)
+    expect(week.days!.filter(d => d.scheduled)).toHaveLength(2)
+    expect(week.days!.filter(d => d.completed)).toHaveLength(1)
     // Jun 29–30 are outside July.
-    expect(week.days!.filter((d) => !d.inMonth)).toHaveLength(2)
+    expect(week.days!.filter(d => !d.inMonth)).toHaveLength(2)
   })
 
   it('counter → bars with a zero-based shared scale', () => {
@@ -495,7 +544,7 @@ describe('month V2 multi-completion', () => {
     )
     const week = weekOf(firstRow(vm, 'habits').series, '2026-W27')
     expect(week.multiDays).toHaveLength(7)
-    const states = week.multiDays!.map((d) => d.state)
+    const states = week.multiDays!.map(d => d.state)
     expect(states).toEqual(['met', 'partial', 'met', 'empty', 'empty', 'empty', 'empty'])
     expect(week.multiDays![0]).toMatchObject({ points: 3, threshold: 3 })
     expect(week.multiDays![1]).toMatchObject({ points: 1, threshold: 3 })
@@ -552,7 +601,12 @@ describe('month V2 entryDays and week overrides', () => {
   it('surfaces the entryDays conjunction (primary met, presence missed → missed)', () => {
     const habit = makeHabit({
       entryMode: 'counter',
-      target: { kind: 'count', operator: 'min', value: 5, entryDays: { operator: 'min', value: 3 } },
+      target: {
+        kind: 'count',
+        operator: 'min',
+        value: 5,
+        entryDays: { operator: 'min', value: 3 },
+      },
     })
     const entries = [
       makeEntry(habit.id, '2026-07-06', 6), // sum 6 ≥ 5 → primary met
@@ -621,7 +675,7 @@ describe('month V2 sections', () => {
     const goals = sectionOf(vm, 'goals')
     expect(goals.objectCount).toBe(2) // linked goals
     expect(goals.rowCount).toBe(3)
-    expect(goals.groups.map((g) => g.key)).toEqual(['goal:goal-1', 'goal:goal-2', 'goal:unlinked'])
+    expect(goals.groups.map(g => g.key)).toEqual(['goal:goal-1', 'goal:goal-2', 'goal:unlinked'])
     expect(goals.groups[0]).toMatchObject({ title: 'Zdrowie', goalId: 'goal-1' })
     expect(goals.groups[2]!.title).toBeUndefined()
     // Row icon falls back to the parent goal's icon (KRs have no own icon).
@@ -672,7 +726,293 @@ describe('month V2 sections', () => {
 
   it('always returns the four sections in order', () => {
     const vm = buildMonthV2OverviewViewModel(makeData())
-    expect(vm.sections.map((s) => s.key)).toEqual(['goals', 'habits', 'trackers', 'intentions'])
+    expect(vm.sections.map(s => s.key)).toEqual(['goals', 'habits', 'trackers', 'intentions'])
+  })
+})
+
+// ── Progressive disclosure VM ──────────────────────────────────────────────
+
+describe('month V2 progressive disclosure VM', () => {
+  it('exposes six stable category aggregates and object focus rows with priority context', () => {
+    const goal = makeGoal({ priorityIds: ['priority-goal'] })
+    const keyResult = makeKeyResult()
+    const habit = makeHabit({ priorityIds: ['priority-habit'] })
+    const tracker = makeTracker({ priorityIds: ['priority-tracker'] })
+    const intention = makeIntention({
+      icon: 'directions_walk',
+      priorityIds: ['priority-intention'],
+    })
+    const missedIntention = makeIntention({
+      id: 'intention-2',
+      title: 'Telefon do bliskiej osoby',
+      icon: 'call',
+      weekRef: '2026-W26' as WeekRef,
+      priorityIds: ['priority-relationships'],
+    })
+
+    const keyResultEntries = [
+      makeEntry(keyResult.id, '2026-07-06', 11, { subjectType: 'keyResult' }),
+      makeEntry(keyResult.id, '2026-07-07', 12, { subjectType: 'keyResult' }),
+    ]
+    const habitEntries = [
+      makeEntry(habit.id, '2026-07-06'),
+      makeEntry(habit.id, '2026-07-07'),
+      makeEntry(habit.id, '2026-07-08'),
+    ]
+    const trackerEntries = [makeEntry(tracker.id, '2026-07-09', 4, { subjectType: 'tracker' })]
+    const intentionEntries = [
+      makeEntry(intention.id, '2026-07-06', null, { subjectType: 'weeklyIntention' }),
+      makeEntry(intention.id, '2026-07-07', null, { subjectType: 'weeklyIntention' }),
+    ]
+    const rawEntries = [
+      ...keyResultEntries,
+      ...habitEntries,
+      ...trackerEntries,
+      ...intentionEntries,
+    ]
+    const planning: MonthPlanningBundle = {
+      ...makeData().planning,
+      rawEntries,
+      goalItems: [
+        {
+          goal,
+          state: {
+            id: 'goal-state-1',
+            createdAt: '2026-07-01T00:00:00.000Z',
+            updatedAt: '2026-07-01T00:00:00.000Z',
+            monthRef: MONTH,
+            goalId: goal.id,
+            activityState: 'active',
+          },
+        },
+      ],
+    }
+    const objectItems = [
+      makeItem(keyResult, 'keyResult', keyResultEntries, {
+        parentGoalId: goal.id,
+        parentGoalTitle: goal.title,
+        parentGoalIcon: 'favorite',
+      }),
+      makeItem(habit, 'habit', habitEntries),
+      makeItem(tracker, 'tracker', trackerEntries),
+    ]
+
+    const vm = buildMonthV2OverviewViewModel(
+      makeData({ planning, objectItems, weeklyIntentions: [intention, missedIntention] })
+    )
+
+    expect(Object.keys(vm.categories)).toEqual([
+      'goals',
+      'habits',
+      'trackers',
+      'intentions',
+      'emotions',
+      'journal',
+    ])
+    expect(vm.categories.goals).toMatchObject({
+      label: 'planning.calendar.sections.goals',
+      metric: 'attainment',
+      met: 1,
+      total: 1,
+      percentage: 100,
+    })
+    expect(vm.categories.habits).toMatchObject({ met: 1, total: 1, percentage: 100 })
+    expect(vm.categories.trackers).toMatchObject({
+      metric: 'coverage',
+      met: 1,
+      total: 1,
+      percentage: 100,
+    })
+    expect(vm.categories.intentions).toMatchObject({ met: 1, total: 2, percentage: 50 })
+
+    expect(vm.focusSections.goals.rows[0]).toMatchObject({
+      subjectId: keyResult.id,
+      parentGoal: { id: goal.id, title: goal.title, icon: 'favorite' },
+      priorityIds: ['priority-goal'],
+      monthValue: 23,
+      targetValue: 20,
+      status: 'met',
+    })
+    expect(vm.focusSections.goals.rows[0]?.series).toBeDefined()
+    expect(vm.focusSections.habits.rows[0]?.priorityIds).toEqual(['priority-habit'])
+    expect(vm.focusSections.trackers.rows[0]?.priorityIds).toEqual(['priority-tracker'])
+    expect(vm.focusSections.intentions.rows).toHaveLength(1)
+    const intentionAggregate = vm.focusSections.intentions.rows[0]!
+    expect(intentionAggregate).toMatchObject({
+      key: 'intentions:month',
+      monthValue: 1,
+      targetValue: 2,
+      priorityIds: ['priority-relationships', 'priority-intention'],
+    })
+    expect(intentionAggregate.series).toBeUndefined()
+    expect(intentionAggregate.weeks?.find(week => week.weekRef === '2026-W26')).toMatchObject({
+      count: 1,
+      met: 0,
+      total: 1,
+      icons: ['call'],
+    })
+    expect(intentionAggregate.weeks?.find(week => week.weekRef === '2026-W27')).toMatchObject({
+      count: 1,
+      met: 1,
+      total: 1,
+      icons: ['directions_walk'],
+    })
+  })
+
+  it('keeps top-priority order and adds weekly focus context', () => {
+    const first = makePriority({ id: 'priority-a', title: 'Pierwszy' })
+    const second = makePriority({ id: 'priority-b', title: 'Drugi', icon: 'bolt' })
+    const vm = buildMonthV2OverviewViewModel(
+      makeData({
+        topPriorities: [second, first],
+        priorityFocus: {
+          weekRefs: ['2026-W26', '2026-W27'] as WeekRef[],
+          perPriority: [
+            { priorityId: first.id, focusWeekRefs: [], objects: [] },
+            {
+              priorityId: second.id,
+              focusWeekRefs: ['2026-W27' as WeekRef],
+              objects: [
+                {
+                  subjectType: 'habit',
+                  subjectId: 'habit-focus',
+                  title: 'Ruch',
+                  weekRefs: ['2026-W27' as WeekRef],
+                },
+              ],
+            },
+          ],
+          drift: [],
+        },
+      })
+    )
+
+    expect(vm.priorities).toEqual([
+      {
+        id: second.id,
+        title: second.title,
+        icon: 'bolt',
+        focusWeekRefs: ['2026-W27'],
+        focusObjectCount: 1,
+      },
+      {
+        id: first.id,
+        title: first.title,
+        icon: undefined,
+        focusWeekRefs: [],
+        focusObjectCount: 0,
+      },
+    ])
+  })
+
+  it('uses active-day coverage on top and detailed weekly wellness summaries below', () => {
+    const activity = buildMonthV2Activity(MONTH, TODAY, {
+      journalCreatedAts: [
+        '2026-07-03T08:00:00.000Z',
+        '2026-07-03T18:00:00.000Z',
+        '2026-07-07T08:00:00.000Z',
+      ],
+      emotionLogs: [
+        {
+          createdAt: '2026-07-03T12:00:00.000Z',
+          quadrants: ['high-energy-high-pleasantness', 'low-energy-low-pleasantness'],
+        },
+        {
+          createdAt: '2026-07-07T12:00:00.000Z',
+          quadrants: ['high-energy-high-pleasantness'],
+        },
+      ],
+      exerciseDayRefs: [],
+    })
+    const monthlyReflection = {
+      id: 'monthly-reflection-focus',
+      createdAt: '2026-07-15T12:00:00.000Z',
+      updatedAt: '2026-07-15T12:00:00.000Z',
+      monthRef: MONTH,
+      balanceRating: 3,
+      purposeRating: 4,
+      growthRating: 3,
+      coherenceRating: 4,
+      agencyRating: 3,
+      promptResponses: {},
+      freeformReflection: 'Miesięczna refleksja',
+      aiSummary: '',
+    } as MonthlyReflection
+    const weeklyReflection = {
+      id: 'weekly-reflection-focus',
+      createdAt: '2026-07-12T12:00:00.000Z',
+      updatedAt: '2026-07-12T12:00:00.000Z',
+      weekRef: '2026-W27' as WeekRef,
+      physicalIntensityRating: null,
+      emotionalIntensityRating: null,
+      taskLoadRating: null,
+      closeOnesNeedsRating: null,
+      physicalCareRating: null,
+      emotionalProcessingRating: null,
+      productivityRating: null,
+      closeOnesSupportRating: null,
+      moodRating: null,
+      energyRating: null,
+      calmRating: null,
+      connectionRating: null,
+      promptResponses: {},
+      freeformReflection: 'Tygodniowa refleksja',
+      aiSummary: 'Tygodniowy skrót',
+    } as WeeklyReflection
+    const vm = buildMonthV2OverviewViewModel(
+      makeData({ activity, monthlyReflection, weeklyReflections: [weeklyReflection] })
+    )
+
+    expect(vm.categories.emotions).toMatchObject({
+      metric: 'coverage',
+      met: 2,
+      total: 15,
+      percentage: 13,
+    })
+    expect(vm.categories.journal).toMatchObject({ met: 2, total: 15, percentage: 13 })
+
+    expect(vm.focusSections.journal.rows.map(row => row.key)).toEqual([
+      'journal:daily',
+      'journal:reflections',
+    ])
+    const journalDaily = vm.focusSections.journal.rows[0]!
+    expect(journalDaily).toMatchObject({ monthValue: 3, entryCount: 3, priorityIds: [] })
+    expect(journalDaily.weeks?.find(week => week.weekRef === '2026-W26')).toMatchObject({
+      count: 2,
+      activeDayCount: 1,
+    })
+    expect(journalDaily.weeks?.find(week => week.weekRef === '2026-W27')).toMatchObject({
+      count: 1,
+      activeDayCount: 1,
+    })
+
+    const journalReflections = vm.focusSections.journal.rows[1]!
+    expect(journalReflections).toMatchObject({
+      key: 'journal:reflections',
+      monthValue: 1,
+      entryCount: 2,
+      text: 'Miesięczna refleksja',
+    })
+    expect(journalReflections.weeks?.find(week => week.weekRef === '2026-W26')).toMatchObject({
+      count: 0,
+      activeDayCount: 0,
+      icons: [],
+    })
+    expect(journalReflections.weeks?.find(week => week.weekRef === '2026-W27')).toMatchObject({
+      count: 1,
+      activeDayCount: 1,
+      icons: ['rate_review'],
+      text: 'Tygodniowy skrót',
+    })
+
+    const emotions = vm.focusSections.emotions.rows[0]!
+    expect(emotions.monthValue).toBe(2)
+    expect(emotions.quadrantCounts?.['high-energy-high-pleasantness']).toBe(2)
+    expect(
+      emotions.weeks?.find(week => week.weekRef === '2026-W26')?.quadrantCounts?.[
+        'low-energy-low-pleasantness'
+      ]
+    ).toBe(1)
   })
 })
 
@@ -696,8 +1036,10 @@ describe('month V2 rail', () => {
 
   it('builds the compass from the 5 structured dimensions, keeping nulls', () => {
     const vm = buildMonthV2OverviewViewModel(makeData({ monthlyReflection: reflection }))
-    expect(vm.rail.compass?.axes.map((a) => a.value)).toEqual([4, 5, 3, null, 2])
-    expect(vm.rail.compass?.axes.map((a) => a.key)).toEqual([
+    expect(vm.monthAxes).toHaveLength(5)
+    expect(vm.monthAxes).toEqual(vm.rail.compass?.axes)
+    expect(vm.rail.compass?.axes.map(a => a.value)).toEqual([4, 5, 3, null, 2])
+    expect(vm.rail.compass?.axes.map(a => a.key)).toEqual([
       'balanceRating',
       'purposeRating',
       'growthRating',
@@ -707,7 +1049,22 @@ describe('month V2 rail', () => {
   })
 
   it('hides the compass without a reflection or when every axis is null', () => {
-    expect(buildMonthV2OverviewViewModel(makeData()).rail.compass).toBeNull()
+    const withoutReflection = buildMonthV2OverviewViewModel(makeData())
+    expect(withoutReflection.rail.compass).toBeNull()
+    expect(withoutReflection.monthAxes.map(axis => axis.value)).toEqual([
+      null,
+      null,
+      null,
+      null,
+      null,
+    ])
+    expect(withoutReflection.monthAxes.map(axis => axis.key)).toEqual([
+      'balanceRating',
+      'purposeRating',
+      'growthRating',
+      'coherenceRating',
+      'agencyRating',
+    ])
     const empty = {
       ...reflection,
       balanceRating: null,
@@ -737,8 +1094,9 @@ describe('buildMonthV2Activity', () => {
     })
 
     expect(activity.days).toHaveLength(31)
-    const day3 = activity.days.find((d) => d.dayRef === '2026-07-03')!
+    const day3 = activity.days.find(d => d.dayRef === '2026-07-03')!
     expect(day3.journalWritten).toBe(true)
+    expect(day3.journalCount).toBe(2)
     expect(day3.emotionCount).toBe(1)
     expect(day3.quadrantCounts['high-energy-high-pleasantness']).toBe(1)
     expect(day3.quadrantCounts['low-energy-low-pleasantness']).toBe(1)
@@ -746,7 +1104,56 @@ describe('buildMonthV2Activity', () => {
     expect(day3.weekdayIndex).toBe(4) // 2026-07-03 is a Friday
 
     // June 30 completion is outside the month → not counted anywhere.
-    expect(activity.totals).toEqual({ emotionSessions: 2, journalEntries: 1, exercises: 2 })
+    expect(activity.totals).toEqual({ emotionSessions: 2, journalEntries: 2, exercises: 2 })
+  })
+
+  it('buckets persisted instants by the local calendar day and ignores invalid timestamps', () => {
+    const localInstant = new Date(2026, 6, 3, 0, 30).toISOString()
+    expect(localDayRefFromTimestamp(localInstant)).toBe('2026-07-03')
+    expect(localDayRefFromTimestamp('not-a-date')).toBeNull()
+
+    const activity = buildMonthV2Activity(MONTH, TODAY, {
+      journalCreatedAts: [localInstant, 'not-a-date'],
+      emotionLogs: [
+        {
+          createdAt: localInstant,
+          quadrants: ['low-energy-high-pleasantness'],
+        },
+        { createdAt: 'not-a-date', quadrants: ['high-energy-low-pleasantness'] },
+      ],
+      exerciseDayRefs: [],
+    })
+    const day3 = activity.days.find(day => day.dayRef === '2026-07-03')!
+    expect(day3.journalCount).toBe(1)
+    expect(day3.emotionCount).toBe(1)
+    expect(day3.quadrantCounts['low-energy-high-pleasantness']).toBe(1)
+    expect(activity.totals).toMatchObject({ journalEntries: 1, emotionSessions: 1 })
+  })
+
+  it('separates records just before and after Warsaw midnight across ISO weeks', () => {
+    const sundayBeforeMidnight = '2026-07-05T21:59:59.000Z'
+    const mondayAfterMidnight = '2026-07-05T22:00:01.000Z'
+
+    expect(localDayRefFromTimestamp(sundayBeforeMidnight)).toBe('2026-07-05')
+    expect(localDayRefFromTimestamp(mondayAfterMidnight)).toBe('2026-07-06')
+
+    const activity = buildMonthV2Activity(MONTH, TODAY, {
+      journalCreatedAts: [sundayBeforeMidnight, mondayAfterMidnight],
+      emotionLogs: [
+        { createdAt: sundayBeforeMidnight, quadrants: [] },
+        { createdAt: mondayAfterMidnight, quadrants: [] },
+      ],
+      exerciseDayRefs: [],
+    })
+
+    expect(activity.days.find(day => day.dayRef === '2026-07-05')).toMatchObject({
+      journalCount: 1,
+      emotionCount: 1,
+    })
+    expect(activity.days.find(day => day.dayRef === '2026-07-06')).toMatchObject({
+      journalCount: 1,
+      emotionCount: 1,
+    })
   })
 
   it('zeroes markers on future days', () => {
@@ -755,11 +1162,11 @@ describe('buildMonthV2Activity', () => {
       emotionLogs: [{ createdAt: '2026-07-20T10:00:00.000Z', quadrants: [] }],
       exerciseDayRefs: ['2026-07-20' as DayRef],
     })
-    const day20 = activity.days.find((d) => d.dayRef === '2026-07-20')!
+    const day20 = activity.days.find(d => d.dayRef === '2026-07-20')!
     expect(day20.isFuture).toBe(true)
     expect(day20.journalWritten).toBe(false)
     expect(day20.emotionCount).toBe(0)
     expect(day20.exerciseCount).toBe(0)
-    expect(activity.days.find((d) => d.dayRef === TODAY)!.isToday).toBe(true)
+    expect(activity.days.find(d => d.dayRef === TODAY)!.isToday).toBe(true)
   })
 })

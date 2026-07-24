@@ -225,4 +225,28 @@ describe('planningState domain normalization', () => {
       note: 'Useful reflection',
     })
   })
+
+  it('normalizes observed signal arrays (trim, dedupe, empty → undefined)', () => {
+    const normalized = normalizePeriodObjectReflectionPayload({
+      periodType: 'month',
+      periodRef: '2026-04',
+      subjectType: 'priority',
+      subjectId: 'prio-1',
+      note: '',
+      observedProgressSignals: [' spokój ', 'spokój', ''],
+      observedRiskSignals: [],
+    } as unknown as CreatePeriodObjectReflectionPayload)
+
+    expect(normalized.observedProgressSignals).toEqual(['spokój'])
+    expect(normalized.observedRiskSignals).toBeUndefined()
+
+    const empty = normalizePeriodObjectReflectionPayload({
+      periodType: 'month',
+      periodRef: '2026-04',
+      subjectType: 'priority',
+      subjectId: 'prio-1',
+      note: '',
+    } as CreatePeriodObjectReflectionPayload)
+    expect(empty.observedProgressSignals).toBeUndefined()
+  })
 })

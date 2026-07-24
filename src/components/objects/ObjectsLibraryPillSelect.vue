@@ -7,7 +7,7 @@
         <span
           v-for="selected in selectedOptions"
           :key="selected.id"
-          class="inline-flex items-center gap-1 rounded-full border border-white/55 bg-white/45 px-2 py-0.5 text-[11px] font-medium text-on-surface-variant"
+          class="mg-v2-badge gap-1 px-2 py-0.5 text-[11px] font-medium"
         >
           {{ selected.label }}
           <button
@@ -21,7 +21,7 @@
 
         <button
           type="button"
-          class="neo-icon-button neo-focus !h-6 !w-6 !min-h-0 !min-w-0"
+          class="mg-v2-button mg-v2-button--icon !h-6 !w-6 !min-h-0 !min-w-0"
           :aria-expanded="open"
           :aria-label="addLabel"
           @click="open = !open"
@@ -32,7 +32,7 @@
 
       <div
         v-if="open"
-        class="neo-card absolute left-0 right-0 z-20 mt-2 rounded-xl p-2 shadow-neu-raised"
+        class="mg-v2-popover absolute left-0 right-0 z-20 mt-2 p-2"
       >
         <div v-if="options.length === 0" class="px-2 py-2 text-xs text-on-surface-variant">
           {{ emptyLabel }}
@@ -42,19 +42,19 @@
           <label
             v-for="option in options"
             :key="option.id"
-            class="neo-surface flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-on-surface"
+            class="mg-v2-surface mg-v2-surface--flat flex cursor-pointer items-center gap-2 px-2.5 py-1.5 text-xs text-on-surface"
           >
             <input
               :checked="modelValue.includes(option.id)"
               type="checkbox"
-              class="neo-checkbox"
+              class="mg-v2-checkbox"
               @change="toggleOption(option.id)"
             />
             <span class="min-w-0 flex-1 truncate">{{ option.label }}</span>
           </label>
         </div>
 
-        <div v-if="modelValue.length > 0" class="mt-2 border-t border-white/45 pt-2 px-1">
+        <div v-if="modelValue.length > 0" class="objects-pill-select-v2__footer mt-2 pt-2 px-1">
           <button
             type="button"
             class="text-xs font-medium text-primary hover:underline"
@@ -131,3 +131,9 @@ function clearSelection(): void {
   emit('update:modelValue', [])
 }
 </script>
+
+<style scoped>
+.objects-pill-select-v2__footer {
+  border-top: 1px solid var(--mg-color-border);
+}
+</style>

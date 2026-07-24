@@ -1,133 +1,263 @@
 import { expect, test, type Page } from '@playwright/test'
-import { getPeriodRefsForDate, getPreviousPeriod } from '../src/utils/periods'
 import type { MonthRef } from '../src/domain/period'
+import { getPeriodRefsForDate, getPreviousPeriod } from '../src/utils/periods'
 
 /**
- * Month V2 experiment (?layout=v2 on the classic month route) against the
- * seeded verification instance (npm run dev:verify, port 5199).
+ * Month V2 experiment (`?layout=v2`) against the seeded verification app.
  *
- * Assertions target the PREVIOUS month: it is fully closed, carries a seeded
- * (partial) monthly reflection, weekly reflections, entries in every entry
- * mode, target overrides and boundary-week data — while the current month's
- * gates flip with the real date.
+ * The previous month is intentionally used for the read-only dashboard checks:
+ * it is closed and contains the verification fixture's monthly reflection,
+ * weekly reflections, priorities, planned objects, journal entries and emotions.
  */
 
 const refs = getPeriodRefsForDate(new Date())
 const prevMonth = getPreviousPeriod(refs.month) as MonthRef
 
 const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
-const SECTIONS_KEY = 'calendar.month-v2.sections'
 
 async function bootSeededApp(page: Page): Promise<void> {
   await page.goto('/')
   await page.waitForFunction(
     (key: string) => window.localStorage.getItem(key) !== null,
     SEED_MARKER_KEY,
-    { timeout: 90_000 },
+    { timeout: 90_000 }
   )
   await expect(page).not.toHaveURL(/login/)
 }
 
 async function openMonthV2(page: Page, monthRef: MonthRef, extra = ''): Promise<void> {
   await page.goto(`/calendar/month/${monthRef}?layout=v2${extra}`)
-  await expect(page.getByTestId('month-v2-summary-rail')).toBeVisible()
+  await expect(page.getByTestId('month-v2-time-panel')).toBeVisible()
   await expect(page.getByTestId('month-v2-week-grid')).toBeVisible()
+  await expect(page.getByTestId('month-v2-lower-panel')).toBeVisible()
+}
+
+async function expectOverviewContract(page: Page): Promise<void> {
+  const weekCards = page.locator('.month-v2__week')
+  const radars = page.locator('.week-radar')
+  const weekCount = await weekCards.count()
+
+  expect(weekCount).toBeGreaterThanOrEqual(4)
+  expect(weekCount).toBeLessThanOrEqual(6)
+  await expect(radars).toHaveCount(weekCount)
+
+  // The month chart always exposes the five canonical monthly-reflection axes.
+  const monthAxes = page.locator('.month-dimension__axis')
+  await expect(monthAxes).toHaveCount(5)
+  expect(
+    await monthAxes.evaluateAll(nodes =>
+      nodes.every(node => node.getAttribute('data-axis-key')?.endsWith('Rating'))
+    )
+  ).toBe(true)
+
+  // Weekly reflection has exactly two public series. In particular, the old
+  // actions/działania layer must not leak into the radar DOM or accessible copy.
+  const renderedSeries = await page
+    .locator('.week-radar [data-series]')
+    .evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.series))
+  expect(renderedSeries.length).toBeGreaterThan(0)
+  expect(renderedSeries).toContain('requirements')
+  expect(renderedSeries).toContain('state')
+  expect(renderedSeries.every(series => series === 'requirements' || series === 'state')).toBe(true)
+  await expect(page.locator('.week-radar [data-series="actions"]')).toHaveCount(0)
+  await expect(page.getByTestId('month-v2-time-panel')).not.toContainText(/Działania|Actions/i)
+
+  // The overview selector is one shared flat surface: six direct cells, no
+  // individually raised cards or shadows.
+  const categories = page.locator('.month-v2__category')
+  await expect(categories).toHaveCount(6)
+  expect(
+    await categories.evaluateAll(nodes =>
+      nodes.every(node => {
+        const style = getComputedStyle(node)
+        return !node.classList.contains('neo-raised') && style.boxShadow === 'none'
+      })
+    )
+  ).toBe(true)
+
+  await expect(page.locator('.month-v2__category .month-progress-ring')).toHaveCount(2)
+  await expect(page.getByTestId('monthly-planner')).toHaveCount(0)
 }
 
 test.describe('month V2 experiment', () => {
-  test('renders the V2 overview with rail, week matrix and collapsed sections', async ({
-    page,
-  }) => {
+  test('renders the new overview contract', async ({ page }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await openMonthV2(page, prevMonth)
-
-    // Left rail: compass (partial reflection → dots, no polygon) + activity.
-    const rail = page.getByTestId('month-v2-summary-rail')
-    await expect(rail.locator('.month-compass__svg')).toBeVisible()
-    await expect(rail.locator('.month-mini__grid')).toBeVisible()
-
-    // Week heads: 4–6 columns; seeded weekly reflections render the 4×3 matrix.
-    const heads = page.locator('.month-grid__week')
-    const headCount = await heads.count()
-    expect(headCount).toBeGreaterThanOrEqual(4)
-    expect(headCount).toBeLessThanOrEqual(6)
-    await expect(page.locator('.month-grid__matrix').first()).toBeVisible()
-
-    // All four sections start collapsed.
-    const toggles = page.locator('.month-section__toggle')
-    await expect(toggles).toHaveCount(4)
-    for (const toggle of await toggles.all()) {
-      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
-    }
-
-    // The V1 renderer must not be mounted behind the flag.
-    await expect(page.getByTestId('monthly-planner')).toHaveCount(0)
+    await expectOverviewContract(page)
   })
 
-  test('legacy stays the default without the layout flag', async ({ page }) => {
+  test('legacy stays the default and is not changed by the experiment', async ({ page }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
     await page.goto(`/calendar/month/${prevMonth}`)
     await expect(page.getByTestId('monthly-planner')).toBeVisible()
-    await expect(page.getByTestId('month-v2-summary-rail')).toHaveCount(0)
+    await expect(page.getByTestId('month-v2-time-panel')).toHaveCount(0)
+    await expect(page.getByTestId('month-v2-lower-panel')).toHaveCount(0)
   })
 
-  test('expanding a section persists across reloads and shows seeded series', async ({
-    page,
-  }) => {
+  test('focus is URL-backed, survives reload and returns through the dock', async ({ page }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
     await openMonthV2(page, prevMonth)
 
-    // Expand Habits: multi-completion strip and long titles come from the seed.
-    const habitsToggle = page.locator('[data-section="habits"] .month-section__toggle')
-    await habitsToggle.click()
-    await expect(habitsToggle).toHaveAttribute('aria-expanded', 'true')
-    await expect(page.getByText('Poranna checklista')).toBeVisible()
-    await expect(
-      page.locator('[data-series-kind="multi-completion"] .month-series__day').first(),
-    ).toBeVisible()
+    const historyLength = await page.evaluate(() => window.history.length)
+    await page.locator('[data-focus-key="goals"]').click()
 
-    const stored = await page.evaluate(
-      (key: string) => window.localStorage.getItem(key),
-      SECTIONS_KEY,
-    )
-    expect(JSON.parse(stored ?? '{}')).toMatchObject({ habits: true })
+    await expect(page).toHaveURL(/(?:\?|&)focus=goals(?:&|$)/)
+    await expect(page.locator('.month-v2__stage')).toHaveClass(/month-v2__stage--focused/)
+    await expect(page.locator('.month-v2__focus-row')).not.toHaveCount(0)
+    await expect(page.locator('.month-v2__dock')).toBeVisible()
+    // Focus changes replace the current experiment entry instead of creating
+    // a noisy history entry for every morph.
+    await expect.poll(() => page.evaluate(() => window.history.length)).toBe(historyLength)
 
-    // Reload: the manual state survives; other sections stay collapsed.
     await page.reload()
-    await expect(page.getByTestId('month-v2-week-grid')).toBeVisible()
-    await expect(
-      page.locator('[data-section="habits"] .month-section__toggle'),
-    ).toHaveAttribute('aria-expanded', 'true')
-    await expect(
-      page.locator('[data-section="intentions"] .month-section__toggle'),
-    ).toHaveAttribute('aria-expanded', 'false')
+    await expect(page).toHaveURL(/(?:\?|&)focus=goals(?:&|$)/)
+    await expect(page.locator('.month-v2__dock')).toBeVisible()
+    await expect(page.locator('.month-v2__focus-row')).not.toHaveCount(0)
+
+    const dockItems = page.locator('.month-v2__dock-item')
+    await expect(dockItems).toHaveCount(6)
+    // In goals focus the first remaining category is habits.
+    await dockItems.first().click()
+    await expect(page).toHaveURL(/(?:\?|&)focus=habits(?:&|$)/)
+    await expect.poll(() => page.evaluate(() => window.history.length)).toBe(historyLength)
+
+    await page.locator('.month-v2__dock-back').click()
+    await expect(page.locator('.month-v2__categories')).toBeVisible()
+    await expect(page.locator('.month-v2__stage')).not.toHaveClass(/month-v2__stage--focused/)
+    await expect.poll(() => new URL(page.url()).searchParams.has('focus')).toBe(false)
   })
 
-  test('chart variants switch via URL params on the same data', async ({ page }) => {
+  test('renders object rows and the focus dock for goals, habits and trackers', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
-    // Section expansion persists in localStorage across navigations — expand
-    // the goals section only when it is still collapsed.
-    const expandGoals = async () => {
-      const toggle = page.locator('[data-section="goals"] .month-section__toggle')
-      if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click()
-      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    for (const focus of ['goals', 'habits', 'trackers'] as const) {
+      await openMonthV2(page, prevMonth, `&focus=${focus}`)
+      await expect(page.locator('.month-v2__stage')).toHaveClass(/month-v2__stage--focused/)
+      expect(await page.locator('.month-v2__focus-row').count()).toBeGreaterThan(0)
+      expect(await page.locator('.month-v2__focus-row .month-series').count()).toBeGreaterThan(0)
+      await expect(page.locator('.month-v2__dock-item')).toHaveCount(6)
+      await expect(page.getByTestId('monthly-planner')).toHaveCount(0)
+    }
+  })
+
+  test('uses compact aggregate row counts for intentions, emotions and journal', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await bootSeededApp(page)
+
+    const expectedRows: Record<'intentions' | 'emotions' | 'journal', number> = {
+      intentions: 1,
+      emotions: 1,
+      journal: 2,
     }
 
-    await openMonthV2(page, prevMonth, '&chart=capsules')
-    await expandGoals()
-    // Capsules: no axis SVGs anywhere in the sections.
-    await expect(page.locator('.month-section .month-series__svg')).toHaveCount(0)
+    for (const focus of ['intentions', 'emotions', 'journal'] as const) {
+      await openMonthV2(page, prevMonth, `&focus=${focus}`)
+      await expect(page.locator('.month-v2__focus-row')).toHaveCount(expectedRows[focus]!)
+      await expect(page.locator('.month-v2__focus-row .month-focus-series')).toHaveCount(
+        expectedRows[focus]!
+      )
+      await expect(page.locator('.month-v2__dock-item')).toHaveCount(6)
+    }
 
-    await openMonthV2(page, prevMonth, '&chart=axis')
-    await expandGoals()
-    // Axis: the value KRs render shared-scale SVGs.
-    expect(await page.locator('.month-section .month-series__svg').count()).toBeGreaterThan(0)
+    await expect(page.locator('[data-row-key="journal:daily"]')).toBeVisible()
+    await expect(page.locator('[data-row-key="journal:reflections"]')).toBeVisible()
+  })
+
+  test('keeps the month/week seam on desktop and reflows safely on tablet and mobile', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await bootSeededApp(page)
+    await openMonthV2(page, prevMonth)
+
+    const desktopGeometry = await page.evaluate(() => {
+      const month = document.querySelector('.month-v2__month')!.getBoundingClientRect()
+      const weeks = document.querySelector('.month-v2__weeks')!.getBoundingClientRect()
+      const priorities = document.querySelector('.month-v2__priorities')!.getBoundingClientRect()
+      const categories = document.querySelector('.month-v2__categories')!.getBoundingClientRect()
+      return {
+        monthShare: month.width / (month.width + weeks.width),
+        topSeam: month.right,
+        lowerSeam: priorities.right,
+        weeksStart: weeks.left,
+        categoriesStart: categories.left,
+      }
+    })
+    expect(desktopGeometry.monthShare).toBeGreaterThan(0.41)
+    expect(desktopGeometry.monthShare).toBeLessThan(0.47)
+    expect(Math.abs(desktopGeometry.topSeam - desktopGeometry.weeksStart)).toBeLessThan(2)
+    expect(Math.abs(desktopGeometry.lowerSeam - desktopGeometry.categoriesStart)).toBeLessThan(2)
+    expect(Math.abs(desktopGeometry.topSeam - desktopGeometry.lowerSeam)).toBeLessThan(4)
+
+    await page.setViewportSize({ width: 1024, height: 900 })
+    await expect(page.locator('.month-v2__weeks')).toBeVisible()
+    expect(
+      await page
+        .locator('.month-v2__week-scroll')
+        .evaluate(node => getComputedStyle(node).overflowX)
+    ).toBe('auto')
+    await expect(page.locator('.week-radar')).toHaveCount(
+      await page.locator('.month-v2__week').count()
+    )
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    const mobileGeometry = await page.evaluate(() => {
+      const month = document.querySelector('.month-v2__month')!.getBoundingClientRect()
+      const weeks = document.querySelector('.month-v2__weeks')!.getBoundingClientRect()
+      const weekScroll = document.querySelector('.month-v2__week-scroll')!
+      const categoryGrid = document.querySelector('.month-v2__categories')!
+      const dashboard = document.querySelector('.month-v2')!.getBoundingClientRect()
+      return {
+        monthBottom: month.bottom,
+        weeksTop: weeks.top,
+        weekStripScrolls: weekScroll.scrollWidth > weekScroll.clientWidth,
+        categoryColumns: getComputedStyle(categoryGrid).gridTemplateColumns.split(' ').length,
+        dashboardFitsViewport: dashboard.left >= 0 && dashboard.right <= window.innerWidth,
+      }
+    })
+    expect(mobileGeometry.monthBottom).toBeLessThanOrEqual(mobileGeometry.weeksTop)
+    expect(mobileGeometry.weekStripScrolls).toBe(true)
+    expect(mobileGeometry.categoryColumns).toBe(2)
+    expect(mobileGeometry.dashboardFitsViewport).toBe(true)
+  })
+
+  test('supports keyboard focus and reduced motion during the morph', async ({ page }) => {
+    test.setTimeout(120_000)
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await bootSeededApp(page)
+    await openMonthV2(page, prevMonth)
+
+    const goals = page.locator('[data-focus-key="goals"]')
+    await goals.focus()
+    await expect(goals).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/(?:\?|&)focus=goals(?:&|$)/)
+
+    const transitionDurations = await page.locator('.month-v2__stage').evaluate(node =>
+      getComputedStyle(node)
+        .transitionDuration.split(',')
+        .map(value =>
+          value.trim().endsWith('ms') ? Number.parseFloat(value) : Number.parseFloat(value) * 1000
+        )
+    )
+    expect(transitionDurations.every(duration => duration <= 100)).toBe(true)
+
+    const back = page.locator('.month-v2__dock-back')
+    await back.focus()
+    await expect(back).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('.month-v2__categories')).toBeVisible()
+    await expect.poll(() => new URL(page.url()).searchParams.has('focus')).toBe(false)
   })
 
   test('planning mode hosts the current assignment matrix and persists a toggle', async ({
@@ -135,14 +265,14 @@ test.describe('month V2 experiment', () => {
   }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
-    // Planning edits only the CURRENT month (open objects, editable plan).
     await openMonthV2(page, refs.month)
 
-    await page.getByRole('button', { name: /^Planowanie$/ }).click()
+    await page.getByRole('button', { name: /^(Utwórz|Edytuj) plan$/ }).click()
+    await expect(page.getByTestId('monthly-reflection-wizard')).toBeVisible()
+    await page.getByRole('button', { name: /^(Dalej|Next)$/ }).click()
     await expect(page.getByTestId('monthly-planner')).toBeVisible()
     await expect(page.getByTestId('assignment-matrix')).toBeVisible()
 
-    // Toggle the orphan KR onto the month's first week and verify persistence.
     const cell = page.locator('[data-testid^="matrix-cell-keyResult:"]').first()
     const testId = await cell.getAttribute('data-testid')
     const pressed = await cell.getAttribute('aria-pressed')
@@ -154,12 +284,13 @@ test.describe('month V2 experiment', () => {
 
     await page.reload()
     await expect(page.getByTestId('month-v2-week-grid')).toBeVisible()
-    await page.getByRole('button', { name: /^Planowanie$/ }).click()
+    await page.getByRole('button', { name: /^(Utwórz|Edytuj) plan$/ }).click()
+    await page.getByRole('button', { name: /^(Dalej|Next)$/ }).click()
     await expect(page.getByTestId(testId!)).toHaveAttribute('aria-pressed', flipped, {
       timeout: 15_000,
     })
 
-    // Restore the original placement so re-runs stay deterministic.
+    // Restore the fixture so repeated verification runs stay deterministic.
     await page.getByTestId(testId!).click()
     await expect(page.getByTestId(testId!)).toHaveAttribute('aria-pressed', pressed!, {
       timeout: 15_000,
@@ -176,7 +307,6 @@ test.describe('month V2 experiment', () => {
 
     await page.getByRole('button', { name: /^(Zamknij|Close)$/ }).click()
     await expect(page.getByTestId('month-v2-week-grid')).toBeVisible()
-    // The layout flag survives the wizard round-trip.
     expect(page.url()).toContain('layout=v2')
   })
 })

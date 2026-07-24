@@ -34,11 +34,20 @@ export async function setMonthTopPriorities(
   return periodPlanDexieRepository.createMonthPlan({ monthRef, topPriorityIds })
 }
 
+function dedupeSignals(signals?: string[]): string[] {
+  if (!signals) return []
+  return Array.from(new Set(signals.map((signal) => signal.trim()).filter(Boolean)))
+}
+
 export interface MonthlyPriorityAssessmentInput {
   /** 1–5 effort self-rating, or null to clear. */
   effort?: number | null
   verdict?: PriorityVerdict | null
   note?: string
+  /** Progress signals checked as "noticed this month". */
+  observedProgressSignals?: string[]
+  /** Risk signals checked as "noticed this month". */
+  observedRiskSignals?: string[]
 }
 
 /**
@@ -53,7 +62,14 @@ export async function setMonthlyPriorityAssessment(
   input: MonthlyPriorityAssessmentInput,
 ): Promise<void> {
   const note = input.note?.trim() ?? ''
-  const hasContent = note.length > 0 || input.effort != null || input.verdict != null
+  const progressSignals = dedupeSignals(input.observedProgressSignals)
+  const riskSignals = dedupeSignals(input.observedRiskSignals)
+  const hasContent =
+    note.length > 0 ||
+    input.effort != null ||
+    input.verdict != null ||
+    progressSignals.length > 0 ||
+    riskSignals.length > 0
 
   if (!hasContent) {
     await reflectionDexieRepository.deletePeriodObjectReflection(
@@ -73,5 +89,7 @@ export async function setMonthlyPriorityAssessment(
     note,
     effort: input.effort ?? null,
     verdict: input.verdict ?? null,
+    observedProgressSignals: progressSignals.length > 0 ? progressSignals : undefined,
+    observedRiskSignals: riskSignals.length > 0 ? riskSignals : undefined,
   })
 }

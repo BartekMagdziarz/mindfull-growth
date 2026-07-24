@@ -95,7 +95,6 @@ const route = useRoute()
 const { t } = useT()
 
 const navItems = computed<NavItem[]>(() => [
-  { path: '/today', label: t('common.nav.today'), icon: 'wb_sunny' },
   { path: '/calendar', label: t('common.nav.calendar'), icon: 'calendar_month' },
   { path: '/objects/goals', label: t('common.nav.objects'), icon: 'target' },
   { path: '/journal', label: t('common.nav.journal'), icon: 'edit_note' },

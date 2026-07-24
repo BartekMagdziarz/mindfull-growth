@@ -3,7 +3,7 @@ import { normalizeInitiativePayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { InitiativeRepository } from './initiativeRepository'
-import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
+import { createPlanningRecord, requireRecord, retirePriorityLinksForSubject, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
 
 class InitiativeDexieRepository implements InitiativeRepository {
   private get db() {
@@ -58,7 +58,10 @@ class InitiativeDexieRepository implements InitiativeRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await this.db.initiatives.delete(id)
+      await this.db.transaction('rw', [this.db.initiatives, this.db.priorityLinks], async () => {
+        await this.db.initiatives.delete(id)
+        await retirePriorityLinksForSubject(this.db.priorityLinks, { subjectType: 'initiative', subjectId: id })
+      })
       invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete initiative with id ${id}:`, error)

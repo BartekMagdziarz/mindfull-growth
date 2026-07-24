@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-6 flex flex-col gap-4 min-h-screen">
+  <div class="mg-design-v2 journal-v2 container mx-auto px-4 py-6 flex flex-col gap-4 min-h-screen">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center min-h-[200px]">
       <p class="text-on-surface-variant">{{ t('journal.editor.loadingEntry') }}</p>
@@ -26,12 +26,12 @@
         <Transition name="dialog">
           <div
             v-if="showDateTimePicker"
-            class="fixed inset-0 z-50 flex items-center justify-center"
+            class="mg-design-v2 mg-v2-overlay"
             @click.self="showDateTimePicker = false"
           >
-            <div class="fixed inset-0 bg-overlay-scrim/50" aria-hidden="true"></div>
+            <div class="mg-v2-overlay__scrim" aria-hidden="true"></div>
             <div
-              class="relative z-10 neo-raised-strong rounded-2xl p-6 max-w-sm w-full mx-4"
+              class="dialog-panel mg-v2-surface mg-v2-surface--raised relative z-10 p-6 max-w-sm w-full mx-4"
               role="dialog"
               aria-modal="true"
             >
@@ -45,7 +45,7 @@
                     id="entry-date"
                     type="date"
                     v-model="selectedDate"
-                    class="neo-input w-full p-3 text-on-surface"
+                    class="mg-v2-field w-full text-on-surface"
                   />
                 </div>
                 <div>
@@ -56,13 +56,13 @@
                     id="entry-time"
                     type="time"
                     v-model="selectedTime"
-                    class="neo-input w-full p-3 text-on-surface"
+                    class="mg-v2-field w-full text-on-surface"
                   />
                 </div>
               </div>
               <div class="flex gap-3 justify-end mt-6">
-                <AppButton variant="text" @click="showDateTimePicker = false">{{ t('common.buttons.cancel') }}</AppButton>
-                <AppButton variant="filled" @click="applyDateTime">{{ t('journal.editor.apply') }}</AppButton>
+                <DsButton variant="quiet" @click="showDateTimePicker = false">{{ t('common.buttons.cancel') }}</DsButton>
+                <DsButton @click="applyDateTime">{{ t('journal.editor.apply') }}</DsButton>
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@
       >
         <!-- Left: Title + Body textarea (full height) -->
         <section
-          class="neo-inset rounded-[32px] px-6 py-5 flex flex-col gap-4 min-h-0"
+          class="mg-v2-editor-canvas px-6 py-5 flex flex-col gap-4 min-h-0"
         >
           <label for="title" class="sr-only">{{ t('journal.editor.titleLabel') }}</label>
           <input
@@ -104,7 +104,7 @@
         <div class="hidden md:flex items-center justify-center">
           <button
             type="button"
-            class="neo-focus flex h-8 w-8 items-center justify-center rounded-full bg-neu-base text-on-surface-variant/70 shadow-neu-raised-sm hover:-translate-y-px hover:text-on-surface hover:shadow-neu-raised transition-all duration-200"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--quiet flex h-8 w-8 items-center justify-center rounded-full text-on-surface-variant/70 hover:-translate-y-px hover:text-on-surface transition-all duration-200"
             :aria-label="isSidePanelOpen ? t('journal.editor.collapseSidePanel') : t('journal.editor.expandSidePanel')"
             :aria-expanded="isSidePanelOpen"
             @click="toggleSidePanel"
@@ -125,7 +125,7 @@
              strony jest równy lewemu. -->
         <aside
           :class="[
-            'neo-scroll journal-aside flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-x-hidden md:overflow-y-auto md:py-4 md:pl-5 md:pr-4 md:-mr-4',
+            'journal-aside flex flex-col gap-4 min-h-0 md:min-w-0 md:overflow-x-hidden md:overflow-y-auto md:py-4 md:pl-5 md:pr-4 md:-mr-4',
             'md:transition md:duration-500 md:ease-[cubic-bezier(0.22,1,0.36,1)]',
             isSidePanelOpen
               ? 'md:opacity-100 md:translate-x-0'
@@ -133,12 +133,12 @@
           ]"
         >
           <section
-            class="neo-card px-5 py-4 flex flex-col gap-3"
+            class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
             :style="emotionCardStyle"
           >
             <div
               v-if="isEmotionSectionLoading"
-              class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+              class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
             >
               {{ t('journal.editor.loadingEmotions') }}
             </div>
@@ -154,7 +154,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Context Tags Section -->
             <section
-              class="neo-card px-5 py-4 flex flex-col gap-3"
+              class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
             >
               <header>
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -163,7 +163,7 @@
               </header>
               <div
                 v-if="areContextTagsLoading"
-                class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+                class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
               >
                 {{ t('journal.editor.loadingContext') }}
               </div>
@@ -178,7 +178,7 @@
 
             <!-- People Tags Section -->
             <section
-              class="neo-card px-5 py-4 flex flex-col gap-3"
+              class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
             >
               <header>
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -187,7 +187,7 @@
               </header>
               <div
                 v-if="arePeopleTagsLoading"
-                class="rounded-xl border border-dashed border-neu-border/40 bg-neu-base p-3 text-center text-xs text-on-surface-variant"
+                class="journal-v2__placeholder p-3 text-center text-xs text-on-surface-variant"
               >
                 {{ t('journal.editor.loadingPeople') }}
               </div>
@@ -206,7 +206,7 @@
       <!-- Chat sessions section (edit mode only) -->
       <section
         v-if="isEditMode && hasChatSessions"
-        class="neo-card px-5 py-4 flex flex-col gap-4"
+        class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-4"
       >
         <header class="flex items-center justify-between gap-3">
           <div>
@@ -231,23 +231,23 @@
 
       <!-- Bottom Action Bar -->
       <div
-        class="border-t border-neu-border/20 flex justify-end gap-3 px-2 sm:px-4 py-4 mt-auto"
+        class="journal-v2__actions flex justify-end gap-3 px-2 sm:px-4 py-4 mt-auto"
       >
         <!-- Chat Button with Dropdown -->
         <div v-if="!isLoading" class="relative" ref="chatDropdownContainerRef">
-          <AppButton
-            variant="text"
+          <DsButton
+            variant="quiet"
             @click="openChatDropdown"
             :disabled="!canStartChat"
             :aria-label="t('journal.editor.startChatLabel')"
           >
             {{ isStartingChat ? t('journal.editor.starting') : t('journal.editor.chat') }}
-          </AppButton>
+          </DsButton>
 
           <!-- Dropdown Menu -->
           <div
             v-if="showChatDropdown"
-            class="absolute bottom-full left-0 mb-2 w-64 rounded-lg border border-neu-border/30 bg-neu-base shadow-neu-raised p-2 z-50"
+            class="mg-v2-popover absolute bottom-full left-0 mb-2 w-64 p-2 z-50"
             role="menu"
             :aria-label="t('journal.editor.chatDropdownPrompt')"
             @click.stop
@@ -259,7 +259,7 @@
               v-for="option in chatIntentionOptions"
               :key="option.value"
               @click="handleIntentionSelection(option.value)"
-              class="w-full text-left px-4 py-3 rounded-lg hover:bg-surface-variant transition-colors focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2"
+              class="journal-v2__menu-item w-full text-left px-4 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2"
               role="menuitem"
             >
               <div class="font-medium text-on-surface">{{ option.label }}</div>
@@ -268,21 +268,20 @@
           </div>
         </div>
 
-        <AppButton
-          variant="text"
+        <DsButton
+          variant="quiet"
           @click="handleCancel"
           :disabled="isSaving || isStartingChat"
         >
           {{ t('common.buttons.cancel') }}
-        </AppButton>
-        <AppButton
-          variant="filled"
+        </DsButton>
+        <DsButton
           @click="handleSave"
           :disabled="!canSaveEntry"
           class="min-w-[140px]"
         >
           {{ isSaving ? t('common.saving') : t('common.buttons.save') }}
-        </AppButton>
+        </DsButton>
       </div>
     </template>
 
@@ -297,6 +296,7 @@
       :confirm-text="t('common.buttons.delete')"
       :cancel-text="t('common.buttons.cancel')"
       confirm-variant="tonal"
+      panel-class="mg-v2-surface mg-v2-surface--raised"
       @confirm="handleConfirmDeleteChatSession"
       @cancel="handleCancelDeleteChatSession"
     />
@@ -306,18 +306,18 @@
       <Transition name="dialog">
         <div
           v-if="showCustomPromptDialog"
-          class="fixed inset-0 z-50 flex items-center justify-center"
+          class="mg-design-v2 mg-v2-overlay"
           @click.self="closeCustomPromptDialog"
         >
           <!-- Backdrop -->
-          <div class="fixed inset-0 bg-overlay-scrim/50" aria-hidden="true"></div>
+          <div class="mg-v2-overlay__scrim" aria-hidden="true"></div>
 
           <!-- Dialog Card -->
           <div
             ref="customPromptDialogRef"
             role="dialog"
             aria-labelledby="custom-prompt-title"
-            class="relative z-10 neo-raised-strong rounded-2xl p-6 max-w-md w-full mx-4"
+            class="dialog-panel mg-v2-surface mg-v2-surface--raised relative z-10 p-6 max-w-md w-full mx-4"
           >
             <!-- Title -->
             <h2 id="custom-prompt-title" class="text-xl font-semibold text-on-surface mb-4">
@@ -330,19 +330,18 @@
               id="custom-prompt-input"
               v-model="customPromptInput"
               :placeholder="t('journal.editor.customPromptPlaceholder')"
-              class="neo-input w-full min-h-[120px] p-3 text-on-surface placeholder:text-on-surface-variant resize-y"
+              class="mg-v2-field w-full min-h-[120px] text-on-surface placeholder:text-on-surface-variant resize-y"
             />
 
             <!-- Actions -->
             <div class="flex gap-3 justify-end mt-6">
-              <AppButton variant="text" @click="closeCustomPromptDialog">{{ t('common.buttons.cancel') }}</AppButton>
-              <AppButton
-                variant="filled"
+              <DsButton variant="quiet" @click="closeCustomPromptDialog">{{ t('common.buttons.cancel') }}</DsButton>
+              <DsButton
                 @click="handleCustomPromptConfirm"
                 :disabled="!customPromptInput.trim()"
               >
                 {{ t('journal.editor.startChat') }}
-              </AppButton>
+              </DsButton>
             </div>
           </div>
         </div>
@@ -354,8 +353,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import AppButton from '@/components/AppButton.vue'
+import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
+import { DsButton } from '@/design-system/components'
 import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
 import TagInput from '@/components/TagInput.vue'
 import ChatSessionCard from '@/components/ChatSessionCard.vue'
@@ -964,13 +964,34 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* The v2 root's min-width/canvas background are meant for full-viewport
+   workspaces; this view is a centered column inside AppShell. */
+.journal-v2 {
+  min-width: 0;
+  background: transparent;
+}
+
+.journal-v2__placeholder {
+  border: 1px dashed var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-canvas);
+}
+
+.journal-v2__actions {
+  border-top: 1px solid var(--mg-color-border);
+}
+
+.journal-v2__menu-item:hover {
+  background: var(--mg-color-primary-soft);
+}
+
 .dialog-enter-active,
 .dialog-leave-active {
   transition: opacity 0.2s ease;
 }
 
-.dialog-enter-active .neo-raised-strong,
-.dialog-leave-active .neo-raised-strong {
+.dialog-enter-active .dialog-panel,
+.dialog-leave-active .dialog-panel {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -979,28 +1000,28 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-.dialog-enter-from .neo-raised-strong,
-.dialog-leave-to .neo-raised-strong {
+.dialog-enter-from .dialog-panel,
+.dialog-leave-to .dialog-panel {
   transform: scale(0.95);
   opacity: 0;
 }
 
-/* Scrollbar panelu bocznego: neo-scroll + chowanie do czasu interakcji —
-   kciuk jest przezroczysty, pojawia się dopiero gdy kursor jest nad panelem
+/* Scrollbar panelu bocznego: chowanie do czasu interakcji — kciuk jest
+   przezroczysty, pojawia się dopiero gdy kursor jest nad panelem
    (desktop-only; scrollowanie kółkiem implikuje hover). */
 .journal-aside {
   scrollbar-color: transparent transparent;
 }
 .journal-aside:hover {
-  scrollbar-color: rgb(var(--neo-border) / 0.55) transparent;
+  scrollbar-color: color-mix(in srgb, var(--mg-color-border) 55%, transparent) transparent;
 }
 .journal-aside::-webkit-scrollbar-thumb {
   background-color: transparent;
 }
 .journal-aside:hover::-webkit-scrollbar-thumb {
-  background-color: rgb(var(--neo-border) / 0.45);
+  background-color: color-mix(in srgb, var(--mg-color-border) 45%, transparent);
 }
 .journal-aside:hover::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(var(--neo-border) / 0.7);
+  background-color: color-mix(in srgb, var(--mg-color-border) 70%, transparent);
 }
 </style>

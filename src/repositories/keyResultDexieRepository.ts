@@ -3,7 +3,7 @@ import { normalizeKeyResultPayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { KeyResultRepository } from './keyResultRepository'
-import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
+import { createPlanningRecord, requireRecord, retirePriorityLinksForSubject, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
 
 class KeyResultDexieRepository implements KeyResultRepository {
   private get db() {
@@ -62,7 +62,10 @@ class KeyResultDexieRepository implements KeyResultRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await this.db.keyResults.delete(id)
+      await this.db.transaction('rw', [this.db.keyResults, this.db.priorityLinks], async () => {
+        await this.db.keyResults.delete(id)
+        await retirePriorityLinksForSubject(this.db.priorityLinks, { subjectType: 'keyResult', subjectId: id })
+      })
       invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete key result with id ${id}:`, error)

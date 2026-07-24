@@ -1,6 +1,6 @@
 <template>
   <article
-    class="group/card neo-card neo-raised border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom p-3.5"
+    class="group/card mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper p-3.5"
   >
     <div class="space-y-3">
       <div class="flex items-center gap-2">
@@ -25,7 +25,7 @@
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-focus"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >
@@ -33,7 +33,7 @@
             </button>
             <div
               v-if="menuOpen"
-              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
+              class="mg-v2-popover absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden"
               @click.stop
             >
               <button
@@ -70,7 +70,7 @@
         <div ref="linksRef" class="relative">
           <button
             type="button"
-            class="neo-icon-button neo-focus"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm"
             :title="t('planning.objects.form.lifeAreas')"
             :aria-label="t('planning.objects.form.lifeAreas')"
             @click.stop="linksOpen = !linksOpen"
@@ -85,7 +85,7 @@
           </span>
           <div
             v-if="linksOpen"
-            class="absolute left-0 z-20 mt-1 max-h-56 min-w-[190px] overflow-y-auto rounded-xl border border-outline/30 bg-surface p-1 shadow-lg"
+            class="mg-v2-popover absolute left-0 z-20 mt-1 max-h-56 min-w-[190px] overflow-y-auto p-1"
             @click.stop
           >
             <button
@@ -107,7 +107,7 @@
 
         <span
           v-if="item.order"
-          class="neo-badge px-2.5 py-1 text-[11px]"
+          class="mg-v2-badge"
         >
           #{{ item.order }}
         </span>
@@ -117,7 +117,7 @@
         ref="whyNowRef"
         v-model="whyNow"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.whyNow')"
         @blur="flushWhyNow"
       />
@@ -126,7 +126,7 @@
         ref="desiredDirectionRef"
         v-model="desiredDirection"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.desiredDirection')"
         @blur="flushDesiredDirection"
       />
@@ -135,7 +135,7 @@
         ref="tradeoffsRef"
         v-model="tradeoffs"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.tradeoffs')"
         @blur="flushTradeoffs"
       />
@@ -144,7 +144,7 @@
         ref="progressSignalsRef"
         v-model="progressSignals"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.progressSignals')"
         @change="flushProgressSignals"
         @blur="flushProgressSignals"
@@ -154,18 +154,18 @@
         ref="riskSignalsRef"
         v-model="riskSignals"
         rows="4"
-        class="neo-input min-h-[7rem] w-full resize-y px-3 py-2 text-xs leading-relaxed"
+        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
         :placeholder="t('planning.objects.form.riskSignals')"
         @change="flushRiskSignals"
         @blur="flushRiskSignals"
       />
 
-      <section v-if="item.status === 'closed'" class="space-y-2 rounded-xl border border-white/45 bg-white/35 p-2.5">
+      <section v-if="item.status === 'closed'" class="mg-v2-surface mg-v2-surface--flat space-y-2 p-2.5">
         <input
           ref="closedAtRef"
           v-model="closedAt"
           type="text"
-          class="neo-input w-full px-3 py-2 text-xs"
+          class="mg-v2-field w-full text-xs"
           :placeholder="t('planning.objects.form.closedAt')"
           @change="flushClosedAt"
           @blur="flushClosedAt"
@@ -174,7 +174,7 @@
           ref="closingSummaryRef"
           v-model="closingSummary"
           rows="2"
-          class="neo-input min-h-[4.25rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
+          class="mg-v2-field !min-h-[4.25rem] w-full resize-none text-xs leading-relaxed"
           :placeholder="t('planning.objects.form.closingSummary')"
           @blur="flushClosingSummary"
         />
@@ -183,7 +183,7 @@
             ref="workedWellRef"
             v-model="workedWell"
             rows="3"
-            class="neo-input min-h-[5.5rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
+            class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
             :placeholder="t('planning.objects.form.workedWell')"
             @blur="flushWorkedWell"
           />
@@ -191,7 +191,7 @@
             ref="wasDifficultRef"
             v-model="wasDifficult"
             rows="3"
-            class="neo-input min-h-[5.5rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
+            class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
             :placeholder="t('planning.objects.form.wasDifficult')"
             @blur="flushWasDifficult"
           />
@@ -199,7 +199,7 @@
             ref="learnedRef"
             v-model="learned"
             rows="3"
-            class="neo-input min-h-[5.5rem] w-full resize-none px-3 py-2 text-xs leading-relaxed"
+            class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
             :placeholder="t('planning.objects.form.learned')"
             @blur="flushLearned"
           />
@@ -210,12 +210,19 @@
         <div
           v-for="metric in linkedMetrics"
           :key="metric.label"
-          class="rounded-xl border border-white/45 bg-white/40 px-2 py-1.5 text-center"
+          class="mg-v2-surface mg-v2-surface--flat px-2 py-1.5 text-center"
         >
           <div class="text-sm font-semibold tabular-nums text-on-surface">{{ metric.value }}</div>
           <div class="truncate text-[9px] font-medium uppercase text-on-surface-variant">{{ metric.label }}</div>
         </div>
       </div>
+
+      <PriorityDraftChecklist
+        :priority-id="item.id"
+        @changed="$emit('drafts-changed', item.id)"
+        @notify="$emit('drafts-notify', $event)"
+        @error="$emit('drafts-error', $event)"
+      />
     </div>
   </article>
 </template>
@@ -225,6 +232,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import StatusIconButton from '@/components/objects/StatusIconButton.vue'
+import PriorityDraftChecklist from '@/components/objects/priority-creator/PriorityDraftChecklist.vue'
 import PriorityYearsDropdown from '@/components/objects/PriorityYearsDropdown.vue'
 import type { LinkedYear } from '@/components/objects/PriorityYearsDropdown.vue'
 import { useEditableField } from '@/composables/useEditableField'
@@ -244,6 +252,9 @@ const emit = defineEmits<{
   'unlink-year': [id: string, yearRef: string]
   archive: [id: string, isCurrentlyActive: boolean]
   delete: [id: string, title: string]
+  'drafts-changed': [id: string]
+  'drafts-notify': [message: string]
+  'drafts-error': [message: string]
 }>()
 
 const { t } = useT()

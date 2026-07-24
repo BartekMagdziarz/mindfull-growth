@@ -262,6 +262,43 @@
       "sections": {
         "intentions": "Intentions"
       },
+      "dashboard": {
+        "priorities": "Month priorities",
+        "noPriorities": "No priorities have been selected for this month yet.",
+        "categoriesLabel": "Month areas",
+        "openCategory": "Open view: {category}",
+        "back": "Back to month overview",
+        "fillMonthlyReflection": "Complete the monthly reflection",
+        "requirements": "Requirements",
+        "state": "State",
+        "radarAxes": "Body ↑ · Emotions → · Tasks ↓ · Close ones ←",
+        "weekRadar": "Week {number}. Requirements: {requirements}. State: {state}.",
+        "noWeeklyReflection": "No reflection",
+        "monthResult": "Month result",
+        "linkedGoal": "Goal: {goal}",
+        "entries": "{count} entries",
+        "completed": "{met} of {total}",
+        "dailyEntries": "Daily entries",
+        "reflections": "Reflections",
+        "weeklyReflection": "Weekly reflection",
+        "monthlyReflection": "Monthly reflection",
+        "noData": "No data",
+        "monthAxes": {
+          "balance": "Balance",
+          "purpose": "Meaning",
+          "growth": "Growth",
+          "coherence": "Principles",
+          "agency": "Influence"
+        },
+        "categories": {
+          "goals": "Goals",
+          "habits": "Habits",
+          "trackers": "Trackers",
+          "intentions": "Intentions",
+          "emotions": "Emotions",
+          "journal": "Journal"
+        }
+      },
       "experiment": {
         "title": "Month V2",
         "chart": "Charts",
@@ -980,6 +1017,153 @@
       "lifeAreas": "Life areas",
       "priorities": "Priorities",
       "body": "The year plan stores the narrative, life area assessment, and active priorities. Monthly and weekly connections will be designed in the next stage."
+    }
+  },
+  "priorityRitual": {
+    "eyebrow": "Rare ritual",
+    "title": "New priority",
+    "description": "From meaning through a support map to consciously chosen starting objects.",
+    "resume": {
+      "banner": "You have an unfinished ritual from {date}. Continue or start fresh.",
+      "discard": "Discard draft"
+    },
+    "steps": {
+      "meaning": {
+        "label": "Meaning",
+        "title": "Name what truly matters"
+      },
+      "boundaries": {
+        "label": "Boundaries",
+        "title": "Separate influence from what you don't control"
+      },
+      "signals": {
+        "label": "Signals",
+        "title": "Define direction and a natural ending"
+      },
+      "support": {
+        "label": "Support",
+        "title": "Build a map of possible support"
+      },
+      "relations": {
+        "label": "Relations",
+        "title": "Explain how each object should help"
+      },
+      "review": {
+        "label": "Review",
+        "title": "Check commitments before activation"
+      }
+    },
+    "meaning": {
+      "titleLabel": "Direction name",
+      "titlePlaceholder": "E.g. Pursuing balance between work and recovery",
+      "whyNow": "Why now?",
+      "whyNowPlaceholder": "What makes this direction important at this point in life?",
+      "direction": "What change do you want to experience?",
+      "directionPlaceholder": "Describe the state you want to move toward — not an outcome.",
+      "requiredHint": "Only the name and direction are required to create — the rest can wait."
+    },
+    "boundaries": {
+      "influence": "What stays within your influence?",
+      "influencePlaceholder": "Daily rhythm, conversations, asking for support, caring for your body…",
+      "notControlled": "What is beyond full control?",
+      "notControlledPlaceholder": "Other people's decisions, biology, the time change takes…",
+      "tradeoffs": "Which trade-offs do you consciously accept?",
+      "tradeoffsPlaceholder": "What will you do less of to make room for this direction?",
+      "portfolioTitle": "This direction will join",
+      "portfolioEmpty": "You have no active priorities right now.",
+      "limitTitle": "The portfolio is full ({count}/{max})",
+      "limitBody": "The new direction will be saved as a draft waiting for a slot — or free one up by pausing a current priority.",
+      "pause": "Pause"
+    },
+    "signals": {
+      "progressTitle": "Progress signals",
+      "riskTitle": "Risk signals",
+      "addPlaceholder": "Add a signal and confirm with Enter",
+      "endingLabel": "Does this direction have a natural ending?",
+      "endingOpen": "Open-ended",
+      "endingOpenHint": "Yearly re-confirmation",
+      "endingNatural": "Natural ending",
+      "endingNaturalHint": "An event, not a forced deadline",
+      "endingDescriptionLabel": "How will you know this chapter has closed?",
+      "endingDescriptionPlaceholder": "Describe the event or state that will naturally close this direction."
+    },
+    "support": {
+      "intro": "Proposals are material for reflection — not a commitment. Only the selected ones become objects.",
+      "newTitle": "New proposals",
+      "newHint": "They will be created as drafts to configure after the ritual.",
+      "addTitlePlaceholder": "New object name",
+      "addButton": "Add",
+      "libraryTitle": "From your library",
+      "libraryHint": "Selecting creates just the link — the object already exists.",
+      "libraryEmpty": "No open objects to attach.",
+      "noneYet": "The map is empty — add your own proposal or attach something from the library.",
+      "removeLabel": "Remove proposal",
+      "types": {
+        "goal": "Goal",
+        "habit": "Habit",
+        "tracker": "Tracker",
+        "weeklyIntention": "Intention"
+      }
+    },
+    "relations": {
+      "intro": "The same object can support several priorities in different ways.",
+      "contributionLabel": "It helps because…",
+      "contributionPlaceholder": "How does this object genuinely support the direction?",
+      "expectedSignalLabel": "Expected signal",
+      "expectedSignalPlaceholder": "How will you know this support is working?",
+      "empty": "No support objects selected. Go back to the support map or create the priority alone.",
+      "newBadge": "New draft",
+      "existingBadge": "From library"
+    },
+    "review": {
+      "meaningTitle": "Meaning",
+      "endingTitle": "Ending",
+      "endingOpenText": "Open-ended, re-confirmed yearly.",
+      "signalsTitle": "Signals",
+      "signalsEmpty": "No signals defined — they will return in monthly reflection once you add them.",
+      "supportTitle": "Starting objects",
+      "supportEmpty": "No support objects — you can fill the map in later.",
+      "draftNotice": "The portfolio is full — the priority will be saved as a draft waiting for a slot.",
+      "pendingNotice": "New-object proposals ({count}) will be created as drafts to configure."
+    },
+    "footer": {
+      "back": "Back",
+      "next": "Next",
+      "finish": "Create priority",
+      "finishWithCount": "Create priority and objects: {count}",
+      "finishDraft": "Save as draft",
+      "saving": "Creating…"
+    },
+    "success": {
+      "eyebrowActive": "Priority active",
+      "eyebrowDraft": "Draft saved",
+      "body": "The direction and selected links were created. Each relation has a contribution note and an expected signal.",
+      "pendingTitle": "To finish",
+      "pendingHint": "These proposals await configuration in the objects library.",
+      "goToLibrary": "Go to the library"
+    },
+    "errors": {
+      "finishFailed": "Failed to create the priority. Please try again."
+    },
+    "entry": {
+      "start": "Start the ritual"
+    },
+    "drafts": {
+      "title": "To finish",
+      "count": "{count}",
+      "hint": "These proposals await creation and configuration.",
+      "finish": "Create and finish",
+      "creating": "Creating…",
+      "remove": "Remove proposal",
+      "createdToast": "Created \"{title}\". Finish configuring it in the objects tab.",
+      "errorCreate": "Failed to create the object from the proposal.",
+      "errorRemove": "Failed to remove the proposal.",
+      "types": {
+        "goal": "Goal",
+        "habit": "Habit",
+        "tracker": "Tracker",
+        "weeklyIntention": "Intention"
+      }
     }
   },
   "reflection": {

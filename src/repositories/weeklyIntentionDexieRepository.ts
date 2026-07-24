@@ -8,7 +8,7 @@ import type { WeekRef } from '@/domain/period'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { WeeklyIntentionRepository } from './weeklyIntentionRepository'
-import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
+import { createPlanningRecord, requireRecord, retirePriorityLinksForSubject, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
 
 /**
  * Records written before intentions could link priorities have no
@@ -86,7 +86,10 @@ class WeeklyIntentionDexieRepository implements WeeklyIntentionRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await this.db.weeklyIntentions.delete(id)
+      await this.db.transaction('rw', [this.db.weeklyIntentions, this.db.priorityLinks], async () => {
+        await this.db.weeklyIntentions.delete(id)
+        await retirePriorityLinksForSubject(this.db.priorityLinks, { subjectType: 'weeklyIntention', subjectId: id })
+      })
       invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete weekly intention with id ${id}:`, error)

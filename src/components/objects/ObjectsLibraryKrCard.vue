@@ -1,5 +1,5 @@
 <template>
-  <div class="group/card neo-raised rounded-lg border border-neu-border/30 bg-gradient-to-br from-neu-top to-neu-bottom">
+  <div class="group/card mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper">
     <div class="space-y-2 p-2.5">
       <!-- Row 1: Title + [hover: expand, menu] + Status -->
       <div class="flex items-center gap-2">
@@ -14,7 +14,7 @@
         <div class="-mr-[76px] flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
           <button
             type="button"
-            class="neo-icon-button neo-icon-button--flat neo-focus shrink-0"
+            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet shrink-0"
             :aria-label="isExpanded ? t('planning.objects.actions.hideDetails') : t('planning.objects.actions.showDetails')"
             @click="$emit('toggle-expand')"
           >
@@ -24,7 +24,7 @@
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="neo-icon-button neo-icon-button--flat neo-focus shrink-0"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet shrink-0"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >
@@ -32,7 +32,7 @@
             </button>
             <div
               v-if="menuOpen"
-              class="absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden rounded-xl border border-outline/30 bg-surface shadow-lg"
+              class="mg-v2-popover absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden"
               @click.stop
             >
               <button
@@ -65,13 +65,13 @@
           v-if="!isExpanded"
           class="flex flex-1 flex-wrap gap-1.5"
         >
-          <span class="neo-badge px-2 py-0.5 text-[10px]">
+          <span class="mg-v2-badge">
             {{ cadenceLabel }}
           </span>
-          <span class="neo-badge px-2 py-0.5 text-[10px]">
+          <span class="mg-v2-badge">
             {{ entryModeLabel }}
           </span>
-          <span class="neo-badge px-2 py-0.5 text-[10px]">
+          <span class="mg-v2-badge">
             {{ formatMeasurementTargetSummary(child.target, t) }}
           </span>
         </div>
@@ -92,12 +92,12 @@
               </div>
               <div
                 ref="periodsAreaRef"
-                class="group relative min-h-[60px] rounded-lg border border-white/40 bg-white/30 p-1.5"
+                class="mg-v2-surface mg-v2-surface--flat group relative min-h-[60px] p-1.5"
               >
                 <!-- (+) button on hover -->
                 <button
                   type="button"
-                  class="absolute left-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full border border-white/50 bg-white/80 text-on-surface-variant opacity-0 shadow-sm transition-opacity duration-150 hover:bg-primary-soft hover:text-primary group-hover:opacity-100"
+                  class="period-add-button absolute left-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full opacity-0 transition-opacity duration-150 group-hover:opacity-100"
                   @click.stop="periodPickerOpen = !periodPickerOpen"
                 >
                   <AppIcon name="add" class="text-xs" />
@@ -107,7 +107,7 @@
                 <div
                   v-if="periodPickerOpen"
                   ref="periodPickerRef"
-                  class="absolute left-0 top-7 z-20 max-h-[180px] min-w-[140px] overflow-y-auto rounded-xl border border-outline/30 bg-surface shadow-lg"
+                  class="mg-v2-popover absolute left-0 top-7 z-20 max-h-[180px] min-w-[140px] overflow-y-auto"
                   @click.stop
                   @scroll="onPickerScroll"
                 >
@@ -129,7 +129,7 @@
                   <span
                     v-for="period in linkedPeriods"
                     :key="period.periodRef"
-                    class="inline-flex items-center gap-0.5 rounded-full border border-white/55 bg-white/45 px-2 py-0.5 text-[10px] font-medium text-on-surface-variant"
+                    class="mg-v2-badge gap-0.5"
                   >
                     {{ period.displayLabel }}
                     <button
@@ -182,7 +182,7 @@
             <textarea
               ref="descriptionRef"
               v-model="description"
-              class="neo-input min-h-[2.5rem] w-full resize-y px-2 py-1 text-xs"
+              class="mg-v2-field w-full resize-y text-xs"
               :placeholder="t('planning.objects.form.completionRulesPlaceholder')"
               @blur="flushDescription"
             />
@@ -460,3 +460,17 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
 })
 </script>
+
+<style scoped>
+.period-add-button {
+  border: 1px solid var(--mg-color-border);
+  color: var(--mg-color-muted);
+  background: var(--mg-color-surface);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.period-add-button:hover {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-primary-soft);
+}
+</style>

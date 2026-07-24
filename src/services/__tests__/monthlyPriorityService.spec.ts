@@ -111,6 +111,37 @@ describe('monthlyPriorityService', () => {
     expect(row).toBeUndefined()
   })
 
+  it('stores observed progress/risk signals, deduped, with no other content', async () => {
+    const priority = await makePriority('Balance')
+
+    await setMonthlyPriorityAssessment(MONTH, priority.id, {
+      observedProgressSignals: ['więcej spokoju', 'więcej spokoju', '  '],
+      observedRiskSignals: ['presja wyniku'],
+    })
+
+    const row = await reflectionDexieRepository.getPeriodObjectReflection('month', MONTH, 'priority', priority.id)
+    expect(row?.observedProgressSignals).toEqual(['więcej spokoju'])
+    expect(row?.observedRiskSignals).toEqual(['presja wyniku'])
+    // Signals alone are enough content to keep the row.
+    expect(row?.effort).toBeNull()
+  })
+
+  it('deletes the row when signals are cleared alongside effort/verdict/note', async () => {
+    const priority = await makePriority('Balance')
+    await setMonthlyPriorityAssessment(MONTH, priority.id, { observedProgressSignals: ['x'] })
+
+    await setMonthlyPriorityAssessment(MONTH, priority.id, {
+      effort: null,
+      verdict: null,
+      note: '',
+      observedProgressSignals: [],
+      observedRiskSignals: [],
+    })
+
+    const row = await reflectionDexieRepository.getPeriodObjectReflection('month', MONTH, 'priority', priority.id)
+    expect(row).toBeUndefined()
+  })
+
   it('rejects an assessment for a non-existent priority', async () => {
     await expect(
       setMonthlyPriorityAssessment(MONTH, 'missing-id', { effort: 3 }),

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { getPeriodRefsForDate } from '@/utils/periods'
-import { resolveCalendarMonthExperiment } from './calendarExperimentQuery'
+import { resolvePlanningUi } from './planningUi'
 
 const PUBLIC_ROUTES = ['login', 'signup']
 
@@ -10,7 +10,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/today',
+      redirect: '/calendar',
     },
     // Auth routes (public)
     {
@@ -27,47 +27,60 @@ const router = createRouter({
     {
       path: '/today',
       name: 'today',
-      component: () => import('@/views/TodayView.vue'),
+      redirect: route => ({
+        name: 'calendar-day',
+        params: { dayRef: getPeriodRefsForDate(new Date()).day },
+        query: route.query,
+      }),
     },
     {
       path: '/today/:dayRef',
       name: 'today-day',
-      component: () => import('@/views/TodayView.vue'),
-      props: route => ({ dayRef: route.params.dayRef }),
+      redirect: route => ({
+        name: 'calendar-day',
+        params: { dayRef: route.params.dayRef },
+        query: route.query,
+      }),
     },
     {
       path: '/calendar',
-      redirect: () => {
-        // The "Kalendarz" view now opens the Strumień stream calendar, landed on
-        // the current month (ribbon of weeks + the month detail panel). The
-        // classic planning/reflection view stays reachable from there.
-        const { month } = getPeriodRefsForDate(new Date())
-        return { name: 'calendar-stream', params: { periodRef: month } }
-      },
+      redirect: route => ({
+        name: 'calendar-day',
+        params: { dayRef: getPeriodRefsForDate(new Date()).day },
+        query: route.query,
+      }),
+    },
+    {
+      path: '/calendar/day/:dayRef',
+      name: 'calendar-day',
+      component: () => import('@/views/PlanningWorkspaceView.vue'),
+      props: route => ({
+        scale: 'day',
+        periodRef: route.params.dayRef,
+        ui: resolvePlanningUi(route.query),
+      }),
     },
     {
       path: '/calendar/year/:yearRef',
       name: 'calendar-year',
-      component: () => import('@/views/CalendarView.vue'),
-      props: route => ({ scale: 'year', periodRef: route.params.yearRef }),
+      component: () => import('@/views/PlanningWorkspaceView.vue'),
+      props: route => ({ scale: 'year', periodRef: route.params.yearRef, ui: resolvePlanningUi(route.query) }),
     },
     {
       path: '/calendar/month/:monthRef',
       name: 'calendar-month',
-      component: () => import('@/views/CalendarView.vue'),
-      // Month V2 experiment flags (?layout=v2&chart=…&density=…) resolve to props
-      // with per-field fallbacks; without them the legacy renderer is the default.
+      component: () => import('@/views/PlanningWorkspaceView.vue'),
       props: route => ({
         scale: 'month',
         periodRef: route.params.monthRef,
-        ...resolveCalendarMonthExperiment(route.query),
+        ui: resolvePlanningUi(route.query),
       }),
     },
     {
       path: '/calendar/week/:weekRef',
       name: 'calendar-week',
-      component: () => import('@/views/CalendarView.vue'),
-      props: route => ({ scale: 'week', periodRef: route.params.weekRef }),
+      component: () => import('@/views/PlanningWorkspaceView.vue'),
+      props: route => ({ scale: 'week', periodRef: route.params.weekRef, ui: resolvePlanningUi(route.query) }),
     },
     // Alternative "Strumień" (stream) calendar view — a single drill-down stream
     // of cards across year → month → week. Kept alongside the classic calendar.
@@ -85,6 +98,13 @@ const router = createRouter({
     {
       path: '/objects/initiatives',
       redirect: '/objects/intentions',
+    },
+    // Priority creation is a transactional ritual on its own route (spec:
+    // ideas/html-plans/2026-07-23-priority-creator-port.html).
+    {
+      path: '/objects/priorities/ritual',
+      name: 'priority-creator-ritual',
+      component: () => import('@/views/PriorityCreatorView.vue'),
     },
     {
       path: '/objects/:family',

@@ -4,7 +4,7 @@
     <div v-if="iconOnly" class="relative">
       <button
         type="button"
-        class="neo-icon-button neo-icon-button--flat neo-focus"
+        class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
         :title="t('planning.objects.actions.links')"
         :aria-label="t('planning.objects.actions.links')"
         @click.stop="open = !open"
@@ -22,7 +22,7 @@
     <button
       v-else
       type="button"
-      class="neo-badge neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] transition-colors hover:bg-white/70"
+      class="mg-v2-badge goal-links-v2__trigger gap-1 px-2.5 py-1 text-[11px] transition-colors"
       @click.stop="open = !open"
     >
       {{ t('planning.objects.actions.links') }}
@@ -33,7 +33,7 @@
     <!-- Level 1 -->
     <div
       v-if="open"
-      class="absolute left-0 z-20 mt-1 min-w-[160px] rounded-xl border border-outline/30 bg-surface shadow-lg"
+      class="mg-v2-popover absolute left-0 z-20 mt-1 min-w-[160px]"
       @click.stop
     >
       <button
@@ -77,7 +77,7 @@
       <!-- Level 2 -->
       <div
         v-if="activeCategory && activeCategoryOptions.length > 0"
-        class="absolute left-full top-0 z-30 ml-0.5 max-h-[240px] min-w-[160px] overflow-y-auto rounded-xl border border-outline/30 bg-surface shadow-lg"
+        class="mg-v2-popover absolute left-full top-0 z-30 ml-0.5 max-h-[240px] min-w-[160px] overflow-y-auto"
         @click.stop
       >
         <button
@@ -170,3 +170,9 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
 })
 </script>
+
+<style scoped>
+.goal-links-v2__trigger:hover {
+  background: var(--mg-color-surface);
+}
+</style>

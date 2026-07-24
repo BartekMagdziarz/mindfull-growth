@@ -1,13 +1,5 @@
 <template>
   <svg :viewBox="`0 0 ${VIEWBOX_W} ${vH}`" width="100%" overflow="visible" aria-hidden="true">
-    <defs>
-      <!-- Area fill gradient: primary chart color fading to transparent -->
-      <linearGradient :id="gradientIds.area" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="rgb(var(--neo-chart-primary-start))" stop-opacity="0.30" />
-        <stop offset="100%" stop-color="rgb(var(--neo-chart-primary-start))" stop-opacity="0.03" />
-      </linearGradient>
-    </defs>
-
     <!-- Target reference line -->
     <line
       v-if="showTargetLine"
@@ -15,21 +7,26 @@
       :y1="tLineY"
       :x2="VIEWBOX_W - PADDING_X"
       :y2="tLineY"
-      stroke="rgb(var(--color-on-surface-variant))"
-      stroke-opacity="0.25"
+      stroke="rgb(var(--color-primary))"
+      stroke-opacity="0.8"
       stroke-width="1"
-      stroke-dasharray="3 2"
+      stroke-linecap="round"
+      stroke-dasharray="6 6"
     />
 
-    <!-- Area fill (one piece per contiguous data segment; isFuture pieces
-         render at reduced opacity so the area beneath post-cutoff points stays
-         visible but visibly secondary). -->
+    <!-- Soft echo stroke under the line (one piece per contiguous data
+         segment; isFuture pieces render at reduced opacity so the tail past
+         the current period stays visible but visibly secondary). -->
     <path
       v-for="(piece, si) in dataPieces"
-      :key="'area-' + si"
-      :d="piece.areaPath"
-      :fill="`url(#${gradientIds.area})`"
-      :opacity="piece.isFuture ? 0.4 : 1"
+      :key="'echo-' + si"
+      :d="piece.linePath"
+      fill="none"
+      stroke="rgb(var(--sky-200) / 0.72)"
+      stroke-width="6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      :stroke-opacity="piece.isFuture ? 0.4 : 1"
     />
 
     <!-- Line stroke. A run that crosses the current/future boundary is split
@@ -40,22 +37,20 @@
       :key="'line-' + si"
       :d="piece.linePath"
       fill="none"
-      stroke="rgb(var(--neo-chart-primary-end))"
-      stroke-width="2"
+      stroke="rgb(var(--sky-600))"
+      stroke-width="3"
       stroke-linecap="round"
       stroke-linejoin="round"
       :stroke-opacity="piece.isFuture ? 0.4 : 1"
     />
 
-    <!-- Data point dots -->
+    <!-- Endpoint dot on the last measured value -->
     <circle
-      v-for="(point, i) in visiblePoints"
-      :key="point.periodRef"
-      :cx="pointX(i)"
-      :cy="pointY(point)"
-      :r="point.status === 'no-data' ? 2 : 3"
-      :fill="dotFill(point.status)"
-      :fill-opacity="point.status === 'no-data' ? 0.2 : point.isCurrent === false ? 0.5 : 1"
+      v-if="endpoint"
+      :cx="endpoint.x"
+      :cy="endpoint.y"
+      r="4"
+      fill="rgb(var(--sky-600))"
     />
 
     <!-- Period labels -->
@@ -63,12 +58,13 @@
       v-for="(point, i) in visiblePoints"
       :key="'label-' + point.periodRef"
       v-show="!hideLabels && shouldShowLabel(i, visiblePoints.length, cadence)"
+      class="sparkline-label"
       :x="pointX(i)"
       :y="vH - 2"
       text-anchor="middle"
       font-size="9"
-      fill="rgb(var(--color-on-surface-variant))"
-      fill-opacity="0.6"
+      font-weight="700"
+      fill="rgb(var(--neo-muted))"
     >
       {{ periodLabel(point.periodRef, cadence, locale) }}
     </text>
@@ -92,7 +88,6 @@ import {
   targetLineY,
   shouldShowLabel,
   periodLabel,
-  useGradientIds,
 } from './sparklineUtils'
 
 const props = withDefaults(
@@ -108,7 +103,6 @@ const props = withDefaults(
 )
 
 const { locale } = useT()
-const gradientIds = useGradientIds('vline')
 
 const vH = computed(() => (props.compact ? COMPACT_VIEWBOX_H : VIEWBOX_H))
 const cH = computed(() => (props.compact ? COMPACT_CHART_HEIGHT : CHART_HEIGHT))
@@ -135,7 +129,16 @@ function pointY(point: ObjectsLibraryChartPoint): number {
   return PADDING_TOP + cH.value - Math.max(h, 1)
 }
 
-const baseline = computed(() => PADDING_TOP + cH.value)
+/** Last non-future point that carries data — the "you are here" endpoint. */
+const endpoint = computed(() => {
+  for (let i = visiblePoints.value.length - 1; i >= 0; i--) {
+    const point = visiblePoints.value[i]
+    if (point.status !== 'no-data' && point.isCurrent !== false) {
+      return { x: pointX(i), y: pointY(point) }
+    }
+  }
+  return null
+})
 
 // --- Build contiguous segments (break at no-data) ---
 interface DataRun {
@@ -196,7 +199,6 @@ function monotonePath(xs: number[], ys: number[]): string {
 
 interface DataPiece {
   linePath: string
-  areaPath: string
   isFuture: boolean
 }
 
@@ -211,9 +213,7 @@ function buildPiece(
 ): DataPiece {
   const xs = points.map((_, j) => pointX(startIndex + j))
   const ys = points.map((p) => pointY(p))
-  const linePath = monotonePath(xs, ys)
-  const areaPath = `${linePath}L${xs[xs.length - 1]},${baseline.value}L${xs[0]},${baseline.value}Z`
-  return { linePath, areaPath, isFuture }
+  return { linePath: monotonePath(xs, ys), isFuture }
 }
 
 /**
@@ -260,17 +260,21 @@ const dataPieces = computed<DataPiece[]>(() => {
 
   return pieces
 })
+</script>
 
-function dotFill(status: ObjectsLibraryChartPoint['status']): string {
-  switch (status) {
-    case 'met':
-    case 'no-target':
-      return 'rgb(var(--neo-chart-primary-end))'
-    case 'missed':
-      return 'rgb(var(--color-error))'
-    case 'no-data':
-    default:
-      return 'rgb(var(--color-outline))'
+<style scoped>
+.sparkline-label {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+svg:hover .sparkline-label {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkline-label {
+    transition: none;
   }
 }
-</script>
+</style>

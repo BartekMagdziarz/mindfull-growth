@@ -2,7 +2,7 @@
   <div ref="rootRef" class="relative">
     <button
       type="button"
-      class="neo-badge neo-focus flex items-center gap-1 px-2.5 py-1 text-[11px] transition-colors hover:bg-white/70"
+      class="mg-v2-badge priority-years-v2__trigger gap-1 px-2.5 py-1 text-[11px] transition-colors"
       :aria-label="buttonLabel"
       @click.stop="open = !open"
     >
@@ -18,7 +18,7 @@
     <div
       v-if="open"
       ref="listEl"
-      class="absolute left-0 z-20 mt-1 max-h-[220px] min-w-[120px] overflow-y-auto rounded-xl border border-outline/30 bg-surface shadow-lg"
+      class="mg-v2-popover absolute left-0 z-20 mt-1 max-h-[220px] min-w-[120px] overflow-y-auto"
       @click.stop
       @scroll="onListScroll"
     >
@@ -154,3 +154,9 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleOutsideClick)
 })
 </script>
+
+<style scoped>
+.priority-years-v2__trigger:hover {
+  background: var(--mg-color-surface);
+}
+</style>

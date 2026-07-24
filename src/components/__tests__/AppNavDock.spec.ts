@@ -11,6 +11,8 @@ function createTestRouter() {
       { path: '/today', component: { template: '<div />' } },
       { path: '/today/:dayRef', component: { template: '<div />' } },
       { path: '/calendar', component: { template: '<div />' } },
+      { path: '/calendar/day/:dayRef', component: { template: '<div />' } },
+      { path: '/calendar/week/:weekRef', component: { template: '<div />' } },
       { path: '/objects/:family', component: { template: '<div />' } },
       { path: '/journal', component: { template: '<div />' } },
       { path: '/emotions', component: { template: '<div />' } },
@@ -35,27 +37,25 @@ async function renderDock(path: string, props: { pinned: boolean }) {
 }
 
 describe('AppNavDock', () => {
-  it('renders all nav items with Today first', async () => {
+  it('renders one Calendar entry as the first planning destination', async () => {
     const { container } = await renderDock('/journal', { pinned: true })
 
     const items = screen.getAllByText(
-      /Today|Calendar|Objects|Journal|Emotions|History|Exercises|Profile/,
+      /Calendar|Objects|Journal|Emotions|History|Exercises|Profile/,
     )
-    expect(items[0]).toHaveTextContent('Today')
+    expect(items[0]).toHaveTextContent('Calendar')
+    expect(screen.queryByText('Today')).not.toBeInTheDocument()
     expect(screen.getByText('Calendar')).toBeInTheDocument()
     expect(screen.getByText('Profile')).toBeInTheDocument()
-    expect(container.querySelectorAll('a.dock-item')).toHaveLength(8)
+    expect(container.querySelectorAll('a.dock-item')).toHaveLength(7)
   })
 
-  it.each(['/today', '/today/2026-03-12'])(
-    'marks Today active on %s',
+  it.each(['/calendar', '/calendar/day/2026-03-12', '/calendar/week/2026-W11'])(
+    'marks Calendar active on %s',
     async (path) => {
       await renderDock(path, { pinned: true })
 
-      expect(screen.getByText('Today').closest('a')).toHaveClass(
-        'dock-item--active',
-      )
-      expect(screen.getByText('Calendar').closest('a')).not.toHaveClass(
+      expect(screen.getByText('Calendar').closest('a')).toHaveClass(
         'dock-item--active',
       )
     },

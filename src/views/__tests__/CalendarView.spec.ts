@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CalendarView from '../CalendarView.vue'
@@ -13,6 +13,7 @@ import { resetPlanningTestData } from '@/test/planningTestUtils'
 import { toggleMeasurementDayAssignment } from '@/services/planningMutations'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import { getChildPeriods, parsePeriodRef } from '@/utils/periods'
+import { resolveCalendarMonthExperiment } from '@/router/calendarExperimentQuery'
 
 function createTestRouter() {
   return createRouter({
@@ -34,7 +35,11 @@ function createTestRouter() {
         path: '/calendar/month/:monthRef',
         name: 'calendar-month',
         component: CalendarView,
-        props: route => ({ scale: 'month', periodRef: route.params.monthRef }),
+        props: route => ({
+          scale: 'month',
+          periodRef: route.params.monthRef,
+          ...resolveCalendarMonthExperiment(route.query),
+        }),
       },
       {
         path: '/calendar/week/:weekRef',
@@ -198,12 +203,8 @@ describe('CalendarView', () => {
     // edit-plan button). The single plan/reflection affordance is the "Open week"
     // ritual entry; there is no toolbar plan/reflection button on this scale.
     expect(screen.getByRole('button', { name: /open week/i })).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: /edit plan/i }),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: /edit reflection/i }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /edit plan/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /edit reflection/i })).not.toBeInTheDocument()
     expect(screen.getAllByText('Review open work').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Confidence score').length).toBeGreaterThan(0)
   })
@@ -270,17 +271,13 @@ describe('CalendarView', () => {
     expect(screen.getByText('Emotions')).toBeInTheDocument()
     expect(screen.getByText('Summary')).toBeInTheDocument()
     expect(
-      screen.getByText('Open the month to plan it and assign objects to weeks.'),
+      screen.getByText('Open the month to plan it and assign objects to weeks.')
     ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: /create plan/i }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /create plan/i })).not.toBeInTheDocument()
 
     // Toolbar plan/reflection actions are now per-card affordances; the
     // toolbar buttons should not appear in the document.
-    expect(
-      screen.queryByRole('button', { name: /edit reflection/i }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /edit reflection/i })).not.toBeInTheDocument()
   })
 
   it('renders the month planner as a week matrix without day cells', async () => {
@@ -434,7 +431,11 @@ describe('CalendarView', () => {
 
     await waitFor(async () => {
       expect(
-        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'keyResult', keyResult.id)
+        await planningStateDexieRepository.getMeasurementMonthState(
+          monthRef,
+          'keyResult',
+          keyResult.id
+        )
       ).toBeTruthy()
     })
     await waitFor(async () => {
@@ -446,7 +447,11 @@ describe('CalendarView', () => {
 
     await waitFor(async () => {
       expect(
-        await planningStateDexieRepository.getMeasurementMonthState(monthRef, 'keyResult', keyResult.id)
+        await planningStateDexieRepository.getMeasurementMonthState(
+          monthRef,
+          'keyResult',
+          keyResult.id
+        )
       ).toBeUndefined()
     })
   })
@@ -485,9 +490,7 @@ describe('CalendarView', () => {
     await openWizardWeeksStep()
 
     // Clicking the week cell places the habit and auto-activates the month.
-    await fireEvent.click(
-      await screen.findByTestId(`matrix-cell-habit:${habit.id}-2026-W11`)
-    )
+    await fireEvent.click(await screen.findByTestId(`matrix-cell-habit:${habit.id}-2026-W11`))
 
     await waitFor(async () => {
       const weekState = await planningStateDexieRepository.getMeasurementWeekState(
@@ -531,7 +534,7 @@ describe('CalendarView', () => {
     })
 
     expect(await screen.findByTestId('monthly-planner')).toBeInTheDocument()
-    expect(screen.queryByTestId('month-v2-summary-rail')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('month-v2-time-panel')).not.toBeInTheDocument()
   })
 
   it('renders the Month V2 shell behind layout=v2 instead of the V1 summary', async () => {
@@ -545,12 +548,18 @@ describe('CalendarView', () => {
       global: { plugins: [router] },
     })
 
-    expect(await screen.findByTestId('month-v2-summary-rail')).toBeInTheDocument()
+    expect(await screen.findByTestId('month-v2-time-panel')).toBeInTheDocument()
     expect(await screen.findByTestId('month-v2-week-grid')).toBeInTheDocument()
     expect(screen.queryByTestId('monthly-planner')).not.toBeInTheDocument()
     expect(screen.queryByText('Weekly recap')).not.toBeInTheDocument()
 
-    // The shell's reflection action opens the shared monthly wizard; closing it
+    // Month V2 has exactly one plan/reflection action set, owned by the main
+    // calendar toolbar rather than a duplicate bar inside the renderer.
+    expect(screen.getAllByRole('button', { name: /create plan/i })).toHaveLength(1)
+    expect(screen.getAllByRole('button', { name: /create reflection/i })).toHaveLength(1)
+    expect(screen.queryByRole('button', { name: /^planning$/i })).not.toBeInTheDocument()
+
+    // The toolbar reflection action opens the shared monthly wizard; closing it
     // remounts the V2 shell (fresh model → compass/matrices refresh).
     await fireEvent.click(screen.getByRole('button', { name: /create reflection/i }))
     expect(await screen.findByTestId('monthly-reflection-wizard')).toBeInTheDocument()
@@ -558,12 +567,15 @@ describe('CalendarView', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
     expect(await screen.findByTestId('month-v2-week-grid')).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: /create plan/i }))
+    expect(await screen.findByTestId('monthly-reflection-wizard')).toBeInTheDocument()
   })
 
   it('keeps the experiment query while paging months and drops it when leaving the month scale', async () => {
     const monthRef = parsePeriodRef('2026-03') as MonthRef
     const router = createTestRouter()
-    await router.push(`/calendar/month/${monthRef}?layout=v2&chart=axis`)
+    await router.push(`/calendar/month/${monthRef}?layout=v2&chart=axis&focus=goals`)
     await router.isReady()
 
     const { container } = render(CalendarView, {
@@ -577,15 +589,65 @@ describe('CalendarView', () => {
     await waitFor(() => {
       expect(router.currentRoute.value.params.monthRef).toBe('2026-04')
     })
-    expect(router.currentRoute.value.query).toMatchObject({ layout: 'v2', chart: 'axis' })
+    expect(router.currentRoute.value.query).toMatchObject({
+      layout: 'v2',
+      chart: 'axis',
+      focus: 'goals',
+    })
 
-    // Switching to the week scale drops layout/chart/density (and only them).
+    // Switching to the week scale drops all Month V2-owned keys (and only them).
     await fireEvent.click(screen.getByRole('button', { name: 'Week' }))
     await waitFor(() => {
       expect(router.currentRoute.value.name).toBe('calendar-week')
     })
     expect(router.currentRoute.value.query.layout).toBeUndefined()
     expect(router.currentRoute.value.query.chart).toBeUndefined()
+    expect(router.currentRoute.value.query.focus).toBeUndefined()
+  })
+
+  it('binds Month V2 focus to the query with replace semantics and removes it for overview', async () => {
+    const monthRef = parsePeriodRef('2026-03') as MonthRef
+    const router = createTestRouter()
+    await router.push(`/calendar/month/${monthRef}?layout=v2&focus=goals`)
+    await router.isReady()
+    const replace = vi.spyOn(router, 'replace')
+
+    render(CalendarView, {
+      props: { scale: 'month', periodRef: monthRef, layout: 'v2', focus: 'goals' },
+      global: {
+        plugins: [router],
+        stubs: {
+          MonthlyOverviewV2: {
+            props: ['focus'],
+            emits: ['focusChange'],
+            template: `
+              <div data-testid="month-v2-focus-stub" :data-focus="focus || 'overview'">
+                <button type="button" @click="$emit('focusChange', 'habits')">Focus habits</button>
+                <button type="button" @click="$emit('focusChange', null)">Show overview</button>
+              </div>
+            `,
+          },
+        },
+      },
+    })
+
+    expect(await screen.findByTestId('month-v2-focus-stub')).toHaveAttribute('data-focus', 'goals')
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Focus habits' }))
+    await waitFor(() => {
+      expect(router.currentRoute.value.query.focus).toBe('habits')
+    })
+    expect(replace).toHaveBeenLastCalledWith({
+      query: expect.objectContaining({ layout: 'v2', focus: 'habits' }),
+    })
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Show overview' }))
+    await waitFor(() => {
+      expect(router.currentRoute.value.query.focus).toBeUndefined()
+    })
+    expect(replace).toHaveBeenLastCalledWith({
+      query: expect.not.objectContaining({ focus: expect.anything() }),
+    })
   })
 
   it('assigns monthly habits to weeks and shows existing day assignments as a badge', async () => {

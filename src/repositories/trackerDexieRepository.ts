@@ -3,7 +3,7 @@ import { normalizeTrackerPayload } from '@/domain/planning'
 import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { TrackerRepository } from './trackerRepository'
-import { createPlanningRecord, requireRecord, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
+import { createPlanningRecord, requireRecord, retirePriorityLinksForSubject, toPlain, updatePlanningRecord } from './planningDexieRepository.shared'
 
 class TrackerDexieRepository implements TrackerRepository {
   private get db() {
@@ -55,7 +55,10 @@ class TrackerDexieRepository implements TrackerRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      await this.db.trackers.delete(id)
+      await this.db.transaction('rw', [this.db.trackers, this.db.priorityLinks], async () => {
+        await this.db.trackers.delete(id)
+        await retirePriorityLinksForSubject(this.db.priorityLinks, { subjectType: 'tracker', subjectId: id })
+      })
       invalidatePlanningQueryCache()
     } catch (error) {
       console.error(`Failed to delete tracker with id ${id}:`, error)

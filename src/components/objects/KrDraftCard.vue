@@ -1,10 +1,10 @@
 <template>
-  <div class="neo-surface space-y-3 rounded-2xl p-4 shadow-neu-raised-sm">
+  <div class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper space-y-3 p-4">
     <div class="flex items-start gap-2">
       <input
         :value="modelValue.title"
         type="text"
-        class="neo-input min-w-0 flex-1 px-3 py-2 text-sm font-medium text-on-surface"
+        class="mg-v2-field min-w-0 flex-1 text-sm font-medium"
         :placeholder="t('planning.goalWizard.steps.measurable.krTitlePlaceholder')"
         :aria-label="t('planning.goalWizard.steps.measurable.krTitleLabel')"
         @input="onTitleInput"
@@ -12,7 +12,7 @@
       <button
         v-if="canRemove"
         type="button"
-        class="neo-icon-button neo-focus shrink-0"
+        class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm shrink-0"
         :aria-label="t('planning.goalWizard.steps.measurable.removeKr')"
         @click="$emit('remove')"
       >
