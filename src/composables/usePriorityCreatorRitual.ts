@@ -13,7 +13,6 @@ import type {
   Goal,
   Habit,
   Priority,
-  PriorityEndingType,
   PriorityLinkProposalObjectType,
   PriorityLinkSubjectRef,
   Tracker,
@@ -56,18 +55,17 @@ export interface RitualFormState {
   title: string
   whyNow: string
   direction: string
-  influence: string
-  notControlled: string
-  tradeoffs: string
-  endingType: PriorityEndingType
-  endingDescription: string
 }
+
+/** Boundary answers are short bullet items; persisted newline-joined in Priority's text fields. */
+export type BoundaryKind = 'influence' | 'notControlled' | 'tradeoffs'
 
 interface RitualDraftBlob {
   stepIndex: number
-  form: RitualFormState
+  form: RitualFormState & Partial<Record<BoundaryKind, string>>
   progressSignals: string[]
   riskSignals: string[]
+  boundaries?: Record<BoundaryKind, string[]>
   proposals: RitualProposalDraft[]
   savedAt: string
 }
@@ -84,11 +82,6 @@ function emptyForm(): RitualFormState {
     title: '',
     whyNow: '',
     direction: '',
-    influence: '',
-    notControlled: '',
-    tradeoffs: '',
-    endingType: 'open',
-    endingDescription: '',
   }
 }
 
@@ -99,7 +92,16 @@ export function usePriorityCreatorRitual() {
   const form = reactive<RitualFormState>(emptyForm())
   const progressSignals = ref<string[]>([])
   const riskSignals = ref<string[]>([])
+  const influenceItems = ref<string[]>([])
+  const notControlledItems = ref<string[]>([])
+  const tradeoffItems = ref<string[]>([])
   const proposals = ref<RitualProposalDraft[]>([])
+
+  const boundaryLists: Record<BoundaryKind, typeof influenceItems> = {
+    influence: influenceItems,
+    notControlled: notControlledItems,
+    tradeoffs: tradeoffItems,
+  }
 
   const hydrated = ref(false)
   const resumedFromDraft = ref(false)
@@ -134,17 +136,34 @@ export function usePriorityCreatorRitual() {
       form: { ...form },
       progressSignals: [...progressSignals.value],
       riskSignals: [...riskSignals.value],
+      boundaries: {
+        influence: [...influenceItems.value],
+        notControlled: [...notControlledItems.value],
+        tradeoffs: [...tradeoffItems.value],
+      },
       proposals: proposals.value.map(item => ({ ...item })),
       savedAt: new Date().toISOString(),
     }
     return JSON.stringify(blob)
   }
 
+  function cleanList(value: unknown): string[] {
+    return Array.isArray(value) ? value.filter((s): s is string => typeof s === 'string') : []
+  }
+
   function applyDraft(blob: RitualDraftBlob): void {
     stepIndex.value = Math.min(Math.max(blob.stepIndex ?? 0, 0), RITUAL_STEPS.length - 1)
-    Object.assign(form, emptyForm(), blob.form ?? {})
-    progressSignals.value = Array.isArray(blob.progressSignals) ? blob.progressSignals.filter(s => typeof s === 'string') : []
-    riskSignals.value = Array.isArray(blob.riskSignals) ? blob.riskSignals.filter(s => typeof s === 'string') : []
+    const { title, whyNow, direction } = { ...emptyForm(), ...(blob.form ?? {}) }
+    Object.assign(form, { title, whyNow, direction })
+    progressSignals.value = cleanList(blob.progressSignals)
+    riskSignals.value = cleanList(blob.riskSignals)
+    for (const kind of Object.keys(boundaryLists) as BoundaryKind[]) {
+      // Legacy drafts kept boundaries as free text on the form — split into bullets.
+      const legacy = typeof blob.form?.[kind] === 'string'
+        ? blob.form[kind]!.split('\n').map(s => s.trim()).filter(Boolean)
+        : []
+      boundaryLists[kind].value = blob.boundaries ? cleanList(blob.boundaries[kind]) : legacy
+    }
     proposals.value = Array.isArray(blob.proposals) ? blob.proposals.filter(p => p && typeof p.id === 'string') : []
     draftSavedAt.value = typeof blob.savedAt === 'string' ? blob.savedAt : null
   }
@@ -159,7 +178,11 @@ export function usePriorityCreatorRitual() {
     }, AUTOSAVE_DEBOUNCE_MS)
   }
 
-  watch([form, progressSignals, riskSignals, proposals, stepIndex], scheduleAutosave, { deep: true })
+  watch(
+    [form, progressSignals, riskSignals, influenceItems, notControlledItems, tradeoffItems, proposals, stepIndex],
+    scheduleAutosave,
+    { deep: true },
+  )
 
   if (getCurrentInstance()) {
     onBeforeUnmount(() => {
@@ -174,6 +197,9 @@ export function usePriorityCreatorRitual() {
     Object.assign(form, emptyForm())
     progressSignals.value = []
     riskSignals.value = []
+    influenceItems.value = []
+    notControlledItems.value = []
+    tradeoffItems.value = []
     proposals.value = []
     resumedFromDraft.value = false
     draftSavedAt.value = null
@@ -248,18 +274,29 @@ export function usePriorityCreatorRitual() {
     if (index >= 0 && index < RITUAL_STEPS.length) stepIndex.value = index
   }
 
-  // ── Signals (lists, same convention as Priority.progressSignals) ─────────
+  // ── Bullet lists (signals + boundaries, same convention as Priority.progressSignals) ─
 
-  function addSignal(kind: 'progress' | 'risk', text: string): void {
+  function addUnique(target: { value: string[] }, text: string): void {
     const trimmed = text.trim()
     if (!trimmed) return
-    const target = kind === 'progress' ? progressSignals : riskSignals
     if (!target.value.includes(trimmed)) target.value = [...target.value, trimmed]
+  }
+
+  function addSignal(kind: 'progress' | 'risk', text: string): void {
+    addUnique(kind === 'progress' ? progressSignals : riskSignals, text)
   }
 
   function removeSignal(kind: 'progress' | 'risk', text: string): void {
     const target = kind === 'progress' ? progressSignals : riskSignals
     target.value = target.value.filter(item => item !== text)
+  }
+
+  function addBoundaryItem(kind: BoundaryKind, text: string): void {
+    addUnique(boundaryLists[kind], text)
+  }
+
+  function removeBoundaryItem(kind: BoundaryKind, text: string): void {
+    boundaryLists[kind].value = boundaryLists[kind].value.filter(item => item !== text)
   }
 
   // ── Support map ──────────────────────────────────────────────────────────
@@ -364,6 +401,9 @@ export function usePriorityCreatorRitual() {
       // may have activated another priority since the boundaries step.
       await loadPortfolio()
 
+      // Boundary bullets persist newline-joined so library textareas keep working.
+      const joined = (items: string[]) => items.join('\n') || undefined
+
       result.value = await createPriorityFromRitual({
         priority: {
           title: form.title.trim(),
@@ -373,13 +413,10 @@ export function usePriorityCreatorRitual() {
           lifeAreaIds: [],
           whyNow: form.whyNow.trim() || undefined,
           desiredDirection: form.direction.trim() || undefined,
-          tradeoffs: form.tradeoffs.trim() || undefined,
-          influence: form.influence.trim() || undefined,
-          notControlled: form.notControlled.trim() || undefined,
-          endingType: form.endingType,
-          endingDescription: form.endingType === 'natural'
-            ? form.endingDescription.trim() || undefined
-            : undefined,
+          tradeoffs: joined(tradeoffItems.value),
+          influence: joined(influenceItems.value),
+          notControlled: joined(notControlledItems.value),
+          // Whether/how a priority ends is decided later, in the monthly reflection.
           progressSignals: [...progressSignals.value],
           riskSignals: [...riskSignals.value],
         },
@@ -403,6 +440,9 @@ export function usePriorityCreatorRitual() {
     form,
     progressSignals,
     riskSignals,
+    influenceItems,
+    notControlledItems,
+    tradeoffItems,
     proposals,
     selectedProposals,
     selectedNewCount,
@@ -427,9 +467,11 @@ export function usePriorityCreatorRitual() {
     goNext,
     goBack,
     goToStep,
-    // signals
+    // bullet lists
     addSignal,
     removeSignal,
+    addBoundaryItem,
+    removeBoundaryItem,
     // support map
     addNewProposal,
     toggleExistingCandidate,

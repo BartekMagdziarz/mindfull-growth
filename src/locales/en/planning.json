@@ -1020,83 +1020,88 @@
     }
   },
   "priorityRitual": {
-    "eyebrow": "Rare ritual",
     "title": "New priority",
-    "description": "From meaning through a support map to consciously chosen starting objects.",
     "resume": {
-      "banner": "You have an unfinished ritual from {date}. Continue or start fresh.",
+      "banner": "You have an unfinished ritual from {date}.",
       "discard": "Discard draft"
     },
     "steps": {
       "meaning": {
         "label": "Meaning",
-        "title": "Name what truly matters"
+        "title": "Name what matters"
       },
       "boundaries": {
         "label": "Boundaries",
-        "title": "Separate influence from what you don't control"
+        "title": "What's up to you, and what isn't?"
       },
       "signals": {
         "label": "Signals",
-        "title": "Define direction and a natural ending"
+        "title": "How will you spot progress and drift?"
       },
       "support": {
-        "label": "Support",
-        "title": "Build a map of possible support"
+        "label": "Work",
+        "title": "What will you work on?"
       },
       "relations": {
-        "label": "Relations",
-        "title": "Explain how each object should help"
+        "label": "Contribution",
+        "title": "How does this work move the direction?"
       },
       "review": {
         "label": "Review",
-        "title": "Check commitments before activation"
+        "title": "Check before creating"
       }
     },
     "meaning": {
       "titleLabel": "Direction name",
-      "titlePlaceholder": "E.g. Pursuing balance between work and recovery",
+      "titlePlaceholder": "E.g. Balance between work and recovery",
       "whyNow": "Why now?",
-      "whyNowPlaceholder": "What makes this direction important at this point in life?",
+      "whyNowPlaceholder": "What makes this important right now?",
       "direction": "What change do you want to experience?",
-      "directionPlaceholder": "Describe the state you want to move toward — not an outcome.",
-      "requiredHint": "Only the name and direction are required to create — the rest can wait."
+      "directionPlaceholder": "The state you want to move toward — not an outcome.",
+      "requiredHint": "Required: name and direction. The rest can wait."
     },
     "boundaries": {
-      "influence": "What stays within your influence?",
-      "influencePlaceholder": "Daily rhythm, conversations, asking for support, caring for your body…",
-      "notControlled": "What is beyond full control?",
-      "notControlledPlaceholder": "Other people's decisions, biology, the time change takes…",
+      "influence": "What's up to you?",
+      "influencePlaceholder": "E.g. daily rhythm, asking for support… Enter adds",
+      "notControlled": "What's beyond control?",
+      "notControlledPlaceholder": "E.g. other people's decisions, pace of change… Enter adds",
       "tradeoffs": "Which trade-offs do you consciously accept?",
-      "tradeoffsPlaceholder": "What will you do less of to make room for this direction?",
-      "portfolioTitle": "This direction will join",
-      "portfolioEmpty": "You have no active priorities right now.",
+      "tradeoffsPlaceholder": "E.g. fewer evening gigs… Enter adds",
+      "removeLabel": "Remove item",
+      "portfolioTitle": "Will join",
+      "portfolioEmpty": "No active priorities.",
       "limitTitle": "The portfolio is full ({count}/{max})",
-      "limitBody": "The new direction will be saved as a draft waiting for a slot — or free one up by pausing a current priority.",
+      "limitBody": "The new priority will be saved as a draft — or pause one of the current ones.",
       "pause": "Pause"
     },
     "signals": {
       "progressTitle": "Progress signals",
       "riskTitle": "Risk signals",
       "addPlaceholder": "Add a signal and confirm with Enter",
-      "endingLabel": "Does this direction have a natural ending?",
-      "endingOpen": "Open-ended",
-      "endingOpenHint": "Yearly re-confirmation",
-      "endingNatural": "Natural ending",
-      "endingNaturalHint": "An event, not a forced deadline",
-      "endingDescriptionLabel": "How will you know this chapter has closed?",
-      "endingDescriptionPlaceholder": "Describe the event or state that will naturally close this direction."
+      "helpLabel": "Hints",
+      "help": {
+        "intro": "Signals return in the monthly reflection — you'll use them to judge whether the direction is alive. Helpful questions:",
+        "progress": [
+          "What will you notice day to day when things improve?",
+          "What will people close to you start to see?",
+          "What small event will confirm you're moving the right way?"
+        ],
+        "risk": [
+          "How will you know you're drifting off course?",
+          "Which old pattern is likely to return first?",
+          "What happens when you neglect this area?"
+        ]
+      }
     },
     "support": {
-      "intro": "Proposals are material for reflection — not a commitment. Only the selected ones become objects.",
       "newTitle": "New proposals",
-      "newHint": "They will be created as drafts to configure after the ritual.",
+      "newHint": "Created as drafts after the priority is created.",
       "addTitlePlaceholder": "New object name",
       "addButton": "Add",
-      "libraryTitle": "From your library",
-      "libraryHint": "Selecting creates just the link — the object already exists.",
+      "libraryTitle": "From the library",
+      "libraryHint": "The object already exists — only the link is created.",
       "libraryEmpty": "No open objects to attach.",
-      "noneYet": "The map is empty — add your own proposal or attach something from the library.",
+      "noneYet": "Add a proposal or attach something from the library.",
       "removeLabel": "Remove proposal",
       "types": {
         "goal": "Goal",
@@ -1106,25 +1111,22 @@
       }
     },
     "relations": {
-      "intro": "The same object can support several priorities in different ways.",
-      "contributionLabel": "It helps because…",
-      "contributionPlaceholder": "How does this object genuinely support the direction?",
+      "contributionLabel": "How does this work move the direction?",
+      "contributionPlaceholder": "What are you working on and what does it actually change?",
       "expectedSignalLabel": "Expected signal",
-      "expectedSignalPlaceholder": "How will you know this support is working?",
-      "empty": "No support objects selected. Go back to the support map or create the priority alone.",
+      "expectedSignalPlaceholder": "How will you know this work is working?",
+      "empty": "No work selected. Go back a step or create the priority alone.",
       "newBadge": "New draft",
       "existingBadge": "From library"
     },
     "review": {
       "meaningTitle": "Meaning",
-      "endingTitle": "Ending",
-      "endingOpenText": "Open-ended, re-confirmed yearly.",
       "signalsTitle": "Signals",
-      "signalsEmpty": "No signals defined — they will return in monthly reflection once you add them.",
-      "supportTitle": "Starting objects",
-      "supportEmpty": "No support objects — you can fill the map in later.",
+      "signalsEmpty": "No signals — you'll add them in the monthly reflection.",
+      "supportTitle": "Work to start with",
+      "supportEmpty": "No linked work — you can fill this in later.",
       "draftNotice": "The portfolio is full — the priority will be saved as a draft waiting for a slot.",
-      "pendingNotice": "New-object proposals ({count}) will be created as drafts to configure."
+      "pendingNotice": "New proposals ({count}) will be created as drafts."
     },
     "footer": {
       "back": "Back",
@@ -1137,13 +1139,13 @@
     "success": {
       "eyebrowActive": "Priority active",
       "eyebrowDraft": "Draft saved",
-      "body": "The direction and selected links were created. Each relation has a contribution note and an expected signal.",
+      "body": "The priority and its linked work were created.",
       "pendingTitle": "To finish",
       "pendingHint": "These proposals await configuration in the objects library.",
-      "goToLibrary": "Go to the library"
+      "goToLibrary": "Go to library"
     },
     "errors": {
-      "finishFailed": "Failed to create the priority. Please try again."
+      "finishFailed": "Could not create the priority. Try again."
     },
     "entry": {
       "start": "Start the ritual"

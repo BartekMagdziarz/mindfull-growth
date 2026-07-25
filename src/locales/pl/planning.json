@@ -1020,83 +1020,88 @@
     }
   },
   "priorityRitual": {
-    "eyebrow": "Rzadki rytuał",
     "title": "Nowy priorytet",
-    "description": "Od znaczenia przez mapę wsparcia do świadomie wybranych obiektów startowych.",
     "resume": {
-      "banner": "Masz niedokończony rytuał z {date}. Możesz kontynuować albo zacząć od nowa.",
+      "banner": "Masz niedokończony rytuał z {date}.",
       "discard": "Odrzuć szkic"
     },
     "steps": {
       "meaning": {
         "label": "Znaczenie",
-        "title": "Nazwij to, co jest naprawdę ważne"
+        "title": "Nazwij to, co jest ważne"
       },
       "boundaries": {
         "label": "Granice",
-        "title": "Oddziel wpływ od tego, czego nie kontrolujesz"
+        "title": "Co zależy od Ciebie, a co nie?"
       },
       "signals": {
         "label": "Sygnały",
-        "title": "Określ kierunek i naturalne zakończenie"
+        "title": "Po czym poznasz postęp i dryf?"
       },
       "support": {
-        "label": "Wsparcie",
-        "title": "Zbuduj mapę możliwego wsparcia"
+        "label": "Praca",
+        "title": "Nad czym będziesz pracować?"
       },
       "relations": {
-        "label": "Relacje",
-        "title": "Wyjaśnij, jak każdy obiekt ma pomagać"
+        "label": "Wkład",
+        "title": "Jak ta praca przybliża kierunek?"
       },
       "review": {
         "label": "Przegląd",
-        "title": "Sprawdź zobowiązania przed aktywacją"
+        "title": "Sprawdź przed utworzeniem"
       }
     },
     "meaning": {
       "titleLabel": "Nazwa kierunku",
-      "titlePlaceholder": "Np. Dążenie do równowagi między pracą a regeneracją",
-      "whyNow": "Dlaczego właśnie teraz?",
-      "whyNowPlaceholder": "Co sprawia, że ten kierunek jest ważny w tym momencie życia?",
+      "titlePlaceholder": "Np. Równowaga między pracą a regeneracją",
+      "whyNow": "Dlaczego teraz?",
+      "whyNowPlaceholder": "Co sprawia, że to ważne właśnie teraz?",
       "direction": "Jakiej zmiany chcesz doświadczać?",
-      "directionPlaceholder": "Opisz stan, w którego stronę chcesz się przesuwać — nie wynik.",
-      "requiredHint": "Do utworzenia wystarczą nazwa i kierunek — resztę możesz uzupełnić później."
+      "directionPlaceholder": "Stan, w którego stronę chcesz się przesuwać — nie wynik.",
+      "requiredHint": "Wymagane: nazwa i kierunek. Resztę uzupełnisz później."
     },
     "boundaries": {
-      "influence": "Co pozostaje w Twoim wpływie?",
-      "influencePlaceholder": "Rytm dnia, rozmowy, proszenie o wsparcie, dbanie o ciało…",
-      "notControlled": "Co jest poza pełną kontrolą?",
-      "notControlledPlaceholder": "Decyzje innych, biologia, czas potrzebny na zmianę…",
+      "influence": "Co zależy od Ciebie?",
+      "influencePlaceholder": "Np. rytm dnia, proszenie o wsparcie… Enter dodaje",
+      "notControlled": "Co jest poza kontrolą?",
+      "notControlledPlaceholder": "Np. decyzje innych, tempo zmian… Enter dodaje",
       "tradeoffs": "Jakie kompromisy świadomie akceptujesz?",
-      "tradeoffsPlaceholder": "Z czego zrobisz mniej, żeby zrobić miejsce na ten kierunek?",
-      "portfolioTitle": "Ten kierunek dołączy do",
-      "portfolioEmpty": "Nie masz teraz żadnych aktywnych priorytetów.",
+      "tradeoffsPlaceholder": "Np. mniej wieczorów ze zleceniami… Enter dodaje",
+      "removeLabel": "Usuń punkt",
+      "portfolioTitle": "Dołączy do",
+      "portfolioEmpty": "Brak aktywnych priorytetów.",
       "limitTitle": "Portfel jest pełny ({count}/{max})",
-      "limitBody": "Nowy kierunek zapisze się jako szkic czekający na slot — albo zwolnij miejsce, wstrzymując któryś z obecnych.",
+      "limitBody": "Nowy priorytet zapisze się jako szkic — albo wstrzymaj któryś z obecnych.",
       "pause": "Wstrzymaj"
     },
     "signals": {
       "progressTitle": "Sygnały postępu",
       "riskTitle": "Sygnały ryzyka",
       "addPlaceholder": "Dodaj sygnał i zatwierdź Enterem",
-      "endingLabel": "Czy ten kierunek ma naturalne zakończenie?",
-      "endingOpen": "Bezterminowy",
-      "endingOpenHint": "Coroczne potwierdzenie",
-      "endingNatural": "Naturalne zakończenie",
-      "endingNaturalHint": "Wydarzenie, nie wymuszony deadline",
-      "endingDescriptionLabel": "Po czym poznasz, że ten rozdział się zakończył?",
-      "endingDescriptionPlaceholder": "Opisz wydarzenie lub stan, który naturalnie zamknie ten kierunek."
+      "helpLabel": "Podpowiedzi",
+      "help": {
+        "intro": "Sygnały wrócą w refleksji miesięcznej — ocenisz nimi, czy kierunek żyje. Pomocne pytania:",
+        "progress": [
+          "Co zauważysz w codzienności, gdy będzie lepiej?",
+          "Co zaczną dostrzegać bliscy?",
+          "Jakie drobne zdarzenie potwierdzi, że idzie w dobrą stronę?"
+        ],
+        "risk": [
+          "Po czym poznasz, że dryfujesz od kierunku?",
+          "Jaki stary wzorzec może wrócić pierwszy?",
+          "Co dzieje się, gdy zaniedbujesz ten obszar?"
+        ]
+      }
     },
     "support": {
-      "intro": "Propozycje są materiałem do namysłu — nie zobowiązaniem. Obiektami staną się dopiero wybrane.",
       "newTitle": "Nowe propozycje",
-      "newHint": "Powstaną jako szkice do skonfigurowania po rytuale.",
+      "newHint": "Powstaną jako szkice po utworzeniu priorytetu.",
       "addTitlePlaceholder": "Nazwa nowego obiektu",
       "addButton": "Dodaj",
-      "libraryTitle": "Z Twojej biblioteki",
-      "libraryHint": "Zaznaczenie tworzy samo powiązanie — obiekt już istnieje.",
+      "libraryTitle": "Z biblioteki",
+      "libraryHint": "Obiekt już istnieje — powstanie tylko powiązanie.",
       "libraryEmpty": "Brak otwartych obiektów do podpięcia.",
-      "noneYet": "Mapa jest pusta — dodaj własną propozycję albo podepnij coś z biblioteki.",
+      "noneYet": "Dodaj propozycję albo podepnij coś z biblioteki.",
       "removeLabel": "Usuń propozycję",
       "types": {
         "goal": "Cel",
@@ -1106,25 +1111,22 @@
       }
     },
     "relations": {
-      "intro": "Ten sam obiekt może wspierać kilka priorytetów na różne sposoby.",
-      "contributionLabel": "Pomaga, ponieważ…",
-      "contributionPlaceholder": "Jak ten obiekt realnie wspiera kierunek?",
+      "contributionLabel": "Jak ta praca przybliża kierunek?",
+      "contributionPlaceholder": "Nad czym pracujesz i co to realnie zmienia?",
       "expectedSignalLabel": "Oczekiwany sygnał",
-      "expectedSignalPlaceholder": "Po czym poznasz, że to wsparcie działa?",
-      "empty": "Nie wybrano żadnych obiektów wsparcia. Wróć do mapy wsparcia albo utwórz sam priorytet.",
+      "expectedSignalPlaceholder": "Po czym poznasz, że ta praca działa?",
+      "empty": "Nie wybrano żadnej pracy. Wróć krok wstecz albo utwórz sam priorytet.",
       "newBadge": "Nowy szkic",
       "existingBadge": "Z biblioteki"
     },
     "review": {
       "meaningTitle": "Znaczenie",
-      "endingTitle": "Zakończenie",
-      "endingOpenText": "Bezterminowy, potwierdzany corocznie.",
       "signalsTitle": "Sygnały",
-      "signalsEmpty": "Bez zdefiniowanych sygnałów — wrócą w refleksji miesięcznej, gdy je dodasz.",
-      "supportTitle": "Obiekty startowe",
-      "supportEmpty": "Bez obiektów wsparcia — mapę uzupełnisz później.",
+      "signalsEmpty": "Bez sygnałów — dodasz je w refleksji miesięcznej.",
+      "supportTitle": "Praca na start",
+      "supportEmpty": "Bez powiązanej pracy — uzupełnisz później.",
       "draftNotice": "Portfel jest pełny — priorytet zapisze się jako szkic czekający na slot.",
-      "pendingNotice": "Propozycje nowych obiektów ({count}) powstaną jako szkice do skonfigurowania."
+      "pendingNotice": "Nowe propozycje ({count}) powstaną jako szkice."
     },
     "footer": {
       "back": "Wstecz",
@@ -1137,7 +1139,7 @@
     "success": {
       "eyebrowActive": "Priorytet aktywny",
       "eyebrowDraft": "Szkic zapisany",
-      "body": "Utworzono kierunek i wybrane powiązania. Każda relacja ma opis wkładu i oczekiwany sygnał.",
+      "body": "Utworzono priorytet i powiązaną pracę.",
       "pendingTitle": "Do dokończenia",
       "pendingHint": "Te propozycje czekają na konfigurację w bibliotece obiektów.",
       "goToLibrary": "Przejdź do biblioteki"

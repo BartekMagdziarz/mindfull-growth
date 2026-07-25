@@ -29,9 +29,7 @@
     <!-- Ritual -->
     <DsWizardShell
       v-else
-      :eyebrow="t('planning.priorityRitual.eyebrow')"
       :title="t('planning.priorityRitual.title')"
-      :description="t('planning.priorityRitual.description')"
       :current="ritual.stepIndex.value"
       :steps="shellSteps"
     >
@@ -95,19 +93,43 @@
           <!-- 2 · Boundaries + portfolio -->
           <div v-else-if="ritual.currentStep.value === 'boundaries'" key="boundaries" class="space-y-4">
             <div class="grid gap-4 md:grid-cols-2">
-              <label class="mg-v2-field-wrap">
-                <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.boundaries.influence') }}</span>
-                <textarea v-model="ritual.form.influence" rows="4" class="mg-v2-field w-full resize-none text-sm" :placeholder="t('planning.priorityRitual.boundaries.influencePlaceholder')" />
-              </label>
-              <label class="mg-v2-field-wrap">
-                <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.boundaries.notControlled') }}</span>
-                <textarea v-model="ritual.form.notControlled" rows="4" class="mg-v2-field w-full resize-none text-sm" :placeholder="t('planning.priorityRitual.boundaries.notControlledPlaceholder')" />
-              </label>
+              <div
+                v-for="field in boundaryFields"
+                :key="field.kind"
+                class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4"
+                :class="{ 'md:col-span-2': field.kind === 'tradeoffs' }"
+              >
+                <p class="text-sm font-semibold text-on-surface">
+                  {{ t(`planning.priorityRitual.boundaries.${field.kind}`) }}
+                </p>
+                <ul v-if="field.items.value.length" class="space-y-1.5">
+                  <li
+                    v-for="item in field.items.value"
+                    :key="item"
+                    class="flex items-start justify-between gap-2 text-sm text-on-surface"
+                  >
+                    <span class="flex items-start gap-2">
+                      <span aria-hidden="true" class="mt-[7px] size-1.5 shrink-0 rounded-full bg-on-surface-variant" />
+                      {{ item }}
+                    </span>
+                    <button
+                      type="button"
+                      class="mg-v2-button mg-v2-button--icon-sm"
+                      :aria-label="t('planning.priorityRitual.boundaries.removeLabel')"
+                      @click="ritual.removeBoundaryItem(field.kind, item)"
+                    >
+                      <AppIcon name="close" class="text-sm" />
+                    </button>
+                  </li>
+                </ul>
+                <input
+                  class="mg-v2-field w-full text-sm"
+                  :placeholder="t(`planning.priorityRitual.boundaries.${field.kind}Placeholder`)"
+                  :aria-label="t(`planning.priorityRitual.boundaries.${field.kind}`)"
+                  @keydown.enter.prevent="handleAddBoundaryItem(field.kind, $event)"
+                />
+              </div>
             </div>
-            <label class="mg-v2-field-wrap">
-              <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.boundaries.tradeoffs') }}</span>
-              <textarea v-model="ritual.form.tradeoffs" rows="4" class="mg-v2-field w-full resize-none text-sm" :placeholder="t('planning.priorityRitual.boundaries.tradeoffsPlaceholder')" />
-            </label>
 
             <div class="mg-v2-surface mg-v2-surface--inset space-y-3 p-4">
               <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
@@ -150,9 +172,28 @@
           <div v-else-if="ritual.currentStep.value === 'signals'" key="signals" class="space-y-4">
             <div class="grid gap-4 md:grid-cols-2">
               <div v-for="kind in (['progress', 'risk'] as const)" :key="kind" class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
-                <p class="text-sm font-semibold text-on-surface">
-                  {{ t(`planning.priorityRitual.signals.${kind}Title`) }}
-                </p>
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-sm font-semibold text-on-surface">
+                    {{ t(`planning.priorityRitual.signals.${kind}Title`) }}
+                  </p>
+                  <button
+                    type="button"
+                    class="mg-v2-button mg-v2-button--icon-sm"
+                    :aria-label="t('planning.priorityRitual.signals.helpLabel')"
+                    :aria-expanded="signalsHelpOpen[kind]"
+                    @click="signalsHelpOpen[kind] = !signalsHelpOpen[kind]"
+                  >
+                    <AppIcon name="help" class="text-base" />
+                  </button>
+                </div>
+                <div v-if="signalsHelpOpen[kind]" class="mg-v2-surface mg-v2-surface--inset space-y-1.5 p-3 text-xs text-on-surface-variant">
+                  <p>{{ t('planning.priorityRitual.signals.help.intro') }}</p>
+                  <ul class="list-disc space-y-1 pl-4">
+                    <li v-for="question in tList(`planning.priorityRitual.signals.help.${kind}`)" :key="question">
+                      {{ question }}
+                    </li>
+                  </ul>
+                </div>
                 <div class="flex flex-wrap gap-2">
                   <button
                     v-for="signal in (kind === 'progress' ? ritual.progressSignals.value : ritual.riskSignals.value)"
@@ -173,37 +214,10 @@
                 />
               </div>
             </div>
-
-            <div class="space-y-2">
-              <p class="text-sm font-semibold text-on-surface">{{ t('planning.priorityRitual.signals.endingLabel') }}</p>
-              <div class="grid gap-2 md:grid-cols-2">
-                <button
-                  v-for="ending in endingOptions"
-                  :key="ending.value"
-                  type="button"
-                  class="mg-v2-surface p-4 text-left transition"
-                  :class="ritual.form.endingType === ending.value ? 'mg-v2-surface--raised-sm ring-1 ring-primary' : 'mg-v2-surface--flat'"
-                  :aria-pressed="ritual.form.endingType === ending.value"
-                  @click="ritual.form.endingType = ending.value"
-                >
-                  <span class="flex items-center gap-2 text-sm font-semibold text-on-surface">
-                    <AppIcon :name="ending.icon" class="text-base" />
-                    {{ ending.label }}
-                  </span>
-                  <span class="mt-1 block text-xs text-on-surface-variant">{{ ending.hint }}</span>
-                </button>
-              </div>
-              <label v-if="ritual.form.endingType === 'natural'" class="mg-v2-field-wrap">
-                <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.signals.endingDescriptionLabel') }}</span>
-                <textarea v-model="ritual.form.endingDescription" rows="3" class="mg-v2-field w-full resize-none text-sm" :placeholder="t('planning.priorityRitual.signals.endingDescriptionPlaceholder')" />
-              </label>
-            </div>
           </div>
 
-          <!-- 4 · Support map -->
+          <!-- 4 · Work map -->
           <div v-else-if="ritual.currentStep.value === 'support'" key="support" class="space-y-4">
-            <p class="text-sm text-on-surface-variant">{{ t('planning.priorityRitual.support.intro') }}</p>
-
             <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
               <div>
                 <p class="text-sm font-semibold text-on-surface">{{ t('planning.priorityRitual.support.newTitle') }}</p>
@@ -298,9 +312,8 @@
             </div>
           </div>
 
-          <!-- 5 · Relations -->
+          <!-- 5 · Contribution -->
           <div v-else-if="ritual.currentStep.value === 'relations'" key="relations" class="space-y-4">
-            <p class="text-sm text-on-surface-variant">{{ t('planning.priorityRitual.relations.intro') }}</p>
             <p v-if="ritual.selectedProposals.value.length === 0" class="mg-v2-surface mg-v2-surface--inset p-4 text-sm text-on-surface-variant">
               {{ t('planning.priorityRitual.relations.empty') }}
             </p>
@@ -340,12 +353,6 @@
                 <div class="mg-v2-surface mg-v2-surface--flat space-y-1 p-4">
                   <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">{{ t('planning.priorityRitual.review.meaningTitle') }}</p>
                   <p class="text-sm text-on-surface">{{ ritual.form.whyNow || '—' }}</p>
-                </div>
-                <div class="mg-v2-surface mg-v2-surface--flat space-y-1 p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">{{ t('planning.priorityRitual.review.endingTitle') }}</p>
-                  <p class="text-sm text-on-surface">
-                    {{ ritual.form.endingType === 'open' ? t('planning.priorityRitual.review.endingOpenText') : (ritual.form.endingDescription || '—') }}
-                  </p>
                 </div>
                 <div class="mg-v2-surface mg-v2-surface--flat space-y-2 p-4">
                   <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">{{ t('planning.priorityRitual.review.signalsTitle') }}</p>
@@ -418,12 +425,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import PriorityDraftChecklist from '@/components/objects/priority-creator/PriorityDraftChecklist.vue'
 import { DsWizardShell } from '@/design-system/components'
-import { MAX_ACTIVE_PRIORITIES, type PriorityEndingType } from '@/domain/planning'
-import { RITUAL_STEPS, usePriorityCreatorRitual } from '@/composables/usePriorityCreatorRitual'
+import { MAX_ACTIVE_PRIORITIES } from '@/domain/planning'
+import { RITUAL_STEPS, usePriorityCreatorRitual, type BoundaryKind } from '@/composables/usePriorityCreatorRitual'
 import { useT } from '@/composables/useT'
 
 const emit = defineEmits<{
@@ -433,31 +440,23 @@ const emit = defineEmits<{
   error: [message: string]
 }>()
 
-const { t, locale } = useT()
+const { t, tList, locale } = useT()
 const ritual = usePriorityCreatorRitual()
 
 const showResumeBanner = ref(true)
 const newProposalType = ref<'goal' | 'habit' | 'tracker'>('goal')
 const newProposalTitle = ref('')
+const signalsHelpOpen = reactive({ progress: false, risk: false })
 
 const shellSteps = computed(() =>
   RITUAL_STEPS.map(id => ({ id, label: t(`planning.priorityRitual.steps.${id}.label`) })),
 )
 
-const endingOptions = computed(() => [
-  {
-    value: 'open' as PriorityEndingType,
-    icon: 'all_inclusive',
-    label: t('planning.priorityRitual.signals.endingOpen'),
-    hint: t('planning.priorityRitual.signals.endingOpenHint'),
-  },
-  {
-    value: 'natural' as PriorityEndingType,
-    icon: 'flag',
-    label: t('planning.priorityRitual.signals.endingNatural'),
-    hint: t('planning.priorityRitual.signals.endingNaturalHint'),
-  },
-])
+const boundaryFields = [
+  { kind: 'influence' as BoundaryKind, items: ritual.influenceItems },
+  { kind: 'notControlled' as BoundaryKind, items: ritual.notControlledItems },
+  { kind: 'tradeoffs' as BoundaryKind, items: ritual.tradeoffItems },
+]
 
 /** New proposals are goal/habit/tracker; intentions are linked from the library instead. */
 const newProposalTypes = computed(() => ([
@@ -506,6 +505,12 @@ function proposalTypeLabel(type?: string): string {
 function handleAddSignal(kind: 'progress' | 'risk', event: Event): void {
   const input = event.target as HTMLInputElement
   ritual.addSignal(kind, input.value)
+  input.value = ''
+}
+
+function handleAddBoundaryItem(kind: BoundaryKind, event: Event): void {
+  const input = event.target as HTMLInputElement
+  ritual.addBoundaryItem(kind, input.value)
   input.value = ''
 }
 

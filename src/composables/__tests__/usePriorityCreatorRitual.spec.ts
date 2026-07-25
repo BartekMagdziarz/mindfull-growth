@@ -62,12 +62,13 @@ describe('usePriorityCreatorRitual', () => {
     expect(RITUAL_STEPS).toHaveLength(6)
   })
 
-  it('resumes from a persisted draft (step, form, proposals)', async () => {
+  it('resumes from a persisted draft (step, form, boundaries, proposals)', async () => {
     await saveDraftToDB(PRIORITY_CREATOR_DRAFT_KEY, JSON.stringify({
       stepIndex: 3,
-      form: { title: 'Równowaga', direction: 'Spokój', whyNow: '', influence: '', notControlled: '', tradeoffs: '', endingType: 'natural', endingDescription: 'Samo się zamknie' },
+      form: { title: 'Równowaga', direction: 'Spokój', whyNow: '' },
       progressSignals: ['więcej spokoju'],
       riskSignals: [],
+      boundaries: { influence: ['rytm dnia'], notControlled: [], tradeoffs: ['mniej zleceń'] },
       proposals: [{ id: 'p1', kind: 'new', objectType: 'habit', title: 'Spacer', contribution: '', expectedSignal: '', selected: true }],
       savedAt: '2026-07-20T10:00:00.000Z',
     }))
@@ -79,8 +80,26 @@ describe('usePriorityCreatorRitual', () => {
     expect(ritual.draftSavedAt.value).toBe('2026-07-20T10:00:00.000Z')
     expect(ritual.stepIndex.value).toBe(3)
     expect(ritual.form.title).toBe('Równowaga')
-    expect(ritual.form.endingType).toBe('natural')
+    expect(ritual.influenceItems.value).toEqual(['rytm dnia'])
+    expect(ritual.tradeoffItems.value).toEqual(['mniej zleceń'])
     expect(ritual.proposals.value).toHaveLength(1)
+  })
+
+  it('migrates a legacy draft with free-text boundaries into bullets', async () => {
+    await saveDraftToDB(PRIORITY_CREATOR_DRAFT_KEY, JSON.stringify({
+      stepIndex: 1,
+      form: { title: 'Równowaga', direction: 'Spokój', whyNow: '', influence: 'rytm dnia\nrozmowy', notControlled: '', tradeoffs: '', endingType: 'natural', endingDescription: 'Samo się zamknie' },
+      progressSignals: [],
+      riskSignals: [],
+      proposals: [],
+      savedAt: '2026-07-20T10:00:00.000Z',
+    }))
+
+    const ritual = makeRitual()
+    await ritual.initialize()
+
+    expect(ritual.influenceItems.value).toEqual(['rytm dnia', 'rozmowy'])
+    expect(ritual.notControlledItems.value).toEqual([])
   })
 
   it('recovers from a corrupt draft by starting clean', async () => {
@@ -133,6 +152,12 @@ describe('usePriorityCreatorRitual', () => {
     ritual.removeSignal('progress', 'więcej spokoju')
     expect(ritual.progressSignals.value).toEqual([])
 
+    ritual.addBoundaryItem('influence', ' rytm dnia ')
+    ritual.addBoundaryItem('influence', 'rytm dnia')
+    expect(ritual.influenceItems.value).toEqual(['rytm dnia'])
+    ritual.removeBoundaryItem('influence', 'rytm dnia')
+    expect(ritual.influenceItems.value).toEqual([])
+
     const candidate = ritual.libraryCandidates.value.find(item => item.subjectRef.subjectId === habit.id)
     expect(candidate).toBeTruthy()
     ritual.toggleExistingCandidate(candidate!)
@@ -148,11 +173,15 @@ describe('usePriorityCreatorRitual', () => {
     ritual.form.title = 'Równowaga'
     ritual.form.direction = 'Więcej spokoju'
     ritual.addSignal('progress', 'spokój')
+    ritual.addBoundaryItem('influence', 'rytm dnia')
+    ritual.addBoundaryItem('influence', 'rozmowy')
     ritual.addNewProposal('goal', 'Plan przygotowań')
 
     const ok = await ritual.finish()
     expect(ok).toBe(true)
     expect(ritual.result.value?.priority.status).toBe('active')
+    expect(ritual.result.value?.priority.influence).toBe('rytm dnia\nrozmowy')
+    expect(ritual.result.value?.priority.endingType).toBeUndefined()
     expect(ritual.result.value?.links).toHaveLength(1)
     expect(ritual.result.value?.links[0].status).toBe('proposed')
     expect(await loadDraftFromDB(PRIORITY_CREATOR_DRAFT_KEY)).toBeNull()
