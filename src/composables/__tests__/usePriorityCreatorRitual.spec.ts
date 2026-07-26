@@ -7,10 +7,12 @@ import {
 } from '@/composables/usePriorityCreatorRitual'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { loadDraftFromDB, saveDraftToDB } from '@/services/draftStorage'
 import { connectTestDatabase } from '@/test/testDatabase'
+import { getPeriodRefsForDate } from '@/utils/periods'
 import type { UserDatabase } from '@/services/userDatabase.service'
-import type { YearRef } from '@/domain/period'
+import type { WeekRef, YearRef } from '@/domain/period'
 
 async function seedActivePriorities(count: number): Promise<void> {
   for (let index = 0; index < count; index += 1) {
@@ -164,6 +166,31 @@ describe('usePriorityCreatorRitual', () => {
     expect(ritual.isLinkedCandidate(candidate!.subjectRef)).toBe(true)
     ritual.toggleExistingCandidate(candidate!)
     expect(ritual.isLinkedCandidate(candidate!.subjectRef)).toBe(false)
+  })
+
+  it('offers only current-and-future-week intentions as candidates', async () => {
+    const currentWeek = getPeriodRefsForDate(new Date()).week
+    const makeIntention = (title: string, weekRef: WeekRef) =>
+      weeklyIntentionDexieRepository.create({
+        title,
+        weekRef,
+        isActive: true,
+        priorityIds: [],
+        status: 'open',
+        entryMode: 'completion',
+        cadence: 'weekly',
+        target: { kind: 'count', operator: 'min', value: 1 },
+      })
+    await makeIntention('Z przeszłego tygodnia', '2020-W01' as WeekRef)
+    await makeIntention('Z bieżącego tygodnia', currentWeek)
+
+    const ritual = makeRitual()
+    await ritual.initialize()
+
+    const titles = ritual.libraryCandidates.value
+      .filter(item => item.subjectRef.subjectType === 'weeklyIntention')
+      .map(item => item.title)
+    expect(titles).toEqual(['Z bieżącego tygodnia'])
   })
 
   it('finishes as an active priority below the limit and clears the draft', async () => {

@@ -1020,7 +1020,6 @@
     }
   },
   "priorityRitual": {
-    "title": "New priority",
     "resume": {
       "banner": "You have an unfinished ritual from {date}.",
       "discard": "Discard draft"
@@ -1044,7 +1043,7 @@
       },
       "relations": {
         "label": "Contribution",
-        "title": "How does this work move the direction?"
+        "title": "Define each work item's contribution"
       },
       "review": {
         "label": "Review",
@@ -1068,8 +1067,6 @@
       "tradeoffs": "Which trade-offs do you consciously accept?",
       "tradeoffsPlaceholder": "E.g. fewer evening gigs… Enter adds",
       "removeLabel": "Remove item",
-      "portfolioTitle": "Will join",
-      "portfolioEmpty": "No active priorities.",
       "limitTitle": "The portfolio is full ({count}/{max})",
       "limitBody": "The new priority will be saved as a draft — or pause one of the current ones.",
       "pause": "Pause"
@@ -1094,14 +1091,9 @@
       }
     },
     "support": {
-      "newTitle": "New proposals",
-      "newHint": "Created as drafts after the priority is created.",
       "addTitlePlaceholder": "New object name",
       "addButton": "Add",
-      "libraryTitle": "From the library",
-      "libraryHint": "The object already exists — only the link is created.",
-      "libraryEmpty": "No open objects to attach.",
-      "noneYet": "Add a proposal or attach something from the library.",
+      "empty": "No objects — add a new proposal above.",
       "removeLabel": "Remove proposal",
       "types": {
         "goal": "Goal",

@@ -29,7 +29,7 @@
     <!-- Ritual -->
     <DsWizardShell
       v-else
-      :title="t('planning.priorityRitual.title')"
+      :title="t(`planning.priorityRitual.steps.${ritual.currentStep.value}.title`)"
       :current="ritual.stepIndex.value"
       :steps="shellSteps"
     >
@@ -68,10 +68,6 @@
           </div>
         </div>
 
-        <h2 class="text-lg font-semibold text-on-surface">
-          {{ t(`planning.priorityRitual.steps.${ritual.currentStep.value}.title`) }}
-        </h2>
-
         <Transition name="priority-creator-step" mode="out-in">
           <!-- 1 · Meaning -->
           <div v-if="ritual.currentStep.value === 'meaning'" key="meaning" class="space-y-4">
@@ -92,12 +88,11 @@
 
           <!-- 2 · Boundaries + portfolio -->
           <div v-else-if="ritual.currentStep.value === 'boundaries'" key="boundaries" class="space-y-4">
-            <div class="grid gap-4 md:grid-cols-2">
+            <div class="grid gap-4 md:grid-cols-3">
               <div
                 v-for="field in boundaryFields"
                 :key="field.kind"
                 class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4"
-                :class="{ 'md:col-span-2': field.kind === 'tradeoffs' }"
               >
                 <p class="text-sm font-semibold text-on-surface">
                   {{ t(`planning.priorityRitual.boundaries.${field.kind}`) }}
@@ -131,25 +126,22 @@
               </div>
             </div>
 
-            <div class="mg-v2-surface mg-v2-surface--inset space-y-3 p-4">
-              <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-                {{ t('planning.priorityRitual.boundaries.portfolioTitle') }}
+            <div v-if="ritual.atPortfolioLimit.value" class="rounded-xl bg-status-warn-soft p-4 text-status-warn-on">
+              <p class="text-sm font-semibold">
+                {{ t('planning.priorityRitual.boundaries.limitTitle', { count: ritual.activePriorities.value.length, max: maxActivePriorities }) }}
               </p>
-              <p v-if="ritual.activePriorities.value.length === 0" class="text-sm text-on-surface-variant">
-                {{ t('planning.priorityRitual.boundaries.portfolioEmpty') }}
-              </p>
-              <ul v-else class="space-y-2">
+              <p class="text-xs">{{ t('planning.priorityRitual.boundaries.limitBody') }}</p>
+              <ul class="mt-3 space-y-2">
                 <li
                   v-for="priority in ritual.activePriorities.value"
                   :key="priority.id"
-                  class="flex items-center justify-between gap-3 text-sm text-on-surface"
+                  class="flex items-center justify-between gap-3 text-sm"
                 >
                   <span class="flex items-center gap-2">
-                    <AppIcon :name="priority.icon || 'north_star'" class="text-base text-on-surface-variant" />
+                    <AppIcon :name="priority.icon || 'north_star'" class="text-base" />
                     {{ priority.title }}
                   </span>
                   <button
-                    v-if="ritual.atPortfolioLimit.value"
                     type="button"
                     class="mg-v2-button mg-v2-button--quiet text-xs"
                     @click="handlePause(priority.id)"
@@ -159,12 +151,6 @@
                   </button>
                 </li>
               </ul>
-              <div v-if="ritual.atPortfolioLimit.value" class="rounded-xl bg-status-warn-soft p-3 text-status-warn-on">
-                <p class="text-sm font-semibold">
-                  {{ t('planning.priorityRitual.boundaries.limitTitle', { count: ritual.activePriorities.value.length, max: maxActivePriorities }) }}
-                </p>
-                <p class="text-xs">{{ t('planning.priorityRitual.boundaries.limitBody') }}</p>
-              </div>
             </div>
           </div>
 
@@ -216,99 +202,77 @@
             </div>
           </div>
 
-          <!-- 4 · Work map -->
+          <!-- 4 · Work map: one grid — new drafts + library, selection = part of the map -->
           <div v-else-if="ritual.currentStep.value === 'support'" key="support" class="space-y-4">
-            <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
-              <div>
-                <p class="text-sm font-semibold text-on-surface">{{ t('planning.priorityRitual.support.newTitle') }}</p>
-                <p class="text-xs text-on-surface-variant">{{ t('planning.priorityRitual.support.newHint') }}</p>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <div class="flex gap-1">
-                  <button
-                    v-for="option in newProposalTypes"
-                    :key="option.value"
-                    type="button"
-                    class="mg-v2-pill"
-                    :class="{ 'ring-1 ring-primary': newProposalType === option.value }"
-                    :aria-pressed="newProposalType === option.value"
-                    @click="newProposalType = option.value"
-                  >
-                    <AppIcon :name="option.icon" class="text-xs" />
-                    {{ option.label }}
-                  </button>
-                </div>
-                <input
-                  v-model="newProposalTitle"
-                  class="mg-v2-field min-w-[200px] flex-1 text-sm"
-                  :placeholder="t('planning.priorityRitual.support.addTitlePlaceholder')"
-                  @keydown.enter.prevent="handleAddProposal"
-                />
-                <button type="button" class="mg-v2-button text-sm" :disabled="!newProposalTitle.trim()" @click="handleAddProposal">
-                  <AppIcon name="add" class="text-base" />
-                  {{ t('planning.priorityRitual.support.addButton') }}
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex gap-1">
+                <button
+                  v-for="option in newProposalTypes"
+                  :key="option.value"
+                  type="button"
+                  class="mg-v2-pill"
+                  :class="{ 'ring-1 ring-primary': newProposalType === option.value }"
+                  :aria-pressed="newProposalType === option.value"
+                  @click="newProposalType = option.value"
+                >
+                  <AppIcon :name="option.icon" class="text-xs" />
+                  {{ option.label }}
                 </button>
               </div>
-
-              <p v-if="ritual.proposals.value.length === 0" class="text-sm text-on-surface-variant">
-                {{ t('planning.priorityRitual.support.noneYet') }}
-              </p>
-              <div v-else class="grid gap-2 md:grid-cols-2">
-                <div
-                  v-for="proposal in ritual.proposals.value"
-                  :key="proposal.id"
-                  class="mg-v2-surface flex items-start justify-between gap-2 p-3"
-                  :class="proposal.selected ? 'mg-v2-surface--raised-sm ring-1 ring-primary' : 'mg-v2-surface--flat'"
-                >
-                  <button type="button" class="flex flex-1 items-start gap-2 text-left" :aria-pressed="proposal.selected" @click="ritual.toggleProposalSelected(proposal.id)">
-                    <AppIcon :name="proposal.selected ? 'check_circle' : proposalIcon(proposal.kind === 'new' ? proposal.objectType : proposal.subjectRef?.subjectType)" class="mt-0.5 text-base" :class="proposal.selected ? 'text-primary' : 'text-on-surface-variant'" />
-                    <span>
-                      <span class="block text-xs text-on-surface-variant">
-                        {{ proposal.kind === 'new'
-                          ? `${proposalTypeLabel(proposal.objectType)} · ${t('planning.priorityRitual.relations.newBadge')}`
-                          : `${proposalTypeLabel(proposal.subjectRef?.subjectType)} · ${t('planning.priorityRitual.relations.existingBadge')}` }}
-                      </span>
-                      <span class="block text-sm font-medium text-on-surface">{{ proposal.title }}</span>
-                    </span>
-                  </button>
-                  <button
-                    v-if="proposal.kind === 'new'"
-                    type="button"
-                    class="mg-v2-button mg-v2-button--icon-sm"
-                    :aria-label="t('planning.priorityRitual.support.removeLabel')"
-                    @click="ritual.removeProposal(proposal.id)"
-                  >
-                    <AppIcon name="delete" class="text-sm" />
-                  </button>
-                </div>
-              </div>
+              <input
+                v-model="newProposalTitle"
+                class="mg-v2-field min-w-[200px] flex-1 text-sm"
+                :placeholder="t('planning.priorityRitual.support.addTitlePlaceholder')"
+                @keydown.enter.prevent="handleAddProposal"
+              />
+              <button type="button" class="mg-v2-button text-sm" :disabled="!newProposalTitle.trim()" @click="handleAddProposal">
+                <AppIcon name="add" class="text-base" />
+                {{ t('planning.priorityRitual.support.addButton') }}
+              </button>
             </div>
 
-            <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
-              <div>
-                <p class="text-sm font-semibold text-on-surface">{{ t('planning.priorityRitual.support.libraryTitle') }}</p>
-                <p class="text-xs text-on-surface-variant">{{ t('planning.priorityRitual.support.libraryHint') }}</p>
-              </div>
-              <p v-if="ritual.libraryCandidates.value.length === 0" class="text-sm text-on-surface-variant">
-                {{ t('planning.priorityRitual.support.libraryEmpty') }}
-              </p>
-              <div v-else class="grid gap-2 md:grid-cols-2">
-                <button
-                  v-for="candidate in ritual.libraryCandidates.value"
-                  :key="`${candidate.subjectRef.subjectType}:${candidate.subjectRef.subjectId}`"
-                  type="button"
-                  class="mg-v2-surface flex items-center gap-2 p-3 text-left"
-                  :class="ritual.isLinkedCandidate(candidate.subjectRef) ? 'mg-v2-surface--raised-sm ring-1 ring-primary' : 'mg-v2-surface--flat'"
-                  :aria-pressed="ritual.isLinkedCandidate(candidate.subjectRef)"
-                  @click="ritual.toggleExistingCandidate(candidate)"
-                >
-                  <AppIcon :name="ritual.isLinkedCandidate(candidate.subjectRef) ? 'check_circle' : proposalIcon(candidate.subjectRef.subjectType)" class="text-base" :class="ritual.isLinkedCandidate(candidate.subjectRef) ? 'text-primary' : 'text-on-surface-variant'" />
+            <p v-if="newProposals.length === 0 && ritual.libraryCandidates.value.length === 0" class="text-sm text-on-surface-variant">
+              {{ t('planning.priorityRitual.support.empty') }}
+            </p>
+            <div v-else class="grid gap-2 md:grid-cols-2">
+              <div
+                v-for="proposal in newProposals"
+                :key="proposal.id"
+                class="mg-v2-surface mg-v2-surface--raised-sm flex items-start justify-between gap-2 p-3 ring-1 ring-primary"
+              >
+                <span class="flex items-start gap-2">
+                  <AppIcon name="check_circle" class="mt-0.5 text-base text-primary" />
                   <span>
-                    <span class="block text-xs text-on-surface-variant">{{ proposalTypeLabel(candidate.subjectRef.subjectType) }}</span>
-                    <span class="block text-sm font-medium text-on-surface">{{ candidate.title }}</span>
+                    <span class="block text-xs text-on-surface-variant">
+                      {{ proposalTypeLabel(proposal.objectType) }} · {{ t('planning.priorityRitual.relations.newBadge') }}
+                    </span>
+                    <span class="block text-sm font-medium text-on-surface">{{ proposal.title }}</span>
                   </span>
+                </span>
+                <button
+                  type="button"
+                  class="mg-v2-button mg-v2-button--icon-sm"
+                  :aria-label="t('planning.priorityRitual.support.removeLabel')"
+                  @click="ritual.removeProposal(proposal.id)"
+                >
+                  <AppIcon name="delete" class="text-sm" />
                 </button>
               </div>
+              <button
+                v-for="candidate in ritual.libraryCandidates.value"
+                :key="`${candidate.subjectRef.subjectType}:${candidate.subjectRef.subjectId}`"
+                type="button"
+                class="mg-v2-surface flex items-center gap-2 p-3 text-left"
+                :class="ritual.isLinkedCandidate(candidate.subjectRef) ? 'mg-v2-surface--raised-sm ring-1 ring-primary' : 'mg-v2-surface--flat'"
+                :aria-pressed="ritual.isLinkedCandidate(candidate.subjectRef)"
+                @click="ritual.toggleExistingCandidate(candidate)"
+              >
+                <AppIcon :name="ritual.isLinkedCandidate(candidate.subjectRef) ? 'check_circle' : proposalIcon(candidate.subjectRef.subjectType)" class="text-base" :class="ritual.isLinkedCandidate(candidate.subjectRef) ? 'text-primary' : 'text-on-surface-variant'" />
+                <span>
+                  <span class="block text-xs text-on-surface-variant">{{ proposalTypeLabel(candidate.subjectRef.subjectType) }}</span>
+                  <span class="block text-sm font-medium text-on-surface">{{ candidate.title }}</span>
+                </span>
+              </button>
             </div>
           </div>
 
@@ -457,6 +421,9 @@ const boundaryFields = [
   { kind: 'notControlled' as BoundaryKind, items: ritual.notControlledItems },
   { kind: 'tradeoffs' as BoundaryKind, items: ritual.tradeoffItems },
 ]
+
+/** New drafts render in the same grid as library candidates; they are always part of the map until removed. */
+const newProposals = computed(() => ritual.proposals.value.filter(item => item.kind === 'new'))
 
 /** New proposals are goal/habit/tracker; intentions are linked from the library instead. */
 const newProposalTypes = computed(() => ([

@@ -1020,7 +1020,6 @@
     }
   },
   "priorityRitual": {
-    "title": "Nowy priorytet",
     "resume": {
       "banner": "Masz niedokończony rytuał z {date}.",
       "discard": "Odrzuć szkic"
@@ -1044,7 +1043,7 @@
       },
       "relations": {
         "label": "Wkład",
-        "title": "Jak ta praca przybliża kierunek?"
+        "title": "Określ wkład wybranej pracy"
       },
       "review": {
         "label": "Przegląd",
@@ -1068,8 +1067,6 @@
       "tradeoffs": "Jakie kompromisy świadomie akceptujesz?",
       "tradeoffsPlaceholder": "Np. mniej wieczorów ze zleceniami… Enter dodaje",
       "removeLabel": "Usuń punkt",
-      "portfolioTitle": "Dołączy do",
-      "portfolioEmpty": "Brak aktywnych priorytetów.",
       "limitTitle": "Portfel jest pełny ({count}/{max})",
       "limitBody": "Nowy priorytet zapisze się jako szkic — albo wstrzymaj któryś z obecnych.",
       "pause": "Wstrzymaj"
@@ -1094,14 +1091,9 @@
       }
     },
     "support": {
-      "newTitle": "Nowe propozycje",
-      "newHint": "Powstaną jako szkice po utworzeniu priorytetu.",
       "addTitlePlaceholder": "Nazwa nowego obiektu",
       "addButton": "Dodaj",
-      "libraryTitle": "Z biblioteki",
-      "libraryHint": "Obiekt już istnieje — powstanie tylko powiązanie.",
-      "libraryEmpty": "Brak otwartych obiektów do podpięcia.",
-      "noneYet": "Dodaj propozycję albo podepnij coś z biblioteki.",
+      "empty": "Brak obiektów — dodaj powyżej nową propozycję.",
       "removeLabel": "Usuń propozycję",
       "types": {
         "goal": "Cel",

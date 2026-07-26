@@ -232,11 +232,16 @@ export function usePriorityCreatorRitual() {
       priorityIds: item.priorityIds,
     })
 
+    // Intentions are per-week rows — past weeks would flood the list with
+    // duplicate titles, so only the current week onward is offered.
+    const currentWeek = getPeriodRefsForDate(new Date()).week
+    const upcomingIntentions = open(intentions).filter(item => item.weekRef >= currentWeek)
+
     libraryCandidates.value = [
       ...open(goals).map(item => candidate('goal', item)),
       ...open(habits).map(item => candidate('habit', item)),
       ...open(trackers).map(item => candidate('tracker', item)),
-      ...open(intentions).map(item => candidate('weeklyIntention', item)),
+      ...upcomingIntentions.map(item => candidate('weeklyIntention', item)),
     ]
   }
 
