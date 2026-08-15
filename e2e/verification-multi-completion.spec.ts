@@ -53,10 +53,10 @@ test.describe('multi-completion', () => {
     const consoleErrors = await bootSeededApp(page)
 
     await page.goto('/today')
-    const row = page.locator('article', { hasText: 'Poranna checklista' }).first()
+    const row = page.locator('.ndi', { hasText: 'Poranna checklista' }).first()
     await expect(row).toBeVisible()
 
-    const chips = row.locator('.today-multi-chip')
+    const chips = row.locator('.ndi__well--dot')
     await expect(chips).toHaveCount(3)
 
     // Capture the seeded state so the test can restore it at the end.
@@ -97,11 +97,11 @@ test.describe('multi-completion', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test('today overview tiles render the 7-column item stack', async ({ page }) => {
+  test('legacy today overview tiles remain available with the 7-column item stack', async ({ page }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootSeededApp(page)
 
-    await page.goto('/today')
+    await page.goto('/today?ui=legacy')
     const habitTile = page.locator('.overview-tile', { hasText: 'Poranna checklista' })
     await expect(habitTile.locator('.mcs-container')).toBeVisible()
     expect(await habitTile.locator('.mcs-col').count()).toBe(7)
@@ -154,18 +154,9 @@ test.describe('multi-completion', () => {
     const consoleErrors = await bootSeededApp(page)
 
     await page.goto(`/calendar/week/${prevWeek}?action=reflect`)
-    const wizard = page.getByTestId('weekly-reflection-wizard')
+    const wizard = page.locator('.next-ritual')
     await expect(wizard).toBeVisible()
-
-    // The object-review step may not be the first one — advance until the
-    // multi stack shows up (bounded walk).
-    for (let step = 0; step < 8; step++) {
-      if ((await wizard.locator('.mcs-container').count()) > 0) break
-      const next = wizard.getByRole('button', { name: /dalej|next/i }).first()
-      if (!(await next.isVisible().catch(() => false))) break
-      await next.click()
-      await page.waitForTimeout(400)
-    }
+    await wizard.getByRole('button', { name: /^Dalej$/ }).click()
 
     const tile = wizard.locator('.week-tile', { hasText: 'Poranna checklista' }).first()
     await expect(tile.locator('.mcs-container')).toBeVisible()

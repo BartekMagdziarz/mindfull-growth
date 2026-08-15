@@ -58,10 +58,11 @@ test.describe('verification environment', () => {
     await bootSeededApp(page)
 
     await page.goto(`/calendar/month/${prevMonth}?action=reflect`)
-    const wizard = page.getByTestId('monthly-reflection-wizard')
-    await expect(wizard).toBeVisible()
-    await expect(wizard.getByText('Regularny ruch i kondycja').first()).toBeVisible()
-    await expect(wizard.getByText('Dowieźć projekt Strumień').first()).toBeVisible()
+    const ritual = page.locator('.next-ritual')
+    await expect(ritual).toBeVisible()
+    await expect(ritual.getByText('Refleksja miesiąca', { exact: true })).toBeVisible()
+    await expect(ritual.getByText('Regularny ruch i kondycja').first()).toBeVisible()
+    await expect(ritual.getByText('Dowieźć projekt Strumień').first()).toBeVisible()
   })
 
   test('weekly ritual on a closed week opens with the seeded plan content', async ({ page }) => {
@@ -69,9 +70,11 @@ test.describe('verification environment', () => {
     await bootSeededApp(page)
 
     await page.goto(`/calendar/week/${prevWeek}?action=reflect`)
-    const wizard = page.getByTestId('weekly-reflection-wizard')
-    await expect(wizard).toBeVisible()
-    // Seeded habit sits in the week's top-3, so it must show up in the wizard.
-    await expect(wizard.getByText('Poranne rozciąganie').first()).toBeVisible()
+    const ritual = page.locator('.next-ritual')
+    await expect(ritual).toBeVisible()
+    await expect(ritual.getByText('Refleksja tygodnia', { exact: true })).toBeVisible()
+    // The first chapter is a factual summary. Object evidence is the next one.
+    await ritual.getByRole('button', { name: /^Dalej$/ }).click()
+    await expect(ritual.getByText('Poranne rozciąganie').first()).toBeVisible()
   })
 })

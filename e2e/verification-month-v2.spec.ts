@@ -3,7 +3,9 @@ import type { MonthRef } from '../src/domain/period'
 import { getPeriodRefsForDate, getPreviousPeriod } from '../src/utils/periods'
 
 /**
- * Month V2 experiment (`?layout=v2`) against the seeded verification app.
+ * Legacy Month V2 experiment (`?ui=legacy&layout=v2`) against the seeded
+ * verification app. Planning Next is the product default; this suite preserves
+ * the older renderer as an explicit regression surface until it is retired.
  *
  * The previous month is intentionally used for the read-only dashboard checks:
  * it is closed and contains the verification fixture's monthly reflection,
@@ -26,10 +28,24 @@ async function bootSeededApp(page: Page): Promise<void> {
 }
 
 async function openMonthV2(page: Page, monthRef: MonthRef, extra = ''): Promise<void> {
-  await page.goto(`/calendar/month/${monthRef}?layout=v2${extra}`)
+  await page.goto(`/calendar/month/${monthRef}?ui=legacy&layout=v2${extra}`)
   await expect(page.getByTestId('month-v2-time-panel')).toBeVisible()
   await expect(page.getByTestId('month-v2-week-grid')).toBeVisible()
   await expect(page.getByTestId('month-v2-lower-panel')).toBeVisible()
+}
+
+async function openPlanningMatrix(page: Page): Promise<void> {
+  await page.getByRole('button', { name: /^(Utwórz|Edytuj) plan$/ }).click()
+  await expect(page.getByTestId('monthly-reflection-wizard')).toBeVisible()
+
+  // A saved draft resumes on the weeks step. A fresh ritual starts on plan and
+  // needs one advance, so do not assume the footer button always exists.
+  if (!(await page.getByTestId('monthly-planner').isVisible())) {
+    await page.getByRole('button', { name: /^(Dalej|Next)$/ }).click()
+  }
+
+  await expect(page.getByTestId('monthly-planner')).toBeVisible()
+  await expect(page.getByTestId('assignment-matrix')).toBeVisible()
 }
 
 async function expectOverviewContract(page: Page): Promise<void> {
@@ -87,11 +103,11 @@ test.describe('month V2 experiment', () => {
     await expectOverviewContract(page)
   })
 
-  test('legacy stays the default and is not changed by the experiment', async ({ page }) => {
+  test('legacy baseline remains available explicitly next to the experiment', async ({ page }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
-    await page.goto(`/calendar/month/${prevMonth}`)
+    await page.goto(`/calendar/month/${prevMonth}?ui=legacy`)
     await expect(page.getByTestId('monthly-planner')).toBeVisible()
     await expect(page.getByTestId('month-v2-time-panel')).toHaveCount(0)
     await expect(page.getByTestId('month-v2-lower-panel')).toHaveCount(0)
@@ -267,11 +283,7 @@ test.describe('month V2 experiment', () => {
     await bootSeededApp(page)
     await openMonthV2(page, refs.month)
 
-    await page.getByRole('button', { name: /^(Utwórz|Edytuj) plan$/ }).click()
-    await expect(page.getByTestId('monthly-reflection-wizard')).toBeVisible()
-    await page.getByRole('button', { name: /^(Dalej|Next)$/ }).click()
-    await expect(page.getByTestId('monthly-planner')).toBeVisible()
-    await expect(page.getByTestId('assignment-matrix')).toBeVisible()
+    await openPlanningMatrix(page)
 
     const cell = page.locator('[data-testid^="matrix-cell-keyResult:"]').first()
     const testId = await cell.getAttribute('data-testid')
@@ -284,8 +296,7 @@ test.describe('month V2 experiment', () => {
 
     await page.reload()
     await expect(page.getByTestId('month-v2-week-grid')).toBeVisible()
-    await page.getByRole('button', { name: /^(Utwórz|Edytuj) plan$/ }).click()
-    await page.getByRole('button', { name: /^(Dalej|Next)$/ }).click()
+    await openPlanningMatrix(page)
     await expect(page.getByTestId(testId!)).toHaveAttribute('aria-pressed', flipped, {
       timeout: 15_000,
     })
