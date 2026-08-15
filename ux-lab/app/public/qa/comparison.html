@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UX Lab · porównanie wizualne</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 28px; color: #0f2745; background: #eaf4ff; font: 14px/1.5 Arial, sans-serif; }
+      header { max-width: 980px; margin: 0 auto 24px; }
+      h1 { margin: 0 0 7px; font-size: 28px; }
+      p { margin: 0; color: #526c8a; }
+      section { max-width: 980px; margin: 0 auto 30px; padding: 18px; border: 1px solid #b9cde4; border-radius: 22px; background: rgba(255,255,255,.68); }
+      section h2 { margin: 0 0 14px; font-size: 18px; }
+      .pair { display: grid; grid-template-columns: 1fr; gap: 18px; }
+      figure { margin: 0; }
+      figcaption { display: flex; justify-content: space-between; margin-bottom: 8px; color: #3d5b7c; font-size: 12px; font-weight: 700; }
+      img { display: block; width: 100%; aspect-ratio: 1265 / 712; object-fit: contain; border: 1px solid #a9bfd9; border-radius: 12px; background: white; box-shadow: 0 9px 22px rgba(73,104,139,.14); }
+    </style>
+  </head>
+  <body>
+    <header><h1>Porównanie języka wizualnego</h1><p>Ten sam stan i viewport 1265 × 712. Oceniane: typografia, tokeny, miękkie powierzchnie, gęstość i hierarchia.</p></header>
+    <section>
+      <h2>Widok Dzisiaj</h2>
+      <div class="pair">
+        <figure><figcaption><span>Aktualna aplikacja</span><span>źródło</span></figcaption><img src="/research/current/01-today-overview.png" alt="Aktualny widok Dzisiaj" /></figure>
+        <figure><figcaption><span>UX Lab</span><span>proponowany kontekst priorytetów</span></figcaption><img src="/qa/07-today-1265x712.png" alt="Wariant Dzisiaj w UX Lab" /></figure>
+      </div>
+    </section>
+    <section>
+      <h2>Kreator</h2>
+      <div class="pair">
+        <figure><figcaption><span>Aktualna aplikacja</span><span>SMART wizard</span></figcaption><img src="/research/current/04-goal-smart-wizard.png" alt="Aktualny kreator celu SMART" /></figure>
+        <figure><figcaption><span>UX Lab</span><span>rytuał priorytetu</span></figcaption><img src="/qa/08-creator-1265x712.png" alt="Kreator priorytetu w UX Lab" /></figure>
+      </div>
+    </section>
+    <section>
+      <h2>Refleksja i progres</h2>
+      <div class="pair">
+        <figure><figcaption><span>Aktualna aplikacja</span><span>miesięczna refleksja</span></figcaption><img src="/research/current/08-monthly-priority-reflection.png" alt="Aktualna miesięczna refleksja priorytetu" /></figure>
+        <figure><figcaption><span>UX Lab</span><span>jakościowy hub priorytetu</span></figcaption><img src="/qa/09-hub-1265x712.png" alt="Hub priorytetu w UX Lab" /></figure>
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UX Lab · para porównawcza</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 22px; color: #0f2745; background: #eaf4ff; font: 14px/1.5 Arial, sans-serif; }
+      main { width: min(980px, 100%); margin: auto; padding: 18px; border: 1px solid #b9cde4; border-radius: 22px; background: rgba(255,255,255,.7); }
+      h1 { margin: 0 0 4px; font-size: 24px; }
+      p { margin: 0 0 16px; color: #526c8a; }
+      figure { margin: 0 0 18px; }
+      figcaption { display: flex; justify-content: space-between; margin-bottom: 7px; color: #3d5b7c; font-size: 12px; font-weight: 700; }
+      img { display: block; width: 100%; aspect-ratio: 1265 / 712; object-fit: contain; border: 1px solid #a9bfd9; border-radius: 12px; background: white; }
+    </style>
+  </head>
+  <body>
+    <main><h1 id="title"></h1><p>Źródło i prototyp, viewport 1265 × 712.</p><div id="pair"></div></main>
+    <script>
+      const pairs = {
+        today: ['Widok Dzisiaj', '/research/current/01-today-overview.png', '/qa/07-today-1265x712.png'],
+        creator: ['Kreator', '/research/current/04-goal-smart-wizard.png', '/qa/08-creator-1265x712.png'],
+        hub: ['Refleksja i progres', '/research/current/08-monthly-priority-reflection.png', '/qa/09-hub-1265x712.png'],
+      };
+      const key = new URLSearchParams(location.search).get('pair') || 'today';
+      const [title, source, prototype] = pairs[key] || pairs.today;
+      document.querySelector('#title').textContent = title;
+      document.querySelector('#pair').innerHTML = `
+        <figure><figcaption><span>Aktualna aplikacja</span><span>źródło</span></figcaption><img src="${source}" alt="Aktualny widok" /></figure>
+        <figure><figcaption><span>UX Lab</span><span>prototyp</span></figcaption><img src="${prototype}" alt="Widok w UX Lab" /></figure>`;
+    </script>
+  </body>
+</html>
