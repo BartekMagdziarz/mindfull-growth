@@ -58,3 +58,11 @@ export function totalPlanningObjects(counts: PlanningDataCounts): number {
 export function expectedPeriodRefLength(scale: PlanningScale): number {
   return scale === 'year' ? 4 : scale === 'day' ? 10 : 7
 }
+
+/**
+ * Card summaries read as prose, so an aggregate like 7.266666666666667 has to be
+ * cut to one decimal and written with the Polish separator.
+ */
+export function formatPlanningNumber(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1).replace('.', ',')
+}

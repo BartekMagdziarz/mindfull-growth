@@ -1,6 +1,6 @@
 <template>
   <DsSurface class="next-day-rail">
-    <header class="next-day-rail__heading"><span>Plan dnia</span><small>{{ visibleItemCount }} elementów</small></header>
+    <header class="next-day-rail__heading"><span>Plan dnia</span></header>
     <DsState v-if="store.isLoading && !store.bundle" title="Ładuję dzień" body="Zbieram zaplanowane działania." />
     <DsState
       v-else-if="store.error && !store.bundle"
@@ -11,12 +11,17 @@
       @action="void loadDay()"
     />
     <div v-else class="next-day-rail__scroll">
-      <section v-for="group in itemGroups" :key="group.id" class="next-day-rail__group">
-        <header><span>{{ group.label }}</span><small>{{ group.items.length }}</small></header>
-        <p v-if="!group.items.length">Brak elementów</p>
-        <TodayItemRow
+      <DsState
+        v-if="!visibleGroups.length && !store.hiddenItems.length"
+        icon="event_available"
+        title="Nic na ten dzień"
+        body="Nie ma tu jeszcze intencji, celów, nawyków ani trackerów."
+      />
+
+      <section v-for="group in visibleGroups" :key="group.id" class="next-day-rail__group">
+        <header><span>{{ group.label }}</span></header>
+        <NextDayItemRow
           v-for="item in group.items"
-          v-else
           :key="item.key"
           :item="item"
           :today-day-ref="dayRef"
@@ -65,7 +70,7 @@ import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQu
 import { useTodayStore } from '@/stores/today.store'
 import { useT } from '@/composables/useT'
 import { DsButton, DsState, DsSurface } from '@/design-system/components'
-import TodayItemRow from '@/components/today/TodayItemRow.vue'
+import NextDayItemRow from './NextDayItemRow.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -85,7 +90,9 @@ const itemGroups = computed(() => [
   { id: 'habits', label: 'Nawyki', items: store.habitItems },
   { id: 'trackers', label: 'Trackery', items: store.trackerItems },
 ])
-const visibleItemCount = computed(() => itemGroups.value.reduce((sum, group) => sum + group.items.length, 0))
+// A missing object type is not worth a card of its own — empty groups drop out
+// and only a completely empty day gets a single state.
+const visibleGroups = computed(() => itemGroups.value.filter(group => group.items.length > 0))
 const deleteDialogMessage = computed(() => pendingDeleteItem.value
   ? t('planning.today.deleteDialog.message', { title: itemTitle(pendingDeleteItem.value) })
   : '')

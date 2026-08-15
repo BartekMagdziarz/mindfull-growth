@@ -8,21 +8,14 @@
             <span><i class="effort" />Wysiłek</span><span><i class="state" />Stan</span>
           </div>
         </header>
-        <svg viewBox="0 0 360 112" role="img" :aria-label="weekRatingsAria">
-          <line x1="42" y1="86" x2="318" y2="86" class="chart-ghost" />
-          <path class="chart-echo chart-effort" :d="ratingPath(weekRatings, 'effort', 360, 80, 42)" />
-          <path class="chart-echo chart-state" :d="ratingPath(weekRatings, 'state', 360, 80, 42)" />
-          <path class="chart-line chart-effort" :d="ratingPath(weekRatings, 'effort', 360, 80, 42)" />
-          <path class="chart-line chart-state" :d="ratingPath(weekRatings, 'state', 360, 80, 42)" />
-          <g v-for="(rating, index) in weekRatings" :key="rating.label">
-            <circle :cx="chartX(index, weekRatings.length, 360, 42) - 3" :cy="chartY(rating.effort, 80)" r="10" class="chart-bubble chart-effort" :class="{ empty: rating.effort == null }" />
-            <text :x="chartX(index, weekRatings.length, 360, 42) - 3" :y="chartY(rating.effort, 80) + 3" text-anchor="middle">{{ rating.effort ?? '—' }}</text>
-            <circle :cx="chartX(index, weekRatings.length, 360, 42) + 3" :cy="chartY(rating.state, 80)" r="10" class="chart-bubble chart-state" :class="{ empty: rating.state == null }" />
-            <text :x="chartX(index, weekRatings.length, 360, 42) + 3" :y="chartY(rating.state, 80) + 3" text-anchor="middle">{{ rating.state ?? '—' }}</text>
-          </g>
-        </svg>
-        <div class="next-period-rail__rating-labels" aria-hidden="true">
-          <small v-for="rating in weekRatings" :key="rating.label">{{ rating.label }}</small>
+        <div class="next-period-rail__bars" role="img" :aria-label="weekRatingsAria">
+          <span v-for="rating in weekRatings" :key="rating.label" class="next-period-rail__bar-group">
+            <span class="next-period-rail__bar-slots">
+              <i class="bar bar--effort" :class="{ empty: rating.effort == null }" :style="barStyle(rating.effort)"><b>{{ rating.effort ?? '—' }}</b></i>
+              <i class="bar bar--state" :class="{ empty: rating.state == null }" :style="barStyle(rating.state)"><b>{{ rating.state ?? '—' }}</b></i>
+            </span>
+            <small>{{ rating.label }}</small>
+          </span>
         </div>
       </section>
 
@@ -52,16 +45,14 @@
       </DsButton>
       <section class="next-period-rail__month-ratings" aria-labelledby="month-ratings-title">
         <h2 id="month-ratings-title">Oceny miesiąca</h2>
-        <svg viewBox="0 0 360 112" role="img" :aria-label="monthRatingsAria">
-          <path class="chart-echo chart-state" :d="ratingPath(monthRatings, 'value', 360, 78, 38)" />
-          <path class="chart-line chart-state" :d="ratingPath(monthRatings, 'value', 360, 78, 38)" />
-          <g v-for="(rating, index) in monthRatings" :key="rating.label">
-            <line :x1="chartX(index, monthRatings.length, 360, 38)" :x2="chartX(index, monthRatings.length, 360, 38)" y1="86" :y2="chartY(rating.value, 78)" class="month-rating-column" />
-            <circle :cx="chartX(index, monthRatings.length, 360, 38)" :cy="chartY(rating.value, 78)" r="11" class="chart-bubble chart-state" />
-            <text :x="chartX(index, monthRatings.length, 360, 38)" :y="chartY(rating.value, 78) + 3" text-anchor="middle">{{ rating.value ?? '—' }}</text>
-            <text :x="chartX(index, monthRatings.length, 360, 38)" y="106" text-anchor="middle" class="month-rating-label">{{ rating.label }}</text>
-          </g>
-        </svg>
+        <div class="next-period-rail__bars next-period-rail__bars--single" role="img" :aria-label="monthRatingsAria">
+          <span v-for="rating in monthRatings" :key="rating.label" class="next-period-rail__bar-group">
+            <span class="next-period-rail__bar-slots">
+              <i class="bar bar--state" :class="{ empty: rating.value == null }" :style="barStyle(rating.value)"><b>{{ rating.value ?? '—' }}</b></i>
+            </span>
+            <small>{{ rating.label }}</small>
+          </span>
+        </div>
       </section>
 
       <header class="next-period-rail__heading">
@@ -78,13 +69,14 @@
         >
           <span><strong>T{{ week.weekNumber }}</strong><small>{{ shortRange(week.startDayRef, week.endDayRef) }}</small></span>
           <span class="next-period-rail__week-chart" role="img" :aria-label="weekMatrixAria(week)">
-            <svg viewBox="0 0 190 64" aria-hidden="true">
-              <path v-if="week.timeState !== 'future'" class="chart-echo chart-effort" :d="weekMatrixPath(week, 'actions')" />
-              <path v-if="week.timeState !== 'future'" class="chart-echo chart-state" :d="weekMatrixPath(week, 'state')" />
-              <path v-if="week.timeState !== 'future'" class="chart-line chart-effort" :d="weekMatrixPath(week, 'actions')" />
-              <path v-if="week.timeState !== 'future'" class="chart-line chart-state" :d="weekMatrixPath(week, 'state')" />
-              <line v-else x1="10" y1="48" x2="180" y2="48" class="chart-ghost" />
-            </svg>
+            <span class="next-period-rail__bars next-period-rail__bars--mini" aria-hidden="true">
+              <span v-for="area in weekBars(week)" :key="area.areaKey" class="next-period-rail__bar-group">
+                <span class="next-period-rail__bar-slots">
+                  <i class="bar bar--effort" :class="{ empty: area.effort == null }" :style="barStyle(area.effort)" />
+                  <i class="bar bar--state" :class="{ empty: area.state == null }" :style="barStyle(area.state)" />
+                </span>
+              </span>
+            </span>
             <span class="next-period-rail__week-chart-labels" aria-hidden="true"><small v-for="area in week.matrix" :key="area.areaKey">{{ areaLabel(area.areaKey) }}</small></span>
           </span>
           <AppIcon name="chevron_right" />
@@ -165,24 +157,21 @@ const monthRatings = computed(() => {
 const weekRatingsAria = computed(() => `Oceny tygodnia. ${weekRatings.value.map(item => `${item.label}: Wysiłek ${item.effort ?? 'brak'}, Stan ${item.state ?? 'brak'}`).join('; ')}`)
 const monthRatingsAria = computed(() => `Oceny miesiąca. ${monthRatings.value.map(item => `${item.label}: ${item.value ?? 'brak'}`).join('; ')}`)
 
-function chartX(index: number, count: number, width: number, inset: number): number {
-  return count <= 1 ? width / 2 : inset + index * ((width - inset * 2) / (count - 1))
-}
-function chartY(value: number | null | undefined, height: number): number {
-  return value == null ? height + 6 : height - (value / 5) * (height - 14)
-}
-function ratingPath<T extends Record<string, unknown>>(items: T[], key: keyof T, width: number, height: number, inset: number): string {
-  const points = items.flatMap((item, index) => typeof item[key] === 'number'
-    ? [{ index, value: item[key] as number }]
-    : [])
-  return points.map((point, index) => `${index ? 'L' : 'M'} ${chartX(point.index, items.length, width, inset).toFixed(1)} ${chartY(point.value, height).toFixed(1)}`).join(' ')
+// Bars carry the 1–5 rating as height; the floor keeps a "1" readable (and its
+// digit inside the bar) instead of collapsing to a sliver. Missing ratings get
+// no inline height — CSS draws them as a dashed stub, sized per chart variant.
+function barStyle(value: number | null | undefined): Record<string, string> | undefined {
+  return value == null ? undefined : { height: `${Math.max(26, (value / 5) * 100)}%` }
 }
 function weekMatrixValues(week: StreamWeekVM, section: MatrixSection): Array<number | null> {
   return week.matrix.map(row => row.cells.find(cell => cell.section === section)?.rating ?? null)
 }
-function weekMatrixPath(week: StreamWeekVM, section: MatrixSection): string {
-  const values = weekMatrixValues(week, section)
-  return values.flatMap((value, index) => value == null ? [] : [`${index ? 'L' : 'M'} ${chartX(index, values.length, 190, 12).toFixed(1)} ${chartY(value, 58).toFixed(1)}`]).join(' ')
+function weekBars(week: StreamWeekVM): Array<{ areaKey: string; effort: number | null; state: number | null }> {
+  return week.matrix.map(row => ({
+    areaKey: row.areaKey,
+    effort: row.cells.find(cell => cell.section === 'actions')?.rating ?? null,
+    state: row.cells.find(cell => cell.section === 'state')?.rating ?? null,
+  }))
 }
 function areaLabel(areaKey: string): string {
   return areaKey === 'body' ? 'Ciało' : areaKey === 'emotions' ? 'Emocje' : areaKey === 'tasks' ? 'Działanie' : 'Relacje'

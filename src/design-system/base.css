@@ -506,6 +506,12 @@
   background: var(--mg-color-paper);
 }
 
+/* Intermediate tone for parent containers hosting white cards (goal card
+   with KRs, journal chat-sessions section). */
+.mg-v2-surface--mist {
+  background: var(--mg-color-mist);
+}
+
 .mg-v2-editor-canvas {
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-xl);

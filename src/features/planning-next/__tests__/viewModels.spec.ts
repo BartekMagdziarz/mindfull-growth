@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { classifyPlanningState, expectedPeriodRefLength } from '../viewModels'
+import { classifyPlanningState, expectedPeriodRefLength, formatPlanningNumber } from '../viewModels'
 
 describe('planning next view-model states', () => {
   it.each([
@@ -16,5 +16,11 @@ describe('planning next view-model states', () => {
     expect(expectedPeriodRefLength('week')).toBe(7)
     expect(expectedPeriodRefLength('month')).toBe(7)
     expect(expectedPeriodRefLength('year')).toBe(4)
+  })
+
+  it('formats card numbers as compact Polish prose', () => {
+    expect(formatPlanningNumber(7)).toBe('7')
+    expect(formatPlanningNumber(7.25)).toBe('7,3')
+    expect(formatPlanningNumber(0.04)).toBe('0,0')
   })
 })

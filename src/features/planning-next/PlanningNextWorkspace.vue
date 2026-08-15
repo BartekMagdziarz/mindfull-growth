@@ -45,7 +45,10 @@
         />
       </aside>
 
-      <main class="planning-next__stage mg-v2-surface mg-v2-surface--raised">
+      <main
+        class="planning-next__stage"
+        :class="ritualAction ? 'planning-next__stage--framed mg-v2-surface mg-v2-surface--raised' : ''"
+      >
         <DsState
           v-if="invalidRoute"
           icon="event_busy"

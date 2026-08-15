@@ -86,6 +86,7 @@ import { buildMonthWeeklyChartPoints, buildWeekDailyChartPoints } from '@/servic
 import { DsState } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { PlanningPeriodData } from './usePlanningPeriodData'
+import { formatPlanningNumber } from './viewModels'
 import NextObjectChartCard from './NextObjectChartCard.vue'
 import type { NextObjectChartPoint } from './nextObjectChart'
 
@@ -250,7 +251,8 @@ function measurementLabel(item: ObjectItem): string {
   const actual = item.measurement.actualValue
   const target = item.measurement.target?.value
   if (actual === undefined && target === undefined) return 'Brak wartości dla tego okresu'
-  if (target === undefined) return `Wartość: ${actual ?? '—'}`
-  return `${actual ?? '—'} / ${target}`
+  const actualText = actual === undefined ? '—' : formatPlanningNumber(actual)
+  if (target === undefined) return `Wartość: ${actualText}`
+  return `${actualText} / ${formatPlanningNumber(target)}`
 }
 </script>

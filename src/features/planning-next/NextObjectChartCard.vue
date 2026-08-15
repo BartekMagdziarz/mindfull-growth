@@ -110,9 +110,11 @@ function dotState(point: NextObjectChartPoint): string {
 function barState(point: NextObjectChartPoint): Record<string, boolean> {
   return { empty: point.value == null, future: Boolean(point.future), current: Boolean(point.current), missed: point.status === 'missed' }
 }
+// Uses almost the whole 115-unit viewBox (was a 68-unit band): the same data
+// swings visibly further, which is the point of the chart.
 function lineY(value: number): number {
   const { min, max } = lineRange.value
-  return 18 + ((max - value) / (max - min)) * 68
+  return 10 + ((max - value) / (max - min)) * 95
 }
 function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   return points.map((point, index) => `${index ? 'L' : 'M'} ${point.x.toFixed(1)} ${(point.y + offset).toFixed(1)}`).join(' ')
@@ -123,8 +125,10 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
 .next-object-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  /* Header takes what it needs, the chart takes everything else. */
+  grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
-  min-height: 7.25rem;
+  min-height: 9.5rem;
   padding: var(--mg-space-3);
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-md);
@@ -189,6 +193,7 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
 .next-object-card__chart {
   display: flex;
   min-width: 0;
+  min-height: 0;
   flex-direction: column;
   justify-content: flex-end;
 }
@@ -197,7 +202,8 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   display: grid;
   align-items: center;
   gap: var(--mg-space-2);
-  min-height: 3.05rem;
+  flex: 1 1 auto;
+  min-height: 3.4rem;
   padding: 0.55rem 0.4rem 0.1rem;
 }
 
@@ -230,7 +236,8 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   display: flex;
   align-items: end;
   gap: var(--mg-space-2);
-  height: 3.5rem;
+  flex: 1 1 auto;
+  min-height: 5.2rem;
   padding: 0.5rem 0.4rem 0.1rem;
 }
 
@@ -249,7 +256,8 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
 
 .next-object-card__chart > svg {
   width: 100%;
-  height: 3.7rem;
+  flex: 1 1 auto;
+  min-height: 5.4rem;
   margin-top: 0.1rem;
   overflow: visible;
   fill: none;
@@ -282,6 +290,7 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
 
 .next-object-card__chart--span {
   align-items: center;
+  justify-content: center;
   gap: var(--mg-space-2);
   min-height: 4rem;
 }

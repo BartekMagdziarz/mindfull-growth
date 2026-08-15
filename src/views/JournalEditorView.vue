@@ -206,7 +206,7 @@
       <!-- Chat sessions section (edit mode only) -->
       <section
         v-if="isEditMode && hasChatSessions"
-        class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-4"
+        class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--mist px-5 py-4 flex flex-col gap-4"
       >
         <header class="flex items-center justify-between gap-3">
           <div>

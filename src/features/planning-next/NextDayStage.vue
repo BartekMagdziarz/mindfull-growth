@@ -116,6 +116,7 @@ import ExerciseCard from '@/components/today/ExerciseCard.vue'
 import PlannedExercisesCard from '@/components/today/PlannedExercisesCard.vue'
 import ProgramCard from '@/components/today/ProgramCard.vue'
 import NextObjectChartCard from './NextObjectChartCard.vue'
+import { formatPlanningNumber } from './viewModels'
 import type { NextObjectChartPoint } from './nextObjectChart'
 
 type CategoryId = 'goals' | 'habits' | 'trackers' | 'intentions' | 'journal' | 'emotions' | 'exercises' | 'programs' | 'history'
@@ -262,7 +263,7 @@ function objectSummary(item: Extract<TodayItem, { kind: 'measurement' }>): strin
   if (actual === undefined) return 'Brak danych'
   return target === undefined ? `${formatNumber(actual)} zapisano` : `${formatNumber(actual)}/${formatNumber(target)} w tym okresie`
 }
-function formatNumber(value: number): string { return Number.isInteger(value) ? String(value) : value.toFixed(1).replace('.', ',') }
+const formatNumber = formatPlanningNumber
 function featuredDots(values: number[]): number[] { return values.slice(-3) }
 function featureLastPoint(values: number[]): { x: number; y: number } {
   const max = Math.max(1, ...values)

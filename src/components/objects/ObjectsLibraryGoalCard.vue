@@ -1,6 +1,6 @@
 <template>
   <article
-    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5"
+    class="group/card mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--mist p-3.5"
   >
     <div class="space-y-2">
       <!-- Row 1: Icon + Title + [hover: menu] + Status -->
