@@ -131,21 +131,23 @@ the exact `http://127.0.0.1:5201` origin and is not reachable in production.
 
 ## Flows to walk
 
-1. **Stream (Strumień)** — default calendar. `/calendar` lands on the current
-   month; drill year → month → week → day:
+1. **Planning Next** — domyślny kalendarz. `/calendar` otwiera bieżący dzień;
+   przejdź przez dzień → tydzień → miesiąc → rok. Dodaj `?ui=legacy`, aby jawnie
+   uruchomić poprzedni interfejs regresyjny.
+2. **Stream (Strumień)** — alternatywny drill-down pod `/calendar/stream/<period>`:
    - year (`/calendar/stream/<YYYY>`): month cards with dimension bars,
      goal/habit rings, priority ribbon with effort rings on closed months;
    - month (`/calendar/stream/<YYYY-MM>`): week cards with the 4×3 reflection
      rating matrix;
    - week (`/calendar/stream/<YYYY-Www>`): day cards with journal dots,
      emotion segments, day rings.
-2. **Monthly ritual** — `/calendar/month/<YYYY-MM>?action=reflect`. On a
+3. **Monthly ritual** — `/calendar/month/<YYYY-MM>?action=reflect`. On a
    closed month (M−1): top-3 picks, per-priority effort/verdict, ratings, M4
    weekly↔monthly confrontation. On the current month: planning-only.
-3. **Weekly ritual** — `/calendar/week/<YYYY-Www>?action=reflect`. `plan` and
+4. **Weekly ritual** — `/calendar/week/<YYYY-Www>?action=reflect`. `plan` and
    `days` steps always available (intentions, top-3, day assignments);
    reflection steps filled on closed weeks, locked on the current week.
-4. **Today view** (`/today`) — scheduled objects with seeded entries.
+5. **Today view** (`/today`) — scheduled objects with seeded entries.
 
 Period refs must match the app's custom Monday-week scheme — compute them with
 `getPeriodRefsForDate`/`getPreviousPeriod` from `src/utils/periods` rather than

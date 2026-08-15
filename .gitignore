@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Local package-manager caches (dependencies remain reproducible from lockfiles)
+.npm-cache/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -28,6 +31,15 @@ coverage
 .nyc_output
 test-results/
 playwright-report/
+
+# Generated browser/design QA evidence. Keep the written QA reports and source
+# references in Git; regenerate these screenshots from the documented flows.
+.*.tmp.mjs
+/.month-v2-*.png
+ux-lab/app/qa/
+ux-lab/audit/
+# Redundant working copies; the Lab serves the canonical files from app/public.
+ux-lab/assets/
 
 # Ideas folder - not tracked
 ideas/

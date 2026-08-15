@@ -1,5 +1,10 @@
 # Planning ↔ Reflection — Implementation Roadmap & Backlog
 
+> **Dokument historyczny.** Bieżący punkt wejścia i rekomendowana kolejność prac są w
+> [`current-status-and-roadmap.md`](current-status-and-roadmap.md). Ten plik zachowuje szczegółowe
+> decyzje i statusy wcześniejszych epików; nie należy traktować jego sekcji „Recommended sequencing”
+> jako nowszej od audytu z 2026-08-15.
+
 > **Purpose.** A single, status-verified backlog of every planned-but-not-yet-shipped change to the
 > planning/reflection loop, cut into implementable stories. Companion to the concept doc
 > `planning-reflection-redesign.md` (the *why* + design) and `weekly-planning-steps-design-audit.md`

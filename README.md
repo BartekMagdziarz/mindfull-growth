@@ -1,157 +1,78 @@
-Mindful Growth – Local-First Journaling, Planning & Emotions
+# Mindful Growth
 
-A local-first Vue 3 app for mindful growth: journaling, fast emotion check-ins, exercises, and self-knowledge tools – all stored on your device.
+Lokalna aplikacja Vue 3 do planowania, codziennego działania i refleksji. Dane użytkownika są przechowywane w IndexedDB w jego przeglądarce.
 
-✨ Features (v1 focus)
-	•	Planning – Yearly, monthly, and weekly planning with priorities, projects, and commitments.
-	•	Life Areas – Define the foundation of your life and link them across planning objects.
-	•	Journal – Freeform entries with emotion tags and simple context tags.
-	•	Emotions – Ultra-fast “right now I feel…” logs using a shared emotion grid.
-	•	Profile (browser) – View and filter all your entries and emotion logs in one place.
-	•	Local-first storage – Data saved locally (IndexedDB) and stays on your device.
-	•	Shared emotion system – 2×2 grid (pleasantness × energy) reused across the app.
-	•	Responsive UI – Works on desktop and mobile.
+## Aktualny stan
 
-Later versions will add:
-	•	Structured exercises (CBT, IFS, etc.).
-	•	Questionnaires (Big Five, VIA, etc.).
-	•	AI-powered psychological profile and insight chat.
+- Nowy obszar planowania (`Planning Next`) jest domyślnym UI dla dnia, tygodnia, miesiąca i roku.
+- Starszy interfejs nadal jest dostępny przez `?ui=legacy` jako tymczasowa powierzchnia regresyjna.
+- Rytuały tygodniowe i miesięczne łączą planowanie, przypisania, refleksję i dziennik.
+- Biblioteka obiektów obejmuje priorytety, cele, rezultaty kluczowe, nawyki, trackery i intencje tygodniowe.
+- Dziennik, emocje, ćwiczenia, obszary życia, profil oraz opcjonalne funkcje AI działają na tej samej lokalnej bazie użytkownika.
+- `ux-lab/` jest odizolowanym laboratorium prototypów i nie jest częścią produkcyjnego runtime'u.
 
-⸻
+Szczegółowy punkt powrotu i kolejność dalszych prac: [docs/current-status-and-roadmap.md](docs/current-status-and-roadmap.md).
 
-🚀 Quick Start
+## Start
 
-# Install dependencies
+Wymagany jest Node.js z npm.
+
+```bash
 npm install
-
-# Run dev server
 npm run dev
+```
 
-# Run unit tests
-npm run test
+Aplikacja developerska działa domyślnie pod `http://localhost:5173` i korzysta z prawdziwych lokalnych danych tego originu.
 
-# Build for production
+## Bezpieczna weryfikacja i UX Lab
+
+Do testów wizualnych używaj izolowanego konta z deterministycznymi danymi:
+
+```bash
+npm run dev:verify   # aplikacja z fixture rich-v1, port 5199
+npm run dev:lab      # verify :5199 oraz UX Lab :5201
+```
+
+Nie uruchamiaj seedów ani destrukcyjnych testów E2E na porcie 5173. Szczegóły środowiska znajdują się w [docs/agent-verification.md](docs/agent-verification.md), a instrukcja laboratorium w [ux-lab/README.md](ux-lab/README.md).
+
+## Kontrole jakości
+
+```bash
+npm run typecheck
+npm run test:run
 npm run build
+npm run check-locales
+npm run check:design-system
+npm run test:e2e:verify
+```
 
+Pełne `npm run test:e2e` uruchamia także destrukcyjne scenariusze na osobnym porcie 5183. `npm run lint` stosuje automatyczne poprawki, dlatego przed użyciem warto sprawdzić stan worktree.
 
-⸻
+Kontrole UX Lab:
 
-🧠 App Overview
+```bash
+npm --prefix ux-lab/app test
+npm --prefix ux-lab/app run build
+```
 
-Core views:
-	•	Today – Daily hub for focus and weekly commitments.
-	•	Planning – Year / Month / Week planning hub.
-	•	Life Areas – Define and curate the areas of life you care about.
-	•	Journal – Create and browse deeper reflections.
-	•	Emotions – Very fast emotional check-ins.
-	•	Exercises – Library of self-reflection tools (later).
-	•	Profile – Global browser + filters for everything you’ve logged.
+## Architektura w skrócie
 
-Shared data model (simplified):
-	•	LifeArea – foundational life categories with color, description, and status.
-	•	YearlyPlan – yearly period details, theme, and life-area narratives.
-	•	Priority – high‑level yearly goals linked to life areas.
-	•	Project – outcome‑driven initiatives linked to life areas and priorities.
-	•	Commitment – weekly actions linked to life areas, priorities, and projects.
-	•	Emotion – id, name, pleasantness, energy (used everywhere).
-	•	JournalEntry – text body, optional title, many emotions, optional tags.
-	•	EmotionLog – timestamped “right now I feel…” snapshots with many emotions, optional note/tags.
-	•	ExerciseSession – structured answers from an exercise (later).
-	•	QuestionnaireResult – results of longer questionnaires (later).
+- `src/domain/` — modele i reguły domenowe.
+- `src/repositories/` — interfejsy i implementacje persistence oparte na Dexie.
+- `src/services/` — operacje aplikacyjne, zapytania i integracje.
+- `src/stores/` — stan Pinia.
+- `src/features/planning-next/` — aktualny obszar planowania i rytuałów.
+- `src/components/` — współdzielone komponenty produktu.
+- `src/views/` i `src/router/` — widoki oraz routing.
+- `src/dev/` — wyłącznie developerskie fixture i most weryfikacyjny.
+- `e2e/` — scenariusze Playwright.
+- `ux-lab/` — niezależny workbench badawczy z własnym buildem i testami.
 
-All of these are stored locally.
+Główny stos: Vue 3, TypeScript, Vite, Pinia, Vue Router, Dexie, Vitest, Testing Library i Playwright.
 
-⸻
+## Zasady pracy z danymi
 
-🧱 Tech Stack
-
-Core
-	•	Vue 3 – Framework (Composition API).
-	•	Vite – Build tool & dev server.
-	•	TypeScript – Type safety.
-	•	TailwindCSS – Styling.
-	•	Vue Router – Navigation between Today / Journal / Emotions / Exercises / Profile.
-	•	Pinia – State management (emotion database, journal store, emotion log store).
-
-Local-first & Offline
-	•	Dexie – IndexedDB wrapper library for persistent local storage.
-	•	Vite PWA plugin – PWA support (installable app, offline shell).
-
-Testing
-	•	Vitest – Unit tests.
-	•	Vue Test Utils – Component testing helpers.
-	•	@testing-library/vue + @testing-library/jest-dom – User-centric component tests.
-	•	Playwright – End-to-end tests for main flows (e.g. “log emotion → see in Profile”).
-
-Tooling & CI/CD
-	•	ESLint – Linting (Vue + TS).
-	•	Prettier – Formatting.
-	•	GitHub Actions – CI pipeline (lint, test, build).
-	•	Husky – Git hooks.
-	•	lint-staged – Run lint/format on changed files.
-
-⸻
-
-🛠️ Scripts
-
-Typical scripts (names may vary depending on your package.json):
-
-# Development
-npm run dev          # Start dev server (default Vite port 5173)
-npm run build        # Production build
-npm run preview      # Preview production build locally
-
-# Tests
-npm run test         # Unit tests (watch mode)
-npm run test:run     # Unit tests (single run)
-npm run test:e2e     # Playwright E2E tests
-
-# Quality
-npm run lint         # Lint (ESLint)
-npm run lint:fix     # Lint + auto-fix / format
-
-
-⸻
-
-📁 Project Structure (example)
-
-src/
-├── components/           # Reusable UI components
-│   ├── EmotionSelector/  # Shared emotion picker (quadrants + emotion chips)
-│   └── ...
-├── views/                # Top-level views (for Vue Router)
-│   ├── TodayView.vue
-│   ├── JournalView.vue
-│   ├── EmotionsView.vue
-│   ├── ExercisesView.vue
-│   └── ProfileView.vue
-├── domain/              # Domain models/interfaces
-│   └── journal.ts       # JournalEntry interface
-├── repositories/        # Data persistence layer
-│   ├── journalRepository.ts      # Repository interface
-│   └── journalDexieRepository.ts # Dexie implementation
-├── stores/               # Pinia stores
-│   ├── emotion.store.ts      # Emotion database (2×2 grid)
-│   ├── journal.store.ts      # Journal entries
-│   └── emotionLog.store.ts   # Emotion logs
-├── router/
-│   └── index.ts         # Route definitions
-├── assets/
-└── main.ts              # App entry point
-
-
-⸻
-
-🔄 CI/CD (short)
-
-GitHub Actions pipeline (example):
-	•	Run lint (npm run lint)
-	•	Run unit tests (npm run test:run)
-	•	Run build (npm run build)
-	•	Optionally run E2E tests on main / protected branches
-
-You can later add automatic deployment (e.g. to Vercel/Netlify) after a successful build.
-
-⸻
-
-That’s the “trimmed but still useful” version: enough to explain what the app is, what it uses, and how to run it, without all the TDD process details.
+- Dane są lokalne dla originu i konta użytkownika.
+- Zmiany schematu wymagają migracji oraz testu zachowania istniejących danych.
+- Testowe resety są dozwolone tylko na izolowanych originach 5183 i 5199.
+- Funkcje AI wymagają jawnej konfiguracji dostawcy; klucze nie powinny trafiać do repozytorium.
