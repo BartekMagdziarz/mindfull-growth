@@ -1075,6 +1075,7 @@
       "progressTitle": "Progress signals",
       "riskTitle": "Risk signals",
       "addPlaceholder": "Add a signal and confirm with Enter",
+      "removeLabel": "Remove signal: {signal}",
       "helpLabel": "Hints",
       "help": {
         "intro": "Signals return in the monthly reflection — you'll use them to judge whether the direction is alive. Helpful questions:",

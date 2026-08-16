@@ -1,16 +1,25 @@
 <template>
   <div class="priority-creator">
     <!-- Success -->
-    <section v-if="ritual.result.value" class="mg-v2-surface mg-v2-surface--raised mx-auto max-w-2xl space-y-5 p-8 text-center">
+    <section
+      v-if="ritual.result.value"
+      class="mg-v2-surface mg-v2-surface--raised mx-auto max-w-2xl space-y-5 p-8 text-center"
+    >
       <AppIcon name="check_circle" class="text-4xl text-primary" />
       <div class="space-y-1">
         <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-          {{ ritual.result.value.priority.status === 'draft'
-            ? t('planning.priorityRitual.success.eyebrowDraft')
-            : t('planning.priorityRitual.success.eyebrowActive') }}
+          {{
+            ritual.result.value.priority.status === 'draft'
+              ? t('planning.priorityRitual.success.eyebrowDraft')
+              : t('planning.priorityRitual.success.eyebrowActive')
+          }}
         </p>
-        <h2 class="text-xl font-semibold text-on-surface">{{ ritual.result.value.priority.title }}</h2>
-        <p class="text-sm text-on-surface-variant">{{ t('planning.priorityRitual.success.body') }}</p>
+        <h2 class="text-xl font-semibold text-on-surface">
+          {{ ritual.result.value.priority.title }}
+        </h2>
+        <p class="text-sm text-on-surface-variant">
+          {{ t('planning.priorityRitual.success.body') }}
+        </p>
       </div>
 
       <PriorityDraftChecklist
@@ -20,7 +29,11 @@
       />
 
       <div class="flex justify-center">
-        <button type="button" class="mg-v2-button mg-v2-button--primary" @click="emit('finished', ritual.result.value.priority.id)">
+        <button
+          type="button"
+          class="mg-v2-button mg-v2-button--primary"
+          @click="emit('finished', ritual.result.value.priority.id)"
+        >
           {{ t('planning.priorityRitual.success.goToLibrary') }}
         </button>
       </div>
@@ -59,10 +72,19 @@
             <span>{{ t('planning.priorityRitual.resume.banner', { date: draftDateLabel }) }}</span>
           </div>
           <div class="flex gap-2">
-            <button type="button" class="mg-v2-button mg-v2-button--quiet text-sm" @click="handleDiscardDraft">
+            <button
+              type="button"
+              class="mg-v2-button mg-v2-button--quiet text-sm"
+              @click="handleDiscardDraft"
+            >
               {{ t('planning.priorityRitual.resume.discard') }}
             </button>
-            <button type="button" class="mg-v2-button mg-v2-button--icon-sm" :aria-label="t('common.buttons.close')" @click="showResumeBanner = false">
+            <button
+              type="button"
+              class="mg-v2-button mg-v2-button--icon-sm"
+              :aria-label="t('common.buttons.close')"
+              @click="showResumeBanner = false"
+            >
               <AppIcon name="close" class="text-sm" />
             </button>
           </div>
@@ -72,22 +94,48 @@
           <!-- 1 · Meaning -->
           <div v-if="ritual.currentStep.value === 'meaning'" key="meaning" class="space-y-4">
             <label class="mg-v2-field-wrap">
-              <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.meaning.titleLabel') }}</span>
-              <input v-model="ritual.form.title" class="mg-v2-field w-full text-sm" :placeholder="t('planning.priorityRitual.meaning.titlePlaceholder')" />
+              <span class="mg-v2-field-wrap__label">{{
+                t('planning.priorityRitual.meaning.titleLabel')
+              }}</span>
+              <input
+                v-model="ritual.form.title"
+                class="mg-v2-field w-full text-sm"
+                :placeholder="t('planning.priorityRitual.meaning.titlePlaceholder')"
+              />
             </label>
             <label class="mg-v2-field-wrap">
-              <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.meaning.whyNow') }}</span>
-              <textarea v-model="ritual.form.whyNow" rows="4" class="mg-v2-field w-full resize-none text-sm" :placeholder="t('planning.priorityRitual.meaning.whyNowPlaceholder')" />
+              <span class="mg-v2-field-wrap__label">{{
+                t('planning.priorityRitual.meaning.whyNow')
+              }}</span>
+              <textarea
+                v-model="ritual.form.whyNow"
+                rows="4"
+                class="mg-v2-field w-full resize-none text-sm"
+                :placeholder="t('planning.priorityRitual.meaning.whyNowPlaceholder')"
+              />
             </label>
             <label class="mg-v2-field-wrap">
-              <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.meaning.direction') }}</span>
-              <textarea v-model="ritual.form.direction" rows="4" class="mg-v2-field w-full resize-none text-sm" :placeholder="t('planning.priorityRitual.meaning.directionPlaceholder')" />
+              <span class="mg-v2-field-wrap__label">{{
+                t('planning.priorityRitual.meaning.direction')
+              }}</span>
+              <textarea
+                v-model="ritual.form.direction"
+                rows="4"
+                class="mg-v2-field w-full resize-none text-sm"
+                :placeholder="t('planning.priorityRitual.meaning.directionPlaceholder')"
+              />
             </label>
-            <p class="text-xs text-on-surface-variant">{{ t('planning.priorityRitual.meaning.requiredHint') }}</p>
+            <p class="text-xs text-on-surface-variant">
+              {{ t('planning.priorityRitual.meaning.requiredHint') }}
+            </p>
           </div>
 
           <!-- 2 · Boundaries + portfolio -->
-          <div v-else-if="ritual.currentStep.value === 'boundaries'" key="boundaries" class="space-y-4">
+          <div
+            v-else-if="ritual.currentStep.value === 'boundaries'"
+            key="boundaries"
+            class="space-y-4"
+          >
             <div class="grid gap-4 md:grid-cols-3">
               <div
                 v-for="field in boundaryFields"
@@ -104,7 +152,10 @@
                     class="flex items-start justify-between gap-2 text-sm text-on-surface"
                   >
                     <span class="flex items-start gap-2">
-                      <span aria-hidden="true" class="mt-[7px] size-1.5 shrink-0 rounded-full bg-on-surface-variant" />
+                      <span
+                        aria-hidden="true"
+                        class="mt-[7px] size-1.5 shrink-0 rounded-full bg-on-surface-variant"
+                      />
                       {{ item }}
                     </span>
                     <button
@@ -126,9 +177,17 @@
               </div>
             </div>
 
-            <div v-if="ritual.atPortfolioLimit.value" class="rounded-xl bg-status-warn-soft p-4 text-status-warn-on">
+            <div
+              v-if="ritual.atPortfolioLimit.value"
+              class="rounded-xl bg-status-warn-soft p-4 text-status-warn-on"
+            >
               <p class="text-sm font-semibold">
-                {{ t('planning.priorityRitual.boundaries.limitTitle', { count: ritual.activePriorities.value.length, max: maxActivePriorities }) }}
+                {{
+                  t('planning.priorityRitual.boundaries.limitTitle', {
+                    count: ritual.activePriorities.value.length,
+                    max: maxActivePriorities,
+                  })
+                }}
               </p>
               <p class="text-xs">{{ t('planning.priorityRitual.boundaries.limitBody') }}</p>
               <ul class="mt-3 space-y-2">
@@ -157,11 +216,21 @@
           <!-- 3 · Signals -->
           <div v-else-if="ritual.currentStep.value === 'signals'" key="signals" class="space-y-4">
             <div class="grid gap-4 md:grid-cols-2">
-              <div v-for="kind in (['progress', 'risk'] as const)" :key="kind" class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
+              <div
+                v-for="kind in ['progress', 'risk'] as const"
+                :key="kind"
+                class="priority-signal-card mg-v2-surface mg-v2-surface--flat space-y-3 p-4"
+                :class="`priority-signal-card--${kind}`"
+              >
                 <div class="flex items-center justify-between gap-2">
-                  <p class="text-sm font-semibold text-on-surface">
-                    {{ t(`planning.priorityRitual.signals.${kind}Title`) }}
-                  </p>
+                  <span class="priority-signal-card__heading">
+                    <span class="priority-signal-card__kind-icon" aria-hidden="true">
+                      <AppIcon :name="kind === 'progress' ? 'add' : 'remove'" />
+                    </span>
+                    <span class="text-sm font-semibold text-on-surface">
+                      {{ t(`planning.priorityRitual.signals.${kind}Title`) }}
+                    </span>
+                  </span>
                   <button
                     type="button"
                     class="mg-v2-button mg-v2-button--icon-sm"
@@ -172,26 +241,48 @@
                     <AppIcon name="help" class="text-base" />
                   </button>
                 </div>
-                <div v-if="signalsHelpOpen[kind]" class="mg-v2-surface mg-v2-surface--inset space-y-1.5 p-3 text-xs text-on-surface-variant">
+                <div
+                  v-if="signalsHelpOpen[kind]"
+                  class="mg-v2-surface mg-v2-surface--inset space-y-1.5 p-3 text-xs text-on-surface-variant"
+                >
                   <p>{{ t('planning.priorityRitual.signals.help.intro') }}</p>
                   <ul class="list-disc space-y-1 pl-4">
-                    <li v-for="question in tList(`planning.priorityRitual.signals.help.${kind}`)" :key="question">
+                    <li
+                      v-for="question in tList(`planning.priorityRitual.signals.help.${kind}`)"
+                      :key="question"
+                    >
                       {{ question }}
                     </li>
                   </ul>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    v-for="signal in (kind === 'progress' ? ritual.progressSignals.value : ritual.riskSignals.value)"
+                <ul
+                  v-if="
+                    (kind === 'progress' ? ritual.progressSignals.value : ritual.riskSignals.value)
+                      .length
+                  "
+                  class="priority-signal-list"
+                >
+                  <li
+                    v-for="signal in kind === 'progress'
+                      ? ritual.progressSignals.value
+                      : ritual.riskSignals.value"
                     :key="signal"
-                    type="button"
-                    class="mg-v2-pill"
-                    @click="ritual.removeSignal(kind, signal)"
+                    class="priority-signal-row"
                   >
-                    {{ signal }}
-                    <AppIcon name="close" class="text-xs text-on-surface-variant" />
-                  </button>
-                </div>
+                    <span class="priority-signal-row__marker" aria-hidden="true">
+                      <AppIcon :name="kind === 'progress' ? 'add' : 'remove'" />
+                    </span>
+                    <span class="priority-signal-row__text">{{ signal }}</span>
+                    <button
+                      type="button"
+                      class="priority-signal-row__remove mg-v2-button mg-v2-button--icon-sm"
+                      :aria-label="t('planning.priorityRitual.signals.removeLabel', { signal })"
+                      @click="ritual.removeSignal(kind, signal)"
+                    >
+                      <AppIcon name="close" class="text-sm" />
+                    </button>
+                  </li>
+                </ul>
                 <input
                   class="mg-v2-field w-full text-sm"
                   :placeholder="t('planning.priorityRitual.signals.addPlaceholder')"
@@ -225,13 +316,21 @@
                 :placeholder="t('planning.priorityRitual.support.addTitlePlaceholder')"
                 @keydown.enter.prevent="handleAddProposal"
               />
-              <button type="button" class="mg-v2-button text-sm" :disabled="!newProposalTitle.trim()" @click="handleAddProposal">
+              <button
+                type="button"
+                class="mg-v2-button text-sm"
+                :disabled="!newProposalTitle.trim()"
+                @click="handleAddProposal"
+              >
                 <AppIcon name="add" class="text-base" />
                 {{ t('planning.priorityRitual.support.addButton') }}
               </button>
             </div>
 
-            <p v-if="newProposals.length === 0 && ritual.libraryCandidates.value.length === 0" class="text-sm text-on-surface-variant">
+            <p
+              v-if="newProposals.length === 0 && ritual.libraryCandidates.value.length === 0"
+              class="text-sm text-on-surface-variant"
+            >
               {{ t('planning.priorityRitual.support.empty') }}
             </p>
             <div v-else class="grid gap-2 md:grid-cols-2">
@@ -244,9 +343,12 @@
                   <AppIcon name="check_circle" class="mt-0.5 text-base text-primary" />
                   <span>
                     <span class="block text-xs text-on-surface-variant">
-                      {{ proposalTypeLabel(proposal.objectType) }} · {{ t('planning.priorityRitual.relations.newBadge') }}
+                      {{ proposalTypeLabel(proposal.objectType) }} ·
+                      {{ t('planning.priorityRitual.relations.newBadge') }}
                     </span>
-                    <span class="block text-sm font-medium text-on-surface">{{ proposal.title }}</span>
+                    <span class="block text-sm font-medium text-on-surface">{{
+                      proposal.title
+                    }}</span>
                   </span>
                 </span>
                 <button
@@ -263,40 +365,112 @@
                 :key="`${candidate.subjectRef.subjectType}:${candidate.subjectRef.subjectId}`"
                 type="button"
                 class="mg-v2-surface flex items-center gap-2 p-3 text-left"
-                :class="ritual.isLinkedCandidate(candidate.subjectRef) ? 'mg-v2-surface--raised-sm ring-1 ring-primary' : 'mg-v2-surface--flat'"
+                :class="
+                  ritual.isLinkedCandidate(candidate.subjectRef)
+                    ? 'mg-v2-surface--raised-sm ring-1 ring-primary'
+                    : 'mg-v2-surface--flat'
+                "
                 :aria-pressed="ritual.isLinkedCandidate(candidate.subjectRef)"
                 @click="ritual.toggleExistingCandidate(candidate)"
               >
-                <AppIcon :name="ritual.isLinkedCandidate(candidate.subjectRef) ? 'check_circle' : proposalIcon(candidate.subjectRef.subjectType)" class="text-base" :class="ritual.isLinkedCandidate(candidate.subjectRef) ? 'text-primary' : 'text-on-surface-variant'" />
+                <AppIcon
+                  :name="
+                    ritual.isLinkedCandidate(candidate.subjectRef)
+                      ? 'check_circle'
+                      : proposalIcon(candidate.subjectRef.subjectType)
+                  "
+                  class="text-base"
+                  :class="
+                    ritual.isLinkedCandidate(candidate.subjectRef)
+                      ? 'text-primary'
+                      : 'text-on-surface-variant'
+                  "
+                />
                 <span>
-                  <span class="block text-xs text-on-surface-variant">{{ proposalTypeLabel(candidate.subjectRef.subjectType) }}</span>
-                  <span class="block text-sm font-medium text-on-surface">{{ candidate.title }}</span>
+                  <span class="block text-xs text-on-surface-variant">{{
+                    proposalTypeLabel(candidate.subjectRef.subjectType)
+                  }}</span>
+                  <span class="block text-sm font-medium text-on-surface">{{
+                    candidate.title
+                  }}</span>
                 </span>
               </button>
             </div>
           </div>
 
           <!-- 5 · Contribution -->
-          <div v-else-if="ritual.currentStep.value === 'relations'" key="relations" class="space-y-4">
-            <p v-if="ritual.selectedProposals.value.length === 0" class="mg-v2-surface mg-v2-surface--inset p-4 text-sm text-on-surface-variant">
+          <div
+            v-else-if="ritual.currentStep.value === 'relations'"
+            key="relations"
+            class="space-y-4"
+          >
+            <p
+              v-if="ritual.selectedProposals.value.length === 0"
+              class="mg-v2-surface mg-v2-surface--inset p-4 text-sm text-on-surface-variant"
+            >
               {{ t('planning.priorityRitual.relations.empty') }}
             </p>
             <div v-else class="space-y-3">
-              <div v-for="proposal in ritual.selectedProposals.value" :key="proposal.id" class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
+              <div
+                v-for="proposal in ritual.selectedProposals.value"
+                :key="proposal.id"
+                class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4"
+              >
                 <div class="flex items-center gap-2">
-                  <AppIcon :name="proposalIcon(proposal.kind === 'new' ? proposal.objectType : proposal.subjectRef?.subjectType)" class="text-base text-on-surface-variant" />
+                  <AppIcon
+                    :name="
+                      proposalIcon(
+                        proposal.kind === 'new'
+                          ? proposal.objectType
+                          : proposal.subjectRef?.subjectType
+                      )
+                    "
+                    class="text-base text-on-surface-variant"
+                  />
                   <span class="text-sm font-semibold text-on-surface">{{ proposal.title }}</span>
                   <span class="mg-v2-badge">
-                    {{ proposal.kind === 'new' ? t('planning.priorityRitual.relations.newBadge') : t('planning.priorityRitual.relations.existingBadge') }}
+                    {{
+                      proposal.kind === 'new'
+                        ? t('planning.priorityRitual.relations.newBadge')
+                        : t('planning.priorityRitual.relations.existingBadge')
+                    }}
                   </span>
                 </div>
                 <label class="mg-v2-field-wrap">
-                  <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.relations.contributionLabel') }}</span>
-                  <textarea :value="proposal.contribution" rows="2" class="mg-v2-field w-full resize-none text-sm" :placeholder="t('planning.priorityRitual.relations.contributionPlaceholder')" @input="ritual.updateProposalField(proposal.id, 'contribution', ($event.target as HTMLTextAreaElement).value)" />
+                  <span class="mg-v2-field-wrap__label">{{
+                    t('planning.priorityRitual.relations.contributionLabel')
+                  }}</span>
+                  <textarea
+                    :value="proposal.contribution"
+                    rows="2"
+                    class="mg-v2-field w-full resize-none text-sm"
+                    :placeholder="t('planning.priorityRitual.relations.contributionPlaceholder')"
+                    @input="
+                      ritual.updateProposalField(
+                        proposal.id,
+                        'contribution',
+                        ($event.target as HTMLTextAreaElement).value
+                      )
+                    "
+                  />
                 </label>
                 <label class="mg-v2-field-wrap">
-                  <span class="mg-v2-field-wrap__label">{{ t('planning.priorityRitual.relations.expectedSignalLabel') }}</span>
-                  <input :value="proposal.expectedSignal" class="mg-v2-field w-full text-sm" :placeholder="t('planning.priorityRitual.relations.expectedSignalPlaceholder')" @input="ritual.updateProposalField(proposal.id, 'expectedSignal', ($event.target as HTMLInputElement).value)" />
+                  <span class="mg-v2-field-wrap__label">{{
+                    t('planning.priorityRitual.relations.expectedSignalLabel')
+                  }}</span>
+                  <textarea
+                    :value="proposal.expectedSignal"
+                    rows="2"
+                    class="mg-v2-field w-full resize-none text-sm"
+                    :placeholder="t('planning.priorityRitual.relations.expectedSignalPlaceholder')"
+                    @input="
+                      ritual.updateProposalField(
+                        proposal.id,
+                        'expectedSignal',
+                        ($event.target as HTMLTextAreaElement).value
+                      )
+                    "
+                  />
                 </label>
               </div>
             </div>
@@ -307,7 +481,9 @@
             <div class="mg-v2-surface mg-v2-surface--raised-sm flex items-start gap-3 p-4">
               <AppIcon name="north_star" class="mt-1 text-xl text-primary" />
               <div>
-                <p class="text-base font-semibold text-on-surface">{{ ritual.form.title || '—' }}</p>
+                <p class="text-base font-semibold text-on-surface">
+                  {{ ritual.form.title || '—' }}
+                </p>
                 <p class="text-sm text-on-surface-variant">{{ ritual.form.direction }}</p>
               </div>
             </div>
@@ -315,42 +491,125 @@
             <div class="grid gap-4 md:grid-cols-2">
               <div class="space-y-3">
                 <div class="mg-v2-surface mg-v2-surface--flat space-y-1 p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">{{ t('planning.priorityRitual.review.meaningTitle') }}</p>
+                  <p
+                    class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+                  >
+                    {{ t('planning.priorityRitual.review.meaningTitle') }}
+                  </p>
                   <p class="text-sm text-on-surface">{{ ritual.form.whyNow || '—' }}</p>
                 </div>
                 <div class="mg-v2-surface mg-v2-surface--flat space-y-2 p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">{{ t('planning.priorityRitual.review.signalsTitle') }}</p>
-                  <p v-if="!ritual.progressSignals.value.length && !ritual.riskSignals.value.length" class="text-sm text-on-surface-variant">
+                  <p
+                    class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+                  >
+                    {{ t('planning.priorityRitual.review.signalsTitle') }}
+                  </p>
+                  <p
+                    v-if="!ritual.progressSignals.value.length && !ritual.riskSignals.value.length"
+                    class="text-sm text-on-surface-variant"
+                  >
                     {{ t('planning.priorityRitual.review.signalsEmpty') }}
                   </p>
-                  <div v-else class="flex flex-wrap gap-2">
-                    <span v-for="signal in ritual.progressSignals.value" :key="`p-${signal}`" class="mg-v2-pill bg-primary-soft">{{ signal }}</span>
-                    <span v-for="signal in ritual.riskSignals.value" :key="`r-${signal}`" class="mg-v2-pill bg-status-warn-soft text-status-warn-on">{{ signal }}</span>
+                  <div v-else class="priority-review-signals">
+                    <section
+                      v-if="ritual.progressSignals.value.length"
+                      class="priority-review-signal-group priority-review-signal-group--progress"
+                    >
+                      <header>
+                        <span class="priority-review-signal-group__marker" aria-hidden="true"
+                          ><AppIcon name="add"
+                        /></span>
+                        <strong>{{ t('planning.priorityRitual.signals.progressTitle') }}</strong>
+                        <small>{{ ritual.progressSignals.value.length }}</small>
+                      </header>
+                      <ul>
+                        <li v-for="signal in ritual.progressSignals.value" :key="`p-${signal}`">
+                          <span class="priority-review-signal-group__item-marker" aria-hidden="true"
+                            >+</span
+                          >
+                          <span>{{ signal }}</span>
+                        </li>
+                      </ul>
+                    </section>
+                    <section
+                      v-if="ritual.riskSignals.value.length"
+                      class="priority-review-signal-group priority-review-signal-group--risk"
+                    >
+                      <header>
+                        <span class="priority-review-signal-group__marker" aria-hidden="true"
+                          ><AppIcon name="remove"
+                        /></span>
+                        <strong>{{ t('planning.priorityRitual.signals.riskTitle') }}</strong>
+                        <small>{{ ritual.riskSignals.value.length }}</small>
+                      </header>
+                      <ul>
+                        <li v-for="signal in ritual.riskSignals.value" :key="`r-${signal}`">
+                          <span class="priority-review-signal-group__item-marker" aria-hidden="true"
+                            >−</span
+                          >
+                          <span>{{ signal }}</span>
+                        </li>
+                      </ul>
+                    </section>
                   </div>
                 </div>
               </div>
 
               <div class="mg-v2-surface mg-v2-surface--flat space-y-2 p-4">
-                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">{{ t('planning.priorityRitual.review.supportTitle') }}</p>
-                <p v-if="ritual.selectedProposals.value.length === 0" class="text-sm text-on-surface-variant">
+                <p
+                  class="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant"
+                >
+                  {{ t('planning.priorityRitual.review.supportTitle') }}
+                </p>
+                <p
+                  v-if="ritual.selectedProposals.value.length === 0"
+                  class="text-sm text-on-surface-variant"
+                >
                   {{ t('planning.priorityRitual.review.supportEmpty') }}
                 </p>
                 <ul v-else class="space-y-2">
-                  <li v-for="proposal in ritual.selectedProposals.value" :key="proposal.id" class="flex items-start gap-2 text-sm">
-                    <AppIcon :name="proposalIcon(proposal.kind === 'new' ? proposal.objectType : proposal.subjectRef?.subjectType)" class="mt-0.5 text-base text-on-surface-variant" />
+                  <li
+                    v-for="proposal in ritual.selectedProposals.value"
+                    :key="proposal.id"
+                    class="flex items-start gap-2 text-sm"
+                  >
+                    <AppIcon
+                      :name="
+                        proposalIcon(
+                          proposal.kind === 'new'
+                            ? proposal.objectType
+                            : proposal.subjectRef?.subjectType
+                        )
+                      "
+                      class="mt-0.5 text-base text-on-surface-variant"
+                    />
                     <span>
                       <span class="font-medium text-on-surface">{{ proposal.title }}</span>
-                      <span v-if="proposal.contribution" class="block text-xs text-on-surface-variant">{{ proposal.contribution }}</span>
+                      <span
+                        v-if="proposal.contribution"
+                        class="block text-xs text-on-surface-variant"
+                        >{{ proposal.contribution }}</span
+                      >
                     </span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            <div v-if="ritual.selectedNewCount.value > 0" class="rounded-xl bg-primary-soft p-3 text-sm text-on-surface">
-              {{ t('planning.priorityRitual.review.pendingNotice', { count: ritual.selectedNewCount.value }) }}
+            <div
+              v-if="ritual.selectedNewCount.value > 0"
+              class="rounded-xl bg-primary-soft p-3 text-sm text-on-surface"
+            >
+              {{
+                t('planning.priorityRitual.review.pendingNotice', {
+                  count: ritual.selectedNewCount.value,
+                })
+              }}
             </div>
-            <div v-if="ritual.willCreateAsDraft.value" class="rounded-xl bg-status-warn-soft p-3 text-sm text-status-warn-on">
+            <div
+              v-if="ritual.willCreateAsDraft.value"
+              class="rounded-xl bg-status-warn-soft p-3 text-sm text-status-warn-on"
+            >
               {{ t('planning.priorityRitual.review.draftNotice') }}
             </div>
           </div>
@@ -359,7 +618,12 @@
 
       <template #footer>
         <div class="flex w-full items-center justify-between gap-3">
-          <button type="button" class="mg-v2-button mg-v2-button--quiet text-sm" :disabled="!ritual.canGoBack.value" @click="ritual.goBack()">
+          <button
+            type="button"
+            class="mg-v2-button mg-v2-button--quiet text-sm"
+            :disabled="!ritual.canGoBack.value"
+            @click="ritual.goBack()"
+          >
             <AppIcon name="arrow_back" class="text-base" />
             {{ t('planning.priorityRitual.footer.back') }}
           </button>
@@ -394,7 +658,11 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import PriorityDraftChecklist from '@/components/objects/priority-creator/PriorityDraftChecklist.vue'
 import { DsWizardShell } from '@/design-system/components'
 import { MAX_ACTIVE_PRIORITIES } from '@/domain/planning'
-import { RITUAL_STEPS, usePriorityCreatorRitual, type BoundaryKind } from '@/composables/usePriorityCreatorRitual'
+import {
+  RITUAL_STEPS,
+  usePriorityCreatorRitual,
+  type BoundaryKind,
+} from '@/composables/usePriorityCreatorRitual'
 import { useT } from '@/composables/useT'
 
 const emit = defineEmits<{
@@ -413,7 +681,7 @@ const newProposalTitle = ref('')
 const signalsHelpOpen = reactive({ progress: false, risk: false })
 
 const shellSteps = computed(() =>
-  RITUAL_STEPS.map(id => ({ id, label: t(`planning.priorityRitual.steps.${id}.label`) })),
+  RITUAL_STEPS.map(id => ({ id, label: t(`planning.priorityRitual.steps.${id}.label`) }))
 )
 
 const boundaryFields = [
@@ -426,11 +694,19 @@ const boundaryFields = [
 const newProposals = computed(() => ritual.proposals.value.filter(item => item.kind === 'new'))
 
 /** New proposals are goal/habit/tracker; intentions are linked from the library instead. */
-const newProposalTypes = computed(() => ([
+const newProposalTypes = computed(() => [
   { value: 'goal' as const, icon: 'flag', label: t('planning.priorityRitual.support.types.goal') },
-  { value: 'habit' as const, icon: 'routine', label: t('planning.priorityRitual.support.types.habit') },
-  { value: 'tracker' as const, icon: 'monitoring', label: t('planning.priorityRitual.support.types.tracker') },
-]))
+  {
+    value: 'habit' as const,
+    icon: 'routine',
+    label: t('planning.priorityRitual.support.types.habit'),
+  },
+  {
+    value: 'tracker' as const,
+    icon: 'monitoring',
+    label: t('planning.priorityRitual.support.types.tracker'),
+  },
+])
 
 const maxActivePriorities = MAX_ACTIVE_PRIORITIES
 
@@ -438,7 +714,10 @@ const draftDateLabel = computed(() => {
   if (!ritual.draftSavedAt.value) return ''
   const date = new Date(ritual.draftSavedAt.value)
   if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleDateString(locale.value === 'pl' ? 'pl-PL' : 'en-US', { day: 'numeric', month: 'long' })
+  return date.toLocaleDateString(locale.value === 'pl' ? 'pl-PL' : 'en-US', {
+    day: 'numeric',
+    month: 'long',
+  })
 })
 
 const finishLabel = computed(() => {
@@ -517,5 +796,167 @@ onMounted(() => {
 }
 .priority-creator-step-enter-from {
   opacity: 0;
+}
+
+.priority-signal-card {
+  overflow: hidden;
+}
+
+.priority-signal-card::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--signal-color);
+  content: '';
+}
+
+.priority-signal-card--progress,
+.priority-review-signal-group--progress {
+  --signal-color: var(--mg-color-good);
+  --signal-soft: var(--mg-color-good-soft);
+  --signal-ink: var(--mg-color-good-on);
+}
+
+.priority-signal-card--risk,
+.priority-review-signal-group--risk {
+  --signal-color: var(--mg-color-warn);
+  --signal-soft: var(--mg-color-warn-soft);
+  --signal-ink: var(--mg-color-warn-on);
+}
+
+.priority-signal-card__heading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mg-space-2);
+}
+
+.priority-signal-card__kind-icon,
+.priority-signal-row__marker,
+.priority-review-signal-group__marker {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--mg-radius-organic-a);
+  color: var(--signal-ink);
+  background: var(--signal-soft);
+  font-weight: 900;
+}
+
+.priority-signal-card__kind-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 1rem;
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.priority-signal-list,
+.priority-review-signal-group ul {
+  display: grid;
+  gap: var(--mg-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.priority-signal-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--mg-space-2);
+  min-height: 2.75rem;
+  padding: var(--mg-space-2);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.priority-signal-row__marker {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.1rem;
+  font-size: 0.875rem;
+}
+
+.priority-signal-row__text {
+  align-self: center;
+  min-width: 0;
+  font-size: var(--mg-font-size-sm);
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.priority-signal-row__remove {
+  min-height: 1.75rem;
+  min-width: 1.75rem;
+  width: 1.75rem;
+  border-color: transparent;
+  color: var(--mg-color-muted);
+  background: transparent;
+  box-shadow: none;
+}
+
+.priority-signal-row__remove:hover {
+  color: var(--mg-color-ink);
+  background: var(--mg-color-surface);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.priority-review-signals {
+  display: grid;
+  gap: var(--mg-space-3);
+}
+
+.priority-review-signal-group {
+  display: grid;
+  gap: var(--mg-space-2);
+  padding: var(--mg-space-3);
+  border: 1px solid var(--mg-color-border);
+  border-left: 3px solid var(--signal-color);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.priority-review-signal-group header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--mg-space-2);
+  color: var(--signal-ink);
+}
+
+.priority-review-signal-group header strong {
+  font-size: var(--mg-font-size-sm);
+}
+
+.priority-review-signal-group header small {
+  font-size: var(--mg-font-size-xs);
+  font-weight: 900;
+}
+
+.priority-review-signal-group__marker {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.priority-review-signal-group li {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--mg-space-2);
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.priority-review-signal-group__item-marker {
+  color: var(--signal-ink);
+  font-weight: 900;
+  text-align: center;
 }
 </style>

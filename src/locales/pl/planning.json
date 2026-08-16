@@ -1075,6 +1075,7 @@
       "progressTitle": "Sygnały postępu",
       "riskTitle": "Sygnały ryzyka",
       "addPlaceholder": "Dodaj sygnał i zatwierdź Enterem",
+      "removeLabel": "Usuń sygnał: {signal}",
       "helpLabel": "Podpowiedzi",
       "help": {
         "intro": "Sygnały wrócą w refleksji miesięcznej — ocenisz nimi, czy kierunek żyje. Pomocne pytania:",
