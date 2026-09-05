@@ -366,7 +366,12 @@
         "value": "Dzisiejsza wartość",
         "rating": "Dzisiejsza ocena",
         "multi-completion": "Dzisiejsza checklista"
-      }
+      },
+      "moveToTomorrow": "Przenieś na jutro",
+      "stageRow": "Pokaż w scenie",
+      "undo": "Cofnij",
+      "collapseCompleted": "Zwiń wykonane",
+      "expandCompleted": "Pokaż wykonane"
     },
     "messages": {
       "entrySaved": "Wpis zapisany.",
@@ -375,7 +380,8 @@
       "restored": "Przywrócono do widoku Dzisiaj.",
       "moved": "Przeniesiono na inny dzień.",
       "scheduleCleared": "Usunięto przypisanie do dzisiaj.",
-      "deleted": "Obiekt usunięty."
+      "deleted": "Obiekt usunięty.",
+      "undone": "Cofnięto."
     },
     "summary": {
       "daysLogged": "{n} dni zapisanych",
@@ -440,7 +446,18 @@
       "programFrom": "od {date}",
       "ariaProgramStart": "Rozpocznij krok ścieżki",
       "ariaProgramOpen": "Otwórz szczegóły ścieżki"
-    }
+    },
+    "stage": {
+      "tomorrow": "Jutro",
+      "day": "Dzień",
+      "hide": "Ukryj",
+      "clearToday": "Usuń z dziś",
+      "open": "Otwórz",
+      "context": "Kontekst",
+      "actionsLabel": "Akcje: {title}"
+    },
+    "completedCount": "Wykonane ({n})",
+    "progress": "Wykonanie dnia: {done} z {total}"
   },
   "weekWizard": {
     "title": "Tydzień",

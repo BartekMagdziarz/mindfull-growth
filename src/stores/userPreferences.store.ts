@@ -17,6 +17,7 @@ const KEYS = {
   PROFILE_CONTEXT_DEFAULT: 'preferences.profileContext.default',
   PROFILE_CONTEXT_DEFAULT_JOURNAL: 'preferences.profileContext.defaultJournal',
   DOCK_PINNED: 'preferences.dockPinned',
+  TODAY_COLLAPSE_COMPLETED: 'preferences.today.collapseCompleted',
   // Legacy key — read once during loadPreferences() to migrate the value
   // into PROFILE_CONTEXT_DEFAULT, then deleted. Do not introduce new
   // writes against this key.
@@ -34,6 +35,8 @@ const DEFAULTS = {
   // Nav dock starts unpinned ("peek" mode): hidden behind the left edge,
   // revealed on edge hover. Pinning keeps it visible and offsets <main>.
   DOCK_PINNED: false,
+  // Day list shows completed rows by default; collapsing them is a user choice.
+  TODAY_COLLAPSE_COMPLETED: false,
 }
 
 export const useUserPreferencesStore = defineStore('userPreferences', () => {
@@ -46,6 +49,7 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     DEFAULTS.PROFILE_CONTEXT_DEFAULT_JOURNAL,
   )
   const dockPinned = ref<boolean>(DEFAULTS.DOCK_PINNED)
+  const todayCollapseCompleted = ref<boolean>(DEFAULTS.TODAY_COLLAPSE_COMPLETED)
   const foundationRefreshDismissedAt = ref<string | undefined>(undefined)
   const isLoaded = ref(false)
 
@@ -120,6 +124,16 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
             ? false
             : DEFAULTS.DOCK_PINNED
 
+      const storedCollapseCompleted = await userSettingsDexieRepository.get(
+        KEYS.TODAY_COLLAPSE_COMPLETED,
+      )
+      todayCollapseCompleted.value =
+        storedCollapseCompleted === 'true'
+          ? true
+          : storedCollapseCompleted === 'false'
+            ? false
+            : DEFAULTS.TODAY_COLLAPSE_COMPLETED
+
       foundationRefreshDismissedAt.value = await userSettingsDexieRepository.get(
         KEYS.PROFILE_FOUNDATION_REFRESH_DISMISSED_AT,
       )
@@ -180,6 +194,15 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     )
   }
 
+  async function setTodayCollapseCompleted(value: boolean): Promise<void> {
+    const normalized = !!value
+    todayCollapseCompleted.value = normalized
+    await userSettingsDexieRepository.set(
+      KEYS.TODAY_COLLAPSE_COMPLETED,
+      normalized ? 'true' : 'false',
+    )
+  }
+
   async function setFoundationRefreshDismissedAt(
     value: string | undefined,
   ): Promise<void> {
@@ -218,6 +241,7 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     profileContextDefault.value = DEFAULTS.PROFILE_CONTEXT_DEFAULT
     profileContextDefaultJournal.value = DEFAULTS.PROFILE_CONTEXT_DEFAULT_JOURNAL
     dockPinned.value = DEFAULTS.DOCK_PINNED
+    todayCollapseCompleted.value = DEFAULTS.TODAY_COLLAPSE_COMPLETED
     foundationRefreshDismissedAt.value = undefined
     isLoaded.value = false
   }
@@ -230,6 +254,7 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     profileContextDefault,
     profileContextDefaultJournal,
     dockPinned,
+    todayCollapseCompleted,
     foundationRefreshDismissedAt,
     isLoaded,
     // Actions
@@ -240,6 +265,7 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     setProfileContextDefault,
     setProfileContextDefaultJournal,
     setDockPinned,
+    setTodayCollapseCompleted,
     setFoundationRefreshDismissedAt,
     clearFoundationRefreshDismissedAt,
     reset,

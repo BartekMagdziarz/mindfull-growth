@@ -43,7 +43,8 @@ Rekomendowany porządek:
 
 1. **W toku (od 2026-09-05): port widoku dnia „Dzisiaj” v19 („Scena w wierszu”)** — plan w `ideas/html-plans/2026-09-05-today-v19-inline-stage-port.html`, fazy F0–F4. Zakres: scena w wierszu listy dnia, jeden plus z kaskadą typ → obiekt, Cofnij dla operacji planistycznych, prawa kolumna kalendarz + Kompas + „Najbliżej” w miejsce planszy `NextDayStage`. Status faz:
    - F0 (refaktor bez zmiany wyglądu): `useDayWellness`, `buildDayChartPoints`, `priorityIds` na pozycji dnia, ton `rose` zamiast `mint`, `NextObjectChartCard bare` — **zrobione**;
-   - F1 scena w wierszu + undo, F2 prawa kolumna, F3 dodawanie/przenoszenie kontekstowych, F4 dostępność i dokumentacja — kolejne.
+   - F1 (scena w wierszu): `NextDayItemRow` z propsami `staged/lit/dim`, tacą ikon na hover/fokus i slotem rozszerzenia; `NextDayRail` ze sceną (pierwsza otwarta pozycja, klik przenosi), włoskowym paskiem postępu, zwijaniem wykonanych (preferencja `preferences.today.collapseCompleted`), Cofnij dla ukryć i przeniesień (`today.store.undoLast`, snackbar z akcją, 7 s) — **zrobione**; „Dzień” tymczasowo przez natywny picker w liście;
+   - F2 prawa kolumna (kalendarz, Kompas, „Najbliżej”, pasek wpisów, usunięcie `NextDayStage`), F3 dodawanie/przenoszenie kontekstowych, F4 dostępność i dokumentacja — kolejne.
    Realizuje punkt „focus hierarchy dla widoku dnia” (Kompas = priorytety miesiąca + fokusy tygodnia).
 2. Priority Hub — potrzebny do czytelnego pokazania jakościowego postępu i relacji wiele-do-wielu;
 3. docelowy model powiązania obiekt–priorytet — osobny byt z rolą, wkładem, sygnałem i historią obowiązywania;

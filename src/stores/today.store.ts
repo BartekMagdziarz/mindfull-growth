@@ -79,6 +79,12 @@ export const useTodayStore = defineStore('today', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const pendingKeys = ref<string[]>([])
+  /**
+   * Last reversible planning operation (hide / move). Single level, in memory
+   * only: a new operation replaces it, a reload of the page forgets it.
+   * Measurement entries are never part of undo.
+   */
+  const undoState = ref<{ kind: 'hide' | 'move'; itemKey: string; run: () => Promise<void> } | null>(null)
 
   const dayRef = computed(() => bundle.value?.dayRef)
   const rawEntries = computed<DailyMeasurementEntry[]>(() => bundle.value?.rawEntries ?? [])
@@ -425,11 +431,20 @@ export const useTodayStore = defineStore('today', () => {
       return
     }
 
+    const hiddenDayRef = bundle.value.dayRef
     setPending(item.key, true)
     moveToHidden(item)
 
     try {
-      await hideTodayItem(item, bundle.value.dayRef)
+      await hideTodayItem(item, hiddenDayRef)
+      undoState.value = {
+        kind: 'hide',
+        itemKey: item.key,
+        run: async () => {
+          await restoreTodayItem(item, hiddenDayRef)
+          await reloadCurrentDay()
+        },
+      }
       await reloadCurrentDay()
     } catch (err) {
       await reloadCurrentDay()
@@ -463,6 +478,7 @@ export const useTodayStore = defineStore('today', () => {
       return
     }
 
+    const fromDayRef = bundle.value.dayRef
     setPending(item.key, true)
     removeItem(item)
 
@@ -470,7 +486,19 @@ export const useTodayStore = defineStore('today', () => {
       if (item.kind === 'initiative') {
         await moveTodayInitiative(item, toDayRef)
       } else {
-        await moveTodayMeasurementAssignment(item, bundle.value.dayRef, toDayRef)
+        await moveTodayMeasurementAssignment(item, fromDayRef, toDayRef)
+      }
+      undoState.value = {
+        kind: 'move',
+        itemKey: item.key,
+        run: async () => {
+          if (item.kind === 'initiative') {
+            await moveTodayInitiative(item, fromDayRef)
+          } else {
+            await moveTodayMeasurementAssignment(item, toDayRef, fromDayRef)
+          }
+          await reloadCurrentDay()
+        },
       }
       await reloadCurrentDay()
     } catch (err) {
@@ -523,6 +551,23 @@ export const useTodayStore = defineStore('today', () => {
     }
   }
 
+  /** Reverts the last reversible planning operation, if any. */
+  async function undoLast(): Promise<void> {
+    const pending = undoState.value
+    if (!pending) return
+    undoState.value = null
+    setPending(pending.itemKey, true)
+    try {
+      await pending.run()
+    } finally {
+      setPending(pending.itemKey, false)
+    }
+  }
+
+  function clearUndo(): void {
+    undoState.value = null
+  }
+
   /**
    * Resets all in-memory state to initial values. Called on user
    * logout/login by `appStateReset` so that user B does not see user A's
@@ -533,6 +578,7 @@ export const useTodayStore = defineStore('today', () => {
     isLoading.value = false
     error.value = null
     pendingKeys.value = []
+    undoState.value = null
   }
 
   return {
@@ -568,6 +614,9 @@ export const useTodayStore = defineStore('today', () => {
     moveScheduledItem,
     clearScheduledItem,
     deleteItem,
+    undoState,
+    undoLast,
+    clearUndo,
     reset,
   }
 })

@@ -366,7 +366,12 @@
         "value": "Today's value",
         "rating": "Today's rating",
         "multi-completion": "Today's checklist"
-      }
+      },
+      "moveToTomorrow": "Move to tomorrow",
+      "stageRow": "Show in stage",
+      "undo": "Undo",
+      "collapseCompleted": "Collapse completed",
+      "expandCompleted": "Show completed"
     },
     "messages": {
       "entrySaved": "Entry saved.",
@@ -375,7 +380,8 @@
       "restored": "Restored to Today.",
       "moved": "Moved to another day.",
       "scheduleCleared": "Today assignment cleared.",
-      "deleted": "Object deleted."
+      "deleted": "Object deleted.",
+      "undone": "Undone."
     },
     "summary": {
       "daysLogged": "{n} days logged",
@@ -440,7 +446,18 @@
       "programFrom": "from {date}",
       "ariaProgramStart": "Start the path's step",
       "ariaProgramOpen": "Open path details"
-    }
+    },
+    "stage": {
+      "tomorrow": "Tomorrow",
+      "day": "Day",
+      "hide": "Hide",
+      "clearToday": "Clear today",
+      "open": "Open",
+      "context": "Context",
+      "actionsLabel": "Actions: {title}"
+    },
+    "completedCount": "Completed ({n})",
+    "progress": "Day progress: {done} of {total}"
   },
   "weekWizard": {
     "title": "Week",

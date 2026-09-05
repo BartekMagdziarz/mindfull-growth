@@ -1,13 +1,45 @@
 <template>
-  <article class="ndi" :class="{ 'ndi--open': expanded }" @click="expanded = !expanded">
+  <article
+    class="ndi"
+    :class="{ 'ndi--staged': staged, 'ndi--lit': lit, 'ndi--dim': dim }"
+    @click="emit('select')"
+  >
+    <!-- Row = one object for this day. Clicking the row (or its title) brings it onto
+         the stage: the staged row grows an expansion (chart + labelled actions) in place,
+         so there is never a second copy of the icon, title or control elsewhere. -->
     <div class="ndi__main">
       <span class="ndi__lead" :class="{ 'ndi__lead--active': hasTodayEntry }" aria-hidden="true">
         <AppIcon :name="iconName" />
       </span>
 
-      <button type="button" class="ndi__label" :title="title" @click.stop="$emit('open-object')">
-        <strong>{{ title }}</strong>
-      </button>
+      <div class="ndi__title">
+        <button
+          type="button"
+          class="ndi__label"
+          :title="title"
+          :aria-pressed="staged"
+          :aria-label="`${t('planning.today.actions.stageRow')}: ${title}`"
+          @click.stop="emit('select')"
+        >
+          <strong>{{ title }}</strong>
+        </button>
+
+        <!-- Icon tray: an overlay on the title's right edge, quiet until hover or
+             keyboard focus, so titles keep their full width. The staged row carries the
+             same actions as labelled buttons inside its expansion instead. -->
+        <span v-if="!staged" class="ndi__tray" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title })" @click.stop>
+        <template v-if="item.isScheduledToday">
+          <button type="button" class="ndi__action" :title="t('planning.today.actions.moveToTomorrow')" :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`" @click="emit('move-tomorrow')"><AppIcon name="east" /></button>
+          <button type="button" class="ndi__action" :title="t('planning.today.actions.moveToDay')" :aria-label="`${t('planning.today.actions.moveToDay')}: ${title}`" @click="emit('pick-day')"><AppIcon name="calendar_month" /></button>
+          <button type="button" class="ndi__action" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
+        </template>
+        <button v-else-if="item.canHide" type="button" class="ndi__action" :title="t('planning.today.actions.hideForToday')" :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`" @click="emit('hide')"><AppIcon name="visibility_off" /></button>
+        <button v-if="item.kind === 'measurement' && item.todayEntry" type="button" class="ndi__action" :title="t('planning.today.actions.clearEntry')" :aria-label="`${t('planning.today.actions.clearEntry')}: ${title}`" @click="emit('clear-entry')"><AppIcon name="ink_eraser" /></button>
+        <button v-if="canOpenObject" type="button" class="ndi__action" :title="t('planning.objects.actions.open')" :aria-label="`${t('planning.objects.actions.open')}: ${title}`" @click="emit('open-object')"><AppIcon name="open_in_new" /></button>
+        <button v-else type="button" class="ndi__action" :title="t('planning.today.actions.openContext')" :aria-label="`${t('planning.today.actions.openContext')}: ${title}`" @click="emit('open-context')"><AppIcon name="event" /></button>
+        <button v-if="item.isScheduledToday" type="button" class="ndi__action ndi__action--danger" :title="t('common.buttons.delete')" :aria-label="`${t('common.buttons.delete')}: ${title}`" @click="emit('request-delete')"><AppIcon name="delete" /></button>
+        </span>
+      </div>
 
       <!-- One disc for every entry mode: only what sits inside changes, so the
            right edge of the rail stays a single straight column. -->
@@ -101,71 +133,9 @@
       </div>
     </div>
 
-    <div v-if="expanded" class="ndi__actions" @click.stop>
-      <button
-        type="button"
-        class="ndi__action"
-        :title="t('planning.today.actions.openContext')"
-        @click="$emit('open-context')"
-      >
-        <AppIcon name="event" />
-      </button>
-      <button
-        type="button"
-        class="ndi__action"
-        :title="t('planning.objects.actions.open')"
-        @click="$emit('open-object')"
-      >
-        <AppIcon name="open_in_new" />
-      </button>
-      <template v-if="item.isScheduledToday">
-        <button
-          type="button"
-          class="ndi__action"
-          :title="t('planning.today.actions.moveToDay')"
-          @click="moveDateInputRef?.showPicker()"
-        >
-          <AppIcon name="event_repeat" />
-        </button>
-        <button
-          type="button"
-          class="ndi__action"
-          :title="t('planning.today.actions.clearToday')"
-          @click="$emit('clear-schedule')"
-        >
-          <AppIcon name="event_busy" />
-        </button>
-      </template>
-      <button
-        v-else-if="item.canHide"
-        type="button"
-        class="ndi__action"
-        :title="t('planning.today.actions.hideForToday')"
-        @click="$emit('hide')"
-      >
-        <AppIcon name="visibility_off" />
-      </button>
-      <button
-        v-if="item.kind === 'measurement' && item.todayEntry"
-        type="button"
-        class="ndi__action"
-        :title="t('planning.today.actions.clearEntry')"
-        @click="$emit('clear-entry')"
-      >
-        <AppIcon name="ink_eraser" />
-      </button>
-      <button
-        v-if="item.isScheduledToday"
-        type="button"
-        class="ndi__action ndi__action--danger"
-        :title="t('common.buttons.delete')"
-        @click="$emit('request-delete')"
-      >
-        <AppIcon name="delete" />
-      </button>
+    <div v-if="staged && $slots.expansion" class="ndi__expansion" @click.stop>
+      <slot name="expansion" />
     </div>
-
-    <input ref="moveDateInputRef" class="ndi__picker" type="date" @change="handleMoveDateChange" />
   </article>
 </template>
 
@@ -184,9 +154,16 @@ const props = withDefaults(defineProps<{
   rawEntries: DailyMeasurementEntry[]
   allDayAssignments: MeasurementDayAssignment[]
   isPending?: boolean
-}>(), { isPending: false })
+  /** This row is the current stage: expansion slot shown, icon tray hidden. */
+  staged?: boolean
+  /** Highlighted as related to the hovered/pinned compass tile. */
+  lit?: boolean
+  /** Muted because another row is highlighted. */
+  dim?: boolean
+}>(), { isPending: false, staged: false, lit: false, dim: false })
 
 const emit = defineEmits<{
+  select: []
   'open-object': []
   'open-context': []
   'toggle-completion': []
@@ -194,7 +171,8 @@ const emit = defineEmits<{
   'save-entry': [value: number]
   'clear-entry': []
   hide: []
-  move: [dayRef: DayRef]
+  'move-tomorrow': []
+  'pick-day': []
   'clear-schedule': []
   'request-delete': []
 }>()
@@ -208,10 +186,8 @@ const PANEL_TYPE_ICONS: Record<string, string> = {
 }
 
 const { t, locale } = useT()
-const expanded = ref(false)
 const valueDraft = ref('')
 const valueInputRef = ref<HTMLInputElement | null>(null)
-const moveDateInputRef = ref<HTMLInputElement | null>(null)
 const justSubmittedValue = ref(false)
 
 const viz = useTodayItemVisualization(
@@ -231,6 +207,8 @@ const iconName = computed(() => {
   const subject = props.item.subject as { icon?: string }
   return subject.icon || PANEL_TYPE_ICONS[props.item.panelType] || 'circle'
 })
+// Weekly intentions and initiatives have no object page; their tray offers the period context instead.
+const canOpenObject = computed(() => props.item.kind === 'measurement' && props.item.panelType !== 'weeklyIntention')
 const isCompletionToggle = computed(() =>
   props.item.kind === 'initiative' || viz.entryMode.value === 'completion',
 )
@@ -350,11 +328,6 @@ function submitValueDraft(event: Event): void {
     input.blur()
   }
 }
-
-function handleMoveDateChange(event: Event): void {
-  const input = event.target as HTMLInputElement
-  if (input.value && input.value !== props.todayDayRef) emit('move', input.value as DayRef)
-}
 </script>
 
 <style scoped>
@@ -368,9 +341,24 @@ function handleMoveDateChange(event: Event): void {
   transition: background var(--mg-duration-fast) var(--mg-ease-standard);
 }
 
-.ndi:hover,
-.ndi--open {
+.ndi:hover {
   background: var(--mg-color-mist);
+}
+
+/* Stage: the row itself becomes the detail surface — tinted, with a left rule. */
+.ndi--staged,
+.ndi--staged:hover {
+  background: var(--mg-color-sky-well);
+  box-shadow: inset 3px 0 0 var(--mg-color-state);
+}
+
+/* Compass highlight: related rows glow, the rest step back. */
+.ndi--lit {
+  background: var(--mg-color-sky-field);
+}
+
+.ndi--dim {
+  opacity: 0.5;
 }
 
 .ndi__main {
@@ -399,8 +387,15 @@ function handleMoveDateChange(event: Event): void {
   font-size: var(--mg-font-size-md);
 }
 
+.ndi__title {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
 .ndi__label {
   display: grid;
+  width: 100%;
   justify-items: start;
   min-width: 0;
   padding: 0;
@@ -601,10 +596,39 @@ function handleMoveDateChange(event: Event): void {
   opacity: 0;
 }
 
-.ndi__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--mg-space-1);
+/* Tray: overlays the tail of the title (masked by the row background) so the
+   title column never shrinks for buttons nobody sees yet. */
+.ndi__tray {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  display: inline-flex;
+  gap: 2px;
+  padding-left: var(--mg-space-3);
+  background: linear-gradient(to right, transparent, var(--mg-color-mist) var(--mg-space-3));
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: opacity var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.ndi:hover .ndi__tray,
+.ndi__tray:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ndi--lit .ndi__tray {
+  background: linear-gradient(to right, transparent, var(--mg-color-sky-field) var(--mg-space-3));
+}
+
+.ndi__expansion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--mg-space-3);
+  align-items: center;
+  padding: 0 var(--mg-space-1) var(--mg-space-2) calc(1.85rem + var(--mg-space-2));
+  cursor: default;
 }
 
 .ndi__action {
@@ -638,14 +662,5 @@ function handleMoveDateChange(event: Event): void {
 .ndi__segment:disabled {
   opacity: 0.46;
   cursor: not-allowed;
-}
-
-.ndi__picker {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
 }
 </style>

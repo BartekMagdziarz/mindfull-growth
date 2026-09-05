@@ -857,6 +857,7 @@
 }
 
 .next-day-rail {
+  position: relative;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--mg-space-2);
@@ -864,6 +865,116 @@
   padding: var(--mg-space-3);
   overflow: hidden;
   border-radius: var(--mg-radius-lg);
+}
+
+/* Day progress lives on the top edge as a barely-there filament: it carries the
+   number only for assistive tech, never as a visible counter. */
+.next-day-rail__filament {
+  position: absolute;
+  top: 0;
+  right: var(--mg-space-5);
+  left: var(--mg-space-5);
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 0 0 3px 3px;
+  background: var(--mg-color-border);
+}
+
+.next-day-rail__filament > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mg-color-state);
+  transition: width var(--mg-duration-base) var(--mg-ease-standard);
+}
+
+.next-day-rail__tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.next-day-rail__tool {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-primary-strong);
+  background: transparent;
+  cursor: pointer;
+}
+
+.next-day-rail__tool .material-symbols-outlined {
+  font-size: var(--mg-font-size-md);
+}
+
+.next-day-rail__tool:hover,
+.next-day-rail__tool[aria-pressed='true'] {
+  background: var(--mg-color-sky-well);
+}
+
+/* Stage actions: two-by-two labelled buttons beside the chart. */
+.next-day-rail__stage-actions {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: var(--mg-space-1);
+  align-content: center;
+}
+
+.next-day-rail__stage-actions > button {
+  display: inline-flex;
+  gap: var(--mg-space-1);
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3px var(--mg-space-2);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-organic-b);
+  color: var(--mg-color-muted);
+  background: var(--mg-color-paper);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.next-day-rail__stage-actions > button:hover {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}
+
+.next-day-rail__stage-actions .material-symbols-outlined {
+  font-size: var(--mg-font-size-sm);
+}
+
+.next-day-rail__collapsed {
+  display: inline-flex;
+  gap: var(--mg-space-1);
+  align-items: center;
+  justify-self: start;
+  padding: 3px var(--mg-space-2);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-organic-b);
+  color: var(--mg-color-muted);
+  background: transparent;
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.next-day-rail__collapsed .material-symbols-outlined {
+  font-size: var(--mg-font-size-sm);
+}
+
+.next-day-rail__picker {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .next-day-rail__heading,
