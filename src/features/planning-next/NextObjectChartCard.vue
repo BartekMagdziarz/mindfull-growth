@@ -1,6 +1,6 @@
 <template>
-  <article class="next-object-card">
-    <header>
+  <article class="next-object-card" :class="{ 'next-object-card--bare': bare }">
+    <header v-if="!bare">
       <span><AppIcon :name="icon" /><strong>{{ title }}</strong></span>
       <em>{{ summary }}</em>
     </header>
@@ -66,6 +66,8 @@ const props = defineProps<{
   actualValue?: number
   targetValue?: number
   aggregateStatus?: 'met' | 'missed' | 'no-data' | 'no-target'
+  /** Chart only — for hosts that already show the icon and title (e.g. an expanded day row). */
+  bare?: boolean
 }>()
 
 const chartKind = computed<'dots' | 'bars' | 'line' | 'span'>(() => {
@@ -135,6 +137,16 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
   color: var(--mg-color-ink);
   background: var(--mg-color-paper);
   box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.next-object-card--bare {
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .next-object-card > header,

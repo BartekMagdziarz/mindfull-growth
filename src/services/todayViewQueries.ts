@@ -35,6 +35,8 @@ export interface TodayMeasurementItem {
   todayEntry?: DailyMeasurementEntry
   goalTitle?: string
   goalIcon?: string
+  /** Priorities this item serves: own links for habits/trackers/intentions, the parent goal's for key results. */
+  priorityIds: string[]
   contextPeriodRef: PeriodRef
   sourceMonthRef?: MonthRef
   sectionId: TodaySectionId
@@ -234,6 +236,7 @@ function buildMeasurementRecord(
     todayEntry,
     goalTitle: goal?.title,
     goalIcon: goal?.icon,
+    priorityIds: 'priorityIds' in item.subject ? [...item.subject.priorityIds] : [...(goal?.priorityIds ?? [])],
     contextPeriodRef: item.measurement.periodRef,
     sourceMonthRef: item.sourceMonthRef,
     sectionId,

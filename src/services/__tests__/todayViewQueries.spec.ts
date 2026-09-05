@@ -23,7 +23,7 @@ describe('todayViewQueries', () => {
     const goal = await goalDexieRepository.create({
       title: 'Ship weekly workspace',
       isActive: true,
-      priorityIds: [],
+      priorityIds: ['priority-ship'],
       lifeAreaIds: [],
       status: 'open',
     })
@@ -39,7 +39,7 @@ describe('todayViewQueries', () => {
     const weekHabit = await habitDexieRepository.create({
       title: 'Weekly review',
       isActive: true,
-      priorityIds: [],
+      priorityIds: ['priority-review'],
       lifeAreaIds: [],
       cadence: 'weekly',
       entryMode: 'counter',
@@ -250,6 +250,16 @@ describe('todayViewQueries', () => {
         item.kind === 'initiative' ? item.initiative.title : item.subject.title
       )
     ).toEqual(['Energy score'])
+    // Priority links ride along: key results borrow the parent goal's, habits carry their own.
+    const priorityIdsOf = (title: string) => {
+      const match = [...bundle.sections.scheduled, ...bundle.sections.week].find(
+        item => item.kind === 'measurement' && item.subject.title === title
+      )
+      return match?.kind === 'measurement' ? match.priorityIds : undefined
+    }
+    expect(priorityIdsOf('Ship Today route')).toEqual(['priority-ship'])
+    expect(priorityIdsOf('Weekly review')).toEqual(['priority-review'])
+    expect(priorityIdsOf('Focus streak')).toEqual([])
     expect(
       bundle.sections.scheduled.some(
         item =>

@@ -105,6 +105,7 @@ function makeMeasurementItem(
 ): TodayMeasurementItem {
   return {
     kind: 'measurement',
+    priorityIds: [],
     key: `${subjectType}:${subject.id}`,
     panelType: subjectType,
     subjectType,
@@ -334,6 +335,7 @@ describe('useTodayItemVisualization — monthly cadence', () => {
   ): TodayMeasurementItem {
     return {
       kind: 'measurement',
+      priorityIds: [],
       key: `${subjectType}:${subject.id}`,
       panelType: subjectType,
       subjectType,
@@ -613,6 +615,7 @@ describe('useTodayItemVisualization — keyResult variants', () => {
   ): TodayMeasurementItem {
     return {
       kind: 'measurement',
+      priorityIds: [],
       key: `keyResult:${kr.id}`,
       panelType: 'keyResult',
       subjectType: 'keyResult',

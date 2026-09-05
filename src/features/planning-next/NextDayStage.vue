@@ -88,26 +88,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 import type { DayRef } from '@/domain/period'
-import type { Quadrant } from '@/domain/emotion'
 import type { TodayItem } from '@/services/todayViewQueries'
 import type { Priority } from '@/domain/planning'
-import type { EmotionDonutLog } from '@/components/today/EmotionCard.vue'
-import { getQuadrant } from '@/domain/emotion'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
-import { toLocalDateKey } from '@/utils/streaks'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { getActivePrioritiesForMonth } from '@/services/monthlyPriorityService'
-import { buildWeekDailyChartPoints } from '@/services/calendarChartData'
 import { useTodayStore } from '@/stores/today.store'
-import { useJournalStore } from '@/stores/journal.store'
-import { useEmotionLogStore } from '@/stores/emotionLog.store'
-import { useEmotionStore } from '@/stores/emotion.store'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
-import { useExercisePlanStore } from '@/stores/exercisePlan.store'
-import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import { DsButton, DsState } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import JournalCard from '@/components/today/JournalCard.vue'
@@ -117,36 +107,24 @@ import PlannedExercisesCard from '@/components/today/PlannedExercisesCard.vue'
 import ProgramCard from '@/components/today/ProgramCard.vue'
 import NextObjectChartCard from './NextObjectChartCard.vue'
 import { formatPlanningNumber } from './viewModels'
-import type { NextObjectChartPoint } from './nextObjectChart'
+import { buildDayChartPoints, type NextObjectChartPoint } from './nextObjectChart'
+import { DAILY_EMOTION_TARGET, useDayWellness } from './useDayWellness'
 
 type CategoryId = 'goals' | 'habits' | 'trackers' | 'intentions' | 'journal' | 'emotions' | 'exercises' | 'programs' | 'history'
 interface Category { id: CategoryId; label: string; icon: string; caption: string; route?: string }
-const DAILY_EMOTION_TARGET = 3
 
 const props = defineProps<{ dayRef: DayRef }>()
 const router = useRouter()
 const store = useTodayStore()
-const journalStore = useJournalStore()
-const emotionLogStore = useEmotionLogStore()
-const emotionStore = useEmotionStore()
 const exerciseCompletionsStore = useExerciseCompletionsStore()
-const exercisePlanStore = useExercisePlanStore()
-const programEnrollmentStore = useProgramEnrollmentStore()
+const { isToday, journalState, exerciseDayCompletions, duePlanItems, activeEnrollments, todayEmotionLogs, ensureLoaded } = useDayWellness(toRef(props, 'dayRef'))
 const selectedCategoryId = ref<CategoryId | null>(null)
 const density = ref<1 | 2 | 3>(2)
 const activePriorities = ref<Priority[]>([])
 
 watch(() => props.dayRef, () => { selectedCategoryId.value = null })
 onMounted(() => {
-  void Promise.all([
-    journalStore.loadEntries(),
-    emotionLogStore.loadLogs(),
-    emotionStore.loadEmotions(),
-    exerciseCompletionsStore.ensureLoaded(),
-    exercisePlanStore.ensureLoaded(),
-    programEnrollmentStore.ensureLoaded(),
-    loadPriorities(),
-  ]).then(() => programEnrollmentStore.runScheduler())
+  void Promise.all([ensureLoaded(), loadPriorities()])
 })
 watch(() => props.dayRef, () => void loadPriorities())
 
@@ -193,29 +171,6 @@ const selectedCategory = computed(() => categories.value.find(category => catego
 const selectedObjectItems = computed<TodayItem[]>(() => selectedCategoryId.value && selectedCategoryId.value in objectItemsByCategory.value
   ? objectItemsByCategory.value[selectedCategoryId.value as keyof typeof objectItemsByCategory.value]
   : [])
-const isToday = computed(() => props.dayRef === getPeriodRefsForDate(new Date()).day)
-const referenceDate = computed(() => new Date(`${props.dayRef}T12:00:00`))
-const journalState = computed<'empty' | 'done'>(() => journalStore.entries.some(entry => entry.createdAt.slice(0, 10) === toLocalDateKey(referenceDate.value)) ? 'done' : 'empty')
-const exerciseDayCompletions = computed(() => exerciseCompletionsStore.completionsForDay(props.dayRef))
-const duePlanItems = computed(() => isToday.value ? exercisePlanStore.dueItems(props.dayRef) : [])
-const activeEnrollments = computed(() => isToday.value ? programEnrollmentStore.activeEnrollments : [])
-const todayEmotionLogs = computed<EmotionDonutLog[]>(() => emotionLogStore.logs
-  .filter(log => log.createdAt.slice(0, 10) === props.dayRef)
-  .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-  .map(log => {
-    const counts: Record<Quadrant, number> = {
-      'high-energy-high-pleasantness': 0,
-      'high-energy-low-pleasantness': 0,
-      'low-energy-high-pleasantness': 0,
-      'low-energy-low-pleasantness': 0,
-    }
-    for (const emotionId of log.emotionIds) {
-      const emotion = emotionStore.getEmotionById(emotionId)
-      if (emotion) counts[getQuadrant(emotion)] += 1
-    }
-    const total = Object.values(counts).reduce((sum, count) => sum + count, 0)
-    return total ? { quadrants: Object.fromEntries(Object.entries(counts).map(([key, count]) => [key, count / total])) as EmotionDonutLog['quadrants'] } : { quadrants: {} }
-  }))
 
 function openCategory(category: Category) {
   if (category.route) { void router.push(category.route); return }
@@ -236,19 +191,10 @@ function openPriority(priority: Priority) {
 }
 
 function priorityFallbackIcon(index: number) { return index === 0 ? 'directions_run' : index === 1 ? 'health_and_safety' : 'stress_management' }
-function priorityTone(index: number) { return index === 1 ? 'lavender' : index === 2 ? 'mint' : 'blue' }
+// Today palette: blue, lavender, rose — never mint or amber.
+function priorityTone(index: number) { return index === 1 ? 'lavender' : index === 2 ? 'rose' : 'blue' }
 function dayChartPoints(item: Extract<TodayItem, { kind: 'measurement' }>): NextObjectChartPoint[] {
-  const weekRef = getPeriodRefsForDate(referenceDate.value).week
-  return buildWeekDailyChartPoints(item.subject, item.subjectType, store.rawEntries, weekRef).map(point => ({
-    key: point.periodRef,
-    label: new Intl.DateTimeFormat('pl-PL', { weekday: 'short' }).format(new Date(`${point.periodRef}T12:00:00`)).replace('.', ''),
-    value: point.actualValue,
-    target: point.targetValue,
-    status: point.status,
-    future: point.periodRef > props.dayRef,
-    current: point.periodRef === props.dayRef,
-    assigned: store.allDayAssignments.some(assignment => assignment.dayRef === point.periodRef && assignment.subjectType === item.subjectType && assignment.subjectId === item.subject.id),
-  }))
+  return buildDayChartPoints(item, props.dayRef, store.rawEntries, store.allDayAssignments)
 }
 function objectIcon(item: Extract<TodayItem, { kind: 'measurement' }>): string {
   const subject = item.subject as { icon?: string }

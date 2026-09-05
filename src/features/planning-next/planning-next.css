@@ -542,9 +542,9 @@
   background: var(--mg-color-lavender);
 }
 
-.next-overview__visual > i.tone-mint,
-.next-day-stage__board-row--priorities i.tone-mint {
-  background: var(--mg-color-mint);
+.next-overview__visual > i.tone-rose,
+.next-day-stage__board-row--priorities i.tone-rose {
+  background: var(--mg-color-rose, var(--rose-400, #e5849c));
 }
 
 .next-overview__row strong,

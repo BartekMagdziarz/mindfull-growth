@@ -61,6 +61,7 @@ function makeItem(entryMode: MeasurementEntryMode, entry?: DailyMeasurementEntry
   }
   return {
     kind: 'measurement',
+    priorityIds: [],
     key: `habit:${subject.id}`,
     panelType: 'habit',
     subjectType: 'habit',

@@ -99,6 +99,7 @@ function makeMeasurementItem(
 ): TodayMeasurementItem {
   return {
     kind: 'measurement',
+    priorityIds: [],
     key: `${subjectType}:${subject.id}`,
     panelType: subjectType,
     subjectType,
@@ -125,6 +126,7 @@ function makeMonthlyMeasurementItem(
 ): TodayMeasurementItem {
   return {
     kind: 'measurement',
+    priorityIds: [],
     key: `${subjectType}:${subject.id}`,
     panelType: subjectType,
     subjectType,

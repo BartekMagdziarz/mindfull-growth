@@ -43,6 +43,14 @@ describe('NextObjectChartCard', () => {
     expect(line.find('.next-object-card__target').exists()).toBe(true)
   })
 
+  it('drops the header in bare mode so a host row can supply icon and title', () => {
+    const wrapper = mountCard({ bare: true })
+
+    expect(wrapper.find('header').exists()).toBe(false)
+    expect(wrapper.classes()).toContain('next-object-card--bare')
+    expect(wrapper.findAll('.next-object-card__dots i')).toHaveLength(3)
+  })
+
   it('uses the whole-month span for monthly cadence objects', () => {
     const wrapper = mountCard({ scale: 'month', cadence: 'monthly', actualValue: 2, targetValue: 4 })
 
