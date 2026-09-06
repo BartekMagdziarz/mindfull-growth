@@ -7,7 +7,7 @@
     <header class="next-day-rail__heading">
       <span>Plan dnia</span>
       <span class="next-day-rail__tools">
-        <NextDayAddMenu :groups="addGroups" @add="handleAdd" />
+        <NextDayAddMenu v-if="!planningLocked" :groups="addGroups" @add="handleAdd" />
         <button
           type="button"
           class="next-day-rail__tool"
@@ -48,6 +48,7 @@
           :all-day-assignments="store.allDayAssignments"
           :is-pending="store.isPending(item.key)"
           :staged="stagedItem?.key === item.key"
+          :planning-locked="planningLocked"
           :lit="isRelatedToCompass(item, store.highlightKey)"
           :dim="store.highlightKey !== null && !isRelatedToCompass(item, store.highlightKey)"
           @select="stageKey = item.key"
@@ -83,12 +84,12 @@
             />
             <span v-else />
             <div class="next-day-rail__stage-actions" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title: itemTitle(item) })">
-              <template v-if="canReschedule(item)">
+              <template v-if="canReschedule(item) && !planningLocked">
                 <button v-if="canMoveToTomorrow(item, dayRef)" type="button" @click="handleMoveTomorrow(item)"><AppIcon name="east" />{{ t('planning.today.stage.tomorrow') }}</button>
                 <button type="button" :class="{ 'is-active': store.targetingItem?.key === item.key }" :aria-pressed="store.targetingItem?.key === item.key" @click="store.startTargeting(item)"><AppIcon name="calendar_month" />{{ t('planning.today.stage.day') }}</button>
               </template>
-              <button v-if="item.isScheduledToday" type="button" @click="handleClearSchedule(item)"><AppIcon name="event_busy" />{{ t('planning.today.stage.clearToday') }}</button>
-              <button v-else-if="item.canHide" type="button" @click="handleHide(item)"><AppIcon name="visibility_off" />{{ t('planning.today.stage.hide') }}</button>
+              <button v-if="item.isScheduledToday && !planningLocked" type="button" @click="handleClearSchedule(item)"><AppIcon name="event_busy" />{{ t('planning.today.stage.clearToday') }}</button>
+              <button v-else-if="item.canHide && !planningLocked" type="button" @click="handleHide(item)"><AppIcon name="visibility_off" />{{ t('planning.today.stage.hide') }}</button>
               <button v-if="canOpenObject(item)" type="button" @click="openObject(item)"><AppIcon name="open_in_new" />{{ t('planning.today.stage.open') }}</button>
               <button v-else type="button" @click="openPeriod(item.contextPeriodRef)"><AppIcon name="event" />{{ t('planning.today.stage.context') }}</button>
             </div>
@@ -155,6 +156,8 @@ const pendingDeleteItem = ref<TodayItem | null>(null)
 const stageKey = ref<string | null>(null)
 
 const collapseCompleted = computed(() => preferences.todayCollapseCompleted)
+// Past days are a record: entries stay editable, planning (move / hide / add) is off.
+const planningLocked = computed(() => props.dayRef < getPeriodRefsForDate(new Date()).day)
 
 const itemGroups = computed(() => [
   { id: 'intentions', label: 'Intencje tygodnia', items: store.intentionItems as TodayItem[] },

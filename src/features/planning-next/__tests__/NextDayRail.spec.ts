@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import type { DayRef } from '@/domain/period'
@@ -116,6 +116,25 @@ describe('NextDayRail — inline stage', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    // The rail treats days before the real today as a record (planning locked),
+    // so the fixture day must be "today" for the planning assertions below.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-03-12T12:00:00'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('past day: entries stay editable, planning actions and the plus are gone', async () => {
+    vi.setSystemTime(new Date('2026-03-20T12:00:00'))
+    const wrapper = await mountRail()
+
+    expect(wrapper.find('.next-day-add__button').exists()).toBe(false)
+    expect(wrapper.findAll('.ndi--staged .next-day-rail__stage-actions button').map(labelOf)).toEqual(['Kontekst'])
+    const scheduledRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
+    expect(scheduledRow.findAll('.ndi__tray button').map(button => button.attributes('title'))).toEqual(['Otwórz obiekt'])
+    expect(scheduledRow.find('button.ndi__well--button').exists()).toBe(true)
   })
 
   it('stages the first open item and moves the stage on row click', async () => {

@@ -568,3 +568,32 @@ final result: passed
 Nie pozostaje żaden istotny problem P0, P1 ani P2 w porównywanym zakresie. Różnice treści kart wynikają wyłącznie z użycia realnych danych produkcyjnych zamiast fixture'ów UX Labu.
 
 final result: passed
+
+# Dzisiaj v19 → Planning Next (port, 2026-09-06)
+
+## Zakres
+
+- Skala dnia `/calendar/day/:dayRef`: lewa kolumna = pasek wpisów (Dziennik / Emocje n/3 / Ćwiczenia) + „Plan dnia” ze sceną w wierszu; prawa kolumna = karta daty z rozwijanym kalendarzem, Kompas, „Najbliżej”, Powtórki/Ścieżki tylko gdy należne. Plansza `NextDayStage` usunięta.
+- Źródło wzoru: `ux-lab/app` wariant `action3-stage-inline-v1`; plan: `ideas/html-plans/2026-09-05-today-v19-inline-stage-port.html` (fazy F0–F4, decyzje D1–D8).
+
+## Dowody
+
+- Headless Playwright z `node_modules/playwright` na 5199 (1440×900), zrzuty lokalne poza repo: dzień domyślny, przypięty Kompas, rozwinięty kalendarz, tryb „Wybierz dzień”, menu dodawania, wiersz z wykresem kompaktowym; tydzień i miesiąc po usunięciu CSS planszy.
+- Konsola przeglądarki czysta na dniu, tygodniu i miesiącu; brak poziomego przepełnienia przy 1440 px.
+
+## Sprawdzone zachowania
+
+- Scena: pierwsza otwarta pozycja, klik przenosi, po domknięciu przechodzi dalej; kropka „dziś” w wykresie zmienia się natychmiast po kliknięciu dysku (te same `rawEntries`).
+- Jutro / Dzień: pozycje zaplanowane przenoszą przypisanie także między tygodniami (stan tygodnia docelowego tworzony, źródłowy czyszczony); pozycje kontekstowe są ukrywane dziś i pojawiają się w dniu docelowym; intencje tygodnia nie opuszczają swojego tygodnia; Cofnij działa w obu przypadkach.
+- Dodawanie: jeden plus, kaskada typ → obiekt (hover / przypięcie klawiaturą), kandydaci bez sierot, dodanie i Cofnij.
+- Kompas: hover podświetla, klik przypina (`aria-pressed`), drugi klik czyści; tony blue / lavender / rose.
+- Zwijanie wykonanych przeżywa odświeżenie (`preferences.today.collapseCompleted`).
+- Dni przeszłe: brak akcji planistycznych, wpisy edytowalne; kalendarz znaczy prawdziwe „dziś” niezależnie od wybranego dnia.
+
+## Bramki
+
+- `vue-tsc` 0 błędów; Vitest 210 plików zielone (nowe: `NextDayRail`, `NextDayCompass`, `NextDayCalendarCard`, `dayViewModels`, `dayUpcomingQueries`, `todayViewActions.move`, `today.store.undo`); `npm run test:e2e:verify` 4/4 z nowym scenariuszem dnia.
+
+## Wynik
+
+passed

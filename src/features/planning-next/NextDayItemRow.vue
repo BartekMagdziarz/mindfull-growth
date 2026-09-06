@@ -20,6 +20,7 @@
           :aria-pressed="staged"
           :aria-label="`${t('planning.today.actions.stageRow')}: ${title}`"
           @click.stop="emit('select')"
+          @keydown.right.prevent="focusTray(0)"
         >
           <strong>{{ title }}</strong>
         </button>
@@ -27,17 +28,27 @@
         <!-- Icon tray: an overlay on the title's right edge, quiet until hover or
              keyboard focus, so titles keep their full width. The staged row carries the
              same actions as labelled buttons inside its expansion instead. -->
-        <span v-if="!staged" class="ndi__tray" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title })" @click.stop>
-        <template v-if="canReschedule">
-          <button v-if="canTomorrow" type="button" class="ndi__action" :title="t('planning.today.actions.moveToTomorrow')" :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`" @click="emit('move-tomorrow')"><AppIcon name="east" /></button>
-          <button type="button" class="ndi__action" :title="t('planning.today.actions.moveToDay')" :aria-label="`${t('planning.today.actions.moveToDay')}: ${title}`" @click="emit('pick-day')"><AppIcon name="calendar_month" /></button>
+        <span
+          v-if="!staged"
+          ref="trayRef"
+          class="ndi__tray"
+          role="group"
+          :aria-label="t('planning.today.stage.actionsLabel', { title })"
+          @click.stop
+          @keydown.left.prevent="moveTrayFocus(-1)"
+          @keydown.right.prevent="moveTrayFocus(1)"
+          @keydown.esc.stop.prevent="leaveTray"
+        >
+        <template v-if="canReschedule && !planningLocked">
+          <button v-if="canTomorrow" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.moveToTomorrow')" :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`" @click="emit('move-tomorrow')"><AppIcon name="east" /></button>
+          <button type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.moveToDay')" :aria-label="`${t('planning.today.actions.moveToDay')}: ${title}`" @click="emit('pick-day')"><AppIcon name="calendar_month" /></button>
         </template>
-        <button v-if="item.isScheduledToday" type="button" class="ndi__action" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
-        <button v-else-if="item.canHide" type="button" class="ndi__action" :title="t('planning.today.actions.hideForToday')" :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`" @click="emit('hide')"><AppIcon name="visibility_off" /></button>
-        <button v-if="item.kind === 'measurement' && item.todayEntry" type="button" class="ndi__action" :title="t('planning.today.actions.clearEntry')" :aria-label="`${t('planning.today.actions.clearEntry')}: ${title}`" @click="emit('clear-entry')"><AppIcon name="ink_eraser" /></button>
-        <button v-if="canOpenObject" type="button" class="ndi__action" :title="t('planning.objects.actions.open')" :aria-label="`${t('planning.objects.actions.open')}: ${title}`" @click="emit('open-object')"><AppIcon name="open_in_new" /></button>
-        <button v-else type="button" class="ndi__action" :title="t('planning.today.actions.openContext')" :aria-label="`${t('planning.today.actions.openContext')}: ${title}`" @click="emit('open-context')"><AppIcon name="event" /></button>
-        <button v-if="item.isScheduledToday" type="button" class="ndi__action ndi__action--danger" :title="t('common.buttons.delete')" :aria-label="`${t('common.buttons.delete')}: ${title}`" @click="emit('request-delete')"><AppIcon name="delete" /></button>
+        <button v-if="item.isScheduledToday && !planningLocked" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
+        <button v-else-if="item.canHide && !planningLocked" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.hideForToday')" :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`" @click="emit('hide')"><AppIcon name="visibility_off" /></button>
+        <button v-if="item.kind === 'measurement' && item.todayEntry" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.clearEntry')" :aria-label="`${t('planning.today.actions.clearEntry')}: ${title}`" @click="emit('clear-entry')"><AppIcon name="ink_eraser" /></button>
+        <button v-if="canOpenObject" type="button" tabindex="-1" class="ndi__action" :title="t('planning.objects.actions.open')" :aria-label="`${t('planning.objects.actions.open')}: ${title}`" @click="emit('open-object')"><AppIcon name="open_in_new" /></button>
+        <button v-else type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.openContext')" :aria-label="`${t('planning.today.actions.openContext')}: ${title}`" @click="emit('open-context')"><AppIcon name="event" /></button>
+        <button v-if="item.isScheduledToday && !planningLocked" type="button" tabindex="-1" class="ndi__action ndi__action--danger" :title="t('common.buttons.delete')" :aria-label="`${t('common.buttons.delete')}: ${title}`" @click="emit('request-delete')"><AppIcon name="delete" /></button>
         </span>
       </div>
 
@@ -161,7 +172,9 @@ const props = withDefaults(defineProps<{
   lit?: boolean
   /** Muted because another row is highlighted. */
   dim?: boolean
-}>(), { isPending: false, staged: false, lit: false, dim: false })
+  /** Past days: entries stay editable, planning actions (move/hide/delete) are off. */
+  planningLocked?: boolean
+}>(), { isPending: false, staged: false, lit: false, dim: false, planningLocked: false })
 
 const emit = defineEmits<{
   select: []
@@ -189,6 +202,7 @@ const PANEL_TYPE_ICONS: Record<string, string> = {
 const { t, locale } = useT()
 const valueDraft = ref('')
 const valueInputRef = ref<HTMLInputElement | null>(null)
+const trayRef = ref<HTMLElement | null>(null)
 const justSubmittedValue = ref(false)
 
 const viz = useTodayItemVisualization(
@@ -282,6 +296,31 @@ watch(() => viz.currentValue.value, (next) => {
   if (document.activeElement === valueInputRef.value) return
   valueDraft.value = formatDraft(next)
 }, { immediate: true })
+
+// Tray keyboard: the title is the row's tab stop; → enters the tray, ←/→ roam
+// inside it, Esc returns to the title. Tray buttons are not in the tab order.
+function trayButtons(): HTMLButtonElement[] {
+  return Array.from(trayRef.value?.querySelectorAll<HTMLButtonElement>('button') ?? [])
+}
+
+function focusTray(index: number): void {
+  const buttons = trayButtons()
+  if (!buttons.length) return
+  buttons[Math.max(0, Math.min(buttons.length - 1, index))]?.focus()
+}
+
+function moveTrayFocus(delta: number): void {
+  const buttons = trayButtons()
+  const current = buttons.findIndex(button => button === document.activeElement)
+  if (current === -1) return
+  const next = current + delta
+  if (next < 0) { leaveTray(); return }
+  buttons[Math.min(buttons.length - 1, next)]?.focus()
+}
+
+function leaveTray(): void {
+  (trayRef.value?.closest('.ndi')?.querySelector<HTMLButtonElement>('button.ndi__label'))?.focus()
+}
 
 // Counter and rating share one stepper; the floor differs (0 vs the rating min)
 // and stepping below it clears the entry instead of persisting the floor.
