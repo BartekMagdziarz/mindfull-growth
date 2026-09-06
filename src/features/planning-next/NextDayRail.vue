@@ -7,6 +7,7 @@
     <header class="next-day-rail__heading">
       <span>Plan dnia</span>
       <span class="next-day-rail__tools">
+        <NextDayAddMenu :groups="addGroups" @add="handleAdd" />
         <button
           type="button"
           class="next-day-rail__tool"
@@ -82,11 +83,11 @@
             />
             <span v-else />
             <div class="next-day-rail__stage-actions" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title: itemTitle(item) })">
-              <template v-if="item.isScheduledToday">
-                <button type="button" @click="handleMoveTomorrow(item)"><AppIcon name="east" />{{ t('planning.today.stage.tomorrow') }}</button>
+              <template v-if="canReschedule(item)">
+                <button v-if="canMoveToTomorrow(item, dayRef)" type="button" @click="handleMoveTomorrow(item)"><AppIcon name="east" />{{ t('planning.today.stage.tomorrow') }}</button>
                 <button type="button" :class="{ 'is-active': store.targetingItem?.key === item.key }" :aria-pressed="store.targetingItem?.key === item.key" @click="store.startTargeting(item)"><AppIcon name="calendar_month" />{{ t('planning.today.stage.day') }}</button>
-                <button type="button" @click="handleClearSchedule(item)"><AppIcon name="event_busy" />{{ t('planning.today.stage.clearToday') }}</button>
               </template>
+              <button v-if="item.isScheduledToday" type="button" @click="handleClearSchedule(item)"><AppIcon name="event_busy" />{{ t('planning.today.stage.clearToday') }}</button>
               <button v-else-if="item.canHide" type="button" @click="handleHide(item)"><AppIcon name="visibility_off" />{{ t('planning.today.stage.hide') }}</button>
               <button v-if="canOpenObject(item)" type="button" @click="openObject(item)"><AppIcon name="open_in_new" />{{ t('planning.today.stage.open') }}</button>
               <button v-else type="button" @click="openPeriod(item.contextPeriodRef)"><AppIcon name="event" />{{ t('planning.today.stage.context') }}</button>
@@ -123,17 +124,18 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { DayRef } from '@/domain/period'
-import type { TodayItem } from '@/services/todayViewQueries'
+import type { TodayAddCandidate, TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
 import { useTodayStore } from '@/stores/today.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { DsButton, DsState, DsSurface } from '@/design-system/components'
+import NextDayAddMenu, { type AddMenuGroup } from './NextDayAddMenu.vue'
 import NextDayItemRow from './NextDayItemRow.vue'
 import NextObjectChartCard from './NextObjectChartCard.vue'
 import { buildDayChartPoints } from './nextObjectChart'
-import { isRelatedToCompass } from './dayViewModels'
+import { canMoveToTomorrow, canRescheduleItem, isRelatedToCompass } from './dayViewModels'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -177,6 +179,15 @@ const stagedItem = computed<TodayItem | null>(() => {
   if (selected) return selected
   return visibleItems.value.find(item => !hasEntry(item)) ?? null
 })
+const ADD_GROUPS: Array<{ id: string; label: string; types: TodayAddCandidate['subjectType'][] }> = [
+  { id: 'intentions', label: 'Intencje tygodnia', types: ['weeklyIntention'] },
+  { id: 'goals', label: 'Cele i rezultaty', types: ['keyResult'] },
+  { id: 'habits', label: 'Nawyki', types: ['habit'] },
+  { id: 'trackers', label: 'Trackery', types: ['tracker'] },
+]
+const addGroups = computed<AddMenuGroup[]>(() => ADD_GROUPS
+  .map(group => ({ id: group.id, label: group.label, items: store.addCandidates.filter(candidate => group.types.includes(candidate.subjectType)) }))
+  .filter(group => group.items.length > 0))
 const deleteDialogMessage = computed(() => pendingDeleteItem.value
   ? t('planning.today.deleteDialog.message', { title: itemTitle(pendingDeleteItem.value) })
   : '')
@@ -224,6 +235,12 @@ function isCompletedForCollapse(item: TodayItem): boolean {
     return active.length > 0 && active.every(entry => checked.has(entry.id))
   }
   return false
+}
+
+// Scheduled rows move their assignment; week/month rows are hidden here and
+// surfaced on the target day (see rescheduleContextItem).
+function canReschedule(item: TodayItem): item is TodayMeasurementItem {
+  return canRescheduleItem(item)
 }
 
 function canOpenObject(item: TodayItem): boolean {
@@ -305,7 +322,16 @@ async function handleMoveTomorrow(item: TodayItem) {
 }
 
 async function handleMove(item: TodayItem, dayRef: DayRef) {
-  try { await store.moveScheduledItem(item, dayRef); showUndo(t('planning.today.messages.moved')) } catch (error) { showError(error) }
+  try {
+    if (item.isScheduledToday) await store.moveScheduledItem(item, dayRef)
+    else if (canReschedule(item)) await store.rescheduleContextItem(item, dayRef)
+    else return
+    showUndo(t('planning.today.messages.moved'))
+  } catch (error) { showError(error) }
+}
+
+async function handleAdd(candidate: TodayAddCandidate) {
+  try { await store.addToDay(candidate); showUndo(t('planning.today.messages.added')) } catch (error) { showError(error) }
 }
 
 async function handleClearSchedule(item: TodayItem) {

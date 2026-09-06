@@ -6,6 +6,7 @@
       :today-ref="context.todayRef.value"
       :markers="context.markers.value"
       :targeting="store.targetingItem !== null"
+      :targeting-week-ref="store.targetingItem ? rescheduleWeekLock(store.targetingItem) : null"
       @navigate="emit('navigate', $event)"
       @pick="store.pickTargetDay($event)"
       @cancel-targeting="store.cancelTargeting()"
@@ -30,6 +31,7 @@ import NextDayCalendarCard from './NextDayCalendarCard.vue'
 import NextDayCompass from './NextDayCompass.vue'
 import NextDayPrograms from './NextDayPrograms.vue'
 import NextDayUpcoming from './NextDayUpcoming.vue'
+import { rescheduleWeekLock } from './dayViewModels'
 import { useDayContext } from './useDayContext'
 
 const props = defineProps<{ dayRef: DayRef }>()

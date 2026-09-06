@@ -153,7 +153,7 @@ describe('NextDayItemRow — stage, tray and highlight (inline-stage port)', () 
   it('shows the icon tray for a context item (hide + open) and the scheduling tray for a scheduled one', async () => {
     const context = mountRow(makeItem('completion'))
     const contextLabels = context.findAll('.ndi__tray button').map(button => button.attributes('title'))
-    expect(contextLabels).toEqual(['Ukryj na dziś', 'Otwórz obiekt'])
+    expect(contextLabels).toEqual(['Przenieś na jutro', 'Przenieś na dzień', 'Ukryj na dziś', 'Otwórz obiekt'])
 
     const scheduled = mountRow(makeScheduledItem(makeEntry('habit-completion', null)))
     const scheduledLabels = scheduled.findAll('.ndi__tray button').map(button => button.attributes('title'))

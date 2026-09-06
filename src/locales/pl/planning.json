@@ -371,7 +371,8 @@
       "stageRow": "Pokaż w scenie",
       "undo": "Cofnij",
       "collapseCompleted": "Zwiń wykonane",
-      "expandCompleted": "Pokaż wykonane"
+      "expandCompleted": "Pokaż wykonane",
+      "addToPlan": "Dodaj do planu"
     },
     "messages": {
       "entrySaved": "Wpis zapisany.",
@@ -381,7 +382,8 @@
       "moved": "Przeniesiono na inny dzień.",
       "scheduleCleared": "Usunięto przypisanie do dzisiaj.",
       "deleted": "Obiekt usunięty.",
-      "undone": "Cofnięto."
+      "undone": "Cofnięto.",
+      "added": "Dodano do planu."
     },
     "summary": {
       "daysLogged": "{n} dni zapisanych",

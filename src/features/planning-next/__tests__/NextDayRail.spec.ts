@@ -22,6 +22,10 @@ vi.mock('@/services/todayViewActions', () => ({
   saveTodayMeasurementEntry: vi.fn(),
   toggleTodayCompletion: vi.fn(async () => {}),
   toggleTodayMultiItem: vi.fn(),
+  addMeasurementToDay: vi.fn(async () => {}),
+  removeMeasurementFromDay: vi.fn(async () => {}),
+  rescheduleContextItem: vi.fn(async () => ({ createdAssignment: false })),
+  undoRescheduleContextItem: vi.fn(async () => {}),
 }))
 vi.mock('@/services/todayViewQueries', () => ({
   getTodayViewBundle: vi.fn(),
@@ -30,11 +34,12 @@ vi.mock('@/services/todayViewQueries', () => ({
 
 import * as actions from '@/services/todayViewActions'
 import * as queries from '@/services/todayViewQueries'
+import { getPeriodRefsForDate } from '@/utils/periods'
 import NextDayRail from '../NextDayRail.vue'
 
 const DAY = '2026-03-12' as DayRef // Thursday
 const labelOf = (button: { text: () => string }) => button.text().replace(/^[a-z_]+(?=[A-ZĄĆĘŁŃÓŚŹŻ])/, '')
-const WEEK = '2026-W11'
+const WEEK = getPeriodRefsForDate(new Date('2026-03-12T12:00:00')).week // app week numbering, not ISO
 
 function entry(subjectType: TodayMeasurementItem['subjectType'], subjectId: string, value: number | null): DailyMeasurementEntry {
   return { id: `e-${subjectId}`, subjectType, subjectId, dayRef: DAY, value, createdAt: '', updatedAt: '' }
@@ -88,6 +93,10 @@ function bundle(items: TodayMeasurementItem[]): TodayViewBundle {
     rawEntries: items.flatMap(entry => (entry.todayEntry ? [entry.todayEntry] : [])),
     allDayAssignments: [],
     topPriorityKeys: [],
+    addCandidates: [
+      { key: 'habit:h9', subjectType: 'habit', cadence: 'weekly', subject: { id: 'h9', title: 'Spacer' } },
+      { key: 'keyResult:kr9', subjectType: 'keyResult', cadence: 'weekly', subject: { id: 'kr9', title: 'Trzy sesje' }, goalTitle: 'Cel' },
+    ] as unknown as TodayViewBundle['addCandidates'],
   }
 }
 
@@ -117,7 +126,7 @@ describe('NextDayRail — inline stage', () => {
     expect(staged[0].text()).toContain('Zaplanować budżet')
     expect(staged[0].find('.ndi__expansion').exists()).toBe(true)
     expect(staged[0].find('.next-object-card--bare').exists()).toBe(true)
-    expect(staged[0].findAll('.next-day-rail__stage-actions button').map(labelOf)).toEqual(['Ukryj', 'Kontekst'])
+    expect(staged[0].findAll('.next-day-rail__stage-actions button').map(labelOf)).toEqual(['Jutro', 'Dzień', 'Ukryj', 'Kontekst'])
 
     const habitRow = wrapper.findAll('.ndi').find(row => row.text().includes('Rozciąganie'))!
     await habitRow.find('button.ndi__label').trigger('click')
@@ -149,7 +158,7 @@ describe('NextDayRail — inline stage', () => {
   it('hide from the stage shows an undo snackbar that restores the item', async () => {
     const wrapper = await mountRail()
 
-    await wrapper.find('.ndi--staged .next-day-rail__stage-actions button').trigger('click')
+    await wrapper.findAll('.ndi--staged .next-day-rail__stage-actions button').find(button => labelOf(button) === 'Ukryj')!.trigger('click')
     await flushPromises()
     expect(actions.hideTodayItem).toHaveBeenCalledWith(expect.objectContaining({ key: 'weeklyIntention:i1' }), DAY)
 
@@ -169,5 +178,34 @@ describe('NextDayRail — inline stage', () => {
     await wrapper.find('.ndi--staged .next-day-rail__stage-actions button').trigger('click')
     await flushPromises()
     expect(actions.moveTodayMeasurementAssignment).toHaveBeenCalledWith(expect.objectContaining({ key: 'habit:h2' }), DAY, '2026-03-13')
+  })
+
+  it('"Jutro" on a week-context row re-homes it through rescheduleContextItem', async () => {
+    const wrapper = await mountRail()
+
+    await wrapper.findAll('.ndi--staged .next-day-rail__stage-actions button').find(button => labelOf(button) === 'Jutro')!.trigger('click')
+    await flushPromises()
+    expect(actions.rescheduleContextItem).toHaveBeenCalledWith(expect.objectContaining({ key: 'weeklyIntention:i1' }), DAY, '2026-03-13')
+    expect(actions.moveTodayMeasurementAssignment).not.toHaveBeenCalled()
+  })
+
+  it('one plus in the header opens a type → object cascade and adds through the store', async () => {
+    const wrapper = await mountRail()
+    expect(wrapper.findAll('.next-day-rail__group > header button')).toHaveLength(0)
+
+    await wrapper.find('.next-day-add__button').trigger('click')
+    expect(wrapper.find('.next-day-add__menu').exists()).toBe(true)
+    expect(wrapper.find('.next-day-add__items').exists()).toBe(false)
+    expect(wrapper.findAll('.next-day-add__types button').map(button => button.find('span:not(.material-symbols-outlined)').text())).toEqual(['Cele i rezultaty', 'Nawyki'])
+
+    await wrapper.findAll('.next-day-add__types button')[1].trigger('mouseenter')
+    const items = wrapper.findAll('.next-day-add__items button')
+    expect(items.map(button => button.find('span:not(.material-symbols-outlined)').text())).toEqual(['Spacer'])
+
+    await items[0].trigger('click')
+    await flushPromises()
+    expect(actions.addMeasurementToDay).toHaveBeenCalledWith(expect.objectContaining({ key: 'habit:h9' }), DAY)
+    expect(wrapper.find('.next-day-add__menu').exists()).toBe(false)
+    expect(wrapper.find('.snackbar__action').text()).toBe('Cofnij')
   })
 })

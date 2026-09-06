@@ -52,7 +52,7 @@
           :class="cellClasses(cell)"
           :title="cellTitle(cell)"
           :aria-label="cellTitle(cell)"
-          :disabled="targeting && cell.isPast"
+          :disabled="targeting && !isPickable(cell)"
           @click="onCellClick(cell)"
         >
           <small>{{ cell.weekdayLabel }}</small>
@@ -71,7 +71,7 @@
           :class="cellClasses(cell)"
           :title="cellTitle(cell)"
           :aria-label="cellTitle(cell)"
-          :disabled="targeting && cell.isPast"
+          :disabled="targeting && !isPickable(cell)"
           @click="onCellClick(cell)"
         >
           <strong>{{ cell.dayNumber }}</strong>
@@ -114,7 +114,9 @@ const props = withDefaults(defineProps<{
   todayRef: DayRef
   markers: DayMarker[]
   targeting?: boolean
-}>(), { targeting: false })
+  /** While targeting: only days of this week are pickable (weekly intentions). */
+  targetingWeekRef?: WeekRef | null
+}>(), { targeting: false, targetingWeekRef: null })
 const emit = defineEmits<{ navigate: [dayRef: DayRef]; pick: [dayRef: DayRef]; 'cancel-targeting': [] }>()
 
 const { t, locale } = useT()
@@ -194,8 +196,14 @@ function cellClasses(cell: CalendarCell) {
     'is-selected': cell.isSelected && !props.targeting,
     'is-past': cell.isPast,
     'is-out': !cell.inMonth,
-    'is-pickable': props.targeting && !cell.isPast,
+    'is-pickable': props.targeting && isPickable(cell),
   }
+}
+
+function isPickable(cell: CalendarCell): boolean {
+  if (cell.isPast || cell.isSelected) return false
+  if (!props.targetingWeekRef) return true
+  return getPeriodRefsForDate(new Date(`${cell.dayRef}T12:00:00`)).week === props.targetingWeekRef
 }
 
 function cellTitle(cell: CalendarCell): string {
@@ -206,7 +214,7 @@ function cellTitle(cell: CalendarCell): string {
 
 function onCellClick(cell: CalendarCell) {
   if (props.targeting) {
-    if (!cell.isPast) emit('pick', cell.dayRef)
+    if (isPickable(cell)) emit('pick', cell.dayRef)
     return
   }
   emit('navigate', cell.dayRef)

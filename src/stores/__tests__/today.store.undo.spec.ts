@@ -15,6 +15,10 @@ vi.mock('@/services/todayViewActions', () => ({
   saveTodayMeasurementEntry: vi.fn(),
   toggleTodayCompletion: vi.fn(),
   toggleTodayMultiItem: vi.fn(),
+  addMeasurementToDay: vi.fn(async () => {}),
+  removeMeasurementFromDay: vi.fn(async () => {}),
+  rescheduleContextItem: vi.fn(async () => ({ createdAssignment: true })),
+  undoRescheduleContextItem: vi.fn(async () => {}),
 }))
 
 vi.mock('@/services/todayViewQueries', () => ({
@@ -65,6 +69,7 @@ function makeBundle(items: TodayMeasurementItem[]): TodayViewBundle {
     rawEntries: [],
     allDayAssignments: [],
     topPriorityKeys: [],
+    addCandidates: [],
   }
 }
 
@@ -120,5 +125,34 @@ describe('today.store — single-level undo for planning operations', () => {
     expect(store.undoState).toBeNull()
     await store.undoLast()
     expect(actions.restoreTodayItem).not.toHaveBeenCalled()
+  })
+
+  it('reschedule of a context item → undoLast restores it and removes the created assignment', async () => {
+    const item = makeItem()
+    vi.mocked(queries.getTodayViewBundleForDay).mockResolvedValue(makeBundle([item]))
+    const store = useTodayStore()
+    await store.loadBundle(DAY)
+
+    await store.rescheduleContextItem(item, '2026-03-13' as DayRef)
+    expect(actions.rescheduleContextItem).toHaveBeenCalledWith(item, DAY, '2026-03-13')
+    expect(store.undoState?.kind).toBe('reschedule')
+
+    await store.undoLast()
+    expect(actions.undoRescheduleContextItem).toHaveBeenCalledWith(item, DAY, '2026-03-13', true)
+  })
+
+  it('addToDay → undoLast removes the placement again', async () => {
+    vi.mocked(queries.getTodayViewBundleForDay).mockResolvedValue(makeBundle([]))
+    const store = useTodayStore()
+    await store.loadBundle(DAY)
+    const candidate = { key: 'habit:h5', subjectType: 'habit', cadence: 'weekly', subject: { id: 'h5', title: 'Spacer' } } as unknown as Parameters<typeof store.addToDay>[0]
+
+    await store.addToDay(candidate)
+    expect(actions.addMeasurementToDay).toHaveBeenCalledWith(candidate, DAY)
+    expect(store.undoState?.kind).toBe('add')
+
+    await store.undoLast()
+    expect(actions.removeMeasurementFromDay).toHaveBeenCalledWith(candidate, DAY)
+    expect(store.undoState).toBeNull()
   })
 })

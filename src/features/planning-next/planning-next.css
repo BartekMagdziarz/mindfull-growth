@@ -2612,3 +2612,109 @@
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-well);
 }
+
+/* Add-to-plan menu: one plus in the list header, cascade type → object. */
+.next-day-add {
+  position: relative;
+}
+
+.next-day-add__button {
+  opacity: 0;
+  transition: opacity var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.next-day-rail__heading:hover .next-day-add__button,
+.next-day-rail__heading:focus-within .next-day-add__button,
+.next-day-add__button[aria-expanded='true'] {
+  opacity: 1;
+}
+
+.next-day-add__button:disabled {
+  cursor: default;
+  opacity: 0;
+}
+
+.next-day-add__menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-md, var(--mg-shadow-raised-sm));
+}
+
+.next-day-add__types,
+.next-day-add__items {
+  display: grid;
+  gap: 1px;
+  align-content: start;
+  padding: var(--mg-space-1);
+}
+
+.next-day-add__types {
+  min-width: 10rem;
+}
+
+.next-day-add__items {
+  min-width: 13rem;
+  max-width: 17rem;
+  max-height: 14rem;
+  overflow: auto;
+  border-left: 1px solid var(--mg-color-border);
+  scrollbar-width: thin;
+}
+
+.next-day-add__menu button {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--mg-space-1) var(--mg-space-2);
+  border: 0;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-ink);
+  background: transparent;
+  text-align: left;
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.next-day-add__types button {
+  color: var(--mg-color-primary-strong);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.next-day-add__items button {
+  justify-content: flex-start;
+}
+
+.next-day-add__items button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.next-day-add__menu button:hover,
+.next-day-add__types button.is-active {
+  background: var(--mg-color-sky-well);
+}
+
+.next-day-add__menu .material-symbols-outlined {
+  color: var(--mg-color-primary-strong);
+  font-size: var(--mg-font-size-sm);
+}
+
+/* The list header must stack above the rows so the menu is not painted under them. */
+.next-day-rail > .next-day-rail__heading {
+  position: relative;
+  z-index: 3;
+}

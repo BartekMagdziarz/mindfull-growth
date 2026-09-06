@@ -11,7 +11,7 @@ const markers: DayMarker[] = [
   { key: 'w', kind: 'ritual', dayRef: '2026-03-16' as DayRef, ritual: 'week', weekRef: '2026-W12' as WeekRef },
 ]
 
-function mountCard(props: Partial<{ dayRef: DayRef; targeting: boolean }> = {}) {
+function mountCard(props: Partial<{ dayRef: DayRef; targeting: boolean; targetingWeekRef: WeekRef | null }> = {}) {
   return mount(NextDayCalendarCard, { props: { dayRef: TODAY, todayRef: TODAY, markers, targeting: false, ...props } })
 }
 
@@ -67,5 +67,18 @@ describe('NextDayCalendarCard', () => {
 
     await wrapper.find('.next-day-cal__toggle').trigger('click')
     expect(wrapper.emitted('cancel-targeting')).toHaveLength(1)
+  })
+
+  it('targeting with a week lock keeps only that week pickable', async () => {
+    const lock = getPeriodRefsForDate(new Date('2026-03-12T12:00:00')).week
+    const wrapper = mountCard({ targeting: true, targetingWeekRef: lock })
+    const cells = wrapper.findAll('.next-day-cal__day--week')
+
+    // Forward view: Fri 13 … Thu 19 — only Fri/Sat/Sun stay in the locked week.
+    expect(cells.map(cell => cell.classes().includes('is-pickable'))).toEqual([true, true, true, false, false, false, false])
+    await cells[4].trigger('click')
+    expect(wrapper.emitted('pick')).toBeUndefined()
+    await cells[1].trigger('click')
+    expect(wrapper.emitted('pick')).toEqual([['2026-03-14']])
   })
 })

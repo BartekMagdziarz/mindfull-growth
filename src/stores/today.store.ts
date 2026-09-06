@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { DayRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import {
+  addMeasurementToDay,
   clearTodayInitiative,
   clearTodayMeasurementAssignment,
   clearTodayMeasurementEntry,
@@ -10,14 +11,18 @@ import {
   hideTodayItem,
   moveTodayInitiative,
   moveTodayMeasurementAssignment,
+  removeMeasurementFromDay,
+  rescheduleContextItem as rescheduleContextItemAction,
   restoreTodayItem,
   saveTodayMeasurementEntry,
   toggleTodayCompletion,
   toggleTodayMultiItem,
+  undoRescheduleContextItem,
 } from '@/services/todayViewActions'
 import {
   getTodayViewBundle,
   getTodayViewBundleForDay,
+  type TodayAddCandidate,
   type TodayInitiativeItem,
   type TodayItem,
   type TodayMeasurementItem,
@@ -84,7 +89,7 @@ export const useTodayStore = defineStore('today', () => {
    * only: a new operation replaces it, a reload of the page forgets it.
    * Measurement entries are never part of undo.
    */
-  const undoState = ref<{ kind: 'hide' | 'move'; itemKey: string; run: () => Promise<void> } | null>(null)
+  const undoState = ref<{ kind: 'hide' | 'move' | 'reschedule' | 'add'; itemKey: string; run: () => Promise<void> } | null>(null)
   /** Compass highlight: hover previews, pin sticks. Keys: `priority:<id>` | `object:<itemKey>`. */
   const hoverKey = ref<string | null>(null)
   const pinnedKey = ref<string | null>(null)
@@ -101,6 +106,7 @@ export const useTodayStore = defineStore('today', () => {
   const weekItems = computed(() => bundle.value?.sections.week ?? [])
   const monthItems = computed(() => bundle.value?.sections.month ?? [])
   const hiddenItems = computed(() => bundle.value?.hiddenItems ?? [])
+  const addCandidates = computed<TodayAddCandidate[]>(() => bundle.value?.addCandidates ?? [])
 
   const allVisibleItems = computed<TodayItem[]>(() => [
     ...scheduledItems.value,
@@ -521,6 +527,66 @@ export const useTodayStore = defineStore('today', () => {
     }
   }
 
+  /**
+   * "Jutro" / "Dzień" for a week- or month-context row: hidden here, present on
+   * the target day. Undo restores both sides.
+   */
+  async function rescheduleContextItem(item: TodayMeasurementItem, toDayRef: DayRef): Promise<void> {
+    if (!bundle.value) {
+      return
+    }
+
+    const fromDayRef = bundle.value.dayRef
+    setPending(item.key, true)
+    moveToHidden(item)
+
+    try {
+      const { createdAssignment } = await rescheduleContextItemAction(item, fromDayRef, toDayRef)
+      undoState.value = {
+        kind: 'reschedule',
+        itemKey: item.key,
+        run: async () => {
+          await undoRescheduleContextItem(item, fromDayRef, toDayRef, createdAssignment)
+          await reloadCurrentDay()
+        },
+      }
+      await reloadCurrentDay()
+    } catch (err) {
+      await reloadCurrentDay()
+      throw err
+    } finally {
+      setPending(item.key, false)
+    }
+  }
+
+  /** "Dodaj do planu": place a candidate on the current day. Undo removes the placement. */
+  async function addToDay(candidate: TodayAddCandidate): Promise<void> {
+    if (!bundle.value) {
+      return
+    }
+
+    const dayRef = bundle.value.dayRef
+    setPending(candidate.key, true)
+
+    try {
+      await addMeasurementToDay(candidate, dayRef)
+      undoState.value = {
+        kind: 'add',
+        itemKey: candidate.key,
+        run: async () => {
+          await removeMeasurementFromDay(candidate, dayRef)
+          await reloadCurrentDay()
+        },
+      }
+      await reloadCurrentDay()
+    } catch (err) {
+      await reloadCurrentDay()
+      throw err
+    } finally {
+      setPending(candidate.key, false)
+    }
+  }
+
   async function clearScheduledItem(item: TodayItem): Promise<void> {
     if (!bundle.value) {
       return
@@ -635,6 +701,7 @@ export const useTodayStore = defineStore('today', () => {
     weekItems,
     monthItems,
     hiddenItems,
+    addCandidates,
     allVisibleItems,
     goalKrItems,
     habitItems,
@@ -662,6 +729,8 @@ export const useTodayStore = defineStore('today', () => {
     undoState,
     undoLast,
     clearUndo,
+    rescheduleContextItem,
+    addToDay,
     hoverKey,
     pinnedKey,
     highlightKey,

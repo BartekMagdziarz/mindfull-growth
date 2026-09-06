@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { TodayMeasurementItem } from '@/services/todayViewQueries'
 import type { DayMarker } from '@/services/dayUpcomingQueries'
-import { isRelatedToCompass, markerIcon, markerTitle, objectCompassKey, priorityCompassKey, priorityTone } from '../dayViewModels'
+import { canMoveToTomorrow, isRelatedToCompass, markerIcon, markerTitle, objectCompassKey, priorityCompassKey, priorityTone, rescheduleWeekLock } from '../dayViewModels'
 
 const item = { kind: 'measurement', key: 'habit:h1', priorityIds: ['p1'] } as unknown as TodayMeasurementItem
 
@@ -31,5 +31,18 @@ describe('dayViewModels', () => {
     expect(markerIcon(deadline)).toBe('rocket_launch')
     expect(markerIcon(week)).toBe('edit_calendar')
     expect(markerIcon(month)).toBe('date_range')
+  })
+
+  it('locks weekly intentions to their week: no "Jutro" on the last day of the week', () => {
+    const intention = { kind: 'measurement', key: 'weeklyIntention:i', panelType: 'weeklyIntention', canHide: true, isScheduledToday: false, subject: { weekRef: '2026-W10' } } as unknown as TodayMeasurementItem
+    const habit = { kind: 'measurement', key: 'habit:h', panelType: 'habit', canHide: true, isScheduledToday: false, subject: {} } as unknown as TodayMeasurementItem
+    const thursday = '2026-03-12' as DayRef
+    const sunday = '2026-03-15' as DayRef
+
+    expect(rescheduleWeekLock(intention)).toBe('2026-W10')
+    expect(rescheduleWeekLock(habit)).toBeNull()
+    expect(canMoveToTomorrow(habit, sunday)).toBe(true)
+    expect(canMoveToTomorrow(intention, thursday)).toBe(true)
+    expect(canMoveToTomorrow(intention, sunday)).toBe(false)
   })
 })

@@ -64,6 +64,21 @@ export interface TodayInitiativeItem {
 
 export type TodayItem = TodayMeasurementItem | TodayInitiativeItem
 
+/**
+ * An open object that can be placed on this day from the "Dodaj do planu" menu:
+ * planned elsewhere in this week, or not planned in this week/month at all.
+ * Key results need an open parent goal (no orphans).
+ */
+export interface TodayAddCandidate {
+  key: string
+  subjectType: MeasurementSubjectType
+  subject: MeasureableSubject
+  cadence: 'weekly' | 'monthly'
+  goalTitle?: string
+  goalIcon?: string
+  sourceMonthRef?: MonthRef
+}
+
 export interface TodayViewBundle {
   dayRef: DayRef
   refs: PeriodRefsForDate
@@ -73,6 +88,8 @@ export interface TodayViewBundle {
   allDayAssignments: MeasurementDayAssignment[]
   /** Keys (`subjectType:subjectId`) of this week's top-3 picks — used to badge items. */
   topPriorityKeys: string[]
+  /** Objects that can still be added to this day, sorted by title. */
+  addCandidates: TodayAddCandidate[]
 }
 
 const todayViewBundleCache = new Map<
@@ -353,6 +370,39 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
     }
     const hiddenItems: TodayItem[] = []
 
+    const addCandidates: TodayAddCandidate[] = []
+    const relevantKeys = new Set<string>()
+    for (const item of weekPlanning.relevant.measurementItems) {
+      const key = buildMeasurementKey(item.subjectType, item.subject.id)
+      relevantKeys.add(key)
+      if (measurementItems.has(key) || !isMeasurementSubjectOpen(item.subject)) continue
+      // Planned on other days of this week — offer it for today.
+      const goal = 'goalId' in item.subject ? goalMap.get(item.subject.goalId) : undefined
+      if ('goalId' in item.subject && !(goal && goal.isActive && goal.status === 'open')) continue
+      addCandidates.push({
+        key,
+        subjectType: item.subjectType,
+        subject: item.subject,
+        cadence: item.subject.cadence,
+        goalTitle: goal?.title,
+        goalIcon: goal?.icon,
+        sourceMonthRef: item.sourceMonthRef,
+      })
+    }
+    const unplanned: Array<[MeasurementSubjectType, MeasureableSubject]> = [
+      ...objects.keyResults.map(subject => ['keyResult', subject] as [MeasurementSubjectType, MeasureableSubject]),
+      ...objects.habits.map(subject => ['habit', subject] as [MeasurementSubjectType, MeasureableSubject]),
+      ...objects.trackers.map(subject => ['tracker', subject] as [MeasurementSubjectType, MeasureableSubject]),
+    ]
+    for (const [subjectType, subject] of unplanned) {
+      const key = buildMeasurementKey(subjectType, subject.id)
+      if (relevantKeys.has(key) || !isMeasurementSubjectOpen(subject)) continue
+      const goal = 'goalId' in subject ? goalMap.get(subject.goalId) : undefined
+      if ('goalId' in subject && !(goal && goal.isActive && goal.status === 'open')) continue
+      addCandidates.push({ key, subjectType, subject, cadence: subject.cadence, goalTitle: goal?.title, goalIcon: goal?.icon })
+    }
+    addCandidates.sort((left, right) => left.subject.title.localeCompare(right.subject.title))
+
     for (const item of [...measurementItems.values(), ...initiativeItems.values()]) {
       if (item.canHide && hiddenKeys.has(item.key)) {
         hiddenItems.push(item)
@@ -374,6 +424,7 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
       rawEntries: weekPlanning.rawEntries,
       allDayAssignments,
       topPriorityKeys,
+      addCandidates,
     }
   })
 }

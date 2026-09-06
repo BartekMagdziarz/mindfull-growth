@@ -1,4 +1,4 @@
-import type { DayRef } from '@/domain/period'
+import type { DayRef, MonthRef } from '@/domain/period'
 import type { MeasurementSubjectType } from '@/domain/planningState'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { initiativeDexieRepository } from '@/repositories/initiativeDexieRepository'
@@ -6,6 +6,7 @@ import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepositor
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import type {
+  TodayAddCandidate,
   TodayInitiativeItem,
   TodayItem,
   TodayMeasurementItem,
@@ -219,6 +220,105 @@ export async function moveTodayMeasurementAssignment(
   if (stillOnSource) {
     await toggleMeasurementDayAssignment({ ...ref, dayRef: fromDayRef })
   }
+}
+
+interface DayPlacementRef {
+  subjectType: MeasurementSubjectType
+  subjectId: string
+  cadence: 'weekly' | 'monthly'
+  sourceMonthRef?: MonthRef
+}
+
+function placementRef(source: TodayAddCandidate | TodayMeasurementItem): DayPlacementRef {
+  return {
+    subjectType: source.subjectType,
+    subjectId: source.subject.id,
+    cadence: source.subject.cadence,
+    sourceMonthRef: source.sourceMonthRef,
+  }
+}
+
+async function ensureDayAssignment(ref: DayPlacementRef, dayRef: DayRef): Promise<boolean> {
+  const existing = await planningStateDexieRepository.getMeasurementDayAssignment(dayRef, ref.subjectType, ref.subjectId)
+  if (existing) return false
+  await toggleMeasurementDayAssignment({
+    subjectType: ref.subjectType,
+    subjectId: ref.subjectId,
+    cadence: ref.cadence,
+    dayRef,
+    monthRef: ref.cadence === 'monthly' ? ref.sourceMonthRef ?? getPeriodRefsForDate(dayRef).month : undefined,
+  })
+  return true
+}
+
+async function removeDayAssignment(ref: DayPlacementRef, dayRef: DayRef): Promise<void> {
+  const existing = await planningStateDexieRepository.getMeasurementDayAssignment(dayRef, ref.subjectType, ref.subjectId)
+  if (!existing) return
+  await toggleMeasurementDayAssignment({
+    subjectType: ref.subjectType,
+    subjectId: ref.subjectId,
+    cadence: ref.cadence,
+    dayRef,
+    monthRef: ref.cadence === 'monthly' ? ref.sourceMonthRef ?? getPeriodRefsForDate(dayRef).month : undefined,
+  })
+}
+
+/** "Dodaj do planu": place an open object on this day (creates week/month states as the matrix does). */
+export async function addMeasurementToDay(candidate: TodayAddCandidate, dayRef: DayRef): Promise<void> {
+  await ensureDayAssignment(placementRef(candidate), dayRef)
+}
+
+/** Inverse of `addMeasurementToDay` (undo). */
+export async function removeMeasurementFromDay(candidate: TodayAddCandidate, dayRef: DayRef): Promise<void> {
+  await removeDayAssignment(placementRef(candidate), dayRef)
+}
+
+function scopeCoversDay(item: TodayMeasurementItem, fromDayRef: DayRef, toDayRef: DayRef): boolean {
+  const from = getPeriodRefsForDate(fromDayRef)
+  const to = getPeriodRefsForDate(toDayRef)
+  const scope = item.planning.scheduleScope
+  if (scope === 'whole-week') return from.week === to.week
+  if (scope === 'whole-month') return (item.sourceMonthRef ?? from.month) === to.month
+  if (scope === 'unassigned') return item.subject.cadence === 'weekly' ? from.week === to.week : (item.sourceMonthRef ?? from.month) === to.month
+  return false
+}
+
+/**
+ * "Jutro" / "Dzień" for a week- or month-context row: hide it for the source
+ * day and make sure it shows up on the target day. When the target is still
+ * covered by the row's own scope (same week for whole-week, same month for
+ * whole-month) nothing else is written — the scope stays intact.
+ * Returns whether a day assignment had to be created (undo needs to know).
+ */
+export async function rescheduleContextItem(
+  item: TodayMeasurementItem,
+  fromDayRef: DayRef,
+  toDayRef: DayRef
+): Promise<{ createdAssignment: boolean }> {
+  if (!item.canHide) {
+    throw new Error('Only week and month context items can be rescheduled this way.')
+  }
+  if (fromDayRef === toDayRef) return { createdAssignment: false }
+  if (item.subjectType === 'weeklyIntention' && getPeriodRefsForDate(fromDayRef).week !== getPeriodRefsForDate(toDayRef).week) {
+    throw new Error('A weekly intention stays within its own week.')
+  }
+
+  const createdAssignment = scopeCoversDay(item, fromDayRef, toDayRef)
+    ? false
+    : await ensureDayAssignment(placementRef(item), toDayRef)
+  await hideTodayItem(item, fromDayRef)
+  return { createdAssignment }
+}
+
+/** Inverse of `rescheduleContextItem` (undo). */
+export async function undoRescheduleContextItem(
+  item: TodayMeasurementItem,
+  fromDayRef: DayRef,
+  toDayRef: DayRef,
+  createdAssignment: boolean
+): Promise<void> {
+  await restoreTodayItem(item, fromDayRef)
+  if (createdAssignment) await removeDayAssignment(placementRef(item), toDayRef)
 }
 
 export async function clearTodayMeasurementAssignment(

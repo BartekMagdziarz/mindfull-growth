@@ -28,11 +28,11 @@
              keyboard focus, so titles keep their full width. The staged row carries the
              same actions as labelled buttons inside its expansion instead. -->
         <span v-if="!staged" class="ndi__tray" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title })" @click.stop>
-        <template v-if="item.isScheduledToday">
-          <button type="button" class="ndi__action" :title="t('planning.today.actions.moveToTomorrow')" :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`" @click="emit('move-tomorrow')"><AppIcon name="east" /></button>
+        <template v-if="canReschedule">
+          <button v-if="canTomorrow" type="button" class="ndi__action" :title="t('planning.today.actions.moveToTomorrow')" :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`" @click="emit('move-tomorrow')"><AppIcon name="east" /></button>
           <button type="button" class="ndi__action" :title="t('planning.today.actions.moveToDay')" :aria-label="`${t('planning.today.actions.moveToDay')}: ${title}`" @click="emit('pick-day')"><AppIcon name="calendar_month" /></button>
-          <button type="button" class="ndi__action" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
         </template>
+        <button v-if="item.isScheduledToday" type="button" class="ndi__action" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
         <button v-else-if="item.canHide" type="button" class="ndi__action" :title="t('planning.today.actions.hideForToday')" :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`" @click="emit('hide')"><AppIcon name="visibility_off" /></button>
         <button v-if="item.kind === 'measurement' && item.todayEntry" type="button" class="ndi__action" :title="t('planning.today.actions.clearEntry')" :aria-label="`${t('planning.today.actions.clearEntry')}: ${title}`" @click="emit('clear-entry')"><AppIcon name="ink_eraser" /></button>
         <button v-if="canOpenObject" type="button" class="ndi__action" :title="t('planning.objects.actions.open')" :aria-label="`${t('planning.objects.actions.open')}: ${title}`" @click="emit('open-object')"><AppIcon name="open_in_new" /></button>
@@ -146,6 +146,7 @@ import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/p
 import type { TodayItem } from '@/services/todayViewQueries'
 import { useT } from '@/composables/useT'
 import { useTodayItemVisualization } from '@/composables/useTodayItemVisualization'
+import { canMoveToTomorrow, canRescheduleItem } from './dayViewModels'
 import AppIcon from '@/components/shared/AppIcon.vue'
 
 const props = withDefaults(defineProps<{
@@ -209,6 +210,9 @@ const iconName = computed(() => {
 })
 // Weekly intentions and initiatives have no object page; their tray offers the period context instead.
 const canOpenObject = computed(() => props.item.kind === 'measurement' && props.item.panelType !== 'weeklyIntention')
+// Scheduled rows move; week/month measurement rows can be re-homed on another day (hidden here).
+const canReschedule = computed(() => canRescheduleItem(props.item))
+const canTomorrow = computed(() => canMoveToTomorrow(props.item, props.todayDayRef))
 const isCompletionToggle = computed(() =>
   props.item.kind === 'initiative' || viz.entryMode.value === 'completion',
 )

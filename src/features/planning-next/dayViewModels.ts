@@ -1,6 +1,8 @@
+import type { DayRef, WeekRef } from '@/domain/period'
 import type { DayMarker } from '@/services/dayUpcomingQueries'
 import type { TodayItem } from '@/services/todayViewQueries'
 import { formatMonthTitle } from '@/utils/periodLabels'
+import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 
 /** Compass keys: `priority:<id>` for a month direction, `object:<itemKey>` for a week focus. */
 export type CompassKey = `priority:${string}` | `object:${string}`
@@ -64,4 +66,23 @@ export function markerTitle(marker: DayMarker, t: Translate, locale: string): st
 export function markerIcon(marker: DayMarker): string {
   if (marker.kind === 'deadline') return marker.goal.icon || 'outlined_flag'
   return marker.ritual === 'week' ? 'edit_calendar' : 'date_range'
+}
+
+/** Week a row must stay in when moved: weekly intentions are bound to their week; others roam. */
+export function rescheduleWeekLock(item: TodayItem): WeekRef | null {
+  if (item.kind !== 'measurement' || item.panelType !== 'weeklyIntention') return null
+  return (item.subject as { weekRef: WeekRef }).weekRef
+}
+
+/** Scheduled rows move their assignment; week/month measurement rows are re-homed (hidden here, shown there). */
+export function canRescheduleItem(item: TodayItem): boolean {
+  return item.isScheduledToday || (item.kind === 'measurement' && item.canHide)
+}
+
+/** "Jutro" is offered only when tomorrow is a legal target for this row. */
+export function canMoveToTomorrow(item: TodayItem, dayRef: DayRef): boolean {
+  if (!canRescheduleItem(item)) return false
+  const lock = rescheduleWeekLock(item)
+  if (!lock) return true
+  return getPeriodRefsForDate(new Date(`${addDaysToDayRef(dayRef, 1)}T12:00:00`)).week === lock
 }

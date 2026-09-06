@@ -371,7 +371,8 @@
       "stageRow": "Show in stage",
       "undo": "Undo",
       "collapseCompleted": "Collapse completed",
-      "expandCompleted": "Show completed"
+      "expandCompleted": "Show completed",
+      "addToPlan": "Add to plan"
     },
     "messages": {
       "entrySaved": "Entry saved.",
@@ -381,7 +382,8 @@
       "moved": "Moved to another day.",
       "scheduleCleared": "Today assignment cleared.",
       "deleted": "Object deleted.",
-      "undone": "Undone."
+      "undone": "Undone.",
+      "added": "Added to the plan."
     },
     "summary": {
       "daysLogged": "{n} days logged",
