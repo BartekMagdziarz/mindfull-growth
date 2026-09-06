@@ -47,6 +47,8 @@
           :all-day-assignments="store.allDayAssignments"
           :is-pending="store.isPending(item.key)"
           :staged="stagedItem?.key === item.key"
+          :lit="isRelatedToCompass(item, store.highlightKey)"
+          :dim="store.highlightKey !== null && !isRelatedToCompass(item, store.highlightKey)"
           @select="stageKey = item.key"
           @open-object="openObject(item)"
           @open-context="openPeriod(item.contextPeriodRef)"
@@ -56,7 +58,7 @@
           @clear-entry="handleClearEntry(item)"
           @hide="handleHide(item)"
           @move-tomorrow="handleMoveTomorrow(item)"
-          @pick-day="pickDayFor(item)"
+          @pick-day="store.startTargeting(item)"
           @clear-schedule="handleClearSchedule(item)"
           @request-delete="promptDelete(item)"
         >
@@ -82,7 +84,7 @@
             <div class="next-day-rail__stage-actions" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title: itemTitle(item) })">
               <template v-if="item.isScheduledToday">
                 <button type="button" @click="handleMoveTomorrow(item)"><AppIcon name="east" />{{ t('planning.today.stage.tomorrow') }}</button>
-                <button type="button" @click="pickDayFor(item)"><AppIcon name="calendar_month" />{{ t('planning.today.stage.day') }}</button>
+                <button type="button" :class="{ 'is-active': store.targetingItem?.key === item.key }" :aria-pressed="store.targetingItem?.key === item.key" @click="store.startTargeting(item)"><AppIcon name="calendar_month" />{{ t('planning.today.stage.day') }}</button>
                 <button type="button" @click="handleClearSchedule(item)"><AppIcon name="event_busy" />{{ t('planning.today.stage.clearToday') }}</button>
               </template>
               <button v-else-if="item.canHide" type="button" @click="handleHide(item)"><AppIcon name="visibility_off" />{{ t('planning.today.stage.hide') }}</button>
@@ -104,10 +106,6 @@
         </div>
       </section>
     </div>
-
-    <!-- Interim day picker (until the calendar card's targeting mode lands): one
-         hidden native input shared by every row. -->
-    <input ref="pickDayInputRef" class="next-day-rail__picker" type="date" tabindex="-1" aria-hidden="true" @change="handlePickedDay" />
 
     <AppDialog
       v-model="deleteDialogOpen"
@@ -135,6 +133,7 @@ import { DsButton, DsState, DsSurface } from '@/design-system/components'
 import NextDayItemRow from './NextDayItemRow.vue'
 import NextObjectChartCard from './NextObjectChartCard.vue'
 import { buildDayChartPoints } from './nextObjectChart'
+import { isRelatedToCompass } from './dayViewModels'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -147,11 +146,9 @@ const { t } = useT()
 const store = useTodayStore()
 const preferences = useUserPreferencesStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
-const pickDayInputRef = ref<HTMLInputElement | null>(null)
 const hiddenExpanded = ref(false)
 const deleteDialogOpen = ref(false)
 const pendingDeleteItem = ref<TodayItem | null>(null)
-const pendingPickItem = ref<TodayItem | null>(null)
 /** Row chosen as the stage by click; null = the first open item takes the stage. */
 const stageKey = ref<string | null>(null)
 
@@ -187,8 +184,14 @@ const deleteDialogMessage = computed(() => pendingDeleteItem.value
 onMounted(() => void loadDay())
 watch(() => props.dayRef, () => {
   stageKey.value = null
-  pendingPickItem.value = null
   void loadDay()
+})
+// The calendar card hands the picked day over through the store; the rail keeps
+// ownership of the write and of the undo snackbar.
+watch(() => store.pendingPick, pick => {
+  if (!pick) return
+  const consumed = store.consumePendingPick()
+  if (consumed && consumed.dayRef !== props.dayRef) void handleMove(consumed.item, consumed.dayRef)
 })
 
 async function loadDay() {
@@ -303,23 +306,6 @@ async function handleMoveTomorrow(item: TodayItem) {
 
 async function handleMove(item: TodayItem, dayRef: DayRef) {
   try { await store.moveScheduledItem(item, dayRef); showUndo(t('planning.today.messages.moved')) } catch (error) { showError(error) }
-}
-
-function pickDayFor(item: TodayItem) {
-  pendingPickItem.value = item
-  const input = pickDayInputRef.value
-  if (!input) return
-  input.value = props.dayRef
-  if (typeof input.showPicker === 'function') input.showPicker()
-  else input.click()
-}
-
-function handlePickedDay(event: Event) {
-  const input = event.target as HTMLInputElement
-  const item = pendingPickItem.value
-  pendingPickItem.value = null
-  if (!item || !input.value || input.value === props.dayRef) return
-  void handleMove(item, input.value as DayRef)
 }
 
 async function handleClearSchedule(item: TodayItem) {

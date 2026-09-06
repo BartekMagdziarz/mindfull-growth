@@ -457,7 +457,36 @@
       "actionsLabel": "Akcje: {title}"
     },
     "completedCount": "Wykonane ({n})",
-    "progress": "Wykonanie dnia: {done} z {total}"
+    "progress": "Wykonanie dnia: {done} z {total}",
+    "compass": {
+      "title": "Kompas",
+      "empty": "Brak kierunków na ten miesiąc"
+    },
+    "upcoming": {
+      "title": "Najbliżej",
+      "empty": "Nic pilnego",
+      "today": "dziś",
+      "planWeek": "Zaplanuj tydzień T{n}",
+      "planMonth": "Zaplanuj {month}"
+    },
+    "calendar": {
+      "today": "Dziś",
+      "pickDay": "Wybierz dzień",
+      "expand": "Rozwiń kalendarz",
+      "collapse": "Zwiń kalendarz",
+      "dayNav": "Nawigacja dnia",
+      "previousDay": "Poprzedni dzień",
+      "nextDay": "Następny dzień",
+      "periodNav": "Nawigacja kalendarza",
+      "previousPeriod": "Poprzedni okres",
+      "nextPeriod": "Następny okres",
+      "range": "Zakres kalendarza",
+      "week": "Tydzień",
+      "month": "Miesiąc",
+      "nextSevenDays": "Najbliższe 7 dni",
+      "legendDeadline": "termin",
+      "legendRitual": "rytuał"
+    }
   },
   "weekWizard": {
     "title": "Tydzień",

@@ -1,9 +1,11 @@
 <template>
   <div class="mg-design-v2 planning-next">
-    <div class="planning-next__sheet mg-v2-surface mg-v2-surface--inset" :class="{ 'planning-next__sheet--ritual': ritualAction }">
-      <aside v-if="!ritualAction" class="planning-next__rail-stack">
+    <div class="planning-next__sheet mg-v2-surface mg-v2-surface--inset" :class="{ 'planning-next__sheet--ritual': ritualAction, 'planning-next__sheet--day': scale === 'day' }">
+      <aside v-if="!ritualAction" class="planning-next__rail-stack" :class="{ 'planning-next__rail-stack--day': scale === 'day' }">
         <DsSurface class="planning-next__navigation">
+          <!-- On the day scale the date and its arrows live in the calendar card. -->
           <DsPeriodNavigation
+            v-if="scale !== 'day'"
             :title="periodTitle"
             :subtitle="periodSubtitle"
             @previous="navigatePeriod(-1)"
@@ -17,15 +19,7 @@
             @update:model-value="navigateScale"
           />
           <input
-            v-if="scale === 'day'"
-            ref="dayPickerRef"
-            class="planning-next__native-picker"
-            type="date"
-            :value="periodRef"
-            @change="handleDayPicked"
-          />
-          <input
-            v-else-if="scale === 'month'"
+            v-if="scale === 'month'"
             ref="monthPickerRef"
             class="planning-next__native-picker"
             type="month"
@@ -34,7 +28,10 @@
           />
         </DsSurface>
 
-        <NextDayRail v-if="scale === 'day'" :day-ref="periodRef as DayRef" />
+        <template v-if="scale === 'day'">
+          <NextDayEntriesBar :day-ref="periodRef as DayRef" />
+          <NextDayRail :day-ref="periodRef as DayRef" />
+        </template>
         <NextPeriodRail
           v-else
           :scale="scale"
@@ -55,7 +52,7 @@
           title="Nieprawidłowy okres"
           body="Sprawdź adres kalendarza i spróbuj ponownie."
         />
-        <NextDayStage v-else-if="scale === 'day'" :day-ref="periodRef as DayRef" />
+        <NextDayContextRail v-else-if="scale === 'day'" :day-ref="periodRef as DayRef" @navigate="navigateToRef('day', $event)" />
         <NextRitualHost
           v-else-if="ritualAction"
           :scale="scale"
@@ -102,8 +99,9 @@ import { DsPeriodNavigation, DsSegmentedControl, DsState, DsSurface } from '@/de
 import { getNextPeriod, getPreviousPeriod, getPeriodBounds, getPeriodType, parsePeriodRef, zoomPeriod } from '@/utils/periods'
 import { formatMonthTitle } from '@/utils/periodLabels'
 import { useT } from '@/composables/useT'
+import NextDayContextRail from './NextDayContextRail.vue'
+import NextDayEntriesBar from './NextDayEntriesBar.vue'
 import NextDayRail from './NextDayRail.vue'
-import NextDayStage from './NextDayStage.vue'
 import NextPeriodOverview from './NextPeriodOverview.vue'
 import NextPeriodRail from './NextPeriodRail.vue'
 import NextRitualHost from './NextRitualHost.vue'
@@ -119,7 +117,6 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 const { locale } = useT()
-const dayPickerRef = ref<HTMLInputElement | null>(null)
 const monthPickerRef = ref<HTMLInputElement | null>(null)
 const scaleRef = toRef(props, 'scale')
 const periodRefRef = toRef(props, 'periodRef')
@@ -195,13 +192,7 @@ function navigateToRef(scale: PlanningScale, periodRef: string) {
 }
 
 function openNativePeriodPicker() {
-  if (props.scale === 'day') dayPickerRef.value?.showPicker()
   if (props.scale === 'month') monthPickerRef.value?.showPicker()
-}
-
-function handleDayPicked(event: Event) {
-  const value = (event.target as HTMLInputElement).value
-  if (value) navigateToRef('day', value)
 }
 
 function handleMonthPicked(event: Event) {

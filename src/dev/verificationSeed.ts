@@ -443,6 +443,8 @@ export async function seedVerificationData(): Promise<void> {
     status: 'open',
     priorityIds: priorityIdsFor('goal-10k'),
     lifeAreaIds: [areaHealth.id],
+    // Deadlines feed the day's calendar markers and the „Najbliżej” list.
+    targetDate: addDaysToDayRef(todayRef, 12),
     successDefinition: 'Ciągły bieg 10 km w spokojnym tempie, bez marszobiegu.',
     whyMatters: 'Konkretny, mierzalny dowód, że kondycja wróciła.',
   }))
@@ -452,6 +454,7 @@ export async function seedVerificationData(): Promise<void> {
     status: 'open',
     priorityIds: priorityIdsFor('goal-mvp'),
     lifeAreaIds: [areaWork.id],
+    targetDate: addDaysToDayRef(todayRef, 4),
     successDefinition: 'Działająca wersja z kluczowymi przepływami u pierwszych użytkowników.',
     whyMatters: 'Bez wydania nie ma informacji zwrotnej.',
   }))

@@ -2232,3 +2232,552 @@
   .planning-next button,
   .next-period-rail__week-chart-labels { transition: none; }
 }
+
+/* ── Day scale: list column left, context column right ─────────────────── */
+
+.planning-next__sheet--day {
+  grid-template-columns: minmax(27rem, 1.1fr) minmax(21rem, 0.9fr);
+}
+
+.planning-next__rail-stack--day {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+/* Entries bar: three quiet tiles for the day's own entries. */
+.next-day-entries {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mg-space-2);
+  padding: var(--mg-space-2) var(--mg-space-3);
+  border-radius: var(--mg-radius-lg);
+}
+
+.next-day-entries__tile {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  padding: 3px var(--mg-space-2);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-paper);
+  cursor: pointer;
+  transition: background var(--mg-duration-fast) var(--mg-ease-standard), box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.next-day-entries__tile:hover {
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.next-day-entries__tile small {
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.next-day-entries__icon {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: var(--mg-radius-organic-a);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}
+
+.next-day-entries__tile.is-done .next-day-entries__icon {
+  background: var(--mg-color-sky-field);
+}
+
+.next-day-entries__icon .material-symbols-outlined {
+  font-size: var(--mg-font-size-sm);
+}
+
+.next-day-context {
+  display: grid;
+  align-content: start;
+  gap: var(--mg-space-4);
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.next-day-context > .mg-v2-surface,
+.next-day-context > section {
+  border-radius: var(--mg-radius-lg);
+}
+
+.next-day-cal,
+.next-day-compass,
+.next-day-upcoming {
+  display: grid;
+  gap: var(--mg-space-2);
+  padding: var(--mg-space-3);
+}
+
+/* Programs: the existing cards carry their own surface — no second frame. */
+.next-day-programs {
+  display: grid;
+  gap: var(--mg-space-3);
+}
+
+.next-day-compass > header,
+.next-day-upcoming > header {
+  color: var(--mg-color-primary-strong);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Calendar card */
+.next-day-cal.is-targeting {
+  outline: 2px dashed var(--mg-color-state-soft);
+  outline-offset: 2px;
+}
+
+.next-day-cal__head {
+  display: flex;
+  gap: var(--mg-space-2);
+  align-items: center;
+}
+
+.next-day-cal__date {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.next-day-cal__date small {
+  min-height: 1em;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.next-day-cal.is-targeting .next-day-cal__date small {
+  color: var(--mg-color-state);
+}
+
+.next-day-cal__date h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--mg-font-size-lg);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.next-day-cal__nav {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.next-day-cal__nav > button,
+.next-day-cal__toggle {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-primary-strong);
+  background: transparent;
+  cursor: pointer;
+}
+
+.next-day-cal__nav > button:hover:not(:disabled),
+.next-day-cal__toggle:hover {
+  background: var(--mg-color-sky-well);
+}
+
+.next-day-cal__nav > button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.next-day-cal__nav .next-day-cal__today {
+  width: auto;
+  padding: 0 var(--mg-space-2);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+}
+
+.next-day-cal__toggle {
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-organic-a);
+  background: var(--mg-color-sky-well);
+}
+
+.next-day-cal__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-space-1) var(--mg-space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--mg-space-1);
+}
+
+.next-day-cal__period {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.next-day-cal__period > strong {
+  min-width: 5.5rem;
+  color: var(--mg-color-primary-strong);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.next-day-cal__period > button {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-organic-b);
+  color: var(--mg-color-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.next-day-cal__period > button:hover:not(:disabled) {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-mist);
+}
+
+.next-day-cal__period > button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.next-day-cal__period > .next-day-cal__jump {
+  width: auto;
+  padding: 0 var(--mg-space-2);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+}
+
+.next-day-cal__period .material-symbols-outlined,
+.next-day-cal__nav .material-symbols-outlined,
+.next-day-cal__toggle .material-symbols-outlined {
+  font-size: var(--mg-font-size-sm);
+}
+
+.next-day-cal__switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-mist);
+}
+
+.next-day-cal__switch > button {
+  padding: 2px var(--mg-space-2);
+  border: 0;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-muted);
+  background: transparent;
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.next-day-cal__switch > button[aria-pressed='true'] {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.next-day-cal__week,
+.next-day-cal__month {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.next-day-cal__month-head {
+  padding-bottom: 2px;
+  color: var(--mg-color-muted);
+  font-size: 0.6rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.next-day-cal__day {
+  display: grid;
+  gap: 1px;
+  justify-items: center;
+  padding: 4px 2px 3px;
+  border: 1px solid transparent;
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: transparent;
+  cursor: pointer;
+}
+
+.next-day-cal__day--month {
+  min-height: 1.8rem;
+  padding: 3px 1px 2px;
+}
+
+.next-day-cal__day small {
+  color: var(--mg-color-muted);
+  font-size: 0.6rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.next-day-cal__day strong {
+  font-size: var(--mg-font-size-sm);
+  font-weight: 800;
+}
+
+.next-day-cal__day--month strong {
+  font-size: var(--mg-font-size-xs);
+}
+
+.next-day-cal__day.is-past strong,
+.next-day-cal__day.is-out strong {
+  color: var(--mg-color-muted);
+}
+
+.next-day-cal__day:hover:not(:disabled) {
+  border-color: var(--mg-color-border);
+}
+
+/* Selected day = filled well; the real today keeps a ring even when another day is viewed. */
+.next-day-cal__day.is-selected {
+  border-color: var(--mg-color-state);
+  background: var(--mg-color-sky-well);
+}
+
+.next-day-cal__day.is-today strong {
+  position: relative;
+}
+
+.next-day-cal__day.is-today strong::after {
+  position: absolute;
+  right: -0.45rem;
+  top: 0.15rem;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--mg-color-state);
+  content: '';
+}
+
+.next-day-cal__day.is-pickable {
+  border-color: var(--mg-color-state-soft);
+}
+
+.next-day-cal__day:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.next-day-cal__marks {
+  display: flex;
+  gap: 2px;
+  min-height: 5px;
+}
+
+.next-day-cal__marks i,
+.next-day-cal__foot i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--mg-radius-organic-c);
+}
+
+.next-day-cal i.is-deadline {
+  background: var(--mg-color-ink);
+  opacity: 0.7;
+}
+
+.next-day-cal i.is-ritual {
+  background: var(--mg-color-state);
+}
+
+.next-day-cal__foot {
+  display: flex;
+  gap: var(--mg-space-3);
+  justify-content: flex-end;
+  padding-top: 2px;
+  border-top: 1px solid var(--mg-color-border);
+  color: var(--mg-color-muted);
+  font-size: 0.6rem;
+  font-weight: 750;
+}
+
+.next-day-cal__foot span {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+/* Compass */
+.next-day-compass__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mg-space-2);
+}
+
+.next-day-compass__tile {
+  display: grid;
+  gap: var(--mg-space-1);
+  justify-items: center;
+  padding: var(--mg-space-2) var(--mg-space-1);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-paper);
+  text-align: center;
+  cursor: pointer;
+  transition: background var(--mg-duration-fast) var(--mg-ease-standard), box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
+}
+
+.next-day-compass__tile:hover {
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.next-day-compass__tile.is-selected {
+  border-color: var(--mg-color-state-soft);
+  background: var(--mg-color-sky-well);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.next-day-compass__tile small {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.next-day-compass__icon {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--mg-radius-organic-a);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}
+
+.next-day-compass__icon .material-symbols-outlined {
+  font-size: var(--mg-font-size-md);
+}
+
+.next-day-compass__tile.tone-lavender .next-day-compass__icon {
+  color: var(--mg-color-lavender);
+  background: rgb(214 205 244 / 0.7);
+}
+
+.next-day-compass__tile.tone-rose .next-day-compass__icon {
+  color: var(--mg-color-rose);
+  background: var(--mg-color-rose-soft);
+}
+
+.next-day-compass__tile.is-focus .next-day-compass__icon {
+  border-radius: var(--mg-radius-icon-field-a);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+/* Upcoming */
+.next-day-upcoming__list {
+  display: grid;
+}
+
+.next-day-upcoming__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--mg-space-2);
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 1px solid var(--mg-color-border);
+  border-radius: 0;
+  color: var(--mg-color-ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.next-day-upcoming__row:last-of-type {
+  border-bottom-color: transparent;
+}
+
+.next-day-upcoming__row:hover strong {
+  color: var(--mg-color-primary-strong);
+}
+
+.next-day-upcoming__row strong {
+  overflow: hidden;
+  font-size: var(--mg-font-size-xs);
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.next-day-upcoming__row em {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.next-day-upcoming__icon {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--mg-radius-organic-c);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+}
+
+.next-day-upcoming__row.is-ritual .next-day-upcoming__icon {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}
+
+.next-day-upcoming__icon .material-symbols-outlined {
+  font-size: var(--mg-font-size-sm);
+}
+
+.next-day-upcoming__list p {
+  margin: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+}
+
+.next-day-rail__stage-actions > button.is-active {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}

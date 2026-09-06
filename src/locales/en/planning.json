@@ -457,7 +457,36 @@
       "actionsLabel": "Actions: {title}"
     },
     "completedCount": "Completed ({n})",
-    "progress": "Day progress: {done} of {total}"
+    "progress": "Day progress: {done} of {total}",
+    "compass": {
+      "title": "Compass",
+      "empty": "No directions for this month"
+    },
+    "upcoming": {
+      "title": "Up next",
+      "empty": "Nothing urgent",
+      "today": "today",
+      "planWeek": "Plan week W{n}",
+      "planMonth": "Plan {month}"
+    },
+    "calendar": {
+      "today": "Today",
+      "pickDay": "Pick a day",
+      "expand": "Expand calendar",
+      "collapse": "Collapse calendar",
+      "dayNav": "Day navigation",
+      "previousDay": "Previous day",
+      "nextDay": "Next day",
+      "periodNav": "Calendar navigation",
+      "previousPeriod": "Previous period",
+      "nextPeriod": "Next period",
+      "range": "Calendar range",
+      "week": "Week",
+      "month": "Month",
+      "nextSevenDays": "Next 7 days",
+      "legendDeadline": "deadline",
+      "legendRitual": "ritual"
+    }
   },
   "weekWizard": {
     "title": "Week",

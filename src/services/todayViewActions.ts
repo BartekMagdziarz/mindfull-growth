@@ -10,6 +10,7 @@ import type {
   TodayItem,
   TodayMeasurementItem,
 } from '@/services/todayViewQueries'
+import { toggleMeasurementDayAssignment } from '@/services/planningMutations'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
 function assertMeasurementSchedulingAllowed(item: TodayMeasurementItem): void {
@@ -193,16 +194,31 @@ export async function moveTodayMeasurementAssignment(
     return
   }
 
-  await planningStateDexieRepository.upsertMeasurementDayAssignment({
-    dayRef: toDayRef,
+  // The target day may sit in another week (or month): go through the same
+  // mutation the planning matrix uses, so week/month states are created for
+  // the target and cleaned up on the source when it was the last placement.
+  const ref = {
     subjectType: item.subjectType,
     subjectId: item.subject.id,
-  })
-  await planningStateDexieRepository.deleteMeasurementDayAssignment(
+    cadence: item.subject.cadence,
+    monthRef: item.sourceMonthRef,
+  }
+  const alreadyOnTarget = await planningStateDexieRepository.getMeasurementDayAssignment(
+    toDayRef,
+    item.subjectType,
+    item.subject.id
+  )
+  if (!alreadyOnTarget) {
+    await toggleMeasurementDayAssignment({ ...ref, dayRef: toDayRef })
+  }
+  const stillOnSource = await planningStateDexieRepository.getMeasurementDayAssignment(
     fromDayRef,
     item.subjectType,
     item.subject.id
   )
+  if (stillOnSource) {
+    await toggleMeasurementDayAssignment({ ...ref, dayRef: fromDayRef })
+  }
 }
 
 export async function clearTodayMeasurementAssignment(

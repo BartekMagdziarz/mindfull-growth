@@ -85,6 +85,14 @@ export const useTodayStore = defineStore('today', () => {
    * Measurement entries are never part of undo.
    */
   const undoState = ref<{ kind: 'hide' | 'move'; itemKey: string; run: () => Promise<void> } | null>(null)
+  /** Compass highlight: hover previews, pin sticks. Keys: `priority:<id>` | `object:<itemKey>`. */
+  const hoverKey = ref<string | null>(null)
+  const pinnedKey = ref<string | null>(null)
+  const highlightKey = computed(() => hoverKey.value ?? pinnedKey.value)
+  /** Row being moved through the calendar ("Wybierz dzień"); the calendar opens while set. */
+  const targetingItem = ref<TodayItem | null>(null)
+  /** Day picked for the targeting item — consumed by the rail, which owns the move + snackbar. */
+  const pendingPick = ref<{ item: TodayItem; dayRef: DayRef } | null>(null)
 
   const dayRef = computed(() => bundle.value?.dayRef)
   const rawEntries = computed<DailyMeasurementEntry[]>(() => bundle.value?.rawEntries ?? [])
@@ -190,6 +198,10 @@ export const useTodayStore = defineStore('today', () => {
   async function loadBundle(targetDayRef?: DayRef): Promise<void> {
     isLoading.value = true
     error.value = null
+    if (targetDayRef && targetDayRef !== bundle.value?.dayRef) {
+      targetingItem.value = null
+      pendingPick.value = null
+    }
 
     try {
       bundle.value = targetDayRef
@@ -568,6 +580,35 @@ export const useTodayStore = defineStore('today', () => {
     undoState.value = null
   }
 
+  function setHoverKey(key: string | null): void {
+    hoverKey.value = key
+  }
+
+  function togglePinnedKey(key: string): void {
+    pinnedKey.value = pinnedKey.value === key ? null : key
+    hoverKey.value = null
+  }
+
+  function startTargeting(item: TodayItem): void {
+    targetingItem.value = targetingItem.value?.key === item.key ? null : item
+  }
+
+  function cancelTargeting(): void {
+    targetingItem.value = null
+  }
+
+  function pickTargetDay(dayRef: DayRef): void {
+    if (!targetingItem.value) return
+    pendingPick.value = { item: targetingItem.value, dayRef }
+    targetingItem.value = null
+  }
+
+  function consumePendingPick(): { item: TodayItem; dayRef: DayRef } | null {
+    const pick = pendingPick.value
+    pendingPick.value = null
+    return pick
+  }
+
   /**
    * Resets all in-memory state to initial values. Called on user
    * logout/login by `appStateReset` so that user B does not see user A's
@@ -579,6 +620,10 @@ export const useTodayStore = defineStore('today', () => {
     error.value = null
     pendingKeys.value = []
     undoState.value = null
+    hoverKey.value = null
+    pinnedKey.value = null
+    targetingItem.value = null
+    pendingPick.value = null
   }
 
   return {
@@ -617,6 +662,17 @@ export const useTodayStore = defineStore('today', () => {
     undoState,
     undoLast,
     clearUndo,
+    hoverKey,
+    pinnedKey,
+    highlightKey,
+    targetingItem,
+    pendingPick,
+    setHoverKey,
+    togglePinnedKey,
+    startTargeting,
+    cancelTargeting,
+    pickTargetDay,
+    consumePendingPick,
     reset,
   }
 })

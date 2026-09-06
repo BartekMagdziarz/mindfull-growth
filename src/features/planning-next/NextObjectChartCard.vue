@@ -142,11 +142,39 @@ function pathFor(points: Array<{ x: number; y: number }>, offset = 0): string {
 .next-object-card--bare {
   grid-template-rows: minmax(0, 1fr);
   min-height: 0;
+  max-width: 22rem;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+
+/* Bare = inside a day row: compact marks, weekday labels always readable. */
+.next-object-card--bare .next-object-card__dots {
+  gap: var(--mg-space-1);
+  min-height: 0;
+  padding: 0.25rem 0.2rem 0.1rem;
+}
+
+.next-object-card--bare .next-object-card__dots i {
+  max-width: 0.95rem;
+}
+
+.next-object-card--bare .next-object-card__bars {
+  min-height: 2.6rem;
+}
+
+.next-object-card--bare .next-object-card__chart > svg {
+  min-height: 2.8rem;
+  max-height: 3.2rem;
+}
+
+.next-object-card--bare .next-object-card__labels {
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 1;
 }
 
 .next-object-card > header,
