@@ -410,8 +410,7 @@
   cursor: pointer;
 }
 
-.next-overview,
-.next-day-stage {
+.next-overview {
   display: grid;
   align-content: stretch;
   gap: var(--mg-space-4);
@@ -431,8 +430,7 @@
   grid-row: 1 / -1;
 }
 
-.next-overview__row,
-.next-day-stage__board-row {
+.next-overview__row {
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -444,8 +442,7 @@
   box-shadow: var(--mg-shadow-raised);
 }
 
-.next-overview__row > button,
-.next-day-stage__board-row > button {
+.next-overview__row > button {
   position: relative;
   z-index: 1;
   display: grid;
@@ -462,21 +459,17 @@
   cursor: pointer;
 }
 
-.next-overview__row > button:last-child,
-.next-day-stage__board-row > button:last-child {
+.next-overview__row > button:last-child {
   border-right: 0;
 }
 
 .next-overview__row > button:hover,
-.next-overview__row > button:focus-visible,
-.next-day-stage__board-row > button:hover,
-.next-day-stage__board-row > button:focus-visible {
+.next-overview__row > button:focus-visible {
   background: var(--mg-color-primary-soft);
   box-shadow: var(--mg-shadow-inset-sm);
 }
 
-.next-overview__visual,
-.next-day-stage__board-row > button > span {
+.next-overview__visual {
   position: relative;
   display: grid;
   place-items: center;
@@ -490,20 +483,17 @@
   transform: rotate(0.4deg);
 }
 
-.next-overview__row > button:nth-child(2) .next-overview__visual,
-.next-day-stage__board-row > button:nth-child(2) > span {
+.next-overview__row > button:nth-child(2) .next-overview__visual {
   border-radius: var(--mg-radius-icon-field-b);
   transform: rotate(-0.45deg);
 }
 
-.next-overview__row > button:nth-child(3) .next-overview__visual,
-.next-day-stage__board-row > button:nth-child(3) > span {
+.next-overview__row > button:nth-child(3) .next-overview__visual {
   border-radius: var(--mg-radius-icon-field-c);
   transform: rotate(0.25deg);
 }
 
-.next-overview__visual > .material-symbols-outlined,
-.next-day-stage__board-row > button > span > .material-symbols-outlined {
+.next-overview__visual > .material-symbols-outlined {
   font-size: var(--mg-icon-board-size);
   font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 80, 'opsz' 48;
 }
@@ -526,8 +516,7 @@
   font-weight: 900;
 }
 
-.next-overview__row--priorities .next-overview__visual > i,
-.next-day-stage__board-row--priorities button > span > i {
+.next-overview__row--priorities .next-overview__visual > i {
   position: absolute;
   left: var(--mg-space-2);
   bottom: var(--mg-space-2);
@@ -537,18 +526,15 @@
   background: var(--mg-color-state);
 }
 
-.next-overview__visual > i.tone-lavender,
-.next-day-stage__board-row--priorities i.tone-lavender {
+.next-overview__visual > i.tone-lavender {
   background: var(--mg-color-lavender);
 }
 
-.next-overview__visual > i.tone-rose,
-.next-day-stage__board-row--priorities i.tone-rose {
+.next-overview__visual > i.tone-rose {
   background: var(--mg-color-rose, var(--rose-400, #e5849c));
 }
 
-.next-overview__row strong,
-.next-day-stage__board-row strong {
+.next-overview__row strong {
   overflow: hidden;
   max-width: 100%;
   font-size: var(--mg-font-size-sm);
@@ -569,8 +555,7 @@
 }
 
 .next-overview__tabs,
-.next-overview__shortcuts,
-.next-day-stage__shortcuts {
+.next-overview__shortcuts {
   position: relative;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr)) 2.8rem;
@@ -583,8 +568,7 @@
 }
 
 .next-overview__tabs button,
-.next-overview__shortcuts button,
-.next-day-stage__shortcuts button {
+.next-overview__shortcuts button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -599,16 +583,14 @@
 }
 
 .next-overview__tabs button.active,
-.next-overview__shortcuts button.active,
-.next-day-stage__shortcuts button[aria-pressed='true'] {
+.next-overview__shortcuts button.active {
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-primary-soft);
   box-shadow: var(--mg-shadow-inset-sm);
 }
 
 .next-overview__tabs button > span,
-.next-overview__shortcuts button > span,
-.next-day-stage__shortcuts button > span {
+.next-overview__shortcuts button > span {
   display: grid;
   place-items: center;
   width: 1.9rem;
@@ -625,16 +607,7 @@
   white-space: nowrap;
 }
 
-.next-day-stage__shortcuts {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  min-height: 8.1rem;
-}
-
-.next-day-stage__shortcuts button:nth-child(3n) { border-right: 0; }
-.next-day-stage__shortcuts button:nth-child(-n + 6) { border-bottom: 1px solid var(--mg-color-border); }
-
-.next-overview__details,
-.next-day-stage__details {
+.next-overview__details {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--mg-space-3);
@@ -647,22 +620,12 @@
   box-shadow: var(--mg-shadow-raised);
 }
 
-/* The day details keep their shortcut strip INSIDE the panel, so the panel needs
-   a third row and the content in the middle has to be the scroll container —
-   otherwise tall cards run underneath the strip with nothing to scroll. */
-.next-day-stage__details {
+/* The day details keep their shortcut strip INSIDE the panel {
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
 }
 
-.next-day-stage__details > *:nth-child(2) {
-  min-height: 0;
-  overflow: auto;
-  scrollbar-width: thin;
-}
-
-.next-overview__details > header,
-.next-day-stage__details > header {
+.next-overview__details > header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -672,32 +635,6 @@
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-}
-
-.next-day-stage__details > header {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-}
-
-.next-day-stage__details > header > div:first-child {
-  display: flex;
-  align-items: center;
-  gap: var(--mg-space-3);
-}
-
-.next-day-stage__details > header > div:first-child > span {
-  display: grid;
-  place-items: center;
-  width: 2.7rem;
-  height: 2.7rem;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-sky-field);
-}
-
-.next-day-stage__details h2 {
-  margin: 0;
-  font-size: var(--mg-font-size-lg);
-  text-transform: none;
 }
 
 .next-overview__density {
@@ -729,19 +666,15 @@
   box-shadow: var(--mg-shadow-inset-sm);
 }
 
-.next-overview__object-grid,
-.next-day-stage__object-grid {
+.next-overview__object-grid {
   display: grid;
   align-content: start;
   gap: var(--mg-space-3);
 }
 
-.next-overview__object-grid--1,
-.next-day-stage__object-grid--1 { grid-template-columns: 1fr; }
-.next-overview__object-grid--2,
-.next-day-stage__object-grid--2 { grid-template-columns: repeat(2, 1fr); }
-.next-overview__object-grid--3,
-.next-day-stage__object-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.next-overview__object-grid--1 { grid-template-columns: 1fr; }
+.next-overview__object-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.next-overview__object-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
 .next-overview__object-grid > button {
   min-width: 0;
@@ -752,108 +685,6 @@
   background: transparent;
   text-align: left;
   cursor: pointer;
-}
-
-.next-day-stage__board {
-  display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr)) minmax(5.5rem, 0.72fr) auto;
-  gap: var(--mg-space-3);
-  min-height: 0;
-}
-
-.next-day-stage__board-row--charts > button {
-  grid-template-rows: minmax(0, 1fr) auto;
-}
-
-.next-day-stage__board-row--charts > button > span,
-.next-day-stage__board-row--charts > button > svg {
-  width: min(72%, 11rem);
-  height: 3.2rem;
-  aspect-ratio: auto;
-  overflow: visible;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.next-day-stage__dot-chart {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
-}
-
-.next-day-stage__dot-chart i {
-  width: 1.55rem;
-  height: 1.55rem;
-  border-radius: var(--mg-radius-organic-a);
-  background: var(--mg-color-sky-field);
-}
-
-.next-day-stage__dot-chart i.active { background: var(--mg-color-state); }
-.next-day-stage__dot-chart i.missed { background: var(--mg-color-effort-soft); }
-
-.next-day-stage__board-row--charts svg .chart-line { stroke-width: 3.5; }
-.next-day-stage__board-row--charts svg circle { fill: var(--mg-color-state); }
-
-.next-day-stage__empty-chart {
-  color: var(--mg-color-muted) !important;
-}
-
-.next-day-stage__utility {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--mg-space-2);
-  min-height: 1.8rem;
-}
-
-.next-day-stage__utility button,
-.next-day-stage__utility > span {
-  display: flex;
-  align-items: center;
-  gap: var(--mg-space-1);
-  padding: var(--mg-space-1) var(--mg-space-2);
-  border: 0;
-  border-radius: var(--mg-radius-pill);
-  color: var(--mg-color-muted);
-  background: transparent;
-  font-size: var(--mg-font-size-xs);
-}
-
-.next-day-stage__utility button {
-  cursor: pointer;
-}
-
-.next-day-stage__utility button:hover,
-.next-day-stage__utility button:focus-visible {
-  color: var(--mg-color-primary-strong);
-  background: var(--mg-color-primary-soft);
-}
-
-.next-day-stage__utility > span {
-  margin-left: auto;
-  color: var(--mg-color-primary-strong);
-  background: var(--mg-color-primary-soft);
-}
-
-.next-day-stage__object-grid > button {
-  padding: 0;
-  border: 0;
-  color: inherit;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-
-.next-day-stage__wellness-single {
-  max-width: 22rem;
-}
-
-.next-day-stage__wellness-stack {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--mg-space-4);
 }
 
 .next-day-rail {
