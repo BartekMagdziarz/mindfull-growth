@@ -620,7 +620,8 @@
   box-shadow: var(--mg-shadow-raised);
 }
 
-/* The day details keep their shortcut strip INSIDE the panel {
+/* The details panel keeps its shortcut strip inside the panel. */
+.next-overview__details {
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
 }
@@ -765,7 +766,7 @@
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-organic-b);
   color: var(--mg-color-muted);
-  background: var(--mg-color-paper);
+  background: var(--pn-card, var(--mg-color-paper));
   font-size: var(--mg-font-size-xs);
   font-weight: 800;
   cursor: pointer;
@@ -2067,7 +2068,16 @@
 /* ── Day scale: list column left, context column right ─────────────────── */
 
 .planning-next__sheet--day {
+  /* Cards inside the day surfaces are tinted, not paper-white: one step
+     lighter than their surface, so the tonal ladder reads as sky → cloud. */
+  --pn-card: color-mix(in srgb, var(--mg-color-paper) 45%, var(--mg-color-surface));
+  --pn-card-border: rgb(var(--neo-border) / 0.1);
   grid-template-columns: minmax(27rem, 1.1fr) minmax(21rem, 0.9fr);
+}
+
+.planning-next__sheet--day .next-day-rail__group {
+  border-color: var(--pn-card-border);
+  background: var(--pn-card);
 }
 
 .planning-next__rail-stack--day {
@@ -2090,10 +2100,10 @@
   justify-content: center;
   min-height: 2.4rem;
   padding: 3px var(--mg-space-2);
-  border: 1px solid var(--mg-color-border);
+  border: 1px solid var(--pn-card-border, var(--mg-color-border));
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-ink);
-  background: var(--mg-color-paper);
+  background: var(--pn-card, var(--mg-color-paper));
   cursor: pointer;
   transition: background var(--mg-duration-fast) var(--mg-ease-standard), box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
 }
@@ -2477,10 +2487,10 @@
   gap: var(--mg-space-1);
   justify-items: center;
   padding: var(--mg-space-2) var(--mg-space-1);
-  border: 1px solid var(--mg-color-border);
+  border: 1px solid var(--pn-card-border, var(--mg-color-border));
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-ink);
-  background: var(--mg-color-paper);
+  background: var(--pn-card, var(--mg-color-paper));
   text-align: center;
   cursor: pointer;
   transition: background var(--mg-duration-fast) var(--mg-ease-standard), box-shadow var(--mg-duration-fast) var(--mg-ease-standard);

@@ -1,5 +1,5 @@
 <template>
-  <DsSurface class="next-day-rail">
+  <DsSurface elevation="raised-sm" class="next-day-rail">
     <!-- Day progress: a mute filament on the top edge — no label, no counter on the surface. -->
     <span class="next-day-rail__filament" role="img" :aria-label="t('planning.today.progress', { done: doneCount, total: visibleCount })">
       <i :style="{ width: `${progressPct}%` }" />

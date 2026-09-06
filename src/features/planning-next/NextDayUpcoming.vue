@@ -1,6 +1,6 @@
 <template>
   <!-- Nearest deadlines and rituals: a quiet list, no badges. -->
-  <DsSurface class="next-day-upcoming" :aria-label="t('planning.today.upcoming.title')">
+  <DsSurface elevation="raised-sm" class="next-day-upcoming" :aria-label="t('planning.today.upcoming.title')">
     <header><span>{{ t('planning.today.upcoming.title') }}</span></header>
     <div class="next-day-upcoming__list">
       <button v-for="entry in visible" :key="entry.key" type="button" class="next-day-upcoming__row" :class="`is-${entry.kind}`" @click="open(entry)">

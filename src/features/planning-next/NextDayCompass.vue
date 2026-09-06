@@ -1,7 +1,7 @@
 <template>
   <!-- Directions of the month (priorities) and focuses of the week (top-3 items).
        Hover previews, click pins, click again clears. No captions on purpose. -->
-  <DsSurface class="next-day-compass" :aria-label="t('planning.today.compass.title')">
+  <DsSurface elevation="raised-sm" class="next-day-compass" :aria-label="t('planning.today.compass.title')">
     <header><span>{{ t('planning.today.compass.title') }}</span></header>
     <div class="next-day-compass__tiles" role="group" :aria-label="t('planning.today.compass.title')" @mouseleave="emit('hover', null)">
       <button

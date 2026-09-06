@@ -1,6 +1,6 @@
 <template>
   <!-- Three quiet tiles for the day's own entries. Same routes as the Today cards. -->
-  <DsSurface class="next-day-entries" aria-label="Wpisy dnia">
+  <DsSurface elevation="raised-sm" class="next-day-entries" aria-label="Wpisy dnia">
     <button type="button" class="next-day-entries__tile" :class="{ 'is-done': journalState === 'done' }" @click="router.push(journalState === 'done' ? '/journal' : '/journal/edit')">
       <span class="next-day-entries__icon"><AppIcon :name="journalState === 'done' ? 'check' : 'history_edu'" /></span>
       <small>{{ t('planning.today.wellness.journal') }}</small>

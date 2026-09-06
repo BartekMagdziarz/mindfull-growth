@@ -1,7 +1,7 @@
 <template>
   <!-- Date + calendar in one card. The grid is folded by default and opens on
        demand or automatically while a row is being moved ("Wybierz dzień"). -->
-  <DsSurface class="next-day-cal" :class="{ 'is-targeting': targeting }" aria-label="Dziś i kalendarz">
+  <DsSurface elevation="raised-sm" class="next-day-cal" :class="{ 'is-targeting': targeting }" aria-label="Dziś i kalendarz">
     <header class="next-day-cal__head">
       <div class="next-day-cal__date">
         <small>{{ eyebrow }}</small>

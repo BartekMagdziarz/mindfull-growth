@@ -9,7 +9,9 @@
   min-width: 1180px;
   min-height: 100%;
   color: var(--mg-color-ink);
-  background: var(--mg-color-canvas);
+  /* The app body paints the sky gradient; a v2 root must not repaint a flat
+     canvas over it, or the strip beside the pinned dock shows a second tone. */
+  background: transparent;
   font-family: var(--mg-font-sans);
   line-height: 1.45;
   letter-spacing: 0.01em;
