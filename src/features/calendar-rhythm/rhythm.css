@@ -1,0 +1,250 @@
+/* Rhythm calendar — ported from the UX Lab experiment "05 · Rytm kierunków".
+   Surfaces follow the shared tonal ladder (decision 2026-09-07): page → card
+   (the only level with a shadow) → field → inner; the deeper the nesting, the
+   whiter it gets. Inset shadows are reserved for controls. */
+.cp {
+  --cp-page: var(--mg-color-canvas);
+  --cp-card: var(--mg-color-surface);
+  --cp-field: var(--mg-color-mist);
+  --cp-inner: var(--mg-color-paper);
+  --cp-accent: var(--mg-color-primary);
+  --cp-accent-strong: var(--mg-color-primary-strong);
+  --cp-ink: var(--mg-color-ink);
+  /* Marks and lines: the chart ink of the design system. */
+  --cp-mark: var(--mg-color-primary-strong);
+  --cp-mark-soft: var(--mg-color-state-soft);
+  --cp-mark-dim: var(--mg-color-sky-field);
+  --cp-line: var(--mg-color-border);
+  --cp-line-strong: color-mix(in srgb, var(--mg-color-border) 100%, var(--mg-color-muted) 25%);
+  --cp-hairline: color-mix(in srgb, var(--mg-color-muted) 15%, transparent);
+  --cp-muted-line: color-mix(in srgb, var(--mg-color-muted) 60%, transparent);
+  --cp-edge: var(--mg-color-field-border, var(--mg-color-border));
+  --cp-edge-strong: color-mix(in srgb, var(--mg-color-primary) 55%, transparent);
+  /* Component-local shadow, derived from a token (see design-system README). */
+  --mg-shadow-rhythm-card: var(--mg-shadow-raised-sm);
+
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: 20px 24px 40px;
+  color: var(--mg-color-ink);
+  background: var(--cp-page);
+  font-family: var(--mg-font-sans);
+}
+.cp *,
+.cp *::before,
+.cp *::after {
+  box-sizing: border-box;
+}
+.cp button,
+.cp summary,
+.cp select {
+  -webkit-tap-highlight-color: transparent;
+}
+.cp button:focus-visible,
+.cp summary:focus-visible,
+.cp select:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 3px;
+}
+
+.cp__paper {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 22px 24px 24px;
+  border: 1px solid var(--cp-line);
+  border-radius: 35px 28px 33px 26px;
+  background: var(--cp-page);
+}
+/* A second, barely visible edge: the pencil line of the Lab's paper. */
+.cp__paper::after {
+  content: '';
+  position: absolute;
+  inset: 3px 2px 2px 3px;
+  border: 1px solid var(--cp-hairline);
+  border-radius: inherit;
+  transform: rotate(0.06deg);
+  pointer-events: none;
+}
+
+.cp__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 6px;
+}
+.cp__date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cp__date h2 {
+  margin: 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+}
+.cp__arrow {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: var(--mg-radius-organic-a);
+  background: transparent;
+  color: var(--mg-color-muted);
+  cursor: pointer;
+}
+.cp__arrow:hover {
+  background: var(--cp-field);
+}
+.cp__scales {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 18px 15px 19px 16px;
+  background: var(--cp-card);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+.cp__scales button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 12px 15px 11px 16px;
+  background: transparent;
+  color: var(--mg-color-muted);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cp__scales button:hover {
+  color: var(--mg-color-ink);
+}
+.cp__scales button.on {
+  border-color: var(--cp-line);
+  background: var(--cp-inner);
+  color: var(--mg-color-ink);
+  box-shadow: var(--mg-shadow-rhythm-card);
+}
+
+.cp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--cp-line);
+  border-radius: var(--mg-radius-md);
+  background: var(--cp-inner);
+  color: var(--mg-color-ink);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--mg-shadow-rhythm-card);
+}
+.cp-btn:hover {
+  background: white;
+}
+.cp-btn .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--cp-accent-strong);
+}
+.cp-btn--quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--mg-color-muted);
+  box-shadow: none;
+}
+.cp-btn--quiet:hover {
+  background: var(--cp-field);
+}
+.cp-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Marks: raised dots and dashed plans. */
+.cp .ev-mark--recorded,
+.cp .ev-mark--planned-only {
+  position: relative;
+  width: 21px;
+  height: 20px;
+  border-radius: 48% 52% 44% 56% / 54% 44% 56% 46%;
+  background: var(--cp-inner);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+.cp .ev-mark--recorded::after {
+  content: '';
+  position: absolute;
+  inset: 5px 5px 4px 4px;
+  border-radius: 48% 52% 44% 56%;
+  background: var(--mg-color-ink);
+  transform: rotate(-2deg);
+}
+.cp .ev-mark--planned-only {
+  border: 1.5px dashed var(--cp-accent-strong);
+  background: transparent;
+  box-shadow: none;
+}
+.cp .sm-slot {
+  border-color: var(--mg-color-state-soft);
+  border-radius: 47% 53% 46% 54%;
+  background: var(--cp-inner);
+  box-shadow: none;
+}
+.cp .sm-slot.done {
+  border-color: var(--mg-color-ink);
+  background: var(--mg-color-ink);
+}
+.cp .sm-day {
+  border-radius: 45% 55% 47% 53%;
+}
+.cp .sm-day--met {
+  background: var(--mg-color-ink);
+}
+.cp .sm-day--none {
+  background: var(--cp-mark-dim);
+}
+.cp .sm-bar {
+  border-bottom-color: var(--cp-line-strong);
+}
+.cp .sm-bar__value {
+  border-radius: 6px 4px 1px 2px;
+  background: var(--cp-accent);
+  transform: rotate(-0.7deg);
+}
+.cp .sm-bar__target {
+  transform: rotate(0.8deg);
+}
+.cp .compass-mini__axis i,
+.cp .compass-bars i,
+.cp .ratings-mini__pair i {
+  border-radius: 4px 3px 2px 1px;
+  transform: rotate(-1.1deg);
+}
+.cp .compass-mini__axis i:nth-child(even),
+.cp .compass-bars i:nth-child(even),
+.cp .ratings-mini__state {
+  transform: rotate(1deg);
+}
+.cp .rb-board--year .rb-name--series {
+  padding-left: 22px;
+}
+.cp .rb-board--week .sm-day {
+  width: 17px;
+  height: 17px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp *,
+  .cp *::before,
+  .cp *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

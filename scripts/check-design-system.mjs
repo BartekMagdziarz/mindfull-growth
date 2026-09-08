@@ -6,6 +6,7 @@ const projectRoot = new URL('../', import.meta.url)
 const guardedRoots = [
   'src/design-system/components',
   'src/features/planning-next',
+  'src/features/quiet-ritual',
   'src/views/EmotionLogEditorView.vue',
   'src/views/JournalEditorView.vue',
   'src/views/ObjectsLibraryView.vue',

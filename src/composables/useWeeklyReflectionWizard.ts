@@ -317,6 +317,11 @@ export function useWeeklyReflectionWizard(weekRef: Ref<WeekRef>) {
       isBundleLoading.value = false
     }
 
+    // The store is the wizard's read model for an existing reflection, and
+    // nothing else fills it on this route — without this load, reopening a
+    // saved reflection would start blank and overwrite its text on save.
+    await store.loadAll()
+
     // Load draft or existing reflection
     const draftRaw = await loadDraftFromDB(getDraftKey(weekRef.value))
     if (draftRaw) {

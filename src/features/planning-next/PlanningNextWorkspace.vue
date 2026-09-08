@@ -1,6 +1,27 @@
 <template>
   <div class="mg-design-v2 planning-next">
-    <div class="planning-next__sheet mg-v2-surface mg-v2-surface--inset" :class="{ 'planning-next__sheet--ritual': ritualAction, 'planning-next__sheet--day': scale === 'day' }">
+    <!-- The quiet ritual is its own page: one surface, one question, no rail. -->
+    <NextRitualHost
+      v-if="fullBleedRitual && ritualAction"
+      :scale="scale as Exclude<PlanningScale, 'day'>"
+      :period-ref="periodRef"
+      :action="ritualAction"
+      :variant="ritualVariant"
+      @close="closeRitual"
+      @updated="handleRitualUpdated"
+      @plan-next-period="planNextPeriod"
+      @open-period="openRitualPeriod"
+    />
+    <!-- Week/month/year calendar: the rhythm board is its own page (one axis, one lens). -->
+    <RhythmCalendarView
+      v-else-if="rhythmCalendar"
+      :scale="scale as RhythmScale"
+      :period-ref="periodRef"
+      @open-period="navigateToRef"
+      @open-scale="navigateScale"
+      @open-ritual="openRitual"
+    />
+    <div v-else class="planning-next__sheet mg-v2-surface mg-v2-surface--inset" :class="{ 'planning-next__sheet--ritual': ritualAction, 'planning-next__sheet--day': scale === 'day' }">
       <aside v-if="!ritualAction" class="planning-next__rail-stack" :class="{ 'planning-next__rail-stack--day': scale === 'day' }">
         <DsSurface class="planning-next__navigation">
           <!-- On the day scale the date and its arrows live in the calendar card. -->
@@ -58,9 +79,11 @@
           :scale="scale"
           :period-ref="periodRef"
           :action="ritualAction"
+          :variant="ritualVariant"
           @close="closeRitual"
           @updated="handleRitualUpdated"
-          @plan-next-week="planNextWeek"
+          @plan-next-period="planNextPeriod"
+          @open-period="openRitualPeriod"
         />
         <DsState
           v-else-if="periodState === 'loading'"
@@ -105,6 +128,8 @@ import NextDayRail from './NextDayRail.vue'
 import NextPeriodOverview from './NextPeriodOverview.vue'
 import NextPeriodRail from './NextPeriodRail.vue'
 import NextRitualHost from './NextRitualHost.vue'
+import RhythmCalendarView from '@/features/calendar-rhythm/RhythmCalendarView.vue'
+import type { Scale as RhythmScale } from '@/features/calendar-rhythm/rhythmProjections'
 import { usePlanningPeriodData } from './usePlanningPeriodData'
 import './planning-next.css'
 
@@ -129,10 +154,26 @@ const invalidRoute = computed(() => {
     return true
   }
 })
+/** `?ritual=classic` keeps the previous wizard chain available for comparison. */
+const ritualVariant = computed<'quiet' | 'classic'>(() => (route.query.ritual === 'classic' ? 'classic' : 'quiet'))
 const ritualAction = computed<'plan' | 'reflect' | null>(() => {
   if (props.scale === 'day') return null
   return route.query.action === 'plan' || route.query.action === 'reflect' ? route.query.action : null
 })
+/** `?overview=classic` keeps the previous rail + tile overview available for comparison. */
+const overviewVariant = computed<'rhythm' | 'classic'>(() => (route.query.overview === 'classic' ? 'classic' : 'rhythm'))
+/** The rhythm calendar owns week/month/year whenever no ritual is open. */
+const rhythmCalendar = computed(
+  () =>
+    !ritualAction.value &&
+    !invalidRoute.value &&
+    overviewVariant.value === 'rhythm' &&
+    (props.scale === 'week' || props.scale === 'month' || props.scale === 'year'),
+)
+/** Week/month quiet rituals replace the whole workspace; the annual wizard keeps the framed stage. */
+const fullBleedRitual = computed(
+  () => Boolean(ritualAction.value) && ritualVariant.value === 'quiet' && !invalidRoute.value && (props.scale === 'week' || props.scale === 'month'),
+)
 const scaleOptions = [
   { value: 'day' as const, label: 'Dzień' },
   { value: 'week' as const, label: 'Tydzień' },
@@ -170,7 +211,7 @@ function routeFor(scale: PlanningScale, periodRef: string) {
   return {
     name: names[scale],
     params: { [paramNames[scale]]: periodRef },
-    query: route.query.ui ? { ui: route.query.ui } : {},
+    query: keptQuery(),
   }
 }
 
@@ -200,21 +241,36 @@ function handleMonthPicked(event: Event) {
   if (value) navigateToRef('month', value)
 }
 
+/** Query keys the ritual keeps across navigation (ui variant + ritual variant). */
+function keptQuery() {
+  return {
+    ...(route.query.ui ? { ui: route.query.ui } : {}),
+    ...(route.query.ritual ? { ritual: route.query.ritual } : {}),
+    ...(route.query.overview ? { overview: route.query.overview } : {}),
+  }
+}
+
 function openRitual(action: 'plan' | 'reflect') {
-  void router.replace({ query: { ...(route.query.ui ? { ui: route.query.ui } : {}), action } })
+  void router.replace({ query: { ...keptQuery(), action } })
 }
 
 function closeRitual() {
-  void router.replace({ query: route.query.ui ? { ui: route.query.ui } : {} })
+  void router.replace({ query: keptQuery() })
 }
 
 function handleRitualUpdated() {
   void reloadPeriod()
 }
 
-function planNextWeek() {
-  if (props.scale !== 'week') return
-  const nextWeek = getNextPeriod(parsePeriodRef(props.periodRef))
-  void router.push({ ...routeFor('week', nextWeek), query: { ...(route.query.ui ? { ui: route.query.ui } : {}), action: 'plan' } })
+/** "Save and plan the next one": the next week or the next month, in plan mode. */
+function planNextPeriod() {
+  if (props.scale !== 'week' && props.scale !== 'month') return
+  const nextRef = getNextPeriod(parsePeriodRef(props.periodRef))
+  void router.push({ ...routeFor(props.scale, nextRef), query: { ...keptQuery(), action: 'plan' } })
+}
+
+/** A ritual handing over to another period's plan (month → one of its weeks). */
+function openRitualPeriod(scale: PlanningScale, periodRef: string) {
+  void router.push({ ...routeFor(scale, periodRef), query: { ...keptQuery(), action: 'plan' } })
 }
 </script>

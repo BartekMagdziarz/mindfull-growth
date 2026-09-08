@@ -1,8 +1,13 @@
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { MeasurementMonthState, MeasurementWeekState } from '@/domain/planningState'
+import type { MeasurementMonthState, MeasurementSubjectType, MeasurementWeekState } from '@/domain/planningState'
 
-export type SubjectKind = 'keyResult' | 'habit' | 'tracker'
+/**
+ * Planner rows cover every measurable subject. Week-scoped intentions only ever
+ * appear in the weekly planner (the month planner never loads them), but they
+ * share the row shape so the quiet weekly ritual can place them in days.
+ */
+export type SubjectKind = MeasurementSubjectType
 export type EditableSubjectKind = 'keyResult' | 'habit'
 export type PlannerPlacementMode = 'weeks' | 'days'
 export type PlannerPlacementStatus = 'inactive' | 'needs-planning' | 'planned'

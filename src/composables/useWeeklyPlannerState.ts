@@ -1,6 +1,6 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import type { Ref } from 'vue'
-import type { Habit, KeyResult, MeasurementTarget, Tracker } from '@/domain/planning'
+import type { Habit, KeyResult, MeasurementTarget, Tracker, WeeklyIntention } from '@/domain/planning'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type {
   GoalMonthState,
@@ -14,6 +14,7 @@ import { initiativeDexieRepository } from '@/repositories/initiativeDexieReposit
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
+import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { isGoalOpen, isInitiativeActive, isMeasurementSubjectOpen } from '@/services/planningVisibility'
 import {
   materializeMeasurementDayAssignments,
@@ -52,6 +53,7 @@ export function useWeeklyPlannerState(
   const goalSections = ref<GoalSection[]>([])
   const habitRows = ref<PlannerMeasurementRow[]>([])
   const trackerRows = ref<PlannerMeasurementRow[]>([])
+  const intentionRows = ref<PlannerMeasurementRow[]>([])
   const initiativeRows = ref<PlannerInitiativeRow[]>([])
   const hasLoadedOnce = ref(false)
 
@@ -80,6 +82,7 @@ export function useWeeklyPlannerState(
     ...keyResultRows.value,
     ...habitRows.value,
     ...trackerRows.value,
+    ...intentionRows.value,
   ])
 
   const calendarDays = computed<PlannerWeekDay[]>(() =>
@@ -104,11 +107,13 @@ export function useWeeklyPlannerState(
   const engagedKeyResultRows = computed(() => keyResultRows.value.filter(isEngaged))
   const engagedHabitRows = computed(() => habitRows.value.filter(isEngaged))
   const engagedTrackerRows = computed(() => trackerRows.value.filter(isEngaged))
+  const engagedIntentionRows = computed(() => intentionRows.value.filter(isEngaged))
 
   const typeOrder: Record<SubjectKind, number> = {
     keyResult: 0,
     habit: 1,
     tracker: 2,
+    weeklyIntention: 3,
   }
 
   const dormantRows = computed(() =>
@@ -134,7 +139,7 @@ export function useWeeklyPlannerState(
   }
 
   function buildMeasurementRow(
-    item: KeyResult | Habit | Tracker,
+    item: KeyResult | Habit | Tracker | WeeklyIntention,
     subjectType: SubjectKind,
     monthStates: Map<string, MeasurementMonthState>,
     weekStates: MeasurementWeekState[],
@@ -323,6 +328,7 @@ export function useWeeklyPlannerState(
         keyResults,
         habits,
         trackers,
+        intentions,
         initiatives,
         goalStates,
         monthStates,
@@ -334,6 +340,7 @@ export function useWeeklyPlannerState(
         keyResultDexieRepository.listAll(),
         habitDexieRepository.listAll(),
         trackerDexieRepository.listAll(),
+        weeklyIntentionDexieRepository.listByWeek(weekRef.value),
         initiativeDexieRepository.listAll(),
         planningStateDexieRepository.listGoalMonthStatesForMonths(monthRefs),
         planningStateDexieRepository.listMeasurementMonthStatesForMonths(monthRefs),
@@ -408,6 +415,14 @@ export function useWeeklyPlannerState(
           buildMeasurementRow(item, 'tracker', monthStateMap, weekStates, dayAssignments)
         )
         .filter(isVisible)
+
+      // Week-scoped intentions belong to exactly one week, so no visibility
+      // filter is needed beyond "open" — they cannot be dormant elsewhere.
+      intentionRows.value = intentions
+        .filter(isMeasurementSubjectOpen)
+        .map(item =>
+          buildMeasurementRow(item, 'weeklyIntention', monthStateMap, weekStates, dayAssignments)
+        )
 
       // Build initiative rows — show if plan state has weekRef matching this week or dayRef in this week
       const weekDays = weekDayRefSet.value
@@ -626,6 +641,7 @@ export function useWeeklyPlannerState(
     keyResultRows,
     habitRows,
     trackerRows,
+    intentionRows,
     initiativeRows,
     allRows,
     calendarDays,
@@ -634,6 +650,7 @@ export function useWeeklyPlannerState(
     engagedKeyResultRows,
     engagedHabitRows,
     engagedTrackerRows,
+    engagedIntentionRows,
     dormantRows,
     loadPlannerData,
     rowKey,

@@ -380,6 +380,11 @@ export function useMonthlyReflectionWizard(monthRef: Ref<MonthRef>) {
       isBundleLoading.value = false
     }
 
+    // The store is the wizard's read model for an existing reflection, and
+    // nothing else fills it on this route — without this load, reopening a
+    // saved reflection would start blank and overwrite its text on save.
+    await store.loadAll()
+
     // Load draft or existing reflection (draft overrides DB-seeded state)
     const draftRaw = await loadDraftFromDB(getDraftKey(monthRef.value))
     if (draftRaw) {
