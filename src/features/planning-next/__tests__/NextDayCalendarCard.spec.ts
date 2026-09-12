@@ -8,7 +8,8 @@ import NextDayCalendarCard from '../NextDayCalendarCard.vue'
 
 const TODAY = '2026-03-12' as DayRef // Thursday
 const markers: DayMarker[] = [
-  { key: 'w', kind: 'ritual', dayRef: '2026-03-16' as DayRef, ritual: 'week', weekRef: '2026-W12' as WeekRef },
+  { key: 'w', kind: 'ritual', dayRef: '2026-03-16' as DayRef, state: 'due', ritual: 'week', action: 'plan', weekRef: '2026-W12' as WeekRef },
+  { key: 'r', kind: 'ritual', dayRef: '2026-03-15' as DayRef, state: 'done', ritual: 'week', action: 'reflect', weekRef: '2026-W11' as WeekRef },
 ]
 
 function mountCard(props: Partial<{ dayRef: DayRef; targeting: boolean; targetingWeekRef: WeekRef | null }> = {}) {
@@ -46,6 +47,8 @@ describe('NextDayCalendarCard', () => {
     await wrapper.find('.next-day-cal__switch button:last-child').trigger('click')
     expect(wrapper.findAll('.next-day-cal__day--month').length).toBeGreaterThanOrEqual(35)
     expect(wrapper.find('.next-day-cal__day--month[title*="16"] .next-day-cal__marks i.is-ritual').exists()).toBe(true)
+    expect(wrapper.find('.next-day-cal__day--month[title*="16"] .next-day-cal__marks i.is-done').exists()).toBe(false)
+    expect(wrapper.find('.next-day-cal__day--month[title*="15"] .next-day-cal__marks i.is-ritual.is-done').exists()).toBe(true)
 
     await wrapper.find('.next-day-cal__day--month[title*="16"]').trigger('click')
     expect(wrapper.emitted('navigate')?.at(-1)).toEqual(['2026-03-16'])

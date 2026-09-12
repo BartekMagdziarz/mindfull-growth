@@ -129,7 +129,15 @@ test.describe('verification environment', () => {
     await tile.click()
     await expect(rail.locator('.ndi--dim')).toHaveCount(0)
 
-    // Upcoming: the seeded goal deadlines are listed.
-    await expect(page.locator('.next-day-upcoming__row', { hasText: 'Wydać MVP aplikacji' })).toBeVisible()
+    // Upcoming: the seeded goal deadlines are listed, the next week's planning ritual is due,
+    // and the rituals already done this week (plan + last week's reflection) fold into „Minione”.
+    const upcoming = page.locator('.next-day-upcoming')
+    await expect(upcoming.locator('.next-day-upcoming__row', { hasText: 'Wydać MVP aplikacji' })).toBeVisible()
+    await expect(upcoming.locator('.next-day-upcoming__row.is-ritual:not(.is-done)', { hasText: 'Zaplanuj tydzień' })).toBeVisible()
+    const past = upcoming.locator('details.next-day-upcoming__past')
+    await expect(past.locator('summary')).toContainText('Minione')
+    await past.locator('summary').click()
+    await expect(past.locator('.next-day-upcoming__row.is-done', { hasText: 'Podsumuj tydzień' })).toBeVisible()
+    await upcoming.screenshot({ path: 'test-results/upcoming-states.png' })
   })
 })

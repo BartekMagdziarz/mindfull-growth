@@ -2459,6 +2459,10 @@
 }
 
 .next-day-cal__foot {
+.next-day-cal i.is-done {
+  opacity: 0.3;
+}
+
   display: flex;
   gap: var(--mg-space-3);
   justify-content: flex-end;
@@ -2619,6 +2623,63 @@
 }
 
 .next-day-rail__stage-actions > button.is-active {
+/* Overdue: due and behind today — warm tone, never green/red. */
+.next-day-upcoming__row.is-overdue em {
+  color: var(--mg-color-warn);
+}
+
+.next-day-upcoming__row.is-overdue .next-day-upcoming__icon {
+  color: var(--mg-color-warn-on);
+  background: var(--mg-color-warn-soft);
+}
+
+/* Done: quiet row with a check instead of the object icon. */
+.next-day-upcoming__row.is-done strong {
+  color: var(--mg-color-muted);
+  font-weight: 500;
+}
+
+.next-day-upcoming__row.is-done .next-day-upcoming__icon,
+.next-day-upcoming__row.is-ritual.is-done .next-day-upcoming__icon {
+  color: var(--mg-color-muted);
+  background: var(--mg-color-mist);
+}
+
+.next-day-upcoming__more,
+.next-day-upcoming__past > summary {
+  padding: var(--mg-space-1) 2px 0;
+  border: 0;
+  color: var(--mg-color-muted);
+  background: transparent;
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.next-day-upcoming__more:hover,
+.next-day-upcoming__past > summary:hover {
+  color: var(--mg-color-primary-strong);
+}
+
+.next-day-upcoming__past > summary {
+  list-style: none;
+}
+
+.next-day-upcoming__past > summary::-webkit-details-marker {
+  display: none;
+}
+
+.next-day-upcoming__past > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: var(--mg-space-1);
+}
+
+.next-day-upcoming__past[open] > summary::before {
+  content: '▾';
+}
+
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-well);
 }

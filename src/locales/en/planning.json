@@ -469,7 +469,14 @@
       "empty": "Nothing urgent",
       "today": "today",
       "planWeek": "Plan week W{n}",
-      "planMonth": "Plan {month}"
+      "planMonth": "Plan {month}",
+      "reflectWeek": "Reflect on week W{n}",
+      "reflectMonth": "Reflect on {month}",
+      "overdue": "overdue",
+      "done": "done",
+      "past": "Past ({n})",
+      "more": "{n} more",
+      "less": "Show less"
     },
     "calendar": {
       "today": "Today",

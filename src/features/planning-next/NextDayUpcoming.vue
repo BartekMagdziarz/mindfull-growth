@@ -1,38 +1,83 @@
 <template>
-  <!-- Nearest deadlines and rituals: a quiet list, no badges. -->
+  <!-- Nearest deadlines and rituals: a quiet list, no badges. Overdue first, then upcoming
+       (due before done on the same day); done-and-past items fold into "Minione". -->
   <DsSurface elevation="raised-sm" class="next-day-upcoming" :aria-label="t('planning.today.upcoming.title')">
     <header><span>{{ t('planning.today.upcoming.title') }}</span></header>
     <div class="next-day-upcoming__list">
-      <button v-for="entry in visible" :key="entry.key" type="button" class="next-day-upcoming__row" :class="`is-${entry.kind}`" @click="open(entry)">
+      <button
+        v-for="entry in visible"
+        :key="entry.key"
+        type="button"
+        class="next-day-upcoming__row"
+        :class="rowClass(entry)"
+        :aria-label="rowLabel(entry)"
+        @click="open(entry)"
+      >
         <span class="next-day-upcoming__icon"><AppIcon :name="markerIcon(entry)" /></span>
         <strong :title="markerTitle(entry, t, locale)">{{ markerTitle(entry, t, locale) }}</strong>
-        <em>{{ dateLabel(entry.dayRef) }}</em>
+        <em>{{ markerDateLabel(entry, todayRef, t, locale) }}</em>
       </button>
-      <p v-if="!visible.length">{{ t('planning.today.upcoming.empty') }}</p>
+      <button v-if="hiddenCount > 0 || expanded" type="button" class="next-day-upcoming__more" @click="expanded = !expanded">
+        {{ expanded ? t('planning.today.upcoming.less') : t('planning.today.upcoming.more', { n: hiddenCount }) }}
+      </button>
+      <p v-if="!front.length">{{ t('planning.today.upcoming.empty') }}</p>
     </div>
+    <details v-if="pastDone.length" class="next-day-upcoming__past">
+      <summary>{{ t('planning.today.upcoming.past', { n: pastDone.length }) }}</summary>
+      <div class="next-day-upcoming__list">
+        <button
+          v-for="entry in pastDone"
+          :key="entry.key"
+          type="button"
+          class="next-day-upcoming__row"
+          :class="rowClass(entry)"
+          :aria-label="rowLabel(entry)"
+          @click="open(entry)"
+        >
+          <span class="next-day-upcoming__icon"><AppIcon :name="markerIcon(entry)" /></span>
+          <strong :title="markerTitle(entry, t, locale)">{{ markerTitle(entry, t, locale) }}</strong>
+          <em>{{ markerDateLabel(entry, todayRef, t, locale) }}</em>
+        </button>
+      </div>
+    </details>
   </DsSurface>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { DayRef } from '@/domain/period'
-import type { DayMarker } from '@/services/dayUpcomingQueries'
+import { bucketMarker, type DayMarker } from '@/services/dayUpcomingQueries'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { DsSurface } from '@/design-system/components'
-import { markerIcon, markerTitle } from './dayViewModels'
+import { markerDateLabel, markerIcon, markerTitle } from './dayViewModels'
 
 const props = withDefaults(defineProps<{ entries: DayMarker[]; todayRef: DayRef; limit?: number }>(), { limit: 4 })
 const router = useRouter()
 const { t, locale } = useT()
 
-const visible = computed(() => props.entries.slice(0, props.limit))
-const weekdayFormatter = computed(() => new Intl.DateTimeFormat(locale.value, { weekday: 'short' }))
+const expanded = ref(false)
+watch(() => props.todayRef, () => { expanded.value = false })
 
-function dateLabel(dayRef: DayRef): string {
-  if (dayRef === props.todayRef) return t('planning.today.upcoming.today')
-  return `${weekdayFormatter.value.format(new Date(`${dayRef}T12:00:00`)).replace('.', '')} ${Number(dayRef.slice(-2))}`
+/** Overdue + upcoming, in service order (date, due before done). Overdue days are earlier, so they lead. */
+const front = computed(() => props.entries.filter(entry => bucketMarker(entry, props.todayRef) !== 'pastDone'))
+/** Done and behind today, newest first. */
+const pastDone = computed(() =>
+  props.entries.filter(entry => bucketMarker(entry, props.todayRef) === 'pastDone').slice().reverse(),
+)
+const visible = computed(() => (expanded.value ? front.value : front.value.slice(0, props.limit)))
+const hiddenCount = computed(() => Math.max(0, front.value.length - props.limit))
+
+function rowClass(entry: DayMarker): string[] {
+  const bucket = bucketMarker(entry, props.todayRef)
+  return [`is-${entry.kind}`, entry.state === 'done' ? 'is-done' : '', bucket === 'overdue' ? 'is-overdue' : ''].filter(Boolean)
+}
+
+function rowLabel(entry: DayMarker): string {
+  const parts = [markerTitle(entry, t, locale.value), markerDateLabel(entry, props.todayRef, t, locale.value)]
+  if (entry.state === 'done') parts.push(t('planning.today.upcoming.done'))
+  return parts.join(', ')
 }
 
 function open(entry: DayMarker) {
@@ -40,7 +85,7 @@ function open(entry: DayMarker) {
     void router.push({ name: 'objects-family', params: { family: 'goals' }, query: { expandedType: 'goal', expandedId: entry.goal.id } })
     return
   }
-  if (entry.ritual === 'week') void router.push({ name: 'calendar-week', params: { weekRef: entry.weekRef }, query: { action: 'plan' } })
-  else void router.push({ name: 'calendar-month', params: { monthRef: entry.monthRef }, query: { action: 'plan' } })
+  if (entry.ritual === 'week') void router.push({ name: 'calendar-week', params: { weekRef: entry.weekRef }, query: { action: entry.action } })
+  else void router.push({ name: 'calendar-month', params: { monthRef: entry.monthRef }, query: { action: entry.action } })
 }
 </script>

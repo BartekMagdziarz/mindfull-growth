@@ -1,5 +1,5 @@
 import type { DayRef, WeekRef } from '@/domain/period'
-import type { DayMarker } from '@/services/dayUpcomingQueries'
+import { bucketMarker, type DayMarker } from '@/services/dayUpcomingQueries'
 import type { TodayItem } from '@/services/todayViewQueries'
 import { formatMonthTitle } from '@/utils/periodLabels'
 import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
@@ -59,13 +59,27 @@ type Translate = (key: string, params?: Record<string, string | number>) => stri
 /** Human title for a calendar/upcoming marker — resolved here so services stay i18n-free. */
 export function markerTitle(marker: DayMarker, t: Translate, locale: string): string {
   if (marker.kind === 'deadline') return marker.goal.title
-  if (marker.ritual === 'week') return t('planning.today.upcoming.planWeek', { n: Number(marker.weekRef.slice(-2)) })
-  return t('planning.today.upcoming.planMonth', { month: formatMonthTitle(marker.monthRef, locale).replace(/\s+\d{4}$/, '').toLocaleLowerCase(locale) })
+  if (marker.ritual === 'week') {
+    return t(marker.action === 'plan' ? 'planning.today.upcoming.planWeek' : 'planning.today.upcoming.reflectWeek', { n: Number(marker.weekRef.slice(-2)) })
+  }
+  const month = formatMonthTitle(marker.monthRef, locale).replace(/\s+\d{4}$/, '').toLocaleLowerCase(locale)
+  return t(marker.action === 'plan' ? 'planning.today.upcoming.planMonth' : 'planning.today.upcoming.reflectMonth', { month })
 }
 
+/** Done markers trade their own icon for a check so the state is visible without colour. */
 export function markerIcon(marker: DayMarker): string {
+  if (marker.state === 'done') return 'check'
   if (marker.kind === 'deadline') return marker.goal.icon || 'outlined_flag'
+  if (marker.action === 'reflect') return 'rate_review'
   return marker.ritual === 'week' ? 'edit_calendar' : 'date_range'
+}
+
+/** "dziś" / "pt 18", prefixed with "po terminie ·" for overdue markers. */
+export function markerDateLabel(marker: DayMarker, todayRef: DayRef, t: Translate, locale: string): string {
+  const day = marker.dayRef === todayRef
+    ? t('planning.today.upcoming.today')
+    : `${new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(`${marker.dayRef}T12:00:00`)).replace('.', '')} ${Number(marker.dayRef.slice(-2))}`
+  return bucketMarker(marker, todayRef) === 'overdue' ? `${t('planning.today.upcoming.overdue')} · ${day}` : day
 }
 
 /** Week a row must stay in when moved: weekly intentions are bound to their week; others roam. */

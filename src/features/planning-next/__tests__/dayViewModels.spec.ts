@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
 import type { TodayMeasurementItem } from '@/services/todayViewQueries'
 import type { DayMarker } from '@/services/dayUpcomingQueries'
-import { canMoveToTomorrow, isRelatedToCompass, markerIcon, markerTitle, objectCompassKey, priorityCompassKey, priorityTone, rescheduleWeekLock } from '../dayViewModels'
+import { canMoveToTomorrow, isRelatedToCompass, markerDateLabel, markerIcon, markerTitle, objectCompassKey, priorityCompassKey, priorityTone, rescheduleWeekLock } from '../dayViewModels'
 
 const item = { kind: 'measurement', key: 'habit:h1', priorityIds: ['p1'] } as unknown as TodayMeasurementItem
 
@@ -21,16 +21,33 @@ describe('dayViewModels', () => {
 
   it('labels markers through the translator and keeps goal titles verbatim', () => {
     const t = (key: string, params?: Record<string, string | number>) => `${key}:${JSON.stringify(params ?? {})}`
-    const deadline: DayMarker = { key: 'd', kind: 'deadline', dayRef: '2026-03-16' as DayRef, goal: { id: 'g', title: 'Wydać MVP', icon: 'rocket_launch' } as DayMarker extends { goal: infer G } ? G : never }
-    const week: DayMarker = { key: 'w', kind: 'ritual', dayRef: '2026-03-16' as DayRef, ritual: 'week', weekRef: '2026-W12' as WeekRef }
-    const month: DayMarker = { key: 'm', kind: 'ritual', dayRef: '2026-04-01' as DayRef, ritual: 'month', monthRef: '2026-04' as MonthRef }
+    const deadline: DayMarker = { key: 'd', kind: 'deadline', dayRef: '2026-03-16' as DayRef, state: 'due', goal: { id: 'g', title: 'Wydać MVP', icon: 'rocket_launch' } as DayMarker extends { goal: infer G } ? G : never }
+    const week: DayMarker = { key: 'w', kind: 'ritual', dayRef: '2026-03-16' as DayRef, state: 'due', ritual: 'week', action: 'plan', weekRef: '2026-W12' as WeekRef }
+    const month: DayMarker = { key: 'm', kind: 'ritual', dayRef: '2026-04-01' as DayRef, state: 'due', ritual: 'month', action: 'plan', monthRef: '2026-04' as MonthRef }
+    const reflectWeek: DayMarker = { ...week, action: 'reflect', weekRef: '2026-W11' as WeekRef, dayRef: '2026-03-15' as DayRef }
+    const reflectMonth: DayMarker = { ...month, action: 'reflect', monthRef: '2026-02' as MonthRef, dayRef: '2026-02-28' as DayRef }
 
     expect(markerTitle(deadline, t, 'pl-PL')).toBe('Wydać MVP')
     expect(markerTitle(week, t, 'pl-PL')).toBe('planning.today.upcoming.planWeek:{"n":12}')
     expect(markerTitle(month, t, 'pl-PL')).toBe('planning.today.upcoming.planMonth:{"month":"kwiecień"}')
+    expect(markerTitle(reflectWeek, t, 'pl-PL')).toBe('planning.today.upcoming.reflectWeek:{"n":11}')
+    expect(markerTitle(reflectMonth, t, 'pl-PL')).toBe('planning.today.upcoming.reflectMonth:{"month":"luty"}')
     expect(markerIcon(deadline)).toBe('rocket_launch')
     expect(markerIcon(week)).toBe('edit_calendar')
     expect(markerIcon(month)).toBe('date_range')
+    expect(markerIcon(reflectWeek)).toBe('rate_review')
+  })
+
+  it('swaps the icon for a check on done markers and prefixes overdue dates', () => {
+    const t = (key: string) => key.split('.').at(-1)!
+    const today = '2026-03-12' as DayRef
+    const done: DayMarker = { key: 'w', kind: 'ritual', dayRef: '2026-03-16' as DayRef, state: 'done', ritual: 'week', action: 'plan', weekRef: '2026-W12' as WeekRef }
+    const overdue: DayMarker = { ...done, state: 'due', dayRef: '2026-03-09' as DayRef, weekRef: '2026-W11' as WeekRef }
+
+    expect(markerIcon(done)).toBe('check')
+    expect(markerDateLabel(done, today, t, 'pl-PL')).toBe('pon 16')
+    expect(markerDateLabel(overdue, today, t, 'pl-PL')).toBe('overdue · pon 9')
+    expect(markerDateLabel({ ...done, dayRef: today }, today, t, 'pl-PL')).toBe('today')
   })
 
   it('locks weekly intentions to their week: no "Jutro" on the last day of the week', () => {

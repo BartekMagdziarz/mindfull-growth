@@ -57,7 +57,7 @@
         >
           <small>{{ cell.weekdayLabel }}</small>
           <strong>{{ cell.dayNumber }}</strong>
-          <span class="next-day-cal__marks" aria-hidden="true"><i v-for="marker in cell.markers.slice(0, 2)" :key="marker.key" :class="`is-${marker.kind}`" /></span>
+          <span class="next-day-cal__marks" aria-hidden="true"><i v-for="marker in cell.markers.slice(0, 2)" :key="marker.key" :class="[`is-${marker.kind}`, { 'is-done': marker.state === 'done' }]" /></span>
         </button>
       </div>
 
@@ -75,7 +75,7 @@
           @click="onCellClick(cell)"
         >
           <strong>{{ cell.dayNumber }}</strong>
-          <span class="next-day-cal__marks" aria-hidden="true"><i v-for="marker in cell.markers.slice(0, 2)" :key="marker.key" :class="`is-${marker.kind}`" /></span>
+          <span class="next-day-cal__marks" aria-hidden="true"><i v-for="marker in cell.markers.slice(0, 2)" :key="marker.key" :class="[`is-${marker.kind}`, { 'is-done': marker.state === 'done' }]" /></span>
         </button>
       </div>
 

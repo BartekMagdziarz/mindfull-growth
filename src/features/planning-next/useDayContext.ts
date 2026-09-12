@@ -2,7 +2,7 @@ import { computed, ref, watch, type Ref } from 'vue'
 import type { DayRef } from '@/domain/period'
 import type { Priority } from '@/domain/planning'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
-import { getDayMarkers, type DayMarker } from '@/services/dayUpcomingQueries'
+import { getDayMarkers, OVERDUE_REACH_DAYS, type DayMarker } from '@/services/dayUpcomingQueries'
 import { getActivePrioritiesForMonth } from '@/services/monthlyPriorityService'
 import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 
@@ -21,16 +21,18 @@ export function useDayContext(dayRef: Ref<DayRef>) {
   const markers = ref<DayMarker[]>([])
   const isLoading = ref(false)
 
+  /** Overdue + recently done markers behind today, due ones up to the horizon ahead. */
   const upcoming = computed(() => {
+    const start = addDaysToDayRef(todayRef.value, -OVERDUE_REACH_DAYS)
     const end = addDaysToDayRef(todayRef.value, UPCOMING_HORIZON_DAYS)
-    return markers.value.filter(marker => marker.dayRef >= todayRef.value && marker.dayRef <= end)
+    return markers.value.filter(marker => marker.dayRef >= start && marker.dayRef <= end)
   })
 
   async function load(): Promise<void> {
     isLoading.value = true
     try {
       const refs = getPeriodRefsForDate(dayRef.value)
-      const rangeStart = [addDaysToDayRef(dayRef.value, -MARKER_REACH_DAYS), todayRef.value].sort()[0]
+      const rangeStart = [addDaysToDayRef(dayRef.value, -MARKER_REACH_DAYS), addDaysToDayRef(todayRef.value, -OVERDUE_REACH_DAYS)].sort()[0]
       const rangeEnd = [addDaysToDayRef(dayRef.value, MARKER_REACH_DAYS), addDaysToDayRef(todayRef.value, UPCOMING_HORIZON_DAYS)].sort().at(-1)!
       const [monthPlan, activePriorities, loadedMarkers] = await Promise.all([
         periodPlanDexieRepository.getMonthPlan(refs.month),

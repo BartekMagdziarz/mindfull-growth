@@ -469,7 +469,14 @@
       "empty": "Nic pilnego",
       "today": "dziś",
       "planWeek": "Zaplanuj tydzień T{n}",
-      "planMonth": "Zaplanuj {month}"
+      "planMonth": "Zaplanuj {month}",
+      "reflectWeek": "Podsumuj tydzień T{n}",
+      "reflectMonth": "Podsumuj {month}",
+      "overdue": "po terminie",
+      "done": "zrobione",
+      "past": "Minione ({n})",
+      "more": "Jeszcze {n}",
+      "less": "Zwiń"
     },
     "calendar": {
       "today": "Dziś",
