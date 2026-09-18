@@ -24,11 +24,13 @@ const router = createRouter({
       component: () => import('@/views/SignupView.vue'),
     },
     // Protected routes
+    // Dzisiaj is its own view: the day is a unit of execution, not a calendar
+    // scale. The calendar keeps week/month/year and hands days over here.
     {
       path: '/today',
       name: 'today',
       redirect: route => ({
-        name: 'calendar-day',
+        name: 'today-day',
         params: { dayRef: getPeriodRefsForDate(new Date()).day },
         query: route.query,
       }),
@@ -36,28 +38,28 @@ const router = createRouter({
     {
       path: '/today/:dayRef',
       name: 'today-day',
-      redirect: route => ({
-        name: 'calendar-day',
-        params: { dayRef: route.params.dayRef },
-        query: route.query,
+      component: () => import('@/views/TodayWorkspaceView.vue'),
+      props: route => ({
+        dayRef: route.params.dayRef,
+        ui: resolvePlanningUi(route.query),
       }),
     },
     {
       path: '/calendar',
       redirect: route => ({
-        name: 'calendar-day',
-        params: { dayRef: getPeriodRefsForDate(new Date()).day },
+        name: 'calendar-week',
+        params: { weekRef: getPeriodRefsForDate(new Date()).week },
         query: route.query,
       }),
     },
+    // Legacy day address (pre-2026-09-10): the day lives under /today now.
     {
       path: '/calendar/day/:dayRef',
       name: 'calendar-day',
-      component: () => import('@/views/PlanningWorkspaceView.vue'),
-      props: route => ({
-        scale: 'day',
-        periodRef: route.params.dayRef,
-        ui: resolvePlanningUi(route.query),
+      redirect: route => ({
+        name: 'today-day',
+        params: { dayRef: route.params.dayRef },
+        query: route.query,
       }),
     },
     {

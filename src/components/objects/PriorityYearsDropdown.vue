@@ -1,6 +1,19 @@
 <template>
   <div ref="rootRef" class="relative">
+    <div v-if="iconOnly && !triggerless" class="relative">
+      <button
+        type="button"
+        class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
+        :title="buttonLabel"
+        :aria-label="buttonLabel"
+        @click.stop="open = !open"
+      >
+        <AppIcon name="calendar_today" class="text-base" />
+      </button>
+      <span v-if="linkedYears.length > 0" class="mg-v2-icon-count" aria-hidden="true">{{ linkedYears.length }}</span>
+    </div>
     <button
+      v-else-if="!triggerless"
       type="button"
       class="mg-v2-badge priority-years-v2__trigger gap-1 px-2.5 py-1 text-[11px] transition-colors"
       :aria-label="buttonLabel"
@@ -49,9 +62,21 @@ export interface LinkedYear {
   displayLabel: string
 }
 
-const props = defineProps<{
-  linkedYears: LinkedYear[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    linkedYears: LinkedYear[]
+    iconOnly?: boolean
+    /** Render only the list; the host opens it through `openList()`. */
+    triggerless?: boolean
+  }>(),
+  { iconOnly: false, triggerless: false },
+)
+
+defineExpose({
+  openList: () => {
+    open.value = true
+  },
+})
 
 const emit = defineEmits<{
   'link-year': [yearRef: string]

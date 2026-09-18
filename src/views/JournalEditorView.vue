@@ -80,8 +80,9 @@
       >
         <!-- Left: Title + Body textarea (full height) -->
         <section
-          class="mg-v2-editor-canvas px-6 py-5 flex flex-col gap-4 min-h-0"
+          class="mg-v2-surface mg-v2-surface--raised-sm p-3 flex flex-col min-h-0"
         >
+        <div class="mg-v2-editor-canvas flex flex-1 flex-col gap-4 px-6 py-5 min-h-0">
           <label for="title" class="sr-only">{{ t('journal.editor.titleLabel') }}</label>
           <input
             id="title"
@@ -98,6 +99,7 @@
             :placeholder="t('journal.editor.bodyPlaceholder')"
             class="w-full flex-1 bg-transparent text-base leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none min-h-[240px]"
           />
+        </div>
         </section>
 
         <!-- Side panel toggle (desktop only) -->
@@ -133,7 +135,7 @@
           ]"
         >
           <section
-            class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
+            class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
             :style="emotionCardStyle"
           >
             <div
@@ -154,7 +156,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Context Tags Section -->
             <section
-              class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
+              class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
             >
               <header>
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -178,7 +180,7 @@
 
             <!-- People Tags Section -->
             <section
-              class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
+              class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
             >
               <header>
                 <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -206,7 +208,7 @@
       <!-- Chat sessions section (edit mode only) -->
       <section
         v-if="isEditMode && hasChatSessions"
-        class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--mist px-5 py-4 flex flex-col gap-4"
+        class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-4"
       >
         <header class="flex items-center justify-between gap-3">
           <div>
@@ -974,7 +976,7 @@ onUnmounted(() => {
 .journal-v2__placeholder {
   border: 1px dashed var(--mg-color-border);
   border-radius: var(--mg-radius-md);
-  background: var(--mg-color-canvas);
+  background: var(--mg-color-mist);
 }
 
 .journal-v2__actions {

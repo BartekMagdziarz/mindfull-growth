@@ -1,24 +1,14 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="flex items-center gap-4 mb-6">
-      <button
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        @click="router.push('/exercises')"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.thoughtRecord.title') }}</h1>
-        <p class="text-sm text-on-surface-variant">{{ t('exercises.cards.thoughtRecord.subtitle') }}</p>
-      </div>
-    </div>
-
+  <ExercisePage
+    :title="t('exercises.cards.thoughtRecord.title')"
+    :subtitle="t('exercises.cards.thoughtRecord.subtitle')"
+  >
     <ThoughtRecordWizard v-if="!saved" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="thought-record" @again="saved = false" />
 
     <!-- Past Records -->
     <div v-if="thoughtRecordStore.sortedRecords.length > 0" class="mt-10 space-y-4">
-      <h2 class="text-base font-semibold text-on-surface">{{ t('exercises.views.pastRecords') }}</h2>
+      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastRecords') }}</h2></div>
       <AppCard
         v-for="record in thoughtRecordStore.sortedRecords"
         :key="record.id"
@@ -59,13 +49,13 @@
         </div>
       </AppCard>
     </div>
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import ThoughtRecordWizard from '@/components/exercises/ThoughtRecordWizard.vue'
@@ -74,7 +64,6 @@ import { useEmotionStore } from '@/stores/emotion.store'
 import type { CreateThoughtRecordPayload, ThoughtRecord } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
 
-const router = useRouter()
 const { t } = useT()
 const thoughtRecordStore = useThoughtRecordStore()
 const emotionStore = useEmotionStore()

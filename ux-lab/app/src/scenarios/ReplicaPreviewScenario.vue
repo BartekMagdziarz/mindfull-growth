@@ -15,6 +15,7 @@ import type { LabViewId } from '@product/dev/richVerificationScenario'
 import MonthReplica from '~lab/experiments/MonthReplica.vue'
 import MonthlyRitualReplica from '~lab/experiments/MonthlyRitualReplica.vue'
 import TodayReplica from '~lab/experiments/TodayReplica.vue'
+import CalendarReplica from '~lab/experiments/CalendarReplica.vue'
 import WeekReplica from '~lab/experiments/WeekReplica.vue'
 import WeeklyRitualReplica from '~lab/experiments/WeeklyRitualReplica.vue'
 import YearReplica from '~lab/experiments/YearReplica.vue'
@@ -25,6 +26,7 @@ const route = useRoute()
 const router = useRouter()
 const components = {
   today: TodayReplica,
+  calendar: CalendarReplica,
   'calendar-year': YearReplica,
   'calendar-month': MonthReplica,
   'calendar-week': WeekReplica,

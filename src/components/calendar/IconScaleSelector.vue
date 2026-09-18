@@ -14,7 +14,7 @@
         tabindex="-1"
         @click="decrease"
       >
-        <span class="material-symbols-outlined text-xl">chevron_left</span>
+        <AppIcon class="material-symbols-outlined text-xl" name="chevron_left" />
       </button>
 
       <!-- Main icon well -->
@@ -25,7 +25,7 @@
         :aria-label="`${label}: ${currentLevel}/5`"
         @click="advance"
       >
-        <span class="material-symbols-outlined" style="font-size: 5rem;">{{ icons[currentLevel - 1] }}</span>
+        <AppIcon class="material-symbols-outlined" style="font-size: 5rem;" :name="icons[currentLevel - 1]" />
         <span class="mt-1 text-lg font-semibold leading-tight">{{ currentLevel }}/5</span>
       </button>
 
@@ -38,7 +38,7 @@
         tabindex="-1"
         @click="increase"
       >
-        <span class="material-symbols-outlined text-xl">chevron_right</span>
+        <AppIcon class="material-symbols-outlined text-xl" name="chevron_right" />
       </button>
     </div>
 
@@ -54,6 +54,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed } from 'vue'
 
 const props = defineProps<{

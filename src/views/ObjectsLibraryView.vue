@@ -18,34 +18,46 @@
         <ObjectsLibraryFilters
           class="min-w-0 flex-1"
           :query="store.query"
-          :period-value="periodDraft"
-          :period-error="periodError"
-          :has-active-filters="store.hasActiveFilters"
           :reset-all-label="t('planning.objects.filters.resetAll')"
           :empty-state-label="t('planning.objects.filters.noOptions')"
           :filters-label="t('planning.objects.filters.showMore')"
-          :hide-filters-label="t('planning.objects.filters.showLess')"
           :life-areas="store.filterOptions.lifeAreas"
           :priorities="store.filterOptions.priorities"
           :search-label="t('planning.objects.filters.search')"
           :search-placeholder="t('planning.objects.filters.searchPlaceholder')"
           :period-label="t('planning.objects.filters.period')"
-          :period-placeholder="t('planning.objects.filters.periodPlaceholder')"
+          :clear-period-label="t('planning.objects.filters.clearPeriod')"
+          :year-hint="t('planning.objects.filters.selectYearHint')"
+          :previous-year-label="t('planning.objects.filters.previousYear')"
+          :next-year-label="t('planning.objects.filters.nextYear')"
+          :week-label="t('planning.periodPicker.week')"
           :closed-label="t('planning.objects.filters.showClosedAndArchived')"
+          :lifecycle-label="t('planning.objects.filters.lifecycle')"
           :life-areas-label="t('planning.objects.filters.lifeAreas')"
           :priorities-label="t('planning.objects.filters.priorities')"
-          :clear-label="t('planning.objects.filters.clear')"
+          :select-placeholder="t('planning.objects.filters.select')"
           @update:search="handleSearch"
-          @update:period-value="handlePeriodDraftUpdate"
-          @commit:period="handlePeriodCommit"
+          @update:period="handlePeriodChange"
           @toggle:life-area="handleLifeAreaToggle"
           @toggle:priority="handlePriorityToggle"
           @toggle:closed="handleClosedToggle"
           @reset:all="handleClearFilters"
-          @clear:life-areas="handleClearLifeAreas"
-          @clear:priorities="handleClearPriorities"
         />
       </div>
+
+      <ObjectsLibraryActiveFilters
+        class="mt-3"
+        :query="store.query"
+        :life-areas="store.filterOptions.lifeAreas"
+        :priorities="store.filterOptions.priorities"
+        :closed-label="t('planning.objects.filters.showClosedAndArchived')"
+        :reset-label="t('planning.objects.filters.resetAll')"
+        :remove-label="t('planning.objects.filters.clear')"
+        @toggle:life-area="handleLifeAreaToggle"
+        @toggle:priority="handlePriorityToggle"
+        @toggle:closed="handleClosedToggle"
+        @reset:all="handleClearFilters"
+      />
     </div>
 
     <section class="mt-6 space-y-4">
@@ -77,7 +89,7 @@
         v-else-if="store.items.length === 0 && !isComposerOpen"
         icon="filter_alt"
         :title="t('planning.objects.empty.filteredTitle')"
-        :body="activeFamilyTitle"
+        :body="filteredEmptyBody"
       >
         <template #actions>
           <div class="flex flex-wrap justify-center gap-3">
@@ -141,6 +153,8 @@
             v-if="item.panelType === 'goal'"
             :item="item"
             :linked-months="goalLinkedMonths(item)"
+            :save-months="(refs) => saveGoalMonths(item.id, goalLinkedMonths(item).map(month => month.monthRef), refs)"
+            :save-kr-periods="saveKrPeriods"
             :status-options="statusOptionsForType('goal')"
             :priority-options="store.filterOptions.priorities"
             :life-area-options="store.filterOptions.lifeAreas"
@@ -189,6 +203,7 @@
             v-else-if="item.panelType === 'habit' || item.panelType === 'tracker'"
             :item="item"
             :panel-type="item.panelType"
+            :save-periods="(refs) => saveMeasurementPeriods(item.id, item.panelType as 'habit' | 'tracker', item.cadence ?? 'weekly', expandedMeasurementPeriods.map(period => period.periodRef), refs)"
             :is-expanded="expandedMeasurementId === item.id"
             :is-new="newMeasurementId === item.id"
             :linked-periods="expandedMeasurementId === item.id ? expandedMeasurementPeriods : []"
@@ -296,6 +311,7 @@ import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import { DsButton, DsSegmentedControl, DsState } from '@/design-system/components'
 import ObjectsLibraryFilters from '@/components/objects/ObjectsLibraryFilters.vue'
+import ObjectsLibraryActiveFilters from '@/components/objects/ObjectsLibraryActiveFilters.vue'
 import ObjectsLibraryInlineEditor from '@/components/objects/ObjectsLibraryInlineEditor.vue'
 import ObjectsLibraryPriorityCard from '@/components/objects/ObjectsLibraryPriorityCard.vue'
 import ObjectsLibraryGoalCard from '@/components/objects/ObjectsLibraryGoalCard.vue'
@@ -330,7 +346,9 @@ import {
   deleteWeeklyIntention,
   updateWeeklyIntention,
 } from '@/services/weeklyIntentionService'
-import { getPeriodRefsForDate, isPeriodRef } from '@/utils/periods'
+import { getUserDatabase } from '@/services/userDatabase.service'
+import { formatMonthShort as formatMonthShortLocalized, formatPeriodLabel, formatWeekRange } from '@/utils/periodLabels'
+import { getPeriodRefsForDate, getPeriodType, getWeekOverlappingMonths } from '@/utils/periods'
 import type { PeriodRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { MeasurementEntryDaysCondition, MeasurementEntryMode, MeasurementTarget, MultiCompletionItem, PriorityClosingReflection } from '@/domain/planning'
 import { createMultiCompletionItem } from '@/domain/planning'
@@ -377,13 +395,11 @@ const props = defineProps<Props>()
 
 const router = useRouter()
 const route = useRoute()
-const { t } = useT()
+const { t, locale } = useT()
 const store = useObjectsLibraryStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const historyExpanded = ref(false)
 const draft = ref<LibraryDraft>(createEmptyDraft('goal'))
-const periodDraft = ref('')
-const periodError = ref('')
 const deleteDialogOpen = ref(false)
 const pendingDelete = ref<{
   panelType: ObjectsLibraryPanelType
@@ -418,6 +434,27 @@ const activeFamilyTitle = computed(() => {
   const active = familyOptions.value.find(item => item.family === store.query.family)
   return active?.label ?? t('planning.objects.title')
 })
+
+// Names what is narrowing the list so the user knows which chip to loosen.
+const filteredEmptyBody = computed(() => {
+  const parts: string[] = []
+  const query = store.query
+  if (query.q.trim()) parts.push(`${t('planning.objects.filters.search')}: „${query.q.trim()}”`)
+  if (query.period) parts.push(`${t('planning.objects.filters.period')}: ${describePeriod(query.period)}`)
+  const areas = store.filterOptions.lifeAreas.filter((option) => query.lifeAreaIds.includes(option.id))
+  if (areas.length > 0) parts.push(`${t('planning.objects.filters.lifeAreas')}: ${areas.map((a) => a.label).join(', ')}`)
+  const priorities = store.filterOptions.priorities.filter((option) => query.priorityIds.includes(option.id))
+  if (priorities.length > 0) parts.push(`${t('planning.objects.filters.priorities')}: ${priorities.map((p) => p.label).join(', ')}`)
+  if (parts.length === 0) return t('planning.objects.empty.filteredBody')
+  return t('planning.objects.empty.filteredNarrowedBy', { list: parts.join(' · ') })
+})
+
+function describePeriod(period: PeriodRef): string {
+  const type = getPeriodType(period)
+  if (type === 'year') return period
+  if (type === 'month') return formatMonthShortLocalized(period as MonthRef, locale.value)
+  return formatPeriodLabel(period, locale.value, t('planning.periodPicker.week'))
+}
 
 const createButtonLabel = computed(() => {
   switch (store.query.family) {
@@ -560,8 +597,6 @@ watch(
   async () => {
     store.hydrateFromRoute(props.family, route.query as Record<string, unknown>)
     historyExpanded.value = false
-    periodDraft.value = store.query.period ?? ''
-    periodError.value = ''
     await store.loadBundle()
     initializeDraft()
   },
@@ -906,37 +941,8 @@ function handleSearch(value: string): void {
   scheduleSearchSync()
 }
 
-function handlePeriodDraftUpdate(value: string): void {
-  const normalized = value.trim()
-  periodDraft.value = value
-  periodError.value = ''
-
-  if (normalized) {
-    return
-  }
-
-  store.setPeriod(undefined)
-  void syncRoute()
-}
-
-function handlePeriodCommit(): void {
-  const normalized = periodDraft.value.trim()
-  if (!normalized) {
-    store.setPeriod(undefined)
-    periodDraft.value = ''
-    periodError.value = ''
-    void syncRoute()
-    return
-  }
-
-  if (!isPeriodRef(normalized)) {
-    periodError.value = t('planning.objects.periodInvalid')
-    return
-  }
-
-  store.setPeriod(normalized as PeriodRef)
-  periodDraft.value = normalized
-  periodError.value = ''
+function handlePeriodChange(period: PeriodRef | undefined): void {
+  store.setPeriod(period)
   void syncRoute()
 }
 
@@ -955,24 +961,8 @@ function handleClosedToggle(): void {
   void syncRoute()
 }
 
-function handleClearLifeAreas(): void {
-  for (const id of [...store.query.lifeAreaIds]) {
-    store.toggleLifeArea(id)
-  }
-  void syncRoute()
-}
-
-function handleClearPriorities(): void {
-  for (const id of [...store.query.priorityIds]) {
-    store.togglePriority(id)
-  }
-  void syncRoute()
-}
-
 function handleClearFilters(): void {
   store.clearFilters()
-  periodDraft.value = ''
-  periodError.value = ''
   void syncRoute()
 }
 
@@ -1191,7 +1181,7 @@ async function loadKrPeriods(krId: string): Promise<void> {
       const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject('keyResult', krId)
       expandedKrPeriods.value = states.map((s) => ({
         periodRef: s.monthRef,
-        displayLabel: formatMonthShort(s.monthRef),
+        displayLabel: formatMonthShortLocalized(s.monthRef as MonthRef, locale.value),
       }))
     } else {
       const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', krId)
@@ -1206,18 +1196,7 @@ async function loadKrPeriods(krId: string): Promise<void> {
 }
 
 function formatWeekShort(weekRef: string): string {
-  const week = weekRef.slice(6)
-  const year = weekRef.slice(2, 4)
-  return `W${week}-${year}`
-}
-
-function formatMonthShort(monthRef: string): string {
-  const monthIndex = Number(monthRef.slice(5, 7)) - 1
-  const year = monthRef.slice(2, 4)
-  const monthName = new Intl.DateTimeFormat('en', { month: 'short' }).format(
-    new Date(Number(monthRef.slice(0, 4)), monthIndex, 1),
-  )
-  return `${monthName} ${year}`
+  return formatWeekRange(weekRef as WeekRef, locale.value)
 }
 
 async function handleKrFieldChange(krId: string, field: string, value: unknown): Promise<void> {
@@ -1352,6 +1331,50 @@ function updateTargetField(
   }
 }
 
+async function saveGoalMonths(id: string, previous: string[], desired: string[]): Promise<void> {
+  if (previous.length === desired.length && previous.every(ref => desired.includes(ref))) return
+  const db = getUserDatabase()
+  await db.transaction('rw', db.tables, async () => {
+    await goalDexieRepository.update(id, { periodAssignmentMode: 'custom' })
+    for (const ref of previous.filter(ref => !desired.includes(ref))) await unlinkGoalFromMonth(id, ref as MonthRef)
+    for (const ref of desired.filter(ref => !previous.includes(ref))) await linkGoalToMonth(id, ref as MonthRef)
+  })
+  await store.loadBundle()
+}
+
+async function saveKrPeriods(id: string, refs: string[]): Promise<void> {
+  const child = store.items.flatMap(item => item.childPreviews ?? []).find(child => child.id === id)
+  if (!child) throw new Error('Key result not found')
+  await saveMeasurementPeriods(id, 'keyResult', child.cadence, expandedKrPeriods.value.map(period => period.periodRef), refs)
+}
+
+async function saveMeasurementPeriods(
+  id: string,
+  subjectType: 'keyResult' | 'habit' | 'tracker',
+  cadence: 'weekly' | 'monthly',
+  previous: string[],
+  desired: string[],
+): Promise<void> {
+  if (previous.length === desired.length && previous.every(ref => desired.includes(ref))) return
+  const db = getUserDatabase()
+  await db.transaction('rw', db.tables, async () => {
+    if (subjectType === 'keyResult') {
+      const kr = await keyResultDexieRepository.update(id, { periodAssignmentMode: 'custom' })
+      const months = new Set(desired.flatMap(ref => cadence === 'monthly' ? [ref as MonthRef] : getWeekOverlappingMonths(ref as WeekRef)))
+      for (const month of months) await linkGoalToMonth(kr.goalId, month)
+    }
+    for (const ref of previous.filter(ref => !desired.includes(ref))) {
+      await unlinkMeasurementPeriod({ subjectType, subjectId: id, cadence, periodRef: ref as MonthRef | WeekRef })
+    }
+    for (const ref of desired.filter(ref => !previous.includes(ref))) {
+      await linkMeasurementPeriod({ subjectType, subjectId: id, cadence, periodRef: ref as MonthRef | WeekRef })
+    }
+  })
+  if (subjectType === 'keyResult') await loadKrPeriods(id)
+  else await loadMeasurementPeriods(id, subjectType, cadence)
+  await store.loadBundle()
+}
+
 async function handleKrLinkPeriod(krId: string, periodRef: string): Promise<void> {
   try {
     const child = store.items
@@ -1462,7 +1485,7 @@ async function loadMeasurementPeriods(
       const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(panelType, id)
       expandedMeasurementPeriods.value = states.map((s) => ({
         periodRef: s.monthRef,
-        displayLabel: formatMonthShort(s.monthRef),
+        displayLabel: formatMonthShortLocalized(s.monthRef as MonthRef, locale.value),
       }))
     } else {
       const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(panelType, id)
@@ -1701,7 +1724,7 @@ function krShowTargetAggregation(entryMode: MeasurementEntryMode): boolean {
 function goalLinkedMonths(item: ObjectsLibraryListItem): LinkedMonth[] {
   return (item.goalMonthRefs ?? []).map((ref) => ({
     monthRef: ref,
-    displayLabel: formatMonthShort(ref),
+    displayLabel: formatMonthShortLocalized(ref as MonthRef, locale.value),
   }))
 }
 

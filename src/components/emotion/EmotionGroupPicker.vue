@@ -1,12 +1,12 @@
 <!--
-  EmotionGroupPicker — picker emocji v3 (design „6c”, soft-neumorfizm).
+  EmotionGroupPicker — picker emocji — zaakceptowany wariant 07, pastelowy kleks.
 
   Dwupoziomowy: przegląd 4 ćwiartek (2×2) → drill-down z kaflami 45 grup
   (10–12 na ćwiartkę), każdy kafel z poziomym suwakiem natężenia 1–5.
   Słowa katalogu są przykładami jakości grupy (tooltip), nie szczeblami skali.
   Po wejściu w ćwiartkę cały panel przejmuje tintę akcentu (color-mix) —
-  żaden element nie zostaje czysto biały. Referencja pixel-perfect:
-  ideas/design/emotion-picker-v3/handoff/ (README + Picker-emocji-FINAL.dc.html).
+  Zatwierdzony styl: równe pastele, zaznaczenie pełnym wypełnieniem,
+  kolorowa kreska natężenia i pastelowy kleks bez ramki (UX Lab 07).
 
   Kontrakt jak w EmotionWheel (wymiana bez zmian w widokach):
     v-model            → EmotionGroupSelection[]
@@ -22,7 +22,7 @@
 -->
 <template>
   <div class="egp-wrap">
-    <div class="ep" :style="panelStyle">
+    <div class="ep">
       <div class="ep-head">
         <div v-if="!activeQuad" class="oh">
           <div class="oh-t">{{ props.label ?? t('emotionGroups.ui.title') }}</div>
@@ -48,7 +48,7 @@
               :data-testid="`egp-quadrant-mini-${q.id}`"
               @click="openQuad(q.id)"
             >
-              <AppIcon :name="q.icon" class="egp-icon" />
+              <span class="egp-icon" aria-hidden="true" :style="{ maskImage: quadrantMask(q.id) }"></span>
             </button>
           </div>
         </div>
@@ -65,7 +65,7 @@
             :data-testid="`egp-quadrant-${q.id}`"
             @click="openQuad(q.id)"
           >
-            <AppIcon :name="q.icon" class="egp-icon" />
+            <span class="egp-icon" aria-hidden="true" :style="{ maskImage: quadrantMask(q.id) }"></span>
             <span class="q-name">
               <span class="q-en">{{ energyLabel(q.id) }}</span>
               <span class="q-div"></span>
@@ -81,16 +81,17 @@
             :key="g.slug"
             class="etile"
             :class="{ sel: g.slug in selMap }"
-            :style="{ '--c': accent, '--fw': fillWidth(g.slug), '--tp': thumbPos(g.slug) }"
+            :style="{ '--c': accent, '--qtint': quadrantTint, '--fw': fillWidth(g.slug), '--tp': thumbPos(g.slug) }"
             :data-testid="`egp-tile-${g.slug}`"
             @mouseenter="hovered = g.slug"
             @mouseleave="hovered = null"
           >
-            <span v-if="g.isNew" class="etnew" :title="t('emotionGroups.ui.isNew')"></span>
+            <span v-if="g.slug in selMap" class="etcheck" aria-hidden="true">✓</span>
             <button
               type="button"
               class="ethead"
               :title="groupName(g.slug)"
+              :aria-pressed="g.slug in selMap"
               :aria-label="t('emotionGroups.ui.selectGroup', { name: groupName(g.slug) })"
               @click="toggle(g.slug)"
             >
@@ -163,17 +164,30 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useT } from '@/composables/useT'
-import AppIcon from '@/components/shared/AppIcon.vue'
+import boltIcon from '@/assets/emotion-quadrants/bolt.svg'
+import sunIcon from '@/assets/emotion-quadrants/sun.svg'
+import cloudIcon from '@/assets/emotion-quadrants/cloud.svg'
+import sparklesIcon from '@/assets/emotion-quadrants/sparkles.svg'
+
 import type { Quadrant } from '@/domain/emotion'
 import {
   EGP_DEFAULT_ACCENT,
-  EGP_SHADOW_BASE,
   GROUPS_BY_QUADRANT,
   QUADRANT_STYLES,
   type EmotionGroup,
   type EmotionGroupSelection,
   type GroupIntensity,
 } from '@/domain/emotionGroups'
+
+const quadrantIcons: Record<Quadrant, string> = {
+  'high-energy-low-pleasantness': boltIcon,
+  'high-energy-high-pleasantness': sunIcon,
+  'low-energy-low-pleasantness': cloudIcon,
+  'low-energy-high-pleasantness': sparklesIcon,
+}
+function quadrantMask(quadrant: Quadrant): string {
+  return `url("${quadrantIcons[quadrant]}")`
+}
 
 const props = defineProps<{ label?: string }>()
 
@@ -349,19 +363,12 @@ function thumbPos(slug: string): string {
 const accent = computed(() =>
   activeQuad.value ? QUADRANT_STYLES[activeQuad.value].accent : EGP_DEFAULT_ACCENT,
 )
-// tło daje karta widoku-rodzica (tintowana przez v-model:quadrant);
-// tu tintujemy tylko parę cieni neumorficznych, żeby kafle/suwaki szły za akcentem
-const panelStyle = computed(() => {
-  if (!activeQuad.value) {
-    return { '--egp-sh-light': EGP_SHADOW_BASE.light, '--egp-sh-dark': EGP_SHADOW_BASE.dark }
-  }
-  const a = accent.value
-  return {
-    '--egp-sh-light': `color-mix(in srgb, ${a} 14%, ${EGP_SHADOW_BASE.lightTint})`,
-    '--egp-sh-dark': `color-mix(in srgb, ${a} 42%, ${EGP_SHADOW_BASE.dark})`,
-  }
-})
-
+/** Tint karty-gospodarza (ten sam token co getQuadrantTintStyle) — baza drabinki kafla. */
+const quadrantTint = computed(() =>
+  activeQuad.value
+    ? `var(--color-quadrant-${activeQuad.value}-tint)`
+    : 'var(--mg-color-emotion-paper)',
+)
 const chips = computed(() =>
   selections.value.map((s) => {
     const g = Object.values(GROUPS_BY_QUADRANT)
@@ -386,14 +393,6 @@ const chips = computed(() =>
    (tintowana przez v-model:quadrant + getQuadrantTintStyle). Wysokość rośnie
    z zawartością — m.in. gdy chipy wybranych zawijają się w kolejne rzędy. */
 .ep {
-  /* --egp-sh-light / --egp-sh-dark (kolory bazowe cieni) przychodzą inline z panelStyle
-     (stałe domenowe EGP_SHADOW_BASE, po drill-downie mieszane z akcentem) */
-  --mg-shadow-egp-raise: -6px -6px 13px var(--egp-sh-light), 6px 6px 13px color-mix(in srgb, var(--egp-sh-dark) 36%, transparent);
-  --mg-shadow-egp-raise-lg: -9px -9px 18px var(--egp-sh-light), 9px 9px 18px color-mix(in srgb, var(--egp-sh-dark) 40%, transparent);
-  --mg-shadow-egp-raise-sm: -4px -4px 8px var(--egp-sh-light), 4px 4px 8px color-mix(in srgb, var(--egp-sh-dark) 32%, transparent);
-  --mg-shadow-egp-press: inset -3px -3px 6px var(--egp-sh-light), inset 3px 3px 7px color-mix(in srgb, var(--egp-sh-dark) 44%, transparent);
-  --mg-shadow-egp-press-sm: inset -2px -2px 4px var(--egp-sh-light), inset 2px 2px 5px color-mix(in srgb, var(--egp-sh-dark) 42%, transparent);
-  --mg-shadow-egp-flat: -2px -2px 5px var(--egp-sh-light), 2px 2px 5px color-mix(in srgb, var(--egp-sh-dark) 30%, transparent);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -436,7 +435,12 @@ const chips = computed(() =>
 }
 .egp-icon {
   display: inline-block;
-  white-space: nowrap;
+  width: 32px;
+  height: 32px;
+  background: currentColor;
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
 }
 
 /* ---- nagłówek ---- */
@@ -495,15 +499,15 @@ const chips = computed(() =>
 .mcell {
   border: 0;
   cursor: pointer;
-  border-radius: var(--mg-radius-sm);
+  border-radius: var(--mg-radius-organic-a);
   padding: 0;
   display: grid;
   place-items: center;
   color: var(--mtx);
-  background: linear-gradient(150deg, var(--mt), var(--mb));
-  box-shadow: var(--mg-shadow-egp-raise-sm);
-  opacity: 0.5;
-  filter: saturate(0.7);
+  background: color-mix(in srgb, var(--mb) 38%, var(--mg-color-paper));
+  box-shadow: none;
+  opacity: 1;
+  filter: none;
   transition:
     transform var(--mg-duration-fast) var(--mg-ease-standard),
     box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
@@ -511,23 +515,15 @@ const chips = computed(() =>
     filter var(--mg-duration-fast) var(--mg-ease-standard);
 }
 .mcell .egp-icon {
-  font-size: 15px;
-  opacity: 0.92;
+  width: 18px;
+  height: 18px;
 }
 .mcell:hover {
-  opacity: 0.88;
-  filter: saturate(0.9);
-  transform: translateY(-1.5px);
-  box-shadow: var(--mg-shadow-egp-raise);
+  transform: translateY(-1px);
 }
 .mcell.active {
-  --mg-shadow-egp-mini-active:
-    var(--mg-shadow-egp-raise-sm),
-    0 0 0 2.5px color-mix(in srgb, var(--mb) 55%, white);
-  opacity: 1;
-  filter: none;
-  transform: translateY(-1.5px);
-  box-shadow: var(--mg-shadow-egp-mini-active);
+  background: var(--mb);
+  transform: translateY(-1px);
 }
 
 /* ---- przegląd 2×2 ---- */
@@ -547,24 +543,22 @@ const chips = computed(() =>
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(150deg, var(--qt), var(--qb));
+  background: color-mix(in srgb, var(--qb) 48%, var(--mg-color-paper));
   color: var(--qtx);
-  box-shadow: var(--mg-shadow-egp-raise);
+  box-shadow: none;
   transition:
     transform var(--mg-duration-fast) var(--mg-ease-standard),
     box-shadow var(--mg-duration-fast) var(--mg-ease-standard);
 }
 .qbtn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--mg-shadow-egp-raise-lg);
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--qb) 58%, var(--mg-color-paper));
 }
 .qbtn:active {
   transform: translateY(0);
-  box-shadow: var(--mg-shadow-egp-press);
 }
 .qbtn .egp-icon {
-  font-size: 25px;
-  opacity: 0.85;
+  flex: none;
 }
 .q-name {
   display: flex;
@@ -580,15 +574,9 @@ const chips = computed(() =>
   text-transform: uppercase;
 }
 .q-div {
-  display: block;
-  width: 28px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.3;
-  margin: 6px 0;
+  display: none;
 }
 .qbadge {
-  --mg-shadow-egp-badge: 0 1px 2px color-mix(in srgb, var(--mg-color-ink) 12%, transparent);
   position: absolute;
   top: 14px;
   right: 15px;
@@ -604,7 +592,7 @@ const chips = computed(() =>
   align-items: center;
   justify-content: center;
   padding: 0 7px;
-  box-shadow: var(--mg-shadow-egp-badge);
+  box-shadow: none;
 }
 
 /* ---- kafle grup ---- */
@@ -622,31 +610,24 @@ const chips = computed(() =>
   flex-direction: column;
   justify-content: space-between;
   gap: 10px;
-  background: linear-gradient(
-    150deg,
-    color-mix(in srgb, var(--c) 16%, white),
-    color-mix(in srgb, var(--c) 30%, white)
-  );
-  box-shadow: var(--mg-shadow-egp-raise-sm);
+  --slider-ink: color-mix(in srgb, var(--c) 85%, black);
+  /* Drabinka tonalna w barwie ćwiartki: kafel = tint karty o stopień bielszy,
+     tor suwaka = jeszcze bielszy. Baza zawsze w hue karty (neutralny paper
+     wychodził chłodno-szary na różu/fiolecie). Selected = 34% akcentu. */
+  --tile-paper: color-mix(in srgb, var(--mg-color-emotion-paper) 55%, var(--qtint, var(--mg-color-emotion-paper)));
+  --track-paper: color-mix(in srgb, var(--mg-color-emotion-paper) 80%, var(--qtint, var(--mg-color-emotion-paper)));
+  background: var(--tile-paper);
+  box-shadow: none;
   transition:
     transform var(--mg-duration-fast) var(--mg-ease-standard),
     box-shadow var(--mg-duration-fast) var(--mg-ease-standard),
     background var(--mg-duration-fast) var(--mg-ease-standard);
 }
 .etile:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--mg-shadow-egp-raise);
+  transform: translateY(-1px);
 }
 .etile.sel {
-  --mg-shadow-egp-tile-sel:
-    var(--mg-shadow-egp-raise-sm),
-    inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent);
-  background: linear-gradient(
-    150deg,
-    color-mix(in srgb, var(--c) 26%, white),
-    color-mix(in srgb, var(--c) 42%, white)
-  );
-  box-shadow: var(--mg-shadow-egp-tile-sel);
+  background: color-mix(in srgb, var(--c) 34%, var(--mg-color-emotion-paper));
 }
 .ethead {
   border: 0;
@@ -665,7 +646,7 @@ const chips = computed(() =>
   line-height: 1.25;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--c) 55%, var(--mg-color-ink));
+  color: var(--mg-color-ink);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -673,7 +654,7 @@ const chips = computed(() =>
   overflow: hidden;
 }
 .etile.sel .etname {
-  color: color-mix(in srgb, var(--c) 70%, var(--mg-color-ink));
+  color: var(--mg-color-ink);
 }
 .etaux {
   font-style: italic;
@@ -685,16 +666,13 @@ const chips = computed(() =>
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.etnew {
-  --mg-shadow-egp-new: 0 0 0 3px color-mix(in srgb, var(--c) 20%, transparent);
+.etcheck {
   position: absolute;
-  top: 9px;
-  right: 10px;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--mg-radius-pill);
-  background: var(--c);
-  box-shadow: var(--mg-shadow-egp-new);
+  top: 8px;
+  right: 12px;
+  font-size: 13px;
+  color: var(--mg-color-ink);
+  pointer-events: none;
 }
 
 /* ---- suwak poziomy ---- */
@@ -714,24 +692,24 @@ const chips = computed(() =>
   position: relative;
   flex: 1;
   height: 14px;
-  border-radius: var(--mg-radius-sm);
-  background: color-mix(in srgb, var(--c) 14%, transparent);
-  box-shadow: var(--mg-shadow-egp-press-sm);
+  border-radius: 8px 6px 9px 7px;
+  background: var(--track-paper, var(--mg-color-paper));
+  box-shadow: none;
   overflow: hidden;
 }
 .hfillbar {
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
+  top: 4px;
+  bottom: 4px;
   width: var(--fw, 0%);
-  border-radius: var(--mg-radius-sm);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 62%, white), var(--c));
+  border-radius: 4px 3px 5px 3px;
+  background: var(--slider-ink);
   transition: width var(--mg-duration-normal) cubic-bezier(0.4, 0, 0.2, 1);
 }
 .hzones {
   position: absolute;
-  inset: 0;
+  inset: 2px 0;
   display: flex;
   z-index: 2;
   pointer-events: none;
@@ -740,15 +718,9 @@ const chips = computed(() =>
   flex: 1;
 }
 .hzones span:not(:last-child) {
-  border-right: 1px solid color-mix(in srgb, var(--c) 26%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--mg-color-ink) 28%, transparent);
 }
 .hthumb {
-  --mg-shadow-egp-thumb:
-    var(--mg-shadow-egp-raise-sm),
-    inset 0 1px 1.5px color-mix(in srgb, white 50%, transparent);
-  --mg-shadow-egp-thumb-hover:
-    var(--mg-shadow-egp-raise),
-    inset 0 1px 1.5px color-mix(in srgb, white 50%, transparent);
   position: absolute;
   top: 50%;
   left: var(--tp, 0px);
@@ -759,27 +731,22 @@ const chips = computed(() =>
   border: 0;
   cursor: pointer;
   padding: 0;
-  /* pełne koło — gałka nosi maskowaną twarz, radius organiczny by z nią walczył */
-  border-radius: var(--mg-radius-pill);
-  background: radial-gradient(
-    circle at 34% 30%,
-    color-mix(in srgb, var(--c) 38%, white),
-    color-mix(in srgb, var(--c) 85%, white)
-  );
+  border-radius: 43% 57% 48% 52% / 54% 42% 58% 46%;
+  background: color-mix(in srgb, var(--c) 15%, var(--track-paper, var(--mg-color-emotion-paper)));
   display: grid;
   place-items: center;
-  box-shadow: var(--mg-shadow-egp-thumb);
-  transition: left var(--mg-duration-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none;
+  transition: left 160ms ease, transform 140ms ease;
 }
 .hthumb:hover {
-  box-shadow: var(--mg-shadow-egp-thumb-hover);
+  transform: translateY(-50%) scale(1.08);
 }
 .fico {
   width: 20px;
   height: 20px;
   display: block;
   pointer-events: none;
-  background: color-mix(in srgb, var(--c) 55%, var(--mg-color-ink));
+  background: var(--mg-color-ink);
   /* longhand — skróty maski z var() bywają odrzucane w całości */
   -webkit-mask-image: var(--fi);
   -webkit-mask-position: center;
@@ -876,12 +843,12 @@ const chips = computed(() =>
   border-radius: var(--mg-radius-pill);
   white-space: nowrap;
   flex: none;
-  color: white;
+  color: var(--mg-color-ink);
   font-weight: 600;
   font-size: 12px;
   line-height: normal;
-  background: linear-gradient(150deg, color-mix(in srgb, var(--c) 86%, white), var(--c));
-  box-shadow: var(--mg-shadow-egp-raise-sm);
+  background: color-mix(in srgb, var(--c) 25%, var(--mg-color-emotion-paper));
+  box-shadow: none;
 }
 .fchip .fn {
   opacity: 0.85;
@@ -894,8 +861,8 @@ const chips = computed(() =>
   border: 0;
   border-radius: var(--mg-radius-pill);
   cursor: pointer;
-  background: color-mix(in srgb, white 28%, transparent);
-  color: white;
+  background: color-mix(in srgb, white 50%, transparent);
+  color: inherit;
   font-size: 9px;
   display: grid;
   place-items: center;
@@ -908,5 +875,12 @@ const chips = computed(() =>
   .etgrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+.hthumb:active { transform: translateY(-50%) scale(1.04, .96); }
+button:focus-visible { outline: 2px solid var(--mg-color-focus); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .ep-stage > div { animation: none; }
+  .qbtn, .mcell, .etile, .hthumb, .hfillbar { transition: none; }
 }
 </style>

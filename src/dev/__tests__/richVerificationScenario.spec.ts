@@ -53,11 +53,12 @@ describe('RichVerificationScenario', () => {
     expect(statuses).toEqual(new Set(['met', 'missed', 'no-data', 'no-target']))
   })
 
-  it('ma trasy i presety dla wszystkich siedmiu workbenchów', () => {
+  it('ma trasy i presety dla wszystkich ośmiu workbenchów', () => {
     const scenario = buildRichVerificationScenario(anchor)
 
     expect(Object.keys(scenario.presets)).toEqual([
       'today',
+      'calendar',
       'calendar-year',
       'calendar-month',
       'calendar-week',
@@ -66,6 +67,7 @@ describe('RichVerificationScenario', () => {
       'ritual-year',
     ])
     expect(scenario.presets.today[0].baselinePath).toContain('/today/')
+    expect(scenario.presets.calendar.map(preset => preset.baselinePath)).toEqual(['/calendar/month/2026-07', '/calendar/month/2026-06'])
     expect(scenario.presets['calendar-year'][0].baselinePath).toBe('/calendar/year/2026')
     expect(scenario.presets['calendar-month'].map(preset => preset.baselinePath)).toEqual([
       '/calendar/stream/2026-07',

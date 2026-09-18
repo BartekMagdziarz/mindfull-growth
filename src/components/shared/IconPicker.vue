@@ -4,7 +4,7 @@
       type="button"
       :disabled="disabled"
       :class="triggerClass"
-      :aria-label="ariaLabel"
+      :aria-label="ariaLabel ?? t('common.iconPicker.select')"
       @click="toggle"
     >
       <EntityIcon
@@ -13,7 +13,7 @@
         :color="previewColor"
       />
       <span v-if="!compact" class="truncate text-left text-sm text-on-surface">
-        {{ selectedLabel || placeholder }}
+        {{ selectedLabel || placeholder || t('common.iconPicker.select') }}
       </span>
       <AppIcon
         v-if="!minimal"
@@ -35,19 +35,21 @@
         <div
           v-if="isOpen"
           ref="menuRef"
-          class="fixed z-50 w-[30rem] rounded-2xl border border-neu-border/28 bg-neu-base p-3 shadow-neu-raised"
+          class="mg-design-v2 icon-picker-menu fixed z-50 w-[30rem] rounded-2xl border border-neu-border/28 bg-neu-base p-3 shadow-neu-raised"
           :style="menuStyle"
         >
           <div class="mb-2 flex items-center gap-2">
-            <label class="flex flex-1 items-center gap-2 rounded-xl border border-neu-border/22 bg-section/45 px-2.5 py-1.5">
+            <label
+              class="flex flex-1 items-center gap-2 rounded-xl border border-neu-border/22 bg-section/45 px-2.5 py-1.5"
+            >
               <AppIcon name="search" class="text-sm text-on-surface-variant" />
               <input
                 ref="searchInputRef"
                 v-model.trim="query"
                 type="text"
                 class="w-full bg-transparent text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none"
-                placeholder="Search icons"
-                aria-label="Search icons"
+                :placeholder="t('common.iconPicker.search')"
+                :aria-label="t('common.iconPicker.search')"
               />
             </label>
             <button
@@ -56,41 +58,32 @@
               class="neo-pill px-2 py-0.5 text-[11px]"
               @click="clearSelection"
             >
-              Clear
+              {{ t('common.iconPicker.clear') }}
             </button>
           </div>
 
           <div class="max-h-[22rem] overflow-y-auto pb-1 pr-1">
-            <!-- Empty prompt -->
-            <div v-if="!query" class="py-10 text-center">
-              <AppIcon name="search" class="text-3xl text-on-surface-variant/40" />
-              <p class="mt-2 text-xs text-on-surface-variant">
-                Search from {{ totalSymbolCount.toLocaleString() }} icons
-              </p>
-            </div>
-
-            <!-- Results -->
-            <div v-else-if="filteredOptions.length" class="grid grid-cols-9 gap-2 pb-1">
+            <div v-if="filteredOptions.length" class="grid grid-cols-6 sm:grid-cols-9 gap-2 pb-1">
               <button
                 v-for="icon in filteredOptions"
-                :key="icon"
+                :key="icon.id"
                 type="button"
                 class="neo-icon-button neo-focus h-10 w-10 p-0"
-                :class="{ 'neo-icon-button--primary': icon === modelValue }"
-                :title="icon.replace(/_/g, ' ')"
-                :aria-label="icon.replace(/_/g, ' ')"
-                @click="select(icon)"
+                :class="{ 'neo-icon-button--primary': selectedGlyph === icon.id }"
+                :title="labelFor(icon)"
+                :aria-label="labelFor(icon)"
+                @click="select(`mg-${icon.id}`)"
               >
-                <span class="material-symbols-outlined text-xl leading-none">{{ icon }}</span>
+                <AppIcon
+                  class="material-symbols-outlined text-xl leading-none"
+                  :name="`mg-${icon.id}`"
+                />
               </button>
             </div>
 
             <!-- No results -->
-            <p
-              v-else
-              class="py-8 text-center text-xs text-on-surface-variant"
-            >
-              No icons match "{{ query }}".
+            <p v-else class="py-8 text-center text-xs text-on-surface-variant">
+              {{ t('common.iconPicker.noResults', { query }) }}
             </p>
           </div>
         </div>
@@ -102,7 +95,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { getEntityIconOption } from '@/constants/entityIconCatalog'
-import { searchSymbols, totalSymbolCount } from '@/services/materialSymbolsService'
+import {
+  organicIcons,
+  normalizeIconSearch,
+  type OrganicIcon,
+} from '@/design-system/icons/organicIcons'
+import { resolveIcon } from '@/design-system/icons/resolveIcon'
+import { useT } from '@/composables/useT'
 import EntityIcon from '@/components/shared/EntityIcon.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 
@@ -124,8 +123,8 @@ const props = withDefaults(
     compact: false,
     minimal: false,
     iconSize: undefined,
-    placeholder: 'Select icon',
-    ariaLabel: 'Select icon',
+    placeholder: undefined,
+    ariaLabel: undefined,
     allowClear: true,
     previewColor: undefined,
   }
@@ -142,13 +141,29 @@ const searchInputRef = ref<HTMLInputElement | null>(null)
 const menuStyle = ref<Record<string, string>>({})
 const query = ref('')
 
+const { t, locale } = useT()
+function labelFor(icon: OrganicIcon) {
+  return locale.value === 'pl' ? icon.label : icon.id.replace(/-/g, ' ')
+}
+const selectedGlyph = computed(
+  () => resolveIcon(getEntityIconOption(props.modelValue)?.materialIcon ?? props.modelValue).id
+)
 const selectedIconOption = computed(() => getEntityIconOption(props.modelValue))
 const selectedLabel = computed(() => {
+  if (props.modelValue?.startsWith('mg-')) {
+    const option = organicIcons.find(icon => icon.id === props.modelValue?.slice(3))
+    if (option) return labelFor(option)
+  }
   if (selectedIconOption.value) return selectedIconOption.value.label
   if (props.modelValue) return props.modelValue.replace(/_/g, ' ')
   return undefined
 })
-const filteredOptions = computed(() => searchSymbols(query.value))
+const filteredOptions = computed(() => {
+  const q = normalizeIconSearch(query.value.trim())
+  return organicIcons.filter(icon =>
+    normalizeIconSearch(`${icon.label} ${icon.id} ${icon.tags}`).includes(q)
+  )
+})
 
 const triggerClass = computed(() => {
   if (props.compact && props.minimal) {
@@ -214,6 +229,7 @@ async function open() {
 
 function close() {
   isOpen.value = false
+  void nextTick(() => containerRef.value?.querySelector('button')?.focus())
 }
 
 function toggle() {
@@ -270,3 +286,13 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleWindowChange, true)
 })
 </script>
+
+<style scoped>
+.icon-picker-menu {
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised);
+  min-width: 0;
+  min-height: 0;
+  max-width: calc(100vw - 16px);
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper space-y-3 p-4">
+  <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
     <div class="flex items-start gap-2">
       <input
         :value="modelValue.title"

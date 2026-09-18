@@ -1,10 +1,10 @@
 <template>
   <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="mb-6">
-      <h1 class="text-xl font-bold text-on-surface">
-        {{ isEditing ? t('lifeAreas.editor.editTitle') : t('lifeAreas.editor.newTitle') }}
-      </h1>
-    </div>
+    <PageHeader
+      :eyebrow="t('lifeAreas.views.title')"
+      :title="isEditing ? t('lifeAreas.editor.editTitle') : t('lifeAreas.editor.newTitle')"
+      :back-to="() => router.back()"
+    />
 
     <AppCard padding="lg">
       <LifeAreaForm v-model:form="form" />
@@ -28,6 +28,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import LifeAreaForm from '@/components/lifeAreas/LifeAreaForm.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'

@@ -14,6 +14,7 @@ export const RICH_CLOSED_WEEKS = 16
 export type FixtureStatus = 'met' | 'missed' | 'no-data' | 'no-target'
 export type LabViewId =
   | 'today'
+  | 'calendar'
   | 'calendar-year'
   | 'calendar-month'
   | 'calendar-week'
@@ -378,6 +379,10 @@ export function buildRichVerificationScenario(anchor: Date | DayRef = new Date()
   const presets: Record<LabViewId, PeriodPreset[]> = {
     today: [
       { id: 'current', label: 'Dzisiaj', description: 'Mieszanka wykonanych i otwartych działań.', periodRef: refs.day, baselinePath: `/today/${refs.day}`, state: 'current' },
+    ],
+    calendar: [
+      { id: 'current', label: 'Bieżący okres', description: 'Kalendarz retrospektywny osadzony na bieżącym miesiącu; rok, miesiąc i tydzień w jednym widoku.', periodRef: refs.month, baselinePath: `/calendar/month/${refs.month}`, state: 'current' },
+      { id: 'closed', label: 'Zamknięty miesiąc', description: 'Poprzedni miesiąc z pełnymi danymi i zamkniętą refleksją.', periodRef: previousMonth, baselinePath: `/calendar/month/${previousMonth}`, state: 'closed' },
     ],
     'calendar-year': [
       { id: 'current', label: 'Bieżący rok', description: 'Miesiące zamknięte, miesiąc w toku i spokojne puste stany przyszłości.', periodRef: refs.year, baselinePath: `/calendar/year/${refs.year}`, state: 'current' },

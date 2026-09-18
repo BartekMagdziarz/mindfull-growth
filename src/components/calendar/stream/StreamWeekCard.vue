@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed } from 'vue'
 import StreamCard from './StreamCard.vue'
 import StreamRing from './StreamRing.vue'
@@ -74,9 +76,7 @@ function areaIconStyle(row: StreamMatrixRowVM) {
          Rose = strain (Demands inverted), sky = ease/wellbeing. -->
     <div class="stream-week__matrix">
       <template v-for="row in week.matrix" :key="row.areaKey">
-        <span class="material-symbols-outlined" :style="areaIconStyle(row)" aria-hidden="true">
-          {{ row.icon }}
-        </span>
+        <AppIcon class="material-symbols-outlined" :style="areaIconStyle(row)" aria-hidden="true" :name="row.icon" />
         <span
           v-for="cell in row.cells"
           :key="cell.section"

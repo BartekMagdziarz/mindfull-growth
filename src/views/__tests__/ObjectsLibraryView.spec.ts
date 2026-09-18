@@ -145,7 +145,7 @@ describe('ObjectsLibraryView', () => {
     })
 
     expect(await screen.findByDisplayValue(priority.title)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /2026/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Priority years' })).toHaveTextContent('2026')
     expect(screen.getByDisplayValue('Strategic constraint for the year')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Make mornings available for important work')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Fewer reactive meetings')).toBeInTheDocument()
@@ -154,7 +154,7 @@ describe('ObjectsLibraryView', () => {
     expect(screen.queryByText('No active periods')).not.toBeInTheDocument()
   })
 
-  it('keeps period input local until commit and shows inline validation errors', async () => {
+  it('sets the period from the year/month selector and clears it from the chip', async () => {
     const router = createTestRouter()
     await router.push({
       name: 'objects-family',
@@ -171,23 +171,33 @@ describe('ObjectsLibraryView', () => {
       },
     })
 
-    const periodInput = await screen.findByLabelText('Period')
+    const periodChip = await screen.findByRole('button', { name: 'Period' })
+    expect(periodChip).toHaveTextContent('Period')
+    expect(screen.queryByRole('dialog', { name: 'Period' })).not.toBeInTheDocument()
 
-    await fireEvent.update(periodInput, '2026-W')
-    expect(screen.queryByText('Use a valid period reference like 2026, 2026-03, 2026-W10, or 2026-03-12.')).not.toBeInTheDocument()
-    expect(router.currentRoute.value.query.period).toBeUndefined()
+    await fireEvent.click(periodChip)
+    const dialog = await screen.findByRole('dialog', { name: 'Period' })
+    const currentYear = String(new Date().getFullYear())
 
-    await fireEvent.blur(periodInput)
-    expect(await screen.findByText('Use a valid period reference like 2026, 2026-03, 2026-W10, or 2026-03-12.')).toBeInTheDocument()
-    expect(router.currentRoute.value.query.period).toBeUndefined()
-
-    await fireEvent.update(periodInput, '2026-W10')
-    await fireEvent.keyDown(periodInput, { key: 'Enter', code: 'Enter' })
-
+    await fireEvent.click(within(dialog).getByRole('button', { name: `March ${currentYear}` }))
     await waitFor(() => {
-      expect(router.currentRoute.value.query.period).toBe('2026-W10')
+      expect(router.currentRoute.value.query.period).toBe(`${currentYear}-03`)
     })
-    expect(screen.queryByText('Use a valid period reference like 2026, 2026-03, 2026-W10, or 2026-03-12.')).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog', { name: 'Period' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Period' })).toHaveTextContent(`Mar ${currentYear}`)
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Period' }))
+    await fireEvent.click(
+      within(await screen.findByRole('dialog', { name: 'Period' })).getByRole('button', { name: currentYear }),
+    )
+    await waitFor(() => {
+      expect(router.currentRoute.value.query.period).toBe(currentYear)
+    })
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Clear period' }))
+    await waitFor(() => {
+      expect(router.currentRoute.value.query.period).toBeUndefined()
+    })
   })
 
   it('preserves shared filters when switching families and clears search plus panel state', async () => {

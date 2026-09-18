@@ -9,8 +9,8 @@
   min-width: 1180px;
   min-height: 100%;
   color: var(--mg-color-ink);
-  /* The app body paints the sky gradient; a v2 root must not repaint a flat
-     canvas over it, or the strip beside the pinned dock shows a second tone. */
+  /* The body paints the shared flat canvas, including the dock gutter.
+     Nested design roots stay transparent. */
   background: transparent;
   font-family: var(--mg-font-sans);
   line-height: 1.45;
@@ -83,15 +83,30 @@
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-primary-strong);
-  background: var(--mg-color-surface);
+  background: var(--mg-color-mist);
   box-shadow: var(--mg-shadow-raised-sm);
   font-size: var(--mg-font-size-sm);
   font-weight: 800;
   cursor: pointer;
 }
 
+.mg-v2-button:not(:disabled):hover {
+  background: var(--mg-color-paper);
+}
+
+/* Primary action = filled with the product primary-strong and a white label. */
 .mg-v2-button--primary {
-  background: var(--mg-color-sky-field);
+  border-color: transparent;
+  color: var(--mg-color-on-primary);
+  background: var(--mg-color-primary-fill);
+}
+
+.mg-v2-button--primary:not(:disabled):hover {
+  background: var(--mg-color-primary-fill-hover);
+}
+
+.mg-v2-button--danger:not(:disabled):hover {
+  background: var(--mg-color-rose-soft);
 }
 
 .mg-v2-button--quiet {
@@ -99,6 +114,21 @@
   color: var(--mg-color-muted);
   background: transparent;
   box-shadow: none;
+}
+
+.mg-v2-button--quiet:not(:disabled):hover {
+  background: var(--mg-color-mist);
+}
+
+/* Icons inside controls follow the app accent — never ink/grey. On a filled
+   primary button the glyph stays white. */
+.mg-v2-button--icon,
+.mg-v2-button--quiet.mg-v2-button--icon {
+  color: var(--mg-color-primary);
+}
+
+.mg-v2-button--primary.mg-v2-button--icon {
+  color: var(--mg-color-on-primary);
 }
 
 .mg-v2-button--danger {
@@ -130,15 +160,73 @@
   box-shadow: var(--mg-shadow-inset-sm);
 }
 
+/* Compact field: chip-height (2rem) variant for toolbars, where the field
+   sits next to pills and segmented controls and must not dominate the row. */
+.mg-v2-field--compact {
+  min-height: 2rem;
+  padding: 0 var(--mg-space-3);
+  font-size: var(--mg-font-size-sm);
+}
+
+/* Switch: a small on/off control (button[role=switch]). Track sits in the
+   sky well when off and fills with the accent when on; the thumb is paper. */
+.mg-v2-switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 2.125rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-sky-well);
+  box-shadow: var(--mg-shadow-inset-sm);
+  cursor: pointer;
+  transition: background var(--mg-duration-fast) ease;
+}
+
+.mg-v2-switch::after {
+  position: absolute;
+  top: 0.0625rem;
+  left: 0.0625rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+  transition: transform var(--mg-duration-fast) ease;
+  content: '';
+}
+
+.mg-v2-switch[aria-checked='true'] {
+  border-color: transparent;
+  background: var(--mg-color-primary);
+}
+
+.mg-v2-switch[aria-checked='true']::after {
+  transform: translateX(0.875rem);
+}
+
+/* Fields are content, not controls: flat, ONE step whiter than the card
+   they sit on (the Lab's card→field step), with a thin edge instead of an
+   inset shadow. Inside a nested field block they take the next step (inner). */
 .mg-v2-field {
   width: 100%;
   min-height: 2.5rem;
   padding: var(--mg-space-2) var(--mg-space-3);
-  border: 1px solid var(--mg-color-border);
+  border: 1px solid var(--mg-color-field-border);
   border-radius: var(--mg-radius-sm);
   color: var(--mg-color-ink);
-  background: var(--mg-color-canvas);
-  box-shadow: var(--mg-shadow-inset-sm);
+  background: var(--mg-color-mist);
+  box-shadow: none;
+}
+
+.mg-v2-field:focus-visible {
+  border-color: var(--mg-color-primary);
+}
+
+.mg-v2-field::placeholder {
+  color: var(--mg-color-muted);
 }
 
 .mg-v2-field-wrap {
@@ -360,7 +448,8 @@
   cursor: pointer;
 }
 
-.mg-v2-segmented button[aria-pressed='true'] {
+.mg-v2-segmented button[aria-pressed='true'],
+.mg-v2-segmented button[aria-selected='true'] {
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-paper);
   box-shadow: var(--mg-shadow-raised-sm);
@@ -441,15 +530,16 @@
   border: 1px solid var(--mg-color-border);
   border-radius: var(--mg-radius-pill);
   color: var(--mg-color-muted);
-  background: var(--mg-color-surface);
+  background: var(--mg-color-mist);
   box-shadow: var(--mg-shadow-raised-sm);
   font-size: var(--mg-font-size-xs);
   font-weight: 800;
 }
 
 .mg-v2-pill--primary {
+  border-color: var(--mg-color-primary);
   color: var(--mg-color-primary-strong);
-  background: var(--mg-color-sky-field);
+  background: var(--mg-color-paper);
 }
 
 .mg-v2-pill--success {
@@ -467,8 +557,9 @@
   background: var(--mg-color-rose-soft);
 }
 
+/* Selected chips sit flat (no lift) — the accent outline carries the state. */
 .mg-v2-pill--selected {
-  box-shadow: var(--mg-shadow-inset-sm);
+  box-shadow: none;
 }
 
 .mg-v2-badge {
@@ -482,6 +573,319 @@
   background: var(--mg-color-mist);
   font-size: var(--mg-font-size-xs);
   font-weight: 700;
+}
+
+/* Quiet facts line under a card title (cadence, mode, target, dates…): plain
+   muted text separated by middle dots instead of a row of badges. An
+   emphasised item (non-default status, overdue) carries ink/semantic colour
+   AND its own word, so colour is never the only carrier. */
+.mg-v2-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--mg-space-2);
+  min-width: 0;
+  margin: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.mg-v2-meta > * {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mg-space-1);
+  min-width: 0;
+}
+
+.mg-v2-meta > * + *::before {
+  content: '·';
+  margin-right: var(--mg-space-2);
+  opacity: 0.55;
+}
+
+.mg-v2-meta__status {
+  color: var(--mg-color-ink);
+}
+
+.mg-v2-meta__warn {
+  color: var(--mg-color-warn-on);
+}
+
+.mg-v2-meta__bad {
+  color: var(--mg-color-rose);
+}
+
+/* Card action tray: icon controls (links, expand, menu) that stay invisible
+   until the card is hovered, a control inside is focused, or one of its
+   popovers is open. Space is always reserved so the title never jumps. */
+.mg-v2-card-tray {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--mg-space-1);
+  opacity: 0;
+  transition: opacity var(--mg-duration-fast) ease;
+}
+
+.mg-v2-card-tray:focus-within,
+.mg-v2-card-tray:has(.mg-v2-popover) {
+  opacity: 1;
+}
+
+/* Inline trigger: a block of card content (timeline, affiliation row) that
+   is also the way to edit it. Hover/focus lays it on paper; geometry is
+   untouched so nothing shifts. */
+.mg-v2-inline-trigger {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: var(--mg-space-1) var(--mg-space-2);
+  border: 0;
+  border-radius: var(--mg-radius-sm);
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--mg-duration-fast) ease;
+}
+
+.mg-v2-inline-trigger:hover,
+.mg-v2-inline-trigger:focus-visible {
+  background: var(--mg-color-paper);
+}
+
+/* Object timeline: the whole window is a pencil sketch (dashed hairline),
+   the elapsed part is drawn over it in ink, "today" and the end are the
+   stepper's dots. Overdue turns the ink rose; an open end fades the pencil. */
+.mg-v2-timeline {
+  --mg-timeline-ink: var(--mg-color-primary-strong);
+  --mg-timeline-halo: color-mix(in srgb, var(--mg-color-primary-strong) 32%, transparent);
+  display: grid;
+  gap: var(--mg-space-2);
+  min-width: 0;
+}
+
+.mg-v2-timeline--overdue {
+  --mg-timeline-ink: var(--mg-color-rose);
+  --mg-timeline-halo: color-mix(in srgb, var(--mg-color-rose) 32%, transparent);
+}
+
+.mg-v2-timeline__track {
+  position: relative;
+  height: 0.9375rem;
+  margin: 0 0.45rem;
+}
+
+.mg-v2-timeline__pencil {
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 0;
+  border-top: 1.5px dashed color-mix(in srgb, var(--mg-color-muted) 58%, transparent);
+  transform: rotate(-0.15deg);
+}
+
+.mg-v2-timeline--open .mg-v2-timeline__pencil {
+  -webkit-mask: linear-gradient(90deg, #000 55%, transparent 100%);
+  mask: linear-gradient(90deg, #000 55%, transparent 100%);
+}
+
+.mg-v2-timeline__ink {
+  position: absolute;
+  top: calc(50% - 1.5px);
+  left: 0;
+  height: 3px;
+  border-radius: 2px 3px 2px 3px;
+  background: var(--mg-timeline-ink);
+  transition: width 420ms ease-out;
+}
+
+.mg-v2-timeline__dot {
+  position: absolute;
+  top: 50%;
+  width: 0.6875rem;
+  height: 0.6875rem;
+  border: 1.5px dashed var(--mg-timeline-ink);
+  border-radius: var(--mg-radius-organic-b);
+  background: transparent;
+  transform: translate(-50%, -50%) rotate(8deg);
+}
+
+.mg-v2-timeline__dot--done {
+  border: 0;
+  background: var(--mg-color-primary);
+}
+
+.mg-v2-timeline__dot--today {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  border: 0;
+  border-radius: var(--mg-radius-organic-a);
+  background: var(--mg-color-ink);
+  box-shadow:
+    0 0 0 3px var(--mg-color-surface),
+    0 0 0 4.5px var(--mg-timeline-halo);
+  transform: translate(-50%, -50%) rotate(-2deg);
+}
+
+.mg-v2-timeline--overdue .mg-v2-timeline__dot--today {
+  background: var(--mg-timeline-ink);
+}
+
+.mg-v2-timeline__dot--hit {
+  border: 0;
+  background: var(--mg-timeline-ink);
+}
+
+.mg-v2-timeline__labels {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mg-space-2);
+  min-width: 0;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.mg-v2-timeline__labels > * {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.mg-v2-timeline__labels b {
+  color: var(--mg-color-ink);
+  font-weight: 700;
+}
+
+.mg-v2-timeline__labels--bad,
+.mg-v2-timeline__labels--bad b {
+  color: var(--mg-color-rose);
+  font-weight: 700;
+}
+
+.mg-v2-timeline__labels--current {
+  color: var(--mg-color-ink);
+  font-weight: 700;
+}
+
+/* Affiliation glyphs: tiny icon boards. A life area is a filled sky board,
+   a priority is the same shape drawn with a dashed pencil outline. Hover or
+   focus slides the name out on paper; neighbours move aside. */
+.mg-v2-glyph-row {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-space-1);
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, #000 calc(100% - 1.25rem), transparent);
+  mask: linear-gradient(90deg, #000 calc(100% - 1.25rem), transparent);
+}
+
+.mg-v2-glyph {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  padding: 0 0.3rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-field);
+  box-shadow: var(--mg-shadow-inset-sm);
+  font: inherit;
+  cursor: pointer;
+  transform: rotate(0.6deg);
+  transition:
+    background var(--mg-duration-fast) ease,
+    box-shadow var(--mg-duration-fast) ease,
+    gap var(--mg-duration-fast) ease;
+}
+
+.mg-v2-glyph:nth-child(even) {
+  transform: rotate(-0.5deg);
+}
+
+.mg-v2-glyph--pencil {
+  border-color: color-mix(in srgb, var(--mg-color-primary-strong) 55%, transparent);
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mg-v2-glyph--empty {
+  color: var(--mg-color-muted);
+  opacity: 0.6;
+}
+
+.mg-v2-glyph__name {
+  max-width: 0;
+  overflow: hidden;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    max-width 180ms ease,
+    opacity var(--mg-duration-fast) ease;
+}
+
+.mg-v2-glyph:hover,
+.mg-v2-glyph:focus-visible {
+  gap: 0.35rem;
+  border-color: transparent;
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-v2-glyph:hover .mg-v2-glyph__name,
+.mg-v2-glyph:focus-visible .mg-v2-glyph__name {
+  max-width: 14rem;
+  padding-right: 0.15rem;
+  opacity: 1;
+}
+
+.mg-v2-glyph-row__sep {
+  flex-shrink: 0;
+  width: 0.25rem;
+  height: 0.25rem;
+  margin: 0 0.15rem;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-muted);
+  opacity: 0.5;
+}
+
+/* Small numeric marker on an icon control (e.g. how many links) — muted
+   text, no filled bubble. */
+.mg-v2-icon-count {
+  position: absolute;
+  top: -0.1rem;
+  right: -0.05rem;
+  pointer-events: none;
+  color: var(--mg-color-muted);
+  font-size: 0.5625rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Grouped rows inside a popover menu (e.g. status choices above actions). */
+.mg-v2-menu-section + .mg-v2-menu-section {
+  border-top: 1px solid var(--mg-color-border);
+}
+
+.mg-v2-menu-section__label {
+  padding: var(--mg-space-2) var(--mg-space-3) var(--mg-space-1);
+  color: var(--mg-color-muted);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .mg-v2-checkbox {
@@ -551,26 +955,34 @@
   background: var(--mg-color-scrim);
 }
 
-/* Lighter card tone matching the calendar's .next-object-card (paper). */
+/* Inner step of the ladder (elements nested inside a field block, hover,
+   active segment). Not for cards or plain fields — those are surface/mist. */
 .mg-v2-surface--paper {
   background: var(--mg-color-paper);
 }
 
-/* Intermediate tone for parent containers hosting white cards (goal card
-   with KRs, journal chat-sessions section). */
+/* Field step of the ladder (nested cards inside a surface card). */
 .mg-v2-surface--mist {
   background: var(--mg-color-mist);
 }
 
+/* Large writing field (journal body): the inner step of the card it lives in. */
 .mg-v2-editor-canvas {
-  border: 1px solid var(--mg-color-border);
-  border-radius: var(--mg-radius-xl);
-  background: var(--mg-color-canvas);
-  box-shadow: var(--mg-shadow-inset);
+  border: 1px solid var(--mg-color-field-border);
+  border-radius: var(--mg-radius-lg);
+  background: var(--mg-color-mist);
+  box-shadow: none;
 }
 
 .mg-v2-editor-canvas:focus-within {
-  box-shadow: var(--mg-shadow-inset), var(--mg-focus-ring);
+  border-color: var(--mg-color-primary);
+  box-shadow: none;
+}
+
+/* Nesting rule: anything that sits inside a field-tone block takes the next
+   (inner) step, so the ladder never flattens or goes back to blue. */
+.mg-v2-surface--flat :where(.mg-v2-field, .mg-v2-pill, .mg-v2-badge, .mg-v2-button:not(.mg-v2-button--primary):not(.mg-v2-button--danger):not(.mg-v2-button--quiet)) {
+  background: var(--mg-color-paper);
 }
 
 .mg-v2-editor-canvas :where(input, textarea) {
@@ -582,6 +994,329 @@
 
 .mg-v2-editor-canvas :where(input, textarea):focus-visible {
   box-shadow: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Page anatomy shared by exercises, profile, history, life areas.     */
+/* ------------------------------------------------------------------ */
+
+/* Page header: [back] [eyebrow / title / lead / meta] [actions]. */
+.mg-v2-page-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--mg-space-4);
+  margin-bottom: var(--mg-space-6);
+}
+
+.mg-v2-page-head--no-back {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.mg-v2-page-head--icon {
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+}
+
+.mg-v2-page-head--no-back.mg-v2-page-head--icon {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.mg-v2-page-head__copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.mg-v2-page-head__eyebrow {
+  color: var(--mg-color-primary-strong);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mg-v2-page-head__title {
+  margin: 0;
+  font-size: var(--mg-font-size-xl);
+  font-weight: 900;
+  letter-spacing: -0.005em;
+  line-height: 1.15;
+}
+
+.mg-v2-page-head__lead {
+  margin: 0;
+  max-width: 64ch;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
+}
+
+.mg-v2-page-head__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--mg-space-2);
+}
+
+/* Section title with a pencil hairline under it (long views). */
+.mg-v2-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mg-space-3);
+  margin: 0 0 var(--mg-space-3);
+  padding-bottom: var(--mg-space-2);
+  border-bottom: 1.5px dashed color-mix(in srgb, var(--mg-color-muted) 38%, transparent);
+}
+
+.mg-v2-section-head h2,
+.mg-v2-section-head h3 {
+  margin: 0;
+  font-size: var(--mg-font-size-md);
+  font-weight: 800;
+}
+
+.mg-v2-section-head small {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+}
+
+.mg-v2-hairline {
+  height: 0;
+  margin: var(--mg-space-2) 0 var(--mg-space-3);
+  border: 0;
+  border-top: 1.5px dashed color-mix(in srgb, var(--mg-color-muted) 38%, transparent);
+  transform: rotate(-0.15deg);
+}
+
+/* Sheet: a first-level card with the Lab's double pencil edge. */
+.mg-v2-surface--sheet::after {
+  position: absolute;
+  inset: 3px 2px 2px 3px;
+  border: 1px solid color-mix(in srgb, var(--mg-color-border) 50%, transparent);
+  border-radius: inherit;
+  pointer-events: none;
+  content: '';
+  transform: rotate(0.06deg);
+}
+
+/* Icon board: the organic tile that carries an icon (catalog tiles,
+   headers). Three finite shapes alternate on tile grids. */
+.mg-v2-icon-board {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: var(--mg-icon-board-size);
+  height: var(--mg-icon-board-size);
+  border-radius: var(--mg-radius-icon-field-a);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-field);
+  box-shadow: var(--mg-shadow-inset-sm);
+  transform: rotate(0.45deg);
+}
+
+.mg-v2-icon-board--b {
+  border-radius: var(--mg-radius-icon-field-b);
+  transform: rotate(-0.45deg);
+}
+
+.mg-v2-icon-board--c {
+  border-radius: var(--mg-radius-icon-field-c);
+  transform: rotate(0.25deg);
+}
+
+/* Domain tint (exercise category, life area colour): the tint is a CSS
+   variable set from domain data and blended into the sky field so the
+   board never leaves the ladder. */
+.mg-v2-icon-board--tinted {
+  color: var(--mg-icon-board-ink, var(--mg-color-primary-strong));
+  background: color-mix(
+    in srgb,
+    var(--mg-icon-board-tint, var(--mg-color-sky-field)) var(--mg-icon-board-tint-mix, 72%),
+    var(--mg-color-sky-field)
+  );
+}
+
+.mg-v2-icon-board--sm {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.mg-v2-icon-board--lg {
+  width: 4.25rem;
+  height: 4.25rem;
+}
+
+.mg-v2-icon-board .material-symbols-outlined {
+  font-size: 1.5rem;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 70, 'opsz' 24;
+}
+
+.mg-v2-icon-board--lg .material-symbols-outlined {
+  font-size: 2.25rem;
+}
+
+/* Tile: a clickable first-level card (catalog entries, life areas). */
+.mg-v2-tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--mg-space-3);
+  align-items: start;
+  width: 100%;
+  padding: var(--mg-space-4);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-surface);
+  box-shadow: var(--mg-shadow-raised-sm);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--mg-duration-fast) ease,
+    box-shadow var(--mg-duration-normal) var(--mg-ease-standard);
+}
+
+.mg-v2-tile:not(:disabled):hover {
+  background: var(--mg-color-mist);
+}
+
+.mg-v2-tile:not(:disabled):active,
+.mg-v2-tile[aria-pressed='true'] {
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-v2-tile--static {
+  cursor: default;
+}
+
+/* Selected / in-progress tile = thin accent outline, still flat. */
+.mg-v2-tile--active {
+  border-color: var(--mg-color-primary);
+}
+
+.mg-v2-tile__body {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.mg-v2-tile__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--mg-space-2);
+}
+
+.mg-v2-tile__title {
+  margin: 0;
+  font-size: var(--mg-font-size-md);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.mg-v2-tile__lead {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Tile grids alternate the organic shapes and add the sketch tilt. */
+.mg-v2-tile-grid {
+  display: grid;
+  gap: var(--mg-space-4);
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+}
+
+.mg-v2-tile-grid > :nth-child(even) .mg-v2-tile,
+.mg-v2-tile-grid > .mg-v2-tile:nth-child(even) {
+  transform: rotate(-0.15deg);
+}
+
+.mg-v2-tile-grid > :nth-child(3n + 2) .mg-v2-icon-board,
+.mg-v2-tile-grid > .mg-v2-tile:nth-child(3n + 2) .mg-v2-icon-board {
+  border-radius: var(--mg-radius-icon-field-b);
+  transform: rotate(-0.45deg);
+}
+
+.mg-v2-tile-grid > :nth-child(3n) .mg-v2-icon-board,
+.mg-v2-tile-grid > .mg-v2-tile:nth-child(3n) .mg-v2-icon-board {
+  border-radius: var(--mg-radius-icon-field-c);
+  transform: rotate(0.25deg);
+}
+
+/* Stepper: organic dots drawn on the sheet. Done = accent blob, current =
+   ink blob with a paper halo, future = dashed outline. */
+.mg-v2-stepper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mg-space-2);
+}
+
+.mg-v2-stepper__dots {
+  display: flex;
+  align-items: center;
+  gap: var(--mg-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mg-v2-stepper__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0;
+  border: 1.5px dashed var(--mg-color-primary-strong);
+  border-radius: var(--mg-radius-organic-b);
+  background: transparent;
+  cursor: default;
+  transition:
+    transform var(--mg-duration-fast) ease,
+    background var(--mg-duration-fast) ease;
+}
+
+.mg-v2-stepper__dot--done {
+  border: 0;
+  background: var(--mg-color-primary);
+  cursor: pointer;
+}
+
+.mg-v2-stepper__dot--done:hover {
+  transform: scale(1.15);
+}
+
+.mg-v2-stepper__dot--current {
+  width: 1rem;
+  height: 1rem;
+  border: 0;
+  border-radius: var(--mg-radius-organic-a);
+  background: var(--mg-color-ink);
+  box-shadow: var(--mg-shadow-stepper-halo);
+  transform: rotate(-2deg);
+}
+
+.mg-v2-stepper__label {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mg-v2-icon-board,
+  .mg-v2-tile,
+  .mg-v2-stepper__dot,
+  .mg-v2-timeline__pencil,
+  .mg-v2-glyph,
+  .mg-v2-hairline,
+  .mg-v2-surface--sheet::after {
+    transform: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

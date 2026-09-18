@@ -39,7 +39,7 @@ const baseProps = {
 const stubs = {
   IconPicker: true,
   AppIcon: true,
-  StatusIconButton: true,
+  ObjectsCardStatusMenu: true,
   PriorityYearsDropdown: true,
 }
 

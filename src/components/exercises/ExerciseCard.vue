@@ -1,46 +1,40 @@
 <template>
-  <button
-    class="w-full text-left"
-    @click="$emit('click')"
-  >
-    <AppCard padding="lg" class="space-y-2 transition-shadow cursor-pointer">
-      <div class="flex items-start justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="resolvedIconBgClass">
-            <span class="material-symbols-outlined text-xl leading-none" :class="resolvedIconClass">{{ icon }}</span>
-          </div>
-          <div>
-            <h3 class="text-base font-semibold text-on-surface">{{ title }}</h3>
-            <p class="text-xs text-on-surface-variant">{{ subtitle }}</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <span
-            v-if="aiAssisted"
-            class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0"
-            :title="t('exercises.aiAssisted')"
-          >
-            <span class="material-symbols-outlined text-sm leading-none text-primary">auto_awesome</span>
-          </span>
-          <span
-            v-if="lastCompleted"
-            class="text-xs text-on-surface-variant bg-section px-2 py-1 rounded-full whitespace-nowrap"
-          >
-            {{ lastCompletedLabel }}
-          </span>
-        </div>
-      </div>
-      <p class="text-sm text-on-surface-variant">{{ description }}</p>
-    </AppCard>
+  <button type="button" class="mg-v2-tile exercise-tile" @click="$emit('click')">
+    <span
+      class="mg-v2-icon-board"
+      :class="{ 'mg-v2-icon-board--tinted': Boolean(category) }"
+      :style="tintStyle"
+      aria-hidden="true"
+    >
+      <AppIcon class="material-symbols-outlined" :name="icon" />
+    </span>
+
+    <span class="mg-v2-tile__body">
+      <span class="mg-v2-tile__head">
+        <h3 class="mg-v2-tile__title">{{ title }}</h3>
+        <AppIcon
+          v-if="aiAssisted"
+          name="auto_awesome"
+          class="exercise-tile__ai"
+          :title="t('exercises.aiAssisted')"
+          :aria-label="t('exercises.aiAssisted')"
+        />
+      </span>
+      <p class="mg-v2-meta">
+        <span>{{ subtitle }}</span>
+        <span v-if="lastCompleted" class="mg-v2-meta__status">{{ lastCompletedLabel }}</span>
+      </p>
+      <p class="mg-v2-tile__lead">{{ description }}</p>
+    </span>
   </button>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppCard from '@/components/AppCard.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import {
-  EXERCISE_CATEGORY_CLASSES,
+  EXERCISE_CATEGORY_TINT_STYLE,
   type ExerciseCategory,
 } from '@/constants/exerciseColorRoles'
 
@@ -52,30 +46,21 @@ const props = defineProps<{
   description: string
   icon: string
   /**
-   * One of the 4 therapeutic tabs in ExercisesView. When set, the icon
-   * background and foreground use that category's accent palette and the
-   * `iconBgClass` / `iconClass` props are ignored.
+   * One of the therapeutic tabs in ExercisesView. When set, the icon board
+   * takes that category's tint (blended into the sky field by the anatomy).
    */
   category?: ExerciseCategory
-  iconBgClass?: string
-  iconClass?: string
   lastCompleted?: string // ISO timestamp
   aiAssisted?: boolean
 }>()
 
-const resolvedIconBgClass = computed(() => {
-  if (props.category) return EXERCISE_CATEGORY_CLASSES[props.category].bg
-  return props.iconBgClass ?? ''
-})
-
-const resolvedIconClass = computed(() => {
-  if (props.category) return EXERCISE_CATEGORY_CLASSES[props.category].text
-  return props.iconClass ?? ''
-})
-
 defineEmits<{
   click: []
 }>()
+
+const tintStyle = computed(() =>
+  props.category ? EXERCISE_CATEGORY_TINT_STYLE[props.category] : undefined,
+)
 
 const lastCompletedLabel = computed(() => {
   if (!props.lastCompleted) return ''
@@ -91,3 +76,11 @@ const lastCompletedLabel = computed(() => {
   return date.toLocaleDateString()
 })
 </script>
+
+<style scoped>
+.exercise-tile__ai {
+  flex-shrink: 0;
+  color: var(--mg-color-primary);
+  font-size: 1rem;
+}
+</style>

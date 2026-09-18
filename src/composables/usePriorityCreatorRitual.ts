@@ -18,13 +18,17 @@ import type {
   Tracker,
   WeeklyIntention,
 } from '@/domain/planning'
+import type { LifeArea } from '@/domain/lifeArea'
 import { MAX_ACTIVE_PRIORITIES } from '@/domain/planning'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
+import { lifeAreaDexieRepository } from '@/repositories/lifeAreaDexieRepository'
+import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { clearDraftFromDB, loadDraftFromDB, saveDraftToDB } from '@/services/draftStorage'
+import { setMonthTopPriorities } from '@/services/monthlyPriorityService'
 import {
   createPriorityFromRitual,
   type RitualCreationResult,
@@ -55,7 +59,15 @@ export interface RitualFormState {
   title: string
   whyNow: string
   direction: string
+  /** Identity on the Compass / Today; picked in the closing step. */
+  icon?: string
+  lifeAreaIds: string[]
+  /** Closing step: put the new priority into the current month's focus (≤3). */
+  addToMonthFocus: boolean
 }
+
+/** Soft cap of `MonthPlan.topPriorityIds` (mirrors the month planner). */
+export const MONTH_FOCUS_LIMIT = 3
 
 /** Boundary answers are short bullet items; persisted newline-joined in Priority's text fields. */
 export type BoundaryKind = 'influence' | 'notControlled' | 'tradeoffs'
@@ -82,6 +94,9 @@ function emptyForm(): RitualFormState {
     title: '',
     whyNow: '',
     direction: '',
+    icon: undefined,
+    lifeAreaIds: [],
+    addToMonthFocus: true,
   }
 }
 
@@ -109,6 +124,12 @@ export function usePriorityCreatorRitual() {
 
   const activePriorities = ref<Priority[]>([])
   const libraryCandidates = ref<LibraryLinkCandidate[]>([])
+  const lifeAreas = ref<LifeArea[]>([])
+  /** Current month — the closing step offers a slot in its focus. */
+  const monthRef = getPeriodRefsForDate(new Date()).month
+  const monthTopPriorityIds = ref<string[]>([])
+  /** Set by finish(): the new priority did land in the month's focus. */
+  const monthFocusApplied = ref(false)
   const loading = ref(false)
   const finishing = ref(false)
   const finishError = ref(false)
@@ -118,6 +139,9 @@ export function usePriorityCreatorRitual() {
   const atPortfolioLimit = computed(() => activePriorities.value.length >= MAX_ACTIVE_PRIORITIES)
   /** At 5/5 the finale saves the priority as a 'draft' waiting for a slot (D5). */
   const willCreateAsDraft = computed(() => atPortfolioLimit.value)
+  /** A draft priority cannot be a month focus; neither can a month that already has 3. */
+  const monthFocusFull = computed(() => monthTopPriorityIds.value.length >= MONTH_FOCUS_LIMIT)
+  const monthFocusAvailable = computed(() => !willCreateAsDraft.value && !monthFocusFull.value)
 
   const selectedProposals = computed(() => proposals.value.filter(item => item.selected))
   const selectedNewCount = computed(() => selectedProposals.value.filter(item => item.kind === 'new').length)
@@ -153,8 +177,18 @@ export function usePriorityCreatorRitual() {
 
   function applyDraft(blob: RitualDraftBlob): void {
     stepIndex.value = Math.min(Math.max(blob.stepIndex ?? 0, 0), RITUAL_STEPS.length - 1)
-    const { title, whyNow, direction } = { ...emptyForm(), ...(blob.form ?? {}) }
-    Object.assign(form, { title, whyNow, direction })
+    const { title, whyNow, direction, icon, lifeAreaIds, addToMonthFocus } = {
+      ...emptyForm(),
+      ...(blob.form ?? {}),
+    }
+    Object.assign(form, {
+      title,
+      whyNow,
+      direction,
+      icon: typeof icon === 'string' && icon ? icon : undefined,
+      lifeAreaIds: cleanList(lifeAreaIds),
+      addToMonthFocus: addToMonthFocus !== false,
+    })
     progressSignals.value = cleanList(blob.progressSignals)
     riskSignals.value = cleanList(blob.riskSignals)
     for (const kind of Object.keys(boundaryLists) as BoundaryKind[]) {
@@ -214,6 +248,22 @@ export function usePriorityCreatorRitual() {
       .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
   }
 
+  async function loadClosingContext(): Promise<void> {
+    const [areas, monthPlan] = await Promise.all([
+      lifeAreaDexieRepository.getActive(),
+      periodPlanDexieRepository.getMonthPlan(monthRef),
+    ])
+    lifeAreas.value = areas
+    monthTopPriorityIds.value = [...(monthPlan?.topPriorityIds ?? [])]
+  }
+
+  function toggleLifeArea(lifeAreaId: string): void {
+    const next = new Set(form.lifeAreaIds)
+    if (next.has(lifeAreaId)) next.delete(lifeAreaId)
+    else next.add(lifeAreaId)
+    form.lifeAreaIds = [...next]
+  }
+
   async function loadLibraryCandidates(): Promise<void> {
     const [goals, habits, trackers, intentions] = await Promise.all([
       goalDexieRepository.listAll(),
@@ -258,7 +308,7 @@ export function usePriorityCreatorRitual() {
           await clearDraftFromDB(PRIORITY_CREATOR_DRAFT_KEY)
         }
       }
-      await Promise.all([loadPortfolio(), loadLibraryCandidates()])
+      await Promise.all([loadPortfolio(), loadLibraryCandidates(), loadClosingContext()])
     } finally {
       loading.value = false
       hydrated.value = true
@@ -267,12 +317,20 @@ export function usePriorityCreatorRitual() {
 
   // ── Step navigation ──────────────────────────────────────────────────────
 
+  /** The contribution step has nothing to ask when no work was picked — skip it both ways. */
+  const skipsRelations = computed(() => selectedProposals.value.length === 0)
+  const relationsIndex = RITUAL_STEPS.indexOf('relations')
+
   function goNext(): void {
-    if (canGoNext.value) stepIndex.value += 1
+    if (!canGoNext.value) return
+    stepIndex.value += 1
+    if (stepIndex.value === relationsIndex && skipsRelations.value && canGoNext.value) stepIndex.value += 1
   }
 
   function goBack(): void {
-    if (canGoBack.value) stepIndex.value -= 1
+    if (!canGoBack.value) return
+    stepIndex.value -= 1
+    if (stepIndex.value === relationsIndex && skipsRelations.value && canGoBack.value) stepIndex.value -= 1
   }
 
   function goToStep(index: number): void {
@@ -415,7 +473,8 @@ export function usePriorityCreatorRitual() {
           description: undefined,
           years: [getPeriodRefsForDate(new Date()).year],
           status: willCreateAsDraft.value ? 'draft' : 'active',
-          lifeAreaIds: [],
+          icon: form.icon || undefined,
+          lifeAreaIds: [...form.lifeAreaIds],
           whyNow: form.whyNow.trim() || undefined,
           desiredDirection: form.direction.trim() || undefined,
           tradeoffs: joined(tradeoffItems.value),
@@ -428,6 +487,20 @@ export function usePriorityCreatorRitual() {
         links: buildLinks(),
         draftKey: PRIORITY_CREATOR_DRAFT_KEY,
       })
+      // Month focus is a separate record; the priority itself is already safe.
+      monthFocusApplied.value = false
+      if (form.addToMonthFocus && result.value.priority.status === 'active') {
+        const monthPlan = await periodPlanDexieRepository.getMonthPlan(monthRef)
+        const current = monthPlan?.topPriorityIds ?? []
+        if (current.length < MONTH_FOCUS_LIMIT && !current.includes(result.value.priority.id)) {
+          try {
+            await setMonthTopPriorities(monthRef, [...current, result.value.priority.id])
+            monthFocusApplied.value = true
+          } catch (error) {
+            console.error('Priority creator: adding to month focus failed:', error)
+          }
+        }
+      }
       return true
     } catch (error) {
       console.error('Priority creator ritual finale failed:', error)
@@ -457,6 +530,14 @@ export function usePriorityCreatorRitual() {
     loading,
     finishing,
     finishError,
+    lifeAreas,
+    monthRef,
+    monthTopPriorityIds,
+    monthFocusFull,
+    monthFocusAvailable,
+    monthFocusApplied,
+    skipsRelations,
+    toggleLifeArea,
     result,
     resumedFromDraft,
     draftSavedAt,

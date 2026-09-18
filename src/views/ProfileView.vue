@@ -1,39 +1,28 @@
 <template>
-  <div class="profile-shell mx-auto px-4 py-6">
-    <!-- Slim ID strip -->
-    <header class="id-strip">
-      <span
-        class="avatar-bubble"
-        aria-hidden="true"
-        :style="{ width: '42px', height: '42px', fontSize: '18px' }"
-      >{{ avatarInitial }}</span>
-      <div class="flex-1 min-w-0">
-        <div
-          class="text-base font-bold truncate"
-          style="color: rgb(var(--neo-text))"
-        >{{ displayName || username || '—' }}</div>
-        <div
-          class="text-[12px] truncate"
-          style="color: rgb(var(--neo-muted))"
-        >
+  <div class="mx-auto w-full max-w-4xl px-4 py-6 pb-24">
+    <PageHeader :title="displayName || username || '—'">
+      <template #leading>
+        <span class="mg-v2-icon-board mg-v2-icon-board--sm profile-avatar" aria-hidden="true">
+          {{ avatarInitial }}
+        </span>
+      </template>
+      <template #meta>
+        <p class="mg-v2-meta">
           <span v-if="username">@{{ username }}</span>
-          <span v-if="username"> · </span>
           <span>{{ t('profile.headerStrip.fallbackEmail') }}</span>
-        </div>
-      </div>
-      <button
-        type="button"
-        class="neo-pill px-3 py-2 text-[12px] font-semibold gap-[6px]"
-        @click="handleLogout"
-      >
-        <span class="material-symbols-outlined text-[16px]">logout</span>
-        {{ t('common.buttons.signOut') }}
-      </button>
-    </header>
+        </p>
+      </template>
+      <template #actions>
+        <AppButton variant="text" @click="handleLogout">
+          <AppIcon name="logout" class="text-base" />
+          {{ t('common.buttons.signOut') }}
+        </AppButton>
+      </template>
+    </PageHeader>
 
-    <!-- Segmented tab switcher -->
+    <!-- Segmented tab switcher (real tabs: role + aria-selected) -->
     <nav
-      class="neo-segmented w-full mb-[14px]"
+      class="mg-v2-segmented mb-6"
       role="tablist"
       :aria-label="t('profile.account.title')"
     >
@@ -43,8 +32,6 @@
         :id="`profile-tab-${tab.id}`"
         type="button"
         role="tab"
-        class="neo-segmented__item flex-1 text-[12px] sm:text-[13px]"
-        :class="{ 'neo-segmented__item--active': activeTab === tab.id }"
         :aria-selected="activeTab === tab.id"
         :aria-controls="`profile-panel-${tab.id}`"
         :tabindex="activeTab === tab.id ? 0 : -1"
@@ -119,6 +106,8 @@ import { useRoute, useRouter } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 import ProfileTabAccount from '@/components/profile/ProfileTabAccount.vue'
 import ProfileTabPreferences from '@/components/profile/ProfileTabPreferences.vue'
 import ProfileTabLifeAreas from '@/components/profile/ProfileTabLifeAreas.vue'
@@ -244,32 +233,8 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.profile-shell {
-  max-width: 880px;
-}
-
-.id-strip {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 0 8px 16px;
-}
-
-.avatar-bubble {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border-radius: 9999px;
-  background: linear-gradient(
-    145deg,
-    rgb(var(--neo-surface-top)),
-    rgb(var(--neo-surface-bottom))
-  );
-  box-shadow:
-    -4px -4px 8px rgb(var(--neo-shadow-light) / 0.8),
-    4px 4px 8px rgb(var(--neo-shadow-dark) / 0.33);
-  color: rgb(var(--neo-focus));
-  font-weight: 700;
+.profile-avatar {
+  font-size: var(--mg-font-size-lg);
+  font-weight: 900;
 }
 </style>

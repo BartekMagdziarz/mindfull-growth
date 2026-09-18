@@ -5,12 +5,12 @@
   >
     <!-- Theme picker -->
     <div>
-      <h3 class="text-base font-bold m-0" style="color: rgb(var(--neo-text))">
+      <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
         {{ t('profile.appearance.colorTheme') }}
       </h3>
       <p
         class="text-[12px] m-0 mt-[2px]"
-        style="color: rgb(var(--neo-muted))"
+        style="color: var(--mg-color-muted)"
       >
         {{ t('profile.appearance.description') }} {{ t('profile.appearance.themeHint') }}
       </p>
@@ -31,11 +31,11 @@
             :style="{ background: opt.gradient }"
           />
           <span class="theme-card__label">{{ opt.label }}</span>
-          <span
+          <AppIcon
             v-if="themePreference === opt.id"
             class="material-symbols-outlined theme-card__check"
             aria-hidden="true"
-          >check</span>
+           name="check" />
         </button>
       </div>
     </div>
@@ -48,13 +48,13 @@
       <div>
         <h3
           class="text-[14px] font-bold m-0 mb-1"
-          style="color: rgb(var(--neo-text))"
+          style="color: var(--mg-color-ink)"
         >
           {{ t('profile.language.label') }}
         </h3>
         <p
           class="text-[12px] m-0 mb-[10px]"
-          style="color: rgb(var(--neo-muted))"
+          style="color: var(--mg-color-muted)"
         >
           {{ t('profile.language.description') }}
         </p>
@@ -82,13 +82,13 @@
       <div>
         <h3
           class="text-[14px] font-bold m-0 mb-1"
-          style="color: rgb(var(--neo-text))"
+          style="color: var(--mg-color-ink)"
         >
           {{ t('profile.gender.label') }}
         </h3>
         <p
           class="text-[12px] m-0 mb-[10px]"
-          style="color: rgb(var(--neo-muted))"
+          style="color: var(--mg-color-muted)"
         >
           {{ t('profile.gender.description') }}
         </p>
@@ -116,6 +116,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed, onMounted, ref } from 'vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { applyTheme, type ThemeId } from '@/services/theme.service'
@@ -238,7 +240,7 @@ onMounted(async () => {
   border-radius: 1rem;
   cursor: pointer;
   font-family: inherit;
-  color: rgb(var(--neo-text));
+  color: var(--mg-color-ink);
   transition:
     box-shadow 220ms ease,
     background-color 220ms ease,
@@ -273,7 +275,7 @@ onMounted(async () => {
 
 .theme-card__check {
   font-size: 18px;
-  color: rgb(var(--neo-focus));
+  color: var(--mg-color-primary-strong);
   margin-left: auto;
 }
 </style>

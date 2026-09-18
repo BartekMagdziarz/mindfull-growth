@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5201 --strictPort",
-    "build": "npm run check:boundaries && vue-tsc --noEmit && vite build",
+    "build": "npm run export:icons && npm run check:boundaries && vue-tsc --noEmit && vite build",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "test": "vitest run --config vitest.config.ts",
     "typecheck": "vue-tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "export:icons": "node scripts/export-icons.mjs"
   },
   "dependencies": {
     "pinia": "^2.3.0",

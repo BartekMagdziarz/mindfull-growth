@@ -1,45 +1,47 @@
 <template>
-  <div class="flex flex-col min-h-[100dvh]">
-    <!-- Sticky header -->
-    <header
-      class="sticky top-0 z-10 bg-neu-base/85 backdrop-blur px-4 pt-4 pb-3 flex items-center gap-3"
-    >
-      <button
-        type="button"
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        :aria-label="t('common.buttons.back')"
-        @click="handleBack"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-
-      <div class="min-w-0 flex-1">
-        <h1 class="text-base font-semibold text-on-surface truncate">
-          {{ t('profile.psychologicalProfile.wizard.title') }}
-        </h1>
-        <p class="text-xs text-on-surface-variant truncate">
-          {{ stepLabel }}
-        </p>
-      </div>
-
-      <!-- Step dots -->
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
+  <div class="flex flex-col min-h-[100dvh] profile-build">
+    <!-- Sticky header: back · title/step · stepper -->
+    <header class="profile-build__head">
+      <div class="mg-v2-page-head mx-auto w-full max-w-3xl">
         <button
-          v-for="(step, idx) in STEP_ORDER"
-          :key="step"
           type="button"
-          :disabled="idx > stepIndex"
-          :aria-label="stepAriaLabel(step, idx)"
-          class="rounded-full transition-all duration-200"
-          :class="stepDotClass(idx)"
-          :data-test-step-dot="step"
-          @click="handleStepDot(step, idx)"
-        />
+          class="mg-v2-button mg-v2-button--icon"
+          :aria-label="t('common.buttons.back')"
+          @click="handleBack"
+        >
+          <AppIcon name="arrow_back" class="text-xl" />
+        </button>
+
+        <div class="mg-v2-page-head__copy">
+          <span class="mg-v2-page-head__eyebrow">{{ t('common.nav.profile') }}</span>
+          <h1 class="mg-v2-page-head__title truncate">
+            {{ t('profile.psychologicalProfile.wizard.title') }}
+          </h1>
+          <p class="mg-v2-page-head__lead truncate">{{ stepLabel }}</p>
+        </div>
+
+        <!-- Step dots -->
+        <div class="mg-v2-page-head__actions">
+          <ol class="mg-v2-stepper__dots" role="group" aria-label="Wizard progress">
+            <li v-for="(step, idx) in STEP_ORDER" :key="step">
+              <button
+                type="button"
+                :disabled="idx > stepIndex"
+                :aria-label="stepAriaLabel(step, idx)"
+                :aria-current="idx === stepIndex ? 'step' : undefined"
+                class="mg-v2-stepper__dot"
+                :class="stepDotClass(idx)"
+                :data-test-step-dot="step"
+                @click="handleStepDot(step, idx)"
+              />
+            </li>
+          </ol>
+        </div>
       </div>
     </header>
 
     <!-- Main content -->
-    <main class="flex-1 px-4 py-4 pb-28">
+    <main class="mx-auto w-full max-w-3xl flex-1 px-4 py-4 pb-28">
       <Transition
         enter-active-class="transition-opacity duration-200"
         leave-active-class="transition-opacity duration-200"
@@ -253,9 +255,9 @@ const backDisabled = computed(
 )
 
 function stepDotClass(idx: number): string {
-  if (idx < stepIndex.value) return 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-  if (idx === stepIndex.value) return 'neo-step-active w-3.5 h-3.5'
-  return 'neo-step-future w-2.5 h-2.5'
+  if (idx < stepIndex.value) return 'mg-v2-stepper__dot--done'
+  if (idx === stepIndex.value) return 'mg-v2-stepper__dot--current'
+  return ''
 }
 
 function stepAriaLabel(step: ProfileBuildStep, idx: number): string {
@@ -295,3 +297,16 @@ async function goToSettings(): Promise<void> {
   await router.push({ name: 'profile', hash: '#ai-settings' })
 }
 </script>
+
+<style scoped>
+.profile-build__head {
+  position: sticky;
+  top: 0;
+  z-index: var(--mg-layer-sticky);
+  padding: var(--mg-space-4) var(--mg-space-4) 0;
+  /* Translucent over the body gradient so the sticky band never reads as a
+     second, flat page tone. */
+  background: color-mix(in srgb, var(--mg-color-canvas) 72%, transparent);
+  backdrop-filter: blur(10px);
+}
+</style>

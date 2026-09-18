@@ -8,10 +8,7 @@
  * Design: docs/exercise-scheduling-design.md §4.1.
  */
 
-import type {
-  ExerciseCatalogCategory,
-  ExerciseCatalogEntry,
-} from '@/domain/exerciseCatalog'
+import type { ExerciseCatalogCategory, ExerciseCatalogEntry } from '@/domain/exerciseCatalog'
 
 export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
   // ── Self-discovery ──────────────────────────────────────────────────
@@ -21,7 +18,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/values',
     i18nKey: 'valuesDiscovery',
-    icon: 'favorite',
+    icon: 'mg-exercise-values',
     estimatedMinutes: 15,
     legacyTable: 'valuesDiscoveries',
   },
@@ -31,7 +28,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/value-map',
     i18nKey: 'valueMap',
-    icon: 'account_tree',
+    icon: 'mg-exercise-value-map',
     estimatedMinutes: 15,
     legacyTable: 'valueMaps',
   },
@@ -41,7 +38,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/wheel-of-life',
     i18nKey: 'wheelOfLife',
-    icon: 'pie_chart',
+    icon: 'mg-exercise-wheel-of-life',
     estimatedMinutes: 10,
     // Full assessments only — the table is shared with per-life-area partials.
     legacyTable: 'lifeAreaAssessments',
@@ -52,7 +49,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/shadow-beliefs',
     i18nKey: 'shadowBeliefs',
-    icon: 'visibility',
+    icon: 'mg-exercise-shadow-beliefs',
     estimatedMinutes: 15,
     legacyTable: 'shadowBeliefs',
   },
@@ -62,7 +59,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/purpose',
     i18nKey: 'transformativePurpose',
-    icon: 'auto_awesome',
+    icon: 'mg-exercise-purpose',
     estimatedMinutes: 15,
     legacyTable: 'transformativePurposes',
   },
@@ -72,7 +69,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/ipip-bfm-50',
     i18nKey: 'ipipBfm50',
-    icon: 'bar_chart',
+    icon: 'mg-exercise-ipip-bfm-50',
     estimatedMinutes: 12,
   },
   {
@@ -81,7 +78,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/ipip-neo-120',
     i18nKey: 'ipipNeo120',
-    icon: 'description',
+    icon: 'mg-exercise-ipip-neo-120',
     estimatedMinutes: 25,
   },
   {
@@ -90,7 +87,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/hexaco-60',
     i18nKey: 'hexaco60',
-    icon: 'grid_view',
+    icon: 'mg-exercise-hexaco-60',
     estimatedMinutes: 14,
   },
   {
@@ -99,7 +96,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/pvq-40',
     i18nKey: 'pvq40',
-    icon: 'favorite',
+    icon: 'mg-exercise-pvq-40',
     estimatedMinutes: 15,
   },
   {
@@ -108,7 +105,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/vlq',
     i18nKey: 'vlq',
-    icon: 'lightbulb',
+    icon: 'mg-exercise-vlq',
     estimatedMinutes: 8,
   },
   {
@@ -117,7 +114,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/erq',
     i18nKey: 'erq',
-    icon: 'mood',
+    icon: 'mg-exercise-erq',
     estimatedMinutes: 4,
   },
   {
@@ -126,7 +123,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/rrq',
     i18nKey: 'rrq',
-    icon: 'psychology',
+    icon: 'mg-exercise-rrq',
     estimatedMinutes: 6,
   },
   {
@@ -135,7 +132,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/ecr-rs',
     i18nKey: 'ecrRs',
-    icon: 'diversity_1',
+    icon: 'mg-exercise-ecr-rs',
     estimatedMinutes: 3,
   },
   {
@@ -144,7 +141,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'self-discovery',
     route: '/exercises/assessments/ipip-via',
     i18nKey: 'ipipVia',
-    icon: 'military_tech',
+    icon: 'mg-exercise-ipip-via',
     estimatedMinutes: 7,
   },
 
@@ -155,7 +152,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/worry-tree',
     i18nKey: 'worryTree',
-    icon: 'zoom_out_map',
+    icon: 'mg-exercise-worry-tree',
     estimatedMinutes: 5,
     micro: true,
     suggestedRepeatDays: 7,
@@ -167,7 +164,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/cognitive-distortions',
     i18nKey: 'cognitiveDistortions',
-    icon: 'extension',
+    icon: 'mg-exercise-cognitive-distortions',
     estimatedMinutes: 10,
     aiAssisted: true,
     legacyTable: 'distortionAssessments',
@@ -178,7 +175,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/thought-record',
     i18nKey: 'thoughtRecord',
-    icon: 'description',
+    icon: 'mg-exercise-thought-record',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'thoughtRecords',
@@ -189,7 +186,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/core-beliefs',
     i18nKey: 'coreBeliefs',
-    icon: 'lightbulb',
+    icon: 'mg-exercise-core-beliefs',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'coreBeliefsExplorations',
@@ -200,7 +197,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/compassionate-letter',
     i18nKey: 'compassionateLetter',
-    icon: 'edit_note',
+    icon: 'mg-exercise-compassionate-letter',
     estimatedMinutes: 15,
     aiAssisted: true,
     descriptionGendered: true,
@@ -212,7 +209,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/positive-data-log',
     i18nKey: 'positiveDataLog',
-    icon: 'assignment',
+    icon: 'mg-exercise-positive-data-log',
     estimatedMinutes: 3,
     micro: true,
     suggestedRepeatDays: 2,
@@ -225,7 +222,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/behavioral-experiment',
     i18nKey: 'behavioralExperiment',
-    icon: 'science',
+    icon: 'mg-exercise-behavioral-experiment',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'behavioralExperiments',
@@ -236,7 +233,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/behavioral-activation',
     i18nKey: 'behavioralActivation',
-    icon: 'calendar_month',
+    icon: 'mg-exercise-behavioral-activation',
     estimatedMinutes: 20,
     aiAssisted: true,
     legacyTable: 'behavioralActivations',
@@ -247,7 +244,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/structured-problem-solving',
     i18nKey: 'structuredProblemSolving',
-    icon: 'build',
+    icon: 'mg-exercise-structured-problem-solving',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'structuredProblemSolvings',
@@ -258,7 +255,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'cbt',
     route: '/exercises/graded-exposure',
     i18nKey: 'gradedExposure',
-    icon: 'trending_up',
+    icon: 'mg-exercise-graded-exposure',
     estimatedMinutes: 20,
     aiAssisted: true,
     legacyTable: 'gradedExposureHierarchies',
@@ -271,7 +268,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'logotherapy',
     route: '/exercises/three-pathways',
     i18nKey: 'threePathways',
-    icon: 'grid_view',
+    icon: 'mg-exercise-three-pathways',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'threePathwaysToMeaning',
@@ -282,7 +279,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'logotherapy',
     route: '/exercises/socratic-dialogue',
     i18nKey: 'socraticDialogue',
-    icon: 'forum',
+    icon: 'mg-exercise-socratic-dialogue',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'socraticSelfDialogues',
@@ -293,7 +290,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'logotherapy',
     route: '/exercises/mountain-range',
     i18nKey: 'mountainRange',
-    icon: 'bar_chart',
+    icon: 'mg-exercise-mountain-range',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'mountainRangesOfMeaning',
@@ -304,7 +301,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'logotherapy',
     route: '/exercises/paradoxical-intention',
     i18nKey: 'paradoxicalIntention',
-    icon: 'mood',
+    icon: 'mg-exercise-paradoxical-intention',
     estimatedMinutes: 10,
     aiAssisted: true,
     legacyTable: 'paradoxicalIntentionLabs',
@@ -315,7 +312,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'logotherapy',
     route: '/exercises/dereflection',
     i18nKey: 'dereflection',
-    icon: 'redo',
+    icon: 'mg-exercise-dereflection',
     estimatedMinutes: 10,
     legacyTable: 'dereflectionPractices',
   },
@@ -325,7 +322,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'logotherapy',
     route: '/exercises/tragic-optimism',
     i18nKey: 'tragicOptimism',
-    icon: 'wb_sunny',
+    icon: 'mg-exercise-tragic-optimism',
     estimatedMinutes: 10,
     aiAssisted: true,
     legacyTable: 'tragicOptimisms',
@@ -336,7 +333,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'logotherapy',
     route: '/exercises/attitudinal-shift',
     i18nKey: 'attitudinalShift',
-    icon: 'refresh',
+    icon: 'mg-exercise-attitudinal-shift',
     estimatedMinutes: 10,
     aiAssisted: true,
     legacyTable: 'attitudinalShifts',
@@ -347,7 +344,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'logotherapy',
     route: '/exercises/legacy-letter',
     i18nKey: 'legacyLetter',
-    icon: 'mail',
+    icon: 'mg-exercise-legacy-letter',
     estimatedMinutes: 20,
     aiAssisted: true,
     legacyTable: 'legacyLetters',
@@ -360,7 +357,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/parts-mapping',
     i18nKey: 'partsMapping',
-    icon: 'map',
+    icon: 'mg-exercise-parts-mapping',
     estimatedMinutes: 20,
     aiAssisted: true,
     // The exercise's own records; NOT `ifsParts` (shared parts registry).
@@ -372,7 +369,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/unblending',
     i18nKey: 'unblending',
-    icon: 'zoom_in_map',
+    icon: 'mg-exercise-unblending',
     estimatedMinutes: 10,
     legacyTable: 'ifsUnblendingSessions',
   },
@@ -382,7 +379,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/direct-access',
     i18nKey: 'directAccess',
-    icon: 'forum',
+    icon: 'mg-exercise-direct-access',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'ifsDirectAccessSessions',
@@ -393,7 +390,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/trailhead',
     i18nKey: 'trailhead',
-    icon: 'location_on',
+    icon: 'mg-exercise-trailhead',
     estimatedMinutes: 10,
     legacyTable: 'ifsTrailheadEntries',
   },
@@ -403,7 +400,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/protector-appreciation',
     i18nKey: 'protectorAppreciation',
-    icon: 'verified_user',
+    icon: 'mg-exercise-protector-appreciation',
     estimatedMinutes: 10,
     aiAssisted: true,
     legacyTable: 'ifsProtectorAppreciations',
@@ -414,7 +411,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/exile-witnessing',
     i18nKey: 'exileWitnessing',
-    icon: 'favorite',
+    icon: 'mg-exercise-exile-witnessing',
     estimatedMinutes: 15,
     legacyTable: 'ifsExileWitnessings',
   },
@@ -424,7 +421,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/self-energy',
     i18nKey: 'selfEnergy',
-    icon: 'wb_sunny',
+    icon: 'mg-exercise-self-energy',
     estimatedMinutes: 5,
     micro: true,
     legacyTable: 'ifsSelfEnergyCheckIns',
@@ -435,7 +432,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/parts-dialogue',
     i18nKey: 'partsDialogue',
-    icon: 'edit_note',
+    icon: 'mg-exercise-parts-dialogue',
     estimatedMinutes: 15,
     aiAssisted: true,
     legacyTable: 'ifsPartsDialogues',
@@ -446,7 +443,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/daily-ifs-checkin',
     i18nKey: 'dailyCheckIn',
-    icon: 'schedule',
+    icon: 'mg-exercise-daily-ifs-checkin',
     estimatedMinutes: 5,
     micro: true,
     suggestedRepeatDays: 1,
@@ -458,7 +455,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'ifs',
     route: '/exercises/constellation',
     i18nKey: 'constellation',
-    icon: 'public',
+    icon: 'mg-exercise-constellation',
     estimatedMinutes: 20,
     aiAssisted: true,
     legacyTable: 'ifsConstellations',
@@ -471,7 +468,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'micro',
     route: '/exercises/micro/gratitude-list',
     i18nKey: 'gratitudeList',
-    icon: 'volunteer_activism',
+    icon: 'mg-exercise-gratitude-list',
     estimatedMinutes: 3,
     micro: true,
     suggestedRepeatDays: 1,
@@ -483,7 +480,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'micro',
     route: '/exercises/micro/savoring-moment',
     i18nKey: 'savoringMoment',
-    icon: 'wb_twilight',
+    icon: 'mg-exercise-savoring-moment',
     estimatedMinutes: 3,
     micro: true,
     suggestedRepeatDays: 2,
@@ -494,7 +491,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'micro',
     route: '/exercises/micro/self-compassion-break',
     i18nKey: 'selfCompassionBreak',
-    icon: 'self_improvement',
+    icon: 'mg-exercise-self-compassion-break',
     estimatedMinutes: 4,
     micro: true,
     suggestedRepeatDays: 3,
@@ -505,7 +502,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'micro',
     route: '/exercises/micro/grounding-54321',
     i18nKey: 'grounding54321',
-    icon: 'filter_5',
+    icon: 'mg-exercise-grounding-54321',
     estimatedMinutes: 3,
     micro: true,
     suggestedRepeatDays: 3,
@@ -516,7 +513,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'micro',
     route: '/exercises/micro/box-breathing',
     i18nKey: 'boxBreathing',
-    icon: 'air',
+    icon: 'mg-exercise-box-breathing',
     estimatedMinutes: 2,
     micro: true,
     suggestedRepeatDays: 1,
@@ -527,7 +524,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     category: 'micro',
     route: '/exercises/micro/one-small-win',
     i18nKey: 'oneSmallWin',
-    icon: 'emoji_events',
+    icon: 'mg-exercise-one-small-win',
     estimatedMinutes: 2,
     micro: true,
     suggestedRepeatDays: 1,
@@ -535,7 +532,7 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
 ]
 
 export function getCatalogEntry(slug: string): ExerciseCatalogEntry | undefined {
-  return EXERCISE_CATALOG.find((e) => e.slug === slug)
+  return EXERCISE_CATALOG.find(e => e.slug === slug)
 }
 
 /**
@@ -543,14 +540,12 @@ export function getCatalogEntry(slug: string): ExerciseCatalogEntry | undefined 
  * ćwiczenia" — everything doable in a few minutes, i.e. all
  * micro-eligible entries regardless of their home category.
  */
-export function catalogEntriesForTab(
-  tab: ExerciseCatalogCategory,
-): ExerciseCatalogEntry[] {
-  if (tab === 'micro') return EXERCISE_CATALOG.filter((e) => e.micro)
-  return EXERCISE_CATALOG.filter((e) => e.category === tab)
+export function catalogEntriesForTab(tab: ExerciseCatalogCategory): ExerciseCatalogEntry[] {
+  if (tab === 'micro') return EXERCISE_CATALOG.filter(e => e.micro)
+  return EXERCISE_CATALOG.filter(e => e.category === tab)
 }
 
 /** Candidates for the daily "Ćwiczenie na dziś" suggestion. */
 export function microCandidates(): ExerciseCatalogEntry[] {
-  return EXERCISE_CATALOG.filter((e) => e.micro)
+  return EXERCISE_CATALOG.filter(e => e.micro)
 }

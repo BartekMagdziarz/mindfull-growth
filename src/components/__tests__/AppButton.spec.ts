@@ -23,7 +23,7 @@ describe('AppButton', () => {
     })
 
     const button = getByRole('button')
-    expect(button).toHaveClass('bg-gradient-to-br', 'from-primary', 'to-primary-strong', 'text-on-primary')
+    expect(button).toHaveClass('mg-v2-button', 'mg-v2-button--primary')
   })
 
   it('applies outlined variant when specified', () => {
@@ -37,6 +37,7 @@ describe('AppButton', () => {
     })
 
     const button = getByRole('button')
-    expect(button).toHaveClass('border', 'bg-transparent', 'text-primary')
+    expect(button).toHaveClass('mg-v2-button')
+    expect(button).not.toHaveClass('mg-v2-button--primary')
   })
 })

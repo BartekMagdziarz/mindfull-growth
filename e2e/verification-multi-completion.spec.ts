@@ -56,6 +56,13 @@ test.describe('multi-completion', () => {
     const row = page.locator('.ndi', { hasText: 'Poranna checklista' }).first()
     await expect(row).toBeVisible()
 
+    // At rest the checklist folds into one fraction disc; hovering the control
+    // splits it into one chip per item (the pointer then stays over the chips).
+    const fraction = row.locator('.ndi__well--fraction')
+    await expect(fraction).toBeVisible()
+    await expect(fraction).toHaveText(/^\s*\d\s*\/\s*3\s*$/)
+    await row.locator('.ndi__multi').hover()
+
     const chips = row.locator('.ndi__well--dot')
     await expect(chips).toHaveCount(3)
 

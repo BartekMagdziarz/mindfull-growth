@@ -12,9 +12,9 @@
       class="mt-6 space-y-3"
       :data-test-foundation-group="group.id"
     >
-      <h2 class="text-sm font-semibold text-on-surface">
-        {{ t(`profile.psychologicalProfile.foundation.groups.${group.id}`) }}
-      </h2>
+      <div class="mg-v2-section-head">
+        <h2>{{ t(`profile.psychologicalProfile.foundation.groups.${group.id}`) }}</h2>
+      </div>
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <FoundationTile
           v-for="status in group.statuses"
@@ -35,23 +35,21 @@
       class="mt-8 space-y-3"
       data-test-foundation-coming-soon
     >
-      <h2 class="text-sm font-semibold text-on-surface-variant">
-        {{ t('profile.psychologicalProfile.foundation.comingSoon.title') }}
-      </h2>
+      <div class="mg-v2-section-head">
+        <h2>{{ t('profile.psychologicalProfile.foundation.comingSoon.title') }}</h2>
+      </div>
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div
           v-for="group in comingSoonGroups"
           :key="group"
-          class="rounded-2xl border border-dashed border-neu-border/40 bg-neu-base/60 p-4 shadow-neu-flat"
+          class="mg-v2-surface mg-v2-surface--flat border-dashed p-4"
           :data-test-foundation-coming-soon-group="group"
         >
           <div class="flex items-center justify-between gap-3">
-            <span
-              class="neo-icon-circle flex h-9 w-9 shrink-0 items-center justify-center rounded-full opacity-70"
-            >
-              <AppIcon :name="comingSoonIcon[group]" class="text-lg text-on-surface-variant" />
+            <span class="mg-v2-icon-board mg-v2-icon-board--sm opacity-70" aria-hidden="true">
+              <AppIcon :name="comingSoonIcon[group]" />
             </span>
-            <span class="neo-pill px-2.5 py-1 text-xs text-on-surface-variant">
+            <span class="mg-v2-badge">
               {{ t('profile.psychologicalProfile.foundation.comingSoon.badge') }}
             </span>
           </div>

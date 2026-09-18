@@ -1,5 +1,6 @@
 <template>
   <article
+    ref="rootRef"
     class="ndi"
     :class="{ 'ndi--staged': staged, 'ndi--lit': lit, 'ndi--dim': dim }"
     @click="emit('select')"
@@ -8,6 +9,7 @@
          the stage: the staged row grows an expansion (chart + labelled actions) in place,
          so there is never a second copy of the icon, title or control elsewhere. -->
     <div class="ndi__main">
+      <span v-if="dragEnabled" class="ndi__drag" draggable="true" :title="t('planning.today.calendarPlan.drag')" @dragstart="emit('drag-plan-start', $event)" @dragend="emit('drag-plan-end')"><AppIcon name="drag_indicator" /></span>
       <span class="ndi__lead" :class="{ 'ndi__lead--active': hasTodayEntry }" aria-hidden="true">
         <AppIcon :name="iconName" />
       </span>
@@ -39,16 +41,16 @@
           @keydown.right.prevent="moveTrayFocus(1)"
           @keydown.esc.stop.prevent="leaveTray"
         >
-        <template v-if="canReschedule && !planningLocked">
+        <template v-if="canReschedule">
           <button v-if="canTomorrow" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.moveToTomorrow')" :aria-label="`${t('planning.today.actions.moveToTomorrow')}: ${title}`" @click="emit('move-tomorrow')"><AppIcon name="east" /></button>
           <button type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.moveToDay')" :aria-label="`${t('planning.today.actions.moveToDay')}: ${title}`" @click="emit('pick-day')"><AppIcon name="calendar_month" /></button>
         </template>
-        <button v-if="item.isScheduledToday && !planningLocked" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
-        <button v-else-if="item.canHide && !planningLocked" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.hideForToday')" :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`" @click="emit('hide')"><AppIcon name="visibility_off" /></button>
+        <button v-if="item.isScheduledToday" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.clearToday')" :aria-label="`${t('planning.today.actions.clearToday')}: ${title}`" @click="emit('clear-schedule')"><AppIcon name="event_busy" /></button>
+        <button v-else-if="item.canHide" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.hideForToday')" :aria-label="`${t('planning.today.actions.hideForToday')}: ${title}`" @click="emit('hide')"><AppIcon name="visibility_off" /></button>
         <button v-if="item.kind === 'measurement' && item.todayEntry" type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.clearEntry')" :aria-label="`${t('planning.today.actions.clearEntry')}: ${title}`" @click="emit('clear-entry')"><AppIcon name="ink_eraser" /></button>
         <button v-if="canOpenObject" type="button" tabindex="-1" class="ndi__action" :title="t('planning.objects.actions.open')" :aria-label="`${t('planning.objects.actions.open')}: ${title}`" @click="emit('open-object')"><AppIcon name="open_in_new" /></button>
         <button v-else type="button" tabindex="-1" class="ndi__action" :title="t('planning.today.actions.openContext')" :aria-label="`${t('planning.today.actions.openContext')}: ${title}`" @click="emit('open-context')"><AppIcon name="event" /></button>
-        <button v-if="item.isScheduledToday && !planningLocked" type="button" tabindex="-1" class="ndi__action ndi__action--danger" :title="t('common.buttons.delete')" :aria-label="`${t('common.buttons.delete')}: ${title}`" @click="emit('request-delete')"><AppIcon name="delete" /></button>
+        <button v-if="item.isScheduledToday" type="button" tabindex="-1" class="ndi__action ndi__action--danger" :title="t('common.buttons.delete')" :aria-label="`${t('common.buttons.delete')}: ${title}`" @click="emit('request-delete')"><AppIcon name="delete" /></button>
         </span>
       </div>
 
@@ -67,20 +69,60 @@
           @click="$emit('toggle-completion')"
         ></button>
 
-        <!-- Multi-completion: one disc per item, like a row of chart dots -->
-        <span v-else-if="viz.entryMode.value === 'multi-completion'" class="ndi__dots">
+        <!-- Multi-completion: at rest one disc carries the fraction (checked/all).
+             Hover or keyboard focus splits it into one dot per item, fanning out to
+             the left so the rail's right edge never moves. Each dot shows the item's
+             icon (or its initial) and names itself in a delayed tooltip. -->
+        <span
+          v-else-if="viz.entryMode.value === 'multi-completion'"
+          ref="multiRef"
+          class="ndi__multi"
+          :class="{ 'ndi__multi--open': multiOpen }"
+          @mouseenter="openMulti()"
+          @mouseleave="closeMulti()"
+          @focusout="onMultiFocusOut"
+          @keydown.esc.stop.prevent="collapseMulti"
+        >
           <button
-            v-for="multiItem in multiActiveItems"
-            :key="multiItem.id"
+            v-if="!multiOpen"
             type="button"
-            class="ndi__well ndi__well--dot ndi__well--button"
-            :class="{ 'ndi__well--done': multiCheckedIds.has(multiItem.id) }"
+            class="ndi__well ndi__well--button ndi__well--fraction"
+            :class="{ 'ndi__well--on': multiCheckedCount > 0, 'ndi__well--met': multiMet }"
             :disabled="isPending"
-            :title="multiItem.label"
-            :aria-label="multiItem.label"
-            :aria-pressed="multiCheckedIds.has(multiItem.id)"
-            @click="$emit('toggle-multi-item', multiItem.id)"
-          ></button>
+            aria-expanded="false"
+            :aria-label="`${t('planning.today.actions.showChecklist')}: ${multiFraction}`"
+            @click="openMulti(true)"
+          >
+            <span class="ndi__reading" :class="fractionSizeClass">
+              <b>{{ multiCheckedCount }}</b><i>/{{ multiActiveItems.length }}</i>
+            </span>
+          </button>
+          <template v-else>
+            <button
+              v-for="(multiItem, index) in multiActiveItems"
+              :key="multiItem.id"
+              type="button"
+              class="ndi__well ndi__well--dot ndi__well--button"
+              :class="{ 'ndi__well--done': multiCheckedIds.has(multiItem.id) }"
+              :style="{ '--ndi-i': multiActiveItems.length - 1 - index }"
+              :disabled="isPending"
+              :aria-label="multiItem.label"
+              :aria-pressed="multiCheckedIds.has(multiItem.id)"
+              @mouseenter="scheduleTip(multiItem.label, $event)"
+              @mouseleave="clearTip"
+              @focus="scheduleTip(multiItem.label, $event)"
+              @blur="clearTip"
+              @click="$emit('toggle-multi-item', multiItem.id)"
+            >
+              <AppIcon v-if="multiItem.icon" :name="multiItem.icon" />
+              <span v-else class="ndi__initial" aria-hidden="true">{{ initialOf(multiItem.label) }}</span>
+            </button>
+          </template>
+          <!-- Teleported past the rail's scroll clipping, but only as far as the
+               design root: the product tokens are scoped to it, not to :root. -->
+          <Teleport v-if="tip && tipHost" :to="tipHost">
+            <span class="ndi-tip" role="tooltip" :style="tip.style">{{ tip.label }}</span>
+          </Teleport>
         </span>
 
         <!-- Counter and rating: same disc, ± tucked beside it until hover/focus -->
@@ -151,10 +193,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, toRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
 import type { DayRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import type { TodayItem } from '@/services/todayViewQueries'
+import { multiCompletionDayMet } from '@/services/measurementProgress'
 import { useT } from '@/composables/useT'
 import { useTodayItemVisualization } from '@/composables/useTodayItemVisualization'
 import { canMoveToTomorrow, canRescheduleItem } from './dayViewModels'
@@ -165,6 +208,7 @@ const props = withDefaults(defineProps<{
   todayDayRef: DayRef
   rawEntries: DailyMeasurementEntry[]
   allDayAssignments: MeasurementDayAssignment[]
+  dragEnabled?: boolean
   isPending?: boolean
   /** This row is the current stage: expansion slot shown, icon tray hidden. */
   staged?: boolean
@@ -172,11 +216,11 @@ const props = withDefaults(defineProps<{
   lit?: boolean
   /** Muted because another row is highlighted. */
   dim?: boolean
-  /** Past days: entries stay editable, planning actions (move/hide/delete) are off. */
-  planningLocked?: boolean
-}>(), { isPending: false, staged: false, lit: false, dim: false, planningLocked: false })
+}>(), { isPending: false, staged: false, lit: false, dim: false })
 
 const emit = defineEmits<{
+  'drag-plan-start': [event: DragEvent]
+  'drag-plan-end': []
   select: []
   'open-object': []
   'open-context': []
@@ -257,6 +301,96 @@ const multiActiveItems = computed(() => props.item.kind === 'measurement'
 const multiCheckedIds = computed(() => new Set(
   props.item.kind === 'measurement' ? props.item.todayEntry?.checkedItemIds ?? [] : [],
 ))
+// The fraction counts items (what the dots show), while "met" follows the
+// weighted daily threshold — the same rule the charts and summaries score by.
+const multiCheckedCount = computed(() =>
+  multiActiveItems.value.filter(entry => multiCheckedIds.value.has(entry.id)).length,
+)
+const multiFraction = computed(() => `${multiCheckedCount.value}/${multiActiveItems.value.length}`)
+const multiMet = computed(() => props.item.kind === 'measurement'
+  && Boolean(props.item.todayEntry)
+  && multiActiveItems.value.length > 0
+  && multiCompletionDayMet(props.item.subject, props.item.todayEntry!))
+
+// Collapsed fraction ⇄ expanded dots. Hover opens and closes; keyboard opens on
+// focus/Enter and hands focus to the first dot, Esc folds back to the fraction.
+const multiRef = ref<HTMLElement | null>(null)
+const multiOpen = ref(false)
+
+function openMulti(focusFirstDot = false): void {
+  if (!multiOpen.value) multiOpen.value = true
+  if (!focusFirstDot) return
+  void nextTick(() => {
+    multiRef.value?.querySelector<HTMLButtonElement>('button.ndi__well--dot')?.focus()
+  })
+}
+
+function closeMulti(): void {
+  // Keyboard users keep the dots while one of them holds focus.
+  if (multiRef.value?.contains(document.activeElement)) return
+  multiOpen.value = false
+  clearTip()
+}
+
+function collapseMulti(): void {
+  multiOpen.value = false
+  clearTip()
+  void nextTick(() => {
+    multiRef.value?.querySelector<HTMLButtonElement>('button.ndi__well--fraction')?.focus()
+  })
+}
+
+// Swapping the fraction for the dots removes the focused element, which fires a
+// focusout with no relatedTarget; the check waits a tick so the first dot has
+// already taken focus by then.
+function onMultiFocusOut(): void {
+  void nextTick(() => {
+    if (multiRef.value?.contains(document.activeElement)) return
+    if (multiRef.value?.matches(':hover')) return
+    multiOpen.value = false
+    clearTip()
+  })
+}
+
+function initialOf(label: string): string {
+  return label.trim().charAt(0).toUpperCase()
+}
+
+// Item title tooltip: appears half a second after the pointer settles on a dot.
+// Teleported to <body> so the rail's scroll clipping cannot cut it off.
+const TIP_DELAY_MS = 500
+const tip = ref<{ label: string; style: Record<string, string> } | null>(null)
+let tipTimer: ReturnType<typeof setTimeout> | null = null
+const rootRef = ref<HTMLElement | null>(null)
+const tipHost = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+  tipHost.value = rootRef.value?.closest<HTMLElement>('.mg-design-v2') ?? document.body
+})
+
+function scheduleTip(label: string, event: Event): void {
+  clearTip()
+  const target = event.currentTarget as HTMLElement | null
+  if (!target) return
+  tipTimer = setTimeout(() => {
+    tipTimer = null
+    const rect = target.getBoundingClientRect()
+    tip.value = {
+      label,
+      style: { left: `${rect.left + rect.width / 2}px`, top: `${rect.top}px` },
+    }
+  }, TIP_DELAY_MS)
+}
+
+function clearTip(): void {
+  if (tipTimer) {
+    clearTimeout(tipTimer)
+    tipTimer = null
+  }
+  tip.value = null
+}
+
+onBeforeUnmount(clearTip)
 const stepperValue = computed(() => hasNumericEntry.value ? String(viz.currentValue.value ?? 0) : '0')
 // A 34px circle is a tight frame, so longer readings step down a size instead of
 // being clipped.
@@ -267,6 +401,10 @@ function sizeSuffix(length: number): '' | '--sm' | '--xs' {
 }
 const readingSizeClass = computed(() => {
   const suffix = sizeSuffix(stepperValue.value.length + (isRating.value ? 2 : 0))
+  return suffix ? `ndi__reading${suffix}` : ''
+})
+const fractionSizeClass = computed(() => {
+  const suffix = sizeSuffix(multiFraction.value.length)
   return suffix ? `ndi__reading${suffix}` : ''
 })
 const inputSizeClass = computed(() => {
@@ -388,11 +526,11 @@ function submitValueDraft(event: Event): void {
   background: var(--mg-color-mist);
 }
 
-/* Stage: the row itself becomes the detail surface — tinted, with a left rule. */
+/* Expanded row: one step whiter than the hover tone (card → hover → expanded),
+   nothing else — no tint back toward blue, no left rule (user decision 2026-09-10). */
 .ndi--staged,
 .ndi--staged:hover {
-  background: var(--mg-color-sky-well);
-  box-shadow: inset 3px 0 0 var(--mg-color-state);
+  background: var(--mg-color-paper);
 }
 
 /* Compass highlight: related rows glow, the rest step back. */
@@ -525,21 +663,101 @@ function submitValueDraft(event: Event): void {
   );
 }
 
-/* Multi-completion: one disc per item, echoing a row of chart dots. */
-.ndi__dots {
+/* Multi-completion: the fraction disc at rest, a row of item dots on hover.
+   Right-aligned, so the disc and the last dot share the rail's right edge. */
+.ndi__multi {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--mg-space-1);
+  min-height: 2.1rem;
+}
+
+/* Threshold met: a firmer tint than "has a reading", but the fraction stays
+   legible — the filled chart blob is reserved for single-completion rows. */
+.ndi__well--met {
+  border-color: transparent;
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-state-soft);
 }
 
 .ndi__well--dot {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  color: var(--mg-color-muted);
+  animation: ndi-dot-in var(--mg-duration-fast) var(--mg-ease-standard) both;
+  animation-delay: calc(var(--ndi-i, 0) * 28ms);
 }
 
-.ndi__dots > .ndi__well:nth-child(even) {
+.ndi__multi > .ndi__well--dot:nth-child(even) {
   border-radius: var(--mg-radius-organic-b);
+}
+
+.ndi__well--dot .material-symbols-outlined {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.ndi__initial {
+  font-size: var(--mg-font-size-xs);
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* A checked item's dot fills solid: the glyph inverts instead of hiding
+   behind the completion blob. */
+.ndi__well--dot.ndi__well--done {
+  color: var(--mg-color-on-primary);
+  background: var(--mg-color-state);
+  box-shadow: none;
+}
+
+.ndi__well--dot.ndi__well--done::after {
+  content: none;
+}
+
+.ndi__well--dot:not(:disabled):hover {
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-well);
+}
+
+.ndi__well--dot.ndi__well--done:not(:disabled):hover {
+  color: var(--mg-color-on-primary);
+  background: var(--mg-color-primary-fill-hover);
+}
+
+@keyframes ndi-dot-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.4rem) scale(0.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ndi__well--dot {
+    animation: none;
+  }
+}
+
+/* Item tooltip lives in <body> (teleported), so it is styled globally. */
+:global(.ndi-tip) {
+  position: fixed;
+  z-index: var(--mg-layer-dialog);
+  max-width: 16rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--mg-radius-pill);
+  color: var(--mg-color-inverse-ink);
+  background: var(--mg-color-inverse);
+  box-shadow: var(--mg-shadow-raised-sm);
+  font-family: var(--mg-font-sans);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 0.35rem));
 }
 
 .ndi__reading {

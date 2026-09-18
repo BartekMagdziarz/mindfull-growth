@@ -58,6 +58,8 @@ export interface ObjectsLibraryQuery {
 export interface ObjectsLibraryFilterOption {
   id: string
   label: string
+  /** Entity icon (catalog id, material symbol or legacy emoji) for card glyphs. */
+  icon?: string
 }
 
 export interface ObjectsLibraryChildPreview {
@@ -120,6 +122,8 @@ export interface ObjectsLibraryListItem {
   target?: MeasurementTarget
   chartData?: ObjectsLibraryChartPoint[]
   targetDate?: string
+  startDate?: string
+  createdAt?: string
   successDefinition?: string
   whyMatters?: string
   confidenceRating?: number
@@ -670,11 +674,11 @@ export async function loadObjectsLibraryBundle(
         lifeAreas: deps.lifeAreas
           .filter((area) => area.isActive)
           .sort((left, right) => left.sortOrder - right.sortOrder)
-          .map((area) => ({ id: area.id, label: area.name })),
+          .map((area) => ({ id: area.id, label: area.name, icon: area.icon })),
         priorities: deps.priorities
           .filter((priority) => priority.status === 'active')
           .sort(compareActivePriorities)
-          .map((priority) => ({ id: priority.id, label: priorityLabel(priority) })),
+          .map((priority) => ({ id: priority.id, label: priorityLabel(priority), icon: priority.icon })),
         goals: deps.goals
           .filter(isGoalOpen)
           .sort((left, right) => left.title.localeCompare(right.title))
@@ -818,6 +822,8 @@ function buildGoalListItem(
       .map((s) => s.monthRef),
     description: goal.description,
     targetDate: goal.targetDate,
+    startDate: goal.startDate,
+    createdAt: goal.createdAt,
     successDefinition: goal.successDefinition,
     whyMatters: goal.whyMatters,
     confidenceRating: goal.confidenceRating,

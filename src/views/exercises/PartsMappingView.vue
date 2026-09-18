@@ -1,24 +1,14 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="flex items-center gap-4 mb-6">
-      <button
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        @click="router.push('/exercises')"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.partsMapping.title') }}</h1>
-        <p class="text-sm text-on-surface-variant">{{ t('exercises.cards.partsMapping.subtitle') }}</p>
-      </div>
-    </div>
-
+  <ExercisePage
+    :title="t('exercises.cards.partsMapping.title')"
+    :subtitle="t('exercises.cards.partsMapping.subtitle')"
+  >
     <PartsMappingWizard v-if="!saved" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="parts-mapping" @again="saved = false" />
 
     <!-- Past Maps -->
     <div class="mt-10 space-y-4">
-      <h2 class="text-base font-semibold text-on-surface">{{ t('exercises.views.pastMaps') }}</h2>
+      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastMaps') }}</h2></div>
 
       <template v-if="sortedMaps.length">
         <AppCard
@@ -64,13 +54,12 @@
         {{ t('exercises.views.noMapsYet') }}
       </p>
     </div>
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import PartsMappingWizard from '@/components/exercises/PartsMappingWizard.vue'
@@ -80,7 +69,6 @@ import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useT } from '@/composables/useT'
 import { IFS_ROLE_CLASSES } from '@/constants/exerciseColorRoles'
 
-const router = useRouter()
 const { t, tp } = useT()
 const partStore = useIFSPartStore()
 const mapStore = useIFSPartsMapStore()

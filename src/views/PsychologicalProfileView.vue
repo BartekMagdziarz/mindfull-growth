@@ -1,24 +1,11 @@
 <template>
   <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-28">
-    <!-- Header -->
-    <div class="flex items-center gap-4 mb-6">
-      <button
-        type="button"
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        :aria-label="t('common.buttons.back')"
-        @click="goBack"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div class="min-w-0">
-        <h1 class="text-xl font-bold text-on-surface">
-          {{ t('profile.psychologicalProfile.title') }}
-        </h1>
-        <p class="text-sm text-on-surface-variant">
-          {{ t('profile.psychologicalProfile.description') }}
-        </p>
-      </div>
-    </div>
+    <PageHeader
+      :eyebrow="t('common.nav.profile')"
+      :title="t('profile.psychologicalProfile.title')"
+      :description="t('profile.psychologicalProfile.description')"
+      :back-to="goBack"
+    />
 
     <!-- Empty state -->
     <PsychologicalProfileFoundationView
@@ -67,7 +54,7 @@
         <select
           id="profileVersionSelect"
           v-model="selectedVersionId"
-          class="neo-input w-full p-3 text-sm"
+          class="mg-v2-field text-sm"
         >
           <option
             v-for="p in userProfileStore.sortedProfiles"
@@ -221,6 +208,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 import ProfileSectionList from '@/components/profile/ProfileSectionList.vue'
 import ProfileBuildLogPanel from '@/components/profile/ProfileBuildLogPanel.vue'
 import FoundationRefreshBanner from '@/components/profile/FoundationRefreshBanner.vue'

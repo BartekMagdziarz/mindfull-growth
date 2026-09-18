@@ -120,11 +120,13 @@ export interface Priority extends Omit<PlanningObjectBase, 'isActive'> {
 }
 
 export interface Goal extends PlanningObjectBase {
+  periodAssignmentMode?: 'automatic' | 'custom'
   icon?: string
   priorityIds: string[]
   lifeAreaIds: string[]
   status: GoalStatus
   // SMART extensions
+  startDate?: string
   targetDate?: string
   successDefinition?: string
   whyMatters?: string
@@ -135,6 +137,7 @@ export interface Goal extends PlanningObjectBase {
 }
 
 export interface KeyResult extends PlanningObjectBase {
+  periodAssignmentMode?: 'automatic' | 'custom'
   goalId: string
   entryMode: MeasurementEntryMode
   cadence: PlanningCadence
@@ -860,6 +863,8 @@ export function normalizeGoalPayload(
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
     status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
+    periodAssignmentMode: normalizeEnum(data.periodAssignmentMode, 'periodAssignmentMode', ['automatic', 'custom'] as const, existing?.periodAssignmentMode ?? 'custom'),
+    startDate: normalizeOptionalIsoDate(data.startDate, 'startDate', existing?.startDate),
     targetDate: normalizeOptionalIsoDate(data.targetDate, 'targetDate', existing?.targetDate),
     successDefinition: normalizeOptionalText(data.successDefinition, 'successDefinition', existing?.successDefinition),
     whyMatters: normalizeOptionalText(data.whyMatters, 'whyMatters', existing?.whyMatters),
@@ -897,6 +902,7 @@ export function normalizeKeyResultPayload(
 
   return {
     ...base,
+    periodAssignmentMode: normalizeEnum(data.periodAssignmentMode, 'periodAssignmentMode', ['automatic', 'custom'] as const, existing?.periodAssignmentMode ?? 'custom'),
     goalId,
     entryMode,
     cadence: normalizeEnum(data.cadence, 'cadence', CADENCES, existing?.cadence ?? 'weekly'),

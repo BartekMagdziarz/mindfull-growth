@@ -1,10 +1,8 @@
 <template>
-  <div class="flex flex-wrap items-center gap-4 mb-6">
+  <div class="flex flex-wrap items-center gap-x-5 gap-y-3 mb-6">
     <!-- Type Filter -->
     <div class="flex items-center gap-2">
-      <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-        {{ t('history.filters.type') }}
-      </span>
+      <span class="mg-v2-page-head__eyebrow">{{ t('history.filters.type') }}</span>
       <div class="flex gap-1">
         <button
           v-for="option in typeOptions"
@@ -21,9 +19,7 @@
 
     <!-- Date Range Filter -->
     <div class="flex items-center gap-2">
-      <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-        {{ t('history.filters.date') }}
-      </span>
+      <span class="mg-v2-page-head__eyebrow">{{ t('history.filters.date') }}</span>
       <div class="flex gap-1">
         <button
           v-for="option in dateOptions"
@@ -40,12 +36,10 @@
 
     <!-- Sort Order Toggle -->
     <div class="flex items-center gap-2">
-      <span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-        {{ t('history.filters.sort') }}
-      </span>
+      <span class="mg-v2-page-head__eyebrow">{{ t('history.filters.sort') }}</span>
       <button
         type="button"
-        :class="getFilterButtonClasses(true)"
+        class="mg-v2-pill history-filter"
         @click="toggleSortOrder"
       >
         <AppIcon
@@ -93,16 +87,24 @@ const dateOptions = computed(() => [
   { value: 'month' as DateRangeFilter, label: t('history.filters.month') },
 ])
 
+/** Design V2 chips: selected = thin accent outline, flat. */
 function getFilterButtonClasses(isActive: boolean): string {
-  const base =
-    'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background'
-  if (isActive) {
-    return `${base} shadow-neu-pressed bg-neu-base text-primary border border-neu-border/40`
-  }
-  return `${base} bg-chip text-chip-text hover:bg-section`
+  return isActive
+    ? 'mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected'
+    : 'mg-v2-pill history-filter'
 }
 
 function toggleSortOrder() {
   emit('update:sortOrder', props.sortOrder === 'desc' ? 'asc' : 'desc')
 }
 </script>
+
+<style scoped>
+.history-filter {
+  cursor: pointer;
+}
+
+.history-filter:hover {
+  background: var(--mg-color-paper);
+}
+</style>

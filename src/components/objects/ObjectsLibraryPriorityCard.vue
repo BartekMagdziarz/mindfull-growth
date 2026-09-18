@@ -1,6 +1,6 @@
 <template>
   <article
-    class="group/card mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper p-3.5"
+    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5"
   >
     <div class="space-y-3">
       <div class="flex items-center gap-2">
@@ -21,11 +21,11 @@
           :placeholder="t('planning.objects.form.priorityTitlePlaceholder')"
           @blur="flushTitle"
         />
-        <div class="-mr-10 flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
+        <div class="mg-v2-card-tray group-hover/card:opacity-100">
           <div ref="menuRef" class="relative">
             <button
               type="button"
-              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm"
+              class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
               aria-label="More actions"
               @click.stop="menuOpen = !menuOpen"
             >
@@ -33,176 +33,218 @@
             </button>
             <div
               v-if="menuOpen"
-              class="mg-v2-popover absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden"
+              class="mg-v2-popover absolute right-0 top-full z-20 mt-1 min-w-[150px] overflow-hidden"
               @click.stop
             >
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-                @click="handleArchive"
-              >
-                {{ item.status === 'active' ? t('planning.objects.actions.pause') : t('planning.objects.actions.activate') }}
-              </button>
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-danger hover:bg-danger/5"
-                @click="handleDelete"
-              >
-                {{ t('common.buttons.delete') }}
-              </button>
+              <ObjectsCardStatusMenu
+                :model-value="item.status"
+                :options="statusOptions"
+                @update:model-value="handleStatusChange"
+              />
+              <div class="mg-v2-menu-section">
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="openLinks"
+                >
+                  {{ t('planning.objects.timeline.links') }}…
+                </button>
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="openYears"
+                >
+                  {{ t('planning.objects.timeline.years') }}…
+                </button>
+              </div>
+              <div class="mg-v2-menu-section">
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="handleArchive"
+                >
+                  {{ item.status === 'active' ? t('planning.objects.actions.pause') : t('planning.objects.actions.activate') }}
+                </button>
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-danger hover:bg-danger/5"
+                  @click="handleDelete"
+                >
+                  {{ t('common.buttons.delete') }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        <StatusIconButton
-          :model-value="item.status"
-          :options="statusOptions"
-          @update:model-value="emitFieldChange('status', $event)"
-        />
       </div>
 
-      <div class="flex flex-wrap items-center gap-1.5">
+      <!-- Quiet facts: status (only when not active), order -->
+      <p v-if="statusLabel || item.order" class="mg-v2-meta px-1">
+        <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
+        <span v-if="item.order">#{{ item.order }}</span>
+      </p>
+
+      <!-- Affiliation glyphs (life areas); click edits -->
+      <div ref="linksRef" class="relative px-1">
+        <ObjectCardAffiliation
+          :priority-ids="[]"
+          :life-area-ids="item.lifeAreaIds ?? []"
+          :priority-options="[]"
+          :life-area-options="lifeAreaOptions"
+          :group-label="t('planning.objects.form.lifeAreas')"
+          :empty-label="t('planning.objects.timeline.addLink')"
+          @open="openLinks"
+        />
+            <div
+              v-if="linksOpen"
+              class="mg-v2-popover absolute left-0 z-20 mt-1 max-h-56 min-w-[190px] overflow-y-auto p-1"
+              @click.stop
+            >
+              <button
+                v-for="option in lifeAreaOptions"
+                :key="option.id"
+                type="button"
+                class="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-[11px] font-medium text-on-surface hover:bg-primary-soft/30"
+                @click="emitFieldChange('toggleLifeArea', option.id)"
+              >
+                <AppIcon v-if="item.lifeAreaIds?.includes(option.id)" name="check" class="text-xs text-primary" />
+                <span v-else class="h-3 w-3" />
+                <span class="min-w-0 flex-1 truncate">{{ option.label }}</span>
+              </button>
+              <div v-if="lifeAreaOptions.length === 0" class="px-3 py-2 text-xs text-on-surface-variant">
+                {{ t('planning.objects.filters.noOptions') }}
+              </div>
+            </div>
+      </div>
+
+      <!-- Years as stepper dots on a pencil line; click edits linked years -->
+      <div class="relative">
+        <ObjectCardTimeline
+          variant="years"
+          :years="yearsWindow"
+          interactive
+          :label="t('planning.objects.timeline.years')"
+          @click="openYears"
+        />
         <PriorityYearsDropdown
+          ref="yearsRef"
+          triggerless
           :linked-years="linkedYears"
           @link-year="$emit('link-year', item.id, $event)"
           @unlink-year="$emit('unlink-year', item.id, $event)"
         />
-
-        <div ref="linksRef" class="relative">
-          <button
-            type="button"
-            class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm"
-            :title="t('planning.objects.form.lifeAreas')"
-            :aria-label="t('planning.objects.form.lifeAreas')"
-            @click.stop="linksOpen = !linksOpen"
-          >
-            <AppIcon name="link" class="text-base" />
-          </button>
-          <span
-            v-if="(item.lifeAreaIds ?? []).length > 0"
-            class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-on-primary"
-          >
-            {{ item.lifeAreaIds?.length }}
-          </span>
-          <div
-            v-if="linksOpen"
-            class="mg-v2-popover absolute left-0 z-20 mt-1 max-h-56 min-w-[190px] overflow-y-auto p-1"
-            @click.stop
-          >
-            <button
-              v-for="option in lifeAreaOptions"
-              :key="option.id"
-              type="button"
-              class="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-[11px] font-medium text-on-surface hover:bg-primary-soft/30"
-              @click="emitFieldChange('toggleLifeArea', option.id)"
-            >
-              <AppIcon v-if="item.lifeAreaIds?.includes(option.id)" name="check" class="text-xs text-primary" />
-              <span v-else class="h-3 w-3" />
-              <span class="min-w-0 flex-1 truncate">{{ option.label }}</span>
-            </button>
-            <div v-if="lifeAreaOptions.length === 0" class="px-3 py-2 text-xs text-on-surface-variant">
-              {{ t('planning.objects.filters.noOptions') }}
-            </div>
-          </div>
-        </div>
-
-        <span
-          v-if="item.order"
-          class="mg-v2-badge"
-        >
-          #{{ item.order }}
-        </span>
       </div>
 
-      <textarea
-        ref="whyNowRef"
-        v-model="whyNow"
-        rows="4"
-        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-        :placeholder="t('planning.objects.form.whyNow')"
-        @blur="flushWhyNow"
-      />
+      <label class="mg-v2-field-wrap gap-1">
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.whyNow') }}</span>
+        <textarea
+          ref="whyNowRef"
+          v-model="whyNow"
+          rows="4"
+          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
+          @blur="flushWhyNow"
+        />
+      </label>
 
-      <textarea
-        ref="desiredDirectionRef"
-        v-model="desiredDirection"
-        rows="4"
-        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-        :placeholder="t('planning.objects.form.desiredDirection')"
-        @blur="flushDesiredDirection"
-      />
+      <label class="mg-v2-field-wrap gap-1">
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.desiredDirection') }}</span>
+        <textarea
+          ref="desiredDirectionRef"
+          v-model="desiredDirection"
+          rows="4"
+          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
+          @blur="flushDesiredDirection"
+        />
+      </label>
 
-      <textarea
-        ref="tradeoffsRef"
-        v-model="tradeoffs"
-        rows="4"
-        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-        :placeholder="t('planning.objects.form.tradeoffs')"
-        @blur="flushTradeoffs"
-      />
+      <label class="mg-v2-field-wrap gap-1">
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.tradeoffs') }}</span>
+        <textarea
+          ref="tradeoffsRef"
+          v-model="tradeoffs"
+          rows="4"
+          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
+          @blur="flushTradeoffs"
+        />
+      </label>
 
-      <textarea
-        ref="progressSignalsRef"
-        v-model="progressSignals"
-        rows="4"
-        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-        :placeholder="t('planning.objects.form.progressSignals')"
-        @change="flushProgressSignals"
-        @blur="flushProgressSignals"
-      />
+      <label class="mg-v2-field-wrap gap-1">
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.progressSignals') }}</span>
+        <textarea
+          ref="progressSignalsRef"
+          v-model="progressSignals"
+          rows="4"
+          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
+          @change="flushProgressSignals"
+          @blur="flushProgressSignals"
+        />
+      </label>
 
-      <textarea
-        ref="riskSignalsRef"
-        v-model="riskSignals"
-        rows="4"
-        class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
-        :placeholder="t('planning.objects.form.riskSignals')"
-        @change="flushRiskSignals"
-        @blur="flushRiskSignals"
-      />
+      <label class="mg-v2-field-wrap gap-1">
+        <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.riskSignals') }}</span>
+        <textarea
+          ref="riskSignalsRef"
+          v-model="riskSignals"
+          rows="4"
+          class="mg-v2-field !min-h-[7rem] w-full resize-y text-xs leading-relaxed"
+          @change="flushRiskSignals"
+          @blur="flushRiskSignals"
+        />
+      </label>
 
       <section v-if="item.status === 'closed'" class="mg-v2-surface mg-v2-surface--flat space-y-2 p-2.5">
-        <input
-          ref="closedAtRef"
-          v-model="closedAt"
-          type="text"
-          class="mg-v2-field w-full text-xs"
-          :placeholder="t('planning.objects.form.closedAt')"
-          @change="flushClosedAt"
-          @blur="flushClosedAt"
-        />
-        <textarea
-          ref="closingSummaryRef"
-          v-model="closingSummary"
-          rows="2"
-          class="mg-v2-field !min-h-[4.25rem] w-full resize-none text-xs leading-relaxed"
-          :placeholder="t('planning.objects.form.closingSummary')"
-          @blur="flushClosingSummary"
-        />
+        <label class="mg-v2-field-wrap gap-1">
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.closedAt') }}</span>
+          <input
+            ref="closedAtRef"
+            v-model="closedAt"
+            type="text"
+            class="mg-v2-field w-full text-xs"
+            @change="flushClosedAt"
+            @blur="flushClosedAt"
+          />
+        </label>
+        <label class="mg-v2-field-wrap gap-1">
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.closingSummary') }}</span>
+          <textarea
+            ref="closingSummaryRef"
+            v-model="closingSummary"
+            rows="2"
+            class="mg-v2-field !min-h-[4.25rem] w-full resize-none text-xs leading-relaxed"
+            @blur="flushClosingSummary"
+          />
+        </label>
         <div class="grid gap-2 sm:grid-cols-3">
-          <textarea
-            ref="workedWellRef"
-            v-model="workedWell"
-            rows="3"
-            class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
-            :placeholder="t('planning.objects.form.workedWell')"
-            @blur="flushWorkedWell"
-          />
-          <textarea
-            ref="wasDifficultRef"
-            v-model="wasDifficult"
-            rows="3"
-            class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
-            :placeholder="t('planning.objects.form.wasDifficult')"
-            @blur="flushWasDifficult"
-          />
-          <textarea
-            ref="learnedRef"
-            v-model="learned"
-            rows="3"
-            class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
-            :placeholder="t('planning.objects.form.learned')"
-            @blur="flushLearned"
-          />
+          <label class="mg-v2-field-wrap gap-1">
+            <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.workedWell') }}</span>
+            <textarea
+              ref="workedWellRef"
+              v-model="workedWell"
+              rows="3"
+              class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
+              @blur="flushWorkedWell"
+            />
+          </label>
+          <label class="mg-v2-field-wrap gap-1">
+            <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.wasDifficult') }}</span>
+            <textarea
+              ref="wasDifficultRef"
+              v-model="wasDifficult"
+              rows="3"
+              class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
+              @blur="flushWasDifficult"
+            />
+          </label>
+          <label class="mg-v2-field-wrap gap-1">
+            <span class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('planning.objects.form.learned') }}</span>
+            <textarea
+              ref="learnedRef"
+              v-model="learned"
+              rows="3"
+              class="mg-v2-field !min-h-[5.5rem] w-full resize-none text-xs leading-relaxed"
+              @blur="flushLearned"
+            />
+          </label>
         </div>
       </section>
 
@@ -231,9 +273,13 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import IconPicker from '@/components/shared/IconPicker.vue'
-import StatusIconButton from '@/components/objects/StatusIconButton.vue'
+import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
 import PriorityDraftChecklist from '@/components/objects/priority-creator/PriorityDraftChecklist.vue'
 import PriorityYearsDropdown from '@/components/objects/PriorityYearsDropdown.vue'
+import ObjectCardAffiliation from '@/components/objects/ObjectCardAffiliation.vue'
+import ObjectCardTimeline from '@/components/objects/ObjectCardTimeline.vue'
+import { computeYearsWindow } from '@/utils/objectWindow'
+import type { YearRef } from '@/domain/period'
 import type { LinkedYear } from '@/components/objects/PriorityYearsDropdown.vue'
 import { useEditableField } from '@/composables/useEditableField'
 import { useT } from '@/composables/useT'
@@ -343,6 +389,34 @@ const linksOpen = ref(false)
 const linkedYears = computed<LinkedYear[]>(() =>
   (props.item.years ?? []).map((year) => ({ yearRef: year, displayLabel: year })),
 )
+
+const yearsWindow = computed(() =>
+  computeYearsWindow((props.item.years ?? []) as YearRef[], new Date()),
+)
+
+const yearsRef = ref<InstanceType<typeof PriorityYearsDropdown> | null>(null)
+
+function openLinks(): void {
+  menuOpen.value = false
+  linksOpen.value = true
+}
+
+function openYears(): void {
+  menuOpen.value = false
+  yearsRef.value?.openList()
+}
+
+// Status is quiet: shown as text only when it is not the default "active".
+const statusLabel = computed(() => {
+  if (props.item.status === 'active') return null
+  const opt = props.statusOptions.find((o) => o.value === props.item.status)
+  return opt?.label ?? props.item.status
+})
+
+function handleStatusChange(value: string): void {
+  menuOpen.value = false
+  emitFieldChange('status', value)
+}
 
 const linkedMetrics = computed(() => [
   { label: t('planning.objects.families.goals'), value: props.item.linkedCounts?.goals ?? 0 },

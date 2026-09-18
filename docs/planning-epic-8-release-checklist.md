@@ -23,7 +23,7 @@
 ## Manual Smoke Checks
 
 - Open `/today` and verify retry, empty, and hidden-item flows.
-- Open `/calendar/month/:ref`, `/calendar/week/:ref`, and `/calendar/day/:ref` and verify no legacy entry points remain.
+- Open `/calendar/month/:ref`, `/calendar/week/:ref`, and `/today/:ref` (the former `/calendar/day/:ref` now redirects there) and verify no legacy entry points remain.
 - Open `/objects/goals`, expand an item, and confirm linked-period navigation still lands in Calendar.
 - Create, edit, archive, and reopen one planning object in each family.
 - Verify `hide for today` expires on the next day and does not persist across day rollover.

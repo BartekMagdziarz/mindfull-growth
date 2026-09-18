@@ -208,7 +208,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 /* oś */
 .rb-axis { position: relative; margin: 2px 0 4px; }
 .rb-view { position: relative; display: inline-flex; align-items: center; gap: 8px; justify-self: start; max-width: calc(var(--name) - 12px); min-height: 40px; padding: 0 10px 0 6px; border: 1px solid var(--cp-line); border-radius: 15px 12px 16px 13px; background: var(--cp-inner); color: var(--mg-color-ink); box-shadow: var(--mg-shadow-rhythm-card); cursor: pointer; }
-.rb-view:hover { background: white; }
+.rb-view:hover { background: var(--cp-inner); }
 .rb-view__icon { display: inline-grid; place-items: center; flex: none; width: 28px; height: 27px; border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%; color: var(--cp-mark); background: var(--cp-field); font-size: 17px; }
 .rb-view__select { flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-size: 14px; font-weight: 800; appearance: none; -webkit-appearance: none; cursor: pointer; text-overflow: ellipsis; }
 .rb-view__select:focus-visible { outline: none; }
@@ -221,7 +221,7 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-board--year .rb-axis__unit { font-size: 12px; }
 .rb-axis__unit:hover { background: var(--cp-field); }
 .rb-axis__unit.current { background: var(--cp-inner); color: var(--mg-color-ink); border-color: var(--cp-line); box-shadow: var(--mg-shadow-rhythm-card); transform: rotate(-.5deg); }
-.rb-axis__unit.current:hover { background: white; }
+.rb-axis__unit.current:hover { background: var(--cp-inner); }
 .rb-axis__unit.future { color: var(--mg-color-muted); }
 .rb-axis__unit strong { font-size: 17px; color: var(--mg-color-ink); }
 .rb-sigma { display: grid; place-items: center; color: var(--mg-color-muted); font-size: 12.5px; font-weight: 800; font-variant-numeric: tabular-nums; overflow: hidden; }
@@ -270,8 +270,8 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-zoom { position: absolute; z-index: 4; top: 2px; right: 4px; display: grid; place-items: center; width: 25px; height: 24px; border: 1px solid var(--cp-line); border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%; background: var(--cp-inner); color: var(--cp-mark); opacity: 0; cursor: pointer; box-shadow: var(--mg-shadow-rhythm-card); transition: opacity .12s; }
 .rb-zoom .material-symbols-outlined { font-size: 15px; }
 .rb-series:hover .rb-zoom, .rb-zoom:focus-visible, .rb-zoom.on { opacity: 1; }
-.rb-zoom:hover { background: white; }
-.rb-zoom.on { color: var(--mg-color-ink); background: white; }
+.rb-zoom:hover { background: var(--cp-inner); }
+.rb-zoom.on { color: var(--mg-color-ink); background: var(--cp-inner); }
 
 .rb-more { min-height: 36px; }
 .rb-more .cp-btn { grid-column: 1 / 2; justify-self: start; margin-left: 6px; }

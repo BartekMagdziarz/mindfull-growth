@@ -4,7 +4,7 @@ import type { MonthlyReflection, WeeklyReflection } from '@/domain/reflection'
 import type { MonthRef, WeekRef, YearRef } from '@/domain/period'
 import type { Priority, WeeklyIntention } from '@/domain/planning'
 import type { MeasurementDayAssignment } from '@/domain/planningState'
-import type { PlanningScale, PlanningViewState } from '@/design-system/contracts'
+import type { CalendarScale, PlanningViewState } from '@/design-system/contracts'
 import type { StreamDayVM, StreamMonthVM, StreamWeekVM } from '@/components/calendar/stream/streamModel'
 import type { CalendarYearSummary, MonthReflectionBundle } from '@/services/calendarViewQueries'
 import type { MonthPlanningBundle, WeekPlanningBundle, WeekReflectionBundle } from '@/services/planningStateQueries'
@@ -53,7 +53,7 @@ export interface WeekPlanningData {
 
 export type PlanningPeriodData = YearPlanningData | MonthPlanningData | WeekPlanningData
 
-export function usePlanningPeriodData(scale: Ref<PlanningScale>, periodRef: Ref<string>) {
+export function usePlanningPeriodData(scale: Ref<CalendarScale>, periodRef: Ref<string>) {
   const data = ref<PlanningPeriodData | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -72,12 +72,6 @@ export function usePlanningPeriodData(scale: Ref<PlanningScale>, periodRef: Ref<
   ))
 
   async function load(): Promise<void> {
-    if (scale.value === 'day') {
-      data.value = null
-      error.value = null
-      return
-    }
-
     isLoading.value = true
     error.value = null
     clearTrendCache()

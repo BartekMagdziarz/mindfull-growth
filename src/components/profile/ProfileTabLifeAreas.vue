@@ -6,12 +6,12 @@
     <!-- Header row -->
     <div class="flex items-start justify-between mb-[14px] gap-[14px]">
       <div class="min-w-0">
-        <h3 class="text-base font-bold m-0" style="color: rgb(var(--neo-text))">
+        <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
           {{ t('profile.lifeAreas.title') }}
         </h3>
         <p
           class="text-[12px] m-0 mt-[2px] max-w-[460px]"
-          style="color: rgb(var(--neo-muted))"
+          style="color: var(--mg-color-muted)"
         >
           {{ t('profile.lifeAreas.tabDescription') }}
         </p>
@@ -21,7 +21,7 @@
         class="neo-control neo-control--accent flex-shrink-0 text-[13px]"
         @click="goToAreas"
       >
-        <span class="material-symbols-outlined text-[18px]">edit</span>
+        <AppIcon class="material-symbols-outlined text-[18px]" name="edit" />
         {{ t('common.buttons.manage') }}
       </button>
     </div>
@@ -45,14 +45,14 @@
         <div class="flex-1 min-w-0">
           <div
             class="text-[13px] font-bold truncate"
-            style="color: rgb(var(--neo-text))"
+            style="color: var(--mg-color-ink)"
           >
             {{ area.name }}
           </div>
           <div
             v-if="area.meaning"
             class="text-[11px] truncate"
-            style="color: rgb(var(--neo-muted))"
+            style="color: var(--mg-color-muted)"
           >
             {{ area.meaning }}
           </div>
@@ -63,7 +63,7 @@
     <div
       v-else
       class="text-[13px] py-4 text-center"
-      style="color: rgb(var(--neo-muted))"
+      style="color: var(--mg-color-muted)"
     >
       {{ t('profile.lifeAreas.noAreas') }}
     </div>
@@ -72,13 +72,13 @@
     <div
       v-if="areas.length > 0"
       class="mt-[14px] flex items-center gap-2 text-[12px]"
-      style="color: rgb(var(--neo-muted))"
+      style="color: var(--mg-color-muted)"
     >
-      <span
+      <AppIcon
         class="material-symbols-outlined text-[16px]"
-        style="color: rgb(var(--neo-focus))"
+        style="color: var(--mg-color-primary-strong)"
         aria-hidden="true"
-      >explore</span>
+       name="explore" />
       <span>
         {{ t('profile.lifeAreas.areasDefined', { n: areas.length }) }}
         <template v-if="recentlyAddedName">
@@ -91,6 +91,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'

@@ -7,7 +7,7 @@
     <header class="next-day-rail__heading">
       <span>Plan dnia</span>
       <span class="next-day-rail__tools">
-        <NextDayAddMenu v-if="!planningLocked" :groups="addGroups" @add="handleAdd" />
+        <NextDayAddMenu :groups="addGroups" @add="handleAdd" />
         <button
           type="button"
           class="next-day-rail__tool"
@@ -48,10 +48,12 @@
           :all-day-assignments="store.allDayAssignments"
           :is-pending="store.isPending(item.key)"
           :staged="stagedItem?.key === item.key"
-          :planning-locked="planningLocked"
+          :drag-enabled="calendarContext && canRescheduleItem(item) && !store.isPending(item.key)"
+          @drag-plan-start="startDrag(item, $event)"
+          @drag-plan-end="endDrag"
           :lit="isRelatedToCompass(item, store.highlightKey)"
           :dim="store.highlightKey !== null && !isRelatedToCompass(item, store.highlightKey)"
-          @select="stageKey = item.key"
+          @select="toggleStage(item.key)"
           @open-object="openObject(item)"
           @open-context="openPeriod(item.contextPeriodRef)"
           @toggle-completion="handleToggleCompletion(item)"
@@ -69,7 +71,7 @@
                today dot always agrees with the control on the row. -->
           <template #expansion>
             <NextObjectChartCard
-              v-if="item.kind === 'measurement'"
+              v-if="item.kind === 'measurement' && !calendarContext"
               bare
               scale="day"
               :icon="''"
@@ -84,12 +86,12 @@
             />
             <span v-else />
             <div class="next-day-rail__stage-actions" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title: itemTitle(item) })">
-              <template v-if="canReschedule(item) && !planningLocked">
+              <template v-if="canReschedule(item)">
                 <button v-if="canMoveToTomorrow(item, dayRef)" type="button" @click="handleMoveTomorrow(item)"><AppIcon name="east" />{{ t('planning.today.stage.tomorrow') }}</button>
                 <button type="button" :class="{ 'is-active': store.targetingItem?.key === item.key }" :aria-pressed="store.targetingItem?.key === item.key" @click="store.startTargeting(item)"><AppIcon name="calendar_month" />{{ t('planning.today.stage.day') }}</button>
               </template>
-              <button v-if="item.isScheduledToday && !planningLocked" type="button" @click="handleClearSchedule(item)"><AppIcon name="event_busy" />{{ t('planning.today.stage.clearToday') }}</button>
-              <button v-else-if="item.canHide && !planningLocked" type="button" @click="handleHide(item)"><AppIcon name="visibility_off" />{{ t('planning.today.stage.hide') }}</button>
+              <button v-if="item.isScheduledToday" type="button" @click="handleClearSchedule(item)"><AppIcon name="event_busy" />{{ t('planning.today.stage.clearToday') }}</button>
+              <button v-else-if="item.canHide" type="button" @click="handleHide(item)"><AppIcon name="visibility_off" />{{ t('planning.today.stage.hide') }}</button>
               <button v-if="canOpenObject(item)" type="button" @click="openObject(item)"><AppIcon name="open_in_new" />{{ t('planning.today.stage.open') }}</button>
               <button v-else type="button" @click="openPeriod(item.contextPeriodRef)"><AppIcon name="event" />{{ t('planning.today.stage.context') }}</button>
             </div>
@@ -124,8 +126,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDayPlanDragMotion } from './useDayPlanDragMotion'
+
+const dragMotion = useDayPlanDragMotion()
 import type { DayRef } from '@/domain/period'
 import type { TodayAddCandidate, TodayItem, TodayMeasurementItem } from '@/services/todayViewQueries'
+import { getTodayViewBundleForDay } from '@/services/todayViewQueries'
 import { getObjectsLibraryFamilyForPanelType } from '@/services/objectsLibraryQueries'
 import { useTodayStore } from '@/stores/today.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
@@ -143,7 +149,7 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 
 const UNDO_SNACKBAR_MS = 7000
 
-const props = defineProps<{ dayRef: DayRef }>()
+const props = defineProps<{ dayRef: DayRef; calendarContext?: boolean }>()
 const router = useRouter()
 const { t } = useT()
 const store = useTodayStore()
@@ -152,12 +158,10 @@ const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)
 const hiddenExpanded = ref(false)
 const deleteDialogOpen = ref(false)
 const pendingDeleteItem = ref<TodayItem | null>(null)
-/** Row chosen as the stage by click; null = the first open item takes the stage. */
+/** Row expanded by click; null = nothing expanded (the list rests flat). */
 const stageKey = ref<string | null>(null)
 
 const collapseCompleted = computed(() => preferences.todayCollapseCompleted)
-// Past days are a record: entries stay editable, planning (move / hide / add) is off.
-const planningLocked = computed(() => props.dayRef < getPeriodRefsForDate(new Date()).day)
 
 const itemGroups = computed(() => [
   { id: 'intentions', label: 'Intencje tygodnia', items: store.intentionItems as TodayItem[] },
@@ -175,13 +179,15 @@ const collapsedCount = computed(() => (collapseCompleted.value ? allItems.value.
 const visibleCount = computed(() => allItems.value.length)
 const doneCount = computed(() => allItems.value.filter(hasEntry).length)
 const progressPct = computed(() => (visibleCount.value ? Math.round((doneCount.value / visibleCount.value) * 100) : 0))
-// The stage follows the click; without one it rests on the first item still open,
-// and moves on by itself once that item is done.
-const stagedItem = computed<TodayItem | null>(() => {
-  const selected = visibleItems.value.find(item => item.key === stageKey.value)
-  if (selected) return selected
-  return visibleItems.value.find(item => !hasEntry(item)) ?? null
-})
+// Only an explicit click expands a row (user decision 2026-09-10: no row is
+// expanded by default); a row that gets hidden or collapsed simply drops it.
+const stagedItem = computed<TodayItem | null>(() => visibleItems.value.find(item => item.key === stageKey.value) ?? null)
+
+/** Click on the expanded row folds it back; click on another row moves the expansion. */
+function toggleStage(key: string) {
+  stageKey.value = stageKey.value === key ? null : key
+  if (props.calendarContext) store.selectedItemKey = stageKey.value
+}
 const ADD_GROUPS: Array<{ id: string; label: string; types: TodayAddCandidate['subjectType'][] }> = [
   { id: 'intentions', label: 'Intencje tygodnia', types: ['weeklyIntention'] },
   { id: 'goals', label: 'Cele i rezultaty', types: ['keyResult'] },
@@ -198,6 +204,7 @@ const deleteDialogMessage = computed(() => pendingDeleteItem.value
 onMounted(() => void loadDay())
 watch(() => props.dayRef, () => {
   stageKey.value = null
+  if (props.calendarContext) store.selectedItemKey = null
   void loadDay()
 })
 // The calendar card hands the picked day over through the store; the rail keeps
@@ -207,6 +214,18 @@ watch(() => store.pendingPick, pick => {
   const consumed = store.consumePendingPick()
   if (consumed && consumed.dayRef !== props.dayRef) void handleMove(consumed.item, consumed.dayRef)
 })
+
+function startDrag(item: TodayItem, event: DragEvent) {
+  if (!event.dataTransfer || !canRescheduleItem(item)) { event.preventDefault(); return }
+  event.dataTransfer.setData('application/x-mindful-plan', item.key)
+  event.dataTransfer.effectAllowed = 'move'
+  dragMotion?.start(event)
+  store.draggingItemKey = item.key
+  store.targetingItem = item
+  stageKey.value = item.key
+  store.selectedItemKey = item.key
+}
+function endDrag() { dragMotion?.cancel(); store.draggingItemKey = null; store.cancelTargeting() }
 
 async function loadDay() {
   try {
@@ -269,7 +288,7 @@ function openPeriod(periodRef: string) {
   if (periodRef.length === 4) void router.push({ name: 'calendar-year', params: { yearRef: periodRef } })
   else if (periodRef.includes('-W')) void router.push({ name: 'calendar-week', params: { weekRef: periodRef } })
   else if (periodRef.length === 7) void router.push({ name: 'calendar-month', params: { monthRef: periodRef } })
-  else void router.push({ name: 'calendar-day', params: { dayRef: periodRef } })
+  else void router.push({ name: 'today-day', params: { dayRef: periodRef } })
 }
 
 async function toggleCollapseCompleted() {
@@ -326,6 +345,13 @@ async function handleMoveTomorrow(item: TodayItem) {
 
 async function handleMove(item: TodayItem, dayRef: DayRef) {
   try {
+    if (props.calendarContext && item.isScheduledToday) {
+      const target = await getTodayViewBundleForDay(dayRef)
+      if (target.sections.scheduled.some(candidate => candidate.key === item.key)) {
+        showError(t('planning.today.calendarPlan.duplicate'))
+        return
+      }
+    }
     if (item.isScheduledToday) await store.moveScheduledItem(item, dayRef)
     else if (canReschedule(item)) await store.rescheduleContextItem(item, dayRef)
     else return

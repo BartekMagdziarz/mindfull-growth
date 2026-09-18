@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed } from 'vue'
 
 const props = withDefaults(
@@ -68,13 +70,12 @@ const pctText = computed(() => {
       </div>
     </div>
     <div class="stream-ring__label">
-      <span
+      <AppIcon
         v-if="showIcon && icon"
         class="material-symbols-outlined stream-ring__icon"
         :style="iconStyle"
         aria-hidden="true"
-        >{{ icon }}</span
-      >
+         :name="icon" />
       <span class="stream-ring__name">{{ label }}</span>
     </div>
   </div>

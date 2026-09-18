@@ -96,8 +96,8 @@ const emit = defineEmits<{ toggle: []; focus: [row: string]; ritual: [kind: Ritu
  */
 const actions = computed<{ kind: RitualKind; label: string; icon: string; hint: string }[]>(() => {
   const periodWord = props.scale === 'week' ? 'tydzień' : props.scale === 'month' ? 'miesiąc' : 'rok'
-  const plan = (label: string) => ({ kind: 'plan' as const, label, icon: 'edit_calendar', hint: `Otwórz planowanie na ${periodWord} od kroku przypisań` })
-  const reflect = (label: string) => ({ kind: 'reflection' as const, label, icon: 'history_edu', hint: `Otwórz rytuał refleksji: ${periodWord}` })
+  const plan = (label: string) => ({ kind: 'plan' as const, label, icon: `mg-${props.scale === 'year' ? 'yearly' : props.scale === 'month' ? 'monthly' : 'weekly'}-planning`, hint: `Otwórz planowanie na ${periodWord} od kroku przypisań` })
+  const reflect = (label: string) => ({ kind: 'reflection' as const, label, icon: props.scale === 'month' ? 'mg-monthly-reflection' : 'mg-weekly-reflection', hint: `Otwórz rytuał refleksji: ${periodWord}` })
   if (props.scale === 'year') return [plan('Plan roku')]
   if (props.state === 'future') return [plan(props.scale === 'week' ? 'Zaplanuj tydzień' : 'Zaplanuj miesiąc')]
   if (props.state === 'current') return [plan('Plan'), reflect('Refleksja')]
@@ -167,8 +167,8 @@ function pct(value: number | null): number { return value === null ? 0 : (value 
 .ps__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .ps__focus { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
 .ps__chip { display: inline-flex; align-items: center; gap: 9px; max-width: 260px; padding: 3px 12px 3px 4px; border: 1px solid var(--cp-line); border-radius: 17px 14px 18px 15px; background: var(--cp-inner); color: var(--mg-color-ink); font: inherit; font-size: 13.5px; font-weight: 800; text-align: left; cursor: pointer; box-shadow: var(--mg-shadow-rhythm-card); }
-.ps__chip:hover { background: white; }
-.ps__chip.is-active { background: white; }
+.ps__chip:hover { background: var(--cp-inner); }
+.ps__chip.is-active { background: var(--cp-inner); }
 .ps__chip:hover .ps__orb { display: grid; place-items: center; flex: none; width: 30px; height: 29px; border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%; color: var(--cp-mark); background: var(--cp-inner); }
 .ps__orb { display: grid; place-items: center; flex: none; width: 30px; height: 29px; border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%; color: var(--cp-mark); background: var(--cp-inner); }
 .ps__orb .material-symbols-outlined { font-size: 18px; }

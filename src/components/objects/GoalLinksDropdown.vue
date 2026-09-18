@@ -1,7 +1,7 @@
 <template>
   <div ref="rootRef" class="relative">
     <!-- Icon-only trigger -->
-    <div v-if="iconOnly" class="relative">
+    <div v-if="iconOnly && !triggerless" class="relative">
       <button
         type="button"
         class="mg-v2-button mg-v2-button--icon mg-v2-button--icon-sm mg-v2-button--quiet"
@@ -11,16 +11,11 @@
       >
         <AppIcon name="link" class="text-base" />
       </button>
-      <span
-        v-if="totalLinked > 0"
-        class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-on-primary"
-      >
-        {{ totalLinked }}
-      </span>
+      <span v-if="totalLinked > 0" class="mg-v2-icon-count" aria-hidden="true">{{ totalLinked }}</span>
     </div>
     <!-- Pill trigger (default) -->
     <button
-      v-else
+      v-else-if="!triggerless"
       type="button"
       class="mg-v2-badge goal-links-v2__trigger gap-1 px-2.5 py-1 text-[11px] transition-colors"
       @click.stop="open = !open"
@@ -77,7 +72,7 @@
       <!-- Level 2 -->
       <div
         v-if="activeCategory && activeCategoryOptions.length > 0"
-        class="mg-v2-popover absolute left-full top-0 z-30 ml-0.5 max-h-[240px] min-w-[160px] overflow-y-auto"
+        class="mg-v2-popover absolute left-full top-0 z-30 ml-0.5 max-h-[240px] min-w-[220px] overflow-y-auto"
         @click.stop
       >
         <button
@@ -111,8 +106,10 @@ const props = withDefaults(
     goalId?: string
     goalOptions?: ObjectsLibraryFilterOption[]
     iconOnly?: boolean
+    /** Render only the popover; the host opens it through `openAt()`. */
+    triggerless?: boolean
   }>(),
-  { iconOnly: false, goalId: undefined, goalOptions: undefined },
+  { iconOnly: false, goalId: undefined, goalOptions: undefined, triggerless: false },
 )
 
 const emit = defineEmits<{
@@ -161,6 +158,19 @@ function handleOutsideClick(event: MouseEvent): void {
     activeCategory.value = null
   }
 }
+
+/** Open the popover, optionally straight on one category (used by card glyphs). */
+function openAt(category: 'lifeArea' | 'priority' | 'goal' | null): void {
+  open.value = true
+  activeCategory.value = category
+}
+
+function close(): void {
+  open.value = false
+  activeCategory.value = null
+}
+
+defineExpose({ openAt, close })
 
 onMounted(() => {
   document.addEventListener('pointerdown', handleOutsideClick)

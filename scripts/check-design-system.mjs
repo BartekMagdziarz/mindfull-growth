@@ -13,6 +13,21 @@ const guardedRoots = [
   'src/components/emotion/EmotionGroupPicker.vue',
   'src/components/TagInput.vue',
   'src/components/objects',
+  'src/components/layout',
+  'src/components/AppCard.vue',
+  'src/components/AppButton.vue',
+  'src/components/exercises/ExercisePage.vue',
+  'src/components/exercises/ExerciseStepper.vue',
+  'src/components/exercises/ExerciseCard.vue',
+  'src/components/exercises/ProgramCatalogCard.vue',
+  'src/components/exercises/ExerciseSavedPanel.vue',
+  'src/components/history',
+  'src/components/lifeAreas/LifeAreaCard.vue',
+  'src/views/ExercisesView.vue',
+  'src/views/HistoryView.vue',
+  'src/views/LifeAreasView.vue',
+  'src/views/LoginView.vue',
+  'src/views/SignupView.vue',
 ]
 // Files inside guarded directories that legally keep neo-*/product-token styling:
 // shared with legacy screens (bridged via adapters.css) or chart-token consumers.

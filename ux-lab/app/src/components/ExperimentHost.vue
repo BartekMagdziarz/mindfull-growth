@@ -15,6 +15,7 @@
 import { computed } from 'vue'
 import type { LabViewId } from '@product/dev/richVerificationScenario'
 import TodayReplica from '~lab/experiments/TodayReplica.vue'
+import CalendarReplica from '~lab/experiments/CalendarReplica.vue'
 import MonthReplica from '~lab/experiments/MonthReplica.vue'
 import WeekReplica from '~lab/experiments/WeekReplica.vue'
 import WeeklyRitualReplica from '~lab/experiments/WeeklyRitualReplica.vue'
@@ -32,6 +33,7 @@ const props = defineProps<{
 
 const components = {
   today: TodayReplica,
+  calendar: CalendarReplica,
   'calendar-year': YearReplica,
   'calendar-month': MonthReplica,
   'calendar-week': WeekReplica,

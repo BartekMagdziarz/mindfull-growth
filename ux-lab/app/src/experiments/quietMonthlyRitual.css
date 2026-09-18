@@ -1,0 +1,451 @@
+.qm--wide .qr-card,
+.qm--wide .qr-top {
+  max-width: 1440px;
+}
+.qm-choice-detail {
+  padding: 0 22px 9px;
+}
+.qm-choice-detail p {
+  max-width: 40em;
+}
+.qm-help,
+.qm-previous,
+.qm-extra {
+  margin-top: 20px;
+}
+.qm .qr-quiet[aria-pressed='true'] {
+  background: var(--qr-inner);
+  outline: 1px solid var(--qr-accent);
+}
+.qm-table-scroll {
+  overflow-x: auto;
+}
+.qm-table {
+  min-width: 720px;
+}
+.qm-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 2.5fr) repeat(var(--qm-weeks), minmax(72px, 1fr)) 58px;
+  gap: 8px;
+  align-items: center;
+}
+.qm-table-head {
+  color: var(--qr-muted);
+  font-size: 13px;
+  padding: 0 12px 14px;
+  text-align: center;
+}
+.qm-table-head > span:first-child {
+  text-align: left;
+}
+.qm-table-head small {
+  display: block;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.qm-plan-item {
+  background: var(--qr-field);
+  border-radius: 17px 21px 16px 19px;
+  margin-bottom: 10px;
+  padding: 14px 12px 7px;
+}
+.qm-editing {
+  outline: 1px solid rgb(var(--sky-400) / 0.4);
+}
+.qm-object {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+.qm-object .material-symbols-outlined {
+  color: var(--qr-accent);
+}
+.qm-cell {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+}
+.qm-cell input {
+  width: 62px;
+  padding: 4px !important;
+  text-align: center;
+  font-size: 12px !important;
+}
+.qm-dot {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border-radius: 50%;
+}
+.qm-dot i {
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgb(var(--sky-400) / 0.65);
+  border-radius: 48% 52% 45% 55%;
+}
+.qm-dot.active i {
+  background: var(--qr-accent);
+  border: 5px solid var(--qr-inner);
+  outline: 1px solid var(--qr-accent);
+}
+.qm-dot.whole i {
+  outline-style: dashed;
+  opacity: 0.65;
+}
+.qm-target {
+  border-radius: 12px;
+  min-height: 38px;
+  background: var(--qr-inner);
+  font-weight: 800 !important;
+}
+.qm-no-target {
+  text-align: center;
+}
+.qm-underbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
+.qm-underbar .qr-quiet {
+  font-size: 12px;
+  padding: 5px 9px;
+}
+.qm-underbar .qr-icon {
+  width: 32px;
+  height: 32px;
+}
+.qm-underbar details {
+  margin-left: auto;
+  font-size: 12px;
+}
+.qm-underbar details[open] {
+  flex-basis: 100%;
+  padding: 8px;
+  background: var(--qr-inner);
+  border-radius: 12px;
+}
+.qm-underbar details label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 5px 15px 5px 0;
+}
+.qm-underbar details input {
+  width: 70px;
+}
+.qm-target-input {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.qm-target-input input {
+  width: 68px;
+  padding: 5px !important;
+}
+.qm-balance {
+  font-size: 12px;
+  color: var(--qr-muted);
+}
+.qm-gaps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.qm-gaps .qr-quiet {
+  text-align: left;
+  font-size: 12px;
+}
+.qm-direction-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+.qm-direction-filter .qr-quiet {
+  font-size: 12px;
+}
+.qm-week-cards {
+  display: grid;
+  grid-template-columns: repeat(var(--qm-weeks), minmax(0, 1fr));
+  gap: 12px;
+}
+.qm-week-card {
+  padding: 16px 12px;
+  border-radius: 17px 21px 16px 19px;
+  background: var(--qr-field);
+  min-width: 0;
+}
+.qm-week-card header {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+.qm-week-card header small {
+  font-size: 11px;
+  color: var(--qr-muted);
+}
+.qm-whole-items {
+  margin-top: 12px;
+  border-top: 1px dashed rgb(var(--sky-400) / 0.5);
+  padding-top: 8px;
+  opacity: 0.75;
+}
+.qm-whole-items > small {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+.qm-muted {
+  color: var(--qr-muted);
+}
+.qm-priorities {
+  max-width: 900px;
+  width: 100%;
+  margin: auto;
+  display: grid;
+  gap: 12px;
+}
+.qm-priority {
+  background: var(--qr-field);
+  border-radius: 17px 21px 16px 19px;
+}
+.qm-priority-head,
+.qm-anchor-head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  text-align: left;
+  background: transparent;
+  border-radius: inherit;
+}
+.qm-priority-head strong,
+.qm-anchor-head strong {
+  flex: 1;
+}
+.qm-priority-head .material-symbols-outlined,
+.qm-anchor-head .material-symbols-outlined {
+  color: var(--qr-accent);
+}
+.qm-priority-head small {
+  font-size: 12px;
+}
+.qm-priority-body {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 28px;
+  padding: 6px 26px 24px;
+}
+.qm-decisions {
+  padding-top: 15px;
+}
+.qm-verdicts,
+.qm-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.qm-verdicts .qr-quiet,
+.qm-signals .qr-quiet {
+  background: var(--qr-inner);
+}
+.qm-evidence {
+  list-style: none;
+  padding: 0;
+}
+.qm-evidence li {
+  display: grid;
+  gap: 3px;
+  padding: 8px 0;
+  font-size: 13px;
+}
+.qm-evidence li span {
+  color: var(--qr-muted);
+  font-size: 12px;
+}
+.qm-compass {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 20px;
+  margin: 30px 0;
+}
+.qm-anchors {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+.qm-anchors article {
+  background: var(--qr-field);
+  border-radius: 17px 21px 16px 19px;
+  padding: 0 16px 12px;
+}
+.qm-anchors article > p {
+  padding: 0 20px 8px;
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+.qm-journal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  gap: 30px;
+}
+.qm-journal--open {
+  grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr);
+}
+.qm-journal-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.qm-journal-tools small {
+  margin-right: auto;
+}
+.qm-context {
+  max-height: 560px;
+  overflow: auto;
+  padding: 0 12px;
+}
+.qm-context section {
+  margin-bottom: 24px;
+}
+.qm-context h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+.qm-context p,
+.qm-context blockquote {
+  font-size: 13px;
+  margin: 5px 0 12px;
+  white-space: pre-wrap;
+}
+.qm-context strong {
+  font-size: 13px;
+}
+.qm-context article {
+  margin-bottom: 16px;
+}
+.qm-mini-compass {
+  display: flex;
+  gap: 14px;
+  align-items: end;
+}
+.qm-mini-compass > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.qm-mini-compass i {
+  width: 15px;
+  background: var(--qr-accent);
+  border-radius: 4px 6px 3px 5px;
+  transform: rotate(-1deg);
+}
+.qm-mini-compass small {
+  font-size: 10px;
+}
+.qm-anchor-link {
+  display: grid;
+  text-align: left;
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+.qm-ai {
+  padding: 18px;
+  background: var(--qr-field);
+  border-radius: 16px;
+  margin-top: 18px;
+}
+.qm-ai small {
+  display: block;
+}
+.qm-ai blockquote {
+  margin: 12px 0;
+}
+.qm .qr-footer {
+  margin-top: auto;
+  padding-top: 35px;
+}
+@media (max-width: 1100px) {
+  .qm-week-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .qm-compass {
+    gap: 10px;
+  }
+}
+@media (max-width: 760px) {
+  .qm-compass {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 30px;
+  }
+  .qm-journal--open {
+    grid-template-columns: 1fr;
+  }
+  .qm-priority-body {
+    grid-template-columns: 150px 1fr;
+    gap: 12px;
+    padding: 6px 16px 20px;
+  }
+  .qm-priority-head {
+    flex-wrap: wrap;
+  }
+  .qm-week-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .qm .qr-finish {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+@media (max-width: 480px) {
+  .qm-priority-body {
+    grid-template-columns: 1fr;
+  }
+  .qm-compass {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .qm .qr-top {
+    flex-wrap: wrap;
+  }
+  .qm .qr-save {
+    margin-left: 50px;
+  }
+  .qm .qr-footer {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .qm .qr-finish {
+    width: 100%;
+  }
+}
+
+.qm-emotion-weeks {
+  display: flex;
+  gap: 24px;
+  align-items: end;
+  margin: 12px 0;
+}
+.qm-emotion-weeks > span {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.qm-journal > div > textarea { min-height:340px; }
+.qm-priority-body textarea,.qm-anchors textarea { min-height:120px; }

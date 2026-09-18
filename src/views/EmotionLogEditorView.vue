@@ -74,7 +74,7 @@
       <div class="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr] items-stretch">
         <!-- Lewa kolumna: koło emocji -->
         <section
-          class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-4"
+          class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-4"
           :style="emotionCardStyle"
         >
           <div
@@ -96,7 +96,7 @@
         <div class="flex flex-col gap-4 min-w-0">
           <!-- Note Section -->
           <section
-            class="mg-v2-editor-canvas px-6 py-5 flex flex-col gap-3"
+            class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
           >
             <label for="note" class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               {{ t('emotionViews.editor.note') }}
@@ -105,13 +105,13 @@
               id="note"
               v-model="note"
               :placeholder="t('emotionViews.editor.notePlaceholder')"
-              class="w-full min-h-[96px] bg-transparent text-sm leading-relaxed text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-0 resize-none flex-1"
+              class="mg-v2-field !min-h-[7rem] w-full flex-1 resize-none text-sm leading-relaxed"
             />
           </section>
 
           <!-- People Tags Section -->
           <section
-            class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
+            class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
           >
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -131,7 +131,7 @@
 
           <!-- Context Tags Section -->
           <section
-            class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper px-5 py-4 flex flex-col gap-3"
+            class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
           >
             <header>
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -537,7 +537,7 @@ onMounted(async () => {
 .emotions-v2__placeholder {
   border: 1px dashed var(--mg-color-border);
   border-radius: var(--mg-radius-md);
-  background: var(--mg-color-canvas);
+  background: var(--mg-color-mist);
 }
 
 .dialog-enter-active,

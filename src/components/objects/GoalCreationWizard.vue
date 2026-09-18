@@ -75,7 +75,10 @@
           </p>
         </div>
 
-        <div v-if="krDrafts.length === 0" class="mg-v2-surface mg-v2-surface--flat p-4 text-center text-sm text-on-surface-variant">
+        <div
+          v-if="krDrafts.length === 0"
+          class="mg-v2-surface mg-v2-surface--flat p-4 text-center text-sm text-on-surface-variant"
+        >
           {{ t('planning.goalWizard.steps.measurable.emptyState') }}
         </div>
 
@@ -85,7 +88,7 @@
             :key="kr.localId"
             :model-value="kr"
             :can-remove="krDrafts.length > 1"
-            @update:model-value="(value) => updateKrDraft(kr.localId, value)"
+            @update:model-value="value => updateKrDraft(kr.localId, value)"
             @remove="removeKrDraft(kr.localId)"
           />
         </div>
@@ -115,7 +118,9 @@
             v-model="achievabilityRationaleModel"
             rows="3"
             class="mg-v2-field w-full resize-none text-sm"
-            :placeholder="t('planning.goalWizard.steps.achievable.achievabilityRationalePlaceholder')"
+            :placeholder="
+              t('planning.goalWizard.steps.achievable.achievabilityRationalePlaceholder')
+            "
           />
         </label>
 
@@ -173,7 +178,10 @@
               <span>{{ option.label }}</span>
               <AppIcon name="close" class="text-xs text-on-surface-variant" />
             </button>
-            <span v-if="selectedPriorityOptions.length === 0" class="text-xs text-on-surface-variant">
+            <span
+              v-if="selectedPriorityOptions.length === 0"
+              class="text-xs text-on-surface-variant"
+            >
               {{ t('planning.objects.form.noneSelected') }}
             </span>
           </div>
@@ -225,7 +233,10 @@
               <span>{{ option.label }}</span>
               <AppIcon name="close" class="text-xs text-on-surface-variant" />
             </button>
-            <span v-if="selectedLifeAreaOptions.length === 0" class="text-xs text-on-surface-variant">
+            <span
+              v-if="selectedLifeAreaOptions.length === 0"
+              class="text-xs text-on-surface-variant"
+            >
               {{ t('planning.objects.form.noneSelected') }}
             </span>
           </div>
@@ -283,141 +294,97 @@
           </p>
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-[minmax(180px,0.8fr)_minmax(220px,1fr)_minmax(260px,1.3fr)]">
-          <div class="space-y-3">
-            <label class="block space-y-1">
-              <span class="text-sm font-medium text-on-surface">
-                {{ t('planning.goalWizard.steps.timebound.dateLabel') }}
-              </span>
-              <input
-                :value="goalDraft.targetDate ?? ''"
-                type="date"
-                class="mg-v2-field w-full text-sm"
-                :min="today"
-                @input="onTargetDateInput"
-              />
-            </label>
-
-            <p
-              v-if="countdownLabel"
-              class="mg-v2-surface mg-v2-surface--inset px-3 py-2 text-xs text-on-surface-variant"
+        <p class="text-sm text-on-surface-variant">{{ t('planning.periodPicker.scheduleHint') }}</p>
+        <p
+          v-if="wizardMode === 'edit' && krDrafts.some(kr => !inheritsSchedule(kr.localId))"
+          class="text-xs text-on-surface-variant"
+        >
+          {{ t('planning.periodPicker.preserved') }}
+        </p>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="space-y-1"
+            ><span class="text-sm font-medium">{{ t('planning.periodPicker.start') }}</span>
+            <input v-model="goalDraft.startDate" type="date" class="mg-v2-field w-full" />
+          </label>
+          <label class="space-y-1"
+            ><span class="text-sm font-medium">{{
+              t('planning.goalWizard.steps.timebound.dateLabel')
+            }}</span>
+            <input
+              :value="goalDraft.targetDate ?? ''"
+              type="date"
+              :min="goalDraft.startDate"
+              class="mg-v2-field w-full"
+              @input="onTargetDateInput"
+            />
+          </label>
+        </div>
+        <p v-if="goalDraft.targetDate && !validDateRange" role="alert" class="text-sm text-danger">
+          {{
+            t(
+              goalDraft.startDate
+                ? 'planning.periodPicker.invalidRange'
+                : 'planning.periodPicker.missingStart'
+            )
+          }}
+        </p>
+        <p v-else-if="countdownLabel" class="text-xs text-on-surface-variant">
+          {{ countdownLabel }}
+        </p>
+        <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h4 class="font-semibold">
+              {{ t('planning.goalWizard.steps.timebound.goalMonthsLabel') }}
+            </h4>
+            <label class="flex items-center gap-2 text-sm"
+              ><input
+                :checked="customGoalMonths"
+                type="checkbox"
+                class="mg-v2-checkbox"
+                @change="onGoalMonthModeChange"
+              />{{ t('planning.periodPicker.goalCustom') }}</label
             >
-              {{ countdownLabel }}
-            </p>
           </div>
-
-          <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-sm font-semibold text-on-surface">
-                {{ t('planning.goalWizard.steps.timebound.goalMonthsLabel') }}
-              </span>
-              <div ref="goalMonthsMenuRef" class="relative">
-                <button
-                  type="button"
-                  class="mg-v2-button mg-v2-button--icon"
-                  :aria-label="t('planning.goalWizard.steps.timebound.addGoalMonth')"
-                  @click="togglePeriodMenu('goal-months')"
-                >
-                  <AppIcon name="add" class="text-base" />
-                </button>
-                <div
-                  v-if="openPeriodMenu === 'goal-months'"
-                  class="mg-v2-popover absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto p-2"
-                >
-                  <button
-                    v-for="month in availableMonthOptions"
-                    :key="month.ref"
-                    type="button"
-                    class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-on-surface hover:bg-primary-soft/30"
-                    @click="toggleGoalMonth(month.ref)"
-                  >
-                    <AppIcon
-                      :name="goalDraft.linkedMonthRefs.includes(month.ref) ? 'check' : 'add'"
-                      class="text-sm text-primary"
-                    />
-                    {{ month.label }}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="month in selectedGoalMonthOptions"
-                :key="month.ref"
-                type="button"
-                class="mg-v2-pill"
-                @click="toggleGoalMonth(month.ref)"
-              >
-                {{ month.label }}
-                <AppIcon name="close" class="text-xs text-on-surface-variant" />
-              </button>
-              <span v-if="selectedGoalMonthOptions.length === 0" class="text-xs text-on-surface-variant">
-                {{ t('planning.goalWizard.steps.timebound.noGoalMonths') }}
-              </span>
-            </div>
+          <PeriodCalendarPicker
+            v-if="customGoalMonths"
+            v-model="goalDraft.linkedMonthRefs"
+            cadence="monthly"
+          />
+          <p class="text-xs text-on-surface-variant">{{ t('planning.periodPicker.automatic') }}</p>
+          <div class="flex flex-wrap gap-2">
+            <span v-for="month in effectiveGoalMonths" :key="month" class="mg-v2-badge">{{
+              formatMonthShort(month as MonthRef)
+            }}</span>
           </div>
-
-          <div class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4">
-            <p class="text-sm font-semibold text-on-surface">
-              {{ t('planning.goalWizard.steps.timebound.krPeriodsLabel') }}
-            </p>
-            <div class="space-y-3">
-              <div
-                v-for="kr in krDrafts"
-                :key="kr.localId"
-                class="mg-v2-surface mg-v2-surface--inset flex flex-col gap-2 px-3 py-2"
-              >
-                <div class="flex items-center justify-between gap-3">
-                  <span class="min-w-0 truncate text-xs font-semibold text-on-surface">
-                    {{ kr.title || t('planning.goalWizard.steps.timebound.untitledKr') }}
-                  </span>
-                  <div :ref="(el) => setKrPeriodMenuRef(kr.localId, el)" class="relative shrink-0">
-                    <button
-                      type="button"
-                      class="mg-v2-button mg-v2-button--icon"
-                      :aria-label="t('planning.goalWizard.steps.timebound.addKrPeriod')"
-                      @click="togglePeriodMenu(`kr:${kr.localId}`)"
-                    >
-                      <AppIcon name="add" class="text-sm" />
-                    </button>
-                    <div
-                      v-if="openPeriodMenu === `kr:${kr.localId}`"
-                      class="mg-v2-popover absolute right-0 z-20 mt-2 max-h-60 min-w-40 overflow-y-auto p-2"
-                    >
-                      <button
-                        v-for="period in periodOptionsForKr(kr)"
-                        :key="period.ref"
-                        type="button"
-                        class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-on-surface hover:bg-primary-soft/30"
-                        @click="toggleKrPeriod(kr.localId, period.ref)"
-                      >
-                        <AppIcon
-                          :name="krPeriodRefs(kr.localId).includes(period.ref) ? 'check' : 'add'"
-                          class="text-sm text-primary"
-                        />
-                        {{ period.label }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    v-for="period in selectedKrPeriodOptions(kr)"
-                    :key="period.ref"
-                    type="button"
-                    class="mg-v2-pill"
-                    @click="toggleKrPeriod(kr.localId, period.ref)"
-                  >
-                    {{ period.label }}
-                    <AppIcon name="close" class="text-xs text-on-surface-variant" />
-                  </button>
-                  <span v-if="selectedKrPeriodOptions(kr).length === 0" class="text-xs text-on-surface-variant">
-                    {{ t('planning.goalWizard.steps.timebound.noKrPeriods') }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+        </div>
+        <div
+          v-for="kr in krDrafts"
+          :key="kr.localId"
+          class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4"
+        >
+          <h4 class="font-semibold">
+            {{ kr.title || t('planning.goalWizard.steps.timebound.untitledKr') }}
+          </h4>
+          <label class="flex items-center gap-2 text-sm"
+            ><input
+              type="checkbox"
+              class="mg-v2-checkbox"
+              :checked="inheritsSchedule(kr.localId)"
+              :disabled="!goalDraft.startDate && !inheritsSchedule(kr.localId)"
+              @change="setKrScheduleMode(kr.localId, ($event.target as HTMLInputElement).checked)"
+            />{{ t('planning.periodPicker.inherit') }}</label
+          >
+          <PeriodCalendarPicker
+            v-if="!inheritsSchedule(kr.localId)"
+            :model-value="krPeriods(kr.localId)"
+            :cadence="kr.cadence"
+            :label="t('planning.periodPicker.custom')"
+            @update:model-value="goalDraft.krPeriodRefsByLocalId[kr.localId] = $event"
+          />
+          <PeriodSelectionSummary :periods="krPeriods(kr.localId)" :cadence="kr.cadence" />
+          <p v-if="hasOutsidePeriods(kr)" class="text-xs text-on-surface-variant">
+            {{ t('planning.periodPicker.outside') }}
+          </p>
         </div>
       </div>
 
@@ -441,6 +408,13 @@
           </p>
         </div>
 
+        <p class="text-sm">
+          {{ t('planning.periodPicker.review') }}:
+          {{
+            effectiveGoalMonths.map(month => formatMonthShort(month as MonthRef)).join(' · ') ||
+            t('planning.periodPicker.noPeriods')
+          }}
+        </p>
         <ul class="space-y-1.5">
           <li
             v-for="entry in completenessRows"
@@ -466,9 +440,10 @@
             <li
               v-for="kr in krDrafts"
               :key="kr.localId"
-              class="mg-v2-surface mg-v2-surface--inset px-3 py-1.5 text-xs text-on-surface"
+              class="mg-v2-surface mg-v2-surface--flat px-3 py-1.5 text-xs text-on-surface"
             >
               {{ kr.title || '—' }}
+              <PeriodSelectionSummary :periods="krPeriods(kr.localId)" :cadence="kr.cadence" />
             </li>
           </ul>
         </div>
@@ -477,7 +452,11 @@
           v-if="smartCompleteness.missing.length > 0 && smartCompleteness.score < 5"
           class="rounded-xl bg-warning/10 px-3 py-2 text-xs text-warning"
         >
-          {{ t('planning.goalWizard.steps.review.missingHint', { letters: smartCompleteness.missing.join(', ') }) }}
+          {{
+            t('planning.goalWizard.steps.review.missingHint', {
+              letters: smartCompleteness.missing.join(', '),
+            })
+          }}
         </p>
       </div>
     </Transition>
@@ -491,20 +470,15 @@
         <DsButton v-if="stepIndex > 0" variant="quiet" @click="prevStep">
           {{ t('planning.goalWizard.buttons.back') }}
         </DsButton>
-        <DsButton
-          v-if="currentStep !== 'review'"
-          :disabled="!canAdvance"
-          @click="nextStep"
-        >
+        <DsButton v-if="currentStep !== 'review'" :disabled="!canAdvance" @click="nextStep">
           {{ t('planning.goalWizard.buttons.next') }}
         </DsButton>
-        <DsButton
-          v-else
-          :loading="isSaving"
-          :disabled="!canSave"
-          @click="onSave"
-        >
-          {{ wizardMode === 'edit' ? t('planning.goalWizard.buttons.save') : t('planning.goalWizard.buttons.create') }}
+        <DsButton v-else :loading="isSaving" :disabled="!canSave" @click="onSave">
+          {{
+            wizardMode === 'edit'
+              ? t('planning.goalWizard.buttons.save')
+              : t('planning.goalWizard.buttons.create')
+          }}
         </DsButton>
       </div>
     </div>
@@ -515,6 +489,10 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { DsButton } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import PeriodSelectionSummary from '@/components/objects/PeriodSelectionSummary.vue'
+import PeriodCalendarPicker from '@/components/objects/PeriodCalendarPicker.vue'
+import { getPeriodRefsForDate } from '@/utils/periods'
+import { periodsInDateRange } from '@/utils/periodSchedule'
 import KrDraftCard from '@/components/objects/KrDraftCard.vue'
 import { useT } from '@/composables/useT'
 import {
@@ -524,9 +502,8 @@ import {
   type GoalWizardStep,
   type KrDraft,
 } from '@/composables/useGoalCreationWizard'
-import type { MonthRef, WeekRef } from '@/domain/period'
+import type { MonthRef } from '@/domain/period'
 import type { ObjectsLibraryFilterOption } from '@/services/objectsLibraryQueries'
-import { getChildPeriods, getNextPeriod, getPeriodRefsForDate, getPreviousPeriod } from '@/utils/periods'
 
 const { t, locale } = useT()
 
@@ -540,7 +517,7 @@ const props = withDefaults(
   {
     mode: 'create',
     editInput: undefined,
-  },
+  }
 )
 
 const emit = defineEmits<{
@@ -555,6 +532,12 @@ const {
   stepIndex,
   canAdvance,
   canSave,
+  validDateRange,
+  customGoalMonths,
+  effectiveGoalMonths,
+  inheritsSchedule,
+  krPeriods,
+  setKrScheduleMode,
   goalDraft,
   krDrafts,
   isSaving,
@@ -573,10 +556,7 @@ const {
 const titleInputRef = ref<HTMLInputElement | null>(null)
 const priorityMenuRef = ref<HTMLElement | null>(null)
 const lifeAreaMenuRef = ref<HTMLElement | null>(null)
-const goalMonthsMenuRef = ref<HTMLElement | null>(null)
-const krPeriodMenuRefs = new Map<string, HTMLElement>()
 const openTagMenu = ref<'priority' | 'lifeArea' | null>(null)
-const openPeriodMenu = ref<string | null>(null)
 
 const successDefinitionModel = computed({
   get: () => goalDraft.successDefinition ?? '',
@@ -609,43 +589,12 @@ const whyMattersModel = computed({
   },
 })
 
-const today = computed(() => {
-  const now = new Date()
-  const year = now.getUTCFullYear()
-  const month = String(now.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(now.getUTCDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-})
-
 const selectedPriorityOptions = computed(() =>
-  props.priorityOptions.filter((option) => goalDraft.priorityIds.includes(option.id)),
+  props.priorityOptions.filter(option => goalDraft.priorityIds.includes(option.id))
 )
 
 const selectedLifeAreaOptions = computed(() =>
-  props.lifeAreaOptions.filter((option) => goalDraft.lifeAreaIds.includes(option.id)),
-)
-
-const availableMonthOptions = computed(() => {
-  const now = new Date()
-  const currentRef = getPeriodRefsForDate(now).month as string
-  let ref = currentRef
-  for (let i = 0; i < 4; i++) {
-    ref = getPreviousPeriod(ref as MonthRef) as string
-  }
-
-  const months: Array<{ ref: string; label: string }> = []
-  for (let i = 0; i < 12; i++) {
-    months.push({ ref, label: formatMonthShort(ref as MonthRef) })
-    ref = getNextPeriod(ref as MonthRef) as string
-  }
-  return months
-})
-
-const selectedGoalMonthOptions = computed(() =>
-  goalDraft.linkedMonthRefs.map((ref) => ({
-    ref,
-    label: formatMonthShort(ref as MonthRef),
-  })),
+  props.lifeAreaOptions.filter(option => goalDraft.lifeAreaIds.includes(option.id))
 )
 
 const stepLabels = computed<Array<{ key: GoalWizardStep; full: string; short: string }>>(() => [
@@ -689,121 +638,49 @@ function dotClass(idx: number): string {
 
 function toggleTagMenu(menu: 'priority' | 'lifeArea'): void {
   openTagMenu.value = openTagMenu.value === menu ? null : menu
-  openPeriodMenu.value = null
-}
-
-function togglePeriodMenu(menu: string): void {
-  openPeriodMenu.value = openPeriodMenu.value === menu ? null : menu
-  openTagMenu.value = null
 }
 
 function togglePriority(id: string): void {
   goalDraft.priorityIds = goalDraft.priorityIds.includes(id)
-    ? goalDraft.priorityIds.filter((value) => value !== id)
+    ? goalDraft.priorityIds.filter(value => value !== id)
     : [...goalDraft.priorityIds, id]
 }
 
 function removePriority(id: string): void {
-  goalDraft.priorityIds = goalDraft.priorityIds.filter((value) => value !== id)
+  goalDraft.priorityIds = goalDraft.priorityIds.filter(value => value !== id)
 }
 
 function toggleLifeArea(id: string): void {
   goalDraft.lifeAreaIds = goalDraft.lifeAreaIds.includes(id)
-    ? goalDraft.lifeAreaIds.filter((value) => value !== id)
+    ? goalDraft.lifeAreaIds.filter(value => value !== id)
     : [...goalDraft.lifeAreaIds, id]
 }
 
 function removeLifeArea(id: string): void {
-  goalDraft.lifeAreaIds = goalDraft.lifeAreaIds.filter((value) => value !== id)
+  goalDraft.lifeAreaIds = goalDraft.lifeAreaIds.filter(value => value !== id)
 }
 
-function toggleGoalMonth(ref: string): void {
-  goalDraft.linkedMonthRefs = goalDraft.linkedMonthRefs.includes(ref)
-    ? goalDraft.linkedMonthRefs.filter((value) => value !== ref)
-    : [...goalDraft.linkedMonthRefs, ref]
+function onGoalMonthModeChange(): void {
+  const current = [...effectiveGoalMonths.value]
+  customGoalMonths.value = !customGoalMonths.value
+  goalDraft.linkedMonthRefs = customGoalMonths.value ? current : []
 }
 
-function krPeriodRefs(localId: string): string[] {
-  return goalDraft.krPeriodRefsByLocalId[localId] ?? []
-}
-
-function toggleKrPeriod(localId: string, ref: string): void {
-  const current = krPeriodRefs(localId)
-  goalDraft.krPeriodRefsByLocalId[localId] = current.includes(ref)
-    ? current.filter((value) => value !== ref)
-    : [...current, ref]
-}
-
-function setKrPeriodMenuRef(localId: string, el: Element | { $el?: Element } | null): void {
-  if (el && '$el' in el && el.$el instanceof HTMLElement) {
-    krPeriodMenuRefs.set(localId, el.$el)
-    return
-  }
-
-  if (el instanceof HTMLElement) {
-    krPeriodMenuRefs.set(localId, el)
-  } else {
-    krPeriodMenuRefs.delete(localId)
-  }
-}
-
-function periodOptionsForKr(kr: KrDraft): Array<{ ref: string; label: string }> {
-  const selectedGoalMonths = goalDraft.linkedMonthRefs
-  if (kr.cadence === 'monthly') {
-    if (selectedGoalMonths.length > 0) {
-      return [...selectedGoalMonths]
-        .sort()
-        .map((ref) => ({ ref, label: formatMonthShort(ref as MonthRef) }))
-    }
-    return availableMonthOptions.value
-  }
-
-  if (selectedGoalMonths.length > 0) {
-    const weekSet = new Set<string>()
-    for (const monthRef of selectedGoalMonths) {
-      for (const weekRef of getChildPeriods(monthRef as MonthRef)) {
-        weekSet.add(weekRef)
-      }
-    }
-    return [...weekSet]
-      .sort()
-      .map((ref) => ({ ref, label: formatWeekShort(ref as WeekRef) }))
-  }
-
-  const currentRef = getPeriodRefsForDate(new Date()).week as string
-  let ref = currentRef
-  for (let i = 0; i < 4; i++) {
-    ref = getPreviousPeriod(ref as WeekRef) as string
-  }
-
-  const weeks: Array<{ ref: string; label: string }> = []
-  for (let i = 0; i < 12; i++) {
-    weeks.push({ ref, label: formatWeekShort(ref as WeekRef) })
-    ref = getNextPeriod(ref as WeekRef) as string
-  }
-  return weeks
-}
-
-function selectedKrPeriodOptions(kr: KrDraft): Array<{ ref: string; label: string }> {
-  return krPeriodRefs(kr.localId).map((ref) => ({
-    ref,
-    label: kr.cadence === 'weekly' ? formatWeekShort(ref as WeekRef) : formatMonthShort(ref as MonthRef),
-  }))
+function hasOutsidePeriods(kr: KrDraft): boolean {
+  if (!goalDraft.startDate || !goalDraft.targetDate) return false
+  const expected = new Set(
+    periodsInDateRange(goalDraft.startDate, goalDraft.targetDate, kr.cadence)
+  )
+  return krPeriods(kr.localId).some(period => !expected.has(period))
 }
 
 function formatMonthShort(monthRef: MonthRef): string {
   const monthIndex = Number(monthRef.slice(5, 7)) - 1
   const year = monthRef.slice(2, 4)
   const monthName = new Intl.DateTimeFormat(locale.value, { month: 'short' }).format(
-    new Date(Number(monthRef.slice(0, 4)), monthIndex, 1),
+    new Date(Number(monthRef.slice(0, 4)), monthIndex, 1)
   )
   return `${monthName} ${year}`
-}
-
-function formatWeekShort(weekRef: WeekRef): string {
-  const match = /^(\d{4})-W(\d{2})$/.exec(weekRef)
-  if (!match) return weekRef
-  return `W${match[2]}-${match[1].slice(2)}`
 }
 
 function handleOutsidePointerDown(event: PointerEvent): void {
@@ -812,32 +689,45 @@ function handleOutsidePointerDown(event: PointerEvent): void {
   if (openTagMenu.value && tagRoot && !tagRoot.contains(target)) {
     openTagMenu.value = null
   }
-
-  if (!openPeriodMenu.value) return
-  const periodRoot = openPeriodMenu.value === 'goal-months'
-    ? goalMonthsMenuRef.value
-    : krPeriodMenuRefs.get(openPeriodMenu.value.replace(/^kr:/, ''))
-  if (periodRoot && !periodRoot.contains(target)) {
-    openPeriodMenu.value = null
-  }
 }
 
 const completenessRows = computed(() => [
-  { key: 'S', ok: smartCompleteness.value.S, label: t('planning.goalWizard.steps.review.summary.specific') },
-  { key: 'M', ok: smartCompleteness.value.M, label: t('planning.goalWizard.steps.review.summary.measurable') },
-  { key: 'A', ok: smartCompleteness.value.A, label: t('planning.goalWizard.steps.review.summary.achievable') },
-  { key: 'R', ok: smartCompleteness.value.R, label: t('planning.goalWizard.steps.review.summary.relevant') },
-  { key: 'T', ok: smartCompleteness.value.T, label: t('planning.goalWizard.steps.review.summary.timebound') },
+  {
+    key: 'S',
+    ok: smartCompleteness.value.S,
+    label: t('planning.goalWizard.steps.review.summary.specific'),
+  },
+  {
+    key: 'M',
+    ok: smartCompleteness.value.M,
+    label: t('planning.goalWizard.steps.review.summary.measurable'),
+  },
+  {
+    key: 'A',
+    ok: smartCompleteness.value.A,
+    label: t('planning.goalWizard.steps.review.summary.achievable'),
+  },
+  {
+    key: 'R',
+    ok: smartCompleteness.value.R,
+    label: t('planning.goalWizard.steps.review.summary.relevant'),
+  },
+  {
+    key: 'T',
+    ok: smartCompleteness.value.T,
+    label: t('planning.goalWizard.steps.review.summary.timebound'),
+  },
 ])
 
 const countdownLabel = computed(() => {
   if (!goalDraft.targetDate) return ''
   const target = parseIsoUtc(goalDraft.targetDate)
-  const now = parseIsoUtc(today.value)
+  const now = parseIsoUtc(getPeriodRefsForDate(new Date()).day)
   if (!target || !now) return ''
   const diffDays = Math.round((target.getTime() - now.getTime()) / 86_400_000)
   if (diffDays === 0) return t('planning.goalWizard.steps.timebound.countdown.today')
-  if (diffDays < 0) return t('planning.goalWizard.steps.timebound.countdown.overdue', { count: Math.abs(diffDays) })
+  if (diffDays < 0)
+    return t('planning.goalWizard.steps.timebound.countdown.overdue', { count: Math.abs(diffDays) })
   if (diffDays >= 14) {
     const weeks = Math.round(diffDays / 7)
     return t('planning.goalWizard.steps.timebound.countdown.weeks', { count: weeks })
@@ -872,14 +762,11 @@ function onCancel(): void {
   emit('cancelled')
 }
 
-watch(
-  currentStep,
-  (step) => {
-    if (step === 'specific') {
-      void nextTick(() => titleInputRef.value?.focus())
-    }
-  },
-)
+watch(currentStep, step => {
+  if (step === 'specific') {
+    void nextTick(() => titleInputRef.value?.focus())
+  }
+})
 
 onMounted(() => {
   document.addEventListener('pointerdown', handleOutsidePointerDown)

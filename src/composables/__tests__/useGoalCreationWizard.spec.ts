@@ -448,3 +448,50 @@ describe('useGoalCreationWizard', () => {
     })
   })
 })
+
+describe('shared goal schedule', () => {
+  it('derives weekly and monthly KR periods from one date range, preserving custom exceptions', () => {
+    const wizard = useGoalCreationWizard({ repo: createRepoMock() })
+    wizard.goalDraft.startDate = '2026-09-07'
+    wizard.goalDraft.targetDate = '2026-09-27'
+    const first = wizard.krDrafts.value[0]
+    wizard.addKrDraft()
+    const second = wizard.krDrafts.value[1]
+    wizard.updateKrDraft(second.localId, { cadence: 'monthly' })
+    expect(wizard.krPeriods(first.localId)).toHaveLength(3)
+    expect(wizard.krPeriods(second.localId)).toEqual(['2026-09'])
+    wizard.setKrScheduleMode(first.localId, false)
+    const custom = [...wizard.krPeriods(first.localId)]
+    wizard.goalDraft.targetDate = '2026-10-04'
+    expect(wizard.krPeriods(first.localId)).toEqual(custom)
+    expect(wizard.krPeriods(second.localId)).toEqual(['2026-09', '2026-10'])
+    wizard.setKrScheduleMode(first.localId, true)
+    expect(wizard.krPeriods(first.localId)).toHaveLength(4)
+    expect(wizard.effectiveGoalMonths.value).toEqual(['2026-09', '2026-10'])
+  })
+
+  it('keeps empty custom selections empty and updates inherited cadence', () => {
+    const wizard = useGoalCreationWizard({ repo: createRepoMock() })
+    wizard.goalDraft.startDate = '2026-09-07'
+    wizard.goalDraft.targetDate = '2026-09-27'
+    const kr = wizard.krDrafts.value[0]
+    wizard.updateKrDraft(kr.localId, { cadence: 'monthly' })
+    expect(wizard.krPeriods(kr.localId)).toEqual(['2026-09'])
+    wizard.goalDraft.krPeriodRefsByLocalId[kr.localId] = []
+    wizard.goalDraft.targetDate = '2026-10-31'
+    expect(wizard.krPeriods(kr.localId)).toEqual([])
+    expect(wizard.inheritsSchedule(kr.localId)).toBe(false)
+  })
+
+  it('shows derived boundary months before save and rejects reversed date ranges', () => {
+    const wizard = useGoalCreationWizard({ repo: createRepoMock() })
+    wizard.goalDraft.title = 'A goal'
+    wizard.updateKrDraft(wizard.krDrafts.value[0].localId, { title: 'A KR' })
+    wizard.goalDraft.startDate = '2026-09-30'
+    wizard.goalDraft.targetDate = '2026-09-30'
+    expect(wizard.effectiveGoalMonths.value).toEqual(['2026-09', '2026-10'])
+    expect(wizard.canSave.value).toBe(true)
+    wizard.goalDraft.targetDate = '2026-09-29'
+    expect(wizard.canSave.value).toBe(false)
+  })
+})

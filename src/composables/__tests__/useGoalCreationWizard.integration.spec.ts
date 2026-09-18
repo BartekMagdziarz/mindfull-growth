@@ -56,3 +56,50 @@ describe('useGoalCreationWizard – create save integration', () => {
     expect(weekStates).toHaveLength(weeks.length)
   })
 })
+
+it('persists an inherited schedule and preserves saved assignments on an unchanged edit', async () => {
+  const { goalDexieRepository } = await import('@/repositories/goalDexieRepository')
+  await resetPlanningTestData()
+  const wizard = useGoalCreationWizard()
+  wizard.goalDraft.title = 'Shared schedule'
+  wizard.goalDraft.startDate = '2026-09-07'
+  wizard.goalDraft.targetDate = '2026-09-27'
+  wizard.updateKrDraft(wizard.krDrafts.value[0].localId, { title: 'Weekly practice' })
+  const expected = wizard.krPeriods(wizard.krDrafts.value[0].localId)
+  const id = await wizard.save()
+  const goal = (await goalDexieRepository.getById(id))!
+  expect(goal.startDate).toBe('2026-09-07')
+  const keyResults = (await keyResultDexieRepository.listAll()).filter(kr => kr.goalId === id)
+  const kr = keyResults[0]
+  const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)
+  expect(states.map(state => state.weekRef).sort()).toEqual(expected)
+  const editor = useGoalCreationWizard()
+  editor.loadForEdit({ goal: { ...goal, periodAssignmentMode: undefined }, keyResults: keyResults.map(kr => ({ ...kr, periodAssignmentMode: undefined })), goalMonthRefs: ['2026-09'], krPeriodRefsByKrId: { [kr.id]: expected } })
+  editor.goalDraft.targetDate = '2026-10-04'
+  expect(editor.krPeriods(kr.id)).toEqual(expected)
+  await editor.save()
+  const after = await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)
+  expect(after.map(state => state.weekRef).sort()).toEqual(expected)
+})
+
+it('retains automatic scheduling after reopening and extends the saved weeks when the deadline changes', async () => {
+  const { goalDexieRepository } = await import('@/repositories/goalDexieRepository')
+  await resetPlanningTestData()
+  const wizard = useGoalCreationWizard()
+  wizard.goalDraft.title = 'Automatic goal'
+  wizard.goalDraft.startDate = '2026-09-07'
+  wizard.goalDraft.targetDate = '2026-09-27'
+  wizard.updateKrDraft(wizard.krDrafts.value[0].localId, { title: 'Weekly exercise' })
+  const id = await wizard.save()
+  const goal = (await goalDexieRepository.getById(id))!
+  const keyResults = (await keyResultDexieRepository.listAll()).filter(kr => kr.goalId === id)
+  const kr = keyResults[0]
+  const periods = (await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)).map(state => state.weekRef)
+  const editor = useGoalCreationWizard()
+  editor.loadForEdit({ goal, keyResults, goalMonthRefs: ['2026-09'], krPeriodRefsByKrId: { [kr.id]: periods } })
+  expect(editor.inheritsSchedule(kr.id)).toBe(true)
+  editor.goalDraft.targetDate = '2026-10-04'
+  expect(editor.krPeriods(kr.id)).toHaveLength(4)
+  await editor.save()
+  expect(await planningStateDexieRepository.listMeasurementWeekStatesForSubject('keyResult', kr.id)).toHaveLength(4)
+})

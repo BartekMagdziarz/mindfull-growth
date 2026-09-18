@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed } from 'vue'
 import StreamCard from './StreamCard.vue'
 import StreamRing from './StreamRing.vue'
@@ -111,12 +113,11 @@ function prioIconStyle(rating: number | null) {
             <template v-else>
               <div class="stream-month__prio-ring" :style="prioRingStyle(prio.rating)">
                 <div class="stream-month__prio-hole">
-                  <span
+                  <AppIcon
                     class="material-symbols-outlined"
                     :style="prioIconStyle(prio.rating)"
                     aria-hidden="true"
-                    >{{ prio.icon }}</span
-                  >
+                     :name="prio.icon" />
                 </div>
               </div>
               <span

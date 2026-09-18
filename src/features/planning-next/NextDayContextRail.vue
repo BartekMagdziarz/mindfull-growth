@@ -1,16 +1,6 @@
 <template>
   <!-- Right column of the day: date & calendar, compass, nearest signals, programs. -->
   <div class="next-day-context">
-    <NextDayCalendarCard
-      :day-ref="dayRef"
-      :today-ref="context.todayRef.value"
-      :markers="context.markers.value"
-      :targeting="store.targetingItem !== null"
-      :targeting-week-ref="store.targetingItem ? rescheduleWeekLock(store.targetingItem) : null"
-      @navigate="emit('navigate', $event)"
-      @pick="store.pickTargetDay($event)"
-      @cancel-targeting="store.cancelTargeting()"
-    />
     <NextDayCompass
       :priorities="context.focusPriorities.value"
       :focus-items="focusItems"
@@ -27,15 +17,12 @@
 import { computed, toRef, watch } from 'vue'
 import type { DayRef } from '@/domain/period'
 import { useTodayStore } from '@/stores/today.store'
-import NextDayCalendarCard from './NextDayCalendarCard.vue'
 import NextDayCompass from './NextDayCompass.vue'
 import NextDayPrograms from './NextDayPrograms.vue'
 import NextDayUpcoming from './NextDayUpcoming.vue'
-import { rescheduleWeekLock } from './dayViewModels'
 import { useDayContext } from './useDayContext'
 
 const props = defineProps<{ dayRef: DayRef }>()
-const emit = defineEmits<{ navigate: [dayRef: DayRef] }>()
 const store = useTodayStore()
 const context = useDayContext(toRef(props, 'dayRef'))
 

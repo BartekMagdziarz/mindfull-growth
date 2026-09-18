@@ -26,23 +26,23 @@
   border-color: var(--mg-color-border);
   border-radius: var(--mg-radius-lg);
   color: var(--mg-color-ink);
-  background: var(--mg-color-paper);
-  box-shadow: var(--mg-shadow-raised-sm);
+  background: var(--mg-color-mist);
+  box-shadow: none;
 }
 
 .mg-design-v2 :where(.neo-inset, .neo-input) {
-  border-color: var(--mg-color-border);
+  border-color: var(--mg-color-field-border);
   border-radius: var(--mg-radius-md);
   color: var(--mg-color-ink);
-  background: var(--mg-color-canvas);
-  box-shadow: var(--mg-shadow-inset-sm);
+  background: var(--mg-color-mist);
+  box-shadow: none;
 }
 
 .mg-design-v2 :where(.neo-icon-button) {
   border-color: var(--mg-color-border);
   border-radius: var(--mg-radius-organic-a);
-  color: var(--mg-color-primary-strong);
-  background: var(--mg-color-surface);
+  color: var(--mg-color-primary);
+  background: var(--mg-color-mist);
   box-shadow: var(--mg-shadow-raised-sm);
 }
 
@@ -67,6 +67,13 @@
   box-shadow: none;
 }
 
+/* Open/default status icon: accent, not the legacy gradient. */
+.mg-design-v2 :where(.neo-icon-button--open) {
+  border-color: transparent;
+  color: var(--mg-color-primary);
+  background: transparent;
+}
+
 .mg-design-v2 :where(.neo-checkbox) {
   border-color: var(--mg-color-border);
   box-shadow: var(--mg-shadow-raised-sm);
@@ -82,5 +89,225 @@
   border-color: var(--mg-color-border);
   border-radius: var(--mg-radius-pill);
   color: var(--mg-color-muted);
+  background: var(--mg-color-mist);
+}
+
+/* ------------------------------------------------------------------ */
+/* Bridges for the remaining legacy anatomies (exercise wizards,       */
+/* profile, assessments). The V2 root now sits on the app shell, so    */
+/* every screen reads these. Zero specificity via :where() — mg-v2-*   */
+/* classes always win; hover/pressed states need real specificity to   */
+/* beat main.css pseudo-class rules.                                   */
+/* ------------------------------------------------------------------ */
+
+/* Focus comes from the root; the legacy helper must not double-ring. */
+.mg-design-v2 .neo-focus:focus-visible {
+  outline: none;
+  box-shadow: var(--mg-focus-ring);
+}
+
+/* Segmented tabs → sky well with a paper active segment. */
+.mg-design-v2 :where(.neo-segmented) {
+  gap: 3px;
+  padding: 3px;
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-sky-well);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-design-v2 :where(.neo-segmented__item) {
+  min-width: 0;
+  min-height: 2rem;
+  padding: 0 var(--mg-space-3);
+  border-color: transparent;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-sm);
+  font-weight: 800;
+}
+
+.mg-design-v2 .neo-segmented__item:hover:not(:disabled) {
+  color: var(--mg-color-primary-strong);
+  background: transparent;
+}
+
+.mg-design-v2 :where(.neo-segmented__item--active),
+.mg-design-v2 .neo-segmented__item--active:hover:not(:disabled) {
+  border-color: transparent;
+  color: var(--mg-color-primary-strong);
   background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+/* Wizard step dots → sketch stepper (done / current / future). */
+.mg-design-v2 :where(.neo-step-completed) {
+  border: 0;
+  border-radius: var(--mg-radius-organic-b);
+  color: var(--mg-color-on-primary);
+  background: var(--mg-color-primary);
+  box-shadow: none;
+}
+
+.mg-design-v2 :where(.neo-step-active) {
+  border: 0;
+  border-radius: var(--mg-radius-organic-a);
+  color: var(--mg-color-on-primary);
+  background: var(--mg-color-ink);
+  box-shadow: var(--mg-shadow-stepper-halo);
+  transform: rotate(-2deg);
+}
+
+.mg-design-v2 :where(.neo-step-future) {
+  border: 1.5px dashed var(--mg-color-primary-strong);
+  border-radius: var(--mg-radius-organic-b);
+  color: var(--mg-color-muted);
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Back button → organic icon control in the accent. */
+.mg-design-v2 :where(.neo-back-btn) {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-organic-a);
+  color: var(--mg-color-primary);
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 .neo-back-btn:hover {
+  transform: none;
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 .neo-back-btn:active {
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-design-v2 :where(.neo-back-btn) .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* Selectors and checkbox rows → mist chips; selected = accent outline, flat. */
+.mg-design-v2 :where(.neo-selector, .neo-checkbox-row) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 .neo-selector:hover:not(:disabled) {
+  transform: none;
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 :where(.neo-selector--active, .neo-checkbox-row--checked),
+.mg-design-v2 .neo-selector--active:hover:not(:disabled) {
+  border-color: var(--mg-color-primary);
+  background: var(--mg-color-paper);
+  box-shadow: none;
+}
+
+/* Panels, embedded notes, warnings → nested field-tone blocks. */
+.mg-design-v2 :where(.neo-panel, .neo-panel--plan, .neo-panel--reflect, .neo-embedded) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+  box-shadow: none;
+}
+
+.mg-design-v2 :where(.neo-warning) {
+  border-color: var(--mg-color-warn);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-warn-on);
+  background: var(--mg-color-warn-soft);
+  box-shadow: none;
+}
+
+/* Icon circles → icon boards. */
+.mg-design-v2 :where(.neo-icon-circle) {
+  border-radius: var(--mg-radius-icon-field-a);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-sky-field);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+/* Progress bars, toggles, footers, generic controls. */
+.mg-design-v2 :where(.neo-progress-track) {
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-sky-well);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-design-v2 :where(.neo-progress-fill) {
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-primary);
+  box-shadow: none;
+}
+
+.mg-design-v2 :where(.neo-toggle-track) {
+  border-color: var(--mg-color-border);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-design-v2 :where(.neo-toggle-track--off) {
+  background: var(--mg-color-sky-well);
+}
+
+.mg-design-v2 :where(.neo-toggle-track--on) {
+  background: var(--mg-color-primary);
+}
+
+.mg-design-v2 :where(.neo-toggle-thumb) {
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 :where(.neo-footer) {
+  border-top-color: var(--mg-color-border);
+  background: color-mix(in srgb, var(--mg-color-canvas) 72%, transparent);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.mg-design-v2 :where(.neo-control) {
+  border-color: var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-mist);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+.mg-design-v2 :where(.neo-control--active) {
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-design-v2 :where(.neo-control--accent) {
+  border-color: transparent;
+  color: var(--mg-color-on-primary);
+  background: var(--mg-color-primary-fill);
+}
+
+/* Pills: colour variants keep their semantic tone; default = muted mist. */
+.mg-design-v2 :where(.neo-pill:not(.neo-pill--primary):not(.neo-pill--success):not(.neo-pill--warning):not(.neo-pill--danger)) {
+  color: var(--mg-color-muted);
+  background: var(--mg-color-mist);
+}
+
+.mg-design-v2 :where(.neo-pill--primary) {
+  border-color: var(--mg-color-primary);
+  color: var(--mg-color-primary-strong);
+  background: var(--mg-color-paper);
+  box-shadow: none;
 }

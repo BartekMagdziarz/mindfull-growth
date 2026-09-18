@@ -1,39 +1,39 @@
 <template>
   <AppCard
     padding="none"
-    class="py-3 px-4 cursor-pointer transition-all duration-200"
+    class="group/card py-3 px-4 cursor-pointer transition-all duration-200"
     @click="$emit('click')"
   >
     <div class="space-y-2">
       <!-- Type Badge + Date Row -->
       <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          <!-- Type Badge -->
-          <span :class="typeBadgeClasses">
-            <AppIcon :name="typeIcon" class="text-sm" />
-            <span>{{ typeLabel }}</span>
+        <!-- Quiet facts line: type · date -->
+        <p class="mg-v2-meta">
+          <span class="mg-v2-meta__status">
+            <AppIcon :name="typeIcon" class="text-sm history-card__type-icon" />
+            {{ typeLabel }}
           </span>
-          <span class="text-sm text-on-surface-variant">
-            {{ formatEntryDate(entry.createdAt) }}
-          </span>
+          <span>{{ formatEntryDate(entry.createdAt) }}</span>
+        </p>
+        <!-- Actions tray: visible on hover / focus -->
+        <div class="mg-v2-card-tray group-hover/card:opacity-100">
+          <button
+            type="button"
+            :disabled="isDeleting"
+            :aria-label="deleteAriaLabel"
+            class="mg-v2-button mg-v2-button--quiet mg-v2-button--icon mg-v2-button--icon-sm"
+            @click.stop="$emit('delete')"
+          >
+            <AppIcon v-if="!isDeleting" name="delete" class="text-base" />
+            <span v-else class="text-sm">...</span>
+          </button>
         </div>
-        <!-- Delete Button -->
-        <button
-          type="button"
-          :disabled="isDeleting"
-          :aria-label="deleteAriaLabel"
-          class="flex-shrink-0 p-2 rounded-xl text-on-surface-variant hover:bg-section hover:text-error transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-[44px] min-h-[44px] flex items-center justify-center"
-          @click.stop="$emit('delete')"
-        >
-          <AppIcon v-if="!isDeleting" name="delete" class="text-xl" />
-          <span v-else class="text-sm">...</span>
-        </button>
       </div>
 
       <!-- Title (journal only) -->
       <h3
         v-if="entry.type === 'journal' && entry.title"
-        class="text-lg font-semibold text-on-surface"
+        class="text-base font-extrabold text-on-surface"
       >
         {{ entry.title }}
       </h3>
@@ -53,11 +53,11 @@
       >
         <button
           type="button"
-          class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary-soft text-on-primary-soft text-xs font-medium hover:bg-primary-soft/80 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background"
+          class="mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected history-card__chats"
           @click.stop="$emit('viewChats')"
           :aria-label="t('history.card.viewChats', { count: entry.chatSessions.length })"
         >
-          <span class="text-base leading-none">💬</span>
+          <AppIcon name="chat_bubble" class="text-sm" />
           <span>
             {{ entry.chatSessions.length > 1
               ? t('history.card.chatCountPlural', { count: entry.chatSessions.length })
@@ -76,7 +76,7 @@
           :key="`emotion-${emotionId}`"
           v-show="getEmotionName(emotionId)"
           :style="getEmotionChipStyle(emotionId)"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-on-surface"
+          class="mg-v2-badge text-on-surface"
         >
           {{ getEmotionName(emotionId) }}
         </span>
@@ -91,7 +91,7 @@
           v-for="familyId in displayedFamilyIds"
           :key="`family-${familyId}`"
           :style="getFamilyChipStyle(familyId)"
-          class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-on-surface"
+          class="mg-v2-badge text-on-surface"
         >
           <AppIcon name="category" class="text-sm opacity-80" />
           {{ getFamilyName(familyId) }}
@@ -108,7 +108,7 @@
           v-for="peopleTagId in entry.peopleTagIds"
           :key="`people-${peopleTagId}`"
           v-show="getPeopleTagName(peopleTagId)"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-chip text-chip-text border border-chip-border"
+          class="mg-v2-badge"
         >
           {{ getPeopleTagName(peopleTagId) }}
         </span>
@@ -118,7 +118,7 @@
           v-for="contextTagId in entry.contextTagIds"
           :key="`context-${contextTagId}`"
           v-show="getContextTagName(contextTagId)"
-          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-soft text-on-primary-soft border border-chip-border"
+          class="mg-v2-badge history-card__context"
         >
           {{ getContextTagName(contextTagId) }}
         </span>
@@ -165,15 +165,6 @@ const typeIcon = computed<string>(() => {
 
 const typeLabel = computed(() => {
   return props.entry.type === 'journal' ? t('history.card.journal') : t('history.card.emotion')
-})
-
-const typeBadgeClasses = computed(() => {
-  const base =
-    'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium'
-  if (props.entry.type === 'journal') {
-    return `${base} bg-primary-soft text-on-primary-soft`
-  }
-  return `${base} bg-section-strong text-on-section`
 })
 
 const contentPreview = computed(() => {
@@ -236,3 +227,17 @@ function getContextTagName(id: string): string | undefined {
   return tagStore.getContextTagById(id)?.name
 }
 </script>
+
+<style scoped>
+.history-card__type-icon {
+  color: var(--mg-color-primary);
+}
+
+.history-card__chats {
+  cursor: pointer;
+}
+
+.history-card__context {
+  color: var(--mg-color-primary-strong);
+}
+</style>

@@ -1,24 +1,14 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="flex items-center gap-4 mb-6">
-      <button
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        @click="router.push('/exercises')"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.attitudinalShift.title') }}</h1>
-        <p class="text-sm text-on-surface-variant">{{ t('exercises.cards.attitudinalShift.subtitle') }}</p>
-      </div>
-    </div>
-
+  <ExercisePage
+    :title="t('exercises.cards.attitudinalShift.title')"
+    :subtitle="t('exercises.cards.attitudinalShift.subtitle')"
+  >
     <AttitudinalShiftWizard v-if="!saved" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="attitudinal-shift" @again="saved = false" />
 
     <!-- Past shifts -->
     <div v-if="attitudinalShiftStore.sortedShifts.length > 0" class="mt-8">
-      <h2 class="text-lg font-semibold text-on-surface mb-3">{{ t('exercises.views.pastShifts') }}</h2>
+      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastShifts') }}</h2></div>
       <div class="space-y-3">
         <AppCard
           v-for="shift in attitudinalShiftStore.sortedShifts"
@@ -42,13 +32,12 @@
         </AppCard>
       </div>
     </div>
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import AttitudinalShiftWizard from '@/components/exercises/AttitudinalShiftWizard.vue'
@@ -58,7 +47,6 @@ import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useT } from '@/composables/useT'
 import type { CreateAttitudinalShiftPayload } from '@/domain/exercises'
 
-const router = useRouter()
 const { t } = useT()
 const attitudinalShiftStore = useAttitudinalShiftStore()
 const emotionStore = useEmotionStore()

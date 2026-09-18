@@ -1,5 +1,5 @@
 <template>
-  <section class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper p-3 md:p-3.5">
+  <section class="mg-v2-surface mg-v2-surface--raised-sm p-3 md:p-3.5">
     <div class="inline-editor-divider border-b pb-2">
       <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div class="space-y-2">
@@ -62,7 +62,7 @@
 
         <div
           v-if="panelType === 'habit' || panelType === 'keyResult'"
-          class="mg-v2-surface mg-v2-surface--inset p-2.5"
+          class="mg-v2-surface mg-v2-surface--flat p-2.5"
         >
           <div class="text-xs font-semibold text-on-surface">{{ labels.target }}</div>
           <MeasurementTargetSentence

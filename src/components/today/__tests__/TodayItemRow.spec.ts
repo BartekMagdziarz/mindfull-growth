@@ -224,11 +224,11 @@ describe('TodayItemRow — simplified collapsed + expand-on-click layout', () =>
       { goalTitle: 'Strength', goalIcon: 'barbell' },
     )
 
-    const { getByText, queryByText } = renderRow(item)
+    const { getByText, container } = renderRow(item)
 
     expect(getByText('Strength KR')).toBeTruthy()
-    expect(getByText('fitness_center')).toBeTruthy()
-    expect(queryByText('flag')).toBeNull()
+    expect(container.querySelector('[data-glyph="strength"] svg')).toBeTruthy()
+    expect(container.querySelector('[data-icon="flag"]')).toBeNull()
   })
 
   it('renders weekly counter habit with inline ± controls in title row', () => {

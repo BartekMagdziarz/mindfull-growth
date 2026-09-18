@@ -6,6 +6,7 @@ import {
   usePriorityCreatorRitual,
 } from '@/composables/usePriorityCreatorRitual'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
+import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { priorityDexieRepository } from '@/repositories/priorityDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
 import { loadDraftFromDB, saveDraftToDB } from '@/services/draftStorage'
@@ -48,6 +49,8 @@ describe('usePriorityCreatorRitual', () => {
     await db.habits.clear()
     await db.trackers.clear()
     await db.weeklyIntentions.clear()
+    await db.monthPlans.clear()
+    await db.lifeAreas.clear()
   })
 
   afterEach(() => {
@@ -237,6 +240,79 @@ describe('usePriorityCreatorRitual', () => {
     expect(ritual.canFinish.value).toBe(false)
     expect(await ritual.finish()).toBe(false)
     expect(ritual.result.value).toBeNull()
+  })
+
+  it('skips the contribution step both ways when no work was picked', async () => {
+    const ritual = makeRitual()
+    await ritual.initialize()
+    ritual.goToStep(RITUAL_STEPS.indexOf('support'))
+
+    ritual.goNext()
+    expect(ritual.currentStep.value).toBe('review')
+    ritual.goBack()
+    expect(ritual.currentStep.value).toBe('support')
+
+    ritual.addNewProposal('goal', 'Plan')
+    ritual.goNext()
+    expect(ritual.currentStep.value).toBe('relations')
+  })
+
+  it('puts an active priority into the month focus when asked (closing step)', async () => {
+    const monthRef = getPeriodRefsForDate(new Date()).month
+    await periodPlanDexieRepository.createMonthPlan({ monthRef, topPriorityIds: ['existing-1'] })
+
+    const ritual = makeRitual()
+    await ritual.initialize()
+    expect(ritual.monthTopPriorityIds.value).toEqual(['existing-1'])
+    expect(ritual.monthFocusAvailable.value).toBe(true)
+
+    ritual.form.title = 'Kierunek'
+    ritual.form.direction = 'Zmiana'
+    ritual.form.icon = 'north_star'
+    ritual.form.addToMonthFocus = true
+
+    expect(await ritual.finish()).toBe(true)
+    expect(ritual.result.value?.priority.icon).toBe('north_star')
+    expect(ritual.monthFocusApplied.value).toBe(true)
+    const plan = await periodPlanDexieRepository.getMonthPlan(monthRef)
+    expect(plan?.topPriorityIds).toEqual(['existing-1', ritual.result.value!.priority.id])
+  })
+
+  it('leaves the month focus alone when unchecked, full, or saving a draft', async () => {
+    const monthRef = getPeriodRefsForDate(new Date()).month
+    await periodPlanDexieRepository.createMonthPlan({ monthRef, topPriorityIds: ['a', 'b', 'c'] })
+
+    const full = makeRitual()
+    await full.initialize()
+    expect(full.monthFocusFull.value).toBe(true)
+    expect(full.monthFocusAvailable.value).toBe(false)
+    full.form.title = 'Kierunek'
+    full.form.direction = 'Zmiana'
+    expect(await full.finish()).toBe(true)
+    expect(full.monthFocusApplied.value).toBe(false)
+    expect((await periodPlanDexieRepository.getMonthPlan(monthRef))?.topPriorityIds).toEqual(['a', 'b', 'c'])
+
+    await db.monthPlans.clear()
+    const unchecked = makeRitual()
+    await unchecked.initialize()
+    unchecked.form.title = 'Drugi'
+    unchecked.form.direction = 'Zmiana'
+    unchecked.form.addToMonthFocus = false
+    expect(await unchecked.finish()).toBe(true)
+    expect(unchecked.monthFocusApplied.value).toBe(false)
+    expect(await periodPlanDexieRepository.getMonthPlan(monthRef)).toBeUndefined()
+
+    // Fresh portfolio: the repository refuses a 6th+ active priority.
+    await db.priorities.clear()
+    await seedActivePriorities(5)
+    const draft = makeRitual()
+    await draft.initialize()
+    expect(draft.monthFocusAvailable.value).toBe(false)
+    draft.form.title = 'Szósty'
+    draft.form.direction = 'Poczeka'
+    expect(await draft.finish()).toBe(true)
+    expect(draft.result.value?.priority.status).toBe('draft')
+    expect(draft.monthFocusApplied.value).toBe(false)
   })
 
   it('unselected proposals stay out of the finale', async () => {

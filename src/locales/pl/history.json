@@ -1,4 +1,6 @@
 {
+  "title": "Historia",
+  "subtitle": "Wpisy dziennika i zapisy emocji w jednym miejscu.",
   "loading": "Ładowanie wpisów...",
   "errorTitle": "Nie można załadować wpisów",
   "tryAgain": "Spróbuj ponownie",

@@ -1,8 +1,13 @@
 import type { DayRef, WeekRef } from '@/domain/period'
 import { bucketMarker, type DayMarker } from '@/services/dayUpcomingQueries'
 import type { TodayItem } from '@/services/todayViewQueries'
-import { formatMonthTitle } from '@/utils/periodLabels'
-import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
+import { formatDayShort, formatMonthTitle, formatWeekRange } from '@/utils/periodLabels'
+import {
+  addDaysToDayRef,
+  getNextPeriod,
+  getPreviousPeriod,
+  getPeriodRefsForDate,
+} from '@/utils/periods'
 
 /** Compass keys: `priority:<id>` for a month direction, `object:<itemKey>` for a week focus. */
 export type CompassKey = `priority:${string}` | `object:${string}`
@@ -57,13 +62,37 @@ export function priorityFallbackIcon(index: number): string {
 type Translate = (key: string, params?: Record<string, string | number>) => string
 
 /** Human title for a calendar/upcoming marker — resolved here so services stay i18n-free. */
-export function markerTitle(marker: DayMarker, t: Translate, locale: string): string {
+export function markerTitle(
+  marker: DayMarker,
+  t: Translate,
+  locale: string,
+  todayRef?: DayRef
+): string {
   if (marker.kind === 'deadline') return marker.goal.title
   if (marker.ritual === 'week') {
-    return t(marker.action === 'plan' ? 'planning.today.upcoming.planWeek' : 'planning.today.upcoming.reflectWeek', { n: Number(marker.weekRef.slice(-2)) })
+    const current = todayRef ? getPeriodRefsForDate(todayRef).week : undefined
+    const relation = !current
+      ? null
+      : marker.weekRef === current
+        ? 'current'
+        : marker.weekRef === getPreviousPeriod(current)
+          ? 'previous'
+          : marker.weekRef === getNextPeriod(current)
+            ? 'next'
+            : null
+    const key = marker.action === 'plan' ? 'planWeek' : 'reflectWeek'
+    if (relation) return t(`planning.today.upcoming.${key}_${relation}`)
+    return `${t(`planning.today.upcoming.${key}`)} · ${formatWeekRange(marker.weekRef, locale)}`
   }
-  const month = formatMonthTitle(marker.monthRef, locale).replace(/\s+\d{4}$/, '').toLocaleLowerCase(locale)
-  return t(marker.action === 'plan' ? 'planning.today.upcoming.planMonth' : 'planning.today.upcoming.reflectMonth', { month })
+  const month = formatMonthTitle(marker.monthRef, locale)
+    .replace(/\s+\d{4}$/, '')
+    .toLocaleLowerCase(locale)
+  return t(
+    marker.action === 'plan'
+      ? 'planning.today.upcoming.planMonth'
+      : 'planning.today.upcoming.reflectMonth',
+    { month }
+  )
 }
 
 /** Done markers trade their own icon for a check so the state is visible without colour. */
@@ -74,12 +103,53 @@ export function markerIcon(marker: DayMarker): string {
   return marker.ritual === 'week' ? 'edit_calendar' : 'date_range'
 }
 
-/** "dziś" / "pt 18", prefixed with "po terminie ·" for overdue markers. */
-export function markerDateLabel(marker: DayMarker, todayRef: DayRef, t: Translate, locale: string): string {
-  const day = marker.dayRef === todayRef
-    ? t('planning.today.upcoming.today')
-    : `${new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(`${marker.dayRef}T12:00:00`)).replace('.', '')} ${Number(marker.dayRef.slice(-2))}`
-  return bucketMarker(marker, todayRef) === 'overdue' ? `${t('planning.today.upcoming.overdue')} · ${day}` : day
+/** The date describes the period for rituals, and the planned finish for goals. */
+export function markerContextLabel(
+  marker: DayMarker,
+  todayRef: DayRef,
+  t: Translate,
+  locale: string
+): string {
+  if (marker.kind === 'deadline') {
+    return `${t('planning.today.upcoming.plannedEnd')} · ${formatDayShort(marker.dayRef, locale, marker.dayRef.slice(0, 4) !== todayRef.slice(0, 4))}`
+  }
+  if (marker.ritual === 'week') return formatWeekRange(marker.weekRef, locale)
+  return formatMonthTitle(marker.monthRef, locale)
+}
+
+/** Status is separate from the date, so an unfinished reflection is not a missed deadline. */
+export function markerDateLabel(
+  marker: DayMarker,
+  todayRef: DayRef,
+  t: Translate,
+  locale: string
+): string {
+  const prefix = 'planning.today.upcoming.'
+  if (marker.state === 'done')
+    return t(
+      prefix +
+        (marker.kind === 'deadline'
+          ? 'completed'
+          : marker.action === 'plan'
+            ? 'planned'
+            : 'reflected')
+    )
+  if (bucketMarker(marker, todayRef) === 'overdue') {
+    return t(
+      prefix +
+        (marker.kind === 'deadline'
+          ? 'overdue'
+          : marker.action === 'plan'
+            ? 'notPlanned'
+            : 'toReflect')
+    )
+  }
+  if (marker.dayRef === todayRef) return t(prefix + 'today')
+  if (marker.dayRef === addDaysToDayRef(todayRef, 1)) return t(prefix + 'tomorrow')
+  const days = Math.round(
+    (Date.parse(`${marker.dayRef}T00:00:00Z`) - Date.parse(`${todayRef}T00:00:00Z`)) / 86_400_000
+  )
+  return new Intl.RelativeTimeFormat(locale, { numeric: 'always' }).format(days, 'day')
 }
 
 /** Week a row must stay in when moved: weekly intentions are bound to their week; others roam. */

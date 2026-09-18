@@ -1024,7 +1024,7 @@ describe('ChatView', () => {
       const { container } = render(ChatView)
 
       await waitFor(() => {
-        const messages = container.querySelectorAll('[class*="max-w-[80%]"]')
+        const messages = container.querySelectorAll('.chat-bubble')
         expect(messages).toHaveLength(3)
         expect(messages[0].textContent).toContain('First message')
         expect(messages[1].textContent).toContain('Second message')

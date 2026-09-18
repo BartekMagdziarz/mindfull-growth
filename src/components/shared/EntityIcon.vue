@@ -1,36 +1,23 @@
 <template>
-  <span
-    :class="wrapperClass"
-    :style="wrapperStyle"
-    :title="title"
-    aria-hidden="true"
-  >
-    <span
+  <span :class="wrapperClass" :style="wrapperStyle" :title="title" aria-hidden="true">
+    <AppIcon
       v-if="iconOption || directSymbol"
       class="material-symbols-outlined leading-none select-none"
       :class="iconFontClass"
-    >{{ iconOption ? iconOption.materialIcon : directSymbol }}</span>
-    <span
-      v-else-if="legacyEmoji"
-      class="leading-none"
-      :class="emojiClass"
-    >
+      :name="iconOption ? iconOption.materialIcon : (directSymbol ?? '')"
+    />
+    <span v-else-if="legacyEmoji" class="leading-none" :class="emojiClass">
       {{ legacyEmoji }}
     </span>
-    <span
-      v-else
-      class="rounded-full bg-current/65"
-      :class="dotClass"
-    />
+    <span v-else class="rounded-full bg-current/65" :class="dotClass" />
   </span>
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed } from 'vue'
-import {
-  getEntityIconOption,
-  isLegacyEmojiIcon,
-} from '@/constants/entityIconCatalog'
+import { getEntityIconOption, isLegacyEmojiIcon } from '@/constants/entityIconCatalog'
 
 const props = withDefaults(
   defineProps<{

@@ -1,34 +1,38 @@
 <template>
   <PageContainer>
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t('lifeAreas.views.title') }}</h1>
-        <p class="text-sm text-on-surface-variant">
-          {{ t('lifeAreas.views.subtitle') }}
-        </p>
-      </div>
-      <AppButton variant="filled" @click="router.push('/areas/new')">
-        {{ t('lifeAreas.views.addButton') }}
-      </AppButton>
-    </div>
+    <PageHeader
+      :eyebrow="t('common.nav.profile')"
+      :title="t('lifeAreas.views.title')"
+      :description="t('lifeAreas.views.subtitle')"
+      :back-to="{ name: 'profile' }"
+    >
+      <template #actions>
+        <AppButton variant="filled" @click="router.push('/areas/new')">
+          {{ t('lifeAreas.views.addButton') }}
+        </AppButton>
+      </template>
+    </PageHeader>
 
     <!-- Empty State -->
-    <div v-if="!isLoading && lifeAreas.length === 0" class="text-center py-12">
-      <p class="text-on-surface-variant mb-4">
-        {{ t('lifeAreas.views.emptyState') }}
-      </p>
-      <div class="flex gap-3 justify-center">
-        <AppButton variant="filled" @click="handleSeedDefaults">
-          {{ t('lifeAreas.views.startWithDefaults') }}
-        </AppButton>
-        <AppButton variant="outlined" @click="router.push('/areas/new')">
-          {{ t('lifeAreas.views.createFromScratch') }}
-        </AppButton>
-      </div>
-    </div>
+    <DsState
+      v-if="!isLoading && lifeAreas.length === 0"
+      icon="donut_small"
+      :title="t('lifeAreas.views.emptyState')"
+    >
+      <template #actions>
+        <div class="flex gap-3 justify-center">
+          <AppButton variant="filled" @click="handleSeedDefaults">
+            {{ t('lifeAreas.views.startWithDefaults') }}
+          </AppButton>
+          <AppButton variant="outlined" @click="router.push('/areas/new')">
+            {{ t('lifeAreas.views.createFromScratch') }}
+          </AppButton>
+        </div>
+      </template>
+    </DsState>
 
     <!-- Area list -->
-    <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="mg-v2-tile-grid">
       <LifeAreaCard
         v-for="area in sortedAreas"
         :key="area.id"
@@ -47,6 +51,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import { DsState } from '@/design-system/components'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import LifeAreaCard from '@/components/lifeAreas/LifeAreaCard.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'

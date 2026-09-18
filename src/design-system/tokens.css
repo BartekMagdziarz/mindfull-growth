@@ -17,22 +17,34 @@
   --mg-space-6: 1.5rem;
   --mg-space-8: 2rem;
 
-  /* Sky-with-clouds tonal ladder: canvas (sky) is the bluest, large surfaces
-     a lighter blue, cards/paper nearly white — like clouds on the sky. */
-  --mg-color-canvas: color-mix(in srgb, rgb(var(--sky-100)) 55%, rgb(var(--sky-200)));
+  /* Tonal ladder (decision 2026-09-07, shared with UX Lab calendar/ritual):
+     one direction only — the deeper a surface is nested, the WHITER it gets,
+     from canvas (page) → surface (card, the only level with a
+     shadow) → mist (field) → paper (inner). Hover = one step whiter. Inset
+     shadows are reserved for controls (segmented switches, pressed states). */
+  --mg-color-canvas: rgb(var(--color-background));
   --mg-color-surface: rgb(var(--sky-100));
-  --mg-color-mist: rgb(var(--sky-50));
-  --mg-color-paper: color-mix(in srgb, white 70%, rgb(var(--sky-50)));
+  /* Exact Lab steps (sketch.css --cp-field / --cp-inner): small, equal steps. */
+  --mg-color-mist: color-mix(in srgb, white 45%, rgb(var(--sky-100)));
+  --mg-color-emotion-paper: #fafbfd;
+  --mg-color-paper: color-mix(in srgb, white 80%, rgb(var(--sky-100)));
   --mg-color-ink: rgb(var(--color-on-surface));
   /* Muted ink darkened vs legacy neo-muted: the bluer canvas/surface tones
      of the sky ladder would otherwise drop small labels below ~3:1. */
   --mg-color-muted: color-mix(in srgb, rgb(var(--neo-muted)) 70%, rgb(var(--color-on-surface)));
   --mg-color-border: rgb(var(--neo-border) / 0.14);
+  --mg-color-border-subtle: rgb(var(--neo-border) / 0.1);
   --mg-color-primary: rgb(var(--color-primary));
   /* Deepened vs product primary-strong: small accent labels (eyebrows, active
      tabs, dock) must clear ~4:1 on the bluer sky-ladder backgrounds. */
   --mg-color-primary-strong: color-mix(in srgb, rgb(var(--color-primary-strong)) 55%, rgb(var(--sky-700)));
   --mg-color-primary-soft: rgb(var(--color-primary-soft) / 0.68);
+  /* Filled primary action: raw product primary-strong with white label (Lab
+     decision: "wypełnione przyciski = --color-primary-strong"). */
+  --mg-color-primary-fill: rgb(var(--color-primary-strong));
+  --mg-color-primary-fill-hover: color-mix(in srgb, rgb(var(--color-primary-strong)) 90%, rgb(var(--sky-800)));
+  /* Thin edge of flat fields/inputs (no inset shadow on content). */
+  --mg-color-field-border: rgb(var(--sky-400) / 0.22);
   --mg-color-sky-field: rgb(var(--sky-200) / 0.72);
   --mg-color-sky-well: rgb(var(--sky-200) / 0.6);
   --mg-color-rose: rgb(var(--rose-700));
@@ -42,6 +54,7 @@
   --mg-color-state: rgb(var(--sky-600));
   --mg-color-state-soft: rgb(var(--sky-300) / 0.72);
   --mg-color-lavender: rgb(155 110 195);
+  --mg-color-lavender-soft: rgb(214 205 244 / 0.7);
   --mg-color-mint: rgb(var(--color-success));
   --mg-color-danger: rgb(var(--color-error));
   --mg-color-focus: rgb(var(--sky-700));
@@ -60,6 +73,10 @@
   --mg-shadow-raised-sm: -2px -2px 5px rgb(var(--neo-shadow-light) / 0.6), 2px 2px 5px rgb(var(--neo-shadow-dark) / 0.13);
   --mg-shadow-inset: inset -5px -5px 12px rgb(var(--neo-inset-light) / 0.58), inset 5px 5px 12px rgb(var(--neo-inset-dark) / 0.13);
   --mg-shadow-inset-sm: inset -2px -2px 5px rgb(var(--neo-inset-light) / 0.58), inset 2px 2px 5px rgb(var(--neo-inset-dark) / 0.13);
+  /* Paper halo around the current stepper dot (sketch marker on a sheet). */
+  --mg-shadow-stepper-halo: 0 0 0 3px var(--mg-color-paper);
+  --mg-shadow-drag-preview: 0 18px 38px color-mix(in srgb, var(--mg-color-ink) 18%, transparent);
+  --mg-shadow-drop-target: 0 6px 14px color-mix(in srgb, var(--mg-color-primary-strong) 18%, transparent);
 
   --mg-radius-sm: 11px 14px 10px 13px;
   --mg-radius-md: 17px 14px 18px 15px;

@@ -37,9 +37,9 @@
         <div class="flex items-baseline gap-2 mt-[6px]">
           <span
             class="text-[28px] font-bold"
-            style="color: rgb(var(--neo-focus))"
+            style="color: var(--mg-color-primary-strong)"
           >{{ streak }}</span>
-          <span class="text-[13px]" style="color: rgb(var(--neo-muted))">
+          <span class="text-[13px]" style="color: var(--mg-color-muted)">
             {{ t('profile.account.activity.summary', { streak, entries: journalEntryCount }) }}
           </span>
         </div>
@@ -49,7 +49,7 @@
         class="neo-pill px-3 py-2 text-[12px] font-semibold gap-[6px]"
         @click="onComingSoon"
       >
-        <span class="material-symbols-outlined text-[16px]">target</span>
+        <AppIcon class="material-symbols-outlined text-[16px]" name="target" />
         {{ t('profile.account.activity.cta') }}
       </button>
     </div>
@@ -66,7 +66,7 @@
           style="min-height: 40px"
           @click="onComingSoon"
         >
-          <span class="material-symbols-outlined text-[18px]">key</span>
+          <AppIcon class="material-symbols-outlined text-[18px]" name="key" />
           {{ t('profile.account.security.changePassword') }}
         </button>
         <button
@@ -75,7 +75,7 @@
           style="min-height: 40px"
           @click="onComingSoon"
         >
-          <span class="material-symbols-outlined text-[18px]">download</span>
+          <AppIcon class="material-symbols-outlined text-[18px]" name="download" />
           {{ t('profile.account.security.exportData') }}
         </button>
         <button
@@ -84,7 +84,7 @@
           style="min-height: 40px; color: rgb(var(--status-warn))"
           @click="onComingSoon"
         >
-          <span class="material-symbols-outlined text-[18px]">delete</span>
+          <AppIcon class="material-symbols-outlined text-[18px]" name="delete" />
           {{ t('profile.account.security.deleteAccount') }}
         </button>
       </div>
@@ -93,6 +93,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import { authDexieRepository } from '@/repositories/authDexieRepository'
@@ -157,14 +159,14 @@ onMounted(async () => {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgb(var(--neo-muted));
+  color: var(--mg-color-muted);
 }
 
 .zb-field-value {
   font-size: 16px;
   font-weight: 700;
   margin-top: 4px;
-  color: rgb(var(--neo-text));
+  color: var(--mg-color-ink);
   overflow-wrap: anywhere;
 }
 

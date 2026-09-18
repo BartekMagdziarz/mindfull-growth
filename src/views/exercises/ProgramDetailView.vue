@@ -1,22 +1,11 @@
 <template>
-  <div v-if="program" class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="mb-6 flex items-center gap-4">
-      <button class="neo-back-btn p-2 text-neu-text neo-focus" @click="router.push('/exercises')">
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <span class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-        <AppIcon :name="program.icon" class="text-xl text-primary" />
-      </span>
-      <div class="min-w-0">
-        <h1 class="text-xl font-bold text-on-surface">
-          {{ t(`${program.i18nKey}.title`) }}
-        </h1>
-        <p class="text-sm text-on-surface-variant">
-          {{ metaLine }}
-        </p>
-      </div>
-    </div>
-
+  <ExercisePage
+    v-if="program"
+    :title="t(`${program.i18nKey}.title`)"
+    :subtitle="metaLine"
+    :icon="program.icon"
+    :eyebrow="t('exercises.tabs.programs')"
+  >
     <p class="mb-4 text-sm text-on-surface-variant">
       {{ t(`${program.i18nKey}.description`) }}
     </p>
@@ -24,7 +13,7 @@
     <!-- Completed state + finale (design §4.5: the foundation build is the path's finale) -->
     <div
       v-if="enrollment?.status === 'completed'"
-      class="mb-6 rounded-2xl border border-neu-border/30 bg-neu-base p-4 shadow-neu-raised-sm"
+      class="mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--sheet mb-6 p-4"
     >
       <div class="flex items-center gap-2">
         <AppIcon name="workspace_premium" class="text-xl text-primary" />
@@ -57,7 +46,7 @@
         </AppButton>
       </template>
       <template v-else-if="openEnrollment.status === 'active'">
-        <span class="neo-pill border-primary/30 bg-primary/10 px-2.5 py-1 text-xs text-primary-strong">
+        <span class="mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected">
           {{ progressLabel }}
         </span>
         <AppButton variant="tonal" :disabled="busy" @click="handlePause">
@@ -68,7 +57,7 @@
         </AppButton>
       </template>
       <template v-else>
-        <span class="neo-pill border-status-warn/40 bg-status-warn-soft/70 px-2.5 py-1 text-xs text-status-warn-on">
+        <span class="mg-v2-pill mg-v2-pill--warning">
           {{ t('programs.ui.statusPaused') }}
         </span>
         <AppButton :disabled="busy" @click="handleResume">
@@ -106,7 +95,7 @@
       :confirm-text="t('programs.ui.abandon')"
       @confirm="handleAbandon"
     />
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
@@ -115,6 +104,7 @@ import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import ProgramStepTile from '@/components/exercises/ProgramStepTile.vue'
 import { useT } from '@/composables/useT'
 import { getProgramDefinition } from '@/data/programCatalog'

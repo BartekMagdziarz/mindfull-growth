@@ -7,12 +7,12 @@
     <!-- Header row -->
     <div class="flex items-start justify-between gap-[14px] flex-wrap">
       <div class="min-w-0 flex-1">
-        <h3 class="text-base font-bold m-0" style="color: rgb(var(--neo-text))">
+        <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
           {{ t('profile.aiSettings.title') }}
         </h3>
         <p
           class="text-[12px] m-0 mt-[2px] max-w-[500px]"
-          style="color: rgb(var(--neo-muted))"
+          style="color: var(--mg-color-muted)"
         >
           {{ t('profile.aiSettings.description') }}
         </p>
@@ -93,7 +93,7 @@
             <option value="high">{{ t('profile.aiSettings.reasoningEfforts.high') }}</option>
           </select>
         </div>
-        <p class="text-[12px] m-0" style="color: rgb(var(--neo-muted))">
+        <p class="text-[12px] m-0" style="color: var(--mg-color-muted)">
           {{ aiProvider === 'openai'
             ? t('profile.aiSettings.reasoningEffortHintOpenai')
             : t('profile.aiSettings.reasoningEffortHint') }}
@@ -140,14 +140,14 @@
         <p v-if="apiKeyError" class="mt-2 text-[12px]" style="color: rgb(var(--color-error))">
           {{ apiKeyError }}
         </p>
-        <p v-else class="mt-2 text-[12px]" style="color: rgb(var(--neo-muted))">
+        <p v-else class="mt-2 text-[12px]" style="color: var(--mg-color-muted)">
           {{ t('profile.aiSettings.apiKeyHint') }}
           <a
             href="https://platform.openai.com/api-keys"
             target="_blank"
             rel="noopener noreferrer"
             class="hover:underline"
-            style="color: rgb(var(--neo-focus))"
+            style="color: var(--mg-color-primary-strong)"
           >
             {{ t('profile.aiSettings.apiKeyHintLink') }}
           </a>.
@@ -361,7 +361,7 @@ onMounted(async () => {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgb(var(--neo-muted));
+  color: var(--mg-color-muted);
 }
 
 .field-input--error {

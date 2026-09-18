@@ -1,24 +1,14 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="flex items-center gap-4 mb-6">
-      <button
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        @click="router.push('/exercises')"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.dereflection.title') }}</h1>
-        <p class="text-sm text-on-surface-variant">{{ t('exercises.cards.dereflection.subtitle') }}</p>
-      </div>
-    </div>
-
+  <ExercisePage
+    :title="t('exercises.cards.dereflection.title')"
+    :subtitle="t('exercises.cards.dereflection.subtitle')"
+  >
     <DereflectionWizard v-if="!saved" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="dereflection" @again="saved = false" />
 
     <!-- Past practices -->
     <div v-if="dereflectionStore.sortedPractices.length > 0" class="mt-8">
-      <h2 class="text-lg font-semibold text-on-surface mb-3">{{ t('exercises.views.pastPractices') }}</h2>
+      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastPractices') }}</h2></div>
       <div class="space-y-3">
         <AppCard
           v-for="practice in dereflectionStore.sortedPractices"
@@ -39,13 +29,12 @@
         </AppCard>
       </div>
     </div>
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import DereflectionWizard from '@/components/exercises/DereflectionWizard.vue'
@@ -53,7 +42,6 @@ import { useDereflectionStore } from '@/stores/dereflection.store'
 import { useT } from '@/composables/useT'
 import type { CreateDereflectionPayload } from '@/domain/exercises'
 
-const router = useRouter()
 const { t } = useT()
 const dereflectionStore = useDereflectionStore()
 const saved = ref(false)

@@ -1,9 +1,9 @@
 <template>
   <article
-    class="group/card mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--mist p-3.5"
+    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3.5"
   >
     <div class="space-y-2">
-      <!-- Row 1: Icon + Title + [hover: menu] + Status -->
+      <!-- Row 1: Icon + Title + hover tray (menu w/ status) -->
       <div class="flex items-center gap-2">
         <IconPicker
           icon-size="lg"
@@ -22,7 +22,7 @@
           :placeholder="t('planning.objects.form.goalTitlePlaceholder')"
           @blur="flushTitle"
         />
-        <div class="-mr-10 flex shrink-0 items-center gap-1.5 opacity-0 transition-all duration-200 ease-in-out group-hover/card:mr-0 group-hover/card:opacity-100">
+        <div class="mg-v2-card-tray group-hover/card:opacity-100">
           <div ref="menuRef" class="relative">
             <button
               type="button"
@@ -34,51 +34,85 @@
             </button>
             <div
               v-if="menuOpen"
-              class="mg-v2-popover absolute bottom-full right-0 z-20 mb-1 min-w-[130px] overflow-hidden"
+              class="mg-v2-popover absolute right-0 top-full z-20 mt-1 min-w-[210px] overflow-hidden"
               @click.stop
             >
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-primary hover:bg-primary-soft/30"
-                @click="handleAddKeyResult"
-              >
-                {{ t('planning.objects.actions.addKeyResult') }}
-              </button>
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-                @click="handleEdit"
-              >
-                {{ t('planning.objects.actions.editObject') }}
-              </button>
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
-                @click="handleArchive"
-              >
-                {{ item.isActive ? t('planning.objects.actions.archive') : t('planning.objects.actions.unarchive') }}
-              </button>
-              <button
-                type="button"
-                class="block w-full px-4 py-2 text-left text-xs font-medium text-danger hover:bg-danger/5"
-                @click="handleDelete"
-              >
-                {{ t('common.buttons.delete') }}
-              </button>
+              <ObjectsCardStatusMenu
+                :model-value="item.status"
+                :options="statusOptions"
+                @update:model-value="handleStatusChange"
+              />
+              <div class="mg-v2-menu-section">
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="openLinks(null)"
+                >
+                  {{ t('planning.objects.timeline.links') }}…
+                </button>
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="openMonths"
+                >
+                  {{ t('planning.objects.timeline.months') }}…
+                </button>
+              </div>
+              <div class="mg-v2-menu-section">
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-primary hover:bg-primary-soft/30"
+                  @click="handleAddKeyResult"
+                >
+                  {{ t('planning.objects.actions.addKeyResult') }}
+                </button>
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="handleEdit"
+                >
+                  {{ t('planning.objects.actions.editObject') }}
+                </button>
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-on-surface hover:bg-primary-soft/30"
+                  @click="handleArchive"
+                >
+                  {{ item.isActive ? t('planning.objects.actions.archive') : t('planning.objects.actions.unarchive') }}
+                </button>
+                <button
+                  type="button"
+                  class="block w-full px-3 py-2 text-left text-xs font-medium text-danger hover:bg-danger/5"
+                  @click="handleDelete"
+                >
+                  {{ t('common.buttons.delete') }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        <StatusIconButton
-          :model-value="item.status"
-          :options="statusOptions"
-          @update:model-value="emitFieldChange('status', $event)"
-        />
       </div>
 
-      <!-- Row 2: Links + Months -->
-      <div class="flex items-center gap-1.5">
+      <!-- Row 2: status only when it is not the default -->
+      <p v-if="statusLabel || !item.isActive" class="mg-v2-meta px-1">
+        <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
+        <span v-if="!item.isActive">{{ t('planning.objects.badges.archived') }}</span>
+      </p>
+
+      <!-- Row 3: affiliation glyphs (priorities · life areas); click edits -->
+      <div class="relative px-1">
+        <ObjectCardAffiliation
+          :priority-ids="item.priorityIds ?? []"
+          :life-area-ids="item.lifeAreaIds ?? []"
+          :priority-options="priorityOptions"
+          :life-area-options="lifeAreaOptions"
+          :group-label="t('planning.objects.timeline.links')"
+          :empty-label="t('planning.objects.timeline.addLink')"
+          @open="openLinks"
+        />
         <GoalLinksDropdown
-          icon-only
+          ref="linksRef"
+          triggerless
           :priority-ids="item.priorityIds ?? []"
           :life-area-ids="item.lifeAreaIds ?? []"
           :priority-options="priorityOptions"
@@ -86,20 +120,27 @@
           @toggle-priority="emitFieldChange('togglePriority', $event)"
           @toggle-life-area="emitFieldChange('toggleLifeArea', $event)"
         />
-        <GoalMonthsDropdown
-          :linked-months="linkedMonths"
-          @link-month="$emit('link-month', item.id, $event)"
-          @unlink-month="$emit('unlink-month', item.id, $event)"
-        />
-        <span
-          class="mg-v2-badge gap-1"
-          :class="targetDateChipClass"
-          :title="targetDateTooltip"
-        >
-          <AppIcon name="schedule" class="text-xs" />
-          {{ targetDateLabel }}
-        </span>
       </div>
+
+      <!-- Row 4: the goal's window in time; click edits linked months -->
+      <ObjectCardTimeline
+        variant="linear"
+        :window="goalWindow"
+        :start="startLabel"
+        :end="endLabel"
+        :open-label="t('planning.objects.timeline.noDeadline')"
+        interactive
+        :label="t('planning.objects.timeline.months')"
+        @click="openMonths"
+      />
+      <GoalMonthsDropdown
+        ref="monthsRef"
+        triggerless
+        :save-months="saveMonths"
+        :linked-months="linkedMonths"
+        @link-month="$emit('link-month', item.id, $event)"
+        @unlink-month="$emit('unlink-month', item.id, $event)"
+      />
     </div>
 
     <!-- Key Results section -->
@@ -112,6 +153,7 @@
         :key="child.id"
         :child="child"
         :parent-goal-id="item.id"
+        :save-periods="saveKrPeriods ? (refs) => saveKrPeriods!(child.id, refs) : undefined"
         :is-expanded="expandedKrId === child.id"
         :linked-periods="expandedKrId === child.id ? expandedKrPeriods : []"
         :goal-linked-month-refs="linkedMonths.map((m) => m.monthRef)"
@@ -139,7 +181,11 @@ import { useT } from '@/composables/useT'
 import IconPicker from '@/components/shared/IconPicker.vue'
 import GoalMonthsDropdown from '@/components/objects/GoalMonthsDropdown.vue'
 import GoalLinksDropdown from '@/components/objects/GoalLinksDropdown.vue'
-import StatusIconButton from '@/components/objects/StatusIconButton.vue'
+import ObjectCardAffiliation from '@/components/objects/ObjectCardAffiliation.vue'
+import type { AffiliationKind } from '@/components/objects/ObjectCardAffiliation.vue'
+import ObjectCardTimeline from '@/components/objects/ObjectCardTimeline.vue'
+import type { TimelineEndLabel } from '@/components/objects/ObjectCardTimeline.vue'
+import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
 import ObjectsLibraryKrCard from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedMonth } from '@/components/objects/GoalMonthsDropdown.vue'
@@ -149,6 +195,9 @@ import type {
   ObjectsLibraryListItem,
 } from '@/services/objectsLibraryQueries'
 import type { MeasurementEntryMode } from '@/domain/planning'
+import type { DayRef, MonthRef } from '@/domain/period'
+import { computeGoalWindow } from '@/utils/objectWindow'
+import { formatDayShort, formatMonthShort } from '@/utils/periodLabels'
 
 const props = defineProps<{
   item: ObjectsLibraryListItem
@@ -164,6 +213,8 @@ const props = defineProps<{
   krTargetOperatorOptions: (entryMode: MeasurementEntryMode) => Array<{ value: string; label: string }>
   krTargetAggregationOptions: (entryMode: MeasurementEntryMode) => Array<{ value: string; label: string }>
   krShowTargetAggregation: (entryMode: MeasurementEntryMode) => boolean
+  saveMonths?: (refs: string[]) => Promise<void>
+  saveKrPeriods?: (id: string, refs: string[]) => Promise<void>
   isNew?: boolean
 }>()
 
@@ -183,10 +234,12 @@ const emit = defineEmits<{
   'kr-archive': [krId: string]
 }>()
 
-const { t } = useT()
+const { t, locale } = useT()
 
 const menuRef = ref<HTMLElement | null>(null)
 const menuOpen = ref(false)
+const linksRef = ref<InstanceType<typeof GoalLinksDropdown> | null>(null)
+const monthsRef = ref<InstanceType<typeof GoalMonthsDropdown> | null>(null)
 
 function emitFieldChange(field: string, value: unknown): void {
   emit('field-change', props.item.id, field, value)
@@ -198,43 +251,84 @@ const { value: title, inputRef: titleRef, flush: flushTitle } = useEditableField
   delay: 400,
 })
 
-const targetDateRelative = computed(() => {
-  const targetDate = props.item.targetDate
-  if (!targetDate) return null
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) return null
-  const target = new Date(`${targetDate}T00:00:00Z`)
-  if (Number.isNaN(target.getTime())) return null
-  const now = new Date()
-  const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-  const diffDays = Math.round((target.getTime() - todayUtc.getTime()) / 86_400_000)
-  return { diffDays, isoDate: targetDate }
+// --- Window in time -------------------------------------------------------
+
+const goalWindow = computed(() =>
+  computeGoalWindow(
+    {
+      startDate: props.item.startDate,
+      targetDate: props.item.targetDate,
+      monthRefs: props.linkedMonths.map((month) => month.monthRef),
+      createdAt: props.item.createdAt,
+    },
+    new Date(),
+  ),
+)
+
+const currentYear = String(new Date().getFullYear())
+
+function dayLabel(day: DayRef): string {
+  return formatDayShort(day, locale.value, day.slice(0, 4) !== currentYear)
+}
+
+// Start: an explicit start date reads as a day, a derived one as its month.
+const startLabel = computed(() => {
+  const start = goalWindow.value.start
+  if (!start) return null
+  const label = props.item.startDate
+    ? dayLabel(start)
+    : formatMonthShort(start.slice(0, 7) as MonthRef, locale.value)
+  return goalWindow.value.state === 'upcoming'
+    ? t('planning.objects.timeline.startsIn', { date: label })
+    : label
 })
 
-const targetDateLabel = computed(() => {
-  const rel = targetDateRelative.value
-  if (!rel) return t('planning.objects.form.targetDateMissing')
-  if (rel.diffDays === 0) return t('planning.goalWizard.steps.timebound.countdown.today')
-  if (rel.diffDays < 0) {
-    return t('planning.goalWizard.steps.timebound.countdown.overdue', { count: Math.abs(rel.diffDays) })
+const endLabel = computed<TimelineEndLabel | null>(() => {
+  const { end, state, daysToEnd } = goalWindow.value
+  if (!end || daysToEnd === null) return null
+  const label = dayLabel(end)
+  if (state === 'due-today') return { label, hint: t('planning.objects.timeline.today') }
+  if (state === 'overdue') {
+    const count = Math.abs(daysToEnd)
+    return {
+      label,
+      hint:
+        count === 1
+          ? t('planning.objects.timeline.overdueOne')
+          : t('planning.objects.timeline.overdue', { count }),
+      tone: 'bad',
+    }
   }
-  if (rel.diffDays >= 14) {
-    const weeks = Math.round(rel.diffDays / 7)
-    return t('planning.goalWizard.steps.timebound.countdown.weeks', { count: weeks })
+  if (daysToEnd === 1) return { label, hint: t('planning.objects.timeline.inOneDay') }
+  if (daysToEnd >= 14) {
+    return { label, hint: t('planning.objects.timeline.inWeeks', { count: Math.round(daysToEnd / 7) }) }
   }
-  return t('planning.goalWizard.steps.timebound.countdown.days', { count: rel.diffDays })
+  return { label, hint: t('planning.objects.timeline.inDays', { count: daysToEnd }) }
 })
 
-const targetDateTooltip = computed(() => {
-  const rel = targetDateRelative.value
-  return rel ? rel.isoDate : t('planning.objects.form.targetDateMissing')
+// --- Inline editing entry points -----------------------------------------
+
+function openLinks(kind: AffiliationKind | null): void {
+  menuOpen.value = false
+  linksRef.value?.openAt(kind)
+}
+
+function openMonths(): void {
+  menuOpen.value = false
+  void monthsRef.value?.show()
+}
+
+// Status is quiet: shown as text only when it is not the default "open".
+const statusLabel = computed(() => {
+  if (props.item.status === 'open') return null
+  const opt = props.statusOptions.find((o) => o.value === props.item.status)
+  return opt?.label ?? props.item.status
 })
 
-const targetDateChipClass = computed(() => {
-  const rel = targetDateRelative.value
-  if (!rel) return 'bg-status-warn-soft text-status-warn-on'
-  if (rel.diffDays < 0) return 'bg-status-bad-soft text-status-bad-on'
-  return ''
-})
+function handleStatusChange(value: string): void {
+  menuOpen.value = false
+  emitFieldChange('status', value)
+}
 
 function handleAddKeyResult(): void {
   menuOpen.value = false

@@ -27,7 +27,8 @@ import {
   unlinkGoalFromMonth,
   unlinkMeasurementPeriod,
 } from '@/services/planningMutations'
-import { getWeekOverlappingMonths } from '@/utils/periods'
+import { periodsInDateRange } from '@/utils/periodSchedule'
+import { getPeriodRefsForDate, isPeriodRef, getWeekOverlappingMonths } from '@/utils/periods'
 
 export type GoalWizardStep =
   | 'specific'
@@ -79,6 +80,7 @@ export interface GoalDraft {
   achievabilityRationale?: string
   obstacles?: string
   resources?: string
+  startDate?: string
   targetDate?: string
   linkedMonthRefs: string[]
   krPeriodRefsByLocalId: Record<string, string[]>
@@ -97,6 +99,7 @@ function createEmptyGoalDraft(): GoalDraft {
     achievabilityRationale: undefined,
     obstacles: undefined,
     resources: undefined,
+    startDate: getPeriodRefsForDate(new Date()).day,
     targetDate: undefined,
     linkedMonthRefs: [],
     krPeriodRefsByLocalId: {},
@@ -161,24 +164,73 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
   const goalDraft = reactive<GoalDraft>(createEmptyGoalDraft())
   const krDrafts = ref<KrDraft[]>([createEmptyKrDraft()])
   const isSaving = ref(false)
+  const customGoalMonths = ref(false)
 
   const initialGoalMonthRefs = ref<Set<string>>(new Set())
   const initialKrPeriodRefsByLocalId = ref<Record<string, string[]>>({})
   const initialKrCadenceByLocalId = ref<Record<string, PlanningCadence>>({})
-  const removedKrEntries = ref<Array<{ id: string; cadence: PlanningCadence; periodRefs: string[] }>>([])
+  const removedKrEntries = ref<
+    Array<{ id: string; cadence: PlanningCadence; periodRefs: string[] }>
+  >([])
 
   const stepIndex = computed(() => GOAL_WIZARD_STEPS.indexOf(currentStep.value))
   const stepCount = GOAL_WIZARD_STEPS.length
 
   const smartCompleteness = computed<SmartCompleteness>(() =>
-    computeSmartCompleteness(goalDraft, krDrafts.value.filter(isKrDraftValid).length),
+    computeSmartCompleteness(goalDraft, krDrafts.value.filter(isKrDraftValid).length)
   )
+
+  const validDateRange = computed(() => {
+    const end = goalDraft.targetDate
+    const start = goalDraft.startDate
+    const needsStart =
+      !customGoalMonths.value || krDrafts.value.some(kr => inheritsSchedule(kr.localId))
+    return (
+      !!end &&
+      /^\d{4}-\d{2}-\d{2}$/.test(end) &&
+      isPeriodRef(end) &&
+      (!needsStart || !!start) &&
+      (!start || (/^\d{4}-\d{2}-\d{2}$/.test(start) && isPeriodRef(start) && start <= end))
+    )
+  })
+
+  function inheritsSchedule(localId: string): boolean {
+    return goalDraft.krPeriodRefsByLocalId[localId] === undefined
+  }
+
+  function krPeriods(localId: string): string[] {
+    const explicit = goalDraft.krPeriodRefsByLocalId[localId]
+    if (explicit !== undefined) return explicit
+    const kr = krDrafts.value.find(kr => kr.localId === localId)
+    return kr
+      ? periodsInDateRange(goalDraft.startDate ?? '', goalDraft.targetDate ?? '', kr.cadence)
+      : []
+  }
+
+  function setKrScheduleMode(localId: string, inherit: boolean): void {
+    if (inherit) delete goalDraft.krPeriodRefsByLocalId[localId]
+    else goalDraft.krPeriodRefsByLocalId[localId] = [...krPeriods(localId)]
+  }
+
+  const effectiveGoalMonths = computed(() => {
+    const months = new Set(
+      customGoalMonths.value || goalDraft.linkedMonthRefs.length
+        ? goalDraft.linkedMonthRefs
+        : periodsInDateRange(goalDraft.startDate ?? '', goalDraft.targetDate ?? '', 'monthly')
+    )
+    for (const kr of krDrafts.value) {
+      for (const period of krPeriods(kr.localId)) {
+        if (kr.cadence === 'monthly') months.add(period)
+        else for (const month of getWeekOverlappingMonths(period as WeekRef)) months.add(month)
+      }
+    }
+    return [...months].sort()
+  })
 
   const canSave = computed(() => {
     return (
       goalDraft.title.trim().length > 0 &&
-      typeof goalDraft.targetDate === 'string' &&
-      goalDraft.targetDate.length > 0 &&
+      validDateRange.value &&
       krDrafts.value.length >= 1 &&
       krDrafts.value.every(isKrDraftValid)
     )
@@ -195,7 +247,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
       case 'relevant':
         return true
       case 'timebound':
-        return typeof goalDraft.targetDate === 'string' && goalDraft.targetDate.length > 0
+        return validDateRange.value
       case 'review':
         return canSave.value
       default:
@@ -221,11 +273,15 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
   }
 
   function addKrDraft(): void {
-    krDrafts.value.push(createEmptyKrDraft())
+    const draft = createEmptyKrDraft()
+    krDrafts.value.push(draft)
+    if (mode.value === 'edit' && !goalDraft.startDate) {
+      goalDraft.krPeriodRefsByLocalId[draft.localId] = []
+    }
   }
 
   function removeKrDraft(localId: string): void {
-    const removed = krDrafts.value.find((kr) => kr.localId === localId)
+    const removed = krDrafts.value.find(kr => kr.localId === localId)
     if (removed?.existingId) {
       removedKrEntries.value.push({
         id: removed.existingId,
@@ -233,19 +289,19 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
         periodRefs: [...(initialKrPeriodRefsByLocalId.value[localId] ?? [])],
       })
     }
-    krDrafts.value = krDrafts.value.filter((kr) => kr.localId !== localId)
+    krDrafts.value = krDrafts.value.filter(kr => kr.localId !== localId)
     delete goalDraft.krPeriodRefsByLocalId[localId]
   }
 
   function updateKrDraft(localId: string, patch: Partial<KrDraft>): void {
-    const idx = krDrafts.value.findIndex((kr) => kr.localId === localId)
+    const idx = krDrafts.value.findIndex(kr => kr.localId === localId)
     if (idx === -1) return
     const previous = krDrafts.value[idx]
     const merged: KrDraft = { ...previous, ...patch }
     if (patch.entryMode && patch.entryMode !== previous.entryMode) {
       merged.target = defaultTargetFor(patch.entryMode)
     }
-    if (patch.cadence && patch.cadence !== previous.cadence) {
+    if (patch.cadence && patch.cadence !== previous.cadence && !inheritsSchedule(localId)) {
       goalDraft.krPeriodRefsByLocalId[localId] = []
     }
     krDrafts.value[idx] = merged
@@ -260,6 +316,8 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
       priorityIds: [...goalDraft.priorityIds],
       lifeAreaIds: [...goalDraft.lifeAreaIds],
       status: 'open',
+      periodAssignmentMode: customGoalMonths.value ? 'custom' : 'automatic',
+      startDate: goalDraft.startDate,
       targetDate: goalDraft.targetDate,
       successDefinition: goalDraft.successDefinition?.trim() || undefined,
       whyMatters: goalDraft.whyMatters?.trim() || undefined,
@@ -271,7 +329,8 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
   }
 
   function buildKrPayloads(): Omit<CreateKeyResultPayload, 'goalId'>[] {
-    return krDrafts.value.map((kr) => ({
+    return krDrafts.value.map(kr => ({
+      periodAssignmentMode: inheritsSchedule(kr.localId) ? 'automatic' : 'custom',
       title: kr.title.trim(),
       description: kr.description?.trim() || undefined,
       isActive: true,
@@ -303,7 +362,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
           localId: krDrafts.value[index]?.localId ?? '',
           id: kr.id,
           cadence: kr.cadence,
-        })),
+        }))
       )
       reset()
       return result.goal.id
@@ -314,6 +373,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
 
   function loadForEdit(input: GoalWizardEditInput): void {
     mode.value = 'edit'
+    customGoalMonths.value = input.goal.periodAssignmentMode !== 'automatic'
     goalId.value = input.goal.id
     currentStep.value = 'specific'
     removedKrEntries.value = []
@@ -330,8 +390,9 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
       achievabilityRationale: input.goal.achievabilityRationale,
       obstacles: input.goal.obstacles,
       resources: input.goal.resources,
+      startDate: input.goal.startDate,
       targetDate: input.goal.targetDate,
-      linkedMonthRefs: [...input.goalMonthRefs],
+      linkedMonthRefs: customGoalMonths.value ? [...input.goalMonthRefs] : [],
       krPeriodRefsByLocalId: {},
     } satisfies GoalDraft)
 
@@ -341,11 +402,21 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
 
     if (input.keyResults.length === 0) {
       krDrafts.value = [createEmptyKrDraft()]
+      if (!goalDraft.startDate) goalDraft.krPeriodRefsByLocalId[krDrafts.value[0].localId] = []
     } else {
-      krDrafts.value = input.keyResults.map((kr) => {
+      krDrafts.value = input.keyResults.map(kr => {
         const periods = input.krPeriodRefsByKrId[kr.id] ?? []
         const localId = kr.id
-        goalDraft.krPeriodRefsByLocalId[localId] = [...periods]
+        const expected = periodsInDateRange(
+          input.goal.startDate ?? '',
+          input.goal.targetDate ?? '',
+          kr.cadence
+        )
+        // Preserve assignments changed elsewhere, even if the object previously followed the goal.
+        const matchesSchedule = [...new Set(periods)].sort().join(',') === expected.join(',')
+        if (kr.periodAssignmentMode !== 'automatic' || !input.goal.startDate || !matchesSchedule) {
+          goalDraft.krPeriodRefsByLocalId[localId] = [...periods]
+        }
         initialKrPeriodRefsByLocalId.value[localId] = [...periods]
         initialKrCadenceByLocalId.value[localId] = kr.cadence
         return {
@@ -371,6 +442,8 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
       icon: goalDraft.icon?.trim() || undefined,
       priorityIds: [...goalDraft.priorityIds],
       lifeAreaIds: [...goalDraft.lifeAreaIds],
+      periodAssignmentMode: customGoalMonths.value ? 'custom' : 'automatic',
+      startDate: goalDraft.startDate,
       targetDate: goalDraft.targetDate,
       successDefinition: goalDraft.successDefinition?.trim() || undefined,
       whyMatters: goalDraft.whyMatters?.trim() || undefined,
@@ -391,6 +464,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
     const resolved: Array<{ localId: string; id: string; cadence: PlanningCadence }> = []
     for (const draft of krDrafts.value) {
       const payload = {
+        periodAssignmentMode: inheritsSchedule(draft.localId) ? 'automatic' : 'custom',
         title: draft.title.trim(),
         description: draft.description?.trim() || undefined,
         entryMode: draft.entryMode,
@@ -432,11 +506,11 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
 
   async function syncEditPeriodLinks(
     goalId: string,
-    keyResults: Array<{ localId: string; id: string; cadence: PlanningCadence }>,
+    keyResults: Array<{ localId: string; id: string; cadence: PlanningCadence }>
   ): Promise<void> {
-    const desiredGoalMonths = new Set<string>(goalDraft.linkedMonthRefs)
+    const desiredGoalMonths = new Set<string>(effectiveGoalMonths.value)
     for (const { localId, cadence } of keyResults) {
-      for (const periodRef of goalDraft.krPeriodRefsByLocalId[localId] ?? []) {
+      for (const periodRef of krPeriods(localId)) {
         if (cadence === 'monthly') {
           desiredGoalMonths.add(periodRef)
         } else {
@@ -447,8 +521,8 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
       }
     }
 
-    const toLinkGoal = [...desiredGoalMonths].filter((ref) => !initialGoalMonthRefs.value.has(ref))
-    const toUnlinkGoal = [...initialGoalMonthRefs.value].filter((ref) => !desiredGoalMonths.has(ref))
+    const toLinkGoal = [...desiredGoalMonths].filter(ref => !initialGoalMonthRefs.value.has(ref))
+    const toUnlinkGoal = [...initialGoalMonthRefs.value].filter(ref => !desiredGoalMonths.has(ref))
 
     for (const monthRef of toLinkGoal) {
       await linkGoalToMonth(goalId, monthRef as MonthRef)
@@ -458,14 +532,14 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
     }
 
     for (const { localId, id, cadence } of keyResults) {
-      const desired = new Set(goalDraft.krPeriodRefsByLocalId[localId] ?? [])
+      const desired = new Set(krPeriods(localId))
       const initial = new Set(initialKrPeriodRefsByLocalId.value[localId] ?? [])
       const oldCadence = initialKrCadenceByLocalId.value[localId] ?? cadence
 
-      for (const periodRef of [...initial].filter((ref) => !desired.has(ref))) {
+      for (const periodRef of [...initial].filter(ref => !desired.has(ref))) {
         await unlinkKrPeriod(id, oldCadence, periodRef)
       }
-      for (const periodRef of [...desired].filter((ref) => !initial.has(ref))) {
+      for (const periodRef of [...desired].filter(ref => !initial.has(ref))) {
         await linkKrPeriod(id, cadence, periodRef)
       }
     }
@@ -474,7 +548,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
   async function linkKrPeriod(
     keyResultId: string,
     cadence: PlanningCadence,
-    periodRef: string,
+    periodRef: string
   ): Promise<void> {
     if (cadence === 'monthly') {
       await activateMeasurementInMonth({
@@ -495,7 +569,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
   async function unlinkKrPeriod(
     keyResultId: string,
     cadence: PlanningCadence,
-    periodRef: string,
+    periodRef: string
   ): Promise<void> {
     if (cadence === 'monthly') {
       await deactivateMeasurementInMonth({
@@ -515,12 +589,12 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
 
   async function applyPeriodLinks(
     goalId: string,
-    keyResults: Array<{ localId: string; id: string; cadence: PlanningCadence }>,
+    keyResults: Array<{ localId: string; id: string; cadence: PlanningCadence }>
   ): Promise<void> {
-    const goalMonthRefs = new Set<string>(goalDraft.linkedMonthRefs)
+    const goalMonthRefs = new Set<string>(effectiveGoalMonths.value)
 
     for (const { localId, cadence } of keyResults) {
-      for (const periodRef of goalDraft.krPeriodRefsByLocalId[localId] ?? []) {
+      for (const periodRef of krPeriods(localId)) {
         if (cadence === 'monthly') {
           goalMonthRefs.add(periodRef)
         } else {
@@ -531,7 +605,9 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
       }
     }
 
-    await Promise.all([...goalMonthRefs].map((monthRef) => linkGoalToMonth(goalId, monthRef as MonthRef)))
+    await Promise.all(
+      [...goalMonthRefs].map(monthRef => linkGoalToMonth(goalId, monthRef as MonthRef))
+    )
 
     // Link KR periods sequentially: when one KR spans multiple weeks in the same
     // month, each week's link upserts the same measurement-month-state record.
@@ -540,7 +616,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
     // [monthRef+subjectType+subjectId] index. The edit path (syncEditPeriodLinks)
     // is sequential for the same reason.
     for (const { localId, id, cadence } of keyResults) {
-      for (const periodRef of goalDraft.krPeriodRefsByLocalId[localId] ?? []) {
+      for (const periodRef of krPeriods(localId)) {
         await linkKrPeriod(id, cadence, periodRef)
       }
     }
@@ -548,6 +624,7 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
 
   function reset(): void {
     mode.value = 'create'
+    customGoalMonths.value = false
     goalId.value = null
     currentStep.value = 'specific'
     Object.assign(goalDraft, createEmptyGoalDraft())
@@ -567,6 +644,12 @@ export function useGoalCreationWizard(options: UseGoalCreationWizardOptions = {}
     stepCount,
     canAdvance,
     canSave,
+    validDateRange,
+    customGoalMonths,
+    effectiveGoalMonths,
+    inheritsSchedule,
+    krPeriods,
+    setKrScheduleMode,
     goalDraft,
     krDrafts,
     isSaving,

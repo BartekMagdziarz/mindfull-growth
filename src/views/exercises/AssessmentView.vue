@@ -1,18 +1,8 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="mb-6 flex items-center gap-4">
-      <button
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        @click="router.push('/exercises')"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t(session.definition.titleKey) }}</h1>
-        <p class="text-sm text-on-surface-variant">{{ t(session.definition.subtitleKey) }}</p>
-      </div>
-    </div>
-
+  <ExercisePage
+    :title="t(session.definition.titleKey)"
+    :subtitle="t(session.definition.subtitleKey)"
+  >
     <div v-if="session.isInitializing" class="py-8 text-center text-sm text-on-surface-variant">
       {{ t('common.loading') }}
     </div>
@@ -110,13 +100,13 @@
         @retake="handleRetake"
       />
     </template>
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppButton from '@/components/AppButton.vue'
 import AssessmentIntroCard from '@/components/assessments/AssessmentIntroCard.vue'
 import ConsentDisclaimerStep from '@/components/assessments/ConsentDisclaimerStep.vue'

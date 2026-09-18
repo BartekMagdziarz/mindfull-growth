@@ -1,5 +1,7 @@
 <template>
   <PageContainer>
+    <PageHeader :title="t('history.title')" :description="t('history.subtitle')" />
+
     <!-- Filters Section -->
     <HistoryFilters
       v-model:type-filter="typeFilter"
@@ -8,40 +10,22 @@
     />
 
     <!-- Loading State -->
-    <div
-      v-if="isLoading"
-      class="text-on-surface-variant text-center py-8"
-    >
-      {{ t('history.loading') }}
-    </div>
+    <DsState v-if="isLoading" :title="t('history.loading')" />
 
     <!-- Error State -->
-    <div
+    <DsState
       v-else-if="error"
-      class="bg-error-container text-on-error-container border border-error/30 rounded-lg p-4 space-y-3"
-    >
-      <div>
-        <p class="font-semibold">{{ t('history.errorTitle') }}</p>
-        <p class="text-sm">{{ error }}</p>
-      </div>
-      <div class="flex justify-center">
-        <AppButton variant="outlined" @click="handleRetryLoad">
-          {{ t('history.tryAgain') }}
-        </AppButton>
-      </div>
-    </div>
+      icon="error"
+      :title="t('history.errorTitle')"
+      :body="error"
+      :action-label="t('history.tryAgain')"
+      @action="handleRetryLoad"
+    />
 
     <!-- Content -->
     <div v-else>
       <!-- Empty State -->
-      <div
-        v-if="filteredEntries.length === 0"
-        class="text-center py-12"
-      >
-        <p class="text-on-surface-variant">
-          {{ emptyStateMessage }}
-        </p>
-      </div>
+      <DsState v-if="filteredEntries.length === 0" icon="inbox" :title="emptyStateMessage" />
 
       <!-- Entries List -->
       <div
@@ -77,15 +61,15 @@
       <Transition name="dialog">
         <div
           v-if="showChatHistoryDialog"
-          class="fixed inset-0 z-50 flex items-center justify-center"
+          class="mg-design-v2 mg-v2-overlay"
           @click.self="showChatHistoryDialog = false"
         >
           <!-- Backdrop -->
-          <div class="fixed inset-0 bg-overlay-scrim/50" aria-hidden="true"></div>
+          <div class="mg-v2-overlay__scrim" aria-hidden="true"></div>
 
           <!-- Dialog Card -->
           <div
-            class="relative z-10 neo-raised-strong rounded-2xl p-6 max-w-lg w-full mx-4"
+            class="dialog-panel mg-v2-surface mg-v2-surface--raised relative z-10 p-6 max-w-lg w-full mx-4"
             role="dialog"
             aria-modal="true"
           >
@@ -129,6 +113,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import { DsState } from '@/design-system/components'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import ChatSessionCard from '@/components/ChatSessionCard.vue'
@@ -290,8 +276,8 @@ onMounted(async () => {
   transition: opacity 0.2s ease;
 }
 
-.dialog-enter-active .neo-raised-strong,
-.dialog-leave-active .neo-raised-strong {
+.dialog-enter-active .dialog-panel,
+.dialog-leave-active .dialog-panel {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -300,8 +286,8 @@ onMounted(async () => {
   opacity: 0;
 }
 
-.dialog-enter-from .neo-raised-strong,
-.dialog-leave-to .neo-raised-strong {
+.dialog-enter-from .dialog-panel,
+.dialog-leave-to .dialog-panel {
   transform: scale(0.95);
   opacity: 0;
 }

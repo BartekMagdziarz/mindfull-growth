@@ -1,6 +1,7 @@
 import { createPinia } from 'pinia'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import MonthReplica from '~lab/experiments/MonthReplica.vue'
 import MonthlyRitualReplica from '~lab/experiments/MonthlyRitualReplica.vue'
 import TodayReplica from '~lab/experiments/TodayReplica.vue'
@@ -143,7 +144,7 @@ describe('rich-v1 replicas', () => {
     const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'sketchbook-v1' })
     const icons = wrapper
       .findAll('.sketch-board .sketch-icon-box .material-symbols-outlined')
-      .map(icon => icon.text())
+      .map(icon => icon.attributes('data-icon'))
 
     expect(icons).toEqual([
       'mountain_flag',
@@ -550,6 +551,221 @@ describe('rich-v1 replicas', () => {
     expect(wrapper.findAll('.fb-action').map(action => action.find('strong').text())).toEqual(['Dziennik', 'Emocje', 'Ćwiczenia'])
   })
 
+  it('widok działania: cztery strefy, podgląd dnia i przenoszenie wystąpień przez horyzont', async () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action-cockpit-v1' })
+
+    expect(wrapper.find('.action-board.ab--cockpit').exists()).toBe(true)
+    expect(wrapper.find('.ab-kompas').exists()).toBe(true)
+    expect(wrapper.find('.ab-day-list').exists()).toBe(true)
+    expect(wrapper.find('.ab-signals').exists()).toBe(true)
+    expect(wrapper.find('.ab-horizon').exists()).toBe(true)
+    expect(wrapper.findAll('.ab-priority')).toHaveLength(3)
+    expect(wrapper.findAll('.ab-focus')).toHaveLength(3)
+    expect(wrapper.findAll('.ab-hday')).toHaveLength(7)
+    expect(wrapper.findAll('.ab-signal')).toHaveLength(3)
+    expect(wrapper.findAll('.ab-chip--deadline').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('.ab-row .ab-micro').length).toBeGreaterThan(0)
+
+    // podgląd przyszłego dnia
+    await wrapper.findAll('.ab-hday__cell')[2].trigger('click')
+    expect(wrapper.find('.ab-peek').exists()).toBe(true)
+
+    // przeniesienie dzisiejszego wystąpienia na jutro
+    const initialRows = wrapper.findAll('.ab-row').length
+    await wrapper.findAll('.ab-row .ab-move')[0].trigger('click')
+    expect(wrapper.find('.ab-horizon.targeting').exists()).toBe(true)
+    expect(wrapper.find('.ab-horizon__hint').text()).toContain('Wybierz dzień')
+    await wrapper.findAll('.ab-hday__cell')[1].trigger('click')
+    expect(wrapper.find('.ab-horizon.targeting').exists()).toBe(false)
+    expect(wrapper.findAll('.ab-row')).toHaveLength(initialRows - 1)
+    expect(wrapper.find('.ab-horizon__note').text()).toContain('→')
+  })
+
+  it('widok działania: hover na kierunku podświetla powiązane zadania, a warianty zmieniają układ', async () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action-cockpit-v1' })
+
+    await wrapper.findAll('.ab-priority')[0].trigger('mouseenter')
+    expect(wrapper.findAll('.ab-row.lit').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('.ab-row.dim').length).toBeGreaterThan(0)
+    await wrapper.find('.ab-kompas').trigger('mouseleave')
+    expect(wrapper.findAll('.ab-row.dim')).toHaveLength(0)
+
+    for (const [variantId, layoutClass] of [
+      ['action-rhythm-v1', 'ab--rhythm'],
+      ['action-context-rail-v1', 'ab--rail'],
+      ['action-stream-v1', 'ab--stream'],
+    ]) {
+      const variantWrapper = mountReplica(TodayReplica, { presetId: 'current', variantId })
+      expect(variantWrapper.find(`.action-board.${layoutClass}`).exists(), variantId).toBe(true)
+      expect(variantWrapper.findAll('.ab-hday'), variantId).toHaveLength(7)
+    }
+  })
+
+  it('zeszyt dnia: wąska lista, kompas ikonowy, mini-kalendarz z przełącznikiem i przenoszenie przez kalendarz', async () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action2-notebook-v1' })
+
+    expect(wrapper.find('.act-notebook').exists()).toBe(true)
+    expect(wrapper.findAll('.ac-tile')).toHaveLength(6)
+    expect(wrapper.findAll('.ac-cal__wday')).toHaveLength(7)
+    expect(wrapper.find('.ac-upcoming').exists()).toBe(true)
+    expect(wrapper.find('.ac-row .ac-micro').exists()).toBe(false)
+
+    // przełącznik tydzień/miesiąc
+    await wrapper.findAll('.ac-cal__switch button')[1].trigger('click')
+    expect(wrapper.findAll('.ac-cal__mday').length).toBeGreaterThanOrEqual(35)
+    await wrapper.findAll('.ac-cal__switch button')[0].trigger('click')
+
+    // taca akcji: jutro / wybierz dzień / ukryj / otwórz
+    expect(wrapper.find('.ac-row .ac-row__tray').findAll('button')).toHaveLength(4)
+
+    // przeniesienie: wybierz dzień → kalendarz w trybie celowania → klik dnia
+    const initialRows = wrapper.findAll('.ac-row').length
+    await wrapper.findAll('.ac-row__tray button')[1].trigger('click')
+    expect(wrapper.find('.ac-cal.targeting').exists()).toBe(true)
+    // celowanie pokazuje 7 dni w przód — każdy jest wybieralny, także gdy dziś to niedziela
+    const pickable = wrapper.findAll('.ac-cal__wday').filter(cell => cell.attributes('disabled') === undefined)
+    expect(pickable).toHaveLength(7)
+    await pickable.at(-1)!.trigger('click')
+    expect(wrapper.find('.ac-cal.targeting').exists()).toBe(false)
+    expect(wrapper.findAll('.ac-row')).toHaveLength(initialRows - 1)
+
+    // „na jutro” jednym kliknięciem
+    await wrapper.findAll('.ac-row__tray button')[0].trigger('click')
+    expect(wrapper.findAll('.ac-row')).toHaveLength(initialRows - 2)
+
+    // hover na kaflu kompasu podświetla powiązane wiersze
+    await wrapper.findAll('.ac-tile')[0].trigger('mouseenter')
+    expect(wrapper.findAll('.ac-row.lit').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('.ac-row.dim').length).toBeGreaterThan(0)
+  })
+
+  it('kolejka „Teraz”: scena z wykresem, awans z kolejki i domykanie zadań', async () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action2-queue-v1' })
+
+    expect(wrapper.find('.act-queue').exists()).toBe(true)
+    expect(wrapper.find('.aq-now').exists()).toBe(true)
+    const firstTitle = wrapper.find('.aq-now__head h2').text()
+
+    // awans z kolejki na scenę
+    const queued = wrapper.findAll('.aq-queue__row')
+    expect(queued.length).toBeGreaterThan(0)
+    const promotedTitle = queued[0].find('strong').text()
+    await queued[0].trigger('click')
+    expect(wrapper.find('.aq-now__head h2').text()).toBe(promotedTitle)
+    expect(wrapper.find('.aq-now__head h2').text()).not.toBe(firstTitle)
+
+    // wykonanie zdejmuje zadanie ze sceny i zasila „Zrobione”
+    const doneBefore = wrapper.find('.aq-done').exists() ? Number(wrapper.find('.aq-done').text().match(/\d+/)?.[0]) : 0
+    await wrapper.find('.aq-do').trigger('click')
+    expect(Number(wrapper.find('.aq-done').text().match(/\d+/)?.[0])).toBe(doneBefore + 1)
+  })
+
+  it('tablica tygodnia: dziś rozwinięte, podniesienie i upuszczenie w kolumnie, przełącznik miesiąca', async () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action2-board-v1' })
+
+    expect(wrapper.find('.act-board').exists()).toBe(true)
+    expect(wrapper.findAll('.ab2-col')).toHaveLength(7)
+    expect(wrapper.find('.ab2-col.today .ac-row').exists()).toBe(true)
+
+    // podnieś chip z przyszłej kolumny i upuść w innej
+    const chips = wrapper.findAll('.ab2-chip')
+    expect(chips.length).toBeGreaterThan(0)
+    await chips[0].trigger('click')
+    expect(wrapper.find('.ab2-hint').exists()).toBe(true)
+    const targets = wrapper.findAll('.ab2-col.droppable .ab2-col__head')
+    expect(targets.length).toBeGreaterThan(0)
+    await targets.at(-1)!.trigger('click')
+    expect(wrapper.find('.ab2-hint').exists()).toBe(false)
+
+    // przełącznik na miesiąc: kolumny tygodni
+    await wrapper.findAll('.ab2-switch button')[1].trigger('click')
+    expect(wrapper.findAll('.ab2-col').length).toBeGreaterThanOrEqual(4)
+    expect(wrapper.find('.ab2-week-foot').exists()).toBe(true)
+  })
+
+  it('cichy plan i rytm celu: szuflada szczegółów oraz paski postępu do celu tygodnia', async () => {
+    const quiet = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action2-quiet-v1' })
+    expect(quiet.find('.act-quiet').exists()).toBe(true)
+    expect(quiet.find('.qp-drawer').exists()).toBe(false)
+    await quiet.find('.qp-more').trigger('click')
+    expect(quiet.find('.qp-drawer').exists()).toBe(true)
+    expect(quiet.find('.qp-drawer .ac-cal').exists()).toBe(true)
+    expect(quiet.findAll('.qp-chart').length).toBeGreaterThan(0)
+
+    const pulse = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action2-pulse-v1' })
+    expect(pulse.find('.act-pulse').exists()).toBe(true)
+    expect(pulse.find('.tp-rhythm svg path').exists()).toBe(true)
+    expect(pulse.findAll('.ac-row__gauge').length).toBeGreaterThan(0)
+    expect(pulse.findAll('.tp-group__arc').length).toBeGreaterThan(0)
+  })
+
+  it('scena nad listą (17): kompakt „Teraz”, wykonane zostają na liście, kalendarz z datą i nawigacją', async () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action3-stage-top-v1' })
+
+    expect(wrapper.find('.act-focus.af--stage-top').exists()).toBe(true)
+    expect(wrapper.find('.ac-now--strip').exists()).toBe(true)
+    expect(wrapper.findAll('.af-entries .af-wpill')).toHaveLength(3)
+    expect(wrapper.findAll('.ac-tile')).toHaveLength(6)
+
+    // wykonanie ze sceny NIE chowa wiersza — lista trzyma pełny obraz dnia
+    const rowsBefore = wrapper.findAll('.ac-row').length
+    const stagedTitle = wrapper.find('.ac-now__copy strong').text()
+    await wrapper.find('.ac-now__do').trigger('click')
+    expect(wrapper.findAll('.ac-row')).toHaveLength(rowsBefore)
+    expect(wrapper.find('.ac-now__copy strong').text()).not.toBe(stagedTitle) // scena poszła dalej
+
+    // data + kalendarz w jednym: domyślnie zwinięty, rozwijany na życzenie, z nawigacją okresów
+    expect(wrapper.find('.ac-cal__datehead h2').text().length).toBeGreaterThan(3)
+    expect(wrapper.find('.ac-cal__week').exists()).toBe(false)
+    await wrapper.find('.ac-cal__expand').trigger('click')
+    expect(wrapper.find('.ac-cal__week').exists()).toBe(true)
+    const navTitle = wrapper.find('.ac-cal__nav > strong').text()
+    await wrapper.find('.ac-cal__nav > button').trigger('click')
+    expect(wrapper.find('.ac-cal__nav > strong').text()).not.toBe(navTitle)
+    await wrapper.find('.ac-cal__today-jump').trigger('click')
+    expect(wrapper.find('.ac-cal__nav > strong').text()).toBe(navTitle)
+    // tło nic nie koduje; legenda tylko dla znaczników termin/rytuał
+    expect(wrapper.find('.ac-cal__modes').exists()).toBe(false)
+    expect(wrapper.find('.ac-cal__scale').exists()).toBe(false)
+    expect(wrapper.find('.ac-cal__marks-legend').text()).toContain('termin')
+  })
+
+  it('scena w kontekście (18) i w wierszu (19): rozmieszczenie sceny i przenoszenie jej klikiem', async () => {
+    const rail = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action3-stage-rail-v1' })
+    expect(rail.find('.af--stage-rail .af-rail__card--stage .ac-now--card').exists()).toBe(true)
+    expect(rail.find('.af-left .ac-now').exists()).toBe(false)
+
+    const inline = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action3-stage-inline-v1' })
+    // scena w wierszu = rozszerzenie wiersza, bez drugiego komponentu (zero duplikacji tytułu/ikony/akcji)
+    expect(inline.find('.af--stage-inline .ac-row.staged .ac-row__expansion').exists()).toBe(true)
+    expect(inline.find('.ac-row.staged .ac-ochart').exists()).toBe(true)
+    expect(inline.find('.ac-now').exists()).toBe(false)
+    expect(inline.findAll('.ac-row.staged')).toHaveLength(1)
+
+    // taca ikon znika z wiersza tytułu — akcje przechodzą do rozszerzenia jako podpisane przyciski
+    expect(inline.find('.ac-row.staged .ac-row__tray').exists()).toBe(false)
+    expect(inline.findAll('.ac-row.staged .af-expansion__actions button')).toHaveLength(4)
+
+    // intencja tygodnia = pasmo „ten tydzień”, nie siedem kropek
+    await inline.findAll('.ac-row').find(row => row.text().includes('Zaplanować budżet'))!.trigger('click')
+    expect(inline.find('.ac-row.staged .ac-ochart__span').exists()).toBe(true)
+    expect(inline.find('.ac-row.staged .ac-ochart__span small').text()).toBe('ten tydzień')
+
+    // nawyk dzienny: klik przenosi rozszerzenie, wykres = kropki z osią dni tygodnia
+    const habitRow = inline.findAll('.ac-row').find(row => row.text().includes('Poranne rozciąganie'))!
+    await habitRow.trigger('click')
+    expect(habitRow.classes()).toContain('staged')
+    expect(habitRow.find('.ac-ochart__axis').findAll('span')).toHaveLength(7)
+    expect(inline.findAll('.ac-row.staged')).toHaveLength(1)
+
+    // brak tekstu celu w środku wiersza; postęp dnia jako niemy włosek na górze karty
+    expect(inline.find('.ac-row__target').exists()).toBe(false)
+    expect(inline.find('.af-list__filament').exists()).toBe(true)
+    expect(inline.find('.af-list__segments').exists()).toBe(false)
+    expect(inline.findAll('.af-entries .af-wpill')).toHaveLength(3)
+    expect(inline.find('.af-head').exists()).toBe(false)
+  })
+
   it('pozwala przejść z bieżącego miesiąca do zamkniętego i otworzyć jego refleksję', async () => {
     const wrapper = mountReplica(MonthReplica, { presetId: 'current', variantId: 'sketchbook-v1' })
     const navigation = wrapper.findAll('.month-nav')
@@ -561,4 +777,107 @@ describe('rich-v1 replicas', () => {
     expect(wrapper.find('.month-ritual').text()).toContain('Dokończ refleksję')
     expect(wrapper.findAll('.month-nav')[1].attributes('disabled')).toBeUndefined()
   })
+  it('wariant 19: przypina Kompas, zwija wykonane i dodaje obiekt z pickera', async () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action3-stage-inline-v1' })
+    const tile = wrapper.find('.ac-tile')
+    const rowCount = wrapper.findAll('.ac-row').length
+    await tile.trigger('click')
+    await tile.trigger('mouseleave')
+    expect(tile.attributes('aria-pressed')).toBe('true')
+    expect(wrapper.findAll('.ac-row.dim').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('.ac-row')).toHaveLength(rowCount)
+    await tile.trigger('click')
+    expect(wrapper.findAll('.ac-row.dim')).toHaveLength(0)
+    await wrapper.find('[aria-label="Zwiń wykonane"]').trigger('click')
+    expect(wrapper.findAll('.ac-row').length).toBeLessThan(rowCount)
+    expect(wrapper.find('[aria-label="Zwiększ: Jakość snu. Obecnie 4"]').exists()).toBe(true)
+    // puste grupy nie zostawiają samotnych nagłówków
+    expect(wrapper.findAll('.af-group').every(group => group.findAll('.ac-row').length > 0)).toBe(true)
+    await wrapper.find('[aria-label="Pokaż wykonane"]').trigger('click')
+    expect(wrapper.findAll('.ac-row')).toHaveLength(rowCount)
+
+    // jeden plus dla wszystkich typów: kaskada typ → obiekt, bez sierot; brak plusów przy grupach
+    expect(wrapper.findAll('.af-group__head button')).toHaveLength(0)
+    await wrapper.find('button[aria-label="Dodaj do planu"]').trigger('click')
+    expect(wrapper.find('.af-menu__items').exists()).toBe(false)
+    const typeButton = wrapper.findAll('.af-menu__types button').find(button => button.text().includes('Cele i rezultaty'))!
+    await typeButton.trigger('mouseenter')
+    const titles = wrapper.findAll('.af-menu__items button').map(button => button.find('span').text())
+    expect(titles.length).toBeGreaterThan(0)
+    expect(titles).not.toContain('Rezultat bez aktywnego celu')
+    expect(titles).not.toContain('Cel zarchiwizowany w trakcie')
+    const candidate = wrapper.find('.af-menu__items button')
+    const title = candidate.find('span').text()
+    await candidate.trigger('click')
+    expect(wrapper.findAll('.ac-row').some(row => row.text().includes(title))).toBe(true)
+    expect(wrapper.find('.af-menu').exists()).toBe(false)
+    await wrapper.findAll('.af-toast button')[0].trigger('click')
+    expect(wrapper.findAll('.ac-row')).toHaveLength(rowCount)
+  })
+
+  it('wariant 19: wykres sceny zgadza się z kontrolką wiersza, toast wygasa, Ukryte gasi Cofnij', async () => {
+    // setup.ts fałszuje tylko Date — tu potrzebny też setTimeout, więc reinstalujemy zegar z tą samą kotwicą
+    vi.useRealTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+    vi.setSystemTime(new Date('2026-07-23T12:00:00.000Z'))
+    try {
+      const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action3-stage-inline-v1' })
+      const row = wrapper.findAll('.ac-row').find(candidate => candidate.text().includes('Cztery sesje deep work'))!
+      await row.trigger('click')
+      const todayIndex = (new Date().getDay() + 6) % 7
+      const todayDot = () => row.findAll('.ac-ochart__dots i')[todayIndex].classes()
+      expect(todayDot()).toContain('assigned')
+      await row.find('.ac-stamp').trigger('click')
+      expect(todayDot()).toContain('done')
+      await row.find('.ac-stamp').trigger('click')
+      expect(todayDot()).not.toContain('done')
+
+      // komunikat Cofnij znika sam po chwili
+      await wrapper.find('.ac-row.staged .af-expansion__actions button').trigger('click')
+      expect(wrapper.find('.af-toast').exists()).toBe(true)
+      vi.advanceTimersByTime(7500)
+      await nextTick()
+      expect(wrapper.find('.af-toast').exists()).toBe(false)
+
+      // przywrócenie ukrytych nie zostawia nieaktualnego „Ukryto … Cofnij”
+      await wrapper.find('.ac-row.staged .af-expansion__actions button:nth-child(3)').trigger('click')
+      expect(wrapper.find('.af-toast').text()).toContain('Ukryto')
+      await wrapper.findAll('.af-hidden').find(button => button.text().includes('Ukryte'))!.trigger('click')
+      expect(wrapper.find('.af-toast').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-23T12:00:00.000Z'))
+    }
+  })
+
+  it('kompas Today nie używa mięty ani bursztynu (mapa tonów na róż/czerwień)', () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action3-stage-inline-v1' })
+    const css = wrapper.html()
+    expect(wrapper.find('.ac-tile--tone-mint').exists()).toBe(true) // fixture ma priorytet w tonie mint…
+    expect(css).not.toMatch(/mint-200|amber-200/) // …ale żaden kafel nie maluje się zielenią/bursztynem inline
+  })
+
+  it('wariant 19: przenosi na kolejny dzień, zachowuje wpisy i cofa przeniesienie', async () => {
+    const wrapper = mountReplica(TodayReplica, { presetId: 'current', variantId: 'action3-stage-inline-v1' })
+    const heading = wrapper.find('.ac-cal__date h2').text()
+    const title = 'Cztery sesje deep work w tygodniu'
+    const rows = () => wrapper.findAll('.ac-row')
+    await wrapper.find('.ac-row.staged .af-expansion__actions button').trigger('click')
+    expect(rows().some(row => row.text().includes(title))).toBe(false)
+    await wrapper.find('[aria-label="Następny dzień"]').trigger('click')
+    expect(wrapper.find('.ac-cal__date h2').text()).not.toBe(heading)
+    const moved = rows().find(row => row.text().includes(title))!
+    expect(moved).toBeDefined()
+    await moved.find('.ac-stamp').trigger('click')
+    await wrapper.find('[aria-label="Poprzedni dzień"]').trigger('click')
+    expect(wrapper.find('.ac-cal__date h2').text()).toBe(heading)
+    expect(rows().some(row => row.text().includes(title))).toBe(false)
+    await wrapper.find('[aria-label="Następny dzień"]').trigger('click')
+    expect(rows().find(row => row.text().includes(title))!.find('.ac-stamp').attributes('aria-pressed')).toBe('true')
+    await wrapper.findAll('.af-toast button')[0].trigger('click')
+    expect(wrapper.find('.ac-cal__date h2').text()).toBe(heading)
+    expect(rows().some(row => row.text().includes(title))).toBe(true)
+  })
+
 })

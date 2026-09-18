@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-screen bg-background">
+  <div class="chat-view flex flex-col h-screen">
     <!-- Top App Bar -->
-    <div class="flex items-center gap-4 px-4 py-3 border-b border-neu-border/30 bg-background">
+    <div class="chat-view__bar flex items-center gap-4 px-4 py-3">
       <AppButton
         variant="text"
         @click="handleBack"
@@ -10,7 +10,7 @@
       >
         <AppIcon name="arrow_back" class="text-xl" />
       </AppButton>
-      <h1 class="text-xl font-medium text-on-surface flex-1">
+      <h1 class="chat-view__title flex-1">
         {{ chatTitle }}
       </h1>
       <!-- Action Buttons -->
@@ -75,7 +75,7 @@
             <span
               v-for="emotionName in emotionNames"
               :key="emotionName"
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary-soft text-primary text-xs font-medium"
+              class="mg-v2-badge chat-chip--emotion"
             >
               {{ emotionName }}
             </span>
@@ -93,7 +93,7 @@
               <span
                 v-for="tagName in peopleTagNames"
                 :key="`people-${tagName}`"
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-chip border border-chip-border text-chip-text text-xs font-medium"
+                class="mg-v2-badge"
               >
                 {{ tagName }}
               </span>
@@ -109,7 +109,7 @@
               <span
                 v-for="tagName in contextTagNames"
                 :key="`context-${tagName}`"
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-chip border border-chip-border text-chip-text text-xs font-medium"
+                class="mg-v2-badge chat-chip--emotion"
               >
                 {{ tagName }}
               </span>
@@ -150,12 +150,8 @@
         ]"
       >
         <div
-          :class="[
-            'max-w-[80%] rounded-lg px-4 py-2',
-            message.role === 'user'
-              ? 'bg-gradient-to-br from-primary to-primary-strong text-on-primary'
-              : 'bg-surface-variant text-on-surface-variant',
-          ]"
+          class="chat-bubble"
+          :class="{ 'chat-bubble--user': message.role === 'user' }"
         >
           <p class="whitespace-pre-wrap break-words">
             {{ message.content }}<span
@@ -191,9 +187,7 @@
 
       <!-- Loading Indicator -->
       <div v-if="isLoading && !hasPendingAssistantMessage" class="flex justify-start">
-        <div
-          class="max-w-[80%] rounded-lg px-4 py-2 bg-surface-variant text-on-surface-variant"
-        >
+        <div class="chat-bubble">
           <div class="flex items-center gap-2">
             <div
               class="animate-spin w-4 h-4 border-2 border-on-surface-variant border-t-transparent rounded-full"
@@ -205,7 +199,7 @@
     </div>
 
     <!-- Input Area -->
-    <div class="border-t border-neu-border/30 p-4 bg-background">
+    <div class="chat-view__composer p-4">
       <div class="flex justify-end mb-2">
         <ProfileContextToggle v-model="useProfile" />
       </div>
@@ -215,7 +209,7 @@
           v-model="messageInput"
           :placeholder="t('chat.placeholder')"
           :disabled="isLoading"
-          class="neo-input flex-1 p-3 resize-none min-h-[44px] max-h-[120px] disabled:opacity-60 disabled:cursor-not-allowed"
+          class="mg-v2-field flex-1 resize-none min-h-[44px] max-h-[120px] disabled:opacity-60 disabled:cursor-not-allowed"
           rows="1"
           data-no-autoresize
           @keydown.enter.exact.prevent="handleSend"
@@ -627,6 +621,41 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.chat-view__bar {
+  border-bottom: 1px solid var(--mg-color-border);
+}
+
+.chat-view__title {
+  margin: 0;
+  font-size: var(--mg-font-size-lg);
+  font-weight: 900;
+}
+
+.chat-view__composer {
+  border-top: 1px solid var(--mg-color-border);
+}
+
+.chat-chip--emotion {
+  color: var(--mg-color-primary-strong);
+}
+
+/* Bubbles follow the ladder: assistant = field tone, user = inner tone with
+   a thin accent outline. Never a filled gradient. */
+.chat-bubble {
+  max-width: 80%;
+  padding: var(--mg-space-2) var(--mg-space-4);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-mist);
+}
+
+.chat-bubble--user {
+  border-color: var(--mg-color-primary);
+  border-radius: var(--mg-radius-sm);
+  background: var(--mg-color-paper);
+}
+
 .streaming-cursor {
   display: inline-block;
   width: 0.45em;

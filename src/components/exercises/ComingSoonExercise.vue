@@ -16,7 +16,7 @@
     <AppCard padding="lg" class="space-y-4">
       <div class="flex items-center gap-3">
         <div :class="['p-3 rounded-full', iconBgClass]">
-          <span class="material-symbols-outlined text-2xl leading-none" :class="iconClass">{{ icon }}</span>
+          <AppIcon class="material-symbols-outlined text-2xl leading-none" :class="iconClass" :name="icon" />
         </div>
         <div>
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.comingSoon.title') }}</h2>

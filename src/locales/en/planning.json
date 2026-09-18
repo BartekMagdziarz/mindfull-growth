@@ -1,4 +1,37 @@
 {
+  "periodPicker": {
+    "missingStart": "Enter a schedule start date.",
+    "withGaps": "non-consecutive periods",
+    "choose": "Choose periods",
+    "cancel": "Cancel",
+    "previous": "Previous period",
+    "next": "Next period",
+    "week": "week",
+    "fullWeeks": "Select full weeks, Monday to Sunday, including weeks crossing month boundaries.",
+    "selectVisible": "Select all visible",
+    "clear": "Clear selection",
+    "today": "Today",
+    "range": "Select a range",
+    "from": "From",
+    "to": "To",
+    "addRange": "Add range",
+    "selected": "Selected: {count}",
+    "saving": "Saving…",
+    "done": "Done",
+    "schedule": "Schedule",
+    "start": "Start date",
+    "inherit": "Follow goal schedule",
+    "custom": "Custom periods",
+    "automatic": "Months follow the schedule and key result periods.",
+    "invalidRange": "The end date must be on or after the start date.",
+    "noPeriods": "No assigned periods",
+    "outside": "This key result has periods outside the goal date range.",
+    "review": "Assigned periods",
+    "goalCustom": "Custom goal months",
+    "goalAuto": "Automatic months",
+    "scheduleHint": "Set dates once. Key results receive months or full weeks based on their cadence.",
+    "preserved": "Existing assignments are preserved. You can enable the shared schedule."
+  },
   "calendar": {
     "title": "Calendar",
     "subtitle": "Navigate one planning workspace across year, month, week, and day.",
@@ -372,7 +405,8 @@
       "undo": "Undo",
       "collapseCompleted": "Collapse completed",
       "expandCompleted": "Show completed",
-      "addToPlan": "Add to plan"
+      "addToPlan": "Add to plan",
+      "showChecklist": "Show checklist items"
     },
     "messages": {
       "entrySaved": "Entry saved.",
@@ -468,15 +502,28 @@
       "title": "Up next",
       "empty": "Nothing urgent",
       "today": "today",
-      "planWeek": "Plan week W{n}",
+      "planWeek": "Plan the week",
       "planMonth": "Plan {month}",
-      "reflectWeek": "Reflect on week W{n}",
+      "reflectWeek": "Reflect on the week",
       "reflectMonth": "Reflect on {month}",
       "overdue": "overdue",
       "done": "done",
-      "past": "Past ({n})",
-      "more": "{n} more",
-      "less": "Show less"
+      "past": "Previously done ({n})",
+      "more": "Show more ({n})",
+      "less": "Show less",
+      "planWeek_previous": "Plan last week",
+      "planWeek_current": "Plan this week",
+      "planWeek_next": "Plan next week",
+      "reflectWeek_previous": "Reflect on last week",
+      "reflectWeek_current": "Reflect on this week",
+      "reflectWeek_next": "Reflect on next week",
+      "plannedEnd": "Planned finish",
+      "completed": "Completed",
+      "planned": "Planned",
+      "reflected": "Reflected",
+      "notPlanned": "To plan",
+      "toReflect": "To reflect on",
+      "tomorrow": "tomorrow"
     },
     "calendar": {
       "today": "Today",
@@ -495,6 +542,25 @@
       "nextSevenDays": "Next 7 days",
       "legendDeadline": "deadline",
       "legendRitual": "ritual"
+    },
+    "calendarPlan": {
+      "expand": "Expand weekly plan",
+      "drag": "Drag onto a calendar day",
+      "title": "Weekly plan",
+      "back": "Back to day",
+      "saved": "Plan updated.",
+      "weekOnly": "An intention must stay in its week.",
+      "duplicate": "This object is already assigned to that day.",
+      "loadError": "Could not load the plan. Try again.",
+      "loading": "Loading weekly plan…",
+      "empty": "No assignments",
+      "flexible": "This week · no date",
+      "object": "Object",
+      "choose": "Choose an object",
+      "date": "Date",
+      "remove": "Remove from plan",
+      "save": "Save change",
+      "retry": "Try again"
     }
   },
   "weekWizard": {
@@ -590,7 +656,6 @@
     "title": "Objects Library",
     "subtitle": "Browse, inspect, filter, and manage planning objects without leaving the main planning model.",
     "loadError": "Could not load the objects library.",
-    "periodInvalid": "Use a valid period reference like 2026, 2026-03, 2026-W10, or 2026-03-12.",
     "panelPlaceholder": "Open an object to inspect it here, or start a new one from the active family.",
     "labels": {
       "goal": "Goal",
@@ -617,9 +682,14 @@
     },
     "filters": {
       "search": "Search",
-      "searchPlaceholder": "Search titles and descriptions",
+      "searchPlaceholder": "Search",
       "period": "Period",
-      "periodPlaceholder": "2026, 2026-03, 2026-W10, 2026-03-12",
+      "clearPeriod": "Clear period",
+      "selectYearHint": "Click the year to select the whole year",
+      "previousYear": "Previous year",
+      "nextYear": "Next year",
+      "lifecycle": "Lifecycle",
+      "select": "Select…",
       "showClosed": "Show closed",
       "showClosedAndArchived": "Show closed and archived",
       "showMore": "Filters",
@@ -631,6 +701,20 @@
       "priorities": "Priorities",
       "clear": "Clear",
       "resetAll": "Reset filters"
+    },
+    "timeline": {
+      "noDeadline": "no deadline",
+      "today": "today",
+      "inDays": "in {count} days",
+      "inOneDay": "tomorrow",
+      "inWeeks": "in {count} wk",
+      "overdue": "{count} days overdue",
+      "overdueOne": "1 day overdue",
+      "startsIn": "starts {date}",
+      "links": "Links",
+      "addLink": "Add a link",
+      "months": "Goal months",
+      "years": "Priority years"
     },
     "sections": {
       "results": "Results",
@@ -667,6 +751,7 @@
       "familyBody": "Create the first object in this family to start using the library.",
       "filteredTitle": "No objects match the current filters.",
       "filteredBody": "Try clearing some filters, widening the period, or showing closed and archived objects.",
+      "filteredNarrowedBy": "Narrowed by: {list}. Loosen one of these or show closed and archived objects.",
       "intentionsTitle": "No intentions yet — create the first one or plan your week."
     },
     "panel": {
@@ -1101,8 +1186,8 @@
         "title": "Define each work item's contribution"
       },
       "review": {
-        "label": "Review",
-        "title": "Check before creating"
+        "label": "Start",
+        "title": "Bring the direction into your rhythm"
       }
     },
     "meaning": {
@@ -1168,13 +1253,23 @@
       "existingBadge": "From library"
     },
     "review": {
-      "meaningTitle": "Meaning",
-      "signalsTitle": "Signals",
-      "signalsEmpty": "No signals — you'll add them in the monthly reflection.",
-      "supportTitle": "Work to start with",
-      "supportEmpty": "No linked work — you can fill this in later.",
+      "identityTitle": "Identity of the direction",
+      "iconLabel": "Icon on the Compass",
+      "iconPick": "Pick an icon",
+      "iconHint": "This is how you'll see the direction in Today and in the month plan.",
+      "lifeAreasLabel": "Life areas",
+      "lifeAreasEmpty": "No life areas defined yet — you can add them in your Profile.",
+      "rhythmTitle": "Entering the rhythm",
+      "monthFocusLabel": "Add to this month's focus: {month}",
+      "monthFocusSlots": "{count} of {max} slots taken.",
+      "monthFocusFull": "The focus for {month} is already full ({max}). The direction will join the plan next month.",
+      "monthFocusDraft": "A draft cannot be a month focus — it joins once a portfolio slot frees up.",
+      "signalsReturn": "Your signals ({count}) return in the monthly reflection for {month}.",
+      "signalsNone": "No signals — you'll add them in the monthly reflection.",
+      "workSummary": "Work to start with: {count} objects, including {newCount} new drafts.",
+      "workNone": "No linked work — you can link objects later in the library.",
       "draftNotice": "The portfolio is full — the priority will be saved as a draft waiting for a slot.",
-      "pendingNotice": "New proposals ({count}) will be created as drafts."
+      "pendingNotice": "New proposals ({count}) will be created as drafts to finish in the library."
     },
     "footer": {
       "back": "Back",
@@ -1188,6 +1283,8 @@
       "eyebrowActive": "Priority active",
       "eyebrowDraft": "Draft saved",
       "body": "The priority and its linked work were created.",
+      "bodyMonthFocus": "The direction is now in the month focus for {month}. You'll see it on the Compass in Today.",
+      "goToToday": "Go to Today",
       "pendingTitle": "To finish",
       "pendingHint": "These proposals await configuration in the objects library.",
       "goToLibrary": "Go to library"

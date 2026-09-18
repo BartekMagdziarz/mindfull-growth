@@ -42,7 +42,7 @@
 }
 
 /* Layout-only column: the stage carries no surface of its own, so the rows and
-   cards inside it sit directly on the inset sheet (one field fewer to look at).
+   cards inside it sit directly on the shared page canvas.
    No `overflow: hidden` here either — it would clip their raised shadows. */
 .planning-next__stage {
   min-width: 0;
@@ -531,7 +531,7 @@
 }
 
 .next-overview__visual > i.tone-rose {
-  background: var(--mg-color-rose, var(--rose-400, #e5849c));
+  background: var(--mg-color-rose);
 }
 
 .next-overview__row strong {
@@ -2065,13 +2065,13 @@
   .next-period-rail__week-chart-labels { transition: none; }
 }
 
-/* ── Day scale: list column left, context column right ─────────────────── */
+/* ── Dzisiaj (own page): list column left, context column right ─────────── */
 
 .planning-next__sheet--day {
   /* Cards inside the day surfaces are tinted, not paper-white: one step
      lighter than their surface, so the tonal ladder reads as sky → cloud. */
   --pn-card: color-mix(in srgb, var(--mg-color-paper) 45%, var(--mg-color-surface));
-  --pn-card-border: rgb(var(--neo-border) / 0.1);
+  --pn-card-border: var(--mg-color-border-subtle);
   grid-template-columns: minmax(27rem, 1.1fr) minmax(21rem, 0.9fr);
 }
 
@@ -2081,7 +2081,8 @@
 }
 
 .planning-next__rail-stack--day {
-  grid-template-rows: auto auto minmax(0, 1fr);
+  /* Entries bar + day list; no navigation card (the date lives in the calendar card). */
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 /* Entries bar: three quiet tiles for the day's own entries. */
@@ -2458,11 +2459,11 @@
   background: var(--mg-color-state);
 }
 
-.next-day-cal__foot {
 .next-day-cal i.is-done {
   opacity: 0.3;
 }
 
+.next-day-cal__foot {
   display: flex;
   gap: var(--mg-space-3);
   justify-content: flex-end;
@@ -2538,7 +2539,7 @@
 
 .next-day-compass__tile.tone-lavender .next-day-compass__icon {
   color: var(--mg-color-lavender);
-  background: rgb(214 205 244 / 0.7);
+  background: var(--mg-color-lavender-soft);
 }
 
 .next-day-compass__tile.tone-rose .next-day-compass__icon {
@@ -2552,18 +2553,29 @@
   box-shadow: var(--mg-shadow-inset-sm);
 }
 
-/* Upcoming */
+/* Upcoming: title and context stay together; status is a quiet secondary cue. */
+.next-day-upcoming {
+  container-type: inline-size;
+}
+
+.next-day-upcoming > header {
+  color: var(--mg-color-muted);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
 .next-day-upcoming__list {
   display: grid;
 }
 
 .next-day-upcoming__row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: var(--mg-space-2);
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  column-gap: var(--mg-space-3);
+  row-gap: var(--mg-space-1);
   align-items: center;
-  min-height: 2rem;
-  padding: 0 2px;
+  min-height: 3.5rem;
+  padding: var(--mg-space-2) var(--mg-space-1);
   border: 0;
   border-bottom: 1px solid var(--mg-color-border);
   border-radius: 0;
@@ -2577,82 +2589,80 @@
   border-bottom-color: transparent;
 }
 
-.next-day-upcoming__row:hover strong {
-  color: var(--mg-color-primary-strong);
+.next-day-upcoming__row:hover {
+  background: var(--mg-color-mist);
+}
+
+.next-day-upcoming__row:focus-visible,
+.next-day-upcoming__more:focus-visible,
+.next-day-upcoming__past > summary:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
+  border-radius: var(--mg-radius-sm);
+}
+
+.next-day-upcoming__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .next-day-upcoming__row strong {
-  overflow: hidden;
-  font-size: var(--mg-font-size-xs);
-  font-weight: 750;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: var(--mg-font-size-sm);
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
+.next-day-upcoming__context,
 .next-day-upcoming__row em {
   color: var(--mg-color-muted);
   font-size: var(--mg-font-size-xs);
   font-style: normal;
-  font-weight: 800;
-  white-space: nowrap;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.next-day-upcoming__row em {
+  text-align: right;
 }
 
 .next-day-upcoming__icon {
   display: grid;
   place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: var(--mg-radius-organic-c);
-  color: var(--mg-color-ink);
-  background: var(--mg-color-mist);
-}
-
-.next-day-upcoming__row.is-ritual .next-day-upcoming__icon {
+  width: 1.75rem;
+  height: 1.75rem;
   color: var(--mg-color-primary-strong);
-  background: var(--mg-color-sky-well);
 }
 
 .next-day-upcoming__icon .material-symbols-outlined {
-  font-size: var(--mg-font-size-sm);
+  font-size: var(--mg-font-size-lg);
 }
 
 .next-day-upcoming__list p {
-  margin: 0;
+  margin: var(--mg-space-2) 0;
   color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
+  font-size: var(--mg-font-size-sm);
 }
 
-.next-day-rail__stage-actions > button.is-active {
-/* Overdue: due and behind today — warm tone, never green/red. */
-.next-day-upcoming__row.is-overdue em {
-  color: var(--mg-color-warn);
+.next-day-upcoming__row.is-deadline.is-overdue em {
+  color: var(--mg-color-rose);
 }
 
-.next-day-upcoming__row.is-overdue .next-day-upcoming__icon {
-  color: var(--mg-color-warn-on);
-  background: var(--mg-color-warn-soft);
-}
-
-/* Done: quiet row with a check instead of the object icon. */
-.next-day-upcoming__row.is-done strong {
+.next-day-upcoming__row.is-done strong,
+.next-day-upcoming__row.is-done .next-day-upcoming__icon {
   color: var(--mg-color-muted);
-  font-weight: 500;
 }
 
-.next-day-upcoming__row.is-done .next-day-upcoming__icon,
-.next-day-upcoming__row.is-ritual.is-done .next-day-upcoming__icon {
-  color: var(--mg-color-muted);
-  background: var(--mg-color-mist);
-}
-
-.next-day-upcoming__more,
+.next-day-upcoming .next-day-upcoming__more,
 .next-day-upcoming__past > summary {
-  padding: var(--mg-space-1) 2px 0;
+  min-height: 2.75rem;
+  padding: var(--mg-space-2) var(--mg-space-1);
   border: 0;
   color: var(--mg-color-muted);
   background: transparent;
   font-size: var(--mg-font-size-xs);
-  font-weight: 800;
+  font-weight: 600;
   text-align: left;
   cursor: pointer;
 }
@@ -2663,6 +2673,8 @@
 }
 
 .next-day-upcoming__past > summary {
+  display: flex;
+  align-items: center;
   list-style: none;
 }
 
@@ -2672,7 +2684,6 @@
 
 .next-day-upcoming__past > summary::before {
   content: '▸';
-  display: inline-block;
   margin-right: var(--mg-space-1);
 }
 
@@ -2680,6 +2691,18 @@
   content: '▾';
 }
 
+@container (max-width: 360px) {
+  .next-day-upcoming__row {
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+  }
+
+  .next-day-upcoming__row em {
+    grid-column: 2;
+    text-align: left;
+  }
+}
+
+.next-day-rail__stage-actions > button.is-active {
   color: var(--mg-color-primary-strong);
   background: var(--mg-color-sky-well);
 }
@@ -2788,4 +2811,97 @@
 .next-day-rail > .next-day-rail__heading {
   position: relative;
   z-index: 3;
+}
+
+/* Calendar and list share the left axis; daily entry points live over context. */
+.day-plan-calendar { padding:16px 20px; }
+.day-plan-calendar button { border:0; background:transparent; color:var(--mg-color-ink); border-radius:13px 16px 12px 15px; padding:7px; cursor:pointer; font:inherit; display:inline-flex; align-items:center; gap:6px; }
+.day-plan-calendar button:hover { background:var(--mg-color-paper); }
+.day-plan-calendar button:disabled { opacity:.45; cursor:default; }
+.day-plan-calendar .material-symbols-outlined { font-size:20px; color:var(--mg-color-primary-strong); }
+.day-plan-calendar__header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.day-plan-calendar__header strong { font-size:16px; }
+.day-plan-calendar__header button { font-size:12px; }
+.day-plan-calendar__period { display:flex; gap:8px; align-items:center; margin:8px 0; font-size:12px; }
+.day-plan-calendar__selection { font-size:12px; margin:8px 0; font-weight:700; }
+.day-plan-calendar__days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }
+.day-plan-calendar__days button { flex-direction:column; gap:4px; }
+.day-plan-calendar__days small { font-size:11px; }
+.day-plan-calendar__days button[aria-pressed=true] { background:var(--mg-color-paper); }
+.day-plan-calendar__days button.is-drop-target { outline:1px dashed var(--mg-color-primary-strong); background:var(--mg-color-mist); }
+.day-plan-calendar__chart { padding:0; margin-top:10px; }
+.day-plan-calendar__chart .next-object-card__labels { display:none; }
+.ndi__drag { cursor:grab; position:absolute; left:0; top:50%; transform:translate(-70%,-50%); opacity:0; z-index:2; }
+.ndi:hover .ndi__drag { opacity:1; }
+.ndi__drag:active { cursor:grabbing; }
+.week-plan-board__days { display:grid; grid-template-columns:repeat(7,minmax(110px,1fr)); gap:10px; overflow-x:auto; }
+.week-plan-board__days>section { display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:18px; background:var(--mg-color-mist); min-height:230px; }
+.week-plan-board__days>section>strong { font-size:12px; text-align:center; }
+.week-plan-board__days>section>button { background:var(--mg-color-paper); font-size:12px; text-align:left; display:block; overflow-wrap:anywhere; }
+.week-plan-board__days small { font-size:11px; }
+.week-plan-board__days .material-symbols-outlined { display:block; margin-bottom:5px; }
+.week-plan-board__flex { display:flex; flex-wrap:wrap; gap:12px; padding:18px 0 6px; font-size:12px; }
+.week-plan-board__editor { display:flex; align-items:end; flex-wrap:wrap; gap:12px; padding:16px; margin-top:16px; background:var(--mg-color-mist); border-radius:16px; }
+.week-plan-board__editor label { display:grid; gap:6px; font-size:12px; }
+.week-plan-board__editor input,.week-plan-board__editor select { padding:9px; border:0; border-radius:10px; background:var(--mg-color-paper); max-width:320px; }
+.week-plan-board [role=status],.week-plan-board [role=alert] { margin-top:14px; font-size:13px; }
+
+.today-calendar-layout { grid-template-areas:none; grid-template-rows:auto; align-items:start; }
+.today-calendar-layout__left,.today-calendar-layout__right { display:grid; align-content:start; min-width:0; gap:var(--mg-space-4); }
+.today-calendar-layout__calendar,.today-calendar-layout__entries,.today-calendar-layout__list,.today-calendar-layout__context { grid-area:auto; }
+.today-calendar-layout.is-planning { grid-template-areas:none; grid-template-columns:minmax(0,1fr); }
+.day-plan-calendar .day-plan-calendar__chart { max-width:none; width:100%; }
+.day-plan-calendar .next-object-card--bare .next-object-card__dots { padding:4px 0; gap:5px; }
+.today-calendar-layout .next-day-rail__stage-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; }
+
+.week-plan-board__flex>strong { flex-basis:100%; }
+.week-plan-board__flex>button { background:var(--mg-color-paper); font-size:12px; }
+
+.planning-next--today { min-width:0; height:auto; min-height:100vh; }
+.today-calendar-layout { height:auto; min-height:0; }
+@media (max-width: 900px) {
+  .today-calendar-layout { grid-template-columns:minmax(0,1fr); padding:0; }
+  .planning-next--today { padding:var(--mg-space-3); }
+  .day-plan-calendar { padding:12px; }
+  .week-plan-board__editor select { max-width:100%; }
+}
+/* Today can collapse to one column inside the application shell. */
+main:has(> .planning-next--today) { min-width:0; }
+
+/* The lifted day-plan card remains above the calendar throughout the gesture. */
+.day-plan-drag-preview {
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  overflow: visible;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  pointer-events: none;
+  transform-origin: top left;
+  will-change: transform, opacity;
+}
+.day-plan-drag-preview .ndi {
+  margin: 0;
+  background: var(--mg-color-paper);
+  border-radius: 16px;
+  box-shadow: var(--mg-shadow-drag-preview);
+  outline: 1px solid color-mix(in srgb, var(--mg-color-primary-strong) 25%, transparent);
+}
+.day-plan-drag-preview .ndi__drag { visibility: hidden; }
+.ndi.ndi--drag-source { opacity: .28; }
+.day-plan-calendar__days button {
+  transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+.day-plan-calendar__days button.is-drag-over {
+  transform: translateY(-4px) scale(1.06);
+  background: var(--mg-color-paper);
+  outline: 2px solid var(--mg-color-primary-strong);
+  box-shadow: var(--mg-shadow-drop-target);
+}
+@media (prefers-reduced-motion: reduce) {
+  .day-plan-calendar__days button { transition: none; }
+  .day-plan-calendar__days button.is-drag-over { transform: none; }
 }

@@ -1,37 +1,33 @@
 <template>
   <button
     type="button"
-    class="w-full rounded-2xl border p-4 text-left transition-all duration-200 hover:-translate-y-px active:translate-y-0"
-    :class="cardClass"
+    class="mg-v2-tile"
+    :class="{ 'mg-v2-tile--active': enrollment?.status === 'active' }"
     :aria-label="title"
     :data-test-program-card="program.slug"
     @click="router.push({ name: 'program-detail', params: { slug: program.slug } })"
   >
-    <div class="flex items-center justify-between gap-3">
-      <span class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-        <AppIcon :name="program.icon" class="text-xl text-primary" />
-      </span>
-      <span v-if="statusPill" class="neo-pill px-2.5 py-1 text-xs" :class="statusPill.class">
-        {{ statusPill.label }}
-      </span>
-    </div>
+    <span class="mg-v2-icon-board" aria-hidden="true">
+      <AppIcon class="material-symbols-outlined" :name="program.icon" />
+    </span>
 
-    <h3 class="mt-3 text-base font-semibold text-on-surface">
-      {{ title }}
-    </h3>
-    <p class="mt-1 text-sm text-on-surface-variant">
-      {{ description }}
-    </p>
-    <p class="mt-3 text-xs text-on-surface-variant">
-      {{ metaLine }}
-    </p>
+    <span class="mg-v2-tile__body">
+      <h3 class="mg-v2-tile__title">{{ title }}</h3>
+      <p class="mg-v2-meta">
+        <span>{{ stepsLabel }}</span>
+        <span>{{ weeksLabel }}</span>
+        <span v-if="statusLabel" :class="statusClass">{{ statusLabel }}</span>
+      </p>
+      <p class="mg-v2-tile__lead">{{ description }}</p>
+    </span>
   </button>
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 
@@ -46,48 +42,43 @@ const { t, tp } = useT()
 const title = computed(() => t(`${props.program.i18nKey}.title`))
 const description = computed(() => t(`${props.program.i18nKey}.description`))
 
-const metaLine = computed(() => {
-  const steps = tp(
+const stepsLabel = computed(() =>
+  tp(
     props.program.steps.length,
     'programs.ui.stepsCount.one',
     'programs.ui.stepsCount.few',
     'programs.ui.stepsCount.many',
-  )
-  const weeks = tp(
+  ),
+)
+
+const weeksLabel = computed(() =>
+  tp(
     props.program.estimatedWeeks,
     'programs.ui.weeksCount.one',
     'programs.ui.weeksCount.few',
     'programs.ui.weeksCount.many',
-  )
-  return `${steps} · ${weeks}`
-})
+  ),
+)
 
-/** Progress "n/m" counts walked steps — skipped optional ones included (P12). */
-const statusPill = computed(() => {
+/** Status is a quiet word in the meta line; progress "n/m" counts walked
+ *  steps — skipped optional ones included (P12). Nothing for "not enrolled". */
+const statusLabel = computed(() => {
   switch (props.enrollment?.status) {
     case 'active':
-      return {
-        label: t('programs.ui.stepProgress', {
-          current: Math.min(props.enrollment.currentStepIndex + 1, props.program.steps.length),
-          total: props.program.steps.length,
-        }),
-        class: 'border-primary/30 bg-primary/10 text-primary-strong',
-      }
+      return t('programs.ui.stepProgress', {
+        current: Math.min(props.enrollment.currentStepIndex + 1, props.program.steps.length),
+        total: props.program.steps.length,
+      })
     case 'paused':
-      return {
-        label: t('programs.ui.statusPaused'),
-        class: 'border-status-warn/40 bg-status-warn-soft/70 text-status-warn-on',
-      }
+      return t('programs.ui.statusPaused')
     case 'completed':
-      return { label: t('programs.ui.statusCompleted'), class: 'neo-pill--success' }
+      return t('programs.ui.statusCompleted')
     default:
-      return null
+      return ''
   }
 })
 
-const cardClass = computed(() =>
-  props.enrollment?.status === 'active'
-    ? 'border-primary/30 bg-primary/10 shadow-neu-raised-sm'
-    : 'border-neu-border/30 bg-neu-base shadow-neu-flat',
+const statusClass = computed(() =>
+  props.enrollment?.status === 'paused' ? 'mg-v2-meta__warn' : 'mg-v2-meta__status',
 )
 </script>

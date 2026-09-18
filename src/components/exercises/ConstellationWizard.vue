@@ -366,7 +366,7 @@
                   :loading="isLLMLoading"
                   @click="requestAnalysis({ useProfile: useProfileAnalysis })"
                 >
-                  <span class="material-symbols-outlined text-base leading-none mr-1">auto_awesome</span>
+                  <AppIcon class="material-symbols-outlined text-base leading-none mr-1" name="auto_awesome" />
                   {{ t('exerciseWizards.constellation.reflection.aiButton') }}
                 </AppButton>
                 <ProfileContextToggle v-model="useProfileAnalysis" />

@@ -1,16 +1,17 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-container">
+  <div class="min-h-screen flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-md">
-      <AppCard>
+      <AppCard variant="raised-strong" padding="lg" class="mg-v2-surface--sheet">
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-on-surface mb-2">{{ t('auth.signup.title') }}</h1>
-          <p class="text-on-surface-variant">{{ t('auth.signup.subtitle') }}</p>
+          <span class="mg-v2-page-head__eyebrow">{{ t('common.appName') }}</span>
+          <h1 class="auth-title">{{ t('auth.signup.title') }}</h1>
+          <p class="auth-lead">{{ t('auth.signup.subtitle') }}</p>
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Username -->
           <div>
-            <label for="username" class="block text-sm font-medium text-on-surface mb-2">
+            <label for="username" class="mg-v2-field-wrap__label block mb-2">
               {{ t('auth.signup.username') }}
             </label>
             <input
@@ -20,7 +21,7 @@
               autocomplete="username"
               required
               :disabled="isLoading"
-              class="neo-input w-full px-4 py-3 disabled:opacity-50"
+              class="mg-v2-field disabled:opacity-50"
               :placeholder="t('auth.signup.usernamePlaceholder')"
             />
             <p class="mt-1 text-xs text-on-surface-variant">{{ t('auth.signup.usernameHint') }}</p>
@@ -28,7 +29,7 @@
 
           <!-- Display Name (Optional) -->
           <div>
-            <label for="displayName" class="block text-sm font-medium text-on-surface mb-2">
+            <label for="displayName" class="mg-v2-field-wrap__label block mb-2">
               {{ t('auth.signup.displayName') }}
               <span class="text-on-surface-variant font-normal">{{ t('auth.signup.displayNameOptional') }}</span>
             </label>
@@ -38,14 +39,14 @@
               type="text"
               autocomplete="name"
               :disabled="isLoading"
-              class="neo-input w-full px-4 py-3 disabled:opacity-50"
+              class="mg-v2-field disabled:opacity-50"
               :placeholder="t('auth.signup.displayNamePlaceholder')"
             />
           </div>
 
           <!-- Password -->
           <div>
-            <label for="password" class="block text-sm font-medium text-on-surface mb-2">
+            <label for="password" class="mg-v2-field-wrap__label block mb-2">
               {{ t('auth.signup.password') }}
             </label>
             <input
@@ -55,7 +56,7 @@
               autocomplete="new-password"
               required
               :disabled="isLoading"
-              class="neo-input w-full px-4 py-3 disabled:opacity-50"
+              class="mg-v2-field disabled:opacity-50"
               :placeholder="t('auth.signup.passwordPlaceholder')"
             />
             <p class="mt-1 text-xs text-on-surface-variant">{{ t('auth.signup.passwordHint') }}</p>
@@ -63,7 +64,7 @@
 
           <!-- Confirm Password -->
           <div>
-            <label for="confirmPassword" class="block text-sm font-medium text-on-surface mb-2">
+            <label for="confirmPassword" class="mg-v2-field-wrap__label block mb-2">
               {{ t('auth.signup.confirmPassword') }}
             </label>
             <input
@@ -74,7 +75,7 @@
               required
               :disabled="isLoading"
               :class="[
-                'neo-input w-full px-4 py-3 disabled:opacity-50',
+                'mg-v2-field disabled:opacity-50',
                 passwordMismatch
                   ? 'border-error focus:ring-error'
                   : ''
@@ -87,7 +88,7 @@
           </div>
 
           <!-- Error message -->
-          <div v-if="error" class="p-3 rounded-lg bg-error-container text-on-error-container text-sm">
+          <div v-if="error" class="mg-v2-pill mg-v2-pill--danger auth-error">
             {{ error }}
           </div>
 
@@ -169,3 +170,25 @@ async function handleSubmit() {
   }
 }
 </script>
+
+<style scoped>
+.auth-title {
+  margin: var(--mg-space-1) 0 var(--mg-space-2);
+  font-size: var(--mg-font-size-2xl);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.auth-lead {
+  margin: 0;
+  color: var(--mg-color-muted);
+}
+
+.auth-error {
+  display: flex;
+  min-height: 2.5rem;
+  padding: var(--mg-space-2) var(--mg-space-3);
+  border-radius: var(--mg-radius-sm);
+  white-space: normal;
+}
+</style>

@@ -1,4 +1,37 @@
 {
+  "periodPicker": {
+    "missingStart": "Podaj datę rozpoczęcia harmonogramu.",
+    "withGaps": "okresy z przerwami",
+    "choose": "Wybierz okresy",
+    "cancel": "Anuluj",
+    "previous": "Poprzedni okres",
+    "next": "Następny okres",
+    "week": "tydz.",
+    "fullWeeks": "Wybierasz całe tygodnie, od poniedziałku do niedzieli — także na granicy miesięcy.",
+    "selectVisible": "Zaznacz wszystkie widoczne",
+    "clear": "Wyczyść wybór",
+    "today": "Dzisiaj",
+    "range": "Zaznacz zakres",
+    "from": "Od",
+    "to": "Do",
+    "addRange": "Dodaj zakres",
+    "selected": "Wybrano: {count}",
+    "saving": "Zapisywanie…",
+    "done": "Gotowe",
+    "schedule": "Harmonogram",
+    "start": "Od kiedy?",
+    "inherit": "Zgodnie z harmonogramem celu",
+    "custom": "Własne okresy",
+    "automatic": "Miesiące wynikają z harmonogramu i okresów KR-ów.",
+    "invalidRange": "Data końcowa musi przypadać w dniu rozpoczęcia lub później.",
+    "noPeriods": "Brak przypisanych okresów",
+    "outside": "Ten KR ma okresy poza zakresem dat celu.",
+    "review": "Przypisane okresy",
+    "goalCustom": "Własne miesiące celu",
+    "goalAuto": "Miesiące automatyczne",
+    "scheduleHint": "Ustaw daty raz. KR-y otrzymają miesiące lub pełne tygodnie zgodnie ze swoją częstotliwością.",
+    "preserved": "Zachowano dotychczasowe przypisania. Możesz włączyć wspólny harmonogram."
+  },
   "calendar": {
     "title": "Kalendarz",
     "subtitle": "Jedna przestrzeń do planowania i refleksji w skali roku, miesiąca, tygodnia i dnia.",
@@ -372,7 +405,8 @@
       "undo": "Cofnij",
       "collapseCompleted": "Zwiń wykonane",
       "expandCompleted": "Pokaż wykonane",
-      "addToPlan": "Dodaj do planu"
+      "addToPlan": "Dodaj do planu",
+      "showChecklist": "Pokaż elementy checklisty"
     },
     "messages": {
       "entrySaved": "Wpis zapisany.",
@@ -468,15 +502,28 @@
       "title": "Najbliżej",
       "empty": "Nic pilnego",
       "today": "dziś",
-      "planWeek": "Zaplanuj tydzień T{n}",
+      "planWeek": "Zaplanuj tydzień",
       "planMonth": "Zaplanuj {month}",
-      "reflectWeek": "Podsumuj tydzień T{n}",
+      "reflectWeek": "Podsumuj tydzień",
       "reflectMonth": "Podsumuj {month}",
       "overdue": "po terminie",
       "done": "zrobione",
-      "past": "Minione ({n})",
-      "more": "Jeszcze {n}",
-      "less": "Zwiń"
+      "past": "Zrobione wcześniej ({n})",
+      "more": "Pokaż więcej ({n})",
+      "less": "Zwiń",
+      "planWeek_previous": "Zaplanuj poprzedni tydzień",
+      "planWeek_current": "Zaplanuj ten tydzień",
+      "planWeek_next": "Zaplanuj następny tydzień",
+      "reflectWeek_previous": "Podsumuj poprzedni tydzień",
+      "reflectWeek_current": "Podsumuj ten tydzień",
+      "reflectWeek_next": "Podsumuj następny tydzień",
+      "plannedEnd": "Planowany koniec",
+      "completed": "Ukończony",
+      "planned": "Zaplanowany",
+      "reflected": "Podsumowany",
+      "notPlanned": "Do zaplanowania",
+      "toReflect": "Do refleksji",
+      "tomorrow": "jutro"
     },
     "calendar": {
       "today": "Dziś",
@@ -495,6 +542,25 @@
       "nextSevenDays": "Najbliższe 7 dni",
       "legendDeadline": "termin",
       "legendRitual": "rytuał"
+    },
+    "calendarPlan": {
+      "expand": "Rozwiń plan tygodnia",
+      "drag": "Przeciągnij na dzień w kalendarzu",
+      "title": "Plan tygodnia",
+      "back": "Wróć do dnia",
+      "saved": "Zapisano zmianę planu.",
+      "weekOnly": "Intencja musi pozostać w swoim tygodniu.",
+      "duplicate": "Ten obiekt jest już przypisany do wybranego dnia.",
+      "loadError": "Nie udało się wczytać planu. Spróbuj ponownie.",
+      "loading": "Wczytuję plan tygodnia…",
+      "empty": "Brak przypisań",
+      "flexible": "W tym tygodniu · bez daty",
+      "object": "Obiekt",
+      "choose": "Wybierz obiekt",
+      "date": "Termin",
+      "remove": "Usuń z planu",
+      "save": "Zapisz zmianę",
+      "retry": "Spróbuj ponownie"
     }
   },
   "weekWizard": {
@@ -590,7 +656,6 @@
     "title": "Biblioteka obiektów",
     "subtitle": "Przeglądaj, filtruj i edytuj obiekty planowania bez wychodzenia poza jeden spójny model planu.",
     "loadError": "Nie udało się wczytać biblioteki obiektów.",
-    "periodInvalid": "Użyj poprawnego identyfikatora okresu, np. 2026, 2026-03, 2026-W10 albo 2026-03-12.",
     "panelPlaceholder": "Otwórz obiekt, aby zobaczyć szczegóły tutaj, albo utwórz nowy w aktywnej rodzinie.",
     "labels": {
       "goal": "Cel",
@@ -617,9 +682,14 @@
     },
     "filters": {
       "search": "Szukaj",
-      "searchPlaceholder": "Szukaj po tytule i opisie",
+      "searchPlaceholder": "Szukaj",
       "period": "Okres",
-      "periodPlaceholder": "2026, 2026-03, 2026-W10, 2026-03-12",
+      "clearPeriod": "Wyczyść okres",
+      "selectYearHint": "Kliknij rok, by wybrać cały rok",
+      "previousYear": "Poprzedni rok",
+      "nextYear": "Następny rok",
+      "lifecycle": "Cykl życia",
+      "select": "Wybierz…",
       "showClosed": "Pokaż zamknięte",
       "showClosedAndArchived": "Pokaż zamknięte i zarchiwizowane",
       "showMore": "Filtry",
@@ -631,6 +701,20 @@
       "priorities": "Priorytety",
       "clear": "Wyczyść",
       "resetAll": "Resetuj filtry"
+    },
+    "timeline": {
+      "noDeadline": "bez terminu",
+      "today": "dziś",
+      "inDays": "za {count} dni",
+      "inOneDay": "jutro",
+      "inWeeks": "za {count} tyg.",
+      "overdue": "{count} dni po terminie",
+      "overdueOne": "1 dzień po terminie",
+      "startsIn": "start {date}",
+      "links": "Powiązania",
+      "addLink": "Dodaj powiązanie",
+      "months": "Miesiące celu",
+      "years": "Lata priorytetu"
     },
     "sections": {
       "results": "Wyniki",
@@ -667,6 +751,7 @@
       "familyBody": "Utwórz pierwszy obiekt w tej rodzinie, aby zacząć korzystać z biblioteki.",
       "filteredTitle": "Żaden obiekt nie pasuje do bieżących filtrów.",
       "filteredBody": "Spróbuj poluzować filtry, poszerzyć okres albo pokazać zamknięte i zarchiwizowane obiekty.",
+      "filteredNarrowedBy": "Zawęża: {list}. Poluzuj jedno z tych ustawień albo pokaż zamknięte i zarchiwizowane.",
       "intentionsTitle": "Brak intencji — utwórz pierwszą albo zaplanuj tydzień."
     },
     "panel": {
@@ -1101,8 +1186,8 @@
         "title": "Określ wkład wybranej pracy"
       },
       "review": {
-        "label": "Przegląd",
-        "title": "Sprawdź przed utworzeniem"
+        "label": "Start",
+        "title": "Wprowadź kierunek w rytm"
       }
     },
     "meaning": {
@@ -1168,13 +1253,23 @@
       "existingBadge": "Z biblioteki"
     },
     "review": {
-      "meaningTitle": "Znaczenie",
-      "signalsTitle": "Sygnały",
-      "signalsEmpty": "Bez sygnałów — dodasz je w refleksji miesięcznej.",
-      "supportTitle": "Praca na start",
-      "supportEmpty": "Bez powiązanej pracy — uzupełnisz później.",
+      "identityTitle": "Tożsamość kierunku",
+      "iconLabel": "Ikona na Kompasie",
+      "iconPick": "Wybierz ikonę",
+      "iconHint": "Tak zobaczysz ten kierunek w Dzisiaj i w planie miesiąca.",
+      "lifeAreasLabel": "Obszary życia",
+      "lifeAreasEmpty": "Brak zdefiniowanych obszarów życia — możesz je dodać w Profilu.",
+      "rhythmTitle": "Wejście w rytm",
+      "monthFocusLabel": "Dodaj do fokusu miesiąca: {month}",
+      "monthFocusSlots": "Zajęte {count} z {max} miejsc.",
+      "monthFocusFull": "Fokus na {month} jest już pełny ({max}). Kierunek dołączy do planu w kolejnym miesiącu.",
+      "monthFocusDraft": "Szkic nie może być fokusem miesiąca — dołączy, gdy zwolni się miejsce w portfelu.",
+      "signalsReturn": "Sygnały ({count}) wrócą w refleksji miesięcznej za {month}.",
+      "signalsNone": "Bez sygnałów — dodasz je w refleksji miesięcznej.",
+      "workSummary": "Praca na start: {count} obiektów, w tym nowych szkiców: {newCount}.",
+      "workNone": "Bez powiązanej pracy — połączysz obiekty później w bibliotece.",
       "draftNotice": "Portfel jest pełny — priorytet zapisze się jako szkic czekający na slot.",
-      "pendingNotice": "Nowe propozycje ({count}) powstaną jako szkice."
+      "pendingNotice": "Nowe propozycje ({count}) powstaną jako szkice do dokończenia w bibliotece."
     },
     "footer": {
       "back": "Wstecz",
@@ -1188,6 +1283,8 @@
       "eyebrowActive": "Priorytet aktywny",
       "eyebrowDraft": "Szkic zapisany",
       "body": "Utworzono priorytet i powiązaną pracę.",
+      "bodyMonthFocus": "Kierunek jest już w fokusie miesiąca: {month}. Zobaczysz go na Kompasie w Dzisiaj.",
+      "goToToday": "Przejdź do Dzisiaj",
       "pendingTitle": "Do dokończenia",
       "pendingHint": "Te propozycje czekają na konfigurację w bibliotece obiektów.",
       "goToLibrary": "Przejdź do biblioteki"

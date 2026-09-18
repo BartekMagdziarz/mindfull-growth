@@ -27,7 +27,7 @@
   min-height: 100%;
   padding: 20px 24px 40px;
   color: var(--mg-color-ink);
-  background: var(--cp-page);
+  background: transparent;
   font-family: var(--mg-font-sans);
 }
 .cp *,
@@ -55,19 +55,7 @@
   max-width: 1180px;
   margin: 0 auto;
   padding: 22px 24px 24px;
-  border: 1px solid var(--cp-line);
-  border-radius: 35px 28px 33px 26px;
-  background: var(--cp-page);
-}
-/* A second, barely visible edge: the pencil line of the Lab's paper. */
-.cp__paper::after {
-  content: '';
-  position: absolute;
-  inset: 3px 2px 2px 3px;
-  border: 1px solid var(--cp-hairline);
-  border-radius: inherit;
-  transform: rotate(0.06deg);
-  pointer-events: none;
+  /* Layout only: the calendar modules carry their own surfaces. */
 }
 
 .cp__head {
@@ -148,7 +136,7 @@
   box-shadow: var(--mg-shadow-rhythm-card);
 }
 .cp-btn:hover {
-  background: white;
+  background: var(--cp-inner);
 }
 .cp-btn .material-symbols-outlined {
   font-size: 18px;

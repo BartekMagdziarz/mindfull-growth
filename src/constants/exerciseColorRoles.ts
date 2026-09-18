@@ -179,3 +179,30 @@ export const EXERCISE_CATEGORY_CLASSES: Record<
     text: 'text-exercise-micro-on',
   },
 }
+
+/**
+ * Icon-board tint per category (Design V2 `.mg-v2-icon-board--tinted`):
+ * CSS variables set inline from the category tokens, blended by the anatomy.
+ */
+export const EXERCISE_CATEGORY_TINT_STYLE: Record<ExerciseCategory, Record<string, string>> = {
+  'self-discovery': {
+    '--mg-icon-board-tint': 'rgb(var(--exercise-discovery-soft))',
+    '--mg-icon-board-ink': 'rgb(var(--exercise-discovery-on))',
+  },
+  cbt: {
+    '--mg-icon-board-tint': 'rgb(var(--exercise-cbt-soft))',
+    '--mg-icon-board-ink': 'rgb(var(--exercise-cbt-on))',
+  },
+  logotherapy: {
+    '--mg-icon-board-tint': 'rgb(var(--exercise-logo-soft))',
+    '--mg-icon-board-ink': 'rgb(var(--exercise-logo-on))',
+  },
+  ifs: {
+    '--mg-icon-board-tint': 'rgb(var(--exercise-ifs-soft))',
+    '--mg-icon-board-ink': 'rgb(var(--exercise-ifs-on))',
+  },
+  micro: {
+    '--mg-icon-board-tint': 'rgb(var(--exercise-micro-soft))',
+    '--mg-icon-board-ink': 'rgb(var(--exercise-micro-on))',
+  },
+}

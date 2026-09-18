@@ -1,4 +1,6 @@
 {
+  "title": "History",
+  "subtitle": "Journal entries and emotion logs in one place.",
   "loading": "Loading entries...",
   "errorTitle": "Unable to load entries",
   "tryAgain": "Try again",

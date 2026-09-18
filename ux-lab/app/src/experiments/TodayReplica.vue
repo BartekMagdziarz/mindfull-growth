@@ -1,5 +1,8 @@
 <template>
-  <FocusBoardReplica v-if="props.variantId === 'focus-board-v1'" :preset-id="props.presetId" initial-scale="day" />
+  <ActionFocusDayReplica v-if="focusDayVariant" :preset-id="props.presetId" :variant="focusDayVariant" />
+  <component :is="conceptComponent" v-else-if="conceptComponent" :preset-id="props.presetId" />
+  <ActionBoardReplica v-else-if="props.variantId.startsWith('action-')" :preset-id="props.presetId" :variant-id="props.variantId" />
+  <FocusBoardReplica v-else-if="props.variantId === 'focus-board-v1'" :preset-id="props.presetId" initial-scale="day" />
   <TodaySketchbookReplica v-else-if="props.variantId === 'sketchbook-v1'" />
   <div v-else class="product-replica today-lab" :class="`today-lab--${activeVariant}`">
     <header class="today-lab__toolbar">
@@ -347,6 +350,13 @@
 import { computed, ref } from 'vue'
 import AppIcon from '@product/components/shared/AppIcon.vue'
 import type { LabChartPoint, LabFixtureObject } from '@product/dev/richVerificationScenario'
+import ActionBoardReplica from '~lab/experiments/ActionBoardReplica.vue'
+import ActionFocusDayReplica from '~lab/experiments/ActionFocusDayReplica.vue'
+import ActionNotebookReplica from '~lab/experiments/ActionNotebookReplica.vue'
+import ActionNowQueueReplica from '~lab/experiments/ActionNowQueueReplica.vue'
+import ActionQuietPlanReplica from '~lab/experiments/ActionQuietPlanReplica.vue'
+import ActionTargetPulseReplica from '~lab/experiments/ActionTargetPulseReplica.vue'
+import ActionWeekBoardReplica from '~lab/experiments/ActionWeekBoardReplica.vue'
 import FocusBoardReplica from '~lab/experiments/FocusBoardReplica.vue'
 import TodaySketchbookReplica from '~lab/experiments/TodaySketchbookReplica.vue'
 import { useLabStore } from '~lab/stores/lab.store'
@@ -354,6 +364,22 @@ import { useLabStore } from '~lab/stores/lab.store'
 const props = withDefaults(defineProps<{ presetId: string; variantId?: string }>(), {
   variantId: 'shared-axis-v1',
 })
+
+const conceptComponents: Record<string, unknown> = {
+  'action2-notebook-v1': ActionNotebookReplica,
+  'action2-queue-v1': ActionNowQueueReplica,
+  'action2-board-v1': ActionWeekBoardReplica,
+  'action2-quiet-v1': ActionQuietPlanReplica,
+  'action2-pulse-v1': ActionTargetPulseReplica,
+}
+const conceptComponent = computed(() => conceptComponents[props.variantId] ?? null)
+
+const focusDayVariants: Record<string, 'stage-top' | 'stage-rail' | 'stage-inline'> = {
+  'action3-stage-top-v1': 'stage-top',
+  'action3-stage-rail-v1': 'stage-rail',
+  'action3-stage-inline-v1': 'stage-inline',
+}
+const focusDayVariant = computed(() => focusDayVariants[props.variantId] ?? null)
 
 type Family = LabFixtureObject['family']
 type FocusPeriod = 'year' | 'month' | 'week'

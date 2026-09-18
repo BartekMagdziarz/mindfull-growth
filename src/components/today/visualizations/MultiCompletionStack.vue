@@ -18,11 +18,11 @@
         :aria-label="isCellInteractive(slot) ? cellTitle(slot, row) : undefined"
         @click="isCellInteractive(slot) && $emit('toggle-item', row.id)"
       >
-        <span
+        <AppIcon
           v-if="row.icon"
           class="material-symbols-outlined mcs-cell__icon"
           aria-hidden="true"
-        >{{ row.icon }}</span>
+         :name="row.icon" />
         <span v-else class="mcs-cell__dot" aria-hidden="true" />
       </component>
 
@@ -33,6 +33,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import type {
   MultiCompletionStackData,
   MultiCompletionStackRow,

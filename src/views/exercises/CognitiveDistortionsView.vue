@@ -1,25 +1,15 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="flex items-center gap-4 mb-6">
-      <button
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        @click="router.push('/exercises')"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.cognitiveDistortions.title') }}</h1>
-        <p class="text-sm text-on-surface-variant">{{ t('exercises.cards.cognitiveDistortions.subtitle') }}</p>
-      </div>
-    </div>
-
+  <ExercisePage
+    :title="t('exercises.cards.cognitiveDistortions.title')"
+    :subtitle="t('exercises.cards.cognitiveDistortions.subtitle')"
+  >
     <CognitiveDistortionsWizard v-if="!saved" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="cognitive-distortions" @again="saved = false" />
 
     <!-- Past assessments -->
     <template v-if="distortionStore.sortedAssessments.length > 0">
       <div class="mt-10 space-y-4">
-        <h2 class="text-base font-semibold text-on-surface">{{ t('exercises.views.pastAssessments') }}</h2>
+        <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastAssessments') }}</h2></div>
         <AppCard
           v-for="assessment in distortionStore.sortedAssessments"
           :key="assessment.id"
@@ -43,13 +33,12 @@
         </AppCard>
       </div>
     </template>
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import CognitiveDistortionsWizard from '@/components/exercises/CognitiveDistortionsWizard.vue'
@@ -57,7 +46,6 @@ import { useDistortionAssessmentStore } from '@/stores/distortionAssessment.stor
 import type { CreateDistortionAssessmentPayload } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
 
-const router = useRouter()
 const { t } = useT()
 const distortionStore = useDistortionAssessmentStore()
 const saved = ref(false)

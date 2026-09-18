@@ -9,27 +9,17 @@
 
     <template v-else>
       <!-- Header -->
-      <div class="flex items-start justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div
-            class="w-12 h-12 rounded-full flex items-center justify-center"
-            :style="area.color ? { backgroundColor: area.color + '20' } : {}"
-            :class="!area.color ? 'bg-primary/10' : ''"
+      <PageHeader :title="area.name" :description="area.meaning || ''" :back-to="'/areas'">
+        <template #leading>
+          <span
+            class="mg-v2-icon-board mg-v2-icon-board--sm mg-v2-icon-board--tinted"
+            :style="area.color ? { '--mg-icon-board-tint': area.color, '--mg-icon-board-tint-mix': '26%' } : undefined"
+            aria-hidden="true"
           >
-            <EntityIcon
-              :icon="area.icon"
-              :color="area.color"
-              size="lg"
-            />
-          </div>
-          <div>
-            <h1 class="text-xl font-bold text-on-surface">{{ area.name }}</h1>
-            <p v-if="area.meaning" class="text-sm text-on-surface-variant">
-              {{ area.meaning }}
-            </p>
-          </div>
-        </div>
-        <div class="flex gap-2">
+            <EntityIcon :icon="area.icon" :color="area.color" size="md" :circle="false" />
+          </span>
+        </template>
+        <template #actions>
           <AppButton variant="outlined" @click="router.push(`/areas/${area.id}/edit`)">
             {{ t('lifeAreas.detail.editButton') }}
           </AppButton>
@@ -47,8 +37,8 @@
           >
             {{ t('lifeAreas.detail.reactivateButton') }}
           </AppButton>
-        </div>
-      </div>
+        </template>
+      </PageHeader>
 
       <!-- Metadata Cards -->
       <div class="space-y-4">
@@ -110,6 +100,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 import LifeAreaLinkedEntities from '@/components/lifeAreas/LifeAreaLinkedEntities.vue'
 import EntityIcon from '@/components/shared/EntityIcon.vue'

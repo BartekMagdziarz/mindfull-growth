@@ -1,4 +1,5 @@
 {
+  "appName": "Mindful Growth",
   "nav": {
     "today": "Dzisiaj",
     "calendar": "Kalendarz",
@@ -97,5 +98,15 @@
   "profileContext": {
     "on": "Profil wł.",
     "off": "Profil wył."
+  },
+  "stepper": {
+    "done": "ukończony",
+    "current": "bieżący"
+  },
+  "iconPicker": {
+    "select": "Wybierz ikonę",
+    "search": "Szukaj ikony",
+    "clear": "Wyczyść",
+    "noResults": "Brak ikon pasujących do „{query}”."
   }
 }

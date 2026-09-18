@@ -1,5 +1,5 @@
 <template>
-  <section v-if="pendingLinks.length" class="mg-v2-surface mg-v2-surface--inset space-y-3 p-4 text-left">
+  <section v-if="pendingLinks.length" class="mg-v2-surface mg-v2-surface--flat space-y-3 p-4 text-left">
     <div>
       <p class="flex items-center gap-2 text-sm font-semibold text-on-surface">
         {{ t('planning.priorityRitual.drafts.title') }}

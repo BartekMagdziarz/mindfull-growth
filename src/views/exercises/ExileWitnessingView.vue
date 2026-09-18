@@ -1,18 +1,8 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <div class="flex items-center gap-4 mb-6">
-      <button
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        @click="router.push('/exercises')"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.exileWitnessing.title') }}</h1>
-        <p class="text-sm text-on-surface-variant">{{ t('exercises.cards.exileWitnessing.subtitle') }}</p>
-      </div>
-    </div>
-
+  <ExercisePage
+    :title="t('exercises.cards.exileWitnessing.title')"
+    :subtitle="t('exercises.cards.exileWitnessing.subtitle')"
+  >
     <IFSSafetyBanner class="mb-6" />
 
     <ExileWitnessingWizard v-if="!saved" @saved="handleSaved" />
@@ -20,7 +10,7 @@
 
     <!-- Past Witnessings -->
     <div class="mt-10 space-y-4">
-      <h2 class="text-base font-semibold text-on-surface">{{ t('exercises.views.pastWitnessings') }}</h2>
+      <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastWitnessings') }}</h2></div>
 
       <template v-if="sortedWitnessings.length">
         <AppCard
@@ -67,13 +57,12 @@
         {{ tg('exercises.views.noWitnessingsYet') }}
       </p>
     </div>
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
@@ -84,7 +73,6 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import type { IFSExilePostState } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
 
-const router = useRouter()
 const { t, tg } = useT()
 const witnessingStore = useIFSExileWitnessingStore()
 const partStore = useIFSPartStore()

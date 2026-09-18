@@ -37,7 +37,7 @@
       :key="'line-' + si"
       :d="piece.linePath"
       fill="none"
-      stroke="rgb(var(--sky-600))"
+      stroke="rgb(var(--sky-800))"
       stroke-width="3"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -50,7 +50,7 @@
       :cx="endpoint.x"
       :cy="endpoint.y"
       r="4"
-      fill="rgb(var(--sky-600))"
+      fill="rgb(var(--sky-800))"
     />
 
     <!-- Period labels -->

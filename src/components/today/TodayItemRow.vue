@@ -74,11 +74,11 @@
             :aria-pressed="multiCheckedIds.has(multiItem.id)"
             @click="$emit('toggle-multi-item', multiItem.id)"
           >
-            <span
+            <AppIcon
               v-if="multiItem.icon"
               class="material-symbols-outlined text-[15px] leading-none"
               aria-hidden="true"
-            >{{ multiItem.icon }}</span>
+             :name="multiItem.icon" />
             <span v-else class="text-[11px] font-semibold leading-none">
               {{ multiItem.label.slice(0, 1).toUpperCase() }}
             </span>

@@ -1,19 +1,9 @@
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 pb-24">
-    <!-- Header -->
-    <div class="flex items-center gap-4 mb-6">
-      <button
-        class="neo-back-btn p-2 text-neu-text neo-focus"
-        @click="handleBack"
-      >
-        <AppIcon name="arrow_back" class="text-2xl" />
-      </button>
-      <div>
-        <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.cards.positiveDataLog.title') }}</h1>
-        <p class="text-sm text-on-surface-variant">{{ t('exercises.cards.positiveDataLog.subtitle') }}</p>
-      </div>
-    </div>
-
+  <ExercisePage
+    :title="t('exercises.cards.positiveDataLog.title')"
+    :subtitle="t('exercises.cards.positiveDataLog.subtitle')"
+    :back-to="handleBack"
+  >
     <!-- Loading state -->
     <div v-if="positiveDataLogStore.isLoading" class="neo-embedded p-6 text-center">
       <p class="text-sm text-on-surface-variant">{{ t('exercises.views.loadingLogs') }}</p>
@@ -31,7 +21,7 @@
     <template v-else-if="!selectedLogId">
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-on-surface">{{ t('exercises.views.yourLogs') }}</h2>
+          <div class="mg-v2-section-head"><h2>{{ t('exercises.views.yourLogs') }}</h2></div>
           <AppButton variant="tonal" @click="showSetupWizard = true">
             <AppIcon name="add" class="text-base" />
             {{ t('exercises.views.newLog') }}
@@ -108,13 +98,14 @@
         <RepeatPlanPrompt exercise-slug="positive-data-log" />
       </AppCard>
     </template>
-  </div>
+  </ExercisePage>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PositiveDataLogWizard from '@/components/exercises/PositiveDataLogWizard.vue'

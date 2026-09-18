@@ -95,6 +95,8 @@ export const useTodayStore = defineStore('today', () => {
   const pinnedKey = ref<string | null>(null)
   const highlightKey = computed(() => hoverKey.value ?? pinnedKey.value)
   /** Row being moved through the calendar ("Wybierz dzień"); the calendar opens while set. */
+  const selectedItemKey = ref<string | null>(null)
+  const draggingItemKey = ref<string | null>(null)
   const targetingItem = ref<TodayItem | null>(null)
   /** Day picked for the targeting item — consumed by the rail, which owns the move + snackbar. */
   const pendingPick = ref<{ item: TodayItem; dayRef: DayRef } | null>(null)
@@ -681,6 +683,8 @@ export const useTodayStore = defineStore('today', () => {
    * Today bundle before the view re-fetches from the new database.
    */
   function reset(): void {
+    selectedItemKey.value = null
+    draggingItemKey.value = null
     bundle.value = null
     isLoading.value = false
     error.value = null
@@ -734,6 +738,8 @@ export const useTodayStore = defineStore('today', () => {
     hoverKey,
     pinnedKey,
     highlightKey,
+    selectedItemKey,
+    draggingItemKey,
     targetingItem,
     pendingPick,
     setHoverKey,

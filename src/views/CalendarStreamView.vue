@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
@@ -386,14 +388,12 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
           :aria-label="t('planning.calendar.stream.prevPeriod')"
           @click="goPrev"
         >
-          <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+          <AppIcon class="material-symbols-outlined" aria-hidden="true" name="chevron_left" />
         </button>
 
         <div class="stream-spine__crumbs">
           <template v-for="(crumb, i) in spine" :key="crumb.key">
-            <span v-if="i > 0" class="material-symbols-outlined stream-spine__sep" aria-hidden="true"
-              >chevron_right</span
-            >
+            <AppIcon v-if="i > 0" class="material-symbols-outlined stream-spine__sep" aria-hidden="true" name="chevron_right" />
             <button
               v-if="crumb.onClick"
               type="button"
@@ -414,19 +414,17 @@ const scaleHintIcon = computed(() => (scale.value === 'week' ? 'today' : 'ads_cl
           :aria-label="t('planning.calendar.stream.nextPeriod')"
           @click="goNext"
         >
-          <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          <AppIcon class="material-symbols-outlined" aria-hidden="true" name="chevron_right" />
         </button>
 
         <button type="button" class="stream-today neo-focus" @click="goToday">
-          <span class="material-symbols-outlined stream-today__icon" aria-hidden="true">today</span>
+          <AppIcon class="material-symbols-outlined stream-today__icon" aria-hidden="true" name="today" />
           {{ t('planning.calendar.stream.today') }}
         </button>
       </div>
 
       <div class="stream-spine__hint">
-        <span class="material-symbols-outlined stream-spine__hint-icon" aria-hidden="true">{{
-          scaleHintIcon
-        }}</span>
+        <AppIcon class="material-symbols-outlined stream-spine__hint-icon" aria-hidden="true" :name="scaleHintIcon" />
         {{ scaleHint }}
       </div>
     </div>

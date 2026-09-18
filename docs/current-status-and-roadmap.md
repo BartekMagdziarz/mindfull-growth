@@ -4,11 +4,18 @@ Aktualizacja: 2026-08-15. Ten dokument jest krótkim, bieżącym punktem wejści
 
 ## Co jest obecnie źródłem prawdy
 
-- `Planning Next` jest domyślnym interfejsem tras `/calendar/day`, `/calendar/week`, `/calendar/month` i `/calendar/year`.
+- `Planning Next` jest domyślnym interfejsem tras `/today/:dayRef` (Dzisiaj — własny widok dnia bez przełącznika skal, `TodayWorkspace`), `/calendar/week`, `/calendar/month` i `/calendar/year` (kalendarz rytmu). `/calendar/day/:dayRef` tylko przekierowuje do `/today/:dayRef`; `/calendar` otwiera bieżący tydzień (od 2026-09-10).
 - `?ui=legacy` otwiera poprzedni interfejs. Pozostaje potrzebny do regresji i porównania do czasu jawnej decyzji o jego usunięciu.
 - `src/dev/verificationSeed.ts` i profil `rich-v1` są źródłem realistycznego, powtarzalnego stanu do QA.
 - `ux-lab/app` jest odizolowanym workbenchem projektowym. Wybrane rozwiązania należy portować do produktu, a nie importować z niego runtime'u laboratorium.
 - `docs/planning-reflection-roadmap.md` opisuje historię i szczegóły pętli planowanie–refleksja; poniższa lista ma pierwszeństwo jako kolejność najbliższej pracy.
+
+## Design V2 na całej aplikacji (2026-09-10)
+
+- Korzeń `.mg-design-v2` przeniesiony na `<main>` powłoki; `AppCard`/`AppButton` renderują anatomie V2, brakujące klasy `neo-*` mostkuje `adapters.css`. Dzięki temu 35 widoków ćwiczeń, 40 kreatorów, profil, historia, obszary życia, logowanie i czat czytają się jako V2 bez przepisywania treści.
+- Nowe współdzielone elementy: `PageHeader`, `ExercisePage`, `ExerciseStepper`, anatomie `page-head / section-head / sheet / icon-board / tile / stepper` w `src/design-system/base.css`.
+- Plan i recepta stylu „rysunkowego”: `ideas/html-plans/2026-09-10-design-v2-remaining-views.html`. Screenshoty QA: `ideas/qa/v2shots/` (skrypt `ideas/qa/v2shots.mjs` na `dev:verify`).
+- Otwarte: zamiana 34 kopii wskaźnika kroków w kreatorach na `ExerciseStepper` (mechanicznie), usunięcie martwych klas `neo-*` z `main.css` po zaniku konsumentów, martwe widoki `JournalView`/`EmotionsView` (nieroutowane) do usunięcia w osobnej zmianie.
 
 ## Co zostało domknięte podczas porządkowania
 

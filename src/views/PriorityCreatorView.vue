@@ -4,6 +4,7 @@
       <PriorityCreatorRitual
         @close="handleLeave"
         @finished="handleFinished"
+        @go-today="handleGoToday"
         @notify="showSnackbar"
         @error="showSnackbar"
       />
@@ -40,6 +41,11 @@ function handleLeave(): void {
 
 function handleFinished(): void {
   void router.push(resolveReturnTarget())
+}
+
+/** The new direction is visible on the Compass right away — offer to go and see it. */
+function handleGoToday(): void {
+  void router.push('/today')
 }
 
 function showSnackbar(message: string): void {

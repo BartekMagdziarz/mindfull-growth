@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed } from 'vue'
 import StreamCard from './StreamCard.vue'
 import StreamRing from './StreamRing.vue'
@@ -111,9 +113,8 @@ const exerciseCountText = computed(() =>
     <div class="stream-day__indicators">
       <div class="stream-day__indicator">
         <span class="stream-day__journal" :style="journalBoxStyle">
-          <span class="material-symbols-outlined" :style="journalIconStyle" aria-hidden="true"
-            >edit_note</span
-          >
+          <AppIcon class="material-symbols-outlined" :style="journalIconStyle" aria-hidden="true"
+             name="edit_note" />
         </span>
         <span class="stream-day__indicator-name">{{ journalLabel }}</span>
       </div>

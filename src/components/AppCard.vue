@@ -18,11 +18,13 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const cardClasses = computed(() => {
+  // Design V2 tonal ladder: raised cards are the only level with a shadow,
+  // `flat` is a shadowless card, `inset` is a nested block in the field tone.
   const variantClasses = {
-    raised: 'neo-card',
-    'raised-strong': 'neo-card neo-raised-strong',
-    flat: 'neo-card shadow-neu-flat',
-    inset: 'neo-surface',
+    raised: 'mg-v2-surface mg-v2-surface--raised-sm',
+    'raised-strong': 'mg-v2-surface mg-v2-surface--raised',
+    flat: 'mg-v2-surface',
+    inset: 'mg-v2-surface mg-v2-surface--flat',
   }
 
   const paddingClasses = {

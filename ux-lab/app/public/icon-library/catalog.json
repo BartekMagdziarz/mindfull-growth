@@ -1,0 +1,1689 @@
+[
+  {
+    "id": "journal",
+    "label": "Dziennik",
+    "category": "reflection",
+    "tags": "journal",
+    "collection": 1
+  },
+  {
+    "id": "calendar",
+    "label": "Kalendarz",
+    "category": "planning",
+    "tags": "calendar",
+    "collection": 1
+  },
+  {
+    "id": "goal",
+    "label": "Cel",
+    "category": "planning",
+    "tags": "goal",
+    "collection": 1
+  },
+  {
+    "id": "habit",
+    "label": "Nawyk",
+    "category": "planning",
+    "tags": "habit",
+    "collection": 1
+  },
+  {
+    "id": "priority",
+    "label": "Priorytet",
+    "category": "planning",
+    "tags": "priority",
+    "collection": 1
+  },
+  {
+    "id": "reflection",
+    "label": "Refleksja",
+    "category": "reflection",
+    "tags": "reflection",
+    "collection": 1
+  },
+  {
+    "id": "emotion",
+    "label": "Emocje",
+    "category": "reflection",
+    "tags": "emotion",
+    "collection": 1
+  },
+  {
+    "id": "relations",
+    "label": "Relacje",
+    "category": "life",
+    "tags": "relations",
+    "collection": 1
+  },
+  {
+    "id": "rest",
+    "label": "Odpoczynek",
+    "category": "activity",
+    "tags": "rest",
+    "collection": 1
+  },
+  {
+    "id": "growth",
+    "label": "Rozwój",
+    "category": "life",
+    "tags": "growth",
+    "collection": 1
+  },
+  {
+    "id": "edit",
+    "label": "Edycja",
+    "category": "interface",
+    "tags": "edit",
+    "collection": 1
+  },
+  {
+    "id": "filter",
+    "label": "Filtr",
+    "category": "interface",
+    "tags": "filter",
+    "collection": 1
+  },
+  {
+    "id": "task",
+    "label": "Zadanie",
+    "category": "planning",
+    "tags": "check lista wykonanie",
+    "collection": 1
+  },
+  {
+    "id": "tracker",
+    "label": "Tracker",
+    "category": "planning",
+    "tags": "pomiar obserwacja zapis",
+    "collection": 1
+  },
+  {
+    "id": "intention",
+    "label": "Intencja",
+    "category": "planning",
+    "tags": "zamiar kierunek",
+    "collection": 1
+  },
+  {
+    "id": "result",
+    "label": "Rezultat",
+    "category": "planning",
+    "tags": "wynik kamień milowy",
+    "collection": 1
+  },
+  {
+    "id": "today",
+    "label": "Dzisiaj",
+    "category": "planning",
+    "tags": "słońce dzień rano",
+    "collection": 1
+  },
+  {
+    "id": "week",
+    "label": "Tydzień",
+    "category": "planning",
+    "tags": "plan siedem dni",
+    "collection": 1
+  },
+  {
+    "id": "month",
+    "label": "Miesiąc",
+    "category": "planning",
+    "tags": "plan miesiąca",
+    "collection": 1
+  },
+  {
+    "id": "year",
+    "label": "Rok",
+    "category": "planning",
+    "tags": "plan roczny",
+    "collection": 1
+  },
+  {
+    "id": "time",
+    "label": "Czas",
+    "category": "planning",
+    "tags": "godzina termin zegar",
+    "collection": 1
+  },
+  {
+    "id": "reminder",
+    "label": "Przypomnienie",
+    "category": "planning",
+    "tags": "powiadomienie dzwonek",
+    "collection": 1
+  },
+  {
+    "id": "thought",
+    "label": "Myśl",
+    "category": "reflection",
+    "tags": "myślenie chmura",
+    "collection": 1
+  },
+  {
+    "id": "insight",
+    "label": "Wgląd",
+    "category": "reflection",
+    "tags": "pomysł zrozumienie żarówka",
+    "collection": 1
+  },
+  {
+    "id": "gratitude",
+    "label": "Wdzięczność",
+    "category": "reflection",
+    "tags": "docenianie dar prezent",
+    "collection": 1
+  },
+  {
+    "id": "values",
+    "label": "Wartości",
+    "category": "reflection",
+    "tags": "kompas zasady",
+    "collection": 1
+  },
+  {
+    "id": "needs",
+    "label": "Potrzeby",
+    "category": "reflection",
+    "tags": "opieka wsparcie dłonie",
+    "collection": 1
+  },
+  {
+    "id": "boundaries",
+    "label": "Granice",
+    "category": "reflection",
+    "tags": "bezpieczeństwo ochrona tarcza",
+    "collection": 1
+  },
+  {
+    "id": "beliefs",
+    "label": "Przekonania",
+    "category": "reflection",
+    "tags": "perspektywa interpretacja",
+    "collection": 1
+  },
+  {
+    "id": "breath",
+    "label": "Oddech",
+    "category": "reflection",
+    "tags": "uważność medytacja",
+    "collection": 1
+  },
+  {
+    "id": "self-compassion",
+    "label": "Życzliwość dla siebie",
+    "category": "reflection",
+    "tags": "współczucie łagodność",
+    "collection": 1
+  },
+  {
+    "id": "anchor",
+    "label": "Kotwice",
+    "category": "reflection",
+    "tags": "lekcja wspomnienie podsumowanie",
+    "collection": 1
+  },
+  {
+    "id": "exercise",
+    "label": "Ćwiczenia refleksyjne",
+    "category": "reflection",
+    "tags": "praktyka psychologia terapia",
+    "collection": 1
+  },
+  {
+    "id": "health",
+    "label": "Zdrowie",
+    "category": "life",
+    "tags": "serce dobrostan ciało",
+    "collection": 1
+  },
+  {
+    "id": "family",
+    "label": "Rodzina",
+    "category": "life",
+    "tags": "bliscy dzieci",
+    "collection": 1
+  },
+  {
+    "id": "home",
+    "label": "Dom",
+    "category": "life",
+    "tags": "mieszkanie otoczenie",
+    "collection": 1
+  },
+  {
+    "id": "work",
+    "label": "Praca",
+    "category": "life",
+    "tags": "kariera zawód biuro",
+    "collection": 1
+  },
+  {
+    "id": "finance",
+    "label": "Finanse",
+    "category": "life",
+    "tags": "pieniądze budżet portfel",
+    "collection": 1
+  },
+  {
+    "id": "savings",
+    "label": "Oszczędności",
+    "category": "life",
+    "tags": "pieniądze skarbonka",
+    "collection": 1
+  },
+  {
+    "id": "learning",
+    "label": "Nauka",
+    "category": "life",
+    "tags": "wiedza edukacja",
+    "collection": 1
+  },
+  {
+    "id": "creativity",
+    "label": "Twórczość",
+    "category": "life",
+    "tags": "sztuka malowanie paleta",
+    "collection": 1
+  },
+  {
+    "id": "community",
+    "label": "Społeczność",
+    "category": "life",
+    "tags": "ludzie przyjaźń grupa",
+    "collection": 1
+  },
+  {
+    "id": "partnership",
+    "label": "Partnerstwo",
+    "category": "life",
+    "tags": "para miłość bliskość",
+    "collection": 1
+  },
+  {
+    "id": "meaning",
+    "label": "Sens",
+    "category": "life",
+    "tags": "kierunek życie latarnia",
+    "collection": 1
+  },
+  {
+    "id": "balance",
+    "label": "Równowaga",
+    "category": "life",
+    "tags": "balans harmonia",
+    "collection": 1
+  },
+  {
+    "id": "sleep",
+    "label": "Sen",
+    "category": "activity",
+    "tags": "łóżko noc regeneracja",
+    "collection": 1
+  },
+  {
+    "id": "walk",
+    "label": "Spacer",
+    "category": "activity",
+    "tags": "ruch chodzenie",
+    "collection": 1
+  },
+  {
+    "id": "run",
+    "label": "Bieganie",
+    "category": "activity",
+    "tags": "ruch cardio trening",
+    "collection": 1
+  },
+  {
+    "id": "strength",
+    "label": "Siła",
+    "category": "activity",
+    "tags": "hantle trening siłownia",
+    "collection": 1
+  },
+  {
+    "id": "bike",
+    "label": "Rower",
+    "category": "activity",
+    "tags": "ruch jazda transport",
+    "collection": 1
+  },
+  {
+    "id": "yoga",
+    "label": "Joga",
+    "category": "activity",
+    "tags": "rozciąganie ciało spokój",
+    "collection": 1
+  },
+  {
+    "id": "food",
+    "label": "Odżywianie",
+    "category": "activity",
+    "tags": "jedzenie gotowanie dieta",
+    "collection": 1
+  },
+  {
+    "id": "water",
+    "label": "Nawodnienie",
+    "category": "activity",
+    "tags": "woda picie",
+    "collection": 1
+  },
+  {
+    "id": "reading",
+    "label": "Czytanie",
+    "category": "activity",
+    "tags": "książka lektura",
+    "collection": 1
+  },
+  {
+    "id": "music",
+    "label": "Muzyka",
+    "category": "activity",
+    "tags": "słuchanie dźwięk",
+    "collection": 1
+  },
+  {
+    "id": "nature",
+    "label": "Natura",
+    "category": "activity",
+    "tags": "las drzewo ogród",
+    "collection": 1
+  },
+  {
+    "id": "travel",
+    "label": "Podróże",
+    "category": "activity",
+    "tags": "wyjazd odkrywanie mapa",
+    "collection": 1
+  },
+  {
+    "id": "ritual",
+    "label": "Codzienny rytuał",
+    "category": "activity",
+    "tags": "kawa herbata przerwa",
+    "collection": 1
+  },
+  {
+    "id": "add",
+    "label": "Dodaj",
+    "category": "interface",
+    "tags": "nowy plus",
+    "collection": 1
+  },
+  {
+    "id": "remove",
+    "label": "Odejmij",
+    "category": "interface",
+    "tags": "minus zmniejsz",
+    "collection": 1
+  },
+  {
+    "id": "close",
+    "label": "Zamknij",
+    "category": "interface",
+    "tags": "anuluj krzyżyk",
+    "collection": 1
+  },
+  {
+    "id": "check",
+    "label": "Zatwierdź",
+    "category": "interface",
+    "tags": "tak gotowe zapis",
+    "collection": 1
+  },
+  {
+    "id": "search",
+    "label": "Szukaj",
+    "category": "interface",
+    "tags": "lupa znajdź",
+    "collection": 1
+  },
+  {
+    "id": "more",
+    "label": "Więcej",
+    "category": "interface",
+    "tags": "menu opcje",
+    "collection": 1
+  },
+  {
+    "id": "delete",
+    "label": "Usuń",
+    "category": "interface",
+    "tags": "kosz usuwanie",
+    "collection": 1
+  },
+  {
+    "id": "archive",
+    "label": "Archiwizuj",
+    "category": "interface",
+    "tags": "schowaj archiwum",
+    "collection": 1
+  },
+  {
+    "id": "link",
+    "label": "Powiąż",
+    "category": "interface",
+    "tags": "relacja połącz",
+    "collection": 1
+  },
+  {
+    "id": "copy",
+    "label": "Duplikuj",
+    "category": "interface",
+    "tags": "kopiuj kopia",
+    "collection": 1
+  },
+  {
+    "id": "undo",
+    "label": "Cofnij",
+    "category": "interface",
+    "tags": "przywróć powrót",
+    "collection": 1
+  },
+  {
+    "id": "redo",
+    "label": "Ponów",
+    "category": "interface",
+    "tags": "dalej przywróć",
+    "collection": 1
+  },
+  {
+    "id": "settings",
+    "label": "Ustawienia",
+    "category": "interface",
+    "tags": "preferencje opcje",
+    "collection": 1
+  },
+  {
+    "id": "info",
+    "label": "Informacja",
+    "category": "interface",
+    "tags": "pomoc wskazówka",
+    "collection": 1
+  },
+  {
+    "id": "help",
+    "label": "Pomoc",
+    "category": "interface",
+    "tags": "pytanie wyjaśnienie",
+    "collection": 1
+  },
+  {
+    "id": "pause",
+    "label": "Wstrzymaj",
+    "category": "interface",
+    "tags": "pauza zatrzymaj",
+    "collection": 1
+  },
+  {
+    "id": "play",
+    "label": "Rozpocznij",
+    "category": "interface",
+    "tags": "wznów start",
+    "collection": 1
+  },
+  {
+    "id": "lock",
+    "label": "Prywatność",
+    "category": "interface",
+    "tags": "hasło bezpieczeństwo kłódka",
+    "collection": 1
+  },
+  {
+    "id": "back",
+    "label": "Wstecz",
+    "category": "navigation",
+    "tags": "strzałka lewo",
+    "collection": 1
+  },
+  {
+    "id": "forward",
+    "label": "Dalej",
+    "category": "navigation",
+    "tags": "strzałka prawo",
+    "collection": 1
+  },
+  {
+    "id": "up",
+    "label": "Zwiń",
+    "category": "navigation",
+    "tags": "strzałka góra",
+    "collection": 1
+  },
+  {
+    "id": "down",
+    "label": "Rozwiń",
+    "category": "navigation",
+    "tags": "strzałka dół",
+    "collection": 1
+  },
+  {
+    "id": "menu",
+    "label": "Menu",
+    "category": "navigation",
+    "tags": "nawigacja lista",
+    "collection": 1
+  },
+  {
+    "id": "profile",
+    "label": "Profil",
+    "category": "navigation",
+    "tags": "konto użytkownik",
+    "collection": 1
+  },
+  {
+    "id": "library",
+    "label": "Biblioteka",
+    "category": "navigation",
+    "tags": "obiekty katalog kolekcja",
+    "collection": 1
+  },
+  {
+    "id": "history",
+    "label": "Historia",
+    "category": "navigation",
+    "tags": "przeszłość ostatnie",
+    "collection": 1
+  },
+  {
+    "id": "checklist",
+    "label": "Checklista",
+    "category": "planning",
+    "tags": "lista kroki wykonanie odhaczanie",
+    "collection": 2
+  },
+  {
+    "id": "subtasks",
+    "label": "Podzadania",
+    "category": "planning",
+    "tags": "rozbij etapy mniejsze kroki hierarchia",
+    "collection": 2
+  },
+  {
+    "id": "reschedule",
+    "label": "Przenieś termin",
+    "category": "planning",
+    "tags": "przełóż data zaplanuj zmiana",
+    "collection": 2
+  },
+  {
+    "id": "timer",
+    "label": "Czas trwania",
+    "category": "planning",
+    "tags": "minuty stoper skupienie sesja",
+    "collection": 2
+  },
+  {
+    "id": "rating",
+    "label": "Ocena",
+    "category": "planning",
+    "tags": "skala intensywność wartość samoocena",
+    "collection": 2
+  },
+  {
+    "id": "consistency",
+    "label": "Regularność",
+    "category": "planning",
+    "tags": "ciągłość seria rytm nawyk",
+    "collection": 2
+  },
+  {
+    "id": "energy",
+    "label": "Energia",
+    "category": "reflection",
+    "tags": "siła zasoby witalność poziom",
+    "collection": 2
+  },
+  {
+    "id": "stress",
+    "label": "Napięcie",
+    "category": "reflection",
+    "tags": "stres przeciążenie trudność",
+    "collection": 2
+  },
+  {
+    "id": "support",
+    "label": "Wsparcie",
+    "category": "reflection",
+    "tags": "pomoc oparcie współpraca",
+    "collection": 2
+  },
+  {
+    "id": "inner-parts",
+    "label": "Części wewnętrzne",
+    "category": "reflection",
+    "tags": "ifs psychologia wewnętrzny dialog",
+    "collection": 2
+  },
+  {
+    "id": "conversation",
+    "label": "Rozmowa",
+    "category": "reflection",
+    "tags": "dialog kontakt słuchanie komunikacja",
+    "collection": 2
+  },
+  {
+    "id": "memory",
+    "label": "Wspomnienie",
+    "category": "reflection",
+    "tags": "pamięć moment dziennik przeszłość",
+    "collection": 2
+  },
+  {
+    "id": "pets",
+    "label": "Zwierzęta",
+    "category": "life",
+    "tags": "pies kot pupil opieka łapa",
+    "collection": 2
+  },
+  {
+    "id": "household",
+    "label": "Obowiązki domowe",
+    "category": "life",
+    "tags": "porządki organizacja dom naprawy",
+    "collection": 2
+  },
+  {
+    "id": "digital-balance",
+    "label": "Równowaga cyfrowa",
+    "category": "life",
+    "tags": "telefon technologia ekran odpoczynek",
+    "collection": 2
+  },
+  {
+    "id": "self-care",
+    "label": "Dbanie o siebie",
+    "category": "life",
+    "tags": "pielęgnacja higiena troska",
+    "collection": 2
+  },
+  {
+    "id": "parenthood",
+    "label": "Rodzicielstwo",
+    "category": "life",
+    "tags": "dziecko ciąża rodzina niemowlę",
+    "collection": 2
+  },
+  {
+    "id": "spirituality",
+    "label": "Duchowość",
+    "category": "life",
+    "tags": "wyciszenie kontemplacja wiara świeca",
+    "collection": 2
+  },
+  {
+    "id": "swimming",
+    "label": "Pływanie",
+    "category": "activity",
+    "tags": "basen woda sport",
+    "collection": 2
+  },
+  {
+    "id": "hiking",
+    "label": "Wędrówki",
+    "category": "activity",
+    "tags": "góry trekking szlak",
+    "collection": 2
+  },
+  {
+    "id": "dance",
+    "label": "Taniec",
+    "category": "activity",
+    "tags": "ruch zabawa taniec",
+    "collection": 2
+  },
+  {
+    "id": "cooking",
+    "label": "Gotowanie",
+    "category": "activity",
+    "tags": "kuchnia posiłek przygotowanie",
+    "collection": 2
+  },
+  {
+    "id": "shopping",
+    "label": "Zakupy",
+    "category": "activity",
+    "tags": "sklep żywność lista torba",
+    "collection": 2
+  },
+  {
+    "id": "commute",
+    "label": "Dojazdy",
+    "category": "activity",
+    "tags": "transport samochód podróż praca",
+    "collection": 2
+  },
+  {
+    "id": "photography",
+    "label": "Fotografia",
+    "category": "activity",
+    "tags": "zdjęcie aparat hobby",
+    "collection": 2
+  },
+  {
+    "id": "gardening",
+    "label": "Ogrodnictwo",
+    "category": "activity",
+    "tags": "ogród rośliny kwiaty pielęgnacja",
+    "collection": 2
+  },
+  {
+    "id": "tag",
+    "label": "Etykieta",
+    "category": "interface",
+    "tags": "tag kategoria oznaczenie",
+    "collection": 2
+  },
+  {
+    "id": "pin",
+    "label": "Przypnij",
+    "category": "interface",
+    "tags": "pinezka zachowaj wyróżnij",
+    "collection": 2
+  },
+  {
+    "id": "attach",
+    "label": "Załącznik",
+    "category": "interface",
+    "tags": "plik dołącz spinacz",
+    "collection": 2
+  },
+  {
+    "id": "visible",
+    "label": "Pokaż",
+    "category": "interface",
+    "tags": "widoczność oko odkryj",
+    "collection": 2
+  },
+  {
+    "id": "hidden",
+    "label": "Ukryj",
+    "category": "interface",
+    "tags": "widoczność schowaj oko",
+    "collection": 2
+  },
+  {
+    "id": "sort",
+    "label": "Sortowanie",
+    "category": "interface",
+    "tags": "kolejność rosnąco malejąco",
+    "collection": 2
+  },
+  {
+    "id": "export",
+    "label": "Eksport",
+    "category": "interface",
+    "tags": "pobierz plik dane kopia zapasowa",
+    "collection": 2
+  },
+  {
+    "id": "import",
+    "label": "Import",
+    "category": "interface",
+    "tags": "wczytaj plik dane przywróć",
+    "collection": 2
+  },
+  {
+    "id": "dashboard",
+    "label": "Przegląd",
+    "category": "navigation",
+    "tags": "pulpit podsumowanie panel",
+    "collection": 2
+  },
+  {
+    "id": "logout",
+    "label": "Wyloguj",
+    "category": "navigation",
+    "tags": "konto sesja wyjdź",
+    "collection": 2
+  },
+  {
+    "id": "video-creation",
+    "label": "Tworzenie wideo",
+    "category": "media",
+    "tags": "youtube montaż nagrywanie twórca kanał video editing",
+    "collection": 3
+  },
+  {
+    "id": "youtube",
+    "label": "YouTube",
+    "category": "media",
+    "tags": "wideo video kanał film oglądanie",
+    "collection": 3
+  },
+  {
+    "id": "podcast",
+    "label": "Podcast",
+    "category": "media",
+    "tags": "audio słuchanie audycja",
+    "collection": 3
+  },
+  {
+    "id": "headphones",
+    "label": "Słuchawki",
+    "category": "media",
+    "tags": "audio skupienie słuchanie",
+    "collection": 3
+  },
+  {
+    "id": "film",
+    "label": "Film",
+    "category": "media",
+    "tags": "kino serial odpoczynek",
+    "collection": 3
+  },
+  {
+    "id": "microphone",
+    "label": "Nagrywanie",
+    "category": "media",
+    "tags": "głos śpiew recording",
+    "collection": 3
+  },
+  {
+    "id": "newsletter",
+    "label": "Newsletter",
+    "category": "media",
+    "tags": "email poczta czytanie",
+    "collection": 3
+  },
+  {
+    "id": "online-course",
+    "label": "Kurs online",
+    "category": "media",
+    "tags": "edukacja nauka komputer",
+    "collection": 3
+  },
+  {
+    "id": "coding",
+    "label": "Programowanie",
+    "category": "media",
+    "tags": "kod software developer",
+    "collection": 3
+  },
+  {
+    "id": "gaming",
+    "label": "Gry",
+    "category": "media",
+    "tags": "granie konsola rozrywka",
+    "collection": 3
+  },
+  {
+    "id": "screen-time",
+    "label": "Czas przed ekranem",
+    "category": "media",
+    "tags": "telefon limit digital",
+    "collection": 3
+  },
+  {
+    "id": "therapy",
+    "label": "Terapia",
+    "category": "life",
+    "tags": "psychoterapia mental zdrowie",
+    "collection": 3
+  },
+  {
+    "id": "friendship",
+    "label": "Przyjaźń",
+    "category": "life",
+    "tags": "przyjaciele kontakt friends",
+    "collection": 3
+  },
+  {
+    "id": "volunteering",
+    "label": "Wolontariat",
+    "category": "life",
+    "tags": "pomaganie dobroczynność",
+    "collection": 3
+  },
+  {
+    "id": "career-path",
+    "label": "Rozwój zawodowy",
+    "category": "life",
+    "tags": "awans kariera",
+    "collection": 3
+  },
+  {
+    "id": "business",
+    "label": "Własna firma",
+    "category": "life",
+    "tags": "biznes przedsiębiorczość sklep",
+    "collection": 3
+  },
+  {
+    "id": "languages",
+    "label": "Języki obce",
+    "category": "life",
+    "tags": "nauka język vocabulary",
+    "collection": 3
+  },
+  {
+    "id": "sustainability",
+    "label": "Ekologia",
+    "category": "life",
+    "tags": "środowisko recykling planeta",
+    "collection": 3
+  },
+  {
+    "id": "intimacy",
+    "label": "Bliskość",
+    "category": "life",
+    "tags": "związek czułość dotyk",
+    "collection": 3
+  },
+  {
+    "id": "personal-space",
+    "label": "Czas dla siebie",
+    "category": "life",
+    "tags": "samotność przestrzeń spokój",
+    "collection": 3
+  },
+  {
+    "id": "moving-home",
+    "label": "Przeprowadzka",
+    "category": "life",
+    "tags": "mieszkanie nowe miejsce",
+    "collection": 3
+  },
+  {
+    "id": "stretching",
+    "label": "Rozciąganie",
+    "category": "activity",
+    "tags": "mobilność ciało stretching",
+    "collection": 3
+  },
+  {
+    "id": "tennis",
+    "label": "Tenis",
+    "category": "activity",
+    "tags": "rakieta sport padel",
+    "collection": 3
+  },
+  {
+    "id": "football",
+    "label": "Piłka nożna",
+    "category": "activity",
+    "tags": "sport mecz futbol",
+    "collection": 3
+  },
+  {
+    "id": "climbing",
+    "label": "Wspinaczka",
+    "category": "activity",
+    "tags": "ścianka bouldering góry",
+    "collection": 3
+  },
+  {
+    "id": "rowing",
+    "label": "Wiosłowanie",
+    "category": "activity",
+    "tags": "kajak łódź sport",
+    "collection": 3
+  },
+  {
+    "id": "pilates",
+    "label": "Pilates",
+    "category": "activity",
+    "tags": "core trening mata",
+    "collection": 3
+  },
+  {
+    "id": "martial-arts",
+    "label": "Sztuki walki",
+    "category": "activity",
+    "tags": "karate boks trening",
+    "collection": 3
+  },
+  {
+    "id": "baking",
+    "label": "Pieczenie",
+    "category": "activity",
+    "tags": "chleb wypieki kuchnia",
+    "collection": 3
+  },
+  {
+    "id": "nutrition",
+    "label": "Warzywa i owoce",
+    "category": "activity",
+    "tags": "dieta witaminy posiłki",
+    "collection": 3
+  },
+  {
+    "id": "supplements",
+    "label": "Leki i suplementy",
+    "category": "activity",
+    "tags": "tabletka witaminy regularność",
+    "collection": 3
+  },
+  {
+    "id": "dental-care",
+    "label": "Higiena zębów",
+    "category": "activity",
+    "tags": "dentysta szczotkowanie",
+    "collection": 3
+  },
+  {
+    "id": "skincare",
+    "label": "Pielęgnacja skóry",
+    "category": "activity",
+    "tags": "twarz kosmetyki krem",
+    "collection": 3
+  },
+  {
+    "id": "cleaning",
+    "label": "Sprzątanie",
+    "category": "activity",
+    "tags": "porządek dom czystość",
+    "collection": 3
+  },
+  {
+    "id": "laundry",
+    "label": "Pranie",
+    "category": "activity",
+    "tags": "ubrania dom porządki",
+    "collection": 3
+  },
+  {
+    "id": "sewing",
+    "label": "Szycie",
+    "category": "activity",
+    "tags": "rękodzieło haft naprawa",
+    "collection": 3
+  },
+  {
+    "id": "writing",
+    "label": "Pisanie",
+    "category": "activity",
+    "tags": "twórczość powieść tekst",
+    "collection": 3
+  },
+  {
+    "id": "crafts",
+    "label": "Rękodzieło",
+    "category": "activity",
+    "tags": "diy tworzenie nożyczki",
+    "collection": 3
+  },
+  {
+    "id": "board-games",
+    "label": "Planszówki",
+    "category": "activity",
+    "tags": "gra znajomi kości",
+    "collection": 3
+  },
+  {
+    "id": "museum",
+    "label": "Muzeum",
+    "category": "activity",
+    "tags": "kultura wystawa sztuka",
+    "collection": 3
+  },
+  {
+    "id": "stargazing",
+    "label": "Obserwacja nieba",
+    "category": "activity",
+    "tags": "astronomia gwiazdy teleskop",
+    "collection": 3
+  },
+  {
+    "id": "focus-session",
+    "label": "Sesja skupienia",
+    "category": "planning",
+    "tags": "praca koncentracja deep work",
+    "collection": 3
+  },
+  {
+    "id": "milestone",
+    "label": "Kamień milowy",
+    "category": "planning",
+    "tags": "etap postęp checkpoint",
+    "collection": 3
+  },
+  {
+    "id": "roadmap",
+    "label": "Mapa drogi",
+    "category": "planning",
+    "tags": "plan etapy strategia",
+    "collection": 3
+  },
+  {
+    "id": "deadline",
+    "label": "Termin końcowy",
+    "category": "planning",
+    "tags": "deadline kalendarz data",
+    "collection": 3
+  },
+  {
+    "id": "weekly-target",
+    "label": "Cel tygodnia",
+    "category": "planning",
+    "tags": "tydzień plan wynik",
+    "collection": 3
+  },
+  {
+    "id": "progress",
+    "label": "Postęp",
+    "category": "planning",
+    "tags": "rozwój wykres trend",
+    "collection": 3
+  },
+  {
+    "id": "habit-stack",
+    "label": "Łączenie nawyków",
+    "category": "planning",
+    "tags": "rutyna sekwencja habit stacking",
+    "collection": 3
+  },
+  {
+    "id": "restart",
+    "label": "Nowy początek",
+    "category": "planning",
+    "tags": "powrót zacznij ponownie reset",
+    "collection": 3
+  },
+  {
+    "id": "morning-ritual",
+    "label": "Rytuał poranny",
+    "category": "rituals",
+    "tags": "rano przebudzenie rutyna",
+    "collection": 3
+  },
+  {
+    "id": "evening-ritual",
+    "label": "Rytuał wieczorny",
+    "category": "rituals",
+    "tags": "wieczór noc rutyna",
+    "collection": 3
+  },
+  {
+    "id": "weekly-planning",
+    "label": "Planowanie tygodnia",
+    "category": "rituals",
+    "tags": "rytuał plan tydzień",
+    "collection": 3
+  },
+  {
+    "id": "weekly-reflection",
+    "label": "Refleksja tygodnia",
+    "category": "rituals",
+    "tags": "rytuał podsumowanie tydzień",
+    "collection": 3
+  },
+  {
+    "id": "monthly-planning",
+    "label": "Planowanie miesiąca",
+    "category": "rituals",
+    "tags": "rytuał plan miesiąc",
+    "collection": 3
+  },
+  {
+    "id": "monthly-reflection",
+    "label": "Refleksja miesiąca",
+    "category": "rituals",
+    "tags": "rytuał podsumowanie miesiąc",
+    "collection": 3
+  },
+  {
+    "id": "yearly-planning",
+    "label": "Planowanie roku",
+    "category": "rituals",
+    "tags": "rytuał wizja rok",
+    "collection": 3
+  },
+  {
+    "id": "yearly-reflection",
+    "label": "Refleksja roku",
+    "category": "rituals",
+    "tags": "rytuał przegląd rok",
+    "collection": 3
+  },
+  {
+    "id": "check-in",
+    "label": "Sprawdź, jak się masz",
+    "category": "rituals",
+    "tags": "samopoczucie rytuał checkin",
+    "collection": 3
+  },
+  {
+    "id": "shutdown",
+    "label": "Zamknięcie dnia",
+    "category": "rituals",
+    "tags": "koniec pracy wyłączenie",
+    "collection": 3
+  },
+  {
+    "id": "cloud-sync",
+    "label": "Synchronizacja",
+    "category": "interface",
+    "tags": "chmura dane zapis",
+    "collection": 3
+  },
+  {
+    "id": "offline",
+    "label": "Tryb offline",
+    "category": "interface",
+    "tags": "bez sieci lokalnie",
+    "collection": 3
+  },
+  {
+    "id": "notification-off",
+    "label": "Wycisz powiadomienia",
+    "category": "interface",
+    "tags": "cisza dzwonek bez alertów",
+    "collection": 3
+  },
+  {
+    "id": "calendar-link",
+    "label": "Powiąż z kalendarzem",
+    "category": "interface",
+    "tags": "termin integracja plan",
+    "collection": 3
+  },
+  {
+    "id": "template",
+    "label": "Szablon",
+    "category": "interface",
+    "tags": "wzór powiel schemat",
+    "collection": 3
+  },
+  {
+    "id": "restore",
+    "label": "Odzyskaj",
+    "category": "interface",
+    "tags": "przywróć archiwum dane",
+    "collection": 3
+  },
+  {
+    "id": "accessibility",
+    "label": "Dostępność",
+    "category": "interface",
+    "tags": "ułatwienia czytelność",
+    "collection": 3
+  },
+  {
+    "id": "feedback",
+    "label": "Opinia o aplikacji",
+    "category": "interface",
+    "tags": "uwagi sugestie feedback",
+    "collection": 3
+  },
+  {
+    "id": "life-areas",
+    "label": "Obszary życia",
+    "category": "navigation",
+    "tags": "dziedziny koło przegląd",
+    "collection": 3
+  },
+  {
+    "id": "exercise-program",
+    "label": "Program ćwiczeń",
+    "category": "navigation",
+    "tags": "ścieżka praktyka kurs",
+    "collection": 3
+  },
+  {
+    "id": "insights-board",
+    "label": "Panel wglądów",
+    "category": "navigation",
+    "tags": "analiza refleksja statystyki",
+    "collection": 3
+  },
+  {
+    "id": "body-scan",
+    "label": "Skan ciała",
+    "category": "reflection",
+    "tags": "ciało uważność napięcie",
+    "collection": 3
+  },
+  {
+    "id": "mood-patterns",
+    "label": "Wzorce nastroju",
+    "category": "reflection",
+    "tags": "emocje tracker obserwacja",
+    "collection": 3
+  },
+  {
+    "id": "time-block",
+    "label": "Blok czasu",
+    "category": "planning",
+    "tags": "harmonogram plan kalendarz",
+    "collection": 3
+  },
+  {
+    "id": "exercise-values",
+    "label": "Odkrywanie wartości",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka values",
+    "collection": 3
+  },
+  {
+    "id": "exercise-value-map",
+    "label": "Mapa wartości",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka value-map",
+    "collection": 3
+  },
+  {
+    "id": "exercise-wheel-of-life",
+    "label": "Koło życia",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka wheel-of-life",
+    "collection": 3
+  },
+  {
+    "id": "exercise-shadow-beliefs",
+    "label": "Ukryte przekonania",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka shadow-beliefs",
+    "collection": 3
+  },
+  {
+    "id": "exercise-purpose",
+    "label": "Transformujący cel",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka purpose",
+    "collection": 3
+  },
+  {
+    "id": "exercise-ipip-bfm-50",
+    "label": "Wielka Piątka · 50",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka ipip-bfm-50",
+    "collection": 3
+  },
+  {
+    "id": "exercise-ipip-neo-120",
+    "label": "Wielka Piątka · 120",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka ipip-neo-120",
+    "collection": 3
+  },
+  {
+    "id": "exercise-hexaco-60",
+    "label": "HEXACO · 60",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka hexaco-60",
+    "collection": 3
+  },
+  {
+    "id": "exercise-pvq-40",
+    "label": "Portret wartości · PVQ",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka pvq-40",
+    "collection": 3
+  },
+  {
+    "id": "exercise-vlq",
+    "label": "Życie według wartości",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka vlq",
+    "collection": 3
+  },
+  {
+    "id": "exercise-erq",
+    "label": "Regulacja emocji",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka erq",
+    "collection": 3
+  },
+  {
+    "id": "exercise-rrq",
+    "label": "Refleksja i ruminacja",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka rrq",
+    "collection": 3
+  },
+  {
+    "id": "exercise-ecr-rs",
+    "label": "Style przywiązania",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka ecr-rs",
+    "collection": 3
+  },
+  {
+    "id": "exercise-ipip-via",
+    "label": "Mocne strony charakteru",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka ipip-via",
+    "collection": 3
+  },
+  {
+    "id": "exercise-worry-tree",
+    "label": "Drzewo zmartwień",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka worry-tree",
+    "collection": 3
+  },
+  {
+    "id": "exercise-cognitive-distortions",
+    "label": "Zniekształcenia poznawcze",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka cognitive-distortions",
+    "collection": 3
+  },
+  {
+    "id": "exercise-thought-record",
+    "label": "Zapis myśli",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka thought-record",
+    "collection": 3
+  },
+  {
+    "id": "exercise-core-beliefs",
+    "label": "Przekonania rdzeniowe",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka core-beliefs",
+    "collection": 3
+  },
+  {
+    "id": "exercise-compassionate-letter",
+    "label": "List do siebie",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka compassionate-letter",
+    "collection": 3
+  },
+  {
+    "id": "exercise-positive-data-log",
+    "label": "Dziennik pozytywnych faktów",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka positive-data-log",
+    "collection": 3
+  },
+  {
+    "id": "exercise-behavioral-experiment",
+    "label": "Eksperyment behawioralny",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka behavioral-experiment",
+    "collection": 3
+  },
+  {
+    "id": "exercise-behavioral-activation",
+    "label": "Aktywizacja behawioralna",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka behavioral-activation",
+    "collection": 3
+  },
+  {
+    "id": "exercise-structured-problem-solving",
+    "label": "Rozwiązywanie problemów",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka structured-problem-solving",
+    "collection": 3
+  },
+  {
+    "id": "exercise-graded-exposure",
+    "label": "Stopniowa ekspozycja",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka graded-exposure",
+    "collection": 3
+  },
+  {
+    "id": "exercise-three-pathways",
+    "label": "Trzy drogi do sensu",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka three-pathways",
+    "collection": 3
+  },
+  {
+    "id": "exercise-socratic-dialogue",
+    "label": "Dialog sokratejski",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka socratic-dialogue",
+    "collection": 3
+  },
+  {
+    "id": "exercise-mountain-range",
+    "label": "Pasmo górskie",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka mountain-range",
+    "collection": 3
+  },
+  {
+    "id": "exercise-paradoxical-intention",
+    "label": "Intencja paradoksalna",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka paradoxical-intention",
+    "collection": 3
+  },
+  {
+    "id": "exercise-dereflection",
+    "label": "Dereflekcja",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka dereflection",
+    "collection": 3
+  },
+  {
+    "id": "exercise-tragic-optimism",
+    "label": "Tragiczny optymizm",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka tragic-optimism",
+    "collection": 3
+  },
+  {
+    "id": "exercise-attitudinal-shift",
+    "label": "Zmiana postawy",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka attitudinal-shift",
+    "collection": 3
+  },
+  {
+    "id": "exercise-legacy-letter",
+    "label": "List do przyszłości",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka legacy-letter",
+    "collection": 3
+  },
+  {
+    "id": "exercise-parts-mapping",
+    "label": "Mapa części",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka parts-mapping",
+    "collection": 3
+  },
+  {
+    "id": "exercise-unblending",
+    "label": "Oddzielenie od części",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka unblending",
+    "collection": 3
+  },
+  {
+    "id": "exercise-direct-access",
+    "label": "Bezpośredni kontakt",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka direct-access",
+    "collection": 3
+  },
+  {
+    "id": "exercise-trailhead",
+    "label": "Punkt wejścia",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka trailhead",
+    "collection": 3
+  },
+  {
+    "id": "exercise-protector-appreciation",
+    "label": "Docenianie obrońcy",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka protector-appreciation",
+    "collection": 3
+  },
+  {
+    "id": "exercise-exile-witnessing",
+    "label": "Towarzyszenie zranionej części",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka exile-witnessing",
+    "collection": 3
+  },
+  {
+    "id": "exercise-self-energy",
+    "label": "Energia Ja",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka self-energy",
+    "collection": 3
+  },
+  {
+    "id": "exercise-parts-dialogue",
+    "label": "Dialog części",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka parts-dialogue",
+    "collection": 3
+  },
+  {
+    "id": "exercise-daily-ifs-checkin",
+    "label": "Codzienny kontakt IFS",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka daily-ifs-checkin",
+    "collection": 3
+  },
+  {
+    "id": "exercise-constellation",
+    "label": "Konstelacja części",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka constellation",
+    "collection": 3
+  },
+  {
+    "id": "exercise-gratitude-list",
+    "label": "Lista wdzięczności",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka gratitude-list",
+    "collection": 3
+  },
+  {
+    "id": "exercise-savoring-moment",
+    "label": "Smakowanie chwili",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka savoring-moment",
+    "collection": 3
+  },
+  {
+    "id": "exercise-self-compassion-break",
+    "label": "Przerwa na łagodność",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka self-compassion-break",
+    "collection": 3
+  },
+  {
+    "id": "exercise-grounding-54321",
+    "label": "Ugruntowanie 5–4–3–2–1",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka grounding-54321",
+    "collection": 3
+  },
+  {
+    "id": "exercise-box-breathing",
+    "label": "Oddech kwadratowy",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka box-breathing",
+    "collection": 3
+  },
+  {
+    "id": "exercise-one-small-win",
+    "label": "Małe zwycięstwo",
+    "category": "exercises",
+    "tags": "ćwiczenie praktyka one-small-win",
+    "collection": 3
+  }
+]

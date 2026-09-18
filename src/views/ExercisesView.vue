@@ -1,33 +1,19 @@
 <template>
   <PageContainer>
-    <div class="mb-6">
-      <h1 class="text-xl font-bold text-on-surface">{{ t('exercises.title') }}</h1>
-      <p class="text-sm text-on-surface-variant">
-        {{ t('exercises.subtitle') }}
-      </p>
-    </div>
+    <PageHeader
+      :title="t('exercises.title')"
+      :description="t('exercises.subtitle')"
+    />
 
-    <!-- Tab Navigation -->
-    <div class="mb-6">
-      <div
-        class="neo-segmented"
-        role="tablist"
-        aria-label="Exercise category tabs"
-      >
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          type="button"
-          role="tab"
-          class="neo-segmented__item neo-focus"
-          :class="{ 'neo-segmented__item--active': activeTab === tab.id }"
-          :aria-selected="activeTab === tab.id"
-          :aria-controls="`exercises-panel-${tab.id}`"
-          @click="activeTab = tab.id"
-        >
-          {{ tab.label }}
-        </button>
-      </div>
+    <!-- Tab navigation: the active tab lives in the URL (?tab=) so a refresh
+         or a "back to exercises" from a wizard lands on the same category. -->
+    <div class="exercises-tabs">
+      <DsSegmentedControl
+        :label="t('exercises.title')"
+        :model-value="activeTab"
+        :options="tabs.map((tab) => ({ value: tab.id, label: tab.label }))"
+        @update:model-value="setActiveTab"
+      />
     </div>
 
     <!-- Programs ("ścieżki") render from src/data/programCatalog.ts -->
@@ -36,7 +22,7 @@
       :id="`exercises-panel-${activeTab}`"
       role="tabpanel"
       :aria-label="activeTabLabel"
-      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      class="mg-v2-tile-grid"
     >
       <ProgramCatalogCard
         v-for="program in PROGRAM_CATALOG"
@@ -52,7 +38,7 @@
       :id="`exercises-panel-${activeTab}`"
       role="tabpanel"
       :aria-label="activeTabLabel"
-      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      class="mg-v2-tile-grid"
     >
       <ExerciseCard
         v-for="entry in visibleEntries"
@@ -75,10 +61,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useT } from '@/composables/useT'
 import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import { DsSegmentedControl } from '@/design-system/components'
 import ExerciseCard from '@/components/exercises/ExerciseCard.vue'
 import ProgramCatalogCard from '@/components/exercises/ProgramCatalogCard.vue'
 import type { ExerciseCatalogCategory } from '@/domain/exerciseCatalog'
@@ -87,6 +75,7 @@ import { PROGRAM_CATALOG } from '@/data/programCatalog'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 
+const route = useRoute()
 const router = useRouter()
 const { t, tg } = useT()
 
@@ -96,7 +85,19 @@ const enrollmentStore = useProgramEnrollmentStore()
 /** Catalog categories plus the programs ("ścieżki") tab. */
 type ExercisesTab = ExerciseCatalogCategory | 'programs'
 
-const activeTab = ref<ExercisesTab>('self-discovery')
+const TAB_IDS: ExercisesTab[] = ['self-discovery', 'cbt', 'logotherapy', 'ifs', 'micro', 'programs']
+
+function isTab(value: unknown): value is ExercisesTab {
+  return typeof value === 'string' && (TAB_IDS as string[]).includes(value)
+}
+
+const activeTab = computed<ExercisesTab>(() =>
+  isTab(route.query.tab) ? route.query.tab : 'self-discovery',
+)
+
+function setActiveTab(tab: ExercisesTab) {
+  void router.replace({ query: { ...route.query, tab } })
+}
 
 const tabs = computed(() => [
   { id: 'self-discovery' as const, label: t('exercises.tabs.selfDiscovery') },
@@ -124,3 +125,12 @@ onMounted(() => {
   void enrollmentStore.ensureLoaded()
 })
 </script>
+
+<style scoped>
+/* Flex parent lets the segmented control shrink to equal, content-sized
+   segments instead of stretching across the page. */
+.exercises-tabs {
+  display: flex;
+  margin-bottom: var(--mg-space-6);
+}
+</style>

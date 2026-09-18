@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import type { DayRef, WeekRef } from '@/domain/period'
@@ -26,7 +27,7 @@ function makeHabit(entryMode: MeasurementEntryMode): Habit {
     multiItems: entryMode === 'multi-completion'
       ? [
           { id: 'wake', label: 'Pobudka', weight: 1 },
-          { id: 'train', label: 'Trening', weight: 1 },
+          { id: 'train', label: 'Trening', icon: 'fitness_center', weight: 1 },
         ]
       : undefined,
     status: 'open',
@@ -80,7 +81,7 @@ function makeItem(entryMode: MeasurementEntryMode, entry?: DailyMeasurementEntry
   }
 }
 
-function mountRow(item: TodayMeasurementItem) {
+function mountRow(item: TodayMeasurementItem, attachToBody = false) {
   return mount(NextDayItemRow, {
     props: {
       item,
@@ -88,13 +89,35 @@ function mountRow(item: TodayMeasurementItem) {
       rawEntries: item.todayEntry ? [item.todayEntry] : [],
       allDayAssignments: [],
     },
+    attachTo: attachToBody ? document.body : undefined,
   })
 }
 
 describe('NextDayItemRow', () => {
-  it('renders one organic toggle per active multi-completion item', async () => {
+  it('folds a multi-completion checklist into a fraction disc at rest', () => {
     const entry = makeEntry('habit-multi-completion', null, ['wake'])
     const wrapper = mountRow(makeItem('multi-completion', entry))
+
+    expect(wrapper.findAll('button.ndi__well--dot')).toHaveLength(0)
+    const fraction = wrapper.find('button.ndi__well--fraction')
+    expect(fraction.text().replace(/\s+/g, '')).toBe('1/2')
+    expect(fraction.classes()).toContain('ndi__well--on')
+    expect(fraction.classes()).not.toContain('ndi__well--met')
+  })
+
+  it('marks the fraction disc as met once the daily threshold is reached', () => {
+    const entry = makeEntry('habit-multi-completion', null, ['wake', 'train'])
+    const wrapper = mountRow(makeItem('multi-completion', entry))
+
+    expect(wrapper.find('button.ndi__well--fraction').classes()).toContain('ndi__well--met')
+  })
+
+  it('splits the fraction into one organic toggle per active item on hover', async () => {
+    const entry = makeEntry('habit-multi-completion', null, ['wake'])
+    const wrapper = mountRow(makeItem('multi-completion', entry))
+
+    await wrapper.find('.ndi__multi').trigger('mouseenter')
+    expect(wrapper.find('button.ndi__well--fraction').exists()).toBe(false)
     const dots = wrapper.findAll('button.ndi__well--dot')
 
     expect(dots).toHaveLength(2)
@@ -103,6 +126,46 @@ describe('NextDayItemRow', () => {
 
     await dots[1].trigger('click')
     expect(wrapper.emitted('toggle-multi-item')).toEqual([['train']])
+
+    await wrapper.find('.ndi__multi').trigger('mouseleave')
+    expect(wrapper.find('button.ndi__well--fraction').exists()).toBe(true)
+  })
+
+  it('shows the item icon in its dot, falling back to the label initial', async () => {
+    const wrapper = mountRow(makeItem('multi-completion'))
+    await wrapper.find('.ndi__multi').trigger('mouseenter')
+    const dots = wrapper.findAll('button.ndi__well--dot')
+
+    expect(dots[0].find('.ndi__initial').text()).toBe('P')
+    expect(dots[0].find('.material-symbols-outlined').exists()).toBe(false)
+    expect(dots[1].find('.app-icon').attributes('data-glyph')).toBe('strength')
+    expect(dots[1].find('.ndi__initial').exists()).toBe(false)
+  })
+
+  it('names a hovered dot in a tooltip after half a second', async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = mountRow(makeItem('multi-completion'), true)
+      await wrapper.find('.ndi__multi').trigger('mouseenter')
+      const dot = wrapper.findAll('button.ndi__well--dot')[1]
+
+      await dot.trigger('mouseenter')
+      expect(document.body.querySelector('.ndi-tip')).toBeNull()
+
+      vi.advanceTimersByTime(499)
+      await nextTick()
+      expect(document.body.querySelector('.ndi-tip')).toBeNull()
+
+      vi.advanceTimersByTime(1)
+      await nextTick()
+      expect(document.body.querySelector('.ndi-tip')?.textContent).toBe('Trening')
+
+      await dot.trigger('mouseleave')
+      expect(document.body.querySelector('.ndi-tip')).toBeNull()
+      wrapper.unmount()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('increments counters from the persisted daily value', async () => {

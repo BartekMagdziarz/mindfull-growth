@@ -45,12 +45,16 @@ describe('NextDayCalendarCard', () => {
     expect(wrapper.find('.next-day-cal__period strong').text()).toBe(`T${Number(getPeriodRefsForDate(new Date('2026-03-09T12:00:00')).week.slice(-2))}`)
 
     await wrapper.find('.next-day-cal__switch button:last-child').trigger('click')
-    expect(wrapper.findAll('.next-day-cal__day--month').length).toBeGreaterThanOrEqual(35)
-    expect(wrapper.find('.next-day-cal__day--month[title*="16"] .next-day-cal__marks i.is-ritual').exists()).toBe(true)
-    expect(wrapper.find('.next-day-cal__day--month[title*="16"] .next-day-cal__marks i.is-done').exists()).toBe(false)
-    expect(wrapper.find('.next-day-cal__day--month[title*="15"] .next-day-cal__marks i.is-ritual.is-done').exists()).toBe(true)
+    const monthCells = wrapper.findAll('.next-day-cal__day--month')
+    expect(monthCells.length).toBeGreaterThanOrEqual(35)
+    // Titles also contain ritual date ranges, so match the cell's day itself.
+    const day16 = monthCells.find(cell => !cell.classes().includes('is-out') && cell.find('strong').text() === '16')!
+    const day15 = monthCells.find(cell => !cell.classes().includes('is-out') && cell.find('strong').text() === '15')!
+    expect(day16.find('.next-day-cal__marks i.is-ritual').exists()).toBe(true)
+    expect(day16.find('.next-day-cal__marks i.is-done').exists()).toBe(false)
+    expect(day15.find('.next-day-cal__marks i.is-ritual.is-done').exists()).toBe(true)
 
-    await wrapper.find('.next-day-cal__day--month[title*="16"]').trigger('click')
+    await day16.trigger('click')
     expect(wrapper.emitted('navigate')?.at(-1)).toEqual(['2026-03-16'])
   })
 

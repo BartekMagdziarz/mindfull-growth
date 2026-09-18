@@ -1,5 +1,6 @@
 <template>
-  <RitualSketchbookReplica v-if="props.variantId === 'sketchbook-v1'" kind="month" :preset-id="props.presetId" />
+  <QuietMonthlyRitual v-if="props.variantId === 'quiet-v2'" :preset-id="props.presetId" />
+  <RitualSketchbookReplica v-else-if="props.variantId === 'sketchbook-v1'" kind="month" :preset-id="props.presetId" />
   <div v-else class="product-replica ritual-replica">
     <section class="replica-wizard neo-card">
       <ReplicaWizardHeader
@@ -88,6 +89,7 @@ import AppIcon from '@product/components/shared/AppIcon.vue'
 import type { LabFixtureObject } from '@product/dev/richVerificationScenario'
 import MiniChart from '~lab/components/MiniChart.vue'
 import ReplicaWizardHeader from '~lab/components/ReplicaWizardHeader.vue'
+import QuietMonthlyRitual from '~lab/experiments/QuietMonthlyRitual.vue'
 import RitualSketchbookReplica from '~lab/experiments/RitualSketchbookReplica.vue'
 import { useLabStore } from '~lab/stores/lab.store'
 

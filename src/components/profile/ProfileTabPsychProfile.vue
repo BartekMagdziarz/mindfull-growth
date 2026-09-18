@@ -6,22 +6,22 @@
     <!-- Header row -->
     <div class="flex items-start justify-between gap-[14px] flex-wrap">
       <div class="min-w-0 flex-1">
-        <h3 class="text-base font-bold m-0" style="color: rgb(var(--neo-text))">
+        <h3 class="text-base font-bold m-0" style="color: var(--mg-color-ink)">
           {{ t('profile.psychologicalProfile.title') }}
         </h3>
         <p
           class="text-[12px] m-0 mt-[2px] max-w-[500px]"
-          style="color: rgb(var(--neo-muted))"
+          style="color: var(--mg-color-muted)"
         >
           {{ t('profile.psychologicalProfile.shortDescription') }}
         </p>
         <div class="mt-2 flex items-center gap-2">
-          <span
+          <AppIcon
             class="material-symbols-outlined text-[16px]"
-            style="color: rgb(var(--neo-focus))"
+            style="color: var(--mg-color-primary-strong)"
             aria-hidden="true"
-          >psychology</span>
-          <span class="text-[12px]" style="color: rgb(var(--neo-muted))">
+           name="psychology" />
+          <span class="text-[12px]" style="color: var(--mg-color-muted)">
             <template v-if="lastBuiltLabel">
               {{ t('profile.psychologicalProfile.lastBuiltAt', { at: lastBuiltLabel }) }}
             </template>
@@ -37,7 +37,7 @@
           class="neo-pill px-3 py-2 text-[12px] font-semibold gap-[6px]"
           @click="goToBuild"
         >
-          <span class="material-symbols-outlined text-[16px]">refresh</span>
+          <AppIcon class="material-symbols-outlined text-[16px]" name="refresh" />
           {{ t('profile.psychologicalProfile.rebuild') }}
         </button>
         <button
@@ -46,7 +46,7 @@
           @click="goToProfile"
         >
           {{ t('profile.psychologicalProfile.open') }}
-          <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+          <AppIcon class="material-symbols-outlined text-[16px]" name="chevron_right" />
         </button>
       </div>
     </div>
@@ -65,7 +65,7 @@
         >
           <span
             class="text-[13px] font-semibold truncate"
-            style="color: rgb(var(--neo-text))"
+            style="color: var(--mg-color-ink)"
           >{{ trait.label }}</span>
           <div class="trait-bar neo-inset">
             <div
@@ -80,14 +80,14 @@
           </div>
           <span
             class="text-[12px] font-bold text-right"
-            style="color: rgb(var(--neo-muted))"
+            style="color: var(--mg-color-muted)"
           >{{ trait.value }}</span>
         </div>
       </div>
       <p
         v-else
         class="text-[13px] m-0 mt-[10px]"
-        style="color: rgb(var(--neo-muted))"
+        style="color: var(--mg-color-muted)"
       >
         {{ t('profile.psychologicalProfile.preview.emptyState') }}
       </p>
@@ -96,6 +96,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from '@/components/shared/AppIcon.vue'
+
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserProfileStore } from '@/stores/userProfile.store'

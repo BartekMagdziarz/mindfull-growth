@@ -1,6 +1,6 @@
 <template>
   <article
-    class="group/card mg-v2-surface mg-v2-surface--raised-sm mg-v2-surface--paper p-3"
+    class="group/card mg-v2-surface mg-v2-surface--raised-sm p-3"
   >
     <!-- Edit mode -->
     <div v-if="editing" class="space-y-3">
@@ -47,9 +47,7 @@
         <span class="min-w-0 flex-1 truncate text-sm font-semibold text-on-surface">
           {{ item.title }}
         </span>
-        <div
-          class="flex shrink-0 items-center gap-1 opacity-0 transition-opacity duration-200 group-hover/card:opacity-100"
-        >
+        <div class="mg-v2-card-tray group-hover/card:opacity-100">
           <button
             type="button"
             class="mg-v2-button mg-v2-button--icon card-icon-sm"
@@ -69,29 +67,23 @@
             <AppIcon name="delete" class="text-sm" />
           </button>
         </div>
-        <span
-          v-if="item.status !== 'open'"
-          class="mg-v2-badge shrink-0 uppercase tracking-wide"
-        >
+      </div>
+
+      <!-- Quiet facts: status (only when not open), week, mode, target -->
+      <p class="mg-v2-meta">
+        <span v-if="item.status !== 'open'" class="mg-v2-meta__status">
           {{ t(`planning.objects.badges.status.${item.status}`) }}
         </span>
-      </div>
+        <span v-if="weekChipLabel">{{ weekChipLabel }}</span>
+        <span>{{ modeLabel }}</span>
+        <span v-if="targetSummary" class="min-w-0 truncate">{{ targetSummary }}</span>
+      </p>
 
-      <div class="flex flex-wrap items-center gap-1.5 text-xs text-on-surface-variant">
-        <span class="rounded-md bg-section/50 px-1.5 py-0.5 font-medium">{{ weekChipLabel }}</span>
-        <span class="rounded-md bg-section/50 px-1.5 py-0.5 font-medium">{{ modeLabel }}</span>
-        <span class="min-w-0 truncate">{{ targetSummary }}</span>
-      </div>
-
-      <div v-if="linkedPriorityLabels.length > 0" class="flex flex-wrap gap-1.5">
-        <span
-          v-for="label in linkedPriorityLabels"
-          :key="label"
-          class="mg-v2-badge"
-        >
+      <p v-if="linkedPriorityLabels.length > 0" class="mg-v2-meta">
+        <span v-for="label in linkedPriorityLabels" :key="label" class="min-w-0 truncate">
           {{ label }}
         </span>
-      </div>
+      </p>
     </div>
   </article>
 </template>

@@ -13,7 +13,8 @@
 
 :root {
   /* --- Surfaces & background ---------------------------------------------- */
-  --color-background: 225 238 254;
+  /* Shared flat sky canvas (surface study, 2026-09-11): #D3E2F8. */
+  --color-background: 211 226 248;
   --color-background-mid: 236 244 255;
   --color-background-bottom: 212 229 252;
   --color-cloud-a: 255 255 255;
@@ -111,8 +112,8 @@
   --color-quadrant-low-energy-high-pleasantness: #cce4ff;
   --color-quadrant-low-energy-high-pleasantness-top: #dbecff;
   --color-quadrant-low-energy-high-pleasantness-bottom: #cce4ff;
-  --color-quadrant-low-energy-high-pleasantness-tint: #f2f8ff;
-  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f7fbff;
+  --color-quadrant-low-energy-high-pleasantness-tint: #e9f3ff;
+  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f0f7ff;
   --color-quadrant-low-energy-high-pleasantness-border: #8EC5FF;
   --color-quadrant-low-energy-high-pleasantness-selected: #5CABFF;
   --color-quadrant-low-energy-high-pleasantness-text: #004FA3;
@@ -369,8 +370,8 @@
   --color-quadrant-low-energy-high-pleasantness: #cce4ff;
   --color-quadrant-low-energy-high-pleasantness-top: #dbecff;
   --color-quadrant-low-energy-high-pleasantness-bottom: #cce4ff;
-  --color-quadrant-low-energy-high-pleasantness-tint: #f2f8ff;
-  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f7fbff;
+  --color-quadrant-low-energy-high-pleasantness-tint: #e9f3ff;
+  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f0f7ff;
   --color-quadrant-low-energy-high-pleasantness-border: #8EC5FF;
   --color-quadrant-low-energy-high-pleasantness-selected: #5CABFF;
   --color-quadrant-low-energy-high-pleasantness-text: #004FA3;
@@ -468,8 +469,8 @@
   --color-quadrant-low-energy-high-pleasantness: #d8e6f8;
   --color-quadrant-low-energy-high-pleasantness-top: #ecf2fb;
   --color-quadrant-low-energy-high-pleasantness-bottom: #d8e6f8;
-  --color-quadrant-low-energy-high-pleasantness-tint: #f5f9fd;
-  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f9fbfe;
+  --color-quadrant-low-energy-high-pleasantness-tint: #edf4fb;
+  --color-quadrant-low-energy-high-pleasantness-tint-soft: #f3f8fd;
   --color-quadrant-low-energy-high-pleasantness-border: #b8cbe3;
   --color-quadrant-low-energy-high-pleasantness-selected: #afcaec;
   --color-quadrant-low-energy-high-pleasantness-text: #1c3d62;

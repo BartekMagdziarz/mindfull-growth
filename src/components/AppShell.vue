@@ -1,20 +1,19 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <AppNavDock
-      :pinned="userPreferencesStore.dockPinned"
-      @update:pinned="userPreferencesStore.setDockPinned($event)"
-    />
+    <AppNavDock />
     <button
       v-if="showBackButton && backRoute"
       type="button"
-      class="neo-back-btn neo-focus fixed top-4 z-30 p-2 text-neu-text"
-      :class="userPreferencesStore.dockPinned ? 'left-[122px]' : 'left-10'"
+      class="neo-back-btn neo-focus fixed top-4 left-[122px] z-30 p-2 text-neu-text"
       :aria-label="t('common.buttons.back')"
       @click="router.push(backRoute)"
     >
       <AppIcon name="arrow_back" class="text-xl" />
     </button>
-    <main class="flex-1 overflow-y-auto" :class="mainClasses">
+    <!-- Design V2 root for every routed view: tokens, Nunito, focus ring and
+         reduced-motion come from here, so legacy screens are bridged by
+         adapters.css and ported ones never lose their variables. -->
+    <main class="mg-design-v2 flex-1 overflow-y-auto pl-[106px]">
       <router-view />
     </main>
   </div>
@@ -37,14 +36,8 @@ const { t } = useT()
 const authStore = useAuthStore()
 const userPreferencesStore = useUserPreferencesStore()
 
-// Pinned dock pushes content right via padding (not margin) so main's
-// scrollbar stays at the viewport edge. The padding transition is gated on
-// isLoaded — preferences arrive async from Dexie, and animating the initial
-// 0 → 106px jump on every app boot would read as layout jank.
-const mainClasses = computed(() => [
-  userPreferencesStore.dockPinned ? 'pl-[106px]' : '',
-  userPreferencesStore.isLoaded ? 'transition-[padding] duration-300' : '',
-])
+// The nav dock is always visible in its collapsed width (72px + gutter), so
+// <main> is offset via padding (not margin) — the scrollbar stays at the edge.
 
 const isJournalEditorRoute = computed(() => {
   return (
