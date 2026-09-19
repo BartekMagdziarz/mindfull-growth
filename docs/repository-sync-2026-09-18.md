@@ -49,14 +49,25 @@ Podczas porządkowania przeniesiono kolory/cienie widoku dnia do tokenów design
 
 Buildy zgłaszają ostrzeżenia o dużych chunkach. Przegląd obejmował stan Git, zakres zmian, wybrane zależności i automatyczne kontrole; nie stanowi pełnego audytu każdej funkcji ani pełnej oceny wizualnej.
 
-## Otwarte wyniki E2E
+## Wyniki E2E z pierwszego przeglądu (rozwiązane 2026-09-19)
 
-Nie wyłączono ani nie osłabiono poniższych testów. Wymagają osobnego dopasowania do aktualnego UI i sprawdzenia zachowania:
+Pierwszy przegląd wykazał poniższe niezgodności testów z aktualnym UI:
 
 - `verification-month-v2.spec.ts`: test responsywności, asercja `weekStripScrolls` na mobile zwraca `false` zamiast `true`.
 - `verification-multi-completion.spec.ts`: refleksja tygodniowa oczekuje nieobecnego selektora `.next-ritual`.
 - `verification-smoke.spec.ts`: refleksja miesięczna oraz tygodniowa również oczekują `.next-ritual`; zapisany widok błędu miesiąca pokazuje już nowy interfejs rytuału.
 - `verification-smoke.spec.ts`: test dnia oczekuje jednego `.ndi--staged` od razu po otwarciu, aktualny widok zwraca zero.
+
+W kolejnym przeglądzie zachowano wszystkie pięć scenariuszy i zaktualizowano ich zakres:
+
+- Rytuały testują aktualny interfejs Quiet Ritual, przechodzenie między krokami oraz zachowanie decyzji miesięcznej i komentarza tygodniowego po zapisie i odświeżeniu.
+- Checklista w refleksji tygodnia pokazuje siedem komórek z kropkami zapisów i punktami w podpowiedziach; test sprawdza zarówno pełne, jak i częściowe wyniki zamiast nieobecnego już wykresu stosowego.
+- Dzisiaj rozpoczyna się bez zaznaczonego wiersza. Test wybiera i odznacza działanie, sprawdza wykres w kalendarzu, obowiązkowo wykonuje przeniesienie/cofnięcie, dodanie/cofnięcie, przypięcie kompasu i otwarcie wykonanych rytuałów.
+- Powłoka Design V2 ma obecnie minimalną szerokość 1180 px. Test wąskiego okna sprawdza dostęp do ostatniego tygodnia przez przewijanie, zachowując kontrolę geometrii desktopowej. Nie oznacza to obsługi układu mobilnego bez poziomego przewijania.
+
+Nie zmieniono kodu produktu ani nie usunięto testów w ramach tej aktualizacji.
+
+Weryfikacja końcowa 2026-09-19: `npm run test:e2e:verify -- --workers=2 --reporter=line` — **17/17 zaliczonych**, bez pominięć i bez ponawiania nieudanych testów. `git diff --check` również przechodzi.
 
 ## Pliki lokalne poza Git
 

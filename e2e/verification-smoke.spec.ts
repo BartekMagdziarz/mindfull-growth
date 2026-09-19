@@ -25,7 +25,7 @@ async function bootSeededApp(page: Page): Promise<void> {
   await page.waitForFunction(
     (key: string) => window.localStorage.getItem(key) !== null,
     SEED_MARKER_KEY,
-    { timeout: 90_000 },
+    { timeout: 90_000 }
   )
   await expect(page).not.toHaveURL(/login/)
 }
@@ -53,16 +53,34 @@ test.describe('verification environment', () => {
     expect(await page.locator('.stream-day__head').count()).toBeGreaterThanOrEqual(7)
   })
 
-  test('monthly ritual on a closed month shows the seeded top-3 priorities', async ({ page }) => {
+  test('monthly reflection opens seeded priorities and persists a verdict', async ({ page }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
     await page.goto(`/calendar/month/${prevMonth}?action=reflect`)
-    const ritual = page.locator('.next-ritual')
-    await expect(ritual).toBeVisible()
-    await expect(ritual.getByText('Refleksja miesiąca', { exact: true })).toBeVisible()
-    await expect(ritual.getByText('Regularny ruch i kondycja').first()).toBeVisible()
-    await expect(ritual.getByText('Dowieźć projekt Strumień').first()).toBeVisible()
+    const ritual = page.locator('.quiet-ritual')
+    await expect(
+      ritual.getByRole('heading', { name: 'Jaką uwagę poświęciłeś swoim kierunkom?' })
+    ).toBeVisible()
+    const priority = ritual.locator('.qm-priority', { hasText: 'Dowieźć projekt Strumień' })
+    await priority.getByRole('button', { name: /Dowieźć projekt Strumień/ }).click()
+    const verdicts = priority.getByRole('group', { name: 'Decyzja: Dowieźć projekt Strumień' })
+    await verdicts.getByRole('button', { name: 'Kontynuuj', exact: true }).click()
+    await expect(verdicts.getByRole('button', { name: 'Kontynuuj', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
+    await ritual.getByRole('button', { name: 'Następny krok' }).click()
+    await expect(ritual.getByRole('heading', { name: 'Balans', exact: true })).toBeVisible()
+    await ritual.getByRole('button', { name: '4. Dziennik', exact: true }).click()
+    await ritual.getByRole('button', { name: 'Zapisz refleksję', exact: true }).click()
+    await expect(ritual.locator('.qr-save')).toHaveText('Zapisano')
+    await page.reload()
+    await priority.getByRole('button', { name: /Dowieźć projekt Strumień/ }).click()
+    await expect(verdicts.getByRole('button', { name: 'Kontynuuj', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
   })
 
   test('weekly ritual on a closed week opens with the seeded plan content', async ({ page }) => {
@@ -70,15 +88,21 @@ test.describe('verification environment', () => {
     await bootSeededApp(page)
 
     await page.goto(`/calendar/week/${prevWeek}?action=reflect`)
-    const ritual = page.locator('.next-ritual')
-    await expect(ritual).toBeVisible()
-    await expect(ritual.getByText('Refleksja tygodnia', { exact: true })).toBeVisible()
-    // The first chapter is a factual summary. Object evidence is the next one.
-    await ritual.getByRole('button', { name: /^Dalej$/ }).click()
-    await expect(ritual.getByText('Poranne rozciąganie').first()).toBeVisible()
+    const ritual = page.locator('.quiet-ritual')
+    await expect(ritual.getByRole('heading', { name: 'Co wydarzyło się naprawdę?' })).toBeVisible()
+    await expect(
+      ritual.locator('.qr-evidence-row', { hasText: 'Poranne rozciąganie' })
+    ).toBeVisible()
+    await expect(ritual.locator('.qr-day-head')).toHaveCount(7)
+    await ritual.getByRole('button', { name: 'Następny krok' }).click()
+    await expect(ritual.getByRole('group', { name: 'Działania', exact: true })).toBeVisible()
+    await ritual.getByRole('button', { name: 'Poprzedni krok' }).click()
+    await expect(ritual.getByRole('heading', { name: 'Co wydarzyło się naprawdę?' })).toBeVisible()
   })
 
-  test('day scale: inline stage, move with undo, add from the plus menu, compass pin', async ({ page }) => {
+  test('today: explicit selection, calendar evidence, move/add with undo and compass pin', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
@@ -86,26 +110,30 @@ test.describe('verification environment', () => {
     const rail = page.locator('.next-day-rail')
     await expect(rail.locator('.ndi').first()).toBeVisible()
 
-    // One staged row with the chart expansion; clicking another row moves the stage.
-    await expect(rail.locator('.ndi--staged')).toHaveCount(1)
-    await expect(rail.locator('.ndi--staged .ndi__expansion')).toBeVisible()
-    const otherRow = rail.locator('.ndi:not(.ndi--staged)').first()
-    const otherTitle = (await otherRow.locator('.ndi__label strong').textContent()) ?? ''
-    await otherRow.locator('button.ndi__label').click()
-    await expect(rail.locator('.ndi--staged .ndi__label strong')).toHaveText(otherTitle)
+    await expect(page).toHaveURL(new RegExp(`/today/${refs.day}$`))
+    // Nothing is selected on entry. Selection reveals evidence in the calendar.
+    await expect(rail.locator('.ndi--staged')).toHaveCount(0)
+    const selectedRow = rail.locator('.ndi', { hasText: 'Poranna checklista' }).first()
+    await selectedRow.locator('button.ndi__label').click()
+    await expect(selectedRow).toHaveClass(/ndi--staged/)
+    await expect(page.locator('.day-plan-calendar__selection')).toHaveText('Poranna checklista')
+    await expect(page.locator('.day-plan-calendar__chart')).toBeVisible()
+    await selectedRow.locator('button.ndi__label').click()
+    await expect(rail.locator('.ndi--staged')).toHaveCount(0)
+    await expect(page.locator('.day-plan-calendar__chart')).toHaveCount(0)
 
-    // Move from the stage and take it back with the snackbar action.
-    const rowsBefore = await rail.locator('.ndi').count()
-    const stageActions = rail.locator('.ndi--staged .next-day-rail__stage-actions')
-    const tomorrow = stageActions.getByRole('button', { name: /Jutro/ })
-    if (await tomorrow.count()) {
-      await tomorrow.click()
-      await expect(page.locator('[role="status"]')).toContainText('Przeniesiono')
-      await expect(rail.locator('.ndi', { hasText: otherTitle })).toHaveCount(0)
-      await page.locator('.snackbar__action').click()
-      await expect(rail.locator('.ndi', { hasText: otherTitle })).toHaveCount(1)
-      await expect(rail.locator('.ndi')).toHaveCount(rowsBefore)
-    }
+    // Use a row with an available move action; the move must run, never silently skip.
+    const movableRow = rail
+      .locator('.ndi')
+      .filter({ has: page.getByRole('button', { name: /^Przenieś na jutro:/ }) })
+      .first()
+    const movedTitle = (await movableRow.locator('.ndi__label strong').textContent())!
+    await movableRow.locator('button.ndi__label').click()
+    await rail.locator('.ndi--staged').getByRole('button', { name: 'Jutro', exact: true }).click()
+    await expect(rail.getByRole('status')).toContainText('Przeniesiono')
+    await expect(rail.locator('.ndi', { hasText: movedTitle })).toHaveCount(0)
+    await rail.locator('.snackbar__action').click()
+    await expect(rail.locator('.ndi', { hasText: movedTitle })).toHaveCount(1)
 
     // One plus for every object type: cascade type → object, add, undo.
     await rail.locator('.next-day-rail__heading').hover()
@@ -113,10 +141,10 @@ test.describe('verification environment', () => {
     await expect(page.locator('.next-day-add__menu')).toBeVisible()
     await page.locator('.next-day-add__types button').first().hover()
     const candidate = page.locator('.next-day-add__items button').first()
-    const candidateTitle = (await candidate.locator('span:not(.material-symbols-outlined)').textContent()) ?? ''
+    const candidateTitle = (await candidate.getAttribute('title')) ?? ''
     await candidate.click()
     await expect(rail.locator('.ndi', { hasText: candidateTitle })).toHaveCount(1)
-    await expect(page.locator('[role="status"]')).toContainText('Dodano')
+    await expect(rail.getByRole('status')).toContainText('Dodano')
     await page.locator('.snackbar__action').click()
     await expect(rail.locator('.ndi', { hasText: candidateTitle })).toHaveCount(0)
 
@@ -130,14 +158,26 @@ test.describe('verification environment', () => {
     await expect(rail.locator('.ndi--dim')).toHaveCount(0)
 
     // Upcoming: the seeded goal deadlines are listed, the next week's planning ritual is due,
-    // and the rituals already done this week (plan + last week's reflection) fold into „Minione”.
+    // and the rituals already done this week (plan + last week's reflection) fold into „Zrobione wcześniej”.
     const upcoming = page.locator('.next-day-upcoming')
-    await expect(upcoming.locator('.next-day-upcoming__row', { hasText: 'Wydać MVP aplikacji' })).toBeVisible()
-    await expect(upcoming.locator('.next-day-upcoming__row.is-ritual:not(.is-done)', { hasText: 'Zaplanuj tydzień' })).toBeVisible()
+    await expect(upcoming.locator('.next-day-upcoming__row').first()).toBeVisible()
+    // The seeded date controls whether the list exceeds its four-row limit.
+    const more = upcoming.getByRole('button', { name: /Pokaż więcej/ })
+    if (await more.isVisible()) await more.click()
+    await expect(
+      upcoming.locator('.next-day-upcoming__row', { hasText: 'Wydać MVP aplikacji' })
+    ).toBeVisible()
+    await expect(
+      upcoming.locator('.next-day-upcoming__row.is-ritual:not(.is-done)', {
+        hasText: 'Zaplanuj następny tydzień',
+      })
+    ).toBeVisible()
     const past = upcoming.locator('details.next-day-upcoming__past')
-    await expect(past.locator('summary')).toContainText('Minione')
+    await expect(past.locator('summary')).toContainText('Zrobione wcześniej')
     await past.locator('summary').click()
-    await expect(past.locator('.next-day-upcoming__row.is-done', { hasText: 'Podsumuj tydzień' })).toBeVisible()
+    await expect(
+      past.locator('.next-day-upcoming__row.is-done', { hasText: 'Podsumuj poprzedni tydzień' })
+    ).toBeVisible()
     await upcoming.screenshot({ path: 'test-results/upcoming-states.png' })
   })
 })

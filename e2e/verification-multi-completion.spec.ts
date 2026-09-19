@@ -18,16 +18,16 @@ const SEED_MARKER_KEY = 'mindfull_growth_verification_seed_version'
 
 async function bootSeededApp(page: Page): Promise<string[]> {
   const consoleErrors: string[] = []
-  page.on('console', (message) => {
+  page.on('console', message => {
     if (message.type() === 'error') consoleErrors.push(message.text())
   })
-  page.on('pageerror', (error) => consoleErrors.push(String(error)))
+  page.on('pageerror', error => consoleErrors.push(String(error)))
 
   await page.goto('/')
   await page.waitForFunction(
     (key: string) => window.localStorage.getItem(key) !== null,
     SEED_MARKER_KEY,
-    { timeout: 90_000 },
+    { timeout: 90_000 }
   )
   await expect(page).not.toHaveURL(/login/)
   return consoleErrors
@@ -38,11 +38,11 @@ async function bootSeededApp(page: Page): Promise<string[]> {
 // the entry-write path and Vue render warnings indicate feature breakage.
 function expectNoAppErrors(consoleErrors: string[]): void {
   const relevant = consoleErrors.filter(
-    (text) =>
+    text =>
       text.includes('Failed to persist') ||
       text.includes('[Vue warn]') ||
       text.includes('multi-completion') ||
-      text.includes('checkedItemIds'),
+      text.includes('checkedItemIds')
   )
   expect(relevant, `Console errors: ${relevant.join('\n')}`).toHaveLength(0)
 }
@@ -83,7 +83,7 @@ test.describe('multi-completion', () => {
     for (const label of labels) {
       await expect(row.getByRole('button', { name: label })).toHaveAttribute(
         'aria-pressed',
-        'false',
+        'false'
       )
     }
 
@@ -104,7 +104,9 @@ test.describe('multi-completion', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test('legacy today overview tiles remain available with the 7-column item stack', async ({ page }) => {
+  test('legacy today overview tiles remain available with the 7-column item stack', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootSeededApp(page)
 
@@ -156,23 +158,36 @@ test.describe('multi-completion', () => {
     expectNoAppErrors(consoleErrors)
   })
 
-  test('weekly reflection tile renders the stack with met and partial days', async ({ page }) => {
+  test('weekly reflection shows seven days of checklist evidence and persists a comment', async ({
+    page,
+  }) => {
     test.setTimeout(120_000)
     const consoleErrors = await bootSeededApp(page)
-
     await page.goto(`/calendar/week/${prevWeek}?action=reflect`)
-    const wizard = page.locator('.next-ritual')
-    await expect(wizard).toBeVisible()
-    await wizard.getByRole('button', { name: /^Dalej$/ }).click()
-
-    const tile = wizard.locator('.week-tile', { hasText: 'Poranna checklista' }).first()
-    await expect(tile.locator('.mcs-container')).toBeVisible()
-    expect(await tile.locator('.mcs-col').count()).toBe(7)
-    // Every seeded week variant has at least one met and one partial day.
-    await expect(tile.locator('.mcs-daymark--met').first()).toBeVisible()
-    await expect(tile.locator('.mcs-daymark--partial').first()).toBeVisible()
-
-    await tile.screenshot({ path: 'test-results/multi-completion-reflection-tile.png' })
+    const ritual = page.locator('.quiet-ritual')
+    const row = ritual.locator('.qr-evidence-row', { hasText: 'Poranna checklista' })
+    await expect(row).toBeVisible()
+    const cells = row.locator('.qr-evidence-cell')
+    await expect(cells).toHaveCount(7)
+    // Quiet reflection uses record dots; tooltips retain the weighted points.
+    const values = await cells.evaluateAll(nodes =>
+      nodes.map(node => node.getAttribute('title') ?? '')
+    )
+    expect(values.some(value => /: [34](?: ·|$)/.test(value))).toBe(true)
+    expect(values.some(value => /: [12](?: ·|$)/.test(value))).toBe(true)
+    await expect(row.locator('.qr-record-dot.recorded').first()).toBeVisible()
+    await row.getByRole('button', { name: /komentarz: Poranna checklista/i }).click()
+    await row
+      .getByRole('textbox', { name: 'Komentarz: Poranna checklista' })
+      .fill('Sprawdzony zapis refleksji checklisty')
+    await ritual.getByRole('button', { name: '7. Dziennik', exact: true }).click()
+    await ritual.getByRole('button', { name: 'Zapisz refleksję', exact: true }).click()
+    await expect(ritual.locator('.qr-save')).toHaveText('Zapisano')
+    await page.reload()
+    await row.getByRole('button', { name: /komentarz: Poranna checklista/i }).click()
+    await expect(row.getByRole('textbox', { name: 'Komentarz: Poranna checklista' })).toHaveValue(
+      'Sprawdzony zapis refleksji checklisty'
+    )
     expectNoAppErrors(consoleErrors)
   })
 })
