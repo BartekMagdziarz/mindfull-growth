@@ -172,3 +172,19 @@ describe('plural', () => {
     ])
   })
 })
+
+describe('quietMonthAreaSeries', () => {
+  it('lays the bundle pairs onto the month weeks and leaves gaps', async () => {
+    const { quietMonthAreaSeries, quietMonthWeeks } = await import('../quietRitualModel')
+    const weeks = quietMonthWeeks('2026-08' as MonthRef)
+    const gap = { load: null, state: null }
+    const series = quietMonthAreaSeries(weeks, [
+      { weekRef: weeks[1].weekRef, loadState: { body: { load: 4, state: 5 }, emotions: gap, tasks: { load: 2, state: 2 }, closeOnes: gap } },
+    ])
+    expect(series.body).toHaveLength(weeks.length)
+    expect(series.body[1]).toMatchObject({ load: 4, state: 5 })
+    expect(series.body[0]).toMatchObject(gap)
+    expect(series.tasks[1]).toMatchObject({ load: 2, state: 2 })
+    expect(series.emotions.every(p => p.load === null)).toBe(true)
+  })
+})

@@ -3,6 +3,9 @@
  */
 
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { LoadStatePair } from '@/domain/loadState'
+import { reflectionToPairs } from '@/domain/loadStateSeries'
+import type { LifeAreaKey } from '@/domain/reflectionMatrix'
 import type { Quadrant } from '@/domain/emotion'
 import { getQuadrant } from '@/domain/emotion'
 import { getDisplayTitle } from '@/domain/journal'
@@ -109,6 +112,8 @@ export interface WeeklyReflectionDetail {
   weekRef: WeekRef
   freeformReflection: string
   promptResponses: Record<string, string>
+  /** Load/state pair per life area (D10) — consumers never read rating fields directly. */
+  loadState: Record<LifeAreaKey, LoadStatePair>
 }
 
 export interface DailyHabitItem {
@@ -1215,5 +1220,6 @@ function buildWeeklyDetails(reflections: WeeklyReflection[]): WeeklyReflectionDe
       weekRef: r.weekRef,
       freeformReflection: r.freeformReflection,
       promptResponses: r.promptResponses,
+      loadState: reflectionToPairs(r),
     }))
 }

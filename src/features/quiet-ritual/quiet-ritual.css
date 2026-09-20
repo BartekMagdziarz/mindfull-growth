@@ -1973,6 +1973,37 @@
   gap: 14px;
   align-items: end;
 }
+/* „Z tygodni”: wstęgi obszarów nad tygodniami miesiąca (kolumna jest wąska, więc wysokie i jedna pod drugą) */
+.qm-ctx-weeks {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 12px;
+}
+.qm-ctx-weeks__row {
+  display: grid;
+  gap: 2px;
+}
+.qm-ctx-weeks__row > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--qr-muted);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+.qm-ctx-weeks__row > span .material-symbols-outlined {
+  font-size: 15px;
+  color: var(--qr-accent-strong);
+}
+.qm-ctx-weeks__axis {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  color: var(--qr-muted);
+  font-size: 10px;
+  font-style: italic;
+  text-align: center;
+}
 .qm-mini-compass > span {
   display: flex;
   flex-direction: column;

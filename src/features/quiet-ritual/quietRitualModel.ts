@@ -1,4 +1,7 @@
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
+import type { LoadStatePair } from '@/domain/loadState'
+import { weekPointLabel, type AreaSeries } from '@/domain/loadStateSeries'
+import { REFLECTION_MATRIX_AREAS, type LifeAreaKey } from '@/domain/reflectionMatrix'
 import type { MeasurementEntryMode, MeasurementTarget } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment, MeasurementSubjectType } from '@/domain/planningState'
 import type { MeasureableSubject } from '@/services/measurementProgress'
@@ -60,6 +63,26 @@ export interface QuietWeekSlot {
   range: string
   /** The week reaches outside the month it is shown in. */
   partial: boolean
+}
+
+/**
+ * Load/state series per area over the month's weeks from the reflection bundle
+ * details; weeks without a reflection are gaps.
+ */
+export function quietMonthAreaSeries(
+  weeks: readonly { weekRef: WeekRef }[],
+  details: readonly { weekRef: WeekRef; loadState: Record<LifeAreaKey, LoadStatePair> }[],
+): AreaSeries {
+  const byWeek = new Map(details.map(detail => [detail.weekRef, detail.loadState]))
+  return Object.fromEntries(
+    REFLECTION_MATRIX_AREAS.map(area => [
+      area.key,
+      weeks.map(({ weekRef }) => {
+        const pair = byWeek.get(weekRef)?.[area.key]
+        return { weekRef, label: weekPointLabel(weekRef), load: pair?.load ?? null, state: pair?.state ?? null }
+      }),
+    ]),
+  ) as AreaSeries
 }
 
 export function quietMonthWeeks(monthRef: MonthRef): QuietWeekSlot[] {

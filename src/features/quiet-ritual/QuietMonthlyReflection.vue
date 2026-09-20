@@ -204,8 +204,15 @@
           </button>
         </section>
 
-        <section v-if="weeklyExcerpts.length">
+        <section v-if="weeklyExcerpts.length || weekSeriesRated">
           <h3>Z tygodni</h3>
+          <div v-if="weekSeriesRated" class="qm-ctx-weeks" aria-label="Obciążenie i stan w tygodniach miesiąca">
+            <div v-for="area in AREAS" :key="area.key" class="qm-ctx-weeks__row">
+              <span><AppIcon :name="area.icon" />{{ t(areaTitleKey(area.key)) }}</span>
+              <LoadStateRibbon :points="weekSeries[area.key]" :label="t(areaTitleKey(area.key))" :height="60" quiet @select="weekRef => emit('open-week', weekRef)" />
+            </div>
+            <div class="qm-ctx-weeks__axis" aria-hidden="true"><span v-for="week in weeks" :key="week.weekRef">{{ week.label }}</span></div>
+          </div>
           <details v-for="excerpt in weeklyExcerpts" :key="excerpt.weekRef">
             <summary>{{ excerpt.label }}</summary>
             <p>{{ excerpt.text }}</p>
@@ -276,7 +283,10 @@ import QuietEmotionStack from './QuietEmotionStack.vue'
 import QuietJournalAi from './QuietJournalAi.vue'
 import QuietRatingBar from './QuietRatingBar.vue'
 import QuietRitualShell, { type QuietRitualStep } from './QuietRitualShell.vue'
-import { formatQuietNumber, monthTitle, plural, quietMonthWeeks } from './quietRitualModel'
+import { formatQuietNumber, monthTitle, plural, quietMonthAreaSeries, quietMonthWeeks } from './quietRitualModel'
+import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
+import { useT } from '@/composables/useT'
+import { REFLECTION_MATRIX_AREAS, areaTitleKey } from '@/domain/reflectionMatrix'
 
 const props = defineProps<{ monthRef: MonthRef }>()
 const emit = defineEmits<{ close: []; updated: []; 'plan-next-month': []; 'open-week': [weekRef: WeekRef] }>()
@@ -358,6 +368,10 @@ const priorityIdsBySubject = ref(new Map<string, string[]>())
 
 const periodTitle = computed(() => monthTitle(props.monthRef))
 const weeks = computed(() => quietMonthWeeks(props.monthRef))
+const { t } = useT()
+const AREAS = REFLECTION_MATRIX_AREAS
+const weekSeries = computed(() => quietMonthAreaSeries(weeks.value, dataBundle.value?.weeklyReflectionDetails ?? []))
+const weekSeriesRated = computed(() => AREAS.some(area => weekSeries.value[area.key].some(point => point.load != null && point.state != null)))
 const wordCount = computed(() => freeformReflection.value.trim().split(/\s+/).filter(Boolean).length)
 const filledAnchors = computed(() =>
   ANCHORS.map(anchor => ({ ...anchor, text: (promptResponses.value[anchor.key] ?? '').trim() })).filter(anchor => anchor.text),
