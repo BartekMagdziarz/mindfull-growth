@@ -48,6 +48,16 @@ const QUADRANT_CSS: Record<LoadStateQuadrant, string> = {
 /** Ink for the load axis (pencil) and for text on the dark quadrants. */
 export const LOAD_INK_CSS = 'rgb(var(--sky-800))'
 
+/** The two axes as drawn (the stored `demands` field is read as `load`). */
+export type LoadStateAxis = 'load' | 'state'
+
+const LOAD_ALPHA = [0.35, 0.5, 0.65, 0.8, 1] as const
+
+/** Load as ink with opacity by level — the "pencil" swatch for a single cell. */
+export function loadInkCss(load: MaybeRating): string | null {
+  return load == null ? null : `rgb(var(--sky-800) / ${LOAD_ALPHA[load - 1]})`
+}
+
 export function quadrantCss(quadrant: LoadStateQuadrant): string {
   return QUADRANT_CSS[quadrant]
 }

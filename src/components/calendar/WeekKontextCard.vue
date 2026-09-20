@@ -129,13 +129,8 @@ import { useT } from '@/composables/useT'
 import { useStructuredReflectionStore } from '@/stores/structuredReflection.store'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { WeeklyRatingKey, WeeklyReflection } from '@/domain/reflection'
-import {
-  MATRIX_SECTIONS,
-  REFLECTION_MATRIX_AREAS,
-  areaTitleKey,
-  type MatrixSection,
-} from '@/domain/reflectionMatrix'
-import { divergingRatingColor } from '@/utils/ratingGradient'
+import { REFLECTION_MATRIX_AREAS, areaTitleKey, sectionTitleKey } from '@/domain/reflectionMatrix'
+import { loadInkCss, pairColor, toRating, type LoadStateAxis } from '@/domain/loadState'
 import type { WeekPlanSummary } from '@/services/weeklyPlanSummary'
 
 const props = withDefaults(
@@ -219,7 +214,7 @@ interface DimensionItem {
 }
 
 interface DimensionGroup {
-  key: MatrixSection
+  key: LoadStateAxis
   label: string
   items: DimensionItem[]
 }
@@ -231,26 +226,28 @@ function valueFor(key: WeeklyRatingKey): number | null {
   return typeof v === 'number' ? v : null
 }
 
-const KONTEKST_GROUP_LABEL_KEYS: Record<MatrixSection, string> = {
-  demands: 'planning.reflection.review.kontekstGroupDemands',
-  actions: 'planning.reflection.review.kontekstGroupActions',
+const KONTEKST_GROUP_LABEL_KEYS: Record<LoadStateAxis, string> = {
+  load: sectionTitleKey('load'),
   state: 'planning.reflection.review.kontekstGroupState',
 }
+const AXES: LoadStateAxis[] = ['load', 'state']
 
-// Matrix-driven rows: one item per life area, labeled by area name (the group
-// header carries the section).
+// Two axes per life area (D10): load = matrix demands field (ink by level),
+// state = matrix state field (colour of the load/state quadrant).
 const ratingGroups = computed<DimensionGroup[]>(() =>
-  MATRIX_SECTIONS.map((section) => ({
-    key: section,
-    label: t(KONTEKST_GROUP_LABEL_KEYS[section]),
+  AXES.map((axis) => ({
+    key: axis,
+    label: t(KONTEKST_GROUP_LABEL_KEYS[axis]),
     items: REFLECTION_MATRIX_AREAS.map((area) => {
-      const key = area.fields[section]
+      const key = area.fields[axis === 'load' ? 'demands' : 'state']
       const value = valueFor(key)
+      const load = toRating(valueFor(area.fields.demands))
+      const state = toRating(valueFor(area.fields.state))
       return {
         key,
         label: t(areaTitleKey(area.key)),
         value,
-        color: divergingRatingColor(value, { invert: section === 'demands' }),
+        color: axis === 'load' ? loadInkCss(load) : state == null ? null : pairColor(load, state),
       }
     }),
   })),

@@ -237,8 +237,8 @@ describe('MonthWeekGrid', () => {
             ? Array.from({ length: 4 }, (_, r) => ({
                 areaKey: 'body' as const,
                 icon: 'fitness_center',
-                cells: Array.from({ length: 3 }, (_, c) => ({
-                  section: 'demands' as const,
+                cells: Array.from({ length: 2 }, (_, c) => ({
+                  section: (c === 0 ? 'load' : 'state') as 'load' | 'state',
                   rating: r + c > 0 ? 3 : null,
                   color: r + c > 0 ? 'rgb(1 2 3)' : null,
                 })),
@@ -297,10 +297,10 @@ describe('MonthWeekGrid', () => {
     expect(emitted().openWeek?.[0]).toEqual(['2026-W26'])
   })
 
-  it('renders the full 4×3 matrix for reflected weeks and an em-dash otherwise', () => {
+  it('renders the full 4×2 matrix for reflected weeks and an em-dash otherwise', () => {
     const { container } = renderGrid()
     const heads = [...container.querySelectorAll('.month-grid__week')]
-    expect(heads[0]!.querySelectorAll('.month-grid__matrix-cell')).toHaveLength(12)
+    expect(heads[0]!.querySelectorAll('.month-grid__matrix-cell')).toHaveLength(8)
     expect(heads[1]!.textContent).toContain('—')
   })
 })

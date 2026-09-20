@@ -309,10 +309,9 @@ const ringLabels = computed(() => ({
 }))
 
 // Matrix column headers reuse the weekly-reflection group titles
-// (Demands/Actions/State) — the week-card matrix renders those exact ratings.
+// (Load/State) — the week-card matrix renders those exact ratings.
 const sectionLabels = computed(() => ({
-  demands: t('planning.reflection.weekly.groups.demands.title'),
-  actions: t('planning.reflection.weekly.groups.actions.title'),
+  load: t('planning.reflection.weekly.groups.load.title'),
   state: t('planning.reflection.weekly.groups.state.title'),
 }))
 

@@ -99,7 +99,7 @@ export function cellAnchorKey(
 export function composeCellLabel(
   t: (key: string) => string,
   area: LifeAreaKey,
-  section: MatrixSection
+  section: MatrixCopySection
 ): string {
   return `${t(sectionTitleKey(section))} · ${t(areaTitleKey(area))}`
 }

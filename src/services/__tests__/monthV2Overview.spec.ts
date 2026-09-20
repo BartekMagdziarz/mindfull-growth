@@ -245,7 +245,7 @@ describe('month V2 week columns', () => {
     expect(middle.inMonthDayRefs).toHaveLength(7)
   })
 
-  it('attaches the full 4×3 reflection matrix only for weeks with a reflection', () => {
+  it('attaches the full 4×2 load/state matrix only for weeks with a reflection', () => {
     const reflection = {
       id: 'wr-1',
       createdAt: '2026-07-13T00:00:00.000Z',
@@ -271,7 +271,7 @@ describe('month V2 week columns', () => {
     const vm = buildMonthV2OverviewViewModel(makeData({ weeklyReflections: [reflection] }))
     const withMatrix = vm.weeks.find(w => w.weekRef === '2026-W27')!
     expect(withMatrix.reflectionMatrix).toHaveLength(4)
-    expect(withMatrix.reflectionMatrix![0]!.cells).toHaveLength(3)
+    expect(withMatrix.reflectionMatrix![0]!.cells).toHaveLength(2)
     // Unrated cell → null rating, neutral (null) color.
     const closeOnesRow = withMatrix.reflectionMatrix!.find(r => r.areaKey === 'closeOnes')!
     expect(closeOnesRow.cells[0]!.rating).toBeNull()

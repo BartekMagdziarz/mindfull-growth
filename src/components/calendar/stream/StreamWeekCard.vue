@@ -5,14 +5,15 @@ import { computed } from 'vue'
 import StreamCard from './StreamCard.vue'
 import StreamRing from './StreamRing.vue'
 import type { StreamMatrixCellVM, StreamMatrixRowVM, StreamWeekVM } from './streamModel'
-import { MATRIX_SECTIONS, composeCellLabel, type MatrixSection } from '@/domain/reflectionMatrix'
+import { composeCellLabel } from '@/domain/reflectionMatrix'
+import type { LoadStateAxis } from '@/domain/loadState'
 import { useT } from '@/composables/useT'
 
 const props = defineProps<{
   week: StreamWeekVM
   weekLabel: string
   rangeLabel: string
-  sectionLabels: Record<MatrixSection, string>
+  sectionLabels: Record<LoadStateAxis, string>
   ringLabels: Record<'goals' | 'habits' | 'intentions', string>
   index: number
 }>()
@@ -20,6 +21,7 @@ const props = defineProps<{
 defineEmits<{ select: [] }>()
 
 const { t } = useT()
+const AXES: LoadStateAxis[] = ['load', 'state']
 
 const labelStyle = computed(() => ({
   color: props.week.isCurrent
@@ -72,8 +74,8 @@ function areaIconStyle(row: StreamMatrixRowVM) {
       <span class="stream-week__range">{{ rangeLabel }}</span>
     </div>
 
-    <!-- 4×3 reflection matrix: life-area rows × Demands/Actions/State columns.
-         Rose = strain (Demands inverted), sky = ease/wellbeing. -->
+    <!-- 4×2 reflection matrix: life-area rows × Load/State columns.
+         Load = ink by level, State = colour of the load/state quadrant (D10). -->
     <div class="stream-week__matrix">
       <template v-for="row in week.matrix" :key="row.areaKey">
         <AppIcon class="material-symbols-outlined" :style="areaIconStyle(row)" aria-hidden="true" :name="row.icon" />
@@ -88,7 +90,7 @@ function areaIconStyle(row: StreamMatrixRowVM) {
 
       <span />
       <span
-        v-for="section in MATRIX_SECTIONS"
+        v-for="section in AXES"
         :key="section"
         class="stream-week__section-name"
       >
@@ -138,7 +140,7 @@ function areaIconStyle(row: StreamMatrixRowVM) {
 
 .stream-week__matrix {
   display: grid;
-  grid-template-columns: auto repeat(3, 1fr);
+  grid-template-columns: auto repeat(2, 1fr);
   align-items: center;
   justify-items: center;
   gap: 7px 10px;

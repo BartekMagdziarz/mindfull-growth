@@ -38,8 +38,8 @@ import { useJournalStore } from '@/stores/journal.store'
 import { useEmotionLogStore } from '@/stores/emotionLog.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
-import { MATRIX_SECTIONS, REFLECTION_MATRIX_AREAS } from '@/domain/reflectionMatrix'
-import { divergingRatingColor } from '@/utils/ratingGradient'
+import { REFLECTION_MATRIX_AREAS } from '@/domain/reflectionMatrix'
+import { loadInkCss, pairColor, toRating } from '@/domain/loadState'
 import {
   dayTimeState,
   monthTimeState,
@@ -148,18 +148,19 @@ function emptyQuadrantCounts(): Record<Quadrant, number> {
 export function matrixFromReflection(
   reflection: WeeklyReflection | undefined,
 ): StreamMatrixRowVM[] {
-  return REFLECTION_MATRIX_AREAS.map((area) => ({
-    areaKey: area.key,
-    icon: area.icon,
-    cells: MATRIX_SECTIONS.map((section) => {
-      const rating = reflection ? (reflection[area.fields[section]] as number | null) : null
-      return {
-        section,
-        rating,
-        color: divergingRatingColor(rating, { invert: section === 'demands' }),
-      }
-    }),
-  }))
+  return REFLECTION_MATRIX_AREAS.map((area) => {
+    // Two axes (D10): load = the stored demands field, state = the state field; actions stay history.
+    const load = toRating(reflection ? (reflection[area.fields.demands] as number | null) : null)
+    const state = toRating(reflection ? (reflection[area.fields.state] as number | null) : null)
+    return {
+      areaKey: area.key,
+      icon: area.icon,
+      cells: [
+        { section: 'load' as const, rating: load, color: loadInkCss(load) },
+        { section: 'state' as const, rating: state, color: state == null ? null : pairColor(load, state) },
+      ],
+    }
+  })
 }
 
 /**

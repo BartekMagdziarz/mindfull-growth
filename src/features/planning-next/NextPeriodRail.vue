@@ -5,14 +5,14 @@
         <header>
           <h2 id="week-ratings-title">Oceny tygodnia</h2>
           <div class="next-period-rail__legend" aria-hidden="true">
-            <span><i class="effort" />Wysiłek</span><span><i class="state" />Stan</span>
+            <span><i class="load" />Obciążenie</span><span><i class="state" />Stan</span>
           </div>
         </header>
         <div class="next-period-rail__bars" role="img" :aria-label="weekRatingsAria">
           <span v-for="rating in weekRatings" :key="rating.label" class="next-period-rail__bar-group">
             <span class="next-period-rail__bar-slots">
-              <i class="bar bar--effort" :class="{ empty: rating.effort == null }" :style="barStyle(rating.effort)"><b>{{ rating.effort ?? '—' }}</b></i>
-              <i class="bar bar--state" :class="{ empty: rating.state == null }" :style="barStyle(rating.state)"><b>{{ rating.state ?? '—' }}</b></i>
+              <i class="bar bar--load" :class="{ empty: rating.load == null }" :style="barStyle(rating.load)"><b>{{ rating.load ?? '—' }}</b></i>
+              <i class="bar bar--state" :class="{ empty: rating.state == null }" :style="stateBarStyle(rating.load, rating.state)"><b>{{ rating.state ?? '—' }}</b></i>
             </span>
             <small>{{ rating.label }}</small>
           </span>
@@ -57,7 +57,7 @@
 
       <header class="next-period-rail__heading">
         <span>Tygodnie</span>
-        <div class="next-period-rail__legend" aria-hidden="true"><span><i class="effort" />Wysiłek</span><span><i class="state" />Stan</span></div>
+        <div class="next-period-rail__legend" aria-hidden="true"><span><i class="load" />Obciążenie</span><span><i class="state" />Stan</span></div>
       </header>
       <div class="next-period-rail__list next-period-rail__list--weeks">
         <button
@@ -72,8 +72,8 @@
             <span class="next-period-rail__bars next-period-rail__bars--mini" aria-hidden="true">
               <span v-for="area in weekBars(week)" :key="area.areaKey" class="next-period-rail__bar-group">
                 <span class="next-period-rail__bar-slots">
-                  <i class="bar bar--effort" :class="{ empty: area.effort == null }" :style="barStyle(area.effort)" />
-                  <i class="bar bar--state" :class="{ empty: area.state == null }" :style="barStyle(area.state)" />
+                  <i class="bar bar--load" :class="{ empty: area.load == null }" :style="barStyle(area.load)" />
+                  <i class="bar bar--state" :class="{ empty: area.state == null }" :style="stateBarStyle(area.load, area.state)" />
                 </span>
               </span>
             </span>
@@ -109,7 +109,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { PlanningScale } from '@/design-system/contracts'
-import type { MatrixSection } from '@/domain/reflectionMatrix'
+import { REFLECTION_MATRIX_AREAS } from '@/domain/reflectionMatrix'
+import { pairColor, toRating, type LoadStateAxis } from '@/domain/loadState'
 import type { StreamDayVM, StreamMonthVM, StreamWeekVM } from '@/components/calendar/stream/streamModel'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { DsButton, DsState, DsSurface } from '@/design-system/components'
@@ -135,14 +136,15 @@ const ritualLabel = computed(() => ritualAction.value === 'plan'
   ? props.scale === 'year' ? 'Zaplanuj rok' : props.scale === 'month' ? 'Zaplanuj miesiąc' : 'Zaplanuj tydzień'
   : props.scale === 'month' ? 'Otwórz refleksję miesiąca' : 'Otwórz refleksję tygodnia')
 
+/** Two axes per area (D10): load = matrix demands field, state = matrix state field. */
 const weekRatings = computed(() => {
   const reflection = props.data?.scale === 'week' ? props.data.structuredReflection : null
-  return [
-    { label: 'Ciało', icon: 'accessibility_new', effort: reflection?.physicalCareRating ?? null, state: reflection?.energyRating ?? null },
-    { label: 'Emocje', icon: 'cognition', effort: reflection?.emotionalProcessingRating ?? null, state: reflection?.moodRating ?? null },
-    { label: 'Działanie', icon: 'directions_run', effort: reflection?.productivityRating ?? null, state: reflection?.calmRating ?? null },
-    { label: 'Relacje', icon: 'diversity_1', effort: reflection?.closeOnesSupportRating ?? null, state: reflection?.connectionRating ?? null },
-  ]
+  return REFLECTION_MATRIX_AREAS.map(area => ({
+    label: areaLabel(area.key),
+    icon: area.icon,
+    load: reflection?.[area.fields.demands] ?? null,
+    state: reflection?.[area.fields.state] ?? null,
+  }))
 })
 const monthRatings = computed(() => {
   const reflection = props.data?.scale === 'month' ? props.data.structuredReflection : null
@@ -154,7 +156,7 @@ const monthRatings = computed(() => {
     { label: 'Sprawczość', value: reflection?.agencyRating ?? null },
   ]
 })
-const weekRatingsAria = computed(() => `Oceny tygodnia. ${weekRatings.value.map(item => `${item.label}: Wysiłek ${item.effort ?? 'brak'}, Stan ${item.state ?? 'brak'}`).join('; ')}`)
+const weekRatingsAria = computed(() => `Oceny tygodnia. ${weekRatings.value.map(item => `${item.label}: Obciążenie ${item.load ?? 'brak'}, Stan ${item.state ?? 'brak'}`).join('; ')}`)
 const monthRatingsAria = computed(() => `Oceny miesiąca. ${monthRatings.value.map(item => `${item.label}: ${item.value ?? 'brak'}`).join('; ')}`)
 
 // Bars carry the 1–5 rating as height; the floor keeps a "1" readable (and its
@@ -163,23 +165,29 @@ const monthRatingsAria = computed(() => `Oceny miesiąca. ${monthRatings.value.m
 function barStyle(value: number | null | undefined): Record<string, string> | undefined {
   return value == null ? undefined : { height: `${Math.max(26, (value / 5) * 100)}%` }
 }
-function weekMatrixValues(week: StreamWeekVM, section: MatrixSection): Array<number | null> {
+/** State bar in the colour of the load/state quadrant once both axes are rated. */
+function stateBarStyle(load: number | null | undefined, state: number | null | undefined): Record<string, string> | undefined {
+  const base = barStyle(state)
+  if (!base || load == null) return base
+  return { ...base, background: pairColor(toRating(load), toRating(state ?? null)) }
+}
+function weekMatrixValues(week: StreamWeekVM, section: LoadStateAxis): Array<number | null> {
   return week.matrix.map(row => row.cells.find(cell => cell.section === section)?.rating ?? null)
 }
-function weekBars(week: StreamWeekVM): Array<{ areaKey: string; effort: number | null; state: number | null }> {
+function weekBars(week: StreamWeekVM): Array<{ areaKey: string; load: number | null; state: number | null }> {
   return week.matrix.map(row => ({
     areaKey: row.areaKey,
-    effort: row.cells.find(cell => cell.section === 'actions')?.rating ?? null,
+    load: row.cells.find(cell => cell.section === 'load')?.rating ?? null,
     state: row.cells.find(cell => cell.section === 'state')?.rating ?? null,
   }))
 }
 function areaLabel(areaKey: string): string {
-  return areaKey === 'body' ? 'Ciało' : areaKey === 'emotions' ? 'Emocje' : areaKey === 'tasks' ? 'Działanie' : 'Relacje'
+  return areaKey === 'body' ? 'Ciało' : areaKey === 'emotions' ? 'Emocje' : areaKey === 'tasks' ? 'Zadania' : 'Bliscy'
 }
 function weekMatrixAria(week: StreamWeekVM): string {
-  const effort = weekMatrixValues(week, 'actions').map(value => value ?? 'brak').join(', ')
+  const load = weekMatrixValues(week, 'load').map(value => value ?? 'brak').join(', ')
   const state = weekMatrixValues(week, 'state').map(value => value ?? 'brak').join(', ')
-  return `Tydzień ${week.weekNumber}. Wysiłek: ${effort}. Stan: ${state}.`
+  return `Tydzień ${week.weekNumber}. Obciążenie: ${load}. Stan: ${state}.`
 }
 function dayActivityLabel(day: StreamDayVM): string {
   const activityCount = day.rings.reduce((sum, ring) => sum + (ring.num ?? 0), 0)

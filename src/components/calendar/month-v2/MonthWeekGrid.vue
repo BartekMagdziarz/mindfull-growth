@@ -35,7 +35,7 @@
           </span>
           <span class="month-grid__week-range">{{ weekRange(week) }}</span>
 
-          <!-- Full 4-areas × 3-groups reflection matrix (no aggregation). -->
+          <!-- Full 4-areas × 2-axes (load · state) reflection matrix (no aggregation). -->
           <span
             v-if="week.reflectionMatrix"
             class="month-grid__matrix"

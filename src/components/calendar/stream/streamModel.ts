@@ -6,7 +6,8 @@
  * owns the shared shapes and the past/current/future classification.
  */
 import type { DayRef, MonthRef, WeekRef } from '@/domain/period'
-import type { LifeAreaKey, MatrixSection } from '@/domain/reflectionMatrix'
+import type { LifeAreaKey } from '@/domain/reflectionMatrix'
+import type { LoadStateAxis } from '@/domain/loadState'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
 export type PeriodTimeState = 'past' | 'current' | 'future'
@@ -37,20 +38,20 @@ export interface StreamBarVM {
   icon?: string
 }
 
-/** One cell of the week-card 4×3 reflection matrix (area row × section column). */
+/** One cell of the week-card 4×2 reflection matrix (area row × load/state column). */
 export interface StreamMatrixCellVM {
-  section: MatrixSection
+  section: LoadStateAxis
   /** Raw 1–5 rating (tooltips show "n/5"), null = unrated. */
   rating: number | null
-  /** Resolved diverging swatch color (Demands inverted), null = empty treatment. */
+  /** Load: ink with opacity by level; state: colour of the load/state quadrant. null = empty treatment. */
   color: string | null
 }
 
-/** A week-card matrix row: one life area with its demands/actions/state cells. */
+/** A week-card matrix row: one life area with its load and state cells (D10). */
 export interface StreamMatrixRowVM {
   areaKey: LifeAreaKey
   icon: string
-  /** Always 3 cells, in demands → actions → state order. */
+  /** Always 2 cells, in load → state order. */
   cells: StreamMatrixCellVM[]
 }
 
