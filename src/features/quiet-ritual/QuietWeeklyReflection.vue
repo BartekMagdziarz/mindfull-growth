@@ -140,19 +140,25 @@
       </details>
     </section>
 
-    <!-- 2–5 · Obszary życia — Wysiłek i Stan, jeden obszar naraz -->
+    <!-- 2–5 · Obszary życia — Obciążenie i Stan, jeden obszar naraz; ostatnie tygodnie jako wstęga nad słupkami -->
     <section v-else-if="activeArea" class="qr-ratings">
+      <div class="qr-tail">
+        <header>
+          <AppIcon :name="activeArea.icon" />
+          <span>{{ t(areaTitleKey(activeArea.key)) }} · ostatnie {{ TAIL_WEEKS }} tygodni</span>
+          <small>{{ currentPairRated ? 'ten tydzień dorysowany na końcu' : 'ten tydzień jeszcze bez oceny' }}</small>
+        </header>
+        <LoadStateRibbon :points="tailPoints" :label="t(areaTitleKey(activeArea.key))" :height="84" show-axis />
+      </div>
       <div class="qr-bars">
         <QuietRatingBar
-          :model-value="ratingValue(activeArea.fields.actions)"
-          :label="t('planning.reflection.weekly.groups.actions.title')"
-          :hint="tg(cellQuestionKey(activeArea.key, 'actions'))"
-          :high-label="t(cellAnchorKey(activeArea.key, 'actions', 'high'))"
-          :low-label="t(cellAnchorKey(activeArea.key, 'actions', 'low'))"
-          effort
-          :previous="previousRating(activeArea.fields.actions)"
-          previous-label="Poprzedni tydzień"
-          @update:model-value="setRating(activeArea.fields.actions, $event)"
+          :model-value="ratingValue(activeArea.fields.demands)"
+          :label="t('planning.reflection.weekly.groups.load.title')"
+          :hint="tg(cellQuestionKey(activeArea.key, 'load'))"
+          :high-label="t(cellAnchorKey(activeArea.key, 'load', 'high'))"
+          :low-label="t(cellAnchorKey(activeArea.key, 'load', 'low'))"
+          tone="load"
+          @update:model-value="setRating(activeArea.fields.demands, $event)"
         />
         <QuietRatingBar
           :model-value="ratingValue(activeArea.fields.state)"
@@ -160,8 +166,7 @@
           :hint="tg(cellQuestionKey(activeArea.key, 'state'))"
           :high-label="t(cellAnchorKey(activeArea.key, 'state', 'high'))"
           :low-label="t(cellAnchorKey(activeArea.key, 'state', 'low'))"
-          :previous="previousRating(activeArea.fields.state)"
-          previous-label="Poprzedni tydzień"
+          :fill-color="currentPairRated ? pairColor(currentPair.load, currentPair.state) : null"
           @update:model-value="setRating(activeArea.fields.state, $event)"
         />
       </div>
@@ -192,20 +197,6 @@
           </button>
         </div>
       </div>
-
-      <details class="qr-demands">
-        <summary>Wymagania tego obszaru (opcjonalnie)</summary>
-        <QuietRatingBar
-          :model-value="ratingValue(activeArea.fields.demands)"
-          :label="t('planning.reflection.weekly.groups.demands.title')"
-          :hint="tg(cellQuestionKey(activeArea.key, 'demands'))"
-          :high-label="t(cellAnchorKey(activeArea.key, 'demands', 'high'))"
-          :low-label="t(cellAnchorKey(activeArea.key, 'demands', 'low'))"
-          :previous="previousRating(activeArea.fields.demands)"
-          previous-label="Poprzedni tydzień"
-          @update:model-value="setRating(activeArea.fields.demands, $event)"
-        />
-      </details>
     </section>
 
     <!-- 6 · Kotwice -->
@@ -254,12 +245,11 @@
           <ul class="qr-ctx-ratings">
             <li v-for="(area, index) in AREAS" :key="area.key">
               <span class="qr-ctx-pair" aria-hidden="true">
-                <i class="qr-ctx-bar qr-ctx-bar--effort" :style="{ height: `${((ratingValue(area.fields.actions) ?? 0) / 5) * 100}%` }" />
-                <i class="qr-ctx-bar qr-ctx-bar--state" :style="{ height: `${((ratingValue(area.fields.state) ?? 0) / 5) * 100}%` }" />
+                <LoadStateBars :load="toRating(ratingValue(area.fields.demands))" :state="toRating(ratingValue(area.fields.state))" />
               </span>
               <button type="button" class="qr-ctx-area" @click="go(index + 1)">
                 <span>{{ t(areaTitleKey(area.key)) }}</span>
-                <small>{{ ratingValue(area.fields.actions) ?? '—' }} · {{ ratingValue(area.fields.state) ?? '—' }}</small>
+                <small>{{ ratingValue(area.fields.demands) ?? '—' }} · {{ ratingValue(area.fields.state) ?? '—' }}</small>
               </button>
               <span v-if="tagsFor(area.key).length" class="qr-ctx-tags">{{ tagsFor(area.key).join(', ') }}</span>
             </li>
@@ -344,6 +334,10 @@ import type { WeeklyRatingKey } from '@/domain/reflection'
 import type { LifeAreaKey } from '@/domain/reflectionMatrix'
 import { REFLECTION_MATRIX_AREAS, areaTitleKey, cellAnchorKey, cellQuestionKey } from '@/domain/reflectionMatrix'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import LoadStateBars from '@/components/shared/charts/LoadStateBars.vue'
+import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
+import { pairColor, toRating } from '@/domain/loadState'
+import { buildAreaSeries, trailingWeekRefs, weekPointLabel, type AreaSeries, type WeekPoint } from '@/domain/loadStateSeries'
 import { useT } from '@/composables/useT'
 import { useWeeklyReflectionWizard } from '@/composables/useWeeklyReflectionWizard'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
@@ -352,7 +346,7 @@ import {
   type ReflectionPriorityLine,
   type ReflectionSummaryContext,
 } from '@/services/reflectionSummaryService'
-import { getPeriodBounds, getPreviousPeriod } from '@/utils/periods'
+import { getPeriodBounds } from '@/utils/periods'
 import QuietEmotionStack from './QuietEmotionStack.vue'
 import QuietJournalAi from './QuietJournalAi.vue'
 import QuietRatingBar from './QuietRatingBar.vue'
@@ -403,7 +397,9 @@ const contextOpen = ref(false)
 const aiOpen = ref(false)
 const saved = ref(false)
 const tagInput = reactive<Record<string, string>>({})
-const previousRatings = ref<Partial<Record<WeeklyRatingKey, number | null>>>({})
+/** Load/state history of the preceding weeks (the ribbon's tail); the current week is appended live. */
+const TAIL_WEEKS = 10
+const tailHistory = ref<AreaSeries | null>(null)
 const recentTags = ref<string[]>([])
 
 const steps = computed<QuietRitualStep[]>(() => [
@@ -469,6 +465,19 @@ const filledAnchors = computed(() =>
 )
 const wordCount = computed(() => freeformReflection.value.trim().split(/\s+/).filter(Boolean).length)
 
+const currentPair = computed(() => {
+  const area = activeArea.value
+  if (!area) return { load: null, state: null }
+  return { load: toRating(ratingValue(area.fields.demands)), state: toRating(ratingValue(area.fields.state)) }
+})
+const currentPairRated = computed(() => currentPair.value.load != null && currentPair.value.state != null)
+const tailPoints = computed<WeekPoint[]>(() => {
+  const area = activeArea.value
+  if (!area) return []
+  const history = tailHistory.value?.[area.key] ?? []
+  return [...history, { weekRef: props.weekRef, label: weekPointLabel(props.weekRef), ...currentPair.value }]
+})
+
 const areaTags = computed(() => (activeArea.value ? tagsFor(activeArea.value.key) : []))
 const tagSuggestions = computed(() => recentTags.value.filter(tag => !areaTags.value.includes(tag)).slice(0, 8))
 
@@ -486,7 +495,7 @@ const summaryContext = computed<ReflectionSummaryContext>(() => {
     kind: 'weekly',
     periodLabel: `${props.weekRef} · ${periodTitle.value}`,
     ratings: AREAS.flatMap(area => [
-      { label: `${t(areaTitleKey(area.key))} · wysiłek`, value: ratingValue(area.fields.actions) },
+      { label: `${t(areaTitleKey(area.key))} · obciążenie`, value: ratingValue(area.fields.demands) },
       { label: `${t(areaTitleKey(area.key))} · stan`, value: ratingValue(area.fields.state) },
     ]),
     anchors: ANCHORS.map(anchor => ({ label: anchor.label, text: (promptResponses.value[anchor.key] ?? '').trim() })).filter(
@@ -501,12 +510,9 @@ const summaryContext = computed<ReflectionSummaryContext>(() => {
 })
 
 onMounted(async () => {
-  const previous = await structuredReflectionDexieRepository.getWeekly(getPreviousPeriod(props.weekRef) as WeekRef)
-  if (previous) {
-    previousRatings.value = Object.fromEntries(
-      Object.keys(ratingRefsByKey).map(key => [key, previous[key as WeeklyRatingKey]]),
-    ) as Partial<Record<WeeklyRatingKey, number | null>>
-  }
+  // The ribbon's tail: the preceding weeks; the current week is appended live from the bars.
+  const previousRefs = trailingWeekRefs(props.weekRef, TAIL_WEEKS).slice(0, -1)
+  tailHistory.value = buildAreaSeries(await structuredReflectionDexieRepository.listWeeklyByRefs(previousRefs), previousRefs)
   // Tag suggestions come from the user's own recent weekly reflections; there is
   // no shared vocabulary for area tags.
   const all = await structuredReflectionDexieRepository.listWeekly()
@@ -536,9 +542,6 @@ function ratingValue(key: WeeklyRatingKey): number | null {
 function setRating(key: WeeklyRatingKey, value: number | null) {
   ratingRefsByKey[key].value = value
   saved.value = false
-}
-function previousRating(key: WeeklyRatingKey): number | null {
-  return previousRatings.value[key] ?? null
 }
 
 function tagsFor(areaKey: LifeAreaKey): string[] {

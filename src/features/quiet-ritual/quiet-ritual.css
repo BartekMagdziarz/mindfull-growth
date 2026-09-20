@@ -1298,6 +1298,12 @@
 .qr-axis--effort .qr-scale--vertical button.filled {
   background: var(--qr-effort-strong);
 }
+.qr-axis--load .qr-scale--vertical button.filled {
+  background: rgb(var(--sky-800));
+}
+.qr-axis--paired .qr-scale--vertical button.filled {
+  background: var(--qr-fill);
+}
 .qr-bar-body > output {
   justify-self: start;
   min-width: 34px;
@@ -1446,23 +1452,9 @@
 .qr-ctx-pair {
   display: flex;
   align-items: end;
-  gap: 4px;
-  height: 44px;
-  padding: 3px 6px;
+  padding: 3px 8px;
   background: var(--qr-inner);
   border-radius: 8px 10px 7px 9px;
-}
-.qr-ctx-bar {
-  display: inline-block;
-  width: 9px;
-  min-height: 2px;
-  border-radius: 3px 4px 2px 3px;
-}
-.qr-ctx-bar--effort {
-  background: var(--qr-effort-mid);
-}
-.qr-ctx-bar--state {
-  background: var(--qr-accent);
 }
 .qr-ctx-area {
   display: flex;
@@ -2113,11 +2105,31 @@
   padding-bottom: 2px;
 }
 /* Demands stay available but never lead: the quiet step asks Wysiłek and Stan. */
-.qr-demands {
-  margin-top: 18px;
+/* Tail of the area: the last weeks as a load/state ribbon above the two bars. */
+.qr-tail {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+  padding: 16px 26px 12px;
+  background: var(--qr-field);
+  border-radius: 21px 25px 19px 23px;
 }
-.qr-demands > summary {
-  text-align: center;
+.qr-tail > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--qr-muted);
+}
+.qr-tail > header .material-symbols-outlined {
+  font-size: 17px;
+  color: var(--qr-accent-strong);
+}
+.qr-tail > header small {
+  margin-left: auto;
+  font-weight: 600;
+  font-style: italic;
 }
 .qr-ai {
   display: grid;

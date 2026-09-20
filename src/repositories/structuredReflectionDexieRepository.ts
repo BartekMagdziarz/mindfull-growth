@@ -44,6 +44,16 @@ class StructuredReflectionDexieRepository implements StructuredReflectionReposit
     }
   }
 
+  async listWeeklyByRefs(weekRefs: readonly WeekRef[]): Promise<WeeklyReflection[]> {
+    if (!weekRefs.length) return []
+    try {
+      return await this.db.weeklyReflections.where('weekRef').anyOf([...weekRefs]).toArray()
+    } catch (error) {
+      console.error('Failed to list weekly reflections by refs:', error)
+      throw new Error('Failed to retrieve weekly reflections from database')
+    }
+  }
+
   async upsertWeekly(
     data: CreateWeeklyReflectionPayload | UpdateWeeklyReflectionPayload
   ): Promise<WeeklyReflection> {

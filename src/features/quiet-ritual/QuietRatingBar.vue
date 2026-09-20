@@ -1,5 +1,9 @@
 <template>
-  <article class="qr-axis" :class="{ 'qr-axis--effort': effort, 'qr-axis--compact': compact }">
+  <article
+    class="qr-axis"
+    :class="{ 'qr-axis--effort': effort, 'qr-axis--compact': compact, 'qr-axis--load': tone === 'load', 'qr-axis--paired': !!fillColor }"
+    :style="fillColor ? { '--qr-fill': fillColor } : undefined"
+  >
     <header>
       <h2>{{ label }}</h2>
       <details v-if="hint" class="qr-help">
@@ -66,8 +70,12 @@ const props = withDefaults(
     modelValue: number | null
     label: string
     hint?: string
-    /** Effort axis — rose family, "Duży / Niewielki" ends. */
+    /** Effort axis — rose family, "Duży / Niewielki" ends (legacy actions column). */
     effort?: boolean
+    /** Load axis — ink fills (sky-800), the "pencil" of the load/state pair. */
+    tone?: 'default' | 'load'
+    /** Custom fill for the filled steps, e.g. the load/state quadrant colour. */
+    fillColor?: string | null
     /** Narrow variant for the five-axis compass (five bars side by side). */
     compact?: boolean
     /** Previous period's value, drawn as a faint outline until the bar is used. */
@@ -76,7 +84,7 @@ const props = withDefaults(
     highLabel?: string
     lowLabel?: string
   }>(),
-  { effort: false, compact: false, previous: null, previousLabel: 'Poprzednio' },
+  { effort: false, compact: false, tone: 'default', fillColor: null, previous: null, previousLabel: 'Poprzednio' },
 )
 
 const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>()

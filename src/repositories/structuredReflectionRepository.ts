@@ -12,6 +12,8 @@ export interface StructuredReflectionRepository {
   // Weekly
   getWeekly(weekRef: WeekRef): Promise<WeeklyReflection | undefined>
   listWeekly(): Promise<WeeklyReflection[]>
+  /** Weekly reflections for the given week refs (missing weeks are simply absent). */
+  listWeeklyByRefs(weekRefs: readonly WeekRef[]): Promise<WeeklyReflection[]>
   upsertWeekly(
     data: CreateWeeklyReflectionPayload | UpdateWeeklyReflectionPayload
   ): Promise<WeeklyReflection>

@@ -1454,6 +1454,9 @@
       "title": "Weekly Reflection",
       "progress": "Reflection progress",
       "groups": {
+        "load": {
+          "title": "Load"
+        },
         "demands": {
           "title": "Demands"
         },
@@ -1467,6 +1470,14 @@
       "areas": {
         "body": {
           "title": "Body",
+          "load": {
+            "question": {
+              "m": "How much did this week ask of your body?",
+              "f": "How much did this week ask of your body?"
+            },
+            "low": "Lightly",
+            "high": "Heavily"
+          },
           "demands": {
             "question": {
               "m": "How hard was this week on your body?",
@@ -1494,6 +1505,14 @@
         },
         "emotions": {
           "title": "Emotions",
+          "load": {
+            "question": {
+              "m": "How strongly did things move you this week?",
+              "f": "How strongly did things move you this week?"
+            },
+            "low": "Barely",
+            "high": "Very strongly"
+          },
           "demands": {
             "question": {
               "m": "How intense were the emotions this week brought?",
@@ -1521,6 +1540,14 @@
         },
         "tasks": {
           "title": "Tasks",
+          "load": {
+            "question": {
+              "m": "How much work did you actually get through this week?",
+              "f": "How much work did you actually get through this week?"
+            },
+            "low": "Little",
+            "high": "A great deal"
+          },
           "demands": {
             "question": {
               "m": "How heavy was the load of tasks and duties this week?",
@@ -1548,6 +1575,14 @@
         },
         "closeOnes": {
           "title": "Close ones",
+          "load": {
+            "question": {
+              "m": "How much did you give to your close ones, and how much did it cost you this week?",
+              "f": "How much did you give to your close ones, and how much did it cost you this week?"
+            },
+            "low": "Little",
+            "high": "A great deal"
+          },
           "demands": {
             "question": {
               "m": "How much attention did your close ones need this week?",

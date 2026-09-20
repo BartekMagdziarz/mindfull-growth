@@ -1454,6 +1454,9 @@
       "title": "Refleksja tygodniowa",
       "progress": "Postęp refleksji",
       "groups": {
+        "load": {
+          "title": "Obciążenie"
+        },
         "demands": {
           "title": "Wymagania"
         },
@@ -1467,6 +1470,14 @@
       "areas": {
         "body": {
           "title": "Ciało",
+          "load": {
+            "question": {
+              "m": "Jak bardzo ten tydzień obciążał Twoje ciało?",
+              "f": "Jak bardzo ten tydzień obciążał Twoje ciało?"
+            },
+            "low": "Lekko",
+            "high": "Ciężko"
+          },
           "demands": {
             "question": {
               "m": "Jak bardzo ten tydzień obciążał Twoje ciało?",
@@ -1494,6 +1505,14 @@
         },
         "emotions": {
           "title": "Emocje",
+          "load": {
+            "question": {
+              "m": "Jak mocno rzeczy poruszały Cię w tym tygodniu?",
+              "f": "Jak mocno rzeczy poruszały Cię w tym tygodniu?"
+            },
+            "low": "Ledwo",
+            "high": "Bardzo mocno"
+          },
           "demands": {
             "question": {
               "m": "Jak intensywne emocje przyniósł ten tydzień?",
@@ -1521,6 +1540,14 @@
         },
         "tasks": {
           "title": "Zadania",
+          "load": {
+            "question": {
+              "m": "Ile pracy faktycznie przerobiłeś w tym tygodniu?",
+              "f": "Ile pracy faktycznie przerobiłaś w tym tygodniu?"
+            },
+            "low": "Niewiele",
+            "high": "Bardzo dużo"
+          },
           "demands": {
             "question": {
               "m": "Jak duży był ciężar zadań i obowiązków w tym tygodniu?",
@@ -1548,6 +1575,14 @@
         },
         "closeOnes": {
           "title": "Bliscy",
+          "load": {
+            "question": {
+              "m": "Ile dawałeś bliskim i ile Cię to kosztowało w tym tygodniu?",
+              "f": "Ile dawałaś bliskim i ile Cię to kosztowało w tym tygodniu?"
+            },
+            "low": "Niewiele",
+            "high": "Bardzo dużo"
+          },
           "demands": {
             "question": {
               "m": "Jak dużo uwagi potrzebowali w tym tygodniu Twoi bliscy?",

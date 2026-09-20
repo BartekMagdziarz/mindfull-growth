@@ -15,6 +15,12 @@ import type { WeeklyRatingKey } from '@/domain/reflection'
 
 export type LifeAreaKey = 'body' | 'emotions' | 'tasks' | 'closeOnes'
 export type MatrixSection = 'demands' | 'actions' | 'state'
+/**
+ * Sections that have i18n copy. `load` is the two-axis reading of the
+ * `demands` field (decision D10, 2026-09-20): same stored rating, new question
+ * and anchors; there is no separate `load` field in the data.
+ */
+export type MatrixCopySection = MatrixSection | 'load'
 
 export const MATRIX_SECTIONS = ['demands', 'actions', 'state'] as const satisfies readonly MatrixSection[]
 
@@ -73,17 +79,17 @@ export function areaTitleKey(area: LifeAreaKey): string {
   return `planning.reflection.weekly.areas.${area}.title`
 }
 
-export function sectionTitleKey(section: MatrixSection): string {
+export function sectionTitleKey(section: MatrixCopySection): string {
   return `planning.reflection.weekly.groups.${section}.title`
 }
 
-export function cellQuestionKey(area: LifeAreaKey, section: MatrixSection): string {
+export function cellQuestionKey(area: LifeAreaKey, section: MatrixCopySection): string {
   return `planning.reflection.weekly.areas.${area}.${section}.question`
 }
 
 export function cellAnchorKey(
   area: LifeAreaKey,
-  section: MatrixSection,
+  section: MatrixCopySection,
   end: 'low' | 'high'
 ): string {
   return `planning.reflection.weekly.areas.${area}.${section}.${end}`
