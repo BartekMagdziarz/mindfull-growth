@@ -223,6 +223,33 @@ month → open week. UX for this chain (length, skippability) is an open topic.
   the month/week overlap §3 diagnosed (both grids were editing the same shared
   `MeasurementDayAssignment` rows from two places).
 
+- **D10 — Two axes per life area: Load + State (resolved 2026-09-20).** The weekly
+  rating matrix is *read and asked* as two axes per area, not three:
+  **Obciążenie** (load) = the stored `demands` field (`physicalIntensityRating`,
+  `emotionalIntensityRating`, `taskLoadRating`, `closeOnesNeedsRating`) and **Stan**
+  (state) = the stored `state` field. The `actions` column (`*CareRating`,
+  `productivityRating`, …) is no longer asked in the quiet ritual and is not drawn
+  anywhere new; the fields stay in the data as history and the classic wizard
+  (`?ritual=classic`) still writes them. Semantics: tasks' load = work actually
+  processed (worrying about undone work is *emotional* load); close ones' load =
+  support given + being thrown off balance. A pair gets one colour — the emotion
+  quadrant tokens with load as arousal and state as pleasantness: rose = heavy·bad,
+  violet = light·bad, light blue = light·good, `sky-600` = heavy·good; state = 3 is
+  `sky-500` (no verdict); load = 3 with a decided state blends the two neighbours
+  (`src/domain/loadState.ts`). A single week is two bars (load in ink `sky-800`, state
+  in the pair colour); a series of weeks is the "pencil and watercolour" ribbon
+  (`LoadStateRibbon`: thin line = load, thick line = state, watercolour between them in
+  the pair colour, smooth gradient between week centres, gaps where a week has no
+  reflection). Placements: rhythm calendar "Oceny tygodni" (4 area rows), the period
+  summary rating card (wide column, 2×2 area ribbons: weeks of the month / last 12
+  weeks), the quiet weekly reflection area step (10-week tail above the two bars, the
+  current week drawn live), the monthly reflection journal context ("Z tygodni").
+  Not placed: Today, week cards in the month view (they keep a 4×2 cell matrix), the
+  weekly review step. Supersedes the D2 amendment's "4 × 3 matrix" reading and the
+  diverging rose↔sky scale with inverted Demands. Concept and decisions: UX Lab
+  `/concepts/week-load-state` and `/concepts/week-load-state-places`; plan in
+  `ideas/html-plans/2026-09-20-load-state-two-axes-implementation.html`.
+
 ## 8. Mapping to the existing data model (reuse, not rebuild)
 
 - `WeekPlan` / `MonthPlan` (already first-class records) gain intention fields: `WeekPlan`

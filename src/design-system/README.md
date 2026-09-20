@@ -70,8 +70,18 @@ zwiększa odstępów — poprawa separacji pochodzi ze wspólnego tła.
 
 ## Ikony Organic Outline B (2026-09-13)
 
-Na prośbę użytkownika aplikacja używa zatwierdzonej rodziny 241 SVG z UX Lab. Źródło: `icons/organicIcons.ts` oraz `icons/seedIcons.ts`; Lab importuje ten sam katalog. Renderuj przez `AppIcon`, np. `<AppIcon name="mg-goal" class="text-xl" />`. Siatka 24×24, kontur 1.75, zaokrąglone końce, `currentColor`. Ikona jest dekoracyjna; przycisk bez tekstu musi mieć dostępną nazwę.
+Na prośbę użytkownika aplikacja używa zatwierdzonej rodziny 293 SVG z UX Lab. Źródło: `icons/organicIcons.ts` oraz `icons/seedIcons.ts`; Lab importuje ten sam katalog. Renderuj przez `AppIcon`, np. `<AppIcon name="mg-goal" class="text-xl" />`. Siatka 24×24, kontur 1.75, zaokrąglone końce, `currentColor`. Ikona jest dekoracyjna; przycisk bez tekstu musi mieć dostępną nazwę.
 
 `icons/resolveIcon.ts` obsługuje stare nazwy bez przepisywania danych oraz dodatkowe rozróżnialne stany checkboxów, radio i skal ocen. Nowy `IconPicker` zapisuje `mg-<id>`, aby uniknąć kolizji ze starymi identyfikatorami. Emoji użytkownika i dedykowane grafiki emocji pozostają zachowane. Nieznany historyczny symbol wyświetla neutralną ikonę biblioteki, zachowując zapisaną wartość.
 
 Klasa `material-symbols-outlined` pozostaje tymczasowo jako istniejący selektor rozmiaru/koloru; nie renderuje już tekstu fontu. Produkcyjny HTML nie pobiera fontu Material Symbols. Nie dodawać surowych spanów z nazwą symbolu. Zmiany geometrii sprawdzać w Labie w 16/20/24/32 px i uruchamiać jego eksport.
+
+## Obciążenie i stan (2026-09-20)
+
+Oceny tygodnia per obszar to dwie osie: **obciążenie** (atrament, `rgb(var(--sky-800))`,
+krycie rośnie z poziomem) i **stan** w kolorze ćwiartki pary — tokeny ćwiartek emocji
+(`--color-quadrant-*`) plus `--sky-600` dla „ciężko · dobrze” i `--sky-500` dla środka.
+Reguła koloru mieszka w `src/domain/loadState.ts` (`pairColor`, `pairInk`, `loadInkCss`);
+wstęga serii to `src/components/shared/charts/LoadStateRibbon.vue`. Różowa rodzina
+`--mg-color-effort*` należy do starej osi Działania (klasyczny wizard) i **nie** oznacza
+obciążenia — w nowych widokach jej nie używać.

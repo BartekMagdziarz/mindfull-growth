@@ -47,7 +47,7 @@
             <span class="ps__eyebrow ps__multiples-cap">{{ multiples.caption }}</span>
             <div v-for="cell in multiples.cells" :key="cell.area" class="ps__multiple">
               <span><AppIcon :name="cell.icon" />{{ cell.label }}</span>
-              <LoadStateRibbon :points="cell.points" :label="cell.label" :height="58" :show-axis="cell.axis" quiet @select="ref => emit('open-week', ref)" />
+              <LoadStateRibbon :points="cell.points" :label="cell.label" :height="58" :show-axis="cell.axis" :tick-every="cell.points.length > 4 ? 2 : 1" quiet @select="ref => emit('open-week', ref)" />
             </div>
           </div>
         </div>

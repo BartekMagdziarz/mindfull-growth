@@ -343,6 +343,24 @@ async function addMultiEntries(
   )
 }
 
+const WEEK_ANCHOR_TEXTS = {
+  wentWell: [
+    'Trzy biegi mimo deszczu; wieczory bez ekranu weszły w krew.',
+    'Rozmowa z M. o planach na jesień — spokojnie i do końca.',
+    'Domknięty raport przed terminem, bez nocnej dogrywki.',
+  ],
+  challenges: [
+    'Krótkie noce od środy; czwartek przespany w pracy.',
+    'Za dużo spraw naraz — zadania czekały, a ja krążyłem wokół nich.',
+    'Napięcie w domu po niedzielnym spotkaniu.',
+  ],
+  lessons: [
+    'Sen przed 23 daje więcej niż dodatkowy trening.',
+    'Jedna decyzja rano oszczędza wieczór wahania.',
+    'Powiedzieć wcześniej „nie” jest tańsze niż odkręcać potem.',
+  ],
+} as const
+
 function clampRating(value: number): number {
   return Math.max(1, Math.min(5, value))
 }
@@ -1069,23 +1087,38 @@ export async function seedVerificationData(): Promise<void> {
 
   // ── 10. Weekly reflections (closed weeks only — current stays planning-only) ─
 
+  // Load (matrix demands fields) and state per area follow a small "story" so the
+  // load/state ribbons visit every quadrant: heavy·good → heavy·bad → light·bad →
+  // light·good → midpoint. One closed week is left without a reflection on purpose:
+  // the ribbon has to show a gap there, not a 3·3.
+  const LOAD_STORY = [5, 4, 5, 2, 1, 2, 3, 4] as const
+  const STATE_STORY = [4, 5, 2, 1, 2, 4, 3, 4] as const
+  const GAP_WEEK_INDEX = pastWeeks.length > 3 ? pastWeeks.length - 3 : -1
   for (const [weekIdx, weekRef] of pastWeeks.entries()) {
-    const rating = (dim: number): number => clampRating(2 + ((weekIdx + dim) % 4))
+    if (weekIdx === GAP_WEEK_INDEX) continue
+    const load = (area: number): number => clampRating(LOAD_STORY[(weekIdx + area) % LOAD_STORY.length])
+    const state = (area: number): number => clampRating(STATE_STORY[(weekIdx + area) % STATE_STORY.length])
+    // The actions column is history only (D10): still written so the classic wizard reads a full record.
+    const action = (dim: number): number => clampRating(2 + ((weekIdx + dim) % 4))
     await structuredReflectionDexieRepository.upsertWeekly({
       weekRef,
-      physicalIntensityRating: rating(0),
-      emotionalIntensityRating: rating(1),
-      taskLoadRating: rating(2),
-      closeOnesNeedsRating: rating(3),
-      physicalCareRating: rating(4),
-      emotionalProcessingRating: rating(5),
-      productivityRating: rating(6),
-      closeOnesSupportRating: rating(7),
-      moodRating: rating(8),
-      energyRating: rating(9),
-      calmRating: rating(10),
-      connectionRating: rating(11),
-      promptResponses: {},
+      physicalIntensityRating: load(0),
+      emotionalIntensityRating: load(1),
+      taskLoadRating: load(2),
+      closeOnesNeedsRating: load(3),
+      physicalCareRating: action(4),
+      emotionalProcessingRating: action(5),
+      productivityRating: action(6),
+      closeOnesSupportRating: action(7),
+      energyRating: state(0),
+      moodRating: state(1),
+      calmRating: state(2),
+      connectionRating: state(3),
+      promptResponses: {
+        wentWell: WEEK_ANCHOR_TEXTS.wentWell[weekIdx % WEEK_ANCHOR_TEXTS.wentWell.length],
+        challenges: WEEK_ANCHOR_TEXTS.challenges[weekIdx % WEEK_ANCHOR_TEXTS.challenges.length],
+        lessons: WEEK_ANCHOR_TEXTS.lessons[weekIdx % WEEK_ANCHOR_TEXTS.lessons.length],
+      },
       freeformReflection: WEEK_FREEFORM_TEXTS[weekIdx % WEEK_FREEFORM_TEXTS.length],
       aiSummary: '',
     })

@@ -95,9 +95,38 @@ test.describe('verification environment', () => {
     ).toBeVisible()
     await expect(ritual.locator('.qr-day-head')).toHaveCount(7)
     await ritual.getByRole('button', { name: 'Następny krok' }).click()
-    await expect(ritual.getByRole('group', { name: 'Działania', exact: true })).toBeVisible()
+    // Area step (D10): two axes — load and state — with the ten-week ribbon tail above the bars.
+    await expect(ritual.getByRole('group', { name: 'Obciążenie', exact: true })).toBeVisible()
+    await expect(ritual.getByRole('group', { name: 'Stan', exact: true })).toBeVisible()
+    await expect(ritual.getByRole('group', { name: 'Działania', exact: true })).toHaveCount(0)
+    const tail = ritual.locator('.qr-tail .ls-ribbon')
+    await expect(tail).toBeVisible()
+    await expect(tail.locator('.ls-ribbon__hit')).toHaveCount(10)
+    // Rating both axes colours the state bar by the pair's quadrant and appends the week to the tail.
+    // Seeded weeks already carry ratings; a click on the current value toggles it off, so press until set.
+    for (const label of ['Obciążenie: 4 z 5', 'Stan: 4 z 5']) {
+      const step = ritual.getByRole('button', { name: label })
+      await step.click()
+      if ((await step.getAttribute('aria-pressed')) !== 'true') await step.click()
+      await expect(step).toHaveAttribute('aria-pressed', 'true')
+    }
+    await expect(ritual.locator('.qr-bars .qr-axis--paired')).toHaveCount(1)
+    await expect(ritual.locator('.qr-tail header small')).toContainText('dorysowany')
     await ritual.getByRole('button', { name: 'Poprzedni krok' }).click()
     await expect(ritual.getByRole('heading', { name: 'Co wydarzyło się naprawdę?' })).toBeVisible()
+  })
+
+  test('rhythm calendar: ratings view draws four area ribbons and the summary shows week ribbons', async ({ page }) => {
+    test.setTimeout(120_000)
+    await bootSeededApp(page)
+
+    await page.goto(`/calendar/month/${prevMonth}?view=reflection`)
+    const board = page.locator('.rb-board')
+    await expect(board).toBeVisible()
+    await expect(board.locator('.rb-series--ribbon')).toHaveCount(4)
+    await expect(board.locator('.rb-series--ribbon').first().locator('.ls-ribbon__line--state').first()).toBeVisible()
+    // The rating card of the month carries the weeks as 2 × 2 area ribbons.
+    await expect(page.locator('.ps__multiple')).toHaveCount(4)
   })
 
   test('today: explicit selection, calendar evidence, move/add with undo and compass pin', async ({

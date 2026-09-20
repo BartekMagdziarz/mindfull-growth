@@ -122,11 +122,13 @@ const segments = computed<Segment[]>(() => {
     const run = (key: 'load' | 'state'): [number, number][] => {
       const inner: [number, number][] = []
       for (let k = from; k <= to; k++) inner.push([x(k), y(pts[k][key] as number)])
-      // extend to the container edges only when the run touches the series boundary
-      if (from === 0) inner.unshift([0, inner[0][1]])
-      else inner.unshift([x(from) - step.value / 2, inner[0][1]])
-      if (to === pts.length - 1) inner.push([W, inner[inner.length - 1][1]])
-      else inner.push([x(to) + step.value / 2, inner[inner.length - 1][1]])
+      // extend to the container edges only when the run touches the series boundary;
+      // an isolated single week gets a short stub instead of a bar across its whole cell
+      const reach = from === to ? step.value / 4 : step.value / 2
+      if (from === 0 && from !== to) inner.unshift([0, inner[0][1]])
+      else inner.unshift([x(from) - reach, inner[0][1]])
+      if (to === pts.length - 1 && from !== to) inner.push([W, inner[inner.length - 1][1]])
+      else inner.push([x(to) + reach, inner[inner.length - 1][1]])
       return inner
     }
     const loadPts = run('load')

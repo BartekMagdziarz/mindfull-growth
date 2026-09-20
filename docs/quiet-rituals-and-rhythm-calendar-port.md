@@ -114,10 +114,13 @@ celu jest widoczne jako tekst w „Więcej opcji”.
 **C4. „Wsparcie z planu miesiąca”** = wiersze umieszczone w tym tygodniu, których
 pokrycie pochodzi z miesiąca (kadencja miesięczna albo odziedziczony `whole-month`).
 
-**C5. Refleksja: dwa słupki na obszar** (Wysiłek = produktowe „Działania”, Stan) — jak w
-Labie. **Wymagania zostają dostępne** pod zwiniętym „Wymagania tego obszaru (opcjonalnie)”.
-*Dlaczego:* decyzja D2 („retro Demands STAY”) i macierz 4×3 używana w kartach tygodnia
-zostałyby puste dla nowych refleksji, gdyby rytuał w ogóle o nie nie pytał.
+**C5. Refleksja: dwa słupki na obszar.** ~~Wysiłek = produktowe „Działania”, Stan; Wymagania
+pod zwiniętym ujawnieniem~~ → **zmienione 2026-09-20 (D10 w `planning-reflection-redesign.md`)**:
+osie to **Obciążenie** (= pole Wymagań) i **Stan**; kolumna Działania nie jest już pytana ani
+rysowana (pola zostają jako historia). Nad słupkami wstęga ostatnich 10 tygodni obszaru
+(`LoadStateRibbon`), bieżący tydzień dorysowuje się po obu ocenach; słupek stanu przyjmuje
+kolor ćwiartki pary. W tabeli kalendarza rytmu spojrzenie „Oceny tygodni” = 4 wiersze
+obszarów ze wstęgami; karta „Ocena” podsumowania bierze szerszą kolumnę i pokazuje wstęgi 2×2.
 
 **C6. Nazwy sekcji produktowe** (Wymagania / Działania / Stan) + istniejące, odmieniane
 pytania per komórka i kotwice skali 1–5 z i18n. Lab mówił „Wysiłek / Stan”.
@@ -198,7 +201,7 @@ przed hydratacją — naprawia to również klasyczne kreatory.
 | F5 | Intencje w kroku „Wsparcie” miesiąca | Intencje są z definicji tygodniowe; planer miesiąca ich nie ładuje |
 | F6 | Jednostka miary na obiektach (km/kg/h) | Wymaga pola w domenie + edytorów obiektów |
 | F7 | Tagi obszarów jako osobna encja | Dziś siedzą w `promptResponses` (bez migracji). Jeśli mają być filtrowalne, potrzebna decyzja o modelu |
-| F8 | „Wysiłek” vs „Działania” jako nazwa sekcji | Wybrałem produktowe nazwy; Lab mówi „Wysiłek” |
+| F8 | ~~„Wysiłek” vs „Działania” jako nazwa sekcji~~ | Rozstrzygnięte 2026-09-20: oś nazywa się „Obciążenie” i czyta pole Wymagań (D10) |
 | F9 | Panel szczegółów obiektu z innych wariantów kalendarza | Nie należy do wariantu 05 |
 | F10 | Podwarianty próbek z Labu (`?sample=`) | To fikstury deweloperskie, nie produkt |
 
