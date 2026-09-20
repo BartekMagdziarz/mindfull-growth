@@ -69,12 +69,27 @@
 
         <div v-else-if="row.kind === 'observations-label'" class="rb-row rb-sublabel" role="row"><span class="rb-name rb-name--sub">Obserwacje</span></div>
 
-        <!-- oceny jednostek -->
+        <!-- obszar: obciążenie i stan jako wstęga; komórki pod nią zostają strefami zoomu -->
+        <div v-else-if="row.kind === 'reflection-area'" class="rb-row rb-series rb-series--plot rb-series--ribbon" role="row">
+          <span class="rb-name rb-name--series" :title="`${row.label} · obciążenie i stan`">
+            <AppIcon :name="row.icon" class="rb-name__icon rb-name__icon--small" />
+            <span class="rb-name__text">{{ row.label }}<small> · obciążenie i stan</small></span>
+          </span>
+          <div class="rb-series__cells" :style="{ '--cols': units.length }">
+            <button v-for="unit in units" :key="unit.ref" type="button" class="rb-cell rb-cell--series" :class="{ future: unit.state === 'future' }" :title="openTitle(unit)" :aria-label="`${row.label}, ${unitLabel(unit.ref)} · ${openTitle(unit)}`" @click="emit('open-unit', unit.ref)" />
+            <div class="rb-ribbon">
+              <LoadStateRibbon :points="row.points" :label="row.label" :height="scale === 'year' ? 110 : 92" @select="ref => emit('open-unit', ref)" />
+            </div>
+          </div>
+          <span v-if="hasSigma" class="rb-sigma" />
+        </div>
+
+        <!-- oceny jednostek (rok: kompas miesięcy) -->
         <div v-else-if="row.kind === 'reflection-units'" class="rb-row rb-series rb-series--ratings" role="row">
-          <span class="rb-name rb-name--series">{{ scale === 'month' ? 'Tygodnie' : 'Miesiące' }}<small> · {{ scale === 'month' ? 'Wysiłek i Stan' : 'kompas' }}</small></span>
+          <span class="rb-name rb-name--series">{{ scale === 'month' ? 'Tygodnie' : 'Miesiące' }}<small> · {{ scale === 'month' ? 'obciążenie i stan' : 'kompas' }}</small></span>
           <div class="rb-series__cells" :style="{ '--cols': units.length }">
             <button v-for="r in row.cells" :key="r.unitRef" type="button" class="rb-cell rb-cell--series" :title="openTitle(unitOf(r.unitRef))" :aria-label="`Refleksja, ${unitLabel(r.unitRef)}${r.exists ? '' : ': brak refleksji'} · ${openTitle(unitOf(r.unitRef))}`" @click="emit('open-unit', r.unitRef)">
-              <RhythmRatingsMini v-if="r.weekly" :effort="r.weekly.effort" :state="r.weekly.state" />
+              <RhythmRatingsMini v-if="r.weekly" :load="r.weekly.load" :state="r.weekly.state" />
               <RhythmCompassMini v-else-if="r.monthly" :values="r.monthly.compass" compact />
               <RhythmEvidenceMark v-else presence="empty" label="Brak refleksji" />
             </button>
@@ -106,6 +121,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
 import RhythmCompassMini from './RhythmCompassMini.vue'
 import RhythmEntrySlots from './RhythmEntrySlots.vue'
 import RhythmEvidenceMark from './RhythmEvidenceMark.vue'
@@ -259,6 +275,12 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-series--plot .rb-series__cells { column-gap: 0; margin: 6px 0; }
 .rb-series--plot .rb-cell--series { position: relative; min-height: 104px; border-radius: 10px; }
 .rb-series--plot .rb-cell--series:hover { background: var(--cp-field); }
+/* wstęga nad komórkami: własne strefy hover (tooltip + zoom), komórki pod spodem dają tło i fokus klawiatury */
+.rb-series--ribbon .rb-series__cells { grid-template-rows: 1fr; }
+.rb-series--ribbon .rb-cell--series { grid-row: 1; min-height: 116px; }
+.rb-series--ribbon .rb-ribbon { grid-row: 1; grid-column: 1 / -1; align-self: center; padding: 0 2px; pointer-events: none; }
+.rb-series--ribbon .rb-ribbon :deep(.ls-ribbon__hit) { pointer-events: auto; }
+.rb-series--ribbon .rb-ribbon :deep(.ls-ribbon__tip) { pointer-events: none; }
 .rb-plot-missing { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); color: var(--cp-accent-strong); font-size: 16px; line-height: 1; }
 .rb-readout { visibility: hidden; position: absolute; z-index: 3; left: 50%; bottom: 4px; transform: translate(-50%, 0); padding: 3px 8px; border-radius: 8px 10px 7px 11px; background: var(--mg-color-ink); color: var(--mg-color-on-primary); white-space: nowrap; font-size: 11.5px; font-weight: 700; pointer-events: none; box-shadow: var(--mg-shadow-raised-sm); }
 .rb-cell--series:hover .rb-readout, .rb-cell--series:focus-visible .rb-readout { visibility: visible; }

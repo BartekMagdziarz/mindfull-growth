@@ -297,9 +297,8 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
     weeklyReflections: weeklyReflections.map(reflection => ({
       weekRef: reflection.weekRef,
       status: 'done' as const,
-      effort: REFLECTION_MATRIX_AREAS.map(area => reflection[area.fields.actions]),
+      load: REFLECTION_MATRIX_AREAS.map(area => reflection[area.fields.demands]),
       state: REFLECTION_MATRIX_AREAS.map(area => reflection[area.fields.state]),
-      demands: REFLECTION_MATRIX_AREAS.map(area => reflection[area.fields.demands]),
       anchors: {
         good: reflection.promptResponses.wentWell ?? '',
         hard: reflection.promptResponses.challenges ?? '',

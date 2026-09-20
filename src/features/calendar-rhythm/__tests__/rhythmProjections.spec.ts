@@ -176,9 +176,8 @@ describe('periodStats and periodRating', () => {
         {
           weekRef: '2026-W26' as WeekRef,
           status: 'done',
-          effort: [3, 3, 3, 3],
+          load: [3, 3, 3, 3],
           state: [4, 4, 4, 4],
-          demands: [2, 2, 2, 2],
           anchors: { good: '', hard: '', lessons: '' },
         },
       ],
@@ -209,5 +208,27 @@ describe('periodStats and periodRating', () => {
     const year = periodRating(state, 'year', '2026', unitsFor('year', '2026', CLOCK))
     expect(year.months).toEqual({ done: 1, total: 6 })
     expect(year.compass).toEqual([2, 2, 2, 2, 2])
+  })
+})
+
+describe('areaSeriesFor · load/state ribbons', () => {
+  it('maps each area to its load/state pair per week and leaves gaps for missing reflections', async () => {
+    const { areaSeriesFor, unitWeekRefs, yearWeekRefs } = await import('../rhythmProjections')
+    const units = unitsFor('month', MONTH, CLOCK)
+    const weekRefs = unitWeekRefs(units)
+    expect(weekRefs.length).toBeGreaterThan(3)
+    const state = scenario({
+      weeklyReflections: [
+        { weekRef: weekRefs[0], status: 'done', load: [5, 1, 3, 2], state: [4, 2, 3, 5], anchors: { good: '', hard: '', lessons: '' } },
+      ],
+    })
+    const series = areaSeriesFor(state, weekRefs)
+    expect(series.body[0]).toMatchObject({ weekRef: weekRefs[0], load: 5, state: 4 })
+    expect(series.closeOnes[0]).toMatchObject({ load: 2, state: 5 })
+    expect(series.body[1]).toMatchObject({ load: null, state: null })
+    expect(series.body[0].label).toMatch(/^\d{1,2}\.\d{2}$/)
+    const year = yearWeekRefs('2026')
+    expect(year.length).toBeGreaterThanOrEqual(52)
+    expect(new Set(year).size).toBe(year.length)
   })
 })

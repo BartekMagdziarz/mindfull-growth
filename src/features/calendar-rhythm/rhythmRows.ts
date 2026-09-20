@@ -3,8 +3,16 @@
  * (kierunek, rodzina obiektów, fokus podokresów, oceny podokresów albo wpisy), wybierane listą
  * w rogu osi. Lista opcji zależy od okresu: tylko kierunki i rodziny z aktywnością.
  */
+import type { WeekPoint } from '@/domain/loadStateSeries'
+import type { LifeAreaKey } from '@/domain/reflectionMatrix'
 import {
+  AREAS,
+  AREA_ICONS,
+  AREA_KEYS,
   ENTRY_KINDS,
+  areaSeriesFor,
+  unitWeekRefs,
+  yearWeekRefs,
   FAMILY_LABEL,
   TYPE_ORDER,
   activeInPeriod,
@@ -37,6 +45,8 @@ export type BoardRow =
   | { kind: 'series'; id: string; series: SeriesProjection; scaleMax: number }
   | { kind: 'observations-label'; id: string }
   | { kind: 'reflection-units'; id: string; cells: ReflectionProjection[] }
+  /** Obciążenie i stan jednego obszaru jako wstęga nad tygodniami okresu. */
+  | { kind: 'reflection-area'; id: string; area: LifeAreaKey; label: string; icon: string; points: WeekPoint[] }
   | { kind: 'entries-kind'; id: string; kindId: EntryKind; label: string; icon: string; cells: EntriesProjection[] }
   | { kind: 'more'; id: string; label: string }
   | { kind: 'note'; id: string; text: string }
@@ -123,7 +133,12 @@ export function buildRows(s: RhythmScenario, scale: Scale, ref: string, units: T
   }
   if (view === 'reflection') {
     if (scale === 'week') return [{ kind: 'note', id: 'reflection:week', text: 'Ocena tygodnia jest w podsumowaniu nad tabelą.' }]
-    return [{ kind: 'reflection-units', id: 'reflection:units', cells: units.map(u => reflectionForUnit(s, u)) }]
+    // Obszary jako wstęgi (miesiąc: tygodnie kolumn; rok: wszystkie tygodnie roku na całej szerokości), rok dodatkowo kompas miesięcy.
+    const weekRefs = scale === 'month' ? unitWeekRefs(units) : yearWeekRefs(ref)
+    const series = areaSeriesFor(s, weekRefs)
+    const rows: BoardRow[] = AREA_KEYS.map((area, i) => ({ kind: 'reflection-area', id: `reflection:${area}`, area, label: AREAS[i], icon: AREA_ICONS[i], points: series[area] }))
+    if (scale === 'year') rows.push({ kind: 'reflection-units', id: 'reflection:units', cells: units.map(u => reflectionForUnit(s, u)) })
+    return rows
   }
   const entries = units.map(u => entriesForUnit(s, u))
   return ENTRY_KINDS.map(kind => ({ kind: 'entries-kind', id: `entries:${kind.id}`, kindId: kind.id, label: kind.label, icon: kind.icon, cells: entries }))

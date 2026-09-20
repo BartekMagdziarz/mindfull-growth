@@ -12,6 +12,9 @@
  *  - Σ only where the period value really is an aggregate of the cells.
  */
 import type { DayRef, MonthRef, PeriodRef, WeekRef, YearRef } from '@/domain/period'
+import { toRating } from '@/domain/loadState'
+import { weekPointLabel, type AreaSeries } from '@/domain/loadStateSeries'
+import { REFLECTION_MATRIX_AREAS, type LifeAreaKey } from '@/domain/reflectionMatrix'
 import {
   addDaysToDayRef,
   getChildPeriods,
@@ -49,8 +52,10 @@ export const SCALES: { id: Scale; label: string }[] = [
   { id: 'month', label: 'Miesiąc' },
   { id: 'week', label: 'Tydzień' },
 ]
-export const AREAS = ['Ciało', 'Emocje', 'Działanie', 'Relacje'] as const
-export const AREA_ICONS = ['accessibility_new', 'mood', 'bolt', 'group'] as const
+/** Life areas in matrix order (Body · Emotions · Tasks · Close ones) — names as in the rituals. */
+export const AREAS = ['Ciało', 'Emocje', 'Zadania', 'Bliscy'] as const
+export const AREA_KEYS = REFLECTION_MATRIX_AREAS.map(area => area.key) as readonly LifeAreaKey[]
+export const AREA_ICONS = REFLECTION_MATRIX_AREAS.map(area => area.icon) as readonly string[]
 /* Compass labels are the product's own (the Lab proposed "Zasady / Wpływ";
    the stored keys and meaning are unchanged, so that rename is a separate call). */
 export const COMPASS = ['Balans', 'Sens', 'Rozwój', 'Spójność', 'Sprawczość'] as const
@@ -906,15 +911,15 @@ export interface PeriodRating {
   scale: Scale
   exists: boolean
   status: 'done' | 'draft' | 'none'
-  /** Tydzień: Wysiłek i Stan per obszar (Ciało · Emocje · Działanie · Relacje). */
-  effort?: (number | null)[]
+  /** Tydzień: Obciążenie i Stan per obszar (Ciało · Emocje · Zadania · Bliscy). */
+  load?: (number | null)[]
   state?: (number | null)[]
   /** Miesiąc: kompas; rok: średnie osi kompasu z refleksji miesięcy. */
   compass?: (number | null)[]
   /** Liczba główna: tydzień = średni Stan, miesiąc/rok = średnia kompasu. */
   mean: number | null
-  /** Tydzień: średni Wysiłek. */
-  meanEffort?: number | null
+  /** Tydzień: średnie Obciążenie. */
+  meanLoad?: number | null
   /** Rok: miesiące z refleksją / miesiące zamknięte. */
   months?: Ratio
 }
@@ -935,7 +940,40 @@ export function periodRating(s: RhythmScenario, scale: Scale, ref: string, units
   if (!own?.exists) return { scale, exists: false, status: 'none', mean: null }
   if (own.monthly) return { scale, exists: true, status: own.status, compass: own.monthly.compass, mean: mean(own.monthly.compass) }
   const w = own.weekly!
-  return { scale, exists: true, status: own.status, effort: w.effort, state: w.state, mean: mean(w.state), meanEffort: mean(w.effort) }
+  return { scale, exists: true, status: own.status, load: w.load, state: w.state, mean: mean(w.state), meanLoad: mean(w.load) }
+}
+
+/* ------------------------------------------------------------------ obciążenie i stan w serii tygodni */
+
+/** Wstęga per obszar nad podanymi tygodniami; tydzień bez refleksji = luka. */
+export function areaSeriesFor(s: RhythmScenario, weekRefs: readonly WeekRef[]): AreaSeries {
+  const byWeek = new Map(s.weeklyReflections.map(r => [r.weekRef, r]))
+  return Object.fromEntries(
+    AREA_KEYS.map((key, i) => [
+      key,
+      weekRefs.map(weekRef => {
+        const r = byWeek.get(weekRef)
+        return { weekRef, label: weekPointLabel(weekRef), load: toRating(r?.load[i] ?? null), state: toRating(r?.state[i] ?? null) }
+      }),
+    ]),
+  ) as AreaSeries
+}
+
+/** Tygodnie kolumn skali miesiąca (w porządku osi). */
+export function unitWeekRefs(units: TimeUnit[]): WeekRef[] {
+  return units.filter(u => u.kind === 'week').map(u => (u.weekRef ?? u.ref) as WeekRef)
+}
+
+/** Wszystkie tygodnie roku, bez powtórzeń, w porządku czasu. */
+export function yearWeekRefs(yearRef: string): WeekRef[] {
+  const seen = new Set<WeekRef>()
+  const out: WeekRef[] = []
+  for (const monthRef of getChildPeriods(yearRef as YearRef)) {
+    for (const weekRef of getChildPeriods(monthRef)) {
+      if (!seen.has(weekRef)) { seen.add(weekRef); out.push(weekRef) }
+    }
+  }
+  return out
 }
 
 /** Deduplikacja po id zapisu — obiekt widoczny pod dwoma priorytetami liczy się raz. */

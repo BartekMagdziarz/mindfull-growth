@@ -53,6 +53,7 @@
           @toggle="state.toggleSummary"
           @focus="state.setView"
           @ritual="openRitual"
+          @open-week="openUnit"
         />
         <RhythmBoard
           :rows="rows"

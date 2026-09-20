@@ -156,10 +156,10 @@ describe('buildRhythmScenario', () => {
     expect(scenario.monthPlans).toEqual([{ monthRef: MONTH, topPriorityKeys: ['p1', 'p2'] }])
     expect(scenario.weekPlans).toEqual([{ weekRef: WEEK, topObjectKeys: ['habit:h1'] }])
     const reflection = scenario.weeklyReflections[0]
-    // Body · Emotions · Tasks · Close ones for each axis.
-    expect(reflection.demands).toEqual([1, 2, 3, 4])
-    expect(reflection.effort).toEqual([5, 4, 3, 2])
+    // Body · Emotions · Tasks · Close ones for each axis: load = demands fields, state = state fields; actions are history.
+    expect(reflection.load).toEqual([1, 2, 3, 4])
     expect(reflection.state).toEqual([1, 2, 3, 4])
+    expect(reflection).not.toHaveProperty('effort')
     expect(reflection.anchors.good).toBe('Spokojny tydzień')
   })
 })

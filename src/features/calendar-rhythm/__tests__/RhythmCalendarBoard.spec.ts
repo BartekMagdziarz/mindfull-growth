@@ -136,3 +136,66 @@ describe('RhythmPeriodSummary', () => {
     expect(wrapper.emitted('focus')).toEqual([['dir:p1']])
   })
 })
+
+describe('RhythmBoard · reflection view as area ribbons', () => {
+  it('shows four area rows with a ribbon each in the month scale and zooms into a week on click', async () => {
+    const units = unitsFor('month', MONTH, CLOCK)
+    const state = scenario({
+      weeklyReflections: [
+        { weekRef: WEEK, status: 'done', load: [4, 2, 3, 1], state: [4, 4, 2, 5], anchors: { good: '', hard: '', lessons: '' } },
+      ],
+    })
+    const rows = buildRows(state, 'month', MONTH, units, 'reflection', { moreSeries: null })
+    expect(rows.map(r => r.kind)).toEqual(['reflection-area', 'reflection-area', 'reflection-area', 'reflection-area'])
+    const wrapper = mount(RhythmBoard, {
+      props: { rows, units, scale: 'month' as const, objects: state.objects, fine: [], view: 'reflection', options: viewOptions(state, 'month', MONTH, units) },
+    })
+    expect(wrapper.findAll('.rb-series--ribbon')).toHaveLength(4)
+    expect(wrapper.text()).toContain('Zadania')
+    expect(wrapper.text()).toContain('Bliscy')
+    const hits = wrapper.findAll('.rb-series--ribbon')[0].findAll('.ls-ribbon__hit')
+    expect(hits).toHaveLength(units.length)
+    await hits[0].trigger('click')
+    expect(wrapper.emitted('open-unit')?.[0]).toEqual([units[0].ref])
+  })
+
+  it('adds the monthly compass row after the area ribbons in the year scale', () => {
+    const rows = buildRows(scenario(), 'year', '2026', unitsFor('year', '2026', CLOCK), 'reflection', { moreSeries: null })
+    expect(rows.map(r => r.kind)).toEqual(['reflection-area', 'reflection-area', 'reflection-area', 'reflection-area', 'reflection-units'])
+  })
+})
+
+describe('RhythmPeriodSummary · load/state', () => {
+  it('draws load and state pairs for the week and the twelve-week ribbons beside them', () => {
+    const state = scenario({
+      weeklyReflections: [
+        { weekRef: WEEK, status: 'done', load: [4, 2, 3, 1], state: [4, 4, 2, 5], anchors: { good: 'Dobry sen', hard: '', lessons: '' } },
+      ],
+    })
+    const units = unitsFor('week', WEEK, CLOCK)
+    const wrapper = mount(RhythmPeriodSummary, {
+      props: { scenario: state, scale: 'week' as const, periodRef: WEEK, units, open: false, state: 'current' as const },
+    })
+    expect(wrapper.find('.ps__bars--pairs').exists()).toBe(true)
+    expect(wrapper.findAll('.ps__multiple')).toHaveLength(4)
+    expect(wrapper.text()).toContain('Ostatnie 12 tygodni')
+    expect(wrapper.findAll('.ps__multiple')[0].findAll('.ls-ribbon__hit')).toHaveLength(12)
+  })
+
+  it('shows the weeks of the month as ribbons under the month rating', () => {
+    const units = unitsFor('month', MONTH, CLOCK)
+    const state = scenario({
+      weeklyReflections: [
+        { weekRef: WEEK, status: 'done', load: [4, 2, 3, 1], state: [4, 4, 2, 5], anchors: { good: '', hard: '', lessons: '' } },
+      ],
+      monthlyReflections: [
+        { monthRef: MONTH, status: 'done', compass: [3, 4, 4, 3, 4], anchors: { proud: '', challenges: '', growth: '' }, priorityVerdicts: [] },
+      ],
+    })
+    const wrapper = mount(RhythmPeriodSummary, {
+      props: { scenario: state, scale: 'month' as const, periodRef: MONTH, units, open: false, state: 'current' as const },
+    })
+    expect(wrapper.text()).toContain('Tygodnie · obciążenie i stan')
+    expect(wrapper.findAll('.ps__multiple')).toHaveLength(4)
+  })
+})

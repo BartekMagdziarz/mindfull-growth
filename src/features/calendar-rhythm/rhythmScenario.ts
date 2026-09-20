@@ -83,10 +83,13 @@ export interface RhythmTargetOverride {
 export interface RhythmWeeklyReflection {
   weekRef: WeekRef
   status: 'done' | 'draft'
-  /** Body · Emotions · Tasks · Close ones, 1–5. */
-  effort: (number | null)[]
+  /**
+   * Body · Emotions · Tasks · Close ones, 1–5 — the two axes of the reflection
+   * (D10): load is the matrix `demands` field, state the matrix `state` field.
+   * The historical `actions` column is not projected into the calendar.
+   */
+  load: (number | null)[]
   state: (number | null)[]
-  demands: (number | null)[]
   anchors: { good: string; hard: string; lessons: string }
 }
 

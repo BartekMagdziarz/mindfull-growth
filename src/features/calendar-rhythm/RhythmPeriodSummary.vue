@@ -26,19 +26,31 @@
         <span class="ps__eyebrow">{{ scale === 'week' ? 'Ocena tygodnia' : scale === 'month' ? 'Ocena miesiąca' : 'Ocena roku' }}<small v-if="rating.status === 'draft'"> · szkic</small></span>
         <!-- skrót: oceny podokresów w tabeli (główna droga to lista w rogu tabeli) -->
         <button v-if="scale !== 'year' ? scale === 'month' : true" type="button" class="ps__drill" :aria-pressed="view === 'reflection'" :title="`Pokaż w tabeli: ${scale === 'month' ? 'oceny tygodni' : 'oceny miesięcy'}`" @click="emit('focus', 'reflection')"><AppIcon name="table_rows" /></button>
-        <template v-if="rating.exists">
-          <!-- tydzień: para słupków Wysiłek/Stan per obszar; miesiąc i rok: słupek per oś kompasu (rok = średnia refleksji miesięcy) -->
-          <ul class="ps__bars" :class="{ 'ps__bars--pairs': !!rating.state }" :aria-label="rating.state ? 'Wysiłek i Stan per obszar' : 'Kompas'">
-            <li v-for="(col, i) in bars" :key="i" :title="col.title">
-              <span class="ps__col" aria-hidden="true">
-                <i v-for="(v, j) in col.values" :key="j" :class="[j === 0 && col.values.length > 1 ? 'e' : 's', { none: v === null }]" :style="{ height: `${pct(v)}%` }"><b v-if="v !== null">{{ fmt1(v) }}</b></i>
-              </span>
-              <small>{{ col.label }}</small>
-            </li>
-          </ul>
-          <small v-if="scale === 'year' && rating.months" class="ps__legend">refleksje {{ rating.months.done }} z {{ rating.months.total }} miesięcy</small>
-        </template>
-        <p v-else class="ps__none">{{ future ? 'Okres jeszcze się nie zaczął.' : scale === 'year' ? 'Brak refleksji miesięcy.' : 'Brak refleksji okresu.' }}</p>
+        <div class="ps__hero-cols" :class="{ 'ps__hero-cols--split': !!multiples }">
+          <div class="ps__own">
+            <template v-if="rating.exists">
+              <!-- tydzień: para słupków Obciążenie/Stan per obszar (stan w kolorze ćwiartki); miesiąc i rok: słupek per oś kompasu (rok = średnia refleksji miesięcy) -->
+              <ul class="ps__bars" :class="{ 'ps__bars--pairs': !!rating.state }" :aria-label="rating.state ? 'Obciążenie i Stan per obszar' : 'Kompas'">
+                <li v-for="(col, i) in bars" :key="i" :title="col.title">
+                  <span class="ps__col" aria-hidden="true">
+                    <i v-for="(v, j) in col.values" :key="j" :class="[j === 0 && col.values.length > 1 ? 'l' : 's', { none: v === null }]" :style="{ height: `${pct(v)}%`, background: j === 1 && v !== null ? col.stateColor : undefined }"><b v-if="v !== null">{{ fmt1(v) }}</b></i>
+                  </span>
+                  <small>{{ col.label }}</small>
+                </li>
+              </ul>
+              <small v-if="scale === 'year' && rating.months" class="ps__legend">refleksje {{ rating.months.done }} z {{ rating.months.total }} miesięcy</small>
+            </template>
+            <p v-else class="ps__none">{{ future ? 'Okres jeszcze się nie zaczął.' : scale === 'year' ? 'Brak refleksji miesięcy.' : 'Brak refleksji okresu.' }}</p>
+          </div>
+          <!-- tygodnie jako wstęgi obszarów (miesiąc: tygodnie miesiąca; tydzień: ostatnie 12 tygodni), 2 × 2 -->
+          <div v-if="multiples" class="ps__multiples" :aria-label="multiples.caption">
+            <span class="ps__eyebrow ps__multiples-cap">{{ multiples.caption }}</span>
+            <div v-for="cell in multiples.cells" :key="cell.area" class="ps__multiple">
+              <span><AppIcon :name="cell.icon" />{{ cell.label }}</span>
+              <LoadStateRibbon :points="cell.points" :label="cell.label" :height="58" :show-axis="cell.axis" quiet @select="ref => emit('open-week', ref)" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- wykonanie per rodzina: jedno słowo, procent i kleks; ułamek i podstawa w podpowiedzi -->
@@ -74,11 +86,14 @@ export type RitualKind = 'plan' | 'reflection'
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
+import { pairColor, toRating } from '@/domain/loadState'
+import { trailingWeekRefs } from '@/domain/loadStateSeries'
 import RhythmReflectionBody from './RhythmReflectionBody.vue'
-import { AREAS, COMPASS, FAMILY_GROUPS, directionsForPeriod, ownReflection, periodRating, periodStats, periodTitle, truncate, type CompletionBasis, type Scale, type TimeUnit } from './rhythmProjections'
+import { AREAS, AREA_ICONS, AREA_KEYS, COMPASS, FAMILY_GROUPS, areaSeriesFor, directionsForPeriod, ownReflection, periodRating, periodStats, periodTitle, truncate, unitWeekRefs, type CompletionBasis, type Scale, type TimeUnit } from './rhythmProjections'
 import type { RhythmScenario } from './rhythmScenario'
 import { FAMILY_VIEW } from './rhythmRows'
-import type { PeriodRef } from '@/domain/period'
+import type { PeriodRef, WeekRef } from '@/domain/period'
 import { getPeriodBounds } from '@/utils/periods'
 
 const props = defineProps<{
@@ -88,7 +103,7 @@ const props = defineProps<{
   /** Stan okresu względem zegara — decyduje o akcjach w nagłówku. */
   state: 'past' | 'current' | 'future'
 }>()
-const emit = defineEmits<{ toggle: []; focus: [row: string]; ritual: [kind: RitualKind] }>()
+const emit = defineEmits<{ toggle: []; focus: [row: string]; ritual: [kind: RitualKind]; /** Klik w tydzień wstęgi: zoom w ten tydzień. */ 'open-week': [weekRef: WeekRef] }>()
 
 /**
  * Akcje okresu: przeszły → tylko refleksja (napisz / edytuj); bieżący → plan i refleksja; przyszły → tylko plan.
@@ -148,11 +163,33 @@ const focusItems = computed(() => {
   return priorities.map(p => ({ ...p, row: `dir:${p.key}` }))
 })
 
-/** Kolumny wykresu oceny: tydzień = 4 obszary × [Wysiłek, Stan]; miesiąc/rok = 5 osi kompasu. */
+/** Kolumny wykresu oceny: tydzień = 4 obszary × [Obciążenie, Stan] (stan w kolorze ćwiartki pary); miesiąc/rok = 5 osi kompasu. */
 const bars = computed(() => {
   const r = rating.value
-  if (r.state && r.effort) return AREAS.map((area, i) => ({ label: area, values: [r.effort![i], r.state![i]], title: `${area}: wysiłek ${r.effort![i] ?? '–'}, stan ${r.state![i] ?? '–'}` }))
-  return COMPASS.map((axis, i) => ({ label: axis, values: [r.compass?.[i] ?? null], title: `${axis} ${fmt1(r.compass?.[i] ?? null)} / 5` }))
+  if (r.state && r.load) {
+    return AREAS.map((area, i) => ({
+      label: area,
+      values: [r.load![i], r.state![i]],
+      stateColor: pairColor(toRating(r.load![i]), toRating(r.state![i])),
+      title: `${area}: obciążenie ${r.load![i] ?? '–'}, stan ${r.state![i] ?? '–'}`,
+    }))
+  }
+  return COMPASS.map((axis, i) => ({ label: axis, values: [r.compass?.[i] ?? null], stateColor: undefined, title: `${axis} ${fmt1(r.compass?.[i] ?? null)} / 5` }))
+})
+
+/** Wstęgi obszarów w karcie oceny: miesiąc = tygodnie miesiąca, tydzień = ostatnie 12 tygodni; rok nie ma (wstęgi są w tabeli). */
+const TAIL_WEEKS = 12
+const multiples = computed(() => {
+  if (props.scale === 'year') return null
+  const weekRefs = props.scale === 'month' ? unitWeekRefs(props.units) : trailingWeekRefs(props.periodRef as WeekRef, TAIL_WEEKS)
+  if (!weekRefs.length) return null
+  const series = areaSeriesFor(props.scenario, weekRefs)
+  const anyRated = AREA_KEYS.some(area => series[area].some(p => p.load != null && p.state != null))
+  if (!anyRated) return null
+  return {
+    caption: props.scale === 'month' ? 'Tygodnie · obciążenie i stan' : `Ostatnie ${TAIL_WEEKS} tygodni`,
+    cells: AREA_KEYS.map((area, i) => ({ area, label: AREAS[i], icon: AREA_ICONS[i], points: series[area], axis: i >= 2 })),
+  }
 })
 function fmt1(value: number | null): string { return value === null ? '–' : Number.isInteger(value) ? String(value) : value.toFixed(1).replace('.', ',') }
 function priorityTitle(key: string) { return props.scenario.priorities.find(p => p.key === key)?.title ?? key }
@@ -176,7 +213,8 @@ function pct(value: number | null): number { return value === null ? 0 : (value 
 .ps__toggle { flex: none; }
 .ps__empty { font-size: 13px; color: var(--mg-color-muted); margin: 0; }
 
-.ps__grid { display: grid; grid-template-columns: minmax(300px, 1fr) minmax(0, 1.7fr); gap: 14px; align-items: stretch; }
+/* ocena bierze szerszą kolumnę (rating-first); rodziny mieszczą się w węższej jako 2 × 2 */
+.ps__grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 14px; align-items: stretch; }
 
 /* ocena: wgłębienie w papierze, jak dołek w widoku Dzisiaj */
 .ps__hero { position: relative; display: grid; align-content: start; gap: 10px; padding: 14px 18px 14px; border-radius: 17px 14px 18px 15px; background: var(--cp-field); }
@@ -190,8 +228,16 @@ function pct(value: number | null): number { return value === null ? 0 : (value 
 .ps__col i { position: relative; display: inline-block; width: 22px; min-height: 3px; border-radius: 9px 7px 3px 4px / 8px 9px 3px 3px; background: var(--cp-accent); transform: rotate(-1.2deg); }
 .ps__col i:nth-child(even) { transform: rotate(1deg); border-radius: 7px 9px 4px 3px / 9px 8px 3px 3px; }
 .ps__bars--pairs .ps__col i { width: 14px; }
-.ps__col .e, .ps__legend .e { background: var(--mg-color-effort); }
+.ps__col .l { background: rgb(var(--sky-800)); }
 .ps__col .s, .ps__legend .s { background: var(--cp-accent); }
+.ps__hero-cols { display: grid; gap: 10px 26px; align-items: start; }
+.ps__hero-cols--split { grid-template-columns: auto minmax(0, 1fr); }
+.ps__hero-cols--split .ps__own { padding-top: 18px; }
+.ps__multiples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; min-width: 0; }
+.ps__multiples-cap { grid-column: 1 / -1; }
+.ps__multiple { display: grid; gap: 2px; min-width: 0; }
+.ps__multiple > span { display: inline-flex; align-items: center; gap: 6px; color: var(--mg-color-muted); font-size: 11.5px; font-weight: 800; }
+.ps__multiple > span .material-symbols-outlined { font-size: 15px; color: var(--cp-mark); }
 .ps__col i.none { background: var(--cp-inner); min-height: 3px; }
 .ps__col i b { position: absolute; left: 50%; bottom: 100%; transform: translate(-50%, -2px); color: var(--mg-color-ink); font-size: 10.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .ps__bars small { color: var(--mg-color-muted); font-size: 10.5px; font-weight: 800; text-align: center; }

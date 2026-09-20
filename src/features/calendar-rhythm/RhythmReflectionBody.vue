@@ -3,15 +3,14 @@
     <p v-if="!reflection.exists" class="rb__absent">Refleksja nie została zapisana.</p>
     <template v-else-if="reflection.weekly">
       <div v-if="!hideRatings" class="rb__ratings">
-        <RhythmRatingsMini :effort="reflection.weekly.effort" :state="reflection.weekly.state" size="lg" />
+        <RhythmRatingsMini :load="reflection.weekly.load" :state="reflection.weekly.state" size="lg" />
         <ul class="rb__areas">
-          <li v-for="(area, i) in AREAS" :key="area"><AppIcon :name="AREA_ICONS[i]" /> {{ area }} <b>{{ reflection.weekly.effort[i] ?? '–' }}</b> / <b>{{ reflection.weekly.state[i] ?? '–' }}</b></li>
+          <li v-for="(area, i) in AREAS" :key="area"><AppIcon :name="AREA_ICONS[i]" /> {{ area }} <b>{{ reflection.weekly.load[i] ?? '–' }}</b> / <b>{{ reflection.weekly.state[i] ?? '–' }}</b></li>
         </ul>
-        <small class="rb__legend"><i class="e" /> Wysiłek <i class="s" /> Stan · 1–5 · Wymagania: {{ reflection.weekly.demands.map(v => v ?? '–').join(' · ') }}</small>
+        <small class="rb__legend"><i class="l" /> Obciążenie <i class="s" /> Stan · 1–5 · kolor stanu = ćwiartka pary</small>
       </div>
       <!-- Empty anchors disappear: a label with nothing under it is not information. -->
-      <dl v-if="!compact && (hideRatings || weeklyAnchors.length)" class="rb__anchors">
-        <template v-if="hideRatings"><dt>Wymagania</dt><dd>{{ AREAS.map((a, i) => `${a} ${reflection.weekly!.demands[i] ?? '–'}`).join(' · ') }}</dd></template>
+      <dl v-if="!compact && weeklyAnchors.length" class="rb__anchors">
         <template v-for="anchor in weeklyAnchors" :key="anchor.label"><dt>{{ anchor.label }}</dt><dd>{{ anchor.text }}</dd></template>
       </dl>
       <small v-if="reflection.status === 'draft'" class="rb__status">Szkic</small>
@@ -72,8 +71,8 @@ const VERDICT: Record<string, string> = { continue: 'kontynuuj', adjust: 'dostos
 .rb__areas b { color: var(--mg-color-ink); font-variant-numeric: tabular-nums; }
 .rb__legend { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; color: var(--mg-color-muted); font-size: 11px; font-weight: 700; }
 .rb__legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; }
-.rb__legend .e { background: var(--mg-color-effort); }
-.rb__legend .s { background: var(--cp-accent); }
+.rb__legend .l { background: rgb(var(--sky-800)); }
+.rb__legend .s { background: rgb(var(--sky-500)); }
 .rb__anchors { display: grid; grid-template-columns: 170px 1fr; gap: 4px 14px; margin: 0; }
 .rb__anchors dt { color: var(--mg-color-muted); font-size: 12px; font-weight: 800; }
 .rb__anchors dd { margin: 0; max-width: 62ch; }
