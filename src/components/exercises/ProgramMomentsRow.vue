@@ -21,7 +21,7 @@ import { RouterLink } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import type { MomentKind } from '@/domain/moments'
-import { recentMoments } from '@/domain/moments'
+import { hadMoment, recentMoments } from '@/domain/moments'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 
 /**
@@ -38,7 +38,8 @@ onMounted(() => {
   void entryStore.loadEntries()
 })
 
-const recent = computed(() => recentMoments(entryStore.entries, props.kind, 7))
+// Calm-day notes are entries too, but the count is about moments.
+const recent = computed(() => recentMoments(entryStore.entries, props.kind, 7).filter(hadMoment))
 </script>
 
 <style scoped>
