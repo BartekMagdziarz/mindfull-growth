@@ -350,3 +350,13 @@ final result: passed (do oceny użytkownika: czy lista w rogu jest wystarczając
 - Product build and Lab build pass (existing chunk-size warnings). Full product suite: 2231 passed, 1 skipped. Lab: 114 passed. Focused migration tests cover static AppIcon usage, saved entity catalog, exercise/program/emotion catalogs, distinct rating/control states, canonical picker selection and focus restoration.
 - Browser review on verification origin 5199: Calendar, Today, Objects and Exercises; corrected missing legacy aliases loop/outlined_flag. Search “zyczliwosc” yields Życzliwość dla siebie. Picker uses opaque paper and resets inherited minimum height; final browser screenshot confirms compact panel. Exercises shows 23 SVG icons and zero unresolved names. No verification data edited.
 - Existing design-system check still reports six violations in planning-next.css (raw colors, legacy class and local shadows); icon migration does not edit that stylesheet.
+
+## Object card editor (2026-09-23)
+
+- Scope: `/concepts/object-cards` at 1600×1000, desktop only. Checked habit × Odhaczaj (5 periods), habit × Oceniaj (17 periods), habit × Zliczaj (periods with gaps), KR × Mierz (nested in a goal frame), tracker × Mierz (no periods), intention × Wykonuj.
+- Evidence: `/tmp` captures during the session; the production baseline lives in `public/research/current/objects/*.png` (verify, 1440 px, DPR 2).
+- Findings fixed before hand-off: pill and sparkline child components lost their inner styles under scoped CSS (labels rendered twice, chart missing) — moved to `:deep()`.
+- Open for the user: hover-only row tools on checklist items; legibility of the period strip at 17+ cells; whether the collapsed facts line should carry the period count.
+- Round 2 (user feedback): sentences back in `neo-surface` wells with `neo-badge` pills, copy trimmed, period strip redrawn as wrapping brush strokes (min 30 px per cell). Re-checked the six configurations above; no console errors.
+- Round 3: merged Wpis+Cel sentence verified for multi/rating/counter/value/tracker/intention at 1900 px; variants panel checked for weekly 17, weekly with gaps, monthly 12 (A had fixed 44 px cells overflowing at 12 months → `flex: 1 1 0; max-width: 44px`). 0 console errors.
+- Round 3b: month-row periods verified for weekly 5/17/gaps, monthly 12, none (hairline + „Bez okresów”); „dni ×” glued so the remove button never wraps alone. 0 console errors, vue-tsc clean.

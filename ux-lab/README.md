@@ -11,6 +11,7 @@ Z katalogu głównego uruchom `npm run dev:lab`. Verify otworzy się na porcie 5
 ## Zawartość
 
 - **Własne ikony** — `/concepts/icons`: 120 autorskich ikon w wybranym stylu B, sześć kategorii, filtr 36 nowych ikon, wyszukiwanie, rozmiary 16–32 px i pobieranie SVG. Pierwsze porównanie A/B/C pozostaje pod `mode=compare`; ustawienia katalogu są zapisane w URL.
+- **Karta obiektu w edycji** — `/concepts/object-cards`: zrzuty stanu obecnego z verify, replika produkcyjnej karty obok propozycji (jedna kolumna, zdania „Wpis” i „Cel”, pasek okresów, wagi na żądanie) dla nawyku, trackera, rezultatu i intencji we wszystkich trybach wpisu; decyzje D1–D8 do oceny.
 - **Research** — zrzuty aktualnej aplikacji, przypięte adnotacje, luki modelu i wzorce zewnętrzne.
 - **Mapa systemu** — interaktywna pętla: priorytet → mapa wsparcia → obiekty → Dzisiaj → refleksja → korekta.
 - **Kreator priorytetu** — klikalny rytuał od znaczenia po utworzenie wybranych obiektów.

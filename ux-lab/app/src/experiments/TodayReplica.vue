@@ -1,5 +1,7 @@
 <template>
-  <ActionFocusDayReplica v-if="focusDayVariant" :preset-id="props.presetId" :variant="focusDayVariant" />
+  <TodayCompactPlan v-if="props.variantId === 'compact-day-v1'" />
+  <TodayConnectedPlan v-else-if="props.variantId === 'connected-plan-v1'" />
+  <ActionFocusDayReplica v-else-if="focusDayVariant" :preset-id="props.presetId" :variant="focusDayVariant" />
   <component :is="conceptComponent" v-else-if="conceptComponent" :preset-id="props.presetId" />
   <ActionBoardReplica v-else-if="props.variantId.startsWith('action-')" :preset-id="props.presetId" :variant-id="props.variantId" />
   <FocusBoardReplica v-else-if="props.variantId === 'focus-board-v1'" :preset-id="props.presetId" initial-scale="day" />
@@ -347,6 +349,8 @@
 </template>
 
 <script setup lang="ts">
+import TodayCompactPlan from './TodayCompactPlan.vue'
+import TodayConnectedPlan from './TodayConnectedPlan.vue'
 import { computed, ref } from 'vue'
 import AppIcon from '@product/components/shared/AppIcon.vue'
 import type { LabChartPoint, LabFixtureObject } from '@product/dev/richVerificationScenario'

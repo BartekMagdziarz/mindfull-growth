@@ -38,6 +38,8 @@ export const viewDefinitions = Object.fromEntries(
       presets: scenario.presets[id],
       variants: id === 'today'
         ? [
+            { id: 'compact-day-v1', label: '21 · Po prostu plan dnia', description: 'Kompaktowy pasek daty i wpisów, historia siedmiu dni wewnątrz rozwiniętego zadania. Osobna próbka wrzesień 2026.', status: 'experiment' },
+            { id: 'connected-plan-v1', label: '20 · Tydzień i plan dnia', description: 'Wspólny panel kalendarza i zadań. Zachowany wybór, statusy w kolumnach dni i plan oraz wykonanie na jednej osi. Osobny przykładowy scenariusz: wrzesień 2026.', status: 'experiment' },
             { id: 'shared-axis-v1', label: '01 · Jeden fokus', description: 'Jeden wybrany obiekt, jego okres, bieżący wynik i czytelna historia.', status: 'experiment' },
             { id: 'family-lanes-v1', label: '02 · Drabina fokusu', description: 'Jawna relacja: priorytet roku, fokus miesiąca i fokus tygodnia.', status: 'experiment' },
             { id: 'evidence-stream-v1', label: '03 · Najważniejsze teraz', description: 'Trzy najważniejsze obiekty z wartościami w ich własnych skalach.', status: 'experiment' },
@@ -101,7 +103,7 @@ export const navGroups: LabNavGroup[] = [
   {
     id: 'visual-language',
     label: 'Język wizualny',
-    items: [{ id: 'icons', label: 'Własne ikony', kicker: 'Organic Outline · 241 ikon w dziewięciu kategoriach', icon: 'draw', path: '/concepts/icons', kind: 'concept' }],
+    items: [{ id: 'icons', label: 'Własne ikony', kicker: 'Organic Outline · 293 ikony w dziewięciu kategoriach', icon: 'draw', path: '/concepts/icons', kind: 'concept' }],
   },
   {
     id: 'foundation',
@@ -129,6 +131,11 @@ export const navGroups: LabNavGroup[] = [
     items: [{ id: 'quick-plan', label: 'Kalendarz i plan tygodnia', kicker: '04 · rozwinięcie w Dzisiaj · wcześniejsze warianty do porównania', icon: 'edit_calendar', path: '/concepts/quick-plan', kind: 'concept' }],
   },
   {
+    id: 'objects-concepts',
+    label: 'Obiekty',
+    items: [{ id: 'object-cards', label: 'Karta obiektu w edycji', kicker: 'Eksperyment · obecnie vs propozycja · rodziny × tryby wpisu', icon: 'view_agenda', path: '/concepts/object-cards', kind: 'concept' }],
+  },
+  {
     id: 'priority-concepts',
     label: 'System priorytetów',
     items: [
@@ -148,6 +155,7 @@ export const navGroups: LabNavGroup[] = [
     label: 'Refleksja',
     items: [
       { id: 'week-load-state', label: 'Obciążenie i stan tygodnia', kicker: 'Eksperyment · jeden kolor na parę ocen', icon: 'blur_circular', path: '/concepts/week-load-state', kind: 'concept' },
+      { id: 'week-load-state-places', label: 'Wstęga w miejscu', kicker: 'Eksperyment · wstęga osadzona w kalendarzu, podsumowaniu i rytuałach', icon: 'space_dashboard', path: '/concepts/week-load-state-places', kind: 'concept' },
     ],
   },
   {
@@ -160,5 +168,6 @@ export const navGroups: LabNavGroup[] = [
 ]
 
 export function findNavItem(path: string): LabNavItem {
-  return navGroups.flatMap(group => group.items).find(item => path.startsWith(item.path)) ?? navGroups[0].items[0]
+  const items = navGroups.flatMap(group => group.items)
+  return items.find(item => item.path === path) ?? items.find(item => path.startsWith(item.path)) ?? navGroups[0].items[0]
 }

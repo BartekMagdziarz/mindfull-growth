@@ -8,12 +8,13 @@ import OrganicIconCatalog from '~lab/experiments/OrganicIconCatalog.vue'
 
 describe('organic icon catalog', () => {
   it('preserves approved contours and exports valid, uniquely named SVGs', () => {
-    expect(organicIcons).toHaveLength(241)
-    expect(new Set(organicIcons.map(i => i.id)).size).toBe(241)
+    expect(organicIcons).toHaveLength(293)
+    expect(new Set(organicIcons.map(i => i.id)).size).toBe(293)
     expect(organicIcons.filter(i => i.collection === 1)).toHaveLength(84)
     expect(organicIcons.filter(i => i.collection === 2)).toHaveLength(36)
     expect(organicIcons.filter(i => i.collection === 3)).toHaveLength(121)
-    expect(new Set(organicIcons.map(i => i.markup)).size).toBe(241)
+    expect(new Set(organicIcons.map(i => i.markup)).size).toBe(293)
+    expect(organicIcons.filter(i => i.collection === 4)).toHaveLength(52)
     for (const seed of icons) expect(organicIcons.find(i => i.id === seed.id)?.markup).toBe(seed.b)
     for (const icon of organicIcons) {
       expect(iconCategories.some(c => c.id === icon.category)).toBe(true)
@@ -24,7 +25,7 @@ describe('organic icon catalog', () => {
     }
     const sprite = new DOMParser().parseFromString(organicSprite(), 'image/svg+xml')
     expect(sprite.querySelector('parsererror')).toBeNull()
-    expect(sprite.querySelectorAll('symbol')).toHaveLength(241)
+    expect(sprite.querySelectorAll('symbol')).toHaveLength(293)
   })
 
   it('matches Polish names without diacritics', () => {
@@ -45,7 +46,7 @@ describe('organic icon catalog', () => {
     expect(wrapper.find('.oc-empty').exists()).toBe(true)
     await wrapper.find('.oc-empty button').trigger('click')
     await flushPromises()
-    expect(wrapper.findAll('.oc-icon')).toHaveLength(241)
+    expect(wrapper.findAll('.oc-icon')).toHaveLength(293)
     await router.replace({query:{collection:'2',notes:'0'}})
     await flushPromises()
     expect(wrapper.findAll('.oc-icon')).toHaveLength(36)
@@ -55,6 +56,13 @@ describe('organic icon catalog', () => {
     expect(wrapper.findAll('.oc-icon')).toHaveLength(121)
     expect(wrapper.find('.oc-selected h2').text()).toBe('YouTube')
     expect(wrapper.find('.oc-selected code').text()).toBe('mg-youtube')
+    await router.replace({query:{collection:'4',icon:'phone-free',q:'bez telefonu',notes:'0'}})
+    await flushPromises()
+    expect(wrapper.findAll('.oc-icon').map(icon => icon.text())).toEqual(['Bez telefonu', 'Sypialnia bez telefonu'])
+    expect(wrapper.find('.oc-selected code').text()).toBe('mg-phone-free')
+    await wrapper.find('input').setValue('')
+    await flushPromises()
+    expect(wrapper.findAll('.oc-icon')).toHaveLength(52)
     await wrapper.find('.oc-actions button').trigger('click')
     await flushPromises()
     expect(wrapper.findAll('.is-sample')).toHaveLength(36)

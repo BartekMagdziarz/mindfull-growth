@@ -1,6 +1,6 @@
-# Mindful Growth — Organic Outline / kolekcje 01–03
+# Mindful Growth — Organic Outline / kolekcje 01–04
 
-Wybrany przez użytkownika kierunek B. 241 autorskich ikon w dziewięciu kategoriach. Kolekcja 01: 84 ikony, kolekcja 02: 36 ikon, kolekcja 03: 121 nowych ikon (YouTube i 120 uzupełnień).
+Wybrany przez użytkownika kierunek B. 293 autorskie ikony w dziewięciu kategoriach. Kolekcja 01: 84 ikony, kolekcja 02: 36 ikon, kolekcja 03: 121 nowych ikon (YouTube i 120 uzupełnień).
 
 ## Reguły rodziny
 
@@ -9,19 +9,19 @@ Wybrany przez użytkownika kierunek B. 241 autorskich ikon w dziewięciu kategor
 - Nieregularność kontrolowana: lekko wygięta krawędź kartki, asymetryczna zamknięta bryła, łagodny łuk zamiast mechanicznie prostego konturu. Nie losować geometrii ani obrotu w runtime.
 - Proste kontrolki zachowują znajome znaczenie. Różnicować sylwetkę: cel = tarcza; nawyk = cykl; priorytet = czteroramienny znak; zadanie = zaznaczana kartka; tracker = obserwacje; intencja = flaga; rezultat = stopnie.
 - Rozmiary 16/20/24/32 px są skalowane proporcjonalnie. Nie stosować `non-scaling-stroke`, który zmieniłby proporcje konturu. Wariant 40px to lupa, nie nowa siatka.
-- Nowy symbol oceniać obok tej samej kategorii i najbliższej metafory w 16 i 24 px. Optyczne warianty dla 16px mogą zostać dodane po ocenie zestawu; kolekcje 01–03 ich jeszcze nie zawiera.
+- Nowy symbol oceniać obok tej samej kategorii i najbliższej metafory w 16 i 24 px. Optyczne warianty dla 16px mogą zostać dodane po ocenie zestawu; kolekcje 01–04 ich jeszcze nie zawiera.
 
 ## Źródła i użycie
 
 `src/design-system/icons/organicIcons.ts` w głównej aplikacji jest wspólnym katalogiem B. Pierwotne 12 zatwierdzonych konturów znajduje się w `seedIcons.ts`; Lab udostępnia katalog przez re-export `src/lab/organicIcons.ts`. Reszta jest opisana stabilnym angielskim ID, polską nazwą, kategorią i słowami wyszukiwania. Nie zmieniać ID po wdrożeniu bez mapy migracji.
 
-`npm run export:icons` generuje 241 samodzielnych plików SVG, sprite oraz katalog JSON w `public/icon-library/`. Build Labu uruchamia eksport automatycznie; po zmianach geometrii w trybie dev należy uruchomić eksport.
+`npm run export:icons` generuje 293 samodzielnych plików SVG, sprite oraz katalog JSON w `public/icon-library/`. Build Labu uruchamia eksport automatycznie; po zmianach geometrii w trybie dev należy uruchomić eksport.
 
 W `/concepts/icons` można pobrać osobną ikonę albo cały zestaw symboli SVG. Zestaw jest sprite'em: nie wyświetla planszy sam z siebie. Po osadzeniu go w dokumencie używać np. `<svg viewBox="0 0 24 24"><use href="#mg-sleep" /></svg>`; plik zewnętrzny można wskazać przez `href="/icons.svg#mg-sleep"`. Osobna ikona jest samodzielnym SVG do edycji i importu.
 
 Ikona przy etykiecie jest dekoracyjna (`aria-hidden`). Przycisk z samą ikoną potrzebuje nazwy dostępnej dla czytnika. Symbol nie może być jedynym wyjaśnieniem nieoczywistego pojęcia ani jedyną informacją o stanie.
 
-2026-09-13 użytkownik zatwierdził wdrożenie w aplikacji. Produkcyjny `AppIcon` renderuje SVG tej rodziny, a picker udostępnia obecnie 241 ikon. Dodatkowe warianty techniczne w `resolveIcon.ts` rozróżniają stany kontrolek i poziomy skal. Emoji oraz dedykowane twarze/ćwiartki emocji pozostają zachowane. Porównanie A/B/C pozostaje pod `mode=compare`.
+2026-09-13 użytkownik zatwierdził wdrożenie w aplikacji. Produkcyjny `AppIcon` renderuje SVG tej rodziny, a picker udostępnia obecnie 293 ikony. Dodatkowe warianty techniczne w `resolveIcon.ts` rozróżniają stany kontrolek i poziomy skal. Emoji oraz dedykowane twarze/ćwiartki emocji pozostają zachowane. Porównanie A/B/C pozostaje pod `mode=compare`.
 
 ## Dobór kolekcji 02
 
@@ -39,3 +39,16 @@ Dobór obejmuje tworzenie i oglądanie wideo, podcasty, kursy, programowanie, ho
 Wszystkie 48 wpisów `EXERCISE_CATALOG` wskazuje własną ikonę `mg-exercise-<slug>`. Akcje planowania i refleksji w `RhythmPeriodSummary` korzystają z ikon okresu. Nowe symbole są automatycznie dostępne w pickerze celów, nawyków, trackerów, priorytetów i obszarów życia.
 
 Podgląd: `/concepts/icons?collection=3&icon=youtube&notes=0`. Filtry wszystkich trzech kolekcji zachowują się w URL. Rozmiary 16/20/24/32 px i indywidualne SVG można sprawdzić bezpośrednio w katalogu. YouTube jest autorską interpretacją motywu odtwarzania w organicznej ramce, zgodną z monochromatyczną rodziną aplikacji.
+
+
+## Kolekcja 04 — dobrostan i granice cyfrowe
+
+52 nowe ikony, 293 łącznie. Zachowane wszystkie wcześniejsze identyfikatory i kontury.
+
+- 10 motywów ograniczania ekranów: bez telefonu, przerwa od ekranu, koniec scrollowania, odkładanie telefonu, sypialnia i posiłek bez ekranu, pora na powiadomienia, dzień offline, limit aplikacji i świadome korzystanie.
+- 12 motywów ciała i regeneracji: postawa, mobilność, plecy, masaż, roller, rozgrzewka, wyciszenie po treningu, dzień regeneracji, oczy, kontakt z ciałem, światło dzienne i drzemka.
+- 10 form treningu: przysiady, pompki, deska, wykroki, podciąganie, kettlebell, skakanka, boks, tai chi i nordic walking.
+- 10 motywów emocji: radość, smutek, złość, lęk, spokój, duma, samotność, nadzieja, uwolnienie i nazywanie emocji. Są to opcje personalizacji; dedykowane ilustracje w dzienniku emocji pozostają osobnym systemem.
+- 10 praktyk umysłu, emocji i ducha: medytacja w ciszy, metta, modlitwa, kontemplacja, kąpiel leśna, uważna herbata, kąpiel dźwiękowa, uważny spacer, ekspresja twórcza i bliski kontakt.
+
+Podgląd: `/concepts/icons?collection=4&icon=phone-free&notes=0`. Wyszukiwanie obejmuje polskie nazwy, tematyczne słowa kluczowe i angielskie odpowiedniki. Dotychczasowe motywy (np. screen-time, digital-balance, yoga, breath, body-scan) uzupełniają tę kolekcję. Ikony przedstawiają aktywności, nie obietnice efektów zdrowotnych.

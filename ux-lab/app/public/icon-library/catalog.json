@@ -1685,5 +1685,369 @@
     "category": "exercises",
     "tags": "ćwiczenie praktyka one-small-win",
     "collection": 3
+  },
+  {
+    "id": "phone-free",
+    "label": "Bez telefonu",
+    "category": "media",
+    "tags": "telefon ekran odłóż ograniczenie offline phone free",
+    "collection": 4
+  },
+  {
+    "id": "screen-break",
+    "label": "Przerwa od ekranu",
+    "category": "media",
+    "tags": "komputer oczy odpoczynek ekran screen break",
+    "collection": 4
+  },
+  {
+    "id": "stop-scrolling",
+    "label": "Przerwij scrollowanie",
+    "category": "media",
+    "tags": "telefon przewijanie media społecznościowe limit scroll",
+    "collection": 4
+  },
+  {
+    "id": "phone-parking",
+    "label": "Odłóż telefon",
+    "category": "media",
+    "tags": "telefon pudełko skupienie bez ekranu phone away",
+    "collection": 4
+  },
+  {
+    "id": "bedroom-no-phone",
+    "label": "Sypialnia bez telefonu",
+    "category": "media",
+    "tags": "sen noc telefon ekran bedroom bedtime",
+    "collection": 4
+  },
+  {
+    "id": "offline-meal",
+    "label": "Posiłek bez ekranu",
+    "category": "media",
+    "tags": "jedzenie telefon uważne odżywianie offline meal",
+    "collection": 4
+  },
+  {
+    "id": "notification-batch",
+    "label": "Pora na powiadomienia",
+    "category": "media",
+    "tags": "telefon alerty sprawdzanie granice notifications batch",
+    "collection": 4
+  },
+  {
+    "id": "digital-sabbath",
+    "label": "Dzień offline",
+    "category": "media",
+    "tags": "detoks cyfrowy weekend odpoczynek ekran digital detox",
+    "collection": 4
+  },
+  {
+    "id": "app-limit",
+    "label": "Limit aplikacji",
+    "category": "media",
+    "tags": "telefon ograniczenie czasu ekran app limit",
+    "collection": 4
+  },
+  {
+    "id": "intentional-browsing",
+    "label": "Świadome korzystanie",
+    "category": "media",
+    "tags": "internet intencja ekran wybór mindful browsing",
+    "collection": 4
+  },
+  {
+    "id": "posture",
+    "label": "Postawa ciała",
+    "category": "activity",
+    "tags": "kręgosłup plecy siedzenie posture ergonomia",
+    "collection": 4
+  },
+  {
+    "id": "mobility",
+    "label": "Mobilność stawów",
+    "category": "activity",
+    "tags": "ciało ruch zakres stawy mobility",
+    "collection": 4
+  },
+  {
+    "id": "back-care",
+    "label": "Zdrowe plecy",
+    "category": "activity",
+    "tags": "ciało kręgosłup rozluźnianie back care",
+    "collection": 4
+  },
+  {
+    "id": "massage",
+    "label": "Masaż",
+    "category": "activity",
+    "tags": "ciało regeneracja dotyk masaż massage",
+    "collection": 4
+  },
+  {
+    "id": "foam-rolling",
+    "label": "Rolowanie mięśni",
+    "category": "activity",
+    "tags": "ciało roller regeneracja powięź foam rolling",
+    "collection": 4
+  },
+  {
+    "id": "warm-up",
+    "label": "Rozgrzewka",
+    "category": "activity",
+    "tags": "ciało przed treningiem ruch warmup",
+    "collection": 4
+  },
+  {
+    "id": "cool-down",
+    "label": "Wyciszenie po treningu",
+    "category": "activity",
+    "tags": "ciało schłodzenie rozluźnienie cool down",
+    "collection": 4
+  },
+  {
+    "id": "recovery-day",
+    "label": "Dzień regeneracji",
+    "category": "activity",
+    "tags": "ciało odpoczynek przerwa recovery rest day",
+    "collection": 4
+  },
+  {
+    "id": "eye-rest",
+    "label": "Odpoczynek oczu",
+    "category": "activity",
+    "tags": "oczy ekran przerwa relaks eye rest",
+    "collection": 4
+  },
+  {
+    "id": "body-awareness",
+    "label": "Kontakt z ciałem",
+    "category": "activity",
+    "tags": "ciało świadomość czucie somatyka body awareness",
+    "collection": 4
+  },
+  {
+    "id": "sunlight",
+    "label": "Światło dzienne",
+    "category": "activity",
+    "tags": "ciało spacer rano słońce daylight sunlight",
+    "collection": 4
+  },
+  {
+    "id": "nap",
+    "label": "Drzemka",
+    "category": "activity",
+    "tags": "ciało krótki odpoczynek power nap",
+    "collection": 4
+  },
+  {
+    "id": "squats",
+    "label": "Przysiady",
+    "category": "activity",
+    "tags": "nogi pośladki siła squat trening",
+    "collection": 4
+  },
+  {
+    "id": "push-ups",
+    "label": "Pompki",
+    "category": "activity",
+    "tags": "klatka ramiona siła pushup trening",
+    "collection": 4
+  },
+  {
+    "id": "plank",
+    "label": "Deska",
+    "category": "activity",
+    "tags": "brzuch core plank stabilizacja trening",
+    "collection": 4
+  },
+  {
+    "id": "lunges",
+    "label": "Wykroki",
+    "category": "activity",
+    "tags": "nogi równowaga lunges trening",
+    "collection": 4
+  },
+  {
+    "id": "pull-ups",
+    "label": "Podciąganie",
+    "category": "activity",
+    "tags": "plecy drążek ramiona pullup trening",
+    "collection": 4
+  },
+  {
+    "id": "kettlebell",
+    "label": "Kettlebell",
+    "category": "activity",
+    "tags": "siła ciężar odważnik trening",
+    "collection": 4
+  },
+  {
+    "id": "jump-rope",
+    "label": "Skakanka",
+    "category": "activity",
+    "tags": "cardio kondycja skoki jump rope",
+    "collection": 4
+  },
+  {
+    "id": "boxing",
+    "label": "Boks",
+    "category": "activity",
+    "tags": "rękawice kondycja boxing trening",
+    "collection": 4
+  },
+  {
+    "id": "tai-chi",
+    "label": "Tai chi",
+    "category": "activity",
+    "tags": "ruch równowaga łagodny qigong ciało",
+    "collection": 4
+  },
+  {
+    "id": "nordic-walking",
+    "label": "Nordic walking",
+    "category": "activity",
+    "tags": "kijki spacer cardio marsz",
+    "collection": 4
+  },
+  {
+    "id": "joy",
+    "label": "Radość",
+    "category": "reflection",
+    "tags": "emocje szczęście joy happy",
+    "collection": 4
+  },
+  {
+    "id": "sadness",
+    "label": "Smutek",
+    "category": "reflection",
+    "tags": "emocje żal sadness grief",
+    "collection": 4
+  },
+  {
+    "id": "anger",
+    "label": "Złość",
+    "category": "reflection",
+    "tags": "emocje gniew frustracja anger",
+    "collection": 4
+  },
+  {
+    "id": "fear",
+    "label": "Lęk",
+    "category": "reflection",
+    "tags": "emocje strach niepokój fear anxiety",
+    "collection": 4
+  },
+  {
+    "id": "calm",
+    "label": "Spokój",
+    "category": "reflection",
+    "tags": "emocje ukojenie równowaga calm serenity",
+    "collection": 4
+  },
+  {
+    "id": "pride",
+    "label": "Duma",
+    "category": "reflection",
+    "tags": "emocje osiągnięcie satysfakcja pride",
+    "collection": 4
+  },
+  {
+    "id": "loneliness",
+    "label": "Samotność",
+    "category": "reflection",
+    "tags": "emocje osamotnienie loneliness",
+    "collection": 4
+  },
+  {
+    "id": "hope",
+    "label": "Nadzieja",
+    "category": "reflection",
+    "tags": "emocje otucha hope",
+    "collection": 4
+  },
+  {
+    "id": "emotional-release",
+    "label": "Uwolnienie emocji",
+    "category": "reflection",
+    "tags": "emocje płacz puszczanie letting go release",
+    "collection": 4
+  },
+  {
+    "id": "name-emotion",
+    "label": "Nazwij emocję",
+    "category": "reflection",
+    "tags": "emocje rozpoznawanie nazywanie feelings labeling",
+    "collection": 4
+  },
+  {
+    "id": "silent-meditation",
+    "label": "Medytacja w ciszy",
+    "category": "rituals",
+    "tags": "umysł duch cisza medytacja mindfulness silence",
+    "collection": 4
+  },
+  {
+    "id": "loving-kindness",
+    "label": "Medytacja życzliwości",
+    "category": "rituals",
+    "tags": "metta emocje duch umysł współczucie loving kindness",
+    "collection": 4
+  },
+  {
+    "id": "prayer",
+    "label": "Modlitwa",
+    "category": "rituals",
+    "tags": "duch duchowość wiara prayer",
+    "collection": 4
+  },
+  {
+    "id": "contemplation",
+    "label": "Kontemplacja",
+    "category": "rituals",
+    "tags": "duch umysł refleksja cisza contemplation",
+    "collection": 4
+  },
+  {
+    "id": "forest-bathing",
+    "label": "Kąpiel leśna",
+    "category": "rituals",
+    "tags": "natura duch ciało umysł las forest bathing",
+    "collection": 4
+  },
+  {
+    "id": "mindful-tea",
+    "label": "Uważna herbata",
+    "category": "rituals",
+    "tags": "uważność duch umysł przerwa tea mindfulness",
+    "collection": 4
+  },
+  {
+    "id": "sound-bath",
+    "label": "Kąpiel dźwiękowa",
+    "category": "rituals",
+    "tags": "dźwięk duch umysł relaks misa sound bath",
+    "collection": 4
+  },
+  {
+    "id": "mindful-walking",
+    "label": "Uważny spacer",
+    "category": "rituals",
+    "tags": "uważność ciało umysł medytacja walking",
+    "collection": 4
+  },
+  {
+    "id": "creative-expression",
+    "label": "Ekspresja twórcza",
+    "category": "rituals",
+    "tags": "emocje umysł duch sztuka ekspresja art",
+    "collection": 4
+  },
+  {
+    "id": "meaningful-connection",
+    "label": "Bliski kontakt",
+    "category": "rituals",
+    "tags": "emocje duch relacje rozmowa więź connection",
+    "collection": 4
   }
 ]

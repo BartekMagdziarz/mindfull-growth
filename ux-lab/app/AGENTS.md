@@ -2,6 +2,8 @@
 
 ## Custom icons — user decision 2026-09-12
 
+- 2026-09-18 follow-up: expand digital boundaries, body and physical training, emotions and practices for body/mind/spirit. Collection 04 adds 52 vectors (293 total): digital boundaries 10, body/recovery 12, training 10, emotions 10, inner practices 10. Use `collection=4` to review. These are personal icon choices; preserve dedicated emotion artwork and previously approved vectors.
+
 - 2026-09-18: the user requested YouTube plus at least as many new icons as the existing catalog, including personal goals/habits/trackers/priorities/life areas and dedicated exercises/rituals. Collection 03 adds 121 vectors (241 total), including all 48 exercise/assessment entries and 10 rituals. Review with `collection=3`; preserve collections 01–02. The product picker and exercise catalog use the shared geometry. System-icon availability does not imply a corresponding feature has shipped.
 
 - 2026-09-13: the user explicitly approved replacing application icons with the B family. Canonical geometry now lives in product `src/design-system/icons/organicIcons.ts` and `seedIcons.ts`; Lab re-exports it and uses it for SVG exports. `AppIcon` renders these vectors with a legacy-name compatibility map. New picker values use `mg-` IDs. This supersedes the earlier Lab-only restriction; preserve emoji and dedicated emotion artwork.
@@ -237,3 +239,46 @@ When implementing from a selected generated mock, treat that image as the source
 - Limit this iteration to weekly plan modification. Remove day/week/month scale switching from the new direction; week view must actually show seven days, not funnel back into a daily list. Month is deferred.
 - Reconsider the calendar card itself: the new 04 experiment gives it an always-visible week strip for day navigation and an edit icon to expand the same surface into a weekly board. Expanded mode temporarily hides the daily list and context cards, preserving their state; this exact allocation is a proposal for review.
 - 04 (`variant=calendar`) is the new default. 01–03 remain comparison history; the previous drawer recommendation is superseded. All changes remain Lab-only.
+
+
+## Today calendar and day plan — exploration 2026-09-19
+
+- The user finds the repeated date and separate navigation lines excessive, and the task-to-calendar connection unclear. They requested a UX Lab prototype before choosing a solution.
+- Variant `connected-plan-v1` (20) explores one surface, a single month/navigation line, selected-task context, day-integrated evidence and a persistent selection across navigation. This is a proposal, not approval for a production port.
+- It intentionally uses an isolated illustrative September 19, 2026 scenario matching the supplied screenshots, labeled in the prototype and notes. Completion and minutes are editable in memory; query state shares task/day/week and Reset restores the sample. Existing Today variants remain intact.
+
+
+## Today connected plan — refinement 2026-09-20
+
+- Remove the chart legend, repeated selected-task heading and selection instructions. Emphasize weekdays over numeric dates and name the week rather than the month. No task names under days: too crowded.
+- Default calendar explores filtered plan/fulfillment (goals/results, habits, trackers). Selecting a task temporarily narrows the same axis; deselecting restores the filter. Numeric targets count as met only when achieved; trackers count entries.
+- User invited red for missed goals/habits. Prototype uses restrained rose with hatching for the unfulfilled past portion, never today/future, and neutral missing tracker entries. This is an exploratory design, not a production change.
+
+
+## Today compact day — exploration 2026-09-22
+
+- User requested an alternative without the persistent calendar: compact date/day navigation alongside Journal, Emotions and Exercises above the daily plan; charts return inside expanded task cards.
+- Variant 21 `compact-day-v1` preserves variant 20 for comparison. Seven-day histories end on the selected day, daily shortcut drafts are date-keyed and Lab-only. Motivation summary is deferred. This is a prototype, not a production migration.
+
+- Follow-up: user prefers the concrete date as the larger primary label and Dzisiaj/Jutro/Wczoraj or relative weeks/months underneath. Journal/Emotions/Exercises should use the Compass tile anatomy: icon field above a small bold label, subtle card border, raised hover and inset selected state.
+
+## Object card editor — exploration 2026-09-23
+
+- `/concepts/object-cards` was rebuilt as "Karta obiektu w edycji": section 01 shows real verify screenshots (`public/research/current/objects/`, captured with `scripts/capture-objects-current.mjs` at 1440 px / DPR 2), section 02 puts a faithful replica of the production expanded card next to the proposal on the same in-memory state (family × entry mode × cadence × period sample × entry-day condition), section 03 lists decisions D1–D8.
+- Diagnosis: the expanded habit/tracker/KR card splits Okresy and Cel 50/50 inside a ~380 px card (three columns from 1280 px), so the target sentence collapses to one pill per line and "Wybierz okresy (N)" wraps; the period button and the `<details>` summary repeat the same count; the rating scale sits in a separate block; every checklist row shows a weight field plus three icon buttons; section labels are 9 px against 14 px controls.
+- Proposal (awaiting user decision, nothing ported): one column; two short sentences "Wpis" (mode · scale · cadence) and "Cel na tydzień/miesiąc" (aggregation · comparison · value · unit, entry-day condition as a second line with a quiet ×); periods as an ink/pencil cell strip plus one fact line that is an `.mg-v2-inline-trigger` opening the existing `PeriodCalendarPicker`; scale as a pill inside the sentence; weights on demand and row tools on hover; filled rules read as text on paper; 11 px section labels; period count in the collapsed facts line. Goal and priority cards are out of scope.
+- The left "Obecnie" card reuses the production HTML/classes but is not the live component (no pickers, no autosave). Keep both stages the same width so the comparison stays honest.
+- Feedback 2026-09-23 (round 2): one column and hover-only row tools accepted. Keep the cloud-like anatomy — every sentence sits in its own soft `neo-surface` well and word pickers/number fields use the flat `neo-badge` pill; do not replace them with plain outlined chips. Minimise helper copy (labels "Wpis", "Cel", "Okresy"; no explanatory sentences inside the card). Period strip cells are brush strokes: wider (min 30 px), organic radii, slight alternating rotation, ink gradient; long series wrap into rows instead of shrinking to dots.
+- Round 3 (2026-09-23): "Wpis" and "Cel" are ONE sentence in ONE well (no label);
+  checklist items sit below in their own section. Rating reads
+  „Oceniaj od [1] do [5] w tygodniu, średnio co najmniej 4” (two number fields,
+  no scale pill, no „na 5”). Tone ladder inside a well: well = mist,
+  pills/inputs = paper, hover/focus = whiter (`--oc-white`) — a control must
+  always be lighter than the field it sits on (item rows: mist row, paper
+  label field). The brush-stroke strip was rejected; section 02b shows three
+  period directions (A month rows like the picker · B single axis with month
+  ticks · C month chips with week counts) pending the user's pick.
+- 2026-09-23 decision: periods = variant A (month calendar rows) — implemented
+  in the proposal card; the B/C variants panel was removed. Row label = short
+  month (or the year for monthly cadence), cells `flex:1 1 0; max-width:44px`,
+  calm organic radii, no rotation. Product port still pending the user's call.

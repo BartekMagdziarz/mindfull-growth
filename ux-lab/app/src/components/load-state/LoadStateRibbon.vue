@@ -1,5 +1,5 @@
 <template>
-  <figure class="ls-ribbon" role="img" :aria-label="aria">
+  <figure class="ls-ribbon" :class="{ 'ls-ribbon--thin': thin }" role="img" :aria-label="aria">
     <svg :viewBox="`0 0 ${W} ${H}`" preserveAspectRatio="none" class="ls-ribbon__svg" aria-hidden="true">
       <defs>
         <filter :id="washId" x="-5%" y="-30%" width="110%" height="160%">
@@ -77,7 +77,9 @@ const props = withDefaults(defineProps<{
   options?: ColorOptions
   /** Przejścia koloru między tygodniami: cięcie na granicy tygodnia albo gradient między środkami tygodni. */
   transition?: 'sharp' | 'smooth'
-}>(), { label: '', height: 64, showAxis: false, options: () => ({}), transition: 'sharp' })
+  /** Cieńsze linie do małych wysokości (karty podsumowania, kolumna kontekstu). */
+  thin?: boolean
+}>(), { label: '', height: 64, showAxis: false, options: () => ({}), transition: 'sharp', thin: false })
 
 const uid = useId()
 const washId = `rwash-${uid}`
@@ -123,6 +125,9 @@ const aria = computed(() => `${props.label || 'Obszar'}: ${props.points.length} 
 .ls-ribbon__line { fill: none; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
 .ls-ribbon__line--load { stroke: rgb(var(--color-on-surface) / 0.45); stroke-width: 1.3; }
 .ls-ribbon__line--state { stroke: rgb(var(--sky-800)); stroke-width: 2; }
+.ls-ribbon--thin .ls-ribbon__line--load { stroke-width: 0.8; }
+.ls-ribbon--thin .ls-ribbon__line--state { stroke-width: 1.2; }
+.ls-ribbon--thin .ls-ribbon__rule { stroke: rgb(var(--neo-border) / 0.18); }
 .ls-ribbon__hit { fill: transparent; cursor: crosshair; }
 .ls-ribbon__tip { position: absolute; top: -6px; transform: translate(-50%, -100%); display: grid; justify-items: center; gap: 2px; padding: 6px 9px; border-radius: 12px 9px 11px 10px; background: rgb(var(--color-on-surface)); color: white; font-size: 11px; white-space: nowrap; pointer-events: none; z-index: 2; }
 .ls-ribbon__tip span { padding: 1px 7px; border-radius: 999px; font-weight: 750; }
