@@ -187,6 +187,39 @@ describe('runProgramScheduler', () => {
     expect(created.map((item) => item.sourceRef)).toEqual(['enr-a', 'enr-c'])
   })
 
+  it('re-maps an enrollment behind its content version before materializing its step', async () => {
+    // A live shame-path row from content v1: SCS-SF and the map done, "Czyn czy ja"
+    // (old index 2) pending. v2 puts the compassionate image at index 2.
+    const stale = enrollment({
+      id: 'enr-shame',
+      programSlug: 'shame-compassion',
+      currentStepIndex: 2,
+      completedSteps: [
+        { stepIndex: 0, completedAt: '2026-07-01T10:00:00.000Z' },
+        { stepIndex: 1, completedAt: '2026-07-02T10:00:00.000Z' },
+      ],
+    })
+    vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([stale])
+    vi.mocked(programEnrollmentDexieRepository.update).mockImplementationOnce(async (_id, patch) => ({ ...stale, ...patch }))
+    vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef)
+      // migration: the stale pending step is dropped
+      .mockResolvedValueOnce([planItem({ id: 'stale', exerciseSlug: 'shame-or-guilt', sourceRef: 'enr-shame' })])
+      // materialization: nothing pending any more
+      .mockResolvedValueOnce([])
+
+    const created = await runProgramScheduler()
+
+    expect(programEnrollmentDexieRepository.update).toHaveBeenCalledWith('enr-shame', {
+      completedSteps: stale.completedSteps,
+      currentStepIndex: 2,
+      contentVersion: 2,
+    })
+    expect(exercisePlanDexieRepository.delete).toHaveBeenCalledWith('stale')
+    expect(created.filter((item) => item.programRole === 'step').map((item) => item.exerciseSlug)).toEqual([
+      'compassionate-image',
+    ])
+  })
+
   it('one failing enrollment never blocks the rest', async () => {
     vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([
       enrollment({ id: 'enr-bad' }),
@@ -309,8 +342,10 @@ describe('enrollInProgram', () => {
 
     const result = await enrollInProgram('foundation')
 
+    // Stamped with the definition's content version (foundation is on v1).
     expect(vi.mocked(programEnrollmentDexieRepository.create).mock.calls[0]?.[0]).toEqual({
       programSlug: 'foundation',
+      contentVersion: 1,
     })
     expect(result.planItem).toMatchObject({
       exerciseSlug: 'values',

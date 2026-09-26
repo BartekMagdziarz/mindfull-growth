@@ -82,6 +82,13 @@ export interface ProgramDefinition {
   slug: string
   /** `programs.<slug>` — title/description/step copy namespace. */
   i18nKey: string
+  /**
+   * Bumped when the step list changes shape (order, inserts, removals);
+   * enrollments carry the version they were created under and are
+   * migrated by `programContentMigration` (completed steps re-mapped by
+   * exercise slug). Absent = 1.
+   */
+  contentVersion?: number
   /** Material Symbols name. */
   icon: string
   estimatedWeeks: number
@@ -133,6 +140,8 @@ export interface ProgramEnrollment {
   completedSteps: CompletedProgramStep[]
   /** Weekly real-world task decisions, one entry per week at most (absent on older rows). */
   weekLog?: ProgramWeekEntry[]
+  /** `ProgramDefinition.contentVersion` the step indices refer to (absent = 1). */
+  contentVersion?: number
   createdAt: string
   updatedAt: string
 }
@@ -145,6 +154,8 @@ export interface ProgramEnrollment {
 export interface CreateProgramEnrollmentPayload {
   programSlug: string
   startedAt?: string
+  /** The definition's current content version; stamped by the scheduler. */
+  contentVersion?: number
 }
 
 export interface UpdateProgramEnrollmentPayload {
@@ -152,4 +163,5 @@ export interface UpdateProgramEnrollmentPayload {
   currentStepIndex?: number
   completedSteps?: CompletedProgramStep[]
   weekLog?: ProgramWeekEntry[]
+  contentVersion?: number
 }

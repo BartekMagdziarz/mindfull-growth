@@ -64,6 +64,7 @@ import type { MicroExerciseEntry } from '@/domain/microExercises'
 import type { ProgramEnrollment } from '@/domain/program'
 import { getPeriodRefsForDate } from '@/utils/periods'
 import { migrateLogsToMoments } from '@/services/migrations/momentsMigration'
+import { migrateEnrollmentsContent } from '@/services/programContentMigration'
 
 /**
  * v23 completion-backfill sources — FROZEN at authoring time (2026-07-05).
@@ -1628,6 +1629,21 @@ export class UserDatabase extends Dexie {
           putEntry: (row) => trans.table('microExerciseEntries').put(row),
           putCompletion: (row) => trans.table('exerciseCompletions').put(row),
           putPlanItem: (row) => trans.table('exercisePlanItems').put(row),
+        })
+      })
+
+    // Shame path v2 (ideas/html-plans/2026-09-26-shame-path-v2-compassion.html §7):
+    // the step list changed shape, so enrollments created under content v1
+    // get their completed steps re-mapped by exercise slug; their pending
+    // step plan items are dropped and re-materialized by the scheduler.
+    this.version(28)
+      .stores({})
+      .upgrade(async (trans) => {
+        await migrateEnrollmentsContent({
+          enrollments: await trans.table('programEnrollments').toArray(),
+          planItems: await trans.table('exercisePlanItems').toArray(),
+          putEnrollment: (row) => trans.table('programEnrollments').put(row),
+          deletePlanItem: (id) => trans.table('exercisePlanItems').delete(id),
         })
       })
   }

@@ -23,6 +23,7 @@ import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { DayRef } from '@/domain/period'
 import type { ProgramDefinition, ProgramEnrollment, ProgramPractice } from '@/domain/program'
 import { getProgramDefinition } from '@/data/programCatalog'
+import { definitionContentVersion, migrateEnrollmentContent } from '@/services/programContentMigration'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { skipPlan } from '@/services/exercisePlanService'
@@ -254,6 +255,28 @@ export async function ensureCurrentStepMaterialized(
 }
 
 /**
+ * Re-maps an enrollment created under an older content version and drops
+ * its pending step items (their slug may be stale). Returns the stored
+ * row after migration, or null when the row was up to date.
+ */
+async function migrateEnrollmentIfBehind(enrollment: ProgramEnrollment): Promise<ProgramEnrollment | null> {
+  const program = getProgramDefinition(enrollment.programSlug)
+  if (!program) return null
+  const next = migrateEnrollmentContent(enrollment, program)
+  if (!next) return null
+  const updated = await programEnrollmentDexieRepository.update(enrollment.id, {
+    completedSteps: next.completedSteps,
+    currentStepIndex: next.currentStepIndex,
+    contentVersion: next.contentVersion,
+  })
+  const pending = await exercisePlanDexieRepository.listPendingByProgramSourceRef(enrollment.id)
+  for (const item of pending) {
+    if (!isPracticeItem(item)) await exercisePlanDexieRepository.delete(item.id)
+  }
+  return updated
+}
+
+/**
  * Today-load reconciler: materializes the current step and the open
  * practices of every active enrollment; returns the created items.
  * Per-enrollment failures are logged and skipped — one bad row must never
@@ -262,13 +285,17 @@ export async function ensureCurrentStepMaterialized(
 export async function runProgramScheduler(): Promise<ExercisePlanItem[]> {
   const enrollments = await programEnrollmentDexieRepository.listAll()
   const created: ExercisePlanItem[] = []
-  for (const enrollment of enrollments.filter((e) => e.status === 'active')) {
+  for (const stored of enrollments.filter((e) => e.status === 'active')) {
     try {
+      // Safety net for rows still behind their definition's content
+      // version (the Dexie upgrade handles existing databases; seeds and
+      // imports may create older shapes later).
+      const enrollment = (await migrateEnrollmentIfBehind(stored)) ?? stored
       const item = await ensureCurrentStepMaterialized(enrollment)
       if (item) created.push(item)
       created.push(...(await reconcilePractices(enrollment)).created)
     } catch (err) {
-      console.error(`Failed to materialize program step for enrollment ${enrollment.id}:`, err)
+      console.error(`Failed to materialize program step for enrollment ${stored.id}:`, err)
     }
   }
   return created
@@ -341,7 +368,10 @@ export async function enrollInProgram(programSlug: string): Promise<{
   if (open) {
     throw new Error(`Already enrolled in program ${programSlug}`)
   }
-  const enrollment = await programEnrollmentDexieRepository.create({ programSlug })
+  const enrollment = await programEnrollmentDexieRepository.create({
+    programSlug,
+    contentVersion: definitionContentVersion(program),
+  })
   const planItem = await ensureCurrentStepMaterialized(enrollment)
   return { enrollment, planItem, practices: await reconcilePractices(enrollment) }
 }

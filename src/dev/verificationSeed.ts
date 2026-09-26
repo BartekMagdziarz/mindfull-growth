@@ -1605,4 +1605,164 @@ export async function seedVerificationData(): Promise<void> {
   })
 
   console.log('[verificationSeed] Created 1 problem-path enrollment (anxiety-approach, step 7/15, 2 practices)')
+
+  // ── 17. Shame path v2 (ideas/html-plans/2026-09-26-shame-path-v2-compassion.html) ──
+  // Enrolled 12 days ago, four steps done (SCS-SF, map, image, response), the
+  // fifth ("O czym jest ten wstyd?") due today. Six moments of shame with
+  // different "about" answers and responses, one calm-day note, a shame
+  // response plan, the self-compassion break as a second practice, and an
+  // accepted task for the current week (useResponse, 1 of 3 days done via a
+  // moment) so the task↔exercise bridge and the choice card have data.
+  const shameStart = addDaysToDayRef(todayRef, -12)
+  const shameEnrollment = await programEnrollmentDexieRepository.create({
+    programSlug: 'shame-compassion',
+    startedAt: `${shameStart}T12:00:00.000Z`,
+    contentVersion: 2,
+  })
+  const shameStepDays = [12, 11, 8, 5] as const
+  const shameStepSlugs = ['scs-sf', 'shame-map', 'compassionate-image', 'shame-response'] as const
+  for (const [index, slug] of shameStepSlugs.entries()) {
+    const dayRef = addDaysToDayRef(todayRef, -shameStepDays[index]!)
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: slug,
+      dayRef,
+      completedAt: `${dayRef}T12:00:00.000Z`,
+      source: 'plan',
+    })
+  }
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'shame-or-guilt',
+    dayRef: todayRef,
+    source: 'program',
+    sourceRef: shameEnrollment.id,
+    programRole: 'step',
+  })
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'shame-map',
+    createdAt: `${addDaysToDayRef(todayRef, -11)}T12:00:00.000Z`,
+    responses: {
+      areas: ['work', 'competence', 'belonging'],
+      bodySigns: ['gorąco na twarzy', 'spuszczony wzrok'],
+      compass: ['withdraw', 'attackSelf'],
+      audience: 'both',
+      standard: 'Powinienem zawsze wiedzieć, o co chodzi, zanim zapytam.',
+      friendTest: 'no',
+      origin: 'Ze szkoły, z pytań „jak można tego nie wiedzieć”.',
+    },
+  })
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'compassionate-image',
+    createdAt: `${addDaysToDayRef(todayRef, -8)}T12:00:00.000Z`,
+    responses: {
+      wisdom: 'Wie, że nikt nie wybrał swojej historii.',
+      strength: 'Jest spokojna, nawet gdy ja nie jestem.',
+      warmth: 'Niski, ciepły głos. Patrzy prosto, bez pośpiechu.',
+      nonJudgement: 'Przy niej nie muszę niczego udawać.',
+      message: 'Jesteś człowiekiem i to boli. Jestem z tobą.',
+    },
+  })
+  const shameResponseEntry = await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'shame-response',
+    createdAt: `${addDaysToDayRef(todayRef, -5)}T12:00:00.000Z`,
+    responses: {
+      signals: ['gorąco na twarzy', 'chęć zniknięcia'],
+      breath: { completedSeconds: 60, phaseSeconds: [4, 0, 6, 0], totalSeconds: 60 },
+      name: 'To jest wstyd. To mój krytyk, nie fakt.',
+      sentence: 'Jesteś człowiekiem i to boli. Jestem z tobą.',
+      move: ['stay', 'ask'],
+    },
+  })
+  const shameMoments = [
+    { daysAgo: 10, situation: 'Nie znałem skrótu na spotkaniu zespołu i udawałem, że wiem.', about: 'demand', compass: 'withdraw', response: ['nothing'], criticSaid: 'Wszyscy to wiedzą, tylko nie ty.', kindVoice: 'Nikt nie zna wszystkich skrótów. Mogłeś zapytać.' },
+    { daysAgo: 8, situation: 'Zapomniałem oddzwonić do mamy, choć obiecałem.', about: 'act', compass: 'attackSelf', response: ['repair', 'named'], criticSaid: 'Zawsze zawodzisz bliskich.', kindVoice: 'Zapomniałeś raz. Zadzwoń dziś.' },
+    { daysAgo: 6, situation: 'Nie dostałem projektu, o który prosiłem.', about: 'event', compass: 'withdraw', response: ['breath'], criticSaid: 'Widocznie nie jesteś dość dobry.', kindVoice: 'To boli. Nie musisz tego zamieniać w wyrok.' },
+    { daysAgo: 4, situation: 'Rozpłakałem się przy koledze po trudnej rozmowie.', about: 'demand', compass: 'avoid', response: ['named', 'question', 'sentence'], criticSaid: 'Faceci nie płaczą w pracy.', kindVoice: 'Płakałeś, bo było ciężko. Kolega został.' },
+    { daysAgo: 2, situation: 'Poprosiłem o pomoc przy konfiguracji, którą „powinienem umieć”.', about: 'demand', compass: 'attackSelf', response: ['question', 'contact', 'test'], criticSaid: 'Po tylu latach nie umiesz tego sam?', kindVoice: 'Poprosiłeś i dostałeś pomoc. Tak to działa.' },
+    { daysAgo: 1, situation: 'Zadałem „głupie” pytanie na spotkaniu i zostałem w rozmowie.', about: 'demand', compass: 'withdraw', response: ['breath', 'named', 'sentence', 'contact'], criticSaid: 'Teraz wszyscy wiedzą, że nie nadążasz.', kindVoice: 'Zapytałeś i nikt nie mrugnął. Zostałeś.', nextTime: 'Zapytać wcześniej, zanim urośnie.' },
+  ] as const
+  const shameMomentIds: string[] = []
+  for (const moment of shameMoments) {
+    const dayRef = addDaysToDayRef(todayRef, -moment.daysAgo)
+    const occurrence = await exercisePlanDexieRepository.create({
+      exerciseSlug: 'moment-shame',
+      dayRef,
+      source: 'program',
+      sourceRef: shameEnrollment.id,
+      programRole: 'practice',
+    })
+    const entry = await microExerciseEntryDexieRepository.create({
+      exerciseSlug: 'moments',
+      createdAt: `${dayRef}T19:00:00.000Z`,
+      responses: {
+        kind: 'shame',
+        hadMoment: 'yes',
+        situation: moment.situation,
+        about: moment.about,
+        compass: moment.compass,
+        response: [...moment.response],
+        criticSaid: moment.criticSaid,
+        kindVoice: moment.kindVoice,
+        ...('nextTime' in moment ? { nextTime: moment.nextTime } : {}),
+      },
+    })
+    shameMomentIds.push(entry.id)
+    await exercisePlanDexieRepository.update(occurrence.id, { status: 'done', recordId: entry.id })
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: 'moment-shame',
+      dayRef,
+      completedAt: `${dayRef}T19:00:00.000Z`,
+      recordId: entry.id,
+      source: 'plan',
+    })
+  }
+  // A calm-day note, then the next occurrence pending tomorrow.
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'moments',
+    createdAt: `${addDaysToDayRef(todayRef, -3)}T19:00:00.000Z`,
+    responses: { kind: 'shame', hadMoment: 'none', quietDay: 'Rozmowa z siostrą, przy której nie muszę niczego udawać.' },
+  })
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'moment-shame',
+    dayRef: addDaysToDayRef(todayRef, 1),
+    source: 'program',
+    sourceRef: shameEnrollment.id,
+    programRole: 'practice',
+  })
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'self-compassion-break',
+    dayRef: todayRef,
+    source: 'program',
+    sourceRef: shameEnrollment.id,
+    programRole: 'practice',
+  })
+  await programEnrollmentDexieRepository.update(shameEnrollment.id, {
+    currentStepIndex: 4,
+    completedSteps: shameStepSlugs.map((_, index) => ({
+      stepIndex: index,
+      completedAt: `${addDaysToDayRef(todayRef, -shameStepDays[index]!)}T12:00:00.000Z`,
+      ...(index === 3 ? { recordId: shameResponseEntry.id } : {}),
+    })),
+  })
+  // This week's accepted task: "use your shame response" 3×; the moment
+  // from yesterday counts as its first day.
+  const shameIntention = await createWeeklyIntention({
+    weekRef: refs.week,
+    title: 'Użyj swojej odpowiedzi na wstyd, gdy się pojawi',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 3 },
+    programLink: { enrollmentId: shameEnrollment.id, taskKey: 'useResponse' },
+  })
+  const yesterday = addDaysToDayRef(todayRef, -1)
+  if (getPeriodRefsForDate(new Date(`${yesterday}T12:00:00`)).week === refs.week) {
+    await planningStateDexieRepository.upsertDailyMeasurementEntry({
+      subjectType: 'weeklyIntention',
+      subjectId: shameIntention.id,
+      dayRef: yesterday,
+      value: null,
+    })
+  }
+  await programEnrollmentDexieRepository.update(shameEnrollment.id, {
+    weekLog: [{ weekRef: refs.week, taskKey: 'useResponse', decision: 'accepted', intentionId: shameIntention.id }],
+  })
+  console.log(`[verificationSeed] Created 1 problem-path enrollment (shame-compassion v2, step 5/15, ${shameMomentIds.length} moments)`)
 }

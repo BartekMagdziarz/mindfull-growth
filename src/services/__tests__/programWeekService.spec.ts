@@ -84,8 +84,8 @@ describe('proposeWeeklyTask', () => {
   })
 
   it('an optional phase without tasks proposes nothing', () => {
-    // shame-compassion step 10 (shadow-beliefs) opens the optional "deeper" phase.
-    expect(proposeWeeklyTask(SHAME, enrollment({ programSlug: 'shame-compassion', currentStepIndex: 10 }), week('2026-W45'))).toBeNull()
+    // shame-compassion step 12 (shadow-beliefs, index 11) opens the optional "deeper" phase.
+    expect(proposeWeeklyTask(SHAME, enrollment({ programSlug: 'shame-compassion', currentStepIndex: 11 }), week('2026-W45'))).toBeNull()
   })
 
   it('never proposes for paused or completed enrollments', () => {

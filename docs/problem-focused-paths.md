@@ -41,7 +41,7 @@ Outcome: `anger-barometer` (own 5-item measure, orientative — DAR-5 licensing 
 | 12 | anger-barometer | consolidation |
 | 13 | maintenance-plan | consolidation |
 
-Practices: `anger-log` daily after step 1; `paced-breathing` every 2 days after step 2.
+Practices: `moment-anger` daily after step 1; `paced-breathing` every 2 days after step 2.
 Weekly tasks: noticeSigns · pauseInConversation · altThought · requestNotReproach ·
 applySolution + calmRequest · repairRelationship.
 
@@ -73,40 +73,70 @@ predictionCheck · uncertainDecisions · firstStep · exposureLow + exposureNext
 the exposure attempt log) · meaningfulAct · planApproach. GAD-7 ≥ 10 shows a calm note
 about professional help (validated cut-off; the plan said 15).
 
-## Shame — `shame-compassion` "Ze wstydu do współczucia" (~8 weeks, 14 steps)
+## Shame — `shame-compassion` "Ze wstydu do współczucia" (~8 weeks, 15 steps, content v2)
 
 Outcome: `scs-sf` (Neff: permission for any use). Higher = more self-compassion.
+
+Content v2 (2026-09-26, plan `ideas/html-plans/2026-09-26-shame-path-v2-compassion.html`):
+compassion from week 1, the axis **"O czym jest ten wstyd?"** with three exits
+(o tym, co zrobiłem = *czyn* → napraw · o tym, co mnie spotkało = *zdarzenie* →
+zadbaj · o tym, jaki powinienem być = *wymaganie* → sprawdź; keys `act/event/demand`),
+Momenty as the one log, 2–3 tasks per phase. The user-facing names were chosen
+2026-09-26; the shame-or-guilt slug is kept for entry stability.
 
 | # | Step | Phase |
 |---|---|---|
 | 1 | scs-sf | recognition |
-| 2 | shame-map | recognition |
-| 3 | shame-or-guilt | actOrSelf |
-| 4 | thought-record | actOrSelf |
-| 5 | trailhead | critic |
-| 6 | protector-appreciation | critic |
-| 7 | compassionate-image | compassion |
-| 8 | compassionate-letter | compassion |
-| 9 | core-beliefs | beliefs |
-| 10 | behavioral-experiment | outOfHiding |
-| 11 | shadow-beliefs (optional) | deeper |
-| 12 | exile-witnessing (optional) | deeper |
-| 13 | scs-sf | consolidation |
-| 14 | maintenance-plan | consolidation |
+| 2 | shame-map (+ `friendTest`) | recognition |
+| 3 | compassionate-image | compassion |
+| 4 | shame-response | compassion |
+| 5 | shame-or-guilt ("O czym jest ten wstyd?", starts from a moment) | about |
+| 6 | thought-record | about |
+| 7 | trailhead | critic |
+| 8 | protector-appreciation (+ `handover` sentence) | critic |
+| 9 | compassionate-letter | critic |
+| 10 | core-beliefs | beliefs |
+| 11 | behavioral-experiment | outOfHiding |
+| 12 | shadow-beliefs (optional) | deeper |
+| 13 | exile-witnessing (optional) | deeper |
+| 14 | scs-sf | consolidation |
+| 15 | maintenance-plan | consolidation |
 
-Practices: `shame-log` every 2 days, steps 2–9; `paced-breathing` every 2 days,
-steps 3–5; `self-compassion-break` every 2 days, steps 6–9; `positive-data-log` every
-2 days from step 10. Weekly tasks: nameShame · repairGuilt · noticeCritic · kindAct ·
-collectEvidence (link: positive-data-log) · tellSafePerson + showImperfect · askSupport.
-The optional "deeper" phase has no task.
+Practices: `moment-shame` every 2 days, steps 2–10 (then on demand from the weekly
+tasks); `self-compassion-break` every 2 days from step 3 to the end;
+`positive-data-log` every 2 days from step 10. Never more than two at once; the
+soothing breath became a step of `shame-response`. Weekly tasks (2–3 per phase, each
+with a `linkSlug`): nameShame · catchBody | useResponse · kindAct · soothingGesture |
+friendTest · stayLonger · repairGuilt | noticeCritic · handOver | collectEvidence
+(positive-data-log) · breakDemand (behavioral-experiment) | tellSafePerson ·
+showImperfect · askQuestion | askSupport · keepResponse. The optional "deeper" phase
+has no task.
+
+**Content migration.** `ProgramDefinition.contentVersion` (shame: 2) and
+`ProgramEnrollment.contentVersion` (absent = 1). `programContentMigration` re-maps an
+older enrollment's completed steps by exercise slug against
+`programCatalogLegacy.ts` (first not-yet-consumed occurrence, so the repeated
+outcome instrument maps in order) and sets `currentStepIndex` to the first index
+without a completion; pending step plan items are dropped and re-materialized. Runs
+in the Dexie v28 upgrade and as a safety net in `runProgramScheduler`.
 
 ## New building blocks (2026-09-23)
 
-- **Micro runner**: `choice` steps (single/multiple), `showWhen` branching, definition
-  `followUp` (e.g. worry time → worry tree). 12 new micro definitions: paced-breathing,
-  anger-log, anger-map, pause-plan, need-behind-anger, shame-log, shame-map,
-  shame-or-guilt, compassionate-image, worry-postponement, anxiety-map,
-  maintenance-plan (listed under the CBT tab; three are daily-suggestion candidates).
+- **Micro runner**: `choice` steps (single/multiple), `showWhen` branching (since
+  2026-09-26 also an array = AND), definition `followUp` (e.g. worry time → worry
+  tree). Micro definitions: paced-breathing, moments, anger-map, pause-plan,
+  need-behind-anger, shame-map, shame-or-guilt, shame-response, compassionate-image,
+  worry-postponement, anxiety-map, maintenance-plan (listed under the CBT tab; three
+  are daily-suggestion candidates).
+- **Momenty (2026-09-26)**: one moment log (`moments`) with a `kind` answer
+  (shame / anger / anxiety / other) replaced the shame and anger logs. Paths use the
+  catalog **variants** `moment-shame` / `moment-anger` (`ExerciseCatalogEntry.variantOf`
+  = definition + preset answers, `hiddenInCatalog`): plan items, practices,
+  completions and task links carry the variant slug, entries live under `moments`.
+  Dexie v27 moved the old rows. New runner elements: `hintFrom` (a quiet quote from
+  the latest entry of another micro, or from the entry picked in this run),
+  `entryPick` step (choose a recent entry, e.g. a moment to work on), `optionHints`
+  copy (a verb under a choice pill), presets.
 - **Instruments**: `gad-7`, `anger-barometer`, `ius-12` (sum scoring with named bands,
   `sumScoring`) and `scs-sf` (mean). Polish wording is a working translation — swap for
   validated versions once permissions are sorted (see instrument licensing notes).

@@ -51,6 +51,7 @@ class ProgramEnrollmentDexieRepository implements ProgramEnrollmentRepository {
         startedAt: payload.startedAt ?? new Date().toISOString(),
         currentStepIndex: 0,
         completedSteps: [],
+        ...(payload.contentVersion !== undefined && { contentVersion: payload.contentVersion }),
       })
       await this.db.programEnrollments.add(toPlain(enrollment))
       return enrollment

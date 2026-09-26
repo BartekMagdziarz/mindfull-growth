@@ -224,6 +224,15 @@ describe('program catalog', () => {
     }
   })
 
+  it('content versions are positive integers and the shame path is on v2', () => {
+    for (const program of PROGRAM_CATALOG) {
+      const version = program.contentVersion ?? 1
+      expect(Number.isInteger(version) && version >= 1, program.slug).toBe(true)
+    }
+    expect(getProgramDefinition('shame-compassion')?.contentVersion).toBe(2)
+    expect(getProgramDefinition('shame-compassion')?.steps).toHaveLength(15)
+  })
+
   it('getProgramDefinition resolves known slugs only', () => {
     expect(getProgramDefinition('ifs-parts')?.icon).toBeTruthy()
     expect(getProgramDefinition('nope')).toBeUndefined()
