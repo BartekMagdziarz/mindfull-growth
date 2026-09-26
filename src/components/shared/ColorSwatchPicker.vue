@@ -212,6 +212,7 @@ function clearSelection() {
 }
 
 function handleClickOutside(event: MouseEvent) {
+  if (!isOpen.value) return
   const target = event.target as Node
   if (
     containerRef.value &&

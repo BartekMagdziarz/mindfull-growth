@@ -1832,8 +1832,11 @@ async function handlePriorityFieldChange(id: string, field: string, value: unkno
         if (newPriorityId.value === id) newPriorityId.value = null
         needsReload = false
         break
-      case 'description':
       case 'icon':
+        // Reload so the card glyph reflects the new icon immediately.
+        await priorityDexieRepository.update(id, { icon: (value as string | undefined) ?? undefined })
+        break
+      case 'description':
       case 'whyNow':
       case 'desiredDirection':
       case 'tradeoffs':

@@ -362,6 +362,22 @@ export function usePriorityCreatorRitual() {
     boundaryLists[kind].value = boundaryLists[kind].value.filter(item => item !== text)
   }
 
+  /** Edits a bullet in place; empty text removes it, a duplicate collapses into the existing bullet. */
+  function updateBoundaryItem(kind: BoundaryKind, previous: string, text: string): void {
+    const trimmed = text.trim()
+    if (!trimmed) {
+      removeBoundaryItem(kind, previous)
+      return
+    }
+    if (trimmed === previous) return
+    const list = boundaryLists[kind]
+    if (list.value.includes(trimmed)) {
+      removeBoundaryItem(kind, previous)
+      return
+    }
+    list.value = list.value.map(item => (item === previous ? trimmed : item))
+  }
+
   // ── Support map ──────────────────────────────────────────────────────────
 
   function addNewProposal(objectType: PriorityLinkProposalObjectType, title: string): void {
@@ -558,6 +574,7 @@ export function usePriorityCreatorRitual() {
     removeSignal,
     addBoundaryItem,
     removeBoundaryItem,
+    updateBoundaryItem,
     // support map
     addNewProposal,
     toggleExistingCandidate,

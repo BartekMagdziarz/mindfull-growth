@@ -228,6 +228,10 @@ async function open() {
 }
 
 function close() {
+  // Every mounted picker listens on `document`; a click inside another
+  // instance's (teleported) menu or an Escape press must not make a picker
+  // that is already closed steal focus back to its own trigger.
+  if (!isOpen.value) return
   isOpen.value = false
   void nextTick(() => containerRef.value?.querySelector('button')?.focus())
 }
@@ -251,6 +255,7 @@ function clearSelection() {
 }
 
 function handleClickOutside(event: MouseEvent) {
+  if (!isOpen.value) return
   const target = event.target as Node
   if (
     containerRef.value &&

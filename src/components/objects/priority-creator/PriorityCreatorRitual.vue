@@ -156,23 +156,39 @@
                 <p class="text-sm font-semibold text-on-surface">
                   {{ t(`planning.priorityRitual.boundaries.${field.kind}`) }}
                 </p>
-                <ul v-if="field.items.value.length" class="space-y-1.5">
+                <ul v-if="field.items.value.length" class="priority-boundary-list">
                   <li
                     v-for="item in field.items.value"
                     :key="item"
-                    class="flex items-start justify-between gap-2 text-sm text-on-surface"
+                    class="priority-boundary-row"
+                    :class="{ 'priority-boundary-row--editing': isEditingBoundary(field.kind, item) }"
                   >
-                    <span class="flex items-start gap-2">
-                      <span
-                        aria-hidden="true"
-                        class="mt-[7px] size-1.5 shrink-0 rounded-full bg-on-surface-variant"
-                      />
+                    <span aria-hidden="true" class="priority-boundary-row__dot" />
+                    <input
+                      v-if="isEditingBoundary(field.kind, item)"
+                      :ref="focusBoundaryEditor"
+                      v-model="boundaryEdit.text"
+                      class="priority-boundary-row__editor"
+                      :aria-label="t('planning.priorityRitual.boundaries.editLabel')"
+                      :title="t('planning.priorityRitual.boundaries.editHint')"
+                      @keydown.enter.prevent="commitBoundaryEdit()"
+                      @keydown.esc.prevent="cancelBoundaryEdit()"
+                      @blur="commitBoundaryEdit()"
+                    />
+                    <button
+                      v-else
+                      type="button"
+                      class="priority-boundary-row__text"
+                      :title="t('planning.priorityRitual.boundaries.editLabel')"
+                      @click="startBoundaryEdit(field.kind, item)"
+                    >
                       {{ item }}
-                    </span>
+                    </button>
                     <button
                       type="button"
-                      class="mg-v2-button mg-v2-button--icon-sm"
+                      class="priority-boundary-row__remove mg-v2-button mg-v2-button--icon-sm"
                       :aria-label="t('planning.priorityRitual.boundaries.removeLabel')"
+                      @mousedown.prevent
                       @click="ritual.removeBoundaryItem(field.kind, item)"
                     >
                       <AppIcon name="close" class="text-sm" />
@@ -783,6 +799,41 @@ function handleAddBoundaryItem(kind: BoundaryKind, event: Event): void {
   input.value = ''
 }
 
+/** Inline editing of a boundary bullet: click the text to edit, Enter/blur saves, Esc restores. */
+const boundaryEdit = reactive<{ kind: BoundaryKind | null; original: string; text: string }>({
+  kind: null,
+  original: '',
+  text: '',
+})
+
+function isEditingBoundary(kind: BoundaryKind, item: string): boolean {
+  return boundaryEdit.kind === kind && boundaryEdit.original === item
+}
+
+function startBoundaryEdit(kind: BoundaryKind, item: string): void {
+  boundaryEdit.kind = kind
+  boundaryEdit.original = item
+  boundaryEdit.text = item
+}
+
+function focusBoundaryEditor(el: unknown): void {
+  if (el instanceof HTMLInputElement && document.activeElement !== el) {
+    el.focus()
+    el.select()
+  }
+}
+
+function commitBoundaryEdit(): void {
+  if (!boundaryEdit.kind) return
+  const { kind, original, text } = boundaryEdit
+  boundaryEdit.kind = null
+  ritual.updateBoundaryItem(kind, original, text)
+}
+
+function cancelBoundaryEdit(): void {
+  boundaryEdit.kind = null
+}
+
 function handleAddProposal(): void {
   ritual.addNewProposal(newProposalType.value, newProposalTitle.value)
   newProposalTitle.value = ''
@@ -819,6 +870,86 @@ onMounted(() => {
 }
 .priority-creator-step-enter-from {
   opacity: 0;
+}
+
+/* Boundary bullets: each item is a light field — click the text to edit it in place. */
+.priority-boundary-list {
+  display: grid;
+  gap: var(--mg-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.priority-boundary-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--mg-space-2);
+  min-height: 2.25rem;
+  padding: 0 var(--mg-space-1) 0 var(--mg-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--mg-radius-sm);
+  color: var(--mg-color-ink);
+  background: var(--mg-color-paper);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.priority-boundary-row:hover,
+.priority-boundary-row--editing {
+  border-color: var(--mg-color-field-border);
+}
+
+.priority-boundary-row--editing {
+  border-color: var(--mg-color-primary);
+}
+
+.priority-boundary-row__dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  margin-top: 0.95rem;
+  border-radius: 999px;
+  background: var(--mg-color-muted);
+}
+
+.priority-boundary-row__text,
+.priority-boundary-row__editor {
+  min-width: 0;
+  min-height: 2.25rem;
+  margin: 0;
+  padding: var(--mg-space-2) 0;
+  border: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: inherit;
+  background: transparent;
+}
+
+.priority-boundary-row__text {
+  text-align: left;
+  cursor: text;
+  overflow-wrap: anywhere;
+}
+
+/* The editing row itself carries the focus ring, so the inner input stays bare. */
+.priority-boundary-row__editor,
+.priority-boundary-row__editor:focus-visible {
+  width: 100%;
+  outline: none;
+  box-shadow: none;
+}
+
+.priority-boundary-row__remove {
+  margin-top: 0.125rem;
+  opacity: 0.55;
+}
+
+.priority-boundary-row:hover .priority-boundary-row__remove,
+.priority-boundary-row__remove:focus-visible {
+  opacity: 1;
 }
 
 .priority-signal-card {

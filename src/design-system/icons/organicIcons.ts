@@ -18,7 +18,7 @@ export interface OrganicIcon {
   category: IconCategory
   tags: string
   markup: string
-  collection: 1 | 2 | 3
+  collection: 1 | 2 | 3 | 4
 }
 const path = (d: string) => `<path d="${d}"/>`
 const circle = (x: number, y: number, r: number) => `<circle cx="${x}" cy="${y}" r="${r}"/>`
@@ -755,7 +755,9 @@ const expansion: Draft[] = [
     'Podcast',
     'media',
     'audio słuchanie audycja',
-    path('M10 8a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M9 21l1-7q2-2 4 0l1 7Z M5 15Q0 9 5 3 M19 15q5-6 0-12 M8 12Q5 9 8 6 M16 12q3-3 0-6'),
+    path(
+      'M10 8a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M9 21l1-7q2-2 4 0l1 7Z M5 15Q0 9 5 3 M19 15q5-6 0-12 M8 12Q5 9 8 6 M16 12q3-3 0-6'
+    ),
   ],
   [
     'headphones',
@@ -1144,7 +1146,9 @@ const expansion: Draft[] = [
     'Planowanie roku',
     'rituals',
     'rytuał wizja rok',
-    path('M6 4q6-1 12 0q3 0 3 3v12q0 2-3 2H6q-3 0-3-3V7q0-3 3-3Z M7 2v4 M17 2v4 M3 9h18 M12 11l1.5 3 3.5 1-3.5 1-1.5 3-1.5-3-3.5-1 3.5-1Z'),
+    path(
+      'M6 4q6-1 12 0q3 0 3 3v12q0 2-3 2H6q-3 0-3-3V7q0-3 3-3Z M7 2v4 M17 2v4 M3 9h18 M12 11l1.5 3 3.5 1-3.5 1-1.5 3-1.5-3-3.5-1 3.5-1Z'
+    ),
   ],
   [
     'yearly-reflection',
@@ -1615,6 +1619,525 @@ const expansion: Draft[] = [
     'ćwiczenie praktyka one-small-win',
     path('M8 3h8v9q0 5-4 5t-4-5Z M8 6H3v3q0 5 5 4 M16 6h5v3q0 5-5 4 M12 17v4 M7 21h10'),
   ],
+  [
+    'exercise-paced-breathing',
+    'Oddech kojący',
+    'exercises',
+    'ćwiczenie praktyka oddech wydech spokój paced-breathing',
+    path('M3 8q4.5-4 9 0t9 0 M3 14q4.5-3 9 0t9 0 M3 19h18'),
+  ],
+  [
+    'exercise-anger-log',
+    'Dziennik złości',
+    'exercises',
+    'ćwiczenie praktyka złość gniew dziennik anger-log',
+    path('M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M14 17q-3-1-2-4q1 1 2 0q-1-3 1-5q1 3 2 4q1 3-3 5Z'),
+  ],
+  [
+    'exercise-anger-map',
+    'Mapa złości',
+    'exercises',
+    'ćwiczenie praktyka złość gniew mapa wyzwalacze anger-map',
+    path('M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3Z M9 3v15 M15 6v15'),
+  ],
+  [
+    'exercise-pause-plan',
+    'Plan pauzy',
+    'exercises',
+    'ćwiczenie praktyka pauza złość plan pause-plan',
+    path('M5 3h14q2 0 2 2v14q0 2-2 2H5q-2 0-2-2V5q0-2 2-2Z M10 8v8 M14 8v8'),
+  ],
+  [
+    'exercise-need-behind-anger',
+    'Od złości do prośby',
+    'exercises',
+    'ćwiczenie praktyka potrzeba prośba nvc need-behind-anger',
+    path('M4 4h16v11H9l-5 4Z M8 9h5 M11 7l2 2-2 2'),
+  ],
+  [
+    'exercise-shame-log',
+    'Dziennik wstydu',
+    'exercises',
+    'ćwiczenie praktyka wstyd dziennik shame-log',
+    path('M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M12 12q2.5 2 5 0 M13 14l-.5 1.5 M16 14l.5 1.5'),
+  ],
+  [
+    'exercise-shame-map',
+    'Mapa wstydu',
+    'exercises',
+    'ćwiczenie praktyka wstyd mapa obszary shame-map',
+    path('M12 21a9 9 0 1 0 0-18a9 9 0 1 0 0 18 M12 16a4 4 0 1 0 0-8a4 4 0 1 0 0 8 M3 12h5 M16 12h5'),
+  ],
+  [
+    'exercise-shame-or-guilt',
+    'Czyn czy ja',
+    'exercises',
+    'ćwiczenie praktyka wstyd wina waga shame-or-guilt',
+    path('M12 3v18 M7 21h10 M5 7h14 M5 7l-3 6h6Z M19 7l-3 6h6Z'),
+  ],
+  [
+    'exercise-compassionate-image',
+    'Obraz współczujący',
+    'exercises',
+    'ćwiczenie praktyka współczucie obraz cft compassionate-image',
+    path('M12 8a3 3 0 1 0 0-6a3 3 0 1 0 0 6 M5 21q0-8 7-8t7 8 M12 19q-3-2-2-4q1-1 2 .5q1-1.5 2-.5q1 2-2 4Z'),
+  ],
+  [
+    'exercise-worry-postponement',
+    'Pora na zmartwienia',
+    'exercises',
+    'ćwiczenie praktyka zmartwienia odkładanie pora worry-postponement',
+    path('M12 21a8 8 0 1 0 0-16a8 8 0 1 0 0 16 M12 9v4l3 2 M9 2h6'),
+  ],
+  [
+    'exercise-anxiety-map',
+    'Mapa lęku',
+    'exercises',
+    'ćwiczenie praktyka lęk mapa unikanie anxiety-map',
+    path('M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M15 9l-2 4-4 2 2-4Z'),
+  ],
+  [
+    'exercise-maintenance-plan',
+    'Plan podtrzymania',
+    'exercises',
+    'ćwiczenie praktyka podtrzymanie plan utrwalenie maintenance-plan',
+    path('M12 3l8 3v6q0 6-8 9q-8-3-8-9V6Z M9 12l2 2 4-4'),
+  ],
+  [
+    'exercise-gad-7',
+    'Niepokój (GAD-7)',
+    'exercises',
+    'ćwiczenie praktyka kwestionariusz lęk niepokój gad-7',
+    path('M4 4h16v16H4Z M8 9h8 M8 13h5 M8 17q2-2 4 0t4 0'),
+  ],
+  [
+    'exercise-scs-sf',
+    'Współczucie dla siebie (SCS-SF)',
+    'exercises',
+    'ćwiczenie praktyka kwestionariusz współczucie scs-sf',
+    path('M4 4h16v16H4Z M12 17q-5-3-3-6q1.5-2 3 0q1.5-2 3 0q2 3-3 6Z M8 7h8'),
+  ],
+  [
+    'exercise-anger-barometer',
+    'Barometr złości',
+    'exercises',
+    'ćwiczenie praktyka kwestionariusz złość barometr anger-barometer',
+    path('M3 17a9 9 0 0 1 18 0 M12 17l4-6 M7 13l1 1 M12 9v1.5 M17 13l-1 1 M3 17h18'),
+  ],
+  [
+    'exercise-ius-12',
+    'Nietolerancja niepewności (IUS-12)',
+    'exercises',
+    'ćwiczenie praktyka kwestionariusz niepewność ius-12',
+    path('M4 4h16v16H4Z M10 9q0-2 2-2t2 2q0 1.5-2 2.5v1.5 M12 16.5h.01'),
+  ],
+]
+// Collection 04: digital boundaries, embodiment, movement and inner practice.
+const wellbeing: Draft[] = [
+  [
+    'phone-free',
+    'Bez telefonu',
+    'media',
+    'telefon ekran odłóż ograniczenie offline phone free',
+    path('M13 3H7Q4 3 4 6v12q0 3 3 3h9q3 0 3-3v-5 M8 17h4 M3 3l18 18'),
+  ],
+  [
+    'screen-break',
+    'Przerwa od ekranu',
+    'media',
+    'komputer oczy odpoczynek ekran screen break',
+    path('M11 4H5q-2 0-2 3v9h18v-4 M9 16l-1 5 M15 16l1 5 M6 21h12 M16 3v6 M20 3v6'),
+  ],
+  [
+    'stop-scrolling',
+    'Przerwij scrollowanie',
+    'media',
+    'telefon przewijanie media społecznościowe limit scroll',
+    path(
+      'M9 3H6Q3 3 3 6v12q0 3 3 3h5 M6 7l2-2 2 2 M8 5v7 M14 21l-3-6q0-2 2-1l2 2V8q2-2 2 0v5q4-1 4 2v3l-2 3Z'
+    ),
+  ],
+  [
+    'phone-parking',
+    'Odłóż telefon',
+    'media',
+    'telefon pudełko skupienie bez ekranu phone away',
+    path('M8 3q4-.5 8 0v12H8Z M11 6h2 M3 12l-1 8q10 2 20 0l-1-8 M3 12h3 M18 12h3 M6 16h12'),
+  ],
+  [
+    'bedroom-no-phone',
+    'Sypialnia bez telefonu',
+    'media',
+    'sen noc telefon ekran bedroom bedtime',
+    path('M3 8v13 M21 13v8 M3 17h18 M3 12h12q3 0 3 3v2 M6 12V9h5v3 M17 3l5 6 M22 3l-5 6'),
+  ],
+  [
+    'offline-meal',
+    'Posiłek bez ekranu',
+    'media',
+    'jedzenie telefon uważne odżywianie offline meal',
+    path('M5 4v6 M2 4v4q0 3 3 3t3-3V4 M5 11v10 M16 4q-5 0-5 8h5v9 M16 4v8 M19 4l3 4 M22 4l-3 4'),
+  ],
+  [
+    'notification-batch',
+    'Pora na powiadomienia',
+    'media',
+    'telefon alerty sprawdzanie granice notifications batch',
+    path('M5 14q2-2 2-6q0-5 5-5t5 5 M4 15h7 M8 19h2 M21 16q0-5-5-5t-5 5q0 5 5 5t5-5Z M16 13v3l2 1'),
+  ],
+  [
+    'digital-sabbath',
+    'Dzień offline',
+    'media',
+    'detoks cyfrowy weekend odpoczynek ekran digital detox',
+    path('M3 5q9-.5 18 0v15H3Z M7 3v4 M17 3v4 M3 9h18 M8 13q3 5 8 0 M12 12v1'),
+  ],
+  [
+    'app-limit',
+    'Limit aplikacji',
+    'media',
+    'telefon ograniczenie czasu ekran app limit',
+    path(
+      'M11 3H6Q3 3 3 6v12q0 3 3 3h4 M7 6h3 M6 17h3 M14 4h7 M14 20h7 M15 4q0 5 3 8q-3 3-3 8 M20 4q0 5-2 8q2 3 2 8'
+    ),
+  ],
+  [
+    'intentional-browsing',
+    'Świadome korzystanie',
+    'media',
+    'internet intencja ekran wybór mindful browsing',
+    path(
+      'M3 4q9-.5 18 0v16H3Z M3 8h18 M6 6h.1 M9 6h.1 M12 10l1.5 3 3.5 1-3.5 1-1.5 3-1.5-3-3.5-1 3.5-1Z'
+    ),
+  ],
+  [
+    'posture',
+    'Postawa ciała',
+    'activity',
+    'kręgosłup plecy siedzenie posture ergonomia',
+    path('M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M11 8q-3 5 0 8h6v6 M11 11l6 1 M5 9v9h8 M6 18v4'),
+  ],
+  [
+    'mobility',
+    'Mobilność stawów',
+    'activity',
+    'ciało ruch zakres stawy mobility',
+    path(
+      'M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 8v6l-5 7 M12 14l5 7 M5 9l7 2 7-2 M3 14v3h3 M21 14v3h-3'
+    ),
+  ],
+  [
+    'back-care',
+    'Zdrowe plecy',
+    'activity',
+    'ciało kręgosłup rozluźnianie back care',
+    path('M8 3q-3 4-1 8t-1 10 M16 3q3 4 1 8t1 10 M12 3q-2 4 0 8t0 10 M10 7h4 M10 12h4 M10 17h4'),
+  ],
+  [
+    'massage',
+    'Masaż',
+    'activity',
+    'ciało regeneracja dotyk masaż massage',
+    path('M3 17q8-2 18 0 M3 21h18 M4 8l5 3q2 1 2 4 M20 8l-5 3q-2 1-2 4 M5 4l6 3 M19 4l-6 3'),
+  ],
+  [
+    'foam-rolling',
+    'Rolowanie mięśni',
+    'activity',
+    'ciało roller regeneracja powięź foam rolling',
+    path(
+      'M6 9l10-5q5-1 6 4q1 3-2 5l-10 6 M10 14q-2-6-6-3q-4 3-1 7q4 4 7-1v-3Z M12 8l3 5 M16 6l3 5'
+    ),
+  ],
+  [
+    'warm-up',
+    'Rozgrzewka',
+    'activity',
+    'ciało przed treningiem ruch warmup',
+    path(
+      'M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 8v7l-5 6 M12 15l5 6 M6 6l1 5 5 1 5-1 1-5 M2 13l2 3 2-3 M18 13l2 3 2-3'
+    ),
+  ],
+  [
+    'cool-down',
+    'Wyciszenie po treningu',
+    'activity',
+    'ciało schłodzenie rozluźnienie cool down',
+    path(
+      'M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 8v7 M7 21l5-6 5 6 M12 10l-5 5 M12 10l5 5 M3 4v6l2-2 M21 4v6l-2-2'
+    ),
+  ],
+  [
+    'recovery-day',
+    'Dzień regeneracji',
+    'activity',
+    'ciało odpoczynek przerwa recovery rest day',
+    path('M3 10q9 10 18 0 M3 4v17 M21 4v17 M10 9q-3-4 1-7q-1 5 4 5q-2 4-5 2'),
+  ],
+  [
+    'eye-rest',
+    'Odpoczynek oczu',
+    'activity',
+    'oczy ekran przerwa relaks eye rest',
+    path('M3 9q9 11 18 0 M5 12l-2 3 M9 15l-1 3 M15 15l1 3 M19 12l2 3 M10 4h4'),
+  ],
+  [
+    'body-awareness',
+    'Kontakt z ciałem',
+    'activity',
+    'ciało świadomość czucie somatyka body awareness',
+    path('M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M7 21v-9q0-4 5-4t5 4v9 M12 16v5 M10 12l2 2 2-2'),
+  ],
+  [
+    'sunlight',
+    'Światło dzienne',
+    'activity',
+    'ciało spacer rano słońce daylight sunlight',
+    path('M4 21V5q4-1 8 0v16 M4 13h8 M8 5v16 M15 8a3 3 0 1 0 6 0a3 3 0 1 0-6 0 M18 2v1 M18 13v1 M15 3l1 1 M22 4l-1 1'),
+  ],
+  [
+    'nap',
+    'Drzemka',
+    'activity',
+    'ciało krótki odpoczynek power nap',
+    path('M5 12q7-2 14 0q2 4 0 8q-7 2-14 0q-2-4 0-8Z M8 9h6l-6-6h6 M18 3h4l-4 4h4'),
+  ],
+  [
+    'squats',
+    'Przysiady',
+    'activity',
+    'nogi pośladki siła squat trening',
+    path('M12 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M13 8l-4 6 7 2-3 5h5 M13 9H5 M9 14l-5 3 2 4H3'),
+  ],
+  [
+    'push-ups',
+    'Pompki',
+    'activity',
+    'klatka ramiona siła pushup trening',
+    path('M3 21h18 M18 9a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M17 12L5 16l-2 5 M15 13l3 4-2 4 M5 16l-2-2'),
+  ],
+  [
+    'plank',
+    'Deska',
+    'activity',
+    'brzuch core plank stabilizacja trening',
+    path('M18 8a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M17 11L5 15l-3 5 M15 12v6h5 M3 22h18'),
+  ],
+  [
+    'lunges',
+    'Wykroki',
+    'activity',
+    'nogi równowaga lunges trening',
+    path('M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 8v7l6 1v6h3 M12 15l-6 6H3 M7 10l5 2 5-2'),
+  ],
+  [
+    'pull-ups',
+    'Podciąganie',
+    'activity',
+    'plecy drążek ramiona pullup trening',
+    path('M2 3h20 M5 3v6l7 3 7-3V3 M10 7a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 12v5l-3 5 M12 17l3 5'),
+  ],
+  [
+    'kettlebell',
+    'Kettlebell',
+    'activity',
+    'siła ciężar odważnik trening',
+    path('M8 9V6q0-4 4-4t4 4v3 M12 8q-8 0-8 7q0 7 8 7t8-7q0-7-8-7Z M9 13q-2 2-1 4'),
+  ],
+  [
+    'jump-rope',
+    'Skakanka',
+    'activity',
+    'cardio kondycja skoki jump rope',
+    path(
+      'M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 8v6l-3 4 M12 14l3 4 M6 12l6-2 6 2 M5 11q-5 10 7 11q12-1 7-11'
+    ),
+  ],
+  [
+    'boxing',
+    'Boks',
+    'activity',
+    'rękawice kondycja boxing trening',
+    path('M6 17q-3-4-3-8q0-6 7-6q5 0 5 5v3q4-4 6 0q1 3-5 6 M6 17h10v5H6Z M7 8v3 M10 8v3'),
+  ],
+  [
+    'tai-chi',
+    'Tai chi',
+    'activity',
+    'ruch równowaga łagodny qigong ciało',
+    path(
+      'M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 8q-3 5 0 7l-6 6 M12 15l6 5h3 M12 10l-5 2-4-3 M12 10l5-2 4 3'
+    ),
+  ],
+  [
+    'nordic-walking',
+    'Nordic walking',
+    'activity',
+    'kijki spacer cardio marsz',
+    path(
+      'M11 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 8l-2 6 4 3 1 5 M10 14l-4 7 M12 9l5 3 M12 9l-6 3 M5 10 2 22 M19 10l-1 12'
+    ),
+  ],
+  [
+    'joy',
+    'Radość',
+    'reflection',
+    'emocje szczęście joy happy',
+    path('M21 11Q20 2 11 3Q2 4 3 13q1 9 10 8q9-1 8-10Z M6 10q2-3 4 0 M14 10q2-3 4 0 M8 14q4 6 8 0'),
+  ],
+  [
+    'sadness',
+    'Smutek',
+    'reflection',
+    'emocje żal sadness grief',
+    path(
+      'M19 7q-2-5-8-4Q2 4 3 13q1 9 10 8q6-1 7-6 M7 9h.1 M13 9h.1 M7 16q4-3 7 0 M19 8l-2 4q0 3 2 3t2-3Z'
+    ),
+  ],
+  [
+    'anger',
+    'Złość',
+    'reflection',
+    'emocje gniew frustracja anger',
+    path(
+      'M21 11Q20 2 11 3Q2 4 3 13q1 9 10 8q9-1 8-10Z M6 8l4 2 M18 8l-4 2 M8 16q4-2 8 0 M8 11h.1 M16 11h.1'
+    ),
+  ],
+  [
+    'fear',
+    'Lęk',
+    'reflection',
+    'emocje strach niepokój fear anxiety',
+    path(
+      'M21 11Q20 2 11 3Q2 4 3 13q1 9 10 8q9-1 8-10Z M6 8l3-1 M15 7l3 1 M8 10h.1 M16 10h.1 M9 17q0-4 3-4t3 4Z'
+    ),
+  ],
+  [
+    'calm',
+    'Spokój',
+    'reflection',
+    'emocje ukojenie równowaga calm serenity',
+    path('M21 11Q20 2 11 3Q2 4 3 13q1 9 10 8q9-1 8-10Z M6 9q2 3 4 0 M14 9q2 3 4 0 M9 15q3 3 6 0'),
+  ],
+  [
+    'pride',
+    'Duma',
+    'reflection',
+    'emocje osiągnięcie satysfakcja pride',
+    path(
+      'M10 3Q2 4 3 13q1 9 10 8q8-1 8-9 M7 10h.1 M13 10h.1 M7 15q4 5 8 0 M18 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z'
+    ),
+  ],
+  [
+    'loneliness',
+    'Samotność',
+    'reflection',
+    'emocje osamotnienie loneliness',
+    path('M10 8a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M8 19v-3q0-4 4-4t4 4v3 M3 5v14 M21 5v14 M7 22h10'),
+  ],
+  [
+    'hope',
+    'Nadzieja',
+    'reflection',
+    'emocje otucha hope',
+    path('M12 21v-8 M12 16q-7 0-7-6q7 0 7 6Z M12 13q0-6 7-6q0 6-7 6Z M4 5l2 2 M12 2v3 M20 3l-2 2'),
+  ],
+  [
+    'emotional-release',
+    'Uwolnienie emocji',
+    'reflection',
+    'emocje płacz puszczanie letting go release',
+    path('M3 17l5 4h8l5-4 M6 15l3 2h6l3-2 M12 3q-5 6-5 9q0 4 5 4t5-4q0-3-5-9Z'),
+  ],
+  [
+    'name-emotion',
+    'Nazwij emocję',
+    'reflection',
+    'emocje rozpoznawanie nazywanie feelings labeling',
+    path('M3 4q9-1 18 0v13h-6l-5 4v-4H3Z M7 9h.1 M15 9h.1 M8 12q3 3 6 0'),
+  ],
+  [
+    'silent-meditation',
+    'Medytacja w ciszy',
+    'rituals',
+    'umysł duch cisza medytacja mindfulness silence',
+    path(
+      'M10 4a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 8v7 M7 9l5 3 5-3 M12 15l-8 4q-2 3 4 2l4-1 4 1q6 1 4-2Z M2 11v3 M22 11v3'
+    ),
+  ],
+  [
+    'loving-kindness',
+    'Medytacja życzliwości',
+    'rituals',
+    'metta emocje duch umysł współczucie loving kindness',
+    path('M12 17Q3 11 6 6q2-3 6 1q4-4 6-1q3 5-6 11Z M2 15q1 7 8 7 M22 15q-1 7-8 7 M12 2v2'),
+  ],
+  [
+    'prayer',
+    'Modlitwa',
+    'rituals',
+    'duch duchowość wiara prayer',
+    path(
+      'M11 3q-3 0-3 4v5l-5 6 4 4 5-8V5q0-2-1-2Z M13 3q3 0 3 4v5l5 6-4 4-5-8 M4 17l4 3 M20 17l-4 3'
+    ),
+  ],
+  [
+    'contemplation',
+    'Kontemplacja',
+    'rituals',
+    'duch umysł refleksja cisza contemplation',
+    path('M3 21V11q0-8 9-8t9 8v10 M7 21V11q0-4 5-4t5 4v10 M10 16q2 2 4 0'),
+  ],
+  [
+    'forest-bathing',
+    'Kąpiel leśna',
+    'rituals',
+    'natura duch ciało umysł las forest bathing',
+    path('M7 3l-5 9h4v6 M7 3l5 9H8 M17 5l-4 9h3v4 M17 5l5 9h-4 M3 21q4-3 9 0t9 0'),
+  ],
+  [
+    'mindful-tea',
+    'Uważna herbata',
+    'rituals',
+    'uważność duch umysł przerwa tea mindfulness',
+    path(
+      'M3 11q6-1 12 0v5q0 5-6 5t-6-5Z M15 12h3q4 0 3 4q-1 3-6 1 M9 8q-5-1-4-6q6 0 4 6Z M9 8l3-5'
+    ),
+  ],
+  [
+    'sound-bath',
+    'Kąpiel dźwiękowa',
+    'rituals',
+    'dźwięk duch umysł relaks misa sound bath',
+    path('M3 13q1 8 9 8t9-8Z M7 22h10 M7 4q-3 3 0 6 M12 2q-3 4 0 8 M17 4q-3 3 0 6'),
+  ],
+  [
+    'mindful-walking',
+    'Uważny spacer',
+    'rituals',
+    'uważność ciało umysł medytacja walking',
+    path(
+      'M7 3q-3 0-3 5v4q0 3 3 3t3-3V8q0-5-3-5Z M17 9q-3 0-3 5v4q0 3 3 3t3-3v-4q0-5-3-5Z M4 10h6 M14 16h6'
+    ),
+  ],
+  [
+    'creative-expression',
+    'Ekspresja twórcza',
+    'rituals',
+    'emocje umysł duch sztuka ekspresja art',
+    path(
+      'M3 21q6 0 6-5q0-4-4-3q-3 1-2 8Z M8 13l9-10q2-2 4 0q2 2 0 4L10 16 M15 5l4 4 M3 5l3 2 M8 2v3'
+    ),
+  ],
+  [
+    'meaningful-connection',
+    'Bliski kontakt',
+    'rituals',
+    'emocje duch relacje rozmowa więź connection',
+    path(
+      'M3 13l4 7q1 2 4 1l1-2 M21 13l-4 7q-1 2-4 1l-1-2 M12 15Q3 9 6 5q2-3 6 1q4-4 6-1q3 4-6 10Z'
+    ),
+  ],
 ]
 const seedCategory: Record<string, IconCategory> = {
   journal: 'reflection',
@@ -1662,6 +2185,14 @@ export const organicIcons: OrganicIcon[] = [
     tags,
     markup,
     collection: 3 as const,
+  })),
+  ...wellbeing.map(([id, label, category, tags, markup]) => ({
+    id,
+    label,
+    category,
+    tags,
+    markup,
+    collection: 4 as const,
   })),
 ]
 export function normalizeIconSearch(value: string) {

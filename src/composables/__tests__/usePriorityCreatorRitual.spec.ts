@@ -163,6 +163,15 @@ describe('usePriorityCreatorRitual', () => {
     ritual.removeBoundaryItem('influence', 'rytm dnia')
     expect(ritual.influenceItems.value).toEqual([])
 
+    ritual.addBoundaryItem('influence', 'rytm dnia')
+    ritual.addBoundaryItem('influence', 'rozmowy')
+    ritual.updateBoundaryItem('influence', 'rytm dnia', ' rytm poranka ')
+    expect(ritual.influenceItems.value).toEqual(['rytm poranka', 'rozmowy'])
+    ritual.updateBoundaryItem('influence', 'rozmowy', 'rytm poranka')
+    expect(ritual.influenceItems.value).toEqual(['rytm poranka'])
+    ritual.updateBoundaryItem('influence', 'rytm poranka', '   ')
+    expect(ritual.influenceItems.value).toEqual([])
+
     const candidate = ritual.libraryCandidates.value.find(item => item.subjectRef.subjectId === habit.id)
     expect(candidate).toBeTruthy()
     ritual.toggleExistingCandidate(candidate!)
