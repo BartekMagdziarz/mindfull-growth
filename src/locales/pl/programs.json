@@ -159,11 +159,11 @@
       }
     },
     "practices": {
-      "anger-log": {
-        "intro": "Codziennie, także w spokojne dni. Dziennik pokazuje wzór: kiedy złość się pojawia, co ją podkręca i co pomaga."
-      },
       "paced-breathing": {
         "intro": "Co drugi dzień, trzy minuty. Dłuższy wydech obniża pobudzenie i ułatwia pauzę w prawdziwej sytuacji."
+      },
+      "moment-anger": {
+        "intro": "Codziennie, także w spokojne dni. Dziennik pokazuje wzór: kiedy złość się pojawia, co ją podkręca i co pomaga."
       }
     },
     "tasks": {
@@ -429,9 +429,6 @@
       }
     },
     "practices": {
-      "shame-log": {
-        "intro": "Co drugi dzień. Krótko zapisujesz moment wstydu, swoją reakcję i słowa krytyka, a potem głos kogoś życzliwego."
-      },
       "paced-breathing": {
         "intro": "Co drugi dzień przez pierwsze tygodnie. Spokojny rytm oddechu przygotowuje do pracy z krytykiem i z obrazem współczucia."
       },
@@ -440,6 +437,9 @@
       },
       "positive-data-log": {
         "intro": "Co drugi dzień do końca ścieżki. Dopisujesz dowody na nowe przekonanie o sobie."
+      },
+      "moment-shame": {
+        "intro": "Co drugi dzień. Krótko zapisujesz moment wstydu, swoją reakcję i słowa krytyka, a potem głos kogoś życzliwego."
       }
     },
     "tasks": {

@@ -8,6 +8,8 @@
  * unifies their identity, per docs/exercise-scheduling-design.md §4.1.
  */
 
+import type { MicroStepValue } from '@/domain/microExercises'
+
 export type ExerciseKind = 'wizard' | 'assessment' | 'micro'
 
 export type ExerciseCatalogCategory =
@@ -30,6 +32,15 @@ export interface ExerciseCatalogEntry {
   estimatedMinutes: number
   /** Eligible for the daily "Ćwiczenie na dziś" suggestion. */
   micro?: boolean
+  /**
+   * A micro variant: this slug runs another definition with answers
+   * fixed up front (e.g. `moment-shame` = `moments` with `kind: 'shame'`).
+   * Plan items, practices, completions and task links use the variant
+   * slug; entries are stored under the definition's slug.
+   */
+  variantOf?: { slug: string; preset: Record<string, MicroStepValue> }
+  /** Not listed on the exercises tabs (variants), still a valid slug everywhere else. */
+  hiddenInCatalog?: boolean
   /** Prefill for "zaplanuj powtórkę" (Phase 2; dormant until then). */
   suggestedRepeatDays?: number
   aiAssisted?: boolean

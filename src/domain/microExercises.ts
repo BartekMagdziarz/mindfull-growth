@@ -22,6 +22,7 @@ export type MicroStepType =
   | 'emotionPick'
   | 'breathTimer'
   | 'choice'
+  | 'entryPick'
 
 /**
  * Conditional visibility: the step is shown only when the answer to an
@@ -34,12 +35,35 @@ export interface MicroStepCondition {
   in: string[]
 }
 
+/** One condition, or several that must all hold (AND). */
+export type MicroStepConditions = MicroStepCondition | MicroStepCondition[]
+
+/**
+ * A quiet quote under the step's description, taken from an earlier
+ * entry: the latest entry of another micro (`latest`, e.g. the body
+ * signals from the shame map) or the entry picked in an earlier
+ * `entryPick` step of this run (`picked`). Never fills the field.
+ * Label at `…<stepKey>.hintLabel`.
+ */
+export type MicroHintSource =
+  | {
+      source: 'latest'
+      slug: string
+      step: string
+      /** Narrows the quoted entry by its own answers. */
+      filter?: MicroStepConditions
+      /** Shown only when the current run's answers match (e.g. a shame-only hint on a shared step). */
+      when?: MicroStepConditions
+    }
+  | { source: 'picked'; pickStep: string; step: string }
+
 interface MicroStepBase {
   /** i18n step key under `exerciseWizards.micro.<slug>.<key>.*`. */
   key: string
   /** Optional steps are passable without input (shown with a skip affordance). */
   optional?: boolean
-  showWhen?: MicroStepCondition
+  showWhen?: MicroStepConditions
+  hintFrom?: MicroHintSource
 }
 
 export type MicroExerciseStep = MicroStepBase &
@@ -62,7 +86,29 @@ export type MicroExerciseStep = MicroStepBase &
         phaseSeconds: [number, number, number, number]
         totalSeconds: number
       }
+    | {
+        /**
+         * Pick one recent entry of another micro (e.g. a moment from
+         * "Momenty" to work on). Saves the entry id. `show` lists the
+         * response keys rendered on each card; `filter` narrows the
+         * entries by their own choice answers.
+         */
+        type: 'entryPick'
+        slug: string
+        show: string[]
+        filter?: MicroStepConditions
+        /** Defaults: 10 entries from the last 21 days. */
+        limit?: number
+        days?: number
+      }
   )
+
+/**
+ * Answers fixed before the run starts (catalog variants, e.g. "Moment
+ * wstydu" = Momenty with `kind: 'shame'`). Preset steps are saved as
+ * given and skipped in the flow.
+ */
+export type MicroPreset = Record<string, MicroStepValue>
 
 export interface MicroExerciseDefinition {
   /** Catalog slug (`kind: 'micro'` entries). */

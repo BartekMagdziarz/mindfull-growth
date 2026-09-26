@@ -34,6 +34,12 @@
           </p>
           <ExerciseStepWhy :text="optionalText(stepKey(currentStep, 'why'))" />
 
+          <!-- A quiet quote from an earlier entry (hintFrom); never fills the field. -->
+          <blockquote v-if="hint" class="micro-hint" data-testid="micro-hint">
+            <span class="micro-hint__label">{{ hint.label }}</span>
+            <span class="micro-hint__text">{{ hint.text }}</span>
+          </blockquote>
+
           <textarea
             v-if="currentStep.type === 'textarea'"
             v-model="textValues[currentStep.key]"
@@ -92,7 +98,42 @@
               :aria-checked="currentStep.multiple ? undefined : isChosen(currentStep.key, option)"
               @click="toggleChoice(currentStep, option)"
             >
-              {{ tg(stepKey(currentStep, `options.${option}`)) }}
+              <span>{{ tg(stepKey(currentStep, `options.${option}`)) }}</span>
+              <small v-if="optionalText(stepKey(currentStep, `optionHints.${option}`))" class="micro-choice__hint">
+                {{ optionalText(stepKey(currentStep, `optionHints.${option}`)) }}
+              </small>
+            </button>
+          </div>
+
+          <!-- Pick one recent entry of another micro (e.g. a moment to work on). -->
+          <div
+            v-else-if="currentStep.type === 'entryPick'"
+            class="micro-pick"
+            role="radiogroup"
+            :aria-label="tg(stepKey(currentStep, 'title'))"
+          >
+            <p v-if="pickable.length === 0" class="micro-pick__empty">
+              {{ tg(stepKey(currentStep, 'empty')) }}
+            </p>
+            <button
+              v-for="entry in pickable"
+              :key="entry.id"
+              type="button"
+              class="micro-pick__card"
+              :class="{ 'is-selected': pickValues[currentStep.key] === entry.id }"
+              role="radio"
+              :aria-checked="pickValues[currentStep.key] === entry.id"
+              @click="togglePick(currentStep.key, entry.id)"
+            >
+              <span class="micro-pick__date">{{ formatEntryDate(entry.createdAt) }}</span>
+              <span
+                v-for="line in pickCardLines(currentStep, entry)"
+                :key="line.key"
+                class="micro-pick__line"
+                :class="{ 'micro-pick__line--meta': line.meta }"
+              >
+                {{ line.text }}
+              </span>
             </button>
           </div>
 
@@ -122,7 +163,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
@@ -130,24 +171,43 @@ import ExerciseRangeInput from '@/components/exercises/ExerciseRangeInput.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import MicroBreathTimer from '@/components/exercises/MicroBreathTimer.vue'
 import { useT } from '@/composables/useT'
+import { getMicroExercise } from '@/data/microExercises'
 import { getQuadrantTintStyle, type Quadrant } from '@/domain/emotion'
 import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import type {
   MicroExerciseDefinition,
+  MicroExerciseEntry,
   MicroExerciseStep,
+  MicroPreset,
   MicroStepValue,
 } from '@/domain/microExercises'
-import { hasStepsAfter, type MicroChoiceAnswers, visibleMicroSteps } from '@/utils/microExerciseFlow'
+import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
+import {
+  conditionList,
+  hasStepsAfter,
+  type MicroChoiceAnswers,
+  pickableEntries,
+  resolveMicroHint,
+  visibleMicroSteps,
+} from '@/utils/microExerciseFlow'
 
 // The runner never persists — the host view owns persistence (same
 // contract as the bespoke wizards' @saved).
-const props = defineProps<{ definition: MicroExerciseDefinition }>()
+const props = withDefaults(
+  defineProps<{
+    definition: MicroExerciseDefinition
+    /** Answers fixed by a catalog variant; their steps are saved and skipped. */
+    preset?: MicroPreset
+  }>(),
+  { preset: () => ({}) },
+)
 
 const emit = defineEmits<{
   saved: [payload: { responses: Record<string, MicroStepValue> }]
 }>()
 
 const { t, tg } = useT()
+const entryStore = useMicroExerciseEntryStore()
 
 const stepIndex = ref(0)
 
@@ -185,6 +245,8 @@ const breathStates = reactive<
 >({})
 /** Single choice: '' until answered; multiple choice: picked ids. */
 const choiceValues = reactive<Record<string, string | string[]>>({})
+/** entryPick: picked entry id, '' until picked. */
+const pickValues = reactive<Record<string, string>>({})
 
 for (const step of props.definition.steps) {
   switch (step.type) {
@@ -203,18 +265,35 @@ for (const step of props.definition.steps) {
     case 'breathTimer':
       breathStates[step.key] = { elapsed: 0, done: false }
       break
-    case 'choice':
-      choiceValues[step.key] = step.multiple ? [] : ''
+    case 'choice': {
+      const preset = props.preset[step.key]
+      choiceValues[step.key] =
+        typeof preset === 'string' || (Array.isArray(preset) && preset.every((v) => typeof v === 'string'))
+          ? (preset as string | string[])
+          : step.multiple
+            ? []
+            : ''
+      break
+    }
+    case 'entryPick':
+      pickValues[step.key] = ''
       break
     case 'info':
       break
   }
 }
 
+// Hints and entry pickers read earlier entries; the store is shared with
+// the host view, so this is a no-op when already loaded.
+onMounted(() => {
+  void entryStore.loadEntries()
+})
+const entries = computed<MicroExerciseEntry[]>(() => entryStore.sortedEntries)
+
 // Only steps whose `showWhen` matches the current choices take part in the
 // flow — dots, validation and saved responses all follow this list. A
 // condition always points at an earlier step, so answering the current
-// step never reshuffles the steps before it.
+// step never reshuffles the steps before it. Preset steps never show.
 const choiceAnswers = computed<MicroChoiceAnswers>(() => {
   const answers: MicroChoiceAnswers = {}
   for (const [key, value] of Object.entries(choiceValues)) {
@@ -222,7 +301,7 @@ const choiceAnswers = computed<MicroChoiceAnswers>(() => {
   }
   return answers
 })
-const steps = computed(() => visibleMicroSteps(props.definition.steps, choiceAnswers.value))
+const steps = computed(() => visibleMicroSteps(props.definition.steps, choiceAnswers.value, props.preset))
 const currentStep = computed(
   () => steps.value[Math.min(stepIndex.value, steps.value.length - 1)]!,
 )
@@ -234,7 +313,7 @@ const cardStyle = computed(() => {
     : undefined
 })
 const isLastStep = computed(
-  () => !hasStepsAfter(props.definition.steps, currentStep.value.key, choiceAnswers.value),
+  () => !hasStepsAfter(props.definition.steps, currentStep.value.key, choiceAnswers.value, props.preset),
 )
 
 function isChosen(key: string, option: string): boolean {
@@ -254,6 +333,96 @@ function toggleChoice(step: MicroExerciseStep, option: string): void {
   choiceValues[step.key] = option
 }
 
+function togglePick(key: string, id: string): void {
+  pickValues[key] = pickValues[key] === id ? '' : id
+}
+
+// ── entryPick cards ──────────────────────────────────────────────────
+
+const pickable = computed(() => {
+  const step = currentStep.value
+  return step.type === 'entryPick' ? pickableEntries(step, entries.value) : []
+})
+
+function formatEntryDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+}
+
+/**
+ * A response of another definition as display text: choice ids become
+ * their labels, lists join, prose passes through. Undefined = nothing
+ * to show.
+ */
+function formatSourceValue(
+  source: MicroExerciseDefinition | undefined,
+  key: string,
+  value: MicroStepValue | undefined,
+): string | undefined {
+  if (value === undefined || value === null) return undefined
+  const sourceStep = source?.steps.find((step) => step.key === key)
+  const label = (option: string) =>
+    sourceStep?.type === 'choice' && source
+      ? tg(`exerciseWizards.micro.${source.i18nKey}.${key}.options.${option}`)
+      : option
+  if (typeof value === 'string') return value.trim() ? label(value) : undefined
+  if (typeof value === 'number') return String(value)
+  if (Array.isArray(value)) {
+    const items = value.filter((item): item is string => typeof item === 'string').map(label)
+    return items.length ? items.join(', ') : undefined
+  }
+  return undefined
+}
+
+function pickCardLines(
+  step: Extract<MicroExerciseStep, { type: 'entryPick' }>,
+  entry: MicroExerciseEntry,
+): Array<{ key: string; text: string; meta: boolean }> {
+  const source = getMicroExercise(step.slug)
+  return step.show.flatMap((key) => {
+    const text = formatSourceValue(source, key, entry.responses[key])
+    if (!text) return []
+    const sourceStep = source?.steps.find((candidate) => candidate.key === key)
+    return [{ key, text, meta: sourceStep?.type === 'choice' }]
+  })
+}
+
+// ── hintFrom ─────────────────────────────────────────────────────────
+
+const HINT_MAX_CHARS = 160
+
+const hint = computed<{ label: string; text: string } | null>(() => {
+  const step = currentStep.value
+  const source = step.hintFrom
+  if (!source) return null
+  if (source.source === 'latest') {
+    const when = conditionList(source.when)
+    const answers = choiceAnswers.value
+    const holds = when.every((condition) => {
+      const answer = answers[condition.step]
+      const picked = Array.isArray(answer) ? answer : answer ? [answer] : []
+      return picked.some((option) => condition.in.includes(option))
+    })
+    if (!holds) return null
+  }
+  const raw = resolveMicroHint(source, entries.value, { ...pickValues })
+  const sourceDefinition =
+    source.source === 'latest'
+      ? getMicroExercise(source.slug)
+      : (() => {
+          const pickStep = props.definition.steps.find((candidate) => candidate.key === source.pickStep)
+          return pickStep?.type === 'entryPick' ? getMicroExercise(pickStep.slug) : undefined
+        })()
+  const text = formatSourceValue(sourceDefinition, source.step, raw)
+  if (!text) return null
+  const label = optionalText(stepKey(step, 'hintLabel')) || t('exerciseWizards.micro.shared.hintLabel')
+  return {
+    label,
+    text: text.length > HINT_MAX_CHARS ? `${text.slice(0, HINT_MAX_CHARS - 1).trimEnd()}…` : text,
+  }
+})
+
+// ── validation & save ────────────────────────────────────────────────
+
 const canAdvance = computed(() => {
   const step = currentStep.value
   if (step.optional) return true
@@ -271,6 +440,8 @@ const canAdvance = computed(() => {
       const value = choiceValues[step.key]
       return Array.isArray(value) ? value.length > 0 : Boolean(value)
     }
+    case 'entryPick':
+      return Boolean(pickValues[step.key])
     case 'breathTimer': {
       const state = breathStates[step.key]
       // A meaningful stretch of breathing counts even if the full timer
@@ -281,7 +452,8 @@ const canAdvance = computed(() => {
 })
 
 function buildResponses(): Record<string, MicroStepValue> {
-  const responses: Record<string, MicroStepValue> = {}
+  // Preset answers are part of the entry even though their steps never showed.
+  const responses: Record<string, MicroStepValue> = { ...props.preset }
   // Hidden branches are dropped even if the user typed into them before
   // changing an earlier answer.
   for (const step of steps.value) {
@@ -315,6 +487,11 @@ function buildResponses(): Record<string, MicroStepValue> {
         if (Array.isArray(value) ? value.length > 0 : value) {
           responses[step.key] = Array.isArray(value) ? [...value] : value
         }
+        break
+      }
+      case 'entryPick': {
+        const value = pickValues[step.key]
+        if (value) responses[step.key] = value
         break
       }
       case 'breathTimer': {
@@ -361,7 +538,92 @@ function advance(): void {
   color: var(--mg-color-ink);
 }
 
+/* A verb under the answer ("napraw · zadbaj · sprawdź"): the way forward, not a second label. */
+.micro-choice__option {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.micro-choice__hint {
+  font-size: var(--mg-font-size-xs);
+  opacity: 0.75;
+}
+
 .micro-choice__option:not(.mg-v2-pill--selected):hover {
   background: var(--mg-color-paper);
+}
+
+/* Quote from an earlier entry: quiet, one tone deeper than the card. */
+.micro-hint {
+  display: grid;
+  gap: var(--mg-space-1);
+  margin: 0;
+  padding: var(--mg-space-2) var(--mg-space-3);
+  border-left: 2px solid var(--mg-color-border);
+  background: var(--mg-color-paper);
+  border-radius: 0 var(--mg-radius-md) var(--mg-radius-md) 0;
+}
+
+.micro-hint__label {
+  font-size: var(--mg-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mg-color-muted);
+}
+
+.micro-hint__text {
+  font-size: var(--mg-font-size-sm);
+  color: var(--mg-color-ink);
+  font-style: italic;
+}
+
+/* Entry cards to pick from. */
+.micro-pick {
+  display: grid;
+  gap: var(--mg-space-2);
+}
+
+.micro-pick__empty {
+  font-size: var(--mg-font-size-sm);
+  color: var(--mg-color-muted);
+}
+
+.micro-pick__card {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  padding: var(--mg-space-2) var(--mg-space-3);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-paper);
+  color: var(--mg-color-ink);
+  cursor: pointer;
+}
+
+.micro-pick__card:hover {
+  border-color: var(--mg-color-muted);
+}
+
+.micro-pick__card.is-selected {
+  border-color: var(--mg-color-primary);
+  box-shadow: inset 0 0 0 1px var(--mg-color-primary);
+}
+
+.micro-pick__date {
+  font-size: var(--mg-font-size-xs);
+  color: var(--mg-color-muted);
+}
+
+.micro-pick__line {
+  font-size: var(--mg-font-size-sm);
+}
+
+.micro-pick__line--meta {
+  font-size: var(--mg-font-size-xs);
+  color: var(--mg-color-muted);
 }
 </style>

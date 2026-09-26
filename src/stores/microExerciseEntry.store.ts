@@ -42,12 +42,20 @@ export const useMicroExerciseEntryStore = defineStore('microExerciseEntry', () =
     }
   }
 
-  async function createEntry(data: CreateMicroExerciseEntryPayload): Promise<MicroExerciseEntry> {
+  /**
+   * `completionSlug` is the catalog slug the run was started as — a
+   * variant (e.g. `moment-shame`) records its completion under its own
+   * slug while the entry lives under the definition's (`moments`).
+   */
+  async function createEntry(
+    data: CreateMicroExerciseEntryPayload,
+    completionSlug: string = data.exerciseSlug,
+  ): Promise<MicroExerciseEntry> {
     error.value = null
     try {
       const entry = await microExerciseEntryDexieRepository.create(data)
       void useExerciseCompletionsStore()
-        .record(entry.exerciseSlug, entry.id)
+        .record(completionSlug, entry.id)
         .catch((err) => console.error('Failed to record exercise completion:', err))
       entries.value.push(entry)
       return entry

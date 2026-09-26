@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   EXERCISE_CATALOG,
   catalogEntriesForTab,
+  definitionSlugFor,
   microCandidates,
 } from '@/data/exerciseCatalog'
 import enExercises from '@/locales/en/exercises.json'
@@ -33,11 +34,12 @@ describe('exercise catalog', () => {
 
   it('matches the ExercisesView category counts', () => {
     expect(catalogEntriesForTab('self-discovery')).toHaveLength(14)
-    // 10 wizards + 11 problem-path micro tools + 4 problem-path measures.
+    // 10 wizards + 11 problem-path micro tools (Momenty + shame response
+    // replaced the two logs) + 4 problem-path measures; variants stay hidden.
     expect(catalogEntriesForTab('cbt')).toHaveLength(25)
     expect(catalogEntriesForTab('logotherapy')).toHaveLength(8)
     expect(catalogEntriesForTab('ifs')).toHaveLength(10)
-    expect(EXERCISE_CATALOG).toHaveLength(64)
+    expect(EXERCISE_CATALOG).toHaveLength(66)
   })
 
   it('has card copy for every entry in both locales', () => {
@@ -108,12 +110,36 @@ describe('exercise catalog', () => {
 
   it('every micro definition has a catalog entry and vice versa', async () => {
     const { MICRO_EXERCISES } = await import('@/data/microExercises')
-    const microKindSlugs = EXERCISE_CATALOG.filter((e) => e.kind === 'micro').map((e) => e.slug)
+    const microKindSlugs = EXERCISE_CATALOG.filter((e) => e.kind === 'micro' && !e.variantOf).map((e) => e.slug)
     expect(MICRO_EXERCISES.map((d) => d.slug).sort()).toEqual(microKindSlugs.sort())
     for (const definition of MICRO_EXERCISES) {
       const entry = EXERCISE_CATALOG.find((e) => e.slug === definition.slug)
       expect(entry?.i18nKey).toBe(definition.i18nKey)
       expect(entry?.route).toBe(`/exercises/micro/${definition.slug}`)
+    }
+  })
+
+  it('variants run a real definition with answers to real choice steps, hidden from the tabs', async () => {
+    const { MICRO_EXERCISES } = await import('@/data/microExercises')
+    const variants = EXERCISE_CATALOG.filter((e) => e.variantOf)
+    expect(variants.map((e) => e.slug).sort()).toEqual(['moment-anger', 'moment-shame'])
+    for (const entry of variants) {
+      expect(entry.kind, entry.slug).toBe('micro')
+      expect(entry.hiddenInCatalog, entry.slug).toBe(true)
+      expect(entry.micro, `${entry.slug} must not be a daily suggestion`).toBeFalsy()
+      expect(entry.route).toBe(`/exercises/micro/${entry.slug}`)
+      expect(definitionSlugFor(entry.slug)).toBe(entry.variantOf!.slug)
+      const definition = MICRO_EXERCISES.find((d) => d.slug === entry.variantOf!.slug)
+      expect(definition, `${entry.slug} → ${entry.variantOf!.slug}`).toBeDefined()
+      for (const [key, value] of Object.entries(entry.variantOf!.preset)) {
+        const step = definition!.steps.find((candidate) => candidate.key === key)
+        expect(step?.type, `${entry.slug} preset ${key}`).toBe('choice')
+        if (step?.type === 'choice') expect(step.options).toContain(value)
+      }
+    }
+    expect(definitionSlugFor('shame-map')).toBe('shame-map')
+    for (const tab of ['cbt', 'micro'] as const) {
+      expect(catalogEntriesForTab(tab).some((e) => e.hiddenInCatalog), tab).toBe(false)
     }
   })
 

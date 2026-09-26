@@ -411,11 +411,6 @@
       "subtitle": "Inhale 4 s, exhale 6 s for three minutes",
       "description": "An exhale longer than the inhale calms arousal. Useful right before you approach something hard."
     },
-    "angerLog": {
-      "title": "Anger Log",
-      "subtitle": "Daily, calm days included",
-      "description": "A short daily note: did anger show up, what triggered it, which thought fuelled it and what helped. Over time the pattern shows."
-    },
     "angerMap": {
       "title": "Anger Map",
       "subtitle": "Triggers, body signals and cost",
@@ -431,10 +426,25 @@
       "subtitle": "Observation, feeling, need, request",
       "description": "Translate anger into the need it defends and into a concrete request you can actually say."
     },
-    "shameLog": {
-      "title": "Shame Log",
-      "subtitle": "A short note every other day",
-      "description": "Notice a moment of shame, your reaction and the critic's words. Then add what a kind person would say."
+    "moments": {
+      "title": "Moments",
+      "subtitle": "Hard moments and responses",
+      "description": "Log a hard moment: what happened, the first reaction and what helped. Path steps and the weekly reflection draw on your moments."
+    },
+    "momentShame": {
+      "title": "Moment of Shame",
+      "subtitle": "A Moments entry",
+      "description": "A moment of shame: what it was about, the first reaction, the response you used and a kind person's voice."
+    },
+    "momentAnger": {
+      "title": "Moment of Anger",
+      "subtitle": "A Moments entry",
+      "description": "A short daily note: did anger show up, what triggered it, which thought fuelled it and what helped."
+    },
+    "shameResponse": {
+      "title": "Shame Response",
+      "subtitle": "Your plan for the moment of shame",
+      "description": "Four moves in the heat: signal, breath, one question, one sentence and a small move towards contact. You build them ahead of time."
     },
     "shameMap": {
       "title": "Shame Map",
@@ -442,9 +452,9 @@
       "description": "See where shame speaks up most, how you react to it and which demand on yourself stands behind it."
     },
     "shameOrGuilt": {
-      "title": "The Act or Me",
-      "subtitle": "Guilt is about the act, shame is about you",
-      "description": "Separate what happened from how you judge yourself. Guilt can be repaired, shame responds to kindness."
+      "title": "What Is This Shame About?",
+      "subtitle": "Deed, event or demand",
+      "description": "Recognise what the shame is about: a deed, an event or a demand. Each answer has its own way forward: repair, care, check."
     },
     "compassionateImage": {
       "title": "Compassionate Image",

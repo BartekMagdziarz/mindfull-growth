@@ -159,11 +159,11 @@
       }
     },
     "practices": {
-      "anger-log": {
-        "intro": "Daily, calm days included. The log shows the pattern: when anger shows up, what fuels it and what helps."
-      },
       "paced-breathing": {
         "intro": "Every other day, three minutes. A longer exhale lowers arousal and makes a pause easier in a real situation."
+      },
+      "moment-anger": {
+        "intro": "Daily, calm days included. The log shows the pattern: when anger shows up, what fuels it and what helps."
       }
     },
     "tasks": {
@@ -429,9 +429,6 @@
       }
     },
     "practices": {
-      "shame-log": {
-        "intro": "Every other day. Briefly note a moment of shame, your reaction and the critic's words, then a kind person's voice."
-      },
       "paced-breathing": {
         "intro": "Every other day in the first weeks. A soothing breathing rhythm prepares you for work with the critic and the compassionate image."
       },
@@ -440,6 +437,9 @@
       },
       "positive-data-log": {
         "intro": "Every other day until the end of the path. You add evidence for your new belief about yourself."
+      },
+      "moment-shame": {
+        "intro": "Every other day. Briefly note a moment of shame, your reaction and the critic's words, then a kind person's voice."
       }
     },
     "tasks": {

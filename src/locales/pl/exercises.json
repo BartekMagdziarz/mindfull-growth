@@ -411,11 +411,6 @@
       "subtitle": "Wdech 4 s, wydech 6 s przez trzy minuty",
       "description": "Dłuższy wydech niż wdech wycisza pobudzenie. Pomaga, zanim podejdziesz do czegoś trudnego."
     },
-    "angerLog": {
-      "title": "Dziennik złości",
-      "subtitle": "Codziennie, także w spokojne dni",
-      "description": "Krótki zapis dnia: czy pojawiła się złość, co ją wywołało, jaka myśl ją podkręciła i co pomogło. Z czasem widać wzór."
-    },
     "angerMap": {
       "title": "Mapa złości",
       "subtitle": "Wyzwalacze, sygnały w ciele i koszt",
@@ -431,10 +426,25 @@
       "subtitle": "Obserwacja, uczucie, potrzeba, prośba",
       "description": "Przełóż złość na potrzebę, której broni, i na konkretną prośbę, którą da się wypowiedzieć."
     },
-    "shameLog": {
-      "title": "Dziennik wstydu",
-      "subtitle": "Krótki zapis co dwa dni",
-      "description": "Zauważ moment wstydu, swoją reakcję i słowa krytyka. Potem dopisz, co powiedziałby ktoś życzliwy."
+    "moments": {
+      "title": "Momenty",
+      "subtitle": "Trudne chwile i odpowiedzi",
+      "description": "Zapisz trudny moment: co się stało, jaka była pierwsza reakcja i co pomogło. Z momentów czerpią kroki ścieżek i refleksja tygodnia."
+    },
+    "momentShame": {
+      "title": "Moment wstydu",
+      "subtitle": "Zapis w Momentach",
+      "description": "Chwila wstydu: o czym była, pierwsza reakcja, użyta odpowiedź i głos kogoś życzliwego."
+    },
+    "momentAnger": {
+      "title": "Moment złości",
+      "subtitle": "Zapis w Momentach",
+      "description": "Krótki zapis dnia: czy pojawiła się złość, co ją wywołało, jaka myśl ją podkręciła i co pomogło."
+    },
+    "shameResponse": {
+      "title": "Odpowiedź na wstyd",
+      "subtitle": "Twój plan na chwilę wstydu",
+      "description": "Cztery ruchy na gorąco: sygnał, oddech, jedno pytanie, jedno zdanie i mały ruch w stronę kontaktu. Zbudujesz je zawczasu."
     },
     "shameMap": {
       "title": "Mapa wstydu",
@@ -442,9 +452,9 @@
       "description": "Sprawdź, gdzie wstyd odzywa się najczęściej, jak na niego reagujesz i jakie wymaganie wobec siebie za nim stoi."
     },
     "shameOrGuilt": {
-      "title": "Czyn czy ja",
-      "subtitle": "Wina dotyczy czynu, wstyd dotyczy ciebie",
-      "description": "Oddziel to, co się stało, od oceny siebie. Winę można naprawić, a na wstyd odpowiada życzliwość."
+      "title": "O czym jest ten wstyd?",
+      "subtitle": "Czyn, zdarzenie czy wymaganie",
+      "description": "Rozpoznaj, o czym jest wstyd: o czynie, o zdarzeniu czy o wymaganiu. Każda odpowiedź ma inną drogę: napraw, zadbaj, sprawdź."
     },
     "compassionateImage": {
       "title": "Obraz współczujący",

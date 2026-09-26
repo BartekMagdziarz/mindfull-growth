@@ -167,6 +167,9 @@ const router = createRouter({
       name: 'exercise-assessment',
       component: () => import('@/views/exercises/AssessmentView.vue'),
     },
+    // Retired logs live on as Momenty variants (Dexie v27 moved their entries).
+    { path: '/exercises/micro/shame-log', redirect: '/exercises/micro/moment-shame' },
+    { path: '/exercises/micro/anger-log', redirect: '/exercises/micro/moment-anger' },
     {
       path: '/exercises/micro/:slug',
       name: 'micro-exercise',

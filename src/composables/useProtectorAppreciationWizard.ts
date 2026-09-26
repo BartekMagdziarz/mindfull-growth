@@ -62,6 +62,8 @@ export function useProtectorAppreciationWizard() {
 
   // Commitment
   const commitment = ref('')
+  // One sentence to thank the protector and take the wheel when it speaks up
+  const handover = ref('')
 
   // Coming back: the chosen frequency becomes a real ExercisePlanItem on save
   const checkInFrequency = ref<'weekly' | 'biweekly' | 'monthly' | null>(null)
@@ -205,6 +207,7 @@ export function useProtectorAppreciationWizard() {
         appreciationLetter: appreciationLetter.value.trim(),
         partResponse: partResponse.value.trim() || undefined,
         commitment: commitment.value.trim() || undefined,
+        handover: handover.value.trim() || undefined,
         checkInFrequency: checkInFrequency.value ?? undefined,
         plannedReturnItemId,
         llmAssistUsed: llmAssistUsed.value,
@@ -242,6 +245,7 @@ export function useProtectorAppreciationWizard() {
     isLoadingResponse.value = false
     llmError.value = null
     commitment.value = ''
+    handover.value = ''
     checkInFrequency.value = null
     notes.value = ''
     isSaving.value = false
@@ -282,6 +286,7 @@ export function useProtectorAppreciationWizard() {
 
     // Commitment
     commitment,
+    handover,
 
     // Check-in
     checkInFrequency,

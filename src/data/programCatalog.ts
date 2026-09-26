@@ -69,7 +69,7 @@ export const PROGRAM_CATALOG: readonly ProgramDefinition[] = [
       { key: 'consolidation', fromStepIndex: 10 },
     ],
     practices: [
-      { exerciseSlug: 'anger-log', everyDays: 1, startsAfterStep: 0, introKey: 'programs.anger-signal.practices.anger-log.intro' },
+      { exerciseSlug: 'moment-anger', everyDays: 1, startsAfterStep: 0, introKey: 'programs.anger-signal.practices.moment-anger.intro' },
       { exerciseSlug: 'paced-breathing', everyDays: 2, startsAfterStep: 1, introKey: 'programs.anger-signal.practices.paced-breathing.intro' },
     ],
     weeklyTasks: [
@@ -166,7 +166,7 @@ export const PROGRAM_CATALOG: readonly ProgramDefinition[] = [
       { key: 'consolidation', fromStepIndex: 12 },
     ],
     practices: [
-      { exerciseSlug: 'shame-log', everyDays: 2, startsAfterStep: 0, endsAfterStep: 8, introKey: 'programs.shame-compassion.practices.shame-log.intro' },
+      { exerciseSlug: 'moment-shame', everyDays: 2, startsAfterStep: 0, endsAfterStep: 8, introKey: 'programs.shame-compassion.practices.moment-shame.intro' },
       { exerciseSlug: 'paced-breathing', everyDays: 2, startsAfterStep: 1, endsAfterStep: 4, introKey: 'programs.shame-compassion.practices.paced-breathing.intro' },
       { exerciseSlug: 'self-compassion-break', everyDays: 2, startsAfterStep: 4, endsAfterStep: 8, introKey: 'programs.shame-compassion.practices.self-compassion-break.intro' },
       { exerciseSlug: 'positive-data-log', everyDays: 2, startsAfterStep: 8, introKey: 'programs.shame-compassion.practices.positive-data-log.intro' },

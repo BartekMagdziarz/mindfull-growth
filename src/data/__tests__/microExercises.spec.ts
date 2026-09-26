@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MICRO_EXERCISES } from '@/data/microExercises'
+import { conditionList } from '@/utils/microExerciseFlow'
 import enWizards from '@/locales/en/exerciseWizards.json'
 import plWizards from '@/locales/pl/exerciseWizards.json'
 
@@ -37,16 +38,64 @@ describe('micro exercise definitions', () => {
   it('point every showWhen at an earlier choice step and at its real options', () => {
     for (const definition of MICRO_EXERCISES) {
       definition.steps.forEach((step, index) => {
-        if (!step.showWhen) return
-        const sourceIndex = definition.steps.findIndex((other) => other.key === step.showWhen!.step)
+        for (const condition of conditionList(step.showWhen)) {
+          const sourceIndex = definition.steps.findIndex((other) => other.key === condition.step)
+          const label = `${definition.slug}.${step.key}`
+          expect(sourceIndex, label).toBeGreaterThanOrEqual(0)
+          expect(sourceIndex, label).toBeLessThan(index)
+          const source = definition.steps[sourceIndex]!
+          expect(source.type, label).toBe('choice')
+          if (source.type !== 'choice') continue
+          expect(condition.in.length, label).toBeGreaterThan(0)
+          for (const option of condition.in) expect(source.options, label).toContain(option)
+        }
+      })
+    }
+  })
+
+  it('entryPick and hintFrom point at real definitions, steps and options', () => {
+    const bySlug = new Map(MICRO_EXERCISES.map((definition) => [definition.slug, definition]))
+    const expectConditionsFit = (
+      source: (typeof MICRO_EXERCISES)[number],
+      conditions: Parameters<typeof conditionList>[0],
+      label: string,
+    ) => {
+      for (const condition of conditionList(conditions)) {
+        const step = source.steps.find((candidate) => candidate.key === condition.step)
+        expect(step?.type, `${label} filter ${condition.step}`).toBe('choice')
+        if (step?.type !== 'choice') continue
+        for (const option of condition.in) expect(step.options, label).toContain(option)
+      }
+    }
+    for (const definition of MICRO_EXERCISES) {
+      definition.steps.forEach((step, index) => {
         const label = `${definition.slug}.${step.key}`
-        expect(sourceIndex, label).toBeGreaterThanOrEqual(0)
-        expect(sourceIndex, label).toBeLessThan(index)
-        const source = definition.steps[sourceIndex]!
-        expect(source.type, label).toBe('choice')
-        if (source.type !== 'choice') return
-        expect(step.showWhen.in.length, label).toBeGreaterThan(0)
-        for (const option of step.showWhen.in) expect(source.options, label).toContain(option)
+        if (step.type === 'entryPick') {
+          const source = bySlug.get(step.slug)
+          expect(source, `${label} picks from unknown ${step.slug}`).toBeDefined()
+          for (const key of step.show) {
+            expect(source!.steps.some((candidate) => candidate.key === key), `${label} shows ${key}`).toBe(true)
+          }
+          expectConditionsFit(source!, step.filter, label)
+        }
+        const hint = step.hintFrom
+        if (!hint) return
+        if (hint.source === 'latest') {
+          const source = bySlug.get(hint.slug)
+          expect(source, `${label} quotes unknown ${hint.slug}`).toBeDefined()
+          expect(source!.steps.some((candidate) => candidate.key === hint.step), `${label} quotes ${hint.step}`).toBe(true)
+          expectConditionsFit(source!, hint.filter, label)
+          expectConditionsFit(definition, hint.when, `${label} when`)
+        } else {
+          const pickIndex = definition.steps.findIndex((candidate) => candidate.key === hint.pickStep)
+          expect(pickIndex, `${label} pick step`).toBeGreaterThanOrEqual(0)
+          expect(pickIndex, `${label} pick step must be earlier`).toBeLessThan(index)
+          const pick = definition.steps[pickIndex]!
+          expect(pick.type, label).toBe('entryPick')
+          if (pick.type !== 'entryPick') return
+          const source = bySlug.get(pick.slug)!
+          expect(source.steps.some((candidate) => candidate.key === hint.step), `${label} quotes ${hint.step}`).toBe(true)
+        }
       })
     }
   })
@@ -69,6 +118,7 @@ describe('micro exercise definitions', () => {
           const fields = ['title', 'description']
           if (step.type === 'textarea' || step.type === 'textList') fields.push('placeholder')
           if (step.type === 'slider') fields.push('minLabel', 'maxLabel')
+          if (step.type === 'entryPick') fields.push('empty')
           for (const field of fields) {
             expect(isCopyValue(stepCopy?.[field]), `${where}.${field}`).toBe(true)
           }
@@ -76,6 +126,11 @@ describe('micro exercise definitions', () => {
             const options = stepCopy?.options as Copy | undefined
             for (const option of step.options) {
               expect(isCopyValue(options?.[option]), `${where}.options.${option}`).toBe(true)
+            }
+            // Optional verbs under answers must name real options only.
+            const hints = stepCopy?.optionHints as Copy | undefined
+            for (const option of Object.keys(hints ?? {})) {
+              expect(step.options, `${where}.optionHints.${option}`).toContain(option)
             }
           }
         }

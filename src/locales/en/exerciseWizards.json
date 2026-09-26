@@ -2595,6 +2595,12 @@
       "placeholder": "What do you commit to? (optional)",
       "skipButton": "Skip"
     },
+    "handover": {
+      "title": "Taking the wheel (optional)",
+      "description": "One sentence to thank this part when it speaks up and let it know you are driving now.",
+      "why": "The critic stands guard because it doesn't trust anyone else to. Thanks relieve it without a fight. This sentence returns in the shame path's weekly task.",
+      "placeholder": "Thank you for keeping watch. I'm driving now."
+    },
     "checkIn": {
       "title": "Coming Back (Optional)",
       "description": "Would you like to come back to “{partName}” regularly? We’ll schedule the next Appreciation in your exercise plan.",
@@ -2617,6 +2623,7 @@
         "letterExcerpt": "Letter excerpt",
         "response": "Response",
         "commitment": "Commitment:",
+        "handover": "Wheel:",
         "checkIn": "Return:"
       },
       "notesLabel": "Notes (optional)",
@@ -3225,6 +3232,7 @@
   },
   "micro": {
     "shared": {
+      "hintLabel": "From an earlier entry",
       "breath": {
         "start": "Start",
         "ready": {
@@ -3393,69 +3401,6 @@
         "description": "Mark your emotions after the exercise. You can skip this."
       }
     },
-    "angerLog": {
-      "hadEpisode": {
-        "title": "Did anger show up today?",
-        "description": "Irritation counts too.",
-        "why": "Logging a calm day matters as much as logging a hard one: it shows what helps and gives a true picture of how often anger shows up.",
-        "options": {
-          "none": "No",
-          "mild": "Yes, mild",
-          "strong": "Yes, strong"
-        }
-      },
-      "quietDay": {
-        "title": "What helped you stay calm today?",
-        "description": "One sentence is enough. (Optional.)",
-        "placeholder": "Today it helped that…"
-      },
-      "intensity": {
-        "title": "How strong was the anger at its worst?",
-        "description": "0 is calm, 10 is anger that was hard to control.",
-        "minLabel": "Calm",
-        "maxLabel": "Out of control"
-      },
-      "trigger": {
-        "title": "What happened?",
-        "description": "Describe it the way a camera would record it: who, what, where.",
-        "why": "A camera-style account separates facts from interpretation. It becomes easier to see what happened and what a thought added.",
-        "placeholder": "A colleague cut me off in a meeting…"
-      },
-      "firstSign": {
-        "title": {
-          "m": "How did you notice the anger building?",
-          "f": "How did you notice the anger building?"
-        },
-        "description": "The first signal in your body or thoughts: a tight jaw, heat in your face, clenched hands. (Optional.)",
-        "why": "The early signal is the easiest point to stop. Over time you'll start recognising it before the anger grows.",
-        "placeholder": "My jaw tightened…"
-      },
-      "thought": {
-        "title": "Which thought fuelled it?",
-        "description": "It often sounds like “he shouldn't do that”, “she's doing it on purpose” or “it's always like this”.",
-        "why": "Anger grows not only from the situation but from how you explain it to yourself. A thought written down can be checked later.",
-        "placeholder": {
-          "m": "I thought that…",
-          "f": "I thought that…"
-        }
-      },
-      "behavior": {
-        "title": {
-          "m": "What did you do?",
-          "f": "What did you do?"
-        },
-        "description": "Your reaction, without judging it. Include what you managed to hold back.",
-        "placeholder": {
-          "m": "I raised my voice and left…",
-          "f": "I raised my voice and left…"
-        }
-      },
-      "helped": {
-        "title": "What helped, or what would help next time?",
-        "description": "A pause, a breath, a different thought, talking later. (Optional.)",
-        "placeholder": "It helped to…"
-      }
-    },
     "angerMap": {
       "intro": {
         "title": "Your anger map",
@@ -3568,42 +3513,62 @@
         "placeholder": "Could you…"
       }
     },
-    "shameLog": {
+    "moments": {
+      "kind": {
+        "title": "What kind of moment?",
+        "description": "Pick the emotion. Paths set this for you.",
+        "options": {
+          "shame": "Shame",
+          "anger": "Anger",
+          "anxiety": "Anxiety",
+          "other": "Other"
+        }
+      },
       "hadMoment": {
-        "title": "Was there a moment of shame recently?",
-        "description": "Embarrassment counts too, as does feeling that something is wrong with you or wanting to hide.",
+        "title": "Was there such a moment recently?",
+        "description": "Mild ones count too: irritation, embarrassment, unease. A note without a moment counts as well.",
+        "why": "Logging a calm day matters as much as logging a hard one: it shows what helps and gives a true picture of how often the emotion shows up.",
         "options": {
           "none": "No",
           "yes": "Yes"
         }
       },
       "quietDay": {
-        "title": "What let you be yourself?",
-        "description": {
-          "m": "A moment when you didn't have to hide anything. (Optional.)",
-          "f": "A moment when you didn't have to hide anything. (Optional.)"
-        },
-        "placeholder": {
-          "m": "I felt at ease when…",
-          "f": "I felt at ease when…"
-        }
+        "title": "What helped today?",
+        "description": "A moment that was calm or at ease. (Optional.)",
+        "placeholder": "Today it helped that…"
       },
       "situation": {
         "title": "What happened?",
-        "description": "Briefly: the situation and who was there, if anyone.",
+        "description": "Briefly, the way a camera would record it: who, what, where.",
+        "why": "A camera-style account separates facts from interpretation. It becomes easier to see what happened and what a thought added.",
         "placeholder": "In a meeting…"
       },
-      "body": {
-        "title": "What was happening in your body?",
-        "description": "Shame often shows in the body: a hot face, lowered eyes, wanting to disappear. (Optional.)",
-        "placeholder": "I felt hot…"
+      "about": {
+        "title": "What is this shame about?",
+        "description": "Three answers and three ways forward: repair, care, check. If you don't know yet, say so.",
+        "why": "The same question you ask yourself in the moment of shame. Here you have a calm minute for it.",
+        "options": {
+          "act": {
+            "m": "What I did",
+            "f": "What I did"
+          },
+          "event": "What happened to me",
+          "demand": {
+            "m": "Who I should be",
+            "f": "Who I should be"
+          },
+          "unsure": "I don't know yet"
+        },
+        "optionHints": {
+          "act": "repair",
+          "event": "care",
+          "demand": "check"
+        }
       },
       "compass": {
-        "title": {
-          "m": "How did you react?",
-          "f": "How did you react?"
-        },
-        "description": "These are four typical reactions to shame. Pick the closest one.",
+        "title": "What was the first reaction?",
+        "description": "Four typical reactions to shame. Pick the closest one.",
         "why": "Shame usually sets off one of four automatic reactions. Recognising yours makes it easier to catch it next time.",
         "options": {
           "withdraw": "Withdrawing",
@@ -3612,9 +3577,41 @@
           "attackOthers": "Attacking others"
         }
       },
+      "response": {
+        "title": {
+          "m": "What did you do instead, or after the first reaction?",
+          "f": "What did you do instead, or after the first reaction?"
+        },
+        "description": "Tick everything that happened, even an hour later.",
+        "why": "Every attempt counts, even a late one. Over time you see which moves really work.",
+        "hintLabel": "From your shame response",
+        "options": {
+          "breath": "Breath",
+          "named": "Naming the shame",
+          "question": "The “what is it about?” question",
+          "sentence": "The sentence from my image",
+          "contact": "A move towards contact",
+          "repair": "Repair",
+          "test": "The close-person test",
+          "nothing": "Nothing, this time"
+        }
+      },
+      "intensity": {
+        "title": "How strong was the anger at its worst?",
+        "description": "0 is calm, 10 is anger that was hard to control.",
+        "minLabel": "Calm",
+        "maxLabel": "Out of control"
+      },
+      "body": {
+        "title": "What was happening in your body?",
+        "description": "The first signal: a hot face, a tight jaw, lowered eyes, a knot in the stomach. (Optional.)",
+        "why": "The body gives an emotion away sooner than thoughts do. Knowing your signals, you notice earlier that it is starting.",
+        "hintLabel": "From your shame map",
+        "placeholder": "I felt hot…"
+      },
       "criticSaid": {
-        "title": "What did the inner critic say?",
-        "description": "Write its words down literally, even if they're harsh.",
+        "title": "What did the critic say?",
+        "description": "Its words literally, even if they're harsh. (Optional.)",
         "why": "Written down, the critic's words can be seen from a distance. It's easier to notice how harsh they are and answer them in the next step.",
         "placeholder": "You are…"
       },
@@ -3622,7 +3619,96 @@
         "title": "What would a kind person say?",
         "description": "Someone who knows you well and wishes you well. They don't have to deny the facts, only stop judging.",
         "why": "Shame eases with kindness, not punishment. The more you practise a gentle voice, the more easily it shows up on its own.",
+        "hintLabel": "From your compassionate image",
         "placeholder": "They would say…"
+      },
+      "nextTime": {
+        "title": "What will you do next time?",
+        "description": "One move you'll try earlier. (Optional.)",
+        "why": "A plan from a hot moment, written down when calm, is easier to recall.",
+        "placeholder": "Next time I'll try…"
+      },
+      "thought": {
+        "title": "Which thought fuelled it?",
+        "description": "It often sounds like “he shouldn't do that”, “this will surely fail” or “it's always like this”. (Optional.)",
+        "why": "An emotion grows not only from the situation but from how you explain it to yourself. A thought written down can be checked later.",
+        "placeholder": {
+          "m": "I thought that…",
+          "f": "I thought that…"
+        }
+      },
+      "behavior": {
+        "title": {
+          "m": "What did you do?",
+          "f": "What did you do?"
+        },
+        "description": "Your reaction, without judging it. Include what you managed to hold back.",
+        "placeholder": {
+          "m": "I raised my voice and left…",
+          "f": "I raised my voice and left…"
+        }
+      },
+      "helped": {
+        "title": "What helped, or what would help next time?",
+        "description": "A pause, a breath, a different thought, talking later. (Optional.)",
+        "placeholder": "It helped to…"
+      }
+    },
+    "shameResponse": {
+      "intro": {
+        "title": "Shame lasts a moment. This plan is for that moment.",
+        "description": "Four moves: recognise, breathe, one question, one sentence and one small move towards contact. You build them now so you don't have to invent them when it's hot."
+      },
+      "signals": {
+        "title": "How will you know it's shame?",
+        "description": "One or two signals from your body or thoughts that come first.",
+        "why": "The body's signal comes before the thought. It's your early alarm and the moment the plan should switch on.",
+        "hintLabel": "From your shame map",
+        "placeholder": "A hot face…"
+      },
+      "breath": {
+        "title": "Try the soothing rhythm",
+        "description": "Four seconds in, six out, for a minute. Exhale longer than you inhale. (Optional.)",
+        "why": "A longer exhale calms the threat system shame lives in. Two such breaths fit into any situation."
+      },
+      "name": {
+        "title": "How will you name what is happening?",
+        "description": "A short sentence to yourself that separates shame from fact.",
+        "why": "Naming an emotion lowers its intensity and reminds you it's a reaction, not a truth about you.",
+        "placeholder": "This is shame. It's my critic, not a fact."
+      },
+      "question": {
+        "title": "One question in the heat: what is this shame about?",
+        "description": {
+          "m": "What I did → repair. What happened to me → care. Who I should be → check whether you would hold someone you like to that demand.",
+          "f": "What I did → repair. What happened to me → care. Who I should be → check whether you would hold someone you like to that demand."
+        },
+        "why": "The question moves attention from “what I am” to “what is here”. The answer doesn't have to be certain right away."
+      },
+      "sentence": {
+        "title": "The sentence you'll hear from your compassionate image",
+        "description": "What your compassionate figure would say if it were looking at you in that moment.",
+        "why": "A ready sentence comes faster than inventing kindness in the heat.",
+        "hintLabel": "From your compassionate image",
+        "placeholder": "You're human and this hurts. I'm with you."
+      },
+      "move": {
+        "title": "Your move towards contact instead of hiding",
+        "description": "Pick one or two that are doable for you.",
+        "why": "Shame tells you to disappear. Each of these moves is the opposite and shows that nothing bad happens.",
+        "options": {
+          "stay": "Stay in the situation a minute longer",
+          "eyes": "Lift your eyes",
+          "say": "Say one sentence out loud",
+          "ask": "Ask a question",
+          "hand": "A hand on your heart or belly",
+          "later": "Tell someone later"
+        }
+      },
+      "moveNote": {
+        "title": "Anything else that works for you?",
+        "description": "Your own move, if you have one. (Optional.)",
+        "placeholder": "It helps me when…"
       }
     },
     "shameMap": {
@@ -3687,17 +3773,36 @@
           "f": "I should…"
         }
       },
+      "friendTest": {
+        "title": {
+          "m": "Would you hold someone you like to this demand?",
+          "f": "Would you hold someone you like to this demand?"
+        },
+        "description": "Picture someone close to you in the same situation.",
+        "why": "If not, it's probably someone else's demand. The path returns to it in the “What is this shame about?” step.",
+        "options": {
+          "yes": "Yes",
+          "no": "No",
+          "unsure": "I don't know"
+        }
+      },
       "origin": {
         "title": "Where did this demand come from?",
-        "description": "Who did it come from, or what experience taught it? For example home, school, work. (Optional.)",
+        "description": "Who did it come from, or what experience taught it? For example home, school, work.",
         "why": "Seeing where a demand came from makes it easier to treat it as a rule you took on, not a truth about you. Then you can decide whether to keep it.",
         "placeholder": "I think it comes from…"
       }
     },
     "shameOrGuilt": {
+      "episode": {
+        "title": "Pick a moment",
+        "description": "One moment of shame from Moments to work on. You can also skip this and describe a new situation.",
+        "empty": "There are no moments of shame in Moments yet. Describe the situation in the next step."
+      },
       "facts": {
         "title": "What happened? Just the facts",
         "description": "Describe the situation without judging yourself.",
+        "hintLabel": "From this moment",
         "placeholder": {
           "m": "I forgot about…",
           "f": "I forgot about…"
@@ -3708,23 +3813,25 @@
         "description": "Write whatever comes to mind first.",
         "placeholder": "I feel bad because…"
       },
-      "verdict": {
-        "title": "What is that sentence about?",
-        "description": {
-          "m": "Guilt says “I did something bad”, shame says “I am bad”. The difference points to what can help.",
-          "f": "Guilt says “I did something bad”, shame says “I am bad”. The difference points to what can help."
-        },
-        "why": "Guilt is eased by repair, shame by kindness towards yourself. That is why the next step depends on this answer.",
+      "about": {
+        "title": "What is this shame about?",
+        "description": "You can tick two if the episode is mixed.",
+        "why": "The answer decides what comes next: repair, care or checking the demand.",
         "options": {
           "act": {
-            "m": "About what I did",
-            "f": "About what I did"
+            "m": "What I did",
+            "f": "What I did"
           },
-          "self": {
-            "m": "About who I am",
-            "f": "About who I am"
-          },
-          "mixed": "Both"
+          "event": "What happened to me",
+          "demand": {
+            "m": "Who I should be",
+            "f": "Who I should be"
+          }
+        },
+        "optionHints": {
+          "act": "repair",
+          "event": "care",
+          "demand": "check"
         }
       },
       "repair": {
@@ -3733,10 +3840,48 @@
         "why": "Repair settles guilt better than dwelling on it: the bad feeling turns into an action that changes something.",
         "placeholder": "I can…"
       },
+      "care": {
+        "title": "What does someone this happened to need?",
+        "description": {
+          "m": "Write what you would do for a friend in this situation, and do it for yourself.",
+          "f": "Write what you would do for a friend in this situation, and do it for yourself."
+        },
+        "why": "An event without a deed doesn't need punishment, only care.",
+        "placeholder": "They need…"
+      },
+      "friendTest": {
+        "title": {
+          "m": "Should someone close to you, in your place, be ashamed of this? What would you tell them?",
+          "f": "Should someone close to you, in your place, be ashamed of this? What would you tell them?"
+        },
+        "description": "Picture someone you like in exactly this situation.",
+        "why": "The close-person test reveals the demands you place only on yourself.",
+        "placeholder": {
+          "m": "I'd tell them that…",
+          "f": "I'd tell them that…"
+        }
+      },
+      "whoseDemand": {
+        "title": "Whose demand is this? Where did you get it?",
+        "description": "Who it came from, or which experience taught it.",
+        "why": "A demand with a named source is a rule you took on, not a truth about you.",
+        "hintLabel": "From your shame map",
+        "placeholder": "I think from…"
+      },
+      "fairDemand": {
+        "title": "What demand would be fair?",
+        "description": {
+          "m": "One you would hold someone you like to.",
+          "f": "One you would hold someone you like to."
+        },
+        "why": "A fair demand is your alternative belief. In the beliefs step you'll gather evidence for it.",
+        "placeholder": "It's enough that…"
+      },
       "kindVoice": {
         "title": "What would a kind person say?",
         "description": "What would someone who knows you and is on your side say? Write their words down.",
         "why": "Punishing yourself doesn't ease shame. It softens when you meet kindness, including your own.",
+        "hintLabel": "From your compassionate image",
         "placeholder": "They would say…"
       }
     },

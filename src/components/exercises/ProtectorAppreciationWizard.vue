@@ -310,6 +310,21 @@
             />
           </AppCard>
 
+          <!-- Handover: the sentence for the moment the protector speaks up (shame path, task "handOver") -->
+          <AppCard padding="lg" class="space-y-3">
+            <h3 class="text-sm font-semibold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.handover.title') }}</h3>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.protectorAppreciation.handover.description') }}
+            </p>
+            <ExerciseStepWhy :text="t('exerciseWizards.protectorAppreciation.handover.why')" />
+            <textarea
+              v-model="handover"
+              rows="2"
+              :placeholder="t('exerciseWizards.protectorAppreciation.handover.placeholder')"
+              class="neo-input w-full p-3 text-sm resize-none"
+            />
+          </AppCard>
+
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
             <AppButton variant="filled" @click="nextStep()">
@@ -398,6 +413,10 @@
 
               <p v-if="commitment" class="text-xs text-on-surface">
                 <span class="text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.commitment') }}</span> {{ commitment }}
+              </p>
+
+              <p v-if="handover" class="text-xs text-on-surface">
+                <span class="text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.handover') }}</span> {{ handover }}
               </p>
 
               <p v-if="checkInFrequency" class="text-xs text-on-surface">
@@ -513,6 +532,7 @@ const {
   llmError,
   generateResponse,
   commitment,
+  handover,
   checkInFrequency,
   plannedReturnDayRef,
   updatePartCard,

@@ -2595,6 +2595,12 @@
       "placeholder": "Do czego się zobowiązujesz? (opcjonalnie)",
       "skipButton": "Pomiń"
     },
+    "handover": {
+      "title": "Zdanie przejęcia steru (opcjonalne)",
+      "description": "Jedno zdanie, którym podziękujesz tej części, gdy się odezwie, i dasz jej znać, że teraz ty prowadzisz.",
+      "why": "Krytyk pilnuje, bo nie wierzy, że ktoś inny to zrobi. Podziękowanie zdejmuje z niego wartę bez walki. To zdanie wraca w zadaniu tygodnia ścieżki wstydu.",
+      "placeholder": "Dziękuję, że pilnujesz. Teraz ja prowadzę."
+    },
     "checkIn": {
       "title": "Powroty do części (opcjonalnie)",
       "description": "Czy chcesz regularnie wracać do części „{partName}”? Zaplanujemy kolejne Docenienie w twoim planie ćwiczeń.",
@@ -2617,6 +2623,7 @@
         "letterExcerpt": "Fragment listu",
         "response": "Odpowiedź",
         "commitment": "Zobowiązanie:",
+        "handover": "Ster:",
         "checkIn": "Powrót:"
       },
       "notesLabel": "Notatki (opcjonalnie)",
@@ -3225,6 +3232,7 @@
   },
   "micro": {
     "shared": {
+      "hintLabel": "Z wcześniejszego wpisu",
       "breath": {
         "start": "Zacznij",
         "ready": {
@@ -3393,69 +3401,6 @@
         "description": "Zaznacz emocje po ćwiczeniu. Możesz to pominąć."
       }
     },
-    "angerLog": {
-      "hadEpisode": {
-        "title": "Czy dziś pojawiła się złość?",
-        "description": "Irytacja też się liczy.",
-        "why": "Zapis w spokojny dzień jest tak samo ważny jak w trudny: pokazuje, co pomaga, i daje prawdziwy obraz tego, jak często pojawia się złość.",
-        "options": {
-          "none": "Nie było",
-          "mild": "Tak, lekka",
-          "strong": "Tak, silna"
-        }
-      },
-      "quietDay": {
-        "title": "Co dziś pomagało zachować spokój?",
-        "description": "Jedno zdanie wystarczy. (Opcjonalnie.)",
-        "placeholder": "Dziś pomogło mi…"
-      },
-      "intensity": {
-        "title": "Jak silna była złość w najgorszym momencie?",
-        "description": "0 to spokój, 10 to złość, nad którą trudno było zapanować.",
-        "minLabel": "Spokój",
-        "maxLabel": "Poza kontrolą"
-      },
-      "trigger": {
-        "title": "Co się wydarzyło?",
-        "description": "Opisz sytuację tak, jak nagrałaby ją kamera: kto, co, gdzie.",
-        "why": "Opis jak z kamery oddziela fakty od interpretacji. Łatwiej wtedy zobaczyć, co się stało, a co dopowiedziała myśl.",
-        "placeholder": "Kolega przerwał mi na spotkaniu…"
-      },
-      "firstSign": {
-        "title": {
-          "m": "Po czym poznałeś, że złość rośnie?",
-          "f": "Po czym poznałaś, że złość rośnie?"
-        },
-        "description": "Pierwszy sygnał w ciele albo w myślach: napięta szczęka, ciepło na twarzy, zaciśnięte dłonie. (Opcjonalnie.)",
-        "why": "Na wczesnym sygnale najłatwiej się zatrzymać. Z czasem zaczniesz go rozpoznawać, zanim złość urośnie.",
-        "placeholder": "Zacisnęła mi się szczęka…"
-      },
-      "thought": {
-        "title": "Jaka myśl wzmocniła złość?",
-        "description": "Często brzmi jak „nie powinien tak robić”, „robi to specjalnie” albo „zawsze tak jest”.",
-        "why": "Złość rośnie nie tylko od sytuacji, ale też od tego, jak ją sobie tłumaczysz. Zapisaną myśl można potem sprawdzić.",
-        "placeholder": {
-          "m": "Pomyślałem, że…",
-          "f": "Pomyślałam, że…"
-        }
-      },
-      "behavior": {
-        "title": {
-          "m": "Co zrobiłeś?",
-          "f": "Co zrobiłaś?"
-        },
-        "description": "Twoja reakcja, bez oceniania. Także to, co udało ci się powstrzymać.",
-        "placeholder": {
-          "m": "Podniosłem głos i wyszedłem…",
-          "f": "Podniosłam głos i wyszłam…"
-        }
-      },
-      "helped": {
-        "title": "Co pomogło albo co pomogłoby następnym razem?",
-        "description": "Pauza, oddech, inna myśl, rozmowa później. (Opcjonalnie.)",
-        "placeholder": "Pomogło mi…"
-      }
-    },
     "angerMap": {
       "intro": {
         "title": "Mapa twojej złości",
@@ -3568,42 +3513,62 @@
         "placeholder": "Czy możesz…"
       }
     },
-    "shameLog": {
+    "moments": {
+      "kind": {
+        "title": "Co to za moment?",
+        "description": "Wybierz, o jaką emocję chodzi. Ścieżki ustawiają to same.",
+        "options": {
+          "shame": "Wstyd",
+          "anger": "Złość",
+          "anxiety": "Lęk",
+          "other": "Inny"
+        }
+      },
       "hadMoment": {
-        "title": "Czy był ostatnio moment wstydu?",
-        "description": "Także zażenowanie, poczucie, że coś jest z tobą nie tak, albo chęć schowania się.",
+        "title": "Czy był ostatnio taki moment?",
+        "description": "Także lekki: irytacja, zażenowanie, niepokój. Zapis bez momentu też się liczy.",
+        "why": "Zapis w spokojny dzień jest tak samo ważny jak w trudny: pokazuje, co pomaga, i daje prawdziwy obraz tego, jak często emocja się pojawia.",
         "options": {
           "none": "Nie było",
           "yes": "Tak"
         }
       },
       "quietDay": {
-        "title": "Co pozwoliło ci być sobą?",
-        "description": {
-          "m": "Chwila, w której nie musiałeś niczego ukrywać. (Opcjonalnie.)",
-          "f": "Chwila, w której nie musiałaś niczego ukrywać. (Opcjonalnie.)"
-        },
-        "placeholder": {
-          "m": "Czułem się swobodnie, kiedy…",
-          "f": "Czułam się swobodnie, kiedy…"
-        }
+        "title": "Co dziś pomogło?",
+        "description": "Chwila, w której było spokojnie albo swobodnie. (Opcjonalnie.)",
+        "placeholder": "Dziś pomogło mi…"
       },
       "situation": {
         "title": "Co się wydarzyło?",
-        "description": "Krótko: sytuacja i kto przy niej był, jeśli ktoś był.",
+        "description": "Krótko, jak nagrałaby to kamera: kto, co, gdzie.",
+        "why": "Opis jak z kamery oddziela fakty od interpretacji. Łatwiej wtedy zobaczyć, co się stało, a co dopowiedziała myśl.",
         "placeholder": "Na spotkaniu…"
       },
-      "body": {
-        "title": "Co działo się w ciele?",
-        "description": "Wstyd często widać w ciele: gorąco na twarzy, spuszczony wzrok, chęć zniknięcia. (Opcjonalnie.)",
-        "placeholder": "Zrobiło mi się gorąco…"
+      "about": {
+        "title": "O czym jest ten wstyd?",
+        "description": "Trzy odpowiedzi i trzy drogi: napraw, zadbaj, sprawdź. Jeśli nie wiesz, zaznacz to.",
+        "why": "To samo pytanie, które zadajesz sobie w chwili wstydu. Tu masz na nie spokojną minutę.",
+        "options": {
+          "act": {
+            "m": "O tym, co zrobiłem",
+            "f": "O tym, co zrobiłam"
+          },
+          "event": "O tym, co mnie spotkało",
+          "demand": {
+            "m": "O tym, jaki powinienem być",
+            "f": "O tym, jaka powinnam być"
+          },
+          "unsure": "Jeszcze nie wiem"
+        },
+        "optionHints": {
+          "act": "napraw",
+          "event": "zadbaj",
+          "demand": "sprawdź"
+        }
       },
       "compass": {
-        "title": {
-          "m": "Jak zareagowałeś?",
-          "f": "Jak zareagowałaś?"
-        },
-        "description": "To cztery typowe reakcje na wstyd. Wybierz tę, która była najbliżej.",
+        "title": "Jaka była pierwsza reakcja?",
+        "description": "Cztery typowe reakcje na wstyd. Wybierz tę, która była najbliżej.",
         "why": "Wstyd zwykle uruchamia jedną z czterech automatycznych reakcji. Gdy rozpoznajesz swoją, łatwiej przyłapać ją następnym razem.",
         "options": {
           "withdraw": "Wycofanie się",
@@ -3612,9 +3577,41 @@
           "attackOthers": "Atak na innych"
         }
       },
+      "response": {
+        "title": {
+          "m": "Co zrobiłeś zamiast albo po pierwszej reakcji?",
+          "f": "Co zrobiłaś zamiast albo po pierwszej reakcji?"
+        },
+        "description": "Zaznacz wszystko, co się wydarzyło, nawet po godzinie.",
+        "why": "Liczy się każda próba, także spóźniona. Z czasem widać, które ruchy naprawdę działają.",
+        "hintLabel": "Z twojej odpowiedzi na wstyd",
+        "options": {
+          "breath": "Oddech",
+          "named": "Nazwanie wstydu",
+          "question": "Pytanie „o czym jest?”",
+          "sentence": "Zdanie od obrazu",
+          "contact": "Ruch w stronę kontaktu",
+          "repair": "Naprawa",
+          "test": "Test bliskiej osoby",
+          "nothing": "Nic, tym razem"
+        }
+      },
+      "intensity": {
+        "title": "Jak silna była złość w najgorszym momencie?",
+        "description": "0 to spokój, 10 to złość, nad którą trudno było zapanować.",
+        "minLabel": "Spokój",
+        "maxLabel": "Poza kontrolą"
+      },
+      "body": {
+        "title": "Co działo się w ciele?",
+        "description": "Pierwszy sygnał: gorąco na twarzy, napięta szczęka, spuszczony wzrok, ścisk w brzuchu. (Opcjonalnie.)",
+        "why": "Ciało zdradza emocję szybciej niż myśli. Znając swoje sygnały, wcześniej zauważysz, że się zaczyna.",
+        "hintLabel": "Z twojej mapy wstydu",
+        "placeholder": "Zrobiło mi się gorąco…"
+      },
       "criticSaid": {
-        "title": "Co mówił wewnętrzny krytyk?",
-        "description": "Zapisz jego słowa dosłownie, nawet jeśli są ostre.",
+        "title": "Co mówił krytyk?",
+        "description": "Jego słowa dosłownie, nawet jeśli są ostre. (Opcjonalnie.)",
         "why": "Zapisane słowa krytyka widać z dystansu. Łatwiej wtedy zauważyć, jak są surowe, i odpowiedzieć na nie w następnym kroku.",
         "placeholder": "Jesteś…"
       },
@@ -3622,7 +3619,96 @@
         "title": "Co powiedziałby ktoś życzliwy?",
         "description": "Ktoś, kto zna cię dobrze i chce dla ciebie dobrze. Nie musi zaprzeczać faktom, wystarczy, że nie ocenia.",
         "why": "Wstyd słabnie pod wpływem życzliwości, a nie kary. Im częściej ćwiczysz łagodny głos, tym łatwiej odzywa się sam.",
+        "hintLabel": "Z twojego obrazu współczującego",
         "placeholder": "Powiedziałby…"
+      },
+      "nextTime": {
+        "title": "Co zrobisz następnym razem?",
+        "description": "Jeden ruch, który spróbujesz wcześniej. (Opcjonalnie.)",
+        "why": "Plan z gorącej chwili zapisany na zimno jest łatwiejszy do przywołania.",
+        "placeholder": "Następnym razem spróbuję…"
+      },
+      "thought": {
+        "title": "Jaka myśl to podkręciła?",
+        "description": "Często brzmi jak „nie powinien tak robić”, „na pewno się nie uda” albo „zawsze tak jest”. (Opcjonalnie.)",
+        "why": "Emocja rośnie nie tylko od sytuacji, ale też od tego, jak ją sobie tłumaczysz. Zapisaną myśl można potem sprawdzić.",
+        "placeholder": {
+          "m": "Pomyślałem, że…",
+          "f": "Pomyślałam, że…"
+        }
+      },
+      "behavior": {
+        "title": {
+          "m": "Co zrobiłeś?",
+          "f": "Co zrobiłaś?"
+        },
+        "description": "Twoja reakcja, bez oceniania. Także to, co udało ci się powstrzymać.",
+        "placeholder": {
+          "m": "Podniosłem głos i wyszedłem…",
+          "f": "Podniosłam głos i wyszłam…"
+        }
+      },
+      "helped": {
+        "title": "Co pomogło albo co pomogłoby następnym razem?",
+        "description": "Pauza, oddech, inna myśl, rozmowa później. (Opcjonalnie.)",
+        "placeholder": "Pomogło mi…"
+      }
+    },
+    "shameResponse": {
+      "intro": {
+        "title": "Wstyd trwa chwilę. Ten plan jest na tę chwilę.",
+        "description": "Cztery ruchy: rozpoznaj, oddech, jedno pytanie, jedno zdanie i jeden mały ruch w stronę kontaktu. Zbudujesz je teraz, żeby nie wymyślać ich, gdy będzie gorąco."
+      },
+      "signals": {
+        "title": "Po czym poznasz, że to wstyd?",
+        "description": "Jeden lub dwa sygnały z ciała albo z myśli, które przychodzą pierwsze.",
+        "why": "Sygnał z ciała przychodzi przed myślą. To twój wczesny alarm i moment, w którym plan ma się włączyć.",
+        "hintLabel": "Z twojej mapy wstydu",
+        "placeholder": "Gorąco na twarzy…"
+      },
+      "breath": {
+        "title": "Spróbuj rytmu kojącego",
+        "description": "Cztery sekundy wdechu, sześć wydechu, przez minutę. Wydech dłuższy niż wdech. (Opcjonalnie.)",
+        "why": "Dłuższy wydech uspokaja układ zagrożenia, w którym siedzi wstyd. Dwa takie oddechy da się zrobić w każdej sytuacji."
+      },
+      "name": {
+        "title": "Jak nazwiesz to, co się dzieje?",
+        "description": "Krótkie zdanie do siebie, które oddziela wstyd od faktu.",
+        "why": "Nazwanie emocji zmniejsza jej siłę i przypomina, że to reakcja, a nie prawda o tobie.",
+        "placeholder": "To jest wstyd. To mój krytyk, nie fakt."
+      },
+      "question": {
+        "title": "Jedno pytanie na gorąco: o czym jest ten wstyd?",
+        "description": {
+          "m": "O tym, co zrobiłem → napraw. O tym, co mnie spotkało → zadbaj. O tym, jaki powinienem być → sprawdź, czy postawiłbyś to wymaganie komuś, kogo lubisz.",
+          "f": "O tym, co zrobiłam → napraw. O tym, co mnie spotkało → zadbaj. O tym, jaka powinnam być → sprawdź, czy postawiłabyś to wymaganie komuś, kogo lubisz."
+        },
+        "why": "Pytanie przesuwa uwagę z „jaki jestem” na „co tu jest”. Odpowiedź nie musi być od razu pewna."
+      },
+      "sentence": {
+        "title": "Zdanie, które usłyszysz od obrazu współczującego",
+        "description": "To, co powiedziałaby ci twoja współczująca postać, gdyby patrzyła na ciebie w tej chwili.",
+        "why": "Gotowe zdanie przychodzi szybciej niż wymyślanie życzliwości na gorąco.",
+        "hintLabel": "Z twojego obrazu współczującego",
+        "placeholder": "Jesteś człowiekiem i to boli. Jestem z tobą."
+      },
+      "move": {
+        "title": "Twój ruch w stronę kontaktu zamiast ukrycia",
+        "description": "Wybierz jeden lub dwa, które są dla ciebie wykonalne.",
+        "why": "Wstyd każe zniknąć. Każdy z tych ruchów jest przeciwny i pokazuje, że nic złego się nie dzieje.",
+        "options": {
+          "stay": "Zostań w sytuacji minutę dłużej",
+          "eyes": "Podnieś wzrok",
+          "say": "Powiedz jedno zdanie na głos",
+          "ask": "Zadaj pytanie",
+          "hand": "Dłoń na sercu lub brzuchu",
+          "later": "Opowiedz komuś później"
+        }
+      },
+      "moveNote": {
+        "title": "Coś jeszcze, co działa na ciebie?",
+        "description": "Twój własny ruch, jeśli masz. (Opcjonalnie.)",
+        "placeholder": "Pomaga mi, gdy…"
       }
     },
     "shameMap": {
@@ -3687,17 +3773,36 @@
           "f": "Powinnam…"
         }
       },
+      "friendTest": {
+        "title": {
+          "m": "Czy postawiłbyś to wymaganie komuś, kogo lubisz?",
+          "f": "Czy postawiłabyś to wymaganie komuś, kogo lubisz?"
+        },
+        "description": "Wyobraź sobie bliską osobę w tej samej sytuacji.",
+        "why": "Jeśli nie, to prawdopodobnie cudze wymaganie. Ścieżka wróci do niego w kroku „O czym jest ten wstyd?”.",
+        "options": {
+          "yes": "Tak",
+          "no": "Nie",
+          "unsure": "Nie wiem"
+        }
+      },
       "origin": {
         "title": "Skąd się wzięło to wymaganie?",
-        "description": "Od kogo pochodzi albo z jakiego doświadczenia wynika? Na przykład z domu, szkoły, pracy. (Opcjonalnie.)",
+        "description": "Od kogo pochodzi albo z jakiego doświadczenia wynika? Na przykład z domu, szkoły, pracy.",
         "why": "Gdy widzisz, skąd pochodzi wymaganie, łatwiej potraktować je jak przejętą regułę, a nie prawdę o sobie. Możesz wtedy zdecydować, czy nadal chcesz się jej trzymać.",
         "placeholder": "Chyba wzięło się z…"
       }
     },
     "shameOrGuilt": {
+      "episode": {
+        "title": "Wybierz moment",
+        "description": "Jeden moment wstydu z Momentów, nad którym chcesz popracować. Możesz też pominąć i opisać nową sytuację.",
+        "empty": "W Momentach nie ma jeszcze momentów wstydu. Opisz sytuację w następnym kroku."
+      },
       "facts": {
         "title": "Co się wydarzyło? Same fakty",
         "description": "Opisz sytuację bez oceniania siebie.",
+        "hintLabel": "Z tego momentu",
         "placeholder": {
           "m": "Zapomniałem o…",
           "f": "Zapomniałam o…"
@@ -3708,23 +3813,25 @@
         "description": "Napisz to, co pierwsze przychodzi do głowy.",
         "placeholder": "Czuję się źle, bo…"
       },
-      "verdict": {
-        "title": "O czym jest to zdanie?",
-        "description": {
-          "m": "Wina mówi „zrobiłem coś złego”, a wstyd mówi „jestem zły”. To rozróżnienie wskazuje, co może pomóc.",
-          "f": "Wina mówi „zrobiłam coś złego”, a wstyd mówi „jestem zła”. To rozróżnienie wskazuje, co może pomóc."
-        },
-        "why": "Na winę pomaga naprawa, a na wstyd życzliwość wobec siebie. Dlatego od tej odpowiedzi zależy następny krok.",
+      "about": {
+        "title": "O czym jest ten wstyd?",
+        "description": "Możesz zaznaczyć dwa, jeśli epizod jest mieszany.",
+        "why": "Od odpowiedzi zależy, co dalej: naprawa, opieka albo sprawdzenie wymagania.",
         "options": {
           "act": {
             "m": "O tym, co zrobiłem",
             "f": "O tym, co zrobiłam"
           },
-          "self": {
-            "m": "O tym, jaki jestem",
-            "f": "O tym, jaka jestem"
-          },
-          "mixed": "O jednym i drugim"
+          "event": "O tym, co mnie spotkało",
+          "demand": {
+            "m": "O tym, jaki powinienem być",
+            "f": "O tym, jaka powinnam być"
+          }
+        },
+        "optionHints": {
+          "act": "napraw",
+          "event": "zadbaj",
+          "demand": "sprawdź"
         }
       },
       "repair": {
@@ -3733,10 +3840,48 @@
         "why": "Naprawa domyka winę lepiej niż rozpamiętywanie: przykre uczucie zamienia się w działanie, które coś zmienia.",
         "placeholder": "Mogę…"
       },
+      "care": {
+        "title": "Czego potrzebuje ktoś, kogo to spotkało?",
+        "description": {
+          "m": "Napisz, co zrobiłbyś dla przyjaciela w tej sytuacji, i zrób to dla siebie.",
+          "f": "Napisz, co zrobiłabyś dla przyjaciółki w tej sytuacji, i zrób to dla siebie."
+        },
+        "why": "Zdarzenie bez czynu nie potrzebuje kary, tylko opieki.",
+        "placeholder": "Potrzebuje…"
+      },
+      "friendTest": {
+        "title": {
+          "m": "Czy bliska osoba na twoim miejscu powinna się tego wstydzić? Co byś jej powiedział?",
+          "f": "Czy bliska osoba na twoim miejscu powinna się tego wstydzić? Co byś jej powiedziała?"
+        },
+        "description": "Wyobraź sobie kogoś, kogo lubisz, w dokładnie tej sytuacji.",
+        "why": "Test bliskiej osoby odsłania wymagania, które stawiasz tylko sobie.",
+        "placeholder": {
+          "m": "Powiedziałbym jej, że…",
+          "f": "Powiedziałabym jej, że…"
+        }
+      },
+      "whoseDemand": {
+        "title": "Czyje to wymaganie? Skąd je masz?",
+        "description": "Od kogo pochodzi albo z jakiego doświadczenia wynika.",
+        "why": "Wymaganie z nazwanym źródłem to przejęta reguła, a nie prawda o tobie.",
+        "hintLabel": "Z twojej mapy wstydu",
+        "placeholder": "Chyba od…"
+      },
+      "fairDemand": {
+        "title": "Jakie wymaganie byłoby uczciwe?",
+        "description": {
+          "m": "Takie, które postawiłbyś komuś, kogo lubisz.",
+          "f": "Takie, które postawiłabyś komuś, kogo lubisz."
+        },
+        "why": "Uczciwe wymaganie to twoje przekonanie alternatywne. W kroku o przekonaniach zbierzesz na nie dowody.",
+        "placeholder": "Wystarczy, że…"
+      },
       "kindVoice": {
         "title": "Co powiedziałby ktoś życzliwy?",
         "description": "Co powiedziałby ci ktoś, kto cię zna i jest po twojej stronie? Zapisz jego słowa.",
         "why": "Wstyd nie mija od karania siebie. Słabnie, gdy doświadczasz życzliwości, także własnej.",
+        "hintLabel": "Z twojego obrazu współczującego",
         "placeholder": "Powiedziałby…"
       }
     },

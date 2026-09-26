@@ -1669,6 +1669,20 @@ const expansion: Draft[] = [
     path('M12 21a9 9 0 1 0 0-18a9 9 0 1 0 0 18 M12 16a4 4 0 1 0 0-8a4 4 0 1 0 0 8 M3 12h5 M16 12h5'),
   ],
   [
+    'exercise-moments',
+    'Momenty',
+    'exercises',
+    'ćwiczenie praktyka momenty moment zapis chwila moments',
+    path('M5 3h12q2 0 2 2v16H7q-2 0-2-2Z M9 3v18 M12 8h5 M12 12h5 M12 16h3'),
+  ],
+  [
+    'exercise-shame-response',
+    'Odpowiedź na wstyd',
+    'exercises',
+    'ćwiczenie plan wstyd odpowiedź oddech kontakt shame-response',
+    path('M12 21Q3 15 4 9q1-5 5-3q2 1 3 3q1-2 3-3q4-2 5 3q1 6-8 12Z M9 11l2 2l4-4'),
+  ],
+  [
     'exercise-shame-or-guilt',
     'Czyn czy ja',
     'exercises',

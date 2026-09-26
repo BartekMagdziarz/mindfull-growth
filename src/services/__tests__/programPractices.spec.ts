@@ -30,7 +30,7 @@ const PROGRAM: ProgramDefinition = {
     { exerciseSlug: 'maintenance-plan', minGapDays: 3 },
   ],
   practices: [
-    { exerciseSlug: 'anger-log', everyDays: 1, endsAfterStep: 2 },
+    { exerciseSlug: 'moment-anger', everyDays: 1, endsAfterStep: 2 },
     { exerciseSlug: 'paced-breathing', everyDays: 2, startsAfterStep: 0 },
   ],
 }
@@ -85,7 +85,7 @@ function enrollment(overrides: Partial<ProgramEnrollment> = {}): ProgramEnrollme
 function planItem(overrides: Partial<ExercisePlanItem> = {}): ExercisePlanItem {
   return {
     id: 'plan-1',
-    exerciseSlug: 'anger-log',
+    exerciseSlug: 'moment-anger',
     dayRef: day('2026-09-23'),
     status: 'pending',
     source: 'program',
@@ -150,7 +150,7 @@ describe('reconcilePractices', () => {
     const result = await reconcilePractices(enrollment({ currentStepIndex: 1 }), day('2026-09-23'))
     expect(result.created).toHaveLength(2)
     expect(createdPayloads()).toEqual([
-      expect.objectContaining({ exerciseSlug: 'anger-log', dayRef: '2026-09-23', programRole: 'practice', sourceRef: 'enr-1' }),
+      expect.objectContaining({ exerciseSlug: 'moment-anger', dayRef: '2026-09-23', programRole: 'practice', sourceRef: 'enr-1' }),
       expect.objectContaining({ exerciseSlug: 'paced-breathing', programRole: 'practice' }),
     ])
   })
@@ -167,10 +167,10 @@ describe('reconcilePractices', () => {
       planItem({ id: 'old-1', status: 'done', updatedAt: '2026-09-22T19:00:00.000Z' }),
       planItem({ id: 'old-2', status: 'done', updatedAt: '2026-09-23T19:00:00.000Z' }),
       // A step with the same enrollment never counts as practice history.
-      planItem({ id: 'step', status: 'done', programRole: 'step', exerciseSlug: 'anger-log', updatedAt: '2026-09-25T10:00:00.000Z' }),
+      planItem({ id: 'step', status: 'done', programRole: 'step', exerciseSlug: 'moment-anger', updatedAt: '2026-09-25T10:00:00.000Z' }),
     ])
     await reconcilePractices(enrollment({ currentStepIndex: 0 }), day('2026-09-23'))
-    expect(createdPayloads()[0]).toMatchObject({ exerciseSlug: 'anger-log', dayRef: '2026-09-24' })
+    expect(createdPayloads()[0]).toMatchObject({ exerciseSlug: 'moment-anger', dayRef: '2026-09-24' })
   })
 
   it('a skipped occurrence counts as handled: no same-day re-creation', async () => {
@@ -178,7 +178,7 @@ describe('reconcilePractices', () => {
       planItem({ id: 'skipped', status: 'skipped', updatedAt: '2026-09-23T08:00:00.000Z' }),
     ])
     await reconcilePractices(enrollment({ currentStepIndex: 0 }), day('2026-09-23'))
-    expect(createdPayloads()[0]).toMatchObject({ exerciseSlug: 'anger-log', dayRef: '2026-09-24' })
+    expect(createdPayloads()[0]).toMatchObject({ exerciseSlug: 'moment-anger', dayRef: '2026-09-24' })
   })
 
   it('deletes occurrences whose window closed', async () => {
@@ -219,7 +219,7 @@ describe('steps and practices stay separate', () => {
     ])
     const result = await advancePracticeForPlan(planItem({ status: 'done' }))
     expect(result?.created).toHaveLength(1)
-    expect(result?.created[0]?.exerciseSlug).toBe('anger-log')
+    expect(result?.created[0]?.exerciseSlug).toBe('moment-anger')
   })
 
   it('advancing a step opens the practice that starts after it', async () => {

@@ -63,6 +63,7 @@ import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
 import type { ProgramEnrollment } from '@/domain/program'
 import { getPeriodRefsForDate } from '@/utils/periods'
+import { migrateLogsToMoments } from '@/services/migrations/momentsMigration'
 
 /**
  * v23 completion-backfill sources — FROZEN at authoring time (2026-07-05).
@@ -1610,6 +1611,24 @@ export class UserDatabase extends Dexie {
         }
 
         await trans.table('priorityLinks').bulkAdd(links)
+      })
+
+    // Momenty (ideas/html-plans/2026-09-26-shame-path-v2-compassion.html §3.3):
+    // the shame and anger logs merge into one `moments` micro with a `kind`
+    // answer; the paths run it through catalog variants (`moment-shame`,
+    // `moment-anger`). Entries move under the definition slug, completions
+    // and pending plan items under the variant slug. No schema change.
+    this.version(27)
+      .stores({})
+      .upgrade(async (trans) => {
+        await migrateLogsToMoments({
+          entries: await trans.table('microExerciseEntries').toArray(),
+          completions: await trans.table('exerciseCompletions').toArray(),
+          planItems: await trans.table('exercisePlanItems').toArray(),
+          putEntry: (row) => trans.table('microExerciseEntries').put(row),
+          putCompletion: (row) => trans.table('exerciseCompletions').put(row),
+          putPlanItem: (row) => trans.table('exercisePlanItems').put(row),
+        })
       })
   }
 }

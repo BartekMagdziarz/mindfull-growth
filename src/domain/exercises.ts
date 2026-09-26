@@ -1342,6 +1342,8 @@ export interface IFSProtectorAppreciation {
   partResponse?: string // LLM-generated response from the part
   commitment?: string // What the user commits to
   commitmentId?: string // Optional link to a Commitment entity
+  /** The sentence for thanking the protector and taking the wheel in the moment (shame path task `handOver`). */
+  handover?: string
   checkInFrequency?: 'weekly' | 'biweekly' | 'monthly'
   plannedReturnItemId?: string // ExercisePlanItem created from checkInFrequency
   llmAssistUsed?: boolean

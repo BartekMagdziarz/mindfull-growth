@@ -261,15 +261,41 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     legacyTable: 'gradedExposureHierarchies',
   },
   // Problem-path tools: data-driven micro runner, listed under CBT.
+  // Momenty — one universal moment log with a category; the path
+  // variants below fix the category up front (plan §3.3, 2026-09-26).
   {
-    slug: 'anger-log',
+    slug: 'moments',
     kind: 'micro',
     category: 'cbt',
-    route: '/exercises/micro/anger-log',
-    i18nKey: 'angerLog',
+    route: '/exercises/micro/moments',
+    i18nKey: 'moments',
+    icon: 'mg-exercise-moments',
+    estimatedMinutes: 4,
+    suggestedRepeatDays: 2,
+  },
+  {
+    slug: 'moment-anger',
+    kind: 'micro',
+    category: 'cbt',
+    route: '/exercises/micro/moment-anger',
+    i18nKey: 'momentAnger',
     icon: 'mg-exercise-anger-log',
     estimatedMinutes: 3,
     suggestedRepeatDays: 1,
+    variantOf: { slug: 'moments', preset: { kind: 'anger' } },
+    hiddenInCatalog: true,
+  },
+  {
+    slug: 'moment-shame',
+    kind: 'micro',
+    category: 'cbt',
+    route: '/exercises/micro/moment-shame',
+    i18nKey: 'momentShame',
+    icon: 'mg-exercise-shame-log',
+    estimatedMinutes: 4,
+    suggestedRepeatDays: 2,
+    variantOf: { slug: 'moments', preset: { kind: 'shame' } },
+    hiddenInCatalog: true,
   },
   {
     slug: 'anger-map',
@@ -301,16 +327,6 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     suggestedRepeatDays: 7,
   },
   {
-    slug: 'shame-log',
-    kind: 'micro',
-    category: 'cbt',
-    route: '/exercises/micro/shame-log',
-    i18nKey: 'shameLog',
-    icon: 'mg-exercise-shame-log',
-    estimatedMinutes: 4,
-    suggestedRepeatDays: 2,
-  },
-  {
     slug: 'shame-map',
     kind: 'micro',
     category: 'cbt',
@@ -338,6 +354,15 @@ export const EXERCISE_CATALOG: ExerciseCatalogEntry[] = [
     i18nKey: 'compassionateImage',
     icon: 'mg-exercise-compassionate-image',
     estimatedMinutes: 6,
+  },
+  {
+    slug: 'shame-response',
+    kind: 'micro',
+    category: 'cbt',
+    route: '/exercises/micro/shame-response',
+    i18nKey: 'shameResponse',
+    icon: 'mg-exercise-shame-response',
+    estimatedMinutes: 7,
   },
   {
     slug: 'worry-postponement',
@@ -697,7 +722,15 @@ export function getCatalogEntry(slug: string): ExerciseCatalogEntry | undefined 
  */
 export function catalogEntriesForTab(tab: ExerciseCatalogCategory): ExerciseCatalogEntry[] {
   if (tab === 'micro') return EXERCISE_CATALOG.filter(e => e.micro)
-  return EXERCISE_CATALOG.filter(e => e.category === tab)
+  return EXERCISE_CATALOG.filter(e => e.category === tab && !e.hiddenInCatalog)
+}
+
+/**
+ * The micro definition slug behind a catalog slug: the entry itself,
+ * or the definition a variant runs. Unknown slugs pass through.
+ */
+export function definitionSlugFor(slug: string): string {
+  return getCatalogEntry(slug)?.variantOf?.slug ?? slug
 }
 
 /** Candidates for the daily "Ćwiczenie na dziś" suggestion. */

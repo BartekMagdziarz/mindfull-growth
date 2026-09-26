@@ -6,8 +6,9 @@
   >
     <MicroExerciseRunner
       v-if="!saved"
-      :key="definition.slug"
+      :key="slug"
       :definition="definition"
+      :preset="preset"
       @saved="handleSaved"
     />
 
@@ -56,22 +57,36 @@ import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import MicroExerciseRunner from '@/components/exercises/MicroExerciseRunner.vue'
 import { useT } from '@/composables/useT'
-import { getCatalogEntry } from '@/data/exerciseCatalog'
+import { definitionSlugFor, getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
-import type { MicroExerciseEntry, MicroStepValue } from '@/domain/microExercises'
+import type { MicroExerciseEntry, MicroPreset, MicroStepValue } from '@/domain/microExercises'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
+import { entryMatches } from '@/utils/microExerciseFlow'
 
 const route = useRoute()
 const router = useRouter()
 const { t, tg } = useT()
 const entryStore = useMicroExerciseEntryStore()
 
+// The route slug may be a catalog variant (`moment-shame`): it runs the
+// variant's definition (`moments`) with preset answers, records its
+// completion under the variant slug and stores entries under the
+// definition's slug.
 const slug = computed(() => String(route.params.slug ?? ''))
-const definition = computed(() => getMicroExercise(slug.value))
 const catalogEntry = computed(() => getCatalogEntry(slug.value))
+const definition = computed(() => getMicroExercise(definitionSlugFor(slug.value)))
+const preset = computed<MicroPreset>(() => catalogEntry.value?.variantOf?.preset ?? {})
 const saved = ref(false)
 
-const pastEntries = computed(() => entryStore.entriesBySlug(slug.value))
+/** Past entries of this run's shape: the definition's, narrowed by the preset answers. */
+const pastEntries = computed(() => {
+  const target = definition.value
+  if (!target) return []
+  const conditions = Object.entries(preset.value).flatMap(([step, value]) =>
+    typeof value === 'string' ? [{ step, in: [value] }] : [],
+  )
+  return entryStore.entriesBySlug(target.slug).filter((entry) => entryMatches(entry, conditions))
+})
 
 onMounted(() => {
   if (!definition.value) {
@@ -89,10 +104,13 @@ watch(slug, () => {
 })
 
 async function handleSaved(payload: { responses: Record<string, MicroStepValue> }) {
-  await entryStore.createEntry({
-    exerciseSlug: slug.value,
-    responses: payload.responses,
-  })
+  await entryStore.createEntry(
+    {
+      exerciseSlug: definition.value!.slug,
+      responses: payload.responses,
+    },
+    slug.value,
+  )
   saved.value = true
 }
 
