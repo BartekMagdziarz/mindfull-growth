@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -43,15 +22,15 @@
             </p>
             <div class="space-y-2">
               <div class="flex items-start gap-3">
-                <span class="neo-pill px-3 py-1 text-xs flex-shrink-0">1</span>
+                <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">1</span>
                 <p class="text-sm text-on-surface">{{ t('exerciseWizards.behavioralActivation.intro.step1') }}</p>
               </div>
               <div class="flex items-start gap-3">
-                <span class="neo-pill px-3 py-1 text-xs flex-shrink-0">2</span>
+                <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">2</span>
                 <p class="text-sm text-on-surface">{{ t('exerciseWizards.behavioralActivation.intro.step2') }}</p>
               </div>
               <div class="flex items-start gap-3">
-                <span class="neo-pill px-3 py-1 text-xs flex-shrink-0">3</span>
+                <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">3</span>
                 <p class="text-sm text-on-surface">{{ t('exerciseWizards.behavioralActivation.intro.step3') }}</p>
               </div>
             </div>
@@ -78,6 +57,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralActivation.moodBaseline.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.behavioralActivation.moodBaseline.why')" />
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.behavioralActivation.moodBaseline.overallMoodLabel') }}</label>
@@ -133,6 +113,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralActivation.planActivities.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.behavioralActivation.planActivities.why')" />
 
           <!-- Add activity form -->
           <div class="neo-surface p-4 space-y-3">
@@ -472,10 +453,12 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
@@ -491,7 +474,7 @@ const emit = defineEmits<{
   saved: [data: CreateBehavioralActivationPayload]
 }>()
 
-const { t, tp, locale } = useT()
+const { t, tp, tg, locale } = useT()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileSuggest = ref(userPreferencesStore.profileContextDefault)
 const useProfileReviewWeek = ref(userPreferencesStore.profileContextDefault)

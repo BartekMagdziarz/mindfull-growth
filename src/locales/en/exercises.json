@@ -147,7 +147,8 @@
       "in2Weeks": "in 2 weeks",
       "inMonth": "in a month",
       "customDate": "custom date"
-    }
+    },
+    "programPlanned": "Your path scheduled the next one for {date}"
   },
   "savedPanel": {
     "title": "Saved!",
@@ -333,9 +334,9 @@
       "description": "Practice creating distance between your Self and an activated part. A core IFS skill for daily use."
     },
     "directAccess": {
-      "title": "Direct Access Dialogue",
-      "subtitle": "Talk to your parts",
-      "description": "Speak directly to a part through LLM-assisted dialogue. Learn its perspective, fears, and positive intentions."
+      "title": "Talking with a Part of Yourself",
+      "subtitle": "Talk to your part",
+      "description": "Talk with a part in a dialogue where the AI models its voice. Learn its perspective, fears, and positive intentions."
     },
     "trailhead": {
       "title": "Trailhead Journal",
@@ -350,7 +351,7 @@
     "exileWitnessing": {
       "title": "Exile Witnessing",
       "subtitle": "Approach with compassion",
-      "description": "Gently approach a vulnerable part with compassion. Professional guidance recommended."
+      "description": "Gently approach a vulnerable part with compassion. Therapist support recommended."
     },
     "selfEnergy": {
       "title": "Self-Energy (8 C's)",
@@ -370,7 +371,7 @@
     "constellation": {
       "title": "Inner System Constellation",
       "subtitle": "Map part relationships",
-      "description": "Map the dynamic relationships between your parts — alliances, conflicts, and hidden connections. Professional guidance recommended."
+      "description": "Map the dynamic relationships between your parts — alliances, conflicts, and hidden connections. Therapist support recommended."
     },
     "gratitudeList": {
       "title": "Gratitude List",
@@ -404,6 +405,86 @@
       "title": "One Small Win",
       "subtitle": "Notice what went well",
       "description": "Write down one thing that went well today and what it says about you."
+    },
+    "pacedBreathing": {
+      "title": "Paced Breathing",
+      "subtitle": "Inhale 4 s, exhale 6 s for three minutes",
+      "description": "An exhale longer than the inhale calms arousal. Useful right before you approach something hard."
+    },
+    "angerLog": {
+      "title": "Anger Log",
+      "subtitle": "Daily, calm days included",
+      "description": "A short daily note: did anger show up, what triggered it, which thought fuelled it and what helped. Over time the pattern shows."
+    },
+    "angerMap": {
+      "title": "Anger Map",
+      "subtitle": "Triggers, body signals and cost",
+      "description": "Gather your typical triggers, the first signals in your body and how you usually react. It feeds your pause plan."
+    },
+    "pausePlan": {
+      "title": "Pause Plan",
+      "subtitle": "If I notice…, then…",
+      "description": "Decide in advance what you'll do when anger starts rising and how you'll return to the conversation after a break."
+    },
+    "needBehindAnger": {
+      "title": "From Anger to a Request",
+      "subtitle": "Observation, feeling, need, request",
+      "description": "Translate anger into the need it defends and into a concrete request you can actually say."
+    },
+    "shameLog": {
+      "title": "Shame Log",
+      "subtitle": "A short note every other day",
+      "description": "Notice a moment of shame, your reaction and the critic's words. Then add what a kind person would say."
+    },
+    "shameMap": {
+      "title": "Shame Map",
+      "subtitle": "Areas, signals and typical reaction",
+      "description": "See where shame speaks up most, how you react to it and which demand on yourself stands behind it."
+    },
+    "shameOrGuilt": {
+      "title": "The Act or Me",
+      "subtitle": "Guilt is about the act, shame is about you",
+      "description": "Separate what happened from how you judge yourself. Guilt can be repaired, shame responds to kindness."
+    },
+    "compassionateImage": {
+      "title": "Compassionate Image",
+      "subtitle": "Your ideally kind figure",
+      "description": "Build an image of someone wise, strong, warm and non-judging. You can return to it in hard moments."
+    },
+    "worryPostponement": {
+      "title": "Worry Time",
+      "subtitle": "Postpone during the day, return in the evening",
+      "description": "During the day just note worries and set them aside. In the evening check which ones still matter."
+    },
+    "anxietyMap": {
+      "title": "Anxiety Map",
+      "subtitle": "Situations, avoidance and safety behaviours",
+      "description": "Gather what makes you anxious, what you avoid and how you keep yourself safe. This list becomes your exposure ladder."
+    },
+    "maintenancePlan": {
+      "title": "Maintenance Plan",
+      "subtitle": "What stays for the long run",
+      "description": "Decide which practices stay with you and how you'll know it's time to return to them."
+    },
+    "gad7": {
+      "title": "Anxiety (GAD-7)",
+      "subtitle": "7 questions about the last two weeks",
+      "description": "A short measure of anxiety and worry. Repeated every few weeks, it shows whether things are changing."
+    },
+    "scsSf": {
+      "title": "Self-Compassion (SCS-SF)",
+      "subtitle": "12 questions about how you treat yourself",
+      "description": "See how much you support yourself kindly in hard moments, and how much you act as a harsh critic."
+    },
+    "angerBarometer": {
+      "title": "Anger Barometer",
+      "subtitle": "5 questions about the last four weeks",
+      "description": "A rough measure of how often anger shows up, how strong it is and what it costs. Lets you compare yourself with yourself over time."
+    },
+    "ius12": {
+      "title": "Intolerance of Uncertainty (IUS-12)",
+      "subtitle": "12 questions about reacting to the unknown",
+      "description": "Measures how hard uncertainty is for you to bear. It's a mechanism that often keeps worry going."
     }
   }
 }

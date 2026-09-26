@@ -1,26 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="idx < stepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === stepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="stepIndex" @go="goToStep(STEPS[$event])" />
 
     <!-- Steps -->
     <Transition
@@ -63,12 +44,13 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.partsDialogue.intention.description', { partName: selectedPartName }) }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.partsDialogue.intention.why')" />
 
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chip in intentionChips"
                 :key="chip"
-                class="neo-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
                 :class="intention === chip ? 'bg-primary/20 text-primary shadow-neu-pressed' : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
                 @click="intention = chip"
               >
@@ -82,6 +64,30 @@
               :placeholder="t('exerciseWizards.partsDialogue.intention.placeholder')"
               class="neo-input w-full p-3 text-sm resize-none"
             />
+
+            <!-- Magic question: who is about to write — Self or another part? -->
+            <div class="space-y-2 pt-2">
+              <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.partsDialogue.intention.selfCheckQuestion') }}</p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                  :class="selfCheckPassed === true ? 'bg-primary/20 text-primary shadow-neu-pressed' : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  @click="selfCheckPassed = true"
+                >
+                  {{ t('exerciseWizards.partsDialogue.intention.selfCheckSelf') }}
+                </button>
+                <button
+                  class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                  :class="selfCheckPassed === false ? 'bg-status-warn-soft text-status-warn-on shadow-neu-pressed' : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  @click="selfCheckPassed = false"
+                >
+                  {{ t('exerciseWizards.partsDialogue.intention.selfCheckReactive') }}
+                </button>
+              </div>
+              <p v-if="selfCheckPassed === false" class="text-xs text-on-surface-variant italic">
+                {{ t('exerciseWizards.partsDialogue.intention.selfCheckHint') }}
+              </p>
+            </div>
           </AppCard>
 
           <div class="flex justify-between">
@@ -100,6 +106,7 @@
             <h2 class="text-base font-semibold text-on-surface">
               {{ t('exerciseWizards.partsDialogue.dialogue.title', { partName: selectedPartName }) }}
             </h2>
+            <ExerciseStepWhy :text="tg('exerciseWizards.partsDialogue.dialogue.why')" />
 
             <!-- Speaker toggle -->
             <div class="flex gap-2">
@@ -128,7 +135,7 @@
               <button
                 v-for="q in suggestedQuestions"
                 :key="q"
-                class="neo-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
+                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
                 @click="messageInput = q"
               >
                 {{ q }}
@@ -261,7 +268,7 @@
                   <button
                     v-for="tag in insightTags"
                     :key="tag.value"
-                    class="neo-pill text-xs px-2 py-1 neo-focus transition-all"
+                    class="exercise-pill text-xs px-2 py-1 neo-focus transition-all"
                     :class="insightTag === tag.value ? `${tag.activeClass} shadow-neu-pressed` : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
                     @click="insightTag = tag.value"
                   >
@@ -374,6 +381,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, computed, nextTick, watch } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -423,6 +432,7 @@ const {
   goToStep,
   partId,
   intention,
+  selfCheckPassed,
   messages,
   currentSpeaker,
   addMessage,

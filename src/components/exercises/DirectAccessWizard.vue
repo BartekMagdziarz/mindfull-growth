@@ -1,26 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="idx < stepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === stepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="stepIndex" @go="goToStep(STEPS[$event])" />
 
     <!-- Steps -->
     <Transition
@@ -38,6 +19,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.directAccess.partSelect.description') }}
             </p>
+            <IFSSafetyBanner />
 
             <div v-if="!partStore.sortedParts.length" class="neo-surface p-4 rounded-xl">
               <p class="text-sm text-on-surface-variant" v-html="t('exerciseWizards.directAccess.partSelect.emptyState')" />
@@ -68,6 +50,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.directAccess.selfCheck.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.directAccess.selfCheck.why')" />
 
             <div class="neo-surface p-6 rounded-xl text-center">
               <p class="text-lg font-semibold text-on-surface">
@@ -78,11 +61,11 @@
             <div class="space-y-3">
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="selfCheckPassed ? 'shadow-neu-pressed ring-2 ring-primary' : ''"
+                :class="selfCheckPassed ? 'neo-selector--active ring-2 ring-primary' : ''"
                 @click="handleSelfCheck(true)"
               >
                 <div class="flex items-center gap-3">
-                  <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
+                  <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
                   <span class="text-sm text-on-surface">{{ tg('exerciseWizards.directAccess.selfCheck.options.selfEnergy') }}</span>
                 </div>
               </button>
@@ -125,16 +108,26 @@
                   enter-active-class="transition-all duration-200"
                   enter-from-class="opacity-0"
                 >
-                  <button
-                    v-if="breathingDone"
-                    class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                    @click="selfCheckPassed = true; nextStep()"
-                  >
-                    <div class="flex items-center gap-3">
-                      <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
-                      <span class="text-sm text-on-surface">{{ tg('exerciseWizards.directAccess.selfCheck.continueButton') }}</span>
-                    </div>
-                  </button>
+                  <div v-if="breathingDone" class="w-full space-y-2">
+                    <button
+                      class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                      @click="selfCheckPassed = true; nextStep()"
+                    >
+                      <div class="flex items-center gap-3">
+                        <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
+                        <span class="text-sm text-on-surface">{{ tg('exerciseWizards.directAccess.selfCheck.continueButton') }}</span>
+                      </div>
+                    </button>
+                    <button
+                      class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
+                      @click="leaveForToday()"
+                    >
+                      <div class="flex items-center gap-3">
+                        <AppIcon name="bedtime" class="text-xl text-on-surface-variant shrink-0" />
+                        <span class="text-sm text-on-surface">{{ t('exerciseWizards.directAccess.selfCheck.notTodayButton') }}</span>
+                      </div>
+                    </button>
+                  </div>
                 </Transition>
               </div>
             </Transition>
@@ -153,13 +146,14 @@
             <h2 class="text-base font-semibold text-on-surface">
               {{ t('exerciseWizards.directAccess.dialogue.title', { partName: selectedPartName }) }}
             </h2>
+            <ExerciseStepWhy :text="tg('exerciseWizards.directAccess.dialogue.why')" />
 
             <!-- Suggested questions -->
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="q in suggestedQuestions"
                 :key="q"
-                class="neo-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
+                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
                 @click="messageInput = q"
               >
                 {{ q }}
@@ -250,7 +244,7 @@
                 <button
                   v-for="tag in insightTags"
                   :key="tag.value"
-                  class="neo-pill text-xs px-2 py-1 neo-focus transition-all"
+                  class="exercise-pill text-xs px-2 py-1 neo-focus transition-all"
                   :class="insightTag === tag.value ? `${tag.activeClass} shadow-neu-pressed` : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
                   @click="insightTag = tag.value"
                 >
@@ -403,6 +397,13 @@
                 <p v-if="partNeedDiscovered" class="text-xs text-on-surface">
                   <span class="text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.discoveries.need') }}</span> {{ partNeedDiscovered }}
                 </p>
+                <label class="flex items-start gap-2 pt-2 cursor-pointer">
+                  <input v-model="updatePartCard" type="checkbox" class="mt-0.5 neo-focus" />
+                  <span class="text-xs text-on-surface">
+                    {{ t('exerciseWizards.directAccess.save.updatePartLabel') }}
+                    <span class="block text-on-surface-variant">{{ t('exerciseWizards.directAccess.save.updatePartHint') }}</span>
+                  </span>
+                </label>
               </div>
             </div>
 
@@ -430,11 +431,15 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, computed, nextTick, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import PartSelector from '@/components/exercises/ifs/PartSelector.vue'
+import IFSSafetyBanner from '@/components/exercises/ifs/IFSSafetyBanner.vue'
 import PartRoleBadge from '@/components/exercises/ifs/PartRoleBadge.vue'
 import PartDialogueBubble from '@/components/exercises/ifs/PartDialogueBubble.vue'
 import IFSInsightCard from '@/components/exercises/ifs/IFSInsightCard.vue'
@@ -454,6 +459,12 @@ const emit = defineEmits<{
 }>()
 
 const { t, tg, tList } = useT()
+const router = useRouter()
+
+/** Self check said "not today": leave without saving — coming back with more Self IS the practice. */
+function leaveForToday() {
+  void router.push({ name: 'exercises' })
+}
 
 const partStore = useIFSPartStore()
 const userPreferencesStore = useUserPreferencesStore()
@@ -491,6 +502,7 @@ const {
   partJobDiscovered,
   partFearDiscovered,
   partNeedDiscovered,
+  updatePartCard,
   notes,
   isSaving,
   save,
@@ -498,7 +510,7 @@ const {
 
 // Part helpers
 const selectedPart = computed(() => partId.value ? partStore.getPartById(partId.value) : null)
-const selectedPartName = computed(() => selectedPart.value?.name ?? 'Part')
+const selectedPartName = computed(() => selectedPart.value?.name ?? t('exerciseWizards.directAccess.partSelect.defaultName'))
 const selectedPartRole = computed(() => selectedPart.value?.role ?? null)
 const selectedPartColor = computed(() => {
   const role = selectedPart.value?.role

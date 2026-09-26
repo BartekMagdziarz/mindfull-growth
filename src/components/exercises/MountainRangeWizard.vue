@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -91,6 +70,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ tg('exerciseWizards.mountainRange.peaks.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.mountainRange.peaks.why')" />
           <div
             v-for="(event, index) in peakEvents"
             :key="event.id"
@@ -176,6 +156,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.mountainRange.valleys.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.mountainRange.valleys.why')" />
           <p class="text-xs text-on-surface-variant italic">
             {{ t('exerciseWizards.mountainRange.valleys.takeYourTime') }}
           </p>
@@ -287,6 +268,7 @@
       <div v-if="currentStep === 'themes'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.mountainRange.themes.title') }}</h2>
+          <ExerciseStepWhy :text="tg('exerciseWizards.mountainRange.themes.why')" />
           <div class="space-y-3">
             <div>
               <label class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
@@ -362,6 +344,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.mountainRange.future.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.mountainRange.future.why')" />
           <div
             v-for="(peak, index) in futurePeaks"
             :key="index"
@@ -437,6 +420,7 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -444,6 +428,7 @@ import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import MountainRangeTimeline from '@/components/exercises/MountainRangeTimeline.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useValueMapStore } from '@/stores/valueMap.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'

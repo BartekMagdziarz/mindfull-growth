@@ -825,8 +825,15 @@ const ASSESSMENT_LABELS: Record<AssessmentId, string> = {
   'ecr-rs': 'Attachment (ECR-RS)',
   rrq: 'Rumination-reflection (RRQ)',
   'ipip-via': 'Character strengths (IPIP-VIA)',
+  'gad-7': 'Anxiety (GAD-7)',
+  'scs-sf': 'Self-compassion (SCS-SF)',
+  'anger-barometer': 'Anger barometer',
+  'ius-12': 'Intolerance of uncertainty (IUS-12)',
 }
 
+// Problem-path measures (GAD-7, SCS-SF, anger barometer, IUS-12) are
+// deliberately left out: they track a changing state across a path, not a
+// stable trait for the profile build.
 const ASSESSMENT_IDS: readonly AssessmentId[] = [
   'ipip-bfm-50',
   'ipip-neo-120',

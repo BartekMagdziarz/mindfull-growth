@@ -7,6 +7,10 @@ import type {
 import { useIFSProtectorAppreciationStore } from '@/stores/ifsProtectorAppreciation.store'
 import { generateProtectorResponse } from '@/services/ifsLLMAssists'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
+import { enrichPartFromDiscoveries } from '@/services/ifsPartEnrichment'
+import { useExercisePlanStore } from '@/stores/exercisePlan.store'
+import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 
 export type ProtectorAppreciationStep =
   | 'select-protector'
@@ -29,7 +33,8 @@ const STEP_ORDER: ProtectorAppreciationStep[] = [
 
 export function useProtectorAppreciationWizard() {
   const store = useIFSProtectorAppreciationStore()
-  const { locale } = useT()
+  const { locale, gender, t } = useT()
+  const { formatProtectorBehavior } = useIfsLabels()
 
   // Step management
   const currentStep = ref<ProtectorAppreciationStep>('select-protector')
@@ -40,6 +45,7 @@ export function useProtectorAppreciationWizard() {
 
   // Understand job
   const activationTriggers = ref('')
+  const fearIfStopped = ref('')
   const behaviors = ref<IFSProtectorBehavior[]>([])
   const customBehaviors = ref<string[]>([])
   const workloadRating = ref(5)
@@ -57,8 +63,24 @@ export function useProtectorAppreciationWizard() {
   // Commitment
   const commitment = ref('')
 
-  // Check-in
+  // Coming back: the chosen frequency becomes a real ExercisePlanItem on save
   const checkInFrequency = ref<'weekly' | 'biweekly' | 'monthly' | null>(null)
+  const RETURN_GAP_DAYS: Record<'weekly' | 'biweekly' | 'monthly', number> = {
+    weekly: 7,
+    biweekly: 14,
+    monthly: 30,
+  }
+  const plannedReturnDayRef = computed(() =>
+    checkInFrequency.value
+      ? addDaysToDayRef(getPeriodRefsForDate(new Date()).day, RETURN_GAP_DAYS[checkInFrequency.value])
+      : null,
+  )
+
+  // Summary step: copy the protector's fear / what it protects from to its card (empty fields only)
+  const updatePartCard = ref(true)
+  const hasCardDiscoveries = computed(
+    () => fearIfStopped.value.trim().length > 0 || activationTriggers.value.trim().length > 0,
+  )
 
   // Notes
   const notes = ref('')
@@ -137,20 +159,24 @@ export function useProtectorAppreciationWizard() {
     llmError.value = null
     try {
       const allBehaviors = [
-        ...behaviors.value.filter((b) => b !== 'custom'),
+        ...behaviors.value.filter((b) => b !== 'custom').map(formatProtectorBehavior),
         ...customBehaviors.value,
       ]
       const response = await generateProtectorResponse({
         part,
         appreciationLetter: appreciationLetter.value,
         behaviors: allBehaviors,
+        activationTriggers: activationTriggers.value.trim() || undefined,
+        fearIfStopped: fearIfStopped.value.trim() || undefined,
         locale: locale.value,
+        gender: gender.value,
         useProfile: options.useProfile ?? false,
       })
       partResponse.value = response
       llmAssistUsed.value = true
     } catch (err) {
-      llmError.value = err instanceof Error ? err.message : 'Failed to generate response'
+      console.warn('[ifs] LLM assist failed', err)
+      llmError.value = t('exerciseWizards.shared.ifs.errors.responseFailed')
       console.error('Protector response error:', err)
     } finally {
       isLoadingResponse.value = false
@@ -161,9 +187,18 @@ export function useProtectorAppreciationWizard() {
   async function save() {
     isSaving.value = true
     try {
+      // The return is a real plan item (source 'repeat' so the generic repeat prompt shows it).
+      let plannedReturnItemId: string | undefined
+      if (plannedReturnDayRef.value) {
+        const planStore = useExercisePlanStore()
+        const item = await planStore.createPlan('protector-appreciation', plannedReturnDayRef.value, 'repeat')
+        plannedReturnItemId = item.id
+      }
+
       const payload: CreateIFSProtectorAppreciationPayload = {
         partId: partId.value!,
         activationTriggers: activationTriggers.value.trim(),
+        fearIfStopped: fearIfStopped.value.trim() || undefined,
         behaviors: [...behaviors.value],
         customBehaviors: customBehaviors.value.length ? [...customBehaviors.value] : undefined,
         workloadRating: workloadRating.value,
@@ -171,10 +206,17 @@ export function useProtectorAppreciationWizard() {
         partResponse: partResponse.value.trim() || undefined,
         commitment: commitment.value.trim() || undefined,
         checkInFrequency: checkInFrequency.value ?? undefined,
+        plannedReturnItemId,
         llmAssistUsed: llmAssistUsed.value,
         notes: notes.value.trim() || undefined,
       }
       await store.createAppreciation(payload)
+      if (updatePartCard.value && hasCardDiscoveries.value) {
+        await enrichPartFromDiscoveries(payload.partId, {
+          fears: payload.fearIfStopped,
+          positiveIntention: payload.activationTriggers,
+        })
+      }
       reset()
     } catch (err) {
       console.error('Error saving protector appreciation:', err)
@@ -188,6 +230,8 @@ export function useProtectorAppreciationWizard() {
     currentStep.value = 'select-protector'
     partId.value = null
     activationTriggers.value = ''
+    fearIfStopped.value = ''
+    updatePartCard.value = true
     behaviors.value = []
     customBehaviors.value = []
     workloadRating.value = 5
@@ -217,6 +261,7 @@ export function useProtectorAppreciationWizard() {
 
     // Understand job
     activationTriggers,
+    fearIfStopped,
     behaviors,
     customBehaviors,
     workloadRating,
@@ -240,6 +285,9 @@ export function useProtectorAppreciationWizard() {
 
     // Check-in
     checkInFrequency,
+    plannedReturnDayRef,
+    updatePartCard,
+    hasCardDiscoveries,
 
     // Notes
     notes,

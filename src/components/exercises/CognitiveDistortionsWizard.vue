@@ -23,18 +23,7 @@
     </div>
 
     <!-- Step indicator -->
-    <div class="flex items-center justify-center gap-2">
-      <button
-        v-for="(_label, idx) in currentStepLabels"
-        :key="idx"
-        type="button"
-        class="w-8 h-8 rounded-full text-xs font-semibold transition-all neo-focus"
-        :class="stepCircleClass(idx)"
-        @click="idx < step && (step = idx)"
-      >
-        {{ idx + 1 }}
-      </button>
-    </div>
+    <ExerciseStepper :labels="currentStepLabels" :current="step" @go="step = $event" />
 
     <!-- ================================================================ -->
     <!-- LEARNING MODE                                                     -->
@@ -129,14 +118,15 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.cognitiveDistortions.selfCheck.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.cognitiveDistortions.selfCheck.why')" />
 
           <div class="flex flex-wrap gap-2">
             <button
               v-for="d in distortions"
               :key="d.id"
               type="button"
-              class="neo-pill px-3 py-1.5 text-xs font-medium neo-focus"
-              :class="{ 'neo-pill--primary': learningDraft.recognizedIds.has(d.id) }"
+              class="exercise-pill px-3 py-1.5 text-xs font-medium neo-focus"
+              :class="{ 'exercise-pill--primary': learningDraft.recognizedIds.has(d.id) }"
               @click="toggleRecognized(d.id)"
             >
               {{ d.name }}
@@ -229,10 +219,11 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.cognitiveDistortions.appliedThought.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.cognitiveDistortions.appliedThought.why')" />
 
           <!-- Source type (manual only for now) -->
           <div class="flex items-center gap-2">
-            <span class="neo-pill px-3 py-1 text-xs font-medium neo-pill--primary">{{ t('exerciseWizards.cognitiveDistortions.appliedThought.manualLabel') }}</span>
+            <span class="exercise-pill px-3 py-1 text-xs font-medium exercise-pill--primary">{{ t('exerciseWizards.cognitiveDistortions.appliedThought.manualLabel') }}</span>
           </div>
 
           <textarea
@@ -260,6 +251,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.cognitiveDistortions.appliedDistortions.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.cognitiveDistortions.appliedDistortions.why')" />
           <div class="neo-embedded p-3">
             <p class="text-sm text-on-surface italic">"{{ appliedDraft.thought }}"</p>
           </div>
@@ -346,6 +338,10 @@
       <template v-if="step === 2">
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.cognitiveDistortions.appliedResults.title') }}</h2>
+          <p class="text-sm text-on-surface-variant">
+            {{ t('exerciseWizards.cognitiveDistortions.appliedResults.description') }}
+          </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.cognitiveDistortions.appliedResults.why')" />
           <div class="neo-embedded p-3">
             <p class="text-sm text-on-surface italic">"{{ appliedDraft.thought }}"</p>
           </div>
@@ -402,6 +398,7 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -410,6 +407,7 @@ import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { spotDistortions } from '@/services/cbtLLMAssists'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import distortionsMeta from '@/data/cognitiveDistortions-meta.json'
 import enDistortions from '@/locales/en/distortions.json'
 import plDistortions from '@/locales/pl/distortions.json'
@@ -471,11 +469,6 @@ function switchMode(newMode: 'learning' | 'applied') {
   step.value = 0
 }
 
-function stepCircleClass(idx: number): string {
-  if (idx === step.value) return 'neo-step-active'
-  if (idx < step.value) return 'neo-step-completed cursor-pointer'
-  return 'neo-step-future'
-}
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 function distortionById(id: string): CognitiveDistortion | undefined {

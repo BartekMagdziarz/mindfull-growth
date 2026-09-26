@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -87,6 +66,7 @@
           <h2 class="text-lg font-semibold text-on-surface">
             {{ t('exerciseWizards.tragicOptimism.focus.title') }}
           </h2>
+          <ExerciseStepWhy :text="tg('exerciseWizards.tragicOptimism.focus.why')" />
           <div class="space-y-3">
             <button
               v-for="mode in focusModes"
@@ -126,6 +106,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.tragicOptimism.write.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.tragicOptimism.write.why')" />
           <textarea
             v-model="freeWriting"
             :placeholder="t('exerciseWizards.tragicOptimism.write.placeholder')"
@@ -156,6 +137,7 @@
       <div v-if="currentStep === 'guided'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.tragicOptimism.guided.title') }}</h2>
+          <ExerciseStepWhy :text="tg('exerciseWizards.tragicOptimism.guided.why')" />
           <div
             v-for="(question, idx) in guidedQuestions"
             :key="idx"
@@ -187,6 +169,9 @@
       <div v-if="currentStep === 'dialogue'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.tragicOptimism.dialogue.title') }}</h2>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            {{ t('exerciseWizards.tragicOptimism.dialogue.description') }}
+          </p>
 
           <!-- Professional guidance reminder -->
           <p class="text-xs text-on-surface-variant italic">
@@ -352,12 +337,14 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, computed, watch, nextTick } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
@@ -413,14 +400,14 @@ const focusModes = computed(() => [
     label: t('exerciseWizards.tragicOptimism.focus.modes.guilt.label'),
     description: tg('exerciseWizards.tragicOptimism.focus.modes.guilt.description'),
     icon: 'balance',
-    iconClass: 'text-amber-600',
+    iconClass: 'text-status-warn-on',
   },
   {
     value: 'finitude' as TragicTriadFocus,
     label: t('exerciseWizards.tragicOptimism.focus.modes.finitude.label'),
     description: t('exerciseWizards.tragicOptimism.focus.modes.finitude.description'),
     icon: 'schedule',
-    iconClass: 'text-indigo-600',
+    iconClass: 'text-exercise-ifs-on',
   },
 ])
 

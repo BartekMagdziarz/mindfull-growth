@@ -18,7 +18,7 @@
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="neo-pill text-xs px-2.5 py-0.5">
+                <span class="exercise-pill text-xs px-2.5 py-0.5">
                   {{ getFocusLabel(entry.focus) }}
                 </span>
               </div>

@@ -5,23 +5,25 @@
       "coreValues": "Core Values"
     },
     "admirablePeople": {
-      "title": "People You Admire",
-      "description": "List 3\u20135 people you admire. They can be people you know personally, public figures, or historical figures. For each, note the qualities you find admirable.",
+      "title": "Who Do You Admire?",
+      "description": "Add 3–5 people: someone you know, a public figure, or a historical figure. Under each, list the qualities you admire in them.",
+      "why": "The qualities you admire in others usually reflect what matters to you. They are easier to name than your values when asked directly.",
       "namePlaceholder": "Person's name",
       "removePerson": "Remove person",
-      "qualityPlaceholder": "Quality you admire",
+      "qualityPlaceholder": "E.g. tells the truth even when it's hard",
       "addQuality": "Add quality",
       "addPerson": "Add person",
       "nextButton": "Next: Distill Values"
     },
     "coreValues": {
-      "title": "Your Core Values",
-      "description": { "m": "Look at the qualities you listed above. What patterns do you notice? Distill them into your core values \u2014 the principles that drive your decisions.", "f": "Look at the qualities you listed above. What patterns do you notice? Distill them into your core values \u2014 the principles that drive your decisions." },
+      "title": "What Values Lie Behind These Qualities?",
+      "description": "Group similar qualities and name what they share, e.g. honesty or courage. Enter each value in its own field.",
+      "why": "A value is a direction you choose, not a box to tick. Once it has a name, it is easier to check whether your choices move you that way.",
       "qualitiesSummaryLabel": { "m": "Qualities you identified:", "f": "Qualities you identified:" },
-      "valuePlaceholder": "A core value",
+      "valuePlaceholder": "E.g. honesty",
       "addValue": "Add value",
       "reflectionTitle": "Additional Reflection",
-      "reflectionPlaceholder": { "m": "Any thoughts about what you've discovered...", "f": "Any thoughts about what you've discovered..." }
+      "reflectionPlaceholder": "E.g. what surprised you…"
     },
     "back": "Back",
     "saveButton": "Save Values Discovery"
@@ -46,7 +48,7 @@
     },
     "start": {
       "title": "Map your values",
-      "description": "This exercise helps you move from a broad set of values to a practical map: what is central, what supports it, where values compete, and which values matter in different life areas.",
+      "description": "You'll go from a long list of values to a map: which are central, which support them, where they clash, and in which life areas they matter.",
       "sortTitle": "Sort broadly",
       "sortBody": "Move each value into a rough importance group. Fast, imperfect choices are enough.",
       "rankTitle": "Prioritize",
@@ -58,7 +60,8 @@
     },
     "sort": {
       "title": "Sort the value cards",
-      "description": "Use the five columns to make a first-pass map of what matters to you today.",
+      "description": "Drag each card from the list below into the column that shows how much it matters to you today. Decide quickly.",
+      "why": "Quick choices bypass what you think you should value and show what actually matters. Sorting forces trade-offs, because not everything can be most important.",
       "customPlaceholder": "Add your own value",
       "addCustom": "Add value",
       "customDescription": "A value added by you.",
@@ -67,35 +70,40 @@
       "unsortedTitle": "Unsorted values"
     },
     "narrow": {
-      "title": "Choose 5-10 values",
-      "description": "Select the values that should go into your final ranking. They can come from Most important or Very important.",
+      "title": "Choose 5–10 values",
+      "description": "Click the ones that should go into your ranking. Only values from Most important and Very important are shown here.",
+      "why": "A short list is one you can remember and actually use when deciding. When thirty values are all important, none of them points the way.",
       "tooFewCandidates": "You have fewer than 5 high-priority values. Go back to sorting and mark a few more as Most important or Very important.",
       "selectionHint": "Selected: {count}. Choose at least 5 and at most 10."
     },
     "rank": {
       "title": "Rank your selected values",
-      "description": "Put the values in order. The first three become your core values for profile context.",
+      "description": "Drag the cards or use the arrows. Put on top what you'd choose when two values collide. The top three are your core values.",
+      "why": "A ranking shows what comes first when you can't have everything. Your top three go into your profile as the core the assistant draws on.",
       "core": "Core value",
       "supporting": "Supporting value"
     },
     "meaning": {
       "title": "Define what they mean to you",
-      "description": "The top three need your own words. Supporting values can be defined if you want more context.",
-      "placeholder": "What does this value mean in your life?"
+      "description": "Describe in your own words what each value looks like in your everyday life. The top three (*) are required; the rest are optional.",
+      "why": "The same word means different things to different people. Your own definition turns a label into something you can recognise in how you live.",
+      "placeholder": "For me this means…"
     },
     "conflicts": {
       "title": "Name value tensions",
-      "description": "You can skip this if nothing comes to mind. A tension is not a problem; it is a useful clue about decisions.",
+      "description": "When two important values pull you in different directions (e.g. freedom and security), mark them and describe when it happens. Optional.",
+      "why": "A tension between values isn't a flaw; it's where the hard decisions are. Knowing it lets you choose deliberately instead of being pulled back and forth.",
       "itemQuestion": "Does {value} often compete with another value?",
-      "chooseValue": "Choose value",
-      "notePlaceholder": "What does this tension look like?",
+      "chooseValue": "With which value?",
+      "notePlaceholder": "E.g. when I have to choose between…",
       "valueA": "First value",
       "valueB": "Second value",
       "addExtra": "Add another tension"
     },
     "areas": {
       "title": "Assign values to life areas",
-      "description": "Choose values that matter in each area. These do not have to match your top values.",
+      "description": "For each area, pick the values that matter there and click Add. They can differ from your ranking.",
+      "why": "Different things can matter at work, in relationships or in health. Linking values to areas tells you what to steer by in each part of life.",
       "manage": "Manage areas",
       "empty": "No active life areas are available. You can skip this step or create areas first.",
       "chooseValue": "Choose a value",
@@ -132,7 +140,7 @@
       "edit": "Edit Assessment",
       "rate": "Rate Life Areas",
       "focus": "Review Areas",
-      "reflect": "Reflect"
+      "reflect": "What Does Your Wheel Show?"
     },
     "stepSubtitles": {
       "intro": "A quick check-in across the areas that shape your life",
@@ -143,10 +151,10 @@
       "reflectStandalone": "What insights does your wheel reveal?"
     },
     "intro": {
-      "snapshotHeading": "A snapshot of alignment",
-      "snapshotDescription": "The circle represents your whole life. Each slice is a life area that matters to you. You will rate how aligned each area feels with your values today.",
-      "instruction1": "Rate each area from 1\u201310 (10 = most aligned).",
-      "instruction2": "Notice where life feels out of balance or out of sync.",
+      "snapshotHeading": "A snapshot of today",
+      "snapshotDescription": "Each slice of the wheel is one area of your life. You'll rate how well each one matches what matters to you today.",
+      "instruction1": "Rate each area from 1–10 (10 = fully aligned).",
+      "instruction2": "Notice which areas stand out from the rest.",
       "instruction3": "There is no perfect wheel \u2014 the goal is insight, not a \"10\" everywhere."
     },
     "rater": {
@@ -154,16 +162,17 @@
       "ofTotal": "of {total}",
       "remaining": "{n} left",
       "currentlyRating": "Currently rating",
-      "alignmentQuestion": { "m": "How aligned does this feel with your values today?", "f": "How aligned does this feel with your values today?" },
+      "alignmentQuestion": "How well does this area match what matters to you today?",
+      "why": "The score is a reference point, not a grade. Noting what lifts and lowers it shows where you have influence, and lets you compare wheels a few months from now.",
       "outOfTen": "/10",
       "sliderMin": "Out of alignment",
       "sliderMax": "Fully aligned",
-      "positiveInfluencesLabel": "What positively influenced this score?",
-      "positiveInfluencesPlaceholder": "Capture what worked well or lifted this score...",
-      "negativeInfluencesLabel": "What negatively influenced this score?",
-      "negativeInfluencesPlaceholder": "Capture what felt hard or lowered this score...",
+      "positiveInfluencesLabel": "What lifts this score?",
+      "positiveInfluencesPlaceholder": "What helps is…",
+      "negativeInfluencesLabel": "What lowers it?",
+      "negativeInfluencesPlaceholder": "What gets in the way is…",
       "visionLabel": "What would 9/10 look like here?",
-      "visionPlaceholder": "Describe the success picture you want to remember for this assessment...",
+      "visionPlaceholder": "Day to day, it would look like…",
       "prompts": {
         "emotions": {
           "label": "What emotions do you feel when assessing this area?",
@@ -189,7 +198,7 @@
     },
     "setup": {
       "title": "Set up your life areas first",
-      "description": "Wheel of Life now works from your active Life Areas. Add them once and every future assessment will stay comparable over time.",
+      "description": "The Wheel of Life uses your active life areas. Set them up once and future assessments will stay comparable over time.",
       "seedDefaults": "Start with defaults",
       "manageAreas": "Manage life areas"
     },
@@ -199,10 +208,11 @@
       "validationMessage": "Select at least 1 area to continue"
     },
     "reflectionStep": {
-      "description": "Take a moment to reflect on what your wheel reveals.",
+      "description": "Look at the whole wheel and note what you see, e.g. which area stands out most, or which one would lift others if it improved.",
+      "why": "Life areas affect each other. Rather than fixing everything at once, it's easier to find one area that will pull others along.",
       "thoughtsPlaceholder": "Your thoughts...",
-      "overallNotesLabel": "Overall notes",
-      "overallNotesPlaceholder": "Any overall thoughts about your wheel of life..."
+      "overallNotesLabel": "What you notice",
+      "overallNotesPlaceholder": "What stands out most is…"
     },
     "reflectionPrompts": {
       "growth": { "m": "Where did you grow the most this year?", "f": "Where did you grow the most this year?" },
@@ -250,15 +260,16 @@
     "beliefs": {
       "title": "Which of these beliefs do you recognize in yourself?",
       "description": "Select any that feel familiar, or add your own.",
-      "customPlaceholder": "Your own shadow belief",
+      "customPlaceholder": "E.g. I have to earn my rest",
       "addCustom": "Add your own belief",
       "examineHint": "For each belief, you can look at the evidence and search for a truer version. These fields are optional.",
+      "why": "A belief sounds like a fact but usually rests on a few selected moments. Weighing evidence for and against shows the fuller picture and a version closer to the truth.",
       "evidenceForLabel": "What seems to support it?",
       "evidenceForPlaceholder": "Situations you take as proof...",
       "evidenceAgainstLabel": "What contradicts it?",
       "evidenceAgainstPlaceholder": "Facts, exceptions, another perspective...",
-      "reframeLabel": "A more constructive version",
-      "reframePlaceholder": "How would this belief sound closer to the truth?"
+      "reframeLabel": "A truer version",
+      "reframePlaceholder": "Closer to the truth is that…"
     },
     "commonBeliefs": {
       "somethingWrong": "There is something wrong with me",
@@ -278,8 +289,9 @@
     },
     "advice": {
       "title": "Advice You Give Others",
-      "description": "What advice do you often give others? Then check whether you follow it yourself \u2014 the gap between the two often points to a hidden belief.",
-      "placeholder": "Advice you give",
+      "description": "Write down advice you often give others, and mark whether you follow it yourself.",
+      "why": "A gap between what you advise others and what you allow yourself often points to a hidden belief, e.g. that stricter rules apply to you.",
+      "placeholder": "E.g. Take a break, nothing will fall apart",
       "addAdvice": "Add advice",
       "followLabel": "Do you follow it yourself?",
       "follow": {
@@ -288,7 +300,7 @@
         "no": "No"
       },
       "blockerLabel": "What stops you from applying it to yourself?",
-      "blockerPlaceholder": "What belief or fear is behind it?"
+      "blockerPlaceholder": "Maybe I believe that in my case…"
     },
     "reflectionTitle": "Additional Reflection",
     "reflectionPlaceholder": {
@@ -300,35 +312,39 @@
   "transformativePurpose": {
     "steps": {
       "curiosities": "Curiosities",
-      "intersection": "Intersection",
+      "intersection": "Common thread",
       "problems": "Problems",
       "purpose": "Purpose"
     },
     "curiosities": {
       "title": "What Are You Curious About?",
       "description": "List five things you're genuinely curious about. Don't filter \u2014 include anything that draws your attention.",
-      "placeholder": "Something you're curious about",
-      "nextButton": "Next: Find the Intersection"
+      "why": "Curiosity doesn't need to be forced. A purpose built on what already draws you in is easier to sustain for years.",
+      "placeholder": "E.g. how memory works",
+      "nextButton": "Next: Find the Common Thread"
     },
     "intersection": {
-      "title": "The Intersection",
-      "description": "Look at your five curiosities. What connects them? What's at the intersection?",
+      "title": "What Connects Your Curiosities?",
+      "description": "Look for a theme that runs through all or most of them. Describe it in a sentence or two.",
+      "why": "The thread running through several interests says more than any one of them. It's where you're most likely to find a purpose that won't bore you.",
       "curiositiesLabel": "Your curiosities:",
-      "placeholder": "What connects all five? What theme emerges?",
+      "placeholder": "What they share is…",
       "nextButton": "Next: Problems"
     },
     "problems": {
-      "title": "Big Problems",
-      "description": { "m": "Around this intersection, what are five big problems you'd love to help solve?", "f": "Around this intersection, what are five big problems you'd love to help solve?" },
-      "placeholder": "A problem you want to solve",
+      "title": "Which Problems Do You Want to Help Solve?",
+      "description": "List up to five big problems (in the world, among people, in your field) connected to your common thread.",
+      "why": "Curiosity gives you energy; a problem gives you direction. A purpose that serves something beyond you keeps its meaning on harder days too.",
+      "placeholder": "E.g. loneliness among older people",
       "nextButton": "Next: Purpose Statement"
     },
     "purpose": {
       "title": "Your Purpose Statement",
-      "description": "Write a one-sentence purpose statement. This is provisional \u2014 try it for 2\u20133 months and expect it to evolve.",
-      "placeholder": "My purpose is to...",
+      "description": "Combine your common thread with one of the problems in a single sentence. It's a draft: live with it for 2–3 months and refine it.",
+      "why": "One sentence is easy to remember and test decisions against: does this move me closer? Treating it as a draft takes off the pressure to find the one true purpose right away.",
+      "placeholder": "My purpose is to help… so that…",
       "reflectionTitle": "Additional Reflection",
-      "reflectionPlaceholder": "Any thoughts about your purpose..."
+      "reflectionPlaceholder": "E.g. what doesn't quite fit yet…"
     },
     "back": "Back",
     "saveButton": "Save Purpose"
@@ -353,22 +369,22 @@
     },
     "situation": {
       "title": "Describe the situation",
-      "description": "What happened? What would a camera have recorded?",
-      "placeholder": "Describe the situation as factually as possible...",
+      "description": "Write what happened: where, when, who was there, what was said. Just the facts, the way a camera would record it.",
+      "why": "Separating facts from interpretation is the core of a thought record. Thoughts and judgements get their own step, so here you keep only what could be checked.",
+      "placeholder": "e.g. At Tuesday's meeting my manager cut me off mid-sentence.",
       "dateLabel": "When did this happen? (optional)"
     },
     "emotions": {
       "title": "How are you feeling about this situation?",
-      "description": "Select emotions and rate their intensity.",
+      "description": "Select the emotions you feel and set how strong each one is (0–100%).",
+      "why": "This rating is your baseline. At the end you'll rate the same emotions again and see whether working with the thought changed anything.",
       "intensityRatings": "Intensity Ratings"
     },
     "thoughts": {
       "title": "What thoughts went through your mind?",
-      "description": {
-        "m": "List the automatic thoughts you had. Mark the most emotionally charged one as the \"hot thought.\"",
-        "f": "List the automatic thoughts you had. Mark the most emotionally charged one as the \"hot thought.\""
-      },
-      "placeholder": "An automatic thought...",
+      "description": "Write down the thoughts that came up in this situation, one per field. Use the flame icon to mark the “hot thought”: the one behind the strongest emotion.",
+      "why": "Emotions usually come less from the situation itself than from how we read it. Next you'll test only the hot thought, because it drives most of what you feel.",
+      "placeholder": "e.g. Everyone will think I can't cope.",
       "addThought": "Add thought",
       "identifyLoading": "Thinking...",
       "identifyLabel": "Help me identify thoughts",
@@ -377,15 +393,17 @@
     "evidenceFor": {
       "title": "What evidence supports this thought?",
       "hotThoughtLabel": "Hot Thought",
-      "description": "What facts or experiences support this thought being true?",
-      "placeholder": "Evidence that supports the thought...",
+      "description": "List the facts that support this thought, one per field. What counts is what happened, not how you feel.",
+      "why": "Giving the “for” side a fair hearing keeps the next steps from turning into forced self-persuasion. A conclusion that weighs both sides is easier to accept.",
+      "placeholder": "e.g. My manager sent my report back for revisions twice.",
       "addEvidence": "Add evidence"
     },
     "evidenceAgainst": {
       "title": "What evidence goes against this thought?",
       "hotThoughtLabel": "Hot Thought",
-      "description": "What facts, experiences, or alternative explanations go against this thought?",
-      "placeholder": "Evidence against the thought...",
+      "description": "List facts that don't fit it and other possible explanations for what happened. A useful question: what would a kind friend point out?",
+      "why": "Strong emotion narrows attention to whatever confirms the thought. Deliberately looking for counter-examples widens the picture.",
+      "placeholder": "e.g. Last month my manager praised my project.",
       "addEvidence": "Add evidence",
       "findEvidenceLoading": "Thinking...",
       "findEvidenceLabel": "Help me find evidence",
@@ -396,11 +414,12 @@
     },
     "balancedThought": {
       "title": "Write a balanced thought",
-      "description": "Considering all the evidence, write a more balanced thought.",
+      "description": "Write one or two sentences that take the evidence on both sides into account. It doesn't have to be positive, just closer to the facts.",
+      "why": "The aim isn't positive thinking but more accurate thinking. A thought you can genuinely believe eases emotions better than an affirmation.",
       "evidenceForLabel": "Evidence For",
       "evidenceAgainstLabel": "Evidence Against",
       "noEvidenceListed": "No evidence listed",
-      "placeholder": "A more balanced way to think about this...",
+      "placeholder": "e.g. The report needed fixes, but I usually do a good job.",
       "reframeLoading": "Thinking...",
       "reframeLabel": "Help me reframe",
       "suggestion": "Suggestion",
@@ -411,7 +430,8 @@
     },
     "rerate": {
       "title": "Re-rate your emotions now",
-      "description": "After examining the evidence and developing a balanced thought, how do you feel now?"
+      "description": "Move the sliders to how strong these emotions are now. Your starting rating is shown alongside.",
+      "why": "Comparing before and after shows how much of the distress depended on the thought. Even a small drop counts, and no change is useful information too."
     },
     "summary": {
       "title": "Thought Record Summary",
@@ -456,11 +476,12 @@
       "selfCheckButton": "Self-Check"
     },
     "selfCheck": {
-      "title": "Self-Check",
-      "description": "Which of these do you recognise in your own thinking? Tap to select.",
+      "title": "Which of these do you recognise in your own thinking?",
+      "description": "Click the ones that happen to you — you can pick several.",
+      "why": "Everyone has a few favourite thinking traps. Once you know yours, it's easier to catch them in the moment they appear.",
       "personalReflections": "Personal Reflections",
-      "personalReflectionsDescription": "Optionally, describe a personal example for each distortion you recognised.",
-      "personalExamplePlaceholder": "A personal example or reflection...",
+      "personalReflectionsDescription": "Optional: for each one you picked, note a situation or thought where you see it in yourself.",
+      "personalExamplePlaceholder": "When and how it shows up for you...",
       "seeSummary": "See Summary"
     },
     "learningSummary": {
@@ -472,28 +493,29 @@
     },
     "appliedThought": {
       "title": "Examine a Thought",
-      "description": "Enter a thought you would like to check for cognitive distortions.",
+      "description": "Enter one thought that's bothering you, word for word as it sounds in your head. You'll check whether a thinking trap (a distortion) is hiding in it.",
+      "why": "Written down, a thought stops being an obvious truth and becomes something you can look at. The exact wording matters: distortions often sit in words like “always”, “nobody”, “must”.",
       "manualLabel": "Manual",
-      "placeholder": "What thought would you like to examine?",
+      "placeholder": "e.g. I'm definitely going to mess it all up again.",
       "analyseButton": "Analyse"
     },
     "appliedDistortions": {
       "title": "Spot the Distortions",
-      "description": "Which distortions do you think apply to this thought?",
-      "whyApply": "Why does each apply?",
-      "explanationPlaceholder": "Why does this distortion apply to your thought?",
+      "description": "Select the cards that fit this thought — there may be several. Then note for each one how you can tell.",
+      "why": "Naming the trap creates distance: it is no longer “the truth about me” but a familiar habit of the mind. Pointing to the exact words sets up the reframe in the next step.",
+      "whyApply": "How can you tell?",
+      "explanationPlaceholder": "Which words or assumptions in the thought point to it...",
       "llmLoading": "Thinking...",
       "llmLabel": "Help me spot the traps",
       "aiSuggestions": "AI Suggestions",
       "seeResults": "See Results"
     },
     "appliedResults": {
-      "title": "Results",
+      "title": "Reframe the Thought",
+      "description": "For each distortion, write how the thought would sound without it. The notes below are optional.",
+      "why": "Naming a trap doesn't change the thought by itself. A version without the distortion gives you an alternative to return to when the old thought comes back.",
       "reframe": "Reframe",
-      "reframePlaceholder": {
-        "m": "How could you think about this differently?",
-        "f": "How could you think about this differently?"
-      },
+      "reframePlaceholder": "The thought without this trap, e.g. “This time it didn't work out, but…”",
       "additionalNotes": "Additional Notes",
       "notesPlaceholder": "Any other thoughts about this analysis..."
     }
@@ -507,17 +529,19 @@
     },
     "capture": {
       "title": "What's worrying you?",
-      "description": "Describe the worry in your own words. Getting it out of your head and onto the screen is the first step.",
+      "description": "Describe in your own words what you're worried might happen, in a sentence or a few.",
+      "why": "A worry kept in your head circles and grows. Written down, it becomes concrete and can be worked through step by step.",
       "placeholder": "I'm worried that...",
       "emotionsTitle": "How are you feeling?",
-      "emotionsDescription": "Pick the emotion that best captures how this worry makes you feel.",
+      "emotionsDescription": "Pick the emotion that most goes with this worry and rate its strength on the slider. You'll rate it again at the end.",
       "intensityLabel": "Intensity: {value}%",
       "intensityMin": "Barely noticeable",
       "intensityMax": "Overwhelming"
     },
     "classify": {
       "title": "What kind of worry is this?",
-      "description": "Understanding the type of worry helps you respond to it effectively.",
+      "description": "Ask yourself: is this something happening now that you can influence, or a “what if” scenario?",
+      "why": "A real problem calls for action; a hypothetical worry calls for letting go. Mixing them up means trying to solve something that can't be solved.",
       "realProblem": "Real Problem",
       "realProblemDescription": "Something concrete you can actually do something about",
       "hypothetical": "Hypothetical Worry",
@@ -533,7 +557,8 @@
     },
     "actionPlan": {
       "title": "Plan Your Action",
-      "description": "What is the very next concrete step you can take? Keep it small and specific.",
+      "description": "Write the very next step you can take — small and specific. Pick a date below.",
+      "why": "A small step with a date turns circling thoughts into action. Even partial progress eases the sense of helplessness.",
       "placeholder": "My next step is to...",
       "whenLabel": "When will you do this?",
       "createCommitment": "Create a Commitment from this action",
@@ -541,8 +566,9 @@
     },
     "schedule": {
       "title": "Schedule It",
-      "description": "Even though you can't act right now, you can plan for when you will. Write down what you'll do and when.",
-      "placeholder": "When the time is right, I will...",
+      "description": "You can't act right now, but you can decide when you'll deal with it. Write the first step and pick a date below.",
+      "why": "Once a matter has a set date, it no longer needs to circle in your head — your mind knows it won't be forgotten.",
+      "placeholder": "On that day, I'll first...",
       "whenLabel": "When?",
       "encouragement": {
         "m": "You've acknowledged the problem and scheduled a time to deal with it. For now, take a deep breath. You don't need to solve this in this moment.",
@@ -551,9 +577,10 @@
       "complete": "Complete"
     },
     "lettingGo": {
-      "title": "Letting Go",
-      "description": "This worry is about something that hasn't happened and may never happen. That's completely normal. Our minds are wired to anticipate threats, even imaginary ones.",
-      "choosePrompt": "Choose a technique that resonates with you right now:",
+      "title": "Set This Worry Aside",
+      "description": "This worry is about something that hasn't happened and may never happen. It doesn't need solving — only setting aside for now.",
+      "why": "The mind is wired to scan for threats, even imagined ones, so worries like this are normal. What helps is changing how you relate to them, not analysing them further.",
+      "choosePrompt": "Try one of these techniques for a minute, then click it to move on:",
       "techniques": {
         "leavesOnStream": {
           "name": "Leaves on a Stream",
@@ -607,9 +634,10 @@
     },
     "startingThought": {
       "title": "What thought do you want to explore?",
-      "description": "Think of a recent thought that kept coming back. It could be something triggered by a conversation, a mistake, or a situation that bothered you.",
-      "placeholder": "e.g., 'I always mess things up' or 'Nobody really cares about me'",
-      "sourceLabel": "Source (optional)",
+      "description": "Enter a thought that has kept coming back lately — after a conversation, a mistake, or a difficult situation, for example.",
+      "why": "Everyday thoughts are a way into deeper beliefs. A thought that keeps returning and hurts usually leads closest to what lies underneath.",
+      "placeholder": "e.g. “I always mess things up” or “Nobody really cares about me”",
+      "sourceLabel": "Where does this thought come from? (optional)",
       "sourceTypes": {
         "manual": "Manual",
         "thoughtRecord": "Thought Record",
@@ -617,8 +645,9 @@
       }
     },
     "downwardArrow": {
-      "title": "Downward Arrow",
-      "description": "For each answer, ask: \"If that were true, what would it mean about you, others, or the world?\"",
+      "title": "Go Beneath the Thought",
+      "description": "Answer the question below and add a layer, then ask the same about that answer. Stop when you reach a short statement about yourself, others, or the world.",
+      "why": "Each “what would that mean?” uncovers the assumption beneath the previous answer. Usually after 3–5 layers a short, general statement like “I am…” appears — that is the core belief.",
       "startingThoughtLabel": "Starting thought",
       "layerLabel": "Layer {n}",
       "questionLabel": "If that were true, what would it mean?",
@@ -633,7 +662,8 @@
     },
     "coreBelief": {
       "title": "Your Core Belief",
-      "description": "Based on your exploration, this appears to be the core belief underneath. You can edit it.",
+      "description": "The field holds the last layer of the arrow. Edit it if needed so it reads as a short, general statement you've told yourself for a long time.",
+      "why": "A core belief sounds like a general truth, not an opinion about one situation. Rating how strongly you believe it gives you a baseline to compare against at the end.",
       "placeholder": "The core belief...",
       "categoryTitle": "What is this belief about?",
       "categories": {
@@ -662,26 +692,29 @@
       "completely": "Completely"
     },
     "evidenceFor": {
-      "title": "Evidence supporting this belief",
+      "title": "What supports this belief?",
       "coreBeliefLabel": "Core Belief",
-      "description": "What experiences or facts make you believe this is true?",
-      "placeholder": "Evidence that supports the belief...",
+      "description": "List the experiences and facts it rests on, one per field.",
+      "why": "Core beliefs have their origins and often once made sense. Acknowledging what they rest on keeps the next step honest rather than a fight with yourself.",
+      "placeholder": "e.g. As a child I was rarely praised.",
       "addEvidence": "Add evidence"
     },
     "evidenceAgainst": {
-      "title": "Evidence against this belief",
+      "title": "What goes against this belief?",
       "coreBeliefLabel": "Core Belief",
-      "description": "What experiences, facts, or alternative explanations go against this belief?",
-      "placeholder": "Evidence against the belief...",
+      "description": "List experiences that don't fit it — including small ones and ones you usually overlook.",
+      "why": "A strong belief works like a filter: it notices what confirms it and screens out the rest. Deliberately looking for exceptions weakens that filter.",
+      "placeholder": "e.g. A friend called when I was having a hard time.",
       "addEvidence": "Add evidence"
     },
     "alternative": {
-      "title": "Write a balanced alternative belief",
-      "description": "Considering the evidence on both sides, write a more balanced, realistic belief.",
+      "title": "Write a more balanced belief",
+      "description": "Based on the evidence on both sides, write a statement closer to the truth than the old one. It doesn't have to be positive, just realistic.",
+      "why": "The old belief won't vanish at once. A new, realistic statement gives you an alternative to strengthen over time — for example in the Positive Data Log.",
       "evidenceForLabel": "Evidence For",
       "evidenceAgainstLabel": "Evidence Against",
       "noEvidenceListed": "No evidence listed",
-      "placeholder": "A more balanced way to see this...",
+      "placeholder": "e.g. I make mistakes sometimes, but many things go well for me.",
       "llmLoading": "Thinking...",
       "llmLabel": "Help me find alternatives",
       "suggestion": "Suggestion",
@@ -689,7 +722,7 @@
       "useAsStartingPoint": "Use as starting point",
       "followUpPlaceholder": "Can you try a different angle?",
       "send": "Send",
-      "rerateTitle": "Re-rate your beliefs",
+      "rerateTitle": "How much do you believe each one now?",
       "originalBeliefNow": "Original belief now",
       "alternativeBeliefLabel": "Alternative belief",
       "notAtAll": "Not at all",
@@ -749,16 +782,18 @@
     },
     "critic": {
       "title": "What is your inner critic saying?",
-      "description": "Write down the harsh things you're telling yourself. Getting them out makes them easier to examine.",
-      "placeholder": "My inner critic says...",
+      "description": "Write down word for word what you tell yourself about this situation, one sentence per field.",
+      "why": "The critic is strongest when it speaks in the background. Written down, its words are easier to see — often harsher than anything you'd say to other people.",
+      "placeholder": "e.g. You always have to ruin everything.",
       "addThought": "Add another thought"
     },
     "response": {
       "title": "Write your compassionate response",
       "description": {
-        "m": "Write as if you were a caring friend who knows everything about you and loves you unconditionally. What would they say?",
-        "f": "Write as if you were a caring friend who knows everything about you and loves you unconditionally. What would they say?"
+        "m": "Write as if you were a caring friend who knows everything about you and loves you unconditionally. How would they answer the critic?",
+        "f": "Write as if you were a caring friend who knows everything about you and loves you unconditionally. How would they answer the critic?"
       },
+      "why": "We usually have kind words ready for others, rarely for ourselves. Writing as a friend brings out that tone and eases the sense of threat that fuels self-criticism.",
       "placeholder": {
         "m": "Dear me, I want you to know that...",
         "f": "Dear me, I want you to know that..."
@@ -769,7 +804,8 @@
     },
     "takeaways": {
       "title": "What resonated with you?",
-      "description": "Distill the key messages you want to carry with you. What will you remember from this letter?",
+      "description": "Write one to three sentences from the letter that you want to remember, one per field.",
+      "why": "A short sentence is easier to recall than a whole letter the next time the critic speaks up.",
       "placeholder": "I want to remember that...",
       "addTakeaway": "Add another takeaway"
     },
@@ -801,11 +837,9 @@
     },
     "targetBelief": {
       "title": "What negative belief do you want to challenge?",
-      "description": {
-        "m": "This should be a core belief like \"I am not good enough\" or \"People can't be trusted.\" If you've completed the Core Beliefs exploration, you can use the belief you identified there.",
-        "f": "This should be a core belief like \"I am not good enough\" or \"People can't be trusted.\" If you've completed the Core Beliefs exploration, you can use the belief you identified there."
-      },
-      "placeholder": "e.g., 'I am unlovable' or 'I always fail at important things'",
+      "description": "Enter a general belief about yourself, others, or the world, such as “People can’t be trusted”. You can take one from the Core Beliefs exercise.",
+      "why": "A negative belief mostly picks up what confirms it. The log deliberately collects what contradicts it — over time “always true” becomes “sometimes true”.",
+      "placeholder": "e.g. “I always fail at important things”",
       "believabilityTitle": "How much do you believe this right now?",
       "believabilityLabel": "Initial believability",
       "notAtAll": "Not at all",
@@ -832,12 +866,13 @@
         "other": "{n} entries logged"
       },
       "addEvidenceTitle": "Add Evidence",
-      "addEvidenceDescription": "What happened today that contradicts your belief?",
+      "addEvidenceDescription": "Write down one event that doesn't fit this belief. Small ones count too.",
+      "addEvidenceWhy": "Small events are easy to dismiss if you don't write them down. Collected together, they form a picture the belief can no longer ignore.",
       "dateLabel": "Date",
       "evidenceLabel": "Evidence",
-      "evidencePlaceholder": "What happened that contradicts this belief?",
+      "evidencePlaceholder": "e.g. A colleague offered to help me with the project unprompted.",
       "notesLabel": "Notes (optional)",
-      "notesPlaceholder": "Any additional thoughts or reflections...",
+      "notesPlaceholder": "What this event says about the belief...",
       "addEvidence": "Add Evidence",
       "rerateTitle": "Re-rate your belief",
       "rerateDescription": "Considering the evidence you've collected, how much do you believe it now?",
@@ -881,15 +916,17 @@
     },
     "belief": {
       "title": "What belief do you want to test?",
-      "description": "Write the belief as clearly as you can. It should be something testable through action, not just a feeling.",
+      "description": "Write one belief you could check by doing something, ideally as “if…, then…”.",
+      "why": "You'll rate this belief again at the end. The gap between the two ratings shows how much the experience itself changed.",
       "placeholder": "e.g., 'If I speak up in the meeting, everyone will think I'm stupid.'",
       "believabilityLabel": "How strongly do you believe this right now? {value}%",
       "notAtAll": "Not at all",
       "completely": "Completely"
     },
     "prediction": {
-      "title": "What do you predict will happen?",
-      "description": "Based on the belief, what specific outcome do you expect? The more concrete, the easier it is to compare with reality afterwards.",
+      "title": "What exactly do you expect to happen?",
+      "description": "Describe an outcome you could later see or hear: what others will do, or what will happen to you.",
+      "why": "A specific prediction can be checked against the facts afterwards. A vague “it'll go badly” can always be confirmed, even when nothing bad happened.",
       "placeholder": "e.g., 'People will roll their eyes or interrupt me within 10 seconds.'",
       "confidenceLabel": {
         "m": "How confident are you in this prediction? {value}%",
@@ -903,7 +940,8 @@
     },
     "design": {
       "title": "Design your experiment",
-      "description": "What will you actually do to test this prediction? Keep it specific, achievable, and low-risk. Think of it as a curious scientist running a small test.",
+      "description": "Describe one small, safe action that will test the prediction: what you'll do, where, and when.",
+      "why": "Beliefs shift more through your own experience than through argument. A small test gives you real data without much risk.",
       "placeholder": "e.g., 'At tomorrow's team standup, I'll share one idea about the current project.'",
       "whenLabel": "When will you run this experiment? (optional)",
       "llmLoading": "Thinking...",
@@ -911,8 +949,9 @@
       "suggestedExperiment": "Suggested experiment"
     },
     "safety": {
-      "title": "Safety behaviors to watch for",
-      "description": "Safety behaviors are subtle avoidance patterns that could invalidate your experiment. For example, if you plan to speak up in a meeting but only do it when the boss is absent, the experiment isn't a fair test. List any behaviors you might default to.",
+      "title": "How might you play it safe during the test?",
+      "description": "List small ways you might hedge without thinking, e.g. speaking up only when the boss is away. These are called safety behaviors.",
+      "why": "Safety behaviors spoil the test: if nothing bad happens, you'll credit the hedge instead of learning the fear was overblown. Try to drop them.",
       "placeholder": "e.g., 'Only speaking when I'm 100% sure of the answer'",
       "addBehavior": "Add behavior",
       "saveChoiceDescription": "You can save this experiment as planned and come back later to record the outcome, or record the outcome right now.",
@@ -921,17 +960,15 @@
     },
     "outcome": {
       "title": "What actually happened?",
-      "description": {
-        "m": "Describe the outcome as factually as you can. What did you observe? How did people respond? What surprised you?",
-        "f": "Describe the outcome as factually as you can. What did you observe? How did people respond? What surprised you?"
-      },
+      "description": "Stick to the facts: what happened and how others responded, the way a camera would record it.",
       "predictionLabel": "Your prediction",
       "placeholder": "Describe what actually happened...",
       "learnedTitle": {
         "m": "What did you learn?",
         "f": "What did you learn?"
       },
-      "learnedDescription": "How does the outcome compare to your prediction? What does this tell you about the original belief?",
+      "learnedDescription": "Compare the outcome with your prediction and note what it says about your belief.",
+      "learnedWhy": "A clearly named conclusion is what makes the change stick. Without it, it's easy to write the result off as luck and slip back into the old belief.",
       "learnedPlaceholder": {
         "m": "The key thing I learned is...",
         "f": "The key thing I learned is..."
@@ -977,7 +1014,8 @@
     },
     "moodBaseline": {
       "title": "How are you feeling right now?",
-      "description": "Rate your overall mood on a scale of 0 to 10. This gives you a baseline to compare against at the end of the week.",
+      "description": "Rate your overall mood on a scale of 0 to 10.",
+      "why": "This is your baseline. At the end of the week you'll compare it with your mood after activities and see what actually helps.",
       "overallMoodLabel": "Overall mood",
       "moodMin": "Very low",
       "moodMid": "Neutral",
@@ -987,7 +1025,8 @@
     },
     "planActivities": {
       "title": "Plan your activities",
-      "description": "Add at least 3 activities for the week. Mix different categories for the best effect.",
+      "description": "Add at least 3 small, specific activities, each with a day. Ideally from different categories.",
+      "why": "When mood is low, motivation tends to follow action, not come before it. Small scheduled steps break the cycle of withdrawal, and different categories lift mood in different ways.",
       "activityNameLabel": "Activity name",
       "activityNamePlaceholder": "e.g., Walk in the park, Call a friend...",
       "categoryLabel": "Category",
@@ -1058,19 +1097,18 @@
       "pillChoose": "Choose & Plan"
     },
     "problem": {
-      "title": "Define the problem",
-      "description": {
-        "m": "Be as specific as possible. A well-defined problem is halfway solved.",
-        "f": "Be as specific as possible. A well-defined problem is halfway solved."
-      },
-      "placeholder": "Describe the problem clearly and specifically...",
+      "title": "What's the problem?",
+      "description": "Describe one specific situation: how things are now and what you want to be different.",
+      "why": "A vague “everything is falling apart” is paralysing. Naming how things are and how you want them to be shows what actually needs solving and makes ideas easier to find.",
+      "placeholder": "e.g., 'I've been putting off asking my boss for a raise for a month, and I want to have that talk before the quarter ends.'",
       "emotionsTitle": "How are you feeling about this?",
       "emotionsDescription": "Select the emotions this problem brings up for you."
     },
     "brainstorm": {
-      "title": "Brainstorm solutions",
-      "description": "Generate as many ideas as you can. Quantity over quality \u2014 don't judge yet. Include creative and unconventional ideas too.",
-      "solutionPlaceholder": "Type a solution idea...",
+      "title": "What could you do about it?",
+      "description": "Add at least 2 ideas, including unrealistic or odd ones. Don't judge them yet.",
+      "why": "Judging while you generate shuts ideas down. Collecting many options first makes a good one more likely — often a blend of several others.",
+      "solutionPlaceholder": "e.g., 'Book 15 minutes with my boss on Thursday'",
       "addButton": "Add",
       "noSolutions": "No solutions added yet.",
       "llmLoading": "Thinking...",
@@ -1079,7 +1117,8 @@
     },
     "evaluate": {
       "title": "Evaluate your solutions",
-      "description": "For each solution, list pros and cons, then rate feasibility and effectiveness.",
+      "description": "For each idea, list pros and cons, then rate from 1 to 5 how doable it is and how well it would solve the problem.",
+      "why": "Applying the same criteria to every idea lets you compare them calmly instead of choosing out of anxiety or first impulse.",
       "pros": "Pros",
       "prosPlaceholder": "A benefit of this solution...",
       "addPro": "Add pro",
@@ -1101,10 +1140,8 @@
       "feasibilityLabel": "Feasibility {rating}/5",
       "effectivenessLabel": "Effectiveness {rating}/5",
       "actionPlanTitle": "Action Plan",
-      "actionPlanDescription": {
-        "m": "How will you implement this solution? Be specific and concrete.",
-        "f": "How will you implement this solution? Be specific and concrete."
-      },
+      "actionPlanDescription": "Briefly describe how you'll do it, then break it into first small steps below.",
+      "actionPlanWhy": "A decision without a plan tends to stay in your head. Small steps with a date turn it into action and show where to start.",
       "actionPlanPlaceholder": "My plan is to...",
       "actionSteps": "Action Steps",
       "stepPlaceholder": "Step {n}...",
@@ -1126,7 +1163,7 @@
         "f": "If you've already resolved this problem, you can record the outcome now. Otherwise, leave it as in-progress and come back later."
       },
       "markCompleted": "Mark as completed",
-      "outcomePlaceholder": "What was the outcome? What happened?",
+      "outcomePlaceholder": "What happened when you put the plan into action?",
       "emotionsAfterTitle": "How are you feeling now?",
       "emotionsAfterDescription": "Re-check your emotions after working through this problem."
     },
@@ -1180,12 +1217,14 @@
         "m": "What would you like to be able to do when you've worked through this fear?",
         "f": "What would you like to be able to do when you've worked through this fear?"
       },
+      "goalWhy": "The goal at the top of the ladder reminds you why you're facing the fear. It helps you keep going when the steps get hard.",
       "goalPlaceholder": "e.g., Give a presentation at work confidently"
     },
     "buildHierarchy": {
       "title": "Build your fear ladder",
-      "description": "Add situations related to your fear, each with a distress rating (SUDS: 0\u2013100).",
-      "situationPlaceholder": "Describe a feared situation...",
+      "description": "Add at least 3 specific situations linked to your fear. Rate how much anxiety each would cause: 0 is calm, 100 is the worst you can imagine.",
+      "why": "A ladder lets you start with what you can already handle. Each rung you master shows you can cope and prepares you for the next.",
+      "situationPlaceholder": "e.g., 'Ask one question in a team meeting'",
       "distressLabel": "Distress level:",
       "distressMin": "No distress (0)",
       "distressMax": "Extreme (100)",
@@ -1200,8 +1239,9 @@
       "moreNeeded": "({n} more needed)"
     },
     "safetyBehaviors": {
-      "title": "Safety behaviors to watch for",
-      "description": "Safety behaviors are things you do to reduce anxiety in the moment \u2014 but they can prevent you from learning that you can cope. Identifying them helps you do exposures more effectively.",
+      "title": "What do you do to feel safer when anxious?",
+      "description": "These are called safety behaviors: small ways of getting through a hard situation. List yours — common examples are below.",
+      "why": "They bring short-term relief but take away a key lesson: that you can cope without them. Once you know them, you can drop them step by step in later attempts.",
       "placeholder": "e.g., Avoiding eye contact, checking phone...",
       "addBehavior": "Add behavior",
       "commonExamples": "Common examples",
@@ -1231,6 +1271,29 @@
     },
     "errors": {
       "suggestFailed": "Failed to get suggestions"
+    },
+    "log": {
+      "lead": "After each attempt, rate your anxiety from 0 to 100: before, at its worst, and after. Once it drops to half of where it started on a rung, you can move up.",
+      "why": "The numbers show what anxiety hides: that each attempt gets a little easier and that you cope.",
+      "logAttempt": "Log attempt",
+      "lastAttempt": "last: before {before}, peak {peak}, after {after}",
+      "anxietyBefore": "Anxiety before",
+      "anxietyPeak": "Peak anxiety",
+      "anxietyAfter": "Anxiety after",
+      "duration": "Duration (minutes)",
+      "safetyUsed": "Safety behaviours used in this attempt",
+      "notesPlaceholder": "What do you notice after this attempt?",
+      "mastered": "This rung is mastered",
+      "masteredBadge": "mastered",
+      "save": "Save attempt",
+      "attempts": {
+        "one": "{n} attempt",
+        "few": "{n} attempts",
+        "many": "{n} attempts"
+      },
+      "openLadder": "Log attempts",
+      "newLadder": "New ladder",
+      "continueTitle": "Continue your ladder"
     }
   },
   "threePathways": {
@@ -1256,29 +1319,29 @@
       "emotionLabel": "How are you feeling right now?"
     },
     "creative": {
-      "title": "Creative Values",
-      "description": "What do you give to the world? Think about your work, projects, skills, contributions, and anything you create or build.",
+      "title": "What do you give to the world?",
+      "description": "List at least three things you do or create — at work, at home, for others. Use the slider to mark how much you put into each right now.",
+      "why": "Frankl held that meaning is found in concrete life, not in theory. The first pathway is what you create and give — listing it shows where meaning is already present and where it is thin.",
       "placeholder": "e.g., Teaching others what I know, building software that helps people...",
-      "engagementLabel": "Engagement level",
+      "engagementLabel": "How much do you put into this now?",
       "lifeAreaSelect": "Link to Life Area (optional)",
       "addAnother": "Add another"
     },
     "experiential": {
-      "title": "Experiential Values",
-      "description": "What do you receive from the world? Think about relationships, nature, art, music, moments of beauty, love, and truth.",
+      "title": "What do you receive from the world?",
+      "description": "List at least three things you experience that matter to you: people, nature, music, moments of beauty. Use the slider to mark how much of it is in your life right now.",
+      "why": "Frankl's second pathway: meaning also comes from what you receive — love, beauty, a real encounter with another person. You don't have to achieve anything for this pathway to be open.",
       "placeholder": "e.g., The feeling of connection with my partner, sunsets, listening to live music...",
-      "engagementLabel": "Engagement level",
+      "engagementLabel": "How much of this is in your life now?",
       "lifeAreaSelect": "Link to Life Area (optional)",
       "addAnother": "Add another"
     },
     "attitudinal": {
-      "title": "Attitudinal Values",
-      "description": {
-        "m": "How do you respond to unavoidable suffering? Think of times you chose your attitude toward circumstances beyond your control.",
-        "f": "How do you respond to unavoidable suffering? Think of times you chose your attitude toward circumstances beyond your control."
-      },
+      "title": "How do you face what can't be changed?",
+      "description": "Think of a hardship you can't change: an illness, a loss, a limitation. Write the stance you take toward it, or want to take. One is enough.",
+      "why": "Frankl's third pathway: when circumstances can't be changed, you still choose how you stand toward them. That freedom remains even when the other two pathways are closed.",
       "placeholder": "e.g., Choosing gratitude despite chronic illness, finding purpose in caregiving...",
-      "engagementLabel": "Engagement level",
+      "engagementLabel": "How well are you able to hold this stance?",
       "lifeAreaSelect": "Link to Life Area (optional)",
       "addAnother": "Add another"
     },
@@ -1355,7 +1418,7 @@
     },
     "context": {
       "title": "Add Context",
-      "description": "You can add context to help guide the conversation — or skip ahead.",
+      "description": "If you like, pick a journal entry or life area the topic relates to, or add something of your own. You can also skip this step.",
       "journalLabel": "Journal entry (optional)",
       "lifeAreaLabel": "Life Area (optional)",
       "additionalLabel": "Additional context (optional)",
@@ -1366,6 +1429,8 @@
     },
     "dialogue": {
       "title": "Dialogue",
+      "description": "The guide asks questions rather than giving advice. Answer in your own words, as honestly as you can.",
+      "why": "In Socratic dialogue you reach the answers yourself. A conclusion put into your own words is more truly yours and stays with you longer than advice from outside.",
       "starting": "Starting your dialogue...",
       "placeholder": "Type your response...",
       "thinking": "Thinking...",
@@ -1382,8 +1447,8 @@
         "m": "The key thing I discovered...",
         "f": "The key thing I discovered..."
       },
-      "rememberLabel": "What would you like to remember?",
-      "rememberPlaceholder": "Something to carry forward...",
+      "rememberLabel": "Which line from this conversation do you want to remember?",
+      "rememberPlaceholder": "e.g., a line worth coming back to...",
       "journalCheckbox": "Create a journal entry from these insights",
       "emotionLabel": "How are you feeling now?",
       "notesLabel": "Notes (optional)",
@@ -1421,11 +1486,9 @@
       "emotionLabel": "How are you feeling right now?"
     },
     "peaks": {
-      "title": "Your Peaks",
-      "description": {
-        "m": "Think of 3–7 moments when you felt most alive, most fulfilled, or most certain that life had meaning.",
-        "f": "Think of 3–7 moments when you felt most alive, most fulfilled, or most certain that life had meaning."
-      },
+      "title": "When did life feel most meaningful?",
+      "description": "Describe 3–7 moments when life felt fullest and most meaningful. For each, add your age and what gave it meaning.",
+      "why": "Peaks show what has already carried meaning in your life. The same sources — people, work, values — can often be found again.",
       "eventPlaceholder": "What happened?",
       "ageLabel": {
         "m": "How old were you?",
@@ -1436,18 +1499,16 @@
       "addAnother": "Add another peak"
     },
     "valleys": {
-      "title": "Your Valleys",
-      "description": "Now think of 2–5 moments of deepest struggle, loss, or difficulty.",
+      "title": "When was life hardest?",
+      "description": "Describe 2–5 of your hardest times: struggle, loss, crisis. For each, add your age and what it taught you.",
+      "why": "Frankl showed that suffering too can hold meaning — through how we respond to it. The point isn't that \"it was worth it\", but what it left in you.",
       "takeYourTime": "Take your time with this. There's no rush.",
       "eventPlaceholder": "What happened?",
       "ageLabel": {
         "m": "How old were you?",
         "f": "How old were you?"
       },
-      "growthPlaceholder": {
-        "m": "What did you learn, or how did you grow?",
-        "f": "What did you learn, or how did you grow?"
-      },
+      "growthPlaceholder": "What did it teach you?",
       "addAnother": "Add another valley"
     },
     "timeline": {
@@ -1456,19 +1517,21 @@
     },
     "themes": {
       "title": "Discover Your Themes",
+      "why": "Single memories are anecdotes; recurring threads show what truly gives you meaning. The final step builds on them.",
       "peaksCommonLabel": "What do your peaks have in common?",
       "valleysCommonLabel": "What do your valleys have in common?",
-      "connectionLabel": "How have your valleys led to future peaks?",
+      "connectionLabel": "Did any valley lead to a later peak that wouldn't have happened without it?",
       "peaksPlaceholder": "Recurring themes, feelings, or circumstances...",
       "valleysPlaceholder": "Patterns in your hardest times...",
-      "connectionPlaceholder": "Connections between struggle and growth...",
+      "connectionPlaceholder": "e.g., losing that job pushed me to...",
       "analyzeButton": "Help me see the themes",
       "thinking": "Thinking..."
     },
     "future": {
-      "title": "Future Peaks",
-      "description": "Based on the themes of your life, what future peaks would you like to create?",
-      "peakPlaceholder": "A future peak you want to create...",
+      "title": "What could your next peak be?",
+      "description": "Write 1–3 things you want to do or experience in the coming years, drawing on what your peaks had in common.",
+      "why": "Frankl said meaning also waits ahead of us — in what life still asks of us. Plans grounded in your own peaks have a real source.",
+      "peakPlaceholder": "e.g., plan a family trip, finish my own project...",
       "lifeAreaSelect": "Link to Life Area (optional)",
       "addAnother": "Add another",
       "emotionLabel": "How are you feeling now?",
@@ -1506,40 +1569,43 @@
       "emotionLabel": "How are you feeling right now?"
     },
     "fears": {
-      "title": "Identify Your Fears",
-      "description": "What anxieties follow this pattern: the more you worry, the worse it gets?",
+      "title": "Which fears feed on themselves?",
+      "description": "Write 1–3 everyday fears that grow the harder you try to control them — e.g., blushing, stuttering, sleeplessness.",
+      "why": "Paradoxical intention targets anticipatory anxiety — fear that brings on the very thing it dreads (worrying about insomnia makes it harder to fall asleep). So you start by naming such a loop.",
       "fearLabel": "Fear {n}",
       "whatLabel": "What are you afraid of?",
       "whatPlaceholder": "e.g., Making a fool of myself in front of others...",
-      "whatHappensLabel": "What specifically do you fear will happen?",
+      "whatHappensLabel": "What exactly do you expect will happen?",
       "whatHappensPlaceholder": "e.g., I'll start stuttering and everyone will stare...",
       "addAnother": "Add another fear"
     },
     "craft": {
-      "title": "Craft Paradoxical Intentions",
+      "title": "Wish for what you fear",
       "counter": "{current} of {total}",
       "fearHeader": "Fear",
       "youFear": "You fear: \"{fear}\"",
-      "description": "Now imagine you wanted this to happen. Wish for it with humor! The more absurd, the better.",
+      "description": "Write one sentence in which you wish for exactly what you fear — exaggerated to the point of absurdity. The funnier, the better.",
+      "why": "A fear you try to suppress grows. When you exaggerate it with humor, you gain distance and the tension drops. Humor doesn't dismiss the problem; it takes away the fear's gravity.",
       "placeholder": "e.g., I'll tremble so violently I register on the Richter scale!",
-      "funnier": "Make it funnier!",
+      "funnier": "Suggest a funnier version",
       "thinking": "Thinking...",
       "suggestionHeader": "AI Suggestion",
       "previousFear": "Previous fear",
       "nextFear": "Next fear"
     },
     "practice": {
-      "title": "Practice Scripts",
-      "description": "Create a practice script for each fear. When the anxiety hits, what will you say to yourself?",
-      "scriptLabel": "Practice script",
-      "scriptPlaceholder": "When I feel [the anxiety], I'll say to myself: \"Great! Now's my chance to [paradoxical intention]! Let me really...\"",
-      "emotionLabel": "How are you feeling now? Did humor help?"
+      "title": "What will you tell yourself when the fear shows up?",
+      "description": "For each fear, write a short line you will say to yourself the moment you feel the first tension.",
+      "why": "A line prepared in advance is easier to recall under stress than one invented on the spot. The paradox only works in a real situation, not on paper.",
+      "scriptLabel": "What you'll say",
+      "scriptPlaceholder": "When I feel [the fear], I'll tell myself: \"Great, now I get to [your intention]…\"",
+      "emotionLabel": "How are you feeling now?"
     },
     "summary": {
       "title": "Summary",
       "fearHeader": "Fear",
       "intentionHeader": "Paradoxical Intention",
-      "scriptHeader": "Practice Script",
+      "scriptHeader": "What you'll say",
       "notesLabel": "Notes (optional)",
       "notesPlaceholder": "Any reflections on this exercise..."
     },
@@ -1562,7 +1628,8 @@
       "emotionLabel": "How are you feeling right now?"
     },
     "fixation": {
-      "title": "Your Fixation",
+      "title": "Where is your attention stuck?",
+      "why": "Dereflection starts by naming what your attention keeps circling. The more it consumes, the more your attention needs somewhere else to go — the next step is about that.",
       "whatLabel": "What problem, symptom, or concern keeps consuming your attention?",
       "whatPlaceholder": "Describe what you keep thinking about...",
       "energyLabel": "How much mental energy does this consume daily?",
@@ -1572,11 +1639,9 @@
       "impactPlaceholder": "Describe the impact on your daily activities, relationships, mood..."
     },
     "redirections": {
-      "title": "Meaningful Redirections",
-      "description": {
-        "m": "What activities, people, or causes could you redirect your attention toward?",
-        "f": "What activities, people, or causes could you redirect your attention toward?"
-      },
+      "title": "Where could your attention go instead?",
+      "description": "List at least three specific activities, people, or causes outside yourself that matter to you and that you want to give your attention to.",
+      "why": "Frankl noticed that fighting an intrusive thought only strengthens it. Attention frees up when it has something meaningful to rest on — so you look for a focus outside yourself, not a way to \"stop thinking\".",
       "suggestionsTitle": "Suggestions based on your profile",
       "suggestionsSubtext": "These life areas are going well and could nourish you:",
       "purposeText": "Your purpose:",
@@ -1585,11 +1650,12 @@
       "addAnother": "Add another"
     },
     "commit": {
-      "title": "Choose Your Commitments",
-      "description": "Choose 1-2 activities you'll commit to this week.",
+      "title": "What will you do this week?",
+      "description": "Tick 1–2 activities. For each, write when you will do it and how you will return to it when your thoughts drift off again.",
+      "why": "A specific time turns a good intention into a plan. A way back prepared in advance means a returning thought isn't a failure, just a cue to come back.",
       "whenLabel": "When will you do this?",
       "whenPlaceholder": "e.g., Tuesday and Thursday evenings after dinner",
-      "pullbackLabel": "What will you do when the fixation pulls you back?",
+      "pullbackLabel": "What will you do when your thoughts drift back to the problem?",
       "pullbackPlaceholder": "e.g., I'll notice the thought, take a breath, and redirect to..."
     },
     "summary": {
@@ -1622,7 +1688,8 @@
       "startButton": "I understand, let's begin"
     },
     "focus": {
-      "title": "Which aspect of the tragic triad would you like to explore?",
+      "title": "Which of the three hardships do you want to work with today?",
+      "why": "Frankl called suffering, guilt, and finitude the \"tragic triad\" — three things no one escapes. Each calls for different questions, so you choose one.",
       "modes": {
         "suffering": {
           "label": "Suffering",
@@ -1646,23 +1713,25 @@
     },
     "write": {
       "title": "Write Freely",
-      "description": "Write freely about your experience. There's no right way to do this — just let your thoughts flow.",
-      "placeholder": "Write here..."
+      "description": "Write freely about your experience of the theme you chose. A few sentences are enough — don't edit or judge.",
+      "why": "Writing freely about a hard experience sorts out your thoughts and eases tension. It also gives a starting point for the next questions and the conversation.",
+      "placeholder": "When I think about this..."
     },
     "guided": {
       "title": "Guided Reflection",
+      "why": "The questions lead from describing the hardship to what it says about your values and what you can do with it. That, for Frankl, is where meaning can be found.",
       "placeholder": "Take your time...",
       "suffering": {
         "q1": "What is the suffering you're carrying? Describe it as honestly as you can.",
-        "q2": "Has this suffering changed you? If so, how?",
+        "q2": "Has this suffering changed you, and how?",
         "q3": "If this suffering could speak, what would it say it's trying to teach you?"
       },
       "guilt": {
         "q1": {
-          "m": "What do you feel guilty about? Be specific and honest with yourself.",
-          "f": "What do you feel guilty about? Be specific and honest with yourself."
+          "m": "What do you feel guilty about? Describe it specifically and honestly.",
+          "f": "What do you feel guilty about? Describe it specifically and honestly."
         },
-        "q2": "What does this guilt tell you about your values? What matters to you so much that its violation causes pain?",
+        "q2": "What matters to you so much that breaking it hurts this much?",
         "q3": {
           "m": "If you could partially make amends or learn from this, what would that look like?",
           "f": "If you could partially make amends or learn from this, what would that look like?"
@@ -1679,6 +1748,7 @@
     },
     "dialogue": {
       "title": "Dialogue",
+      "description": "The guide will ask a few questions about your notes from the previous steps. Answer in your own words; you can end the conversation at any time.",
       "reminder": "Remember, working with a professional can deepen this exploration.",
       "starting": "Starting your dialogue...",
       "placeholder": "Type your response...",
@@ -1730,12 +1800,10 @@
       "emotionLabel": "How are you feeling right now?"
     },
     "statements": {
-      "title": "Your 'Because' Statements",
-      "description": {
-        "m": "What stories do you tell yourself that start with \"because\"? These are the narratives where you feel trapped by circumstances.",
-        "f": "What stories do you tell yourself that start with \"because\"? These are the narratives where you feel trapped by circumstances."
-      },
-      "shadowTitle": "Your shadow beliefs may help you identify patterns:",
+      "title": "Which \"because…\" sentences hold you back?",
+      "description": "Write at least three sentences where a circumstance you can't change decides things for you: \"Because…, I can't…\" or \"Because…, I am…\".",
+      "why": "A \"because\" sentence ties a fact to a conclusion as if the conclusion were inevitable. Once it's written down, you can see the fact is fixed but the conclusion isn't.",
+      "shadowTitle": "Your shadow beliefs — click one to start a sentence from it:",
       "placeholder": {
         "m": "e.g., \"Because I grew up poor, I'll never feel financially secure...\"",
         "f": "e.g., \"Because I grew up poor, I'll never feel financially secure...\""
@@ -1743,16 +1811,17 @@
       "addAnother": "Add another statement"
     },
     "shift": {
-      "title": "Find Your Choice Point",
+      "title": "Where do you have a choice here?",
       "counter": "{current} of {total}",
       "acknowledgment": {
         "m": "You wrote:",
         "f": "You wrote:"
       },
-      "helpButton": "Help me find my choice point",
+      "helpButton": "Help me see where I have a choice",
       "thinking": "Thinking...",
-      "reframeLabel": "Your reframe",
-      "formatHint": "Although [what happened], I choose to [your chosen response]",
+      "reframeLabel": "Rewrite the sentence",
+      "formatHint": "Keep the fact, change the conclusion: \"Although [what happened], I choose to [how you want to respond]\".",
+      "why": "Frankl called this the last of the human freedoms: circumstances may be beyond your control, but your stance toward them is not. The \"Although…, I choose…\" sentence practices that freedom.",
       "reframePlaceholder": "Although..., I choose to...",
       "previousButton": "Previous",
       "nextStatement": "Next statement"
@@ -1798,8 +1867,8 @@
       "emotionLabel": "How are you feeling right now?"
     },
     "warmup": {
-      "title": "Warm Up",
-      "description": "Before writing, reflect on a few of these prompts. Choose 2–3 that resonate.",
+      "title": "Before you write",
+      "description": "Click 2–3 questions that speak to you and answer them briefly. They'll serve as material for your letter.",
       "prompts": {
         "p1": "What do you want your children, family, or community to know about what mattered to you?",
         "p2": "What impact do you want to have had on the world?",
@@ -1817,11 +1886,13 @@
     },
     "write": {
       "title": "Your Letter",
+      "description": "Write a letter as yourself near the end of a long, well-lived life — to your loved ones, to the world, or to yourself today. A few paragraphs are enough.",
+      "why": "Looking back from the end of life separates what truly matters from day-to-day concerns. Frankl held that awareness of finitude doesn't take meaning away; it urges us to act on it.",
       "hint": {
         "m": "Consider including: what you've created and contributed, the relationships that shaped you, the suffering you overcame and what it taught you, the values you lived by.",
         "f": "Consider including: what you've created and contributed, the relationships that shaped you, the suffering you overcame and what it taught you, the values you lived by."
       },
-      "placeholder": "Dear [future / family / world]...",
+      "placeholder": "Dear [family / world / my present self]...",
       "valuesTitle": "Your core values",
       "purposeTitle": "Your purpose"
     },
@@ -1855,6 +1926,7 @@
     }
   },
   "shared": {
+    "whyLabel": "Why this step?",
     "ifs": {
       "partRoles": {
         "manager": "Manager",
@@ -1878,7 +1950,8 @@
             "m": "Not Sure",
             "f": "Not Sure"
           }
-        }
+        },
+        "unknownPart": "Unknown part"
       },
       "dialogueBubble": {
         "self": "Self",
@@ -1911,7 +1984,39 @@
         "ariaLabel": "Body location picker"
       },
       "tsibp": {
-        "labels": ["T", "S", "I", "B", "P"]
+        "labels": ["T", "S", "I", "B", "N"]
+      },
+      "bodyLocations": {
+        "head": "Head",
+        "forehead": "Forehead",
+        "eyes": "Eyes",
+        "jaw": "Jaw",
+        "throat": "Throat",
+        "chest": "Chest",
+        "heart": "Heart",
+        "shoulders": "Shoulders",
+        "upper-back": "Upper back",
+        "stomach": "Stomach",
+        "gut": "Gut",
+        "lower-back": "Lower back",
+        "hips": "Hips",
+        "hands": "Hands",
+        "legs": "Legs",
+        "feet": "Feet",
+        "whole-body": "Whole body"
+      },
+      "relationshipTypes": {
+        "protects": "protects",
+        "polarized": "polarized with",
+        "allied": "allied with",
+        "triggers": "triggers",
+        "soothes": "soothes",
+        "protectorExile": "protector–exile",
+        "noRelationship": "no direct relationship"
+      },
+      "errors": {
+        "responseFailed": "Could not get a response. Check your AI assistant connection and try again.",
+        "suggestionFailed": "Could not get a suggestion. Check your AI assistant connection and try again."
       }
     }
   },
@@ -1948,10 +2053,8 @@
     },
     "trailhead": {
       "title": "Start with a Trailhead",
-      "description": {
-        "m": "Think of a recent moment when you felt emotionally activated — more reactive than the situation seemed to warrant.",
-        "f": "Think of a recent moment when you felt emotionally activated — more reactive than the situation seemed to warrant."
-      },
+      "description": "Recall a recent moment when your reaction was stronger than the situation called for — that’s your trailhead. Describe it below.",
+      "why": "A reaction that feels too big for the situation is a sign that a part has stepped in. Starting from a real moment lets you find parts where they actually operate, not in theory.",
       "situationLabel": "What situation triggered you?",
       "situationPlaceholder": "Describe what happened...",
       "emotionsLabel": "What emotions came up?",
@@ -1960,15 +2063,13 @@
         "f": "Where did you feel it in your body?"
       },
       "thoughtsLabel": "What thoughts or inner voice showed up?",
-      "thoughtsPlaceholder": "e.g., 'You're not good enough', 'Something bad is going to happen'"
+      "thoughtsPlaceholder": "e.g., “You’ll mess this up again”, “Something bad is going to happen”"
     },
     "identifyPart": {
       "title": "Name This Part",
       "editTitle": "Edit Part",
-      "description": {
-        "m": "Based on what you just described, let's identify the part that showed up.",
-        "f": "Based on what you just described, let's identify the part that showed up."
-      },
+      "description": "Give a name to a part that speaks up in you — for example, the one from the moment you described. Then answer the questions as far as you can.",
+      "why": "A named part becomes someone you can get to know, not the whole of you. The questions below help you see what role it plays and what drives it.",
       "nameLabel": {
         "m": "What would you call this part?",
         "f": "What would you call this part?"
@@ -1983,7 +2084,15 @@
         "f": "e.g., Everything would fall apart, I'd be overwhelmed"
       },
       "protectsFrom": "Protects from: {text}",
-      "fears": "Fears: {text}"
+      "fears": "Fears: {text}",
+      "bodyLabel": "Where do you feel this part in your body? (optional)",
+      "roleHint": "You don’t have to know yet — the role can be changed later.",
+      "exileCarriesLabel": "What does this part carry? What pain or belief?",
+      "exileCarriesPlaceholder": "e.g., feeling like a burden; childhood shame; “nobody wants me”",
+      "exileNeedsLabel": "What does it need from you?",
+      "exileNeedsPlaceholder": "e.g., to be noticed; safety; not to be alone",
+      "carries": "Carries: {text}",
+      "needs": "Needs: {text}"
     },
     "addMore": {
       "title": "Your Parts So Far",
@@ -1992,10 +2101,11 @@
     },
     "visualMap": {
       "title": "Your Parts Map",
+      "why": "Parts rarely act alone: some protect others, some pull in opposite directions. The connections on the map show where inner conflicts come from.",
       "self": "Self",
       "instructions": {
-        "tapTwo": "Tap two parts to draw a connection",
-        "tapSecond": "Now tap a second part",
+        "tapTwo": "Click two parts to draw a connection",
+        "tapSecond": "Now click a second part",
         "chooseType": "Choose relationship type:"
       },
       "relationships": {
@@ -2012,8 +2122,9 @@
         "m": "What Do You Notice?",
         "f": "What Do You Notice?"
       },
-      "description": "Looking at your map, what stands out? Any surprises?",
-      "placeholder": "Share your observations...",
+      "description": "Look at your map and write down what surprises you or what keeps repeating.",
+      "why": "Looking at your parts from the outside, you see them instead of being them — that’s already a bit of unblending. From there, patterns are easier to spot.",
+      "placeholder": "I’m surprised that…",
       "aiButton": "Get AI Insights on Your Map",
       "aiButtonLoading": "Analyzing your parts map...",
       "aiDisclaimer": {
@@ -2023,7 +2134,7 @@
     },
     "lifeAreas": {
       "title": "Life Area Connections",
-      "description": "Which life areas do your parts affect most?",
+      "description": "For each part, select the life areas it affects most.",
       "emptyState": "No life areas defined yet. You can add them later in the Life Areas section."
     },
     "summary": {
@@ -2050,13 +2161,13 @@
   },
   "unblending": {
     "steps": {
-      "checkIn": "Check-In",
+      "checkIn": "Start",
       "awareness": "Awareness",
       "magicQuestion": "Magic Question",
-      "secondaryCheck": "Secondary Check",
+      "secondaryCheck": "Second Part",
       "steppingBack": "Step Back",
       "closing": "Closing",
-      "postCheck": "Post-Check"
+      "postCheck": "Finish"
     },
     "checkIn": {
       "title": "Unblending Practice",
@@ -2067,7 +2178,8 @@
     },
     "awareness": {
       "title": "Notice What's Here",
-      "description": "Is there a strong feeling or reaction running the show right now? Something that feels like it IS you rather than something you're experiencing?",
+      "description": "Is a strong feeling or reaction running the show right now — so that it feels like you, rather than something you’re experiencing?",
+      "why": "As long as a feeling seems to be you, you can’t step back from it. Noticing and naming it is the first step of unblending — often it already makes a little room.",
       "options": {
         "yes": "Yes — something is really active right now",
         "maybe": {
@@ -2086,6 +2198,7 @@
         "m": "If you feel curious, compassionate, or calm toward it — that's your Self. If you feel annoyed, scared, or critical — that's another part reacting to the first one.",
         "f": "If you feel curious, compassionate, or calm toward it — that's your Self. If you feel annoyed, scared, or critical — that's another part reacting to the first one."
       },
+      "why": "In IFS, a part shifts only when it senses the Self looking at it. When one part fights another, both usually grow stronger.",
       "options": {
         "selfEnergy": {
           "m": "I feel curious, open, or compassionate",
@@ -2103,12 +2216,9 @@
         "m": "That frustration, fear, or judgment is another part. Can you ask it to step back just a little, so you can get curious about the first part?",
         "f": "That frustration, fear, or judgment is another part. Can you ask it to step back just a little, so you can get curious about the first part?"
       },
-      "breathingPrompt": "Tap to begin breathing exercise",
+      "why": "A part reacting to another (say, anger at your own fear) blocks access to the first one. Asking it for a little room usually works better than arguing with it.",
+      "breathingPrompt": "Click to begin the breathing exercise",
       "breathingLabel": {
-        "ready": {
-          "m": "Ready",
-          "f": "Ready"
-        },
         "breatheIn": "Breathe in...",
         "hold": "Hold...",
         "breatheOut": "Breathe out...",
@@ -2127,20 +2237,22 @@
       "partLabel": {
         "m": "What would you call this second part? (optional)",
         "f": "What would you call this second part? (optional)"
-      }
+      },
+      "stillReactiveTitle": "This second part needs attention now",
+      "stillReactiveHint": "In IFS, when the second part won’t step back, it becomes the target — we don’t push past it to the first one. You can also simply finish for today.",
+      "switchTargetButton": "I’ll turn to this second part",
+      "endGentlyButton": "I’ll finish for today"
     },
     "steppingBack": {
       "title": "Ask the Part to Step Back",
       "description": "Now, gently ask the part if it would be willing to step back just a little. Not go away — just give you some breathing room.",
+      "why": "Parts rarely disappear on command, but they often agree to make some room when asked kindly. That space is where the Self shows up.",
       "timerPrompt": "Take your time...",
       "timerDone": "Time's up",
-      "timerTap": "Tap to start",
+      "timerTap": "Click to start",
       "beginButton": "Begin",
-      "shiftLabel": "What happened? Did anything shift?",
-      "shiftPlaceholder": {
-        "m": "Describe any shift you noticed...",
-        "f": "Describe any shift you noticed..."
-      }
+      "shiftLabel": "What do you notice after asking?",
+      "shiftPlaceholder": "e.g., my shoulders dropped a little; the fear is still there, but further away"
     },
     "closing": {
       "title": "How Much Space Do You Feel?",
@@ -2149,7 +2261,8 @@
         "m": "Still blended",
         "f": "Still blended"
       },
-      "maxLabel": "Lots of space"
+      "maxLabel": "Lots of space",
+      "thankPart": "Thank the part for making room for you — even a little. It took the risk."
     },
     "postCheck": {
       "title": "Practice Complete",
@@ -2174,17 +2287,19 @@
       "save": "Save"
     },
     "partSelect": {
-      "title": "Direct Access Dialogue",
-      "description": "Have a conversation directly with one of your parts. The AI will respond as the part would, based on what you know about it.",
+      "title": "Talking with a Part of Yourself",
+      "description": "Have a conversation with one of your parts. The AI models what the part might say, based on what you know about it — treat the replies as prompts for your own inner listening, not as your part’s actual voice.",
       "emptyState": "You need to create parts first. Go to <span class=\"font-medium text-primary\">Parts Mapping</span> to identify and name your parts.",
       "label": {
         "m": "Which part would you like to speak with?",
         "f": "Which part would you like to speak with?"
-      }
+      },
+      "defaultName": "Part"
     },
     "selfCheck": {
       "title": "Self-Energy Check",
-      "description": "Before starting a dialogue, it's important to check that you're coming from a place of curiosity and openness — your Self — rather than from another part.",
+      "description": "Before you start, check whether you’re looking at this part with curiosity (from Self) or through another part.",
+      "why": "A part opens up when it senses curiosity and goodwill. If another part is leading — a critical one, say — you’ll usually get defensiveness instead of answers.",
       "question": "How do you feel toward {partName}?",
       "options": {
         "selfEnergy": {
@@ -2207,17 +2322,20 @@
         "breatheIn": "Breathe in...",
         "hold": "Hold...",
         "breatheOut": "Breathe out..."
-      }
+      },
+      "notTodayButton": "Not today — I’ll come back with more Self"
     },
     "dialogue": {
       "title": "Dialogue with {partName}",
-      "emptyState": "Start the conversation. Ask your part a question.",
+      "why": "Questions asked with curiosity, without judgment, let a part show its job and its fears. Treat the AI’s replies as prompts — check what resonates in you.",
+      "emptyState": "Ask your part a question — you can click a suggestion above. Save an important reply as an insight with the bookmark icon.",
       "suggestedQuestions": [
         "What is your job?",
         "What are you protecting?",
-        "What would happen if you stopped?",
+        "What are you afraid would happen if you stopped?",
         "What do you need from me?",
-        "How old are you?"
+        "How old are you?",
+        "How long have you been doing this?"
       ],
       "placeholder": "Speak from your Self...",
       "sendButton": "Send",
@@ -2279,32 +2397,29 @@
       "notesLabel": "Notes (optional)",
       "notesPlaceholder": "Any additional notes...",
       "saveButton": "Save Session",
-      "saving": "Saving..."
-    },
-    "errors": {
-      "responseFailed": "Failed to get response"
+      "saving": "Saving...",
+      "updatePartLabel": "Update the part’s card with these discoveries?",
+      "updatePartHint": "Job, fear and need will be written to the part’s card (only empty fields are filled in)."
     }
   },
   "trailhead": {
     "steps": {
-      "trigger": "Trigger",
+      "trigger": "Moment",
       "thoughts": "Thoughts",
       "sensations": "Sensations",
       "images": "Images",
       "behaviors": "Behaviors",
-      "perception": "Perception",
+      "perception": "Now",
       "partLink": "Part Link",
       "reflection": "Reflection"
     },
     "trigger": {
       "title": "Trailhead Journal",
       "subtitle": "Use emotional triggers as doorways to understanding your parts",
-      "description": "In IFS, a \"trailhead\" is any moment of emotional activation — a time when your reaction felt bigger than the situation warranted. These moments are invitations to discover which parts are at work.",
+      "description": "In IFS, a “trailhead” is a moment when your reaction was bigger than the situation called for. Describe one such moment from the last few days.",
+      "why": "A moment like this leads to the part that took over. The next steps — thoughts, sensations, images, behaviors — help you recognize it.",
       "questionLabel": "What happened?",
-      "questionPlaceholder": {
-        "m": "Think of a moment in the last day or two when you felt emotionally activated...",
-        "f": "Think of a moment in the last day or two when you felt emotionally activated..."
-      },
+      "questionPlaceholder": "e.g., In a meeting my boss cut me off mid-sentence and…",
       "emotionsLabel": "What emotions came up?",
       "intensityLabel": "How intense was it?",
       "intensityMin": "Mild",
@@ -2317,6 +2432,7 @@
     "thoughts": {
       "title": "Thoughts",
       "description": "What thoughts or inner voices showed up in that moment?",
+      "why": "Thoughts, sensations, images and behaviors are the tracks that reveal a part. Each part has its own set, so after a few entries you’ll start spotting it sooner.",
       "placeholder": "e.g., 'I'm going to fail' or 'They don't care about me' or 'I need to fix this now'"
     },
     "sensations": {
@@ -2325,6 +2441,7 @@
         "m": "What physical sensations did you notice?",
         "f": "What physical sensations did you notice?"
       },
+      "why": "Parts often show up in the body first. Knowing the sensation helps you notice a part switching on sooner — before it takes over.",
       "placeholder": "e.g., tightness in chest, knot in stomach, heat in face, tension in shoulders"
     },
     "images": {
@@ -2339,24 +2456,27 @@
         "m": "What did you do (or want to do) in response?",
         "f": "What did you do (or want to do) in response?"
       },
+      "why": "Behavior shows how the part tries to protect you — by withdrawing or taking control, for example. It’s usually the easiest clue to its job.",
       "placeholder": {
         "m": "e.g., snapped at someone, withdrew, scrolled my phone, worked harder, ate comfort food",
         "f": "e.g., snapped at someone, withdrew, scrolled my phone, worked harder, ate comfort food"
       }
     },
     "perception": {
-      "title": "Overall Perception",
-      "description": "Overall, did the moment feel more tense or more relaxed?",
-      "tensionLabel": "Tension level",
-      "tensionMin": "Very tense",
-      "tensionMax": "Very relaxed"
+      "title": "How Is It Now?",
+      "description": "Come back to the present. Mark how you feel now, looking back at that moment.",
+      "why": "It’s a short unblending practice: describing a trailhead often makes some room between you and the part. Comparing with the intensity from the first step shows how much.",
+      "tensionLabel": "State now",
+      "tensionMin": "Still tense",
+      "tensionMax": "Calm and spacious"
     },
     "partLink": {
       "title": "Which Part Was This?",
       "description": {
-        "m": "Based on what you've described, does this feel like a part you already know?",
-        "f": "Based on what you've described, does this feel like a part you already know?"
+        "m": "Based on what you’ve described, does this feel like a part you already know? If it’s a new one, add it.",
+        "f": "Based on what you’ve described, does this feel like a part you already know? If it’s a new one, add it."
       },
+      "why": "Entries linked to a part show, over time, when and by what it gets activated.",
       "unsureMessage": {
         "m": "Not sure? That's fine — you can always link it to a part later.",
         "f": "Not sure? That's fine — you can always link it to a part later."
@@ -2370,8 +2490,8 @@
         "body": "Body"
       },
       "linkedPart": "Linked part:",
-      "reflectionLabel": "What do you notice about when this part gets activated?",
-      "reflectionPlaceholder": "Any patterns you notice...",
+      "reflectionLabel": "When does this part usually get activated?",
+      "reflectionPlaceholder": "Usually when…",
       "analyzeButton": "Analyze Patterns Across Your Trailheads",
       "analyzingPatterns": "Analyzing patterns...",
       "analysisDisclaimer": "This analysis is based on patterns in your trailhead entries. Your inner experience is uniquely yours.",
@@ -2394,7 +2514,7 @@
       "appreciationLetter": "Letter",
       "response": "Response",
       "commitment": "Commitment",
-      "checkIn": "Check-In",
+      "checkIn": "Coming Back",
       "summary": "Save"
     },
     "selectProtector": {
@@ -2409,8 +2529,9 @@
     },
     "understandJob": {
       "title": "Understanding {partName}'s Job",
-      "triggersLabel": "What does this protector protect you from? When does it activate?",
-      "triggersPlaceholder": "Describe what triggers this part and what it protects you from...",
+      "why": "A protector usually does something difficult for a good reason. Once you understand what it guards against and what it fears, thanking it comes easier than fighting it.",
+      "triggersLabel": "What does this protector protect you from?",
+      "triggersPlaceholder": "e.g., from criticism — it switches on when I have to show my work to others",
       "behaviorsLabel": "How does it protect you? (select all that apply)",
       "behaviorOptions": {
         "perfectionism": "Perfectionism",
@@ -2429,11 +2550,14 @@
       "addButton": "Add",
       "workloadLabel": "How hard is this protector working?",
       "workloadMin": "Light duty",
-      "workloadMax": "Constant overtime"
+      "workloadMax": "Constant overtime",
+      "fearLabel": "What is this part afraid would happen if it stopped?",
+      "fearPlaceholder": "e.g., everything would fall apart; I’d be rejected; the pain would come back"
     },
     "appreciationLetter": {
       "title": "Write to {partName}",
-      "description": "Write a letter of appreciation. This might be the first time this part has been thanked instead of fought.",
+      "description": "Write this part a letter thanking it for what it does for you. You can start with one of the prompts below.",
+      "why": "Protectors mostly hear criticism. Appreciation may be the first time they’re thanked instead of fought — and it often softens their vigilance.",
       "letterPrompts": {
         "iSeeThat": "Dear {partName}, I see that you...",
         "iKnow": "I know you're trying to...",
@@ -2444,10 +2568,8 @@
     },
     "response": {
       "title": "{partName}'s Response",
-      "promptQuestion": {
-        "m": "How would you like to hear back from {partName}?",
-        "f": "How would you like to hear back from {partName}?"
-      },
+      "promptQuestion": "How would you like to hear back from this part?",
+      "why": "Hearing a reply turns the letter into a conversation. Writing it yourself trains you to listen to the part; the AI only suggests what it might say.",
       "aiOption": "Let AI generate a response",
       "aiOptionDescription": "Based on what you know about this part",
       "selfOption": {
@@ -2462,38 +2584,29 @@
     },
     "commitment": {
       "title": "Commitment (Optional)",
-      "description": {
-        "m": "Is there something you'd like to offer {partName} to ease its workload?",
-        "f": "Is there something you'd like to offer {partName} to ease its workload?"
-      },
+      "description": "Is there something you’d like to offer this part to ease its workload?",
+      "why": "A small, real commitment shows the part it isn’t left alone with its job. Over time, that makes it easier for it to ease off.",
       "chips": [
-        "I'll try to notice you before reacting",
-        "I'll take a break when you activate",
-        {
-          "m": "I'll journal when I feel you",
-          "f": "I'll journal when I feel you"
-        },
-        {
-          "m": "I'll check in with you regularly",
-          "f": "I'll check in with you regularly"
-        }
+        "I’ll try to notice you before reacting",
+        "I’ll take a break when you activate",
+        "I’ll journal when I feel you",
+        "I’ll come back to you regularly"
       ],
       "placeholder": "What do you commit to? (optional)",
       "skipButton": "Skip"
     },
     "checkIn": {
-      "title": "Check-In Schedule (Optional)",
-      "description": {
-        "m": "Would you like to regularly check in with {partName}?",
-        "f": "Would you like to regularly check in with {partName}?"
-      },
+      "title": "Coming Back (Optional)",
+      "description": "Would you like to come back to “{partName}” regularly? We’ll schedule the next Appreciation in your exercise plan.",
+      "why": "A protector’s trust grows through repeated visits, not a single letter.",
       "frequencyOptions": {
         "weekly": "Weekly",
         "biweekly": "Every two weeks",
         "monthly": "Monthly",
         "none": "No schedule"
       },
-      "reviewButton": "Review & Save"
+      "reviewButton": "Review & Save",
+      "planned": "Return planned: {date}"
     },
     "summary": {
       "title": "Save Appreciation",
@@ -2504,12 +2617,14 @@
         "letterExcerpt": "Letter excerpt",
         "response": "Response",
         "commitment": "Commitment:",
-        "checkIn": "Check-in:"
+        "checkIn": "Return:"
       },
       "notesLabel": "Notes (optional)",
       "notesPlaceholder": "Any additional notes...",
       "saveButton": "Save Appreciation",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "updatePartLabel": "Update the part’s card?",
+      "updatePartHint": "The protector’s fear and what it protects from will be written to the part’s card (only empty fields are filled in)."
     }
   },
   "exileWitnessing": {
@@ -2521,10 +2636,10 @@
       "compassion": "Compassion",
       "closing": "Closing",
       "reflection": "Reflection",
-      "summary": "Summary"
+      "selfCheck": "Who’s Looking?"
     },
     "safety": {
-      "title": "Exile Witnessing & Compassion",
+      "title": "Exile Witnessing",
       "description": {
         "m": "This exercise guides you in gently approaching an exile — a vulnerable part that carries old pain or beliefs. You'll check in with protectors first, then simply be present with the exile and offer compassion.",
         "f": "This exercise guides you in gently approaching an exile — a vulnerable part that carries old pain or beliefs. You'll check in with protectors first, then simply be present with the exile and offer compassion."
@@ -2534,7 +2649,8 @@
     },
     "protectorCheck": {
       "title": "Getting Permission",
-      "description": "Before approaching an exile, we ask the protector parts that guard them. Select any protectors that might be involved.",
+      "description": "Select the protectors that might guard this exile. Then silently ask them for permission and choose what they answer.",
+      "why": "Protectors guard an exile because they fear its pain will flood you. Asking permission respects their role — going around them usually makes them come back stronger.",
       "silentQuestion": "Close your eyes. Silently ask: \"Is it okay if I approach this exile?\"",
       "listenPrompt": "Take a moment to listen...",
       "permissionLabel": "What do the protectors say?",
@@ -2552,12 +2668,12 @@
           "description": "They're not ready — the exile is too vulnerable right now"
         }
       },
-      "blockingMessage": "That's okay — the protectors aren't ready. Try the <strong>Protector Appreciation</strong> exercise first to build trust with them.",
-      "continueButton": "Continue"
+      "blockingMessage": "That's okay — the protectors aren't ready. Try the <strong>Protector Appreciation</strong> exercise first to build trust with them."
     },
     "approach": {
       "title": "Approaching the Exile",
-      "description": "Go slowly. Turn your attention inward and sense the vulnerable part.",
+      "description": "Go slowly. Turn your attention inward and sense the vulnerable part. Mark what you notice — whatever comes on its own is enough.",
+      "why": "Questions about body, age and emotion help you sense the part as someone specific, separate from you. That makes it easier to be with it, not in it.",
       "bodyLocationLabel": "Where do you sense it in your body?",
       "feltAgeLabel": "How old does this part feel?",
       "feltAgePlaceholder": "e.g., 5",
@@ -2566,7 +2682,8 @@
     },
     "witness": {
       "title": "Being Present",
-      "description": "Simply be with this part. You don't need to fix anything.",
+      "description": "Stay with this part and listen — you don’t need to fix anything. If something comes, write down what it wants you to know and what it came to believe.",
+      "why": "An exile has usually waited a long time to be seen. Simply listening, without fixing, is the heart of witnessing in IFS.",
       "messagePlaceholder": {
         "m": "What does this part want you to know?",
         "f": "What does this part want you to know?"
@@ -2580,6 +2697,7 @@
         "m": "What would you like to say to this part?",
         "f": "What would you like to say to this part?"
       },
+      "why": "An exile often still lives in that old moment, alone with the pain. Words from the Self show it that someone is with it now.",
       "chips": [
         "I see you.",
         "That wasn't your fault.",
@@ -2599,14 +2717,16 @@
     },
     "closing": {
       "title": "Closing",
-      "description": "How does the exile seem now?",
-      "postStateOptions": [
-        { "value": "calmer", "label": "Calmer" },
-        { "value": "same", "label": "About the same" },
-        { "value": "more-distressed", "label": "More distressed" }
-      ],
+      "description": "How does this part seem to feel now?",
       "distressedWarning": "Being seen sometimes brings up more feeling — that's normal and not a sign something went wrong. If this persists, consider sharing with a therapist who can provide deeper support.",
-      "thankProtectors": "Thank the protectors who allowed this. They showed courage too."
+      "thankProtectors": "Thank the protectors who allowed this. They showed courage too.",
+      "promiseLabel": "Would you like to promise this part something? (optional)",
+      "promiseChips": [
+        "I’ll come back to you.",
+        "I’ll remember you.",
+        "You can call me."
+      ],
+      "promisePlaceholder": "Your promise..."
     },
     "reflection": {
       "title": "Reflection",
@@ -2619,21 +2739,33 @@
       "compassionLabel": "Compassion:",
       "postSessionLabel": "Post-session:",
       "reflectionPlaceholder": "What do you want to remember from this experience?",
-      "notesPlaceholder": "Additional notes (optional)"
+      "notesPlaceholder": "Additional notes (optional)",
+      "promiseLabel": "Promise:",
+      "stoppedEarly": "Stopped early — that’s okay too.",
+      "updatePartLabel": "Update the exile’s card?",
+      "updatePartHint": "Felt age, burden (belief) and body location will be written to the part’s card (empty fields only)."
+    },
+    "selfCheck": {
+      "title": "How Do You Feel Toward This Part?",
+      "description": "Before you listen to this part, check who is looking at it. Curiosity, care or calm is the Self; impatience, shame or an urge to “fix this” is another protector.",
+      "why": "An exile opens up to the Self. When another protector is looking, usually nothing happens — or the pain starts to flood in.",
+      "options": {
+        "selfEnergy": "I feel curiosity, care or calm",
+        "notQuite": "Something else is looking — impatience, judgment, fear"
+      },
+      "breathingPrompt": "Ask that part to make a little room for you. Breathe.",
+      "breathingDone": "How is it now?",
+      "continueButton": "There’s more Self — continuing",
+      "notTodayButton": "Not today — I’ll come back with more Self"
+    },
+    "stop": {
+      "button": "Stop here",
+      "title": "Let’s stop here",
+      "text": "You don’t have to finish anything. Feel your feet on the floor. Look around and name three things you can see. Take three slow breaths. Thank the protectors — they did their job.",
+      "continueButton": "Go to closing",
+      "resumeButton": "Back to the exercise"
     },
     "summary": {
-      "title": "Witnessing Complete",
-      "sections": {
-        "exile": "Exile",
-        "age": "Age",
-        "emotions": "Emotions",
-        "witnessing": "Witnessing",
-        "offered": "Compassion Offered",
-        "response": "Exile's Response"
-      },
-      "protectorsInvolved": "Protectors Involved",
-      "notesLabel": "Notes (optional)",
-      "notesPlaceholder": "Any reflections...",
       "saveButton": "Save",
       "saving": "Saving...",
       "postState": {
@@ -2646,27 +2778,32 @@
   "selfEnergy": {
     "steps": {
       "checkIn": "Check-In",
-      "growthEdge": "Growth Edge",
+      "growthEdge": "Today’s Gap",
       "microPractice": "Micro-Practice",
       "saveAndReview": "Save & Review"
     },
     "checkIn": {
       "title": "Self-Energy Check-In",
-      "subtitle": "Rate your 8 C's — takes about 30 seconds"
+      "subtitle": "Click each of the 8 Self qualities (the 8 C’s) on the wheel and rate it from 1 to 5 — about 30 seconds.",
+      "why": "The 8 C’s are the qualities of the Self in IFS. A quick rating shows how much Self is available today and which quality could use a moment."
     },
     "gap": {
-      "title": "Today's Growth Edge",
+      "title": "Today’s Gap",
       "looksLike": "It looks like {quality} is lower today (rated {rating}/5). That's okay — it often means a part is taking up that space.",
       "partQuestion": "Can you sense which part might be affecting your {quality}?",
       "unsureMessage": {
         "m": "Not sure? That's perfectly fine — just noticing the gap is valuable.",
         "f": "Not sure? That's perfectly fine — just noticing the gap is valuable."
-      }
+      },
+      "allHighTitle": "All eight C’s are high today",
+      "allHigh": "Every rating is a 4 or 5 — there’s no gap to fill. You can save the check-in right away or pick a micro-practice just for the pleasure of it.",
+      "tieLabel": "Several C’s share the lowest rating. Which one do you pick today?",
+      "skipButton": "Save without a micro-practice"
     },
     "microPractice": {
       "title": "{quality} Micro-Practice",
       "calm": {
-        "title": "60-Second Box Breathing",
+        "title": "Box Breathing 4-4-4-4 (60 seconds)",
         "ready": {
           "m": "Ready",
           "f": "Ready"
@@ -2681,10 +2818,7 @@
       },
       "curiosity": {
         "title": "The Curiosity Shift",
-        "description": {
-          "m": "Pick something you're reacting to today. Ask yourself: \"What if I got curious about this instead of frustrated?\"",
-          "f": "Pick something you're reacting to today. Ask yourself: \"What if I got curious about this instead of frustrated?\""
-        },
+        "description": "Pick something you’re reacting to today. Ask: “What if I approached this with curiosity instead of frustration?”",
         "placeholder": "What happens when you approach it with curiosity?"
       },
       "compassion": {
@@ -2702,10 +2836,7 @@
       },
       "courage": {
         "title": "One Brave Thing",
-        "description": {
-          "m": "What's one small brave thing you could do today?",
-          "f": "What's one small brave thing you could do today?"
-        },
+        "description": "What’s one small brave thing you could do today?",
         "placeholder": "One brave action..."
       },
       "creativity": {
@@ -2726,10 +2857,7 @@
       },
       "connection": {
         "title": "Reach Out",
-        "description": {
-          "m": "Who could you reach out to today, even briefly?",
-          "f": "Who could you reach out to today, even briefly?"
-        },
+        "description": "Who could you reach out to today, even briefly?",
         "placeholder": "A person to connect with..."
       }
     },
@@ -2772,22 +2900,29 @@
     "intention": {
       "title": "Set Your Intention",
       "description": "What do you hope to explore in this dialogue with {partName}?",
+      "why": "An intention gives the dialogue direction and reminds you that you’re approaching the part with curiosity, not to change it.",
       "chips": [
         "Understand what this part needs",
         "Explore why it activates",
         "Build a relationship",
-        "Ask about its fears"
+        "Ask about its fears",
+        "Thank it"
       ],
       "placeholder": "What do you want to explore?",
-      "beginButton": "Begin Dialogue"
+      "beginButton": "Begin Dialogue",
+      "selfCheckQuestion": "How do you feel toward this part right now?",
+      "selfCheckSelf": "Curiosity, openness or care",
+      "selfCheckReactive": "Something else — frustration, judgment, fear",
+      "selfCheckHint": "If another part is reacting, ask it for a little room — or start the dialogue with that part instead: “What worries you about this conversation?”"
     },
     "dialogue": {
       "title": "Dialogue with {partName}",
+      "why": "Writing as the part gives it a voice without censorship. The first answer that comes is usually closer to the part than a considered one.",
       "speakers": {
         "self": "Self",
         "part": "{partName}"
       },
-      "emptyState": "Write as Self first, then switch to {partName}'s voice.",
+      "emptyState": "The buttons at the top choose who is speaking. Start as Self, then switch to {partName} and write what it answers.",
       "suggestedQuestions": [
         "What do you need?",
         "What are you afraid of?",
@@ -2809,7 +2944,7 @@
     },
     "insights": {
       "title": "Capture Insights",
-      "description": "Review your dialogue and tag any important moments.",
+      "description": "Click the bookmark icon next to an important line and write down what you notice.",
       "tagThisMoment": "Tag this moment",
       "whatDidYouNotice": {
         "m": "What did you notice?",
@@ -2873,7 +3008,7 @@
         },
         "eveningReflection": {
           "label": "Evening Reflection",
-          "description": "Review today's parts and your response",
+          "description": "Which parts were active today and where your responses came from",
           "duration": "~3 min"
         }
       }
@@ -2881,32 +3016,31 @@
     "practice": {
       "weatherReport": {
         "title": "Parts Weather Report",
-        "description": "Which parts are active right now?",
+        "description": "Select the parts that are active right now and rate how strongly.",
+        "why": "Briefly noticing your parts on a regular basis teaches you to recognize them early — before they take over.",
         "intensityLabel": "Intensity",
         "triggerPlaceholder": "What triggered it? (optional)"
       },
       "gratitudeToPart": {
         "title": "Gratitude to a Part",
         "description": "Thank a part for what it did for you today.",
+        "why": "Everyday appreciation builds trust between your parts and the Self. A protector that gets noticed has less need to fight for attention.",
         "partLabel": "Which part are you thanking?",
         "notePlaceholder": "What did this part do for you today?",
-        "thankYou": "Thank you, {partName}, for {note}"
+        "thankYou": "Thank you, {partName}. {note}"
       },
       "selfEnergyMoment": {
         "title": "Self-Energy Moment",
-        "description": "Which of the 8 C's do you most need right now?",
+        "description": "Pick the Self quality (one of the 8 C’s) you most need right now and do the short practice.",
         "microPractices": {
           "calm": {
-            "label": "60-Second Box Breathing",
+            "label": "Box Breathing 4-4-4-4 (60 seconds)",
             "prompt": "Inhale 4s, hold 4s, exhale 4s, hold 4s. Repeat for one minute.",
             "placeholder": "How do you feel after breathing?"
           },
           "curiosity": {
             "label": "The Curiosity Shift",
-            "prompt": {
-              "m": "Pick something you're reacting to. Ask: \"What if I got curious instead of frustrated?\"",
-              "f": "Pick something you're reacting to. Ask: \"What if I got curious instead of frustrated?\""
-            },
+            "prompt": "Pick something you’re reacting to today. Ask: “What if I approached this with curiosity instead of frustration?”",
             "placeholder": "What happens when you approach it with curiosity?"
           },
           "compassion": {
@@ -2924,10 +3058,7 @@
           },
           "courage": {
             "label": "One Brave Thing",
-            "prompt": {
-              "m": "What's one small brave thing you could do today?",
-              "f": "What's one small brave thing you could do today?"
-            },
+            "prompt": "What’s one small brave thing you could do today?",
             "placeholder": "One brave action..."
           },
           "creativity": {
@@ -2948,28 +3079,23 @@
           },
           "connection": {
             "label": "Reach Out",
-            "prompt": {
-              "m": "Who could you reach out to today, even briefly?",
-              "f": "Who could you reach out to today, even briefly?"
-            },
+            "prompt": "Who could you reach out to today, even briefly?",
             "placeholder": "A person to connect with..."
           }
         }
       },
       "eveningReflection": {
         "title": "Evening Reflection",
-        "description": "Review today's parts and your response.",
+        "description": "Select the parts that were active today, then rate who led more often: Self or your parts.",
+        "why": "This isn’t a grade, just noticing. Seeing when parts take the lead makes it easier to step back into Self next time.",
         "activePartsLabel": "Which parts were most active today?",
         "intensityLabel": "Intensity",
         "triggerPlaceholder": "What triggered it?",
-        "responseLabel": {
-          "m": "How did you respond today?",
-          "f": "How did you respond today?"
-        },
+        "responseLabel": "Where did your responses mostly come from today?",
         "leadershipOptions": {
           "mostlySelf": "Mostly from Self",
           "mostlyPart": "Mostly from a part",
-          "mixed": "A mix"
+          "mixed": "Half and half"
         },
         "reflectionPlaceholder": {
           "m": "What would you do differently? (optional)",
@@ -2992,45 +3118,36 @@
       "selfLeadership": "Self-leadership: {label}",
       "appreciation": "Appreciation: {note}",
       "weeklyCheckIns": {
-        "one": "{n} check-in this week",
-        "few": "{n} check-ins this week",
-        "many": "{n} check-ins this week",
-        "other": "{n} check-ins this week"
+        "one": "{n} check-in in the last 7 days",
+        "few": "{n} check-ins in the last 7 days",
+        "many": "{n} check-ins in the last 7 days",
+        "other": "{n} check-ins in the last 7 days"
       },
       "getWeeklySummary": "Get Weekly Parts Summary",
       "moreForSummary": {
-        "one": "Complete {n} more check-in this week for a weekly summary",
-        "few": "Complete {n} more check-ins this week for a weekly summary",
-        "many": "Complete {n} more check-ins this week for a weekly summary",
-        "other": "Complete {n} more check-ins this week for a weekly summary"
+        "one": "Complete {n} more check-in in the last 7 days to get a weekly summary",
+        "few": "Complete {n} more check-ins in the last 7 days to get a weekly summary",
+        "many": "Complete {n} more check-ins in the last 7 days to get a weekly summary",
+        "other": "Complete {n} more check-ins in the last 7 days to get a weekly summary"
       },
       "notesPlaceholder": "Additional notes (optional)",
-      "saveButton": "Save Check-In",
-      "saving": "Saving..."
+      "saveButton": "Save Check-In"
     }
   },
   "constellation": {
     "steps": {
       "prerequisites": "Prerequisites",
       "selectParts": "Select Parts",
-      "mapRelationships": "Map Relationships",
       "relationships": "Relationships",
       "polarizations": "Polarizations",
-      "alliances": "Alliances",
-      "cascades": "Cascades",
       "constellation": "Constellation",
       "insights": "Insights",
-      "reflection": "Reflection",
-      "save": "Save",
-      "summary": "Summary"
+      "save": "Save"
     },
     "prerequisites": {
       "title": "Inner System Constellation",
       "description": "Parts form alliances, oppositions, and cascading chains. A Perfectionist and Procrastinator might look opposite but both protect the same wounded exile.",
-      "checkPassed": {
-        "m": "You have {count} parts mapped. Ready to explore their relationships.",
-        "f": "You have {count} parts mapped. Ready to explore their relationships."
-      },
+      "checkPassed": "Parts mapped: {count}. You can explore how they relate.",
       "checkFailed": "You need at least 3 parts mapped. Try Parts Mapping first.",
       "beginButton": "Begin"
     },
@@ -3040,20 +3157,14 @@
         "m": "Select 3-5 parts you'd like to explore the relationships between.",
         "f": "Select 3-5 parts you'd like to explore the relationships between."
       },
-      "counter": "{count} of 3-5 selected"
+      "counter": "Selected: {count} (need 3–5)"
     },
     "mapRelationships": {
       "title": "How Do They Relate?",
+      "description": "For each pair, choose how they affect each other: polarized parts pull in opposite directions, allied ones support each other, “protects” means one guards the other.",
+      "why": "Inner conflicts rarely involve just one part. Seeing the pairs makes it easier to spot which parts clash and which work together.",
       "pairSeparator": "↔",
       "notePlaceholder": "When {partA} is active, what happens to {partB}?",
-      "relationshipTypes": {
-        "protects": "Protects",
-        "polarized": "Polarized with",
-        "allied": "Allied with",
-        "triggers": "Triggers",
-        "soothes": "Soothes",
-        "none": "No direct relationship"
-      },
       "shortLabels": {
         "polarized": "Polarized",
         "allied": "Allied",
@@ -3064,42 +3175,17 @@
     "polarizationDeepDive": {
       "title": "Exploring Polarizations",
       "description": "Polarized parts are often the most revealing — they may both be protecting the same wound.",
+      "why": "When each side hears what the other thinks, it usually becomes clear that both want good things for you. That softens the fight and reveals what they both protect.",
       "vs": "vs",
       "partAThinks": "What does {partA} think about {partB}?",
-      "partAThinkPlaceholder": "e.g., '{partB} is lazy and irresponsible'",
+      "partAThinkPlaceholder": "e.g., “{partB}? Lazy and irresponsible.”",
       "partBThinks": "What does {partB} think about {partA}?",
-      "partBThinkPlaceholder": "e.g., '{partA} is exhausting and never satisfied'",
+      "partBThinkPlaceholder": "e.g., “{partA}? Endless demands, never enough.”",
       "ifOneWon": "What would happen if one of them \"won\"?",
-      "ifOneWonPlaceholder": "What if one part completely took over?",
+      "ifOneWonPlaceholder": "e.g., If the Critic won, there’d be no rest at all",
       "commonProtection": "What might they BOTH be protecting?",
-      "commonProtectionPlaceholder": "Often, polarized parts protect the same exile from different angles.",
+      "commonProtectionPlaceholder": "e.g., a young part that felt not good enough",
       "commonProtectionHint": "Hint: Polarized parts often guard the same vulnerable part from different angles."
-    },
-    "polarizations": {
-      "title": "Polarizations",
-      "description": "Polarized parts look like opposites but often protect the same thing.",
-      "emptyState": "No polarizations identified yet.",
-      "questionLabel": "What are {partA} and {partB} both trying to protect you from?",
-      "questionPlaceholder": "e.g., feeling vulnerable, being judged"
-    },
-    "alliances": {
-      "title": "Alliances",
-      "description": "Allied parts work together. They share a mission.",
-      "emptyState": "No alliances identified yet.",
-      "questionLabel": "What is the shared mission of {partA} and {partB}?",
-      "questionPlaceholder": "e.g., keeping you safe, avoiding conflict"
-    },
-    "cascades": {
-      "title": "Cascading Chains",
-      "description": "Sometimes one part triggers another in a chain reaction.",
-      "instructions": {
-        "m": "If you notice a sequence (e.g., Critic triggers Procrastinator triggers Self-Blame), describe it here.",
-        "f": "If you notice a sequence (e.g., Critic triggers Procrastinator triggers Self-Blame), describe it here."
-      },
-      "placeholder": {
-        "m": "Describe any chain reactions you notice...",
-        "f": "Describe any chain reactions you notice..."
-      }
     },
     "visual": {
       "title": "Your Constellation",
@@ -3108,13 +3194,15 @@
         "polarized": "Polarized",
         "allied": "Allied",
         "protects": "Protects"
-      }
+      },
+      "cascadesLabel": "Cascades (optional): what triggers what?",
+      "cascadesPlaceholder": "e.g., the Critic triggers the Procrastinator, which triggers Shame...",
+      "cascadesHint": "A chain reaction is often the most valuable insight about the system."
     },
     "reflection": {
       "title": "System Insights",
       "placeholder": "Looking at your inner constellation, what patterns do you see?",
       "aiButton": "Analyze My System",
-      "aiButtonLoading": "Analyzing your constellation...",
       "aiDisclaimer": {
         "m": "This analysis reflects patterns in what you've shared. A therapist trained in IFS can help explore these dynamics more deeply, especially where trauma may be involved.",
         "f": "This analysis reflects patterns in what you've shared. A therapist trained in IFS can help explore these dynamics more deeply, especially where trauma may be involved."
@@ -3123,51 +3211,46 @@
     "save": {
       "title": "Save Constellation",
       "partsLabel": "Parts:",
-      "countPolarized": "{count} polarized",
-      "countAllied": "{count} allied",
-      "countProtectorExile": "{count} protector-exile",
+      "countPolarized": "polarized: {count}",
+      "countAllied": "allied: {count}",
+      "countProtectorExile": "protector–exile: {count}",
       "mayBothProtect": "may both protect:",
       "reflectionLabel": "Reflection:",
       "aiAnalysisIncluded": "AI analysis included",
       "notesPlaceholder": "Additional notes (optional)",
-      "saveButton": "Save Constellation"
-    },
-    "summary": {
-      "title": "Your Inner Constellation",
-      "sections": {
-        "partsInvolved": "Parts Involved",
-        "relationships": "Relationships",
-        "polarizations": "Polarizations",
-        "alliances": "Alliances",
-        "cascades": "Cascading Chains",
-        "reflection": "Reflection",
-        "aiInsights": "AI Insights"
-      },
-      "notesLabel": "Notes (optional)",
-      "notesPlaceholder": "Any reflections...",
       "saveButton": "Save Constellation",
-      "saving": "Saving..."
+      "cascadesLabel": "Cascades:"
     },
-    "unknownPart": "Unknown",
-    "ariaStepLabel": "Step {index}: {label}",
-    "ariaStepCompleted": " (completed)",
-    "ariaStepCurrent": " (current)"
+    "unknownPart": "Unknown"
   },
   "micro": {
     "shared": {
-      "intensityLabel": "Intensity ({value}/100)",
       "breath": {
         "start": "Start",
         "ready": {
           "m": "Ready?",
           "f": "Ready?"
         },
-        "tapToBegin": "Press start to begin",
         "breatheIn": "Breathe in",
         "hold": "Hold",
         "breatheOut": "Breathe out",
         "done": "Done",
-        "complete": "Well done. Carry this calm with you."
+        "complete": "Well done. Carry this calm with you.",
+        "paused": "Paused",
+        "pause": "Pause",
+        "resume": "Resume",
+        "finish": "Finish",
+        "less": "Less",
+        "more": "More",
+        "seconds": "{n} s",
+        "minutes": "{n} min",
+        "duration": "Length",
+        "phases": {
+          "inhale": "Inhale",
+          "holdIn": "Hold",
+          "exhale": "Exhale",
+          "holdOut": "Hold"
+        }
       }
     },
     "gratitudeList": {
@@ -3181,14 +3264,16 @@
           "f": "What are you grateful for today?"
         },
         "description": "Three things are enough. Being specific helps: instead of “family” — “coffee and a chat with mom”.",
+        "why": "Noticing good things on purpose balances an attention that naturally picks up mostly on problems. Being specific takes you back to the moment, not just to a label.",
         "placeholder": {
           "m": "I'm grateful for…",
           "f": "I'm grateful for…"
         }
       },
       "why": {
-        "title": "Why does it matter?",
-        "description": "Pick one of the things above. Why does it matter today? (Optional.)",
+        "title": "Why does this one matter today?",
+        "description": "Pick one thing from your list and write why it matters to you. (Optional.)",
+        "why": "Thinking about why something matters deepens gratitude and links it to what you care about.",
         "placeholder": "It matters because…"
       }
     },
@@ -3200,13 +3285,15 @@
       },
       "pleasantness": {
         "title": "How pleasant was it?",
-        "description": "Rate the moment — rating it makes you relive it.",
-        "minLabel": "Barely",
-        "maxLabel": "Exceptional"
+        "description": "Use the slider to mark how pleasant the moment was for you.",
+        "why": "Pausing on a pleasant moment, even just to rate it, lets you live it once more.",
+        "minLabel": "Barely pleasant",
+        "maxLabel": "Exceptionally pleasant"
       },
       "senses": {
         "title": "Go back there for a moment",
-        "description": "Describe the sensory details: what do you see, hear, feel? The more precise, the stronger the pleasure returns.",
+        "description": "Bring the moment back and describe the details: what you see, hear and feel, any taste or smell.",
+        "why": "Sensory details bring back the experience itself, not just the memory of a fact. The more precisely you describe them, the more the pleasure returns.",
         "placeholder": "I see… I hear… I feel…"
       }
     },
@@ -3217,20 +3304,20 @@
       },
       "mindfulness": {
         "title": "Mindfulness: what hurts right now?",
-        "description": "Name what is hard, without judging it. Naming alone eases the tension.",
+        "description": "Name what is hard right now in a sentence or two. Without judging yourself or the situation.",
+        "why": "Putting a difficulty into words usually eases the tension a little. To take care of yourself, you first have to notice that you are struggling.",
         "placeholder": "Right now it's hard because…"
       },
       "humanity": {
-        "title": "Common humanity",
-        "description": {
-          "m": "Struggling is part of being human. Others know this feeling too — you are not alone in it.",
-          "f": "Struggling is part of being human. Others know this feeling too — you are not alone in it."
-        },
+        "title": "Common humanity: who else knows this?",
+        "description": "Write who else might feel something similar in a situation like this. Struggling is part of being human.",
+        "why": "Struggling suggests that something is wrong only with you. Remembering that others go through the same eases the sense of being alone.",
         "placeholder": "I'm not the only one…"
       },
       "kindness": {
         "title": "Kind words to yourself",
-        "description": "What would someone who truly cares about you say? Say it to yourself.",
+        "description": "Write yourself one sentence, the kind someone who truly cares about you would say.",
+        "why": "The tone you use with yourself shapes how you feel. Kind words soothe much like support from someone close.",
         "placeholder": "I want to tell myself that…"
       }
     },
@@ -3238,11 +3325,12 @@
       "see": {
         "title": "5 things you can see",
         "description": "Look around slowly. Name five things within sight.",
+        "why": "Naming what your senses pick up moves attention from anxious thoughts to what is happening here and now. That helps your body settle.",
         "placeholder": "I can see…"
       },
       "feel": {
         "title": "4 things you can feel",
-        "description": "The ground under your feet, your clothes, the temperature…",
+        "description": "For example the ground under your feet, clothes on your skin, the air temperature.",
         "placeholder": "I can feel…"
       },
       "hear": {
@@ -3268,7 +3356,8 @@
       },
       "breath": {
         "title": "Breathe in a box rhythm",
-        "description": "Inhale 4 s → hold 4 s → exhale 4 s → hold 4 s. Follow the indicator."
+        "description": "The bottom wall of the square is the phase you are in. Change the phase lengths next to the walls.",
+        "why": "A steady, slow breathing rhythm signals your body that it can slow down. Counting also occupies your attention, so thoughts circle less."
       },
       "after": {
         "title": "And how about now?",
@@ -3279,12 +3368,502 @@
       "win": {
         "title": "What went well today?",
         "description": "One thing is enough — even a small one. What matters is that it's yours.",
+        "why": "Attention easily locks onto what went wrong. Noticing small wins strengthens the sense that you have a say in your day.",
         "placeholder": "Today I managed to…"
       },
       "meaning": {
         "title": "What does it say about you?",
-        "description": "What strength or skill of yours made it happen?",
+        "description": "What strength or skill of yours made it happen? For example persistence, patience, courage.",
+        "why": "Linking a win to a trait of yours builds a self-image based on evidence, not only on slip-ups.",
         "placeholder": "It shows that…"
+      }
+    },
+    "pacedBreathing": {
+      "before": {
+        "title": "How do you feel right now?",
+        "description": "Mark your emotions before the exercise so you can compare them afterwards. You can skip this."
+      },
+      "breath": {
+        "title": "Breathe with a longer exhale",
+        "description": "The bottom wall of the square is the phase you are in. Change the phase lengths next to the walls.",
+        "why": "A longer exhale calms the body. The breath is there to help you approach something hard, not to make the emotion disappear."
+      },
+      "after": {
+        "title": "And how about now?",
+        "description": "Mark your emotions after the exercise. You can skip this."
+      }
+    },
+    "angerLog": {
+      "hadEpisode": {
+        "title": "Did anger show up today?",
+        "description": "Irritation counts too.",
+        "why": "Logging a calm day matters as much as logging a hard one: it shows what helps and gives a true picture of how often anger shows up.",
+        "options": {
+          "none": "No",
+          "mild": "Yes, mild",
+          "strong": "Yes, strong"
+        }
+      },
+      "quietDay": {
+        "title": "What helped you stay calm today?",
+        "description": "One sentence is enough. (Optional.)",
+        "placeholder": "Today it helped that…"
+      },
+      "intensity": {
+        "title": "How strong was the anger at its worst?",
+        "description": "0 is calm, 10 is anger that was hard to control.",
+        "minLabel": "Calm",
+        "maxLabel": "Out of control"
+      },
+      "trigger": {
+        "title": "What happened?",
+        "description": "Describe it the way a camera would record it: who, what, where.",
+        "why": "A camera-style account separates facts from interpretation. It becomes easier to see what happened and what a thought added.",
+        "placeholder": "A colleague cut me off in a meeting…"
+      },
+      "firstSign": {
+        "title": {
+          "m": "How did you notice the anger building?",
+          "f": "How did you notice the anger building?"
+        },
+        "description": "The first signal in your body or thoughts: a tight jaw, heat in your face, clenched hands. (Optional.)",
+        "why": "The early signal is the easiest point to stop. Over time you'll start recognising it before the anger grows.",
+        "placeholder": "My jaw tightened…"
+      },
+      "thought": {
+        "title": "Which thought fuelled it?",
+        "description": "It often sounds like “he shouldn't do that”, “she's doing it on purpose” or “it's always like this”.",
+        "why": "Anger grows not only from the situation but from how you explain it to yourself. A thought written down can be checked later.",
+        "placeholder": {
+          "m": "I thought that…",
+          "f": "I thought that…"
+        }
+      },
+      "behavior": {
+        "title": {
+          "m": "What did you do?",
+          "f": "What did you do?"
+        },
+        "description": "Your reaction, without judging it. Include what you managed to hold back.",
+        "placeholder": {
+          "m": "I raised my voice and left…",
+          "f": "I raised my voice and left…"
+        }
+      },
+      "helped": {
+        "title": "What helped, or what would help next time?",
+        "description": "A pause, a breath, a different thought, talking later. (Optional.)",
+        "placeholder": "It helped to…"
+      }
+    },
+    "angerMap": {
+      "intro": {
+        "title": "Your anger map",
+        "description": "Anger doesn't come out of nowhere. It has triggers, body signals and typical reactions. Gathering them in one place helps you notice anger earlier."
+      },
+      "triggers": {
+        "title": "What angers you most often?",
+        "description": "Situations, other people's behaviour, times of day, tiredness. Five is a lot, three is enough.",
+        "placeholder": "When someone is late…"
+      },
+      "bodySigns": {
+        "title": "What are the first signals in your body?",
+        "description": "What shows up before the anger erupts: heat, tension, faster breathing.",
+        "why": "Your body usually reacts before you're aware of the anger. Knowing your signals lets you stop earlier.",
+        "placeholder": "My shoulders tense…"
+      },
+      "reaction": {
+        "title": "How do you usually react?",
+        "description": "Shouting, sarcasm, silence, slamming doors, blaming yourself. No judging.",
+        "placeholder": "Usually I…"
+      },
+      "cost": {
+        "title": "What does this reaction cost you?",
+        "description": "What do you lose because of it in relationships, at work and in how you feel afterwards?",
+        "why": "Naming the costs shows why the reaction is worth changing — for your own reasons, not because anger is “bad”.",
+        "placeholder": "Afterwards…"
+      },
+      "protects": {
+        "title": "What does your anger protect you from?",
+        "description": "Anger often guards something important: boundaries or a sense of fairness. It can also shield you from helplessness or shame. (Optional.)",
+        "why": "Once you know what your anger guards, you can look after it directly, without the outburst.",
+        "placeholder": "Maybe it protects me from…"
+      }
+    },
+    "pausePlan": {
+      "intro": {
+        "title": "A plan for when anger rises",
+        "description": {
+          "m": "A pause is easier when you decide in advance when and how. An “if…, then…” plan works better than simply resolving to be calmer.",
+          "f": "A pause is easier when you decide in advance when and how. An “if…, then…” plan works better than simply resolving to be calmer."
+        }
+      },
+      "earlySigns": {
+        "title": "What are your three earliest signs of anger?",
+        "description": "Signals in your body, thoughts or behaviour. You can take them from your anger log or map.",
+        "why": "The earlier the signal, the easier it is to stop: the anger is still weak and you still have a choice in how to react.",
+        "placeholder": "I start talking faster…"
+      },
+      "ifThen": {
+        "title": "If I notice…, then…",
+        "description": "Write one sentence with a concrete action. For example: “If I feel heat in my face, I'll say I need five minutes and step into the hallway”.",
+        "why": "An “if…, then…” plan links a signal to a ready action. In the moment you don't have to come up with anything, just do what you already decided.",
+        "placeholder": "If I notice…, then…"
+      },
+      "returnPromise": {
+        "title": "How will you return to the conversation?",
+        "description": "A pause isn't running away. Decide what you'll say as you step out and when you'll come back.",
+        "why": "The other person accepts a pause more easily when they know you'll come back. And coming back is easier when the words and the time are ready.",
+        "placeholder": "I'll say: “Let's come back to this in fifteen minutes”…"
+      },
+      "confidence": {
+        "title": "How confident are you that this will work?",
+        "description": "If it's under 50, simplify the plan or pick an earlier signal.",
+        "minLabel": "Not at all",
+        "maxLabel": "Fully"
+      }
+    },
+    "needBehindAnger": {
+      "observation": {
+        "title": "What happened? Just the facts",
+        "description": "Describe it like a camera, without judgements or interpretations. Instead of “he ignored me again” write “he didn't answer three messages”.",
+        "why": "Facts without judgement are easier for the other person to hear and harder to argue with. Separating them from interpretation often eases the anger by itself.",
+        "placeholder": "When…"
+      },
+      "feeling": {
+        "title": "What do you feel besides anger?",
+        "description": "Underneath anger there's often something else: hurt, fear, tiredness, disappointment. Pick what fits.",
+        "why": "Anger often covers feelings that are harder to show. Naming them makes it easier to see what you need."
+      },
+      "needs": {
+        "title": "What was missing for you in this situation?",
+        "description": "Pick the need that went unmet. One or several.",
+        "why": "Anger usually defends a need. Once you name it, you can look after it directly instead of fighting the other person.",
+        "options": {
+          "respect": "Respect",
+          "understanding": "Understanding",
+          "fairness": "Fairness",
+          "autonomy": "Autonomy",
+          "safety": "Safety",
+          "rest": "Rest",
+          "support": "Support",
+          "closeness": "Closeness",
+          "appreciation": "Appreciation",
+          "honesty": "Honesty",
+          "order": "Order",
+          "space": "Space",
+          "cooperation": "Cooperation",
+          "predictability": "Predictability"
+        }
+      },
+      "needNote": {
+        "title": "Anything else about this need?",
+        "description": "If no name fits, describe the need in your own words. (Optional.)",
+        "placeholder": "I need…"
+      },
+      "request": {
+        "title": "What can you ask for?",
+        "description": "A concrete, doable request the other person can answer with “yes” or “no”. For example: “Could you let me know if you're running late?”.",
+        "why": "A concrete request can be met. A general expectation like “respect me” is easy to misread or dismiss.",
+        "placeholder": "Could you…"
+      }
+    },
+    "shameLog": {
+      "hadMoment": {
+        "title": "Was there a moment of shame recently?",
+        "description": "Embarrassment counts too, as does feeling that something is wrong with you or wanting to hide.",
+        "options": {
+          "none": "No",
+          "yes": "Yes"
+        }
+      },
+      "quietDay": {
+        "title": "What let you be yourself?",
+        "description": {
+          "m": "A moment when you didn't have to hide anything. (Optional.)",
+          "f": "A moment when you didn't have to hide anything. (Optional.)"
+        },
+        "placeholder": {
+          "m": "I felt at ease when…",
+          "f": "I felt at ease when…"
+        }
+      },
+      "situation": {
+        "title": "What happened?",
+        "description": "Briefly: the situation and who was there, if anyone.",
+        "placeholder": "In a meeting…"
+      },
+      "body": {
+        "title": "What was happening in your body?",
+        "description": "Shame often shows in the body: a hot face, lowered eyes, wanting to disappear. (Optional.)",
+        "placeholder": "I felt hot…"
+      },
+      "compass": {
+        "title": {
+          "m": "How did you react?",
+          "f": "How did you react?"
+        },
+        "description": "These are four typical reactions to shame. Pick the closest one.",
+        "why": "Shame usually sets off one of four automatic reactions. Recognising yours makes it easier to catch it next time.",
+        "options": {
+          "withdraw": "Withdrawing",
+          "avoid": "Avoiding, numbing",
+          "attackSelf": "Attacking myself",
+          "attackOthers": "Attacking others"
+        }
+      },
+      "criticSaid": {
+        "title": "What did the inner critic say?",
+        "description": "Write its words down literally, even if they're harsh.",
+        "why": "Written down, the critic's words can be seen from a distance. It's easier to notice how harsh they are and answer them in the next step.",
+        "placeholder": "You are…"
+      },
+      "kindVoice": {
+        "title": "What would a kind person say?",
+        "description": "Someone who knows you well and wishes you well. They don't have to deny the facts, only stop judging.",
+        "why": "Shame eases with kindness, not punishment. The more you practise a gentle voice, the more easily it shows up on its own.",
+        "placeholder": "They would say…"
+      }
+    },
+    "shameMap": {
+      "intro": {
+        "title": "Your shame map",
+        "description": "Shame likes to hide, and once named it loses some of its power. This map shows where it speaks up, how you react to it and which demand on yourself sits behind it."
+      },
+      "areas": {
+        "title": "Where does shame speak up most often?",
+        "description": "Pick all that fit.",
+        "options": {
+          "body": "Body and appearance",
+          "work": "Work and achievement",
+          "money": "Money",
+          "relationships": "Partnership and intimacy",
+          "family": "Family",
+          "parenting": "Parenting",
+          "health": "Health",
+          "competence": "Competence and knowledge",
+          "belonging": "Belonging, being liked",
+          "past": "The past"
+        }
+      },
+      "bodySigns": {
+        "title": "What are the body signals of shame?",
+        "description": "For example a hot face, lowered eyes, hunched shoulders. Write one to three.",
+        "why": "The body usually gives shame away sooner than thoughts do. Knowing your signals, you'll notice earlier that shame is speaking up.",
+        "placeholder": "I lower my eyes…"
+      },
+      "compass": {
+        "title": "How do you usually react to shame?",
+        "description": "The compass of shame (Nathanson) describes four reactions. Pick the ones you recognise in yourself.",
+        "why": "Knowing your usual reactions makes it easier to catch them as they happen and look after yourself instead.",
+        "options": {
+          "withdraw": "Withdrawing",
+          "avoid": "Avoiding, numbing",
+          "attackSelf": "Attacking myself",
+          "attackOthers": "Attacking others"
+        }
+      },
+      "audience": {
+        "title": "Who are you ashamed in front of?",
+        "description": "Shame can be about what others will think, or about what you think of yourself.",
+        "options": {
+          "others": "Others",
+          "self": "Myself",
+          "both": "Both"
+        }
+      },
+      "standard": {
+        "title": "What demand on yourself sits behind your shame?",
+        "description": {
+          "m": "Write it as one sentence starting with “I should…”. For example: “I should always cope”, “I should know everything at work”.",
+          "f": "Write it as one sentence starting with “I should…”. For example: “I should always cope”, “I should know everything at work”."
+        },
+        "why": {
+          "m": "Once the demand has a name, you can check it: is it realistic, and would you hold someone close to you to it? Shame often guards rules no one can meet.",
+          "f": "Once the demand has a name, you can check it: is it realistic, and would you hold someone close to you to it? Shame often guards rules no one can meet."
+        },
+        "placeholder": {
+          "m": "I should…",
+          "f": "I should…"
+        }
+      },
+      "origin": {
+        "title": "Where did this demand come from?",
+        "description": "Who did it come from, or what experience taught it? For example home, school, work. (Optional.)",
+        "why": "Seeing where a demand came from makes it easier to treat it as a rule you took on, not a truth about you. Then you can decide whether to keep it.",
+        "placeholder": "I think it comes from…"
+      }
+    },
+    "shameOrGuilt": {
+      "facts": {
+        "title": "What happened? Just the facts",
+        "description": "Describe the situation without judging yourself.",
+        "placeholder": {
+          "m": "I forgot about…",
+          "f": "I forgot about…"
+        }
+      },
+      "statement": {
+        "title": "Finish the sentence: I feel bad because…",
+        "description": "Write whatever comes to mind first.",
+        "placeholder": "I feel bad because…"
+      },
+      "verdict": {
+        "title": "What is that sentence about?",
+        "description": {
+          "m": "Guilt says “I did something bad”, shame says “I am bad”. The difference points to what can help.",
+          "f": "Guilt says “I did something bad”, shame says “I am bad”. The difference points to what can help."
+        },
+        "why": "Guilt is eased by repair, shame by kindness towards yourself. That is why the next step depends on this answer.",
+        "options": {
+          "act": {
+            "m": "About what I did",
+            "f": "About what I did"
+          },
+          "self": {
+            "m": "About who I am",
+            "f": "About who I am"
+          },
+          "mixed": "Both"
+        }
+      },
+      "repair": {
+        "title": "How can you make it right?",
+        "description": "Write one concrete step: an apology, a fix, an explanation or a conversation.",
+        "why": "Repair settles guilt better than dwelling on it: the bad feeling turns into an action that changes something.",
+        "placeholder": "I can…"
+      },
+      "kindVoice": {
+        "title": "What would a kind person say?",
+        "description": "What would someone who knows you and is on your side say? Write their words down.",
+        "why": "Punishing yourself doesn't ease shame. It softens when you meet kindness, including your own.",
+        "placeholder": "They would say…"
+      }
+    },
+    "compassionateImage": {
+      "intro": {
+        "title": "Your compassionate image",
+        "description": "Compassion-focused therapy builds an image of an ideally kind figure. It can be a person, an animal, a light or a place. It doesn't have to resemble anyone real. What matters is how you feel with it."
+      },
+      "wisdom": {
+        "title": "Wisdom: what does this figure understand?",
+        "description": "It understands that life can be hard and no one chose their brain or their history. Describe how that wisdom shows.",
+        "why": "The compassionate image has four qualities: wisdom, strength, warmth and no judgement. The more clearly you picture it, the easier it is to call up in a hard moment.",
+        "placeholder": "It knows that…"
+      },
+      "strength": {
+        "title": "Strength: how does it show its calm?",
+        "description": "It is calm and steady, your difficult emotions don't overwhelm it. Describe how that shows.",
+        "placeholder": "It stays calm even when…"
+      },
+      "warmth": {
+        "title": "Warmth: how does it sound and look?",
+        "description": "It wishes you well. Describe its voice, its face and the way it looks at you.",
+        "placeholder": "Its voice…"
+      },
+      "nonJudgement": {
+        "title": "No judgement: how do you feel with it?",
+        "description": "It doesn't criticise or condemn you. Describe how you feel in its presence.",
+        "placeholder": "With it…"
+      },
+      "message": {
+        "title": "What does it say to you?",
+        "description": "Imagine it looking at you in a hard moment. What sentence do you hear from it?",
+        "why": "You can call up this sentence when the inner critic speaks up.",
+        "placeholder": "It says: …"
+      }
+    },
+    "worryPostponement": {
+      "intro": {
+        "title": "Worry time",
+        "description": "When a worry shows up during the day, note it in one sentence and set it aside until now. This is the time to come back to them. Pick a fixed time, ideally early evening, not right before bed."
+      },
+      "worries": {
+        "title": "What worried you today?",
+        "description": "Copy over the worries you noted during the day. One sentence per worry.",
+        "why": "Postponing worries to a fixed time teaches you that you don't have to deal with them the moment they appear. Over time they take up less of your day.",
+        "placeholder": "I'm worried that…"
+      },
+      "stillMatters": {
+        "title": "How many still feel important?",
+        "description": "Use the slider to mark what percentage of the noted worries still feels important now that you come back to them.",
+        "why": "Many worries lose their weight within a few hours. Noticing this each evening weakens the belief that every one of them needs attention right away.",
+        "minLabel": "None",
+        "maxLabel": "All"
+      },
+      "pick": {
+        "title": "Does any of them need action?",
+        "description": "If one of them is about a real problem you can influence, write down what needs doing. (Optional.)",
+        "placeholder": "I need to…"
+      },
+      "followUp": {
+        "title": "Work the worry through in the tree",
+        "description": "The worry tree helps separate a problem you can influence from a hypothetical you can let go of.",
+        "cta": "Open the worry tree"
+      }
+    },
+    "anxietyMap": {
+      "intro": {
+        "title": "Your anxiety map",
+        "description": "Anxiety is kept alive by avoidance and safety behaviours. They bring relief now but teach you the situation was dangerous. This map shows where to start."
+      },
+      "situations": {
+        "title": "Which situations or topics make you anxious?",
+        "description": "Concrete situations, thoughts or images. They don't have to be big.",
+        "placeholder": "Calling a government office…"
+      },
+      "bodySigns": {
+        "title": "How does anxiety show in your body?",
+        "description": "For example heart, breathing, stomach, tension, trembling.",
+        "placeholder": "My heart races…"
+      },
+      "avoidance": {
+        "title": "What do you avoid?",
+        "description": "Situations you put off, steer around or give up on.",
+        "why": "Avoidance brings relief right away but makes the anxiety stronger next time. This list is the material for facing it step by step.",
+        "placeholder": "I put off…"
+      },
+      "safetyBehaviors": {
+        "title": "How do you keep yourself safe?",
+        "description": "Things you do to feel safer: checking, asking others for reassurance, over-preparing, holding your phone.",
+        "why": "Safety behaviours are quiet avoidance: when nothing bad happens, you credit them rather than yourself. So the anxiety doesn't fade.",
+        "placeholder": "I check several times…"
+      },
+      "cost": {
+        "title": "What do avoidance and safety behaviours cost you?",
+        "description": "What do you lose because of them: time, opportunities, relationships, energy?",
+        "placeholder": "I lose…"
+      },
+      "withoutFear": {
+        "title": {
+          "m": "What would you do if the anxiety were smaller?",
+          "f": "What would you do if the anxiety were smaller?"
+        },
+        "description": "One or two things you want to return to or start. (Optional.)",
+        "why": "What anxiety keeps you from doing today shows where to head next. Facing anxiety is easier when you know what it is for.",
+        "placeholder": {
+          "m": "I would start…",
+          "f": "I would start…"
+        }
+      }
+    },
+    "maintenancePlan": {
+      "keep": {
+        "title": "Which practices do you want to keep?",
+        "description": "Write up to three practices, each with how often you want to do it.",
+        "why": "Progress lasts better when a few practices stay in your weekly rhythm. A specific frequency turns an intention into a plan.",
+        "placeholder": "Paced breathing every other day…"
+      },
+      "signal": {
+        "title": "How will you know it's time to come back?",
+        "description": "A concrete warning sign: an old reaction returning, more avoidance, a few worse weeks.",
+        "why": "Setbacks are normal. If you decide in advance how you'll recognise one, you'll get back to your practices before the old reaction settles in.",
+        "placeholder": "If I notice that…"
+      },
+      "support": {
+        "title": "Who or what can help you with that?",
+        "description": "A person, a reminder, a fixed time. (Optional.)",
+        "placeholder": "It will help to…"
       }
     }
   }

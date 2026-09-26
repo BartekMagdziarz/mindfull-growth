@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots (intro doesn't count — 6 dots) -->
-    <div v-if="currentStep !== 'intro'" class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-3.5 h-3.5'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper v-if="currentStep !== 'intro'" :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -42,13 +21,13 @@
               {{ t('exerciseWizards.behavioralExperiment.intro.howItWorks') }}
             </p>
             <div class="flex items-center gap-3 text-sm text-on-surface flex-wrap">
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillBelief') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillBelief') }}</span>
               <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillPredict') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillPredict') }}</span>
               <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillTest') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillTest') }}</span>
               <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillLearn') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.behavioralExperiment.intro.pillLearn') }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.behavioralExperiment.intro.howItWorksDescription') }}
@@ -76,6 +55,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.belief.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.behavioralExperiment.belief.why')" />
           <textarea
             v-model="targetBelief"
             rows="3"
@@ -126,6 +106,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.prediction.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.behavioralExperiment.prediction.why')" />
           <textarea
             v-model="prediction"
             rows="3"
@@ -176,6 +157,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.design.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.behavioralExperiment.design.why')" />
           <textarea
             v-model="experimentDesign"
             rows="4"
@@ -241,6 +223,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.behavioralExperiment.safety.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.behavioralExperiment.safety.why')" />
           <div class="space-y-2">
             <div
               v-for="(behavior, index) in safetyBehaviors"
@@ -327,6 +310,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.behavioralExperiment.outcome.learnedDescription') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.behavioralExperiment.outcome.learnedWhy')" />
           <textarea
             v-model="whatLearned"
             rows="3"
@@ -493,10 +477,12 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'

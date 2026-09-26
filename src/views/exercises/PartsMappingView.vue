@@ -23,10 +23,10 @@
               {{ formatDate(map.createdAt) }}
             </span>
             <div class="flex gap-2">
-              <span class="neo-pill text-xs px-2 py-0.5 bg-exercise-ifs-soft text-exercise-ifs-on">
+              <span class="exercise-pill text-xs px-2 py-0.5 bg-exercise-ifs-soft text-exercise-ifs-on">
                 {{ tp(map.partIds.length, 'exercises.views.partCount.one', 'exercises.views.partCount.few', 'exercises.views.partCount.many') }}
               </span>
-              <span v-if="map.relationships.length" class="neo-pill text-xs px-2 py-0.5 bg-ifs-manager-soft text-ifs-manager-on">
+              <span v-if="map.relationships.length" class="exercise-pill text-xs px-2 py-0.5 bg-ifs-manager-soft text-ifs-manager-on">
                 {{ tp(map.relationships.length, 'exercises.views.connectionCount.one', 'exercises.views.connectionCount.few', 'exercises.views.connectionCount.many') }}
               </span>
             </div>
@@ -37,7 +37,7 @@
             <span
               v-for="partId in map.partIds"
               :key="partId"
-              class="neo-pill text-xs px-2 py-0.5"
+              class="exercise-pill text-xs px-2 py-0.5"
               :class="partRoleClass(partId)"
             >
               {{ getPartNameById(partId) }}

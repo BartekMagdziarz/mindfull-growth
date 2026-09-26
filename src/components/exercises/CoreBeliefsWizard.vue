@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -42,11 +21,11 @@
               {{ t('exerciseWizards.coreBeliefs.intro.techniqueName') }}
             </p>
             <div class="flex items-center gap-3 text-sm text-on-surface">
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowSituation') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowSituation') }}</span>
               <AppIcon name="arrow_downward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowAutomaticThought') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowAutomaticThought') }}</span>
               <AppIcon name="arrow_downward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowCoreBelief') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.coreBeliefs.intro.flowCoreBelief') }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.coreBeliefs.intro.techniqueDescription') }}
@@ -74,6 +53,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.startingThought.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.coreBeliefs.startingThought.why')" />
           <textarea
             v-model="startingThought"
             rows="3"
@@ -88,8 +68,8 @@
                 :key="src.value"
                 type="button"
                 :class="[
-                  'neo-pill px-3 py-1.5 text-xs transition-all',
-                  sourceType === src.value ? 'neo-pill--primary' : '',
+                  'exercise-pill px-3 py-1.5 text-xs transition-all',
+                  sourceType === src.value ? 'exercise-pill--primary' : '',
                 ]"
                 @click="sourceType = sourceType === src.value ? undefined : src.value"
               >
@@ -124,6 +104,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.downwardArrow.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.coreBeliefs.downwardArrow.why')" />
 
           <!-- Chain display -->
           <div class="space-y-3">
@@ -221,6 +202,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.coreBelief.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.coreBeliefs.coreBelief.why')" />
           <textarea
             v-model="coreBelief"
             rows="2"
@@ -321,6 +303,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.evidenceFor.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.coreBeliefs.evidenceFor.why')" />
           <div class="space-y-2">
             <div
               v-for="(_item, idx) in evidenceFor"
@@ -377,6 +360,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.evidenceAgainst.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.coreBeliefs.evidenceAgainst.why')" />
           <div class="space-y-2">
             <div
               v-for="(_item, idx) in evidenceAgainst"
@@ -427,6 +411,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.coreBeliefs.alternative.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.coreBeliefs.alternative.why')" />
 
           <!-- Evidence summary -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -619,7 +604,7 @@
               {{ t('exerciseWizards.coreBeliefs.summary.coreBeliefLabel') }}
             </p>
             <p class="text-sm font-medium text-on-surface">"{{ coreBelief }}"</p>
-            <span class="neo-pill px-2.5 py-0.5 text-xs">{{ categoryLabel }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ categoryLabel }}</span>
           </div>
 
           <!-- Evidence -->
@@ -715,6 +700,7 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -722,6 +708,7 @@ import AppButton from '@/components/AppButton.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import type { CreateCoreBeliefsExplorationPayload } from '@/domain/exercises'
 
 const emit = defineEmits<{

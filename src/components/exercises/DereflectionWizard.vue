@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -69,6 +48,7 @@
       <div v-if="currentStep === 'fixation'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.dereflection.fixation.title') }}</h2>
+          <ExerciseStepWhy :text="tg('exerciseWizards.dereflection.fixation.why')" />
 
           <div>
             <label class="text-sm font-medium text-on-surface">
@@ -131,6 +111,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ tg('exerciseWizards.dereflection.redirections.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.dereflection.redirections.why')" />
 
           <!-- Suggestions from Wheel of Life / Purpose -->
           <div v-if="suggestions.length > 0 || purposeStatement" class="neo-surface p-4 rounded-xl space-y-3">
@@ -146,7 +127,7 @@
                   v-for="suggestion in suggestions"
                   :key="suggestion"
                   type="button"
-                  class="neo-pill text-xs px-2.5 py-1 cursor-pointer hover:opacity-80"
+                  class="exercise-pill text-xs px-2.5 py-1 cursor-pointer hover:opacity-80"
                   @click="addSuggestionAsRedirection(suggestion)"
                 >
                   {{ suggestion }}
@@ -225,6 +206,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.dereflection.commit.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.dereflection.commit.why')" />
 
           <div v-for="(item, index) in filledRedirections" :key="index" class="space-y-2">
             <label class="flex items-start gap-3 neo-surface p-3 rounded-xl cursor-pointer">
@@ -353,12 +335,14 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import RatingSlider from '@/components/exercises/RatingSlider.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useLifeAreaAssessmentStore } from '@/stores/lifeAreaAssessment.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'

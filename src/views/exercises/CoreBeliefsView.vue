@@ -19,7 +19,7 @@
             <div>
               <p class="text-sm font-medium text-on-surface line-clamp-2">{{ entry.coreBelief }}</p>
               <p class="text-xs text-on-surface-variant mt-1">
-                <span class="neo-pill px-2 py-0.5 text-xs mr-1.5">{{ categoryLabel(entry.beliefCategory) }}</span>
+                <span class="exercise-pill px-2 py-0.5 text-xs mr-1.5">{{ categoryLabel(entry.beliefCategory) }}</span>
                 &middot; {{ formatDate(entry.createdAt) }}
               </p>
             </div>

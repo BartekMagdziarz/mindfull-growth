@@ -35,7 +35,7 @@ export function useTrailheadWizard() {
   const trailheadStore = useIFSTrailheadStore()
   const partStore = useIFSPartStore()
   const emotionStore = useEmotionStore()
-  const { locale } = useT()
+  const { locale, gender } = useT()
 
   // Step management
   const currentStep = ref<TrailheadStep>('trigger')
@@ -151,6 +151,7 @@ export function useTrailheadWizard() {
         partNames,
         emotionNames,
         locale: locale.value,
+        gender: gender.value,
         useProfile: options.useProfile ?? false,
       })
     } catch (err) {
@@ -170,7 +171,7 @@ export function useTrailheadWizard() {
         emotionIds: [...emotionIds.value],
         emotionFamilyIds: [...emotionFamilyIds.value],
         intensity: intensity.value,
-        bodyLocation: bodyLocations.value[0] ?? 'chest',
+        bodyLocation: bodyLocations.value[0],
         thoughts: thoughts.value.trim(),
         sensations: sensations.value.trim(),
         images: images.value.trim() || undefined,

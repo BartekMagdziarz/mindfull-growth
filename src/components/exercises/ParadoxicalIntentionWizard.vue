@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -99,6 +78,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.paradoxicalIntention.fears.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.paradoxicalIntention.fears.why')" />
 
           <div v-for="(fear, index) in fears" :key="fear.id" class="neo-surface p-4 space-y-3 rounded-xl">
             <div class="flex items-center justify-between">
@@ -189,6 +169,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.paradoxicalIntention.craft.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.paradoxicalIntention.craft.why')" />
 
           <!-- Paradoxical intention input -->
           <textarea
@@ -256,6 +237,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.paradoxicalIntention.practice.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.paradoxicalIntention.practice.why')" />
 
           <div v-for="fear in validFears" :key="fear.id" class="neo-surface p-4 space-y-3 rounded-xl">
             <div class="neo-embedded p-3">
@@ -344,12 +326,14 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import type { Quadrant } from '@/domain/emotion'
@@ -359,7 +343,7 @@ const emit = defineEmits<{
   saved: [data: CreateParadoxicalIntentionPayload]
 }>()
 
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 
 // ─── Step State ────────────────────────────────────────────────────────────
 type Step = 'intro' | 'fears' | 'craft' | 'practice' | 'summary'

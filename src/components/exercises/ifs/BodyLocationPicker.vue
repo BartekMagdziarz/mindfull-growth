@@ -59,7 +59,7 @@
       <span
         v-for="loc in modelValue"
         :key="loc"
-        class="neo-pill text-xs px-2.5 py-1 flex items-center gap-1 bg-primary/10 text-primary"
+        class="exercise-pill text-xs px-2.5 py-1 flex items-center gap-1 bg-primary/10 text-primary"
       >
         {{ formatLocation(loc) }}
         <button
@@ -76,9 +76,12 @@
 <script setup lang="ts">
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 import type { IFSBodyLocation } from '@/domain/exercises'
 
 const { t } = useT()
+
+const { formatBodyLocation: formatLocation } = useIfsLabels()
 
 const props = withDefaults(
   defineProps<{
@@ -141,10 +144,4 @@ function removeLocation(location: IFSBodyLocation) {
   emit('update:modelValue', props.modelValue.filter((l) => l !== location))
 }
 
-function formatLocation(location: IFSBodyLocation): string {
-  return location
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-}
 </script>

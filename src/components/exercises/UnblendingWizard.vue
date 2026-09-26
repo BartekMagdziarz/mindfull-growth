@@ -1,26 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="idx < stepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === stepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="stepIndex" @go="goToStep(STEPS[$event])" />
 
     <!-- Step 1: Check-In -->
     <Transition
@@ -69,13 +50,14 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.unblending.awareness.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.unblending.awareness.why')" />
 
             <div class="space-y-3">
               <button
                 v-for="option in awarenessOptions"
                 :key="option.value"
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="awarenessChoice === option.value ? 'shadow-neu-pressed ring-2 ring-primary' : ''"
+                :class="awarenessChoice === option.value ? 'neo-selector--active ring-2 ring-primary' : ''"
                 @click="handleAwarenessChoice(option.value)"
               >
                 <div class="flex items-center gap-3">
@@ -128,21 +110,22 @@
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.unblending.magicQuestion.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.unblending.magicQuestion.why')" />
 
             <div class="space-y-3">
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="selfEnergyPresent === true ? 'shadow-neu-pressed ring-2 ring-primary' : ''"
+                :class="selfEnergyPresent === true ? 'neo-selector--active ring-2 ring-primary' : ''"
                 @click="handleMagicAnswer(true)"
               >
                 <div class="flex items-center gap-3">
-                  <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
+                  <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
                   <span class="text-sm text-on-surface">{{ tg('exerciseWizards.unblending.magicQuestion.options.selfEnergy') }}</span>
                 </div>
               </button>
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="selfEnergyPresent === false ? 'shadow-neu-pressed ring-2 ring-primary' : ''"
+                :class="selfEnergyPresent === false ? 'neo-selector--active ring-2 ring-primary' : ''"
                 @click="handleMagicAnswer(false)"
               >
                 <div class="flex items-center gap-3">
@@ -167,6 +150,7 @@
             <p class="text-sm text-on-surface">
               {{ tg('exerciseWizards.unblending.secondaryCheck.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.unblending.secondaryCheck.why')" />
 
             <!-- Breathing circle -->
             <div class="neo-surface p-6 rounded-2xl flex flex-col items-center gap-4">
@@ -193,6 +177,13 @@
               enter-from-class="opacity-0"
             >
               <div v-if="breathingCompleted" class="space-y-4">
+                <PartSelector
+                  v-model="secondaryPartId"
+                  :parts="partStore.sortedParts"
+                  :label="tg('exerciseWizards.unblending.secondaryCheck.partLabel')"
+                  :allow-create="false"
+                />
+
                 <p class="text-sm text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.afterQuestion') }}</p>
                 <div class="space-y-3">
                   <button
@@ -200,13 +191,14 @@
                     @click="selfEnergyPresent = true; nextStep()"
                   >
                     <div class="flex items-center gap-3">
-                      <AppIcon name="wb_sunny" class="text-xl text-yellow-500 shrink-0" />
+                      <AppIcon name="wb_sunny" class="text-xl text-insight-intention-on shrink-0" />
                       <span class="text-sm text-on-surface">{{ tg('exerciseWizards.unblending.secondaryCheck.options.better') }}</span>
                     </div>
                   </button>
                   <button
                     class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                    @click="nextStep()"
+                    :class="stillReactive ? 'shadow-neu-pressed ring-2 ring-status-warn' : ''"
+                    @click="stillReactive = true"
                   >
                     <div class="flex items-center gap-3">
                       <AppIcon name="error" class="text-xl text-status-warn shrink-0" />
@@ -215,12 +207,24 @@
                   </button>
                 </div>
 
-                <PartSelector
-                  v-model="secondaryPartId"
-                  :parts="partStore.sortedParts"
-                  :label="tg('exerciseWizards.unblending.secondaryCheck.partLabel')"
-                  :allow-create="false"
-                />
+                <!-- Still blended with the second part: it becomes the target, or we end gently -->
+                <Transition
+                  enter-active-class="transition-all duration-200"
+                  enter-from-class="opacity-0 -translate-y-2"
+                >
+                  <AppCard v-if="stillReactive" variant="inset" padding="md" class="space-y-3">
+                    <p class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.unblending.secondaryCheck.stillReactiveTitle') }}</p>
+                    <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.unblending.secondaryCheck.stillReactiveHint') }}</p>
+                    <div class="flex flex-wrap gap-2">
+                      <AppButton variant="tonal" @click="switchToSecondaryPart()">
+                        {{ t('exerciseWizards.unblending.secondaryCheck.switchTargetButton') }}
+                      </AppButton>
+                      <AppButton variant="text" @click="endGently()">
+                        {{ t('exerciseWizards.unblending.secondaryCheck.endGentlyButton') }}
+                      </AppButton>
+                    </div>
+                  </AppCard>
+                </Transition>
               </div>
             </Transition>
           </AppCard>
@@ -242,6 +246,7 @@
                 {{ t('exerciseWizards.unblending.steppingBack.description') }}
               </p>
             </div>
+            <ExerciseStepWhy :text="tg('exerciseWizards.unblending.steppingBack.why')" />
 
             <!-- Countdown timer -->
             <div class="neo-surface p-8 rounded-2xl flex flex-col items-center gap-4">
@@ -314,6 +319,8 @@
               <span>{{ tg('exerciseWizards.unblending.closing.minLabel') }}</span>
               <span>{{ t('exerciseWizards.unblending.closing.maxLabel') }}</span>
             </div>
+
+            <p class="text-sm text-on-surface-variant italic">{{ t('exerciseWizards.unblending.closing.thankPart') }}</p>
           </AppCard>
 
           <div class="flex justify-between">
@@ -349,7 +356,7 @@
                   <span
                     v-for="eid in beforeEmotionIds"
                     :key="eid"
-                    class="neo-pill text-xs px-2 py-0.5 bg-neu-base text-on-surface-variant"
+                    class="exercise-pill text-xs px-2 py-0.5 bg-neu-base text-on-surface-variant"
                   >
                     {{ getEmotionName(eid) }}
                   </span>
@@ -362,7 +369,7 @@
                   <span
                     v-for="eid in afterEmotionIds"
                     :key="eid"
-                    class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary"
+                    class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary"
                   >
                     {{ getEmotionName(eid) }}
                   </span>
@@ -402,6 +409,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, computed, onUnmounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -466,6 +475,27 @@ const activeEmotionQuadrantAfter = ref<Quadrant | null>(null)
 
 // Awareness step
 const awarenessChoice = ref<'yes' | 'maybe' | 'no' | null>(null)
+
+/** Secondary check: the user still feels reactive after breathing. */
+const stillReactive = ref(false)
+
+/** The second part won't step back → it becomes the target (IFS: follow the part that's present). */
+function switchToSecondaryPart() {
+  if (secondaryPartId.value) {
+    blendedPartId.value = secondaryPartId.value
+    secondaryPartId.value = null
+  }
+  selfEnergyPresent.value = null
+  breathingCompleted.value = false
+  stillReactive.value = false
+  goToStep('magic-question')
+}
+
+/** Nothing shifts today — close gently instead of pushing on. */
+function endGently() {
+  stillReactive.value = false
+  goToStep('closing')
+}
 
 const awarenessOptions = computed(() => [
   { value: 'yes' as const, label: t('exerciseWizards.unblending.awareness.options.yes'), icon: 'arrow_forward' },

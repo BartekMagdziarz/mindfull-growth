@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -94,6 +73,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ tg('exerciseWizards.attitudinalShift.statements.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.attitudinalShift.statements.why')" />
 
           <!-- Shadow Beliefs integration -->
           <div v-if="shadowBeliefs.length > 0" class="space-y-2">
@@ -105,7 +85,7 @@
                 v-for="(belief, i) in shadowBeliefs"
                 :key="i"
                 type="button"
-                class="neo-pill text-xs cursor-pointer hover:opacity-80 transition-opacity"
+                class="exercise-pill text-xs cursor-pointer hover:opacity-80 transition-opacity"
                 @click="addFromShadowBelief(belief)"
               >
                 {{ belief.text }}
@@ -176,17 +156,17 @@
             </span>
           </div>
 
+          <!-- Acknowledge -->
+          <p class="text-xs text-on-surface-variant">
+            {{ tg('exerciseWizards.attitudinalShift.shift.acknowledgment') }}
+          </p>
+
           <!-- Current "because" statement -->
           <div class="neo-embedded p-4">
             <p class="text-sm text-on-surface italic">
               "{{ currentStatement.belief }}"
             </p>
           </div>
-
-          <!-- Acknowledge -->
-          <p class="text-xs text-on-surface-variant">
-            {{ tg('exerciseWizards.attitudinalShift.shift.acknowledgment') }}
-          </p>
 
           <!-- LLM assist -->
           <div class="space-y-2">
@@ -215,6 +195,7 @@
             <p class="text-xs text-on-surface-variant mb-1">
               {{ t('exerciseWizards.attitudinalShift.shift.formatHint') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.attitudinalShift.shift.why')" />
             <textarea
               v-model="currentStatement.reframe"
               :placeholder="t('exerciseWizards.attitudinalShift.shift.reframePlaceholder')"
@@ -403,12 +384,14 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'

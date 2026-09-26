@@ -5,28 +5,7 @@
          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <template v-if="mode === 'setup'">
       <!-- Step indicator dots -->
-      <div class="flex flex-col items-center gap-2">
-        <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-          <button
-            v-for="(label, idx) in setupStepLabels"
-            :key="idx"
-            type="button"
-            :aria-label="`Step ${idx + 1}: ${label}${idx < currentSetupVisualStep ? ' (completed)' : idx === currentSetupVisualStep ? ' (current)' : ''}`"
-            class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-            :class="
-              idx < currentSetupVisualStep
-                ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-                : idx === currentSetupVisualStep
-                  ? 'neo-step-active w-6'
-                  : 'neo-step-future w-2.5 h-2.5'
-            "
-            @click="idx < currentSetupVisualStep && goToSetupStepByIndex(idx)"
-          />
-        </div>
-        <span class="text-xs font-medium text-on-surface-variant">
-          {{ setupStepLabels[currentSetupVisualStep] }}
-        </span>
-      </div>
+      <ExerciseStepper :labels="setupStepLabels" :current="currentSetupVisualStep" @go="goToSetupStepByIndex($event)" />
 
       <!-- Setup Step 1: Intro -->
       <Transition
@@ -47,15 +26,15 @@
               </p>
               <div class="space-y-2">
                 <div class="flex items-start gap-3">
-                  <span class="neo-pill px-3 py-1 text-xs flex-shrink-0">1</span>
+                  <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">1</span>
                   <p class="text-sm text-on-surface">{{ t('exerciseWizards.positiveDataLog.intro.step1') }}</p>
                 </div>
                 <div class="flex items-start gap-3">
-                  <span class="neo-pill px-3 py-1 text-xs flex-shrink-0">2</span>
+                  <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">2</span>
                   <p class="text-sm text-on-surface">{{ t('exerciseWizards.positiveDataLog.intro.step2') }}</p>
                 </div>
                 <div class="flex items-start gap-3">
-                  <span class="neo-pill px-3 py-1 text-xs flex-shrink-0">3</span>
+                  <span class="exercise-pill px-3 py-1 text-xs flex-shrink-0">3</span>
                   <p class="text-sm text-on-surface">{{ t('exerciseWizards.positiveDataLog.intro.step3') }}</p>
                 </div>
               </div>
@@ -84,6 +63,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.positiveDataLog.targetBelief.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.positiveDataLog.targetBelief.why')" />
             <textarea
               v-model="targetBelief"
               rows="3"
@@ -202,6 +182,7 @@
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.positiveDataLog.log.addEvidenceDescription') }}
         </p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.positiveDataLog.log.addEvidenceWhy')" />
 
         <div class="space-y-3">
           <div class="space-y-1">
@@ -366,6 +347,7 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -373,6 +355,7 @@ import AppButton from '@/components/AppButton.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import type {
   PositiveDataLog,
   PositiveDataEntry,

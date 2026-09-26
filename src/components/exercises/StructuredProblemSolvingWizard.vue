@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -40,13 +19,13 @@
           <div class="neo-surface p-4 space-y-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.intro.howItWorks') }}</p>
             <div class="flex items-center gap-3 text-sm text-on-surface flex-wrap">
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillDefine') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillDefine') }}</span>
               <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillBrainstorm') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillBrainstorm') }}</span>
               <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillEvaluate') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillEvaluate') }}</span>
               <AppIcon name="arrow_forward" class="text-base text-on-surface-variant flex-shrink-0" />
-              <span class="neo-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillChoose') }}</span>
+              <span class="exercise-pill px-3 py-1 text-xs">{{ t('exerciseWizards.structuredProblemSolving.intro.pillChoose') }}</span>
             </div>
             <p class="text-xs text-on-surface-variant leading-relaxed">
               {{ t('exerciseWizards.structuredProblemSolving.intro.howItWorksDescription') }}
@@ -74,6 +53,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.structuredProblemSolving.problem.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.structuredProblemSolving.problem.why')" />
           <textarea
             v-model="problemStatement"
             rows="4"
@@ -124,6 +104,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.brainstorm.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.structuredProblemSolving.brainstorm.why')" />
 
           <!-- Add new solution -->
           <div class="flex gap-2">
@@ -214,6 +195,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.structuredProblemSolving.evaluate.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.structuredProblemSolving.evaluate.why')" />
         </AppCard>
 
         <!-- Individual solution evaluation cards -->
@@ -438,6 +420,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.structuredProblemSolving.choose.actionPlanDescription') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.structuredProblemSolving.choose.actionPlanWhy')" />
           <textarea
             v-model="actionPlan"
             rows="3"
@@ -643,7 +626,7 @@
               <span
                 v-for="id in emotionIds"
                 :key="id"
-                class="neo-pill px-2.5 py-0.5 text-xs"
+                class="exercise-pill px-2.5 py-0.5 text-xs"
               >
                 {{ getEmotionName(id) }}
               </span>
@@ -724,8 +707,8 @@
           <div class="space-y-1">
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{{ t('exerciseWizards.structuredProblemSolving.summary.status') }}</p>
             <span
-              class="neo-pill px-2.5 py-0.5 text-xs"
-              :class="markCompleted ? 'neo-pill--primary' : ''"
+              class="exercise-pill px-2.5 py-0.5 text-xs"
+              :class="markCompleted ? 'exercise-pill--primary' : ''"
             >
               {{ markCompleted ? t('exerciseWizards.structuredProblemSolving.summary.completed') : t('exerciseWizards.structuredProblemSolving.summary.inProgress') }}
             </span>
@@ -746,7 +729,7 @@
               <span
                 v-for="id in emotionIdsAfter"
                 :key="id"
-                class="neo-pill px-2.5 py-0.5 text-xs"
+                class="exercise-pill px-2.5 py-0.5 text-xs"
               >
                 {{ getEmotionName(id) }}
               </span>
@@ -762,7 +745,7 @@
               <span
                 v-for="assist in llmAssistsUsed"
                 :key="assist"
-                class="neo-pill px-2.5 py-0.5 text-xs"
+                class="exercise-pill px-2.5 py-0.5 text-xs"
               >
                 {{ assist === 'brainstorm' ? t('exerciseWizards.structuredProblemSolving.summary.brainstormAssist') : t('exerciseWizards.structuredProblemSolving.summary.evaluateAssist') }}
               </span>
@@ -793,10 +776,12 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useEmotionStore } from '@/stores/emotion.store'

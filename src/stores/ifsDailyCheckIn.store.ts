@@ -7,7 +7,7 @@ import type {
 } from '@/domain/exercises'
 import { ifsDailyCheckInDexieRepository } from '@/repositories/exercisesDexieRepository'
 import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
-import { filterItemsByPeriod, getPeriodRefsForDate } from '@/utils/periods'
+import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 
 export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
   const checkIns = ref<IFSDailyCheckIn[]>([])
@@ -28,16 +28,30 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
     }
   })
 
+  /**
+   * Check-ins from the last 7 days (today included). A rolling window, not
+   * the calendar week — the weekly AI summary used to be reachable only on
+   * a day when every day of the current week already had a check-in.
+   */
   const currentWeekCheckIns = computed(() => {
-    const currentWeek = getPeriodRefsForDate(new Date()).week
-    return filterItemsByPeriod(checkIns.value, currentWeek, (checkIn) => {
-      return getPeriodRefsForDate(checkIn.createdAt).day
+    const todayRef = getPeriodRefsForDate(new Date()).day
+    const fromRef = addDaysToDayRef(todayRef, -6)
+    return checkIns.value.filter((checkIn) => {
+      const day = getPeriodRefsForDate(checkIn.createdAt).day
+      return day >= fromRef && day <= todayRef
     })
   })
 
   const weeklyCheckInCount = computed(() => {
     return currentWeekCheckIns.value.length
   })
+
+  /** How many check-ins in the rolling window unlock the weekly AI summary. */
+  const WEEKLY_SUMMARY_THRESHOLD = 5
+  const hasEnoughForWeeklySummary = computed(() => weeklyCheckInCount.value >= WEEKLY_SUMMARY_THRESHOLD)
+  const checkInsNeededForWeeklySummary = computed(() =>
+    Math.max(0, WEEKLY_SUMMARY_THRESHOLD - weeklyCheckInCount.value),
+  )
 
   async function loadCheckIns(): Promise<void> {
     isLoading.value = true
@@ -116,6 +130,8 @@ export const useIFSDailyCheckInStore = defineStore('ifsDailyCheckIn', () => {
     getCheckInById,
     currentWeekCheckIns,
     weeklyCheckInCount,
+    hasEnoughForWeeklySummary,
+    checkInsNeededForWeeklySummary,
     loadCheckIns,
     createCheckIn,
     updateCheckIn,

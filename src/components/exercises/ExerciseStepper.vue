@@ -11,8 +11,8 @@
           }"
           :aria-current="index === current ? 'step' : undefined"
           :aria-label="stepLabel(label, index)"
-          :disabled="index >= current"
-          @click="index < current && emit('go', index)"
+          :disabled="!interactive || index >= current"
+          @click="interactive && index < current && emit('go', index)"
         />
       </li>
     </ol>
@@ -33,8 +33,9 @@ const props = withDefaults(
     labels: string[]
     current: number
     ariaLabel?: string
+    interactive?: boolean
   }>(),
-  { ariaLabel: '' },
+  { ariaLabel: '', interactive: true },
 )
 
 const emit = defineEmits<{ go: [index: number] }>()

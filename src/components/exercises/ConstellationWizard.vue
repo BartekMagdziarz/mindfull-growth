@@ -1,25 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in visibleStepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`${t('exerciseWizards.constellation.ariaStepLabel', { index: idx + 1, label })}${idx < mappedStepIndex ? t('exerciseWizards.constellation.ariaStepCompleted') : idx === mappedStepIndex ? t('exerciseWizards.constellation.ariaStepCurrent') : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="idx < mappedStepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === mappedStepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ currentStepLabel }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="visibleStepLabels" :current="mappedStepIndex" :interactive="false" />
 
     <Transition
       enter-active-class="transition-opacity duration-200"
@@ -91,10 +73,10 @@
                 class="neo-focus rounded-xl p-3 text-left transition-all"
                 :class="[
                   selectedPartIds.includes(part.id)
-                    ? 'neo-surface shadow-neu-pressed border-2 border-primary'
+                    ? 'neo-selector neo-selector--active border'
                     : selectedPartIds.length >= 5
                       ? 'neo-surface shadow-neu-raised-sm opacity-40 cursor-not-allowed'
-                      : 'neo-surface shadow-neu-raised-sm hover:-translate-y-px',
+                      : 'neo-selector border',
                   roleBorderClass(part.role),
                 ]"
                 :disabled="!selectedPartIds.includes(part.id) && selectedPartIds.length >= 5"
@@ -110,7 +92,7 @@
               <span
                 v-for="pid in selectedPartIds"
                 :key="pid"
-                class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-medium"
+                class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-medium"
               >
                 {{ getPartName(pid) }}
               </span>
@@ -131,6 +113,10 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-5">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.constellation.mapRelationships.title') }}</h2>
+            <p class="text-sm text-on-surface-variant">
+              {{ t('exerciseWizards.constellation.mapRelationships.description') }}
+            </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.constellation.mapRelationships.why')" />
 
             <div
               v-for="pair in allPairs"
@@ -151,7 +137,7 @@
                 <button
                   v-for="relType in relationshipTypes"
                   :key="relType.value"
-                  class="neo-pill px-2.5 py-1 text-xs neo-focus transition-all flex items-center gap-1"
+                  class="exercise-pill px-2.5 py-1 text-xs neo-focus transition-all flex items-center gap-1"
                   :class="getRelationship(pair.partAId, pair.partBId)?.type === relType.value
                     ? `${relType.activeClass} shadow-neu-pressed`
                     : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
@@ -190,6 +176,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.constellation.polarizationDeepDive.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.constellation.polarizationDeepDive.why')" />
 
             <div
               v-for="dd in polarizationDeepDives"
@@ -336,6 +323,18 @@
                 <span>{{ t('exerciseWizards.constellation.visual.legend.protects') }}</span>
               </div>
             </div>
+
+            <!-- Cascades: the chain reaction is often the most valuable system insight -->
+            <div class="space-y-1 pt-2">
+              <label class="text-sm font-medium text-on-surface">{{ t('exerciseWizards.constellation.visual.cascadesLabel') }}</label>
+              <textarea
+                v-model="cascadeNotes"
+                rows="2"
+                :placeholder="t('exerciseWizards.constellation.visual.cascadesPlaceholder')"
+                class="neo-input w-full p-3 text-sm resize-none"
+              />
+              <p class="text-xs text-on-surface-variant">{{ t('exerciseWizards.constellation.visual.cascadesHint') }}</p>
+            </div>
           </AppCard>
 
           <div class="flex justify-between">
@@ -403,7 +402,7 @@
                 <span
                   v-for="pid in selectedPartIds"
                   :key="pid"
-                  class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-medium"
+                  class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-medium"
                 >
                   {{ getPartName(pid) }}
                 </span>
@@ -429,6 +428,9 @@
                 </p>
               </div>
 
+              <p v-if="cascadeNotes.trim()" class="text-xs text-on-surface-variant">
+                {{ t('exerciseWizards.constellation.save.cascadesLabel') }} {{ cascadeNotes.trim() }}
+              </p>
               <p v-if="reflection.trim()" class="text-xs text-on-surface-variant">
                 {{ t('exerciseWizards.constellation.save.reflectionLabel') }} {{ reflection.trim() }}
               </p>
@@ -459,6 +461,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -505,6 +509,7 @@ const {
   setRelationshipType,
   setRelationshipNote,
   getRelationship,
+  cascadeNotes,
   reflection,
   llmInsight,
   isLLMLoading,
@@ -531,18 +536,6 @@ const visibleStepLabels = computed(() => {
   return allStepLabels.value
 })
 
-const currentStepLabel = computed(() => {
-  const labels: Record<string, string> = {
-    'prerequisites': t('exerciseWizards.constellation.steps.prerequisites'),
-    'select-parts': t('exerciseWizards.constellation.steps.selectParts'),
-    'map-relationships': t('exerciseWizards.constellation.steps.relationships'),
-    'polarization-deep-dive': t('exerciseWizards.constellation.steps.polarizations'),
-    'visual': t('exerciseWizards.constellation.steps.constellation'),
-    'reflection': t('exerciseWizards.constellation.steps.insights'),
-    'save': t('exerciseWizards.constellation.steps.save'),
-  }
-  return labels[currentStep.value] ?? ''
-})
 
 const mappedStepIndex = computed(() => {
   const allSteps = ['prerequisites', 'select-parts', 'map-relationships', 'polarization-deep-dive', 'visual', 'reflection', 'save']

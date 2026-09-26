@@ -41,7 +41,7 @@
         >
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-            <span class="neo-pill text-xs px-2 py-0.5 font-semibold" :class="practiceTypeBadgeClass(entry.practiceType)">
+            <span class="exercise-pill text-xs px-2 py-0.5 font-semibold" :class="practiceTypeBadgeClass(entry.practiceType)">
               {{ practiceTypeLabel(entry.practiceType) }}
             </span>
           </div>
@@ -61,7 +61,7 @@
               </p>
             </template>
             <template v-else-if="entry.practiceType === 'self-energy-moment'">
-              <p v-if="entry.selfEnergyQuality" class="capitalize">{{ t('exercises.views.focusedOn') }} {{ entry.selfEnergyQuality }}</p>
+              <p v-if="entry.selfEnergyQuality">{{ t('exercises.views.focusedOn') }} {{ formatQuality(entry.selfEnergyQuality) }}</p>
             </template>
             <template v-else-if="entry.practiceType === 'evening-reflection'">
               <p v-if="entry.selfLeadershipRating">{{ t('exercises.views.leadership') }} {{ formatLeadership(entry.selfLeadershipRating) }}</p>
@@ -88,12 +88,14 @@ import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import type { IFSDailyCheckInType, IFSSelfLeadershipRating } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 import { getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
 
 const { t, tp } = useT()
+
+const { formatQuality, weekdayInitials } = useIfsLabels()
 const checkInStore = useIFSDailyCheckInStore()
 const partStore = useIFSPartStore()
-const WEEKDAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 const saved = ref(false)
 
 onMounted(() => {
@@ -131,8 +133,8 @@ function practiceTypeBadgeClass(type: IFSDailyCheckInType): string {
   switch (type) {
     case 'weather-report': return 'bg-sky-100 text-sky-700'
     case 'gratitude-to-part': return 'bg-rose-100 text-rose-700'
-    case 'self-energy-moment': return 'bg-yellow-100 text-yellow-700'
-    case 'evening-reflection': return 'bg-indigo-100 text-indigo-700'
+    case 'self-energy-moment': return 'bg-insight-intention-soft text-insight-intention-on'
+    case 'evening-reflection': return 'bg-exercise-ifs-soft text-exercise-ifs-on'
     default: return 'bg-neu-base text-on-surface-variant'
   }
 }
@@ -156,7 +158,7 @@ const weekDays = computed(() => {
 
   return days.map((dayRef, idx) => {
     return {
-      label: WEEKDAY_LABELS[idx],
+      label: weekdayInitials.value[idx],
       completed: checkInDates.has(dayRef),
       isToday: dayRef === refs.day,
     }

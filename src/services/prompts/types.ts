@@ -140,8 +140,33 @@ export interface IfsPromptModule {
   IFS_WEEKLY_SUMMARY: string
   IFS_CONSTELLATION_ANALYSIS: string
 
+  /**
+   * Appended to every IFS system prompt so the model addresses the user
+   * with the grammatical forms they chose in their profile (matters for
+   * Polish past-tense verbs and adjectives; a no-op sentence in English).
+   */
+  genderNote: Record<'masculine' | 'feminine', string>
+
+  /** Enum → human label maps, so the model never sees raw slugs like `upper-back`. */
+  enums: {
+    roles: Record<string, string>
+    bodyLocations: Record<string, string>
+    qualities: Record<string, string>
+    relationshipTypes: Record<string, string>
+    leadership: Record<string, string>
+    practiceTypes: Record<string, string>
+  }
+
   // Context-builder labels
   labels: {
+    unknown: string
+    entry: string
+    emotions: string
+    thinks: string
+    ifOneWon: string
+    cascades: string
+    needs: string
+    burden: string
     partsIdentified: string
     relationships: string
     lifeAreas: string

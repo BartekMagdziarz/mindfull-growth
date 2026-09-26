@@ -17,7 +17,7 @@
           class="space-y-1"
         >
           <div class="flex items-center justify-between">
-            <span class="neo-pill px-2.5 py-0.5 text-xs font-medium capitalize">
+            <span class="exercise-pill px-2.5 py-0.5 text-xs font-medium capitalize">
               {{ assessment.mode }}
             </span>
             <span class="text-xs text-on-surface-variant">

@@ -10,8 +10,8 @@
         :class="[
           'neo-focus rounded-xl p-3 text-left transition-all',
           part.id === modelValue
-            ? 'neo-surface shadow-neu-pressed border-2 border-primary'
-            : 'neo-surface shadow-neu-raised-sm hover:-translate-y-px',
+            ? 'neo-selector neo-selector--active border'
+            : 'neo-selector border',
           roleBorderClass(part.role),
         ]"
         @click="emit('update:modelValue', part.id === modelValue ? null : part.id)"
@@ -54,7 +54,7 @@
           <button
             v-for="role in roleOptions"
             :key="role.value"
-            class="neo-pill px-3 py-1 text-xs neo-focus transition-all"
+            class="exercise-pill px-3 py-1 text-xs neo-focus transition-all"
             :class="[
               newPartRole === role.value
                 ? `${role.activeClass} shadow-neu-pressed`
@@ -73,7 +73,7 @@
             {{ t('common.buttons.cancel') }}
           </button>
           <button
-            class="text-sm text-primary font-medium neo-focus px-3 py-1 rounded-lg neo-surface shadow-neu-raised-sm hover:-translate-y-px active:shadow-neu-pressed disabled:opacity-40"
+            class="text-sm text-primary font-medium neo-focus px-3 py-1 rounded-lg neo-selector border active:shadow-neu-pressed disabled:opacity-40"
             :disabled="!newPartName.trim()"
             @click="handleCreate"
           >
@@ -89,11 +89,14 @@
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 import PartRoleBadge from './PartRoleBadge.vue'
 import type { IFSPart, IFSPartRole } from '@/domain/exercises'
 import { IFS_ROLE_CLASSES } from '@/constants/exerciseColorRoles'
 
 const { t, tg } = useT()
+
+const { formatBodyLocation: formatLocation } = useIfsLabels()
 
 const props = withDefaults(
   defineProps<{
@@ -143,12 +146,6 @@ function roleBorderClass(role: IFSPartRole): string {
   }
 }
 
-function formatLocation(location: string): string {
-  return location
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-}
 
 function handleCreate() {
   if (!newPartName.value.trim()) return

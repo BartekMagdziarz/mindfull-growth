@@ -2,7 +2,7 @@
   <AppCard variant="inset" padding="md" class="space-y-2">
     <div class="flex items-start justify-between gap-2">
       <div class="flex items-center gap-2 flex-wrap">
-        <span :class="tagClasses" class="neo-pill text-xs px-2 py-0.5">
+        <span :class="tagClasses" class="exercise-pill text-xs px-2 py-0.5">
           {{ tagLabel }}
         </span>
         <span v-if="partName" class="text-xs text-on-surface-variant">

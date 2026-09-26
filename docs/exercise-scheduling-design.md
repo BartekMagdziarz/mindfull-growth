@@ -126,6 +126,16 @@ A small data-driven runner, NOT bespoke wizards per micro exercise:
 - `MicroExerciseDefinition` in `src/data/microExercises.ts`: ordered steps of typed
   inputs — `textList` (n prompts), `textarea`, `slider`, `emotionPick` (reuses
   `EmotionSelector`), `breathTimer`, `info`.
+  - `breathTimer` (`MicroBreathTimer.vue`, timing in `src/domain/breathPattern.ts`):
+    the step's `phaseSeconds`/`totalSeconds` are only defaults — before starting the
+    user sets inhale / hold / exhale / hold (0 s = no hold) and the length in minutes,
+    rounded to whole breaths; the last rhythm is remembered per exercise
+    (`mg-breath-pattern:<slug>:<step>` in localStorage, cleared on user switch).
+    Setup sits on the square (phase lengths by the walls, minutes + start in the
+    middle, −/+ on hover). Each breath is a rounded square whose bottom wall is
+    the current phase: it fills and thickens for the phase's length, then the
+    square turns 90° clockwise.
+    The saved response is `{ completedSeconds, phaseSeconds, totalSeconds }`.
 - One table `microExerciseEntries: 'id, exerciseSlug, createdAt'` with a `responses`
   map (step key → value). One store, one repository.
 - One host view `src/views/exercises/MicroExerciseView.vue` at
@@ -236,6 +246,24 @@ programEnrollments: 'id, programSlug, status'
   progress (n/m), current step CTA. Click → runner or program detail. Rendered only when
   an enrollment is active (like the intentions section pattern).
 
+> **Problem-path amendments (2026-09-23)** — model extensions for the anger / anxiety /
+> shame paths (content source of truth: `docs/problem-focused-paths.md`):
+> - `ProgramDefinition.practices[]` — recurring exercises alongside the steps
+>   (`exerciseSlug`, `everyDays`, window `startsAfterStep` / `endsAfterStep`, both
+>   0-based and passed once the index moves beyond them). Delivered as plan items with
+>   `programRole: 'practice'`; steps carry `programRole: 'step'` (absent = step, older
+>   rows). `reconcilePractices` keeps one pending occurrence per open window; completing
+>   one schedules the next at `handled day + everyDays` (a skipped occurrence counts as
+>   handled). A NEW occurrence is clamped to today (never born overdue); a pending one
+>   turns overdue normally (D3). Practices never move `currentStepIndex`.
+> - `phases[]` (presentational step groups), `outcomeSlug` (assessment taken first and
+>   last; the path view compares the two attempts), `ProgramStep.continueLatest`
+>   (the step opens the latest record — used by graded exposure's attempt log via
+>   `?continue=latest`).
+> - `weeklyTasks[]` + `weeklyReflection` + `ProgramEnrollment.weekLog[]` — see D8.
+> - `RepeatPlanPrompt` shows a read-only "your path scheduled the next one" line when the
+>   pending item for the slug belongs to a program.
+
 ### 4.6 Today view — summary of changes
 
 Zone A (wellness column) only:
@@ -293,6 +321,18 @@ One version bump per phase, matching trunk-based delivery:
 - **D6 — One plan entity for repeats and programs.** `ExercisePlanItem` with a `source`
   discriminator; programs materialize steps as plan items instead of having their own
   delivery path.
+- **D7 — Practices are not steps (2026-09-23).** A program practice slug is never a step
+  slug of the same program (`autoCompleteFor` matches by slug); at most two practices
+  run at once; practice occurrences live on `ExercisePlanItem` (`programRole`), no new
+  table, no Dexie migration.
+- **D8 — Real-world tasks are proposals (2026-09-23).** Each program phase may carry a
+  weekly real-world task. The quiet weekly plan PROPOSES it (accept → regular weekly
+  intention with `programLink`, edit, or "Nie w tym tygodniu"); nothing is created
+  automatically. The task follows the phase of the current step, not the week number.
+  The quiet weekly reflection gets a conditional "Ścieżka" step (task result, severity
+  1–5, the phase question, "stay with this task next week"); answers are stored in the
+  reflection's `promptResponses` under `program.<enrollmentId>.{outcome,severity,phase}`.
+  A skipped reflection carries nothing over. The classic weekly wizard is untouched.
 
 ## 7. Phasing
 
@@ -466,8 +506,9 @@ numbers may drift.
 
 ### Seeds & verification
 
-- `src/dev/verificationSeed.ts` — `SEED_VERSION` (**2** as of 2026-07-04; bump per
-  phase), `seedVerificationData()` creates entities via repos imported at top;
+- `src/dev/verificationSeed.ts` — the re-seed marker is `RICH_SCENARIO_VERSION` in
+  `src/dev/richVerificationScenario.ts` (**5** as of 2026-09-23, problem-path seed §15b;
+  the older `SEED_VERSION` constant is gone), `seedVerificationData()` creates entities via repos imported at top;
   deterministic only (no `Date.now()` randomness — helpers like `weekDays`,
   `isMet`); re-seed hook `window.__verifySeed()`.
 - Verify on the isolated instance: verify-app skill / `npm run dev:verify`

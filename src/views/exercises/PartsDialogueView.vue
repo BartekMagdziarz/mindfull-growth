@@ -21,10 +21,10 @@
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-on-surface">{{ formatDate(dialogue.createdAt) }}</span>
             <div class="flex items-center gap-2">
-              <span class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
+              <span class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
                 {{ tp(dialogue.messages.length, 'exercises.views.messagesCount.one', 'exercises.views.messagesCount.few', 'exercises.views.messagesCount.many') }}
               </span>
-              <span v-if="dialogue.insights.length" class="neo-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
+              <span v-if="dialogue.insights.length" class="exercise-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
                 {{ tp(dialogue.insights.length, 'exercises.views.insightsCount.one', 'exercises.views.insightsCount.few', 'exercises.views.insightsCount.many') }}
               </span>
             </div>
@@ -46,7 +46,7 @@
           </p>
 
           <div v-if="dialogue.llmAssistUsed" class="flex items-center gap-1">
-            <span class="neo-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn">{{ t('exercises.views.aiAssistedBadge') }}</span>
+            <span class="exercise-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn">{{ t('exercises.views.aiAssistedBadge') }}</span>
           </div>
         </AppCard>
       </template>

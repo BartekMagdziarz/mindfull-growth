@@ -1,21 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator -->
-    <div class="flex items-center gap-2 mb-4">
-      <button
-        v-for="(stepLabel, idx) in stepLabels"
-        :key="idx"
-        class="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors"
-        :class="idx === step
-          ? 'shadow-neu-pressed bg-neu-base text-primary border border-neu-border/40'
-          : idx < step
-            ? 'bg-primary/15 text-primary'
-            : 'bg-outline/10 text-on-surface-variant'"
-        @click="idx < step && (step = idx)"
-      >
-        {{ stepLabel }}
-      </button>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="step" @go="step = $event" />
 
     <!-- Step 1: Curiosities -->
     <template v-if="step === 0">
@@ -24,6 +10,7 @@
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.transformativePurpose.curiosities.description') }}
         </p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.transformativePurpose.curiosities.why')" />
         <div class="space-y-2">
           <div v-for="(item, index) in draft.curiosities" :key="index" class="flex items-center gap-2">
             <span class="text-primary text-sm font-semibold">{{ index + 1 }}.</span>
@@ -51,6 +38,7 @@
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.transformativePurpose.intersection.description') }}
         </p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.transformativePurpose.intersection.why')" />
         <div class="p-3 rounded-lg bg-section">
           <p class="text-xs font-medium text-on-surface-variant mb-2">{{ t('exerciseWizards.transformativePurpose.intersection.curiositiesLabel') }}</p>
           <ul class="space-y-1">
@@ -79,6 +67,7 @@
         <p class="text-sm text-on-surface-variant">
           {{ tg('exerciseWizards.transformativePurpose.problems.description') }}
         </p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.transformativePurpose.problems.why')" />
         <div class="space-y-2">
           <div v-for="(item, index) in draft.problems" :key="index" class="flex items-center gap-2">
             <span class="text-primary text-sm font-semibold">{{ index + 1 }}.</span>
@@ -105,6 +94,7 @@
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.transformativePurpose.purpose.description') }}
         </p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.transformativePurpose.purpose.why')" />
         <textarea
           v-model="draft.purposeStatement"
           rows="3"
@@ -134,6 +124,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { reactive, ref, computed } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'

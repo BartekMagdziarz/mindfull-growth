@@ -1,26 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="idx < stepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === stepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="stepIndex" @go="goToStep(STEPS[$event])" />
 
     <!-- Step 1: Introduction -->
     <Transition
@@ -94,6 +75,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.partsMapping.trailhead.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.trailhead.why')" />
 
             <div class="space-y-1">
               <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.trailhead.situationLabel') }}</label>
@@ -151,6 +133,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.partsMapping.identifyPart.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.identifyPart.why')" />
 
             <div class="space-y-1">
               <label class="text-xs font-medium text-on-surface-variant">{{ tg('exerciseWizards.partsMapping.identifyPart.nameLabel') }}</label>
@@ -168,7 +151,7 @@
                 <button
                   v-for="role in roleOptions"
                   :key="role.value"
-                  class="neo-pill px-3 py-1.5 text-xs neo-focus transition-all"
+                  class="exercise-pill px-3 py-1.5 text-xs neo-focus transition-all"
                   :class="currentPartRole === role.value
                     ? `${role.activeClass} shadow-neu-pressed`
                     : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
@@ -179,25 +162,59 @@
               </div>
             </div>
 
-            <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.protectionLabel') }}</label>
-              <textarea
-                v-model="currentPartPositiveIntention"
-                rows="2"
-                :placeholder="t('exerciseWizards.partsMapping.identifyPart.protectionPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
-              />
-            </div>
+            <p class="text-xs text-on-surface-variant italic">{{ t('exerciseWizards.partsMapping.identifyPart.roleHint') }}</p>
 
-            <div class="space-y-1">
-              <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.fearLabel') }}</label>
-              <textarea
-                v-model="currentPartFears"
-                rows="2"
-                :placeholder="tg('exerciseWizards.partsMapping.identifyPart.fearPlaceholder')"
-                class="neo-input w-full p-3 text-sm resize-none"
-              />
-            </div>
+            <!-- Protector questions (managers, firefighters, unknown) -->
+            <template v-if="currentPartRole !== 'exile'">
+              <div class="space-y-1">
+                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.protectionLabel') }}</label>
+                <textarea
+                  v-model="currentPartPositiveIntention"
+                  rows="2"
+                  :placeholder="t('exerciseWizards.partsMapping.identifyPart.protectionPlaceholder')"
+                  class="neo-input w-full p-3 text-sm resize-none"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.fearLabel') }}</label>
+                <textarea
+                  v-model="currentPartFears"
+                  rows="2"
+                  :placeholder="tg('exerciseWizards.partsMapping.identifyPart.fearPlaceholder')"
+                  class="neo-input w-full p-3 text-sm resize-none"
+                />
+              </div>
+            </template>
+
+            <!-- Exile questions: an exile doesn't protect — it carries and needs -->
+            <template v-else>
+              <div class="space-y-1">
+                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.exileCarriesLabel') }}</label>
+                <textarea
+                  v-model="currentPartBurden"
+                  rows="2"
+                  :placeholder="t('exerciseWizards.partsMapping.identifyPart.exileCarriesPlaceholder')"
+                  class="neo-input w-full p-3 text-sm resize-none"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.partsMapping.identifyPart.exileNeedsLabel') }}</label>
+                <textarea
+                  v-model="currentPartNeeds"
+                  rows="2"
+                  :placeholder="t('exerciseWizards.partsMapping.identifyPart.exileNeedsPlaceholder')"
+                  class="neo-input w-full p-3 text-sm resize-none"
+                />
+              </div>
+            </template>
+
+            <BodyLocationPicker
+              v-model="currentPartBodyLocations"
+              :label="t('exerciseWizards.partsMapping.identifyPart.bodyLabel')"
+              :multiple="true"
+            />
 
             <!-- Part preview -->
             <AppCard v-if="currentPartName.trim()" variant="inset" padding="sm" class="space-y-1">
@@ -210,6 +227,12 @@
               </p>
               <p v-if="currentPartFears.trim()" class="text-xs text-on-surface-variant">
                 {{ t('exerciseWizards.partsMapping.identifyPart.fears', { text: currentPartFears }) }}
+              </p>
+              <p v-if="currentPartRole === 'exile' && currentPartBurden.trim()" class="text-xs text-on-surface-variant">
+                {{ t('exerciseWizards.partsMapping.identifyPart.carries', { text: currentPartBurden }) }}
+              </p>
+              <p v-if="currentPartRole === 'exile' && currentPartNeeds.trim()" class="text-xs text-on-surface-variant">
+                {{ t('exerciseWizards.partsMapping.identifyPart.needs', { text: currentPartNeeds }) }}
               </p>
             </AppCard>
           </AppCard>
@@ -282,6 +305,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.partsMapping.visualMap.title') }}</h2>
+            <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.visualMap.why')" />
 
             <!-- SVG Map -->
             <div class="neo-surface rounded-2xl p-4" style="min-height: 300px">
@@ -334,7 +358,7 @@
                 <button
                   v-for="relType in relationshipTypes"
                   :key="relType.value"
-                  class="neo-pill px-3 py-1 text-xs neo-focus shadow-neu-raised-sm hover:-translate-y-px transition-all"
+                  class="exercise-pill px-3 py-1 text-xs neo-focus shadow-neu-raised-sm hover:-translate-y-px transition-all"
                   @click="createRelationship(relType.value)"
                 >
                   {{ relType.label }}
@@ -352,7 +376,7 @@
               >
                 <span class="text-on-surface">
                   {{ getPartName(rel.fromPartId) }}
-                  <span class="text-on-surface-variant mx-1">{{ rel.type }}</span>
+                  <span class="text-on-surface-variant mx-1">{{ formatRelationshipType(rel.type) }}</span>
                   {{ getPartName(rel.toPartId) }}
                 </span>
                 <button class="neo-focus rounded-full p-1 text-on-surface-variant hover:text-error" @click="removeRelationship(idx)">
@@ -377,6 +401,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.partsMapping.reflection.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.partsMapping.reflection.why')" />
             <textarea
               v-model="reflection"
               rows="4"
@@ -430,7 +455,7 @@
                   <button
                     v-for="area in lifeAreas"
                     :key="area.id"
-                    class="neo-pill px-2.5 py-1 text-xs neo-focus transition-all"
+                    class="exercise-pill px-2.5 py-1 text-xs neo-focus transition-all"
                     :class="isLifeAreaSelected(idx, area.id)
                       ? 'bg-primary/20 text-primary shadow-neu-pressed'
                       : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
@@ -499,7 +524,7 @@
                 class="text-sm text-on-surface"
               >
                 {{ getPartName(rel.fromPartId) }}
-                <span class="text-on-surface-variant">{{ rel.type }}</span>
+                <span class="text-on-surface-variant">{{ formatRelationshipType(rel.type) }}</span>
                 {{ getPartName(rel.toPartId) }}
               </p>
             </div>
@@ -550,6 +575,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -562,8 +589,9 @@ import { usePartsMappingWizard, type PartsMappingStep } from '@/composables/useP
 import { useLifeAreaStore } from '@/stores/lifeArea.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 import type { Quadrant } from '@/domain/emotion'
-import type { IFSPartRole, IFSBodyLocation, IFSRelationship } from '@/domain/exercises'
+import type { IFSPartRole, IFSRelationship } from '@/domain/exercises'
 import {
   IFS_ROLE_CLASSES,
   IFS_ROLE_SVG_CLASSES,
@@ -575,6 +603,8 @@ const emit = defineEmits<{
 }>()
 
 const { t, tg, tp } = useT()
+
+const { formatBodyLocation: formatLocation, formatRelationshipType, unknownPartName } = useIfsLabels()
 
 const lifeAreaStore = useLifeAreaStore()
 const lifeAreas = computed(() => lifeAreaStore.lifeAreas)
@@ -607,6 +637,7 @@ const {
   trailheadSituation,
   trailheadEmotionIds,
   trailheadEmotionFamilyIds,
+  trailheadBodyLocations,
   trailheadThoughts,
   beforeEmotionIds,
   beforeEmotionFamilyIds,
@@ -618,6 +649,9 @@ const {
   currentPartRole,
   currentPartPositiveIntention,
   currentPartFears,
+  currentPartBurden,
+  currentPartNeeds,
+  currentPartBodyLocations,
   editPart,
   removePart,
   addAnotherPart,
@@ -633,9 +667,6 @@ const {
   isSaving,
   save,
 } = usePartsMappingWizard()
-
-// Trailhead body location is an array in BodyLocationPicker
-const trailheadBodyLocations = ref<IFSBodyLocation[]>([])
 
 const activeEmotionQuadrantIntro = ref<Quadrant | null>(null)
 const activeEmotionQuadrantTrailhead = ref<Quadrant | null>(null)
@@ -704,19 +735,13 @@ function createRelationship(type: IFSRelationship['type']) {
 
 function getPartName(tempId: string): string {
   const idx = getPartIndex(tempId)
-  return identifiedParts.value[idx]?.name ?? 'Unknown'
+  return identifiedParts.value[idx]?.name ?? unknownPartName.value
 }
 
 function getPartIndex(tempId: string): number {
   return parseInt(tempId.replace('temp-', ''), 10)
 }
 
-function formatLocation(location: string): string {
-  return location
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-}
 
 // Life Area toggling
 function isLifeAreaSelected(partIdx: number, areaId: string): boolean {

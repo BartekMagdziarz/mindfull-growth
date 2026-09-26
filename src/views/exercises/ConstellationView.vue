@@ -30,7 +30,7 @@
             <span
               v-for="pid in entry.selectedPartIds"
               :key="pid"
-              class="neo-pill text-xs px-1.5 py-0.5 bg-primary/10 text-primary"
+              class="exercise-pill text-xs px-1.5 py-0.5 bg-primary/10 text-primary"
             >
               {{ getPartName(pid) }}
             </span>

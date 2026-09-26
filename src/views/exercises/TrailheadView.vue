@@ -10,7 +10,7 @@
     <div class="mt-10 space-y-4">
       <div class="flex items-center justify-between">
         <div class="mg-v2-section-head"><h2>{{ t('exercises.views.pastEntries') }}</h2></div>
-        <span v-if="sortedEntries.length" class="neo-pill text-xs px-2.5 py-0.5 bg-status-warn-soft text-status-warn-on">
+        <span v-if="sortedEntries.length" class="exercise-pill text-xs px-2.5 py-0.5 bg-status-warn-soft text-status-warn-on">
           {{ tp(sortedEntries.length, 'exercises.views.trailheadsLogged.one', 'exercises.views.trailheadsLogged.few', 'exercises.views.trailheadsLogged.many') }}
         </span>
       </div>
@@ -35,7 +35,7 @@
               <AppCard variant="raised" padding="md" class="space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-                  <span class="neo-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
+                  <span class="exercise-pill text-xs px-2 py-0.5 bg-status-warn-soft text-status-warn-on font-semibold">
                     {{ entry.intensity }}/10
                   </span>
                 </div>
@@ -47,7 +47,7 @@
                   <span
                     v-for="eid in entry.emotionIds.slice(0, 4)"
                     :key="eid"
-                    class="neo-pill text-xs px-1.5 py-0.5 bg-primary/10 text-primary"
+                    class="exercise-pill text-xs px-1.5 py-0.5 bg-primary/10 text-primary"
                   >
                     {{ getEmotionName(eid) }}
                   </span>

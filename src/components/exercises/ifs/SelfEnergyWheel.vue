@@ -61,7 +61,7 @@
 
     <!-- Rating dots for selected quality -->
     <div v-if="interactive && selectedQuality" class="flex flex-col items-center gap-2">
-      <p class="text-sm font-medium text-on-surface capitalize">{{ selectedQuality }}</p>
+      <p class="text-sm font-medium text-on-surface">{{ formatQuality(selectedQuality) }}</p>
       <div class="flex gap-2">
         <button
           v-for="n in 5"
@@ -84,10 +84,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 import type { SelfEnergyQuality } from '@/domain/exercises'
 import { getQualityRgba } from '@/utils/selfEnergyColors'
 
 const { t } = useT()
+
+const { formatQuality } = useIfsLabels()
 
 const props = withDefaults(
   defineProps<{

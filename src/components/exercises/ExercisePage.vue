@@ -1,5 +1,5 @@
 <template>
-  <PageContainer :width="width">
+  <PageContainer :width="width" class="exercise-page">
     <PageHeader
       :eyebrow="eyebrow || t('exercises.title')"
       :title="title"
@@ -15,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+import './exercise-design.css'
 import type { RouteLocationRaw } from 'vue-router'
 import PageContainer, { type PageContainerWidth } from '@/components/layout/PageContainer.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'

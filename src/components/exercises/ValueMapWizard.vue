@@ -1,21 +1,6 @@
 <template>
   <div class="space-y-6">
-    <div class="flex flex-wrap items-center gap-2">
-      <button
-        v-for="(label, index) in stepLabels"
-        :key="label"
-        type="button"
-        class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-        :class="index === step
-          ? 'bg-primary text-on-primary shadow-neu-raised-sm'
-          : index < step
-            ? 'bg-primary/15 text-primary'
-            : 'bg-outline/10 text-on-surface-variant'"
-        @click="index < step && (step = index)"
-      >
-        {{ index + 1 }}. {{ label }}
-      </button>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="step" @go="step = $event" />
 
     <AppCard v-if="step === 0" padding="lg" class="space-y-5">
       <div class="space-y-2">
@@ -50,6 +35,7 @@
             <p class="mt-1 text-sm text-on-surface-variant">
               {{ t('exerciseWizards.valueMap.sort.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.sort.why')" />
           </div>
           <div class="text-right text-xs text-on-surface-variant">
             {{ sortedCount }} / {{ allValues.length }}
@@ -74,7 +60,7 @@
             <article
               v-for="value in valuesByCategory[category.id]"
               :key="value.id"
-              class="group relative w-full rounded-lg border border-neu-border/20 bg-neu-base px-3 pb-4 pt-3 text-left shadow-neu-raised-sm transition hover:-translate-y-px hover:shadow-neu-raised"
+              class="mg-v2-surface mg-v2-surface--flat group relative w-full px-3 pb-4 pt-3 text-left"
               draggable="true"
               @dragstart="draggedValueId = value.id"
             >
@@ -180,6 +166,7 @@
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.valueMap.narrow.description') }}
         </p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.narrow.why')" />
       </div>
 
       <div
@@ -200,10 +187,10 @@
           v-for="value in topCandidateValues"
           :key="value.id"
           type="button"
-          class="rounded-lg border p-3 text-left transition"
+          class="neo-selector border p-3 text-left transition"
           :class="selectedTopIds.includes(value.id)
-            ? 'border-primary bg-primary/10 shadow-neu-pressed'
-            : 'border-neu-border/20 bg-section hover:bg-neu-base'"
+            ? 'neo-selector--active'
+            : 'border-neu-border/20'"
           @click="toggleSelectedTop(value.id)"
         >
           <span class="block text-sm font-semibold text-on-surface">{{ value.label }}</span>
@@ -216,6 +203,7 @@
       <div class="space-y-1">
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.rank.title') }}</h2>
         <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.rank.description') }}</p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.rank.why')" />
       </div>
 
       <div class="space-y-2">
@@ -251,6 +239,7 @@
       <div>
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.meaning.title') }}</h2>
         <p class="mt-1 text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.meaning.description') }}</p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.meaning.why')" />
       </div>
 
       <div class="space-y-3">
@@ -273,6 +262,7 @@
       <div>
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.conflicts.title') }}</h2>
         <p class="mt-1 text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.conflicts.description') }}</p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.conflicts.why')" />
       </div>
 
       <div v-for="valueId in coreRankedIds" :key="valueId" class="rounded-lg border border-neu-border/20 bg-section p-4">
@@ -331,6 +321,7 @@
         <div>
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.valueMap.areas.title') }}</h2>
           <p class="mt-1 text-sm text-on-surface-variant">{{ t('exerciseWizards.valueMap.areas.description') }}</p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.valueMap.areas.why')" />
         </div>
         <AppButton variant="text" @click="router.push('/areas')">
           {{ t('exerciseWizards.valueMap.areas.manage') }}
@@ -425,7 +416,7 @@
         </p>
         <div v-for="conflict in compiledGlobalConflicts" :key="`${conflict.valueId}-${conflict.conflictingValueId}`" class="rounded-lg bg-section p-3 text-sm">
           <span class="font-medium text-on-surface">{{ getValueLabel(conflict.valueId) }}</span>
-          <span class="text-on-surface-variant"> <-> </span>
+          <span class="text-on-surface-variant"> ↔ </span>
           <span class="font-medium text-on-surface">{{ getValueLabel(conflict.conflictingValueId) }}</span>
           <p v-if="conflict.note" class="mt-1 text-xs text-on-surface-variant">{{ conflict.note }}</p>
         </div>
@@ -472,6 +463,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
@@ -498,7 +491,7 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 const valueMapStore = useValueMapStore()
 const lifeAreaStore = useLifeAreaStore()
 

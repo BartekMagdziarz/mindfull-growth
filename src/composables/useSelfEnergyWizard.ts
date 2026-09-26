@@ -30,7 +30,7 @@ export function useSelfEnergyWizard() {
   const selfEnergyStore = useIFSSelfEnergyStore()
   const partStore = useIFSPartStore()
   const trailheadStore = useIFSTrailheadStore()
-  const { locale } = useT()
+  const { locale, gender } = useT()
 
   // Step management
   const currentStep = ref<SelfEnergyStep>('check-in')
@@ -44,18 +44,29 @@ export function useSelfEnergyWizard() {
     return ALL_QUALITIES.every((q) => ratings.value[q] > 0)
   })
 
-  const lowestQuality = computed<SelfEnergyQuality>(() => {
-    let lowest: SelfEnergyQuality = 'calm'
-    let lowestVal = Infinity
-    for (const q of ALL_QUALITIES) {
-      const val = ratings.value[q]
-      if (val > 0 && val < lowestVal) {
-        lowestVal = val
-        lowest = q
-      }
-    }
-    return lowest
+  const lowestRating = computed(() => {
+    const rated = ALL_QUALITIES.map((q) => ratings.value[q]).filter((v) => v > 0)
+    return rated.length ? Math.min(...rated) : 0
   })
+
+  /** Every C sharing the lowest rating, in wheel order. */
+  const tiedLowest = computed<SelfEnergyQuality[]>(() =>
+    lowestRating.value ? ALL_QUALITIES.filter((q) => ratings.value[q] === lowestRating.value) : [],
+  )
+
+  /** With several C's tied, the user picks which one is today's gap. */
+  const chosenGap = ref<SelfEnergyQuality | null>(null)
+
+  const lowestQuality = computed<SelfEnergyQuality>(() => {
+    if (chosenGap.value && tiedLowest.value.includes(chosenGap.value)) return chosenGap.value
+    return tiedLowest.value[0] ?? 'calm'
+  })
+
+  /** All eight rated 4–5: there is no gap to work on today. */
+  const allHigh = computed(() => allRated.value && lowestRating.value >= 4)
+
+  /** Skip the micro-practice (offered when all C's are high). */
+  const skipMicroPractice = ref(false)
 
   // Part identification
   const identifiedPartId = ref<string | null>(null)
@@ -97,6 +108,10 @@ export function useSelfEnergyWizard() {
     // When advancing from gap, set micro-practice type to lowest quality
     if (currentStep.value === 'gap') {
       microPracticeType.value = lowestQuality.value
+      if (skipMicroPractice.value) {
+        currentStep.value = 'save'
+        return
+      }
     }
 
     currentStep.value = STEP_ORDER[idx + 1]
@@ -104,9 +119,12 @@ export function useSelfEnergyWizard() {
 
   function prevStep() {
     const idx = STEP_ORDER.indexOf(currentStep.value)
-    if (idx > 0) {
-      currentStep.value = STEP_ORDER[idx - 1]
+    if (idx <= 0) return
+    if (currentStep.value === 'save' && skipMicroPractice.value) {
+      currentStep.value = 'gap'
+      return
     }
+    currentStep.value = STEP_ORDER[idx - 1]
   }
 
   function goToStep(step: SelfEnergyStep) {
@@ -123,6 +141,7 @@ export function useSelfEnergyWizard() {
         trailheadEntries: trailheadStore.entries,
         parts: partStore.sortedParts,
         locale: locale.value,
+        gender: gender.value,
         useProfile: options.useProfile ?? false,
       })
     } catch (err) {
@@ -141,8 +160,8 @@ export function useSelfEnergyWizard() {
         ratings: { ...ratings.value },
         lowestQuality: lowestQuality.value,
         identifiedPartId: identifiedPartId.value ?? undefined,
-        microPracticeType: microPracticeType.value,
-        microPracticeNotes: microPracticeNotes.value.trim() || undefined,
+        microPracticeType: skipMicroPractice.value ? undefined : microPracticeType.value,
+        microPracticeNotes: skipMicroPractice.value ? undefined : microPracticeNotes.value.trim() || undefined,
         notes: notes.value.trim() || undefined,
       }
 
@@ -159,6 +178,8 @@ export function useSelfEnergyWizard() {
   function reset() {
     currentStep.value = 'check-in'
     ratings.value = createEmptyRatings()
+    chosenGap.value = null
+    skipMicroPractice.value = false
     identifiedPartId.value = null
     microPracticeType.value = 'calm'
     microPracticeNotes.value = ''
@@ -181,6 +202,10 @@ export function useSelfEnergyWizard() {
     ratings,
     allRated,
     lowestQuality,
+    tiedLowest,
+    chosenGap,
+    allHigh,
+    skipMicroPractice,
 
     // Part
     identifiedPartId,

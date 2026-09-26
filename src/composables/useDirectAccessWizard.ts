@@ -10,6 +10,7 @@ type IFSInsightTag = IFSInsight['tag']
 import { useIFSDirectAccessStore } from '@/stores/ifsDirectAccess.store'
 import { directAccessDialogueTurn } from '@/services/ifsLLMAssists'
 import { useT } from '@/composables/useT'
+import { enrichPartFromDiscoveries } from '@/services/ifsPartEnrichment'
 
 export type DirectAccessStep =
   | 'part-select'
@@ -28,7 +29,7 @@ const STEP_ORDER: DirectAccessStep[] = [
 
 export function useDirectAccessWizard() {
   const store = useIFSDirectAccessStore()
-  const { locale } = useT()
+  const { locale, gender, t } = useT()
 
   // Step management
   const currentStep = ref<DirectAccessStep>('part-select')
@@ -51,6 +52,14 @@ export function useDirectAccessWizard() {
   const partJobDiscovered = ref('')
   const partFearDiscovered = ref('')
   const partNeedDiscovered = ref('')
+  /** Save step: copy job/fear/need to the part card (empty fields only). */
+  const updatePartCard = ref(true)
+  const hasDiscoveries = computed(
+    () =>
+      partJobDiscovered.value.trim().length > 0 ||
+      partFearDiscovered.value.trim().length > 0 ||
+      partNeedDiscovered.value.trim().length > 0,
+  )
   const notes = ref('')
 
   // Saving
@@ -107,6 +116,7 @@ export function useDirectAccessWizard() {
         userMessage: content,
         previousMessages: messages.value.slice(0, -1),
         locale: locale.value,
+        gender: gender.value,
         useProfile: options.useProfile ?? false,
       })
       const partMsg: IFSDialogueMessage = {
@@ -116,7 +126,8 @@ export function useDirectAccessWizard() {
       }
       messages.value.push(partMsg)
     } catch (err) {
-      llmError.value = err instanceof Error ? err.message : 'Failed to get response'
+      console.warn('[ifs] LLM assist failed', err)
+      llmError.value = t('exerciseWizards.shared.ifs.errors.responseFailed')
       console.error('Direct access dialogue error:', err)
     } finally {
       isLoadingResponse.value = false
@@ -150,10 +161,17 @@ export function useDirectAccessWizard() {
         partJobDiscovered: partJobDiscovered.value.trim() || undefined,
         partFearDiscovered: partFearDiscovered.value.trim() || undefined,
         partNeedDiscovered: partNeedDiscovered.value.trim() || undefined,
-        llmAssistUsed: true,
+        llmAssistUsed: messages.value.some((m) => m.role === 'assistant'),
         notes: notes.value.trim() || undefined,
       }
       await store.createSession(payload)
+      if (updatePartCard.value && hasDiscoveries.value) {
+        await enrichPartFromDiscoveries(payload.partId, {
+          positiveIntention: payload.partJobDiscovered,
+          fears: payload.partFearDiscovered,
+          needs: payload.partNeedDiscovered,
+        })
+      }
       reset()
     } catch (err) {
       console.error('Error saving direct access session:', err)
@@ -175,6 +193,7 @@ export function useDirectAccessWizard() {
     partJobDiscovered.value = ''
     partFearDiscovered.value = ''
     partNeedDiscovered.value = ''
+    updatePartCard.value = true
     notes.value = ''
     isSaving.value = false
   }
@@ -208,6 +227,8 @@ export function useDirectAccessWizard() {
     partJobDiscovered,
     partFearDiscovered,
     partNeedDiscovered,
+    updatePartCard,
+    hasDiscoveries,
     notes,
 
     // Saving

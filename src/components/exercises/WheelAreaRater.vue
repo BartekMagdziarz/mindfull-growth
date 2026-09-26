@@ -24,6 +24,8 @@
             {{ t('exerciseWizards.wheelOfLife.rater.currentlyRating') }}
           </p>
           <h3 class="text-2xl font-semibold text-on-surface">{{ area.name }}</h3>
+          <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.wheelOfLife.rater.alignmentQuestion') }}</p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.wheelOfLife.rater.why')" />
         </div>
 
         <div class="flex items-baseline gap-2">
@@ -103,9 +105,10 @@
 import { computed } from 'vue'
 import { useT } from '@/composables/useT'
 import WheelOfLifeRadialChart from './WheelOfLifeRadialChart.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import type { WheelDraftArea } from './wheelOfLifeTypes'
 
-const { t } = useT()
+const { t, tg } = useT()
 
 const props = defineProps<{
   area: WheelDraftArea

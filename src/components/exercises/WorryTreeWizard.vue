@@ -1,21 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex items-center justify-center gap-2 mb-2">
-      <span
-        v-for="(label, idx) in visibleStepLabels"
-        :key="idx"
-        class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-        :class="
-          idx < currentVisualStep
-            ? 'neo-step-completed'
-            : idx === currentVisualStep
-              ? 'neo-step-active w-6'
-              : 'neo-step-future'
-        "
-        :title="label"
-      />
-    </div>
+    <ExerciseStepper :labels="visibleStepLabels" :current="currentVisualStep" :interactive="false" />
 
     <!-- Step 1: Capture Worry -->
     <Transition
@@ -30,6 +16,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.capture.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.worryTree.capture.why')" />
           <textarea
             v-model="worry"
             rows="4"
@@ -94,6 +81,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.classify.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.worryTree.classify.why')" />
         </AppCard>
 
         <button
@@ -260,6 +248,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.actionPlan.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.worryTree.actionPlan.why')" />
           <textarea
             v-model="actionPlan"
             rows="3"
@@ -310,6 +299,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.schedule.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.worryTree.schedule.why')" />
           <textarea
             v-model="actionPlan"
             rows="3"
@@ -354,6 +344,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.worryTree.lettingGo.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.worryTree.lettingGo.why')" />
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.worryTree.lettingGo.choosePrompt') }}
           </p>
@@ -459,6 +450,7 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -466,6 +458,7 @@ import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import type { Quadrant } from '@/domain/emotion'
 import type {
   EmotionRating,

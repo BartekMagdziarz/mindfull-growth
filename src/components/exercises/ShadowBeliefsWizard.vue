@@ -45,6 +45,7 @@
       <p class="text-sm text-on-surface-variant">
         {{ t('exerciseWizards.shadowBeliefs.beliefs.examineHint') }}
       </p>
+      <ExerciseStepWhy :text="tg('exerciseWizards.shadowBeliefs.beliefs.why')" />
       <div class="space-y-4">
         <div
           v-for="(entry, index) in draft.beliefs"
@@ -122,6 +123,7 @@
       <p class="text-sm text-on-surface-variant">
         {{ t('exerciseWizards.shadowBeliefs.advice.description') }}
       </p>
+      <ExerciseStepWhy :text="tg('exerciseWizards.shadowBeliefs.advice.why')" />
       <div class="space-y-4">
         <div
           v-for="(item, index) in draft.advice"
@@ -216,6 +218,7 @@ import { reactive, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { useShadowBeliefsStore } from '@/stores/shadowBeliefs.store'
 import { useT } from '@/composables/useT'
 import type { AdviceFollowThrough } from '@/domain/exercises'

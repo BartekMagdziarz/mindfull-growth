@@ -20,7 +20,7 @@
         >
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-on-surface">{{ formatDate(session.createdAt) }}</span>
-            <span class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
+            <span class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
               {{ tp(session.messages.length, 'exercises.views.messagesCount.one', 'exercises.views.messagesCount.few', 'exercises.views.messagesCount.many') }}
             </span>
           </div>
@@ -37,7 +37,7 @@
             <span
               v-for="insight in session.insights.slice(0, 3)"
               :key="insight.id"
-              class="neo-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
+              class="exercise-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
             >
               {{ insight.tag }}
             </span>

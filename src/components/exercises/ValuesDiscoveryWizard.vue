@@ -1,21 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator -->
-    <div class="flex items-center gap-2 mb-4">
-      <button
-        v-for="(stepLabel, idx) in stepLabels"
-        :key="idx"
-        class="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors"
-        :class="idx === step
-          ? 'shadow-neu-pressed bg-neu-base text-primary border border-neu-border/40'
-          : idx < step
-            ? 'bg-primary/15 text-primary'
-            : 'bg-outline/10 text-on-surface-variant'"
-        @click="idx < step && (step = idx)"
-      >
-        {{ stepLabel }}
-      </button>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="step" @go="step = $event" />
 
     <!-- Step 1: Admirable People -->
     <template v-if="step === 0">
@@ -24,6 +10,7 @@
         <p class="text-sm text-on-surface-variant">
           {{ t('exerciseWizards.valuesDiscovery.admirablePeople.description') }}
         </p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.valuesDiscovery.admirablePeople.why')" />
 
         <div v-for="(person, index) in draft.admirablePeople" :key="index" class="space-y-2 border-b border-neu-border/10 pb-4 last:border-0">
           <div class="flex items-center gap-3 group">
@@ -96,6 +83,7 @@
         <p class="text-sm text-on-surface-variant">
           {{ tg('exerciseWizards.valuesDiscovery.coreValues.description') }}
         </p>
+        <ExerciseStepWhy :text="tg('exerciseWizards.valuesDiscovery.coreValues.why')" />
 
         <!-- Show qualities summary -->
         <div class="p-3 rounded-lg bg-section">
@@ -163,6 +151,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { reactive, ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'

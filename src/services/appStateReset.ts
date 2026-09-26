@@ -38,6 +38,7 @@ import { invalidatePlanningQueryCache } from '@/services/planningQueryCache'
 
 // --- localStorage cleanup ---------------------------------------------------
 import { clearChartScalePreferences } from '@/composables/useChartScale'
+import { clearBreathPreferences } from '@/utils/breathPreferences'
 
 // --- Pinia stores (47 — auth.store excluded by design) ----------------------
 import { useAssessmentStore } from '@/stores/assessment.store'
@@ -164,4 +165,5 @@ export function resetAppState(): void {
 
   // 3) localStorage LAST — independent of every store/cache above.
   clearChartScalePreferences()
+  clearBreathPreferences()
 }

@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-6'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -128,6 +107,10 @@
       <div v-if="currentStep === 'write'" class="space-y-4">
         <AppCard padding="lg" class="space-y-4">
           <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.legacyLetter.write.title') }}</h2>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            {{ t('exerciseWizards.legacyLetter.write.description') }}
+          </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.legacyLetter.write.why')" />
           <div class="neo-embedded p-3">
             <p class="text-xs text-on-surface-variant">
               {{ tg('exerciseWizards.legacyLetter.write.hint') }}
@@ -149,7 +132,7 @@
               <span
                 v-for="value in coreValues"
                 :key="value"
-                class="neo-pill text-xs px-2.5 py-0.5"
+                class="exercise-pill text-xs px-2.5 py-0.5"
               >
                 {{ value }}
               </span>
@@ -380,12 +363,14 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
 import EmotionSelector from '@/components/EmotionSelector.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { useValueMapStore } from '@/stores/valueMap.store'
 import { useValuesDiscoveryStore } from '@/stores/valuesDiscovery.store'
 import { useTransformativePurposeStore } from '@/stores/transformativePurpose.store'

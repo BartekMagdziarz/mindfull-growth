@@ -1,26 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="idx < stepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === stepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="stepIndex" @go="goToStep(STEPS[$event])" />
 
     <!-- Step 1: Check-In -->
     <Transition
@@ -37,6 +18,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.selfEnergy.checkIn.subtitle') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.selfEnergy.checkIn.why')" />
 
             <SelfEnergyWheel
               :ratings="ratings"
@@ -48,7 +30,7 @@
             <!-- Inline ratings summary -->
             <div class="text-xs text-on-surface-variant text-center">
               <span v-for="(q, idx) in allQualities" :key="q">
-                <span class="capitalize">{{ q }}</span>: {{ ratings[q] || '—' }}{{ idx < allQualities.length - 1 ? ' · ' : '' }}
+                <span>{{ formatQuality(q) }}</span>: {{ ratings[q] || '—' }}{{ idx < allQualities.length - 1 ? ' · ' : '' }}
               </span>
             </div>
           </AppCard>
@@ -65,16 +47,46 @@
       <template v-else-if="currentStep === 'gap'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.selfEnergy.gap.title') }}</h2>
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ allHigh ? t('exerciseWizards.selfEnergy.gap.allHighTitle') : t('exerciseWizards.selfEnergy.gap.title') }}
+            </h2>
+
+            <!-- All C's high: no gap to fill today -->
+            <AppCard v-if="allHigh" variant="inset" padding="md" class="space-y-3">
+              <p class="text-sm text-on-surface">{{ t('exerciseWizards.selfEnergy.gap.allHigh') }}</p>
+              <div class="flex flex-wrap gap-2">
+                <AppButton variant="tonal" @click="skipMicroPractice = true; nextStep()">
+                  {{ t('exerciseWizards.selfEnergy.gap.skipButton') }}
+                </AppButton>
+              </div>
+            </AppCard>
+
+            <!-- Several C's share the lowest rating: the user picks today's gap -->
+            <div v-if="!allHigh && tiedLowest.length > 1" class="space-y-2">
+              <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.selfEnergy.gap.tieLabel') }}</p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="q in tiedLowest"
+                  :key="`tie-${q}`"
+                  class="exercise-pill px-3 py-1.5 text-xs neo-focus transition-all"
+                  :class="lowestQuality === q
+                    ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
+                    : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
+                  @click="chosenGap = q"
+                >
+                  {{ formatQuality(q) }}
+                </button>
+              </div>
+            </div>
 
             <!-- Lowest C highlight card -->
-            <AppCard variant="inset" padding="md" class="space-y-3">
+            <AppCard v-if="!allHigh" variant="inset" padding="md" class="space-y-3">
               <div class="flex items-center gap-3">
                 <div class="neo-surface rounded-full p-2">
                   <AppIcon :name="qualityIcon(lowestQuality)" class="text-2xl" :class="qualityIconColor(lowestQuality)" />
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-on-surface capitalize">{{ lowestQuality }}</p>
+                  <p class="text-sm font-medium text-on-surface">{{ formatQuality(lowestQuality) }}</p>
                   <div class="flex gap-1 mt-1">
                     <div
                       v-for="n in 5"
@@ -86,29 +98,31 @@
                 </div>
               </div>
               <p class="text-sm text-on-surface-variant">
-                {{ t('exerciseWizards.selfEnergy.gap.looksLike', { quality: lowestQuality, rating: ratings[lowestQuality] }) }}
+                {{ t('exerciseWizards.selfEnergy.gap.looksLike', { quality: formatQuality(lowestQuality), rating: ratings[lowestQuality] }) }}
               </p>
             </AppCard>
 
-            <p class="text-sm text-on-surface-variant">
-              {{ t('exerciseWizards.selfEnergy.gap.partQuestion', { quality: lowestQuality }) }}
-            </p>
+            <template v-if="!allHigh">
+              <p class="text-sm text-on-surface-variant">
+                {{ t('exerciseWizards.selfEnergy.gap.partQuestion', { quality: formatQuality(lowestQuality) }) }}
+              </p>
 
-            <PartSelector
-              v-model="identifiedPartId"
-              :parts="partStore.sortedParts"
-              :allow-create="false"
-              label=""
-            />
+              <PartSelector
+                v-model="identifiedPartId"
+                :parts="partStore.sortedParts"
+                :allow-create="false"
+                label=""
+              />
 
-            <p v-if="!identifiedPartId" class="text-xs text-on-surface-variant italic">
-              {{ tg('exerciseWizards.selfEnergy.gap.unsureMessage') }}
-            </p>
+              <p v-if="!identifiedPartId" class="text-xs text-on-surface-variant italic">
+                {{ tg('exerciseWizards.selfEnergy.gap.unsureMessage') }}
+              </p>
+            </template>
           </AppCard>
 
           <div class="flex justify-between">
             <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
-            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+            <AppButton variant="filled" @click="skipMicroPractice = false; nextStep()">{{ t('common.buttons.next') }}</AppButton>
           </div>
         </div>
       </template>
@@ -117,8 +131,8 @@
       <template v-else-if="currentStep === 'micro-practice'">
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
-            <h2 class="text-base font-semibold text-on-surface capitalize">
-              {{ t('exerciseWizards.selfEnergy.microPractice.title', { quality: lowestQuality }) }}
+            <h2 class="text-base font-semibold text-on-surface">
+              {{ t('exerciseWizards.selfEnergy.microPractice.title', { quality: formatQuality(lowestQuality) }) }}
             </h2>
 
             <!-- Calm: Box Breathing -->
@@ -292,7 +306,7 @@
 
             <!-- Lowest C summary -->
             <div class="neo-surface p-3 rounded-lg flex items-center justify-between">
-              <span class="text-sm text-on-surface-variant capitalize">{{ lowestQuality }}</span>
+              <span class="text-sm text-on-surface-variant">{{ formatQuality(lowestQuality) }}</span>
               <span class="text-sm font-semibold text-primary">{{ ratings[lowestQuality] }}/5</span>
             </div>
 
@@ -353,7 +367,7 @@
               <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2">
                 <div v-for="q in allQualities" :key="`legend-${q}`" class="flex items-center gap-1">
                   <div class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: qualityColor(q) }" />
-                  <span class="text-[10px] text-on-surface-variant capitalize">{{ q }}</span>
+                  <span class="text-[10px] text-on-surface-variant">{{ formatQuality(q) }}</span>
                 </div>
               </div>
             </div>
@@ -383,6 +397,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, onUnmounted } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { SelfEnergyQuality } from '@/domain/exercises'
@@ -401,12 +417,15 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSSelfEnergyStore } from '@/stores/ifsSelfEnergy.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 
 const emit = defineEmits<{
   saved: []
 }>()
 
 const { t, tg, tp } = useT()
+
+const { formatQuality, unknownPartName } = useIfsLabels()
 const partStore = useIFSPartStore()
 const selfEnergyStore = useIFSSelfEnergyStore()
 const userPreferencesStore = useUserPreferencesStore()
@@ -434,6 +453,10 @@ const {
   goToStep,
   ratings,
   lowestQuality,
+  tiedLowest,
+  chosenGap,
+  allHigh,
+  skipMicroPractice,
   identifiedPartId,
   microPracticeType,
   microPracticeNotes,
@@ -537,7 +560,7 @@ function trendPoints(quality: SelfEnergyQuality): string {
 
 // Part helpers
 function getPartName(id: string): string {
-  return partStore.getPartById(id)?.name ?? 'Unknown'
+  return partStore.getPartById(id)?.name ?? unknownPartName.value
 }
 
 function getPartRole(id: string) {

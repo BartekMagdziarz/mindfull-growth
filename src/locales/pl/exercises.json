@@ -65,7 +65,7 @@
     "strongest": "Najsilniejsza:",
     "weakest": "Najsłabsza:",
     "lowest": "Najniższa:",
-    "selfEnergyHabitPrompt": "Śledź swój codzienny przegląd 8 C?",
+    "selfEnergyHabitPrompt": "Śledzić codzienny check-in 8 C?",
     "selfEnergyHabitDescription": "Buduj regularność dzięki śledzeniu nawyków.",
     "noDialoguesYet": "Brak dialogów. Rozpocznij swój pierwszy dialog z częściami powyżej.",
     "messagesCount": {
@@ -95,13 +95,13 @@
     "job": "Zadanie:",
     "fear": "Lęk:",
     "need": "Potrzeba:",
-    "noTrailheadsYet": "Brak punktów wejścia. Zacznij od uchwycenia niedawnego emocjonalnego wyzwalacza powyżej.",
+    "noTrailheadsYet": "Brak punktów wejścia. Zacznij od uchwycenia niedawnego momentu aktywacji powyżej.",
     "trailheadsLogged": {
       "one": "{n} punkt wejścia zapisany",
       "few": "{n} punkty wejścia zapisane",
       "many": "{n} punktów wejścia zapisanych"
     },
-    "dailyCheckInHabitPrompt": "Śledź swój codzienny przegląd IFS?",
+    "dailyCheckInHabitPrompt": "Śledzić codzienny check-in IFS?",
     "dailyCheckInHabitDescription": "Buduj serię dzięki śledzeniu nawyków.",
     "noCheckInsYetDaily": "Brak przeglądów. Wybierz szybką praktykę, aby zacząć.",
     "checkInsThisWeek": {
@@ -147,7 +147,8 @@
       "in2Weeks": "za 2 tygodnie",
       "inMonth": "za miesiąc",
       "customDate": "własna data"
-    }
+    },
+    "programPlanned": "Ścieżka zaplanowała kolejny raz na {date}"
   },
   "savedPanel": {
     "title": "Zapisane!",
@@ -333,9 +334,9 @@
       "description": "Ćwicz tworzenie dystansu między swoim Ja a aktywowaną częścią. Kluczowa umiejętność IFS do codziennego stosowania."
     },
     "directAccess": {
-      "title": "Dialog bezpośredniego dostępu",
-      "subtitle": "Porozmawiaj ze swoimi częściami",
-      "description": "Mów bezpośrednio do części przez dialog wspierany przez AI. Poznaj jej perspektywę, obawy i pozytywne intencje."
+      "title": "Rozmowa z częścią siebie",
+      "subtitle": "Porozmawiaj ze swoją częścią",
+      "description": "Porozmawiaj z częścią w dialogu, w którym AI modeluje jej głos. Poznaj jej perspektywę, obawy i pozytywne intencje."
     },
     "trailhead": {
       "title": "Dziennik punktów wejścia",
@@ -350,12 +351,12 @@
     "exileWitnessing": {
       "title": "Świadkowanie wygnańcowi",
       "subtitle": "Podejdź ze współczuciem",
-      "description": "Delikatnie zbliż się do wrażliwej części ze współczuciem. Zalecana konsultacja z profesjonalistą."
+      "description": "Delikatnie zbliż się do wrażliwej części ze współczuciem. Wskazane wsparcie terapeuty."
     },
     "selfEnergy": {
       "title": "Energia Ja (8 C)",
       "subtitle": "Wzmocnij swoje Ja",
-      "description": "Wzmocnij połączenie z Ja poprzez codzienne sprawdzanie w oparciu o framework 8 C."
+      "description": "Wzmocnij połączenie z Ja poprzez codzienny check-in oparty na modelu 8 C."
     },
     "partsDialogue": {
       "title": "Dziennik dialogu z częściami",
@@ -363,14 +364,14 @@
       "description": "Napisz ustrukturyzowaną rozmowę między Ja a częścią, z opcjonalnym wsparciem AI, gdy utkniesz."
     },
     "dailyCheckIn": {
-      "title": "Codzienny przegląd IFS",
+      "title": "Codzienny check-in IFS",
       "subtitle": "Szybka codzienna praktyka",
       "description": "Szybkie codzienne mikropraktyki, aby pozostać w kontakcie ze swoim wewnętrznym systemem."
     },
     "constellation": {
       "title": "Konstelacja wewnętrznego systemu",
       "subtitle": "Zmapuj relacje między częściami",
-      "description": "Zmapuj dynamiczne relacje między częściami — sojusze, konflikty i ukryte powiązania. Zalecana konsultacja z profesjonalistą."
+      "description": "Zmapuj dynamiczne relacje między częściami — sojusze, konflikty i ukryte powiązania. Wskazane wsparcie terapeuty."
     },
     "gratitudeList": {
       "title": "Lista wdzięczności",
@@ -404,6 +405,86 @@
       "title": "Mały sukces",
       "subtitle": "Dostrzeż, co się udało",
       "description": "Zapisz jedną rzecz, która dziś wyszła, i co mówi o tobie."
+    },
+    "pacedBreathing": {
+      "title": "Oddech kojący",
+      "subtitle": "Wdech 4 s, wydech 6 s przez trzy minuty",
+      "description": "Dłuższy wydech niż wdech wycisza pobudzenie. Pomaga, zanim podejdziesz do czegoś trudnego."
+    },
+    "angerLog": {
+      "title": "Dziennik złości",
+      "subtitle": "Codziennie, także w spokojne dni",
+      "description": "Krótki zapis dnia: czy pojawiła się złość, co ją wywołało, jaka myśl ją podkręciła i co pomogło. Z czasem widać wzór."
+    },
+    "angerMap": {
+      "title": "Mapa złości",
+      "subtitle": "Wyzwalacze, sygnały w ciele i koszt",
+      "description": "Zbierz typowe wyzwalacze, pierwsze sygnały w ciele i to, jak zwykle reagujesz. To materiał do planu pauzy."
+    },
+    "pausePlan": {
+      "title": "Plan pauzy",
+      "subtitle": "Jeśli zauważę…, to…",
+      "description": "Ustal wcześniej, co zrobisz, gdy złość zacznie rosnąć, i jak wrócisz do rozmowy po przerwie."
+    },
+    "needBehindAnger": {
+      "title": "Od złości do prośby",
+      "subtitle": "Obserwacja, uczucie, potrzeba, prośba",
+      "description": "Przełóż złość na potrzebę, której broni, i na konkretną prośbę, którą da się wypowiedzieć."
+    },
+    "shameLog": {
+      "title": "Dziennik wstydu",
+      "subtitle": "Krótki zapis co dwa dni",
+      "description": "Zauważ moment wstydu, swoją reakcję i słowa krytyka. Potem dopisz, co powiedziałby ktoś życzliwy."
+    },
+    "shameMap": {
+      "title": "Mapa wstydu",
+      "subtitle": "Obszary, sygnały i typowa reakcja",
+      "description": "Sprawdź, gdzie wstyd odzywa się najczęściej, jak na niego reagujesz i jakie wymaganie wobec siebie za nim stoi."
+    },
+    "shameOrGuilt": {
+      "title": "Czyn czy ja",
+      "subtitle": "Wina dotyczy czynu, wstyd dotyczy ciebie",
+      "description": "Oddziel to, co się stało, od oceny siebie. Winę można naprawić, a na wstyd odpowiada życzliwość."
+    },
+    "compassionateImage": {
+      "title": "Obraz współczujący",
+      "subtitle": "Twoja idealnie życzliwa postać",
+      "description": "Stwórz wyobrażenie kogoś mądrego, silnego, ciepłego i nieoceniającego. Możesz do niego wracać w trudnych chwilach."
+    },
+    "worryPostponement": {
+      "title": "Pora na zmartwienia",
+      "subtitle": "Odkładaj w ciągu dnia, wracaj wieczorem",
+      "description": "W ciągu dnia tylko zapisuj zmartwienia i odkładaj je na później. Wieczorem sprawdź, które nadal mają znaczenie."
+    },
+    "anxietyMap": {
+      "title": "Mapa lęku",
+      "subtitle": "Sytuacje, uniki i zabezpieczenia",
+      "description": "Zbierz sytuacje, które budzą lęk, to, czego unikasz, i to, czym się zabezpieczasz. Z tej listy powstaje drabina ekspozycji."
+    },
+    "maintenancePlan": {
+      "title": "Plan podtrzymania",
+      "subtitle": "Co zostaje na dłużej",
+      "description": "Zdecyduj, które praktyki zostają z tobą i po czym poznasz, że warto do nich wrócić."
+    },
+    "gad7": {
+      "title": "Niepokój (GAD-7)",
+      "subtitle": "7 pytań o ostatnie dwa tygodnie",
+      "description": "Krótki pomiar niepokoju i zamartwiania się. Powtarzany co kilka tygodni pokazuje, czy coś się zmienia."
+    },
+    "scsSf": {
+      "title": "Współczucie dla siebie (SCS-SF)",
+      "subtitle": "12 pytań o to, jak traktujesz siebie",
+      "description": "Sprawdź, na ile w trudnych chwilach jesteś dla siebie życzliwym wsparciem, a na ile surowym krytykiem."
+    },
+    "angerBarometer": {
+      "title": "Barometr złości",
+      "subtitle": "5 pytań o ostatnie cztery tygodnie",
+      "description": "Orientacyjny pomiar częstości, siły i kosztów złości. Pozwala porównać siebie z samym sobą w czasie."
+    },
+    "ius12": {
+      "title": "Nietolerancja niepewności (IUS-12)",
+      "subtitle": "12 pytań o reakcje na niewiadome",
+      "description": "Mierzy, jak trudno znosisz niepewność. To mechanizm, który często podtrzymuje zamartwianie się."
     }
   }
 }

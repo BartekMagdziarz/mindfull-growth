@@ -26,7 +26,7 @@
         >
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-on-surface">{{ formatDate(session.createdAt) }}</span>
-            <span class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
+            <span class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
               {{ t('exercises.views.spaceBadge', { n: session.shiftRating }) }}
             </span>
           </div>
@@ -46,7 +46,7 @@
                 <span
                   v-for="eid in session.beforeEmotionIds.slice(0, 3)"
                   :key="eid"
-                  class="neo-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
+                  class="exercise-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
                 >
                   {{ getEmotionName(eid) }}
                 </span>
@@ -58,7 +58,7 @@
                 <span
                   v-for="eid in session.afterEmotionIds.slice(0, 3)"
                   :key="eid"
-                  class="neo-pill text-xs px-1.5 py-0.5 bg-primary/10 text-primary"
+                  class="exercise-pill text-xs px-1.5 py-0.5 bg-primary/10 text-primary"
                 >
                   {{ getEmotionName(eid) }}
                 </span>

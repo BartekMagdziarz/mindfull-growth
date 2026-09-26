@@ -1,26 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="idx < stepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === stepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="stepIndex" @go="goToStep(STEPS[$event])" />
 
     <!-- Step 1: Select Practice -->
     <Transition
@@ -43,8 +24,8 @@
                 class="neo-focus rounded-xl p-4 text-left transition-all space-y-2"
                 :class="[
                   practiceType === practice.type
-                    ? 'neo-surface shadow-neu-pressed border-2 border-primary'
-                    : 'neo-surface shadow-neu-raised-sm hover:-translate-y-px',
+                    ? 'neo-selector neo-selector--active border'
+                    : 'neo-selector border',
                 ]"
                 @click="practiceType = practice.type"
               >
@@ -75,6 +56,7 @@
             <AppCard padding="lg" class="space-y-4">
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.practice.weatherReport.title') }}</h2>
               <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.dailyCheckIn.practice.weatherReport.description') }}</p>
+              <ExerciseStepWhy :text="tg('exerciseWizards.dailyCheckIn.practice.weatherReport.why')" />
 
               <!-- Multi-select parts grid -->
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -84,8 +66,8 @@
                   class="neo-focus rounded-xl p-3 text-left transition-all"
                   :class="[
                     isPartActive(part.id)
-                      ? 'neo-surface shadow-neu-pressed border-2 border-primary'
-                      : 'neo-surface shadow-neu-raised-sm hover:-translate-y-px',
+                      ? 'neo-selector neo-selector--active border'
+                      : 'neo-selector border',
                     roleBorderClass(part.role),
                   ]"
                   @click="toggleActivePart(part.id)"
@@ -135,6 +117,7 @@
             <AppCard padding="lg" class="space-y-4">
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.title') }}</h2>
               <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.description') }}</p>
+              <ExerciseStepWhy :text="tg('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.why')" />
 
               <PartSelector
                 v-model="gratitudePartId"
@@ -168,13 +151,13 @@
                 <button
                   v-for="q in allQualities"
                   :key="q"
-                  class="neo-pill px-3 py-1.5 text-sm neo-focus transition-all capitalize"
+                  class="exercise-pill px-3 py-1.5 text-sm neo-focus transition-all capitalize"
                   :class="selfEnergyQuality === q
                     ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
                     : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
                   @click="selfEnergyQuality = q"
                 >
-                  {{ q }}
+                  {{ formatQuality(q) }}
                 </button>
               </div>
 
@@ -199,6 +182,7 @@
             <AppCard padding="lg" class="space-y-4">
               <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.title') }}</h2>
               <p class="text-sm text-on-surface-variant">{{ t('exerciseWizards.dailyCheckIn.practice.eveningReflection.description') }}</p>
+              <ExerciseStepWhy :text="tg('exerciseWizards.dailyCheckIn.practice.eveningReflection.why')" />
 
               <!-- Active parts multi-select -->
               <div>
@@ -210,8 +194,8 @@
                     class="neo-focus rounded-xl p-3 text-left transition-all"
                     :class="[
                       isPartActive(part.id)
-                        ? 'neo-surface shadow-neu-pressed border-2 border-primary'
-                        : 'neo-surface shadow-neu-raised-sm hover:-translate-y-px',
+                        ? 'neo-selector neo-selector--active border'
+                        : 'neo-selector border',
                       roleBorderClass(part.role),
                     ]"
                     @click="toggleActivePart(part.id)"
@@ -262,7 +246,7 @@
                   <button
                     v-for="option in leadershipOptions"
                     :key="option.value"
-                    class="neo-pill px-3 py-1.5 text-sm neo-focus transition-all"
+                    class="exercise-pill px-3 py-1.5 text-sm neo-focus transition-all"
                     :class="selfLeadershipRating === option.value
                       ? 'bg-primary/15 text-primary font-semibold shadow-neu-pressed'
                       : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
@@ -306,7 +290,7 @@
 
             <!-- Practice type badge -->
             <div class="flex items-center gap-2">
-              <span class="neo-pill text-xs px-2 py-0.5 font-semibold" :class="practiceTypeBadgeClass">
+              <span class="exercise-pill text-xs px-2 py-0.5 font-semibold" :class="practiceTypeBadgeClass">
                 {{ practiceTypeLabel }}
               </span>
             </div>
@@ -324,7 +308,7 @@
                 <p class="italic">"{{ t('exerciseWizards.dailyCheckIn.practice.gratitudeToPart.thankYou', { partName: gratitudePartId ? getPartName(gratitudePartId) : '', note: gratitudeNote.trim() }) }}"</p>
               </template>
               <template v-else-if="practiceType === 'self-energy-moment'">
-                <p>{{ t('exerciseWizards.dailyCheckIn.summary.focusedOn', { quality: selfEnergyQuality ?? '' }) }}</p>
+                <p>{{ t('exerciseWizards.dailyCheckIn.summary.focusedOn', { quality: selfEnergyQuality ? formatQuality(selfEnergyQuality) : '' }) }}</p>
                 <p v-if="microPracticeNotes.trim()">{{ microPracticeNotes.trim() }}</p>
               </template>
               <template v-else-if="practiceType === 'evening-reflection'">
@@ -361,7 +345,7 @@
             </div>
 
             <!-- Weekly Summary -->
-            <div v-if="checkInStore.weeklyCheckInCount >= 7" class="space-y-2">
+            <div v-if="checkInStore.hasEnoughForWeeklySummary" class="space-y-2">
               <AppButton
                 v-if="!weeklySummary"
                 variant="tonal"
@@ -380,7 +364,7 @@
               </div>
             </div>
             <p v-else class="text-xs text-on-surface-variant text-center">
-              {{ tp(7 - checkInStore.weeklyCheckInCount, 'exerciseWizards.dailyCheckIn.summary.moreForSummary.one', 'exerciseWizards.dailyCheckIn.summary.moreForSummary.few', 'exerciseWizards.dailyCheckIn.summary.moreForSummary.many') }}
+              {{ tp(checkInStore.checkInsNeededForWeeklySummary, 'exerciseWizards.dailyCheckIn.summary.moreForSummary.one', 'exerciseWizards.dailyCheckIn.summary.moreForSummary.few', 'exerciseWizards.dailyCheckIn.summary.moreForSummary.many') }}
             </p>
 
             <!-- Notes -->
@@ -405,6 +389,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -417,10 +403,13 @@ import { useIFSDailyCheckInStore } from '@/stores/ifsDailyCheckIn.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useDailyCheckInWizard, type DailyCheckInStep } from '@/composables/useDailyCheckInWizard'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 import type { IFSPartRole, IFSDailyCheckInType, SelfEnergyQuality } from '@/domain/exercises'
 import { getChildPeriods, getPeriodRefsForDate } from '@/utils/periods'
 
 const { t, tg, tp } = useT()
+
+const { formatQuality, weekdayInitials, unknownPartName } = useIfsLabels()
 
 const emit = defineEmits<{
   saved: []
@@ -430,7 +419,6 @@ const partStore = useIFSPartStore()
 const checkInStore = useIFSDailyCheckInStore()
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileWeeklySummary = ref(userPreferencesStore.profileContextDefault)
-const WEEKDAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
 const STEPS: DailyCheckInStep[] = ['select-practice', 'practice', 'save']
 const stepLabels = computed(() => [
@@ -496,8 +484,8 @@ const practiceOptions = computed(() => [
     description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.description'),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.selfEnergyMoment.duration'),
     icon: 'wb_sunny',
-    bgClass: 'bg-yellow-50',
-    iconClass: 'text-yellow-600',
+    bgClass: 'bg-insight-intention-soft',
+    iconClass: 'text-insight-intention-on',
   },
   {
     type: 'evening-reflection' as IFSDailyCheckInType,
@@ -505,8 +493,8 @@ const practiceOptions = computed(() => [
     description: t('exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.description'),
     duration: t('exerciseWizards.dailyCheckIn.selectPractice.practices.eveningReflection.duration'),
     icon: 'dark_mode',
-    bgClass: 'bg-indigo-50',
-    iconClass: 'text-indigo-600',
+    bgClass: 'bg-exercise-ifs-soft',
+    iconClass: 'text-exercise-ifs-on',
   },
 ])
 
@@ -542,8 +530,8 @@ const practiceTypeBadgeClass = computed(() => {
   switch (practiceType.value) {
     case 'weather-report': return 'bg-sky-100 text-sky-700'
     case 'gratitude-to-part': return 'bg-rose-100 text-rose-700'
-    case 'self-energy-moment': return 'bg-yellow-100 text-yellow-700'
-    case 'evening-reflection': return 'bg-indigo-100 text-indigo-700'
+    case 'self-energy-moment': return 'bg-insight-intention-soft text-insight-intention-on'
+    case 'evening-reflection': return 'bg-exercise-ifs-soft text-exercise-ifs-on'
     default: return 'bg-neu-base text-on-surface-variant'
   }
 })
@@ -563,7 +551,7 @@ const weekDays = computed(() => {
 
   return days.map((dayRef, idx) => {
     return {
-      label: WEEKDAY_LABELS[idx],
+      label: weekdayInitials.value[idx],
       completed: checkInDates.has(dayRef),
       isToday: dayRef === refs.day,
     }
@@ -575,7 +563,7 @@ function isPartActive(partId: string): boolean {
 }
 
 function getPartName(id: string): string {
-  return partStore.getPartById(id)?.name ?? 'Unknown'
+  return partStore.getPartById(id)?.name ?? unknownPartName.value
 }
 
 function getPartRole(id: string): IFSPartRole | null {

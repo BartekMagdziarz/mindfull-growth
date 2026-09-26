@@ -1156,8 +1156,10 @@ export interface IFSPart {
   emotionIds: string[] // References to emotions
   emotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające emotionIds
   lifeAreaIds: string[] // References to life areas
-  positiveIntention?: string // What it's trying to do for the user
-  fears?: string // What it's afraid would happen if it stopped
+  positiveIntention?: string // What it's trying to do for the user (protectors)
+  fears?: string // What it's afraid would happen if it stopped (protectors)
+  needs?: string // What the part needs from the user
+  burden?: string // Pain/belief the part carries (exiles; IFS "burden")
   triggerContexts?: string[] // Situations that activate this part
   feltAge?: number // How old this part feels
   notes?: string
@@ -1197,6 +1199,10 @@ export interface IFSPartsMap {
   trailheadEmotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające trailheadEmotionIds
   trailheadBodyLocation?: IFSBodyLocation
   trailheadThoughts?: string
+  beforeEmotionIds?: string[] // How the user felt before mapping
+  beforeEmotionFamilyIds?: string[]
+  afterEmotionIds?: string[] // How the user felt after mapping
+  afterEmotionFamilyIds?: string[]
   reflection?: string // User's written reflection
   llmInsight?: string // AI pattern analysis
   llmAssistUsed?: boolean
@@ -1283,7 +1289,7 @@ export interface IFSTrailheadEntry {
   emotionIds: string[]
   emotionFamilyIds?: string[] // rodziny (rodzina-only) odpowiadające emotionIds
   intensity: number // 1–10
-  bodyLocation: IFSBodyLocation
+  bodyLocation?: IFSBodyLocation // Optional — never defaulted (an unset body is real data)
   thoughts: string
   sensations: string
   images?: string
@@ -1328,6 +1334,7 @@ export interface IFSProtectorAppreciation {
   updatedAt: string // ISO timestamp
   partId: string // The protector part being appreciated
   activationTriggers: string
+  fearIfStopped?: string // What the protector fears would happen if it stopped
   behaviors: IFSProtectorBehavior[]
   customBehaviors?: string[]
   workloadRating: number // 1–10 how hard this protector works
@@ -1336,6 +1343,7 @@ export interface IFSProtectorAppreciation {
   commitment?: string // What the user commits to
   commitmentId?: string // Optional link to a Commitment entity
   checkInFrequency?: 'weekly' | 'biweekly' | 'monthly'
+  plannedReturnItemId?: string // ExercisePlanItem created from checkInFrequency
   llmAssistUsed?: boolean
   notes?: string
 }
@@ -1374,6 +1382,9 @@ export interface IFSExileWitnessing {
   compassionMessage: string // What Self says to the exile
   postSessionState: IFSExilePostState
   safetyAcknowledged: boolean
+  selfCheckPassed?: boolean // Magic question toward the exile answered from Self
+  promise?: string // What Self promised the exile at closing (e.g. "I'll come back")
+  stoppedEarly?: boolean // User pressed "stop here" and closed via grounding
   reflection?: string
   notes?: string
 }
@@ -1425,6 +1436,7 @@ export interface IFSPartsDialogue {
   updatedAt: string // ISO timestamp
   partId: string
   intention: string // What the user hopes to explore in this dialogue
+  selfCheckPassed?: boolean // Magic question before the dialogue: curious/open toward the part?
   messages: IFSDialogueMessage[]
   insights: IFSInsight[]
   summary?: string
@@ -1528,6 +1540,7 @@ export interface IFSConstellation {
     ifOneWon: string
     commonProtection: string
   }[]
+  cascadeNotes?: string // Free-text chain reactions ("Critic triggers Procrastinator, then Shame")
   reflection?: string
   llmInsight?: string
   llmAssistUsed?: boolean

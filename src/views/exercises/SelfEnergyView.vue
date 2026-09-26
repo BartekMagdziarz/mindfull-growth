@@ -31,11 +31,11 @@
           <div v-if="averageRatings" class="flex gap-4 text-xs">
             <div>
               <span class="text-on-surface-variant">{{ t('exercises.views.strongest') }}</span>
-              <span class="ml-1 font-medium text-status-good-on capitalize">{{ strongestC }}</span>
+              <span class="ml-1 font-medium text-status-good-on">{{ strongestC ? formatQuality(strongestC) : '—' }}</span>
             </div>
             <div>
               <span class="text-on-surface-variant">{{ t('exercises.views.weakest') }}</span>
-              <span class="ml-1 font-medium text-status-warn-on capitalize">{{ weakestC }}</span>
+              <span class="ml-1 font-medium text-status-warn-on">{{ weakestC ? formatQuality(weakestC) : '—' }}</span>
             </div>
           </div>
         </AppCard>
@@ -52,10 +52,10 @@
             <div class="space-y-0.5 min-w-0">
               <span class="text-sm font-medium text-on-surface">{{ formatDate(checkIn.createdAt) }}</span>
               <div class="flex items-center gap-2">
-                <span class="text-xs text-on-surface-variant capitalize">
-                  {{ t('exercises.views.lowest') }} {{ checkIn.lowestQuality }}
+                <span class="text-xs text-on-surface-variant">
+                  {{ t('exercises.views.lowest') }} {{ formatQuality(checkIn.lowestQuality) }}
                 </span>
-                <span class="neo-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn-on">
+                <span class="exercise-pill text-xs px-1.5 py-0.5 bg-status-warn-soft text-status-warn-on">
                   {{ checkIn.ratings[checkIn.lowestQuality] }}/5
                 </span>
               </div>
@@ -87,8 +87,11 @@ import { useIFSSelfEnergyStore } from '@/stores/ifsSelfEnergy.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 
 const { t } = useT()
+
+const { formatQuality } = useIfsLabels()
 const selfEnergyStore = useIFSSelfEnergyStore()
 const partStore = useIFSPartStore()
 const trailheadStore = useIFSTrailheadStore()
@@ -108,8 +111,8 @@ const allQualities: SelfEnergyQuality[] = [
   'courage', 'creativity', 'confidence', 'connection',
 ]
 
-const strongestC = computed(() => {
-  if (!averageRatings.value) return '—'
+const strongestC = computed<SelfEnergyQuality | null>(() => {
+  if (!averageRatings.value) return null
   let best: SelfEnergyQuality = 'calm'
   let bestVal = 0
   for (const q of allQualities) {
@@ -121,8 +124,8 @@ const strongestC = computed(() => {
   return best
 })
 
-const weakestC = computed(() => {
-  if (!averageRatings.value) return '—'
+const weakestC = computed<SelfEnergyQuality | null>(() => {
+  if (!averageRatings.value) return null
   let worst: SelfEnergyQuality = 'calm'
   let worstVal = Infinity
   for (const q of allQualities) {

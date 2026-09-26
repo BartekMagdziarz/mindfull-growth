@@ -22,7 +22,7 @@
         >
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-            <span class="neo-pill text-xs px-2 py-0.5 font-semibold" :class="postStateBadgeClass(entry.postSessionState)">
+            <span class="exercise-pill text-xs px-2 py-0.5 font-semibold" :class="postStateBadgeClass(entry.postSessionState)">
               {{ postStateLabel(entry.postSessionState) }}
             </span>
           </div>
@@ -40,7 +40,7 @@
             <span
               v-for="pid in entry.protectorPartIds"
               :key="pid"
-              class="neo-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
+              class="exercise-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
             >
               {{ getPartName(pid) }}
             </span>

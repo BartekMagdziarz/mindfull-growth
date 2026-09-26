@@ -24,21 +24,27 @@ describe('ifsDailyCheckIn.store', () => {
     vi.useRealTimers()
   })
 
-  it('filters current week check-ins using local calendar weeks', () => {
+  it('keeps check-ins from the rolling last-7-days window (today included, local days)', () => {
     const store = useIFSDailyCheckInStore()
 
+    // Today is Thu 2026-03-12 → window Fri 03-06 … Thu 03-12.
     store.checkIns = [
+      buildCheckIn('too-old', new Date(2026, 2, 5, 23, 30).toISOString()),
+      buildCheckIn('window-start', new Date(2026, 2, 6, 0, 10).toISOString()),
       buildCheckIn('prev-week', new Date(2026, 2, 8, 23, 30).toISOString()),
       buildCheckIn('monday', new Date(2026, 2, 9, 8, 0).toISOString()),
       buildCheckIn('thursday', new Date(2026, 2, 12, 21, 15).toISOString()),
-      buildCheckIn('sunday', new Date(2026, 2, 15, 10, 0).toISOString()),
+      buildCheckIn('future', new Date(2026, 2, 15, 10, 0).toISOString()),
     ]
 
     expect(store.currentWeekCheckIns.map((checkIn) => checkIn.id)).toEqual([
+      'window-start',
+      'prev-week',
       'monday',
       'thursday',
-      'sunday',
     ])
-    expect(store.weeklyCheckInCount).toBe(3)
+    expect(store.weeklyCheckInCount).toBe(4)
+    expect(store.hasEnoughForWeeklySummary).toBe(false)
+    expect(store.checkInsNeededForWeeklySummary).toBe(1)
   })
 })

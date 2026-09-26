@@ -28,7 +28,7 @@ const STEP_ORDER: PartsDialogueStep[] = [
 
 export function usePartsDialogueWizard() {
   const store = useIFSPartsDialogueStore()
-  const { locale } = useT()
+  const { locale, gender, t } = useT()
 
   // Step management
   const currentStep = ref<PartsDialogueStep>('part-select')
@@ -39,6 +39,8 @@ export function usePartsDialogueWizard() {
 
   // Intention
   const intention = ref('')
+  /** Magic question before writing: null = not answered, true = Self-led, false = another part reacting. */
+  const selfCheckPassed = ref<boolean | null>(null)
 
   // Dialogue
   const messages = ref<IFSDialogueMessage[]>([])
@@ -113,11 +115,13 @@ export function usePartsDialogueWizard() {
         dialogue: [...messages.value],
         intention: intention.value,
         locale: locale.value,
+        gender: gender.value,
         useProfile: options.useProfile ?? false,
       })
       llmSuggestion.value = response
     } catch (err) {
-      llmError.value = err instanceof Error ? err.message : 'Failed to get suggestion'
+      console.warn('[ifs] LLM assist failed', err)
+      llmError.value = t('exerciseWizards.shared.ifs.errors.suggestionFailed')
       console.error('Parts dialogue assist error:', err)
     } finally {
       isLoadingAssist.value = false
@@ -161,6 +165,7 @@ export function usePartsDialogueWizard() {
         messages: [...messages.value],
         insights: [...insights.value],
         summary: summary.value.trim() || undefined,
+        selfCheckPassed: selfCheckPassed.value ?? undefined,
         llmAssistUsed: llmAssistUsed.value,
         notes: notes.value.trim() || undefined,
       }
@@ -178,6 +183,7 @@ export function usePartsDialogueWizard() {
     currentStep.value = 'part-select'
     partId.value = null
     intention.value = ''
+    selfCheckPassed.value = null
     messages.value = []
     currentSpeaker.value = 'self'
     insights.value = []
@@ -204,6 +210,7 @@ export function usePartsDialogueWizard() {
 
     // Intention
     intention,
+    selfCheckPassed,
 
     // Dialogue
     messages,

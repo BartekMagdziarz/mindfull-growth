@@ -20,7 +20,7 @@
         >
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-on-surface">{{ formatDate(entry.createdAt) }}</span>
-            <span class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
+            <span class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary font-semibold">
               {{ t('exercises.views.workloadBadge', { n: entry.workloadRating }) }}
             </span>
           </div>
@@ -37,14 +37,14 @@
             <span
               v-for="b in entry.behaviors.filter(x => x !== 'custom').slice(0, 4)"
               :key="b"
-              class="neo-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
+              class="exercise-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
             >
-              {{ b }}
+              {{ formatProtectorBehavior(b) }}
             </span>
             <span
               v-for="cb in (entry.customBehaviors ?? []).slice(0, 2)"
               :key="cb"
-              class="neo-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
+              class="exercise-pill text-xs px-1.5 py-0.5 bg-neu-base text-on-surface-variant"
             >
               {{ cb }}
             </span>
@@ -55,7 +55,7 @@
           </p>
 
           <div v-if="entry.commitment" class="flex items-center gap-1">
-            <span class="neo-pill text-xs px-1.5 py-0.5 bg-status-good-soft text-status-good-on">
+            <span class="exercise-pill text-xs px-1.5 py-0.5 bg-status-good-soft text-status-good-on">
               {{ t('exercises.views.commitmentSet') }}
             </span>
           </div>
@@ -79,8 +79,11 @@ import ProtectorAppreciationWizard from '@/components/exercises/ProtectorAppreci
 import { useIFSProtectorAppreciationStore } from '@/stores/ifsProtectorAppreciation.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 
 const { t } = useT()
+
+const { formatProtectorBehavior } = useIfsLabels()
 const appreciationStore = useIFSProtectorAppreciationStore()
 const partStore = useIFSPartStore()
 const saved = ref(false)

@@ -1,0 +1,83 @@
+/* Exercise-only compatibility layer. Keep domain colors on badges, while
+   replacing the old gradient pills and their raised hover states. */
+.exercise-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mg-space-1);
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-pill);
+  line-height: 1.4;
+  box-shadow: none;
+}
+
+.exercise-pill:not([class*='bg-']) {
+  background: var(--mg-color-mist);
+}
+
+button.exercise-pill:hover:not(:disabled) {
+  border-color: var(--mg-color-primary);
+}
+
+.exercise-pill.exercise-pill--primary {
+  color: var(--mg-color-primary-strong);
+  border-color: var(--mg-color-primary);
+  background: var(--mg-color-paper);
+}
+
+.exercise-pill.exercise-pill--success {
+  color: var(--mg-color-good-on);
+  background: var(--mg-color-good-soft);
+}
+
+.exercise-pill.exercise-pill--warning {
+  color: var(--mg-color-warn-on);
+  background: var(--mg-color-warn-soft);
+}
+
+.exercise-pill.exercise-pill--danger {
+  color: var(--mg-color-rose);
+  background: var(--mg-color-rose-soft);
+}
+
+/* Legacy utility shadows must not reintroduce deep relief inside a card. */
+.exercise-page :where(.neo-surface, .exercise-pill)[class*='shadow-neu-'] {
+  box-shadow: none;
+}
+
+.exercise-page .neo-selector--active,
+.exercise-page button.exercise-pill.shadow-neu-pressed {
+  border-color: var(--mg-color-primary);
+  background: var(--mg-color-paper);
+  box-shadow: none;
+}
+
+/* Fields nested inside a note take the next step in the V2 tonal ladder. */
+.exercise-page :where(.neo-surface, .neo-embedded, .neo-panel) .neo-input {
+  background: var(--mg-color-paper);
+}
+
+.exercise-page :where(input, textarea, select) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.exercise-page .text-primary {
+  color: var(--mg-color-primary-strong);
+}
+
+.exercise-page .text-on-surface-variant {
+  color: var(--mg-color-muted);
+}
+
+.exercise-program-step--current {
+  border-color: var(--mg-color-primary);
+}
+
+.exercise-rating {
+  min-height: 1.5rem;
+  accent-color: var(--mg-color-primary-fill);
+}
+
+.exercise-page .mg-v2-stepper__dot:disabled {
+  cursor: default;
+}

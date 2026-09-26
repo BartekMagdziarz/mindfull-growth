@@ -3,6 +3,7 @@
     <p class="text-sm text-on-surface-variant">
       {{ t('exerciseWizards.wheelOfLife.reflectionStep.description') }}
     </p>
+    <ExerciseStepWhy :text="tg('exerciseWizards.wheelOfLife.reflectionStep.why')" />
 
     <div class="space-y-2">
       <label class="text-sm font-medium text-on-surface">
@@ -21,8 +22,9 @@
 
 <script setup lang="ts">
 import { useT } from '@/composables/useT'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 
-const { t } = useT()
+const { t, tg } = useT()
 
 defineProps<{
   notes: string

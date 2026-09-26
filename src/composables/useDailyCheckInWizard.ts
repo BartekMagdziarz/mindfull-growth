@@ -18,7 +18,7 @@ const STEP_ORDER: DailyCheckInStep[] = ['select-practice', 'practice', 'save']
 export function useDailyCheckInWizard() {
   const checkInStore = useIFSDailyCheckInStore()
   const partStore = useIFSPartStore()
-  const { locale } = useT()
+  const { locale, gender } = useT()
 
   // Step management
   const currentStep = ref<DailyCheckInStep>('select-practice')
@@ -124,13 +124,14 @@ export function useDailyCheckInWizard() {
 
   // Weekly summary
   async function requestWeeklySummary(options: { useProfile?: boolean } = {}) {
-    if (checkInStore.weeklyCheckInCount < 7) return
+    if (!checkInStore.hasEnoughForWeeklySummary) return
     isLoadingSummary.value = true
     try {
       weeklySummary.value = await generateWeeklySummary({
         checkIns: checkInStore.currentWeekCheckIns,
         parts: partStore.sortedParts,
         locale: locale.value,
+        gender: gender.value,
         useProfile: options.useProfile ?? false,
       })
     } catch (err) {

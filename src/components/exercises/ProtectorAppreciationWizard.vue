@@ -1,26 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="idx < stepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === stepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="stepIndex" @go="goToStep(STEPS[$event])" />
 
     <!-- Steps -->
     <Transition
@@ -66,6 +47,7 @@
         <div class="space-y-6">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.understandJob.title', { partName: selectedPartName }) }}</h2>
+            <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.understandJob.why')" />
 
             <div class="space-y-1">
               <label class="text-xs font-medium text-on-surface-variant">
@@ -79,6 +61,18 @@
               />
             </div>
 
+            <div class="space-y-1">
+              <label class="text-xs font-medium text-on-surface-variant">
+                {{ t('exerciseWizards.protectorAppreciation.understandJob.fearLabel') }}
+              </label>
+              <textarea
+                v-model="fearIfStopped"
+                rows="2"
+                :placeholder="t('exerciseWizards.protectorAppreciation.understandJob.fearPlaceholder')"
+                class="neo-input w-full p-3 text-sm resize-none"
+              />
+            </div>
+
             <div class="space-y-2">
               <label class="text-xs font-medium text-on-surface-variant">
                 {{ t('exerciseWizards.protectorAppreciation.understandJob.behaviorsLabel') }}
@@ -87,7 +81,7 @@
                 <button
                   v-for="b in behaviorOptions"
                   :key="b.value"
-                  class="neo-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                  class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
                   :class="behaviors.includes(b.value)
                     ? 'bg-primary/20 text-primary shadow-neu-pressed'
                     : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
@@ -120,7 +114,7 @@
                 <span
                   v-for="cb in customBehaviors"
                   :key="cb"
-                  class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary flex items-center gap-1"
+                  class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary flex items-center gap-1"
                 >
                   {{ cb }}
                   <button class="hover:text-error neo-focus" @click="removeCustomBehavior(cb)">&times;</button>
@@ -159,12 +153,13 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.protectorAppreciation.appreciationLetter.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.appreciationLetter.why')" />
 
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="prompt in letterPrompts"
                 :key="prompt"
-                class="neo-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
+                class="exercise-pill text-xs px-3 py-1.5 bg-primary/10 text-primary neo-focus hover:bg-primary/20 transition-colors"
                 @click="appendToLetter(prompt)"
               >
                 {{ prompt }}
@@ -200,6 +195,7 @@
               <p class="text-sm text-on-surface-variant">
                 {{ tg('exerciseWizards.protectorAppreciation.response.promptQuestion', { partName: selectedPartName }) }}
               </p>
+              <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.response.why')" />
               <button
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
                 @click="handleResponseMode('ai')"
@@ -292,12 +288,13 @@
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.protectorAppreciation.commitment.description', { partName: selectedPartName }) }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.commitment.why')" />
 
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chip in commitmentChips"
                 :key="chip"
-                class="neo-pill text-xs px-3 py-1.5 neo-focus transition-all"
+                class="exercise-pill text-xs px-3 py-1.5 neo-focus transition-all"
                 :class="commitment === chip ? 'bg-primary/20 text-primary shadow-neu-pressed' : 'bg-neu-base text-on-surface-variant shadow-neu-raised-sm hover:-translate-y-px'"
                 @click="commitment = chip"
               >
@@ -328,20 +325,25 @@
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.checkIn.title') }}</h2>
             <p class="text-sm text-on-surface-variant">
-              {{ tg('exerciseWizards.protectorAppreciation.checkIn.description', { partName: selectedPartName }) }}
+              {{ t('exerciseWizards.protectorAppreciation.checkIn.description', { partName: selectedPartName }) }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.checkIn.why')" />
 
             <div class="space-y-3">
               <button
                 v-for="freq in frequencyOptions"
                 :key="freq.value ?? 'none'"
                 class="w-full neo-surface shadow-neu-raised-sm rounded-xl p-4 text-left transition-all hover:-translate-y-px neo-focus"
-                :class="checkInFrequency === freq.value ? 'shadow-neu-pressed ring-2 ring-primary' : ''"
+                :class="checkInFrequency === freq.value ? 'neo-selector--active ring-2 ring-primary' : ''"
                 @click="checkInFrequency = freq.value"
               >
                 <span class="text-sm text-on-surface">{{ freq.label }}</span>
               </button>
             </div>
+
+            <p v-if="plannedReturnDayRef" class="text-xs text-on-surface-variant">
+              {{ t('exerciseWizards.protectorAppreciation.checkIn.planned', { date: formatDayRef(plannedReturnDayRef) }) }}
+            </p>
           </AppCard>
 
           <div class="flex justify-between">
@@ -377,7 +379,7 @@
                   <span
                     v-for="b in displayBehaviors"
                     :key="b"
-                    class="neo-pill text-xs px-2 py-0.5 bg-neu-base text-on-surface-variant"
+                    class="exercise-pill text-xs px-2 py-0.5 bg-neu-base text-on-surface-variant"
                   >
                     {{ b }}
                   </span>
@@ -399,8 +401,17 @@
               </p>
 
               <p v-if="checkInFrequency" class="text-xs text-on-surface">
-                <span class="text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.checkIn') }}</span> {{ checkInFrequency }}
+                <span class="text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.sections.checkIn') }}</span>
+                {{ formatCheckInFrequency(checkInFrequency) }}<template v-if="plannedReturnDayRef"> · {{ formatDayRef(plannedReturnDayRef) }}</template>
               </p>
+
+              <label v-if="hasCardDiscoveries" class="flex items-start gap-2 pt-2 cursor-pointer">
+                <input v-model="updatePartCard" type="checkbox" class="mt-0.5 neo-focus" />
+                <span class="text-xs text-on-surface">
+                  {{ t('exerciseWizards.protectorAppreciation.summary.updatePartLabel') }}
+                  <span class="block text-on-surface-variant">{{ t('exerciseWizards.protectorAppreciation.summary.updatePartHint') }}</span>
+                </span>
+              </label>
             </div>
 
             <div class="space-y-1">
@@ -427,6 +438,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -442,9 +455,17 @@ import {
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 import type { IFSProtectorBehavior } from '@/domain/exercises'
 
 const { t, tg, tList } = useT()
+const { locale } = useT()
+
+function formatDayRef(dayRef: string): string {
+  return new Date(dayRef).toLocaleDateString(locale.value, { day: 'numeric', month: 'long' })
+}
+
+const { formatCheckInFrequency } = useIfsLabels()
 
 const emit = defineEmits<{
   saved: []
@@ -478,6 +499,7 @@ const {
   goToStep,
   partId,
   activationTriggers,
+  fearIfStopped,
   behaviors,
   customBehaviors,
   workloadRating,
@@ -492,6 +514,9 @@ const {
   generateResponse,
   commitment,
   checkInFrequency,
+  plannedReturnDayRef,
+  updatePartCard,
+  hasCardDiscoveries,
   notes,
   isSaving,
   save,

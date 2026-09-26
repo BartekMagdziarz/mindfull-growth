@@ -1,26 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step Indicator -->
-    <div class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < stepIndex ? ' (completed)' : idx === stepIndex ? ' (current)' : ''}`"
-          class="rounded-full transition-all duration-200"
-          :class="idx < stepIndex
-            ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-            : idx === stepIndex
-              ? 'neo-step-active w-3.5 h-3.5'
-              : 'neo-step-future w-2.5 h-2.5'"
-          @click="idx < stepIndex && goToStep(STEPS[idx])"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[stepIndex] }}
-      </span>
-    </div>
+    <ExerciseStepper :labels="stepLabels" :current="stepIndex" @go="goToStep(STEPS[$event])" />
 
     <!-- Step 1: Trigger Capture -->
     <Transition
@@ -43,6 +24,7 @@
                 {{ t('exerciseWizards.trailhead.trigger.description') }}
               </p>
             </div>
+            <ExerciseStepWhy :text="tg('exerciseWizards.trailhead.trigger.why')" />
 
             <div class="space-y-1">
               <label class="text-xs font-medium text-on-surface-variant">{{ t('exerciseWizards.trailhead.trigger.questionLabel') }}</label>
@@ -101,6 +83,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.trailhead.thoughts.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.trailhead.thoughts.why')" />
             <textarea
               v-model="thoughts"
               rows="4"
@@ -130,6 +113,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.trailhead.sensations.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.trailhead.sensations.why')" />
             <textarea
               v-model="sensations"
               rows="3"
@@ -189,6 +173,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.trailhead.behaviors.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.trailhead.behaviors.why')" />
             <textarea
               v-model="behaviors"
               rows="3"
@@ -217,6 +202,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ t('exerciseWizards.trailhead.perception.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.trailhead.perception.why')" />
 
             <RatingSlider
               v-model="perception"
@@ -247,6 +233,7 @@
             <p class="text-sm text-on-surface-variant">
               {{ tg('exerciseWizards.trailhead.partLink.description') }}
             </p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.trailhead.partLink.why')" />
 
             <PartSelector
               v-model="linkedPartId"
@@ -293,7 +280,7 @@
                 <span
                   v-for="eid in emotionIds"
                   :key="eid"
-                  class="neo-pill text-xs px-2 py-0.5 bg-primary/10 text-primary"
+                  class="exercise-pill text-xs px-2 py-0.5 bg-primary/10 text-primary"
                 >
                   {{ getEmotionName(eid) }}
                 </span>
@@ -366,6 +353,8 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -383,6 +372,7 @@ import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
+import { useIfsLabels } from '@/composables/useIfsLabels'
 import type { Quadrant } from '@/domain/emotion'
 import type { IFSPartRole } from '@/domain/exercises'
 
@@ -391,6 +381,8 @@ const emit = defineEmits<{
 }>()
 
 const { t, tg, tp } = useT()
+
+const { formatBodyLocation: formatLocation, unknownPartName } = useIfsLabels()
 const partStore = useIFSPartStore()
 const trailheadStore = useIFSTrailheadStore()
 const emotionStore = useEmotionStore()
@@ -452,19 +444,13 @@ function getEmotionName(id: string): string {
 }
 
 function getPartName(id: string): string {
-  return partStore.getPartById(id)?.name ?? 'Unknown'
+  return partStore.getPartById(id)?.name ?? unknownPartName.value
 }
 
 function getPartRole(id: string) {
   return partStore.getPartById(id)?.role ?? null
 }
 
-function formatLocation(location: string): string {
-  return location
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-}
 
 async function handleSave() {
   await save()

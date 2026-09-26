@@ -31,7 +31,7 @@ const STEP_ORDER: ConstellationStep[] = [
 export function useConstellationWizard() {
   const constellationStore = useIFSConstellationStore()
   const partStore = useIFSPartStore()
-  const { locale } = useT()
+  const { locale, gender } = useT()
 
   // Step management
   const currentStep = ref<ConstellationStep>('prerequisites')
@@ -55,6 +55,9 @@ export function useConstellationWizard() {
     ifOneWon: string
     commonProtection: string
   }[]>([])
+
+  // Cascades (visual step, optional)
+  const cascadeNotes = ref('')
 
   // Reflection
   const reflection = ref('')
@@ -258,7 +261,9 @@ export function useConstellationWizard() {
       llmInsight.value = await analyzeConstellation({
         parts: selectedParts,
         relationships: enrichedRelationships,
+        cascadeNotes: cascadeNotes.value.trim() || undefined,
         locale: locale.value,
+        gender: gender.value,
         useProfile: options.useProfile ?? false,
       })
       llmAssistUsed.value = true
@@ -302,6 +307,7 @@ export function useConstellationWizard() {
               commonProtection: d.commonProtection,
             }))
           : undefined,
+        cascadeNotes: cascadeNotes.value.trim() || undefined,
         reflection: reflection.value.trim() || undefined,
         llmInsight: llmInsight.value || undefined,
         llmAssistUsed: llmAssistUsed.value || undefined,
@@ -323,6 +329,7 @@ export function useConstellationWizard() {
     selectedPartIds.value = []
     relationships.value = []
     polarizationDeepDives.value = []
+    cascadeNotes.value = ''
     reflection.value = ''
     llmInsight.value = ''
     isLLMLoading.value = false
@@ -362,6 +369,7 @@ export function useConstellationWizard() {
     getDeepDive,
 
     // Reflection
+    cascadeNotes,
     reflection,
 
     // LLM

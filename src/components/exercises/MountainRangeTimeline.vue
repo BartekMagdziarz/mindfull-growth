@@ -130,7 +130,7 @@
     >
       <div class="flex items-center gap-2 mb-2">
         <span
-          class="neo-pill text-xs"
+          class="exercise-pill text-xs"
           :class="selectedEvent.type === 'peak' ? 'text-primary' : 'text-on-surface-variant'"
         >
           {{ selectedEvent.type === 'peak' ? t('exerciseWizards.mountainRange.timelineLabels.peak') : t('exerciseWizards.mountainRange.timelineLabels.valley') }}
