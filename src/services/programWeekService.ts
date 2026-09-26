@@ -31,10 +31,25 @@ import { programEnrollmentDexieRepository } from '@/repositories/programEnrollme
 import { createWeeklyIntention, listWeeklyIntentions } from '@/services/weeklyIntentionService'
 import { getPeriodBounds } from '@/utils/periods'
 
-export interface ProgramTaskProposal {
+export interface ProgramTaskProposal extends WeeklyTaskOptions {
   enrollment: ProgramEnrollment
   program: ProgramDefinition
+  /** The suggested task (`suggested`), kept under its old name for callers. */
   task: ProgramWeeklyTask
+}
+
+/**
+ * What the planning ritual offers for one enrollment: the tasks of the
+ * current phase (a choice), the tasks of earlier phases (collapsed), and
+ * the one to preselect.
+ */
+export interface WeeklyTaskOptions {
+  /** Tasks of the current phase, in definition order. */
+  current: ProgramWeeklyTask[]
+  /** Tasks of earlier phases, in definition order (never the current phase's). */
+  earlier: ProgramWeeklyTask[]
+  /** Preselected: last week's task after "stay", else the first task of the phase not accepted yet, else the phase's last. */
+  suggested: ProgramWeeklyTask
   /** The same task as last week (after "zostań przy tym zadaniu" or a phase without new tasks). */
   repeat: boolean
 }
@@ -51,37 +66,62 @@ function sortedLog(enrollment: ProgramEnrollment): ProgramWeekEntry[] {
 }
 
 /**
- * The task to propose for `weekRef`, or null. Rules, in order:
+ * The tasks to offer for `weekRef`, or null. Rules for `suggested`, in order:
  * 1. only active enrollments, and only while the week has no decision yet;
  * 2. the previous week asked to stay → the same task again;
  * 3. the first task of the current phase not accepted yet;
  * 4. every task of the phase already accepted → the phase's last task (repeat);
- * 5. a phase without tasks (e.g. an optional "deeper" phase) → nothing.
+ * 5. a phase without tasks (e.g. an optional "deeper" phase) → the last
+ *    accepted task (repeat), or nothing when none was ever accepted.
+ * `current` lists the phase's tasks, `earlier` those of the phases before
+ * it, so the user can pick another aspect to work on (plan §4, 2026-09-26).
  */
-export function proposeWeeklyTask(
+export function proposeWeeklyTaskOptions(
   program: ProgramDefinition,
   enrollment: ProgramEnrollment,
   weekRef: WeekRef,
-): { task: ProgramWeeklyTask; repeat: boolean } | null {
+): WeeklyTaskOptions | null {
   if (enrollment.status !== 'active') return null
   const tasks = program.weeklyTasks ?? []
   if (tasks.length === 0) return null
   const log = sortedLog(enrollment)
   if (log.some((entry) => entry.weekRef === weekRef)) return null
 
+  const phase = currentPhase(program, enrollment)
+  const phases = program.phases ?? []
+  const phaseIndex = phases.findIndex((candidate) => candidate.key === phase?.key)
+  const earlierKeys = new Set(phases.slice(0, Math.max(phaseIndex, 0)).map((candidate) => candidate.key))
+  const current = tasks.filter((task) => task.phaseKey === phase?.key)
+  const earlier = tasks.filter((task) => earlierKeys.has(task.phaseKey))
+
   const previous = [...log].reverse().find((entry) => entry.weekRef < weekRef)
   if (previous?.stayNextWeek) {
     const task = tasks.find((candidate) => candidate.key === previous.taskKey)
-    if (task) return { task, repeat: true }
+    if (task) return { current, earlier, suggested: task, repeat: true }
   }
 
-  const phase = currentPhase(program, enrollment)
-  const phaseTasks = tasks.filter((task) => task.phaseKey === phase?.key)
-  if (phaseTasks.length === 0) return null
   const accepted = new Set(log.filter((entry) => entry.decision === 'accepted').map((entry) => entry.taskKey))
-  const fresh = phaseTasks.find((task) => !accepted.has(task.key))
-  if (fresh) return { task: fresh, repeat: false }
-  return { task: phaseTasks[phaseTasks.length - 1]!, repeat: true }
+  if (current.length === 0) {
+    // An optional phase without tasks: offer the earlier ones, preselecting
+    // the last accepted task so a repeat is one click.
+    const lastAccepted = [...log].reverse().find((entry) => entry.decision === 'accepted')
+    const task = lastAccepted ? tasks.find((candidate) => candidate.key === lastAccepted.taskKey) : undefined
+    if (!task) return null
+    return { current, earlier, suggested: task, repeat: true }
+  }
+  const fresh = current.find((task) => !accepted.has(task.key))
+  if (fresh) return { current, earlier, suggested: fresh, repeat: false }
+  return { current, earlier, suggested: current[current.length - 1]!, repeat: true }
+}
+
+/** The suggested task only — the shape the reflection and older callers use. */
+export function proposeWeeklyTask(
+  program: ProgramDefinition,
+  enrollment: ProgramEnrollment,
+  weekRef: WeekRef,
+): { task: ProgramWeeklyTask; repeat: boolean } | null {
+  const options = proposeWeeklyTaskOptions(program, enrollment, weekRef)
+  return options ? { task: options.suggested, repeat: options.repeat } : null
 }
 
 /** Proposals for every active enrollment whose program has weekly tasks. */
@@ -91,8 +131,8 @@ export async function listWeeklyTaskProposals(weekRef: WeekRef): Promise<Program
   for (const enrollment of enrollments.filter((e) => e.status === 'active')) {
     const program = getProgramDefinition(enrollment.programSlug)
     if (!program) continue
-    const proposal = proposeWeeklyTask(program, enrollment, weekRef)
-    if (proposal) proposals.push({ enrollment, program, ...proposal })
+    const options = proposeWeeklyTaskOptions(program, enrollment, weekRef)
+    if (options) proposals.push({ enrollment, program, task: options.suggested, ...options })
   }
   return proposals.sort((a, b) => a.enrollment.createdAt.localeCompare(b.enrollment.createdAt))
 }

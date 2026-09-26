@@ -22,11 +22,17 @@
             <AppIcon :name="proposal.program.icon" />
             <span>{{ t('programs.week.fromPath', { title: t(`${proposal.program.i18nKey}.title`) }) }}</span>
           </header>
-          <strong class="qr-path-card__title">{{ taskTitle(proposal) }}</strong>
-          <p class="qr-path-card__why">{{ tg(`${proposal.program.i18nKey}.tasks.${proposal.task.key}.why`) }}</p>
-          <small class="qr-path-card__meta">
-            {{ timesLabel(proposal.task.times) }}<template v-if="proposal.repeat"> · {{ t('programs.week.repeatNote') }}</template>
-          </small>
+          <!-- 2–3 tasks of the phase to pick from, earlier phases behind a disclosure (plan v2 §4.3). -->
+          <ProgramTaskChoice
+            v-model="chosenTaskKeys[proposal.enrollment.id]"
+            :program="proposal.program"
+            :current="proposal.current"
+            :earlier="proposal.earlier"
+            :suggested-key="proposal.suggested.key"
+            :repeat="proposal.repeat"
+            :disabled="isSaving"
+            :name="`program-task-${proposal.enrollment.id}`"
+          />
           <div class="qr-path-card__actions">
             <button type="button" class="qr-primary" :disabled="isSaving" @click="acceptProposal(proposal)">
               {{ t('programs.week.accept') }}
@@ -289,11 +295,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, toRef, watch } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, toRef, watch } from 'vue'
 import type { DayRef, WeekRef } from '@/domain/period'
 import type { Priority, WeeklyIntention } from '@/domain/planning'
 import type { WeekTopPriorityRef } from '@/domain/planningState'
 import type { PlannerMeasurementRow } from '@/components/calendar/plannerTypes'
+import ProgramTaskChoice from '@/components/exercises/ProgramTaskChoice.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { useT } from '@/composables/useT'
 import { useWeeklyPlannerState } from '@/composables/useWeeklyPlannerState'
@@ -312,6 +319,7 @@ import {
   listWeeklyTaskProposals,
   type ProgramTaskProposal,
 } from '@/services/programWeekService'
+import type { ProgramWeeklyTask } from '@/domain/program'
 import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import { getParentPeriod, getPeriodRefsForDate } from '@/utils/periods'
@@ -322,9 +330,11 @@ import { SUBJECT_ICON, plural, quietWeekDays, weekRangeTitle } from './quietRitu
 const props = defineProps<{ weekRef: WeekRef }>()
 const emit = defineEmits<{ close: []; updated: [] }>()
 
-const { t, tg, tp, locale } = useT()
+const { t, tg, locale } = useT()
 const enrollmentStore = useProgramEnrollmentStore()
 const proposals = ref<ProgramTaskProposal[]>([])
+/** Chosen task per enrollment (defaults to the service's suggestion). */
+const chosenTaskKeys = reactive<Record<string, string>>({})
 /** Set while the composer edits a path proposal before accepting it. */
 const pendingProposal = ref<ProgramTaskProposal | null>(null)
 const current = ref(0)
@@ -452,6 +462,10 @@ async function load() {
     }),
   ])
   proposals.value = pathProposals
+  for (const proposal of pathProposals) {
+    const known = [...proposal.current, ...proposal.earlier].some((task) => task.key === chosenTaskKeys[proposal.enrollment.id])
+    if (!known) chosenTaskKeys[proposal.enrollment.id] = proposal.suggested.key
+  }
   selectedKeys.value = (weekPlan?.topPriorities ?? []).map(ref => `${ref.subjectType}:${ref.subjectId}`)
   intentions.value = weekIntentions
   priorityOptions.value = priorities
@@ -505,12 +519,14 @@ async function onEntryDays(row: PlannerMeasurementRow, event: Event) {
   await planner.handleEntryDaysValueChange(row, value)
 }
 
-function taskTitle(proposal: ProgramTaskProposal): string {
-  return tg(`${proposal.program.i18nKey}.tasks.${proposal.task.key}.title`)
+/** The task picked in the card (the suggestion until the user changes it). */
+function chosenTask(proposal: ProgramTaskProposal): ProgramWeeklyTask {
+  const key = chosenTaskKeys[proposal.enrollment.id]
+  return [...proposal.current, ...proposal.earlier].find((task) => task.key === key) ?? proposal.suggested
 }
 
-function timesLabel(times: number): string {
-  return tp(times, 'programs.week.timesPerWeek.one', 'programs.week.timesPerWeek.few', 'programs.week.timesPerWeek.many')
+function taskTitle(proposal: ProgramTaskProposal): string {
+  return tg(`${proposal.program.i18nKey}.tasks.${chosenTask(proposal).key}.title`)
 }
 
 async function afterProposalDecision(): Promise<void> {
@@ -523,7 +539,7 @@ async function afterProposalDecision(): Promise<void> {
 async function acceptProposal(
   proposal: ProgramTaskProposal,
   title = taskTitle(proposal),
-  times = proposal.task.times,
+  times = chosenTask(proposal).times,
   priorityIds: string[] = [],
 ) {
   isSaving.value = true
@@ -531,7 +547,7 @@ async function acceptProposal(
     const { intention, enrollment } = await acceptWeeklyTask({
       enrollmentId: proposal.enrollment.id,
       weekRef: props.weekRef,
-      taskKey: proposal.task.key,
+      taskKey: chosenTask(proposal).key,
       title,
       times,
       priorityIds,
@@ -549,13 +565,13 @@ async function editProposal(proposal: ProgramTaskProposal) {
   await openComposer()
   pendingProposal.value = proposal
   intentionTitle.value = taskTitle(proposal)
-  intentionTimes.value = proposal.task.times
+  intentionTimes.value = chosenTask(proposal).times
 }
 
 async function declineProposal(proposal: ProgramTaskProposal) {
   isSaving.value = true
   try {
-    enrollmentStore.applyUpdate(await declineWeeklyTask(proposal.enrollment.id, props.weekRef, proposal.task.key))
+    enrollmentStore.applyUpdate(await declineWeeklyTask(proposal.enrollment.id, props.weekRef, chosenTask(proposal).key))
   } finally {
     isSaving.value = false
   }

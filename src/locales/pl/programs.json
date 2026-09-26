@@ -574,6 +574,10 @@
     "edit": "Zmień",
     "decline": "Nie w tym tygodniu",
     "repeatNote": "to samo zadanie co ostatnio",
+    "suggestedNote": "propozycja",
+    "chooseTask": "Wybierz zadanie na ten tydzień",
+    "earlierTasks": "Wcześniejsze zadania ({n})",
+    "hideEarlierTasks": "Zwiń wcześniejsze zadania",
     "timesPerWeek": {
       "one": "{n} raz w tygodniu",
       "few": "{n} razy w tygodniu",

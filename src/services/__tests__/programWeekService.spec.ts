@@ -3,7 +3,13 @@ import type { WeekRef } from '@/domain/period'
 import type { ProgramEnrollment, ProgramWeekEntry } from '@/domain/program'
 import type { WeeklyReflection } from '@/domain/reflection'
 import { getProgramDefinition } from '@/data/programCatalog'
-import { currentPhase, programReflectionKeys, proposeWeeklyTask, severitySeries } from '@/services/programWeekService'
+import {
+  currentPhase,
+  programReflectionKeys,
+  proposeWeeklyTask,
+  proposeWeeklyTaskOptions,
+  severitySeries,
+} from '@/services/programWeekService'
 
 const week = (value: string) => value as WeekRef
 const ANGER = getProgramDefinition('anger-signal')!
@@ -83,9 +89,19 @@ describe('proposeWeeklyTask', () => {
     })
   })
 
-  it('an optional phase without tasks proposes nothing', () => {
+  it('an optional phase without tasks repeats the last accepted task, or proposes nothing', () => {
     // shame-compassion step 12 (shadow-beliefs, index 11) opens the optional "deeper" phase.
-    expect(proposeWeeklyTask(SHAME, enrollment({ programSlug: 'shame-compassion', currentStepIndex: 11 }), week('2026-W45'))).toBeNull()
+    const deeper = enrollment({ programSlug: 'shame-compassion', currentStepIndex: 11 })
+    expect(proposeWeeklyTask(SHAME, deeper, week('2026-W45'))).toBeNull()
+    const withHistory = enrollment({
+      programSlug: 'shame-compassion',
+      currentStepIndex: 11,
+      weekLog: [entry({ weekRef: week('2026-W44'), taskKey: 'askQuestion' })],
+    })
+    expect(proposeWeeklyTask(SHAME, withHistory, week('2026-W45'))).toEqual({
+      task: expect.objectContaining({ key: 'askQuestion' }),
+      repeat: true,
+    })
   })
 
   it('never proposes for paused or completed enrollments', () => {
@@ -109,5 +125,73 @@ describe('severitySeries', () => {
       { weekRef: '2026-W37', value: null },
       { weekRef: '2026-W38', value: 3 },
     ])
+  })
+})
+
+describe('proposeWeeklyTaskOptions', () => {
+  const shame = (overrides: Partial<ProgramEnrollment> = {}) => enrollment({ programSlug: 'shame-compassion', ...overrides })
+  const keys = (tasks: { key: string }[]) => tasks.map((task) => task.key)
+
+  it('first phase: the phase tasks, nothing earlier, the first one suggested', () => {
+    const options = proposeWeeklyTaskOptions(SHAME, shame(), week('2026-W36'))!
+    expect(keys(options.current)).toEqual(['nameShame', 'catchBody'])
+    expect(options.earlier).toEqual([])
+    expect(options.suggested.key).toBe('nameShame')
+    expect(options.repeat).toBe(false)
+  })
+
+  it('a middle phase lists its own tasks and every earlier phase’s, in definition order', () => {
+    // step 5 ("O czym jest ten wstyd?") → phase "about"
+    const options = proposeWeeklyTaskOptions(
+      SHAME,
+      shame({ currentStepIndex: 4, weekLog: [entry({ weekRef: week('2026-W36'), taskKey: 'nameShame' })] }),
+      week('2026-W38'),
+    )!
+    expect(keys(options.current)).toEqual(['friendTest', 'stayLonger', 'repairGuilt'])
+    expect(keys(options.earlier)).toEqual(['nameShame', 'catchBody', 'useResponse', 'kindAct', 'soothingGesture'])
+    expect(options.suggested.key).toBe('friendTest')
+  })
+
+  it('suggests the first task of the phase not accepted yet, then repeats the last', () => {
+    const accepted = [
+      entry({ weekRef: week('2026-W38'), taskKey: 'friendTest' }),
+      entry({ weekRef: week('2026-W39'), taskKey: 'stayLonger' }),
+    ]
+    const e = shame({ currentStepIndex: 4, weekLog: accepted })
+    expect(proposeWeeklyTaskOptions(SHAME, e, week('2026-W40'))).toMatchObject({
+      suggested: { key: 'repairGuilt' },
+      repeat: false,
+    })
+    const all = shame({ currentStepIndex: 4, weekLog: [...accepted, entry({ weekRef: week('2026-W40'), taskKey: 'repairGuilt' })] })
+    expect(proposeWeeklyTaskOptions(SHAME, all, week('2026-W41'))).toMatchObject({
+      suggested: { key: 'repairGuilt' },
+      repeat: true,
+    })
+  })
+
+  it('"stay" preselects last week’s task even when it belongs to an earlier phase', () => {
+    const e = shame({
+      currentStepIndex: 4,
+      weekLog: [entry({ weekRef: week('2026-W37'), taskKey: 'useResponse', stayNextWeek: true })],
+    })
+    const options = proposeWeeklyTaskOptions(SHAME, e, week('2026-W38'))!
+    expect(options.suggested.key).toBe('useResponse')
+    expect(options.repeat).toBe(true)
+    expect(keys(options.earlier)).toContain('useResponse')
+    expect(keys(options.current)).not.toContain('useResponse')
+  })
+
+  it('a phase without tasks offers the earlier ones with the last accepted task preselected', () => {
+    const e = shame({ currentStepIndex: 11, weekLog: [entry({ weekRef: week('2026-W44'), taskKey: 'askQuestion' })] })
+    const options = proposeWeeklyTaskOptions(SHAME, e, week('2026-W45'))!
+    expect(options.current).toEqual([])
+    expect(keys(options.earlier)).toContain('askQuestion')
+    expect(options.suggested.key).toBe('askQuestion')
+    expect(options.repeat).toBe(true)
+  })
+
+  it('stays silent once the week has a decision', () => {
+    const e = shame({ weekLog: [entry({ weekRef: week('2026-W36'), taskKey: 'nameShame', decision: 'declined' })] })
+    expect(proposeWeeklyTaskOptions(SHAME, e, week('2026-W36'))).toBeNull()
   })
 })

@@ -6,10 +6,18 @@
     <p class="week-panel__lead">{{ t('programs.week.panelLead') }}</p>
 
     <div class="mg-v2-surface mg-v2-surface--raised-sm week-panel__card">
-      <div v-if="proposal && enrollment.status === 'active'" class="mg-v2-surface mg-v2-surface--flat week-panel__proposal">
+      <div v-if="options && enrollment.status === 'active'" class="mg-v2-surface mg-v2-surface--flat week-panel__proposal">
         <p class="week-panel__eyebrow">{{ t('programs.week.thisWeek') }}</p>
-        <h3 class="week-panel__title">{{ taskTitle(proposal.task.key) }}</h3>
-        <p class="week-panel__why">{{ tg(`${program.i18nKey}.tasks.${proposal.task.key}.why`) }}</p>
+        <ProgramTaskChoice
+          v-model="chosenKey"
+          :program="program"
+          :current="options.current"
+          :earlier="options.earlier"
+          :suggested-key="options.suggested.key"
+          :repeat="options.repeat"
+          :disabled="busy"
+          :name="`program-task-panel-${enrollment.id}`"
+        />
         <div class="week-panel__actions">
           <button type="button" class="mg-v2-button mg-v2-button--primary" :disabled="busy" @click="accept">
             {{ t('programs.week.addThisWeek') }}
@@ -40,7 +48,7 @@
           <span class="mg-v2-meta"><span>{{ row.status }}</span></span>
         </li>
       </ul>
-      <p v-else-if="!proposal" class="week-panel__why">{{ t('programs.week.emptyHistory') }}</p>
+      <p v-else-if="!options" class="week-panel__why">{{ t('programs.week.emptyHistory') }}</p>
     </div>
   </section>
 </template>
@@ -52,10 +60,11 @@ import type { WeekRef } from '@/domain/period'
 import type { ProgramDefinition, ProgramEnrollment } from '@/domain/program'
 import type { WeeklyReflection } from '@/domain/reflection'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
+import ProgramTaskChoice from '@/components/exercises/ProgramTaskChoice.vue'
 import {
   acceptWeeklyTask,
   declineWeeklyTask,
-  proposeWeeklyTask,
+  proposeWeeklyTaskOptions,
   severitySeries,
 } from '@/services/programWeekService'
 import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
@@ -78,7 +87,20 @@ const reflections = ref<WeeklyReflection[]>([])
 
 const thisWeek = computed<WeekRef>(() => getPeriodRefsForDate(new Date()).week)
 const startWeek = computed<WeekRef>(() => getPeriodRefsForDate(new Date(props.enrollment.startedAt)).week)
-const proposal = computed(() => proposeWeeklyTask(props.program, props.enrollment, thisWeek.value))
+const options = computed(() => proposeWeeklyTaskOptions(props.program, props.enrollment, thisWeek.value))
+/** The chosen task key; follows the suggestion whenever the options change. */
+const chosenKey = ref('')
+watch(
+  options,
+  (next) => {
+    const known = next && [...next.current, ...next.earlier].some((task) => task.key === chosenKey.value)
+    if (!known) chosenKey.value = next?.suggested.key ?? ''
+  },
+  { immediate: true },
+)
+const chosenTask = computed(() =>
+  options.value ? [...options.value.current, ...options.value.earlier].find((task) => task.key === chosenKey.value) ?? options.value.suggested : null,
+)
 
 async function loadReflections(): Promise<void> {
   reflections.value = await structuredReflectionDexieRepository.listWeekly()
@@ -112,14 +134,16 @@ const history = computed(() =>
 )
 
 async function accept(): Promise<void> {
-  if (!proposal.value) return
+  const task = chosenTask.value
+  if (!task) return
   busy.value = true
   try {
     const { enrollment } = await acceptWeeklyTask({
       enrollmentId: props.enrollment.id,
       weekRef: thisWeek.value,
-      taskKey: proposal.value.task.key,
-      title: taskTitle(proposal.value.task.key),
+      taskKey: task.key,
+      title: taskTitle(task.key),
+      times: task.times,
     })
     enrollmentStore.applyUpdate(enrollment)
   } finally {
@@ -128,10 +152,11 @@ async function accept(): Promise<void> {
 }
 
 async function decline(): Promise<void> {
-  if (!proposal.value) return
+  const task = chosenTask.value
+  if (!task) return
   busy.value = true
   try {
-    enrollmentStore.applyUpdate(await declineWeeklyTask(props.enrollment.id, thisWeek.value, proposal.value.task.key))
+    enrollmentStore.applyUpdate(await declineWeeklyTask(props.enrollment.id, thisWeek.value, task.key))
   } finally {
     busy.value = false
   }

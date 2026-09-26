@@ -574,6 +574,10 @@
     "edit": "Edit",
     "decline": "Not this week",
     "repeatNote": "same task as last time",
+    "suggestedNote": "suggested",
+    "chooseTask": "Choose this week's task",
+    "earlierTasks": "Earlier tasks ({n})",
+    "hideEarlierTasks": "Hide earlier tasks",
     "timesPerWeek": {
       "one": "{n} time a week",
       "few": "{n} times a week",
