@@ -7,6 +7,7 @@
     <header class="next-day-rail__heading">
       <span>Plan dnia</span>
       <span class="next-day-rail__tools">
+        <button v-if="inlineCharts" type="button" class="next-day-rail__tool" :title="t('planning.today.calendarPlan.expand')" :aria-label="t('planning.today.calendarPlan.expand')" @click="emit('plan-week')"><AppIcon name="edit_calendar" /></button>
         <NextDayAddMenu :groups="addGroups" @add="handleAdd" />
         <button
           type="button"
@@ -48,7 +49,7 @@
           :all-day-assignments="store.allDayAssignments"
           :is-pending="store.isPending(item.key)"
           :staged="stagedItem?.key === item.key"
-          :drag-enabled="calendarContext && canRescheduleItem(item) && !store.isPending(item.key)"
+          :drag-enabled="calendarContext && !inlineCharts && canRescheduleItem(item) && !store.isPending(item.key)"
           @drag-plan-start="startDrag(item, $event)"
           @drag-plan-end="endDrag"
           :lit="isRelatedToCompass(item, store.highlightKey)"
@@ -70,8 +71,9 @@
                Chart points come from the same raw entries the store patches, so the
                today dot always agrees with the control on the row. -->
           <template #expansion>
+            <div v-if="item.kind === 'measurement' && (!calendarContext || inlineCharts)" class="next-day-inline-history">
+            <small v-if="inlineCharts">{{ t('planning.today.recentHistory') }}</small>
             <NextObjectChartCard
-              v-if="item.kind === 'measurement' && !calendarContext"
               bare
               scale="day"
               :icon="''"
@@ -79,11 +81,12 @@
               :summary="''"
               :entry-mode="item.subject.entryMode"
               :cadence="item.subject.cadence"
-              :points="buildDayChartPoints(item, dayRef, store.rawEntries, store.allDayAssignments)"
+              :points="inlineCharts ? buildRecentDayChartPoints(item, dayRef, store.rawEntries, store.allDayAssignments, locale) : buildDayChartPoints(item, dayRef, store.rawEntries, store.allDayAssignments)"
               :actual-value="item.measurement.actualValue"
               :target-value="item.measurement.target?.value"
               :aggregate-status="item.measurement.evaluationStatus"
             />
+            </div>
             <span v-else />
             <div class="next-day-rail__stage-actions" role="group" :aria-label="t('planning.today.stage.actionsLabel', { title: itemTitle(item) })">
               <template v-if="canReschedule(item)">
@@ -141,7 +144,7 @@ import { DsButton, DsState, DsSurface } from '@/design-system/components'
 import NextDayAddMenu, { type AddMenuGroup } from './NextDayAddMenu.vue'
 import NextDayItemRow from './NextDayItemRow.vue'
 import NextObjectChartCard from './NextObjectChartCard.vue'
-import { buildDayChartPoints } from './nextObjectChart'
+import { buildDayChartPoints, buildRecentDayChartPoints } from './nextObjectChart'
 import { canMoveToTomorrow, canRescheduleItem, isRelatedToCompass } from './dayViewModels'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
@@ -149,9 +152,10 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 
 const UNDO_SNACKBAR_MS = 7000
 
-const props = defineProps<{ dayRef: DayRef; calendarContext?: boolean }>()
+const props = defineProps<{ dayRef: DayRef; calendarContext?: boolean; inlineCharts?: boolean }>()
+const emit = defineEmits<{ 'plan-week': [] }>()
 const router = useRouter()
-const { t } = useT()
+const { t, locale } = useT()
 const store = useTodayStore()
 const preferences = useUserPreferencesStore()
 const snackbarRef = ref<InstanceType<typeof AppSnackbar> | null>(null)

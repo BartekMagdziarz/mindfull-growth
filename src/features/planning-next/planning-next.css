@@ -2161,10 +2161,12 @@
   padding: var(--mg-space-3);
 }
 
-/* Programs: the existing cards carry their own surface — no second frame. */
-.next-day-programs {
+/* Repeats + paths: same anatomy as the Upcoming card (see below). */
+.next-day-exercises {
   display: grid;
-  gap: var(--mg-space-3);
+  gap: var(--mg-space-2);
+  padding: var(--mg-space-3);
+  container-type: inline-size;
 }
 
 .next-day-compass > header,
@@ -2904,4 +2906,162 @@ main:has(> .planning-next--today) { min-width:0; }
 @media (prefers-reduced-motion: reduce) {
   .day-plan-calendar__days button { transition: none; }
   .day-plan-calendar__days button.is-drag-over { transform: none; }
+}
+
+/* Compact Today: one date/entry toolbar, history stays in expanded task cards. */
+.today-calendar-layout { grid-template-columns:minmax(0,1.6fr) minmax(17rem,1fr); }
+.next-day-toolbar { display:flex; align-items:stretch; gap:var(--mg-space-2); padding:var(--mg-space-3); min-width:0; }
+.next-day-toolbar__date { position:relative; display:flex; align-items:center; gap:var(--mg-space-1); flex:1.4; min-width:0; padding-right:var(--mg-space-2); border-right:1px solid var(--mg-color-border); }
+.next-day-toolbar__date button { font:inherit; border:0; background:transparent; color:var(--mg-color-ink); cursor:pointer; padding:var(--mg-space-1); border-radius:var(--mg-radius-sm); }
+.next-day-toolbar__date .material-symbols-outlined { color:var(--mg-color-primary-strong); font-size:var(--mg-font-size-md); }
+.next-day-toolbar__date-copy { display:grid; min-width:0; }
+.next-day-toolbar__date-copy>button:first-child { display:grid; gap:var(--mg-space-1); text-align:left; }
+.next-day-toolbar__date-copy strong { font-size:var(--mg-font-size-xl); font-weight:800; line-height:1.2; }
+.next-day-toolbar__date-copy small { font-size:var(--mg-font-size-xs); color:var(--mg-color-muted); }
+.next-day-toolbar__date-copy small::first-letter { text-transform:uppercase; }
+.next-day-toolbar__date .next-day-toolbar__return { margin-left:auto; }
+.next-day-toolbar__picker { position:absolute; top:100%; left:0; z-index:5; display:grid; gap:var(--mg-space-2); padding:var(--mg-space-3); background:var(--mg-color-paper); border-radius:var(--mg-radius-md); box-shadow:var(--mg-shadow-raised-sm); }
+.next-day-toolbar__picker label { display:grid; gap:var(--mg-space-2); font-size:var(--mg-font-size-xs); }
+.next-day-toolbar__picker input { font:inherit; padding:var(--mg-space-2); color:var(--mg-color-ink); border:1px solid var(--mg-color-border); border-radius:var(--mg-radius-sm); background:var(--mg-color-mist); }
+.next-day-toolbar .next-day-entries.is-embedded { flex:1.8; padding:0; min-width:0; }
+.next-day-toolbar .next-day-entries__tile { display:grid; justify-items:center; align-content:center; gap:var(--mg-space-1); padding:var(--mg-space-2) var(--mg-space-1); }
+.next-day-toolbar .next-day-entries__tile small { font-size:.66rem; line-height:1.25; white-space:normal; text-align:center; }
+.next-day-toolbar .next-day-entries__icon { width:2.1rem; height:2.1rem; }
+.next-day-toolbar .next-day-entries__icon .material-symbols-outlined { font-size:var(--mg-font-size-md); }
+.next-day-toolbar button:focus-visible,.next-day-toolbar input:focus-visible { outline:2px solid var(--mg-color-primary-strong); outline-offset:2px; }
+.today-calendar-layout .ndi__expansion { grid-template-columns:minmax(0,1fr); }
+.today-calendar-layout .next-object-card--bare { max-width:none; }
+.next-day-inline-history { display:grid; gap:var(--mg-space-2); min-width:0; }
+.next-day-inline-history>small { color:var(--mg-color-muted); font-size:var(--mg-font-size-xs); }
+@media (max-width:1100px) { .today-calendar-layout { grid-template-columns:minmax(0,1fr); } }
+@media (max-width:520px) { .next-day-toolbar { flex-wrap:wrap; } .next-day-toolbar__date { flex-basis:100%; border-right:0; padding-right:0; justify-content:center; } .next-day-toolbar .next-day-entries.is-embedded { flex-basis:100%; } }
+
+/* Repeats + paths (NextDayPrograms): the Upcoming card's rows — accent icon, title
+   with a quiet context line, date on the right, hairline separators, mist hover. */
+.next-day-exercises > header {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.next-day-exercises__list {
+  display: grid;
+}
+
+.next-day-exercises__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--mg-color-border);
+}
+
+.next-day-exercises__group:last-child > :last-child,
+.next-day-exercises__list > .next-day-exercises__row:last-child {
+  border-bottom-color: transparent;
+}
+
+.next-day-exercises__main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  column-gap: var(--mg-space-3);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 3.5rem;
+  padding: var(--mg-space-2) var(--mg-space-1);
+  border: 0;
+  border-radius: 0;
+  color: var(--mg-color-ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.next-day-exercises__main.next-day-exercises__row {
+  border-bottom: 1px solid var(--mg-color-border);
+}
+
+.next-day-exercises__row--child {
+  min-height: 3rem;
+  padding-left: var(--mg-space-6);
+}
+
+.next-day-exercises__row:hover,
+.next-day-exercises__main:hover {
+  background: var(--mg-color-mist);
+}
+
+.next-day-exercises__main:focus-visible,
+.next-day-exercises__tray button:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
+  border-radius: var(--mg-radius-sm);
+}
+
+.next-day-exercises__icon {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--mg-color-primary-strong);
+}
+
+.next-day-exercises__icon .material-symbols-outlined {
+  font-size: var(--mg-font-size-lg);
+}
+
+.next-day-exercises__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.next-day-exercises__copy strong {
+  font-size: var(--mg-font-size-sm);
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.next-day-exercises__context,
+.next-day-exercises__main em {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.next-day-exercises__main em {
+  text-align: right;
+}
+
+.next-day-exercises__row.is-overdue:not(.next-day-exercises__row--child) .next-day-exercises__context,
+.next-day-exercises__row.is-overdue em {
+  color: var(--mg-color-rose);
+}
+
+/* Actions tray: hidden until hover/focus, like the object card tray. */
+.next-day-exercises__tray {
+  display: flex;
+  gap: 2px;
+  padding-right: var(--mg-space-1);
+  opacity: 0;
+  transition: opacity var(--mg-duration-fast) ease;
+}
+
+.next-day-exercises__row:hover .next-day-exercises__tray,
+.next-day-exercises__row:focus-within .next-day-exercises__tray {
+  opacity: 1;
+}
+
+.next-day-exercises__date {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }

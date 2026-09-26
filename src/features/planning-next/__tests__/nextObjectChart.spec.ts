@@ -63,3 +63,17 @@ describe('buildDayChartPoints', () => {
     expect(after[3].value).toBe(1)
   })
 })
+
+import { buildRecentDayChartPoints } from '../nextObjectChart'
+
+describe('inline rolling history', () => {
+  it('keeps previous-month evidence in seven ordered day slots', () => {
+    const end = '2026-04-02' as DayRef
+    const recorded = '2026-03-29' as DayRef
+    const points = buildRecentDayChartPoints(item, end, [entry(recorded)], [assignment(recorded)], 'en')
+    expect(points.map(p => p.key)).toEqual(['2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02'])
+    expect(points[2]).toMatchObject({ value: 1, assigned: true, label: 'Sun' })
+    expect(points[6].current).toBe(true)
+    expect(points.filter(p => p.current)).toHaveLength(1)
+  })
+})

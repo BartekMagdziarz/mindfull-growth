@@ -5,7 +5,7 @@
       <em>{{ summary }}</em>
     </header>
 
-    <div v-if="chartKind === 'dots'" class="next-object-card__chart" aria-hidden="true">
+    <div v-if="chartKind === 'dots'" class="next-object-card__chart" role="img" :aria-label="chartAriaLabel">
       <div class="next-object-card__dots" :style="columnsStyle">
         <i v-for="point in points" :key="point.key" :class="dotState(point)" />
       </div>
@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <div v-else-if="chartKind === 'bars'" class="next-object-card__chart" aria-hidden="true">
+    <div v-else-if="chartKind === 'bars'" class="next-object-card__chart" role="img" :aria-label="chartAriaLabel">
       <div class="next-object-card__bars">
         <i
           v-for="point in points"
@@ -99,7 +99,7 @@ const spanFill = computed(() => {
   if (props.actualValue === undefined) return 4
   return Math.max(6, Math.min(100, (props.actualValue / Math.max(1, props.targetValue ?? props.actualValue)) * 100))
 })
-const chartAriaLabel = computed(() => `${props.title}. ${props.summary}`)
+const chartAriaLabel = computed(() => `${props.title}. ${props.summary} ${props.points.map(point => `${point.key}: ${point.value ?? '—'}`).join('; ')}`)
 
 function barHeight(value: number): number {
   return Math.max(9, Math.min(96, (value / maxValue.value) * 92))

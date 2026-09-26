@@ -353,6 +353,7 @@
 </template>
 
 <script setup lang="ts">
+import { entryDateFromDay } from '@/utils/relativeDay'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppDialog from '@/components/AppDialog.vue'
@@ -933,6 +934,7 @@ const handleEscapeKey = (event: KeyboardEvent) => {
 
 // Load entry data if in edit mode
 onMounted(async () => {
+  if (!isEditMode.value) customCreatedAt.value = entryDateFromDay(route.query?.day)
   const dataPromises = [
     ensureEmotionData(),
     ensurePeopleTags(),

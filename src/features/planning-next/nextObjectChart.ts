@@ -2,7 +2,7 @@ import type { DayRef } from '@/domain/period'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import { buildWeekDailyChartPoints } from '@/services/calendarChartData'
 import type { TodayMeasurementItem } from '@/services/todayViewQueries'
-import { getPeriodRefsForDate } from '@/utils/periods'
+import { addDaysToDayRef, getPeriodRefsForDate } from '@/utils/periods'
 
 export interface NextObjectChartPoint {
   key: string
@@ -44,4 +44,32 @@ export function buildDayChartPoints(
         assignment.subjectId === item.subject.id,
     ),
   }))
+}
+
+/** Rolling history for inline Today cards; the legacy calendar keeps its week axis. */
+export function buildRecentDayChartPoints(
+  item: TodayMeasurementItem,
+  dayRef: DayRef,
+  rawEntries: DailyMeasurementEntry[],
+  dayAssignments: MeasurementDayAssignment[],
+  locale = 'pl-PL',
+): NextObjectChartPoint[] {
+  const dates = Array.from({ length: 7 }, (_, index) => addDaysToDayRef(dayRef, index - 6))
+  const weeks = [...new Set(dates.map(date => getPeriodRefsForDate(date).week))]
+  const points = weeks.flatMap(week => buildWeekDailyChartPoints(item.subject, item.subjectType, rawEntries, week))
+  const today = getPeriodRefsForDate(new Date()).day
+  const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' })
+  return dates.map(date => {
+    const point = points.find(point => point.periodRef === date)!
+    return {
+      key: date,
+      label: formatter.format(new Date(`${date}T12:00:00`)),
+      value: point.actualValue,
+      target: point.targetValue,
+      status: point.status,
+      current: date === dayRef,
+      future: date > today,
+      assigned: dayAssignments.some(a => a.dayRef === date && a.subjectType === item.subjectType && a.subjectId === item.subject.id),
+    }
+  })
 }

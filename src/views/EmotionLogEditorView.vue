@@ -175,6 +175,7 @@
 </template>
 
 <script setup lang="ts">
+import { entryDateFromDay } from '@/utils/relativeDay'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppSnackbar from '@/components/AppSnackbar.vue'
@@ -516,6 +517,7 @@ const handleCancel = () => {
 }
 
 onMounted(async () => {
+  if (!isEditMode.value) customCreatedAt.value = entryDateFromDay(route.query?.day)
   const dataPromises = [ensureEmotionData(), ensurePeopleTags(), ensureContextTags()]
 
   if (isEditMode.value && typeof route.params.id === 'string') {

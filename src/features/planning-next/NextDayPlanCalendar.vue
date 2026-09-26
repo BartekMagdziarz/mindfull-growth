@@ -187,7 +187,7 @@ async function expand(value: boolean) {
           </button>
         </div>
         <NextObjectChartCard
-          v-if="measurement && !offset"
+          v-if="measurement && !offset && !store.targetingItem"
           bare
           class="day-plan-calendar__chart"
           scale="day"
