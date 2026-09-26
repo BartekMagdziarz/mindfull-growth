@@ -200,6 +200,19 @@ export interface WeeklyIntention extends PlanningObjectBase {
   status: WeeklyIntentionStatus
   /** Priorities this intention serves — links it into the monthly focus confrontation (M4). */
   priorityIds: string[]
+  /**
+   * Set when the intention was accepted from a program's weekly real-world
+   * task (weekly planning ritual) — lets the weekly reflection's "Ścieżka"
+   * step find it. Never set by the regular intention editors.
+   */
+  programLink?: WeeklyIntentionProgramLink
+}
+
+export interface WeeklyIntentionProgramLink {
+  /** ProgramEnrollment id. */
+  enrollmentId: string
+  /** ProgramWeeklyTask.key within the enrolled program. */
+  taskKey: string
 }
 
 export interface Initiative extends PlanningObjectBase {
@@ -959,6 +972,22 @@ export function normalizeHabitPayload(
   }
 }
 
+function normalizeProgramLink(
+  value: unknown,
+  fallback?: WeeklyIntentionProgramLink,
+): WeeklyIntentionProgramLink | undefined {
+  if (value === undefined) return fallback
+  if (value === null) return undefined
+  if (typeof value !== 'object') {
+    throw new Error('programLink must be an object')
+  }
+  const { enrollmentId, taskKey } = value as Record<string, unknown>
+  if (typeof enrollmentId !== 'string' || !enrollmentId.trim() || typeof taskKey !== 'string' || !taskKey.trim()) {
+    throw new Error('programLink requires enrollmentId and taskKey')
+  }
+  return { enrollmentId, taskKey }
+}
+
 export function normalizeWeeklyIntentionPayload(
   data: CreateWeeklyIntentionPayload | UpdateWeeklyIntentionPayload,
   existing?: WeeklyIntention,
@@ -997,7 +1026,12 @@ export function normalizeWeeklyIntentionPayload(
     ),
     status: normalizeEnum(data.status, 'status', WEEKLY_INTENTION_STATUSES, existing?.status ?? 'open'),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
+    ...withProgramLink(normalizeProgramLink(data.programLink, existing?.programLink)),
   }
+}
+
+function withProgramLink(link: WeeklyIntentionProgramLink | undefined): { programLink?: WeeklyIntentionProgramLink } {
+  return link ? { programLink: link } : {}
 }
 
 export function normalizeTrackerPayload(

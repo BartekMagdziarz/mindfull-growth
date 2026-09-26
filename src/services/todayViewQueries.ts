@@ -18,7 +18,7 @@ import {
   type WeekInitiativePlanningItem,
   type WeekMeasurementPlanningItem,
 } from '@/services/planningStateQueries'
-import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
+import { addDaysToDayRef, getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 
 export type TodaySectionId = 'scheduled' | 'week' | 'month'
 
@@ -295,11 +295,12 @@ function buildInitiativeRecord(
 export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayViewBundle> {
   return loadPlanningCached(todayViewBundleCache, dayRef, async () => {
     const refs = getPeriodRefsForDate(dayRef)
-    const [weekPlanning, allEntries, hiddenStates, objects] = await Promise.all([
+    const [weekPlanning, allEntries, hiddenStates, objects, recentEntries] = await Promise.all([
       getWeekPlanningBundle(refs.week, dayRef),
       planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(dayRef, dayRef),
       planningStateDexieRepository.listTodayHiddenStatesForDay(dayRef),
       loadPlanningCoreObjects(),
+      planningStateDexieRepository.listDailyMeasurementEntriesForDayRange(addDaysToDayRef(dayRef, -6), dayRef),
     ])
 
     // Load month-wide day assignments for visualizations
@@ -316,7 +317,7 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
     const monthStart = monthBounds.map(b => b.start).sort()[0] ?? dayRef
     const monthEnd = monthBounds.map(b => b.end).sort().at(-1) ?? dayRef
     const allDayAssignments = await planningStateDexieRepository.listMeasurementDayAssignmentsForDayRange(
-      monthStart,
+      monthStart < addDaysToDayRef(dayRef, -6) ? monthStart : addDaysToDayRef(dayRef, -6),
       monthEnd,
     )
 
@@ -421,7 +422,7 @@ export async function getTodayViewBundleForDay(dayRef: DayRef): Promise<TodayVie
         month: sortTodayItems(sections.month),
       },
       hiddenItems: sortTodayItems(hiddenItems),
-      rawEntries: weekPlanning.rawEntries,
+      rawEntries: [...new Map([...weekPlanning.rawEntries, ...recentEntries].map(entry => [entry.id, entry])).values()],
       allDayAssignments,
       topPriorityKeys,
       addCandidates,

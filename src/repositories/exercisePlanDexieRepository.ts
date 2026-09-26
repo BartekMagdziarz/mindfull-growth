@@ -67,6 +67,20 @@ class ExercisePlanDexieRepository implements ExercisePlanRepository {
     }
   }
 
+  /** Every item (any status) of one program enrollment — practice history lookups. */
+  async listByProgramSourceRef(sourceRef: string): Promise<ExercisePlanItem[]> {
+    try {
+      return await this.db.exercisePlanItems
+        .where('source')
+        .equals('program')
+        .filter((item) => item.sourceRef === sourceRef)
+        .toArray()
+    } catch (error) {
+      console.error(`Failed to list program plans for ${sourceRef}:`, error)
+      throw new Error(`Failed to retrieve program plans for ${sourceRef}`)
+    }
+  }
+
   async create(payload: CreateExercisePlanItemPayload): Promise<ExercisePlanItem> {
     try {
       const item = createPlanningRecord<ExercisePlanItem>({

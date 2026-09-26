@@ -1,0 +1,77 @@
+{
+  "id": "anger-barometer",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.angerBarometer.meta.title",
+  "subtitleKey": "assessments.angerBarometer.meta.subtitle",
+  "descriptionKey": "assessments.angerBarometer.meta.description",
+  "categoryKey": "assessments.angerBarometer.meta.category",
+  "disclaimerKey": "assessments.angerBarometer.meta.disclaimer",
+  "estimatedMinutes": 2,
+  "responseScale": {
+    "min": 1,
+    "max": 5,
+    "anchors": {
+      "1": "assessments.angerBarometer.anchors.1",
+      "2": "assessments.angerBarometer.anchors.2",
+      "3": "assessments.angerBarometer.anchors.3",
+      "4": "assessments.angerBarometer.anchors.4",
+      "5": "assessments.angerBarometer.anchors.5"
+    }
+  },
+  "items": [
+    { "id": "anger_01", "textKey": "assessments.angerBarometer.items.anger_01", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "anger_02", "textKey": "assessments.angerBarometer.items.anger_02", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "anger_03", "textKey": "assessments.angerBarometer.items.anger_03", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "anger_04", "textKey": "assessments.angerBarometer.items.anger_04", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "anger_05", "textKey": "assessments.angerBarometer.items.anger_05", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 }
+  ],
+  "scales": [
+    {
+      "id": "total",
+      "labelKey": "assessments.angerBarometer.scales.total",
+      "itemIds": [
+        "anger_01",
+        "anger_02",
+        "anger_03",
+        "anger_04",
+        "anger_05"
+      ],
+      "minAnswered": 4
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "anger-barometer-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 4
+  },
+  "pageSize": 5,
+  "interpretationScale": "1-5",
+  "labelledResponses": true,
+  "sumScoring": {
+    "primaryScaleId": "total",
+    "bands": [
+      {
+        "id": "low",
+        "min": 5
+      },
+      {
+        "id": "elevated",
+        "min": 12
+      },
+      {
+        "id": "high",
+        "min": 18
+      }
+    ],
+    "higherIsWorse": true,
+    "notice": {
+      "minTotal": 18,
+      "textKey": "assessments.angerBarometer.notice"
+    }
+  }
+}

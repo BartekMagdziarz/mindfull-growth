@@ -180,7 +180,7 @@ test.describe('multi-completion', () => {
     await row
       .getByRole('textbox', { name: 'Komentarz: Poranna checklista' })
       .fill('Sprawdzony zapis refleksji checklisty')
-    await ritual.getByRole('button', { name: '7. Dziennik', exact: true }).click()
+    await ritual.getByRole('button', { name: /^\d+\. Dziennik$/ }).click()
     await ritual.getByRole('button', { name: 'Zapisz refleksję', exact: true }).click()
     await expect(ritual.locator('.qr-save')).toHaveText('Zapisano')
     await page.reload()

@@ -28,6 +28,11 @@ export interface ExercisePlanItem {
   source: ExercisePlanSource
   /** Enrollment id when `source === 'program'` (Phase 3, §4.5). */
   sourceRef?: string
+  /**
+   * Program items only: a sequential step or a recurring practice.
+   * Absent on items created before practices existed — read as 'step'.
+   */
+  programRole?: 'step' | 'practice'
   /** Id of the completing exercise's result record, set on auto-complete. */
   recordId?: string
   note?: string
@@ -41,6 +46,7 @@ export interface CreateExercisePlanItemPayload {
   dayRef: DayRef
   source: ExercisePlanSource
   sourceRef?: string
+  programRole?: 'step' | 'practice'
   note?: string
 }
 

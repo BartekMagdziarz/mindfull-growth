@@ -1,28 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Step indicator dots (intro excluded from dots) -->
-    <div v-if="currentStep !== 'intro'" class="flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5" role="group" aria-label="Wizard progress">
-        <button
-          v-for="(label, idx) in stepLabels"
-          :key="idx"
-          type="button"
-          :aria-label="`Step ${idx + 1}: ${label}${idx < currentVisualStep ? ' (completed)' : idx === currentVisualStep ? ' (current)' : ''}`"
-          class="w-2.5 h-2.5 rounded-full transition-all duration-200"
-          :class="
-            idx < currentVisualStep
-              ? 'neo-step-completed w-2.5 h-2.5 cursor-pointer'
-              : idx === currentVisualStep
-                ? 'neo-step-active w-3.5 h-3.5'
-                : 'neo-step-future w-2.5 h-2.5'
-          "
-          @click="idx < currentVisualStep && goToStepByIndex(idx)"
-        />
-      </div>
-      <span class="text-xs font-medium text-on-surface-variant">
-        {{ stepLabels[currentVisualStep] }}
-      </span>
-    </div>
+    <ExerciseStepper v-if="currentStep !== 'intro'" :labels="stepLabels" :current="currentVisualStep" @go="goToStepByIndex($event)" />
 
     <!-- Step 1: Intro -->
     <Transition
@@ -95,6 +74,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ tg('exerciseWizards.gradedExposure.fearTarget.goalDescription') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.gradedExposure.fearTarget.goalWhy')" />
           <textarea
             v-model="ultimateGoal"
             rows="3"
@@ -129,6 +109,7 @@
           <p class="text-sm text-on-surface-variant">
             {{ t('exerciseWizards.gradedExposure.buildHierarchy.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.gradedExposure.buildHierarchy.why')" />
 
           <!-- Add new item form -->
           <div class="space-y-3">
@@ -275,6 +256,7 @@
           <p class="text-sm text-on-surface-variant leading-relaxed">
             {{ t('exerciseWizards.gradedExposure.safetyBehaviors.description') }}
           </p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.gradedExposure.safetyBehaviors.why')" />
 
           <div class="space-y-2">
             <div
@@ -312,12 +294,12 @@
             {{ t('exerciseWizards.gradedExposure.safetyBehaviors.commonExamples') }}
           </p>
           <div class="flex flex-wrap gap-1.5">
-            <span class="neo-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.avoidingEyeContact') }}</span>
-            <span class="neo-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.exitPlan') }}</span>
-            <span class="neo-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.bringingFriend') }}</span>
-            <span class="neo-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.checkingPhone') }}</span>
-            <span class="neo-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.overPreparing') }}</span>
-            <span class="neo-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.usingSubstances') }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.avoidingEyeContact') }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.exitPlan') }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.bringingFriend') }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.checkingPhone') }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.overPreparing') }}</span>
+            <span class="exercise-pill px-2.5 py-0.5 text-xs">{{ t('exerciseWizards.gradedExposure.safetyBehaviors.examples.usingSubstances') }}</span>
           </div>
         </div>
 
@@ -429,10 +411,12 @@
 </template>
 
 <script setup lang="ts">
+import ExerciseStepper from './ExerciseStepper.vue'
 import { ref, computed } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import ProfileContextToggle from '@/components/profile/ProfileContextToggle.vue'
 import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'

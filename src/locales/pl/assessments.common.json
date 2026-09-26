@@ -32,7 +32,15 @@
     "topValues": "Najważniejsze wartości",
     "biggestGaps": "Największe luki",
     "noHistory": "Brak poprzedniej ukończonej próby do porównania.",
-    "deltaFromPrevious": "Δ vs poprzedni: {delta}"
+    "deltaFromPrevious": "Δ vs poprzedni: {delta}",
+    "total": "Wynik",
+    "totalValue": "{total} z {max}",
+    "deltaTotal": "Zmiana od poprzedniego pomiaru: {delta}",
+    "bandLabels": {
+      "low": "niski",
+      "medium": "średni",
+      "high": "wysoki"
+    }
   },
   "missingPolicy": {
     "scale80": "Skala liczona przy co najmniej 80% odpowiedzi; brakujące pozycje imputowane średnią skali.",

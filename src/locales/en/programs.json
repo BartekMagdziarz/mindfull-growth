@@ -33,34 +33,28 @@
     },
     "completedTitle": "Path completed!",
     "completedMessage": "Every step is behind you. You can start the path again whenever you like.",
-    "pausedNote": "This path is paused — resume it to continue."
-  },
-  "ifs-parts": {
-    "title": "Meet your parts",
-    "description": "A four-week IFS path: from a parts map, through unblending and trailheads, to a dialogue with your parts.",
-    "steps": {
-      "step1": {
-        "intro": "Start with a map: gather the parts you already know and see how they relate to each other."
-      },
-      "step2": {
-        "intro": "A short unblending practice — notice the part that carries you away and take a step back into Self."
-      },
-      "step3": {
-        "intro": "Follow a trailhead: a strong reaction from recent days is a trail leading to a part."
-      },
-      "step4": {
-        "intro": "Appreciate a protector — get to know its intention before asking for deeper access."
-      },
-      "step5": {
-        "intro": "Witness an exile: let a younger part tell its story at the pace it chooses."
-      },
-      "step6": {
-        "intro": "Check your Self-energy (the 8 Cs) — after exile work, see how much calm and compassion is present."
-      },
-      "step7": {
-        "intro": "Close the path with a dialogue: talk with the part that needs your attention most."
-      }
-    }
+    "pausedNote": "This path is paused — resume it to continue.",
+    "practicesTitle": "Practices alongside the steps",
+    "practicesLead": "Short exercises you repeat regularly during part of the path. The next occurrence schedules itself after you save.",
+    "everyDay": "daily",
+    "everyNDays": {
+      "one": "every {n} day",
+      "few": "every {n} days",
+      "many": "every {n} days"
+    },
+    "practiceMeta": "practice {rhythm}",
+    "practiceToday": "due today",
+    "practiceFrom": "next on {date}",
+    "practiceOverdue": "overdue since {date}",
+    "practiceWithEnroll": "starts when you begin the path",
+    "practiceAfterStep": "starts after step {n}",
+    "practiceEnded": "finished",
+    "doNow": "Do it now",
+    "outcomeTitle": "Measured at the start and at the end",
+    "outcomeBefore": "At the start",
+    "outcomeAfter": "At the end",
+    "outcomeNote": "Comparing: {scale}. It shows change over time, not a clinical assessment.",
+    "phaseLabel": "phase {n} of {total}"
   },
   "foundation": {
     "title": "Foundation of self-knowledge",
@@ -88,6 +82,434 @@
       }
     }
   },
+  "anger-signal": {
+    "title": "Anger as a Signal",
+    "description": "Six weeks of working with anger: from noticing triggers and body signals, through a pause plan and work with thoughts, to the need anger defends and new ways of acting. Alongside the steps you keep a short anger log and practise paced breathing every other day. Each week you get one task to try out in real life. This path is not enough if anger turns into violence or someone feels unsafe around you. Then professional help comes first.",
+    "reflection": {
+      "severity": "How much did anger get in the way this week?"
+    },
+    "phases": {
+      "understanding": {
+        "title": "Understanding",
+        "question": "Which trigger came up most often?"
+      },
+      "pause": {
+        "title": "Body and pause",
+        "question": "When did you notice anger earlier than usual?"
+      },
+      "thoughts": {
+        "title": "Thoughts",
+        "question": "Which thought fuelled the anger most often?"
+      },
+      "need": {
+        "title": "Need and part",
+        "question": "Which need did your anger defend most often?"
+      },
+      "action": {
+        "title": "Action",
+        "question": {
+          "m": "What happened when you did something differently than usual?",
+          "f": "What happened when you did something differently than usual?"
+        }
+      },
+      "consolidation": {
+        "title": "Consolidation",
+        "question": "What from this path do you want to keep for the long run?"
+      }
+    },
+    "steps": {
+      "step1": {
+        "intro": "Start with a short measurement. The same barometer returns at the end of the path so you can see what changed."
+      },
+      "step2": {
+        "intro": "Gather your triggers, first body signals and typical reactions. The next steps and the anger log build on this map."
+      },
+      "step3": {
+        "intro": "Take the three earliest signals from your log and build an “if I notice…, then…” plan. A pause is easier when you know in advance what it looks like."
+      },
+      "step4": {
+        "intro": "Review distortions on one episode from your log. With anger, “shoulds”, mind reading, labelling and personalisation come up most often."
+      },
+      "step5": {
+        "intro": "Take apart the hot thought from a recent episode, such as “he's doing it on purpose”. Work out an alternative thought you can recall during a pause."
+      },
+      "step6": {
+        "intro": "Treat your last strong anger episode as a trailhead to a part. It isn't “your problem”, it's a part with a job."
+      },
+      "step7": {
+        "intro": "Get to know the angry part: what it defends and what it fears would happen if it stopped. Anger is rarely an enemy, more often an overzealous bodyguard."
+      },
+      "step8": {
+        "intro": "Translate an anger episode into observation, feeling, need and request. The result should be one sentence you can actually say."
+      },
+      "step9": {
+        "intro": "Pick the provocation that repeats most often in your log and look for a solution. Changing the situation reduces anger more than self-control alone."
+      },
+      "step10": {
+        "intro": "Test a prediction like “if I say it calmly, they'll ignore me”. Use the request from the “From Anger to a Request” step."
+      },
+      "step11": {
+        "intro": "Optional step. Write to yourself after an outburst you feel ashamed of. Kindness breaks the cycle of outburst, shame and tension."
+      },
+      "step12": {
+        "intro": "Take the barometer again. The completion screen shows both results side by side."
+      },
+      "step13": {
+        "intro": "Decide which practices stay with you and how you'll know it's time to come back to the path."
+      }
+    },
+    "practices": {
+      "anger-log": {
+        "intro": "Daily, calm days included. The log shows the pattern: when anger shows up, what fuels it and what helps."
+      },
+      "paced-breathing": {
+        "intro": "Every other day, three minutes. A longer exhale lowers arousal and makes a pause easier in a real situation."
+      }
+    },
+    "tasks": {
+      "noticeSigns": {
+        "title": "Notice the first sign of anger in your body",
+        "why": "The earlier you notice anger, the more choice you have."
+      },
+      "pauseInConversation": {
+        "title": "Use your pause plan in a real conversation and come back to it",
+        "why": "A pause only works if you return to the conversation."
+      },
+      "altThought": {
+        "title": "Before you respond, recall your alternative thought",
+        "why": "The thought from your record should work in the moment, not just on paper."
+      },
+      "requestNotReproach": {
+        "title": "Make a request instead of a reproach",
+        "why": "A request says what you need. A reproach only says you're angry."
+      },
+      "applySolution": {
+        "title": "Put one solution from problem solving into practice",
+        "why": "A recurring provocation weakens once the situation changes."
+      },
+      "calmRequest": {
+        "title": "Ask calmly where you'd usually raise your voice",
+        "why": "This tests the prediction from your behavioural experiment."
+      },
+      "repairRelationship": {
+        "title": "Repair one relationship after a past outburst",
+        "why": "Repair closes the cycle of outburst, shame and tension."
+      }
+    }
+  },
+  "anxiety-approach": {
+    "title": "Anxiety: Approach Instead of Avoid",
+    "description": "Eight weeks of working with anxiety and worry. You get to know your anxiety, learn to postpone worries and test predictions, then step by step approach what you avoid. Alongside the steps you have worry time every evening and paced breathing every other day. Each week you get one task to try out in real life. This path does not replace professional help for panic attacks, obsessive-compulsive disorder, trauma or thoughts of harming yourself.",
+    "reflection": {
+      "severity": "How much did anxiety and worry limit this week?"
+    },
+    "phases": {
+      "map": {
+        "title": "Anxiety map",
+        "question": {
+          "m": "What did you avoid most often, and what did it cost you?",
+          "f": "What did you avoid most often, and what did it cost you?"
+        }
+      },
+      "thoughts": {
+        "title": "Thoughts",
+        "question": "How accurate were your predictions?"
+      },
+      "uncertainty": {
+        "title": "Uncertainty",
+        "question": {
+          "m": "What happened when you didn't make fully sure?",
+          "f": "What happened when you didn't make fully sure?"
+        }
+      },
+      "problems": {
+        "title": "Real problems",
+        "question": "Which worry turned out to be a problem to solve, and which just a hypothetical?"
+      },
+      "approach": {
+        "title": "Approach",
+        "question": "How did the anxiety change across attempts?"
+      },
+      "stance": {
+        "title": "Stance",
+        "question": {
+          "m": "What did you gain by doing something despite the anxiety?",
+          "f": "What did you gain by doing something despite the anxiety?"
+        }
+      },
+      "consolidation": {
+        "title": "Consolidation",
+        "question": "Which safety behaviour could most easily come back?"
+      }
+    },
+    "steps": {
+      "step1": {
+        "intro": "Start with a short anxiety measurement. The same questionnaire returns at the end of the path."
+      },
+      "step2": {
+        "intro": "Optional step. Measure how hard uncertainty is to bear. It's the mechanism the experiment step works on."
+      },
+      "step3": {
+        "intro": "Gather the situations that make you anxious, what you avoid and how you keep yourself safe. This list becomes your exposure ladder."
+      },
+      "step4": {
+        "intro": "Learn to sort worries: postpone the hypothetical ones, plan the practical ones. From now on worry time sends a chosen worry here."
+      },
+      "step5": {
+        "intro": "Look at catastrophising, fortune telling and beliefs about worry itself, such as “worrying protects me”."
+      },
+      "step6": {
+        "intro": {
+          "m": "Take apart one strong fear: how likely it is, what it would cost and how you would cope.",
+          "f": "Take apart one strong fear: how likely it is, what it would cost and how you would cope."
+        }
+      },
+      "step7": {
+        "intro": "Pick one safety behaviour from your map and drop it as a test, for example don't check your email three times. Write down your prediction."
+      },
+      "step8": {
+        "intro": "Take a practical worry the tree sent to planning and work out a solution."
+      },
+      "step9": {
+        "intro": "Build a ladder from the avoided situations on your map and make a first attempt on the lowest rung, without safety behaviours."
+      },
+      "step10": {
+        "intro": "Review last week's attempts and plan the next rungs. Return to the same ladder."
+      },
+      "step11": {
+        "intro": "Optional step, for fear of symptoms such as blushing, trembling or insomnia. Try to deliberately want more of the symptom instead of fighting it."
+      },
+      "step12": {
+        "intro": "Optional step. When attention circles around symptoms, redirect it to the task and to what matters."
+      },
+      "step13": {
+        "intro": "Optional step. If avoidance has narrowed your week, plan activities in line with your values."
+      },
+      "step14": {
+        "intro": "Take the anxiety measurement again. The completion screen shows both results."
+      },
+      "step15": {
+        "intro": "Decide what stays. Usually that's worry time twice a week and a ladder to finish."
+      }
+    },
+    "practices": {
+      "worry-postponement": {
+        "intro": "Every evening at a fixed time. During the day you only note worries and set them aside for later."
+      },
+      "paced-breathing": {
+        "intro": "Every other day throughout the path. The breath is there to help you approach a hard situation, not to make the anxiety disappear."
+      }
+    },
+    "tasks": {
+      "noticeAvoidance": {
+        "title": "Notice situations where you steer around something or keep yourself safe",
+        "why": "Avoidance is often invisible until you name it."
+      },
+      "predictionCheck": {
+        "title": "Write down a prediction before a hard situation and check it afterwards",
+        "why": "Anxiety predicts. Checking predictions teaches it accuracy."
+      },
+      "uncertainDecisions": {
+        "title": "Make a small decision without reassuring yourself",
+        "why": "For example, order something without reading reviews. Tolerance of uncertainty is built on small things."
+      },
+      "firstStep": {
+        "title": "Take the first step of your chosen solution",
+        "why": "A practical worry shrinks once you start acting."
+      },
+      "exposureLow": {
+        "title": "Make an attempt on the lowest rung of your ladder, without safety behaviours",
+        "why": "Anxiety drops with repetition, not in a single attempt."
+      },
+      "exposureNext": {
+        "title": "Make an attempt on the next rung of your ladder",
+        "why": "Move up once anxiety on the previous rung drops below half."
+      },
+      "meaningfulAct": {
+        "title": "Do one thing anxiety has been postponing that matters to you",
+        "why": "Direction comes from what matters, not from the absence of anxiety."
+      },
+      "planApproach": {
+        "title": "Plan one approach situation for next month",
+        "why": "Avoidance creeps back quietly. A planned approach is your safeguard."
+      }
+    }
+  },
+  "shame-compassion": {
+    "title": "From Shame to Compassion",
+    "description": "Eight weeks of working with shame, based on compassion-focused therapy. First you learn to recognise shame and tell it apart from guilt. Then you get to know your inner critic, build the compassionate side of yourself and test beliefs about yourself. Finally you step out of hiding in small, safe steps. Alongside the steps you do short practices every other day, and each week you get one task to try out in real life. This path does not replace therapy if shame is tied to violence, abuse or a severe crisis.",
+    "reflection": {
+      "severity": "How much did shame affect this week?"
+    },
+    "phases": {
+      "recognition": {
+        "title": "Recognition",
+        "question": "In which situations did shame show up most often?"
+      },
+      "actOrSelf": {
+        "title": "The act or me",
+        "question": "Where did shame turn out to be guilt you could repair?"
+      },
+      "critic": {
+        "title": "The critic",
+        "question": "What was the critic trying to protect this week?"
+      },
+      "compassion": {
+        "title": "The compassionate side",
+        "question": {
+          "m": "How did your body react when you treated yourself kindly?",
+          "f": "How did your body react when you treated yourself kindly?"
+        }
+      },
+      "beliefs": {
+        "title": "Beliefs",
+        "question": "Which evidence for the new belief surprised you most?"
+      },
+      "outOfHiding": {
+        "title": "Out of hiding",
+        "question": {
+          "m": "What happened when you showed yourself as you are?",
+          "f": "What happened when you showed yourself as you are?"
+        }
+      },
+      "deeper": {
+        "title": "Deeper",
+        "question": {
+          "m": "What did you notice about the younger part, if you visited it?",
+          "f": "What did you notice about the younger part, if you visited it?"
+        }
+      },
+      "consolidation": {
+        "title": "Consolidation",
+        "question": "How will you know shame is taking the wheel again?"
+      }
+    },
+    "steps": {
+      "step1": {
+        "intro": "Start by measuring self-compassion. The same scale returns at the end of the path."
+      },
+      "step2": {
+        "intro": "See where shame speaks up most often, how you react to it and which demand on yourself stands behind it."
+      },
+      "step3": {
+        "intro": "Take one episode from your log and separate the act from your judgement of yourself. Guilt can be repaired, shame responds to kindness."
+      },
+      "step4": {
+        "intro": "Take apart the hot “I am…” thought from a shame episode. Look for evidence through the eyes of a kind observer, not a prosecutor."
+      },
+      "step5": {
+        "intro": "Treat the critic's voice as a trailhead: when it speaks up, in what tone and what it says."
+      },
+      "step6": {
+        "intro": "Get to know the critic as a protector. What does it protect you from: rejection, embarrassment, failure?"
+      },
+      "step7": {
+        "intro": "Build an image of a compassionate figure. It will return in the self-compassion break and in your letter."
+      },
+      "step8": {
+        "intro": "Write a letter to yourself about the episode from “The Act or Me”, in the voice of your compassionate image."
+      },
+      "step9": {
+        "intro": "Move from hot thoughts to a belief about yourself and phrase an alternative belief. From now on you collect evidence for it."
+      },
+      "step10": {
+        "intro": "Step out of hiding in a small way. Plan whom you'll tell and what, and write down what you expect."
+      },
+      "step11": {
+        "intro": "Optional step. What do you admire in others but deny yourself? It reveals the demand on yourself that stands behind shame."
+      },
+      "step12": {
+        "intro": "Optional step, only if your protectors agree. Stay with a younger part for a moment, without fixing anything. “Not yet” is a good answer too."
+      },
+      "step13": {
+        "intro": "Take the self-compassion scale again. The completion screen shows both results."
+      },
+      "step14": {
+        "intro": "Decide which practices stay with you. Usually that's the self-compassion break and the positive data log."
+      }
+    },
+    "practices": {
+      "shame-log": {
+        "intro": "Every other day. Briefly note a moment of shame, your reaction and the critic's words, then a kind person's voice."
+      },
+      "paced-breathing": {
+        "intro": "Every other day in the first weeks. A soothing breathing rhythm prepares you for work with the critic and the compassionate image."
+      },
+      "self-compassion-break": {
+        "intro": "Every other day while you get to know the critic and build your compassionate side. Three steps: mindfulness, common humanity, kindness."
+      },
+      "positive-data-log": {
+        "intro": "Every other day until the end of the path. You add evidence for your new belief about yourself."
+      }
+    },
+    "tasks": {
+      "nameShame": {
+        "title": "Name shame the moment it shows up",
+        "why": "Naming an emotion takes some of its power away."
+      },
+      "repairGuilt": {
+        "title": "Make a real repair in one situation of guilt",
+        "why": "Guilt settles through repair, shame through hiding. Choose repair."
+      },
+      "noticeCritic": {
+        "title": "Notice the critic's voice and call it by its name",
+        "why": "A named critic is a part, not the truth about you."
+      },
+      "kindAct": {
+        "title": {
+          "m": "After a hard moment, do for yourself what you'd do for a friend",
+          "f": "After a hard moment, do for yourself what you'd do for a friend"
+        },
+        "why": "Compassion is practised through action, not just words."
+      },
+      "collectEvidence": {
+        "title": "Spot evidence for your new belief in daily life",
+        "why": "The task is noticing. The note goes into your positive data log."
+      },
+      "tellSafePerson": {
+        "title": "Tell one safe person about something you feel ashamed of",
+        "why": "Being seen by someone kind works best against shame."
+      },
+      "showImperfect": {
+        "title": "Show yourself imperfect in a small situation",
+        "why": "Ask a simple question or show unfinished work. It's a small exposure to being seen."
+      },
+      "askSupport": {
+        "title": {
+          "m": "Ask for support with something you usually handle alone",
+          "f": "Ask for support with something you usually handle alone"
+        },
+        "why": "Shame isolates. Asking for help moves the other way."
+      }
+    }
+  },
+  "ifs-parts": {
+    "title": "Meet your parts",
+    "description": "A four-week IFS path: from a parts map, through unblending, trailheads and protector appreciation, to a dialogue with a part — and at the end, if the protectors allow it, a short exile witnessing. A daily IFS check-in alongside the steps is worth it.",
+    "steps": {
+      "step1": {
+        "intro": "Start with a map: gather the parts you already know and see how they relate to each other."
+      },
+      "step2": {
+        "intro": "A short unblending practice — notice the part that carries you away and take a step back into Self."
+      },
+      "step3": {
+        "intro": "Follow a trailhead: a strong reaction from recent days is a trail leading to a part."
+      },
+      "step4": {
+        "intro": "Self-energy check-in (the 8 C’s) — see how much calm, curiosity and compassion you have day to day. This is hygiene, not a finale."
+      },
+      "step5": {
+        "intro": "Appreciate a protector — learn its job and its fear before asking for deeper access."
+      },
+      "step6": {
+        "intro": "Talk with the part that needs your attention most — writing both sides of the dialogue."
+      },
+      "step7": {
+        "intro": "Optional step: be with a younger part for a moment, without fixing and without the whole story — only if the protectors agree. If they say “not yet”, that is an answer too."
+      }
+    }
+  },
   "cbt-thoughts": {
     "title": "CBT: thoughts under the lens",
     "description": "Learn the cognitive distortions, practice the thought record over a few rounds and descend to the core beliefs beneath them.",
@@ -108,5 +530,41 @@
         "intro": "The finale: from single thoughts to the core beliefs that feed them."
       }
     }
+  },
+  "week": {
+    "proposalsLabel": "Proposals from your paths",
+    "fromPath": "From the path “{title}”",
+    "accept": "Add as intention",
+    "edit": "Edit",
+    "decline": "Not this week",
+    "repeatNote": "same task as last time",
+    "timesPerWeek": {
+      "one": "{n} time a week",
+      "few": "{n} times a week",
+      "many": "{n} times a week"
+    },
+    "stepLabel": "Path",
+    "stepQuestion": "How did it go outside the app?",
+    "doneOf": "{done} of {target}",
+    "declinedThisWeek": "The path task was set aside this week",
+    "noTaskThisWeek": "No path task this week",
+    "outcomeQuestion": {
+      "m": "How did it go? What turned out differently than you expected?",
+      "f": "How did it go? What turned out differently than you expected?"
+    },
+    "severityHigh": "very much",
+    "severityLow": "not at all",
+    "previousWeek": "previous week",
+    "severityHistory": "previously: {values}",
+    "stayNextWeek": "Stay with this task next week",
+    "panelTitle": "In real life",
+    "panelLead": "Each week one task to try out in life. You accept it in the weekly plan and review it in the weekly reflection.",
+    "addThisWeek": "Add to this week",
+    "statusAccepted": "accepted",
+    "statusDeclined": "set aside",
+    "statusStay": "accepted · staying for next week",
+    "weekShort": "W{n}",
+    "thisWeek": "For this week",
+    "emptyHistory": "The task history appears after the first week."
   }
 }

@@ -139,6 +139,7 @@ describe('ensureCurrentStepMaterialized', () => {
       dayRef: day('2026-07-06'),
       source: 'program',
       sourceRef: 'enr-1',
+      programRole: 'step',
     })
     expect(item?.exerciseSlug).toBe('trailhead')
   })
@@ -233,13 +234,13 @@ describe('advanceEnrollmentForPlan', () => {
       completedAt: new Date().toISOString(),
       recordId: 'rec-9',
     })
-    // protector-appreciation (gap 4) anchored on today's completion
+    // self-energy (gap 2) anchored on today's completion
     expect(vi.mocked(exercisePlanDexieRepository.create).mock.calls[0]?.[0]).toMatchObject({
-      exerciseSlug: 'protector-appreciation',
-      dayRef: day('2026-07-14'),
+      exerciseSlug: 'self-energy',
+      dayRef: day('2026-07-12'),
       sourceRef: 'enr-1',
     })
-    expect(result?.nextPlanItem?.exerciseSlug).toBe('protector-appreciation')
+    expect(result?.nextPlanItem?.exerciseSlug).toBe('self-energy')
   })
 
   it('completes the enrollment on the last step with no next item', async () => {
@@ -247,7 +248,7 @@ describe('advanceEnrollmentForPlan', () => {
     vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(e)
     mockUpdateMerging(e)
 
-    const result = await advanceEnrollmentForPlan(planItem({ exerciseSlug: 'parts-dialogue' }))
+    const result = await advanceEnrollmentForPlan(planItem({ exerciseSlug: 'exile-witnessing' }))
 
     expect(vi.mocked(programEnrollmentDexieRepository.update).mock.calls[0]?.[1]).toMatchObject({
       status: 'completed',

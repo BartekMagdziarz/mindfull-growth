@@ -32,7 +32,15 @@
     "topValues": "Top values",
     "biggestGaps": "Biggest gaps",
     "noHistory": "No previous completed attempt to compare yet.",
-    "deltaFromPrevious": "Δ vs previous: {delta}"
+    "deltaFromPrevious": "Δ vs previous: {delta}",
+    "total": "Score",
+    "totalValue": "{total} of {max}",
+    "deltaTotal": "Change since the previous measurement: {delta}",
+    "bandLabels": {
+      "low": "low",
+      "medium": "medium",
+      "high": "high"
+    }
   },
   "missingPolicy": {
     "scale80": "Score scale if at least 80% of items are answered; impute remaining items with the scale mean.",

@@ -10,6 +10,10 @@ export type AssessmentId =
   | 'ecr-rs'
   | 'rrq'
   | 'ipip-via'
+  | 'gad-7'
+  | 'scs-sf'
+  | 'anger-barometer'
+  | 'ius-12'
 
 export type InstrumentVersion = string
 export type ScoringKeyVersion = string
@@ -53,6 +57,24 @@ export interface RetakePolicy {
   weeks: number
 }
 
+export type InterpretationScale = '0-3' | '1-5' | '1-6' | '1-7' | '0-10'
+
+/**
+ * Symptom-style instruments (GAD-7, anger barometer, IUS-12) are scored as
+ * item sums, not means, and read through named bands on one primary scale.
+ * Copy: `<namespace>.bands.<id>` (label) and `<namespace>.interpretation.<id>`.
+ */
+export interface SumScoringConfig {
+  /** Scale whose total drives the band and the notice (usually 'total'). */
+  primaryScaleId: string
+  /** Ascending by `min`; the band is the last one whose `min` ≤ total. Empty = no bands. */
+  bands: Array<{ id: string; min: number }>
+  /** Higher totals mean more difficulty — the band pill stays neutral, never "good". */
+  higherIsWorse: boolean
+  /** Calm pointer to professional help once the primary total reaches `minTotal`. */
+  notice?: { minTotal: number; textKey: string }
+}
+
 export interface AssessmentDefinition {
   id: AssessmentId
   instrumentVersion: InstrumentVersion
@@ -73,7 +95,10 @@ export interface AssessmentDefinition {
   pageSize: number
   supportsCentering?: boolean
   defaultCenteringEnabled?: boolean
-  interpretationScale: '1-5' | '1-6' | '1-7' | '0-10'
+  interpretationScale: InterpretationScale
+  /** Every response value has its own anchor, so answer buttons show labels, not numbers. */
+  labelledResponses?: boolean
+  sumScoring?: SumScoringConfig
 }
 
 export interface ScaleScore {

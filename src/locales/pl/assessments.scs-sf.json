@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "title": "Współczucie dla siebie (SCS-SF)",
+    "subtitle": "Jak traktujesz siebie w trudnych chwilach.",
+    "description": "Dwanaście stwierdzeń o tym, jak zwykle odnosisz się do siebie, gdy jest ci trudno. Wynik to średnia od 1 do 5. Im wyższa, tym więcej życzliwości wobec siebie. Tłumaczenie robocze skali Self-Compassion Scale – Short Form (Raes, Pommier, Neff i Van Gucht, 2011), używanej za zgodą autorki.",
+    "category": "Emocje",
+    "disclaimer": "To narzędzie wspiera autorefleksję i śledzenie zmian. Nie stawia diagnozy i nie zastępuje konsultacji ze specjalistą."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "total": "Współczucie dla siebie"
+  },
+  "anchors": {
+    "1": "Prawie nigdy",
+    "2": "Rzadko",
+    "3": "Czasami",
+    "4": "Często",
+    "5": "Prawie zawsze"
+  },
+  "interpretation": {
+    "low": "W trudnych chwilach częściej traktujesz siebie surowo niż życzliwie.",
+    "medium": "Życzliwość wobec siebie przeplata się u ciebie z samokrytyką.",
+    "high": "W trudnych chwilach zwykle traktujesz siebie z życzliwością i zrozumieniem."
+  },
+  "items": {
+    "scs_01": {
+      "m": "Gdy nie udaje mi się coś, co jest dla mnie ważne, pochłania mnie poczucie, że nie jestem wystarczająco dobry.",
+      "f": "Gdy nie udaje mi się coś, co jest dla mnie ważne, pochłania mnie poczucie, że nie jestem wystarczająco dobra."
+    },
+    "scs_02": {
+      "m": "Staram się być wyrozumiały i cierpliwy wobec tych stron mojej osobowości, których nie lubię.",
+      "f": "Staram się być wyrozumiała i cierpliwa wobec tych stron mojej osobowości, których nie lubię."
+    },
+    "scs_03": "Gdy dzieje się coś bolesnego, staram się spojrzeć na sytuację z dystansem i równowagą.",
+    "scs_04": "Gdy jest mi źle, mam poczucie, że większość ludzi jest pewnie szczęśliwsza ode mnie.",
+    "scs_05": "Staram się widzieć swoje słabości jako część ludzkiego losu.",
+    "scs_06": "Gdy przechodzę przez bardzo trudny czas, daję sobie troskę i czułość, których potrzebuję.",
+    "scs_07": "Gdy coś mnie zdenerwuje, staram się zachować emocjonalną równowagę.",
+    "scs_08": {
+      "m": "Gdy nie udaje mi się coś ważnego, czuję się w tej porażce osamotniony.",
+      "f": "Gdy nie udaje mi się coś ważnego, czuję się w tej porażce osamotniona."
+    },
+    "scs_09": "Gdy jest mi źle, mam skłonność do uporczywego skupiania się na wszystkim, co idzie nie tak.",
+    "scs_10": "Gdy czuję, że w czymś nie wystarczam, przypominam sobie, że takie poczucie zna większość ludzi.",
+    "scs_11": "Krytycznie i surowo oceniam własne wady i niedoskonałości.",
+    "scs_12": {
+      "m": "Jestem nietolerancyjny i niecierpliwy wobec tych stron mojej osobowości, których nie lubię.",
+      "f": "Jestem nietolerancyjna i niecierpliwa wobec tych stron mojej osobowości, których nie lubię."
+    }
+  }
+}

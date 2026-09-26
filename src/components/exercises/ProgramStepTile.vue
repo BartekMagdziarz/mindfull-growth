@@ -1,46 +1,49 @@
 <template>
   <div
-    class="w-full rounded-2xl border p-4 text-left"
+    class="mg-v2-surface mg-v2-surface--raised-sm w-full p-4 text-left"
     :class="tileClass"
     :data-test-program-step="index"
   >
     <div class="flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0">
-        <span class="neo-icon-circle flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-          <AppIcon :name="icon" class="text-xl" :class="isLocked ? 'text-on-surface-variant' : 'text-primary'" />
+        <span class="mg-v2-icon-board mg-v2-icon-board--sm program-step__icon" :class="{ 'is-muted': isLocked }" aria-hidden="true">
+          <AppIcon :name="icon" />
         </span>
         <div class="min-w-0">
-          <p class="text-xs text-on-surface-variant">
-            {{ t('programs.ui.stepLabel', { n: index + 1 }) }}
-            <span v-if="step.optional"> · {{ t('programs.ui.optionalBadge') }}</span>
+          <p class="mg-v2-meta">
+            <span>{{ t('programs.ui.stepLabel', { n: index + 1 }) }}</span>
+            <span v-if="step.optional">{{ t('programs.ui.optionalBadge') }}</span>
           </p>
-          <h3 class="truncate text-base font-semibold" :class="isLocked ? 'text-on-surface-variant' : 'text-on-surface'">
+          <h3 class="program-step__title" :class="{ 'is-muted': isLocked || stepState.state === 'skipped' }">
             {{ title }}
           </h3>
         </div>
       </div>
-      <span class="neo-pill shrink-0 px-2.5 py-1 text-xs" :class="pillClass">
+      <span v-if="stepState.state === 'current' && !isOverdue" class="mg-v2-pill mg-v2-pill--primary mg-v2-pill--selected shrink-0">
         {{ pillLabel }}
+      </span>
+      <span v-else class="program-step__status" :class="pillClass">
+        <AppIcon v-if="stepState.state === 'done'" name="check" class="program-step__check" />{{ pillLabel }}
       </span>
     </div>
 
     <template v-if="stepState.state === 'current'">
       <p v-if="step.introKey" class="mt-3 text-sm text-on-surface-variant">
-        {{ t(step.introKey) }}
+        {{ tg(step.introKey) }}
       </p>
       <div class="mt-3 flex flex-wrap items-center gap-2">
         <button
           v-if="!paused && entry"
           type="button"
-          class="neo-pill neo-focus rounded-xl bg-gradient-to-br from-primary to-primary-strong px-4 py-2 text-sm font-medium text-on-primary transition-all duration-200 hover:-translate-y-px active:translate-y-0"
-          @click="router.push(entry.route)"
+          class="mg-v2-button mg-v2-button--primary"
+          @click="router.push(step.continueLatest ? { path: entry.route, query: { continue: 'latest' } } : entry.route)"
         >
           {{ t('programs.ui.start') }}
         </button>
         <button
           v-if="!paused && step.optional"
           type="button"
-          class="neo-pill neo-focus rounded-xl px-4 py-2 text-sm text-on-surface-variant transition-all duration-200 hover:-translate-y-px active:translate-y-0"
+          class="mg-v2-button"
           @click="emit('skip')"
         >
           {{ t('programs.ui.skipOptional') }}
@@ -75,7 +78,7 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
-const { t, locale } = useT()
+const { t, tg, locale } = useT()
 
 const entry = computed(() => getCatalogEntry(props.step.exerciseSlug))
 const icon = computed(() => entry.value?.icon ?? 'flag')
@@ -120,32 +123,51 @@ const pillLabel = computed(() => {
   }
 })
 
-const pillClass = computed(() => {
-  switch (props.stepState.state) {
-    case 'done':
-      return 'neo-pill--success'
-    case 'current':
-      return isOverdue.value
-        ? 'border-status-warn/40 bg-status-warn-soft/70 text-status-warn-on'
-        : 'border-primary/30 bg-primary/10 text-primary-strong'
-    case 'skipped':
-    case 'locked':
-    default:
-      return 'text-on-surface-variant'
-  }
-})
+/** Quiet status text like the Today rows: overdue in rose, everything else muted. */
+const pillClass = computed(() =>
+  props.stepState.state === 'current' && isOverdue.value ? 'is-overdue' : '',
+)
 
-const tileClass = computed(() => {
-  switch (props.stepState.state) {
-    case 'current':
-      return 'border-primary/30 bg-primary/10 shadow-neu-raised-sm'
-    case 'done':
-      return 'border-neu-border/30 bg-neu-base shadow-neu-raised-sm'
-    case 'skipped':
-      return 'border-neu-border/30 bg-neu-base shadow-neu-flat opacity-80'
-    case 'locked':
-    default:
-      return 'border-neu-border/30 bg-neu-base shadow-neu-flat opacity-60'
-  }
-})
+const tileClass = computed(() =>
+  props.stepState.state === 'current' ? 'exercise-program-step--current' : '',
+)
 </script>
+
+<style scoped>
+.program-step__icon.is-muted {
+  color: var(--mg-color-muted);
+}
+
+.program-step__title {
+  margin: 0;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-md);
+  font-weight: 800;
+}
+
+.program-step__title.is-muted {
+  color: var(--mg-color-muted);
+  font-weight: 700;
+}
+
+.program-step__status {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--mg-space-1);
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 600;
+  text-align: right;
+}
+
+.program-step__status.is-overdue {
+  color: var(--mg-color-rose);
+  font-weight: 700;
+}
+
+.program-step__check {
+  color: var(--mg-color-primary-strong);
+  font-size: 1rem;
+}
+</style>

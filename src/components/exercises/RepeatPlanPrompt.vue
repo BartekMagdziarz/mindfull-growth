@@ -1,5 +1,8 @@
 <template>
-  <div class="space-y-2">
+  <p v-if="programItem" class="text-sm font-medium text-on-surface">
+    {{ t('exercises.repeatPrompt.programPlanned', { date: plannedDateLabel }) }}
+  </p>
+  <div v-else class="space-y-2">
     <p class="text-sm font-medium text-on-surface">
       <template v-if="activeItem">
         {{ t('exercises.repeatPrompt.plannedFor', { date: plannedDateLabel }) }}
@@ -12,9 +15,9 @@
         v-for="option in chipOptions"
         :key="option.days"
         type="button"
-        class="neo-pill neo-focus px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
+        class="exercise-pill neo-focus px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
         :class="{
-          'neo-pill--primary': isSelected(option.days),
+          'exercise-pill--primary': isSelected(option.days),
           'repeat-chip--suggested': option.suggested && !activeItem,
         }"
         :title="option.suggested ? t('exercises.repeatPrompt.suggested') : undefined"
@@ -25,8 +28,8 @@
 
       <button
         type="button"
-        class="neo-pill neo-focus px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
-        :class="{ 'neo-pill--primary': customSelected }"
+        class="exercise-pill neo-focus px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
+        :class="{ 'exercise-pill--primary': customSelected }"
         @click="openDatePicker"
       >
         {{ customSelected ? plannedDateLabel : t('exercises.repeatPrompt.chips.customDate') }}
@@ -105,6 +108,15 @@ const activeItem = computed<ExercisePlanItem | null>(() => {
     : undefined
   return managed ?? planStore.oldestPendingForSlug(props.exerciseSlug) ?? null
 })
+
+/**
+ * A path already owns the next occurrence (a practice re-scheduled on
+ * save, or the next step): show its date only — chips and undo would
+ * move or delete a program item behind the path's back.
+ */
+const programItem = computed(() =>
+  activeItem.value?.source === 'program' ? activeItem.value : null,
+)
 
 onMounted(() => {
   void planStore.ensureLoaded()

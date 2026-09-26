@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "title": "Intolerance of Uncertainty (IUS-12)",
+    "subtitle": "How hard it is to bear what you don't know.",
+    "description": "Twelve statements about how you react to uncertainty. Score from 12 to 60. The higher it is, the harder uncertainty is to bear. Two subscales measure fear of what the future holds and freezing when it's time to act. Intolerance of Uncertainty Scale – 12 (Carleton, Norton & Asmundson, 2007).",
+    "category": "Anxiety",
+    "disclaimer": "This tool supports self-reflection and tracking change. It does not diagnose and does not replace a consultation with a professional."
+  },
+  "consent": {
+    "title": "Consent and disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I agree to store my results locally on this device."
+  },
+  "scales": {
+    "total": "Intolerance of uncertainty",
+    "prospective": "Fear of uncertainty",
+    "inhibitory": "Freezing in action"
+  },
+  "anchors": {
+    "1": "Not at all characteristic of me",
+    "2": "A little characteristic of me",
+    "3": "Somewhat characteristic of me",
+    "4": "Very characteristic of me",
+    "5": "Entirely characteristic of me"
+  },
+  "items": {
+    "ius_01": "Unforeseen events upset me greatly.",
+    "ius_02": "It frustrates me not having all the information I need.",
+    "ius_03": "Uncertainty keeps me from living a full life.",
+    "ius_04": "One should always look ahead so as to avoid surprises.",
+    "ius_05": "A small unforeseen event can spoil everything, even with the best of planning.",
+    "ius_06": "When it's time to act, uncertainty paralyses me.",
+    "ius_07": "When I am uncertain I can't function very well.",
+    "ius_08": "I always want to know what the future has in store for me.",
+    "ius_09": "I can't stand being taken by surprise.",
+    "ius_10": "The smallest doubt can stop me from acting.",
+    "ius_11": {
+      "m": "I should be able to organize everything in advance.",
+      "f": "I should be able to organize everything in advance."
+    },
+    "ius_12": "I must get away from all uncertain situations."
+  }
+}

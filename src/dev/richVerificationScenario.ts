@@ -7,7 +7,7 @@ import {
 } from '../utils/periods'
 
 export const RICH_SCENARIO_ID = 'rich-v1' as const
-export const RICH_SCENARIO_VERSION = 4
+export const RICH_SCENARIO_VERSION = 5
 export const RICH_CLOSED_MONTHS = 6
 export const RICH_CLOSED_WEEKS = 16
 

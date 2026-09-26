@@ -359,6 +359,7 @@
     }
   },
   "today": {
+    "recentHistory": "Ostatnie 7 dni",
     "loadError": "Nie udało się wczytać widoku Dzisiaj.",
     "columns": {
       "goalsKrs": "Cele",
@@ -481,7 +482,10 @@
       "programStepProgress": "krok {current} z {total}",
       "programFrom": "od {date}",
       "ariaProgramStart": "Rozpocznij krok ścieżki",
-      "ariaProgramOpen": "Otwórz szczegóły ścieżki"
+      "ariaProgramOpen": "Otwórz szczegóły ścieżki",
+      "plannedOverdueSince": "zaległe od {date}",
+      "programPractice": "praktyka",
+      "programStepLabel": "krok {n}"
     },
     "stage": {
       "tomorrow": "Jutro",
@@ -528,6 +532,7 @@
     "calendar": {
       "today": "Dziś",
       "pickDay": "Wybierz dzień",
+      "backToToday": "Wróć do dziś",
       "expand": "Rozwiń kalendarz",
       "collapse": "Zwiń kalendarz",
       "dayNav": "Nawigacja dnia",
@@ -1207,6 +1212,8 @@
       "tradeoffs": "Jakie kompromisy świadomie akceptujesz?",
       "tradeoffsPlaceholder": "Np. mniej wieczorów ze zleceniami… Enter dodaje",
       "removeLabel": "Usuń punkt",
+      "editLabel": "Edytuj punkt",
+      "editHint": "Enter zapisuje, Esc anuluje",
       "limitTitle": "Portfel jest pełny ({count}/{max})",
       "limitBody": "Nowy priorytet zapisze się jako szkic — albo wstrzymaj któryś z obecnych.",
       "pause": "Wstrzymaj"

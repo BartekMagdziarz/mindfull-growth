@@ -16,6 +16,7 @@
       <p class="mg-v2-meta">
         <span>{{ stepsLabel }}</span>
         <span>{{ weeksLabel }}</span>
+        <span v-if="practiceLabel">{{ practiceLabel }}</span>
         <span v-if="statusLabel" :class="statusClass">{{ statusLabel }}</span>
       </p>
       <p class="mg-v2-tile__lead">{{ description }}</p>
@@ -37,10 +38,26 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
-const { t, tp } = useT()
+const { t, tg, tp } = useT()
 
 const title = computed(() => t(`${props.program.i18nKey}.title`))
-const description = computed(() => t(`${props.program.i18nKey}.description`))
+/** The tile shows the first sentence; the detail view carries the full description. */
+const description = computed(() => {
+  const full = tg(`${props.program.i18nKey}.description`)
+  return full.split(/(?<=[.!?])\s+/)[0] ?? full
+})
+
+/** Most frequent practice rhythm, e.g. "praktyka codziennie". */
+const practiceLabel = computed(() => {
+  const practices = props.program.practices ?? []
+  if (practices.length === 0) return ''
+  const everyDays = Math.min(...practices.map((practice) => practice.everyDays))
+  const rhythm =
+    everyDays === 1
+      ? t('programs.ui.everyDay')
+      : tp(everyDays, 'programs.ui.everyNDays.one', 'programs.ui.everyNDays.few', 'programs.ui.everyNDays.many')
+  return t('programs.ui.practiceMeta', { rhythm })
+})
 
 const stepsLabel = computed(() =>
   tp(

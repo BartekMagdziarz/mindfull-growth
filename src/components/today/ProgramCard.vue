@@ -34,6 +34,16 @@
           {{ row.title }}
         </button>
         <p class="dz-program__caption">{{ row.caption }}</p>
+        <button
+          v-for="practice in row.duePractices"
+          :key="practice.id"
+          type="button"
+          class="mg-v2-pill dz-program__practice"
+          @click="router.push(practice.route)"
+        >
+          <AppIcon :name="practice.icon" class="text-sm" />
+          {{ practice.title }}
+        </button>
       </div>
     </div>
   </article>
@@ -48,6 +58,7 @@ import { getCatalogEntry } from '@/data/exerciseCatalog'
 import { getProgramDefinition } from '@/data/programCatalog'
 import type { DayRef } from '@/domain/period'
 import type { ProgramEnrollment } from '@/domain/program'
+import { isPracticeItem } from '@/services/programSchedulerService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 
 const props = defineProps<{
@@ -69,9 +80,22 @@ const planStore = useExercisePlanStore()
 const rows = computed(() =>
   props.enrollments.map((enrollment) => {
     const program = getProgramDefinition(enrollment.programSlug)
-    const item = planStore.pendingItems.find(
+    const own = planStore.pendingItems.filter(
       (candidate) => candidate.source === 'program' && candidate.sourceRef === enrollment.id,
     )
+    const item = own.find((candidate) => !isPracticeItem(candidate))
+    // Practices due today ride along under the step caption.
+    const duePractices = own
+      .filter((candidate) => isPracticeItem(candidate) && candidate.dayRef <= props.todayRef)
+      .map((candidate) => {
+        const practiceEntry = getCatalogEntry(candidate.exerciseSlug)
+        return {
+          id: candidate.id,
+          icon: practiceEntry?.icon ?? 'repeat',
+          route: practiceEntry?.route ?? '/exercises',
+          title: practiceEntry ? t(`exercises.cards.${practiceEntry.i18nKey}.title`) : candidate.exerciseSlug,
+        }
+      })
     const due = Boolean(item && item.dayRef <= props.todayRef)
     const caption = [
       t('planning.today.wellness.programStepProgress', {
@@ -89,6 +113,7 @@ const rows = computed(() =>
       entry: item ? getCatalogEntry(item.exerciseSlug) : undefined,
       due,
       caption,
+      duePractices,
     }
   }),
 )
@@ -102,6 +127,23 @@ function formatDay(dayRef: DayRef): string {
 </script>
 
 <style scoped>
+.dz-program__practice {
+  margin-top: 4px;
+  margin-right: 6px;
+  min-height: 1.5rem;
+  color: var(--mg-color-ink);
+  font-size: var(--mg-font-size-xs);
+  line-height: 1.2;
+  cursor: pointer;
+}
+.dz-program__practice:hover {
+  background: var(--mg-color-paper);
+}
+.dz-program__practice :deep(svg),
+.dz-program__practice .material-symbols-outlined {
+  color: var(--mg-color-primary);
+}
+
 .dz-card {
   border-radius: 1.4rem;
 }

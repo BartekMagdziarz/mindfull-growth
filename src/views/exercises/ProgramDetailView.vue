@@ -7,7 +7,7 @@
     :eyebrow="t('exercises.tabs.programs')"
   >
     <p class="mb-4 text-sm text-on-surface-variant">
-      {{ t(`${program.i18nKey}.description`) }}
+      {{ tg(`${program.i18nKey}.description`) }}
     </p>
 
     <!-- Completed state + finale (design §4.5: the foundation build is the path's finale) -->
@@ -74,18 +74,26 @@
     </p>
     <p v-if="error" class="mb-4 text-sm text-status-warn-on">{{ error }}</p>
 
-    <!-- Step timeline -->
+    <ProgramOutcomeSummary v-if="program.outcomeSlug && enrollment" :program="program" :enrollment="enrollment" />
+    <ProgramPracticeRail v-if="program.practices?.length" :program="program" :enrollment="enrollment" />
+    <ProgramWeekPanel v-if="program.weeklyTasks?.length && enrollment" :program="program" :enrollment="enrollment" />
+
+    <!-- Step timeline, grouped under phase headers when the program has phases -->
     <div class="space-y-3">
-      <ProgramStepTile
-        v-for="(step, index) in program.steps"
-        :key="index"
-        :index="index"
-        :step="step"
-        :step-state="stepStates[index] ?? { state: 'locked' }"
-        :planned-day="index === openEnrollment?.currentStepIndex ? pendingStepDay : undefined"
-        :paused="openEnrollment?.status === 'paused'"
-        @skip="handleSkip"
-      />
+      <template v-for="(step, index) in program.steps" :key="index">
+        <div v-if="phaseStartingAt(index)" class="mg-v2-section-head program-phase-head">
+          <h3>{{ t(`${program.i18nKey}.phases.${phaseStartingAt(index)!.key}.title`) }}</h3>
+          <small>{{ t('programs.ui.phaseLabel', { n: phaseOrdinal(index), total: program.phases?.length ?? 0 }) }}</small>
+        </div>
+        <ProgramStepTile
+          :index="index"
+          :step="step"
+          :step-state="stepStates[index] ?? { state: 'locked' }"
+          :planned-day="index === openEnrollment?.currentStepIndex ? pendingStepDay : undefined"
+          :paused="openEnrollment?.status === 'paused'"
+          @skip="handleSkip"
+        />
+      </template>
     </div>
 
     <AppDialog
@@ -105,16 +113,19 @@ import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
+import ProgramOutcomeSummary from '@/components/exercises/ProgramOutcomeSummary.vue'
+import ProgramPracticeRail from '@/components/exercises/ProgramPracticeRail.vue'
 import ProgramStepTile from '@/components/exercises/ProgramStepTile.vue'
+import ProgramWeekPanel from '@/components/exercises/ProgramWeekPanel.vue'
 import { useT } from '@/composables/useT'
 import { getProgramDefinition } from '@/data/programCatalog'
-import { deriveStepStates } from '@/services/programSchedulerService'
+import { deriveStepStates, isPracticeItem } from '@/services/programSchedulerService'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 
 const route = useRoute()
 const router = useRouter()
-const { t, tp } = useT()
+const { t, tg, tp } = useT()
 
 const enrollmentStore = useProgramEnrollmentStore()
 const planStore = useExercisePlanStore()
@@ -143,9 +154,18 @@ const pendingStepDay = computed(
   () =>
     openEnrollment.value &&
     planStore.pendingItems.find(
-      (item) => item.source === 'program' && item.sourceRef === openEnrollment.value?.id,
+      (item) =>
+        item.source === 'program' && item.sourceRef === openEnrollment.value?.id && !isPracticeItem(item),
     )?.dayRef,
 )
+
+function phaseStartingAt(index: number) {
+  return program.value?.phases?.find((phase) => phase.fromStepIndex === index)
+}
+
+function phaseOrdinal(index: number): number {
+  return (program.value?.phases ?? []).filter((phase) => phase.fromStepIndex <= index).length
+}
 
 const metaLine = computed(() => {
   if (!program.value) return ''
@@ -222,3 +242,10 @@ async function handleSkip(): Promise<void> {
   if (id) await run(() => enrollmentStore.skipStep(id))
 }
 </script>
+
+<style scoped>
+.program-phase-head {
+  margin-top: var(--mg-space-5);
+  margin-bottom: 0;
+}
+</style>

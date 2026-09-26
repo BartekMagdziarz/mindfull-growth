@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "title": "Self-Compassion (SCS-SF)",
+    "subtitle": "How you treat yourself in hard moments.",
+    "description": "Twelve statements about how you usually relate to yourself when things are hard. The score is a mean from 1 to 5. The higher it is, the kinder you are to yourself. Self-Compassion Scale – Short Form (Raes, Pommier, Neff & Van Gucht, 2011), used with the author's permission.",
+    "category": "Emotions",
+    "disclaimer": "This tool supports self-reflection and tracking change. It does not diagnose and does not replace a consultation with a professional."
+  },
+  "consent": {
+    "title": "Consent and disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I agree to store my results locally on this device."
+  },
+  "scales": {
+    "total": "Self-compassion"
+  },
+  "anchors": {
+    "1": "Almost never",
+    "2": "Rarely",
+    "3": "Sometimes",
+    "4": "Often",
+    "5": "Almost always"
+  },
+  "interpretation": {
+    "low": "In hard moments you tend to treat yourself harshly rather than kindly.",
+    "medium": "Kindness towards yourself alternates with self-criticism.",
+    "high": "In hard moments you usually treat yourself with kindness and understanding."
+  },
+  "items": {
+    "scs_01": {
+      "m": "When I fail at something important to me I become consumed by feelings of inadequacy.",
+      "f": "When I fail at something important to me I become consumed by feelings of inadequacy."
+    },
+    "scs_02": {
+      "m": "I try to be understanding and patient towards those aspects of my personality I don't like.",
+      "f": "I try to be understanding and patient towards those aspects of my personality I don't like."
+    },
+    "scs_03": "When something painful happens I try to take a balanced view of the situation.",
+    "scs_04": "When I'm feeling down I tend to feel like most other people are probably happier than I am.",
+    "scs_05": "I try to see my failings as part of the human condition.",
+    "scs_06": "When I'm going through a very hard time, I give myself the caring and tenderness I need.",
+    "scs_07": "When something upsets me I try to keep my emotions in balance.",
+    "scs_08": {
+      "m": "When I fail at something that's important to me, I tend to feel alone in my failure.",
+      "f": "When I fail at something that's important to me, I tend to feel alone in my failure."
+    },
+    "scs_09": "When I'm feeling down I tend to obsess and fixate on everything that's wrong.",
+    "scs_10": "When I feel inadequate in some way, I try to remind myself that feelings of inadequacy are shared by most people.",
+    "scs_11": "I'm disapproving and judgmental about my own flaws and inadequacies.",
+    "scs_12": {
+      "m": "I'm intolerant and impatient towards those aspects of my personality I don't like.",
+      "f": "I'm intolerant and impatient towards those aspects of my personality I don't like."
+    }
+  }
+}

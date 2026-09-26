@@ -359,6 +359,7 @@
     }
   },
   "today": {
+    "recentHistory": "Last 7 days",
     "loadError": "Could not load Today.",
     "columns": {
       "goalsKrs": "Goals",
@@ -481,7 +482,10 @@
       "programStepProgress": "step {current} of {total}",
       "programFrom": "from {date}",
       "ariaProgramStart": "Start the path's step",
-      "ariaProgramOpen": "Open path details"
+      "ariaProgramOpen": "Open path details",
+      "plannedOverdueSince": "overdue since {date}",
+      "programPractice": "practice",
+      "programStepLabel": "step {n}"
     },
     "stage": {
       "tomorrow": "Tomorrow",
@@ -528,6 +532,7 @@
     "calendar": {
       "today": "Today",
       "pickDay": "Pick a day",
+      "backToToday": "Back to today",
       "expand": "Expand calendar",
       "collapse": "Collapse calendar",
       "dayNav": "Day navigation",
@@ -1207,6 +1212,8 @@
       "tradeoffs": "Which trade-offs do you consciously accept?",
       "tradeoffsPlaceholder": "E.g. fewer evening gigs… Enter adds",
       "removeLabel": "Remove item",
+      "editLabel": "Edit item",
+      "editHint": "Enter saves, Esc cancels",
       "limitTitle": "The portfolio is full ({count}/{max})",
       "limitBody": "The new priority will be saved as a draft — or pause one of the current ones.",
       "pause": "Pause"

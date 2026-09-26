@@ -1,0 +1,69 @@
+{
+  "id": "scs-sf",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.scsSf.meta.title",
+  "subtitleKey": "assessments.scsSf.meta.subtitle",
+  "descriptionKey": "assessments.scsSf.meta.description",
+  "categoryKey": "assessments.scsSf.meta.category",
+  "disclaimerKey": "assessments.scsSf.meta.disclaimer",
+  "estimatedMinutes": 4,
+  "responseScale": {
+    "min": 1,
+    "max": 5,
+    "anchors": {
+      "1": "assessments.scsSf.anchors.1",
+      "2": "assessments.scsSf.anchors.2",
+      "3": "assessments.scsSf.anchors.3",
+      "4": "assessments.scsSf.anchors.4",
+      "5": "assessments.scsSf.anchors.5"
+    }
+  },
+  "items": [
+    { "id": "scs_01", "textKey": "assessments.scsSf.items.scs_01", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_02", "textKey": "assessments.scsSf.items.scs_02", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_03", "textKey": "assessments.scsSf.items.scs_03", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_04", "textKey": "assessments.scsSf.items.scs_04", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_05", "textKey": "assessments.scsSf.items.scs_05", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_06", "textKey": "assessments.scsSf.items.scs_06", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_07", "textKey": "assessments.scsSf.items.scs_07", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_08", "textKey": "assessments.scsSf.items.scs_08", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_09", "textKey": "assessments.scsSf.items.scs_09", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_10", "textKey": "assessments.scsSf.items.scs_10", "scaleId": "total", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_11", "textKey": "assessments.scsSf.items.scs_11", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 },
+    { "id": "scs_12", "textKey": "assessments.scsSf.items.scs_12", "scaleId": "total", "reverse": true, "responseMin": 1, "responseMax": 5 }
+  ],
+  "scales": [
+    {
+      "id": "total",
+      "labelKey": "assessments.scsSf.scales.total",
+      "itemIds": [
+        "scs_01",
+        "scs_02",
+        "scs_03",
+        "scs_04",
+        "scs_05",
+        "scs_06",
+        "scs_07",
+        "scs_08",
+        "scs_09",
+        "scs_10",
+        "scs_11",
+        "scs_12"
+      ],
+      "minAnswered": 10
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "scs-sf-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 4
+  },
+  "pageSize": 12,
+  "interpretationScale": "1-5",
+  "labelledResponses": true
+}

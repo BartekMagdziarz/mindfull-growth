@@ -33,34 +33,28 @@
     },
     "completedTitle": "Ścieżka ukończona!",
     "completedMessage": "Wszystkie kroki za Tobą. Możesz zacząć ścieżkę ponownie, kiedy zechcesz.",
-    "pausedNote": "Ścieżka jest wstrzymana — wznów ją, aby kontynuować."
-  },
-  "ifs-parts": {
-    "title": "Poznaj swoje części",
-    "description": "Czterotygodniowa ścieżka IFS: od mapy części, przez odmieszanie i punkty wejścia, po dialog z częściami.",
-    "steps": {
-      "step1": {
-        "intro": "Zacznij od mapy: zbierz części, które już znasz, i zobacz, jak się ze sobą łączą."
-      },
-      "step2": {
-        "intro": "Krótka praktyka odmieszania — zauważ część, która Cię porywa, i zrób krok wstecz do Ja."
-      },
-      "step3": {
-        "intro": "Podążaj za punktem wejścia: mocna reakcja z ostatnich dni to trop prowadzący do części."
-      },
-      "step4": {
-        "intro": "Doceń protektora — poznaj jego intencję, zanim poprosisz o głębszy dostęp."
-      },
-      "step5": {
-        "intro": "Świadkowanie wygnańcowi: pozwól młodszej części opowiedzieć swoją historię w tempie, które sama wybierze."
-      },
-      "step6": {
-        "intro": "Sprawdź energię Ja (8 C) — po pracy z wygnańcem zobacz, ile spokoju i współczucia jest w Tobie."
-      },
-      "step7": {
-        "intro": "Domknij ścieżkę dialogiem: porozmawiaj z częścią, która najbardziej potrzebuje Twojej uwagi."
-      }
-    }
+    "pausedNote": "Ścieżka jest wstrzymana — wznów ją, aby kontynuować.",
+    "practicesTitle": "Praktyki obok kroków",
+    "practicesLead": "Krótkie ćwiczenia, które powtarzasz regularnie przez część ścieżki. Kolejne wystąpienie planuje się samo po zapisie.",
+    "everyDay": "codziennie",
+    "everyNDays": {
+      "one": "co {n} dzień",
+      "few": "co {n} dni",
+      "many": "co {n} dni"
+    },
+    "practiceMeta": "praktyka {rhythm}",
+    "practiceToday": "na dziś",
+    "practiceFrom": "następny raz {date}",
+    "practiceOverdue": "zaległa od {date}",
+    "practiceWithEnroll": "zacznie się, gdy rozpoczniesz ścieżkę",
+    "practiceAfterStep": "zacznie się po kroku {n}",
+    "practiceEnded": "zakończona",
+    "doNow": "Zrób teraz",
+    "outcomeTitle": "Pomiar na początku i na końcu",
+    "outcomeBefore": "Na początku",
+    "outcomeAfter": "Na końcu",
+    "outcomeNote": "Porównanie wyniku: {scale}. To obraz zmiany w czasie, nie ocena kliniczna.",
+    "phaseLabel": "faza {n} z {total}"
   },
   "foundation": {
     "title": "Fundament samopoznania",
@@ -88,6 +82,434 @@
       }
     }
   },
+  "anger-signal": {
+    "title": "Złość jako sygnał",
+    "description": "Sześć tygodni pracy ze złością: od zauważania wyzwalaczy i sygnałów w ciele, przez plan pauzy i pracę z myślami, po potrzebę, której złość broni, i nowe sposoby działania. Obok kroków prowadzisz krótki dziennik złości i co drugi dzień ćwiczysz oddech kojący. Co tydzień dostajesz jedno zadanie do wypróbowania w życiu. Ta ścieżka nie wystarczy, jeśli złość przechodzi w przemoc albo ktoś czuje się przy tobie niebezpiecznie. Wtedy najważniejsza jest pomoc specjalisty.",
+    "reflection": {
+      "severity": "Jak bardzo złość utrudniała ci ten tydzień?"
+    },
+    "phases": {
+      "understanding": {
+        "title": "Rozumienie",
+        "question": "Jaki wyzwalacz powtarzał się najczęściej?"
+      },
+      "pause": {
+        "title": "Ciało i pauza",
+        "question": "Kiedy udało ci się zauważyć złość wcześniej niż zwykle?"
+      },
+      "thoughts": {
+        "title": "Myśli",
+        "question": "Jaka myśl najczęściej podkręcała złość?"
+      },
+      "need": {
+        "title": "Potrzeba i część",
+        "question": "Jakiej potrzeby najczęściej broniła twoja złość?"
+      },
+      "action": {
+        "title": "Działanie",
+        "question": {
+          "m": "Co się stało, gdy zrobiłeś coś inaczej niż zwykle?",
+          "f": "Co się stało, gdy zrobiłaś coś inaczej niż zwykle?"
+        }
+      },
+      "consolidation": {
+        "title": "Utrwalenie",
+        "question": "Co z tej ścieżki chcesz zachować na dłużej?"
+      }
+    },
+    "steps": {
+      "step1": {
+        "intro": "Zacznij od krótkiego pomiaru. Ten sam barometr wróci na końcu ścieżki, żeby było widać, co się zmieniło."
+      },
+      "step2": {
+        "intro": "Zbierz swoje wyzwalacze, pierwsze sygnały w ciele i typowe reakcje. Z tej mapy korzystają kolejne kroki i dziennik złości."
+      },
+      "step3": {
+        "intro": "Weź trzy najwcześniejsze sygnały z dziennika i ułóż plan „jeśli zauważę…, to…”. Pauzę łatwiej zrobić, gdy wiesz wcześniej, jak ma wyglądać."
+      },
+      "step4": {
+        "intro": "Przejrzyj zniekształcenia na jednym epizodzie z dziennika. Przy złości najczęściej pojawiają się powinności, czytanie w myślach, etykietowanie i personalizacja."
+      },
+      "step5": {
+        "intro": "Rozłóż gorącą myśl z ostatniego epizodu, na przykład „robi to specjalnie”. Wypracuj myśl alternatywną, którą da się przywołać w pauzie."
+      },
+      "step6": {
+        "intro": "Potraktuj ostatni silny epizod złości jak trop do części. To nie „twój problem”, tylko część, która ma swoje zadanie."
+      },
+      "step7": {
+        "intro": "Poznaj część, która się złości: czego broni i czego się boi, gdyby przestała. Złość rzadko jest wrogiem, częściej nadgorliwym ochroniarzem."
+      },
+      "step8": {
+        "intro": "Przełóż epizod złości na obserwację, uczucie, potrzebę i prośbę. Wynikiem ma być jedno zdanie, które naprawdę możesz powiedzieć."
+      },
+      "step9": {
+        "intro": "Wybierz prowokację, która w dzienniku powtarza się najczęściej, i poszukaj rozwiązania. Zmiana sytuacji zmniejsza złość skuteczniej niż samo panowanie nad sobą."
+      },
+      "step10": {
+        "intro": "Sprawdź przewidywanie w rodzaju „jeśli powiem spokojnie, zignorują mnie”. Użyj prośby z kroku „Od złości do prośby”."
+      },
+      "step11": {
+        "intro": "Krok opcjonalny. Napisz do siebie po wybuchu, którego się wstydzisz. Życzliwość przerywa cykl wybuchu, wstydu i napięcia."
+      },
+      "step12": {
+        "intro": "Powtórz barometr. Na ekranie ukończenia zobaczysz oba wyniki obok siebie."
+      },
+      "step13": {
+        "intro": "Zdecyduj, które praktyki zostają z tobą i po czym poznasz, że warto wrócić do ścieżki."
+      }
+    },
+    "practices": {
+      "anger-log": {
+        "intro": "Codziennie, także w spokojne dni. Dziennik pokazuje wzór: kiedy złość się pojawia, co ją podkręca i co pomaga."
+      },
+      "paced-breathing": {
+        "intro": "Co drugi dzień, trzy minuty. Dłuższy wydech obniża pobudzenie i ułatwia pauzę w prawdziwej sytuacji."
+      }
+    },
+    "tasks": {
+      "noticeSigns": {
+        "title": "Zauważ pierwszy sygnał złości w ciele",
+        "why": "Im wcześniej zauważysz złość, tym więcej masz wyboru."
+      },
+      "pauseInConversation": {
+        "title": "Użyj planu pauzy w prawdziwej rozmowie i wróć do niej",
+        "why": "Pauza działa tylko wtedy, gdy wracasz do rozmowy."
+      },
+      "altThought": {
+        "title": "Zanim odpowiesz, przypomnij sobie myśl alternatywną",
+        "why": "Myśl z rejestru ma zadziałać w sytuacji, nie tylko na papierze."
+      },
+      "requestNotReproach": {
+        "title": "Wypowiedz prośbę zamiast wyrzutu",
+        "why": "Prośba mówi, czego potrzebujesz. Wyrzut mówi tylko, że się złościsz."
+      },
+      "applySolution": {
+        "title": "Wprowadź w życie jedno rozwiązanie z rozwiązywania problemów",
+        "why": "Powtarzalna prowokacja słabnie, gdy zmienisz sytuację."
+      },
+      "calmRequest": {
+        "title": "Poproś spokojnie tam, gdzie zwykle podnosisz głos",
+        "why": "To test przewidywania z eksperymentu behawioralnego."
+      },
+      "repairRelationship": {
+        "title": "Napraw jedną relację po dawnym wybuchu",
+        "why": "Naprawa domyka cykl wybuchu, wstydu i napięcia."
+      }
+    }
+  },
+  "anxiety-approach": {
+    "title": "Lęk: podejść zamiast unikać",
+    "description": "Osiem tygodni pracy z niepokojem i zamartwianiem się. Poznajesz swój lęk, uczysz się odkładać zmartwienia i sprawdzać przewidywania, a potem krok po kroku podchodzisz do tego, czego unikasz. Obok kroków codziennie wieczorem masz porę na zmartwienia, a co drugi dzień oddech kojący. Co tydzień dostajesz jedno zadanie do wypróbowania w życiu. Ta ścieżka nie zastąpi pomocy specjalisty przy napadach paniki, zaburzeniach obsesyjno-kompulsyjnych, traumie albo myślach o zrobieniu sobie krzywdy.",
+    "reflection": {
+      "severity": "Jak bardzo lęk i zamartwianie się ograniczały ten tydzień?"
+    },
+    "phases": {
+      "map": {
+        "title": "Mapa lęku",
+        "question": {
+          "m": "Czego najczęściej unikałeś i ile cię to kosztowało?",
+          "f": "Czego najczęściej unikałaś i ile cię to kosztowało?"
+        }
+      },
+      "thoughts": {
+        "title": "Myśli",
+        "question": "Na ile sprawdziły się twoje przewidywania?"
+      },
+      "uncertainty": {
+        "title": "Niepewność",
+        "question": {
+          "m": "Co się stało, gdy nie upewniłeś się do końca?",
+          "f": "Co się stało, gdy nie upewniłaś się do końca?"
+        }
+      },
+      "problems": {
+        "title": "Problemy realne",
+        "question": "Które zmartwienie okazało się problemem do rozwiązania, a które tylko hipotezą?"
+      },
+      "approach": {
+        "title": "Podejście",
+        "question": "Jak zmieniał się lęk w kolejnych próbach?"
+      },
+      "stance": {
+        "title": "Postawa",
+        "question": {
+          "m": "Co zyskałeś, robiąc coś mimo lęku?",
+          "f": "Co zyskałaś, robiąc coś mimo lęku?"
+        }
+      },
+      "consolidation": {
+        "title": "Utrwalenie",
+        "question": "Które zabezpieczenie najłatwiej może wrócić?"
+      }
+    },
+    "steps": {
+      "step1": {
+        "intro": "Zacznij od krótkiego pomiaru niepokoju. Ten sam kwestionariusz wróci na końcu ścieżki."
+      },
+      "step2": {
+        "intro": "Krok opcjonalny. Zmierz, jak trudno znosisz niepewność. To mechanizm, na który działa krok z eksperymentem."
+      },
+      "step3": {
+        "intro": "Zbierz sytuacje, które budzą lęk, to, czego unikasz, i to, czym się zabezpieczasz. Z tej listy powstanie drabina ekspozycji."
+      },
+      "step4": {
+        "intro": "Naucz się sortować zmartwienia: hipotetyczne odkładasz, praktyczne planujesz. Od teraz pora na zmartwienia odsyła tu wybrane zmartwienie."
+      },
+      "step5": {
+        "intro": "Przyjrzyj się katastrofizacji, przewidywaniu przyszłości i przekonaniom o samym martwieniu się, na przykład „martwienie mnie chroni”."
+      },
+      "step6": {
+        "intro": {
+          "m": "Rozłóż jedną silną obawę: jak bardzo jest prawdopodobna, ile by kosztowała i jak byś sobie poradził.",
+          "f": "Rozłóż jedną silną obawę: jak bardzo jest prawdopodobna, ile by kosztowała i jak byś sobie poradziła."
+        }
+      },
+      "step7": {
+        "intro": "Wybierz jedno zabezpieczenie z mapy i zrezygnuj z niego na próbę, na przykład nie sprawdzaj trzy razy maila. Zapisz, co przewidujesz."
+      },
+      "step8": {
+        "intro": "Weź praktyczne zmartwienie, które drzewo odsyłało do planowania, i rozpisz rozwiązanie."
+      },
+      "step9": {
+        "intro": "Zbuduj drabinę z unikanych sytuacji z mapy i zrób pierwszą próbę na najniższym szczeblu, bez zabezpieczeń."
+      },
+      "step10": {
+        "intro": "Przejrzyj próby z ostatniego tygodnia i zaplanuj kolejne szczeble. Wróć do tej samej drabiny."
+      },
+      "step11": {
+        "intro": "Krok opcjonalny, przy lęku przed objawami, takimi jak rumieniec, drżenie albo bezsenność. Spróbuj celowo chcieć więcej objawu, zamiast z nim walczyć."
+      },
+      "step12": {
+        "intro": "Krok opcjonalny. Gdy uwaga krąży wokół objawów, przekieruj ją na zadanie i na to, co ważne."
+      },
+      "step13": {
+        "intro": "Krok opcjonalny. Jeśli unikanie zawęziło twój tydzień, zaplanuj aktywności zgodne z wartościami."
+      },
+      "step14": {
+        "intro": "Powtórz pomiar niepokoju. Na ekranie ukończenia zobaczysz oba wyniki."
+      },
+      "step15": {
+        "intro": "Zdecyduj, co zostaje. Zwykle to pora na zmartwienia dwa razy w tygodniu i drabina do dokończenia."
+      }
+    },
+    "practices": {
+      "worry-postponement": {
+        "intro": "Codziennie wieczorem, o stałej porze. W ciągu dnia tylko zapisujesz zmartwienia i odkładasz je na później."
+      },
+      "paced-breathing": {
+        "intro": "Co drugi dzień przez całą ścieżkę. Oddech ma pomóc ci podejść do trudnej sytuacji, a nie sprawić, że lęk zniknie."
+      }
+    },
+    "tasks": {
+      "noticeAvoidance": {
+        "title": "Zauważ sytuacje, w których coś omijasz albo się zabezpieczasz",
+        "why": "Unikanie często jest niewidoczne, dopóki się go nie nazwie."
+      },
+      "predictionCheck": {
+        "title": "Zapisz przewidywanie przed trudną sytuacją i sprawdź je po niej",
+        "why": "Lęk przewiduje. Sprawdzanie przewidywań uczy go trafności."
+      },
+      "uncertainDecisions": {
+        "title": "Podejmij małą decyzję bez upewniania się",
+        "why": "Na przykład zamów coś bez czytania recenzji. Tolerancję niepewności buduje się na drobiazgach."
+      },
+      "firstStep": {
+        "title": "Zrób pierwszy krok wybranego rozwiązania",
+        "why": "Praktyczne zmartwienie maleje, gdy zaczniesz działać."
+      },
+      "exposureLow": {
+        "title": "Zrób próbę z najniższego szczebla drabiny, bez zabezpieczeń",
+        "why": "Lęk spada w powtórzeniach, nie w pojedynczej próbie."
+      },
+      "exposureNext": {
+        "title": "Zrób próbę z kolejnego szczebla drabiny",
+        "why": "Idź wyżej, gdy lęk na poprzednim szczeblu spada poniżej połowy."
+      },
+      "meaningfulAct": {
+        "title": "Zrób jedną rzecz, którą lęk odkładał, a która ma dla ciebie znaczenie",
+        "why": "Kierunek wyznacza to, co ważne, nie brak lęku."
+      },
+      "planApproach": {
+        "title": "Zaplanuj jedną sytuację podejścia na przyszły miesiąc",
+        "why": "Unikanie wraca po cichu. Zaplanowane podejście to bezpiecznik."
+      }
+    }
+  },
+  "shame-compassion": {
+    "title": "Ze wstydu do współczucia",
+    "description": "Osiem tygodni pracy ze wstydem, oparte na terapii skoncentrowanej na współczuciu. Najpierw uczysz się rozpoznawać wstyd i oddzielać go od winy. Potem poznajesz wewnętrznego krytyka, budujesz współczującą stronę siebie i sprawdzasz przekonania o sobie. Na końcu wychodzisz z ukrycia w małych, bezpiecznych krokach. Obok kroków prowadzisz krótkie praktyki co drugi dzień, a co tydzień dostajesz jedno zadanie do wypróbowania w życiu. Ta ścieżka nie zastąpi terapii, jeśli wstyd wiąże się z przemocą, wykorzystaniem albo silnym kryzysem.",
+    "reflection": {
+      "severity": "Jak bardzo wstyd wpływał na ten tydzień?"
+    },
+    "phases": {
+      "recognition": {
+        "title": "Rozpoznawanie",
+        "question": "W jakich sytuacjach wstyd pojawiał się najczęściej?"
+      },
+      "actOrSelf": {
+        "title": "Czyn czy ja",
+        "question": "Gdzie wstyd okazał się winą, którą dało się naprawić?"
+      },
+      "critic": {
+        "title": "Krytyk",
+        "question": "Co krytyk próbował ochronić w tym tygodniu?"
+      },
+      "compassion": {
+        "title": "Współczująca strona",
+        "question": {
+          "m": "Jak zareagowało twoje ciało, gdy potraktowałeś się życzliwie?",
+          "f": "Jak zareagowało twoje ciało, gdy potraktowałaś się życzliwie?"
+        }
+      },
+      "beliefs": {
+        "title": "Przekonania",
+        "question": "Jaki dowód na nowe przekonanie najbardziej cię zaskoczył?"
+      },
+      "outOfHiding": {
+        "title": "Wyjście z ukrycia",
+        "question": {
+          "m": "Co się wydarzyło, gdy pokazałeś się taki, jaki jesteś?",
+          "f": "Co się wydarzyło, gdy pokazałaś się taka, jaka jesteś?"
+        }
+      },
+      "deeper": {
+        "title": "Głębiej",
+        "question": {
+          "m": "Co zauważyłeś o młodszej części, jeśli do niej zajrzałeś?",
+          "f": "Co zauważyłaś o młodszej części, jeśli do niej zajrzałaś?"
+        }
+      },
+      "consolidation": {
+        "title": "Utrwalenie",
+        "question": "Po czym poznasz, że wstyd znowu przejmuje ster?"
+      }
+    },
+    "steps": {
+      "step1": {
+        "intro": "Zacznij od pomiaru współczucia dla siebie. Ta sama skala wróci na końcu ścieżki."
+      },
+      "step2": {
+        "intro": "Sprawdź, gdzie wstyd odzywa się najczęściej, jak na niego reagujesz i jakie wymaganie wobec siebie za nim stoi."
+      },
+      "step3": {
+        "intro": "Weź jeden epizod z dziennika i oddziel czyn od oceny siebie. Winę można naprawić, a na wstyd odpowiada życzliwość."
+      },
+      "step4": {
+        "intro": "Rozłóż gorącą myśl „jestem…” z epizodu wstydu. Szukaj dowodów oczami życzliwego obserwatora, nie prokuratora."
+      },
+      "step5": {
+        "intro": "Potraktuj głos krytyka jako punkt wejścia: kiedy się odzywa, jakim tonem i co mówi."
+      },
+      "step6": {
+        "intro": "Poznaj krytyka jako protektora. Przed czym cię chroni: przed odrzuceniem, kompromitacją, porażką?"
+      },
+      "step7": {
+        "intro": "Stwórz obraz współczującej postaci. Będzie wracać w przerwie na współczucie i w liście."
+      },
+      "step8": {
+        "intro": "Napisz list do siebie o epizodzie z kroku „Czyn czy ja”, głosem swojego obrazu współczucia."
+      },
+      "step9": {
+        "intro": "Zejdź od gorących myśli do przekonania o sobie i sformułuj przekonanie alternatywne. Od teraz zbierasz na nie dowody."
+      },
+      "step10": {
+        "intro": "Wyjdź z ukrycia w małym kroku. Zaplanuj, komu i o czym powiesz, i zapisz, czego się spodziewasz."
+      },
+      "step11": {
+        "intro": "Krok opcjonalny. Co podziwiasz u innych, a czego sobie odmawiasz? To odsłania wymaganie wobec siebie, które stoi za wstydem."
+      },
+      "step12": {
+        "intro": "Krok opcjonalny, tylko jeśli protektorzy się zgadzają. Bądź przez chwilę przy młodszej części, bez naprawiania. „Jeszcze nie” też jest dobrą odpowiedzią."
+      },
+      "step13": {
+        "intro": "Powtórz skalę współczucia dla siebie. Na ekranie ukończenia zobaczysz oba wyniki."
+      },
+      "step14": {
+        "intro": "Zdecyduj, które praktyki zostają z tobą. Zwykle to przerwa na współczucie i dziennik pozytywnych danych."
+      }
+    },
+    "practices": {
+      "shame-log": {
+        "intro": "Co drugi dzień. Krótko zapisujesz moment wstydu, swoją reakcję i słowa krytyka, a potem głos kogoś życzliwego."
+      },
+      "paced-breathing": {
+        "intro": "Co drugi dzień przez pierwsze tygodnie. Spokojny rytm oddechu przygotowuje do pracy z krytykiem i z obrazem współczucia."
+      },
+      "self-compassion-break": {
+        "intro": "Co drugi dzień, gdy poznajesz krytyka i budujesz współczującą stronę. Trzy kroki: uważność, wspólne człowieczeństwo, życzliwość."
+      },
+      "positive-data-log": {
+        "intro": "Co drugi dzień do końca ścieżki. Dopisujesz dowody na nowe przekonanie o sobie."
+      }
+    },
+    "tasks": {
+      "nameShame": {
+        "title": "Nazwij wstyd w chwili, gdy się pojawia",
+        "why": "Nazwanie emocji zmniejsza jej siłę."
+      },
+      "repairGuilt": {
+        "title": "Przy jednej sytuacji winy zrób realną naprawę",
+        "why": "Wina domyka się przez naprawę, a wstyd przez ukrycie. Wybierz naprawę."
+      },
+      "noticeCritic": {
+        "title": "Zauważ głos krytyka i nazwij go jego imieniem",
+        "why": "Nazwany krytyk to część, a nie prawda o tobie."
+      },
+      "kindAct": {
+        "title": {
+          "m": "Po trudnym momencie zrób dla siebie to, co zrobiłbyś dla przyjaciela",
+          "f": "Po trudnym momencie zrób dla siebie to, co zrobiłabyś dla przyjaciela"
+        },
+        "why": "Współczucie ćwiczy się działaniem, nie tylko słowami."
+      },
+      "collectEvidence": {
+        "title": "Wyłap w życiu dowody na nowe przekonanie",
+        "why": "Zadanie polega na zauważaniu. Zapis trafia do dziennika pozytywnych danych."
+      },
+      "tellSafePerson": {
+        "title": "Powiedz jednej bezpiecznej osobie o czymś, czego się wstydzisz",
+        "why": "Na wstyd najlepiej działa bycie zobaczonym przez kogoś życzliwego."
+      },
+      "showImperfect": {
+        "title": "Pokaż się nieidealnie w małej sytuacji",
+        "why": "Zadaj proste pytanie albo pokaż niedokończoną pracę. To mała ekspozycja na bycie widzianym."
+      },
+      "askSupport": {
+        "title": {
+          "m": "Poproś o wsparcie w sprawie, z którą zwykle radzisz sobie sam",
+          "f": "Poproś o wsparcie w sprawie, z którą zwykle radzisz sobie sama"
+        },
+        "why": "Wstyd izoluje. Prośba o pomoc to ruch w przeciwną stronę."
+      }
+    }
+  },
+  "ifs-parts": {
+    "title": "Poznaj swoje części",
+    "description": "Czterotygodniowa ścieżka IFS: od mapy części, przez odmieszanie, punkty wejścia i docenienie protektorów, po dialog z częścią — a na końcu, jeśli protektorzy pozwolą, krótkie świadkowanie wygnańcowi. Obok kroków warto robić codzienny check-in IFS.",
+    "steps": {
+      "step1": {
+        "intro": "Zacznij od mapy: zbierz części, które już znasz, i zobacz, jak się ze sobą łączą."
+      },
+      "step2": {
+        "intro": "Krótka praktyka odmieszania — zauważ część, która cię porywa, i zrób krok w tył, do Ja."
+      },
+      "step3": {
+        "intro": "Podążaj za punktem wejścia: mocna reakcja z ostatnich dni to trop prowadzący do części."
+      },
+      "step4": {
+        "intro": "Check-in energii Ja (8 C) — zobacz, ile spokoju, ciekawości i współczucia jest w tobie na co dzień. To narzędzie higieny, nie zwieńczenie."
+      },
+      "step5": {
+        "intro": "Doceń protektora — poznaj jego zadanie i lęk, zanim poprosisz o głębszy dostęp."
+      },
+      "step6": {
+        "intro": "Porozmawiaj z częścią, która najbardziej potrzebuje twojej uwagi — pisząc obie strony dialogu."
+      },
+      "step7": {
+        "intro": "Krok opcjonalny: bądź przez chwilę przy młodszej części, bez naprawiania i bez opowiadania całej historii — tylko jeśli protektorzy się zgodzą. Jeśli mówią „jeszcze nie”, to też jest odpowiedź."
+      }
+    }
+  },
   "cbt-thoughts": {
     "title": "CBT: myśli pod lupą",
     "description": "Poznaj zniekształcenia poznawcze, przećwicz rejestr myśli w kilku rundach i zejdź do przekonań kluczowych, które za nimi stoją.",
@@ -108,5 +530,41 @@
         "intro": "Finał: od pojedynczych myśli do przekonań kluczowych, które je zasilają."
       }
     }
+  },
+  "week": {
+    "proposalsLabel": "Propozycje ze ścieżek",
+    "fromPath": "Ze ścieżki „{title}”",
+    "accept": "Dodaj jako intencję",
+    "edit": "Zmień",
+    "decline": "Nie w tym tygodniu",
+    "repeatNote": "to samo zadanie co ostatnio",
+    "timesPerWeek": {
+      "one": "{n} raz w tygodniu",
+      "few": "{n} razy w tygodniu",
+      "many": "{n} razy w tygodniu"
+    },
+    "stepLabel": "Ścieżka",
+    "stepQuestion": "Jak poszło poza aplikacją?",
+    "doneOf": "{done} z {target}",
+    "declinedThisWeek": "Zadanie ze ścieżki odłożone na ten tydzień",
+    "noTaskThisWeek": "W tym tygodniu bez zadania ze ścieżki",
+    "outcomeQuestion": {
+      "m": "Jak poszło? Co wyszło inaczej, niż się spodziewałeś?",
+      "f": "Jak poszło? Co wyszło inaczej, niż się spodziewałaś?"
+    },
+    "severityHigh": "bardzo",
+    "severityLow": "wcale",
+    "previousWeek": "poprzedni tydzień",
+    "severityHistory": "poprzednio: {values}",
+    "stayNextWeek": "Zostań przy tym zadaniu w przyszłym tygodniu",
+    "panelTitle": "W świecie",
+    "panelLead": "Co tydzień jedno zadanie do wypróbowania w życiu. Przyjmujesz je w planie tygodnia, a omawiasz w refleksji.",
+    "addThisWeek": "Dodaj do tego tygodnia",
+    "statusAccepted": "przyjęte",
+    "statusDeclined": "odłożone",
+    "statusStay": "przyjęte · zostaje na kolejny tydzień",
+    "weekShort": "T{n}",
+    "thisWeek": "Na ten tydzień",
+    "emptyHistory": "Historia zadań pojawi się po pierwszym tygodniu."
   }
 }

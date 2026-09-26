@@ -16,6 +16,9 @@ import { exerciseCompletionDexieRepository } from '@/repositories/exerciseComple
 import { autoCompleteFor } from '@/services/exercisePlanService'
 import {
   advanceEnrollmentForPlan,
+  advancePracticeForPlan,
+  isPracticeItem,
+  type PracticeReconciliation,
   type ProgramAdvancement,
 } from '@/services/programSchedulerService'
 import { getPeriodRefsForDate } from '@/utils/periods'
@@ -26,6 +29,8 @@ export interface RecordCompletionResult {
   completedPlan: ExercisePlanItem | null
   /** Program enrollment advanced by this save, when the plan was a step (§4.5). */
   programAdvancement: ProgramAdvancement | null
+  /** Next occurrence scheduled by this save, when the plan was a program practice. */
+  practiceReconciliation?: PracticeReconciliation | null
 }
 
 export async function recordCompletion(
@@ -51,15 +56,22 @@ export async function recordCompletion(
     source: completedPlan ? 'plan' : 'standalone',
   })
   let programAdvancement: ProgramAdvancement | null = null
+  let practiceReconciliation: PracticeReconciliation | null = null
   if (completedPlan?.source === 'program') {
     try {
-      programAdvancement = await advanceEnrollmentForPlan(completedPlan)
+      if (isPracticeItem(completedPlan)) {
+        practiceReconciliation = await advancePracticeForPlan(completedPlan)
+      } else {
+        programAdvancement = await advanceEnrollmentForPlan(completedPlan)
+      }
     } catch (err) {
       // Program bookkeeping must never block the completion log write.
       console.error('Failed to advance program enrollment:', err)
     }
   }
-  return { completion, completedPlan, programAdvancement }
+  return practiceReconciliation
+    ? { completion, completedPlan, programAdvancement, practiceReconciliation }
+    : { completion, completedPlan, programAdvancement }
 }
 
 export async function listCompletions(): Promise<ExerciseCompletion[]> {

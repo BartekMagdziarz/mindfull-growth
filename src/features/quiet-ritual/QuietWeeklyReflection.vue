@@ -5,7 +5,7 @@
     :period-title="periodTitle"
     :steps="steps"
     :current="current"
-    :wide="current === 0 || current === steps.length - 1"
+    :wide="currentStepId === 'review' || currentStepId === 'journal'"
     :saving="isSaving"
     :finished="saved"
     finish-label="Zapisz refleksję"
@@ -17,7 +17,7 @@
     @alternate="finishAndPlanNext"
   >
     <!-- 1 · Przegląd — what actually happened, day by day -->
-    <section v-if="current === 0" class="qr-evidence">
+    <section v-if="currentStepId === 'review'" class="qr-evidence">
       <div class="qr-table-scroll">
         <div class="qr-table" :class="{ 'qr-table--day-selected': selectedDay !== null }">
           <div class="qr-table-head qr-table-head--review">
@@ -199,8 +199,71 @@
       </div>
     </section>
 
+    <!-- Ścieżka — one block per program with a weekly reflection (plan §5) -->
+    <section v-else-if="currentStepId === 'path'" class="qr-path-step">
+      <article v-for="block in pathBlocks" :key="block.enrollment.id" class="qr-path-block">
+        <header class="qr-path-block__head">
+          <AppIcon :name="block.program.icon" />
+          <strong>{{ t(`${block.program.i18nKey}.title`) }}</strong>
+          <span v-if="block.phase">· {{ t(`${block.program.i18nKey}.phases.${block.phase.key}.title`) }}</span>
+        </header>
+
+        <div class="qr-path-block__task">
+          <template v-if="block.intention">
+            <span class="qr-path-block__task-title">{{ block.intention.title }}</span>
+            <span class="qr-path-block__task-count">
+              {{ t('programs.week.doneOf', { done: block.doneCount, target: block.intention.target.value ?? 1 }) }}
+            </span>
+          </template>
+          <span v-else-if="block.entry" class="qr-path-block__task-muted">{{ t('programs.week.declinedThisWeek') }}</span>
+          <span v-else class="qr-path-block__task-muted">{{ t('programs.week.noTaskThisWeek') }}</span>
+        </div>
+
+        <label v-if="block.entry" class="qr-path-block__field">
+          <span>{{ tg('programs.week.outcomeQuestion') }}</span>
+          <textarea
+            :value="promptResponses[pathKeys(block).outcome] ?? ''"
+            rows="3"
+            @input="setPathAnswer(pathKeys(block).outcome, $event)"
+          />
+        </label>
+
+        <QuietRatingBar
+          :model-value="severityValue(block)"
+          :label="t(`${block.program.i18nKey}.reflection.severity`)"
+          :hint="severityHint(block)"
+          :high-label="t('programs.week.severityHigh')"
+          :low-label="t('programs.week.severityLow')"
+          :previous="previousSeverity(block)"
+          :previous-label="t('programs.week.previousWeek')"
+          @update:model-value="setSeverity(block, $event)"
+        />
+
+        <label v-if="block.phase" class="qr-path-block__field">
+          <span>{{ tg(`${block.program.i18nKey}.phases.${block.phase.key}.question`) }}</span>
+          <textarea
+            :value="promptResponses[pathKeys(block).phase] ?? ''"
+            rows="3"
+            @input="setPathAnswer(pathKeys(block).phase, $event)"
+          />
+        </label>
+
+        <div v-if="block.entry && block.task" class="qr-path-block__stay">
+          <button
+            type="button"
+            role="switch"
+            class="mg-v2-switch"
+            :aria-checked="Boolean(block.entry.stayNextWeek)"
+            :aria-labelledby="`stay-${block.enrollment.id}`"
+            @click="toggleStay(block, !block.entry.stayNextWeek)"
+          />
+          <span :id="`stay-${block.enrollment.id}`">{{ t('programs.week.stayNextWeek') }}</span>
+        </div>
+      </article>
+    </section>
+
     <!-- 6 · Kotwice -->
-    <section v-else-if="current === 5" class="qr-anchors">
+    <section v-else-if="currentStepId === 'anchors'" class="qr-anchors">
       <article v-for="(anchor, index) in ANCHORS" :key="anchor.key">
         <button type="button" :aria-expanded="anchorOpen === index" @click="anchorOpen = anchorOpen === index ? null : index">
           <AppIcon :name="anchor.icon" /><span>{{ anchor.label }}</span>
@@ -342,11 +405,19 @@ import { useT } from '@/composables/useT'
 import { useWeeklyReflectionWizard } from '@/composables/useWeeklyReflectionWizard'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import {
+  loadReflectionPathBlocks,
+  programReflectionKeys,
+  setStayNextWeek,
+  severitySeries,
+  type ReflectionPathBlock,
+} from '@/services/programWeekService'
+import type { WeeklyReflection } from '@/domain/reflection'
+import {
   emotionContextFromSummary,
   type ReflectionPriorityLine,
   type ReflectionSummaryContext,
 } from '@/services/reflectionSummaryService'
-import { getPeriodBounds } from '@/utils/periods'
+import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 import QuietEmotionStack from './QuietEmotionStack.vue'
 import QuietJournalAi from './QuietJournalAi.vue'
 import QuietRatingBar from './QuietRatingBar.vue'
@@ -401,6 +472,8 @@ const tagInput = reactive<Record<string, string>>({})
 const TAIL_WEEKS = 10
 const tailHistory = ref<AreaSeries | null>(null)
 const recentTags = ref<string[]>([])
+const pathBlocks = ref<ReflectionPathBlock[]>([])
+const pastReflections = ref<WeeklyReflection[]>([])
 
 const steps = computed<QuietRitualStep[]>(() => [
   { id: 'review', label: 'Przegląd', question: 'Co wydarzyło się naprawdę?' },
@@ -409,12 +482,19 @@ const steps = computed<QuietRitualStep[]>(() => [
     label: t(areaTitleKey(area.key)),
     question: tg(cellQuestionKey(area.key, 'state')),
   })),
+  // Present only while a program with a weekly reflection runs (plan §5).
+  ...(pathBlocks.value.length ? [{ id: 'path', label: t('programs.week.stepLabel'), question: t('programs.week.stepQuestion') }] : []),
   { id: 'anchors', label: 'Kotwice', question: 'Co warto zapamiętać?' },
   { id: 'journal', label: 'Dziennik', question: 'Zamknij tydzień własnymi słowami' },
 ])
 
-// Reflection: step 0 = review, 1–4 = life areas, 5 = anchors, 6 = journal.
-const activeArea = computed(() => (current.value >= 1 && current.value <= AREAS.length ? AREAS[current.value - 1] : null))
+// Steps are addressed by id — the optional "path" step shifts the positions.
+const currentStepId = computed(() => steps.value[current.value]?.id ?? 'review')
+const activeArea = computed(() =>
+  currentStepId.value.startsWith('area-')
+    ? (AREAS.find(area => `area-${area.key}` === currentStepId.value) ?? null)
+    : null,
+)
 const periodTitle = computed(() => weekRangeTitle(props.weekRef))
 const days = computed(() => quietWeekDays(props.weekRef, getPeriodBounds(props.weekRef).end as DayRef))
 
@@ -498,9 +578,19 @@ const summaryContext = computed<ReflectionSummaryContext>(() => {
       { label: `${t(areaTitleKey(area.key))} · obciążenie`, value: ratingValue(area.fields.demands) },
       { label: `${t(areaTitleKey(area.key))} · stan`, value: ratingValue(area.fields.state) },
     ]),
-    anchors: ANCHORS.map(anchor => ({ label: anchor.label, text: (promptResponses.value[anchor.key] ?? '').trim() })).filter(
-      anchor => anchor.text.length > 0,
-    ),
+    anchors: [
+      ...ANCHORS.map(anchor => ({ label: anchor.label, text: (promptResponses.value[anchor.key] ?? '').trim() })),
+      ...pathBlocks.value.flatMap(block => {
+        const title = t(`${block.program.i18nKey}.title`)
+        const keys = pathKeys(block)
+        const severity = severityValue(block)
+        return [
+          { label: `${title} · ${tg('programs.week.outcomeQuestion')}`, text: (promptResponses.value[keys.outcome] ?? '').trim() },
+          { label: `${title} · ${t(`${block.program.i18nKey}.reflection.severity`)}`, text: severity === null ? '' : `${severity}/5` },
+          { label: `${title} · ${t('programs.week.stepLabel')}`, text: (promptResponses.value[keys.phase] ?? '').trim() },
+        ]
+      }),
+    ].filter(anchor => anchor.text.length > 0),
     freeform: freeformReflection.value,
     journalEntries: bundle?.journalEntries ?? [],
     emotionLogs: bundle?.emotionLogs ?? [],
@@ -516,6 +606,11 @@ onMounted(async () => {
   // Tag suggestions come from the user's own recent weekly reflections; there is
   // no shared vocabulary for area tags.
   const all = await structuredReflectionDexieRepository.listWeekly()
+  pastReflections.value = all.filter(item => item.weekRef !== props.weekRef)
+  pathBlocks.value = await loadReflectionPathBlocks(props.weekRef).catch((err) => {
+    console.error('Failed to load program blocks for the weekly reflection:', err)
+    return []
+  })
   const seen: string[] = []
   for (const reflection of all.filter(item => item.weekRef !== props.weekRef).slice(-8).reverse()) {
     for (const area of AREAS) {
@@ -530,9 +625,9 @@ onMounted(async () => {
 function go(index: number) {
   current.value = Math.max(0, Math.min(steps.value.length - 1, index))
   saved.value = false
-  if (current.value === 0) goToStep('review')
+  if (currentStepId.value === 'review') goToStep('review')
   else if (activeArea.value) goToStep(activeArea.value.key)
-  else if (current.value === 5) goToStep('anchors')
+  else if (currentStepId.value === 'anchors' || currentStepId.value === 'path') goToStep('anchors')
   else goToStep('journal')
 }
 
@@ -566,6 +661,48 @@ function removeTag(tag: string) {
   writeTags(
     area.key,
     tagsFor(area.key).filter(entry => entry !== tag),
+  )
+}
+
+function pathKeys(block: ReflectionPathBlock) {
+  return programReflectionKeys(block.enrollment.id)
+}
+function setPathAnswer(key: string, event: Event) {
+  promptResponses.value = { ...promptResponses.value, [key]: (event.target as HTMLTextAreaElement).value }
+  saved.value = false
+}
+function severityValue(block: ReflectionPathBlock): number | null {
+  const raw = Number(promptResponses.value[pathKeys(block).severity])
+  return Number.isInteger(raw) && raw >= 1 && raw <= 5 ? raw : null
+}
+function setSeverity(block: ReflectionPathBlock, value: number | null) {
+  const key = pathKeys(block).severity
+  const next = { ...promptResponses.value }
+  if (value === null) delete next[key]
+  else next[key] = String(value)
+  promptResponses.value = next
+  saved.value = false
+}
+/** Earlier answers of this enrollment, newest last (weeks without an answer are skipped). */
+function severityHistory(block: ReflectionPathBlock): number[] {
+  const startWeek = getPeriodRefsForDate(new Date(block.enrollment.startedAt)).week
+  return severitySeries(block.enrollment.id, pastReflections.value, startWeek)
+    .filter(point => point.weekRef < props.weekRef && point.value !== null)
+    .map(point => point.value as number)
+}
+function previousSeverity(block: ReflectionPathBlock): number | null {
+  return severityHistory(block).at(-1) ?? null
+}
+function severityHint(block: ReflectionPathBlock): string {
+  const history = severityHistory(block).slice(-3)
+  return history.length ? t('programs.week.severityHistory', { values: history.join(' · ') }) : ''
+}
+async function toggleStay(block: ReflectionPathBlock, stay: boolean) {
+  const updated = await setStayNextWeek(block.enrollment.id, props.weekRef, stay)
+  pathBlocks.value = pathBlocks.value.map(candidate =>
+    candidate.enrollment.id === block.enrollment.id
+      ? { ...candidate, enrollment: updated, entry: updated.weekLog?.find(entry => entry.weekRef === props.weekRef) }
+      : candidate,
   )
 }
 

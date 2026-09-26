@@ -16,6 +16,7 @@ import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { ProgramEnrollment } from '@/domain/program'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import {
+  type PracticeReconciliation,
   abandonEnrollment as abandonEnrollmentService,
   enrollInProgram as enrollInProgramService,
   pauseEnrollment as pauseEnrollmentService,
@@ -101,10 +102,17 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     for (const id of removedPlanIds) planStore.applyRemoval(id)
   }
 
+  function mirrorPractices(practices: PracticeReconciliation | undefined): void {
+    if (!practices) return
+    for (const item of practices.created) mirrorPlanItem(item)
+    mirrorRemovals(practices.removedPlanIds)
+  }
+
   async function enroll(programSlug: string): Promise<ProgramEnrollment> {
-    const { enrollment, planItem } = await enrollInProgramService(programSlug)
+    const { enrollment, planItem, practices } = await enrollInProgramService(programSlug)
     applyUpdate(enrollment)
     mirrorPlanItem(planItem)
+    mirrorPractices(practices)
     return enrollment
   }
 
@@ -116,9 +124,10 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
   }
 
   async function resume(id: string): Promise<ProgramEnrollment> {
-    const { enrollment, planItem } = await resumeEnrollmentService(id)
+    const { enrollment, planItem, practices } = await resumeEnrollmentService(id)
     applyUpdate(enrollment)
     mirrorPlanItem(planItem)
+    mirrorPractices(practices)
     return enrollment
   }
 
@@ -130,10 +139,11 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
   }
 
   async function skipStep(id: string): Promise<ProgramEnrollment> {
-    const { enrollment, skippedPlan, nextPlanItem } = await skipOptionalStepService(id)
+    const { enrollment, skippedPlan, nextPlanItem, practices } = await skipOptionalStepService(id)
     applyUpdate(enrollment)
     mirrorPlanItem(skippedPlan)
     mirrorPlanItem(nextPlanItem)
+    mirrorPractices(practices)
     return enrollment
   }
 

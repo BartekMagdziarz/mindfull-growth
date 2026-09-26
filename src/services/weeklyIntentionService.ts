@@ -20,6 +20,8 @@ export interface CreateWeeklyIntentionInput {
   multiDailyThreshold?: number
   /** Optional priorities this intention serves (links it to the monthly focus confrontation). */
   priorityIds?: string[]
+  /** Accepted from a program's weekly real-world task. */
+  programLink?: WeeklyIntention['programLink']
 }
 
 /**
@@ -61,6 +63,7 @@ export async function createWeeklyIntention(
     multiDailyThreshold: input.multiDailyThreshold,
     status: 'open',
     priorityIds: input.priorityIds ?? [],
+    ...(input.programLink ? { programLink: input.programLink } : {}),
   })
 
   await linkMeasurementPeriod({

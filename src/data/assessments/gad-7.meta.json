@@ -1,0 +1,84 @@
+{
+  "id": "gad-7",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.gad7.meta.title",
+  "subtitleKey": "assessments.gad7.meta.subtitle",
+  "descriptionKey": "assessments.gad7.meta.description",
+  "categoryKey": "assessments.gad7.meta.category",
+  "disclaimerKey": "assessments.gad7.meta.disclaimer",
+  "estimatedMinutes": 2,
+  "responseScale": {
+    "min": 0,
+    "max": 3,
+    "anchors": {
+      "0": "assessments.gad7.anchors.0",
+      "1": "assessments.gad7.anchors.1",
+      "2": "assessments.gad7.anchors.2",
+      "3": "assessments.gad7.anchors.3"
+    }
+  },
+  "items": [
+    { "id": "gad7_01", "textKey": "assessments.gad7.items.gad7_01", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
+    { "id": "gad7_02", "textKey": "assessments.gad7.items.gad7_02", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
+    { "id": "gad7_03", "textKey": "assessments.gad7.items.gad7_03", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
+    { "id": "gad7_04", "textKey": "assessments.gad7.items.gad7_04", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
+    { "id": "gad7_05", "textKey": "assessments.gad7.items.gad7_05", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
+    { "id": "gad7_06", "textKey": "assessments.gad7.items.gad7_06", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 },
+    { "id": "gad7_07", "textKey": "assessments.gad7.items.gad7_07", "scaleId": "total", "reverse": false, "responseMin": 0, "responseMax": 3 }
+  ],
+  "scales": [
+    {
+      "id": "total",
+      "labelKey": "assessments.gad7.scales.total",
+      "itemIds": [
+        "gad7_01",
+        "gad7_02",
+        "gad7_03",
+        "gad7_04",
+        "gad7_05",
+        "gad7_06",
+        "gad7_07"
+      ],
+      "minAnswered": 6
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "gad-7-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 2
+  },
+  "pageSize": 7,
+  "interpretationScale": "0-3",
+  "labelledResponses": true,
+  "sumScoring": {
+    "primaryScaleId": "total",
+    "bands": [
+      {
+        "id": "minimal",
+        "min": 0
+      },
+      {
+        "id": "mild",
+        "min": 5
+      },
+      {
+        "id": "moderate",
+        "min": 10
+      },
+      {
+        "id": "severe",
+        "min": 15
+      }
+    ],
+    "higherIsWorse": true,
+    "notice": {
+      "minTotal": 10,
+      "textKey": "assessments.gad7.notice"
+    }
+  }
+}

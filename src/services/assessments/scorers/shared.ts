@@ -2,6 +2,7 @@ import type {
   AssessmentDefinition,
   AssessmentItemDefinition,
   AssessmentResponse,
+  InterpretationScale,
   ScaleBand,
   ScaleScore,
 } from '@/domain/assessments'
@@ -32,9 +33,15 @@ export function applyReverse(
 
 export function deriveBand(
   value: number | null,
-  interpretationScale: '1-5' | '1-6' | '1-7' | '0-10',
+  interpretationScale: InterpretationScale,
 ): ScaleBand | undefined {
   if (value === null) return undefined
+
+  if (interpretationScale === '0-3') {
+    if (value < 1) return 'low'
+    if (value <= 2) return 'medium'
+    return 'high'
+  }
 
   if (interpretationScale === '1-5') {
     if (value < 2.5) return 'low'

@@ -34,10 +34,12 @@ import {
   getPeriodRefsForDate,
   getWeekOverlappingMonths,
 } from '@/utils/periods'
+import { assessmentsDexieRepository } from '@/repositories/assessmentsDexieRepository'
 import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
+import { gradedExposureHierarchyDexieRepository } from '@/repositories/exercisesDexieRepository'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
@@ -52,6 +54,7 @@ import { reflectionDexieRepository } from '@/repositories/reflectionDexieReposit
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDexieRepository'
+import { getAssessmentRegistryEntry } from '@/services/assessments/registry'
 import { hashPassword } from '@/services/crypto.service'
 import { saveDraftToDB } from '@/services/draftStorage'
 import { setMonthTopPriorities, setMonthlyPriorityAssessment } from '@/services/monthlyPriorityService'
@@ -1413,4 +1416,193 @@ export async function seedVerificationData(): Promise<void> {
   })
 
   console.log('[verificationSeed] Created 1 active program enrollment (ifs-parts, step 3/7)')
+
+  // ── 15b. Problem path mid-way: "Lęk: podejść zamiast unikać" ────────────────
+  // Steps 0–5 done (GAD-7 −16 … thought-record −4); step 6 (behavioral-
+  // experiment, minGapDays 4) is due TODAY. Practices: worry postponement
+  // daily with a history of ten evenings (the "still matters" slider falls)
+  // and yesterday's occurrence still pending (overdue by one day); paced
+  // breathing done today, next one in two days. Two closed weeks carry an
+  // accepted real-world task (weekly intention with programLink) and a
+  // weekly-reflection "Ścieżka" answer (severity 4 → 3); the current week
+  // has no decision, so the weekly plan shows a fresh proposal.
+  const anxietyStart = addDaysToDayRef(todayRef, -16)
+  const anxietyEnrollment = await programEnrollmentDexieRepository.create({
+    programSlug: 'anxiety-approach',
+    startedAt: `${anxietyStart}T12:00:00.000Z`,
+  })
+  const anxietyStepDays = [16, 16, 15, 13, 10, 4] as const
+  const anxietyStepSlugs = ['gad-7', 'ius-12', 'anxiety-map', 'worry-tree', 'cognitive-distortions', 'thought-record'] as const
+  for (const [index, slug] of anxietyStepSlugs.entries()) {
+    const dayRef = addDaysToDayRef(todayRef, -anxietyStepDays[index]!)
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: slug,
+      dayRef,
+      completedAt: `${dayRef}T12:00:00.000Z`,
+      source: 'plan',
+    })
+  }
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'behavioral-experiment',
+    dayRef: todayRef,
+    source: 'program',
+    sourceRef: anxietyEnrollment.id,
+    programRole: 'step',
+  })
+
+  // Worry postponement: ten handled evenings (skips on −9 and −5), yesterday pending.
+  const worryEvenings = [14, 13, 12, 11, 10, 8, 7, 6, 4, 2]
+  const stillMatters = [80, 80, 70, 70, 60, 60, 50, 50, 40, 40]
+  for (const [index, daysAgo] of worryEvenings.entries()) {
+    const dayRef = addDaysToDayRef(todayRef, -daysAgo)
+    const occurrence = await exercisePlanDexieRepository.create({
+      exerciseSlug: 'worry-postponement',
+      dayRef,
+      source: 'program',
+      sourceRef: anxietyEnrollment.id,
+      programRole: 'practice',
+    })
+    const entry = await microExerciseEntryDexieRepository.create({
+      exerciseSlug: 'worry-postponement',
+      createdAt: `${dayRef}T19:30:00.000Z`,
+      responses: {
+        worries: ['Czy zdążę z raportem', 'Rozmowa z szefem w czwartek', 'Wyniki badań'].slice(0, 1 + (index % 3)),
+        stillMatters: stillMatters[index]!,
+      },
+    })
+    await exercisePlanDexieRepository.update(occurrence.id, { status: 'done', recordId: entry.id })
+    await exerciseCompletionDexieRepository.create({
+      exerciseSlug: 'worry-postponement',
+      dayRef,
+      completedAt: `${dayRef}T19:30:00.000Z`,
+      recordId: entry.id,
+      source: 'plan',
+    })
+  }
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'worry-postponement',
+    dayRef: addDaysToDayRef(todayRef, -1),
+    source: 'program',
+    sourceRef: anxietyEnrollment.id,
+    programRole: 'practice',
+  })
+  const breathingToday = await exercisePlanDexieRepository.create({
+    exerciseSlug: 'paced-breathing',
+    dayRef: todayRef,
+    source: 'program',
+    sourceRef: anxietyEnrollment.id,
+    programRole: 'practice',
+  })
+  await exercisePlanDexieRepository.update(breathingToday.id, { status: 'done' })
+  await exercisePlanDexieRepository.create({
+    exerciseSlug: 'paced-breathing',
+    dayRef: addDaysToDayRef(todayRef, 2),
+    source: 'program',
+    sourceRef: anxietyEnrollment.id,
+    programRole: 'practice',
+  })
+
+  // Baseline GAD-7 (13/21, moderate) so the path shows "Na początku".
+  const gadEntry = getAssessmentRegistryEntry('gad-7')
+  const gadAttempt = await assessmentsDexieRepository.startAttempt({
+    assessmentId: 'gad-7',
+    instrumentVersion: gadEntry.definition.instrumentVersion,
+    language: 'pl',
+    scoringKeyVersion: gadEntry.definition.scoringKeyVersion,
+    missingDataPolicyVersion: gadEntry.definition.missingDataPolicy.id,
+    totalItems: gadEntry.definition.items.length,
+  })
+  const gadAnswers = [2, 2, 3, 2, 1, 2, 1]
+  const gadResponses = await assessmentsDexieRepository.bulkSaveResponses(
+    gadEntry.definition.items.map((item, index) => ({
+      attemptId: gadAttempt.id,
+      assessmentId: 'gad-7' as const,
+      itemId: item.id,
+      responseValue: gadAnswers[index]!,
+      reverseFlagAtTime: item.reverse,
+      scoringKeyVersion: gadEntry.definition.scoringKeyVersion,
+    })),
+  )
+  await assessmentsDexieRepository.completeAttempt(
+    gadAttempt.id,
+    gadEntry.scorer.score({ definition: gadEntry.definition, responses: gadResponses }),
+  )
+
+  await programEnrollmentDexieRepository.update(anxietyEnrollment.id, {
+    currentStepIndex: 6,
+    completedSteps: anxietyStepSlugs.map((_, index) => ({
+      stepIndex: index,
+      completedAt: `${addDaysToDayRef(todayRef, -anxietyStepDays[index]!)}T12:00:00.000Z`,
+    })),
+  })
+
+  // Two closed weeks with an accepted real-world task + reflection answers.
+  const pathWeeks = [
+    { daysAgo: 14, taskKey: 'noticeAvoidance', title: 'Zauważ sytuacje, w których coś omijasz albo się zabezpieczasz', times: 3, done: [13, 11], severity: '4' },
+    { daysAgo: 7, taskKey: 'predictionCheck', title: 'Zapisz przewidywanie przed trudną sytuacją i sprawdź je po niej', times: 2, done: [6, 4], severity: '3' },
+  ] as const
+  const weekLog = []
+  for (const week of pathWeeks) {
+    const weekRef = getPeriodRefsForDate(new Date(`${addDaysToDayRef(todayRef, -week.daysAgo)}T12:00:00`)).week
+    if (weekRef === refs.week) continue
+    const intention = await createWeeklyIntention({
+      weekRef,
+      title: week.title,
+      entryMode: 'completion',
+      target: { kind: 'count', operator: 'min', value: week.times },
+      programLink: { enrollmentId: anxietyEnrollment.id, taskKey: week.taskKey },
+    })
+    for (const daysAgo of week.done) {
+      const dayRef = addDaysToDayRef(todayRef, -daysAgo)
+      if (getPeriodRefsForDate(new Date(`${dayRef}T12:00:00`)).week !== weekRef) continue
+      await planningStateDexieRepository.upsertDailyMeasurementEntry({
+        subjectType: 'weeklyIntention',
+        subjectId: intention.id,
+        dayRef,
+        value: null,
+      })
+    }
+    weekLog.push({ weekRef, taskKey: week.taskKey, decision: 'accepted' as const, intentionId: intention.id })
+    const reflection = await structuredReflectionDexieRepository.getWeekly(weekRef)
+    if (reflection) {
+      await structuredReflectionDexieRepository.upsertWeekly({
+        weekRef,
+        promptResponses: {
+          ...reflection.promptResponses,
+          [`program.${anxietyEnrollment.id}.severity`]: week.severity,
+          [`program.${anxietyEnrollment.id}.outcome`]:
+            week.taskKey === 'noticeAvoidance'
+              ? 'Zauważyłem, że odkładam telefony i sprawdzam maile po kilka razy.'
+              : 'Przewidywałem katastrofę na spotkaniu. Było trudno, ale nikt nie zauważył mojego stresu.',
+          [`program.${anxietyEnrollment.id}.phase`]:
+            week.taskKey === 'noticeAvoidance' ? 'Najczęściej unikam telefonów do urzędów.' : 'Sprawdziły się może w jednej trzeciej.',
+        },
+      })
+    }
+  }
+  await programEnrollmentDexieRepository.update(anxietyEnrollment.id, { weekLog })
+
+  // An earlier fear ladder with a few attempts, so the attempt log and the
+  // "continue the ladder" mode (/exercises/graded-exposure?continue=latest)
+  // have something to show before the path reaches its exposure steps.
+  const attempt = (daysAgo: number, before: number, peak: number, after: number) => ({
+    id: crypto.randomUUID(),
+    date: addDaysToDayRef(todayRef, -daysAgo),
+    anxietyBefore: before,
+    anxietyPeak: peak,
+    anxietyAfter: after,
+    duration: 15,
+  })
+  await gradedExposureHierarchyDexieRepository.create({
+    fearTarget: 'Telefony do urzędów i obcych osób',
+    ultimateGoal: 'Załatwiać sprawy telefonicznie bez odkładania',
+    safetyBehaviors: ['Scenariusz rozmowy na kartce', 'Sprawdzanie godzin kilka razy', 'Proszenie kogoś, żeby zadzwonił'],
+    items: [
+      { id: crypto.randomUUID(), situation: 'Zadzwonić do apteki z pytaniem o lek', sudsRating: 30, completed: true, attempts: [attempt(20, 35, 40, 15), attempt(18, 25, 30, 10)] },
+      { id: crypto.randomUUID(), situation: 'Umówić wizytę u lekarza przez telefon', sudsRating: 50, completed: false, attempts: [attempt(12, 55, 65, 35)] },
+      { id: crypto.randomUUID(), situation: 'Zadzwonić do urzędu w sprawie wniosku', sudsRating: 75, completed: false, attempts: [] },
+    ],
+  })
+
+  console.log('[verificationSeed] Created 1 problem-path enrollment (anxiety-approach, step 7/15, 2 practices)')
 }

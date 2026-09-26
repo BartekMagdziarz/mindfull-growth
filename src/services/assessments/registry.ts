@@ -9,6 +9,10 @@ import erqMeta from '@/data/assessments/erq.meta.json'
 import ecrRsMeta from '@/data/assessments/ecr-rs.meta.json'
 import rrqMeta from '@/data/assessments/rrq.meta.json'
 import ipipViaMeta from '@/data/assessments/ipip-via.meta.json'
+import gad7Meta from '@/data/assessments/gad-7.meta.json'
+import scsSfMeta from '@/data/assessments/scs-sf.meta.json'
+import angerBarometerMeta from '@/data/assessments/anger-barometer.meta.json'
+import ius12Meta from '@/data/assessments/ius-12.meta.json'
 import { ipipBfm50Scorer } from './scorers/ipipBfm50.scorer'
 import { ipipNeo120Scorer } from './scorers/ipipNeo120.scorer'
 import { hexaco60Scorer } from './scorers/hexaco60.scorer'
@@ -18,6 +22,8 @@ import { erqScorer } from './scorers/erq.scorer'
 import { ecrRsScorer } from './scorers/ecrRs.scorer'
 import { rrqScorer } from './scorers/rrq.scorer'
 import { ipipViaScorer } from './scorers/ipipVia.scorer'
+import { scsSfScorer } from './scorers/likertMean.scorer'
+import { sumScorer } from './scorers/sum.scorer'
 
 export interface AssessmentRegistryEntry {
   definition: AssessmentDefinition
@@ -75,6 +81,24 @@ const assessmentRegistry: Record<AssessmentId, AssessmentRegistryEntry> = {
   'ipip-via': {
     definition: IPIP_VIA_DEFINITION,
     scorer: ipipViaScorer,
+  },
+  // Problem-path instruments (anger · shame · anxiety). Symptom scales use
+  // sum scoring with named bands; SCS-SF is a plain 1–5 mean.
+  'gad-7': {
+    definition: gad7Meta as AssessmentDefinition,
+    scorer: sumScorer,
+  },
+  'scs-sf': {
+    definition: scsSfMeta as AssessmentDefinition,
+    scorer: scsSfScorer,
+  },
+  'anger-barometer': {
+    definition: angerBarometerMeta as AssessmentDefinition,
+    scorer: sumScorer,
+  },
+  'ius-12': {
+    definition: ius12Meta as AssessmentDefinition,
+    scorer: sumScorer,
   },
 }
 

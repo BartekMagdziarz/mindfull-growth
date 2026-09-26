@@ -5,7 +5,7 @@ import type { DayRef } from '@/domain/period'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { recordCompletion } from '@/services/exerciseCompletionService'
 import { autoCompleteFor } from '@/services/exercisePlanService'
-import { advanceEnrollmentForPlan } from '@/services/programSchedulerService'
+import { advanceEnrollmentForPlan, advancePracticeForPlan } from '@/services/programSchedulerService'
 
 vi.mock('@/repositories/exerciseCompletionDexieRepository', () => ({
   exerciseCompletionDexieRepository: {
@@ -22,6 +22,8 @@ vi.mock('@/services/exercisePlanService', () => ({
 
 vi.mock('@/services/programSchedulerService', () => ({
   advanceEnrollmentForPlan: vi.fn(async () => null),
+  advancePracticeForPlan: vi.fn(async () => null),
+  isPracticeItem: (item: ExercisePlanItem) => item.programRole === 'practice',
 }))
 
 const completedPlanFixture: ExercisePlanItem = {
@@ -126,6 +128,25 @@ describe('recordCompletion', () => {
 
     expect(vi.mocked(advanceEnrollmentForPlan).mock.calls[0]?.[0]).toEqual(programPlan)
     expect(result.programAdvancement).toEqual(advancement)
+  })
+
+  it('schedules the next practice occurrence instead of advancing the step', async () => {
+    vi.setSystemTime(new Date(2026, 5, 1, 12, 0, 0))
+    const practicePlan: ExercisePlanItem = {
+      ...completedPlanFixture,
+      source: 'program',
+      sourceRef: 'enrollment-1',
+      programRole: 'practice',
+    }
+    const reconciliation = { created: [{ ...practicePlan, id: 'plan-next', status: 'pending' as const }], removedPlanIds: [] }
+    vi.mocked(autoCompleteFor).mockResolvedValueOnce(practicePlan)
+    vi.mocked(advancePracticeForPlan).mockResolvedValueOnce(reconciliation)
+
+    const result = await recordCompletion('worry-tree', 'record-1')
+
+    expect(advanceEnrollmentForPlan).not.toHaveBeenCalled()
+    expect(result.programAdvancement).toBeNull()
+    expect(result.practiceReconciliation).toEqual(reconciliation)
   })
 
   it('does not touch program advancement for non-program plans', async () => {

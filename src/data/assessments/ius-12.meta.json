@@ -1,0 +1,100 @@
+{
+  "id": "ius-12",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.ius12.meta.title",
+  "subtitleKey": "assessments.ius12.meta.subtitle",
+  "descriptionKey": "assessments.ius12.meta.description",
+  "categoryKey": "assessments.ius12.meta.category",
+  "disclaimerKey": "assessments.ius12.meta.disclaimer",
+  "estimatedMinutes": 3,
+  "responseScale": {
+    "min": 1,
+    "max": 5,
+    "anchors": {
+      "1": "assessments.ius12.anchors.1",
+      "2": "assessments.ius12.anchors.2",
+      "3": "assessments.ius12.anchors.3",
+      "4": "assessments.ius12.anchors.4",
+      "5": "assessments.ius12.anchors.5"
+    }
+  },
+  "items": [
+    { "id": "ius_01", "textKey": "assessments.ius12.items.ius_01", "scaleId": "prospective", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_02", "textKey": "assessments.ius12.items.ius_02", "scaleId": "prospective", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_03", "textKey": "assessments.ius12.items.ius_03", "scaleId": "inhibitory", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_04", "textKey": "assessments.ius12.items.ius_04", "scaleId": "prospective", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_05", "textKey": "assessments.ius12.items.ius_05", "scaleId": "prospective", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_06", "textKey": "assessments.ius12.items.ius_06", "scaleId": "inhibitory", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_07", "textKey": "assessments.ius12.items.ius_07", "scaleId": "inhibitory", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_08", "textKey": "assessments.ius12.items.ius_08", "scaleId": "prospective", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_09", "textKey": "assessments.ius12.items.ius_09", "scaleId": "prospective", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_10", "textKey": "assessments.ius12.items.ius_10", "scaleId": "inhibitory", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_11", "textKey": "assessments.ius12.items.ius_11", "scaleId": "prospective", "reverse": false, "responseMin": 1, "responseMax": 5 },
+    { "id": "ius_12", "textKey": "assessments.ius12.items.ius_12", "scaleId": "inhibitory", "reverse": false, "responseMin": 1, "responseMax": 5 }
+  ],
+  "scales": [
+    {
+      "id": "total",
+      "labelKey": "assessments.ius12.scales.total",
+      "itemIds": [
+        "ius_01",
+        "ius_02",
+        "ius_03",
+        "ius_04",
+        "ius_05",
+        "ius_06",
+        "ius_07",
+        "ius_08",
+        "ius_09",
+        "ius_10",
+        "ius_11",
+        "ius_12"
+      ],
+      "minAnswered": 10
+    },
+    {
+      "id": "prospective",
+      "labelKey": "assessments.ius12.scales.prospective",
+      "itemIds": [
+        "ius_01",
+        "ius_02",
+        "ius_04",
+        "ius_05",
+        "ius_08",
+        "ius_09",
+        "ius_11"
+      ],
+      "minAnswered": 6
+    },
+    {
+      "id": "inhibitory",
+      "labelKey": "assessments.ius12.scales.inhibitory",
+      "itemIds": [
+        "ius_03",
+        "ius_06",
+        "ius_07",
+        "ius_10",
+        "ius_12"
+      ],
+      "minAnswered": 4
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "ius-12-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 8
+  },
+  "pageSize": 12,
+  "interpretationScale": "1-5",
+  "labelledResponses": true,
+  "sumScoring": {
+    "primaryScaleId": "total",
+    "bands": [],
+    "higherIsWorse": true
+  }
+}

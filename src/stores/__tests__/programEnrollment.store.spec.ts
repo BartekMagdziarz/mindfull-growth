@@ -123,12 +123,17 @@ describe('useProgramEnrollmentStore', () => {
     vi.mocked(enrollInProgram).mockResolvedValueOnce({
       enrollment: enrollment({ id: 'enr-new' }),
       planItem: planItem({ id: 'plan-new', sourceRef: 'enr-new' }),
+      practices: {
+        created: [planItem({ id: 'plan-practice', sourceRef: 'enr-new', programRole: 'practice' })],
+        removedPlanIds: [],
+      },
     })
 
     await store.enroll('ifs-parts')
 
     expect(store.enrollments.map((e) => e.id)).toContain('enr-new')
     expect(planStore.items.map((i) => i.id)).toContain('plan-new')
+    expect(planStore.items.map((i) => i.id)).toContain('plan-practice')
   })
 
   it('pause applies the plan-item removals to the plan store', async () => {

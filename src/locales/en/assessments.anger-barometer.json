@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "title": "Anger Barometer",
+    "subtitle": "A rough measure of anger over the last 4 weeks.",
+    "description": "Five questions about how often and how strongly anger showed up, how long it lasted, whether it turned aggressive and whether it hurt relationships. Score from 5 to 25. This is the app's own rough measure, not a validated instrument. It's meant for comparing yourself with yourself over time.",
+    "category": "Anger",
+    "disclaimer": "This tool supports self-reflection and tracking change. It does not diagnose and does not replace a consultation with a professional."
+  },
+  "consent": {
+    "title": "Consent and disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I agree to store my results locally on this device."
+  },
+  "scales": {
+    "total": "Anger severity"
+  },
+  "anchors": {
+    "1": "Not at all",
+    "2": "Rather not",
+    "3": "Somewhat",
+    "4": "Rather yes",
+    "5": "Definitely"
+  },
+  "bands": {
+    "low": "Low",
+    "elevated": "Elevated",
+    "high": "High"
+  },
+  "interpretation": {
+    "low": "Anger rarely caused you trouble over the last weeks.",
+    "elevated": "Anger came often or strongly enough to have a cost. It's worth looking at what triggers it.",
+    "high": "Anger was frequent, strong or hurt relationships. It's worth giving it attention and considering professional support."
+  },
+  "notice": "If anger turns into violence or someone feels unsafe around you, look for professional help. The app can support work on anger, but it can't replace that.",
+  "items": {
+    "anger_01": "Over the last 4 weeks, anger showed up often.",
+    "anger_02": "My anger could get very strong.",
+    "anger_03": "Anger lingered for a long time, even after the situation was over.",
+    "anger_04": "I sometimes expressed anger in ways that hurt others or damaged things (shouting, insults, slamming).",
+    "anger_05": "Anger harmed my relationships with loved ones, at work or with other people."
+  }
+}

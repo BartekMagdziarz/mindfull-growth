@@ -2207,3 +2207,110 @@
   align-items: start;
   align-content: start;
 }
+
+/* Program path proposal (weekly real-world task) in the week focus step.
+   Same anatomy as a focus choice: field tone, organic radius, no stripe. */
+.qr-path-proposals {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.qr-path-card {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 17px 21px 16px 19px;
+  background: var(--qr-field);
+  border: 1px solid transparent;
+}
+.qr-path-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--qr-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.qr-path-card__head .material-symbols-outlined,
+.qr-path-card__head svg {
+  color: var(--qr-accent);
+}
+.qr-path-card__title {
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.35;
+  color: var(--qr-ink);
+}
+.qr-path-card__why,
+.qr-path-card__meta {
+  margin: 0;
+  color: var(--qr-muted);
+  font-size: 13px;
+}
+.qr-path-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* Weekly reflection "Ścieżka" step: one field-tone block per program; the
+   task line and the text fields sit one step whiter (inner). */
+.qr-path-step {
+  display: grid;
+  gap: 16px;
+}
+.qr-path-block {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 19px 22px 16px 21px;
+  background: var(--qr-field);
+}
+.qr-path-block__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--qr-ink);
+}
+.qr-path-block__head .material-symbols-outlined,
+.qr-path-block__head svg {
+  color: var(--qr-accent);
+}
+.qr-path-block__head span {
+  color: var(--qr-muted);
+}
+.qr-path-block__task {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 14px;
+  border-radius: 12px 15px 11px 14px;
+  background: var(--qr-inner);
+}
+.qr-path-block__task-title {
+  font-weight: 700;
+  color: var(--qr-ink);
+}
+.qr-path-block__task-count,
+.qr-path-block__task-muted {
+  font-size: 13px;
+  color: var(--qr-muted);
+}
+.qr-path-block__field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--qr-muted);
+}
+.qr-path-block__stay {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--qr-ink);
+}

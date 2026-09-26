@@ -3,7 +3,7 @@
     <!-- Step indicator dots -->
     <div class="flex items-center justify-center gap-2 mb-2">
       <span
-        v-for="(step, idx) in definition.steps"
+        v-for="(step, idx) in steps"
         :key="step.key"
         class="w-2.5 h-2.5 rounded-full transition-all duration-200"
         :class="
@@ -25,13 +25,14 @@
       leave-to-class="opacity-0"
     >
       <div :key="currentStep.key" class="space-y-4">
-        <AppCard padding="lg" class="space-y-4">
+        <AppCard padding="lg" class="space-y-4" :style="cardStyle">
           <h2 class="text-lg font-semibold text-on-surface">
             {{ tg(stepKey(currentStep, 'title')) }}
           </h2>
           <p class="text-sm text-on-surface-variant">
             {{ tg(stepKey(currentStep, 'description')) }}
           </p>
+          <ExerciseStepWhy :text="optionalText(stepKey(currentStep, 'why'))" />
 
           <textarea
             v-if="currentStep.type === 'textarea'"
@@ -53,13 +54,11 @@
           </div>
 
           <div v-else-if="currentStep.type === 'slider'" class="space-y-2">
-            <input
-              v-model.number="sliderValues[currentStep.key]"
-              type="range"
+            <ExerciseRangeInput
+              v-model="sliderValues[currentStep.key]!"
               :min="currentStep.min"
               :max="currentStep.max"
               :step="currentStep.step ?? 1"
-              class="neo-focus w-full accent-primary"
             />
             <div class="flex items-center justify-between text-xs text-on-surface-variant">
               <span>{{ tg(stepKey(currentStep, 'minLabel')) }}</span>
@@ -70,37 +69,41 @@
             </div>
           </div>
 
-          <div v-else-if="currentStep.type === 'emotionPick'" class="space-y-4">
-            <EmotionSelector
-              v-model="emotionStates[currentStep.key]!.ids"
-              v-model:quadrant="emotionStates[currentStep.key]!.quadrant"
-              :show-selected-section="true"
-            />
-            <div v-if="emotionStates[currentStep.key]!.ids.length > 0" class="space-y-2">
-              <label class="text-sm font-medium text-on-surface">
-                {{
-                  t('exerciseWizards.micro.shared.intensityLabel', {
-                    value: emotionStates[currentStep.key]!.intensity,
-                  })
-                }}
-              </label>
-              <input
-                v-model.number="emotionStates[currentStep.key]!.intensity"
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                class="neo-focus w-full accent-primary"
-              />
-            </div>
+          <EmotionGroupPicker
+            v-else-if="currentStep.type === 'emotionPick'"
+            v-model="emotionStates[currentStep.key]!.selections"
+            v-model:quadrant="emotionStates[currentStep.key]!.quadrant"
+          />
+
+          <div
+            v-else-if="currentStep.type === 'choice'"
+            class="micro-choice"
+            :role="currentStep.multiple ? 'group' : 'radiogroup'"
+            :aria-label="tg(stepKey(currentStep, 'title'))"
+          >
+            <button
+              v-for="option in currentStep.options"
+              :key="option"
+              type="button"
+              class="mg-v2-pill micro-choice__option"
+              :class="{ 'mg-v2-pill--primary mg-v2-pill--selected': isChosen(currentStep.key, option) }"
+              :role="currentStep.multiple ? undefined : 'radio'"
+              :aria-pressed="currentStep.multiple ? isChosen(currentStep.key, option) : undefined"
+              :aria-checked="currentStep.multiple ? undefined : isChosen(currentStep.key, option)"
+              @click="toggleChoice(currentStep, option)"
+            >
+              {{ tg(stepKey(currentStep, `options.${option}`)) }}
+            </button>
           </div>
 
           <MicroBreathTimer
             v-else-if="currentStep.type === 'breathTimer'"
             :phase-seconds="currentStep.phaseSeconds"
             :total-seconds="currentStep.totalSeconds"
+            :storage-key="`${definition.slug}:${currentStep.key}`"
+            @started="Object.assign(breathStates[currentStep.key]!, $event)"
             @progress="breathStates[currentStep.key]!.elapsed = $event"
-            @done="breathStates[currentStep.key]!.done = true"
+            @done="Object.assign(breathStates[currentStep.key]!, { done: true, elapsed: $event })"
           />
         </AppCard>
 
@@ -122,15 +125,19 @@
 import { computed, reactive, ref } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
-import EmotionSelector from '@/components/EmotionSelector.vue'
+import EmotionGroupPicker from '@/components/emotion/EmotionGroupPicker.vue'
+import ExerciseRangeInput from '@/components/exercises/ExerciseRangeInput.vue'
+import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import MicroBreathTimer from '@/components/exercises/MicroBreathTimer.vue'
 import { useT } from '@/composables/useT'
-import type { Quadrant } from '@/domain/emotion'
+import { getQuadrantTintStyle, type Quadrant } from '@/domain/emotion'
+import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import type {
   MicroExerciseDefinition,
   MicroExerciseStep,
   MicroStepValue,
 } from '@/domain/microExercises'
+import { hasStepsAfter, type MicroChoiceAnswers, visibleMicroSteps } from '@/utils/microExerciseFlow'
 
 // The runner never persists — the host view owns persistence (same
 // contract as the bespoke wizards' @saved).
@@ -143,11 +150,15 @@ const emit = defineEmits<{
 const { t, tg } = useT()
 
 const stepIndex = ref(0)
-const currentStep = computed(() => props.definition.steps[stepIndex.value]!)
-const isLastStep = computed(() => stepIndex.value === props.definition.steps.length - 1)
 
 function stepKey(step: MicroExerciseStep, field: string): string {
   return `exerciseWizards.micro.${props.definition.i18nKey}.${step.key}.${field}`
+}
+
+/** Copy that a step may omit (e.g. `why`): '' when the key is missing. */
+function optionalText(key: string): string {
+  const value = tg(key)
+  return value === key ? '' : value
 }
 
 // Working state per step type, keyed by step key. The host remounts the
@@ -155,10 +166,25 @@ function stepKey(step: MicroExerciseStep, field: string): string {
 const textValues = reactive<Record<string, string>>({})
 const listValues = reactive<Record<string, string[]>>({})
 const sliderValues = reactive<Record<string, number>>({})
+// Group picker as in the emotion log: group slug + optional 1–5 intensity.
 const emotionStates = reactive<
-  Record<string, { ids: string[]; quadrant: Quadrant | null; intensity: number }>
+  Record<string, { selections: EmotionGroupSelection[]; quadrant: Quadrant | null }>
 >({})
-const breathStates = reactive<Record<string, { elapsed: number; done: boolean }>>({})
+// The timer reports the rhythm the user started with (it may differ from
+// the step's defaults) and the seconds actually breathed.
+const breathStates = reactive<
+  Record<
+    string,
+    {
+      elapsed: number
+      done: boolean
+      phaseSeconds?: [number, number, number, number]
+      totalSeconds?: number
+    }
+  >
+>({})
+/** Single choice: '' until answered; multiple choice: picked ids. */
+const choiceValues = reactive<Record<string, string | string[]>>({})
 
 for (const step of props.definition.steps) {
   switch (step.type) {
@@ -172,14 +198,60 @@ for (const step of props.definition.steps) {
       sliderValues[step.key] = Math.round((step.min + step.max) / 2)
       break
     case 'emotionPick':
-      emotionStates[step.key] = { ids: [], quadrant: null, intensity: 50 }
+      emotionStates[step.key] = { selections: [], quadrant: null }
       break
     case 'breathTimer':
       breathStates[step.key] = { elapsed: 0, done: false }
       break
+    case 'choice':
+      choiceValues[step.key] = step.multiple ? [] : ''
+      break
     case 'info':
       break
   }
+}
+
+// Only steps whose `showWhen` matches the current choices take part in the
+// flow — dots, validation and saved responses all follow this list. A
+// condition always points at an earlier step, so answering the current
+// step never reshuffles the steps before it.
+const choiceAnswers = computed<MicroChoiceAnswers>(() => {
+  const answers: MicroChoiceAnswers = {}
+  for (const [key, value] of Object.entries(choiceValues)) {
+    answers[key] = value === '' ? undefined : value
+  }
+  return answers
+})
+const steps = computed(() => visibleMicroSteps(props.definition.steps, choiceAnswers.value))
+const currentStep = computed(
+  () => steps.value[Math.min(stepIndex.value, steps.value.length - 1)]!,
+)
+/** An open quadrant tints the card, as in the emotion log editor. */
+const cardStyle = computed(() => {
+  const step = currentStep.value
+  return step.type === 'emotionPick'
+    ? getQuadrantTintStyle(emotionStates[step.key]?.quadrant ?? null)
+    : undefined
+})
+const isLastStep = computed(
+  () => !hasStepsAfter(props.definition.steps, currentStep.value.key, choiceAnswers.value),
+)
+
+function isChosen(key: string, option: string): boolean {
+  const value = choiceValues[key]
+  return Array.isArray(value) ? value.includes(option) : value === option
+}
+
+function toggleChoice(step: MicroExerciseStep, option: string): void {
+  if (step.type !== 'choice') return
+  const value = choiceValues[step.key]
+  if (Array.isArray(value)) {
+    choiceValues[step.key] = value.includes(option)
+      ? value.filter((picked) => picked !== option)
+      : [...value, option]
+    return
+  }
+  choiceValues[step.key] = option
 }
 
 const canAdvance = computed(() => {
@@ -194,7 +266,11 @@ const canAdvance = computed(() => {
     case 'textList':
       return (listValues[step.key] ?? []).some((value) => value.trim().length > 0)
     case 'emotionPick':
-      return (emotionStates[step.key]?.ids.length ?? 0) > 0
+      return (emotionStates[step.key]?.selections.length ?? 0) > 0
+    case 'choice': {
+      const value = choiceValues[step.key]
+      return Array.isArray(value) ? value.length > 0 : Boolean(value)
+    }
     case 'breathTimer': {
       const state = breathStates[step.key]
       // A meaningful stretch of breathing counts even if the full timer
@@ -206,7 +282,9 @@ const canAdvance = computed(() => {
 
 function buildResponses(): Record<string, MicroStepValue> {
   const responses: Record<string, MicroStepValue> = {}
-  for (const step of props.definition.steps) {
+  // Hidden branches are dropped even if the user typed into them before
+  // changing an earlier answer.
+  for (const step of steps.value) {
     switch (step.type) {
       case 'info':
         break
@@ -227,18 +305,26 @@ function buildResponses(): Record<string, MicroStepValue> {
         break
       case 'emotionPick': {
         const state = emotionStates[step.key]
-        if (state && state.ids.length > 0) {
-          responses[step.key] = state.ids.map((emotionId) => ({
-            emotionId,
-            intensity: state.intensity,
-          }))
+        if (state && state.selections.length > 0) {
+          responses[step.key] = state.selections.map((selection) => ({ ...selection }))
+        }
+        break
+      }
+      case 'choice': {
+        const value = choiceValues[step.key]
+        if (Array.isArray(value) ? value.length > 0 : value) {
+          responses[step.key] = Array.isArray(value) ? [...value] : value
         }
         break
       }
       case 'breathTimer': {
         const state = breathStates[step.key]
         responses[step.key] = {
-          completedSeconds: state?.done ? step.totalSeconds : (state?.elapsed ?? 0),
+          completedSeconds: state?.elapsed ?? 0,
+          ...(state?.phaseSeconds && {
+            phaseSeconds: [...state.phaseSeconds] as [number, number, number, number],
+            totalSeconds: state.totalSeconds,
+          }),
         }
         break
       }
@@ -255,3 +341,27 @@ function advance(): void {
   stepIndex.value += 1
 }
 </script>
+
+<style scoped>
+.micro-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mg-space-2);
+}
+
+/* Answer chips are the product pill, one size up so a whole answer reads well. */
+.micro-choice__option {
+  min-height: 2.25rem;
+  padding: 0 var(--mg-space-4);
+  font-size: var(--mg-font-size-sm);
+  cursor: pointer;
+}
+
+.micro-choice__option:not(.mg-v2-pill--selected) {
+  color: var(--mg-color-ink);
+}
+
+.micro-choice__option:not(.mg-v2-pill--selected):hover {
+  background: var(--mg-color-paper);
+}
+</style>

@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "title": "Niepokój (GAD-7)",
+    "subtitle": "Jak często w ostatnich 2 tygodniach dokuczał ci niepokój.",
+    "description": "Siedem pytań o niepokój i zamartwianie się. Przy każdym zaznacz, jak często w ciągu ostatnich dwóch tygodni dany problem ci dokuczał. Wynik od 0 do 21 pomaga śledzić zmianę w czasie. Tłumaczenie robocze kwestionariusza GAD-7 (Spitzer i in., 2006), który można swobodnie wykorzystywać.",
+    "category": "Lęk",
+    "disclaimer": "To narzędzie wspiera autorefleksję i śledzenie zmian. Nie stawia diagnozy i nie zastępuje konsultacji ze specjalistą."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "total": "Nasilenie niepokoju"
+  },
+  "anchors": {
+    "0": "Wcale",
+    "1": "Kilka dni",
+    "2": "Ponad połowę dni",
+    "3": "Prawie codziennie"
+  },
+  "bands": {
+    "minimal": "Minimalne",
+    "mild": "Łagodne",
+    "moderate": "Umiarkowane",
+    "severe": "Nasilone"
+  },
+  "interpretation": {
+    "minimal": "Niepokój w ostatnich tygodniach był niewielki.",
+    "mild": "Niepokój był odczuwalny, ale łagodny. Warto obserwować, jak zmienia się w kolejnych tygodniach.",
+    "moderate": "Niepokój był wyraźny i prawdopodobnie utrudniał codzienne funkcjonowanie.",
+    "severe": "Niepokój był silny i najpewniej mocno wpływał na codzienne życie."
+  },
+  "notice": "Wynik 10 lub wyższy często oznacza, że warto porozmawiać o niepokoju z psychologiem, psychoterapeutą albo lekarzem. Ćwiczenia w aplikacji mogą to wspierać, ale nie zastąpią takiej rozmowy. Jeśli myślisz o zrobieniu sobie krzywdy, zadzwoń pod 116 123 (telefon zaufania dla dorosłych) albo 112.",
+  "items": {
+    "gad7_01": "Uczucie zdenerwowania, niepokoju lub napięcia",
+    "gad7_02": "Niemożność powstrzymania albo kontrolowania zamartwiania się",
+    "gad7_03": "Nadmierne zamartwianie się różnymi sprawami",
+    "gad7_04": "Trudność z odprężeniem się",
+    "gad7_05": "Taki niepokój ruchowy, że trudno usiedzieć w miejscu",
+    "gad7_06": "Łatwe irytowanie się albo rozdrażnienie",
+    "gad7_07": "Lęk, że może wydarzyć się coś strasznego"
+  }
+}

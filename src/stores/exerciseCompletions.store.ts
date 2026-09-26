@@ -69,10 +69,8 @@ export const useExerciseCompletionsStore = defineStore('exerciseCompletions', ()
    * failure never breaks the exercise save itself.
    */
   async function record(slug: string, recordId?: string): Promise<ExerciseCompletion> {
-    const { completion, completedPlan, programAdvancement } = await recordCompletion(
-      slug,
-      recordId,
-    )
+    const { completion, completedPlan, programAdvancement, practiceReconciliation } =
+      await recordCompletion(slug, recordId)
     completions.value.push(completion)
     // Mirror an auto-completed plan into its store so the Today tile
     // reacts without a reload (design §4.4).
@@ -84,6 +82,14 @@ export const useExerciseCompletionsStore = defineStore('exerciseCompletions', ()
       if (programAdvancement.nextPlanItem) {
         useExercisePlanStore().applyUpdate(programAdvancement.nextPlanItem)
       }
+    }
+    // Practices: the next occurrence, or occurrences whose window just
+    // opened / closed with the advanced step.
+    for (const practices of [programAdvancement?.practices, practiceReconciliation]) {
+      if (!practices) continue
+      const planStore = useExercisePlanStore()
+      for (const item of practices.created) planStore.applyUpdate(item)
+      for (const id of practices.removedPlanIds) planStore.applyRemoval(id)
     }
     return completion
   }

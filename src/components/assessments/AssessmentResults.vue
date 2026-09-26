@@ -29,7 +29,40 @@
       </button>
     </AppCard>
 
-    <template v-if="computation && computation.computedScales.length > 0">
+    <template v-if="computation && computation.computedScales.length > 0 && definition.sumScoring">
+      <AppCard
+        v-for="score in computation.computedScales"
+        :key="score.scaleId"
+        padding="lg"
+        class="space-y-2"
+      >
+        <div class="flex items-start justify-between gap-3">
+          <h4 class="text-base font-semibold text-on-surface">{{ t(score.labelKey) }}</h4>
+          <span v-if="sumBandId(score)" class="mg-v2-pill">
+            {{ t(`${interpretationPrefix}.bands.${sumBandId(score)}`) }}
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <p class="text-on-surface-variant">{{ t('assessments.common.results.total') }}</p>
+          <p class="font-semibold text-on-surface text-right">
+            {{ sumTotalLabel(score) }}
+          </p>
+          <p v-if="score.deltaFromPrevious !== undefined" class="text-on-surface-variant col-span-2">
+            {{ t('assessments.common.results.deltaTotal', { delta: formatIntDelta(score.deltaFromPrevious) }) }}
+          </p>
+        </div>
+        <p v-if="sumBandId(score) && interpretationTextFor(sumBandId(score)!)" class="text-xs text-on-surface-variant">
+          {{ interpretationTextFor(sumBandId(score)!) }}
+        </p>
+      </AppCard>
+      <AppCard v-if="sumNotice" padding="lg">
+        <div class="assessment-notice">
+          <AppIcon name="info" class="assessment-notice__icon" />
+          <p class="text-sm text-on-surface">{{ t(sumNotice) }}</p>
+        </div>
+      </AppCard>
+    </template>
+    <template v-else-if="computation && computation.computedScales.length > 0">
       <AppCard
         v-for="score in computation.computedScales"
         :key="score.scaleId"
@@ -39,7 +72,7 @@
         <div class="flex items-start justify-between gap-3">
           <h4 class="text-base font-semibold text-on-surface">{{ t(score.labelKey) }}</h4>
           <span class="neo-pill px-2 py-1 text-xs font-semibold" :class="bandClass(score.band)">
-            {{ score.band ?? '-' }}
+            {{ score.band ? t(`assessments.common.results.bandLabels.${score.band}`) : '-' }}
           </span>
         </div>
 
@@ -127,6 +160,7 @@
 import { computed } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
 import type { AssessmentComputation, AssessmentDefinition, ScaleBand, ScaleScore } from '@/domain/assessments'
 import { useT } from '@/composables/useT'
@@ -166,12 +200,42 @@ const interpretationPrefix = computed(() => {
 })
 
 function interpretationText(band: ScaleBand | undefined): string {
-  if (!band || !interpretationPrefix.value) return ''
+  if (!band) return ''
+  return interpretationTextFor(band)
+}
 
-  const key = `${interpretationPrefix.value}.interpretation.${band}`
+function interpretationTextFor(bandId: string): string {
+  if (!interpretationPrefix.value) return ''
+  const key = `${interpretationPrefix.value}.interpretation.${bandId}`
   const value = t(key)
   return value === key ? '' : value
 }
+
+/** Sum-scored instruments: the band lives on the primary scale's details. */
+function sumBandId(score: ScaleScore): string | undefined {
+  const bandId = score.details?.bandId
+  return typeof bandId === 'string' ? bandId : undefined
+}
+
+function sumTotalLabel(score: ScaleScore): string {
+  const total = asNumber(score.details?.total)
+  const max = asNumber(score.details?.maxTotal)
+  if (total === null || max === null) return '-'
+  return t('assessments.common.results.totalValue', { total, max })
+}
+
+function formatIntDelta(value: number): string {
+  const rounded = Math.round(value)
+  return `${rounded > 0 ? '+' : ''}${rounded}`
+}
+
+const sumNotice = computed(() => {
+  const config = props.definition.sumScoring
+  if (!config?.notice || !props.computation) return null
+  const primary = props.computation.computedScales.find((s) => s.scaleId === config.primaryScaleId)
+  const total = asNumber(primary?.details?.total)
+  return total !== null && total >= config.notice.minTotal ? config.notice.textKey : null
+})
 
 function scaleLabel(scaleId: string): string {
   return scaleLabelById.value.get(scaleId) ?? scaleId
@@ -215,3 +279,21 @@ function hasVlqDetails(score: ScaleScore): boolean {
   )
 }
 </script>
+
+<style scoped>
+.assessment-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mg-space-3);
+}
+
+.assessment-notice p {
+  margin: 0;
+}
+
+.assessment-notice__icon {
+  flex-shrink: 0;
+  color: var(--mg-color-primary);
+  font-size: 1.25rem;
+}
+</style>

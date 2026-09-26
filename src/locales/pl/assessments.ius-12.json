@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "title": "Nietolerancja niepewności (IUS-12)",
+    "subtitle": "Jak trudno znosisz to, czego nie wiesz.",
+    "description": "Dwanaście stwierdzeń o tym, jak reagujesz na niepewność. Wynik od 12 do 60. Im wyższy, tym trudniej znosisz niepewność. Dwie podskale mierzą lęk przed tym, co przyniesie przyszłość, i paraliż w działaniu. Tłumaczenie robocze skali Intolerance of Uncertainty Scale – 12 (Carleton, Norton i Asmundson, 2007).",
+    "category": "Lęk",
+    "disclaimer": "To narzędzie wspiera autorefleksję i śledzenie zmian. Nie stawia diagnozy i nie zastępuje konsultacji ze specjalistą."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "total": "Nietolerancja niepewności",
+    "prospective": "Lęk przed niepewnością",
+    "inhibitory": "Paraliż w działaniu"
+  },
+  "anchors": {
+    "1": "Zupełnie mnie nie dotyczy",
+    "2": "Raczej mnie nie dotyczy",
+    "3": "Trochę mnie dotyczy",
+    "4": "Raczej mnie dotyczy",
+    "5": "Całkowicie mnie dotyczy"
+  },
+  "items": {
+    "ius_01": "Nieprzewidziane wydarzenia bardzo wytrącają mnie z równowagi.",
+    "ius_02": "Frustruje mnie, gdy nie mam wszystkich potrzebnych informacji.",
+    "ius_03": "Niepewność nie pozwala mi żyć pełnią życia.",
+    "ius_04": "Zawsze trzeba patrzeć w przód, żeby uniknąć niespodzianek.",
+    "ius_05": "Małe nieprzewidziane zdarzenie może wszystko zepsuć, nawet przy najlepszym planowaniu.",
+    "ius_06": "Kiedy trzeba działać, niepewność mnie paraliżuje.",
+    "ius_07": "Kiedy nie mam pewności, nie potrafię dobrze funkcjonować.",
+    "ius_08": "Zawsze chcę wiedzieć, co mnie czeka w przyszłości.",
+    "ius_09": "Nie znoszę, gdy coś mnie zaskakuje.",
+    "ius_10": "Najmniejsza wątpliwość potrafi powstrzymać mnie przed działaniem.",
+    "ius_11": {
+      "m": "Powinienem umieć wszystko zorganizować z wyprzedzeniem.",
+      "f": "Powinnam umieć wszystko zorganizować z wyprzedzeniem."
+    },
+    "ius_12": "Muszę uciekać od wszystkich niepewnych sytuacji."
+  }
+}

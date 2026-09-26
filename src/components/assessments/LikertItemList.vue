@@ -56,7 +56,27 @@
           {{ tg(item.textKey) }}
         </p>
 
-        <div class="grid grid-cols-5 gap-2 sm:flex sm:flex-wrap sm:gap-2">
+        <div
+          v-if="definition.labelledResponses"
+          class="flex flex-wrap gap-2"
+          role="radiogroup"
+          :aria-label="tg(item.textKey)"
+        >
+          <button
+            v-for="value in responseValues(item.responseMin, item.responseMax)"
+            :key="value"
+            type="button"
+            role="radio"
+            :aria-checked="responses[item.id] === value"
+            class="neo-pill px-3 py-1.5 text-xs font-semibold"
+            :class="{ 'neo-pill--primary': responses[item.id] === value }"
+            @click="$emit('update-response', item.id, value)"
+          >
+            {{ t(anchorKey(value)) }}
+          </button>
+        </div>
+
+        <div v-else class="grid grid-cols-5 gap-2 sm:flex sm:flex-wrap sm:gap-2">
           <button
             v-for="value in responseValues(item.responseMin, item.responseMax)"
             :key="value"
@@ -69,7 +89,10 @@
           </button>
         </div>
 
-        <div class="flex items-center justify-between text-xs text-on-surface-variant">
+        <div
+          v-if="!definition.labelledResponses"
+          class="flex items-center justify-between text-xs text-on-surface-variant"
+        >
           <span>{{ t(anchorKey(item.responseMin)) }}</span>
           <span>{{ t(anchorKey(item.responseMax)) }}</span>
         </div>

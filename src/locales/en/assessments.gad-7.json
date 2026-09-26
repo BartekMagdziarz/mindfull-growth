@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "title": "Anxiety (GAD-7)",
+    "subtitle": "How often anxiety bothered you over the last 2 weeks.",
+    "description": "Seven questions about anxiety and worry. For each, mark how often the problem bothered you over the last two weeks. The 0–21 score helps you track change over time. GAD-7 (Spitzer et al., 2006) is free to use.",
+    "category": "Anxiety",
+    "disclaimer": "This tool supports self-reflection and tracking change. It does not diagnose and does not replace a consultation with a professional."
+  },
+  "consent": {
+    "title": "Consent and disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I agree to store my results locally on this device."
+  },
+  "scales": {
+    "total": "Anxiety severity"
+  },
+  "anchors": {
+    "0": "Not at all",
+    "1": "Several days",
+    "2": "More than half the days",
+    "3": "Nearly every day"
+  },
+  "bands": {
+    "minimal": "Minimal",
+    "mild": "Mild",
+    "moderate": "Moderate",
+    "severe": "Severe"
+  },
+  "interpretation": {
+    "minimal": "Anxiety over the last weeks was minimal.",
+    "mild": "Anxiety was noticeable but mild. It's worth watching how it changes over the coming weeks.",
+    "moderate": "Anxiety was clear and probably got in the way of daily life.",
+    "severe": "Anxiety was strong and most likely weighed heavily on daily life."
+  },
+  "notice": "A score of 10 or higher often means it's worth talking about anxiety with a psychologist, psychotherapist or doctor. The exercises in the app can support that, but they don't replace it. If you're thinking about harming yourself, contact a local crisis line or your emergency number.",
+  "items": {
+    "gad7_01": "Feeling nervous, anxious, or on edge",
+    "gad7_02": "Not being able to stop or control worrying",
+    "gad7_03": "Worrying too much about different things",
+    "gad7_04": "Trouble relaxing",
+    "gad7_05": "Being so restless that it's hard to sit still",
+    "gad7_06": "Becoming easily annoyed or irritable",
+    "gad7_07": "Feeling afraid as if something awful might happen"
+  }
+}

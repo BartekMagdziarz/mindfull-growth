@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "title": "Barometr złości",
+    "subtitle": "Orientacyjny pomiar złości z ostatnich 4 tygodni.",
+    "description": "Pięć pytań o to, jak często i jak silnie pojawiała się złość, jak długo trwała, czy wyrażała się agresją i czy szkodziła relacjom. Wynik od 5 do 25. To autorski, orientacyjny pomiar aplikacji, a nie zwalidowane narzędzie. Służy do porównywania siebie z samym sobą w czasie.",
+    "category": "Złość",
+    "disclaimer": "To narzędzie wspiera autorefleksję i śledzenie zmian. Nie stawia diagnozy i nie zastępuje konsultacji ze specjalistą."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "total": "Nasilenie złości"
+  },
+  "anchors": {
+    "1": "Zupełnie nie",
+    "2": "Raczej nie",
+    "3": "Trochę",
+    "4": "Raczej tak",
+    "5": "Zdecydowanie tak"
+  },
+  "bands": {
+    "low": "Niskie",
+    "elevated": "Podwyższone",
+    "high": "Wysokie"
+  },
+  "interpretation": {
+    "low": "Złość w ostatnich tygodniach rzadko sprawiała ci kłopot.",
+    "elevated": "Złość pojawiała się na tyle często albo silnie, że miała swój koszt. Warto przyjrzeć się, co ją wyzwala.",
+    "high": "Złość była częsta, silna albo szkodziła relacjom. Warto poświęcić jej uwagę i rozważyć wsparcie specjalisty."
+  },
+  "notice": "Jeśli złość przechodzi w przemoc albo ktoś czuje się przy tobie niebezpiecznie, poszukaj pomocy specjalisty. Aplikacja może wspierać pracę nad złością, ale jej nie zastąpi.",
+  "items": {
+    "anger_01": "W ostatnich 4 tygodniach złość pojawiała się u mnie często.",
+    "anger_02": "Moja złość bywała bardzo silna.",
+    "anger_03": "Złość długo się utrzymywała, także po zakończeniu sytuacji.",
+    "anger_04": "Zdarzało mi się wyrażać złość w sposób, który ranił innych albo niszczył rzeczy (krzyk, obrażanie, trzaskanie).",
+    "anger_05": "Złość szkodziła moim relacjom z bliskimi, w pracy albo z innymi ludźmi."
+  }
+}

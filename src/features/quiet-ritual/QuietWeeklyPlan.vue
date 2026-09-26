@@ -15,6 +15,32 @@
   >
     <!-- 1 · Fokus — what deserves attention this week -->
     <div v-if="current === 0" class="qr-focus">
+      <!-- Program paths propose one real-world task per week; the user decides (plan §5). -->
+      <section v-if="proposals.length" class="qr-path-proposals" :aria-label="t('programs.week.proposalsLabel')">
+        <article v-for="proposal in proposals" :key="proposal.enrollment.id" class="qr-path-card">
+          <header class="qr-path-card__head">
+            <AppIcon :name="proposal.program.icon" />
+            <span>{{ t('programs.week.fromPath', { title: t(`${proposal.program.i18nKey}.title`) }) }}</span>
+          </header>
+          <strong class="qr-path-card__title">{{ taskTitle(proposal) }}</strong>
+          <p class="qr-path-card__why">{{ tg(`${proposal.program.i18nKey}.tasks.${proposal.task.key}.why`) }}</p>
+          <small class="qr-path-card__meta">
+            {{ timesLabel(proposal.task.times) }}<template v-if="proposal.repeat"> · {{ t('programs.week.repeatNote') }}</template>
+          </small>
+          <div class="qr-path-card__actions">
+            <button type="button" class="qr-primary" :disabled="isSaving" @click="acceptProposal(proposal)">
+              {{ t('programs.week.accept') }}
+            </button>
+            <button type="button" class="qr-quiet" :disabled="isSaving" @click="editProposal(proposal)">
+              {{ t('programs.week.edit') }}
+            </button>
+            <button type="button" class="qr-quiet" :disabled="isSaving" @click="declineProposal(proposal)">
+              {{ t('programs.week.decline') }}
+            </button>
+          </div>
+        </article>
+      </section>
+
       <details v-if="monthSupport.length" class="qr-month-context">
         <summary>Wsparcie z planu miesiąca ({{ monthSupport.length }})</summary>
         <button
@@ -88,7 +114,7 @@
           <button type="submit" class="qr-primary" :disabled="!intentionTitle.trim() || isSaving">
             {{ editingIntentionId ? 'Zapisz' : 'Dodaj' }}
           </button>
-          <button type="button" class="qr-icon" aria-label="Anuluj edycję intencji" @click="composerOpen = false">
+          <button type="button" class="qr-icon" aria-label="Anuluj edycję intencji" @click="closeComposer">
             <AppIcon name="close" />
           </button>
         </div>
@@ -280,6 +306,13 @@ import {
   updateWeeklyIntention,
 } from '@/services/weeklyIntentionService'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
+import {
+  acceptWeeklyTask,
+  declineWeeklyTask,
+  listWeeklyTaskProposals,
+  type ProgramTaskProposal,
+} from '@/services/programWeekService'
+import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import { getParentPeriod, getPeriodRefsForDate } from '@/utils/periods'
 import QuietPlanGroups, { type QuietPlanGroupItem } from './QuietPlanGroups.vue'
@@ -289,7 +322,11 @@ import { SUBJECT_ICON, plural, quietWeekDays, weekRangeTitle } from './quietRitu
 const props = defineProps<{ weekRef: WeekRef }>()
 const emit = defineEmits<{ close: []; updated: [] }>()
 
-const { t, locale } = useT()
+const { t, tg, tp, locale } = useT()
+const enrollmentStore = useProgramEnrollmentStore()
+const proposals = ref<ProgramTaskProposal[]>([])
+/** Set while the composer edits a path proposal before accepting it. */
+const pendingProposal = ref<ProgramTaskProposal | null>(null)
 const current = ref(0)
 const showAll = ref(false)
 const showRest = ref(false)
@@ -405,11 +442,16 @@ watch(() => props.weekRef, () => void load())
 
 async function load() {
   const monthRef = getParentPeriod(props.weekRef)
-  const [weekPlan, weekIntentions, priorities] = await Promise.all([
+  const [weekPlan, weekIntentions, priorities, pathProposals] = await Promise.all([
     periodPlanDexieRepository.getWeekPlan(props.weekRef),
     listWeeklyIntentions(props.weekRef),
     getActivePrioritiesForMonth(monthRef),
+    listWeeklyTaskProposals(props.weekRef).catch((err) => {
+      console.error('Failed to load program task proposals:', err)
+      return [] as ProgramTaskProposal[]
+    }),
   ])
+  proposals.value = pathProposals
   selectedKeys.value = (weekPlan?.topPriorities ?? []).map(ref => `${ref.subjectType}:${ref.subjectId}`)
   intentions.value = weekIntentions
   priorityOptions.value = priorities
@@ -463,7 +505,70 @@ async function onEntryDays(row: PlannerMeasurementRow, event: Event) {
   await planner.handleEntryDaysValueChange(row, value)
 }
 
+function taskTitle(proposal: ProgramTaskProposal): string {
+  return tg(`${proposal.program.i18nKey}.tasks.${proposal.task.key}.title`)
+}
+
+function timesLabel(times: number): string {
+  return tp(times, 'programs.week.timesPerWeek.one', 'programs.week.timesPerWeek.few', 'programs.week.timesPerWeek.many')
+}
+
+async function afterProposalDecision(): Promise<void> {
+  await persistFocus()
+  await load()
+  await planner.loadPlannerData()
+  emit('updated')
+}
+
+async function acceptProposal(
+  proposal: ProgramTaskProposal,
+  title = taskTitle(proposal),
+  times = proposal.task.times,
+  priorityIds: string[] = [],
+) {
+  isSaving.value = true
+  try {
+    const { intention, enrollment } = await acceptWeeklyTask({
+      enrollmentId: proposal.enrollment.id,
+      weekRef: props.weekRef,
+      taskKey: proposal.task.key,
+      title,
+      times,
+      priorityIds,
+    })
+    enrollmentStore.applyUpdate(enrollment)
+    // An accepted task is part of this week's focus straight away.
+    selectedKeys.value = [...selectedKeys.value, `weeklyIntention:${intention.id}`]
+  } finally {
+    isSaving.value = false
+  }
+  await afterProposalDecision()
+}
+
+async function editProposal(proposal: ProgramTaskProposal) {
+  await openComposer()
+  pendingProposal.value = proposal
+  intentionTitle.value = taskTitle(proposal)
+  intentionTimes.value = proposal.task.times
+}
+
+async function declineProposal(proposal: ProgramTaskProposal) {
+  isSaving.value = true
+  try {
+    enrollmentStore.applyUpdate(await declineWeeklyTask(proposal.enrollment.id, props.weekRef, proposal.task.key))
+  } finally {
+    isSaving.value = false
+  }
+  await afterProposalDecision()
+}
+
+function closeComposer() {
+  composerOpen.value = false
+  pendingProposal.value = null
+}
+
 async function openComposer(intention?: WeeklyIntention) {
+  pendingProposal.value = null
   editingIntentionId.value = intention?.id ?? null
   intentionTitle.value = intention?.title ?? ''
   intentionTimes.value = intention?.target.value ?? 1
@@ -481,6 +586,13 @@ async function saveIntention() {
   const title = intentionTitle.value.trim()
   const times = Math.max(1, Math.round(Number(intentionTimes.value) || 1))
   if (!title || isSaving.value) return
+  if (pendingProposal.value && !editingIntentionId.value) {
+    const proposal = pendingProposal.value
+    const priorityIds = [...intentionPriorityIds.value]
+    closeComposer()
+    await acceptProposal(proposal, title, times, priorityIds)
+    return
+  }
   isSaving.value = true
   try {
     if (editingIntentionId.value) {

@@ -11,7 +11,22 @@
       @saved="handleSaved"
     />
 
-    <ExerciseSavedPanel v-else :exercise-slug="slug" @again="saved = false" />
+    <template v-else>
+      <ExerciseSavedPanel :exercise-slug="slug" @again="saved = false" />
+      <AppCard v-if="definition.followUp" padding="lg" class="micro-follow-up mt-4">
+        <div class="micro-follow-up__copy">
+          <h2 class="text-base font-semibold text-on-surface">
+            {{ tg(`exerciseWizards.micro.${definition.i18nKey}.followUp.title`) }}
+          </h2>
+          <p class="text-sm text-on-surface-variant">
+            {{ tg(`exerciseWizards.micro.${definition.i18nKey}.followUp.description`) }}
+          </p>
+        </div>
+        <AppButton variant="tonal" @click="router.push(definition.followUp.route)">
+          {{ t(`exerciseWizards.micro.${definition.i18nKey}.followUp.cta`) }}
+        </AppButton>
+      </AppCard>
+    </template>
 
     <!-- Past entries section -->
     <div v-if="pastEntries.length > 0" class="mt-8">
@@ -35,6 +50,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import AppButton from '@/components/AppButton.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
@@ -47,7 +63,7 @@ import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 
 const route = useRoute()
 const router = useRouter()
-const { t } = useT()
+const { t, tg } = useT()
 const entryStore = useMicroExerciseEntryStore()
 
 const slug = computed(() => String(route.params.slug ?? ''))
@@ -80,9 +96,16 @@ async function handleSaved(payload: { responses: Record<string, MicroStepValue> 
   saved.value = true
 }
 
-/** First text-ish response makes a readable one-line summary. */
+/**
+ * First text-ish response makes a readable one-line summary. Choice
+ * answers are option ids, not prose, so they never become the snippet.
+ */
 function entrySnippet(entry: MicroExerciseEntry): string {
-  for (const value of Object.values(entry.responses)) {
+  const choiceKeys = new Set(
+    (definition.value?.steps ?? []).filter((step) => step.type === 'choice').map((step) => step.key),
+  )
+  for (const [key, value] of Object.entries(entry.responses)) {
+    if (choiceKeys.has(key)) continue
     if (typeof value === 'string' && value.length > 0) return value
     if (Array.isArray(value) && typeof value[0] === 'string') {
       return (value as string[]).join(' · ')
@@ -99,3 +122,22 @@ function formatDate(iso: string): string {
   })
 }
 </script>
+
+<style scoped>
+.micro-follow-up {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mg-space-4);
+}
+
+.micro-follow-up__copy {
+  display: grid;
+  gap: var(--mg-space-1);
+}
+
+.micro-follow-up > :last-child {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+</style>

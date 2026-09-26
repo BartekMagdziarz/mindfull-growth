@@ -33,10 +33,11 @@ describe('exercise catalog', () => {
 
   it('matches the ExercisesView category counts', () => {
     expect(catalogEntriesForTab('self-discovery')).toHaveLength(14)
-    expect(catalogEntriesForTab('cbt')).toHaveLength(10)
+    // 10 wizards + 11 problem-path micro tools + 4 problem-path measures.
+    expect(catalogEntriesForTab('cbt')).toHaveLength(25)
     expect(catalogEntriesForTab('logotherapy')).toHaveLength(8)
     expect(catalogEntriesForTab('ifs')).toHaveLength(10)
-    expect(EXERCISE_CATALOG).toHaveLength(48)
+    expect(EXERCISE_CATALOG).toHaveLength(64)
   })
 
   it('has card copy for every entry in both locales', () => {
@@ -51,6 +52,13 @@ describe('exercise catalog', () => {
           ).toBe(true)
         }
       }
+    }
+  })
+
+  it('every assessment entry is a registered instrument', async () => {
+    const { getAssessmentRegistryEntry } = await import('@/services/assessments/registry')
+    for (const entry of EXERCISE_CATALOG.filter((e) => e.kind === 'assessment')) {
+      expect(() => getAssessmentRegistryEntry(entry.slug as never), entry.slug).not.toThrow()
     }
   })
 
@@ -89,6 +97,9 @@ describe('exercise catalog', () => {
         'grounding-54321',
         'box-breathing',
         'one-small-win',
+        'paced-breathing',
+        'need-behind-anger',
+        'shame-or-guilt',
       ].sort(),
     )
     // The micro tab shows all micro-eligible entries (user decision 2026-07-04).
