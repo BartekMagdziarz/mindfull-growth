@@ -54,7 +54,16 @@
     "outcomeBefore": "At the start",
     "outcomeAfter": "At the end",
     "outcomeNote": "Comparing: {scale}. It shows change over time, not a clinical assessment.",
-    "phaseLabel": "phase {n} of {total}"
+    "phaseLabel": "phase {n} of {total}",
+    "momentsTitle": "Moments",
+    "momentsLead": "Log the path's hard moments. A note counts as a day of the weekly task when the task is anchored on it.",
+    "momentsRecent": {
+      "one": "{n} moment in the last 7 days",
+      "few": "{n} moments in the last 7 days",
+      "many": "{n} moments in the last 7 days"
+    },
+    "momentsNone": "No moments in the last 7 days yet",
+    "logMoment": "Log a moment"
   },
   "foundation": {
     "title": "Foundation of self-knowledge",
@@ -605,6 +614,8 @@
     "statusStay": "accepted · staying for next week",
     "weekShort": "W{n}",
     "thisWeek": "For this week",
-    "emptyHistory": "The task history appears after the first week."
+    "emptyHistory": "The task history appears after the first week.",
+    "momentsThisWeek": "This week's moments ({n})",
+    "hideMoments": "Hide moments"
   }
 }

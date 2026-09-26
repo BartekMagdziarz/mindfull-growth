@@ -1,6 +1,7 @@
 import type {
   CreateMicroExerciseEntryPayload,
   MicroExerciseEntry,
+  UpdateMicroExerciseEntryPayload,
 } from '@/domain/microExercises'
 import { getUserDatabase } from '@/services/userDatabase.service'
 import type { MicroExerciseEntryRepository } from './microExerciseEntryRepository'
@@ -48,6 +49,19 @@ class MicroExerciseEntryDexieRepository implements MicroExerciseEntryRepository 
     } catch (error) {
       console.error(`Failed to list micro exercise entries for ${exerciseSlug}:`, error)
       throw new Error(`Failed to retrieve micro exercise entries for ${exerciseSlug}`)
+    }
+  }
+
+  async update(id: string, patch: UpdateMicroExerciseEntryPayload): Promise<MicroExerciseEntry> {
+    try {
+      const existing = await this.db.microExerciseEntries.get(id)
+      if (!existing) throw new Error(`Micro exercise entry with id ${id} not found`)
+      const updated: MicroExerciseEntry = { ...existing, ...patch, updatedAt: new Date().toISOString() }
+      await this.db.microExerciseEntries.put(toPlain(updated))
+      return updated
+    } catch (error) {
+      console.error(`Failed to update micro exercise entry with id ${id}:`, error)
+      throw new Error(`Failed to update micro exercise entry with id ${id}`)
     }
   }
 

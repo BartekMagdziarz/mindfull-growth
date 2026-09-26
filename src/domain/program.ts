@@ -109,6 +109,12 @@ export interface ProgramDefinition {
    * `programs.<slug>.phases.<key>.question`.
    */
   weeklyReflection?: boolean
+  /**
+   * Category of the Momenty entries this path logs (variant
+   * `moment-<kind>`); the weekly reflection lists the week's moments and
+   * the detail view offers "Zapisz moment".
+   */
+  momentKind?: 'shame' | 'anger' | 'anxiety' | 'other'
 }
 
 export interface CompletedProgramStep {

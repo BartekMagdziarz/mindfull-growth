@@ -20,6 +20,10 @@ vi.mock('@/services/exercisePlanService', () => ({
   autoCompleteFor: vi.fn(async () => null),
 }))
 
+vi.mock('@/services/programTaskBridgeService', () => ({
+  recordTaskProgress: vi.fn(async () => ({ intentionIds: [] })),
+}))
+
 vi.mock('@/services/programSchedulerService', () => ({
   advanceEnrollmentForPlan: vi.fn(async () => null),
   advancePracticeForPlan: vi.fn(async () => null),

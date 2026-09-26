@@ -77,6 +77,7 @@
     <ProgramOutcomeSummary v-if="program.outcomeSlug && enrollment" :program="program" :enrollment="enrollment" />
     <ProgramPracticeRail v-if="program.practices?.length" :program="program" :enrollment="enrollment" />
     <ProgramWeekPanel v-if="program.weeklyTasks?.length && enrollment" :program="program" :enrollment="enrollment" />
+    <ProgramMomentsRow v-if="program.momentKind && openEnrollment" :kind="program.momentKind" />
 
     <!-- Step timeline, grouped under phase headers when the program has phases -->
     <div class="space-y-3">
@@ -113,6 +114,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
+import ProgramMomentsRow from '@/components/exercises/ProgramMomentsRow.vue'
 import ProgramOutcomeSummary from '@/components/exercises/ProgramOutcomeSummary.vue'
 import ProgramPracticeRail from '@/components/exercises/ProgramPracticeRail.vue'
 import ProgramStepTile from '@/components/exercises/ProgramStepTile.vue'

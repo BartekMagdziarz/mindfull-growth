@@ -13,6 +13,7 @@
 
 import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import type { EmotionRating } from '@/domain/exercises'
+import type { WeekRef } from '@/domain/period'
 
 export type MicroStepType =
   | 'info'
@@ -148,6 +149,22 @@ export interface MicroExerciseEntry {
   updatedAt: string
   responses: Record<string, MicroStepValue>
   /** Journal linking arrives with the deferred D4 follow-up (design §4.8). */
+  journalEntryId?: string
+  /**
+   * Set by `programTaskBridgeService` when saving this entry counted as a
+   * day of a path's weekly task (the task's `linkSlug` matched).
+   */
+  programRef?: MicroEntryProgramRef
+}
+
+export interface MicroEntryProgramRef {
+  enrollmentId: string
+  taskKey: string
+  weekRef: WeekRef
+}
+
+export interface UpdateMicroExerciseEntryPayload {
+  programRef?: MicroEntryProgramRef
   journalEntryId?: string
 }
 

@@ -43,6 +43,7 @@ export const PROGRAM_CATALOG: readonly ProgramDefinition[] = [
     i18nKey: 'programs.anger-signal',
     icon: 'mg-exercise-anger-barometer',
     estimatedWeeks: 6,
+    momentKind: 'anger',
     outcomeSlug: 'anger-barometer',
     weeklyReflection: true,
     steps: [
@@ -143,6 +144,7 @@ export const PROGRAM_CATALOG: readonly ProgramDefinition[] = [
     icon: 'mg-exercise-compassionate-image',
     estimatedWeeks: 8,
     contentVersion: 2,
+    momentKind: 'shame',
     outcomeSlug: 'scs-sf',
     weeklyReflection: true,
     steps: [

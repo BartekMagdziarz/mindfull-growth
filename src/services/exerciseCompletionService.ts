@@ -21,6 +21,7 @@ import {
   type PracticeReconciliation,
   type ProgramAdvancement,
 } from '@/services/programSchedulerService'
+import { recordTaskProgress } from '@/services/programTaskBridgeService'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
 export interface RecordCompletionResult {
@@ -31,6 +32,8 @@ export interface RecordCompletionResult {
   programAdvancement: ProgramAdvancement | null
   /** Next occurrence scheduled by this save, when the plan was a program practice. */
   practiceReconciliation?: PracticeReconciliation | null
+  /** Weekly intentions (path tasks) that got this day counted (plan v2 §5). */
+  taskIntentionIds?: string[]
 }
 
 export async function recordCompletion(
@@ -55,6 +58,14 @@ export async function recordCompletion(
     recordId,
     source: completedPlan ? 'plan' : 'standalone',
   })
+  let taskIntentionIds: string[] = []
+  try {
+    // A path's weekly task anchored on this exercise gets its day (plan v2 §5).
+    taskIntentionIds = (await recordTaskProgress(slug, dayRef, recordId)).intentionIds
+  } catch (err) {
+    // Task bookkeeping must never block the completion log write.
+    console.error('Failed to count the completion towards a program task:', err)
+  }
   let programAdvancement: ProgramAdvancement | null = null
   let practiceReconciliation: PracticeReconciliation | null = null
   if (completedPlan?.source === 'program') {
@@ -69,9 +80,13 @@ export async function recordCompletion(
       console.error('Failed to advance program enrollment:', err)
     }
   }
-  return practiceReconciliation
-    ? { completion, completedPlan, programAdvancement, practiceReconciliation }
-    : { completion, completedPlan, programAdvancement }
+  return {
+    completion,
+    completedPlan,
+    programAdvancement,
+    ...(practiceReconciliation ? { practiceReconciliation } : {}),
+    ...(taskIntentionIds.length ? { taskIntentionIds } : {}),
+  }
 }
 
 export async function listCompletions(): Promise<ExerciseCompletion[]> {

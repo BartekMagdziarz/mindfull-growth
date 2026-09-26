@@ -219,6 +219,25 @@
           <span v-else class="qr-path-block__task-muted">{{ t('programs.week.noTaskThisWeek') }}</span>
         </div>
 
+        <!-- The week's moments of this path's kind: context for the phase question (plan v2 §6). -->
+        <div v-if="weekMoments(block).length" class="qr-path-moments">
+          <button type="button" class="qr-quiet" :aria-expanded="momentsOpen[block.enrollment.id] ?? false" @click="toggleMoments(block)">
+            {{
+              momentsOpen[block.enrollment.id]
+                ? t('programs.week.hideMoments')
+                : t('programs.week.momentsThisWeek', { n: weekMoments(block).length })
+            }}
+            <AppIcon :name="momentsOpen[block.enrollment.id] ? 'expand_less' : 'expand_more'" />
+          </button>
+          <ul v-if="momentsOpen[block.enrollment.id]" class="qr-path-moments__list">
+            <li v-for="moment in weekMoments(block).slice(0, 5)" :key="moment.id">
+              <span class="qr-path-moments__day">{{ momentDayLabel(moment) }}</span>
+              <span class="qr-path-moments__text">{{ momentLine(moment) }}</span>
+              <small v-if="momentTags(moment)" class="qr-path-moments__tags">{{ momentTags(moment) }}</small>
+            </li>
+          </ul>
+        </div>
+
         <label v-if="block.entry" class="qr-path-block__field">
           <span>{{ tg('programs.week.outcomeQuestion') }}</span>
           <textarea
@@ -418,6 +437,9 @@ import {
   type ReflectionSummaryContext,
 } from '@/services/reflectionSummaryService'
 import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
+import type { MicroExerciseEntry } from '@/domain/microExercises'
+import { hadMoment, momentDayRef, momentsInWeek } from '@/domain/moments'
+import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import QuietEmotionStack from './QuietEmotionStack.vue'
 import QuietJournalAi from './QuietJournalAi.vue'
 import QuietRatingBar from './QuietRatingBar.vue'
@@ -439,7 +461,7 @@ import {
 const props = defineProps<{ weekRef: WeekRef }>()
 const emit = defineEmits<{ close: []; updated: []; 'plan-next-week': [] }>()
 
-const { t, tg } = useT()
+const { t, tg, locale } = useT()
 const {
   dataBundle,
   objectComments,
@@ -611,6 +633,9 @@ onMounted(async () => {
     console.error('Failed to load program blocks for the weekly reflection:', err)
     return []
   })
+  if (pathBlocks.value.some((block) => block.program.momentKind)) {
+    void microEntryStore.loadEntries()
+  }
   const seen: string[] = []
   for (const reflection of all.filter(item => item.weekRef !== props.weekRef).slice(-8).reverse()) {
     for (const area of AREAS) {
@@ -697,6 +722,42 @@ function severityHint(block: ReflectionPathBlock): string {
   const history = severityHistory(block).slice(-3)
   return history.length ? t('programs.week.severityHistory', { values: history.join(' · ') }) : ''
 }
+// ── Momenty of the week (per path kind) ──
+const microEntryStore = useMicroExerciseEntryStore()
+const momentsOpen = reactive<Record<string, boolean>>({})
+
+function weekMoments(block: ReflectionPathBlock): MicroExerciseEntry[] {
+  const kind = block.program.momentKind
+  if (!kind) return []
+  return momentsInWeek(microEntryStore.entries, kind, props.weekRef).filter(hadMoment)
+}
+
+function toggleMoments(block: ReflectionPathBlock): void {
+  momentsOpen[block.enrollment.id] = !momentsOpen[block.enrollment.id]
+}
+
+function momentDayLabel(moment: MicroExerciseEntry): string {
+  return new Date(`${momentDayRef(moment)}T12:00:00`).toLocaleDateString(locale.value, { weekday: 'short' })
+}
+
+function momentLine(moment: MicroExerciseEntry): string {
+  const situation = moment.responses.situation
+  return typeof situation === 'string' ? situation : ''
+}
+
+/** "o czym" + responses used, as their labels (shame moments); empty otherwise. */
+function momentTags(moment: MicroExerciseEntry): string {
+  const label = (step: string, option: string) => tg(`exerciseWizards.micro.moments.${step}.options.${option}`)
+  const tags: string[] = []
+  const about = moment.responses.about
+  if (typeof about === 'string' && about !== 'unsure') tags.push(label('about', about))
+  const response = moment.responses.response
+  if (Array.isArray(response)) {
+    for (const option of response) if (typeof option === 'string' && option !== 'nothing') tags.push(label('response', option))
+  }
+  return tags.join(' · ')
+}
+
 async function toggleStay(block: ReflectionPathBlock, stay: boolean) {
   const updated = await setStayNextWeek(block.enrollment.id, props.weekRef, stay)
   pathBlocks.value = pathBlocks.value.map(candidate =>
@@ -747,3 +808,46 @@ async function finishAndPlanNext() {
   emit('plan-next-week')
 }
 </script>
+
+<style scoped>
+/* Momenty under the path's task: a quiet disclosure, rows one tone deeper. */
+.qr-path-moments {
+  display: grid;
+  gap: var(--mg-space-1);
+}
+
+.qr-path-moments__list {
+  display: grid;
+  gap: var(--mg-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qr-path-moments__list li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0 var(--mg-space-2);
+  padding: var(--mg-space-1) var(--mg-space-2);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-color-paper);
+  font-size: var(--mg-font-size-sm);
+}
+
+.qr-path-moments__day {
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+  text-transform: lowercase;
+  padding-top: 0.15em;
+}
+
+.qr-path-moments__text {
+  color: var(--mg-color-ink);
+}
+
+.qr-path-moments__tags {
+  grid-column: 2;
+  color: var(--mg-color-muted);
+  font-size: var(--mg-font-size-xs);
+}
+</style>

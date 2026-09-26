@@ -54,7 +54,16 @@
     "outcomeBefore": "Na początku",
     "outcomeAfter": "Na końcu",
     "outcomeNote": "Porównanie wyniku: {scale}. To obraz zmiany w czasie, nie ocena kliniczna.",
-    "phaseLabel": "faza {n} z {total}"
+    "phaseLabel": "faza {n} z {total}",
+    "momentsTitle": "Momenty",
+    "momentsLead": "Zapisuj trudne momenty ścieżki. Zapis liczy się jako dzień zadania tygodnia, gdy zadanie jest na to podpięte.",
+    "momentsRecent": {
+      "one": "{n} moment w ostatnich 7 dniach",
+      "few": "{n} momenty w ostatnich 7 dniach",
+      "many": "{n} momentów w ostatnich 7 dniach"
+    },
+    "momentsNone": "Jeszcze bez momentów w ostatnich 7 dniach",
+    "logMoment": "Zapisz moment"
   },
   "foundation": {
     "title": "Fundament samopoznania",
@@ -605,6 +614,8 @@
     "statusStay": "przyjęte · zostaje na kolejny tydzień",
     "weekShort": "T{n}",
     "thisWeek": "Na ten tydzień",
-    "emptyHistory": "Historia zadań pojawi się po pierwszym tygodniu."
+    "emptyHistory": "Historia zadań pojawi się po pierwszym tygodniu.",
+    "momentsThisWeek": "Momenty z tego tygodnia ({n})",
+    "hideMoments": "Zwiń momenty"
   }
 }
