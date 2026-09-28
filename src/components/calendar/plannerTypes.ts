@@ -39,6 +39,8 @@ export interface GoalSection {
   title: string
   description?: string
   icon?: string
+  /** Goal deadline (ISO day) — KR day placements past it prompt a deadline move. */
+  targetDate?: string
   isActive: boolean
   keyResults: PlannerMeasurementRow[]
 }

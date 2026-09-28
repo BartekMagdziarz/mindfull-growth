@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
+import AppDialog from '@/components/AppDialog.vue'
 import AssignmentMatrix from './AssignmentMatrix.vue'
 import PlannerWeekTargetPill from './PlannerWeekTargetPill.vue'
 import { useT } from '@/composables/useT'
@@ -49,7 +50,14 @@ function toMatrixRow(row: PlannerMeasurementRow): AssignmentMatrixRow {
     cells: Object.fromEntries(
       planner.calendarDays.value.map(day => [
         day.dayRef,
-        { state: planner.dayCellState(row, day.dayRef) },
+        {
+          state: planner.dayCellState(row, day.dayRef),
+          title: planner.isDayBeyondGoalEnd(row, day.dayRef)
+            ? t('planning.weekPlanning.days.deadline.cellTitle', {
+                current: formatDay(planner.goalWindowEnd(row)!),
+              })
+            : undefined,
+        },
       ])
     ),
     softLabel:
@@ -104,6 +112,20 @@ const sections = computed<AssignmentMatrixSection[]>(() => {
 })
 
 const hasAnyRows = computed(() => sections.value.length > 0)
+
+const dayFormatter = computed(
+  () => new Intl.DateTimeFormat(locale.value, { weekday: 'long', day: 'numeric', month: 'short' })
+)
+function formatDay(dayRef: DayRef): string {
+  return dayFormatter.value.format(new Date(`${dayRef}T12:00:00`))
+}
+
+const deadlineDialogOpen = computed({
+  get: () => planner.deadlineProposal.value !== null,
+  set: (open: boolean) => {
+    if (!open) planner.dismissDeadlineProposal()
+  },
+})
 
 function findRow(rowKey: string): PlannerMeasurementRow | undefined {
   return rowByKey.value.get(rowKey)
@@ -167,6 +189,29 @@ function pillTarget(rowKey: string) {
       <p v-else class="text-xs text-on-surface-variant">
         {{ t('planning.weekPlanning.days.empty') }}
       </p>
+      <p v-if="planner.mutationError.value" class="mt-2 text-xs text-danger" role="alert">
+        {{ t('planning.weekPlanning.days.deadline.error', { message: planner.mutationError.value }) }}
+      </p>
     </div>
+
+    <AppDialog
+      v-if="planner.deadlineProposal.value"
+      v-model="deadlineDialogOpen"
+      :title="
+        t('planning.weekPlanning.days.deadline.title', {
+          goal: planner.deadlineProposal.value.goalTitle,
+          current: formatDay(planner.deadlineProposal.value.currentTargetDate),
+        })
+      "
+      :message="
+        t('planning.weekPlanning.days.deadline.message', {
+          day: formatDay(planner.deadlineProposal.value.dayRef),
+        })
+      "
+      :confirm-text="t('planning.weekPlanning.days.deadline.confirm')"
+      :cancel-text="t('planning.weekPlanning.days.deadline.cancel')"
+      @confirm="planner.confirmDeadlineProposal()"
+      @cancel="planner.dismissDeadlineProposal()"
+    />
   </div>
 </template>

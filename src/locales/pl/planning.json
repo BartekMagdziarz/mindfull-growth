@@ -648,7 +648,15 @@
       "weekTarget": "Cel na ten tydzień",
       "wholeWeekPill": "cały tydzień",
       "wholeMonthPill": "cały miesiąc",
-      "restSection": "Pozostałe obiekty ({n})"
+      "restSection": "Pozostałe obiekty ({n})",
+      "deadline": {
+        "title": "Cel „{goal}” kończy się {current}",
+        "message": "Ten dzień ({day}) wypada po terminie celu. Przesunąć termin na {day} i zaplanować ten dzień?",
+        "confirm": "Przesuń termin",
+        "cancel": "Zostaw",
+        "cellTitle": "Po terminie celu ({current}) — kliknięcie zaproponuje przesunięcie terminu",
+        "error": "Nie udało się zapisać zmiany: {message}"
+      }
     },
     "subjectType": {
       "keyResult": "Kluczowy rezultat",

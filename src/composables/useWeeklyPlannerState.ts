@@ -19,6 +19,7 @@ import { isGoalOpen, isInitiativeActive, isMeasurementSubjectOpen } from '@/serv
 import {
   materializeMeasurementDayAssignments,
   materializeMeasurementWeekPlacements,
+  moveGoalTargetDate,
   toggleMeasurementDayAssignment,
   toggleMeasurementWeekAssignment,
   updateMeasurementWeekTargetOverride,
@@ -42,6 +43,20 @@ import type { AssignmentMatrixCellState } from '@/components/calendar/assignment
 /** Soft (inherited) coverage of a row in this week, shown as soft-filled cells. */
 export type WeekRowSoftKind = 'whole-week' | 'whole-month' | null
 
+/**
+ * A KR was dropped on a day after its goal's target date. Instead of silently
+ * refusing, the planner offers to move the deadline to that day and place the
+ * KR in one go — plans slip by a few days, the goal should follow.
+ */
+export interface GoalDeadlineProposal {
+  rowKey: string
+  row: PlannerMeasurementRow
+  dayRef: DayRef
+  goalId: string
+  goalTitle: string
+  currentTargetDate: DayRef
+}
+
 export function useWeeklyPlannerState(
   weekRef: Ref<WeekRef>,
   locale: Ref<string>,
@@ -49,7 +64,9 @@ export function useWeeklyPlannerState(
 ) {
   const isLoading = ref(true)
   const loadError = ref<string | null>(null)
+  const mutationError = ref<string | null>(null)
   const savingKey = ref('')
+  const deadlineProposal = ref<GoalDeadlineProposal | null>(null)
   const goalSections = ref<GoalSection[]>([])
   const habitRows = ref<PlannerMeasurementRow[]>([])
   const trackerRows = ref<PlannerMeasurementRow[]>([])
@@ -294,10 +311,31 @@ export function useWeeklyPlannerState(
     )
   }
 
+  function goalSectionFor(row: PlannerMeasurementRow): GoalSection | undefined {
+    if (row.subjectType !== 'keyResult' || !row.goalId) return undefined
+    return goalSections.value.find(goal => goal.id === row.goalId)
+  }
+
+  /** Last day the row's goal window reaches (KR rows with a goal target date). */
+  function goalWindowEnd(row: PlannerMeasurementRow): DayRef | null {
+    const targetDate = goalSectionFor(row)?.targetDate
+    return targetDate ? (targetDate as DayRef) : null
+  }
+
+  /** The day lies after the row's goal deadline — placing there needs a deadline move. */
+  function isDayBeyondGoalEnd(row: PlannerMeasurementRow, dayRef: DayRef): boolean {
+    const end = goalWindowEnd(row)
+    return end !== null && dayRef > end
+  }
+
   async function withSave<T>(key: string, action: () => Promise<T>): Promise<void> {
+    // Busy guard: mutations are serialized — a click landing while a save is
+    // in flight is dropped instead of racing the pending reload.
+    if (savingKey.value !== '') return
     const scrollX = window.scrollX
     const scrollY = window.scrollY
     savingKey.value = key
+    mutationError.value = null
     try {
       await action()
       await loadPlannerData({ showLoading: false })
@@ -308,6 +346,11 @@ export function useWeeklyPlannerState(
         })
       }
       emit('updated')
+    } catch (error) {
+      // Surface the failure (hosts render it) and reload so the matrix reflects
+      // the persisted truth rather than a half-applied click.
+      mutationError.value = error instanceof Error ? error.message : String(error)
+      await loadPlannerData({ showLoading: false })
     } finally {
       savingKey.value = ''
     }
@@ -388,6 +431,7 @@ export function useWeeklyPlannerState(
         title: goal.title,
         description: goal.description,
         icon: goal.icon,
+        targetDate: goal.targetDate,
         isActive: activeGoalIds.has(goal.id),
         keyResults: openKeyResults
           .filter(item => item.goalId === goal.id)
@@ -515,19 +559,46 @@ export function useWeeklyPlannerState(
     row: PlannerMeasurementRow,
     dayRef: DayRef
   ): Promise<void> {
+    // Turning a day ON past the goal's deadline: ask to move the deadline
+    // instead of writing (or silently failing). Turning OFF is always allowed.
+    if (dayCellState(row, dayRef) === 'empty' && isDayBeyondGoalEnd(row, dayRef)) {
+      const goal = goalSectionFor(row)!
+      deadlineProposal.value = {
+        rowKey: rowKey(row),
+        row,
+        dayRef,
+        goalId: goal.id,
+        goalTitle: goal.title,
+        currentTargetDate: goal.targetDate as DayRef,
+      }
+      return
+    }
+    deadlineProposal.value = null
+    await toggleDayCell(row, dayRef)
+  }
+
+  async function toggleDayCell(row: PlannerMeasurementRow, dayRef: DayRef): Promise<void> {
+    await withSave(`${rowKey(row)}:${dayRef}`, () => toggleDayCellRaw(row, dayRef))
+  }
+
+  /** The day-cell mutation without the save wrapper (composable with other
+   * writes inside one withSave, e.g. the deadline move). */
+  async function toggleDayCellRaw(row: PlannerMeasurementRow, dayRef: DayRef): Promise<void> {
     const softKind = rowSoftKind(row)
 
     if (softKind === 'whole-week') {
-      const dayRefs = weekDayRefs.value.filter(day => day !== dayRef)
-      await withSave(`${rowKey(row)}:${dayRef}`, () =>
-        materializeMeasurementDayAssignments({
-          weekRef: weekRef.value,
-          cadence: row.cadence,
-          subjectType: row.subjectType,
-          subjectId: row.id,
-          dayRefs,
-        })
+      // Materializing a whole-week row into days: keep only days the goal
+      // window still reaches, so a KR ending mid-week does not spill over.
+      const dayRefs = weekDayRefs.value.filter(
+        day => day !== dayRef && !isDayBeyondGoalEnd(row, day)
       )
+      await materializeMeasurementDayAssignments({
+        weekRef: weekRef.value,
+        cadence: row.cadence,
+        subjectType: row.subjectType,
+        subjectId: row.id,
+        dayRefs,
+      })
       return
     }
 
@@ -541,35 +612,51 @@ export function useWeeklyPlannerState(
         week => week !== weekRef.value
       )
 
-      await withSave(`${rowKey(row)}:${dayRef}`, async () => {
-        await materializeMeasurementWeekPlacements({
-          monthRef,
-          cadence: row.cadence,
-          subjectType: row.subjectType,
-          subjectId: row.id,
-          weekRefs: otherWeeks,
-        })
-        await materializeMeasurementDayAssignments({
-          weekRef: weekRef.value,
-          cadence: row.cadence,
-          subjectType: row.subjectType,
-          subjectId: row.id,
-          dayRefs,
-        })
+      await materializeMeasurementWeekPlacements({
+        monthRef,
+        cadence: row.cadence,
+        subjectType: row.subjectType,
+        subjectId: row.id,
+        weekRefs: otherWeeks,
+      })
+      await materializeMeasurementDayAssignments({
+        weekRef: weekRef.value,
+        cadence: row.cadence,
+        subjectType: row.subjectType,
+        subjectId: row.id,
+        dayRefs,
       })
       return
     }
 
     const dayMonthRef = getPeriodRefsForDate(dayRef).month
-    await withSave(`${rowKey(row)}:${dayRef}`, () =>
-      toggleMeasurementDayAssignment({
-        dayRef,
-        cadence: row.cadence,
-        monthRef: row.cadence === 'monthly' ? dayMonthRef : undefined,
-        subjectType: row.subjectType,
-        subjectId: row.id,
-      })
-    )
+    await toggleMeasurementDayAssignment({
+      dayRef,
+      cadence: row.cadence,
+      monthRef: row.cadence === 'monthly' ? dayMonthRef : undefined,
+      subjectType: row.subjectType,
+      subjectId: row.id,
+    })
+  }
+
+  /** Accept the pending deadline proposal: move the goal's target date to the
+   * clicked day (activating the goal in the months it now reaches) and place
+   * the KR on that day in the same save. */
+  async function confirmDeadlineProposal(): Promise<void> {
+    const proposal = deadlineProposal.value
+    if (!proposal) return
+    deadlineProposal.value = null
+    await withSave(`${proposal.rowKey}:${proposal.dayRef}:deadline`, async () => {
+      await moveGoalTargetDate(proposal.goalId, proposal.dayRef)
+      // Refresh goal windows before the toggle so the guard sees the new deadline.
+      await loadPlannerData({ showLoading: false })
+      const row = allRows.value.find(item => rowKey(item) === proposal.rowKey) ?? proposal.row
+      await toggleDayCellRaw(row, proposal.dayRef)
+    })
+  }
+
+  function dismissDeadlineProposal(): void {
+    deadlineProposal.value = null
   }
 
   /** Whole-week quick action. On whole-month rows it materializes the month into
@@ -636,7 +723,9 @@ export function useWeeklyPlannerState(
   return {
     isLoading,
     loadError,
+    mutationError,
     savingKey,
+    deadlineProposal,
     goalSections,
     keyResultRows,
     habitRows,
@@ -660,6 +749,10 @@ export function useWeeklyPlannerState(
     rowSoftKind,
     rowHasWeekPlacement,
     dayCellState,
+    goalWindowEnd,
+    isDayBeyondGoalEnd,
+    confirmDeadlineProposal,
+    dismissDeadlineProposal,
     handleTargetValueChange,
     handleClearOverride,
     handleEntryDaysValueChange,

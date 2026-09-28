@@ -171,9 +171,13 @@
                   :key="day.dayRef"
                   type="button"
                   class="qr-day-button"
-                  :class="{ soft: planner.dayCellState(row, day.dayRef) === 'soft' }"
+                  :class="{
+                    soft: planner.dayCellState(row, day.dayRef) === 'soft',
+                    beyond: planner.isDayBeyondGoalEnd(row, day.dayRef),
+                  }"
                   :aria-label="`${row.title}, ${day.shortLabel} ${day.dayNumber}`"
                   :aria-pressed="planner.dayCellState(row, day.dayRef) !== 'empty'"
+                  :title="beyondTitle(row, day.dayRef)"
                   @click="planner.handleMatrixCellToggle(row, day.dayRef)"
                 >
                   <span><i /></span>
@@ -247,9 +251,31 @@
                 </button>
               </details>
             </div>
+            <div
+              v-if="planner.deadlineProposal.value?.rowKey === planner.rowKey(row)"
+              class="qr-deadline"
+              role="group"
+              aria-label="Przesunięcie terminu celu"
+            >
+              <AppIcon name="event_upcoming" />
+              <p>
+                Cel <strong>{{ planner.deadlineProposal.value!.goalTitle }}</strong> kończy się
+                {{ onDayPhrase(planner.deadlineProposal.value!.currentTargetDate) }}.
+                Przesunąć termin na {{ dayPhrase(planner.deadlineProposal.value!.dayRef) }} i zaplanować ten dzień?
+              </p>
+              <div class="qr-deadline-actions">
+                <button type="button" class="qr-primary" :disabled="Boolean(planner.savingKey.value)" @click="planner.confirmDeadlineProposal()">
+                  Przesuń termin
+                </button>
+                <button type="button" class="qr-quiet" @click="planner.dismissDeadlineProposal()">Zostaw</button>
+              </div>
+            </div>
           </article>
         </div>
       </div>
+      <p v-if="planner.mutationError.value" class="qr-mutation-error" role="alert">
+        Nie udało się zapisać zmiany: {{ planner.mutationError.value }}
+      </p>
       <p v-if="!selectedKeys.length" class="qr-empty">
         Nie wybrano fokusu. <button type="button" class="qr-quiet" @click="go(0)">Wybierz działania</button>
       </p>
@@ -325,7 +351,7 @@ import { formatMeasurementTargetSummary } from '@/utils/measurementTargetFormat'
 import { getParentPeriod, getPeriodRefsForDate } from '@/utils/periods'
 import QuietPlanGroups, { type QuietPlanGroupItem } from './QuietPlanGroups.vue'
 import QuietRitualShell, { type QuietRitualStep } from './QuietRitualShell.vue'
-import { SUBJECT_ICON, plural, quietWeekDays, weekRangeTitle } from './quietRitualModel'
+import { SUBJECT_ICON, formatDay, plural, quietWeekDays, weekRangeTitle } from './quietRitualModel'
 
 const props = defineProps<{ weekRef: WeekRef }>()
 const emit = defineEmits<{ close: []; updated: [] }>()
@@ -439,6 +465,25 @@ function dayItems(dayRef: DayRef): QuietPlanGroupItem[] {
   return planner.allRows.value
     .filter(row => planner.rowSoftKind(row) !== 'whole-week' && planner.dayCellState(row, dayRef) !== 'empty')
     .map(planItem)
+}
+
+const WEEKDAY_ACCUSATIVE = ['poniedziałek', 'wtorek', 'środę', 'czwartek', 'piątek', 'sobotę', 'niedzielę']
+
+/** „środę 30 wrz” — weekday (accusative, after „na”) + short date. */
+function dayPhrase(dayRef: DayRef): string {
+  const weekday = (new Date(`${dayRef}T12:00:00`).getDay() + 6) % 7
+  return `${WEEKDAY_ACCUSATIVE[weekday]} ${formatDay(dayRef)}`
+}
+
+/** „w środę 30 wrz” / „we wtorek 29 wrz”. */
+function onDayPhrase(dayRef: DayRef): string {
+  const weekday = (new Date(`${dayRef}T12:00:00`).getDay() + 6) % 7
+  return `${weekday === 1 ? 'we' : 'w'} ${dayPhrase(dayRef)}`
+}
+
+function beyondTitle(row: PlannerMeasurementRow, dayRef: DayRef): string | undefined {
+  if (!planner.isDayBeyondGoalEnd(row, dayRef)) return undefined
+  return `Po terminie celu (${formatDay(planner.goalWindowEnd(row)!)}) — kliknięcie zaproponuje przesunięcie terminu`
 }
 
 function targetTitle(row: PlannerMeasurementRow): string {

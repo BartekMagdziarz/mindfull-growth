@@ -648,7 +648,15 @@
       "weekTarget": "Target for this week",
       "wholeWeekPill": "whole week",
       "wholeMonthPill": "whole month",
-      "restSection": "Other objects ({n})"
+      "restSection": "Other objects ({n})",
+      "deadline": {
+        "title": "Goal “{goal}” ends on {current}",
+        "message": "This day ({day}) is past the goal's target date. Move the deadline to {day} and plan this day?",
+        "confirm": "Move deadline",
+        "cancel": "Keep it",
+        "cellTitle": "After the goal's deadline ({current}) — clicking will offer to move it",
+        "error": "The change could not be saved: {message}"
+      }
     },
     "subjectType": {
       "keyResult": "Key result",

@@ -2123,6 +2123,48 @@
 .qr-day-button.soft i {
   opacity: 0.45;
 }
+/* Day after the goal's deadline: still clickable, but visibly outside the window. */
+.qr-day-button.beyond > span {
+  border-style: dotted;
+  opacity: 0.5;
+}
+.qr-day-button.beyond:hover > span {
+  opacity: 0.85;
+}
+.qr-deadline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--qr-inner);
+  padding: 12px 14px;
+  margin-top: 8px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.qr-deadline > .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--qr-accent);
+}
+.qr-deadline p {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+.qr-deadline-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.qr-deadline-actions .qr-primary {
+  font-size: 12px;
+  padding: 6px 12px;
+  min-height: 34px;
+}
+.qr-mutation-error {
+  margin: 10px 14px 0;
+  color: var(--qr-danger, #b3261e);
+  font-size: 13px;
+}
 .qr-plan-title {
   min-width: 0;
   overflow-wrap: anywhere;

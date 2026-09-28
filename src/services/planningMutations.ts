@@ -5,10 +5,12 @@ import type {
   MeasurementMonthState,
   MeasurementSubjectType,
 } from '@/domain/planningState'
+import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepository'
 import { periodPlanDexieRepository } from '@/repositories/periodPlanDexieRepository'
 import { planningStateDexieRepository } from '@/repositories/planningStateDexieRepository'
 import { getChildPeriods, getPeriodRefsForDate, getWeekOverlappingMonths } from '@/utils/periods'
+import { periodsInDateRange } from '@/utils/periodSchedule'
 
 interface MeasurementRef {
   subjectType: MeasurementSubjectType
@@ -105,6 +107,44 @@ async function ensureActiveMeasurementMonthState(
     subjectId,
     existing?.scheduleScope ?? 'unassigned',
     existing?.targetOverride
+  )
+}
+
+/**
+ * Activate month states for a weekly-cadence subject in every month a week
+ * overlaps — except the months a KeyResult's goal is not active in. A goal
+ * ending on 30 Sep is not active in October, and the repository guard rightly
+ * rejects a KR month state there; before this filter the whole toggle on a
+ * boundary week (28 Sep – 4 Oct) failed, so the KR could not be placed on
+ * ANY day of that week. Throws when no overlapping month can host the KR.
+ */
+async function ensureActiveMeasurementMonthStatesForWeek(
+  weekRef: WeekRef,
+  subjectType: MeasurementSubjectType,
+  subjectId: string
+): Promise<void> {
+  let monthRefs = getWeekOverlappingMonths(weekRef)
+
+  if (subjectType === 'keyResult') {
+    const keyResult = await keyResultDexieRepository.getById(subjectId)
+    if (!keyResult) {
+      throw new Error(`KeyResult with id ${subjectId} not found`)
+    }
+    const goalMonthStates = await Promise.all(
+      monthRefs.map(monthRef =>
+        planningStateDexieRepository.getGoalMonthState(monthRef, keyResult.goalId)
+      )
+    )
+    monthRefs = monthRefs.filter(
+      (_, index) => goalMonthStates[index]?.activityState === 'active'
+    )
+    if (monthRefs.length === 0) {
+      throw new Error('Goal must be active in an overlapping month to assign a KeyResult week to it')
+    }
+  }
+
+  await Promise.all(
+    monthRefs.map(monthRef => ensureActiveMeasurementMonthState(monthRef, subjectType, subjectId))
   )
 }
 
@@ -235,6 +275,30 @@ export async function unlinkGoalFromMonth(goalId: string, monthRef: MonthRef): P
     )
   )
   await planningStateDexieRepository.deleteGoalMonthState(monthRef, goalId)
+}
+
+/**
+ * Move a goal's deadline to `targetDate` and activate the goal in every month
+ * between the previous deadline (or the new one) and the new date, so the goal's
+ * key results can be placed on days the old window did not reach. Used by the
+ * week planner when the user drops a KR on a day after the goal's target date.
+ */
+export async function moveGoalTargetDate(goalId: string, targetDate: DayRef): Promise<void> {
+  const goal = await goalDexieRepository.getById(goalId)
+  if (!goal) {
+    throw new Error(`Goal with id ${goalId} not found`)
+  }
+  const from = goal.targetDate && goal.targetDate < targetDate ? goal.targetDate : targetDate
+  const months = periodsInDateRange(from, targetDate, 'monthly') as MonthRef[]
+  const states = await Promise.all(
+    months.map(monthRef => planningStateDexieRepository.getGoalMonthState(monthRef, goalId))
+  )
+  await goalDexieRepository.update(goalId, { targetDate })
+  await Promise.all(
+    months
+      .filter((_, index) => states[index]?.activityState !== 'active')
+      .map(monthRef => linkGoalToMonth(goalId, monthRef))
+  )
 }
 
 export async function activateMeasurementInMonth({
@@ -449,12 +513,7 @@ export async function linkMeasurementPeriod({
   }
 
   const weekRef = periodRef as WeekRef
-  const overlappingMonths = getWeekOverlappingMonths(weekRef)
-  await Promise.all(
-    overlappingMonths.map(overlappingMonth =>
-      ensureActiveMeasurementMonthState(overlappingMonth, subjectType, subjectId)
-    )
-  )
+  await ensureActiveMeasurementMonthStatesForWeek(weekRef, subjectType, subjectId)
   await planningStateDexieRepository.upsertMeasurementWeekState({
     weekRef,
     subjectType,
@@ -639,11 +698,7 @@ export async function toggleMeasurementDayAssignment({
       monthState?.targetOverride
     )
   } else {
-    await Promise.all(
-      getWeekOverlappingMonths(refs.week).map(overlappingMonth =>
-        ensureActiveMeasurementMonthState(overlappingMonth, subjectType, subjectId)
-      )
-    )
+    await ensureActiveMeasurementMonthStatesForWeek(refs.week, subjectType, subjectId)
   }
 
   await planningStateDexieRepository.upsertMeasurementWeekState({
@@ -764,11 +819,7 @@ export async function materializeMeasurementWeekPlacements({
         )
         return
       }
-      await Promise.all(
-        getWeekOverlappingMonths(weekRef).map(overlappingMonth =>
-          ensureActiveMeasurementMonthState(overlappingMonth, subjectType, subjectId)
-        )
-      )
+      await ensureActiveMeasurementMonthStatesForWeek(weekRef, subjectType, subjectId)
       await planningStateDexieRepository.upsertMeasurementWeekState({
         weekRef,
         subjectType,
@@ -841,11 +892,7 @@ export async function materializeMeasurementDayAssignments({
         })
     )
   } else if (dayRefs.length > 0) {
-    await Promise.all(
-      overlappingMonths.map(overlappingMonth =>
-        ensureActiveMeasurementMonthState(overlappingMonth, subjectType, subjectId)
-      )
-    )
+    await ensureActiveMeasurementMonthStatesForWeek(weekRef, subjectType, subjectId)
     await planningStateDexieRepository.upsertMeasurementWeekState({
       weekRef,
       subjectType,
