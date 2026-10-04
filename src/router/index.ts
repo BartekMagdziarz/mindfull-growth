@@ -108,6 +108,14 @@ const router = createRouter({
       name: 'priority-creator-ritual',
       component: () => import('@/views/PriorityCreatorView.vue'),
     },
+    // Closing a goal is a short ritual on its own route (spec:
+    // ideas/html-plans/2026-10-04-goal-closing-ritual.html).
+    {
+      path: '/objects/goals/:goalId/close',
+      name: 'goal-closing-ritual',
+      component: () => import('@/views/GoalClosingView.vue'),
+      props: route => ({ goalId: route.params.goalId }),
+    },
     {
       path: '/objects/:family',
       name: 'objects-family',

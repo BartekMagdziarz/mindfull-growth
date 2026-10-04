@@ -1,0 +1,328 @@
+/* Goal closing ritual — only what quiet-ritual.css does not already give:
+   the month grid of key results, the start mirror, the confidence scale and the
+   follow-up sub-list. Everything sits on the quiet ritual's --qr-* roles, which
+   resolve to Design V2 tokens. */
+
+.gc-step {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+/* ── Facts: key results × months ─────────────────────────────────────────── */
+.gc-table {
+  --gc-month-col: 34px;
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  background: var(--qr-field);
+  border-radius: 17px 20px 15px 19px;
+  overflow-x: auto;
+}
+.gc-table-head,
+.gc-table-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.5fr) repeat(var(--gc-month-count, 1), var(--gc-month-col)) minmax(72px, auto);
+  gap: 6px;
+  align-items: center;
+}
+.gc-table-head {
+  padding: 2px 0 8px;
+  color: var(--qr-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+.gc-table-head > span:first-child {
+  text-align: left;
+}
+.gc-table-head > span:last-child {
+  text-align: right;
+}
+.gc-table-row {
+  min-height: 42px;
+  padding: 4px 0;
+  border-top: 1px solid var(--qr-line);
+}
+.gc-row-name {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  color: inherit;
+}
+.gc-row-name .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--qr-accent);
+}
+.gc-row-name > span {
+  display: grid;
+  min-width: 0;
+}
+.gc-row-name strong {
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gc-row-name small {
+  color: var(--qr-muted);
+  font-size: 11.5px;
+}
+.gc-cell {
+  display: grid;
+  place-items: center;
+}
+.gc-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.gc-dot--met {
+  background: var(--qr-accent);
+}
+.gc-dot--missed {
+  border: 1.5px solid var(--qr-effort);
+}
+.gc-dot--no-data {
+  border: 1.5px solid var(--qr-line-mid);
+}
+.gc-dot--unplanned {
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--qr-line);
+}
+.gc-result {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+  font-size: 13px;
+  color: var(--qr-muted);
+  font-variant-numeric: tabular-nums;
+}
+.gc-result b {
+  color: var(--qr-ink);
+  font-weight: 750;
+}
+.gc-result small {
+  font-size: 11px;
+}
+.gc-facts {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  color: var(--qr-muted);
+  font-size: 13px;
+}
+.gc-facts b {
+  color: var(--qr-ink);
+  font-weight: 750;
+}
+
+/* ── Verdict / follow-up choices on the shared .qr-choice anatomy ───────── */
+.gc-choices .qr-choice-pick {
+  min-height: 84px;
+}
+.gc-choices .qr-choice strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.gc-hint {
+  padding: 1px 7px;
+  border: 1px dashed var(--qr-line-mid);
+  border-radius: 999px;
+  color: var(--mg-color-primary-strong);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+@media (max-width: 700px) {
+  .gc-choices {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Side exit: move the deadline ───────────────────────────────────────── */
+.gc-deadline {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.gc-deadline > .qr-quiet b {
+  color: var(--mg-color-primary-strong);
+  font-weight: 750;
+}
+.gc-deadline-form {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px 14px;
+  align-items: end;
+  padding: 14px 16px;
+  background: var(--qr-field);
+  border-radius: 17px 20px 15px 19px;
+}
+.gc-deadline-form label {
+  display: grid;
+  gap: 6px;
+}
+.gc-deadline-form label span {
+  font-size: 12px;
+  color: var(--qr-muted);
+}
+.gc-deadline-form p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--qr-muted);
+  font-size: 12.5px;
+}
+
+/* ── Mirror of the start ─────────────────────────────────────────────────── */
+.gc-mirror {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 14px;
+}
+@media (max-width: 760px) {
+  .gc-mirror {
+    grid-template-columns: 1fr;
+  }
+}
+.gc-then {
+  padding: 14px 16px;
+  background: var(--qr-field);
+  border-radius: 17px 14px 18px 15px;
+}
+.gc-then b {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--mg-color-primary-strong);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.gc-then q {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.55;
+  quotes: '„' '”';
+}
+.gc-then small {
+  color: var(--qr-muted);
+  font-size: 12.5px;
+}
+.gc-now {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.gc-label {
+  color: var(--qr-muted);
+  font-size: 13px;
+}
+
+/* Segmented yes/partly/no: the one inset control on the page. */
+.gc-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  justify-self: start;
+  background: var(--mg-color-sky-well);
+  border-radius: var(--mg-radius-pill);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+.gc-seg button {
+  padding: 6px 14px;
+  border-radius: var(--mg-radius-pill);
+  background: transparent;
+  color: var(--qr-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.gc-seg button.on {
+  background: var(--qr-inner);
+  color: var(--qr-ink);
+  box-shadow: var(--mg-shadow-raised-sm);
+}
+
+/* Confidence then/now on one 1–10 row. */
+.gc-scale {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.gc-scale button {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--qr-line-mid);
+  background: transparent;
+}
+.gc-scale button.then {
+  background: var(--qr-line-soft);
+  border-color: transparent;
+}
+.gc-scale button.now {
+  background: var(--qr-accent);
+  border-color: var(--qr-accent);
+}
+.gc-scale small {
+  margin-left: 8px;
+  color: var(--qr-muted);
+  font-size: 12px;
+}
+
+/* ── Lessons ─────────────────────────────────────────────────────────────── */
+.gc-step--lessons {
+  gap: 14px;
+}
+.gc-field {
+  display: grid;
+  gap: 6px;
+}
+.gc-field small {
+  color: var(--qr-muted);
+  font-size: 11.5px;
+}
+
+/* ── Follow-up sub-list ──────────────────────────────────────────────────── */
+.gc-sub {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  background: var(--qr-field);
+  border-radius: 17px 20px 15px 19px;
+}
+.gc-sub-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 36px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.gc-sub-row input {
+  accent-color: var(--qr-accent);
+}
+.gc-sub-row small {
+  color: var(--qr-muted);
+  font-size: 12px;
+}
+.gc-sub-row em {
+  color: var(--qr-muted);
+  font-size: 12px;
+  font-style: normal;
+}
+.gc-note {
+  color: var(--qr-muted);
+  font-size: 13.5px;
+}

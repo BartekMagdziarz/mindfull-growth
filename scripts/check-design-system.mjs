@@ -7,6 +7,7 @@ const guardedRoots = [
   'src/design-system/components',
   'src/features/planning-next',
   'src/features/quiet-ritual',
+  'src/features/goal-closing',
   'src/views/EmotionLogEditorView.vue',
   'src/views/JournalEditorView.vue',
   'src/views/ObjectsLibraryView.vue',

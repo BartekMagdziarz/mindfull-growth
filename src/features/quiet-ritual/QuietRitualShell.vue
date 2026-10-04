@@ -98,6 +98,8 @@ const props = withDefaults(
     finishLabel?: string
     finishedLabel?: string
     alternateLabel?: string
+    /** Overrides the save-state text (e.g. a ritual that writes only at the end). */
+    statusLabel?: string
   }>(),
   { count: '', wide: false, saving: false, finished: false, finishLabel: 'Zapisz', finishedLabel: 'Zapisano' },
 )
@@ -106,7 +108,9 @@ const emit = defineEmits<{ close: []; go: [index: number]; finish: []; alternate
 
 const headingRef = ref<HTMLElement | null>(null)
 const activeStep = computed(() => props.steps[props.current] ?? props.steps[0])
-const statusLabel = computed(() => (props.saving ? 'Zapisuję…' : props.finished ? 'Zapisano' : 'Zapis na bieżąco'))
+const statusLabel = computed(() =>
+  props.saving ? 'Zapisuję…' : props.statusLabel ?? (props.finished ? 'Zapisano' : 'Zapis na bieżąco'),
+)
 
 // Moving between steps puts focus on the new question, so keyboard and screen
 // reader users land on the one thing the step asks.

@@ -943,6 +943,70 @@ export async function seedVerificationData(): Promise<void> {
   // Archive g3 now that its KR is planned — from here on it is the orphan case.
   await goalDexieRepository.update(g3.id, { isActive: false })
 
+  // ── Goals past their deadline (closing ritual) ─────────────────────────────
+  // Spec: ideas/html-plans/2026-10-04-goal-closing-ritual.html. g4 is a full
+  // SMART goal that ended four days ago with KRs in different states (4-step
+  // ritual); g5 was created bare and is overdue since last month (3 steps).
+  const windowMonths = [...monthSet].sort()
+  const g4 = await goalDexieRepository.create({
+    title: 'Blok treningowy',
+    isActive: true,
+    status: 'open',
+    priorityIds: [p1.id],
+    lifeAreaIds: [areaHealth.id],
+    icon: 'fitness_center',
+    startDate: monthStart(windowMonths[0]),
+    targetDate: addDaysToDayRef(todayRef, -4),
+    successDefinition: 'Trzy treningi tygodniowo bez przerw dłuższych niż tydzień, przysiad 100 kg na koniec.',
+    whyMatters: 'Siła jest fundamentem pod bieganie i pod plecy, które ostatnio dają znać.',
+    confidenceRating: 8,
+    achievabilityRationale: 'Mam już nawyk z zeszłego roku, trzeba tylko dołożyć ciężary.',
+    obstacles: 'Sezon urlopowy, kontuzja kolana z zimy.',
+    resources: 'Siłownia obok pracy, znajomy trener.',
+  })
+  for (const monthRef of windowMonths) {
+    await linkGoalToMonth(g4.id, monthRef)
+  }
+  const kr8 = await keyResultDexieRepository.create({
+    title: '3 treningi w tygodniu',
+    isActive: true,
+    status: 'open',
+    goalId: g4.id,
+    cadence: 'weekly',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 3 },
+  })
+  const kr9 = await keyResultDexieRepository.create({
+    title: 'Rozciąganie co wieczór',
+    isActive: true,
+    status: 'open',
+    goalId: g4.id,
+    cadence: 'weekly',
+    entryMode: 'completion',
+    target: { kind: 'count', operator: 'min', value: 6 },
+  })
+  for (const [weekIdx, weekRef] of pastWeeks.entries()) {
+    for (const id of [kr8.id, kr9.id]) {
+      await linkMeasurementPeriod({ subjectType: 'keyResult', subjectId: id, cadence: 'weekly', periodRef: weekRef })
+    }
+    // Sessions: Mon/Wed/Fri, every fourth week only two → three of four weeks met.
+    await addEntries('keyResult', kr8.id, weekDays(weekRef, weekIdx % 4 === 3 ? [0, 4] : [0, 2, 4]), null)
+    // Stretching: logged in the first two weeks only → missed, then no data.
+    if (weekIdx < 2) {
+      await addEntries('keyResult', kr9.id, weekDays(weekRef, [0, 1, 2]), null)
+    }
+  }
+  const g5 = await goalDexieRepository.create({
+    title: 'Porządek w finansach',
+    isActive: true,
+    status: 'open',
+    priorityIds: [p2.id],
+    lifeAreaIds: [areaWork.id],
+    targetDate: addDaysToDayRef(todayRef, -19),
+  })
+  await linkGoalToMonth(g5.id, monthM1)
+  await linkGoalToMonth(g5.id, currentMonth)
+
   // h10: only the older half of past weeks (retired since).
   for (const weekRef of pastWeeks.slice(0, Math.ceil(pastWeeks.length / 2))) {
     await linkMeasurementPeriod({ subjectType: 'habit', subjectId: h10.id, cadence: 'weekly', periodRef: weekRef })

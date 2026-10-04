@@ -97,6 +97,58 @@ export interface PriorityClosingReflection {
   learned?: string
 }
 
+/** How a goal ended; a shade of the closing reflection, not a fourth status (see
+ *  ideas/html-plans/2026-10-04-goal-closing-ritual.html, D2). */
+export type GoalOutcome = 'achieved' | 'partial' | 'missed' | 'abandoned'
+export type GoalFollowUpKind = 'none' | 'habit' | 'new-goal' | 'revisit'
+export type GoalSuccessMet = 'yes' | 'partly' | 'no'
+export type GoalClosingMonthState = 'met' | 'missed' | 'no-data' | 'unplanned'
+export type GoalClosingEvaluation = 'met' | 'missed' | 'no-data'
+
+/** One key result as it stood when the goal was closed: frozen, cheap to render. */
+export interface GoalClosingKeyResultSnapshot {
+  id: string
+  title: string
+  entryMode: MeasurementEntryMode
+  cadence: PlanningCadence
+  /** Whole-window verdict (rule in domain/goalClosing.ts). */
+  evaluation: GoalClosingEvaluation
+  monthsMet: number
+  monthsPlanned: number
+  /** Month by month across the goal window, oldest first. */
+  months: { monthRef: string; state: GoalClosingMonthState }[]
+  /** Short human read-out, e.g. „6/7 mies.” or „105”. */
+  lastReadout?: string
+}
+
+export interface GoalClosingFollowUp {
+  kind: GoalFollowUpKind
+  note?: string
+  /** Habits created from key results during the closing ritual. */
+  createdHabitIds?: string[]
+}
+
+/** The closing ritual's record; only present on goals that are not 'open'. */
+export interface GoalClosingReflection {
+  /** ISO date (YYYY-MM-DD) of the closing. */
+  closedAt: string
+  outcome: GoalOutcome
+  // Mirror of the creation fields
+  successMet?: GoalSuccessMet
+  successNote?: string
+  /** Same 1–10 scale as the creation wizard's confidenceRating. */
+  confidenceInHindsight?: number
+  confidenceNote?: string
+  obstaclesHit?: string
+  // Lessons (shared vocabulary with PriorityClosingReflection)
+  workedWell?: string
+  wasDifficult?: string
+  learned?: string
+  followUp?: GoalClosingFollowUp
+  keyResults: GoalClosingKeyResultSnapshot[]
+  window: { startDate?: string; targetDate?: string; weeksPlanned: number }
+}
+
 export interface Priority extends Omit<PlanningObjectBase, 'isActive'> {
   icon?: string
   years: YearRef[]
@@ -134,6 +186,10 @@ export interface Goal extends PlanningObjectBase {
   achievabilityRationale?: string
   obstacles?: string
   resources?: string
+  /** Written by the closing ritual; only while status !== 'open'. */
+  closingReflection?: GoalClosingReflection
+  /** „Później” in the post-reflection invite: hide the closing prompt until this day. */
+  closingDeferredUntil?: string
 }
 
 export interface KeyResult extends PlanningObjectBase {
@@ -328,6 +384,11 @@ const PRIORITY_LINK_SUBJECT_TYPES = [
 ] as const
 const PRIORITY_LINK_PROPOSAL_TYPES = ['goal', 'habit', 'tracker', 'weeklyIntention'] as const
 const GOAL_STATUSES = ['open', 'completed', 'dropped'] as const
+export const GOAL_OUTCOMES = ['achieved', 'partial', 'missed', 'abandoned'] as const
+const GOAL_FOLLOW_UP_KINDS = ['none', 'habit', 'new-goal', 'revisit'] as const
+const GOAL_SUCCESS_MET = ['yes', 'partly', 'no'] as const
+const GOAL_CLOSING_EVALUATIONS = ['met', 'missed', 'no-data'] as const
+const GOAL_CLOSING_MONTH_STATES = ['met', 'missed', 'no-data', 'unplanned'] as const
 const HABIT_STATUSES = ['open', 'retired', 'dropped'] as const
 const TRACKER_STATUSES = ['open', 'retired', 'dropped'] as const
 const WEEKLY_INTENTION_STATUSES = ['open', 'retired', 'dropped'] as const
@@ -604,6 +665,110 @@ function normalizePriorityClosingReflection(
   }
 }
 
+/** Status a goal must carry for a given closing outcome. */
+export function goalStatusForOutcome(outcome: GoalOutcome): Exclude<GoalStatus, 'open'> {
+  return outcome === 'abandoned' ? 'dropped' : 'completed'
+}
+
+function normalizeGoalClosingKeyResultSnapshot(
+  value: unknown,
+  index: number,
+): GoalClosingKeyResultSnapshot {
+  const field = `closingReflection.keyResults[${index}]`
+  if (!isPlainObject(value)) {
+    throw new Error(`${field} must be an object`)
+  }
+  const monthsSource = value.months ?? []
+  if (!Array.isArray(monthsSource)) {
+    throw new Error(`${field}.months must be an array`)
+  }
+  const months = monthsSource.map((month, monthIndex) => {
+    if (!isPlainObject(month)) {
+      throw new Error(`${field}.months[${monthIndex}] must be an object`)
+    }
+    return {
+      monthRef: normalizeRequiredText(month.monthRef, `${field}.months[${monthIndex}].monthRef`),
+      state: normalizeEnum(month.state, `${field}.months[${monthIndex}].state`, GOAL_CLOSING_MONTH_STATES, 'unplanned'),
+    }
+  })
+  return {
+    id: normalizeRequiredText(value.id, `${field}.id`),
+    title: normalizeRequiredText(value.title, `${field}.title`),
+    entryMode: normalizeEnum(value.entryMode, `${field}.entryMode`, ENTRY_MODES, 'completion'),
+    cadence: normalizeEnum(value.cadence, `${field}.cadence`, CADENCES, 'weekly'),
+    evaluation: normalizeEnum(value.evaluation, `${field}.evaluation`, GOAL_CLOSING_EVALUATIONS, 'no-data'),
+    monthsMet: normalizeNonNegativeInteger(value.monthsMet, `${field}.monthsMet`, 0),
+    monthsPlanned: normalizeNonNegativeInteger(value.monthsPlanned, `${field}.monthsPlanned`, 0),
+    months,
+    lastReadout: normalizeOptionalText(value.lastReadout, `${field}.lastReadout`),
+  }
+}
+
+function normalizeGoalClosingReflection(
+  value: unknown,
+  fallback?: GoalClosingReflection,
+): GoalClosingReflection | undefined {
+  const source = value ?? fallback
+  if (source === undefined) return undefined
+  if (!isPlainObject(source)) {
+    throw new Error('Goal.closingReflection must be an object')
+  }
+
+  const keyResultsSource = source.keyResults ?? fallback?.keyResults ?? []
+  if (!Array.isArray(keyResultsSource)) {
+    throw new Error('closingReflection.keyResults must be an array')
+  }
+  const windowSource = source.window ?? fallback?.window ?? {}
+  if (!isPlainObject(windowSource)) {
+    throw new Error('closingReflection.window must be an object')
+  }
+  const followUpSource = source.followUp ?? fallback?.followUp
+  let followUp: GoalClosingFollowUp | undefined
+  if (followUpSource !== undefined) {
+    if (!isPlainObject(followUpSource)) {
+      throw new Error('closingReflection.followUp must be an object')
+    }
+    followUp = {
+      kind: normalizeEnum(followUpSource.kind, 'closingReflection.followUp.kind', GOAL_FOLLOW_UP_KINDS, 'none'),
+      note: normalizeOptionalText(followUpSource.note, 'closingReflection.followUp.note'),
+      createdHabitIds: followUpSource.createdHabitIds === undefined
+        ? undefined
+        : normalizeIdArray(followUpSource.createdHabitIds, 'closingReflection.followUp.createdHabitIds'),
+    }
+  }
+
+  const closedAt = normalizeOptionalIsoDate(source.closedAt, 'closingReflection.closedAt', fallback?.closedAt)
+  if (!closedAt) {
+    throw new Error('closingReflection.closedAt is required')
+  }
+  const successMetSource = source.successMet ?? fallback?.successMet
+  return {
+    closedAt,
+    outcome: normalizeEnum(source.outcome, 'closingReflection.outcome', GOAL_OUTCOMES, fallback?.outcome ?? 'achieved'),
+    successMet: successMetSource === undefined
+      ? undefined
+      : normalizeEnum(successMetSource, 'closingReflection.successMet', GOAL_SUCCESS_MET, successMetSource as GoalSuccessMet),
+    successNote: normalizeOptionalText(source.successNote, 'closingReflection.successNote', fallback?.successNote),
+    confidenceInHindsight: normalizeOptionalRating1To10(
+      source.confidenceInHindsight,
+      'closingReflection.confidenceInHindsight',
+      fallback?.confidenceInHindsight,
+    ),
+    confidenceNote: normalizeOptionalText(source.confidenceNote, 'closingReflection.confidenceNote', fallback?.confidenceNote),
+    obstaclesHit: normalizeOptionalText(source.obstaclesHit, 'closingReflection.obstaclesHit', fallback?.obstaclesHit),
+    workedWell: normalizeOptionalText(source.workedWell, 'closingReflection.workedWell', fallback?.workedWell),
+    wasDifficult: normalizeOptionalText(source.wasDifficult, 'closingReflection.wasDifficult', fallback?.wasDifficult),
+    learned: normalizeOptionalText(source.learned, 'closingReflection.learned', fallback?.learned),
+    followUp,
+    keyResults: keyResultsSource.map((item, index) => normalizeGoalClosingKeyResultSnapshot(item, index)),
+    window: {
+      startDate: normalizeOptionalIsoDate(windowSource.startDate, 'closingReflection.window.startDate'),
+      targetDate: normalizeOptionalIsoDate(windowSource.targetDate, 'closingReflection.window.targetDate'),
+      weeksPlanned: normalizeNonNegativeInteger(windowSource.weeksPlanned, 'closingReflection.window.weeksPlanned', 0),
+    },
+  }
+}
+
 function normalizeEntryDaysCondition(
   entryMode: MeasurementEntryMode,
   value: unknown,
@@ -869,13 +1034,33 @@ export function normalizeGoalPayload(
   existing?: Goal,
 ): Omit<Goal, 'id' | 'createdAt' | 'updatedAt'> {
   const base = normalizePlanningObjectBase(data, existing)
+  const status = normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open')
+
+  // The closing reflection lives and dies with the closed status (as for priorities):
+  // reopening a goal drops it, and an open goal cannot carry one.
+  if (status === 'open' && data.closingReflection !== undefined && data.closingReflection !== null) {
+    throw new Error('Goal.closingReflection is only supported for closed goals')
+  }
+  const closingReflection = status === 'open'
+    ? undefined
+    : normalizeGoalClosingReflection(data.closingReflection, existing?.closingReflection)
+  if (closingReflection && goalStatusForOutcome(closingReflection.outcome) !== status) {
+    throw new Error(
+      `Goal status '${status}' does not match closing outcome '${closingReflection.outcome}'`,
+    )
+  }
 
   return {
     ...base,
     icon: normalizeOptionalText(data.icon, 'icon', existing?.icon),
     priorityIds: normalizeIdArray(data.priorityIds, 'priorityIds', existing?.priorityIds),
     lifeAreaIds: normalizeIdArray(data.lifeAreaIds, 'lifeAreaIds', existing?.lifeAreaIds),
-    status: normalizeEnum(data.status, 'status', GOAL_STATUSES, existing?.status ?? 'open'),
+    status,
+    closingReflection,
+    // Only an open goal can be waiting for its closing; '' clears the deferral.
+    closingDeferredUntil: status === 'open'
+      ? normalizeOptionalIsoDate(data.closingDeferredUntil, 'closingDeferredUntil', existing?.closingDeferredUntil)
+      : undefined,
     periodAssignmentMode: normalizeEnum(data.periodAssignmentMode, 'periodAssignmentMode', ['automatic', 'custom'] as const, existing?.periodAssignmentMode ?? 'custom'),
     startDate: normalizeOptionalIsoDate(data.startDate, 'startDate', existing?.startDate),
     targetDate: normalizeOptionalIsoDate(data.targetDate, 'targetDate', existing?.targetDate),
