@@ -8,6 +8,8 @@
     :wide="currentStepId === 'review' || currentStepId === 'journal'"
     :saving="isSaving"
     :finished="saved"
+    :closing-period-start="getPeriodBounds(weekRef).start"
+    :closing-period-end="getPeriodBounds(weekRef).end"
     finish-label="Zapisz refleksję"
     finished-label="Zapisano"
     alternate-label="Zapisz i zaplanuj kolejny tydzień"

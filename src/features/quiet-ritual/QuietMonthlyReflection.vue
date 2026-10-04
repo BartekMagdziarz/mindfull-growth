@@ -8,6 +8,8 @@
     :wide="current === 3"
     :saving="isSaving"
     :finished="saved"
+    :closing-period-start="getPeriodBounds(monthRef).start"
+    :closing-period-end="getPeriodBounds(monthRef).end"
     finish-label="Zapisz refleksję"
     finished-label="Zapisano"
     alternate-label="Zapisz i zaplanuj kolejny miesiąc"

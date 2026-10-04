@@ -17,6 +17,8 @@
       </header>
 
       <slot />
+      <!-- Saved reflections invite the user to close out goals whose deadline passed (spec D8). -->
+      <GoalClosingInvite v-if="finished && closingPeriodEnd" :period-end="closingPeriodEnd" :period-start="closingPeriodStart" />
 
       <footer class="qr-footer">
         <button
@@ -80,6 +82,8 @@ export interface QuietRitualStep {
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
+import type { DayRef } from '@/domain/period'
+import GoalClosingInvite from '@/features/goal-closing/GoalClosingInvite.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -100,6 +104,9 @@ const props = withDefaults(
     alternateLabel?: string
     /** Overrides the save-state text (e.g. a ritual that writes only at the end). */
     statusLabel?: string
+    /** Reflection rituals: once saved, list goals whose deadline fell by this day. */
+    closingPeriodEnd?: DayRef
+    closingPeriodStart?: DayRef
   }>(),
   { count: '', wide: false, saving: false, finished: false, finishLabel: 'Zapisz', finishedLabel: 'Zapisano' },
 )
