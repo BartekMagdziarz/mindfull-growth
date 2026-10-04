@@ -9,6 +9,7 @@ import type {
   MultiCompletionItem,
   PlanningCadence,
   Priority,
+  GoalClosingReflection,
   PriorityClosingReflection,
   Tracker,
   WeeklyIntention,
@@ -113,6 +114,9 @@ export interface ObjectsLibraryListItem {
   progressSignals?: string[]
   riskSignals?: string[]
   closingReflection?: PriorityClosingReflection
+  /** Goals: written by the closing ritual (status !== 'open'). */
+  goalClosingReflection?: GoalClosingReflection
+  closingDeferredUntil?: string
   linkedCounts?: {
     goals: number
     habits: number
@@ -875,6 +879,8 @@ function buildGoalListItem(
     achievabilityRationale: goal.achievabilityRationale,
     obstacles: goal.obstacles,
     resources: goal.resources,
+    goalClosingReflection: goal.closingReflection,
+    closingDeferredUntil: goal.closingDeferredUntil,
   }
 }
 

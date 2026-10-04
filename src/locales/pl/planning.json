@@ -1707,5 +1707,56 @@
       },
       "journalPlaceholder": "Napisz refleksję nad minionym miesiącem..."
     }
+  },
+  "goalClosing": {
+    "outcome": {
+      "achieved": "osiągnięty",
+      "partial": "częściowo",
+      "missed": "nieosiągnięty",
+      "abandoned": "porzucony"
+    },
+    "actions": {
+      "summarize": "Podsumuj cel",
+      "moveDeadline": "Przesuń termin",
+      "editInRitual": "Edytuj w rytuale",
+      "showAll": "Pokaż całość",
+      "collapse": "Zwiń"
+    },
+    "summary": {
+      "title": "Podsumowanie",
+      "keyResults": "Rezultaty",
+      "successDefinition": "Definicja sukcesu",
+      "successMet": {
+        "yes": "tak",
+        "partly": "częściowo",
+        "no": "nie"
+      },
+      "confidence": "Pewność: wtedy {then} · dziś {now}",
+      "obstacles": "Przeszkody, które wystąpiły",
+      "workedWell": "Co działało dobrze",
+      "wasDifficult": "Co było trudne",
+      "learned": {
+        "m": "Czego się nauczyłem",
+        "f": "Czego się nauczyłam"
+      },
+      "followUp": {
+        "none": "Temat zamknięty",
+        "habit": "Zostaje nawyk",
+        "new-goal": "Nowy cel",
+        "revisit": "Wrócę do tematu"
+      },
+      "closedOn": "zamknięty {date}"
+    },
+    "upcoming": {
+      "summarized": "Podsumowany"
+    },
+    "reopen": {
+      "title": "Otworzyć cel ponownie?",
+      "message": "Podsumowanie celu „{title}” zostanie usunięte, a jego rezultaty wrócą do stanu otwartego.",
+      "confirm": "Otwórz ponownie"
+    },
+    "messages": {
+      "reopened": "Cel otwarty ponownie"
+    }
   }
 }

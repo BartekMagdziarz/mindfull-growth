@@ -10,26 +10,35 @@
       <span>{{ t('planning.today.upcoming.title') }}</span>
     </header>
     <div class="next-day-upcoming__list">
-      <button
-        v-for="entry in visible"
-        :key="entry.key"
-        type="button"
-        class="next-day-upcoming__row"
-        :class="rowClass(entry)"
-        :aria-label="rowLabel(entry)"
-        @click="open(entry)"
-      >
-        <span class="next-day-upcoming__icon"><AppIcon :name="markerIcon(entry)" /></span>
-        <span class="next-day-upcoming__copy"
-          ><strong :title="markerTitle(entry, t, locale, todayRef)">{{
-            markerTitle(entry, t, locale, todayRef)
-          }}</strong>
-          <span class="next-day-upcoming__context">{{
-            markerContextLabel(entry, todayRef, t, locale)
-          }}</span>
+      <div v-for="entry in visible" :key="entry.key" class="next-day-upcoming__item">
+        <button
+          type="button"
+          class="next-day-upcoming__row"
+          :class="rowClass(entry)"
+          :aria-label="rowLabel(entry)"
+          @click="open(entry)"
+        >
+          <span class="next-day-upcoming__icon"><AppIcon :name="markerIcon(entry)" /></span>
+          <span class="next-day-upcoming__copy"
+            ><strong :title="markerTitle(entry, t, locale, todayRef)">{{
+              markerTitle(entry, t, locale, todayRef)
+            }}</strong>
+            <span class="next-day-upcoming__context">{{
+              markerContextLabel(entry, todayRef, t, locale)
+            }}</span>
+          </span>
+          <em>{{ markerDateLabel(entry, todayRef, t, locale) }}</em>
+        </button>
+        <!-- A goal at or past its deadline: close it out, or admit it is not over yet. -->
+        <span v-if="isClosable(entry)" class="next-day-upcoming__tray">
+          <button type="button" class="next-day-upcoming__action" @click="closeOut(entry, false)">
+            {{ t('planning.goalClosing.actions.summarize') }}
+          </button>
+          <button type="button" class="next-day-upcoming__action" @click="closeOut(entry, true)">
+            {{ t('planning.goalClosing.actions.moveDeadline') }}
+          </button>
         </span>
-        <em>{{ markerDateLabel(entry, todayRef, t, locale) }}</em>
-      </button>
+      </div>
       <button
         v-if="hiddenCount > 0 || expanded"
         type="button"
@@ -48,26 +57,26 @@
     <details v-if="pastDone.length" class="next-day-upcoming__past">
       <summary>{{ t('planning.today.upcoming.past', { n: pastDone.length }) }}</summary>
       <div class="next-day-upcoming__list">
-        <button
-          v-for="entry in pastDone"
-          :key="entry.key"
-          type="button"
-          class="next-day-upcoming__row"
-          :class="rowClass(entry)"
-          :aria-label="rowLabel(entry)"
-          @click="open(entry)"
-        >
-          <span class="next-day-upcoming__icon"><AppIcon :name="markerIcon(entry)" /></span>
-          <span class="next-day-upcoming__copy"
-            ><strong :title="markerTitle(entry, t, locale, todayRef)">{{
-              markerTitle(entry, t, locale, todayRef)
-            }}</strong>
-            <span class="next-day-upcoming__context">{{
-              markerContextLabel(entry, todayRef, t, locale)
-            }}</span>
-          </span>
-          <em>{{ markerDateLabel(entry, todayRef, t, locale) }}</em>
-        </button>
+        <div v-for="entry in pastDone" :key="entry.key" class="next-day-upcoming__item">
+          <button
+            type="button"
+            class="next-day-upcoming__row"
+            :class="rowClass(entry)"
+            :aria-label="rowLabel(entry)"
+            @click="open(entry)"
+          >
+            <span class="next-day-upcoming__icon"><AppIcon :name="markerIcon(entry)" /></span>
+            <span class="next-day-upcoming__copy"
+              ><strong :title="markerTitle(entry, t, locale, todayRef)">{{
+                markerTitle(entry, t, locale, todayRef)
+              }}</strong>
+              <span class="next-day-upcoming__context">{{
+                markerContextLabel(entry, todayRef, t, locale)
+              }}</span>
+            </span>
+            <em>{{ markerDateLabel(entry, todayRef, t, locale) }}</em>
+          </button>
+        </div>
       </div>
     </details>
   </DsSurface>
@@ -128,6 +137,20 @@ function rowLabel(entry: DayMarker): string {
     markerDateLabel(entry, props.todayRef, t, locale.value),
   ]
   return parts.join(', ')
+}
+
+/** An open goal whose deadline is today or behind: the closing ritual applies. */
+function isClosable(entry: DayMarker): boolean {
+  return entry.kind === 'deadline' && entry.state === 'due' && entry.dayRef <= props.todayRef
+}
+
+function closeOut(entry: DayMarker, moveDeadline: boolean) {
+  if (entry.kind !== 'deadline') return
+  void router.push({
+    name: 'goal-closing-ritual',
+    params: { goalId: entry.goal.id },
+    query: { return: `/today/${props.todayRef}`, ...(moveDeadline ? { deadline: '1' } : {}) },
+  })
 }
 
 function open(entry: DayMarker) {

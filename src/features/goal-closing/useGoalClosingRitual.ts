@@ -69,7 +69,7 @@ export function daysAfterDeadline(targetDate: string | undefined, today: DayRef)
  */
 export function useGoalClosingRitual(
   goalId: Ref<string>,
-  options: { presetOutcome?: Ref<GoalOutcome | null>; masculine?: Ref<boolean> } = {},
+  options: { presetOutcome?: Ref<GoalOutcome | null>; masculine?: Ref<boolean>; openDeadline?: Ref<boolean> } = {},
 ) {
   const snapshot = ref<GoalClosingSnapshot | null>(null)
   const loading = ref(false)
@@ -140,9 +140,11 @@ export function useGoalClosingRitual(
       saved.value = false
       if (editing.value) {
         prefillFromReflection()
+        if (options.presetOutcome?.value) outcome.value = options.presetOutcome.value
       } else {
         outcome.value = options.presetOutcome?.value ?? suggestion.value
       }
+      deadlineOpen.value = Boolean(options.openDeadline?.value) && !editing.value
       const target = snapshot.value.goal.targetDate
       deadlineDate.value = addDaysToDayRef(target && target > todayRef ? (target as DayRef) : todayRef, 28)
     } catch (error) {

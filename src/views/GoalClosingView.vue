@@ -3,6 +3,7 @@
     <GoalClosingRitual
       :goal-id="goalId"
       :preset-outcome="presetOutcome"
+      :open-deadline="queryString('deadline') === '1'"
       @close="leave"
       @finished="handleFinished"
       @moved="handleMoved"

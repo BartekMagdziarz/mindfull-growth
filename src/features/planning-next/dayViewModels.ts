@@ -125,7 +125,10 @@ export function markerDateLabel(
   locale: string
 ): string {
   const prefix = 'planning.today.upcoming.'
-  if (marker.state === 'done')
+  if (marker.state === 'done') {
+    if (marker.kind === 'deadline' && marker.goal.closingReflection) {
+      return t('planning.goalClosing.upcoming.summarized')
+    }
     return t(
       prefix +
         (marker.kind === 'deadline'
@@ -134,6 +137,7 @@ export function markerDateLabel(
             ? 'planned'
             : 'reflected')
     )
+  }
   if (bucketMarker(marker, todayRef) === 'overdue') {
     return t(
       prefix +

@@ -1707,5 +1707,56 @@
       },
       "journalPlaceholder": "Reflect on your month..."
     }
+  },
+  "goalClosing": {
+    "outcome": {
+      "achieved": "achieved",
+      "partial": "partly",
+      "missed": "not achieved",
+      "abandoned": "abandoned"
+    },
+    "actions": {
+      "summarize": "Close out the goal",
+      "moveDeadline": "Move the deadline",
+      "editInRitual": "Edit in the ritual",
+      "showAll": "Show all",
+      "collapse": "Collapse"
+    },
+    "summary": {
+      "title": "Closing summary",
+      "keyResults": "Key results",
+      "successDefinition": "Definition of success",
+      "successMet": {
+        "yes": "yes",
+        "partly": "partly",
+        "no": "no"
+      },
+      "confidence": "Confidence: then {then} · now {now}",
+      "obstacles": "Obstacles that showed up",
+      "workedWell": "What worked well",
+      "wasDifficult": "What was hard",
+      "learned": {
+        "m": "What I learned",
+        "f": "What I learned"
+      },
+      "followUp": {
+        "none": "Topic closed",
+        "habit": "Continues as a habit",
+        "new-goal": "New goal",
+        "revisit": "Will come back to it"
+      },
+      "closedOn": "closed {date}"
+    },
+    "upcoming": {
+      "summarized": "Closed out"
+    },
+    "reopen": {
+      "title": "Reopen this goal?",
+      "message": "The closing summary of “{title}” will be removed and its key results reopened.",
+      "confirm": "Reopen"
+    },
+    "messages": {
+      "reopened": "Goal reopened"
+    }
   }
 }

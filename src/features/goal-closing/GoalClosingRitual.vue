@@ -255,6 +255,8 @@ const props = defineProps<{
   goalId: string
   /** Pre-selected outcome (the card's status menu passes it). */
   presetOutcome?: GoalOutcome | null
+  /** Start with the „Przesuń termin” form open (Najbliżej → „Przesuń termin”). */
+  openDeadline?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -269,6 +271,7 @@ const masculine = computed(() => gender.value !== 'feminine')
 const ritual = useGoalClosingRitual(toRef(props, 'goalId'), {
   presetOutcome: computed(() => props.presetOutcome ?? null),
   masculine,
+  openDeadline: computed(() => Boolean(props.openDeadline)),
 })
 const {
   snapshot, goal, loading, loadError, editing, draft, outcome, suggestion, steps, current, currentStepId,

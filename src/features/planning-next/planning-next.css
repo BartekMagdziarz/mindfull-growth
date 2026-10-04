@@ -2570,6 +2570,15 @@
   display: grid;
 }
 
+.next-day-upcoming__item {
+  display: grid;
+  border-bottom: 1px solid var(--mg-color-border);
+}
+
+.next-day-upcoming__item:last-of-type {
+  border-bottom-color: transparent;
+}
+
 .next-day-upcoming__row {
   display: grid;
   grid-template-columns: 1.75rem minmax(0, 1fr) auto;
@@ -2579,7 +2588,6 @@
   min-height: 3.5rem;
   padding: var(--mg-space-2) var(--mg-space-1);
   border: 0;
-  border-bottom: 1px solid var(--mg-color-border);
   border-radius: 0;
   color: var(--mg-color-ink);
   background: transparent;
@@ -2587,12 +2595,51 @@
   cursor: pointer;
 }
 
-.next-day-upcoming__row:last-of-type {
-  border-bottom-color: transparent;
+/* Closing actions under an overdue goal: space reserved, revealed on hover/focus like card trays. */
+.next-day-upcoming__tray {
+  display: flex;
+  gap: var(--mg-space-2);
+  padding: 0 var(--mg-space-1) var(--mg-space-2) calc(1.75rem + var(--mg-space-3) + var(--mg-space-1));
+  opacity: 0;
+  transition: opacity var(--mg-duration-fast) ease;
+}
+
+.next-day-upcoming__item:hover .next-day-upcoming__tray,
+.next-day-upcoming__item:focus-within .next-day-upcoming__tray {
+  opacity: 1;
+}
+
+/* Double class: the root's `button { font: inherit }` would otherwise win on size. */
+.next-day-upcoming .next-day-upcoming__action {
+  padding: 0.2rem 0.65rem;
+  border: 0;
+  border-radius: var(--mg-radius-pill);
+  background: var(--mg-color-paper);
+  box-shadow: var(--mg-shadow-raised-sm);
+  color: var(--mg-color-primary-strong);
+  font-size: var(--mg-font-size-xs);
+  font-weight: 700;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.next-day-upcoming .next-day-upcoming__action:hover {
+  background: var(--mg-color-mist);
+}
+
+.next-day-upcoming .next-day-upcoming__action:focus-visible {
+  outline: 2px solid var(--mg-color-focus);
+  outline-offset: 2px;
 }
 
 .next-day-upcoming__row:hover {
   background: var(--mg-color-mist);
+}
+
+/* The hovered item spreads the row's tint over its tray so the pair reads as one. */
+.next-day-upcoming__item:hover {
+  background: var(--mg-color-mist);
+  border-radius: var(--mg-radius-sm);
 }
 
 .next-day-upcoming__row:focus-visible,

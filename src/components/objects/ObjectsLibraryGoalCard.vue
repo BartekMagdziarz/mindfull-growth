@@ -96,6 +96,8 @@
       <!-- Row 2: status only when it is not the default -->
       <p v-if="statusLabel || !item.isActive" class="mg-v2-meta px-1">
         <span v-if="statusLabel" class="mg-v2-meta__status">{{ statusLabel }}</span>
+        <span v-if="item.goalClosingReflection">{{ t('planning.goalClosing.outcome.' + item.goalClosingReflection.outcome) }}</span>
+        <span v-if="item.goalClosingReflection">{{ formatDayShort(item.goalClosingReflection.closedAt as DayRef, locale) }}</span>
         <span v-if="!item.isActive">{{ t('planning.objects.badges.archived') }}</span>
       </p>
 
@@ -143,6 +145,13 @@
       />
     </div>
 
+    <GoalClosingSummary
+      v-if="item.goalClosingReflection"
+      :goal-id="item.id"
+      :reflection="item.goalClosingReflection"
+      :confidence-then="item.confidenceRating"
+    />
+
     <!-- Key Results section -->
     <section
       v-if="item.childPreviews && item.childPreviews.length > 0"
@@ -187,6 +196,7 @@ import ObjectCardTimeline from '@/components/objects/ObjectCardTimeline.vue'
 import type { TimelineEndLabel } from '@/components/objects/ObjectCardTimeline.vue'
 import ObjectsCardStatusMenu from '@/components/objects/ObjectsCardStatusMenu.vue'
 import ObjectsLibraryKrCard from '@/components/objects/ObjectsLibraryKrCard.vue'
+import GoalClosingSummary from '@/features/goal-closing/GoalClosingSummary.vue'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedMonth } from '@/components/objects/GoalMonthsDropdown.vue'
 import { useEditableField } from '@/composables/useEditableField'
@@ -194,7 +204,7 @@ import type {
   ObjectsLibraryFilterOption,
   ObjectsLibraryListItem,
 } from '@/services/objectsLibraryQueries'
-import type { MeasurementEntryMode } from '@/domain/planning'
+import type { GoalOutcome, MeasurementEntryMode } from '@/domain/planning'
 import type { DayRef, MonthRef } from '@/domain/period'
 import { computeGoalWindow } from '@/utils/objectWindow'
 import { formatDayShort, formatMonthShort } from '@/utils/periodLabels'
@@ -232,6 +242,8 @@ const emit = defineEmits<{
   'kr-unlink-period': [krId: string, periodRef: string]
   'kr-delete': [krId: string]
   'kr-archive': [krId: string]
+  /** Closing goes through the ritual, never a bare status write (spec D7). */
+  'close-ritual': [goalId: string, presetOutcome: GoalOutcome | null]
 }>()
 
 const { t, locale } = useT()
@@ -327,6 +339,10 @@ const statusLabel = computed(() => {
 
 function handleStatusChange(value: string): void {
   menuOpen.value = false
+  if (value === 'completed' || value === 'dropped') {
+    emit('close-ritual', props.item.id, value === 'dropped' ? 'abandoned' : null)
+    return
+  }
   emitFieldChange('status', value)
 }
 

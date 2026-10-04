@@ -99,6 +99,42 @@ describe('NextDayUpcoming', () => {
     expect(wrapper.find('.next-day-upcoming__more').exists()).toBe(false)
   })
 
+  it('offers to close out or extend an overdue goal, and only then', async () => {
+    const goal = { id: 'g-1', title: 'Blok treningowy', targetDate: '2026-03-10' } as DayMarker extends infer M
+      ? M extends { kind: 'deadline'; goal: infer G }
+        ? G
+        : never
+      : never
+    const overdue: DayMarker = { key: 'deadline:g-1', kind: 'deadline', dayRef: '2026-03-10' as DayRef, state: 'due', goal }
+    const ahead: DayMarker = { key: 'deadline:g-2', kind: 'deadline', dayRef: '2026-03-20' as DayRef, state: 'due', goal: { ...goal, id: 'g-2' } }
+    const wrapper = mountList([overdue, ahead])
+    const items = wrapper.findAll('.next-day-upcoming__item')
+    expect(items[0].find('.next-day-upcoming__tray').exists()).toBe(true)
+    expect(items[1].find('.next-day-upcoming__tray').exists()).toBe(false)
+
+    const actions = items[0].findAll('.next-day-upcoming__action')
+    expect(actions.map(a => a.text())).toEqual(['summarize', 'moveDeadline'])
+    await actions[0].trigger('click')
+    expect(push).toHaveBeenLastCalledWith({
+      name: 'goal-closing-ritual',
+      params: { goalId: 'g-1' },
+      query: { return: `/today/${TODAY}` },
+    })
+    await actions[1].trigger('click')
+    expect(push).toHaveBeenLastCalledWith({
+      name: 'goal-closing-ritual',
+      params: { goalId: 'g-1' },
+      query: { return: `/today/${TODAY}`, deadline: '1' },
+    })
+    // the row itself still opens the goal card
+    await items[0].find('.next-day-upcoming__row').trigger('click')
+    expect(push).toHaveBeenLastCalledWith({
+      name: 'objects-family',
+      params: { family: 'goals' },
+      query: { expandedType: 'goal', expandedId: 'g-1' },
+    })
+  })
+
   it('opens reflection rituals with the reflect action', async () => {
     const wrapper = mountList([ritual('2026-03-08', 'due', 'reflect', '2026-W09')])
     await wrapper.find('.next-day-upcoming__row').trigger('click')

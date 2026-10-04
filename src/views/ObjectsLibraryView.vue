@@ -180,6 +180,7 @@
             @kr-unlink-period="handleKrUnlinkPeriod"
             @kr-delete="handleKrDelete"
             @kr-archive="handleKrArchive"
+            @close-ritual="handleGoalCloseRitual"
           />
 
           <ObjectsLibraryPriorityCard
@@ -281,6 +282,15 @@
       @confirm="handleConfirmDelete"
     />
     <AppDialog
+      v-model="reopenDialogOpen"
+      :title="t('planning.goalClosing.reopen.title')"
+      :message="reopenDialogMessage"
+      :confirm-text="t('planning.goalClosing.reopen.confirm')"
+      confirm-variant="filled"
+      panel-class="mg-v2-surface mg-v2-surface--raised"
+      @confirm="handleConfirmReopen"
+    />
+    <AppDialog
       v-model="isGoalWizardOpen"
       :title="goalWizardMode === 'edit' ? t('planning.goalWizard.editTitle') : t('planning.goalWizard.title')"
       size="3xl"
@@ -306,6 +316,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { reopenGoal } from '@/services/goalClosingService'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppDialog from '@/components/AppDialog.vue'
 import AppSnackbar from '@/components/AppSnackbar.vue'
@@ -350,7 +361,14 @@ import { getUserDatabase } from '@/services/userDatabase.service'
 import { formatMonthShort as formatMonthShortLocalized, formatPeriodLabel, formatWeekRange } from '@/utils/periodLabels'
 import { getPeriodRefsForDate, getPeriodType, getWeekOverlappingMonths } from '@/utils/periods'
 import type { PeriodRef, MonthRef, WeekRef, YearRef } from '@/domain/period'
-import type { MeasurementEntryDaysCondition, MeasurementEntryMode, MeasurementTarget, MultiCompletionItem, PriorityClosingReflection } from '@/domain/planning'
+import type {
+  GoalOutcome,
+  MeasurementEntryDaysCondition,
+  MeasurementEntryMode,
+  MeasurementTarget,
+  MultiCompletionItem,
+  PriorityClosingReflection,
+} from '@/domain/planning'
 import { createMultiCompletionItem } from '@/domain/planning'
 import type { LinkedPeriod } from '@/components/objects/ObjectsLibraryKrCard.vue'
 import type { LinkedMonth } from '@/components/objects/GoalMonthsDropdown.vue'
@@ -1747,6 +1765,18 @@ async function handleGoalFieldChange(goalId: string, field: string, value: unkno
         needsReload = false
         break
       case 'status':
+        if (value === 'open') {
+          // Back to „Otwarty”: a goal with a closing summary asks first (the summary dies with it).
+          const goal = await goalDexieRepository.getById(goalId)
+          if (goal?.closingReflection) {
+            reopenCandidate.value = { id: goalId, title: goal.title }
+            reopenDialogOpen.value = true
+            needsReload = false
+            break
+          }
+          await reopenGoal(goalId)
+          break
+        }
         await goalDexieRepository.update(goalId, {
           status: value as 'open' | 'completed' | 'dropped',
         })
@@ -2024,6 +2054,35 @@ function statusOptionsForType(panelType: ObjectsLibraryPanelType): Array<{ value
 }
 
 
+
+/** Closing a goal from the card's status menu opens the ritual (spec D7). */
+function handleGoalCloseRitual(goalId: string, presetOutcome: GoalOutcome | null): void {
+  void router.push({
+    name: 'goal-closing-ritual',
+    params: { goalId },
+    query: { ...(presetOutcome ? { outcome: presetOutcome } : {}), return: route.fullPath },
+  })
+}
+
+const reopenDialogOpen = ref(false)
+const reopenCandidate = ref<{ id: string; title: string } | null>(null)
+const reopenDialogMessage = computed(() =>
+  reopenCandidate.value ? t('planning.goalClosing.reopen.message', { title: reopenCandidate.value.title }) : '',
+)
+
+async function handleConfirmReopen(): Promise<void> {
+  const candidate = reopenCandidate.value
+  reopenDialogOpen.value = false
+  reopenCandidate.value = null
+  if (!candidate) return
+  try {
+    await reopenGoal(candidate.id)
+    snackbarRef.value?.show(t('planning.goalClosing.messages.reopened'))
+    await store.loadBundle()
+  } catch (err) {
+    snackbarRef.value?.show(err instanceof Error ? err.message : String(err))
+  }
+}
 
 async function handleArchiveFromCard(
   panelType: ObjectsLibraryPanelType,
