@@ -1,16 +1,15 @@
 <template>
   <svg :viewBox="`0 0 ${VIEWBOX_W} ${vH}`" width="100%" overflow="visible" aria-hidden="true">
-    <!-- Target reference line -->
-    <line
+    <!-- Target reference line (step: per-period effective target) -->
+    <path
       v-if="showTargetLine"
-      :x1="PADDING_X"
-      :y1="tLineY"
-      :x2="VIEWBOX_W - PADDING_X"
-      :y2="tLineY"
+      :d="targetPath"
+      fill="none"
       stroke="rgb(var(--color-primary))"
       stroke-opacity="0.8"
       stroke-width="1"
       stroke-linecap="round"
+      stroke-linejoin="round"
       stroke-dasharray="6 6"
     />
 
@@ -85,7 +84,7 @@ import {
   COMPACT_CHART_HEIGHT,
   getVisiblePoints,
   computeMaxValue,
-  targetLineY,
+  targetStepPath,
   shouldShowLabel,
   periodLabel,
 } from './sparklineUtils'
@@ -113,7 +112,18 @@ const maxValue = computed(() => computeMaxValue(visiblePoints.value))
 const hasTarget = computed(() => visiblePoints.value.some((p) => p.targetValue !== undefined))
 const hasAnyData = computed(() => visiblePoints.value.some((p) => p.status !== 'no-data'))
 const showTargetLine = computed(() => hasTarget.value && hasAnyData.value)
-const tLineY = computed(() => targetLineY(visiblePoints.value, maxValue.value))
+const targetPath = computed(() => {
+  const n = visiblePoints.value.length
+  return targetStepPath(
+    visiblePoints.value.map((point, i) => ({
+      x1: i === 0 ? PADDING_X : (pointX(i - 1) + pointX(i)) / 2,
+      x2: i === n - 1 ? VIEWBOX_W - PADDING_X : (pointX(i) + pointX(i + 1)) / 2,
+      targetValue: point.targetValue,
+    })),
+    maxValue.value,
+    cH.value,
+  )
+})
 
 // --- Point coordinates ---
 function pointX(i: number): number {

@@ -23,6 +23,7 @@ import type {
   PeriodReflection,
 } from '@/domain/planningState'
 import {
+  applyMeasurementTargetCascade,
   buildMeasurementSummary,
   type MeasureableSubject,
   type MeasurementPeriodRef,
@@ -33,7 +34,13 @@ import { weeklyIntentionDexieRepository } from '@/repositories/weeklyIntentionDe
 import { loadPlanningLibraryObjects } from '@/services/planningObjectCollections'
 import { loadPlanningCached } from '@/services/planningQueryCache'
 import { isGoalOpen } from '@/services/planningVisibility'
-import { getPeriodRefsForDate, getPeriodType, isPeriodRef, periodIntersectsPeriod } from '@/utils/periods'
+import {
+  getPeriodRefsForDate,
+  getPeriodType,
+  getWeekOverlappingMonths,
+  isPeriodRef,
+  periodIntersectsPeriod,
+} from '@/utils/periods'
 
 export type ObjectsLibraryFamily = 'priorities' | 'goals' | 'habits' | 'trackers' | 'intentions'
 export type ObjectsLibraryComposerMode = 'edit' | 'create'
@@ -498,20 +505,55 @@ function buildChartData(
   measurementWeekStates: MeasurementWeekState[],
 ): ObjectsLibraryChartPoint[] {
   const hasTarget = 'target' in subject
+  const subjectMonthStates = measurementMonthStates.filter(
+    (state) => state.subjectType === subjectType && state.subjectId === subject.id,
+  )
+  const subjectWeekStates = measurementWeekStates.filter(
+    (state) => state.subjectType === subjectType && state.subjectId === subject.id,
+  )
 
   const activePeriodRefs: string[] = []
   if (subject.cadence === 'monthly') {
-    for (const state of measurementMonthStates) {
-      if (state.subjectType === subjectType && state.subjectId === subject.id && state.activityState === 'active') {
+    for (const state of subjectMonthStates) {
+      if (state.activityState === 'active') {
         activePeriodRefs.push(state.monthRef)
       }
     }
   } else {
-    for (const state of measurementWeekStates) {
-      if (state.subjectType === subjectType && state.subjectId === subject.id && state.activityState === 'active') {
+    for (const state of subjectWeekStates) {
+      if (state.activityState === 'active') {
         activePeriodRefs.push(state.weekRef)
       }
     }
+  }
+
+  /**
+   * Effective target for one chart period. Mirrors the planning accounting in
+   * planningStateQueries: a week cascades week override → active month override
+   * → base target; a month only ever sees its own month override.
+   */
+  const resolveEffectiveSubject = (periodRef: MeasurementPeriodRef): MeasureableSubject => {
+    if (!hasTarget) {
+      return subject
+    }
+    if (subject.cadence === 'monthly') {
+      const monthState = subjectMonthStates.find(
+        (state) => state.monthRef === periodRef && state.activityState === 'active',
+      )
+      return applyMeasurementTargetCascade(subject, periodRef, { monthOverride: monthState?.targetOverride })
+    }
+    const weekRef = periodRef as WeekRef
+    const weekState =
+      subjectWeekStates.find((state) => state.weekRef === weekRef && !state.sourceMonthRef) ??
+      subjectWeekStates.find((state) => state.weekRef === weekRef)
+    const overlappingMonthRefs = getWeekOverlappingMonths(weekRef)
+    const activeMonthState = subjectMonthStates.find(
+      (state) => state.activityState === 'active' && overlappingMonthRefs.includes(state.monthRef),
+    )
+    return applyMeasurementTargetCascade(subject, weekRef, {
+      monthOverride: activeMonthState?.targetOverride,
+      weekOverride: weekState?.targetOverride,
+    })
   }
 
   if (activePeriodRefs.length === 0) {
@@ -529,8 +571,11 @@ function buildChartData(
   }
 
   return sortedRefs.map((periodRef) => {
-    const summary = buildMeasurementSummary(subject, allEntries, periodRef as MeasurementPeriodRef)
-    const targetValue = hasTarget ? (subject as { target: { value: number } }).target.value : undefined
+    const effectiveSubject = resolveEffectiveSubject(periodRef as MeasurementPeriodRef)
+    const summary = buildMeasurementSummary(effectiveSubject, allEntries, periodRef as MeasurementPeriodRef)
+    const targetValue = hasTarget
+      ? (effectiveSubject as { target: { value: number } }).target.value
+      : undefined
 
     let status: ObjectsLibraryChartPoint['status']
     if (summary.entryCount === 0) {

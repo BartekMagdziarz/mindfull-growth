@@ -1,16 +1,15 @@
 <template>
   <svg :viewBox="`0 0 ${VIEWBOX_W} ${vH}`" width="100%" aria-hidden="true">
-    <!-- Target reference line -->
-    <line
+    <!-- Target reference line (step: per-period effective target) -->
+    <path
       v-if="showTargetLine"
-      :x1="PADDING_X"
-      :y1="tLineY"
-      :x2="VIEWBOX_W - PADDING_X"
-      :y2="tLineY"
+      :d="targetPath"
+      fill="none"
       stroke="rgb(var(--color-primary))"
       stroke-opacity="0.8"
       stroke-width="1"
       stroke-linecap="round"
+      stroke-linejoin="round"
       stroke-dasharray="6 6"
     />
 
@@ -65,7 +64,7 @@ import {
   COMPACT_CHART_HEIGHT,
   getVisiblePoints,
   computeMaxValue,
-  targetLineY,
+  targetStepPath,
   shouldShowLabel,
   periodLabel,
   topRoundedBarPath,
@@ -92,7 +91,17 @@ const maxValue = computed(() => computeMaxValue(visiblePoints.value))
 const hasTarget = computed(() => visiblePoints.value.some((p) => p.targetValue !== undefined))
 const hasAnyData = computed(() => visiblePoints.value.some((p) => p.status !== 'no-data'))
 const showTargetLine = computed(() => hasTarget.value && hasAnyData.value)
-const tLineY = computed(() => targetLineY(visiblePoints.value, maxValue.value))
+const targetPath = computed(() =>
+  targetStepPath(
+    visiblePoints.value.map((point, i) => ({
+      x1: i === 0 ? PADDING_X : slotStart(i),
+      x2: i === visiblePoints.value.length - 1 ? VIEWBOX_W - PADDING_X : slotStart(i + 1),
+      targetValue: point.targetValue,
+    })),
+    maxValue.value,
+    cH.value,
+  ),
+)
 
 // Bars use 60% of slot width for more breathing room
 const barGap = computed(() => (props.cadence === 'monthly' ? 8 : 4))
@@ -108,6 +117,11 @@ const barW = computed(() => Math.max(6, Math.floor(slotW.value * 0.6)))
 function barX(i: number): number {
   const offset = (slotW.value - barW.value) / 2
   return PADDING_X + i * (slotW.value + barGap.value) + offset
+}
+
+/** Left edge of slot i including half of the gap before it — step boundary. */
+function slotStart(i: number): number {
+  return PADDING_X + i * (slotW.value + barGap.value) - barGap.value / 2
 }
 
 function barHeightPx(point: ObjectsLibraryChartPoint): number {

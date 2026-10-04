@@ -3,7 +3,8 @@ import type { ObjectsLibraryChartPoint } from '@/services/objectsLibraryQueries'
 import {
   getVisiblePoints,
   computeMaxValue,
-  targetLineY,
+  targetStepPath,
+  targetValueY,
   shouldShowLabel,
   periodLabel,
   useGradientIds,
@@ -54,20 +55,55 @@ describe('sparklineUtils', () => {
     })
   })
 
-  describe('targetLineY', () => {
+  describe('targetValueY', () => {
     it('returns correct Y for a target value', () => {
-      const pts = [point('a', 5, 10)]
-      const maxVal = 10
-      const y = targetLineY(pts, maxVal)
       // target is at full height → y should be near PADDING_TOP
-      expect(y).toBe(PADDING_TOP)
+      expect(targetValueY(10, 10)).toBe(PADDING_TOP)
     })
 
-    it('returns baseline when no target', () => {
-      const pts = [point('a', 5)]
-      const y = targetLineY(pts, 10)
-      // targetValue undefined → tv = 0 → h = max(2, 0) = 2
-      expect(y).toBe(PADDING_TOP + CHART_HEIGHT - 2)
+    it('clamps a zero target to a 2-unit floor above the baseline', () => {
+      expect(targetValueY(0, 10)).toBe(PADDING_TOP + CHART_HEIGHT - 2)
+    })
+  })
+
+  describe('targetStepPath', () => {
+    it('degenerates to one straight line when the target is constant', () => {
+      const y = targetValueY(10, 10)
+      const path = targetStepPath(
+        [
+          { x1: 0, x2: 100, targetValue: 10 },
+          { x1: 100, x2: 200, targetValue: 10 },
+        ],
+        10,
+      )
+      expect(path).toBe(`M0,${y}H100V${y}H200`)
+    })
+
+    it('steps down for a period whose target was lowered', () => {
+      const yHigh = targetValueY(3, 3)
+      const yLow = targetValueY(1, 3)
+      const path = targetStepPath(
+        [
+          { x1: 0, x2: 100, targetValue: 3 },
+          { x1: 100, x2: 200, targetValue: 1 },
+          { x1: 200, x2: 300, targetValue: 3 },
+        ],
+        3,
+      )
+      expect(path).toBe(`M0,${yHigh}H100V${yLow}H200V${yHigh}H300`)
+    })
+
+    it('breaks the line over periods without a target', () => {
+      const y = targetValueY(5, 5)
+      const path = targetStepPath(
+        [
+          { x1: 0, x2: 100, targetValue: 5 },
+          { x1: 100, x2: 200, targetValue: undefined },
+          { x1: 200, x2: 300, targetValue: 5 },
+        ],
+        5,
+      )
+      expect(path).toBe(`M0,${y}H100M200,${y}H300`)
     })
   })
 

@@ -33,11 +33,44 @@ export function computeMaxValue(points: ObjectsLibraryChartPoint[]): number {
   return Math.max(...values, 1)
 }
 
-/** Y coordinate for the target reference line. */
-export function targetLineY(points: ObjectsLibraryChartPoint[], maxValue: number): number {
-  const tv = points.find((p) => p.targetValue !== undefined)?.targetValue ?? 0
-  const h = Math.max(2, (tv / maxValue) * CHART_HEIGHT)
-  return PADDING_TOP + CHART_HEIGHT - h
+/** Y coordinate of a target value on the chart's vertical scale. */
+export function targetValueY(targetValue: number, maxValue: number, chartHeight = CHART_HEIGHT): number {
+  const h = Math.max(2, (targetValue / maxValue) * chartHeight)
+  return PADDING_TOP + chartHeight - h
+}
+
+export interface TargetStepSegment {
+  /** Left edge of the horizontal span this period's target covers. */
+  x1: number
+  /** Right edge of the span. */
+  x2: number
+  targetValue: number | undefined
+}
+
+/**
+ * SVG path for the target reference line as a step function: each period's
+ * target is a horizontal run over its own span, joined to the neighbour by a
+ * vertical riser when the target changes (a week whose target was lowered in
+ * the weekly plan dips, the rest stays flat). Periods without a target break
+ * the line. With a constant target the path degenerates to one straight line.
+ */
+export function targetStepPath(
+  segments: TargetStepSegment[],
+  maxValue: number,
+  chartHeight = CHART_HEIGHT,
+): string {
+  let path = ''
+  let penDown = false
+  for (const segment of segments) {
+    if (segment.targetValue === undefined) {
+      penDown = false
+      continue
+    }
+    const y = targetValueY(segment.targetValue, maxValue, chartHeight)
+    path += penDown ? `V${y}H${segment.x2}` : `M${segment.x1},${y}H${segment.x2}`
+    penDown = true
+  }
+  return path
 }
 
 /** Whether to show a period label at index i. */

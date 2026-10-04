@@ -293,6 +293,72 @@ describe('objectsLibraryQueries', () => {
     expect(chartData?.[2]).toMatchObject({ periodRef: '2026-03', status: 'no-data' })
   })
 
+  it('uses the week target override for that week\'s chart point only', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-03-11T12:00:00'))
+
+    try {
+      const habit = await habitDexieRepository.create({
+        title: 'Training 3x',
+        isActive: true,
+        priorityIds: [],
+        lifeAreaIds: [],
+        cadence: 'weekly',
+        entryMode: 'counter',
+        target: { kind: 'count', operator: 'min', value: 3 },
+        status: 'open',
+      })
+
+      await planningStateDexieRepository.upsertMeasurementMonthState({
+        monthRef: '2026-03' as MonthRef,
+        subjectType: 'habit',
+        subjectId: habit.id,
+        activityState: 'active',
+        scheduleScope: 'whole-month',
+      })
+      await planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef: '2026-W09' as WeekRef,
+        subjectType: 'habit',
+        subjectId: habit.id,
+        activityState: 'active',
+        scheduleScope: 'whole-week',
+      })
+      // Sick week: lowered to 1x in the weekly plan.
+      await planningStateDexieRepository.upsertMeasurementWeekState({
+        weekRef: '2026-W10' as WeekRef,
+        subjectType: 'habit',
+        subjectId: habit.id,
+        activityState: 'active',
+        scheduleScope: 'whole-week',
+        targetOverride: { kind: 'count', operator: 'min', value: 1 },
+      })
+      for (const dayRef of ['2026-03-03', '2026-03-10'] as DayRef[]) {
+        await planningStateDexieRepository.upsertDailyMeasurementEntry({
+          dayRef,
+          subjectType: 'habit',
+          subjectId: habit.id,
+          value: 1,
+        })
+      }
+
+      const bundle = await loadObjectsLibraryBundle({
+        family: 'habits',
+        q: '',
+        lifeAreaIds: [],
+        priorityIds: [],
+        showClosed: false,
+      })
+
+      const chartData = bundle.items[0].chartData
+      expect(chartData).toEqual([
+        expect.objectContaining({ periodRef: '2026-W09', targetValue: 3, actualValue: 1, status: 'missed' }),
+        expect.objectContaining({ periodRef: '2026-W10', targetValue: 1, actualValue: 1, status: 'met' }),
+      ])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('omits future periods from weekly-cadence chart data', async () => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-03-11T12:00:00'))
