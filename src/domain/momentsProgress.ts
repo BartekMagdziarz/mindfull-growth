@@ -1,0 +1,254 @@
+/**
+ * Shame path v3 — progress read from Momenty (plan §2.3).
+ *
+ * Three pictures, each with a reading rule written next to it in the UI:
+ * 1. which part took the wheel, week by week (stacked counts per part,
+ *    plus the "unlogged" estimate the weekly reflection asks for);
+ * 2. "a response instead of the reaction": the share of the week's moments
+ *    where the user did something other than nothing;
+ * 3. "when I notice": the share noticed as it happened or a moment later,
+ *    compared between the first and the last weeks.
+ *
+ * Plus the two-voice diary (critic logged vs kind voice logged) and the
+ * collection of the user's own compassionate sentences ("Moje zdania").
+ * Pure functions over micro entries — views, the weekly reflection and
+ * tests share them. A week without moments is a "quiet week", never an
+ * error state.
+ */
+
+import type { MicroExerciseEntry } from '@/domain/microExercises'
+import { hadMoment, isMoment, momentDayRef } from '@/domain/moments'
+import type { WeekRef } from '@/domain/period'
+import { getPeriodBounds, getPreviousPeriod } from '@/utils/periods'
+
+export type ShamePartKey = 'withdraw' | 'attackSelf' | 'attackOthers' | 'avoid' | 'none'
+export const SHAME_PART_KEYS: readonly ShamePartKey[] = ['withdraw', 'attackSelf', 'attackOthers', 'avoid', 'none']
+
+export type NoticedKey = 'during' | 'soon' | 'hours' | 'later' | 'unknown'
+export const NOTICED_KEYS: readonly NoticedKey[] = ['during', 'soon', 'hours', 'later', 'unknown']
+
+/**
+ * The reflection's "moments you did not log" answer, as the representative
+ * count it adds to the week's bar (shown as an outline, never as data).
+ */
+export const UNLOGGED_BUCKETS: Readonly<Record<string, number>> = { none: 0, few: 2, several: 4, many: 6 }
+
+export interface MomentsWeekStats {
+  weekRef: WeekRef
+  /** Entries with a moment (calm-day notes excluded). */
+  total: number
+  /** Estimate from the weekly reflection (representative count), absent when not asked. */
+  unlogged?: number
+  byPart: Record<ShamePartKey, number>
+  /** Moments where `response` holds anything other than "nothing". */
+  responded: number
+  noticed: Record<NoticedKey, number>
+  /** Two-voice diary: how often each side got written down. */
+  criticLogged: number
+  kindVoiceLogged: number
+  /** No moments this week — "cichy tydzień". */
+  quiet: boolean
+}
+
+function emptyStats(weekRef: WeekRef): MomentsWeekStats {
+  return {
+    weekRef,
+    total: 0,
+    byPart: { withdraw: 0, attackSelf: 0, attackOthers: 0, avoid: 0, none: 0 },
+    responded: 0,
+    noticed: { during: 0, soon: 0, hours: 0, later: 0, unknown: 0 },
+    criticLogged: 0,
+    kindVoiceLogged: 0,
+    quiet: true,
+  }
+}
+
+/** `count` consecutive weeks ending at `last`, oldest first. */
+export function weekRefsEndingAt(last: WeekRef, count: number): WeekRef[] {
+  const weeks: WeekRef[] = [last]
+  while (weeks.length < count) {
+    weeks.unshift(getPreviousPeriod(weeks[0]!) as WeekRef)
+  }
+  return weeks
+}
+
+function partOf(entry: MicroExerciseEntry): ShamePartKey | undefined {
+  const value = entry.responses.compass
+  const picked = typeof value === 'string' ? value : Array.isArray(value) ? value[0] : undefined
+  return typeof picked === 'string' && (SHAME_PART_KEYS as readonly string[]).includes(picked)
+    ? (picked as ShamePartKey)
+    : undefined
+}
+
+function noticedOf(entry: MicroExerciseEntry): NoticedKey {
+  const value = entry.responses.noticed
+  return typeof value === 'string' && (NOTICED_KEYS as readonly string[]).includes(value) ? (value as NoticedKey) : 'unknown'
+}
+
+/** Anything other than "nothing" counts — a late attempt is still an attempt. */
+export function hasResponse(entry: MicroExerciseEntry): boolean {
+  const value = entry.responses.response
+  const picked = Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+  return picked.some((item) => item !== 'nothing')
+}
+
+function hasText(value: unknown): boolean {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+/**
+ * Week-by-week statistics of the shame moments in `entries` for the given
+ * weeks (oldest first). `unlogged` maps a week to the reflection's estimate.
+ */
+export function momentsProgress(
+  entries: readonly MicroExerciseEntry[],
+  weeks: readonly WeekRef[],
+  unlogged: Partial<Record<WeekRef, number>> = {},
+): MomentsWeekStats[] {
+  const moments = entries.filter((entry) => isMoment(entry, 'shame') && hadMoment(entry))
+  return weeks.map((weekRef) => {
+    const stats = emptyStats(weekRef)
+    const { start, end } = getPeriodBounds(weekRef)
+    for (const entry of moments) {
+      const day = momentDayRef(entry)
+      if (day < start || day > end) continue
+      stats.total += 1
+      const part = partOf(entry)
+      if (part) stats.byPart[part] += 1
+      if (hasResponse(entry)) stats.responded += 1
+      stats.noticed[noticedOf(entry)] += 1
+      if (hasText(entry.responses.criticSaid)) stats.criticLogged += 1
+      if (hasText(entry.responses.kindVoice)) stats.kindVoiceLogged += 1
+    }
+    const estimate = unlogged[weekRef]
+    if (estimate !== undefined) stats.unlogged = estimate
+    stats.quiet = stats.total === 0
+    return stats
+  })
+}
+
+/** Share (0–1) of moments noticed as they happened or a moment later; null without data. */
+export function noticedEarlyShare(stats: readonly MomentsWeekStats[]): number | null {
+  let early = 0
+  let known = 0
+  for (const week of stats) {
+    early += week.noticed.during + week.noticed.soon
+    known += week.total - week.noticed.unknown
+  }
+  return known === 0 ? null : early / known
+}
+
+/**
+ * "Kiedy zauważam" compared between the first and the last `span` weeks
+ * that have moments. Either side is null when it has no data.
+ */
+export function noticedShift(stats: readonly MomentsWeekStats[], span = 2): { early: number | null; late: number | null } {
+  const withMoments = stats.filter((week) => week.total > 0)
+  if (withMoments.length === 0) return { early: null, late: null }
+  const first = withMoments.slice(0, span)
+  const last = withMoments.slice(-span)
+  return { early: noticedEarlyShare(first), late: noticedEarlyShare(last) }
+}
+
+/** Share (0–1) of moments with a response across the given weeks; null without moments. */
+export function respondedShare(stats: readonly MomentsWeekStats[]): number | null {
+  const total = stats.reduce((sum, week) => sum + week.total, 0)
+  if (total === 0) return null
+  return stats.reduce((sum, week) => sum + week.responded, 0) / total
+}
+
+// ── "Moje zdania" ────────────────────────────────────────────────────
+
+export type OwnSentenceSource = 'image' | 'self' | 'response' | 'unblend' | 'moment' | 'defender'
+
+export interface OwnSentence {
+  text: string
+  source: OwnSentenceSource
+  createdAt: string
+  entryId: string
+}
+
+const SENTENCE_SOURCES: ReadonlyArray<{ slug: string; step: string; source: OwnSentenceSource; kind?: 'shame' }> = [
+  { slug: 'compassionate-image', step: 'message', source: 'image' },
+  { slug: 'compassionate-self', step: 'toPart', source: 'self' },
+  { slug: 'shame-response', step: 'sentence', source: 'response' },
+  { slug: 'shame-response', step: 'unblendSentence', source: 'unblend' },
+  { slug: 'defender-voice', step: 'mySentence', source: 'defender' },
+  { slug: 'moments', step: 'kindVoice', source: 'moment', kind: 'shame' },
+]
+
+function normalizeSentence(text: string): string {
+  return text
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[„”"']/g, '')
+    .replace(/[.!…\s]+$/u, '')
+    .toLocaleLowerCase()
+}
+
+/**
+ * The user's own compassionate sentences, newest first, de-duplicated by
+ * text: what the image says, what the compassionate self says to the
+ * ashamed part, the shame-response sentence and unblending sentence, the
+ * defending sentence, and every kind voice written in a moment.
+ */
+export function collectOwnSentences(entries: readonly MicroExerciseEntry[], limit = Infinity): OwnSentence[] {
+  const seen = new Set<string>()
+  const sentences: OwnSentence[] = []
+  const sorted = [...entries].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  for (const entry of sorted) {
+    for (const rule of SENTENCE_SOURCES) {
+      if (entry.exerciseSlug !== rule.slug) continue
+      if (rule.kind && entry.responses.kind !== rule.kind) continue
+      const value = entry.responses[rule.step]
+      if (typeof value !== 'string') continue
+      const text = value.trim()
+      if (!text) continue
+      const key = normalizeSentence(text)
+      if (seen.has(key)) continue
+      seen.add(key)
+      sentences.push({ text, source: rule.source, createdAt: entry.createdAt, entryId: entry.id })
+    }
+  }
+  return sentences.slice(0, limit)
+}
+
+// ── "Czy to pomogło" ─────────────────────────────────────────────────
+
+export interface PracticeHelpfulness {
+  count: number
+  /** Mean of the 1–5 answers, rounded to one decimal. */
+  mean: number
+}
+
+/** Per exercise slug: how often "czy to pomogło" was answered and the mean. */
+export function practiceHelpfulness(entries: readonly MicroExerciseEntry[]): Record<string, PracticeHelpfulness> {
+  const sums: Record<string, { count: number; sum: number }> = {}
+  for (const entry of entries) {
+    const value = entry.responses.helpful
+    if (typeof value !== 'number') continue
+    const bucket = (sums[entry.exerciseSlug] ??= { count: 0, sum: 0 })
+    bucket.count += 1
+    bucket.sum += value
+  }
+  return Object.fromEntries(
+    Object.entries(sums).map(([slug, { count, sum }]) => [slug, { count, mean: Math.round((sum / count) * 10) / 10 }]),
+  )
+}
+
+/** Distinct local days in `weekRef` with a completion of any of `slugs`. */
+export function practiceDaysInWeek(
+  completions: ReadonlyArray<{ exerciseSlug: string; dayRef: string }>,
+  weekRef: WeekRef,
+  slugs: readonly string[],
+): number {
+  const { start, end } = getPeriodBounds(weekRef)
+  const wanted = new Set(slugs)
+  const days = new Set<string>()
+  for (const completion of completions) {
+    if (!wanted.has(completion.exerciseSlug)) continue
+    if (completion.dayRef < start || completion.dayRef > end) continue
+    days.add(completion.dayRef)
+  }
+  return days.size
+}
