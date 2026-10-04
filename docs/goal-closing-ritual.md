@@ -78,8 +78,10 @@ Serwis `src/services/goalClosingService.ts`: `buildGoalClosingSnapshot`,
 
 ## Odłożone
 
-- Kontekst profilu AI nie ma jeszcze sekcji celów (TODO w `profileScopeQueries.ts`);
-  wnioski z zamknięcia dołączą, gdy ta sekcja powstanie.
+- Kontekst profilu AI: wnioski z zamknięcia trafiają do migawki planowania budowy profilu
+  jako sekcja „Closed goal reflections” (`buildPlanningSnapshot`, 12 najnowszych zamknięć:
+  okno, wynik, rezultaty, lustro startu, wnioski, co dalej). Podgląd zakresu nadal liczy
+  w „planning” tylko obszary życia — cele są agregatem (istniejące TODO w `profileScopeQueries.ts`).
 - „Nowy cel” po zamknięciu prowadzi do biblioteki; prefill kreatora celu z
   obszarami poprzednika nie jest jeszcze wpięty.
 - Po powrocie z rytuału do refleksji zaproszenie nie pokazuje się ponownie, dopóki

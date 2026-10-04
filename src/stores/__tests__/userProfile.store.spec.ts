@@ -418,6 +418,7 @@ describe('useUserProfileStore', () => {
         activeKeyResults: [],
         activeHabits: [],
         activeTrackers: [],
+        closedGoals: [],
         priorities: {
           active: [],
           paused: [],

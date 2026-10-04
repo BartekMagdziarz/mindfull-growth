@@ -25,6 +25,8 @@ import {
   WEEKLY_STATE_KEYS,
 } from '@/domain/reflection'
 import type {
+  Goal,
+  GoalClosingReflection,
   Habit,
   KeyResult,
   PlanningCadence,
@@ -194,9 +196,14 @@ export interface PlanningSnapshot {
     paused: Priority[]
     closed: Priority[]
   }
+  /** Goals closed through the closing ritual (most recent first, capped). */
+  closedGoals: Array<{ id: string; title: string; outcome: GoalClosingReflection['outcome']; closedAt: string }>
   /** Bulleted, human-readable summary suitable for dropping straight into a prompt. */
   snapshot: string
 }
+
+/** Closed-goal reflections are bounded so old history cannot crowd the planning block. */
+export const CLOSED_GOAL_REFLECTIONS_LIMIT = 12
 
 /**
  * Safe wrapper around a repository `listAll()` call that returns an empty
@@ -582,6 +589,76 @@ function formatClosedPriority(priority: Priority): string {
   return lines.join('\n')
 }
 
+const GOAL_OUTCOME_LABEL: Record<GoalClosingReflection['outcome'], string> = {
+  achieved: 'achieved',
+  partial: 'partly achieved',
+  missed: 'not achieved',
+  abandoned: 'abandoned',
+}
+const GOAL_FOLLOW_UP_LABEL: Record<NonNullable<GoalClosingReflection['followUp']>['kind'], string> = {
+  none: 'topic closed',
+  habit: 'continues as a habit',
+  'new-goal': 'a new goal follows',
+  revisit: 'will come back to it later',
+}
+const GOAL_SUCCESS_MET_LABEL: Record<NonNullable<GoalClosingReflection['successMet']>, string> = {
+  yes: 'yes',
+  partly: 'partly',
+  no: 'no',
+}
+
+/**
+ * One closed goal for the planning snapshot: what was promised at the start,
+ * what the facts say, and the lessons — the closing ritual's mirror, flattened.
+ */
+function formatClosedGoal(goal: Goal, reflection: GoalClosingReflection): string {
+  const window = [reflection.window.startDate, reflection.window.targetDate].filter(Boolean).join(' → ')
+  const head = `[${window ? `${window}, ` : ''}closed ${reflection.closedAt}] ${goal.title} — ${GOAL_OUTCOME_LABEL[reflection.outcome]}`
+  const lines = [head]
+
+  if (reflection.keyResults.length > 0) {
+    const items = reflection.keyResults.map((item) => {
+      const verdict = item.evaluation === 'no-data' ? 'no data' : item.evaluation
+      return `${item.title} — ${verdict}${item.lastReadout ? ` (${item.lastReadout})` : ''}`
+    })
+    lines.push(`  Key results: ${items.join('; ')}`)
+  }
+  if (goal.successDefinition?.trim()) {
+    const answer = reflection.successMet ? ` → ${GOAL_SUCCESS_MET_LABEL[reflection.successMet]}` : ''
+    const note = reflection.successNote?.trim() ? ` ${reflection.successNote.trim()}` : ''
+    lines.push(`  Success definition: "${goal.successDefinition.trim()}"${answer}.${note}`)
+  }
+  if (goal.confidenceRating !== undefined || reflection.confidenceInHindsight !== undefined) {
+    const parts: string[] = []
+    if (goal.confidenceRating !== undefined) parts.push(`${goal.confidenceRating}/10 at the start`)
+    if (reflection.confidenceInHindsight !== undefined) parts.push(`${reflection.confidenceInHindsight}/10 in hindsight`)
+    const note = reflection.confidenceNote?.trim() ? ` ${reflection.confidenceNote.trim()}` : ''
+    lines.push(`  Confidence: ${parts.join(', ')}.${note}`)
+  }
+  const fields: Array<[string, string | undefined]> = [
+    ['Obstacles expected', goal.obstacles],
+    ['Obstacles that showed up', reflection.obstaclesHit],
+    ['Worked well', reflection.workedWell],
+    ['Was difficult', reflection.wasDifficult],
+    ['Learned', reflection.learned],
+  ]
+  for (const [label, value] of fields) {
+    const trimmed = value?.trim()
+    if (trimmed) lines.push(`  ${label}: ${trimmed}`)
+  }
+  if (reflection.followUp) {
+    const note = reflection.followUp.note?.trim() ? ` ${reflection.followUp.note.trim()}` : ''
+    lines.push(`  Next: ${GOAL_FOLLOW_UP_LABEL[reflection.followUp.kind]}.${note}`)
+  }
+  return lines.join('\n')
+}
+
+function compareClosedGoals(left: Goal, right: Goal): number {
+  const leftDate = left.closingReflection?.closedAt ?? left.updatedAt
+  const rightDate = right.closingReflection?.closedAt ?? right.updatedAt
+  return rightDate.localeCompare(leftDate) || left.title.localeCompare(right.title)
+}
+
 function compareActivePriorities(left: Priority, right: Priority): number {
   return (
     (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
@@ -710,6 +787,16 @@ export async function buildPlanningSnapshot(): Promise<PlanningSnapshot> {
   const activeGoals = goals
     .filter((g) => g.status === 'open')
     .map((g) => ({ id: g.id, title: g.title, status: g.status }))
+  const closedGoalSubjects = goals
+    .filter((g): g is Goal & { closingReflection: GoalClosingReflection } => Boolean(g.closingReflection))
+    .sort(compareClosedGoals)
+    .slice(0, CLOSED_GOAL_REFLECTIONS_LIMIT)
+  const closedGoals = closedGoalSubjects.map((g) => ({
+    id: g.id,
+    title: g.title,
+    outcome: g.closingReflection.outcome,
+    closedAt: g.closingReflection.closedAt,
+  }))
 
   const activeKeyResultSubjects = keyResults.filter((kr) => kr.status === 'open')
   const activeKeyResults = activeKeyResultSubjects
@@ -746,6 +833,10 @@ export async function buildPlanningSnapshot(): Promise<PlanningSnapshot> {
       priorityGroups.closed.map(formatClosedPriority),
     ),
     formatBulletSection(
+      'Closed goal reflections',
+      closedGoalSubjects.map((g) => formatClosedGoal(g, g.closingReflection)),
+    ),
+    formatBulletSection(
       'Active goals',
       activeGoals.map((g) => g.title),
     ),
@@ -780,6 +871,7 @@ export async function buildPlanningSnapshot(): Promise<PlanningSnapshot> {
     activeHabits,
     activeTrackers,
     priorities: priorityGroups,
+    closedGoals,
     snapshot,
   }
 }

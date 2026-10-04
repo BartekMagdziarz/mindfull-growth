@@ -243,6 +243,73 @@ describe('buildPlanningSnapshot', () => {
     expect(snapshot.snapshot).not.toContain('Hidden tracker')
   })
 
+  it('renders closed-goal reflections as the start mirror plus lessons, newest first and capped', async () => {
+    const reflection = (closedAt: string, extra: Record<string, unknown> = {}) => ({
+      closedAt,
+      outcome: 'partial',
+      keyResults: [],
+      window: { startDate: '2026-04-01', targetDate: '2026-09-30', weeksPlanned: 26 },
+      ...extra,
+    })
+    const goals = [
+      {
+        id: 'g-main',
+        title: 'Blok treningowy',
+        status: 'completed',
+        updatedAt: '2026-10-04T10:00:00.000Z',
+        successDefinition: 'Trzy treningi tygodniowo',
+        confidenceRating: 8,
+        obstacles: 'Sezon urlopowy',
+        closingReflection: reflection('2026-10-04', {
+          successMet: 'partly',
+          successNote: 'Przysiad tak, ciągłość nie.',
+          confidenceInHindsight: 6,
+          obstaclesHit: 'Delegacje.',
+          workedWell: 'Stały dzień i godzina.',
+          wasDifficult: 'Powroty po przerwach.',
+          learned: 'Trzy razy w tygodniu to realny rytm.',
+          followUp: { kind: 'habit', note: 'Treningi zostają.' },
+          keyResults: [
+            { id: 'kr1', title: '3 treningi', entryMode: 'completion', cadence: 'weekly', evaluation: 'met', monthsMet: 5, monthsPlanned: 6, months: [], lastReadout: '16/21 tyg.' },
+            { id: 'kr2', title: 'Rozciąganie', entryMode: 'completion', cadence: 'weekly', evaluation: 'missed', monthsMet: 0, monthsPlanned: 6, months: [] },
+          ],
+        }),
+      },
+      { id: 'g-open', title: 'Hiszpański B1', status: 'open', updatedAt: 'x' },
+      ...Array.from({ length: 13 }, (_, index) => ({
+        id: `g-old-${index}`,
+        title: `Stary cel ${index}`,
+        status: 'completed',
+        updatedAt: 'x',
+        closingReflection: reflection(`2026-0${1 + (index % 3)}-1${index % 10}`, { outcome: 'abandoned' }),
+      })),
+    ]
+    vi.mocked(goalDexieRepository.listAll).mockResolvedValue(goals as never)
+    vi.mocked(keyResultDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(habitDexieRepository.listAll).mockResolvedValue([])
+    vi.mocked(trackerDexieRepository.listAll).mockResolvedValue([])
+
+    const snapshot = await buildPlanningSnapshot()
+
+    expect(snapshot.closedGoals).toHaveLength(12)
+    expect(snapshot.closedGoals[0]).toMatchObject({ id: 'g-main', outcome: 'partial', closedAt: '2026-10-04' })
+    expect(snapshot.activeGoals.map((g) => g.title)).toEqual(['Hiszpański B1'])
+
+    const text = snapshot.snapshot
+    const section = text.slice(text.indexOf('Closed goal reflections:'), text.indexOf('Active goals:'))
+    expect(section).toContain('- [2026-04-01 → 2026-09-30, closed 2026-10-04] Blok treningowy — partly achieved')
+    expect(section).toContain('  Key results: 3 treningi — met (16/21 tyg.); Rozciąganie — missed')
+    expect(section).toContain('  Success definition: "Trzy treningi tygodniowo" → partly. Przysiad tak, ciągłość nie.')
+    expect(section).toContain('  Confidence: 8/10 at the start, 6/10 in hindsight.')
+    expect(section).toContain('  Obstacles expected: Sezon urlopowy')
+    expect(section).toContain('  Obstacles that showed up: Delegacje.')
+    expect(section).toContain('  Learned: Trzy razy w tygodniu to realny rytm.')
+    expect(section).toContain('  Next: continues as a habit. Treningi zostają.')
+    // the oldest of the thirteen old goals falls off the cap
+    expect((section.match(/Stary cel/g) ?? []).length).toBe(11)
+    expect(text.indexOf('Closed goal reflections:')).toBeLessThan(text.indexOf('Active goals:'))
+  })
+
   it('keeps habits/trackers with isActive === undefined (treats missing as active)', async () => {
     vi.mocked(goalDexieRepository.listAll).mockResolvedValue([])
     vi.mocked(keyResultDexieRepository.listAll).mockResolvedValue([])
