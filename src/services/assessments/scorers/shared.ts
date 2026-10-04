@@ -43,6 +43,13 @@ export function deriveBand(
     return 'high'
   }
 
+  if (interpretationScale === '0-4') {
+    // Thirds of the 0–4 range (FSCRS: "not at all like me" … "extremely like me").
+    if (value < 1.5) return 'low'
+    if (value <= 2.5) return 'medium'
+    return 'high'
+  }
+
   if (interpretationScale === '1-5') {
     if (value < 2.5) return 'low'
     if (value <= 3.5) return 'medium'

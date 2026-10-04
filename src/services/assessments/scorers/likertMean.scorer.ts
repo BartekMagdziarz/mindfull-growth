@@ -7,7 +7,7 @@ import { computeLikertScale, meanOfValues, responseByItemId } from './shared'
  * Generic Likert-mean scorer: every definition scale is the mean of its
  * items (reverse keys applied, 80% imputation per the missing-data policy).
  * Used by SCS-SF (Raes et al. 2011), whose recommended score is the mean of
- * all 12 items on 1–5.
+ * all 12 items on 1–5, and by FSCRS (three subscale means on 0–4).
  */
 export class LikertMeanScorer implements AssessmentScorer {
   score(input: ScoringInput): AssessmentComputation {
@@ -51,3 +51,5 @@ export class LikertMeanScorer implements AssessmentScorer {
 }
 
 export const scsSfScorer = new LikertMeanScorer()
+/** FSCRS (Gilbert et al. 2004): three 0–4 scale means, no reverse keys. */
+export const fscrsScorer = new LikertMeanScorer()

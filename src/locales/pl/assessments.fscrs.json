@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "title": "Jak traktuję siebie (FSCRS)",
+    "subtitle": "Trzy głosy, którymi odpowiadasz sobie, gdy coś nie wychodzi.",
+    "description": "Dwadzieścia dwa stwierdzenia o tym, jak odnosisz się do siebie, kiedy coś ci nie wychodzi. Wynik to trzy średnie od 0 do 4: nieadekwatne ja (poczucie, że nie dorastasz), znienawidzone ja (odraza i chęć ukarania siebie) oraz uspokojone ja (umiejętność dodania sobie otuchy). Tłumaczenie robocze skali Forms of Self-Criticising/Attacking and Self-Reassuring Scale (Gilbert, Clarke, Hempel, Miles i Irons, 2004), udostępnianej bezpłatnie przez Compassionate Mind Foundation z podaniem źródła.",
+    "category": "Emocje",
+    "disclaimer": "To narzędzie wspiera autorefleksję i śledzenie zmian. Nie stawia diagnozy i nie zastępuje konsultacji ze specjalistą. Jeśli myśli o skrzywdzeniu siebie są częste lub silne, porozmawiaj z kimś, komu ufasz, albo ze specjalistą."
+  },
+  "consent": {
+    "title": "Zgoda i zastrzeżenie",
+    "body": "Rozumiem, że jest to narzędzie do autorefleksji, a nie test kliniczny, i wyrażam zgodę na lokalne przechowywanie wyników na tym urządzeniu."
+  },
+  "scales": {
+    "inadequateSelf": "Nieadekwatne ja",
+    "hatedSelf": "Znienawidzone ja",
+    "reassuredSelf": "Uspokojone ja"
+  },
+  "anchors": {
+    "0": "Zupełnie do mnie nie pasuje",
+    "1": "Trochę do mnie pasuje",
+    "2": "Umiarkowanie do mnie pasuje",
+    "3": "Dość mocno do mnie pasuje",
+    "4": "Bardzo do mnie pasuje"
+  },
+  "interpretation": {
+    "low": "Ten głos odzywa się u ciebie rzadko.",
+    "medium": "Ten głos odzywa się u ciebie umiarkowanie często.",
+    "high": "Ten głos odzywa się u ciebie często."
+  },
+  "items": {
+    "fscrs_01": "Łatwo się sobą rozczarowuję.",
+    "fscrs_02": "Jest we mnie część, która mnie poniża.",
+    "fscrs_03": "Potrafię przypominać sobie dobre rzeczy o sobie.",
+    "fscrs_04": "Trudno mi opanować złość i frustrację na siebie.",
+    "fscrs_05": "Łatwo przychodzi mi wybaczanie sobie.",
+    "fscrs_06": {
+      "m": "Jest we mnie część, która czuje, że nie jestem wystarczająco dobry.",
+      "f": "Jest we mnie część, która czuje, że nie jestem wystarczająco dobra."
+    },
+    "fscrs_07": {
+      "m": "Czuję się przybity własnymi krytycznymi myślami o sobie.",
+      "f": "Czuję się przybita własnymi krytycznymi myślami o sobie."
+    },
+    "fscrs_08": "Mimo wszystko lubię być sobą.",
+    "fscrs_09": {
+      "m": "Bywam na siebie tak zły, że chcę sobie zrobić krzywdę.",
+      "f": "Bywam na siebie tak zła, że chcę sobie zrobić krzywdę."
+    },
+    "fscrs_10": "Czuję do siebie wstręt.",
+    "fscrs_11": "Mimo wszystko potrafię czuć, że zasługuję na miłość i akceptację.",
+    "fscrs_12": "Przestaję o siebie dbać.",
+    "fscrs_13": "Łatwo przychodzi mi lubić siebie.",
+    "fscrs_14": "Pamiętam swoje porażki i rozpamiętuję je.",
+    "fscrs_15": "Wyzywam siebie w myślach.",
+    "fscrs_16": {
+      "m": "Jestem dla siebie łagodny i wspierający.",
+      "f": "Jestem dla siebie łagodna i wspierająca."
+    },
+    "fscrs_17": "Nie potrafię przyjąć porażek i niepowodzeń bez poczucia, że nie dorastam.",
+    "fscrs_18": "Uważam, że zasługuję na swoją samokrytykę.",
+    "fscrs_19": "Potrafię o siebie zadbać i się sobą zaopiekować.",
+    "fscrs_20": "Jest we mnie część, która chce pozbyć się tego, czego w sobie nie lubię.",
+    "fscrs_21": "Dodaję sobie otuchy na przyszłość.",
+    "fscrs_22": "Nie lubię być sobą."
+  }
+}

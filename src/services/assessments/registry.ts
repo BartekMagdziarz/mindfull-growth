@@ -13,6 +13,7 @@ import gad7Meta from '@/data/assessments/gad-7.meta.json'
 import scsSfMeta from '@/data/assessments/scs-sf.meta.json'
 import angerBarometerMeta from '@/data/assessments/anger-barometer.meta.json'
 import ius12Meta from '@/data/assessments/ius-12.meta.json'
+import fscrsMeta from '@/data/assessments/fscrs.meta.json'
 import { ipipBfm50Scorer } from './scorers/ipipBfm50.scorer'
 import { ipipNeo120Scorer } from './scorers/ipipNeo120.scorer'
 import { hexaco60Scorer } from './scorers/hexaco60.scorer'
@@ -22,7 +23,7 @@ import { erqScorer } from './scorers/erq.scorer'
 import { ecrRsScorer } from './scorers/ecrRs.scorer'
 import { rrqScorer } from './scorers/rrq.scorer'
 import { ipipViaScorer } from './scorers/ipipVia.scorer'
-import { scsSfScorer } from './scorers/likertMean.scorer'
+import { fscrsScorer, scsSfScorer } from './scorers/likertMean.scorer'
 import { sumScorer } from './scorers/sum.scorer'
 
 export interface AssessmentRegistryEntry {
@@ -99,6 +100,12 @@ const assessmentRegistry: Record<AssessmentId, AssessmentRegistryEntry> = {
   'ius-12': {
     definition: ius12Meta as AssessmentDefinition,
     scorer: sumScorer,
+  },
+  // Shame path v3: three 0–4 means (inadequate / hated / reassured self),
+  // read as skills in the path dashboard, never as a verdict.
+  fscrs: {
+    definition: fscrsMeta as AssessmentDefinition,
+    scorer: fscrsScorer,
   },
 }
 

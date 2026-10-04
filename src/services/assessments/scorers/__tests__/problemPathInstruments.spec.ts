@@ -121,3 +121,41 @@ describe('SCS-SF mean scoring', () => {
     expect(total.band).toBe('medium')
   })
 })
+
+describe('FSCRS (three 0–4 means)', () => {
+  it('scores inadequate / hated / reassured self as separate means with no reverse keys', () => {
+    const { definition } = getAssessmentRegistryEntry('fscrs')
+    expect(definition.items).toHaveLength(22)
+    expect(definition.items.every((item) => !item.reverse)).toBe(true)
+    expect(definition.scales.map((scale) => [scale.id, scale.itemIds.length])).toEqual([
+      ['inadequateSelf', 9],
+      ['hatedSelf', 5],
+      ['reassuredSelf', 8],
+    ])
+
+    const values = allItems('fscrs', 1)
+    for (const id of definition.scales.find((s) => s.id === 'reassuredSelf')!.itemIds) values[id] = 4
+    for (const id of definition.scales.find((s) => s.id === 'hatedSelf')!.itemIds) values[id] = 0
+    const result = score('fscrs', values)
+    const byId = Object.fromEntries(result.computedScales.map((scale) => [scale.scaleId, scale]))
+    expect(byId.inadequateSelf?.rawMean).toBe(1)
+    expect(byId.hatedSelf?.rawMean).toBe(0)
+    expect(byId.reassuredSelf?.rawMean).toBe(4)
+    expect(byId.inadequateSelf?.band).toBe('low')
+    expect(byId.reassuredSelf?.band).toBe('high')
+    expect(result.scoringComputationMetadata.completedWithMissingData).toBe(false)
+  })
+
+  it('imputes one missing item per scale and refuses below the minimum answered', () => {
+    const values = allItems('fscrs', 2)
+    delete values.fscrs_01 // inadequate self: 8 of 9 answered → imputed
+    delete values.fscrs_09
+    delete values.fscrs_10 // hated self: 3 of 5 answered → below minAnswered 4
+    const result = score('fscrs', values)
+    const byId = Object.fromEntries(result.computedScales.map((scale) => [scale.scaleId, scale]))
+    expect(byId.inadequateSelf?.rawMean).toBe(2)
+    expect(byId.inadequateSelf?.answeredCount).toBe(8)
+    expect(byId.hatedSelf?.rawMean).toBeNull()
+    expect(result.scoringComputationMetadata.completedWithMissingData).toBe(true)
+  })
+})

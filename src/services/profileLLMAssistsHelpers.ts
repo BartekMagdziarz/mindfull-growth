@@ -829,6 +829,7 @@ const ASSESSMENT_LABELS: Record<AssessmentId, string> = {
   'scs-sf': 'Self-compassion (SCS-SF)',
   'anger-barometer': 'Anger barometer',
   'ius-12': 'Intolerance of uncertainty (IUS-12)',
+  fscrs: 'Self-criticism and self-reassurance (FSCRS)',
 }
 
 // Problem-path measures (GAD-7, SCS-SF, anger barometer, IUS-12) are

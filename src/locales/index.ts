@@ -27,6 +27,7 @@ import enAssessmentsGad7 from './en/assessments.gad-7.json'
 import enAssessmentsScsSf from './en/assessments.scs-sf.json'
 import enAssessmentsAngerBarometer from './en/assessments.anger-barometer.json'
 import enAssessmentsIus12 from './en/assessments.ius-12.json'
+import enAssessmentsFscrs from './en/assessments.fscrs.json'
 import enAssessmentsEcrRs from './en/assessments.ecr-rs.json'
 import enAssessmentsRrq from './en/assessments.rrq.json'
 import enAssessmentsIpipVia from './en/assessments.ipip-via.json'
@@ -60,6 +61,7 @@ import plAssessmentsGad7 from './pl/assessments.gad-7.json'
 import plAssessmentsScsSf from './pl/assessments.scs-sf.json'
 import plAssessmentsAngerBarometer from './pl/assessments.anger-barometer.json'
 import plAssessmentsIus12 from './pl/assessments.ius-12.json'
+import plAssessmentsFscrs from './pl/assessments.fscrs.json'
 import plAssessmentsEcrRs from './pl/assessments.ecr-rs.json'
 import plAssessmentsRrq from './pl/assessments.rrq.json'
 import plAssessmentsIpipVia from './pl/assessments.ipip-via.json'
@@ -98,6 +100,7 @@ const enMessages = {
     scsSf: enAssessmentsScsSf,
     angerBarometer: enAssessmentsAngerBarometer,
     ius12: enAssessmentsIus12,
+    fscrs: enAssessmentsFscrs,
   },
 }
 
@@ -135,6 +138,7 @@ const plMessages = {
     scsSf: plAssessmentsScsSf,
     angerBarometer: plAssessmentsAngerBarometer,
     ius12: plAssessmentsIus12,
+    fscrs: plAssessmentsFscrs,
   },
 }
 

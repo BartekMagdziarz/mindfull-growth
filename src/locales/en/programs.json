@@ -50,7 +50,7 @@
     "practiceAfterStep": "starts after step {n}",
     "practiceEnded": "finished",
     "doNow": "Do it now",
-    "outcomeTitle": "Measured at the start and at the end",
+    "outcomeTitle": "Measured along the path",
     "outcomeBefore": "At the start",
     "outcomeAfter": "At the end",
     "outcomeNote": "Comparing: {scale}. It shows change over time, not a clinical assessment.",

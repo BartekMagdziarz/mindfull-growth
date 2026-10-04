@@ -74,7 +74,11 @@
     </p>
     <p v-if="error" class="mb-4 text-sm text-status-warn-on">{{ error }}</p>
 
-    <ProgramOutcomeSummary v-if="program.outcomeSlug && enrollment" :program="program" :enrollment="enrollment" />
+    <ProgramOutcomeSummary
+      v-if="(program.outcomeSlugs?.length || program.outcomeSlug) && enrollment"
+      :program="program"
+      :enrollment="enrollment"
+    />
     <ProgramPracticeRail v-if="program.practices?.length" :program="program" :enrollment="enrollment" />
     <ProgramWeekPanel v-if="program.weeklyTasks?.length && enrollment" :program="program" :enrollment="enrollment" />
     <ProgramMomentsRow v-if="program.momentKind && openEnrollment" :kind="program.momentKind" />

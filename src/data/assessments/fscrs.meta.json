@@ -1,0 +1,103 @@
+{
+  "id": "fscrs",
+  "instrumentVersion": "1.0.0",
+  "scoringKeyVersion": "1.0.0",
+  "titleKey": "assessments.fscrs.meta.title",
+  "subtitleKey": "assessments.fscrs.meta.subtitle",
+  "descriptionKey": "assessments.fscrs.meta.description",
+  "categoryKey": "assessments.fscrs.meta.category",
+  "disclaimerKey": "assessments.fscrs.meta.disclaimer",
+  "estimatedMinutes": 5,
+  "responseScale": {
+    "min": 0,
+    "max": 4,
+    "anchors": {
+      "0": "assessments.fscrs.anchors.0",
+      "1": "assessments.fscrs.anchors.1",
+      "2": "assessments.fscrs.anchors.2",
+      "3": "assessments.fscrs.anchors.3",
+      "4": "assessments.fscrs.anchors.4"
+    }
+  },
+  "items": [
+    { "id": "fscrs_01", "textKey": "assessments.fscrs.items.fscrs_01", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_02", "textKey": "assessments.fscrs.items.fscrs_02", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_03", "textKey": "assessments.fscrs.items.fscrs_03", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_04", "textKey": "assessments.fscrs.items.fscrs_04", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_05", "textKey": "assessments.fscrs.items.fscrs_05", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_06", "textKey": "assessments.fscrs.items.fscrs_06", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_07", "textKey": "assessments.fscrs.items.fscrs_07", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_08", "textKey": "assessments.fscrs.items.fscrs_08", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_09", "textKey": "assessments.fscrs.items.fscrs_09", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_10", "textKey": "assessments.fscrs.items.fscrs_10", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_11", "textKey": "assessments.fscrs.items.fscrs_11", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_12", "textKey": "assessments.fscrs.items.fscrs_12", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_13", "textKey": "assessments.fscrs.items.fscrs_13", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_14", "textKey": "assessments.fscrs.items.fscrs_14", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_15", "textKey": "assessments.fscrs.items.fscrs_15", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_16", "textKey": "assessments.fscrs.items.fscrs_16", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_17", "textKey": "assessments.fscrs.items.fscrs_17", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_18", "textKey": "assessments.fscrs.items.fscrs_18", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_19", "textKey": "assessments.fscrs.items.fscrs_19", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_20", "textKey": "assessments.fscrs.items.fscrs_20", "scaleId": "inadequateSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_21", "textKey": "assessments.fscrs.items.fscrs_21", "scaleId": "reassuredSelf", "reverse": false, "responseMin": 0, "responseMax": 4 },
+    { "id": "fscrs_22", "textKey": "assessments.fscrs.items.fscrs_22", "scaleId": "hatedSelf", "reverse": false, "responseMin": 0, "responseMax": 4 }
+  ],
+  "scales": [
+    {
+      "id": "inadequateSelf",
+      "labelKey": "assessments.fscrs.scales.inadequateSelf",
+      "itemIds": [
+        "fscrs_01",
+        "fscrs_02",
+        "fscrs_04",
+        "fscrs_06",
+        "fscrs_07",
+        "fscrs_14",
+        "fscrs_17",
+        "fscrs_18",
+        "fscrs_20"
+      ],
+      "minAnswered": 8
+    },
+    {
+      "id": "hatedSelf",
+      "labelKey": "assessments.fscrs.scales.hatedSelf",
+      "itemIds": [
+        "fscrs_09",
+        "fscrs_10",
+        "fscrs_12",
+        "fscrs_15",
+        "fscrs_22"
+      ],
+      "minAnswered": 4
+    },
+    {
+      "id": "reassuredSelf",
+      "labelKey": "assessments.fscrs.scales.reassuredSelf",
+      "itemIds": [
+        "fscrs_03",
+        "fscrs_05",
+        "fscrs_08",
+        "fscrs_11",
+        "fscrs_13",
+        "fscrs_16",
+        "fscrs_19",
+        "fscrs_21"
+      ],
+      "minAnswered": 7
+    }
+  ],
+  "missingDataPolicy": {
+    "id": "fscrs-80pct-impute",
+    "descriptionKey": "assessments.common.missingPolicy.scale80",
+    "thresholdPercent": 0.8,
+    "imputeWithScaleMean": true
+  },
+  "retakePolicy": {
+    "weeks": 4
+  },
+  "pageSize": 11,
+  "interpretationScale": "0-4",
+  "labelledResponses": true
+}

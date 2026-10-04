@@ -14,6 +14,7 @@ export type AssessmentId =
   | 'scs-sf'
   | 'anger-barometer'
   | 'ius-12'
+  | 'fscrs'
 
 export type InstrumentVersion = string
 export type ScoringKeyVersion = string
@@ -57,7 +58,7 @@ export interface RetakePolicy {
   weeks: number
 }
 
-export type InterpretationScale = '0-3' | '1-5' | '1-6' | '1-7' | '0-10'
+export type InterpretationScale = '0-3' | '0-4' | '1-5' | '1-6' | '1-7' | '0-10'
 
 /**
  * Symptom-style instruments (GAD-7, anger barometer, IUS-12) are scored as

@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "title": "How I treat myself (FSCRS)",
+    "subtitle": "Three voices you answer yourself with when things go wrong.",
+    "description": "Twenty-two statements about how you relate to yourself when things go wrong for you. The score is three means from 0 to 4: inadequate self (feeling you fall short), hated self (disgust and the wish to punish yourself) and reassured self (the ability to encourage yourself). Forms of Self-Criticising/Attacking and Self-Reassuring Scale (Gilbert, Clarke, Hempel, Miles & Irons, 2004), made freely available by the Compassionate Mind Foundation with attribution.",
+    "category": "Emotions",
+    "disclaimer": "This tool supports self-reflection and tracking change. It does not diagnose and does not replace a consultation with a professional. If thoughts of hurting yourself are frequent or strong, talk to someone you trust or to a professional."
+  },
+  "consent": {
+    "title": "Consent and disclaimer",
+    "body": "I understand this is a self-reflection tool, not a clinical test, and I agree to store my results locally on this device."
+  },
+  "scales": {
+    "inadequateSelf": "Inadequate self",
+    "hatedSelf": "Hated self",
+    "reassuredSelf": "Reassured self"
+  },
+  "anchors": {
+    "0": "Not at all like me",
+    "1": "A little bit like me",
+    "2": "Moderately like me",
+    "3": "Quite a bit like me",
+    "4": "Extremely like me"
+  },
+  "interpretation": {
+    "low": "This voice speaks up rarely for you.",
+    "medium": "This voice speaks up moderately often for you.",
+    "high": "This voice speaks up often for you."
+  },
+  "items": {
+    "fscrs_01": "I am easily disappointed with myself.",
+    "fscrs_02": "There is a part of me that puts me down.",
+    "fscrs_03": "I am able to remind myself of positive things about myself.",
+    "fscrs_04": "I find it difficult to control my anger and frustration at myself.",
+    "fscrs_05": "I find it easy to forgive myself.",
+    "fscrs_06": "There is a part of me that feels I am not good enough.",
+    "fscrs_07": "I feel beaten down by my own self-critical thoughts.",
+    "fscrs_08": "I still like being me.",
+    "fscrs_09": "I have become so angry with myself that I want to hurt or injure myself.",
+    "fscrs_10": "I have a sense of disgust with myself.",
+    "fscrs_11": "I can still feel lovable and acceptable.",
+    "fscrs_12": "I stop caring about myself.",
+    "fscrs_13": "I find it easy to like myself.",
+    "fscrs_14": "I remember and dwell on my failings.",
+    "fscrs_15": "I call myself names.",
+    "fscrs_16": "I am gentle and supportive with myself.",
+    "fscrs_17": "I can't accept failures and setbacks without feeling inadequate.",
+    "fscrs_18": "I think I deserve my self-criticism.",
+    "fscrs_19": "I am able to care and look after myself.",
+    "fscrs_20": "There is a part of me that wants to get rid of the bits I don't like.",
+    "fscrs_21": "I encourage myself for the future.",
+    "fscrs_22": "I do not like being me."
+  }
+}
