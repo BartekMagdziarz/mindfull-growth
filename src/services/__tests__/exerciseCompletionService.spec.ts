@@ -4,8 +4,12 @@ import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { DayRef } from '@/domain/period'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { recordCompletion } from '@/services/exerciseCompletionService'
+import { ensureShamePartsForEntry } from '@/services/shamePartsService'
 import { autoCompleteFor } from '@/services/exercisePlanService'
-import { advanceEnrollmentForPlan, advancePracticeForPlan } from '@/services/programSchedulerService'
+import {
+  advanceEnrollmentForPlan,
+  advancePracticeForPlan,
+} from '@/services/programSchedulerService'
 
 vi.mock('@/repositories/exerciseCompletionDexieRepository', () => ({
   exerciseCompletionDexieRepository: {
@@ -22,6 +26,10 @@ vi.mock('@/services/exercisePlanService', () => ({
 
 vi.mock('@/services/programTaskBridgeService', () => ({
   recordTaskProgress: vi.fn(async () => ({ intentionIds: [] })),
+}))
+
+vi.mock('@/services/shamePartsService', () => ({
+  ensureShamePartsForEntry: vi.fn(async () => []),
 }))
 
 vi.mock('@/services/programSchedulerService', () => ({
@@ -43,7 +51,7 @@ const completedPlanFixture: ExercisePlanItem = {
 
 describe('recordCompletion', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date'] })
   })
 
   afterEach(() => {
@@ -125,7 +133,7 @@ describe('recordCompletion', () => {
     const advancement = { enrollment: { id: 'enrollment-1' }, nextPlanItem: null }
     vi.mocked(autoCompleteFor).mockResolvedValueOnce(programPlan)
     vi.mocked(advanceEnrollmentForPlan).mockResolvedValueOnce(
-      advancement as unknown as Awaited<ReturnType<typeof advanceEnrollmentForPlan>>,
+      advancement as unknown as Awaited<ReturnType<typeof advanceEnrollmentForPlan>>
     )
 
     const result = await recordCompletion('worry-tree', 'record-1')
@@ -142,7 +150,10 @@ describe('recordCompletion', () => {
       sourceRef: 'enrollment-1',
       programRole: 'practice',
     }
-    const reconciliation = { created: [{ ...practicePlan, id: 'plan-next', status: 'pending' as const }], removedPlanIds: [] }
+    const reconciliation = {
+      created: [{ ...practicePlan, id: 'plan-next', status: 'pending' as const }],
+      removedPlanIds: [],
+    }
     vi.mocked(autoCompleteFor).mockResolvedValueOnce(practicePlan)
     vi.mocked(advancePracticeForPlan).mockResolvedValueOnce(reconciliation)
 
@@ -176,6 +187,31 @@ describe('recordCompletion', () => {
 
     expect(result.completion.source).toBe('plan')
     expect(result.programAdvancement).toBeNull()
+    expect(exerciseCompletionDexieRepository.create).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('shame-map parts hook', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('creates the compass parts for a saved shame map and ignores other slugs', async () => {
+    await recordCompletion('shame-map', 'map-1')
+    expect(vi.mocked(ensureShamePartsForEntry).mock.calls).toEqual([['map-1']])
+
+    vi.mocked(ensureShamePartsForEntry).mockClear()
+    await recordCompletion('shame-map')
+    await recordCompletion('worry-tree', 'record-1')
+    expect(ensureShamePartsForEntry).not.toHaveBeenCalled()
+  })
+
+  it('still writes the completion when the parts hook throws', async () => {
+    vi.mocked(ensureShamePartsForEntry).mockRejectedValueOnce(new Error('dexie down'))
+
+    const result = await recordCompletion('shame-map', 'map-1')
+
+    expect(result.completion.exerciseSlug).toBe('shame-map')
     expect(exerciseCompletionDexieRepository.create).toHaveBeenCalledTimes(1)
   })
 })

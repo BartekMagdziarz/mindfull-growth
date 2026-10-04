@@ -1170,6 +1170,12 @@ export interface IFSPart {
   feltAge?: number // How old this part feels
   notes?: string
   color?: string // User-assigned color for visual map
+  /**
+   * Machine tags for parts the app created on the user's behalf, e.g.
+   * `shame-compass:attackSelf` (the shame path's Krytyk) and
+   * `program:shame-compassion`. Lookups by tag survive a user rename.
+   */
+  tags?: string[]
 }
 
 export type CreateIFSPartPayload = Omit<IFSPart, 'id' | 'createdAt' | 'updatedAt'>

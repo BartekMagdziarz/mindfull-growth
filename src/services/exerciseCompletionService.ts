@@ -11,6 +11,8 @@
  */
 
 import type { ExerciseCompletion } from '@/domain/exerciseCompletion'
+import { userDatabaseOperation } from '@/repositories/userDatabaseOperation'
+import { captureUserSession } from '@/services/userSessionScope'
 import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { autoCompleteFor } from '@/services/exercisePlanService'
@@ -22,6 +24,7 @@ import {
   type ProgramAdvancement,
 } from '@/services/programSchedulerService'
 import { recordTaskProgress } from '@/services/programTaskBridgeService'
+import { ensureShamePartsForEntry } from '@/services/shamePartsService'
 import { getPeriodRefsForDate } from '@/utils/periods'
 
 export interface RecordCompletionResult {
@@ -39,32 +42,91 @@ export interface RecordCompletionResult {
 export async function recordCompletion(
   slug: string,
   recordId?: string,
+  eventId?: string
 ): Promise<RecordCompletionResult> {
+  const session = captureUserSession()
+  if (eventId !== undefined && (!eventId.trim() || eventId.length > 256)) {
+    throw new Error('Invalid completion event id')
+  }
   const now = new Date()
   // Local day, NOT the UTC date — a 23:30 completion belongs to the
   // user's current day.
   const dayRef = getPeriodRefsForDate(now).day
-  let completedPlan: ExercisePlanItem | null = null
-  try {
-    completedPlan = await autoCompleteFor(slug, dayRef, recordId)
-  } catch (err) {
-    // Plan bookkeeping must never block the completion log write.
-    console.error('Failed to auto-complete exercise plan:', err)
+  let planFailed = false
+  let saved: {
+    completion: ExerciseCompletion
+    completedPlan: ExercisePlanItem | null
+    duplicate?: boolean
   }
-  const completion = await exerciseCompletionDexieRepository.create({
-    exerciseSlug: slug,
-    completedAt: now.toISOString(),
-    dayRef,
-    recordId,
-    source: completedPlan ? 'plan' : 'standalone',
-  })
+  try {
+    saved = await userDatabaseOperation(
+      'rw',
+      ['exercisePlanItems', 'exerciseCompletions'],
+      async db => {
+        if (eventId) {
+          const existing = await db.exerciseCompletions.where('eventId').equals(eventId).first()
+          if (existing) {
+            if (existing.exerciseSlug !== slug || existing.recordId !== recordId)
+              throw new Error('Completion event conflict')
+            return { completion: existing, completedPlan: null, duplicate: true }
+          }
+        }
+        let completedPlan: ExercisePlanItem | null
+        try {
+          completedPlan = await autoCompleteFor(slug, dayRef, recordId)
+        } catch (error) {
+          planFailed = true
+          throw error
+        }
+        const completion = await exerciseCompletionDexieRepository.create({
+          exerciseSlug: slug,
+          completedAt: now.toISOString(),
+          dayRef,
+          recordId,
+          ...(eventId ? { eventId } : {}),
+          source: completedPlan ? 'plan' : 'standalone',
+        })
+        return { completion, completedPlan }
+      }
+    )
+  } catch (err) {
+    session.assertCurrent()
+    if (!planFailed) throw err
+    // A failed plan transaction is rolled back before the standalone fallback.
+    console.error('Failed to auto-complete exercise plan:', err)
+    const completion = await exerciseCompletionDexieRepository.create({
+      exerciseSlug: slug,
+      completedAt: now.toISOString(),
+      dayRef,
+      recordId,
+      ...(eventId ? { eventId } : {}),
+      source: 'standalone',
+    })
+    saved = { completion, completedPlan: null }
+  }
+  session.assertCurrent()
+  const { completion, completedPlan } = saved
+  if (saved.duplicate) return { completion, completedPlan: null, programAdvancement: null }
   let taskIntentionIds: string[] = []
   try {
     // A path's weekly task anchored on this exercise gets its day (plan v2 §5).
     taskIntentionIds = (await recordTaskProgress(slug, dayRef, recordId)).intentionIds
+    session.assertCurrent()
   } catch (err) {
+    session.assertCurrent()
     // Task bookkeeping must never block the completion log write.
     console.error('Failed to count the completion towards a program task:', err)
+  }
+  if (slug === 'shame-map' && recordId) {
+    try {
+      // The compass reactions become IFS parts the path works with (plan v3 §4).
+      await ensureShamePartsForEntry(recordId)
+      session.assertCurrent()
+    } catch (err) {
+      session.assertCurrent()
+      // Part bookkeeping must never block the completion log write.
+      console.error('Failed to create the shame-map parts:', err)
+    }
   }
   let programAdvancement: ProgramAdvancement | null = null
   let practiceReconciliation: PracticeReconciliation | null = null
@@ -76,10 +138,12 @@ export async function recordCompletion(
         programAdvancement = await advanceEnrollmentForPlan(completedPlan)
       }
     } catch (err) {
+      session.assertCurrent()
       // Program bookkeeping must never block the completion log write.
       console.error('Failed to advance program enrollment:', err)
     }
   }
+  session.assertCurrent()
   return {
     completion,
     completedPlan,
