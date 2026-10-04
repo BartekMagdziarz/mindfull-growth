@@ -132,76 +132,100 @@ export const PROGRAM_CATALOG: readonly ProgramDefinition[] = [
       { key: 'planApproach', phaseKey: 'consolidation', entryMode: 'completion', times: 1 },
     ],
   },
-  // ── Ze wstydu do współczucia (problem path, ~8 weeks, content v2) ──
-  // v2 (2026-09-26): compassion from week 1 (image + "Odpowiedź na wstyd"
-  // before the critic), the "O czym jest ten wstyd?" axis, Momenty as the
-  // one log, 2–3 tasks per phase. Plan:
-  // ideas/html-plans/2026-09-26-shame-path-v2-compassion.html. Older
-  // enrollments are re-mapped by `programContentMigration`.
+  // ── Ze wstydu do współczucia (problem path, 8 weeks + Powrót, content v3) ──
+  // v3 (2026-10-04): phases = weeks (w1…w8) plus a follow-up phase; the
+  // compass reactions become IFS parts; FSCRS alongside SCS-SF (start ·
+  // połowa · koniec · powrót); safe place and resistances before the first
+  // inward practice; the compassionate self; a mid-path dose check; fierce
+  // self-compassion; writing after a moment; a letter to the future self;
+  // the path closes on the maintenance plan and "Powrót" follows 56 days
+  // later. Plan: ideas/html-plans/2026-10-04-shame-path-v3.html. Older
+  // enrollments are re-mapped by `programContentMigration` (legacy v1, v2).
   {
     slug: 'shame-compassion',
     i18nKey: 'programs.shame-compassion',
     icon: 'mg-exercise-compassionate-image',
     estimatedWeeks: 8,
-    contentVersion: 2,
+    contentVersion: 3,
     momentKind: 'shame',
     outcomeSlug: 'scs-sf',
+    outcomeSlugs: ['scs-sf', 'fscrs'],
+    signSlug: 'my-sign',
     weeklyReflection: true,
     steps: [
       { exerciseSlug: 'scs-sf', minGapDays: 0, introKey: 'programs.shame-compassion.steps.step1.intro' },
-      { exerciseSlug: 'shame-map', minGapDays: 1, introKey: 'programs.shame-compassion.steps.step2.intro' },
-      { exerciseSlug: 'compassionate-image', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step3.intro' },
-      { exerciseSlug: 'shame-response', minGapDays: 2, introKey: 'programs.shame-compassion.steps.step4.intro' },
-      { exerciseSlug: 'shame-or-guilt', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step5.intro' },
-      { exerciseSlug: 'thought-record', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step6.intro' },
-      { exerciseSlug: 'trailhead', minGapDays: 4, introKey: 'programs.shame-compassion.steps.step7.intro' },
-      { exerciseSlug: 'protector-appreciation', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step8.intro' },
-      { exerciseSlug: 'compassionate-letter', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step9.intro' },
-      { exerciseSlug: 'core-beliefs', minGapDays: 4, introKey: 'programs.shame-compassion.steps.step10.intro' },
-      { exerciseSlug: 'behavioral-experiment', minGapDays: 5, introKey: 'programs.shame-compassion.steps.step11.intro' },
-      { exerciseSlug: 'shadow-beliefs', minGapDays: 4, optional: true, introKey: 'programs.shame-compassion.steps.step12.intro' },
-      { exerciseSlug: 'exile-witnessing', minGapDays: 4, optional: true, introKey: 'programs.shame-compassion.steps.step13.intro' },
-      { exerciseSlug: 'scs-sf', minGapDays: 4, introKey: 'programs.shame-compassion.steps.step14.intro' },
-      { exerciseSlug: 'maintenance-plan', minGapDays: 0, introKey: 'programs.shame-compassion.steps.step15.intro' },
+      { exerciseSlug: 'fscrs', minGapDays: 0, introKey: 'programs.shame-compassion.steps.step2.intro' },
+      { exerciseSlug: 'shame-map', minGapDays: 1, introKey: 'programs.shame-compassion.steps.step3.intro' },
+      { exerciseSlug: 'my-sign', minGapDays: 1, introKey: 'programs.shame-compassion.steps.step4.intro' },
+      { exerciseSlug: 'safe-place', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step5.intro' },
+      { exerciseSlug: 'compassionate-image', minGapDays: 2, introKey: 'programs.shame-compassion.steps.step6.intro' },
+      { exerciseSlug: 'compassionate-self', minGapDays: 2, introKey: 'programs.shame-compassion.steps.step7.intro' },
+      { exerciseSlug: 'shame-response', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step8.intro' },
+      { exerciseSlug: 'shame-or-guilt', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step9.intro' },
+      { exerciseSlug: 'thought-record', minGapDays: 4, introKey: 'programs.shame-compassion.steps.step10.intro', startFrom: 'moment' },
+      { exerciseSlug: 'scs-sf', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step11.intro' },
+      { exerciseSlug: 'dose-check', minGapDays: 0, introKey: 'programs.shame-compassion.steps.step12.intro' },
+      { exerciseSlug: 'trailhead', minGapDays: 5, introKey: 'programs.shame-compassion.steps.step13.intro', startFrom: 'moment' },
+      { exerciseSlug: 'protector-appreciation', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step14.intro', launchQuery: { partTag: 'shame-compass:attackSelf' } },
+      { exerciseSlug: 'direct-access', minGapDays: 2, introKey: 'programs.shame-compassion.steps.step15.intro', optional: true, launchQuery: { partTag: 'shame-compass:attackSelf' } },
+      { exerciseSlug: 'compassionate-letter', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step16.intro', startFrom: 'moment' },
+      { exerciseSlug: 'defender-voice', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step17.intro' },
+      { exerciseSlug: 'core-beliefs', minGapDays: 4, introKey: 'programs.shame-compassion.steps.step18.intro', startFrom: 'fairDemand' },
+      { exerciseSlug: 'behavioral-experiment', minGapDays: 3, introKey: 'programs.shame-compassion.steps.step19.intro' },
+      { exerciseSlug: 'exile-witnessing', minGapDays: 2, introKey: 'programs.shame-compassion.steps.step20.intro', optional: true },
+      { exerciseSlug: 'scs-sf', minGapDays: 4, introKey: 'programs.shame-compassion.steps.step21.intro' },
+      { exerciseSlug: 'fscrs', minGapDays: 0, introKey: 'programs.shame-compassion.steps.step22.intro' },
+      { exerciseSlug: 'letter-to-future-self', minGapDays: 2, introKey: 'programs.shame-compassion.steps.step23.intro' },
+      { exerciseSlug: 'maintenance-plan', minGapDays: 1, introKey: 'programs.shame-compassion.steps.step24.intro', closesPath: true },
+      { exerciseSlug: 'scs-sf', minGapDays: 56, introKey: 'programs.shame-compassion.steps.step25.intro', afterCompletion: true },
+      { exerciseSlug: 'fscrs', minGapDays: 0, introKey: 'programs.shame-compassion.steps.step26.intro', afterCompletion: true },
+      { exerciseSlug: 'path-return', minGapDays: 0, introKey: 'programs.shame-compassion.steps.step27.intro', afterCompletion: true },
     ],
     phases: [
-      { key: 'recognition', fromStepIndex: 0 },
-      { key: 'compassion', fromStepIndex: 2 },
-      { key: 'about', fromStepIndex: 4 },
-      { key: 'critic', fromStepIndex: 6 },
-      { key: 'beliefs', fromStepIndex: 9 },
-      { key: 'outOfHiding', fromStepIndex: 10 },
-      { key: 'deeper', fromStepIndex: 11 },
-      { key: 'consolidation', fromStepIndex: 13 },
+      { key: 'w1', fromStepIndex: 0, week: 1 },
+      { key: 'w2', fromStepIndex: 4, week: 2 },
+      { key: 'w3', fromStepIndex: 7, week: 3 },
+      { key: 'w4', fromStepIndex: 9, week: 4 },
+      { key: 'w5', fromStepIndex: 12, week: 5 },
+      { key: 'w6', fromStepIndex: 15, week: 6 },
+      { key: 'w7', fromStepIndex: 17, week: 7 },
+      { key: 'w8', fromStepIndex: 20, week: 8 },
+      { key: 'return', fromStepIndex: 24 },
     ],
-    // Momenty run every other day until the beliefs step, then on demand
-    // from the weekly tasks; the self-compassion break runs to the end.
-    // Never more than two at once (moments+break → break+positive data).
+    // Never more than two at once: breath → breath + Momenty → Momenty +
+    // break → break + writing → break + positive data (plan §1.4).
     practices: [
-      { exerciseSlug: 'moment-shame', everyDays: 2, startsAfterStep: 1, endsAfterStep: 9, introKey: 'programs.shame-compassion.practices.moment-shame.intro' },
-      { exerciseSlug: 'self-compassion-break', everyDays: 2, startsAfterStep: 2, introKey: 'programs.shame-compassion.practices.self-compassion-break.intro' },
-      { exerciseSlug: 'positive-data-log', everyDays: 2, startsAfterStep: 9, introKey: 'programs.shame-compassion.practices.positive-data-log.intro' },
+      { exerciseSlug: 'paced-breathing', everyDays: 1, endsAfterStep: 6, introKey: 'programs.shame-compassion.practices.paced-breathing.intro' },
+      { exerciseSlug: 'moment-shame', everyDays: 2, startsAfterStep: 2, endsAfterStep: 13, introKey: 'programs.shame-compassion.practices.moment-shame.intro' },
+      { exerciseSlug: 'self-compassion-break', everyDays: 2, startsAfterStep: 6, endsAfterStep: 23, introKey: 'programs.shame-compassion.practices.self-compassion-break.intro' },
+      { exerciseSlug: 'shame-writing', everyDays: 2, startsAfterStep: 14, endsAfterStep: 16, introKey: 'programs.shame-compassion.practices.shame-writing.intro' },
+      { exerciseSlug: 'positive-data-log', everyDays: 2, startsAfterStep: 17, endsAfterStep: 23, introKey: 'programs.shame-compassion.practices.positive-data-log.intro' },
     ],
-    // 2–3 per phase (the planning ritual offers a choice); `linkSlug` is the
+    // 2–3 per week (the planning ritual offers a choice); `linkSlug` is the
     // exercise whose completion counts as a day of the task.
     weeklyTasks: [
-      { key: 'nameShame', phaseKey: 'recognition', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
-      { key: 'catchBody', phaseKey: 'recognition', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
-      { key: 'useResponse', phaseKey: 'compassion', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
-      { key: 'kindAct', phaseKey: 'compassion', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
-      { key: 'soothingGesture', phaseKey: 'compassion', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
-      { key: 'friendTest', phaseKey: 'about', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
-      { key: 'stayLonger', phaseKey: 'about', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
-      { key: 'repairGuilt', phaseKey: 'about', entryMode: 'completion', times: 1, linkSlug: 'moment-shame' },
-      { key: 'noticeCritic', phaseKey: 'critic', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
-      { key: 'handOver', phaseKey: 'critic', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
-      { key: 'collectEvidence', phaseKey: 'beliefs', entryMode: 'counter', times: 3, linkSlug: 'positive-data-log' },
-      { key: 'breakDemand', phaseKey: 'beliefs', entryMode: 'completion', times: 1, linkSlug: 'behavioral-experiment' },
-      { key: 'tellSafePerson', phaseKey: 'outOfHiding', entryMode: 'completion', times: 1, linkSlug: 'moment-shame' },
-      { key: 'showImperfect', phaseKey: 'outOfHiding', entryMode: 'completion', times: 1, linkSlug: 'moment-shame' },
-      { key: 'askQuestion', phaseKey: 'outOfHiding', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
-      { key: 'askSupport', phaseKey: 'consolidation', entryMode: 'completion', times: 1, linkSlug: 'moment-shame' },
-      { key: 'keepResponse', phaseKey: 'consolidation', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'nameShame', phaseKey: 'w1', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'catchBody', phaseKey: 'w1', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'soothingGesture', phaseKey: 'w2', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'receiveKindness', phaseKey: 'w2', entryMode: 'counter', times: 2 },
+      { key: 'kindAct', phaseKey: 'w2', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
+      { key: 'useResponse', phaseKey: 'w3', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'unblendSay', phaseKey: 'w3', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'friendTest', phaseKey: 'w3', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'stayLonger', phaseKey: 'w4', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
+      { key: 'repairGuilt', phaseKey: 'w4', entryMode: 'completion', times: 1, linkSlug: 'moment-shame' },
+      { key: 'noticeCritic', phaseKey: 'w5', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'handOver', phaseKey: 'w5', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
+      { key: 'sayNo', phaseKey: 'w6', entryMode: 'completion', times: 1 },
+      { key: 'readAloud', phaseKey: 'w6', entryMode: 'counter', times: 2 },
+      { key: 'defendSelf', phaseKey: 'w6', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
+      { key: 'collectEvidence', phaseKey: 'w7', entryMode: 'counter', times: 3, linkSlug: 'positive-data-log' },
+      { key: 'breakDemand', phaseKey: 'w7', entryMode: 'completion', times: 1, linkSlug: 'behavioral-experiment' },
+      { key: 'tellSafePerson', phaseKey: 'w7', entryMode: 'completion', times: 1, linkSlug: 'moment-shame' },
+      { key: 'showImperfect', phaseKey: 'w7', entryMode: 'completion', times: 1, linkSlug: 'moment-shame' },
+      { key: 'askQuestion', phaseKey: 'w7', entryMode: 'counter', times: 2, linkSlug: 'moment-shame' },
+      { key: 'keepResponse', phaseKey: 'w8', entryMode: 'counter', times: 3, linkSlug: 'moment-shame' },
+      { key: 'askSupport', phaseKey: 'w8', entryMode: 'completion', times: 1, linkSlug: 'moment-shame' },
     ],
   },
   // ── Poznaj swoje części (IFS, ~4 weeks) ─────────────────────────────

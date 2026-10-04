@@ -25,6 +25,25 @@ export const LEGACY_PROGRAM_STEPS: Readonly<Record<string, Readonly<Record<numbe
       'scs-sf',
       'maintenance-plan',
     ],
+    // Shipped 2026-09-26 (v2: image + response before the critic, the
+    // "O czym jest ten wstyd?" axis, Momenty).
+    2: [
+      'scs-sf',
+      'shame-map',
+      'compassionate-image',
+      'shame-response',
+      'shame-or-guilt',
+      'thought-record',
+      'trailhead',
+      'protector-appreciation',
+      'compassionate-letter',
+      'core-beliefs',
+      'behavioral-experiment',
+      'shadow-beliefs',
+      'exile-witnessing',
+      'scs-sf',
+      'maintenance-plan',
+    ],
   },
 }
 

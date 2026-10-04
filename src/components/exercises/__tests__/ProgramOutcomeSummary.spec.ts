@@ -21,9 +21,9 @@ const PATH: ProgramDefinition = {
   estimatedWeeks: 8,
   outcomeSlugs: ['scs-sf', 'fscrs'],
   phases: [
-    { key: 'recognition', fromStepIndex: 0 },
-    { key: 'about', fromStepIndex: 2 },
-    { key: 'consolidation', fromStepIndex: 4 },
+    { key: 'w1', fromStepIndex: 0, week: 1 },
+    { key: 'w4', fromStepIndex: 2, week: 4 },
+    { key: 'w8', fromStepIndex: 4, week: 8 },
   ],
   steps: [
     { exerciseSlug: 'scs-sf', minGapDays: 0 },
@@ -110,9 +110,9 @@ describe('ProgramOutcomeSummary', () => {
     const scs = within(tables[0]!)
     expect(scs.getAllByRole('columnheader').map((h) => h.textContent?.trim())).toEqual([
       '',
-      expect.stringContaining('Rozpoznawanie'),
-      expect.stringContaining('O czym jest ten wstyd'),
-      expect.stringContaining('Utrwalenie'),
+      expect.stringContaining('Rozpoznać'),
+      expect.stringContaining('Spojrzeć inaczej'),
+      expect.stringContaining('Utrwalić'),
     ])
   })
 

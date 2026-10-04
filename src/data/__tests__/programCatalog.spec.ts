@@ -62,7 +62,7 @@ describe('program catalog', () => {
       program.steps.forEach((step, index) => {
         const PROBLEM_PATH_OPTIONAL: Record<string, string[]> = {
           'anger-signal': ['compassionate-letter'],
-          'shame-compassion': ['shadow-beliefs', 'exile-witnessing'],
+          'shame-compassion': ['direct-access', 'exile-witnessing'],
           'anxiety-approach': ['ius-12', 'paradoxical-intention', 'dereflection', 'behavioral-activation'],
         }
         const shouldBeOptional =
@@ -166,15 +166,40 @@ describe('program catalog', () => {
     }
   })
 
-  it('outcome instrument is an assessment taken as the first and last step', () => {
+  it('outcome instruments are assessments: the first step takes one, each is measured at least twice', () => {
     for (const program of PROGRAM_CATALOG) {
-      if (!program.outcomeSlug) continue
-      expect(getCatalogEntry(program.outcomeSlug)?.kind, program.slug).toBe('assessment')
-      expect(program.steps[0]!.exerciseSlug, program.slug).toBe(program.outcomeSlug)
-      const last = program.steps.map((step) => step.exerciseSlug).lastIndexOf(program.outcomeSlug)
-      expect(last, program.slug).toBeGreaterThan(0)
-      // Only the closing plan may follow the second measurement.
-      expect(program.steps.length - 1 - last, program.slug).toBeLessThanOrEqual(1)
+      const ids = program.outcomeSlugs ?? (program.outcomeSlug ? [program.outcomeSlug] : [])
+      if (ids.length === 0) continue
+      if (program.outcomeSlugs && program.outcomeSlug) expect(program.outcomeSlugs[0], program.slug).toBe(program.outcomeSlug)
+      expect(ids, program.slug).toContain(program.steps[0]!.exerciseSlug)
+      for (const id of ids) {
+        expect(getCatalogEntry(id)?.kind, `${program.slug} ${id}`).toBe('assessment')
+        expect(program.steps.filter((step) => step.exerciseSlug === id).length, `${program.slug} ${id}`).toBeGreaterThanOrEqual(2)
+      }
+      // Legacy shape (no closing step): only the closing plan may follow the second measurement.
+      if (!program.steps.some((step) => step.closesPath)) {
+        const last = program.steps.map((step) => step.exerciseSlug).lastIndexOf(ids[0]!)
+        expect(program.steps.length - 1 - last, program.slug).toBeLessThanOrEqual(1)
+      }
+    }
+  })
+
+  it('closing and follow-up steps: at most one closesPath, follow-ups only after it, phases with weeks are 1…n', () => {
+    for (const program of PROGRAM_CATALOG) {
+      const closing = program.steps.findIndex((step) => step.closesPath)
+      expect(program.steps.filter((step) => step.closesPath).length, program.slug).toBeLessThanOrEqual(1)
+      program.steps.forEach((step, index) => {
+        const label = `${program.slug} step ${index}`
+        if (closing === -1) expect(Boolean(step.afterCompletion), label).toBe(false)
+        else expect(Boolean(step.afterCompletion), label).toBe(index > closing)
+      })
+      if (closing !== -1) {
+        // the closing step is required and a follow-up phase (no week) starts right after it
+        expect(Boolean(program.steps[closing]!.optional), program.slug).toBe(false)
+        expect(program.phases?.some((phase) => phase.fromStepIndex === closing + 1 && phase.week === undefined), program.slug).toBe(true)
+      }
+      const weeks = (program.phases ?? []).map((phase) => phase.week).filter((week): week is number => week !== undefined)
+      weeks.forEach((week, index) => expect(week, program.slug).toBe(index + 1))
     }
   })
 
@@ -199,11 +224,14 @@ describe('program catalog', () => {
           expect(node?.tasks?.[task.key]?.why, `${label} why`).toBeTruthy()
         }
       }
-      // A phase made only of optional steps may go without a task.
+      // A phase made only of optional steps, or a follow-up phase (no week in a
+      // week-based path), may go without a task.
+      const weekBased = (program.phases ?? []).some((phase) => phase.week !== undefined)
       for (const phase of program.phases ?? []) {
         const next = (program.phases ?? []).find((other) => other.fromStepIndex > phase.fromStepIndex)
         const phaseSteps = program.steps.slice(phase.fromStepIndex, next?.fromStepIndex ?? program.steps.length)
         if (phaseSteps.every((step) => step.optional)) continue
+        if (weekBased && phase.week === undefined) continue
         expect(tasks.some((task) => task.phaseKey === phase.key), `${program.slug}: no task for ${phase.key}`).toBe(true)
       }
     }
@@ -224,13 +252,24 @@ describe('program catalog', () => {
     }
   })
 
-  it('content versions are positive integers and the shame path is on v2', () => {
+  it('content versions are positive integers and the shame path is on v3', () => {
     for (const program of PROGRAM_CATALOG) {
       const version = program.contentVersion ?? 1
       expect(Number.isInteger(version) && version >= 1, program.slug).toBe(true)
     }
-    expect(getProgramDefinition('shame-compassion')?.contentVersion).toBe(2)
-    expect(getProgramDefinition('shame-compassion')?.steps).toHaveLength(15)
+    const shame = getProgramDefinition('shame-compassion')!
+    expect(shame.contentVersion).toBe(3)
+    expect(shame.steps).toHaveLength(27)
+    expect(shame.phases?.map((phase) => phase.key)).toEqual(['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'return'])
+    expect(shame.steps[23]).toMatchObject({ exerciseSlug: 'maintenance-plan', closesPath: true })
+    expect(shame.steps[24]).toMatchObject({ exerciseSlug: 'scs-sf', minGapDays: 56, afterCompletion: true })
+    expect(shame.outcomeSlugs).toEqual(['scs-sf', 'fscrs'])
+    expect(shame.signSlug).toBe('my-sign')
+    // phases copy carries the one-sentence "why" for the week cards
+    for (const locale of [enPrograms, plPrograms]) {
+      const node = (locale as unknown as Record<string, { phases?: Record<string, { why?: unknown }> }>)['shame-compassion']
+      for (const phase of shame.phases ?? []) expect(node?.phases?.[phase.key]?.why, phase.key).toBeTruthy()
+    }
   })
 
   it('getProgramDefinition resolves known slugs only', () => {

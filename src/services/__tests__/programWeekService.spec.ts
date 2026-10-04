@@ -89,13 +89,13 @@ describe('proposeWeeklyTask', () => {
     })
   })
 
-  it('an optional phase without tasks repeats the last accepted task, or proposes nothing', () => {
-    // shame-compassion step 12 (shadow-beliefs, index 11) opens the optional "deeper" phase.
-    const deeper = enrollment({ programSlug: 'shame-compassion', currentStepIndex: 11 })
+  it('a phase without tasks repeats the last accepted task, or proposes nothing', () => {
+    // shame-compassion v3: the follow-up phase "return" (from step 24) has no tasks.
+    const deeper = enrollment({ programSlug: 'shame-compassion', currentStepIndex: 24 })
     expect(proposeWeeklyTask(SHAME, deeper, week('2026-W45'))).toBeNull()
     const withHistory = enrollment({
       programSlug: 'shame-compassion',
-      currentStepIndex: 11,
+      currentStepIndex: 24,
       weekLog: [entry({ weekRef: week('2026-W44'), taskKey: 'askQuestion' })],
     })
     expect(proposeWeeklyTask(SHAME, withHistory, week('2026-W45'))).toEqual({
@@ -141,28 +141,34 @@ describe('proposeWeeklyTaskOptions', () => {
   })
 
   it('a middle phase lists its own tasks and every earlier phase’s, in definition order', () => {
-    // step 5 ("O czym jest ten wstyd?") → phase "about"
+    // step 10 (thought record, index 9) → week 4 "Spojrzeć inaczej"
     const options = proposeWeeklyTaskOptions(
       SHAME,
-      shame({ currentStepIndex: 4, weekLog: [entry({ weekRef: week('2026-W36'), taskKey: 'nameShame' })] }),
+      shame({ currentStepIndex: 9, weekLog: [entry({ weekRef: week('2026-W36'), taskKey: 'nameShame' })] }),
       week('2026-W38'),
     )!
-    expect(keys(options.current)).toEqual(['friendTest', 'stayLonger', 'repairGuilt'])
-    expect(keys(options.earlier)).toEqual(['nameShame', 'catchBody', 'useResponse', 'kindAct', 'soothingGesture'])
-    expect(options.suggested.key).toBe('friendTest')
+    expect(keys(options.current)).toEqual(['stayLonger', 'repairGuilt'])
+    expect(keys(options.earlier)).toEqual([
+      'nameShame',
+      'catchBody',
+      'soothingGesture',
+      'receiveKindness',
+      'kindAct',
+      'useResponse',
+      'unblendSay',
+      'friendTest',
+    ])
+    expect(options.suggested.key).toBe('stayLonger')
   })
 
   it('suggests the first task of the phase not accepted yet, then repeats the last', () => {
-    const accepted = [
-      entry({ weekRef: week('2026-W38'), taskKey: 'friendTest' }),
-      entry({ weekRef: week('2026-W39'), taskKey: 'stayLonger' }),
-    ]
-    const e = shame({ currentStepIndex: 4, weekLog: accepted })
+    const accepted = [entry({ weekRef: week('2026-W39'), taskKey: 'stayLonger' })]
+    const e = shame({ currentStepIndex: 9, weekLog: accepted })
     expect(proposeWeeklyTaskOptions(SHAME, e, week('2026-W40'))).toMatchObject({
       suggested: { key: 'repairGuilt' },
       repeat: false,
     })
-    const all = shame({ currentStepIndex: 4, weekLog: [...accepted, entry({ weekRef: week('2026-W40'), taskKey: 'repairGuilt' })] })
+    const all = shame({ currentStepIndex: 9, weekLog: [...accepted, entry({ weekRef: week('2026-W40'), taskKey: 'repairGuilt' })] })
     expect(proposeWeeklyTaskOptions(SHAME, all, week('2026-W41'))).toMatchObject({
       suggested: { key: 'repairGuilt' },
       repeat: true,
@@ -171,7 +177,7 @@ describe('proposeWeeklyTaskOptions', () => {
 
   it('"stay" preselects last week’s task even when it belongs to an earlier phase', () => {
     const e = shame({
-      currentStepIndex: 4,
+      currentStepIndex: 9,
       weekLog: [entry({ weekRef: week('2026-W37'), taskKey: 'useResponse', stayNextWeek: true })],
     })
     const options = proposeWeeklyTaskOptions(SHAME, e, week('2026-W38'))!
@@ -182,7 +188,7 @@ describe('proposeWeeklyTaskOptions', () => {
   })
 
   it('a phase without tasks offers the earlier ones with the last accepted task preselected', () => {
-    const e = shame({ currentStepIndex: 11, weekLog: [entry({ weekRef: week('2026-W44'), taskKey: 'askQuestion' })] })
+    const e = shame({ currentStepIndex: 24, weekLog: [entry({ weekRef: week('2026-W44'), taskKey: 'askQuestion' })] })
     const options = proposeWeeklyTaskOptions(SHAME, e, week('2026-W45'))!
     expect(options.current).toEqual([])
     expect(keys(options.earlier)).toContain('askQuestion')

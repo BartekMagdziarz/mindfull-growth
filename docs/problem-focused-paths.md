@@ -73,52 +73,60 @@ predictionCheck · uncertainDecisions · firstStep · exposureLow + exposureNext
 the exposure attempt log) · meaningfulAct · planApproach. GAD-7 ≥ 10 shows a calm note
 about professional help (validated cut-off; the plan said 15).
 
-## Shame — `shame-compassion` "Ze wstydu do współczucia" (~8 weeks, 15 steps, content v2)
+## Shame — `shame-compassion` "Ze wstydu do współczucia" (8 weeks + Powrót, 27 steps, content v3)
 
-Outcome: `scs-sf` (Neff: permission for any use). Higher = more self-compassion.
+Outcomes: `scs-sf` (start · połowa · koniec · powrót) and `fscrs` (start · koniec · powrót;
+three 0–4 means: inadequate / hated / reassured self). `outcomeSlugs` drives one series per
+instrument in the detail view, filled only from the steps' own attempts.
 
-Content v2 (2026-09-26, plan `ideas/html-plans/2026-09-26-shame-path-v2-compassion.html`):
-compassion from week 1, the axis **"O czym jest ten wstyd?"** with three exits
-(o tym, co zrobiłem = *czyn* → napraw · o tym, co mnie spotkało = *zdarzenie* →
-zadbaj · o tym, jaki powinienem być = *wymaganie* → sprawdź; keys `act/event/demand`),
-Momenty as the one log, 2–3 tasks per phase. The user-facing names were chosen
-2026-09-26; the shame-or-guilt slug is kept for entry stability.
+Content v3 (2026-10-04, plan `ideas/html-plans/2026-10-04-shame-path-v3.html`, research
+`ideas/research/2026-10-04-*`): **phases = weeks** (`w1…w8` + `return`), the compass
+reactions become **IFS parts** (Ukrywający · Krytyk · Oskarżyciel · Unikający, created by
+the shame map with tags `shame-compass:<reaction>`), a safe place and the named resistances
+before the first inward practice, the compassionate self, a mid-path dose check, fierce
+self-compassion (defender voice), writing after a moment, a letter to the future self, the
+path **closes on the maintenance plan** (`closesPath`) and **Powrót** follows 56 days later
+(`afterCompletion` steps delivered to the completed enrollment). Goal stated in the
+dashboard: "zauważać wstyd szybciej, odpowiadać ciepłem zamiast atakiem na siebie, atakiem
+na innych lub ukryciem, i wracać do kontaktu" + the user's own "Mój znak" (`signSlug`).
 
-| # | Step | Phase |
+| # | Step | Week |
 |---|---|---|
-| 1 | scs-sf | recognition |
-| 2 | shame-map (+ `friendTest`) | recognition |
-| 3 | compassionate-image | compassion |
-| 4 | shame-response | compassion |
-| 5 | shame-or-guilt ("O czym jest ten wstyd?", starts from a moment) | about |
-| 6 | thought-record | about |
-| 7 | trailhead | critic |
-| 8 | protector-appreciation (+ `handover` sentence) | critic |
-| 9 | compassionate-letter | critic |
-| 10 | core-beliefs | beliefs |
-| 11 | behavioral-experiment | outOfHiding |
-| 12 | shadow-beliefs (optional) | deeper |
-| 13 | exile-witnessing (optional) | deeper |
-| 14 | scs-sf | consolidation |
-| 15 | maintenance-plan | consolidation |
+| 1–4 | scs-sf · fscrs · shame-map (parts) · my-sign | w1 Rozpoznać |
+| 5–7 | safe-place (+ resistances) · compassionate-image (toOther first) · compassionate-self | w2 Współczująca strona |
+| 8–9 | shame-response (unblend, anchor, log-a-moment after save) · shame-or-guilt | w3 Odpowiedź |
+| 10–12 | thought-record (`startFrom: moment`) · scs-sf (połowa) · dose-check | w4 Spojrzeć inaczej |
+| 13–15 | trailhead (`startFrom: moment`) · protector-appreciation (`partTag` Krytyk) · direct-access (optional) | w5 Krytyk jako część |
+| 16–17 | compassionate-letter (`startFrom: moment`) · defender-voice | w6 Nowy głos |
+| 18–20 | core-beliefs (`startFrom: fairDemand`) · behavioral-experiment · exile-witnessing (optional) | w7 Wyjść z ukrycia |
+| 21–24 | scs-sf · fscrs · letter-to-future-self · maintenance-plan (**closesPath**) | w8 Utrwalić |
+| 25–27 | scs-sf (+56 d) · fscrs · path-return — `afterCompletion` | Powrót |
 
-Practices: `moment-shame` every 2 days, steps 2–10 (then on demand from the weekly
-tasks); `self-compassion-break` every 2 days from step 3 to the end;
-`positive-data-log` every 2 days from step 10. Never more than two at once; the
-soothing breath became a step of `shame-response`. Weekly tasks (2–3 per phase, each
-with a `linkSlug`): nameShame · catchBody | useResponse · kindAct · soothingGesture |
-friendTest · stayLonger · repairGuilt | noticeCritic · handOver | collectEvidence
-(positive-data-log) · breakDemand (behavioral-experiment) | tellSafePerson ·
-showImperfect · askQuestion | askSupport · keepResponse. The optional "deeper" phase
-has no task.
+Practices (never more than two at once): `paced-breathing` daily until step 7;
+`moment-shame` every 2 days steps 4–14; `self-compassion-break` every 2 days from step 7 to
+the close; `shame-writing` every 2 days in week 6; `positive-data-log` (frame `demand`) every
+2 days from step 18 to the close. Weekly tasks 2–3 per week (new: receiveKindness ·
+unblendSay · sayNo · readAloud · defendSelf); the follow-up phase has none.
 
-**Content migration.** `ProgramDefinition.contentVersion` (shame: 2) and
-`ProgramEnrollment.contentVersion` (absent = 1). `programContentMigration` re-maps an
-older enrollment's completed steps by exercise slug against
-`programCatalogLegacy.ts` (first not-yet-consumed occurrence, so the repeated
-outcome instrument maps in order) and sets `currentStepIndex` to the first index
-without a completion; pending step plan items are dropped and re-materialized. Runs
-in the Dexie v28 upgrade and as a safety net in `runProgramScheduler`.
+**Momenty v3** (shame branch): five taps first — `compass` (part, incl. `none`), `noticed`
+(during / soon / hours / later), `response` (+ `unblend`, `defend`), `strength` 1–5 — then
+"Zapisz teraz" (`earlyFinishAfter`); `situation`, `about`, body, critic, kind voice, next time
+are optional. Anger / anxiety / other branches unchanged.
+
+**Runner v3 features**: `prefill` (shown + editable; `afterSave.prefillFrom` carries answers
+between micros), `minLength` (soft), `optionsFrom: 'programPractices'`, `labelsFromParts`,
+`optionalWhen`, `innerPractice` ("Za dużo na dziś" → saves with `tooMuchToday`, hands over to
+`paced-breathing?notice=tooMuch`), `hintFrom.full`.
+
+**Content migration.** `contentVersion` 3; legacy lists v1 and v2 in `programCatalogLegacy.ts`;
+re-mapped by the scheduler safety net on the next Today load (open enrollments only — closed
+paths keep their history; no Dexie upgrade this time, the user restarts the path anyway). The detail view offers "Zacznij od nowa" (abandon + enroll).
+
+**Still to come (plan phases P2–P4):** the week-card dashboard with the three Momenty
+progress images, knowledge cards, "Moje zdania", the reflection step's week glance and
+"unlogged" question, the wizard bridges (`startFrom`, letter checklist, `partTag`
+preselection, maintenance plan → repeat plans), Powrót surfacing in Today, the dose-check
+rhythm proposal and the AI week-pattern line.
 
 ## New building blocks (2026-09-23)
 

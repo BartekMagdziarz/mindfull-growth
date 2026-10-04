@@ -82,9 +82,11 @@ function planItem(overrides: Partial<ExercisePlanItem> = {}): ExercisePlanItem {
 
 /** `update` echoes the patch merged over the given base enrollment. */
 function mockUpdateMerging(base: ProgramEnrollment): void {
-  vi.mocked(programEnrollmentDexieRepository.update).mockImplementation(
-    async (id, patch) => ({ ...base, id, ...patch }),
-  )
+  vi.mocked(programEnrollmentDexieRepository.update).mockImplementation(async (id, patch) => ({
+    ...base,
+    id,
+    ...patch,
+  }))
 }
 
 afterEach(() => {
@@ -140,6 +142,7 @@ describe('ensureCurrentStepMaterialized', () => {
       source: 'program',
       sourceRef: 'enr-1',
       programRole: 'step',
+      programStepIndex: 2,
     })
     expect(item?.exerciseSlug).toBe('trailhead')
   })
@@ -161,10 +164,13 @@ describe('ensureCurrentStepMaterialized', () => {
     expect(exercisePlanDexieRepository.create).not.toHaveBeenCalled()
   })
 
-  it.each(['paused', 'completed', 'abandoned'] as const)('no-ops on %s enrollments', async (status) => {
-    expect(await ensureCurrentStepMaterialized(enrollment({ status }))).toBeNull()
-    expect(exercisePlanDexieRepository.create).not.toHaveBeenCalled()
-  })
+  it.each(['paused', 'completed', 'abandoned'] as const)(
+    'no-ops on %s enrollments',
+    async status => {
+      expect(await ensureCurrentStepMaterialized(enrollment({ status }))).toBeNull()
+      expect(exercisePlanDexieRepository.create).not.toHaveBeenCalled()
+    }
+  )
 
   it('no-ops once the path is fully walked', async () => {
     const e = enrollment({ currentStepIndex: IFS.steps.length })
@@ -184,12 +190,12 @@ describe('runProgramScheduler', () => {
 
     const created = await runProgramScheduler()
 
-    expect(created.map((item) => item.sourceRef)).toEqual(['enr-a', 'enr-c'])
+    expect(created.map(item => item.sourceRef)).toEqual(['enr-a', 'enr-c'])
   })
 
   it('re-maps an enrollment behind its content version before materializing its step', async () => {
-    // A live shame-path row from content v1: SCS-SF and the map done, "Czyn czy ja"
-    // (old index 2) pending. v2 puts the compassionate image at index 2.
+    // A shame-path row from content v1: SCS-SF and the map done, "Czyn czy ja"
+    // (old index 2) pending. v3 maps them to 0 and 2; the new FSCRS step (1) is due.
     const stale = enrollment({
       id: 'enr-shame',
       programSlug: 'shame-compassion',
@@ -200,24 +206,31 @@ describe('runProgramScheduler', () => {
       ],
     })
     vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([stale])
-    vi.mocked(programEnrollmentDexieRepository.update).mockImplementationOnce(async (_id, patch) => ({ ...stale, ...patch }))
+    vi.mocked(programEnrollmentDexieRepository.update).mockImplementationOnce(
+      async (_id, patch) => ({ ...stale, ...patch })
+    )
     vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef)
       // migration: the stale pending step is dropped
-      .mockResolvedValueOnce([planItem({ id: 'stale', exerciseSlug: 'shame-or-guilt', sourceRef: 'enr-shame' })])
+      .mockResolvedValueOnce([
+        planItem({ id: 'stale', exerciseSlug: 'shame-or-guilt', sourceRef: 'enr-shame' }),
+      ])
       // materialization: nothing pending any more
       .mockResolvedValueOnce([])
 
     const created = await runProgramScheduler()
 
     expect(programEnrollmentDexieRepository.update).toHaveBeenCalledWith('enr-shame', {
-      completedSteps: stale.completedSteps,
-      currentStepIndex: 2,
-      contentVersion: 2,
+      completedSteps: [
+        { stepIndex: 0, completedAt: '2026-07-01T10:00:00.000Z' },
+        { stepIndex: 2, completedAt: '2026-07-02T10:00:00.000Z' },
+      ],
+      currentStepIndex: 1,
+      contentVersion: 3,
     })
     expect(exercisePlanDexieRepository.delete).toHaveBeenCalledWith('stale')
-    expect(created.filter((item) => item.programRole === 'step').map((item) => item.exerciseSlug)).toEqual([
-      'compassionate-image',
-    ])
+    expect(
+      created.filter(item => item.programRole === 'step').map(item => item.exerciseSlug)
+    ).toEqual(['fscrs'])
   })
 
   it('one failing enrollment never blocks the rest', async () => {
@@ -226,18 +239,18 @@ describe('runProgramScheduler', () => {
       enrollment({ id: 'enr-good', programSlug: 'foundation' }),
     ])
     vi.mocked(exercisePlanDexieRepository.listPendingByProgramSourceRef).mockRejectedValueOnce(
-      new Error('dexie down'),
+      new Error('dexie down')
     )
 
     const created = await runProgramScheduler()
 
-    expect(created.map((item) => item.sourceRef)).toEqual(['enr-good'])
+    expect(created.map(item => item.sourceRef)).toEqual(['enr-good'])
   })
 })
 
 describe('advanceEnrollmentForPlan', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date(2026, 6, 10, 12, 0, 0)) // local 2026-07-10
   })
 
@@ -257,7 +270,7 @@ describe('advanceEnrollmentForPlan', () => {
     mockUpdateMerging(e)
 
     const result = await advanceEnrollmentForPlan(
-      planItem({ exerciseSlug: 'trailhead', recordId: 'rec-9' }),
+      planItem({ exerciseSlug: 'trailhead', recordId: 'rec-9' })
     )
 
     const patch = vi.mocked(programEnrollmentDexieRepository.update).mock.calls[0]?.[1]
@@ -312,7 +325,7 @@ describe('advanceEnrollmentForPlan', () => {
 
   it('no-ops on a slug mismatch (stale item)', async () => {
     vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(
-      enrollment({ currentStepIndex: 2 }),
+      enrollment({ currentStepIndex: 2 })
     )
 
     expect(await advanceEnrollmentForPlan(planItem({ exerciseSlug: 'unblending' }))).toBeNull()
@@ -327,7 +340,7 @@ describe('advanceEnrollmentForPlan', () => {
     expect(await advanceEnrollmentForPlan(planItem())).toBeNull()
 
     vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(
-      enrollment({ status: 'paused' }),
+      enrollment({ status: 'paused' })
     )
     expect(await advanceEnrollmentForPlan(planItem())).toBeNull()
     expect(programEnrollmentDexieRepository.update).not.toHaveBeenCalled()
@@ -366,7 +379,7 @@ describe('enrollInProgram', () => {
   it('allows parallel enrollments in different programs', async () => {
     vi.mocked(programEnrollmentDexieRepository.listAll).mockResolvedValueOnce([enrollment()])
     vi.mocked(programEnrollmentDexieRepository.create).mockResolvedValueOnce(
-      enrollment({ id: 'enr-new', programSlug: 'cbt-thoughts' }),
+      enrollment({ id: 'enr-new', programSlug: 'cbt-thoughts' })
     )
 
     await expect(enrollInProgram('cbt-thoughts')).resolves.toBeTruthy()
@@ -395,7 +408,7 @@ describe('pause / resume / abandon', () => {
 
   it('pause requires an active enrollment', async () => {
     vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(
-      enrollment({ status: 'completed' }),
+      enrollment({ status: 'completed' })
     )
     await expect(pauseEnrollment('enr-1')).rejects.toThrow(/expected active/i)
   })
@@ -465,7 +478,7 @@ describe('skipOptionalStep', () => {
 
   it('rejects skipping a non-optional step', async () => {
     vi.mocked(programEnrollmentDexieRepository.getById).mockResolvedValueOnce(
-      enrollment({ programSlug: 'cbt-thoughts', currentStepIndex: 1 }),
+      enrollment({ programSlug: 'cbt-thoughts', currentStepIndex: 1 })
     )
 
     await expect(skipOptionalStep('enr-1')).rejects.toThrow(/not optional/i)
@@ -475,7 +488,7 @@ describe('skipOptionalStep', () => {
 
 describe('deriveStepStates', () => {
   it('locks everything without an enrollment (preview)', () => {
-    expect(deriveStepStates(IFS, null).every((s) => s.state === 'locked')).toBe(true)
+    expect(deriveStepStates(IFS, null).every(s => s.state === 'locked')).toBe(true)
   })
 
   it('derives done / skipped / current / locked from the enrollment', () => {
@@ -491,7 +504,7 @@ describe('deriveStepStates', () => {
 
     const states = deriveStepStates(CBT, e)
 
-    expect(states.map((s) => s.state)).toEqual(['done', 'done', 'done', 'skipped', 'current'])
+    expect(states.map(s => s.state)).toEqual(['done', 'done', 'done', 'skipped', 'current'])
     expect(states[0]).toMatchObject({ completedAt: '2026-07-01T10:00:00.000Z', recordId: 'rec-0' })
     expect(states[4]?.eligibleDay).toBe(day('2026-07-13'))
   })
@@ -511,6 +524,6 @@ describe('deriveStepStates', () => {
         completedAt: '2026-07-01T10:00:00.000Z',
       })),
     })
-    expect(deriveStepStates(IFS, completed).every((s) => s.state === 'done')).toBe(true)
+    expect(deriveStepStates(IFS, completed).every(s => s.state === 'done')).toBe(true)
   })
 })

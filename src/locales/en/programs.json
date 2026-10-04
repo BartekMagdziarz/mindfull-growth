@@ -7,6 +7,9 @@
     "abandon": "Abandon",
     "abandonConfirmTitle": "Abandon this path?",
     "abandonConfirmMessage": "Your completed steps stay in history, but the scheduled step will be removed. You can start the path again later.",
+    "restart": "Start over",
+    "restartConfirmTitle": "Start this path over?",
+    "restartConfirmMessage": "The current enrollment closes and the path starts again from the first step. Completed exercises stay in your history.",
     "skipOptional": "Skip",
     "optionalBadge": "optional",
     "start": "Start",
@@ -345,107 +348,162 @@
     }
   },
   "shame-compassion": {
-    "title": "From Shame to Compassion",
-    "description": "Eight weeks of working with shame, based on compassion-focused therapy. From the first days you build the compassionate side of yourself and your own response to a moment of shame. Then you learn to ask what the shame is about: a deed, an event, or a demand you would never place on someone close to you. You get to know the inner critic, test beliefs about yourself and step out of hiding in small, safe steps. Alongside the steps you log moments and do short practices every other day, and each week you choose one task to try out in real life. This path does not replace therapy if shame is tied to violence, abuse or a severe crisis.",
+    "title": "From shame to compassion",
+    "description": "Eight weeks of work with shame, based on compassion-focused therapy and the language of parts (IFS). The goal: to notice shame sooner, to answer it with warmth instead of attacking yourself, attacking others or hiding, and to come back into contact. First you recognise which parts take the wheel and build a place you can return to. Then the compassionate side of yourself, a plan for the hot moment and the question what this shame is about. Next you meet the critic as a part, write a letter and learn a voice that takes your side, and in the last weeks you come out of hiding in small, safe steps. Alongside the steps: breath, Moments and short practices, one real-life task a week, a dose check halfway, and a Return eight weeks after the end. This path is no substitute for therapy when shame is tied to violence, abuse or a serious crisis.",
     "reflection": {
       "severity": "How much did shame affect this week?"
     },
     "phases": {
-      "recognition": {
-        "title": "Recognition",
-        "question": "In which situations did shame show up most often?"
+      "w1": {
+        "title": "Recognise",
+        "why": "Name shame and its parts before we start answering.",
+        "question": "In which situations did shame show up most, and which part took the wheel?"
       },
-      "compassion": {
+      "w2": {
         "title": "The compassionate side",
+        "why": "A place, an image and a self you can come back to.",
         "question": {
-          "m": "How did your body react when you used your shame response or treated yourself kindly?",
-          "f": "How did your body react when you used your shame response or treated yourself kindly?"
+          "m": "How did your body react when you turned to yourself with warmth? What did the resistance say?",
+          "f": "How did your body react when you turned to yourself with warmth? What did the resistance say?"
         }
       },
-      "about": {
-        "title": "What the shame is about",
-        "question": "Which moments this week turned out to be a demand, not a deed?"
+      "w3": {
+        "title": "The response",
+        "why": "A plan for the hot moment and the question what this shame is about.",
+        "question": {
+          "m": "When did you use your shame response, and when did a part get there first?",
+          "f": "When did you use your shame response, and when did a part get there first?"
+        }
       },
-      "critic": {
-        "title": "The critic",
+      "w4": {
+        "title": "Look differently",
+        "why": "Evidence through the eyes of someone close. Halfway: we check the dose, not the result.",
+        "question": "Which moments of the week turned out to be a demand, not a deed?"
+      },
+      "w5": {
+        "title": "The critic as a part",
+        "why": "Learn what it protects and take the wheel from it.",
         "question": "What was the critic trying to protect this week?"
       },
-      "beliefs": {
-        "title": "Beliefs",
-        "question": "Which evidence for the fair demand surprised you most?"
+      "w6": {
+        "title": "A new voice",
+        "why": "A letter to yourself and the sentence you defend yourself with.",
+        "question": "When did your defending voice speak up, and when was it missed most?"
       },
-      "outOfHiding": {
+      "w7": {
         "title": "Out of hiding",
+        "why": "Check in life what happens when you are seen.",
         "question": {
-          "m": "What happened when you showed yourself as you are?",
-          "f": "What happened when you showed yourself as you are?"
+          "m": "What happened when you showed up as you are?",
+          "f": "What happened when you showed up as you are?"
         }
       },
-      "deeper": {
-        "title": "Deeper",
-        "question": {
-          "m": "What did you notice about the younger part, if you visited it?",
-          "f": "What did you notice about the younger part, if you visited it?"
-        }
+      "w8": {
+        "title": "Make it last",
+        "why": "What stays with me and a letter for a worse day.",
+        "question": "How will you know shame is taking the wheel again, and what will you do then?"
       },
-      "consolidation": {
-        "title": "Consolidation",
-        "question": "How will you know shame is taking the wheel again?"
+      "return": {
+        "title": "The return",
+        "why": "Eight weeks after the end: what stayed, what came back.",
+        "question": "What from this path stayed with you day to day?"
       }
     },
     "steps": {
       "step1": {
-        "intro": "Start by measuring self-compassion. The same scale returns at the end of the path."
+        "intro": "Start by measuring self-compassion. The same scale returns halfway, at the end and at the Return."
       },
       "step2": {
-        "intro": "See where shame speaks up most often, how you react to it and which demand on yourself stands behind it. At the end you check whether you would place it on someone close to you."
+        "intro": "A second measure: the three voices you answer yourself with when things go wrong. It returns at the end and at the Return."
       },
       "step3": {
-        "intro": "Build an image of a compassionate figure. Its sentence returns in your shame response, in Moments and in your letter."
+        "intro": "See where shame speaks up most, how you react to it and which demand on yourself sits behind it. The reactions become parts in your registry."
       },
       "step4": {
-        "intro": "Build a personal plan for the moment of shame: signal, breath, one question, one sentence and a small move towards contact. From now on you practise it in life."
+        "intro": "Say in your own words what you most want to change and how you'll know it's working. That sentence stays at the top of the path."
       },
       "step5": {
-        "intro": "Take one moment from Moments and ask what the shame is about. A deed can be repaired, an event needs care, a demand needs checking."
+        "intro": "Before you turn to yourself with warmth, build a place to return to when it gets too much, and name what your resistance says."
       },
       "step6": {
-        "intro": "Take the hot “I am…” thought that comes back most often and take it apart. Look for evidence through the eyes of someone close to you, not a prosecutor."
+        "intro": "Create an image of a compassionate figure, starting with someone you find easy to care for. Its sentence returns in the following steps."
       },
       "step7": {
-        "intro": "Treat the critic's voice as a trailhead: when it speaks up, in what tone and what it says. Recalling one moment from Moments helps. Enter from the position of your compassionate image."
+        "intro": "Now you are the compassion. Posture, voice, the eight qualities of Self-energy and a sentence to the part that is ashamed."
       },
       "step8": {
-        "intro": "Get to know the critic as a protector. What does it protect you from: rejection, embarrassment, failure? At the end write the sentence with which you take the wheel from it."
+        "intro": "Build a personal plan for the moment of shame: signal, breath, an unblending sentence, one question, one sentence and a small move towards contact. From now on you practise it in life."
       },
       "step9": {
-        "intro": "Write a letter to yourself about one situation of shame, for example the one from “What is this shame about?”, in the voice of your compassionate image."
+        "intro": "Take one moment from Moments and ask what the shame is about. A deed can be repaired, an event needs care, a demand needs checking."
       },
       "step10": {
-        "intro": "Move from the demand to a belief about yourself and phrase the fair demand as an alternative belief. From now on you collect evidence for it."
+        "intro": "Pick a moment and take apart the hot \"I am…\" thought. Look for evidence through the eyes of someone close to you, not a prosecutor."
       },
       "step11": {
-        "intro": "Break one unfair demand in a small, safe situation. Plan what you'll do and write down what you expect."
+        "intro": "Halfway: repeat the self-compassion scale. A picture of change, not a verdict."
       },
       "step12": {
-        "intro": "Optional step. What do you admire in others but deny yourself? It reveals the demand on yourself that stands behind shame."
+        "intro": "Let's check the dose, not the result. If there are too many practices, fewer will stay; if you're doing none, the smallest one stays."
       },
       "step13": {
-        "intro": "Optional step, only if your protectors agree. Stay with a younger part for a moment, without fixing anything. “Not yet” is a good answer too."
+        "intro": "Pick a moment when the critic spoke up and treat it as a trailhead to the part. Enter from the position of your compassionate self."
       },
       "step14": {
-        "intro": "Take the self-compassion scale again. The completion screen shows both results."
+        "intro": "Get to know the Critic as a protector: what is it afraid would happen if it stopped? At the end write the sentence with which you take the wheel from it."
       },
       "step15": {
-        "intro": "Decide which practices stay with you. Usually that's the self-compassion break, the shame response and Moments on demand."
+        "intro": "Optional step. Talk to the Critic directly: the assistant plays its voice and you answer from Self."
+      },
+      "step16": {
+        "intro": "Pick a moment and write a letter to yourself in the voice of your compassionate self. At the end you'll check that the letter holds support, not advice."
+      },
+      "step17": {
+        "intro": "The fierce side of compassion: how a friend would defend you and the sentence you defend yourself with, without \"sorry\" and without \"but\"."
+      },
+      "step18": {
+        "intro": "Move from the demand to a belief about yourself. The fair demand from \"What is this shame about?\" becomes the alternative belief you now collect evidence for."
+      },
+      "step19": {
+        "intro": "Test in life the prediction \"if they see the real me, they'll reject me\". A small, safe situation, the prediction written down, then the result."
+      },
+      "step20": {
+        "intro": "Optional step, only if the protectors agree. Stay with a younger part for a while, without fixing. \"Not yet\" is a good answer too and completes the step."
+      },
+      "step21": {
+        "intro": "Repeat the self-compassion scale. You'll see the series: start, halfway, end."
+      },
+      "step22": {
+        "intro": "Repeat the three-voices scale. The reassured self grows, the inadequate and hated selves weaken: that's the muscle you're training."
+      },
+      "step23": {
+        "intro": "Write a letter to yourself for a worse day, in the voice of your compassionate self. It returns in the week you choose."
+      },
+      "step24": {
+        "intro": "Decide which practices stay with you and in what rhythm. This step closes the path; the Return comes in eight weeks."
+      },
+      "step25": {
+        "intro": "The Return after eight weeks: the self-compassion scale for the fourth time."
+      },
+      "step26": {
+        "intro": "The Return: the three voices for the third time."
+      },
+      "step27": {
+        "intro": "Read the letter from yourself. What stayed, what came back, one small move for the coming week."
       }
     },
     "practices": {
+      "paced-breathing": {
+        "intro": "Every day for the first two weeks, from day one. Two or three minutes of exhaling longer than you inhale. The foundation for everything that follows; after the compassionate self, the self-compassion break takes over."
+      },
       "moment-shame": {
-        "intro": "Every other day until the beliefs step. Briefly log a moment of shame: what it was about, the first reaction, what you did instead and a kind person's voice. Afterwards Moments stay available on demand."
+        "intro": "Every other day from the shame map to the end of the critic work. Five taps: which part took the wheel, when you noticed, what you did instead, how strong. The rest is optional. Afterwards Moments stay on demand."
       },
       "self-compassion-break": {
-        "intro": "Every other day, from the compassionate image to the end of the path. Three steps: mindfulness, common humanity, kindness."
+        "intro": "Every other day, from the compassionate self to the end of the path. Twenty seconds of breath and three steps: mindfulness, common humanity, kindness."
+      },
+      "shame-writing": {
+        "intro": "Every other day in the week of the new voice. After a moment of shame, three paragraphs: common humanity, kindness to yourself, distance. From research: this writing lowers shame-proneness when it's longer than a note."
       },
       "positive-data-log": {
         "intro": "Every other day from the beliefs step. You add evidence for the fair demand on yourself."
@@ -453,78 +511,98 @@
     },
     "tasks": {
       "nameShame": {
-        "title": "Name shame the moment it shows up",
-        "why": "Naming an emotion takes some of its power away."
+        "title": "Name the shame the moment it appears",
+        "why": "Naming an emotion takes some of its force."
       },
       "catchBody": {
-        "title": "Catch shame by its body signal, before a thought names it",
-        "why": "The body is faster than the critic. An early signal leaves time to respond."
+        "title": "Catch shame from the body's signal, before a thought names it",
+        "why": "The body is faster than the critic. An early signal buys time for a response."
       },
-      "useResponse": {
-        "title": "Use your shame response when shame shows up",
-        "why": "The plan only works once you use it in the heat. Every attempt counts, even a late one."
+      "soothingGesture": {
+        "title": "In a moment of shame, put a hand on your heart or belly and take two calm breaths",
+        "why": "Warm touch and a longer exhale calm the threat system faster than thoughts do."
+      },
+      "receiveKindness": {
+        "title": "Receive kindness from someone without deflecting it",
+        "why": "Compassion from others is an easier flow than compassion for yourself. Received, it teaches the body that warmth is safe."
       },
       "kindAct": {
         "title": {
           "m": "After a hard moment, do for yourself what you'd do for a friend",
           "f": "After a hard moment, do for yourself what you'd do for a friend"
         },
-        "why": "Compassion is practised through action, not just words."
+        "why": "Compassion is practised through action, not only words."
       },
-      "soothingGesture": {
-        "title": "In a moment of shame, put a hand on your heart or belly and take two calm breaths",
-        "why": "Warm touch and a longer exhale calm the threat system faster than thoughts do."
+      "useResponse": {
+        "title": "Use your shame response when shame shows up",
+        "why": "The plan only works once you use it in the heat of the moment. Every attempt counts, even a late one."
+      },
+      "unblendSay": {
+        "title": "In a moment of shame, tell yourself: that's my part, not me",
+        "why": "Unblending leaves someone in you who can hear the part out and stay."
       },
       "friendTest": {
-        "title": "At one moment of shame ask: should someone close to me, in my place, be ashamed of this?",
+        "title": "At one moment of shame, ask: should someone close to me, in my place, be ashamed of this?",
         "why": "If not, it's someone else's demand. The question takes its power away."
       },
       "stayLonger": {
         "title": "Stay in the situation a minute longer instead of withdrawing",
-        "why": "Shame tells you to disappear. A minute longer shows nothing happens."
+        "why": "Shame says disappear. A minute longer shows nothing happens."
       },
       "repairGuilt": {
-        "title": "Make a real repair in one situation of guilt",
-        "why": "Guilt settles through repair, shame through hiding. Choose repair."
+        "title": "At one situation of guilt, make a real repair",
+        "why": "Guilt closes through repair, shame through hiding. Choose repair."
       },
       "noticeCritic": {
         "title": "Notice the critic's voice and call it by its name",
         "why": "A named critic is a part, not the truth about you."
       },
       "handOver": {
-        "title": "Thank the critic and tell it you are taking the wheel",
-        "why": "The critic protects. Thanks relieve it of its watch without a fight."
+        "title": "Thank the critic and tell it you're taking the wheel",
+        "why": "The critic protects. Thanks relieves it of guard duty without a fight."
+      },
+      "sayNo": {
+        "title": "Say one \"no\" without explaining yourself",
+        "why": "The fierce side of compassion: a boundary set without apology tells the body you have the right to take up space."
+      },
+      "readAloud": {
+        "title": "Say one sentence from your letter out loud",
+        "why": "A sentence spoken aloud is heard by the body too. Read silently, it stays in the head."
+      },
+      "defendSelf": {
+        "title": "Use your defending sentence when the critic attacks",
+        "why": "The hated self doesn't weaken from warmth alone. It also needs someone to say \"enough\"."
       },
       "collectEvidence": {
-        "title": "Spot evidence for the fair demand in daily life",
-        "why": "The task is noticing. The note goes into your positive data log."
+        "title": "Catch evidence for the fair demand in daily life",
+        "why": "The task is noticing. The note goes into the positive data log."
       },
       "breakDemand": {
-        "title": "Do one thing someone else's demand forbids",
-        "why": "A demand weakens once you break it and nothing bad happens. That is your experiment."
+        "title": "Do one thing that someone else's demand forbids",
+        "why": "A demand weakens when you break it and nothing bad happens. That's your experiment."
       },
       "tellSafePerson": {
-        "title": "Tell one safe person about something you feel ashamed of",
-        "why": "Being seen by someone kind works best against shame."
+        "title": "Tell one safe person about something you're ashamed of",
+        "why": "Being seen by someone kind is what works best on shame."
       },
       "showImperfect": {
-        "title": "Show yourself imperfect in a small situation",
-        "why": "Unfinished work or admitting “I don't know” is a small exposure to being seen."
+        "title": "Show up imperfectly in a small situation",
+        "why": "Unfinished work or admitting \"I don't know\" is a small exposure to being seen."
       },
       "askQuestion": {
-        "title": "Ask a question that feels “stupid” to you",
+        "title": "Ask a question that feels \"stupid\"",
         "why": "Not knowing is the most common borrowed demand. A question breaks it in ten seconds."
+      },
+      "keepResponse": {
+        "title": "Use your shame response without a reminder from the app",
+        "why": "A habit is when the plan comes by itself."
       },
       "askSupport": {
         "title": {
           "m": "Ask for support with something you usually handle alone",
           "f": "Ask for support with something you usually handle alone"
         },
-        "why": "Shame isolates. Asking for help moves the other way."
-      },
-      "keepResponse": {
-        "title": "Use your shame response without a reminder from the app",
-        "why": "A habit is when the plan comes on its own."
+        "why": "Shame isolates. Asking for help is a move in the opposite direction."
       }
     }
   },

@@ -52,6 +52,9 @@
         <AppButton variant="tonal" :disabled="busy" @click="handlePause">
           {{ t('programs.ui.pause') }}
         </AppButton>
+        <AppButton variant="text" :disabled="busy" @click="restartDialogOpen = true">
+          {{ t('programs.ui.restart') }}
+        </AppButton>
         <AppButton variant="text" :disabled="busy" @click="abandonDialogOpen = true">
           {{ t('programs.ui.abandon') }}
         </AppButton>
@@ -62,6 +65,9 @@
         </span>
         <AppButton :disabled="busy" @click="handleResume">
           {{ t('programs.ui.resume') }}
+        </AppButton>
+        <AppButton variant="text" :disabled="busy" @click="restartDialogOpen = true">
+          {{ t('programs.ui.restart') }}
         </AppButton>
         <AppButton variant="text" :disabled="busy" @click="abandonDialogOpen = true">
           {{ t('programs.ui.abandon') }}
@@ -108,6 +114,13 @@
       :confirm-text="t('programs.ui.abandon')"
       @confirm="handleAbandon"
     />
+    <AppDialog
+      v-model="restartDialogOpen"
+      :title="t('programs.ui.restartConfirmTitle')"
+      :message="t('programs.ui.restartConfirmMessage')"
+      :confirm-text="t('programs.ui.restart')"
+      @confirm="handleRestart"
+    />
   </ExercisePage>
 </template>
 
@@ -142,6 +155,7 @@ const program = computed(() => getProgramDefinition(slug.value))
 const busy = ref(false)
 const error = ref<string | null>(null)
 const abandonDialogOpen = ref(false)
+const restartDialogOpen = ref(false)
 
 /** Active/paused first, else the latest completed (abandoned = not enrolled). */
 const enrollment = computed(() => enrollmentStore.enrollmentForProgram(slug.value))
@@ -241,6 +255,16 @@ async function handleResume(): Promise<void> {
 async function handleAbandon(): Promise<void> {
   const id = openEnrollment.value?.id
   if (id) await run(() => enrollmentStore.abandon(id))
+}
+
+/** "Zacznij od nowa": close the open enrollment and start a fresh one at step 0. */
+async function handleRestart(): Promise<void> {
+  const id = openEnrollment.value?.id
+  if (!id) return
+  await run(async () => {
+    await enrollmentStore.abandon(id)
+    await enrollmentStore.enroll(slug.value)
+  })
 }
 
 async function handleSkip(): Promise<void> {

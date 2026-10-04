@@ -39,8 +39,9 @@ import { authDexieRepository } from '@/repositories/authDexieRepository'
 import { emotionLogDexieRepository } from '@/repositories/emotionLogDexieRepository'
 import { exerciseCompletionDexieRepository } from '@/repositories/exerciseCompletionDexieRepository'
 import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRepository'
-import { gradedExposureHierarchyDexieRepository } from '@/repositories/exercisesDexieRepository'
+import { gradedExposureHierarchyDexieRepository, ifsPartDexieRepository } from '@/repositories/exercisesDexieRepository'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
+import { createPayloadForReaction } from '@/services/shamePartsService'
 import { goalDexieRepository } from '@/repositories/goalDexieRepository'
 import { habitDexieRepository } from '@/repositories/habitDexieRepository'
 import { journalDexieRepository } from '@/repositories/journalDexieRepository'
@@ -1670,21 +1671,33 @@ export async function seedVerificationData(): Promise<void> {
 
   console.log('[verificationSeed] Created 1 problem-path enrollment (anxiety-approach, step 7/15, 2 practices)')
 
-  // ── 17. Shame path v2 (ideas/html-plans/2026-09-26-shame-path-v2-compassion.html) ──
-  // Enrolled 12 days ago, four steps done (SCS-SF, map, image, response), the
-  // fifth ("O czym jest ten wstyd?") due today. Six moments of shame with
-  // different "about" answers and responses, one calm-day note, a shame
-  // response plan, the self-compassion break as a second practice, and an
-  // accepted task for the current week (useResponse, 1 of 3 days done via a
-  // moment) so the task↔exercise bridge and the choice card have data.
-  const shameStart = addDaysToDayRef(todayRef, -12)
+  // ── 17. Shame path v3 (ideas/html-plans/2026-10-04-shame-path-v3.html) ──
+  // Enrolled 24 days ago, nine steps done (two measures, map, sign, safe
+  // place, image, compassionate self, response, "O czym jest ten wstyd?"),
+  // the tenth (thought record, week 4) due today. Two tagged compass parts
+  // from the map, eight moments with the v3 quick taps (part · noticed ·
+  // response · strength), one calm-day note, the self-compassion break due
+  // today and Momenty tomorrow, and an accepted task for the current week
+  // (useResponse, 1 of 3 days done via a moment) so the task↔exercise
+  // bridge and the choice card have data.
+  const shameStart = addDaysToDayRef(todayRef, -24)
   const shameEnrollment = await programEnrollmentDexieRepository.create({
     programSlug: 'shame-compassion',
     startedAt: `${shameStart}T12:00:00.000Z`,
-    contentVersion: 2,
+    contentVersion: 3,
   })
-  const shameStepDays = [12, 11, 8, 5] as const
-  const shameStepSlugs = ['scs-sf', 'shame-map', 'compassionate-image', 'shame-response'] as const
+  const shameStepDays = [24, 24, 23, 22, 19, 17, 15, 12, 4] as const
+  const shameStepSlugs = [
+    'scs-sf',
+    'fscrs',
+    'shame-map',
+    'my-sign',
+    'safe-place',
+    'compassionate-image',
+    'compassionate-self',
+    'shame-response',
+    'shame-or-guilt',
+  ] as const
   for (const [index, slug] of shameStepSlugs.entries()) {
     const dayRef = addDaysToDayRef(todayRef, -shameStepDays[index]!)
     await exerciseCompletionDexieRepository.create({
@@ -1695,15 +1708,16 @@ export async function seedVerificationData(): Promise<void> {
     })
   }
   await exercisePlanDexieRepository.create({
-    exerciseSlug: 'shame-or-guilt',
+    exerciseSlug: 'thought-record',
     dayRef: todayRef,
     source: 'program',
     sourceRef: shameEnrollment.id,
     programRole: 'step',
+    programStepIndex: 9,
   })
   await microExerciseEntryDexieRepository.create({
     exerciseSlug: 'shame-map',
-    createdAt: `${addDaysToDayRef(todayRef, -11)}T12:00:00.000Z`,
+    createdAt: `${addDaysToDayRef(todayRef, -23)}T12:00:00.000Z`,
     responses: {
       areas: ['work', 'competence', 'belonging'],
       bodySigns: ['gorąco na twarzy', 'spuszczony wzrok'],
@@ -1714,35 +1728,76 @@ export async function seedVerificationData(): Promise<void> {
       origin: 'Ze szkoły, z pytań „jak można tego nie wiedzieć”.',
     },
   })
+  // The map's reactions as tagged IFS parts (what shamePartsService creates on save).
+  for (const reaction of ['withdraw', 'attackSelf'] as const) {
+    await ifsPartDexieRepository.create(createPayloadForReaction(reaction))
+  }
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'my-sign',
+    createdAt: `${addDaysToDayRef(todayRef, -22)}T12:00:00.000Z`,
+    responses: {
+      mainTarget: 'withdraw',
+      sign: 'Gdy zrobię błąd przy ludziach, zostanę w rozmowie zamiast zniknąć.',
+      safePerson: 'Siostra.',
+    },
+  })
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'safe-place',
+    createdAt: `${addDaysToDayRef(todayRef, -19)}T12:00:00.000Z`,
+    responses: {
+      place: 'Pomost nad jeziorem o świcie, ciepłe deski, cisza i zapach wody.',
+      anchor: ['ciepło na dłoniach', 'słowo „pomost”'],
+      resistance: ['lazy', 'unfamiliar'],
+      resistanceReply: 'Ludzie, którzy są dla siebie dobrzy, nie przestają się starać. Przestają się bać.',
+      helpful: 4,
+    },
+  })
   await microExerciseEntryDexieRepository.create({
     exerciseSlug: 'compassionate-image',
-    createdAt: `${addDaysToDayRef(todayRef, -8)}T12:00:00.000Z`,
+    createdAt: `${addDaysToDayRef(todayRef, -17)}T12:00:00.000Z`,
     responses: {
+      toOther: 'Mój pies, gdy się boi burzy. Robi mi się ciepło w klatce piersiowej.',
       wisdom: 'Wie, że nikt nie wybrał swojej historii.',
       strength: 'Jest spokojna, nawet gdy ja nie jestem.',
       warmth: 'Niski, ciepły głos. Patrzy prosto, bez pośpiechu.',
       nonJudgement: 'Przy niej nie muszę niczego udawać.',
       message: 'Jesteś człowiekiem i to boli. Jestem z tobą.',
+      helpful: 4,
+    },
+  })
+  await microExerciseEntryDexieRepository.create({
+    exerciseSlug: 'compassionate-self',
+    createdAt: `${addDaysToDayRef(todayRef, -15)}T12:00:00.000Z`,
+    responses: {
+      posture: 'Stoi prosto, oddycha spokojnie, mówi powoli i nie odwraca wzroku.',
+      qualities: ['calm', 'curiosity', 'connectedness'],
+      toPart: 'Widzę cię. Nie musisz tego teraz naprawiać.',
+      helpful: 3,
     },
   })
   const shameResponseEntry = await microExerciseEntryDexieRepository.create({
     exerciseSlug: 'shame-response',
-    createdAt: `${addDaysToDayRef(todayRef, -5)}T12:00:00.000Z`,
+    createdAt: `${addDaysToDayRef(todayRef, -12)}T12:00:00.000Z`,
     responses: {
       signals: ['gorąco na twarzy', 'chęć zniknięcia'],
       breath: { completedSeconds: 60, phaseSeconds: [4, 0, 6, 0], totalSeconds: 60 },
       name: 'To jest wstyd. To mój krytyk, nie fakt.',
-      sentence: 'Jesteś człowiekiem i to boli. Jestem z tobą.',
+      unblend: 'withdraw',
+      unblendSentence: 'To mój Ukrywający chce zniknąć, nie ja. Mogę zostać.',
+      sentence: 'Widzę cię. Nie musisz tego teraz naprawiać.',
       move: ['stay', 'ask'],
+      anchor: 'coffee',
     },
   })
   const shameMoments = [
-    { daysAgo: 10, situation: 'Nie znałem skrótu na spotkaniu zespołu i udawałem, że wiem.', about: 'demand', compass: 'withdraw', response: ['nothing'], criticSaid: 'Wszyscy to wiedzą, tylko nie ty.', kindVoice: 'Nikt nie zna wszystkich skrótów. Mogłeś zapytać.' },
-    { daysAgo: 8, situation: 'Zapomniałem oddzwonić do mamy, choć obiecałem.', about: 'act', compass: 'attackSelf', response: ['repair', 'named'], criticSaid: 'Zawsze zawodzisz bliskich.', kindVoice: 'Zapomniałeś raz. Zadzwoń dziś.' },
-    { daysAgo: 6, situation: 'Nie dostałem projektu, o który prosiłem.', about: 'event', compass: 'withdraw', response: ['breath'], criticSaid: 'Widocznie nie jesteś dość dobry.', kindVoice: 'To boli. Nie musisz tego zamieniać w wyrok.' },
-    { daysAgo: 4, situation: 'Rozpłakałem się przy koledze po trudnej rozmowie.', about: 'demand', compass: 'avoid', response: ['named', 'question', 'sentence'], criticSaid: 'Faceci nie płaczą w pracy.', kindVoice: 'Płakałeś, bo było ciężko. Kolega został.' },
-    { daysAgo: 2, situation: 'Poprosiłem o pomoc przy konfiguracji, którą „powinienem umieć”.', about: 'demand', compass: 'attackSelf', response: ['question', 'contact', 'test'], criticSaid: 'Po tylu latach nie umiesz tego sam?', kindVoice: 'Poprosiłeś i dostałeś pomoc. Tak to działa.' },
-    { daysAgo: 1, situation: 'Zadałem „głupie” pytanie na spotkaniu i zostałem w rozmowie.', about: 'demand', compass: 'withdraw', response: ['breath', 'named', 'sentence', 'contact'], criticSaid: 'Teraz wszyscy wiedzą, że nie nadążasz.', kindVoice: 'Zapytałeś i nikt nie mrugnął. Zostałeś.', nextTime: 'Zapytać wcześniej, zanim urośnie.' },
+    { daysAgo: 20, situation: 'Nie znałem skrótu na spotkaniu zespołu i udawałem, że wiem.', compass: 'withdraw', noticed: 'later', response: ['nothing'], strength: 4, about: 'demand', criticSaid: 'Wszyscy to wiedzą, tylko nie ty.', kindVoice: 'Nikt nie zna wszystkich skrótów. Mogłeś zapytać.' },
+    { daysAgo: 17, situation: 'Zapomniałem oddzwonić do mamy, choć obiecałem.', compass: 'attackSelf', noticed: 'hours', response: ['repair', 'named'], strength: 3, about: 'act', criticSaid: 'Zawsze zawodzisz bliskich.', kindVoice: 'Zapomniałeś raz. Zadzwoń dziś.' },
+    { daysAgo: 14, situation: 'Nie dostałem projektu, o który prosiłem.', compass: 'withdraw', noticed: 'hours', response: ['breath'], strength: 4, about: 'event', criticSaid: 'Widocznie nie jesteś dość dobry.', kindVoice: 'To boli. Nie musisz tego zamieniać w wyrok.' },
+    { daysAgo: 11, situation: 'Rozpłakałem się przy koledze po trudnej rozmowie.', compass: 'avoid', noticed: 'soon', response: ['named', 'question', 'sentence'], strength: 5, about: 'demand', criticSaid: 'Faceci nie płaczą w pracy.', kindVoice: 'Płakałeś, bo było ciężko. Kolega został.' },
+    { daysAgo: 8, situation: 'Poprosiłem o pomoc przy konfiguracji, którą „powinienem umieć”.', compass: 'attackSelf', noticed: 'soon', response: ['unblend', 'question', 'contact', 'test'], strength: 3, about: 'demand', criticSaid: 'Po tylu latach nie umiesz tego sam?', kindVoice: 'Poprosiłeś i dostałeś pomoc. Tak to działa.' },
+    { daysAgo: 6, situation: 'Przemilczałem błąd w raporcie, zamiast powiedzieć od razu.', compass: 'withdraw', noticed: 'hours', response: ['breath', 'repair'], strength: 3, about: 'act', criticSaid: 'Tchórz.', kindVoice: 'Powiedziałeś następnego dnia. To się liczy.' },
+    { daysAgo: 3, situation: 'Kolega zażartował z mojej prezentacji; odgryzłem się ostro.', compass: 'attackOthers', noticed: 'soon', response: ['named', 'breath'], strength: 4, about: 'demand', criticSaid: 'Nie dasz sobie wejść na głowę, bo zobaczą, że jesteś słaby.', kindVoice: 'Zabolało. Możesz to powiedzieć zamiast gryźć.' },
+    { daysAgo: 1, situation: 'Zadałem „głupie” pytanie na spotkaniu i zostałem w rozmowie.', compass: 'none', noticed: 'during', response: ['breath', 'unblend', 'sentence', 'contact'], strength: 2, about: 'demand', criticSaid: 'Teraz wszyscy wiedzą, że nie nadążasz.', kindVoice: 'Zapytałeś i nikt nie mrugnął. Zostałeś.', nextTime: 'Zapytać wcześniej, zanim urośnie.' },
   ] as const
   const shameMomentIds: string[] = []
   for (const moment of shameMoments) {
@@ -1760,10 +1815,12 @@ export async function seedVerificationData(): Promise<void> {
       responses: {
         kind: 'shame',
         hadMoment: 'yes',
+        compass: moment.compass,
+        noticed: moment.noticed,
+        response: [...moment.response],
+        strength: moment.strength,
         situation: moment.situation,
         about: moment.about,
-        compass: moment.compass,
-        response: [...moment.response],
         criticSaid: moment.criticSaid,
         kindVoice: moment.kindVoice,
         ...('nextTime' in moment ? { nextTime: moment.nextTime } : {}),
@@ -1782,7 +1839,7 @@ export async function seedVerificationData(): Promise<void> {
   // A calm-day note, then the next occurrence pending tomorrow.
   await microExerciseEntryDexieRepository.create({
     exerciseSlug: 'moments',
-    createdAt: `${addDaysToDayRef(todayRef, -3)}T19:00:00.000Z`,
+    createdAt: `${addDaysToDayRef(todayRef, -5)}T19:00:00.000Z`,
     responses: { kind: 'shame', hadMoment: 'none', quietDay: 'Rozmowa z siostrą, przy której nie muszę niczego udawać.' },
   })
   await exercisePlanDexieRepository.create({
@@ -1800,11 +1857,11 @@ export async function seedVerificationData(): Promise<void> {
     programRole: 'practice',
   })
   await programEnrollmentDexieRepository.update(shameEnrollment.id, {
-    currentStepIndex: 4,
+    currentStepIndex: 9,
     completedSteps: shameStepSlugs.map((_, index) => ({
       stepIndex: index,
       completedAt: `${addDaysToDayRef(todayRef, -shameStepDays[index]!)}T12:00:00.000Z`,
-      ...(index === 3 ? { recordId: shameResponseEntry.id } : {}),
+      ...(index === 7 ? { recordId: shameResponseEntry.id } : {}),
     })),
   })
   // This week's accepted task: "use your shame response" 3×; the moment
@@ -1828,5 +1885,5 @@ export async function seedVerificationData(): Promise<void> {
   await programEnrollmentDexieRepository.update(shameEnrollment.id, {
     weekLog: [{ weekRef: refs.week, taskKey: 'useResponse', decision: 'accepted', intentionId: shameIntention.id }],
   })
-  console.log(`[verificationSeed] Created 1 problem-path enrollment (shame-compassion v2, step 5/15, ${shameMomentIds.length} moments)`)
+  console.log(`[verificationSeed] Created 1 problem-path enrollment (shame-compassion v3, step 10/27, ${shameMomentIds.length} moments)`)
 }
