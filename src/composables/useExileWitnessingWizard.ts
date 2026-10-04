@@ -5,6 +5,7 @@ import type {
   CreateIFSExileWitnessingPayload,
 } from '@/domain/exercises'
 import { useIFSExileWitnessingStore } from '@/stores/ifsExileWitnessing.store'
+import { useExerciseCompletionsStore } from '@/stores/exerciseCompletions.store'
 import { enrichPartFromDiscoveries } from '@/services/ifsPartEnrichment'
 
 export type ExileWitnessingStep =
@@ -114,6 +115,22 @@ export function useExileWitnessingWizard() {
   function stopEarly() {
     stoppedEarly.value = true
     currentStep.value = 'closing'
+  }
+
+  /**
+   * "Jeszcze nie" from the protectors is a complete answer, not a dead end:
+   * no witnessing row (there is no exile to record), but the exercise counts
+   * as done — a path step that offered witnessing is honoured by the refusal.
+   */
+  async function closeNotYet() {
+    if (protectorPermission.value !== 'blocking') return
+    isSaving.value = true
+    try {
+      await useExerciseCompletionsStore().record('exile-witnessing')
+      reset()
+    } finally {
+      isSaving.value = false
+    }
   }
 
   function nextStep() {
@@ -268,6 +285,7 @@ export function useExileWitnessingWizard() {
     canStopEarly,
     stoppedEarly,
     stopEarly,
+    closeNotYet,
 
     // Part card write-back
     updatePartCard,

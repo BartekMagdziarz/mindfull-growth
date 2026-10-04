@@ -190,7 +190,10 @@ Domain `src/domain/exercisePlan.ts`, repository, `src/services/exercisePlanServi
   `status === 'pending' && dayRef <= today`.
 - **Auto-completion:** `recordCompletion(slug, day D)` finds the oldest pending plan for
   that slug with `dayRef <= D` and marks it `done` (+`recordId`). The user never ticks a
-  plan manually.
+  plan manually. Exception (2026-10-04): a path **step** item matches regardless of its
+  day — the step tile offers "Rozpocznij" ahead of the eligible day and the work must
+  count; `minGapDays` paces delivery, it never discards a completion. Practice items keep
+  the day guard (one occurrence per window).
 - **Today surface (D5):** a new compact Zone A tile `PlannedExercisesCard.vue`
   ("Powtórki" / planned exercises): next due item + overdue badge; click deep-links to
   the exercise runner; secondary affordances (move/skip) in a small popover or on the

@@ -115,9 +115,12 @@
               </div>
             </div>
 
-            <!-- Blocking message -->
-            <div v-if="isBlocking" class="bg-status-warn-soft p-3 rounded-lg">
+            <!-- "Jeszcze nie" is a complete answer: close for today, the step counts -->
+            <div v-if="isBlocking" class="bg-status-warn-soft p-3 rounded-lg space-y-3">
               <p class="text-sm text-status-warn-on" v-html="t('exerciseWizards.exileWitnessing.protectorCheck.blockingMessage')" />
+              <AppButton variant="tonal" :disabled="isSaving" @click="handleNotYet()">
+                {{ t('exerciseWizards.exileWitnessing.protectorCheck.notYetButton') }}
+              </AppButton>
             </div>
           </AppCard>
 
@@ -605,6 +608,7 @@ const {
   canStopEarly,
   stoppedEarly,
   stopEarly,
+  closeNotYet,
   updatePartCard,
   reflection,
   notes,
@@ -710,6 +714,16 @@ async function handleSave() {
     emit('saved')
   } catch {
     // Error already logged in composable
+  }
+}
+
+/** Protectors said "not yet": record the exercise as done and close without a witnessing row. */
+async function handleNotYet() {
+  try {
+    await closeNotYet()
+    emit('saved')
+  } catch (err) {
+    console.error('Error closing exile witnessing as "not yet":', err)
   }
 }
 </script>

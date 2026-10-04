@@ -497,7 +497,13 @@ export interface PositiveDataLog {
   id: string // UUID
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
-  targetBelief: string // The negative belief being challenged
+  targetBelief: string // The negative belief being challenged (or, in the demand frame, the fair demand being strengthened)
+  /**
+   * How the log reads its target: `belief` (default) collects evidence AGAINST
+   * a negative belief, so believability going down is progress; `demand`
+   * (shame path) collects evidence FOR a fair demand, so going up is progress.
+   */
+  frame?: 'belief' | 'demand'
   coreBeliefExplorationId?: string // Optional link to source exercise
   entries: PositiveDataEntry[] // Accumulated evidence over time
   believabilityInitial: number // 0–100 when log was created

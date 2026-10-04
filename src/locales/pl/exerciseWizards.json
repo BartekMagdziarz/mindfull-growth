@@ -893,6 +893,18 @@
     },
     "aria": {
       "deleteEntry": "Usuń wpis"
+    },
+    "frames": {
+      "demand": {
+        "title": "Jakie uczciwe wymaganie chcesz wzmocnić?",
+        "description": "Wpisz wymaganie wobec siebie, które przeszło test bliskiej osoby, np. „Wystarczy, że powiem, czego nie wiem”. Możesz wziąć je z kroku „O czym jest ten wstyd?”.",
+        "why": { "m": "Cudze wymaganie wyłapuje głównie to, co je potwierdza. Ten dziennik zbiera dowody na uczciwe: sytuacje, w których wystarczyło to, co zrobiłeś.", "f": "Cudze wymaganie wyłapuje głównie to, co je potwierdza. Ten dziennik zbiera dowody na uczciwe: sytuacje, w których wystarczyło to, co zrobiłaś." },
+        "placeholder": "np. „Wystarczy, że poproszę o pomoc, zamiast wiedzieć wszystko”",
+        "label": "Uczciwe wymaganie",
+        "confirmationDescription": "Po utworzeniu wracasz do tego dziennika, żeby dopisywać dowody na to wymaganie. Z czasem zobaczysz, że ono wystarcza.",
+        "addEvidenceDescription": "Zapisz jedno zdarzenie, w którym to wymaganie wystarczyło. Drobne też się liczą.",
+        "evidencePlaceholder": { "m": "np. Powiedziałem na spotkaniu „nie wiem” i rozmowa poszła dalej.", "f": "np. Powiedziałam na spotkaniu „nie wiem” i rozmowa poszła dalej." }
+      }
     }
   },
   "behavioralExperiment": {
@@ -2675,7 +2687,8 @@
           "description": "Nie są gotowi — wygnaniec jest teraz zbyt wrażliwy"
         }
       },
-      "blockingMessage": "To w porządku — protektorzy nie są gotowi. Spróbuj najpierw ćwiczenia <strong>Docenienie protektora</strong>, aby zbudować z nimi zaufanie."
+      "blockingMessage": "To dobra odpowiedź. Protektorzy wiedzą lepiej, kiedy. Możesz zakończyć na dziś albo najpierw zrobić <strong>Docenienie protektora</strong>, żeby zbudować z nimi zaufanie.",
+      "notYetButton": "Zakończ na dziś"
     },
     "approach": {
       "title": "Zbliżanie się do wygnańca",

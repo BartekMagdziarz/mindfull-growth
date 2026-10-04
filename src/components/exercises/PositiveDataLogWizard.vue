@@ -58,16 +58,16 @@
         <div v-if="setupStep === 'target-belief'" class="space-y-4">
           <AppCard padding="lg" class="space-y-4">
             <h2 class="text-lg font-semibold text-on-surface">
-              {{ t('exerciseWizards.positiveDataLog.targetBelief.title') }}
+              {{ frameCopy.title }}
             </h2>
             <p class="text-sm text-on-surface-variant">
-              {{ tg('exerciseWizards.positiveDataLog.targetBelief.description') }}
+              {{ frameCopy.description }}
             </p>
-            <ExerciseStepWhy :text="tg('exerciseWizards.positiveDataLog.targetBelief.why')" />
+            <ExerciseStepWhy :text="frameCopy.why" />
             <textarea
               v-model="targetBelief"
               rows="3"
-              :placeholder="t('exerciseWizards.positiveDataLog.targetBelief.placeholder')"
+              :placeholder="frameCopy.placeholder"
               class="neo-input neo-focus w-full p-3 text-sm resize-none"
             />
           </AppCard>
@@ -122,7 +122,7 @@
 
             <div class="space-y-1">
               <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                {{ t('exerciseWizards.positiveDataLog.confirmation.targetBeliefLabel') }}
+                {{ frameCopy.label }}
               </p>
               <div class="neo-panel p-3">
                 <p class="text-sm text-on-surface italic">"{{ targetBelief }}"</p>
@@ -137,7 +137,7 @@
             </div>
 
             <p class="text-sm text-on-surface-variant leading-relaxed">
-              {{ t('exerciseWizards.positiveDataLog.confirmation.description') }}
+              {{ frameCopy.confirmationDescription }}
             </p>
           </AppCard>
 
@@ -158,7 +158,7 @@
       <!-- Header: Target belief + current believability -->
       <div class="neo-panel p-4 space-y-2">
         <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-          {{ t('exerciseWizards.positiveDataLog.log.targetBeliefLabel') }}
+          {{ frameCopy.label }}
         </p>
         <p class="text-sm text-on-surface italic">"{{ existingLog.targetBelief }}"</p>
         <div class="flex items-center gap-3">
@@ -166,7 +166,7 @@
           <span class="text-sm font-semibold text-primary">
             {{ existingLog.believabilityLatest ?? existingLog.believabilityInitial }}%
           </span>
-          <span v-if="believabilityChange !== 0" class="text-xs" :class="believabilityChange < 0 ? 'text-success' : 'text-error'">
+          <span v-if="believabilityChange !== 0" class="text-xs" :class="changeIsProgress ? 'text-success' : 'text-error'">
             {{ t('exerciseWizards.positiveDataLog.log.fromStart', { change: (believabilityChange > 0 ? '+' : '') + believabilityChange }) }}
           </span>
         </div>
@@ -180,7 +180,7 @@
       <AppCard padding="lg" class="space-y-4">
         <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.positiveDataLog.log.addEvidenceTitle') }}</h2>
         <p class="text-sm text-on-surface-variant">
-          {{ t('exerciseWizards.positiveDataLog.log.addEvidenceDescription') }}
+          {{ frameCopy.addEvidenceDescription }}
         </p>
         <ExerciseStepWhy :text="tg('exerciseWizards.positiveDataLog.log.addEvidenceWhy')" />
 
@@ -199,7 +199,7 @@
             <textarea
               v-model="newEntryEvidence"
               rows="3"
-              :placeholder="t('exerciseWizards.positiveDataLog.log.evidencePlaceholder')"
+              :placeholder="frameCopy.evidencePlaceholder"
               class="neo-input neo-focus w-full p-3 text-sm resize-none"
             />
           </div>
@@ -366,10 +366,47 @@ import type {
 interface Props {
   mode: 'setup' | 'log'
   existingLog?: PositiveDataLog
+  /**
+   * `belief` (default): evidence against a negative belief, believability going
+   * down is progress. `demand` (shame path): evidence for a fair demand,
+   * believability going up is progress. A log remembers the frame it was
+   * created in; the prop only seeds setup and is a fallback for old rows.
+   */
+  frame?: 'belief' | 'demand'
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { frame: 'belief' })
 const { t, tp, tg, locale } = useT()
+
+const activeFrame = computed(() => props.existingLog?.frame ?? props.frame)
+const isDemandFrame = computed(() => activeFrame.value === 'demand')
+
+/** Copy that differs between the two frames; everything else stays shared. */
+const frameCopy = computed(() => {
+  if (isDemandFrame.value) {
+    const base = 'exerciseWizards.positiveDataLog.frames.demand'
+    return {
+      title: t(`${base}.title`),
+      description: tg(`${base}.description`),
+      why: tg(`${base}.why`),
+      placeholder: t(`${base}.placeholder`),
+      label: t(`${base}.label`),
+      confirmationDescription: t(`${base}.confirmationDescription`),
+      addEvidenceDescription: t(`${base}.addEvidenceDescription`),
+      evidencePlaceholder: tg(`${base}.evidencePlaceholder`),
+    }
+  }
+  return {
+    title: t('exerciseWizards.positiveDataLog.targetBelief.title'),
+    description: tg('exerciseWizards.positiveDataLog.targetBelief.description'),
+    why: tg('exerciseWizards.positiveDataLog.targetBelief.why'),
+    placeholder: t('exerciseWizards.positiveDataLog.targetBelief.placeholder'),
+    label: t('exerciseWizards.positiveDataLog.confirmation.targetBeliefLabel'),
+    confirmationDescription: t('exerciseWizards.positiveDataLog.confirmation.description'),
+    addEvidenceDescription: t('exerciseWizards.positiveDataLog.log.addEvidenceDescription'),
+    evidencePlaceholder: t('exerciseWizards.positiveDataLog.log.evidencePlaceholder'),
+  }
+})
 const userPreferencesStore = useUserPreferencesStore()
 const useProfileReview = ref(userPreferencesStore.profileContextDefault)
 
@@ -412,6 +449,7 @@ function handleCreate() {
     targetBelief: targetBelief.value.trim(),
     entries: [],
     believabilityInitial: believabilityInitial.value,
+    ...(props.frame === 'demand' ? { frame: 'demand' as const } : {}),
   }
   emit('created', payload)
 }
@@ -434,6 +472,11 @@ const believabilityChange = computed(() => {
   const current = props.existingLog.believabilityLatest ?? props.existingLog.believabilityInitial
   return current - props.existingLog.believabilityInitial
 })
+
+/** Direction of progress depends on the frame: a belief should weaken, a fair demand should strengthen. */
+const changeIsProgress = computed(() =>
+  isDemandFrame.value ? believabilityChange.value > 0 : believabilityChange.value < 0,
+)
 
 function handleAddEntry() {
   const entry: PositiveDataEntry = {

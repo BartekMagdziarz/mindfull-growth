@@ -893,6 +893,18 @@
     },
     "aria": {
       "deleteEntry": "Delete entry"
+    },
+    "frames": {
+      "demand": {
+        "title": "Which fair demand do you want to strengthen?",
+        "description": "Enter a demand on yourself that passed the close-person test, e.g. “It's enough that I say what I don't know”. You can take it from the “What is this shame about?” step.",
+        "why": { "m": "Someone else's demand mostly picks up what confirms it. This log collects evidence for the fair one: situations where what you did was enough.", "f": "Someone else's demand mostly picks up what confirms it. This log collects evidence for the fair one: situations where what you did was enough." },
+        "placeholder": "e.g. “It's enough that I ask for help instead of knowing everything”",
+        "label": "Fair demand",
+        "confirmationDescription": "Once created, you return to this log to add evidence for the demand. Over time you'll see that it is enough.",
+        "addEvidenceDescription": "Write down one event where this demand was enough. Small ones count too.",
+        "evidencePlaceholder": { "m": "e.g. I said “I don't know” in a meeting and the conversation moved on.", "f": "e.g. I said “I don't know” in a meeting and the conversation moved on." }
+      }
     }
   },
   "behavioralExperiment": {
@@ -2675,7 +2687,8 @@
           "description": "They're not ready — the exile is too vulnerable right now"
         }
       },
-      "blockingMessage": "That's okay — the protectors aren't ready. Try the <strong>Protector Appreciation</strong> exercise first to build trust with them."
+      "blockingMessage": "That's a good answer. The protectors know better when. You can close for today, or do <strong>Protector Appreciation</strong> first to build trust with them.",
+      "notYetButton": "Close for today"
     },
     "approach": {
       "title": "Approaching the Exile",

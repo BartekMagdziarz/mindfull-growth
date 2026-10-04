@@ -1,3 +1,4 @@
+import { userDatabaseOperation } from '@/repositories/userDatabaseOperation'
 /**
  * Exercise plan service — repeats & (Phase 3) program-step delivery
  * over the `exercisePlanItems` table.
@@ -16,7 +17,7 @@ import { exercisePlanDexieRepository } from '@/repositories/exercisePlanDexieRep
 export async function createPlan(
   slug: string,
   dayRef: DayRef,
-  source: ExercisePlanSource = 'repeat',
+  source: ExercisePlanSource = 'repeat'
 ): Promise<ExercisePlanItem> {
   return exercisePlanDexieRepository.create({ exerciseSlug: slug, dayRef, source })
 }
@@ -46,22 +47,35 @@ function byDayThenCreated(a: ExercisePlanItem, b: ExercisePlanItem): number {
     : a.dayRef.localeCompare(b.dayRef)
 }
 
+/** A path step's plan item: its day only governs when Today shows it. */
+function isProgramStepItem(item: ExercisePlanItem): boolean {
+  return item.source === 'program' && item.programRole === 'step'
+}
+
 /**
  * Marks the oldest pending plan for `slug` with `dayRef <= day` as done
  * (design §4.4 — the user never ticks a plan manually). Returns the
  * completed item, or null when nothing matched. DayRef comparison is a
  * plain string compare — 'YYYY-MM-DD' orders lexicographically.
+ *
+ * A path step done before its eligible day still counts (design §4.5):
+ * the step tile offers "Rozpocznij" ahead of time, so the gap only
+ * paces delivery, it never discards the user's work.
  */
 export async function autoCompleteFor(
   slug: string,
   day: DayRef,
-  recordId?: string,
+  recordId?: string
 ): Promise<ExercisePlanItem | null> {
-  const pending = await exercisePlanDexieRepository.listPendingBySlug(slug)
-  const due = pending.filter((item) => item.dayRef <= day).sort(byDayThenCreated)
-  const oldest = due[0]
-  if (!oldest) return null
-  return exercisePlanDexieRepository.update(oldest.id, { status: 'done', recordId })
+  return userDatabaseOperation('rw', ['exercisePlanItems'], async () => {
+    const pending = await exercisePlanDexieRepository.listPendingBySlug(slug)
+    const due = pending
+      .filter(item => item.dayRef <= day || isProgramStepItem(item))
+      .sort(byDayThenCreated)
+    const oldest = due[0]
+    if (!oldest) return null
+    return exercisePlanDexieRepository.update(oldest.id, { status: 'done', recordId })
+  })
 }
 
 /**
@@ -71,7 +85,7 @@ export async function autoCompleteFor(
  */
 export function selectDueItems(items: ExercisePlanItem[], todayRef: DayRef): ExercisePlanItem[] {
   return items
-    .filter((item) => item.status === 'pending' && item.dayRef <= todayRef)
+    .filter(item => item.status === 'pending' && item.dayRef <= todayRef)
     .sort(byDayThenCreated)
 }
 
@@ -97,7 +111,7 @@ const STANDARD_CHIP_KEYS: Record<number, string> = {
  * dynamic values use the plural key (resolved via `tp` by the caller).
  */
 export function buildRepeatChipOptions(suggestedDays?: number): RepeatChipOption[] {
-  const options: RepeatChipOption[] = STANDARD_CHIP_DAYS.map((days) => ({
+  const options: RepeatChipOption[] = STANDARD_CHIP_DAYS.map(days => ({
     days,
     labelKey: STANDARD_CHIP_KEYS[days]!,
     suggested: days === suggestedDays,
@@ -126,7 +140,7 @@ export function buildRepeatChipOptions(suggestedDays?: number): RepeatChipOption
  */
 export function retakeSuggestedDays(
   retakeEligibleAt: string | undefined,
-  now: Date = new Date(),
+  now: Date = new Date()
 ): number | undefined {
   if (!retakeEligibleAt) return undefined
   const eligible = new Date(retakeEligibleAt)

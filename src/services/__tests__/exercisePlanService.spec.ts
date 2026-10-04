@@ -94,6 +94,20 @@ describe('autoCompleteFor', () => {
     expect(exercisePlanDexieRepository.update).not.toHaveBeenCalled()
   })
 
+  it('completes a path step done before its eligible day (the gap only paces delivery)', async () => {
+    vi.mocked(exercisePlanDexieRepository.listPendingBySlug).mockResolvedValueOnce([
+      planItem({ id: 'future-practice', dayRef: day('2026-07-06'), source: 'program', programRole: 'practice' }),
+      planItem({ id: 'future-step', dayRef: day('2026-07-09'), source: 'program', programRole: 'step' }),
+    ])
+
+    await autoCompleteFor('worry-tree', day('2026-07-05'), 'record-3')
+
+    expect(vi.mocked(exercisePlanDexieRepository.update).mock.calls[0]).toEqual([
+      'future-step',
+      { status: 'done', recordId: 'record-3' },
+    ])
+  })
+
   it('returns null when nothing is pending', async () => {
     const result = await autoCompleteFor('worry-tree', day('2026-07-05'))
 

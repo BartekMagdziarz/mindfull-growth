@@ -13,6 +13,7 @@
     <template v-else-if="positiveDataLogStore.sortedLogs.length === 0 && !selectedLogId">
       <PositiveDataLogWizard
         mode="setup"
+        :frame="frame"
         @created="handleCreated"
       />
     </template>
@@ -32,6 +33,7 @@
         <div v-if="showSetupWizard" class="space-y-4">
           <PositiveDataLogWizard
             mode="setup"
+            :frame="frame"
             @created="handleCreated"
           />
           <div class="flex justify-start">
@@ -88,6 +90,7 @@
       <PositiveDataLogWizard
         mode="log"
         :existing-log="selectedLog"
+        :frame="frame"
         @entry-added="handleEntryAdded"
         @entry-removed="handleEntryRemoved"
         @updated="handleUpdated"
@@ -103,7 +106,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -111,6 +114,7 @@ import AppButton from '@/components/AppButton.vue'
 import PositiveDataLogWizard from '@/components/exercises/PositiveDataLogWizard.vue'
 import RepeatPlanPrompt from '@/components/exercises/RepeatPlanPrompt.vue'
 import { usePositiveDataLogStore } from '@/stores/positiveDataLog.store'
+import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import type {
   CreatePositiveDataLogPayload,
   PositiveDataEntry,
@@ -118,8 +122,23 @@ import type {
 import { useT } from '@/composables/useT'
 
 const router = useRouter()
+const route = useRoute()
 const { t } = useT()
 const positiveDataLogStore = usePositiveDataLogStore()
+const enrollmentStore = useProgramEnrollmentStore()
+
+/**
+ * The shame path reads this log as evidence FOR a fair demand, not against a
+ * negative belief. `?frame=demand` wins; otherwise an open shame-path
+ * enrollment picks the frame, so launching from Today or the path view
+ * needs no route plumbing. Existing logs keep the frame they were made in.
+ */
+const frame = computed<'belief' | 'demand'>(() => {
+  if (route.query.frame === 'demand') return 'demand'
+  if (route.query.frame === 'belief') return 'belief'
+  const shame = enrollmentStore.enrollmentForProgram('shame-compassion')
+  return shame && (shame.status === 'active' || shame.status === 'paused') ? 'demand' : 'belief'
+})
 
 const selectedLogId = ref<string | null>(null)
 const showSetupWizard = ref(false)
@@ -132,6 +151,7 @@ const selectedLog = computed(() => {
 
 onMounted(() => {
   positiveDataLogStore.loadLogs()
+  void enrollmentStore.ensureLoaded()
 })
 
 // The prompt belongs to the log it was earned in — hide it on switch.
