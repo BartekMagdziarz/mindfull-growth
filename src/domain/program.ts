@@ -31,6 +31,27 @@ export interface ProgramStep {
    * the same ladder). Honoured by the program step tile's launch route.
    */
   continueLatest?: boolean
+  /**
+   * The step starts with context: `moment` opens a picker over the path's
+   * Momenty before launching (`?momentId=`), `fairDemand` seeds the wizard
+   * with the latest "uczciwe wymaganie" from "O czym jest ten wstyd?"
+   * (`?seed=fairDemand`). Honoured by the step tile (plan v3 §7.3).
+   */
+  startFrom?: 'moment' | 'fairDemand'
+  /** Extra route query for the exercise (e.g. `partTag` preselecting an IFS part). */
+  launchQuery?: Record<string, string>
+  /**
+   * Completing this step closes the path (`status: 'completed'`,
+   * `completedAt`). Steps after it must be `afterCompletion` follow-ups.
+   */
+  closesPath?: boolean
+  /**
+   * Delivered after the path closed ("Powrót" — the follow-up measure some
+   * weeks later): the scheduler keeps materializing such steps for a
+   * `completed` enrollment; `minGapDays` anchors on the previous completion
+   * as usual (the closing step's completion is the path's `completedAt`).
+   */
+  afterCompletion?: boolean
 }
 
 /**
@@ -71,11 +92,18 @@ export interface ProgramWeeklyTask {
   linkSlug?: string
 }
 
-/** Presentational grouping of steps; title at `programs.<slug>.phases.<key>.title`. */
+/**
+ * Presentational grouping of steps; copy at
+ * `programs.<slug>.phases.<key>.{title,why,question}`. Paths built as
+ * "phases = weeks" (shame v3) set `week`; a follow-up phase ("Powrót")
+ * has none.
+ */
 export interface ProgramPhase {
   key: string
   /** 0-based index of the first step in this phase; phases are ascending. */
   fromStepIndex: number
+  /** 1-based week number shown on the phase card; absent = not a week. */
+  week?: number
 }
 
 export interface ProgramDefinition {
@@ -99,9 +127,24 @@ export interface ProgramDefinition {
   practices?: ProgramPractice[]
   /**
    * Assessment taken as the first AND last step; the completion screen
-   * compares the two attempts (e.g. GAD-7 before/after).
+   * compares the two attempts (e.g. GAD-7 before/after). Superseded by
+   * `outcomeSlugs` — readers treat it as a one-element list.
    */
   outcomeSlug?: string
+  /**
+   * Instruments measured along the path (each appears as a step at least
+   * twice: first in the opening phase). The detail view shows one series
+   * per instrument, labelled by the step's phase (start / połowa / koniec /
+   * powrót); attempts outside the steps are not part of the series.
+   */
+  outcomeSlugs?: string[]
+  /** Keys of the path's knowledge cards (`src/data/programKnowledge.ts`). */
+  knowledgeCards?: string[]
+  /**
+   * Micro whose latest entry carries the user's own goal statement
+   * (`sign`) and main target (`mainTarget`) for the dashboard header.
+   */
+  signSlug?: string
   weeklyTasks?: ProgramWeeklyTask[]
   /**
    * The weekly reflection gets a "Ścieżka" step for this program: severity
@@ -148,8 +191,31 @@ export interface ProgramEnrollment {
   weekLog?: ProgramWeekEntry[]
   /** `ProgramDefinition.contentVersion` the step indices refer to (absent = 1). */
   contentVersion?: number
+  /** Set when the path closed (last step, or the `closesPath` step). */
+  completedAt?: string
+  /** Practice rhythm overridden by the user (mid-path dose check / dashboard). */
+  practiceOverrides?: Record<string, { everyDays: number }>
+  /** "List do siebie na później": the micro entry and the day it resurfaces. */
+  futureLetter?: { entryId: string; showAt: string }
+  /** Knowledge cards the user opened (marker only, never a gate). */
+  readCards?: string[]
+  /** IFS parts the path offered to create that the user removed — not recreated. */
+  partsDismissed?: string[]
   createdAt: string
   updatedAt: string
+}
+
+/**
+ * Whether the enrollment still receives step items: active, or already
+ * `completed` with an `afterCompletion` follow-up step ahead ("Powrót").
+ */
+export function isDeliveringEnrollment(
+  program: Pick<ProgramDefinition, 'steps'>,
+  enrollment: Pick<ProgramEnrollment, 'status' | 'currentStepIndex'>
+): boolean {
+  if (enrollment.status === 'active') return true
+  if (enrollment.status !== 'completed') return false
+  return program.steps[enrollment.currentStepIndex]?.afterCompletion === true
 }
 
 /**
@@ -170,4 +236,9 @@ export interface UpdateProgramEnrollmentPayload {
   completedSteps?: CompletedProgramStep[]
   weekLog?: ProgramWeekEntry[]
   contentVersion?: number
+  completedAt?: string
+  practiceOverrides?: Record<string, { everyDays: number }>
+  futureLetter?: { entryId: string; showAt: string }
+  readCards?: string[]
+  partsDismissed?: string[]
 }

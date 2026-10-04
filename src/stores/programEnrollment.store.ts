@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 /**
  * Program Enrollment Store
  *
@@ -14,6 +15,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { ExercisePlanItem } from '@/domain/exercisePlan'
 import type { ProgramEnrollment } from '@/domain/program'
+import { isDeliveringEnrollment } from '@/domain/program'
+import { getProgramDefinition } from '@/data/programCatalog'
 import { programEnrollmentDexieRepository } from '@/repositories/programEnrollmentDexieRepository'
 import {
   type PracticeReconciliation,
@@ -27,6 +30,7 @@ import {
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 
 export const useProgramEnrollmentStore = defineStore('programEnrollment', () => {
+  const sessionScope = createStoreSessionScope()
   const enrollments = ref<ProgramEnrollment[]>([])
   const isLoaded = ref(false)
   const isLoading = ref(false)
@@ -34,8 +38,22 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
 
   const activeEnrollments = computed(() =>
     enrollments.value
-      .filter((enrollment) => enrollment.status === 'active')
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
+      .filter(enrollment => enrollment.status === 'active')
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  )
+
+  /**
+   * Enrollments that still deliver steps: active ones plus closed paths
+   * with a follow-up step ahead ("Powrót"). Today's path panel reads this
+   * so the follow-up measure shows up on its day.
+   */
+  const deliveringEnrollments = computed(() =>
+    enrollments.value
+      .filter(enrollment => {
+        const program = getProgramDefinition(enrollment.programSlug)
+        return program ? isDeliveringEnrollment(program, enrollment) : false
+      })
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   )
 
   /**
@@ -46,26 +64,35 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
   const enrollmentForProgram = computed(() => {
     return (programSlug: string): ProgramEnrollment | undefined => {
       const byNewest = enrollments.value
-        .filter((enrollment) => enrollment.programSlug === programSlug)
+        .filter(enrollment => enrollment.programSlug === programSlug)
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       return (
-        byNewest.find((e) => e.status === 'active' || e.status === 'paused') ??
-        byNewest.find((e) => e.status === 'completed')
+        byNewest.find(e => e.status === 'active' || e.status === 'paused') ??
+        byNewest.find(e => e.status === 'completed')
       )
     }
   })
 
   async function loadEnrollments(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      enrollments.value = await programEnrollmentDexieRepository.listAll()
-      isLoaded.value = true
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load program enrollments'
-      console.error('Error loading program enrollments:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        enrollments.value = await operation.wait(programEnrollmentDexieRepository.listAll())
+        isLoaded.value = true
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load program enrollments'
+        console.error('Error loading program enrollments:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -74,8 +101,14 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
    * `isLoaded` stays false, so the next caller retries.
    */
   async function ensureLoaded(): Promise<void> {
-    if (isLoaded.value || isLoading.value) return
-    await loadEnrollments()
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      if (isLoaded.value || isLoading.value) return
+      await operation.wait(loadEnrollments())
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   /**
@@ -85,7 +118,7 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
    */
   function applyUpdate(enrollment: ProgramEnrollment): void {
     if (!isLoaded.value) return
-    const index = enrollments.value.findIndex((existing) => existing.id === enrollment.id)
+    const index = enrollments.value.findIndex(existing => existing.id === enrollment.id)
     if (index === -1) {
       enrollments.value.push(enrollment)
     } else {
@@ -109,7 +142,11 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
   }
 
   async function enroll(programSlug: string): Promise<ProgramEnrollment> {
-    const { enrollment, planItem, practices } = await enrollInProgramService(programSlug)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const { enrollment, planItem, practices } = await operation.wait(
+      enrollInProgramService(programSlug)
+    )
     applyUpdate(enrollment)
     mirrorPlanItem(planItem)
     mirrorPractices(practices)
@@ -117,14 +154,18 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
   }
 
   async function pause(id: string): Promise<ProgramEnrollment> {
-    const { enrollment, removedPlanIds } = await pauseEnrollmentService(id)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const { enrollment, removedPlanIds } = await operation.wait(pauseEnrollmentService(id))
     applyUpdate(enrollment)
     mirrorRemovals(removedPlanIds)
     return enrollment
   }
 
   async function resume(id: string): Promise<ProgramEnrollment> {
-    const { enrollment, planItem, practices } = await resumeEnrollmentService(id)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const { enrollment, planItem, practices } = await operation.wait(resumeEnrollmentService(id))
     applyUpdate(enrollment)
     mirrorPlanItem(planItem)
     mirrorPractices(practices)
@@ -132,14 +173,20 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
   }
 
   async function abandon(id: string): Promise<ProgramEnrollment> {
-    const { enrollment, removedPlanIds } = await abandonEnrollmentService(id)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const { enrollment, removedPlanIds } = await operation.wait(abandonEnrollmentService(id))
     applyUpdate(enrollment)
     mirrorRemovals(removedPlanIds)
     return enrollment
   }
 
   async function skipStep(id: string): Promise<ProgramEnrollment> {
-    const { enrollment, skippedPlan, nextPlanItem, practices } = await skipOptionalStepService(id)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const { enrollment, skippedPlan, nextPlanItem, practices } = await operation.wait(
+      skipOptionalStepService(id)
+    )
     applyUpdate(enrollment)
     mirrorPlanItem(skippedPlan)
     mirrorPlanItem(nextPlanItem)
@@ -153,11 +200,18 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
    * items are mirrored into the plan store.
    */
   async function runScheduler(): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      const created = await runProgramScheduler()
-      for (const item of created) mirrorPlanItem(item)
-    } catch (err) {
-      console.error('Error running the program scheduler:', err)
+      try {
+        const created = await operation.wait(runProgramScheduler())
+        for (const item of created) mirrorPlanItem(item)
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        console.error('Error running the program scheduler:', err)
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
@@ -167,6 +221,7 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
    * data before the next `load*()` re-fetches from the new database.
    */
   function reset(): void {
+    sessionScope.reset()
     enrollments.value = []
     isLoaded.value = false
     isLoading.value = false
@@ -179,6 +234,7 @@ export const useProgramEnrollmentStore = defineStore('programEnrollment', () => 
     isLoading,
     error,
     activeEnrollments,
+    deliveringEnrollments,
     enrollmentForProgram,
     loadEnrollments,
     ensureLoaded,
