@@ -19,7 +19,7 @@ Przykład:
 > za 3 dni · Przejrzyj rezultaty
 
 1. Dla otwartych celów kończących się w ciągu 7 dni pokaż liczbę aktywnych, niedomkniętych rezultatów; użyj rzeczywistych stanów / reguł realizacji rezultatów. Nie wyliczaj arbitralnego wspólnego procentu dla różnych miar.
-2. Dla celu po terminie zaproponuj przegląd: zakończenie celu albo zmianę daty w jego edytorze. Nie kończ celu automatycznie na podstawie samej daty.
+2. ~~Dla celu po terminie zaproponuj przegląd: zakończenie celu albo zmianę daty w jego edytorze.~~ **Wdrożone 2026-10-04**: wiersz po terminie ma tackę „Podsumuj cel” / „Przesuń termin” prowadzącą do rytuału zamknięcia (`docs/goal-closing-ritual.md`). Cel nadal nie kończy się automatycznie na podstawie samej daty.
 3. Dla planowania pokaż „Brak planu” tylko przy braku rekordu. Istnienie rekordu nie dowodzi pełnego zaplanowania tygodnia; komunikat „Szkic” wymaga osobno zdefiniowanego stanu procesu.
 4. Udostępnij „Przypomnij jutro” dla refleksji. Wymaga zapisu odroczenia osobno od wykonania i możliwości cofnięcia. Odroczenie nie tworzy refleksji ani nie zmienia dat okresu.
 
