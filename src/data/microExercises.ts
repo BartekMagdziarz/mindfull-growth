@@ -32,10 +32,14 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
     i18nKey: 'selfCompassionBreak',
     steps: [
       { key: 'intro', type: 'info' },
+      // Body before words: twenty seconds of the soothing rhythm (optional).
+      { key: 'breath', type: 'breathTimer', phaseSeconds: [4, 0, 6, 0], totalSeconds: 20, optional: true },
       { key: 'mindfulness', type: 'textarea' },
       { key: 'humanity', type: 'textarea' },
       { key: 'kindness', type: 'textarea' },
+      { key: 'helpful', type: 'slider', min: 1, max: 5, optional: true },
     ],
+    innerPractice: true,
   },
   {
     slug: 'grounding-54321',
@@ -75,40 +79,62 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
       // Longer exhale than box breathing: 4 s in, 6 s out, no holds.
       { key: 'breath', type: 'breathTimer', phaseSeconds: [4, 0, 6, 0], totalSeconds: 180 },
       { key: 'after', type: 'emotionPick', optional: true },
+      { key: 'helpful', type: 'slider', min: 1, max: 5, optional: true },
     ],
+    innerPractice: true,
   },
   // Momenty — one moment log for every problem path. `kind` is preset by
   // the catalog variants (moment-shame, moment-anger); branches hang on
   // kind + hadMoment. Shared keys (situation, body) keep one copy.
-  // Plan: ideas/html-plans/2026-09-26-shame-path-v2-compassion.html §3.3.
+  // v3 (plan 2026-10-04 §2.1): the shame branch starts with five taps —
+  // which part took over · when I noticed · what I did instead · how strong
+  // — then "Zapisz teraz"; the prose steps are optional. The anger / anxiety
+  // / other branches keep their v2 order and requirements.
   {
     slug: 'moments',
     i18nKey: 'moments',
+    earlyFinishAfter: 'strength',
     steps: [
       { key: 'kind', type: 'choice', options: ['shame', 'anger', 'anxiety', 'other'] },
       { key: 'hadMoment', type: 'choice', options: ['none', 'yes'] },
       { key: 'quietDay', type: 'textarea', optional: true, showWhen: { step: 'hadMoment', in: ['none'] } },
-      { key: 'situation', type: 'textarea', showWhen: { step: 'hadMoment', in: ['yes'] } },
-      // ── shame ──
-      {
-        key: 'about',
-        type: 'choice',
-        options: ['act', 'event', 'demand', 'unsure'],
-        showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
-      },
+      // ── shame: the quick five ──
       {
         key: 'compass',
         type: 'choice',
-        options: ['withdraw', 'avoid', 'attackSelf', 'attackOthers'],
+        options: ['withdraw', 'attackSelf', 'attackOthers', 'avoid', 'none'],
+        labelsFromParts: { withdraw: 'shame-compass:withdraw', attackSelf: 'shame-compass:attackSelf', attackOthers: 'shame-compass:attackOthers', avoid: 'shame-compass:avoid' },
+        showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
+      },
+      {
+        key: 'noticed',
+        type: 'choice',
+        options: ['during', 'soon', 'hours', 'later'],
         showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
       },
       {
         key: 'response',
         type: 'choice',
         multiple: true,
-        options: ['breath', 'named', 'question', 'sentence', 'contact', 'repair', 'test', 'nothing'],
+        options: ['breath', 'named', 'unblend', 'question', 'sentence', 'defend', 'contact', 'repair', 'test', 'nothing'],
         showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
         hintFrom: { source: 'latest', slug: 'shame-response', step: 'move' },
+      },
+      { key: 'strength', type: 'slider', min: 1, max: 5, showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }] },
+      // ── shared (required for anger / anxiety / other, optional after the shame taps) ──
+      {
+        key: 'situation',
+        type: 'textarea',
+        showWhen: { step: 'hadMoment', in: ['yes'] },
+        optionalWhen: { step: 'kind', in: ['shame'] },
+      },
+      // ── shame: the optional tail ──
+      {
+        key: 'about',
+        type: 'choice',
+        options: ['act', 'event', 'demand', 'unsure'],
+        optional: true,
+        showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
       },
       // ── anger ──
       {
@@ -136,8 +162,9 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
       {
         key: 'kindVoice',
         type: 'textarea',
+        optional: true,
         showWhen: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
-        hintFrom: { source: 'latest', slug: 'compassionate-image', step: 'message' },
+        hintFrom: { source: 'latest', slug: 'compassionate-self', step: 'toPart' },
       },
       {
         key: 'nextTime',
@@ -246,8 +273,11 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
         key: 'compass',
         type: 'choice',
         multiple: true,
-        options: ['withdraw', 'avoid', 'attackSelf', 'attackOthers'],
+        options: ['withdraw', 'attackSelf', 'attackOthers', 'avoid'],
+        labelsFromParts: { withdraw: 'shame-compass:withdraw', attackSelf: 'shame-compass:attackSelf', attackOthers: 'shame-compass:attackOthers', avoid: 'shame-compass:avoid' },
       },
+      // Each reaction is a protector part; saving the map creates them (shamePartsService).
+      { key: 'partsIntro', type: 'info' },
       { key: 'audience', type: 'choice', options: ['others', 'self', 'both'] },
       { key: 'standard', type: 'textarea' },
       { key: 'friendTest', type: 'choice', options: ['yes', 'no', 'unsure'] },
@@ -288,13 +318,17 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
     slug: 'compassionate-image',
     i18nKey: 'compassionateImage',
     steps: [
+      // The easiest flow first: compassion towards someone else warms the system up.
+      { key: 'toOther', type: 'textarea' },
       { key: 'intro', type: 'info' },
       { key: 'wisdom', type: 'textarea' },
       { key: 'strength', type: 'textarea' },
       { key: 'warmth', type: 'textarea' },
       { key: 'nonJudgement', type: 'textarea' },
       { key: 'message', type: 'textarea' },
+      { key: 'helpful', type: 'slider', min: 1, max: 5, optional: true },
     ],
+    innerPractice: true,
   },
   // "Odpowiedź na wstyd" — a personal plan for the moment of shame, the
   // shame path's counterpart of the anger pause plan.
@@ -311,15 +345,36 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
       },
       { key: 'breath', type: 'breathTimer', phaseSeconds: [4, 0, 6, 0], totalSeconds: 60, optional: true },
       { key: 'name', type: 'textarea' },
+      // IFS: the reaction is a part taking the wheel — name it, then step back from it.
+      {
+        key: 'unblend',
+        type: 'choice',
+        options: ['withdraw', 'attackSelf', 'attackOthers', 'avoid'],
+        labelsFromParts: { withdraw: 'shame-compass:withdraw', attackSelf: 'shame-compass:attackSelf', attackOthers: 'shame-compass:attackOthers', avoid: 'shame-compass:avoid' },
+        hintFrom: { source: 'latest', slug: 'shame-map', step: 'compass' },
+      },
+      { key: 'unblendSentence', type: 'textarea' },
       { key: 'question', type: 'info' },
       {
         key: 'sentence',
         type: 'textarea',
-        hintFrom: { source: 'latest', slug: 'compassionate-image', step: 'message' },
+        hintFrom: { source: 'latest', slug: 'compassionate-self', step: 'toPart' },
       },
       { key: 'move', type: 'choice', multiple: true, options: ['stay', 'eyes', 'say', 'ask', 'hand', 'later'] },
       { key: 'moveNote', type: 'textarea', optional: true },
+      // Tiny Habits: the plan is rehearsed when calm so it comes by itself when hot.
+      { key: 'anchor', type: 'choice', optional: true, options: ['coffee', 'commute', 'evening', 'other'] },
     ],
+    // After saving: log the moment it was used in, with the moves carried over.
+    afterSave: {
+      route: '/exercises/micro/moment-shame',
+      prefillFrom: {
+        response: {
+          from: 'move',
+          map: { stay: 'contact', eyes: 'contact', say: 'sentence', ask: 'question', hand: 'breath', later: 'contact' },
+        },
+      },
+    },
   },
   {
     slug: 'worry-postponement',
@@ -349,12 +404,179 @@ export const MICRO_EXERCISES: MicroExerciseDefinition[] = [
     slug: 'maintenance-plan',
     i18nKey: 'maintenancePlan',
     steps: [
-      { key: 'keep', type: 'textList', prompts: 3 },
+      // The path's practices as choices (plus the personal plan for a hard moment); phase P3 turns them into repeat plans.
+      { key: 'keep', type: 'choice', multiple: true, optionsFrom: 'programPractices', options: ['response'] },
+      { key: 'rhythm', type: 'choice', options: ['daily', 'every2', 'every3', 'weekly'] },
       { key: 'signal', type: 'textarea' },
       { key: 'support', type: 'textarea', optional: true },
     ],
   },
+  // ── Shame path v3 (plan ideas/html-plans/2026-10-04-shame-path-v3.html §3) ──
+  // "Mój znak": the path's goal in the user's words — read by the dashboard header.
+  {
+    slug: 'my-sign',
+    i18nKey: 'mySign',
+    steps: [
+      { key: 'intro', type: 'info' },
+      {
+        key: 'mainTarget',
+        type: 'choice',
+        options: ['withdraw', 'attackSelf', 'attackOthers', 'avoid'],
+        labelsFromParts: { withdraw: 'shame-compass:withdraw', attackSelf: 'shame-compass:attackSelf', attackOthers: 'shame-compass:attackOthers', avoid: 'shame-compass:avoid' },
+        hintFrom: { source: 'latest', slug: 'shame-map', step: 'compass' },
+      },
+      { key: 'sign', type: 'textarea' },
+      { key: 'safePerson', type: 'textarea', optional: true },
+    ],
+  },
+  // Safe place + the resistances named before the first inward practice (backdraft rule, D5).
+  {
+    slug: 'safe-place',
+    i18nKey: 'safePlace',
+    steps: [
+      { key: 'intro', type: 'info' },
+      { key: 'breath', type: 'breathTimer', phaseSeconds: [4, 0, 6, 0], totalSeconds: 90, optional: true },
+      { key: 'place', type: 'textarea' },
+      { key: 'anchor', type: 'textList', prompts: 2 },
+      {
+        key: 'resistance',
+        type: 'choice',
+        multiple: true,
+        options: ['weak', 'undeserved', 'lazy', 'dependent', 'unfamiliar', 'grief', 'none'],
+      },
+      { key: 'resistanceReply', type: 'textarea', optional: true },
+      { key: 'helpful', type: 'slider', min: 1, max: 5, optional: true },
+    ],
+    innerPractice: true,
+  },
+  // The compassionate self (CFT) = Self-energy (IFS): embodied, then speaking to the part that is ashamed.
+  {
+    slug: 'compassionate-self',
+    i18nKey: 'compassionateSelf',
+    steps: [
+      { key: 'intro', type: 'info' },
+      { key: 'breath', type: 'breathTimer', phaseSeconds: [4, 0, 6, 0], totalSeconds: 60, optional: true },
+      { key: 'posture', type: 'textarea' },
+      {
+        key: 'qualities',
+        type: 'choice',
+        multiple: true,
+        options: ['calm', 'curiosity', 'clarity', 'compassion', 'confidence', 'courage', 'creativity', 'connectedness'],
+      },
+      {
+        key: 'toPart',
+        type: 'textarea',
+        hintFrom: { source: 'latest', slug: 'compassionate-image', step: 'message' },
+      },
+      { key: 'helpful', type: 'slider', min: 1, max: 5, optional: true },
+    ],
+    innerPractice: true,
+  },
+  // Fierce self-compassion: a voice that takes your side (EFT protective anger, DBT opposite action).
+  {
+    slug: 'defender-voice',
+    i18nKey: 'defenderVoice',
+    steps: [
+      { key: 'intro', type: 'info' },
+      {
+        key: 'episode',
+        type: 'entryPick',
+        slug: 'moments',
+        show: ['situation', 'criticSaid'],
+        filter: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
+        optional: true,
+      },
+      { key: 'attack', type: 'textarea', hintFrom: { source: 'picked', pickStep: 'episode', step: 'criticSaid' } },
+      { key: 'friendDefends', type: 'textarea' },
+      { key: 'mySentence', type: 'textarea' },
+      { key: 'posture', type: 'choice', multiple: true, options: ['headUp', 'voice', 'eyes', 'noApology'] },
+      { key: 'helpful', type: 'slider', min: 1, max: 5, optional: true },
+    ],
+    innerPractice: true,
+  },
+  // Self-compassionate writing after a moment of shame (Johnson & O'Brien 2013): a real paragraph each.
+  {
+    slug: 'shame-writing',
+    i18nKey: 'shameWriting',
+    steps: [
+      {
+        key: 'episode',
+        type: 'entryPick',
+        slug: 'moments',
+        show: ['situation', 'compass'],
+        filter: [{ step: 'kind', in: ['shame'] }, { step: 'hadMoment', in: ['yes'] }],
+        days: 7,
+        optional: true,
+      },
+      { key: 'facts', type: 'textarea', hintFrom: { source: 'picked', pickStep: 'episode', step: 'situation' } },
+      { key: 'humanity', type: 'textarea', minLength: 150 },
+      {
+        key: 'kindness',
+        type: 'textarea',
+        minLength: 150,
+        hintFrom: { source: 'latest', slug: 'compassionate-self', step: 'toPart' },
+      },
+      { key: 'perspective', type: 'textarea', minLength: 100 },
+      { key: 'helpful', type: 'slider', min: 1, max: 5, optional: true },
+    ],
+    innerPractice: true,
+  },
+  // Mid-path check: the dose, not the result.
+  {
+    slug: 'dose-check',
+    i18nKey: 'doseCheck',
+    steps: [
+      { key: 'intro', type: 'info' },
+      { key: 'load', type: 'choice', options: ['tooMuch', 'right', 'tooLittle', 'none'] },
+      { key: 'helpsMost', type: 'choice', multiple: true, optionsFrom: 'programPractices', options: [], optional: true },
+      { key: 'inTheWay', type: 'textarea', optional: true },
+    ],
+  },
+  // A letter from the compassionate self to the future self, resurfacing on a chosen week.
+  {
+    slug: 'letter-to-future-self',
+    i18nKey: 'letterToFutureSelf',
+    steps: [
+      { key: 'intro', type: 'info' },
+      {
+        key: 'letter',
+        type: 'textarea',
+        minLength: 300,
+        hintFrom: { source: 'latest', slug: 'compassionate-self', step: 'toPart' },
+      },
+      { key: 'returnIn', type: 'choice', options: ['w4', 'w8', 'w12'] },
+    ],
+  },
+  // "Powrót": eight weeks after the path closed — what stayed, what came back.
+  {
+    slug: 'path-return',
+    i18nKey: 'pathReturn',
+    steps: [
+      {
+        key: 'letter',
+        type: 'info',
+        hintFrom: { source: 'latest', slug: 'letter-to-future-self', step: 'letter', full: true },
+      },
+      {
+        key: 'kept',
+        type: 'choice',
+        multiple: true,
+        optionsFrom: 'programPractices',
+        options: ['response', 'sentences'],
+        optional: true,
+      },
+      {
+        key: 'returned',
+        type: 'choice',
+        multiple: true,
+        options: ['withdraw', 'attackSelf', 'attackOthers', 'avoid', 'none'],
+        labelsFromParts: { withdraw: 'shame-compass:withdraw', attackSelf: 'shame-compass:attackSelf', attackOthers: 'shame-compass:attackOthers', avoid: 'shame-compass:avoid' },
+      },
+      { key: 'next', type: 'textarea', optional: true },
+    ],
+  },
 ]
+
 
 export function getMicroExercise(slug: string): MicroExerciseDefinition | undefined {
   return MICRO_EXERCISES.find((definition) => definition.slug === slug)

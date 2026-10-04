@@ -4,16 +4,36 @@
     :title="t(`exercises.cards.${catalogEntry.i18nKey}.title`)"
     :subtitle="t(`exercises.cards.${catalogEntry.i18nKey}.subtitle`)"
   >
+    <!-- Arrived here from an inner practice that was too much today. -->
+    <AppCard v-if="route.query.notice === 'tooMuch'" padding="md" class="micro-notice mb-4">
+      <p class="text-sm text-on-surface">{{ t('exerciseWizards.micro.shared.tooMuchNotice') }}</p>
+    </AppCard>
+
     <MicroExerciseRunner
       v-if="!saved"
       :key="slug"
       :definition="definition"
       :preset="preset"
+      :prefill="prefill"
       @saved="handleSaved"
+      @too-much="leftTooMuch = true"
     />
 
     <template v-else>
       <ExerciseSavedPanel :exercise-slug="slug" @again="saved = false" />
+      <AppCard v-if="definition.afterSave && lastResponses" padding="lg" class="micro-follow-up mt-4">
+        <div class="micro-follow-up__copy">
+          <h2 class="text-base font-semibold text-on-surface">
+            {{ tg(`exerciseWizards.micro.${definition.i18nKey}.afterSave.title`) }}
+          </h2>
+          <p class="text-sm text-on-surface-variant">
+            {{ tg(`exerciseWizards.micro.${definition.i18nKey}.afterSave.description`) }}
+          </p>
+        </div>
+        <AppButton variant="tonal" @click="openAfterSave()">
+          {{ t(`exerciseWizards.micro.${definition.i18nKey}.afterSave.cta`) }}
+        </AppButton>
+      </AppCard>
       <AppCard v-if="definition.followUp" padding="lg" class="micro-follow-up mt-4">
         <div class="micro-follow-up__copy">
           <h2 class="text-base font-semibold text-on-surface">
@@ -59,9 +79,17 @@ import MicroExerciseRunner from '@/components/exercises/MicroExerciseRunner.vue'
 import { useT } from '@/composables/useT'
 import { definitionSlugFor, getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
-import type { MicroExerciseEntry, MicroPreset, MicroStepValue } from '@/domain/microExercises'
+import type { MicroExerciseEntry, MicroPrefill, MicroPreset, MicroStepValue } from '@/domain/microExercises'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
-import { entryMatches } from '@/utils/microExerciseFlow'
+import {
+  buildAfterSavePrefill,
+  decodeMicroPrefill,
+  encodeMicroPrefill,
+  entryMatches,
+} from '@/utils/microExerciseFlow'
+
+/** Where an inner practice hands over when it was too much today. */
+const TOO_MUCH_ROUTE = '/exercises/micro/paced-breathing'
 
 const route = useRoute()
 const router = useRouter()
@@ -76,7 +104,11 @@ const slug = computed(() => String(route.params.slug ?? ''))
 const catalogEntry = computed(() => getCatalogEntry(slug.value))
 const definition = computed(() => getMicroExercise(definitionSlugFor(slug.value)))
 const preset = computed<MicroPreset>(() => catalogEntry.value?.variantOf?.preset ?? {})
+/** Answers carried over from another micro (`?prefill=`), shown and editable. */
+const prefill = computed<MicroPrefill>(() => decodeMicroPrefill(route.query.prefill))
 const saved = ref(false)
+const leftTooMuch = ref(false)
+const lastResponses = ref<Record<string, MicroStepValue> | null>(null)
 
 /** Past entries of this run's shape: the definition's, narrowed by the preset answers. */
 const pastEntries = computed(() => {
@@ -98,6 +130,7 @@ onMounted(() => {
 
 watch(slug, () => {
   saved.value = false
+  lastResponses.value = null
   if (route.name === 'micro-exercise' && !definition.value) {
     void router.replace('/exercises')
   }
@@ -111,7 +144,26 @@ async function handleSaved(payload: { responses: Record<string, MicroStepValue> 
     },
     slug.value,
   )
+  lastResponses.value = payload.responses
+  // "Za dużo na dziś": the entry counts, the breath takes over.
+  if (leftTooMuch.value && slug.value !== 'paced-breathing') {
+    leftTooMuch.value = false
+    await router.push({ path: TOO_MUCH_ROUTE, query: { notice: 'tooMuch' } })
+    return
+  }
+  leftTooMuch.value = false
   saved.value = true
+}
+
+/** `afterSave`: open the next micro with this entry's answers as a prefill. */
+function openAfterSave() {
+  const target = definition.value?.afterSave
+  if (!target || !lastResponses.value) return
+  const carried = buildAfterSavePrefill(target.prefillFrom, lastResponses.value)
+  void router.push({
+    path: target.route,
+    query: Object.keys(carried).length ? { prefill: encodeMicroPrefill(carried) } : {},
+  })
 }
 
 /**

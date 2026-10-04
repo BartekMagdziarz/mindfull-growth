@@ -3246,6 +3246,11 @@
   "micro": {
     "shared": {
       "hintLabel": "From an earlier entry",
+      "minLengthNote": "Worth writing a little more for this to work.",
+      "noPractices": "No path practices to choose from.",
+      "tooMuchToday": "Too much for today",
+      "saveNow": "Save now",
+      "tooMuchNotice": "Good that you noticed. Leave it for today and come back to the breath. That is practice too.",
       "breath": {
         "start": "Start",
         "ready": {
@@ -3340,6 +3345,17 @@
         "description": "Write yourself one sentence, the kind someone who truly cares about you would say.",
         "why": "The tone you use with yourself shapes how you feel. Kind words soothe much like support from someone close.",
         "placeholder": "I want to tell myself that…"
+      },
+      "breath": {
+        "title": "Twenty seconds of breath",
+        "description": "Exhale longer than you inhale. (Optional.)",
+        "why": "Body before words: a kind sentence is easier to hear once the threat system has settled a little."
+      },
+      "helpful": {
+        "title": "Did this help?",
+        "description": "1 is not at all, 5 is a lot. You can skip this.",
+        "minLabel": "Not at all",
+        "maxLabel": "A lot"
       }
     },
     "grounding54321": {
@@ -3412,6 +3428,12 @@
       "after": {
         "title": "And how about now?",
         "description": "Mark your emotions after the exercise. You can skip this."
+      },
+      "helpful": {
+        "title": "Did this help?",
+        "description": "1 is not at all, 5 is a lot. You can skip this.",
+        "minLabel": "Not at all",
+        "maxLabel": "A lot"
       }
     },
     "angerMap": {
@@ -3553,13 +3575,13 @@
       },
       "situation": {
         "title": "What happened?",
-        "description": "Briefly, the way a camera would record it: who, what, where.",
+        "description": "Briefly, the way a camera would record it: who, what, where. For shame you can skip this.",
         "why": "A camera-style account separates facts from interpretation. It becomes easier to see what happened and what a thought added.",
         "placeholder": "In a meeting…"
       },
       "about": {
         "title": "What is this shame about?",
-        "description": "Three answers and three ways forward: repair, care, check. If you don't know yet, say so.",
+        "description": "Three answers and three ways forward: repair, care, check. If you don't know yet, say so. (Optional.)",
         "why": "The same question you ask yourself in the moment of shame. Here you have a calm minute for it.",
         "options": {
           "act": {
@@ -3580,14 +3602,24 @@
         }
       },
       "compass": {
-        "title": "What was the first reaction?",
-        "description": "Four typical reactions to shame. Pick the closest one.",
-        "why": "Shame usually sets off one of four automatic reactions. Recognising yours makes it easier to catch it next time.",
+        "title": "Which part took the wheel?",
+        "description": "Each of the four reactions to shame is a part of you that protects. Pick the closest one, or mark that none took over.",
+        "why": "Once the reaction has a name it becomes a part, not you. It's easier to catch next time and to see, week by week, which one is weakening.",
         "options": {
-          "withdraw": "Withdrawing",
-          "avoid": "Avoiding, numbing",
-          "attackSelf": "Attacking myself",
-          "attackOthers": "Attacking others"
+          "withdraw": "The Hider",
+          "avoid": "The Avoider",
+          "attackSelf": "The Critic",
+          "attackOthers": "The Accuser",
+          "none": {
+            "m": "None, I stayed with myself",
+            "f": "None, I stayed with myself"
+          }
+        },
+        "optionHints": {
+          "withdraw": "withdrawing, disappearing",
+          "attackSelf": "attacking myself",
+          "attackOthers": "attacking others, blaming",
+          "avoid": "avoiding, numbing"
         }
       },
       "response": {
@@ -3606,7 +3638,9 @@
           "contact": "A move towards contact",
           "repair": "Repair",
           "test": "The close-person test",
-          "nothing": "Nothing, this time"
+          "nothing": "Nothing, this time",
+          "unblend": "\"That's a part, not me\"",
+          "defend": "My defending sentence"
         }
       },
       "intensity": {
@@ -3632,7 +3666,7 @@
         "title": "What would a kind person say?",
         "description": "Someone who knows you well and wishes you well. They don't have to deny the facts, only stop judging.",
         "why": "Shame eases with kindness, not punishment. The more you practise a gentle voice, the more easily it shows up on its own.",
-        "hintLabel": "From your compassionate image",
+        "hintLabel": "From your compassionate self",
         "placeholder": "They would say…"
       },
       "nextTime": {
@@ -3665,6 +3699,26 @@
         "title": "What helped, or what would help next time?",
         "description": "A pause, a breath, a different thought, talking later. (Optional.)",
         "placeholder": "It helped to…"
+      },
+      "noticed": {
+        "title": {
+          "m": "When did you notice?",
+          "f": "When did you notice?"
+        },
+        "description": "The moment the shame got its name, regardless of whether you managed to do anything.",
+        "why": "\"Sooner\" is the first part of the path's goal. A response only stands a chance when the shame is noticed in time.",
+        "options": {
+          "during": "As it happened",
+          "soon": "A moment later",
+          "hours": "Hours later",
+          "later": "Only now"
+        }
+      },
+      "strength": {
+        "title": "How strong?",
+        "description": "1 is barely there, 5 is very strong.",
+        "minLabel": "Barely",
+        "maxLabel": "Very"
       }
     },
     "shameResponse": {
@@ -3699,10 +3753,10 @@
         "why": "The question moves attention from “what I am” to “what is here”. The answer doesn't have to be certain right away."
       },
       "sentence": {
-        "title": "The sentence you'll hear from your compassionate image",
+        "title": "The sentence you will hear from your compassionate self",
         "description": "What your compassionate figure would say if it were looking at you in that moment.",
         "why": "A ready sentence comes faster than inventing kindness in the heat.",
-        "hintLabel": "From your compassionate image",
+        "hintLabel": "From your compassionate self",
         "placeholder": "You're human and this hurts. I'm with you."
       },
       "move": {
@@ -3722,6 +3776,46 @@
         "title": "Anything else that works for you?",
         "description": "Your own move, if you have one. (Optional.)",
         "placeholder": "It helps me when…"
+      },
+      "unblend": {
+        "title": "Which part usually takes the wheel?",
+        "description": "Pick the one you know best from your shame map.",
+        "why": "Unblending: when you know it's a part speaking, someone in you is left who can listen to it and stay.",
+        "hintLabel": "From your shame map",
+        "options": {
+          "withdraw": "The Hider",
+          "attackSelf": "The Critic",
+          "attackOthers": "The Accuser",
+          "avoid": "The Avoider"
+        },
+        "optionHints": {
+          "withdraw": "withdrawing, disappearing",
+          "attackSelf": "attacking myself",
+          "attackOthers": "attacking others, blaming",
+          "avoid": "avoiding, numbing"
+        }
+      },
+      "unblendSentence": {
+        "title": "Your unblending sentence",
+        "description": "One sentence that separates you from the part in the hot moment.",
+        "why": "A sentence prepared when calm comes faster than inventing one while shame is already steering.",
+        "placeholder": "That's my Critic talking, not me. I can hear it out and stay."
+      },
+      "anchor": {
+        "title": "When do you rehearse the plan?",
+        "description": "A short dry run in a calm moment, once a day. (Optional.)",
+        "why": "A plan rehearsed when calm shows up by itself when things get hot. A fixed time makes it a habit.",
+        "options": {
+          "coffee": "With my morning coffee",
+          "commute": "On the way",
+          "evening": "In the evening",
+          "other": "Another time"
+        }
+      },
+      "afterSave": {
+        "title": "You have a response now. Log the moment you use it in.",
+        "description": "Next time shame speaks up, log it in Moments. Your moves will already be ticked.",
+        "cta": "Log a moment"
       }
     },
     "shameMap": {
@@ -3753,13 +3847,19 @@
       },
       "compass": {
         "title": "How do you usually react to shame?",
-        "description": "The compass of shame (Nathanson) describes four reactions. Pick the ones you recognise in yourself.",
+        "description": "The compass of shame (Nathanson) describes four reactions. In parts language each is a protector. Pick the ones you recognise in yourself.",
         "why": "Knowing your usual reactions makes it easier to catch them as they happen and look after yourself instead.",
         "options": {
-          "withdraw": "Withdrawing",
-          "avoid": "Avoiding, numbing",
-          "attackSelf": "Attacking myself",
-          "attackOthers": "Attacking others"
+          "withdraw": "The Hider",
+          "avoid": "The Avoider",
+          "attackSelf": "The Critic",
+          "attackOthers": "The Accuser"
+        },
+        "optionHints": {
+          "withdraw": "withdrawing, disappearing",
+          "attackSelf": "attacking myself",
+          "attackOthers": "attacking others, blaming",
+          "avoid": "avoiding, numbing"
         }
       },
       "audience": {
@@ -3804,6 +3904,11 @@
         "description": "Who did it come from, or what experience taught it? For example home, school, work.",
         "why": "Seeing where a demand came from makes it easier to treat it as a rule you took on, not a truth about you. Then you can decide whether to keep it.",
         "placeholder": "I think it comes from…"
+      },
+      "partsIntro": {
+        "title": "Each of these reactions is a part that protects",
+        "description": "The Hider doesn't want you seen. The Critic gets ahead of other people's criticism. The Accuser pushes others away before it hurts. The Avoider moves the feeling itself out of the way. We'll create them in your parts registry so you can get to know them, rename them and talk with them later.",
+        "why": "Working with a part is gentler than fighting a \"flaw\". A part has an intention you can understand and a method you can change."
       }
     },
     "shameOrGuilt": {
@@ -3929,6 +4034,18 @@
         "description": "Imagine it looking at you in a hard moment. What sentence do you hear from it?",
         "why": "You can call up this sentence when the inner critic speaks up.",
         "placeholder": "It says: …"
+      },
+      "toOther": {
+        "title": "Start with someone you find easy to care for",
+        "description": "Think of a person or creature you wish well without effort. What do you feel in your body when you think of them?",
+        "why": "Compassion towards someone else is the easiest flow. It warms up the soothing system before you turn it towards yourself.",
+        "placeholder": "When I think of them, in my body…"
+      },
+      "helpful": {
+        "title": "Did this help?",
+        "description": "1 is not at all, 5 is a lot. You can skip this.",
+        "minLabel": "Not at all",
+        "maxLabel": "A lot"
       }
     },
     "worryPostponement": {
@@ -4007,10 +4124,12 @@
     },
     "maintenancePlan": {
       "keep": {
-        "title": "Which practices do you want to keep?",
-        "description": "Write up to three practices, each with how often you want to do it.",
-        "why": "Progress lasts better when a few practices stay in your weekly rhythm. A specific frequency turns an intention into a plan.",
-        "placeholder": "Paced breathing every other day…"
+        "title": "Which practices stay with you?",
+        "description": "Pick the ones from this path you want to keep, and add your plan for a hard moment.",
+        "why": "Progress lasts better when a few practices stay in your weekly rhythm. A habit needs more than eight weeks.",
+        "options": {
+          "response": "My plan for a hard moment"
+        }
       },
       "signal": {
         "title": "How will you know it's time to come back?",
@@ -4022,6 +4141,337 @@
         "title": "Who or what can help you with that?",
         "description": "A person, a reminder, a fixed time. (Optional.)",
         "placeholder": "It will help to…"
+      },
+      "rhythm": {
+        "title": "How often?",
+        "description": "One rhythm for the chosen practices. Less often but regular beats a burst.",
+        "why": "Frequency matters more than length. Four short touches a week work better than one long one.",
+        "options": {
+          "daily": "Every day",
+          "every2": "Every 2 days",
+          "every3": "Every 3 days",
+          "weekly": "Once a week"
+        }
+      }
+    },
+    "mySign": {
+      "intro": {
+        "title": "Where this path leads",
+        "description": "To notice shame sooner, to answer it with warmth instead of attacking yourself, attacking others or hiding, and to come back into contact. This path doesn't remove shame. It teaches what to do when it comes."
+      },
+      "mainTarget": {
+        "title": "What do you most want to change?",
+        "description": "Of the four parts, pick the one whose hand on the wheel weighs on you most.",
+        "why": "This is your main direction. The path will show it separately in your progress so you can see whether it's weakening.",
+        "hintLabel": "From your shame map",
+        "options": {
+          "withdraw": "The Hider",
+          "attackSelf": "The Critic",
+          "attackOthers": "The Accuser",
+          "avoid": "The Avoider"
+        },
+        "optionHints": {
+          "withdraw": "withdrawing, disappearing",
+          "attackSelf": "attacking myself",
+          "attackOthers": "attacking others, blaming",
+          "avoid": "avoiding, numbing"
+        }
+      },
+      "sign": {
+        "title": "How will you know it's working?",
+        "description": "One sentence about a concrete situation. It stays at the top of the path until the end.",
+        "why": "A goal in your own words is easier to recognise in life than a score on a scale.",
+        "placeholder": "When I make a mistake in front of people, I'll stay in the conversation instead of disappearing."
+      },
+      "safePerson": {
+        "title": {
+          "m": "Who could you tell about this one day?",
+          "f": "Who could you tell about this one day?"
+        },
+        "description": "One person you can be yourself with. You don't have to tell them anything now. (Optional.)",
+        "why": "Shame isolates. Naming a person is the first move towards contact; it returns as a hint in week seven.",
+        "placeholder": "Maybe…"
+      }
+    },
+    "safePlace": {
+      "intro": {
+        "title": "A place you can come back to",
+        "description": "Before you turn towards yourself with warmth, you need a place to return to when it gets too much. Every inward practice has a \"Too much for today\" button. It leads here. More in the card \"When warmth hurts\"."
+      },
+      "breath": {
+        "title": "The soothing rhythm",
+        "description": "Four seconds in, six out, for a minute and a half. (Optional.)",
+        "why": "A longer exhale calms the threat system. It's the foundation for everything that follows."
+      },
+      "place": {
+        "title": "Describe a place that welcomes you",
+        "description": "Real or imagined. Light, sounds, temperature, who or what is there. What matters is that the place is glad you're there.",
+        "why": "This is your emergency exit. The more clearly you picture it, the faster it returns in a hard moment.",
+        "placeholder": "There is…"
+      },
+      "anchor": {
+        "title": "Two things that bring the place back in ten seconds",
+        "description": "A colour, a gesture, a word, a smell.",
+        "why": "An anchor works faster than the whole picture. In a hot moment there's no time to imagine everything.",
+        "placeholder": "For example: warmth in my hands…"
+      },
+      "resistance": {
+        "title": "What does your resistance say when you think of warmth towards yourself?",
+        "description": "Tick everything that sounds familiar. None of it is a mistake.",
+        "why": "Named resistance stops steering from hiding. Each of these voices has an answer in the card \"When warmth hurts\", and its speaking up is normal.",
+        "options": {
+          "weak": "It's weakness",
+          "undeserved": "I don't deserve it",
+          "lazy": "I'll get lazy, lose my edge",
+          "dependent": "I'll become dependent on it",
+          "unfamiliar": "I don't know how it's done",
+          "grief": "I'm afraid I'll get sad",
+          "none": "None of these"
+        }
+      },
+      "resistanceReply": {
+        "title": {
+          "m": "What would a kind person answer that resistance?",
+          "f": "What would a kind person answer that resistance?"
+        },
+        "description": "One or two sentences. (Optional.)",
+        "placeholder": "They'd say that…"
+      },
+      "helpful": {
+        "title": "Did this help?",
+        "description": "1 is not at all, 5 is a lot. You can skip this.",
+        "minLabel": "Not at all",
+        "maxLabel": "A lot"
+      }
+    },
+    "compassionateSelf": {
+      "intro": {
+        "title": "Now you are the compassion",
+        "description": "The image gave you compassion from outside. The compassionate self is you at your best, calm version. In IFS this is called Self-energy: calm, curiosity, clarity, compassion, confidence, courage, creativity, connectedness."
+      },
+      "breath": {
+        "title": "A minute of breath",
+        "description": "Exhale longer than you inhale. (Optional.)",
+        "why": "The compassionate self is easier to call up from a body that has settled."
+      },
+      "posture": {
+        "title": "How does your compassionate self stand and speak?",
+        "description": "Posture, pace of voice, facial expression. Try taking it on with your body before you write.",
+        "why": "The body plays this role faster than thought. Compassion-focused therapy calls it method acting: first \"as if\", then for real.",
+        "placeholder": "Stands straight, breathes calmly, speaks slowly…"
+      },
+      "qualities": {
+        "title": "Which of the eight qualities do you feel most easily today?",
+        "description": "Tick one or several. The rest will come.",
+        "why": "Self-energy isn't an ideal to reach. One quality is enough for a part to feel someone is listening.",
+        "options": {
+          "calm": "Calm",
+          "curiosity": "Curiosity",
+          "clarity": "Clarity",
+          "compassion": "Compassion",
+          "confidence": "Confidence",
+          "courage": "Courage",
+          "creativity": "Creativity",
+          "connectedness": "Connectedness"
+        }
+      },
+      "toPart": {
+        "title": "What does your compassionate self say to the part that is ashamed?",
+        "description": "One or two sentences, the way someone on your side who isn't afraid would say it.",
+        "why": "This sentence returns in your shame response and in Moments. It's yours, not borrowed.",
+        "hintLabel": "From your compassionate image",
+        "placeholder": "I see you. You don't have to fix this right now."
+      },
+      "helpful": {
+        "title": "Did this help?",
+        "description": "1 is not at all, 5 is a lot. You can skip this.",
+        "minLabel": "Not at all",
+        "maxLabel": "A lot"
+      }
+    },
+    "defenderVoice": {
+      "intro": {
+        "title": "A voice that takes your side",
+        "description": "Compassion has two sides: tender and fierce. Today the second one. Not aggression, but someone who defends you when the critic attacks."
+      },
+      "episode": {
+        "title": "Pick a moment",
+        "description": "A moment from Moments where the critic said something. Or describe a new situation.",
+        "empty": "No words of the critic logged yet. Describe the situation in the next step."
+      },
+      "attack": {
+        "title": "What did the critic, or someone, say, and what hurt in it?",
+        "description": "Literally, without softening.",
+        "why": "A sentence said out loud can be answered. A sentence in the background works endlessly.",
+        "hintLabel": "From the moment you picked",
+        "placeholder": "They said that…"
+      },
+      "friendDefends": {
+        "title": {
+          "m": "How would a friend who heard it defend you?",
+          "f": "How would a friend who heard it defend you?"
+        },
+        "description": "What would they say to the critic? In what tone?",
+        "why": "It's easier to defend someone else than yourself. You borrow this voice before it becomes yours.",
+        "placeholder": "They'd say: stop, that's…"
+      },
+      "mySentence": {
+        "title": "One sentence you defend yourself with",
+        "description": "No \"sorry\", no \"but\". Short, the way you speak to someone who went too far.",
+        "why": "The hated self doesn't weaken from warmth alone. It also needs someone to say \"enough\".",
+        "placeholder": {
+          "m": "I made a mistake and I'm still all right.",
+          "f": "I made a mistake and I'm still all right."
+        }
+      },
+      "posture": {
+        "title": "What will back this sentence up in your body?",
+        "description": "The opposite action to shame: open up instead of shrinking.",
+        "why": "Shame says lower your eyes and your voice. Reversing those gestures changes what you feel too.",
+        "options": {
+          "headUp": "Head up",
+          "voice": "Calm, full voice",
+          "eyes": "Eye contact",
+          "noApology": "No apologetic posture"
+        }
+      },
+      "helpful": {
+        "title": "Did this help?",
+        "description": "1 is not at all, 5 is a lot. You can skip this.",
+        "minLabel": "Not at all",
+        "maxLabel": "A lot"
+      }
+    },
+    "shameWriting": {
+      "episode": {
+        "title": "Pick a moment from the past week",
+        "description": "Or describe a new situation in the next step.",
+        "empty": "No moments of shame logged this week yet. Describe the situation in the next step."
+      },
+      "facts": {
+        "title": "What happened? Just the facts",
+        "description": "The way a camera would record it. No judgement.",
+        "why": "The writing starts with facts so the rest isn't an argument with the critic about what happened.",
+        "hintLabel": "From the moment you picked",
+        "placeholder": "In a meeting…"
+      },
+      "humanity": {
+        "title": "Who else knows this feeling?",
+        "description": "How does this experience connect you with other people instead of cutting you off? Write a few sentences.",
+        "why": "Shame says \"only me\". This question tests that claim, and tested, it usually doesn't hold.",
+        "placeholder": "Probably many people…"
+      },
+      "kindness": {
+        "title": "Write to yourself the way someone who accepts you unconditionally would",
+        "description": "A few sentences. Warmth doesn't mean denying the facts.",
+        "why": "From research: writing to yourself with compassion after shame lowers shame-proneness two weeks later. A short note doesn't do it, a paragraph does.",
+        "hintLabel": "From your compassionate self",
+        "placeholder": "I can see how much…"
+      },
+      "perspective": {
+        "title": "Step back: what matters and what is only loud?",
+        "description": "How will you think about this in a year? What of it really counts?",
+        "why": "Mindfulness towards shame is seeing it as a passing state, not a verdict.",
+        "placeholder": "In a year…"
+      },
+      "helpful": {
+        "title": "Did this help?",
+        "description": "1 is not at all, 5 is a lot. You can skip this.",
+        "minLabel": "Not at all",
+        "maxLabel": "A lot"
+      }
+    },
+    "doseCheck": {
+      "intro": {
+        "title": "Halfway",
+        "description": "We're not judging the result, we're checking the dose. If something is too much, we reduce it. If you're doing nothing, only the smallest thing stays."
+      },
+      "load": {
+        "title": "How is it going with the practices?",
+        "description": "Honestly, without judging. Each answer leads to a different suggestion.",
+        "why": "In studies people drop out of programmes not because they did too little, but because the programme looked disappointed. There's none of that here.",
+        "options": {
+          "tooMuch": "Too much",
+          "right": "Just right",
+          "tooLittle": "Too little",
+          "none": "I'm not doing them"
+        }
+      },
+      "helpsMost": {
+        "title": "What helps most?",
+        "description": "Tick one or two. (Optional.)",
+        "why": "Felt helpfulness predicts the outcome better than minutes. What helps stays; the rest can go.",
+        "empty": "No path practices to choose from."
+      },
+      "inTheWay": {
+        "title": "What gets in the way?",
+        "description": "Time, place, shame about the exercise itself. (Optional.)",
+        "placeholder": "It's hardest when…"
+      }
+    },
+    "letterToFutureSelf": {
+      "intro": {
+        "title": "A letter for a worse day",
+        "description": "Shame will come back. This letter is for that day. Your compassionate self writes it to the you of the future."
+      },
+      "letter": {
+        "title": "Write the letter",
+        "description": "What you already know how to do. What helped. What to do in the first minute. Who to tell. At least a paragraph.",
+        "why": "A letter read weeks later works like the voice of someone who knows you and is on your side. A short note can't carry that.",
+        "hintLabel": "From your compassionate self",
+        "placeholder": {
+          "m": "Dear me, I know that today…",
+          "f": "Dear me, I know that today…"
+        }
+      },
+      "returnIn": {
+        "title": "When should it come back to you?",
+        "description": "It returns in the path view and in Today in the chosen week.",
+        "options": {
+          "w4": "In 4 weeks",
+          "w8": "In 8 weeks, at the Return",
+          "w12": "In 12 weeks"
+        }
+      }
+    },
+    "pathReturn": {
+      "letter": {
+        "title": "A letter from you",
+        "description": "Eight weeks ago you wrote a letter for a worse day. Read it slowly.",
+        "hintLabel": "Your letter"
+      },
+      "kept": {
+        "title": "What stayed with me?",
+        "description": "Practices, the plan for a hard moment, your own sentences. (Optional.)",
+        "why": "What stayed matters more than what fell away. A habit is measured in weeks, not days.",
+        "options": {
+          "response": "My plan for a hard moment",
+          "sentences": "My sentences"
+        },
+        "empty": "No path practices to choose from."
+      },
+      "returned": {
+        "title": "What came back?",
+        "description": "Which parts take the wheel more often again?",
+        "why": "Relapses are normal. A named part is an invitation to a short conversation, not proof of failure.",
+        "options": {
+          "withdraw": "The Hider",
+          "attackSelf": "The Critic",
+          "attackOthers": "The Accuser",
+          "avoid": "The Avoider",
+          "none": "Nothing in particular"
+        },
+        "optionHints": {
+          "withdraw": "withdrawing, disappearing",
+          "attackSelf": "attacking myself",
+          "attackOthers": "attacking others, blaming",
+          "avoid": "avoiding, numbing"
+        }
+      },
+      "next": {
+        "title": "One small move for the coming week",
+        "description": "Resume a practice, return to the defending sentence, tell someone. (Optional.)",
+        "placeholder": "This week…"
       }
     }
   }

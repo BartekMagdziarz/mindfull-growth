@@ -10,6 +10,7 @@ import type {
   MicroExerciseEntry,
   MicroExerciseStep,
   MicroHintSource,
+  MicroPrefillRule,
   MicroPreset,
   MicroStepCondition,
   MicroStepConditions,
@@ -28,6 +29,13 @@ function conditionHolds(condition: MicroStepCondition, answer: string | string[]
   if (answer === undefined) return false
   const picked = Array.isArray(answer) ? answer : [answer]
   return picked.some((option) => condition.in.includes(option))
+}
+
+/** Optional outright, or optional while its `optionalWhen` conditions hold. */
+export function isMicroStepOptional(step: MicroExerciseStep, answers: MicroChoiceAnswers): boolean {
+  if (step.optional) return true
+  const conditions = conditionList(step.optionalWhen)
+  return conditions.length > 0 && conditions.every((condition) => conditionHolds(condition, answers[condition.step]))
 }
 
 /** Every condition must hold (AND); no conditions = always visible. */
@@ -134,4 +142,98 @@ export function resolveMicroHint(
     .filter((entry) => entry.exerciseSlug === hint.slug && entryMatches(entry, hint.filter))
     .sort(byNewest)[0]
   return latest?.responses[hint.step] ?? undefined
+}
+
+/**
+ * Whether the run may be saved right now from `currentKey`: the
+ * definition's `earlyFinishAfter` step is at or before the current one in
+ * the visible flow, and nothing REQUIRED can still follow — every later
+ * step that is visible, or may yet appear behind an unanswered choice, is
+ * optional. (The shame branch of Momenty ends its five taps on `strength`;
+ * the anger branch has required steps after it, so it never finishes early.)
+ */
+export function canFinishEarly(
+  steps: readonly MicroExerciseStep[],
+  currentKey: string,
+  answers: MicroChoiceAnswers,
+  preset: MicroPreset = {},
+  earlyFinishAfter: string | undefined = undefined,
+): boolean {
+  if (!earlyFinishAfter) return false
+  const visible = visibleMicroSteps(steps, answers, preset)
+  const current = visible.findIndex((step) => step.key === currentKey)
+  const anchor = visible.findIndex((step) => step.key === earlyFinishAfter)
+  if (current === -1 || anchor === -1 || current < anchor) return false
+  const index = steps.findIndex((step) => step.key === currentKey)
+  return steps.slice(index + 1).every((step) => {
+    if (step.key in preset || isMicroStepOptional(step, answers)) return true
+    if (isMicroStepVisible(step, answers)) return false
+    const conditions = conditionList(step.showWhen)
+    const mayAppear =
+      conditions.some((condition) => answers[condition.step] === undefined) &&
+      conditions.every(
+        (condition) => answers[condition.step] === undefined || conditionHolds(condition, answers[condition.step]),
+      )
+    return !mayAppear
+  })
+}
+
+/**
+ * Prefill carried between micros through the route query: base64url of
+ * the JSON answers (short, no user-visible encoding).
+ */
+export function encodeMicroPrefill(prefill: Record<string, MicroStepValue>): string {
+  const json = JSON.stringify(prefill)
+  const bytes = new TextEncoder().encode(json)
+  let binary = ''
+  bytes.forEach((byte) => (binary += String.fromCharCode(byte)))
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+export function decodeMicroPrefill(encoded: unknown): Record<string, MicroStepValue> {
+  if (typeof encoded !== 'string' || !encoded) return {}
+  try {
+    const padded = encoded.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (encoded.length % 4)) % 4)
+    const binary = atob(padded)
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+    const parsed: unknown = JSON.parse(new TextDecoder().decode(bytes))
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, MicroStepValue>)
+      : {}
+  } catch {
+    return {}
+  }
+}
+
+/**
+ * Builds the prefill for `afterSave`: each target step takes the source
+ * response, optionally translating choice ids through `map` (unknown ids
+ * are dropped; an empty result is omitted).
+ */
+export function buildAfterSavePrefill(
+  rules: Record<string, MicroPrefillRule> | undefined,
+  responses: Record<string, MicroStepValue>,
+): Record<string, MicroStepValue> {
+  const prefill: Record<string, MicroStepValue> = {}
+  for (const [target, rule] of Object.entries(rules ?? {})) {
+    const from = typeof rule === 'string' ? rule : rule.from
+    const map = typeof rule === 'string' ? undefined : rule.map
+    const value = responses[from]
+    if (value === undefined || value === null) continue
+    if (!map) {
+      prefill[target] = value
+      continue
+    }
+    const translate = (id: string): string | undefined => map[id]
+    if (typeof value === 'string') {
+      const mapped = translate(value)
+      if (mapped) prefill[target] = mapped
+    } else if (Array.isArray(value)) {
+      const mapped = Array.from(
+        new Set(value.filter((item): item is string => typeof item === 'string').map(translate).filter((item): item is string => Boolean(item))),
+      )
+      if (mapped.length) prefill[target] = mapped
+    }
+  }
+  return prefill
 }

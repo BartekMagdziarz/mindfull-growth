@@ -118,17 +118,65 @@ describe('MicroExerciseRunner choice branching (Momenty, anger variant)', () => 
 })
 
 describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
-  it('the shame branch sorts the moment and shows the verb under each answer', async () => {
+  it('the shame branch (v3) starts with the quick five and offers "Save now" after the strength', async () => {
+    const { emitted, container } = renderMicro('moments', { kind: 'shame' })
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    // hadMoment, compass, noticed, response, strength, situation, about, body, criticSaid, kindVoice, nextTime
+    expect(container.querySelectorAll('[title]')).toHaveLength(11)
+    expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass (part names)
+    const critic = screen.getByRole('radio', { name: /The Critic/ })
+    expect(critic.textContent).toContain('attacking myself')
+    await fireEvent.click(critic)
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    await fireEvent.click(screen.getByRole('radio', { name: 'A moment later' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response
+    await fireEvent.click(screen.getByRole('button', { name: "\"That's a part, not me\"" }))
+    expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength: everything ahead is optional
+    expect(screen.getByRole('button', { name: 'Save now' })).toBeTruthy()
+    await fireEvent.click(screen.getByRole('button', { name: 'Save now' }))
+    expect(emitted().saved?.[0]).toEqual([
+      {
+        responses: {
+          kind: 'shame',
+          hadMoment: 'yes',
+          compass: 'attackSelf',
+          noticed: 'soon',
+          response: ['unblend'],
+          strength: 3,
+        },
+      },
+    ])
+  })
+
+  it('the shame tail is optional and sorts the moment with the verb under each answer', async () => {
     const { container } = renderMicro('moments', { kind: 'shame' })
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
-    // hadMoment, situation, about, compass, response, body, criticSaid, kindVoice, nextTime
-    expect(container.querySelectorAll('[title]')).toHaveLength(9)
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation
-    await fireEvent.update(container.querySelector('textarea')!, 'Asked a question')
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → about
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass
+    await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    await fireEvent.click(screen.getByRole('radio', { name: 'As it happened' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response
+    await fireEvent.click(screen.getByRole('button', { name: 'Breath' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation: optional for shame
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveProperty('disabled', false)
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → about (optional)
     const demand = screen.getByRole('radio', { name: /Who I should be/ })
     expect(demand.textContent).toContain('check')
     expect(screen.getByRole('radio', { name: /I don't know yet/ }).querySelector('.micro-choice__hint')).toBeNull()
+    expect(container.querySelectorAll('[title]')).toHaveLength(11)
+  })
+
+  it('the anger branch keeps its required situation and never offers "Save now"', async () => {
+    const { container } = renderMicro('moments', { kind: 'anger' })
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation (required)
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveProperty('disabled', true)
+    await fireEvent.update(container.querySelector('textarea')!, 'x')
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → intensity
+    expect(screen.queryByRole('button', { name: 'Save now' })).toBeNull()
   })
 
   it('quotes the latest matching entry under the step, only while its "when" holds', async () => {
@@ -138,16 +186,17 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
     ])
     const { container } = renderMicro('moments', { kind: 'shame' })
     await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation
-    expect(container.querySelector('[data-testid="micro-hint"]')).toBeNull()
-    await fireEvent.update(container.querySelector('textarea')!, 'x')
-    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → about
-    await fireEvent.click(screen.getByRole('radio', { name: /What happened to me/ }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass
-    await fireEvent.click(screen.getByRole('radio', { name: 'Withdrawing' }))
+    await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    await fireEvent.click(screen.getByRole('radio', { name: 'Hours later' }))
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response (no shame-response entry → no hint)
     expect(container.querySelector('[data-testid="micro-hint"]')).toBeNull()
     await fireEvent.click(screen.getByRole('button', { name: 'Breath' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation
+    expect(container.querySelector('[data-testid="micro-hint"]')).toBeNull()
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → about
     await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → body: quotes the newest map
     const hint = container.querySelector('[data-testid="micro-hint"]')!
     expect(hint.textContent).toContain('From your shame map')
@@ -227,5 +276,110 @@ describe('MicroExerciseRunner: shame branch, hints and entry picks', () => {
     renderMicro('shame-or-guilt')
     expect(screen.queryAllByRole('radio')).toHaveLength(0)
     expect(screen.getByText(/no moments of shame/i)).toBeTruthy()
+  })
+})
+
+describe('MicroExerciseRunner v3 features', () => {
+  it('a soft minimum shows a counter and a note but never blocks', async () => {
+    const { container } = renderMicro('letter-to-future-self')
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → letter (minLength 300)
+    const counter = container.querySelector('[data-testid="micro-minlength"]')!
+    expect(counter.textContent).toContain('0 / 300')
+    expect(counter.textContent).toContain('Worth writing a little more')
+    await fireEvent.update(container.querySelector('textarea')!, 'short')
+    expect(container.querySelector('[data-testid="micro-minlength"]')!.textContent).toContain('5 / 300')
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveProperty('disabled', false)
+  })
+
+  it('a prefill fills the field and keeps the step, unlike a preset', async () => {
+    const definition = getMicroExercise('moments')!
+    const { container } = render(MicroExerciseRunner, {
+      props: { definition, preset: { kind: 'shame' }, prefill: { response: ['breath', 'contact'], situation: 'At lunch' } },
+      global: { stubs },
+    })
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    // the prefilled steps still have dots (they are shown), the preset one doesn't
+    expect(container.querySelectorAll('[title]')).toHaveLength(11)
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass
+    await fireEvent.click(screen.getByRole('radio', { name: /The Hider/ }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → noticed
+    await fireEvent.click(screen.getByRole('radio', { name: 'Only now' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → response: prefilled
+    expect(screen.getByRole('button', { name: 'Breath' }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByRole('button', { name: 'A move towards contact' }).getAttribute('aria-pressed')).toBe('true')
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → strength
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → situation: prefilled, editable
+    expect((container.querySelector('textarea') as HTMLTextAreaElement).value).toBe('At lunch')
+  })
+
+  it('"Too much for today" saves what is there with the marker and emits tooMuch', async () => {
+    const { emitted, container } = renderMicro('compassionate-self')
+    expect(screen.getByRole('button', { name: 'Too much for today' })).toBeTruthy()
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → breath (optional)
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → posture
+    await fireEvent.update(container.querySelector('textarea')!, 'Upright')
+    await fireEvent.click(screen.getByRole('button', { name: 'Too much for today' }))
+    const saved = (emitted().saved as unknown as Array<[{ responses: Record<string, unknown> }]>)[0]![0]
+    expect(saved.responses.tooMuchToday).toBe('yes')
+    expect(saved.responses.posture).toBe('Upright')
+    expect(emitted().tooMuch).toHaveLength(1)
+  })
+
+  it('labels compass options with the user’s own part names when a tagged part exists', async () => {
+    const { useIFSPartStore } = await import('@/stores/ifsPart.store')
+    const parts = useIFSPartStore()
+    parts.parts = [
+      {
+        id: 'p1',
+        createdAt: '2026-10-01T10:00:00.000Z',
+        updatedAt: '2026-10-01T10:00:00.000Z',
+        name: 'Sędzia',
+        role: 'manager',
+        bodyLocations: [],
+        emotionIds: [],
+        lifeAreaIds: [],
+        tags: ['shame-compass:attackSelf'],
+      },
+    ]
+    renderMicro('moments', { kind: 'shame' })
+    await fireEvent.click(screen.getByRole('radio', { name: 'Yes' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Next' })) // → compass
+    expect(screen.getByRole('radio', { name: /Sędzia \(The Critic\)/ })).toBeTruthy()
+    expect(screen.getByRole('radio', { name: /The Hider/ })).toBeTruthy()
+  })
+
+  it('optionsFrom lists the practices of the open paths before the static options', async () => {
+    const { useProgramEnrollmentStore } = await import('@/stores/programEnrollment.store')
+    const store = useProgramEnrollmentStore()
+    store.enrollments = [
+      {
+        id: 'enr',
+        programSlug: 'anger-signal',
+        status: 'active',
+        startedAt: '2026-09-01T10:00:00.000Z',
+        currentStepIndex: 3,
+        completedSteps: [],
+        createdAt: '2026-09-01T10:00:00.000Z',
+        updatedAt: '2026-09-01T10:00:00.000Z',
+      },
+    ]
+    renderMicro('maintenance-plan')
+    const options = screen.getAllByRole('button').filter((b) => b.classList.contains('micro-choice__option'))
+    // anger path practices (moment-anger, paced-breathing) then the static plan-for-a-hard-moment
+    expect(options.map((b) => b.textContent?.trim())).toEqual([
+      expect.stringMatching(/moment of anger/i),
+      expect.stringMatching(/breathing/i),
+      'My plan for a hard moment',
+    ])
+    await fireEvent.click(options[1]!)
+    expect(options[1]!.getAttribute('aria-pressed')).toBe('true')
+  })
+
+  it('a full hint quotes the whole letter in "Powrót"', async () => {
+    const long = 'A'.repeat(400)
+    seedEntries([{ exerciseSlug: 'letter-to-future-self', responses: { letter: long, returnIn: 'w8' } }])
+    const { container } = renderMicro('path-return')
+    const hint = container.querySelector('[data-testid="micro-hint"]')!
+    expect(hint.textContent).toContain(long)
   })
 })

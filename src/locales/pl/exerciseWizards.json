@@ -3246,6 +3246,11 @@
   "micro": {
     "shared": {
       "hintLabel": "Z wcześniejszego wpisu",
+      "minLengthNote": "Warto napisać trochę więcej, żeby to zadziałało.",
+      "noPractices": "Brak praktyk ścieżki do wyboru.",
+      "tooMuchToday": "Za dużo na dziś",
+      "saveNow": "Zapisz teraz",
+      "tooMuchNotice": "Dobrze, że to zauważasz. Zostaw to na dziś i wróć do oddechu. To też jest praktyka.",
       "breath": {
         "start": "Zacznij",
         "ready": {
@@ -3340,6 +3345,17 @@
         "description": "Napisz do siebie jedno zdanie, takie, jakie powiedziałaby ci osoba, która naprawdę ci sprzyja.",
         "why": "Ton, jakim mówisz do siebie, wpływa na to, jak się czujesz. Życzliwe słowa łagodzą podobnie jak wsparcie bliskiej osoby.",
         "placeholder": "Chcę sobie powiedzieć, że…"
+      },
+      "breath": {
+        "title": "Dwadzieścia sekund oddechu",
+        "description": "Wydech dłuższy niż wdech. (Opcjonalnie.)",
+        "why": "Ciało przed słowami: życzliwe zdanie łatwiej usłyszeć, gdy układ zagrożenia zdąży trochę opaść."
+      },
+      "helpful": {
+        "title": "Czy to pomogło?",
+        "description": "1 to wcale, 5 to bardzo. Możesz pominąć.",
+        "minLabel": "Wcale",
+        "maxLabel": "Bardzo"
       }
     },
     "grounding54321": {
@@ -3412,6 +3428,12 @@
       "after": {
         "title": "A jak teraz?",
         "description": "Zaznacz emocje po ćwiczeniu. Możesz to pominąć."
+      },
+      "helpful": {
+        "title": "Czy to pomogło?",
+        "description": "1 to wcale, 5 to bardzo. Możesz pominąć.",
+        "minLabel": "Wcale",
+        "maxLabel": "Bardzo"
       }
     },
     "angerMap": {
@@ -3553,13 +3575,13 @@
       },
       "situation": {
         "title": "Co się wydarzyło?",
-        "description": "Krótko, jak nagrałaby to kamera: kto, co, gdzie.",
+        "description": "Krótko, jak nagrałaby to kamera: kto, co, gdzie. Przy wstydzie możesz pominąć.",
         "why": "Opis jak z kamery oddziela fakty od interpretacji. Łatwiej wtedy zobaczyć, co się stało, a co dopowiedziała myśl.",
         "placeholder": "Na spotkaniu…"
       },
       "about": {
         "title": "O czym jest ten wstyd?",
-        "description": "Trzy odpowiedzi i trzy drogi: napraw, zadbaj, sprawdź. Jeśli nie wiesz, zaznacz to.",
+        "description": "Trzy odpowiedzi i trzy drogi: napraw, zadbaj, sprawdź. Jeśli nie wiesz, zaznacz to. (Opcjonalnie.)",
         "why": "To samo pytanie, które zadajesz sobie w chwili wstydu. Tu masz na nie spokojną minutę.",
         "options": {
           "act": {
@@ -3580,14 +3602,24 @@
         }
       },
       "compass": {
-        "title": "Jaka była pierwsza reakcja?",
-        "description": "Cztery typowe reakcje na wstyd. Wybierz tę, która była najbliżej.",
-        "why": "Wstyd zwykle uruchamia jedną z czterech automatycznych reakcji. Gdy rozpoznajesz swoją, łatwiej przyłapać ją następnym razem.",
+        "title": "Która część przejęła ster?",
+        "description": "Każda z czterech reakcji na wstyd to część ciebie, która chroni. Wybierz tę, która była najbliżej, albo zaznacz, że żadna nie przejęła steru.",
+        "why": "Gdy reakcja ma imię, staje się częścią, a nie tobą. Łatwiej ją przyłapać następnym razem i zobaczyć w rozkładzie tygodni, która słabnie.",
         "options": {
-          "withdraw": "Wycofanie się",
-          "avoid": "Unikanie, zagłuszanie",
-          "attackSelf": "Atak na siebie",
-          "attackOthers": "Atak na innych"
+          "withdraw": "Ukrywający",
+          "avoid": "Unikający",
+          "attackSelf": "Krytyk",
+          "attackOthers": "Oskarżyciel",
+          "none": {
+            "m": "Żadna, zostałem przy sobie",
+            "f": "Żadna, zostałam przy sobie"
+          }
+        },
+        "optionHints": {
+          "withdraw": "wycofanie, znikanie",
+          "attackSelf": "atak na siebie",
+          "attackOthers": "atak na innych, obwinianie",
+          "avoid": "unikanie, zagłuszanie"
         }
       },
       "response": {
@@ -3606,7 +3638,9 @@
           "contact": "Ruch w stronę kontaktu",
           "repair": "Naprawa",
           "test": "Test bliskiej osoby",
-          "nothing": "Nic, tym razem"
+          "nothing": "Nic, tym razem",
+          "unblend": "„To część, nie ja”",
+          "defend": "Zdanie obronne"
         }
       },
       "intensity": {
@@ -3632,7 +3666,7 @@
         "title": "Co powiedziałby ktoś życzliwy?",
         "description": "Ktoś, kto zna cię dobrze i chce dla ciebie dobrze. Nie musi zaprzeczać faktom, wystarczy, że nie ocenia.",
         "why": "Wstyd słabnie pod wpływem życzliwości, a nie kary. Im częściej ćwiczysz łagodny głos, tym łatwiej odzywa się sam.",
-        "hintLabel": "Z twojego obrazu współczującego",
+        "hintLabel": "Od twojego współczującego ja",
         "placeholder": "Powiedziałby…"
       },
       "nextTime": {
@@ -3665,6 +3699,26 @@
         "title": "Co pomogło albo co pomogłoby następnym razem?",
         "description": "Pauza, oddech, inna myśl, rozmowa później. (Opcjonalnie.)",
         "placeholder": "Pomogło mi…"
+      },
+      "noticed": {
+        "title": {
+          "m": "Kiedy to zauważyłeś?",
+          "f": "Kiedy to zauważyłaś?"
+        },
+        "description": "Chodzi o moment, w którym wstyd dostał nazwę, nie o to, czy udało się coś zrobić.",
+        "why": "„Szybciej” to pierwsza część celu ścieżki. Odpowiedź ma szansę zadziałać tylko wtedy, gdy wstyd zostanie zauważony w porę.",
+        "options": {
+          "during": "W trakcie",
+          "soon": "Po chwili",
+          "hours": "Po godzinach",
+          "later": "Dopiero teraz"
+        }
+      },
+      "strength": {
+        "title": "Jak mocno?",
+        "description": "1 to ledwie wyczuwalne, 5 to bardzo mocno.",
+        "minLabel": "Ledwie",
+        "maxLabel": "Bardzo"
       }
     },
     "shameResponse": {
@@ -3699,10 +3753,10 @@
         "why": "Pytanie przesuwa uwagę z „jaki jestem” na „co tu jest”. Odpowiedź nie musi być od razu pewna."
       },
       "sentence": {
-        "title": "Zdanie, które usłyszysz od obrazu współczującego",
+        "title": "Zdanie, które usłyszysz od swojego współczującego ja",
         "description": "To, co powiedziałaby ci twoja współczująca postać, gdyby patrzyła na ciebie w tej chwili.",
         "why": "Gotowe zdanie przychodzi szybciej niż wymyślanie życzliwości na gorąco.",
-        "hintLabel": "Z twojego obrazu współczującego",
+        "hintLabel": "Od twojego współczującego ja",
         "placeholder": "Jesteś człowiekiem i to boli. Jestem z tobą."
       },
       "move": {
@@ -3722,6 +3776,46 @@
         "title": "Coś jeszcze, co działa na ciebie?",
         "description": "Twój własny ruch, jeśli masz. (Opcjonalnie.)",
         "placeholder": "Pomaga mi, gdy…"
+      },
+      "unblend": {
+        "title": "Która część zwykle przejmuje ster?",
+        "description": "Wybierz tę, którą znasz najlepiej z Mapy wstydu.",
+        "why": "Odmieszanie: gdy wiesz, że to część mówi, zostaje w tobie ktoś, kto może jej wysłuchać i nie odejść.",
+        "hintLabel": "Z twojej mapy wstydu",
+        "options": {
+          "withdraw": "Ukrywający",
+          "attackSelf": "Krytyk",
+          "attackOthers": "Oskarżyciel",
+          "avoid": "Unikający"
+        },
+        "optionHints": {
+          "withdraw": "wycofanie, znikanie",
+          "attackSelf": "atak na siebie",
+          "attackOthers": "atak na innych, obwinianie",
+          "avoid": "unikanie, zagłuszanie"
+        }
+      },
+      "unblendSentence": {
+        "title": "Zdanie odmieszania",
+        "description": "Jedno zdanie, którym oddzielisz siebie od części w gorącej chwili.",
+        "why": "Zdanie przygotowane na zimno przychodzi szybciej niż wymyślanie go, gdy wstyd już steruje.",
+        "placeholder": "To mój Krytyk mówi, nie ja. Mogę go wysłuchać i zostać."
+      },
+      "anchor": {
+        "title": "Kiedy ćwiczysz plan na sucho?",
+        "description": "Krótka próba w spokojnej chwili, raz dziennie. (Opcjonalnie.)",
+        "why": "Plan ćwiczony na spokojnie przychodzi sam w gorącej chwili. Stała pora robi z niego nawyk.",
+        "options": {
+          "coffee": "Przy porannej kawie",
+          "commute": "W drodze",
+          "evening": "Wieczorem",
+          "other": "Innym razem"
+        }
+      },
+      "afterSave": {
+        "title": "Masz już odpowiedź. Zapisz moment, w którym jej użyjesz.",
+        "description": "Następnym razem, gdy wstyd się odezwie, zapisz go w Momentach. Twoje ruchy będą już zaznaczone.",
+        "cta": "Zapisz moment"
       }
     },
     "shameMap": {
@@ -3753,13 +3847,19 @@
       },
       "compass": {
         "title": "Jak zwykle reagujesz na wstyd?",
-        "description": "Kompas wstydu (Nathanson) opisuje cztery reakcje. Wybierz te, które znasz u siebie.",
+        "description": "Kompas wstydu (Nathanson) opisuje cztery reakcje. W języku części każda z nich to protektor. Wybierz te, które znasz u siebie.",
         "why": "Gdy znasz swoje typowe reakcje, łatwiej przyłapać je w trakcie i zamiast nich zadbać o siebie.",
         "options": {
-          "withdraw": "Wycofanie się",
-          "avoid": "Unikanie, zagłuszanie",
-          "attackSelf": "Atak na siebie",
-          "attackOthers": "Atak na innych"
+          "withdraw": "Ukrywający",
+          "avoid": "Unikający",
+          "attackSelf": "Krytyk",
+          "attackOthers": "Oskarżyciel"
+        },
+        "optionHints": {
+          "withdraw": "wycofanie, znikanie",
+          "attackSelf": "atak na siebie",
+          "attackOthers": "atak na innych, obwinianie",
+          "avoid": "unikanie, zagłuszanie"
         }
       },
       "audience": {
@@ -3804,6 +3904,11 @@
         "description": "Od kogo pochodzi albo z jakiego doświadczenia wynika? Na przykład z domu, szkoły, pracy.",
         "why": "Gdy widzisz, skąd pochodzi wymaganie, łatwiej potraktować je jak przejętą regułę, a nie prawdę o sobie. Możesz wtedy zdecydować, czy nadal chcesz się jej trzymać.",
         "placeholder": "Chyba wzięło się z…"
+      },
+      "partsIntro": {
+        "title": "Każda z tych reakcji to część, która chroni",
+        "description": "Ukrywający nie chce, żeby cię zobaczono. Krytyk uprzedza cudzą krytykę. Oskarżyciel odpycha innych, zanim zaboli. Unikający odsuwa samo poczucie. Założymy je w twoim rejestrze części, żeby dalej można je było poznać, nazwać po swojemu i z nimi rozmawiać.",
+        "why": "Praca z częścią jest łagodniejsza niż walka z „wadą”. Część ma intencję, którą da się zrozumieć, i metodę, którą da się zmienić."
       }
     },
     "shameOrGuilt": {
@@ -3929,6 +4034,18 @@
         "description": "Wyobraź sobie, że patrzy na ciebie w trudnym momencie. Jakie zdanie od niej słyszysz?",
         "why": "To zdanie możesz przywołać, gdy odezwie się wewnętrzny krytyk.",
         "placeholder": "Mówi: …"
+      },
+      "toOther": {
+        "title": "Zacznij od kogoś, komu łatwo ci współczuć",
+        "description": "Pomyśl o osobie albo istocie, której dobrze życzysz bez wysiłku. Co czujesz w ciele, gdy o niej myślisz?",
+        "why": "Współczucie do kogoś innego to najłatwiejszy strumień. Rozgrzewa układ kojenia, zanim zwrócisz go w swoją stronę.",
+        "placeholder": "Gdy o niej myślę, w ciele…"
+      },
+      "helpful": {
+        "title": "Czy to pomogło?",
+        "description": "1 to wcale, 5 to bardzo. Możesz pominąć.",
+        "minLabel": "Wcale",
+        "maxLabel": "Bardzo"
       }
     },
     "worryPostponement": {
@@ -4007,10 +4124,12 @@
     },
     "maintenancePlan": {
       "keep": {
-        "title": "Które praktyki chcesz utrzymać?",
-        "description": "Wpisz do trzech praktyk, każdą z tym, jak często chcesz ją robić.",
-        "why": "Efekty utrzymują się lepiej, gdy kilka praktyk zostaje w rytmie tygodnia. Konkretna częstotliwość zamienia chęć w plan.",
-        "placeholder": "Oddech kojący co drugi dzień…"
+        "title": "Które praktyki zostają z tobą?",
+        "description": "Wybierz te z tej ścieżki, które chcesz utrzymać, i dodaj swój plan na trudną chwilę.",
+        "why": "Efekty utrzymują się lepiej, gdy kilka praktyk zostaje w rytmie tygodnia. Nawyk potrzebuje więcej niż ośmiu tygodni.",
+        "options": {
+          "response": "Mój plan na trudną chwilę"
+        }
       },
       "signal": {
         "title": "Po czym poznasz, że warto wrócić?",
@@ -4022,6 +4141,337 @@
         "title": "Kto albo co może ci w tym pomóc?",
         "description": "Osoba, przypomnienie, stała pora. (Opcjonalnie.)",
         "placeholder": "Pomoże mi…"
+      },
+      "rhythm": {
+        "title": "Jak często?",
+        "description": "Jeden rytm dla wybranych praktyk. Lepiej rzadziej, a regularnie.",
+        "why": "Liczy się częstotliwość, nie długość. Cztery krótkie kontakty w tygodniu działają lepiej niż jeden długi.",
+        "options": {
+          "daily": "Codziennie",
+          "every2": "Co 2 dni",
+          "every3": "Co 3 dni",
+          "weekly": "Raz w tygodniu"
+        }
+      }
+    },
+    "mySign": {
+      "intro": {
+        "title": "Dokąd prowadzi ta ścieżka",
+        "description": "Zauważać wstyd szybciej, odpowiadać na niego ciepłem zamiast atakiem na siebie, atakiem na innych lub ukryciem, i wracać do kontaktu. Ta ścieżka nie usuwa wstydu. Uczy, co robić, gdy przychodzi."
+      },
+      "mainTarget": {
+        "title": "Co najbardziej chcesz zmienić?",
+        "description": "Z czterech części wybierz tę, której ster najbardziej ci ciąży.",
+        "why": "To twój główny kierunek. Ścieżka pokaże go osobno w postępie, żebyś widział, czy słabnie.",
+        "hintLabel": "Z twojej mapy wstydu",
+        "options": {
+          "withdraw": "Ukrywający",
+          "attackSelf": "Krytyk",
+          "attackOthers": "Oskarżyciel",
+          "avoid": "Unikający"
+        },
+        "optionHints": {
+          "withdraw": "wycofanie, znikanie",
+          "attackSelf": "atak na siebie",
+          "attackOthers": "atak na innych, obwinianie",
+          "avoid": "unikanie, zagłuszanie"
+        }
+      },
+      "sign": {
+        "title": "Po czym poznasz, że działa?",
+        "description": "Jedno zdanie o konkretnej sytuacji. Będzie widoczne na górze ścieżki do końca.",
+        "why": "Cel wypowiedziany twoimi słowami jest łatwiejszy do rozpoznania w życiu niż wynik w skali.",
+        "placeholder": "Gdy zrobię błąd przy ludziach, zostanę w rozmowie zamiast zniknąć."
+      },
+      "safePerson": {
+        "title": {
+          "m": "Komu mógłbyś kiedyś o tym powiedzieć?",
+          "f": "Komu mogłabyś kiedyś o tym powiedzieć?"
+        },
+        "description": "Jedna osoba, przy której bywasz sobą. Nie musisz jej nic mówić teraz. (Opcjonalnie.)",
+        "why": "Wstyd izoluje. Samo nazwanie osoby to pierwszy ruch w stronę kontaktu; wróci jako podpowiedź w siódmym tygodniu.",
+        "placeholder": "Może…"
+      }
+    },
+    "safePlace": {
+      "intro": {
+        "title": "Miejsce, do którego da się wrócić",
+        "description": "Zanim zwrócisz się do siebie z ciepłem, potrzebujesz miejsca, do którego wrócisz, gdy będzie za dużo. Przy każdej praktyce do wewnątrz znajdziesz przycisk „Za dużo na dziś”. Prowadzi tutaj. Więcej w karcie „Gdy ciepło boli”."
+      },
+      "breath": {
+        "title": "Rytm kojący",
+        "description": "Cztery sekundy wdechu, sześć wydechu, przez półtorej minuty. (Opcjonalnie.)",
+        "why": "Dłuższy wydech uspokaja układ zagrożenia. To fundament pod wszystko, co dalej."
+      },
+      "place": {
+        "title": "Opisz miejsce, które cię wita",
+        "description": "Prawdziwe albo wymyślone. Światło, dźwięki, temperatura, kto lub co tam jest. Ważne, że miejsce cieszy się, że jesteś.",
+        "why": "To twoje wyjście awaryjne. Im wyraźniej je sobie wyobrazisz, tym szybciej wróci w trudnej chwili.",
+        "placeholder": "Jest tam…"
+      },
+      "anchor": {
+        "title": "Dwie rzeczy, które przywołują to miejsce w dziesięć sekund",
+        "description": "Kolor, gest, słowo, zapach.",
+        "why": "Kotwica działa szybciej niż cały obraz. W gorącej chwili nie ma czasu na wyobrażanie wszystkiego.",
+        "placeholder": "Na przykład: ciepło na dłoniach…"
+      },
+      "resistance": {
+        "title": "Co mówi twój opór, gdy myślisz o cieple do siebie?",
+        "description": "Zaznacz wszystko, co brzmi znajomo. Nic z tego nie jest błędem.",
+        "why": "Nazwany opór przestaje sterować z ukrycia. Każdy z tych głosów ma odpowiedź w karcie „Gdy ciepło boli”, a to, że się odzywa, jest normalne.",
+        "options": {
+          "weak": "To słabość",
+          "undeserved": "Nie zasługuję",
+          "lazy": "Rozleniwię się, stracę ostrość",
+          "dependent": "Uzależnię się od tego",
+          "unfamiliar": "Nie wiem, jak to się robi",
+          "grief": "Boję się, że zrobi mi się smutno",
+          "none": "Nic takiego"
+        }
+      },
+      "resistanceReply": {
+        "title": {
+          "m": "Co odpowiedziałby temu oporowi ktoś życzliwy?",
+          "f": "Co odpowiedziałby temu oporowi ktoś życzliwy?"
+        },
+        "description": "Jedno, dwa zdania. (Opcjonalnie.)",
+        "placeholder": "Powiedziałby, że…"
+      },
+      "helpful": {
+        "title": "Czy to pomogło?",
+        "description": "1 to wcale, 5 to bardzo. Możesz pominąć.",
+        "minLabel": "Wcale",
+        "maxLabel": "Bardzo"
+      }
+    },
+    "compassionateSelf": {
+      "intro": {
+        "title": "Teraz ty jesteś współczuciem",
+        "description": "Obraz dawał ci współczucie z zewnątrz. Współczujące ja to ty w najlepszej, spokojnej wersji. W IFS nazywa się to energią Ja: spokój, ciekawość, jasność, współczucie, pewność, odwaga, twórczość, kontakt."
+      },
+      "breath": {
+        "title": "Minuta oddechu",
+        "description": "Wydech dłuższy niż wdech. (Opcjonalnie.)",
+        "why": "Współczujące ja łatwiej przywołać z ciała, które się uspokoiło."
+      },
+      "posture": {
+        "title": "Jak stoi i jak mówi twoje współczujące ja?",
+        "description": "Postawa, tempo głosu, wyraz twarzy. Spróbuj przyjąć to ciałem, zanim napiszesz.",
+        "why": "Ciało gra tę rolę szybciej niż myśl. W terapii skoncentrowanej na współczuciu nazywa się to metodą aktorską: najpierw „jak gdyby”, potem naprawdę.",
+        "placeholder": "Stoi prosto, oddycha spokojnie, mówi powoli…"
+      },
+      "qualities": {
+        "title": "Które z ośmiu cech czujesz dziś najłatwiej?",
+        "description": "Zaznacz jedną lub kilka. Reszta przyjdzie.",
+        "why": "Energia Ja nie jest ideałem do osiągnięcia. Wystarczy jedna cecha, żeby część poczuła, że ktoś ją słucha.",
+        "options": {
+          "calm": "Spokój",
+          "curiosity": "Ciekawość",
+          "clarity": "Jasność",
+          "compassion": "Współczucie",
+          "confidence": "Pewność",
+          "courage": "Odwaga",
+          "creativity": "Twórczość",
+          "connectedness": "Kontakt"
+        }
+      },
+      "toPart": {
+        "title": "Co mówi twoje współczujące ja do części, która się wstydzi?",
+        "description": "Jedno, dwa zdania, tak jak powiedziałby to ktoś, kto jest po twojej stronie i się nie boi.",
+        "why": "To zdanie wróci w twojej odpowiedzi na wstyd i w Momentach. Jest twoje, nie pożyczone.",
+        "hintLabel": "Z twojego obrazu współczującego",
+        "placeholder": "Widzę cię. Nie musisz tego teraz naprawiać."
+      },
+      "helpful": {
+        "title": "Czy to pomogło?",
+        "description": "1 to wcale, 5 to bardzo. Możesz pominąć.",
+        "minLabel": "Wcale",
+        "maxLabel": "Bardzo"
+      }
+    },
+    "defenderVoice": {
+      "intro": {
+        "title": "Głos, który staje po twojej stronie",
+        "description": "Współczucie ma dwie strony: łagodną i stanowczą. Dziś ta druga. Nie chodzi o agresję, tylko o kogoś, kto cię broni, gdy krytyk atakuje."
+      },
+      "episode": {
+        "title": "Wybierz moment",
+        "description": "Moment z Momentami, w którym krytyk coś powiedział. Albo opisz nową sytuację.",
+        "empty": "Nie ma jeszcze zapisanych słów krytyka. Opisz sytuację w następnym kroku."
+      },
+      "attack": {
+        "title": "Co powiedział krytyk albo ktoś, i co w tym bolało?",
+        "description": "Dosłownie, bez łagodzenia.",
+        "why": "Zdanie wypowiedziane wprost da się odeprzeć. Zdanie w tle działa bez końca.",
+        "hintLabel": "Z wybranego momentu",
+        "placeholder": "Powiedział, że…"
+      },
+      "friendDefends": {
+        "title": {
+          "m": "Jak broniłby cię przyjaciel, który to usłyszał?",
+          "f": "Jak broniłby cię przyjaciel, który to usłyszał?"
+        },
+        "description": "Co by powiedział krytykowi? Jakim tonem?",
+        "why": "Łatwiej bronić kogoś niż siebie. Pożyczasz ten głos, zanim stanie się twój.",
+        "placeholder": "Powiedziałby: przestań, to…"
+      },
+      "mySentence": {
+        "title": "Jedno zdanie, którym bronisz siebie",
+        "description": "Bez „przepraszam”, bez „ale”. Krótko, tak jak mówi się do kogoś, kto przesadził.",
+        "why": "Znienawidzone ja nie słabnie od samego ciepła. Potrzebuje też kogoś, kto powie „dość”.",
+        "placeholder": {
+          "m": "Zrobiłem błąd i nadal jestem w porządku.",
+          "f": "Zrobiłam błąd i nadal jestem w porządku."
+        }
+      },
+      "posture": {
+        "title": "Czym to zdanie zostanie poparte w ciele?",
+        "description": "Działanie przeciwne do wstydu: zamiast kulić się, otworzyć.",
+        "why": "Wstyd każe spuścić wzrok i ściszyć głos. Odwrócenie tych gestów zmienia też to, co czujesz.",
+        "options": {
+          "headUp": "Głowa w górę",
+          "voice": "Spokojny, pełny głos",
+          "eyes": "Kontakt wzrokowy",
+          "noApology": "Bez przepraszającej postawy"
+        }
+      },
+      "helpful": {
+        "title": "Czy to pomogło?",
+        "description": "1 to wcale, 5 to bardzo. Możesz pominąć.",
+        "minLabel": "Wcale",
+        "maxLabel": "Bardzo"
+      }
+    },
+    "shameWriting": {
+      "episode": {
+        "title": "Wybierz moment z ostatniego tygodnia",
+        "description": "Albo opisz nową sytuację w następnym kroku.",
+        "empty": "W tym tygodniu nie ma jeszcze zapisanych momentów wstydu. Opisz sytuację w następnym kroku."
+      },
+      "facts": {
+        "title": "Co się stało? Same fakty",
+        "description": "Jak nagrałaby to kamera. Bez oceny.",
+        "why": "Pisanie zaczyna się od faktów, żeby reszta nie była kłótnią z krytykiem o to, co się wydarzyło.",
+        "hintLabel": "Z wybranego momentu",
+        "placeholder": "Na spotkaniu…"
+      },
+      "humanity": {
+        "title": "Kto jeszcze zna to uczucie?",
+        "description": "W jaki sposób to doświadczenie łączy cię z innymi ludźmi, zamiast odcinać? Napisz kilka zdań.",
+        "why": "Wstyd mówi „tylko ja”. To pytanie sprawdza to twierdzenie, a sprawdzone zwykle nie wytrzymuje.",
+        "placeholder": "Pewnie wielu ludzi…"
+      },
+      "kindness": {
+        "title": "Napisz do siebie tak, jak napisałby ktoś, kto cię bezwarunkowo akceptuje",
+        "description": "Kilka zdań. Ciepło nie oznacza zaprzeczania faktom.",
+        "why": "Z badań: pisanie do siebie ze współczuciem po wstydzie zmniejsza podatność na wstyd po dwóch tygodniach. Krótka notka tego nie robi, akapit tak.",
+        "hintLabel": "Od twojego współczującego ja",
+        "placeholder": "Widzę, jak bardzo…"
+      },
+      "perspective": {
+        "title": "Spójrz z dystansu: co jest ważne, a co tylko głośne?",
+        "description": "Jak będziesz o tym myśleć za rok? Co z tego naprawdę się liczy?",
+        "why": "Uważność wobec wstydu to zobaczenie go jako przemijającego stanu, nie wyroku.",
+        "placeholder": "Za rok…"
+      },
+      "helpful": {
+        "title": "Czy to pomogło?",
+        "description": "1 to wcale, 5 to bardzo. Możesz pominąć.",
+        "minLabel": "Wcale",
+        "maxLabel": "Bardzo"
+      }
+    },
+    "doseCheck": {
+      "intro": {
+        "title": "Połowa drogi",
+        "description": "Nie oceniamy wyniku, sprawdzamy dawkę. Jeśli coś jest za dużo, zmniejszamy. Jeśli nic nie robisz, zostaje samo to, co najmniejsze."
+      },
+      "load": {
+        "title": "Jak idzie z praktykami?",
+        "description": "Szczerze, bez oceny. Każda odpowiedź prowadzi do innej propozycji.",
+        "why": "W badaniach ludzie wypadają z programów nie dlatego, że za mało robili, tylko dlatego, że program wyglądał na rozczarowany. Tu nic takiego nie ma.",
+        "options": {
+          "tooMuch": "Za dużo",
+          "right": "W sam raz",
+          "tooLittle": "Za mało",
+          "none": "Nie robię ich"
+        }
+      },
+      "helpsMost": {
+        "title": "Co pomaga najbardziej?",
+        "description": "Zaznacz jedną lub dwie. (Opcjonalnie.)",
+        "why": "Odczuwana pomoc przewiduje wynik lepiej niż liczba minut. To, co pomaga, zostaje; reszta może odejść.",
+        "empty": "Brak praktyk ścieżki do wyboru."
+      },
+      "inTheWay": {
+        "title": "Co staje na drodze?",
+        "description": "Czas, miejsce, wstyd przed samym ćwiczeniem. (Opcjonalnie.)",
+        "placeholder": "Najtrudniej jest, gdy…"
+      }
+    },
+    "letterToFutureSelf": {
+      "intro": {
+        "title": "List na gorszy dzień",
+        "description": "Wstyd wróci. Ten list jest na ten dzień. Pisze go twoje współczujące ja do ciebie z przyszłości."
+      },
+      "letter": {
+        "title": "Napisz list",
+        "description": "Co już umiesz. Co pomagało. Co zrobić w pierwszej minucie. Komu powiedzieć. Co najmniej akapit.",
+        "why": "List czytany po tygodniach działa jak głos kogoś, kto cię zna i jest po twojej stronie. Krótka notka tego nie udźwignie.",
+        "hintLabel": "Od twojego współczującego ja",
+        "placeholder": {
+          "m": "Drogi ja, wiem, że dziś…",
+          "f": "Droga ja, wiem, że dziś…"
+        }
+      },
+      "returnIn": {
+        "title": "Kiedy ma do ciebie wrócić?",
+        "description": "Wróci w widoku ścieżki i w Dzisiaj w wybranym tygodniu.",
+        "options": {
+          "w4": "Za 4 tygodnie",
+          "w8": "Za 8 tygodni, przy Powrocie",
+          "w12": "Za 12 tygodni"
+        }
+      }
+    },
+    "pathReturn": {
+      "letter": {
+        "title": "List od ciebie",
+        "description": "Osiem tygodni temu napisałeś list na gorszy dzień. Przeczytaj go powoli.",
+        "hintLabel": "Twój list"
+      },
+      "kept": {
+        "title": "Co zostało ze mną?",
+        "description": "Praktyki, plan na trudną chwilę, własne zdania. (Opcjonalnie.)",
+        "why": "To, co zostało, jest ważniejsze od tego, co odpadło. Nawyk mierzy się po tygodniach, nie po dniach.",
+        "options": {
+          "response": "Mój plan na trudną chwilę",
+          "sentences": "Moje zdania"
+        },
+        "empty": "Brak praktyk ścieżki do wyboru."
+      },
+      "returned": {
+        "title": "Co wróciło?",
+        "description": "Które części znowu częściej przejmują ster?",
+        "why": "Nawroty są normalne. Nazwana część to zaproszenie do krótkiej rozmowy, nie dowód porażki.",
+        "options": {
+          "withdraw": "Ukrywający",
+          "attackSelf": "Krytyk",
+          "attackOthers": "Oskarżyciel",
+          "avoid": "Unikający",
+          "none": "Nic szczególnego"
+        },
+        "optionHints": {
+          "withdraw": "wycofanie, znikanie",
+          "attackSelf": "atak na siebie",
+          "attackOthers": "atak na innych, obwinianie",
+          "avoid": "unikanie, zagłuszanie"
+        }
+      },
+      "next": {
+        "title": "Jeden mały ruch na najbliższy tydzień",
+        "description": "Wznowić praktykę, wrócić do zdania obronnego, powiedzieć komuś. (Opcjonalnie.)",
+        "placeholder": "W tym tygodniu…"
       }
     }
   }

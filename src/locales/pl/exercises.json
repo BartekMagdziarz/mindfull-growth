@@ -495,6 +495,51 @@
       "title": "Nietolerancja niepewności (IUS-12)",
       "subtitle": "12 pytań o reakcje na niewiadome",
       "description": "Mierzy, jak trudno znosisz niepewność. To mechanizm, który często podtrzymuje zamartwianie się."
+    },
+    "mySign": {
+      "title": "Mój znak",
+      "subtitle": "Cel ścieżki twoimi słowami",
+      "description": "Co najbardziej chcesz zmienić i po czym poznasz, że działa. Zdanie zostaje na górze ścieżki do końca."
+    },
+    "safePlace": {
+      "title": "Bezpieczne miejsce",
+      "subtitle": "Wyjście awaryjne i głos oporu",
+      "description": "Miejsce, do którego da się wrócić, gdy ciepło do siebie okaże się za dużo, i nazwanie tego, co mówi twój opór."
+    },
+    "compassionateSelf": {
+      "title": "Współczujące ja",
+      "subtitle": "Energia Ja w ciele i w zdaniu",
+      "description": "Postawa, głos i osiem cech energii Ja. Na końcu zdanie do części, która się wstydzi."
+    },
+    "defenderVoice": {
+      "title": "Głos obronny",
+      "subtitle": "Stanowcza strona współczucia",
+      "description": "Jak broniłby cię przyjaciel, jedno zdanie, którym bronisz siebie, i ciało, które je popiera."
+    },
+    "shameWriting": {
+      "title": "Pisanie po momencie",
+      "subtitle": "Trzy akapity ze współczuciem",
+      "description": "Fakty, wspólne człowieczeństwo, życzliwość do siebie i dystans. Po momencie wstydu, dwa, trzy razy w tygodniu."
+    },
+    "doseCheck": {
+      "title": "Czy dawka pasuje",
+      "subtitle": "Punkt kontrolny w połowie",
+      "description": "Jak idzie z praktykami i co pomaga najbardziej. Bez oceny wyniku."
+    },
+    "letterToFutureSelf": {
+      "title": "List do siebie na później",
+      "subtitle": "Na gorszy dzień",
+      "description": "List od współczującego ja do ciebie z przyszłości, który wróci w wybranym tygodniu."
+    },
+    "pathReturn": {
+      "title": "Powrót",
+      "subtitle": "Osiem tygodni po ścieżce",
+      "description": "Co zostało, co wróciło i jeden mały ruch na najbliższy tydzień."
+    },
+    "fscrs": {
+      "title": "Jak traktuję siebie (FSCRS)",
+      "subtitle": "22 pytania o trzy głosy wobec siebie",
+      "description": "Nieadekwatne ja, znienawidzone ja i uspokojone ja. Trzy średnie, które ścieżka wstydu mierzy na starcie, na końcu i przy Powrocie."
     }
   }
 }

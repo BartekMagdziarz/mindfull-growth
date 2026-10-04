@@ -40,13 +40,21 @@
             <span class="micro-hint__text">{{ hint.text }}</span>
           </blockquote>
 
-          <textarea
-            v-if="currentStep.type === 'textarea'"
-            v-model="textValues[currentStep.key]"
-            rows="4"
-            :placeholder="tg(stepKey(currentStep, 'placeholder'))"
-            class="neo-input neo-focus w-full p-3 text-sm resize-none"
-          />
+          <div v-if="currentStep.type === 'textarea'" class="space-y-1">
+            <textarea
+              v-model="textValues[currentStep.key]"
+              :rows="currentStep.minLength ? 7 : 4"
+              :placeholder="tg(stepKey(currentStep, 'placeholder'))"
+              class="neo-input neo-focus w-full p-3 text-sm resize-none"
+            />
+            <!-- Soft minimum: a counter and a gentle note, never a block. -->
+            <p v-if="currentStep.minLength" class="micro-minlength" data-testid="micro-minlength">
+              <span>{{ (textValues[currentStep.key] ?? '').trim().length }} / {{ currentStep.minLength }}</span>
+              <span v-if="(textValues[currentStep.key] ?? '').trim().length < currentStep.minLength">
+                {{ t('exerciseWizards.micro.shared.minLengthNote') }}
+              </span>
+            </p>
+          </div>
 
           <div v-else-if="currentStep.type === 'textList'" class="space-y-2">
             <input
@@ -87,21 +95,22 @@
             :role="currentStep.multiple ? 'group' : 'radiogroup'"
             :aria-label="tg(stepKey(currentStep, 'title'))"
           >
+            <p v-if="choiceOptions(currentStep).length === 0" class="micro-pick__empty">
+              {{ optionalText(stepKey(currentStep, 'empty')) || t('exerciseWizards.micro.shared.noPractices') }}
+            </p>
             <button
-              v-for="option in currentStep.options"
-              :key="option"
+              v-for="option in choiceOptions(currentStep)"
+              :key="option.id"
               type="button"
               class="mg-v2-pill micro-choice__option"
-              :class="{ 'mg-v2-pill--primary mg-v2-pill--selected': isChosen(currentStep.key, option) }"
+              :class="{ 'mg-v2-pill--primary mg-v2-pill--selected': isChosen(currentStep.key, option.id) }"
               :role="currentStep.multiple ? undefined : 'radio'"
-              :aria-pressed="currentStep.multiple ? isChosen(currentStep.key, option) : undefined"
-              :aria-checked="currentStep.multiple ? undefined : isChosen(currentStep.key, option)"
-              @click="toggleChoice(currentStep, option)"
+              :aria-pressed="currentStep.multiple ? isChosen(currentStep.key, option.id) : undefined"
+              :aria-checked="currentStep.multiple ? undefined : isChosen(currentStep.key, option.id)"
+              @click="toggleChoice(currentStep, option.id)"
             >
-              <span>{{ tg(stepKey(currentStep, `options.${option}`)) }}</span>
-              <small v-if="optionalText(stepKey(currentStep, `optionHints.${option}`))" class="micro-choice__hint">
-                {{ optionalText(stepKey(currentStep, `optionHints.${option}`)) }}
-              </small>
+              <span>{{ option.label }}</span>
+              <small v-if="option.hint" class="micro-choice__hint">{{ option.hint }}</small>
             </button>
           </div>
 
@@ -148,14 +157,29 @@
           />
         </AppCard>
 
-        <div class="flex items-center justify-between">
-          <AppButton v-if="stepIndex > 0" variant="text" @click="stepIndex--">
-            {{ t('common.buttons.back') }}
-          </AppButton>
-          <span v-else />
-          <AppButton variant="filled" :disabled="!canAdvance" @click="advance()">
-            {{ isLastStep ? t('common.buttons.save') : t('common.buttons.next') }}
-          </AppButton>
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <AppButton v-if="stepIndex > 0" variant="text" @click="stepIndex--">
+              {{ t('common.buttons.back') }}
+            </AppButton>
+            <!-- Inner practice: a quiet exit that still counts (backdraft rule). -->
+            <AppButton
+              v-if="definition.innerPractice"
+              variant="text"
+              class="micro-too-much"
+              @click="leaveTooMuch()"
+            >
+              {{ t('exerciseWizards.micro.shared.tooMuchToday') }}
+            </AppButton>
+          </div>
+          <div class="flex items-center gap-2">
+            <AppButton v-if="canFinishNow" variant="tonal" @click="finishEarly()">
+              {{ t('exerciseWizards.micro.shared.saveNow') }}
+            </AppButton>
+            <AppButton variant="filled" :disabled="!canAdvance" @click="advance()">
+              {{ isLastStep ? t('common.buttons.save') : t('common.buttons.next') }}
+            </AppButton>
+          </div>
         </div>
       </div>
     </Transition>
@@ -171,20 +195,28 @@ import ExerciseRangeInput from '@/components/exercises/ExerciseRangeInput.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import MicroBreathTimer from '@/components/exercises/MicroBreathTimer.vue'
 import { useT } from '@/composables/useT'
+import { getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'
+import { getProgramDefinition } from '@/data/programCatalog'
 import { getQuadrantTintStyle, type Quadrant } from '@/domain/emotion'
 import type { EmotionGroupSelection } from '@/domain/emotionGroups'
 import type {
   MicroExerciseDefinition,
   MicroExerciseEntry,
   MicroExerciseStep,
+  MicroPrefill,
   MicroPreset,
   MicroStepValue,
 } from '@/domain/microExercises'
+import { TOO_MUCH_TODAY_KEY } from '@/domain/microExercises'
+import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
+import { useProgramEnrollmentStore } from '@/stores/programEnrollment.store'
 import {
+  canFinishEarly,
   conditionList,
   hasStepsAfter,
+  isMicroStepOptional,
   type MicroChoiceAnswers,
   pickableEntries,
   resolveMicroHint,
@@ -198,16 +230,22 @@ const props = withDefaults(
     definition: MicroExerciseDefinition
     /** Answers fixed by a catalog variant; their steps are saved and skipped. */
     preset?: MicroPreset
+    /** Answers proposed up front; their steps still show, pre-filled and editable. */
+    prefill?: MicroPrefill
   }>(),
-  { preset: () => ({}) },
+  { preset: () => ({}), prefill: () => ({}) },
 )
 
 const emit = defineEmits<{
   saved: [payload: { responses: Record<string, MicroStepValue> }]
+  /** The user left an inner practice with "Za dużo na dziś" (after `saved`). */
+  tooMuch: []
 }>()
 
 const { t, tg } = useT()
 const entryStore = useMicroExerciseEntryStore()
+const enrollmentStore = useProgramEnrollmentStore()
+const partStore = useIFSPartStore()
 
 const stepIndex = ref(0)
 
@@ -249,15 +287,18 @@ const choiceValues = reactive<Record<string, string | string[]>>({})
 const pickValues = reactive<Record<string, string>>({})
 
 for (const step of props.definition.steps) {
+  const given = props.prefill[step.key]
   switch (step.type) {
     case 'textarea':
-      textValues[step.key] = ''
+      textValues[step.key] = typeof given === 'string' ? given : ''
       break
-    case 'textList':
-      listValues[step.key] = Array.from({ length: step.prompts }, () => '')
+    case 'textList': {
+      const list = Array.isArray(given) ? given.filter((v): v is string => typeof v === 'string') : []
+      listValues[step.key] = Array.from({ length: Math.max(step.prompts, list.length) }, (_, i) => list[i] ?? '')
       break
+    }
     case 'slider':
-      sliderValues[step.key] = Math.round((step.min + step.max) / 2)
+      sliderValues[step.key] = typeof given === 'number' ? given : Math.round((step.min + step.max) / 2)
       break
     case 'emotionPick':
       emotionStates[step.key] = { selections: [], quadrant: null }
@@ -266,10 +307,14 @@ for (const step of props.definition.steps) {
       breathStates[step.key] = { elapsed: 0, done: false }
       break
     case 'choice': {
-      const preset = props.preset[step.key]
+      const preset = props.preset[step.key] ?? given
       choiceValues[step.key] =
         typeof preset === 'string' || (Array.isArray(preset) && preset.every((v) => typeof v === 'string'))
-          ? (preset as string | string[])
+          ? step.multiple
+            ? [...(Array.isArray(preset) ? (preset as string[]) : [preset as string])]
+            : Array.isArray(preset)
+              ? ((preset as string[])[0] ?? '')
+              : (preset as string)
           : step.multiple
             ? []
             : ''
@@ -287,8 +332,55 @@ for (const step of props.definition.steps) {
 // the host view, so this is a no-op when already loaded.
 onMounted(() => {
   void entryStore.loadEntries()
+  if (props.definition.steps.some((step) => step.type === 'choice' && step.labelsFromParts)) {
+    void partStore.loadParts()
+  }
+  if (props.definition.steps.some((step) => step.type === 'choice' && step.optionsFrom)) {
+    void enrollmentStore.ensureLoaded()
+  }
 })
 const entries = computed<MicroExerciseEntry[]>(() => entryStore.sortedEntries)
+
+// ── choice options: dynamic lists and part names ─────────────────────
+
+interface ChoiceOption {
+  id: string
+  label: string
+  hint: string
+}
+
+/** Practice slugs of the user's open paths, in path order, de-duplicated. */
+const programPracticeSlugs = computed<string[]>(() => {
+  const slugs: string[] = []
+  for (const enrollment of enrollmentStore.enrollments) {
+    if (enrollment.status !== 'active' && enrollment.status !== 'paused') continue
+    for (const practice of getProgramDefinition(enrollment.programSlug)?.practices ?? []) {
+      if (!slugs.includes(practice.exerciseSlug)) slugs.push(practice.exerciseSlug)
+    }
+  }
+  return slugs
+})
+
+function catalogTitle(slug: string): string {
+  const entry = getCatalogEntry(slug)
+  return entry ? t(`exercises.cards.${entry.i18nKey}.title`) : slug
+}
+
+function choiceOptions(step: MicroExerciseStep): ChoiceOption[] {
+  if (step.type !== 'choice') return []
+  const dynamic: ChoiceOption[] =
+    step.optionsFrom === 'programPractices'
+      ? programPracticeSlugs.value.map((slug) => ({ id: slug, label: catalogTitle(slug), hint: '' }))
+      : []
+  const statics: ChoiceOption[] = step.options.map((option) => {
+    const fallback = tg(stepKey(step, `options.${option}`))
+    const tag = step.labelsFromParts?.[option]
+    const part = tag ? partStore.parts.find((candidate) => candidate.tags?.includes(tag)) : undefined
+    const label = part && part.name.trim() && part.name !== fallback ? `${part.name} (${fallback})` : fallback
+    return { id: option, label, hint: optionalText(stepKey(step, `optionHints.${option}`)) }
+  })
+  return [...dynamic, ...statics.filter((option) => !dynamic.some((d) => d.id === option.id))]
+}
 
 // Only steps whose `showWhen` matches the current choices take part in the
 // flow — dots, validation and saved responses all follow this list. A
@@ -417,7 +509,8 @@ const hint = computed<{ label: string; text: string } | null>(() => {
   const label = optionalText(stepKey(step, 'hintLabel')) || t('exerciseWizards.micro.shared.hintLabel')
   return {
     label,
-    text: text.length > HINT_MAX_CHARS ? `${text.slice(0, HINT_MAX_CHARS - 1).trimEnd()}…` : text,
+    text:
+      !source.full && text.length > HINT_MAX_CHARS ? `${text.slice(0, HINT_MAX_CHARS - 1).trimEnd()}…` : text,
   }
 })
 
@@ -425,7 +518,7 @@ const hint = computed<{ label: string; text: string } | null>(() => {
 
 const canAdvance = computed(() => {
   const step = currentStep.value
-  if (step.optional) return true
+  if (isMicroStepOptional(step, choiceAnswers.value)) return true
   switch (step.type) {
     case 'info':
     case 'slider':
@@ -517,6 +610,35 @@ function advance(): void {
   }
   stepIndex.value += 1
 }
+
+/** "Zapisz teraz": the anchor step is answered and only optional steps are left. */
+const canFinishNow = computed(
+  () =>
+    !isLastStep.value &&
+    canAdvance.value &&
+    canFinishEarly(
+      props.definition.steps,
+      currentStep.value.key,
+      choiceAnswers.value,
+      props.preset,
+      props.definition.earlyFinishAfter,
+    ),
+)
+
+function finishEarly(): void {
+  if (!canFinishNow.value) return
+  emit('saved', { responses: buildResponses() })
+}
+
+/**
+ * "Za dużo na dziś": save whatever is there, marked, and let the host hand
+ * over to the soothing breath. Leaving is part of the practice, not a
+ * failure of it.
+ */
+function leaveTooMuch(): void {
+  emit('saved', { responses: { ...buildResponses(), [TOO_MUCH_TODAY_KEY]: 'yes' } })
+  emit('tooMuch')
+}
 </script>
 
 <style scoped>
@@ -554,6 +676,19 @@ function advance(): void {
 
 .micro-choice__option:not(.mg-v2-pill--selected):hover {
   background: var(--mg-color-paper);
+}
+
+.micro-minlength {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--mg-space-3);
+  margin: 0;
+  font-size: var(--mg-font-size-xs);
+  color: var(--mg-color-muted);
+}
+
+.micro-too-much {
+  color: var(--mg-color-muted);
 }
 
 /* Quote from an earlier entry: quiet, one tone deeper than the card. */

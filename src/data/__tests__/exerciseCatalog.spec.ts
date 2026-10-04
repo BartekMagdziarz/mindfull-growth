@@ -35,11 +35,12 @@ describe('exercise catalog', () => {
   it('matches the ExercisesView category counts', () => {
     expect(catalogEntriesForTab('self-discovery')).toHaveLength(14)
     // 10 wizards + 11 problem-path micro tools (Momenty + shame response
-    // replaced the two logs) + 4 problem-path measures; variants stay hidden.
-    expect(catalogEntriesForTab('cbt')).toHaveLength(25)
+    // replaced the two logs) + 6 shame-path v3 micros (dose check and
+    // Powrót stay hidden) + 5 problem-path measures; variants stay hidden.
+    expect(catalogEntriesForTab('cbt')).toHaveLength(32)
     expect(catalogEntriesForTab('logotherapy')).toHaveLength(8)
     expect(catalogEntriesForTab('ifs')).toHaveLength(10)
-    expect(EXERCISE_CATALOG).toHaveLength(66)
+    expect(EXERCISE_CATALOG).toHaveLength(75)
   })
 
   it('has card copy for every entry in both locales', () => {

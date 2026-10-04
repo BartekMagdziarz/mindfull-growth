@@ -46,7 +46,7 @@ export type MicroStepConditions = MicroStepCondition | MicroStepCondition[]
  * `entryPick` step of this run (`picked`). Never fills the field.
  * Label at `…<stepKey>.hintLabel`.
  */
-export type MicroHintSource =
+export type MicroHintSource = (
   | {
       source: 'latest'
       slug: string
@@ -57,14 +57,26 @@ export type MicroHintSource =
       when?: MicroStepConditions
     }
   | { source: 'picked'; pickStep: string; step: string }
+) & {
+  /** Quote the whole text (a letter read back in "Powrót"), not the usual ~160 chars. */
+  full?: boolean
+}
 
 interface MicroStepBase {
   /** i18n step key under `exerciseWizards.micro.<slug>.<key>.*`. */
   key: string
   /** Optional steps are passable without input (shown with a skip affordance). */
   optional?: boolean
+  /** Optional only while these conditions hold (e.g. `situation` is optional in the shame branch of Momenty). */
+  optionalWhen?: MicroStepConditions
   showWhen?: MicroStepConditions
   hintFrom?: MicroHintSource
+  /**
+   * Soft minimum length for prose steps (letters, writing after a moment):
+   * the runner shows a counter and a gentle note below it, never a block —
+   * the evidence says a real paragraph moves the trait, a one-liner doesn't.
+   */
+  minLength?: number
 }
 
 export type MicroExerciseStep = MicroStepBase &
@@ -80,6 +92,19 @@ export type MicroExerciseStep = MicroStepBase &
         options: string[]
         /** Multiple choice saves `string[]`, single choice saves `string`. */
         multiple?: boolean
+        /**
+         * Options resolved at runtime and listed before the static ones:
+         * the practices of the user's open paths (exercise slugs, labelled
+         * by their catalog title). Used by the maintenance plan, the dose
+         * check and "Powrót".
+         */
+        optionsFrom?: 'programPractices'
+        /**
+         * optionId → IFS part tag: when the user has a part with that tag,
+         * the option reads as the part's own name (the shame path's
+         * Ukrywający · Krytyk · Oskarżyciel · Unikający, renameable).
+         */
+        labelsFromParts?: Record<string, string>
       }
     | {
         type: 'breathTimer'
@@ -111,6 +136,22 @@ export type MicroExerciseStep = MicroStepBase &
  */
 export type MicroPreset = Record<string, MicroStepValue>
 
+/**
+ * Answers proposed before the run starts — unlike a preset the steps ARE
+ * shown, pre-filled and editable (e.g. "Zapisz jako moment" after the
+ * shame response carries the moves over). Travels in the route query.
+ */
+export type MicroPrefill = Record<string, MicroStepValue>
+
+/** How `afterSave.prefillFrom` maps a source response onto a target step. */
+export type MicroPrefillRule =
+  | string
+  | {
+      from: string
+      /** Option-id translation between two choice steps (e.g. move → response). */
+      map?: Record<string, string>
+    }
+
 export interface MicroExerciseDefinition {
   /** Catalog slug (`kind: 'micro'` entries). */
   slug: string
@@ -122,7 +163,27 @@ export interface MicroExerciseDefinition {
    * worry tree). Copy at `exerciseWizards.micro.<i18nKey>.followUp.{title,description,cta}`.
    */
   followUp?: { route: string }
+  /**
+   * From this step on (once it is answered and every step still ahead is
+   * optional) the runner offers "Zapisz teraz" — the quick Momenty entry
+   * ends after five taps, the rest is there for whoever wants it.
+   */
+  earlyFinishAfter?: string
+  /**
+   * A practice that turns compassion inward: the runner offers a quiet
+   * "Za dużo na dziś" exit that saves what is there with `tooMuchToday`
+   * and hands over to the soothing breath (backdraft rule, plan v3 D5).
+   */
+  innerPractice?: boolean
+  /**
+   * Action on the saved screen that opens another micro with answers
+   * carried over as a prefill (copy at `…<i18nKey>.afterSave.{title,description,cta}`).
+   */
+  afterSave?: { route: string; prefillFrom?: Record<string, MicroPrefillRule> }
 }
+
+/** Response key the runner sets when the user leaves an inner practice early. */
+export const TOO_MUCH_TODAY_KEY = 'tooMuchToday'
 
 /** Per-step response value, keyed by the step's `key` in `responses`. */
 export type MicroStepValue =

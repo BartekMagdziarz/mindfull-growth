@@ -1745,6 +1745,70 @@ const expansion: Draft[] = [
     'ćwiczenie praktyka kwestionariusz niepewność ius-12',
     path('M4 4h16v16H4Z M10 9q0-2 2-2t2 2q0 1.5-2 2.5v1.5 M12 16.5h.01'),
   ],
+  // Shame path v3 (2026-10-04).
+  [
+    'exercise-fscrs',
+    'Jak traktuję siebie (FSCRS)',
+    'exercises',
+    'ćwiczenie praktyka kwestionariusz samokrytyka fscrs',
+    path('M4 4h16v16H4Z M8 16v-5 M12 16V8 M16 16v-3'),
+  ],
+  [
+    'exercise-my-sign',
+    'Mój znak',
+    'exercises',
+    'ćwiczenie praktyka cel znak wstyd my-sign',
+    path('M6 21V3 M6 4h11l-3 4 3 4H6'),
+  ],
+  [
+    'exercise-safe-place',
+    'Bezpieczne miejsce',
+    'exercises',
+    'ćwiczenie praktyka bezpieczne miejsce opór safe-place',
+    path('M4 11l8-7 8 7v9H4Z M12 17q-3-2-2-4q1-1 2 0q1-1 2 0q1 2-2 4Z'),
+  ],
+  [
+    'exercise-compassionate-self',
+    'Współczujące ja',
+    'exercises',
+    'ćwiczenie praktyka współczucie energia ja compassionate-self',
+    path('M12 8a3 3 0 1 0 0-6a3 3 0 0 0 0 6Z M5 21v-2a7 7 0 0 1 14 0v2 M3 10l2 1 M21 10l-2 1'),
+  ],
+  [
+    'exercise-defender-voice',
+    'Głos obronny',
+    'exercises',
+    'ćwiczenie praktyka obrona głos stanowczość defender-voice',
+    path('M12 3l7 3v5q0 6-7 10q-7-4-7-10V6Z M9 11h6 M12 8v6'),
+  ],
+  [
+    'exercise-shame-writing',
+    'Pisanie po momencie',
+    'exercises',
+    'ćwiczenie praktyka pisanie wstyd współczucie shame-writing',
+    path('M4 20h16 M4 16h7 M4 12h5 M14 17l6-6l-2-2l-6 6l-1 3Z'),
+  ],
+  [
+    'exercise-dose-check',
+    'Czy dawka pasuje',
+    'exercises',
+    'ćwiczenie praktyka dawka połowa sprawdzenie dose-check',
+    path('M6 4h12l-1 14H7Z M8 11h8 M9 20h6 M10 8l1.5 1.5L14 7'),
+  ],
+  [
+    'exercise-letter-to-future-self',
+    'List do siebie na później',
+    'exercises',
+    'ćwiczenie praktyka list przyszłość letter-to-future-self',
+    path('M3 6h14v9H3Z M3 6l7 5l7-5 M18 13a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7Z M18 15v1.5l1 1'),
+  ],
+  [
+    'exercise-path-return',
+    'Powrót',
+    'exercises',
+    'ćwiczenie praktyka powrót ścieżka path-return',
+    path('M4 12a8 8 0 1 0 3-6.3 M4 4v5h5 M12 9v4l3 2'),
+  ],
 ]
 // Collection 04: digital boundaries, embodiment, movement and inner practice.
 const wellbeing: Draft[] = [

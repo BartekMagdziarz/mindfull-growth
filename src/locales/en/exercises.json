@@ -495,6 +495,51 @@
       "title": "Intolerance of Uncertainty (IUS-12)",
       "subtitle": "12 questions about reacting to the unknown",
       "description": "Measures how hard uncertainty is for you to bear. It's a mechanism that often keeps worry going."
+    },
+    "mySign": {
+      "title": "My sign",
+      "subtitle": "The path's goal in your words",
+      "description": "What you most want to change and how you'll know it's working. The sentence stays at the top of the path until the end."
+    },
+    "safePlace": {
+      "title": "Safe place",
+      "subtitle": "Emergency exit and the voice of resistance",
+      "description": "A place to return to when warmth towards yourself proves too much, and a name for what your resistance says."
+    },
+    "compassionateSelf": {
+      "title": "Compassionate self",
+      "subtitle": "Self-energy in the body and in a sentence",
+      "description": "Posture, voice and the eight qualities of Self-energy. At the end, a sentence to the part that is ashamed."
+    },
+    "defenderVoice": {
+      "title": "Defending voice",
+      "subtitle": "The fierce side of compassion",
+      "description": "How a friend would defend you, one sentence you defend yourself with, and a body that backs it up."
+    },
+    "shameWriting": {
+      "title": "Writing after a moment",
+      "subtitle": "Three paragraphs with compassion",
+      "description": "Facts, common humanity, kindness to yourself and distance. After a moment of shame, two or three times a week."
+    },
+    "doseCheck": {
+      "title": "Does the dose fit",
+      "subtitle": "The halfway checkpoint",
+      "description": "How the practices are going and what helps most. No judging the result."
+    },
+    "letterToFutureSelf": {
+      "title": "Letter to my future self",
+      "subtitle": "For a worse day",
+      "description": "A letter from your compassionate self to the you of the future, returning in a chosen week."
+    },
+    "pathReturn": {
+      "title": "The return",
+      "subtitle": "Eight weeks after the path",
+      "description": "What stayed, what came back, and one small move for the coming week."
+    },
+    "fscrs": {
+      "title": "How I treat myself (FSCRS)",
+      "subtitle": "22 questions about three voices towards yourself",
+      "description": "Inadequate self, hated self and reassured self. Three means the shame path measures at the start, at the end and at the Return."
     }
   }
 }
