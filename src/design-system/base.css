@@ -49,6 +49,37 @@
   transform: scale(0.985);
 }
 
+/* The well: the organic entry disc of "Plan dnia", shared with the calendar's
+   completion marks so a done task reads identically in both places. Size via
+   --mg-well-size; components add their own states on top. */
+.mg-well {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: var(--mg-well-size, 2.1rem);
+  height: var(--mg-well-size, 2.1rem);
+  padding: 0;
+  border: 1px solid var(--mg-color-border);
+  border-radius: var(--mg-radius-organic-a);
+  background: var(--mg-color-canvas);
+  box-shadow: var(--mg-shadow-inset-sm);
+}
+
+.mg-well--done {
+  border-color: transparent;
+  background: var(--mg-color-sky-field);
+}
+
+.mg-well--done::after {
+  width: 62%;
+  aspect-ratio: 1;
+  border-radius: var(--mg-radius-organic-c);
+  background: var(--mg-color-state);
+  content: '';
+  transform: rotate(-2deg);
+}
+
 .mg-v2-surface {
   position: relative;
   border: 1px solid var(--mg-color-border);
