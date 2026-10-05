@@ -14,6 +14,7 @@ export type PlannerPlacementStatus = 'inactive' | 'needs-planning' | 'planned'
 export type PlannerPlacementEditState = 'idle' | 'pick-weeks' | 'pick-days'
 
 export interface PlannerMeasurementRow {
+  isPermanent?: boolean
   id: string
   title: string
   description?: string

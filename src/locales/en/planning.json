@@ -1,5 +1,7 @@
 {
   "periodPicker": {
+    "permanent": "Ongoing",
+    "permanentHint": "This habit remains available in future months and weeks. A period is selected only when you plan the habit in it; skipped periods stay unselected.",
     "missingStart": "Enter a schedule start date.",
     "withGaps": "non-consecutive periods",
     "choose": "Choose periods",

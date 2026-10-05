@@ -94,6 +94,7 @@ export interface ObjectsLibraryChartPoint {
 }
 
 export interface ObjectsLibraryListItem {
+  isPermanent?: boolean
   id: string
   panelType: ObjectsLibraryPanelType
   title: string
@@ -893,6 +894,7 @@ function buildHabitListItem(
 
   return {
     id: habit.id,
+    isPermanent: habit.isPermanent,
     panelType: 'habit',
     title: habit.title,
     description: habit.description,

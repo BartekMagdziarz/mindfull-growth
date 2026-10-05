@@ -79,4 +79,58 @@ describe('PeriodCalendarPicker', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'done' }))
     expect(view.emitted()['update:modelValue']).toEqual([[['2026-12', '2027-01', '2027-02']]])
   })
+  it('stages ongoing mode until Done, without selecting future periods', async () => {
+    const commitSchedule = vi.fn(async () => {})
+    const view = render(PeriodCalendarPicker, {
+      props: { cadence: 'monthly', modelValue: ['2026-12'], allowPermanent: true, commitSchedule },
+    })
+    await fireEvent.click(screen.getByRole('button', { name: /choose/ }))
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'permanent' }))
+    expect(commitSchedule).not.toHaveBeenCalled()
+    expect(screen.getByText('permanentHint')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'selectVisible' })).toBeDisabled()
+    await fireEvent.click(screen.getByRole('button', { name: 'done' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(commitSchedule).toHaveBeenCalledWith(['2026-12'], true)
+    expect(view.emitted()['update:isPermanent']).toEqual([[true]])
+  })
+
+  it('cancels ongoing mode and keeps it staged after a failed save', async () => {
+    const commitSchedule = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue(undefined)
+    const view = render(PeriodCalendarPicker, {
+      props: { cadence: 'weekly', modelValue: [], allowPermanent: true, commitSchedule },
+    })
+    await fireEvent.click(screen.getByRole('button', { name: /choose/ }))
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'permanent' }))
+    await fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+    expect(view.emitted()['update:isPermanent']).toBeUndefined()
+    await fireEvent.click(screen.getByRole('button', { name: /choose/ }))
+    expect(screen.getByRole('checkbox')).not.toBeChecked()
+    await fireEvent.click(screen.getByRole('checkbox'))
+    await fireEvent.click(screen.getByRole('button', { name: 'done' }))
+    await screen.findByRole('alert')
+    expect(screen.getByRole('checkbox')).toBeChecked()
+    expect(view.emitted()['update:isPermanent']).toBeUndefined()
+    await fireEvent.click(screen.getByRole('button', { name: 'done' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(commitSchedule).toHaveBeenLastCalledWith([], true)
+  })
+
+  it('hides ongoing mode for regular period selectors and allows switching it off', async () => {
+    const regular = setup()
+    await fireEvent.click(screen.getByRole('button', { name: /choose/ }))
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+    regular.unmount()
+    const commitSchedule = vi.fn(async () => {})
+    render(PeriodCalendarPicker, {
+      props: { cadence: 'monthly', modelValue: ['2026-12'], allowPermanent: true, isPermanent: true, commitSchedule },
+    })
+    await fireEvent.click(screen.getByRole('button', { name: /permanent/ }))
+    await fireEvent.click(screen.getByRole('checkbox'))
+    expect(screen.getByRole('button', { name: 'selectVisible' })).toBeEnabled()
+    await fireEvent.click(screen.getByRole('button', { name: 'done' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(commitSchedule).toHaveBeenCalledWith(['2026-12'], false)
+  })
+
 })

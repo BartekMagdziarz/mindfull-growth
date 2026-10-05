@@ -205,6 +205,7 @@
             :item="item"
             :panel-type="item.panelType"
             :save-periods="(refs) => saveMeasurementPeriods(item.id, item.panelType as 'habit' | 'tracker', item.cadence ?? 'weekly', expandedMeasurementPeriods.map(period => period.periodRef), refs)"
+            :save-schedule="item.panelType === 'habit' ? (refs, permanent) => saveHabitSchedule(item.id, item.cadence ?? 'weekly', refs, permanent) : undefined"
             :is-expanded="expandedMeasurementId === item.id"
             :is-new="newMeasurementId === item.id"
             :linked-periods="expandedMeasurementId === item.id ? expandedMeasurementPeriods : []"
@@ -1366,6 +1367,34 @@ async function saveKrPeriods(id: string, refs: string[]): Promise<void> {
   await saveMeasurementPeriods(id, 'keyResult', child.cadence, expandedKrPeriods.value.map(period => period.periodRef), refs)
 }
 
+async function saveHabitSchedule(
+  id: string,
+  cadence: 'weekly' | 'monthly',
+  desired: string[],
+  isPermanent: boolean,
+): Promise<void> {
+  const db = getUserDatabase()
+  // Save the mode and manual period changes together; a failed save keeps the dialog open.
+  await db.transaction('rw', db.tables, async () => {
+    await habitDexieRepository.update(id, { isPermanent })
+    if (!isPermanent) {
+      const states = cadence === 'monthly'
+        ? await planningStateDexieRepository.listMeasurementMonthStatesForSubject('habit', id)
+        : await planningStateDexieRepository.listMeasurementWeekStatesForSubject('habit', id)
+      const previous: string[] = states.filter(state => state.activityState === 'active')
+        .map(state => 'monthRef' in state ? state.monthRef : state.weekRef)
+      for (const ref of previous.filter(ref => !desired.includes(ref))) {
+        await unlinkMeasurementPeriod({ subjectType: 'habit', subjectId: id, cadence, periodRef: ref as MonthRef | WeekRef })
+      }
+      for (const ref of desired.filter(ref => !previous.includes(ref))) {
+        await linkMeasurementPeriod({ subjectType: 'habit', subjectId: id, cadence, periodRef: ref as MonthRef | WeekRef })
+      }
+    }
+  })
+  await loadMeasurementPeriods(id, 'habit', cadence)
+  await store.loadBundle()
+}
+
 async function saveMeasurementPeriods(
   id: string,
   subjectType: 'keyResult' | 'habit' | 'tracker',
@@ -1501,13 +1530,13 @@ async function loadMeasurementPeriods(
   try {
     if (cadence === 'monthly') {
       const states = await planningStateDexieRepository.listMeasurementMonthStatesForSubject(panelType, id)
-      expandedMeasurementPeriods.value = states.map((s) => ({
+      expandedMeasurementPeriods.value = states.filter(state => state.activityState === 'active').map((s) => ({
         periodRef: s.monthRef,
         displayLabel: formatMonthShortLocalized(s.monthRef as MonthRef, locale.value),
       }))
     } else {
       const states = await planningStateDexieRepository.listMeasurementWeekStatesForSubject(panelType, id)
-      expandedMeasurementPeriods.value = states.map((s) => ({
+      expandedMeasurementPeriods.value = states.filter(state => state.activityState === 'active').map((s) => ({
         periodRef: s.weekRef,
         displayLabel: formatWeekShort(s.weekRef),
       }))

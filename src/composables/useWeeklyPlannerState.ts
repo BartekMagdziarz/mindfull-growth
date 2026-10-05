@@ -213,6 +213,7 @@ export function useWeeklyPlannerState(
 
     return {
       id: item.id,
+      isPermanent: 'isPermanent' in item && item.isPermanent === true,
       title: item.title,
       description: item.description,
       icon: resolvedIcon,
@@ -237,7 +238,7 @@ export function useWeeklyPlannerState(
 
   function isVisible(row: PlannerMeasurementRow): boolean {
     // Weekly cadence: always show all open items (dormant ones go to the rest bucket)
-    if (row.cadence === 'weekly') return true
+    if (row.cadence === 'weekly' || row.isPermanent) return true
     // Monthly cadence: only if in the month portfolio (placed) or grandfathered whole-month
     if (row.isActive) return true
     if (row.monthScheduleScope === 'whole-month') return true
@@ -245,7 +246,7 @@ export function useWeeklyPlannerState(
   }
 
   function isEngaged(row: PlannerMeasurementRow): boolean {
-    if (row.cadence === 'monthly') return true
+    if (row.cadence === 'monthly' && !row.isPermanent) return true
     return row.isActive
   }
 

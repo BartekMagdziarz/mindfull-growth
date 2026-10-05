@@ -9,7 +9,7 @@
       @click.stop="show"
     >
       <AppIcon name="calendar_month" />
-      <span>{{ label || t('planning.periodPicker.choose') }}</span>
+      <span>{{ isPermanent ? t('planning.periodPicker.permanent') : label || t('planning.periodPicker.choose') }}</span>
       <span v-if="modelValue.length">({{ modelValue.length }})</span>
     </button>
     <Teleport to="body">
@@ -33,6 +33,13 @@
               {{ t('planning.periodPicker.cancel') }}
             </button>
           </header>
+          <label v-if="allowPermanent" class="flex items-center gap-2 text-sm">
+            <input v-model="draftPermanent" type="checkbox" :disabled="saving" />
+            {{ t('planning.periodPicker.permanent') }}
+          </label>
+          <p v-if="allowPermanent && draftPermanent" class="text-xs text-on-surface-variant">
+            {{ t('planning.periodPicker.permanentHint') }}
+          </p>
           <div class="flex items-center justify-between gap-2">
             <button
               type="button"
@@ -59,7 +66,7 @@
               type="button"
               class="period-calendar__cell"
               :aria-pressed="draft.includes(month)"
-              :disabled="saving"
+              :disabled="saving || draftPermanent"
               @click="toggle(month)"
             >
               {{ formatMonthName(month, locale) }}
@@ -76,7 +83,7 @@
               class="period-calendar__cell period-calendar__week"
               :aria-pressed="draft.includes(week)"
               :aria-label="formatWeekRange(week, locale)"
-              :disabled="saving"
+              :disabled="saving || draftPermanent"
               @click="toggle(week)"
             >
               <span class="period-calendar__days" aria-hidden="true"
@@ -105,7 +112,7 @@
             <button
               type="button"
               class="mg-v2-button mg-v2-button--quiet"
-              :disabled="saving"
+              :disabled="saving || draftPermanent"
               @click="selectVisible"
             >
               {{ t('planning.periodPicker.selectVisible') }}
@@ -113,7 +120,7 @@
             <button
               type="button"
               class="mg-v2-button mg-v2-button--quiet"
-              :disabled="saving"
+              :disabled="saving || draftPermanent"
               @click="draft = []"
             >
               {{ t('planning.periodPicker.clear') }}
@@ -126,7 +133,7 @@
               {{ t('planning.periodPicker.today') }}
             </button>
           </div>
-          <details class="text-sm">
+          <details v-if="!draftPermanent" class="text-sm">
             <summary>{{ t('planning.periodPicker.range') }}</summary>
             <div class="flex flex-wrap items-end gap-2 py-2">
               <label class="min-w-0 flex-1"
@@ -161,7 +168,7 @@
                 :key="period"
                 type="button"
                 class="block w-full py-1 text-left"
-                :disabled="saving"
+                :disabled="saving || draftPermanent"
                 @click="toggle(period)"
               >
                 {{ periodLabel(period) }} ×
@@ -203,16 +210,23 @@ const props = defineProps<{
   cadence: 'weekly' | 'monthly'
   label?: string
   commit?: (periods: string[]) => Promise<void>
+  allowPermanent?: boolean
+  isPermanent?: boolean
+  commitSchedule?: (periods: string[], isPermanent: boolean) => Promise<void>
   /** Render only the dialog; the host opens it through `show()`. */
   triggerless?: boolean
 }>()
-const emit = defineEmits<{ 'update:modelValue': [value: string[]] }>()
+const emit = defineEmits<{
+  'update:modelValue': [value: string[]]
+  'update:isPermanent': [value: boolean]
+}>()
 defineExpose({ show })
 const { t, locale } = useT()
 const open = ref(false)
 const saving = ref(false)
 const error = ref('')
 const draft = ref<string[]>([])
+const draftPermanent = ref(false)
 const cursor = ref(getPeriodRefsForDate(new Date()).month)
 const today = getPeriodRefsForDate(new Date()).day
 const trigger = ref<HTMLButtonElement>()
@@ -238,6 +252,7 @@ function periodLabel(value: string) {
 }
 async function show() {
   draft.value = [...props.modelValue]
+  draftPermanent.value = Boolean(props.allowPermanent && props.isPermanent)
   error.value = ''
   rangeStart.value = ''
   rangeEnd.value = ''
@@ -283,7 +298,9 @@ async function apply() {
   error.value = ''
   try {
     const value = [...new Set(draft.value)].sort()
-    await props.commit?.(value)
+    if (props.commitSchedule) await props.commitSchedule(value, draftPermanent.value)
+    else await props.commit?.(value)
+    if (props.allowPermanent) emit('update:isPermanent', draftPermanent.value)
     emit('update:modelValue', value)
     saving.value = false
     cancel()

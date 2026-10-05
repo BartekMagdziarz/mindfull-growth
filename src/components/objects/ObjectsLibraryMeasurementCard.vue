@@ -176,8 +176,14 @@
                   :model-value="linkedPeriods.map(period => period.periodRef)"
                   :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'"
                   :commit="savePeriods"
+                  :allow-permanent="panelType === 'habit'"
+                  :is-permanent="item.isPermanent"
+                  :commit-schedule="saveSchedule"
                 />
 
+                <p v-if="panelType === 'habit' && item.isPermanent" class="text-xs font-semibold text-primary">
+                  {{ t('planning.periodPicker.permanent') }}
+                </p>
                 <PeriodSelectionSummary :periods="linkedPeriods.map(period => period.periodRef)" :cadence="item.cadence === 'monthly' ? 'monthly' : 'weekly'" />
               </div>
             </div>
@@ -255,6 +261,7 @@ const props = defineProps<{
   isNew?: boolean
   linkedPeriods: LinkedPeriod[]
   savePeriods?: (periods: string[]) => Promise<void>
+  saveSchedule?: (periods: string[], isPermanent: boolean) => Promise<void>
   cadenceOptions: Array<{ value: string; label: string }>
   entryModeOptions: Array<{ value: string; label: string }>
   statusOptions: Array<{ value: string; label: string }>

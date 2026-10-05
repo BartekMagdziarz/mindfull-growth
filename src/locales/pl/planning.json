@@ -1,5 +1,7 @@
 {
   "periodPicker": {
+    "permanent": "Na stałe",
+    "permanentHint": "Nawyk jest dostępny w kolejnych miesiącach i tygodniach. Okres zaznaczy się dopiero, gdy zaplanujesz w nim nawyk; pominięte okresy pozostaną niezaznaczone.",
     "missingStart": "Podaj datę rozpoczęcia harmonogramu.",
     "withGaps": "okresy z przerwami",
     "choose": "Wybierz okresy",
