@@ -1,12 +1,11 @@
 <template>
-  <!-- sloty = liczba celu; wypełnione = wykonania -->
-  <span v-if="series.markKind === 'slots'" class="sm-slots" aria-hidden="true">
-    <i v-for="index in slotCount" :key="index" class="sm-slot" :class="{ done: index <= (point.doneCount ?? 0), future: point.state === 'future' }" />
-  </span>
-
-  <!-- 7 slotów dni Pn–Nd -->
-  <span v-else-if="series.markKind === 'day-slots' || series.markKind === 'checklist-slots'" class="sm-days" aria-hidden="true">
-    <i v-for="(slot, index) in point.daySlots ?? []" :key="index" class="sm-day" :class="`sm-day--${slot}`" />
+  <!-- znaczniki wykonania = dyski z „Plan dnia” (wykonane = ten sam kleks); tydzień: jeden duży dysk na dzień -->
+  <span v-if="wells" class="sm-wells" :class="{ 'sm-wells--one': scale === 'week', 'sm-wells--slots': series.markKind === 'slots' && scale !== 'week' }" aria-hidden="true">
+    <template v-for="(well, index) in wells" :key="index">
+      <i v-if="well === 'none'" class="sm-faint" />
+      <i v-else-if="well === 'outside'" class="sm-gap" />
+      <i v-else class="mg-well sm-well" :class="[`sm-well--${well}`, { 'mg-well--done': well === 'done' }]" />
+    </template>
   </span>
 
   <!-- słupek + linia celu; nadwyżka nad limitem bez koloru oceny (punkty i oceny rysuje RhythmSeriesLine na całym wierszu) -->
@@ -20,11 +19,20 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { SeriesPoint, SeriesProjection } from './rhythmProjections'
+import type { DayWell, Scale, SeriesPoint, SeriesProjection } from './rhythmProjections'
 
-const props = defineProps<{ series: SeriesProjection; point: SeriesPoint; scaleMax?: number }>()
+const props = defineProps<{ series: SeriesProjection; point: SeriesPoint; scaleMax?: number; scale?: Scale }>()
 
-const slotCount = computed(() => Math.max(props.point.slotCount ?? 0, 1))
+/**
+ * Dyski wykonania: tydzień (kolumna = dzień) → jeden dysk dnia; miesiąc (kolumna = tydzień) → dyski dni Pn–Nd,
+ * a dla celu „N razy w tygodniu” dyski slotów celu (wykonane, potem brakujące wg stanu tygodnia).
+ */
+const wells = computed<DayWell[] | null>(() => {
+  const p = props.point
+  if (props.scale === 'week') return p.dayWells?.length ? [p.dayWells[0]] : null
+  if (props.series.markKind === 'slots') return p.slotWells ?? null
+  return p.dayWells ?? null
+})
 
 /** Słupki względem wspólnego maksimum grupy (ta sama jednostka miary). */
 function scaleY(value: number): number {
@@ -34,18 +42,18 @@ function scaleY(value: number): number {
 </script>
 
 <style scoped>
-.sm-slots { display: inline-flex; gap: 7px; align-items: center; }
-.sm-slot { box-sizing: border-box; width: 15px; height: 15px; border: 1.5px solid var(--cp-accent-strong); border-radius: 999px; }
-.sm-slot.done { background: var(--cp-mark); border-color: var(--cp-mark); outline: 2.5px solid var(--cp-page); outline-offset: -2.5px; }
-.sm-slot.future { border-style: dashed; }
-
-.sm-days { display: inline-flex; gap: 3px; align-items: center; }
-.sm-day { box-sizing: border-box; width: 9px; height: 9px; border-radius: 999px; }
-.sm-day--met { background: var(--cp-mark); }
-.sm-day--partial { border: 1.5px solid var(--cp-mark); }
-.sm-day--none { background: var(--cp-mark-dim); }
-.sm-day--future { border: 1px dashed var(--mg-color-state-soft); }
-.sm-day--outside { background: transparent; }
+/* miesiąc: małe dyski w rzędzie; tydzień: jeden dysk 34 px */
+.sm-wells { --mg-well-size: 15px; display: inline-flex; gap: 3px; align-items: center; }
+.sm-wells--slots { gap: 6px; }
+.sm-wells--one { --mg-well-size: 34px; }
+.sm-well--partial { background: var(--mg-color-sky-field); }
+.sm-well--missed { border: 1.5px solid color-mix(in srgb, var(--mg-color-primary-strong) 38%, transparent); }
+.sm-well--today { border: 1.5px solid var(--mg-color-primary-strong); }
+.sm-well--future { border: 1.5px dashed color-mix(in srgb, var(--mg-color-primary-strong) 50%, transparent); background: transparent; box-shadow: none; opacity: .8; }
+/* bez planu: mała kropka na środku miejsca dysku; poza okresem: samo miejsce */
+.sm-faint, .sm-gap { display: grid; place-items: center; width: var(--mg-well-size); height: var(--mg-well-size); }
+.sm-faint::after { width: 9px; height: 9px; border-radius: 45% 55% 47% 53%; background: rgb(var(--sky-400) / .38); content: ''; }
+.sm-wells:not(.sm-wells--one) .sm-faint::after { width: 6px; height: 6px; }
 
 .sm-bar { position: relative; display: inline-block; width: 30px; height: 53px; border-bottom: 1px solid var(--cp-muted-line); }
 .sm-bar__value { position: absolute; left: 7px; bottom: 0; width: 16px; border-radius: 4px 4px 0 0; background: var(--cp-accent); min-height: 2px; }

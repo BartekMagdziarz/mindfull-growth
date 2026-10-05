@@ -10,7 +10,8 @@ import { unitsFor, type Grain, type Scale } from './rhythmProjections'
 /**
  * State of the rhythm calendar. The URL is the state: `view` (which single
  * lens the table shows), `fine` (which series are drawn at a finer grain) and
- * `summary` (whether the period summary is expanded) all survive reload and
+ * `summary` (whether the year summary is expanded — week and month have no
+ * "Więcej", their reflection is a table lens) all survive reload and
  * the browser's back button. The period itself stays in the route params, so
  * it keeps working with the rest of the calendar.
  */

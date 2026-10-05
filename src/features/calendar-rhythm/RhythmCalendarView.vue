@@ -13,17 +13,26 @@
           </button>
           <button v-if="!state.isTodayFocused.value" type="button" class="cp-btn cp-btn--quiet" @click="goToday">Dziś</button>
         </div>
-        <div class="cp__scales" role="group" aria-label="Skala kalendarza">
-          <button
-            v-for="option in SCALE_OPTIONS"
-            :key="option.id"
-            type="button"
-            :class="{ on: option.id === scale }"
-            :aria-pressed="option.id === scale"
-            @click="emit('open-scale', option.id)"
-          >
-            {{ option.label }}
-          </button>
+        <div class="cp__tools">
+          <!-- jedno miejsce na rytuały okresu: etykieta zależy od stanu okresu, nie od skali -->
+          <div class="cp__actions">
+            <button v-for="action in actions" :key="action.kind" type="button" class="cp-btn" :title="action.hint" @click="openRitual(action.kind)">
+              <AppIcon :name="action.icon" />{{ action.label }}
+            </button>
+          </div>
+          <span class="cp__sep" aria-hidden="true" />
+          <div class="cp__scales" role="group" aria-label="Skala kalendarza">
+            <button
+              v-for="option in SCALE_OPTIONS"
+              :key="option.id"
+              type="button"
+              :class="{ on: option.id === scale }"
+              :aria-pressed="option.id === scale"
+              @click="emit('open-scale', option.id)"
+            >
+              {{ option.label }}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -49,10 +58,8 @@
           :units="state.units.value"
           :open="state.summaryOpen.value"
           :view="state.view.value"
-          :state="state.periodState.value"
           @toggle="state.toggleSummary"
           @focus="state.setView"
-          @ritual="openRitual"
           @open-week="openUnit"
         />
         <RhythmBoard
@@ -60,6 +67,7 @@
           :units="state.units.value"
           :scale="scale"
           :objects="state.scenario.value.objects"
+          :priorities="state.scenario.value.priorities"
           :fine="state.fineKeys.value"
           :view="state.view.value"
           :options="viewOptions"
@@ -67,6 +75,7 @@
           @toggle-more="state.toggleMore"
           @toggle-fine="state.toggleFine"
           @open-unit="openUnit"
+          @ritual="openRitual"
         />
       </template>
     </div>
@@ -81,8 +90,8 @@ import { DsState } from '@/design-system/components'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { getNextPeriod, getPeriodRefsForDate, getPeriodType, getPreviousPeriod } from '@/utils/periods'
 import RhythmBoard from './RhythmBoard.vue'
-import RhythmPeriodSummary, { type RitualKind } from './RhythmPeriodSummary.vue'
-import { SCALES, periodTitle, type Scale } from './rhythmProjections'
+import RhythmPeriodSummary from './RhythmPeriodSummary.vue'
+import { SCALES, ownReflection, periodTitle, ritualActions, type RitualKind, type Scale } from './rhythmProjections'
 import { buildRows, viewOptions as viewOptionsFor } from './rhythmRows'
 import { useRhythmCalendar } from './useRhythmCalendar'
 import './rhythm.css'
@@ -98,6 +107,9 @@ const SCALE_OPTIONS = SCALES
 const state = useRhythmCalendar(toRef(props, 'scale'), toRef(props, 'periodRef'))
 
 const title = computed(() => periodTitle(props.scale, props.periodRef))
+const actions = computed(() =>
+  ritualActions(props.scale, state.periodState.value, !!ownReflection(state.scenario.value, props.scale, props.periodRef)?.exists),
+)
 const viewOptions = computed(() =>
   viewOptionsFor(state.scenario.value, props.scale, props.periodRef, state.units.value),
 )
@@ -126,7 +138,7 @@ function openUnit(unitRef: string) {
 
 /**
  * One place for the period's rituals. The label follows the state of the
- * period, not the scale (see the summary header).
+ * period, not the scale; it sits in the header, beside the scales.
  */
 function openRitual(kind: RitualKind) {
   emit('open-ritual', kind === 'plan' ? 'plan' : 'reflect')

@@ -91,6 +91,10 @@ export interface RhythmWeeklyReflection {
   load: (number | null)[]
   state: (number | null)[]
   anchors: { good: string; hard: string; lessons: string }
+  /** Free-form entry of the reflection ("Wpis"). */
+  freeform?: string
+  /** Last save (ISO timestamp) — "zapisana w niedzielę, 27 września". */
+  savedAt?: string
 }
 
 export interface RhythmMonthlyReflection {
@@ -100,6 +104,10 @@ export interface RhythmMonthlyReflection {
   compass: (number | null)[]
   anchors: { proud: string; challenges: string; growth: string }
   priorityVerdicts: { priorityKey: string; effort: number | null; verdict: PriorityVerdict | '' }[]
+  /** Free-form entry of the reflection ("Wpis"). */
+  freeform?: string
+  /** Last save (ISO timestamp). */
+  savedAt?: string
 }
 
 export interface RhythmJournalRecord {

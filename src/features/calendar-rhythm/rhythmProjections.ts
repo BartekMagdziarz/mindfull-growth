@@ -45,6 +45,11 @@ export type TimeState = 'past' | 'current' | 'future'
 export type Presence = 'recorded' | 'planned-only' | 'empty'
 export type MarkKind = 'slots' | 'day-slots' | 'checklist-slots' | 'bar-target' | 'point' | 'rating-point'
 export type DaySlot = 'met' | 'partial' | 'none' | 'future' | 'outside'
+/**
+ * Dysk wykonania jak w „Plan dnia”: wykonane · częściowo (checklista) · zaplanowane bez wpisu · dziś, zaplanowane ·
+ * plan na później · bez planu (mała kropka) · poza okresem (puste miejsce).
+ */
+export type DayWell = 'done' | 'partial' | 'missed' | 'today' | 'future' | 'none' | 'outside'
 export type EntryState = 'done' | 'skipped' | 'unrecorded' | 'planned' | 'cancelled'
 
 export const SCALES: { id: Scale; label: string }[] = [
@@ -284,6 +289,10 @@ export interface SeriesPoint {
   doneCount?: number
   /** Sloty dni Pn–Nd (kind day-slots / checklist-slots). */
   daySlots?: DaySlot[]
+  /** Dyski dni jednostki (znaczniki wykonania): stan dnia z planem dnia i zegarem. */
+  dayWells?: DayWell[]
+  /** Dyski slotów celu (kind slots): wykonane, potem brakujące wg stanu jednostki. */
+  slotWells?: DayWell[]
   planned: boolean
   sourceIds: string[]
   entryDays: number
@@ -429,6 +438,20 @@ function daySlotsFor(object: RhythmObject, unit: TimeUnit, entries: RhythmEntry[
   })
 }
 
+function dayWellsFor(object: RhythmObject, unit: TimeUnit, entries: RhythmEntry[], assignments: RhythmAssignment[], clock: DayRef): DayWell[] {
+  return daysBetween(unit.fullBounds.start, unit.fullBounds.end).map(dayRef => {
+    if (!inBounds(dayRef, unit.visibleBounds)) return 'outside'
+    const dayEntries = entries.filter(e => e.dayRef === dayRef && !e.skipped)
+    if (dayEntries.length) {
+      if (object.entryMode !== 'multi-completion') return 'done'
+      return dayEntries.some(e => multiDayMet(object, e)) ? 'done' : 'partial'
+    }
+    const planned = assignments.some(a => !a.cancelled && a.scope.kind === 'day' && a.scope.ref === dayRef)
+    if (!planned) return 'none'
+    return dayRef > clock ? 'future' : dayRef === clock ? 'today' : 'missed'
+  })
+}
+
 function targetValueFor(object: RhythmObject, s: RhythmScenario, unit: TimeUnit, scale: Scale): number | null {
   // intencja tygodnia żyje tylko w swoim tygodniu
   if (object.weekRef && unit.kind === 'week' && unit.ref !== object.weekRef) return null
@@ -480,9 +503,16 @@ export function seriesFor(s: RhythmScenario, object: RhythmObject, units: TimeUn
       const done = value ?? 0
       point.doneCount = done
       point.slotCount = Math.max(target ?? 0, done, assignments.filter(a => a.scope.kind === 'day').length)
+      const missing: DayWell = unit.state === 'future' ? 'future' : unit.state === 'current' ? 'today' : 'missed'
+      point.slotWells = point.slotCount
+        ? Array.from({ length: point.slotCount }, (_, i) => (i < done ? 'done' : missing))
+        : ['none']
     }
     if (markKind === 'day-slots' || markKind === 'checklist-slots') {
       point.daySlots = daySlotsFor(object, unit, entries, s.clock)
+    }
+    if (markKind === 'slots' || markKind === 'day-slots' || markKind === 'checklist-slots') {
+      point.dayWells = dayWellsFor(object, unit, entries, allAssignments, s.clock)
     }
     if (supportsFineGrain(markKind)) {
       point.samples = subUnitsOf(unit, s.clock).map(slice => ({
@@ -654,6 +684,35 @@ export function ownReflection(s: RhythmScenario, scale: Scale, ref: string): Ref
     return { unitRef: ref, exists: !!r, status: r?.status ?? 'none', weekly: r }
   }
   return null
+}
+
+const WEEKDAYS_ON = ['w niedzielę', 'w poniedziałek', 'we wtorek', 'w środę', 'w czwartek', 'w piątek', 'w sobotę']
+
+/** „zapisana w niedzielę, 27 września” — dzień tygodnia w bierniku, rok tylko gdy inny niż rok okresu. */
+export function savedOnLabel(iso: string, periodRef: string): string | null {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return null
+  const sameYear = String(date.getFullYear()) === periodRef.slice(0, 4)
+  return `zapisana ${WEEKDAYS_ON[date.getDay()]}, ${date.getDate()} ${MONTHS_GEN[date.getMonth()]}${sameYear ? '' : ` ${date.getFullYear()}`}`
+}
+
+/* ------------------------------------------------------------------ rytuały okresu */
+
+export type RitualKind = 'plan' | 'reflection'
+export interface RitualAction { kind: RitualKind; label: string; icon: string; hint: string }
+
+/**
+ * Akcje okresu w nagłówku kalendarza: przeszły → tylko refleksja (napisz / edytuj); bieżący → plan i refleksja;
+ * przyszły → tylko plan. Rok ma wyłącznie plan roku.
+ */
+export function ritualActions(scale: Scale, state: TimeState, reflectionExists: boolean): RitualAction[] {
+  const periodWord = scale === 'week' ? 'tydzień' : scale === 'month' ? 'miesiąc' : 'rok'
+  const plan = (label: string): RitualAction => ({ kind: 'plan', label, icon: `mg-${scale === 'year' ? 'yearly' : scale === 'month' ? 'monthly' : 'weekly'}-planning`, hint: `Otwórz planowanie na ${periodWord} od kroku przypisań` })
+  const reflect = (label: string): RitualAction => ({ kind: 'reflection', label, icon: scale === 'month' ? 'mg-monthly-reflection' : 'mg-weekly-reflection', hint: `Otwórz rytuał refleksji: ${periodWord}` })
+  if (scale === 'year') return [plan('Plan roku')]
+  if (state === 'future') return [plan(scale === 'week' ? 'Zaplanuj tydzień' : 'Zaplanuj miesiąc')]
+  if (state === 'current') return [plan('Plan'), reflect('Refleksja')]
+  return [reflect(reflectionExists ? 'Edytuj refleksję' : 'Napisz refleksję')]
 }
 
 /* ------------------------------------------------------------------ wpisy */

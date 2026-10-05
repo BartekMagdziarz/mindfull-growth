@@ -89,6 +89,20 @@
 .cp__arrow:hover {
   background: var(--cp-field);
 }
+.cp__tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cp__actions {
+  display: flex;
+  gap: 6px;
+}
+.cp__sep {
+  width: 1px;
+  height: 24px;
+  background: rgb(var(--neo-border) / 0.6);
+}
 .cp__scales {
   display: inline-flex;
   gap: 4px;
@@ -179,25 +193,6 @@
   background: transparent;
   box-shadow: none;
 }
-.cp .sm-slot {
-  border-color: var(--mg-color-state-soft);
-  border-radius: 47% 53% 46% 54%;
-  background: var(--cp-inner);
-  box-shadow: none;
-}
-.cp .sm-slot.done {
-  border-color: var(--mg-color-ink);
-  background: var(--mg-color-ink);
-}
-.cp .sm-day {
-  border-radius: 45% 55% 47% 53%;
-}
-.cp .sm-day--met {
-  background: var(--mg-color-ink);
-}
-.cp .sm-day--none {
-  background: var(--cp-mark-dim);
-}
 .cp .sm-bar {
   border-bottom-color: var(--cp-line-strong);
 }
@@ -222,10 +217,6 @@
 }
 .cp .rb-board--year .rb-name--series {
   padding-left: 22px;
-}
-.cp .rb-board--week .sm-day {
-  width: 17px;
-  height: 17px;
 }
 
 @media (prefers-reduced-motion: reduce) {

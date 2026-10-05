@@ -120,7 +120,7 @@ test.describe('verification environment', () => {
     test.setTimeout(120_000)
     await bootSeededApp(page)
 
-    await page.goto(`/calendar/month/${prevMonth}?view=reflection`)
+    await page.goto(`/calendar/month/${prevMonth}?view=ratings`)
     const board = page.locator('.rb-board')
     await expect(board).toBeVisible()
     await expect(board.locator('.rb-series--ribbon')).toHaveCount(4)

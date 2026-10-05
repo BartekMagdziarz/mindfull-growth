@@ -304,6 +304,8 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
         hard: reflection.promptResponses.challenges ?? '',
         lessons: reflection.promptResponses.lessons ?? '',
       },
+      freeform: reflection.freeformReflection ?? '',
+      savedAt: reflection.updatedAt ?? reflection.createdAt,
     })),
     monthlyReflections: monthlyReflections.map(reflection => ({
       monthRef: reflection.monthRef,
@@ -321,6 +323,8 @@ export async function buildRhythmScenario(scale: Scale, periodRef: string, clock
         growth: reflection.promptResponses.growth ?? '',
       },
       priorityVerdicts: verdictsByMonth.get(reflection.monthRef) ?? [],
+      freeform: reflection.freeformReflection ?? '',
+      savedAt: reflection.updatedAt ?? reflection.createdAt,
     })),
     journal: journalEntries.filter(entry => inRange(entry.createdAt)).map(entry => ({
       id: entry.id,

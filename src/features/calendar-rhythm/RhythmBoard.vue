@@ -1,6 +1,6 @@
 <template>
   <div class="rb-board" :class="`rb-board--${scale}`" :style="{ '--cols': units.length, '--sigma': hasSigma ? '84px' : '0px' }">
-    <!-- oś: lista spojrzeń w rogu, jednostki jako kapsuła; klik w jednostkę = zoom w podokres -->
+    <!-- oś: lista spojrzeń w rogu, jednostki jako kapsuła; klik w jednostkę = zoom w podokres (refleksja tygodnia: sama lista) -->
     <div class="rb-row rb-axis" role="row">
       <label class="rb-view" :title="`Co pokazuje tabela: ${currentOption?.label ?? ''}`">
         <AppIcon :name="currentOption?.icon ?? 'view_list'" class="rb-view__icon" />
@@ -11,18 +11,20 @@
         </select>
         <AppIcon name="expand_more" class="rb-view__chev" />
       </label>
-      <span class="rb-axis__track" aria-hidden="true" />
-      <button
-        v-for="unit in units"
-        :key="unit.ref"
-        type="button"
-        class="rb-axis__unit"
-        :class="{ current: unit.state === 'current', future: unit.state === 'future', partial: unit.partial }"
-        :title="openTitle(unit)"
-        :aria-label="`${axisLabel(unit)} · ${openTitle(unit)}`"
-        @click="emit('open-unit', unit.ref)"
-      ><span>{{ unit.label }}</span><strong v-if="unit.sublabel">{{ unit.sublabel }}</strong></button>
-      <span v-if="hasSigma" class="rb-sigma rb-sigma--head">Σ {{ scale === 'month' ? 'miesiąc' : 'tydzień' }}</span>
+      <template v-if="!reflectionOwn">
+        <span class="rb-axis__track" aria-hidden="true" />
+        <button
+          v-for="unit in units"
+          :key="unit.ref"
+          type="button"
+          class="rb-axis__unit"
+          :class="{ current: unit.state === 'current', future: unit.state === 'future', partial: unit.partial }"
+          :title="openTitle(unit)"
+          :aria-label="`${axisLabel(unit)} · ${openTitle(unit)}`"
+          @click="emit('open-unit', unit.ref)"
+        ><span>{{ unit.label }}</span><strong v-if="unit.sublabel">{{ unit.sublabel }}</strong></button>
+        <span v-if="hasSigma" class="rb-sigma rb-sigma--head">Σ {{ scale === 'month' ? 'miesiąc' : 'tydzień' }}</span>
+      </template>
     </div>
 
     <!-- jedna karta z wierszami aktualnego spojrzenia -->
@@ -41,7 +43,7 @@
         <div v-else-if="row.kind === 'series'" class="rb-row rb-series" :class="[`rb-series--${row.series.markKind}`, { observation: row.series.evidenceRole === 'observation', 'rb-series--plot': usesLine(row.series) }]" role="row">
           <span class="rb-name rb-name--series" :title="row.series.label">
             <AppIcon v-if="seriesIcon(row.series.objectKey)" :name="seriesIcon(row.series.objectKey)!" class="rb-name__icon rb-name__icon--small" />
-            <span class="rb-name__text">{{ row.series.label }}<small v-if="row.series.sublabel || row.series.unit"> · {{ row.series.sublabel ?? row.series.unit }}</small></span>
+            <span class="rb-name__text"><span class="rb-name__title">{{ row.series.label }}</span><small v-if="row.series.sublabel || row.series.unit">{{ row.series.sublabel ?? row.series.unit }}</small></span>
           </span>
           <div class="rb-series__cells" :style="{ '--cols': units.length }">
             <button v-for="point in row.series.points" :key="point.unitRef" type="button" class="rb-cell rb-cell--series" :class="{ future: point.state === 'future' }" :title="usesLine(row.series) ? undefined : `${row.series.label}, ${unitLabel(point.unitRef)}: ${point.readout}`" :aria-label="`${row.series.label}, ${unitLabel(point.unitRef)}: ${point.readout} · ${openTitle(unitOf(point.unitRef))}`" @click="emit('open-unit', point.unitRef)">
@@ -49,7 +51,7 @@
                 <span v-if="point.value === null && point.planned && point.state !== 'future'" class="rb-plot-missing" aria-hidden="true">○</span>
                 <span class="rb-readout">{{ readoutOf(row.series, point) }}</span>
               </template>
-              <RhythmSeriesMark v-else :series="row.series" :point="point" :scale-max="row.scaleMax" />
+              <RhythmSeriesMark v-else :series="row.series" :point="point" :scale-max="row.scaleMax" :scale="scale" />
             </button>
             <template v-if="usesLine(row.series)">
               <RhythmSeriesLine :series="row.series" :grain="grainOf(row.series)" :unit-labels="units.map(u => unitLabel(u.ref))" @select="ref => emit('open-unit', ref)" />
@@ -68,12 +70,49 @@
         </div>
 
         <div v-else-if="row.kind === 'observations-label'" class="rb-row rb-sublabel" role="row"><span class="rb-name rb-name--sub">Obserwacje</span></div>
+        <div v-else-if="row.kind === 'sublabel'" class="rb-row rb-sublabel rb-sublabel--head" role="row"><span class="rb-name rb-name--sub">{{ row.text }}</span></div>
+
+        <!-- refleksja okresu: treść zamiast wierszy (oceny zostają w podsumowaniu nad tabelą) -->
+        <div v-else-if="row.kind === 'reflection-own'" class="rb-refl">
+          <template v-if="row.reflection.exists">
+            <header class="rb-refl__head">
+              <span class="rb-refl__title">{{ scale === 'month' ? 'Refleksja miesiąca' : 'Refleksja tygodnia' }}<small v-if="savedLabel">{{ savedLabel }}</small></span>
+              <button type="button" class="cp-btn cp-btn--quiet" @click="emit('ritual', 'reflection')"><AppIcon name="edit" />Edytuj</button>
+            </header>
+            <div v-if="anchors.length" class="rb-refl__anchors">
+              <section v-for="anchor in anchors" :key="anchor.id" class="rb-refl__anchor" :class="`rb-refl__anchor--${anchor.id}`">
+                <span class="rb-refl__eyebrow"><AppIcon :name="anchor.icon" />{{ anchor.label }}</span>
+                <p v-for="(line, i) in anchor.lines" :key="i">{{ line }}</p>
+              </section>
+            </div>
+            <!-- miesiąc: werdykty kierunków z rytuału -->
+            <section v-if="verdicts.length" class="rb-refl__verdicts">
+              <span class="rb-refl__eyebrow"><AppIcon name="star" />Kierunki</span>
+              <ul>
+                <li v-for="verdict in verdicts" :key="verdict.key">
+                  <span>{{ verdict.title }}</span>
+                  <small>wysiłek {{ verdict.effort ?? '–' }} / 5</small>
+                  <em>{{ verdict.label }}</em>
+                </li>
+              </ul>
+            </section>
+            <section v-if="freeform" class="rb-refl__entry">
+              <span class="rb-refl__eyebrow">Wpis</span>
+              <p>{{ freeform }}</p>
+            </section>
+            <p v-if="!anchors.length && !freeform && !verdicts.length" class="rb-refl__none">Refleksja ma tylko oceny — są w podsumowaniu nad tabelą.</p>
+          </template>
+          <div v-else class="rb-refl__empty">
+            <p class="rb-refl__none">{{ row.future ? 'Refleksja pojawi się po zakończeniu okresu.' : 'Refleksja nie została jeszcze zapisana.' }}</p>
+            <button v-if="!row.future" type="button" class="cp-btn" @click="emit('ritual', 'reflection')"><AppIcon :name="scale === 'month' ? 'mg-monthly-reflection' : 'mg-weekly-reflection'" />Napisz refleksję</button>
+          </div>
+        </div>
 
         <!-- obszar: obciążenie i stan jako wstęga; komórki pod nią zostają strefami zoomu -->
         <div v-else-if="row.kind === 'reflection-area'" class="rb-row rb-series rb-series--plot rb-series--ribbon" role="row">
-          <span class="rb-name rb-name--series" :title="`${row.label} · obciążenie i stan`">
+          <span class="rb-name rb-name--series" :title="row.label">
             <AppIcon :name="row.icon" class="rb-name__icon rb-name__icon--small" />
-            <span class="rb-name__text">{{ row.label }}<small> · obciążenie i stan</small></span>
+            <span class="rb-name__text">{{ row.label }}</span>
           </span>
           <div class="rb-series__cells" :style="{ '--cols': units.length }">
             <button v-for="unit in units" :key="unit.ref" type="button" class="rb-cell rb-cell--series" :class="{ future: unit.state === 'future' }" :title="openTitle(unit)" :aria-label="`${row.label}, ${unitLabel(unit.ref)} · ${openTitle(unit)}`" @click="emit('open-unit', unit.ref)" />
@@ -128,11 +167,11 @@ import RhythmEvidenceMark from './RhythmEvidenceMark.vue'
 import RhythmSeriesLine from './RhythmSeriesLine.vue'
 import RhythmRatingsMini from './RhythmRatingsMini.vue'
 import RhythmSeriesMark from './RhythmSeriesMark.vue'
-import { isLineKind, rangeLabel, periodTitle, seriesAxis, supportsFineGrain, type Grain, type Scale, type SeriesPoint, type SeriesProjection, type TimeUnit } from './rhythmProjections'
+import { isLineKind, rangeLabel, periodTitle, savedOnLabel, seriesAxis, supportsFineGrain, type Grain, type RitualKind, type Scale, type SeriesPoint, type SeriesProjection, type TimeUnit } from './rhythmProjections'
 import type { BoardRow, ViewOption } from './rhythmRows'
-import type { RhythmObject } from './rhythmScenario'
+import type { RhythmObject, RhythmPriority } from './rhythmScenario'
 
-const props = defineProps<{ rows: BoardRow[]; units: TimeUnit[]; scale: Scale; objects: RhythmObject[]; /** Serie w drobnej granulacji (klucze obiektów). */ fine: string[]; view: string; options: ViewOption[] }>()
+const props = defineProps<{ rows: BoardRow[]; units: TimeUnit[]; scale: Scale; objects: RhythmObject[]; /** Nazwy kierunków dla werdyktów refleksji miesiąca. */ priorities?: RhythmPriority[]; /** Serie w drobnej granulacji (klucze obiektów). */ fine: string[]; view: string; options: ViewOption[] }>()
 const emit = defineEmits<{
   'set-view': [id: string]
   'toggle-more': [id: string]
@@ -140,6 +179,8 @@ const emit = defineEmits<{
   'toggle-fine': [objectKey: string]
   /** Zoom w podokres: tydzień/miesiąc staje się fokusem swojej skali, dzień otwiera Dzisiaj. */
   'open-unit': [unitRef: string]
+  /** Rytuał okresu z treści refleksji tygodnia (napisz / edytuj). */
+  ritual: [kind: RitualKind]
 }>()
 
 const currentOption = computed(() => props.options.find(o => o.id === props.view))
@@ -152,6 +193,50 @@ const optionGroups = computed(() => {
   }
   return groups
 })
+
+/** Spojrzenie „Refleksja” (tydzień / miesiąc): jeden blok treści, bez osi jednostek. */
+const reflectionOwn = computed(() => {
+  const row = props.rows.find(r => r.kind === 'reflection-own')
+  return row?.kind === 'reflection-own' ? row : null
+})
+const savedLabel = computed(() => {
+  const r = reflectionOwn.value?.reflection
+  const saved = r?.weekly?.savedAt ?? r?.monthly?.savedAt
+  return r && saved ? savedOnLabel(saved, r.unitRef) : null
+})
+const freeform = computed(() => {
+  const r = reflectionOwn.value?.reflection
+  return (r?.weekly?.freeform ?? r?.monthly?.freeform ?? '').trim()
+})
+/**
+ * Kotwice jak w rytuale refleksji: tydzień = dobrze / trudne / lekcje, miesiąc = duma / wyzwania / rozwój.
+ * Każda linia odpowiedzi osobno, puste kotwice znikają; „trudna” kotwica ma różową kreskę.
+ */
+const anchors = computed(() => {
+  const r = reflectionOwn.value?.reflection
+  const lines = (text: string) => text.split('\n').map(line => line.trim()).filter(Boolean)
+  const list = r?.weekly
+    ? [
+        { id: 'good', label: 'Co poszło dobrze', icon: 'thumb_up', lines: lines(r.weekly.anchors.good) },
+        { id: 'hard', label: 'Co było trudne', icon: 'cloud', lines: lines(r.weekly.anchors.hard) },
+        { id: 'lessons', label: 'Czego się uczę', icon: 'lightbulb', lines: lines(r.weekly.anchors.lessons) },
+      ]
+    : r?.monthly
+      ? [
+          { id: 'good', label: 'Z czego jestem dumny', icon: 'thumb_up', lines: lines(r.monthly.anchors.proud) },
+          { id: 'hard', label: 'Największe wyzwania', icon: 'cloud', lines: lines(r.monthly.anchors.challenges) },
+          { id: 'lessons', label: 'Jak się rozwinąłem', icon: 'lightbulb', lines: lines(r.monthly.anchors.growth) },
+        ]
+      : []
+  return list.filter(anchor => anchor.lines.length)
+})
+const VERDICT: Record<string, string> = { continue: 'kontynuuj', adjust: 'dostosuj', pause: 'wstrzymaj', drop: 'porzuć', '': 'bez decyzji' }
+const verdicts = computed(() => (reflectionOwn.value?.reflection.monthly?.priorityVerdicts ?? []).map(v => ({
+  key: v.priorityKey,
+  title: props.priorities?.find(p => p.key === v.priorityKey)?.title ?? v.priorityKey,
+  effort: v.effort,
+  label: VERDICT[v.verdict] ?? v.verdict,
+})))
 
 const hasSigma = computed(() => props.rows.some(r => r.kind === 'series' && (r.series.periodTotal || r.series.periodPlan)))
 
@@ -249,10 +334,14 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 /* kartka z wierszami */
 .rb-cloud { padding: 8px 0 8px; border: 1px solid var(--cp-line); border-radius: 25px 30px 24px 28px; background: var(--cp-card); box-shadow: var(--mg-shadow-rhythm-card); }
 .rb-name { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 8px; border: 0; border-radius: 13px 17px 12px 16px; background: transparent; color: var(--mg-color-ink); font: inherit; text-align: left; }
-.rb-name--series { padding-left: 14px; font-size: 13.5px; font-weight: 700; color: var(--mg-color-muted); }
-.rb-name--series small { color: var(--mg-color-muted); font-weight: 600; }
+.rb-name--series { padding-left: 14px; font-size: 13.5px; font-weight: 700; color: var(--mg-color-ink); }
+.rb-name--series small { color: var(--mg-color-muted); font-size: 11px; font-weight: 600; }
 .rb-name--sub { padding: 6px 8px 0 14px; color: var(--mg-color-muted); font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
-.rb-name__text { overflow: hidden; text-overflow: ellipsis; }
+.rb-sublabel--head { min-height: 26px; }
+.rb-sublabel--head .rb-name--sub { color: var(--cp-mark); }
+.rb-sublabel--head:not(:first-child) { margin-top: 6px; }
+/* nazwa zawija się zamiast ucinać; podtytuł (typ, cel, jednostka) pod nią */
+.rb-name__text { display: grid; min-width: 0; line-height: 1.25; overflow-wrap: anywhere; }
 .rb-name__icon { display: inline-grid; place-items: center; flex: none; width: 31px; height: 30px; border-radius: 52% 48% 54% 46% / 47% 53% 46% 54%; color: var(--cp-mark); background: var(--cp-inner); font-size: 19px; }
 .rb-name__icon--small { width: 25px; height: 24px; font-size: 15px; }
 
@@ -272,6 +361,9 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-series.observation .rb-name--series { color: var(--mg-color-muted); }
 .rb-series__cells { position: relative; grid-column: 2 / span var(--cols); display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: 2px; }
 .rb-cell--series { min-height: 65px; }
+/* tydzień: dyski dni jak w „Plan dnia”; przyszłe dni przygasza sam dysk, nie komórka */
+.rb-board--week .rb-series:not(.rb-series--plot) .rb-cell--series { min-height: 60px; }
+.rb-board--week .rb-series:not(.rb-series--plot) .rb-cell--series.future { opacity: 1; }
 .rb-series--plot .rb-series__cells { column-gap: 0; margin: 6px 0; }
 .rb-series--plot .rb-cell--series { position: relative; min-height: 104px; border-radius: 10px; }
 .rb-series--plot .rb-cell--series:hover { background: var(--cp-field); }
@@ -299,4 +391,27 @@ function sigmaTitle(series: SeriesProjection): string | undefined {
 .rb-more .cp-btn { grid-column: 1 / 2; justify-self: start; margin-left: 6px; }
 .rb-note { min-height: 44px; color: var(--mg-color-muted); font-size: 13.5px; }
 .rb-note span { grid-column: 1 / -1; padding-left: 14px; }
+
+/* refleksja okresu w karcie tabeli */
+.rb-refl { display: grid; gap: 14px; padding: 8px 20px 12px; }
+.rb-refl__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rb-refl__title { display: inline-flex; align-items: baseline; gap: 8px; color: var(--mg-color-ink); font-size: 15px; font-weight: 800; }
+.rb-refl__title small { color: var(--mg-color-muted); font-size: 12.5px; font-weight: 700; }
+.rb-refl__anchors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.rb-refl__anchor { display: grid; align-content: start; gap: 8px; padding: 12px 16px 14px; border-radius: var(--mg-radius-md); background: var(--cp-field); }
+.rb-refl__anchor:nth-child(2) { border-radius: 14px 18px 15px 17px; }
+.rb-refl__eyebrow { display: inline-flex; align-items: center; gap: 7px; color: var(--cp-mark); font-size: 11px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.rb-refl__eyebrow .material-symbols-outlined { font-size: 16px; }
+.rb-refl__anchor p { margin: 0; padding-left: 12px; border-left: 2px solid var(--mg-color-state-soft); color: var(--mg-color-ink); font-size: 13.5px; line-height: 1.5; }
+.rb-refl__anchor--hard p { border-left-color: rgb(var(--rose-400) / .6); }
+.rb-refl__entry { display: grid; gap: 8px; padding: 14px 18px 16px; border: 1px solid var(--cp-line); border-radius: var(--mg-radius-md); background: var(--cp-inner); }
+.rb-refl__entry p { margin: 0; max-width: 78ch; color: var(--mg-color-ink); font-size: 14.5px; line-height: 1.7; white-space: pre-line; }
+.rb-refl__verdicts { display: grid; gap: 6px; padding: 12px 16px 12px; border-radius: 14px 18px 15px 17px; background: var(--cp-field); }
+.rb-refl__verdicts ul { display: grid; margin: 0; padding: 0; list-style: none; }
+.rb-refl__verdicts li { display: grid; grid-template-columns: minmax(0, 1fr) auto 110px; gap: 14px; align-items: baseline; padding: 6px 0; font-size: 13.5px; }
+.rb-refl__verdicts li + li { border-top: 1px dashed var(--cp-line); }
+.rb-refl__verdicts small { color: var(--mg-color-muted); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rb-refl__verdicts em { color: var(--cp-mark); font-size: 12px; font-style: normal; font-weight: 800; text-align: right; }
+.rb-refl__empty { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.rb-refl__none { margin: 0; color: var(--mg-color-muted); font-size: 13.5px; }
 </style>
