@@ -4,6 +4,7 @@ import type { WeekRef } from '@/domain/period'
 import {
   collectOwnSentences,
   momentsProgress,
+  partSummary,
   noticedShift,
   practiceDaysInWeek,
   practiceHelpfulness,
@@ -23,12 +24,12 @@ const W3 = week('2026-09-28')
 
 const entries = [
   // week 1: two moments, nothing done, noticed late, critic only
-  entry('a', '2026-09-14T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'withdraw', noticed: 'later', response: ['nothing'], criticSaid: 'x' }),
-  entry('b', '2026-09-16T23:30:00', { kind: 'shame', hadMoment: 'yes', compass: 'attackSelf', noticed: 'hours', response: ['nothing'], criticSaid: 'y', kindVoice: 'Zapomniałeś raz.' }),
+  entry('a', '2026-09-14T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'withdraw', noticed: 'later', response: ['nothing'], criticSaid: 'x', strength: 4 }),
+  entry('b', '2026-09-16T23:30:00', { kind: 'shame', hadMoment: 'yes', compass: 'attackSelf', noticed: 'hours', response: ['nothing'], criticSaid: 'y', kindVoice: 'Zapomniałeś raz.', strength: 5 }),
   // week 2: quiet
   entry('q', '2026-09-23T19:00:00', { kind: 'shame', hadMoment: 'none', quietDay: 'walk' }),
   // week 3: three moments, two with a response, noticed early, a v2 entry without noticed
-  entry('c', '2026-09-28T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'withdraw', noticed: 'during', response: ['breath', 'unblend'], kindVoice: 'Widzę cię.' }),
+  entry('c', '2026-09-28T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'withdraw', noticed: 'during', response: ['breath', 'unblend'], kindVoice: 'Widzę cię.', strength: 2 }),
   entry('d', '2026-09-30T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'none', noticed: 'soon', response: ['sentence'], kindVoice: 'Widzę cię.' }),
   entry('e', '2026-10-02T19:00:00', { kind: 'shame', hadMoment: 'yes', compass: 'attackOthers', response: ['nothing'] }),
   // other kinds and exercises never count
@@ -61,6 +62,21 @@ describe('momentsProgress', () => {
       kindVoiceLogged: 2,
     })
     expect(stats[0]!.unlogged).toBeUndefined()
+    expect(stats[0]!.strength.withdraw).toEqual({ sum: 4, rated: 1 })
+  })
+
+  it('sums each part over the weeks with its share and mean strength (unrated moments count, not rate)', () => {
+    const stats = momentsProgress(entries, [W1, W2, W3])
+    const summary = partSummary(stats)
+    expect(summary.map((p) => [p.part, p.count, p.meanStrength])).toEqual([
+      ['withdraw', 2, 3],
+      ['attackSelf', 1, 5],
+      ['attackOthers', 1, null],
+      ['avoid', 0, null],
+      ['none', 1, null],
+    ])
+    expect(summary[0]!.share).toBeCloseTo(2 / 5)
+    expect(partSummary([]).every((p) => p.share === 0 && p.meanStrength === null)).toBe(true)
   })
 
   it('derives the response share and the shift in noticing, ignoring entries without `noticed`', () => {

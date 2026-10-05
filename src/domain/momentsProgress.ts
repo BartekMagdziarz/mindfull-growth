@@ -40,6 +40,8 @@ export interface MomentsWeekStats {
   /** Estimate from the weekly reflection (representative count), absent when not asked. */
   unlogged?: number
   byPart: Record<ShamePartKey, number>
+  /** "Jak mocno" (1–5) summed per part, with how many moments carried a rating (v2 entries have none). */
+  strength: Record<ShamePartKey, { sum: number; rated: number }>
   /** Moments where `response` holds anything other than "nothing". */
   responded: number
   noticed: Record<NoticedKey, number>
@@ -55,6 +57,13 @@ function emptyStats(weekRef: WeekRef): MomentsWeekStats {
     weekRef,
     total: 0,
     byPart: { withdraw: 0, attackSelf: 0, attackOthers: 0, avoid: 0, none: 0 },
+    strength: {
+      withdraw: { sum: 0, rated: 0 },
+      attackSelf: { sum: 0, rated: 0 },
+      attackOthers: { sum: 0, rated: 0 },
+      avoid: { sum: 0, rated: 0 },
+      none: { sum: 0, rated: 0 },
+    },
     responded: 0,
     noticed: { during: 0, soon: 0, hours: 0, later: 0, unknown: 0 },
     criticLogged: 0,
@@ -114,7 +123,14 @@ export function momentsProgress(
       if (day < start || day > end) continue
       stats.total += 1
       const part = partOf(entry)
-      if (part) stats.byPart[part] += 1
+      if (part) {
+        stats.byPart[part] += 1
+        const strength = entry.responses.strength
+        if (typeof strength === 'number' && strength >= 1 && strength <= 5) {
+          stats.strength[part].sum += strength
+          stats.strength[part].rated += 1
+        }
+      }
       if (hasResponse(entry)) stats.responded += 1
       stats.noticed[noticedOf(entry)] += 1
       if (hasText(entry.responses.criticSaid)) stats.criticLogged += 1
@@ -124,6 +140,40 @@ export function momentsProgress(
     if (estimate !== undefined) stats.unlogged = estimate
     stats.quiet = stats.total === 0
     return stats
+  })
+}
+
+export interface PartSummary {
+  part: ShamePartKey
+  count: number
+  /** Share (0–1) of the moments in the given weeks that this part took; 0 without moments. */
+  share: number
+  /** Mean "jak mocno" 1–5 over the rated moments of this part; null when none were rated. */
+  meanStrength: number | null
+}
+
+/**
+ * "Kto przejmuje ster" summed over the given weeks: how often each part took
+ * the wheel and how strongly it did (the moment's own 1–5 rating). Order is
+ * the compass order; `none` comes last and is the pattern the path works toward.
+ */
+export function partSummary(stats: readonly MomentsWeekStats[]): PartSummary[] {
+  const total = stats.reduce((sum, week) => sum + week.total, 0)
+  return SHAME_PART_KEYS.map((part) => {
+    let count = 0
+    let sum = 0
+    let rated = 0
+    for (const week of stats) {
+      count += week.byPart[part]
+      sum += week.strength[part].sum
+      rated += week.strength[part].rated
+    }
+    return {
+      part,
+      count,
+      share: total === 0 ? 0 : count / total,
+      meanStrength: rated === 0 ? null : Math.round((sum / rated) * 10) / 10,
+    }
   })
 }
 
