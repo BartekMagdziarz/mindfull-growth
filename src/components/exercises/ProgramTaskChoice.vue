@@ -1,5 +1,7 @@
 <template>
   <div class="task-choice" role="radiogroup" :aria-label="t('programs.week.chooseTask')">
+    <!-- Each task is a row like in Dzisiaj: copy on the left, the entry disc
+         on the right edge; the chosen row is one step whiter (paper). -->
     <label
       v-for="task in visibleTasks"
       :key="task.key"
@@ -20,7 +22,11 @@
         <small class="task-choice__meta">
           {{ timesLabel(task.times) }}<template v-if="task.key === suggestedKey"> · {{ suggestedNote }}</template>
         </small>
+        <!-- The "why" belongs to the chosen task, so it lives inside its row. -->
+        <span v-if="task.key === modelValue" class="task-choice__why">{{ tg(`${program.i18nKey}.tasks.${task.key}.why`) }}</span>
       </span>
+      <!-- The same well that marks a done task in Dzisiaj; chosen = filled. -->
+      <span class="mg-well task-choice__well" :class="{ 'mg-well--done': task.key === modelValue }" aria-hidden="true"></span>
     </label>
 
     <button
@@ -33,8 +39,6 @@
       {{ showEarlier ? t('programs.week.hideEarlierTasks') : t('programs.week.earlierTasks', { n: earlier.length }) }}
       <AppIcon :name="showEarlier ? 'expand_less' : 'expand_more'" />
     </button>
-
-    <p v-if="selected" class="task-choice__why">{{ tg(`${program.i18nKey}.tasks.${selected.key}.why`) }}</p>
   </div>
 </template>
 
@@ -47,7 +51,7 @@ import type { ProgramDefinition, ProgramWeeklyTask } from '@/domain/program'
 /**
  * The weekly task picker of a path: the current phase's tasks as radios
  * (the service's suggestion preselected), earlier phases behind one
- * disclosure inside the card, the chosen task's "why" underneath. Shared
+ * disclosure inside the card, the chosen task's "why" inside its row. Shared
  * by the quiet weekly plan and the program's "W świecie" panel.
  * Plan: ideas/html-plans/2026-09-26-shame-path-v2-compassion.html §4.3.
  */
@@ -83,7 +87,6 @@ watch(
 )
 
 const visibleTasks = computed(() => (showEarlier.value ? [...props.current, ...props.earlier] : props.current))
-const selected = computed(() => [...props.current, ...props.earlier].find((task) => task.key === props.modelValue))
 const suggestedNote = computed(() => (props.repeat ? t('programs.week.repeatNote') : t('programs.week.suggestedNote')))
 
 function taskTitle(task: ProgramWeeklyTask): string {
@@ -96,75 +99,102 @@ function timesLabel(times: number): string {
 </script>
 
 <style scoped>
+/* Rows follow the Dzisiaj item row: transparent at rest, one step whiter on
+   hover, the chosen row stays on paper (like an expanded row) — no border,
+   no stripe. The disc on the right is the app's completion well. */
 .task-choice {
   display: grid;
-  gap: var(--mg-space-1);
+  gap: 2px;
 }
 
 .task-choice__option {
+  position: relative;
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--mg-space-3);
-  align-items: start;
-  padding: var(--mg-space-2) var(--mg-space-3);
-  border: 1px solid transparent;
-  border-radius: var(--mg-radius-md);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--mg-space-2);
+  align-items: center;
+  padding: var(--mg-space-2) var(--mg-space-2) var(--mg-space-2) var(--mg-space-3);
+  border-radius: var(--mg-radius-sm);
   cursor: pointer;
+  transition: background var(--mg-duration-fast, 0.18s) var(--mg-ease-standard, ease);
 }
 
-.task-choice__option:hover {
-  background: var(--mg-color-paper);
-}
-
-/* The chosen task is the only one on the whiter surface. */
+.task-choice__option:hover,
 .task-choice__option.is-selected {
   background: var(--mg-color-paper);
-  border-color: var(--mg-color-border);
 }
 
+/* The native radio stays for keyboard and a11y; the well draws the state. */
 .task-choice__input {
-  margin-top: 0.3em;
-  accent-color: var(--mg-color-primary);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.task-choice__option:has(.task-choice__input:focus-visible) {
+  outline: 2px solid var(--mg-color-primary);
+  outline-offset: 2px;
+}
+
+.task-choice__option:has(.task-choice__input:disabled) {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.task-choice__well {
+  pointer-events: none;
 }
 
 .task-choice__copy {
   display: grid;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 }
 
 .task-choice__title {
   color: var(--mg-color-ink);
-  font-size: var(--mg-font-size-sm);
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   line-height: 1.35;
 }
 
-.task-choice__meta,
-.task-choice__why {
+.task-choice__meta {
   color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .task-choice__why {
-  margin: var(--mg-space-1) 0 0;
-  padding: 0 var(--mg-space-3);
-  font-size: var(--mg-font-size-sm);
+  margin-top: 6px;
+  color: var(--mg-color-muted);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .task-choice__disclosure {
   display: inline-flex;
   align-items: center;
-  gap: var(--mg-space-1);
+  gap: 6px;
   justify-self: start;
-  padding: var(--mg-space-1) var(--mg-space-3);
+  min-height: 34px;
+  margin-top: 4px;
+  padding: 6px var(--mg-space-3);
   border: 0;
-  border-radius: var(--mg-radius-pill);
+  border-radius: 11px 9px 12px 10px;
   background: transparent;
   color: var(--mg-color-muted);
-  font-size: var(--mg-font-size-xs);
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.task-choice__disclosure :deep(.material-symbols-outlined) {
+  font-size: 18px;
+  color: var(--mg-color-primary);
 }
 
 .task-choice__disclosure:hover {
