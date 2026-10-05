@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import './styles/main.css'
 import './design-system/index.css'
+import './styles/text-field-focus.css'
 import { applyCachedTheme } from './services/theme.service'
 import { setupTextareaAutoresize } from './utils/textareaAutoresize'
 

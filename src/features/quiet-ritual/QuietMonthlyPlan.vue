@@ -30,7 +30,7 @@
           >
             <span class="qr-object-icon"><AppIcon :name="priority.icon || 'explore'" /></span>
             <span><strong>{{ priority.title }}</strong></span>
-            <span class="qr-check"><AppIcon v-if="selectedPriorityIds.includes(priority.id)" name="check" /></span>
+            <span class="mg-well qr-well" :class="{ 'mg-well--done': selectedPriorityIds.includes(priority.id) }" aria-hidden="true"></span>
           </button>
           <details v-if="priority.desiredDirection" class="qm-choice-detail">
             <summary :aria-label="`Kierunek: ${priority.title}`">Kierunek</summary>
@@ -75,7 +75,7 @@
           >
             <span class="qr-object-icon"><AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /></span>
             <span><strong>{{ row.title }}</strong><small>{{ relationLabel(row) }}</small></span>
-            <span class="qr-check"><AppIcon v-if="row.isActive" name="check" /></span>
+            <span class="mg-well qr-well" :class="{ 'mg-well--done': row.isActive }" aria-hidden="true"></span>
           </button>
         </article>
       </div>
@@ -97,7 +97,7 @@
             >
               <span class="qr-object-icon"><AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /></span>
               <span><strong>{{ row.title }}</strong><small>{{ relationLabel(row) }}</small></span>
-              <span class="qr-check"><AppIcon v-if="row.isActive" name="check" /></span>
+              <span class="mg-well qr-well" :class="{ 'mg-well--done': row.isActive }" aria-hidden="true"></span>
             </button>
           </article>
         </div>

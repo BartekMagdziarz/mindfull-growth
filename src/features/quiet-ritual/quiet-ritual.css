@@ -115,6 +115,13 @@
   margin: 0 8px;
   opacity: 0.45;
 }
+/* Pending profile proposals sit beside the save state; only the first of the two takes the auto margin. */
+.qr-top .profile-proposal-notice {
+  margin-left: auto;
+}
+.qr-top .profile-proposal-notice + .qr-save {
+  margin-left: 0;
+}
 .qr-save {
   display: flex;
   gap: 5px;
@@ -204,8 +211,11 @@
   background: var(--qr-field);
   border: 1px solid transparent;
 }
+/* Selected = the cloud lifts into the light: one step whiter plus a soft
+   raise, never an edge (user decision 2026-10-04). The well carries the tick. */
 .qr-choice.selected {
-  border-color: var(--qr-line-strong);
+  background: var(--qr-inner);
+  box-shadow: var(--mg-shadow-raised-sm);
 }
 .qr-choice-pick {
   display: flex;
@@ -241,6 +251,11 @@
   width: 35px;
   height: 38px;
   color: var(--qr-accent);
+}
+/* The same disc that marks a done task in Dzisiaj (.mg-well); the tile only
+   pins it to the right edge. */
+.qr-well {
+  flex-shrink: 0;
 }
 .qr-check {
   display: grid;
@@ -537,6 +552,12 @@
 }
 .qr-planner > .qr-quiet {
   margin-top: 8px;
+}
+.qr-table-group {
+  margin: 24px 0 10px;
+  padding: 0 14px;
+  color: var(--qr-muted);
+  font-size: 12px;
 }
 .qr-summary-row {
   display: flex;
@@ -1185,6 +1206,20 @@
 /* Life-area steps: two drawn vertical bars (ink strokes), +/- in the bar column, tags per area. */
 .qr-ratings {
   width: min(100%, 760px);
+  margin: 0 auto 4px;
+}
+/* Tags written before the load/state split — read-only, with the week they belong to. */
+.qr-legacy-tags {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--qr-muted);
+}
+.qr-legacy-tags .material-symbols-outlined {
+  font-size: 14px;
 }
 .qr-bars {
   display: grid;
@@ -1195,27 +1230,58 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 22px 26px 16px;
+  padding: 16px 26px 12px;
 }
 .qr-bars .qr-axis header {
-  margin-bottom: 10px;
+  margin-bottom: 6px;
+}
+/* The area step (ribbon + two bars + tags) fits one desktop screen; the step card itself scrolls otherwise. */
+.qr-bars .qr-scale--vertical {
+  gap: 6px;
+}
+.qr-bars .qr-scale--vertical button {
+  height: 28px;
+}
+.qr-bars .qr-bar-step {
+  width: 32px;
+  height: 32px;
 }
 .qr-bar-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  column-gap: 14px;
+  gap: 4px;
 }
+.qr-bar-body > output {
+  min-height: 34px;
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.qr-axis--effort .qr-bar-body > output {
+  color: var(--qr-effort-ink);
+}
+.qr-bar-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* Scale ends sit to the left of the bar and only show while the bar is in use. */
 .qr-bar-ends {
+  position: absolute;
+  right: calc(100% + 10px);
+  inset-block: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-self: stretch;
-  justify-self: end;
-  padding: 56px 0;
+  padding: 8px 0;
   font-size: 11px;
   color: var(--qr-muted);
   text-align: right;
+  white-space: nowrap;
+  pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s;
 }
@@ -1223,11 +1289,10 @@
 .qr-axis:has(:focus-visible) .qr-bar-ends {
   opacity: 1;
 }
-.qr-bar-stack {
+.qr-bar-steps {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  gap: 10px;
+  margin-top: 4px;
 }
 .qr-bar-step {
   width: 36px;
@@ -1304,86 +1369,98 @@
 .qr-axis--paired .qr-scale--vertical button.filled {
   background: var(--qr-fill);
 }
-.qr-bar-body > output {
-  justify-self: start;
-  min-width: 34px;
-  font-size: 30px;
-  font-weight: 750;
-  letter-spacing: -0.02em;
-}
-.qr-axis--effort .qr-bar-body > output {
-  color: var(--qr-effort-ink);
-}
-.qr-tags {
+/* Axis tags under a rating bar: pills + one chevron; open = search/re-use/create. */
+.qr-tagfield {
   display: grid;
-  gap: 10px;
-  grid-column: 1 / -1;
-  padding: 18px 26px 20px;
-  background: var(--qr-field);
-  border-radius: 21px 25px 19px 23px;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--qr-line-soft);
 }
-.qr-tags h2 {
+.qr-tagfield-row {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--qr-muted);
-}
-.qr-tags h2 .material-symbols-outlined {
-  font-size: 17px;
-}
-.qr-tag-list,
-.qr-tag-suggestions {
-  display: flex;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 6px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  gap: 4px;
 }
-.qr-tag-list li {
+.qr-tagfield-list {
+  display: contents;
+}
+.qr-tagfield-list li {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 3px 4px 3px 12px;
-  background: var(--qr-field);
+  max-width: 100%;
+  padding: 2px 9px;
+  background: var(--qr-inner);
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
-.qr-tag-list li button {
+.qr-tagfield-list li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qr-tagfield--open .qr-tagfield-list li {
+  padding-right: 3px;
+}
+.qr-tagfield-list li button {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: transparent;
   color: var(--qr-muted);
 }
-.qr-tag-list li button .material-symbols-outlined {
-  font-size: 14px;
-}
-.qr-tag-list li button:hover {
-  background: var(--qr-inner);
-  color: var(--qr-ink);
-}
-.qr-tag-form {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-.qr-tag-form input {
-  flex: 1;
-  min-width: 0;
-  padding: 8px 12px;
-  border: 1px solid var(--qr-line-soft);
-  border-radius: 999px;
-  background: var(--qr-field);
+.qr-tagfield-list li button .material-symbols-outlined {
   font-size: 13px;
 }
-.qr-tag-suggestions .qr-quiet {
-  font-size: 12px;
+.qr-tagfield-list li button:hover {
+  background: var(--qr-field);
+  color: var(--qr-ink);
+}
+.qr-tagfield-toggle {
+  width: 26px;
+  height: 26px;
+}
+.qr-tagfield-toggle .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--qr-muted);
+  transition: transform 0.18s;
+}
+.qr-tagfield-toggle[aria-expanded='true'] .material-symbols-outlined {
+  transform: rotate(180deg);
+}
+.qr-tagfield-editor {
+  display: grid;
+  gap: 6px;
+}
+.qr-tagfield-editor input {
+  width: 100%;
+  padding: 6px 11px;
+  border: 1px solid var(--qr-line-soft);
+  border-radius: 999px;
+  background: var(--qr-inner);
+  font-size: 12.5px;
+}
+.qr-tagfield-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qr-tagfield-suggestions .qr-quiet {
+  min-height: 26px;
+  padding: 2px 8px;
+  font-size: 12px !important;
+}
+.qr-tagfield-create {
+  color: var(--qr-ink);
 }
 
 /* Journal step: writing surface on the left, context column on the right. */
@@ -1479,6 +1556,11 @@
   color: var(--qr-muted);
   text-align: center;
   overflow-wrap: anywhere;
+}
+/* Load tags read a shade darker, like the load bar against the state bar. */
+.qr-ctx-tags--load {
+  color: var(--qr-ink);
+  opacity: 0.75;
 }
 .qr-ctx-quadrants {
   display: flex;
@@ -1869,45 +1951,88 @@
 .qm-priority-head small {
   font-size: 12px;
 }
+.qm-priority-head[aria-expanded='true'] > .material-symbols-outlined:last-child,
+.qm-anchor-head[aria-expanded='true'] > .material-symbols-outlined:last-child,
+.qm-reveal[aria-expanded='true'] .material-symbols-outlined {
+  transform: rotate(180deg);
+}
+.qm-priority-head > .material-symbols-outlined:last-child,
+.qm-anchor-head > .material-symbols-outlined:last-child,
+.qm-reveal .material-symbols-outlined {
+  transition: transform 0.18s;
+}
+/* Open direction: effort bar on the left, the decision column fills the rest;
+   the optional context runs under both. */
 .qm-priority-body {
   display: grid;
-  grid-template-columns: 190px 1fr;
-  gap: 28px;
-  padding: 6px 26px 24px;
+  grid-template-columns: 200px minmax(0, 1fr);
+  column-gap: 24px;
+  row-gap: 4px;
+  padding: 0 20px 20px;
+  align-items: start;
+}
+.qm-priority-body > .qr-axis {
+  padding: 8px 10px 4px;
+}
+.qm-priority-body > .qr-axis header {
+  margin-bottom: 8px;
 }
 .qm-decisions {
-  padding-top: 15px;
+  display: grid;
+  gap: 12px;
+  padding-top: 8px;
 }
 .qm-verdicts,
 .qm-signals {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 14px;
 }
 .qm-verdicts .qr-quiet,
 .qm-signals .qr-quiet {
   background: var(--qr-inner);
 }
-.qm-evidence {
-  list-style: none;
-  padding: 0;
+.qm-note {
+  min-height: 96px;
 }
-.qm-evidence li {
+.qm-reveal {
+  justify-self: start;
+  padding-left: 6px;
+}
+.qm-priority-context {
+  grid-column: 1 / -1;
   display: grid;
-  gap: 3px;
-  padding: 8px 0;
-  font-size: 13px;
+  gap: 12px;
+  padding: 14px 4px 2px;
+  border-top: 1px solid var(--qr-line-soft);
 }
-.qm-evidence li span {
+.qm-direction {
+  max-width: 60em;
+  font-size: 13.5px;
   color: var(--qr-muted);
-  font-size: 12px;
+}
+.qm-signal-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.qm-signal-label {
+  min-width: 56px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--qr-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.qm-signals .qr-quiet[aria-pressed='true'] {
+  color: var(--qr-ink);
 }
 .qm-compass {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 20px;
-  margin: 30px 0;
+  gap: 14px;
+  margin: 18px 0;
 }
 .qm-anchors {
   width: 100%;
@@ -1933,7 +2058,7 @@
   gap: 30px;
 }
 .qm-journal--open {
-  grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 1fr);
 }
 .qm-journal-tools {
   display: flex;
@@ -1944,86 +2069,224 @@
 .qm-journal-tools small {
   margin-right: auto;
 }
+/* Month context: the week's card language (qr-ctx), two narrow cards per row
+   where the content is a small chart, full width for text. */
 .qm-context {
-  max-height: 560px;
+  max-height: min(72vh, 760px);
   overflow: auto;
-  padding: 0 12px;
+  padding: 0 6px 6px 0;
+  align-content: start;
 }
-.qm-context section {
-  margin-bottom: 24px;
+.qm-context > .qr-ctx {
+  min-width: 0;
 }
-.qm-context h3 {
-  margin: 0 0 12px;
-  font-size: 14px;
+/* Mini compass: five equal columns across the card; chevron under an axis
+   unfolds that axis' tags across the full width. */
+.qm-ctx-compass {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px 8px;
 }
-.qm-context p,
-.qm-context blockquote {
+.qm-ctx-compass > .qr-ctx-chips {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+}
+.qm-ctx-axis {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+.qm-ctx-axis__bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 4px 2px;
+  background: transparent;
+  border-radius: 10px 8px 11px 9px;
+}
+.qm-ctx-axis__bar:hover {
+  background: var(--qr-inner);
+}
+/* Value + bar share one fixed-height column anchored at the bottom, so the
+   labels under five bars of different heights sit on one line. */
+.qm-ctx-axis__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  width: 100%;
+  height: 76px;
+}
+.qm-ctx-axis__bar b {
   font-size: 13px;
-  margin: 5px 0 12px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+.qm-ctx-axis__bar i {
+  width: min(60%, 40px);
+  background: var(--qr-accent);
+  border-radius: 6px 8px 5px 7px;
+  transform: rotate(-1deg);
+}
+.qm-ctx-axis__bar i.empty {
+  background: transparent;
+  border: 1px solid var(--qr-line-mid);
+}
+.qm-ctx-axis__bar small {
+  max-width: 100%;
+  font-size: 11px;
+  color: var(--qr-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qm-ctx-axis__toggle {
+  width: 24px;
+  height: 22px;
+}
+.qm-ctx-axis__toggle .material-symbols-outlined {
+  font-size: 17px;
+  color: var(--qr-muted);
+  transition: transform 0.18s;
+}
+.qm-ctx-axis__toggle[aria-expanded='true'] .material-symbols-outlined {
+  transform: rotate(180deg);
+}
+.qm-ctx-dirs {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qm-ctx-dirs li {
+  display: grid;
+  gap: 4px;
+}
+.qm-ctx-dir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 6px;
+  margin-left: -6px;
+  background: transparent;
+  border-radius: 10px 8px 11px 9px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 650;
+}
+.qm-ctx-dir:hover {
+  background: var(--qr-inner);
+}
+.qm-ctx-dir .material-symbols-outlined {
+  font-size: 17px;
+  color: var(--qr-accent);
+}
+.qm-ctx-dir__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qm-ctx-dir small {
+  font-weight: 600;
+  color: var(--qr-muted);
+}
+/* Effort 1–5 as five tiny drawn pills (rose), reading left to right. */
+.qm-ctx-effort {
+  display: inline-flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.qm-ctx-effort b {
+  width: 9px;
+  height: 7px;
+  border-radius: 3px 4px 3px 4px;
+  border: 1px solid var(--qr-line-soft);
+}
+.qm-ctx-effort b.filled {
+  background: var(--qr-effort-strong);
+  border-color: transparent;
+}
+.qm-ctx-dirs q,
+.qr-ctx-quotes q {
+  font-size: 13px;
+  line-height: 1.55;
+}
+.qm-ctx-dirs q {
+  quotes: '„' '”';
+  color: var(--qr-ink);
   white-space: pre-wrap;
 }
-.qm-context strong {
-  font-size: 13px;
+.qm-ctx-signals,
+.qm-ctx-tags {
+  margin-top: 2px;
 }
-.qm-context article {
-  margin-bottom: 16px;
+.qm-ctx-signals li,
+.qm-ctx-tags li {
+  background: var(--qr-inner);
+  font-weight: 600;
 }
-.qm-mini-compass {
-  display: flex;
-  gap: 14px;
-  align-items: end;
+.qm-ctx-signal--risk {
+  color: var(--qr-effort-ink);
+}
+.qm-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.qm-ctx-more {
+  justify-self: start;
+  padding: 1px 6px;
+  background: transparent;
+  border-radius: 8px;
+  color: var(--qr-muted);
+  font-size: 12px;
+}
+.qm-ctx-more:hover {
+  background: var(--qr-inner);
 }
 /* „Z tygodni”: wstęgi obszarów nad tygodniami miesiąca (kolumna jest wąska, więc wysokie i jedna pod drugą) */
 .qm-ctx-weeks {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   margin: 4px 0 12px;
 }
 .qm-ctx-weeks__row {
   display: grid;
-  gap: 2px;
-}
-.qm-ctx-weeks__row > span {
-  display: inline-flex;
+  grid-template-columns: 64px minmax(0, 1fr);
   align-items: center;
-  gap: 6px;
-  color: var(--qr-muted);
-  font-size: 11.5px;
-  font-weight: 800;
+  column-gap: 8px;
 }
-.qm-ctx-weeks__row > span .material-symbols-outlined {
-  font-size: 15px;
+.qm-ctx-weeks__area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--qr-muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+.qm-ctx-weeks__area .material-symbols-outlined {
+  font-size: 16px;
   color: var(--qr-accent-strong);
 }
-.qm-ctx-weeks__axis {
+.qm-ctx-weeks__dates {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   color: var(--qr-muted);
   font-size: 10px;
-  font-style: italic;
   text-align: center;
-}
-.qm-mini-compass > span {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-.qm-mini-compass i {
-  width: 15px;
-  background: var(--qr-accent);
-  border-radius: 4px 6px 3px 5px;
-  transform: rotate(-1deg);
-}
-.qm-mini-compass small {
-  font-size: 10px;
-}
-.qm-anchor-link {
-  display: grid;
-  text-align: left;
-  font-size: 13px;
-  white-space: pre-wrap;
+  white-space: nowrap;
 }
 .qm-ai {
   padding: 18px;
@@ -2058,9 +2321,9 @@
     grid-template-columns: 1fr;
   }
   .qm-priority-body {
-    grid-template-columns: 150px 1fr;
-    gap: 12px;
-    padding: 6px 16px 20px;
+    grid-template-columns: 160px minmax(0, 1fr);
+    column-gap: 12px;
+    padding: 0 12px 16px;
   }
   .qm-priority-head {
     flex-wrap: wrap;
@@ -2096,16 +2359,26 @@
 }
 
 .qm-emotion-weeks {
-  display: flex;
-  gap: 24px;
-  align-items: end;
-  margin: 12px 0;
-}
-.qm-emotion-weeks > span {
   display: grid;
-  justify-items: center;
-  gap: 5px;
-  font-size: 11px;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: end;
+  gap: 6px;
+  margin: 4px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.qm-emotion-weeks li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--qr-muted);
+}
+.qm-emotion-weeks li .eds {
+  width: min(60%, 40px);
 }
 
 .qm-journal > div > textarea { min-height:340px; }
@@ -2181,9 +2454,9 @@
 /* Tail of the area: the last weeks as a load/state ribbon above the two bars. */
 .qr-tail {
   display: grid;
-  gap: 8px;
-  margin-bottom: 22px;
-  padding: 16px 26px 12px;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 12px 22px 8px;
   background: var(--qr-field);
   border-radius: 21px 25px 19px 23px;
 }
@@ -2199,45 +2472,9 @@
   font-size: 17px;
   color: var(--qr-accent-strong);
 }
-.qr-tail > header small {
-  margin-left: auto;
-  font-weight: 600;
-  font-style: italic;
-}
 .qr-ai {
   display: grid;
   gap: 8px;
-}
-.qm-focus-line {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--qr-muted);
-  font-size: 13px;
-}
-.qm-focus-line .material-symbols-outlined {
-  font-size: 17px;
-  color: var(--qr-accent);
-}
-.qm-emotion-bar {
-  display: inline-block;
-  width: 16px;
-  border-radius: 4px 5px 3px 4px;
-  background: var(--qr-accent);
-}
-.qm-emotion-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.qm-emotion-chips li {
-  padding: 3px 9px;
-  border-radius: 10px 12px 9px 11px;
-  font-size: 12px;
-  font-weight: 700;
 }
 /* Cards keep their own height instead of stretching to fill the scroll area. */
 .qm-priorities,
@@ -2251,7 +2488,8 @@
 }
 
 /* Program path proposal (weekly real-world task) in the week focus step.
-   Same anatomy as a focus choice: field tone, organic radius, no stripe. */
+   Same anatomy as a focus choice: field tone, organic radius, no stripe;
+   the task rows inside come from ProgramTaskChoice (paper when chosen). */
 .qr-path-proposals {
   display: grid;
   gap: 12px;
@@ -2259,7 +2497,7 @@
 }
 .qr-path-card {
   display: grid;
-  gap: 6px;
+  gap: 12px;
   padding: 18px;
   border-radius: 17px 21px 16px 19px;
   background: var(--qr-field);
@@ -2268,14 +2506,16 @@
 .qr-path-card__head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 0 2px;
   color: var(--qr-muted);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 .qr-path-card__head .material-symbols-outlined,
 .qr-path-card__head svg {
   color: var(--qr-accent);
+  font-size: 22px;
 }
 .qr-path-card__title {
   font-size: 15px;
@@ -2289,12 +2529,19 @@
   color: var(--qr-muted);
   font-size: 13px;
 }
+/* Decision row: one filled action at the tile's scale, the rest quiet. */
 .qr-path-card__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 6px;
+  padding-left: 2px;
+}
+.qr-path-card__actions .qr-primary {
+  min-height: 38px;
+  padding: 8px 15px;
+  font-size: 13px !important;
+  border-radius: 12px 15px 11px 14px;
 }
 
 /* Weekly reflection "Ścieżka" step: one field-tone block per program; the
@@ -2356,3 +2603,18 @@
   font-size: 13px;
   color: var(--qr-ink);
 }
+
+/* A single path rating needs a compact choice, not a tall dashboard axis. */
+.qr-axis--row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 16px 0; background: transparent; }
+.qr-axis--row header { margin: 0; }
+.qr-axis--row h2 { font-size: 17px; }
+.qr-row-body { display: grid; gap: 8px; width: min(100%, 272px); }
+.qr-scale--row { display: flex; gap: 8px; }
+.qr-scale--row button { flex: 1; min-width: 40px; height: 44px; padding: 0 10px; border-radius: 14px; background: var(--qr-inner); color: var(--qr-ink); font-weight: 600; }
+.qr-scale--row button:hover { background: var(--qr-card); }
+.qr-scale--row button.ghost { border: 1px dashed var(--qr-muted); }
+.qr-scale--row button.filled { background: var(--qr-accent-strong); color: var(--qr-on-accent); }
+.qr-row-ends { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--qr-muted); }
+.qr-path-moments .qr-path-block__toggle { display: inline-flex; align-items: center; gap: 6px; width: fit-content; max-width: 100%; min-height: 40px; padding: 6px 10px; border-radius: 12px; background: transparent; color: var(--qr-muted); font-size: 13px; }
+.qr-path-block__toggle:hover { background: var(--qr-inner); color: var(--qr-ink); }
+@media (max-width: 640px) { .qr-axis--row { grid-template-columns: minmax(0, 1fr); } }

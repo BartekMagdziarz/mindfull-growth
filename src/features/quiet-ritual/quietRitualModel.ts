@@ -193,6 +193,8 @@ export function buildQuietEvidenceRows(
       }
     })
     const recorded = cells.filter(cell => cell.value !== null).map(cell => cell.value as number)
+    const plannedDays = cells.filter(cell => cell.planned).length
+    const doneDays = cells.filter(cell => cell.value !== null && cell.value > 0).length
     return {
       key: item.key,
       subjectType: item.subjectType,
@@ -201,7 +203,7 @@ export function buildQuietEvidenceRows(
       icon: item.icon ?? SUBJECT_ICON[item.subjectType],
       entryMode: item.subject.entryMode,
       cells,
-      result: evidenceResultLabel(item, recorded),
+      result: evidenceResultLabel(item, recorded, plannedDays, doneDays),
       cellMax: cellScale(item, recorded),
     }
   })
@@ -218,7 +220,13 @@ function cellScale(item: QuietEvidenceInput, recorded: number[]): number {
   return Math.max(1, ...recorded)
 }
 
-function evidenceResultLabel(item: QuietEvidenceInput, recorded: number[]): string {
+/**
+ * A completion-type object placed on specific days reads as days done vs days
+ * planned ("3 / 4 dni"); everything else keeps value vs target.
+ */
+function evidenceResultLabel(item: QuietEvidenceInput, recorded: number[], plannedDays = 0, doneDays = 0): string {
+  const dayBased = item.subject.entryMode === 'completion' || item.subject.entryMode === 'multi-completion'
+  if (dayBased && plannedDays > 0) return `${doneDays} / ${plannedDays} dni`
   if (item.actualValue === undefined && !recorded.length) return 'Brak zapisów'
   const value = item.actualValue ?? recorded.reduce((sum, entry) => sum + entry, 0)
   const target = item.target?.value
@@ -231,9 +239,26 @@ function evidenceResultLabel(item: QuietEvidenceInput, recorded: number[]): stri
 // Free tags per life area (stored inside the reflection's promptResponses)
 // ---------------------------------------------------------------------------
 
-/** Prompt-response key holding an area's free tags. */
-export function areaTagKey(areaKey: string): string {
-  return `tags:${areaKey}`
+/** The two weekly rating axes an area's tags are split between (since 2026-10). */
+export type RatingAxis = 'load' | 'state'
+export const RATING_AXES: readonly RatingAxis[] = ['load', 'state']
+
+/**
+ * Prompt-response key holding free tags. Without an axis it is the undivided
+ * list (monthly compass axes; weekly areas before the load/state split — kept
+ * readable as legacy), with an axis it is that axis' list for the area.
+ */
+export function areaTagKey(areaKey: string, axis?: RatingAxis): string {
+  return axis ? `tags:${areaKey}:${axis}` : `tags:${areaKey}`
+}
+
+/** Every tag written for an area: load, state, then the legacy undivided list; de-duplicated. */
+export function allAreaTags(responses: Record<string, string> | undefined, areaKey: string): string[] {
+  const seen: string[] = []
+  for (const key of [...RATING_AXES.map(axis => areaTagKey(areaKey, axis)), areaTagKey(areaKey)]) {
+    for (const tag of parseTags(responses?.[key])) if (!seen.includes(tag)) seen.push(tag)
+  }
+  return seen
 }
 
 /** Tags are newline-separated inside one prompt response (the input is single-line). */

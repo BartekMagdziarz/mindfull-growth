@@ -54,31 +54,43 @@
                 {{ VERDICT_LABEL[verdict] }}
               </button>
             </div>
-            <details>
-              <summary>Uzasadnienie</summary>
-              <textarea
-                :value="assessmentFor(priority.id).note"
-                rows="3"
-                :aria-label="`Uzasadnienie: ${priority.title}`"
-                @input="setNote(priority.id, $event)"
-              />
-            </details>
-            <details>
-              <summary>Kontekst kierunku</summary>
-              <p v-if="priority.desiredDirection">{{ priority.desiredDirection }}</p>
-              <p class="qm-focus-line">
-                <AppIcon name="calendar_view_week" />{{ focusWeekCount(priority.id) }}
-                {{ plural(focusWeekCount(priority.id), 'tydzień z fokusem', 'tygodnie z fokusem', 'tygodni z fokusem') }}
-              </p>
-              <ul v-if="evidenceFor(priority.id).length" class="qm-evidence">
-                <li v-for="entry in evidenceFor(priority.id)" :key="entry.title">
-                  <strong>{{ entry.title }}</strong><span>{{ entry.readout }}</span>
-                </li>
-              </ul>
-              <p v-else>Brak powiązanych obiektów z zapisem w tym miesiącu.</p>
-              <details v-for="kind in SIGNAL_KINDS" :key="kind.key">
-                <summary>{{ kind.label }}</summary>
-                <div class="qm-signals">
+            <textarea
+              class="qm-note"
+              :value="assessmentFor(priority.id).note"
+              rows="3"
+              placeholder="Dlaczego taka decyzja?"
+              :aria-label="`Uzasadnienie: ${priority.title}`"
+              @input="setNote(priority.id, $event)"
+            />
+            <button
+              type="button"
+              class="qr-quiet qm-reveal"
+              :aria-expanded="contextPriority === priority.id"
+              @click="contextPriority = contextPriority === priority.id ? '' : priority.id"
+            >
+              <AppIcon name="expand_more" />Kontekst kierunku
+            </button>
+          </div>
+
+          <div v-if="contextPriority === priority.id" class="qm-priority-context">
+            <p v-if="priority.desiredDirection" class="qm-direction">{{ priority.desiredDirection }}</p>
+            <ul class="qr-ctx-chips qr-ctx-actions" aria-label="Zapis miesiąca">
+              <li class="qr-ctx-action" :class="focusWeekCount(priority.id) ? 'qr-ctx-action--met' : 'qr-ctx-action--none'">
+                <AppIcon name="calendar_view_week" /><span>Fokus tygodnia</span><b>{{ focusWeekCount(priority.id) }}×</b>
+              </li>
+              <li
+                v-for="entry in evidenceFor(priority.id)"
+                :key="entry.key"
+                :class="`qr-ctx-action qr-ctx-action--${entry.tone}`"
+                :title="entry.title"
+              >
+                <AppIcon :name="entry.icon" /><span>{{ entry.title }}</span><b>{{ entry.readout }}</b>
+              </li>
+            </ul>
+            <template v-for="kind in SIGNAL_KINDS" :key="kind.key">
+              <div v-if="signalChips(priority, kind.key).length" class="qm-signal-row">
+                <span class="qm-signal-label">{{ kind.label }}</span>
+                <div class="qm-signals" role="group" :aria-label="`${kind.label}: ${priority.title}`">
                   <button
                     v-for="chip in signalChips(priority, kind.key)"
                     :key="chip.label"
@@ -89,10 +101,9 @@
                   >
                     {{ chip.label }}
                   </button>
-                  <span v-if="!signalChips(priority, kind.key).length">Brak zdefiniowanych sygnałów.</span>
                 </div>
-              </details>
-            </details>
+              </div>
+            </template>
           </div>
         </div>
       </article>
@@ -111,7 +122,14 @@
         :previous="previousCompass[axis.key] ?? null"
         previous-label="Poprzedni miesiąc"
         @update:model-value="setCompass(axis, $event)"
-      />
+      >
+        <QuietTagField
+          :model-value="axisTags(axis.key)"
+          :suggestions="axisTagSuggestions(axis.key)"
+          :label="axis.label"
+          @update:model-value="writeAxisTags(axis.key, $event)"
+        />
+      </QuietRatingBar>
     </section>
 
     <!-- 3 · Kotwice -->
@@ -138,7 +156,7 @@
     </section>
 
     <!-- 4 · Dziennik -->
-    <section v-else class="qm-journal" :class="{ 'qm-journal--open': contextOpen }">
+    <section v-else class="qm-journal" :class="{ 'qm-journal--open': contextOpen || aiOpen }">
       <div>
         <textarea
           v-model="freeformReflection"
@@ -148,95 +166,100 @@
         />
         <div class="qm-journal-tools">
           <small>{{ wordCount }} {{ plural(wordCount, 'słowo', 'słowa', 'słów') }}</small>
-          <button type="button" class="qr-quiet" :aria-expanded="contextOpen" @click="contextOpen = !contextOpen">
+          <button type="button" class="qr-quiet" :aria-expanded="contextOpen" @click="toggleSidePanel('context')">
             <AppIcon name="view_sidebar" />Kontekst
           </button>
-          <button type="button" class="qr-quiet" :aria-expanded="aiOpen" @click="aiOpen = !aiOpen">
+          <button type="button" class="qr-quiet" :aria-expanded="aiOpen" @click="toggleSidePanel('ai')">
             <AppIcon name="auto_awesome" />AI
           </button>
         </div>
-        <QuietJournalAi
-          v-if="aiOpen"
-          :summary-context="summaryContext"
-          :ai-summary="aiSummary"
-          @update:ai-summary="aiSummary = $event"
-          @insert="insertIntoJournal"
-        />
+        <details v-if="aiSummary" class="qr-context">
+          <summary>Wcześniejsze podsumowanie AI</summary>
+          <p>{{ aiSummary }}</p>
+          <button type="button" class="qr-quiet" @click="insertIntoJournal(aiSummary)">Dodaj podsumowanie do wpisu</button>
+        </details>
       </div>
 
-      <aside v-if="contextOpen" class="qm-context" aria-label="Kontekst miesiąca">
-        <section v-if="assessedPriorities.length">
+        <ReflectionCompanionPanel
+          v-if="aiOpen"
+          :key="monthRef"
+          surface="monthly-reflection"
+          :period-ref="monthRef"
+          :draft="freeformReflection"
+          :ritual-context="companionRitualContext"
+          @insert="insertIntoJournal"
+        />
+
+      <aside v-if="contextOpen" class="qm-context qr-context-col" aria-label="Kontekst miesiąca">
+        <section v-if="assessedPriorities.length" class="qr-ctx">
           <h3>Kierunki</h3>
-          <article v-for="priority in assessedPriorities" :key="priority.id">
-            <strong>{{ priority.title }}</strong>
-            <p>
-              Wysiłek {{ assessmentFor(priority.id).effort ?? '—' }} ·
-              {{ VERDICT_LABEL[assessmentFor(priority.id).verdict ?? ''] ?? 'Bez decyzji' }}
-            </p>
-            <blockquote v-if="assessmentFor(priority.id).note">{{ assessmentFor(priority.id).note }}</blockquote>
-            <p v-if="assessmentFor(priority.id).observedProgressSignals.length">
-              {{ assessmentFor(priority.id).observedProgressSignals.join(' · ') }}
-            </p>
-            <p v-if="assessmentFor(priority.id).observedRiskSignals.length">
-              {{ assessmentFor(priority.id).observedRiskSignals.join(' · ') }}
-            </p>
-          </article>
+          <ul class="qm-ctx-dirs">
+            <li v-for="priority in assessedPriorities" :key="priority.id">
+              <button type="button" class="qm-ctx-dir" :title="`Wróć do: ${priority.title}`" @click="editPriority(priority.id)">
+                <AppIcon :name="priority.icon || 'explore'" />
+                <span class="qm-ctx-dir__title">{{ priority.title }}</span>
+                <i
+                  class="qm-ctx-effort"
+                  role="img"
+                  :aria-label="`Wysiłek: ${assessmentFor(priority.id).effort ?? 'bez oceny'}`"
+                >
+                  <b v-for="n in 5" :key="n" :class="{ filled: (assessmentFor(priority.id).effort ?? 0) >= n }" />
+                </i>
+                <small v-if="assessmentFor(priority.id).verdict">{{ VERDICT_LABEL[assessmentFor(priority.id).verdict ?? ''] }}</small>
+              </button>
+              <q v-if="assessmentFor(priority.id).note.trim()">{{ assessmentFor(priority.id).note.trim() }}</q>
+              <ul
+                v-if="assessmentFor(priority.id).observedProgressSignals.length || assessmentFor(priority.id).observedRiskSignals.length"
+                class="qr-ctx-chips qm-ctx-signals"
+              >
+                <li v-for="signal in assessmentFor(priority.id).observedProgressSignals" :key="`p:${signal}`" class="qm-ctx-signal--progress">
+                  {{ signal }}
+                </li>
+                <li v-for="signal in assessmentFor(priority.id).observedRiskSignals" :key="`r:${signal}`" class="qm-ctx-signal--risk">
+                  {{ signal }}
+                </li>
+              </ul>
+            </li>
+          </ul>
         </section>
 
-        <section v-if="COMPASS.some(axis => axis.ref.value != null)">
+        <section v-if="COMPASS.some(axis => axis.ref.value != null)" class="qr-ctx">
           <h3>Kompas</h3>
-          <div class="qm-mini-compass">
-            <span v-for="axis in COMPASS" :key="axis.key">
-              <i :style="{ height: `${(axis.ref.value ?? 0) * 12}px` }" /><b>{{ axis.ref.value ?? '—' }}</b>
-              <small>{{ axis.label }}</small>
-            </span>
-          </div>
-        </section>
-
-        <section v-if="filledAnchors.length">
-          <h3>Kotwice</h3>
-          <button
-            v-for="anchor in filledAnchors"
-            :key="anchor.key"
-            type="button"
-            class="qr-quiet qm-anchor-link"
-            @click="editAnchor(anchor.key)"
-          >
-            <strong>{{ anchor.label }}</strong>{{ anchor.text }}
-          </button>
-        </section>
-
-        <section v-if="weeklyExcerpts.length || weekSeriesRated">
-          <h3>Z tygodni</h3>
-          <div v-if="weekSeriesRated" class="qm-ctx-weeks" aria-label="Obciążenie i stan w tygodniach miesiąca">
-            <div v-for="area in AREAS" :key="area.key" class="qm-ctx-weeks__row">
-              <span><AppIcon :name="area.icon" />{{ t(areaTitleKey(area.key)) }}</span>
-              <LoadStateRibbon :points="weekSeries[area.key]" :label="t(areaTitleKey(area.key))" :height="60" quiet @select="weekRef => emit('open-week', weekRef)" />
+          <div class="qm-ctx-compass" role="group" aria-label="Kompas miesiąca">
+            <div v-for="axis in COMPASS" :key="axis.key" class="qm-ctx-axis">
+              <button type="button" class="qm-ctx-axis__bar" :title="`Wróć do kompasu: ${axis.label}`" @click="go(1)">
+                <span class="qm-ctx-axis__col">
+                  <b>{{ axis.ref.value ?? '' }}</b>
+                  <i :style="{ height: `${Math.max(4, (axis.ref.value ?? 0) * 11)}px` }" :class="{ empty: axis.ref.value == null }" />
+                </span>
+                <small>{{ axis.label }}</small>
+              </button>
+              <button
+                v-if="axisTags(axis.key).length"
+                type="button"
+                class="qr-icon qm-ctx-axis__toggle"
+                :aria-expanded="compassTagsAxis === axis.key"
+                :aria-label="`Tagi: ${axis.label}`"
+                @click="compassTagsAxis = compassTagsAxis === axis.key ? '' : axis.key"
+              >
+                <AppIcon name="expand_more" />
+              </button>
             </div>
-            <div class="qm-ctx-weeks__axis" aria-hidden="true"><span v-for="week in weeks" :key="week.weekRef">{{ week.label }}</span></div>
+            <ul v-if="compassTagsAxis && axisTags(compassTagsAxis).length" class="qr-ctx-chips qm-ctx-tags" :aria-label="`Tagi: ${compassAxisLabel(compassTagsAxis)}`">
+              <li v-for="tag in axisTags(compassTagsAxis)" :key="tag">{{ tag }}</li>
+            </ul>
           </div>
-          <details v-for="excerpt in weeklyExcerpts" :key="excerpt.weekRef">
-            <summary>{{ excerpt.label }}</summary>
-            <p>{{ excerpt.text }}</p>
-            <button type="button" class="qr-quiet" @click="emit('open-week', excerpt.weekRef)">
-              Otwórz tydzień<AppIcon name="arrow_forward" />
-            </button>
-          </details>
         </section>
 
-        <section v-if="emotionTotal">
+        <section v-if="emotionTotal" class="qr-ctx">
           <h3>Emocje <small>{{ emotionTotal }}</small></h3>
-          <div class="qm-emotion-weeks">
-            <span>
-              <QuietEmotionStack :emotions="monthQuadrants" slot-label="cały miesiąc" />
-              <small>miesiąc</small>
-            </span>
-            <span v-for="week in emotionWeeks" :key="week.weekRef">
-              <i class="qm-emotion-bar" :style="{ height: `${week.height}px` }" :title="`${week.range}: ${week.count}`" />
-              <small>{{ week.label }}</small>
-            </span>
-          </div>
-          <ul class="qm-emotion-chips">
+          <ul class="qm-emotion-weeks" aria-label="Emocje w tygodniach miesiąca">
+            <li v-for="week in emotionWeeks" :key="week.weekRef">
+              <QuietEmotionStack :emotions="week.emotions" :slot-label="week.range" :max-height="52" />
+              <small>{{ week.dateLabel }}</small>
+            </li>
+          </ul>
+          <ul class="qr-ctx-chips">
             <li
               v-for="emotion in topEmotions"
               :key="emotion.name"
@@ -250,22 +273,67 @@
           </ul>
         </section>
 
-        <section v-if="objectEvidence.length">
-          <h3>Obiekty</h3>
-          <details v-for="entry in objectEvidence" :key="entry.title">
-            <summary>{{ entry.title }}</summary>
-            <p>{{ entry.readout }}</p>
-          </details>
+        <section v-if="filledAnchors.length" class="qr-ctx">
+          <h3>Kotwice</h3>
+          <ul class="qr-ctx-quotes">
+            <li v-for="anchor in filledAnchors" :key="anchor.key">
+              <button type="button" @click="editAnchor(anchor.key)"><AppIcon :name="anchor.icon" /><small>{{ anchor.label }}</small></button>
+              <q>{{ anchor.text }}</q>
+            </li>
+          </ul>
+        </section>
+
+        <section v-if="weeklyExcerpts.length || weekSeriesRated" class="qr-ctx">
+          <h3>Z tygodni</h3>
+          <div v-if="weekSeriesRated" class="qm-ctx-weeks" aria-label="Obciążenie i stan w tygodniach miesiąca">
+            <div v-for="area in AREAS" :key="area.key" class="qm-ctx-weeks__row">
+              <span class="qm-ctx-weeks__area"><b>{{ t(areaTitleKey(area.key)) }}</b><AppIcon :name="area.icon" /></span>
+              <LoadStateRibbon :points="weekSeries[area.key]" :label="t(areaTitleKey(area.key))" :height="56" quiet @select="weekRef => emit('open-week', weekRef)" />
+            </div>
+            <div class="qm-ctx-weeks__row qm-ctx-weeks__axis" aria-hidden="true">
+              <span />
+              <span class="qm-ctx-weeks__dates"><span v-for="week in weekAxis" :key="week.weekRef">{{ week.dateLabel }}</span></span>
+            </div>
+          </div>
+          <ul v-if="weeklyExcerpts.length" class="qr-ctx-quotes">
+            <li v-for="excerpt in weeklyExcerpts" :key="excerpt.weekRef">
+              <button type="button" :title="`Otwórz tydzień ${excerpt.label}`" @click="emit('open-week', excerpt.weekRef)">
+                <AppIcon name="calendar_view_week" /><small>{{ excerpt.label }}</small><AppIcon name="arrow_forward" />
+              </button>
+              <q :class="{ 'qm-clamp': !expandedExcerpts.has(excerpt.weekRef) }">{{ excerpt.text }}</q>
+              <button
+                v-if="excerpt.text.length > 220"
+                type="button"
+                class="qm-ctx-more"
+                :aria-expanded="expandedExcerpts.has(excerpt.weekRef)"
+                @click="toggleExcerpt(excerpt.weekRef)"
+              >
+                {{ expandedExcerpts.has(excerpt.weekRef) ? 'Mniej' : 'Więcej' }}
+              </button>
+            </li>
+          </ul>
+        </section>
+
+        <section v-if="objectEvidence.length" class="qr-ctx">
+          <h3>Obiekty <small>{{ objectEvidence.length }}</small></h3>
+          <ul class="qr-ctx-chips qr-ctx-actions">
+            <li v-for="entry in objectEvidence" :key="entry.key" :class="`qr-ctx-action qr-ctx-action--${entry.tone}`" :title="entry.title">
+              <AppIcon :name="entry.icon" /><span>{{ entry.title }}</span><b>{{ entry.readout }}</b>
+            </li>
+          </ul>
         </section>
       </aside>
     </section>
+    <template #top><ProfileProposalNotice :conversation-id="`monthly-reflection:${monthRef}`" /></template>
   </QuietRitualShell>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, toRef, type Ref } from 'vue'
+import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue'
 import type { MonthRef, WeekRef } from '@/domain/period'
-import { QUADRANTS_IN_ORDER } from '@/domain/emotion'
+import type { MeasurementEvaluationStatus } from '@/services/measurementProgress'
+import type { WeekReadout } from '@/services/reflectionDataQueries'
+import type { Quadrant } from '@/domain/emotion'
 import type { Priority } from '@/domain/planning'
 import type { PriorityVerdict } from '@/domain/planningState'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -276,16 +344,27 @@ import { keyResultDexieRepository } from '@/repositories/keyResultDexieRepositor
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { trackerDexieRepository } from '@/repositories/trackerDexieRepository'
 import {
-  emotionContextFromSummary,
   type ReflectionPriorityLine,
-  type ReflectionSummaryContext,
 } from '@/services/reflectionSummaryService'
 import { getPeriodBounds, getPreviousPeriod } from '@/utils/periods'
 import QuietEmotionStack from './QuietEmotionStack.vue'
-import QuietJournalAi from './QuietJournalAi.vue'
+import ProfileProposalNotice from '@/features/ai-profile/ProfileProposalNotice.vue'
+import ReflectionCompanionPanel from '@/features/ai-companion/ReflectionCompanionPanel.vue'
 import QuietRatingBar from './QuietRatingBar.vue'
+import QuietTagField from './QuietTagField.vue'
 import QuietRitualShell, { type QuietRitualStep } from './QuietRitualShell.vue'
-import { formatQuietNumber, monthTitle, plural, quietMonthAreaSeries, quietMonthWeeks } from './quietRitualModel'
+import {
+  allAreaTags,
+  areaTagKey,
+  formatDay,
+  formatQuietNumber,
+  monthTitle,
+  parseTags,
+  plural,
+  quietMonthAreaSeries,
+  quietMonthWeeks,
+  serializeTags,
+} from './quietRitualModel'
 import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
 import { useT } from '@/composables/useT'
 import { REFLECTION_MATRIX_AREAS, areaTitleKey } from '@/domain/reflectionMatrix'
@@ -347,9 +426,17 @@ const VERDICT_LABEL: Record<string, string> = {
   drop: 'Porzuć',
 }
 const SIGNAL_KINDS = [
-  { key: 'progress' as const, label: 'Sygnały postępu' },
-  { key: 'risk' as const, label: 'Sygnały ryzyka' },
+  { key: 'progress' as const, label: 'Postęp' },
+  { key: 'risk' as const, label: 'Ryzyko' },
 ]
+type EvidenceTone = 'met' | 'missed' | 'none'
+interface EvidenceEntry {
+  key: string
+  title: string
+  readout: string
+  icon: string
+  tone: EvidenceTone
+}
 
 const steps: QuietRitualStep[] = [
   { id: 'priorities', label: 'Priorytety', question: 'Jaką uwagę poświęciłeś swoim kierunkom?' },
@@ -360,9 +447,23 @@ const steps: QuietRitualStep[] = [
 
 const current = ref(0)
 const openPriority = ref('')
+/** Which direction has its "Kontekst kierunku" open (one at a time, like the directions themselves). */
+const contextPriority = ref('')
+/** Compass axis whose tags are unfolded in the journal context ('' = none). */
+const compassTagsAxis = ref('')
+/** Weekly excerpts unclamped by the user in the journal context. */
+const expandedExcerpts = ref(new Set<WeekRef>())
+/** Earlier compass tags, per axis (most recent month first) — the re-use pool. */
+const pastAxisTags = ref<Record<string, string[]>>({})
+/** Tags from the user's weekly area reflections — a secondary pool. */
+const pastWeeklyTags = ref<string[]>([])
 const openAnchor = ref<number | null>(0)
 const contextOpen = ref(false)
 const aiOpen = ref(false)
+function toggleSidePanel(panel: 'context' | 'ai') {
+  if (panel === 'ai') { aiOpen.value = !aiOpen.value; contextOpen.value = false }
+  else { contextOpen.value = !contextOpen.value; aiOpen.value = false }
+}
 const saved = ref(false)
 const previousCompass = ref<Partial<Record<CompassAxis['key'], number | null>>>({})
 /** `subjectType:id` → linked priority ids (key results inherit their goal's). */
@@ -393,7 +494,7 @@ const assessedPriorities = computed(() =>
 const focusByPriority = computed(() => new Map((focusConfrontation.value?.perPriority ?? []).map(item => [item.priorityId, item])))
 
 /** Object read-outs for the month, reused by the direction context and the journal panel. */
-const objectEvidence = computed(() => {
+const objectEvidence = computed<EvidenceEntry[]>(() => {
   const bundle = dataBundle.value
   if (!bundle) return []
   return [
@@ -401,18 +502,24 @@ const objectEvidence = computed(() => {
       goal.keyResults.map(result => ({
         key: `keyResult:${result.id}`,
         title: result.title,
-        readout: readout(result.actualValue, result.target?.value),
+        readout: result.weekReadout ? weekReadout(result.weekReadout) : readout(result.actualValue, result.target?.value),
+        icon: goal.goal.icon ?? 'flag',
+        tone: result.weekReadout ? weekTone(result.weekReadout) : toneFor(result.evaluationStatus),
       })),
     ),
     ...bundle.habitDetails.map(habit => ({
       key: `habit:${habit.id}`,
       title: habit.title,
-      readout: readout(habit.actualValue, habit.target?.value),
+      readout: habit.weekReadout ? weekReadout(habit.weekReadout) : readout(habit.actualValue, habit.target?.value),
+      icon: habit.icon ?? 'repeat',
+      tone: habit.weekReadout ? weekTone(habit.weekReadout) : toneFor(habit.evaluationStatus),
     })),
     ...bundle.trackerDetails.map(tracker => ({
       key: `tracker:${tracker.id}`,
       title: tracker.title,
       readout: tracker.latestValue == null ? 'Brak zapisów' : `ostatnio ${formatQuietNumber(tracker.latestValue)}`,
+      icon: tracker.icon ?? 'monitoring',
+      tone: 'none' as const,
     })),
   ].filter(entry => entry.readout !== 'Brak zapisów')
 })
@@ -429,27 +536,28 @@ const weeklyExcerpts = computed(() =>
 
 const emotionTotal = computed(() => dataBundle.value?.emotionSummary.totalLogs ?? 0)
 const topEmotions = computed(() => (dataBundle.value?.emotionSummary.topEmotions ?? []).slice(0, 5))
+/** Week starts as short dates — „T37” says nothing about when the week was. */
+const weekAxis = computed(() =>
+  weeks.value.map(week => ({ ...week, dateLabel: formatDay(getPeriodBounds(week.weekRef).start) })),
+)
 /**
- * The month bundle carries a quadrant distribution for the whole month (no
- * per-week split), so the stack shows the month and the weeks show how many
- * logs each one holds — a real rhythm without inventing per-week quadrants.
+ * Each week of the month as a stack of its logged emotions coloured by wheel
+ * quadrant (the bundle resolves a quadrant per logged emotion), so the month
+ * reads as a rhythm of colours rather than a count.
  */
-const monthQuadrants = computed(() => {
-  const distribution = dataBundle.value?.emotionSummary.quadrantDistribution
-  if (!distribution) return []
-  return QUADRANTS_IN_ORDER.flatMap(quadrant =>
-    Array.from({ length: distribution[quadrant] ?? 0 }, () => ({ name: quadrant, quadrant })),
-  )
-})
 const emotionWeeks = computed(() => {
   const logs = dataBundle.value?.emotionLogs ?? []
-  const perWeek = weeks.value.map(week => {
+  return weekAxis.value.map(week => {
     const bounds = getPeriodBounds(week.weekRef)
-    const dayRefs = logs.map(log => log.createdAt.slice(0, 10))
-    return { ...week, count: dayRefs.filter(dayRef => dayRef >= bounds.start && dayRef <= bounds.end).length }
+    const emotions = logs
+      .filter(log => {
+        const dayRef = log.createdAt.slice(0, 10)
+        return dayRef >= bounds.start && dayRef <= bounds.end
+      })
+      .flatMap(log => log.emotions.map((name, index) => ({ name, quadrant: log.quadrants?.[index] })))
+      .filter((entry): entry is { name: string; quadrant: Quadrant } => !!entry.quadrant)
+    return { ...week, emotions }
   })
-  const max = Math.max(1, ...perWeek.map(week => week.count))
-  return perWeek.map(week => ({ ...week, height: Math.max(3, (week.count / max) * 36) }))
 })
 
 const summaryPriorities = computed<ReflectionPriorityLine[]>(() =>
@@ -463,30 +571,24 @@ const summaryPriorities = computed<ReflectionPriorityLine[]>(() =>
     }
   }),
 )
-const summaryContext = computed<ReflectionSummaryContext>(() => {
-  const bundle = dataBundle.value
-  return {
-    kind: 'monthly',
-    periodLabel: periodTitle.value,
-    ratings: COMPASS.map(axis => ({ label: axis.label, value: axis.ref.value })),
-    priorities: summaryPriorities.value,
-    anchors: filledAnchors.value.map(anchor => ({ label: anchor.label, text: anchor.text })),
-    freeform: freeformReflection.value,
-    emotionLogs: bundle?.emotionLogs ?? [],
-    emotions: bundle ? emotionContextFromSummary(bundle.emotionSummary) : undefined,
-    weeklyExcerpts: weeklyExcerpts.value.map(excerpt => ({ weekLabel: excerpt.label, text: excerpt.text })),
-    goals: (bundle?.goalSummaries ?? []).map(goal => ({
-      title: goal.goal.title,
-      metKRs: goal.keyResults.filter(result => result.evaluationStatus === 'met').length,
-      totalKRs: goal.keyResults.length,
-    })),
-    habits: (bundle?.habitDetails ?? []).map(habit => ({ title: habit.title, status: habit.evaluationStatus })),
-    trackers: (bundle?.trackerDetails ?? []).map(tracker => ({ title: tracker.title, latest: tracker.latestValue ?? null })),
-  }
-})
+// Only the user's current answers enter directly. Historical excerpts and execution
+// must go through access-controlled tools, never through an unfiltered UI bundle.
+const companionRitualContext = computed(() => JSON.stringify({
+  ratings: COMPASS.map(axis => ({ label: axis.label, value: axis.ref.value })),
+  priorities: summaryPriorities.value,
+  anchors: filledAnchors.value.map(anchor => ({ label: anchor.label, text: anchor.text })),
+}))
+
+// Directions arrive asynchronously; open the first one as soon as they land.
+watch(
+  activePriorities,
+  list => {
+    if (!openPriority.value && list.length) openPriority.value = list[0].id
+  },
+  { immediate: true },
+)
 
 onMounted(async () => {
-  openPriority.value = activePriorities.value[0]?.id ?? ''
   const previous = await structuredReflectionDexieRepository.getMonthly(getPreviousPeriod(props.monthRef) as MonthRef)
   if (previous) {
     previousCompass.value = {
@@ -498,7 +600,34 @@ onMounted(async () => {
     }
   }
   await loadPriorityLinks()
+  await loadPastTags()
 })
+
+/**
+ * The re-use pool for compass tags: the user's own earlier months (same axis
+ * first, newest first), then their weekly area tags. No shared vocabulary.
+ */
+async function loadPastTags() {
+  const [months, weeksAll] = await Promise.all([
+    structuredReflectionDexieRepository.listMonthly(),
+    structuredReflectionDexieRepository.listWeekly(),
+  ])
+  const perAxis: Record<string, string[]> = {}
+  for (const month of months.filter(item => item.monthRef !== props.monthRef).sort((a, b) => (a.monthRef < b.monthRef ? 1 : -1))) {
+    for (const axis of COMPASS) {
+      const list = (perAxis[axis.key] ??= [])
+      for (const tag of parseTags(month.promptResponses[areaTagKey(axis.key)])) if (!list.includes(tag)) list.push(tag)
+    }
+  }
+  pastAxisTags.value = perAxis
+  const weekly: string[] = []
+  for (const week of weeksAll.slice(-12).reverse()) {
+    for (const area of AREAS) {
+      for (const tag of allAreaTags(week.promptResponses, area.key)) if (!weekly.includes(tag)) weekly.push(tag)
+    }
+  }
+  pastWeeklyTags.value = weekly
+}
 
 async function loadPriorityLinks() {
   const [goals, keyResults, habits, trackers] = await Promise.all([
@@ -526,11 +655,58 @@ function readout(actual: number | undefined, target: number | undefined): string
   return target === undefined ? formatQuietNumber(actual) : `${formatQuietNumber(actual)} / ${formatQuietNumber(target)}`
 }
 
+/** Weekly-cadence objects read as weeks met / weeks planned („3 / 4 tyg.”). */
+function weekReadout(value: WeekReadout): string {
+  return `${value.met} / ${value.planned} tyg.`
+}
+function weekTone(value: WeekReadout): EvidenceTone {
+  if (value.met === 0) return 'none'
+  return value.met >= value.planned ? 'met' : 'missed'
+}
+function toneFor(status: MeasurementEvaluationStatus | undefined): EvidenceTone {
+  if (!status || status === 'no-data') return 'none'
+  return status === 'met' ? 'met' : 'missed'
+}
+
+function axisTags(axisKey: string): string[] {
+  return parseTags(promptResponses.value[areaTagKey(axisKey)])
+}
+function writeAxisTags(axisKey: string, tags: string[]) {
+  promptResponses.value = { ...promptResponses.value, [areaTagKey(axisKey)]: serializeTags(tags) }
+  saved.value = false
+}
+/** Same axis in earlier months → other axes this month → other axes earlier → weekly area tags. */
+function axisTagSuggestions(axisKey: string): string[] {
+  const seen: string[] = []
+  const push = (tags: string[]) => {
+    for (const tag of tags) if (!seen.includes(tag)) seen.push(tag)
+  }
+  push(pastAxisTags.value[axisKey] ?? [])
+  for (const axis of COMPASS) if (axis.key !== axisKey) push(axisTags(axis.key))
+  for (const [key, tags] of Object.entries(pastAxisTags.value)) if (key !== axisKey) push(tags)
+  push(pastWeeklyTags.value)
+  return seen
+}
+
+function compassAxisLabel(axisKey: string): string {
+  return COMPASS.find(axis => axis.key === axisKey)?.label ?? ''
+}
+function editPriority(priorityId: string) {
+  openPriority.value = priorityId
+  go(0)
+}
+function toggleExcerpt(weekRef: WeekRef) {
+  const next = new Set(expandedExcerpts.value)
+  if (next.has(weekRef)) next.delete(weekRef)
+  else next.add(weekRef)
+  expandedExcerpts.value = next
+}
+
 function focusWeekCount(priorityId: string): number {
   return focusByPriority.value.get(priorityId)?.focusWeekRefs.length ?? 0
 }
 
-function evidenceFor(priorityId: string) {
+function evidenceFor(priorityId: string): EvidenceEntry[] {
   const linked = objectEvidence.value.filter(entry =>
     (priorityIdsBySubject.value.get(entry.key) ?? []).includes(priorityId),
   )
@@ -538,8 +714,11 @@ function evidenceFor(priorityId: string) {
   // Fall back to the weekly focus roll-up: objects the user actually picked for
   // this direction, even when the object itself carries no priority link.
   return (focusByPriority.value.get(priorityId)?.objects ?? []).map(object => ({
+    key: `${object.subjectType}:${object.subjectId}`,
     title: object.title,
-    readout: `fokus w ${object.weekRefs.length} ${plural(object.weekRefs.length, 'tygodniu', 'tygodniach', 'tygodniach')}`,
+    readout: `${object.weekRefs.length} ${plural(object.weekRefs.length, 'tydzień', 'tygodnie', 'tygodni')}`,
+    icon: 'star',
+    tone: 'none' as const,
   }))
 }
 
@@ -594,3 +773,10 @@ async function finishAndPlanNext() {
   emit('plan-next-month')
 }
 </script>
+
+<style scoped>
+:global(.planning-next:has(.quiet-ritual.qm)) { min-width: 0; height: auto; }
+:global(main:has(.quiet-ritual.qm)) { min-width: 0; }
+.quiet-ritual.qm { min-width: 0; max-width: 100%; }
+.qm-journal > * { min-width: 0; }
+</style>

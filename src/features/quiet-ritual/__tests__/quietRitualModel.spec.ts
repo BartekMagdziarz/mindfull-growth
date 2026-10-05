@@ -4,6 +4,8 @@ import type { Habit, Tracker } from '@/domain/planning'
 import type { DailyMeasurementEntry, MeasurementDayAssignment } from '@/domain/planningState'
 import {
   addTag,
+  allAreaTags,
+  areaTagKey,
   buildQuietEvidenceRows,
   parseTags,
   plural,
@@ -114,7 +116,8 @@ describe('buildQuietEvidenceRows', () => {
 
     expect(row.cells.map(cell => cell.value)).toEqual([1, null, 1, null, null, null, null])
     expect(row.cells.map(cell => cell.planned)).toEqual([true, true, false, false, false, false, false])
-    expect(row.result).toBe('2 / 5')
+    // placed on two days, done on two days (one of them unplanned) → days, not the count target
+    expect(row.result).toBe('2 / 2 dni')
   })
 
   it('reads an average target as an average and scales rating cells to the rating scale', () => {
@@ -158,6 +161,15 @@ describe('area tags', () => {
     expect(tags).toEqual(['sen', 'za mało ruchu'])
     expect(parseTags(serializeTags(tags))).toEqual(tags)
     expect(parseTags(undefined)).toEqual([])
+  })
+
+  it('keys tags per rating axis and still reads the legacy undivided list', () => {
+    expect(areaTagKey('physical')).toBe('tags:physical')
+    expect(areaTagKey('physical', 'load')).toBe('tags:physical:load')
+    expect(
+      allAreaTags({ 'tags:physical:load': 'sen', 'tags:physical:state': 'spokój\nsen', 'tags:physical': 'stary' }, 'physical'),
+    ).toEqual(['sen', 'spokój', 'stary'])
+    expect(allAreaTags(undefined, 'physical')).toEqual([])
   })
 })
 

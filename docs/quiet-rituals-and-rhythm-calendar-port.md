@@ -126,9 +126,12 @@ obszarów ze wstęgami; karta „Ocena” podsumowania bierze szerszą kolumnę 
 pytania per komórka i kotwice skali 1–5 z i18n. Lab mówił „Wysiłek / Stan”.
 → **do decyzji: F9**.
 
-**C7. Tagi obszarów** zapisuję w `promptResponses['tags:<obszar>']`, po jednym w linii.
-Podpowiedzi pochodzą z ostatnich 8 własnych refleksji tygodniowych (nie ze wspólnego
-słownika tagów ludzi/kontekstów). *Dlaczego:* zero migracji schematu, tag zostaje przy
+**C7. Tagi obszarów** zapisuję w `promptResponses`, po jednym w linii. Od 2026-10-04 osobno
+dla każdej osi: `tags:<obszar>:load` i `tags:<obszar>:state` (pole tagów siedzi pod słupkiem
+Obciążenia / Stanu); wcześniejszy niedzielony klucz `tags:<obszar>` zostaje czytany jako
+historia (tylko do odczytu w kroku, widoczny w podsumowaniu i w puli podpowiedzi).
+Podpowiedzi pochodzą z ostatnich 8 własnych refleksji tygodniowych — najpierw ta sama oś,
+potem druga, na końcu tagi sprzed podziału (nie ze wspólnego słownika tagów ludzi/kontekstów). *Dlaczego:* zero migracji schematu, tag zostaje przy
 refleksji, do której należy. → **do decyzji: F7**.
 
 **C8. Ślad poprzedniego okresu** (ghost na słupku) czytam z bazy (poprzedni tydzień /

@@ -147,10 +147,9 @@
       <div class="qr-tail">
         <header>
           <AppIcon :name="activeArea.icon" />
-          <span>{{ t(areaTitleKey(activeArea.key)) }} · ostatnie {{ TAIL_WEEKS }} tygodni</span>
-          <small>{{ currentPairRated ? 'ten tydzień dorysowany na końcu' : 'ten tydzień jeszcze bez oceny' }}</small>
+          <span>{{ t(areaTitleKey(activeArea.key)) }}</span>
         </header>
-        <LoadStateRibbon :points="tailPoints" :label="t(areaTitleKey(activeArea.key))" :height="84" show-axis />
+        <LoadStateRibbon :points="tailPoints" :label="t(areaTitleKey(activeArea.key))" :height="60" show-axis />
       </div>
       <div class="qr-bars">
         <QuietRatingBar
@@ -161,7 +160,14 @@
           :low-label="t(cellAnchorKey(activeArea.key, 'load', 'low'))"
           tone="load"
           @update:model-value="setRating(activeArea.fields.demands, $event)"
-        />
+        >
+          <QuietTagField
+            :model-value="axisTags(activeArea.key, 'load')"
+            :suggestions="axisTagSuggestions(activeArea.key, 'load')"
+            :label="`${t(areaTitleKey(activeArea.key))} · ${t('planning.reflection.weekly.groups.load.title')}`"
+            @update:model-value="writeAxisTags(activeArea.key, 'load', $event)"
+          />
+        </QuietRatingBar>
         <QuietRatingBar
           :model-value="ratingValue(activeArea.fields.state)"
           :label="t('planning.reflection.weekly.groups.state.title')"
@@ -170,35 +176,19 @@
           :low-label="t(cellAnchorKey(activeArea.key, 'state', 'low'))"
           :fill-color="currentPairRated ? pairColor(currentPair.load, currentPair.state) : null"
           @update:model-value="setRating(activeArea.fields.state, $event)"
-        />
-      </div>
-
-      <div class="qr-tags">
-        <h2>
-          <AppIcon name="sell" />Tagi<span v-if="areaTags.length"> · {{ areaTags.length }}</span>
-        </h2>
-        <ul v-if="areaTags.length" class="qr-tag-list" :aria-label="`Tagi: ${t(areaTitleKey(activeArea.key))}`">
-          <li v-for="tag in areaTags" :key="tag">
-            <span>{{ tag }}</span>
-            <button type="button" :aria-label="`Usuń tag: ${tag}`" @click="removeTag(tag)"><AppIcon name="close" /></button>
-          </li>
-        </ul>
-        <form class="qr-tag-form" @submit.prevent="commitTag(tagInput[activeArea.key] ?? '')">
-          <input
-            v-model="tagInput[activeArea.key]"
-            type="text"
-            maxlength="32"
-            :aria-label="`Nowy tag: ${t(areaTitleKey(activeArea.key))}`"
-            placeholder="Dodaj tag…"
+        >
+          <QuietTagField
+            :model-value="axisTags(activeArea.key, 'state')"
+            :suggestions="axisTagSuggestions(activeArea.key, 'state')"
+            :label="`${t(areaTitleKey(activeArea.key))} · ${t('planning.reflection.weekly.groups.state.title')}`"
+            @update:model-value="writeAxisTags(activeArea.key, 'state', $event)"
           />
-          <button type="submit" class="qr-quiet" :disabled="!(tagInput[activeArea.key] ?? '').trim()">Dodaj</button>
-        </form>
-        <div v-if="tagSuggestions.length" class="qr-tag-suggestions" aria-label="Ostatnio użyte">
-          <button v-for="tag in tagSuggestions" :key="tag" type="button" class="qr-quiet" @click="commitTag(tag)">
-            <AppIcon name="add" />{{ tag }}
-          </button>
-        </div>
+        </QuietRatingBar>
       </div>
+      <!-- Tags written before the load/state split stay visible with the week they belong to. -->
+      <p v-if="legacyTags(activeArea.key).length" class="qr-legacy-tags">
+        <AppIcon name="sell" />{{ legacyTags(activeArea.key).join(', ') }}
+      </p>
     </section>
 
     <!-- Ścieżka — one block per program with a weekly reflection (plan §5) -->
@@ -214,7 +204,12 @@
           <template v-if="block.intention">
             <span class="qr-path-block__task-title">{{ block.intention.title }}</span>
             <span class="qr-path-block__task-count">
-              {{ t('programs.week.doneOf', { done: block.doneCount, target: block.intention.target.value ?? 1 }) }}
+              {{
+                t('programs.week.doneOf', {
+                  done: block.doneCount,
+                  target: block.intention.target.value ?? 1,
+                })
+              }}
             </span>
           </template>
           <span v-else-if="block.entry" class="qr-path-block__task-muted">{{ t('programs.week.declinedThisWeek') }}</span>
@@ -223,7 +218,7 @@
 
         <!-- The week's moments of this path's kind: context for the phase question (plan v2 §6). -->
         <div v-if="weekMoments(block).length" class="qr-path-moments">
-          <button type="button" class="qr-quiet" :aria-expanded="momentsOpen[block.enrollment.id] ?? false" @click="toggleMoments(block)">
+          <button type="button" class="qr-path-block__toggle" :aria-controls="`path-moments-${block.enrollment.id}`" :aria-expanded="momentsOpen[block.enrollment.id] ?? false" @click="toggleMoments(block)">
             {{
               momentsOpen[block.enrollment.id]
                 ? t('programs.week.hideMoments')
@@ -231,7 +226,7 @@
             }}
             <AppIcon :name="momentsOpen[block.enrollment.id] ? 'expand_less' : 'expand_more'" />
           </button>
-          <ul v-if="momentsOpen[block.enrollment.id]" class="qr-path-moments__list">
+          <ul v-if="momentsOpen[block.enrollment.id]" :id="`path-moments-${block.enrollment.id}`" class="qr-path-moments__list">
             <li v-for="moment in weekMoments(block).slice(0, 5)" :key="moment.id">
               <span class="qr-path-moments__day">{{ momentDayLabel(moment) }}</span>
               <span class="qr-path-moments__text">{{ momentLine(moment) }}</span>
@@ -250,6 +245,7 @@
         </label>
 
         <QuietRatingBar
+          layout="row"
           :model-value="severityValue(block)"
           :label="t(`${block.program.i18nKey}.reflection.severity`)"
           :hint="severityHint(block)"
@@ -302,26 +298,48 @@
     </section>
 
     <!-- 7 · Dziennik -->
-    <section v-else class="qr-journal" :class="{ 'qr-journal--with-context': contextOpen }">
+    <section
+      v-else
+      class="qr-journal"
+      :class="{ 'qr-journal--with-context': contextOpen || aiOpen }"
+    >
       <div class="qr-journal-main">
         <textarea v-model="freeformReflection" aria-label="Dziennik tygodnia" rows="9" placeholder="Ten tydzień…" />
         <div class="qr-journal-tools">
           <span>{{ wordCount }} {{ plural(wordCount, 'słowo', 'słowa', 'słów') }}</span>
-          <button type="button" class="qr-quiet" :aria-expanded="contextOpen" @click="contextOpen = !contextOpen">
+          <button
+            type="button"
+            class="qr-quiet"
+            :aria-expanded="contextOpen"
+            @click="toggleSidePanel('context')"
+          >
             <AppIcon name="notes" />Kontekst
           </button>
-          <button type="button" class="qr-quiet" :aria-expanded="aiOpen" @click="aiOpen = !aiOpen">
+          <button
+            type="button"
+            class="qr-quiet"
+            :aria-expanded="aiOpen"
+            @click="toggleSidePanel('ai')"
+          >
             <AppIcon name="auto_awesome" />AI
           </button>
         </div>
-        <QuietJournalAi
-          v-if="aiOpen"
-          :summary-context="summaryContext"
-          :ai-summary="aiSummary"
-          @update:ai-summary="aiSummary = $event"
-          @insert="insertIntoJournal"
-        />
+        <details v-if="aiSummary" class="qr-help">
+          <summary>Wcześniejsze podsumowanie AI</summary>
+          <p>{{ aiSummary }}</p>
+          <button type="button" class="qr-quiet" @click="insertIntoJournal(aiSummary)">
+            Dodaj podsumowanie do wpisu
+          </button>
+        </details>
       </div>
+      <ReflectionCompanionPanel
+        v-if="aiOpen"
+        :key="weekRef"
+        :period-ref="weekRef"
+        :draft="freeformReflection"
+        :ritual-context="companionRitualContext"
+        @insert="insertIntoJournal"
+      />
 
       <aside v-if="contextOpen" class="qr-context-col" aria-label="Kontekst tygodnia">
         <section class="qr-ctx">
@@ -335,7 +353,9 @@
                 <span>{{ t(areaTitleKey(area.key)) }}</span>
                 <small>{{ ratingValue(area.fields.demands) ?? '—' }} · {{ ratingValue(area.fields.state) ?? '—' }}</small>
               </button>
-              <span v-if="tagsFor(area.key).length" class="qr-ctx-tags">{{ tagsFor(area.key).join(', ') }}</span>
+              <span v-if="axisTags(area.key, 'load').length" class="qr-ctx-tags qr-ctx-tags--load" :title="t('planning.reflection.weekly.groups.load.title')">{{ axisTags(area.key, 'load').join(', ') }}</span>
+              <span v-if="axisTags(area.key, 'state').length" class="qr-ctx-tags" :title="t('planning.reflection.weekly.groups.state.title')">{{ axisTags(area.key, 'state').join(', ') }}</span>
+              <span v-if="legacyTags(area.key).length" class="qr-ctx-tags">{{ legacyTags(area.key).join(', ') }}</span>
             </li>
           </ul>
         </section>
@@ -407,6 +427,7 @@
         </section>
       </aside>
     </section>
+    <template #top><ProfileProposalNotice :conversation-id="`weekly-reflection:${weekRef}`" /></template>
   </QuietRitualShell>
 </template>
 
@@ -416,12 +437,23 @@ import type { DayRef, WeekRef } from '@/domain/period'
 import type { Quadrant } from '@/domain/emotion'
 import type { WeeklyRatingKey } from '@/domain/reflection'
 import type { LifeAreaKey } from '@/domain/reflectionMatrix'
-import { REFLECTION_MATRIX_AREAS, areaTitleKey, cellAnchorKey, cellQuestionKey } from '@/domain/reflectionMatrix'
+import {
+  REFLECTION_MATRIX_AREAS,
+  areaTitleKey,
+  cellAnchorKey,
+  cellQuestionKey,
+} from '@/domain/reflectionMatrix'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import LoadStateBars from '@/components/shared/charts/LoadStateBars.vue'
 import LoadStateRibbon from '@/components/shared/charts/LoadStateRibbon.vue'
 import { pairColor, toRating } from '@/domain/loadState'
-import { buildAreaSeries, trailingWeekRefs, weekPointLabel, type AreaSeries, type WeekPoint } from '@/domain/loadStateSeries'
+import {
+  buildAreaSeries,
+  trailingWeekRefs,
+  weekPointLabel,
+  type AreaSeries,
+  type WeekPoint,
+} from '@/domain/loadStateSeries'
 import { useT } from '@/composables/useT'
 import { useWeeklyReflectionWizard } from '@/composables/useWeeklyReflectionWizard'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
@@ -433,22 +465,19 @@ import {
   type ReflectionPathBlock,
 } from '@/services/programWeekService'
 import type { WeeklyReflection } from '@/domain/reflection'
-import {
-  emotionContextFromSummary,
-  type ReflectionPriorityLine,
-  type ReflectionSummaryContext,
-} from '@/services/reflectionSummaryService'
 import { getPeriodBounds, getPeriodRefsForDate } from '@/utils/periods'
 import type { MicroExerciseEntry } from '@/domain/microExercises'
 import { hadMoment, momentDayRef, momentsInWeek } from '@/domain/moments'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import QuietEmotionStack from './QuietEmotionStack.vue'
-import QuietJournalAi from './QuietJournalAi.vue'
+import ProfileProposalNotice from '@/features/ai-profile/ProfileProposalNotice.vue'
+import ReflectionCompanionPanel from '@/features/ai-companion/ReflectionCompanionPanel.vue'
 import QuietRatingBar from './QuietRatingBar.vue'
+import QuietTagField from './QuietTagField.vue'
 import QuietRitualShell, { type QuietRitualStep } from './QuietRitualShell.vue'
 import {
+  RATING_AXES,
   areaTagKey,
-  addTag,
   buildQuietEvidenceRows,
   formatQuietNumber,
   parseTags,
@@ -458,6 +487,7 @@ import {
   weekRangeTitle,
   type QuietEvidenceCell,
   type QuietEvidenceRow,
+  type RatingAxis,
 } from './quietRitualModel'
 
 const props = defineProps<{ weekRef: WeekRef }>()
@@ -467,7 +497,6 @@ const { t, tg, locale } = useT()
 const {
   dataBundle,
   objectComments,
-  topPriorityKeys,
   ratingRefsByKey,
   promptResponses,
   freeformReflection,
@@ -489,13 +518,22 @@ const selectedDay = ref<number | null>(null)
 const commentOpen = ref<string | null>(null)
 const anchorOpen = ref<number | null>(null)
 const contextOpen = ref(false)
-const aiOpen = ref(false)
+const aiOpen = ref(true)
+function toggleSidePanel(panel: 'context' | 'ai') {
+  if (panel === 'context') {
+    contextOpen.value = !contextOpen.value
+    if (contextOpen.value) aiOpen.value = false
+  } else {
+    aiOpen.value = !aiOpen.value
+    if (aiOpen.value) contextOpen.value = false
+  }
+}
 const saved = ref(false)
-const tagInput = reactive<Record<string, string>>({})
 /** Load/state history of the preceding weeks (the ribbon's tail); the current week is appended live. */
 const TAIL_WEEKS = 10
 const tailHistory = ref<AreaSeries | null>(null)
-const recentTags = ref<string[]>([])
+/** The user's own earlier tags per axis (newest first) — the re-use pool; '' = the legacy undivided list. */
+const recentTags = ref<Record<RatingAxis | '', string[]>>({ load: [], state: [], '': [] })
 const pathBlocks = ref<ReflectionPathBlock[]>([])
 const pastReflections = ref<WeeklyReflection[]>([])
 
@@ -507,7 +545,15 @@ const steps = computed<QuietRitualStep[]>(() => [
     question: tg(cellQuestionKey(area.key, 'state')),
   })),
   // Present only while a program with a weekly reflection runs (plan §5).
-  ...(pathBlocks.value.length ? [{ id: 'path', label: t('programs.week.stepLabel'), question: t('programs.week.stepQuestion') }] : []),
+  ...(pathBlocks.value.length
+    ? [
+        {
+          id: 'path',
+          label: t('programs.week.stepLabel'),
+          question: t('programs.week.stepQuestion'),
+        },
+      ]
+    : []),
   { id: 'anchors', label: 'Kotwice', question: 'Co warto zapamiętać?' },
   { id: 'journal', label: 'Dziennik', question: 'Zamknij tydzień własnymi słowami' },
 ])
@@ -517,7 +563,7 @@ const currentStepId = computed(() => steps.value[current.value]?.id ?? 'review')
 const activeArea = computed(() =>
   currentStepId.value.startsWith('area-')
     ? (AREAS.find(area => `area-${area.key}` === currentStepId.value) ?? null)
-    : null,
+    : null
 )
 const periodTitle = computed(() => weekRangeTitle(props.weekRef))
 const days = computed(() => quietWeekDays(props.weekRef, getPeriodBounds(props.weekRef).end as DayRef))
@@ -537,7 +583,7 @@ const evidenceRows = computed<QuietEvidenceRow[]>(() => {
     bundle.rawEntries,
     bundle.allDayAssignments,
     props.weekRef,
-    getPeriodBounds(props.weekRef).end as DayRef,
+    getPeriodBounds(props.weekRef).end as DayRef
   )
 })
 
@@ -545,8 +591,12 @@ const journalCount = computed(() => dataBundle.value?.weeklySummary.totalJournal
 const emotionCount = computed(() => dataBundle.value?.weeklySummary.totalEmotionLogs ?? 0)
 const journalEntries = computed(() =>
   (dataBundle.value?.dailyBreakdown ?? []).flatMap((day, index) =>
-    day.journal.items.map(item => ({ key: item.id, day: `${days.value[index]?.shortLabel} ${days.value[index]?.dayNumber}`, title: item.title })),
-  ),
+    day.journal.items.map(item => ({
+      key: item.id,
+      day: `${days.value[index]?.shortLabel} ${days.value[index]?.dayNumber}`,
+      title: item.title,
+    }))
+  )
 )
 const exerciseTitles = computed(() => {
   const titles = (dataBundle.value?.dailyBreakdown ?? []).flatMap(day => day.exercises.types)
@@ -556,7 +606,11 @@ const topEmotions = computed(() => {
   const counts = new Map<string, { name: string; quadrant: Quadrant; count: number }>()
   for (const day of dataBundle.value?.dailyBreakdown ?? []) {
     for (const emotion of day.emotions.items) {
-      const entry = counts.get(emotion.name) ?? { name: emotion.name, quadrant: emotion.quadrant, count: 0 }
+      const entry = counts.get(emotion.name) ?? {
+        name: emotion.name,
+        quadrant: emotion.quadrant,
+        count: 0,
+      }
       entry.count += 1
       counts.set(emotion.name, entry)
     }
@@ -565,63 +619,41 @@ const topEmotions = computed(() => {
 })
 const commentedRows = computed(() => evidenceRows.value.filter(row => (objectComments.value[row.key] ?? '').trim()))
 const filledAnchors = computed(() =>
-  ANCHORS.map(anchor => ({ ...anchor, text: (promptResponses.value[anchor.key] ?? '').trim() })).filter(anchor => anchor.text),
+  ANCHORS.map(anchor => ({
+    ...anchor,
+    text: (promptResponses.value[anchor.key] ?? '').trim(),
+  })).filter(anchor => anchor.text)
 )
 const wordCount = computed(() => freeformReflection.value.trim().split(/\s+/).filter(Boolean).length)
 
 const currentPair = computed(() => {
   const area = activeArea.value
   if (!area) return { load: null, state: null }
-  return { load: toRating(ratingValue(area.fields.demands)), state: toRating(ratingValue(area.fields.state)) }
+  return {
+    load: toRating(ratingValue(area.fields.demands)),
+    state: toRating(ratingValue(area.fields.state)),
+  }
 })
 const currentPairRated = computed(() => currentPair.value.load != null && currentPair.value.state != null)
 const tailPoints = computed<WeekPoint[]>(() => {
   const area = activeArea.value
   if (!area) return []
   const history = tailHistory.value?.[area.key] ?? []
-  return [...history, { weekRef: props.weekRef, label: weekPointLabel(props.weekRef), ...currentPair.value }]
+  return [
+    ...history,
+    { weekRef: props.weekRef, label: weekPointLabel(props.weekRef), ...currentPair.value },
+  ]
 })
 
-const areaTags = computed(() => (activeArea.value ? tagsFor(activeArea.value.key) : []))
-const tagSuggestions = computed(() => recentTags.value.filter(tag => !areaTags.value.includes(tag)).slice(0, 8))
-
-const summaryPriorities = computed<ReflectionPriorityLine[]>(() => {
-  const bundle = dataBundle.value
-  if (!bundle) return []
-  const priorityKeys = new Set(topPriorityKeys.value)
-  return bundle.weekObjectItems
-    .filter(item => priorityKeys.has(item.key) || (objectComments.value[item.key] ?? '').trim().length > 0)
-    .map(item => ({ title: item.subject.title, status: item.measurement.evaluationStatus, comment: objectComments.value[item.key] }))
-})
-const summaryContext = computed<ReflectionSummaryContext>(() => {
-  const bundle = dataBundle.value
-  return {
-    kind: 'weekly',
-    periodLabel: `${props.weekRef} · ${periodTitle.value}`,
-    ratings: AREAS.flatMap(area => [
-      { label: `${t(areaTitleKey(area.key))} · obciążenie`, value: ratingValue(area.fields.demands) },
-      { label: `${t(areaTitleKey(area.key))} · stan`, value: ratingValue(area.fields.state) },
-    ]),
-    anchors: [
-      ...ANCHORS.map(anchor => ({ label: anchor.label, text: (promptResponses.value[anchor.key] ?? '').trim() })),
-      ...pathBlocks.value.flatMap(block => {
-        const title = t(`${block.program.i18nKey}.title`)
-        const keys = pathKeys(block)
-        const severity = severityValue(block)
-        return [
-          { label: `${title} · ${tg('programs.week.outcomeQuestion')}`, text: (promptResponses.value[keys.outcome] ?? '').trim() },
-          { label: `${title} · ${t(`${block.program.i18nKey}.reflection.severity`)}`, text: severity === null ? '' : `${severity}/5` },
-          { label: `${title} · ${t('programs.week.stepLabel')}`, text: (promptResponses.value[keys.phase] ?? '').trim() },
-        ]
-      }),
-    ].filter(anchor => anchor.text.length > 0),
-    freeform: freeformReflection.value,
-    journalEntries: bundle?.journalEntries ?? [],
-    emotionLogs: bundle?.emotionLogs ?? [],
-    emotions: bundle ? emotionContextFromSummary(bundle.emotionSummary) : undefined,
-    priorities: summaryPriorities.value,
-  }
-})
+const companionRitualContext = computed(() =>
+  JSON.stringify({
+    ratings: Object.fromEntries(
+      Object.entries(ratingRefsByKey).map(([key, value]) => [key, value.value])
+    ),
+    answers: promptResponses.value,
+    comments: objectComments.value,
+  })
+)
 
 onMounted(async () => {
   // The ribbon's tail: the preceding weeks; the current week is appended live from the bars.
@@ -631,22 +663,25 @@ onMounted(async () => {
   // no shared vocabulary for area tags.
   const all = await structuredReflectionDexieRepository.listWeekly()
   pastReflections.value = all.filter(item => item.weekRef !== props.weekRef)
-  pathBlocks.value = await loadReflectionPathBlocks(props.weekRef).catch((err) => {
+  pathBlocks.value = await loadReflectionPathBlocks(props.weekRef).catch(err => {
     console.error('Failed to load program blocks for the weekly reflection:', err)
     return []
   })
-  if (pathBlocks.value.some((block) => block.program.momentKind)) {
+  if (pathBlocks.value.some(block => block.program.momentKind)) {
     void microEntryStore.loadEntries()
   }
-  const seen: string[] = []
-  for (const reflection of all.filter(item => item.weekRef !== props.weekRef).slice(-8).reverse()) {
+  const pools: Record<RatingAxis | '', string[]> = { load: [], state: [], '': [] }
+  for (const reflection of pastReflections.value.slice(-8).reverse()) {
     for (const area of AREAS) {
-      for (const tag of parseTags(reflection.promptResponses[areaTagKey(area.key)])) {
-        if (!seen.includes(tag)) seen.push(tag)
+      for (const axis of [...RATING_AXES, '' as const]) {
+        const pool = pools[axis]
+        for (const tag of parseTags(reflection.promptResponses[areaTagKey(area.key, axis || undefined)])) {
+          if (!pool.includes(tag)) pool.push(tag)
+        }
       }
     }
   }
-  recentTags.value = seen.slice(0, 12)
+  recentTags.value = pools
 })
 
 function go(index: number) {
@@ -666,36 +701,40 @@ function setRating(key: WeeklyRatingKey, value: number | null) {
   saved.value = false
 }
 
-function tagsFor(areaKey: LifeAreaKey): string[] {
+function axisTags(areaKey: LifeAreaKey, axis: RatingAxis): string[] {
+  return parseTags(promptResponses.value[areaTagKey(areaKey, axis)])
+}
+/** Tags saved before the load/state split (`tags:<area>`) — read-only here. */
+function legacyTags(areaKey: LifeAreaKey): string[] {
   return parseTags(promptResponses.value[areaTagKey(areaKey)])
 }
-function writeTags(areaKey: LifeAreaKey, tags: string[]) {
-  promptResponses.value = { ...promptResponses.value, [areaTagKey(areaKey)]: serializeTags(tags) }
+function writeAxisTags(areaKey: LifeAreaKey, axis: RatingAxis, tags: string[]) {
+  promptResponses.value = { ...promptResponses.value, [areaTagKey(areaKey, axis)]: serializeTags(tags) }
   saved.value = false
+  const pool = recentTags.value[axis]
+  for (const tag of tags) if (!pool.includes(tag)) pool.unshift(tag)
 }
-function commitTag(raw: string) {
-  const area = activeArea.value
-  if (!area) return
-  const next = addTag(tagsFor(area.key), raw)
-  writeTags(area.key, next)
-  tagInput[area.key] = ''
-  const tag = raw.trim().replace(/\s+/g, ' ')
-  if (tag && !recentTags.value.includes(tag)) recentTags.value = [tag, ...recentTags.value].slice(0, 12)
-}
-function removeTag(tag: string) {
-  const area = activeArea.value
-  if (!area) return
-  writeTags(
-    area.key,
-    tagsFor(area.key).filter(entry => entry !== tag),
-  )
+/** Same axis first (this week's other areas, then earlier weeks), then the other axis, then legacy tags. */
+function axisTagSuggestions(areaKey: LifeAreaKey, axis: RatingAxis): string[] {
+  const seen: string[] = []
+  const push = (tags: string[]) => {
+    for (const tag of tags) if (!seen.includes(tag)) seen.push(tag)
+  }
+  for (const area of AREAS) if (area.key !== areaKey) push(axisTags(area.key, axis))
+  push(recentTags.value[axis])
+  for (const other of RATING_AXES) if (other !== axis) push(recentTags.value[other])
+  push(recentTags.value[''])
+  return seen
 }
 
 function pathKeys(block: ReflectionPathBlock) {
   return programReflectionKeys(block.enrollment.id)
 }
 function setPathAnswer(key: string, event: Event) {
-  promptResponses.value = { ...promptResponses.value, [key]: (event.target as HTMLTextAreaElement).value }
+  promptResponses.value = {
+    ...promptResponses.value,
+    [key]: (event.target as HTMLTextAreaElement).value,
+  }
   saved.value = false
 }
 function severityValue(block: ReflectionPathBlock): number | null {
@@ -739,7 +778,9 @@ function toggleMoments(block: ReflectionPathBlock): void {
 }
 
 function momentDayLabel(moment: MicroExerciseEntry): string {
-  return new Date(`${momentDayRef(moment)}T12:00:00`).toLocaleDateString(locale.value, { weekday: 'short' })
+  return new Date(`${momentDayRef(moment)}T12:00:00`).toLocaleDateString(locale.value, {
+    weekday: 'short',
+  })
 }
 
 function momentLine(moment: MicroExerciseEntry): string {
@@ -764,17 +805,27 @@ async function toggleStay(block: ReflectionPathBlock, stay: boolean) {
   const updated = await setStayNextWeek(block.enrollment.id, props.weekRef, stay)
   pathBlocks.value = pathBlocks.value.map(candidate =>
     candidate.enrollment.id === block.enrollment.id
-      ? { ...candidate, enrollment: updated, entry: updated.weekLog?.find(entry => entry.weekRef === props.weekRef) }
-      : candidate,
+      ? {
+          ...candidate,
+          enrollment: updated,
+          entry: updated.weekLog?.find(entry => entry.weekRef === props.weekRef),
+        }
+      : candidate
   )
 }
 
 function setAnchor(key: string, event: Event) {
-  promptResponses.value = { ...promptResponses.value, [key]: (event.target as HTMLTextAreaElement).value }
+  promptResponses.value = {
+    ...promptResponses.value,
+    [key]: (event.target as HTMLTextAreaElement).value,
+  }
   saved.value = false
 }
 function setComment(key: string, event: Event) {
-  objectComments.value = { ...objectComments.value, [key]: (event.target as HTMLTextAreaElement).value }
+  objectComments.value = {
+    ...objectComments.value,
+    [key]: (event.target as HTMLTextAreaElement).value,
+  }
   saved.value = false
 }
 
@@ -812,6 +863,46 @@ async function finishAndPlanNext() {
 </script>
 
 <style scoped>
+/* The calendar canvas has a desktop minimum width; the reflection is a fluid form. */
+:global(.planning-next:has(.quiet-ritual--week-review)) {
+  min-width: 0;
+  height: auto;
+}
+:global(main:has(> .planning-next .quiet-ritual--week-review)) {
+  min-width: 0;
+}
+.qr-card,
+.qr-journal {
+  min-width: 0;
+}
+.quiet-ritual--week-review {
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  :global(.planning-next:has(.quiet-ritual--week-review)) {
+    padding: 0;
+  }
+}
+@media (max-width: 900px) {
+  .qr-footer {
+    flex-wrap: wrap;
+  }
+  .qr-footer nav {
+    min-width: 0;
+    flex: 1;
+  }
+  .qr-progress {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .qr-finish {
+    flex-basis: 100%;
+    align-items: stretch;
+  }
+  .qr-heading h1 {
+    overflow-wrap: anywhere;
+  }
+}
 /* Momenty under the path's task: a quiet disclosure, rows one tone deeper. */
 .qr-path-moments {
   display: grid;

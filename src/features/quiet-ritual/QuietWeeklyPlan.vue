@@ -79,7 +79,7 @@
               <strong>{{ candidate.title }}</strong>
               <small>{{ candidate.targetLabel }}</small>
             </span>
-            <span class="qr-check"><AppIcon v-if="selectedKeys.includes(candidate.key)" name="check" /></span>
+            <span class="mg-well qr-well" :class="{ 'mg-well--done': selectedKeys.includes(candidate.key) }" aria-hidden="true"></span>
           </button>
           <button
             v-if="candidate.intention"
@@ -145,132 +145,135 @@
       <div class="qr-table-scroll">
         <div class="qr-table">
           <div class="qr-table-head">
-            <span>Fokus tygodnia</span>
+            <span>{{ selectedRows.length ? 'Fokus tygodnia' : 'W tym tygodniu' }}</span>
             <span v-for="day in days" :key="day.dayRef">{{ day.shortLabel }}<small>{{ day.dayNumber }}</small></span>
             <span>Cel</span>
             <span aria-hidden="true"></span>
           </div>
-          <article v-for="row in plannerRows" :key="planner.rowKey(row)" class="qr-plan-row">
-            <div class="qr-table-row">
-              <span class="qr-row-name">
-                <AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /><strong>{{ row.title }}</strong>
-              </span>
-              <button
-                v-if="planner.rowSoftKind(row) === 'whole-week'"
-                type="button"
-                class="qr-whole"
-                :aria-label="`Wybierz konkretne dni: ${row.title}`"
-                title="Wybierz konkretne dni"
-                @click="planner.handleWholeWeekToggle(row)"
-              >
-                W tym tygodniu · bez terminu<AppIcon name="edit_calendar" />
-              </button>
-              <template v-else>
+          <template v-for="group in plannerGroups" :key="group.key">
+            <p v-if="group.label" class="qr-table-group">{{ group.label }}</p>
+            <article v-for="row in group.rows" :key="planner.rowKey(row)" class="qr-plan-row">
+              <div class="qr-table-row">
+                <span class="qr-row-name">
+                  <AppIcon :name="row.icon ?? SUBJECT_ICON[row.subjectType]" /><strong>{{ row.title }}</strong>
+                </span>
                 <button
-                  v-for="day in days"
-                  :key="day.dayRef"
+                  v-if="planner.rowSoftKind(row) === 'whole-week'"
                   type="button"
-                  class="qr-day-button"
-                  :class="{
-                    soft: planner.dayCellState(row, day.dayRef) === 'soft',
-                    beyond: planner.isDayBeyondGoalEnd(row, day.dayRef),
-                  }"
-                  :aria-label="`${row.title}, ${day.shortLabel} ${day.dayNumber}`"
-                  :aria-pressed="planner.dayCellState(row, day.dayRef) !== 'empty'"
-                  :title="beyondTitle(row, day.dayRef)"
-                  @click="planner.handleMatrixCellToggle(row, day.dayRef)"
-                >
-                  <span><i /></span>
-                </button>
-              </template>
-              <button
-                type="button"
-                class="qr-target"
-                :aria-label="`Cel tygodnia: ${row.title}`"
-                :title="targetTitle(row)"
-                :aria-expanded="targetOpen === planner.rowKey(row)"
-                :disabled="!planner.weekTargetEditable(row)"
-                @click="targetOpen = targetOpen === planner.rowKey(row) ? null : planner.rowKey(row)"
-              >
-                {{ planner.editableTarget(row)?.value ?? '—' }}
-              </button>
-              <div class="qr-row-tools">
-                <button
-                  type="button"
-                  class="qr-quiet qr-flexible"
-                  :aria-label="`Bez terminu: ${row.title}`"
-                  :aria-pressed="planner.rowSoftKind(row) === 'whole-week'"
-                  title="Na ten tydzień, bez konkretnych dni"
+                  class="qr-whole"
+                  :aria-label="`Wybierz konkretne dni: ${row.title}`"
+                  title="Wybierz konkretne dni"
                   @click="planner.handleWholeWeekToggle(row)"
                 >
-                  Bez terminu
+                  W tym tygodniu · bez terminu<AppIcon name="edit_calendar" />
                 </button>
+                <template v-else>
+                  <button
+                    v-for="day in days"
+                    :key="day.dayRef"
+                    type="button"
+                    class="qr-day-button"
+                    :class="{
+                      soft: planner.dayCellState(row, day.dayRef) === 'soft',
+                      beyond: planner.isDayBeyondGoalEnd(row, day.dayRef),
+                    }"
+                    :aria-label="`${row.title}, ${day.shortLabel} ${day.dayNumber}`"
+                    :aria-pressed="planner.dayCellState(row, day.dayRef) !== 'empty'"
+                    :title="beyondTitle(row, day.dayRef)"
+                    @click="planner.handleMatrixCellToggle(row, day.dayRef)"
+                  >
+                    <span><i /></span>
+                  </button>
+                </template>
                 <button
                   type="button"
-                  class="qr-quiet qr-clear"
-                  :disabled="!planner.rowHasWeekPlacement(row)"
-                  :aria-label="`Wyczyść dni: ${row.title}`"
-                  title="Wyczyść przypisanie"
-                  @click="planner.handleRowClear(row)"
+                  class="qr-target"
+                  :aria-label="`Cel tygodnia: ${row.title}`"
+                  :title="targetTitle(row)"
+                  :aria-expanded="targetOpen === planner.rowKey(row)"
+                  :disabled="!planner.weekTargetEditable(row)"
+                  @click="targetOpen = targetOpen === planner.rowKey(row) ? null : planner.rowKey(row)"
                 >
-                  <AppIcon name="ink_eraser" />
+                  {{ planner.editableTarget(row)?.value ?? '—' }}
                 </button>
+                <div class="qr-row-tools">
+                  <button
+                    type="button"
+                    class="qr-quiet qr-flexible"
+                    :aria-label="`Bez terminu: ${row.title}`"
+                    :aria-pressed="planner.rowSoftKind(row) === 'whole-week'"
+                    title="Na ten tydzień, bez konkretnych dni"
+                    @click="planner.handleWholeWeekToggle(row)"
+                  >
+                    Bez terminu
+                  </button>
+                  <button
+                    type="button"
+                    class="qr-quiet qr-clear"
+                    :disabled="!planner.rowHasWeekPlacement(row)"
+                    :aria-label="`Wyczyść dni: ${row.title}`"
+                    title="Wyczyść przypisanie"
+                    @click="planner.handleRowClear(row)"
+                  >
+                    <AppIcon name="ink_eraser" />
+                  </button>
+                </div>
               </div>
-            </div>
-            <div v-if="targetOpen === planner.rowKey(row)" class="qr-target-edit">
-              <label>
-                Cel na tydzień
-                <input
-                  type="number"
-                  min="0"
-                  max="9999"
-                  :value="planner.editableTarget(row)?.value ?? 0"
-                  @change="onTargetValue(row, $event)"
-                />
-              </label>
-              <details>
-                <summary>Więcej opcji</summary>
-                <p>{{ targetTitle(row) }}</p>
-                <label v-if="planner.editableTarget(row)?.entryDays">
-                  Dni z wpisem
+              <div v-if="targetOpen === planner.rowKey(row)" class="qr-target-edit">
+                <label>
+                  Cel na tydzień
                   <input
                     type="number"
-                    min="1"
-                    max="7"
-                    :value="planner.editableTarget(row)?.entryDays?.value ?? 1"
-                    @change="onEntryDays(row, $event)"
+                    min="0"
+                    max="9999"
+                    :value="planner.editableTarget(row)?.value ?? 0"
+                    @change="onTargetValue(row, $event)"
                   />
                 </label>
-                <button
-                  v-if="planner.hasWeekOverride(row)"
-                  type="button"
-                  class="qr-quiet"
-                  @click="planner.handleClearOverride(row)"
-                >
-                  <AppIcon name="undo" />Wróć do celu bazowego
-                </button>
-              </details>
-            </div>
-            <div
-              v-if="planner.deadlineProposal.value?.rowKey === planner.rowKey(row)"
-              class="qr-deadline"
-              role="group"
-              aria-label="Przesunięcie terminu celu"
-            >
-              <AppIcon name="event_upcoming" />
-              <p>
-                Cel <strong>{{ planner.deadlineProposal.value!.goalTitle }}</strong> kończy się
-                {{ onDayPhrase(planner.deadlineProposal.value!.currentTargetDate) }}.
-                Przesunąć termin na {{ dayPhrase(planner.deadlineProposal.value!.dayRef) }} i zaplanować ten dzień?
-              </p>
-              <div class="qr-deadline-actions">
-                <button type="button" class="qr-primary" :disabled="Boolean(planner.savingKey.value)" @click="planner.confirmDeadlineProposal()">
-                  Przesuń termin
-                </button>
-                <button type="button" class="qr-quiet" @click="planner.dismissDeadlineProposal()">Zostaw</button>
+                <details>
+                  <summary>Więcej opcji</summary>
+                  <p>{{ targetTitle(row) }}</p>
+                  <label v-if="planner.editableTarget(row)?.entryDays">
+                    Dni z wpisem
+                    <input
+                      type="number"
+                      min="1"
+                      max="7"
+                      :value="planner.editableTarget(row)?.entryDays?.value ?? 1"
+                      @change="onEntryDays(row, $event)"
+                    />
+                  </label>
+                  <button
+                    v-if="planner.hasWeekOverride(row)"
+                    type="button"
+                    class="qr-quiet"
+                    @click="planner.handleClearOverride(row)"
+                  >
+                    <AppIcon name="undo" />Wróć do celu bazowego
+                  </button>
+                </details>
               </div>
-            </div>
-          </article>
+              <div
+                v-if="planner.deadlineProposal.value?.rowKey === planner.rowKey(row)"
+                class="qr-deadline"
+                role="group"
+                aria-label="Przesunięcie terminu celu"
+              >
+                <AppIcon name="event_upcoming" />
+                <p>
+                  Cel <strong>{{ planner.deadlineProposal.value!.goalTitle }}</strong> kończy się
+                  {{ onDayPhrase(planner.deadlineProposal.value!.currentTargetDate) }}.
+                  Przesunąć termin na {{ dayPhrase(planner.deadlineProposal.value!.dayRef) }} i zaplanować ten dzień?
+                </p>
+                <div class="qr-deadline-actions">
+                  <button type="button" class="qr-primary" :disabled="Boolean(planner.savingKey.value)" @click="planner.confirmDeadlineProposal()">
+                    Przesuń termin
+                  </button>
+                  <button type="button" class="qr-quiet" @click="planner.dismissDeadlineProposal()">Zostaw</button>
+                </div>
+              </div>
+            </article>
+          </template>
         </div>
       </div>
       <p v-if="planner.mutationError.value" class="qr-mutation-error" role="alert">
@@ -279,8 +282,8 @@
       <p v-if="!selectedKeys.length" class="qr-empty">
         Nie wybrano fokusu. <button type="button" class="qr-quiet" @click="go(0)">Wybierz działania</button>
       </p>
-      <button type="button" class="qr-quiet" :aria-expanded="showRest" @click="showRest = !showRest">
-        {{ showRest ? 'Zwiń pozostałe działania' : 'Pozostałe działania' }}<AppIcon name="expand_more" />
+      <button v-if="restRows.length" type="button" class="qr-quiet" :aria-expanded="showRest" @click="showRest = !showRest">
+        {{ showRest ? 'Zwiń pozostałe działania' : `Pozostałe działania (${restRows.length})` }}<AppIcon name="expand_more" />
       </button>
     </section>
 
@@ -447,10 +450,24 @@ const monthSupport = computed(() =>
 const selectedRows = computed(() =>
   planner.allRows.value.filter(row => selectedKeys.value.includes(planner.rowKey(row))),
 )
-const plannerRows = computed(() =>
-  showRest.value
-    ? [...selectedRows.value, ...planner.allRows.value.filter(row => !selectedKeys.value.includes(planner.rowKey(row)))]
-    : selectedRows.value,
+const isSelected = (row: PlannerMeasurementRow) => selectedKeys.value.includes(planner.rowKey(row))
+/** Non-focus objects already engaged in this week — they get planned here anyway, so they stay open. */
+const weekRows = computed(() =>
+  [
+    ...planner.engagedKeyResultRows.value,
+    ...planner.engagedHabitRows.value,
+    ...planner.engagedIntentionRows.value,
+    ...planner.engagedTrackerRows.value,
+  ].filter(row => !isSelected(row)),
+)
+/** Objects with no involvement this week wait behind one reveal. */
+const restRows = computed(() => planner.dormantRows.value.filter(row => !isSelected(row)))
+const plannerGroups = computed(() =>
+  [
+    { key: 'focus', label: '', rows: selectedRows.value },
+    { key: 'week', label: selectedRows.value.length ? 'Też w tym tygodniu' : '', rows: weekRows.value },
+    { key: 'rest', label: 'Pozostałe działania', rows: showRest.value ? restRows.value : [] },
+  ].filter(group => group.rows.length),
 )
 const unplaced = computed(() => selectedRows.value.filter(row => !planner.rowHasWeekPlacement(row)))
 const flexibleItems = computed<QuietPlanGroupItem[]>(() =>
@@ -547,7 +564,7 @@ function toggleFocusRow(row: PlannerMeasurementRow) {
 }
 
 async function reviewEdit(key: string) {
-  showRest.value = !selectedKeys.value.includes(key)
+  showRest.value = restRows.value.some(row => planner.rowKey(row) === key)
   targetOpen.value = null
   go(1)
 }

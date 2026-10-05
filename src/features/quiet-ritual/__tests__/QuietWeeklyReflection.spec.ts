@@ -68,7 +68,9 @@ describe('QuietWeeklyReflection · area step (load + state)', () => {
     expect(ribbon.findAll('.ls-ribbon__hit')).toHaveLength(10)
     // one gap in history + unrated current week → history splits into two runs
     expect(ribbon.findAll('.ls-ribbon__line--state')).toHaveLength(2)
-    expect(wrapper.find('.qr-tail header small').text()).toContain('jeszcze bez oceny')
+    // the ribbon header carries the area name only — no week count, no "drawn at the end" aside
+    expect(wrapper.find('.qr-tail header small').exists()).toBe(false)
+    expect(wrapper.find('.qr-tail header').text()).not.toMatch(/tygodni|weeks|oceny/)
     wrapper.unmount()
   })
 
@@ -83,7 +85,32 @@ describe('QuietWeeklyReflection · area step (load + state)', () => {
     expect(ratingRefsByKey.energyRating.value).toBe(5)
     await flushPromises()
     expect(wrapper.findAll('.qr-bars .qr-axis')[1].classes()).toContain('qr-axis--paired')
-    expect(wrapper.find('.qr-tail header small').text()).toContain('dorysowany')
+    expect(wrapper.find('.qr-tail .ls-ribbon__hit').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('keeps separate tags under the load bar and the state bar', async () => {
+    wizard.promptResponses.value = { 'tags:body': 'stary tag' }
+    const wrapper = await mountOnBodyStep()
+    const [loadBar, stateBar] = wrapper.findAll('.qr-bars .qr-axis')
+    expect(loadBar.find('.qr-tagfield').exists()).toBe(true)
+    expect(stateBar.find('.qr-tagfield').exists()).toBe(true)
+    // the legacy undivided list is still shown with the week, read-only
+    expect(wrapper.find('.qr-legacy-tags').text()).toContain('stary tag')
+
+    await loadBar.find('.qr-tagfield-toggle').trigger('click')
+    await loadBar.find('.qr-tagfield-editor input').setValue('sen')
+    await loadBar.find('.qr-tagfield-editor input').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    expect(wizard.promptResponses.value).toMatchObject({ 'tags:body:load': 'sen', 'tags:body': 'stary tag' })
+    expect(wizard.promptResponses.value).not.toHaveProperty('tags:body:state')
+
+    await stateBar.find('.qr-tagfield-toggle').trigger('click')
+    await stateBar.find('.qr-tagfield-editor input').setValue('spokój')
+    await stateBar.find('.qr-tagfield-editor input').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    expect(wizard.promptResponses.value).toMatchObject({ 'tags:body:load': 'sen', 'tags:body:state': 'spokój' })
+    wizard.promptResponses.value = {}
     wrapper.unmount()
   })
 })

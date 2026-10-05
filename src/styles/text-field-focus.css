@@ -1,0 +1,40 @@
+/* One focus owner across legacy fields, Design V2 and quiet rituals.
+   Inset emphasis stays visible inside scrolling/rounded containers. */
+#app
+  :is(
+    textarea,
+    input:not([type]),
+    input[type='text'],
+    input[type='email'],
+    input[type='password'],
+    input[type='search'],
+    input[type='url'],
+    input[type='tel'],
+    input[type='number'],
+    select
+  ):focus {
+  outline: 2px solid transparent;
+  outline-offset: 0;
+  border-color: var(--mg-color-primary, rgb(var(--color-focus-ring)));
+  box-shadow: inset 0 0 0 2px var(--mg-color-primary, rgb(var(--color-focus-ring)));
+}
+/* An editor canvas owns the focus indicator for its transparent inner field. */
+#app .mg-v2-editor-canvas:focus-within {
+  border-color: var(--mg-color-primary);
+  box-shadow: inset 0 0 0 2px var(--mg-color-primary);
+}
+#app .mg-v2-editor-canvas :is(textarea, input):focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+@media (forced-colors: active) {
+  #app :is(textarea, input, select):focus,
+  #app .mg-v2-editor-canvas:focus-within {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+  #app .mg-v2-editor-canvas :is(textarea, input):focus {
+    outline: none;
+  }
+}
