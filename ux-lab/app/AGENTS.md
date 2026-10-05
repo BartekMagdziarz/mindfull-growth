@@ -282,3 +282,11 @@ When implementing from a selected generated mock, treat that image as the source
   in the proposal card; the B/C variants panel was removed. Row label = short
   month (or the year for monthly cadence), cells `flex:1 1 0; max-width:44px`,
   calm organic radii, no rotation. Product port still pending the user's call.
+
+
+## Shame path v3 — visual direction, 2026-10-04
+
+- Before designing P2, update the local neomorphism-frontend skill to match the current Sky Mist application style. Today, Calendar and Objects are the primary visual references.
+- The user requests the lightness of clouds and the blue sky: soft organic surfaces, restrained depth, little text, short necessary copy and minimal badges. Keep explanations and metadata behind disclosure; do not decorate the surface with status pills.
+- The dashboard concept belongs in UX Lab before the production port, as established in the shame-path v3 plan. Preserve existing experiments and keep prototype state isolated.
+- Round 3 (2026-10-05, Claude): the Codex draft of `/concepts/shame-path` was redrawn in the product grammar — one card with week rows (Dzisiaj row states: transparent → mist on hover → paper when open), wells for week numbers and steps, Momenty as a matrix heatmap + reading discs + stacked bars (no categorical palette, no hatch patterns), uppercase card eyebrows, chip actions, token font ladder (nothing under 11 px except day letters). Sample data stays in `src/lab/shamePath.ts`; charts in `src/components/ShameMomentsGlance.vue`.

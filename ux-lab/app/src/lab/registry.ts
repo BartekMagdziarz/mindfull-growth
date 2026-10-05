@@ -131,6 +131,15 @@ export const navGroups: LabNavGroup[] = [
     items: [{ id: 'quick-plan', label: 'Kalendarz i plan tygodnia', kicker: '04 · rozwinięcie w Dzisiaj · wcześniejsze warianty do porównania', icon: 'edit_calendar', path: '/concepts/quick-plan', kind: 'concept' }],
   },
   {
+    id: 'today-concepts',
+    label: 'Dzisiaj',
+    items: [
+      { id: 'today-row-expansion', label: 'Rozwinięty wiersz planu dnia', kicker: 'Eksperyment · dysk „dziś” kończy wstęgę 7 dni · jedno przejście z tacki do akcji', icon: 'unfold_more', path: '/concepts/today-row-expansion', kind: 'concept' },
+      { id: 'shame-path', label: 'Ze wstydu do współczucia', kicker: 'P2 · runda 3 · widok ścieżki w gramatyce Dzisiaj i Kalendarza · refleksja · pole w Dzisiaj', icon: 'route', path: '/concepts/shame-path', kind: 'concept' },
+      { id: 'today-path-panel', label: 'Pole „Ścieżki”', kicker: 'Eksperyment · małe pole w Dzisiaj + dashboard widoku ścieżki · runda 2', icon: 'route', path: '/concepts/today-path-panel', kind: 'concept' },
+    ],
+  },
+  {
     id: 'objects-concepts',
     label: 'Obiekty',
     items: [{ id: 'object-cards', label: 'Karta obiektu w edycji', kicker: 'Eksperyment · obecnie vs propozycja · rodziny × tryby wpisu', icon: 'view_agenda', path: '/concepts/object-cards', kind: 'concept' }],

@@ -10,6 +10,9 @@ import WeekLoadStateScenario from '~lab/scenarios/WeekLoadStateScenario.vue'
 import WeekLoadStatePlacesScenario from '~lab/scenarios/WeekLoadStatePlacesScenario.vue'
 import LabGuideScenario from '~lab/scenarios/LabGuideScenario.vue'
 import ObjectCardsScenario from '~lab/scenarios/ObjectCardsScenario.vue'
+import TodayRowExpansionScenario from '~lab/scenarios/TodayRowExpansionScenario.vue'
+import TodayPathPanelScenario from '~lab/scenarios/TodayPathPanelScenario.vue'
+import ShamePathScenario from '~lab/scenarios/ShamePathScenario.vue'
 import WorkbenchScenario from '~lab/scenarios/WorkbenchScenario.vue'
 import ReplicaPreviewScenario from '~lab/scenarios/ReplicaPreviewScenario.vue'
 
@@ -20,6 +23,9 @@ export default createRouter({
     { path: '/concepts/icons', component: OrganicIconCatalog, meta: { scenarioId: 'icons' } },
     { path: '/concepts/quick-plan', component: QuickPlanScenario, meta: { scenarioId: 'quick-plan' } },
     { path: '/concepts/object-cards', component: ObjectCardsScenario, meta: { scenarioId: 'object-cards' } },
+    { path: '/concepts/today-row-expansion', component: TodayRowExpansionScenario, meta: { scenarioId: 'today-row-expansion' } },
+    { path: '/concepts/today-path-panel', component: TodayPathPanelScenario, meta: { scenarioId: 'today-path-panel' } },
+    { path: '/concepts/shame-path', component: ShamePathScenario, meta: { scenarioId: 'shame-path' } },
     { path: '/research', component: ResearchScenario, meta: { scenarioId: 'research' } },
     { path: '/map', component: SystemMapScenario, meta: { scenarioId: 'map' } },
     { path: '/concepts/priority-creator', component: PriorityCreatorScenario, meta: { scenarioId: 'priority-creator' } },
