@@ -68,9 +68,9 @@ export const SHAME_COMPASS_PARTS: Readonly<Record<ShameReaction, ShameCompassPar
   },
   avoid: {
     reaction: 'avoid',
-    name: 'Unikający',
+    name: 'Odwracający uwagę',
     role: 'firefighter',
-    positiveIntention: 'Odsuwa samo poczucie, zanim zdąży zaboleć.',
+    positiveIntention: 'Odwraca uwagę od samego poczucia, zanim zdąży zaboleć.',
     tag: 'shame-compass:avoid',
   },
 }

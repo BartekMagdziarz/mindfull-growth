@@ -3608,7 +3608,7 @@
         "why": "Gdy reakcja ma imię, staje się częścią, a nie tobą. Łatwiej ją przyłapać następnym razem i zobaczyć w rozkładzie tygodni, która słabnie.",
         "options": {
           "withdraw": "Ukrywający",
-          "avoid": "Unikający",
+          "avoid": "Odwracający uwagę",
           "attackSelf": "Krytyk",
           "attackOthers": "Oskarżyciel",
           "none": {
@@ -3787,7 +3787,7 @@
           "withdraw": "Ukrywający",
           "attackSelf": "Krytyk",
           "attackOthers": "Oskarżyciel",
-          "avoid": "Unikający"
+          "avoid": "Odwracający uwagę"
         },
         "optionHints": {
           "withdraw": "wycofanie, znikanie",
@@ -3852,7 +3852,7 @@
         "why": "Gdy znasz swoje typowe reakcje, łatwiej przyłapać je w trakcie i zamiast nich zadbać o siebie.",
         "options": {
           "withdraw": "Ukrywający",
-          "avoid": "Unikający",
+          "avoid": "Odwracający uwagę",
           "attackSelf": "Krytyk",
           "attackOthers": "Oskarżyciel"
         },
@@ -3908,7 +3908,7 @@
       },
       "partsIntro": {
         "title": "Każda z tych reakcji to część, która chroni",
-        "description": "Ukrywający nie chce, żeby cię zobaczono. Krytyk uprzedza cudzą krytykę. Oskarżyciel odpycha innych, zanim zaboli. Unikający odsuwa samo poczucie. Założymy je w twoim rejestrze części, żeby dalej można je było poznać, nazwać po swojemu i z nimi rozmawiać.",
+        "description": "Ukrywający nie chce, żeby cię zobaczono. Krytyk uprzedza cudzą krytykę. Oskarżyciel odpycha innych, zanim zaboli. Odwracający uwagę odsuwa samo poczucie. Założymy je w twoim rejestrze części, żeby dalej można je było poznać, nazwać po swojemu i z nimi rozmawiać.",
         "why": "Praca z częścią jest łagodniejsza niż walka z „wadą”. Część ma intencję, którą da się zrozumieć, i metodę, którą da się zmienić."
       }
     },
@@ -4169,7 +4169,7 @@
           "withdraw": "Ukrywający",
           "attackSelf": "Krytyk",
           "attackOthers": "Oskarżyciel",
-          "avoid": "Unikający"
+          "avoid": "Odwracający uwagę"
         },
         "optionHints": {
           "withdraw": "wycofanie, znikanie",
@@ -4462,7 +4462,7 @@
           "withdraw": "Ukrywający",
           "attackSelf": "Krytyk",
           "attackOthers": "Oskarżyciel",
-          "avoid": "Unikający",
+          "avoid": "Odwracający uwagę",
           "none": "Nic szczególnego"
         },
         "optionHints": {

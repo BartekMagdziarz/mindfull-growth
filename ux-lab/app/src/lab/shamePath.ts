@@ -60,7 +60,7 @@ export const weeks = phaseKeys.map((key, i) => ({
 }))
 export const totalSteps = steps.slice(0, 8).reduce((sum, list) => sum + list.length, 0)
 
-export const partLabels = ['Ukrywający', 'Krytyk', 'Oskarżyciel', 'Unikający']
+export const partLabels = ['Ukrywający', 'Krytyk', 'Oskarżyciel', 'Odwracający uwagę']
 export const partKeys = ['withdraw', 'attackSelf', 'attackOthers', 'avoid'] as const
 export const noticingLabels = ['W trakcie', 'Po chwili', 'Po godzinach', 'Dopiero później']
 export const noticingKeys = ['during', 'soon', 'hours', 'later'] as const
@@ -87,7 +87,7 @@ export const entries: MicroExerciseEntry[] = counts.flatMap((count, wi) =>
         compass,
         noticed: noticingKeys[Math.max(0, (j % 4) - Math.floor(wi / 3))]!,
         response: j < Math.min(count, wi + 2) ? ['breath', 'unblend'] : ['nothing'],
-        // Krytyk takes the wheel hardest, Unikający most softly; strength eases over the weeks.
+        // Krytyk takes the wheel hardest, Odwracający uwagę most softly; strength eases over the weeks.
         strength: Math.max(1, Math.min(5, ({ withdraw: 4, attackSelf: 5, attackOthers: 4, avoid: 3, none: 2 }[compass] ?? 3) - Math.floor(wi / 3))),
         ...(j % 2 === 0 ? { criticSaid: 'Powinienem był wiedzieć.' } : {}),
         ...(j < wi + 1

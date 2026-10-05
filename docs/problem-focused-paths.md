@@ -81,7 +81,7 @@ instrument in the detail view, filled only from the steps' own attempts.
 
 Content v3 (2026-10-04, plan `ideas/html-plans/2026-10-04-shame-path-v3.html`, research
 `ideas/research/2026-10-04-*`): **phases = weeks** (`w1…w8` + `return`), the compass
-reactions become **IFS parts** (Ukrywający · Krytyk · Oskarżyciel · Unikający, created by
+reactions become **IFS parts** (Ukrywający · Krytyk · Oskarżyciel · Odwracający uwagę, created by
 the shame map with tags `shame-compass:<reaction>`), a safe place and the named resistances
 before the first inward practice, the compassionate self, a mid-path dose check, fierce
 self-compassion (defender voice), writing after a moment, a letter to the future self, the

@@ -102,7 +102,7 @@ export type MicroExerciseStep = MicroStepBase &
         /**
          * optionId → IFS part tag: when the user has a part with that tag,
          * the option reads as the part's own name (the shame path's
-         * Ukrywający · Krytyk · Oskarżyciel · Unikający, renameable).
+         * Ukrywający · Krytyk · Oskarżyciel · Odwracający uwagę, renameable).
          */
         labelsFromParts?: Record<string, string>
       }

@@ -378,7 +378,10 @@
       "w4": {
         "title": "Look differently",
         "why": "Evidence through the eyes of someone close. Halfway: we check the dose, not the result.",
-        "question": "Which moments of the week turned out to be a demand, not a deed?"
+        "question": {
+          "m": "Which moments of the week turned out to be a demand, not a deed?",
+          "f": "Which moments of the week turned out to be a demand, not a deed?"
+        }
       },
       "w5": {
         "title": "The critic as a part",
@@ -411,85 +414,108 @@
     },
     "steps": {
       "step1": {
-        "intro": "Start by measuring self-compassion. The same scale returns halfway, at the end and at the Return."
+        "intro": "Start by measuring self-compassion. The same scale returns halfway, at the end and at the Return.",
+        "title": "Self-compassion — measure"
       },
       "step2": {
-        "intro": "A second measure: the three voices you answer yourself with when things go wrong. It returns at the end and at the Return."
+        "intro": "A second measure: the three voices you answer yourself with when things go wrong. It returns at the end and at the Return.",
+        "title": "Three voices — measure"
       },
       "step3": {
         "intro": "See where shame speaks up most, how you react to it and which demand on yourself sits behind it. The reactions become parts in your registry."
       },
       "step4": {
-        "intro": "Say in your own words what you most want to change and how you'll know it's working. That sentence stays at the top of the path."
+        "intro": "Say in your own words what you most want to change and how you'll know it's working. That sentence stays at the top of the path.",
+        "title": "How I will know it changed"
       },
       "step5": {
         "intro": "Before you turn to yourself with warmth, build a place to return to when it gets too much, and name what your resistance says."
       },
       "step6": {
-        "intro": "Create an image of a compassionate figure, starting with someone you find easy to care for. Its sentence returns in the following steps."
+        "intro": "Create an image of a compassionate figure, starting with someone you find easy to care for. Its sentence returns in the following steps.",
+        "title": "Compassionate figure"
       },
       "step7": {
         "intro": "Now you are the compassion. Posture, voice, the eight qualities of Self-energy and a sentence to the part that is ashamed."
       },
       "step8": {
-        "intro": "Build a personal plan for the moment of shame: signal, breath, an unblending sentence, one question, one sentence and a small move towards contact. From now on you practise it in life."
+        "intro": "Build a personal plan for the moment of shame: signal, breath, an unblending sentence, one question, one sentence and a small move towards contact. From now on you practise it in life.",
+        "title": "Plan for a hard moment"
       },
       "step9": {
         "intro": "Take one moment from Moments and ask what the shame is about. A deed can be repaired, an event needs care, a demand needs checking."
       },
       "step10": {
-        "intro": "Pick a moment and take apart the hot \"I am…\" thought. Look for evidence through the eyes of someone close to you, not a prosecutor."
+        "intro": "Pick a moment and take apart the hot \"I am…\" thought. Look for evidence through the eyes of someone close to you, not a prosecutor.",
+        "title": "Thought record"
       },
       "step11": {
-        "intro": "Halfway: repeat the self-compassion scale. A picture of change, not a verdict."
+        "intro": "Halfway: repeat the self-compassion scale. A picture of change, not a verdict.",
+        "title": "Self-compassion — halfway"
       },
       "step12": {
-        "intro": "Let's check the dose, not the result. If there are too many practices, fewer will stay; if you're doing none, the smallest one stays."
+        "intro": "Let's check the dose, not the result. If there are too many practices, fewer will stay; if you're doing none, the smallest one stays.",
+        "title": "Is it too much?"
       },
       "step13": {
-        "intro": "Pick a moment when the critic spoke up and treat it as a trailhead to the part. Enter from the position of your compassionate self."
+        "intro": "Pick a moment when the critic spoke up and treat it as a trailhead to the part. Enter from the position of your compassionate self.",
+        "title": "Trailhead"
       },
       "step14": {
-        "intro": "Get to know the Critic as a protector: what is it afraid would happen if it stopped? At the end write the sentence with which you take the wheel from it."
+        "intro": "Get to know the Critic as a protector: what is it afraid would happen if it stopped? At the end write the sentence with which you take the wheel from it.",
+        "title": "What the Critic guards"
       },
       "step15": {
-        "intro": "Optional step. Talk to the Critic directly: the assistant plays its voice and you answer from Self."
+        "intro": "Optional step. Talk to the Critic directly: the assistant plays its voice and you answer from Self.",
+        "title": "A talk with the Critic"
       },
       "step16": {
-        "intro": "Pick a moment and write a letter to yourself in the voice of your compassionate self. At the end you'll check that the letter holds support, not advice."
+        "intro": "Pick a moment and write a letter to yourself in the voice of your compassionate self. At the end you'll check that the letter holds support, not advice.",
+        "title": "Letter to myself"
       },
       "step17": {
-        "intro": "The fierce side of compassion: how a friend would defend you and the sentence you defend yourself with, without \"sorry\" and without \"but\"."
+        "intro": "The fierce side of compassion: how a friend would defend you and the sentence you defend yourself with, without \"sorry\" and without \"but\".",
+        "title": "In my own defence"
       },
       "step18": {
-        "intro": "Move from the demand to a belief about yourself. The fair demand from \"What is this shame about?\" becomes the alternative belief you now collect evidence for."
+        "intro": "Move from the demand to a belief about yourself. The fair demand from \"What is this shame about?\" becomes the alternative belief you now collect evidence for.",
+        "title": "What I think of myself"
       },
       "step19": {
-        "intro": "Test in life the prediction \"if they see the real me, they'll reject me\". A small, safe situation, the prediction written down, then the result."
+        "intro": "Test in life the prediction \"if they see the real me, they'll reject me\". A small, safe situation, the prediction written down, then the result.",
+        "title": "Testing it in life"
       },
       "step20": {
-        "intro": "Optional step, only if the protectors agree. Stay with a younger part for a while, without fixing. \"Not yet\" is a good answer too and completes the step."
+        "intro": "Optional step, only if the protectors agree. Stay with a younger part for a while, without fixing. \"Not yet\" is a good answer too and completes the step.",
+        "title": "With the younger part"
       },
       "step21": {
-        "intro": "Repeat the self-compassion scale. You'll see the series: start, halfway, end."
+        "intro": "Repeat the self-compassion scale. You'll see the series: start, halfway, end.",
+        "title": "Self-compassion — at the end"
       },
       "step22": {
-        "intro": "Repeat the three-voices scale. The reassured self grows, the inadequate and hated selves weaken: that's the muscle you're training."
+        "intro": "Repeat the three-voices scale. The reassured self grows, the inadequate and hated selves weaken: that's the muscle you're training.",
+        "title": "Three voices — at the end"
       },
       "step23": {
-        "intro": "Write a letter to yourself for a worse day, in the voice of your compassionate self. It returns in the week you choose."
+        "intro": "Write a letter to yourself for a worse day, in the voice of your compassionate self. It returns in the week you choose.",
+        "title": "Letter for a worse day"
       },
       "step24": {
-        "intro": "Decide which practices stay with you and in what rhythm. This step closes the path; the Return comes in eight weeks."
+        "intro": "Decide which practices stay with you and in what rhythm. This step closes the path; the Return comes in eight weeks.",
+        "title": "What stays with me"
       },
       "step25": {
-        "intro": "The Return after eight weeks: the self-compassion scale for the fourth time."
+        "intro": "The Return after eight weeks: the self-compassion scale for the fourth time.",
+        "title": "Self-compassion — eight weeks on"
       },
       "step26": {
-        "intro": "The Return: the three voices for the third time."
+        "intro": "The Return: the three voices for the third time.",
+        "title": "Three voices — eight weeks on"
       },
       "step27": {
-        "intro": "Read the letter from yourself. What stayed, what came back, one small move for the coming week."
+        "intro": "Read the letter from yourself. What stayed, what came back, one small move for the coming week.",
+        "title": "What stayed, what came back"
       }
     },
     "practices": {
@@ -604,6 +630,12 @@
         },
         "why": "Shame isolates. Asking for help is a move in the opposite direction."
       }
+    },
+    "scaleLabels": {
+      "inadequateSelf": "Feeling I am not enough",
+      "hatedSelf": "Dislike of myself",
+      "reassuredSelf": "Reassuring myself",
+      "total": "Self-compassion"
     }
   },
   "ifs-parts": {
