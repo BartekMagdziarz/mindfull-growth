@@ -468,6 +468,8 @@ export interface CompassionateLetter {
   selfCriticalThoughts: string[] // What the inner critic says
   compassionateResponse: string // The compassionate letter text
   takeaways: string[] // Key insights from the exercise
+  /** Gilbert's checklist items the writer ticked when reading the letter back (shame path v3 §7.3). */
+  checklist?: string[]
   llmAssistUsed?: boolean
   notes?: string
 }
@@ -1358,6 +1360,8 @@ export interface IFSProtectorAppreciation {
   handover?: string
   checkInFrequency?: 'weekly' | 'biweekly' | 'monthly'
   plannedReturnItemId?: string // ExercisePlanItem created from checkInFrequency
+  /** CFT check after the part's answer: does the body soften, stay, or tighten while reading it? */
+  bodyCheck?: 'softens' | 'same' | 'tightens'
   llmAssistUsed?: boolean
   notes?: string
 }

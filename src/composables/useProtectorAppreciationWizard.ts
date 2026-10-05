@@ -17,6 +17,7 @@ export type ProtectorAppreciationStep =
   | 'understand-job'
   | 'write-letter'
   | 'part-response'
+  | 'body-check'
   | 'commitment'
   | 'check-in'
   | 'summary'
@@ -26,6 +27,7 @@ const STEP_ORDER: ProtectorAppreciationStep[] = [
   'understand-job',
   'write-letter',
   'part-response',
+  'body-check',
   'commitment',
   'check-in',
   'summary',
@@ -59,6 +61,8 @@ export function useProtectorAppreciationWizard() {
   const llmAssistUsed = ref(false)
   const isLoadingResponse = ref(false)
   const llmError = ref<string | null>(null)
+  // CFT check: while reading the part's answer, does the body soften, stay or tighten? ("czy pomaga, czy tylko brzmi")
+  const bodyCheck = ref<'softens' | 'same' | 'tightens' | null>(null)
 
   // Commitment
   const commitment = ref('')
@@ -102,6 +106,8 @@ export function useProtectorAppreciationWizard() {
       case 'part-response':
         return responseMode.value !== null &&
           (responseMode.value === 'ai' ? partResponse.value.length > 0 : partResponse.value.trim().length > 0)
+      case 'body-check':
+        return true
       case 'commitment':
         return true
       case 'check-in':
@@ -210,6 +216,7 @@ export function useProtectorAppreciationWizard() {
         handover: handover.value.trim() || undefined,
         checkInFrequency: checkInFrequency.value ?? undefined,
         plannedReturnItemId,
+        bodyCheck: bodyCheck.value ?? undefined,
         llmAssistUsed: llmAssistUsed.value,
         notes: notes.value.trim() || undefined,
       }
@@ -241,6 +248,7 @@ export function useProtectorAppreciationWizard() {
     appreciationLetter.value = ''
     partResponse.value = ''
     responseMode.value = null
+    bodyCheck.value = null
     llmAssistUsed.value = false
     isLoadingResponse.value = false
     llmError.value = null
@@ -283,6 +291,7 @@ export function useProtectorAppreciationWizard() {
     isLoadingResponse,
     llmError,
     generateResponse,
+    bodyCheck,
 
     // Commitment
     commitment,

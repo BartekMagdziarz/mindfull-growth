@@ -19,7 +19,10 @@
       "title": "What Values Lie Behind These Qualities?",
       "description": "Group similar qualities and name what they share, e.g. honesty or courage. Enter each value in its own field.",
       "why": "A value is a direction you choose, not a box to tick. Once it has a name, it is easier to check whether your choices move you that way.",
-      "qualitiesSummaryLabel": { "m": "Qualities you identified:", "f": "Qualities you identified:" },
+      "qualitiesSummaryLabel": {
+        "m": "Qualities you identified:",
+        "f": "Qualities you identified:"
+      },
       "valuePlaceholder": "E.g. honesty",
       "addValue": "Add value",
       "reflectionTitle": "Additional Reflection",
@@ -145,8 +148,11 @@
     "stepSubtitles": {
       "intro": "A quick check-in across the areas that shape your life",
       "setup": "Create or activate life areas before starting this assessment",
-      "rate": { "m": "How fulfilled are you in each area?", "f": "How fulfilled are you in each area?" },
-      "focus": "Pick 2\u20133 areas you want to improve this year",
+      "rate": {
+        "m": "How fulfilled are you in each area?",
+        "f": "How fulfilled are you in each area?"
+      },
+      "focus": "Pick 2–3 areas you want to improve this year",
       "reflectReflection": "What has this year taught you?",
       "reflectStandalone": "What insights does your wheel reveal?"
     },
@@ -155,7 +161,7 @@
       "snapshotDescription": "Each slice of the wheel is one area of your life. You'll rate how well each one matches what matters to you today.",
       "instruction1": "Rate each area from 1–10 (10 = fully aligned).",
       "instruction2": "Notice which areas stand out from the rest.",
-      "instruction3": "There is no perfect wheel \u2014 the goal is insight, not a \"10\" everywhere."
+      "instruction3": "There is no perfect wheel — the goal is insight, not a \"10\" everywhere."
     },
     "rater": {
       "areaLabel": "Area {n}",
@@ -215,10 +221,19 @@
       "overallNotesPlaceholder": "What stands out most is…"
     },
     "reflectionPrompts": {
-      "growth": { "m": "Where did you grow the most this year?", "f": "Where did you grow the most this year?" },
+      "growth": {
+        "m": "Where did you grow the most this year?",
+        "f": "Where did you grow the most this year?"
+      },
       "surprise": "What surprised you about your scores?",
-      "gratitude": { "m": "Which area are you most grateful for?", "f": "Which area are you most grateful for?" },
-      "overallBalance": { "m": "How are you satisfied with the overall balance?", "f": "How are you satisfied with the overall balance?" },
+      "gratitude": {
+        "m": "Which area are you most grateful for?",
+        "f": "Which area are you most grateful for?"
+      },
+      "overallBalance": {
+        "m": "How are you satisfied with the overall balance?",
+        "f": "How are you satisfied with the overall balance?"
+      },
       "negativeImpact": "Which areas negatively impact other areas?",
       "positiveImpact": "Which areas if improved would improve other areas?",
       "energyCare": "Are you investing energy where you actually care?"
@@ -256,7 +271,7 @@
   },
   "shadowBeliefs": {
     "title": "Shadow Beliefs",
-    "description": "Shadow beliefs are deep, often unexamined assumptions that can quietly undermine your decisions and actions. This exercise helps you notice them \u2014 not to judge yourself, but to build awareness.",
+    "description": "Shadow beliefs are deep, often unexamined assumptions that can quietly undermine your decisions and actions. This exercise helps you notice them — not to judge yourself, but to build awareness.",
     "beliefs": {
       "title": "Which of these beliefs do you recognize in yourself?",
       "description": "Select any that feel familiar, or add your own.",
@@ -318,7 +333,7 @@
     },
     "curiosities": {
       "title": "What Are You Curious About?",
-      "description": "List five things you're genuinely curious about. Don't filter \u2014 include anything that draws your attention.",
+      "description": "List five things you're genuinely curious about. Don't filter — include anything that draws your attention.",
       "why": "Curiosity doesn't need to be forced. A purpose built on what already draws you in is easier to sustain for years.",
       "placeholder": "E.g. how memory works",
       "nextButton": "Next: Find the Common Thread"
@@ -752,7 +767,8 @@
       "innerCritic": "Inner Critic",
       "response": "Response",
       "takeaways": "Takeaways",
-      "summary": "Summary"
+      "summary": "Summary",
+      "check": "Check"
     },
     "intro": {
       "title": "Compassionate Letter",
@@ -771,8 +787,8 @@
     "situation": {
       "title": "What happened, or what are you struggling with?",
       "description": {
-        "m": "Describe it as if telling a trusted friend. There's no need to analyze or judge \u2014 just say what's going on.",
-        "f": "Describe it as if telling a trusted friend. There's no need to analyze or judge \u2014 just say what's going on."
+        "m": "Describe it as if telling a trusted friend. There's no need to analyze or judge — just say what's going on.",
+        "f": "Describe it as if telling a trusted friend. There's no need to analyze or judge — just say what's going on."
       },
       "placeholder": "Something happened that's been weighing on me..."
     },
@@ -800,7 +816,7 @@
       },
       "llmLoading": "Writing...",
       "llmLabel": "Help me find words",
-      "llmHint": "Use this as inspiration \u2014 the letter should be in your own words:"
+      "llmHint": "Use this as inspiration — the letter should be in your own words:"
     },
     "takeaways": {
       "title": "What resonated with you?",
@@ -819,6 +835,29 @@
     },
     "errors": {
       "guidanceFailed": "Failed to get guidance"
+    },
+    "check": {
+      "title": "Read the letter back",
+      "description": {
+        "m": "Read slowly, as if someone close had written it to you. Tick what is in it.",
+        "f": "Read slowly, as if someone close had written it to you. Tick what is in it."
+      },
+      "why": "A compassionate letter works when it carries care, not advice. Checking six qualities is Gilbert’s way to tell the two apart.",
+      "items": {
+        "care": "There is care for me in it",
+        "sensitivity": "It sees what really hurts",
+        "tolerance": "It helps me bear the hard feeling instead of pushing it away",
+        "nonJudgement": "It does not judge or demand",
+        "warmth": "Warmth runs through the whole letter, not only the end",
+        "nextStep": "It helps me see the next small step"
+      },
+      "warning": {
+        "m": "The letter contains advice and “should”. Support works better than advice — try replacing it with what you would like to hear.",
+        "f": "The letter contains advice and “should”. Support works better than advice — try replacing it with what you would like to hear."
+      },
+      "lengthNote": "The letter is short. A few more sentences usually let the warmth land.",
+      "insertDraft": "Insert into the letter as a draft",
+      "editLetter": "Back to the letter"
     }
   },
   "positiveDataLog": {
@@ -898,12 +937,18 @@
       "demand": {
         "title": "Which fair demand do you want to strengthen?",
         "description": "Enter a demand on yourself that passed the close-person test, e.g. “It's enough that I say what I don't know”. You can take it from the “What is this shame about?” step.",
-        "why": { "m": "Someone else's demand mostly picks up what confirms it. This log collects evidence for the fair one: situations where what you did was enough.", "f": "Someone else's demand mostly picks up what confirms it. This log collects evidence for the fair one: situations where what you did was enough." },
+        "why": {
+          "m": "Someone else's demand mostly picks up what confirms it. This log collects evidence for the fair one: situations where what you did was enough.",
+          "f": "Someone else's demand mostly picks up what confirms it. This log collects evidence for the fair one: situations where what you did was enough."
+        },
         "placeholder": "e.g. “It's enough that I ask for help instead of knowing everything”",
         "label": "Fair demand",
         "confirmationDescription": "Once created, you return to this log to add evidence for the demand. Over time you'll see that it is enough.",
         "addEvidenceDescription": "Write down one event where this demand was enough. Small ones count too.",
-        "evidencePlaceholder": { "m": "e.g. I said “I don't know” in a meeting and the conversation moved on.", "f": "e.g. I said “I don't know” in a meeting and the conversation moved on." }
+        "evidencePlaceholder": {
+          "m": "e.g. I said “I don't know” in a meeting and the conversation moved on.",
+          "f": "e.g. I said “I don't know” in a meeting and the conversation moved on."
+        }
       }
     }
   },
@@ -1213,12 +1258,12 @@
     },
     "intro": {
       "title": "Graded Exposure Hierarchy",
-      "description": "Like climbing a ladder \u2014 you start with the easiest step and work your way up. By gradually facing feared situations, your anxiety naturally decreases over time.",
+      "description": "Like climbing a ladder — you start with the easiest step and work your way up. By gradually facing feared situations, your anxiety naturally decreases over time.",
       "fearLadder": "Your fear ladder",
       "high": "High",
       "medium": "Medium",
       "low": "Low",
-      "ladderDescription": "You'll build a list of situations rated by how much distress they cause (0\u2013100), then work through them from easiest to hardest."
+      "ladderDescription": "You'll build a list of situations rated by how much distress they cause (0–100), then work through them from easiest to hardest."
     },
     "fearTarget": {
       "fearTitle": "What are you afraid of?",
@@ -1247,7 +1292,7 @@
       "yourLadder": "Your Ladder",
       "stepOfTotal": "Step {step} of {total}",
       "tipTitle": "Tip",
-      "tipDescription": "Aim for 8\u201315 items spanning the full range (0\u2013100). Include some easy ones (20\u201330) to build confidence.",
+      "tipDescription": "Aim for 8–15 items spanning the full range (0–100). Include some easy ones (20–30) to build confidence.",
       "moreNeeded": "({n} more needed)"
     },
     "safetyBehaviors": {
@@ -1996,7 +2041,13 @@
         "ariaLabel": "Body location picker"
       },
       "tsibp": {
-        "labels": ["T", "S", "I", "B", "N"]
+        "labels": [
+          "T",
+          "S",
+          "I",
+          "B",
+          "N"
+        ]
       },
       "bodyLocations": {
         "head": "Head",
@@ -2527,7 +2578,8 @@
       "response": "Response",
       "commitment": "Commitment",
       "checkIn": "Coming Back",
-      "summary": "Save"
+      "summary": "Save",
+      "bodyCheck": "Body"
     },
     "selectProtector": {
       "title": "Protector Appreciation",
@@ -2644,6 +2696,17 @@
       "saving": "Saving...",
       "updatePartLabel": "Update the part’s card?",
       "updatePartHint": "The protector’s fear and what it protects from will be written to the part’s card (only empty fields are filled in)."
+    },
+    "bodyCheck": {
+      "title": "As you read this, your body…",
+      "description": "Read the part’s answer once more and notice the body. This checks whether it helps or only sounds right.",
+      "why": "In CFT a helpful answer is known by the body, not the words: it softens when it lands, tightens when it sounds like one more demand.",
+      "options": {
+        "softens": "softens",
+        "same": "no change",
+        "tightens": "tightens"
+      },
+      "tightensNote": "If the body tightens, the answer may sound like a demand. Come back to it later or warm the tone."
     }
   },
   "exileWitnessing": {

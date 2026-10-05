@@ -3,7 +3,7 @@
     :title="t('exercises.cards.thoughtRecord.title')"
     :subtitle="t('exercises.cards.thoughtRecord.subtitle')"
   >
-    <ThoughtRecordWizard v-if="!saved" @saved="handleSaved" />
+    <ThoughtRecordWizard v-if="!saved" :seed="wizardSeed" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="thought-record" @again="saved = false" />
 
     <!-- Past Records -->
@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -63,8 +63,12 @@ import { useThoughtRecordStore } from '@/stores/thoughtRecord.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import type { CreateThoughtRecordPayload, ThoughtRecord } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 
 const { t } = useT()
+// Launched from a path moment (`?momentId=`): the situation and the critic's line prefill the record.
+const { seed } = useMomentSeed()
+const wizardSeed = computed(() => (seed.value ? { situation: seed.value.situation, thought: seed.value.criticThought } : undefined))
 const thoughtRecordStore = useThoughtRecordStore()
 const emotionStore = useEmotionStore()
 const saved = ref(false)

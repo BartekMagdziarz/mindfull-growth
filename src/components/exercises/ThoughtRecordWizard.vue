@@ -603,6 +603,9 @@ import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import type { Quadrant } from '@/domain/emotion'
 
+/** Prefill from a path moment (`?momentId=`): what happened and what the critic said — editable. */
+const props = defineProps<{ seed?: { situation?: string; thought?: string } }>()
+
 const emit = defineEmits<{
   saved: [data: CreateThoughtRecordPayload]
 }>()
@@ -671,6 +674,16 @@ function getEmotionName(emotionId: string): string {
 // --- Step 4: Automatic Thoughts ---
 const automaticThoughts = reactive<string[]>([''])
 const hotThoughtIndex = ref(0)
+
+watch(
+  () => props.seed,
+  (seed) => {
+    if (!seed) return
+    if (seed.situation && !situation.value.trim()) situation.value = seed.situation
+    if (seed.thought && !automaticThoughts[0]?.trim()) automaticThoughts[0] = seed.thought
+  },
+  { immediate: true },
+)
 
 const hasValidThoughts = computed(() => {
   return automaticThoughts.some((t) => t.trim().length > 0)

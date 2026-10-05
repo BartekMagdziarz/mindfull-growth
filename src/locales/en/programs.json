@@ -794,5 +794,19 @@
     "soFar": "So far",
     "beginning": "Beginning",
     "lately": "Lately"
+  },
+  "momentPicker": {
+    "title": "Which moment to start from?",
+    "lead": {
+      "m": "Pick a moment from Momenty and the exercise starts with what you already wrote. Everything stays editable.",
+      "f": "Pick a moment from Momenty and the exercise starts with what you already wrote. Everything stays editable."
+    },
+    "without": "Without a moment"
+  },
+  "maintenance": {
+    "title": "Plan the practices you kept?",
+    "lead": "Each gets a next date ({rhythm}) and offers the next one once done, like every repeat.",
+    "cta": "Plan",
+    "done": "Planned. First date: {date}."
   }
 }

@@ -3,7 +3,7 @@
     :title="t('exercises.cards.protectorAppreciation.title')"
     :subtitle="t('exercises.cards.protectorAppreciation.subtitle')"
   >
-    <ProtectorAppreciationWizard v-if="!saved" @saved="handleSaved" />
+    <ProtectorAppreciationWizard v-if="!saved" :initial-part-tag="partTag" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="protector-appreciation" @again="saved = false" />
 
     <!-- Past Appreciations -->
@@ -71,6 +71,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
@@ -82,6 +83,9 @@ import { useT } from '@/composables/useT'
 import { useIfsLabels } from '@/composables/useIfsLabels'
 
 const { t } = useT()
+const route = useRoute()
+/** A path step names the protector to appreciate (`?partTag=shame-compass:attackSelf`). */
+const partTag = computed(() => (typeof route.query.partTag === 'string' ? route.query.partTag : undefined))
 
 const { formatProtectorBehavior } = useIfsLabels()
 const appreciationStore = useIFSProtectorAppreciationStore()

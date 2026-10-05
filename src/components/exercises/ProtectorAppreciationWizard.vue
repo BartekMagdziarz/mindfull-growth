@@ -280,6 +280,39 @@
         </div>
       </template>
 
+      <!-- Step 4b: Body check — does the answer help, or only sound right? -->
+      <template v-else-if="currentStep === 'body-check'">
+        <div class="space-y-6">
+          <AppCard padding="lg" class="space-y-4" data-testid="protector-body-check">
+            <h2 class="text-base font-semibold text-on-surface">{{ t('exerciseWizards.protectorAppreciation.bodyCheck.title') }}</h2>
+            <p class="text-sm text-on-surface-variant">{{ tg('exerciseWizards.protectorAppreciation.bodyCheck.description') }}</p>
+            <ExerciseStepWhy :text="tg('exerciseWizards.protectorAppreciation.bodyCheck.why')" />
+            <AppCard v-if="partResponse" variant="inset" padding="md">
+              <p class="text-sm text-on-surface italic whitespace-pre-line">„{{ partResponse }}”</p>
+            </AppCard>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button
+                v-for="option in bodyCheckOptions"
+                :key="option"
+                type="button"
+                class="neo-focus rounded-xl p-3 text-left transition-all"
+                :class="bodyCheck === option ? 'neo-selector neo-selector--active border' : 'neo-selector border'"
+                :aria-pressed="bodyCheck === option"
+                @click="bodyCheck = bodyCheck === option ? null : option"
+              >
+                <span class="text-sm font-medium text-on-surface">{{ t(`exerciseWizards.protectorAppreciation.bodyCheck.options.${option}`) }}</span>
+              </button>
+            </div>
+            <p v-if="bodyCheck === 'tightens'" class="text-sm text-on-surface-variant">{{ tg('exerciseWizards.protectorAppreciation.bodyCheck.tightensNote') }}</p>
+          </AppCard>
+
+          <div class="flex justify-between">
+            <AppButton variant="text" @click="prevStep()">{{ t('common.buttons.back') }}</AppButton>
+            <AppButton variant="filled" @click="nextStep()">{{ t('common.buttons.next') }}</AppButton>
+          </div>
+        </div>
+      </template>
+
       <!-- Step 5: Commitment -->
       <template v-else-if="currentStep === 'commitment'">
         <div class="space-y-6">
@@ -459,7 +492,7 @@
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -486,6 +519,9 @@ function formatDayRef(dayRef: string): string {
 
 const { formatCheckInFrequency } = useIfsLabels()
 
+/** A path step may name the protector (`?partTag=shame-compass:attackSelf`); the list stays as fallback. */
+const props = defineProps<{ initialPartTag?: string }>()
+
 const emit = defineEmits<{
   saved: []
 }>()
@@ -496,7 +532,7 @@ const useProfileResponse = ref(userPreferencesStore.profileContextDefault)
 
 const STEPS: ProtectorAppreciationStep[] = [
   'select-protector', 'understand-job', 'write-letter', 'part-response',
-  'commitment', 'check-in', 'summary',
+  'body-check', 'commitment', 'check-in', 'summary',
 ]
 
 const stepLabels = computed(() => [
@@ -504,6 +540,7 @@ const stepLabels = computed(() => [
   t('exerciseWizards.protectorAppreciation.steps.understandJob'),
   t('exerciseWizards.protectorAppreciation.steps.appreciationLetter'),
   t('exerciseWizards.protectorAppreciation.steps.response'),
+  t('exerciseWizards.protectorAppreciation.steps.bodyCheck'),
   t('exerciseWizards.protectorAppreciation.steps.commitment'),
   t('exerciseWizards.protectorAppreciation.steps.checkIn'),
   t('exerciseWizards.protectorAppreciation.steps.summary'),
@@ -531,6 +568,7 @@ const {
   isLoadingResponse,
   llmError,
   generateResponse,
+  bodyCheck,
   commitment,
   handover,
   checkInFrequency,
@@ -546,6 +584,23 @@ const {
 const selectedPart = computed(() => partId.value ? partStore.getPartById(partId.value) : null)
 const selectedPartName = computed(() => selectedPart.value?.name ?? t('exerciseWizards.protectorAppreciation.selectProtector.defaultName'))
 const selectedPartRole = computed(() => selectedPart.value?.role ?? null)
+
+// Preselect the part a path step named, once the registry is loaded.
+watch(
+  () => [props.initialPartTag, partStore.sortedParts.length] as const,
+  ([tag]) => {
+    if (!tag || partId.value) return
+    const part = partStore.sortedParts.find((candidate) => candidate.tags?.includes(tag))
+    if (part) partId.value = part.id
+  },
+  { immediate: true },
+)
+// What the part is afraid of is asked once: a card that already knows it prefills the answer.
+watch(selectedPart, (part) => {
+  if (part?.fears && !fearIfStopped.value.trim()) fearIfStopped.value = part.fears
+})
+
+const bodyCheckOptions = ['softens', 'same', 'tightens'] as const
 
 const protectorParts = computed(() =>
   partStore.sortedParts.filter((p) => p.role === 'manager' || p.role === 'firefighter')

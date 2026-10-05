@@ -3,7 +3,7 @@
     :title="t('exercises.cards.compassionateLetter.title')"
     :subtitle="t('exercises.cards.compassionateLetter.subtitle')"
   >
-    <CompassionateLetterWizard v-if="!saved" @saved="handleSaved" />
+    <CompassionateLetterWizard v-if="!saved" :seed="wizardSeed" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="compassionate-letter" @again="saved = false" />
 
     <!-- Past letters section -->
@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
@@ -38,8 +38,12 @@ import CompassionateLetterWizard from '@/components/exercises/CompassionateLette
 import { useCompassionateLetterStore } from '@/stores/compassionateLetter.store'
 import type { CreateCompassionateLetterPayload } from '@/domain/exercises'
 import { useT } from '@/composables/useT'
+import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 
 const { t } = useT()
+// Launched from a path moment (`?momentId=`): the situation and the critic's sentence prefill the letter.
+const { seed } = useMomentSeed()
+const wizardSeed = computed(() => (seed.value ? { situation: seed.value.situation, criticThought: seed.value.criticThought } : undefined))
 const compassionateLetterStore = useCompassionateLetterStore()
 const saved = ref(false)
 

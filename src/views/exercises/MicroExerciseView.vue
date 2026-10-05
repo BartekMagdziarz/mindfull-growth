@@ -21,6 +21,8 @@
 
     <template v-else>
       <ExerciseSavedPanel :exercise-slug="slug" @again="saved = false" />
+      <!-- The maintenance plan closes the path: the kept practices become repeat plans. -->
+      <MaintenanceRepeatsPanel v-if="slug === 'maintenance-plan' && lastResponses" :responses="lastResponses" />
       <AppCard v-if="definition.afterSave && lastResponses" padding="lg" class="micro-follow-up mt-4">
         <div class="micro-follow-up__copy">
           <h2 class="text-base font-semibold text-on-surface">
@@ -76,6 +78,7 @@ import AppCard from '@/components/AppCard.vue'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
 import MicroExerciseRunner from '@/components/exercises/MicroExerciseRunner.vue'
+import MaintenanceRepeatsPanel from '@/features/program-path/MaintenanceRepeatsPanel.vue'
 import { useT } from '@/composables/useT'
 import { definitionSlugFor, getCatalogEntry } from '@/data/exerciseCatalog'
 import { getMicroExercise } from '@/data/microExercises'

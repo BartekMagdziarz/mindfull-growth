@@ -116,6 +116,7 @@
       </aside>
     </div>
 
+    <MomentPickerDialog v-model="launcher.pickerOpen.value" :moments="launcher.pickerMoments.value" @pick="launcher.picked($event)" />
     <AppDialog
       v-model="abandonDialogOpen"
       :title="t('programs.ui.abandonConfirmTitle')"
@@ -154,6 +155,8 @@ import PathMeasureTracks from '@/features/program-path/PathMeasureTracks.vue'
 import PathMomentsGlance from '@/features/program-path/PathMomentsGlance.vue'
 import PathNowCard, { type PathNowMode } from '@/features/program-path/PathNowCard.vue'
 import PathSentencesCard from '@/features/program-path/PathSentencesCard.vue'
+import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
+import { useStepLauncher } from '@/features/program-path/useStepLauncher'
 import { currentGroupIndex, pathGroups, weekCount } from '@/features/program-path/pathModel'
 import { structuredReflectionDexieRepository } from '@/repositories/structuredReflectionDexieRepository'
 import { deriveStepStates, isPracticeItem } from '@/services/programSchedulerService'
@@ -180,6 +183,7 @@ const { t, tg, locale } = useT()
 const enrollmentStore = useProgramEnrollmentStore()
 const planStore = useExercisePlanStore()
 const entryStore = useMicroExerciseEntryStore()
+const launcher = useStepLauncher()
 
 const slug = computed(() => String(route.params.slug ?? ''))
 const program = computed(() => getProgramDefinition(slug.value))
@@ -351,13 +355,9 @@ function menuAction(action: () => unknown): void {
   void action()
 }
 
-/** Launch a step like the Today rows do: the exercise route with the step's context query. */
+/** A step starts its exercise with its context; a step that starts from a moment opens the picker first. */
 function startStep(index: number): void {
-  const step = program.value?.steps[index]
-  const entry = step ? getCatalogEntry(step.exerciseSlug) : undefined
-  if (!step || !entry) return
-  const query = { ...(step.continueLatest ? { continue: 'latest' } : {}), ...(step.launchQuery ?? {}) }
-  void router.push(Object.keys(query).length ? { path: entry.route, query } : entry.route)
+  if (program.value) void launcher.launch(program.value, index)
 }
 
 async function handleEnroll(): Promise<void> {

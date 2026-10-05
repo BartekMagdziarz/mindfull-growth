@@ -19,7 +19,10 @@
       "title": "Jakie wartości stoją za tymi cechami?",
       "description": "Pogrupuj podobne cechy i nazwij, co je łączy, np. „uczciwość” albo „odwaga”. Każdą wartość wpisz w osobne pole.",
       "why": "Wartość to kierunek, który wybierasz, a nie zadanie do odhaczenia. Gdy ją nazwiesz, łatwiej sprawdzić, czy twoje decyzje prowadzą w tę stronę.",
-      "qualitiesSummaryLabel": { "m": "Cechy, które zidentyfikowałeś:", "f": "Cechy, które zidentyfikowałaś:" },
+      "qualitiesSummaryLabel": {
+        "m": "Cechy, które zidentyfikowałeś:",
+        "f": "Cechy, które zidentyfikowałaś:"
+      },
       "valuePlaceholder": "Np. uczciwość",
       "addValue": "Dodaj wartość",
       "reflectionTitle": "Dodatkowa refleksja",
@@ -145,7 +148,10 @@
     "stepSubtitles": {
       "intro": "Szybki przegląd obszarów, które kształtują twoje życie",
       "setup": "Najpierw utwórz lub aktywuj obszary życia",
-      "rate": { "m": "Jak spełniony jesteś w każdym obszarze?", "f": "Jak spełniona jesteś w każdym obszarze?" },
+      "rate": {
+        "m": "Jak spełniony jesteś w każdym obszarze?",
+        "f": "Jak spełniona jesteś w każdym obszarze?"
+      },
       "focus": "Wybierz 2–3 obszary, które chcesz poprawić w tym roku",
       "reflectReflection": "Czego nauczył cię ten rok?",
       "reflectStandalone": "Jakie spostrzeżenia ujawnia twoje koło?"
@@ -215,10 +221,19 @@
       "overallNotesPlaceholder": "Najbardziej rzuca mi się w oczy…"
     },
     "reflectionPrompts": {
-      "growth": { "m": "Gdzie najbardziej się rozwinąłeś w tym roku?", "f": "Gdzie najbardziej się rozwinęłaś w tym roku?" },
+      "growth": {
+        "m": "Gdzie najbardziej się rozwinąłeś w tym roku?",
+        "f": "Gdzie najbardziej się rozwinęłaś w tym roku?"
+      },
       "surprise": "Co cię zaskoczyło w twoich ocenach?",
-      "gratitude": { "m": "Za który obszar jesteś najbardziej wdzięczny?", "f": "Za który obszar jesteś najbardziej wdzięczna?" },
-      "overallBalance": { "m": "Jak jesteś zadowolony z ogólnej równowagi?", "f": "Jak jesteś zadowolona z ogólnej równowagi?" },
+      "gratitude": {
+        "m": "Za który obszar jesteś najbardziej wdzięczny?",
+        "f": "Za który obszar jesteś najbardziej wdzięczna?"
+      },
+      "overallBalance": {
+        "m": "Jak jesteś zadowolony z ogólnej równowagi?",
+        "f": "Jak jesteś zadowolona z ogólnej równowagi?"
+      },
       "negativeImpact": "Które obszary negatywnie wpływają na inne obszary?",
       "positiveImpact": "Które obszary, jeśli zostaną poprawione, poprawią inne obszary?",
       "energyCare": "Czy inwestujesz energię tam, gdzie naprawdę ci zależy?"
@@ -752,7 +767,8 @@
       "innerCritic": "Wewnętrzny krytyk",
       "response": "Odpowiedz",
       "takeaways": "Wnioski",
-      "summary": "Podsumowanie"
+      "summary": "Podsumowanie",
+      "check": "Sprawdź"
     },
     "intro": {
       "title": "List współczucia",
@@ -819,6 +835,29 @@
     },
     "errors": {
       "guidanceFailed": "Nie udało się uzyskać wskazówek"
+    },
+    "check": {
+      "title": "Przeczytaj list jeszcze raz",
+      "description": {
+        "m": "Czytaj powoli, jakbyś dostał go od kogoś bliskiego. Zaznacz, co w nim jest.",
+        "f": "Czytaj powoli, jakbyś dostała go od kogoś bliskiego. Zaznacz, co w nim jest."
+      },
+      "why": "Współczujący list działa, gdy ma w sobie troskę, a nie radę. Sprawdzenie sześciu cech to sposób Gilberta, żeby odróżnić jedno od drugiego.",
+      "items": {
+        "care": "Jest w nim troska o mnie",
+        "sensitivity": "Widzi to, co naprawdę boli",
+        "tolerance": "Pomaga wytrzymać trudne uczucie, zamiast je odpychać",
+        "nonJudgement": "Nie ocenia i nie wymaga",
+        "warmth": "Ciepło słychać w całym liście, nie tylko na końcu",
+        "nextStep": "Pomaga zobaczyć następny mały krok"
+      },
+      "warning": {
+        "m": "W liście są rady i „powinieneś”. Wsparcie działa lepiej niż rada — spróbuj zamienić je na to, co chciałbyś usłyszeć.",
+        "f": "W liście są rady i „powinnaś”. Wsparcie działa lepiej niż rada — spróbuj zamienić je na to, co chciałabyś usłyszeć."
+      },
+      "lengthNote": "List jest krótki. Kilka zdań więcej zwykle pozwala ciepłu wybrzmieć.",
+      "insertDraft": "Wstaw do listu jako szkic",
+      "editLetter": "Wróć do listu"
     }
   },
   "positiveDataLog": {
@@ -898,12 +937,18 @@
       "demand": {
         "title": "Jakie uczciwe wymaganie chcesz wzmocnić?",
         "description": "Wpisz wymaganie wobec siebie, które przeszło test bliskiej osoby, np. „Wystarczy, że powiem, czego nie wiem”. Możesz wziąć je z kroku „O czym jest ten wstyd?”.",
-        "why": { "m": "Cudze wymaganie wyłapuje głównie to, co je potwierdza. Ten dziennik zbiera dowody na uczciwe: sytuacje, w których wystarczyło to, co zrobiłeś.", "f": "Cudze wymaganie wyłapuje głównie to, co je potwierdza. Ten dziennik zbiera dowody na uczciwe: sytuacje, w których wystarczyło to, co zrobiłaś." },
+        "why": {
+          "m": "Cudze wymaganie wyłapuje głównie to, co je potwierdza. Ten dziennik zbiera dowody na uczciwe: sytuacje, w których wystarczyło to, co zrobiłeś.",
+          "f": "Cudze wymaganie wyłapuje głównie to, co je potwierdza. Ten dziennik zbiera dowody na uczciwe: sytuacje, w których wystarczyło to, co zrobiłaś."
+        },
         "placeholder": "np. „Wystarczy, że poproszę o pomoc, zamiast wiedzieć wszystko”",
         "label": "Uczciwe wymaganie",
         "confirmationDescription": "Po utworzeniu wracasz do tego dziennika, żeby dopisywać dowody na to wymaganie. Z czasem zobaczysz, że ono wystarcza.",
         "addEvidenceDescription": "Zapisz jedno zdarzenie, w którym to wymaganie wystarczyło. Drobne też się liczą.",
-        "evidencePlaceholder": { "m": "np. Powiedziałem na spotkaniu „nie wiem” i rozmowa poszła dalej.", "f": "np. Powiedziałam na spotkaniu „nie wiem” i rozmowa poszła dalej." }
+        "evidencePlaceholder": {
+          "m": "np. Powiedziałem na spotkaniu „nie wiem” i rozmowa poszła dalej.",
+          "f": "np. Powiedziałam na spotkaniu „nie wiem” i rozmowa poszła dalej."
+        }
       }
     }
   },
@@ -1996,7 +2041,13 @@
         "ariaLabel": "Wybór lokalizacji w ciele"
       },
       "tsibp": {
-        "labels": ["M", "D", "O", "Z", "T"]
+        "labels": [
+          "M",
+          "D",
+          "O",
+          "Z",
+          "T"
+        ]
       },
       "bodyLocations": {
         "head": "Głowa",
@@ -2527,7 +2578,8 @@
       "response": "Odpowiedź",
       "commitment": "Zobowiązanie",
       "checkIn": "Powroty",
-      "summary": "Zapisz"
+      "summary": "Zapisz",
+      "bodyCheck": "Ciało"
     },
     "selectProtector": {
       "title": "Docenienie protektora",
@@ -2644,6 +2696,17 @@
       "saving": "Zapisywanie...",
       "updatePartLabel": "Zaktualizować kartę części?",
       "updatePartHint": "Lęk protektora i „przed czym chroni” trafią do karty części (tylko puste pola zostaną wypełnione)."
+    },
+    "bodyCheck": {
+      "title": "Gdy to czytasz, ciało…",
+      "description": "Przeczytaj odpowiedź części jeszcze raz i sprawdź, co robi ciało. To sprawdzenie, czy pomaga, czy tylko dobrze brzmi.",
+      "why": "W CFT pomocna odpowiedź poznaje się po ciele, nie po słowach: mięknie, gdy trafia; spina się, gdy brzmi jak kolejny wymóg.",
+      "options": {
+        "softens": "mięknie",
+        "same": "bez zmian",
+        "tightens": "spina się"
+      },
+      "tightensNote": "Jeśli ciało się spina, odpowiedź może brzmieć jak wymaganie. Wróć do niej później albo zmień ton na cieplejszy."
     }
   },
   "exileWitnessing": {

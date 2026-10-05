@@ -3,7 +3,7 @@
     :title="t('exercises.cards.trailhead.title')"
     :subtitle="t('exercises.cards.trailhead.subtitle')"
   >
-    <TrailheadWizard v-if="!saved" @saved="handleSaved" />
+    <TrailheadWizard v-if="!saved" :seed="wizardSeed" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="trailhead" @again="saved = false" />
 
     <!-- Past Entries -->
@@ -94,8 +94,12 @@ import { useIFSTrailheadStore } from '@/stores/ifsTrailhead.store'
 import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useEmotionStore } from '@/stores/emotion.store'
 import { useT } from '@/composables/useT'
+import { useMomentSeed } from '@/features/program-path/useMomentSeed'
 
 const { t, tp } = useT()
+// Launched from a path moment (`?momentId=`): trigger, thoughts and the part that took the wheel prefill the entry.
+const { seed } = useMomentSeed()
+const wizardSeed = computed(() => (seed.value ? { trigger: seed.value.situation, thoughts: seed.value.criticThought, reaction: seed.value.reaction } : undefined))
 const trailheadStore = useIFSTrailheadStore()
 const partStore = useIFSPartStore()
 const emotionStore = useEmotionStore()

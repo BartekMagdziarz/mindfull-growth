@@ -3,7 +3,7 @@
     :title="t('exercises.cards.directAccess.title')"
     :subtitle="t('exercises.cards.directAccess.subtitle')"
   >
-    <DirectAccessWizard v-if="!saved" @saved="handleSaved" />
+    <DirectAccessWizard v-if="!saved" :initial-part-tag="partTag" @saved="handleSaved" />
     <ExerciseSavedPanel v-else exercise-slug="direct-access" @again="saved = false" />
 
     <!-- Past Sessions -->
@@ -74,6 +74,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import ExercisePage from '@/components/exercises/ExercisePage.vue'
 import AppCard from '@/components/AppCard.vue'
 import ExerciseSavedPanel from '@/components/exercises/ExerciseSavedPanel.vue'
@@ -84,6 +85,9 @@ import { useIFSPartStore } from '@/stores/ifsPart.store'
 import { useT } from '@/composables/useT'
 
 const { t, tp } = useT()
+const route = useRoute()
+/** A path step names the part to talk with (`?partTag=shame-compass:attackSelf`). */
+const partTag = computed(() => (typeof route.query.partTag === 'string' ? route.query.partTag : undefined))
 const directAccessStore = useIFSDirectAccessStore()
 const partStore = useIFSPartStore()
 const saved = ref(false)

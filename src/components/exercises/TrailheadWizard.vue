@@ -355,7 +355,7 @@
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -375,6 +375,10 @@ import { useT } from '@/composables/useT'
 import { useIfsLabels } from '@/composables/useIfsLabels'
 import type { Quadrant } from '@/domain/emotion'
 import type { IFSPartRole } from '@/domain/exercises'
+import { shamePartByReaction, type ShameReaction } from '@/services/shamePartsService'
+
+/** Prefill from a path moment (`?momentId=`): the trigger, the thoughts and the part that took the wheel. */
+const props = defineProps<{ seed?: { trigger?: string; thoughts?: string; reaction?: ShameReaction } }>()
 
 const emit = defineEmits<{
   saved: []
@@ -438,6 +442,21 @@ const {
 function handleCreatePart(data: { name: string; role: IFSPartRole }) {
   createAndLinkPart(data)
 }
+
+// A moment's part proposes the link once the registry is loaded; the user can still change it.
+watch(
+  () => [props.seed, partStore.sortedParts.length] as const,
+  ([seed]) => {
+    if (!seed) return
+    if (seed.trigger && !triggerDescription.value.trim()) triggerDescription.value = seed.trigger
+    if (seed.thoughts && !thoughts.value.trim()) thoughts.value = seed.thoughts
+    if (seed.reaction && !linkedPartId.value) {
+      const part = shamePartByReaction(partStore.sortedParts, seed.reaction)
+      if (part) linkedPartId.value = part.id
+    }
+  },
+  { immediate: true },
+)
 
 function getEmotionName(id: string): string {
   return emotionStore.getEmotionById(id)?.name ?? id

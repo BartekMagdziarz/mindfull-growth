@@ -220,6 +220,9 @@
                 {{ t('exerciseWizards.compassionateLetter.response.llmHint') }}
               </p>
               <p class="text-sm text-on-surface whitespace-pre-line">{{ llmResponse }}</p>
+              <AppButton variant="text" class="mt-2" @click="insertDraft">
+                {{ t('exerciseWizards.compassionateLetter.check.insertDraft') }}
+              </AppButton>
             </div>
             <p v-if="llmError" class="text-xs text-error">{{ llmError }}</p>
           </div>
@@ -230,10 +233,47 @@
           <AppButton
             variant="filled"
             :disabled="!compassionateResponse.trim()"
-            @click="currentStep = 'takeaways'"
+            @click="currentStep = 'check'"
           >
             {{ t('common.buttons.next') }}
           </AppButton>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Step 5b: Read the letter back (Gilbert's checklist) -->
+    <Transition
+      enter-active-class="transition-opacity duration-200"
+      leave-active-class="transition-opacity duration-150"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="currentStep === 'check'" class="space-y-4" data-testid="letter-check">
+        <AppCard padding="lg" class="space-y-4">
+          <h2 class="text-lg font-semibold text-on-surface">{{ t('exerciseWizards.compassionateLetter.check.title') }}</h2>
+          <p class="text-sm text-on-surface-variant">{{ tg('exerciseWizards.compassionateLetter.check.description') }}</p>
+          <ExerciseStepWhy :text="tg('exerciseWizards.compassionateLetter.check.why')" />
+          <blockquote class="neo-panel p-4 text-sm text-on-surface whitespace-pre-line">{{ compassionateResponse }}</blockquote>
+          <ul class="space-y-2">
+            <li v-for="item in CHECKLIST_ITEMS" :key="item">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  class="mt-0.5"
+                  :checked="checklist.includes(item)"
+                  @change="toggleChecklist(item)"
+                />
+                <span class="text-sm text-on-surface">{{ t(`exerciseWizards.compassionateLetter.check.items.${item}`) }}</span>
+              </label>
+            </li>
+          </ul>
+          <p v-if="letterHasAdvice" class="text-sm text-on-surface-variant">{{ tg('exerciseWizards.compassionateLetter.check.warning') }}</p>
+          <p v-if="letterTooShort" class="text-xs text-on-surface-variant">{{ t('exerciseWizards.compassionateLetter.check.lengthNote') }}</p>
+        </AppCard>
+
+        <div class="flex justify-between">
+          <AppButton variant="text" @click="currentStep = 'response'">{{ t('exerciseWizards.compassionateLetter.check.editLetter') }}</AppButton>
+          <AppButton variant="filled" @click="currentStep = 'takeaways'">{{ t('common.buttons.next') }}</AppButton>
         </div>
       </div>
     </Transition>
@@ -276,7 +316,7 @@
         </AppCard>
 
         <div class="flex justify-between">
-          <AppButton variant="text" @click="currentStep = 'response'">{{ t('common.buttons.back') }}</AppButton>
+          <AppButton variant="text" @click="currentStep = 'check'">{{ t('common.buttons.back') }}</AppButton>
           <AppButton
             variant="filled"
             :disabled="filledTakeaways.length === 0"
@@ -380,7 +420,7 @@
 
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -393,6 +433,9 @@ import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import { getQuadrant, getQuadrantChipStyle } from '@/domain/emotion'
 import type { Quadrant } from '@/domain/emotion'
 import type { CreateCompassionateLetterPayload } from '@/domain/exercises'
+
+/** Prefill from a path moment (`?momentId=`): the situation and the critic's sentence — editable. */
+const props = defineProps<{ seed?: { situation?: string; criticThought?: string } }>()
 
 const emit = defineEmits<{
   saved: [data: CreateCompassionateLetterPayload]
@@ -410,6 +453,7 @@ type Step =
   | 'emotions'
   | 'critic'
   | 'response'
+  | 'check'
   | 'takeaways'
   | 'summary'
 
@@ -421,6 +465,7 @@ const stepLabels = computed(() => [
   t('exerciseWizards.compassionateLetter.steps.emotions'),
   t('exerciseWizards.compassionateLetter.steps.innerCritic'),
   t('exerciseWizards.compassionateLetter.steps.response'),
+  t('exerciseWizards.compassionateLetter.steps.check'),
   t('exerciseWizards.compassionateLetter.steps.takeaways'),
   t('exerciseWizards.compassionateLetter.steps.summary'),
 ])
@@ -431,6 +476,7 @@ const stepOrder: Step[] = [
   'emotions',
   'critic',
   'response',
+  'check',
   'takeaways',
   'summary',
 ]
@@ -453,6 +499,34 @@ const activeEmotionQuadrant = ref<Quadrant | null>(null)
 const selfCriticalThoughts = reactive<string[]>([''])
 const compassionateResponse = ref('')
 const takeaways = reactive<string[]>([''])
+/** Gilbert's six qualities, ticked while reading the letter back (never required). */
+const checklist = ref<string[]>([])
+const CHECKLIST_ITEMS = ['care', 'sensitivity', 'tolerance', 'nonJudgement', 'warmth', 'nextStep'] as const
+/** A soft floor: a letter that does its work usually needs a few hundred characters. */
+const SOFT_MIN_LENGTH = 300
+const letterTooShort = computed(() => compassionateResponse.value.trim().length < SOFT_MIN_LENGTH)
+const letterHasAdvice = computed(() => /\b(powinien|powinn|musisz|musi|should|must)/i.test(compassionateResponse.value))
+
+function toggleChecklist(item: string) {
+  checklist.value = checklist.value.includes(item) ? checklist.value.filter((c) => c !== item) : [...checklist.value, item]
+}
+
+watch(
+  () => props.seed,
+  (seed) => {
+    if (!seed) return
+    if (seed.situation && !situation.value.trim()) situation.value = seed.situation
+    if (seed.criticThought && !selfCriticalThoughts[0]?.trim()) selfCriticalThoughts[0] = seed.criticThought
+  },
+  { immediate: true },
+)
+
+/** The AI draft goes into the editor as a starting point, never as the finished letter. */
+function insertDraft() {
+  if (!llmResponse.value) return
+  const current = compassionateResponse.value.trim()
+  compassionateResponse.value = current ? `${current}\n\n${llmResponse.value}` : llmResponse.value
+}
 
 // ─── Computed ────────────────────────────────────────────────────────────────
 const filledSelfCriticalThoughts = computed(() =>
@@ -514,6 +588,7 @@ function handleSave() {
     selfCriticalThoughts: filledSelfCriticalThoughts.value,
     compassionateResponse: compassionateResponse.value.trim(),
     takeaways: filledTakeaways.value,
+    checklist: checklist.value.length ? [...checklist.value] : undefined,
     llmAssistUsed: llmAssistUsed.value || undefined,
   }
   emit('saved', payload)

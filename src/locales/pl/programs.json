@@ -794,5 +794,19 @@
     "soFar": "Dotąd",
     "beginning": "Początek",
     "lately": "Ostatnio"
+  },
+  "momentPicker": {
+    "title": "Od którego momentu zacząć?",
+    "lead": {
+      "m": "Wybierz moment z Momentów, a ćwiczenie zacznie się od tego, co już zapisałeś. Wszystko da się zmienić.",
+      "f": "Wybierz moment z Momentów, a ćwiczenie zacznie się od tego, co już zapisałaś. Wszystko da się zmienić."
+    },
+    "without": "Bez momentu"
+  },
+  "maintenance": {
+    "title": "Zaplanować wybrane praktyki?",
+    "lead": "Każda dostanie następny termin ({rhythm}), a po wykonaniu zaproponuje kolejny — jak każda powtórka.",
+    "cta": "Zaplanuj",
+    "done": "Zaplanowane. Pierwszy termin: {date}."
   }
 }

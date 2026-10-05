@@ -701,7 +701,7 @@
 
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -710,6 +710,9 @@ import { useUserPreferencesStore } from '@/stores/userPreferences.store'
 import { useT } from '@/composables/useT'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
 import type { CreateCoreBeliefsExplorationPayload } from '@/domain/exercises'
+
+/** Prefill from the shame path (`?seed=fairDemand`): the critic's thought to examine and the reasonable demand as the alternative. */
+const props = defineProps<{ seed?: { thought?: string; alternative?: string } }>()
 
 const emit = defineEmits<{
   saved: [data: CreateCoreBeliefsExplorationPayload]
@@ -838,6 +841,16 @@ const filledEvidenceAgainst = computed(() => evidenceAgainst.filter((e) => e.tri
 // Alternative Belief
 const alternativeBelief = ref('')
 const alternativeBeliefBelievability = ref(50)
+
+watch(
+  () => props.seed,
+  (seed) => {
+    if (!seed) return
+    if (seed.thought && !startingThought.value.trim()) startingThought.value = seed.thought
+    if (seed.alternative && !alternativeBelief.value.trim()) alternativeBelief.value = seed.alternative
+  },
+  { immediate: true },
+)
 
 // Believability comparison
 const believabilityDelta = computed(() => {

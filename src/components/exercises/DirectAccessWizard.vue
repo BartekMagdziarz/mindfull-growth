@@ -433,7 +433,7 @@
 <script setup lang="ts">
 import ExerciseStepper from './ExerciseStepper.vue'
 import ExerciseStepWhy from '@/components/exercises/ExerciseStepWhy.vue'
-import { ref, computed, nextTick, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import AppCard from '@/components/AppCard.vue'
@@ -453,6 +453,9 @@ import {
   IFS_ROLE_STROKE_VAR,
   INSIGHT_TAG_CLASSES,
 } from '@/constants/exerciseColorRoles'
+
+/** A path step may name the part to talk with (`?partTag=shame-compass:attackSelf`); the list stays as fallback. */
+const props = defineProps<{ initialPartTag?: string }>()
 
 const emit = defineEmits<{
   saved: []
@@ -511,6 +514,16 @@ const {
 // Part helpers
 const selectedPart = computed(() => partId.value ? partStore.getPartById(partId.value) : null)
 const selectedPartName = computed(() => selectedPart.value?.name ?? t('exerciseWizards.directAccess.partSelect.defaultName'))
+
+watch(
+  () => [props.initialPartTag, partStore.sortedParts.length] as const,
+  ([tag]) => {
+    if (!tag || partId.value) return
+    const part = partStore.sortedParts.find((candidate) => candidate.tags?.includes(tag))
+    if (part) partId.value = part.id
+  },
+  { immediate: true },
+)
 const selectedPartRole = computed(() => selectedPart.value?.role ?? null)
 const selectedPartColor = computed(() => {
   const role = selectedPart.value?.role

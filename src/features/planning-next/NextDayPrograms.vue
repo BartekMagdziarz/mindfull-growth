@@ -93,7 +93,7 @@
             class="next-day-exercises__row next-day-exercises__main next-day-exercises__row--child"
             :class="{ 'is-overdue': action.overdue, 'is-upcoming': action.upcoming }"
             :aria-label="`${action.kind}: ${action.title}`"
-            @click="router.push(action.route)"
+            @click="openAction(group.slug, action)"
           >
             <span class="next-day-exercises__icon"><AppIcon :name="action.icon" /></span>
             <span class="next-day-exercises__copy">
@@ -111,6 +111,7 @@
         </div>
       </div>
     </DsSurface>
+    <MomentPickerDialog v-model="launcher.pickerOpen.value" :moments="launcher.pickerMoments.value" @pick="launcher.picked($event)" />
   </template>
 </template>
 
@@ -128,6 +129,8 @@ import type { DayRef } from '@/domain/period'
 import { DsSurface } from '@/design-system/components'
 import { isPracticeItem } from '@/services/programSchedulerService'
 import { pathGroups, weekCount } from '@/features/program-path/pathModel'
+import MomentPickerDialog from '@/features/program-path/MomentPickerDialog.vue'
+import { useStepLauncher } from '@/features/program-path/useStepLauncher'
 import { useMicroExerciseEntryStore } from '@/stores/microExerciseEntry.store'
 import { useExercisePlanStore } from '@/stores/exercisePlan.store'
 import { addDaysToDayRef } from '@/utils/periods'
@@ -179,6 +182,14 @@ const repeatRows = computed(() =>
 
 const entryStore = useMicroExerciseEntryStore()
 onMounted(() => void entryStore.loadEntries())
+const launcher = useStepLauncher()
+
+/** A step row launches through the path's launcher (moment picker, context query); a practice row opens its exercise. */
+function openAction(programSlug: string, action: { route: string; stepIndex?: number }): void {
+  const program = getProgramDefinition(programSlug)
+  if (program && action.stepIndex !== undefined) void launcher.launch(program, action.stepIndex)
+  else void router.push(action.route)
+}
 
 /** "tydzień 4 z 8" for paths whose phases are weeks, else "krok n z m". */
 function progressLabel(program: NonNullable<ReturnType<typeof getProgramDefinition>>, enrollment: { currentStepIndex: number }): string {
@@ -239,6 +250,7 @@ const programGroups = computed(() =>
           : t('planning.today.wellness.programStepLabel', { n: enrollment.currentStepIndex + 1 }),
         overdue: item.dayRef < props.dayRef,
         upcoming: item.dayRef > props.dayRef,
+        ...(isPracticeItem(item) ? {} : { stepIndex: item.programStepIndex }),
         dateLabel:
           item.dayRef < props.dayRef
             ? formatDay(item.dayRef)

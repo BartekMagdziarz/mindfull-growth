@@ -144,10 +144,26 @@ view). The Today "Ścieżki" card shows "tydzień n z m" for week-phased paths, 
 even when it is not due yet, and up to two chips (Zapisz moment · Mój plan). E2E:
 `e2e/verification-shame-v3.spec.ts` (v2 spec removed) and `verification-problem-paths.spec.ts`.
 
-**Still to come (plan phases P3–P4):** the wizard bridges (`startFrom` moment picker, letter
-checklist, `partTag` preselection, protector fears / body check, maintenance plan → repeat
-plans), Powrót surfacing in Today, the dose-check rhythm proposal (`practiceOverrides`) and
-the AI week-pattern line.
+**P3 (2026-10-05) — the bridges into the wizards.** A step with `startFrom: 'moment'`
+(Zapis myśli, Punkt wejścia, List do siebie) opens `MomentPickerDialog` from the path view and
+the Today card (`features/program-path/useStepLauncher.ts`) and launches the exercise with
+`?momentId=`; the wizard reads it through `useMomentSeed` and PREFILLS the situation, the
+critic's line and — in Punkt wejścia — the part that took the wheel (`shamePartByReaction`),
+all editable. `startFrom: 'fairDemand'` opens Co myślę o sobie with `?seed=fairDemand`: the
+latest critic line as the thought, the latest reasonable demand from "O czym jest ten wstyd?"
+as the alternative. `launchQuery.partTag` preselects the protector in Docenienie protektora
+and Rozmowa z częścią (`initialPartTag`). List współczucia gets a "Sprawdź" step after the
+letter: Gilbert's six qualities as ticks (`CompassionateLetter.checklist`), a warning when
+the letter contains advice/"powinieneś", a soft 300-character note, and "Wstaw do listu jako
+szkic" that inserts the AI draft into the editor. Docenienie protektora prefills "czego się
+boi" from the part card and adds a `body-check` step after the part's answer
+(`IFSProtectorAppreciation.bodyCheck`: softens · same · tightens). After Co zostaje ze mną,
+`MaintenanceRepeatsPanel` turns the kept practices into repeat plans at the chosen rhythm.
+Already in place from P1: "Jeszcze nie" in Świadkowanie, `?frame=demand` in the positive data
+log, `labelsFromParts` in Momenty.
+
+**Still to come (plan phase P4):** Powrót surfacing in Today, the letter from the future self
+resurfacing, the dose-check rhythm proposal (`practiceOverrides`) and the AI week-pattern line.
 
 ## New building blocks (2026-09-23)
 
