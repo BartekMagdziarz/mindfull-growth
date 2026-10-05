@@ -14,6 +14,7 @@ import {
 } from '../llmService'
 import { reactive } from 'vue'
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
+import { invalidateUserSession, UserSessionChangedError } from '@/services/userSessionScope'
 
 vi.mock('@/repositories/userSettingsDexieRepository', () => ({
   userSettingsDexieRepository: {
@@ -25,7 +26,7 @@ const mockFetch = vi.fn()
 globalThis.fetch = mockFetch as typeof fetch
 
 function storeSettings(settings?: AIProviderSettings, legacyKey?: string) {
-  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
     if (key === AI_PROVIDER_SETTINGS_KEY && settings) {
       return JSON.stringify(settings)
     }
@@ -47,7 +48,7 @@ function mockStream(events: string[]) {
   const encoder = new TextEncoder()
   const body = new ReadableStream({
     start(controller) {
-      events.forEach((event) => controller.enqueue(encoder.encode(event)))
+      events.forEach(event => controller.enqueue(encoder.encode(event)))
       controller.close()
     },
   })
@@ -66,7 +67,7 @@ function mockOllamaSuccess(
     thinking?: string
     prompt_eval_count?: number
     eval_count?: number
-  } = {},
+  } = {}
 ) {
   mockFetch.mockResolvedValueOnce({
     ok: true,
@@ -87,7 +88,7 @@ function mockOllamaSuccess(
 }
 
 function mockOllamaStream(objects: Array<Record<string, unknown>>) {
-  mockStream(objects.map((o) => JSON.stringify(o) + '\n'))
+  mockStream(objects.map(o => JSON.stringify(o) + '\n'))
 }
 
 function latestRequest() {
@@ -101,6 +102,77 @@ function latestRequest() {
     body: JSON.parse(fetchCall[1].body as string),
   }
 }
+
+describe('request cancellation and incomplete answers', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    storeSettings({
+      provider: 'openai',
+      baseUrl: 'https://api.openai.com/v1',
+      model: 'gpt-4o-mini',
+      apiKey: 'test',
+    })
+  })
+  it('rejects a stream closed without a terminal event', async () => {
+    mockStream(['data: {"choices":[{"delta":{"content":"partial"}}]}\n\n'])
+    await expect(
+      sendMessage([{ role: 'user', content: 'Hello' }], undefined, { onToken: vi.fn() })
+    ).rejects.toThrow('incomplete')
+  })
+  it('rejects a stream stopped by the token limit', async () => {
+    mockStream([
+      'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":"length"}]}\n\n',
+      'data: [DONE]\n\n',
+    ])
+    await expect(
+      sendMessage([{ role: 'user', content: 'Hello' }], undefined, { onToken: vi.fn() })
+    ).rejects.toThrow('incomplete')
+  })
+  it('rejects a non-streaming answer stopped by the token limit', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: 'partial' }, finish_reason: 'length' }],
+      }),
+    })
+    await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow('incomplete')
+  })
+  it('times out and cancels a stalled readable stream', async () => {
+    const cancel = vi.fn()
+    mockFetch.mockResolvedValueOnce({ ok: true, body: new ReadableStream({ cancel }) })
+    await expect(
+      sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        onToken: vi.fn(),
+        timeoutMs: 20,
+      })
+    ).rejects.toThrow('timed out')
+    expect(cancel).toHaveBeenCalled()
+    expect(latestRequest().init.signal?.aborted).toBe(true)
+  })
+  it('does not emit buffered tokens after external cancellation', async () => {
+    const controller = new AbortController()
+    const token = vi.fn(() => controller.abort())
+    mockStream([
+      'data: {"choices":[{"delta":{"content":"first"}}]}\n\ndata: {"choices":[{"delta":{"content":"late"}}]}\n\ndata: [DONE]\n\n',
+    ])
+    await expect(
+      sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        onToken: token,
+        signal: controller.signal,
+      })
+    ).rejects.toThrow('cancelled')
+    expect(token).toHaveBeenCalledTimes(1)
+  })
+  it('cancels when the user session changes', async () => {
+    mockStream(['data: {"choices":[{"delta":{"content":"first"}}]}\n\n'])
+    await expect(
+      sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        onToken: () => invalidateUserSession(),
+      })
+    ).rejects.toThrow(UserSessionChangedError)
+    expect(latestRequest().init.signal?.aborted).toBe(true)
+  })
+})
 
 describe('llmService', () => {
   beforeEach(() => {
@@ -117,14 +189,10 @@ describe('llmService', () => {
       })
       mockSuccess()
 
-      const result = await sendMessage([
-        { role: 'user', content: 'Hello, how are you?' },
-      ])
+      const result = await sendMessage([{ role: 'user', content: 'Hello, how are you?' }])
 
       expect(result).toBe('This is a test response from the AI.')
-      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(
-        AI_PROVIDER_SETTINGS_KEY,
-      )
+      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(AI_PROVIDER_SETTINGS_KEY)
       expect(mockFetch).toHaveBeenCalledTimes(1)
 
       const request = latestRequest()
@@ -139,9 +207,7 @@ describe('llmService', () => {
       expect(request.body.temperature).toBeUndefined()
       // reasoning_effort defaults to 'low' and is sent for GPT-5 reasoning models.
       expect(request.body.reasoning_effort).toBe('low')
-      expect(request.body.messages).toEqual([
-        { role: 'user', content: 'Hello, how are you?' },
-      ])
+      expect(request.body.messages).toEqual([{ role: 'user', content: 'Hello, how are you?' }])
     })
 
     it('uses max_completion_tokens but keeps temperature for non-reasoning OpenAI models', async () => {
@@ -199,7 +265,7 @@ describe('llmService', () => {
       let captured: LLMDiagnostics | undefined
       await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
         // last non-undefined usage wins (the callback fires more than once)
-        onDiagnostics: (d) => {
+        onDiagnostics: d => {
           if (d.usage) captured = d
         },
       })
@@ -215,12 +281,8 @@ describe('llmService', () => {
 
       await sendMessage([{ role: 'user', content: 'Hello' }])
 
-      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(
-        AI_PROVIDER_SETTINGS_KEY,
-      )
-      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(
-        LEGACY_OPENAI_API_KEY,
-      )
+      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(AI_PROVIDER_SETTINGS_KEY)
+      expect(userSettingsDexieRepository.get).toHaveBeenCalledWith(LEGACY_OPENAI_API_KEY)
       const request = latestRequest()
       expect(request.url).toBe('https://api.openai.com/v1/chat/completions')
       expect(request.init.headers.Authorization).toBe('Bearer sk-legacy')
@@ -257,9 +319,7 @@ describe('llmService', () => {
       const request = latestRequest()
       expect(request.url).toBe('http://localhost:8080/v1/chat/completions')
       expect(request.init.headers.Authorization).toBeUndefined()
-      expect(request.body.model).toBe(
-        'mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit',
-      )
+      expect(request.body.model).toBe('mlx-community/gemma-4-26B-A4B-it-OptiQ-4bit')
     })
 
     it('puts the completion budget in options.num_predict and enables think for Ollama by default', async () => {
@@ -314,18 +374,14 @@ describe('llmService', () => {
       const onToken = vi.fn()
       const onReasoning = vi.fn()
 
-      const result = await sendMessage(
-        [{ role: 'user', content: 'Hello' }],
-        undefined,
-        { onToken, onReasoning },
-      )
+      const result = await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        onToken,
+        onReasoning,
+      })
 
       expect(result).toBe('Visible answer')
       expect(onReasoning).toHaveBeenCalledTimes(1)
-      expect(onToken.mock.calls.map(([token]) => token)).toEqual([
-        'Visible ',
-        'answer',
-      ])
+      expect(onToken.mock.calls.map(([token]) => token)).toEqual(['Visible ', 'answer'])
       expect(latestRequest().body.stream).toBe(true)
       // native /api/chat does not use OpenAI stream_options
       expect(latestRequest().body.stream_options).toBeUndefined()
@@ -353,19 +409,14 @@ describe('llmService', () => {
         timing: { totalMs?: number; firstContentMs?: number }
       }> = []
 
-      await sendMessage(
-        [{ role: 'user', content: 'Hello' }],
-        undefined,
-        {
-          onToken: vi.fn(),
-          onDiagnostics: (diagnostics) => {
-            diagnosticsSnapshots.push(diagnostics)
-          },
+      await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        onToken: vi.fn(),
+        onDiagnostics: diagnostics => {
+          diagnosticsSnapshots.push(diagnostics)
         },
-      )
+      })
 
-      const finalDiagnostics =
-        diagnosticsSnapshots[diagnosticsSnapshots.length - 1]
+      const finalDiagnostics = diagnosticsSnapshots[diagnosticsSnapshots.length - 1]
       expect(finalDiagnostics.usage?.total_tokens).toBe(21)
       expect(finalDiagnostics.observed.reasoningCharacters).toBe(3)
       expect(finalDiagnostics.observed.contentCharacters).toBe(6)
@@ -467,11 +518,9 @@ describe('llmService', () => {
       })
       mockOllamaSuccess()
 
-      await sendMessage(
-        [{ role: 'user', content: 'User message' }],
-        undefined,
-        { model: 'override-model' },
-      )
+      await sendMessage([{ role: 'user', content: 'User message' }], undefined, {
+        model: 'override-model',
+      })
 
       expect(latestRequest().body.model).toBe('override-model')
     })
@@ -491,7 +540,7 @@ describe('llmService', () => {
           { role: 'assistant', content: 'Previous answer' },
           { role: 'user', content: 'Follow-up question' },
         ],
-        'System behavior description',
+        'System behavior description'
       )
 
       expect(latestRequest().body.messages).toEqual([
@@ -505,10 +554,8 @@ describe('llmService', () => {
     it('throws when no AI provider is configured', async () => {
       storeSettings()
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow(
-        'AI provider is not configured. Please add AI provider settings in Profile settings.',
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'AI provider is not configured. Please add AI provider settings in Profile settings.'
       )
       expect(mockFetch).not.toHaveBeenCalled()
     })
@@ -520,10 +567,8 @@ describe('llmService', () => {
         model: 'gpt-5.4-nano',
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow(
-        'AI provider is not configured. Please add AI provider settings in Profile settings.',
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'AI provider is not configured. Please add AI provider settings in Profile settings.'
       )
       expect(mockFetch).not.toHaveBeenCalled()
     })
@@ -542,10 +587,8 @@ describe('llmService', () => {
         json: async () => ({}),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow(
-        'Invalid API key. Please check your API key in Profile settings.',
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'Invalid API key. Please check your API key in Profile settings.'
       )
     })
 
@@ -563,9 +606,9 @@ describe('llmService', () => {
         json: async () => ({}),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow('Rate limit exceeded. Please try again in a moment.')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'Rate limit exceeded. Please try again in a moment.'
+      )
     })
 
     it('handles OpenAI-compatible error response bodies', async () => {
@@ -587,9 +630,9 @@ describe('llmService', () => {
         }),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow('Invalid request parameters')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'Invalid request parameters'
+      )
     })
 
     it('handles network errors', async () => {
@@ -601,9 +644,9 @@ describe('llmService', () => {
       })
       mockFetch.mockRejectedValueOnce(new TypeError('Failed to fetch'))
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow('Network error. Please check your connection and try again.')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'Network error. Please check your connection and try again.'
+      )
     })
 
     it('throws error on empty choices', async () => {
@@ -618,9 +661,9 @@ describe('llmService', () => {
         json: async () => ({ choices: [] }),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow('Invalid response from API. Please try again.')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'Invalid response from API. Please try again.'
+      )
     })
 
     it('throws error on empty message content', async () => {
@@ -635,9 +678,9 @@ describe('llmService', () => {
         json: async () => ({ choices: [{ message: { content: '' } }] }),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow('Empty response from API. Please try again.')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'Empty response from API. Please try again.'
+      )
     })
 
     it('returns only message content and ignores thinking (Ollama native)', async () => {
@@ -657,9 +700,9 @@ describe('llmService', () => {
         }),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).resolves.toBe('Visible answer')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).resolves.toBe(
+        'Visible answer'
+      )
     })
 
     it('handles generic API errors', async () => {
@@ -676,9 +719,9 @@ describe('llmService', () => {
         json: async () => ({}),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow('API request failed with status 500')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'API request failed with status 500'
+      )
     })
 
     // --- Ollama native adapter specifics ---
@@ -761,11 +804,9 @@ describe('llmService', () => {
         '{"message":{"content":""},"done":true,"eval_count":1}\n',
       ])
 
-      const result = await sendMessage(
-        [{ role: 'user', content: 'Hello' }],
-        undefined,
-        { onToken: vi.fn() },
-      )
+      const result = await sendMessage([{ role: 'user', content: 'Hello' }], undefined, {
+        onToken: vi.fn(),
+      })
 
       expect(result).toBe('Hi')
     })
@@ -784,9 +825,9 @@ describe('llmService', () => {
         }),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow('Empty response from API. Please try again.')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'Empty response from API. Please try again.'
+      )
     })
 
     it('treats a whitespace-only OpenAI response as empty', async () => {
@@ -801,9 +842,9 @@ describe('llmService', () => {
         json: async () => ({ choices: [{ message: { content: '\n  \n' } }] }),
       })
 
-      await expect(
-        sendMessage([{ role: 'user', content: 'Hello' }]),
-      ).rejects.toThrow('Empty response from API. Please try again.')
+      await expect(sendMessage([{ role: 'user', content: 'Hello' }])).rejects.toThrow(
+        'Empty response from API. Please try again.'
+      )
     })
   })
 

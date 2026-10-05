@@ -31,7 +31,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      testIgnore: /verification-.*\.spec\.ts/,
+      testIgnore: [/verification-.*\.spec\.ts/, /ai-demo\.spec\.ts/],
       use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:5183' },
     },
     {

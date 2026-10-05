@@ -1,5 +1,6 @@
 import { userSettingsDexieRepository } from '@/repositories/userSettingsDexieRepository'
 import { CHAT_COPY } from '@/constants/chatCopy'
+import { captureUserSession } from '@/services/userSessionScope'
 
 // Default model configuration. gpt-5.4-nano is OpenAI's smallest/cheapest
 // reasoning model (alias `gpt-5.4-nano`, snapshot gpt-5.4-nano-2026-03-17,
@@ -57,10 +58,7 @@ export const PROMPT_SAFETY_TOKENS = 2048
  * Pure and exported for unit testing and for the profile build's pre-flight
  * `contextTooLarge` guard.
  */
-export function computeOllamaNumCtx(
-  promptChars: number,
-  numPredict: number,
-): number {
+export function computeOllamaNumCtx(promptChars: number, numPredict: number): number {
   const promptTokens = Math.ceil(promptChars / NUM_CTX_CHARS_PER_TOKEN)
   const desired = promptTokens + numPredict + NUM_CTX_MARGIN
   return Math.min(OLLAMA_NUM_CTX_CEILING, Math.max(NUM_CTX_FLOOR, desired))
@@ -81,7 +79,7 @@ export function computeMaxPromptTokens(
   provider: AIProviderId,
   effort: ReasoningEffort,
   answerTokens: number,
-  safety: number = PROMPT_SAFETY_TOKENS,
+  safety: number = PROMPT_SAFETY_TOKENS
 ): number | null {
   if (provider !== 'ollama' && provider !== 'mlx') return null
   const headroom =
@@ -103,10 +101,7 @@ export interface AIProviderSettings {
 export const AI_PROVIDER_SETTINGS_KEY = 'aiProviderSettings'
 export const LEGACY_OPENAI_API_KEY = 'openaiApiKey'
 
-export const AI_PROVIDER_PRESETS: Record<
-  Exclude<AIProviderId, 'custom'>,
-  AIProviderSettings
-> = {
+export const AI_PROVIDER_PRESETS: Record<Exclude<AIProviderId, 'custom'>, AIProviderSettings> = {
   openai: {
     provider: 'openai',
     baseUrl: 'https://api.openai.com/v1',
@@ -132,6 +127,7 @@ export interface ChatMessage {
 
 interface OpenAIResponse {
   choices: Array<{
+    finish_reason?: string | null
     message: {
       content: string
       reasoning?: unknown
@@ -145,21 +141,11 @@ interface OpenAIResponse {
 }
 
 function isAIProviderId(value: unknown): value is AIProviderId {
-  return (
-    value === 'openai' ||
-    value === 'ollama' ||
-    value === 'mlx' ||
-    value === 'custom'
-  )
+  return value === 'openai' || value === 'ollama' || value === 'mlx' || value === 'custom'
 }
 
 function isReasoningEffort(value: unknown): value is ReasoningEffort {
-  return (
-    value === 'none' ||
-    value === 'low' ||
-    value === 'medium' ||
-    value === 'high'
-  )
+  return value === 'none' || value === 'low' || value === 'medium' || value === 'high'
 }
 
 function parseProviderSettings(raw: string): AIProviderSettings | null {
@@ -175,8 +161,7 @@ function parseProviderSettings(raw: string): AIProviderSettings | null {
 
     const baseUrl = parsed.baseUrl.trim()
     const model = parsed.model.trim()
-    const apiKey =
-      typeof parsed.apiKey === 'string' ? parsed.apiKey.trim() : undefined
+    const apiKey = typeof parsed.apiKey === 'string' ? parsed.apiKey.trim() : undefined
 
     if (!baseUrl || !model) return null
 
@@ -199,9 +184,7 @@ export function normaliseBaseUrl(baseUrl: string): string {
 }
 
 export async function getAIProviderSettings(): Promise<AIProviderSettings> {
-  const storedSettings = await userSettingsDexieRepository.get(
-    AI_PROVIDER_SETTINGS_KEY,
-  )
+  const storedSettings = await userSettingsDexieRepository.get(AI_PROVIDER_SETTINGS_KEY)
   if (storedSettings) {
     const settings = parseProviderSettings(storedSettings)
     if (settings?.provider === 'openai' && !settings.apiKey) {
@@ -211,9 +194,7 @@ export async function getAIProviderSettings(): Promise<AIProviderSettings> {
     throw new Error(CHAT_COPY.errors.missingAIProviderConfig)
   }
 
-  const legacyApiKey = await userSettingsDexieRepository.get(
-    LEGACY_OPENAI_API_KEY,
-  )
+  const legacyApiKey = await userSettingsDexieRepository.get(LEGACY_OPENAI_API_KEY)
   if (legacyApiKey?.trim()) {
     return {
       ...AI_PROVIDER_PRESETS.openai,
@@ -234,6 +215,8 @@ export async function hasAIProviderConfigured(): Promise<boolean> {
 }
 
 export interface SendMessageOptions {
+  signal?: AbortSignal
+  timeoutMs?: number
   /** Override the default model id (e.g. to use a larger model for a long-form task). */
   model?: string
   /** Override the sampling temperature. */
@@ -261,6 +244,7 @@ interface OpenAIStreamChunk {
   model?: string
   created?: number
   choices?: Array<{
+    finish_reason?: string | null
     delta?: OpenAIStreamDelta
     message?: {
       content?: string | null
@@ -306,9 +290,7 @@ export interface LLMDiagnostics {
   rawMetadata: Record<string, unknown>
 }
 
-export function snapshotLLMDiagnostics(
-  diagnostics: LLMDiagnostics,
-): LLMDiagnostics {
+export function snapshotLLMDiagnostics(diagnostics: LLMDiagnostics): LLMDiagnostics {
   // Diagnostics only contain JSON-compatible request and provider data. A JSON
   // round-trip also unwraps Vue proxies, which structuredClone cannot clone.
   return JSON.parse(JSON.stringify(diagnostics)) as LLMDiagnostics
@@ -343,6 +325,7 @@ interface RequestPlan {
 
 /** One normalised streaming event, format-agnostic. */
 interface StreamDelta {
+  complete?: boolean
   contentDelta: string
   reasoningDelta: string
   usage?: LLMUsage
@@ -401,19 +384,13 @@ function assertNonEmpty(content: string): void {
   }
 }
 
-function reasoningControlLabel(
-  provider: AIProviderId,
-  reasoningHeadroom: number,
-): string {
+function reasoningControlLabel(provider: AIProviderId, reasoningHeadroom: number): string {
   if (provider === 'ollama') return 'native-think'
   return reasoningHeadroom > 0 ? 'completion-headroom-only' : 'none'
 }
 
 /** Map Ollama's native token counts into the shared `usage` shape. */
-function nativeUsage(
-  promptCount?: number,
-  evalCount?: number,
-): LLMUsage | undefined {
+function nativeUsage(promptCount?: number, evalCount?: number): LLMUsage | undefined {
   if (typeof promptCount !== 'number' && typeof evalCount !== 'number') {
     return undefined
   }
@@ -468,9 +445,7 @@ function deriveOllamaNativeUrl(baseUrl: string): string {
  * vLLM, MLX) predate the rename and commonly understand only `max_tokens`, so
  * they keep the legacy field.
  */
-function completionTokenField(
-  provider: AIProviderId,
-): 'max_tokens' | 'max_completion_tokens' {
+function completionTokenField(provider: AIProviderId): 'max_tokens' | 'max_completion_tokens' {
   return provider === 'openai' ? 'max_completion_tokens' : 'max_tokens'
 }
 
@@ -504,9 +479,7 @@ const openAiAdapter: WireAdapter = {
       // reasoning_effort values; higher effort spends more (billed) reasoning
       // tokens out of the completion budget. Sent only where it's accepted.
       ...(reasoningModel ? { reasoning_effort: plan.reasoningEffort } : {}),
-      ...(plan.stream
-        ? { stream: true, stream_options: { include_usage: true } }
-        : {}),
+      ...(plan.stream ? { stream: true, stream_options: { include_usage: true } } : {}),
     }
     return {
       url: `${normaliseBaseUrl(settings.baseUrl)}/chat/completions`,
@@ -519,6 +492,9 @@ const openAiAdapter: WireAdapter = {
     const data = json as OpenAIResponse
     if (!data.choices || data.choices.length === 0) {
       throw new Error('Invalid response from API. Please try again.')
+    }
+    if (['length', 'content_filter'].includes(data.choices[0].finish_reason ?? '')) {
+      throw new Error('The API returned an incomplete response. Please try again.')
     }
     const message = data.choices[0].message
     return {
@@ -539,18 +515,19 @@ const openAiAdapter: WireAdapter = {
   parseStreamEvent(rawEvent) {
     const data = rawEvent
       .split(/\r?\n/)
-      .filter((line) => line.startsWith('data:'))
-      .map((line) => line.slice(5).trimStart())
+      .filter(line => line.startsWith('data:'))
+      .map(line => line.slice(5).trimStart())
       .join('\n')
       .trim()
 
-    if (!data || data === '[DONE]') return null
+    if (!data) return null
+    if (data === '[DONE]') return { contentDelta: '', reasoningDelta: '', complete: true }
 
     let chunk: OpenAIStreamChunk
     try {
       chunk = JSON.parse(data) as OpenAIStreamChunk
     } catch {
-      return null
+      throw new Error('Invalid streaming response from API.')
     }
 
     if (chunk.error?.message) {
@@ -558,8 +535,12 @@ const openAiAdapter: WireAdapter = {
     }
 
     const choice = chunk.choices?.[0]
+    if (choice?.finish_reason === 'length' || choice?.finish_reason === 'content_filter') {
+      throw new Error('The API returned an incomplete response. Please try again.')
+    }
     const reasoning = choice?.delta?.reasoning ?? choice?.delta?.reasoning_content
     return {
+      complete: Boolean(choice?.finish_reason),
       contentDelta: choice?.delta?.content ?? choice?.message?.content ?? '',
       reasoningDelta: reasoningToText(reasoning),
       usage: chunk.usage,
@@ -625,6 +606,9 @@ const ollamaNativeAdapter: WireAdapter = {
     if (!data.message) {
       throw new Error('Invalid response from API. Please try again.')
     }
+    if (data.done === false || data.done_reason === 'length') {
+      throw new Error('The API returned an incomplete response. Please try again.')
+    }
     return {
       content: data.message.content ?? '',
       reasoningChars: (data.message.thinking ?? '').length,
@@ -647,8 +631,7 @@ const ollamaNativeAdapter: WireAdapter = {
     try {
       obj = JSON.parse(line) as OllamaNativeChunk
     } catch {
-      // Partial JSON across a chunk boundary — leave it buffered for retry.
-      return null
+      throw new Error('Invalid streaming response from API.')
     }
 
     if (obj.error) {
@@ -661,6 +644,9 @@ const ollamaNativeAdapter: WireAdapter = {
     }
     if (obj.model) delta.rawMeta = { model: obj.model }
     if (obj.done === true) {
+      if (obj.done_reason === 'length')
+        throw new Error('The API returned an incomplete response. Please try again.')
+      delta.complete = true
       delta.usage = nativeUsage(obj.prompt_eval_count, obj.eval_count)
       delta.rawMeta = { ...(delta.rawMeta ?? {}), ...pickNativeMeta(obj) }
     }
@@ -677,7 +663,7 @@ async function readStreamingResponse(
   adapter: WireAdapter,
   options: SendMessageOptions,
   diagnostics: LLMDiagnostics,
-  requestStartedAt: number,
+  requestStartedAt: number
 ): Promise<string> {
   if (!response.body) {
     throw new Error('Streaming response did not include a readable body.')
@@ -687,6 +673,7 @@ async function readStreamingResponse(
   const decoder = new TextDecoder()
   let buffer = ''
   let content = ''
+  let complete = false
   let firstChunkAt: number | null = null
   let reasoningStartedAt: number | null = null
   let firstContentAt: number | null = null
@@ -696,8 +683,10 @@ async function readStreamingResponse(
   }
 
   const handleRaw = (rawEvent: string) => {
+    if (options.signal?.aborted) throw new Error('AI request cancelled.')
     const delta = adapter.parseStreamEvent(rawEvent)
     if (!delta) return
+    if (delta.complete) complete = true
 
     if (delta.error) {
       throw new Error(delta.error)
@@ -726,12 +715,12 @@ async function readStreamingResponse(
     }
 
     if (delta.contentDelta) {
+      if (options.signal?.aborted) throw new Error('AI request cancelled.')
       if (firstContentAt === null) {
         firstContentAt = eventAt
         diagnostics.timing.firstContentMs = eventAt - requestStartedAt
         if (reasoningStartedAt !== null) {
-          diagnostics.timing.reasoningDurationMs =
-            eventAt - reasoningStartedAt
+          diagnostics.timing.reasoningDurationMs = eventAt - reasoningStartedAt
         }
       }
       content += delta.contentDelta
@@ -740,45 +729,56 @@ async function readStreamingResponse(
       options.onToken?.(delta.contentDelta)
     }
 
-    emitDiagnostics()
+    if (!options.signal?.aborted) emitDiagnostics()
   }
 
-  while (true) {
-    const { value, done } = await reader.read()
-    if (value && firstChunkAt === null) {
-      firstChunkAt = nowMs()
-      diagnostics.timing.firstChunkMs = firstChunkAt - requestStartedAt
-      emitDiagnostics()
+  const cancelReader = () => {
+    void reader.cancel().catch(() => {})
+  }
+  options.signal?.addEventListener('abort', cancelReader, { once: true })
+  try {
+    while (true) {
+      if (options.signal?.aborted) throw new Error('AI request cancelled.')
+      const { value, done } = await reader.read()
+      if (options.signal?.aborted) throw new Error('AI request cancelled.')
+      if (value && firstChunkAt === null) {
+        firstChunkAt = nowMs()
+        diagnostics.timing.firstChunkMs = firstChunkAt - requestStartedAt
+        emitDiagnostics()
+      }
+      buffer += decoder.decode(value, { stream: !done })
+
+      const { events, remainder } = adapter.splitEvents(buffer)
+      buffer = remainder
+      events.forEach(handleRaw)
+
+      if (done) break
     }
-    buffer += decoder.decode(value, { stream: !done })
 
-    const { events, remainder } = adapter.splitEvents(buffer)
-    buffer = remainder
-    events.forEach(handleRaw)
+    if (buffer.trim()) {
+      handleRaw(buffer)
+    }
 
-    if (done) break
+    if (options.signal?.aborted) throw new Error('AI request cancelled.')
+    assertNonEmpty(content)
+    if (!complete) throw new Error('The API returned an incomplete response. Please try again.')
+
+    const completedAt = nowMs()
+    diagnostics.timing.totalMs = completedAt - requestStartedAt
+    if (firstContentAt !== null) {
+      diagnostics.timing.generationMs = completedAt - firstContentAt
+    }
+    if (reasoningStartedAt !== null && diagnostics.timing.reasoningDurationMs === undefined) {
+      diagnostics.timing.reasoningDurationMs = completedAt - reasoningStartedAt
+    }
+    emitDiagnostics()
+
+    return content
+  } finally {
+    options.signal?.removeEventListener('abort', cancelReader)
+    await reader.cancel().catch(() => {})
+    reader.releaseLock()
   }
-
-  if (buffer.trim()) {
-    handleRaw(buffer)
-  }
-
-  assertNonEmpty(content)
-
-  const completedAt = nowMs()
-  diagnostics.timing.totalMs = completedAt - requestStartedAt
-  if (firstContentAt !== null) {
-    diagnostics.timing.generationMs = completedAt - firstContentAt
-  }
-  if (
-    reasoningStartedAt !== null &&
-    diagnostics.timing.reasoningDurationMs === undefined
-  ) {
-    diagnostics.timing.reasoningDurationMs = completedAt - reasoningStartedAt
-  }
-  emitDiagnostics()
-
-  return content
 }
 
 /**
@@ -794,8 +794,21 @@ export async function sendMessage(
   systemPrompt?: string,
   options?: SendMessageOptions
 ): Promise<string> {
+  const session = captureUserSession()
+  const controller = new AbortController()
+  const timeoutMs = options?.timeoutMs ?? 180000
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new Error('Invalid AI request timeout.')
+  let timedOut = false
+  const cancel = () => controller.abort()
+  const unsubscribe = session.onInvalidate(cancel)
+  options?.signal?.addEventListener('abort', cancel, { once: true })
+  if (options?.signal?.aborted) cancel()
+  const timer = setTimeout(() => {
+    timedOut = true
+    cancel()
+  }, timeoutMs)
   try {
-    const settings = await getAIProviderSettings()
+    const settings = await session.wait(getAIProviderSettings())
     const adapter = selectAdapter(settings.provider)
 
     // Construct messages array with system prompt if provided
@@ -808,8 +821,7 @@ export async function sendMessage(
     // Local "thinking" providers get extra completion budget so hidden reasoning
     // never starves the visible answer (see *_REASONING_HEADROOM).
     const requestedMaxTokens = options?.maxTokens ?? DEFAULT_MAX_TOKENS
-    const reasoningEffort =
-      options?.reasoningEffort ?? settings.reasoningEffort ?? 'low'
+    const reasoningEffort = options?.reasoningEffort ?? settings.reasoningEffort ?? 'low'
     const reasoningHeadroom =
       settings.provider === 'ollama'
         ? OLLAMA_REASONING_HEADROOM[reasoningEffort]
@@ -847,21 +859,22 @@ export async function sendMessage(
           answerTokenBudget: requestedMaxTokens,
           reasoningTokenHeadroom: reasoningHeadroom,
           completionTokenCap,
-          reasoningControl: reasoningControlLabel(
-            settings.provider,
-            reasoningHeadroom,
-          ),
+          reasoningControl: reasoningControlLabel(settings.provider, reasoningHeadroom),
           ...(built.requestMeta ?? {}),
         },
       },
     }
     const requestStartedAt = nowMs()
 
+    session.assertCurrent()
+    if (controller.signal.aborted) throw new Error('AI request cancelled.')
     const response = await fetch(built.url, {
+      signal: controller.signal,
       method: 'POST',
       headers: built.headers,
       body: JSON.stringify(built.body),
     })
+    session.assertCurrent()
     diagnostics.timing.connectionMs = nowMs() - requestStartedAt
     diagnostics.rawMetadata = {
       ...diagnostics.rawMetadata,
@@ -910,14 +923,16 @@ export async function sendMessage(
       return await readStreamingResponse(
         response,
         adapter,
-        options,
+        { ...options, signal: controller.signal },
         diagnostics,
-        requestStartedAt,
+        requestStartedAt
       )
     }
 
     // Parse successful (non-streaming) response.
     const data: unknown = await response.json()
+    session.assertCurrent()
+    if (controller.signal.aborted) throw new Error('AI request cancelled.')
     const result = adapter.parseNonStreaming(data)
     assertNonEmpty(result.content)
 
@@ -943,6 +958,11 @@ export async function sendMessage(
 
     return result.content
   } catch (error) {
+    session.assertCurrent()
+    if (controller.signal.aborted)
+      throw new Error(
+        timedOut ? 'AI request timed out. Please try again.' : 'AI request cancelled.'
+      )
     // Re-throw user-friendly errors as-is
     if (error instanceof Error && error.message.includes('API key')) {
       throw error
@@ -967,5 +987,9 @@ export async function sendMessage(
 
     // Fallback error message
     throw new Error('An unexpected error occurred. Please try again.')
+  } finally {
+    clearTimeout(timer)
+    unsubscribe()
+    options?.signal?.removeEventListener('abort', cancel)
   }
 }

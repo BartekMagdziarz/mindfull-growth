@@ -295,6 +295,7 @@ vi.mock('vue-router', () => {
   return {
     useRouter: () => ({
       push: mockPush,
+      replace: vi.fn(async (location) => { mockRoute.query = location.query ?? {} }),
     }),
     useRoute: () => mockRoute,
   }
@@ -346,6 +347,7 @@ describe('JournalEditorView', () => {
     // Wait for async operation
     await waitFor(() => {
       expect(mockCreateEntry).toHaveBeenCalledWith({
+        companionConversationId: expect.stringMatching(/^journal:/),
         title: 'Test Title',
         body: 'Test body content',
         emotionIds: [],
@@ -436,6 +438,7 @@ describe('JournalEditorView', () => {
     // Wait for async operation
     await waitFor(() => {
       expect(mockCreateEntry).toHaveBeenCalledWith({
+        companionConversationId: expect.stringMatching(/^journal:/),
         title: undefined,
         body: 'Test body content',
         emotionIds: [],
@@ -492,6 +495,7 @@ describe('JournalEditorView', () => {
 
     await waitFor(() => {
       expect(mockCreateEntry).toHaveBeenCalledWith({
+        companionConversationId: expect.stringMatching(/^journal:/),
         title: undefined,
         body: 'Filled body',
         emotionIds: [],
@@ -528,6 +532,7 @@ describe('JournalEditorView', () => {
 
     await waitFor(() => {
       expect(mockUpdateEntry).toHaveBeenCalledWith({
+        companionConversationId: 'journal:entry-123',
         ...existingEntry,
         title: 'Existing',
         body: 'Updated body content',

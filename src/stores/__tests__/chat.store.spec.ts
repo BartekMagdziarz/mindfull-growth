@@ -81,10 +81,7 @@ import { useEmotionStore } from '../emotion.store'
 import { useTagStore } from '../tag.store'
 import { useUserPreferencesStore } from '../userPreferences.store'
 import { useUserProfileStore } from '../userProfile.store'
-import {
-  getSystemPrompt,
-  constructJournalEntryContext,
-} from '@/services/chatPrompts'
+import { getSystemPrompt, constructJournalEntryContext } from '@/services/chatPrompts'
 import { withProfileContextSystemPrompt } from '@/services/userContext'
 
 describe('useChatStore', () => {
@@ -136,25 +133,19 @@ describe('useChatStore', () => {
       profileContextDefault: false,
       profileContextDefaultJournal: false,
       $patch: vi.fn(),
-
     } as unknown as any)
     vi.mocked(useUserProfileStore).mockReturnValue({
       profiles: [],
       currentProfile: undefined,
       loadProfiles: vi.fn().mockResolvedValue(undefined),
-
     } as unknown as any)
 
     // Default: pass-through (no profile context injected).
-    vi.mocked(withProfileContextSystemPrompt).mockImplementation(
-      (prompt) => prompt,
-    )
+    vi.mocked(withProfileContextSystemPrompt).mockImplementation(async prompt => prompt)
 
     // Default: getSystemPrompt returns a base string keyed off the intention.
-    vi.mocked(getSystemPrompt).mockImplementation(
-      (intention) => `System prompt for ${intention}`,
-    )
-    vi.mocked(constructJournalEntryContext).mockImplementation((entry) => {
+    vi.mocked(getSystemPrompt).mockImplementation(intention => `System prompt for ${intention}`)
+    vi.mocked(constructJournalEntryContext).mockImplementation(entry => {
       const title = entry.title || 'Untitled entry'
       const body = entry.body || ''
       return `Journal Entry Context:\nTitle: ${title}\nEmotions: None\nPeople Tags: None\nContext Tags: None\nContent:\n${body}`
@@ -280,12 +271,8 @@ describe('useChatStore', () => {
     it('throws error when no session exists', async () => {
       const store = useChatStore()
 
-      await expect(store.sendMessage('Hello')).rejects.toThrow(
-        'No active chat session'
-      )
-      expect(store.error).toBe(
-        'No active chat session. Please start a chat session first.'
-      )
+      await expect(store.sendMessage('Hello')).rejects.toThrow('No active chat session')
+      expect(store.error).toBe('No active chat session. Please start a chat session first.')
     })
 
     it('successfully sends message and receives response', async () => {
@@ -345,9 +332,7 @@ describe('useChatStore', () => {
       expect(vi.mocked(sendLLMMessage)).toHaveBeenCalledTimes(2)
       const secondCall = vi.mocked(sendLLMMessage).mock.calls[1]
       // Should not include context message again
-      expect(secondCall[0].some((msg) => msg.content.includes('Journal Entry Context'))).toBe(
-        false
-      )
+      expect(secondCall[0].some(msg => msg.content.includes('Journal Entry Context'))).toBe(false)
     })
 
     it('includes emotion and tag names in context message', async () => {
@@ -387,9 +372,7 @@ describe('useChatStore', () => {
       await store.sendMessage('Hello')
 
       const call = vi.mocked(sendLLMMessage).mock.calls[0]
-      const contextMessage = call[0].find((msg) =>
-        msg.content.includes('Journal Entry Context')
-      )
+      const contextMessage = call[0].find(msg => msg.content.includes('Journal Entry Context'))
       expect(contextMessage?.content).toContain('Happy')
       expect(contextMessage?.content).toContain('John')
       expect(contextMessage?.content).toContain('Work')
@@ -417,7 +400,7 @@ describe('useChatStore', () => {
 
       // Create a promise we can control
       let resolvePromise: (arg: string) => void
-      const controlledPromise = new Promise<string>((resolve) => {
+      const controlledPromise = new Promise<string>(resolve => {
         resolvePromise = resolve
       })
 
@@ -429,8 +412,8 @@ describe('useChatStore', () => {
       // Wait for Vue to process reactivity updates
       await nextTick()
 
-      // Check loading is true during API call
-      expect(store.isLoading).toBe(true)
+      // Wait until the guarded context read has completed.
+      await vi.waitFor(() => expect(store.isLoading).toBe(true))
 
       // Resolve the promise
       resolvePromise!('Response')
@@ -455,35 +438,34 @@ describe('useChatStore', () => {
       mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
       let finishStream: (() => void) | undefined
       let emitToken: ((token: string) => void) | undefined
-      vi.mocked(sendLLMMessage).mockImplementation(
-        async (_messages, _systemPrompt, options) => {
-          options?.onReasoning?.()
-          await new Promise<void>((resolve) => {
-            emitToken = options?.onToken
-            finishStream = () => {
-              options?.onToken?.('answer')
-              resolve()
-            }
-          })
-          return 'Streamed answer'
-        },
-      )
+      vi.mocked(sendLLMMessage).mockImplementation(async (_messages, _systemPrompt, options) => {
+        options?.onReasoning?.()
+        await new Promise<void>(resolve => {
+          emitToken = options?.onToken
+          finishStream = () => {
+            options?.onToken?.('answer')
+            resolve()
+          }
+        })
+        return 'Streamed answer'
+      })
 
       await store.startChatSession('entry-1', 'reflect')
       const streamedContents: string[] = []
       const stopWatching = watch(
         () => store.currentChatSession?.messages[1]?.content,
-        (content) => {
+        content => {
           if (content !== undefined) streamedContents.push(content)
-        },
+        }
       )
       const sendPromise = store.sendMessage('Hello')
-      await nextTick()
+      await vi.waitFor(() => expect(store.responsePhase).toBe('thinking'))
 
       expect(store.currentChatSession?.messages[0].content).toBe('Hello')
       expect(store.currentChatSession?.messages[1].content).toBe('')
       expect(store.responsePhase).toBe('thinking')
 
+      await vi.waitFor(() => expect(emitToken).toBeTypeOf('function'))
       emitToken?.('Streamed ')
       await nextTick()
 
@@ -495,9 +477,7 @@ describe('useChatStore', () => {
       await sendPromise
       stopWatching()
 
-      expect(store.currentChatSession?.messages[1].content).toBe(
-        'Streamed answer',
-      )
+      expect(store.currentChatSession?.messages[1].content).toBe('Streamed answer')
       expect(store.responsePhase).toBeNull()
     })
 
@@ -668,9 +648,7 @@ describe('useChatStore', () => {
     it('throws error when no session exists', async () => {
       const store = useChatStore()
 
-      await expect(store.saveChatSession()).rejects.toThrow(
-        'No active chat session to save'
-      )
+      await expect(store.saveChatSession()).rejects.toThrow('No active chat session to save')
       expect(store.error).toBe('No active chat session to save.')
     })
 
@@ -991,9 +969,9 @@ describe('useChatStore', () => {
       const store = useChatStore()
       mockJournalStore.getEntryById.mockResolvedValue(undefined)
 
-      await expect(
-        store.loadChatSession('entry-1', 'session-1')
-      ).rejects.toThrow('Journal entry not found')
+      await expect(store.loadChatSession('entry-1', 'session-1')).rejects.toThrow(
+        'Journal entry not found'
+      )
 
       expect(store.error).toBe('Journal entry not found.')
     })
@@ -1077,9 +1055,9 @@ describe('useChatStore', () => {
       const store = useChatStore()
       mockJournalStore.getEntryById.mockResolvedValue(undefined)
 
-      await expect(
-        store.deleteChatSession('entry-1', 'session-1')
-      ).rejects.toThrow('Journal entry not found')
+      await expect(store.deleteChatSession('entry-1', 'session-1')).rejects.toThrow(
+        'Journal entry not found'
+      )
 
       expect(store.error).toBe('Journal entry not found.')
     })
@@ -1109,23 +1087,21 @@ describe('useChatStore', () => {
         profileContextDefault: false,
         profileContextDefaultJournal: false,
         $patch: vi.fn(),
-
       } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
         profiles: [],
         currentProfile: undefined,
         loadProfiles,
-
       } as unknown as any)
 
       const store = useChatStore()
       await store.startChatSession('entry-1', 'reflect')
       await store.sendMessage('Hello')
 
-      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith(
-        'System prompt for reflect',
-        { useProfile: false },
-      )
+      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith('System prompt for reflect', {
+        useProfile: false,
+        scope: 'journal',
+      })
       // useProfile=false means we never trigger lazy profile load.
       expect(loadProfiles).not.toHaveBeenCalled()
     })
@@ -1133,11 +1109,8 @@ describe('useChatStore', () => {
     it('routes the base prompt with useProfile=true when preference default is true', async () => {
       mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
       vi.mocked(sendLLMMessage).mockResolvedValue('Response')
-      vi.mocked(withProfileContextSystemPrompt).mockImplementation(
-        (prompt, opts) =>
-          opts.useProfile
-            ? `## User Profile Context\n\n${prompt}`
-            : prompt,
+      vi.mocked(withProfileContextSystemPrompt).mockImplementation(async (prompt, opts) =>
+        opts.useProfile ? `## User Profile Context\n\n${prompt}` : prompt
       )
 
       vi.mocked(useUserPreferencesStore).mockReturnValue({
@@ -1145,23 +1118,21 @@ describe('useChatStore', () => {
         profileContextDefault: true,
         profileContextDefaultJournal: true,
         $patch: vi.fn(),
-
       } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
         profiles: [{ id: 'p1' } as unknown as never],
         currentProfile: { id: 'p1' },
         loadProfiles: vi.fn().mockResolvedValue(undefined),
-
       } as unknown as any)
 
       const store = useChatStore()
       await store.startChatSession('entry-1', 'reflect')
       await store.sendMessage('Hello')
 
-      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith(
-        'System prompt for reflect',
-        { useProfile: true },
-      )
+      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith('System prompt for reflect', {
+        useProfile: true,
+        scope: 'journal',
+      })
       const call = vi.mocked(sendLLMMessage).mock.calls[0]
       const systemPrompt = call[1] as string
       expect(systemPrompt.startsWith('## User Profile Context')).toBe(true)
@@ -1176,23 +1147,21 @@ describe('useChatStore', () => {
         profileContextDefault: false,
         profileContextDefaultJournal: false,
         $patch: vi.fn(),
-
       } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
         profiles: [{ id: 'p1' } as unknown as never],
         currentProfile: { id: 'p1' },
         loadProfiles: vi.fn().mockResolvedValue(undefined),
-
       } as unknown as any)
 
       const store = useChatStore()
       await store.startChatSession('entry-1', 'reflect')
       await store.sendMessage('Hello', { useProfile: true })
 
-      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith(
-        'System prompt for reflect',
-        { useProfile: true },
-      )
+      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith('System prompt for reflect', {
+        useProfile: true,
+        scope: 'journal',
+      })
     })
 
     it('honours an explicit opts.useProfile=false even when the preference default is true', async () => {
@@ -1205,23 +1174,21 @@ describe('useChatStore', () => {
         profileContextDefault: true,
         profileContextDefaultJournal: true,
         $patch: vi.fn(),
-
       } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
         profiles: [],
         currentProfile: undefined,
         loadProfiles,
-
       } as unknown as any)
 
       const store = useChatStore()
       await store.startChatSession('entry-1', 'reflect')
       await store.sendMessage('Hello', { useProfile: false })
 
-      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith(
-        'System prompt for reflect',
-        { useProfile: false },
-      )
+      expect(withProfileContextSystemPrompt).toHaveBeenCalledWith('System prompt for reflect', {
+        useProfile: false,
+        scope: 'journal',
+      })
       expect(loadProfiles).not.toHaveBeenCalled()
     })
 
@@ -1235,13 +1202,11 @@ describe('useChatStore', () => {
         profileContextDefault: true,
         profileContextDefaultJournal: true,
         $patch: vi.fn(),
-
       } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
         profiles: [],
         currentProfile: undefined,
         loadProfiles,
-
       } as unknown as any)
 
       const store = useChatStore()
@@ -1255,21 +1220,17 @@ describe('useChatStore', () => {
       mockJournalStore.getEntryById.mockResolvedValue(mockEntry)
       vi.mocked(sendLLMMessage).mockResolvedValue('Response')
 
-      const loadProfiles = vi
-        .fn()
-        .mockRejectedValue(new Error('db unavailable'))
+      const loadProfiles = vi.fn().mockRejectedValue(new Error('db unavailable'))
       vi.mocked(useUserPreferencesStore).mockReturnValue({
         locale: 'en',
         profileContextDefault: true,
         profileContextDefaultJournal: true,
         $patch: vi.fn(),
-
       } as unknown as any)
       vi.mocked(useUserProfileStore).mockReturnValue({
         profiles: [],
         currentProfile: undefined,
         loadProfiles,
-
       } as unknown as any)
 
       const store = useChatStore()

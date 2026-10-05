@@ -21,7 +21,7 @@ const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 
-if (import.meta.env.DEV && import.meta.env.VITE_VERIFICATION_MODE !== '1') {
+if (import.meta.env.DEV && import.meta.env.VITE_VERIFICATION_MODE !== '1' && import.meta.env.MODE !== 'ai-demo') {
   Promise.all([
     import('./services/todayVisualizationAudit'),
     import('./repositories/habitDexieRepository'),
@@ -53,6 +53,11 @@ async function start(): Promise<void> {
   if (import.meta.env.DEV && import.meta.env.VITE_VERIFICATION_MODE === '1') {
     const { bootstrapVerificationEnvironment } = await import('./dev/verificationSeed')
     await bootstrapVerificationEnvironment()
+  }
+
+  if (import.meta.env.DEV && import.meta.env.MODE === 'ai-demo') {
+    const { bootstrapCompanionDemo } = await import('./dev/ai-companion/demo')
+    await bootstrapCompanionDemo()
   }
 
   app.use(router)

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:ai-demo": "vite --mode ai-demo --port 5203 --host 127.0.0.1 --strictPort",
     "dev:verify": "vite --mode verification --port 5199 --host 127.0.0.1 --strictPort",
     "dev:lab": "node scripts/devUxLab.mjs",
     "dev:lab:ui": "npm --prefix ux-lab/app run dev",
@@ -21,7 +22,8 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "check-locales": "node scripts/check-locale-keys.mjs",
-    "check:design-system": "node scripts/check-design-system.mjs"
+    "check:design-system": "node scripts/check-design-system.mjs",
+    "ai:benchmark": "node scripts/runCompanionBenchmark.mjs"
   },
   "dependencies": {
     "argon2-browser": "^1.18.0",

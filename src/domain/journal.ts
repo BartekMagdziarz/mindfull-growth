@@ -6,6 +6,7 @@ export interface JournalEntry {
   createdAt: string // ISO timestamp
   updatedAt: string // ISO timestamp
   title?: string
+  companionConversationId?: string // Independent companion; legacy chatSessions stay intact.
   body: string
   emotionIds?: string[] // Array of Emotion IDs (optional, defaults to empty array)
   emotionFamilyIds?: string[] // Array of EmotionFamily IDs (rodzina-only, optional)

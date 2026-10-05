@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useUserProfileStore } from '@/stores/userProfile.store'
+import { approvedProfileRepository } from '@/repositories/approvedProfileRepository'
+import { blankProfileContent } from '@/domain/approvedProfile'
+import { getTestDatabase } from '@/test/testDatabase'
 import { identifyThoughts } from '../cbtLLMAssists'
 import type { ProfileSections, UserProfile } from '@/domain/userProfile'
 
@@ -45,7 +48,8 @@ function makeProfile(overrides: Partial<ProfileSections> = {}): UserProfile {
 }
 
 describe('cbtLLMAssists.identifyThoughts (sample function)', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    for (const table of getTestDatabase().tables) await table.clear()
     setActivePinia(createPinia())
     vi.clearAllMocks()
   })
@@ -72,7 +76,8 @@ describe('cbtLLMAssists.identifyThoughts (sample function)', () => {
     expect(systemPrompt).not.toContain('Curious, reflective.')
   })
 
-  it('prepends the profile context block when useProfile is true and a profile exists', async () => {
+  it('prepends only the approved context when useProfile is true', async () => {
+    await approvedProfileRepository().save({ ...blankProfileContent(), text: 'Curious, reflective.' })
     const profileStore = useUserProfileStore()
     profileStore.profiles = [
       makeProfile({ summary: 'Curious, reflective.' }),
@@ -87,7 +92,7 @@ describe('cbtLLMAssists.identifyThoughts (sample function)', () => {
 
     expect(sendMessage).toHaveBeenCalledTimes(1)
     const systemPrompt = vi.mocked(sendMessage).mock.calls[0][1]!
-    expect(systemPrompt.startsWith('## User Profile Context')).toBe(true)
+    expect(systemPrompt.startsWith('## User-approved Profile Context')).toBe(true)
     expect(systemPrompt).toContain('Curious, reflective.')
   })
 

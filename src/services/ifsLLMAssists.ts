@@ -30,12 +30,12 @@ interface AssistOptions {
 }
 
 /** Base prompt + profile context + gender note (in that order). */
-function buildSystemPrompt(
+async function buildSystemPrompt(
   prompts: IfsPromptModule,
   key: Exclude<keyof IfsPromptModule, 'labels' | 'enums' | 'genderNote'>,
   opts: AssistOptions,
-): string {
-  const base = withProfileContextSystemPrompt(prompts[key], { useProfile: opts.useProfile ?? false })
+): Promise<string> {
+  const base = await withProfileContextSystemPrompt(prompts[key], { useProfile: opts.useProfile ?? false })
   const note = opts.gender ? prompts.genderNote[opts.gender] : undefined
   return note ? `${base}\n\n${note}` : base
 }
@@ -346,7 +346,7 @@ export async function reflectOnPartsMap(params: {
   const prompts = getIfsPrompts(params.locale)
   const context = buildPartsMapContext(params, prompts)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = buildSystemPrompt(prompts, 'IFS_PARTS_REFLECTION', params)
+  const systemPrompt = await buildSystemPrompt(prompts, 'IFS_PARTS_REFLECTION', params)
   return sendMessage(messages, systemPrompt)
 }
 
@@ -362,7 +362,7 @@ export async function analyzeTrailheadPatterns(params: {
   const prompts = getIfsPrompts(params.locale)
   const context = buildTrailheadAnalysisContext(params, prompts)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = buildSystemPrompt(prompts, 'IFS_TRAILHEAD_ANALYSIS', params)
+  const systemPrompt = await buildSystemPrompt(prompts, 'IFS_TRAILHEAD_ANALYSIS', params)
   return sendMessage(messages, systemPrompt)
 }
 
@@ -380,7 +380,7 @@ export async function generateProtectorResponse(params: {
   const prompts = getIfsPrompts(params.locale)
   const context = buildProtectorResponseContext(params, prompts)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = buildSystemPrompt(prompts, 'IFS_PROTECTOR_RESPONSE', params)
+  const systemPrompt = await buildSystemPrompt(prompts, 'IFS_PROTECTOR_RESPONSE', params)
   return sendMessage(messages, systemPrompt)
 }
 
@@ -396,7 +396,7 @@ export async function reviewSelfEnergyTrends(params: {
   const prompts = getIfsPrompts(params.locale)
   const context = buildSelfEnergyReviewContext(params, prompts)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = buildSystemPrompt(prompts, 'IFS_SELF_ENERGY_REVIEW', params)
+  const systemPrompt = await buildSystemPrompt(prompts, 'IFS_SELF_ENERGY_REVIEW', params)
   return sendMessage(messages, systemPrompt)
 }
 
@@ -412,7 +412,7 @@ export async function suggestPartDialogueResponse(params: {
   const prompts = getIfsPrompts(params.locale)
   const context = buildPartDialogueContext(params, prompts)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = buildSystemPrompt(prompts, 'IFS_DIALOGUE_ASSIST', params)
+  const systemPrompt = await buildSystemPrompt(prompts, 'IFS_DIALOGUE_ASSIST', params)
   return sendMessage(messages, systemPrompt)
 }
 
@@ -427,7 +427,7 @@ export async function generateWeeklySummary(params: {
   const prompts = getIfsPrompts(params.locale)
   const context = buildWeeklySummaryContext(params, prompts)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = buildSystemPrompt(prompts, 'IFS_WEEKLY_SUMMARY', params)
+  const systemPrompt = await buildSystemPrompt(prompts, 'IFS_WEEKLY_SUMMARY', params)
   return sendMessage(messages, systemPrompt)
 }
 
@@ -443,7 +443,7 @@ export async function analyzeConstellation(params: {
   const prompts = getIfsPrompts(params.locale)
   const context = buildConstellationContext(params, prompts)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = buildSystemPrompt(prompts, 'IFS_CONSTELLATION_ANALYSIS', params)
+  const systemPrompt = await buildSystemPrompt(prompts, 'IFS_CONSTELLATION_ANALYSIS', params)
   return sendMessage(messages, systemPrompt)
 }
 
@@ -478,6 +478,6 @@ export async function directAccessDialogueTurn(params: {
     messages.push({ role: 'user', content: `${context}\n\n${params.userMessage}` })
   }
 
-  const systemPrompt = buildSystemPrompt(prompts, 'IFS_DIRECT_ACCESS', params)
+  const systemPrompt = await buildSystemPrompt(prompts, 'IFS_DIRECT_ACCESS', params)
   return sendMessage(messages, systemPrompt)
 }

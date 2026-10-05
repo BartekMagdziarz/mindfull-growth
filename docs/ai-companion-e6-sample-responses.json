@@ -1,0 +1,217 @@
+{
+  "model": "gpt-6-luna medium",
+  "synthetic": true,
+  "note": "Selected successful runs from two attempts; failures and costs are documented in the E6 report. Reviewed by the coding agent, not user acceptance.",
+  "people": {
+    "marta": {
+      "proposals": [
+        {
+          "text": "Pomaga jej elastyczny plan i rozmowa z Olą.",
+          "category": "preferences",
+          "quote": "Pomaga mi elastyczny plan i rozmowa z Olą."
+        },
+        {
+          "text": "Ostatnio praca zajmuje jej za dużo miejsca; warto sprawdzić ponownie, czy to nadal aktualne.",
+          "category": "currentContext",
+          "quote": "Praca ostatnio zajmuje za dużo miejsca."
+        },
+        {
+          "text": "Marta to imię, którym chce się przedstawiać.",
+          "category": "identity",
+          "quote": "Jestem Marta."
+        },
+        {
+          "text": "Ważne są dla niej bliskie relacje, twórczość i ceramika.",
+          "category": "values",
+          "quote": "Ważne są dla mnie bliskie relacje i twórczość, lubię ceramikę."
+        },
+        {
+          "text": "Nie chce traktować braku wpisu w trackerze jako porażki.",
+          "category": "preferences",
+          "quote": "Chcę znajdować czas na odpoczynek i ruch, ale nie chcę, żeby brak wpisu w trackerze oznaczał porażkę."
+        },
+        {
+          "text": "Chce znajdować czas na odpoczynek i ruch.",
+          "category": "priorities",
+          "quote": "Chcę znajdować czas na odpoczynek i ruch, ale nie chcę, żeby brak wpisu w trackerze oznaczał porażkę."
+        }
+      ],
+      "surfaces": {
+        "weekly-reflection": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Jak mogę spojrzeć na ten tydzień bez oceniania siebie? Sprawdź kontekst i przeciwne przykłady."
+            },
+            {
+              "role": "assistant",
+              "text": "Możesz potraktować ten tydzień nie jak sprawdzian, tylko jak zapis tego, co było trudne, czego potrzebowałaś i co mimo wszystko znalazło dla siebie miejsce.\n\nBył tu wymagający kawałek: w poniedziałek zostałaś dłużej w pracy i wybrałaś odpoczynek zamiast ćwiczeń. To mówi coś o tamtym dniu i Twojej potrzebie odpoczynku — nie jest oceną Ciebie. Jednocześnie tydzień nie składał się wyłącznie z pracy: spacer z Olą dał Wam czas na rozmowę o czymś innym, zrobiłaś pięć minut rozciągania bez presji pełnego treningu, a w sobotę wróciłaś do ceramiki i ochroniłaś ten czas przed pracą. Wpisy opisują tamten spacer i rozciąganie nawet wtedy, gdy tracker nie oddaje całego obrazu.\n\nW trackerze zapisano 1 wykonanie przy celu 3. To podsumowanie wpisów, nie werdykt o tym, ile ruchu rzeczywiście było: brakujące wpisy oznaczają niewiadomą, nie dowód braku działania. Możesz więc oddzielić pytanie „co pokazuje tracker?” od pytania „co faktycznie wydarzyło się w moim tygodniu?”.\n\nMoże uczciwe, życzliwe podsumowanie brzmiałoby: „Praca zajęła mi sporo miejsca, a odpoczynek, ruch, relacja z Olą i twórczość też były obecne — w formach, które dało się dopasować do tego tygodnia”. Nie musisz zamieniać tego w nowy obowiązek; w rozmowie zaznaczyłaś, że chcesz mieć wybór, a nie codzienne zobowiązanie."
+            }
+          ]
+        },
+        "journal": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Pomóż mi zastanowić się nad tym, co jest dla mnie teraz ważne. Nie chcę listy zadań."
+            },
+            {
+              "role": "assistant",
+              "text": "Słyszę tu nie listę rzeczy do „ogarnięcia”, tylko pragnienie, żeby życie miało więcej wymiarów niż praca: bliskość, twórczość, odpoczynek i ruch, który nie musi być rozliczany. I to nie są wyłącznie abstrakcyjne ważne sprawy — po ceramice opisałaś satysfakcję i spokojniejszą głowę, a sobotę udało się ochronić przed pracą【ceramika】. Spacer z Olą dał rozmowę o czymś innym niż praca, a krótkie rozciąganie było pomocne właśnie dlatego, że nie musiało być pełnym treningiem【relacja】【ruch】. Jest też miejsce na odpoczynek bez uznawania go za porażkę: po długim dniu zrezygnowałaś z ćwiczeń, bo chciałaś usiąść i odpocząć【odpoczynek】.\n\nGdy myślisz o tym, co jest dla Ciebie ważne teraz — co najbardziej chciałabyś czuć, że ma w Twoim życiu swoje miejsce?"
+            }
+          ]
+        },
+        "monthly-reflection": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Co mogę zauważyć w tym miesiącu, także dobrego? Oddziel to, co wiadomo, od tego, czego brakuje."
+            },
+            {
+              "role": "assistant",
+              "text": "**Co widać w dostępnych zapisach:** praca zajmuje sporo miejsca — na początku miesiąca pisałaś, że wdrażasz się w prowadzenie zespołu i potrzebujesz więcej czasu na decyzje. Jednocześnie bliscy i twórczość nie zniknęły z obrazu: spotkanie i spacer z Olą dały Ci rozmowę o czymś innym niż praca, a po ceramice zapisałaś satysfakcję i spokojniejszą głowę; udało Ci się też ochronić sobotę przed pracą. W dwóch tygodniowych refleksjach wraca temat bliskich i sprawdzania, ile zostaje miejsca na odpoczynek — traktuję to jako powracający motyw w zapisach, nie jako dwa osobne wydarzenia.  \n\nW ruchu widać zarówno wybór odpoczynku po długim dniu pracy, jak i spacer z Olą, którego nie wpisałaś do trackera. To dobry przykład, że brak wpisu nie oznacza braku aktywności — ani że odpoczynek był porażką.\n\n**Czego nie da się stwierdzić:** dostępne notatki są niepełnym wycinkiem miesiąca: tygodniowe refleksje kończą się na W37, a jeden z pięciu znalezionych wpisów dziennika nie był dostępny do odczytu. Miesięczne podsumowanie ruchu nie daje jednej miarodajnej sumy, bo tracker jest ustawiony w rytmie tygodniowym. W W38 wykazuje jedną zarejestrowaną realizację przy celu minimum trzech; to mówi o zapisach, nie o całej Twojej aktywności. Brak pozostałych wpisów nie rozstrzyga, co się wydarzyło.\n\nKtóry z tych dobrych momentów najbardziej chcesz zabrać ze sobą dalej: czas z Olą, ceramikę czy ochronę odpoczynku?"
+            }
+          ]
+        }
+      }
+    },
+    "tomasz": {
+      "proposals": [
+        {
+          "text": "Tomasz lubi spotkania, a czasem woli spokojny wieczór z książką.",
+          "category": "preferences",
+          "quote": "Lubię spotkania, ale czasem wybieram spokojny wieczór z książką."
+        },
+        {
+          "text": "Tomasz chce rozmawiać również o dobrych doświadczeniach.",
+          "category": "preferences",
+          "quote": "Chcę rozmawiać także o dobrych doświadczeniach."
+        },
+        {
+          "text": "Warto zostawiać gitarę jako przyjemność, bez nacisku na cel czy produktywność.",
+          "category": "preferences",
+          "quote": "Nie chcę zamieniać hobby w projekt produktywności."
+        },
+        {
+          "text": "Użytkownik przedstawia się jako Tomasz.",
+          "category": "identity",
+          "quote": "Jestem Tomasz."
+        },
+        {
+          "text": "Tomasz wymienia przyjaźń, ciekawość i autonomię jako ważne dla siebie wartości.",
+          "category": "values",
+          "quote": "Cenię przyjaźń, ciekawość i autonomię."
+        }
+      ],
+      "surfaces": {
+        "weekly-reflection": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Jak mogę spojrzeć na ten tydzień bez oceniania siebie? Sprawdź kontekst i przeciwne przykłady."
+            },
+            {
+              "role": "assistant",
+              "text": "Możesz potraktować ten tydzień nie jak ocenę siebie, tylko jak kilka różnych chwil. Był moment, gdy pomyliłeś akord i pojawiła się myśl „Jeśli nie zrobię wszystkiego, to się nie liczy”. Ale w tym samym zapisie znalazł się też ważny kontrprzykład: krótka próba nadal była doświadczeniem, a jeden błąd nie musi stać się ogólnym wnioskiem o tobie. [1]\n\nSą też chwile, które nie mieszczą się w surowym werdykcie: grałeś z ciekawości, bez celu do osiągnięcia; przy kolacji z przyjaciółmi było dużo śmiechu i poczułeś swobodę; wspólne granie dawało ci przyjemność z próbowania i mylenia się. [2][3][4][5] A kiedy miałeś ochotę poczytać zamiast iść na kolejne spotkanie, byłeś zadowolony z tego wyboru — obie potrzeby mogą mieć miejsce, bez konieczności wybierania jednej jako „lepszej”. [6]\n\nMoże więc pytanie nie brzmi „Czy wypadłem dobrze?”, tylko „Co wydarzyło się w tym tygodniu — i co było dla mnie ważne?”. Zapisów jest ograniczona liczba, więc to tylko wybrane fragmenty, nie pełny bilans tygodnia. Które dwie chwile chciałbyś zachować w opisie tego tygodnia, bez wyciągania z nich werdyktu o sobie?"
+            }
+          ]
+        },
+        "journal": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Pomóż mi zastanowić się nad tym, co jest dla mnie teraz ważne. Nie chcę listy zadań."
+            },
+            {
+              "role": "assistant",
+              "text": "Brzmi, jakby ważne było dla Ciebie nie tylko *co* robisz, ale też *w jakim duchu*: z ciekawością, dla przyjemności i bez zamieniania tego w obowiązek. Ostatnie wpisy pokazują kilka dobrych chwil w różnych odsłonach: śmiech i swobodę z przyjaciółmi, wspólne granie, przy którym można próbować i się mylić, oraz zadowolenie z wyboru książki zamiast kolejnego spotkania. [1][2][3][4]\n\nMoże ważna jest więc nie konieczność wybierania między ludźmi a spokojem, tylko autonomia, by mieć miejsce na jedno i drugie — zależnie od tego, czego akurat chcesz. Czy któraś z tych chwil szczególnie dobrze pokazuje, co jest dla Ciebie ważne *teraz*?"
+            }
+          ]
+        },
+        "monthly-reflection": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Co mogę zauważyć w tym miesiącu, także dobrego? Oddziel to, co wiadomo, od tego, czego brakuje."
+            },
+            {
+              "role": "assistant",
+              "text": "Z zapisów z września wyłania się kilka dobrych rzeczy — bez potrzeby zamieniania ich w cele czy mierniki:\n\n- **Muzyka jako ciekawość i wspólna zabawa.** Znalazłeś chwilę na gitarę i grałeś bez nastawienia na wynik; innym razem graliście razem, a możliwość prób i pomyłek sprawiała Ci przyjemność.\n- **Bliskość i swoboda.** Przy kolacji z przyjaciółmi było dużo śmiechu i poczułeś swobodę. Napisałeś też, że chcesz zachować czas na takie spotkania.\n- **Miejsce na własny wybór.** Odmówiłeś kolejnego spotkania, bo wolałeś poczytać, i byłeś zadowolony z tej decyzji. W tygodniowych refleksjach pojawia się też myśl, że udany był spokojny wieczór — to powtórzony zapis, niekoniecznie dwa odrębne wydarzenia.\n\n**Czego nie da się stwierdzić:** dostępne zapisy obejmują tylko część miesiąca — ostatni z nich jest z 26 września — więc nie opisują całego września. Nie mogę też rzetelnie podać liczby „wykonań” gitary: zapisany na ten temat nawyk ma rytm tygodniowy, a podsumowanie miesięczne zgłosiło niezgodność kadencji. To ograniczenie pomiaru, nie dowód, że czegoś nie było; same wpisy dziennika są osobną, opisową wskazówką, nie licznikiem.\n\nZauważam też, że zapisany priorytet łączy muzykę z bliskimi relacjami i wymienia ryzyko, że przyjemność stanie się obowiązkiem. To dobrze współbrzmi z tym, jak sam opisałeś grę na gitarze: z ciekawości, nie dla wyniku.\n\nKtóry z tych momentów najlepiej oddaje to, co chciałbyś zachować — bez robienia z tego projektu?"
+            }
+          ]
+        }
+      }
+    },
+    "alex": {
+      "proposals": [
+        {
+          "text": "Ceni możliwość wyboru i przyjemność bez narzuconych celów.",
+          "category": "values",
+          "quote": "Cenię możliwość wyboru i przyjemność bez narzuconych celów."
+        },
+        {
+          "text": "Alex.",
+          "category": "identity",
+          "quote": "Jestem Alex."
+        },
+        {
+          "text": "Woli rzadkie notowanie bez codziennego zobowiązania.",
+          "category": "preferences",
+          "quote": "Notuję rzadko i nie chcę codziennego zobowiązania."
+        },
+        {
+          "text": "Woli, by AI pytało, zamiast zakładać, że zna odpowiedź.",
+          "category": "preferences",
+          "quote": "Chcę, żeby AI pytało zamiast zakładać, że wie."
+        }
+      ],
+      "surfaces": {
+        "weekly-reflection": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Jak mogę spojrzeć na ten tydzień bez oceniania siebie? Sprawdź kontekst i przeciwne przykłady."
+            },
+            {
+              "role": "assistant",
+              "text": "Możesz potraktować ten tydzień jako kilka konkretnych doświadczeń, a nie test tego, jaka jesteś/jesteś albo czy „wystarczyło”. W zapisie o rysowaniu: przez chwilę rysowałeś, było to przyjemne, a potem przerwałeś — i jednocześnie nie chciałeś zamieniać tego w codzienny cel. To może być po prostu krótka, przyjemna próba; nie musi być ani sukcesem, ani porażką. W notatce z ćwiczenia pojawia się też myśl, że krótka próba sama w sobie była doświadczeniem, oraz zgoda, by docenić to, co się udało, bez wyciągania ogólnej oceny siebie z jednego zdarzenia. [1][2]\n\nJest też pozytywny przykład ze spotkania: 25 września rozmowa z zespołem była ciekawa i dała Ci energię; osobny zapis odnotowuje satysfakcję po rozmowie. [3][4] Dla równowagi, tydzień wcześniej po spotkaniu trudno Ci było się skupić, ale sam zaznaczyłeś, że nie wiesz, czy chodziło o spotkanie, czy o zły sen. To dobry powód, by nie dopowiadać związku przyczynowego — ani na podstawie trudniejszego, ani lepszego dnia. [5]\n\nMam tu tylko kilka zapisów z tego tygodnia, nie pełny obraz; nie widzę w nich planów ani tygodniowej refleksji, więc nie warto na ich podstawie oceniać wykonania planu. Możesz na chwilę oddzielić: **co wydarzyło się**, **co było przyjemne lub trudne**, i **czego wciąż nie wiesz**. Bez potrzeby notować tego codziennie. Co z tych doświadczeń chciałbyś uznać za ważne, niezależnie od tego, czy trwało długo?\n\n[1] [2]"
+            }
+          ]
+        },
+        "journal": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Pomóż mi zastanowić się nad tym, co jest dla mnie teraz ważne. Nie chcę listy zadań."
+            },
+            {
+              "role": "assistant",
+              "text": "Z tego, co piszesz teraz, ważne wydają się swoboda wyboru, przyjemność i poznawanie nowych rzeczy — bez zamieniania ich w obowiązek. Wcześniej wspominałeś też o przyjaźniach i rysowaniu; przy rysowaniu zapisałeś, że sprawiło Ci przyjemność, choć trwało krótko. To może być coś ważnego, ale nie muszę zakładać, że nadal tak jest. [1][2] A spotkania z zespołem opisywałeś różnie: jedno dodało Ci energii, po innym trudno było Ci się skupić; sam zaznaczyłeś, że nie wiesz, czy wiązało się to ze snem. Nie wyciągałbym z tego prostego wniosku o przyczynie. [3][4]\n\nCo z tego — albo coś zupełnie innego — czujesz jako najważniejsze dla siebie właśnie teraz?"
+            }
+          ]
+        },
+        "monthly-reflection": {
+          "error": null,
+          "messages": [
+            {
+              "role": "user",
+              "text": "Co mogę zauważyć w tym miesiącu, także dobrego? Oddziel to, co wiadomo, od tego, czego brakuje."
+            },
+            {
+              "role": "assistant",
+              "text": "Z tych zapisów wyłania się kilka rzeczy — jako migawki, nie pełny obraz miesiąca.\n\n**Co wiadomo:** rysowanie dało Ci przyjemność, nawet jeśli trwało krótko; pisałeś też, że nie chcesz zamieniać go w codzienny cel. W refleksji tygodniowej pojawia się podobna myśl: poznawać siebie bez presji regularności. [1][2] Doświadczenia ze spotkaniami zespołu były różne: po jednym trudno było Ci się skupić, a późniejsza rozmowa była ciekawa i dodała Ci energii; odnotowałeś też satysfakcję po rozmowie. [3][4][5]\n\n**Czego nie da się stwierdzić:** sam zauważyłeś, że nie wiesz, czy trudność ze skupieniem wiązała się ze spotkaniem, czy ze złym snem. Przy późniejszym spotkaniu wspomniałeś o lepszym śnie poprzedniej nocy, ale te pojedyncze obserwacje nie rozstrzygają, czy sen miał wpływ. Nie wiadomo też, jak te doświadczenia wyglądały w pozostałe dni.\n\nMam niewiele zapisów z września — są głównie z 14–25 września, a miesiąc jeszcze się nie skończył. To raczej kilka uchwyconych chwil niż podstawa do wniosków o stałym wzorcu. Która z tych dobrych chwil — rysowanie czy rozmowa z zespołem — najbardziej zostaje Ci w pamięci?"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -6,11 +6,13 @@ import JournalEditorView from '@/views/JournalEditorView.vue'
 import EmotionLogEditorView from '@/views/EmotionLogEditorView.vue'
 
 const mockRouterPush = vi.fn()
+const mockRouterReplace = vi.fn().mockResolvedValue(undefined)
 const mockRoute = { params: {} as Record<string, unknown> }
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({
     push: mockRouterPush,
+    replace: mockRouterReplace,
   }),
   useRoute: () => mockRoute,
 }))
@@ -52,7 +54,7 @@ const createEmotionStoreMock = () => {
     getEmotionsByQuadrant: vi.fn((quadrant: keyof typeof quadrantEmotions) => {
       return quadrantEmotions[quadrant] ?? []
     }),
-    getEmotionById: vi.fn((id: string) => allEmotions.find((emotion) => emotion.id === id)),
+    getEmotionById: vi.fn((id: string) => allEmotions.find(emotion => emotion.id === id)),
     getScatterCoord: vi.fn(() => undefined),
   }
 }
@@ -83,11 +85,11 @@ const createTagStoreMock = () => {
     },
     loadPeopleTags: vi.fn().mockResolvedValue(undefined),
     loadContextTags: vi.fn().mockResolvedValue(undefined),
-    getPeopleTagById: vi.fn((id: string) => peopleTagsRef.value.find((tag) => tag.id === id)),
-    getContextTagById: vi.fn((id: string) => contextTagsRef.value.find((tag) => tag.id === id)),
+    getPeopleTagById: vi.fn((id: string) => peopleTagsRef.value.find(tag => tag.id === id)),
+    getContextTagById: vi.fn((id: string) => contextTagsRef.value.find(tag => tag.id === id)),
     async createPeopleTag(name: string) {
       const existing = peopleTagsRef.value.find(
-        (tag) => tag.name.toLowerCase() === name.toLowerCase().trim()
+        tag => tag.name.toLowerCase() === name.toLowerCase().trim()
       )
       if (existing) return existing
       const newTag = { id: `people-${peopleTagsRef.value.length + 1}`, name: name.trim() }
@@ -96,7 +98,7 @@ const createTagStoreMock = () => {
     },
     async createContextTag(name: string) {
       const existing = contextTagsRef.value.find(
-        (tag) => tag.name.toLowerCase() === name.toLowerCase().trim()
+        tag => tag.name.toLowerCase() === name.toLowerCase().trim()
       )
       if (existing) return existing
       const newTag = { id: `context-${contextTagsRef.value.length + 1}`, name: name.trim() }
@@ -203,16 +205,18 @@ describe('Component interactions', () => {
 
     await user.click(saveButton)
 
-    expect(mockJournalStore.createEntry).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: undefined,
-        body: 'Today I felt amazing after a morning run.',
-        emotionIds: [],
-        emotionFamilyIds: ['radosc'],
-        emotions: [{ emotionId: 'radosc', intensity: 4 }],
-        peopleTagIds: ['people-1'],
-        contextTagIds: ['context-1'],
-      })
+    await waitFor(() =>
+      expect(mockJournalStore.createEntry).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: undefined,
+          body: 'Today I felt amazing after a morning run.',
+          emotionIds: [],
+          emotionFamilyIds: ['radosc'],
+          emotions: [{ emotionId: 'radosc', intensity: 4 }],
+          peopleTagIds: ['people-1'],
+          contextTagIds: ['context-1'],
+        })
+      )
     )
   })
 

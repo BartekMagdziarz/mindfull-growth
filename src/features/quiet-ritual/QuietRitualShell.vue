@@ -5,6 +5,8 @@
         <AppIcon name="close" />
       </button>
       <span>{{ eyebrow }} <b>·</b> {{ periodTitle }}</span>
+      <!-- Quiet, optional notices (e.g. pending profile proposals) sit next to the save state. -->
+      <slot name="top" />
       <span class="qr-save" role="status">
         <AppIcon :name="saving ? 'sync' : 'check'" />{{ statusLabel }}
       </span>
@@ -20,6 +22,7 @@
       <!-- Saved reflections invite the user to close out goals whose deadline passed (spec D8). -->
       <GoalClosingInvite v-if="finished && closingPeriodEnd" :period-end="closingPeriodEnd" :period-start="closingPeriodStart" />
 
+      <slot name="before-footer" />
       <footer class="qr-footer">
         <button
           type="button"

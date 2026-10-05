@@ -88,7 +88,7 @@ describe('ProfileView (shell)', () => {
     expect(screen.getByRole('tab', { name: 'Account' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Preferences' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Life areas' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Psych. profile' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'AI profile' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'AI assistant' })).toBeInTheDocument()
 
     // Default tab is Preferences — theme picker should be visible.

@@ -201,7 +201,7 @@
     <!-- Input Area -->
     <div class="chat-view__composer p-4">
       <div class="flex justify-end mb-2">
-        <ProfileContextToggle v-model="useProfile" />
+        <ProfileContextToggle v-model="useProfile" scope="journal" />
       </div>
       <div class="flex gap-2 items-end">
         <textarea

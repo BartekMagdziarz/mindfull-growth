@@ -73,7 +73,7 @@ export async function identifyThoughts(params: {
   const prompts = getCbtPrompts(params.locale)
   const context = buildThoughtRecordContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.THOUGHT_RECORD_IDENTIFY_THOUGHTS,
     { useProfile: params.useProfile ?? false },
   )
@@ -102,7 +102,7 @@ export async function findEvidence(params: {
     { role: 'user', content: context },
     ...history,
   ]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.THOUGHT_RECORD_FIND_EVIDENCE,
     { useProfile: params.useProfile ?? false },
   )
@@ -132,7 +132,7 @@ export async function reframeThought(params: {
     { role: 'user', content: context },
     ...history,
   ]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.THOUGHT_RECORD_REFRAME,
     { useProfile: params.useProfile ?? false },
   )
@@ -156,7 +156,7 @@ export async function spotDistortions(params: {
     content += `\n\n${l.contextSituation}: ${params.situation}`
   }
   const messages: ChatMessage[] = [{ role: 'user', content }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.DISTORTION_SPOT_TRAPS,
     { useProfile: params.useProfile ?? false },
   )
@@ -194,7 +194,7 @@ export async function guideCoreBeliefExploration(params: {
     { role: 'user', content: parts.join('\n\n') },
     ...history,
   ]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.CORE_BELIEFS_IDENTIFY,
     { useProfile: params.useProfile ?? false },
   )
@@ -237,7 +237,7 @@ export async function suggestAlternativeBeliefs(params: {
     { role: 'user', content: parts.join('\n\n') },
     ...history,
   ]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.CORE_BELIEFS_ALTERNATIVE,
     { useProfile: params.useProfile ?? false },
   )
@@ -274,7 +274,7 @@ export async function guideCompassionateResponse(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.COMPASSIONATE_LETTER_GUIDE,
     { useProfile: params.useProfile ?? false },
   )
@@ -304,7 +304,7 @@ export async function designBehavioralExperiment(params: {
   parts.push(`${l.confidenceInPrediction}: ${params.predictionConfidence}%`)
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.BEHAVIORAL_EXPERIMENT_DESIGN,
     { useProfile: params.useProfile ?? false },
   )
@@ -331,7 +331,7 @@ export async function brainstormSolutions(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.PROBLEM_SOLVING_BRAINSTORM,
     { useProfile: params.useProfile ?? false },
   )
@@ -365,7 +365,7 @@ export async function evaluateSolutions(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.PROBLEM_SOLVING_EVALUATE,
     { useProfile: params.useProfile ?? false },
   )
@@ -406,7 +406,7 @@ export async function reviewPositiveDataLog(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.POSITIVE_DATA_LOG_REVIEW,
     { useProfile: params.useProfile ?? false },
   )
@@ -440,7 +440,7 @@ export async function suggestActivities(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.BEHAVIORAL_ACTIVATION_SUGGEST,
     { useProfile: params.useProfile ?? false },
   )
@@ -490,7 +490,7 @@ export async function reviewActivationWeek(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.BEHAVIORAL_ACTIVATION_REVIEW,
     { useProfile: params.useProfile ?? false },
   )
@@ -526,7 +526,7 @@ export async function brainstormExposureSteps(params: {
   }
 
   const messages: ChatMessage[] = [{ role: 'user', content: parts.join('\n\n') }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.GRADED_EXPOSURE_BRAINSTORM,
     { useProfile: params.useProfile ?? false },
   )

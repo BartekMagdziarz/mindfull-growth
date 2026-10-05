@@ -8,9 +8,10 @@ const PUBLIC_ROUTES = ['login', 'signup']
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    ...(import.meta.env.DEV && import.meta.env.MODE === 'ai-demo' ? [{ path: '/ai-demo', name: 'ai-demo', component: () => import('@/dev/ai-companion/CompanionDemoView.vue') }] : []),
     {
       path: '/',
-      redirect: '/calendar',
+      redirect: import.meta.env.DEV && import.meta.env.MODE === 'ai-demo' ? '/ai-demo' : '/calendar',
     },
     // Auth routes (public)
     {

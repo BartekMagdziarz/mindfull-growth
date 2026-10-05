@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useUserProfileStore, ProfileBuildError } from '../userProfile.store'
 import { createEmptySections } from '@/domain/userProfile'
 import type { UserProfile, UserProfileScope } from '@/domain/userProfile'
+import { invalidateUserSession, UserSessionChangedError } from '@/services/userSessionScope'
 
 // Mock the repositories
 vi.mock('@/repositories/userProfileDexieRepository', () => ({
@@ -49,9 +50,9 @@ vi.mock('@/services/reflectionDataQueries', () => ({
 
 // Planning snapshot reads from multiple repositories — stub it at the source.
 vi.mock('@/services/profileLLMAssistsHelpers', async () => {
-  const actual = await vi.importActual<
-    typeof import('@/services/profileLLMAssistsHelpers')
-  >('@/services/profileLLMAssistsHelpers')
+  const actual = await vi.importActual<typeof import('@/services/profileLLMAssistsHelpers')>(
+    '@/services/profileLLMAssistsHelpers'
+  )
   return {
     ...actual,
     buildFoundationSnapshot: vi.fn(async () => ({
@@ -80,9 +81,8 @@ vi.mock('@/services/profileLLMAssistsHelpers', async () => {
 // Silence the LLM service — buildProfile calls sendMessage; individual tests
 // replace this mock's return value per scenario.
 vi.mock('@/services/llmService', async () => {
-  const actual = await vi.importActual<
-    typeof import('@/services/llmService')
-  >('@/services/llmService')
+  const actual =
+    await vi.importActual<typeof import('@/services/llmService')>('@/services/llmService')
   return {
     ...actual,
     sendMessage: vi.fn(),
@@ -167,7 +167,7 @@ function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
 }
 
 function mockAISettings(settings?: AIProviderSettings, legacyKey?: string) {
-  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async (key) => {
+  vi.mocked(userSettingsDexieRepository.get).mockImplementation(async key => {
     if (key === AI_PROVIDER_SETTINGS_KEY && settings) {
       return JSON.stringify(settings)
     }
@@ -177,6 +177,26 @@ function mockAISettings(settings?: AIProviderSettings, legacyKey?: string) {
 }
 
 describe('useUserProfileStore', () => {
+  it('does not write the previous account’s profile payload to a build log after switching', async () => {
+    vi.clearAllMocks()
+    mockAISettings(undefined, 'test-key')
+    let resolve!: (value: string) => void
+    vi.mocked(sendMessage).mockReturnValue(
+      new Promise<string>(done => {
+        resolve = done
+      })
+    )
+    const store = useUserProfileStore()
+    const building = store.buildProfile(makeProfile().scope)
+    const rejected = expect(building).rejects.toThrow(UserSessionChangedError)
+    await vi.waitFor(() => expect(sendMessage).toHaveBeenCalledTimes(1))
+    invalidateUserSession()
+    store.reset()
+    resolve('previous account payload')
+    await rejected
+    expect(profileBuildLogDexieRepository.add).not.toHaveBeenCalled()
+    expect(store.isBuilding).toBe(false)
+  })
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
@@ -262,7 +282,7 @@ describe('useUserProfileStore', () => {
       await store.deleteProfile('older')
 
       expect(userProfileDexieRepository.delete).toHaveBeenCalledWith('older')
-      expect(store.profiles.map((p) => p.id)).toEqual(['current'])
+      expect(store.profiles.map(p => p.id)).toEqual(['current'])
     })
 
     it('throws when called on the current profile while older versions exist', async () => {
@@ -274,7 +294,7 @@ describe('useUserProfileStore', () => {
       await store.loadProfiles()
 
       await expect(store.deleteProfile('current')).rejects.toThrow(
-        'Cannot delete the current (most recent) profile while older versions exist',
+        'Cannot delete the current (most recent) profile while older versions exist'
       )
       expect(userProfileDexieRepository.delete).not.toHaveBeenCalled()
       expect(store.profiles).toHaveLength(2)
@@ -327,7 +347,7 @@ describe('useUserProfileStore', () => {
         store.buildProfile({
           ...validScope,
           dataTypes: [],
-        }),
+        })
       ).rejects.toThrow('Scope must include at least one data type')
       // The guard short-circuits before the try/finally log path.
       expect(profileBuildLogDexieRepository.add).not.toHaveBeenCalled()
@@ -442,10 +462,10 @@ describe('useUserProfileStore', () => {
       expect(userPayload).toContain('[LIFE AREAS]')
       expect(userPayload).toContain('[PLANNING SNAPSHOT]')
       expect(userPayload.indexOf('[FOUNDATION SNAPSHOT]')).toBeLessThan(
-        userPayload.indexOf('[LIFE AREAS]'),
+        userPayload.indexOf('[LIFE AREAS]')
       )
       expect(userPayload.indexOf('[LIFE AREAS]')).toBeLessThan(
-        userPayload.indexOf('[PLANNING SNAPSHOT]'),
+        userPayload.indexOf('[PLANNING SNAPSHOT]')
       )
       expect(systemPrompt).toContain('You are a careful, psychologically literate observer')
       expect(systemPrompt).not.toContain('[USER PROFILE]')
@@ -490,11 +510,11 @@ describe('useUserProfileStore', () => {
       const result = await store.buildProfile(validScope)
 
       expect(result.model).toBe('gemma4:e4b')
-      expect(sendMessage).toHaveBeenCalledWith(
-        expect.any(Array),
-        expect.any(String),
-        { maxTokens: 6000, model: 'gemma4:e4b', onDiagnostics: expect.any(Function) },
-      )
+      expect(sendMessage).toHaveBeenCalledWith(expect.any(Array), expect.any(String), {
+        maxTokens: 6000,
+        model: 'gemma4:e4b',
+        onDiagnostics: expect.any(Function),
+      })
       const logPayload = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
       expect(logPayload.model).toBe('gemma4:e4b')
       expect(logPayload.requestBody).toContain('"model":"gemma4:e4b"')
@@ -549,17 +569,15 @@ describe('useUserProfileStore', () => {
         },
         rawMetadata: {},
       }
-      vi.mocked(sendMessage).mockImplementation(
-        async (_messages, _systemPrompt, options) => {
-          // Non-streaming diagnostics fire twice: first without usage, then with.
-          options?.onDiagnostics?.({ ...baseDiagnostics })
-          options?.onDiagnostics?.({
-            ...baseDiagnostics,
-            usage: { prompt_tokens: 4096, completion_tokens: 512, total_tokens: 4608 },
-          })
-          return aWellFormedResponse()
-        },
-      )
+      vi.mocked(sendMessage).mockImplementation(async (_messages, _systemPrompt, options) => {
+        // Non-streaming diagnostics fire twice: first without usage, then with.
+        options?.onDiagnostics?.({ ...baseDiagnostics })
+        options?.onDiagnostics?.({
+          ...baseDiagnostics,
+          usage: { prompt_tokens: 4096, completion_tokens: 512, total_tokens: 4608 },
+        })
+        return aWellFormedResponse()
+      })
 
       const store = useUserProfileStore()
       await store.buildProfile(validScope)
@@ -577,9 +595,7 @@ describe('useUserProfileStore', () => {
       vi.mocked(sendMessage).mockRejectedValue(new Error('network is unreachable'))
 
       const store = useUserProfileStore()
-      await expect(store.buildProfile(validScope)).rejects.toBeInstanceOf(
-        ProfileBuildError,
-      )
+      await expect(store.buildProfile(validScope)).rejects.toBeInstanceOf(ProfileBuildError)
 
       expect(profileBuildLogDexieRepository.add).toHaveBeenCalledTimes(1)
       const payload = vi.mocked(profileBuildLogDexieRepository.add).mock.calls[0][0]
@@ -618,7 +634,7 @@ describe('useUserProfileStore', () => {
     it('classifies a whitespace-only model reply (llmService throw) as code="emptyResponse"', async () => {
       mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockRejectedValue(
-        new Error('Empty response from API. Please try again.'),
+        new Error('Empty response from API. Please try again.')
       )
 
       const store = useUserProfileStore()
@@ -634,7 +650,7 @@ describe('useUserProfileStore', () => {
     it('throws code="emptyResponse" when the response parses to all-empty sections', async () => {
       mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockResolvedValue(
-        'Just some prose with no recognisable headers at all.',
+        'Just some prose with no recognisable headers at all.'
       )
 
       const store = useUserProfileStore()
@@ -688,9 +704,7 @@ describe('useUserProfileStore', () => {
     it('swallows logging failures without masking the build outcome', async () => {
       mockAISettings(undefined, 'sk-test')
       vi.mocked(sendMessage).mockResolvedValue(aWellFormedResponse())
-      vi.mocked(profileBuildLogDexieRepository.add).mockRejectedValue(
-        new Error('log write failed'),
-      )
+      vi.mocked(profileBuildLogDexieRepository.add).mockRejectedValue(new Error('log write failed'))
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const store = useUserProfileStore()
@@ -703,9 +717,7 @@ describe('useUserProfileStore', () => {
 
     it('does not call sendMessage when the scope guard rejects (empty dataTypes)', async () => {
       const store = useUserProfileStore()
-      await expect(
-        store.buildProfile({ ...validScope, dataTypes: [] }),
-      ).rejects.toThrow()
+      await expect(store.buildProfile({ ...validScope, dataTypes: [] })).rejects.toThrow()
       expect(sendMessage).not.toHaveBeenCalled()
     })
   })
@@ -720,7 +732,7 @@ describe('useUserProfileStore', () => {
       const store = useUserProfileStore()
       await store.loadProfiles()
 
-      expect(store.sortedProfiles.map((p) => p.id)).toEqual(['newest', 'middle', 'older'])
+      expect(store.sortedProfiles.map(p => p.id)).toEqual(['newest', 'middle', 'older'])
     })
 
     it('currentProfile returns the newest', async () => {

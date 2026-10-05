@@ -1,3 +1,4 @@
+import { createStoreSessionScope } from '@/services/userSessionScope'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type {
@@ -43,7 +44,7 @@ export class ProfileBuildError extends Error {
   constructor(
     public code: ProfileBuildErrorCode,
     message?: string,
-    public cause?: unknown,
+    public cause?: unknown
   ) {
     super(message ?? code)
     this.name = 'ProfileBuildError'
@@ -59,6 +60,7 @@ export interface BuildProfileResult {
 }
 
 export const useUserProfileStore = defineStore('userProfile', () => {
+  const sessionScope = createStoreSessionScope()
   // ---- State ----
   const profiles = ref<UserProfile[]>([])
   const buildLogs = ref<ProfileBuildLogEntry[]>([])
@@ -68,16 +70,13 @@ export const useUserProfileStore = defineStore('userProfile', () => {
 
   // ---- Computed ----
   const sortedProfiles = computed(() =>
-    [...profiles.value].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [...profiles.value].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   )
 
-  const currentProfile = computed<UserProfile | undefined>(
-    () => sortedProfiles.value[0],
-  )
+  const currentProfile = computed<UserProfile | undefined>(() => sortedProfiles.value[0])
 
   const getById = computed(() => {
-    return (id: string): UserProfile | undefined =>
-      profiles.value.find((p) => p.id === id)
+    return (id: string): UserProfile | undefined => profiles.value.find(p => p.id === id)
   })
 
   const hasProfiles = computed(() => profiles.value.length > 0)
@@ -85,60 +84,90 @@ export const useUserProfileStore = defineStore('userProfile', () => {
   // ---- Actions ----
 
   async function loadProfiles(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      profiles.value = await userProfileDexieRepository.list()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load profiles'
-      console.error('Error loading user profiles:', err)
-    } finally {
-      isLoading.value = false
+      isLoading.value = true
+      error.value = null
+      try {
+        profiles.value = await operation.wait(userProfileDexieRepository.list())
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        error.value = err instanceof Error ? err.message : 'Failed to load profiles'
+        console.error('Error loading user profiles:', err)
+      } finally {
+        if (operation.isCurrent()) {
+          isLoading.value = false
+        }
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
   async function loadBuildLogs(limit = 100): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     try {
-      buildLogs.value = await profileBuildLogDexieRepository.list(limit)
-    } catch (err) {
-      console.warn('Failed to load profile build logs:', err)
+      try {
+        buildLogs.value = await operation.wait(profileBuildLogDexieRepository.list(limit))
+      } catch (err) {
+        if (!operation.isCurrent()) return
+        console.warn('Failed to load profile build logs:', err)
+      }
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
   }
 
-  async function createProfile(
-    payload: CreateUserProfilePayload,
-  ): Promise<UserProfile> {
-    const created = await userProfileDexieRepository.create(payload)
+  async function createProfile(payload: CreateUserProfilePayload): Promise<UserProfile> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const created = await operation.wait(userProfileDexieRepository.create(payload))
     profiles.value = [created, ...profiles.value]
     return created
   }
 
   async function updateProfile(
     id: string,
-    payload: UpdateUserProfilePayload,
+    payload: UpdateUserProfilePayload
   ): Promise<UserProfile> {
-    const updated = await userProfileDexieRepository.update(id, payload)
-    const idx = profiles.value.findIndex((p) => p.id === id)
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    const updated = await operation.wait(userProfileDexieRepository.update(id, payload))
+    const idx = profiles.value.findIndex(p => p.id === id)
     if (idx !== -1) profiles.value[idx] = updated
     return updated
   }
 
   async function deleteProfile(id: string): Promise<void> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     // Protection rule: cannot delete the currently-latest profile
     // if other profiles exist. Story 6 will surface this in UI.
-    const sorted = sortedProfiles.value
-    if (sorted.length > 1 && sorted[0].id === id) {
-      throw new Error(
-        'Cannot delete the current (most recent) profile while older versions exist',
-      )
+    try {
+      const sorted = sortedProfiles.value
+      if (sorted.length > 1 && sorted[0].id === id) {
+        throw new Error(
+          'Cannot delete the current (most recent) profile while older versions exist'
+        )
+      }
+      await operation.wait(userProfileDexieRepository.delete(id))
+      profiles.value = profiles.value.filter(p => p.id !== id)
+    } catch (error) {
+      if (operation.isCurrent()) throw error
     }
-    await userProfileDexieRepository.delete(id)
-    profiles.value = profiles.value.filter((p) => p.id !== id)
   }
 
   async function clearBuildLogs(): Promise<void> {
-    await profileBuildLogDexieRepository.clearAll()
-    buildLogs.value = []
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
+    try {
+      await operation.wait(profileBuildLogDexieRepository.clearAll())
+      buildLogs.value = []
+    } catch (error) {
+      if (operation.isCurrent()) throw error
+    }
   }
 
   /**
@@ -155,9 +184,9 @@ export const useUserProfileStore = defineStore('userProfile', () => {
    *
    * Does NOT persist a `UserProfile`. That is Story 6's job.
    */
-  async function buildProfile(
-    scope: UserProfileScope,
-  ): Promise<BuildProfileResult> {
+  async function buildProfile(scope: UserProfileScope): Promise<BuildProfileResult> {
+    const operation = sessionScope.capture()
+    operation.assertCurrent()
     if (!scope || !Array.isArray(scope.dataTypes) || scope.dataTypes.length === 0) {
       throw new Error('Scope must include at least one data type')
     }
@@ -184,13 +213,10 @@ export const useUserProfileStore = defineStore('userProfile', () => {
     let droppedSummarizedPeriods: ProfileBuildLogEntry['droppedSummarizedPeriods']
 
     try {
-      if (!(await hasAIProviderConfigured())) {
-        throw new ProfileBuildError(
-          'missingApiKey',
-          'AI provider is not configured.',
-        )
+      if (!(await operation.wait(hasAIProviderConfigured()))) {
+        throw new ProfileBuildError('missingApiKey', 'AI provider is not configured.')
       }
-      const aiSettings = await getAIProviderSettings()
+      const aiSettings = await operation.wait(getAIProviderSettings())
       model = aiSettings.model
 
       // Gather, name-resolve, format, budget-trim, and estimate the payload in
@@ -200,14 +226,16 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       // the mandatory snapshot blocks alone can't fit. Resolve the window here
       // and pass it in (the assembler must not import resolveDateRange — cycle).
       const { start, end } = resolveDateRange(scope.dateRange)
-      const assembled = await assembleProfilePayload({
-        dataTypes: scope.dataTypes,
-        start,
-        end,
-        dateRange: scope.dateRange,
-        includedObjectIds: scope.includedObjectIds ?? {},
-        locale: scope.locale,
-      })
+      const assembled = await operation.wait(
+        assembleProfilePayload({
+          dataTypes: scope.dataTypes,
+          start,
+          end,
+          dateRange: scope.dateRange,
+          includedObjectIds: scope.includedObjectIds ?? {},
+          locale: scope.locale,
+        })
+      )
       payload = assembled.text
       droppedByType = assembled.droppedByType
       droppedSummarizedPeriods = assembled.droppedSummarizedPeriods
@@ -223,21 +251,18 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       // the user's psychological profile in its system prompt — using a
       // profile to generate a profile would conflate prior output with new
       // input. Hard-coded false; asserted by test.
-      const finalSystemPrompt = withProfileContextSystemPrompt(
-        promptModule.systemPrompt,
-        { useProfile: false },
+      const finalSystemPrompt = await operation.wait(
+        withProfileContextSystemPrompt(promptModule.systemPrompt, { useProfile: false })
       )
 
-      rawResponse = await sendMessage(
-        [{ role: 'user', content: payload }],
-        finalSystemPrompt,
-        {
+      rawResponse = await operation.wait(
+        sendMessage([{ role: 'user', content: payload }], finalSystemPrompt, {
           maxTokens: PROFILE_MAX_TOKENS,
           model,
-          onDiagnostics: (d) => {
+          onDiagnostics: d => {
             if (d.usage) lastUsage = d.usage
           },
-        },
+        })
       )
 
       const parsed = parseProfileResponse(rawResponse, promptModule)
@@ -247,12 +272,12 @@ export const useUserProfileStore = defineStore('userProfile', () => {
       // or truncated). Surface it as a real error rather than a "successful"
       // empty profile.
       const allSectionsEmpty = Object.values(parsed.sections).every(
-        (text) => text.trim().length === 0,
+        text => text.trim().length === 0
       )
       if (allSectionsEmpty) {
         throw new ProfileBuildError(
           'emptyResponse',
-          'The model returned no recognisable profile sections.',
+          'The model returned no recognisable profile sections.'
         )
       }
 
@@ -264,6 +289,7 @@ export const useUserProfileStore = defineStore('userProfile', () => {
         extras: parsed.extras,
       }
     } catch (err) {
+      operation.assertCurrent()
       // Classify the error before re-throwing so callers can react to
       // typed failure modes without substring matching.
       if (err instanceof ProfileBuildError) {
@@ -287,45 +313,50 @@ export const useUserProfileStore = defineStore('userProfile', () => {
             : 'unknown'
       throw new ProfileBuildError(code, message, err)
     } finally {
-      isBuilding.value = false
-      const latencyMs = Math.round(performance.now() - startedAt)
+      if (operation.isCurrent()) {
+        isBuilding.value = false
+        const latencyMs = Math.round(performance.now() - startedAt)
 
-      // Map the provider's snake_case usage into the build-log's camelCase
-      // shape. For Ollama, `completion_tokens` (eval_count) includes thinking
-      // tokens; `promptTokens` is the calibration gold signal for the estimator.
-      const tokenUsage = lastUsage
-        ? {
-            promptTokens: lastUsage.prompt_tokens ?? 0,
-            completionTokens: lastUsage.completion_tokens ?? 0,
-            totalTokens:
-              lastUsage.total_tokens ??
-              (lastUsage.prompt_tokens ?? 0) + (lastUsage.completion_tokens ?? 0),
-          }
-        : undefined
+        // Map the provider's snake_case usage into the build-log's camelCase
+        // shape. For Ollama, `completion_tokens` (eval_count) includes thinking
+        // tokens; `promptTokens` is the calibration gold signal for the estimator.
+        const tokenUsage = lastUsage
+          ? {
+              promptTokens: lastUsage.prompt_tokens ?? 0,
+              completionTokens: lastUsage.completion_tokens ?? 0,
+              totalTokens:
+                lastUsage.total_tokens ??
+                (lastUsage.prompt_tokens ?? 0) + (lastUsage.completion_tokens ?? 0),
+            }
+          : undefined
 
-      // Best-effort log write — we never let a logging failure mask the
-      // real outcome of the build.
-      try {
-        await profileBuildLogDexieRepository.add({
-          scope,
-          model,
-          requestBody: JSON.stringify({
-            systemPrompt: promptModule.systemPrompt,
-            messages: [{ role: 'user', content: payload }],
-            model,
-            maxTokens: PROFILE_MAX_TOKENS,
-          }),
-          responseBody: success ? rawResponse : (errorMessage ?? 'unknown error'),
-          tokenUsage,
-          estimateBreakdown,
-          droppedByType,
-          droppedSummarizedPeriods,
-          latencyMs,
-          success,
-          errorMessage,
-        })
-      } catch (logErr) {
-        console.warn('Failed to record profile build log entry:', logErr)
+        // Best-effort log write — we never let a logging failure mask the
+        // real outcome of the build.
+        try {
+          await operation.wait(
+            profileBuildLogDexieRepository.add({
+              scope,
+              model,
+              requestBody: JSON.stringify({
+                systemPrompt: promptModule.systemPrompt,
+                messages: [{ role: 'user', content: payload }],
+                model,
+                maxTokens: PROFILE_MAX_TOKENS,
+              }),
+              responseBody: success ? rawResponse : (errorMessage ?? 'unknown error'),
+              tokenUsage,
+              estimateBreakdown,
+              droppedByType,
+              droppedSummarizedPeriods,
+              latencyMs,
+              success,
+              errorMessage,
+            })
+          )
+        } catch (logErr) {
+          operation.assertCurrent()
+          console.warn('Failed to record profile build log entry:', logErr)
+        }
       }
     }
   }
@@ -336,6 +367,7 @@ export const useUserProfileStore = defineStore('userProfile', () => {
    * profile portraits or build history.
    */
   function reset(): void {
+    sessionScope.reset()
     profiles.value = []
     buildLogs.value = []
     isLoading.value = false

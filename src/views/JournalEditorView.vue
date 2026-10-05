@@ -7,6 +7,14 @@
 
     <!-- Editor Content -->
     <template v-else>
+      <details v-if="!isEditMode && savedDrafts.length" class="mg-v2-surface p-3">
+        <summary>Zachowane szkice ({{ savedDrafts.length }})</summary>
+        <div v-for="savedDraft in savedDrafts" :key="savedDraft.id" class="flex flex-wrap gap-2 py-2">
+          <button type="button" class="mg-v2-button mg-v2-button--quiet" @click="resumeDraft(savedDraft.id)">{{ savedDraft.content.title || savedDraft.content.body.slice(0, 60) || 'Rozmowa przy pustym szkicu' }}</button>
+          <button type="button" class="mg-v2-button mg-v2-button--quiet" @click="removeDraft(savedDraft.id)">Usuń szkic</button>
+        </div>
+      </details>
+      <p v-if="draftError" role="alert">{{ draftError }}</p>
       <!-- Timestamp Display/Edit -->
       <div class="flex items-center gap-3">
         <button
@@ -134,6 +142,23 @@
               : 'md:opacity-0 md:translate-x-4 md:pointer-events-none',
           ]"
         >
+          <div class="flex gap-2" aria-label="Sekcje panelu Dziennika">
+            <button type="button" class="mg-v2-button" :aria-pressed="sideSection === 'emotions'" @click="sideSection = 'emotions'">Emocje</button>
+            <button type="button" class="mg-v2-button" :aria-pressed="sideSection === 'ai'" @click="sideSection = 'ai'">AI</button>
+          </div>
+          <ReflectionCompanionPanel
+            v-if="sideSection === 'ai' && draftReady"
+            ref="companionPanel"
+            :key="companionId + ':' + companionDay"
+            surface="journal"
+            :conversation-id="companionId"
+            :journal-entry-id="currentEntry?.id"
+            :period-ref="companionDay"
+            :draft="body"
+            :ritual-context="companionEntryContext"
+            @insert="insertCompanionText"
+          />
+          <div v-show="sideSection === 'emotions'" class="flex flex-col gap-4">
           <section
             class="mg-v2-surface mg-v2-surface--raised-sm px-5 py-4 flex flex-col gap-3"
             :style="emotionCardStyle"
@@ -202,6 +227,7 @@
               </div>
             </section>
           </div>
+          </div>
         </aside>
       </div>
 
@@ -225,6 +251,7 @@
             v-for="session in chatSessionsForEntry"
             :key="session.id"
             :chat-session="session"
+            :show-actions="true"
             @view="handleViewChatSession(session.id)"
             @delete="() => { chatSessionToDelete = session; showDeleteChatDialog = true }"
           />
@@ -353,6 +380,11 @@
 </template>
 
 <script setup lang="ts">
+import ReflectionCompanionPanel from '@/features/ai-companion/ReflectionCompanionPanel.vue'
+import { journalDraftRepository } from '@/repositories/journalDraftRepository'
+import type { JournalDraft } from '@/domain/journalDraft'
+import { getUserDatabase } from '@/services/userDatabase.service'
+import { getPeriodRefsForDate } from '@/utils/periods'
 import { entryDateFromDay } from '@/utils/relativeDay'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -726,6 +758,7 @@ const saveEntry = async (): Promise<JournalEntry> => {
   // (slugi promieni == slugi rodzin). Edycja starego wpisu nadpisuje dawne
   // słowa (`emotionIds`) — świadoma strata przy spłaszczonym katalogu.
   const payload = {
+    companionConversationId: companionId.value,
     title: title.value.trim() || undefined,
     body: body.value.trim(),
     emotionIds: [],
@@ -756,6 +789,11 @@ const saveEntry = async (): Promise<JournalEntry> => {
 }
 
 const resetCreateForm = () => {
+  draftReady.value = false
+  clearTimeout(draftTimer)
+  companionPanel.value?.cancel()
+  draftId.value = crypto.randomUUID()
+  sideSection.value = 'emotions'
   title.value = ''
   body.value = ''
   wheelSelections.value = []
@@ -763,12 +801,18 @@ const resetCreateForm = () => {
   selectedContextTagIds.value = []
   customCreatedAt.value = null
   currentEntry.value = null
+  draftReady.value = true
+  void refreshDrafts()
 }
 
 const handleSave = async () => {
   isSaving.value = true
 
   try {
+    companionPanel.value?.cancel()
+    clearTimeout(draftTimer)
+    await persistDraft()
+    draftReady.value = false
     await saveEntry()
     // In create mode, /journal redirects to /journal/edit (the route we're on),
     // so the component is not remounted. Reset the form for a fresh entry.
@@ -786,11 +830,14 @@ const handleSave = async () => {
     snackbarRef.value?.show(errorMessage)
     console.error('Error saving journal entry:', error)
   } finally {
+    draftReady.value = true
     isSaving.value = false
   }
 }
 
 const handleCancel = () => {
+  clearTimeout(draftTimer)
+  void persistDraft()
   // In create mode the route doesn't change after navigating to /journal,
   // so reset the form locally to clear any in-progress draft.
   if (!isEditMode.value) {
@@ -848,7 +895,11 @@ const startChat = async (intention: ChatIntention, customPrompt?: string) => {
   isStartingChat.value = true
 
   try {
-    // Save entry first
+    // Preserve the draft and bind the new companion alongside the legacy chat.
+    companionPanel.value?.cancel()
+    clearTimeout(draftTimer)
+    await persistDraft()
+    draftReady.value = false
     const savedEntry = await saveEntry()
 
     // Start chat session
@@ -864,6 +915,7 @@ const startChat = async (intention: ChatIntention, customPrompt?: string) => {
     snackbarRef.value?.show(errorMessage)
     console.error('Error starting chat:', error)
   } finally {
+    draftReady.value = true
     isStartingChat.value = false
   }
 }
@@ -932,8 +984,90 @@ const handleEscapeKey = (event: KeyboardEvent) => {
   }
 }
 
+const sideSection = ref<'emotions' | 'ai'>('emotions')
+const companionPanel = ref<InstanceType<typeof ReflectionCompanionPanel> | null>(null)
+const draftRepo = journalDraftRepository()
+const draftId = ref(crypto.randomUUID() as string)
+const draftReady = ref(false), draftError = ref('')
+const savedDrafts = ref<JournalDraft[]>([])
+const companionId = computed(() => currentEntry.value?.companionConversationId ?? `journal:${currentEntry.value?.id ?? draftId.value}`)
+const companionDay = computed(() => getPeriodRefsForDate(customCreatedAt.value ?? currentEntry.value?.createdAt ?? new Date()).day)
+const companionEntryContext = computed(() => JSON.stringify({
+  title: title.value, entryDate: companionDay.value,
+  emotions: wheelSelections.value,
+  people: selectedPeopleTagIds.value.map(id => ({ id, name: tagStore.peopleTags.find(t => t.id === id)?.name ?? id })),
+  contexts: selectedContextTagIds.value.map(id => ({ id, name: tagStore.contextTags.find(t => t.id === id)?.name ?? id })),
+}))
+let draftTimer: ReturnType<typeof setTimeout> | undefined
+let draftWrite: Promise<void> = Promise.resolve()
+function insertCompanionText(text: string) { body.value += `${body.value ? '\n\n' : ''}${text}\n` }
+async function refreshDrafts() {
+  try { savedDrafts.value = (await draftRepo.list()).filter(d => d.id !== draftId.value) }
+  catch { draftError.value = 'Nie udało się wczytać zachowanych szkiców.' }
+}
+function persistDraft() {
+  if (!draftReady.value || currentEntry.value || (!body.value && !title.value && sideSection.value !== 'ai')) return draftWrite
+  const row: JournalDraft = {
+    id: draftId.value,
+    content: { title: title.value, body: body.value, emotions: wheelSelections.value.map(e => ({ ...e })), peopleTagIds: [...selectedPeopleTagIds.value], contextTagIds: [...selectedContextTagIds.value] },
+    entryDate: customCreatedAt.value?.toISOString(), updatedAt: new Date().toISOString(),
+  }
+  draftWrite = draftWrite.then(() => draftRepo.save(row)).catch(() => { draftError.value = 'Nie udało się zachować szkicu lokalnie. Zapisz wpis przed opuszczeniem strony.' })
+  return draftWrite
+}
+async function initializeDraft() {
+  const id = typeof route.query?.draft === 'string' && /^[a-zA-Z0-9_-]{1,200}$/.test(route.query.draft) ? route.query.draft : draftId.value
+  draftId.value = id
+  const saved = await draftRepo.load(id)
+  if (saved) {
+    title.value = saved.content.title ?? ''; body.value = saved.content.body
+    wheelSelections.value = saved.content.emotions ?? []
+    selectedPeopleTagIds.value = saved.content.peopleTagIds ?? []
+    selectedContextTagIds.value = saved.content.contextTagIds ?? []
+    customCreatedAt.value = saved.entryDate ? new Date(saved.entryDate) : null
+  }
+}
+async function resumeDraft(id: string) {
+  companionPanel.value?.cancel()
+  clearTimeout(draftTimer)
+  await persistDraft()
+  draftReady.value = false
+  await router.replace({ query: { ...route.query, draft: id } })
+  await initializeDraft()
+  draftReady.value = true
+  sideSection.value = 'ai'
+  await refreshDrafts()
+}
+async function removeDraft(id: string) {
+  try {
+    await draftRepo.remove(id)
+    // Unsaved drafts have no independent historical source; remove their local dialogue too.
+    await getUserDatabase().companionConversations.delete(`journal:${id}`)
+    await refreshDrafts()
+  } catch { draftError.value = 'Nie udało się usunąć szkicu.' }
+}
+watch([title, body, wheelSelections, selectedPeopleTagIds, selectedContextTagIds, customCreatedAt, sideSection], () => {
+  if (!draftReady.value || isEditMode.value) return
+  clearTimeout(draftTimer)
+  // The URL keeps the draft identity over reloads without creating an empty journal entry.
+  if (route.query?.draft !== draftId.value) void router.replace({ query: { ...route.query, draft: draftId.value } })
+  draftTimer = setTimeout(() => { void persistDraft() }, 400)
+}, { deep: true })
+watch(() => route.params.id, async id => {
+  clearTimeout(draftTimer)
+  companionPanel.value?.cancel()
+  await persistDraft()
+  draftReady.value = false
+  if (typeof id === 'string') await loadEntry(id)
+  else { resetCreateForm(); draftReady.value = false; await initializeDraft() }
+  draftReady.value = true
+})
+
 // Load entry data if in edit mode
 onMounted(async () => {
+  document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleEscapeKey)
+  applyGuidedPromptSeedForCreateMode()
   if (!isEditMode.value) customCreatedAt.value = entryDateFromDay(route.query?.day)
   const dataPromises = [
     ensureEmotionData(),
@@ -944,6 +1078,7 @@ onMounted(async () => {
   if (isEditMode.value && typeof route.params.id === 'string') {
     await loadEntry(route.params.id)
   } else {
+    await initializeDraft()
     applyGuidedPromptSeedForCreateMode()
 
     // Create mode: Auto-focus title input
@@ -953,14 +1088,16 @@ onMounted(async () => {
     }
   }
 
+  draftReady.value = true
+  await refreshDrafts()
   await Promise.all(dataPromises)
 
-  // Add event listeners for dropdown
-      document.addEventListener('click', handleClickOutside)
-      document.addEventListener('keydown', handleEscapeKey)
+
 })
 
 onUnmounted(() => {
+  clearTimeout(draftTimer)
+  void persistDraft()
   // Clean up event listeners
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleEscapeKey)
@@ -968,6 +1105,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+:global(main:has(.journal-v2)) { min-width: 0; }
 /* The v2 root's min-width/canvas background are meant for full-viewport
    workspaces; this view is a centered column inside AppShell. */
 .journal-v2 {

@@ -28,14 +28,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { liveQuery } from 'dexie'
+import type { ProfileScope } from '@/domain/approvedProfile'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import { profileContextAvailable } from '@/services/userContext'
 import { useT } from '@/composables/useT'
 
-defineProps<{ modelValue: boolean }>()
+const props = defineProps<{ modelValue: boolean; scope?: ProfileScope }>()
 defineEmits<{ (e: 'update:modelValue', value: boolean): void }>()
 
 const { t } = useT()
-const available = computed(() => profileContextAvailable())
+const available = ref(false)
+let subscription: { unsubscribe: () => void } | undefined
+onMounted(() => {
+  subscription = liveQuery(() => profileContextAvailable(props.scope)).subscribe({ next: value => { available.value = value }, error: () => { available.value = false } })
+})
+onBeforeUnmount(() => subscription?.unsubscribe())
 </script>

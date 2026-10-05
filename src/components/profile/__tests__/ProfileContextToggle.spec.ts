@@ -1,113 +1,28 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createPinia, setActivePinia } from 'pinia'
-import { fireEvent, render, screen } from '@testing-library/vue'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import ProfileContextToggle from '../ProfileContextToggle.vue'
-import { useUserProfileStore } from '@/stores/userProfile.store'
-import type { ProfileSections, UserProfile } from '@/domain/userProfile'
-
-function emptySections(): ProfileSections {
-  return {
-    summary: '',
-    values: '',
-    emotionalPatterns: '',
-    strengths: '',
-    challenges: '',
-    relationships: '',
-    themes: '',
-    recentArc: '',
-    suggestedDirections: '',
-  }
-}
-
-function makeProfile(overrides: Partial<ProfileSections> = {}): UserProfile {
-  return {
-    id: 'p1',
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-    scope: {
-      dataTypes: [],
-      dateRange: { kind: 'preset', preset: 'last90' },
-      filters: {},
-      includedObjectIds: {},
-      approxTokenCount: 0,
-      locale: 'en',
-      grammaticalGender: 'masculine',
-    },
-    sections: { ...emptySections(), ...overrides },
-    rawResponse: '',
-    model: 'test-model',
-  }
-}
-
+import { approvedProfileRepository } from '@/repositories/approvedProfileRepository'
+import { blankProfileContent } from '@/domain/approvedProfile'
+import { getTestDatabase } from '@/test/testDatabase'
+beforeEach(async () => {
+  for (const table of getTestDatabase().tables) await table.clear()
+})
 describe('ProfileContextToggle', () => {
-  beforeEach(() => {
-    setActivePinia(createPinia())
+  it('appears after an approved profile is saved and disappears after it is ended', async () => {
+    const { container } = render(ProfileContextToggle, { props: { modelValue: true, scope: 'journal' } })
+    expect(container.querySelector('button')).toBeNull()
+    const repo = approvedProfileRepository(),
+      content = { ...blankProfileContent(), text: 'Lubię konkretne pytania.', scope: 'journal' as const }
+    const item = await repo.save(content)
+    expect(await screen.findByRole('button')).toHaveAttribute('aria-pressed', 'true')
+    await repo.save(content, item.id, item.version, 'ended')
+    await waitFor(() => expect(container.querySelector('button')).toBeNull())
   })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
-  it('renders nothing when no profile is available', () => {
-    const profileStore = useUserProfileStore()
-    profileStore.profiles = []
-
-    const { container } = render(ProfileContextToggle, {
-      props: { modelValue: true },
-    })
-
-    expect(container.querySelector('[data-test-profile-context-toggle]')).toBeNull()
-  })
-
-  it('renders the toggle button when a profile exists', () => {
-    const profileStore = useUserProfileStore()
-    profileStore.profiles = [makeProfile({ summary: 'S' })]
-
-    render(ProfileContextToggle, {
-      props: { modelValue: true },
-    })
-
-    const button = screen.getByRole('button')
-    expect(button).toBeInTheDocument()
-    expect(button).toHaveAttribute('aria-pressed', 'true')
-  })
-
-  it('reflects the off state via aria-pressed and label', () => {
-    const profileStore = useUserProfileStore()
-    profileStore.profiles = [makeProfile({ summary: 'S' })]
-
-    render(ProfileContextToggle, {
-      props: { modelValue: false },
-    })
-
-    const button = screen.getByRole('button')
-    expect(button).toHaveAttribute('aria-pressed', 'false')
-  })
-
-  it('emits update:modelValue with the inverted value when clicked', async () => {
-    const profileStore = useUserProfileStore()
-    profileStore.profiles = [makeProfile({ summary: 'S' })]
-
-    const { emitted } = render(ProfileContextToggle, {
-      props: { modelValue: true },
-    })
-
-    await fireEvent.click(screen.getByRole('button'))
-
-    expect(emitted('update:modelValue')).toBeTruthy()
-    expect(emitted('update:modelValue')![0]).toEqual([false])
-  })
-
-  it('emits true when clicked from the off state', async () => {
-    const profileStore = useUserProfileStore()
-    profileStore.profiles = [makeProfile({ summary: 'S' })]
-
-    const { emitted } = render(ProfileContextToggle, {
-      props: { modelValue: false },
-    })
-
-    await fireEvent.click(screen.getByRole('button'))
-
-    expect(emitted('update:modelValue')![0]).toEqual([true])
+  it.each([true, false])('emits the inverse of %s without modifying the profile', async enabled => {
+    await approvedProfileRepository().save({ ...blankProfileContent(), text: 'Mój profil' })
+    const { emitted } = render(ProfileContextToggle, { props: { modelValue: enabled } })
+    await fireEvent.click(await screen.findByRole('button'))
+    expect(emitted('update:modelValue')![0]).toEqual([!enabled])
+    expect((await approvedProfileRepository().snapshot()).items).toHaveLength(1)
   })
 })

@@ -180,7 +180,7 @@ export async function synthesizeThreePathways(params: {
   const prompts = getLogotherapyPrompts(params.locale)
   const context = buildThreePathwaysContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.THREE_PATHWAYS_SYNTHESIS,
     { useProfile: params.useProfile ?? false },
   )
@@ -202,7 +202,7 @@ export async function synthesizeMountainRange(params: {
   const prompts = getLogotherapyPrompts(params.locale)
   const context = buildMountainRangeContext(params, prompts.labels)
   const messages: ChatMessage[] = [{ role: 'user', content: context }]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.MOUNTAIN_RANGE_SYNTHESIS,
     { useProfile: params.useProfile ?? false },
   )
@@ -227,7 +227,7 @@ export async function craftParadoxicalIntention(params: {
     ...(params.previousMessages ?? []),
     { role: 'user' as const, content: context },
   ]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.PARADOXICAL_INTENTION_CRAFT,
     { useProfile: params.useProfile ?? false },
   )
@@ -250,7 +250,7 @@ export async function reframeAttitudinalShift(params: {
     ...(params.previousMessages ?? []),
     { role: 'user' as const, content: context },
   ]
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.ATTITUDINAL_SHIFT_REFRAME,
     { useProfile: params.useProfile ?? false },
   )
@@ -298,7 +298,7 @@ export async function socraticDialogueTurn(params: {
     messages[0] = { role: 'user', content: `${contextPreamble}\n\n${params.userMessage}` }
   }
 
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     baseSystemPrompt,
     { useProfile: params.useProfile ?? false },
   )
@@ -330,7 +330,7 @@ export async function tragicOptimismTurn(params: {
     messages.push({ role: 'user', content: `${context}\n\n${params.userMessage}` })
   }
 
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     baseSystemPrompt,
     { useProfile: params.useProfile ?? false },
   )
@@ -361,7 +361,7 @@ export async function legacyLetterDiscuss(params: {
     messages.push({ role: 'user', content: `${context}\n\n${params.userMessage}` })
   }
 
-  const systemPrompt = withProfileContextSystemPrompt(
+  const systemPrompt = await withProfileContextSystemPrompt(
     prompts.LEGACY_LETTER_DISCUSS,
     { useProfile: params.useProfile ?? false },
   )
